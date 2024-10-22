@@ -1,0 +1,20 @@
+const script = await import(/* webpackIgnore: true */'../../../../../../script.js');
+const extensions = await import(/* webpackIgnore: true */'../../../../extensions.js');
+const chats = await import(/* webpackIgnore: true */'../../../../chats.js');
+const rossAscends = await import(/* webpackIgnore: true */'../../../../RossAscends-mods.js');
+
+export const extension_settings = extensions['extension_settings']
+export const getContext = extensions['getContext']
+export const saveSettingsDebounced = script['saveSettingsDebounced']
+export const eventSource = script['eventSource']
+export const event_types = script['event_types']
+export const chat = script['chat']
+export const extractMessageBias = script['extractMessageBias']
+export const removeMacros = script['removeMacros']
+export const saveChatConditional = script['saveChatConditional']
+export const sendMessageAsUser = script['sendMessageAsUser']
+export const substituteParams = script['substituteParams']
+export const updateMessageBlock = script['updateMessageBlock']
+export const addOneMessage = script['addOneMessage']
+export const hideChatMessageRange = chats['hideChatMessageRange']
+export const getMessageTimeStamp = rossAscends['getMessageTimeStamp']
