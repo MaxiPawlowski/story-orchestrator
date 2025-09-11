@@ -55,7 +55,6 @@ const ThinkingSettings = () => {
   };
 
   const onRegexpToSanitizeChanged = (event) => {
-    console.log("onRegexpToSanitizeChanged", event.target.value);
     const regexpToSanitize = event.target.value;
     settings.regexp_to_sanitize = regexpToSanitize;
     setRegexpToSanitize(regexpToSanitize);
@@ -63,7 +62,6 @@ const ThinkingSettings = () => {
   };
 
   const onMaxThoughtsInPromptInput = (event) => {
-    console.log("onMaxThoughtsInPromptInput", event.target.value);
     const value = Number(event.target.value);
     if (!Number.isInteger(value) || value < 0) {
       return;
@@ -75,14 +73,11 @@ const ThinkingSettings = () => {
   };
 
   const reloadCharacters = () => {
-    console.log("reloadCharacters");
     const { characters } = getContext();
-    console.log("reloadCharacters", characters);
     setCharacterList(characters);
   };
 
   const onExcludedCharactersChange = (event) => {
-    console.log("onExcludedCharactersChange", event.target.selectedOptions);
     const excludedCharacters = Array.from(event.target.selectedOptions);
     settings.excluded_characters = excludedCharacters.map(
       (option) => option.value
@@ -92,7 +87,6 @@ const ThinkingSettings = () => {
   };
 
   const onPromptItemAdd = () => {
-    console.log("onPromptItemAdd");
     const promptsCount = settings.thinking_prompts.length;
     const id =
       promptsCount > 0 ? settings.thinking_prompts[promptsCount - 1].id + 1 : 0;
@@ -103,7 +97,6 @@ const ThinkingSettings = () => {
   };
 
   function onPromptItemInput(event) {
-    console.log("onPromptItemInput", event);
     const id = Number(event.target.getAttribute("data-id"));
 
     const value = event.target.value;
@@ -116,9 +109,7 @@ const ThinkingSettings = () => {
   }
 
   function onPromptItemRemove(event) {
-    console.log("onPromptItemRemove", event);
     const id = Number(event.target.getAttribute("data-id"));
-    console.log("onPromptItemRemove", id);
 
     settings.thinking_prompts = settings.thinking_prompts.filter(
       (item) => item.id !== id

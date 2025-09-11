@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0",
+  "title": "The Lost Artifact",
+  "checkpoints": [
+    {
+      "id": "tavern_mission",
+      "name": "Tavern Mission",
+      "objective": "Go to the tavern and speak with the tavernkeeper to get your mission.",
+      "win_trigger": {
+        "pattern": "accept the quest|accept the mission|I'll do it|I accept",
+        "flags": "i"
+      },
+      "fail_trigger": {
+        "pattern": "refuse|decline|not interested|no way",
+        "flags": "i"
+      },
+      "on_activate": {
+        "world_info": {
+          "activate": ["tavern_info", "quest_giver_info"]
+        }
+      }
+    },
+    {
+      "id": "find_artifact",
+      "name": "Find the Artifact",
+      "objective": "Travel to the ancient ruins and retrieve the lost artifact.",
+      "win_trigger": {
+        "pattern": "retrieves? the artifact|picks? up the artifact|artifact has been found",
+        "flags": "i"
+      },
+      "fail_trigger": {
+        "pattern": "give up|can't find|fail to find|leave without artifact",
+        "flags": "i"
+      },
+      "on_activate": {
+        "world_info": {
+          "activate": ["artifact_info", "artifact_location_info"],
+          "deactivate": ["tavern_info", "quest_giver_info"]
+        }
+      }
+    },
+    {
+      "id": "return_to_tavern",
+      "name": "Return to Tavern",
+      "objective": "Bring the artifact back to the tavern and deliver it to the quest giver to complete your mission.",
+      "win_trigger": {
+        "pattern": "returns? to the tavern|back to the tavern|hands? over the artifact|quest complete",
+        "flags": "i"
+      },
+      "fail_trigger": {
+        "pattern": "keeps? the artifact|does not return|doesn't return",
+        "flags": "i"
+      },
+      "on_activate": {
+        "world_info": {
+          "activate": ["tavern_info", "quest_return_info"],
+          "deactivate": ["artifact_info", "artifact_location_info"]
+        }
+      }
+    }
+  ]
+}

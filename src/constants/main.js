@@ -1,5 +1,9 @@
-import { extension_settings } from "../services/SillyTavernAPI.js";
-import { defaultCommonSettings, defaultExcludedCharacterSettings, defaultThinkingPromptSettings } from "./thinking.js";
+import { extension_settings } from "../services/SillyTavernAPI";
+import {
+  defaultCommonSettings,
+  defaultExcludedCharacterSettings,
+  defaultThinkingPromptSettings,
+} from "./thinking.js";
 
 export const extensionName = "story-driver";
 export const extensionFolder = `scripts/extensions/third-party/${extensionName}`;
@@ -13,4 +17,3 @@ extension_settings[extensionName] = {
   ...defaultExcludedCharacterSettings,
   // ...extension_settings[extensionName],
 };
-

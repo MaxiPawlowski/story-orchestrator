@@ -1,0 +1,93 @@
+#drawer-manager {
+  overflow-y: auto;
+  max-width: 90dvw;
+  max-height: 90dvh;
+  min-width: 100px;
+  min-height: 100px;
+  border-radius: 10px;
+  border: 1px solid var(--SmartThemeBorderColor);
+  position: fixed;
+  padding: 10px;
+  padding-top: 10px;
+  padding-top: 25px;
+  display: none;
+  flex-direction: column;
+  box-shadow: 0 0 10px var(--black70a);
+  z-index: 4000;
+  left: 0;
+  top: 0;
+  margin: 0;
+  right: unset;
+  width: calc(((100dvw - var(--sheldWidth)) / 2) - 1px);
+
+  &.pinnedOpen {
+    display: flex;
+  }
+
+
+
+
+  .status-indicator {
+    border-radius: 100%;
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+
+    &.red {
+      background-color: red;
+    }
+
+    &.green {
+      background-color: green;
+    }
+
+    &.yellow {
+      background-color: yellow;
+    }
+
+    &.blue {
+      background-color: blue;
+    }
+  }
+
+
+  .tab-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+
+  .tab-button {
+    color: var(--SmartThemeActiveColor, #d1d1d1);
+    background-color: var(--SmartThemeBodyActiveColor, #333);
+    border: 1px solid var(--SmartThemeBorderColor);
+    border-radius: 5px;
+    padding: 4px 6px;
+    cursor: pointer;
+    transition: border-color 0.3s, color 0.3s, transform 0.3s;
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  .tab-button:hover {
+    border-color: var(--SmartThemeHoverColor, #e0e0e0);
+  }
+
+  .tab-button.active {
+    color: var(--SmartThemeActiveColor, #d1d1d1);
+    background-color: var(--SmartThemeBodyActiveColor, #333);
+    font-weight: 600;
+    transform: scale(1.05);
+    border-color: transparent;
+    outline: none;
+    box-shadow: 0 0 0 1px var(--SmartThemeBorderColor);
+  }
+
+
+
+  .requirements-reload {
+    cursor: pointer;
+    margin-left: 10px;
+  }
+
+}

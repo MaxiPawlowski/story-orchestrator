@@ -12,7 +12,7 @@ import {
   chat,
   addOneMessage,
   saveChatConditional,
-} from "../services/SillyTavernAPI.js";
+} from "../services/SillyTavernAPI";
 import { debounce } from "../utils/index.js";
 
 class SteppedThinkingService {
@@ -309,7 +309,6 @@ class SteppedThinkingService {
   };
 }
 const service = SteppedThinkingService.getInstance();
-console.log("useSteppedThinkingPlugin EVENT LISTENERS ADDED");
 
 eventSource.on(
   event_types.GENERATION_STOPPED,
