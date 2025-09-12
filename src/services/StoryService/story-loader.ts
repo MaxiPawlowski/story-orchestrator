@@ -1,30 +1,26 @@
 import { parseAndNormalizeStory, formatZodError, CheckpointResult } from "@services/SchemaService/story-validator";
 
-// accept keys like "./0.json", "0.json", "/src/checkpoints/0.json", etc.
 const isNumericJson = (p: string) => /(\d+)\.json$/.test(p);
 const numericKey = (p: string) => {
   const m = p.match(/(\d+)\.json$/);
   return m ? parseInt(m[1], 10) : NaN;
 };
 
-// Best-effort detection of the bundle's base URL so we can fetch
-// sibling assets (like ./checkpoints/*.json) at runtime.
+
 const getBundleBaseUrl = (): string => {
   try {
-    // @ts-ignore - import.meta may exist in webpack 5
     if (typeof import.meta !== "undefined" && (import.meta as any).url) {
-      // new URL('.', url) yields a trailing slash base URL
       // eslint-disable-next-line no-new
       return new URL(".", (import.meta as any).url).toString();
     }
-  } catch (_e) { /* ignore */ }
+  } catch (_e) { }
   try {
     const script = (document.currentScript as HTMLScriptElement | null);
     if (script?.src) {
       return new URL(".", script.src).toString();
     }
-  } catch (_e) { /* ignore */ }
-  return "./"; // fallback; relative to page (may not work if extensions aren't at root)
+  } catch (_e) { }
+  return "./";
 };
 
 // Optional: load via a manifest at dist/checkpoints/manifest.json
@@ -46,7 +42,7 @@ const fetchManifestModules = async (): Promise<Record<string, any> | null> => {
         const jr = await fetch(url, { cache: "no-cache" });
         if (!jr.ok) continue;
         out[name.replace(/^\.\//, "")] = { default: await jr.json() };
-      } catch { /* ignore */ }
+      } catch { }
     }
     return Object.keys(out).length ? out : null;
   } catch {
@@ -54,8 +50,6 @@ const fetchManifestModules = async (): Promise<Record<string, any> | null> => {
   }
 };
 
-// Runtime fallback: probe for numeric checkpoint files under ./checkpoints
-// next to the built bundle. This is only used if bundler-driven imports are unavailable.
 const fetchRuntimeCheckpoints = async (
   options?: { max?: number; stopAfterMisses?: number }
 ): Promise<Record<string, any> | null> => {
@@ -73,7 +67,7 @@ const fetchRuntimeCheckpoints = async (
       if (!res.ok) { misses++; continue; }
       const json = await res.json();
       found[`${i}.json`] = { default: json };
-      misses = 0; // reset streak when we find one
+      misses = 0;
     } catch (_e) {
       misses++;
     }
@@ -85,11 +79,10 @@ const fetchRuntimeCheckpoints = async (
 const loadJsons = async () => {
   let modules: Record<string, any> | null = null;
 
-  // 1) Try Webpack's require.context using a static call so Webpack includes the files at build time
   try {
-    // @ts-ignore - allow webpack to statically analyze this call
+    // @ts-ignore
     if (typeof (require as any) === "function" && typeof (require as any).context === "function") {
-      // @ts-ignore - require.context is compiled by webpack; use the alias so webpack resolves it statically
+      // @ts-ignore
       const req = (require as any).context("@checkpoints", false, /^\d+\.json$/);
       modules = {};
       req.keys().forEach((k: string) => {
@@ -97,14 +90,8 @@ const loadJsons = async () => {
       });
     }
   } catch (_e) {
-    // ignore and fall through to other strategies
   }
 
-  // Simplified: skip non-webpack bundler tricks to keep logic minimal
-
-  // Drop globalThis hacks; go straight to runtime fetch
-
-  // 4) Final fallback: fetch from the built output alongside index.js
   if (!modules) {
     modules = await fetchManifestModules().catch(() => null);
   }
@@ -131,7 +118,7 @@ const loadJsons = async () => {
 
   for (const key of entries) {
     try {
-      const json = modules![key].default ?? modules![key]; // eager modules often expose .default
+      const json = modules![key].default ?? modules![key];
       const normalized = parseAndNormalizeStory(json);
 
       console.log(`✓ ${key} validated`, normalized);

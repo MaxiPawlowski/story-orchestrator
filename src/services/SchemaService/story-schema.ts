@@ -1,10 +1,8 @@
 import { z } from "zod";
 
-/** Roles you can target with per-role settings */
 export const RoleEnum = z.enum(["dm", "companion", "chat"]);
 export type Role = z.infer<typeof RoleEnum>;
 
-/** Regex as plain string, `/wrapped/flags`, or an object */
 export const RegexSpecSchema = z.union([
   z.string().min(1),
   z.object({
@@ -25,13 +23,11 @@ export const WorldInfoActivationsSchema = z.object({
 
 export type WorldInfoActivations = z.infer<typeof WorldInfoActivationsSchema>;
 
-/** Accept single string or per-role map */
 const AuthorsNoteSchema = z.union([
   z.string().min(1),
   z.record(RoleEnum, z.string().min(1)),
 ]);
 
-/** Per-role CFG scales (only provided roles are applied) */
 const CfgScaleSchema = z.record(RoleEnum, z.number().min(0.1).max(50));
 
 export const OnActivateSchema = z.object({
@@ -59,7 +55,6 @@ export const StoryFileSchema = z.object({
   roles: z.object({ dm: z.string().min(1).optional(), companion: z.string().min(1).optional() }).optional(),
   checkpoints: z.array(CheckpointSchema).min(1),
 }).superRefine((val, ctx) => {
-  // ensure unique checkpoint ids
   const seen = new Set<string | number>();
   for (const [i, cp] of val.checkpoints.entries()) {
     const key = cp.id;

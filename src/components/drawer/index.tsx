@@ -37,18 +37,61 @@ const tabs = {
 
 const DrawerWrapper = () => {
   const [activeTab, setActiveTab] = useState(tabs.requirements);
+  const [isOpen, setIsOpen] = useState(true);
+  const [isMinimized, setIsMinimized] = useState(false);
+
+  if (!isOpen) {
+    return null;
+  }
 
   return (
-    <div className="">
-      <TabSelector
-        tabs={Object.values(tabs)}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
-      {activeTab === tabs.requirements && <Requirements />}
-      {/* {activeTab === tabs.lore && <LoreManager />} */}
-      {/* {activeTab === tabs.objetives && <Objetives />} */}
-      {activeTab === tabs.checkpoints && <Checkpoints />}
+    <div className="rounded">
+      <div className="flex items-center justify-between px-3 py-2">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">Story Drawer</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            aria-label={isMinimized ? 'Restore' : 'Minimize'}
+            title={isMinimized ? 'Restore' : 'Minimize'}
+            className="px-2 py-1 text-sm rounded border bg-transparent"
+            onClick={() => setIsMinimized((s) => !s)}
+          >
+            {isMinimized ? '▢' : '▁'}
+          </button>
+
+          <button
+            type="button"
+            aria-label="Close"
+            title="Close"
+            className="px-2 py-1 text-sm rounded border bg-transparent"
+            onClick={() => setIsOpen(false)}
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <div className="p-2">
+        {!isMinimized && (
+          <>
+            <TabSelector
+              tabs={Object.values(tabs)}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+            />
+
+            <div className="mt-3">
+              {activeTab === tabs.requirements && <Requirements />}
+              {/* {activeTab === tabs.lore && <LoreManager />} */}
+              {/* {activeTab === tabs.objetives && <Objetives />} */}
+              {activeTab === tabs.checkpoints && <Checkpoints />}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };

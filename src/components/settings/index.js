@@ -1,6 +1,3 @@
-import ThinkingSettings from "./ChainOfThought/index.js";
-import LoreManagerSettings from "./LoreManager/index.js";
-
 const SettingsWrapper = () => {
   return (
     <div id="stepthink_settings">
@@ -9,8 +6,8 @@ const SettingsWrapper = () => {
           <b>Project Story</b>
           <div className="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
         </div>
-        <ThinkingSettings />
-        <LoreManagerSettings />
+        {/* <ThinkingSettings />
+        <LoreManagerSettings /> */}
       </div>
     </div>
   );

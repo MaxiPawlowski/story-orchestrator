@@ -8,7 +8,7 @@ import {
   setAuthorsNoteForCharacter,
   updateWorldInfoEntries,
 } from "@services/SillyTavernAPI";
-import { roleCFGRouter } from "@services/RoleCFGRouter";
+import { roleCFGRouter } from "services/PresetService";
 import type { Role } from "@services/SchemaService/story-schema";
 import type { NormalizedStory, NormalizedOnActivate } from "@services/SchemaService/story-validator";
 

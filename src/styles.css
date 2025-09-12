@@ -1,3 +1,16 @@
+@reference "tailwindcss";
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply text-base;
+  }
+}
+
 #drawer-manager {
   overflow-y: auto;
   max-width: 90dvw;

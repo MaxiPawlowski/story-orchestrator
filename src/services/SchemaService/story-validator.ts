@@ -8,7 +8,6 @@ import {
   CheckpointSchema, type Checkpoint,
 } from "./story-schema";
 
-// Normalized, runtime-friendly types
 export interface NormalizedWorldInfo {
   activate: string[];
   deactivate: string[];
@@ -16,7 +15,7 @@ export interface NormalizedWorldInfo {
 }
 
 export interface NormalizedOnActivate {
-  authors_note?: Partial<Record<Role, string>>; // string expanded into { chat: ... }
+  authors_note?: Partial<Record<Role, string>>;
   cfg_scale?: Partial<Record<Role, number>>;
   world_info?: NormalizedWorldInfo;
 }
@@ -42,10 +41,8 @@ export type CheckpointResult =
   | { file: string; ok: true; json: NormalizedStory }
   | { file: string; ok: false; error: unknown };
 
-// helpers
 const REGEX_FROM_SLASHES = /^\/([\s\S]*)\/([dgimsuvy]*)$/;
 
-// normalize a RegexSpec into pattern/flags
 function normalizeRegexSpec(spec: RegexSpec, defaultFlags = "i"): { pattern: string; flags?: string } {
   if (typeof spec === "string") {
     const m = spec.match(REGEX_FROM_SLASHES);
@@ -72,7 +69,6 @@ function dedupeOrdered<T>(arr: T[]): T[] {
   return out;
 }
 
-/** Expand a string A/N into a per-role map (chat=...) */
 function normalizeAuthorsNote(input?: OnActivate["authors_note"]): Partial<Record<Role, string>> | undefined {
   if (!input) return undefined;
   if (typeof input === "string") return { chat: input };
@@ -80,7 +76,6 @@ function normalizeAuthorsNote(input?: OnActivate["authors_note"]): Partial<Recor
   return input;
 }
 
-/** Clamp CFG to safe-ish range without being opinionated */
 function normalizeCfgScale(input?: OnActivate["cfg_scale"]): Partial<Record<Role, number>> | undefined {
   if (!input) return undefined;
   const out: Partial<Record<Role, number>> = {};
@@ -104,8 +99,7 @@ function normalizeWorldInfo(input?: unknown): NormalizedWorldInfo | undefined {
   };
 }
 
-// public API
-// Validate shape only (throws ZodError on failure)
+
 export function validateStoryShape(input: unknown): StoryFile {
   return StoryFileSchema.parse(input);
 }
@@ -115,11 +109,9 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
   const story = validateStoryShape(input);
 
   const checkpoints: NormalizedCheckpoint[] = story.checkpoints.map((cp, idx) => {
-    // compile regexes
     const winTrigger = compileRegex(cp.win_trigger, `checkpoints[${idx}].win_trigger`);
     const failTrigger = cp.fail_trigger ? compileRegex(cp.fail_trigger, `checkpoints[${idx}].fail_trigger`) : undefined;
 
-    // normalize on_activate
     const on: NormalizedOnActivate | undefined = cp.on_activate
       ? {
         authors_note: normalizeAuthorsNote(cp.on_activate.authors_note),
@@ -138,7 +130,6 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
     };
   });
 
-  // build id index for O(1) lookup
   const checkpointIndexById = new Map<string | number, number>();
   checkpoints.forEach((c, i) => checkpointIndexById.set(c.id, i));
 
@@ -151,7 +142,6 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
   };
 }
 
-// Pretty-print Zod issues
 export function formatZodError(e: unknown): string[] {
   if (!(e instanceof z.ZodError)) return [String(e)];
   return e.issues.map((iss) => `${iss.path.join(".") || "(root)"}: ${iss.message}`);

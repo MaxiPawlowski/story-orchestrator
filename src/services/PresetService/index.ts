@@ -5,7 +5,7 @@ import { eventSource, event_types, setChatCFGScale } from "@services/SillyTavern
  * Keeps per-character CFG and switches the chat CFG to match the active speaker.
  * Best: pre-generation interceptor. Fallback: after assistant message (affects next turn).
  */
-class RoleCFGRouter {
+class PresetService {
   private map = new Map<string, number>();
   private installed = false;
 
@@ -45,4 +45,4 @@ class RoleCFGRouter {
   }
 }
 
-export const roleCFGRouter = new RoleCFGRouter();
+export const roleCFGRouter = new PresetService();

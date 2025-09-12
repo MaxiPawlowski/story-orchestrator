@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import RequirementIndicator from "../../common/RequirementIndicator";
 import { event_types, eventSource, getContext, powerUser } from "../../../services/SillyTavernAPI";
-import useWorldLore from "../../../hooks/useWorldLore";
+// import useWorldLore from "../../../hooks/useWorldLore";
 
 const Requirements = () => {
-  useWorldLore();
+  // useWorldLore();
   const [currentUserName, setCurrentUserName] = useState("");
   const [personaStatus, setPersonaStatus] = useState("green");
   const [groupChatStatus, setGroupChatStatus] = useState("red");
