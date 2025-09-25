@@ -28,6 +28,28 @@ const worldInfo = await import(
   /* webpackIgnore: true */ "../../../../world-info.js"
 );
 
+const textgen_settings = await import(
+  // @ts-ignore
+  /* webpackIgnore: true */ "../../../../textgen-settings.js"
+);
+
+const logit_bias = await import(
+  // @ts-ignore
+  /* webpackIgnore: true */ "../../../../logit-bias.js"
+);
+
+export const BIAS_CACHE = logit_bias["BIAS_CACHE"];
+export const displayLogitBias = logit_bias["displayLogitBias"];
+export const setLogitBias = logit_bias["setLogitBias"];
+
+export const textgen_settings_data = textgen_settings["textgen_settings_data"];
+export const tgSettings = textgen_settings["textgenerationwebui_settings"];
+export const tgPresetObjs = textgen_settings["textgenerationwebui_presets"];
+export const tgPresetNames = textgen_settings["textgenerationwebui_preset_names"];
+export const TG_SETTING_NAMES = textgen_settings["setting_names"];
+export const setSettingByName = textgen_settings["setSettingByName"];
+export const setGenerationParamsFromPreset = script["setGenerationParamsFromPreset"];
+
 export const extension_settings = extensions["extension_settings"];
 export const getContext = extensions["getContext"];
 export const saveSettingsDebounced = script["saveSettingsDebounced"];
@@ -49,6 +71,29 @@ export const getWorldInfoSettings = worldInfo["getWorldInfoSettings"];
 export const loadWorldInfo = worldInfo["loadWorldInfo"];
 export const personasFilter = personas["personasFilter"];
 export const powerUser = powerUserWrapper["power_user"];
+
+export function getActiveCharacterName(): string | undefined {
+  return script["name2"] as string | undefined;
+}
+
+export function getActiveCharacterId(): number | undefined {
+  const raw = script["this_chid"] as string | number | undefined;
+  if (raw === undefined || raw === null || raw === '') return undefined;
+  const num = typeof raw === 'string' ? Number.parseInt(raw, 10) : Number(raw);
+  return Number.isFinite(num) ? num : undefined;
+}
+
+export function getCharacterNameById(id: number | string | undefined): string | undefined {
+  if (id === undefined || id === null || id === '') return undefined;
+  const index = typeof id === 'string' ? Number.parseInt(id, 10) : Number(id);
+  if (!Number.isFinite(index) || index < 0) return undefined;
+  const list = script["characters"] as Array<{ name?: string }> | undefined;
+  if (!Array.isArray(list)) return undefined;
+  const entry = list[index];
+  if (!entry) return undefined;
+  const name = entry.name;
+  return typeof name === 'string' ? name : undefined;
+}
 
 // --- lightweight event bus for our plugin ---
 export const pluginBus = new EventTarget();

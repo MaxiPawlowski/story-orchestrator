@@ -53,7 +53,7 @@ const initializeDrawer = () => {
 
 setTimeout(() => {
   initializeDrawer();
-}, 2000);
+}, 3000);
 
 
 // eventSource.on(event_types.CHAT_CHANGED, initializeDrawer);

@@ -1,48 +1,234 @@
-// src/services/RoleCFGRouter.ts
-import { eventSource, event_types, setChatCFGScale } from "@services/SillyTavernAPI";
+﻿import {
+  event_types,
+  setGenerationParamsFromPreset,
+  saveSettingsDebounced,
+  eventSource,
+  setSettingByName,
+  tgSettings,
+  tgPresetObjs,
+  tgPresetNames,
+  TG_SETTING_NAMES,
+  BIAS_CACHE,
+  displayLogitBias,
+} from '../SillyTavernAPI';
 
-/**
- * Keeps per-character CFG and switches the chat CFG to match the active speaker.
- * Best: pre-generation interceptor. Fallback: after assistant message (affects next turn).
- */
-class PresetService {
-  private map = new Map<string, number>();
-  private installed = false;
+export type Role = 'dm' | 'companion' | 'chat';
+export type PresetPartial = Partial<Record<string, any>>;
 
-  constructor() {
-    console.log("RoleCFGRouter initialized");
-    setChatCFGScale(2.0); // default
+export type BaseSource =
+  | { source: 'current' }                   // snapshot from current sliders
+  | { source: 'named'; name: string };     // copy from an existing named preset
+
+type ConstructorOpts = {
+  storyId: string;
+  storyTitle?: string;
+  base: BaseSource;
+  roleDefaults?: Partial<Record<Role, PresetPartial>>;
+};
+
+type ApplyLabelOpts = {
+  role: Role;
+  checkpointName?: string;
+};
+const BIAS_KEY = '#textgenerationwebui_api-settings';
+
+export class PresetService {
+  readonly presetName: string;
+  private storyId: string;
+  private storyTitle?: string;
+  private base: BaseSource;
+  private roleDefaults: Partial<Record<Role, PresetPartial>>;
+
+  constructor(opts: ConstructorOpts) {
+    this.storyId = opts.storyId;
+    this.storyTitle = opts.storyTitle;
+    this.base = opts.base;
+    this.roleDefaults = opts.roleDefaults ?? {};
+    this.presetName = `Story:${this.storyId}`;
   }
 
-  setScale(characterName: string, scale: number) {
-    this.map.set(characterName, Number(scale));
+  async initForStory() {
+    console.log('[PresetService] initForStory → ensure preset, select, apply DM defaults');
+    this.ensureDedicatedPresetExists();
+    tgSettings.preset = this.presetName;
+
+    const merged = this.buildMergedPresetObject('dm');
+    this.applyPresetObject(merged);
   }
 
-  attach() {
-    if (this.installed) return;
-    this.installed = true;
+  applyForRole(role: Role, checkpointOverrides?: PresetPartial, checkpointName?: string): Record<string, any> {
+    const overrideKeys = checkpointOverrides ? Object.keys(checkpointOverrides) : [];
+    console.log('[PresetService] applyForRole', { role, checkpointName, overrideKeys });
 
-    // // Best path: pre-generation hook (if available)
-    // const ok = registerGenerateInterceptor?.((ctx) => {
-    //   // ctx.speakerName or ctx.characterName – use whatever your build provides
-    //   const name = ctx?.speakerName || ctx?.characterName || ctx?.char;
-    //   if (name && this.map.has(name)) {
-    //     setChatCFGScale(this.map.get(name));
-    //   }
-    //   return ctx;
-    // });
+    this.ensureDedicatedPresetExists();
+    const merged = this.buildMergedPresetObject(role, checkpointOverrides);
 
-    // if (ok) return;
+    this.writeIntoRegistry(this.presetName, merged);
 
-    // Fallback: after each assistant message, set CFG for that speaker (affects next reply)
-    eventSource.on?.(event_types.MESSAGE_RECEIVED, (msg: any) => {
-      const name = msg?.name || msg?.sender || msg?.char;
-      const assistant = msg && !msg.is_user;
-      if (assistant && name && this.map.has(name)) {
-        setChatCFGScale(this.map.get(name)!);
-      }
+    tgSettings.preset = this.presetName;
+    const label = this.makeLabel({ role, checkpointName });
+    this.applyPresetObject(merged, label);
+
+    console.log('[PresetService] finalPresetKnobs', {
+      role,
+      checkpointName,
+      presetName: this.presetName,
+      knobKeys: Object.keys(merged ?? {}),
+      merged,
     });
-  }
-}
 
-export const roleCFGRouter = new PresetService();
+    return merged;
+  }
+
+  private ensureDedicatedPresetExists() {
+    if (this.findPresetIndex(this.presetName) !== -1) return;
+
+    const baseObj = this.getBasePresetObject();
+    this.writeIntoRegistry(this.presetName, baseObj);
+  }
+
+  private buildMergedPresetObject(role: Role, checkpointOverride?: PresetPartial): any {
+    const base = this.getBasePresetObject();
+    const roleDef = this.roleDefaults[role] ?? {};
+    const cp = checkpointOverride ?? {};
+
+    const merged = { ...base, ...roleDef, ...cp };
+
+    if (!Array.isArray(merged.logit_bias)) merged.logit_bias = Array.isArray(base.logit_bias) ? base.logit_bias : [];
+
+    const clean: any = {};
+    for (const k of TG_SETTING_NAMES) {
+      if (Object.prototype.hasOwnProperty.call(merged, k)) clean[k] = this.clone(merged[k]);
+    }
+    if (Array.isArray(merged.logit_bias)) clean.logit_bias = this.clone(merged.logit_bias);
+
+    return clean;
+  }
+
+  private getBasePresetObject(): any {
+    if (this.base.source === 'named') {
+      const p = this.resolveExistingNamed(this.base.name);
+      if (p) return this.filterToKnownKeys(p);
+    }
+    const snap: any = {};
+    for (const key of TG_SETTING_NAMES) {
+      snap[key] = this.clone((tgSettings as any)[key]);
+    }
+    if (Array.isArray((tgSettings as any).logit_bias)) {
+      snap.logit_bias = this.clone((tgSettings as any).logit_bias);
+    }
+    return snap;
+  }
+  private ensurePresetOptionExists(name: string) {
+    const sel = document.getElementById('settings_preset_textgenerationwebui') as HTMLSelectElement | null;
+    if (!sel) return;
+
+    for (let i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value === name) return;
+    }
+
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.innerText = name;
+    sel.appendChild(opt);
+  }
+
+  private resolveExistingNamed(name: string): any | null {
+    const idx = this.findPresetIndex(name);
+    if (idx !== -1) return tgPresetObjs[idx];
+
+    return null;
+  }
+  private writeIntoRegistry(name: string, obj: any) {
+    const idx = this.findPresetIndex(name);
+    if (idx === -1) {
+      console.log('[PresetService] creating dedicated preset in registry:', name);
+      tgPresetNames.push(name);
+      tgPresetObjs.push(this.clone(obj));
+      this.ensurePresetOptionExists(name);
+    } else {
+      console.log('[PresetService] updating dedicated preset in registry:', name);
+      tgPresetObjs[idx] = this.clone(obj);
+    }
+  }
+
+  private findPresetIndex(name: string): number {
+    return tgPresetNames.indexOf(name);
+  }
+
+  private filterToKnownKeys(p: any): any {
+    const out: any = {};
+    for (const k of TG_SETTING_NAMES) {
+      if (Object.prototype.hasOwnProperty.call(p, k)) out[k] = this.clone(p[k]);
+    }
+    if (Array.isArray(p?.logit_bias)) out.logit_bias = this.clone(p.logit_bias);
+    return out;
+  }
+
+  private clone<T>(v: T): T {
+    if (Array.isArray(v)) return v.map((x) => this.clone(x)) as any;
+    if (v && typeof v === 'object') return JSON.parse(JSON.stringify(v));
+    return v;
+  }
+
+  private makeLabel({ role, checkpointName }: ApplyLabelOpts): string {
+    const parts = [`${this.presetName}`, `[${role}]`];
+    if (this.storyTitle) parts.push(this.storyTitle);
+    if (checkpointName) parts.push(`• ${checkpointName}`);
+    return parts.join(' ');
+  }
+
+  private applyPresetObject(presetObj: any, displayLabel?: string) {
+    console.log('[PresetService] applyPresetObject -> setGenerationParamsFromPreset, bias, emit PRESET_CHANGED', { preset: this.presetName, displayLabel, presetObj });
+
+    for (const key of TG_SETTING_NAMES) {
+      if (Object.prototype.hasOwnProperty.call(presetObj, key)) {
+        (tgSettings as any)[key] = Array.isArray(presetObj[key])
+          ? JSON.parse(JSON.stringify(presetObj[key]))
+          : presetObj[key];
+      }
+    }
+
+    tgSettings.preset = this.presetName;
+
+    setGenerationParamsFromPreset(presetObj);
+    console.log('[PresetService] sanity',
+      { temp: tgSettings.temp, top_p: tgSettings.top_p, rep_pen: tgSettings.rep_pen });
+    BIAS_CACHE.delete(BIAS_KEY);
+    displayLogitBias(presetObj.logit_bias, BIAS_KEY);
+    saveSettingsDebounced();
+
+    this.ensurePresetOptionExists(this.presetName);
+    const sel = document.getElementById('settings_preset_textgenerationwebui') as HTMLSelectElement | null;
+    if (sel) {
+      const option = Array.from(sel.options).find((opt) => opt.value === this.presetName);
+      if (option) {
+        option.textContent = displayLabel ?? this.presetName;
+      }
+      sel.value = this.presetName;
+    }
+
+    try {
+      eventSource.emit(event_types.PRESET_CHANGED, {
+        apiId: 'textgenerationwebui',
+        name: this.presetName,
+      });
+    } catch (e) {
+      console.error('[PresetService] error emitting PRESET_CHANGED', e);
+    }
+
+    console.log('[PresetService] sanity NOW', {
+      temp: tgSettings.temp,
+      top_p: tgSettings.top_p,
+      rep_pen: tgSettings.rep_pen,
+    });
+
+    const uiBridge = (globalThis as any).ST_applyTextgenPresetToUI;
+    if (typeof uiBridge === 'function' && typeof setSettingByName === 'function') {
+      uiBridge(this.presetName, presetObj);
+    } else {
+      console.log('[PresetService] UI bridge not found; runtime settings are active but UI will not move.');
+    }
+  }
+
+}

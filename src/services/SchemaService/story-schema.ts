@@ -1,4 +1,4 @@
-import { z } from "zod";
+﻿import { z } from "zod";
 
 export const RoleEnum = z.enum(["dm", "companion", "chat"]);
 export type Role = z.infer<typeof RoleEnum>;
@@ -11,6 +11,12 @@ export const RegexSpecSchema = z.union([
   }),
 ]);
 export type RegexSpec = z.infer<typeof RegexSpecSchema>;
+
+export const RegexSpecListSchema = z.union([
+  RegexSpecSchema,
+  z.array(RegexSpecSchema).min(1),
+]);
+export type RegexSpecList = z.infer<typeof RegexSpecListSchema>;
 
 const PositionEnum = z.enum(["before_defs", "after_defs", "an_top", "an_bottom", "in_chat"]);
 type Position = z.infer<typeof PositionEnum>;
@@ -28,31 +34,62 @@ const AuthorsNoteSchema = z.union([
   z.record(RoleEnum, z.string().min(1)),
 ]);
 
-const CfgScaleSchema = z.record(RoleEnum, z.number().min(0.1).max(50));
+const PresetPartialSchema = z.record(RoleEnum, z.record(z.string(), z.any()));
 
 export const OnActivateSchema = z.object({
   authors_note: AuthorsNoteSchema.optional(),
-  cfg_scale: CfgScaleSchema.optional(),
+  // support both spellings to be flexible
+  preset_override: PresetPartialSchema.optional(),
+  preset_overrides: PresetPartialSchema.optional(),
   world_info: WorldInfoActivationsSchema.optional(),
+  automation_ids: z.array(z.string().min(1)).optional(),
 });
 
 export type OnActivate = z.infer<typeof OnActivateSchema>;
+
+const CheckpointTriggersSchema = z.object({
+  win: RegexSpecListSchema,
+  fail: RegexSpecListSchema.optional(),
+});
+
+export type CheckpointTriggers = z.infer<typeof CheckpointTriggersSchema>;
 
 export const CheckpointSchema = z.object({
   id: z.union([z.number(), z.string().min(1)]),
   name: z.string().min(1),
   objective: z.string().min(1),
-  win_trigger: RegexSpecSchema,
-  fail_trigger: RegexSpecSchema.optional(),
+  triggers: CheckpointTriggersSchema.optional(),
   on_activate: OnActivateSchema.optional(),
+}).superRefine((cp, ctx) => {
+  // Require that triggers.win is provided. We removed the legacy `win_trigger` field
+  // so checkpoints must now include `triggers` with a `win` property.
+  if (!(cp.triggers && cp.triggers.win)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["triggers", "win"],
+      message: "Checkpoint requires 'triggers.win'",
+    });
+  }
 });
 
 export type Checkpoint = z.infer<typeof CheckpointSchema>;
 
-export const StoryFileSchema = z.object({
+const BasePresetSchema = z.object({
+  source: z.enum(["named", "current"]).or(z.string().min(1)),
+  name: z.string().min(1).optional(),
+});
+
+export const StorySchema = z.object({
   schema_version: z.literal("1.0"),
   title: z.string().min(1),
-  roles: z.object({ dm: z.string().min(1).optional(), companion: z.string().min(1).optional() }).optional(),
+  base_preset: BasePresetSchema.optional(),
+  role_defaults: PresetPartialSchema.optional(),
+  roles: z.object({
+    dm: z.string().min(1).optional(),
+    companion: z.string().min(1).optional(),
+    chat: z.string().min(1).optional(),
+  }).optional(),
+  on_start: OnActivateSchema.optional(),
   checkpoints: z.array(CheckpointSchema).min(1),
 }).superRefine((val, ctx) => {
   const seen = new Set<string | number>();
@@ -70,4 +107,4 @@ export const StoryFileSchema = z.object({
   }
 });
 
-export type StoryFile = z.infer<typeof StoryFileSchema>;
+export type Story = z.infer<typeof StorySchema>;

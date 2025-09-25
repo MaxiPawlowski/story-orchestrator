@@ -15,10 +15,10 @@ const Requirements = () => {
 
   const onPersonaReload = async () => {
     const { name1 } = getContext();
-    console.log("Persona reloaded", name1);
+    // console.log("Persona reloaded", name1);
     setCurrentUserName(name1);
     setPersonaStatus(name1 ? "green" : "yellow");
-    console.log(powerUser.personas)
+    // console.log(powerUser.personas)
   }
 
   useEffect(() => {

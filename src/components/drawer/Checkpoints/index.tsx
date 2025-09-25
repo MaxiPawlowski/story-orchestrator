@@ -1,66 +1,32 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { storyManager } from "@services/StoryService";
-import type { StoryFile } from "services/SchemaService/story-schema";
+// import { storyManager } from "@services/StoryService";
+import type { Story } from "services/SchemaService/story-schema";
 import { getWorldInfoSettings } from "@services/SillyTavernAPI";
-import { useStoryContext } from "@components/context/StoryContext";
 
 type Row = { status: "pending" | "current" | "complete" | "failed"; objective: string };
 
 type Props = {
   checkpoints?: Row[]; // keep for manual mocking
-  autoloadStory?: StoryFile; // if provided, we load it on mount
+  autoloadStory?: Story; // if provided, we load it on mount
 };
 
 const Checkpoints: React.FC<Props> = ({ autoloadStory }) => {
-  const { validate, loadAll } = useStoryContext();
   const [rows, setRows] = useState<Row[]>([]);
   const [checkpoints, setCheckpoints] = useState<Row[]>([]);
   const [title, setTitle] = useState<string>("Story Checkpoints");
-  const state = storyManager.getState();
 
-  // Load the story from provided prop (validated) or from bundled checkpoints via context
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      // 1) If a story is provided, validate+normalize and load it
-      if (autoloadStory) {
-        const res = validate(autoloadStory);
-        if (res.ok) {
-          storyManager.load(res.story);
-          return;
-        } else {
-          console.warn("autoloadStory failed validation:", res.errors);
-        }
-      }
-
-      // 2) Otherwise, try to load the first valid story from the bundled checkpoints
-      try {
-        const results = await loadAll();
-        if (cancelled) return;
-        const firstOk = results?.find((r): r is { file: string; ok: true; json: any } => (r as any).ok);
-        if (firstOk && (firstOk as any).json) {
-          storyManager.load((firstOk as any).json);
-        } else {
-          console.warn("No valid checkpoint story found in bundle.");
-        }
-      } catch (e) {
-        if (!cancelled) console.error("Failed to load bundled checkpoints:", e);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [autoloadStory, validate, loadAll]);
 
 
   useEffect(() => {
-    const off = storyManager.onChange((s) => {
-      setTitle(s.title || "Story Checkpoints");
-      setRows(
-        s.checkpoints.map((c) => ({
-          status: c.status,
-          objective: c.objective,
-        }))
-      );
-    });
+    // const off = storyManager.onChange((s) => {
+    // //   setTitle(s.title || "Story Checkpoints");
+    // //   setRows(
+    // //     s.checkpoints.map((c) => ({
+    // //       status: c.status,
+    // //       objective: c.objective,
+    // //     }))
+    // //   );
+    // });
     if (checkpoints?.length) {
       setRows(checkpoints);
     } else {
@@ -76,9 +42,9 @@ const Checkpoints: React.FC<Props> = ({ autoloadStory }) => {
     }
     return () => {
       // ensure cleanup returns void: some implementations may return a boolean instead of a function
-      if (typeof off === "function") {
-        (off as unknown as () => void)();
-      }
+      // if (typeof off === "function") {
+      //   (off as unknown as () => void)();
+      // }
     };
   }, []);
 
@@ -130,9 +96,9 @@ const Checkpoints: React.FC<Props> = ({ autoloadStory }) => {
       <div style={{ marginTop: 8, display: "flex", gap: 6, }}>
         <button
           onClick={() => {
-            const s = storyManager.getState();
-            const next = s.checkpoints[s.currentIndex + 1];
-            if (next) storyManager.jumpTo(next.id);
+            // const s = storyManager.getState();
+            // const next = s.checkpoints[s.currentIndex + 1];
+            // if (next) storyManager.jumpTo(next.id);
           }}
           style={{ fontSize: 12, backgroundColor: "transparent", border: "none", cursor: "pointer" }}
         >

@@ -27,8 +27,10 @@
   flex-direction: column;
   box-shadow: 0 0 10px var(--black70a);
   z-index: 4000;
-  left: 0;
-  top: 0;
+  right:  0 !important;
+  bottom: 0 !important;
+  left: unset;
+  top: unset;
   margin: 0;
   right: unset;
   width: calc(((100dvw - var(--sheldWidth)) / 2) - 1px);

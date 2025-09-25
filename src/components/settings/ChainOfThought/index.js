@@ -114,7 +114,7 @@ const ThinkingSettings = () => {
     settings.thinking_prompts = settings.thinking_prompts.filter(
       (item) => item.id !== id
     );
-    console.log(settings.thinking_prompts);
+    // console.log(settings.thinking_prompts);
     setPrompts([...settings.thinking_prompts]);
     settings.thinking_prompts = [...settings.thinking_prompts];
     saveSettingsDebounced();

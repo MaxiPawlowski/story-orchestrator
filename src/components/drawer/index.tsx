@@ -5,7 +5,8 @@ import Objetives from "./Objetives";
 import Requirements from "./Requirements";
 import Checkpoints from "./Checkpoints";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useStoryOrchestrator } from "@hooks/useStoryOrchestrator";
 
 const TabSelector = ({ tabs, setActiveTab, activeTab }: { tabs: string[]; setActiveTab: (tab: string) => void; activeTab: string; }) => {
   return (
@@ -38,7 +39,16 @@ const tabs = {
 const DrawerWrapper = () => {
   const [activeTab, setActiveTab] = useState(tabs.requirements);
   const [isOpen, setIsOpen] = useState(true);
+
   const [isMinimized, setIsMinimized] = useState(false);
+  const { ready, title, checkpointIndex, checkpoint, progressText, applyRolePreset, activateCheckpoint } = useStoryOrchestrator({
+    autoInit: true,
+  });
+
+  useEffect(() => {
+    console.log("[DrawerWrapper] Story Orchestrator ready:", ready, "Title:", title);
+    console.log({ progressText })
+  }, [ready, title]);
 
   if (!isOpen) {
     return null;

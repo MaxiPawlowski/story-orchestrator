@@ -1,11 +1,10 @@
-import { z } from "zod";
+﻿import { z } from "zod";
 import {
-  RoleEnum, type Role,
-  RegexSpecSchema, type RegexSpec,
-  StoryFileSchema, type StoryFile,
-  WorldInfoActivationsSchema, type WorldInfoActivations,
-  OnActivateSchema, type OnActivate,
-  CheckpointSchema, type Checkpoint,
+  type Role,
+  type RegexSpec,
+  StorySchema, type Story,
+  WorldInfoActivationsSchema,
+  type OnActivate,
 } from "./story-schema";
 
 export interface NormalizedWorldInfo {
@@ -18,23 +17,28 @@ export interface NormalizedOnActivate {
   authors_note?: Partial<Record<Role, string>>;
   cfg_scale?: Partial<Record<Role, number>>;
   world_info?: NormalizedWorldInfo;
+  preset_overrides?: Partial<Record<Role, Record<string, any>>>;
+  automation_ids?: string[];
 }
 
 export interface NormalizedCheckpoint {
   id: string | number;
   name: string;
   objective: string;
-  winTrigger: RegExp;
-  failTrigger?: RegExp;
+  winTriggers: RegExp[];
+  failTriggers?: RegExp[];
   onActivate?: NormalizedOnActivate;
 }
 
 export interface NormalizedStory {
   schemaVersion: "1.0";
   title: string;
-  roles?: { dm?: string; companion?: string };
+  roles?: Partial<Record<Role, string>>;
   checkpoints: NormalizedCheckpoint[];
   checkpointIndexById: Map<string | number, number>;
+  basePreset?: { source: string; name?: string };
+  roleDefaults?: Partial<Record<Role, Record<string, any>>>;
+  onStart?: NormalizedOnActivate;
 }
 
 export type CheckpointResult =
@@ -58,8 +62,16 @@ function compileRegex(spec: RegexSpec, where: string): RegExp {
     return new RegExp(pattern, flags);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    throw new Error(`Invalid regex at ${where}: /${pattern}/${flags ?? ""} → ${msg}`);
+    throw new Error(`Invalid regex at ${where}: /${pattern}/${flags ?? ""} -> ${msg}`);
   }
+}
+
+function compileRegexList(spec: RegexSpec | RegexSpec[] | undefined, where: string): RegExp[] {
+  if (spec === undefined) return [];
+  if (Array.isArray(spec)) {
+    return spec.map((item, idx) => compileRegex(item, `${where}[${idx}]`));
+  }
+  return [compileRegex(spec, where)];
 }
 
 function dedupeOrdered<T>(arr: T[]): T[] {
@@ -76,17 +88,19 @@ function normalizeAuthorsNote(input?: OnActivate["authors_note"]): Partial<Recor
   return input;
 }
 
-function normalizeCfgScale(input?: OnActivate["cfg_scale"]): Partial<Record<Role, number>> | undefined {
+function normalizePresetOverrides(input?: any): Partial<Record<Role, Record<string, any>>> | undefined {
   if (!input) return undefined;
-  const out: Partial<Record<Role, number>> = {};
-  for (const role of Object.keys(input) as Role[]) {
-    const v = (input as Partial<Record<Role, number>>)[role];
-    if (typeof v === "number" && Number.isFinite(v)) {
-      // keep as given; optionally clamp
-      out[role] = Math.min(Math.max(v, 0.1), 50);
+  try {
+    const obj = input as Partial<Record<Role, Record<string, any>>>;
+    const out: Partial<Record<Role, Record<string, any>>> = {};
+    for (const k of Object.keys(obj) as Role[]) {
+      const v = (obj as any)[k];
+      if (v && typeof v === 'object') out[k] = v;
     }
+    return Object.keys(out).length ? out : undefined;
+  } catch {
+    return undefined;
   }
-  return Object.keys(out).length ? out : undefined;
 }
 
 function normalizeWorldInfo(input?: unknown): NormalizedWorldInfo | undefined {
@@ -99,9 +113,36 @@ function normalizeWorldInfo(input?: unknown): NormalizedWorldInfo | undefined {
   };
 }
 
+function normalizeAutomationIds(input?: unknown): string[] | undefined {
+  if (!input) return undefined;
+  const arr = Array.isArray(input) ? input : [];
+  const filtered = arr.filter((v): v is string => typeof v === "string" && v.trim().length > 0).map(v => v.trim());
+  return filtered.length ? dedupeOrdered(filtered) : undefined;
+}
 
-export function validateStoryShape(input: unknown): StoryFile {
-  return StoryFileSchema.parse(input);
+function normalizeCfgScale(input?: unknown): Partial<Record<Role, number>> | undefined {
+  if (!input || typeof input !== 'object') return undefined;
+  const out: Partial<Record<Role, number>> = {};
+  for (const [key, value] of Object.entries(input as Record<string, unknown>)) {
+    const num = Number(value);
+    if (!Number.isNaN(num)) out[key as Role] = num;
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
+function normalizeOnActivateBlock(input?: OnActivate | null): NormalizedOnActivate | undefined {
+  if (!input) return undefined;
+  return {
+    authors_note: normalizeAuthorsNote(input.authors_note),
+    world_info: normalizeWorldInfo(input.world_info),
+    preset_overrides: normalizePresetOverrides((input as any).preset_overrides ?? (input as any).preset_override),
+    automation_ids: normalizeAutomationIds((input as any).automation_ids),
+    cfg_scale: normalizeCfgScale((input as any).cfg_scale ?? (input as any).cfgScale),
+  };
+}
+
+export function validateStoryShape(input: unknown): Story {
+  return StorySchema.parse(input);
 }
 
 // Validate + normalize into runtime-friendly structure (throws on failure)
@@ -109,36 +150,44 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
   const story = validateStoryShape(input);
 
   const checkpoints: NormalizedCheckpoint[] = story.checkpoints.map((cp, idx) => {
-    const winTrigger = compileRegex(cp.win_trigger, `checkpoints[${idx}].win_trigger`);
-    const failTrigger = cp.fail_trigger ? compileRegex(cp.fail_trigger, `checkpoints[${idx}].fail_trigger`) : undefined;
+    const winSource = cp.triggers?.win;
+    const winPath = cp.triggers?.win ? `checkpoints[${idx}].win_trigger` : `checkpoints[${idx}].triggers.win`;
+    const winTriggers = compileRegexList(winSource, winPath);
 
-    const on: NormalizedOnActivate | undefined = cp.on_activate
-      ? {
-        authors_note: normalizeAuthorsNote(cp.on_activate.authors_note),
-        cfg_scale: normalizeCfgScale(cp.on_activate.cfg_scale),
-        world_info: normalizeWorldInfo(cp.on_activate.world_info),
-      }
-      : undefined;
+    const failSource = cp.triggers?.fail;
+    const failPath = cp.triggers?.fail ? `checkpoints[${idx}].fail_trigger` : `checkpoints[${idx}].triggers.fail`;
+    const failTriggers = failSource ? compileRegexList(failSource, failPath) : undefined;
 
     return {
       id: cp.id,
       name: cp.name,
       objective: cp.objective,
-      winTrigger,
-      failTrigger,
-      onActivate: on,
+      winTriggers,
+      failTriggers,
+      onActivate: normalizeOnActivateBlock(cp.on_activate),
     };
   });
 
   const checkpointIndexById = new Map<string | number, number>();
   checkpoints.forEach((c, i) => checkpointIndexById.set(c.id, i));
 
+  let basePreset: NormalizedStory["basePreset"] = undefined;
+  if (story.base_preset) {
+    basePreset = {
+      source: story.base_preset.source,
+      ...(story.base_preset.name ? { name: story.base_preset.name } : {}),
+    };
+  }
+
   return {
     schemaVersion: "1.0",
     title: story.title,
-    roles: story.roles,
+    roles: story.roles as Partial<Record<Role, string>> | undefined,
     checkpoints,
     checkpointIndexById,
+    basePreset,
+    roleDefaults: story.role_defaults as any,
+    onStart: normalizeOnActivateBlock((story as any).on_start ?? null),
   };
 }
 
