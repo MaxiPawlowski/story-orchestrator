@@ -58,7 +58,6 @@ export function useStoryOrchestrator({
   }, [autoInit, validate, loadAll]);
 
   useEffect(() => {
-    console.log('[useStoryOrchestrator] Initializing with story:', story);
     if (orchRef.current) return;
     if (!story?.basePreset) return;
 
@@ -81,7 +80,6 @@ export function useStoryOrchestrator({
     const offCP = orch.on('checkpointChanged', ({ index, checkpoint }) => {
       setIdx(index);
       setCp(checkpoint);
-      console.log('[useStoryOrchestrator] Checkpoint changed:', index, '-', checkpoint?.name);
     });
     const detachFns: Array<() => void> = [];
     const events = userMessageEvents ?? [
@@ -112,8 +110,6 @@ export function useStoryOrchestrator({
 
     const groupDraftEvent = (event_types as any)?.GROUP_MEMBER_DRAFTED ?? 'group_member_drafted';
 
-    console.log('[useStoryOrchestrator] Listening for generation settings events', settingsEvents, 'groupDraftEvent', groupDraftEvent);
-
     const detachTextgen = settingsEvents.length
       ? orch.attachTextGenSettingsInterceptor(eventSource, settingsEvents, {
         generationStartedEvent: event_types.GENERATION_STARTED,
@@ -128,7 +124,6 @@ export function useStoryOrchestrator({
 
     (async () => {
       if (autoInit) {
-        console.log('[useStoryOrchestrator] Auto-initializing orchestrator');
         await orch.init();
       }
     })();

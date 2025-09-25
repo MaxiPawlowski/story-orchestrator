@@ -69,14 +69,6 @@ export class PresetService {
     const label = this.makeLabel({ role, checkpointName });
     this.applyPresetObject(merged, label);
 
-    console.log('[PresetService] finalPresetKnobs', {
-      role,
-      checkpointName,
-      presetName: this.presetName,
-      knobKeys: Object.keys(merged ?? {}),
-      merged,
-    });
-
     return merged;
   }
 
@@ -192,8 +184,7 @@ export class PresetService {
     tgSettings.preset = this.presetName;
 
     setGenerationParamsFromPreset(presetObj);
-    console.log('[PresetService] sanity',
-      { temp: tgSettings.temp, top_p: tgSettings.top_p, rep_pen: tgSettings.rep_pen });
+
     BIAS_CACHE.delete(BIAS_KEY);
     displayLogitBias(presetObj.logit_bias, BIAS_KEY);
     saveSettingsDebounced();
@@ -216,12 +207,6 @@ export class PresetService {
     } catch (e) {
       console.error('[PresetService] error emitting PRESET_CHANGED', e);
     }
-
-    console.log('[PresetService] sanity NOW', {
-      temp: tgSettings.temp,
-      top_p: tgSettings.top_p,
-      rep_pen: tgSettings.rep_pen,
-    });
 
     const uiBridge = (globalThis as any).ST_applyTextgenPresetToUI;
     if (typeof uiBridge === 'function' && typeof setSettingByName === 'function') {

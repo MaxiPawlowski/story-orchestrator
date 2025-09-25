@@ -175,7 +175,6 @@ export class StoryOrchestrator {
     applyWorldInfo: (ops: any) => void;
     runAutomation?: (id: string) => Promise<void> | void;
   }) {
-    console.log('[StoryOrchestrator] Initialized with story:', (opts.story as any).title);
     this.story = opts.story;
     this.svc = opts.presetService;
     this.applyAN = opts.applyAuthorsNote;
@@ -203,8 +202,6 @@ export class StoryOrchestrator {
   }
 
   async init() {
-    console.log('[StoryOrchestrator] Initializing story:', (this.story as any).title);
-
     const os = extractOnStart(this.story);
     if (os?.authors_note) this.applyAN(os.authors_note);
     if (os?.world_info) this.applyWI(os.world_info);
@@ -404,8 +401,6 @@ export class StoryOrchestrator {
   }
 
   private onTextGenSettingsReady(rawPayload: any, sourceEvent?: string) {
-    console.log('[StoryOrchestrator] Generation settings event received', { sourceEvent, rawPayload });
-
     const payload = Array.isArray(rawPayload) ? rawPayload[0] : rawPayload;
     const cp = this.currentCheckpoint as any;
     const cpId = this.currentCheckpointId;
@@ -439,34 +434,6 @@ export class StoryOrchestrator {
         return;
       }
 
-      const overridesForRole = (this.currentRoleOverrides?.[detection.role] ?? {}) as PresetPartial;
-      const overrideKeys = overridesForRole && typeof overridesForRole === 'object' ? Object.keys(overridesForRole) : [];
-
-      console.log('[StoryOrchestrator] Generation intercept: resolved role', {
-        speakerName: detection.speakerName,
-        detectedRole: detection.role,
-        reason: detection.reason,
-        checkpointId: cpId,
-        checkpointName: cpName,
-        overrideKeys,
-        generationContext: this.summarizeGenerationContext(),
-        sourceEvent,
-      });
-
-      const merged = this.applyRolePreset(detection.role) ?? {};
-      const knobKeys = Object.keys(merged);
-
-      console.log('[StoryOrchestrator] Generation intercept: applied preset', {
-        appliedRole: detection.role,
-        speakerName: detection.speakerName,
-        checkpointId: cpId,
-        checkpointName: cpName,
-        overrideKeys,
-        knobKeys,
-        knobs: merged,
-        sourceEvent,
-      });
-
       if (activeToken != null) {
         this.lastAppliedGenerationToken = activeToken;
       }
@@ -491,7 +458,6 @@ export class StoryOrchestrator {
     this.generationSeq += 1;
     this.currentGenerationToken = this.generationSeq;
     this.lastAppliedGenerationToken = null;
-    console.log('[StoryOrchestrator] Generation context captured', this.summarizeGenerationContext());
   }
 
   private clearGenerationContext(reason: string) {
@@ -578,7 +544,6 @@ export class StoryOrchestrator {
     const namesArray = Array.isArray(eventNames) ? eventNames : [eventNames];
     const filteredNames = namesArray.filter((name): name is string => typeof name === "string" && name.length > 0);
 
-    console.log('[StoryOrchestrator] Subscribing to generation settings events', filteredNames);
 
     const safePush = (fn: (() => void) | undefined, label: string | undefined) => {
       if (typeof fn !== "function") return;
@@ -640,7 +605,6 @@ export class StoryOrchestrator {
     this.pendingSpeakerName = speakerName;
     this.lastAppliedGenerationToken = null;
 
-    console.log('[StoryOrchestrator] Group member drafted: applying preset preemptively', { sourceEvent, chId: numericId, speakerName, role });
     this.applyRolePreset(role);
   }
 
