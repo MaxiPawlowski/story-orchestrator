@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
-import { eventSource, event_types, tgPresetObjs } from '@services/SillyTavernAPI';
+import { eventSource } from '@services/SillyTavernAPI';
 import { PresetService } from '@services/PresetService';
 import { StoryOrchestrator } from '@services/StoryService/orchestrator';
 import type { Role } from '@services/SchemaService/story-schema';
@@ -81,46 +81,7 @@ export function useStoryOrchestrator({
       setIdx(index);
       setCp(checkpoint);
     });
-    const detachFns: Array<() => void> = [];
-    const events = userMessageEvents ?? [
-      (event_types as any)?.MESSAGE_RECEIVED,
-      (event_types as any)?.USER_MESSAGE,
-      'MESSAGE_RECEIVED',
-      'USER_MESSAGE',
-      'USER_MESSAGE_SENT',
-    ].filter(Boolean);
-
-    const detachEvaluation = orch.attachToEventSource(eventSource, events);
-    if (typeof detachEvaluation === 'function') {
-      detachFns.push(detachEvaluation);
-    }
-
-    const possibleSettingsEvents = [
-      (event_types as any)?.TEXT_COMPLETION_SETTINGS_READY,
-      (event_types as any)?.CHAT_COMPLETION_SETTINGS_READY,
-      (event_types as any)?.GENERATE_AFTER_COMBINE_PROMPTS,
-      'text_completion_settings_ready',
-      'chat_completion_settings_ready',
-      'generate_after_combine_prompts',
-    ];
-
-    const settingsEvents = Array.from(
-      new Set(possibleSettingsEvents.filter((ev): ev is string => typeof ev === 'string' && ev.length > 0)),
-    );
-
-    const groupDraftEvent = (event_types as any)?.GROUP_MEMBER_DRAFTED ?? 'group_member_drafted';
-
-    const detachTextgen = settingsEvents.length
-      ? orch.attachTextGenSettingsInterceptor(eventSource, settingsEvents, {
-        generationStartedEvent: event_types.GENERATION_STARTED,
-        generationEndedEvent: event_types.GENERATION_ENDED,
-        generationStoppedEvent: event_types.GENERATION_STOPPED,
-        groupMemberDraftedEvent: groupDraftEvent,
-      })
-      : undefined;
-    if (typeof detachTextgen === 'function') {
-      detachFns.push(detachTextgen);
-    }
+    const detachEvents = orch.attachSillyTavernEvents(eventSource, { userMessageEvents });
 
     (async () => {
       if (autoInit) {
@@ -133,12 +94,10 @@ export function useStoryOrchestrator({
 
     return () => {
       offCP();
-      for (const fn of detachFns) {
-        try {
-          fn();
-        } catch (err) {
-          console.warn('[useStoryOrchestrator] Failed to detach event listener', err);
-        }
+      try {
+        detachEvents();
+      } catch (err) {
+        console.warn('[useStoryOrchestrator] Failed to detach orchestrator events', err);
       }
       orchRef.current = null;
     };

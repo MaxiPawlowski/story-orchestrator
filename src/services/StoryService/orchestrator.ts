@@ -19,6 +19,7 @@ import {
   getActiveCharacterId,
   getCharacterNameById,
   currentUserName,
+  event_types,
 } from '@services/SillyTavernAPI';
 
 type Listener<T = any> = (payload: T) => void;
@@ -494,6 +495,101 @@ export class StoryOrchestrator {
     return Object.keys(summary).length ? summary : null;
   }
 
+  private normalizeEventList(names: Array<unknown>): string[] {
+    const seen = new Set<string>();
+    for (const raw of names) {
+      if (typeof raw !== 'string') continue;
+      const trimmed = raw.trim();
+      if (!trimmed.length) continue;
+      if (!seen.has(trimmed)) {
+        seen.add(trimmed);
+      }
+    }
+    return Array.from(seen);
+  }
+
+  private resolveUserMessageEvents(custom?: string[]): string[] {
+    if (Array.isArray(custom) && custom.length) {
+      return this.normalizeEventList(custom);
+    }
+    return this.normalizeEventList([
+      (event_types as any)?.MESSAGE_RECEIVED,
+      (event_types as any)?.USER_MESSAGE,
+      (event_types as any)?.USER_MESSAGE_SENT,
+      'MESSAGE_RECEIVED',
+      'USER_MESSAGE',
+      'USER_MESSAGE_SENT',
+    ]);
+  }
+
+  private resolveTextGenSettingsEvents(custom?: string[]): string[] {
+    if (Array.isArray(custom) && custom.length) {
+      return this.normalizeEventList(custom);
+    }
+    return this.normalizeEventList([
+      (event_types as any)?.TEXT_COMPLETION_SETTINGS_READY,
+      (event_types as any)?.CHAT_COMPLETION_SETTINGS_READY,
+      (event_types as any)?.GENERATE_AFTER_COMBINE_PROMPTS,
+      'text_completion_settings_ready',
+      'chat_completion_settings_ready',
+      'generate_after_combine_prompts',
+    ]);
+  }
+
+  private coerceEventName(candidate: unknown, fallback?: string): string | undefined {
+    if (typeof candidate === 'string' && candidate.length > 0) {
+      return candidate;
+    }
+    if (typeof fallback === 'string' && fallback.length > 0) {
+      return fallback;
+    }
+    return undefined;
+  }
+
+  attachSillyTavernEvents(
+    eventSource: any,
+    options: { userMessageEvents?: string[]; settingsEvents?: string[] } = {},
+  ) {
+    const offs: Array<() => void> = [];
+    const safePush = (fn: (() => void) | undefined, label: string) => {
+      if (typeof fn !== 'function') return;
+      offs.push(() => {
+        try {
+          fn();
+        } catch (error) {
+          console.warn('[StoryOrchestrator] Failed to unsubscribe from', label, error);
+        }
+      });
+    };
+
+    const userEvents = this.resolveUserMessageEvents(options.userMessageEvents);
+    if (userEvents.length) {
+      safePush(this.attachToEventSource(eventSource, userEvents), 'user events');
+    }
+
+    const textGenEvents = this.resolveTextGenSettingsEvents(options.settingsEvents);
+    if (textGenEvents.length) {
+      safePush(
+        this.attachTextGenSettingsInterceptor(
+          eventSource,
+          textGenEvents,
+          {
+            generationStartedEvent: this.coerceEventName((event_types as any)?.GENERATION_STARTED),
+            generationEndedEvent: this.coerceEventName((event_types as any)?.GENERATION_ENDED),
+            generationStoppedEvent: this.coerceEventName((event_types as any)?.GENERATION_STOPPED),
+            groupMemberDraftedEvent: this.coerceEventName((event_types as any)?.GROUP_MEMBER_DRAFTED, 'group_member_drafted'),
+          },
+        ),
+        'text generation events',
+      );
+    }
+
+    return () => {
+      for (const off of offs) {
+        off();
+      }
+    };
+  }
   private subscribeToEvent(eventSource: any, eventName: string, handler: (payload: any) => void): () => void {
     const wrapped = (...args: any[]) => {
       if (!args || args.length === 0) {
@@ -649,7 +745,3 @@ export class StoryOrchestrator {
 
 
 }
-
-
-
-

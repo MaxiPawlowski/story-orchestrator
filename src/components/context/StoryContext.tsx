@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useState } from "react";
-import { parseAndNormalizeStory, formatZodError, type NormalizedStory, CheckpointResult } from "../../services/SchemaService/story-validator";
+import { parseAndNormalizeStory, formatZodError, type NormalizedStory, CheckpointResult } from "@services/SchemaService/story-validator";
 import loadJsons from "@services/StoryService/story-loader";
 
 type ValidationResult =
