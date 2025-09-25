@@ -28,6 +28,13 @@ export function useStoryOrchestrator({
   const [checkpoint, setCp] = useState<any>(null);
   const { validate, loadAll } = useStoryContext();
   const orchRef = useRef<StoryOrchestrator | null>(null);
+  const applyAuthorsNoteRef = useRef(applyAuthorsNote);
+  const applyWorldInfoRef = useRef(applyWorldInfo);
+  const runAutomationRef = useRef(runAutomation);
+
+  useEffect(() => { applyAuthorsNoteRef.current = applyAuthorsNote; }, [applyAuthorsNote]);
+  useEffect(() => { applyWorldInfoRef.current = applyWorldInfo; }, [applyWorldInfo]);
+  useEffect(() => { runAutomationRef.current = runAutomation; }, [runAutomation]);
 
   useEffect(() => {
     let cancelled = false;
@@ -51,8 +58,6 @@ export function useStoryOrchestrator({
   }, [autoInit, validate, loadAll]);
 
   useEffect(() => {
-    orchRef.current = null;
-    setReady(false);
     console.log('[useStoryOrchestrator] Initializing with story:', story);
     if (orchRef.current) return;
     if (!story?.basePreset) return;
@@ -67,9 +72,9 @@ export function useStoryOrchestrator({
     const orch = new StoryOrchestrator({
       story,
       presetService: svc,
-      applyAuthorsNote,
-      applyWorldInfo,
-      runAutomation,
+      applyAuthorsNote: (note) => applyAuthorsNoteRef.current?.(note),
+      applyWorldInfo: (ops) => applyWorldInfoRef.current?.(ops),
+      runAutomation: (id) => runAutomationRef.current?.(id),
     });
     orchRef.current = orch;
 
@@ -111,11 +116,11 @@ export function useStoryOrchestrator({
 
     const detachTextgen = settingsEvents.length
       ? orch.attachTextGenSettingsInterceptor(eventSource, settingsEvents, {
-          generationStartedEvent: event_types.GENERATION_STARTED,
-          generationEndedEvent: event_types.GENERATION_ENDED,
-          generationStoppedEvent: event_types.GENERATION_STOPPED,
-          groupMemberDraftedEvent: groupDraftEvent,
-        })
+        generationStartedEvent: event_types.GENERATION_STARTED,
+        generationEndedEvent: event_types.GENERATION_ENDED,
+        generationStoppedEvent: event_types.GENERATION_STOPPED,
+        groupMemberDraftedEvent: groupDraftEvent,
+      })
       : undefined;
     if (typeof detachTextgen === 'function') {
       detachFns.push(detachTextgen);
@@ -140,8 +145,9 @@ export function useStoryOrchestrator({
           console.warn('[useStoryOrchestrator] Failed to detach event listener', err);
         }
       }
+      orchRef.current = null;
     };
-  }, [story, applyAuthorsNote, applyWorldInfo, runAutomation, userMessageEvents, autoInit]);
+  }, [story, userMessageEvents, autoInit]);
 
   const applyRolePreset = useCallback((role: Role) => {
     orchRef.current?.applyRolePreset(role);
