@@ -1,4 +1,4 @@
-import { WorldInfoActivations } from "./SchemaService/story-schema.js";
+﻿import { WorldInfoActivations } from "./SchemaService/story-schema.js";
 
 const script = await import(
   // @ts-ignore
@@ -64,6 +64,7 @@ export const sendMessageAsUser = script["sendMessageAsUser"];
 export const substituteParams = script["substituteParams"];
 export const updateMessageBlock = script["updateMessageBlock"];
 export const addOneMessage = script["addOneMessage"];
+export const generateQuietPrompt = script["generateQuietPrompt"];
 export const hideChatMessageRange = chats["hideChatMessageRange"];
 export const getMessageTimeStamp = rossAscends["getMessageTimeStamp"];
 export const getRequestHeaders = script["getRequestHeaders"];
@@ -244,3 +245,60 @@ export function updateWorldInfoEntries({ activate = [], deactivate = [], make_co
     return false;
   }
 }
+
+
+(function attachUiBridge() {
+  const MAX_UI_SYNC_ATTEMPTS = 20;
+  const UI_SYNC_DELAY_MS = 100;
+  console.log('[ST UI Bridge] Initializing UI Bridge');
+  const applySettingWithRetry = (key: string, value: any, attempt = 0) => {
+    if (typeof setSettingByName !== 'function') {
+      console.warn(`[ST UI Bridge] setSettingByName not available`);
+      return;
+    }
+
+    let lastError: unknown | null = null;
+    try {
+      setSettingByName(key, value, true);
+    } catch (error) {
+      lastError = error as unknown;
+    }
+
+    const inputId = `${key}_textgenerationwebui`;
+    const sliderId = `${key}_textgenerationwebui_zenslider`;
+    const hasTarget = Boolean(document.getElementById(inputId) || document.getElementById(sliderId));
+
+    if (hasTarget && lastError == null) {
+      return;
+    }
+
+    if (attempt >= MAX_UI_SYNC_ATTEMPTS) {
+      if (lastError != null) {
+        console.warn(`[ST UI Bridge] Skipped UI sync for ${key} after ${attempt + 1} attempts`, lastError);
+      } else if (!hasTarget) {
+        console.warn(`[ST UI Bridge] Gave up waiting for UI controls for ${key}`);
+      }
+      return;
+    }
+
+    setTimeout(() => applySettingWithRetry(key, value, attempt + 1), UI_SYNC_DELAY_MS);
+  };
+
+  (window as any).ST_applyTextgenPresetToUI = function apply(name: string, presetObj: any) {
+    try {
+      for (const key of TG_SETTING_NAMES) {
+        if (Object.prototype.hasOwnProperty.call(presetObj, key)) {
+          applySettingWithRetry(key, presetObj[key]);
+        }
+      }
+      tgSettings.preset = name;
+      const sel = document.getElementById('settings_preset_textgenerationwebui') as HTMLSelectElement | null;
+      if (sel) {
+        sel.value = name;
+      }
+      console.log('[ST UI Bridge] Applied preset to UI:', name);
+    } catch (err) {
+      console.warn('[ST UI Bridge] Failed to apply preset to UI', err);
+    }
+  };
+})();

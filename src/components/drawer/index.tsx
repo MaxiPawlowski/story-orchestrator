@@ -1,4 +1,4 @@
-// import LoreManager from "./lore/LoreManager";
+﻿// import LoreManager from "./lore/LoreManager";
 /* <LoreManager /> */
 
 import Objetives from "./Objetives";
@@ -41,14 +41,23 @@ const DrawerWrapper = () => {
   const [isOpen, setIsOpen] = useState(true);
 
   const [isMinimized, setIsMinimized] = useState(false);
-  const { ready, title, checkpointIndex, checkpoint, progressText, applyRolePreset, activateCheckpoint } = useStoryOrchestrator({
+  const {
+    ready,
+    title,
+    checkpoints: checkpointRows,
+    progressText,
+    lastEvaluation,
+    evaluationHistory,
+    // turnsUntilNextCheck,
+    // lastQueuedEvaluation,
+  } = useStoryOrchestrator({
     autoInit: true,
   });
 
   useEffect(() => {
-    console.log("[DrawerWrapper] Story Orchestrator ready:", ready, "Title:", title);
-    console.log({ progressText })
-  }, [ready, title]);
+    console.log('[DrawerWrapper] Story Orchestrator ready:', ready, 'Title:', title);
+    console.log({ progressText });
+  }, [ready, title, progressText]);
 
   if (!isOpen) {
     return null;
@@ -97,7 +106,17 @@ const DrawerWrapper = () => {
               {activeTab === tabs.requirements && <Requirements />}
               {/* {activeTab === tabs.lore && <LoreManager />} */}
               {/* {activeTab === tabs.objetives && <Objetives />} */}
-              {activeTab === tabs.checkpoints && <Checkpoints />}
+              {activeTab === tabs.checkpoints && (
+                <Checkpoints
+                  title={title}
+                  checkpoints={checkpointRows}
+                  progressText={progressText}
+                  lastEvaluation={lastEvaluation}
+                // evaluationHistory={evaluationHistory}
+                // turnsUntilNextCheck={turnsUntilNextCheck}
+                // lastQueuedEvaluation={lastQueuedEvaluation}
+                />
+              )}
             </div>
           </>
         )}
@@ -107,3 +126,6 @@ const DrawerWrapper = () => {
 };
 
 export default DrawerWrapper;
+
+
+

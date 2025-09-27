@@ -16,10 +16,6 @@ export const RegexSpecListSchema = z.union([
   RegexSpecSchema,
   z.array(RegexSpecSchema).min(1),
 ]);
-export type RegexSpecList = z.infer<typeof RegexSpecListSchema>;
-
-const PositionEnum = z.enum(["before_defs", "after_defs", "an_top", "an_bottom", "in_chat"]);
-type Position = z.infer<typeof PositionEnum>;
 
 export const WorldInfoActivationsSchema = z.object({
   activate: z.array(z.string().min(1)).default([]),
@@ -38,8 +34,6 @@ const PresetPartialSchema = z.record(RoleEnum, z.record(z.string(), z.any()));
 
 export const OnActivateSchema = z.object({
   authors_note: AuthorsNoteSchema.optional(),
-  // support both spellings to be flexible
-  preset_override: PresetPartialSchema.optional(),
   preset_overrides: PresetPartialSchema.optional(),
   world_info: WorldInfoActivationsSchema.optional(),
   automation_ids: z.array(z.string().min(1)).optional(),
@@ -52,8 +46,6 @@ const CheckpointTriggersSchema = z.object({
   fail: RegexSpecListSchema.optional(),
 });
 
-export type CheckpointTriggers = z.infer<typeof CheckpointTriggersSchema>;
-
 export const CheckpointSchema = z.object({
   id: z.union([z.number(), z.string().min(1)]),
   name: z.string().min(1),
@@ -61,8 +53,6 @@ export const CheckpointSchema = z.object({
   triggers: CheckpointTriggersSchema.optional(),
   on_activate: OnActivateSchema.optional(),
 }).superRefine((cp, ctx) => {
-  // Require that triggers.win is provided. We removed the legacy `win_trigger` field
-  // so checkpoints must now include `triggers` with a `win` property.
   if (!(cp.triggers && cp.triggers.win)) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,

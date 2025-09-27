@@ -2,7 +2,11 @@
   "id": "lost-key",
   "schema_version": "1.0",
   "title": "Quest for the Lost Key",
-  "roles": { "dm": "Adolion Storyteller", "companion": "Ellie", "chat": "Max" },
+  "roles": {
+    "dm": "Adolion Storyteller",
+    "companion": "Ellie",
+    "chat": "{{user}}"
+  },
   "base_preset": {
     "source": "named",
     "name": "Sphiratrioth - Creative[350T][T = 0.7]"

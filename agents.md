@@ -10,8 +10,13 @@
 
 **Runtime Flow**
 - `useStoryOrchestrator` loads the first valid story, instantiates `StoryOrchestrator`, and hooks SillyTavern `eventSource` events for user text and generation lifecycle.
-- `StoryOrchestrator` updates stage state, applies authors notes/world info toggles, merges preset overrides via `PresetService`, and optionally fires automation IDs.
 - `SillyTavernAPI.ts` wraps host globals (event bus, textgen sliders, WI helpers) that the orchestrator and presets rely on.
+- `src/services/Story/` updates stage state, applies authors notes/world info toggles, merges preset overrides via PresetService, perform checkpoint win or lose condition trigger, using a LLM to do the final evaluation (can be triggered by regex or each 3 turns), and optionally fires automation IDs.
+  - `StoryOrchestrator.ts` lightweight controller; stage changes, A/N + WI, presets, automations
+  - `evaluation.ts`LLM arbiter prompt + strict JSON parsing
+  - `triggers.ts` regex spec → RegExp[] + legacy compatibility
+  - `logger.ts` tiny structured logger
+  - `types.ts` shared types (requests, outcomes, deps) 
 
 **Build & Dev**
 - Install deps with `npm install`; run `npm run dev` for webpack + tsc watch or `npm run build` to emit `dist/index.js` consumed by SillyTavern.

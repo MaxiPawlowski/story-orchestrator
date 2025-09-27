@@ -1,16 +1,19 @@
-import React, { createContext, useCallback, useContext, useState } from "react";
-import { parseAndNormalizeStory, formatZodError, type NormalizedStory, CheckpointResult } from "@services/SchemaService/story-validator";
-import loadJsons from "@services/StoryService/story-loader";
+﻿import React, { createContext, useCallback, useContext, useState } from "react";
+import { parseAndNormalizeStory, formatZodError, type NormalizedStory, type CheckpointResult } from "@services/SchemaService/story-validator";
+import { loadCheckpointBundle, type CheckpointBundle } from "@services/StoryService/story-loader";
 
 type ValidationResult =
   | { ok: true; story: NormalizedStory }
   | { ok: false; errors: string[] };
 
+type LoadOptions = { force?: boolean };
+
 interface StoryContextValue {
   validate: (input: unknown) => ValidationResult;
   lastResult: ValidationResult | null;
-  // load checkpoint bundle from dist/checkpoints or manifest
-  loadAll: () => Promise<CheckpointResult[] | null>;
+  loadBundle: (options?: LoadOptions) => Promise<CheckpointBundle | null>;
+  loadAll: (options?: LoadOptions) => Promise<CheckpointResult[] | null>;
+  bundle: CheckpointBundle | null;
   loading: boolean;
   loadedResults: Array<{ file: string; ok: boolean; json?: NormalizedStory; error?: unknown }> | null;
   okCount: number;
@@ -22,6 +25,7 @@ const StoryContext = createContext<StoryContextValue | undefined>(undefined);
 export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   const [lastResult, setLastResult] = useState<ValidationResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [bundle, setBundle] = useState<CheckpointBundle | null>(null);
   const [loadedResults, setLoadedResults] = useState<Array<{ file: string; ok: boolean; json?: NormalizedStory; error?: unknown }> | null>(null);
   const [okCount, setOkCount] = useState(0);
   const [failCount, setFailCount] = useState(0);
@@ -40,34 +44,41 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
     }
   }, []);
 
-  const loadAll = useCallback(async (): Promise<CheckpointResult[] | null> => {
+  const loadBundle = useCallback(async (options?: LoadOptions): Promise<CheckpointBundle | null> => {
     setLoading(true);
     try {
-      const res = await loadJsons();
+      const res = await loadCheckpointBundle(options ?? {});
       if (res) {
-        setLoadedResults(res.results as any);
+        setBundle(res);
+        setLoadedResults(res.results.map((r) => (r.ok ? { file: r.file, ok: true, json: r.json } : { file: r.file, ok: false, error: r.error })));
         setOkCount(res.okCount ?? 0);
         setFailCount(res.failCount ?? 0);
       } else {
+        setBundle(null);
         setLoadedResults(null);
         setOkCount(0);
         setFailCount(0);
       }
-      return res.results;
+      return res ?? null;
     } catch (e) {
+      setBundle(null);
       setLoadedResults(null);
       setOkCount(0);
       setFailCount(0);
-      // keep error silent here; consumer can check loadedResults
-      console.error("loadAll failed:", e);
+      console.error("[StoryContext] loadBundle failed:", e);
     } finally {
       setLoading(false);
     }
     return null;
   }, []);
 
+  const loadAll = useCallback(async (options?: LoadOptions): Promise<CheckpointResult[] | null> => {
+    const res = await loadBundle(options);
+    return res?.results ?? null;
+  }, [loadBundle]);
+
   return (
-    <StoryContext.Provider value={{ validate, lastResult, loadAll, loading, loadedResults, okCount, failCount }}>
+    <StoryContext.Provider value={{ validate, lastResult, loadBundle, loadAll, bundle, loading, loadedResults, okCount, failCount }}>
       {children}
     </StoryContext.Provider>
   );
