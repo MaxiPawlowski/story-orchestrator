@@ -1,29 +1,8 @@
-// StoryOrchestrator.ts (trimmed & focused)
-import type { Role, RegexSpec, Checkpoint as RawCheckpoint } from '@services/SchemaService/story-schema';
-import type { PresetPartial } from '../PresetService';
+﻿// StoryOrchestrator.ts (trimmed & focused)
+import type { Role } from '@services/SchemaService/story-schema';
 import { PresetService } from '../PresetService';
 import { generateQuietPrompt, chat } from '@services/SillyTavernAPI';
-import { NormalizedStory } from 'services/SchemaService/story-validator';
-
-type Story = {
-  title?: string;
-  roles?: Partial<Record<Role, string>>;
-  on_start?: OnActivate;
-  checkpoints: Checkpoint[];
-};
-
-type OnActivate = {
-  authors_note?: string | Partial<Record<Role, string>>;
-  world_info?: any;
-  preset_overrides?: Partial<Record<Role, PresetPartial>>;
-  automation_ids?: string[];
-  cfg_scale?: Partial<Record<Role, number>>;
-};
-
-type Checkpoint = RawCheckpoint & {
-  triggers?: { win?: RegexSpec[]; fail?: RegexSpec[] };
-  onActivate?: OnActivate;
-};
+import type { NormalizedStory } from '@services/SchemaService/story-validator';
 export type OrchestratorSnapshot = {
   ver: 1;
   idx: number;
@@ -33,10 +12,8 @@ export type OrchestratorSnapshot = {
 type EvaluationOutcome = 'win' | 'fail' | 'continue';
 type ModelEval = { completed: 'YES' | 'NO'; failed: 'YES' | 'NO'; reason?: string; confidence?: number };
 
-const REGEX_FROM_SLASHES = /^\/(.*)\/([dgimsuvy]*)$/;
-
 export class StoryOrchestrator {
-  private story: Story;
+  private story: NormalizedStory;
   private svc: PresetService;
 
   private idx = 0;
@@ -73,17 +50,15 @@ export class StoryOrchestrator {
 
   async init() {
     this.seedRoleMap();
-    const os = this.story.on_start;
     await this.svc.initForStory();
-
     this.activateIndex(0);
   }
 
   activateIndex(i: number) {
     this.idx = Math.max(0, Math.min(i, this.story.checkpoints.length - 1));
     const cp = this.story.checkpoints[this.idx];
-    this.winRes = this.compileRegexTriggerList(cp.triggers?.win);
-    this.failRes = this.compileRegexTriggerList(cp.triggers?.fail);
+    this.winRes = Array.isArray(cp.winTriggers) ? cp.winTriggers : [];
+    this.failRes = Array.isArray(cp.failTriggers) ? cp.failTriggers : [];
     const oa = cp.onActivate;
     // TODO: hook these up
     // if (oa?.authors_note) this.applyAN(oa.authors_note);
@@ -328,24 +303,4 @@ export class StoryOrchestrator {
     return null;
   }
 
-  compileRegexTriggerList(x?: RegexSpec[]): RegExp[] {
-    function compile(spec?: RegexSpec): RegExp | null {
-      if (!spec) return null;
-      if (spec instanceof RegExp) return spec; // ← let precompiled regex through
-      if (typeof spec === 'string') {
-        const m = spec.trim().match(REGEX_FROM_SLASHES);
-        if (!m) return null;
-        const [, pattern, flags] = m;
-        try { return new RegExp(pattern, flags || 'i'); } catch { return null; }
-      }
-      return null;
-    }
-    if (!Array.isArray(x)) return [];
-    const out: RegExp[] = [];
-    for (const s of x) {
-      const r = compile(s);
-      if (r) out.push(r);
-    }
-    return out;
-  }
 }

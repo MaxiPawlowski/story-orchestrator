@@ -15,7 +15,6 @@ export interface NormalizedWorldInfo {
 
 export interface NormalizedOnActivate {
   authors_note?: Partial<Record<Role, string>>;
-  cfg_scale?: Partial<Record<Role, number>>;
   world_info?: NormalizedWorldInfo;
   preset_overrides?: Partial<Record<Role, Record<string, any>>>;
   automation_ids?: string[];
@@ -38,7 +37,6 @@ export interface NormalizedStory {
   checkpointIndexById: Map<string | number, number>;
   basePreset?: { source: string; name?: string };
   roleDefaults?: Partial<Record<Role, Record<string, any>>>;
-  onStart?: NormalizedOnActivate;
 }
 
 export type CheckpointResult =
@@ -120,16 +118,6 @@ function normalizeAutomationIds(input?: unknown): string[] | undefined {
   return filtered.length ? dedupeOrdered(filtered) : undefined;
 }
 
-function normalizeCfgScale(input?: unknown): Partial<Record<Role, number>> | undefined {
-  if (!input || typeof input !== 'object') return undefined;
-  const out: Partial<Record<Role, number>> = {};
-  for (const [key, value] of Object.entries(input as Record<string, unknown>)) {
-    const num = Number(value);
-    if (!Number.isNaN(num)) out[key as Role] = num;
-  }
-  return Object.keys(out).length ? out : undefined;
-}
-
 function normalizeOnActivateBlock(input?: OnActivate | null): NormalizedOnActivate | undefined {
   if (!input) return undefined;
   return {
@@ -137,7 +125,6 @@ function normalizeOnActivateBlock(input?: OnActivate | null): NormalizedOnActiva
     world_info: normalizeWorldInfo(input.world_info),
     preset_overrides: normalizePresetOverrides((input as any).preset_overrides ?? (input as any).preset_override),
     automation_ids: normalizeAutomationIds((input as any).automation_ids),
-    cfg_scale: normalizeCfgScale((input as any).cfg_scale ?? (input as any).cfgScale),
   };
 }
 
@@ -186,8 +173,7 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
     checkpoints,
     checkpointIndexById,
     basePreset,
-    roleDefaults: story.role_defaults as any,
-    onStart: normalizeOnActivateBlock((story as any).on_start ?? null),
+    roleDefaults: story.role_defaults ? normalizePresetOverrides(story.role_defaults) : undefined,
   };
 }
 
