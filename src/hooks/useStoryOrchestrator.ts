@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { NormalizedStory } from "@services/SchemaService/story-validator";
 import type { Role } from "@services/SchemaService/story-schema";
 import { eventSource, event_types, getCharacterNameById, chat } from "@services/SillyTavernAPI";
+import { subscribeToEventSource } from "@utils/eventSource";
 import { PresetService } from "@services/PresetService";
 import { StoryOrchestrator } from "@services/StoryService/StoryOrchestrator";
 import { DEFAULT_INTERVAL_TURNS } from "@services/StoryService/story-state";
@@ -120,74 +121,82 @@ export function useStoryOrchestrator(
     lastDraftRef.current = null;
     gateRef.current.endEpoch();
 
-    const offs: Array<() => void> = [];
-    const subscribe = (name: string, handler: (...args: any[]) => void) => {
-      try {
-        const off = eventSource?.on?.(name, handler);
-        if (typeof off === "function") {
-          offs.push(off);
-        } else if (eventSource?.off) {
-          offs.push(() => eventSource.off(name, handler));
+    const listeners: Array<() => void> = [];
+
+    listeners.push(subscribeToEventSource({
+      source: eventSource,
+      eventName: event_types.MESSAGE_SENT,
+      handler: (payload: any, ...rest) => {
+        console.log("[Story/useSO] event", "MESSAGE_SENT", payload, ...rest);
+        const fire = () => {
+          const pick = pickUserTextFromChat();
+          if (!pick) return false;
+          if (pick.key === lastUserSeenKeyRef.current) return false;
+          const ok = gateRef.current.shouldAcceptUser(pick.text, pick.key).accept;
+          if (!ok) return false;
+          lastUserSeenKeyRef.current = pick.key;
+          console.log("[Story/useSO] pulled-from-chat", { key: pick.key, text: pick.text });
+          orch.handleUserText(pick.text);
+          return true;
+        };
+        if (fire()) return;
+        queueMicrotask(() => {
+          fire();
+        });
+        setTimeout(() => {
+          fire();
+        }, 0);
+      },
+    }));
+
+    listeners.push(subscribeToEventSource({
+      source: eventSource,
+      eventName: event_types.GROUP_MEMBER_DRAFTED,
+      handler: (raw: any) => {
+        const chid = Array.isArray(raw) ? raw[0] : raw;
+        const idNum = Number.parseInt(String(chid), 10);
+        const name = Number.isFinite(idNum) && !Number.isNaN(idNum)
+          ? getCharacterNameById?.(idNum)
+          : (typeof raw?.name === "string" ? raw.name : undefined);
+        lastDraftRef.current = name ?? null;
+        console.log("[Story/useSO] Event", "GROUP_MEMBER_DRAFTED", raw, "->", lastDraftRef.current);
+      },
+    }));
+
+    listeners.push(subscribeToEventSource({
+      source: eventSource,
+      eventName: event_types.GENERATION_STARTED,
+      handler: (payload: any) => {
+        gateRef.current.newEpoch();
+        let candidate = lastDraftRef.current ?? "";
+        const p = Array.isArray(payload) ? payload[0] : payload;
+        candidate ||= (p?.character && String(p.character)) || (p?.quietName && String(p.quietName)) || "";
+        const stops: string[] = Array.isArray(p?.stop) ? p.stop
+          : Array.isArray(p?.stopping_strings) ? p.stopping_strings : [];
+        if (!candidate && stops.length) {
+          const found = stops.find((s) => /[:：]$/.test(s.trim()));
+          if (found) candidate = found.replace(/\s*[:：]\s*$/, "").trim();
         }
-      } catch (e) {
-        console.warn("[Story/useSO] subscribe failed", name, e);
-      }
-    };
+        if (candidate) orch.setActiveRole(candidate);
+      },
+    }));
 
-    subscribe(event_types.MESSAGE_SENT, (payload: any, ...rest) => {
-      console.log("[Story/useSO] event", "MESSAGE_SENT", payload, ...rest);
-      const fire = () => {
-        const pick = pickUserTextFromChat();
-        if (!pick) return false;
-        if (pick.key === lastUserSeenKeyRef.current) return false;
-        const ok = gateRef.current.shouldAcceptUser(pick.text, pick.key).accept;
-        if (!ok) return false;
-        lastUserSeenKeyRef.current = pick.key;
-        console.log("[Story/useSO] pulled-from-chat", { key: pick.key, text: pick.text });
-        orch.handleUserText(pick.text);
-        return true;
-      };
-      if (fire()) return;
-      queueMicrotask(() => {
-        fire();
-      });
-      setTimeout(() => {
-        fire();
-      }, 0);
-    });
+    listeners.push(subscribeToEventSource({
+      source: eventSource,
+      eventName: event_types.GENERATION_STOPPED,
+      handler: () => {
+        gateRef.current.endEpoch();
+      },
+    }));
 
-    subscribe(event_types.GROUP_MEMBER_DRAFTED, (raw: any) => {
-      const chid = Array.isArray(raw) ? raw[0] : raw;
-      const idNum = Number.parseInt(String(chid), 10);
-      const name = Number.isFinite(idNum) && !Number.isNaN(idNum)
-        ? getCharacterNameById?.(idNum)
-        : (typeof raw?.name === "string" ? raw.name : undefined);
-      lastDraftRef.current = name ?? null;
-      console.log("[Story/useSO] Event", "GROUP_MEMBER_DRAFTED", raw, "->", lastDraftRef.current);
-    });
-
-    subscribe(event_types.GENERATION_STARTED, (payload: any) => {
-      gateRef.current.newEpoch();
-      let candidate = lastDraftRef.current ?? "";
-      const p = Array.isArray(payload) ? payload[0] : payload;
-      candidate ||= (p?.character && String(p.character)) || (p?.quietName && String(p.quietName)) || "";
-      const stops: string[] = Array.isArray(p?.stop) ? p.stop
-        : Array.isArray(p?.stopping_strings) ? p.stopping_strings : [];
-      if (!candidate && stops.length) {
-        const found = stops.find((s) => /[:：]$/.test(s.trim()));
-        if (found) candidate = found.replace(/\s*[:：]\s*$/, "").trim();
-      }
-      if (candidate) orch.setActiveRole(candidate);
-    });
-
-    subscribe(event_types.GENERATION_STOPPED, () => {
-      gateRef.current.endEpoch();
-    });
-
-    subscribe(event_types.GENERATION_ENDED, () => {
-      lastDraftRef.current = null;
-      gateRef.current.endEpoch();
-    });
+    listeners.push(subscribeToEventSource({
+      source: eventSource,
+      eventName: event_types.GENERATION_ENDED,
+      handler: () => {
+        lastDraftRef.current = null;
+        gateRef.current.endEpoch();
+      },
+    }));
 
     (async () => {
       try {
@@ -200,7 +209,7 @@ export function useStoryOrchestrator(
     })();
 
     return () => {
-      offs.forEach((off) => {
+      listeners.forEach((off) => {
         try {
           off();
         } catch (err) {

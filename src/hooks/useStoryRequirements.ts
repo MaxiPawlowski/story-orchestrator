@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { NormalizedStory } from "@services/SchemaService/story-validator";
 import type { Role } from "@services/SchemaService/story-schema";
 import { eventSource, event_types, getContext, getWorldInfoSettings, getCharacterIdByName } from "@services/SillyTavernAPI";
+import { subscribeToEventSource } from "@utils/eventSource";
 
 export interface StoryRequirementsResult {
   requirementsReady: boolean;
@@ -146,21 +147,6 @@ export function useStoryRequirements(story: NormalizedStory | null | undefined):
   useEffect(() => {
     const listeners: Array<() => void> = [];
 
-    const subscribe = (eventName: string, handler: (...args: any[]) => void) => {
-      try {
-        const off = eventSource?.on?.(eventName, handler);
-        if (typeof off === "function") {
-          listeners.push(off);
-        } else if (eventSource?.off) {
-          listeners.push(() => eventSource.off(eventName, handler));
-        } else if ((eventSource as any)?.removeListener) {
-          listeners.push(() => (eventSource as any).removeListener(eventName, handler));
-        }
-      } catch (e) {
-        console.warn("[StoryRequirements] subscribe failed", eventName, e);
-      }
-    };
-
     const onChatChanged = async () => {
       try {
         const { groupId } = getContext();
@@ -177,10 +163,26 @@ export function useStoryRequirements(story: NormalizedStory | null | undefined):
       refreshWorldLore();
     };
 
-    subscribe(event_types.CHAT_CHANGED, onChatChanged);
-    subscribe(event_types.WORLDINFO_UPDATED, onWorldInfoEvent);
-    subscribe(event_types.WORLDINFO_SETTINGS_UPDATED, onWorldInfoEvent);
-    subscribe(event_types.WORLDINFO_ENTRIES_LOADED, onWorldInfoEvent);
+    listeners.push(subscribeToEventSource({
+      source: eventSource,
+      eventName: event_types.CHAT_CHANGED,
+      handler: onChatChanged,
+    }));
+    listeners.push(subscribeToEventSource({
+      source: eventSource,
+      eventName: event_types.WORLDINFO_UPDATED,
+      handler: onWorldInfoEvent,
+    }));
+    listeners.push(subscribeToEventSource({
+      source: eventSource,
+      eventName: event_types.WORLDINFO_SETTINGS_UPDATED,
+      handler: onWorldInfoEvent,
+    }));
+    listeners.push(subscribeToEventSource({
+      source: eventSource,
+      eventName: event_types.WORLDINFO_ENTRIES_LOADED,
+      handler: onWorldInfoEvent,
+    }));
 
     onChatChanged();
     refreshWorldLore();

@@ -4,6 +4,7 @@ import { loadCheckpointBundle, type CheckpointBundle } from "@services/StoryServ
 import { useStoryRequirements } from "@hooks/useStoryRequirements";
 import { useStoryOrchestrator } from "@hooks/useStoryOrchestrator";
 import { eventSource, event_types, getContext } from "@services/SillyTavernAPI";
+import { subscribeToEventSource } from "@utils/eventSource";
 import {
   DEFAULT_INTERVAL_TURNS,
   loadStoryState,
@@ -134,22 +135,6 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
   }, [bundle, loadBundle]);
 
   useEffect(() => {
-    const listeners: Array<() => void> = [];
-
-    const subscribe = (eventName: string, handler: (...args: any[]) => void) => {
-      try {
-        const off = eventSource?.on?.(eventName, handler);
-        if (typeof off === "function") {
-          listeners.push(off);
-        } else if (eventSource?.off) {
-          listeners.push(() => eventSource.off(eventName, handler));
-        } else if ((eventSource as any)?.removeListener) {
-          listeners.push(() => (eventSource as any).removeListener(eventName, handler));
-        }
-      } catch (err) {
-        console.warn("[StoryContext] subscribe failed", eventName, err);
-      }
-    };
 
     const updateChatId = () => {
       try {
@@ -166,16 +151,18 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
     };
 
     updateChatId();
-    subscribe(event_types.CHAT_CHANGED, updateChatId);
+    const unsubscribe = subscribeToEventSource({
+      source: eventSource,
+      eventName: event_types.CHAT_CHANGED,
+      handler: updateChatId,
+    });
 
     return () => {
-      listeners.forEach((off) => {
-        try {
-          off();
-        } catch (err) {
-          console.warn("[StoryContext] unsubscribe failed", err);
-        }
-      });
+      try {
+        unsubscribe();
+      } catch (err) {
+        console.warn("[StoryContext] unsubscribe failed", err);
+      }
     };
   }, []);
 
