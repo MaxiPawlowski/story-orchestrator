@@ -5,8 +5,8 @@ import Objetives from "./Objetives";
 import Requirements from "./Requirements";
 import Checkpoints from "./Checkpoints";
 
-import React, { useEffect, useState } from "react";
-import { useStoryOrchestrator } from "@hooks/useStoryOrchestrator";
+import React, { useEffect, useMemo, useState } from "react";
+import { useStoryContext } from "@hooks/useStoryContext";
 
 const TabSelector = ({ tabs, setActiveTab, activeTab }: { tabs: string[]; setActiveTab: (tab: string) => void; activeTab: string; }) => {
   return (
@@ -45,10 +45,21 @@ const DrawerWrapper = () => {
     ready,
     title,
     checkpoints: checkpointRows,
-    progressText,
-  } = useStoryOrchestrator({
-    autoInit: true,
-  });
+    checkpointStatuses,
+    checkpointIndex,
+  } = useStoryContext();
+
+
+  const progressText = useMemo(() => {
+    if (!checkpointRows) return '';
+    return checkpointRows.map((cp: any, i: number) => {
+      const status = checkpointStatuses[i] ??
+        (i < checkpointIndex ? 'complete' : i === checkpointIndex ? 'current' : 'pending');
+      const prefix = status === 'complete' ? '[x] ' : status === 'current' ? '[>] ' : status === 'failed' ? '[!] ' : '[ ] ';
+      return `${prefix}${cp.name}`;
+    }).join('  |  ');
+  }, [checkpointStatuses, checkpointIndex]);
+
 
   useEffect(() => {
     console.log('[DrawerWrapper] Story Orchestrator ready:', ready, 'Title:', title);

@@ -3,6 +3,7 @@ import type { Role, RegexSpec, Checkpoint as RawCheckpoint } from '@services/Sch
 import type { PresetPartial } from '../PresetService';
 import { PresetService } from '../PresetService';
 import { generateQuietPrompt, chat } from '@services/SillyTavernAPI';
+import { NormalizedStory } from 'services/SchemaService/story-validator';
 
 type Story = {
   title?: string;
@@ -37,9 +38,6 @@ const REGEX_FROM_SLASHES = /^\/(.*)\/([dgimsuvy]*)$/;
 export class StoryOrchestrator {
   private story: Story;
   private svc: PresetService;
-  private applyAN: (note: string | Partial<Record<Role, string>>) => void;
-  private applyWI: (ops: any) => void;
-  private runAutomation?: (id: string) => void | Promise<void>;
 
   private idx = 0;
   private winRes: RegExp[] = [];
@@ -56,20 +54,14 @@ export class StoryOrchestrator {
   private onRoleApplied?: (role: Role, cpName: string) => void;
 
   constructor(opts: {
-    story: Story;
+    story: NormalizedStory;
     presetService: PresetService;
-    applyAuthorsNote: (note: string | Partial<Record<Role, string>>) => void;
-    applyWorldInfo: (ops: any) => void;
-    runAutomation?: (id: string) => void | Promise<void>;
     onRoleApplied?: (role: Role, cpName: string) => void;
     shouldApplyRole?: (role: Role) => boolean;
     setEvalHooks?: (hooks: { onEvaluated?: (ev: any) => void }) => void;
   }) {
     this.story = opts.story;
     this.svc = opts.presetService;
-    this.applyAN = opts.applyAuthorsNote;
-    this.applyWI = opts.applyWorldInfo;
-    this.runAutomation = opts.runAutomation;
     this.onRoleApplied = opts.onRoleApplied;
     this.shouldApplyRole = opts.shouldApplyRole;
     opts.setEvalHooks?.({ onEvaluated: (ev) => (this.onEvaluated = ev) });
@@ -82,8 +74,6 @@ export class StoryOrchestrator {
   async init() {
     this.seedRoleMap();
     const os = this.story.on_start;
-    if (os?.authors_note) this.applyAN(os.authors_note);
-    if (os?.world_info) this.applyWI(os.world_info);
     await this.svc.initForStory();
 
     this.activateIndex(0);
@@ -95,9 +85,10 @@ export class StoryOrchestrator {
     this.winRes = this.compileRegexTriggerList(cp.triggers?.win);
     this.failRes = this.compileRegexTriggerList(cp.triggers?.fail);
     const oa = cp.onActivate;
-    if (oa?.authors_note) this.applyAN(oa.authors_note);
-    if (oa?.world_info) this.applyWI(oa.world_info);
-    if (oa?.automation_ids) for (const id of oa.automation_ids) this.runAutomation?.(id);
+    // TODO: hook these up
+    // if (oa?.authors_note) this.applyAN(oa.authors_note);
+    // if (oa?.world_info) this.applyWI(oa.world_info);
+    // if (oa?.automation_ids) for (const id of oa.automation_ids) this.runAutomation?.(id);
 
     this.turn = 0;
     this.sinceEval = 0;
@@ -134,7 +125,6 @@ export class StoryOrchestrator {
     else if (this.sinceEval >= this.intervalTurns) this.enqueueEval('interval', text);
   }
 
-  // --- internals
   private norm(s?: string | null) { return (s ?? '').normalize('NFKC').trim().toLowerCase(); }
   private seedRoleMap() {
     const roles = (this.story?.roles ?? {}) as Partial<Record<Role, string>>;
@@ -144,7 +134,6 @@ export class StoryOrchestrator {
     });
   }
   private matchTrigger(text: string) {
-    // return the matched reason along with the regex pattern that matched
     for (const re of this.failRes) {
       re.lastIndex = 0;
       if (re.test(text)) return { reason: 'fail' as const, pattern: re.toString() };
@@ -339,10 +328,6 @@ export class StoryOrchestrator {
     return null;
   }
 
-
-
-
-
   compileRegexTriggerList(x?: RegexSpec[]): RegExp[] {
     function compile(spec?: RegexSpec): RegExp | null {
       if (!spec) return null;
@@ -363,6 +348,4 @@ export class StoryOrchestrator {
     }
     return out;
   }
-
-
 }
