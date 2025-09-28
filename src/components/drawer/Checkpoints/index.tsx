@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 import { getWorldInfoSettings } from "@services/SillyTavernAPI";
-
-type CheckpointStatus = "pending" | "current" | "complete" | "failed";
+import type { CheckpointStatus } from "@services/StoryService/story-state";
 
 type CheckpointRow = {
   id: string | number;

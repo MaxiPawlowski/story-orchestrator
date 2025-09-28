@@ -4,6 +4,7 @@ import type { Role } from "@services/SchemaService/story-schema";
 import { eventSource, event_types, getCharacterNameById, chat } from "@services/SillyTavernAPI";
 import { PresetService } from "@services/PresetService";
 import { StoryOrchestrator } from "@services/StoryService/StoryOrchestrator";
+import { DEFAULT_INTERVAL_TURNS } from "@services/StoryService/story-state";
 
 const pickUserTextFromChat = (): { text: string; key: string } | null => {
   if (!Array.isArray(chat) || chat.length === 0) return null;
@@ -62,6 +63,12 @@ class TurnGate {
   }
 }
 
+const sanitizeIntervalTurns = (value: number): number => {
+  if (!Number.isFinite(value)) return DEFAULT_INTERVAL_TURNS;
+  const int = Math.floor(value);
+  return int >= 1 ? int : DEFAULT_INTERVAL_TURNS;
+};
+
 export interface StoryOrchestratorResult {
   ready: boolean;
   activateIndex: (index: number) => void;
@@ -70,6 +77,7 @@ export interface StoryOrchestratorResult {
 export function useStoryOrchestrator(
   story: NormalizedStory | null | undefined,
   requirementsReady: boolean,
+  intervalTurns: number,
 ): StoryOrchestratorResult {
   const [ready, setReady] = useState<boolean>(false);
   const orchRef = useRef<StoryOrchestrator | null>(null);
@@ -87,6 +95,7 @@ export function useStoryOrchestrator(
       return;
     }
 
+    const initialInterval = sanitizeIntervalTurns(intervalTurns);
     const svc = new PresetService({
       base: story.basePreset.name ? { source: "named", name: story.basePreset.name } : { source: "current" },
       storyId: story.title,
@@ -103,6 +112,8 @@ export function useStoryOrchestrator(
         setters.onEvaluated = (ev) => console.log("[Story/useSO] onEvaluated", ev);
       },
     });
+
+    orch.setIntervalTurns(initialInterval);
 
     orchRef.current = orch;
     lastUserSeenKeyRef.current = null;
@@ -203,6 +214,14 @@ export function useStoryOrchestrator(
       setReady(false);
     };
   }, [story, requirementsReady]);
+
+  useEffect(() => {
+    const orch = orchRef.current;
+    if (!orch) return;
+    if (!requirementsReady) return;
+    if (!story?.basePreset) return;
+    orch.setIntervalTurns(sanitizeIntervalTurns(intervalTurns));
+  }, [intervalTurns, requirementsReady, story]);
 
   const activateIndex = useCallback((index: number) => {
     orchRef.current?.activateIndex(index);
