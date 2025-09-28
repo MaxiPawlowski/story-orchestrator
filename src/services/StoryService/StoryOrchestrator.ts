@@ -10,7 +10,7 @@ export type OrchestratorSnapshot = {
 };
 
 type EvaluationOutcome = 'win' | 'fail' | 'continue';
-type ModelEval = { completed: 'YES' | 'NO'; failed: 'YES' | 'NO'; reason?: string; confidence?: number };
+type ModelEval = { completed: boolean; failed: boolean; reason?: string; confidence?: number };
 
 export class StoryOrchestrator {
   private story: NormalizedStory;
@@ -191,8 +191,8 @@ export class StoryOrchestrator {
       console.warn('[StoryOrch] arbiter parse failed', { raw: String(raw).slice(0, 200) });
       return 'continue';
     }
-    return parsed.completed === 'YES' ? 'win'
-      : parsed.failed === 'YES' ? 'fail'
+    return parsed.completed ? 'win'
+      : parsed.failed ? 'fail'
         : 'continue';
   }
 
@@ -218,8 +218,8 @@ export class StoryOrchestrator {
       'Latest player message:',
       this.clamp(args.latestText, 240),
       '',
-      'Respond ONLY with JSON:',
-      '{ "completed":"YES|NO", "failed":"YES|NO", "reason": "...", "confidence": 0..1 }',
+      'Respond ONLY with JSON. Example:',
+      '{"completed": true, "failed": false, "reason": "...", "confidence": 0.95}',
     ].filter(Boolean).join('\n');
   }
 
@@ -260,21 +260,34 @@ export class StoryOrchestrator {
     const blocks = [...s.matchAll(/\{[\s\S]*?\}/g)].map(m => m[0]);
     const candidate = blocks.sort((a, b) => b.length - a.length)[0] || s;
 
+    const toBool = (v: any): boolean | null => {
+      if (typeof v === 'boolean') return v;
+      if (typeof v === 'number') return v !== 0;
+      if (typeof v === 'string') {
+        const t = v.trim().toLowerCase();
+        if (t === 'true') return true;
+        if (t === 'false') return false;
+      }
+      return null;
+    };
+
     const tryJson = (x: string) => {
       try {
         const obj = JSON.parse(x);
-        const c = this.yn(obj.completed ?? obj.complete ?? obj.answer);
-        const f = this.yn(obj.failed ?? obj.failure ?? obj.lose);
-        if (!c && !f) return null;
+        const cRaw = obj.completed ?? obj.complete ?? obj.answer;
+        const fRaw = obj.failed ?? obj.failure ?? obj.lose;
+        const c = toBool(cRaw);
+        const f = toBool(fRaw);
+        if (c === null && f === null) return null;
         const out: ModelEval = {
-          completed: c ?? 'NO',
-          failed: f ?? (c === 'YES' ? 'NO' : 'NO'),
+          completed: !!c,
+          failed: !!f,
           reason: typeof obj.reason === 'string' ? this.clamp(obj.reason, 200) : undefined,
           confidence: typeof obj.confidence === 'number'
             ? Math.max(0, Math.min(1, obj.confidence)) : undefined,
         };
-        if (out.completed === 'YES') out.failed = 'NO';
-        if (out.failed === 'YES') out.completed = 'NO';
+        if (out.completed) out.failed = false;
+        if (out.failed) out.completed = false;
         return out;
       } catch { return null; }
     };
@@ -282,24 +295,24 @@ export class StoryOrchestrator {
     const parsed = tryJson(candidate) || tryJson(s);
     if (parsed) return parsed;
 
-    // 3) Heuristic fallback (handles rare schema misses)
-    const yesNo = (re: RegExp) => (re.test(s) ? 'YES' : null) as 'YES' | null;
-    const completed = yesNo(/\bcompleted\b[^a-zA-Z0-9]{0,10}"?YES"?/i) || yesNo(/\baccepted\b/i);
-    const failed = yesNo(/\bfailed\b[^a-zA-Z0-9]{0,10}"?YES"?/i) || null;
-    if (completed || failed) {
-      return { completed: completed ?? 'NO', failed: failed ?? (completed ? 'NO' : 'NO') };
+    const boolKey = (key: string) => {
+      const re = new RegExp(`"${key}"\\s*:\\s*(true|false)`, 'i');
+      const m = s.match(re);
+      if (m) return m[1].toLowerCase() === 'true';
+      return null;
+    };
+    const completed = boolKey('completed');
+    const failed = boolKey('failed');
+    if (completed !== null || failed !== null) {
+      const out: ModelEval = {
+        completed: !!completed,
+        failed: !!failed,
+      };
+      if (out.completed) out.failed = false;
+      if (out.failed) out.completed = false;
+      return out;
     }
-    return null;
-  }
 
-  private yn(v: any): 'YES' | 'NO' | null {
-    if (v === true) return 'YES';
-    if (v === false) return 'NO';
-    if (typeof v === 'string') {
-      const t = v.trim().toUpperCase();
-      if (t === 'YES') return 'YES';
-      if (t === 'NO') return 'NO';
-    }
     return null;
   }
 
