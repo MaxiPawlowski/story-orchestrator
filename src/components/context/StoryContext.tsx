@@ -8,7 +8,7 @@ type ValidationResult =
 
 type LoadOptions = { force?: boolean };
 
-interface StoryContextValue {
+export interface StoryContextValue {
   validate: (input: unknown) => ValidationResult;
   lastResult: ValidationResult | null;
   loadBundle: (options?: LoadOptions) => Promise<CheckpointBundle | null>;
@@ -84,10 +84,6 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
   );
 };
 
-export function useStoryContext(): StoryContextValue {
-  const ctx = useContext(StoryContext);
-  if (!ctx) throw new Error("useStoryContext must be used within a StoryProvider");
-  return ctx;
-}
+
 
 export default StoryContext;

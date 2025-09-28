@@ -24,7 +24,7 @@ const Requirements = () => {
   useEffect(() => {
     const onChatChanged = async () => {
       const { groupId, chatId, ...context } = getContext();
-      console.log("Chat changed", { ...context, groupId, chatId });
+      console.log("[Story - Requirements] Chat changed", { ...context, groupId, chatId });
       setGroupChatStatus(groupId ? "green" : "yellow");
       onPersonaReload();
     }

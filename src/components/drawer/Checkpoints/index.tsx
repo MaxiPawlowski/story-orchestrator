@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import { getWorldInfoSettings } from "@services/SillyTavernAPI";
-import type { EvaluationDetails } from "@services/StoryService/orchestrator";
 
 type CheckpointStatus = "pending" | "current" | "complete" | "failed";
 
@@ -14,7 +13,6 @@ type CheckpointRow = {
 type EvaluationHistoryEntry = {
   eventText: string;
   result: "win" | "fail" | null;
-  details: EvaluationDetails;
 };
 
 type QueuedEvaluationInfo = {
@@ -27,7 +25,6 @@ type Props = {
   title?: string;
   checkpoints?: CheckpointRow[];
   progressText?: string;
-  lastEvaluation?: EvaluationDetails | null;
   evaluationHistory?: EvaluationHistoryEntry[];
   turnsUntilNextCheck?: number | null;
   lastQueuedEvaluation?: QueuedEvaluationInfo | null;
@@ -49,26 +46,25 @@ const STATUS_LABEL: Record<CheckpointStatus, string> = {
   failed: "Failed",
 };
 
-const STATUS_BACKGROUND: Record<CheckpointStatus, string> = {
-  pending: "transparent",
-  current: "rgba(0,128,255,0.08)",
-  complete: "rgba(0,180,0,0.08)",
-  failed: "rgba(255,0,0,0.08)",
+// replaced rgba mappings with Tailwind utility classes
+const STATUS_BG_CLASS: Record<CheckpointStatus, string> = {
+  pending: "bg-transparent",
+  current: "bg-blue-50",
+  complete: "bg-green-50",
+  failed: "bg-red-50",
 };
 
-const STATUS_BORDER: Record<CheckpointStatus, string> = {
-  pending: "rgba(0,0,0,0.08)",
-  current: "rgba(0,128,255,0.3)",
-  complete: "rgba(0,180,0,0.3)",
-  failed: "rgba(255,0,0,0.3)",
+const STATUS_BORDER_CLASS: Record<CheckpointStatus, string> = {
+  pending: "border-gray-200",
+  current: "border-blue-300",
+  complete: "border-green-300",
+  failed: "border-red-300",
 };
 
 const Checkpoints: React.FC<Props> = ({
   title = "Story Checkpoints",
   checkpoints,
   progressText,
-  lastEvaluation,
-  evaluationHistory,
   turnsUntilNextCheck,
   lastQueuedEvaluation,
 }) => {
@@ -78,23 +74,6 @@ const Checkpoints: React.FC<Props> = ({
     const wi = getWorldInfoSettings();
     console.log("WI settings snapshot:", wi);
   }, []);
-
-  const lastEvalSummary = useMemo(() => {
-    if (!lastEvaluation) return null;
-
-    const { request, parsed, outcome, completed, failed } = lastEvaluation;
-    const decision = completed ? "Completed" : failed ? "Failed" : outcome === "continue" ? "Ongoing" : outcome ?? "Unknown";
-    const triggerText = request?.reason ?? "No trigger recorded";
-    const reason = parsed?.reason ?? (request?.matchedPattern ? `${triggerText} (${request.matchedPattern})` : triggerText);
-    const confidence = typeof parsed?.confidence === "number" && Number.isFinite(parsed.confidence)
-      ? `${Math.round(parsed.confidence * 100)}%`
-      : null;
-    const timestamp = typeof request?.timestamp === "number"
-      ? new Date(request.timestamp).toLocaleTimeString()
-      : null;
-
-    return { decision, reason, confidence, timestamp };
-  }, [lastEvaluation]);
 
   const queuedSummary = useMemo(() => {
     if (!lastQueuedEvaluation) return null;
@@ -117,48 +96,37 @@ const Checkpoints: React.FC<Props> = ({
     return { label, matchedPattern };
   }, [lastQueuedEvaluation]);
 
-  const recentEvaluations = useMemo(() => {
-    if (!evaluationHistory?.length) return [] as EvaluationHistoryEntry[];
-    return evaluationHistory.slice(-3).reverse();
-  }, [evaluationHistory]);
 
   return (
-    <div className="checkpoints-wrapper" style={{ padding: 8 }}>
-      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
-          <h3 style={{ margin: 0 }}>{title}</h3>
+    // wrapper padding 8px -> p-2
+    <div className="checkpoints-wrapper p-2">
+      <div className="flex flex-col gap-1">
+        <div className="flex items-baseline justify-between gap-2">
+          <h3 className="m-0">{title}</h3>
           {progressText ? (
-            <span style={{ fontSize: 12, opacity: 0.75 }}>{progressText}</span>
+            <span className="text-sm opacity-75">{progressText}</span>
           ) : null}
         </div>
-        {lastEvalSummary ? (
-          <div style={{ fontSize: 12, padding: "6px 8px", borderRadius: 6, background: "rgba(0,0,0,0.04)" }}>
-            <strong>Last evaluation:</strong> {lastEvalSummary.decision}
-            {lastEvalSummary.reason ? ` | ${lastEvalSummary.reason}` : ""}
-            {lastEvalSummary.confidence ? ` | Confidence ${lastEvalSummary.confidence}` : ""}
-            {lastEvalSummary.timestamp ? ` | ${lastEvalSummary.timestamp}` : ""}
-          </div>
-        ) : null}
 
         {typeof turnsUntilNextCheck === 'number' ? (
-          <div style={{ fontSize: 12, opacity: 0.65 }}>
+          <div className="text-sm opacity-65">
             Next interval check in {turnsUntilNextCheck} message{turnsUntilNextCheck === 1 ? '' : 's'}
           </div>
         ) : null}
 
         {queuedSummary ? (
-          <div style={{ fontSize: 12, opacity: 0.7 }}>
+          <div className="text-sm opacity-70">
             <strong>Last check queued:</strong> {queuedSummary.label}
             {queuedSummary.matchedPattern ? ` | pattern ${queuedSummary.matchedPattern}` : ''}
           </div>
         ) : null}
       </div>
 
-      <ul style={{ listStyle: "none", padding: 0, margin: "12px 0 0" }}>
+      <ul className="list-none p-0 mt-3">
         {rows.map((cp, i) => {
           const status = cp.status ?? "pending";
-          const background = STATUS_BACKGROUND[status] ?? STATUS_BACKGROUND.pending;
-          const border = STATUS_BORDER[status] ?? STATUS_BORDER.pending;
+          const bgClass = STATUS_BG_CLASS[status] ?? STATUS_BG_CLASS.pending;
+          const borderClass = STATUS_BORDER_CLASS[status] ?? STATUS_BORDER_CLASS.pending;
           const statusLabel = STATUS_LABEL[status] ?? STATUS_LABEL.pending;
           const isComplete = status === "complete";
           const key = cp.id ?? `cp-${i}`;
@@ -166,34 +134,25 @@ const Checkpoints: React.FC<Props> = ({
           return (
             <li
               key={key}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "8px 10px",
-                borderRadius: 6,
-                background,
-                border: `1px solid ${border}`,
-                marginBottom: 6,
-              }}
+              className={`flex items-center justify-between py-2 px-2.5 rounded-md border ${borderClass} mb-1.5 ${bgClass}`}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
+              <div className="flex items-center gap-2.5 flex-1">
                 <input
                   type="checkbox"
                   disabled
                   readOnly
                   checked={isComplete}
                   aria-readonly="true"
-                  style={{ margin: 0 }}
+                  className="m-0"
                 />
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <span style={{ fontWeight: status === "current" ? 600 : 500 }}>
+                <div className="flex flex-col">
+                  <span className={status === "current" ? "font-semibold" : "font-medium"}>
                     {cp.name || cp.objective}
                   </span>
-                  <span style={{ fontSize: 12, opacity: 0.8 }}>{cp.objective}</span>
+                  <span className="text-sm opacity-80">{cp.objective}</span>
                 </div>
               </div>
-              <span style={{ fontSize: 12, opacity: status === "pending" ? 0.6 : 0.9 }}>
+              <span className={status === "pending" ? "text-sm opacity-60" : "text-sm opacity-90"}>
                 {statusLabel}
               </span>
             </li>
@@ -201,29 +160,10 @@ const Checkpoints: React.FC<Props> = ({
         })}
       </ul>
 
-      {recentEvaluations.length ? (
-        <div style={{ marginTop: 12 }}>
-          <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 4 }}>Recent checks</div>
-          <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-            {recentEvaluations.map((entry, idx) => {
-              const request = entry.details.request;
-              const tag = entry.result ?? "continue";
-              const label = tag === "win" ? "Win" : tag === "fail" ? "Fail" : "Continue";
-              const trigger = request?.reason ?? "unknown trigger";
-              return (
-                <li key={`eval-${idx}`} style={{ fontSize: 12, opacity: 0.75, marginBottom: 2 }}>
-                  {label} — {trigger}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ) : null}
-
-      <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
+      <div className="mt-2.5 flex gap-2">
         <button
           onClick={debugActiveWI}
-          style={{ fontSize: 12, backgroundColor: "transparent", border: "none", cursor: "pointer" }}
+          className="text-sm bg-transparent border-0 cursor-pointer"
         >
           debug WI
         </button>

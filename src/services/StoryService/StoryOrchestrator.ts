@@ -23,34 +23,16 @@ type Checkpoint = RawCheckpoint & {
   triggers?: { win?: RegexSpec[]; fail?: RegexSpec[] };
   onActivate?: OnActivate;
 };
+export type OrchestratorSnapshot = {
+  ver: 1;
+  idx: number;
+  intervalTurns: number;
+};
 
 type EvaluationOutcome = 'win' | 'fail' | 'continue';
 type ModelEval = { completed: 'YES' | 'NO'; failed: 'YES' | 'NO'; reason?: string; confidence?: number };
 
-
 const REGEX_FROM_SLASHES = /^\/(.*)\/([dgimsuvy]*)$/;
-
-function compile(spec?: RegexSpec): RegExp | null {
-  if (!spec) return null;
-  if (spec instanceof RegExp) return spec; // ← let precompiled regex through
-  if (typeof spec === 'string') {
-    const m = spec.trim().match(REGEX_FROM_SLASHES);
-    if (!m) return null;
-    const [, pattern, flags] = m;
-    try { return new RegExp(pattern, flags || 'i'); } catch { return null; }
-  }
-  return null;
-}
-
-function compileList(x?: RegexSpec[]): RegExp[] {
-  if (!Array.isArray(x)) return [];
-  const out: RegExp[] = [];
-  for (const s of x) {
-    const r = compile(s);
-    if (r) out.push(r);
-  }
-  return out;
-}
 
 export class StoryOrchestrator {
   private story: Story;
@@ -110,8 +92,8 @@ export class StoryOrchestrator {
   activateIndex(i: number) {
     this.idx = Math.max(0, Math.min(i, this.story.checkpoints.length - 1));
     const cp = this.story.checkpoints[this.idx];
-    this.winRes = compileList(cp.triggers?.win);
-    this.failRes = compileList(cp.triggers?.fail);
+    this.winRes = this.compileRegexTriggerList(cp.triggers?.win);
+    this.failRes = this.compileRegexTriggerList(cp.triggers?.fail);
     const oa = cp.onActivate;
     if (oa?.authors_note) this.applyAN(oa.authors_note);
     if (oa?.world_info) this.applyWI(oa.world_info);
@@ -238,7 +220,7 @@ export class StoryOrchestrator {
       console.warn('[StoryOrch] arbiter failed', e);
       return 'continue';
     }
-    console.log('[StoryOrch] arbiter raw', { raw });
+
     const parsed = this.parseModel(raw);
     console.log('[StoryOrch] arbiter parsed', { parsed });
     if (!parsed) {
@@ -356,4 +338,31 @@ export class StoryOrchestrator {
     }
     return null;
   }
+
+
+
+
+
+  compileRegexTriggerList(x?: RegexSpec[]): RegExp[] {
+    function compile(spec?: RegexSpec): RegExp | null {
+      if (!spec) return null;
+      if (spec instanceof RegExp) return spec; // ← let precompiled regex through
+      if (typeof spec === 'string') {
+        const m = spec.trim().match(REGEX_FROM_SLASHES);
+        if (!m) return null;
+        const [, pattern, flags] = m;
+        try { return new RegExp(pattern, flags || 'i'); } catch { return null; }
+      }
+      return null;
+    }
+    if (!Array.isArray(x)) return [];
+    const out: RegExp[] = [];
+    for (const s of x) {
+      const r = compile(s);
+      if (r) out.push(r);
+    }
+    return out;
+  }
+
+
 }

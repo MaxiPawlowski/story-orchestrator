@@ -1,12 +1,10 @@
-﻿// useStoryOrchestrator.ts
-import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+﻿import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { eventSource, event_types, getCharacterNameById, chat } from '@services/SillyTavernAPI';
 import { PresetService } from '@services/PresetService';
-import { StoryOrchestrator } from '@services/Story/StoryOrchestrator';
-import type { EvaluationDetails } from '@services/Story/types';
 import type { Role } from '@services/SchemaService/story-schema';
-import { useStoryContext } from '@components/context/StoryContext';
+import { useStoryContext } from '@hooks/useStoryContext';
 import type { NormalizedStory, NormalizedCheckpoint } from '@services/SchemaService/story-validator';
+import { StoryOrchestrator } from '@services/StoryService/StoryOrchestrator';
 
 // --- tiny adapter: NormalizedStory -> slim orchestrator Story shape
 function toSlimStory(ns: NormalizedStory) {
@@ -69,7 +67,7 @@ class TurnGate {
 
   newEpoch() {
     this.genEpoch++;
-    this.lastRoleKey = null; // allow one role-apply per epoch
+    this.lastRoleKey = null;
   }
 
   endEpoch() {
@@ -108,8 +106,6 @@ export function useStoryOrchestrator({
   const [checkpointIndex, setCheckpointIndex] = useState(0);
   const [checkpoint, setCheckpoint] = useState<any>(null);
   const [checkpointStatuses, setCheckpointStatuses] = useState<CheckpointStatus[]>([]);
-  const [lastEvaluation, setLastEvaluation] = useState<EvaluationDetails | null>(null);
-  const [evaluationHistory, setEvaluationHistory] = useState<EvaluationDetails[]>([]);
 
   const { loadBundle, bundle } = useStoryContext();
   const lastUserSeenKeyRef = useRef<string | null>(null);
@@ -172,13 +168,7 @@ export function useStoryOrchestrator({
       runAutomation: (id) => runAutomationRef.current?.(id),
       onRoleApplied: (role, cp) => console.log('[StoryOrch] role applied', { role, cp }),
       shouldApplyRole: (role: Role): boolean => gateRef.current.shouldApplyRole(role, orch.index()),
-      setEvalHooks: (setters) => {
-        setters.onEvaluated = (ev) => {
-          console.log('[Story/useSO] onEvaluated', ev);
-          setLastEvaluation(ev);
-          setEvaluationHistory((h) => [...h, ev].slice(-50));
-        };
-      },
+      setEvalHooks: (setters) => setters.onEvaluated = (ev) => console.log('[Story/useSO] onEvaluated', ev),
     });
     orchRef.current = orch;
 
@@ -192,41 +182,35 @@ export function useStoryOrchestrator({
         console.warn('[Story/useSO] subscribe failed', name, e);
       }
     };
-    const tryEmitLatestUserText = (gate: TurnGate, handle: (t: string) => void) => {
-      // Read immediately; if empty or already seen, schedule a microtask and try once again.
+
+    on(event_types.MESSAGE_SENT, (payload: any, ...rest) => {
+      console.log('[Story/useSO] event', 'MESSAGE_SENT', payload, ...rest);
       const fire = () => {
         const pick = pickUserTextFromChat();
         if (!pick) return false;
         if (pick.key === lastUserSeenKeyRef.current) return false; // already processed
-        const ok = gate.shouldAcceptUser(pick.text, pick.key).accept;
+        const ok = gateRef.current.shouldAcceptUser(pick.text, pick.key).accept;
         if (!ok) return false;
         lastUserSeenKeyRef.current = pick.key;
         console.log('[Story/useSO] pulled-from-chat', { key: pick.key, text: pick.text });
-        handle(pick.text);
+        orch.handleUserText(pick.text);
         return true;
       };
       if (fire()) return;
-      queueMicrotask(() => { fire(); });        // 1st retry after chat mutates
-      setTimeout(() => { fire(); }, 0);         // 2nd retry for slower paths
-    };
-    on(event_types?.MESSAGE_SENT, (payload: any, ...rest) => {
-      // Log raw for visibility
-      console.log('[Story/useSO] event', 'MESSAGE_SENT', payload, ...rest);
-
-
-
-      tryEmitLatestUserText(gateRef.current, (t) => orch.handleUserText(t));
+      queueMicrotask(() => { fire(); });
+      setTimeout(() => { fire(); }, 0);
     });
 
 
     // DRAFTED SPEAKER (cache display name → role)
-    on(event_types?.GROUP_MEMBER_DRAFTED, (raw: any) => {
+    on(event_types.GROUP_MEMBER_DRAFTED, (raw: any) => {
       const chid = Array.isArray(raw) ? raw[0] : raw;
       const idNum = Number.parseInt(String(chid), 10);
       const name = Number.isFinite(idNum) && !Number.isNaN(idNum)
         ? getCharacterNameById?.(idNum)
         : (typeof raw?.name === 'string' ? raw.name : undefined);
       lastDraftRef.current = name ?? null;
+      console.log('[Story/useSO] event', 'GROUP_MEMBER_DRAFTED', raw, '→', lastDraftRef.current);
     });
 
 
@@ -248,7 +232,7 @@ export function useStoryOrchestrator({
 
     (async () => { if (autoInit) await orch.init(); setReady(true); })();
 
-    return () => { offs.forEach((off) => { try { off(); } catch { } }); orchRef.current = null; };
+    return () => { offs.forEach((off) => { try { off(); } catch { console.warn('[Story/useSO] unsubscribe failed', off); } }); orchRef.current = null; };
   }, [story, autoInit]);
 
   const activateCheckpoint = useCallback((i: number) => {
@@ -286,7 +270,7 @@ export function useStoryOrchestrator({
 
   return {
     ready, title, checkpointIndex, checkpoint,
-    checkpoints, checkpointStatuses, lastEvaluation, evaluationHistory,
+    checkpoints, checkpointStatuses,
     progressText, activateCheckpoint,
   };
 }

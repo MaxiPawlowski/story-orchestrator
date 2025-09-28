@@ -46,10 +46,6 @@ const DrawerWrapper = () => {
     title,
     checkpoints: checkpointRows,
     progressText,
-    lastEvaluation,
-    evaluationHistory,
-    // turnsUntilNextCheck,
-    // lastQueuedEvaluation,
   } = useStoryOrchestrator({
     autoInit: true,
   });
@@ -111,10 +107,6 @@ const DrawerWrapper = () => {
                   title={title}
                   checkpoints={checkpointRows}
                   progressText={progressText}
-                  lastEvaluation={lastEvaluation}
-                // evaluationHistory={evaluationHistory}
-                // turnsUntilNextCheck={turnsUntilNextCheck}
-                // lastQueuedEvaluation={lastQueuedEvaluation}
                 />
               )}
             </div>
