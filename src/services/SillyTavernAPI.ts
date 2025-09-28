@@ -96,6 +96,23 @@ export function getCharacterNameById(id: number | string | undefined): string | 
   return typeof name === 'string' ? name : undefined;
 }
 
+export function getCharacterIdByName(name?: string | null): number | undefined {
+  if (!name) return undefined;
+  try {
+    const list = (script as any)["characters"] as Array<{ name?: string }> | undefined;
+    if (!Array.isArray(list)) return undefined;
+    const lower = String(name).trim();
+    for (let i = 0; i < list.length; i++) {
+      const n = list[i]?.name;
+      if (typeof n === 'string' && n === lower) return i;
+      if (typeof n === 'string' && n.trim().toLowerCase() === lower.toLowerCase()) return i;
+    }
+  } catch (e) {
+    console.warn("[Story - getCharacterIdByName] failed", e);
+  }
+  return undefined;
+}
+
 // --- lightweight event bus for our plugin ---
 export const pluginBus = new EventTarget();
 

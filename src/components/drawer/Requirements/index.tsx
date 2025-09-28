@@ -1,53 +1,22 @@
-import { useEffect, useState } from "react";
+import { useContext } from "react";
 import RequirementIndicator from "../../common/RequirementIndicator";
-import { event_types, eventSource, getContext, powerUser } from "../../../services/SillyTavernAPI";
-// import useWorldLore from "../../../hooks/useWorldLore";
+import StoryContext from "../../context/StoryContext";
 
 const Requirements = () => {
-  // useWorldLore();
-  const [currentUserName, setCurrentUserName] = useState("");
-  const [personaStatus, setPersonaStatus] = useState("green");
-  const [groupChatStatus, setGroupChatStatus] = useState("red");
-  const [worldLoreStatus, setWorldLoreStatus] = useState("green");
-  const [objectivesStatus, setObjectivesStatus] = useState("green");
+  const ctx = useContext(StoryContext);
+  if (!ctx) return null;
 
+  const { personaDefined, groupChatSelected, worldLorePresent, onPersonaReload, missingRoles } = ctx;
 
-
-  const onPersonaReload = async () => {
-    const { name1 } = getContext();
-    // console.log("Persona reloaded", name1);
-    setCurrentUserName(name1);
-    setPersonaStatus(name1 ? "green" : "yellow");
-    // console.log(powerUser.personas)
-  }
-
-  useEffect(() => {
-    const onChatChanged = async () => {
-      const { groupId, chatId, ...context } = getContext();
-      console.log("[Story - Requirements] Chat changed", { ...context, groupId, chatId });
-      setGroupChatStatus(groupId ? "green" : "yellow");
-      onPersonaReload();
-    }
-
-
-    eventSource.on(event_types.CHAT_CHANGED, onChatChanged);
-    onPersonaReload();
-    onChatChanged();
-
-    return () => {
-      eventSource.removeListener(event_types.CHAT_CHANGED, onChatChanged);
-    };
-  }, []);
-
+  const flagToColor = (present: boolean | undefined) => present ? 'green' : 'yellow';
+  const groupText = !groupChatSelected ? 'Group chat - Please select a chat group' : (missingRoles && missingRoles.length ? `Group chat - missing: ${missingRoles.join(', ')}` : 'Group chat');
+  const groupColor = !groupChatSelected ? 'yellow' : (missingRoles && missingRoles.length ? 'red' : 'green');
 
   return (
-
-    <div className="">
-      Hello {currentUserName}
-      <RequirementIndicator text="Persona defined" color={personaStatus} onReload={onPersonaReload} />
-      <RequirementIndicator text={`Group chat${groupChatStatus !== "green" ? " - Please select a chat group" : ""}`} color={groupChatStatus} />
-      <RequirementIndicator text="World lore" color={worldLoreStatus} />
-      <RequirementIndicator text="Objetives" color={objectivesStatus} />
+    <div className="flex flex-col gap-2">
+      <RequirementIndicator text="Persona defined" color={flagToColor(personaDefined)} onReload={onPersonaReload} />
+      <RequirementIndicator text={groupText} color={groupColor} />
+      <RequirementIndicator text="World lore" color={flagToColor(worldLorePresent)} />
     </div>
   );
 };

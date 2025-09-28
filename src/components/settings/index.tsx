@@ -6,8 +6,6 @@ const SettingsWrapper = () => {
           <b>Project Story</b>
           <div className="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
         </div>
-        {/* <ThinkingSettings />
-        <LoreManagerSettings /> */}
       </div>
     </div>
   );

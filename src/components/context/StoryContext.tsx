@@ -1,7 +1,7 @@
 ﻿import React, { createContext, useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { parseAndNormalizeStory, formatZodError, type NormalizedStory } from "@services/SchemaService/story-validator";
 import { loadCheckpointBundle, type CheckpointBundle } from "@services/StoryService/story-loader";
-import { eventSource, event_types, getCharacterNameById, chat } from '@services/SillyTavernAPI';
+import { eventSource, event_types, getCharacterNameById, getCharacterIdByName, chat, getContext } from '@services/SillyTavernAPI';
 import { PresetService } from '@services/PresetService';
 import type { Role } from '@services/SchemaService/story-schema';
 import { StoryOrchestrator } from '@services/StoryService/StoryOrchestrator';
@@ -74,6 +74,13 @@ export interface StoryContextValue {
   checkpointStatuses: CheckpointStatus[];
   activateCheckpoint: (i: number) => void;
   ready: boolean;
+  currentUserName: string;
+  personaDefined: boolean;
+  groupChatSelected: boolean;
+  worldLorePresent: boolean;
+  requiredRolesPresent: boolean;
+  missingRoles: string[];
+  onPersonaReload: () => Promise<void> | void;
 }
 
 const StoryContext = createContext<StoryContextValue | undefined>(undefined);
@@ -93,6 +100,15 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
   const orchRef = useRef<StoryOrchestrator | null>(null);
   const lastDraftRef = useRef<string | null>(null);
   const gateRef = useRef(new TurnGate());
+  // requirement / status state (extracted from Requirements component)
+  const [currentUserName, setCurrentUserName] = useState<string>("");
+  // store meaningful flags; color mapping belongs to the UI components
+  const [personaDefined, setPersonaDefined] = useState<boolean>(true);
+  const [groupChatSelected, setGroupChatSelected] = useState<boolean>(false);
+  const [worldLorePresent, setWorldLorePresent] = useState<boolean>(true);
+  const [requiredRolesPresent, setRequiredRolesPresent] = useState<boolean>(false);
+  const [missingRoles, setMissingRoles] = useState<string[]>([]);
+
 
   const validate = useCallback((input: unknown): ValidationResult => {
     try {
@@ -160,6 +176,63 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
     })();
     return () => { cancelled = true; };
   }, [bundle, loadBundle]);
+
+  // persona / chat status handling (extracted from Requirements component)
+  useEffect(() => {
+    const onPersonaReload = async () => {
+      try {
+        const { name1 } = getContext();
+        setCurrentUserName(name1 ?? "");
+        setPersonaDefined(Boolean(name1));
+      } catch (e) {
+        console.warn('[StoryContext] onPersonaReload failed', e);
+      }
+    };
+
+    const onChatChanged = async () => {
+      try {
+        const { groupId } = getContext();
+        setGroupChatSelected(Boolean(groupId));
+        await onPersonaReload();
+
+        try {
+          const roles = (story?.roles ?? {}) as Partial<Record<Role, string>>;
+          const requiredNames: string[] = [];
+          Object.keys(roles).forEach(k => {
+            const v = roles[k as Role];
+            if (typeof v === 'string' && v.trim()) requiredNames.push(v.trim());
+          });
+          const missing: string[] = [];
+          for (const name of requiredNames) {
+            const id = typeof getCharacterIdByName === 'function' ? getCharacterIdByName(name) : undefined;
+            if (id === undefined) missing.push(name);
+          }
+          setMissingRoles(missing);
+          setRequiredRolesPresent(missing.length === 0 && requiredNames.length > 0);
+        } catch (e) {
+          console.warn('[StoryContext] role validation failed', e);
+          setMissingRoles([]);
+          setRequiredRolesPresent(false);
+        }
+      } catch (e) {
+        console.warn('[StoryContext] onChatChanged failed', e);
+      }
+    };
+
+    try {
+      eventSource.on(event_types.CHAT_CHANGED, onChatChanged);
+    } catch (e) {
+      console.warn('[StoryContext] subscribe CHAT_CHANGED failed', e);
+    }
+
+    // initial probe
+    onPersonaReload();
+    onChatChanged();
+
+    return () => {
+      try { eventSource.removeListener?.(event_types.CHAT_CHANGED, onChatChanged); } catch { }
+    };
+  }, [story]);
 
   useEffect(() => {
     if (!story?.basePreset || orchRef.current) return;
@@ -262,7 +335,18 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
   }, [story, checkpointStatuses, checkpointIndex]);
 
   return (
-    <StoryContext.Provider value={{ validate, loading, story, title, checkpoints, checkpointIndex, checkpointStatuses, activateCheckpoint, ready }}>
+    <StoryContext.Provider value={{
+      validate, loading, story, title, checkpoints, checkpointIndex, checkpointStatuses, activateCheckpoint, ready,
+      currentUserName, personaDefined, groupChatSelected, worldLorePresent,
+      requiredRolesPresent, missingRoles,
+      onPersonaReload: async () => {
+        try {
+          const { name1 } = getContext();
+          setCurrentUserName(name1 ?? "");
+          setPersonaDefined(Boolean(name1));
+        } catch { }
+      }
+    }}>
       {children}
     </StoryContext.Provider>
   );

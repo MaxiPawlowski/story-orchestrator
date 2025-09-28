@@ -4,8 +4,7 @@
   "title": "Quest for the Lost Key",
   "roles": {
     "dm": "Adolion Storyteller",
-    "companion": "Ellie",
-    "chat": "{{user}}"
+    "companion": "Ellie"
   },
   "base_preset": {
     "source": "named",

@@ -8,9 +8,9 @@ const RequirementIndicator = ({
   onReload?: () => void,
 }) => {
   return (
-    <div className="online_status">
+    <div className=" flex items-center gap-2">
       <div className={`status-indicator ${color}`}></div>
-      <div className="online_status_text">{text}</div>
+      <div className="">{text}</div>
       {onReload && (
         <i
           onClick={onReload}
