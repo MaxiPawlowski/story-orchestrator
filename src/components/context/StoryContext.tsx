@@ -1,7 +1,7 @@
 ﻿import React, { createContext, useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { parseAndNormalizeStory, formatZodError, type NormalizedStory } from "@services/SchemaService/story-validator";
 import { loadCheckpointBundle, type CheckpointBundle } from "@services/StoryService/story-loader";
-import { eventSource, event_types, getCharacterNameById, getCharacterIdByName, chat, getContext } from '@services/SillyTavernAPI';
+import { eventSource, event_types, getCharacterNameById, getCharacterIdByName, chat, getContext, getWorldInfoSettings } from '@services/SillyTavernAPI';
 import { PresetService } from '@services/PresetService';
 import type { Role } from '@services/SchemaService/story-schema';
 import { StoryOrchestrator } from '@services/StoryService/StoryOrchestrator';
@@ -74,10 +74,12 @@ export interface StoryContextValue {
   checkpointStatuses: CheckpointStatus[];
   activateCheckpoint: (i: number) => void;
   ready: boolean;
+  requirementsReady: boolean;
   currentUserName: string;
   personaDefined: boolean;
   groupChatSelected: boolean;
   worldLorePresent: boolean;
+  worldLoreMissing: string[];
   requiredRolesPresent: boolean;
   missingRoles: string[];
   onPersonaReload: () => Promise<void> | void;
@@ -106,8 +108,130 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
   const [personaDefined, setPersonaDefined] = useState<boolean>(true);
   const [groupChatSelected, setGroupChatSelected] = useState<boolean>(false);
   const [worldLorePresent, setWorldLorePresent] = useState<boolean>(true);
+  const [worldLoreMissing, setWorldLoreMissing] = useState<string[]>([]);
   const [requiredRolesPresent, setRequiredRolesPresent] = useState<boolean>(false);
   const [missingRoles, setMissingRoles] = useState<string[]>([]);
+
+  const requiredWorldInfoKeys = useMemo(() => {
+    if (!story) return [];
+    const keys = new Set<string>();
+    story.checkpoints.forEach((cp) => {
+      const wi = cp.onActivate?.world_info;
+      if (wi === undefined || wi === null) return;
+      const push = (list?: string[]) => {
+        if (!Array.isArray(list)) return;
+        list.forEach((name) => {
+          if (typeof name === "string" && name.trim()) keys.add(name.trim());
+        });
+      };
+      push(wi.activate);
+      push(wi.deactivate);
+      push(wi.make_constant);
+    });
+    return Array.from(keys);
+  }, [story]);
+
+  const handlePersonaReload = useCallback(async () => {
+    try {
+      const { name1 } = getContext();
+      setCurrentUserName(name1 ?? "");
+      setPersonaDefined(Boolean(name1));
+    } catch (e) {
+      console.warn('[StoryContext] onPersonaReload failed', e);
+      setCurrentUserName("");
+      setPersonaDefined(false);
+    }
+  }, []);
+
+  const refreshRoles = useCallback(() => {
+    if (!story || !story.roles) {
+      setMissingRoles([]);
+      setRequiredRolesPresent(true);
+      return;
+    }
+    try {
+      const roles = story.roles as Partial<Record<Role, string>>;
+      const requiredNames = Object.values(roles)
+        .filter((name): name is string => typeof name === "string" && name.trim().length > 0)
+        .map((name) => name.trim());
+      if (requiredNames.length === 0) {
+        setMissingRoles([]);
+        setRequiredRolesPresent(true);
+        return;
+      }
+      const missing: string[] = [];
+      for (const name of requiredNames) {
+        const id = typeof getCharacterIdByName === "function" ? getCharacterIdByName(name) : undefined;
+        if (id === undefined) missing.push(name);
+      }
+      setMissingRoles(missing);
+      setRequiredRolesPresent(missing.length === 0);
+    } catch (e) {
+      console.warn('[StoryContext] role validation failed', e);
+      setMissingRoles([]);
+      setRequiredRolesPresent(false);
+    }
+  }, [story]);
+
+  const refreshWorldLore = useCallback(() => {
+    if (!requiredWorldInfoKeys.length) {
+      setWorldLorePresent(true);
+      return;
+    }
+    try {
+      const settings = typeof getWorldInfoSettings === "function" ? getWorldInfoSettings() : null;
+      if (!settings || !settings.world_info) {
+        setWorldLorePresent(false);
+        return;
+      }
+      const seen = new Set<string>();
+      const stack: any[] = [settings.world_info];
+      const visited = new Set<any>();
+      while (stack.length) {
+        const current = stack.pop();
+        if (!current || visited.has(current)) continue;
+        visited.add(current);
+        if (Array.isArray(current)) {
+          current.forEach((item) => stack.push(item));
+          continue;
+        }
+        if (typeof current === 'object') {
+          const entry: any = current;
+          if (typeof entry.title === 'string' && entry.title.trim()) {
+            seen.add(entry.title.trim().toLowerCase());
+          }
+          if (Array.isArray(entry.keys)) {
+            entry.keys.forEach((key: any) => {
+              if (typeof key === 'string' && key.trim()) {
+                seen.add(key.trim().toLowerCase());
+              }
+            });
+          }
+          if (entry.id !== undefined && entry.id !== null) {
+            seen.add(String(entry.id).trim().toLowerCase());
+          }
+          for (const value of Object.values(entry)) {
+            if (value && (Array.isArray(value) || typeof value === 'object')) {
+              stack.push(value);
+            }
+          }
+        }
+      }
+      const missing = requiredWorldInfoKeys.filter(
+        (name) => !seen.has(name.trim().toLowerCase()),
+      );
+      setWorldLorePresent(missing.length === 0);
+      setWorldLoreMissing(missing);
+    } catch (e) {
+      console.warn('[StoryContext] world lore validation failed', e);
+      setWorldLorePresent(false);
+      setWorldLoreMissing([]);
+    }
+  }, [requiredWorldInfoKeys]);
+
+  const requirementsReady = useMemo(() => (
+    Boolean(story && personaDefined && groupChatSelected && requiredRolesPresent && worldLorePresent)
+  ), [story, personaDefined, groupChatSelected, requiredRolesPresent, worldLorePresent]);
 
 
   const validate = useCallback((input: unknown): ValidationResult => {
@@ -179,13 +303,20 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
 
   // persona / chat status handling (extracted from Requirements component)
   useEffect(() => {
-    const onPersonaReload = async () => {
+    const listeners: Array<() => void> = [];
+
+    const subscribe = (eventName: string, handler: (...args: any[]) => void) => {
       try {
-        const { name1 } = getContext();
-        setCurrentUserName(name1 ?? "");
-        setPersonaDefined(Boolean(name1));
+        const off = eventSource?.on?.(eventName, handler);
+        if (typeof off === 'function') {
+          listeners.push(off);
+        } else if (eventSource?.off) {
+          listeners.push(() => eventSource.off(eventName, handler));
+        } else if ((eventSource as any)?.removeListener) {
+          listeners.push(() => (eventSource as any).removeListener(eventName, handler));
+        }
       } catch (e) {
-        console.warn('[StoryContext] onPersonaReload failed', e);
+        console.warn('[StoryContext] subscribe failed', eventName, e);
       }
     };
 
@@ -193,49 +324,39 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
       try {
         const { groupId } = getContext();
         setGroupChatSelected(Boolean(groupId));
-        await onPersonaReload();
-
-        try {
-          const roles = (story?.roles ?? {}) as Partial<Record<Role, string>>;
-          const requiredNames: string[] = [];
-          Object.keys(roles).forEach(k => {
-            const v = roles[k as Role];
-            if (typeof v === 'string' && v.trim()) requiredNames.push(v.trim());
-          });
-          const missing: string[] = [];
-          for (const name of requiredNames) {
-            const id = typeof getCharacterIdByName === 'function' ? getCharacterIdByName(name) : undefined;
-            if (id === undefined) missing.push(name);
-          }
-          setMissingRoles(missing);
-          setRequiredRolesPresent(missing.length === 0 && requiredNames.length > 0);
-        } catch (e) {
-          console.warn('[StoryContext] role validation failed', e);
-          setMissingRoles([]);
-          setRequiredRolesPresent(false);
-        }
       } catch (e) {
         console.warn('[StoryContext] onChatChanged failed', e);
+        setGroupChatSelected(false);
       }
+      await handlePersonaReload();
+      refreshRoles();
     };
 
-    try {
-      eventSource.on(event_types.CHAT_CHANGED, onChatChanged);
-    } catch (e) {
-      console.warn('[StoryContext] subscribe CHAT_CHANGED failed', e);
-    }
+    const onWorldInfoEvent = () => {
+      refreshWorldLore();
+    };
+
+    subscribe(event_types.CHAT_CHANGED, onChatChanged);
+    subscribe(event_types.WORLDINFO_UPDATED, onWorldInfoEvent);
+    subscribe(event_types.WORLDINFO_SETTINGS_UPDATED, onWorldInfoEvent);
+    subscribe(event_types.WORLDINFO_ENTRIES_LOADED, onWorldInfoEvent);
 
     // initial probe
-    onPersonaReload();
     onChatChanged();
+    refreshWorldLore();
 
     return () => {
-      try { eventSource.removeListener?.(event_types.CHAT_CHANGED, onChatChanged); } catch { }
+      listeners.forEach((off) => {
+        try { off(); } catch (err) { console.warn('[StoryContext] unsubscribe failed', err); }
+      });
     };
-  }, [story]);
+  }, [handlePersonaReload, refreshRoles, refreshWorldLore]);
 
   useEffect(() => {
-    if (!story?.basePreset || orchRef.current) return;
+    if (!story?.basePreset || !requirementsReady) {
+      setReady(false);
+      return;
+    }
 
     const svc = new PresetService({
       base: story.basePreset.name ? { source: 'named', name: story.basePreset.name } : { source: 'current' },
@@ -247,27 +368,33 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
       presetService: svc,
       onRoleApplied: (role, cp) => console.log('[StoryOrch] role applied', { role, cp }),
       shouldApplyRole: (role: Role): boolean => gateRef.current.shouldApplyRole(role, orch.index()),
-      setEvalHooks: (setters) => setters.onEvaluated = (ev) => console.log('[Story/useSO] onEvaluated', ev),
+      setEvalHooks: (setters) => { setters.onEvaluated = (ev) => console.log('[Story/useSO] onEvaluated', ev); },
     });
     orchRef.current = orch;
+    lastUserSeenKeyRef.current = null;
+    lastDraftRef.current = null;
+    gateRef.current.endEpoch();
 
     const offs: Array<() => void> = [];
-    const on = (name: string, handler: (...args: any[]) => void) => {
+    const subscribe = (name: string, handler: (...args: any[]) => void) => {
       try {
         const off = eventSource?.on?.(name, handler);
-        if (typeof off === 'function') offs.push(off);
-        else if (eventSource?.off) offs.push(() => eventSource.off(name, handler));
+        if (typeof off === 'function') {
+          offs.push(off);
+        } else if (eventSource?.off) {
+          offs.push(() => eventSource.off(name, handler));
+        }
       } catch (e) {
         console.warn('[Story/useSO] subscribe failed', name, e);
       }
     };
 
-    on(event_types.MESSAGE_SENT, (payload: any, ...rest) => {
+    subscribe(event_types.MESSAGE_SENT, (payload: any, ...rest) => {
       console.log('[Story/useSO] event', 'MESSAGE_SENT', payload, ...rest);
       const fire = () => {
         const pick = pickUserTextFromChat();
         if (!pick) return false;
-        if (pick.key === lastUserSeenKeyRef.current) return false; // already processed
+        if (pick.key === lastUserSeenKeyRef.current) return false;
         const ok = gateRef.current.shouldAcceptUser(pick.text, pick.key).accept;
         if (!ok) return false;
         lastUserSeenKeyRef.current = pick.key;
@@ -280,17 +407,17 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
       setTimeout(() => { fire(); }, 0);
     });
 
-    on(event_types.GROUP_MEMBER_DRAFTED, (raw: any) => {
+    subscribe(event_types.GROUP_MEMBER_DRAFTED, (raw: any) => {
       const chid = Array.isArray(raw) ? raw[0] : raw;
       const idNum = Number.parseInt(String(chid), 10);
       const name = Number.isFinite(idNum) && !Number.isNaN(idNum)
         ? getCharacterNameById?.(idNum)
         : (typeof raw?.name === 'string' ? raw.name : undefined);
       lastDraftRef.current = name ?? null;
-      console.log('[Story/useSO] Event', 'GROUP_MEMBER_DRAFTED', raw, '→', lastDraftRef.current);
+      console.log('[Story/useSO] Event', 'GROUP_MEMBER_DRAFTED', raw, '->', lastDraftRef.current);
     });
 
-    on(event_types.GENERATION_STARTED, (payload: any) => {
+    subscribe(event_types.GENERATION_STARTED, (payload: any) => {
       gateRef.current.newEpoch();
       let candidate = lastDraftRef.current ?? '';
       const p = Array.isArray(payload) ? payload[0] : payload;
@@ -303,13 +430,31 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
       }
       if (candidate) orch.setActiveRole(candidate);
     });
-    on(event_types.GENERATION_STOPPED, gateRef.current.endEpoch);
-    on(event_types.GENERATION_ENDED, () => { lastDraftRef.current = null; gateRef.current.endEpoch(); });
+    subscribe(event_types.GENERATION_STOPPED, () => {
+      gateRef.current.endEpoch();
+    });
+    subscribe(event_types.GENERATION_ENDED, () => {
+      lastDraftRef.current = null;
+      gateRef.current.endEpoch();
+    });
 
-    (async () => { await orch.init(); setReady(true); })();
+    (async () => {
+      await orch.init();
+      setReady(true);
+    })();
 
-    return () => { offs.forEach((off) => { try { off(); } catch { console.warn('[Story/useSO] unsubscribe failed', off); } }); orchRef.current = null; };
-  }, [story]);
+    return () => {
+      offs.forEach((off) => {
+        try { off(); } catch (err) { console.warn('[Story/useSO] unsubscribe failed', err); }
+      });
+      orchRef.current = null;
+      lastDraftRef.current = null;
+      lastUserSeenKeyRef.current = null;
+      gateRef.current.endEpoch();
+      setReady(false);
+    };
+  }, [story, requirementsReady]);
+
 
   const activateCheckpoint = useCallback((i: number) => {
     orchRef.current?.activateIndex(i);
@@ -337,15 +482,10 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
   return (
     <StoryContext.Provider value={{
       validate, loading, story, title, checkpoints, checkpointIndex, checkpointStatuses, activateCheckpoint, ready,
+      requirementsReady,
       currentUserName, personaDefined, groupChatSelected, worldLorePresent,
-      requiredRolesPresent, missingRoles,
-      onPersonaReload: async () => {
-        try {
-          const { name1 } = getContext();
-          setCurrentUserName(name1 ?? "");
-          setPersonaDefined(Boolean(name1));
-        } catch { }
-      }
+      requiredRolesPresent, missingRoles, worldLoreMissing,
+      onPersonaReload: handlePersonaReload,
     }}>
       {children}
     </StoryContext.Provider>
