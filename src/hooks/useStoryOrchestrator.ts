@@ -3,7 +3,6 @@ import type { NormalizedStory } from "@services/SchemaService/story-validator";
 import type { Role } from "@services/SchemaService/story-schema";
 import { eventSource, event_types, getCharacterNameById, chat } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
-import { PresetService } from "@services/PresetService";
 import { StoryOrchestrator } from "@services/StoryService/StoryOrchestrator";
 import { DEFAULT_INTERVAL_TURNS } from "@services/StoryService/story-state";
 
@@ -87,7 +86,7 @@ export function useStoryOrchestrator(
   const lastDraftRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!story?.basePreset || !requirementsReady) {
+    if (!story || !requirementsReady) {
       setReady(false);
       orchRef.current = null;
       gateRef.current.endEpoch();
@@ -97,17 +96,10 @@ export function useStoryOrchestrator(
     }
 
     const initialInterval = sanitizeIntervalTurns(intervalTurns);
-    const svc = new PresetService({
-      base: story.basePreset.name ? { source: "named", name: story.basePreset.name } : { source: "current" },
-      storyId: story.title,
-      storyTitle: story.title,
-      roleDefaults: story.roleDefaults,
-    });
 
     const orch = new StoryOrchestrator({
       story,
-      presetService: svc,
-      onRoleApplied: (role, cp) => console.log("[StoryOrch] role applied", { role, cp }),
+      onRoleApplied: (role, cp) => { },
       shouldApplyRole: (role: Role): boolean => gateRef.current.shouldApplyRole(role, orch.index()),
       setEvalHooks: (setters) => {
         setters.onEvaluated = (ev) => console.log("[Story/useSO] onEvaluated", ev);
@@ -135,7 +127,6 @@ export function useStoryOrchestrator(
           const ok = gateRef.current.shouldAcceptUser(pick.text, pick.key).accept;
           if (!ok) return false;
           lastUserSeenKeyRef.current = pick.key;
-          console.log("[Story/useSO] pulled-from-chat", { key: pick.key, text: pick.text });
           orch.handleUserText(pick.text);
           return true;
         };
@@ -159,7 +150,6 @@ export function useStoryOrchestrator(
           ? getCharacterNameById?.(idNum)
           : (typeof raw?.name === "string" ? raw.name : undefined);
         lastDraftRef.current = name ?? null;
-        console.log("[Story/useSO] Event", "GROUP_MEMBER_DRAFTED", raw, "->", lastDraftRef.current);
       },
     }));
 
@@ -228,7 +218,6 @@ export function useStoryOrchestrator(
     const orch = orchRef.current;
     if (!orch) return;
     if (!requirementsReady) return;
-    if (!story?.basePreset) return;
     orch.setIntervalTurns(sanitizeIntervalTurns(intervalTurns));
   }, [intervalTurns, requirementsReady, story]);
 

@@ -11,9 +11,8 @@ const DrawerWrapper = () => {
     ready,
     title,
     checkpoints: checkpointRows,
-    checkpointStatuses,
     currentUserName,
-    checkpointIndex,
+    requirementsReady
   } = useStoryContext();
 
   useEffect(() => {
@@ -54,17 +53,17 @@ const DrawerWrapper = () => {
         </div>
       </div>
 
-      <div className="p-2">
-        {!isMinimized && (
-          <>
-            <Requirements />
+      {!isMinimized && (
+        <div className="p-2">
+          <Requirements />
+          {ready && requirementsReady && checkpointRows.length > 0 && (
             <Checkpoints
               title={title}
               checkpoints={checkpointRows}
             />
-          </>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

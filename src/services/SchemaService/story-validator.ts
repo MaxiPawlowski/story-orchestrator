@@ -35,7 +35,6 @@ export interface NormalizedStory {
   roles?: Partial<Record<Role, string>>;
   checkpoints: NormalizedCheckpoint[];
   checkpointIndexById: Map<string | number, number>;
-  basePreset?: { source: string; name?: string };
   roleDefaults?: Partial<Record<Role, Record<string, any>>>;
 }
 
@@ -158,13 +157,7 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
   const checkpointIndexById = new Map<string | number, number>();
   checkpoints.forEach((c, i) => checkpointIndexById.set(c.id, i));
 
-  let basePreset: NormalizedStory["basePreset"] = undefined;
-  if (story.base_preset) {
-    basePreset = {
-      source: story.base_preset.source,
-      ...(story.base_preset.name ? { name: story.base_preset.name } : {}),
-    };
-  }
+
 
   return {
     schemaVersion: "1.0",
@@ -172,7 +165,6 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
     roles: story.roles as Partial<Record<Role, string>> | undefined,
     checkpoints,
     checkpointIndexById,
-    basePreset,
     roleDefaults: story.role_defaults ? normalizePresetOverrides(story.role_defaults) : undefined,
   };
 }

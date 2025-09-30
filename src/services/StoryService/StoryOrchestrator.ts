@@ -1,20 +1,20 @@
-﻿// StoryOrchestrator.ts (trimmed & focused)
+﻿// src\services\StoryService\StoryOrchestrator.ts
 import type { Role } from '@services/SchemaService/story-schema';
 import { PresetService } from '../PresetService';
-import { generateQuietPrompt, chat } from '@services/SillyTavernAPI';
+import {
+  generateQuietPrompt,
+  chat,
+  applyCharacterAN,
+  clearCharacterAN,
+} from '@services/SillyTavernAPI';
 import type { NormalizedStory } from '@services/SchemaService/story-validator';
-export type OrchestratorSnapshot = {
-  ver: 1;
-  idx: number;
-  intervalTurns: number;
-};
 
 type EvaluationOutcome = 'win' | 'fail' | 'continue';
 type ModelEval = { completed: boolean; failed: boolean; reason?: string; confidence?: number };
 
 export class StoryOrchestrator {
   private story: NormalizedStory;
-  private svc: PresetService;
+  private presetService: PresetService;
 
   private idx = 0;
   private winRes: RegExp[] = [];
@@ -32,13 +32,17 @@ export class StoryOrchestrator {
 
   constructor(opts: {
     story: NormalizedStory;
-    presetService: PresetService;
     onRoleApplied?: (role: Role, cpName: string) => void;
     shouldApplyRole?: (role: Role) => boolean;
     setEvalHooks?: (hooks: { onEvaluated?: (ev: any) => void }) => void;
   }) {
     this.story = opts.story;
-    this.svc = opts.presetService;
+    this.presetService = new PresetService({
+      base: { source: "current" },
+      storyId: this.story.title,
+      storyTitle: this.story.title,
+      roleDefaults: this.story.roleDefaults,
+    });
     this.onRoleApplied = opts.onRoleApplied;
     this.shouldApplyRole = opts.shouldApplyRole;
     opts.setEvalHooks?.({ onEvaluated: (ev) => (this.onEvaluated = ev) });
@@ -50,7 +54,7 @@ export class StoryOrchestrator {
 
   async init() {
     this.seedRoleMap();
-    await this.svc.initForStory();
+    await this.presetService.initForStory();
     this.activateIndex(0);
   }
 
@@ -59,12 +63,12 @@ export class StoryOrchestrator {
     const cp = this.story.checkpoints[this.idx];
     this.winRes = Array.isArray(cp.winTriggers) ? cp.winTriggers : [];
     this.failRes = Array.isArray(cp.failTriggers) ? cp.failTriggers : [];
-    const oa = cp.onActivate;
+
     // TODO: hook these up
-    // if (oa?.authors_note) this.applyAN(oa.authors_note);
+    // const oa = cp.onActivate;
     // if (oa?.world_info) this.applyWI(oa.world_info);
     // if (oa?.automation_ids) for (const id of oa.automation_ids) this.runAutomation?.(id);
-
+    // if (cp.onActivate?.authors_note) this.applyAuthorsNote(cp.onActivate.authors_note);
     this.turn = 0;
     this.sinceEval = 0;
     this.queue.length = 0;
@@ -80,11 +84,30 @@ export class StoryOrchestrator {
     const norm = this.norm(raw);
     const role = this.roleNameMap.get(norm);
     if (!role) return;
-    if (this.shouldApplyRole && !this.shouldApplyRole(role)) return; // epoch/dup guard
+    if (this.shouldApplyRole && !this.shouldApplyRole(role)) return;
 
     const cp = this.story.checkpoints[this.idx];
     const overrides = cp.onActivate?.preset_overrides?.[role];
-    this.svc.applyForRole(role, overrides, cp.name);
+
+    const roleNote = cp.onActivate?.authors_note?.[role];
+    const characterName =
+      role === 'dm' ? this.story.roles?.dm :
+        role === 'companion' ? this.story.roles?.companion : undefined;
+
+    if (characterName && roleNote) {
+      applyCharacterAN(roleNote, {
+        position: "chat",
+        interval: 1,
+        depth: 4,
+        role: "system",
+      });
+      console.log('[StoryOrch] applied per-character AN', { role, characterName, cp: cp.name });
+    } else {
+      clearCharacterAN();
+      console.log('[StoryOrch] cleared AN (no per-character AN)', { role, characterName, cp: cp.name });
+    }
+
+    this.presetService.applyForRole(role, overrides, cp.name);
     this.onRoleApplied?.(role, cp.name);
   }
 
@@ -136,9 +159,7 @@ export class StoryOrchestrator {
     try {
       while (this.queue.length) {
         const req = this.queue.shift()!;
-        console.log('[StoryOrch] evaluating', { reason: req.reason, turn: req.turn, matched: req.matched });
         const outcome = await this.evaluate(req.reason, req.text, req.matched, req.turn);
-        console.log('[StoryOrch] evaluation result', { outcome, turn: req.turn });
         this.onEvaluated?.({ outcome, reason: req.reason, turn: req.turn, matched: req.matched });
 
         if (outcome === 'win') {
