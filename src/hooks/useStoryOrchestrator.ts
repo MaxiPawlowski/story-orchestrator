@@ -5,6 +5,7 @@ import { eventSource, event_types, getCharacterNameById, chat } from "@services/
 import { subscribeToEventSource } from "@utils/eventSource";
 import { StoryOrchestrator } from "@services/StoryService/StoryOrchestrator";
 import { DEFAULT_INTERVAL_TURNS } from "@services/StoryService/story-state";
+import { useCheckpointArbiter } from "@hooks/useCheckpointArbiter";
 
 const pickUserTextFromChat = (): { text: string; key: string } | null => {
   if (!Array.isArray(chat) || chat.length === 0) return null;
@@ -84,6 +85,7 @@ export function useStoryOrchestrator(
   const gateRef = useRef(new TurnGate());
   const lastUserSeenKeyRef = useRef<string | null>(null);
   const lastDraftRef = useRef<string | null>(null);
+  const checkpointArbiter = useCheckpointArbiter();
 
   useEffect(() => {
     if (!story || !requirementsReady) {
@@ -92,17 +94,21 @@ export function useStoryOrchestrator(
       gateRef.current.endEpoch();
       lastDraftRef.current = null;
       lastUserSeenKeyRef.current = null;
+      checkpointArbiter.clear();
       return;
     }
 
     const initialInterval = sanitizeIntervalTurns(intervalTurns);
 
+    checkpointArbiter.clear();
+
     const orch = new StoryOrchestrator({
       story,
+      checkpointArbiter,
       onRoleApplied: (role, cp) => { },
       shouldApplyRole: (role: Role): boolean => gateRef.current.shouldApplyRole(role, orch.index()),
       setEvalHooks: (setters) => {
-        setters.onEvaluated = (ev) => console.log("[Story/useSO] onEvaluated", ev);
+        setters.onEvaluated?.((ev) => console.log("[Story/useSO] onEvaluated", ev));
       },
     });
 
@@ -210,9 +216,10 @@ export function useStoryOrchestrator(
       lastDraftRef.current = null;
       lastUserSeenKeyRef.current = null;
       gateRef.current.endEpoch();
+      checkpointArbiter.clear();
       setReady(false);
     };
-  }, [story, requirementsReady]);
+  }, [story, requirementsReady, checkpointArbiter]);
 
   useEffect(() => {
     const orch = orchRef.current;

@@ -167,6 +167,7 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
   }, []);
 
   useEffect(() => {
+    if (!groupChatSelected) return;
     if (!story) {
       const defaults = makeDefaultState(story);
       setCheckpointIndex(defaults.checkpointIndex);
