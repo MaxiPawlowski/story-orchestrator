@@ -1,17 +1,10 @@
-﻿import React, { createContext, useCallback, useEffect, useMemo, useState } from "react";
+import React, { createContext, useCallback, useEffect, useMemo, useState } from "react";
 import { parseAndNormalizeStory, formatZodError, type NormalizedStory } from "@services/SchemaService/story-validator";
 import { loadCheckpointBundle, type CheckpointBundle } from "@services/StoryService/story-loader";
-import { useStoryRequirements } from "@hooks/useStoryRequirements";
 import { useStoryOrchestrator } from "@hooks/useStoryOrchestrator";
 import { eventSource, event_types, getContext } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
-import {
-  DEFAULT_INTERVAL_TURNS,
-  loadStoryState,
-  persistStoryState,
-  makeDefaultState,
-  type CheckpointStatus,
-} from "@services/StoryService/story-state";
+import { DEFAULT_INTERVAL_TURNS, type CheckpointStatus } from "@services/StoryService/story-state";
 
 type ValidationResult =
   | { ok: true; story: NormalizedStory }
@@ -32,6 +25,8 @@ export interface StoryContextValue {
   activateCheckpoint: (i: number) => void;
   intervalTurns: number;
   setIntervalTurns: (value: number | ((prev: number) => number)) => void;
+  turnsSinceEval: number;
+  turnsUntilNextCheck: number;
   activeChatId: string | null;
   ready: boolean;
   requirementsReady: boolean;
@@ -52,11 +47,27 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
   const [bundle, setBundle] = useState<CheckpointBundle | null>(null);
   const [title, setTitle] = useState<string>();
   const [story, setStory] = useState<NormalizedStory | null>(null);
-  const [checkpointIndex, setCheckpointIndex] = useState(0);
-  const [checkpointStatuses, setCheckpointStatuses] = useState<CheckpointStatus[]>([]);
-  const [intervalTurns, setIntervalTurnsState] = useState<number>(DEFAULT_INTERVAL_TURNS);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
-  const [hydrated, setHydrated] = useState(false);
+  const [intervalTurns, setIntervalTurnsState] = useState<number>(DEFAULT_INTERVAL_TURNS);
+
+  const { ready, activateIndex, requirements, runtime, hydrated, setChatId, reloadPersona, updateCheckpointStatus, turnsUntilNextCheck } = useStoryOrchestrator(
+    story,
+    intervalTurns,
+    {
+      onEvaluated: ({ outcome, cpIndex }) => {
+        if (!story) return;
+        if (outcome === "win") {
+          const next = cpIndex + 1;
+          updateCheckpointStatus(cpIndex, "complete");
+          if (next < (story.checkpoints?.length ?? 0)) {
+            activateIndex(next);
+          }
+        } else if (outcome === "fail") {
+          updateCheckpointStatus(cpIndex, "failed");
+        }
+      },
+    },
+  );
 
   const {
     requirementsReady,
@@ -67,10 +78,9 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
     worldLoreMissing,
     requiredRolesPresent,
     missingRoles,
-    onPersonaReload,
-  } = useStoryRequirements(story);
+  } = requirements;
 
-  const { ready, activateIndex } = useStoryOrchestrator(story, requirementsReady, intervalTurns);
+  const { checkpointIndex, checkpointStatuses, turnsSinceEval } = runtime;
 
   const setIntervalTurns = useCallback((value: number | ((prev: number) => number)) => {
     setIntervalTurnsState((prev) => {
@@ -81,15 +91,17 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
     });
   }, []);
 
+  const activateCheckpoint = useCallback((i: number) => {
+    activateIndex(i);
+  }, [activateIndex]);
+
   const validate = useCallback((input: unknown): ValidationResult => {
     try {
       const normalized = parseAndNormalizeStory(input);
-      const res: ValidationResult = { ok: true, story: normalized };
-      return res;
+      return { ok: true, story: normalized };
     } catch (e) {
       const errors = formatZodError(e);
-      const res: ValidationResult = { ok: false, errors };
-      return res;
+      return { ok: false, errors };
     }
   }, []);
 
@@ -97,11 +109,7 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
     setLoading(true);
     try {
       const res = await loadCheckpointBundle(options ?? {});
-      if (res) {
-        setBundle(res);
-      } else {
-        setBundle(null);
-      }
+      setBundle(res ?? null);
       return res ?? null;
     } catch (e) {
       setBundle(null);
@@ -112,30 +120,31 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
     return null;
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const activeBundle = bundle ?? (await loadBundle());
-        if (cancelled) return;
-        const firstOk = activeBundle?.results.find(
-          (r): r is { file: string; ok: true; json: NormalizedStory } => r.ok,
-        );
-        if (firstOk?.json) {
-          setStory(firstOk.json);
-          setTitle(firstOk.json.title);
-        } else {
-          console.warn("[StoryContext] No valid story in bundle.");
-        }
-      } catch (err) {
-        console.error("[StoryContext] Failed to load bundle", err);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [bundle, loadBundle]);
+  const refreshBundle = useCallback(async () => {
+    const res = await loadBundle({ force: true });
+    if (!res) {
+      setStory(null);
+      setTitle(undefined);
+      return;
+    }
+    const firstOk = res.results.find(
+      (r): r is { file: string; ok: true; json: NormalizedStory } => r.ok,
+    );
+    if (firstOk?.json) {
+      setStory(firstOk.json);
+      setTitle(firstOk.json.title);
+    } else {
+      setStory(null);
+      setTitle(undefined);
+    }
+  }, [loadBundle]);
 
   useEffect(() => {
+    if (!groupChatSelected) return;
+    void refreshBundle();
+  }, [groupChatSelected, refreshBundle]);
 
+  useEffect(() => {
     const updateChatId = () => {
       try {
         const ctx = getContext();
@@ -144,6 +153,8 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
 
         const key = raw === null || raw === undefined ? null : String(raw).trim();
         setActiveChatId(key ? key : null);
+        // inform orchestrator of chat id for state persistence
+        setChatId(key ? key : null);
       } catch (err) {
         console.warn("[StoryContext] Failed to resolve chatId", err);
         setActiveChatId(null);
@@ -164,66 +175,16 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
         console.warn("[StoryContext] unsubscribe failed", err);
       }
     };
-  }, []);
+  }, [setChatId]);
 
   useEffect(() => {
-    if (!groupChatSelected) return;
-    if (!story) {
-      const defaults = makeDefaultState(story);
-      setCheckpointIndex(defaults.checkpointIndex);
-      setCheckpointStatuses(defaults.checkpointStatuses);
-      setIntervalTurnsState(defaults.intervalTurns);
-      setHydrated(false);
-      return;
-    }
-
-    setHydrated(false);
-
-    const loaded = loadStoryState({ chatId: activeChatId, story });
-    setCheckpointIndex(loaded.state.checkpointIndex);
-    setCheckpointStatuses(loaded.state.checkpointStatuses);
-    setIntervalTurnsState(loaded.state.intervalTurns);
-    activateIndex(loaded.state.checkpointIndex);
-    setHydrated(true);
-
-    console.log("[StoryContext] hydrated state", {
-      chatId: activeChatId,
-      source: loaded.source,
-      checkpointIndex: loaded.state.checkpointIndex,
-      intervalTurns: loaded.state.intervalTurns,
-    });
-  }, [story, activeChatId, activateIndex]);
-
-  useEffect(() => {
-    if (!hydrated) return;
-    if (!story) return;
-
-    persistStoryState({
-      chatId: activeChatId,
-      story,
-      state: {
-        checkpointIndex,
-        checkpointStatuses,
-        intervalTurns,
-      },
-    });
-  }, [hydrated, story, activeChatId, checkpointIndex, checkpointStatuses, intervalTurns]);
-
-  const activateCheckpoint = useCallback((i: number) => {
-    activateIndex(i);
-    setCheckpointIndex(i);
-    setCheckpointStatuses(function (prev) {
-      return (story?.checkpoints ?? []).map(function (_cp, idx) {
-        if (idx < i) return "complete";
-        if (idx === i) return "current";
-        return prev[idx] ?? "pending";
-      });
-    });
-  }, [activateIndex, story]);
+    if (!ready) return;
+    setChatId(activeChatId);
+  }, [ready, activeChatId, setChatId]);
 
   const checkpoints = useMemo<CheckpointSummary[]>(() => {
     if (!story) return [];
-    return story.checkpoints.map(function (cp: any, idx: number) {
+    return story.checkpoints.map((cp, idx) => {
       const status = checkpointStatuses[idx]
         ?? (idx < checkpointIndex ? "complete" : idx === checkpointIndex ? "current" : "pending");
       return {
@@ -247,6 +208,8 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
       activateCheckpoint,
       intervalTurns,
       setIntervalTurns,
+      turnsSinceEval,
+      turnsUntilNextCheck,
       activeChatId,
       ready,
       requirementsReady,
@@ -257,7 +220,7 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
       requiredRolesPresent,
       missingRoles,
       worldLoreMissing,
-      onPersonaReload,
+      onPersonaReload: reloadPersona,
     }}>
       {children}
     </StoryContext.Provider>
@@ -265,3 +228,9 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
 };
 
 export default StoryContext;
+
+
+
+
+
+

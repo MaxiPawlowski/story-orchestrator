@@ -84,10 +84,3 @@ export async function loadCheckpointBundle(options: { force?: boolean } = {}): P
   return inflight;
 }
 
-export function clearCheckpointBundle(): void {
-  cachedBundle = null;
-  inflight = null;
-  clearNumericJsonBundleCache(BUNDLE_CACHE_KEY);
-}
-
-export default loadCheckpointBundle;

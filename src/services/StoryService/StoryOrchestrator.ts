@@ -10,9 +10,21 @@ import type {
   CheckpointArbiterApi,
   EvaluationOutcome,
 } from './checkpoint-arbiter-types';
+import CheckpointArbiterService from './CheckpointArbiterService';
 import type { NormalizedStory } from '@services/SchemaService/story-validator';
+import StoryRequirementsService, { type StoryRequirementsState } from './StoryRequirementsService';
+import StoryStateService from './StoryStateService';
+import { clampCheckpointIndex, sanitizeTurnsSinceEval, type RuntimeStoryState, type CheckpointStatus } from './story-state';
+import { clampText } from './text-utils';
 
-export class StoryOrchestrator {
+export interface OrchestratorCompositeState {
+  requirements: StoryRequirementsState;
+  runtime: RuntimeStoryState;
+  hydrated: boolean; // from StoryStateService
+  turnsUntilNextCheck: number;
+}
+
+class StoryOrchestrator {
   private story: NormalizedStory;
   private presetService: PresetService;
   private checkpointArbiter: CheckpointArbiterApi;
@@ -20,24 +32,36 @@ export class StoryOrchestrator {
   private idx = 0;
   private winRes: RegExp[] = [];
   private failRes: RegExp[] = [];
+  // Turns and since-eval are now owned by session state; we keep local snapshots only for payloads
   private turn = 0;
   private sinceEval = 0;
   private intervalTurns = 3;
   private roleNameMap = new Map<string, Role>();
+  private checkpointPrimed = false;
 
-  private onEvaluated?: (ev: { outcome: EvaluationOutcome; reason: ArbiterReason; turn: number; matched?: string }) => void;
+  private onEvaluated?: (ev: { outcome: EvaluationOutcome; reason: ArbiterReason; turn: number; matched?: string; cpIndex: number }) => void;
   private shouldApplyRole?: (role: Role) => boolean;
   private onRoleApplied?: (role: Role, cpName: string) => void;
+  private onTurnTick?: (next: { turn: number; sinceEval: number }) => void;
+  private onActivateIndex?: (index: number) => void;
+
+  private requirementsService: StoryRequirementsService;
+  private stateService: StoryStateService;
+  private chatId: string | null = null;
+  private compositeListeners = new Set<(state: OrchestratorCompositeState) => void>();
+  private lastComposite?: OrchestratorCompositeState;
 
   constructor(opts: {
     story: NormalizedStory;
-    checkpointArbiter: CheckpointArbiterApi;
     onRoleApplied?: (role: Role, cpName: string) => void;
     shouldApplyRole?: (role: Role) => boolean;
-    setEvalHooks?: (hooks: { onEvaluated?: (handler: (ev: { outcome: EvaluationOutcome; reason: ArbiterReason; turn: number; matched?: string }) => void) => void }) => void;
+    setEvalHooks?: (hooks: { onEvaluated?: (handler: (ev: { outcome: EvaluationOutcome; reason: ArbiterReason; turn: number; matched?: string; cpIndex: number }) => void) => void }) => void;
+    onTurnTick?: (next: { turn: number; sinceEval: number }) => void;
+    onActivateIndex?: (index: number) => void;
+    onCompositeState?: (state: OrchestratorCompositeState) => void;
   }) {
     this.story = opts.story;
-    this.checkpointArbiter = opts.checkpointArbiter;
+    this.checkpointArbiter = new CheckpointArbiterService();
     this.presetService = new PresetService({
       base: { source: "current" },
       storyId: this.story.title,
@@ -47,6 +71,23 @@ export class StoryOrchestrator {
     this.onRoleApplied = opts.onRoleApplied;
     this.shouldApplyRole = opts.shouldApplyRole;
     opts.setEvalHooks?.({ onEvaluated: (handler) => { this.onEvaluated = handler; } });
+    this.onTurnTick = opts.onTurnTick;
+    this.onActivateIndex = opts.onActivateIndex;
+    this.requirementsService = new StoryRequirementsService();
+    this.stateService = new StoryStateService({
+      onStateChange: (runtime, meta) => {
+        this.reconcileWithRuntime(runtime);
+        const turnsUntilNextCheck = Math.max(0, this.intervalTurns - (runtime?.turnsSinceEval ?? 0));
+        this.emitComposite({
+          requirements: this.requirementsService.getSnapshot(),
+          runtime,
+          hydrated: meta.hydrated,
+          turnsUntilNextCheck,
+
+        });
+      },
+    });
+    if (opts.onCompositeState) this.subscribeComposite(opts.onCompositeState);
   }
 
   index() { return this.idx; }
@@ -56,28 +97,133 @@ export class StoryOrchestrator {
   async init() {
     this.seedRoleMap();
     await this.presetService.initForStory();
-    this.activateIndex(0);
+    this.requirementsService.start();
+    this.requirementsService.setStory(this.story);
+
+    const initialRequirements = this.requirementsService.getSnapshot();
+    this.stateService.syncSession({
+      story: this.story,
+      chatId: this.chatId,
+      groupChatSelected: initialRequirements.groupChatSelected,
+    });
+    this.reconcileWithRuntime(this.stateService.getState());
+
+    this.requirementsService.subscribe(() => {
+      const req = this.requirementsService.getSnapshot();
+      this.stateService.syncSession({
+        story: this.story,
+        chatId: this.chatId,
+        groupChatSelected: req.groupChatSelected,
+      });
+      const runtime = this.stateService.getState();
+      this.reconcileWithRuntime(runtime);
+      const turnsUntilNextCheck = Math.max(0, this.intervalTurns - (runtime?.turnsSinceEval ?? 0));
+      this.emitComposite({
+        requirements: req,
+        runtime,
+        hydrated: this.stateService.isHydrated(),
+        turnsUntilNextCheck,
+      });
+    });
+
+    const runtime = this.stateService.getState();
+    const turnsUntilNextCheck = Math.max(0, this.intervalTurns - (runtime?.turnsSinceEval ?? 0));
+    this.emitComposite({
+      requirements: initialRequirements,
+      runtime,
+      hydrated: this.stateService.isHydrated(),
+      turnsUntilNextCheck,
+    });
+  }
+  private reconcileWithRuntime(runtime: RuntimeStoryState | null | undefined) {
+    if (!runtime) return;
+    const sanitizedIndex = clampCheckpointIndex(runtime.checkpointIndex, this.story);
+    const sanitizedSince = sanitizeTurnsSinceEval(runtime.turnsSinceEval);
+    if (!this.checkpointPrimed || sanitizedIndex !== this.idx) {
+      this.applyCheckpoint(sanitizedIndex, {
+        persist: false,
+        resetSinceEval: false,
+        sinceEvalOverride: sanitizedSince,
+        reason: 'hydrate',
+      });
+    } else if (sanitizedSince !== this.sinceEval) {
+      this.sinceEval = sanitizedSince;
+      this.turn = this.sinceEval;
+      this.onTurnTick?.({ turn: this.turn, sinceEval: this.sinceEval });
+    }
+  }
+
+  private applyCheckpoint(index: number, opts: {
+    persist?: boolean;
+    resetSinceEval?: boolean;
+    sinceEvalOverride?: number;
+    reason?: 'activate' | 'hydrate';
+  } = {}) {
+    const checkpoints = Array.isArray(this.story.checkpoints) ? this.story.checkpoints : [];
+    if (!checkpoints.length) {
+      this.idx = 0;
+      this.checkpointPrimed = true;
+      this.winRes = [];
+      this.failRes = [];
+      const override = opts.sinceEvalOverride;
+      const nextSinceEval = opts.resetSinceEval
+        ? 0
+        : typeof override === 'number'
+          ? sanitizeTurnsSinceEval(override)
+          : this.sinceEval;
+      this.sinceEval = nextSinceEval;
+      this.turn = opts.resetSinceEval
+        ? 0
+        : typeof override === 'number'
+          ? nextSinceEval
+          : Math.max(this.turn, nextSinceEval);
+      this.onTurnTick?.({ turn: this.turn, sinceEval: this.sinceEval });
+      return;
+    }
+
+    const sanitizedIndex = clampCheckpointIndex(index, this.story);
+    const cp = checkpoints[sanitizedIndex] ?? checkpoints[0];
+
+    this.idx = sanitizedIndex;
+    this.checkpointPrimed = true;
+    this.winRes = Array.isArray(cp.winTriggers) ? cp.winTriggers : [];
+    this.failRes = Array.isArray(cp.failTriggers) ? cp.failTriggers : [];
+    this.checkpointArbiter.clear();
+
+    const override = opts.sinceEvalOverride;
+    const nextSinceEval = opts.resetSinceEval
+      ? 0
+      : typeof override === 'number'
+        ? sanitizeTurnsSinceEval(override)
+        : this.sinceEval;
+
+    this.sinceEval = nextSinceEval;
+    this.turn = opts.resetSinceEval
+      ? 0
+      : typeof override === 'number'
+        ? nextSinceEval
+        : Math.max(this.turn, nextSinceEval);
+
+    this.onTurnTick?.({ turn: this.turn, sinceEval: this.sinceEval });
+
+    if (opts.persist !== false) {
+      this.stateService.activateCheckpoint(this.idx);
+      this.onActivateIndex?.(this.idx);
+    }
+
+    const logReason = opts.reason ?? (opts.persist === false ? 'hydrate' : 'activate');
+    console.log('[StoryOrch] activate', {
+      idx: this.idx,
+      id: cp?.id,
+      name: cp?.name,
+      win: this.winRes.map(String),
+      fail: this.failRes.map(String),
+      reason: logReason,
+    });
   }
 
   activateIndex(i: number) {
-    this.idx = Math.max(0, Math.min(i, this.story.checkpoints.length - 1));
-    const cp = this.story.checkpoints[this.idx];
-    this.winRes = Array.isArray(cp.winTriggers) ? cp.winTriggers : [];
-    this.failRes = Array.isArray(cp.failTriggers) ? cp.failTriggers : [];
-
-    // TODO: hook these up
-    // const oa = cp.onActivate;
-    // if (oa?.world_info) this.applyWI(oa.world_info);
-    // if (oa?.automation_ids) for (const id of oa.automation_ids) this.runAutomation?.(id);
-    // if (cp.onActivate?.authors_note) this.applyAuthorsNote(cp.onActivate.authors_note);
-    this.turn = 0;
-    this.sinceEval = 0;
-    this.checkpointArbiter.clear();
-
-    console.log('[StoryOrch] activate', {
-      idx: this.idx, id: cp.id, name: cp.name,
-      win: this.winRes.map(String), fail: this.failRes.map(String),
-    });
+    this.applyCheckpoint(i, { persist: true, resetSinceEval: true, reason: 'activate' });
   }
 
   setActiveRole(roleOrDisplayName: string) {
@@ -114,10 +260,13 @@ export class StoryOrchestrator {
 
   handleUserText(raw: string) {
     const text = (raw ?? '').trim();
-    console.log('[StoryOrch] userText', { turn: this.turn + 1, sinceEval: this.sinceEval + 1, sample: this.clamp(raw, 80) });
+    console.log('[StoryOrch] userText', { turn: this.turn + 1, sinceEval: this.sinceEval + 1, sample: clampText(raw, 80) });
     if (!text) return;
     this.turn += 1;
     this.sinceEval += 1;
+    this.onTurnTick?.({ turn: this.turn, sinceEval: this.sinceEval });
+    // mirror to state service
+    this.stateService.setTurnsSinceEval(this.sinceEval);
 
     const match = this.matchTrigger(text);
     if (match) this.enqueueEval(match.reason, text, match.pattern);
@@ -145,6 +294,8 @@ export class StoryOrchestrator {
   }
   private enqueueEval(reason: ArbiterReason, text: string, matched?: string) {
     this.sinceEval = 0;
+    this.onTurnTick?.({ turn: this.turn, sinceEval: this.sinceEval });
+    this.stateService.setTurnsSinceEval(this.sinceEval);
     const turnSnapshot = this.turn;
     const checkpointIndex = this.idx;
     const cp = this.story.checkpoints[checkpointIndex];
@@ -160,26 +311,59 @@ export class StoryOrchestrator {
       intervalTurns: this.intervalTurns,
     }).then((payload) => {
       const outcome = payload?.outcome ?? 'continue';
-      this.onEvaluated?.({ outcome, reason, turn: turnSnapshot, matched });
-      if (outcome === 'win' && this.idx === checkpointIndex) {
-        const next = checkpointIndex + 1;
-        if (next < this.story.checkpoints.length) {
-          this.activateIndex(next);
-        } else {
-          this.checkpointArbiter.clear();
-        }
-      }
+      this.onEvaluated?.({ outcome, reason, turn: turnSnapshot, matched, cpIndex: checkpointIndex });
+      // Delegate win/advance behavior to session state/consumer
     }).catch((err) => {
       console.warn('[StoryOrch] arbiter error', err);
     });
   }
 
+  // Requirements facade
+  getRequirementsSnapshot(): StoryRequirementsState { return this.requirementsService.getSnapshot(); }
+  reloadPersona() { return this.requirementsService.reloadPersona(); }
 
+  // Runtime state facade
+  getRuntimeSnapshot(): RuntimeStoryState { return this.stateService.getState(); }
+  updateCheckpointStatus(index: number, status: CheckpointStatus) { this.stateService.updateCheckpointStatus(index, status); }
+  setOnActivateCheckpoint(cb?: (index: number) => void) { this.stateService.setOnActivateCheckpoint(cb); }
 
-
-  private clamp(s: string, n: number) {
-    const t = (s || '').replace(/\s+/g, ' ').trim();
-    return t.length <= n ? t : `${t.slice(0, n - 3)}...`;
+  setChatId(chatId: string | null) {
+    this.chatId = chatId ? String(chatId) : null;
+    const req = this.requirementsService.getSnapshot();
+    this.stateService.syncSession({
+      story: this.story,
+      chatId: this.chatId,
+      groupChatSelected: req.groupChatSelected,
+    });
+    this.reconcileWithRuntime(this.stateService.getState());
   }
 
+  subscribeComposite(listener: (state: OrchestratorCompositeState) => void) {
+    this.compositeListeners.add(listener);
+    if (this.lastComposite) listener(this.lastComposite);
+    return () => { this.compositeListeners.delete(listener); };
+  }
+
+  private emitComposite(state: OrchestratorCompositeState) {
+    this.lastComposite = state;
+    this.compositeListeners.forEach((l) => { try { l(state); } catch (e) { console.warn('[StoryOrch] composite listener failed', e); } });
+  }
+
+  dispose() {
+    try { this.requirementsService.dispose(); } catch (e) { /* noop */ }
+    try { this.stateService.dispose(); } catch (e) { /* noop */ }
+    this.checkpointPrimed = false;
+    this.idx = 0;
+    this.winRes = [];
+    this.failRes = [];
+    this.turn = 0;
+    this.sinceEval = 0;
+    this.compositeListeners.clear();
+  }
+
+
+
 }
+
+
+export default StoryOrchestrator;

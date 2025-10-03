@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { useStoryContext } from "@hooks/useStoryContext";
 
 const DrawerWrapper = () => {
-  const [isOpen, setIsOpen] = useState(true);
   const [isMinimized, setIsMinimized] = useState(false);
   const {
     ready,
@@ -18,10 +17,6 @@ const DrawerWrapper = () => {
   useEffect(() => {
     console.log('[DrawerWrapper] Story Orchestrator ready:', ready, 'Title:', title);
   }, [ready, title]);
-
-  if (!isOpen) {
-    return null;
-  }
 
   return (
     <div className="rounded">
@@ -46,7 +41,7 @@ const DrawerWrapper = () => {
             aria-label="Close"
             title="Close"
             className="px-2 py-1 text-sm rounded border bg-transparent"
-            onClick={() => setIsOpen(false)}
+            onClick={() => document.getElementById("drawer-manager")?.remove()}
           >
             ✕
           </button>

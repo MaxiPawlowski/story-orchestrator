@@ -5,6 +5,18 @@ import { extensionName } from "@constants/main";
 export type CheckpointStatus = "pending" | "current" | "complete" | "failed";
 
 export const DEFAULT_INTERVAL_TURNS = 3;
+export const sanitizeIntervalTurns = (value: number): number => {
+  if (!Number.isFinite(value)) return DEFAULT_INTERVAL_TURNS;
+  const int = Math.floor(Number(value));
+  return int >= 1 ? int : DEFAULT_INTERVAL_TURNS;
+};
+
+export const clampCheckpointIndex = (idx: number, story: NormalizedStory | null | undefined): number => {
+  if (!story) return 0;
+  return clampIndex(idx, story);
+};
+
+export const sanitizeTurnsSinceEval = (value: number): number => sanitizeTurns(value);
 
 const STORAGE_KEY = "storyState";
 const STORAGE_VERSION = 1;
@@ -14,7 +26,7 @@ type StateMap = Record<string, PersistedChatState>;
 export interface RuntimeStoryState {
   checkpointIndex: number;
   checkpointStatuses: CheckpointStatus[];
-  intervalTurns: number;
+  turnsSinceEval: number;
 }
 
 export interface PersistedChatState {
@@ -22,7 +34,7 @@ export interface PersistedChatState {
   storySignature: string;
   checkpointIndex: number;
   checkpointStatuses: CheckpointStatus[];
-  intervalTurns: number;
+  turnsSinceEval: number;
   updatedAt: number;
 }
 
@@ -59,7 +71,7 @@ export function loadStoryState({
   }
 
   const checkpointIndex = clampIndex(entry.checkpointIndex, story);
-  const intervalTurns = sanitizeInterval(entry.intervalTurns);
+  const turnsSinceEval = sanitizeTurns(entry.turnsSinceEval);
   const checkpointStatuses = reconcileStatuses({
     story,
     statuses: entry.checkpointStatuses,
@@ -70,7 +82,7 @@ export function loadStoryState({
     state: {
       checkpointIndex,
       checkpointStatuses,
-      intervalTurns,
+      turnsSinceEval,
     },
     source: "stored",
   };
@@ -93,7 +105,7 @@ export function persistStoryState({
 
   const map = getStateMap();
   const checkpointIndex = clampIndex(state.checkpointIndex, story);
-  const intervalTurns = sanitizeInterval(state.intervalTurns);
+  const turnsSinceEval = sanitizeTurns(state.turnsSinceEval);
   const checkpointStatuses = reconcileStatuses({
     story,
     statuses: state.checkpointStatuses,
@@ -105,7 +117,7 @@ export function persistStoryState({
     storySignature: computeStorySignature(story),
     checkpointIndex,
     checkpointStatuses,
-    intervalTurns,
+    turnsSinceEval,
     updatedAt: Date.now(),
   };
 
@@ -137,7 +149,7 @@ export function makeDefaultState(story: NormalizedStory | null | undefined): Run
   return {
     checkpointIndex: checkpointIndex < 0 ? 0 : checkpointIndex,
     checkpointStatuses,
-    intervalTurns: DEFAULT_INTERVAL_TURNS,
+    turnsSinceEval: 0,
   };
 }
 
@@ -188,10 +200,10 @@ function clampIndex(idx: number, story: NormalizedStory): number {
   return Math.floor(idx);
 }
 
-function sanitizeInterval(n: number | null | undefined): number {
-  if (!Number.isFinite(n)) return DEFAULT_INTERVAL_TURNS;
-  const num = Math.floor(Number(n));
-  return num >= 1 ? num : DEFAULT_INTERVAL_TURNS;
+function sanitizeTurns(value: number | null | undefined): number {
+  if (!Number.isFinite(value)) return 0;
+  const num = Math.floor(Number(value));
+  return num >= 0 ? num : 0;
 }
 
 function reconcileStatuses({
@@ -255,6 +267,6 @@ function isPersistedChatState(input: unknown): input is PersistedChatState {
     && typeof candidate.storySignature === "string"
     && typeof candidate.checkpointIndex === "number"
     && Array.isArray(candidate.checkpointStatuses)
-    && typeof candidate.intervalTurns === "number"
+    && typeof candidate.turnsSinceEval === "number"
   );
 }
