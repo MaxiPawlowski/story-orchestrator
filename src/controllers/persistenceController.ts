@@ -13,13 +13,7 @@ const sanitizeChatId = (value: unknown): string | null => {
 interface WriteRuntimeOptions {
   persist?: boolean;
   hydrated?: boolean;
-}
-
-interface PersistenceContext {
-  story: NormalizedStory | null;
-  chatId: string | null;
-  groupChatSelected: boolean;
-  hydrated: boolean;
+  skipStore?: boolean;
 }
 
 export interface HydrateResult {
@@ -40,12 +34,13 @@ export interface PersistenceController {
   isHydrated(): boolean;
 }
 
-const persistIfAllowed = (ctx: PersistenceContext, runtime: RuntimeStoryState) => {
-  if (!ctx.story) return false;
-  if (!ctx.groupChatSelected) return false;
-  if (!ctx.chatId) return false;
+const persistIfAllowed = (store: StorySessionStore, runtime: RuntimeStoryState) => {
+  const { story, groupChatSelected, chatId } = store.getState();
+  if (!story) return false;
+  if (!groupChatSelected) return false;
+  if (!chatId) return false;
   try {
-    persistStoryState({ chatId: ctx.chatId, story: ctx.story, state: runtime });
+    persistStoryState({ chatId, story, state: runtime });
     return true;
   } catch (err) {
     console.warn("[PersistenceController] persist failed", err);
@@ -55,93 +50,91 @@ const persistIfAllowed = (ctx: PersistenceContext, runtime: RuntimeStoryState) =
 
 const writeStoreRuntime = (
   store: StorySessionStore,
-  ctx: PersistenceContext,
   next: RuntimeStoryState,
   options: WriteRuntimeOptions,
 ): RuntimeStoryState => {
-  const nextHydrated = options.hydrated ?? ctx.hydrated;
-  const runtime = store.getState().writeRuntime(next, { hydrated: nextHydrated });
-  ctx.hydrated = store.getState().hydrated;
-  if (options.persist !== false && ctx.hydrated) {
-    persistIfAllowed(ctx, runtime);
+  if (options.skipStore) {
+    if (options.persist !== false) {
+      persistIfAllowed(store, next);
+    }
+    return next;
+  }
+
+  const snapshotBefore = store.getState();
+  const targetHydrated = options.hydrated ?? snapshotBefore.hydrated;
+  const runtime = snapshotBefore.setRuntime(next, { hydrated: targetHydrated });
+  if (options.persist !== false) {
+    persistIfAllowed(store, runtime);
   }
   return runtime;
 };
 
 export const createPersistenceController = (store: StorySessionStore = storySessionStore): PersistenceController => {
-  const ctx: PersistenceContext = {
-    story: null,
-    chatId: null,
-    groupChatSelected: false,
-    hydrated: false,
-  };
-
-  const setStory = (next: NormalizedStory | null | undefined): RuntimeStoryState => {
-    ctx.story = next ?? null;
-    const runtime = store.getState().setStory(ctx.story);
-    ctx.hydrated = store.getState().hydrated;
-    return runtime;
-  };
+  const setStory = (next: NormalizedStory | null | undefined): RuntimeStoryState => (
+    store.getState().setStory(next ?? null)
+  );
 
   const setChatContext = ({ chatId, groupChatSelected }: { chatId: string | null | undefined; groupChatSelected: boolean | null | undefined }) => {
-    ctx.chatId = sanitizeChatId(chatId);
-    ctx.groupChatSelected = Boolean(groupChatSelected);
-    store.getState().setChatContext({ chatId: ctx.chatId, groupChatSelected: ctx.groupChatSelected });
+    store.getState().setChatContext({
+      chatId: sanitizeChatId(chatId),
+      groupChatSelected: Boolean(groupChatSelected),
+    });
   };
 
-  const resetRuntime = (): RuntimeStoryState => {
-    const runtime = store.getState().resetRuntime();
-    ctx.hydrated = store.getState().hydrated;
-    return runtime;
-  };
+  const resetRuntime = (): RuntimeStoryState => (
+    store.getState().resetRuntime()
+  );
 
   const hydrate = (): HydrateResult => {
-    if (!ctx.story || !ctx.groupChatSelected) {
-      const runtime = resetRuntime();
+    const snapshot = store.getState();
+    if (!snapshot.story || !snapshot.groupChatSelected) {
+      const runtime = snapshot.resetRuntime();
       return { runtime, source: "default" };
     }
 
-    const { state, source } = loadStoryState({ chatId: ctx.chatId, story: ctx.story });
-    const runtime = writeStoreRuntime(store, ctx, state, { hydrated: true, persist: false });
-    ctx.hydrated = true;
+    const { state, source } = loadStoryState({ chatId: snapshot.chatId, story: snapshot.story });
+    const runtime = writeStoreRuntime(store, state, { hydrated: true, persist: false });
     return { runtime, source };
   };
 
   const writeRuntime = (next: RuntimeStoryState, options: WriteRuntimeOptions = {}): RuntimeStoryState => {
-    if (options.persist !== false && ctx.groupChatSelected) {
-      options.hydrated ??= true;
-    }
-    const runtime = writeStoreRuntime(store, ctx, next, options);
-    return runtime;
+    const snapshot = store.getState();
+    const shouldPersist = options.persist !== false && snapshot.groupChatSelected;
+    return writeStoreRuntime(store, next, {
+      ...options,
+      persist: shouldPersist,
+      hydrated: options.hydrated ?? (shouldPersist ? true : snapshot.hydrated),
+    });
   };
 
   const setTurnsSinceEval = (next: number, options?: { persist?: boolean }): RuntimeStoryState => {
     const runtime = store.getState().setTurnsSinceEval(next);
-    ctx.hydrated = store.getState().hydrated;
-    if (options?.persist !== false && ctx.hydrated) {
-      persistIfAllowed(ctx, runtime);
+    const snapshot = store.getState();
+    if (options?.persist !== false && snapshot.groupChatSelected) {
+      persistIfAllowed(store, runtime);
     }
     return runtime;
   };
 
   const updateCheckpointStatus = (index: number, status: CheckpointStatus, options?: { persist?: boolean }): RuntimeStoryState => {
     const runtime = store.getState().updateCheckpointStatus(index, status);
-    ctx.hydrated = store.getState().hydrated;
-    if (options?.persist !== false && ctx.hydrated) {
-      persistIfAllowed(ctx, runtime);
+    const snapshot = store.getState();
+    if (options?.persist !== false && snapshot.groupChatSelected) {
+      persistIfAllowed(store, runtime);
     }
     return runtime;
   };
 
   const dispose = () => {
-    ctx.story = null;
-    ctx.chatId = null;
-    ctx.groupChatSelected = false;
-    ctx.hydrated = false;
+    /* no-op: store already owns state */
   };
 
-  const canPersist = () => Boolean(ctx.story && ctx.chatId && ctx.groupChatSelected);
-  const isHydrated = () => ctx.hydrated;
+  const canPersist = () => {
+    const { story, chatId, groupChatSelected } = store.getState();
+    return Boolean(story && chatId && groupChatSelected);
+  };
+
+  const isHydrated = () => Boolean(store.getState().hydrated);
 
   return {
     setStory,

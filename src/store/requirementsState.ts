@@ -5,6 +5,8 @@ export interface StoryRequirementsState {
   groupChatSelected: boolean;
   worldLorePresent: boolean;
   worldLoreMissing: string[];
+  globalLorePresent: boolean;
+  globalLoreMissing: string[];
   requiredRolesPresent: boolean;
   missingRoles: string[];
 }
@@ -16,6 +18,8 @@ export const DEFAULT_REQUIREMENTS_STATE: StoryRequirementsState = {
   groupChatSelected: false,
   worldLorePresent: true,
   worldLoreMissing: [],
+  globalLorePresent: true,
+  globalLoreMissing: [],
   requiredRolesPresent: false,
   missingRoles: [],
 };
@@ -23,6 +27,7 @@ export const DEFAULT_REQUIREMENTS_STATE: StoryRequirementsState = {
 export const cloneRequirementsState = (state: StoryRequirementsState): StoryRequirementsState => ({
   ...state,
   worldLoreMissing: state.worldLoreMissing.slice(),
+  globalLoreMissing: state.globalLoreMissing.slice(),
   missingRoles: state.missingRoles.slice(),
 });
 
@@ -32,6 +37,7 @@ export const createRequirementsState = (base?: StoryRequirementsState): StoryReq
 
 export type RequirementsStatePatch = Partial<StoryRequirementsState> & {
   worldLoreMissing?: string[];
+  globalLoreMissing?: string[];
   missingRoles?: string[];
 };
 
@@ -42,6 +48,7 @@ export const mergeRequirementsState = (
   ...prev,
   ...patch,
   worldLoreMissing: patch.worldLoreMissing ? patch.worldLoreMissing.slice() : prev.worldLoreMissing.slice(),
+  globalLoreMissing: patch.globalLoreMissing ? patch.globalLoreMissing.slice() : prev.globalLoreMissing.slice(),
   missingRoles: patch.missingRoles ? patch.missingRoles.slice() : prev.missingRoles.slice(),
 });
 
@@ -57,6 +64,8 @@ export const areRequirementStatesEqual = (
     && a.groupChatSelected === b.groupChatSelected
     && a.worldLorePresent === b.worldLorePresent
     && arrayShallowEqual(a.worldLoreMissing, b.worldLoreMissing)
+    && a.globalLorePresent === b.globalLorePresent
+    && arrayShallowEqual(a.globalLoreMissing, b.globalLoreMissing)
     && a.requiredRolesPresent === b.requiredRolesPresent
     && arrayShallowEqual(a.missingRoles, b.missingRoles)
   );

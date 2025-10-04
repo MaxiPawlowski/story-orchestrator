@@ -1,5 +1,6 @@
 ﻿import type { Role } from "@utils/story-schema";
-import type { NormalizedStory } from "@utils/story-validator";
+import type { NormalizedCheckpoint, NormalizedStory } from "@utils/story-validator";
+import { computeNextStatuses, matchTrigger as matchTriggerUtil } from "@utils/story-state";
 import { PresetService } from "./PresetService";
 import CheckpointArbiterService, {
   type ArbiterReason,
@@ -13,6 +14,8 @@ import {
   clearCharacterAN,
   eventSource,
   event_types,
+  enableWIEntry,
+  disableWIEntry,
   getContext,
 } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
@@ -31,11 +34,8 @@ class StoryOrchestrator {
   private presetService: PresetService;
   private checkpointArbiter: CheckpointArbiterApi;
 
-  private idx = 0;
   private winRes: RegExp[] = [];
   private failRes: RegExp[] = [];
-  private turn = 0;
-  private sinceEval = 0;
   private intervalTurns = DEFAULT_INTERVAL_TURNS;
   private roleNameMap = new Map<string, Role>();
   private checkpointPrimed = false;
@@ -76,7 +76,26 @@ class StoryOrchestrator {
 
   }
 
-  index() { return this.idx; }
+  private get runtime(): RuntimeStoryState {
+    return storySessionStore.getState().runtime;
+  }
+
+  private setRuntime(next: RuntimeStoryState, options?: { hydrated?: boolean }) {
+    return storySessionStore.getState().setRuntime(next, options);
+  }
+
+  private get turn(): number {
+    return storySessionStore.getState().turn;
+  }
+
+  private setTurn(value: number) {
+    storySessionStore.getState().setTurn(value);
+  }
+
+  get index() {
+    const idx = this.runtime?.checkpointIndex;
+    return Number.isFinite(idx) ? idx : 0;
+  }
 
   setIntervalTurns(n: number) {
     this.intervalTurns = Math.max(1, n | 0);
@@ -117,7 +136,7 @@ class StoryOrchestrator {
     if (!role) return;
     if (this.shouldApplyRole && !this.shouldApplyRole(role)) return;
 
-    const cp = this.story.checkpoints[this.idx];
+    const cp = this.story.checkpoints[this.index];
     if (!cp) return;
 
     const overrides = cp.onActivate?.preset_overrides?.[role];
@@ -146,17 +165,20 @@ class StoryOrchestrator {
 
   handleUserText(raw: string) {
     const text = (raw ?? "").trim();
-    console.log("[StoryOrch] userText", { turn: this.turn + 1, sinceEval: this.sinceEval + 1, sample: clampText(raw, 80) });
+    const currentTurn = this.turn;
+    const currentSinceEval = this.runtime.turnsSinceEval;
+    const nextTurn = currentTurn + 1;
+    const nextSinceEval = currentSinceEval + 1;
+    console.log("[StoryOrch] userText", { turn: nextTurn, sinceEval: nextSinceEval, sample: clampText(raw, 80) });
     if (!text) return;
 
-    this.turn += 1;
-    this.sinceEval += 1;
-    this.onTurnTick?.({ turn: this.turn, sinceEval: this.sinceEval });
-    this.persistence.setTurnsSinceEval(this.sinceEval, { persist: true });
+    this.setTurn(nextTurn);
+    const runtime = this.persistence.setTurnsSinceEval(nextSinceEval, { persist: true });
+    this.onTurnTick?.({ turn: nextTurn, sinceEval: runtime.turnsSinceEval });
 
-    const match = this.matchTrigger(text);
+    const match = matchTriggerUtil(text, this.winRes, this.failRes);
     if (match) this.enqueueEval(match.reason, text, match.pattern);
-    else if (this.sinceEval >= this.intervalTurns) this.enqueueEval("interval", text);
+    else if (runtime.turnsSinceEval >= this.intervalTurns) this.enqueueEval("interval", text);
   }
 
   reloadPersona() {
@@ -170,8 +192,49 @@ class StoryOrchestrator {
   setOnActivateCheckpoint(cb?: (index: number) => void) {
     this.onActivateIndex = cb;
     if (cb && this.checkpointPrimed) {
-      try { cb(this.idx); } catch (err) { console.warn("[StoryOrch] onActivate callback failed", err); }
+      try { cb(this.index); } catch (err) { console.warn("[StoryOrch] onActivate callback failed", err); }
     }
+  }
+
+
+  private applyWorldInfoForCheckpoint(cp: NormalizedCheckpoint | undefined, metadata?: { index: number; reason: string }) {
+    const lorebook = this.story.global_lorebook?.trim() ?? "";
+    if (!cp || !lorebook) return;
+
+    const worldInfo = cp.onActivate?.world_info;
+    if (!worldInfo) return;
+
+    const normalize = (list?: string[]) => (
+      Array.isArray(list)
+        ? Array.from(new Set(list.map((item) => (typeof item === "string" ? item.trim() : "")).filter(Boolean)))
+        : []
+    );
+
+    const activate = normalize(worldInfo.activate);
+    const deactivate = normalize(worldInfo.deactivate);
+
+    if (!activate.length && !deactivate.length) return;
+
+    console.log("[StoryOrch] world info apply", {
+      lorebook,
+      cp: cp.name,
+      index: metadata?.index,
+      reason: metadata?.reason,
+      activate,
+      deactivate,
+    });
+
+    const run = async (action: "enable" | "disable", comment: string) => {
+      try {
+        if (action === "enable") await enableWIEntry(lorebook, comment);
+        else await disableWIEntry(lorebook, comment);
+      } catch (err) {
+        console.warn(`[StoryOrch] world info ${action} failed`, { lorebook, comment, error: err, cp: cp.name });
+      }
+    };
+
+    activate.forEach((comment) => { void run("enable", comment); });
+    deactivate.forEach((comment) => { void run("disable", comment); });
   }
 
 
@@ -222,17 +285,17 @@ class StoryOrchestrator {
     const sanitizedIndex = clampCheckpointIndex(runtime.checkpointIndex, this.story);
     const sanitizedSince = sanitizeTurnsSinceEval(runtime.turnsSinceEval);
 
-    if (!this.checkpointPrimed || sanitizedIndex !== this.idx) {
+    if (!this.checkpointPrimed || sanitizedIndex !== this.index) {
       this.applyCheckpoint(sanitizedIndex, {
         persist: false,
         resetSinceEval: false,
         sinceEvalOverride: sanitizedSince,
         reason: "hydrate",
       });
-    } else if (sanitizedSince !== this.sinceEval) {
-      this.sinceEval = sanitizedSince;
-      this.turn = this.sinceEval;
-      this.onTurnTick?.({ turn: this.turn, sinceEval: this.sinceEval });
+    } else {
+      const updatedRuntime = this.persistence.setTurnsSinceEval(sanitizedSince, { persist: false });
+      this.setTurn(sanitizedSince);
+      this.onTurnTick?.({ turn: sanitizedSince, sinceEval: updatedRuntime.turnsSinceEval });
     }
   }
 
@@ -243,49 +306,61 @@ class StoryOrchestrator {
     reason?: "activate" | "hydrate";
   } = {}) {
     const checkpoints = Array.isArray(this.story.checkpoints) ? this.story.checkpoints : [];
-    const store = storySessionStore;
+    const storeSnapshot = storySessionStore.getState();
+    const previousRuntime = storeSnapshot.runtime;
+    const currentTurn = storeSnapshot.turn;
+    const persistRequested = opts.persist !== false;
+    const hydratedFlag = opts.reason === "hydrate"
+      ? true
+      : persistRequested
+        ? true
+        : undefined;
+
+    const applyRuntime = (runtimePayload: RuntimeStoryState, nextTurn: number) => {
+      const sanitized = this.setRuntime(runtimePayload, { hydrated: hydratedFlag });
+      this.setTurn(nextTurn);
+      this.onTurnTick?.({ turn: nextTurn, sinceEval: sanitized.turnsSinceEval });
+      this.persistence.writeRuntime(sanitized, { persist: persistRequested, skipStore: true, hydrated: hydratedFlag });
+      return sanitized;
+    };
 
     if (!checkpoints.length) {
-      this.idx = 0;
       this.checkpointPrimed = true;
       this.winRes = [];
       this.failRes = [];
+      this.checkpointArbiter.clear();
 
       const override = opts.sinceEvalOverride;
       const nextSinceEval = opts.resetSinceEval
         ? 0
         : typeof override === "number"
           ? sanitizeTurnsSinceEval(override)
-          : this.sinceEval;
+          : previousRuntime.turnsSinceEval;
 
-      this.sinceEval = nextSinceEval;
-      this.turn = opts.resetSinceEval
+      const nextTurn = opts.resetSinceEval
         ? 0
         : typeof override === "number"
-          ? nextSinceEval
-          : Math.max(this.turn, nextSinceEval);
+          ? Math.max(0, nextSinceEval)
+          : Math.max(currentTurn, nextSinceEval);
 
-      this.onTurnTick?.({ turn: this.turn, sinceEval: this.sinceEval });
-      this.persistence.writeRuntime({
+      const sanitized = applyRuntime({
         checkpointIndex: 0,
         checkpointStatuses: [],
         turnsSinceEval: opts.resetSinceEval ? 0 : nextSinceEval,
-      }, { persist: false, hydrated: this.persistence.isHydrated() });
+      }, nextTurn);
 
-      if (opts.reason) this.emitActivate(this.idx);
+      if (opts.reason) this.emitActivate(sanitized.checkpointIndex);
       return;
     }
 
     const sanitizedIndex = clampCheckpointIndex(index, this.story);
     const cp = checkpoints[sanitizedIndex] ?? checkpoints[0];
 
-    this.idx = sanitizedIndex;
     this.checkpointPrimed = true;
     this.winRes = Array.isArray(cp.winTriggers) ? cp.winTriggers : [];
     this.failRes = Array.isArray(cp.failTriggers) ? cp.failTriggers : [];
     this.checkpointArbiter.clear();
 
-    const previousRuntime = store.getState().runtime;
     const override = opts.sinceEvalOverride;
     const nextSinceEval = opts.resetSinceEval
       ? 0
@@ -293,27 +368,24 @@ class StoryOrchestrator {
         ? sanitizeTurnsSinceEval(override)
         : previousRuntime.turnsSinceEval;
 
-    this.sinceEval = nextSinceEval;
-    this.turn = opts.resetSinceEval
+    const nextTurn = opts.resetSinceEval
       ? 0
       : typeof override === "number"
-        ? nextSinceEval
-        : Math.max(this.turn, nextSinceEval);
+        ? Math.max(0, nextSinceEval)
+        : Math.max(currentTurn, nextSinceEval);
 
-    this.onTurnTick?.({ turn: this.turn, sinceEval: this.sinceEval });
-
-    const nextStatuses = this.buildStatuses(sanitizedIndex, previousRuntime.checkpointStatuses);
+    const nextStatuses = computeNextStatuses(sanitizedIndex, previousRuntime.checkpointStatuses, this.story);
     const runtimePayload: RuntimeStoryState = {
       checkpointIndex: sanitizedIndex,
       checkpointStatuses: nextStatuses,
       turnsSinceEval: opts.resetSinceEval ? 0 : nextSinceEval,
     };
 
-    this.persistence.writeRuntime(runtimePayload, { persist: opts.persist !== false });
+    const sanitized = applyRuntime(runtimePayload, nextTurn);
 
-    const logReason = opts.reason ?? (opts.persist === false ? "hydrate" : "activate");
+    const logReason = opts.reason ?? (persistRequested ? "activate" : "hydrate");
     console.log("[StoryOrch] activate", {
-      idx: this.idx,
+      idx: sanitized.checkpointIndex,
       id: cp?.id,
       name: cp?.name,
       win: this.winRes.map(String),
@@ -321,28 +393,18 @@ class StoryOrchestrator {
       reason: logReason,
     });
 
-    if (opts.reason) this.emitActivate(this.idx);
+    this.applyWorldInfoForCheckpoint(cp, { index: sanitized.checkpointIndex, reason: logReason });
+
+    if (opts.reason) this.emitActivate(sanitized.checkpointIndex);
   }
 
-  private matchTrigger(text: string) {
-    for (const re of this.failRes) {
-      re.lastIndex = 0;
-      if (re.test(text)) return { reason: "fail" as const, pattern: re.toString() };
-    }
-    for (const re of this.winRes) {
-      re.lastIndex = 0;
-      if (re.test(text)) return { reason: "win" as const, pattern: re.toString() };
-    }
-    return null;
-  }
 
   private enqueueEval(reason: ArbiterReason, text: string, matched?: string) {
-    this.sinceEval = 0;
-    this.onTurnTick?.({ turn: this.turn, sinceEval: this.sinceEval });
-    this.persistence.setTurnsSinceEval(this.sinceEval, { persist: true });
-
     const turnSnapshot = this.turn;
-    const checkpointIndex = this.idx;
+    const runtime = this.persistence.setTurnsSinceEval(0, { persist: true });
+    this.onTurnTick?.({ turn: turnSnapshot, sinceEval: runtime.turnsSinceEval });
+
+    const checkpointIndex = runtime.checkpointIndex;
     const cp = this.story.checkpoints[checkpointIndex];
     console.log("[StoryOrch] eval-queued", { reason, turn: turnSnapshot, matched });
 
@@ -372,23 +434,7 @@ class StoryOrchestrator {
 
   private norm(s?: string | null) { return (s ?? "").normalize("NFKC").trim().toLowerCase(); }
 
-  private buildStatuses(activeIndex: number, previous: CheckpointStatus[]): CheckpointStatus[] {
-    const checkpoints = this.story?.checkpoints ?? [];
-    if (!checkpoints.length) return [];
-
-    const total = checkpoints.length;
-    const result: CheckpointStatus[] = new Array(total);
-    for (let idx = 0; idx < total; idx++) {
-      if (idx < activeIndex) {
-        result[idx] = "complete";
-      } else if (idx === activeIndex) {
-        result[idx] = previous[idx] === "failed" ? "failed" : "current";
-      } else {
-        result[idx] = previous[idx] ?? "pending";
-      }
-    }
-    return result;
-  }
+  // removed thin wrappers: call helpers directly to reduce indirection
 
   private emitActivate(index: number) {
     try {
@@ -426,9 +472,7 @@ class StoryOrchestrator {
       console.warn("[StoryOrch] failed to reset store during dispose", err);
     }
 
-    this.idx = 0;
-    this.turn = 0;
-    this.sinceEval = 0;
+    this.setTurn(0);
     this.intervalTurns = DEFAULT_INTERVAL_TURNS;
     this.roleNameMap.clear();
     this.winRes = [];

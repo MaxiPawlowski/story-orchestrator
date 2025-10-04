@@ -150,7 +150,52 @@ export async function clearCharacterAN() {
   await runSlash(`/note ${quoteArg("")}`);
   await runSlash(`/note-frequency 0`);
 }
+// /setentryfield file="Xentar Checkpoints" uid=PASTE-UID-HERE field=disable 0
 
+
+export async function enableWIEntry(lorebook: string, comment: string) {
+  if (!lorebook || !comment) return false;
+  const entries = await getWorldInfoSettings()?.entries;
+  if (!Array.isArray(entries) || entries.length === 0) {
+    console.warn("[Story WI] no world info entries available");
+    return false;
+  }
+  const found = entries.find(e => typeof e?.comment === "string" && e.comment.trim() === comment.trim());
+  if (!found) {
+    console.warn("[Story WI] no matching world info entry found", { lorebook, comment });
+    return false;
+  }
+  console.log("[Story WI] enabling world info entry", { lorebook, comment, uid: found.uid });
+  const ok = await runSlash(`/setentryfield file=${quoteArg(lorebook)} uid=${found.uid} field=disable 0`);
+  if (!ok) {
+    console.warn("[Story WI] failed to enable world info entry", { lorebook, comment, uid: found.uid });
+    return false;
+  }
+
+  return true;
+}
+
+
+export async function disableWIEntry(lorebook: string, comment: string) {
+  if (!lorebook || !comment) return false;
+  const entries = await getWorldInfoSettings()?.entries;
+  if (!Array.isArray(entries) || entries.length === 0) {
+    console.warn("[Story WI] no world info entries available");
+    return false;
+  }
+  const found = entries.find(e => typeof e?.comment === "string" && e.comment.trim() === comment.trim());
+  if (!found) {
+    console.warn("[Story WI] no matching world info entry found", { lorebook, comment });
+    return false;
+  }
+  console.log("[Story WI] disabling world info entry", { lorebook, comment, uid: found.uid });
+  const ok = await runSlash(`/setentryfield file=${quoteArg(lorebook)} uid=${found.uid} field=disable 1`);
+  if (!ok) {
+    console.warn("[Story WI] failed to disable world info entry", { lorebook, comment, uid: found.uid });
+    return false;
+  }
+  return true;
+}
 
 
 (function attachUiBridge() {
@@ -208,3 +253,16 @@ export async function clearCharacterAN() {
     }
   };
 })();
+
+
+export interface Lorebook {
+  entries: LoreEntry[];
+}
+
+export interface LoreEntry {
+  uid: number;
+  comment: string;
+
+  [key: string]: any
+}
+

@@ -146,6 +146,84 @@ function computeStorySignature(story: NormalizedStory): string {
   ].join("|");
 }
 
+// ---------------------------------------------------------------------------
+// Exported pure helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Compute next checkpoint statuses given an active index and previous statuses.
+ * Pure function.
+ */
+export function computeNextStatuses(
+  activeIndex: number,
+  previous: CheckpointStatus[] | null | undefined,
+  story: NormalizedStory | null | undefined,
+): CheckpointStatus[] {
+  const checkpoints = story?.checkpoints ?? [];
+  if (!checkpoints.length) return [];
+
+  const total = checkpoints.length;
+  const prev = Array.isArray(previous) ? previous : [];
+  const result: CheckpointStatus[] = new Array(total);
+  for (let idx = 0; idx < total; idx++) {
+    if (idx < activeIndex) {
+      result[idx] = 'complete';
+    } else if (idx === activeIndex) {
+      result[idx] = prev[idx] === 'failed' ? 'failed' : 'current';
+    } else {
+      result[idx] = (prev[idx] as CheckpointStatus) ?? 'pending';
+    }
+  }
+  return result;
+}
+
+/**
+ * Sanitizes a candidate runtime state against the provided story.
+ * Returns a safe RuntimeStoryState.
+ */
+export function sanitizeRuntime(candidate: RuntimeStoryState, story: NormalizedStory | null): RuntimeStoryState {
+  const checkpointIndex = clampCheckpointIndex(candidate.checkpointIndex, story);
+  const turnsSinceEval = sanitizeTurnsSinceEval(candidate.turnsSinceEval);
+
+  const checkpointStatuses = story
+    ? reconcileStatuses({ story, statuses: candidate.checkpointStatuses, checkpointIndex })
+    : makeDefaultState(story).checkpointStatuses;
+
+  return {
+    checkpointIndex,
+    checkpointStatuses,
+    turnsSinceEval,
+  };
+}
+
+/**
+ * Match a text against precompiled regex lists.
+ * Returns { reason: 'win'|'fail', pattern } or null.
+ */
+export function matchTrigger(
+  text: string,
+  winRes: RegExp[],
+  failRes: RegExp[],
+): { reason: 'win' | 'fail'; pattern: string } | null {
+  for (const re of failRes ?? []) {
+    try {
+      re.lastIndex = 0;
+      if (re.test(text)) return { reason: 'fail', pattern: re.toString() };
+    } catch {
+      // ignore malformed / unexpected
+    }
+  }
+  for (const re of winRes ?? []) {
+    try {
+      re.lastIndex = 0;
+      if (re.test(text)) return { reason: 'win', pattern: re.toString() };
+    } catch {
+      // ignore
+    }
+  }
+  return null;
+}
+
 function sanitizeChatKey(chatId: string | null | undefined): string | null {
   if (chatId === null || chatId === undefined) return null;
   const key = String(chatId).trim();

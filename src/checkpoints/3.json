@@ -1,5 +1,65 @@
 {
-  "name": "Checkpoint 3",
-  "description": "This is the third checkpoint.",
-  "data": {}
+  "id": "lost-key",
+  "schema_version": "1.0",
+  "title": "Quest for the Lost Key",
+  "global_lorebook": "Xentar Checkpoints",
+  "roles": {
+    "dm": "Adolion Storyteller",
+    "companion": "Ellie"
+  },
+  "role_defaults": {
+    "dm": { "temp": 0.6, "rep_pen": 1.1 },
+    "companion": { "temp": 0.9, "top_p": 0.95 }
+  },
+  "checkpoints": [
+    {
+      "id": 1,
+      "name": "Tavern: Get the Quest",
+      "objective": "Accept the barkeep's quest.",
+      "triggers": {
+        "win": ["/accept( the)? quest/i", "/agree to help/i"],
+        "fail": ["/refuse/i", "/decline/i"]
+      },
+      "on_activate": {
+        "preset_overrides": {
+          "dm": { "guidance_scale": 1.4, "temp": 0.6 },
+          "companion": { "presence_pen": 0.2, "temp": 0.9 }
+        },
+        "authors_note": {
+          "dm": "[Narrate succinctly. Gate solutions. Encourage exploration.]",
+          "companion": "[Be supportive; give gentle hints, not spoilers.]"
+        },
+        "world_info": {
+          "activate": ["WI_TAVERN_SCENE"],
+          "deactivate": ["WI_CELLAR_SCENE"]
+        }
+      }
+    },
+    {
+      "id": 2,
+      "name": "Cellar: Find the Key",
+      "objective": "Locate and take the hidden key.",
+      "triggers": { "win": ["/(find|pick up|take).{0,20}key/i"] },
+      "on_activate": {
+        "preset_overrides": {
+          "dm": { "guidance_scale": 1.6 },
+          "companion": { "freq_pen": 0.2 }
+        },
+        "world_info": {
+          "activate": ["WI_CELLAR_SCENE"],
+          "deactivate": ["WI_TAVERN_SCENE"]
+        }
+      }
+    },
+    {
+      "id": 3,
+      "name": "Return: Hand Over the Key",
+      "objective": "Return the key to the barkeep.",
+      "triggers": { "win": ["/(return|hand over).{0,20}key/i"] },
+      "on_activate": {
+        "preset_overrides": { "dm": { "temp": 0.6 } },
+        "world_info": { "activate": ["WI_ENDING"] }
+      }
+    }
+  ]
 }

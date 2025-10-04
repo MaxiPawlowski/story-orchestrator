@@ -1,7 +1,13 @@
 import { useCallback, useEffect } from "react";
 import { useStore } from "zustand";
 import type { NormalizedStory } from "@utils/story-validator";
-import { storyRuntimeController } from "@controllers/storyRuntimeController";
+import {
+  ensureStory as ensureOrchestratorStory,
+  dispose as disposeOrchestrator,
+  getOrchestrator,
+  setHooks as setOrchestratorHooks,
+  setIntervalTurns as setOrchestratorIntervalTurns,
+} from "@controllers/orchestratorManager";
 import { storySessionStore, type StorySessionValueState } from "@store/storySessionStore";
 
 export interface StoryOrchestratorResult {
@@ -29,38 +35,41 @@ export function useStoryOrchestrator(
   const ready = useStore(storySessionStore, (s) => s.orchestratorReady);
 
   useEffect(() => {
-    storyRuntimeController.setHooks({
+    setOrchestratorHooks({
       onTurnTick: options?.onTurnTick,
       onEvaluated: options?.onEvaluated,
     });
+    return () => {
+      setOrchestratorHooks(undefined);
+    };
   }, [options?.onEvaluated, options?.onTurnTick]);
 
   useEffect(() => {
-    storyRuntimeController.setIntervalTurns(intervalTurns);
+    setOrchestratorIntervalTurns(intervalTurns);
   }, [intervalTurns]);
 
   useEffect(() => {
-    storyRuntimeController.ensureStory(story ?? null).catch((err) => {
+    ensureOrchestratorStory(story ?? null).catch((err) => {
       console.error("[Story/useStoryOrchestrator] ensureStory failed", err);
     });
 
     return () => {
-      storyRuntimeController.dispose();
+      void disposeOrchestrator();
     };
   }, [story]);
 
-  const reloadPersona = useCallback(() => storyRuntimeController.reloadPersona(), []);
+  const reloadPersona = useCallback(() => getOrchestrator()?.reloadPersona(), []);
 
   const updateCheckpointStatus = useCallback((i: number, status: any) => {
-    storyRuntimeController.updateCheckpointStatus(i, status);
+    getOrchestrator()?.updateCheckpointStatus(i, status);
   }, []);
 
   const setOnActivateCheckpoint = useCallback((cb?: (i: number) => void) => {
-    storyRuntimeController.setOnActivateCheckpoint(cb);
+    getOrchestrator()?.setOnActivateCheckpoint(cb);
   }, []);
 
   const activateIndex = useCallback((index: number) => {
-    storyRuntimeController.activateIndex(index);
+    getOrchestrator()?.activateIndex(index);
   }, []);
 
   return {

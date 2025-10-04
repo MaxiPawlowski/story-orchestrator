@@ -10,14 +10,12 @@ import {
 export interface NormalizedWorldInfo {
   activate: string[];
   deactivate: string[];
-  make_constant: string[];
 }
 
 export interface NormalizedOnActivate {
   authors_note?: Partial<Record<Role, string>>;
   world_info?: NormalizedWorldInfo;
   preset_overrides?: Partial<Record<Role, Record<string, any>>>;
-  automation_ids?: string[];
 }
 
 export interface NormalizedCheckpoint {
@@ -32,6 +30,7 @@ export interface NormalizedCheckpoint {
 export interface NormalizedStory {
   schemaVersion: "1.0";
   title: string;
+  global_lorebook: string;
   roles?: Partial<Record<Role, string>>;
   checkpoints: NormalizedCheckpoint[];
   checkpointIndexById: Map<string | number, number>;
@@ -106,15 +105,7 @@ function normalizeWorldInfo(input?: unknown): NormalizedWorldInfo | undefined {
   return {
     activate: dedupeOrdered(wi.activate),
     deactivate: dedupeOrdered(wi.deactivate),
-    make_constant: dedupeOrdered(wi.make_constant),
   };
-}
-
-function normalizeAutomationIds(input?: unknown): string[] | undefined {
-  if (!input) return undefined;
-  const arr = Array.isArray(input) ? input : [];
-  const filtered = arr.filter((v): v is string => typeof v === "string" && v.trim().length > 0).map(v => v.trim());
-  return filtered.length ? dedupeOrdered(filtered) : undefined;
 }
 
 function normalizeOnActivateBlock(input?: OnActivate | null): NormalizedOnActivate | undefined {
@@ -123,7 +114,6 @@ function normalizeOnActivateBlock(input?: OnActivate | null): NormalizedOnActiva
     authors_note: normalizeAuthorsNote(input.authors_note),
     world_info: normalizeWorldInfo(input.world_info),
     preset_overrides: normalizePresetOverrides((input as any).preset_overrides ?? (input as any).preset_override),
-    automation_ids: normalizeAutomationIds((input as any).automation_ids),
   };
 }
 
@@ -162,6 +152,7 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
   return {
     schemaVersion: "1.0",
     title: story.title,
+    global_lorebook: story.global_lorebook,
     roles: story.roles as Partial<Record<Role, string>> | undefined,
     checkpoints,
     checkpointIndexById,

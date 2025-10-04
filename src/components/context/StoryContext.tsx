@@ -32,6 +32,8 @@ export interface StoryContextValue {
   groupChatSelected: boolean;
   worldLorePresent: boolean;
   worldLoreMissing: string[];
+  globalLorePresent: boolean;
+  globalLoreMissing: string[];
   requiredRolesPresent: boolean;
   missingRoles: string[];
   onPersonaReload: () => Promise<void> | void;
@@ -74,6 +76,8 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
     worldLoreMissing,
     requiredRolesPresent,
     missingRoles,
+    globalLorePresent,
+    globalLoreMissing,
   } = requirements;
 
   const { checkpointIndex, checkpointStatuses, turnsSinceEval } = runtime;
@@ -206,6 +210,8 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
       requiredRolesPresent,
       missingRoles,
       worldLoreMissing,
+      globalLorePresent,
+      globalLoreMissing,
       onPersonaReload: reloadPersona,
     }}>
       {children}

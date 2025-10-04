@@ -1,6 +1,7 @@
 {
   "schema_version": "1.0",
   "title": "The Lost Artifact",
+  "global_lorebook": "Tavern Tales",
   "checkpoints": [
     {
       "id": "tavern_mission",

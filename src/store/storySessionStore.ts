@@ -4,6 +4,7 @@ import {
   clampCheckpointIndex,
   makeDefaultState,
   sanitizeTurnsSinceEval,
+  sanitizeRuntime,
   type RuntimeStoryState,
   type CheckpointStatus,
 } from "@utils/story-state";
@@ -18,6 +19,7 @@ export interface StorySessionValueState {
   chatId: string | null;
   groupChatSelected: boolean;
   runtime: RuntimeStoryState;
+  turn: number;
   hydrated: boolean;
   requirements: StoryRequirementsState;
   orchestratorReady: boolean;
@@ -27,9 +29,11 @@ export interface StorySessionActions {
   setStory: (story: NormalizedStory | null) => RuntimeStoryState;
   setChatContext: (ctx: { chatId: string | null; groupChatSelected: boolean }) => void;
   resetRuntime: () => RuntimeStoryState;
+  setRuntime: (next: RuntimeStoryState, options?: { hydrated?: boolean }) => RuntimeStoryState;
   writeRuntime: (next: RuntimeStoryState, options?: { hydrated?: boolean }) => RuntimeStoryState;
   setTurnsSinceEval: (next: number) => RuntimeStoryState;
   updateCheckpointStatus: (index: number, status: CheckpointStatus) => RuntimeStoryState;
+  setTurn: (value: number) => number;
   setRequirementsState: (next: StoryRequirementsState) => StoryRequirementsState;
   resetRequirements: () => StoryRequirementsState;
   setOrchestratorReady: (next: boolean) => boolean;
@@ -81,22 +85,14 @@ const normalizeStatuses = (
   return result;
 };
 
-const sanitizeRuntime = (candidate: RuntimeStoryState, story: NormalizedStory | null): RuntimeStoryState => {
-  const checkpointIndex = clampCheckpointIndex(candidate.checkpointIndex, story);
-  const turnsSinceEval = sanitizeTurnsSinceEval(candidate.turnsSinceEval);
-  const checkpointStatuses = normalizeStatuses(candidate.checkpointStatuses, story, checkpointIndex);
-  return {
-    checkpointIndex,
-    checkpointStatuses,
-    turnsSinceEval,
-  };
-};
+// Use shared sanitizeRuntime directly (no wrapper)
 
 export const storySessionStore: StorySessionStore = createStore<StorySessionValueState & StorySessionActions>((set, get) => ({
   story: null,
   chatId: null,
   groupChatSelected: false,
   runtime: makeDefaultState(null),
+  turn: 0,
   hydrated: false,
   requirements: createRequirementsState(),
   orchestratorReady: false,
@@ -106,6 +102,7 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
     set(() => ({
       story: story ?? null,
       runtime,
+      turn: 0,
       hydrated: false,
     }));
     return runtime;
@@ -120,15 +117,19 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
 
   resetRuntime: () => {
     const runtime = makeDefaultState(get().story);
-    set({ runtime, hydrated: false });
+    set({ runtime, turn: 0, hydrated: false });
     return runtime;
   },
 
-  writeRuntime: (nextRuntime, options) => {
+  setRuntime: (nextRuntime, options) => {
     const sanitized = sanitizeRuntime(nextRuntime, get().story);
     const nextHydrated = options?.hydrated ?? get().hydrated;
     set({ runtime: sanitized, hydrated: nextHydrated });
     return sanitized;
+  },
+
+  writeRuntime: (nextRuntime, options) => {
+    return get().setRuntime(nextRuntime, options);
   },
 
   setTurnsSinceEval: (next) => {
@@ -157,6 +158,12 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
     };
 
     return get().writeRuntime(updated);
+  },
+
+  setTurn: (value) => {
+    const sanitized = Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
+    set({ turn: sanitized });
+    return sanitized;
   },
 
   setRequirementsState: (next) => {

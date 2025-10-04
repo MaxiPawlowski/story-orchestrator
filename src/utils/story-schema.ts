@@ -2,7 +2,6 @@
 
 export const RoleEnum = z.enum(["dm", "companion", "chat"]);
 export type Role = z.infer<typeof RoleEnum>;
-
 export const RegexSpecSchema = z.union([
   z.string().min(1),
   z.object({
@@ -20,7 +19,6 @@ export const RegexSpecListSchema = z.union([
 export const WorldInfoActivationsSchema = z.object({
   activate: z.array(z.string().min(1)).default([]),
   deactivate: z.array(z.string().min(1)).default([]),
-  make_constant: z.array(z.string().min(1)).default([]),
 });
 
 export type WorldInfoActivations = z.infer<typeof WorldInfoActivationsSchema>;
@@ -36,7 +34,6 @@ export const OnActivateSchema = z.object({
   authors_note: AuthorsNoteSchema.optional(),
   preset_overrides: PresetPartialSchema.optional(),
   world_info: WorldInfoActivationsSchema.optional(),
-  automation_ids: z.array(z.string().min(1)).optional(),
 });
 
 export type OnActivate = z.infer<typeof OnActivateSchema>;
@@ -72,6 +69,7 @@ const BasePresetSchema = z.object({
 export const StorySchema = z.object({
   schema_version: z.literal("1.0"),
   title: z.string().min(1),
+  global_lorebook: z.string().min(1),
   base_preset: BasePresetSchema.optional(),
   role_defaults: PresetPartialSchema.optional(),
   roles: z.object({
