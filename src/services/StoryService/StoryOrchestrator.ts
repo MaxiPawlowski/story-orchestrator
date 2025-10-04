@@ -13,13 +13,12 @@ import CheckpointArbiterService, {
 import type { NormalizedStory } from '@services/SchemaService/story-validator';
 import StoryRequirementsService, { type StoryRequirementsState } from './StoryRequirementsService';
 import StoryStateService from './StoryStateService';
-import { clampCheckpointIndex, sanitizeTurnsSinceEval, type RuntimeStoryState, type CheckpointStatus, clampText } from '@utils/story-state';
+import { clampCheckpointIndex, sanitizeTurnsSinceEval, type RuntimeStoryState, type CheckpointStatus, clampText, DEFAULT_INTERVAL_TURNS } from '@utils/story-state';
 
 export interface OrchestratorCompositeState {
   requirements: StoryRequirementsState;
   runtime: RuntimeStoryState;
   hydrated: boolean; // from StoryStateService
-  turnsUntilNextCheck: number;
 }
 
 class StoryOrchestrator {
@@ -32,7 +31,7 @@ class StoryOrchestrator {
   private failRes: RegExp[] = [];
   private turn = 0;
   private sinceEval = 0;
-  private intervalTurns = 3;
+  private intervalTurns = DEFAULT_INTERVAL_TURNS;
   private roleNameMap = new Map<string, Role>();
   private checkpointPrimed = false;
 
@@ -299,11 +298,6 @@ class StoryOrchestrator {
 
 
 
-  private computeTurnsUntilNextCheck(runtime?: RuntimeStoryState | null) {
-    const turnsSinceEval = runtime?.turnsSinceEval ?? 0;
-    return Math.max(0, this.intervalTurns - turnsSinceEval);
-  }
-
   private broadcastComposite() {
     const runtime = this.stateService.getState();
     const requirements = this.requirementsService.getSnapshot();
@@ -311,7 +305,6 @@ class StoryOrchestrator {
       requirements,
       runtime,
       hydrated: this.stateService.isHydrated(),
-      turnsUntilNextCheck: this.computeTurnsUntilNextCheck(runtime),
     });
   }
 
@@ -324,7 +317,6 @@ class StoryOrchestrator {
         requirements: this.requirementsService.getSnapshot(),
         runtime: this.stateService.getState(),
         hydrated: this.stateService.isHydrated(),
-        turnsUntilNextCheck: this.computeTurnsUntilNextCheck(this.stateService.getState()),
       });
     } catch (e) { console.warn('[StoryOrch] initial composite listener dispatch failed', e); }
     return () => { this.compositeListeners.delete(listener); };

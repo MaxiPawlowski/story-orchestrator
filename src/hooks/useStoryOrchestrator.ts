@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { NormalizedStory } from "@services/SchemaService/story-validator";
 import type { Role } from "@services/SchemaService/story-schema";
 import StoryOrchestrator, { type OrchestratorCompositeState } from "@services/StoryService/StoryOrchestrator";
-import { sanitizeIntervalTurns } from "@utils/story-state";
 import {
   chat,
   eventSource,
@@ -90,7 +89,7 @@ const createRuntimeState = (intervalTurns: number): RuntimeState => ({
   lastUserSeenKey: null,
   lastDraftName: null,
   disposed: false,
-  intervalTurns: sanitizeIntervalTurns(intervalTurns),
+  intervalTurns,
 });
 
 const disposeListeners = (runtime: RuntimeState) => {
@@ -193,7 +192,6 @@ export interface StoryOrchestratorResult {
   reloadPersona: () => void | Promise<void>;
   updateCheckpointStatus: (index: number, status: any) => void; // kept generic to avoid circular type import
   setOnActivateCheckpoint: (cb?: (index: number) => void) => void;
-  turnsUntilNextCheck: number;
 }
 
 export function useStoryOrchestrator(
@@ -232,7 +230,7 @@ export function useStoryOrchestrator(
       };
     }
 
-    runtime.intervalTurns = sanitizeIntervalTurns(intervalTurns);
+    runtime.intervalTurns = intervalTurns;
 
     let cancelled = false;
 
@@ -289,7 +287,7 @@ export function useStoryOrchestrator(
 
   useEffect(() => {
     const runtime = runtimeRef.current;
-    runtime.intervalTurns = sanitizeIntervalTurns(intervalTurns);
+    runtime.intervalTurns = intervalTurns;
     runtime.orchestrator?.setIntervalTurns(runtime.intervalTurns);
   }, [intervalTurns]);
 
@@ -325,7 +323,6 @@ export function useStoryOrchestrator(
     reloadPersona,
     updateCheckpointStatus,
     setOnActivateCheckpoint,
-    turnsUntilNextCheck: composite?.turnsUntilNextCheck ?? Math.max(0, sanitizeIntervalTurns(intervalTurns) - (composite?.runtime?.turnsSinceEval ?? 0)),
   };
 }
 

@@ -24,7 +24,6 @@ type Props = {
   title?: string;
   checkpoints?: CheckpointRow[];
   evaluationHistory?: EvaluationHistoryEntry[];
-  turnsUntilNextCheck?: number | null;
   lastQueuedEvaluation?: QueuedEvaluationInfo | null;
 };
 
@@ -45,7 +44,6 @@ const STATUS_BORDER_CLASS: Record<CheckpointStatus, string> = {
 const Checkpoints: React.FC<Props> = ({
   title = "Story Checkpoints",
   checkpoints,
-  turnsUntilNextCheck,
   lastQueuedEvaluation,
 }) => {
   const rows = checkpoints?.length ? checkpoints : [];
@@ -85,11 +83,6 @@ const Checkpoints: React.FC<Props> = ({
           <h3 className="m-0">{title}</h3>
         </div>
 
-        {typeof turnsUntilNextCheck === 'number' ? (
-          <div className="text-sm opacity-65">
-            Next interval check in {turnsUntilNextCheck} message{turnsUntilNextCheck === 1 ? '' : 's'}
-          </div>
-        ) : null}
 
         {queuedSummary ? (
           <div className="text-sm opacity-70">

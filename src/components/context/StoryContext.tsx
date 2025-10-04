@@ -23,10 +23,7 @@ export interface StoryContextValue {
   checkpointIndex: number;
   checkpointStatuses: CheckpointStatus[];
   activateCheckpoint: (i: number) => void;
-  intervalTurns: number;
-  setIntervalTurns: (value: number | ((prev: number) => number)) => void;
   turnsSinceEval: number;
-  turnsUntilNextCheck: number;
   activeChatId: string | null;
   ready: boolean;
   requirementsReady: boolean;
@@ -48,11 +45,10 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
   const [title, setTitle] = useState<string>();
   const [story, setStory] = useState<NormalizedStory | null>(null);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
-  const [intervalTurns, setIntervalTurnsState] = useState<number>(DEFAULT_INTERVAL_TURNS);
 
-  const { ready, activateIndex, requirements, runtime, reloadPersona, updateCheckpointStatus, turnsUntilNextCheck } = useStoryOrchestrator(
+  const { ready, activateIndex, requirements, runtime, reloadPersona, updateCheckpointStatus } = useStoryOrchestrator(
     story,
-    intervalTurns,
+    DEFAULT_INTERVAL_TURNS,
     {
       onEvaluated: ({ outcome, cpIndex }) => {
         if (!story) return;
@@ -82,14 +78,6 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
 
   const { checkpointIndex, checkpointStatuses, turnsSinceEval } = runtime;
 
-  const setIntervalTurns = useCallback((value: number | ((prev: number) => number)) => {
-    setIntervalTurnsState((prev) => {
-      const next = typeof value === "function" ? (value as (prev: number) => number)(prev) : value;
-      if (!Number.isFinite(next)) return DEFAULT_INTERVAL_TURNS;
-      const sanitized = Math.max(1, Math.floor(Number(next)));
-      return sanitized;
-    });
-  }, []);
 
   const activateCheckpoint = useCallback((i: number) => {
     activateIndex(i);
@@ -207,10 +195,7 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
       checkpointIndex,
       checkpointStatuses,
       activateCheckpoint,
-      intervalTurns,
-      setIntervalTurns,
       turnsSinceEval,
-      turnsUntilNextCheck,
       activeChatId,
       ready,
       requirementsReady,
