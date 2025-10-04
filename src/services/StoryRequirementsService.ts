@@ -1,5 +1,5 @@
-﻿import type { NormalizedStory } from "@services/SchemaService/story-validator";
-import type { Role } from "@services/SchemaService/story-schema";
+﻿import type { NormalizedStory } from "utils/story-validator";
+import type { Role } from "utils/story-schema";
 import {
   eventSource,
   event_types,

@@ -1,16 +1,10 @@
 import { extension_settings, saveSettingsDebounced } from "@services/SillyTavernAPI";
-import type { NormalizedStory } from "@services/SchemaService/story-validator";
+import type { NormalizedStory } from "utils/story-validator";
 import { extensionName } from "@constants/main";
 
 export type CheckpointStatus = "pending" | "current" | "complete" | "failed";
 
 export const DEFAULT_INTERVAL_TURNS = 3;
-export const sanitizeIntervalTurns = (value: number): number => {
-  if (!Number.isFinite(value)) return DEFAULT_INTERVAL_TURNS;
-  const int = Math.floor(Number(value));
-  return int >= 1 ? int : DEFAULT_INTERVAL_TURNS;
-};
-
 export const clampCheckpointIndex = (idx: number, story: NormalizedStory | null | undefined): number => {
   if (!story) return 0;
   return clampIndex(idx, story);
@@ -126,20 +120,6 @@ export function persistStoryState({
     saveSettingsDebounced();
   } catch (err) {
     console.warn("[StoryState] Failed to persist extension settings", err);
-  }
-}
-
-export function clearStoryState(chatId: string | null | undefined): void {
-  const key = sanitizeChatKey(chatId);
-  if (!key) return;
-  const map = getStateMap();
-  if (map[key]) {
-    delete map[key];
-    try {
-      saveSettingsDebounced();
-    } catch (err) {
-      console.warn("[StoryState] Failed to clear state", err);
-    }
   }
 }
 

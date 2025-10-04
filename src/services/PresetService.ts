@@ -10,7 +10,7 @@
   TG_SETTING_NAMES,
   BIAS_CACHE,
   displayLogitBias,
-} from '../SillyTavernAPI';
+} from './SillyTavernAPI';
 
 export type Role = 'dm' | 'companion' | 'chat';
 export type PresetPartial = Partial<Record<string, any>>;

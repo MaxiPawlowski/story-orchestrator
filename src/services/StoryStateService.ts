@@ -1,4 +1,4 @@
-﻿import type { NormalizedStory } from "@services/SchemaService/story-validator";
+﻿import type { NormalizedStory } from "utils/story-validator";
 import {
   loadStoryState,
   makeDefaultState,

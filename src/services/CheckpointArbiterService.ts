@@ -1,4 +1,4 @@
-import { clampText } from '../../utils/story-state';
+import { clampText } from '../utils/story-state';
 import { chat, generateQuietPrompt } from "@services/SillyTavernAPI";
 
 export type ArbiterReason = 'win' | 'fail' | 'interval';

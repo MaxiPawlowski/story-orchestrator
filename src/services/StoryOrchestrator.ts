@@ -1,5 +1,5 @@
 ﻿// src\services\StoryService\StoryOrchestrator.ts
-import type { Role } from '@services/SchemaService/story-schema';
+import type { Role } from 'utils/story-schema';
 import { PresetService } from './PresetService';
 import {
   applyCharacterAN,
@@ -10,7 +10,7 @@ import CheckpointArbiterService, {
   type CheckpointArbiterApi,
   type EvaluationOutcome,
 } from './CheckpointArbiterService';
-import type { NormalizedStory } from '@services/SchemaService/story-validator';
+import type { NormalizedStory } from 'utils/story-validator';
 import StoryRequirementsService, { type StoryRequirementsState } from './StoryRequirementsService';
 import StoryStateService from './StoryStateService';
 import { clampCheckpointIndex, sanitizeTurnsSinceEval, type RuntimeStoryState, type CheckpointStatus, clampText, DEFAULT_INTERVAL_TURNS } from '@utils/story-state';

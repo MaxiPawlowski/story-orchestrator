@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { NormalizedStory } from "@services/SchemaService/story-validator";
-import type { Role } from "@services/SchemaService/story-schema";
-import StoryOrchestrator, { type OrchestratorCompositeState } from "@services/StoryService/StoryOrchestrator";
+import type { NormalizedStory } from "utils/story-validator";
+import type { Role } from "utils/story-schema";
+import StoryOrchestrator, { type OrchestratorCompositeState } from "@services/StoryOrchestrator";
 import {
   chat,
   eventSource,
