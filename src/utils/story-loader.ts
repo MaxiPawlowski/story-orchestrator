@@ -1,4 +1,4 @@
-﻿import { parseAndNormalizeStory, formatZodError, type CheckpointResult } from 'utils/story-validator';
+﻿import { parseAndNormalizeStory, formatZodError, type CheckpointResult } from '@utils/story-validator';
 import {
   clearNumericJsonBundleCache,
   getModuleValue,

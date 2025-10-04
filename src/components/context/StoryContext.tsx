@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from "react";
-import { parseAndNormalizeStory, formatZodError, type NormalizedStory } from "utils/story-validator";
+import { parseAndNormalizeStory, formatZodError, type NormalizedStory } from "@utils/story-validator";
 import { loadCheckpointBundle, type CheckpointBundle } from "@utils/story-loader";
 import { useStoryOrchestrator } from "@hooks/useStoryOrchestrator";
 import { eventSource, event_types, getContext } from "@services/SillyTavernAPI";

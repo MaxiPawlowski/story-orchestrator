@@ -1,25 +1,29 @@
-﻿// src\services\StoryService\StoryOrchestrator.ts
-import type { Role } from 'utils/story-schema';
-import { PresetService } from './PresetService';
-import {
-  applyCharacterAN,
-  clearCharacterAN,
-} from '@services/SillyTavernAPI';
+﻿import type { Role } from "@utils/story-schema";
+import type { NormalizedStory } from "@utils/story-validator";
+import { PresetService } from "./PresetService";
 import CheckpointArbiterService, {
   type ArbiterReason,
   type CheckpointArbiterApi,
   type EvaluationOutcome,
-} from './CheckpointArbiterService';
-import type { NormalizedStory } from 'utils/story-validator';
-import StoryRequirementsService, { type StoryRequirementsState } from './StoryRequirementsService';
-import StoryStateService from './StoryStateService';
-import { clampCheckpointIndex, sanitizeTurnsSinceEval, type RuntimeStoryState, type CheckpointStatus, clampText, DEFAULT_INTERVAL_TURNS } from '@utils/story-state';
-
-export interface OrchestratorCompositeState {
-  requirements: StoryRequirementsState;
-  runtime: RuntimeStoryState;
-  hydrated: boolean; // from StoryStateService
-}
+} from "./CheckpointArbiterService";
+import { createRequirementsController } from "./requirementsController";
+import {
+  applyCharacterAN,
+  clearCharacterAN,
+  eventSource,
+  event_types,
+  getContext,
+} from "@services/SillyTavernAPI";
+import { subscribeToEventSource } from "@utils/eventSource";
+import {
+  clampCheckpointIndex,
+  sanitizeTurnsSinceEval,
+  clampText,
+  DEFAULT_INTERVAL_TURNS,
+  type RuntimeStoryState,
+  type CheckpointStatus,
+} from "@utils/story-state";
+import { storySessionStore } from "@/store/storySessionStore";
 
 class StoryOrchestrator {
   private story: NormalizedStory;
@@ -41,20 +45,10 @@ class StoryOrchestrator {
   private onTurnTick?: (next: { turn: number; sinceEval: number }) => void;
   private onActivateIndex?: (index: number) => void;
 
-  private requirementsService: StoryRequirementsService;
-  private stateService: StoryStateService;
-  private requirementsUnsubscribe?: () => void;
-  private stateUnsubscribe?: () => void;
-  private compositeListeners = new Set<(state: OrchestratorCompositeState) => void>();
-
-  private readonly handleRuntimeUpdate = (runtime: RuntimeStoryState) => {
-    this.reconcileWithRuntime(runtime);
-    this.broadcastComposite();
-  };
-
-  private readonly handleRequirementsUpdate = () => {
-    this.broadcastComposite();
-  };
+  private requirements = createRequirementsController();
+  private chatUnsubscribe?: () => void;
+  private lastChatId: string | null = null;
+  private lastGroupSelected = false;
 
   constructor(opts: {
     story: NormalizedStory;
@@ -63,7 +57,6 @@ class StoryOrchestrator {
     setEvalHooks?: (hooks: { onEvaluated?: (handler: (ev: { outcome: EvaluationOutcome; reason: ArbiterReason; turn: number; matched?: string; cpIndex: number }) => void) => void }) => void;
     onTurnTick?: (next: { turn: number; sinceEval: number }) => void;
     onActivateIndex?: (index: number) => void;
-    onCompositeState?: (state: OrchestratorCompositeState) => void;
   }) {
     this.story = opts.story;
     this.checkpointArbiter = new CheckpointArbiterService();
@@ -78,46 +71,163 @@ class StoryOrchestrator {
     opts.setEvalHooks?.({ onEvaluated: (handler) => { this.onEvaluated = handler; } });
     this.onTurnTick = opts.onTurnTick;
     this.onActivateIndex = opts.onActivateIndex;
-    this.requirementsService = new StoryRequirementsService();
-    this.stateService = new StoryStateService();
 
-    if (opts.onCompositeState) this.subscribeComposite(opts.onCompositeState);
   }
 
   index() { return this.idx; }
 
   setIntervalTurns(n: number) {
     this.intervalTurns = Math.max(1, n | 0);
-    this.broadcastComposite();
   }
 
   async init() {
-    if (!this.stateUnsubscribe) {
-      this.stateUnsubscribe = this.stateService.subscribe(this.handleRuntimeUpdate);
-    }
-    if (!this.requirementsUnsubscribe) {
-      this.requirementsUnsubscribe = this.requirementsService.subscribe(this.handleRequirementsUpdate);
-    }
+    const store = storySessionStore;
+    // Initialize session store with story & reset runtime/requirements
+    store.getState().setStory(this.story);
+    store.getState().resetRuntime();
+    store.getState().resetRequirements();
+
     this.seedRoleMap();
     await this.presetService.initForStory();
-    this.requirementsService.start();
-    this.requirementsService.setStory(this.story);
-    this.stateService.start();
-    this.stateService.setStory(this.story);
-    const runtime = this.stateService.getState();
-    this.reconcileWithRuntime(runtime);
-    this.broadcastComposite();
+
+    this.requirements.setStory(this.story);
+    this.requirements.start();
+    this.requirements.handleChatContextChanged();
+
+    if (!this.chatUnsubscribe) {
+      this.chatUnsubscribe = subscribeToEventSource({
+        source: eventSource,
+        eventName: event_types.CHAT_CHANGED,
+        handler: () => this.handleChatChanged({ reason: "event" }),
+      });
+    }
+
+    this.handleChatChanged({ reason: "start", force: true });
   }
+
+  activateIndex(i: number) {
+    this.applyCheckpoint(i, { persist: true, resetSinceEval: true, reason: "activate" });
+  }
+
+  setActiveRole(roleOrDisplayName: string) {
+    const raw = String(roleOrDisplayName ?? "");
+    const norm = this.norm(raw);
+    const role = this.roleNameMap.get(norm);
+    if (!role) return;
+    if (this.shouldApplyRole && !this.shouldApplyRole(role)) return;
+
+    const cp = this.story.checkpoints[this.idx];
+    if (!cp) return;
+
+    const overrides = cp.onActivate?.preset_overrides?.[role];
+    const roleNote = cp.onActivate?.authors_note?.[role];
+    const characterName =
+      role === "dm" ? this.story.roles?.dm
+        : role === "companion" ? this.story.roles?.companion
+          : undefined;
+
+    if (characterName && roleNote) {
+      applyCharacterAN(roleNote, {
+        position: "chat",
+        interval: 1,
+        depth: 4,
+        role: "system",
+      });
+      console.log("[StoryOrch] applied per-character AN", { role, characterName, cp: cp.name });
+    } else {
+      clearCharacterAN();
+      console.log("[StoryOrch] cleared AN (no per-character AN)", { role, characterName, cp: cp.name });
+    }
+
+    this.presetService.applyForRole(role, overrides, cp.name);
+    this.onRoleApplied?.(role, cp.name);
+  }
+
+  handleUserText(raw: string) {
+    const text = (raw ?? "").trim();
+    console.log("[StoryOrch] userText", { turn: this.turn + 1, sinceEval: this.sinceEval + 1, sample: clampText(raw, 80) });
+    if (!text) return;
+
+    this.turn += 1;
+    this.sinceEval += 1;
+    this.onTurnTick?.({ turn: this.turn, sinceEval: this.sinceEval });
+    storySessionStore.getState().setTurnsSinceEval(this.sinceEval);
+
+    const match = this.matchTrigger(text);
+    if (match) this.enqueueEval(match.reason, text, match.pattern);
+    else if (this.sinceEval >= this.intervalTurns) this.enqueueEval("interval", text);
+  }
+
+  reloadPersona() {
+    return this.requirements.reloadPersona();
+  }
+
+  updateCheckpointStatus(index: number, status: CheckpointStatus) {
+    storySessionStore.getState().updateCheckpointStatus(index, status);
+  }
+
+  setOnActivateCheckpoint(cb?: (index: number) => void) {
+    this.onActivateIndex = cb;
+    if (cb && this.checkpointPrimed) {
+      try { cb(this.idx); } catch (err) { console.warn("[StoryOrch] onActivate callback failed", err); }
+    }
+  }
+
+
+  private handleChatChanged({ reason, force = false }: { reason: string; force?: boolean }) {
+    let chatId: string | null = null;
+    let groupSelected = false;
+
+    try {
+      const ctx = getContext() || {};
+      const rawChat = (ctx as any)?.chatId;
+      const groupId = (ctx as any)?.groupId;
+      chatId = rawChat == null ? null : (String(rawChat).trim() || null);
+      groupSelected = Boolean(groupId);
+    } catch (err) {
+      console.warn("[StoryOrch] failed to read context", err);
+      chatId = null;
+      groupSelected = false;
+    }
+
+    const sameContext = !force && this.lastChatId === chatId && this.lastGroupSelected === groupSelected;
+    if (sameContext) return;
+
+    this.lastChatId = chatId;
+    this.lastGroupSelected = groupSelected;
+
+    const store = storySessionStore;
+    store.getState().setChatContext({ chatId, groupChatSelected: groupSelected });
+
+    try {
+      this.requirements.handleChatContextChanged();
+    } catch (err) {
+      console.warn("[StoryOrch] requirements chat sync failed", err);
+    }
+
+    if (!groupSelected) {
+      const runtime = store.getState().resetRuntime();
+      this.reconcileWithRuntime(runtime);
+      console.log("[StoryOrch] chat sync reset", { reason });
+      return;
+    }
+
+    const hydrateResult = store.getState().hydrate();
+    console.log("[StoryOrch] chat sync hydrate", { reason, source: hydrateResult.source });
+    this.reconcileWithRuntime(hydrateResult.runtime);
+  }
+
   private reconcileWithRuntime(runtime: RuntimeStoryState | null | undefined) {
     if (!runtime) return;
     const sanitizedIndex = clampCheckpointIndex(runtime.checkpointIndex, this.story);
     const sanitizedSince = sanitizeTurnsSinceEval(runtime.turnsSinceEval);
+
     if (!this.checkpointPrimed || sanitizedIndex !== this.idx) {
       this.applyCheckpoint(sanitizedIndex, {
         persist: false,
         resetSinceEval: false,
         sinceEvalOverride: sanitizedSince,
-        reason: 'hydrate',
+        reason: "hydrate",
       });
     } else if (sanitizedSince !== this.sinceEval) {
       this.sinceEval = sanitizedSince;
@@ -130,27 +240,39 @@ class StoryOrchestrator {
     persist?: boolean;
     resetSinceEval?: boolean;
     sinceEvalOverride?: number;
-    reason?: 'activate' | 'hydrate';
+    reason?: "activate" | "hydrate";
   } = {}) {
     const checkpoints = Array.isArray(this.story.checkpoints) ? this.story.checkpoints : [];
+    const store = storySessionStore;
+
     if (!checkpoints.length) {
       this.idx = 0;
       this.checkpointPrimed = true;
       this.winRes = [];
       this.failRes = [];
+
       const override = opts.sinceEvalOverride;
       const nextSinceEval = opts.resetSinceEval
         ? 0
-        : typeof override === 'number'
+        : typeof override === "number"
           ? sanitizeTurnsSinceEval(override)
           : this.sinceEval;
+
       this.sinceEval = nextSinceEval;
       this.turn = opts.resetSinceEval
         ? 0
-        : typeof override === 'number'
+        : typeof override === "number"
           ? nextSinceEval
           : Math.max(this.turn, nextSinceEval);
+
       this.onTurnTick?.({ turn: this.turn, sinceEval: this.sinceEval });
+      store.getState().writeRuntime({
+        checkpointIndex: 0,
+        checkpointStatuses: [],
+        turnsSinceEval: opts.resetSinceEval ? 0 : nextSinceEval,
+      }, { persist: false });
+
+      if (opts.reason) this.emitActivate(this.idx);
       return;
     }
 
@@ -163,29 +285,34 @@ class StoryOrchestrator {
     this.failRes = Array.isArray(cp.failTriggers) ? cp.failTriggers : [];
     this.checkpointArbiter.clear();
 
+    const previousRuntime = store.getState().runtime;
     const override = opts.sinceEvalOverride;
     const nextSinceEval = opts.resetSinceEval
       ? 0
-      : typeof override === 'number'
+      : typeof override === "number"
         ? sanitizeTurnsSinceEval(override)
-        : this.sinceEval;
+        : previousRuntime.turnsSinceEval;
 
     this.sinceEval = nextSinceEval;
     this.turn = opts.resetSinceEval
       ? 0
-      : typeof override === 'number'
+      : typeof override === "number"
         ? nextSinceEval
         : Math.max(this.turn, nextSinceEval);
 
     this.onTurnTick?.({ turn: this.turn, sinceEval: this.sinceEval });
 
-    if (opts.persist !== false) {
-      this.stateService.activateCheckpoint(this.idx);
-      this.onActivateIndex?.(this.idx);
-    }
+    const nextStatuses = this.buildStatuses(sanitizedIndex, previousRuntime.checkpointStatuses);
+    const runtimePayload: RuntimeStoryState = {
+      checkpointIndex: sanitizedIndex,
+      checkpointStatuses: nextStatuses,
+      turnsSinceEval: opts.resetSinceEval ? 0 : nextSinceEval,
+    };
 
-    const logReason = opts.reason ?? (opts.persist === false ? 'hydrate' : 'activate');
-    console.log('[StoryOrch] activate', {
+    store.getState().writeRuntime(runtimePayload, { persist: opts.persist !== false });
+
+    const logReason = opts.reason ?? (opts.persist === false ? "hydrate" : "activate");
+    console.log("[StoryOrch] activate", {
       idx: this.idx,
       id: cp?.id,
       name: cp?.name,
@@ -193,158 +320,83 @@ class StoryOrchestrator {
       fail: this.failRes.map(String),
       reason: logReason,
     });
+
+    if (opts.reason) this.emitActivate(this.idx);
   }
 
-  activateIndex(i: number) {
-    this.applyCheckpoint(i, { persist: true, resetSinceEval: true, reason: 'activate' });
-  }
-
-  setActiveRole(roleOrDisplayName: string) {
-    const raw = String(roleOrDisplayName ?? '');
-    const norm = this.norm(raw);
-    const role = this.roleNameMap.get(norm);
-    if (!role) return;
-    if (this.shouldApplyRole && !this.shouldApplyRole(role)) return;
-
-    const cp = this.story.checkpoints[this.idx];
-    const overrides = cp.onActivate?.preset_overrides?.[role];
-
-    const roleNote = cp.onActivate?.authors_note?.[role];
-    const characterName =
-      role === 'dm' ? this.story.roles?.dm :
-        role === 'companion' ? this.story.roles?.companion : undefined;
-
-    if (characterName && roleNote) {
-      applyCharacterAN(roleNote, {
-        position: "chat",
-        interval: 1,
-        depth: 4,
-        role: "system",
-      });
-      console.log('[StoryOrch] applied per-character AN', { role, characterName, cp: cp.name });
-    } else {
-      clearCharacterAN();
-      console.log('[StoryOrch] cleared AN (no per-character AN)', { role, characterName, cp: cp.name });
-    }
-
-    this.presetService.applyForRole(role, overrides, cp.name);
-    this.onRoleApplied?.(role, cp.name);
-  }
-
-  handleUserText(raw: string) {
-    const text = (raw ?? '').trim();
-    console.log('[StoryOrch] userText', { turn: this.turn + 1, sinceEval: this.sinceEval + 1, sample: clampText(raw, 80) });
-    if (!text) return;
-    this.turn += 1;
-    this.sinceEval += 1;
-    this.onTurnTick?.({ turn: this.turn, sinceEval: this.sinceEval });
-    // mirror to state service
-    this.stateService.setTurnsSinceEval(this.sinceEval);
-
-    const match = this.matchTrigger(text);
-    if (match) this.enqueueEval(match.reason, text, match.pattern);
-    else if (this.sinceEval >= this.intervalTurns) this.enqueueEval('interval', text);
-  }
-
-  private norm(s?: string | null) { return (s ?? '').normalize('NFKC').trim().toLowerCase(); }
-  private seedRoleMap() {
-    const roles = (this.story?.roles ?? {}) as Partial<Record<Role, string>>;
-    (['dm', 'companion', 'chat'] as Role[]).forEach((r) => {
-      const n = this.norm(roles[r]);
-      if (n) this.roleNameMap.set(n, r);
-    });
-  }
   private matchTrigger(text: string) {
     for (const re of this.failRes) {
       re.lastIndex = 0;
-      if (re.test(text)) return { reason: 'fail' as const, pattern: re.toString() };
+      if (re.test(text)) return { reason: "fail" as const, pattern: re.toString() };
     }
     for (const re of this.winRes) {
       re.lastIndex = 0;
-      if (re.test(text)) return { reason: 'win' as const, pattern: re.toString() };
+      if (re.test(text)) return { reason: "win" as const, pattern: re.toString() };
     }
     return null;
   }
+
   private enqueueEval(reason: ArbiterReason, text: string, matched?: string) {
     this.sinceEval = 0;
     this.onTurnTick?.({ turn: this.turn, sinceEval: this.sinceEval });
-    this.stateService.setTurnsSinceEval(this.sinceEval);
+    storySessionStore.getState().setTurnsSinceEval(this.sinceEval);
+
     const turnSnapshot = this.turn;
     const checkpointIndex = this.idx;
     const cp = this.story.checkpoints[checkpointIndex];
-    console.log('[StoryOrch] eval-queued', { reason, turn: turnSnapshot, matched });
+    console.log("[StoryOrch] eval-queued", { reason, turn: turnSnapshot, matched });
 
     void this.checkpointArbiter.evaluate({
       cpName: cp?.name ?? `Checkpoint ${checkpointIndex + 1}`,
-      objective: cp?.objective ?? '',
+      objective: cp?.objective ?? "",
       latestText: text,
       reason,
       matched,
       turn: turnSnapshot,
       intervalTurns: this.intervalTurns,
     }).then((payload) => {
-      const outcome = payload?.outcome ?? 'continue';
+      const outcome = payload?.outcome ?? "continue";
       this.onEvaluated?.({ outcome, reason, turn: turnSnapshot, matched, cpIndex: checkpointIndex });
-      // Delegate win/advance behavior to session state/consumer
     }).catch((err) => {
-      console.warn('[StoryOrch] arbiter error', err);
+      console.warn("[StoryOrch] arbiter error", err);
     });
   }
 
-  reloadPersona() { return this.requirementsService.reloadPersona(); }
-
-  updateCheckpointStatus(index: number, status: CheckpointStatus) { this.stateService.updateCheckpointStatus(index, status); }
-  setOnActivateCheckpoint(cb?: (index: number) => void) { this.stateService.setOnActivateCheckpoint(cb); }
-
-
-
-  private broadcastComposite() {
-    const runtime = this.stateService.getState();
-    const requirements = this.requirementsService.getSnapshot();
-    this.emitComposite({
-      requirements,
-      runtime,
-      hydrated: this.stateService.isHydrated(),
+  private seedRoleMap() {
+    const roles = (this.story?.roles ?? {}) as Partial<Record<Role, string>>;
+    (["dm", "companion", "chat"] as Role[]).forEach((r) => {
+      const n = this.norm(roles[r]);
+      if (n) this.roleNameMap.set(n, r);
     });
   }
 
+  private norm(s?: string | null) { return (s ?? "").normalize("NFKC").trim().toLowerCase(); }
 
+  private buildStatuses(activeIndex: number, previous: CheckpointStatus[]): CheckpointStatus[] {
+    const checkpoints = this.story?.checkpoints ?? [];
+    if (!checkpoints.length) return [];
 
-  subscribeComposite(listener: (state: OrchestratorCompositeState) => void) {
-    this.compositeListeners.add(listener);
+    const total = checkpoints.length;
+    const result: CheckpointStatus[] = new Array(total);
+    for (let idx = 0; idx < total; idx++) {
+      if (idx < activeIndex) {
+        result[idx] = "complete";
+      } else if (idx === activeIndex) {
+        result[idx] = previous[idx] === "failed" ? "failed" : "current";
+      } else {
+        result[idx] = previous[idx] ?? "pending";
+      }
+    }
+    return result;
+  }
+
+  private emitActivate(index: number) {
     try {
-      listener({
-        requirements: this.requirementsService.getSnapshot(),
-        runtime: this.stateService.getState(),
-        hydrated: this.stateService.isHydrated(),
-      });
-    } catch (e) { console.warn('[StoryOrch] initial composite listener dispatch failed', e); }
-    return () => { this.compositeListeners.delete(listener); };
+      this.onActivateIndex?.(index);
+    } catch (err) {
+      console.warn("[StoryOrch] onActivate handler failed", err);
+    }
   }
-
-  private emitComposite(state: OrchestratorCompositeState) {
-    this.compositeListeners.forEach((l) => { try { l(state); } catch (e) { console.warn('[StoryOrch] composite listener failed', e); } });
-  }
-
-  dispose() {
-    try { this.requirementsUnsubscribe?.(); } catch (e) { /* noop */ }
-    try { this.stateUnsubscribe?.(); } catch (e) { /* noop */ }
-    this.requirementsUnsubscribe = undefined;
-    this.stateUnsubscribe = undefined;
-    try { this.requirementsService.dispose(); } catch (e) { /* noop */ }
-    try { this.stateService.dispose(); } catch (e) { /* noop */ }
-    this.checkpointPrimed = false;
-    this.idx = 0;
-    this.winRes = [];
-    this.failRes = [];
-    this.turn = 0;
-    this.sinceEval = 0;
-    this.compositeListeners.clear();
-  }
-
-
-
 }
-
 
 export default StoryOrchestrator;

@@ -1,5 +1,5 @@
 import { extension_settings, saveSettingsDebounced } from "@services/SillyTavernAPI";
-import type { NormalizedStory } from "utils/story-validator";
+import type { NormalizedStory } from "@utils/story-validator";
 import { extensionName } from "@constants/main";
 
 export type CheckpointStatus = "pending" | "current" | "complete" | "failed";

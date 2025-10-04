@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { NormalizedStory } from "utils/story-validator";
-import type { Role } from "utils/story-schema";
-import StoryOrchestrator, { type OrchestratorCompositeState } from "@services/StoryOrchestrator";
+import { useStore } from "zustand";
+import type { NormalizedStory } from "@utils/story-validator";
+import type { Role } from "@utils/story-schema";
+import StoryOrchestrator from "@services/StoryOrchestrator";
 import {
   chat,
   eventSource,
@@ -9,6 +10,7 @@ import {
   getCharacterNameById,
 } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
+import { storySessionStore, type StorySessionValueState } from "@/store/storySessionStore";
 
 const pickUserTextFromChat = (): { text: string; key: string } | null => {
   if (!Array.isArray(chat) || chat.length === 0) return null;
@@ -146,12 +148,7 @@ const registerListeners = (runtime: RuntimeState, orchestrator: StoryOrchestrato
       let candidate = runtime.lastDraftName ?? "";
       const data = Array.isArray(payload) ? payload[0] : payload;
       candidate ||= (data?.character && String(data.character)) || (data?.quietName && String(data.quietName)) || "";
-      const stops: string[] = Array.isArray(data?.stop) ? data.stop
-        : Array.isArray(data?.stopping_strings) ? data.stopping_strings : [];
-      if (!candidate && stops.length) {
-        const found = stops.find((s) => /[:�E�F]$/.test(s.trim()));
-        if (found) candidate = found.replace(/\s*[:�E�F]\s*$/, "").trim();
-      }
+
       if (candidate) orchestrator.setActiveRole(candidate);
     },
   }));
@@ -185,9 +182,8 @@ const resetRuntime = (runtime: RuntimeState) => {
 export interface StoryOrchestratorResult {
   ready: boolean;
   activateIndex: (index: number) => void;
-  // mirrored composite state so provider doesn't need other hooks
-  requirements: OrchestratorCompositeState['requirements'];
-  runtime: OrchestratorCompositeState['runtime'];
+  requirements: StorySessionValueState['requirements'];
+  runtime: StorySessionValueState['runtime'];
   hydrated: boolean;
   reloadPersona: () => void | Promise<void>;
   updateCheckpointStatus: (index: number, status: any) => void; // kept generic to avoid circular type import
@@ -200,11 +196,12 @@ export function useStoryOrchestrator(
   options?: {
     onTurnTick?: (next: { turn: number; sinceEval: number }) => void;
     onEvaluated?: (ev: { outcome: "continue" | "win" | "fail"; reason: "interval" | "win" | "fail"; turn: number; matched?: string; cpIndex: number }) => void;
-    onComposite?: (state: OrchestratorCompositeState) => void;
   },
 ): StoryOrchestratorResult {
   const [ready, setReady] = useState<boolean>(false);
-  const [composite, setComposite] = useState<OrchestratorCompositeState | null>(null);
+  const requirements = useStore(storySessionStore, (s) => s.requirements);
+  const runtime = useStore(storySessionStore, (s) => s.runtime);
+  const hydrated = useStore(storySessionStore, (s) => s.hydrated);
   const runtimeRef = useRef<RuntimeState>(createRuntimeState(intervalTurns));
   const mountedRef = useRef(true);
 
@@ -254,10 +251,6 @@ export function useStoryOrchestrator(
           try { options?.onTurnTick?.({ turn, sinceEval }); } catch (err) { console.warn("[StoryRuntime] onTurnTick cb failed", err); }
         },
         onActivateIndex: (_index) => { },
-        onCompositeState: (state) => {
-          setComposite(state);
-          try { options?.onComposite?.(state); } catch (e) { console.warn('[StoryRuntime] onComposite cb failed', e); }
-        },
       });
 
       orchestrator.setIntervalTurns(runtime.intervalTurns);
@@ -308,18 +301,9 @@ export function useStoryOrchestrator(
   return {
     ready,
     activateIndex,
-    requirements: composite?.requirements ?? {
-      requirementsReady: false,
-      currentUserName: '',
-      personaDefined: false,
-      groupChatSelected: false,
-      worldLorePresent: true,
-      worldLoreMissing: [],
-      requiredRolesPresent: false,
-      missingRoles: [],
-    },
-    runtime: composite?.runtime ?? { checkpointIndex: 0, checkpointStatuses: [], turnsSinceEval: 0 },
-    hydrated: composite?.hydrated ?? false,
+    requirements,
+    runtime,
+    hydrated,
     reloadPersona,
     updateCheckpointStatus,
     setOnActivateCheckpoint,
