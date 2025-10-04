@@ -1,10 +1,10 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from "react";
 import { parseAndNormalizeStory, formatZodError, type NormalizedStory } from "@services/SchemaService/story-validator";
-import { loadCheckpointBundle, type CheckpointBundle } from "@services/StoryService/story-loader";
+import { loadCheckpointBundle, type CheckpointBundle } from "@utils/story-loader";
 import { useStoryOrchestrator } from "@hooks/useStoryOrchestrator";
 import { eventSource, event_types, getContext } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
-import { DEFAULT_INTERVAL_TURNS, type CheckpointStatus } from "@services/StoryService/story-state";
+import { DEFAULT_INTERVAL_TURNS, type CheckpointStatus } from "@utils/story-state";
 
 type ValidationResult =
   | { ok: true; story: NormalizedStory }

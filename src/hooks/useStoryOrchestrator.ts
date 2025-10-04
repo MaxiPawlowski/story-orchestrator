@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { NormalizedStory } from "@services/SchemaService/story-validator";
 import type { Role } from "@services/SchemaService/story-schema";
 import StoryOrchestrator, { type OrchestratorCompositeState } from "@services/StoryService/StoryOrchestrator";
-import { sanitizeIntervalTurns } from "@services/StoryService/story-state";
+import { sanitizeIntervalTurns } from "@utils/story-state";
 import {
   chat,
   eventSource,

@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { getWorldInfoSettings } from "@services/SillyTavernAPI";
-import type { CheckpointStatus } from "@services/StoryService/story-state";
+import type { CheckpointStatus } from "@utils/story-state";
 
 type CheckpointRow = {
   id: string | number;

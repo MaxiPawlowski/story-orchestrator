@@ -7,7 +7,7 @@ import {
   sanitizeTurnsSinceEval,
   type RuntimeStoryState,
   type CheckpointStatus,
-} from "@services/StoryService/story-state";
+} from "@utils/story-state";
 import { eventSource, event_types, getContext } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
 
