@@ -18,13 +18,14 @@ module.exports = {
     extensions: [".tsx", ".ts", ".jsx", ".js"],
     // Path aliases to mirror tsconfig paths for IDE + bundler parity
     alias: {
-      "@": path.resolve(__dirname, "src"),
       "@components": path.resolve(__dirname, "src/components"),
       "@services": path.resolve(__dirname, "src/services"),
       "@hooks": path.resolve(__dirname, "src/hooks"),
       "@utils": path.resolve(__dirname, "src/utils"),
       "@constants": path.resolve(__dirname, "src/constants"),
       "@checkpoints": path.resolve(__dirname, "src/checkpoints"),
+      "@controllers": path.resolve(__dirname, "src/controllers"),
+      "@store": path.resolve(__dirname, "src/store"),
     },
   },
   module: {

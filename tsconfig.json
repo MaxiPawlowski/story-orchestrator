@@ -12,14 +12,14 @@
     "resolveJsonModule": true,
     "allowJs": true,
     "paths": {
-      "*": ["*"],
-      "@/*": ["*"],
       "@components/*": ["components/*"],
       "@services/*": ["services/*"],
       "@hooks/*": ["hooks/*"],
       "@utils/*": ["utils/*"],
+      "@controllers/*": ["controllers/*"],
       "@constants/*": ["constants/*"],
-      "@checkpoints/*": ["checkpoints/*"]
+      "@checkpoints/*": ["checkpoints/*"],
+      "@store/*": ["store/*"],
     }
   },
   "include": ["src", "index.tsx"]

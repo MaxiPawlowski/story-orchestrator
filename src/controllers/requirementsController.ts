@@ -13,8 +13,8 @@ import {
   mergeRequirementsState,
   areRequirementStatesEqual,
   type StoryRequirementsState,
-} from "@/store/requirementsState";
-import { storySessionStore } from "@/store/storySessionStore";
+} from "@store/requirementsState";
+import { storySessionStore } from "@store/storySessionStore";
 
 export interface RequirementsController {
   start(): void;

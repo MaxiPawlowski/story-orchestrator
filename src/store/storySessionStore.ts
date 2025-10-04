@@ -1,15 +1,17 @@
 import { createStore, type StoreApi } from "zustand/vanilla";
 import type { NormalizedStory } from "@utils/story-validator";
-import { type StoryRequirementsState, DEFAULT_REQUIREMENTS_STATE } from "./requirementsState";
 import {
   clampCheckpointIndex,
   makeDefaultState,
-  persistStoryState,
-  loadStoryState,
   sanitizeTurnsSinceEval,
   type RuntimeStoryState,
   type CheckpointStatus,
 } from "@utils/story-state";
+import {
+  createRequirementsState,
+  cloneRequirementsState,
+  type StoryRequirementsState,
+} from "./requirementsState";
 
 export interface StorySessionValueState {
   story: NormalizedStory | null;
@@ -18,31 +20,22 @@ export interface StorySessionValueState {
   runtime: RuntimeStoryState;
   hydrated: boolean;
   requirements: StoryRequirementsState;
+  orchestratorReady: boolean;
 }
 
 export interface StorySessionActions {
   setStory: (story: NormalizedStory | null) => RuntimeStoryState;
   setChatContext: (ctx: { chatId: string | null; groupChatSelected: boolean }) => void;
-  hydrate: () => { runtime: RuntimeStoryState; hydrated: boolean; source: "stored" | "default" };
   resetRuntime: () => RuntimeStoryState;
-  writeRuntime: (next: RuntimeStoryState, options?: { persist?: boolean; hydrated?: boolean }) => RuntimeStoryState;
+  writeRuntime: (next: RuntimeStoryState, options?: { hydrated?: boolean }) => RuntimeStoryState;
   setTurnsSinceEval: (next: number) => RuntimeStoryState;
   updateCheckpointStatus: (index: number, status: CheckpointStatus) => RuntimeStoryState;
   setRequirementsState: (next: StoryRequirementsState) => StoryRequirementsState;
   resetRequirements: () => StoryRequirementsState;
+  setOrchestratorReady: (next: boolean) => boolean;
 }
 
 export type StorySessionStore = StoreApi<StorySessionValueState & StorySessionActions>;
-
-function cloneRequirements(state: StoryRequirementsState): StoryRequirementsState {
-  return {
-    ...state,
-    worldLoreMissing: state.worldLoreMissing.slice(),
-    missingRoles: state.missingRoles.slice(),
-  };
-}
-
-const createDefaultRequirementsState = (): StoryRequirementsState => cloneRequirements(DEFAULT_REQUIREMENTS_STATE);
 
 const sanitizeChatId = (value: string | null | undefined): string | null => {
   if (value === null || value === undefined) return null;
@@ -99,21 +92,14 @@ const sanitizeRuntime = (candidate: RuntimeStoryState, story: NormalizedStory | 
   };
 };
 
-const shouldPersist = (state: StorySessionValueState): state is StorySessionValueState & { story: NormalizedStory; chatId: string } => (
-  Boolean(state.hydrated)
-  && Boolean(state.story)
-  && Boolean(state.groupChatSelected)
-  && typeof state.chatId === "string"
-  && state.chatId.trim().length > 0
-);
-
 export const storySessionStore: StorySessionStore = createStore<StorySessionValueState & StorySessionActions>((set, get) => ({
   story: null,
   chatId: null,
   groupChatSelected: false,
   runtime: makeDefaultState(null),
   hydrated: false,
-  requirements: createDefaultRequirementsState(),
+  requirements: createRequirementsState(),
+  orchestratorReady: false,
 
   setStory: (story) => {
     const runtime = makeDefaultState(story);
@@ -132,27 +118,6 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
     }));
   },
 
-  hydrate: () => {
-    const state = get();
-    if (!state.story || !state.groupChatSelected) {
-      const runtime = makeDefaultState(state.story);
-      set({ runtime, hydrated: false });
-      return { runtime, hydrated: false, source: "default" as const };
-    }
-
-    try {
-      const hydrated = loadStoryState({ chatId: state.chatId, story: state.story });
-      const sanitized = sanitizeRuntime(hydrated.state, state.story);
-      set({ runtime: sanitized, hydrated: true });
-      return { runtime: sanitized, hydrated: true, source: hydrated.source };
-    } catch (err) {
-      console.warn("[StorySessionStore] hydrate failed", err);
-      const runtime = makeDefaultState(state.story);
-      set({ runtime, hydrated: false });
-      return { runtime, hydrated: false, source: "default" as const };
-    }
-  },
-
   resetRuntime: () => {
     const runtime = makeDefaultState(get().story);
     set({ runtime, hydrated: false });
@@ -163,19 +128,6 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
     const sanitized = sanitizeRuntime(nextRuntime, get().story);
     const nextHydrated = options?.hydrated ?? get().hydrated;
     set({ runtime: sanitized, hydrated: nextHydrated });
-
-    if (options?.persist !== false) {
-      const snapshot = get();
-      const candidate = { ...snapshot, hydrated: nextHydrated };
-      if (shouldPersist(candidate)) {
-        try {
-          persistStoryState({ chatId: candidate.chatId, story: candidate.story, state: sanitized });
-        } catch (err) {
-          console.warn("[StorySessionStore] persist failed", err);
-        }
-      }
-    }
-
     return sanitized;
   },
 
@@ -208,14 +160,21 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
   },
 
   setRequirementsState: (next) => {
-    const cloned = cloneRequirements(next);
+    const cloned = cloneRequirementsState(next);
     set({ requirements: cloned });
     return cloned;
   },
 
   resetRequirements: () => {
-    const defaults = createDefaultRequirementsState();
+    const defaults = createRequirementsState();
     set({ requirements: defaults });
     return defaults;
+  },
+
+  setOrchestratorReady: (next) => {
+    const normalized = Boolean(next);
+    if (get().orchestratorReady === normalized) return normalized;
+    set({ orchestratorReady: normalized });
+    return normalized;
   },
 }));

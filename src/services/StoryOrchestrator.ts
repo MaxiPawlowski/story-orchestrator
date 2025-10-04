@@ -6,7 +6,8 @@ import CheckpointArbiterService, {
   type CheckpointArbiterApi,
   type EvaluationOutcome,
 } from "./CheckpointArbiterService";
-import { createRequirementsController } from "./requirementsController";
+import { createRequirementsController } from "@controllers/requirementsController";
+import { createPersistenceController } from "@controllers/persistenceController";
 import {
   applyCharacterAN,
   clearCharacterAN,
@@ -23,7 +24,7 @@ import {
   type RuntimeStoryState,
   type CheckpointStatus,
 } from "@utils/story-state";
-import { storySessionStore } from "@/store/storySessionStore";
+import { storySessionStore } from "@store/storySessionStore";
 
 class StoryOrchestrator {
   private story: NormalizedStory;
@@ -46,6 +47,7 @@ class StoryOrchestrator {
   private onActivateIndex?: (index: number) => void;
 
   private requirements = createRequirementsController();
+  private persistence = createPersistenceController();
   private chatUnsubscribe?: () => void;
   private lastChatId: string | null = null;
   private lastGroupSelected = false;
@@ -82,9 +84,8 @@ class StoryOrchestrator {
 
   async init() {
     const store = storySessionStore;
-    // Initialize session store with story & reset runtime/requirements
-    store.getState().setStory(this.story);
-    store.getState().resetRuntime();
+    this.persistence.setStory(this.story);
+    this.persistence.resetRuntime();
     store.getState().resetRequirements();
 
     this.seedRoleMap();
@@ -151,7 +152,7 @@ class StoryOrchestrator {
     this.turn += 1;
     this.sinceEval += 1;
     this.onTurnTick?.({ turn: this.turn, sinceEval: this.sinceEval });
-    storySessionStore.getState().setTurnsSinceEval(this.sinceEval);
+    this.persistence.setTurnsSinceEval(this.sinceEval, { persist: true });
 
     const match = this.matchTrigger(text);
     if (match) this.enqueueEval(match.reason, text, match.pattern);
@@ -163,7 +164,7 @@ class StoryOrchestrator {
   }
 
   updateCheckpointStatus(index: number, status: CheckpointStatus) {
-    storySessionStore.getState().updateCheckpointStatus(index, status);
+    this.persistence.updateCheckpointStatus(index, status, { persist: true });
   }
 
   setOnActivateCheckpoint(cb?: (index: number) => void) {
@@ -196,8 +197,7 @@ class StoryOrchestrator {
     this.lastChatId = chatId;
     this.lastGroupSelected = groupSelected;
 
-    const store = storySessionStore;
-    store.getState().setChatContext({ chatId, groupChatSelected: groupSelected });
+    this.persistence.setChatContext({ chatId, groupChatSelected: groupSelected });
 
     try {
       this.requirements.handleChatContextChanged();
@@ -206,13 +206,13 @@ class StoryOrchestrator {
     }
 
     if (!groupSelected) {
-      const runtime = store.getState().resetRuntime();
+      const runtime = this.persistence.resetRuntime();
       this.reconcileWithRuntime(runtime);
       console.log("[StoryOrch] chat sync reset", { reason });
       return;
     }
 
-    const hydrateResult = store.getState().hydrate();
+    const hydrateResult = this.persistence.hydrate();
     console.log("[StoryOrch] chat sync hydrate", { reason, source: hydrateResult.source });
     this.reconcileWithRuntime(hydrateResult.runtime);
   }
@@ -266,11 +266,11 @@ class StoryOrchestrator {
           : Math.max(this.turn, nextSinceEval);
 
       this.onTurnTick?.({ turn: this.turn, sinceEval: this.sinceEval });
-      store.getState().writeRuntime({
+      this.persistence.writeRuntime({
         checkpointIndex: 0,
         checkpointStatuses: [],
         turnsSinceEval: opts.resetSinceEval ? 0 : nextSinceEval,
-      }, { persist: false });
+      }, { persist: false, hydrated: this.persistence.isHydrated() });
 
       if (opts.reason) this.emitActivate(this.idx);
       return;
@@ -309,7 +309,7 @@ class StoryOrchestrator {
       turnsSinceEval: opts.resetSinceEval ? 0 : nextSinceEval,
     };
 
-    store.getState().writeRuntime(runtimePayload, { persist: opts.persist !== false });
+    this.persistence.writeRuntime(runtimePayload, { persist: opts.persist !== false });
 
     const logReason = opts.reason ?? (opts.persist === false ? "hydrate" : "activate");
     console.log("[StoryOrch] activate", {
@@ -339,7 +339,7 @@ class StoryOrchestrator {
   private enqueueEval(reason: ArbiterReason, text: string, matched?: string) {
     this.sinceEval = 0;
     this.onTurnTick?.({ turn: this.turn, sinceEval: this.sinceEval });
-    storySessionStore.getState().setTurnsSinceEval(this.sinceEval);
+    this.persistence.setTurnsSinceEval(this.sinceEval, { persist: true });
 
     const turnSnapshot = this.turn;
     const checkpointIndex = this.idx;
@@ -396,6 +396,48 @@ class StoryOrchestrator {
     } catch (err) {
       console.warn("[StoryOrch] onActivate handler failed", err);
     }
+  }
+
+  dispose() {
+    try {
+      this.chatUnsubscribe?.();
+    } catch (err) {
+      console.warn("[StoryOrch] failed to unsubscribe chat handler", err);
+    }
+    this.chatUnsubscribe = undefined;
+
+    try {
+      this.requirements.dispose();
+    } catch (err) {
+      console.warn("[StoryOrch] requirements dispose failed", err);
+    }
+
+    try {
+      this.persistence.dispose();
+    } catch (err) {
+      console.warn("[StoryOrch] persistence dispose failed", err);
+    }
+
+    try {
+      storySessionStore.getState().setChatContext({ chatId: null, groupChatSelected: false });
+      storySessionStore.getState().setStory(null);
+      storySessionStore.getState().resetRequirements();
+    } catch (err) {
+      console.warn("[StoryOrch] failed to reset store during dispose", err);
+    }
+
+    this.idx = 0;
+    this.turn = 0;
+    this.sinceEval = 0;
+    this.intervalTurns = DEFAULT_INTERVAL_TURNS;
+    this.roleNameMap.clear();
+    this.winRes = [];
+    this.failRes = [];
+    this.checkpointPrimed = false;
+    this.lastChatId = null;
+    this.lastGroupSelected = false;
+    this.onActivateIndex = undefined;
+    this.onEvaluated = undefined;
   }
 }
 

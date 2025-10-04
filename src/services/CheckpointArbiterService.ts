@@ -193,16 +193,6 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
   clear(): void {
     this.queue.length = 0;
   }
-
-  dispose(): void {
-    this.disposed = true;
-    this.clear();
-  }
-
-  isBusy(): boolean {
-    return this.busy || this.queue.length > 0;
-  }
-
   evaluate(request: CheckpointEvalRequest): Promise<CheckpointEvalPayload> {
     if (this.disposed) {
       return Promise.reject(new Error("CheckpointArbiterService disposed"));
