@@ -1,4 +1,4 @@
-import type { NormalizedStory } from "@services/SchemaService/story-validator";
+﻿import type { NormalizedStory } from "@services/SchemaService/story-validator";
 import type { Role } from "@services/SchemaService/story-schema";
 import {
   eventSource,
@@ -37,7 +37,7 @@ class StoryRequirementsService {
   private story: NormalizedStory | null = null;
   private requiredWorldInfoKeys: string[] = [];
   private subscriptions: Array<() => void> = [];
-  private listeners = new Set<() => void>();
+  private listeners = new Set<(state: StoryRequirementsState) => void>();
   private state: StoryRequirementsState = { ...defaultState };
   private started = false;
 
@@ -93,7 +93,7 @@ class StoryRequirementsService {
     this.listeners.clear();
   }
 
-  subscribe(listener: () => void): () => void {
+  subscribe(listener: (state: StoryRequirementsState) => void): () => void {
     this.listeners.add(listener);
     return () => {
       this.listeners.delete(listener);
@@ -283,7 +283,7 @@ class StoryRequirementsService {
   private emit() {
     this.listeners.forEach((listener) => {
       try {
-        listener();
+        listener(this.state);
       } catch (err) {
         console.warn("[StoryRequirementsService] listener failed", err);
       }

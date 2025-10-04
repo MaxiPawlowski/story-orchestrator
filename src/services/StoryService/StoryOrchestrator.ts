@@ -32,7 +32,6 @@ class StoryOrchestrator {
   private idx = 0;
   private winRes: RegExp[] = [];
   private failRes: RegExp[] = [];
-  // Turns and since-eval are now owned by session state; we keep local snapshots only for payloads
   private turn = 0;
   private sinceEval = 0;
   private intervalTurns = 3;
@@ -47,9 +46,18 @@ class StoryOrchestrator {
 
   private requirementsService: StoryRequirementsService;
   private stateService: StoryStateService;
-  private chatId: string | null = null;
+  private requirementsUnsubscribe?: () => void;
+  private stateUnsubscribe?: () => void;
   private compositeListeners = new Set<(state: OrchestratorCompositeState) => void>();
-  private lastComposite?: OrchestratorCompositeState;
+
+  private readonly handleRuntimeUpdate = (runtime: RuntimeStoryState) => {
+    this.reconcileWithRuntime(runtime);
+    this.broadcastComposite();
+  };
+
+  private readonly handleRequirementsUpdate = () => {
+    this.broadcastComposite();
+  };
 
   constructor(opts: {
     story: NormalizedStory;
@@ -74,66 +82,34 @@ class StoryOrchestrator {
     this.onTurnTick = opts.onTurnTick;
     this.onActivateIndex = opts.onActivateIndex;
     this.requirementsService = new StoryRequirementsService();
-    this.stateService = new StoryStateService({
-      onStateChange: (runtime, meta) => {
-        this.reconcileWithRuntime(runtime);
-        const turnsUntilNextCheck = Math.max(0, this.intervalTurns - (runtime?.turnsSinceEval ?? 0));
-        this.emitComposite({
-          requirements: this.requirementsService.getSnapshot(),
-          runtime,
-          hydrated: meta.hydrated,
-          turnsUntilNextCheck,
+    this.stateService = new StoryStateService();
 
-        });
-      },
-    });
     if (opts.onCompositeState) this.subscribeComposite(opts.onCompositeState);
   }
 
   index() { return this.idx; }
 
-  setIntervalTurns(n: number) { this.intervalTurns = Math.max(1, n | 0); }
+  setIntervalTurns(n: number) {
+    this.intervalTurns = Math.max(1, n | 0);
+    this.broadcastComposite();
+  }
 
   async init() {
+    if (!this.stateUnsubscribe) {
+      this.stateUnsubscribe = this.stateService.subscribe(this.handleRuntimeUpdate);
+    }
+    if (!this.requirementsUnsubscribe) {
+      this.requirementsUnsubscribe = this.requirementsService.subscribe(this.handleRequirementsUpdate);
+    }
     this.seedRoleMap();
     await this.presetService.initForStory();
     this.requirementsService.start();
     this.requirementsService.setStory(this.story);
-
-    const initialRequirements = this.requirementsService.getSnapshot();
-    this.stateService.syncSession({
-      story: this.story,
-      chatId: this.chatId,
-      groupChatSelected: initialRequirements.groupChatSelected,
-    });
-    this.reconcileWithRuntime(this.stateService.getState());
-
-    this.requirementsService.subscribe(() => {
-      const req = this.requirementsService.getSnapshot();
-      this.stateService.syncSession({
-        story: this.story,
-        chatId: this.chatId,
-        groupChatSelected: req.groupChatSelected,
-      });
-      const runtime = this.stateService.getState();
-      this.reconcileWithRuntime(runtime);
-      const turnsUntilNextCheck = Math.max(0, this.intervalTurns - (runtime?.turnsSinceEval ?? 0));
-      this.emitComposite({
-        requirements: req,
-        runtime,
-        hydrated: this.stateService.isHydrated(),
-        turnsUntilNextCheck,
-      });
-    });
-
+    this.stateService.start();
+    this.stateService.setStory(this.story);
     const runtime = this.stateService.getState();
-    const turnsUntilNextCheck = Math.max(0, this.intervalTurns - (runtime?.turnsSinceEval ?? 0));
-    this.emitComposite({
-      requirements: initialRequirements,
-      runtime,
-      hydrated: this.stateService.isHydrated(),
-      turnsUntilNextCheck,
-    });
+    this.reconcileWithRuntime(runtime);
+    this.broadcastComposite();
   }
   private reconcileWithRuntime(runtime: RuntimeStoryState | null | undefined) {
     if (!runtime) return;
@@ -318,38 +294,53 @@ class StoryOrchestrator {
     });
   }
 
-  // Requirements facade
-  getRequirementsSnapshot(): StoryRequirementsState { return this.requirementsService.getSnapshot(); }
   reloadPersona() { return this.requirementsService.reloadPersona(); }
 
-  // Runtime state facade
-  getRuntimeSnapshot(): RuntimeStoryState { return this.stateService.getState(); }
   updateCheckpointStatus(index: number, status: CheckpointStatus) { this.stateService.updateCheckpointStatus(index, status); }
   setOnActivateCheckpoint(cb?: (index: number) => void) { this.stateService.setOnActivateCheckpoint(cb); }
 
-  setChatId(chatId: string | null) {
-    this.chatId = chatId ? String(chatId) : null;
-    const req = this.requirementsService.getSnapshot();
-    this.stateService.syncSession({
-      story: this.story,
-      chatId: this.chatId,
-      groupChatSelected: req.groupChatSelected,
-    });
-    this.reconcileWithRuntime(this.stateService.getState());
+
+
+  private computeTurnsUntilNextCheck(runtime?: RuntimeStoryState | null) {
+    const turnsSinceEval = runtime?.turnsSinceEval ?? 0;
+    return Math.max(0, this.intervalTurns - turnsSinceEval);
   }
+
+  private broadcastComposite() {
+    const runtime = this.stateService.getState();
+    const requirements = this.requirementsService.getSnapshot();
+    this.emitComposite({
+      requirements,
+      runtime,
+      hydrated: this.stateService.isHydrated(),
+      turnsUntilNextCheck: this.computeTurnsUntilNextCheck(runtime),
+    });
+  }
+
+
 
   subscribeComposite(listener: (state: OrchestratorCompositeState) => void) {
     this.compositeListeners.add(listener);
-    if (this.lastComposite) listener(this.lastComposite);
+    try {
+      listener({
+        requirements: this.requirementsService.getSnapshot(),
+        runtime: this.stateService.getState(),
+        hydrated: this.stateService.isHydrated(),
+        turnsUntilNextCheck: this.computeTurnsUntilNextCheck(this.stateService.getState()),
+      });
+    } catch (e) { console.warn('[StoryOrch] initial composite listener dispatch failed', e); }
     return () => { this.compositeListeners.delete(listener); };
   }
 
   private emitComposite(state: OrchestratorCompositeState) {
-    this.lastComposite = state;
     this.compositeListeners.forEach((l) => { try { l(state); } catch (e) { console.warn('[StoryOrch] composite listener failed', e); } });
   }
 
   dispose() {
+    try { this.requirementsUnsubscribe?.(); } catch (e) { /* noop */ }
+    try { this.stateUnsubscribe?.(); } catch (e) { /* noop */ }
+    this.requirementsUnsubscribe = undefined;
+    this.stateUnsubscribe = undefined;
     try { this.requirementsService.dispose(); } catch (e) { /* noop */ }
     try { this.stateService.dispose(); } catch (e) { /* noop */ }
     this.checkpointPrimed = false;

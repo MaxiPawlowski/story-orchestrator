@@ -1,4 +1,4 @@
-import type { NormalizedStory } from "@services/SchemaService/story-validator";
+﻿import type { NormalizedStory } from "@services/SchemaService/story-validator";
 import {
   loadStoryState,
   makeDefaultState,
@@ -8,29 +8,29 @@ import {
   type RuntimeStoryState,
   type CheckpointStatus,
 } from "@services/StoryService/story-state";
+import { eventSource, event_types, getContext } from "@services/SillyTavernAPI";
+import { subscribeToEventSource } from "@utils/eventSource";
 
 export interface StoryStateServiceOptions {
   onStateChange?: (state: RuntimeStoryState, meta: { hydrated: boolean }) => void;
   onActivateCheckpoint?: (index: number) => void;
 }
 
-interface SyncSessionArgs {
-  story: NormalizedStory | null | undefined;
-  chatId: string | null | undefined;
-  groupChatSelected: boolean;
-}
-
 class StoryStateService {
-  private onStateChange?: (state: RuntimeStoryState, meta: { hydrated: boolean }) => void;
+  private listeners = new Set<(state: RuntimeStoryState, meta: { hydrated: boolean }) => void>();
   private onActivateCheckpoint?: (index: number) => void;
   private story: NormalizedStory | null = null;
   private chatId: string | null = null;
   private groupChatSelected = false;
   private hydrated = false;
   private state: RuntimeStoryState = makeDefaultState(null);
+  private started = false;
+  private unsubscribe: (() => void) | null = null;
 
   constructor(options?: StoryStateServiceOptions) {
-    this.onStateChange = options?.onStateChange;
+    if (options?.onStateChange) {
+      this.subscribe(options.onStateChange);
+    }
     this.onActivateCheckpoint = options?.onActivateCheckpoint;
   }
 
@@ -53,26 +53,75 @@ class StoryStateService {
     }
   }
 
-  syncSession({ story, chatId, groupChatSelected }: SyncSessionArgs): void {
+  subscribe(listener: (state: RuntimeStoryState, meta: { hydrated: boolean }) => void): () => void {
+    this.listeners.add(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
+  }
+
+  start(): void {
+    if (this.started) return;
+    this.started = true;
+    this.refreshSession({ reason: 'start' });
+    this.unsubscribe = subscribeToEventSource({
+      source: eventSource,
+      eventName: event_types.CHAT_CHANGED,
+      handler: () => this.refreshSession({ reason: 'chat_changed' }),
+    });
+  }
+
+  setStory(story: NormalizedStory | null | undefined): void {
     this.story = story ?? null;
-    this.chatId = chatId ?? null;
-    this.groupChatSelected = !!groupChatSelected;
+    this.refreshSession({ reason: 'story_changed', force: true });
+  }
+
+  private refreshSession(opts: { reason: string; force?: boolean }) {
+    const prevChat = this.chatId;
+    const prevGroup = this.groupChatSelected;
+
+    try {
+      const { chatId, groupId } = (getContext() || {}) as { chatId?: unknown; groupId?: unknown };
+      this.chatId = chatId == null ? null : (String(chatId).trim() || null);
+      this.groupChatSelected = Boolean(groupId);
+    } catch (err) {
+      console.warn('[StoryStateService] Failed to read context', err);
+      this.chatId = null;
+      this.groupChatSelected = false;
+    }
+
+    const contextChanged = prevChat !== this.chatId || prevGroup !== this.groupChatSelected;
+    if (!contextChanged && !opts.force) return;
 
     if (!this.groupChatSelected || !this.story) {
-      this.hydrated = false;
-      this.state = makeDefaultState(this.story);
-      this.emitState();
+      this.resetState(false);
       return;
     }
 
-    const loaded = loadStoryState({ chatId: this.chatId, story: this.story });
-    this.state = {
-      ...loaded.state,
-      turnsSinceEval: sanitizeTurnsSinceEval(loaded.state.turnsSinceEval),
-    };
-    this.hydrated = true;
+    try {
+      const loaded = loadStoryState({ chatId: this.chatId, story: this.story });
+      this.state = {
+        ...loaded.state,
+        turnsSinceEval: sanitizeTurnsSinceEval(loaded.state.turnsSinceEval),
+      };
+      this.hydrated = true;
+      this.emitState();
+      this.onActivateCheckpointSafe(this.state.checkpointIndex);
+    } catch (e) {
+      console.warn('[StoryStateService] hydrate failed; falling back to default', e);
+      this.resetState(true);
+    }
+  }
+
+  private resetState(emitActivate: boolean) {
+    this.hydrated = false;
+    this.state = makeDefaultState(this.story);
     this.emitState();
-    this.onActivateCheckpoint?.(this.state.checkpointIndex);
+    if (emitActivate) this.onActivateCheckpointSafe(this.state.checkpointIndex);
+  }
+
+  private onActivateCheckpointSafe(index: number) {
+    try { this.onActivateCheckpoint?.(index); } catch (err) { console.warn('[StoryStateService] onActivateCheckpoint handler failed', err); }
   }
 
   setTurnsSinceEval(next: number): void {
@@ -88,24 +137,12 @@ class StoryStateService {
 
   activateCheckpoint(index: number): void {
     if (!this.story) return;
-
     const sanitizedIndex = clampCheckpointIndex(index, this.story);
     const nextStatuses = this.buildStatuses(sanitizedIndex);
-    if (
-      sanitizedIndex === this.state.checkpointIndex
-      && shallowStatusesEqual(nextStatuses, this.state.checkpointStatuses)
-    ) {
-      // ensure we still reset the turn counter for the checkpoint even if index/states unchanged
-      if (this.state.turnsSinceEval !== 0) {
-        this.state = {
-          ...this.state,
-          turnsSinceEval: 0,
-        };
-        this.persist();
-        this.emitState();
-      }
-      return;
-    }
+
+    const sameIndex = sanitizedIndex === this.state.checkpointIndex;
+    const sameStatuses = shallowStatusesEqual(nextStatuses, this.state.checkpointStatuses);
+    if (sameIndex && sameStatuses && this.state.turnsSinceEval === 0) return;
 
     this.state = {
       ...this.state,
@@ -113,10 +150,9 @@ class StoryStateService {
       checkpointStatuses: nextStatuses,
       turnsSinceEval: 0,
     };
-
     this.persist();
     this.emitState();
-    this.onActivateCheckpoint?.(sanitizedIndex);
+    this.onActivateCheckpointSafe(sanitizedIndex);
   }
 
   updateCheckpointStatus(index: number, status: CheckpointStatus): void {
@@ -136,11 +172,15 @@ class StoryStateService {
   }
 
   dispose(): void {
+    try { this.unsubscribe?.(); } catch { /* noop */ }
+    this.unsubscribe = null;
+    this.started = false;
     this.story = null;
     this.chatId = null;
     this.groupChatSelected = false;
     this.hydrated = false;
     this.state = makeDefaultState(null);
+    this.listeners.clear();
   }
 
   private buildStatuses(activeIndex: number): CheckpointStatus[] {
@@ -148,24 +188,27 @@ class StoryStateService {
     if (!checkpoints.length) return [];
 
     const prev = Array.isArray(this.state.checkpointStatuses) ? this.state.checkpointStatuses : [];
-
-    return checkpoints.map((_cp, idx) => {
-      if (idx < activeIndex) return "complete";
-      if (idx === activeIndex) {
-        return prev[idx] === "failed" ? "failed" : "current";
-      }
-      return prev[idx] ?? "pending";
-    });
+    return checkpoints.map((_cp, idx) =>
+      idx < activeIndex
+        ? 'complete'
+        : idx === activeIndex
+          ? (prev[idx] === 'failed' ? 'failed' : 'current')
+          : (prev[idx] ?? 'pending')
+    );
   }
 
   private emitState(): void {
-    this.onStateChange?.(this.state, { hydrated: this.hydrated });
+    this.listeners.forEach((listener) => {
+      try {
+        listener(this.state, { hydrated: this.hydrated });
+      } catch (err) {
+        console.warn("[StoryStateService] state listener failed", err);
+      }
+    });
   }
 
   private persist(): void {
-    if (!this.hydrated) return;
-    if (!this.story) return;
-    if (!this.groupChatSelected) return;
+    if (!this.hydrated || !this.story || !this.groupChatSelected) return;
     persistStoryState({
       chatId: this.chatId,
       story: this.story,

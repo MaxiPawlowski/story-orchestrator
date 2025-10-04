@@ -50,7 +50,7 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [intervalTurns, setIntervalTurnsState] = useState<number>(DEFAULT_INTERVAL_TURNS);
 
-  const { ready, activateIndex, requirements, runtime, hydrated, setChatId, reloadPersona, updateCheckpointStatus, turnsUntilNextCheck } = useStoryOrchestrator(
+  const { ready, activateIndex, requirements, runtime, reloadPersona, updateCheckpointStatus, turnsUntilNextCheck } = useStoryOrchestrator(
     story,
     intervalTurns,
     {
@@ -139,22 +139,27 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
     }
   }, [loadBundle]);
 
-  useEffect(() => {
-    if (!groupChatSelected) return;
-    void refreshBundle();
-  }, [groupChatSelected, refreshBundle]);
 
   useEffect(() => {
     const updateChatId = () => {
       try {
         const ctx = getContext();
         const raw = ctx?.chatId;
+        const groupId = ctx?.groupId;
+
+        if (!groupId) return;
         console.log("[StoryContext] detected chatId", raw);
 
         const key = raw === null || raw === undefined ? null : String(raw).trim();
         setActiveChatId(key ? key : null);
-        // inform orchestrator of chat id for state persistence
-        setChatId(key ? key : null);
+
+        if (!story) {
+          try {
+            refreshBundle();
+          } catch (err) {
+            console.error("[StoryContext] attemptLoad failed", err);
+          }
+        }
       } catch (err) {
         console.warn("[StoryContext] Failed to resolve chatId", err);
         setActiveChatId(null);
@@ -175,12 +180,8 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
         console.warn("[StoryContext] unsubscribe failed", err);
       }
     };
-  }, [setChatId]);
+  }, [story, refreshBundle]);
 
-  useEffect(() => {
-    if (!ready) return;
-    setChatId(activeChatId);
-  }, [ready, activeChatId, setChatId]);
 
   const checkpoints = useMemo<CheckpointSummary[]>(() => {
     if (!story) return [];

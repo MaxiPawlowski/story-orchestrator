@@ -63,6 +63,7 @@ export function loadStoryState({
 
   const map = getStateMap();
   const entry = map[key];
+  console.log("[StoryState] found entry", { entry });
   if (!isPersistedChatState(entry)) {
     return { state: defaults, source: "default" };
   }

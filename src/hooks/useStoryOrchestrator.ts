@@ -150,8 +150,8 @@ const registerListeners = (runtime: RuntimeState, orchestrator: StoryOrchestrato
       const stops: string[] = Array.isArray(data?.stop) ? data.stop
         : Array.isArray(data?.stopping_strings) ? data.stopping_strings : [];
       if (!candidate && stops.length) {
-        const found = stops.find((s) => /[:E½F]$/.test(s.trim()));
-        if (found) candidate = found.replace(/\s*[:E½F]\s*$/, "").trim();
+        const found = stops.find((s) => /[:ï¿½Eï¿½F]$/.test(s.trim()));
+        if (found) candidate = found.replace(/\s*[:ï¿½Eï¿½F]\s*$/, "").trim();
       }
       if (candidate) orchestrator.setActiveRole(candidate);
     },
@@ -190,7 +190,6 @@ export interface StoryOrchestratorResult {
   requirements: OrchestratorCompositeState['requirements'];
   runtime: OrchestratorCompositeState['runtime'];
   hydrated: boolean;
-  setChatId: (chatId: string | null) => void;
   reloadPersona: () => void | Promise<void>;
   updateCheckpointStatus: (index: number, status: any) => void; // kept generic to avoid circular type import
   setOnActivateCheckpoint: (cb?: (index: number) => void) => void;
@@ -294,10 +293,6 @@ export function useStoryOrchestrator(
     runtime.orchestrator?.setIntervalTurns(runtime.intervalTurns);
   }, [intervalTurns]);
 
-  const setChatId = useCallback((chatId: string | null) => {
-    runtimeRef.current.orchestrator?.setChatId(chatId);
-  }, []);
-
   const reloadPersona = useCallback(() => runtimeRef.current.orchestrator?.reloadPersona(), []);
 
   const updateCheckpointStatus = useCallback((i: number, status: any) => {
@@ -327,7 +322,6 @@ export function useStoryOrchestrator(
     },
     runtime: composite?.runtime ?? { checkpointIndex: 0, checkpointStatuses: [], turnsSinceEval: 0 },
     hydrated: composite?.hydrated ?? false,
-    setChatId,
     reloadPersona,
     updateCheckpointStatus,
     setOnActivateCheckpoint,
