@@ -27,6 +27,7 @@ import {
   type RuntimeStoryState,
   type CheckpointStatus,
 } from "@utils/story-state";
+import { normalizeName } from "@utils/story-validator";
 import { storySessionStore } from "@store/storySessionStore";
 import { registerStoryExtensionCommands } from "@utils/slashCommands";
 
@@ -134,7 +135,7 @@ class StoryOrchestrator {
 
   setActiveRole(roleOrDisplayName: string) {
     const raw = String(roleOrDisplayName ?? "");
-    const norm = this.norm(raw);
+    const norm = normalizeName(raw);
     const role = this.roleNameMap.get(norm);
     if (!role) return;
     if (this.shouldApplyRole && !this.shouldApplyRole(role)) return;
@@ -383,12 +384,10 @@ class StoryOrchestrator {
   private seedRoleMap() {
     const roles = (this.story?.roles ?? {}) as Partial<Record<Role, string>>;
     (["dm", "companion", "chat"] as Role[]).forEach((r) => {
-      const n = this.norm(roles[r]);
+      const n = normalizeName(roles[r]);
       if (n) this.roleNameMap.set(n, r);
     });
   }
-
-  private norm(s?: string | null) { return (s ?? "").normalize("NFKC").trim().toLowerCase(); }
 
   // removed thin wrappers: call helpers directly to reduce indirection
 

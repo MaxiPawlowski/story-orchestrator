@@ -6,24 +6,53 @@ const Requirements = () => {
   const ctx = useContext(StoryContext);
   if (!ctx) return null;
 
-  const { personaDefined, groupChatSelected, worldLorePresent, onPersonaReload, missingRoles } = ctx;
-  const { worldLoreMissing, globalLorePresent, globalLoreMissing } = ctx as any;
+  const {
+    personaDefined,
+    groupChatSelected,
+    missingGroupMembers,
+    worldLoreEntriesPresent,
+    globalLoreBookPresent,
+    worldLoreEntriesMissing,
+    globalLoreBookMissing,
+    onPersonaReload,
+  } = ctx;
 
   const flagToColor = (present: boolean | undefined) => present ? 'green' : 'yellow';
-  const groupText = !groupChatSelected ? 'Group chat - Please select a chat group' : (missingRoles && missingRoles.length ? `Group chat - missing: ${missingRoles.join(', ')}` : 'Group chat');
-  const groupColor = !groupChatSelected ? 'yellow' : (missingRoles && missingRoles.length ? 'red' : 'green');
 
   const personaDetail = personaDefined ? null : 'No persona name set in your profile. Click reload after setting it.';
-  const groupDetail = !groupChatSelected ? 'Please select a group chat in the UI.' : (missingRoles && missingRoles.length ? `Missing roles: ${missingRoles.join(', ')}` : null);
-  const worldDetail = worldLorePresent ? null : (Array.isArray(worldLoreMissing) && worldLoreMissing.length ? `Missing world entries: ${worldLoreMissing.join(', ')}` : 'No world-info entries found.');
-  const globalDetail = globalLorePresent ? null : (Array.isArray(globalLoreMissing) && globalLoreMissing.length ? `Missing global lorebook: ${globalLoreMissing.join(', ')}` : 'Global lorebook not selected.');
 
-  const lorePresent = Boolean(worldLorePresent && globalLorePresent);
+  const groupText = 'Group chat readiness';
+  const hasMissingMembers = Array.isArray(missingGroupMembers) && missingGroupMembers.length > 0;
+  const groupColor = !groupChatSelected
+    ? 'yellow'
+    : (hasMissingMembers ? 'red' : 'green');
+
+  const groupDetails: string[] = [];
+  if (!groupChatSelected) {
+    groupDetails.push('Please select a group chat in the UI.');
+  } else {
+    if (hasMissingMembers) {
+      if (missingGroupMembers?.length) {
+        groupDetails.push(`Missing in group: ${missingGroupMembers.join(', ')}`);
+      } else {
+        groupDetails.push('No matching group members detected.');
+      }
+    }
+    if (groupDetails.length === 0) {
+      groupDetails.push('Group chat contains all required members.');
+    }
+  }
+  const groupDetail = groupDetails.length ? groupDetails.join(' | ') : null;
+
+  const worldDetail = worldLoreEntriesPresent ? null : (Array.isArray(worldLoreEntriesMissing) && worldLoreEntriesMissing.length ? `Missing world entries: ${worldLoreEntriesMissing.join(', ')}` : 'No world-info entries found.');
+  const globalDetail = globalLoreBookPresent ? null : (Array.isArray(globalLoreBookMissing) && globalLoreBookMissing.length ? `Missing global lorebook: ${globalLoreBookMissing.join(', ')}` : 'Global lorebook not selected.');
+
+  const lorePresent = Boolean(worldLoreEntriesPresent && globalLoreBookPresent);
   const loreDetails: string[] = [];
-  if (!worldLorePresent) {
+  if (!worldLoreEntriesPresent) {
     if (worldDetail) loreDetails.push(worldDetail);
   }
-  if (!globalLorePresent) {
+  if (!globalLoreBookPresent) {
     if (globalDetail) loreDetails.push(globalDetail);
   }
   const combinedLoreDetail = loreDetails.length ? loreDetails.join(' | ') : null;

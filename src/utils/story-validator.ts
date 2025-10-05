@@ -36,6 +36,24 @@ export interface NormalizedStory {
   checkpointIndexById: Map<string | number, number>;
   roleDefaults?: Partial<Record<Role, Record<string, any>>>;
 }
+export interface NormalizeOptions {
+  stripExtension?: boolean;
+}
+
+export const normalizeName = (value: string | null | undefined, options?: NormalizeOptions): string => {
+  const normalized = String(value ?? "")
+    .normalize("NFKC")
+    .trim()
+    .toLowerCase();
+
+  if (!normalized) return "";
+
+  if (options?.stripExtension) {
+    return normalized.replace(/\.\w+$/, "");
+  }
+
+  return normalized;
+};
 
 export type CheckpointResult =
   | { file: string; ok: true; json: NormalizedStory }
@@ -141,7 +159,6 @@ export function validateStoryShape(input: unknown): Story {
   return StorySchema.parse(input);
 }
 
-// Validate + normalize into runtime-friendly structure (throws on failure)
 export function parseAndNormalizeStory(input: unknown): NormalizedStory {
   const story = validateStoryShape(input);
 

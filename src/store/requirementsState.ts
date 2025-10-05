@@ -3,12 +3,11 @@ export interface StoryRequirementsState {
   currentUserName: string;
   personaDefined: boolean;
   groupChatSelected: boolean;
-  worldLorePresent: boolean;
-  worldLoreMissing: string[];
-  globalLorePresent: boolean;
-  globalLoreMissing: string[];
-  requiredRolesPresent: boolean;
-  missingRoles: string[];
+  missingGroupMembers: string[];
+  worldLoreEntriesPresent: boolean;
+  worldLoreEntriesMissing: string[];
+  globalLoreBookPresent: boolean;
+  globalLoreBookMissing: string[];
 }
 
 export const DEFAULT_REQUIREMENTS_STATE: StoryRequirementsState = {
@@ -16,19 +15,18 @@ export const DEFAULT_REQUIREMENTS_STATE: StoryRequirementsState = {
   currentUserName: "",
   personaDefined: true,
   groupChatSelected: false,
-  worldLorePresent: true,
-  worldLoreMissing: [],
-  globalLorePresent: true,
-  globalLoreMissing: [],
-  requiredRolesPresent: false,
-  missingRoles: [],
+  missingGroupMembers: [],
+  worldLoreEntriesPresent: true,
+  worldLoreEntriesMissing: [],
+  globalLoreBookPresent: true,
+  globalLoreBookMissing: [],
 };
 
 export const cloneRequirementsState = (state: StoryRequirementsState): StoryRequirementsState => ({
   ...state,
-  worldLoreMissing: state.worldLoreMissing.slice(),
-  globalLoreMissing: state.globalLoreMissing.slice(),
-  missingRoles: state.missingRoles.slice(),
+  missingGroupMembers: state.missingGroupMembers.slice(),
+  worldLoreEntriesMissing: state.worldLoreEntriesMissing.slice(),
+  globalLoreBookMissing: state.globalLoreBookMissing.slice(),
 });
 
 export const createRequirementsState = (base?: StoryRequirementsState): StoryRequirementsState => (
@@ -36,9 +34,9 @@ export const createRequirementsState = (base?: StoryRequirementsState): StoryReq
 );
 
 export type RequirementsStatePatch = Partial<StoryRequirementsState> & {
-  worldLoreMissing?: string[];
-  globalLoreMissing?: string[];
-  missingRoles?: string[];
+  missingGroupMembers?: string[];
+  worldLoreEntriesMissing?: string[];
+  globalLoreBookMissing?: string[];
 };
 
 export const mergeRequirementsState = (
@@ -47,9 +45,9 @@ export const mergeRequirementsState = (
 ): StoryRequirementsState => ({
   ...prev,
   ...patch,
-  worldLoreMissing: patch.worldLoreMissing ? patch.worldLoreMissing.slice() : prev.worldLoreMissing.slice(),
-  globalLoreMissing: patch.globalLoreMissing ? patch.globalLoreMissing.slice() : prev.globalLoreMissing.slice(),
-  missingRoles: patch.missingRoles ? patch.missingRoles.slice() : prev.missingRoles.slice(),
+  missingGroupMembers: patch.missingGroupMembers ? patch.missingGroupMembers.slice() : prev.missingGroupMembers.slice(),
+  worldLoreEntriesMissing: patch.worldLoreEntriesMissing ? patch.worldLoreEntriesMissing.slice() : prev.worldLoreEntriesMissing.slice(),
+  globalLoreBookMissing: patch.globalLoreBookMissing ? patch.globalLoreBookMissing.slice() : prev.globalLoreBookMissing.slice(),
 });
 
 export const areRequirementStatesEqual = (
@@ -62,12 +60,11 @@ export const areRequirementStatesEqual = (
     && a.currentUserName === b.currentUserName
     && a.personaDefined === b.personaDefined
     && a.groupChatSelected === b.groupChatSelected
-    && a.worldLorePresent === b.worldLorePresent
-    && arrayShallowEqual(a.worldLoreMissing, b.worldLoreMissing)
-    && a.globalLorePresent === b.globalLorePresent
-    && arrayShallowEqual(a.globalLoreMissing, b.globalLoreMissing)
-    && a.requiredRolesPresent === b.requiredRolesPresent
-    && arrayShallowEqual(a.missingRoles, b.missingRoles)
+    && arrayShallowEqual(a.missingGroupMembers, b.missingGroupMembers)
+    && a.worldLoreEntriesPresent === b.worldLoreEntriesPresent
+    && arrayShallowEqual(a.worldLoreEntriesMissing, b.worldLoreEntriesMissing)
+    && a.globalLoreBookPresent === b.globalLoreBookPresent
+    && arrayShallowEqual(a.globalLoreBookMissing, b.globalLoreBookMissing)
   );
 };
 

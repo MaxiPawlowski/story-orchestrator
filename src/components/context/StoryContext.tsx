@@ -30,12 +30,11 @@ export interface StoryContextValue {
   currentUserName: string;
   personaDefined: boolean;
   groupChatSelected: boolean;
-  worldLorePresent: boolean;
-  worldLoreMissing: string[];
-  globalLorePresent: boolean;
-  globalLoreMissing: string[];
-  requiredRolesPresent: boolean;
-  missingRoles: string[];
+  worldLoreEntriesPresent: boolean;
+  worldLoreEntriesMissing: string[];
+  globalLoreBookPresent: boolean;
+  globalLoreBookMissing: string[];
+  missingGroupMembers: string[];
   onPersonaReload: () => Promise<void> | void;
 }
 
@@ -72,13 +71,14 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
     currentUserName,
     personaDefined,
     groupChatSelected,
-    worldLorePresent,
-    worldLoreMissing,
-    requiredRolesPresent,
-    missingRoles,
-    globalLorePresent,
-    globalLoreMissing,
+    missingGroupMembers,
+    worldLoreEntriesPresent,
+    worldLoreEntriesMissing,
+    globalLoreBookPresent,
+    globalLoreBookMissing,
   } = requirements;
+
+  const groupMembersPresent = (missingGroupMembers?.length ?? 0) === 0;
 
   const { checkpointIndex, checkpointStatuses, turnsSinceEval } = runtime;
 
@@ -206,12 +206,11 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
       currentUserName,
       personaDefined,
       groupChatSelected,
-      worldLorePresent,
-      requiredRolesPresent,
-      missingRoles,
-      worldLoreMissing,
-      globalLorePresent,
-      globalLoreMissing,
+      missingGroupMembers,
+      worldLoreEntriesPresent,
+      worldLoreEntriesMissing,
+      globalLoreBookPresent,
+      globalLoreBookMissing,
       onPersonaReload: reloadPersona,
     }}>
       {children}
