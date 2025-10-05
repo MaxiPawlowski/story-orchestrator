@@ -77,6 +77,19 @@ function dedupeOrdered<T>(arr: T[]): T[] {
   return out;
 }
 
+const cleanScalar = (value: string): string => value.trim();
+
+const sanitizeRoleMap = (input?: Partial<Record<Role, string>>): Partial<Record<Role, string>> | undefined => {
+  if (!input) return undefined;
+  const result: Partial<Record<Role, string>> = {};
+  (Object.entries(input) as [Role, unknown][]).forEach(([role, maybeValue]) => {
+    if (typeof maybeValue !== "string") return;
+    const trimmed = cleanScalar(maybeValue);
+    if (trimmed) result[role] = trimmed;
+  });
+  return Object.keys(result).length ? result : undefined;
+};
+
 function normalizeAuthorsNote(input?: OnActivate["authors_note"]): Partial<Record<Role, string>> | undefined {
   if (!input) return undefined;
   if (typeof input === "string") return { chat: input };
@@ -102,9 +115,16 @@ function normalizePresetOverrides(input?: any): Partial<Record<Role, Record<stri
 function normalizeWorldInfo(input?: unknown): NormalizedWorldInfo | undefined {
   if (!input) return undefined;
   const wi = WorldInfoActivationsSchema.parse(input);
+  const cleanList = (list: string[]) => (
+    dedupeOrdered(
+      list
+        .map((item) => cleanScalar(item))
+        .filter(Boolean)
+    )
+  );
   return {
-    activate: dedupeOrdered(wi.activate),
-    deactivate: dedupeOrdered(wi.deactivate),
+    activate: cleanList(wi.activate),
+    deactivate: cleanList(wi.deactivate),
   };
 }
 
@@ -151,9 +171,9 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
 
   return {
     schemaVersion: "1.0",
-    title: story.title,
-    global_lorebook: story.global_lorebook,
-    roles: story.roles as Partial<Record<Role, string>> | undefined,
+    title: cleanScalar(story.title),
+    global_lorebook: cleanScalar(story.global_lorebook),
+    roles: sanitizeRoleMap(story.roles as Partial<Record<Role, string>> | undefined),
     checkpoints,
     checkpointIndexById,
     roleDefaults: story.role_defaults ? normalizePresetOverrides(story.role_defaults) : undefined,

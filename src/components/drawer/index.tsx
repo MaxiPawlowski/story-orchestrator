@@ -50,7 +50,7 @@ const DrawerWrapper = () => {
 
       {!isMinimized && (
         <div className="p-2">
-          <Requirements />
+          {!requirementsReady && <Requirements />}
           {ready && requirementsReady && checkpointRows.length > 0 && (
             <Checkpoints
               title={title}

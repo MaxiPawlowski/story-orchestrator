@@ -55,5 +55,3 @@ setTimeout(() => {
   initializeDrawer();
 }, 3000);
 
-
-// eventSource.on(event_types.CHAT_CHANGED, initializeDrawer);

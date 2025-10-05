@@ -49,7 +49,11 @@
           }
         },
         "world_info": {
-          "activate": ["CP1 - Mission", "CP1 - Scenario"],
+          "activate": [
+            "CP1 - Mission",
+            "CP1 - Scenario",
+            "CP1 - Automation BG"
+          ],
           "deactivate": ["CP2 - Challenge"]
         }
       }

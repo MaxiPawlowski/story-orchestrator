@@ -48,177 +48,72 @@ export const createRequirementsController = (): RequirementsController => {
     storySessionStore.getState().setRequirementsState(state);
   };
 
-  const updateState = (patch: Partial<StoryRequirementsState>) => {
+  const updateState = (patch: Partial<StoryRequirementsState>, recompute = true) => {
     const next = mergeRequirementsState(state, patch);
     if (areRequirementStatesEqual(state, next)) return false;
-    state = next;
-    emit();
-    return true;
+    state = next; emit(); if (recompute) recomputeReady(); return true;
   };
 
   const recomputeReady = () => {
-    const ready = Boolean(
-      story &&
-      state.personaDefined &&
-      state.groupChatSelected &&
-      state.requiredRolesPresent &&
-      state.worldLorePresent &&
-      state.globalLorePresent
-    );
-    updateState({ requirementsReady: ready });
+    const ready = Boolean(story && state.personaDefined && state.groupChatSelected && state.requiredRolesPresent && state.worldLorePresent && state.globalLorePresent);
+    // avoid infinite loop: call updateState without re-triggering recompute
+    updateState({ requirementsReady: ready }, false);
   };
 
   const refreshGroupChat = () => {
-    try {
-      const ctx = getContext();
-      const groupSelected = Boolean(ctx?.groupId);
-      if (updateState({ groupChatSelected: groupSelected })) {
-        recomputeReady();
-      }
-    } catch (err) {
-      console.warn("[Requirements] refreshGroupChat failed", err);
-      if (updateState({ groupChatSelected: false })) recomputeReady();
-    }
+    try { const ctx = getContext(); updateState({ groupChatSelected: Boolean(ctx?.groupId) }); }
+    catch (err) { console.warn('[Requirements] refreshGroupChat failed', err); updateState({ groupChatSelected: false }); }
   };
 
   const reloadPersona = async () => {
-    try {
-      const { name1 } = getContext();
-      const changed = updateState({
-        currentUserName: name1 ?? "",
-        personaDefined: Boolean(name1),
-      });
-      if (changed) recomputeReady();
-    } catch (err) {
-      console.warn("[Requirements] reloadPersona failed", err);
-      if (updateState({ currentUserName: "", personaDefined: false })) recomputeReady();
-    }
+    try { const { name1 } = getContext(); updateState({ currentUserName: name1 ?? '', personaDefined: Boolean(name1) }); }
+    catch (err) { console.warn('[Requirements] reloadPersona failed', err); updateState({ currentUserName: '', personaDefined: false }); }
   };
 
   const refreshRoles = () => {
-    if (!story || !story.roles) {
-      if (updateState({ missingRoles: [], requiredRolesPresent: true })) recomputeReady();
-      return;
-    }
-
+    if (!story?.roles) { updateState({ missingRoles: [], requiredRolesPresent: true }); return; }
     try {
       const roles = story.roles as Partial<Record<Role, string>>;
-      const requiredNames = Object.values(roles)
-        .filter((name): name is string => typeof name === "string" && name.trim().length > 0)
-        .map((name) => name.trim());
+      const required = Object.values(roles).filter((n): n is string => typeof n === 'string' && n.length > 0);
+      if (!required.length) { updateState({ missingRoles: [], requiredRolesPresent: true }); return; }
+      const missing = required.filter(name => (typeof getCharacterIdByName === 'function' ? getCharacterIdByName(name) : undefined) === undefined);
+      updateState({ missingRoles: missing, requiredRolesPresent: missing.length === 0 });
+    } catch (err) { console.warn('[Requirements] refreshRoles failed', err); updateState({ missingRoles: [], requiredRolesPresent: false }); }
+  };
 
-      if (requiredNames.length === 0) {
-        if (updateState({ missingRoles: [], requiredRolesPresent: true })) recomputeReady();
-        return;
+  const computeGlobalMissing = (settings: any): { globalMissing: string[]; globalLorePresent: boolean } => {
+    const globalMissing: string[] = [];
+    try {
+      const globalSelect = settings?.world_info?.globalSelect;
+      const lorebook = story?.global_lorebook;
+      if (lorebook) {
+        const want = lorebook.toLowerCase();
+        const found = Array.isArray(globalSelect) && globalSelect.some((g: string) => g.trim().toLowerCase() === want);
+        if (!found) globalMissing.push(lorebook);
       }
-
-      const missing: string[] = [];
-      for (const name of requiredNames) {
-        const id = typeof getCharacterIdByName === "function" ? getCharacterIdByName(name) : undefined;
-        if (id === undefined) missing.push(name);
-      }
-
-      if (updateState({ missingRoles: missing, requiredRolesPresent: missing.length === 0 })) {
-        recomputeReady();
-      }
-    } catch (err) {
-      console.warn("[Requirements] refreshRoles failed", err);
-      if (updateState({ missingRoles: [], requiredRolesPresent: false })) recomputeReady();
-    }
+    } catch {/* ignore */ }
+    return { globalMissing, globalLorePresent: globalMissing.length === 0 };
   };
 
   const refreshWorldLore = () => {
-    if (!requiredWorldInfoKeys.length) {
-      updateState({ worldLorePresent: true, worldLoreMissing: [] });
-      return;
-    }
-
+    if (!requiredWorldInfoKeys.length) { updateState({ worldLorePresent: true, worldLoreMissing: [] }); return; }
     try {
       const settings = getWorldInfoSettings();
-      console.log("[Story Requirements] world info", settings);
-
-      const globalMissing: string[] = [];
-      try {
-        const globalSelect = settings?.world_info?.globalSelect;
-        if (story && typeof story.global_lorebook === "string" && story.global_lorebook.trim()) {
-          const want = story.global_lorebook.trim().toLowerCase();
-          let found = false;
-          if (Array.isArray(globalSelect)) {
-            for (const item of globalSelect) {
-              if (item.trim().toLowerCase() === want) {
-                found = true;
-                break;
-              }
-            }
-          }
-          if (!found) globalMissing.push(story.global_lorebook.trim());
-        }
-      } catch {
-        // ignore; handled by the default "missing" flow below
-      }
-
-      if (!settings || !settings.world_info) {
-        updateState({
-          worldLorePresent: false,
-          worldLoreMissing: requiredWorldInfoKeys.slice(),
-          globalLorePresent: globalMissing.length === 0,
-          globalLoreMissing: globalMissing,
-        });
-        return;
-      }
-
+      const { globalMissing, globalLorePresent } = computeGlobalMissing(settings);
+      if (!settings?.world_info) { updateState({ worldLorePresent: false, worldLoreMissing: requiredWorldInfoKeys.slice(), globalLorePresent, globalLoreMissing: globalMissing }); return; }
       const { loadWorldInfo } = getContext();
-      console.log("[Story Requirements] loading world info entries", loadWorldInfo);
-
-      loadWorldInfo(story?.global_lorebook).then((allEntries: Lorebook) => {
-        console.log("[Story Requirements] scanning world info entries", allEntries, story?.global_lorebook);
-
-        // Guard against unexpected shapes
-        if (!allEntries || typeof allEntries !== "object" || !allEntries.entries) {
-          updateState({
-            worldLorePresent: false,
-            worldLoreMissing: requiredWorldInfoKeys.slice(),
-            globalLorePresent: globalMissing.length === 0,
-            globalLoreMissing: globalMissing,
-          });
-          return;
-        }
-
-        // ✅ entries is an object; iterate over its values
-        const seen = new Set<string>();
-        for (const entry of Object.values(allEntries.entries)) {
-          const c = typeof entry?.comment === "string" ? entry.comment.trim() : "";
-          if (c) seen.add(c.toLowerCase());
-        }
-
-        const missing = requiredWorldInfoKeys.filter(
-          (name) => !seen.has(name.trim().toLowerCase())
-        );
-
-        updateState({
-          worldLorePresent: missing.length === 0,
-          worldLoreMissing: missing,
-          globalLorePresent: globalMissing.length === 0,
-          globalLoreMissing: globalMissing,
-        });
+      loadWorldInfo(story?.global_lorebook).then((entries: Lorebook) => {
+        if (!entries?.entries) { updateState({ worldLorePresent: false, worldLoreMissing: requiredWorldInfoKeys.slice(), globalLorePresent, globalLoreMissing: globalMissing }); return; }
+        const seen = new Set<string>(Object.values(entries.entries).map(e => typeof e?.comment === 'string' ? e.comment.trim().toLowerCase() : '').filter(Boolean));
+        const missing = requiredWorldInfoKeys.filter(name => !seen.has(name.toLowerCase()));
+        updateState({ worldLorePresent: missing.length === 0, worldLoreMissing: missing, globalLorePresent, globalLoreMissing: globalMissing });
       }).catch((err: unknown) => {
-        console.warn("[Requirements] loadWorldInfo failed", err);
-        updateState({
-          worldLorePresent: false,
-          worldLoreMissing: requiredWorldInfoKeys.slice(),
-          globalLorePresent: globalMissing.length === 0,
-          globalLoreMissing: globalMissing,
-        });
+        console.warn('[Requirements] loadWorldInfo failed', err);
+        updateState({ worldLorePresent: false, worldLoreMissing: requiredWorldInfoKeys.slice(), globalLorePresent, globalLoreMissing: globalMissing });
       });
-
     } catch (err) {
-      console.warn("[Requirements] refreshWorldLore failed", err);
-      updateState({
-        worldLorePresent: false,
-        worldLoreMissing: requiredWorldInfoKeys.slice(),
-        globalLorePresent: false,
-        globalLoreMissing: [],
-      });
+      console.warn('[Requirements] refreshWorldLore failed', err);
+      updateState({ worldLorePresent: false, worldLoreMissing: requiredWorldInfoKeys.slice(), globalLorePresent: false, globalLoreMissing: [] });
     }
   };
 
@@ -231,7 +126,7 @@ export const createRequirementsController = (): RequirementsController => {
       const push = (list?: string[]) => {
         if (!Array.isArray(list)) return;
         list.forEach((name) => {
-          if (typeof name === "string" && name.trim()) keys.add(name.trim());
+          if (typeof name === "string" && name) keys.add(name);
         });
       };
       push(wi.activate);

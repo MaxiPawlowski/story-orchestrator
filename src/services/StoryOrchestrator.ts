@@ -28,6 +28,7 @@ import {
   type CheckpointStatus,
 } from "@utils/story-state";
 import { storySessionStore } from "@store/storySessionStore";
+import { registerStoryExtensionCommands } from "@utils/slashCommands";
 
 class StoryOrchestrator {
   private story: NormalizedStory;
@@ -60,6 +61,7 @@ class StoryOrchestrator {
     onTurnTick?: (next: { turn: number; sinceEval: number }) => void;
     onActivateIndex?: (index: number) => void;
   }) {
+    console.log("[StoryOrch] initializing for story", { title: opts.story.title });
     this.story = opts.story;
     this.checkpointArbiter = new CheckpointArbiterService();
     this.presetService = new PresetService({
@@ -68,6 +70,7 @@ class StoryOrchestrator {
       storyTitle: this.story.title,
       roleDefaults: this.story.roleDefaults,
     });
+    registerStoryExtensionCommands();
     this.onRoleApplied = opts.onRoleApplied;
     this.shouldApplyRole = opts.shouldApplyRole;
     opts.setEvalHooks?.({ onEvaluated: (handler) => { this.onEvaluated = handler; } });
@@ -197,44 +200,30 @@ class StoryOrchestrator {
   }
 
 
-  private applyWorldInfoForCheckpoint(cp: NormalizedCheckpoint | undefined, metadata?: { index: number; reason: string }) {
-    const lorebook = this.story.global_lorebook?.trim() ?? "";
+  private async applyWorldInfoForCheckpoint(cp: NormalizedCheckpoint | undefined, metadata?: { index: number; reason: string }) {
+    const lorebook = this.story.global_lorebook;
     if (!cp || !lorebook) return;
 
     const worldInfo = cp.onActivate?.world_info;
     if (!worldInfo) return;
 
-    const normalize = (list?: string[]) => (
-      Array.isArray(list)
-        ? Array.from(new Set(list.map((item) => (typeof item === "string" ? item.trim() : "")).filter(Boolean)))
-        : []
-    );
-
-    const activate = normalize(worldInfo.activate);
-    const deactivate = normalize(worldInfo.deactivate);
-
-    if (!activate.length && !deactivate.length) return;
+    if (!Array.isArray(worldInfo.activate) && !Array.isArray(worldInfo.deactivate)) return;
 
     console.log("[StoryOrch] world info apply", {
       lorebook,
       cp: cp.name,
       index: metadata?.index,
       reason: metadata?.reason,
-      activate,
-      deactivate,
+      activate: worldInfo.activate,
+      deactivate: worldInfo.deactivate,
     });
 
-    const run = async (action: "enable" | "disable", comment: string) => {
-      try {
-        if (action === "enable") await enableWIEntry(lorebook, comment);
-        else await disableWIEntry(lorebook, comment);
-      } catch (err) {
-        console.warn(`[StoryOrch] world info ${action} failed`, { lorebook, comment, error: err, cp: cp.name });
-      }
-    };
-
-    activate.forEach((comment) => { void run("enable", comment); });
-    deactivate.forEach((comment) => { void run("disable", comment); });
+    for (const comment of worldInfo.activate) {
+      await enableWIEntry(lorebook, comment);
+    }
+    for (const comment of worldInfo.deactivate) {
+      await disableWIEntry(lorebook, comment);
+    }
   }
 
 
@@ -307,14 +296,25 @@ class StoryOrchestrator {
   } = {}) {
     const checkpoints = Array.isArray(this.story.checkpoints) ? this.story.checkpoints : [];
     const storeSnapshot = storySessionStore.getState();
-    const previousRuntime = storeSnapshot.runtime;
+    const prevRuntime = storeSnapshot.runtime;
     const currentTurn = storeSnapshot.turn;
     const persistRequested = opts.persist !== false;
-    const hydratedFlag = opts.reason === "hydrate"
-      ? true
-      : persistRequested
-        ? true
-        : undefined;
+
+    const hydratedFlag = opts.reason === "hydrate" ? true : (persistRequested ? true : undefined);
+
+    const computeTurns = (override?: number) => {
+      const baseSince = opts.resetSinceEval
+        ? 0
+        : typeof override === "number"
+          ? sanitizeTurnsSinceEval(override)
+          : prevRuntime.turnsSinceEval;
+      const turn = opts.resetSinceEval
+        ? 0
+        : typeof override === "number"
+          ? Math.max(0, baseSince)
+          : Math.max(currentTurn, baseSince);
+      return { since: opts.resetSinceEval ? 0 : baseSince, turn };
+    };
 
     const applyRuntime = (runtimePayload: RuntimeStoryState, nextTurn: number) => {
       const sanitized = this.setRuntime(runtimePayload, { hydrated: hydratedFlag });
@@ -324,77 +324,33 @@ class StoryOrchestrator {
       return sanitized;
     };
 
+    // No checkpoints: just prime empty runtime
     if (!checkpoints.length) {
       this.checkpointPrimed = true;
-      this.winRes = [];
-      this.failRes = [];
+      this.winRes = this.failRes = [];
       this.checkpointArbiter.clear();
-
-      const override = opts.sinceEvalOverride;
-      const nextSinceEval = opts.resetSinceEval
-        ? 0
-        : typeof override === "number"
-          ? sanitizeTurnsSinceEval(override)
-          : previousRuntime.turnsSinceEval;
-
-      const nextTurn = opts.resetSinceEval
-        ? 0
-        : typeof override === "number"
-          ? Math.max(0, nextSinceEval)
-          : Math.max(currentTurn, nextSinceEval);
-
-      const sanitized = applyRuntime({
-        checkpointIndex: 0,
-        checkpointStatuses: [],
-        turnsSinceEval: opts.resetSinceEval ? 0 : nextSinceEval,
-      }, nextTurn);
-
+      const { since, turn } = computeTurns(opts.sinceEvalOverride);
+      const sanitized = applyRuntime({ checkpointIndex: 0, checkpointStatuses: [], turnsSinceEval: since }, turn);
       if (opts.reason) this.emitActivate(sanitized.checkpointIndex);
       return;
     }
 
-    const sanitizedIndex = clampCheckpointIndex(index, this.story);
-    const cp = checkpoints[sanitizedIndex] ?? checkpoints[0];
+    const checkpointIndex = clampCheckpointIndex(index, this.story);
+    const cp = checkpoints[checkpointIndex] ?? checkpoints[0];
 
     this.checkpointPrimed = true;
     this.winRes = Array.isArray(cp.winTriggers) ? cp.winTriggers : [];
     this.failRes = Array.isArray(cp.failTriggers) ? cp.failTriggers : [];
     this.checkpointArbiter.clear();
 
-    const override = opts.sinceEvalOverride;
-    const nextSinceEval = opts.resetSinceEval
-      ? 0
-      : typeof override === "number"
-        ? sanitizeTurnsSinceEval(override)
-        : previousRuntime.turnsSinceEval;
-
-    const nextTurn = opts.resetSinceEval
-      ? 0
-      : typeof override === "number"
-        ? Math.max(0, nextSinceEval)
-        : Math.max(currentTurn, nextSinceEval);
-
-    const nextStatuses = computeNextStatuses(sanitizedIndex, previousRuntime.checkpointStatuses, this.story);
-    const runtimePayload: RuntimeStoryState = {
-      checkpointIndex: sanitizedIndex,
-      checkpointStatuses: nextStatuses,
-      turnsSinceEval: opts.resetSinceEval ? 0 : nextSinceEval,
-    };
-
-    const sanitized = applyRuntime(runtimePayload, nextTurn);
+    const { since, turn } = computeTurns(opts.sinceEvalOverride);
+    const statuses = computeNextStatuses(checkpointIndex, prevRuntime.checkpointStatuses, this.story);
+    const runtimePayload: RuntimeStoryState = { checkpointIndex, checkpointStatuses: statuses, turnsSinceEval: since };
+    const sanitized = applyRuntime(runtimePayload, turn);
 
     const logReason = opts.reason ?? (persistRequested ? "activate" : "hydrate");
-    console.log("[StoryOrch] activate", {
-      idx: sanitized.checkpointIndex,
-      id: cp?.id,
-      name: cp?.name,
-      win: this.winRes.map(String),
-      fail: this.failRes.map(String),
-      reason: logReason,
-    });
-
+    console.log("[StoryOrch] activate", { idx: sanitized.checkpointIndex, id: cp?.id, name: cp?.name, win: this.winRes.map(String), fail: this.failRes.map(String), reason: logReason });
     this.applyWorldInfoForCheckpoint(cp, { index: sanitized.checkpointIndex, reason: logReason });
-
     if (opts.reason) this.emitActivate(sanitized.checkpointIndex);
   }
 

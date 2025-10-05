@@ -171,7 +171,9 @@ export function computeNextStatuses(
     } else if (idx === activeIndex) {
       result[idx] = prev[idx] === 'failed' ? 'failed' : 'current';
     } else {
-      result[idx] = (prev[idx] as CheckpointStatus) ?? 'pending';
+      const p = prev[idx] as CheckpointStatus | undefined;
+      if (p === 'current') result[idx] = 'pending';
+      else result[idx] = p ?? 'pending';
     }
   }
   return result;

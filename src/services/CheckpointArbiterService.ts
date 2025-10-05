@@ -52,120 +52,97 @@ const DEFAULT_SNAPSHOT_LIMIT = 10;
 const DEFAULT_RESPONSE_LENGTH = 256;
 
 function snapshot(limit: number): string {
-  const msgs = Array.isArray(chat) ? chat.slice(-limit) : [];
-  const lines: string[] = [];
-  for (let i = 0; i < msgs.length; i++) {
-    const msg = msgs[i];
-    const text =
-      (typeof msg?.mes === "string" && msg.mes.trim()) ||
-      (typeof msg?.text === "string" && msg.text.trim()) ||
-      (typeof msg?.message === "string" && msg.message.trim()) ||
-      (typeof msg?.data?.text === "string" && msg.data.text.trim()) ||
-      (typeof msg?.data?.mes === "string" && msg.data.mes.trim()) ||
-      "";
-    if (!text) continue;
-    const who =
-      (typeof msg?.name === "string" && msg.name) ||
-      (typeof msg?.character === "string" && msg.character) ||
-      (msg?.is_user ? "Player" : "Companion");
-    lines.push(`${i + 1}. ${clampText(String(who), 40)}: ${clampText(text, 300)}`);
-  }
-  return lines.reverse().join("\n");
+  return (Array.isArray(chat) ? chat.slice(-limit) : [])
+    .map((msg, idx) => {
+      const text = (msg?.mes || msg?.text || msg?.message || msg?.data?.text || msg?.data?.mes || "") as string;
+      if (typeof text !== 'string' || !text.trim()) return null;
+      const who = (msg?.name || msg?.character || (msg?.is_user ? 'Player' : 'Companion')) as string;
+      return `${idx + 1}. ${clampText(String(who), 40)}: ${clampText(String(text).trim(), 300)}`;
+    })
+    .filter(Boolean)
+    .reverse()
+    .join('\n');
+}
+
+function buildReasonLine(r: ArbiterReason, matched: string | undefined, intervalTurns: number) {
+  if (r === 'interval') return `Periodic check (every ${intervalTurns} turns).`;
+  const suffix = matched ? `: ${matched}` : '';
+  return r === 'win' ? `Completion trigger matched${suffix}.` : `Failure trigger matched${suffix}.`;
 }
 
 function buildEvalPrompt(request: CheckpointEvalRequest, transcript: string) {
   const { cpName, objective, reason, matched, turn, latestText, intervalTurns } = request;
-  const reasonLine = reason === "interval"
-    ? `Periodic check (every ${intervalTurns} turns).`
-    : reason === "win"
-      ? `Completion trigger matched${matched ? `: ${matched}` : ""}.`
-      : `Failure trigger matched${matched ? `: ${matched}` : ""}.`;
-
   return [
-    "You are an impartial story overseer.",
+    'You are an impartial story overseer.',
     `Checkpoint: ${cpName}`,
-    objective ? `Objective: ${objective}` : "",
-    reasonLine,
+    objective ? `Objective: ${objective}` : '',
+    buildReasonLine(reason, matched, intervalTurns),
     `Player turn: ${turn}`,
-    "",
-    "Conversation excerpt (most recent first is fine):",
-    transcript || "No recent messages.",
-    "",
-    "Latest player message:",
+    '',
+    'Conversation excerpt (most recent first is fine):',
+    transcript || 'No recent messages.',
+    '',
+    'Latest player message:',
     clampText(latestText, 240),
-    "",
-    "Respond ONLY with JSON. Example:",
+    '',
+    'Respond ONLY with JSON. Example:',
     '{"completed": true, "failed": false, "reason": "...", "confidence": 0.95}',
-  ].filter(Boolean).join("\n");
+  ].filter(Boolean).join('\n');
 }
 
 function parseModel(raw: unknown): ModelEval | null {
-  let text = typeof raw === "string" ? raw.trim() : "";
+  let text = typeof raw === 'string' ? raw.trim() : '';
   if (!text) return null;
+  if (/^```/m.test(text)) text = text.replace(/```(?:json)?\s*([\s\S]*?)\s*```/gi, '$1').trim();
 
-  if (/^```/m.test(text)) {
-    text = text.replace(/```(?:json)?\s*([\s\S]*?)\s*```/gi, "$1").trim();
-  }
-
-  const blocks = [...text.matchAll(/\{[\s\S]*?\}/g)].map((m) => m[0]);
-  const candidate = blocks.sort((a, b) => b.length - a.length)[0] || text;
+  const blocks = [...text.matchAll(/\{[\s\S]*?\}/g)].map(m => m[0]);
+  const ordered = blocks.sort((a, b) => b.length - a.length);
 
   const toBool = (value: any): boolean | null => {
-    if (typeof value === "boolean") return value;
-    if (typeof value === "number") return value !== 0;
-    if (typeof value === "string") {
-      const normalized = value.trim().toLowerCase();
-      if (normalized === "true") return true;
-      if (normalized === "false") return false;
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'number') return value !== 0;
+    if (typeof value === 'string') {
+      const v = value.trim().toLowerCase();
+      if (v === 'true') return true;
+      if (v === 'false') return false;
     }
     return null;
   };
 
-  const tryJson = (input: string) => {
+  const tryJson = (input: string): ModelEval | null => {
     try {
       const obj = JSON.parse(input);
-      const completedRaw = obj.completed ?? obj.complete ?? obj.answer;
-      const failedRaw = obj.failed ?? obj.failure ?? obj.lose;
-      const completed = toBool(completedRaw);
-      const failed = toBool(failedRaw);
+      const completed = toBool(obj.completed ?? obj.complete ?? obj.answer);
+      const failed = toBool(obj.failed ?? obj.failure ?? obj.lose);
       if (completed === null && failed === null) return null;
       const result: ModelEval = {
         completed: !!completed,
         failed: !!failed,
-        reason: typeof obj.reason === "string" ? clampText(obj.reason, 200) : undefined,
-        confidence: typeof obj.confidence === "number"
-          ? Math.max(0, Math.min(1, obj.confidence))
-          : undefined,
+        reason: typeof obj.reason === 'string' ? clampText(obj.reason, 200) : undefined,
+        confidence: typeof obj.confidence === 'number' ? Math.max(0, Math.min(1, obj.confidence)) : undefined,
       };
       if (result.completed) result.failed = false;
       if (result.failed) result.completed = false;
       return result;
-    } catch {
-      return null;
-    }
+    } catch { return null; }
   };
 
-  const parsed = tryJson(candidate) || tryJson(text);
-  if (parsed) return parsed;
-
-  const boolKey = (key: string) => {
-    const match = text.match(new RegExp(`"${key}"\s*:\s*(true|false)`, "i"));
-    if (match) return match[1].toLowerCase() === "true";
-    return null;
-  };
-
-  const completed = boolKey("completed");
-  const failed = boolKey("failed");
-  if (completed !== null || failed !== null) {
-    const inferred: ModelEval = {
-      completed: !!completed,
-      failed: !!failed,
-    };
-    if (inferred.completed) inferred.failed = false;
-    if (inferred.failed) inferred.completed = false;
-    return inferred;
+  for (const candidate of [...ordered, text]) {
+    const parsed = tryJson(candidate);
+    if (parsed) return parsed;
   }
 
+  const boolKey = (key: string) => {
+    const m = text.match(new RegExp(`"${key}"\s*:\s*(true|false)`, 'i'));
+    return m ? m[1].toLowerCase() === 'true' : null;
+  };
+  const completed = boolKey('completed');
+  const failed = boolKey('failed');
+  if (completed !== null || failed !== null) {
+    const out: ModelEval = { completed: !!completed, failed: !!failed };
+    if (out.completed) out.failed = false; else if (out.failed) out.completed = false;
+    return out;
+  }
   return null;
 }
 
@@ -214,68 +191,35 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
     try {
       while (!this.disposed && this.queue.length) {
         const job = this.queue.shift()!;
-        const snapshotLimit = this.options?.snapshotLimit ?? DEFAULT_SNAPSHOT_LIMIT;
-        const transcript = snapshot(snapshotLimit);
+        const transcript = snapshot(this.options?.snapshotLimit ?? DEFAULT_SNAPSHOT_LIMIT);
         const prompt = buildEvalPrompt(job.request, transcript);
+        console.log('[Story - CheckpointArbiter] prompt', { reason: job.request.reason, cp: job.request.cpName, turn: job.request.turn });
 
-        console.log("[Story - CheckpointArbiter] prompt", {
-          reason: job.request.reason,
-          cp: job.request.cpName,
-          turn: job.request.turn,
-        });
-
-        let raw = "";
-        let parsed: ModelEval | null = null;
+        let raw = '';
         try {
           raw = await generateQuietPrompt({
             quietPrompt: prompt,
-            quietName: "Checkpoint Arbiter",
+            quietName: 'Checkpoint Arbiter',
             skipWIAN: true,
             quietToLoud: false,
             removeReasoning: false,
             trimToSentence: false,
             responseLength: this.options?.responseLength ?? DEFAULT_RESPONSE_LENGTH,
           });
-          console.log("[Story - CheckpointArbiter] raw response", { sample: String(raw).slice(0, 200) });
+          console.log('[Story - CheckpointArbiter] raw response', { sample: String(raw).slice(0, 200) });
         } catch (err) {
-          console.warn("[Story - CheckpointArbiter] request failed", err);
+          console.warn('[Story - CheckpointArbiter] request failed', err);
         }
 
-        if (raw) {
-          parsed = parseModel(raw);
-          if (!parsed) {
-            console.warn("[Story - CheckpointArbiter] parse failed", {
-              sample: String(raw).slice(0, 200),
-            });
-          }
-        }
-
+        const parsed = raw ? parseModel(raw) : null;
+        if (raw && !parsed) console.warn('[Story - CheckpointArbiter] parse failed', { sample: String(raw).slice(0, 200) });
         const outcome = resolveOutcome(parsed);
-        console.log("[Story - CheckpointArbiter] outcome", { outcome, parsed });
+        console.log('[Story - CheckpointArbiter] outcome', { outcome, parsed });
 
-        const payload: CheckpointEvalPayload = {
-          request: job.request,
-          raw,
-          parsed,
-          outcome,
-        };
-
-        try {
-          job.resolve(payload);
-        } catch (err) {
-          console.warn("[Story - CheckpointArbiter] resolve failed", err);
-        }
-
-        try {
-          this.options?.onEvaluated?.(payload);
-        } catch (err) {
-          console.warn("[Story - CheckpointArbiter] onEvaluated handler failed", err);
-        }
-
-        if (outcome === "win") {
-          this.queue.length = 0;
-          break;
-        }
+        const payload: CheckpointEvalPayload = { request: job.request, raw, parsed, outcome };
+        try { job.resolve(payload); } catch (err) { console.warn('[Story - CheckpointArbiter] resolve failed', err); }
+        try { this.options?.onEvaluated?.(payload); } catch (err) { console.warn('[Story - CheckpointArbiter] onEvaluated handler failed', err); }
+        if (outcome === 'win') { this.queue.length = 0; break; }
       }
     } finally {
       this.busy = false;

@@ -100,28 +100,22 @@ export const createPersistenceController = (store: StorySessionStore = storySess
   const writeRuntime = (next: RuntimeStoryState, options: WriteRuntimeOptions = {}): RuntimeStoryState => {
     const snapshot = store.getState();
     const shouldPersist = options.persist !== false && snapshot.groupChatSelected;
-    return writeStoreRuntime(store, next, {
-      ...options,
-      persist: shouldPersist,
-      hydrated: options.hydrated ?? (shouldPersist ? true : snapshot.hydrated),
-    });
+    return writeStoreRuntime(store, next, { ...options, persist: shouldPersist, hydrated: options.hydrated ?? (shouldPersist ? true : snapshot.hydrated) });
+  };
+
+  const persistRuntimeIfAllowed = (runtime: RuntimeStoryState, persist?: boolean) => {
+    if (persist !== false && store.getState().groupChatSelected) persistIfAllowed(store, runtime);
   };
 
   const setTurnsSinceEval = (next: number, options?: { persist?: boolean }): RuntimeStoryState => {
     const runtime = store.getState().setTurnsSinceEval(next);
-    const snapshot = store.getState();
-    if (options?.persist !== false && snapshot.groupChatSelected) {
-      persistIfAllowed(store, runtime);
-    }
+    persistRuntimeIfAllowed(runtime, options?.persist);
     return runtime;
   };
 
   const updateCheckpointStatus = (index: number, status: CheckpointStatus, options?: { persist?: boolean }): RuntimeStoryState => {
     const runtime = store.getState().updateCheckpointStatus(index, status);
-    const snapshot = store.getState();
-    if (options?.persist !== false && snapshot.groupChatSelected) {
-      persistIfAllowed(store, runtime);
-    }
+    persistRuntimeIfAllowed(runtime, options?.persist);
     return runtime;
   };
 

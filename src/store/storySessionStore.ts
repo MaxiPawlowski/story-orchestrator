@@ -8,11 +8,8 @@ import {
   type RuntimeStoryState,
   type CheckpointStatus,
 } from "@utils/story-state";
-import {
-  createRequirementsState,
-  cloneRequirementsState,
-  type StoryRequirementsState,
-} from "./requirementsState";
+import { createRequirementsState, cloneRequirementsState, type StoryRequirementsState } from "./requirementsState";
+import { computeNextStatuses } from "@utils/story-state";
 
 export interface StorySessionValueState {
   story: NormalizedStory | null;
@@ -128,7 +125,7 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
     return sanitized;
   },
 
-  writeRuntime: (nextRuntime, options) => {
+  writeRuntime: (nextRuntime, options) => { // deprecated alias
     return get().setRuntime(nextRuntime, options);
   },
 
@@ -148,16 +145,10 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
     const snapshot = get();
     const total = snapshot.story?.checkpoints?.length ?? snapshot.runtime.checkpointStatuses.length;
     if (index < 0 || index >= total) return snapshot.runtime;
-
-    const nextStatuses = snapshot.runtime.checkpointStatuses.slice();
-    nextStatuses[index] = status;
-
-    const updated: RuntimeStoryState = {
-      ...snapshot.runtime,
-      checkpointStatuses: normalizeStatuses(nextStatuses, snapshot.story, snapshot.runtime.checkpointIndex),
-    };
-
-    return get().writeRuntime(updated);
+    const base = snapshot.runtime.checkpointStatuses.slice();
+    base[index] = status;
+    const checkpointStatuses = computeNextStatuses(snapshot.runtime.checkpointIndex, base, snapshot.story);
+    return get().setRuntime({ ...snapshot.runtime, checkpointStatuses });
   },
 
   setTurn: (value) => {
