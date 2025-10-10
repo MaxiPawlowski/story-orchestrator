@@ -205,12 +205,11 @@ export const createRequirementsController = (): RequirementsController => {
   const extractRoleNames = (input: NormalizedStory | null): { names: string[]; normalized: string[] } => {
     if (!input?.roles) return { names: [], normalized: [] };
     const names: string[] = [];
-    (['dm', 'companion', 'chat'] as Role[]).forEach((role) => {
-      const name = (input.roles as Partial<Record<Role, string>>)[role];
-      if (typeof name === 'string' && name.trim()) {
-        names.push(name.trim());
-      }
-    });
+    try {
+      Object.values(input.roles).forEach((name) => {
+        if (typeof name === 'string' && name.trim()) names.push(name.trim());
+      });
+    } catch {/* ignore */}
     const normalized = names.map((name) => normalizeName(name, { stripExtension: true })).filter(Boolean);
     return { names, normalized };
   };

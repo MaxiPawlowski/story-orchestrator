@@ -11,9 +11,7 @@
   BIAS_CACHE,
   displayLogitBias,
 } from './SillyTavernAPI';
-import type { PresetOverrides } from "@utils/story-schema";
-
-export type Role = 'dm' | 'companion' | 'chat';
+import type { PresetOverrides, Role } from "@utils/story-schema";
 export type PresetPartial = PresetOverrides;
 
 export type BaseSource =
@@ -49,12 +47,13 @@ export class PresetService {
   }
 
   async initForStory() {
-    console.log('[PresetService] initForStory → ensure preset, select, apply DM defaults');
+    console.log('[PresetService] initForStory → ensure preset, select base');
     this.ensureDedicatedPresetExists();
     tgSettings.preset = this.presetName;
 
-    const merged = this.buildMergedPresetObject('dm');
-    this.applyPresetObject(merged);
+    // Apply base snapshot without assuming any specific role
+    const baseObj = this.getBasePresetObject();
+    this.applyPresetObject(baseObj);
   }
 
   applyForRole(role: Role, checkpointOverrides?: PresetPartial, checkpointName?: string): Record<string, any> {

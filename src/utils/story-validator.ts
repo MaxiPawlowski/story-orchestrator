@@ -132,33 +132,25 @@ const sanitizeRoleMap = (input?: Partial<Record<Role, string>>): Partial<Record<
 
 function normalizeAuthorsNote(input?: OnActivate["authors_note"]): Partial<Record<Role, string>> | undefined {
   if (!input) return undefined;
-  if (typeof input === "string") return { chat: input };
-  // zod already ensures only known role keys; keep as-is
+  // If a scalar string is provided, treat it as a global/default note
+  if (typeof input === "string") return { __global: input } as unknown as Partial<Record<Role, string>>;
+  // zod ensures keys are strings; keep as-is
   return input;
 }
-
-const ROLE_NAMES: Role[] = ["dm", "companion", "chat"];
 
 function normalizePresetOverrides(input?: RolePresetOverrides | null): RolePresetOverrides | undefined {
   if (!input) return undefined;
 
   const result: RolePresetOverrides = {};
 
-  for (const role of ROLE_NAMES) {
-    const overrides = input[role];
+  for (const [role, overrides] of Object.entries(input) as [Role, any][]) {
     if (!overrides || typeof overrides !== "object") continue;
-
     const cleaned: PresetOverrides = {};
     for (const key of Object.keys(overrides) as PresetOverrideKey[]) {
       const value = overrides[key];
-      if (value !== undefined) {
-        cleaned[key] = value;
-      }
+      if (value !== undefined) cleaned[key] = value;
     }
-
-    if (Object.keys(cleaned).length > 0) {
-      result[role] = cleaned;
-    }
+    if (Object.keys(cleaned).length > 0) result[role] = cleaned;
   }
 
   return Object.keys(result).length > 0 ? result : undefined;

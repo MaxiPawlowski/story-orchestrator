@@ -3,8 +3,8 @@ import { PRESET_SETTING_KEYS, type PresetSettingKey } from "@constants/presetSet
 
 const PRESET_SETTING_KEY_TUPLE = [...PRESET_SETTING_KEYS] as [PresetSettingKey, ...PresetSettingKey[]];
 
-export const RoleEnum = z.enum(["dm", "companion", "chat"]);
-export type Role = z.infer<typeof RoleEnum>;
+// Dynamic roles: any non-empty string is a valid role name
+export type Role = string;
 export const PRESET_SETTING_KEY_ENUM = z.enum(PRESET_SETTING_KEY_TUPLE);
 export type PresetOverrideKey = PresetSettingKey;
 export type PresetOverrides = Partial<Record<PresetOverrideKey, unknown>>;
@@ -12,14 +12,8 @@ export type RolePresetOverrides = Partial<Record<Role, PresetOverrides>>;
 
 const PresetOverridesSchema: z.ZodType<PresetOverrides> = z.record(PRESET_SETTING_KEY_ENUM, z.unknown());
 
-const RolePresetOverridesSchema: z.ZodType<RolePresetOverrides> = z
-  .object({
-    dm: PresetOverridesSchema.optional(),
-    companion: PresetOverridesSchema.optional(),
-    chat: PresetOverridesSchema.optional(),
-  })
-  .partial()
-  .strict();
+// Allow arbitrary role keys mapping to preset override objects
+const RolePresetOverridesSchema: z.ZodType<RolePresetOverrides> = z.record(z.string().min(1), PresetOverridesSchema);
 
 export const RegexSpecSchema = z.union([
   z.string().min(1),
@@ -44,7 +38,7 @@ export type WorldInfoActivations = z.infer<typeof WorldInfoActivationsSchema>;
 
 const AuthorsNoteSchema = z.union([
   z.string().min(1),
-  z.record(RoleEnum, z.string().min(1)),
+  z.record(z.string().min(1), z.string().min(1)),
 ]);
 
 export const OnActivateSchema = z.object({
@@ -101,11 +95,7 @@ export const StorySchema = z.object({
   title: z.string().min(1),
   global_lorebook: z.string().min(1),
   base_preset: BasePresetSchema.optional(),
-  roles: z.object({
-    dm: z.string().min(1).optional(),
-    companion: z.string().min(1).optional(),
-    chat: z.string().min(1).optional(),
-  }).optional(),
+  roles: z.record(z.string().min(1), z.string().min(1)).optional(),
   on_start: OnActivateSchema.optional(),
   checkpoints: z.array(CheckpointSchema).min(1),
   transitions: z.array(TransitionSchema).default([]),

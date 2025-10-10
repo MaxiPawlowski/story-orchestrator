@@ -106,7 +106,7 @@ export const normalizedToDraft = (story: NormalizedStory | null | undefined): St
     title: story.title,
     global_lorebook: story.global_lorebook,
     base_preset: undefined,
-    roles: story.roles ? clone(story.roles) : undefined,
+    roles: story.roles ? (Object.fromEntries(Object.entries(story.roles).filter(([, v]) => typeof v === 'string')) as Record<string, string>) : undefined,
     on_start: undefined,
     checkpoints,
     transitions: story.transitions.map((edge) => ({
@@ -155,6 +155,10 @@ export const draftToStoryInput = (draft: StoryDraft): Story => {
     const fail = sanitizeList(cp.triggers.fail);
     const ensuredActivate = cp.on_activate ? ensureOnActivate(cp.on_activate) : undefined;
     const onActivate = cleanupOnActivate(ensuredActivate);
+    const onActivateOut = onActivate ? {
+      ...onActivate,
+      ...(onActivate.authors_note ? { authors_note: onActivate.authors_note as unknown as Record<string, string> } : {}),
+    } : undefined;
     return {
       id: cp.id.trim(),
       name: cp.name.trim(),
@@ -163,7 +167,7 @@ export const draftToStoryInput = (draft: StoryDraft): Story => {
         win: win.length ? win : cp.triggers.win,
         ...(fail.length ? { fail } : {}),
       },
-      ...(onActivate ? { on_activate: onActivate } : {}),
+      ...(onActivateOut ? { on_activate: onActivateOut as unknown as Story["checkpoints"][number]["on_activate"] } : {}),
     };
   });
   const transitions: Transition[] = draft.transitions.map((edge) => ({

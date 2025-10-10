@@ -218,11 +218,9 @@ class StoryOrchestrator {
     if (!cp) return;
 
     const overrides = cp.onActivate?.preset_overrides?.[role];
-    const roleNote = cp.onActivate?.authors_note?.[role];
-    const characterName =
-      role === "dm" ? this.story.roles?.dm
-        : role === "companion" ? this.story.roles?.companion
-          : undefined;
+    const roleNote = cp.onActivate?.authors_note?.[role]
+      ?? (cp.onActivate?.authors_note as any)?.__global;
+    const characterName = this.story.roles?.[role as keyof typeof this.story.roles];
 
     if (characterName && roleNote) {
       applyCharacterAN(roleNote, {
@@ -494,9 +492,9 @@ class StoryOrchestrator {
 
   private seedRoleMap() {
     const roles = (this.story?.roles ?? {}) as Partial<Record<Role, string>>;
-    (["dm", "companion", "chat"] as Role[]).forEach((r) => {
-      const n = normalizeName(roles[r]);
-      if (n) this.roleNameMap.set(n, r);
+    Object.entries(roles).forEach(([role, displayName]) => {
+      const n = normalizeName(displayName);
+      if (n) this.roleNameMap.set(n, role as Role);
     });
   }
 
