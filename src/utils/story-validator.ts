@@ -334,7 +334,6 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
     transitions,
     transitionsByFrom,
     startId: startCheckpoint.id,
-    roleDefaults: story.role_defaults ? normalizePresetOverrides(story.role_defaults) : undefined,
   };
 }
 

@@ -6,10 +6,6 @@
     "dm": "DM Narrator",
     "companion": "Arin"
   },
-  "role_defaults": {
-    "dm": { "temp": 0.6, "rep_pen": 1.1 },
-    "companion": { "temp": 0.9, "top_p": 0.95 }
-  },
   "start": "cp1",
   "checkpoints": [
     {

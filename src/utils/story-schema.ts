@@ -101,7 +101,6 @@ export const StorySchema = z.object({
   title: z.string().min(1),
   global_lorebook: z.string().min(1),
   base_preset: BasePresetSchema.optional(),
-  role_defaults: RolePresetOverridesSchema.optional(),
   roles: z.object({
     dm: z.string().min(1).optional(),
     companion: z.string().min(1).optional(),

@@ -65,9 +65,9 @@ const normalizedOnActivateToDraft = (value: NormalizedOnActivate | undefined): C
   const authors = value.authors_note ? { ...value.authors_note } : undefined;
   const worldInfo = value.world_info
     ? {
-        activate: [...value.world_info.activate],
-        deactivate: [...value.world_info.deactivate],
-      }
+      activate: [...value.world_info.activate],
+      deactivate: [...value.world_info.deactivate],
+    }
     : undefined;
   const preset = value.preset_overrides ? clone(value.preset_overrides) : undefined;
   return {
@@ -92,7 +92,6 @@ const createEmptyDraft = (): StoryDraft => ({
   title: "Untitled Story",
   global_lorebook: "",
   base_preset: undefined,
-  role_defaults: undefined,
   roles: undefined,
   on_start: undefined,
   checkpoints: [],
@@ -107,7 +106,6 @@ export const normalizedToDraft = (story: NormalizedStory | null | undefined): St
     title: story.title,
     global_lorebook: story.global_lorebook,
     base_preset: undefined,
-    role_defaults: story.roleDefaults ? clone(story.roleDefaults) : undefined,
     roles: story.roles ? clone(story.roles) : undefined,
     on_start: undefined,
     checkpoints,
@@ -177,9 +175,7 @@ export const draftToStoryInput = (draft: StoryDraft): Story => {
     description: edge.description?.trim() || undefined,
   }));
   const roles = draft.roles ? cleanupAuthorsNote(draft.roles as Partial<Record<Role, string>>) : undefined;
-  const roleDefaults = draft.role_defaults && Object.keys(draft.role_defaults).length
-    ? draft.role_defaults
-    : undefined;
+
   const title = draft.title.trim();
   const lore = draft.global_lorebook.trim();
   const startCandidate = typeof draft.start === "string" ? draft.start.trim() : "";
@@ -188,7 +184,6 @@ export const draftToStoryInput = (draft: StoryDraft): Story => {
     title,
     global_lorebook: lore,
     base_preset: draft.base_preset,
-    role_defaults: roleDefaults,
     roles: roles as Story["roles"],
     on_start: draft.on_start,
     checkpoints,
