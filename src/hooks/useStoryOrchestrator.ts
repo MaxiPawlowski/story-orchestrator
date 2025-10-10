@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from "react";
 import { useStore } from "zustand";
 import type { NormalizedStory } from "@utils/story-validator";
+import type { StoryEvaluationEvent } from "@services/StoryOrchestrator";
 import {
   ensureStory as ensureOrchestratorStory,
   dispose as disposeOrchestrator,
@@ -26,7 +27,7 @@ export function useStoryOrchestrator(
   intervalTurns: number,
   options?: {
     onTurnTick?: (next: { turn: number; sinceEval: number }) => void;
-    onEvaluated?: (ev: { outcome: "continue" | "win" | "fail"; reason: "interval" | "win" | "fail"; turn: number; matched?: string; cpIndex: number }) => void;
+    onEvaluated?: (ev: StoryEvaluationEvent) => void;
   },
 ): StoryOrchestratorResult {
   const requirements = useStore(storySessionStore, (s) => s.requirements);

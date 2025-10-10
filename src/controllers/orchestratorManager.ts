@@ -1,4 +1,4 @@
-import StoryOrchestrator from "@services/StoryOrchestrator";
+import StoryOrchestrator, { type StoryEvaluationEvent } from "@services/StoryOrchestrator";
 import { createTurnController } from "@controllers/turnController";
 import type { NormalizedStory } from "@utils/story-validator";
 import type { Role } from "@utils/story-schema";
@@ -7,7 +7,7 @@ import { storySessionStore } from "@store/storySessionStore";
 
 interface RuntimeHooks {
   onTurnTick?: (next: { turn: number; sinceEval: number }) => void;
-  onEvaluated?: (ev: { outcome: "continue" | "win" | "fail"; reason: "interval" | "win" | "fail"; turn: number; matched?: string; cpIndex: number }) => void;
+  onEvaluated?: (ev: StoryEvaluationEvent) => void;
 }
 
 const clampIntervalTurns = (value: number): number => {

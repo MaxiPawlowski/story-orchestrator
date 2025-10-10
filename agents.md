@@ -60,12 +60,13 @@ Data flow:
 2. Validation: `story-validator` compiles regex triggers upfront (case‑insensitive by default unless flags supplied).
 3. Activation: Orchestrator seeds role map, initializes preset baseline, world info, requirement watchers, and persists runtime snapshot (if group chat + chatId present).
 4. Turn Handling: Each user input increments `turn` and `turnsSinceEval`; if a win/fail regex matches OR interval threshold reached, evaluation is queued.
-5. Evaluation: `CheckpointArbiterService` resolves outcome; `win` triggers status update + next checkpoint; `fail` marks failure; `continue` just resets interval counter.
+5. Evaluation: `CheckpointArbiterService` resolves outcome; on success/failure it picks the appropriate outgoing transition edge (if any) for the active checkpoint; `continue` just resets the interval counter.
 6. Persistence: After each runtime mutation, if persistence conditions are met (story + group chat + chatId), state is serialized via `persistStoryState` (see `story-state`).
 7. UI Sync: Zustand store updates propagate through React hook selectors; Drawer panels display status, requirements, and allow manual activation.
 
 Runtime State (Zustand):
 - `runtime.checkpointIndex`
+- `runtime.activeCheckpointKey`
 - `runtime.checkpointStatusMap`
 - `runtime.turnsSinceEval`
 - `turn` (alias of turns since story start / activation logic)

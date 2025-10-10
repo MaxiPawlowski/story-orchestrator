@@ -1,7 +1,7 @@
 # Story Driver (SillyTavern Extension)
 
 ## Overview
-Checkpoint‑driven story runner for SillyTavern. It orchestrates DM + Companion roles alongside the player, watches user chat turns for win/fail trigger regexes, advances checkpoints, and applies per‑stage contextual injections (Author's Note, World Info enable/disable, preset overrides). It also tracks requirement readiness (persona, roles, lore presence) before enabling runtime behavior.
+Checkpoint state machine for SillyTavern. Stories are modeled as a directed acyclic graph of checkpoints (nodes) and transitions (edges). The orchestrator watches user chat turns for win/fail trigger regexes, asks the Arbiter to evaluate the node, lets it pick the proper transition, advances the graph, and applies per‑stage contextual injections (Author's Note, World Info enable/disable, preset overrides). It also tracks requirement readiness (persona, roles, lore presence) before enabling runtime behavior.
 
 ## What this extension provides
 - A pinned Drawer UI in the chat for requirements, checkpoint progress, and manual controls.
@@ -20,11 +20,11 @@ Checkpoint‑driven story runner for SillyTavern. It orchestrates DM + Companion
 - `src/hooks/useStoryOrchestrator.ts` + `src/controllers/orchestratorManager.ts` — ensure a singleton orchestrator instance for the active story and wire runtime hooks into UI.
 - `src/services/StoryOrchestrator.ts` — the stateful controller: activation, turn handling, evaluation enqueueing, AN/world info application, and persistence coordination.
 - `src/services/PresetService.ts` — clones/apply presets and per‑role overrides.
-- `src/services/CheckpointArbiterService.ts` — performs evaluation logic and returns outcomes (continue|win|fail).
+- `src/services/CheckpointArbiterService.ts` — performs evaluation logic, selects the next transition edge when a node resolves, and returns outcomes (continue|win|fail).
 - `src/services/SillyTavernAPI.ts` — host API wrapper used across controllers.
 
 ## State & persistence
-- Runtime state is in `src/store/storySessionStore.ts` (Zustand vanilla store): `runtime.checkpointIndex`, `runtime.turnsSinceEval`, `runtime.checkpointStatusMap`, and `turn`.
+- Runtime state is in `src/store/storySessionStore.ts` (Zustand vanilla store): `runtime.checkpointIndex`, `runtime.activeCheckpointKey`, `runtime.turnsSinceEval`, `runtime.checkpointStatusMap`, and `turn`.
 - Persistence occurs only when a story, chatId, and group chat selection are present. Serialized state is keyed by chat+story.
 - On chat/context change the persistence controller attempts to hydrate prior runtime state; otherwise a fresh runtime is created.
 

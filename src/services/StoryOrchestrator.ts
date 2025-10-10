@@ -1,9 +1,10 @@
 ﻿import type { Role } from "@utils/story-schema";
-import type { NormalizedCheckpoint, NormalizedStory } from "@utils/story-validator";
+import type { NormalizedCheckpoint, NormalizedStory, NormalizedTransition } from "@utils/story-validator";
 import { matchTrigger as matchTriggerUtil } from "@utils/story-state";
 import { PresetService } from "./PresetService";
 import CheckpointArbiterService, {
   type ArbiterReason,
+  type ArbiterTransitionOption,
   type CheckpointArbiterApi,
   type EvaluationOutcome,
 } from "./CheckpointArbiterService";
@@ -31,6 +32,26 @@ import { normalizeName } from "@utils/story-validator";
 import { storySessionStore } from "@store/storySessionStore";
 import { registerStoryExtensionCommands } from "@utils/slashCommands";
 
+interface TransitionSelection {
+  id: string;
+  outcome: 'win' | 'fail';
+  targetKey: string;
+  targetIndex: number;
+  targetId: string | number;
+}
+
+interface EvaluatedEvent {
+  outcome: EvaluationOutcome;
+  reason: ArbiterReason;
+  turn: number;
+  matched?: string;
+  cpIndex: number;
+  transition?: TransitionSelection;
+}
+
+export type StoryTransitionSelection = TransitionSelection;
+export type StoryEvaluationEvent = EvaluatedEvent;
+
 class StoryOrchestrator {
   private story: NormalizedStory;
   private presetService: PresetService;
@@ -42,7 +63,7 @@ class StoryOrchestrator {
   private roleNameMap = new Map<string, Role>();
   private checkpointPrimed = false;
 
-  private onEvaluated?: (ev: { outcome: EvaluationOutcome; reason: ArbiterReason; turn: number; matched?: string; cpIndex: number }) => void;
+  private onEvaluated?: (ev: EvaluatedEvent) => void;
   private shouldApplyRole?: (role: Role) => boolean;
   private onRoleApplied?: (role: Role, cpName: string) => void;
   private onTurnTick?: (next: { turn: number; sinceEval: number }) => void;
@@ -82,6 +103,60 @@ class StoryOrchestrator {
 
   private get runtime(): RuntimeStoryState {
     return storySessionStore.getState().runtime;
+  }
+
+  private get currentCheckpoint(): NormalizedCheckpoint | undefined {
+    return this.story.checkpoints[this.index];
+  }
+
+  private getTransitionsForOutcome(outcome: 'win' | 'fail', from?: NormalizedCheckpoint | null): NormalizedTransition[] {
+    const source = from ?? this.currentCheckpoint;
+    if (!source) return [];
+    const transitions = this.story.transitionsByFrom.get(source.key) ?? [];
+    return transitions.filter((edge) => edge.outcome === outcome);
+  }
+
+  private resolveTargetIndex(edge: NormalizedTransition): number {
+    const target = this.story.checkpointByKey.get(edge.toKey);
+    if (!target) return -1;
+    const idx = this.story.checkpoints.findIndex((cp) => cp.key === target.key);
+    return idx;
+  }
+
+  private toTransitionSelection(outcome: 'win' | 'fail', edge: NormalizedTransition): TransitionSelection | undefined {
+    const targetIndex = this.resolveTargetIndex(edge);
+    if (targetIndex < 0) return undefined;
+    const target = this.story.checkpoints[targetIndex];
+    return {
+      id: edge.id,
+      outcome,
+      targetKey: edge.toKey,
+      targetIndex,
+      targetId: target?.id ?? edge.toId,
+    };
+  }
+
+  private chooseTransitionForOutcome(outcome: EvaluationOutcome, requestedEdgeId: string | null | undefined, from: NormalizedCheckpoint | undefined): TransitionSelection | undefined {
+    if (outcome !== 'win' && outcome !== 'fail') return undefined;
+    const candidates = this.getTransitionsForOutcome(outcome, from);
+    if (!candidates.length) return undefined;
+
+    let selected: NormalizedTransition | undefined;
+
+    if (requestedEdgeId) {
+      selected = candidates.find((edge) => edge.id === requestedEdgeId);
+    }
+
+    if (!selected && candidates.length === 1) {
+      selected = candidates[0];
+    }
+
+    if (!selected) {
+      selected = candidates[0];
+      console.log('[StoryOrch] transition fallback', { outcome, requestedEdgeId, selected: selected?.id });
+    }
+
+    return selected ? this.toTransitionSelection(outcome, selected) : undefined;
   }
 
   private setRuntime(next: RuntimeStoryState, options?: { hydrated?: boolean }) {
@@ -274,9 +349,17 @@ class StoryOrchestrator {
     if (!runtime) return;
     const sanitizedIndex = clampCheckpointIndex(runtime.checkpointIndex, this.story);
     const sanitizedSince = sanitizeTurnsSinceEval(runtime.turnsSinceEval);
+    const activeKey = runtime.activeCheckpointKey
+      ?? this.story.checkpoints[sanitizedIndex]?.key
+      ?? this.story.startKey
+      ?? null;
+    const resolvedIndex = activeKey
+      ? this.story.checkpoints.findIndex((cp) => cp.key === activeKey)
+      : sanitizedIndex;
+    const targetIndex = resolvedIndex >= 0 ? resolvedIndex : sanitizedIndex;
 
-    if (!this.checkpointPrimed || sanitizedIndex !== this.index) {
-      this.applyCheckpoint(sanitizedIndex, {
+    if (!this.checkpointPrimed || targetIndex !== this.index) {
+      this.applyCheckpoint(targetIndex, {
         persist: false,
         resetSinceEval: false,
         sinceEvalOverride: sanitizedSince,
@@ -331,13 +414,20 @@ class StoryOrchestrator {
       this.winRes = this.failRes = [];
       this.checkpointArbiter.clear();
       const { since, turn } = computeTurns(opts.sinceEvalOverride);
-      const sanitized = applyRuntime({ checkpointIndex: 0, turnsSinceEval: since, checkpointStatusMap: {} }, turn);
+      const emptyRuntime: RuntimeStoryState = {
+        checkpointIndex: 0,
+        activeCheckpointKey: null,
+        turnsSinceEval: since,
+        checkpointStatusMap: { ...prevRuntime.checkpointStatusMap },
+      };
+      const sanitized = applyRuntime(emptyRuntime, turn);
       if (opts.reason) this.emitActivate(sanitized.checkpointIndex);
       return;
     }
 
     const checkpointIndex = clampCheckpointIndex(index, this.story);
     const cp = checkpoints[checkpointIndex] ?? checkpoints[0];
+    const activeKey = cp?.key ?? null;
 
     this.checkpointPrimed = true;
     this.winRes = Array.isArray(cp.winTriggers) ? cp.winTriggers : [];
@@ -347,8 +437,9 @@ class StoryOrchestrator {
     const { since, turn } = computeTurns(opts.sinceEvalOverride);
     const runtimePayload: RuntimeStoryState = {
       checkpointIndex,
+      activeCheckpointKey: activeKey,
       turnsSinceEval: since,
-      checkpointStatusMap: {},
+      checkpointStatusMap: { ...prevRuntime.checkpointStatusMap },
     };
     const sanitized = applyRuntime(runtimePayload, turn);
 
@@ -366,6 +457,21 @@ class StoryOrchestrator {
 
     const checkpointIndex = runtime.checkpointIndex;
     const cp = this.story.checkpoints[checkpointIndex];
+    const transitionsForPrompt: ArbiterTransitionOption[] = [];
+    if (cp) {
+      const outgoing = this.story.transitionsByFrom.get(cp.key) ?? [];
+      outgoing.forEach((edge) => {
+        const target = this.story.checkpointByKey.get(edge.toKey);
+        transitionsForPrompt.push({
+          id: edge.id,
+          outcome: edge.outcome,
+          label: edge.label,
+          description: edge.description,
+          targetName: target?.name,
+          targetObjective: target?.objective,
+        });
+      });
+    }
     console.log("[StoryOrch] eval-queued", { reason, turn: turnSnapshot, matched });
 
     void this.checkpointArbiter.evaluate({
@@ -376,9 +482,11 @@ class StoryOrchestrator {
       matched,
       turn: turnSnapshot,
       intervalTurns: this.intervalTurns,
+      transitions: transitionsForPrompt,
     }).then((payload) => {
       const outcome = payload?.outcome ?? "continue";
-      this.onEvaluated?.({ outcome, reason, turn: turnSnapshot, matched, cpIndex: checkpointIndex });
+      const transition = this.chooseTransitionForOutcome(outcome, payload?.nextEdgeId ?? payload?.parsed?.nextEdgeId, cp);
+      this.onEvaluated?.({ outcome, reason, turn: turnSnapshot, matched, cpIndex: checkpointIndex, transition });
     }).catch((err) => {
       console.warn("[StoryOrch] arbiter error", err);
     });

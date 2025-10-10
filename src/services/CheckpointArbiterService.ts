@@ -11,6 +11,7 @@ export interface CheckpointEvalRequest {
   matched?: string;
   turn: number;
   intervalTurns: number;
+  transitions?: ArbiterTransitionOption[];
 }
 
 export type EvaluationOutcome = 'win' | 'fail' | 'continue';
@@ -20,6 +21,7 @@ export interface ModelEval {
   failed: boolean;
   reason?: string;
   confidence?: number;
+  nextEdgeId?: string | null;
 }
 
 export interface CheckpointEvalPayload {
@@ -27,11 +29,21 @@ export interface CheckpointEvalPayload {
   raw: string;
   parsed: ModelEval | null;
   outcome: EvaluationOutcome;
+  nextEdgeId?: string | null;
 }
 
 export interface CheckpointArbiterApi {
   evaluate: (request: CheckpointEvalRequest) => Promise<CheckpointEvalPayload>;
   clear: () => void;
+}
+
+export interface ArbiterTransitionOption {
+  id: string;
+  outcome: 'win' | 'fail';
+  label?: string;
+  description?: string;
+  targetName?: string;
+  targetObjective?: string;
 }
 
 
@@ -70,8 +82,45 @@ function buildReasonLine(r: ArbiterReason, matched: string | undefined, interval
   return r === 'win' ? `Completion trigger matched${suffix}.` : `Failure trigger matched${suffix}.`;
 }
 
+function formatTransitionOption(option: ArbiterTransitionOption, idx: number): string {
+  const pieces: string[] = [];
+  const label = option.label ? ` – ${option.label}` : '';
+  const target = option.targetName ? ` -> ${option.targetName}` : '';
+  const detail = option.description ? ` ${option.description}` : '';
+  const outcome = option.outcome === 'win' ? 'success' : 'failure';
+  pieces.push(`${idx + 1}. [${option.id}] (${outcome})${target}${label}${detail}`.trim());
+  if (option.targetObjective) {
+    pieces.push(`   Objective: ${option.targetObjective}`);
+  }
+  return pieces.join('\n');
+}
+
+function buildTransitionsSection(options?: ArbiterTransitionOption[]): string {
+  if (!options || !options.length) return '';
+  const winOptions = options.filter((opt) => opt.outcome === 'win');
+  const failOptions = options.filter((opt) => opt.outcome === 'fail');
+  const lines: string[] = [];
+  if (winOptions.length) {
+    lines.push('If you determine the checkpoint is completed (success), choose one of:');
+    winOptions.forEach((opt, idx) => {
+      lines.push(formatTransitionOption(opt, idx));
+    });
+  }
+  if (failOptions.length) {
+    if (lines.length) lines.push('');
+    lines.push('If you determine the checkpoint failed, choose one of:');
+    failOptions.forEach((opt, idx) => {
+      lines.push(formatTransitionOption(opt, idx));
+    });
+  }
+  if (!lines.length) return '';
+  lines.push('If no option fits your decision, respond with "next_edge": null.');
+  return lines.join('\n');
+}
+
 function buildEvalPrompt(request: CheckpointEvalRequest, transcript: string) {
   const { cpName, objective, reason, matched, turn, latestText, intervalTurns } = request;
+  const transitionSection = buildTransitionsSection(request.transitions);
   return [
     'You are an impartial story overseer.',
     `Checkpoint: ${cpName}`,
@@ -85,8 +134,13 @@ function buildEvalPrompt(request: CheckpointEvalRequest, transcript: string) {
     'Latest player message:',
     clampText(latestText, 240),
     '',
+    transitionSection ? 'Transition options:' : '',
+    transitionSection,
+    'Respond ONLY with JSON. Fields: "completed" (bool), "failed" (bool), optional "reason" (string), optional "confidence" (0-1), and "next_edge" (string id or null).',
+    'Pick "next_edge" from the matching outcome list when you conclude success or failure. Use null if no transition applies or if you decide to continue.',
+    '',
     'Respond ONLY with JSON. Example:',
-    '{"completed": true, "failed": false, "reason": "...", "confidence": 0.95}',
+    '{"completed": true, "failed": false, "next_edge": "edge-id", "reason": "...", "confidence": 0.95}',
   ].filter(Boolean).join('\n');
 }
 
@@ -115,11 +169,14 @@ function parseModel(raw: unknown): ModelEval | null {
       const completed = toBool(obj.completed ?? obj.complete ?? obj.answer);
       const failed = toBool(obj.failed ?? obj.failure ?? obj.lose);
       if (completed === null && failed === null) return null;
+      const edgeRaw = obj.next_edge ?? obj.nextEdge ?? obj.next ?? obj.edge;
+      const edgeId = typeof edgeRaw === 'string' ? edgeRaw.trim() : null;
       const result: ModelEval = {
         completed: !!completed,
         failed: !!failed,
         reason: typeof obj.reason === 'string' ? clampText(obj.reason, 200) : undefined,
         confidence: typeof obj.confidence === 'number' ? Math.max(0, Math.min(1, obj.confidence)) : undefined,
+        nextEdgeId: edgeId || null,
       };
       if (result.completed) result.failed = false;
       if (result.failed) result.completed = false;
@@ -139,7 +196,7 @@ function parseModel(raw: unknown): ModelEval | null {
   const completed = boolKey('completed');
   const failed = boolKey('failed');
   if (completed !== null || failed !== null) {
-    const out: ModelEval = { completed: !!completed, failed: !!failed };
+    const out: ModelEval = { completed: !!completed, failed: !!failed, nextEdgeId: null };
     if (out.completed) out.failed = false; else if (out.failed) out.completed = false;
     return out;
   }
@@ -216,7 +273,7 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
         const outcome = resolveOutcome(parsed);
         console.log('[Story - CheckpointArbiter] outcome', { outcome, parsed });
 
-        const payload: CheckpointEvalPayload = { request: job.request, raw, parsed, outcome };
+        const payload: CheckpointEvalPayload = { request: job.request, raw, parsed, outcome, nextEdgeId: parsed?.nextEdgeId ?? null };
         try { job.resolve(payload); } catch (err) { console.warn('[Story - CheckpointArbiter] resolve failed', err); }
         try { this.options?.onEvaluated?.(payload); } catch (err) { console.warn('[Story - CheckpointArbiter] onEvaluated handler failed', err); }
         if (outcome === 'win') { this.queue.length = 0; break; }

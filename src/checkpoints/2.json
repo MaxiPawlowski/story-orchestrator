@@ -11,6 +11,7 @@
     "dm": { "temp": 0.6, "rep_pen": 1.1 },
     "companion": { "temp": 0.9, "top_p": 0.95 }
   },
+  "start": 1,
   "checkpoints": [
     {
       "id": 1,
@@ -134,6 +135,24 @@
           "companion": "[{{char}} reflects quietly, showing fatigue and gratitude. His humor softens into sincerity.]"
         }
       }
+    }
+  ],
+  "transitions": [
+    {
+      "id": "quest-to-ruins",
+      "from": 1,
+      "to": 2,
+      "outcome": "win",
+      "label": "Depart for the Ruins",
+      "description": "The party accepts the mission and heads toward the Sun Ruins."
+    },
+    {
+      "id": "ruins-to-return",
+      "from": 2,
+      "to": 3,
+      "outcome": "win",
+      "label": "Return to the Guild",
+      "description": "After securing the artifact, the party returns to the guild."
     }
   ]
 }

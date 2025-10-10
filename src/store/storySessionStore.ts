@@ -113,20 +113,13 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
     if (!checkpoints.length) return runtime;
     if (index < 0 || index >= checkpoints.length) return runtime;
 
-    const currentIndex = runtime.checkpointIndex;
     const key = checkpointKeyAtIndex(story, index);
     const currentStatuses = deriveCheckpointStatuses(story, runtime);
     const currentStatus = currentStatuses[index];
     if (currentStatus === status) return runtime;
 
     const nextMap: CheckpointStatusMap = { ...runtime.checkpointStatusMap };
-    if (index < currentIndex) {
-      nextMap[key] = status === CheckpointStatus.Failed ? CheckpointStatus.Failed : CheckpointStatus.Complete;
-    } else if (index === currentIndex) {
-      nextMap[key] = status === CheckpointStatus.Failed ? CheckpointStatus.Failed : CheckpointStatus.Current;
-    } else {
-      nextMap[key] = status;
-    }
+    nextMap[key] = status;
 
     return get().setRuntime({ ...runtime, checkpointStatusMap: nextMap });
   },

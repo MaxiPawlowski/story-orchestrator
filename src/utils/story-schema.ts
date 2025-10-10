@@ -43,6 +43,20 @@ const CheckpointTriggersSchema = z.object({
   fail: RegexSpecListSchema.optional(),
 });
 
+export const TransitionOutcomeSchema = z.enum(["win", "fail"]);
+export type TransitionOutcome = z.infer<typeof TransitionOutcomeSchema>;
+
+export const TransitionSchema = z.object({
+  id: z.union([z.string().min(1), z.number()]),
+  from: z.union([z.number(), z.string().min(1)]),
+  to: z.union([z.number(), z.string().min(1)]),
+  outcome: TransitionOutcomeSchema.default("win"),
+  label: z.string().min(1).optional(),
+  description: z.string().min(1).optional(),
+});
+
+export type Transition = z.infer<typeof TransitionSchema>;
+
 export const CheckpointSchema = z.object({
   id: z.union([z.number(), z.string().min(1)]),
   name: z.string().min(1),
@@ -79,6 +93,8 @@ export const StorySchema = z.object({
   }).optional(),
   on_start: OnActivateSchema.optional(),
   checkpoints: z.array(CheckpointSchema).min(1),
+  transitions: z.array(TransitionSchema).default([]),
+  start: z.union([z.number(), z.string().min(1)]).optional(),
 }).superRefine((val, ctx) => {
   const seen = new Set<string | number>();
   for (const [i, cp] of val.checkpoints.entries()) {
@@ -91,6 +107,20 @@ export const StorySchema = z.object({
       });
     } else {
       seen.add(key);
+    }
+  }
+
+  const transitionIds = new Set<string | number>();
+  for (const [i, edge] of (val.transitions ?? []).entries()) {
+    const key = edge.id;
+    if (transitionIds.has(key)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["transitions", i, "id"],
+        message: `Duplicate transition id '${String(key)}'`,
+      });
+    } else {
+      transitionIds.add(key);
     }
   }
 });
