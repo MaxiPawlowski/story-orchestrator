@@ -1,8 +1,10 @@
 ﻿import Requirements from "./Requirements";
 import Checkpoints from "./Checkpoints";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useStoryContext } from "@hooks/useStoryContext";
+import CheckpointEditorModal from "./Checkpoints/CheckpointEditorModal";
+import { Story } from "@utils/story-schema";
 
 const DrawerWrapper = () => {
   const [isMinimized, setIsMinimized] = useState(false);
@@ -14,6 +16,12 @@ const DrawerWrapper = () => {
     currentUserName,
     requirementsReady
   } = useStoryContext();
+  const { story, validate, applyStory } = useStoryContext();
+  const [showEditor, setShowEditor] = useState(false);
+
+  const handleApply = useCallback((input: Story) => {
+    return applyStory(input);
+  }, [applyStory]);
 
   useEffect(() => {
     console.log('[DrawerWrapper] Story Orchestrator ready:', ready, 'Title:', title);
@@ -25,7 +33,13 @@ const DrawerWrapper = () => {
         <div className="flex items-center gap-1">
           <span className="text-sm font-medium">Hi {currentUserName}</span>
         </div>
-
+        <button
+          type="button"
+          className="text-xs px-2 py-1 border rounded bg-transparent"
+          onClick={() => setShowEditor((prev) => !prev)}
+        >
+          {showEditor ? "Hide Editor" : "Open Editor"}
+        </button>
         <div className="flex items-center gap-1">
           <button
             type="button"
@@ -60,6 +74,17 @@ const DrawerWrapper = () => {
           )}
         </div>
       )}
+
+
+      <CheckpointEditorModal
+        open={showEditor}
+        onClose={() => setShowEditor(false)}
+        sourceStory={story}
+        validate={validate}
+        onApply={handleApply}
+        disabled={!story}
+      />
+
     </div>
   );
 };

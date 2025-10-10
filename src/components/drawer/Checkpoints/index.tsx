@@ -50,12 +50,6 @@ const Checkpoints: React.FC<Props> = ({
   lastQueuedEvaluation,
 }) => {
   const rows = checkpoints?.length ? checkpoints : [];
-  const { story, validate, applyStory } = useStoryContext();
-  const [showEditor, setShowEditor] = useState(false);
-
-  const handleApply = useCallback((input: Story) => {
-    return applyStory(input);
-  }, [applyStory]);
 
   const debugActiveWI = useMemo(() => () => {
     const wi = getWorldInfoSettings();
@@ -88,13 +82,6 @@ const Checkpoints: React.FC<Props> = ({
       <div className="flex flex-col gap-1">
         <div className="flex items-baseline justify-between gap-2">
           <h3 className="m-0">{title}</h3>
-          <button
-            type="button"
-            className="text-xs px-2 py-1 border rounded"
-            onClick={() => setShowEditor((prev) => !prev)}
-          >
-            {showEditor ? "Hide Editor" : "Open Editor"}
-          </button>
         </div>
 
         {queuedSummary ? (
@@ -150,15 +137,6 @@ const Checkpoints: React.FC<Props> = ({
           debug WI
         </button>
       </div>
-
-      <CheckpointEditorModal
-        open={showEditor}
-        onClose={() => setShowEditor(false)}
-        sourceStory={story}
-        validate={validate}
-        onApply={handleApply}
-        disabled={!story}
-      />
 
     </div>
   );

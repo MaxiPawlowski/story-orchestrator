@@ -24,6 +24,12 @@ const ensurePortalRoot = (): HTMLElement => {
   if (existing) return existing;
   const root = document.createElement("div");
   root.id = PORTAL_ROOT_ID;
+  root.classList.add("fixed");
+  root.style.top = "0";
+  root.style.left = "0";
+  root.style.width = "100%";
+  root.style.height = "100%";
+  root.style.zIndex = "9999";
   document.body.appendChild(root);
   return root;
 };
@@ -75,7 +81,7 @@ const CheckpointEditorModal: React.FC<Props> = ({ open, onClose, sourceStory, va
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[2000] flex items-center justify-center bg-slate-950/70 p-6"
+      className="fixed inset-0 z-[2000] flex items-center justify-center bg-[color:color-mix(in_srgb,var(--SmartThemeBlurTintColor)_70%,transparent)] p-6"
       role="presentation"
       onClick={handleOverlayClick}
     >
@@ -83,7 +89,7 @@ const CheckpointEditorModal: React.FC<Props> = ({ open, onClose, sourceStory, va
         role="dialog"
         aria-modal="true"
         aria-label="Checkpoint Editor"
-        className="flex w-full max-h-[96vh] max-w-[1120px] flex-col rounded-lg border border-slate-800 bg-slate-950 shadow-2xl"
+        className="flex w-full max-h-[96vh] max-w-[1120px] flex-col rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] shadow-2xl"
       >
         <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
           <h2 className="text-base font-semibold text-slate-200">Checkpoint Editor</h2>
