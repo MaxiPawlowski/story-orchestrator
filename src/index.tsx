@@ -49,6 +49,7 @@ const initializeDrawer = () => {
       </React.StrictMode>
     </StoryProvider>
   );
+
 }
 
 setTimeout(() => {

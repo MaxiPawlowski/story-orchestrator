@@ -1,6 +1,9 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import { getWorldInfoSettings } from "@services/SillyTavernAPI";
 import { CheckpointStatus } from "@utils/story-state";
+import { useStoryContext } from "@hooks/useStoryContext";
+import CheckpointEditorModal from "./CheckpointEditorModal";
+import type { Story } from "@utils/story-schema";
 
 type CheckpointRow = {
   id: string | number;
@@ -47,6 +50,12 @@ const Checkpoints: React.FC<Props> = ({
   lastQueuedEvaluation,
 }) => {
   const rows = checkpoints?.length ? checkpoints : [];
+  const { story, validate, applyStory } = useStoryContext();
+  const [showEditor, setShowEditor] = useState(false);
+
+  const handleApply = useCallback((input: Story) => {
+    return applyStory(input);
+  }, [applyStory]);
 
   const debugActiveWI = useMemo(() => () => {
     const wi = getWorldInfoSettings();
@@ -58,14 +67,14 @@ const Checkpoints: React.FC<Props> = ({
     const { reason, matchedPattern } = lastQueuedEvaluation;
     let label: string;
     switch (reason) {
-      case 'win-trigger':
-        label = 'Queued after win trigger match';
+      case "win-trigger":
+        label = "Queued after win trigger match";
         break;
-      case 'fail-trigger':
-        label = 'Queued after fail trigger match';
+      case "fail-trigger":
+        label = "Queued after fail trigger match";
         break;
-      case 'turn-interval':
-        label = 'Queued for periodic check';
+      case "turn-interval":
+        label = "Queued for periodic check";
         break;
       default:
         label = reason;
@@ -74,20 +83,24 @@ const Checkpoints: React.FC<Props> = ({
     return { label, matchedPattern };
   }, [lastQueuedEvaluation]);
 
-
   return (
-    // wrapper padding 8px -> p-2
     <div className="checkpoints-wrapper p-2">
       <div className="flex flex-col gap-1">
         <div className="flex items-baseline justify-between gap-2">
           <h3 className="m-0">{title}</h3>
+          <button
+            type="button"
+            className="text-xs px-2 py-1 border rounded"
+            onClick={() => setShowEditor((prev) => !prev)}
+          >
+            {showEditor ? "Hide Editor" : "Open Editor"}
+          </button>
         </div>
-
 
         {queuedSummary ? (
           <div className="text-sm opacity-70">
             <strong>Last check queued:</strong> {queuedSummary.label}
-            {queuedSummary.matchedPattern ? ` | pattern ${queuedSummary.matchedPattern}` : ''}
+            {queuedSummary.matchedPattern ? ` | pattern ${queuedSummary.matchedPattern}` : ""}
           </div>
         ) : null}
       </div>
@@ -137,6 +150,16 @@ const Checkpoints: React.FC<Props> = ({
           debug WI
         </button>
       </div>
+
+      <CheckpointEditorModal
+        open={showEditor}
+        onClose={() => setShowEditor(false)}
+        sourceStory={story}
+        validate={validate}
+        onApply={handleApply}
+        disabled={!story}
+      />
+
     </div>
   );
 };

@@ -1,11 +1,12 @@
 ﻿import Requirements from "./Requirements";
 import Checkpoints from "./Checkpoints";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useStoryContext } from "@hooks/useStoryContext";
 
 const DrawerWrapper = () => {
   const [isMinimized, setIsMinimized] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
   const {
     ready,
     title,

@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from "react";
 import { parseAndNormalizeStory, formatZodError, type NormalizedStory } from "@utils/story-validator";
+import type { Story } from "@utils/story-schema";
 import { loadCheckpointBundle, type CheckpointBundle } from "@utils/story-loader";
 import { useStoryOrchestrator } from "@hooks/useStoryOrchestrator";
 import { eventSource, event_types, getContext } from "@services/SillyTavernAPI";
@@ -19,6 +20,7 @@ type CheckpointSummary = { id: string; name: string; objective: string; status: 
 
 export interface StoryContextValue {
   validate: (input: unknown) => ValidationResult;
+  applyStory: (input: Story) => ValidationResult;
   loading: boolean;
 
   story?: NormalizedStory | null;
@@ -99,6 +101,18 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
   const validate = useCallback((input: unknown): ValidationResult => {
     try {
       const normalized = parseAndNormalizeStory(input);
+      return { ok: true, story: normalized };
+    } catch (e) {
+      const errors = formatZodError(e);
+      return { ok: false, errors };
+    }
+  }, []);
+
+  const applyStory = useCallback((input: Story): ValidationResult => {
+    try {
+      const normalized = parseAndNormalizeStory(input);
+      setStory(normalized);
+      setTitle(normalized.title);
       return { ok: true, story: normalized };
     } catch (e) {
       const errors = formatZodError(e);
@@ -206,6 +220,7 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
   return (
     <StoryContext.Provider value={{
       validate,
+      applyStory,
       loading,
       story,
       title,
