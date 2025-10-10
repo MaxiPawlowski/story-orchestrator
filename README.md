@@ -24,7 +24,7 @@ Checkpoint‑driven story runner for SillyTavern. It orchestrates DM + Companion
 - `src/services/SillyTavernAPI.ts` — host API wrapper used across controllers.
 
 ## State & persistence
-- Runtime state is in `src/store/storySessionStore.ts` (Zustand vanilla store): `runtime.checkpointIndex`, `runtime.checkpointStatuses`, `runtime.turnsSinceEval`, and `turn`.
+- Runtime state is in `src/store/storySessionStore.ts` (Zustand vanilla store): `runtime.checkpointIndex`, `runtime.turnsSinceEval`, `runtime.checkpointStatusMap`, and `turn`.
 - Persistence occurs only when a story, chatId, and group chat selection are present. Serialized state is keyed by chat+story.
 - On chat/context change the persistence controller attempts to hydrate prior runtime state; otherwise a fresh runtime is created.
 

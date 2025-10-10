@@ -4,7 +4,11 @@ import { loadCheckpointBundle, type CheckpointBundle } from "@utils/story-loader
 import { useStoryOrchestrator } from "@hooks/useStoryOrchestrator";
 import { eventSource, event_types, getContext } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
-import { DEFAULT_INTERVAL_TURNS, type CheckpointStatus } from "@utils/story-state";
+import {
+  DEFAULT_INTERVAL_TURNS,
+  deriveCheckpointStatuses,
+  CheckpointStatus,
+} from "@utils/story-state";
 
 type ValidationResult =
   | { ok: true; story: NormalizedStory }
@@ -21,7 +25,6 @@ export interface StoryContextValue {
   title?: string;
   checkpoints: CheckpointSummary[];
   checkpointIndex: number;
-  checkpointStatuses: CheckpointStatus[];
   activateCheckpoint: (i: number) => void;
   turnsSinceEval: number;
   activeChatId: string | null;
@@ -60,7 +63,7 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
             activateIndex(next);
           }
         } else if (outcome === "fail") {
-          updateCheckpointStatus(cpIndex, "failed");
+          updateCheckpointStatus(cpIndex, CheckpointStatus.Failed);
         }
       },
     },
@@ -78,10 +81,7 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
     globalLoreBookMissing,
   } = requirements;
 
-  const groupMembersPresent = (missingGroupMembers?.length ?? 0) === 0;
-
-  const { checkpointIndex, checkpointStatuses, turnsSinceEval } = runtime;
-
+  const { checkpointIndex, turnsSinceEval, checkpointStatusMap } = runtime;
 
   const activateCheckpoint = useCallback((i: number) => {
     activateIndex(i);
@@ -177,9 +177,14 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
 
   const checkpoints = useMemo<CheckpointSummary[]>(() => {
     if (!story) return [];
+    const statuses = deriveCheckpointStatuses(story, { checkpointIndex, checkpointStatusMap });
     return story.checkpoints.map((cp, idx) => {
-      const status = checkpointStatuses[idx]
-        ?? (idx < checkpointIndex ? "complete" : idx === checkpointIndex ? "current" : "pending");
+      const status = statuses[idx]
+        ?? (idx < checkpointIndex
+          ? CheckpointStatus.Complete
+          : idx === checkpointIndex
+            ? CheckpointStatus.Current
+            : CheckpointStatus.Pending);
       return {
         id: cp.id,
         name: cp.name,
@@ -187,7 +192,7 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
         status,
       };
     });
-  }, [story, checkpointStatuses, checkpointIndex]);
+  }, [story, checkpointIndex, checkpointStatusMap]);
 
   return (
     <StoryContext.Provider value={{
@@ -197,7 +202,6 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
       title,
       checkpoints,
       checkpointIndex,
-      checkpointStatuses,
       activateCheckpoint,
       turnsSinceEval,
       activeChatId,
@@ -219,9 +223,3 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
 };
 
 export default StoryContext;
-
-
-
-
-
-

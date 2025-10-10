@@ -1,6 +1,6 @@
 ﻿import type { Role } from "@utils/story-schema";
 import type { NormalizedCheckpoint, NormalizedStory } from "@utils/story-validator";
-import { computeNextStatuses, matchTrigger as matchTriggerUtil } from "@utils/story-state";
+import { matchTrigger as matchTriggerUtil } from "@utils/story-state";
 import { PresetService } from "./PresetService";
 import CheckpointArbiterService, {
   type ArbiterReason,
@@ -331,7 +331,7 @@ class StoryOrchestrator {
       this.winRes = this.failRes = [];
       this.checkpointArbiter.clear();
       const { since, turn } = computeTurns(opts.sinceEvalOverride);
-      const sanitized = applyRuntime({ checkpointIndex: 0, checkpointStatuses: [], turnsSinceEval: since }, turn);
+      const sanitized = applyRuntime({ checkpointIndex: 0, turnsSinceEval: since, checkpointStatusMap: {} }, turn);
       if (opts.reason) this.emitActivate(sanitized.checkpointIndex);
       return;
     }
@@ -345,8 +345,11 @@ class StoryOrchestrator {
     this.checkpointArbiter.clear();
 
     const { since, turn } = computeTurns(opts.sinceEvalOverride);
-    const statuses = computeNextStatuses(checkpointIndex, prevRuntime.checkpointStatuses, this.story);
-    const runtimePayload: RuntimeStoryState = { checkpointIndex, checkpointStatuses: statuses, turnsSinceEval: since };
+    const runtimePayload: RuntimeStoryState = {
+      checkpointIndex,
+      turnsSinceEval: since,
+      checkpointStatusMap: {},
+    };
     const sanitized = applyRuntime(runtimePayload, turn);
 
     const logReason = opts.reason ?? (persistRequested ? "activate" : "hydrate");

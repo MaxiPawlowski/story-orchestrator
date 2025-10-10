@@ -38,11 +38,11 @@ Bundling & Validation
 - `src/utils/story-validator.ts` – Compiles regex specs, normalizes activation blocks (`authors_note`, `world_info`, `preset_overrides`), constructs `NormalizedStory`.
 
 State & Stores
-- `src/store/storySessionStore.ts` – Zustand vanilla store holding: active story, runtime (checkpoint index/statuses, turns since eval), requirement flags, chat context, hydration/ready flags.
+- `src/store/storySessionStore.ts` – Zustand vanilla store holding: active story, runtime (checkpoint index, status map, turns since eval), requirement flags, chat context, hydration/ready flags.
 - `src/store/requirementsState.ts` – Shape + helpers for requirement readiness diffing and cloning.
 
 Utilities / Supporting Logic
-- `src/utils/story-state.ts` – Runtime state helpers: clamping checkpoint index, computing statuses, evaluating triggers, sanitizing counters.
+- `src/utils/story-state.ts` – Runtime state helpers: clamping checkpoint index, deriving statuses, evaluating triggers, sanitizing counters.
 - `src/utils/eventSource.ts` – Generic event subscription wrapper used to listen for SillyTavern host events.
 - `src/utils/slashCommands.ts` – Registers extension‑specific slash commands (invoked during orchestrator init).
 
@@ -66,7 +66,7 @@ Data flow:
 
 Runtime State (Zustand):
 - `runtime.checkpointIndex`
-- `runtime.checkpointStatuses[]` (pending|current|complete|failed)
+- `runtime.checkpointStatusMap`
 - `runtime.turnsSinceEval`
 - `turn` (alias of turns since story start / activation logic)
 

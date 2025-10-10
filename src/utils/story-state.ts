@@ -1,8 +1,26 @@
 import { extension_settings, saveSettingsDebounced } from "@services/SillyTavernAPI";
-import type { NormalizedStory } from "@utils/story-validator";
+import type { NormalizedCheckpoint, NormalizedStory } from "@utils/story-validator";
 import { extensionName } from "@constants/main";
 
-export type CheckpointStatus = "pending" | "current" | "complete" | "failed";
+export enum CheckpointStatus {
+  Pending = "pending",
+  Current = "current",
+  Complete = "complete",
+  Failed = "failed",
+}
+
+export type CheckpointStatusMap = Record<string, CheckpointStatus>;
+
+const CHECKPOINT_STATUS_VALUES = new Set<CheckpointStatus>([
+  CheckpointStatus.Pending,
+  CheckpointStatus.Current,
+  CheckpointStatus.Complete,
+  CheckpointStatus.Failed,
+]);
+
+export const isCheckpointStatus = (value: unknown): value is CheckpointStatus => (
+  typeof value === "string" && CHECKPOINT_STATUS_VALUES.has(value as CheckpointStatus)
+);
 
 export const DEFAULT_INTERVAL_TURNS = 3;
 export const clampCheckpointIndex = (idx: number, story: NormalizedStory | null | undefined): number => {
@@ -13,22 +31,22 @@ export const clampCheckpointIndex = (idx: number, story: NormalizedStory | null 
 export const sanitizeTurnsSinceEval = (value: number): number => sanitizeTurns(value);
 
 const STORAGE_KEY = "storyState";
-const STORAGE_VERSION = 1;
+const STORAGE_VERSION = 3;
 
 type StateMap = Record<string, PersistedChatState>;
 
 export interface RuntimeStoryState {
   checkpointIndex: number;
-  checkpointStatuses: CheckpointStatus[];
   turnsSinceEval: number;
+  checkpointStatusMap: CheckpointStatusMap;
 }
 
 export interface PersistedChatState {
   ver: number;
   storySignature: string;
   checkpointIndex: number;
-  checkpointStatuses: CheckpointStatus[];
   turnsSinceEval: number;
+  checkpointStatusMap: CheckpointStatusMap;
   updatedAt: number;
 }
 
@@ -67,17 +85,13 @@ export function loadStoryState({
 
   const checkpointIndex = clampIndex(entry.checkpointIndex, story);
   const turnsSinceEval = sanitizeTurns(entry.turnsSinceEval);
-  const checkpointStatuses = reconcileStatuses({
-    story,
-    statuses: entry.checkpointStatuses,
-    checkpointIndex,
-  });
+  const checkpointStatusMap = normalizeStatusMap(story, checkpointIndex, entry.checkpointStatusMap);
 
   return {
     state: {
       checkpointIndex,
-      checkpointStatuses,
       turnsSinceEval,
+      checkpointStatusMap,
     },
     source: "stored",
   };
@@ -101,18 +115,14 @@ export function persistStoryState({
   const map = getStateMap();
   const checkpointIndex = clampIndex(state.checkpointIndex, story);
   const turnsSinceEval = sanitizeTurns(state.turnsSinceEval);
-  const checkpointStatuses = reconcileStatuses({
-    story,
-    statuses: state.checkpointStatuses,
-    checkpointIndex,
-  });
+  const checkpointStatusMap = normalizeStatusMap(story, checkpointIndex, state.checkpointStatusMap);
 
   map[key] = {
     ver: STORAGE_VERSION,
     storySignature: computeStorySignature(story),
     checkpointIndex,
-    checkpointStatuses,
     turnsSinceEval,
+    checkpointStatusMap,
     updatedAt: Date.now(),
   };
 
@@ -126,11 +136,12 @@ export function persistStoryState({
 export function makeDefaultState(story: NormalizedStory | null | undefined): RuntimeStoryState {
   const checkpoints = story?.checkpoints ?? [];
   const checkpointIndex = checkpoints.length > 0 ? 0 : -1;
-  const checkpointStatuses = buildDefaultStatuses(checkpoints.length, checkpointIndex);
+  const normalizedIndex = checkpointIndex < 0 ? 0 : checkpointIndex;
+  const checkpointStatusMap = normalizeStatusMap(story, normalizedIndex, undefined);
   return {
-    checkpointIndex: checkpointIndex < 0 ? 0 : checkpointIndex,
-    checkpointStatuses,
+    checkpointIndex: normalizedIndex,
     turnsSinceEval: 0,
+    checkpointStatusMap,
   };
 }
 
@@ -151,51 +162,33 @@ function computeStorySignature(story: NormalizedStory): string {
 // ---------------------------------------------------------------------------
 
 /**
- * Compute next checkpoint statuses given an active index and previous statuses.
- * Pure function.
- */
-export function computeNextStatuses(
-  activeIndex: number,
-  previous: CheckpointStatus[] | null | undefined,
-  story: NormalizedStory | null | undefined,
-): CheckpointStatus[] {
-  const checkpoints = story?.checkpoints ?? [];
-  if (!checkpoints.length) return [];
-
-  const total = checkpoints.length;
-  const prev = Array.isArray(previous) ? previous : [];
-  const result: CheckpointStatus[] = new Array(total);
-  for (let idx = 0; idx < total; idx++) {
-    if (idx < activeIndex) {
-      result[idx] = 'complete';
-    } else if (idx === activeIndex) {
-      result[idx] = prev[idx] === 'failed' ? 'failed' : 'current';
-    } else {
-      const p = prev[idx] as CheckpointStatus | undefined;
-      if (p === 'current') result[idx] = 'pending';
-      else result[idx] = p ?? 'pending';
-    }
-  }
-  return result;
-}
-
-/**
  * Sanitizes a candidate runtime state against the provided story.
  * Returns a safe RuntimeStoryState.
  */
 export function sanitizeRuntime(candidate: RuntimeStoryState, story: NormalizedStory | null): RuntimeStoryState {
   const checkpointIndex = clampCheckpointIndex(candidate.checkpointIndex, story);
   const turnsSinceEval = sanitizeTurnsSinceEval(candidate.turnsSinceEval);
-
-  const checkpointStatuses = story
-    ? reconcileStatuses({ story, statuses: candidate.checkpointStatuses, checkpointIndex })
-    : makeDefaultState(story).checkpointStatuses;
+  const checkpointStatusMap = normalizeStatusMap(story, checkpointIndex, candidate.checkpointStatusMap);
 
   return {
     checkpointIndex,
-    checkpointStatuses,
     turnsSinceEval,
+    checkpointStatusMap,
   };
+}
+
+export function deriveCheckpointStatuses(
+  story: NormalizedStory | null | undefined,
+  runtime: Pick<RuntimeStoryState, "checkpointIndex" | "checkpointStatusMap">,
+): CheckpointStatus[] {
+  const checkpoints = story?.checkpoints ?? [];
+  if (!checkpoints.length) return [];
+
+  const map = normalizeStatusMap(story, runtime.checkpointIndex, runtime.checkpointStatusMap);
+  return checkpoints.map((cp, idx) => {
+    const key = checkpointKeyFrom(cp, idx);
+    return map[key] ?? CheckpointStatus.Pending;
+  });
 }
 
 /**
@@ -276,67 +269,73 @@ function sanitizeTurns(value: number | null | undefined): number {
   return num >= 0 ? num : 0;
 }
 
-function reconcileStatuses({
-  story,
-  statuses,
-  checkpointIndex,
-}: {
-  story: NormalizedStory;
-  statuses: CheckpointStatus[] | null | undefined;
-  checkpointIndex: number;
-}): CheckpointStatus[] {
-  const total = story.checkpoints?.length ?? 0;
-  if (total <= 0) return [];
-  const defaults = buildDefaultStatuses(total, checkpointIndex);
-
-  if (!Array.isArray(statuses) || !statuses.length) {
-    return defaults;
+function checkpointKeyFrom(cp: NormalizedCheckpoint | undefined, idx: number): string {
+  if (!cp) return String(idx);
+  const rawId = cp.id;
+  if (rawId === null || rawId === undefined) return String(idx);
+  if (typeof rawId === "string") {
+    const trimmed = rawId.trim();
+    return trimmed ? trimmed : String(idx);
   }
+  return String(rawId);
+}
 
-  const result = defaults.slice();
-  for (let i = 0; i < total && i < statuses.length; i++) {
-    const sanitized = sanitizeStatus(statuses[i]);
-    if (!sanitized) continue;
-    if (i === checkpointIndex) {
-      result[i] = sanitized === "failed" ? "failed" : "current";
+export function checkpointKeyAtIndex(story: NormalizedStory | null | undefined, index: number): string {
+  const cp = story?.checkpoints?.[index];
+  return checkpointKeyFrom(cp, index);
+}
+
+function normalizeStatusMap(
+  story: NormalizedStory | null | undefined,
+  checkpointIndex: number,
+  source: unknown,
+): CheckpointStatusMap {
+  const checkpoints = story?.checkpoints ?? [];
+  if (!checkpoints.length) return {};
+
+  const clampedIndex = clampCheckpointIndex(checkpointIndex, story ?? null);
+  const incoming = (source && typeof source === "object") ? source as Record<string, unknown> : {};
+  const result: CheckpointStatusMap = {};
+
+  checkpoints.forEach((cp, idx) => {
+    const key = checkpointKeyFrom(cp, idx);
+    const raw = incoming[key];
+    let status: CheckpointStatus;
+
+    if (idx < clampedIndex) {
+      status = CheckpointStatus.Complete;
+    } else if (idx === clampedIndex) {
+      status = CheckpointStatus.Current;
     } else {
-      result[i] = sanitized;
+      status = CheckpointStatus.Pending;
     }
-  }
+
+    if (isCheckpointStatus(raw)) {
+      if (idx < clampedIndex) {
+        status = raw === CheckpointStatus.Failed ? CheckpointStatus.Failed : CheckpointStatus.Complete;
+      } else if (idx === clampedIndex) {
+        status = raw === CheckpointStatus.Failed ? CheckpointStatus.Failed : CheckpointStatus.Current;
+      } else {
+        status = raw === CheckpointStatus.Complete ? CheckpointStatus.Pending : raw;
+      }
+    }
+
+    result[key] = status;
+  });
 
   return result;
 }
 
-function buildDefaultStatuses(length: number, activeIndex: number): CheckpointStatus[] {
-  if (length <= 0) return [];
-  const idx = !Number.isFinite(activeIndex) || activeIndex < 0 ? 0 : Math.min(Math.floor(activeIndex), length - 1);
-  return Array.from({ length }, (_v, i) => {
-    if (i < idx) return "complete";
-    if (i === idx) return "current";
-    return "pending";
-  });
-}
-
-function sanitizeStatus(value: unknown): CheckpointStatus | null {
-  switch (value) {
-    case "pending":
-    case "current":
-    case "complete":
-    case "failed":
-      return value;
-    default:
-      return null;
-  }
-}
-
 function isPersistedChatState(input: unknown): input is PersistedChatState {
   if (!input || typeof input !== "object") return false;
-  const candidate = input as PersistedChatState;
+  const candidate = input as Partial<PersistedChatState>;
+  const statusField = candidate.checkpointStatusMap;
+  const statusValid = statusField === undefined || typeof statusField === "object";
   return (
     candidate.ver === STORAGE_VERSION
     && typeof candidate.storySignature === "string"
     && typeof candidate.checkpointIndex === "number"
-    && Array.isArray(candidate.checkpointStatuses)
     && typeof candidate.turnsSinceEval === "number"
+    && statusValid
   );
 }

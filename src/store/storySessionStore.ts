@@ -1,15 +1,17 @@
 import { createStore, type StoreApi } from "zustand/vanilla";
 import type { NormalizedStory } from "@utils/story-validator";
 import {
-  clampCheckpointIndex,
   makeDefaultState,
   sanitizeTurnsSinceEval,
   sanitizeRuntime,
   type RuntimeStoryState,
-  type CheckpointStatus,
+  CheckpointStatus,
+  checkpointKeyAtIndex,
+  deriveCheckpointStatuses,
+  isCheckpointStatus,
+  type CheckpointStatusMap,
 } from "@utils/story-state";
 import { createRequirementsState, cloneRequirementsState, type StoryRequirementsState } from "./requirementsState";
-import { computeNextStatuses } from "@utils/story-state";
 
 export interface StorySessionValueState {
   story: NormalizedStory | null;
@@ -42,44 +44,6 @@ const sanitizeChatId = (value: string | null | undefined): string | null => {
   if (value === null || value === undefined) return null;
   const trimmed = String(value).trim();
   return trimmed ? trimmed : null;
-};
-
-const isValidStatus = (value: unknown): value is CheckpointStatus => (
-  value === "pending"
-  || value === "current"
-  || value === "complete"
-  || value === "failed"
-);
-
-const normalizeStatuses = (
-  source: CheckpointStatus[] | null | undefined,
-  story: NormalizedStory | null,
-  activeIndex: number,
-): CheckpointStatus[] => {
-  const total = story?.checkpoints?.length ?? (Array.isArray(source) ? source.length : 0);
-  if (!Number.isFinite(total) || total <= 0) return [];
-
-  const result: CheckpointStatus[] = Array.from({ length: total }, () => "pending");
-
-  if (Array.isArray(source)) {
-    for (let i = 0; i < total && i < source.length; i++) {
-      const status = source[i];
-      if (isValidStatus(status)) {
-        result[i] = status;
-      }
-    }
-  }
-
-  for (let i = 0; i < total; i++) {
-    if (i < activeIndex && result[i] === "pending") {
-      result[i] = "complete";
-    }
-    if (i === activeIndex && result[i] !== "failed") {
-      result[i] = "current";
-    }
-  }
-
-  return result;
 };
 
 // Use shared sanitizeRuntime directly (no wrapper)
@@ -141,14 +105,30 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
   },
 
   updateCheckpointStatus: (index, status) => {
-    if (!isValidStatus(status)) return get().runtime;
+    if (!isCheckpointStatus(status)) return get().runtime;
     const snapshot = get();
-    const total = snapshot.story?.checkpoints?.length ?? snapshot.runtime.checkpointStatuses.length;
-    if (index < 0 || index >= total) return snapshot.runtime;
-    const base = snapshot.runtime.checkpointStatuses.slice();
-    base[index] = status;
-    const checkpointStatuses = computeNextStatuses(snapshot.runtime.checkpointIndex, base, snapshot.story);
-    return get().setRuntime({ ...snapshot.runtime, checkpointStatuses });
+    const runtime = snapshot.runtime;
+    const story = snapshot.story;
+    const checkpoints = story?.checkpoints ?? [];
+    if (!checkpoints.length) return runtime;
+    if (index < 0 || index >= checkpoints.length) return runtime;
+
+    const currentIndex = runtime.checkpointIndex;
+    const key = checkpointKeyAtIndex(story, index);
+    const currentStatuses = deriveCheckpointStatuses(story, runtime);
+    const currentStatus = currentStatuses[index];
+    if (currentStatus === status) return runtime;
+
+    const nextMap: CheckpointStatusMap = { ...runtime.checkpointStatusMap };
+    if (index < currentIndex) {
+      nextMap[key] = status === CheckpointStatus.Failed ? CheckpointStatus.Failed : CheckpointStatus.Complete;
+    } else if (index === currentIndex) {
+      nextMap[key] = status === CheckpointStatus.Failed ? CheckpointStatus.Failed : CheckpointStatus.Current;
+    } else {
+      nextMap[key] = status;
+    }
+
+    return get().setRuntime({ ...runtime, checkpointStatusMap: nextMap });
   },
 
   setTurn: (value) => {

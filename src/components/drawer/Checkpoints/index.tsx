@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { getWorldInfoSettings } from "@services/SillyTavernAPI";
-import type { CheckpointStatus } from "@utils/story-state";
+import { CheckpointStatus } from "@utils/story-state";
 
 type CheckpointRow = {
   id: string | number;
@@ -28,17 +28,17 @@ type Props = {
 };
 
 const STATUS_LABEL: Record<CheckpointStatus, string> = {
-  pending: "Pending",
-  current: "In progress",
-  complete: "Complete",
-  failed: "Failed",
+  [CheckpointStatus.Pending]: "Pending",
+  [CheckpointStatus.Current]: "In progress",
+  [CheckpointStatus.Complete]: "Complete",
+  [CheckpointStatus.Failed]: "Failed",
 };
 
 const STATUS_BORDER_CLASS: Record<CheckpointStatus, string> = {
-  pending: "border-gray-200",
-  current: "border-blue-300",
-  complete: "border-green-300",
-  failed: "border-red-300",
+  [CheckpointStatus.Pending]: "border-gray-200",
+  [CheckpointStatus.Current]: "border-blue-300",
+  [CheckpointStatus.Complete]: "border-green-300",
+  [CheckpointStatus.Failed]: "border-red-300",
 };
 
 const Checkpoints: React.FC<Props> = ({
@@ -94,10 +94,10 @@ const Checkpoints: React.FC<Props> = ({
 
       <ul className="list-none p-0 mt-3">
         {rows.map((cp, i) => {
-          const status = cp.status ?? "pending";
-          const borderClass = STATUS_BORDER_CLASS[status] ?? STATUS_BORDER_CLASS.pending;
-          const statusLabel = STATUS_LABEL[status] ?? STATUS_LABEL.pending;
-          const isComplete = status === "complete";
+          const status = cp.status ?? CheckpointStatus.Pending;
+          const borderClass = STATUS_BORDER_CLASS[status] ?? STATUS_BORDER_CLASS[CheckpointStatus.Pending];
+          const statusLabel = STATUS_LABEL[status] ?? STATUS_LABEL[CheckpointStatus.Pending];
+          const isComplete = status === CheckpointStatus.Complete;
           const key = cp.id ?? `cp-${i}`;
 
           return (
@@ -115,13 +115,13 @@ const Checkpoints: React.FC<Props> = ({
                   className="m-0"
                 />
                 <div className="flex flex-col">
-                  <span className={status === "current" ? "font-semibold" : "font-medium"}>
+                  <span className={status === CheckpointStatus.Current ? "font-semibold" : "font-medium"}>
                     {cp.name || cp.objective}
                   </span>
                   <span className="text-sm opacity-80">{cp.objective}</span>
                 </div>
               </div>
-              <span className={status === "pending" ? "text-sm opacity-60" : "text-sm opacity-90"}>
+              <span className={status === CheckpointStatus.Pending ? "text-sm opacity-60" : "text-sm opacity-90"}>
                 {statusLabel}
               </span>
             </li>
