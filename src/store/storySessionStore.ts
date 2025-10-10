@@ -10,6 +10,7 @@ import {
   deriveCheckpointStatuses,
   isCheckpointStatus,
   type CheckpointStatusMap,
+  sanitizeChatKey,
 } from "@utils/story-state";
 import { createRequirementsState, cloneRequirementsState, type StoryRequirementsState } from "./requirementsState";
 
@@ -40,12 +41,6 @@ export interface StorySessionActions {
 
 export type StorySessionStore = StoreApi<StorySessionValueState & StorySessionActions>;
 
-const sanitizeChatId = (value: string | null | undefined): string | null => {
-  if (value === null || value === undefined) return null;
-  const trimmed = String(value).trim();
-  return trimmed ? trimmed : null;
-};
-
 // Use shared sanitizeRuntime directly (no wrapper)
 
 export const storySessionStore: StorySessionStore = createStore<StorySessionValueState & StorySessionActions>((set, get) => ({
@@ -71,7 +66,7 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
 
   setChatContext: ({ chatId, groupChatSelected }) => {
     set(() => ({
-      chatId: sanitizeChatId(chatId),
+      chatId: sanitizeChatKey(chatId),
       groupChatSelected: Boolean(groupChatSelected),
     }));
   },

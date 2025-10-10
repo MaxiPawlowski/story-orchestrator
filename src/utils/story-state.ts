@@ -277,7 +277,7 @@ export function matchTrigger(
   return null;
 }
 
-function sanitizeChatKey(chatId: string | null | undefined): string | null {
+export function sanitizeChatKey(chatId: string | null | undefined): string | null {
   if (chatId === null || chatId === undefined) return null;
   const key = String(chatId).trim();
   return key ? key : null;

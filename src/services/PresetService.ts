@@ -87,30 +87,19 @@ export class PresetService {
 
     const merged = { ...base, ...roleDef, ...cp };
 
-    if (!Array.isArray(merged.logit_bias)) merged.logit_bias = Array.isArray(base.logit_bias) ? base.logit_bias : [];
-
-    const clean: any = {};
-    for (const k of TG_SETTING_NAMES) {
-      if (Object.prototype.hasOwnProperty.call(merged, k)) clean[k] = this.clone(merged[k]);
+    if (!Array.isArray(merged.logit_bias)) {
+      merged.logit_bias = Array.isArray(base.logit_bias) ? base.logit_bias : [];
     }
-    if (Array.isArray(merged.logit_bias)) clean.logit_bias = this.clone(merged.logit_bias);
 
-    return clean;
+    return this.clonePresetFields(merged);
   }
 
   private getBasePresetObject(): any {
     if (this.base.source === 'named') {
       const p = this.resolveExistingNamed(this.base.name);
-      if (p) return this.filterToKnownKeys(p);
+      if (p) return this.clonePresetFields(p);
     }
-    const snap: any = {};
-    for (const key of TG_SETTING_NAMES) {
-      snap[key] = this.clone((tgSettings as any)[key]);
-    }
-    if (Array.isArray((tgSettings as any).logit_bias)) {
-      snap.logit_bias = this.clone((tgSettings as any).logit_bias);
-    }
-    return snap;
+    return this.clonePresetFields(tgSettings, true);
   }
   private ensurePresetOptionExists(name: string) {
     const sel = document.getElementById('settings_preset_textgenerationwebui') as HTMLSelectElement | null;
@@ -149,12 +138,19 @@ export class PresetService {
     return tgPresetNames.indexOf(name);
   }
 
-  private filterToKnownKeys(p: any): any {
+  private clonePresetFields(source: any, includeAllKnownKeys = false): any {
     const out: any = {};
-    for (const k of TG_SETTING_NAMES) {
-      if (Object.prototype.hasOwnProperty.call(p, k)) out[k] = this.clone(p[k]);
+    const target = source ?? {};
+    for (const key of TG_SETTING_NAMES) {
+      if (includeAllKnownKeys || Object.prototype.hasOwnProperty.call(target, key)) {
+        const value = (target as any)[key];
+        out[key] = this.clone(value);
+      }
     }
-    if (Array.isArray(p?.logit_bias)) out.logit_bias = this.clone(p.logit_bias);
+    const maybeBias = (target as any).logit_bias;
+    if (Array.isArray(maybeBias)) {
+      out.logit_bias = this.clone(maybeBias);
+    }
     return out;
   }
 
@@ -171,16 +167,18 @@ export class PresetService {
     return parts.join(' ');
   }
 
+  private applyPresetValuesToSettings(presetObj: any) {
+    for (const key of TG_SETTING_NAMES) {
+      if (Object.prototype.hasOwnProperty.call(presetObj, key)) {
+        (tgSettings as any)[key] = this.clone(presetObj[key]);
+      }
+    }
+  }
+
   private applyPresetObject(presetObj: any, displayLabel?: string) {
     console.log('[PresetService] applyPresetObject -> setGenerationParamsFromPreset, bias, emit PRESET_CHANGED', { preset: this.presetName, displayLabel, presetObj });
 
-    for (const key of TG_SETTING_NAMES) {
-      if (Object.prototype.hasOwnProperty.call(presetObj, key)) {
-        (tgSettings as any)[key] = Array.isArray(presetObj[key])
-          ? JSON.parse(JSON.stringify(presetObj[key]))
-          : presetObj[key];
-      }
-    }
+    this.applyPresetValuesToSettings(presetObj);
 
     tgSettings.preset = this.presetName;
 

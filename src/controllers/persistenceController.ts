@@ -1,14 +1,8 @@
 import { storySessionStore } from "@store/storySessionStore";
 import type { StorySessionStore } from "@store/storySessionStore";
 import type { CheckpointStatus, RuntimeStoryState } from "@utils/story-state";
-import { loadStoryState, persistStoryState } from "@utils/story-state";
+import { loadStoryState, persistStoryState, sanitizeChatKey } from "@utils/story-state";
 import type { NormalizedStory } from "@utils/story-validator";
-
-const sanitizeChatId = (value: unknown): string | null => {
-  if (value === null || value === undefined) return null;
-  const trimmed = String(value).trim();
-  return trimmed ? trimmed : null;
-};
 
 interface WriteRuntimeOptions {
   persist?: boolean;
@@ -76,7 +70,7 @@ export const createPersistenceController = (store: StorySessionStore = storySess
 
   const setChatContext = ({ chatId, groupChatSelected }: { chatId: string | null | undefined; groupChatSelected: boolean | null | undefined }) => {
     store.getState().setChatContext({
-      chatId: sanitizeChatId(chatId),
+      chatId: sanitizeChatKey(chatId),
       groupChatSelected: Boolean(groupChatSelected),
     });
   };
