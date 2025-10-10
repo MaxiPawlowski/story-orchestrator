@@ -20,8 +20,7 @@ export interface NormalizedOnActivate {
 }
 
 export interface NormalizedCheckpoint {
-  id: string | number;
-  key: string;
+  id: string;
   name: string;
   objective: string;
   winTriggers: RegExp[];
@@ -31,10 +30,8 @@ export interface NormalizedCheckpoint {
 
 export interface NormalizedTransition {
   id: string;
-  fromId: string | number;
-  toId: string | number;
-  fromKey: string;
-  toKey: string;
+  from: string;
+  to: string;
   outcome: TransitionOutcome;
   label?: string;
   description?: string;
@@ -46,13 +43,11 @@ export interface NormalizedStory {
   global_lorebook: string;
   roles?: Partial<Record<Role, string>>;
   checkpoints: NormalizedCheckpoint[];
-  checkpointIndexById: Map<string | number, number>;
-  checkpointById: Map<string | number, NormalizedCheckpoint>;
-  checkpointByKey: Map<string, NormalizedCheckpoint>;
+  checkpointIndexById: Map<string, number>;
+  checkpointById: Map<string, NormalizedCheckpoint>;
   transitions: NormalizedTransition[];
   transitionsByFrom: Map<string, NormalizedTransition[]>;
-  startId: string | number;
-  startKey: string;
+  startId: string;
   roleDefaults?: Partial<Record<Role, Record<string, any>>>;
 }
 export interface NormalizeOptions {
@@ -114,28 +109,9 @@ function dedupeOrdered<T>(arr: T[]): T[] {
   return out;
 }
 
-const canonicalId = (value: string | number, fallback: string): string => {
-  if (typeof value === "string") {
-    const trimmed = value.trim();
-    return trimmed || fallback;
-  }
-  if (typeof value === "number") {
-    if (!Number.isFinite(value)) return fallback;
-    return String(value);
-  }
-  return fallback;
-};
-
-const canonicalEdgeId = (value: string | number, fallback: string): string => {
-  if (typeof value === "string") {
-    const trimmed = value.trim();
-    return trimmed || fallback;
-  }
-  if (typeof value === "number") {
-    if (!Number.isFinite(value)) return fallback;
-    return String(value);
-  }
-  return fallback;
+const normalizeId = (value: string | null | undefined, fallback: string): string => {
+  const trimmed = String(value ?? "").trim();
+  return trimmed || fallback;
 };
 
 const cleanScalar = (value: string): string => value.trim();
@@ -214,11 +190,10 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
     const failPath = cp.triggers?.fail ? `checkpoints[${idx}].fail_trigger` : `checkpoints[${idx}].triggers.fail`;
     const failTriggers = failSource ? compileRegexList(failSource, failPath) : undefined;
 
-    const key = canonicalId(cp.id, String(idx));
+    const id = normalizeId(cp.id, `cp-${idx + 1}`);
 
     return {
-      id: cp.id,
-      key,
+      id,
       name: cp.name,
       objective: cp.objective,
       winTriggers,
@@ -227,73 +202,68 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
     };
   });
 
-  const checkpointByKey = new Map<string, NormalizedCheckpoint>();
-  const checkpointById = new Map<string | number, NormalizedCheckpoint>();
+  const checkpointById = new Map<string, NormalizedCheckpoint>();
   checkpoints.forEach((cp) => {
-    checkpointByKey.set(cp.key, cp);
     checkpointById.set(cp.id, cp);
   });
 
   const transitions: NormalizedTransition[] = (story.transitions ?? []).map((edge, idx) => {
-    const idFallback = `edge-${idx + 1}`;
-    const edgeId = canonicalEdgeId(edge.id, idFallback);
-    const fromKey = canonicalId(edge.from, `from-${idx}`);
-    const toKey = canonicalId(edge.to, `to-${idx}`);
+    const edgeId = normalizeId(edge.id, `edge-${idx + 1}`);
+    const from = normalizeId(edge.from, `from-${idx + 1}`);
+    const to = normalizeId(edge.to, `to-${idx + 1}`);
     const label = typeof edge.label === "string" ? cleanScalar(edge.label) : undefined;
     const description = typeof edge.description === "string" ? cleanScalar(edge.description) : undefined;
 
     return {
       id: edgeId,
-      fromId: edge.from,
-      toId: edge.to,
-      fromKey,
-      toKey,
+      from,
+      to,
       outcome: edge.outcome ?? "win",
       label: label || undefined,
       description: description || undefined,
     };
   });
 
-  const nodeKeySet = new Set(checkpoints.map((cp) => cp.key));
+  const nodeIdSet = new Set(checkpoints.map((cp) => cp.id));
   const adjacency = new Map<string, NormalizedTransition[]>();
   const indegree = new Map<string, number>();
 
-  checkpoints.forEach((cp) => indegree.set(cp.key, 0));
+  checkpoints.forEach((cp) => indegree.set(cp.id, 0));
 
   transitions.forEach((edge, idx) => {
-    if (!nodeKeySet.has(edge.fromKey)) {
-      throw new Error(`Transition ${edge.id} references unknown source checkpoint '${String(edge.fromId)}' (index ${idx}).`);
+    if (!nodeIdSet.has(edge.from)) {
+      throw new Error(`Transition ${edge.id} references unknown source checkpoint '${edge.from}' (index ${idx}).`);
     }
-    if (!nodeKeySet.has(edge.toKey)) {
-      throw new Error(`Transition ${edge.id} references unknown target checkpoint '${String(edge.toId)}' (index ${idx}).`);
+    if (!nodeIdSet.has(edge.to)) {
+      throw new Error(`Transition ${edge.id} references unknown target checkpoint '${edge.to}' (index ${idx}).`);
     }
-    const list = adjacency.get(edge.fromKey);
-    if (list) list.push(edge); else adjacency.set(edge.fromKey, [edge]);
-    indegree.set(edge.toKey, (indegree.get(edge.toKey) ?? 0) + 1);
+    const list = adjacency.get(edge.from);
+    if (list) list.push(edge); else adjacency.set(edge.from, [edge]);
+    indegree.set(edge.to, (indegree.get(edge.to) ?? 0) + 1);
   });
 
-  let startKey: string;
+  let startId: string;
 
   if (story.start !== undefined && story.start !== null) {
-    const resolved = canonicalId(story.start as string | number, String(story.start));
-    if (!nodeKeySet.has(resolved)) {
-      throw new Error(`Story start references unknown checkpoint id '${String(story.start)}'.`);
+    const resolved = normalizeId(story.start as string, String(story.start));
+    if (!nodeIdSet.has(resolved)) {
+      throw new Error(`Story start references unknown checkpoint id '${story.start}'.`);
     }
-    startKey = resolved;
+    startId = resolved;
   } else {
-    const roots = checkpoints.filter((cp) => (indegree.get(cp.key) ?? 0) === 0).map((cp) => cp.key);
+    const roots = checkpoints.filter((cp) => (indegree.get(cp.id) ?? 0) === 0).map((cp) => cp.id);
     if (roots.length === 0) {
       throw new Error("Story transitions form a cycle and no starting checkpoint could be inferred. Provide a 'start' id.");
     }
     if (roots.length > 1) {
-      const names = roots.map((key) => checkpointByKey.get(key)?.name ?? key);
+      const names = roots.map((id) => checkpointById.get(id)?.name ?? id);
       throw new Error(`Ambiguous start checkpoint. Candidates: ${names.join(", ")}. Provide a 'start' id.`);
     }
-    [startKey] = roots;
+    [startId] = roots;
   }
 
   const indegreeForSort = new Map(indegree);
-  const queue: string[] = [startKey];
+  const queue: string[] = [startId];
   const visited = new Set<string>();
   const order: string[] = [];
 
@@ -305,37 +275,37 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
 
     const outgoing = adjacency.get(key) ?? [];
     for (const edge of outgoing) {
-      const nextKey = edge.toKey;
-      const nextDegree = (indegreeForSort.get(nextKey) ?? 0) - 1;
-      indegreeForSort.set(nextKey, nextDegree);
+      const nextId = edge.to;
+      const nextDegree = (indegreeForSort.get(nextId) ?? 0) - 1;
+      indegreeForSort.set(nextId, nextDegree);
       if (nextDegree <= 0) {
-        queue.push(nextKey);
+        queue.push(nextId);
       }
     }
   }
 
   if (visited.size !== checkpoints.length) {
-    const missing = checkpoints.filter((cp) => !visited.has(cp.key));
+    const missing = checkpoints.filter((cp) => !visited.has(cp.id));
     const names = missing.map((cp) => cp.name || String(cp.id));
     throw new Error(`Story graph contains unreachable or cyclic checkpoints: ${names.join(", ")}`);
   }
 
-  const orderedCheckpoints = order.map((key) => checkpointByKey.get(key)!).filter(Boolean);
+  const orderedCheckpoints = order.map((id) => checkpointById.get(id)!).filter(Boolean);
 
-  const checkpointIndexById = new Map<string | number, number>();
+  const checkpointIndexById = new Map<string, number>();
   orderedCheckpoints.forEach((cp, idx) => {
     checkpointIndexById.set(cp.id, idx);
   });
 
   const transitionsByFrom = new Map<string, NormalizedTransition[]>();
   transitions.forEach((edge) => {
-    const bucket = transitionsByFrom.get(edge.fromKey);
-    if (bucket) bucket.push(edge); else transitionsByFrom.set(edge.fromKey, [edge]);
+    const bucket = transitionsByFrom.get(edge.from);
+    if (bucket) bucket.push(edge); else transitionsByFrom.set(edge.from, [edge]);
   });
 
-  const startCheckpoint = checkpointByKey.get(startKey);
+  const startCheckpoint = checkpointById.get(startId);
   if (!startCheckpoint) {
-    throw new Error(`Unable to resolve starting checkpoint '${startKey}'.`);
+    throw new Error(`Unable to resolve starting checkpoint '${startId}'.`);
   }
 
   return {
@@ -346,11 +316,9 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
     checkpoints: orderedCheckpoints,
     checkpointIndexById,
     checkpointById,
-    checkpointByKey,
     transitions,
     transitionsByFrom,
     startId: startCheckpoint.id,
-    startKey,
     roleDefaults: story.role_defaults ? normalizePresetOverrides(story.role_defaults) : undefined,
   };
 }

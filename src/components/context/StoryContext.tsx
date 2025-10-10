@@ -15,7 +15,7 @@ type ValidationResult =
   | { ok: false; errors: string[] };
 
 type LoadOptions = { force?: boolean };
-type CheckpointSummary = { id: string | number; key: string; name: string; objective: string; status: CheckpointStatus };
+type CheckpointSummary = { id: string; name: string; objective: string; status: CheckpointStatus };
 
 export interface StoryContextValue {
   validate: (input: unknown) => ValidationResult;
@@ -196,7 +196,6 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
             : CheckpointStatus.Pending);
       return {
         id: cp.id,
-        key: cp.key,
         name: cp.name,
         objective: cp.objective,
         status,

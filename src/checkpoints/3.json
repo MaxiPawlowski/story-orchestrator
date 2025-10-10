@@ -11,9 +11,10 @@
     "dm": { "temp": 0.6, "rep_pen": 1.1 },
     "companion": { "temp": 0.9, "top_p": 0.95 }
   },
+  "start": "cp1",
   "checkpoints": [
     {
-      "id": 1,
+      "id": "cp1",
       "name": "Tavern: Get the Quest",
       "objective": "Accept the barkeep's quest.",
       "triggers": {
@@ -36,7 +37,7 @@
       }
     },
     {
-      "id": 2,
+      "id": "cp2",
       "name": "Cellar: Find the Key",
       "objective": "Locate and take the hidden key.",
       "triggers": { "win": ["/(find|pick up|take).{0,20}key/i"] },
@@ -52,7 +53,7 @@
       }
     },
     {
-      "id": 3,
+      "id": "cp3",
       "name": "Return: Hand Over the Key",
       "objective": "Return the key to the barkeep.",
       "triggers": { "win": ["/(return|hand over).{0,20}key/i"] },
@@ -61,5 +62,9 @@
         "world_info": { "activate": ["WI_ENDING"] }
       }
     }
+  ],
+  "transitions": [
+    { "id": "tavern-to-cellar", "from": "cp1", "to": "cp2", "outcome": "win" },
+    { "id": "cellar-to-return", "from": "cp2", "to": "cp3", "outcome": "win" }
   ]
 }

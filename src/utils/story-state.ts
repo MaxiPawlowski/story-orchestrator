@@ -67,7 +67,7 @@ function migratePersistedState(entry: PersistedStateCandidate, story: Normalized
   return {
     storySignature: candidate.storySignature,
     checkpointIndex: clampIndex(candidate.checkpointIndex ?? 0, story),
-    activeCheckpointKey: activeKey ?? story.startKey ?? null,
+    activeCheckpointKey: activeKey ?? story.startId ?? null,
     turnsSinceEval: sanitizeTurns(candidate.turnsSinceEval ?? 0),
     checkpointStatusMap: candidate.checkpointStatusMap ?? {},
     updatedAt: candidate.updatedAt ?? Date.now(),
@@ -155,14 +155,14 @@ export function persistStoryState({
 
 export function makeDefaultState(story: NormalizedStory | null | undefined): RuntimeStoryState {
   const checkpoints = story?.checkpoints ?? [];
-  const startKey = story?.startKey ?? (checkpoints[0]?.key ?? null);
-  const startIndex = startKey ? checkpoints.findIndex((cp) => cp.key === startKey) : -1;
+  const startId = story?.startId ?? (checkpoints[0]?.id ?? null);
+  const startIndex = startId ? checkpoints.findIndex((cp) => cp.id === startId) : -1;
   const normalizedIndex = startIndex >= 0 ? startIndex : (checkpoints.length > 0 ? 0 : -1);
-  const activeKey = checkpoints[normalizedIndex]?.key ?? null;
-  const checkpointStatusMap = normalizeStatusMap(story, activeKey, undefined);
+  const activeId = checkpoints[normalizedIndex]?.id ?? null;
+  const checkpointStatusMap = computeStatusMapForIndex(story, normalizedIndex < 0 ? 0 : normalizedIndex, undefined);
   return {
     checkpointIndex: normalizedIndex < 0 ? 0 : normalizedIndex,
-    activeCheckpointKey: activeKey,
+    activeCheckpointKey: activeId,
     turnsSinceEval: 0,
     checkpointStatusMap,
   };
@@ -173,7 +173,7 @@ function computeStorySignature(story: NormalizedStory): string {
     .map((cp) => `${String(cp.id)}::${cp.name ?? ""}::${cp.objective ?? ""}`)
     .join("||");
   const edgeSig = (story.transitions ?? [])
-    .map((edge) => `${edge.id}->${edge.fromKey}|${edge.toKey}|${edge.outcome}`)
+    .map((edge) => `${edge.id}->${edge.from}|${edge.to}|${edge.outcome}`)
     .join("||");
   return [
     story.schemaVersion ?? "?",
@@ -206,13 +206,13 @@ export function sanitizeRuntime(candidate: RuntimeStoryState, story: NormalizedS
 
   const checkpoints = story.checkpoints;
   const trimmedKey = typeof candidate.activeCheckpointKey === "string" ? candidate.activeCheckpointKey.trim() : "";
-  let activeKey = trimmedKey || null;
+  let activeId = trimmedKey || null;
   let checkpointIndex = Number.isFinite(candidate.checkpointIndex)
     ? Math.floor(candidate.checkpointIndex)
     : -1;
 
-  if (activeKey) {
-    const matchIndex = checkpoints.findIndex((cp) => cp.key === activeKey);
+  if (activeId) {
+    const matchIndex = checkpoints.findIndex((cp) => cp.id === activeId);
     if (matchIndex >= 0) {
       checkpointIndex = matchIndex;
     }
@@ -220,16 +220,16 @@ export function sanitizeRuntime(candidate: RuntimeStoryState, story: NormalizedS
 
   if (checkpointIndex < 0 || checkpointIndex >= checkpoints.length) {
     checkpointIndex = clampCheckpointIndex(candidate.checkpointIndex, story);
-    activeKey = checkpoints[checkpointIndex]?.key ?? story.startKey ?? null;
+    activeId = checkpoints[checkpointIndex]?.id ?? story.startId ?? null;
   } else {
-    activeKey = checkpoints[checkpointIndex]?.key ?? story.startKey ?? null;
+    activeId = checkpoints[checkpointIndex]?.id ?? story.startId ?? null;
   }
 
-  const checkpointStatusMap = normalizeStatusMap(story, activeKey, candidate.checkpointStatusMap);
+  const checkpointStatusMap = computeStatusMapForIndex(story, checkpointIndex, candidate.checkpointStatusMap);
 
   return {
     checkpointIndex,
-    activeCheckpointKey: activeKey,
+    activeCheckpointKey: activeId,
     turnsSinceEval,
     checkpointStatusMap,
   };
@@ -243,10 +243,10 @@ export function deriveCheckpointStatuses(
   if (!checkpoints.length) return [];
 
   const cpAtIndex = checkpoints[runtime.checkpointIndex];
-  const activeKey = runtime.activeCheckpointKey ?? cpAtIndex?.key ?? story?.startKey ?? null;
+  const activeKey = runtime.activeCheckpointKey ?? cpAtIndex?.id ?? story?.startId ?? null;
 
   const map = normalizeStatusMap(story, activeKey, runtime.checkpointStatusMap);
-  return checkpoints.map((cp) => map[cp.key] ?? CheckpointStatus.Pending);
+  return checkpoints.map((cp) => map[cp.id] ?? CheckpointStatus.Pending);
 }
 
 /**
@@ -328,20 +328,43 @@ function sanitizeTurns(value: number | null | undefined): number {
 }
 
 function checkpointKeyFrom(cp: NormalizedCheckpoint | undefined, idx: number): string {
-  if (cp?.key) return cp.key;
+  if (cp?.id) return cp.id;
   if (!cp) return String(idx);
   const rawId = cp.id;
   if (rawId === null || rawId === undefined) return String(idx);
-  if (typeof rawId === "string") {
-    const trimmed = rawId.trim();
-    return trimmed ? trimmed : String(idx);
-  }
-  return String(rawId);
+  const trimmed = String(rawId).trim();
+  return trimmed ? trimmed : String(idx);
 }
 
 export function checkpointKeyAtIndex(story: NormalizedStory | null | undefined, index: number): string {
   const cp = story?.checkpoints?.[index];
   return checkpointKeyFrom(cp, index);
+}
+
+export function computeStatusMapForIndex(
+  story: NormalizedStory | null | undefined,
+  checkpointIndex: number,
+  prevMap: CheckpointStatusMap | undefined,
+): CheckpointStatusMap {
+  const checkpoints = story?.checkpoints ?? [];
+  if (!checkpoints.length) return {};
+
+  const clampedIndex = clampCheckpointIndex(checkpointIndex, story ?? null);
+  const result: CheckpointStatusMap = {};
+
+  checkpoints.forEach((cp, idx) => {
+    const key = checkpointKeyFrom(cp, idx);
+    const prevStatus = prevMap?.[key];
+    if (idx < clampedIndex) {
+      result[key] = prevStatus === CheckpointStatus.Failed ? CheckpointStatus.Failed : CheckpointStatus.Complete;
+    } else if (idx === clampedIndex) {
+      result[key] = prevStatus === CheckpointStatus.Failed ? CheckpointStatus.Failed : CheckpointStatus.Current;
+    } else {
+      result[key] = prevStatus === CheckpointStatus.Failed ? CheckpointStatus.Failed : CheckpointStatus.Pending;
+    }
+  });
+
+  return result;
 }
 
 function normalizeStatusMap(
@@ -367,9 +390,9 @@ function normalizeStatusMap(
   });
 
   if (activeKey) {
-    const active = checkpoints.find((cp) => cp.key === activeKey);
+    const active = checkpoints.find((cp) => cp.id === activeKey);
     if (active) {
-      const key = active.key;
+      const key = active.id;
       const current = result[key];
       if (current === undefined || current === CheckpointStatus.Pending || current === CheckpointStatus.Current) {
         result[key] = CheckpointStatus.Current;

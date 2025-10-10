@@ -27,6 +27,7 @@ import {
   DEFAULT_INTERVAL_TURNS,
   type RuntimeStoryState,
   type CheckpointStatus,
+  computeStatusMapForIndex,
 } from "@utils/story-state";
 import { normalizeName } from "@utils/story-validator";
 import { storySessionStore } from "@store/storySessionStore";
@@ -35,9 +36,8 @@ import { registerStoryExtensionCommands } from "@utils/slashCommands";
 interface TransitionSelection {
   id: string;
   outcome: 'win' | 'fail';
-  targetKey: string;
+  targetId: string;
   targetIndex: number;
-  targetId: string | number;
 }
 
 interface EvaluatedEvent {
@@ -112,14 +112,14 @@ class StoryOrchestrator {
   private getTransitionsForOutcome(outcome: 'win' | 'fail', from?: NormalizedCheckpoint | null): NormalizedTransition[] {
     const source = from ?? this.currentCheckpoint;
     if (!source) return [];
-    const transitions = this.story.transitionsByFrom.get(source.key) ?? [];
+    const transitions = this.story.transitionsByFrom.get(source.id) ?? [];
     return transitions.filter((edge) => edge.outcome === outcome);
   }
 
   private resolveTargetIndex(edge: NormalizedTransition): number {
-    const target = this.story.checkpointByKey.get(edge.toKey);
+    const target = this.story.checkpointById.get(edge.to);
     if (!target) return -1;
-    const idx = this.story.checkpoints.findIndex((cp) => cp.key === target.key);
+    const idx = this.story.checkpoints.findIndex((cp) => cp.id === target.id);
     return idx;
   }
 
@@ -130,9 +130,8 @@ class StoryOrchestrator {
     return {
       id: edge.id,
       outcome,
-      targetKey: edge.toKey,
       targetIndex,
-      targetId: target?.id ?? edge.toId,
+      targetId: target?.id ?? edge.to,
     };
   }
 
@@ -350,11 +349,11 @@ class StoryOrchestrator {
     const sanitizedIndex = clampCheckpointIndex(runtime.checkpointIndex, this.story);
     const sanitizedSince = sanitizeTurnsSinceEval(runtime.turnsSinceEval);
     const activeKey = runtime.activeCheckpointKey
-      ?? this.story.checkpoints[sanitizedIndex]?.key
-      ?? this.story.startKey
+      ?? this.story.checkpoints[sanitizedIndex]?.id
+      ?? this.story.startId
       ?? null;
     const resolvedIndex = activeKey
-      ? this.story.checkpoints.findIndex((cp) => cp.key === activeKey)
+      ? this.story.checkpoints.findIndex((cp) => cp.id === activeKey)
       : sanitizedIndex;
     const targetIndex = resolvedIndex >= 0 ? resolvedIndex : sanitizedIndex;
 
@@ -427,7 +426,7 @@ class StoryOrchestrator {
 
     const checkpointIndex = clampCheckpointIndex(index, this.story);
     const cp = checkpoints[checkpointIndex] ?? checkpoints[0];
-    const activeKey = cp?.key ?? null;
+    const activeKey = cp?.id ?? null;
 
     this.checkpointPrimed = true;
     this.winRes = Array.isArray(cp.winTriggers) ? cp.winTriggers : [];
@@ -435,11 +434,12 @@ class StoryOrchestrator {
     this.checkpointArbiter.clear();
 
     const { since, turn } = computeTurns(opts.sinceEvalOverride);
+    const statusMap = computeStatusMapForIndex(this.story, checkpointIndex, prevRuntime.checkpointStatusMap);
     const runtimePayload: RuntimeStoryState = {
       checkpointIndex,
       activeCheckpointKey: activeKey,
       turnsSinceEval: since,
-      checkpointStatusMap: { ...prevRuntime.checkpointStatusMap },
+      checkpointStatusMap: statusMap,
     };
     const sanitized = applyRuntime(runtimePayload, turn);
 
@@ -459,9 +459,9 @@ class StoryOrchestrator {
     const cp = this.story.checkpoints[checkpointIndex];
     const transitionsForPrompt: ArbiterTransitionOption[] = [];
     if (cp) {
-      const outgoing = this.story.transitionsByFrom.get(cp.key) ?? [];
+      const outgoing = this.story.transitionsByFrom.get(cp.id) ?? [];
       outgoing.forEach((edge) => {
-        const target = this.story.checkpointByKey.get(edge.toKey);
+        const target = this.story.checkpointById.get(edge.to);
         transitionsForPrompt.push({
           id: edge.id,
           outcome: edge.outcome,
