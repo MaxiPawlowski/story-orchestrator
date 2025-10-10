@@ -6,6 +6,9 @@ import {
   StorySchema, type Story,
   WorldInfoActivationsSchema,
   type OnActivate,
+  type RolePresetOverrides,
+  type PresetOverrides,
+  type PresetOverrideKey,
 } from "./story-schema";
 
 export interface NormalizedWorldInfo {
@@ -16,7 +19,7 @@ export interface NormalizedWorldInfo {
 export interface NormalizedOnActivate {
   authors_note?: Partial<Record<Role, string>>;
   world_info?: NormalizedWorldInfo;
-  preset_overrides?: Partial<Record<Role, Record<string, any>>>;
+  preset_overrides?: RolePresetOverrides;
 }
 
 export interface NormalizedCheckpoint {
@@ -48,7 +51,7 @@ export interface NormalizedStory {
   transitions: NormalizedTransition[];
   transitionsByFrom: Map<string, NormalizedTransition[]>;
   startId: string;
-  roleDefaults?: Partial<Record<Role, Record<string, any>>>;
+  roleDefaults?: RolePresetOverrides;
 }
 export interface NormalizeOptions {
   stripExtension?: boolean;
@@ -134,19 +137,31 @@ function normalizeAuthorsNote(input?: OnActivate["authors_note"]): Partial<Recor
   return input;
 }
 
-function normalizePresetOverrides(input?: any): Partial<Record<Role, Record<string, any>>> | undefined {
+const ROLE_NAMES: Role[] = ["dm", "companion", "chat"];
+
+function normalizePresetOverrides(input?: RolePresetOverrides | null): RolePresetOverrides | undefined {
   if (!input) return undefined;
-  try {
-    const obj = input as Partial<Record<Role, Record<string, any>>>;
-    const out: Partial<Record<Role, Record<string, any>>> = {};
-    for (const k of Object.keys(obj) as Role[]) {
-      const v = (obj as any)[k];
-      if (v && typeof v === 'object') out[k] = v;
+
+  const result: RolePresetOverrides = {};
+
+  for (const role of ROLE_NAMES) {
+    const overrides = input[role];
+    if (!overrides || typeof overrides !== "object") continue;
+
+    const cleaned: PresetOverrides = {};
+    for (const key of Object.keys(overrides) as PresetOverrideKey[]) {
+      const value = overrides[key];
+      if (value !== undefined) {
+        cleaned[key] = value;
+      }
     }
-    return Object.keys(out).length ? out : undefined;
-  } catch {
-    return undefined;
+
+    if (Object.keys(cleaned).length > 0) {
+      result[role] = cleaned;
+    }
   }
+
+  return Object.keys(result).length > 0 ? result : undefined;
 }
 
 function normalizeWorldInfo(input?: unknown): NormalizedWorldInfo | undefined {

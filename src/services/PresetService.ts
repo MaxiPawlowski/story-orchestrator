@@ -11,9 +11,10 @@
   BIAS_CACHE,
   displayLogitBias,
 } from './SillyTavernAPI';
+import type { PresetOverrides } from "@utils/story-schema";
 
 export type Role = 'dm' | 'companion' | 'chat';
-export type PresetPartial = Partial<Record<string, any>>;
+export type PresetPartial = PresetOverrides;
 
 export type BaseSource =
   | { source: 'current' }                   // snapshot from current sliders
