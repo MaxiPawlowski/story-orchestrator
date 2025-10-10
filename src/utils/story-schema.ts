@@ -98,7 +98,6 @@ const BasePresetSchema = z.object({
 });
 
 export const StorySchema = z.object({
-  schema_version: z.literal("1.0"),
   title: z.string().min(1),
   global_lorebook: z.string().min(1),
   base_preset: BasePresetSchema.optional(),

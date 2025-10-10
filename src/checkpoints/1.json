@@ -1,63 +1,157 @@
 {
-  "schema_version": "1.0",
-  "title": "The Lost Artifact",
-  "global_lorebook": "Tavern Tales",
+  "id": "lost-key",
+  "title": "Quest for the Sun Ruins",
+  "global_lorebook": "Xentar Checkpoints",
+  "roles": {
+    "dm": "DM Narrator",
+    "companion": "Arin"
+  },
+  "role_defaults": {
+    "dm": { "temp": 0.6, "rep_pen": 1.1 },
+    "companion": { "temp": 0.9, "top_p": 0.95 }
+  },
+  "start": "cp1",
   "checkpoints": [
     {
-      "id": "tavern_mission",
-      "name": "Tavern Mission",
-      "objective": "Go to the tavern and speak with the tavernkeeper to get your mission.",
-      "win_trigger": {
-        "pattern": "accept the quest|accept the mission|I'll do it|I accept",
-        "flags": "i"
-      },
-      "fail_trigger": {
-        "pattern": "refuse|decline|not interested|no way",
-        "flags": "i"
+      "id": "cp1",
+      "name": "Get the Quest: Heart of the Ruins",
+      "objective": "Accept the mission from the Guild and prepare for departure to the Sun Ruins.",
+      "triggers": {
+        "win": [
+          "/\\b(accept|take|claim)\\b[\\s\\S]{0,20}\\b(mission|quest|job)\\b/i",
+          "/\\b(agree|i'?m in|im in|count me in|lets? go|we'?re ready)\\b/i",
+          "/\\b(ready|prepared|set)\\b[\\s\\S]{0,15}\\b(depart|leave|go|head out)\\b/i"
+        ],
+        "fail": [
+          "/\\b(refuse|decline|turn down)\\b[\\s\\S]{0,20}\\b(mission|quest|job)?\\b/i",
+          "/\\b(can'?t|cannot|won'?t|do not|don'?t)\\b[\\s\\S]{0,10}\\b(accept|help|join|go)\\b/i"
+        ]
       },
       "on_activate": {
+        "authors_note": {
+          "dm": "[Describe the Adventurer’s Guild of Xentar with realism and weariness. Present the mission as both opportunity and risk. Encourage small character moments before departure.]",
+          "companion": "[{{char}} should act relaxed, teasing, and grounded in familiarity. He should prepare pragmatically while showing excitement to explore again.]"
+        },
+        "preset_overrides": {
+          "dm": {
+            "temp": 0.65,
+            "top_p": 0.95,
+            "min_p": 0.025,
+            "rep_pen": 1.08,
+            "guidance_scale": 1.2
+          },
+          "companion": {
+            "temp": 0.85,
+            "top_p": 0.95,
+            "min_p": 0.02,
+            "rep_pen": 1.03,
+            "guidance_scale": 1.1
+          }
+        },
         "world_info": {
-          "activate": ["tavern_info", "quest_giver_info"]
+          "activate": [
+            "CP1 - Mission",
+            "CP1 - Scenario",
+            "CP1 - Automation BG"
+          ],
+          "deactivate": ["CP2 - Challenge"]
         }
       }
     },
     {
-      "id": "find_artifact",
-      "name": "Find the Artifact",
-      "objective": "Travel to the ancient ruins and retrieve the lost artifact.",
-      "win_trigger": {
-        "pattern": "retrieves? the artifact|picks? up the artifact|artifact has been found",
-        "flags": "i"
-      },
-      "fail_trigger": {
-        "pattern": "give up|can't find|fail to find|leave without artifact",
-        "flags": "i"
+      "id": "cp2",
+      "name": "Heart of the Ruins",
+      "objective": "Obtain the Sun’s Heart Artifact from the depths of the ruins and survive the encounter with its magical trials to escape alive.",
+      "triggers": {
+        "win": [
+          "/\\b(find|locate|recover|obtain|secure|retrieve)\\b[\\s\\S]{0,30}\\b(artifact|sun('?s)? heart|crystal(?:line)? core|core)\\b/i",
+          "/\\b(pick(?:\\s*up)?|take|grab|claim)\\b[\\s\\S]{0,20}\\b(artifact|sun('?s)? heart|crystal(?:line)? core|core)\\b/i",
+          "/\\b(have|got|secured|holding)\\b[\\s\\S]{0,10}\\b(the )?(artifact|sun('?s)? heart|core)\\b/i"
+        ]
       },
       "on_activate": {
+        "preset_overrides": {
+          "dm": {
+            "temp": 0.6,
+            "top_p": 0.92,
+            "min_p": 0.03,
+            "rep_pen": 1.1,
+            "guidance_scale": 1.6
+          },
+          "companion": {
+            "temp": 0.8,
+            "top_p": 0.92,
+            "min_p": 0.03,
+            "rep_pen": 1.06,
+            "guidance_scale": 1.4
+          }
+        },
+        "authors_note": {
+          "dm": "[Build tension through exploration. Challenge {{user}} and Arin’s teamwork. Encourage cautious pacing, hinting that discovery and danger are intertwined.]",
+          "companion": "[{{char}} grows more focused and tactical. He notices details, warns {{user}} of dangers, and occasionally cracks jokes to diffuse fear.]"
+        },
         "world_info": {
-          "activate": ["artifact_info", "artifact_location_info"],
-          "deactivate": ["tavern_info", "quest_giver_info"]
+          "activate": ["CP2 - Challenge"],
+          "deactivate": ["CP1 - Mission", "CP1 - Scenario"]
         }
       }
     },
     {
-      "id": "return_to_tavern",
-      "name": "Return to Tavern",
-      "objective": "Bring the artifact back to the tavern and deliver it to the quest giver to complete your mission.",
-      "win_trigger": {
-        "pattern": "returns? to the tavern|back to the tavern|hands? over the artifact|quest complete",
-        "flags": "i"
-      },
-      "fail_trigger": {
-        "pattern": "keeps? the artifact|does not return|doesn't return",
-        "flags": "i"
+      "id": "cp3",
+      "name": "Return: Echoes of Light",
+      "objective": "Give the artifact to the Guild Master and conclude the mission receiving the rewards.",
+      "triggers": {
+        "win": [
+          "/\\b(return|head back|go back|report back)\\b[\\s\\S]{0,30}\\b(guild|xentar)\\b/i",
+          "/\\b(hand|turn)\\s*(?:it\\s*)?over\\b[\\s\\S]{0,20}\\b(artifact|sun('?s)? heart|core|key)\\b/i",
+          "/\\b(deliver|present|submit|surrender)\\b[\\s\\S]{0,30}\\b(artifact|sun('?s)? heart|core|key)\\b/i",
+          "/\\b(collect|claim)\\b[\\s\\S]{0,20}\\b(reward|payment|bounty|recompense)\\b/i"
+        ]
       },
       "on_activate": {
+        "preset_overrides": {
+          "dm": {
+            "temp": 0.6,
+            "top_p": 0.93,
+            "min_p": 0.025,
+            "rep_pen": 1.09,
+            "guidance_scale": 1.3
+          },
+          "companion": {
+            "temp": 0.75,
+            "top_p": 0.94,
+            "min_p": 0.02,
+            "rep_pen": 1.04,
+            "guidance_scale": 1.2
+          }
+        },
         "world_info": {
-          "activate": ["tavern_info", "quest_return_info"],
-          "deactivate": ["artifact_info", "artifact_location_info"]
+          "activate": ["CP3 - Resolution"],
+          "deactivate": ["CP2 - Challenge"]
+        },
+        "authors_note": {
+          "dm": "[Emphasize consequence and reflection. Reward success but leave a sense of unease. Tie tone back to Xentar’s fragility and the uncertain future.]",
+          "companion": "[{{char}} reflects quietly, showing fatigue and gratitude. His humor softens into sincerity.]"
         }
       }
+    }
+  ],
+  "transitions": [
+    {
+      "id": "quest-to-ruins",
+      "from": "cp1",
+      "to": "cp2",
+      "outcome": "win",
+      "label": "Depart for the Ruins",
+      "description": "The party accepts the mission and heads toward the Sun Ruins."
+    },
+    {
+      "id": "ruins-to-return",
+      "from": "cp2",
+      "to": "cp3",
+      "outcome": "win",
+      "label": "Return to the Guild",
+      "description": "After securing the artifact, the party returns to the guild."
     }
   ]
 }
