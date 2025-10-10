@@ -54,7 +54,7 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect }) => {
           { selector: "node", style: { "background-color": "#1f2937", "border-color": "#3b82f6", "border-width": "1px", color: "#f8fafc", label: "data(label)", "text-max-width": "140px", "text-wrap": "wrap", "font-size": "11px", padding: "8px" } },
           { selector: "node[type = 'start']", style: { "background-color": "#2563eb" } },
           { selector: "node.selected", style: { "border-width": "3px", "border-color": "#facc15" } },
-          { selector: "edge", style: { "curve-style": "bezier", "target-arrow-shape": "triangle", "line-color": "#94a3b8", "target-arrow-color": "#94a3b8", label: "data(label)", "font-size": "10px", "text-background-color": "#0f172a", "text-background-opacity": "0.6", "text-background-padding": "4px" } },
+          { selector: "edge", style: { "curve-style": "bezier", "target-arrow-shape": "triangle", "line-color": "#94a3b8", "target-arrow-color": "#94a3b8", label: "data(label)", color: "#f8fafc", "font-size": "10px", "text-background-color": "#0f172a", "text-background-opacity": "0.6", "text-background-padding": "4px" } },
           { selector: "edge[outcome = 'win']", style: { "line-color": "#22c55e", "target-arrow-color": "#22c55e" } },
           { selector: "edge[outcome = 'fail']", style: { "line-color": "#ef4444", "target-arrow-color": "#ef4444", "line-style": "dashed" } },
         ] as any,

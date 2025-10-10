@@ -1,6 +1,9 @@
 import React from "react";
 import type { Transition } from "@utils/story-schema";
 import { CheckpointDraft, StoryDraft, ensureOnActivate, cleanupOnActivate, splitLines, splitCsv, joinCsv } from "../checkpoint-studio.helpers";
+import { getContext, eventSource, event_types } from "@services/SillyTavernAPI";
+import { subscribeToEventSource } from "@utils/eventSource";
+import MultiSelect from "./MultiSelect";
 
 type Props = {
   draft: StoryDraft;
@@ -25,6 +28,52 @@ const CheckpointEditorPanel: React.FC<Props> = ({
   updateTransition,
   onRemoveCheckpoint,
 }) => {
+  const [loreComments, setLoreComments] = React.useState<string[]>([]);
+
+  const refreshLoreEntries = React.useCallback(async () => {
+    const lorebook = (draft.global_lorebook || "").trim();
+    if (!lorebook) { setLoreComments([]); return; }
+    try {
+      const { loadWorldInfo } = getContext();
+      const res: any = await loadWorldInfo(lorebook);
+      const entries = res?.entries ?? {};
+      const comments = Object.values(entries)
+        .map((e: any) => (typeof e?.comment === "string" ? e.comment.trim() : ""))
+        .filter(Boolean);
+      setLoreComments(comments);
+    } catch (err) {
+      console.warn("[CheckpointEditor] Failed to load world info entries", err);
+      setLoreComments([]);
+    }
+  }, [draft.global_lorebook]);
+
+  React.useEffect(() => {
+    void refreshLoreEntries();
+    const offs: Array<() => void> = [];
+    const handler = () => void refreshLoreEntries();
+    try {
+      [
+        event_types?.WORLDINFO_ENTRIES_LOADED,
+        event_types?.WORLDINFO_UPDATED,
+      ].forEach((eventName) => {
+        if (!eventName) return;
+        offs.push(subscribeToEventSource({ source: eventSource, eventName, handler }));
+      });
+    } catch (err) {
+      console.warn("[CheckpointEditor] Failed to subscribe to WI events", err);
+    }
+    return () => { while (offs.length) { try { offs.pop()?.(); } catch {} } };
+  }, [refreshLoreEntries]);
+
+  const buildEntryOptions = React.useCallback((selected: string[] | undefined) => {
+    const base = loreComments.slice();
+    const extra = (selected ?? []).filter((s) => s && !base.includes(s));
+    return [
+      ...base.map((v) => ({ value: v, label: v })),
+      ...extra.map((v) => ({ value: v, label: `${v} (not in lorebook)` })),
+    ];
+  }, [loreComments]);
+
   return (
     <div className="rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] shadow-sm">
       <div className="flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-2 font-semibold">Checkpoint Editor</div>
@@ -126,30 +175,28 @@ const CheckpointEditorPanel: React.FC<Props> = ({
                 />
               </label>
               <label className="flex flex-col gap-1 text-xs text-slate-300">
-                <span>World Info Activate (comma separated)</span>
-                <input
-                  className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                  value={joinCsv(selectedCheckpoint.on_activate?.world_info?.activate)}
-                  onChange={(e) => {
-                    const entries = splitCsv(e.target.value);
+                <span>World Info Activate</span>
+                <MultiSelect
+                  options={buildEntryOptions(selectedCheckpoint.on_activate?.world_info?.activate)}
+                  value={selectedCheckpoint.on_activate?.world_info?.activate ?? []}
+                  onChange={(values) => {
                     updateCheckpoint(selectedCheckpoint.id, (cp) => {
                       const next = ensureOnActivate(cp.on_activate);
-                      next.world_info.activate = entries;
+                      next.world_info.activate = values;
                       return { ...cp, on_activate: cleanupOnActivate(next) };
                     });
                   }}
                 />
               </label>
               <label className="flex flex-col gap-1 text-xs text-slate-300">
-                <span>World Info Deactivate (comma separated)</span>
-                <input
-                  className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                  value={joinCsv(selectedCheckpoint.on_activate?.world_info?.deactivate)}
-                  onChange={(e) => {
-                    const entries = splitCsv(e.target.value);
+                <span>World Info Deactivate</span>
+                <MultiSelect
+                  options={buildEntryOptions(selectedCheckpoint.on_activate?.world_info?.deactivate)}
+                  value={selectedCheckpoint.on_activate?.world_info?.deactivate ?? []}
+                  onChange={(values) => {
                     updateCheckpoint(selectedCheckpoint.id, (cp) => {
                       const next = ensureOnActivate(cp.on_activate);
-                      next.world_info.deactivate = entries;
+                      next.world_info.deactivate = values;
                       return { ...cp, on_activate: cleanupOnActivate(next) };
                     });
                   }}
