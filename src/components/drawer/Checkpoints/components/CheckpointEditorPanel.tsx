@@ -1,7 +1,8 @@
 import React from "react";
-import type { Transition } from "@utils/story-schema";
-import { CheckpointDraft, StoryDraft, ensureOnActivate, cleanupOnActivate, splitLines, splitCsv, joinCsv } from "../checkpoint-studio.helpers";
-import { getContext, eventSource, event_types } from "@services/SillyTavernAPI";
+import type { Transition, RolePresetOverrides } from "@utils/story-schema";
+import { CheckpointDraft, StoryDraft, ensureOnActivate, cleanupOnActivate, splitLines, splitCsv, joinCsv, clone } from "../checkpoint-studio.helpers";
+import { getContext, eventSource, event_types, tgSettings } from "@services/SillyTavernAPI";
+import { PRESET_SETTING_KEYS, type PresetSettingKey } from "@constants/presetSettingKeys";
 import { subscribeToEventSource } from "@utils/eventSource";
 import MultiSelect from "./MultiSelect";
 
@@ -17,14 +18,84 @@ type Props = {
   onRemoveCheckpoint: (id: string) => void;
 };
 
-type TabKey = "basics" | "triggers" | "activation" | "transitions";
+type TabKey = "basics" | "triggers" | "worldinfo" | "notes" | "transitions";
 
 const TABS: Array<{ key: TabKey; label: string }> = [
   { key: "basics", label: "Basics" },
   { key: "triggers", label: "Triggers" },
-  { key: "activation", label: "Activation" },
+  { key: "worldinfo", label: "World Info" },
+  { key: "notes", label: "Notes & Presets" },
   { key: "transitions", label: "Transitions" },
 ];
+
+const NUMERIC_LITERAL_RE = /^-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/;
+
+type PresetDraftState = Record<string, Record<string, string>>;
+
+const stringifyPresetValue = (value: unknown): string => {
+  if (value === undefined) return "";
+  if (value === null) return "null";
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+};
+
+const parsePresetValue = (raw: string): unknown => {
+  const trimmed = raw.trim();
+  if (!trimmed) return "";
+  const lastChar = trimmed.charAt(trimmed.length - 1);
+  if (lastChar === "." || lastChar === "e" || lastChar === "E" || lastChar === "+" || lastChar === "-") {
+    return raw;
+  }
+  if (trimmed === "true") return true;
+  if (trimmed === "false") return false;
+  if (trimmed === "null") return null;
+  if (NUMERIC_LITERAL_RE.test(trimmed)) {
+    const num = Number(trimmed);
+    return Number.isFinite(num) ? num : raw;
+  }
+  const firstChar = trimmed.charAt(0);
+  if (
+    (firstChar === "{" && trimmed.endsWith("}")) ||
+    (firstChar === "[" && trimmed.endsWith("]")) ||
+    (firstChar === "\"" && trimmed.endsWith("\""))
+  ) {
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      return raw;
+    }
+  }
+  return raw;
+};
+
+const clonePresetValue = (value: unknown): unknown => {
+  if (Array.isArray(value) || (value && typeof value === "object")) {
+    try {
+      return clone(value);
+    } catch {
+      try {
+        return JSON.parse(JSON.stringify(value));
+      } catch {
+        return value;
+      }
+    }
+  }
+  return value;
+};
+
+const readCurrentPresetValue = (key: PresetSettingKey): unknown => {
+  try {
+    const base = (tgSettings as any)?.[key];
+    return clonePresetValue(base);
+  } catch {
+    return "";
+  }
+};
 
 const CheckpointEditorPanel: React.FC<Props> = ({
   draft,
@@ -39,6 +110,15 @@ const CheckpointEditorPanel: React.FC<Props> = ({
 }) => {
   const [loreComments, setLoreComments] = React.useState<string[]>([]);
   const [activeTab, setActiveTab] = React.useState<TabKey>("basics");
+  const [presetDrafts, setPresetDrafts] = React.useState<PresetDraftState>({});
+  const overridesSignature = React.useMemo(() => {
+    if (!selectedCheckpoint?.on_activate?.preset_overrides) return "";
+    try {
+      return JSON.stringify(selectedCheckpoint.on_activate.preset_overrides);
+    } catch {
+      return "";
+    }
+  }, [selectedCheckpoint?.on_activate?.preset_overrides]);
 
   const refreshLoreEntries = React.useCallback(async () => {
     const lorebook = (draft.global_lorebook || "").trim();
@@ -75,6 +155,22 @@ const CheckpointEditorPanel: React.FC<Props> = ({
     return () => { while (offs.length) { try { offs.pop()?.(); } catch {} } };
   }, [refreshLoreEntries]);
 
+  React.useEffect(() => {
+    if (!selectedCheckpoint) {
+      setPresetDrafts({});
+      return;
+    }
+    const overrides = selectedCheckpoint.on_activate?.preset_overrides ?? {};
+    const next: PresetDraftState = {};
+    Object.entries(overrides).forEach(([roleKey, entries]) => {
+      next[roleKey] = {};
+      Object.entries(entries ?? {}).forEach(([settingKey, value]) => {
+        next[roleKey][settingKey] = stringifyPresetValue(value);
+      });
+    });
+    setPresetDrafts(next);
+  }, [selectedCheckpoint?.id, overridesSignature]);
+
   const buildEntryOptions = React.useCallback((selected: string[] | undefined) => {
     const base = loreComments.slice();
     const extra = (selected ?? []).filter((s) => s && !base.includes(s));
@@ -83,6 +179,201 @@ const CheckpointEditorPanel: React.FC<Props> = ({
       ...extra.map((v) => ({ value: v, label: `${v} (not in lorebook)` })),
     ];
   }, [loreComments]);
+
+  const presetRoleKeys = React.useMemo(() => {
+
+    if (!selectedCheckpoint) return [];
+
+    const seen = new Set<string>();
+
+    const ordered: string[] = [];
+
+    const push = (roleKey?: string | null) => {
+
+      if (!roleKey) return;
+
+      if (seen.has(roleKey)) return;
+
+      seen.add(roleKey);
+
+      ordered.push(roleKey);
+
+    };
+
+    Object.keys(draft.roles ?? {}).forEach(push);
+
+    Object.keys(selectedCheckpoint.on_activate?.preset_overrides ?? {}).forEach(push);
+
+    Object.keys(presetDrafts).forEach(push);
+
+    return ordered;
+
+  }, [draft.roles, presetDrafts, selectedCheckpoint?.id, overridesSignature]);
+
+
+
+  const addPresetOverride = React.useCallback((roleKey: string) => {
+
+    if (!selectedCheckpoint) return;
+
+    const existing = selectedCheckpoint.on_activate?.preset_overrides?.[roleKey] ?? {};
+
+    const usedKeys = new Set(Object.keys(existing));
+
+    const candidate = PRESET_SETTING_KEYS.find((key) => !usedKeys.has(key));
+
+    if (!candidate) return;
+
+    const baseValue = readCurrentPresetValue(candidate);
+
+    const storedValue = baseValue === undefined ? "" : baseValue;
+
+    updateCheckpoint(selectedCheckpoint.id, (cp) => {
+      const next = ensureOnActivate(cp.on_activate);
+      const overrides = { ...(next.preset_overrides ?? {}) } as RolePresetOverrides;
+      const roleOverrides = { ...(overrides[roleKey] ?? {}) } as Record<PresetSettingKey, unknown>;
+      roleOverrides[candidate] = storedValue;
+      overrides[roleKey] = roleOverrides;
+      next.preset_overrides = overrides;
+      return { ...cp, on_activate: cleanupOnActivate(next) };
+    });
+
+    setPresetDrafts((prev) => {
+
+      const next = { ...prev };
+
+      const roleDraft = { ...(next[roleKey] ?? {}) };
+
+      roleDraft[candidate] = stringifyPresetValue(storedValue);
+
+      next[roleKey] = roleDraft;
+
+      return next;
+
+    });
+
+  }, [selectedCheckpoint, updateCheckpoint]);
+
+
+
+  const removePresetOverride = React.useCallback((roleKey: string, settingKey: string) => {
+
+    if (!selectedCheckpoint) return;
+
+    updateCheckpoint(selectedCheckpoint.id, (cp) => {
+      const next = ensureOnActivate(cp.on_activate);
+      const overrides = { ...(next.preset_overrides ?? {}) } as RolePresetOverrides;
+      const key = settingKey as PresetSettingKey;
+      const roleOverrides = { ...(overrides[roleKey] ?? {}) } as Record<PresetSettingKey, unknown>;
+      delete roleOverrides[key];
+      if (Object.keys(roleOverrides).length) overrides[roleKey] = roleOverrides;
+      else delete overrides[roleKey];
+      next.preset_overrides = Object.keys(overrides).length ? overrides : undefined;
+      return { ...cp, on_activate: cleanupOnActivate(next) };
+    });
+
+    setPresetDrafts((prev) => {
+
+      if (!Object.prototype.hasOwnProperty.call(prev, roleKey)) return prev;
+
+      const next = { ...prev };
+
+      const roleDraft = { ...next[roleKey] };
+
+      delete roleDraft[settingKey];
+
+      if (Object.keys(roleDraft).length) next[roleKey] = roleDraft;
+
+      else delete next[roleKey];
+
+      return next;
+
+    });
+
+  }, [selectedCheckpoint, updateCheckpoint]);
+
+
+
+  const changePresetKey = React.useCallback((roleKey: string, prevKey: string, nextKey: PresetSettingKey) => {
+
+    if (!selectedCheckpoint) return;
+
+    if (prevKey === nextKey) return;
+
+    const existing = selectedCheckpoint.on_activate?.preset_overrides?.[roleKey] ?? {};
+
+    if (Object.prototype.hasOwnProperty.call(existing, nextKey) && nextKey !== prevKey) return;
+
+    const baseValue = readCurrentPresetValue(nextKey);
+
+    const storedValue = baseValue === undefined ? "" : baseValue;
+
+    updateCheckpoint(selectedCheckpoint.id, (cp) => {
+      const next = ensureOnActivate(cp.on_activate);
+      const overrides = { ...(next.preset_overrides ?? {}) } as RolePresetOverrides;
+      const previousKey = prevKey as PresetSettingKey;
+      const roleOverrides = { ...(overrides[roleKey] ?? {}) } as Record<PresetSettingKey, unknown>;
+      delete roleOverrides[previousKey];
+      roleOverrides[nextKey] = storedValue;
+      overrides[roleKey] = roleOverrides;
+      next.preset_overrides = overrides;
+      return { ...cp, on_activate: cleanupOnActivate(next) };
+    });
+
+    setPresetDrafts((prev) => {
+
+      const next = { ...prev };
+
+      const roleDraft = { ...(next[roleKey] ?? {}) };
+
+      delete roleDraft[prevKey];
+
+      roleDraft[nextKey] = stringifyPresetValue(storedValue);
+
+      next[roleKey] = roleDraft;
+
+      return next;
+
+    });
+
+  }, [selectedCheckpoint, updateCheckpoint]);
+
+
+
+  const changePresetValue = React.useCallback((roleKey: string, settingKey: string, rawValue: string) => {
+
+    setPresetDrafts((prev) => {
+
+      const next = { ...prev };
+
+      const roleDraft = { ...(next[roleKey] ?? {}) };
+
+      roleDraft[settingKey] = rawValue;
+
+      next[roleKey] = roleDraft;
+
+      return next;
+
+    });
+
+    if (!selectedCheckpoint) return;
+
+    const parsed = parsePresetValue(rawValue);
+
+    updateCheckpoint(selectedCheckpoint.id, (cp) => {
+      const next = ensureOnActivate(cp.on_activate);
+      const overrides = { ...(next.preset_overrides ?? {}) } as RolePresetOverrides;
+      const key = settingKey as PresetSettingKey;
+      const roleOverrides = { ...(overrides[roleKey] ?? {}) } as Record<PresetSettingKey, unknown>;
+      roleOverrides[key] = parsed;
+      overrides[roleKey] = roleOverrides;
+      next.preset_overrides = overrides;
+      return { ...cp, on_activate: cleanupOnActivate(next) };
+    });
+
+  }, [selectedCheckpoint, updateCheckpoint]);
+
+
 
   return (
     <div className="rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] shadow-sm">
@@ -193,46 +484,142 @@ const CheckpointEditorPanel: React.FC<Props> = ({
               </>
             )}
 
-            {activeTab === "activation" && (
+            {activeTab === "notes" && (
               <>
                 <div className="space-y-2">
-                  <div className="font-medium">On Activate</div>
+                  <div className="font-medium">Author Notes & Preset Overrides</div>
+                  {/* Global Author's Note */}
                   <label className="flex flex-col gap-1 text-xs text-slate-300">
-                    <span>DM Author Note</span>
+                    <span>Global Author Note (applies to any role)</span>
                     <textarea
                       className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
                       rows={3}
-                      value={selectedCheckpoint.on_activate?.authors_note?.dm ?? ""}
+                      value={selectedCheckpoint.on_activate?.authors_note?.["__global" as any] ?? ""}
                       onChange={(e) => {
                         const note = e.target.value;
                         updateCheckpoint(selectedCheckpoint.id, (cp) => {
                           const next = ensureOnActivate(cp.on_activate);
-                          if (note.trim()) next.authors_note.dm = note;
-                          else delete next.authors_note.dm;
+                          if (note.trim()) (next.authors_note as any).__global = note;
+                          else delete (next.authors_note as any).__global;
                           return { ...cp, on_activate: cleanupOnActivate(next) };
                         });
                       }}
                     />
                   </label>
+                  {/* Per-role Author's Notes based on configured roles */}
+                  {(Object.keys(draft.roles ?? {}) as string[]).length ? (
+                    <div className="space-y-2">
+                      <div className="text-xs text-slate-400">Per-role notes override the global one when present.</div>
+                      {Object.keys(draft.roles ?? {}).map((roleKey) => (
+                        <label key={roleKey} className="flex flex-col gap-1 text-xs text-slate-300">
+                          <span>Author Note  Erole: {roleKey}</span>
+                          <textarea
+                            className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                            rows={3}
+                            value={(selectedCheckpoint.on_activate?.authors_note as any)?.[roleKey] ?? ""}
+                            onChange={(e) => {
+                              const note = e.target.value;
+                              updateCheckpoint(selectedCheckpoint.id, (cp) => {
+                                const next = ensureOnActivate(cp.on_activate);
+                                if (note.trim()) (next.authors_note as any)[roleKey] = note;
+                                else delete (next.authors_note as any)[roleKey];
+                                return { ...cp, on_activate: cleanupOnActivate(next) };
+                              });
+                            }}
+                          />
+                        </label>
+                      ))}
+                    </div>
+                  ) : null}
+                  <div className="space-y-2">
+                    <div className="font-medium">Preset Overrides</div>
+                    {!presetRoleKeys.length ? (
+                      <div className="text-xs text-slate-400">Define story roles to configure preset overrides.</div>
+                    ) : (
+                      <div className="space-y-3">
+                        {presetRoleKeys.map((roleKey) => {
+                          const overridesForRole = selectedCheckpoint.on_activate?.preset_overrides?.[roleKey] ?? {};
+                          const draftValues = presetDrafts[roleKey] ?? {};
+                          const usedKeys = new Set(Object.keys(overridesForRole));
+                          const canAddMore = usedKeys.size < PRESET_SETTING_KEYS.length;
+                          const missingInStory = !(draft.roles && Object.prototype.hasOwnProperty.call(draft.roles, roleKey));
+                          return (
+                            <div key={roleKey} className="space-y-2 rounded border border-slate-700 bg-slate-900/40 p-2">
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="text-xs font-semibold text-slate-200">
+                                  {roleKey}
+                                  {missingInStory ? (
+                                    <span className="ml-2 text-[11px] font-normal text-amber-300/90">Not in Story Roles</span>
+                                  ) : null}
+                                </div>
+                                <button
+                                  type="button"
+                                  className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-2.5 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:opacity-50 disabled:hover:bg-slate-800"
+                                  disabled={!canAddMore}
+                                  onClick={() => addPresetOverride(roleKey)}
+                                >
+                                  + Add Override
+                                </button>
+                              </div>
+                              {Object.keys(overridesForRole).length ? (
+                                <div className="space-y-2">
+                                  {Object.entries(overridesForRole).map(([settingKey, value]) => {
+                                    const displayValue = draftValues[settingKey] ?? stringifyPresetValue(value);
+                                    return (
+                                      <div key={settingKey} className="grid grid-cols-[minmax(140px,0.45fr)_minmax(0,1fr)_auto] items-end gap-2">
+                                        <label className="flex flex-col gap-1 text-xs text-slate-300">
+                                          <span>Setting</span>
+                                          <select
+                                            className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                            value={settingKey}
+                                            onChange={(e) => changePresetKey(roleKey, settingKey, e.target.value as PresetSettingKey)}
+                                          >
+                                            {PRESET_SETTING_KEYS.map((optionKey) => (
+                                              <option key={optionKey} value={optionKey} disabled={optionKey !== settingKey && usedKeys.has(optionKey)}>
+                                                {optionKey}
+                                              </option>
+                                            ))}
+                                          </select>
+                                        </label>
+                                        <label className="flex flex-col gap-1 text-xs text-slate-300">
+                                          <span>Value</span>
+                                          <input
+                                            className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                            value={displayValue}
+                                            onChange={(e) => changePresetValue(roleKey, settingKey, e.target.value)}
+                                            placeholder="Override value..."
+                                          />
+                                        </label>
+                                        <button
+                                          type="button"
+                                          className="inline-flex h-[34px] items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 text-xs font-medium text-red-300/90 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                                          onClick={() => removePresetOverride(roleKey, settingKey)}
+                                        >
+                                          Remove
+                                        </button>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              ) : (
+                                <div className="text-xs text-slate-400">No overrides for this role.</div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {activeTab === "worldinfo" && (
+              <>
+                <div className="space-y-2">
+                  <div className="font-medium">World Info</div>
                   <label className="flex flex-col gap-1 text-xs text-slate-300">
-                    <span>Companion Author Note</span>
-                    <textarea
-                      className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                      rows={3}
-                      value={selectedCheckpoint.on_activate?.authors_note?.companion ?? ""}
-                      onChange={(e) => {
-                        const note = e.target.value;
-                        updateCheckpoint(selectedCheckpoint.id, (cp) => {
-                          const next = ensureOnActivate(cp.on_activate);
-                          if (note.trim()) next.authors_note.companion = note;
-                          else delete next.authors_note.companion;
-                          return { ...cp, on_activate: cleanupOnActivate(next) };
-                        });
-                      }}
-                    />
-                  </label>
-                  <label className="flex flex-col gap-1 text-xs text-slate-300">
-                    <span>World Info Activate</span>
+                    <span>Activate</span>
                     <MultiSelect
                       options={buildEntryOptions(selectedCheckpoint.on_activate?.world_info?.activate)}
                       value={selectedCheckpoint.on_activate?.world_info?.activate ?? []}
@@ -246,7 +633,7 @@ const CheckpointEditorPanel: React.FC<Props> = ({
                     />
                   </label>
                   <label className="flex flex-col gap-1 text-xs text-slate-300">
-                    <span>World Info Deactivate</span>
+                    <span>Deactivate</span>
                     <MultiSelect
                       options={buildEntryOptions(selectedCheckpoint.on_activate?.world_info?.deactivate)}
                       value={selectedCheckpoint.on_activate?.world_info?.deactivate ?? []}
@@ -256,26 +643,6 @@ const CheckpointEditorPanel: React.FC<Props> = ({
                           next.world_info.deactivate = values;
                           return { ...cp, on_activate: cleanupOnActivate(next) };
                         });
-                      }}
-                    />
-                  </label>
-                  <label className="flex flex-col gap-1 text-xs text-slate-300">
-                    <span>Preset Overrides (JSON)</span>
-                    <textarea
-                      className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600 font-mono"
-                      rows={6}
-                      value={JSON.stringify(selectedCheckpoint.on_activate?.preset_overrides ?? {}, null, 2)}
-                      onChange={(e) => {
-                        try {
-                          const overrides = JSON.parse(e.target.value);
-                          updateCheckpoint(selectedCheckpoint.id, (cp) => {
-                            const next = ensureOnActivate(cp.on_activate);
-                            next.preset_overrides = overrides;
-                            return { ...cp, on_activate: cleanupOnActivate(next) };
-                          });
-                        } catch {
-                          // ignore parse errors while typing
-                        }
                       }}
                     />
                   </label>
