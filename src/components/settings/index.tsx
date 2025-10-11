@@ -15,7 +15,17 @@ const SettingsWrapper = () => {
   } = useExtensionSettings();
 
   const isPromptDefault = useMemo(() => arbiterPrompt === defaultArbiterPrompt, [arbiterPrompt, defaultArbiterPrompt]);
-  const { story, validate, applyStory } = useStoryContext();
+  const {
+    story,
+    validate,
+    applyStory,
+    storyFiles,
+    selectedStoryFile,
+    selectedStoryError,
+    selectStoryFile,
+    reloadStories,
+    saveStoryToFile,
+  } = useStoryContext();
   const [showEditor, setShowEditor] = useState(false);
   console.log("[Story settings] Render", { arbiterPrompt, arbiterFrequency, isPromptDefault, isOpen });
   return (
@@ -93,7 +103,12 @@ const SettingsWrapper = () => {
           sourceStory={story}
           validate={validate}
           onApply={applyStory}
-          disabled={!story}
+          storyFiles={storyFiles}
+          selectedFile={selectedStoryFile}
+          selectedFileError={selectedStoryError}
+          onSelectFile={selectStoryFile}
+          onReloadStories={reloadStories}
+          onSaveStory={saveStoryToFile}
         />
       </div>
     </div>

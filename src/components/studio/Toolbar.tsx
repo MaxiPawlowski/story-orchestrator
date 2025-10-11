@@ -4,6 +4,9 @@ type Props = {
   disabled?: boolean;
   hasChanges: boolean;
   applyPending: boolean;
+  savePending?: boolean;
+  saveDisabled?: boolean;
+  saveAsDisabled?: boolean;
   canAddTransition: boolean;
   onAddCheckpoint: () => void;
   onAddTransition: () => void;
@@ -11,6 +14,8 @@ type Props = {
   onImportPick: () => void;
   onRunDiagnostics: () => void;
   onReset: () => void;
+  onSave: () => void;
+  onSaveAs: () => void;
   onApply: () => void;
 };
 
@@ -18,6 +23,9 @@ const Toolbar: React.FC<Props> = ({
   disabled,
   hasChanges,
   applyPending,
+  savePending,
+  saveDisabled,
+  saveAsDisabled,
   canAddTransition,
   onAddCheckpoint,
   onAddTransition,
@@ -25,6 +33,8 @@ const Toolbar: React.FC<Props> = ({
   onImportPick,
   onRunDiagnostics,
   onReset,
+  onSave,
+  onSaveAs,
   onApply,
 }) => {
   return (
@@ -70,6 +80,22 @@ const Toolbar: React.FC<Props> = ({
       <button
         type="button"
         className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
+        onClick={onSave}
+        disabled={!!saveDisabled}
+      >
+        {savePending ? "Saving..." : "Save"}
+      </button>
+      <button
+        type="button"
+        className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
+        onClick={onSaveAs}
+        disabled={!!saveAsDisabled || !!savePending}
+      >
+        Save As
+      </button>
+      <button
+        type="button"
+        className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
         onClick={onReset}
         disabled={!hasChanges}
       >
@@ -88,4 +114,3 @@ const Toolbar: React.FC<Props> = ({
 };
 
 export default Toolbar;
-

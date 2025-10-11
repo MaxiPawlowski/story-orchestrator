@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import CheckpointStudio from "./index";
 import type { Story } from "@utils/story-schema";
 import type { NormalizedStory } from "@utils/story-validator";
+import type { StoryFileDescriptor, SaveStoryResult } from "@components/context/StoryContext";
 
 type ValidationResult = { ok: true; story: NormalizedStory } | { ok: false; errors: string[] };
 type ApplyResult = { ok: true; story: NormalizedStory } | { ok: false; errors: string[] };
@@ -13,6 +14,12 @@ type Props = {
   sourceStory: NormalizedStory | null | undefined;
   validate: (input: unknown) => ValidationResult;
   onApply: (story: Story) => Promise<ApplyResult> | ApplyResult;
+  storyFiles: StoryFileDescriptor[];
+  selectedFile: string | null;
+  selectedFileError: string | null;
+  onSelectFile: (file: string) => void;
+  onReloadStories: (file?: string | null) => Promise<void>;
+  onSaveStory: (file: string, story: Story, options?: { overwrite?: boolean }) => Promise<SaveStoryResult>;
   disabled?: boolean;
 };
 
@@ -34,7 +41,20 @@ const ensurePortalRoot = (): HTMLElement => {
   return root;
 };
 
-const CheckpointEditorModal: React.FC<Props> = ({ open, onClose, sourceStory, validate, onApply, disabled }) => {
+const CheckpointEditorModal: React.FC<Props> = ({
+  open,
+  onClose,
+  sourceStory,
+  validate,
+  onApply,
+  storyFiles,
+  selectedFile,
+  selectedFileError,
+  onSelectFile,
+  onReloadStories,
+  onSaveStory,
+  disabled,
+}) => {
   const portalContainer = useMemo(() => {
     if (typeof document === "undefined") return null;
     const container = document.createElement("div");
@@ -107,6 +127,12 @@ const CheckpointEditorModal: React.FC<Props> = ({ open, onClose, sourceStory, va
             sourceStory={sourceStory}
             validate={validate}
             onApply={onApply}
+            storyFiles={storyFiles}
+            selectedFile={selectedFile}
+            selectedFileError={selectedFileError}
+            onSelectFile={onSelectFile}
+            onReloadStories={onReloadStories}
+            onSaveStory={onSaveStory}
             disabled={disabled}
           />
         </div>
