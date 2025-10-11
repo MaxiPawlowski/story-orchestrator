@@ -11,6 +11,7 @@ type Props = {
 const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect }) => {
   const [layout, setLayout] = useState<LayoutName>("breadthfirst");
   const [dagreReady, setDagreReady] = useState(false);
+  const [cyReady, setCyReady] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const cyRef = useRef<Core | null>(null);
 
@@ -45,34 +46,63 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect }) => {
     const containerEl = containerRef.current;
     if (!containerEl) return;
     let cy: Core | null = null;
-    try {
-      cy = cytoscape({
-        container: containerEl,
-        elements: [],
-        boxSelectionEnabled: false,
-        style: [
-          { selector: "node", style: { "background-color": "#1f2937", "border-color": "#3b82f6", "border-width": "1px", color: "#f8fafc", label: "data(label)", "text-max-width": "140px", "text-wrap": "wrap", "font-size": "11px", padding: "8px" } },
-          { selector: "node[type = 'start']", style: { "background-color": "#2563eb" } },
-          { selector: "node.selected", style: { "border-width": "3px", "border-color": "#facc15" } },
-          { selector: "edge", style: { "curve-style": "bezier", "target-arrow-shape": "triangle", "line-color": "#94a3b8", "target-arrow-color": "#94a3b8", label: "data(label)", color: "#f8fafc", "font-size": "10px", "text-background-color": "#0f172a", "text-background-opacity": "0.6", "text-background-padding": "4px" } },
-          { selector: "edge[outcome = 'win']", style: { "line-color": "#22c55e", "target-arrow-color": "#22c55e" } },
-          { selector: "edge[outcome = 'fail']", style: { "line-color": "#ef4444", "target-arrow-color": "#ef4444", "line-style": "dashed" } },
-        ] as any,
-      });
-    } catch {
-      return;
-    }
-    if (!cy) return;
-    const handleTap = (event: EventObject) => {
-      const id = (event?.target as any)?.id?.();
-      if (id) onSelect(id);
+    let timeoutHandle: number | null = null;
+    let cancelled = false;
+
+    const initialize = () => {
+      if (cancelled) return;
+      const container = containerRef.current;
+      if (!container || !container.isConnected || container.offsetWidth === 0 || container.offsetHeight === 0) {
+        timeoutHandle = window.setTimeout(initialize, 100);
+        return;
+      }
+
+      try {
+        cy = cytoscape({
+          container,
+          elements: [],
+          boxSelectionEnabled: false,
+          style: [
+            { selector: "node", style: { "background-color": "#1f2937", "border-color": "#3b82f6", "border-width": "1px", color: "#f8fafc", label: "data(label)", "text-max-width": "140px", "text-wrap": "wrap", "font-size": "11px", padding: "8px" } },
+            { selector: "node[type = 'start']", style: { "background-color": "#2563eb" } },
+            { selector: "node.selected", style: { "border-width": "3px", "border-color": "#facc15" } },
+            { selector: "edge", style: { "curve-style": "bezier", "target-arrow-shape": "triangle", "line-color": "#94a3b8", "target-arrow-color": "#94a3b8", label: "data(label)", color: "#f8fafc", "font-size": "10px", "text-background-color": "#0f172a", "text-background-opacity": "0.6", "text-background-padding": "4px" } },
+            { selector: "edge[outcome = 'win']", style: { "line-color": "#22c55e", "target-arrow-color": "#22c55e" } },
+            { selector: "edge[outcome = 'fail']", style: { "line-color": "#ef4444", "target-arrow-color": "#ef4444", "line-style": "dashed" } },
+          ] as any,
+        });
+      } catch {
+        timeoutHandle = window.setTimeout(initialize, 200);
+        return;
+      }
+
+      const handleTap = (event: EventObject) => {
+        const id = (event?.target as any)?.id?.();
+        if (id) onSelect(id);
+      };
+      cy.on("tap", "node", handleTap);
+      cyRef.current = cy;
+      setCyReady(true);
+
+      cleanup = () => {
+        try { cy?.off("tap", "node", handleTap); } catch { }
+        try { cy?.destroy(); } catch { }
+        cyRef.current = null;
+        cy = null;
+        setCyReady(false);
+      };
     };
-    cy.on("tap", "node", handleTap);
-    cyRef.current = cy;
+
+    let cleanup: (() => void) | null = null;
+
+    timeoutHandle = window.setTimeout(initialize, 0);
+
     return () => {
-      try { cy.off("tap", "node", handleTap); } catch { }
-      try { cy.destroy(); } catch { }
-      cyRef.current = null;
+      cancelled = true;
+      if (timeoutHandle !== null) {
+        clearTimeout(timeoutHandle);
+      }
+      if (cleanup) cleanup();
     };
   }, [onSelect]);
 
@@ -82,7 +112,7 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect }) => {
     cy.elements().remove();
     cy.add(elements);
     runLayout(cy, layout);
-  }, [elements, layout]);
+  }, [elements, layout, cyReady]);
 
   useEffect(() => {
     let cancelled = false;
@@ -96,7 +126,9 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect }) => {
           setDagreReady(true);
         }
       })
-      .catch(() => setDagreReady(false));
+      .catch(() => {
+        setDagreReady(false);
+      });
     return () => { cancelled = true; };
   }, []);
 
@@ -108,7 +140,7 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect }) => {
           <select
             value={layout}
             onChange={(e) => setLayout(e.target.value as LayoutName)}
-            className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+            className="w-full rounded border border-slate-700 bg-slate-800 mb-0 px-3 py-1 text-xs text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
           >
             <option value="breadthfirst">Breadthfirst</option>
             <option value="grid">Grid</option>

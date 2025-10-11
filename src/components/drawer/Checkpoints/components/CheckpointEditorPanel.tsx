@@ -552,7 +552,7 @@ const CheckpointEditorPanel: React.FC<Props> = ({
                                         <label className="flex flex-col gap-1 text-xs text-slate-300">
                                           <span>Setting</span>
                                           <select
-                                            className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                            className="w-full rounded border border-slate-700 bg-slate-800 mb-0 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
                                             value={settingKey}
                                             onChange={(e) => changePresetKey(roleKey, settingKey, e.target.value as PresetSettingKey)}
                                           >

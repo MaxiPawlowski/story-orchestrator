@@ -1,58 +1,60 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
+import { createPortal } from "react-dom";
 import { LoreManagerApp as DrawerManagerApp, SettingsApp } from "./Apps";
 import { StoryProvider } from "./components/context/StoryContext";
 import "./styles.css";
 
 const settingsRootContainer = document.getElementById("extensions_settings");
-const settingsRootElement = document.createElement("div");
-let drawerInitialized = false;
-
 if (!settingsRootContainer) {
   throw new Error("Settings root container not found");
 }
+
+const settingsRootElement = document.createElement("div");
 settingsRootContainer.appendChild(settingsRootElement);
 
-const settingsRoot = ReactDOM.createRoot(settingsRootElement);
+const DrawerPortal = () => {
+  const [drawerNode, setDrawerNode] = useState<HTMLElement | null>(null);
 
-setTimeout(() => {
-  settingsRoot.render(
-    <React.StrictMode>
-      <SettingsApp />
-    </React.StrictMode>
-  );
-}, 2000);
+  useEffect(() => {
+    const drawerRootContainer = document.getElementById("movingDivs");
 
+    if (!drawerRootContainer) {
+      console.error("Drawer manager root container not found");
+      return;
+    }
 
+    const drawerRootElement = document.createElement("div");
+    drawerRootElement.id = "drawer-manager";
+    drawerRootElement.classList.add("drawer-content");
+    drawerRootElement.classList.add("pinnedOpen");
 
-const initializeDrawer = () => {
-  if (drawerInitialized) return;
-  drawerInitialized = true;
+    drawerRootContainer.appendChild(drawerRootElement);
+    setDrawerNode(drawerRootElement);
 
-  const drawerRootContainer = document.getElementById("movingDivs");
-  const drawerRootElement = document.createElement("div");
-  drawerRootElement.id = "drawer-manager";
-  drawerRootElement.classList.add("drawer-content");
-  drawerRootElement.classList.add("pinnedOpen");
+    return () => {
+      if (drawerRootContainer.contains(drawerRootElement)) {
+        drawerRootContainer.removeChild(drawerRootElement);
+      }
+    };
+  }, []);
 
-  if (!drawerRootContainer) {
-    throw new Error("Drawer manager root container not found");
+  if (!drawerNode) {
+    return null;
   }
 
-  drawerRootContainer.appendChild(drawerRootElement);
-  const drawerRoot = ReactDOM.createRoot(drawerRootElement);
+  return createPortal(<DrawerManagerApp />, drawerNode);
+};
 
-  drawerRoot.render(
+const AppRoot = () => {
+  return (
     <StoryProvider>
-      <React.StrictMode>
-        <DrawerManagerApp />
-      </React.StrictMode>
+      <SettingsApp />
+      <DrawerPortal />
     </StoryProvider>
   );
-
-}
-
+};
 setTimeout(() => {
-  initializeDrawer();
-}, 3000);
-
+  const settingsRoot = ReactDOM.createRoot(settingsRootElement);
+  settingsRoot.render(<AppRoot />);
+}, 2000);
