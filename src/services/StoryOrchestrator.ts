@@ -218,8 +218,7 @@ class StoryOrchestrator {
     if (!cp) return;
 
     const overrides = cp.onActivate?.preset_overrides?.[role];
-    const roleNote = cp.onActivate?.authors_note?.[role]
-      ?? (cp.onActivate?.authors_note as any)?.__global;
+    const roleNote = cp.onActivate?.authors_note?.[role];
     const characterName = this.story.roles?.[role as keyof typeof this.story.roles];
 
     if (characterName && roleNote) {

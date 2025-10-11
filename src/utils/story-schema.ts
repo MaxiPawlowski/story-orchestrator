@@ -36,10 +36,7 @@ export const WorldInfoActivationsSchema = z.object({
 
 export type WorldInfoActivations = z.infer<typeof WorldInfoActivationsSchema>;
 
-const AuthorsNoteSchema = z.union([
-  z.string().min(1),
-  z.record(z.string().min(1), z.string().min(1)),
-]);
+const AuthorsNoteSchema = z.record(z.string().min(1), z.string().min(1));
 
 export const OnActivateSchema = z.object({
   authors_note: AuthorsNoteSchema.optional(),

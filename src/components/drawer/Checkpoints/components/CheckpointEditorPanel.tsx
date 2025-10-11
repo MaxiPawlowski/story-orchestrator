@@ -152,7 +152,7 @@ const CheckpointEditorPanel: React.FC<Props> = ({
     } catch (err) {
       console.warn("[CheckpointEditor] Failed to subscribe to WI events", err);
     }
-    return () => { while (offs.length) { try { offs.pop()?.(); } catch {} } };
+    return () => { while (offs.length) { try { offs.pop()?.(); } catch { } } };
   }, [refreshLoreEntries]);
 
   React.useEffect(() => {
@@ -488,28 +488,10 @@ const CheckpointEditorPanel: React.FC<Props> = ({
               <>
                 <div className="space-y-2">
                   <div className="font-medium">Author Notes & Preset Overrides</div>
-                  {/* Global Author's Note */}
-                  <label className="flex flex-col gap-1 text-xs text-slate-300">
-                    <span>Global Author Note (applies to any role)</span>
-                    <textarea
-                      className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                      rows={3}
-                      value={selectedCheckpoint.on_activate?.authors_note?.["__global" as any] ?? ""}
-                      onChange={(e) => {
-                        const note = e.target.value;
-                        updateCheckpoint(selectedCheckpoint.id, (cp) => {
-                          const next = ensureOnActivate(cp.on_activate);
-                          if (note.trim()) (next.authors_note as any).__global = note;
-                          else delete (next.authors_note as any).__global;
-                          return { ...cp, on_activate: cleanupOnActivate(next) };
-                        });
-                      }}
-                    />
-                  </label>
                   {/* Per-role Author's Notes based on configured roles */}
                   {(Object.keys(draft.roles ?? {}) as string[]).length ? (
                     <div className="space-y-2">
-                      <div className="text-xs text-slate-400">Per-role notes override the global one when present.</div>
+                      <div className="text-xs text-slate-400">Define per-role notes for the characters participating in the story.</div>
                       {Object.keys(draft.roles ?? {}).map((roleKey) => (
                         <label key={roleKey} className="flex flex-col gap-1 text-xs text-slate-300">
                           <span>Author Note  Erole: {roleKey}</span>

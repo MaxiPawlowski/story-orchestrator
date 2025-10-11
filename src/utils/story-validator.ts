@@ -132,10 +132,15 @@ const sanitizeRoleMap = (input?: Partial<Record<Role, string>>): Partial<Record<
 
 function normalizeAuthorsNote(input?: OnActivate["authors_note"]): Partial<Record<Role, string>> | undefined {
   if (!input) return undefined;
-  // If a scalar string is provided, treat it as a global/default note
-  if (typeof input === "string") return { __global: input } as unknown as Partial<Record<Role, string>>;
-  // zod ensures keys are strings; keep as-is
-  return input;
+
+  const result: Partial<Record<Role, string>> = {};
+  for (const [role, rawText] of Object.entries(input) as [Role, unknown][]) {
+    if (typeof rawText !== "string") continue;
+    const trimmed = rawText.trim();
+    if (trimmed) result[role] = trimmed;
+  }
+
+  return Object.keys(result).length ? result : undefined;
 }
 
 function normalizePresetOverrides(input?: RolePresetOverrides | null): RolePresetOverrides | undefined {
