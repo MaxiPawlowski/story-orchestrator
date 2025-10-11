@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useExtensionSettings } from "@components/context/ExtensionSettingsContext";
 import { useStoryContext } from "@hooks/useStoryContext";
-import CheckpointEditorModal from "@components/drawer/Checkpoints/CheckpointEditorModal";
+import CheckpointEditorModal from "@components/settings/CheckpointStudio/CheckpointEditorModal";
 
 const SettingsWrapper = () => {
   const [isOpen, setIsOpen] = useState(false);

@@ -1,9 +1,5 @@
-import React, { useMemo, useState, useCallback } from "react";
-import { getWorldInfoSettings } from "@services/SillyTavernAPI";
+import React, { useMemo } from "react";
 import { CheckpointStatus } from "@utils/story-state";
-import { useStoryContext } from "@hooks/useStoryContext";
-import CheckpointEditorModal from "./CheckpointEditorModal";
-import type { Story } from "@utils/story-schema";
 
 type CheckpointRow = {
   id: string | number;
@@ -119,8 +115,6 @@ const Checkpoints: React.FC<Props> = ({
             );
           })}
       </ul>
-
-
     </div>
   );
 };

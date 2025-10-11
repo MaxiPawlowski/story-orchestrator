@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
-import CheckpointStudio from "./CheckpointStudio";
+import CheckpointStudio from "./index";
 import type { Story } from "@utils/story-schema";
 import type { NormalizedStory } from "@utils/story-validator";
 

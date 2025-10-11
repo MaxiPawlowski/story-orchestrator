@@ -21,7 +21,6 @@ const DrawerWrapper = () => {
         <div className="flex items-center gap-1">
           <span className="text-sm font-medium">Hi {currentUserName}</span>
         </div>
-        {/* editor control moved to Settings panel */}
         <div className="flex items-center gap-1">
           <button
             type="button"
@@ -56,10 +55,6 @@ const DrawerWrapper = () => {
           )}
         </div>
       )}
-
-
-      {/* CheckpointEditorModal is rendered from Settings now */}
-
     </div>
   );
 };

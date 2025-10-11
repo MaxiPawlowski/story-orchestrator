@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import cytoscape, { Core, ElementDefinition, EventObject, LayoutOptions } from "cytoscape";
-import { StoryDraft, LayoutName } from "../checkpoint-studio.helpers";
+import { StoryDraft, LayoutName } from "@utils/checkpoint-studio";
 
 type Props = {
   draft: StoryDraft;

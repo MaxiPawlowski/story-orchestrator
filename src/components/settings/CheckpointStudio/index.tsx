@@ -1,13 +1,13 @@
 import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import type { Story, Transition } from "@utils/story-schema";
 import type { NormalizedStory } from "@utils/story-validator";
-import { StoryDraft, CheckpointDraft, normalizedToDraft, draftToStoryInput, buildMermaid, generateUniqueId, slugify } from "./checkpoint-studio.helpers";
-import Toolbar from "./components/Toolbar";
-import FeedbackAlert from "./components/FeedbackAlert";
-import GraphPanel from "./components/GraphPanel";
-import StoryDetailsPanel from "./components/StoryDetailsPanel";
-import DiagnosticsPanel from "./components/DiagnosticsPanel";
-import CheckpointEditorPanel from "./components/CheckpointEditorPanel";
+import { StoryDraft, CheckpointDraft, normalizedToDraft, draftToStoryInput, buildMermaid, generateUniqueId, slugify } from "@utils/checkpoint-studio";
+import Toolbar from "@components/studio/Toolbar";
+import FeedbackAlert from "@components/studio/FeedbackAlert";
+import GraphPanel from "@components/studio/GraphPanel";
+import StoryDetailsPanel from "@components/studio/StoryDetailsPanel";
+import DiagnosticsPanel from "@components/studio/DiagnosticsPanel";
+import CheckpointEditorPanel from "@components/studio/CheckpointEditorPanel";
 
 type ValidationResult = { ok: true; story: NormalizedStory } | { ok: false; errors: string[] };
 type ApplyResult = { ok: true; story: NormalizedStory } | { ok: false; errors: string[] };

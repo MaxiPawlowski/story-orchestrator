@@ -1,4 +1,4 @@
-﻿import type { Story, Checkpoint, Transition, Role, RolePresetOverrides } from "@utils/story-schema";
+import type { Story, Checkpoint, Transition, Role, RolePresetOverrides } from "@utils/story-schema";
 import type { NormalizedStory, NormalizedCheckpoint, NormalizedOnActivate } from "@utils/story-validator";
 
 export type LayoutName = "breadthfirst" | "cose" | "grid" | "dagre";
@@ -44,7 +44,6 @@ export const splitCsv = (value: string): string[] =>
     .map((entry) => entry.trim())
     .filter(Boolean);
 
-export const joinCsv = (values?: string[]): string => (values && values.length ? values.join(", ") : "");
 
 const escapeMermaidText = (value: string): string => value.replace(/"/g, "\\\"");
 

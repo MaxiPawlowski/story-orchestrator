@@ -1,5 +1,5 @@
 import React from "react";
-import { StoryDraft } from "../checkpoint-studio.helpers";
+import { StoryDraft } from "@utils/checkpoint-studio";
 import { getWorldInfoSettings, eventSource, event_types, getContext } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
 
@@ -17,8 +17,8 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
       const settings: any = getWorldInfoSettings?.();
       const list = Array.isArray(settings?.world_info?.globalSelect)
         ? (settings.world_info.globalSelect as unknown[])
-            .map((g) => (typeof g === "string" ? g.trim() : ""))
-            .filter(Boolean)
+          .map((g) => (typeof g === "string" ? g.trim() : ""))
+          .filter(Boolean)
         : [];
       setGlobalLorebooks(list);
     } catch (err) {
@@ -74,12 +74,12 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
   React.useEffect(() => {
     // initial read
     refreshGlobalLorebooks();
-    try { refreshGroupMembers(); } catch {}
+    try { refreshGroupMembers(); } catch { }
 
     // listen to world info setting changes to keep the list in sync
     const offs: Array<() => void> = [];
     const handler = () => refreshGlobalLorebooks();
-    const chatChanged = () => { try { refreshGroupMembers(); } catch {} };
+    const chatChanged = () => { try { refreshGroupMembers(); } catch { } };
     try {
       [
         event_types?.WORLDINFO_SETTINGS_UPDATED,
@@ -99,7 +99,7 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
 
     return () => {
       while (offs.length) {
-        try { offs.pop()?.(); } catch {}
+        try { offs.pop()?.(); } catch { }
       }
     };
   }, [refreshGlobalLorebooks, refreshGroupMembers]);
