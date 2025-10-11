@@ -30,13 +30,6 @@ type Props = {
   lastQueuedEvaluation?: QueuedEvaluationInfo | null;
 };
 
-const STATUS_LABEL: Record<CheckpointStatus, string> = {
-  [CheckpointStatus.Pending]: "Pending",
-  [CheckpointStatus.Current]: "In progress",
-  [CheckpointStatus.Complete]: "Complete",
-  [CheckpointStatus.Failed]: "Failed",
-};
-
 const STATUS_BORDER_CLASS: Record<CheckpointStatus, string> = {
   [CheckpointStatus.Pending]: "border-gray-200",
   [CheckpointStatus.Current]: "border-blue-300",
@@ -93,40 +86,42 @@ const Checkpoints: React.FC<Props> = ({
       </div>
 
       <ul className="list-none p-0 mt-3">
-        {rows.map((cp, i) => {
-          const status = cp.status ?? CheckpointStatus.Pending;
-          const borderClass = STATUS_BORDER_CLASS[status] ?? STATUS_BORDER_CLASS[CheckpointStatus.Pending];
-          const statusLabel = STATUS_LABEL[status] ?? STATUS_LABEL[CheckpointStatus.Pending];
-          const isComplete = status === CheckpointStatus.Complete;
-          const key = cp.id ?? `cp-${i}`;
+        {rows
+          .filter((cp) => {
+            if (!cp) return false;
+            const status = cp.status ?? CheckpointStatus.Pending;
+            return status !== CheckpointStatus.Pending;
+          })
+          .map((cp, i) => {
+            const status = cp.status ?? CheckpointStatus.Pending;
+            const borderClass = STATUS_BORDER_CLASS[status] ?? STATUS_BORDER_CLASS[CheckpointStatus.Pending];
+            const isComplete = status === CheckpointStatus.Complete;
+            const key = cp.id ?? `cp-${i}`;
 
-          return (
-            <li
-              key={key}
-              className={`flex items-center justify-between py-2 px-2.5 rounded-md border ${borderClass} mb-1.5`}
-            >
-              <div className="flex items-center gap-2.5 flex-1">
-                <input
-                  type="checkbox"
-                  disabled
-                  readOnly
-                  checked={isComplete}
-                  aria-readonly="true"
-                  className="m-0"
-                />
-                <div className="flex flex-col">
-                  <span className={status === CheckpointStatus.Current ? "font-semibold" : "font-medium"}>
-                    {cp.name || cp.objective}
-                  </span>
-                  <span className="text-sm opacity-80">{cp.objective}</span>
+            return (
+              <li
+                key={key}
+                className={`flex items-center py-2 px-2.5 rounded-md border ${borderClass} mb-1.5`}
+              >
+                <div className="flex items-center gap-2.5 flex-1">
+                  <input
+                    type="checkbox"
+                    disabled
+                    readOnly
+                    checked={isComplete}
+                    aria-readonly="true"
+                    className="m-0"
+                  />
+                  <div className="flex flex-col">
+                    <span className={status === CheckpointStatus.Current ? "font-semibold" : "font-medium"}>
+                      {cp.name || cp.objective}
+                    </span>
+                    <span className="text-sm opacity-80">{cp.objective}</span>
+                  </div>
                 </div>
-              </div>
-              <span className={status === CheckpointStatus.Pending ? "text-sm opacity-60" : "text-sm opacity-90"}>
-                {statusLabel}
-              </span>
-            </li>
-          );
-        })}
+              </li>
+            );
+          })}
       </ul>
 
       <div className="mt-2.5 flex gap-2">
