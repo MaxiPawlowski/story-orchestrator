@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { useExtensionSettings } from "@components/context/ExtensionSettingsContext";
+import { useStoryContext } from "@hooks/useStoryContext";
+import CheckpointEditorModal from "@components/drawer/Checkpoints/CheckpointEditorModal";
 
 const SettingsWrapper = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,6 +15,8 @@ const SettingsWrapper = () => {
   } = useExtensionSettings();
 
   const isPromptDefault = useMemo(() => arbiterPrompt === defaultArbiterPrompt, [arbiterPrompt, defaultArbiterPrompt]);
+  const { story, validate, applyStory } = useStoryContext();
+  const [showEditor, setShowEditor] = useState(false);
   console.log("[Story settings] Render", { arbiterPrompt, arbiterFrequency, isPromptDefault, isOpen });
   return (
     <div id="stepthink_settings">
@@ -28,6 +32,15 @@ const SettingsWrapper = () => {
         </div>
         {isOpen && (
           <div className="inline-drawer-content px-3 py-2 !flex flex-col gap-3">
+            <div className="flex justify-end">
+              <button
+                type="button"
+                className="text-xs px-2 py-1 border rounded bg-transparent"
+                onClick={() => setShowEditor((prev) => !prev)}
+              >
+                {showEditor ? "Hide Editor" : "Open Editor"}
+              </button>
+            </div>
             <div className="flex flex-col gap-1">
               <label htmlFor="story-arbiter-frequency" className="text-sm font-medium">
                 Arbiter Frequency (turns)
@@ -74,6 +87,14 @@ const SettingsWrapper = () => {
             </div>
           </div>
         )}
+        <CheckpointEditorModal
+          open={showEditor}
+          onClose={() => setShowEditor(false)}
+          sourceStory={story}
+          validate={validate}
+          onApply={applyStory}
+          disabled={!story}
+        />
       </div>
     </div>
   );

@@ -91,11 +91,11 @@ const CheckpointEditorModal: React.FC<Props> = ({ open, onClose, sourceStory, va
         aria-label="Checkpoint Editor"
         className="flex w-full max-h-[96vh] max-w-[1120px] flex-col rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] shadow-2xl"
       >
-        <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
-          <h2 className="text-base font-semibold text-slate-200">Checkpoint Editor</h2>
+        <div className="flex items-center justify-between border-b border-slate-800 px-4 py-0">
+          <h2 className="text-base font-semibold text-slate-200 m-auto">Checkpoint Editor</h2>
           <button
             type="button"
-            className="rounded p-1 text-lg text-slate-400 transition hover:text-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-600"
+            className="rounded p-1 border-none bg-transparent text-lg text-slate-400 transition hover:text-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-600"
             aria-label="Close checkpoint editor"
             onClick={onClose}
           >

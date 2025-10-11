@@ -44,10 +44,6 @@ const Checkpoints: React.FC<Props> = ({
 }) => {
   const rows = checkpoints?.length ? checkpoints : [];
 
-  const debugActiveWI = useMemo(() => () => {
-    const wi = getWorldInfoSettings();
-    console.log("WI settings snapshot:", wi);
-  }, []);
 
   const queuedSummary = useMemo(() => {
     if (!lastQueuedEvaluation) return null;
@@ -124,14 +120,6 @@ const Checkpoints: React.FC<Props> = ({
           })}
       </ul>
 
-      <div className="mt-2.5 flex gap-2">
-        <button
-          onClick={debugActiveWI}
-          className="text-sm bg-transparent border-0 cursor-pointer"
-        >
-          debug WI
-        </button>
-      </div>
 
     </div>
   );
