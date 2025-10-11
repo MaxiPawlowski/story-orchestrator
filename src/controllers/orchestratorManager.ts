@@ -1,5 +1,6 @@
 import StoryOrchestrator, { type StoryEvaluationEvent } from "@services/StoryOrchestrator";
 import { createTurnController } from "@controllers/turnController";
+import { DEFAULT_ARBITER_PROMPT } from "@services/CheckpointArbiterService";
 import type { NormalizedStory } from "@utils/story-validator";
 import type { Role } from "@utils/story-schema";
 import { DEFAULT_INTERVAL_TURNS } from "@utils/story-state";
@@ -16,11 +17,18 @@ const clampIntervalTurns = (value: number): number => {
   return rounded >= 1 ? rounded : DEFAULT_INTERVAL_TURNS;
 };
 
+const sanitizeArbiterPrompt = (value: string): string => {
+  const normalized = typeof value === "string" ? value.replace(/\u000D/g, "").trim() : "";
+  if (!normalized) return DEFAULT_ARBITER_PROMPT;
+  return normalized.length > 1200 ? normalized.slice(0, 1200) : normalized;
+};
+
 const turnController = createTurnController();
 let orchestrator: StoryOrchestrator | null = null;
 let pendingInit: Promise<void> | null = null;
 let currentStory: NormalizedStory | null = null;
 let intervalTurns = DEFAULT_INTERVAL_TURNS;
+let arbiterPrompt = DEFAULT_ARBITER_PROMPT;
 let runtimeHooks: RuntimeHooks = {};
 
 const setReady = (next: boolean) => {
@@ -57,6 +65,7 @@ const initialize = async (story: NormalizedStory) => {
 
   orchestrator = instance;
   instance.setIntervalTurns(intervalTurns);
+  instance.setArbiterPrompt(arbiterPrompt);
 
   turnController.attach(instance);
   turnController.start();
@@ -116,10 +125,16 @@ export const setIntervalTurns = (value: number) => {
   orchestrator?.setIntervalTurns(intervalTurns);
 };
 
+export const setArbiterPrompt = (value: string) => {
+  arbiterPrompt = sanitizeArbiterPrompt(value);
+  orchestrator?.setArbiterPrompt(arbiterPrompt);
+};
+
 export const ensureStory = async (story: NormalizedStory | null | undefined): Promise<void> => {
   const target = story ?? null;
   if (target === currentStory) {
     orchestrator?.setIntervalTurns(intervalTurns);
+    orchestrator?.setArbiterPrompt(arbiterPrompt);
     return;
   }
 

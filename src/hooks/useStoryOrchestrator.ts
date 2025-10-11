@@ -8,6 +8,7 @@ import {
   getOrchestrator,
   setHooks as setOrchestratorHooks,
   setIntervalTurns as setOrchestratorIntervalTurns,
+  setArbiterPrompt as setOrchestratorArbiterPrompt,
 } from "@controllers/orchestratorManager";
 import { storySessionStore, type StorySessionValueState } from "@store/storySessionStore";
 
@@ -22,13 +23,16 @@ export interface StoryOrchestratorResult {
   setOnActivateCheckpoint: (cb?: (index: number) => void) => void;
 }
 
+export interface UseStoryOrchestratorOptions {
+  onTurnTick?: (next: { turn: number; sinceEval: number }) => void;
+  onEvaluated?: (ev: StoryEvaluationEvent) => void;
+  arbiterPrompt?: string;
+}
+
 export function useStoryOrchestrator(
   story: NormalizedStory | null | undefined,
   intervalTurns: number,
-  options?: {
-    onTurnTick?: (next: { turn: number; sinceEval: number }) => void;
-    onEvaluated?: (ev: StoryEvaluationEvent) => void;
-  },
+  options?: UseStoryOrchestratorOptions,
 ): StoryOrchestratorResult {
   const requirements = useStore(storySessionStore, (s) => s.requirements);
   const runtime = useStore(storySessionStore, (s) => s.runtime);
@@ -48,6 +52,12 @@ export function useStoryOrchestrator(
   useEffect(() => {
     setOrchestratorIntervalTurns(intervalTurns);
   }, [intervalTurns]);
+
+  useEffect(() => {
+    if (options?.arbiterPrompt !== undefined) {
+      setOrchestratorArbiterPrompt(options.arbiterPrompt);
+    }
+  }, [options?.arbiterPrompt]);
 
   useEffect(() => {
     ensureOrchestratorStory(story ?? null).catch((err) => {
@@ -86,4 +96,3 @@ export function useStoryOrchestrator(
 }
 
 export default useStoryOrchestrator;
-

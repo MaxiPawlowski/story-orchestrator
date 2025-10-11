@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from "react";
+import { useExtensionSettings } from "@components/context/ExtensionSettingsContext";
 import { parseAndNormalizeStory, formatZodError, type NormalizedStory } from "@utils/story-validator";
 import type { Story } from "@utils/story-schema";
 import { loadCheckpointBundle, type CheckpointBundle } from "@utils/story-loader";
@@ -53,9 +54,12 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
   const [story, setStory] = useState<NormalizedStory | null>(null);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
 
+  const { arbiterFrequency, arbiterPrompt } = useExtensionSettings();
+  const intervalTurns = Number.isFinite(arbiterFrequency) ? arbiterFrequency : DEFAULT_INTERVAL_TURNS;
+
   const { ready, activateIndex, requirements, runtime, reloadPersona, updateCheckpointStatus } = useStoryOrchestrator(
     story,
-    DEFAULT_INTERVAL_TURNS,
+    intervalTurns,
     {
       onEvaluated: ({ outcome, cpIndex, transition }) => {
         if (!story) return;
@@ -77,6 +81,7 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
           }
         }
       },
+      arbiterPrompt,
     },
   );
 

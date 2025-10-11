@@ -1,6 +1,8 @@
 import { clampText } from '../utils/story-state';
 import { chat, generateQuietPrompt } from "@services/SillyTavernAPI";
 
+export const DEFAULT_ARBITER_PROMPT = 'You are an impartial story overseer.';
+
 export type ArbiterReason = 'win' | 'fail' | 'interval';
 
 export interface CheckpointEvalRequest {
@@ -35,6 +37,7 @@ export interface CheckpointEvalPayload {
 export interface CheckpointArbiterApi {
   evaluate: (request: CheckpointEvalRequest) => Promise<CheckpointEvalPayload>;
   clear: () => void;
+  updateOptions: (options?: CheckpointArbiterServiceOptions) => void;
 }
 
 export interface ArbiterTransitionOption {
@@ -46,13 +49,11 @@ export interface ArbiterTransitionOption {
   targetObjective?: string;
 }
 
-
-
-
 export interface CheckpointArbiterServiceOptions {
   onEvaluated?: (payload: CheckpointEvalPayload) => void;
   snapshotLimit?: number;
   responseLength?: number;
+  promptTemplate?: string;
 }
 
 interface PendingJob {
@@ -62,6 +63,7 @@ interface PendingJob {
 
 const DEFAULT_SNAPSHOT_LIMIT = 10;
 const DEFAULT_RESPONSE_LENGTH = 256;
+const PROMPT_LENGTH_LIMIT = 1200;
 
 function snapshot(limit: number): string {
   return (Array.isArray(chat) ? chat.slice(-limit) : [])
@@ -76,15 +78,15 @@ function snapshot(limit: number): string {
     .join('\n');
 }
 
-function buildReasonLine(r: ArbiterReason, matched: string | undefined, intervalTurns: number) {
-  if (r === 'interval') return `Periodic check (every ${intervalTurns} turns).`;
+function buildReasonLine(reason: ArbiterReason, matched: string | undefined, intervalTurns: number): string {
+  if (reason === 'interval') return `Periodic check (every ${intervalTurns} turns).`;
   const suffix = matched ? `: ${matched}` : '';
-  return r === 'win' ? `Completion trigger matched${suffix}.` : `Failure trigger matched${suffix}.`;
+  return reason === 'win' ? `Completion trigger matched${suffix}.` : `Failure trigger matched${suffix}.`;
 }
 
 function formatTransitionOption(option: ArbiterTransitionOption, idx: number): string {
   const pieces: string[] = [];
-  const label = option.label ? ` – ${option.label}` : '';
+  const label = option.label ? ` - ${option.label}` : '';
   const target = option.targetName ? ` -> ${option.targetName}` : '';
   const detail = option.description ? ` ${option.description}` : '';
   const outcome = option.outcome === 'win' ? 'success' : 'failure';
@@ -102,27 +104,27 @@ function buildTransitionsSection(options?: ArbiterTransitionOption[]): string {
   const lines: string[] = [];
   if (winOptions.length) {
     lines.push('If you determine the checkpoint is completed (success), choose one of:');
-    winOptions.forEach((opt, idx) => {
-      lines.push(formatTransitionOption(opt, idx));
-    });
+    winOptions.forEach((opt, idx) => { lines.push(formatTransitionOption(opt, idx)); });
   }
   if (failOptions.length) {
     if (lines.length) lines.push('');
     lines.push('If you determine the checkpoint failed, choose one of:');
-    failOptions.forEach((opt, idx) => {
-      lines.push(formatTransitionOption(opt, idx));
-    });
+    failOptions.forEach((opt, idx) => { lines.push(formatTransitionOption(opt, idx)); });
   }
   if (!lines.length) return '';
   lines.push('If no option fits your decision, respond with "next_edge": null.');
   return lines.join('\n');
 }
 
-function buildEvalPrompt(request: CheckpointEvalRequest, transcript: string) {
+function buildEvalPrompt(request: CheckpointEvalRequest, transcript: string, promptTemplate?: string) {
   const { cpName, objective, reason, matched, turn, latestText, intervalTurns } = request;
   const transitionSection = buildTransitionsSection(request.transitions);
-  return [
-    'You are an impartial story overseer.',
+  const header = typeof promptTemplate === 'string' && promptTemplate.trim()
+    ? promptTemplate.replace(/\r/g, '').trim()
+    : DEFAULT_ARBITER_PROMPT;
+  const headerLines = header.split(/\n/).map((line) => line.trim()).filter((line) => Boolean(line));
+  const lines: string[] = [
+    ...headerLines,
     `Checkpoint: ${cpName}`,
     objective ? `Objective: ${objective}` : '',
     buildReasonLine(reason, matched, intervalTurns),
@@ -141,7 +143,8 @@ function buildEvalPrompt(request: CheckpointEvalRequest, transcript: string) {
     '',
     'Respond ONLY with JSON. Example:',
     '{"completed": true, "failed": false, "next_edge": "edge-id", "reason": "...", "confidence": 0.95}',
-  ].filter(Boolean).join('\n');
+  ];
+  return lines.filter(Boolean).join('\n');
 }
 
 function parseModel(raw: unknown): ModelEval | null {
@@ -149,7 +152,7 @@ function parseModel(raw: unknown): ModelEval | null {
   if (!text) return null;
   if (/^```/m.test(text)) text = text.replace(/```(?:json)?\s*([\s\S]*?)\s*```/gi, '$1').trim();
 
-  const blocks = [...text.matchAll(/\{[\s\S]*?\}/g)].map(m => m[0]);
+  const blocks = [...text.matchAll(/\{[\s\S]*?\}/g)].map((m) => m[0]);
   const ordered = blocks.sort((a, b) => b.length - a.length);
 
   const toBool = (value: any): boolean | null => {
@@ -181,7 +184,9 @@ function parseModel(raw: unknown): ModelEval | null {
       if (result.completed) result.failed = false;
       if (result.failed) result.completed = false;
       return result;
-    } catch { return null; }
+    } catch {
+      return null;
+    }
   };
 
   for (const candidate of [...ordered, text]) {
@@ -190,8 +195,8 @@ function parseModel(raw: unknown): ModelEval | null {
   }
 
   const boolKey = (key: string) => {
-    const m = text.match(new RegExp(`"${key}"\s*:\s*(true|false)`, 'i'));
-    return m ? m[1].toLowerCase() === 'true' : null;
+    const match = text.match(new RegExp(`"${key}"\s*:\s*(true|false)`, 'i'));
+    return match ? match[1].toLowerCase() === 'true' : null;
   };
   const completed = boolKey('completed');
   const failed = boolKey('failed');
@@ -204,32 +209,48 @@ function parseModel(raw: unknown): ModelEval | null {
 }
 
 function resolveOutcome(parsed: ModelEval | null): EvaluationOutcome {
-  if (!parsed) return "continue";
-  if (parsed.completed) return "win";
-  if (parsed.failed) return "fail";
-  return "continue";
+  if (!parsed) return 'continue';
+  if (parsed.completed) return 'win';
+  if (parsed.failed) return 'fail';
+  return 'continue';
 }
 
 class CheckpointArbiterService implements CheckpointArbiterApi {
   private queue: PendingJob[] = [];
   private busy = false;
   private disposed = false;
-  private options?: CheckpointArbiterServiceOptions;
+  private options: CheckpointArbiterServiceOptions = {
+    promptTemplate: DEFAULT_ARBITER_PROMPT,
+  };
 
   constructor(options?: CheckpointArbiterServiceOptions) {
-    this.updateOptions(options);
+    if (options) {
+      this.updateOptions(options);
+    }
   }
 
   updateOptions(options?: CheckpointArbiterServiceOptions) {
-    this.options = options;
+    if (!options) return;
+    const merged: CheckpointArbiterServiceOptions = {
+      ...this.options,
+      ...options,
+    };
+    if (typeof merged.promptTemplate === 'string') {
+      const normalized = merged.promptTemplate.replace(/\r/g, '').trim();
+      merged.promptTemplate = normalized ? normalized.slice(0, PROMPT_LENGTH_LIMIT) : DEFAULT_ARBITER_PROMPT;
+    } else {
+      merged.promptTemplate = this.options.promptTemplate ?? DEFAULT_ARBITER_PROMPT;
+    }
+    this.options = merged;
   }
 
   clear(): void {
     this.queue.length = 0;
   }
+
   evaluate(request: CheckpointEvalRequest): Promise<CheckpointEvalPayload> {
     if (this.disposed) {
-      return Promise.reject(new Error("CheckpointArbiterService disposed"));
+      return Promise.reject(new Error('CheckpointArbiterService disposed'));
     }
 
     return new Promise<CheckpointEvalPayload>((resolve) => {
@@ -249,7 +270,8 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
       while (!this.disposed && this.queue.length) {
         const job = this.queue.shift()!;
         const transcript = snapshot(this.options?.snapshotLimit ?? DEFAULT_SNAPSHOT_LIMIT);
-        const prompt = buildEvalPrompt(job.request, transcript);
+        const promptTemplate = this.options?.promptTemplate ?? DEFAULT_ARBITER_PROMPT;
+        const prompt = buildEvalPrompt(job.request, transcript, promptTemplate);
         console.log('[Story - CheckpointArbiter] prompt', { reason: job.request.reason, cp: job.request.cpName, turn: job.request.turn });
 
         let raw = '';
@@ -273,10 +295,19 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
         const outcome = resolveOutcome(parsed);
         console.log('[Story - CheckpointArbiter] outcome', { outcome, parsed });
 
-        const payload: CheckpointEvalPayload = { request: job.request, raw, parsed, outcome, nextEdgeId: parsed?.nextEdgeId ?? null };
+        const payload: CheckpointEvalPayload = {
+          request: job.request,
+          raw,
+          parsed,
+          outcome,
+          nextEdgeId: parsed?.nextEdgeId ?? null,
+        };
         try { job.resolve(payload); } catch (err) { console.warn('[Story - CheckpointArbiter] resolve failed', err); }
         try { this.options?.onEvaluated?.(payload); } catch (err) { console.warn('[Story - CheckpointArbiter] onEvaluated handler failed', err); }
-        if (outcome === 'win') { this.queue.length = 0; break; }
+        if (outcome === 'win') {
+          this.queue.length = 0;
+          break;
+        }
       }
     } finally {
       this.busy = false;
@@ -290,4 +321,3 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
 }
 
 export default CheckpointArbiterService;
-

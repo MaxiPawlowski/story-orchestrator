@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { createPortal } from "react-dom";
-import { LoreManagerApp as DrawerManagerApp, SettingsApp } from "./Apps";
 import { StoryProvider } from "./components/context/StoryContext";
+import { ExtensionSettingsProvider } from "@components/context/ExtensionSettingsContext";
+import DrawerWrapper from "@components/drawer";
+import SettingsWrapper from "@components/settings";
 import "./styles.css";
 
 const settingsRootContainer = document.getElementById("extensions_settings");
@@ -43,15 +45,17 @@ const DrawerPortal = () => {
     return null;
   }
 
-  return createPortal(<DrawerManagerApp />, drawerNode);
+  return createPortal(<DrawerWrapper />, drawerNode);
 };
 
 const AppRoot = () => {
   return (
-    <StoryProvider>
-      <SettingsApp />
-      <DrawerPortal />
-    </StoryProvider>
+    <ExtensionSettingsProvider>
+      <StoryProvider>
+        <SettingsWrapper />
+        <DrawerPortal />
+      </StoryProvider>
+    </ExtensionSettingsProvider>
   );
 };
 setTimeout(() => {

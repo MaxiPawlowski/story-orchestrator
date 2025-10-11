@@ -1,4 +1,4 @@
-﻿import type { Role } from "@utils/story-schema";
+import type { Role } from "@utils/story-schema";
 import type { NormalizedCheckpoint, NormalizedStory, NormalizedTransition } from "@utils/story-validator";
 import { matchTrigger as matchTriggerUtil } from "@utils/story-state";
 import { PresetService } from "./PresetService";
@@ -7,6 +7,7 @@ import CheckpointArbiterService, {
   type ArbiterTransitionOption,
   type CheckpointArbiterApi,
   type EvaluationOutcome,
+  DEFAULT_ARBITER_PROMPT,
 } from "./CheckpointArbiterService";
 import { createRequirementsController } from "@controllers/requirementsController";
 import { createPersistenceController } from "@controllers/persistenceController";
@@ -60,6 +61,7 @@ class StoryOrchestrator {
   private winRes: RegExp[] = [];
   private failRes: RegExp[] = [];
   private intervalTurns = DEFAULT_INTERVAL_TURNS;
+  private arbiterPrompt = DEFAULT_ARBITER_PROMPT;
   private roleNameMap = new Map<string, Role>();
   private checkpointPrimed = false;
 
@@ -85,7 +87,7 @@ class StoryOrchestrator {
   }) {
     console.log("[StoryOrch] initializing for story", { title: opts.story.title });
     this.story = opts.story;
-    this.checkpointArbiter = new CheckpointArbiterService();
+    this.checkpointArbiter = new CheckpointArbiterService({ promptTemplate: DEFAULT_ARBITER_PROMPT });
     this.presetService = new PresetService({
       base: { source: "current" },
       storyId: this.story.title,
@@ -177,6 +179,12 @@ class StoryOrchestrator {
 
   setIntervalTurns(n: number) {
     this.intervalTurns = Math.max(1, n | 0);
+  }
+
+  setArbiterPrompt(prompt: string) {
+    const normalized = typeof prompt === "string" ? prompt.replace(/\r/g, "").trim() : "";
+    this.arbiterPrompt = normalized ? normalized : DEFAULT_ARBITER_PROMPT;
+    this.checkpointArbiter.updateOptions({ promptTemplate: this.arbiterPrompt });
   }
 
   async init() {
@@ -537,6 +545,7 @@ class StoryOrchestrator {
 
     this.setTurn(0);
     this.intervalTurns = DEFAULT_INTERVAL_TURNS;
+    this.setArbiterPrompt(DEFAULT_ARBITER_PROMPT);
     this.roleNameMap.clear();
     this.winRes = [];
     this.failRes = [];
