@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import CheckpointStudio from "./index";
 import type { Story } from "@utils/story-schema";
 import type { NormalizedStory } from "@utils/story-validator";
-import type { StoryFileDescriptor, SaveStoryResult } from "@components/context/StoryContext";
+import type { StoryLibraryEntry, SaveLibraryStoryResult } from "@components/context/StoryContext";
 
 type ValidationResult = { ok: true; story: NormalizedStory } | { ok: false; errors: string[] };
 type ApplyResult = { ok: true; story: NormalizedStory } | { ok: false; errors: string[] };
@@ -14,12 +14,12 @@ type Props = {
   sourceStory: NormalizedStory | null | undefined;
   validate: (input: unknown) => ValidationResult;
   onApply: (story: Story) => Promise<ApplyResult> | ApplyResult;
-  storyFiles: StoryFileDescriptor[];
-  selectedFile: string | null;
-  selectedFileError: string | null;
-  onSelectFile: (file: string) => void;
-  onReloadStories: (file?: string | null) => Promise<void>;
-  onSaveStory: (file: string, story: Story, options?: { overwrite?: boolean }) => Promise<SaveStoryResult>;
+  libraryEntries: StoryLibraryEntry[];
+  selectedKey: string | null;
+  selectedError: string | null;
+  onSelectKey: (key: string) => void;
+  onReloadLibrary: () => Promise<void>;
+  onSaveStory: (story: Story, options?: { targetKey?: string; name?: string }) => Promise<SaveLibraryStoryResult>;
   disabled?: boolean;
 };
 
@@ -41,17 +41,17 @@ const ensurePortalRoot = (): HTMLElement => {
   return root;
 };
 
-const CheckpointEditorModal: React.FC<Props> = ({
+const CheckpointStudioModal: React.FC<Props> = ({
   open,
   onClose,
   sourceStory,
   validate,
   onApply,
-  storyFiles,
-  selectedFile,
-  selectedFileError,
-  onSelectFile,
-  onReloadStories,
+  libraryEntries,
+  selectedKey,
+  selectedError,
+  onSelectKey,
+  onReloadLibrary,
   onSaveStory,
   disabled,
 }) => {
@@ -127,11 +127,11 @@ const CheckpointEditorModal: React.FC<Props> = ({
             sourceStory={sourceStory}
             validate={validate}
             onApply={onApply}
-            storyFiles={storyFiles}
-            selectedFile={selectedFile}
-            selectedFileError={selectedFileError}
-            onSelectFile={onSelectFile}
-            onReloadStories={onReloadStories}
+            libraryEntries={libraryEntries}
+            selectedKey={selectedKey}
+            selectedError={selectedError}
+            onSelectKey={onSelectKey}
+            onReloadLibrary={onReloadLibrary}
             onSaveStory={onSaveStory}
             disabled={disabled}
           />
@@ -142,4 +142,4 @@ const CheckpointEditorModal: React.FC<Props> = ({
   );
 };
 
-export default CheckpointEditorModal;
+export default CheckpointStudioModal;

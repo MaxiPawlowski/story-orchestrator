@@ -8,7 +8,7 @@ import GraphPanel from "@components/studio/GraphPanel";
 import StoryDetailsPanel from "@components/studio/StoryDetailsPanel";
 import DiagnosticsPanel from "@components/studio/DiagnosticsPanel";
 import CheckpointEditorPanel from "@components/studio/CheckpointEditorPanel";
-import type { StoryFileDescriptor, SaveStoryResult } from "@components/context/StoryContext";
+import type { StoryLibraryEntry, SaveLibraryStoryResult } from "@components/context/StoryContext";
 
 type ValidationResult = { ok: true; story: NormalizedStory } | { ok: false; errors: string[] };
 type ApplyResult = { ok: true; story: NormalizedStory } | { ok: false; errors: string[] };
@@ -19,12 +19,12 @@ type Props = {
   sourceStory: NormalizedStory | null | undefined;
   validate: (input: unknown) => ValidationResult;
   onApply: (story: Story) => Promise<ApplyResult> | ApplyResult;
-  storyFiles: StoryFileDescriptor[];
-  selectedFile: string | null;
-  selectedFileError: string | null;
-  onSelectFile: (file: string) => void;
-  onReloadStories: (file?: string | null) => Promise<void>;
-  onSaveStory: (file: string, story: Story, options?: { overwrite?: boolean }) => Promise<SaveStoryResult>;
+  libraryEntries: StoryLibraryEntry[];
+  selectedKey: string | null;
+  selectedError: string | null;
+  onSelectKey: (key: string) => void;
+  onReloadLibrary: () => Promise<void>;
+  onSaveStory: (story: Story, options?: { targetKey?: string; name?: string }) => Promise<SaveLibraryStoryResult>;
   disabled?: boolean;
 };
 
@@ -34,11 +34,11 @@ const CheckpointStudio: React.FC<Props> = ({
   sourceStory,
   validate,
   onApply,
-  storyFiles,
-  selectedFile,
-  selectedFileError,
-  onSelectFile,
-  onReloadStories,
+  libraryEntries,
+  selectedKey,
+  selectedError,
+  onSelectKey,
+  onReloadLibrary,
   onSaveStory,
   disabled,
 }) => {
@@ -58,29 +58,35 @@ const CheckpointStudio: React.FC<Props> = ({
     setSelectedId(baseDraft.start || baseDraft.checkpoints[0]?.id || null);
   }, [baseDraft]);
 
-  const suggestedFileName = useMemo(() => {
-    if (!storyFiles.length) return "0.json";
-    const numericValues = storyFiles
-      .map((file) => {
-        const match = file.name.match(/^(\d+)\.json$/);
-        if (!match) return null;
-        const value = Number.parseInt(match[1], 10);
-        return Number.isNaN(value) ? null : value;
-      })
-      .filter((value): value is number => value !== null)
-      .sort((a, b) => a - b);
-    let candidateNumber = numericValues.length ? numericValues[numericValues.length - 1] + 1 : storyFiles.length;
-    if (!Number.isFinite(candidateNumber) || candidateNumber < 0) {
-      candidateNumber = storyFiles.length;
+  const currentEntry = useMemo(() => {
+    return libraryEntries.find((entry) => entry.key === selectedKey) ?? null;
+  }, [libraryEntries, selectedKey]);
+
+  const suggestedName = useMemo(() => {
+    if (currentEntry?.kind === "saved" && typeof currentEntry.meta?.name === "string") {
+      return currentEntry.meta.name;
     }
-    let candidate = `${candidateNumber}.json`;
-    const used = new Set(storyFiles.map((file) => file.name.toLowerCase()));
-    while (used.has(candidate.toLowerCase())) {
-      candidateNumber += 1;
-      candidate = `${candidateNumber}.json`;
+    const draftTitle = typeof draft.title === "string" ? draft.title.trim() : "";
+    if (draftTitle) return draftTitle;
+
+    const existingNames = new Set<string>();
+    libraryEntries.forEach((entry) => {
+      if (entry.kind === "saved" && typeof entry.meta?.name === "string") {
+        existingNames.add(entry.meta.name.toLowerCase());
+      }
+    });
+
+    const base = "Story";
+    let counter = existingNames.size + 1;
+    let candidate = `${base} ${counter}`;
+    while (existingNames.has(candidate.toLowerCase())) {
+      counter += 1;
+      candidate = `${base} ${counter}`;
     }
     return candidate;
-  }, [storyFiles]);
+  }, [currentEntry, draft.title, libraryEntries]);
+
+  const canSave = currentEntry?.kind === "saved" && currentEntry.ok;
 
   useEffect(() => {
     if (!selectedId && draft.checkpoints.length) {
@@ -196,8 +202,8 @@ const CheckpointStudio: React.FC<Props> = ({
 
   const handleSave = useCallback(async () => {
     if (disabled) return;
-    if (!selectedFile) {
-      setFeedback({ type: "error", message: "Select a story JSON file before saving." });
+    if (!currentEntry || currentEntry.kind !== "saved") {
+      setFeedback({ type: "error", message: "Select a saved story before using Save. Try Save As to create a copy." });
       return;
     }
     const payload = draftToStoryInput(draft);
@@ -209,23 +215,24 @@ const CheckpointStudio: React.FC<Props> = ({
     setSavePending(true);
     setFeedback(null);
     try {
-      const result = await onSaveStory(selectedFile, payload, { overwrite: true });
+      const result = await onSaveStory(payload, {
+        targetKey: currentEntry.key,
+        name: typeof currentEntry.meta?.name === "string" ? currentEntry.meta.name : undefined,
+      });
       if (!result.ok) {
         setFeedback({ type: "error", message: result.error });
         return;
       }
-      const parts = [`Saved ${result.fileName}`];
-      if (result.warning) {
-        parts.push(result.warning);
-      }
-      setFeedback({ type: "success", message: parts.join(" — ") });
+      onSelectKey(result.key);
+      const label = typeof currentEntry.meta?.name === "string" ? currentEntry.meta.name : "story";
+      setFeedback({ type: "success", message: `Saved ${label}` });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setFeedback({ type: "error", message });
     } finally {
       setSavePending(false);
     }
-  }, [disabled, selectedFile, draft, validate, onSaveStory]);
+  }, [disabled, currentEntry, draft, validate, onSaveStory, onSelectKey]);
 
   const handleSaveAs = useCallback(async () => {
     if (disabled) return;
@@ -235,49 +242,40 @@ const CheckpointStudio: React.FC<Props> = ({
       setFeedback({ type: "error", message: validation.errors.join("; ") });
       return;
     }
-    const defaultName = selectedFile ?? suggestedFileName;
+    const defaultName = suggestedName;
     const input = typeof window !== "undefined"
-      ? window.prompt("Enter new story file name (.json)", defaultName)
+      ? window.prompt("Enter a name for the saved story", defaultName)
       : null;
-    if (!input) return;
-    let candidate = input.trim();
+    if (input === null) return;
+    const candidate = input.trim();
     if (!candidate) return;
-    if (!candidate.toLowerCase().endsWith(".json")) {
-      candidate = `${candidate}.json`;
-    }
-    if (storyFiles.some((file) => file.name.toLowerCase() === candidate.toLowerCase())) {
-      setFeedback({ type: "error", message: `File ${candidate} already exists.` });
-      return;
-    }
     setSavePending(true);
     setFeedback(null);
     try {
-      const result = await onSaveStory(candidate, payload, { overwrite: false });
+      const result = await onSaveStory(payload, { name: candidate });
       if (!result.ok) {
         setFeedback({ type: "error", message: result.error });
         return;
       }
-      const parts = [`Saved ${result.fileName}`];
-      if (result.warning) {
-        parts.push(result.warning);
-      }
-      setFeedback({ type: "success", message: parts.join(" — ") });
+      onSelectKey(result.key);
+      setFeedback({ type: "success", message: `Saved ${candidate}` });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setFeedback({ type: "error", message });
     } finally {
       setSavePending(false);
     }
-  }, [disabled, draft, onSaveStory, selectedFile, suggestedFileName, storyFiles, validate]);
+  }, [disabled, draft, validate, onSaveStory, suggestedName, onSelectKey]);
 
-  const handleReloadStories = useCallback(async () => {
+  const handleReloadLibrary = useCallback(async () => {
     try {
-      await onReloadStories(selectedFile);
+      await onReloadLibrary();
+      setFeedback({ type: "success", message: "Reloaded built-in stories." });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setFeedback({ type: "error", message });
     }
-  }, [onReloadStories, selectedFile]);
+  }, [onReloadLibrary]);
 
   const handleApply = useCallback(async () => {
     setApplyPending(true);
@@ -393,39 +391,39 @@ const CheckpointStudio: React.FC<Props> = ({
 
       <div className="flex flex-col gap-2 rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] p-3">
         <label className="flex flex-col gap-1 text-xs text-slate-300">
-          <span>Story JSON File</span>
+          <span>Story Entry</span>
           <div className="flex flex-wrap items-center gap-2">
             <select
               className="min-w-[200px] rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-              value={selectedFile ?? ""}
-              disabled={!!disabled || savePending || !storyFiles.length}
+              value={selectedKey ?? ""}
+              disabled={!!disabled || savePending || !libraryEntries.length}
               onChange={(event) => {
                 const next = event.target.value;
                 if (next) {
-                  onSelectFile(next);
+                  onSelectKey(next);
                 }
               }}
             >
-              {!storyFiles.length && <option value="">No story files found</option>}
-              {storyFiles.map((file) => (
-                <option key={file.name} value={file.name}>
-                  {file.ok ? file.name : `${file.name} (invalid)`}
+              {!libraryEntries.length && <option value="">No stories available</option>}
+              {libraryEntries.map((entry) => (
+                <option key={entry.key} value={entry.key}>
+                  {entry.ok ? entry.label : `${entry.label} (invalid)`}
                 </option>
               ))}
             </select>
             <button
               type="button"
               className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
-              onClick={handleReloadStories}
+              onClick={handleReloadLibrary}
               disabled={!!disabled || savePending}
             >
               Refresh
             </button>
           </div>
         </label>
-        {selectedFileError && (
+        {selectedError && (
           <div className="rounded border border-red-700/60 bg-red-900/30 px-3 py-2 text-xs text-red-200">
-            Validation failed: {selectedFileError}
+            Validation failed: {selectedError}
           </div>
         )}
       </div>
@@ -437,7 +435,7 @@ const CheckpointStudio: React.FC<Props> = ({
         hasChanges={hasChanges}
         applyPending={applyPending}
         savePending={savePending}
-        saveDisabled={!selectedFile || !!disabled || savePending}
+        saveDisabled={!canSave || !!disabled || savePending}
         saveAsDisabled={!!disabled || savePending}
         canAddTransition={!!selectedId && draft.checkpoints.length > 0}
         onAddCheckpoint={handleAddCheckpoint}

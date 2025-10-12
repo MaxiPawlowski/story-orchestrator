@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useExtensionSettings } from "@components/context/ExtensionSettingsContext";
 import { useStoryContext } from "@hooks/useStoryContext";
-import CheckpointEditorModal from "@components/settings/CheckpointStudio/CheckpointEditorModal";
+import CheckpointStudioModal from "@components/settings/CheckpointStudio/CheckpointStudioModal";
 
 const SettingsWrapper = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,12 +19,12 @@ const SettingsWrapper = () => {
     story,
     validate,
     applyStory,
-    storyFiles,
-    selectedStoryFile,
-    selectedStoryError,
-    selectStoryFile,
-    reloadStories,
-    saveStoryToFile,
+    libraryEntries,
+    selectedLibraryKey,
+    selectedLibraryError,
+    selectLibraryEntry,
+    reloadLibrary,
+    saveLibraryStory,
   } = useStoryContext();
   const [showEditor, setShowEditor] = useState(false);
   console.log("[Story settings] Render", { arbiterPrompt, arbiterFrequency, isPromptDefault, isOpen });
@@ -97,18 +97,18 @@ const SettingsWrapper = () => {
             </div>
           </div>
         )}
-        <CheckpointEditorModal
+        <CheckpointStudioModal
           open={showEditor}
           onClose={() => setShowEditor(false)}
           sourceStory={story}
           validate={validate}
           onApply={applyStory}
-          storyFiles={storyFiles}
-          selectedFile={selectedStoryFile}
-          selectedFileError={selectedStoryError}
-          onSelectFile={selectStoryFile}
-          onReloadStories={reloadStories}
-          onSaveStory={saveStoryToFile}
+          libraryEntries={libraryEntries}
+          selectedKey={selectedLibraryKey}
+          selectedError={selectedLibraryError}
+          onSelectKey={selectLibraryEntry}
+          onReloadLibrary={reloadLibrary}
+          onSaveStory={saveLibraryStory}
         />
       </div>
     </div>

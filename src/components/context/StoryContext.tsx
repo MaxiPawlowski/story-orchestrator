@@ -2,9 +2,9 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 import { useExtensionSettings } from "@components/context/ExtensionSettingsContext";
 import { parseAndNormalizeStory, formatZodError, type NormalizedStory } from "@utils/story-validator";
 import type { Story } from "@utils/story-schema";
-import { loadCheckpointBundle, type CheckpointBundle } from "@utils/story-loader";
-import { clearNumericJsonBundleCache } from "@utils/json-bundle-loader";
 import { useStoryOrchestrator } from "@hooks/useStoryOrchestrator";
+import { useStoryLibrary } from "@hooks/useStoryLibrary";
+import type { StoryLibraryEntry, SaveLibraryStoryResult } from "@utils/storyLibrary";
 import { eventSource, event_types, getContext } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
 import {
@@ -12,16 +12,14 @@ import {
   deriveCheckpointStatuses,
   CheckpointStatus,
 } from "@utils/story-state";
-import { saveStoryFile as persistStoryFile, type SaveStoryFileResponse } from "@services/StoryFileService";
+
+export type { StoryLibraryEntry, SaveLibraryStoryResult } from "@utils/storyLibrary";
 
 type ValidationResult =
   | { ok: true; story: NormalizedStory }
   | { ok: false; errors: string[] };
 
-type LoadOptions = { force?: boolean };
 type CheckpointSummary = { id: string; name: string; objective: string; status: CheckpointStatus };
-export type StoryFileDescriptor = { name: string; ok: boolean; error?: string };
-export type SaveStoryResult = SaveStoryFileResponse;
 
 export interface StoryContextValue {
   validate: (input: unknown) => ValidationResult;
@@ -30,12 +28,12 @@ export interface StoryContextValue {
 
   story?: NormalizedStory | null;
   title?: string;
-  storyFiles: StoryFileDescriptor[];
-  selectedStoryFile: string | null;
-  selectedStoryError: string | null;
-  selectStoryFile: (file: string) => void;
-  reloadStories: (file?: string | null) => Promise<void>;
-  saveStoryToFile: (file: string, story: Story, options?: { overwrite?: boolean }) => Promise<SaveStoryResult>;
+  libraryEntries: StoryLibraryEntry[];
+  selectedLibraryKey: string | null;
+  selectedLibraryError: string | null;
+  selectLibraryEntry: (key: string) => void;
+  reloadLibrary: () => Promise<void>;
+  saveLibraryStory: (story: Story, options?: { targetKey?: string; name?: string }) => Promise<SaveLibraryStoryResult>;
   checkpoints: CheckpointSummary[];
   checkpointIndex: number;
   activeCheckpointKey: string | null;
@@ -57,79 +55,34 @@ export interface StoryContextValue {
 
 const StoryContext = createContext<StoryContextValue | undefined>(undefined);
 
-export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
-  const [loading, setLoading] = useState(false);
-  const [bundle, setBundle] = useState<CheckpointBundle | null>(null);
-  const [title, setTitle] = useState<string>();
+export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [story, setStory] = useState<NormalizedStory | null>(null);
-  const [selectedStoryFile, setSelectedStoryFile] = useState<string | null>(null);
-  const [selectedStoryError, setSelectedStoryError] = useState<string | null>(null);
+  const [title, setTitle] = useState<string>();
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
 
-  const describeBundleError = useCallback((error: unknown): string => {
-    try {
-      const formatted = formatZodError(error);
-      if (Array.isArray(formatted) && formatted.length) {
-        return formatted.join("; ");
-      }
-    } catch {
-      // ignore, fall back to other formats
-    }
-    if (error instanceof Error) {
-      return error.message;
-    }
-    if (Array.isArray(error)) {
-      return error.map((entry) => String(entry)).join("; ");
-    }
-    if (typeof error === "string") {
-      return error;
-    }
-    try {
-      return JSON.stringify(error);
-    } catch {
-      return "Unknown validation error";
-    }
-  }, []);
+  const {
+    loading: libraryLoading,
+    libraryEntries,
+    selectedEntry,
+    selectedKey,
+    selectedError,
+    selectEntry,
+    reloadLibrary,
+    saveStory: persistStory,
+  } = useStoryLibrary();
 
-  const storyFiles = useMemo<StoryFileDescriptor[]>(() => {
-    if (!bundle) return [];
-    return bundle.results.map((entry) => ({
-      name: entry.file,
-      ok: entry.ok,
-      error: entry.ok ? undefined : describeBundleError(entry.error),
-    }));
-  }, [bundle, describeBundleError]);
-
-  const applyBundleSelection = useCallback((res: CheckpointBundle | null, preferredFile?: string | null) => {
-    if (!res || !res.results.length) {
-      setSelectedStoryFile(null);
+  useEffect(() => {
+    if (selectedEntry && selectedEntry.ok && selectedEntry.story) {
+      setStory(selectedEntry.story);
+      setTitle(selectedEntry.story.title);
+    } else if (!selectedEntry) {
       setStory(null);
       setTitle(undefined);
-      setSelectedStoryError(null);
-      return;
-    }
-
-    let targetFile: string | null = null;
-    if (preferredFile && res.results.some((entry) => entry.file === preferredFile)) {
-      targetFile = preferredFile;
-    } else {
-      const firstOk = res.results.find((entry) => entry.ok);
-      targetFile = firstOk?.file ?? res.results[0].file;
-    }
-
-    setSelectedStoryFile(targetFile);
-
-    const targetEntry = res.results.find((entry) => entry.file === targetFile);
-    if (targetEntry && targetEntry.ok) {
-      setStory(targetEntry.json);
-      setTitle(targetEntry.json.title);
-      setSelectedStoryError(null);
     } else {
       setStory(null);
       setTitle(undefined);
-      setSelectedStoryError(targetEntry ? describeBundleError(targetEntry.error) : null);
     }
-  }, [describeBundleError]);
+  }, [selectedEntry]);
 
   const { arbiterFrequency, arbiterPrompt } = useExtensionSettings();
   const intervalTurns = Number.isFinite(arbiterFrequency) ? arbiterFrequency : DEFAULT_INTERVAL_TURNS;
@@ -162,6 +115,10 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
     },
   );
 
+  const activateCheckpoint = useCallback((index: number) => {
+    activateIndex(index);
+  }, [activateIndex]);
+
   const {
     requirementsReady,
     currentUserName,
@@ -175,10 +132,6 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
   } = requirements;
 
   const { checkpointIndex, activeCheckpointKey, turnsSinceEval, checkpointStatusMap } = runtime;
-
-  const activateCheckpoint = useCallback((i: number) => {
-    activateIndex(i);
-  }, [activateIndex]);
 
   const validate = useCallback((input: unknown): ValidationResult => {
     try {
@@ -195,7 +148,6 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
       const normalized = parseAndNormalizeStory(input);
       setStory(normalized);
       setTitle(normalized.title);
-      setSelectedStoryError(null);
       return { ok: true, story: normalized };
     } catch (e) {
       const errors = formatZodError(e);
@@ -203,40 +155,17 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
     }
   }, []);
 
-  const loadBundle = useCallback(async (options?: LoadOptions): Promise<CheckpointBundle | null> => {
-    setLoading(true);
-    try {
-      const res = await loadCheckpointBundle(options ?? {});
-      setBundle(res ?? null);
-      return res ?? null;
-    } catch (e) {
-      setBundle(null);
-      console.error("[StoryContext] loadBundle failed:", e);
-    } finally {
-      setLoading(false);
-    }
-    return null;
-  }, []);
+  const selectLibraryEntry = useCallback((key: string) => {
+    selectEntry(key);
+  }, [selectEntry]);
 
-  const refreshBundle = useCallback(async (preferredFile?: string | null) => {
-    clearNumericJsonBundleCache("story-checkpoints");
-    const res = await loadBundle({ force: true });
-    applyBundleSelection(res ?? null, preferredFile ?? selectedStoryFile ?? null);
-  }, [applyBundleSelection, loadBundle, selectedStoryFile]);
+  const reloadLibraryEntries = useCallback(async () => {
+    await reloadLibrary(selectedKey);
+  }, [reloadLibrary, selectedKey]);
 
-  const selectStoryFile = useCallback((file: string) => {
-    if (!bundle) return;
-    applyBundleSelection(bundle, file);
-  }, [applyBundleSelection, bundle]);
-
-  const saveStoryToFile = useCallback(async (file: string, input: Story, options?: { overwrite?: boolean }) => {
-    const result = await persistStoryFile(file, input, { overwrite: options?.overwrite });
-    if (result.ok) {
-      await refreshBundle(result.fileName);
-    }
-    return result;
-  }, [refreshBundle]);
-
+  const saveLibraryStory = useCallback((input: Story, options?: { targetKey?: string; name?: string }) => {
+    return persistStory(input, options);
+  }, [persistStory]);
 
   useEffect(() => {
     const updateChatId = () => {
@@ -246,17 +175,14 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
         const groupId = ctx?.groupId;
 
         if (!groupId) return;
-        console.log("[StoryContext] detected chatId", raw);
 
         const key = raw === null || raw === undefined ? null : String(raw).trim();
         setActiveChatId(key ? key : null);
 
         if (!story) {
-          try {
-            refreshBundle();
-          } catch (err) {
-            console.error("[StoryContext] attemptLoad failed", err);
-          }
+          reloadLibraryEntries().catch((error) => {
+            console.warn("[StoryContext] Failed to reload library on chat change", error);
+          });
         }
       } catch (err) {
         console.warn("[StoryContext] Failed to resolve chatId", err);
@@ -278,8 +204,7 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
         console.warn("[StoryContext] unsubscribe failed", err);
       }
     };
-  }, [story, refreshBundle]);
-
+  }, [story, reloadLibraryEntries]);
 
   const checkpoints = useMemo<CheckpointSummary[]>(() => {
     if (!story) return [];
@@ -304,15 +229,15 @@ export const StoryProvider: React.FC<React.PropsWithChildren<{}>> = ({ children 
     <StoryContext.Provider value={{
       validate,
       applyStory,
-      loading,
+      loading: libraryLoading,
       story,
       title,
-      storyFiles,
-      selectedStoryFile,
-      selectedStoryError,
-      selectStoryFile,
-      reloadStories: refreshBundle,
-      saveStoryToFile,
+      libraryEntries,
+      selectedLibraryKey: selectedKey,
+      selectedLibraryError: selectedError,
+      selectLibraryEntry,
+      reloadLibrary: reloadLibraryEntries,
+      saveLibraryStory,
       checkpoints,
       checkpointIndex,
       activeCheckpointKey,
