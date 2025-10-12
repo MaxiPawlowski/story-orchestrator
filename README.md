@@ -1,41 +1,70 @@
 # Story Driver (SillyTavern Extension)
 
 ## Overview
-Checkpoint state machine for SillyTavern. Stories are modeled as a directed acyclic graph of checkpoints (nodes) and transitions (edges). The orchestrator watches user chat turns for win/fail trigger regexes, asks the Arbiter to evaluate the node, lets it pick the proper transition, advances the graph, and applies per‑stage contextual injections (Author's Note, World Info enable/disable, preset overrides). It also tracks requirement readiness (persona, roles, lore presence) before enabling runtime behavior.
+Story Driver is a checkpoint-driven orchestration layer for SillyTavern. Stories are authored as directed graphs where each checkpoint defines win/fail triggers, required lore, and runtime effects. The extension watches player turns, evaluates triggers, activates the next checkpoint when conditions are met, and applies contextual injections (Author’s Notes, World Info toggles, preset overrides). Requirement readiness (persona, group chat, roles, lore) is tracked before any automation runs.
 
-## What this extension provides
-- A pinned Drawer UI in the chat for requirements, checkpoint progress, and manual controls.
-- A Settings panel injected into the host settings area.
-- Bundled numeric JSON stories under `src/checkpoints/` that are validated and loaded at runtime.
+## Extension Capabilities
+- Pinned Drawer UI surfaces requirement status, checkpoint progress, turn counters, and manual controls.
+- Settings panel injects arbiter configuration, Checkpoint Studio access, and story library management.
+- Bundled JSON checkpoints (`src/checkpoints/*.json`) are validated on load; user-authored stories persist inside the SillyTavern settings namespace.
+- DM/Companion runtime orchestration handles preset cloning, per-role overrides, Author’s Note assignment, and lore toggling.
+- Per-chat persistence snapshots checkpoint index, status map, and evaluation counters so stories resume when chats reopen.
 
-## Quick Start
-1. Create characters in SillyTavern for the configured roles (use names referenced in your story JSON): typically `dm` and `companion`.
-2. Open or create a group chat and ensure the group chat is selected in the host UI.
-3. Enable the extension. The Drawer will populate after a valid story is detected and requirements are met.
-4. Play: user messages increment turn counters. The orchestrator evaluates triggers (regex or interval) and may mark checkpoints complete/failed, apply Author's Notes, toggle World Info entries, and apply preset overrides.
+## Repository Layout
+- `src/index.tsx` – Entry point; mounts Settings + Drawer roots under `ExtensionSettingsProvider` and `StoryProvider`.
+- `src/components/` – React UI for Drawer panels, Settings shells, Checkpoint Studio editors, and shared widgets.
+- `src/components/context/` – `ExtensionSettingsContext` (runtime config persistence) and `StoryContext` (story selection, checkpoint summaries, requirement flags).
+- `src/controllers/` – Imperative managers: orchestrator lifecycle, requirements tracking, persistence, turn routing, slash command wiring.
+- `src/services/` – Stateful logic: `StoryOrchestrator`, `CheckpointArbiterService`, `PresetService`, `SillyTavernAPI` host wrapper.
+- `src/store/` – Zustand vanilla store (`storySessionStore`) and requirement state helpers.
+- `src/utils/` – Story loading/validation, checkpoint studio helpers, event subscriptions, runtime math, slash command registration.
+- `src/checkpoints/` – Numeric JSON assets (0.json, 1.json, …) bundled for shipping and mirrored into `dist/checkpoints/` at build time.
 
-## Runtime architecture (concise)
-- `src/index.tsx` — mounts Settings and Drawer; Drawer is wrapped in `StoryProvider`.
-- `src/components/context/StoryContext.tsx` — loads checkpoint bundle and exposes normalized story + runtime state to the UI.
-- `src/hooks/useStoryOrchestrator.ts` + `src/controllers/orchestratorManager.ts` — ensure a singleton orchestrator instance for the active story and wire runtime hooks into UI.
-- `src/services/StoryOrchestrator.ts` — the stateful controller: activation, turn handling, evaluation enqueueing, AN/world info application, and persistence coordination.
-- `src/services/PresetService.ts` — clones/apply presets and per‑role overrides.
-- `src/services/CheckpointArbiterService.ts` — performs evaluation logic, selects the next transition edge when a node resolves, and returns outcomes (continue|win|fail).
-- `src/services/SillyTavernAPI.ts` — host API wrapper used across controllers.
+## Runtime Flow
+1. Extension mounts; Settings + Drawer roots appear after a brief delayed mount.
+2. `StoryProvider` discovers bundled checkpoints via `json-bundle-loader` → `story-loader` → `story-validator`, normalizing regex triggers and activation payloads.
+3. `orchestratorManager.ensureStory` creates a singleton `StoryOrchestrator` once a valid story and group chat are detected.
+4. The orchestrator hydrates persisted runtime (if available), primes role presets, and subscribes to SillyTavern host events.
+5. Player turns increment `turnsSinceEval`; interval thresholds or regex matches enqueue evaluations handled by `CheckpointArbiterService`.
+6. Arbiter outcomes (`continue`, `win`, `fail`) update checkpoint status, optionally follow transitions, and reset evaluation counters as configured.
+7. Activating a checkpoint applies world info toggles, per-role Author’s Notes, preset overrides, and persists the new runtime snapshot.
 
-## State & persistence
-- Runtime state is in `src/store/storySessionStore.ts` (Zustand vanilla store): `runtime.checkpointIndex`, `runtime.activeCheckpointKey`, `runtime.turnsSinceEval`, `runtime.checkpointStatusMap`, and `turn`.
-- Persistence occurs only when a story, chatId, and group chat selection are present. Serialized state is keyed by chat+story.
-- On chat/context change the persistence controller attempts to hydrate prior runtime state; otherwise a fresh runtime is created.
+## React Layer & Contexts
+- `StoryContext` exposes normalized story metadata, checkpoint summaries, runtime counters, requirement flags, and story library operations. It synchronizes persisted story selection per chat and reacts to chat change events.
+- `ExtensionSettingsContext` stores arbiter prompt/frequency inside the extension settings tree with sanitization (length clamp, numeric bounds) before forwarding to the orchestrator manager.
+- Hooks (`useStoryOrchestrator`, `useStoryLibrary`, etc.) bridge the Zustand store and orchestrator manager into UI components while keeping lifecycle code isolated from React views.
 
-## Requirements gating
-Before the orchestrator marks itself ready it ensures:
-- Persona (user name) present
-- Group chat selected
-- Required roles exist as characters
-- Referenced world info entries exist in the configured lorebook
-- Global lorebook name is present in host settings
+## Services, Controllers & Utilities
+- `StoryOrchestrator` coordinates checkpoint activation, trigger evaluation, preset + Author’s Note application, world info toggles, requirement polling, chat context changes, and persistence reconciliation.
+- `orchestratorManager` enforces a single orchestrator instance, clamps interval turns/prompt length, forwards turn/evaluation callbacks, and owns the `turnController`.
+- `requirementsController` listens to persona, chat, and lorebook changes via host events; it normalizes role names and updates requirement readiness (persona, group chat, role membership, lore entries, global lorebook selection).
+- `persistenceController` snapshots runtime per `(chatId + story title)` using helpers in `story-state`, ensuring hydration only occurs when group chat context exists.
+- `CheckpointArbiterService` compiles win/fail regex specs, renders a parameterized prompt, evaluates queued turns, and selects outgoing transitions.
+- Utility modules cover story normalization (`story-validator` + `story-schema`), runtime math (`story-state`), multi-strategy bundle discovery (`json-bundle-loader`), event helpers, and slash command registration.
 
-## Bundling & validation
-- `src/utils/json-bundle-loader.ts` — discovers numeric JSON with multiple fallback strategies: Webpack `require.context`, `import.meta.glob`, manifest fetch (`dist/checkpoints/manifest.json`), or runtime sequential fetch of `dist/checkpoints/*`.
-- `src/utils/story-loader.ts` — validates each discovered JSON with the Zod schema + normalizes regexes and activation blocks.
+## State Management & Persistence
+- `storySessionStore` tracks the active story, runtime snapshot (`checkpointIndex`, `activeCheckpointKey`, `checkpointStatusMap`, `turnsSinceEval`), turn counter, hydration flag, requirement state, chat context, and orchestrator readiness.
+- Store actions sanitize inputs, derive checkpoint status maps, and provide setters consumed by services/controllers to keep UI, persistence, and runtime in sync.
+- Persistence is opt-in per chat: when a story, chatId, and group chat selection exist, runtime is serialized; hydration avoids replaying activation side effects unless the checkpoint index changes.
+
+## Checkpoint Content & Story Library
+- Bundled stories live under `src/checkpoints/` and are ordered numerically. `story-loader` sorts, validates, and logs detailed errors when schema checks fail.
+- `storyLibrary.ts` merges bundled entries with saved drafts stored in extension settings (`studio` namespace). Entries normalize into `NormalizedStory` objects exposed through `StoryContext`.
+- `story-validator` compiles triggers, builds transition adjacency maps, and normalizes activation blocks (`authors_note`, `world_info`, `preset_overrides`) so runtime code can rely on consistent shapes.
+
+## Checkpoint Studio
+- `src/components/studio/` provides a multi-pane editor: story details, checkpoint CRUD, diagnostics, Cytoscape/ dagre graph visualization, and a toolbar for import/export actions.
+- `utils/checkpoint-studio.ts` defines draft models, regex/string helpers, Mermaid graph generation, and cleanup utilities for converting drafts back into schema-compliant stories.
+- Studio state persists through the story library helpers, letting authors save, rename, and reload custom stories without leaving SillyTavern.
+
+## Settings & Host Integration
+- Runtime configuration (arbiter prompt + interval) is persisted via `ExtensionSettingsContext` and sanitized before reaching `orchestratorManager`.
+- `SillyTavernAPI` wraps host globals (event bus, world info toggles, Author’s Note helpers, preset cloning, settings persistence) to keep build tooling decoupled from the SillyTavern runtime.
+- `slashCommands.ts` registers extension-specific slash commands during orchestrator initialization, enabling manual checkpoint control or diagnostics hooks.
+
+## Development
+- Install dependencies: `npm install`
+- Start watch + typecheck mode: `npm run dev`
+- One-off type checking: `npm run typecheck`
+- Production build (emits `dist/index.js` and copies assets): `npm run build`
+- Tailwind configuration lives in `tailwind.config.js`; global styles extend `src/styles.css` and are processed through the webpack pipeline.
