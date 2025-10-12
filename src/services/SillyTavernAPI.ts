@@ -25,6 +25,10 @@ const extensions = await import(
   // @ts-ignore
   /* webpackIgnore: true */ "../../../../extensions.js"
 );
+const macros = await import(
+  // @ts-ignore
+  /* webpackIgnore: true */ "../../../../macros.js"
+);
 const worldInfo = await import(
   // @ts-ignore
   /* webpackIgnore: true */ "../../../../world-info.js"
@@ -56,6 +60,7 @@ export const event_types = script["event_types"];
 export const chat = script["chat"];
 export const generateQuietPrompt = script["generateQuietPrompt"];
 export const getWorldInfoSettings = worldInfo["getWorldInfoSettings"];
+export const MacrosParser = macros["MacrosParser"];
 
 export function getCharacterNameById(id: number | string | undefined): string | undefined {
   if (id === undefined || id === null || id === '') return undefined;

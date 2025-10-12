@@ -14,6 +14,7 @@ import {
   getPersistedStorySelection,
 } from "@utils/story-state";
 import { storySessionStore } from "@store/storySessionStore";
+import { ensureStoryMacros, refreshRoleMacros } from "@services/storyMacros";
 
 export type { StoryLibraryEntry, SaveLibraryStoryResult, DeleteLibraryStoryResult } from "@utils/storyLibrary";
 
@@ -75,6 +76,14 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
     deleteStory: removeSavedStory,
   } = useStoryLibrary();
   const lastAppliedChatRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    ensureStoryMacros();
+  }, []);
+
+  useEffect(() => {
+    refreshRoleMacros();
+  }, [story]);
 
   useEffect(() => {
     if (selectedEntry && selectedEntry.ok && selectedEntry.story) {

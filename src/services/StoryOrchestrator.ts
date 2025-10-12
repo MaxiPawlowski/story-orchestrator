@@ -274,6 +274,57 @@ class StoryOrchestrator {
     this.applyCheckpoint(i, { persist: true, resetSinceEval: true, reason: "activate" });
   }
 
+  activateRelative(delta: number): boolean {
+    if (!Number.isFinite(delta) || !delta) return false;
+    const normalized = delta > 0 ? Math.ceil(delta) : Math.floor(delta);
+    const target = clampCheckpointIndex(this.index + normalized, this.story);
+    if (target === this.index) return false;
+    this.activateIndex(target);
+    return true;
+  }
+
+  resetStory(): boolean {
+    const checkpoints = this.story.checkpoints ?? [];
+    if (!checkpoints.length) return false;
+    const startId = this.story.startId;
+    let target = typeof startId === "string"
+      ? checkpoints.findIndex((cp) => cp.id === startId)
+      : -1;
+    if (target < 0) target = 0;
+    this.applyCheckpoint(target, { persist: true, resetSinceEval: true, reason: "activate" });
+    return true;
+  }
+
+  evaluateNow(reason: ArbiterReason = "manual"): boolean {
+    const hasRegexTransitions = this.activeTransitions.some((edge) => edge.trigger.type === "regex");
+    if (!hasRegexTransitions) return false;
+    this.enqueueEval(reason, "(manual review)", []);
+    return true;
+  }
+
+  requestPersist(): boolean {
+    try {
+      if (!this.persistence.canPersist()) return false;
+      this.persistence.writeRuntime(this.runtime, { persist: true, hydrated: true, skipStore: true });
+      return true;
+    } catch (err) {
+      console.warn("[StoryOrch] persist request failed", err);
+      return false;
+    }
+  }
+
+  canPersist(): boolean {
+    return this.persistence.canPersist();
+  }
+
+  isHydrated(): boolean {
+    return this.persistence.isHydrated();
+  }
+
+  getIntervalTurns(): number {
+    return this.intervalTurns;
+  }
+
   setActiveRole(roleOrDisplayName: string) {
     const raw = String(roleOrDisplayName ?? "");
     const norm = normalizeName(raw);

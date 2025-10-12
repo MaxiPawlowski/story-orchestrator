@@ -9,6 +9,50 @@ Story Driver is a checkpoint-driven orchestration layer for SillyTavern. Stories
 - Bundled JSON checkpoints (`src/checkpoints/*.json`) are validated on load; user-authored stories persist inside the SillyTavern settings namespace.
 - DM/Companion runtime orchestration handles preset cloning, per-role overrides, Author’s Note assignment, and lore toggling.
 - Per-chat persistence snapshots checkpoint index, status map, and evaluation counters so stories resume when chats reopen.
+- Slash commands provide manual control over checkpoints and story runtime toggles (`/checkpoint`, `/story`).
+- Custom Story Driver macros expose active story metadata for use in Author’s Notes, lore entries, and prompt fragments.
+
+## Slash Commands
+
+Story Driver registers two slash command entry points inside SillyTavern:
+
+- `/checkpoint` (aliases `/cp`, `/storycp`):
+	- `list` / `status` (default) – display all checkpoints with status markers.
+	- `next`, `prev` – jump forward/backward one checkpoint.
+	- `id`/index – activate a checkpoint by numeric index or explicit id (`/checkpoint 2`, `/checkpoint id=cp3`).
+- `/story` (aliases `/storyctl`, `/storydriver`):
+	- `status` – print orchestrator readiness, turn counters, requirement flags, persistence state.
+	- `reset` – rewind to the story’s starting checkpoint and clear counters.
+	- `eval` – queue a manual arbiter evaluation for the active checkpoint.
+	- `persist` – force a runtime snapshot (when group chat + chat id are present).
+	- `pause` / `resume` / `toggle` – control automated turn listening.
+
+These commands are safe to call from any chat where the extension is active; errors are reported inline in the chat log.
+
+## Story Macros
+
+The extension registers a macro set via SillyTavern’s `MacrosParser`, making story metadata available anywhere macros are expanded (Author’s Notes, lorebook entries, world info, prompt templates, etc.).
+
+| Macro | Description |
+|-------|-------------|
+| `{{story_active_title}}` | Active story title |
+| `{{story_role_<role>}}` | Localized role name strings for each role defined in the current story (e.g., `{{story_role_dm}}` if a `dm` role exists) |
+| `{{story_player_name}}` | Current user name resolved from requirements state |
+| `{{story_active_checkpoint_id}}` | Active checkpoint id |
+| `{{story_active_checkpoint_name}}` | Active checkpoint name |
+| `{{story_active_checkpoint_objective}}` | Active checkpoint objective |
+| `{{story_turn}}` | Total turn count processed by Story Driver |
+| `{{story_turns_since_eval}}` | Turns since the arbiter last evaluated |
+| `{{story_checkpoint_turns}}` | Turns spent inside the active checkpoint |
+
+Example usages:
+
+```text
+Author’s Note: {{story_role_dm}} should brief {{story_player_name}} on {{story_active_checkpoint_objective}}.
+Lore Entry: Current phase – {{story_active_checkpoint_name}} (turn {{story_turn}}).
+```
+
+Additional macros can be registered by calling `MacrosParser.registerMacro` within the extension runtime (see `src/services/storyMacros.ts`).
 
 ## Repository Layout
 - `src/index.tsx` – Entry point; mounts Settings + Drawer roots under `ExtensionSettingsProvider` and `StoryProvider`.

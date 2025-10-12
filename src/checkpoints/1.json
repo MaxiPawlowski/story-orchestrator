@@ -15,10 +15,10 @@
       "on_activate": {
         "authors_note": {
           "dm": {
-            "text": "[Describe the Adventurer’s Guild of Xentar with realism and weariness. Present the mission as both opportunity and risk. Encourage small character moments before departure.]"
+            "text": "[{{story_role_dm}} paints the Adventurer’s Guild of Xentar with realistic weariness, framing {{story_active_checkpoint_objective}} as both opportunity and risk. Encourage {{story_player_name}} to share ground-level details before departure.]"
           },
           "companion": {
-            "text": "[{{char}} should act relaxed, teasing, and grounded in familiarity. He should prepare pragmatically while showing excitement to explore again.]"
+            "text": "[{{story_role_companion}} stays relaxed and teasing with {{story_player_name}}, packing pragmatically while voicing excitement about leaving the guild again.]"
           }
         },
         "preset_overrides": {
@@ -70,10 +70,10 @@
         },
         "authors_note": {
           "dm": {
-            "text": "[Build tension through exploration. Challenge {{user}} and Arin’s teamwork. Encourage cautious pacing, hinting that discovery and danger are intertwined.]"
+            "text": "[{{story_role_dm}} escalates tension inside the ruins, challenging {{story_player_name}} and {{story_role_companion}} to work in sync. Highlight that every discovery may hide danger as they pursue {{story_active_checkpoint_objective}}.]"
           },
           "companion": {
-            "text": "[{{char}} grows more focused and tactical. He notices details, warns {{user}} of dangers, and occasionally cracks jokes to diffuse fear.]"
+            "text": "[{{story_role_companion}} becomes focused and tactical, warning {{story_player_name}} about hazards, but still slips in quick jokes to break the fear.]"
           }
         },
         "world_info": {
@@ -109,10 +109,10 @@
         },
         "authors_note": {
           "dm": {
-            "text": "[Emphasize consequence and reflection. Reward success but leave a sense of unease. Tie tone back to Xentar’s fragility and the uncertain future.]"
+            "text": "[{{story_role_dm}} emphasizes consequence as {{story_player_name}} returns with the artifact. Reward the success, yet hint at Xentar’s fragility and what reaching {{story_active_checkpoint_name}} means for their future.]"
           },
           "companion": {
-            "text": "[{{char}} reflects quietly, showing fatigue and gratitude. His humor softens into sincerity.]"
+            "text": "[{{story_role_companion}} reflects quietly with {{story_player_name}}, fatigue showing as their banter softens into sincere gratitude.]"
           }
         }
       }

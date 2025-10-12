@@ -30,6 +30,7 @@ let currentStory: NormalizedStory | null = null;
 let intervalTurns = DEFAULT_INTERVAL_TURNS;
 let arbiterPrompt = DEFAULT_ARBITER_PROMPT;
 let runtimeHooks: RuntimeHooks = {};
+let automationPaused = false;
 
 const setReady = (next: boolean) => {
   try {
@@ -68,7 +69,9 @@ const initialize = async (story: NormalizedStory) => {
   instance.setArbiterPrompt(arbiterPrompt);
 
   turnController.attach(instance);
-  turnController.start();
+  if (!automationPaused) {
+    turnController.start();
+  }
 
   setReady(false);
   try {
@@ -165,3 +168,34 @@ export const dispose = async () => {
 };
 
 export const getOrchestrator = () => orchestrator;
+
+export const pauseAutomation = (): boolean => {
+  if (automationPaused) return false;
+  automationPaused = true;
+  try {
+    turnController.stop();
+  } catch (err) {
+    console.warn("[OrchestratorManager] pauseAutomation stop failed", err);
+  }
+  return true;
+};
+
+export const resumeAutomation = (): boolean => {
+  const wasPaused = automationPaused;
+  automationPaused = false;
+  if (!wasPaused) {
+    return false;
+  }
+  if (orchestrator) {
+    try {
+      turnController.start();
+      return true;
+    } catch (err) {
+      console.warn("[OrchestratorManager] resumeAutomation start failed", err);
+      return false;
+    }
+  }
+  return true;
+};
+
+export const isAutomationPaused = () => automationPaused;
