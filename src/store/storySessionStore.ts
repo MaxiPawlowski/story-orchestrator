@@ -118,7 +118,11 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
       ...current,
       checkpointTurnCount: sanitized,
     };
-    return get().writeRuntime(updated);
+    const result = get().writeRuntime(updated);
+    if (get().turn < sanitized) {
+      get().setTurn(sanitized);
+    }
+    return result;
   },
 
   updateCheckpointStatus: (index, status) => {

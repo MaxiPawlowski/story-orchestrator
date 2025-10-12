@@ -144,33 +144,31 @@ class StoryOrchestrator {
     matches.forEach((entry) => { matchById.set(entry.transition.id, entry); });
 
     return this.activeTransitions
-      .filter((edge) => edge.triggers.some((trigger) => trigger.type === "regex"))
+      .filter((edge) => edge.trigger.type === "regex")
       .map((edge) => {
-      const match = matchById.get(edge.id);
-      const target = this.story.checkpointById.get(edge.to);
-      const fallbackTrigger = edge.triggers.find((trigger) => trigger.type === "regex") ?? edge.triggers[0];
-      const primaryTrigger = match?.trigger ?? fallbackTrigger;
-      const pattern = match?.pattern
-        ?? (primaryTrigger?.regexes?.[0] ? primaryTrigger.regexes[0].toString() : undefined);
-      const triggerLabel = match?.trigger.raw?.label
-        ?? match?.trigger.raw?.id
-        ?? primaryTrigger?.raw?.label
-        ?? primaryTrigger?.raw?.id;
+        const match = matchById.get(edge.id);
+        const target = this.story.checkpointById.get(edge.to);
+        const trigger = match?.trigger ?? edge.trigger;
+        const pattern = match?.pattern
+          ?? (trigger.regexes?.[0] ? trigger.regexes[0].toString() : undefined);
+        const triggerLabel = trigger.raw?.label
+          ?? trigger.raw?.id
+          ?? trigger.label;
 
-      return {
-        id: edge.id,
-        condition: edge.condition,
-        label: edge.label,
-        description: edge.description,
-        targetName: target?.name,
-        triggerLabel,
-        triggerPattern: pattern,
-      };
-    });
+        return {
+          id: edge.id,
+          condition: trigger.condition ?? "",
+          label: edge.label,
+          description: edge.description,
+          targetName: target?.name,
+          triggerLabel,
+          triggerPattern: pattern,
+        };
+      });
   }
 
   private resolveTransitionSelection(nextTransitionId: string | null | undefined, matches: TransitionTriggerMatch[]): TransitionSelection | undefined {
-    const regexTransitions = this.activeTransitions.filter((edge) => edge.triggers.some((trigger) => trigger.type === "regex"));
+    const regexTransitions = this.activeTransitions.filter((edge) => edge.trigger.type === "regex");
     if (!regexTransitions.length) return undefined;
 
     let chosen: NormalizedTransition | undefined;
@@ -202,17 +200,16 @@ class StoryOrchestrator {
     if (!this.activeTransitions.length || turnCount <= 0) return undefined;
     const candidates: TransitionTriggerMatch[] = [];
     this.activeTransitions.forEach((transition) => {
-      transition.triggers.forEach((trigger) => {
-        if (trigger.type !== "timed") return;
-        const threshold = trigger.withinTurns ?? 0;
-        if (threshold > 0 && turnCount >= threshold) {
-          candidates.push({
-            transition,
-            trigger,
-            pattern: `timed<=${threshold}`,
-          });
-        }
-      });
+      const trigger = transition.trigger;
+      if (trigger.type !== "timed") return;
+      const threshold = trigger.withinTurns ?? 0;
+      if (threshold > 0 && turnCount >= threshold) {
+        candidates.push({
+          transition,
+          trigger,
+          pattern: `timed<=${threshold}`,
+        });
+      }
     });
     if (!candidates.length) return undefined;
     candidates.sort((a, b) => (a.trigger.withinTurns ?? Infinity) - (b.trigger.withinTurns ?? Infinity));
@@ -343,7 +340,7 @@ class StoryOrchestrator {
       return;
     }
 
-    const regexTransitions = this.activeTransitions.filter((edge) => edge.triggers.some((trigger) => trigger.type === "regex"));
+    const regexTransitions = this.activeTransitions.filter((edge) => edge.trigger.type === "regex");
     if (!regexTransitions.length) return;
 
     const matches = evaluateTransitionTriggers({

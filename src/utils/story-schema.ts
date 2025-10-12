@@ -46,36 +46,23 @@ export const OnActivateSchema = z.object({
 
 export type OnActivate = z.infer<typeof OnActivateSchema>;
 
-const BaseTriggerSchema = z.object({
+const TriggerBaseSchema = z.object({
   id: z.string().min(1).optional(),
   label: z.string().min(1).optional(),
-  patterns: RegexSpecListSchema.optional(),
-  within_turns: z.number().int().min(1).optional(),
-}).passthrough();
-
-export const TransitionTriggerSchema = BaseTriggerSchema.extend({
-  type: z.enum(["regex", "timed"]).default("regex"),
-}).superRefine((trigger, ctx) => {
-  const patterns = trigger.patterns;
-  if (trigger.type === "regex") {
-    if (!patterns) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["patterns"],
-        message: "Regex transition triggers require at least one pattern",
-      });
-    }
-  } else if (trigger.type === "timed") {
-    const turns = trigger.within_turns;
-    if (!(typeof turns === "number" && Number.isFinite(turns) && turns >= 1)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["within_turns"],
-        message: "Timed transition trigger requires a positive 'within_turns' value",
-      });
-    }
-  }
 });
+
+const RegexTriggerSchema = TriggerBaseSchema.extend({
+  type: z.literal("regex"),
+  patterns: RegexSpecListSchema,
+  condition: z.string().min(1),
+});
+
+const TimedTriggerSchema = TriggerBaseSchema.extend({
+  type: z.literal("timed"),
+  within_turns: z.number().int().min(1),
+});
+
+export const TransitionTriggerSchema = z.discriminatedUnion("type", [RegexTriggerSchema, TimedTriggerSchema]);
 
 export type TransitionTrigger = z.infer<typeof TransitionTriggerSchema>;
 
@@ -83,8 +70,7 @@ export const TransitionSchema = z.object({
   id: z.string().min(1),
   from: z.string().min(1),
   to: z.string().min(1),
-  condition: z.string().min(1),
-  triggers: z.array(TransitionTriggerSchema).min(1),
+  trigger: TransitionTriggerSchema,
   label: z.string().min(1).optional(),
   description: z.string().min(1).optional(),
 });

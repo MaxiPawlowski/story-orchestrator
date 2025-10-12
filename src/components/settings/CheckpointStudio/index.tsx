@@ -183,8 +183,11 @@ const CheckpointStudio: React.FC<Props> = ({
           id,
           from: fromId,
           to: fallbackTarget,
-          condition: "",
-          triggers: [{ type: "regex", patterns: ["/enter-pattern/i"] }],
+          trigger: {
+            type: "regex",
+            patterns: ["/enter-pattern/i"],
+            condition: "Replace with Arbiter condition",
+          },
           label: "",
           description: "",
         },
@@ -314,9 +317,9 @@ const CheckpointStudio: React.FC<Props> = ({
         detail: `Loaded ${validation.story.checkpoints.length} checkpoints and ${validation.story.transitions.length} transitions.`,
       });
       const triggerTotals = validation.story.transitions.reduce((acc, edge) => {
-        const count = edge.triggers.length;
-        const timed = edge.triggers.filter((trigger) => trigger.type === "timed").length;
-        return { total: acc.total + count, timed: acc.timed + timed };
+        acc.total += 1;
+        if (edge.trigger.type === "timed") acc.timed += 1;
+        return acc;
       }, { total: 0, timed: 0 });
       results.push({
         ok: true,

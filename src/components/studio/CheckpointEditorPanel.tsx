@@ -614,24 +614,32 @@ const CheckpointEditorPanel: React.FC<Props> = ({
                   ) : (
                     <div className="space-y-2">
                       {outgoingTransitions.map((edge) => {
-                        const setTriggers = (next: TransitionTriggerDraft[]) => {
-                          updateTransition(edge.id, { triggers: next });
+                        const trigger = edge.trigger;
+                        const setTrigger = (next: TransitionTriggerDraft) => {
+                          updateTransition(edge.id, { trigger: next });
                         };
-                        const updateTrigger = (index: number, patch: Partial<TransitionTriggerDraft>) => {
-                          const next = edge.triggers.map((trigger, idx) => (idx === index ? { ...trigger, ...patch } : trigger));
-                          setTriggers(next);
+                        const patchTrigger = (patch: Partial<TransitionTriggerDraft>) => {
+                          setTrigger({ ...trigger, ...patch });
                         };
-                        const removeTrigger = (index: number) => {
-                          const next = edge.triggers.filter((_, idx) => idx !== index);
-                          setTriggers(next);
+                        const handleTypeChange = (nextType: TransitionTriggerDraft["type"]) => {
+                          if (nextType === trigger.type) return;
+                          if (nextType === "timed") {
+                            setTrigger({
+                              type: "timed",
+                              within_turns: Math.max(1, trigger.within_turns ?? 3),
+                              label: trigger.label,
+                              patterns: [],
+                            });
+                          } else {
+                            setTrigger({
+                              type: "regex",
+                              patterns: trigger.patterns?.length ? trigger.patterns : ["/enter-pattern/i"],
+                              condition: trigger.condition ?? "Replace with Arbiter condition",
+                              label: trigger.label,
+                            });
+                          }
                         };
-                        const addTrigger = () => {
-                          const next: TransitionTriggerDraft = {
-                            type: "regex",
-                            patterns: ["/enter-pattern/i"],
-                          };
-                          setTriggers([...edge.triggers, next]);
-                        };
+                        const isRegex = trigger.type === "regex";
 
                         return (
                           <div key={edge.id} className="rounded border border-slate-600 p-2 space-y-2">
@@ -660,15 +668,6 @@ const CheckpointEditorPanel: React.FC<Props> = ({
                               </label>
                             </div>
                             <label className="flex flex-col gap-1 text-xs text-slate-300">
-                              <span>Condition</span>
-                              <textarea
-                                className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                                rows={3}
-                                value={edge.condition}
-                                onChange={(e) => updateTransition(edge.id, { condition: e.target.value })}
-                              />
-                            </label>
-                            <label className="flex flex-col gap-1 text-xs text-slate-300">
                               <span>Description</span>
                               <textarea
                                 className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
@@ -678,83 +677,65 @@ const CheckpointEditorPanel: React.FC<Props> = ({
                               />
                             </label>
                             <div className="space-y-2">
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs text-slate-300">Triggers</span>
-                                <button
-                                  type="button"
-                                  className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                                  onClick={addTrigger}
-                                >
-                                  + Trigger
-                                </button>
+                              <div className="grid grid-cols-3 gap-2">
+                                <label className="flex flex-col gap-1 text-xs text-slate-300">
+                                  <span>Trigger Type</span>
+                                  <select
+                                    className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                    value={trigger.type}
+                                    onChange={(e) => handleTypeChange(e.target.value as TransitionTriggerDraft["type"])}
+                                  >
+                                    <option value="regex">regex</option>
+                                    <option value="timed">timed</option>
+                                  </select>
+                                </label>
+                                <label className="flex flex-col gap-1 text-xs text-slate-300">
+                                  <span>Trigger Label (optional)</span>
+                                  <input
+                                    className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                    value={trigger.label ?? ""}
+                                    onChange={(e) => patchTrigger({ label: e.target.value })}
+                                  />
+                                </label>
+                                {isRegex ? (
+                                  <div />
+                                ) : (
+                                  <label className="flex flex-col gap-1 text-xs text-slate-300">
+                                    <span>Advance After Turns</span>
+                                    <input
+                                      type="number"
+                                      min={1}
+                                      className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                      value={Math.max(1, trigger.within_turns ?? 1)}
+                                      onChange={(e) => patchTrigger({ within_turns: Math.max(1, Number(e.target.value) || 1) })}
+                                    />
+                                  </label>
+                                )}
                               </div>
-                              {!edge.triggers.length ? (
-                                <div className="text-xs text-slate-400">No triggers defined.</div>
+                              {isRegex ? (
+                                <div className="grid gap-2">
+                                  <label className="flex flex-col gap-1 text-xs text-slate-300">
+                                    <span>Patterns (one per line)</span>
+                                    <textarea
+                                      className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                      rows={3}
+                                      value={(trigger.patterns ?? []).join("\n")}
+                                      onChange={(e) => patchTrigger({ patterns: splitLines(e.target.value) })}
+                                    />
+                                  </label>
+                                  <label className="flex flex-col gap-1 text-xs text-slate-300">
+                                    <span>Arbiter Condition (LLM only)</span>
+                                    <textarea
+                                      className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                      rows={2}
+                                      value={trigger.condition ?? ""}
+                                      onChange={(e) => patchTrigger({ condition: e.target.value })}
+                                    />
+                                  </label>
+                                </div>
                               ) : (
-                                <div className="space-y-2">
-                                  {edge.triggers.map((trigger, idx) => (
-                                    <div key={`${edge.id}-trigger-${idx}`} className="rounded border border-slate-600 p-2 space-y-2">
-                                      <div className="grid grid-cols-3 gap-2">
-                                        <label className="flex flex-col gap-1 text-xs text-slate-300">
-                                          <span>Type</span>
-                                          <select
-                                            className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                                            value={trigger.type}
-                                            onChange={(e) => {
-                                              const nextType = e.target.value as TransitionTriggerDraft["type"];
-                                              updateTrigger(idx, {
-                                                type: nextType,
-                                                within_turns: nextType === "timed" ? (trigger.within_turns ?? 3) : undefined,
-                                              });
-                                            }}
-                                          >
-                                            <option value="regex">regex</option>
-                                            <option value="timed">timed</option>
-                                          </select>
-                                        </label>
-                                        <label className="flex flex-col gap-1 text-xs text-slate-300">
-                                          <span>Label (optional)</span>
-                                          <input
-                                            className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                                            value={trigger.label ?? ""}
-                                            onChange={(e) => updateTrigger(idx, { label: e.target.value })}
-                                          />
-                                        </label>
-                                        {trigger.type === "timed" ? (
-                                          <label className="flex flex-col gap-1 text-xs text-slate-300">
-                                            <span>Within Turns</span>
-                                            <input
-                                              type="number"
-                                              min={1}
-                                              className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                                              value={trigger.within_turns ?? 1}
-                                              onChange={(e) => updateTrigger(idx, { within_turns: Math.max(1, Number(e.target.value) || 1) })}
-                                            />
-                                          </label>
-                                        ) : (
-                                          <div />
-                                        )}
-                                      </div>
-                                      <label className="flex flex-col gap-1 text-xs text-slate-300">
-                                        <span>Patterns (one per line)</span>
-                                        <textarea
-                                          className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                                          rows={3}
-                                          value={(trigger.patterns ?? []).join("\n")}
-                                          onChange={(e) => updateTrigger(idx, { patterns: splitLines(e.target.value) })}
-                                        />
-                                      </label>
-                                      <div className="flex justify-end">
-                                        <button
-                                          type="button"
-                                          className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-red-300/90 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                                          onClick={() => removeTrigger(idx)}
-                                        >
-                                          Remove Trigger
-                                        </button>
-                                      </div>
-                                    </div>
-                                  ))}
+                                <div className="text-xs text-slate-400">
+                                  This transition will advance automatically once the turn counter reaches the specified value.
                                 </div>
                               )}
                             </div>

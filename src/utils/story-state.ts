@@ -209,16 +209,13 @@ function computeStorySignature(story: NormalizedStory): string {
     .join("||");
   const edgeSig = (story.transitions ?? [])
     .map((edge) => {
-      const triggerSig = (edge.triggers ?? [])
-        .map((trigger) => {
-          const regexSig = (trigger.regexes ?? [])
-            .map((re) => `${re.source}/${re.flags ?? ""}`)
-            .join(",");
-          const windowSig = trigger.withinTurns ? `@${trigger.withinTurns}` : "";
-          return `${trigger.type}${windowSig}:${regexSig}`;
-        })
-        .join("~~");
-      return `${edge.id}->${edge.from}|${edge.to}|${edge.condition}|${triggerSig}`;
+      const trigger = edge.trigger;
+      const regexSig = (trigger.regexes ?? [])
+        .map((re) => `${re.source}/${re.flags ?? ""}`)
+        .join(",");
+      const windowSig = trigger.withinTurns ? `@${trigger.withinTurns}` : "";
+      const conditionSig = trigger.condition ?? "";
+      return `${edge.id}->${edge.from}|${edge.to}|${trigger.type}${windowSig}|${conditionSig}|${regexSig}`;
     })
     .join("||");
   return [
@@ -338,17 +335,16 @@ export function evaluateTransitionTriggers({
   void _turnsSinceEval;
 
   transitions.forEach((transition) => {
-    transition.triggers.forEach((trigger) => {
-      if (trigger.type !== "regex") return;
-      const pattern = matchRegexList(normalizedText, trigger.regexes);
-      if (pattern) {
-        matches.push({
-          transition,
-          trigger,
-          pattern,
-        });
-      }
-    });
+    const trigger = transition.trigger;
+    if (trigger.type !== "regex") return;
+    const pattern = matchRegexList(normalizedText, trigger.regexes);
+    if (pattern) {
+      matches.push({
+        transition,
+        trigger,
+        pattern,
+      });
+    }
   });
 
   return matches;

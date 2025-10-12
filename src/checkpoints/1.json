@@ -39,9 +39,7 @@
             "CP1 - Scenario",
             "CP1 - Automation BG"
           ],
-          "deactivate": [
-            "CP2 - Challenge"
-          ]
+          "deactivate": ["CP2 - Challenge"]
         }
       }
     },
@@ -71,13 +69,8 @@
           "companion": "[{{char}} grows more focused and tactical. He notices details, warns {{user}} of dangers, and occasionally cracks jokes to diffuse fear.]"
         },
         "world_info": {
-          "activate": [
-            "CP2 - Challenge"
-          ],
-          "deactivate": [
-            "CP1 - Mission",
-            "CP1 - Scenario"
-          ]
+          "activate": ["CP2 - Challenge"],
+          "deactivate": ["CP1 - Mission", "CP1 - Scenario"]
         }
       }
     },
@@ -103,12 +96,8 @@
           }
         },
         "world_info": {
-          "activate": [
-            "CP3 - Resolution"
-          ],
-          "deactivate": [
-            "CP2 - Challenge"
-          ]
+          "activate": ["CP3 - Resolution"],
+          "deactivate": ["CP2 - Challenge"]
         },
         "authors_note": {
           "dm": "[Emphasize consequence and reflection. Reward success but leave a sense of unease. Tie tone back to Xentar’s fragility and the uncertain future.]",
@@ -122,44 +111,47 @@
       "id": "quest-to-ruins",
       "from": "cp1",
       "to": "cp2",
-      "condition": "The party confirms the mission and leaves the guild for the Sun Ruins.",
       "label": "Depart for the Ruins",
       "description": "The party accepts the mission and heads toward the Sun Ruins.",
-      "triggers": [
-        {
-          "type": "regex",
-          "label": "Mission accepted",
-          "patterns": [
-            "/\\b(accept|take|claim)\\b[\\s\\S]{0,20}\\b(mission|quest|job)\\b/i",
-            "/\\b(agree|i'?m in|im in|count me in|lets? go|we'?re ready)\\b/i",
-            "/\\b(ready|prepared|set)\\b[\\s\\S]{0,15}\\b(depart|leave|go|head out)\\b/i"
-          ]
-        }
-      ]
+      "trigger": {
+        "type": "regex",
+        "label": "Mission accepted",
+        "condition": "The party confirms the mission and leaves the guild for the Sun Ruins.",
+        "patterns": [
+          "/\\b(accept|take|claim)\\b[\\s\\S]{0,20}\\b(mission|quest|job)\\b/i",
+          "/\\b(agree|i'?m in|im in|count me in|lets? go|we'?re ready)\\b/i",
+          "/\\b(ready|prepared|set)\\b[\\s\\S]{0,15}\\b(depart|leave|go|head out)\\b/i"
+        ]
+      }
     },
     {
       "id": "ruins-to-return",
       "from": "cp2",
       "to": "cp3",
-      "condition": "The party secures the artifact and is ready to escape the ruins.",
       "label": "Return to the Guild",
       "description": "After securing the artifact, the party returns to the guild.",
-      "triggers": [
-        {
-          "type": "regex",
-          "label": "Artifact secured",
-          "patterns": [
-            "/\\b(find|locate|recover|obtain|secure|retrieve)\\b[\\s\\S]{0,30}\\b(artifact|sun('?s)? heart|crystal(?:line)? core|core)\\b/i",
-            "/\\b(pick(?:\\s*up)?|take|grab|claim)\\b[\\s\\S]{0,20}\\b(artifact|sun('?s)? heart|crystal(?:line)? core|core)\\b/i",
-            "/\\b(have|got|secured|holding)\\b[\\s\\S]{0,10}\\b(the )?(artifact|sun('?s)? heart|core)\\b/i"
-          ]
-        },
-        {
-          "type": "timed",
-          "label": "Escape under pressure",
-          "within_turns": 4
-        }
-      ]
+      "trigger": {
+        "type": "regex",
+        "label": "Artifact secured",
+        "condition": "The party secures the artifact and is ready to escape the ruins.",
+        "patterns": [
+          "/\\b(find|locate|recover|obtain|secure|retrieve)\\b[\\s\\S]{0,30}\\b(artifact|sun('?s)? heart|crystal(?:line)? core|core)\\b/i",
+          "/\\b(pick(?:\\s*up)?|take|grab|claim)\\b[\\s\\S]{0,20}\\b(artifact|sun('?s)? heart|crystal(?:line)? core|core)\\b/i",
+          "/\\b(have|got|secured|holding)\\b[\\s\\S]{0,10}\\b(the )?(artifact|sun('?s)? heart|core)\\b/i"
+        ]
+      }
+    },
+    {
+      "id": "ruins-timeout",
+      "from": "cp2",
+      "to": "cp3",
+      "label": "Escape under pressure",
+      "description": "Failsafe: the party escapes after prolonged struggle in the ruins.",
+      "trigger": {
+        "type": "timed",
+        "label": "Escape under pressure",
+        "within_turns": 4
+      }
     }
   ]
 }
