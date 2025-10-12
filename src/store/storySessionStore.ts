@@ -16,6 +16,7 @@ import { createRequirementsState, cloneRequirementsState, type StoryRequirements
 
 export interface StorySessionValueState {
   story: NormalizedStory | null;
+  storyKey: string | null;
   chatId: string | null;
   groupChatSelected: boolean;
   runtime: RuntimeStoryState;
@@ -27,6 +28,7 @@ export interface StorySessionValueState {
 
 export interface StorySessionActions {
   setStory: (story: NormalizedStory | null) => RuntimeStoryState;
+  setStoryKey: (key: string | null) => string | null;
   setChatContext: (ctx: { chatId: string | null; groupChatSelected: boolean }) => void;
   resetRuntime: () => RuntimeStoryState;
   setRuntime: (next: RuntimeStoryState, options?: { hydrated?: boolean }) => RuntimeStoryState;
@@ -41,10 +43,10 @@ export interface StorySessionActions {
 
 export type StorySessionStore = StoreApi<StorySessionValueState & StorySessionActions>;
 
-// Use shared sanitizeRuntime directly (no wrapper)
 
 export const storySessionStore: StorySessionStore = createStore<StorySessionValueState & StorySessionActions>((set, get) => ({
   story: null,
+  storyKey: null,
   chatId: null,
   groupChatSelected: false,
   runtime: makeDefaultState(null),
@@ -62,6 +64,14 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
       hydrated: false,
     }));
     return runtime;
+  },
+
+  setStoryKey: (key) => {
+    const normalized = typeof key === "string" ? key.trim() : null;
+    const value = normalized ? normalized : null;
+    if (get().storyKey === value) return value;
+    set({ storyKey: value });
+    return value;
   },
 
   setChatContext: ({ chatId, groupChatSelected }) => {

@@ -43,6 +43,7 @@ export interface RuntimeStoryState {
 
 export interface PersistedChatState {
   storySignature: string;
+  storyKey?: string | null;
   checkpointIndex: number;
   activeCheckpointKey: string | null;
   turnsSinceEval: number;
@@ -53,9 +54,16 @@ export interface PersistedChatState {
 export type LoadedStoryState = {
   state: RuntimeStoryState;
   source: "stored" | "default";
+  storyKey: string | null;
 };
 
 type PersistedStateCandidate = PersistedChatState;
+
+const sanitizeStoryKey = (value: unknown): string | null => {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed ? trimmed : null;
+};
 
 function migratePersistedState(entry: PersistedStateCandidate, story: NormalizedStory): PersistedChatState | null {
   if (!entry || typeof entry !== "object") return null;
@@ -66,6 +74,7 @@ function migratePersistedState(entry: PersistedStateCandidate, story: Normalized
     : null;
   return {
     storySignature: candidate.storySignature,
+    storyKey: sanitizeStoryKey(candidate.storyKey),
     checkpointIndex: clampIndex(candidate.checkpointIndex ?? 0, story),
     activeCheckpointKey: activeKey ?? story.startId ?? null,
     turnsSinceEval: sanitizeTurns(candidate.turnsSinceEval ?? 0),
@@ -84,26 +93,27 @@ export function loadStoryState({
   console.log("[StoryState] loadStoryState", { chatId, story });
   const defaults = makeDefaultState(story);
   if (!story) {
-    return { state: defaults, source: "default" };
+    return { state: defaults, source: "default", storyKey: null };
   }
 
   const key = sanitizeChatKey(chatId);
   if (!key) {
-    return { state: defaults, source: "default" };
+    return { state: defaults, source: "default", storyKey: null };
   }
 
   const map = getStateMap();
   const entry = map[key];
+  const storedKey = entry ? sanitizeStoryKey((entry as PersistedStateCandidate).storyKey) : null;
   console.log("[StoryState] found entry", { entry });
   if (!isPersistedChatState(entry)) {
-    return { state: defaults, source: "default" };
+    return { state: defaults, source: "default", storyKey: storedKey };
   }
   if (entry.storySignature !== computeStorySignature(story)) {
-    return { state: defaults, source: "default" };
+    return { state: defaults, source: "default", storyKey: storedKey };
   }
   const migrated = migratePersistedState(entry, story);
   if (!migrated) {
-    return { state: defaults, source: "default" };
+    return { state: defaults, source: "default", storyKey: storedKey };
   }
 
   const sanitized = sanitizeRuntime({
@@ -116,6 +126,7 @@ export function loadStoryState({
   return {
     state: sanitized,
     source: "stored",
+    storyKey: storedKey,
   };
 }
 
@@ -123,10 +134,12 @@ export function persistStoryState({
   chatId,
   story,
   state,
+  storyKey,
 }: {
   chatId: string | null | undefined;
   story: NormalizedStory | null | undefined;
   state: RuntimeStoryState;
+  storyKey?: string | null | undefined;
 }): void {
   console.log("[StoryState] persistStoryState", { chatId, story, state });
   if (!story) return;
@@ -136,9 +149,11 @@ export function persistStoryState({
 
   const map = getStateMap();
   const sanitized = sanitizeRuntime(state, story);
+  const persistedKey = sanitizeStoryKey(storyKey);
 
   map[key] = {
     storySignature: computeStorySignature(story),
+    storyKey: persistedKey,
     checkpointIndex: sanitized.checkpointIndex,
     activeCheckpointKey: sanitized.activeCheckpointKey,
     turnsSinceEval: sanitized.turnsSinceEval,
@@ -150,6 +165,20 @@ export function persistStoryState({
     saveSettingsDebounced();
   } catch (err) {
     console.warn("[StoryState] Failed to persist extension settings", err);
+  }
+}
+
+export function getPersistedStorySelection(chatId: string | null | undefined): string | null {
+  const key = sanitizeChatKey(chatId);
+  if (!key) return null;
+  try {
+    const map = getStateMap();
+    const entry = map[key];
+    if (!entry) return null;
+    return sanitizeStoryKey((entry as PersistedStateCandidate).storyKey);
+  } catch (err) {
+    console.warn("[StoryState] getPersistedStorySelection failed", err);
+    return null;
   }
 }
 
@@ -408,9 +437,11 @@ function isPersistedChatState(input: unknown): input is PersistedStateCandidate 
   const candidate = input as Partial<PersistedStateCandidate>;
   const statusField = candidate.checkpointStatusMap;
   const statusValid = statusField === undefined || typeof statusField === "object";
+  const keyValid = candidate.storyKey === undefined || candidate.storyKey === null || typeof candidate.storyKey === "string";
 
   return (
     typeof candidate.storySignature === "string"
+    && keyValid
     && typeof candidate.checkpointIndex === "number"
     && typeof candidate.turnsSinceEval === "number"
     && statusValid

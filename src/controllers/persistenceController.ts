@@ -13,6 +13,7 @@ interface WriteRuntimeOptions {
 export interface HydrateResult {
   runtime: RuntimeStoryState;
   source: "stored" | "default";
+  storyKey: string | null;
 }
 
 export interface PersistenceController {
@@ -29,12 +30,12 @@ export interface PersistenceController {
 }
 
 const persistIfAllowed = (store: StorySessionStore, runtime: RuntimeStoryState) => {
-  const { story, groupChatSelected, chatId } = store.getState();
+  const { story, groupChatSelected, chatId, storyKey } = store.getState();
   if (!story) return false;
   if (!groupChatSelected) return false;
   if (!chatId) return false;
   try {
-    persistStoryState({ chatId, story, state: runtime });
+    persistStoryState({ chatId, story, state: runtime, storyKey });
     return true;
   } catch (err) {
     console.warn("[PersistenceController] persist failed", err);
@@ -83,12 +84,17 @@ export const createPersistenceController = (store: StorySessionStore = storySess
     const snapshot = store.getState();
     if (!snapshot.story || !snapshot.groupChatSelected) {
       const runtime = snapshot.resetRuntime();
-      return { runtime, source: "default" };
+      return { runtime, source: "default", storyKey: snapshot.storyKey ?? null };
     }
 
-    const { state, source } = loadStoryState({ chatId: snapshot.chatId, story: snapshot.story });
+    const { state, source, storyKey } = loadStoryState({ chatId: snapshot.chatId, story: snapshot.story });
+    try {
+      snapshot.setStoryKey(storyKey);
+    } catch (err) {
+      console.warn("[PersistenceController] failed to sync story key during hydrate", err);
+    }
     const runtime = writeStoreRuntime(store, state, { hydrated: true, persist: false });
-    return { runtime, source };
+    return { runtime, source, storyKey };
   };
 
   const writeRuntime = (next: RuntimeStoryState, options: WriteRuntimeOptions = {}): RuntimeStoryState => {

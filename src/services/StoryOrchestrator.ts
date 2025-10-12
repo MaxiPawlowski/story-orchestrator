@@ -339,17 +339,17 @@ class StoryOrchestrator {
 
     if (!groupSelected) {
       const runtime = this.persistence.resetRuntime();
-      this.reconcileWithRuntime(runtime);
+      this.reconcileWithRuntime(runtime, { source: "default" });
       console.log("[StoryOrch] chat sync reset", { reason });
       return;
     }
 
     const hydrateResult = this.persistence.hydrate();
     console.log("[StoryOrch] chat sync hydrate", { reason, source: hydrateResult.source });
-    this.reconcileWithRuntime(hydrateResult.runtime);
+    this.reconcileWithRuntime(hydrateResult.runtime, { source: hydrateResult.source });
   }
 
-  private reconcileWithRuntime(runtime: RuntimeStoryState | null | undefined) {
+  private reconcileWithRuntime(runtime: RuntimeStoryState | null | undefined, options?: { source?: "stored" | "default" }) {
     if (!runtime) return;
     const sanitizedIndex = clampCheckpointIndex(runtime.checkpointIndex, this.story);
     const sanitizedSince = sanitizeTurnsSinceEval(runtime.turnsSinceEval);
@@ -364,7 +364,7 @@ class StoryOrchestrator {
 
     if (!this.checkpointPrimed || targetIndex !== this.index) {
       this.applyCheckpoint(targetIndex, {
-        persist: false,
+        persist: options?.source === "default",
         resetSinceEval: false,
         sinceEvalOverride: sanitizedSince,
         reason: "hydrate",

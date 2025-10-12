@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useEffect, useMemo, useState } from "react";
+import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useExtensionSettings } from "@components/context/ExtensionSettingsContext";
 import { parseAndNormalizeStory, formatZodError, type NormalizedStory } from "@utils/story-validator";
 import type { Story } from "@utils/story-schema";
@@ -11,7 +11,9 @@ import {
   DEFAULT_INTERVAL_TURNS,
   deriveCheckpointStatuses,
   CheckpointStatus,
+  getPersistedStorySelection,
 } from "@utils/story-state";
+import { storySessionStore } from "@store/storySessionStore";
 
 export type { StoryLibraryEntry, SaveLibraryStoryResult } from "@utils/storyLibrary";
 
@@ -70,6 +72,7 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
     reloadLibrary,
     saveStory: persistStory,
   } = useStoryLibrary();
+  const lastAppliedChatRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (selectedEntry && selectedEntry.ok && selectedEntry.story) {
@@ -83,6 +86,14 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
       setTitle(undefined);
     }
   }, [selectedEntry]);
+
+  useEffect(() => {
+    try {
+      storySessionStore.getState().setStoryKey(selectedKey ?? null);
+    } catch (err) {
+      console.warn("[StoryContext] Failed to sync story key to store", err);
+    }
+  }, [selectedKey]);
 
   const { arbiterFrequency, arbiterPrompt } = useExtensionSettings();
   const intervalTurns = Number.isFinite(arbiterFrequency) ? arbiterFrequency : DEFAULT_INTERVAL_TURNS;
@@ -205,6 +216,23 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
       }
     };
   }, [story, reloadLibraryEntries]);
+
+  useEffect(() => {
+    if (!activeChatId) {
+      lastAppliedChatRef.current = null;
+      return;
+    }
+    if (!libraryEntries.length) return;
+    if (lastAppliedChatRef.current === activeChatId) return;
+
+    const persistedKey = getPersistedStorySelection(activeChatId);
+    lastAppliedChatRef.current = activeChatId;
+    if (!persistedKey) return;
+    if (persistedKey === selectedKey) return;
+    const exists = libraryEntries.some((entry) => entry.key === persistedKey);
+    if (!exists) return;
+    selectEntry(persistedKey);
+  }, [activeChatId, libraryEntries, selectEntry, selectedKey]);
 
   const checkpoints = useMemo<CheckpointSummary[]>(() => {
     if (!story) return [];
