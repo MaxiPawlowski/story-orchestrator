@@ -8,7 +8,7 @@ import GraphPanel from "@components/studio/GraphPanel";
 import StoryDetailsPanel from "@components/studio/StoryDetailsPanel";
 import DiagnosticsPanel from "@components/studio/DiagnosticsPanel";
 import CheckpointEditorPanel from "@components/studio/CheckpointEditorPanel";
-import type { StoryLibraryEntry, SaveLibraryStoryResult } from "@components/context/StoryContext";
+import type { StoryLibraryEntry, SaveLibraryStoryResult, DeleteLibraryStoryResult } from "@components/context/StoryContext";
 
 type ValidationResult = { ok: true; story: NormalizedStory } | { ok: false; errors: string[] };
 type ApplyResult = { ok: true; story: NormalizedStory } | { ok: false; errors: string[] };
@@ -25,6 +25,7 @@ type Props = {
   onSelectKey: (key: string) => void;
   onReloadLibrary: () => Promise<void>;
   onSaveStory: (story: Story, options?: { targetKey?: string; name?: string }) => Promise<SaveLibraryStoryResult>;
+  onDeleteStory: (key: string) => Promise<DeleteLibraryStoryResult>;
   disabled?: boolean;
 };
 
@@ -40,6 +41,7 @@ const CheckpointStudio: React.FC<Props> = ({
   onSelectKey,
   onReloadLibrary,
   onSaveStory,
+  onDeleteStory,
   disabled,
 }) => {
   const baseDraft = useMemo(() => normalizedToDraft(sourceStory), [sourceStory]);
@@ -50,6 +52,7 @@ const CheckpointStudio: React.FC<Props> = ({
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [applyPending, setApplyPending] = useState(false);
   const [savePending, setSavePending] = useState(false);
+  const [deletePending, setDeletePending] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -87,6 +90,7 @@ const CheckpointStudio: React.FC<Props> = ({
   }, [currentEntry, draft.title, libraryEntries]);
 
   const canSave = currentEntry?.kind === "saved" && currentEntry.ok;
+  const canDelete = currentEntry?.kind === "saved";
 
   useEffect(() => {
     if (!selectedId && draft.checkpoints.length) {
@@ -287,6 +291,42 @@ const CheckpointStudio: React.FC<Props> = ({
     }
   }, [onReloadLibrary]);
 
+  const handleDeleteStory = useCallback(async () => {
+    if (disabled) return;
+    const target = currentEntry;
+    if (!target) {
+      setFeedback({ type: "error", message: "Select a saved story to delete." });
+      return;
+    }
+    if (target.kind !== "saved") {
+      setFeedback({ type: "error", message: "Built-in stories cannot be deleted." });
+      return;
+    }
+    const label = typeof target.meta?.name === "string" && target.meta.name.trim().length
+      ? target.meta.name.trim()
+      : "saved story";
+    const confirmed = typeof window === "undefined"
+      ? true
+      : window.confirm(`Delete ${label}? This action cannot be undone.`);
+    if (!confirmed) return;
+
+    setDeletePending(true);
+    setFeedback(null);
+    try {
+      const result = await onDeleteStory(target.key);
+      if (!result.ok) {
+        setFeedback({ type: "error", message: result.error });
+        return;
+      }
+      setFeedback({ type: "success", message: `Deleted ${label}` });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setFeedback({ type: "error", message });
+    } finally {
+      setDeletePending(false);
+    }
+  }, [disabled, currentEntry, onDeleteStory]);
+
   const handleApply = useCallback(async () => {
     setApplyPending(true);
     setFeedback(null);
@@ -409,7 +449,7 @@ const CheckpointStudio: React.FC<Props> = ({
             <select
               className="min-w-[200px] rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
               value={selectedKey ?? ""}
-              disabled={!!disabled || savePending || !libraryEntries.length}
+              disabled={!!disabled || savePending || deletePending || !libraryEntries.length}
               onChange={(event) => {
                 const next = event.target.value;
                 if (next) {
@@ -428,9 +468,18 @@ const CheckpointStudio: React.FC<Props> = ({
               type="button"
               className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
               onClick={handleReloadLibrary}
-              disabled={!!disabled || savePending}
+              disabled={!!disabled || savePending || deletePending}
             >
               Refresh
+            </button>
+            <button
+              type="button"
+              className="inline-flex items-center justify-center rounded border border-red-800 bg-red-700/80 px-3 py-1 text-xs font-medium text-red-50 shadow-sm transition hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={handleDeleteStory}
+              disabled={!!disabled || !canDelete || savePending || deletePending}
+              title={canDelete ? "Delete this saved story" : "Only saved stories can be deleted"}
+            >
+              {deletePending ? "Deleting…" : "Delete"}
             </button>
           </div>
         </label>

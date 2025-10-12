@@ -4,7 +4,7 @@ import { parseAndNormalizeStory, formatZodError, type NormalizedStory } from "@u
 import type { Story } from "@utils/story-schema";
 import { useStoryOrchestrator } from "@hooks/useStoryOrchestrator";
 import { useStoryLibrary } from "@hooks/useStoryLibrary";
-import type { StoryLibraryEntry, SaveLibraryStoryResult } from "@utils/storyLibrary";
+import type { StoryLibraryEntry, SaveLibraryStoryResult, DeleteLibraryStoryResult } from "@utils/storyLibrary";
 import { eventSource, event_types, getContext } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
 import {
@@ -15,7 +15,7 @@ import {
 } from "@utils/story-state";
 import { storySessionStore } from "@store/storySessionStore";
 
-export type { StoryLibraryEntry, SaveLibraryStoryResult } from "@utils/storyLibrary";
+export type { StoryLibraryEntry, SaveLibraryStoryResult, DeleteLibraryStoryResult } from "@utils/storyLibrary";
 
 type ValidationResult =
   | { ok: true; story: NormalizedStory }
@@ -36,6 +36,7 @@ export interface StoryContextValue {
   selectLibraryEntry: (key: string) => void;
   reloadLibrary: () => Promise<void>;
   saveLibraryStory: (story: Story, options?: { targetKey?: string; name?: string }) => Promise<SaveLibraryStoryResult>;
+  deleteLibraryStory: (key: string) => Promise<DeleteLibraryStoryResult>;
   checkpoints: CheckpointSummary[];
   checkpointIndex: number;
   activeCheckpointKey: string | null;
@@ -71,6 +72,7 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
     selectEntry,
     reloadLibrary,
     saveStory: persistStory,
+    deleteStory: removeSavedStory,
   } = useStoryLibrary();
   const lastAppliedChatRef = useRef<string | null>(null);
 
@@ -174,6 +176,10 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
     return persistStory(input, options);
   }, [persistStory]);
 
+  const deleteLibraryStory = useCallback((key: string) => {
+    return removeSavedStory(key);
+  }, [removeSavedStory]);
+
   useEffect(() => {
     const updateChatId = () => {
       try {
@@ -263,6 +269,7 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
       selectLibraryEntry,
       reloadLibrary: reloadLibraryEntries,
       saveLibraryStory,
+      deleteLibraryStory,
       checkpoints,
       checkpointIndex,
       activeCheckpointKey,

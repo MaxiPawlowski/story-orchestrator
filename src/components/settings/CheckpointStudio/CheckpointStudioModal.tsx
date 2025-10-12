@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import CheckpointStudio from "./index";
 import type { Story } from "@utils/story-schema";
 import type { NormalizedStory } from "@utils/story-validator";
-import type { StoryLibraryEntry, SaveLibraryStoryResult } from "@components/context/StoryContext";
+import type { StoryLibraryEntry, SaveLibraryStoryResult, DeleteLibraryStoryResult } from "@components/context/StoryContext";
 
 type ValidationResult = { ok: true; story: NormalizedStory } | { ok: false; errors: string[] };
 type ApplyResult = { ok: true; story: NormalizedStory } | { ok: false; errors: string[] };
@@ -20,6 +20,7 @@ type Props = {
   onSelectKey: (key: string) => void;
   onReloadLibrary: () => Promise<void>;
   onSaveStory: (story: Story, options?: { targetKey?: string; name?: string }) => Promise<SaveLibraryStoryResult>;
+  onDeleteStory: (key: string) => Promise<DeleteLibraryStoryResult>;
   disabled?: boolean;
 };
 
@@ -53,6 +54,7 @@ const CheckpointStudioModal: React.FC<Props> = ({
   onSelectKey,
   onReloadLibrary,
   onSaveStory,
+  onDeleteStory,
   disabled,
 }) => {
   const portalContainer = useMemo(() => {
@@ -133,6 +135,7 @@ const CheckpointStudioModal: React.FC<Props> = ({
             onSelectKey={onSelectKey}
             onReloadLibrary={onReloadLibrary}
             onSaveStory={onSaveStory}
+            onDeleteStory={onDeleteStory}
             disabled={disabled}
           />
         </div>

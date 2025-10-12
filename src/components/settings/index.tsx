@@ -27,6 +27,7 @@ const SettingsWrapper = () => {
     selectLibraryEntry,
     reloadLibrary,
     saveLibraryStory,
+    deleteLibraryStory,
   } = useStoryContext();
   const [showEditor, setShowEditor] = useState(false);
   const selectedLibraryEntry = useMemo(() => {
@@ -187,6 +188,7 @@ const SettingsWrapper = () => {
           onSelectKey={selectLibraryEntry}
           onReloadLibrary={reloadLibrary}
           onSaveStory={saveLibraryStory}
+          onDeleteStory={deleteLibraryStory}
         />
       </div>
     </div>

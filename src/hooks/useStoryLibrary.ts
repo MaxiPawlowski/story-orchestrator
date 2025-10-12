@@ -12,6 +12,7 @@ import {
   type StudioState,
   type StoryLibraryEntry,
   type SaveLibraryStoryResult,
+  type DeleteLibraryStoryResult,
 } from "@utils/storyLibrary";
 
 type SaveOptions = { targetKey?: string; name?: string };
@@ -25,6 +26,7 @@ export interface StoryLibraryHook {
 
   selectEntry: (key: string) => void;
   saveStory: (story: Story, options?: SaveOptions) => Promise<SaveLibraryStoryResult>;
+  deleteStory: (key: string) => Promise<DeleteLibraryStoryResult>;
   reloadLibrary: (preferredKey?: string | null) => Promise<void>;
 }
 
@@ -153,6 +155,35 @@ export function useStoryLibrary(): StoryLibraryHook {
     }
   }, [selectEntry]);
 
+  const deleteStory = useCallback(async (key: string): Promise<DeleteLibraryStoryResult> => {
+    if (!key || !key.startsWith(SAVED_KEY_PREFIX)) {
+      return { ok: false, error: "Only saved stories can be deleted." };
+    }
+
+    let result: DeleteLibraryStoryResult | null = null;
+    setStudioState((prev) => {
+      const targetId = key.slice(SAVED_KEY_PREFIX.length);
+      const index = prev.stories.findIndex((entry) => entry.id === targetId);
+      if (index < 0) {
+        result = { ok: false, error: "Saved story not found." };
+        return prev;
+      }
+
+      const stories = prev.stories.filter((entry) => entry.id !== targetId);
+      const nextSelectedKey = prev.lastSelectedKey === key ? null : prev.lastSelectedKey;
+      const next: StudioState = { stories, lastSelectedKey: nextSelectedKey };
+      persistStudioState(next);
+      result = { ok: true };
+      return next;
+    });
+
+    if (result === null) {
+      return { ok: false, error: "Failed to delete saved story." };
+    }
+
+    return result;
+  }, []);
+
   return {
     loading,
     libraryEntries,
@@ -162,6 +193,7 @@ export function useStoryLibrary(): StoryLibraryHook {
 
     selectEntry,
     saveStory,
+    deleteStory,
     reloadLibrary,
   };
 }

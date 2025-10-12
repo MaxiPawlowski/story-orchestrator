@@ -35,6 +35,10 @@ export type SaveLibraryStoryResult =
   | { ok: true; key: string }
   | { ok: false; error: string };
 
+export type DeleteLibraryStoryResult =
+  | { ok: true }
+  | { ok: false; error: string };
+
 function getSettingsRoot(): Record<string, unknown> {
   const root = extension_settings[extensionName];
   if (root && typeof root === "object") {
