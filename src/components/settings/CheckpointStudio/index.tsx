@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
-import type { Story, Transition } from "@utils/story-schema";
+import type { Story } from "@utils/story-schema";
 import type { NormalizedStory } from "@utils/story-validator";
-import { StoryDraft, CheckpointDraft, normalizedToDraft, draftToStoryInput, buildMermaid, generateUniqueId, slugify } from "@utils/checkpoint-studio";
+import { StoryDraft, CheckpointDraft, TransitionDraft, normalizedToDraft, draftToStoryInput, buildMermaid, generateUniqueId, slugify } from "@utils/checkpoint-studio";
 import Toolbar from "@components/studio/Toolbar";
 import FeedbackAlert from "@components/studio/FeedbackAlert";
 import GraphPanel from "@components/studio/GraphPanel";
@@ -150,7 +150,6 @@ const CheckpointStudio: React.FC<Props> = ({
           id,
           name: `Checkpoint ${prev.checkpoints.length + 1}`,
           objective: "",
-          triggers: { win: ["/enter-regex-here/i"] },
           on_activate: undefined,
         },
       ];
@@ -178,9 +177,17 @@ const CheckpointStudio: React.FC<Props> = ({
       const fallbackTarget = prev.checkpoints.find((cp) => cp.id !== fromId)?.id || fromId;
       const existingIds = new Set(prev.transitions.map((edge) => edge.id));
       const id = generateUniqueId(existingIds, "edge");
-      const transitions = [
+      const transitions: TransitionDraft[] = [
         ...prev.transitions,
-        { id, from: fromId, to: fallbackTarget, outcome: "win" as Transition["outcome"], label: "", description: "" },
+        {
+          id,
+          from: fromId,
+          to: fallbackTarget,
+          condition: "",
+          triggers: [{ type: "regex", patterns: ["/enter-pattern/i"] }],
+          label: "",
+          description: "",
+        },
       ];
       return { ...prev, transitions };
     });
@@ -193,7 +200,7 @@ const CheckpointStudio: React.FC<Props> = ({
     }));
   };
 
-  const updateTransition = (transitionId: string, patch: Partial<ReturnType<typeof draftToStoryInput>["transitions"][number]>) => {
+  const updateTransition = (transitionId: string, patch: Partial<TransitionDraft>) => {
     setDraft((prev) => ({
       ...prev,
       transitions: prev.transitions.map((edge) => (edge.id === transitionId ? { ...edge, ...patch } : edge)),
@@ -306,12 +313,15 @@ const CheckpointStudio: React.FC<Props> = ({
         name: "Schema validation",
         detail: `Loaded ${validation.story.checkpoints.length} checkpoints and ${validation.story.transitions.length} transitions.`,
       });
-      const totalWin = validation.story.checkpoints.reduce((sum, cp) => sum + cp.winTriggers.length, 0);
-      const totalFail = validation.story.checkpoints.reduce((sum, cp) => sum + (cp.failTriggers?.length ?? 0), 0);
+      const triggerTotals = validation.story.transitions.reduce((acc, edge) => {
+        const count = edge.triggers.length;
+        const timed = edge.triggers.filter((trigger) => trigger.type === "timed").length;
+        return { total: acc.total + count, timed: acc.timed + timed };
+      }, { total: 0, timed: 0 });
       results.push({
         ok: true,
-        name: "Regex compilation",
-        detail: `Compiled ${totalWin} win triggers and ${totalFail} fail triggers.`,
+        name: "Trigger compilation",
+        detail: `Compiled ${triggerTotals.total} triggers (${triggerTotals.timed} timed).`,
       });
     } else {
       results.push({ ok: false, name: "Schema validation", detail: validation.errors.join("; ") });
@@ -465,7 +475,7 @@ const CheckpointStudio: React.FC<Props> = ({
             updateCheckpoint={updateCheckpoint}
             onAddTransition={handleAddTransition}
             onRemoveTransition={handleRemoveTransition}
-            updateTransition={updateTransition as unknown as any}
+            updateTransition={updateTransition}
             onRemoveCheckpoint={handleRemoveCheckpoint}
           />
         </div>

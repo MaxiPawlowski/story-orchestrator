@@ -1,6 +1,5 @@
 import type { Role } from "@utils/story-schema";
 import type { NormalizedCheckpoint, NormalizedStory, NormalizedTransition } from "@utils/story-validator";
-import { matchTrigger as matchTriggerUtil } from "@utils/story-state";
 import { PresetService } from "./PresetService";
 import CheckpointArbiterService, {
   type ArbiterReason,
@@ -29,6 +28,8 @@ import {
   type RuntimeStoryState,
   type CheckpointStatus,
   computeStatusMapForIndex,
+  evaluateTransitionTriggers,
+  type TransitionTriggerMatch,
 } from "@utils/story-state";
 import { normalizeName } from "@utils/story-validator";
 import { storySessionStore } from "@store/storySessionStore";
@@ -36,18 +37,22 @@ import { registerStoryExtensionCommands } from "@utils/slashCommands";
 
 interface TransitionSelection {
   id: string;
-  outcome: 'win' | 'fail';
   targetId: string;
   targetIndex: number;
+  trigger?: {
+    type: "regex" | "timed";
+    pattern?: string;
+    label?: string;
+  };
 }
 
 interface EvaluatedEvent {
   outcome: EvaluationOutcome;
   reason: ArbiterReason;
   turn: number;
-  matched?: string;
   cpIndex: number;
-  transition?: TransitionSelection;
+  matches: TransitionTriggerMatch[];
+  selectedTransition?: TransitionSelection;
 }
 
 export type StoryTransitionSelection = TransitionSelection;
@@ -58,8 +63,7 @@ class StoryOrchestrator {
   private presetService: PresetService;
   private checkpointArbiter: CheckpointArbiterApi;
 
-  private winRes: RegExp[] = [];
-  private failRes: RegExp[] = [];
+  private activeTransitions: NormalizedTransition[] = [];
   private intervalTurns = DEFAULT_INTERVAL_TURNS;
   private arbiterPrompt = DEFAULT_ARBITER_PROMPT;
   private roleNameMap = new Map<string, Role>();
@@ -81,7 +85,7 @@ class StoryOrchestrator {
     story: NormalizedStory;
     onRoleApplied?: (role: Role, cpName: string) => void;
     shouldApplyRole?: (role: Role) => boolean;
-    setEvalHooks?: (hooks: { onEvaluated?: (handler: (ev: { outcome: EvaluationOutcome; reason: ArbiterReason; turn: number; matched?: string; cpIndex: number }) => void) => void }) => void;
+    setEvalHooks?: (hooks: { onEvaluated?: (handler: (ev: EvaluatedEvent) => void) => void }) => void;
     onTurnTick?: (next: { turn: number; sinceEval: number }) => void;
     onActivateIndex?: (index: number) => void;
   }) {
@@ -111,13 +115,6 @@ class StoryOrchestrator {
     return this.story.checkpoints[this.index];
   }
 
-  private getTransitionsForOutcome(outcome: 'win' | 'fail', from?: NormalizedCheckpoint | null): NormalizedTransition[] {
-    const source = from ?? this.currentCheckpoint;
-    if (!source) return [];
-    const transitions = this.story.transitionsByFrom.get(source.id) ?? [];
-    return transitions.filter((edge) => edge.outcome === outcome);
-  }
-
   private resolveTargetIndex(edge: NormalizedTransition): number {
     const target = this.story.checkpointById.get(edge.to);
     if (!target) return -1;
@@ -125,39 +122,101 @@ class StoryOrchestrator {
     return idx;
   }
 
-  private toTransitionSelection(outcome: 'win' | 'fail', edge: NormalizedTransition): TransitionSelection | undefined {
+  private toTransitionSelection(edge: NormalizedTransition, match?: TransitionTriggerMatch): TransitionSelection | undefined {
     const targetIndex = this.resolveTargetIndex(edge);
     if (targetIndex < 0) return undefined;
     const target = this.story.checkpoints[targetIndex];
+    const triggerInfo = match?.trigger ? {
+      type: match.trigger.type,
+      pattern: match.pattern,
+      label: match.trigger.raw?.label ?? match.trigger.raw?.id ?? match.trigger.label,
+    } : undefined;
     return {
       id: edge.id,
-      outcome,
       targetIndex,
       targetId: target?.id ?? edge.to,
+      ...(triggerInfo ? { trigger: triggerInfo } : {}),
     };
   }
 
-  private chooseTransitionForOutcome(outcome: EvaluationOutcome, requestedEdgeId: string | null | undefined, from: NormalizedCheckpoint | undefined): TransitionSelection | undefined {
-    if (outcome !== 'win' && outcome !== 'fail') return undefined;
-    const candidates = this.getTransitionsForOutcome(outcome, from);
+  private buildArbiterOptions(matches: TransitionTriggerMatch[]): ArbiterTransitionOption[] {
+    const matchById = new Map<string, TransitionTriggerMatch>();
+    matches.forEach((entry) => { matchById.set(entry.transition.id, entry); });
+
+    return this.activeTransitions
+      .filter((edge) => edge.triggers.some((trigger) => trigger.type === "regex"))
+      .map((edge) => {
+      const match = matchById.get(edge.id);
+      const target = this.story.checkpointById.get(edge.to);
+      const fallbackTrigger = edge.triggers.find((trigger) => trigger.type === "regex") ?? edge.triggers[0];
+      const primaryTrigger = match?.trigger ?? fallbackTrigger;
+      const pattern = match?.pattern
+        ?? (primaryTrigger?.regexes?.[0] ? primaryTrigger.regexes[0].toString() : undefined);
+      const triggerLabel = match?.trigger.raw?.label
+        ?? match?.trigger.raw?.id
+        ?? primaryTrigger?.raw?.label
+        ?? primaryTrigger?.raw?.id;
+
+      return {
+        id: edge.id,
+        condition: edge.condition,
+        label: edge.label,
+        description: edge.description,
+        targetName: target?.name,
+        triggerLabel,
+        triggerPattern: pattern,
+      };
+    });
+  }
+
+  private resolveTransitionSelection(nextTransitionId: string | null | undefined, matches: TransitionTriggerMatch[]): TransitionSelection | undefined {
+    const regexTransitions = this.activeTransitions.filter((edge) => edge.triggers.some((trigger) => trigger.type === "regex"));
+    if (!regexTransitions.length) return undefined;
+
+    let chosen: NormalizedTransition | undefined;
+    let matched: TransitionTriggerMatch | undefined;
+
+    if (nextTransitionId) {
+      matched = matches.find((entry) => entry.transition.id === nextTransitionId);
+      chosen = matched?.transition ?? regexTransitions.find((edge) => edge.id === nextTransitionId);
+    }
+
+    if (!chosen && matches.length) {
+      matched = matches[0];
+      chosen = matched.transition;
+    }
+
+    if (!chosen && regexTransitions.length === 1) {
+      chosen = regexTransitions[0];
+    }
+
+    if (!chosen) return undefined;
+    if (!matched || matched.transition.id !== chosen.id) {
+      matched = matches.find((entry) => entry.transition.id === chosen!.id);
+    }
+
+    return this.toTransitionSelection(chosen, matched);
+  }
+
+  private findTriggeredTimedTransition(turnCount: number): TransitionTriggerMatch | undefined {
+    if (!this.activeTransitions.length || turnCount <= 0) return undefined;
+    const candidates: TransitionTriggerMatch[] = [];
+    this.activeTransitions.forEach((transition) => {
+      transition.triggers.forEach((trigger) => {
+        if (trigger.type !== "timed") return;
+        const threshold = trigger.withinTurns ?? 0;
+        if (threshold > 0 && turnCount >= threshold) {
+          candidates.push({
+            transition,
+            trigger,
+            pattern: `timed<=${threshold}`,
+          });
+        }
+      });
+    });
     if (!candidates.length) return undefined;
-
-    let selected: NormalizedTransition | undefined;
-
-    if (requestedEdgeId) {
-      selected = candidates.find((edge) => edge.id === requestedEdgeId);
-    }
-
-    if (!selected && candidates.length === 1) {
-      selected = candidates[0];
-    }
-
-    if (!selected) {
-      selected = candidates[0];
-      console.log('[StoryOrch] transition fallback', { outcome, requestedEdgeId, selected: selected?.id });
-    }
-
-    return selected ? this.toTransitionSelection(outcome, selected) : undefined;
+    candidates.sort((a, b) => (a.trigger.withinTurns ?? Infinity) - (b.trigger.withinTurns ?? Infinity));
+    return candidates[0];
   }
 
   private setRuntime(next: RuntimeStoryState, options?: { hydrated?: boolean }) {
@@ -249,19 +308,54 @@ class StoryOrchestrator {
   handleUserText(raw: string) {
     const text = (raw ?? "").trim();
     const currentTurn = this.turn;
-    const currentSinceEval = this.runtime.turnsSinceEval;
+    const currentRuntime = this.runtime;
+    const currentSinceEval = currentRuntime.turnsSinceEval;
     const nextTurn = currentTurn + 1;
     const nextSinceEval = currentSinceEval + 1;
     console.log("[StoryOrch] userText", { turn: nextTurn, sinceEval: nextSinceEval, sample: clampText(raw, 80) });
     if (!text) return;
 
     this.setTurn(nextTurn);
-    const runtime = this.persistence.setTurnsSinceEval(nextSinceEval, { persist: true });
-    this.onTurnTick?.({ turn: nextTurn, sinceEval: runtime.turnsSinceEval });
+    const updatedRuntime = this.persistence.writeRuntime({
+      ...currentRuntime,
+      turnsSinceEval: nextSinceEval,
+      checkpointTurnCount: (currentRuntime.checkpointTurnCount ?? 0) + 1,
+    }, { persist: true });
+    this.onTurnTick?.({ turn: nextTurn, sinceEval: updatedRuntime.turnsSinceEval });
 
-    const match = matchTriggerUtil(text, this.winRes, this.failRes);
-    if (match) this.enqueueEval(match.reason, text, match.pattern);
-    else if (runtime.turnsSinceEval >= this.intervalTurns) this.enqueueEval("interval", text);
+    const timedMatch = this.findTriggeredTimedTransition(updatedRuntime.checkpointTurnCount ?? 0);
+    if (timedMatch) {
+      const selection = this.toTransitionSelection(timedMatch.transition, timedMatch);
+      if (selection) {
+        try {
+          this.onEvaluated?.({
+            outcome: "advance",
+            reason: "timed",
+            turn: nextTurn,
+            cpIndex: updatedRuntime.checkpointIndex,
+            matches: [timedMatch],
+            selectedTransition: selection,
+          });
+        } catch (err) {
+          console.warn("[StoryOrch] evaluation handler failed", err);
+        }
+      }
+      return;
+    }
+
+    const regexTransitions = this.activeTransitions.filter((edge) => edge.triggers.some((trigger) => trigger.type === "regex"));
+    if (!regexTransitions.length) return;
+
+    const matches = evaluateTransitionTriggers({
+      text,
+      transitions: regexTransitions,
+      turnsSinceEval: updatedRuntime.turnsSinceEval,
+    });
+    if (matches.length) {
+      this.enqueueEval("trigger", text, matches);
+    } else if (updatedRuntime.turnsSinceEval >= this.intervalTurns) {
+      this.enqueueEval("interval", text, []);
+    }
   }
 
   reloadPersona() {
@@ -396,12 +490,19 @@ class StoryOrchestrator {
         : typeof override === "number"
           ? sanitizeTurnsSinceEval(override)
           : prevRuntime.turnsSinceEval;
+      const preservedCheckpointTurns = opts.resetSinceEval || checkpointIndex !== prevRuntime.checkpointIndex
+        ? 0
+        : prevRuntime.checkpointTurnCount ?? 0;
       const turn = opts.resetSinceEval
         ? 0
         : typeof override === "number"
           ? Math.max(0, baseSince)
           : Math.max(currentTurn, baseSince);
-      return { since: opts.resetSinceEval ? 0 : baseSince, turn };
+      return {
+        since: opts.resetSinceEval ? 0 : baseSince,
+        checkpointTurns: preservedCheckpointTurns,
+        turn,
+      };
     };
 
     const applyRuntime = (runtimePayload: RuntimeStoryState, nextTurn: number) => {
@@ -415,13 +516,14 @@ class StoryOrchestrator {
     // No checkpoints: just prime empty runtime
     if (!checkpoints.length) {
       this.checkpointPrimed = true;
-      this.winRes = this.failRes = [];
+      this.activeTransitions = [];
       this.checkpointArbiter.clear();
       const { since, turn } = computeTurns(opts.sinceEvalOverride);
       const emptyRuntime: RuntimeStoryState = {
         checkpointIndex: 0,
         activeCheckpointKey: null,
         turnsSinceEval: since,
+        checkpointTurnCount: 0,
         checkpointStatusMap: { ...prevRuntime.checkpointStatusMap },
       };
       const sanitized = applyRuntime(emptyRuntime, turn);
@@ -434,64 +536,73 @@ class StoryOrchestrator {
     const activeKey = cp?.id ?? null;
 
     this.checkpointPrimed = true;
-    this.winRes = Array.isArray(cp.winTriggers) ? cp.winTriggers : [];
-    this.failRes = Array.isArray(cp.failTriggers) ? cp.failTriggers : [];
+    this.activeTransitions = cp ? (this.story.transitionsByFrom.get(cp.id) ?? []) : [];
     this.checkpointArbiter.clear();
 
-    const { since, turn } = computeTurns(opts.sinceEvalOverride);
+    const { since, checkpointTurns, turn } = computeTurns(opts.sinceEvalOverride);
     const statusMap = computeStatusMapForIndex(this.story, checkpointIndex, prevRuntime.checkpointStatusMap);
     const runtimePayload: RuntimeStoryState = {
       checkpointIndex,
       activeCheckpointKey: activeKey,
       turnsSinceEval: since,
+      checkpointTurnCount: checkpointTurns,
       checkpointStatusMap: statusMap,
     };
     const sanitized = applyRuntime(runtimePayload, turn);
 
     const logReason = opts.reason ?? (persistRequested ? "activate" : "hydrate");
-    console.log("[StoryOrch] activate", { idx: sanitized.checkpointIndex, id: cp?.id, name: cp?.name, win: this.winRes.map(String), fail: this.failRes.map(String), reason: logReason });
+    console.log("[StoryOrch] activate", {
+      idx: sanitized.checkpointIndex,
+      id: cp?.id,
+      name: cp?.name,
+      transitions: this.activeTransitions.map((edge) => edge.id),
+      reason: logReason,
+    });
     this.applyWorldInfoForCheckpoint(cp, { index: sanitized.checkpointIndex, reason: logReason });
     if (opts.reason) this.emitActivate(sanitized.checkpointIndex);
   }
 
 
-  private enqueueEval(reason: ArbiterReason, text: string, matched?: string) {
+  private enqueueEval(reason: ArbiterReason, text: string, matches: TransitionTriggerMatch[]) {
     const turnSnapshot = this.turn;
     const runtime = this.persistence.setTurnsSinceEval(0, { persist: true });
     this.onTurnTick?.({ turn: turnSnapshot, sinceEval: runtime.turnsSinceEval });
 
     const checkpointIndex = runtime.checkpointIndex;
     const cp = this.story.checkpoints[checkpointIndex];
-    const transitionsForPrompt: ArbiterTransitionOption[] = [];
-    if (cp) {
-      const outgoing = this.story.transitionsByFrom.get(cp.id) ?? [];
-      outgoing.forEach((edge) => {
-        const target = this.story.checkpointById.get(edge.to);
-        transitionsForPrompt.push({
-          id: edge.id,
-          outcome: edge.outcome,
-          label: edge.label,
-          description: edge.description,
-          targetName: target?.name,
-          targetObjective: target?.objective,
-        });
-      });
+    const options = this.buildArbiterOptions(matches);
+    const matchedSummary = matches.map((entry) => `${entry.transition.id}:${entry.pattern}`).join(", ");
+    console.log("[StoryOrch] eval-queued", { reason, turn: turnSnapshot, matched: matchedSummary });
+    if (!options.length) {
+      console.log("[StoryOrch] eval skipped (no regex transitions available)");
+      return;
     }
-    console.log("[StoryOrch] eval-queued", { reason, turn: turnSnapshot, matched });
 
     void this.checkpointArbiter.evaluate({
       cpName: cp?.name ?? `Checkpoint ${checkpointIndex + 1}`,
-      objective: cp?.objective ?? "",
+      checkpointObjective: cp?.objective,
       latestText: text,
       reason,
-      matched,
+      matched: matchedSummary || undefined,
       turn: turnSnapshot,
       intervalTurns: this.intervalTurns,
-      transitions: transitionsForPrompt,
+      candidates: options,
     }).then((payload) => {
       const outcome = payload?.outcome ?? "continue";
-      const transition = this.chooseTransitionForOutcome(outcome, payload?.nextEdgeId ?? payload?.parsed?.nextEdgeId, cp);
-      this.onEvaluated?.({ outcome, reason, turn: turnSnapshot, matched, cpIndex: checkpointIndex, transition });
+      const nextId = payload?.nextTransitionId ?? payload?.parsed?.nextTransitionId;
+      const selection = this.resolveTransitionSelection(nextId, matches);
+      try {
+        this.onEvaluated?.({
+          outcome,
+          reason,
+          turn: turnSnapshot,
+          cpIndex: checkpointIndex,
+          matches,
+          selectedTransition: selection,
+        });
+      } catch (err) {
+        console.warn("[StoryOrch] evaluation handler failed", err);
+      }
     }).catch((err) => {
       console.warn("[StoryOrch] arbiter error", err);
     });
@@ -547,8 +658,7 @@ class StoryOrchestrator {
     this.intervalTurns = DEFAULT_INTERVAL_TURNS;
     this.setArbiterPrompt(DEFAULT_ARBITER_PROMPT);
     this.roleNameMap.clear();
-    this.winRes = [];
-    this.failRes = [];
+    this.activeTransitions = [];
     this.checkpointPrimed = false;
     this.lastChatId = null;
     this.lastGroupSelected = false;

@@ -1,14 +1,15 @@
-﻿import { z } from "zod";
+import { z } from "zod";
 import {
   type Role,
   type RegexSpec,
-  type TransitionOutcome,
-  StorySchema, type Story,
+  StorySchema,
+  type Story,
   WorldInfoActivationsSchema,
   type OnActivate,
   type RolePresetOverrides,
   type PresetOverrides,
   type PresetOverrideKey,
+  type TransitionTrigger as StoryTransitionTrigger,
 } from "./story-schema";
 
 export interface NormalizedWorldInfo {
@@ -26,16 +27,26 @@ export interface NormalizedCheckpoint {
   id: string;
   name: string;
   objective: string;
-  winTriggers: RegExp[];
-  failTriggers?: RegExp[];
   onActivate?: NormalizedOnActivate;
+}
+
+export type NormalizedTriggerType = "regex" | "timed";
+
+export interface NormalizedTransitionTrigger {
+  id?: string;
+  label?: string;
+  type: NormalizedTriggerType;
+  regexes: RegExp[];
+  withinTurns?: number;
+  raw: StoryTransitionTrigger;
 }
 
 export interface NormalizedTransition {
   id: string;
   from: string;
   to: string;
-  outcome: TransitionOutcome;
+  condition: string;
+  triggers: NormalizedTransitionTrigger[];
   label?: string;
   description?: string;
 }
@@ -49,10 +60,12 @@ export interface NormalizedStory {
   checkpointIndexById: Map<string, number>;
   checkpointById: Map<string, NormalizedCheckpoint>;
   transitions: NormalizedTransition[];
+  transitionById: Map<string, NormalizedTransition>;
   transitionsByFrom: Map<string, NormalizedTransition[]>;
   startId: string;
   roleDefaults?: RolePresetOverrides;
 }
+
 export interface NormalizeOptions {
   stripExtension?: boolean;
 }
@@ -186,6 +199,48 @@ function normalizeOnActivateBlock(input?: OnActivate | null): NormalizedOnActiva
   };
 }
 
+function normalizeTransitionTrigger(trigger: StoryTransitionTrigger, path: string): NormalizedTransitionTrigger {
+  const type = (trigger.type ?? "regex") as NormalizedTriggerType;
+  const patterns = trigger.patterns ?? trigger.regex ?? trigger.match;
+  const regexes = type === "regex"
+    ? compileRegexList(patterns as RegexSpec | RegexSpec[] | undefined, `${path}.patterns`)
+    : [];
+  if (type === "regex" && !regexes.length) {
+    throw new Error(`Transition trigger at ${path} produced no regex patterns`);
+  }
+  const label = typeof trigger.label === "string" ? cleanScalar(trigger.label) : undefined;
+  const id = typeof trigger.id === "string" ? cleanScalar(trigger.id) : undefined;
+
+  let withinTurns: number | undefined;
+  if (type === "timed") {
+    const rawWithin = trigger.within_turns;
+    const normalized = Number(rawWithin);
+    if (!Number.isFinite(normalized) || normalized < 1) {
+      throw new Error(`Timed transition trigger at ${path} requires a positive 'within_turns' value`);
+    }
+    withinTurns = Math.floor(normalized);
+  }
+
+  return {
+    id: id || undefined,
+    label: label || undefined,
+    type,
+    regexes,
+    withinTurns,
+    raw: trigger,
+  };
+}
+
+function normalizeTransitionTriggers(
+  triggers: StoryTransitionTrigger[] | undefined,
+  path: string,
+): NormalizedTransitionTrigger[] {
+  if (!triggers || !Array.isArray(triggers) || !triggers.length) {
+    throw new Error(`Transition at ${path} must declare at least one trigger`);
+  }
+  return triggers.map((trigger, idx) => normalizeTransitionTrigger(trigger, `${path}[${idx}]`));
+}
+
 export function validateStoryShape(input: unknown): Story {
   return StorySchema.parse(input);
 }
@@ -194,22 +249,11 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
   const story = validateStoryShape(input);
 
   const checkpoints: NormalizedCheckpoint[] = story.checkpoints.map((cp, idx) => {
-    const winSource = cp.triggers?.win;
-    const winPath = cp.triggers?.win ? `checkpoints[${idx}].win_trigger` : `checkpoints[${idx}].triggers.win`;
-    const winTriggers = compileRegexList(winSource, winPath);
-
-    const failSource = cp.triggers?.fail;
-    const failPath = cp.triggers?.fail ? `checkpoints[${idx}].fail_trigger` : `checkpoints[${idx}].triggers.fail`;
-    const failTriggers = failSource ? compileRegexList(failSource, failPath) : undefined;
-
     const id = normalizeId(cp.id, `cp-${idx + 1}`);
-
     return {
       id,
       name: cp.name,
-      objective: cp.objective,
-      winTriggers,
-      failTriggers,
+      objective: cleanScalar(cp.objective),
       onActivate: normalizeOnActivateBlock(cp.on_activate),
     };
   });
@@ -225,12 +269,15 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
     const to = normalizeId(edge.to, `to-${idx + 1}`);
     const label = typeof edge.label === "string" ? cleanScalar(edge.label) : undefined;
     const description = typeof edge.description === "string" ? cleanScalar(edge.description) : undefined;
+    const condition = cleanScalar(edge.condition);
+    const triggers = normalizeTransitionTriggers(edge.triggers, `transitions[${idx}].triggers`);
 
     return {
       id: edgeId,
       from,
       to,
-      outcome: edge.outcome ?? "win",
+      condition,
+      triggers,
       label: label || undefined,
       description: description || undefined,
     };
@@ -310,9 +357,11 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
   });
 
   const transitionsByFrom = new Map<string, NormalizedTransition[]>();
+  const transitionById = new Map<string, NormalizedTransition>();
   transitions.forEach((edge) => {
     const bucket = transitionsByFrom.get(edge.from);
     if (bucket) bucket.push(edge); else transitionsByFrom.set(edge.from, [edge]);
+    transitionById.set(edge.id, edge);
   });
 
   const startCheckpoint = checkpointById.get(startId);
@@ -329,8 +378,10 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
     checkpointIndexById,
     checkpointById,
     transitions,
+    transitionById,
     transitionsByFrom,
     startId: startCheckpoint.id,
+    roleDefaults: normalizePresetOverrides(story.role_defaults as RolePresetOverrides | undefined),
   };
 }
 

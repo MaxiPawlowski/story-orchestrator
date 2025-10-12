@@ -1,6 +1,6 @@
 import React from "react";
-import type { Transition, RolePresetOverrides } from "@utils/story-schema";
-import { CheckpointDraft, StoryDraft, ensureOnActivate, cleanupOnActivate, splitLines, clone } from "@utils/checkpoint-studio";
+import type { RolePresetOverrides } from "@utils/story-schema";
+import { CheckpointDraft, StoryDraft, TransitionTriggerDraft, ensureOnActivate, cleanupOnActivate, splitLines, clone } from "@utils/checkpoint-studio";
 import { getContext, eventSource, event_types, tgSettings } from "@services/SillyTavernAPI";
 import { PRESET_SETTING_KEYS, type PresetSettingKey } from "@constants/presetSettingKeys";
 import { subscribeToEventSource } from "@utils/eventSource";
@@ -18,11 +18,10 @@ type Props = {
   onRemoveCheckpoint: (id: string) => void;
 };
 
-type TabKey = "basics" | "triggers" | "worldinfo" | "notes" | "transitions";
+type TabKey = "basics" | "worldinfo" | "notes" | "transitions";
 
 const TABS: Array<{ key: TabKey; label: string }> = [
   { key: "basics", label: "Basics" },
-  { key: "triggers", label: "Triggers" },
   { key: "worldinfo", label: "World Info" },
   { key: "notes", label: "Notes & Presets" },
   { key: "transitions", label: "Transitions" },
@@ -449,41 +448,6 @@ const CheckpointEditorPanel: React.FC<Props> = ({
               </>
             )}
 
-            {activeTab === "triggers" && (
-              <>
-                <label className="flex flex-col gap-1 text-xs text-slate-300">
-                  <span>Win Triggers (one per line)</span>
-                  <textarea
-                    className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                    rows={6}
-                    value={selectedCheckpoint.triggers.win.join("\n")}
-                    onChange={(e) => {
-                      const values = splitLines(e.target.value);
-                      updateCheckpoint(selectedCheckpoint.id, (cp) => ({
-                        ...cp,
-                        triggers: { ...cp.triggers, win: values.length ? values : ["/enter-regex-here/i"] },
-                      }));
-                    }}
-                  />
-                </label>
-                <label className="flex flex-col gap-1 text-xs text-slate-300">
-                  <span>Fail Triggers (optional)</span>
-                  <textarea
-                    className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                    rows={5}
-                    value={(selectedCheckpoint.triggers.fail ?? []).join("\n")}
-                    onChange={(e) => {
-                      const values = splitLines(e.target.value);
-                      updateCheckpoint(selectedCheckpoint.id, (cp) => ({
-                        ...cp,
-                        triggers: { ...cp.triggers, fail: values.length ? values : undefined },
-                      }));
-                    }}
-                  />
-                </label>
-              </>
-            )}
-
             {activeTab === "notes" && (
               <>
                 <div className="space-y-2">
@@ -649,64 +613,164 @@ const CheckpointEditorPanel: React.FC<Props> = ({
                     <div className="text-xs text-slate-400">No transitions from this checkpoint.</div>
                   ) : (
                     <div className="space-y-2">
-                      {outgoingTransitions.map((edge) => (
-                        <div key={edge.id} className="rounded border border-slate-600 p-2 space-y-2">
-                          <div className="grid grid-cols-2 gap-2">
+                      {outgoingTransitions.map((edge) => {
+                        const setTriggers = (next: TransitionTriggerDraft[]) => {
+                          updateTransition(edge.id, { triggers: next });
+                        };
+                        const updateTrigger = (index: number, patch: Partial<TransitionTriggerDraft>) => {
+                          const next = edge.triggers.map((trigger, idx) => (idx === index ? { ...trigger, ...patch } : trigger));
+                          setTriggers(next);
+                        };
+                        const removeTrigger = (index: number) => {
+                          const next = edge.triggers.filter((_, idx) => idx !== index);
+                          setTriggers(next);
+                        };
+                        const addTrigger = () => {
+                          const next: TransitionTriggerDraft = {
+                            type: "regex",
+                            patterns: ["/enter-pattern/i"],
+                          };
+                          setTriggers([...edge.triggers, next]);
+                        };
+
+                        return (
+                          <div key={edge.id} className="rounded border border-slate-600 p-2 space-y-2">
+                            <div className="grid grid-cols-2 gap-2">
+                              <label className="flex flex-col gap-1 text-xs text-slate-300">
+                                <span>To</span>
+                                <select
+                                  className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                  value={edge.to}
+                                  onChange={(e) => updateTransition(edge.id, { to: e.target.value })}
+                                >
+                                  {draft.checkpoints.map((cp) => (
+                                    <option key={cp.id} value={cp.id}>
+                                      {cp.name || cp.id}
+                                    </option>
+                                  ))}
+                                </select>
+                              </label>
+                              <label className="flex flex-col gap-1 text-xs text-slate-300">
+                                <span>Label</span>
+                                <input
+                                  className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                  value={edge.label ?? ""}
+                                  onChange={(e) => updateTransition(edge.id, { label: e.target.value })}
+                                />
+                              </label>
+                            </div>
                             <label className="flex flex-col gap-1 text-xs text-slate-300">
-                              <span>To</span>
-                              <select
-                                className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                                value={edge.to}
-                                onChange={(e) => updateTransition(edge.id, { to: e.target.value })}
-                              >
-                                {draft.checkpoints.map((cp) => (
-                                  <option key={cp.id} value={cp.id}>
-                                    {cp.name || cp.id}
-                                  </option>
-                                ))}
-                              </select>
+                              <span>Condition</span>
+                              <textarea
+                                className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                rows={3}
+                                value={edge.condition}
+                                onChange={(e) => updateTransition(edge.id, { condition: e.target.value })}
+                              />
                             </label>
                             <label className="flex flex-col gap-1 text-xs text-slate-300">
-                              <span>Outcome</span>
-                              <select
-                                className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                                value={edge.outcome}
-                                onChange={(e) => updateTransition(edge.id, { outcome: e.target.value as Transition["outcome"] })}
-                              >
-                                <option value="win">win</option>
-                                <option value="fail">fail</option>
-                              </select>
+                              <span>Description</span>
+                              <textarea
+                                className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                rows={2}
+                                value={edge.description ?? ""}
+                                onChange={(e) => updateTransition(edge.id, { description: e.target.value })}
+                              />
                             </label>
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-slate-300">Triggers</span>
+                                <button
+                                  type="button"
+                                  className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                                  onClick={addTrigger}
+                                >
+                                  + Trigger
+                                </button>
+                              </div>
+                              {!edge.triggers.length ? (
+                                <div className="text-xs text-slate-400">No triggers defined.</div>
+                              ) : (
+                                <div className="space-y-2">
+                                  {edge.triggers.map((trigger, idx) => (
+                                    <div key={`${edge.id}-trigger-${idx}`} className="rounded border border-slate-600 p-2 space-y-2">
+                                      <div className="grid grid-cols-3 gap-2">
+                                        <label className="flex flex-col gap-1 text-xs text-slate-300">
+                                          <span>Type</span>
+                                          <select
+                                            className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                            value={trigger.type}
+                                            onChange={(e) => {
+                                              const nextType = e.target.value as TransitionTriggerDraft["type"];
+                                              updateTrigger(idx, {
+                                                type: nextType,
+                                                within_turns: nextType === "timed" ? (trigger.within_turns ?? 3) : undefined,
+                                              });
+                                            }}
+                                          >
+                                            <option value="regex">regex</option>
+                                            <option value="timed">timed</option>
+                                          </select>
+                                        </label>
+                                        <label className="flex flex-col gap-1 text-xs text-slate-300">
+                                          <span>Label (optional)</span>
+                                          <input
+                                            className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                            value={trigger.label ?? ""}
+                                            onChange={(e) => updateTrigger(idx, { label: e.target.value })}
+                                          />
+                                        </label>
+                                        {trigger.type === "timed" ? (
+                                          <label className="flex flex-col gap-1 text-xs text-slate-300">
+                                            <span>Within Turns</span>
+                                            <input
+                                              type="number"
+                                              min={1}
+                                              className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                              value={trigger.within_turns ?? 1}
+                                              onChange={(e) => updateTrigger(idx, { within_turns: Math.max(1, Number(e.target.value) || 1) })}
+                                            />
+                                          </label>
+                                        ) : (
+                                          <div />
+                                        )}
+                                      </div>
+                                      <label className="flex flex-col gap-1 text-xs text-slate-300">
+                                        <span>Patterns (one per line)</span>
+                                        <textarea
+                                          className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                          rows={3}
+                                          value={(trigger.patterns ?? []).join("\n")}
+                                          onChange={(e) => updateTrigger(idx, { patterns: splitLines(e.target.value) })}
+                                        />
+                                      </label>
+                                      <div className="flex justify-end">
+                                        <button
+                                          type="button"
+                                          className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-red-300/90 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                                          onClick={() => removeTrigger(idx)}
+                                        >
+                                          Remove Trigger
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <div className="text-xs opacity-80">{edge.id}</div>
+                              <button
+                                type="button"
+                                className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                                onClick={() => onRemoveTransition(edge.id)}
+                              >
+                                Remove
+                              </button>
+                            </div>
                           </div>
-                          <label className="flex flex-col gap-1 text-xs text-slate-300">
-                            <span>Label</span>
-                            <input
-                              className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                              value={edge.label ?? ""}
-                              onChange={(e) => updateTransition(edge.id, { label: e.target.value })}
-                            />
-                          </label>
-                          <label className="flex flex-col gap-1 text-xs text-slate-300">
-                            <span>Description</span>
-                            <textarea
-                              className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                              rows={2}
-                              value={edge.description ?? ""}
-                              onChange={(e) => updateTransition(edge.id, { description: e.target.value })}
-                            />
-                          </label>
-                          <div className="flex justify-between items-center">
-                            <div className="text-xs opacity-80">{edge.id}</div>
-                            <button
-                              type="button"
-                              className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                              onClick={() => onRemoveTransition(edge.id)}
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>

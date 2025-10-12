@@ -10,7 +10,7 @@ type CheckpointRow = {
 
 type EvaluationHistoryEntry = {
   eventText: string;
-  result: "win" | "fail" | null;
+  result: "advance" | "continue" | null;
 };
 
 type QueuedEvaluationInfo = {
@@ -46,13 +46,13 @@ const Checkpoints: React.FC<Props> = ({
     const { reason, matchedPattern } = lastQueuedEvaluation;
     let label: string;
     switch (reason) {
-      case "win-trigger":
-        label = "Queued after win trigger match";
+      case "trigger":
+        label = "Queued after trigger match";
         break;
-      case "fail-trigger":
-        label = "Queued after fail trigger match";
+      case "timed":
+        label = "Queued after timed trigger window";
         break;
-      case "turn-interval":
+      case "interval":
         label = "Queued for periodic check";
         break;
       default:
@@ -89,6 +89,7 @@ const Checkpoints: React.FC<Props> = ({
             const borderClass = STATUS_BORDER_CLASS[status] ?? STATUS_BORDER_CLASS[CheckpointStatus.Pending];
             const isComplete = status === CheckpointStatus.Complete;
             const key = cp.id ?? `cp-${i}`;
+            const objective = cp.objective || "No objective defined";
 
             return (
               <li
@@ -106,9 +107,9 @@ const Checkpoints: React.FC<Props> = ({
                   />
                   <div className="flex flex-col">
                     <span className={status === CheckpointStatus.Current ? "font-semibold" : "font-medium"}>
-                      {cp.name || cp.objective}
+                      {cp.name || objective}
                     </span>
-                    <span className="text-sm opacity-80">{cp.objective}</span>
+                    <span className="text-sm opacity-80">{objective}</span>
                   </div>
                 </div>
               </li>

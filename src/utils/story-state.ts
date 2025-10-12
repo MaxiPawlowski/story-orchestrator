@@ -1,5 +1,5 @@
 import { extension_settings, saveSettingsDebounced } from "@services/SillyTavernAPI";
-import type { NormalizedCheckpoint, NormalizedStory } from "@utils/story-validator";
+import type { NormalizedCheckpoint, NormalizedStory, NormalizedTransition, NormalizedTransitionTrigger } from "@utils/story-validator";
 import { extensionName } from "@constants/main";
 
 export enum CheckpointStatus {
@@ -38,6 +38,7 @@ export interface RuntimeStoryState {
   checkpointIndex: number;
   activeCheckpointKey: string | null;
   turnsSinceEval: number;
+  checkpointTurnCount: number;
   checkpointStatusMap: CheckpointStatusMap;
 }
 
@@ -47,6 +48,7 @@ export interface PersistedChatState {
   checkpointIndex: number;
   activeCheckpointKey: string | null;
   turnsSinceEval: number;
+  checkpointTurnCount?: number;
   checkpointStatusMap: CheckpointStatusMap;
   updatedAt: number;
 }
@@ -78,6 +80,7 @@ function migratePersistedState(entry: PersistedStateCandidate, story: Normalized
     checkpointIndex: clampIndex(candidate.checkpointIndex ?? 0, story),
     activeCheckpointKey: activeKey ?? story.startId ?? null,
     turnsSinceEval: sanitizeTurns(candidate.turnsSinceEval ?? 0),
+    checkpointTurnCount: sanitizeTurns(candidate.checkpointTurnCount ?? 0),
     checkpointStatusMap: candidate.checkpointStatusMap ?? {},
     updatedAt: candidate.updatedAt ?? Date.now(),
   };
@@ -120,6 +123,7 @@ export function loadStoryState({
     checkpointIndex: migrated.checkpointIndex,
     activeCheckpointKey: migrated.activeCheckpointKey,
     turnsSinceEval: migrated.turnsSinceEval,
+    checkpointTurnCount: migrated.checkpointTurnCount ?? 0,
     checkpointStatusMap: migrated.checkpointStatusMap,
   }, story);
 
@@ -157,6 +161,7 @@ export function persistStoryState({
     checkpointIndex: sanitized.checkpointIndex,
     activeCheckpointKey: sanitized.activeCheckpointKey,
     turnsSinceEval: sanitized.turnsSinceEval,
+    checkpointTurnCount: sanitized.checkpointTurnCount,
     checkpointStatusMap: sanitized.checkpointStatusMap,
     updatedAt: Date.now(),
   };
@@ -193,6 +198,7 @@ export function makeDefaultState(story: NormalizedStory | null | undefined): Run
     checkpointIndex: normalizedIndex < 0 ? 0 : normalizedIndex,
     activeCheckpointKey: activeId,
     turnsSinceEval: 0,
+    checkpointTurnCount: 0,
     checkpointStatusMap,
   };
 }
@@ -202,7 +208,18 @@ function computeStorySignature(story: NormalizedStory): string {
     .map((cp) => `${String(cp.id)}::${cp.name ?? ""}::${cp.objective ?? ""}`)
     .join("||");
   const edgeSig = (story.transitions ?? [])
-    .map((edge) => `${edge.id}->${edge.from}|${edge.to}|${edge.outcome}`)
+    .map((edge) => {
+      const triggerSig = (edge.triggers ?? [])
+        .map((trigger) => {
+          const regexSig = (trigger.regexes ?? [])
+            .map((re) => `${re.source}/${re.flags ?? ""}`)
+            .join(",");
+          const windowSig = trigger.withinTurns ? `@${trigger.withinTurns}` : "";
+          return `${trigger.type}${windowSig}:${regexSig}`;
+        })
+        .join("~~");
+      return `${edge.id}->${edge.from}|${edge.to}|${edge.condition}|${triggerSig}`;
+    })
     .join("||");
   return [
     story.schemaVersion ?? "?",
@@ -223,12 +240,14 @@ function computeStorySignature(story: NormalizedStory): string {
  */
 export function sanitizeRuntime(candidate: RuntimeStoryState, story: NormalizedStory | null): RuntimeStoryState {
   const turnsSinceEval = sanitizeTurnsSinceEval(candidate.turnsSinceEval);
+  const checkpointTurnCount = sanitizeTurns(candidate.checkpointTurnCount ?? 0);
 
   if (!story || !Array.isArray(story.checkpoints) || !story.checkpoints.length) {
     return {
       checkpointIndex: 0,
       activeCheckpointKey: null,
       turnsSinceEval,
+      checkpointTurnCount,
       checkpointStatusMap: {},
     };
   }
@@ -260,6 +279,7 @@ export function sanitizeRuntime(candidate: RuntimeStoryState, story: NormalizedS
     checkpointIndex,
     activeCheckpointKey: activeId,
     turnsSinceEval,
+    checkpointTurnCount,
     checkpointStatusMap,
   };
 }
@@ -282,28 +302,56 @@ export function deriveCheckpointStatuses(
  * Match a text against precompiled regex lists.
  * Returns { reason: 'win'|'fail', pattern } or null.
  */
-export function matchTrigger(
-  text: string,
-  winRes: RegExp[],
-  failRes: RegExp[],
-): { reason: 'win' | 'fail'; pattern: string } | null {
-  for (const re of failRes ?? []) {
+export interface TransitionTriggerMatch {
+  transition: NormalizedTransition;
+  trigger: NormalizedTransitionTrigger;
+  pattern: string;
+}
+
+function matchRegexList(text: string, regexes: RegExp[]): string | null {
+  for (const re of regexes) {
     try {
       re.lastIndex = 0;
-      if (re.test(text)) return { reason: 'fail', pattern: re.toString() };
+      if (re.test(text)) {
+        return re.toString();
+      }
     } catch {
-      // ignore malformed / unexpected
-    }
-  }
-  for (const re of winRes ?? []) {
-    try {
-      re.lastIndex = 0;
-      if (re.test(text)) return { reason: 'win', pattern: re.toString() };
-    } catch {
-      // ignore
+      // ignore malformed or runtime errors
     }
   }
   return null;
+}
+
+export function evaluateTransitionTriggers({
+  text,
+  transitions,
+  turnsSinceEval: _turnsSinceEval,
+}: {
+  text: string;
+  transitions: NormalizedTransition[] | undefined;
+  turnsSinceEval: number;
+}): TransitionTriggerMatch[] {
+  if (!text || !transitions || !transitions.length) return [];
+  const matches: TransitionTriggerMatch[] = [];
+  const normalizedText = String(text);
+
+  void _turnsSinceEval;
+
+  transitions.forEach((transition) => {
+    transition.triggers.forEach((trigger) => {
+      if (trigger.type !== "regex") return;
+      const pattern = matchRegexList(normalizedText, trigger.regexes);
+      if (pattern) {
+        matches.push({
+          transition,
+          trigger,
+          pattern,
+        });
+      }
+    });
+  });
+
+  return matches;
 }
 
 export function sanitizeChatKey(chatId: string | null | undefined): string | null {
@@ -437,6 +485,7 @@ function isPersistedChatState(input: unknown): input is PersistedStateCandidate 
   const candidate = input as Partial<PersistedStateCandidate>;
   const statusField = candidate.checkpointStatusMap;
   const statusValid = statusField === undefined || typeof statusField === "object";
+  const checkpointTurnsValid = candidate.checkpointTurnCount === undefined || typeof candidate.checkpointTurnCount === "number";
   const keyValid = candidate.storyKey === undefined || candidate.storyKey === null || typeof candidate.storyKey === "string";
 
   return (
@@ -445,5 +494,6 @@ function isPersistedChatState(input: unknown): input is PersistedStateCandidate 
     && typeof candidate.checkpointIndex === "number"
     && typeof candidate.turnsSinceEval === "number"
     && statusValid
+    && checkpointTurnsValid
   );
 }

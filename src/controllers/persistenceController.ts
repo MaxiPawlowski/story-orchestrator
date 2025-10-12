@@ -23,6 +23,7 @@ export interface PersistenceController {
   hydrate(): HydrateResult;
   writeRuntime(next: RuntimeStoryState, options?: WriteRuntimeOptions): RuntimeStoryState;
   setTurnsSinceEval(next: number, options?: { persist?: boolean }): RuntimeStoryState;
+  setCheckpointTurnCount(next: number, options?: { persist?: boolean }): RuntimeStoryState;
   updateCheckpointStatus(index: number, status: CheckpointStatus, options?: { persist?: boolean }): RuntimeStoryState;
   dispose(): void;
   canPersist(): boolean;
@@ -113,6 +114,12 @@ export const createPersistenceController = (store: StorySessionStore = storySess
     return runtime;
   };
 
+  const setCheckpointTurnCount = (next: number, options?: { persist?: boolean }): RuntimeStoryState => {
+    const runtime = store.getState().setCheckpointTurnCount(next);
+    persistRuntimeIfAllowed(runtime, options?.persist);
+    return runtime;
+  };
+
   const updateCheckpointStatus = (index: number, status: CheckpointStatus, options?: { persist?: boolean }): RuntimeStoryState => {
     const runtime = store.getState().updateCheckpointStatus(index, status);
     persistRuntimeIfAllowed(runtime, options?.persist);
@@ -137,6 +144,7 @@ export const createPersistenceController = (store: StorySessionStore = storySess
     hydrate,
     writeRuntime,
     setTurnsSinceEval,
+    setCheckpointTurnCount,
     updateCheckpointStatus,
     dispose,
     canPersist,

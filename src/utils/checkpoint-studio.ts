@@ -1,13 +1,9 @@
-import type { Story, Checkpoint, Transition, Role, RolePresetOverrides } from "@utils/story-schema";
-import type { NormalizedStory, NormalizedCheckpoint, NormalizedOnActivate } from "@utils/story-validator";
+import type { Story, Checkpoint, Transition, TransitionTrigger, Role, RolePresetOverrides } from "@utils/story-schema";
+import type { NormalizedStory, NormalizedCheckpoint, NormalizedOnActivate, NormalizedTransition, NormalizedTransitionTrigger } from "@utils/story-validator";
 
 export type LayoutName = "breadthfirst" | "cose" | "grid" | "dagre";
 
-export type CheckpointDraft = Omit<Checkpoint, "triggers" | "on_activate"> & {
-  triggers: {
-    win: string[];
-    fail?: string[];
-  };
+export type CheckpointDraft = Omit<Checkpoint, "on_activate"> & {
   on_activate?: {
     authors_note?: Partial<Record<Role, string>>;
     world_info?: { activate: string[]; deactivate: string[] };
@@ -15,8 +11,21 @@ export type CheckpointDraft = Omit<Checkpoint, "triggers" | "on_activate"> & {
   };
 };
 
-export type StoryDraft = Omit<Story, "checkpoints"> & {
+export type TransitionTriggerDraft = {
+  id?: string;
+  type: "regex" | "timed";
+  patterns: string[];
+  within_turns?: number;
+  label?: string;
+};
+
+export type TransitionDraft = Omit<Transition, "triggers"> & {
+  triggers: TransitionTriggerDraft[];
+};
+
+export type StoryDraft = Omit<Story, "checkpoints" | "transitions"> & {
   checkpoints: CheckpointDraft[];
+  transitions: TransitionDraft[];
 };
 
 export type EnsuredOnActivate = {
@@ -44,7 +53,6 @@ export const splitCsv = (value: string): string[] =>
     .map((entry) => entry.trim())
     .filter(Boolean);
 
-
 const escapeMermaidText = (value: string): string => value.replace(/"/g, "\\\"");
 
 const sanitizeMermaidId = (value: string): string => value.replace(/[^a-zA-Z0-9_]/g, "_");
@@ -53,7 +61,7 @@ const cleanupAuthorsNote = (value?: Partial<Record<Role, string>>): Partial<Reco
   if (!value) return undefined;
   const result: Partial<Record<Role, string>> = {};
   (Object.entries(value) as [Role, string | undefined][]).forEach(([role, maybeText]) => {
-    const trimmed = (maybeText ?? '').trim();
+    const trimmed = (maybeText ?? "").trim();
     if (trimmed) result[role] = trimmed;
   });
   return Object.keys(result).length ? result : undefined;
@@ -80,11 +88,25 @@ const normalizedCheckpointToDraft = (cp: NormalizedCheckpoint): CheckpointDraft 
   id: cp.id,
   name: cp.name,
   objective: cp.objective,
-  triggers: {
-    win: cp.winTriggers.map(regexToString),
-    ...(cp.failTriggers && cp.failTriggers.length ? { fail: cp.failTriggers.map(regexToString) } : {}),
-  },
   on_activate: normalizedOnActivateToDraft(cp.onActivate),
+});
+
+const normalizedTriggerToDraft = (trigger: NormalizedTransitionTrigger): TransitionTriggerDraft => ({
+  id: trigger.raw?.id ?? trigger.id,
+  type: trigger.type,
+  patterns: trigger.regexes.map(regexToString),
+  within_turns: trigger.withinTurns,
+  label: trigger.raw?.label ?? trigger.label,
+});
+
+const normalizedTransitionToDraft = (edge: NormalizedTransition): TransitionDraft => ({
+  id: edge.id,
+  from: edge.from,
+  to: edge.to,
+  condition: edge.condition,
+  triggers: edge.triggers.map((trigger) => normalizedTriggerToDraft(trigger)),
+  label: edge.label,
+  description: edge.description,
 });
 
 const createEmptyDraft = (): StoryDraft => ({
@@ -105,17 +127,10 @@ export const normalizedToDraft = (story: NormalizedStory | null | undefined): St
     title: story.title,
     global_lorebook: story.global_lorebook,
     base_preset: undefined,
-    roles: story.roles ? (Object.fromEntries(Object.entries(story.roles).filter(([, v]) => typeof v === 'string')) as Record<string, string>) : undefined,
+    roles: story.roles ? (Object.fromEntries(Object.entries(story.roles).filter(([, v]) => typeof v === "string")) as Record<string, string>) : undefined,
     on_start: undefined,
     checkpoints,
-    transitions: story.transitions.map((edge) => ({
-      id: edge.id,
-      from: edge.from,
-      to: edge.to,
-      outcome: edge.outcome,
-      label: edge.label,
-      description: edge.description,
-    })),
+    transitions: story.transitions.map((edge) => normalizedTransitionToDraft(edge)),
     start: story.startId ?? checkpoints[0]?.id ?? "",
   };
 };
@@ -148,10 +163,36 @@ export const cleanupOnActivate = (
   };
 };
 
+const sanitizeTriggerDraft = (draft: TransitionTriggerDraft): TransitionTriggerDraft | null => {
+  const type = draft.type === "timed" ? "timed" : "regex";
+  const patterns = type === "regex" ? sanitizeList(draft.patterns) : [];
+  if (type === "regex" && !patterns.length) return null;
+  const within = type === "timed" ? Math.max(1, Math.floor(draft.within_turns ?? 1)) : undefined;
+  return {
+    id: draft.id?.trim() || undefined,
+    type,
+    patterns,
+    within_turns: within,
+    label: draft.label?.trim() || undefined,
+  };
+};
+
+const triggerDraftToSchema = (draft: TransitionTriggerDraft): TransitionTrigger => {
+  const sanitized = sanitizeTriggerDraft(draft);
+  if (!sanitized) {
+    throw new Error("Transition trigger requires at least one regex pattern.");
+  }
+  return {
+    id: sanitized.id,
+    type: sanitized.type,
+    patterns: sanitized.patterns,
+    within_turns: sanitized.type === "timed" ? sanitized.within_turns : undefined,
+    label: sanitized.label,
+  };
+};
+
 export const draftToStoryInput = (draft: StoryDraft): Story => {
   const checkpoints: Story["checkpoints"] = draft.checkpoints.map((cp) => {
-    const win = sanitizeList(cp.triggers.win);
-    const fail = sanitizeList(cp.triggers.fail);
     const ensuredActivate = cp.on_activate ? ensureOnActivate(cp.on_activate) : undefined;
     const onActivate = cleanupOnActivate(ensuredActivate);
     const onActivateOut = onActivate ? {
@@ -162,21 +203,28 @@ export const draftToStoryInput = (draft: StoryDraft): Story => {
       id: cp.id.trim(),
       name: cp.name.trim(),
       objective: cp.objective.trim(),
-      triggers: {
-        win: win.length ? win : cp.triggers.win,
-        ...(fail.length ? { fail } : {}),
-      },
       ...(onActivateOut ? { on_activate: onActivateOut as unknown as Story["checkpoints"][number]["on_activate"] } : {}),
     };
   });
-  const transitions: Transition[] = draft.transitions.map((edge) => ({
-    id: edge.id.trim(),
-    from: edge.from.trim(),
-    to: edge.to.trim(),
-    outcome: edge.outcome,
-    label: edge.label?.trim() || undefined,
-    description: edge.description?.trim() || undefined,
-  }));
+
+  const transitions: Transition[] = draft.transitions.map((edge) => {
+    const triggers = edge.triggers
+      .map((trigger) => triggerDraftToSchema(trigger))
+      .filter(Boolean);
+    if (!triggers.length) {
+      throw new Error(`Transition ${edge.id} must define at least one trigger.`);
+    }
+    return {
+      id: edge.id.trim(),
+      from: edge.from.trim(),
+      to: edge.to.trim(),
+      condition: edge.condition.trim(),
+      triggers,
+      label: edge.label?.trim() || undefined,
+      description: edge.description?.trim() || undefined,
+    };
+  });
+
   const roles = draft.roles ? cleanupAuthorsNote(draft.roles as Partial<Record<Role, string>>) : undefined;
 
   const title = draft.title.trim();
@@ -197,18 +245,24 @@ export const draftToStoryInput = (draft: StoryDraft): Story => {
 
 export const buildMermaid = (draft: StoryDraft): string => {
   const lines: string[] = ["graph TD"];
+  const transitionsByFrom = draft.transitions.reduce<Record<string, TransitionDraft[]>>((acc, edge) => {
+    if (!acc[edge.from]) acc[edge.from] = [];
+    acc[edge.from].push(edge);
+    return acc;
+  }, {});
+
   draft.checkpoints.forEach((cp) => {
     const id = sanitizeMermaidId(cp.id);
     const label = escapeMermaidText(cp.name || cp.id);
-    const objective = escapeMermaidText(cp.objective);
-    lines.push(`  ${id}[\"${label}\\n${objective}\"]`);
+    const conditions = transitionsByFrom[cp.id]?.map((edge) => edge.condition).filter(Boolean) ?? [];
+    const conditionLine = conditions.length ? `\\n${escapeMermaidText(conditions[0])}` : "";
+    lines.push(`  ${id}["${label}${conditionLine}"]`);
   });
   draft.transitions.forEach((edge) => {
     const from = sanitizeMermaidId(edge.from);
     const to = sanitizeMermaidId(edge.to);
     const label = edge.label ? `|${escapeMermaidText(edge.label)}|` : "";
-    const arrow = edge.outcome === "fail" ? "-.->" : "-->";
-    lines.push(`  ${from} ${arrow}${label} ${to}`);
+    lines.push(`  ${from} -->${label} ${to}`);
   });
   return lines.join("\n");
 };

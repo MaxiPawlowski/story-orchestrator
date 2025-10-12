@@ -24,7 +24,7 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect }) => {
     const nodeIds = new Set(nodes.map((n) => n.data.id));
     const edges: ElementDefinition[] = draft.transitions
       .filter((e) => nodeIds.has(e.from) && nodeIds.has(e.to))
-      .map((e) => ({ group: "edges", data: { id: e.id, source: e.from, target: e.to, label: e.label || "", outcome: e.outcome } }));
+      .map((e) => ({ group: "edges", data: { id: e.id, source: e.from, target: e.to, label: e.label || "" } }));
     return [...nodes, ...edges];
   }, [draft, selectedId]);
 
@@ -67,8 +67,6 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect }) => {
             { selector: "node[type = 'start']", style: { "background-color": "#2563eb" } },
             { selector: "node.selected", style: { "border-width": "3px", "border-color": "#facc15" } },
             { selector: "edge", style: { "curve-style": "bezier", "target-arrow-shape": "triangle", "line-color": "#94a3b8", "target-arrow-color": "#94a3b8", label: "data(label)", color: "#f8fafc", "font-size": "10px", "text-background-color": "#0f172a", "text-background-opacity": "0.6", "text-background-padding": "4px" } },
-            { selector: "edge[outcome = 'win']", style: { "line-color": "#22c55e", "target-arrow-color": "#22c55e" } },
-            { selector: "edge[outcome = 'fail']", style: { "line-color": "#ef4444", "target-arrow-color": "#ef4444", "line-style": "dashed" } },
           ] as any,
         });
       } catch {
@@ -164,4 +162,3 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect }) => {
 };
 
 export default GraphPanel;
-

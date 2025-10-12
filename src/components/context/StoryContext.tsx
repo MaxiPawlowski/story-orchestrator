@@ -102,23 +102,19 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
     story,
     intervalTurns,
     {
-      onEvaluated: ({ outcome, cpIndex, transition }) => {
+      onEvaluated: ({ outcome, cpIndex, selectedTransition }) => {
         if (!story) return;
-        if (outcome === "win") {
-          updateCheckpointStatus(cpIndex, "complete");
-          if (transition && transition.outcome === "win") {
-            const nextIndex = transition.targetIndex;
-            if (Number.isFinite(nextIndex) && nextIndex >= 0 && nextIndex < (story.checkpoints?.length ?? 0) && nextIndex !== cpIndex) {
-              activateIndex(nextIndex);
-            }
-          }
-        } else if (outcome === "fail") {
-          updateCheckpointStatus(cpIndex, CheckpointStatus.Failed);
-          if (transition && transition.outcome === "fail") {
-            const nextIndex = transition.targetIndex;
-            if (Number.isFinite(nextIndex) && nextIndex >= 0 && nextIndex < (story.checkpoints?.length ?? 0) && nextIndex !== cpIndex) {
-              activateIndex(nextIndex);
-            }
+        if (outcome === "advance") {
+          updateCheckpointStatus(cpIndex, CheckpointStatus.Complete);
+          const nextIndex = selectedTransition?.targetIndex;
+          if (
+            typeof nextIndex === "number"
+            && Number.isFinite(nextIndex)
+            && nextIndex >= 0
+            && nextIndex < (story.checkpoints?.length ?? 0)
+            && nextIndex !== cpIndex
+          ) {
+            activateIndex(nextIndex);
           }
         }
       },
@@ -244,6 +240,7 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
           : idx === checkpointIndex
             ? CheckpointStatus.Current
             : CheckpointStatus.Pending);
+      const transitions = story.transitionsByFrom.get(cp.id) ?? [];
       return {
         id: cp.id,
         name: cp.name,

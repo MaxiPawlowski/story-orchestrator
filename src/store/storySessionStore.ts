@@ -34,6 +34,7 @@ export interface StorySessionActions {
   setRuntime: (next: RuntimeStoryState, options?: { hydrated?: boolean }) => RuntimeStoryState;
   writeRuntime: (next: RuntimeStoryState, options?: { hydrated?: boolean }) => RuntimeStoryState;
   setTurnsSinceEval: (next: number) => RuntimeStoryState;
+  setCheckpointTurnCount: (next: number) => RuntimeStoryState;
   updateCheckpointStatus: (index: number, status: CheckpointStatus) => RuntimeStoryState;
   setTurn: (value: number) => number;
   setRequirementsState: (next: StoryRequirementsState) => StoryRequirementsState;
@@ -105,6 +106,17 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
     const updated: RuntimeStoryState = {
       ...current,
       turnsSinceEval: sanitized,
+    };
+    return get().writeRuntime(updated);
+  },
+
+  setCheckpointTurnCount: (next) => {
+    const current = get().runtime;
+    const sanitized = sanitizeTurnsSinceEval(next);
+    if (sanitized === current.checkpointTurnCount) return current;
+    const updated: RuntimeStoryState = {
+      ...current,
+      checkpointTurnCount: sanitized,
     };
     return get().writeRuntime(updated);
   },

@@ -1,4 +1,4 @@
-﻿import { z } from "zod";
+import { z } from "zod";
 import { PRESET_SETTING_KEYS, type PresetSettingKey } from "@constants/presetSettingKeys";
 
 const PRESET_SETTING_KEY_TUPLE = [...PRESET_SETTING_KEYS] as [PresetSettingKey, ...PresetSettingKey[]];
@@ -46,19 +46,45 @@ export const OnActivateSchema = z.object({
 
 export type OnActivate = z.infer<typeof OnActivateSchema>;
 
-const CheckpointTriggersSchema = z.object({
-  win: RegexSpecListSchema,
-  fail: RegexSpecListSchema.optional(),
+const BaseTriggerSchema = z.object({
+  id: z.string().min(1).optional(),
+  label: z.string().min(1).optional(),
+  patterns: RegexSpecListSchema.optional(),
+  within_turns: z.number().int().min(1).optional(),
+}).passthrough();
+
+export const TransitionTriggerSchema = BaseTriggerSchema.extend({
+  type: z.enum(["regex", "timed"]).default("regex"),
+}).superRefine((trigger, ctx) => {
+  const patterns = trigger.patterns;
+  if (trigger.type === "regex") {
+    if (!patterns) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["patterns"],
+        message: "Regex transition triggers require at least one pattern",
+      });
+    }
+  } else if (trigger.type === "timed") {
+    const turns = trigger.within_turns;
+    if (!(typeof turns === "number" && Number.isFinite(turns) && turns >= 1)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["within_turns"],
+        message: "Timed transition trigger requires a positive 'within_turns' value",
+      });
+    }
+  }
 });
 
-export const TransitionOutcomeSchema = z.enum(["win", "fail"]);
-export type TransitionOutcome = z.infer<typeof TransitionOutcomeSchema>;
+export type TransitionTrigger = z.infer<typeof TransitionTriggerSchema>;
 
 export const TransitionSchema = z.object({
   id: z.string().min(1),
   from: z.string().min(1),
   to: z.string().min(1),
-  outcome: TransitionOutcomeSchema.default("win"),
+  condition: z.string().min(1),
+  triggers: z.array(TransitionTriggerSchema).min(1),
   label: z.string().min(1).optional(),
   description: z.string().min(1).optional(),
 });
@@ -69,16 +95,7 @@ export const CheckpointSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   objective: z.string().min(1),
-  triggers: CheckpointTriggersSchema.optional(),
   on_activate: OnActivateSchema.optional(),
-}).superRefine((cp, ctx) => {
-  if (!(cp.triggers && cp.triggers.win)) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["triggers", "win"],
-      message: "Checkpoint requires 'triggers.win'",
-    });
-  }
 });
 
 export type Checkpoint = z.infer<typeof CheckpointSchema>;
@@ -93,6 +110,7 @@ export const StorySchema = z.object({
   global_lorebook: z.string().min(1),
   base_preset: BasePresetSchema.optional(),
   roles: z.record(z.string().min(1), z.string().min(1)).optional(),
+  role_defaults: RolePresetOverridesSchema.optional(),
   on_start: OnActivateSchema.optional(),
   checkpoints: z.array(CheckpointSchema).min(1),
   transitions: z.array(TransitionSchema).default([]),
