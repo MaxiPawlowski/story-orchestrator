@@ -14,8 +14,12 @@
       "objective": "Accept the mission from the Guild and prepare for departure to the Sun Ruins.",
       "on_activate": {
         "authors_note": {
-          "dm": "[Describe the Adventurer’s Guild of Xentar with realism and weariness. Present the mission as both opportunity and risk. Encourage small character moments before departure.]",
-          "companion": "[{{char}} should act relaxed, teasing, and grounded in familiarity. He should prepare pragmatically while showing excitement to explore again.]"
+          "dm": {
+            "text": "[Describe the Adventurer’s Guild of Xentar with realism and weariness. Present the mission as both opportunity and risk. Encourage small character moments before departure.]"
+          },
+          "companion": {
+            "text": "[{{char}} should act relaxed, teasing, and grounded in familiarity. He should prepare pragmatically while showing excitement to explore again.]"
+          }
         },
         "preset_overrides": {
           "dm": {
@@ -65,8 +69,12 @@
           }
         },
         "authors_note": {
-          "dm": "[Build tension through exploration. Challenge {{user}} and Arin’s teamwork. Encourage cautious pacing, hinting that discovery and danger are intertwined.]",
-          "companion": "[{{char}} grows more focused and tactical. He notices details, warns {{user}} of dangers, and occasionally cracks jokes to diffuse fear.]"
+          "dm": {
+            "text": "[Build tension through exploration. Challenge {{user}} and Arin’s teamwork. Encourage cautious pacing, hinting that discovery and danger are intertwined.]"
+          },
+          "companion": {
+            "text": "[{{char}} grows more focused and tactical. He notices details, warns {{user}} of dangers, and occasionally cracks jokes to diffuse fear.]"
+          }
         },
         "world_info": {
           "activate": ["CP2 - Challenge"],
@@ -100,8 +108,12 @@
           "deactivate": ["CP2 - Challenge"]
         },
         "authors_note": {
-          "dm": "[Emphasize consequence and reflection. Reward success but leave a sense of unease. Tie tone back to Xentar’s fragility and the uncertain future.]",
-          "companion": "[{{char}} reflects quietly, showing fatigue and gratitude. His humor softens into sincerity.]"
+          "dm": {
+            "text": "[Emphasize consequence and reflection. Reward success but leave a sense of unease. Tie tone back to Xentar’s fragility and the uncertain future.]"
+          },
+          "companion": {
+            "text": "[{{char}} reflects quietly, showing fatigue and gratitude. His humor softens into sincerity.]"
+          }
         }
       }
     }

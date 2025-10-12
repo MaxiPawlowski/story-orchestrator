@@ -1,11 +1,37 @@
-import type { Story, Checkpoint, Transition, TransitionTrigger, Role, RolePresetOverrides } from "@utils/story-schema";
-import type { NormalizedStory, NormalizedCheckpoint, NormalizedOnActivate, NormalizedTransition, NormalizedTransitionTrigger } from "@utils/story-validator";
+import type {
+  Story,
+  Checkpoint,
+  Transition,
+  TransitionTrigger,
+  Role,
+  RolePresetOverrides,
+  AuthorNoteDefinition,
+  AuthorNoteSettings,
+  AuthorNotePosition,
+  AuthorNoteRole,
+} from "@utils/story-schema";
+import type {
+  NormalizedStory,
+  NormalizedCheckpoint,
+  NormalizedOnActivate,
+  NormalizedTransition,
+  NormalizedTransitionTrigger,
+  NormalizedAuthorNote,
+} from "@utils/story-validator";
 
 export type LayoutName = "breadthfirst" | "cose" | "grid" | "dagre";
 
+export type AuthorNoteDraft = {
+  text: string;
+  position?: AuthorNotePosition;
+  interval?: number;
+  depth?: number;
+  role?: AuthorNoteRole;
+};
+
 export type CheckpointDraft = Omit<Checkpoint, "on_activate"> & {
   on_activate?: {
-    authors_note?: Partial<Record<Role, string>>;
+    authors_note?: Partial<Record<Role, AuthorNoteDraft>>;
     world_info?: { activate: string[]; deactivate: string[] };
     preset_overrides?: RolePresetOverrides;
   };
@@ -30,7 +56,7 @@ export type StoryDraft = Omit<Story, "checkpoints" | "transitions"> & {
 };
 
 export type EnsuredOnActivate = {
-  authors_note: Partial<Record<Role, string>>;
+  authors_note: Partial<Record<Role, AuthorNoteDraft>>;
   world_info: { activate: string[]; deactivate: string[] };
   preset_overrides?: RolePresetOverrides;
 };
@@ -58,19 +84,75 @@ const escapeMermaidText = (value: string): string => value.replace(/"/g, "\\\"")
 
 const sanitizeMermaidId = (value: string): string => value.replace(/[^a-zA-Z0-9_]/g, "_");
 
-const cleanupAuthorsNote = (value?: Partial<Record<Role, string>>): Partial<Record<Role, string>> | undefined => {
+const cleanupAuthorsNoteDrafts = (
+  value?: Partial<Record<Role, AuthorNoteDraft>>,
+): Partial<Record<Role, AuthorNoteDraft>> | undefined => {
   if (!value) return undefined;
-  const result: Partial<Record<Role, string>> = {};
-  (Object.entries(value) as [Role, string | undefined][]).forEach(([role, maybeText]) => {
-    const trimmed = (maybeText ?? "").trim();
-    if (trimmed) result[role] = trimmed;
+  const result: Partial<Record<Role, AuthorNoteDraft>> = {};
+  (Object.entries(value) as [Role, AuthorNoteDraft | undefined][]).forEach(([role, maybeDraft]) => {
+    const rawText = maybeDraft?.text ?? "";
+    const trimmed = rawText.trim();
+    if (!trimmed) return;
+    const cleaned: AuthorNoteDraft = { text: trimmed };
+    if (maybeDraft?.position) cleaned.position = maybeDraft.position;
+    if (maybeDraft?.interval !== undefined && Number.isFinite(maybeDraft.interval)) {
+      cleaned.interval = Number(maybeDraft.interval);
+    }
+    if (maybeDraft?.depth !== undefined && Number.isFinite(maybeDraft.depth)) {
+      cleaned.depth = Number(maybeDraft.depth);
+    }
+    if (maybeDraft?.role) cleaned.role = maybeDraft.role;
+    result[role] = cleaned;
   });
   return Object.keys(result).length ? result : undefined;
 };
 
+const convertDraftNoteToDefinition = (draft: AuthorNoteDraft): AuthorNoteDefinition => {
+  const definition: AuthorNoteDefinition = {
+    text: draft.text.trim(),
+  };
+  if (draft.position) definition.position = draft.position;
+  if (draft.interval !== undefined && Number.isFinite(draft.interval)) {
+    definition.interval = Number(draft.interval);
+  }
+  if (draft.depth !== undefined && Number.isFinite(draft.depth)) {
+    definition.depth = Number(draft.depth);
+  }
+  if (draft.role) definition.role = draft.role;
+  return definition;
+};
+
+const cleanupRoleMap = (value?: Record<Role, unknown>): Record<Role, string> | undefined => {
+  if (!value) return undefined;
+  const entries: Array<[Role, string]> = [];
+  Object.entries(value).forEach(([role, raw]) => {
+    const trimmed = typeof raw === "string" ? raw.trim() : "";
+    if (!trimmed) return;
+    entries.push([role, trimmed]);
+  });
+  return entries.length ? Object.fromEntries(entries) : undefined;
+};
+
 const normalizedOnActivateToDraft = (value: NormalizedOnActivate | undefined): CheckpointDraft["on_activate"] => {
   if (!value) return undefined;
-  const authors = value.authors_note ? { ...value.authors_note } : undefined;
+  let authors: Partial<Record<Role, AuthorNoteDraft>> | undefined;
+  if (value.authors_note) {
+    const entries: Array<[Role, AuthorNoteDraft]> = [];
+    Object.entries(value.authors_note).forEach(([role, note]) => {
+      if (!note) return;
+      entries.push([
+        role,
+        {
+          text: note.text,
+          position: note.position,
+          interval: note.interval,
+          depth: note.depth,
+          role: note.role,
+        },
+      ]);
+    });
+    authors = entries.length ? Object.fromEntries(entries) : undefined;
+  }
   const worldInfo = value.world_info
     ? {
       activate: [...value.world_info.activate],
@@ -149,7 +231,7 @@ export const cleanupOnActivate = (
   value: EnsuredOnActivate | undefined,
 ): CheckpointDraft["on_activate"] => {
   if (!value) return undefined;
-  const authors = cleanupAuthorsNote(value.authors_note);
+  const authors = cleanupAuthorsNoteDrafts(value.authors_note);
   const activate = sanitizeList(value.world_info?.activate);
   const deactivate = sanitizeList(value.world_info?.deactivate);
   const worldInfo = activate.length || deactivate.length ? { activate, deactivate } : undefined;
@@ -161,6 +243,41 @@ export const cleanupOnActivate = (
     authors_note: authors,
     world_info: worldInfo,
     preset_overrides: preset,
+  };
+};
+
+const draftAuthorsNoteToSchema = (
+  value?: Partial<Record<Role, AuthorNoteDraft>>,
+): Record<Role, AuthorNoteDefinition> | undefined => {
+  const cleaned = cleanupAuthorsNoteDrafts(value);
+  if (!cleaned) return undefined;
+  const entries: Array<[Role, AuthorNoteDefinition]> = [];
+  Object.entries(cleaned).forEach(([role, draft]) => {
+    if (!draft) return;
+    entries.push([role, convertDraftNoteToDefinition(draft)]);
+  });
+  return entries.length ? Object.fromEntries(entries) : undefined;
+};
+
+const draftOnActivateToSchema = (
+  draft: CheckpointDraft["on_activate"] | undefined,
+): Story["checkpoints"][number]["on_activate"] | undefined => {
+  if (!draft) return undefined;
+  const authors_note = draftAuthorsNoteToSchema(draft.authors_note);
+  const world_info = draft.world_info
+    ? {
+      activate: sanitizeList(draft.world_info.activate),
+      deactivate: sanitizeList(draft.world_info.deactivate),
+    }
+    : undefined;
+  const preset_overrides = draft.preset_overrides && Object.keys(draft.preset_overrides).length
+    ? draft.preset_overrides
+    : undefined;
+  if (!authors_note && !world_info && !preset_overrides) return undefined;
+  return {
+    ...(authors_note ? { authors_note } : {}),
+    ...(world_info ? { world_info } : {}),
+    ...(preset_overrides ? { preset_overrides } : {}),
   };
 };
 
@@ -209,15 +326,12 @@ export const draftToStoryInput = (draft: StoryDraft): Story => {
   const checkpoints: Story["checkpoints"] = draft.checkpoints.map((cp) => {
     const ensuredActivate = cp.on_activate ? ensureOnActivate(cp.on_activate) : undefined;
     const onActivate = cleanupOnActivate(ensuredActivate);
-    const onActivateOut = onActivate ? {
-      ...onActivate,
-      ...(onActivate.authors_note ? { authors_note: onActivate.authors_note as unknown as Record<string, string> } : {}),
-    } : undefined;
+    const onActivateOut = draftOnActivateToSchema(onActivate);
     return {
       id: cp.id.trim(),
       name: cp.name.trim(),
       objective: cp.objective.trim(),
-      ...(onActivateOut ? { on_activate: onActivateOut as unknown as Story["checkpoints"][number]["on_activate"] } : {}),
+      ...(onActivateOut ? { on_activate: onActivateOut } : {}),
     };
   });
 
@@ -233,7 +347,7 @@ export const draftToStoryInput = (draft: StoryDraft): Story => {
     };
   });
 
-  const roles = draft.roles ? cleanupAuthorsNote(draft.roles as Partial<Record<Role, string>>) : undefined;
+  const roles = cleanupRoleMap(draft.roles as Record<Role, unknown> | undefined);
 
   const title = draft.title.trim();
   const lore = draft.global_lorebook.trim();
@@ -243,7 +357,7 @@ export const draftToStoryInput = (draft: StoryDraft): Story => {
     title,
     global_lorebook: lore,
     base_preset: draft.base_preset,
-    roles: roles as Story["roles"],
+    roles,
     on_start: draft.on_start,
     checkpoints,
     transitions,

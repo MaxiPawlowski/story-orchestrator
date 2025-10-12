@@ -1,6 +1,15 @@
 import React from "react";
-import type { RolePresetOverrides } from "@utils/story-schema";
-import { CheckpointDraft, StoryDraft, TransitionTriggerDraft, ensureOnActivate, cleanupOnActivate, splitLines, clone } from "@utils/checkpoint-studio";
+import type { AuthorNotePosition, AuthorNoteRole, RolePresetOverrides } from "@utils/story-schema";
+import {
+  AuthorNoteDraft,
+  CheckpointDraft,
+  StoryDraft,
+  TransitionTriggerDraft,
+  ensureOnActivate,
+  cleanupOnActivate,
+  splitLines,
+  clone,
+} from "@utils/checkpoint-studio";
 import { getContext, eventSource, event_types, tgSettings } from "@services/SillyTavernAPI";
 import { PRESET_SETTING_KEYS, type PresetSettingKey } from "@constants/presetSettingKeys";
 import { subscribeToEventSource } from "@utils/eventSource";
@@ -30,6 +39,20 @@ const TABS: Array<{ key: TabKey; label: string }> = [
 const NUMERIC_LITERAL_RE = /^-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/;
 
 type PresetDraftState = Record<string, Record<string, string>>;
+
+const AUTHOR_NOTE_POSITION_OPTIONS: Array<{ value: "" | AuthorNotePosition; label: string }> = [
+  { value: "", label: "Story default" },
+  { value: "before", label: "Before chat" },
+  { value: "chat", label: "Within chat" },
+  { value: "after", label: "After chat" },
+];
+
+const AUTHOR_NOTE_ROLE_OPTIONS: Array<{ value: "" | AuthorNoteRole; label: string }> = [
+  { value: "", label: "Story default" },
+  { value: "system", label: "System" },
+  { value: "user", label: "User" },
+  { value: "assistant", label: "Assistant" },
+];
 
 const stringifyPresetValue = (value: unknown): string => {
   if (value === undefined) return "";
@@ -118,6 +141,15 @@ const CheckpointEditorPanel: React.FC<Props> = ({
       return "";
     }
   }, [selectedCheckpoint?.on_activate?.preset_overrides]);
+
+  const authorNotesSignature = React.useMemo(() => {
+    if (!selectedCheckpoint?.on_activate?.authors_note) return "";
+    try {
+      return JSON.stringify(selectedCheckpoint.on_activate.authors_note);
+    } catch {
+      return `${selectedCheckpoint.id ?? ""}-authors-note`;
+    }
+  }, [selectedCheckpoint?.id, selectedCheckpoint?.on_activate?.authors_note]);
 
   const refreshLoreEntries = React.useCallback(async () => {
     const lorebook = (draft.global_lorebook || "").trim();
@@ -208,6 +240,34 @@ const CheckpointEditorPanel: React.FC<Props> = ({
     return ordered;
 
   }, [draft.roles, presetDrafts, selectedCheckpoint?.id, overridesSignature]);
+
+  const noteRoleKeys = React.useMemo(() => {
+
+    if (!selectedCheckpoint) return [];
+
+    const seen = new Set<string>();
+
+    const ordered: string[] = [];
+
+    const push = (roleKey?: string | null) => {
+
+      if (!roleKey) return;
+
+      if (seen.has(roleKey)) return;
+
+      seen.add(roleKey);
+
+      ordered.push(roleKey);
+
+    };
+
+    Object.keys(draft.roles ?? {}).forEach(push);
+
+    Object.keys(selectedCheckpoint.on_activate?.authors_note ?? {}).forEach(push);
+
+    return ordered;
+
+  }, [draft.roles, selectedCheckpoint?.id, authorNotesSignature]);
 
 
 
@@ -374,6 +434,31 @@ const CheckpointEditorPanel: React.FC<Props> = ({
 
 
 
+  const updateAuthorNote = React.useCallback((roleKey: string, editor: (prev: AuthorNoteDraft | undefined) => AuthorNoteDraft | undefined) => {
+
+    if (!selectedCheckpoint) return;
+
+    updateCheckpoint(selectedCheckpoint.id, (cp) => {
+      const next = ensureOnActivate(cp.on_activate);
+      const currentMap = { ...(next.authors_note ?? {}) } as Record<string, AuthorNoteDraft | undefined>;
+      const updated = editor(currentMap[roleKey]);
+      if (updated) currentMap[roleKey] = updated;
+      else delete currentMap[roleKey];
+      next.authors_note = currentMap;
+      return { ...cp, on_activate: cleanupOnActivate(next) };
+    });
+
+  }, [selectedCheckpoint, updateCheckpoint]);
+
+
+  const removeAuthorNote = React.useCallback((roleKey: string) => {
+
+    updateAuthorNote(roleKey, () => undefined);
+
+  }, [updateAuthorNote]);
+
+
+
   return (
     <div className="rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] shadow-sm">
       <div className="flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-2">
@@ -453,30 +538,160 @@ const CheckpointEditorPanel: React.FC<Props> = ({
                 <div className="space-y-2">
                   <div className="font-medium">Author Notes & Preset Overrides</div>
                   {/* Per-role Author's Notes based on configured roles */}
-                  {(Object.keys(draft.roles ?? {}) as string[]).length ? (
-                    <div className="space-y-2">
-                      <div className="text-xs text-slate-400">Define per-role notes for the characters participating in the story.</div>
-                      {Object.keys(draft.roles ?? {}).map((roleKey) => (
-                        <label key={roleKey} className="flex flex-col gap-1 text-xs text-slate-300">
-                          <span>Author Note  Erole: {roleKey}</span>
-                          <textarea
-                            className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                            rows={3}
-                            value={(selectedCheckpoint.on_activate?.authors_note as any)?.[roleKey] ?? ""}
-                            onChange={(e) => {
-                              const note = e.target.value;
-                              updateCheckpoint(selectedCheckpoint.id, (cp) => {
-                                const next = ensureOnActivate(cp.on_activate);
-                                if (note.trim()) (next.authors_note as any)[roleKey] = note;
-                                else delete (next.authors_note as any)[roleKey];
-                                return { ...cp, on_activate: cleanupOnActivate(next) };
-                              });
-                            }}
-                          />
-                        </label>
-                      ))}
+                  {noteRoleKeys.length ? (
+                    <div className="space-y-3">
+                      <div className="text-xs text-slate-400">Define per-role author notes and optional delivery settings. Notes require text to enable additional controls.</div>
+                      {noteRoleKeys.map((roleKey) => {
+                        const note = selectedCheckpoint.on_activate?.authors_note?.[roleKey] as AuthorNoteDraft | undefined;
+                        const textValue = note?.text ?? "";
+                        const hasNote = Boolean(textValue.trim().length);
+                        const missingInStory = !(draft.roles && Object.prototype.hasOwnProperty.call(draft.roles, roleKey));
+                        return (
+                          <div key={roleKey} className="space-y-2 rounded border border-slate-700 bg-slate-900/40 p-2">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="text-xs font-semibold text-slate-200">
+                                {roleKey}
+                                {missingInStory ? (
+                                  <span className="ml-2 text-[11px] font-normal text-amber-300/90">Not in Story Roles</span>
+                                ) : null}
+                              </div>
+                              <button
+                                type="button"
+                                className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-2.5 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:opacity-40 disabled:hover:bg-slate-800"
+                                disabled={!hasNote}
+                                onClick={() => removeAuthorNote(roleKey)}
+                              >
+                                Clear Note
+                              </button>
+                            </div>
+                            <label className="flex flex-col gap-1 text-xs text-slate-300">
+                              <span>Author Note Text</span>
+                              <textarea
+                                className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                rows={3}
+                                value={textValue}
+                                placeholder="Describe tone, behavior, and guidance for this role..."
+                                onChange={(e) => {
+                                  const raw = e.target.value;
+                                  updateAuthorNote(roleKey, (prev) => {
+                                    if (!raw.trim()) return undefined;
+                                    const next: AuthorNoteDraft = { ...(prev ?? {}), text: raw };
+                                    return next;
+                                  });
+                                }}
+                              />
+                            </label>
+                            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                              <label className="flex flex-col gap-1 text-xs text-slate-300">
+                                <span>Position</span>
+                                <select
+                                  className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                  value={note?.position ?? ""}
+                                  disabled={!hasNote}
+                                  onChange={(e) => {
+                                    const value = e.target.value as "" | AuthorNotePosition;
+                                    updateAuthorNote(roleKey, (prev) => {
+                                      if (!prev?.text?.trim()) return prev;
+                                      const next: AuthorNoteDraft = { ...prev };
+                                      if (!value) delete next.position;
+                                      else next.position = value;
+                                      return next;
+                                    });
+                                  }}
+                                >
+                                  {AUTHOR_NOTE_POSITION_OPTIONS.map((option) => (
+                                    <option key={option.value || "default"} value={option.value}>
+                                      {option.label}
+                                    </option>
+                                  ))}
+                                </select>
+                              </label>
+                              <label className="flex flex-col gap-1 text-xs text-slate-300">
+                                <span>Interval (turns)</span>
+                                <input
+                                  type="number"
+                                  min={1}
+                                  className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                  value={note?.interval !== undefined ? String(note.interval) : ""}
+                                  disabled={!hasNote}
+                                  placeholder="Story default"
+                                  onChange={(e) => {
+                                    const raw = e.target.value;
+                                    updateAuthorNote(roleKey, (prev) => {
+                                      if (!prev?.text?.trim()) return prev;
+                                      const next: AuthorNoteDraft = { ...prev };
+                                      if (!raw) {
+                                        delete next.interval;
+                                        return next;
+                                      }
+                                      const parsed = Number(raw);
+                                      if (!Number.isFinite(parsed)) return next;
+                                      next.interval = Math.max(1, Math.round(parsed));
+                                      return next;
+                                    });
+                                  }}
+                                />
+                              </label>
+                              <label className="flex flex-col gap-1 text-xs text-slate-300">
+                                <span>Depth</span>
+                                <input
+                                  type="number"
+                                  min={0}
+                                  className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                  value={note?.depth !== undefined ? String(note.depth) : ""}
+                                  disabled={!hasNote}
+                                  placeholder="Story default"
+                                  onChange={(e) => {
+                                    const raw = e.target.value;
+                                    updateAuthorNote(roleKey, (prev) => {
+                                      if (!prev?.text?.trim()) return prev;
+                                      const next: AuthorNoteDraft = { ...prev };
+                                      if (!raw) {
+                                        delete next.depth;
+                                        return next;
+                                      }
+                                      const parsed = Number(raw);
+                                      if (!Number.isFinite(parsed)) return next;
+                                      next.depth = Math.max(0, Math.round(parsed));
+                                      return next;
+                                    });
+                                  }}
+                                />
+                              </label>
+                              <label className="flex flex-col gap-1 text-xs text-slate-300">
+                                <span>Send As</span>
+                                <select
+                                  className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                  value={note?.role ?? ""}
+                                  disabled={!hasNote}
+                                  onChange={(e) => {
+                                    const value = e.target.value as "" | AuthorNoteRole;
+                                    updateAuthorNote(roleKey, (prev) => {
+                                      if (!prev?.text?.trim()) return prev;
+                                      const next: AuthorNoteDraft = { ...prev };
+                                      if (!value) delete next.role;
+                                      else next.role = value;
+                                      return next;
+                                    });
+                                  }}
+                                >
+                                  {AUTHOR_NOTE_ROLE_OPTIONS.map((option) => (
+                                    <option key={option.value || "default"} value={option.value}>
+                                      {option.label}
+                                    </option>
+                                  ))}
+                                </select>
+                              </label>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                  ) : null}
+                  ) : (
+                    <div className="rounded border border-slate-700 bg-slate-900/40 p-3 text-xs text-slate-400">
+                      Define story roles or add author notes in the JSON to configure per-role guidance.
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <div className="font-medium">Preset Overrides</div>
                     {!presetRoleKeys.length ? (

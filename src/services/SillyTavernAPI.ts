@@ -1,4 +1,13 @@
-﻿declare global {
+﻿import {
+  AUTHOR_NOTE_DEFAULT_DEPTH,
+  AUTHOR_NOTE_DEFAULT_INTERVAL,
+  AUTHOR_NOTE_DISABLED_FREQUENCY,
+  AUTHOR_NOTE_LOG_SAMPLE_LIMIT,
+  UI_SYNC_MAX_ATTEMPTS,
+  UI_SYNC_RETRY_DELAY_MS,
+} from "@constants/defaults";
+
+declare global {
   interface Toastr {
     success?: (...args: any[]) => any;
     info?: (...args: any[]) => any;
@@ -126,13 +135,13 @@ export async function applyCharacterAN(
   opts?: { position?: ANPosition; depth?: number; interval?: number; role?: ANRole }
 ) {
   const position: ANPosition = opts?.position ?? "chat";
-  const depth = Math.max(0, (opts?.depth ?? 4) | 0);
-  const interval = Math.max(1, (opts?.interval ?? 1) | 0); // 1 = every user msg
+  const depth = Math.max(0, (opts?.depth ?? AUTHOR_NOTE_DEFAULT_DEPTH) | 0);
+  const interval = Math.max(1, (opts?.interval ?? AUTHOR_NOTE_DEFAULT_INTERVAL) | 0); // default = every user msg
   const role: ANRole = opts?.role ?? "system";
 
   console.log("[Story A/N slash] applying", {
     role, position, depth, interval,
-    sample: String(text).slice(0, 80),
+    sample: String(text).slice(0, AUTHOR_NOTE_LOG_SAMPLE_LIMIT),
   });
 
   // await runSlash(`/note-role ${role}`);
@@ -148,7 +157,7 @@ export async function applyCharacterAN(
 
 export async function clearCharacterAN() {
   await runSlash(`/note ${quoteArg("")}`);
-  await runSlash(`/note-frequency 0`);
+  await runSlash(`/note-frequency ${AUTHOR_NOTE_DISABLED_FREQUENCY}`);
 }
 
 export async function enableWIEntry(lorebook: string, comment: string) {
@@ -193,8 +202,6 @@ export async function disableWIEntry(lorebook: string, comment: string) {
 
 
 (function attachUiBridge() {
-  const MAX_UI_SYNC_ATTEMPTS = 20;
-  const UI_SYNC_DELAY_MS = 100;
   console.log('[ST UI Bridge] Initializing UI Bridge');
   const applySettingWithRetry = (key: string, value: any, attempt = 0) => {
     if (typeof setSettingByName !== 'function') {
@@ -217,7 +224,7 @@ export async function disableWIEntry(lorebook: string, comment: string) {
       return;
     }
 
-    if (attempt >= MAX_UI_SYNC_ATTEMPTS) {
+    if (attempt >= UI_SYNC_MAX_ATTEMPTS) {
       if (lastError != null) {
         console.warn(`[ST UI Bridge] Skipped UI sync for ${key} after ${attempt + 1} attempts`, lastError);
       } else if (!hasTarget) {
@@ -226,7 +233,7 @@ export async function disableWIEntry(lorebook: string, comment: string) {
       return;
     }
 
-    setTimeout(() => applySettingWithRetry(key, value, attempt + 1), UI_SYNC_DELAY_MS);
+    setTimeout(() => applySettingWithRetry(key, value, attempt + 1), UI_SYNC_RETRY_DELAY_MS);
   };
 
   (window as any).ST_applyTextgenPresetToUI = function apply(name: string, presetObj: any) {

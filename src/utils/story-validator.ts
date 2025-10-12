@@ -10,15 +10,36 @@ import {
   type PresetOverrides,
   type PresetOverrideKey,
   type TransitionTrigger as StoryTransitionTrigger,
+  type AuthorNoteDefinition,
+  type AuthorNoteSettings,
+  type AuthorNoteRole,
+  type AuthorNotePosition,
 } from "./story-schema";
+import {
+  AUTHOR_NOTE_DEFAULT_DEPTH,
+  AUTHOR_NOTE_DEFAULT_INTERVAL,
+  AUTHOR_NOTE_DEFAULT_POSITION,
+  AUTHOR_NOTE_DEFAULT_ROLE,
+} from "@constants/defaults";
 
 export interface NormalizedWorldInfo {
   activate: string[];
   deactivate: string[];
 }
 
+export interface NormalizedAuthorNoteSettings {
+  position: AuthorNotePosition;
+  interval: number;
+  depth: number;
+  role: AuthorNoteRole;
+}
+
+export interface NormalizedAuthorNote extends NormalizedAuthorNoteSettings {
+  text: string;
+}
+
 export interface NormalizedOnActivate {
-  authors_note?: Partial<Record<Role, string>>;
+  authors_note?: Partial<Record<Role, NormalizedAuthorNote>>;
   world_info?: NormalizedWorldInfo;
   preset_overrides?: RolePresetOverrides;
 }
@@ -64,6 +85,8 @@ export interface NormalizedStory {
   transitionsByFrom: Map<string, NormalizedTransition[]>;
   startId: string;
   roleDefaults?: RolePresetOverrides;
+  authorNoteDefaults: NormalizedAuthorNoteSettings;
+  onStart?: NormalizedOnActivate;
 }
 
 export interface NormalizeOptions {
@@ -132,6 +155,20 @@ const normalizeId = (value: string | null | undefined, fallback: string): string
 
 const cleanScalar = (value: string): string => value.trim();
 
+const clampInterval = (value: unknown, fallback: number): number => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return fallback;
+  const normalized = Math.floor(num);
+  return normalized >= 1 ? normalized : fallback;
+};
+
+const clampDepth = (value: unknown, fallback: number): number => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return fallback;
+  const normalized = Math.floor(num);
+  return normalized >= 0 ? normalized : fallback;
+};
+
 const sanitizeRoleMap = (input?: Partial<Record<Role, string>>): Partial<Record<Role, string>> | undefined => {
   if (!input) return undefined;
   const result: Partial<Record<Role, string>> = {};
@@ -143,14 +180,47 @@ const sanitizeRoleMap = (input?: Partial<Record<Role, string>>): Partial<Record<
   return Object.keys(result).length ? result : undefined;
 };
 
-function normalizeAuthorsNote(input?: OnActivate["authors_note"]): Partial<Record<Role, string>> | undefined {
+function normalizeAuthorNoteDefaults(input?: AuthorNoteSettings | null): NormalizedAuthorNoteSettings {
+  return {
+    position: input?.position ?? AUTHOR_NOTE_DEFAULT_POSITION,
+    interval: clampInterval(input?.interval, AUTHOR_NOTE_DEFAULT_INTERVAL),
+    depth: clampDepth(input?.depth, AUTHOR_NOTE_DEFAULT_DEPTH),
+    role: input?.role ?? AUTHOR_NOTE_DEFAULT_ROLE,
+  };
+}
+
+function normalizeAuthorNoteDefinition(
+  definition: AuthorNoteDefinition | undefined,
+  defaults: NormalizedAuthorNoteSettings,
+): NormalizedAuthorNote | null {
+  if (!definition || typeof definition !== "object") return null;
+  const text = typeof definition.text === "string" ? definition.text.trim() : "";
+  if (!text) return null;
+  const position: AuthorNotePosition = definition.position ?? defaults.position;
+  const interval = clampInterval(definition.interval, defaults.interval);
+  const depth = clampDepth(definition.depth, defaults.depth);
+  const role: AuthorNoteRole = definition.role ?? defaults.role;
+  return {
+    text,
+    position,
+    interval,
+    depth,
+    role,
+  };
+}
+
+function normalizeAuthorsNote(
+  input: OnActivate["authors_note"],
+  defaults: NormalizedAuthorNoteSettings,
+): Partial<Record<Role, NormalizedAuthorNote>> | undefined {
   if (!input) return undefined;
 
-  const result: Partial<Record<Role, string>> = {};
-  for (const [role, rawText] of Object.entries(input) as [Role, unknown][]) {
-    if (typeof rawText !== "string") continue;
-    const trimmed = rawText.trim();
-    if (trimmed) result[role] = trimmed;
+  const result: Partial<Record<Role, NormalizedAuthorNote>> = {};
+  for (const [role, rawValue] of Object.entries(input) as [Role, AuthorNoteDefinition][]) {
+    const normalized = normalizeAuthorNoteDefinition(rawValue, defaults);
+    if (normalized) {
+      result[role] = normalized;
+    }
   }
 
   return Object.keys(result).length ? result : undefined;
@@ -190,10 +260,13 @@ function normalizeWorldInfo(input?: unknown): NormalizedWorldInfo | undefined {
   };
 }
 
-function normalizeOnActivateBlock(input?: OnActivate | null): NormalizedOnActivate | undefined {
+function normalizeOnActivateBlock(
+  input: OnActivate | null | undefined,
+  defaults: NormalizedAuthorNoteSettings,
+): NormalizedOnActivate | undefined {
   if (!input) return undefined;
   return {
-    authors_note: normalizeAuthorsNote(input.authors_note),
+    authors_note: normalizeAuthorsNote(input.authors_note, defaults),
     world_info: normalizeWorldInfo(input.world_info),
     preset_overrides: normalizePresetOverrides((input as any).preset_overrides ?? (input as any).preset_override),
   };
@@ -250,13 +323,15 @@ export function validateStoryShape(input: unknown): Story {
 export function parseAndNormalizeStory(input: unknown): NormalizedStory {
   const story = validateStoryShape(input);
 
+  const authorNoteDefaults = normalizeAuthorNoteDefaults(story.author_note_defaults as AuthorNoteSettings | undefined);
+
   const checkpoints: NormalizedCheckpoint[] = story.checkpoints.map((cp, idx) => {
     const id = normalizeId(cp.id, `cp-${idx + 1}`);
     return {
       id,
       name: cp.name,
       objective: cleanScalar(cp.objective),
-      onActivate: normalizeOnActivateBlock(cp.on_activate),
+      onActivate: normalizeOnActivateBlock(cp.on_activate, authorNoteDefaults),
     };
   });
 
@@ -382,6 +457,8 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
     transitionsByFrom,
     startId: startCheckpoint.id,
     roleDefaults: normalizePresetOverrides(story.role_defaults as RolePresetOverrides | undefined),
+    authorNoteDefaults,
+    onStart: normalizeOnActivateBlock(story.on_start, authorNoteDefaults),
   };
 }
 

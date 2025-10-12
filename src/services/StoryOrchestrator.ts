@@ -24,7 +24,6 @@ import {
   clampCheckpointIndex,
   sanitizeTurnsSinceEval,
   clampText,
-  DEFAULT_INTERVAL_TURNS,
   type RuntimeStoryState,
   type CheckpointStatus,
   computeStatusMapForIndex,
@@ -34,6 +33,10 @@ import {
 import { normalizeName } from "@utils/story-validator";
 import { storySessionStore } from "@store/storySessionStore";
 import { registerStoryExtensionCommands } from "@utils/slashCommands";
+import {
+  DEFAULT_INTERVAL_TURNS,
+  STORY_ORCHESTRATOR_LOG_SAMPLE_LIMIT,
+} from "@constants/defaults";
 
 interface TransitionSelection {
   id: string;
@@ -286,11 +289,11 @@ class StoryOrchestrator {
     const characterName = this.story.roles?.[role as keyof typeof this.story.roles];
 
     if (characterName && roleNote) {
-      applyCharacterAN(roleNote, {
-        position: "chat",
-        interval: 1,
-        depth: 4,
-        role: "system",
+      applyCharacterAN(roleNote.text, {
+        position: roleNote.position,
+        interval: roleNote.interval,
+        depth: roleNote.depth,
+        role: roleNote.role,
       });
       console.log("[StoryOrch] applied per-character AN", { role, characterName, cp: cp.name });
     } else {
@@ -309,7 +312,7 @@ class StoryOrchestrator {
     const currentSinceEval = currentRuntime.turnsSinceEval;
     const nextTurn = currentTurn + 1;
     const nextSinceEval = currentSinceEval + 1;
-    console.log("[StoryOrch] userText", { turn: nextTurn, sinceEval: nextSinceEval, sample: clampText(raw, 80) });
+    console.log("[StoryOrch] userText", { turn: nextTurn, sinceEval: nextSinceEval, sample: clampText(raw, STORY_ORCHESTRATOR_LOG_SAMPLE_LIMIT) });
     if (!text) return;
 
     this.setTurn(nextTurn);

@@ -1,4 +1,6 @@
-﻿const NUMERIC_JSON_RE = /(\d+)\.json$/;
+﻿import { JSON_RUNTIME_MAX_FILES, JSON_RUNTIME_STOP_AFTER_MISSES } from "@constants/defaults";
+
+const NUMERIC_JSON_RE = /(\d+)\.json$/;
 
 export type JsonModule = { default?: unknown } | unknown;
 export type JsonModuleMap = Record<string, JsonModule>;
@@ -221,8 +223,8 @@ export async function loadNumericJsonBundle(options: NumericJsonBundleOptions = 
     globPattern = DEFAULT_GLOB_PATTERN,
     manifestPath = DEFAULT_MANIFEST_PATH,
     runtimeDirectory = DEFAULT_RUNTIME_DIRECTORY,
-    runtimeMax = 100,
-    runtimeStopAfterMisses = 5,
+    runtimeMax = JSON_RUNTIME_MAX_FILES,
+    runtimeStopAfterMisses = JSON_RUNTIME_STOP_AFTER_MISSES,
     filenameFilter = isNumericJsonFile,
     fetchImpl,
   } = options;

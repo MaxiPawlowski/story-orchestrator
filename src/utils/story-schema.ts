@@ -15,6 +15,24 @@ const PresetOverridesSchema: z.ZodType<PresetOverrides> = z.record(PRESET_SETTIN
 // Allow arbitrary role keys mapping to preset override objects
 const RolePresetOverridesSchema: z.ZodType<RolePresetOverrides> = z.record(z.string().min(1), PresetOverridesSchema);
 
+export const AuthorNotePositionSchema = z.enum(["before", "chat", "after"]);
+export const AuthorNoteRoleSchema = z.enum(["system", "user", "assistant"]);
+export type AuthorNotePosition = z.infer<typeof AuthorNotePositionSchema>;
+export type AuthorNoteRole = z.infer<typeof AuthorNoteRoleSchema>;
+
+export const AuthorNoteSettingsSchema = z.object({
+  position: AuthorNotePositionSchema.optional(),
+  interval: z.number().int().min(1).optional(),
+  depth: z.number().int().min(0).optional(),
+  role: AuthorNoteRoleSchema.optional(),
+});
+export type AuthorNoteSettings = z.infer<typeof AuthorNoteSettingsSchema>;
+
+export const AuthorNoteDefinitionSchema = AuthorNoteSettingsSchema.extend({
+  text: z.string().min(1),
+});
+export type AuthorNoteDefinition = z.infer<typeof AuthorNoteDefinitionSchema>;
+
 export const RegexSpecSchema = z.union([
   z.string().min(1),
   z.object({
@@ -36,7 +54,7 @@ export const WorldInfoActivationsSchema = z.object({
 
 export type WorldInfoActivations = z.infer<typeof WorldInfoActivationsSchema>;
 
-const AuthorsNoteSchema = z.record(z.string().min(1), z.string().min(1));
+const AuthorsNoteSchema = z.record(z.string().min(1), AuthorNoteDefinitionSchema);
 
 export const OnActivateSchema = z.object({
   authors_note: AuthorsNoteSchema.optional(),
@@ -96,6 +114,7 @@ export const StorySchema = z.object({
   global_lorebook: z.string().min(1),
   base_preset: BasePresetSchema.optional(),
   roles: z.record(z.string().min(1), z.string().min(1)).optional(),
+  author_note_defaults: AuthorNoteSettingsSchema.optional(),
   role_defaults: RolePresetOverridesSchema.optional(),
   on_start: OnActivateSchema.optional(),
   checkpoints: z.array(CheckpointSchema).min(1),

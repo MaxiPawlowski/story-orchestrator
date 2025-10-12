@@ -1,6 +1,7 @@
 import { extension_settings, saveSettingsDebounced } from "@services/SillyTavernAPI";
 import type { NormalizedCheckpoint, NormalizedStory, NormalizedTransition, NormalizedTransitionTrigger } from "@utils/story-validator";
 import { extensionName } from "@constants/main";
+export { DEFAULT_INTERVAL_TURNS } from "@constants/defaults";
 
 export enum CheckpointStatus {
   Pending = "pending",
@@ -22,7 +23,6 @@ export const isCheckpointStatus = (value: unknown): value is CheckpointStatus =>
   typeof value === "string" && CHECKPOINT_STATUS_VALUES.has(value as CheckpointStatus)
 );
 
-export const DEFAULT_INTERVAL_TURNS = 3;
 export const clampCheckpointIndex = (idx: number, story: NormalizedStory | null | undefined): number => {
   if (!story) return 0;
   return clampIndex(idx, story);

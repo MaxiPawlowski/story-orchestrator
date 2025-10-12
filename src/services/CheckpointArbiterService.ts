@@ -1,5 +1,13 @@
 import { clampText } from "../utils/story-state";
 import { chat, generateQuietPrompt } from "@services/SillyTavernAPI";
+import {
+  ARBITER_SNAPSHOT_LIMIT,
+  ARBITER_RESPONSE_LENGTH,
+  ARBITER_PROMPT_MAX_LENGTH,
+  ARBITER_CHAT_NAME_CLAMP,
+  ARBITER_CHAT_MESSAGE_CLAMP,
+  ARBITER_LOG_SAMPLE_LENGTH,
+} from "@constants/defaults";
 
 export const DEFAULT_ARBITER_PROMPT = "You are an impartial story overseer.";
 
@@ -61,17 +69,13 @@ interface PendingJob {
   resolve: (payload: CheckpointEvalPayload) => void;
 }
 
-const DEFAULT_SNAPSHOT_LIMIT = 10;
-const DEFAULT_RESPONSE_LENGTH = 256;
-const PROMPT_LENGTH_LIMIT = 1200;
-
 function snapshot(limit: number): string {
   return (Array.isArray(chat) ? chat.slice(-limit) : [])
     .map((msg, idx) => {
       const text = (msg?.mes || msg?.text || msg?.message || msg?.data?.text || msg?.data?.mes || "") as string;
       if (typeof text !== "string" || !text.trim()) return null;
       const who = (msg?.name || msg?.character || (msg?.is_user ? "Player" : "Companion")) as string;
-      return `${idx + 1}. ${clampText(String(who), 40)}: ${clampText(String(text).trim(), 300)}`;
+      return `${idx + 1}. ${clampText(String(who), ARBITER_CHAT_NAME_CLAMP)}: ${clampText(String(text).trim(), ARBITER_CHAT_MESSAGE_CLAMP)}`;
     })
     .filter(Boolean)
     .reverse()
@@ -143,7 +147,7 @@ function buildEvalPrompt(request: CheckpointEvalRequest, transcript: string, pro
     `Turn index: ${turn}`,
     "",
     "Latest player message:",
-    clampText(latestText, 300),
+    clampText(latestText, ARBITER_CHAT_MESSAGE_CLAMP),
   ];
 
   if (transcript) {
@@ -233,7 +237,7 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
     };
     if (typeof merged.promptTemplate === "string") {
       const normalized = merged.promptTemplate.replace(/\r/g, "").trim();
-      merged.promptTemplate = normalized ? normalized.slice(0, PROMPT_LENGTH_LIMIT) : DEFAULT_ARBITER_PROMPT;
+      merged.promptTemplate = normalized ? normalized.slice(0, ARBITER_PROMPT_MAX_LENGTH) : DEFAULT_ARBITER_PROMPT;
     } else {
       merged.promptTemplate = this.options.promptTemplate ?? DEFAULT_ARBITER_PROMPT;
     }
@@ -265,7 +269,7 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
     try {
       while (!this.disposed && this.queue.length) {
         const job = this.queue.shift()!;
-        const transcript = snapshot(this.options?.snapshotLimit ?? DEFAULT_SNAPSHOT_LIMIT);
+        const transcript = snapshot(this.options?.snapshotLimit ?? ARBITER_SNAPSHOT_LIMIT);
         const promptTemplate = this.options?.promptTemplate ?? DEFAULT_ARBITER_PROMPT;
         const prompt = buildEvalPrompt(job.request, transcript, promptTemplate);
         console.log("[Story - CheckpointArbiter] prompt", { reason: job.request.reason, cp: job.request.cpName, turn: job.request.turn });
@@ -279,15 +283,15 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
             quietToLoud: false,
             removeReasoning: false,
             trimToSentence: false,
-            responseLength: this.options?.responseLength ?? DEFAULT_RESPONSE_LENGTH,
+            responseLength: this.options?.responseLength ?? ARBITER_RESPONSE_LENGTH,
           });
-          console.log("[Story - CheckpointArbiter] raw response", { sample: String(raw).slice(0, 200) });
+          console.log("[Story - CheckpointArbiter] raw response", { sample: String(raw).slice(0, ARBITER_LOG_SAMPLE_LENGTH) });
         } catch (err) {
           console.warn("[Story - CheckpointArbiter] request failed", err);
         }
 
         const parsed = raw ? parseModel(raw) : null;
-        if (raw && !parsed) console.warn("[Story - CheckpointArbiter] parse failed", { sample: String(raw).slice(0, 200) });
+        if (raw && !parsed) console.warn("[Story - CheckpointArbiter] parse failed", { sample: String(raw).slice(0, ARBITER_LOG_SAMPLE_LENGTH) });
         const outcome = resolveOutcome(parsed);
         console.log("[Story - CheckpointArbiter] outcome", { outcome, parsed });
 
