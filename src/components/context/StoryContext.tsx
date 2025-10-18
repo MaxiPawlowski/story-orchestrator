@@ -8,7 +8,6 @@ import type { StoryLibraryEntry, SaveLibraryStoryResult, DeleteLibraryStoryResul
 import { eventSource, event_types, getContext } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
 import {
-  DEFAULT_INTERVAL_TURNS,
   deriveCheckpointStatuses,
   CheckpointStatus,
   getPersistedStorySelection,
@@ -29,8 +28,8 @@ export interface StoryContextValue {
   applyStory: (input: Story) => ValidationResult;
   loading: boolean;
 
-  story?: NormalizedStory | null;
-  title?: string;
+  story: NormalizedStory | null;
+  title: string | undefined;
   libraryEntries: StoryLibraryEntry[];
   selectedLibraryKey: string | null;
   selectedLibraryError: string | null;
@@ -107,7 +106,8 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
   }, [selectedKey]);
 
   const { arbiterFrequency, arbiterPrompt } = useExtensionSettings();
-  const intervalTurns = Number.isFinite(arbiterFrequency) ? arbiterFrequency : DEFAULT_INTERVAL_TURNS;
+  const intervalTurns = arbiterFrequency;
+  const normalizedArbiterPrompt = arbiterPrompt;
 
   const { ready, activateIndex, requirements, runtime, reloadPersona, updateCheckpointStatus } = useStoryOrchestrator(
     story,
@@ -129,7 +129,7 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
           }
         }
       },
-      arbiterPrompt,
+      arbiterPrompt: normalizedArbiterPrompt,
     },
   );
 

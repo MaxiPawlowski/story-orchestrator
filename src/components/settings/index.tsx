@@ -3,6 +3,7 @@ import { useExtensionSettings } from "@components/context/ExtensionSettingsConte
 import { useStoryContext } from "@hooks/useStoryContext";
 import CheckpointStudioModal from "@components/settings/CheckpointStudio/CheckpointStudioModal";
 import { storySessionStore } from "@store/storySessionStore";
+import { makeDefaultState, persistStoryState } from "@utils/story-state";
 
 const SettingsWrapper = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -54,8 +55,26 @@ const SettingsWrapper = () => {
       console.warn("[Settings] Failed to sync story key before selection", err);
     }
 
+    const entry = libraryEntries.find((candidate) => candidate.key === nextKey);
+    if (entry?.ok && entry.story) {
+      const { chatId, groupChatSelected } = storySessionStore.getState();
+      if (groupChatSelected && chatId) {
+        try {
+          const defaultRuntime = makeDefaultState(entry.story);
+          persistStoryState({
+            chatId,
+            story: entry.story,
+            state: defaultRuntime,
+            storyKey: nextKey,
+          });
+        } catch (persistErr) {
+          console.warn("[Settings] Failed to persist story selection", persistErr);
+        }
+      }
+    }
+
     selectLibraryEntry(nextKey);
-  }, [selectLibraryEntry, selectedLibraryKey]);
+  }, [libraryEntries, selectLibraryEntry, selectedLibraryKey]);
   console.log("[Story settings] Render", { arbiterPrompt, arbiterFrequency, isPromptDefault, isOpen });
   return (
     <div id="stepthink_settings">

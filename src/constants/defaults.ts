@@ -21,3 +21,4 @@ export const JSON_RUNTIME_STOP_AFTER_MISSES = 5;
 
 export const UI_SYNC_MAX_ATTEMPTS = 20;
 export const UI_SYNC_RETRY_DELAY_MS = 100;
+export const DEFAULT_ARBITER_PROMPT = "You are an impartial story overseer. The story is divided into distinct checkpoints. Decide which (if any) transition objective is satisfied.";

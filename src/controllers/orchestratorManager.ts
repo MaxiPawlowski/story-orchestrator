@@ -1,9 +1,13 @@
 import StoryOrchestrator, { type StoryEvaluationEvent } from "@services/StoryOrchestrator";
 import { createTurnController } from "@controllers/turnController";
-import { DEFAULT_ARBITER_PROMPT } from "@services/CheckpointArbiterService";
 import type { NormalizedStory } from "@utils/story-validator";
 import type { Role } from "@utils/story-schema";
-import { DEFAULT_INTERVAL_TURNS } from "@utils/story-state";
+import {
+  sanitizeArbiterFrequency,
+  sanitizeArbiterPrompt,
+  type ArbiterFrequency,
+  type ArbiterPrompt,
+} from "@utils/arbiter";
 import { storySessionStore } from "@store/storySessionStore";
 
 interface RuntimeHooks {
@@ -11,24 +15,15 @@ interface RuntimeHooks {
   onEvaluated?: (ev: StoryEvaluationEvent) => void;
 }
 
-const clampIntervalTurns = (value: number): number => {
-  if (!Number.isFinite(value)) return DEFAULT_INTERVAL_TURNS;
-  const rounded = Math.floor(value);
-  return rounded >= 1 ? rounded : DEFAULT_INTERVAL_TURNS;
-};
-
-const sanitizeArbiterPrompt = (value: string): string => {
-  const normalized = typeof value === "string" ? value.replace(/\u000D/g, "").trim() : "";
-  if (!normalized) return DEFAULT_ARBITER_PROMPT;
-  return normalized.length > 1200 ? normalized.slice(0, 1200) : normalized;
-};
+const normalizeIntervalTurns = (value: unknown): ArbiterFrequency => sanitizeArbiterFrequency(value);
+const normalizeArbiterPrompt = (value: unknown): ArbiterPrompt => sanitizeArbiterPrompt(value);
 
 const turnController = createTurnController();
 let orchestrator: StoryOrchestrator | null = null;
 let pendingInit: Promise<void> | null = null;
 let currentStory: NormalizedStory | null = null;
-let intervalTurns = DEFAULT_INTERVAL_TURNS;
-let arbiterPrompt = DEFAULT_ARBITER_PROMPT;
+let intervalTurns: ArbiterFrequency;
+let arbiterPrompt: ArbiterPrompt;
 let runtimeHooks: RuntimeHooks = {};
 let automationPaused = false;
 
@@ -44,6 +39,8 @@ const initialize = async (story: NormalizedStory) => {
   let instance: StoryOrchestrator;
   instance = new StoryOrchestrator({
     story,
+    intervalTurns,
+    arbiterPrompt,
     shouldApplyRole: (role: Role) => turnController.shouldApplyRole(role, instance?.index ?? 0),
     setEvalHooks: (hooks) => {
       hooks.onEvaluated?.((ev) => {
@@ -123,17 +120,17 @@ export const setHooks = (next: RuntimeHooks | undefined) => {
   runtimeHooks = next ?? {};
 };
 
-export const setIntervalTurns = (value: number) => {
-  intervalTurns = clampIntervalTurns(value);
+export const setIntervalTurns = (value: ArbiterFrequency) => {
+  intervalTurns = normalizeIntervalTurns(value);
   orchestrator?.setIntervalTurns(intervalTurns);
 };
 
-export const setArbiterPrompt = (value: string) => {
-  arbiterPrompt = sanitizeArbiterPrompt(value);
+export const setArbiterPrompt = (value: ArbiterPrompt) => {
+  arbiterPrompt = normalizeArbiterPrompt(value);
   orchestrator?.setArbiterPrompt(arbiterPrompt);
 };
 
-export const ensureStory = async (story: NormalizedStory | null | undefined): Promise<void> => {
+export const ensureStory = async (story: NormalizedStory | null): Promise<void> => {
   const target = story ?? null;
   if (target === currentStory) {
     orchestrator?.setIntervalTurns(intervalTurns);

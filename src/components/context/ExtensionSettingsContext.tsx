@@ -1,24 +1,29 @@
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { extension_settings, saveSettingsDebounced } from "@services/SillyTavernAPI";
 import { extensionName } from "@constants/main";
-import { DEFAULT_INTERVAL_TURNS } from "@utils/story-state";
-import { DEFAULT_ARBITER_PROMPT } from "@services/CheckpointArbiterService";
+import {
+  DEFAULT_SANITIZED_ARBITER_FREQUENCY,
+  DEFAULT_SANITIZED_ARBITER_PROMPT,
+  sanitizeArbiterFrequency,
+  sanitizeArbiterPrompt,
+  type ArbiterFrequency,
+  type ArbiterPrompt,
+} from "@utils/arbiter";
 
 export interface ExtensionRuntimeSettings {
-  arbiterPrompt: string;
-  arbiterFrequency: number;
+  arbiterPrompt: ArbiterPrompt;
+  arbiterFrequency: ArbiterFrequency;
 }
 
 const CONFIG_KEY = "config";
-const PROMPT_MAX_LENGTH = 1200;
 
 export const DEFAULT_EXTENSION_SETTINGS: ExtensionRuntimeSettings = Object.freeze({
-  arbiterPrompt: DEFAULT_ARBITER_PROMPT,
-  arbiterFrequency: DEFAULT_INTERVAL_TURNS,
+  arbiterPrompt: DEFAULT_SANITIZED_ARBITER_PROMPT,
+  arbiterFrequency: DEFAULT_SANITIZED_ARBITER_FREQUENCY,
 });
 
 interface ExtensionSettingsContextValue extends ExtensionRuntimeSettings {
-  defaultArbiterPrompt: string;
+  defaultArbiterPrompt: ArbiterPrompt;
   setArbiterPrompt: (value: string) => void;
   resetArbiterPrompt: () => void;
   setArbiterFrequency: (value: number) => void;
@@ -36,25 +41,6 @@ function getSettingsRoot(): Record<string, unknown> {
   return created;
 }
 
-function sanitizeFrequency(value: unknown): number {
-  const raw = Number(value);
-  if (!Number.isFinite(raw)) return DEFAULT_EXTENSION_SETTINGS.arbiterFrequency;
-  const floored = Math.floor(raw);
-  if (floored < 1) return 1;
-  if (floored > 99) return 99;
-  return floored;
-}
-
-function sanitizePrompt(value: unknown): string {
-  if (typeof value !== "string") return DEFAULT_EXTENSION_SETTINGS.arbiterPrompt;
-  const normalized = value.replace(/\r/g, "").trim();
-  if (!normalized) return DEFAULT_EXTENSION_SETTINGS.arbiterPrompt;
-  if (normalized.length > PROMPT_MAX_LENGTH) {
-    return normalized.slice(0, PROMPT_MAX_LENGTH);
-  }
-  return normalized;
-}
-
 function loadSettings(): ExtensionRuntimeSettings {
   const root = getSettingsRoot();
   const raw = root[CONFIG_KEY];
@@ -63,8 +49,8 @@ function loadSettings(): ExtensionRuntimeSettings {
   }
   const candidate = raw as Partial<ExtensionRuntimeSettings>;
   return {
-    arbiterPrompt: sanitizePrompt(candidate.arbiterPrompt),
-    arbiterFrequency: sanitizeFrequency(candidate.arbiterFrequency),
+    arbiterPrompt: sanitizeArbiterPrompt(candidate.arbiterPrompt),
+    arbiterFrequency: sanitizeArbiterFrequency(candidate.arbiterFrequency),
   };
 }
 
@@ -78,17 +64,19 @@ function persistSettings(next: ExtensionRuntimeSettings) {
   }
 }
 
+type SettingsUpdate = Partial<{ arbiterPrompt: unknown; arbiterFrequency: unknown }>;
+
 export const ExtensionSettingsProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [settings, setSettings] = useState<ExtensionRuntimeSettings>(() => loadSettings());
 
-  const applySettings = useCallback((partial: Partial<ExtensionRuntimeSettings>) => {
+  const applySettings = useCallback((partial: SettingsUpdate) => {
     setSettings((prev) => {
       const next: ExtensionRuntimeSettings = {
         arbiterPrompt: partial.arbiterPrompt !== undefined
-          ? sanitizePrompt(partial.arbiterPrompt)
+          ? sanitizeArbiterPrompt(partial.arbiterPrompt)
           : prev.arbiterPrompt,
         arbiterFrequency: partial.arbiterFrequency !== undefined
-          ? sanitizeFrequency(partial.arbiterFrequency)
+          ? sanitizeArbiterFrequency(partial.arbiterFrequency)
           : prev.arbiterFrequency,
       };
       persistSettings(next);

@@ -1,7 +1,6 @@
 import { extension_settings, saveSettingsDebounced } from "@services/SillyTavernAPI";
 import type { NormalizedCheckpoint, NormalizedStory, NormalizedTransition, NormalizedTransitionTrigger } from "@utils/story-validator";
 import { extensionName } from "@constants/main";
-export { DEFAULT_INTERVAL_TURNS } from "@constants/defaults";
 
 export enum CheckpointStatus {
   Pending = "pending",

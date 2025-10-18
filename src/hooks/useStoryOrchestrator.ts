@@ -2,6 +2,7 @@ import { useCallback, useEffect } from "react";
 import { useStore } from "zustand";
 import type { NormalizedStory } from "@utils/story-validator";
 import type { StoryEvaluationEvent } from "@services/StoryOrchestrator";
+import type { ArbiterFrequency, ArbiterPrompt } from "@utils/arbiter";
 import {
   ensureStory as ensureOrchestratorStory,
   dispose as disposeOrchestrator,
@@ -26,12 +27,12 @@ export interface StoryOrchestratorResult {
 export interface UseStoryOrchestratorOptions {
   onTurnTick?: (next: { turn: number; sinceEval: number }) => void;
   onEvaluated?: (ev: StoryEvaluationEvent) => void;
-  arbiterPrompt?: string;
+  arbiterPrompt?: ArbiterPrompt;
 }
 
 export function useStoryOrchestrator(
-  story: NormalizedStory | null | undefined,
-  intervalTurns: number,
+  story: NormalizedStory | null,
+  intervalTurns: ArbiterFrequency,
   options?: UseStoryOrchestratorOptions,
 ): StoryOrchestratorResult {
   const requirements = useStore(storySessionStore, (s) => s.requirements);
@@ -60,7 +61,7 @@ export function useStoryOrchestrator(
   }, [options?.arbiterPrompt]);
 
   useEffect(() => {
-    ensureOrchestratorStory(story ?? null).catch((err) => {
+    ensureOrchestratorStory(story).catch((err) => {
       console.error("[Story/useStoryOrchestrator] ensureStory failed", err);
     });
 

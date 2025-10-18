@@ -15,13 +15,13 @@ Story Driver is a checkpoint-driven story runner for SillyTavern. It ensures the
 ## Key React Surfaces
 - `src/index.tsx` wraps the Drawer/Settings shells with `ExtensionSettingsProvider` and `StoryProvider`.
 - `StoryContext` exposes story metadata, checkpoint summaries, requirement flags, runtime counters, and story library operations. It also handles chat-change event subscriptions.
-- `ExtensionSettingsContext` persists arbiter prompt/frequency in the extension settings namespace with sanitization.
+- `ExtensionSettingsContext` persists arbiter prompt/frequency using the branded sanitizers from `utils/arbiter`, keeping runtime consumers behind the same source of truth.
 - Drawer components in `src/components/drawer/` present requirement badges, checkpoint progression, turn counters, and manual activation controls.
 - Settings modules surface arbiter controls plus the Checkpoint Studio editor hosted in `src/components/studio/`.
 
 ## Controllers & Services
-- `StoryOrchestrator` (services) coordinates activation, trigger evaluation, preset/world info application, requirement polling, chat context changes, and persistence reconciliation.
-- `orchestratorManager` ensures a single orchestrator instance, clamps interval/prompt settings, forwards runtime hooks to React, and manages the `turnController`.
+- `StoryOrchestrator` (services) coordinates activation, trigger evaluation, preset/world info application, requirement polling, chat context changes, and persistence reconciliation. It only accepts sanitized arbiter settings injected from the manager.
+- `orchestratorManager` ensures a single orchestrator instance, reuses the shared sanitizers from `utils/arbiter`, forwards runtime hooks to React, and manages the `turnController`.
 - `requirementsController` normalizes role names, checks persona + group chat selection, verifies world info entries/global lorebook, and emits requirement readiness flags.
 - `persistenceController` stores runtime snapshots keyed by `(chatId + story title)` via helpers in `story-state`, only hydrating when group chat context exists.
 - `CheckpointArbiterService` compiles win/fail regexes, renders the LLM-style evaluation prompt, handles interval checks, and selects outgoing transitions.
@@ -37,6 +37,7 @@ Story Driver is a checkpoint-driven story runner for SillyTavern. It ensures the
 - Studio components (`src/components/studio/*`) implement story metadata editing, checkpoint CRUD, diagnostics, and Cytoscape/dagre graph visualization.
 - `utils/checkpoint-studio.ts` defines draft models, regex/string helpers, Mermaid graph output, and cleanup utilities for producing schema-compliant stories.
 - `storyLibrary.ts` merges bundled stories with saved drafts stored under the extension settings `studio` key, normalizes entries, and exposes CRUD helpers to the UI.
+- `utils/arbiter.ts` owns the sanitized arbiter defaults; other modules consume its branded helpers instead of importing `DEFAULT_*` constants directly.
 
 ## Persistence & Host Integration
 - Runtime persistence only executes when a story, chatId, and group chat selection exist. Hydration avoids reapplying activation side effects unless the checkpoint index changes.

@@ -6,7 +6,6 @@ import CheckpointArbiterService, {
   type ArbiterTransitionOption,
   type CheckpointArbiterApi,
   type EvaluationOutcome,
-  DEFAULT_ARBITER_PROMPT,
 } from "./CheckpointArbiterService";
 import { createRequirementsController } from "@controllers/requirementsController";
 import { createPersistenceController } from "@controllers/persistenceController";
@@ -34,9 +33,11 @@ import { normalizeName } from "@utils/story-validator";
 import { storySessionStore } from "@store/storySessionStore";
 import { registerStoryExtensionCommands } from "@utils/slashCommands";
 import {
-  DEFAULT_INTERVAL_TURNS,
+  ARBITER_RESPONSE_LENGTH,
+  ARBITER_SNAPSHOT_LIMIT,
   STORY_ORCHESTRATOR_LOG_SAMPLE_LIMIT,
 } from "@constants/defaults";
+import type { ArbiterFrequency, ArbiterPrompt } from "@utils/arbiter";
 
 interface TransitionSelection {
   id: string;
@@ -67,8 +68,10 @@ class StoryOrchestrator {
   private checkpointArbiter: CheckpointArbiterApi;
 
   private activeTransitions: NormalizedTransition[] = [];
-  private intervalTurns = DEFAULT_INTERVAL_TURNS;
-  private arbiterPrompt = DEFAULT_ARBITER_PROMPT;
+  private intervalTurns: ArbiterFrequency;
+  private arbiterPrompt: ArbiterPrompt;
+  private readonly defaultIntervalTurns: ArbiterFrequency;
+  private readonly defaultArbiterPrompt: ArbiterPrompt;
   private roleNameMap = new Map<string, Role>();
   private checkpointPrimed = false;
 
@@ -86,6 +89,8 @@ class StoryOrchestrator {
 
   constructor(opts: {
     story: NormalizedStory;
+    intervalTurns: ArbiterFrequency;
+    arbiterPrompt: ArbiterPrompt;
     onRoleApplied?: (role: Role, cpName: string) => void;
     shouldApplyRole?: (role: Role) => boolean;
     setEvalHooks?: (hooks: { onEvaluated?: (handler: (ev: EvaluatedEvent) => void) => void }) => void;
@@ -94,7 +99,17 @@ class StoryOrchestrator {
   }) {
     console.log("[StoryOrch] initializing for story", { title: opts.story.title });
     this.story = opts.story;
-    this.checkpointArbiter = new CheckpointArbiterService({ promptTemplate: DEFAULT_ARBITER_PROMPT });
+    this.defaultIntervalTurns = opts.intervalTurns;
+    this.intervalTurns = opts.intervalTurns;
+
+    this.defaultArbiterPrompt = opts.arbiterPrompt;
+    this.arbiterPrompt = opts.arbiterPrompt;
+
+    this.checkpointArbiter = new CheckpointArbiterService({
+      promptTemplate: this.arbiterPrompt,
+      snapshotLimit: ARBITER_SNAPSHOT_LIMIT,
+      responseLength: ARBITER_RESPONSE_LENGTH,
+    });
     this.presetService = new PresetService({
       base: { source: "current" },
       storyId: this.story.title,
@@ -236,13 +251,12 @@ class StoryOrchestrator {
     return Number.isFinite(idx) ? idx : 0;
   }
 
-  setIntervalTurns(n: number) {
-    this.intervalTurns = Math.max(1, n | 0);
+  setIntervalTurns(n: ArbiterFrequency) {
+    this.intervalTurns = n;
   }
 
-  setArbiterPrompt(prompt: string) {
-    const normalized = typeof prompt === "string" ? prompt.replace(/\r/g, "").trim() : "";
-    this.arbiterPrompt = normalized ? normalized : DEFAULT_ARBITER_PROMPT;
+  setArbiterPrompt(prompt: ArbiterPrompt) {
+    this.arbiterPrompt = prompt;
     this.checkpointArbiter.updateOptions({ promptTemplate: this.arbiterPrompt });
   }
 
@@ -706,8 +720,8 @@ class StoryOrchestrator {
     }
 
     this.setTurn(0);
-    this.intervalTurns = DEFAULT_INTERVAL_TURNS;
-    this.setArbiterPrompt(DEFAULT_ARBITER_PROMPT);
+    this.intervalTurns = this.defaultIntervalTurns;
+    this.setArbiterPrompt(this.defaultArbiterPrompt);
     this.roleNameMap.clear();
     this.activeTransitions = [];
     this.checkpointPrimed = false;

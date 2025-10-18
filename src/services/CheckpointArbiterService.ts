@@ -9,7 +9,6 @@ import {
   ARBITER_LOG_SAMPLE_LENGTH,
 } from "@constants/defaults";
 
-export const DEFAULT_ARBITER_PROMPT = "You are an impartial story overseer.";
 
 export type ArbiterReason = "trigger" | "timed" | "interval" | "manual";
 
@@ -54,14 +53,14 @@ export interface CheckpointEvalPayload {
 export interface CheckpointArbiterApi {
   evaluate: (request: CheckpointEvalRequest) => Promise<CheckpointEvalPayload>;
   clear: () => void;
-  updateOptions: (options?: CheckpointArbiterServiceOptions) => void;
+  updateOptions: (options?: Partial<CheckpointArbiterServiceOptions>) => void;
 }
 
 export interface CheckpointArbiterServiceOptions {
   onEvaluated?: (payload: CheckpointEvalPayload) => void;
-  snapshotLimit?: number;
-  responseLength?: number;
-  promptTemplate?: string;
+  snapshotLimit: number;
+  responseLength: number;
+  promptTemplate: string;
 }
 
 interface PendingJob {
@@ -132,12 +131,10 @@ function buildTransitionsSection(options: ArbiterTransitionOption[]): string {
   return lines.join("\n");
 }
 
-function buildEvalPrompt(request: CheckpointEvalRequest, transcript: string, promptTemplate?: string) {
+function buildEvalPrompt(request: CheckpointEvalRequest, transcript: string, promptTemplate: string) {
   const { cpName, checkpointObjective, reason, matched, turn, latestText, intervalTurns, candidates } = request;
   const transitionSection = buildTransitionsSection(candidates);
-  const header = typeof promptTemplate === "string" && promptTemplate.trim()
-    ? promptTemplate.replace(/\r/g, "").trim()
-    : DEFAULT_ARBITER_PROMPT;
+  const header = promptTemplate.replace(/\r/g, "").trim();
   const headerLines = header.split(/\n/).map((line) => line.trim()).filter((line) => Boolean(line));
   const lines: string[] = [
     ...headerLines,
@@ -219,17 +216,13 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
   private queue: PendingJob[] = [];
   private busy = false;
   private disposed = false;
-  private options: CheckpointArbiterServiceOptions = {
-    promptTemplate: DEFAULT_ARBITER_PROMPT,
-  };
+  private options: CheckpointArbiterServiceOptions;
+  constructor(options: CheckpointArbiterServiceOptions) {
+    this.options = options;
 
-  constructor(options?: CheckpointArbiterServiceOptions) {
-    if (options) {
-      this.updateOptions(options);
-    }
   }
 
-  updateOptions(options?: CheckpointArbiterServiceOptions) {
+  updateOptions(options?: Partial<CheckpointArbiterServiceOptions>) {
     if (!options) return;
     const merged: CheckpointArbiterServiceOptions = {
       ...this.options,
@@ -237,9 +230,9 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
     };
     if (typeof merged.promptTemplate === "string") {
       const normalized = merged.promptTemplate.replace(/\r/g, "").trim();
-      merged.promptTemplate = normalized ? normalized.slice(0, ARBITER_PROMPT_MAX_LENGTH) : DEFAULT_ARBITER_PROMPT;
+      merged.promptTemplate = normalized.slice(0, merged.responseLength)
     } else {
-      merged.promptTemplate = this.options.promptTemplate ?? DEFAULT_ARBITER_PROMPT;
+      merged.promptTemplate = this.options.promptTemplate;
     }
     this.options = merged;
   }
@@ -269,8 +262,8 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
     try {
       while (!this.disposed && this.queue.length) {
         const job = this.queue.shift()!;
-        const transcript = snapshot(this.options?.snapshotLimit ?? ARBITER_SNAPSHOT_LIMIT);
-        const promptTemplate = this.options?.promptTemplate ?? DEFAULT_ARBITER_PROMPT;
+        const transcript = snapshot(this.options?.snapshotLimit);
+        const promptTemplate = this.options?.promptTemplate;
         const prompt = buildEvalPrompt(job.request, transcript, promptTemplate);
         console.log("[Story - CheckpointArbiter] prompt", { reason: job.request.reason, cp: job.request.cpName, turn: job.request.turn });
 
