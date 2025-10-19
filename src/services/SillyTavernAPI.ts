@@ -58,7 +58,7 @@ export const saveSettingsDebounced = script["saveSettingsDebounced"];
 export const eventSource = script["eventSource"];
 export const event_types = script["event_types"];
 export const chat = script["chat"];
-export const generateQuietPrompt = script["generateQuietPrompt"];
+export const generateRaw = script["generateRaw"];
 export const getWorldInfoSettings = worldInfo["getWorldInfoSettings"];
 export const MacrosParser = macros["MacrosParser"];
 

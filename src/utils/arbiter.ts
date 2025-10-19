@@ -1,7 +1,6 @@
 import {
   DEFAULT_ARBITER_PROMPT,
   DEFAULT_INTERVAL_TURNS,
-  ARBITER_PROMPT_MAX_LENGTH,
 } from "@constants/defaults";
 
 export type ArbiterFrequency = number & { readonly __brand: "ArbiterFrequency" };
@@ -24,16 +23,14 @@ const DEFAULT_PROMPT: ArbiterPrompt = (() => {
   const normalized = normalizePrompt(DEFAULT_ARBITER_PROMPT);
   if (normalized) return toArbiterPrompt(normalized);
   // Fallback to original constant if normalization strips everything.
-  const truncated = DEFAULT_ARBITER_PROMPT.slice(0, ARBITER_PROMPT_MAX_LENGTH);
-  return toArbiterPrompt(truncated || "Checkpoint arbiter prompt");
+  const fallback = normalizePrompt(DEFAULT_ARBITER_PROMPT);
+  return toArbiterPrompt(fallback || "Checkpoint arbiter prompt");
 })();
 
 function normalizePrompt(input: string): string {
   const trimmed = input.replace(/\r/g, "").trim();
   if (!trimmed) return "";
-  return trimmed.length > ARBITER_PROMPT_MAX_LENGTH
-    ? trimmed.slice(0, ARBITER_PROMPT_MAX_LENGTH)
-    : trimmed;
+  return trimmed;
 }
 
 export function sanitizeArbiterFrequency(value: unknown): ArbiterFrequency {

@@ -1,13 +1,17 @@
 import { storySessionStore } from "@store/storySessionStore";
 import { getOrchestrator, pauseAutomation, resumeAutomation, isAutomationPaused } from "@controllers/orchestratorManager";
 import { getContext } from "@services/SillyTavernAPI";
+import type { ArbiterReason } from "@services/CheckpointArbiterService";
 import { deriveCheckpointStatuses, CheckpointStatus } from "@utils/story-state";
+
+const STORY_COMMAND_TAG_ATTR = 'data-story-driver="1"';
 
 export function registerStoryExtensionCommands() {
   const ctx = getContext?.();
   if (!ctx) return;
   registerCheckpointCommand(ctx);
   registerStoryCommand(ctx);
+  registerArbiterCommand(ctx);
 }
 
 function registerCheckpointCommand(ctx: any) {
@@ -16,7 +20,7 @@ function registerCheckpointCommand(ctx: any) {
   if ((SlashCommandParser as any)._storyCheckpointRegistered) return;
   (SlashCommandParser as any)._storyCheckpointRegistered = true;
 
-  const help = `<div>Activate or inspect story checkpoints.</div>
+  const help = `<div ${STORY_COMMAND_TAG_ATTR}>Activate or inspect story checkpoints.</div>
 <pre><code class="language-stscript">/checkpoint 2
 /checkpoint id=finale
 /checkpoint next
@@ -89,7 +93,7 @@ function registerStoryCommand(ctx: any) {
   if ((SlashCommandParser as any)._storyRuntimeRegistered) return;
   (SlashCommandParser as any)._storyRuntimeRegistered = true;
 
-  const help = `<div>Inspect or manipulate Story Driver runtime.</div>
+  const help = `<div ${STORY_COMMAND_TAG_ATTR}>Inspect or manipulate Story Driver runtime.</div>
 <pre><code class="language-stscript">/story status
 /story reset
 /story eval
@@ -112,6 +116,36 @@ function registerStoryCommand(ctx: any) {
         SlashCommandNamedArgument.fromProps({ name: 'value', description: 'Optional value', typeList: ARGUMENT_TYPE.STRING }),
       ],
       callback: (named: Record<string, unknown>, unnamed: string) => handleStoryCommand(named, unnamed),
+    })
+  );
+}
+
+function registerArbiterCommand(ctx: any) {
+  const { SlashCommandParser, SlashCommand, SlashCommandArgument, SlashCommandNamedArgument, ARGUMENT_TYPE } = ctx;
+  if (!SlashCommandParser || !SlashCommand) return;
+  if ((SlashCommandParser as any)._storyArbiterRegistered) return;
+  (SlashCommandParser as any)._storyArbiterRegistered = true;
+
+  const help = `<div ${STORY_COMMAND_TAG_ATTR}>Manually trigger the story arbiter.</div>
+<pre><code class="language-stscript">/arbiter
+/arbiter run
+/arbiter run reason=manual
+/arbiter trigger</code></pre>`;
+
+  SlashCommandParser.addCommandObject(
+    SlashCommand.fromProps({
+      name: "arbiter",
+      aliases: ["st-arb", "storyarb"],
+      helpString: help,
+      unnamedArgumentList: [
+        SlashCommandArgument.fromProps({ description: "Action (run)", typeList: ARGUMENT_TYPE.STRING, isRequired: false }),
+        SlashCommandArgument.fromProps({ description: "Optional reason (manual, trigger, timed, interval)", typeList: ARGUMENT_TYPE.STRING, isRequired: false }),
+      ],
+      namedArgumentList: [
+        SlashCommandNamedArgument.fromProps({ name: "action", description: "Action to perform", typeList: ARGUMENT_TYPE.STRING }),
+        SlashCommandNamedArgument.fromProps({ name: "reason", description: "Arbiter reason (manual, trigger, timed, interval)", typeList: ARGUMENT_TYPE.STRING }),
+      ],
+      callback: (named: Record<string, unknown>, unnamed: string) => handleArbiterCommand(named, unnamed),
     })
   );
 }
@@ -181,6 +215,67 @@ function handleStoryCommand(named: Record<string, unknown>, unnamed: string): st
     default:
       return `[story] Unknown action "${action}". Try: status, reset, eval, persist, pause, resume, toggle.`;
   }
+}
+
+const ARBITER_REASONS: ArbiterReason[] = ["manual", "trigger", "timed", "interval"];
+
+function handleArbiterCommand(named: Record<string, unknown>, unnamed: string): string {
+  const tokens = typeof unnamed === "string" ? unnamed.trim().split(/\s+/).filter(Boolean) : [];
+  const namedAction = named.action ?? named.cmd ?? named.do;
+  const namedReason = named.reason ?? (named as Record<string, unknown>).why;
+
+  let actionToken = namedAction != null ? String(namedAction).toLowerCase() : undefined;
+  let reasonToken = namedReason != null ? String(namedReason).toLowerCase() : undefined;
+
+  if (!actionToken && tokens.length) {
+    actionToken = tokens.shift()?.toLowerCase();
+  }
+
+  if (!reasonToken && tokens.length) {
+    const peek = tokens[0]?.toLowerCase();
+    if (peek && isArbiterReason(peek)) {
+      reasonToken = tokens.shift()?.toLowerCase();
+    }
+  }
+
+  if (actionToken && isArbiterReason(actionToken) && !reasonToken) {
+    reasonToken = actionToken;
+    actionToken = "run";
+  }
+
+  const action = actionToken ?? "run";
+
+  switch (action) {
+    case "run":
+    case "eval":
+    case "evaluate":
+    case "queue":
+    case "trigger": { // allow shorthand
+      const orch = getOrchestrator();
+      if (!orch) return "[arbiter] Orchestrator not ready";
+      const reason = reasonToken ? parseArbiterReason(reasonToken) : "manual";
+      if (!reason) {
+        return `[arbiter] Unknown reason "${reasonToken}". Try: manual, trigger, timed, interval.`;
+      }
+      const ok = orch.evaluateNow(reason);
+      if (!ok) return "[arbiter] No regex transitions available for this checkpoint.";
+      return `[arbiter] Evaluation queued (${reason}).`;
+    }
+    case "help":
+      return "[arbiter] Usage: /arbiter [run] [reason]. Reasons: manual, trigger, timed, interval.";
+    default:
+      return `[arbiter] Unknown action "${action}". Try: run, eval, trigger.`;
+  }
+}
+
+function isArbiterReason(value: string): value is ArbiterReason {
+  return ARBITER_REASONS.includes(value as ArbiterReason);
+}
+
+function parseArbiterReason(input: string | undefined): ArbiterReason | null {
+  if (!input) return null;
+  const normalized = input.toLowerCase();
+  return isArbiterReason(normalized) ? normalized : null;
 }
 
 function tokenizeCommand(named: Record<string, unknown>, unnamed: string): string[] {

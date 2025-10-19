@@ -1,10 +1,9 @@
 import { clampText } from "../utils/story-state";
-import { chat, generateQuietPrompt } from "@services/SillyTavernAPI";
+import { chat, generateRaw } from "@services/SillyTavernAPI";
 import { updateStoryMacroSnapshot } from "./storyMacros";
 import {
   ARBITER_SNAPSHOT_LIMIT,
   ARBITER_RESPONSE_LENGTH,
-  ARBITER_PROMPT_MAX_LENGTH,
   ARBITER_CHAT_NAME_CLAMP,
   ARBITER_CHAT_MESSAGE_CLAMP,
   ARBITER_LOG_SAMPLE_LENGTH,
@@ -19,8 +18,6 @@ export interface ArbiterTransitionOption {
   label?: string;
   description?: string;
   targetName?: string;
-  triggerLabel?: string;
-  triggerPattern?: string;
 }
 
 export interface CheckpointEvalRequest {
@@ -32,7 +29,6 @@ export interface CheckpointEvalRequest {
   turn: number;
   intervalTurns: number;
   candidates: ArbiterTransitionOption[];
-  reviewContext?: string;
 }
 
 export type EvaluationOutcome = "advance" | "continue";
@@ -84,47 +80,10 @@ function snapshot(limit: number): string {
     .join("\n");
 }
 
-function buildReasonLine(reason: ArbiterReason, matched: string | undefined, intervalTurns: number): string {
-  switch (reason) {
-    case "interval":
-      return `Periodic check (every ${intervalTurns} turns).`;
-    case "timed":
-      return `Timed trigger reached${matched ? `: ${matched}` : ""}.`;
-    case "trigger":
-      return `Objective trigger detected${matched ? `: ${matched}` : ""}.`;
-    case "manual":
-    default:
-      return matched ? `Manual review requested: ${matched}` : "Manual review requested.";
-  }
-}
-
-function buildChatExcerpt(request: CheckpointEvalRequest, transcript: string): string {
-  const {
-    reason,
-    matched,
-    turn,
-    latestText,
-    intervalTurns,
-    reviewContext,
-  } = request;
-  const excerptLines: string[] = [
-    `Turn Index: ${turn}`,
-    `Reason: ${buildReasonLine(reason, matched, intervalTurns)}`,
-  ];
-  if (reviewContext) {
-    excerptLines.push(reviewContext);
-  }
-  excerptLines.push("", "Latest player message:", clampText(latestText, ARBITER_CHAT_MESSAGE_CLAMP));
-  if (transcript) {
-    excerptLines.push("", transcript);
-  }
-  return excerptLines.join("\n");
-}
-
 function buildEvalPrompt(_request: CheckpointEvalRequest, promptTemplate: string) {
-  const header = promptTemplate.replace(/\r/g, "").trim();
+  const prompt = promptTemplate.replace(/\r/g, "").trim();
   const promptLines: string[] = [
-    header,
+    prompt,
     "",
     "=== Output Format (JSON ONLY) ===",
     "Return ONLY a JSON object with this exact schema (no code fences, no extra text):",
@@ -219,8 +178,7 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
       ...options,
     };
     if (typeof merged.promptTemplate === "string") {
-      const normalized = merged.promptTemplate.replace(/\r/g, "").trim();
-      merged.promptTemplate = normalized.slice(0, ARBITER_PROMPT_MAX_LENGTH);
+      merged.promptTemplate = merged.promptTemplate.replace(/\r/g, "").trim();
     } else {
       merged.promptTemplate = this.options.promptTemplate;
     }
@@ -253,22 +211,19 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
       while (!this.disposed && this.queue.length) {
         const job = this.queue.shift()!;
         const transcript = snapshot(this.options?.snapshotLimit);
-        const chatExcerpt = buildChatExcerpt(job.request, transcript);
-        updateStoryMacroSnapshot({ chatExcerpt });
+        updateStoryMacroSnapshot({ chatExcerpt: transcript });
 
         const promptTemplate = this.options?.promptTemplate;
         const prompt = buildEvalPrompt(job.request, promptTemplate);
         console.log("[Story - CheckpointArbiter] prompt", { reason: job.request.reason, cp: job.request.cpName, turn: job.request.turn, prompt });
         let raw = "";
         try {
-          raw = await generateQuietPrompt({
-            quietPrompt: prompt,
-            quietName: "Checkpoint Arbiter",
-            skipWIAN: true,
+          raw = await generateRaw({
+            prompt,
+            instructOverride: true,
             quietToLoud: false,
-            removeReasoning: false,
-            trimToSentence: false,
             responseLength: this.options?.responseLength ?? ARBITER_RESPONSE_LENGTH,
+            trimNames: false,
           });
           console.log("[Story - CheckpointArbiter] raw response", { sample: String(raw).slice(0, ARBITER_LOG_SAMPLE_LENGTH) });
         } catch (err) {

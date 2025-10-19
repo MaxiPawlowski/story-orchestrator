@@ -11,7 +11,6 @@ export const AUTHOR_NOTE_LOG_SAMPLE_LIMIT = 80;
 
 export const ARBITER_SNAPSHOT_LIMIT = 10;
 export const ARBITER_RESPONSE_LENGTH = 256;
-export const ARBITER_PROMPT_MAX_LENGTH = 1200;
 export const ARBITER_CHAT_NAME_CLAMP = 40;
 export const ARBITER_CHAT_MESSAGE_CLAMP = 300;
 export const ARBITER_LOG_SAMPLE_LENGTH = 200;
@@ -23,7 +22,7 @@ export const UI_SYNC_MAX_ATTEMPTS = 20;
 export const UI_SYNC_RETRY_DELAY_MS = 100;
 export const DEFAULT_ARBITER_PROMPT = `
 You are the Checkpoint Arbiter. Your job is to EVALUATE, not narrate.
-You ONLY judge whether any transition condition is clearly met based on the supplied context.
+You ONLY judge whether any transition condition is clearly and completely met based on the supplied context.
 Do not continue the story, invent facts, or speculate beyond what is written.
 
 === Story Description ===
@@ -34,9 +33,6 @@ Do not continue the story, invent facts, or speculate beyond what is written.
 
 === Current Checkpoint ===
 {{story_current_checkpoint}}
-
-=== Transition Candidates ===
-{{story_possible_triggers}}
 
 === Conversation Excerpt (most-recent-first) ===
 {{chat_excerpt}}
@@ -54,4 +50,7 @@ Do not continue the story, invent facts, or speculate beyond what is written.
 - No guessing policy: use only evidence present in the excerpt and the trigger objects.
 - Avoid outcome bias: keep tone neutral and factual. No motivational or dramatic language.
 - Role boundary: You are not continuing the story, only evaluating triggers.
+
+=== Transition Candidates ===
+{{story_possible_triggers}}
 `;

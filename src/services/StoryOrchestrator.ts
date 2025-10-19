@@ -37,7 +37,6 @@ import { registerStoryExtensionCommands } from "@utils/slashCommands";
 import {
   ARBITER_RESPONSE_LENGTH,
   ARBITER_SNAPSHOT_LIMIT,
-  ARBITER_PROMPT_MAX_LENGTH,
   STORY_ORCHESTRATOR_LOG_SAMPLE_LIMIT,
 } from "@constants/defaults";
 import type { ArbiterFrequency, ArbiterPrompt } from "@utils/arbiter";
@@ -238,10 +237,6 @@ class StoryOrchestrator {
       segments.push(`${idx + 1}. [${option.id}]${headerSuffix}`.trim());
       if (option.description) segments.push(`   ${option.description}`);
       if (option.condition) segments.push(`   Condition: ${option.condition}`);
-      const triggerMeta: string[] = [];
-      if (option.triggerLabel) triggerMeta.push(option.triggerLabel);
-      if (option.triggerPattern) triggerMeta.push(`Pattern: ${option.triggerPattern}`);
-      if (triggerMeta.length) segments.push(`   ${triggerMeta.join(" | ")}`);
       lines.push(segments.join("\n"));
     });
     lines.push('If none should advance, respond with {"decision": "continue"} and null transition.');
@@ -250,9 +245,7 @@ class StoryOrchestrator {
 
   private clampSummary(input: string): string {
     if (!input) return "";
-    if (input.length <= ARBITER_PROMPT_MAX_LENGTH) return input;
-    const limit = Math.max(0, ARBITER_PROMPT_MAX_LENGTH - 3);
-    return `${input.slice(0, limit)}...`;
+    return input;
   }
 
   private formatStatusLabel(status: CheckpointStatus): string {
@@ -811,7 +804,6 @@ class StoryOrchestrator {
 
     const promptContext = this.buildPromptContext(runtime, options);
     this.updateStoryMacrosFromContext(promptContext);
-    const reviewContext = matchedSummary ? `Matched triggers: ${matchedSummary}` : undefined;
 
     void this.checkpointArbiter.evaluate({
       cpName: cp?.name ?? `Checkpoint ${checkpointIndex + 1}`,
@@ -822,7 +814,6 @@ class StoryOrchestrator {
       turn: turnSnapshot,
       intervalTurns: this.intervalTurns,
       candidates: options,
-      reviewContext,
     }).then((payload) => {
       const outcome = payload?.outcome ?? "continue";
       const nextId = payload?.nextTransitionId ?? payload?.parsed?.nextTransitionId;

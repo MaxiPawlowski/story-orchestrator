@@ -56,6 +56,34 @@ const AUTHOR_NOTE_ROLE_OPTIONS: Array<{ value: "" | AuthorNoteRole; label: strin
   { value: "assistant", label: "Assistant" },
 ];
 
+const STORY_COMMAND_TAG_ATTR = 'data-story-driver="1"';
+
+type MacroDisplayCategory = "Runtime" | "Role";
+
+type MacroDisplayEntry = {
+  key: string;
+  description: string;
+  category: MacroDisplayCategory;
+  detail?: string;
+};
+
+const STORY_MACRO_BASE_ENTRIES: MacroDisplayEntry[] = [
+  { key: "story_active_title", description: "Active story title", category: "Runtime" },
+  { key: "story_title", description: "Story title (prompt safe)", category: "Runtime" },
+  { key: "story_description", description: "Story description for arbiter prompts", category: "Runtime" },
+  { key: "story_active_checkpoint_id", description: "Current checkpoint id", category: "Runtime" },
+  { key: "story_active_checkpoint_name", description: "Current checkpoint name", category: "Runtime" },
+  { key: "story_active_checkpoint_objective", description: "Current checkpoint objective", category: "Runtime" },
+  { key: "story_current_checkpoint", description: "Formatted current checkpoint summary", category: "Runtime" },
+  { key: "story_past_checkpoints", description: "Past checkpoint summary (most recent first)", category: "Runtime" },
+  { key: "story_possible_triggers", description: "Formatted list of transition candidates", category: "Runtime" },
+  { key: "chat_excerpt", description: "Recent conversation excerpt for arbiter prompts", category: "Runtime" },
+  { key: "story_turn", description: "Current turn count", category: "Runtime" },
+  { key: "story_turns_since_eval", description: "Turns since last arbiter evaluation", category: "Runtime" },
+  { key: "story_checkpoint_turns", description: "Turns spent in the active checkpoint", category: "Runtime" },
+  { key: "story_player_name", description: "Active player name", category: "Runtime" },
+];
+
 const stringifyPresetValue = (value: unknown): string => {
   if (value === undefined) return "";
   if (value === null) return "null";
@@ -140,10 +168,12 @@ const CheckpointEditorPanel: React.FC<Props> = ({
     aliases: string[];
     description?: string;
     samples: string[];
+    isStoryDriver: boolean;
   }>>([]);
   const [slashCommandError, setSlashCommandError] = React.useState<string | null>(null);
   const [automationDraft, setAutomationDraft] = React.useState("");
   const [commandSearch, setCommandSearch] = React.useState("");
+  const [referenceSearch, setReferenceSearch] = React.useState("");
   const overridesSignature = React.useMemo(() => {
     if (!selectedCheckpoint?.on_activate?.preset_overrides) return "";
     try {
@@ -241,13 +271,15 @@ const CheckpointEditorPanel: React.FC<Props> = ({
         aliases: string[];
         description?: string;
         samples: string[];
+        isStoryDriver: boolean;
       }> = [];
 
       const parseHelp = (value: unknown) => {
         if (typeof value !== "string" || !value.trim()) {
-          return { description: undefined, samples: [] as string[] };
+          return { description: undefined, samples: [] as string[], isStoryDriver: false };
         }
-        const descMatch = value.match(/<div>([\s\S]*?)<\/div>/i);
+        const isStoryDriver = value.includes(STORY_COMMAND_TAG_ATTR);
+        const descMatch = value.match(/<div[^>]*>([\s\S]*?)<\/div>/i);
         const description = descMatch ? descMatch[1].replace(/\s+/g, " ").trim() : undefined;
         const codeMatch = value.match(/<code[^>]*>([\s\S]*?)<\/code>/i);
         const samples = codeMatch
@@ -256,7 +288,7 @@ const CheckpointEditorPanel: React.FC<Props> = ({
             .map((line) => line.trim())
             .filter(Boolean)
           : [];
-        return { description, samples };
+        return { description, samples, isStoryDriver };
       };
 
       Object.entries(commandsRaw).forEach(([name, raw]) => {
@@ -270,6 +302,7 @@ const CheckpointEditorPanel: React.FC<Props> = ({
           aliases,
           description: help.description,
           samples: help.samples,
+          isStoryDriver: help.isStoryDriver,
         });
       });
       setSlashCommands(entries);
@@ -294,6 +327,10 @@ const CheckpointEditorPanel: React.FC<Props> = ({
     });
     return map;
   }, [slashCommands]);
+
+  const projectSlashCommands = React.useMemo(() => (
+    slashCommands.filter((cmd) => cmd.isStoryDriver)
+  ), [slashCommands]);
 
   const parseAutomationInput = React.useCallback((value: string) => {
     const lines = value.split(/\r?\n/);
@@ -454,6 +491,71 @@ const CheckpointEditorPanel: React.FC<Props> = ({
     return ordered;
 
   }, [draft.roles, selectedCheckpoint?.id, authorNotesSignature]);
+
+  const macroEntries = React.useMemo(() => {
+    const entries = new Map<string, MacroDisplayEntry>();
+    STORY_MACRO_BASE_ENTRIES.forEach((entry) => {
+      entries.set(entry.key, { ...entry });
+    });
+
+    const roles = draft.roles && typeof draft.roles === "object" ? draft.roles : undefined;
+    if (roles) {
+      Object.entries(roles).forEach(([roleKey, roleLabelRaw]) => {
+        if (!roleKey) return;
+        const lower = roleKey.toLowerCase();
+        if (!lower) return;
+        const roleLabel = typeof roleLabelRaw === "string" && roleLabelRaw.trim() ? roleLabelRaw.trim() : roleKey;
+        entries.set(`story_role_${lower}`, {
+          key: `story_role_${lower}`,
+          description: `Story role name for ${roleLabel}`,
+          category: "Role",
+          detail: `Role id: ${roleKey}`,
+        });
+      });
+    }
+
+    const dmLabelRaw = roles && Object.prototype.hasOwnProperty.call(roles, "dm") ? (roles as Record<string, unknown>)["dm"] : undefined;
+    const dmLabel = typeof dmLabelRaw === "string" && dmLabelRaw.trim() ? dmLabelRaw.trim() : "DM";
+    entries.set("story_role_dm", {
+      key: "story_role_dm",
+      description: `Story DM role name (${dmLabel})`,
+      category: "Role",
+    });
+
+    const companionLabelRaw = roles && Object.prototype.hasOwnProperty.call(roles, "companion") ? (roles as Record<string, unknown>)["companion"] : undefined;
+    const companionLabel = typeof companionLabelRaw === "string" && companionLabelRaw.trim() ? companionLabelRaw.trim() : "Companion";
+    entries.set("story_role_companion", {
+      key: "story_role_companion",
+      description: `Story companion role name (${companionLabel})`,
+      category: "Role",
+    });
+
+    return Array.from(entries.values()).sort((a, b) => a.key.localeCompare(b.key));
+  }, [draft.roles]);
+
+  const normalizedReferenceQuery = referenceSearch.trim().toLowerCase();
+
+  const filteredReferenceCommands = React.useMemo(() => {
+    if (!normalizedReferenceQuery) return projectSlashCommands;
+    return projectSlashCommands.filter((cmd) => {
+      const lowerName = cmd.name.toLowerCase();
+      if (lowerName.includes(normalizedReferenceQuery)) return true;
+      if (cmd.aliases.some((alias) => alias.toLowerCase().includes(normalizedReferenceQuery))) return true;
+      if (cmd.description && cmd.description.toLowerCase().includes(normalizedReferenceQuery)) return true;
+      if (cmd.samples.some((sample) => sample.toLowerCase().includes(normalizedReferenceQuery))) return true;
+      return false;
+    });
+  }, [projectSlashCommands, normalizedReferenceQuery]);
+
+  const filteredMacroEntries = React.useMemo(() => {
+    if (!normalizedReferenceQuery) return macroEntries;
+    return macroEntries.filter((entry) => {
+      if (entry.key.toLowerCase().includes(normalizedReferenceQuery)) return true;
+      if (entry.description.toLowerCase().includes(normalizedReferenceQuery)) return true;
+      if (entry.detail && entry.detail.toLowerCase().includes(normalizedReferenceQuery)) return true;
+      return false;
+    });
+  }, [macroEntries, normalizedReferenceQuery]);
 
 
 
@@ -716,6 +818,83 @@ const CheckpointEditorPanel: React.FC<Props> = ({
                     onChange={(e) => updateCheckpoint(selectedCheckpoint.id, (cp) => ({ ...cp, objective: e.target.value }))}
                   />
                 </label>
+                <div className="space-y-3">
+                  <label className="flex flex-col gap-1 text-xs text-slate-300">
+                    <span>Search Commands &amp; Macros</span>
+                    <input
+                      className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                      value={referenceSearch}
+                      onChange={(e) => setReferenceSearch(e.target.value)}
+                      placeholder="Type to filter /commands and {{macros}}..."
+                    />
+                  </label>
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <div className="font-medium">Story Driver Slash Commands</div>
+                      <div className="text-xs text-slate-400">
+                        Read-only reference for commands registered by this extension.
+                      </div>
+                      <div className="rounded border border-slate-700 bg-slate-900/40 divide-y divide-slate-800">
+                        {filteredReferenceCommands.length ? filteredReferenceCommands.map((cmd) => (
+                          <div key={cmd.name} className="space-y-1 p-2">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="text-sm font-semibold text-slate-100">/{cmd.name}</div>
+                              {cmd.aliases.length ? (
+                                <div className="text-[11px] text-slate-400">Aliases: {cmd.aliases.join(", ")}</div>
+                              ) : null}
+                            </div>
+                            {cmd.description ? (
+                              <div className="text-xs text-slate-300">{cmd.description}</div>
+                            ) : null}
+                            {cmd.samples?.length ? (
+                              <div className="flex flex-wrap gap-1">
+                                {cmd.samples.slice(0, 3).map((sample) => (
+                                  <span key={`${cmd.name}-${sample}`} className="rounded bg-slate-800 px-2 py-0.5 text-[11px] text-slate-200">
+                                    {sample}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
+                        )) : (
+                          <div className="p-2 text-xs text-slate-500">
+                            {projectSlashCommands.length
+                              ? "No commands match the current search."
+                              : "No Story Driver commands detected."}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="font-medium">Story Driver Macros</div>
+                      <div className="text-xs text-slate-400">
+                        Macros resolve at runtime; role entries update with the active story cast.
+                      </div>
+                      <div className="rounded border border-slate-700 bg-slate-900/40 divide-y divide-slate-800">
+                        {filteredMacroEntries.length ? filteredMacroEntries.map((entry) => (
+                          <div key={entry.key} className="space-y-1 p-2">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="font-mono text-xs text-slate-200">{`{{${entry.key}}}`}</div>
+                              <span className="rounded-full border border-slate-700 bg-slate-800 px-2 py-0.5 text-[10px] uppercase tracking-wide text-slate-300">
+                                {entry.category}
+                              </span>
+                            </div>
+                            <div className="text-xs text-slate-300">{entry.description}</div>
+                            {entry.detail ? (
+                              <div className="text-[11px] text-slate-500">{entry.detail}</div>
+                            ) : null}
+                          </div>
+                        )) : (
+                          <div className="p-2 text-xs text-slate-500">
+                            {macroEntries.length
+                              ? "No macros match the current search."
+                              : "No Story Driver macros available."}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </>
             )}
 
