@@ -5,6 +5,7 @@ import type {
   TransitionTrigger,
   Role,
   RolePresetOverrides,
+  PresetOverrides,
   AuthorNoteDefinition,
   AuthorNoteSettings,
   AuthorNotePosition,
@@ -34,6 +35,7 @@ export type CheckpointDraft = Omit<Checkpoint, "on_activate"> & {
     authors_note?: Partial<Record<Role, AuthorNoteDraft>>;
     world_info?: { activate: string[]; deactivate: string[] };
     preset_overrides?: RolePresetOverrides;
+    arbiter_preset?: PresetOverrides;
     automations?: string[];
   };
 };
@@ -60,6 +62,7 @@ export type EnsuredOnActivate = {
   authors_note: Partial<Record<Role, AuthorNoteDraft>>;
   world_info: { activate: string[]; deactivate: string[] };
   preset_overrides?: RolePresetOverrides;
+  arbiter_preset?: PresetOverrides;
   automations: string[];
 };
 
@@ -168,11 +171,13 @@ const normalizedOnActivateToDraft = (value: NormalizedOnActivate | undefined): C
     }
     : undefined;
   const preset = value.preset_overrides ? clone(value.preset_overrides) : undefined;
+  const arbiterPreset = value.arbiter_preset ? clone(value.arbiter_preset) : undefined;
   const automations = value.automations ? [...value.automations] : undefined;
   return {
     authors_note: authors,
     world_info: worldInfo,
     preset_overrides: preset,
+    arbiter_preset: arbiterPreset,
     automations,
   };
 };
@@ -235,6 +240,7 @@ export const ensureOnActivate = (value: CheckpointDraft["on_activate"] | undefin
     deactivate: [...(value?.world_info?.deactivate ?? [])],
   },
   preset_overrides: value?.preset_overrides ? clone(value.preset_overrides) : undefined,
+  arbiter_preset: value?.arbiter_preset ? clone(value.arbiter_preset) : undefined,
   automations: [...(value?.automations ?? [])],
 });
 
@@ -249,6 +255,9 @@ export const cleanupOnActivate = (
   const preset = value.preset_overrides && Object.keys(value.preset_overrides).length
     ? value.preset_overrides
     : undefined;
+  const arbiterPreset = value.arbiter_preset && Object.keys(value.arbiter_preset).length
+    ? value.arbiter_preset
+    : undefined;
   const automationsSource = Array.isArray(value.automations) ? value.automations : [];
   const seen = new Set<string>();
   const automations: string[] = [];
@@ -261,11 +270,12 @@ export const cleanupOnActivate = (
     automations.push(entry);
   }
   const automationList = automations.length ? automations : undefined;
-  if (!authors && !worldInfo && !preset && !automationList) return undefined;
+  if (!authors && !worldInfo && !preset && !arbiterPreset && !automationList) return undefined;
   return {
     authors_note: authors,
     world_info: worldInfo,
     preset_overrides: preset,
+    arbiter_preset: arbiterPreset,
     automations: automationList,
   };
 };
@@ -297,12 +307,16 @@ const draftOnActivateToSchema = (
   const preset_overrides = draft.preset_overrides && Object.keys(draft.preset_overrides).length
     ? draft.preset_overrides
     : undefined;
+  const arbiter_preset = draft.arbiter_preset && Object.keys(draft.arbiter_preset).length
+    ? draft.arbiter_preset
+    : undefined;
   const automations = draft.automations ? Array.from(new Set(sanitizeList(draft.automations))) : undefined;
-  if (!authors_note && !world_info && !preset_overrides && !automations) return undefined;
+  if (!authors_note && !world_info && !preset_overrides && !arbiter_preset && !automations) return undefined;
   return {
     ...(authors_note ? { authors_note } : {}),
     ...(world_info ? { world_info } : {}),
     ...(preset_overrides ? { preset_overrides } : {}),
+    ...(arbiter_preset ? { arbiter_preset } : {}),
     ...(automations ? { automations } : {}),
   };
 };

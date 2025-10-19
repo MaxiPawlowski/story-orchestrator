@@ -12,6 +12,7 @@
   displayLogitBias,
 } from './SillyTavernAPI';
 import type { PresetOverrides, Role } from "@utils/story-schema";
+import { ARBITER_ROLE_KEY, ARBITER_ROLE_LABEL } from "@utils/story-schema";
 export type PresetPartial = PresetOverrides;
 
 export type BaseSource =
@@ -58,7 +59,8 @@ export class PresetService {
 
   applyForRole(role: Role, checkpointOverrides?: PresetPartial, checkpointName?: string): Record<string, any> {
     const overrideKeys = checkpointOverrides ? Object.keys(checkpointOverrides) : [];
-    console.log('[PresetService] applyForRole', { role, checkpointName, overrideKeys });
+    const roleLabel = this.describeRole(role);
+    console.log('[PresetService] applyForRole', { role, roleLabel, checkpointName, overrideKeys });
 
     this.ensureDedicatedPresetExists();
     const merged = this.buildMergedPresetObject(role, checkpointOverrides);
@@ -159,8 +161,13 @@ export class PresetService {
     return v;
   }
 
+  private describeRole(role: Role): string {
+    if (role === ARBITER_ROLE_KEY) return ARBITER_ROLE_LABEL;
+    return role;
+  }
+
   private makeLabel({ role, checkpointName }: ApplyLabelOpts): string {
-    const parts = [`${this.presetName}`, `[${role}]`];
+    const parts = [`${this.presetName}`, `[${this.describeRole(role)}]`];
     if (this.storyTitle) parts.push(this.storyTitle);
     if (checkpointName) parts.push(`• ${checkpointName}`);
     return parts.join(' ');

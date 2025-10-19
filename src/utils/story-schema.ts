@@ -5,6 +5,8 @@ const PRESET_SETTING_KEY_TUPLE = [...PRESET_SETTING_KEYS] as [PresetSettingKey, 
 
 // Dynamic roles: any non-empty string is a valid role name
 export type Role = string;
+export const ARBITER_ROLE_KEY = "$arbiter";
+export const ARBITER_ROLE_LABEL = "Arbiter";
 export const PRESET_SETTING_KEY_ENUM = z.enum(PRESET_SETTING_KEY_TUPLE);
 export type PresetOverrideKey = PresetSettingKey;
 export type PresetOverrides = Partial<Record<PresetOverrideKey, unknown>>;
@@ -59,6 +61,7 @@ const AuthorsNoteSchema = z.record(z.string().min(1), AuthorNoteDefinitionSchema
 export const OnActivateSchema = z.object({
   authors_note: AuthorsNoteSchema.optional(),
   preset_overrides: RolePresetOverridesSchema.optional(),
+  arbiter_preset: PresetOverridesSchema.optional(),
   world_info: WorldInfoActivationsSchema.optional(),
   automations: z.array(z.string().min(1)).optional(),
 });

@@ -42,6 +42,7 @@ export interface NormalizedOnActivate {
   authors_note?: Partial<Record<Role, NormalizedAuthorNote>>;
   world_info?: NormalizedWorldInfo;
   preset_overrides?: RolePresetOverrides;
+  arbiter_preset?: PresetOverrides;
   automations?: string[];
 }
 
@@ -244,6 +245,16 @@ function normalizePresetOverrides(input?: RolePresetOverrides | null): RolePrese
   return Object.keys(result).length > 0 ? result : undefined;
 }
 
+function normalizePresetOverride(input?: PresetOverrides | null): PresetOverrides | undefined {
+  if (!input || typeof input !== "object") return undefined;
+  const cleaned: PresetOverrides = {};
+  for (const key of Object.keys(input) as PresetOverrideKey[]) {
+    const value = (input as any)[key];
+    if (value !== undefined) cleaned[key] = value;
+  }
+  return Object.keys(cleaned).length > 0 ? cleaned : undefined;
+}
+
 function normalizeWorldInfo(input?: unknown): NormalizedWorldInfo | undefined {
   if (!input) return undefined;
   const wi = WorldInfoActivationsSchema.parse(input);
@@ -280,6 +291,7 @@ function normalizeOnActivateBlock(
     authors_note: normalizeAuthorsNote(input.authors_note, defaults),
     world_info: normalizeWorldInfo(input.world_info),
     preset_overrides: normalizePresetOverrides((input as any).preset_overrides ?? (input as any).preset_override),
+    arbiter_preset: normalizePresetOverride((input as any).arbiter_preset),
     automations: normalizeAutomations((input as any).automations),
   };
 }

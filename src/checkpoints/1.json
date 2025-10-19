@@ -37,6 +37,9 @@
             "guidance_scale": 1.1
           }
         },
+        "arbiter_preset": {
+          "temp": 0.35
+        },
         "automations": ["/bg tavern day"],
         "world_info": {
           "activate": [
@@ -68,6 +71,9 @@
             "rep_pen": 1.06,
             "guidance_scale": 1.4
           }
+        },
+        "arbiter_preset": {
+          "temp": 0.28
         },
         "automations": ["/bg sun_ruins2"],
         "authors_note": {
@@ -104,6 +110,9 @@
             "rep_pen": 1.04,
             "guidance_scale": 1.2
           }
+        },
+        "arbiter_preset": {
+          "temp": 0.32
         },
         "automations": ["/bg tavern day"],
         "world_info": {

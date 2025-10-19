@@ -1,5 +1,11 @@
 import React from "react";
-import type { AuthorNotePosition, AuthorNoteRole, RolePresetOverrides } from "@utils/story-schema";
+import {
+  ARBITER_ROLE_KEY,
+  ARBITER_ROLE_LABEL,
+  type AuthorNotePosition,
+  type AuthorNoteRole,
+  type RolePresetOverrides,
+} from "@utils/story-schema";
 import {
   AuthorNoteDraft,
   CheckpointDraft,
@@ -175,13 +181,16 @@ const CheckpointEditorPanel: React.FC<Props> = ({
   const [commandSearch, setCommandSearch] = React.useState("");
   const [referenceSearch, setReferenceSearch] = React.useState("");
   const overridesSignature = React.useMemo(() => {
-    if (!selectedCheckpoint?.on_activate?.preset_overrides) return "";
+    if (!selectedCheckpoint) return "";
     try {
-      return JSON.stringify(selectedCheckpoint.on_activate.preset_overrides);
+      return JSON.stringify({
+        preset_overrides: selectedCheckpoint.on_activate?.preset_overrides ?? {},
+        arbiter_preset: selectedCheckpoint.on_activate?.arbiter_preset ?? null,
+      });
     } catch {
-      return "";
+      return `${selectedCheckpoint.id ?? ""}-preset-overrides`;
     }
-  }, [selectedCheckpoint?.on_activate?.preset_overrides]);
+  }, [selectedCheckpoint?.id, selectedCheckpoint?.on_activate?.preset_overrides, selectedCheckpoint?.on_activate?.arbiter_preset]);
 
   const authorNotesSignature = React.useMemo(() => {
     if (!selectedCheckpoint?.on_activate?.authors_note) return "";
@@ -242,6 +251,7 @@ const CheckpointEditorPanel: React.FC<Props> = ({
       return;
     }
     const overrides = selectedCheckpoint.on_activate?.preset_overrides ?? {};
+    const arbiterPreset = selectedCheckpoint.on_activate?.arbiter_preset ?? null;
     const next: PresetDraftState = {};
     Object.entries(overrides).forEach(([roleKey, entries]) => {
       next[roleKey] = {};
@@ -249,6 +259,12 @@ const CheckpointEditorPanel: React.FC<Props> = ({
         next[roleKey][settingKey] = stringifyPresetValue(value);
       });
     });
+    if (arbiterPreset) {
+      next[ARBITER_ROLE_KEY] = {};
+      Object.entries(arbiterPreset).forEach(([settingKey, value]) => {
+        next[ARBITER_ROLE_KEY][settingKey] = stringifyPresetValue(value);
+      });
+    }
     setPresetDrafts(next);
   }, [selectedCheckpoint?.id, overridesSignature]);
 
@@ -459,6 +475,7 @@ const CheckpointEditorPanel: React.FC<Props> = ({
     Object.keys(selectedCheckpoint.on_activate?.preset_overrides ?? {}).forEach(push);
 
     Object.keys(presetDrafts).forEach(push);
+    push(ARBITER_ROLE_KEY);
 
     return ordered;
 
@@ -559,11 +576,42 @@ const CheckpointEditorPanel: React.FC<Props> = ({
 
 
 
+  const resolveCurrentOverrides = React.useCallback((roleKey: string): Partial<Record<PresetSettingKey, unknown>> => {
+    if (!selectedCheckpoint) return {};
+    if (roleKey === ARBITER_ROLE_KEY) {
+      return { ...(selectedCheckpoint.on_activate?.arbiter_preset ?? {}) } as Partial<Record<PresetSettingKey, unknown>>;
+    }
+    return { ...(selectedCheckpoint.on_activate?.preset_overrides?.[roleKey] ?? {}) } as Partial<Record<PresetSettingKey, unknown>>;
+  }, [selectedCheckpoint?.id, selectedCheckpoint?.on_activate?.arbiter_preset, selectedCheckpoint?.on_activate?.preset_overrides]);
+
+  const updateRoleOverrides = React.useCallback((
+    roleKey: string,
+    mutate: (current: Partial<Record<PresetSettingKey, unknown>>) => Partial<Record<PresetSettingKey, unknown>> | undefined,
+  ) => {
+    if (!selectedCheckpoint) return;
+    updateCheckpoint(selectedCheckpoint.id, (cp) => {
+      const next = ensureOnActivate(cp.on_activate);
+      if (roleKey === ARBITER_ROLE_KEY) {
+        const current = { ...(next.arbiter_preset ?? {}) } as Partial<Record<PresetSettingKey, unknown>>;
+        const updated = mutate(current);
+        next.arbiter_preset = updated && Object.keys(updated).length ? updated : undefined;
+      } else {
+        const overrides = { ...(next.preset_overrides ?? {}) } as RolePresetOverrides;
+        const current = { ...(overrides[roleKey] ?? {}) } as Partial<Record<PresetSettingKey, unknown>>;
+        const updated = mutate(current);
+        if (updated && Object.keys(updated).length) overrides[roleKey] = updated;
+        else delete overrides[roleKey];
+        next.preset_overrides = Object.keys(overrides).length ? overrides : undefined;
+      }
+      return { ...cp, on_activate: cleanupOnActivate(next) };
+    });
+  }, [selectedCheckpoint, updateCheckpoint]);
+
   const addPresetOverride = React.useCallback((roleKey: string) => {
 
     if (!selectedCheckpoint) return;
 
-    const existing = selectedCheckpoint.on_activate?.preset_overrides?.[roleKey] ?? {};
+    const existing = resolveCurrentOverrides(roleKey);
 
     const usedKeys = new Set(Object.keys(existing));
 
@@ -575,14 +623,10 @@ const CheckpointEditorPanel: React.FC<Props> = ({
 
     const storedValue = baseValue === undefined ? "" : baseValue;
 
-    updateCheckpoint(selectedCheckpoint.id, (cp) => {
-      const next = ensureOnActivate(cp.on_activate);
-      const overrides = { ...(next.preset_overrides ?? {}) } as RolePresetOverrides;
-      const roleOverrides = { ...(overrides[roleKey] ?? {}) } as Record<PresetSettingKey, unknown>;
-      roleOverrides[candidate] = storedValue;
-      overrides[roleKey] = roleOverrides;
-      next.preset_overrides = overrides;
-      return { ...cp, on_activate: cleanupOnActivate(next) };
+    updateRoleOverrides(roleKey, (current) => {
+      const next = { ...current };
+      next[candidate] = storedValue;
+      return next;
     });
 
     setPresetDrafts((prev) => {
@@ -599,7 +643,7 @@ const CheckpointEditorPanel: React.FC<Props> = ({
 
     });
 
-  }, [selectedCheckpoint, updateCheckpoint]);
+  }, [resolveCurrentOverrides, selectedCheckpoint, updateRoleOverrides]);
 
 
 
@@ -607,16 +651,11 @@ const CheckpointEditorPanel: React.FC<Props> = ({
 
     if (!selectedCheckpoint) return;
 
-    updateCheckpoint(selectedCheckpoint.id, (cp) => {
-      const next = ensureOnActivate(cp.on_activate);
-      const overrides = { ...(next.preset_overrides ?? {}) } as RolePresetOverrides;
-      const key = settingKey as PresetSettingKey;
-      const roleOverrides = { ...(overrides[roleKey] ?? {}) } as Record<PresetSettingKey, unknown>;
-      delete roleOverrides[key];
-      if (Object.keys(roleOverrides).length) overrides[roleKey] = roleOverrides;
-      else delete overrides[roleKey];
-      next.preset_overrides = Object.keys(overrides).length ? overrides : undefined;
-      return { ...cp, on_activate: cleanupOnActivate(next) };
+    const key = settingKey as PresetSettingKey;
+    updateRoleOverrides(roleKey, (current) => {
+      const next = { ...current };
+      delete next[key];
+      return Object.keys(next).length ? next : undefined;
     });
 
     setPresetDrafts((prev) => {
@@ -637,7 +676,7 @@ const CheckpointEditorPanel: React.FC<Props> = ({
 
     });
 
-  }, [selectedCheckpoint, updateCheckpoint]);
+  }, [selectedCheckpoint, updateRoleOverrides]);
 
 
 
@@ -647,7 +686,7 @@ const CheckpointEditorPanel: React.FC<Props> = ({
 
     if (prevKey === nextKey) return;
 
-    const existing = selectedCheckpoint.on_activate?.preset_overrides?.[roleKey] ?? {};
+    const existing = resolveCurrentOverrides(roleKey);
 
     if (Object.prototype.hasOwnProperty.call(existing, nextKey) && nextKey !== prevKey) return;
 
@@ -655,16 +694,12 @@ const CheckpointEditorPanel: React.FC<Props> = ({
 
     const storedValue = baseValue === undefined ? "" : baseValue;
 
-    updateCheckpoint(selectedCheckpoint.id, (cp) => {
-      const next = ensureOnActivate(cp.on_activate);
-      const overrides = { ...(next.preset_overrides ?? {}) } as RolePresetOverrides;
-      const previousKey = prevKey as PresetSettingKey;
-      const roleOverrides = { ...(overrides[roleKey] ?? {}) } as Record<PresetSettingKey, unknown>;
-      delete roleOverrides[previousKey];
-      roleOverrides[nextKey] = storedValue;
-      overrides[roleKey] = roleOverrides;
-      next.preset_overrides = overrides;
-      return { ...cp, on_activate: cleanupOnActivate(next) };
+    const previousKey = prevKey as PresetSettingKey;
+    updateRoleOverrides(roleKey, (current) => {
+      const next = { ...current };
+      delete next[previousKey];
+      next[nextKey] = storedValue;
+      return next;
     });
 
     setPresetDrafts((prev) => {
@@ -683,7 +718,7 @@ const CheckpointEditorPanel: React.FC<Props> = ({
 
     });
 
-  }, [selectedCheckpoint, updateCheckpoint]);
+  }, [resolveCurrentOverrides, selectedCheckpoint, updateRoleOverrides]);
 
 
 
@@ -707,18 +742,14 @@ const CheckpointEditorPanel: React.FC<Props> = ({
 
     const parsed = parsePresetValue(rawValue);
 
-    updateCheckpoint(selectedCheckpoint.id, (cp) => {
-      const next = ensureOnActivate(cp.on_activate);
-      const overrides = { ...(next.preset_overrides ?? {}) } as RolePresetOverrides;
-      const key = settingKey as PresetSettingKey;
-      const roleOverrides = { ...(overrides[roleKey] ?? {}) } as Record<PresetSettingKey, unknown>;
-      roleOverrides[key] = parsed;
-      overrides[roleKey] = roleOverrides;
-      next.preset_overrides = overrides;
-      return { ...cp, on_activate: cleanupOnActivate(next) };
+    const key = settingKey as PresetSettingKey;
+    updateRoleOverrides(roleKey, (current) => {
+      const next = { ...current };
+      next[key] = parsed;
+      return next;
     });
 
-  }, [selectedCheckpoint, updateCheckpoint]);
+  }, [selectedCheckpoint, updateRoleOverrides]);
 
 
 
@@ -1084,16 +1115,21 @@ const CheckpointEditorPanel: React.FC<Props> = ({
                   ) : (
                     <div className="space-y-3">
                       {presetRoleKeys.map((roleKey) => {
-                        const overridesForRole = selectedCheckpoint.on_activate?.preset_overrides?.[roleKey] ?? {};
+                        const overridesForRole = roleKey === ARBITER_ROLE_KEY
+                          ? selectedCheckpoint.on_activate?.arbiter_preset ?? {}
+                          : selectedCheckpoint.on_activate?.preset_overrides?.[roleKey] ?? {};
                         const draftValues = presetDrafts[roleKey] ?? {};
+                        const roleDisplayName = roleKey === ARBITER_ROLE_KEY
+                          ? ARBITER_ROLE_LABEL
+                          : (draft.roles?.[roleKey] ? `${draft.roles?.[roleKey]} (${roleKey})` : roleKey);
                         const usedKeys = new Set(Object.keys(overridesForRole));
                         const canAddMore = usedKeys.size < PRESET_SETTING_KEYS.length;
-                        const missingInStory = !(draft.roles && Object.prototype.hasOwnProperty.call(draft.roles, roleKey));
+                        const missingInStory = roleKey !== ARBITER_ROLE_KEY && !(draft.roles && Object.prototype.hasOwnProperty.call(draft.roles, roleKey));
                         return (
                           <div key={roleKey} className="space-y-2 rounded border border-slate-700 bg-slate-900/40 p-2">
                             <div className="flex items-center justify-between gap-2">
                               <div className="text-xs font-semibold text-slate-200">
-                                {roleKey}
+                                {roleDisplayName}
                                 {missingInStory ? (
                                   <span className="ml-2 text-[11px] font-normal text-amber-300/90">Not in Story Roles</span>
                                 ) : null}

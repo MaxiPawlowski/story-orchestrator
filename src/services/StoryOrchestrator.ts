@@ -1,4 +1,4 @@
-import type { Role } from "@utils/story-schema";
+import { ARBITER_ROLE_KEY, type Role } from "@utils/story-schema";
 import type { NormalizedCheckpoint, NormalizedStory, NormalizedTransition } from "@utils/story-validator";
 import { PresetService } from "./PresetService";
 import CheckpointArbiterService, {
@@ -802,6 +802,8 @@ class StoryOrchestrator {
       return;
     }
 
+    this.applyArbiterPreset(cp, reason);
+
     const promptContext = this.buildPromptContext(runtime, options);
     this.updateStoryMacrosFromContext(promptContext);
 
@@ -833,6 +835,17 @@ class StoryOrchestrator {
     }).catch((err) => {
       console.warn("[StoryOrch] arbiter error", err);
     });
+  }
+
+  private applyArbiterPreset(cp: NormalizedCheckpoint | undefined, reason: ArbiterReason) {
+    if (!cp) return;
+    try {
+      const overrides = cp.onActivate?.arbiter_preset;
+      this.presetService.applyForRole(ARBITER_ROLE_KEY, overrides, cp.name);
+      console.log("[StoryOrch] applied arbiter preset", { reason, checkpoint: cp.name, overrideKeys: overrides ? Object.keys(overrides) : [] });
+    } catch (err) {
+      console.warn("[StoryOrch] failed to apply arbiter preset", err);
+    }
   }
 
   private seedRoleMap() {
