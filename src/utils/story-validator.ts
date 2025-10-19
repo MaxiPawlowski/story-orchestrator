@@ -42,6 +42,7 @@ export interface NormalizedOnActivate {
   authors_note?: Partial<Record<Role, NormalizedAuthorNote>>;
   world_info?: NormalizedWorldInfo;
   preset_overrides?: RolePresetOverrides;
+  automations?: string[];
 }
 
 export interface NormalizedCheckpoint {
@@ -259,6 +260,17 @@ function normalizeWorldInfo(input?: unknown): NormalizedWorldInfo | undefined {
   };
 }
 
+function normalizeAutomations(input?: unknown): string[] | undefined {
+  if (!input) return undefined;
+  const list = Array.isArray(input) ? input : [input];
+  const cleaned = dedupeOrdered(
+    list
+      .map((item) => cleanScalar(item))
+      .filter(Boolean)
+  );
+  return cleaned.length ? cleaned : undefined;
+}
+
 function normalizeOnActivateBlock(
   input: OnActivate | null | undefined,
   defaults: NormalizedAuthorNoteSettings,
@@ -268,6 +280,7 @@ function normalizeOnActivateBlock(
     authors_note: normalizeAuthorsNote(input.authors_note, defaults),
     world_info: normalizeWorldInfo(input.world_info),
     preset_overrides: normalizePresetOverrides((input as any).preset_overrides ?? (input as any).preset_override),
+    automations: normalizeAutomations((input as any).automations),
   };
 }
 

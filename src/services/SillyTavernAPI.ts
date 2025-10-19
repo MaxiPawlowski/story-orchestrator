@@ -134,6 +134,36 @@ function quoteArg(s: string) {
     .replace(/\r?\n/g, "\\n")}"`;
 }
 
+export async function executeSlashCommands(
+  commands: Iterable<string> | string,
+  opts?: { silent?: boolean; delayMs?: number },
+) {
+  const silent = opts?.silent ?? true;
+  const delayMs = Math.max(0, opts?.delayMs ?? 0);
+  const iterable = typeof commands === "string" ? [commands] : Array.from(commands ?? []);
+  let allOk = true;
+
+
+  try {
+    for (let i = 0; i < iterable.length; i++) {
+      const command = typeof iterable[i] === "string" ? iterable[i] : "";
+      const ok = await runSlash(command, silent);
+      if (!ok) {
+        allOk = false;
+      }
+      if (delayMs > 0 && i < iterable.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+    }
+
+  } catch (error) {
+    console.warn("[Story Slash] failed to execute commands", error);
+  }
+
+
+  return allOk;
+}
+
 
 export async function applyCharacterAN(
   text: string,

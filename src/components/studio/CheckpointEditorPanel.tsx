@@ -27,12 +27,14 @@ type Props = {
   onRemoveCheckpoint: (id: string) => void;
 };
 
-type TabKey = "basics" | "worldinfo" | "notes" | "transitions";
+type TabKey = "basics" | "worldinfo" | "automations" | "notes" | "presets" | "transitions";
 
 const TABS: Array<{ key: TabKey; label: string }> = [
   { key: "basics", label: "Basics" },
   { key: "worldinfo", label: "World Info" },
-  { key: "notes", label: "Notes & Presets" },
+  { key: "automations", label: "Automations" },
+  { key: "notes", label: "Author Notes" },
+  { key: "presets", label: "Preset Overrides" },
   { key: "transitions", label: "Transitions" },
 ];
 
@@ -133,6 +135,15 @@ const CheckpointEditorPanel: React.FC<Props> = ({
   const [loreComments, setLoreComments] = React.useState<string[]>([]);
   const [activeTab, setActiveTab] = React.useState<TabKey>("basics");
   const [presetDrafts, setPresetDrafts] = React.useState<PresetDraftState>({});
+  const [slashCommands, setSlashCommands] = React.useState<Array<{
+    name: string;
+    aliases: string[];
+    description?: string;
+    samples: string[];
+  }>>([]);
+  const [slashCommandError, setSlashCommandError] = React.useState<string | null>(null);
+  const [automationDraft, setAutomationDraft] = React.useState("");
+  const [commandSearch, setCommandSearch] = React.useState("");
   const overridesSignature = React.useMemo(() => {
     if (!selectedCheckpoint?.on_activate?.preset_overrides) return "";
     try {
@@ -188,6 +199,15 @@ const CheckpointEditorPanel: React.FC<Props> = ({
 
   React.useEffect(() => {
     if (!selectedCheckpoint) {
+      setAutomationDraft("");
+      return;
+    }
+    const joined = (selectedCheckpoint.on_activate?.automations ?? []).join("\n");
+    setAutomationDraft(joined);
+  }, [selectedCheckpoint?.id]);
+
+  React.useEffect(() => {
+    if (!selectedCheckpoint) {
       setPresetDrafts({});
       return;
     }
@@ -210,6 +230,172 @@ const CheckpointEditorPanel: React.FC<Props> = ({
       ...extra.map((v) => ({ value: v, label: `${v} (not in lorebook)` })),
     ];
   }, [loreComments]);
+
+  const refreshSlashCommands = React.useCallback(() => {
+    try {
+      const ctx = getContext();
+      const parser = (ctx as any)?.SlashCommandParser;
+      const commandsRaw = parser?.commands ?? {};
+      const entries: Array<{
+        name: string;
+        aliases: string[];
+        description?: string;
+        samples: string[];
+      }> = [];
+
+      const parseHelp = (value: unknown) => {
+        if (typeof value !== "string" || !value.trim()) {
+          return { description: undefined, samples: [] as string[] };
+        }
+        const descMatch = value.match(/<div>([\s\S]*?)<\/div>/i);
+        const description = descMatch ? descMatch[1].replace(/\s+/g, " ").trim() : undefined;
+        const codeMatch = value.match(/<code[^>]*>([\s\S]*?)<\/code>/i);
+        const samples = codeMatch
+          ? codeMatch[1]
+            .split(/\r?\n/)
+            .map((line) => line.trim())
+            .filter(Boolean)
+          : [];
+        return { description, samples };
+      };
+
+      Object.entries(commandsRaw).forEach(([name, raw]) => {
+        if (!name) return;
+        const aliases = Array.isArray((raw as any)?.aliases)
+          ? (raw as any).aliases.filter((alias: unknown) => typeof alias === "string" && alias.trim())
+          : [];
+        const help = parseHelp((raw as any)?.helpString);
+        entries.push({
+          name,
+          aliases,
+          description: help.description,
+          samples: help.samples,
+        });
+      });
+      setSlashCommands(entries);
+      setSlashCommandError(null);
+    } catch (err) {
+      console.warn("[CheckpointEditor] Failed to read slash commands", err);
+      setSlashCommands([]);
+      setSlashCommandError("Unable to read slash commands from host.");
+    }
+  }, []);
+
+  React.useEffect(() => {
+    refreshSlashCommands();
+  }, [refreshSlashCommands]);
+  const slashCommandLookup = React.useMemo(() => {
+    const map = new Map<string, typeof slashCommands[number]>();
+    slashCommands.forEach((cmd) => {
+      map.set(cmd.name.toLowerCase(), cmd);
+      cmd.aliases.forEach((alias) => {
+        map.set(alias.toLowerCase(), cmd);
+      });
+    });
+    return map;
+  }, [slashCommands]);
+
+  const parseAutomationInput = React.useCallback((value: string) => {
+    const lines = value.split(/\r?\n/);
+    const seen = new Set<string>();
+    const result: string[] = [];
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      if (seen.has(trimmed)) continue;
+      seen.add(trimmed);
+      result.push(trimmed);
+    }
+    return result;
+  }, []);
+
+  const automationValidation = React.useMemo(() => {
+    const lines = automationDraft.split(/\r?\n/);
+    const seen = new Map<string, number>();
+    return lines.map((rawLine, index) => {
+      const trimmed = rawLine.trim();
+      if (!trimmed) {
+        return { line: rawLine, trimmed, status: "blank" as const, message: "" };
+      }
+
+      let status: "ok" | "error" = "ok";
+      let message: string | undefined;
+
+      if (!trimmed.startsWith("/")) {
+        status = "error";
+        message = "Slash commands must start with '/'.";
+      } else {
+        const match = trimmed.slice(1).match(/^([^\s]+)/);
+        const commandName = match ? match[1].toLowerCase() : "";
+        if (!commandName) {
+          status = "error";
+          message = "Missing command name.";
+        } else {
+          const commandMeta = slashCommandLookup.get(commandName);
+          if (!commandMeta) {
+            status = "error";
+            message = `Unknown command '${commandName}'.`;
+          } else if (commandMeta.description) {
+            message = `Recognized /${commandMeta.name}`;
+          }
+        }
+      }
+
+      const duplicateOf = seen.get(trimmed);
+      if (status === "ok" && duplicateOf !== undefined) {
+        status = "error";
+        message = `Duplicate of line ${duplicateOf + 1}.`;
+      } else if (status === "ok") {
+        seen.set(trimmed, index);
+      }
+
+      return { line: rawLine, trimmed, status, message };
+    });
+  }, [automationDraft, slashCommandLookup]);
+
+  const filteredCommands = React.useMemo(() => {
+    const query = commandSearch.trim().toLowerCase();
+    if (!query) {
+      return slashCommands.slice(0, 12);
+    }
+    return slashCommands
+      .filter((cmd) => {
+        if (cmd.name.toLowerCase().includes(query)) return true;
+        if (cmd.aliases.some((alias) => alias.toLowerCase().includes(query))) return true;
+        if (cmd.description && cmd.description.toLowerCase().includes(query)) return true;
+        return false;
+      })
+      .slice(0, 12);
+  }, [slashCommands, commandSearch]);
+
+  const updateAutomationsForCheckpoint = React.useCallback((rawText: string) => {
+    if (!selectedCheckpoint) return;
+    const parsed = parseAutomationInput(rawText);
+    updateCheckpoint(selectedCheckpoint.id, (cp) => {
+      const next = ensureOnActivate(cp.on_activate);
+      next.automations = parsed;
+      return { ...cp, on_activate: cleanupOnActivate(next) };
+    });
+  }, [parseAutomationInput, selectedCheckpoint, updateCheckpoint]);
+
+  const handleAutomationTextChange = React.useCallback((value: string) => {
+    setAutomationDraft(value);
+    updateAutomationsForCheckpoint(value);
+  }, [updateAutomationsForCheckpoint]);
+
+  const insertAutomationLine = React.useCallback((command: string) => {
+    const trimmed = command.trim();
+    if (!trimmed) return;
+    setAutomationDraft((prev) => {
+      const lines = prev.split(/\r?\n/);
+      const alreadyPresent = lines.some((line) => line.trim() === trimmed);
+      if (alreadyPresent) return prev;
+      const base = prev.replace(/\s+$/u, "");
+      const nextText = base ? `${base}\n${trimmed}` : trimmed;
+      updateAutomationsForCheckpoint(nextText);
+      return nextText;
+    });
+  }, [updateAutomationsForCheckpoint]);
 
   const presetRoleKeys = React.useMemo(() => {
 
@@ -536,52 +722,59 @@ const CheckpointEditorPanel: React.FC<Props> = ({
             {activeTab === "notes" && (
               <>
                 <div className="space-y-2">
-                  <div className="font-medium">Author Notes & Preset Overrides</div>
-                  {/* Per-role Author's Notes based on configured roles */}
-                  {noteRoleKeys.length ? (
-                    <div className="space-y-3">
-                      <div className="text-xs text-slate-400">Define per-role author notes and optional delivery settings. Notes require text to enable additional controls.</div>
+                  <div className="font-medium">Author Notes</div>
+                  {!noteRoleKeys.length ? (
+                    <div className="text-xs text-slate-400">No story roles available for author notes.</div>
+                  ) : (
+                    <div className="space-y-4">
                       {noteRoleKeys.map((roleKey) => {
-                        const note = selectedCheckpoint.on_activate?.authors_note?.[roleKey] as AuthorNoteDraft | undefined;
-                        const textValue = note?.text ?? "";
-                        const hasNote = Boolean(textValue.trim().length);
-                        const missingInStory = !(draft.roles && Object.prototype.hasOwnProperty.call(draft.roles, roleKey));
+                        const roleName = draft.roles?.[roleKey];
+                        const note = selectedCheckpoint.on_activate?.authors_note?.[roleKey];
+                        const hasNote = Boolean(note?.text?.trim());
+                        const roleLabel = roleName ? `${roleName} (${roleKey})` : roleKey;
+
                         return (
-                          <div key={roleKey} className="space-y-2 rounded border border-slate-700 bg-slate-900/40 p-2">
+                          <div key={roleKey} className="rounded border border-slate-600 p-3 space-y-2">
                             <div className="flex items-center justify-between gap-2">
-                              <div className="text-xs font-semibold text-slate-200">
-                                {roleKey}
-                                {missingInStory ? (
-                                  <span className="ml-2 text-[11px] font-normal text-amber-300/90">Not in Story Roles</span>
-                                ) : null}
-                              </div>
+                              <div className="text-sm font-semibold text-slate-100">{roleLabel}</div>
                               <button
                                 type="button"
-                                className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-2.5 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:opacity-40 disabled:hover:bg-slate-800"
-                                disabled={!hasNote}
-                                onClick={() => removeAuthorNote(roleKey)}
+                                className="inline-flex items-center justify-center rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                onClick={() => {
+                                  updateCheckpoint(selectedCheckpoint.id, (cp) => {
+                                    const next = ensureOnActivate(cp.on_activate);
+                                    if (!next.authors_note) next.authors_note = {};
+                                    next.authors_note[roleKey] = {
+                                      text: note?.text ?? "",
+                                      position: note?.position,
+                                      interval: note?.interval,
+                                      depth: note?.depth,
+                                      role: note?.role,
+                                    };
+                                    return { ...cp, on_activate: cleanupOnActivate(next) };
+                                  });
+                                }}
                               >
-                                Clear Note
+                                {hasNote ? "Edit" : "Create"} Note
                               </button>
                             </div>
                             <label className="flex flex-col gap-1 text-xs text-slate-300">
                               <span>Author Note Text</span>
                               <textarea
-                                className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
                                 rows={3}
-                                value={textValue}
-                                placeholder="Describe tone, behavior, and guidance for this role..."
+                                value={note?.text ?? ""}
                                 onChange={(e) => {
-                                  const raw = e.target.value;
-                                  updateAuthorNote(roleKey, (prev) => {
-                                    if (!raw.trim()) return undefined;
-                                    const next: AuthorNoteDraft = { ...(prev ?? {}), text: raw };
-                                    return next;
-                                  });
+                                  const value = e.target.value;
+                                  updateAuthorNote(roleKey, () => ({
+                                    ...(note ?? { text: "" }),
+                                    text: value,
+                                  }));
                                 }}
+                                placeholder="Enter per-role Author’s Note or leave blank to inherit the story default."
                               />
                             </label>
-                            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                            <div className="grid grid-cols-4 gap-3">
                               <label className="flex flex-col gap-1 text-xs text-slate-300">
                                 <span>Position</span>
                                 <select
@@ -683,36 +876,50 @@ const CheckpointEditorPanel: React.FC<Props> = ({
                                 </select>
                               </label>
                             </div>
+                            <div className="flex justify-end">
+                              <button
+                                type="button"
+                                className="inline-flex items-center justify-center rounded border border-slate-700 bg-slate-800 px-3 py-1 text-xs text-red-300 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-red-500"
+                                onClick={() => {
+                                  updateAuthorNote(roleKey, () => ({ text: "" }));
+                                }}
+                              >
+                                Clear Note
+                              </button>
+                            </div>
                           </div>
                         );
                       })}
                     </div>
-                  ) : (
-                    <div className="rounded border border-slate-700 bg-slate-900/40 p-3 text-xs text-slate-400">
-                      Define story roles or add author notes in the JSON to configure per-role guidance.
-                    </div>
                   )}
-                  <div className="space-y-2">
-                    <div className="font-medium">Preset Overrides</div>
-                    {!presetRoleKeys.length ? (
-                      <div className="text-xs text-slate-400">Define story roles to configure preset overrides.</div>
-                    ) : (
-                      <div className="space-y-3">
-                        {presetRoleKeys.map((roleKey) => {
-                          const overridesForRole = selectedCheckpoint.on_activate?.preset_overrides?.[roleKey] ?? {};
-                          const draftValues = presetDrafts[roleKey] ?? {};
-                          const usedKeys = new Set(Object.keys(overridesForRole));
-                          const canAddMore = usedKeys.size < PRESET_SETTING_KEYS.length;
-                          const missingInStory = !(draft.roles && Object.prototype.hasOwnProperty.call(draft.roles, roleKey));
-                          return (
-                            <div key={roleKey} className="space-y-2 rounded border border-slate-700 bg-slate-900/40 p-2">
-                              <div className="flex items-center justify-between gap-2">
-                                <div className="text-xs font-semibold text-slate-200">
-                                  {roleKey}
-                                  {missingInStory ? (
-                                    <span className="ml-2 text-[11px] font-normal text-amber-300/90">Not in Story Roles</span>
-                                  ) : null}
-                                </div>
+                </div>
+              </>
+            )}
+
+            {activeTab === "presets" && (
+              <>
+                <div className="space-y-2">
+                  <div className="font-medium">Preset Overrides</div>
+                  {!presetRoleKeys.length ? (
+                    <div className="text-xs text-slate-400">Define story roles to configure preset overrides.</div>
+                  ) : (
+                    <div className="space-y-3">
+                      {presetRoleKeys.map((roleKey) => {
+                        const overridesForRole = selectedCheckpoint.on_activate?.preset_overrides?.[roleKey] ?? {};
+                        const draftValues = presetDrafts[roleKey] ?? {};
+                        const usedKeys = new Set(Object.keys(overridesForRole));
+                        const canAddMore = usedKeys.size < PRESET_SETTING_KEYS.length;
+                        const missingInStory = !(draft.roles && Object.prototype.hasOwnProperty.call(draft.roles, roleKey));
+                        return (
+                          <div key={roleKey} className="space-y-2 rounded border border-slate-700 bg-slate-900/40 p-2">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="text-xs font-semibold text-slate-200">
+                                {roleKey}
+                                {missingInStory ? (
+                                  <span className="ml-2 text-[11px] font-normal text-amber-300/90">Not in Story Roles</span>
+                                ) : null}
+                              </div>
+                              <div className="flex flex-wrap gap-1">
                                 <button
                                   type="button"
                                   className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-2.5 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:opacity-50 disabled:hover:bg-slate-800"
@@ -721,56 +928,68 @@ const CheckpointEditorPanel: React.FC<Props> = ({
                                 >
                                   + Add Override
                                 </button>
+                                {Object.keys(overridesForRole).length ? (
+                                  <button
+                                    type="button"
+                                    className="inline-flex items-center justify-center rounded border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs text-red-300 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-red-500"
+                                    onClick={() => {
+                                      const keys = Object.keys(overridesForRole);
+                                      keys.forEach((key) => removePresetOverride(roleKey, key));
+                                    }}
+                                  >
+                                    Clear Overrides
+                                  </button>
+                                ) : null}
                               </div>
-                              {Object.keys(overridesForRole).length ? (
-                                <div className="space-y-2">
-                                  {Object.entries(overridesForRole).map(([settingKey, value]) => {
-                                    const displayValue = draftValues[settingKey] ?? stringifyPresetValue(value);
-                                    return (
-                                      <div key={settingKey} className="grid grid-cols-[minmax(140px,0.45fr)_minmax(0,1fr)_auto] items-end gap-2">
-                                        <label className="flex flex-col gap-1 text-xs text-slate-300">
-                                          <span>Setting</span>
-                                          <select
-                                            className="w-full rounded border border-slate-700 bg-slate-800 mb-0 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                                            value={settingKey}
-                                            onChange={(e) => changePresetKey(roleKey, settingKey, e.target.value as PresetSettingKey)}
-                                          >
-                                            {PRESET_SETTING_KEYS.map((optionKey) => (
-                                              <option key={optionKey} value={optionKey} disabled={optionKey !== settingKey && usedKeys.has(optionKey)}>
-                                                {optionKey}
-                                              </option>
-                                            ))}
-                                          </select>
-                                        </label>
-                                        <label className="flex flex-col gap-1 text-xs text-slate-300">
-                                          <span>Value</span>
-                                          <input
-                                            className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                                            value={displayValue}
-                                            onChange={(e) => changePresetValue(roleKey, settingKey, e.target.value)}
-                                            placeholder="Override value..."
-                                          />
-                                        </label>
-                                        <button
-                                          type="button"
-                                          className="inline-flex h-[34px] items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 text-xs font-medium text-red-300/90 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                                          onClick={() => removePresetOverride(roleKey, settingKey)}
-                                        >
-                                          Remove
-                                        </button>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              ) : (
-                                <div className="text-xs text-slate-400">No overrides for this role.</div>
-                              )}
                             </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
+                            {Object.keys(overridesForRole).length ? (
+                              <div className="space-y-2">
+                                {Object.entries(overridesForRole).map(([settingKey, value]) => {
+                                  const displayValue = draftValues[settingKey] ?? stringifyPresetValue(value);
+                                  return (
+                                    <div key={settingKey} className="grid grid-cols-[minmax(140px,0.45fr)_minmax(0,1fr)_auto] items-end gap-2">
+                                      <label className="flex flex-col gap-1 text-xs text-slate-300">
+                                        <span>Setting</span>
+                                        <select
+                                          className="w-full rounded border border-slate-700 bg-slate-800 mb-0 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                          value={settingKey}
+                                          onChange={(e) => changePresetKey(roleKey, settingKey, e.target.value as PresetSettingKey)}
+                                        >
+                                          {PRESET_SETTING_KEYS.map((optionKey) => (
+                                            <option key={optionKey} value={optionKey} disabled={optionKey !== settingKey && usedKeys.has(optionKey)}>
+                                              {optionKey}
+                                            </option>
+                                          ))}
+                                        </select>
+                                      </label>
+                                      <label className="flex flex-col gap-1 text-xs text-slate-300">
+                                        <span>Value</span>
+                                        <input
+                                          className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                          value={displayValue}
+                                          onChange={(e) => changePresetValue(roleKey, settingKey, e.target.value)}
+                                          placeholder="Override value..."
+                                        />
+                                      </label>
+                                      <button
+                                        type="button"
+                                        className="inline-flex h-[34px] items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 text-xs font-medium text-red-300/90 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                                        onClick={() => removePresetOverride(roleKey, settingKey)}
+                                      >
+                                        Remove
+                                      </button>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            ) : (
+                              <div className="text-xs text-slate-400">No overrides for this role.</div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </>
             )}
@@ -807,6 +1026,107 @@ const CheckpointEditorPanel: React.FC<Props> = ({
                       }}
                     />
                   </label>
+                </div>
+              </>
+            )}
+
+            {activeTab === "automations" && (
+              <>
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="font-medium">Automations</div>
+                    <button
+                      type="button"
+                      className="inline-flex items-center justify-center rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                      onClick={refreshSlashCommands}
+                    >
+                      Reload Commands
+                    </button>
+                  </div>
+                  <label className="flex flex-col gap-1 text-xs text-slate-300">
+                    <span>Search Commands</span>
+                    <input
+                      className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                      value={commandSearch}
+                      onChange={(e) => setCommandSearch(e.target.value)}
+                      placeholder="Type to filter /command names..."
+                    />
+                  </label>
+                  {slashCommandError ? (
+                    <div className="text-xs text-red-300">{slashCommandError}</div>
+                  ) : (
+                    <>
+                      <div className="text-xs text-slate-400">
+                        Commands run when this checkpoint activates. Leading slash required; duplicates are ignored.
+                      </div>
+                      <div className="max-h-48 overflow-y-auto rounded border border-slate-700 bg-slate-900/40 divide-y divide-slate-800">
+                        {filteredCommands.length ? filteredCommands.map((cmd) => (
+                          <div key={cmd.name} className="p-2 space-y-1">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <div className="text-xs text-slate-200">
+                                <span className="font-medium">/{cmd.name}</span>
+                                {cmd.aliases.length ? (
+                                  <span className="ml-2 text-slate-400">
+                                    ({cmd.aliases.join(", ")})
+                                  </span>
+                                ) : null}
+                                {cmd.description ? (
+                                  <div className="text-[11px] text-slate-400 mt-0.5">{cmd.description}</div>
+                                ) : null}
+                              </div>
+                              <div className="flex flex-wrap gap-1">
+                                <button
+                                  type="button"
+                                  className="inline-flex items-center justify-center rounded border border-slate-700 bg-slate-800 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                  onClick={() => insertAutomationLine(`/${cmd.name}`)}
+                                >
+                                  Insert /{cmd.name}
+                                </button>
+                              </div>
+                            </div>
+                            {cmd.samples?.length ? (
+                              <div className="flex flex-wrap gap-1">
+                                {cmd.samples.slice(0, 4).map((sample) => (
+                                  <button
+                                    key={`${cmd.name}-${sample}`}
+                                    type="button"
+                                    className="inline-flex items-center justify-center rounded border border-slate-800 bg-slate-800/70 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-600"
+                                    onClick={() => insertAutomationLine(sample)}
+                                  >
+                                    {sample}
+                                  </button>
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
+                        )) : (
+                          <div className="p-2 text-xs text-slate-500">No commands match the current search.</div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                  <textarea
+                    className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                    rows={6}
+                    value={automationDraft}
+                    onChange={(e) => handleAutomationTextChange(e.target.value)}
+                    placeholder="/checkpoint next"
+                  />
+                  {automationValidation.length ? (
+                    <div className="space-y-1">
+                      {automationValidation.map((entry, idx) => (
+                        entry.status === "blank" ? null : (
+                          <div
+                            key={`${entry.line}-${idx}`}
+                            className={`text-xs ${entry.status === "ok" ? "text-emerald-300" : "text-red-300"}`}
+                          >
+                            {entry.status === "ok" ? "OK" : "Issue"}: {entry.trimmed}
+                            {entry.message ? `  E${entry.message}` : null}
+                          </div>
+                        )
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               </>
             )}

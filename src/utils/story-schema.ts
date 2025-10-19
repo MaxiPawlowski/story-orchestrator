@@ -60,6 +60,7 @@ export const OnActivateSchema = z.object({
   authors_note: AuthorsNoteSchema.optional(),
   preset_overrides: RolePresetOverridesSchema.optional(),
   world_info: WorldInfoActivationsSchema.optional(),
+  automations: z.array(z.string().min(1)).optional(),
 });
 
 export type OnActivate = z.infer<typeof OnActivateSchema>;

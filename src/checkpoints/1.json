@@ -37,6 +37,7 @@
             "guidance_scale": 1.1
           }
         },
+        "automations": ["/bg tavern day"],
         "world_info": {
           "activate": [
             "CP1 - Mission",
@@ -68,6 +69,7 @@
             "guidance_scale": 1.4
           }
         },
+        "automations": ["/bg sun_ruins2"],
         "authors_note": {
           "dm": {
             "text": "[{{story_role_dm}} escalates tension inside the ruins, challenging {{story_player_name}} and {{story_role_companion}} to work in sync. Highlight that every discovery may hide danger as they pursue {{story_active_checkpoint_objective}}.]"
@@ -103,6 +105,7 @@
             "guidance_scale": 1.2
           }
         },
+        "automations": ["/bg tavern day"],
         "world_info": {
           "activate": ["CP3 - Resolution"],
           "deactivate": ["CP2 - Challenge"]

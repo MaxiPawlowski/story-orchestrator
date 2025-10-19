@@ -34,6 +34,7 @@ export type CheckpointDraft = Omit<Checkpoint, "on_activate"> & {
     authors_note?: Partial<Record<Role, AuthorNoteDraft>>;
     world_info?: { activate: string[]; deactivate: string[] };
     preset_overrides?: RolePresetOverrides;
+    automations?: string[];
   };
 };
 
@@ -59,6 +60,7 @@ export type EnsuredOnActivate = {
   authors_note: Partial<Record<Role, AuthorNoteDraft>>;
   world_info: { activate: string[]; deactivate: string[] };
   preset_overrides?: RolePresetOverrides;
+  automations: string[];
 };
 
 export const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
@@ -68,11 +70,17 @@ export const regexToString = (re: RegExp): string => `/${re.source}/${re.flags}`
 export const sanitizeList = (values: string[] | undefined): string[] =>
   (values ?? []).map((entry) => entry.trim()).filter(Boolean);
 
-export const splitLines = (value: string): string[] =>
-  value
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean);
+export const splitLines = (value: string): string[] => {
+  // Preserve user spacing while stripping out lines that are entirely whitespace.
+  const lines = value.split(/\r?\n/);
+  const result: string[] = [];
+  for (const line of lines) {
+    if (!line) continue;
+    if (!line.trim()) continue;
+    result.push(line);
+  }
+  return result;
+};
 
 export const splitCsv = (value: string): string[] =>
   value
@@ -160,10 +168,12 @@ const normalizedOnActivateToDraft = (value: NormalizedOnActivate | undefined): C
     }
     : undefined;
   const preset = value.preset_overrides ? clone(value.preset_overrides) : undefined;
+  const automations = value.automations ? [...value.automations] : undefined;
   return {
     authors_note: authors,
     world_info: worldInfo,
     preset_overrides: preset,
+    automations,
   };
 };
 
@@ -225,6 +235,7 @@ export const ensureOnActivate = (value: CheckpointDraft["on_activate"] | undefin
     deactivate: [...(value?.world_info?.deactivate ?? [])],
   },
   preset_overrides: value?.preset_overrides ? clone(value.preset_overrides) : undefined,
+  automations: [...(value?.automations ?? [])],
 });
 
 export const cleanupOnActivate = (
@@ -238,11 +249,24 @@ export const cleanupOnActivate = (
   const preset = value.preset_overrides && Object.keys(value.preset_overrides).length
     ? value.preset_overrides
     : undefined;
-  if (!authors && !worldInfo && !preset) return undefined;
+  const automationsSource = Array.isArray(value.automations) ? value.automations : [];
+  const seen = new Set<string>();
+  const automations: string[] = [];
+  for (const entry of automationsSource) {
+    if (typeof entry !== "string") continue;
+    if (!entry.trim()) continue;
+    const dedupeKey = entry.trim();
+    if (seen.has(dedupeKey)) continue;
+    seen.add(dedupeKey);
+    automations.push(entry);
+  }
+  const automationList = automations.length ? automations : undefined;
+  if (!authors && !worldInfo && !preset && !automationList) return undefined;
   return {
     authors_note: authors,
     world_info: worldInfo,
     preset_overrides: preset,
+    automations: automationList,
   };
 };
 
@@ -273,11 +297,13 @@ const draftOnActivateToSchema = (
   const preset_overrides = draft.preset_overrides && Object.keys(draft.preset_overrides).length
     ? draft.preset_overrides
     : undefined;
-  if (!authors_note && !world_info && !preset_overrides) return undefined;
+  const automations = draft.automations ? Array.from(new Set(sanitizeList(draft.automations))) : undefined;
+  if (!authors_note && !world_info && !preset_overrides && !automations) return undefined;
   return {
     ...(authors_note ? { authors_note } : {}),
     ...(world_info ? { world_info } : {}),
     ...(preset_overrides ? { preset_overrides } : {}),
+    ...(automations ? { automations } : {}),
   };
 };
 

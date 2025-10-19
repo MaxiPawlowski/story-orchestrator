@@ -17,6 +17,7 @@ import {
   enableWIEntry,
   disableWIEntry,
   getContext,
+  executeSlashCommands,
 } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
 import {
@@ -593,6 +594,33 @@ class StoryOrchestrator {
     }
   }
 
+  private async applyAutomationsForCheckpoint(cp: NormalizedCheckpoint | undefined, metadata?: { index: number; reason: string }) {
+    if (!cp) return;
+    if (metadata?.reason === "hydrate") return;
+
+    const automations = cp.onActivate?.automations;
+    if (!Array.isArray(automations) || !automations.length) return;
+
+    const commands = automations.map((cmd) => (typeof cmd === "string" ? cmd.trim() : "")).filter(Boolean);
+    if (!commands.length) return;
+
+    console.log("[StoryOrch] automations run", {
+      cp: cp.name,
+      index: metadata?.index,
+      reason: metadata?.reason,
+      commands,
+    });
+
+    try {
+      const ok = await executeSlashCommands(commands, { silent: true, delayMs: 150 });
+      if (!ok) {
+        console.warn("[StoryOrch] automations reported failure", { cp: cp.name, commands });
+      }
+    } catch (err) {
+      console.warn("[StoryOrch] automations failed", { cp: cp.name, err });
+    }
+  }
+
 
   private handleChatChanged({ reason, force = false }: { reason: string; force?: boolean }) {
     let chatId: string | null = null;
@@ -761,6 +789,7 @@ class StoryOrchestrator {
       reason: logReason,
     });
     this.applyWorldInfoForCheckpoint(cp, { index: sanitized.checkpointIndex, reason: logReason });
+    void this.applyAutomationsForCheckpoint(cp, { index: sanitized.checkpointIndex, reason: logReason });
     if (opts.reason) this.emitActivate(sanitized.checkpointIndex);
   }
 

@@ -255,10 +255,10 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
         const transcript = snapshot(this.options?.snapshotLimit);
         const chatExcerpt = buildChatExcerpt(job.request, transcript);
         updateStoryMacroSnapshot({ chatExcerpt });
+
         const promptTemplate = this.options?.promptTemplate;
         const prompt = buildEvalPrompt(job.request, promptTemplate);
-        console.log("[Story - CheckpointArbiter] prompt", { reason: job.request.reason, cp: job.request.cpName, turn: job.request.turn });
-
+        console.log("[Story - CheckpointArbiter] prompt", { reason: job.request.reason, cp: job.request.cpName, turn: job.request.turn, prompt });
         let raw = "";
         try {
           raw = await generateQuietPrompt({
