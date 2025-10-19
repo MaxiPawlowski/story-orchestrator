@@ -31,6 +31,15 @@ const getActiveCheckpoint = () => {
 
 let registered = false;
 
+const dynamicSnapshot = {
+  storyDescription: "",
+  currentCheckpoint: "",
+  pastCheckpoints: "",
+  possibleTriggers: "",
+  storyTitle: "",
+  chatExcerpt: "",
+};
+
 const registerMacro = (key: string, resolver: (nonce?: string) => string, description?: string) => {
   try {
     if (!MacrosParser || typeof MacrosParser.registerMacro !== "function") return;
@@ -48,9 +57,15 @@ export const ensureStoryMacros = () => {
   if (!MacrosParser) return;
 
   registerMacro("story_active_title", () => getState().story?.title ?? "", "Active story title");
+  registerMacro("story_title", () => dynamicSnapshot.storyTitle || (getState().story?.title ?? ""), "Story title (prompt safe)");
+  registerMacro("story_description", () => dynamicSnapshot.storyDescription, "Story description for arbiter prompts");
   registerMacro("story_active_checkpoint_id", () => getActiveCheckpoint()?.id ?? "", "Current checkpoint id");
   registerMacro("story_active_checkpoint_name", () => getActiveCheckpoint()?.name ?? "", "Current checkpoint name");
   registerMacro("story_active_checkpoint_objective", () => getActiveCheckpoint()?.objective ?? "", "Current checkpoint objective");
+  registerMacro("story_current_checkpoint", () => dynamicSnapshot.currentCheckpoint, "Formatted current checkpoint summary");
+  registerMacro("story_past_checkpoints", () => dynamicSnapshot.pastCheckpoints, "Past checkpoint summary (most recent first)");
+  registerMacro("story_possible_triggers", () => dynamicSnapshot.possibleTriggers, "Formatted list of transition candidates");
+  registerMacro("chat_excerpt", () => dynamicSnapshot.chatExcerpt, "Recent conversation excerpt for arbiter prompts");
   registerMacro("story_turn", () => String(getState().turn ?? 0), "Current turn count");
   registerMacro("story_turns_since_eval", () => String(getState().runtime?.turnsSinceEval ?? 0), "Turns since last arbiter evaluation");
   registerMacro("story_checkpoint_turns", () => String(getState().runtime?.checkpointTurnCount ?? 0), "Turns spent in the active checkpoint");
@@ -75,4 +90,35 @@ export const refreshRoleMacros = () => {
   registeredRoles.forEach((role) => {
     registerMacro(macroKey(role), () => getRoleName(role), `Story role name for ${role}`);
   });
+};
+
+const assignDynamicValue = (key: keyof typeof dynamicSnapshot, value: unknown) => {
+  if (value === undefined) return;
+  dynamicSnapshot[key] = sanitize(value);
+};
+
+export const updateStoryMacroSnapshot = (next: {
+  storyDescription?: string;
+  currentCheckpoint?: string;
+  pastCheckpoints?: string;
+  possibleTriggers?: string;
+  storyTitle?: string;
+  chatExcerpt?: string;
+}) => {
+  if (!next) return;
+  assignDynamicValue("storyDescription", next.storyDescription);
+  assignDynamicValue("currentCheckpoint", next.currentCheckpoint);
+  assignDynamicValue("pastCheckpoints", next.pastCheckpoints);
+  assignDynamicValue("possibleTriggers", next.possibleTriggers);
+  assignDynamicValue("storyTitle", next.storyTitle);
+  assignDynamicValue("chatExcerpt", next.chatExcerpt);
+};
+
+export const resetStoryMacroSnapshot = () => {
+  dynamicSnapshot.storyDescription = "";
+  dynamicSnapshot.currentCheckpoint = "";
+  dynamicSnapshot.pastCheckpoints = "";
+  dynamicSnapshot.possibleTriggers = "";
+  dynamicSnapshot.storyTitle = "";
+  dynamicSnapshot.chatExcerpt = "";
 };

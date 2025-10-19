@@ -86,7 +86,6 @@ export interface NormalizedStory {
   startId: string;
   roleDefaults?: RolePresetOverrides;
   authorNoteDefaults: NormalizedAuthorNoteSettings;
-  onStart?: NormalizedOnActivate;
 }
 
 export interface NormalizeOptions {
@@ -458,7 +457,6 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
     startId: startCheckpoint.id,
     roleDefaults: normalizePresetOverrides(story.role_defaults as RolePresetOverrides | undefined),
     authorNoteDefaults,
-    onStart: normalizeOnActivateBlock(story.on_start, authorNoteDefaults),
   };
 }
 

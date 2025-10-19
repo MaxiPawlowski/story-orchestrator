@@ -1,5 +1,6 @@
 import { clampText } from "../utils/story-state";
 import { chat, generateQuietPrompt } from "@services/SillyTavernAPI";
+import { updateStoryMacroSnapshot } from "./storyMacros";
 import {
   ARBITER_SNAPSHOT_LIMIT,
   ARBITER_RESPONSE_LENGTH,
@@ -14,7 +15,7 @@ export type ArbiterReason = "trigger" | "timed" | "interval" | "manual";
 
 export interface ArbiterTransitionOption {
   id: string;
-  condition: string;
+  condition?: string;
   label?: string;
   description?: string;
   targetName?: string;
@@ -31,12 +32,14 @@ export interface CheckpointEvalRequest {
   turn: number;
   intervalTurns: number;
   candidates: ArbiterTransitionOption[];
+  reviewContext?: string;
 }
 
 export type EvaluationOutcome = "advance" | "continue";
 
 export interface ModelEval {
   advance: boolean;
+  decision?: "transition" | "continue";
   nextTransitionId?: string | null;
   reason?: string;
   confidence?: number;
@@ -95,74 +98,46 @@ function buildReasonLine(reason: ArbiterReason, matched: string | undefined, int
   }
 }
 
-function formatTransitionOption(option: ArbiterTransitionOption, idx: number): string {
-  const pieces: string[] = [];
-  const header = `${idx + 1}. [${option.id}] ${option.condition}`;
-  pieces.push(header.trim());
-
-  const meta: string[] = [];
-  if (option.label) meta.push(option.label);
-  if (option.targetName) meta.push(`Next: ${option.targetName}`);
-  if (meta.length) {
-    pieces.push(`   ${meta.join(" | ")}`);
+function buildChatExcerpt(request: CheckpointEvalRequest, transcript: string): string {
+  const {
+    reason,
+    matched,
+    turn,
+    latestText,
+    intervalTurns,
+    reviewContext,
+  } = request;
+  const excerptLines: string[] = [
+    `Turn Index: ${turn}`,
+    `Reason: ${buildReasonLine(reason, matched, intervalTurns)}`,
+  ];
+  if (reviewContext) {
+    excerptLines.push(reviewContext);
   }
-
-  if (option.description) {
-    pieces.push(`   ${option.description}`);
+  excerptLines.push("", "Latest player message:", clampText(latestText, ARBITER_CHAT_MESSAGE_CLAMP));
+  if (transcript) {
+    excerptLines.push("", transcript);
   }
-
-  const triggerInfo: string[] = [];
-  if (option.triggerLabel) triggerInfo.push(option.triggerLabel);
-  if (option.triggerPattern) triggerInfo.push(`Pattern: ${option.triggerPattern}`);
-  if (triggerInfo.length) {
-    pieces.push(`   ${triggerInfo.join(" | ")}`);
-  }
-
-  return pieces.join("\n");
+  return excerptLines.join("\n");
 }
 
-function buildTransitionsSection(options: ArbiterTransitionOption[]): string {
-  if (!options || !options.length) return "";
-  const lines: string[] = ["Evaluate the candidate transitions below. Select at most one to advance."];
-  options.forEach((opt, idx) => {
-    lines.push(formatTransitionOption(opt, idx));
-  });
-  lines.push('If none should advance, respond with {"advance": false}.');
-  return lines.join("\n");
-}
-
-function buildEvalPrompt(request: CheckpointEvalRequest, transcript: string, promptTemplate: string) {
-  const { cpName, checkpointObjective, reason, matched, turn, latestText, intervalTurns, candidates } = request;
-  const transitionSection = buildTransitionsSection(candidates);
+function buildEvalPrompt(_request: CheckpointEvalRequest, promptTemplate: string) {
   const header = promptTemplate.replace(/\r/g, "").trim();
-  const headerLines = header.split(/\n/).map((line) => line.trim()).filter((line) => Boolean(line));
-  const lines: string[] = [
-    ...headerLines,
-    `Checkpoint: ${cpName}`,
-    ...(checkpointObjective ? [`Objective: ${checkpointObjective}`] : []),
-    `Reason for review: ${buildReasonLine(reason, matched, intervalTurns)}`,
-    `Turn index: ${turn}`,
+  const promptLines: string[] = [
+    header,
     "",
-    "Latest player message:",
-    clampText(latestText, ARBITER_CHAT_MESSAGE_CLAMP),
+    "=== Output Format (JSON ONLY) ===",
+    "Return ONLY a JSON object with this exact schema (no code fences, no extra text):",
+    "",
+    "{",
+    '  "decision": "transition" | "continue",',
+    '  "selected_transition_id": "STRING or null",',
+    '  "reason": "SHORT FACTUAL EXPLANATION",',
+    '  "confidence": 0.0 to 1.0',
+    "}"
   ];
 
-  if (transcript) {
-    lines.push("", "Recent conversation (most recent first):", transcript);
-  }
-
-  if (transitionSection) {
-    lines.push("", transitionSection);
-  }
-
-  lines.push(
-    "",
-    "Respond with concise JSON only, using the shape:",
-    '{"advance": boolean, "next_transition": string | null, "confidence": number?}',
-    'If no transition should advance, send {"advance": false, "next_transition": null}.',
-  );
-
-  return lines.join("\n");
+  return promptLines.join("\n");
 }
 
 function parseModel(raw: string): ModelEval | null {
@@ -171,15 +146,29 @@ function parseModel(raw: string): ModelEval | null {
   if (!jsonMatch) return null;
   try {
     const obj = JSON.parse(jsonMatch[0]);
-    const advance: boolean | undefined =
-      typeof obj.advance === "boolean"
-        ? obj.advance
-        : typeof obj.completed === "boolean"
-          ? obj.completed
-          : undefined;
+    const normalizeDecision = (value: unknown): "transition" | "continue" | undefined => {
+      if (typeof value !== "string") return undefined;
+      const normalized = value.trim().toLowerCase();
+      if (["transition", "advance", "win", "advance_checkpoint"].includes(normalized)) return "transition";
+      if (["continue", "none", "stay", "hold"].includes(normalized)) return "continue";
+      return undefined;
+    };
+
+    const decision = normalizeDecision(obj.decision ?? obj.choice ?? obj.outcome);
+    let advance: boolean | undefined;
+
+    if (decision) {
+      advance = decision === "transition";
+    } else if (typeof obj.advance === "boolean") {
+      advance = obj.advance;
+    } else if (typeof obj.completed === "boolean") {
+      advance = obj.completed;
+    }
+
     if (advance === undefined) return null;
 
     const next =
+      obj.selected_transition_id ??
       obj.next_transition ??
       obj.nextTransition ??
       obj.next_edge ??
@@ -197,6 +186,7 @@ function parseModel(raw: string): ModelEval | null {
 
     return {
       advance,
+      decision,
       nextTransitionId: next === null || next === undefined ? null : String(next),
       confidence,
       reason,
@@ -230,7 +220,7 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
     };
     if (typeof merged.promptTemplate === "string") {
       const normalized = merged.promptTemplate.replace(/\r/g, "").trim();
-      merged.promptTemplate = normalized.slice(0, merged.responseLength)
+      merged.promptTemplate = normalized.slice(0, ARBITER_PROMPT_MAX_LENGTH);
     } else {
       merged.promptTemplate = this.options.promptTemplate;
     }
@@ -263,8 +253,10 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
       while (!this.disposed && this.queue.length) {
         const job = this.queue.shift()!;
         const transcript = snapshot(this.options?.snapshotLimit);
+        const chatExcerpt = buildChatExcerpt(job.request, transcript);
+        updateStoryMacroSnapshot({ chatExcerpt });
         const promptTemplate = this.options?.promptTemplate;
-        const prompt = buildEvalPrompt(job.request, transcript, promptTemplate);
+        const prompt = buildEvalPrompt(job.request, promptTemplate);
         console.log("[Story - CheckpointArbiter] prompt", { reason: job.request.reason, cp: job.request.cpName, turn: job.request.turn });
 
         let raw = "";

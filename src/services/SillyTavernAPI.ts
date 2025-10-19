@@ -165,44 +165,85 @@ export async function clearCharacterAN() {
   await runSlash(`/note-frequency ${AUTHOR_NOTE_DISABLED_FREQUENCY}`);
 }
 
-export async function enableWIEntry(lorebook: string, comment: string) {
-  if (!lorebook || !comment) return false;
+export async function enableWIEntry(lorebook: string, comments: string | string[]) {
+  if (!lorebook) return false;
+  const commentList = (Array.isArray(comments) ? comments : [comments])
+    .map((comment) => (typeof comment === "string" ? comment.trim() : ""))
+    .filter(Boolean);
+  if (!commentList.length) return false;
   const { loadWorldInfo } = getContext();
   const { entries }: Lorebook = await loadWorldInfo(lorebook);
   const entriesArray = Object.values(entries);
-  const found = entriesArray.find(e => typeof e?.comment === "string" && e.comment.trim() === comment.trim());
-  console.log("[Story WI] enabling WI entry", { lorebook, comment, entries, e: await loadWorldInfo(lorebook) });
-  if (!found) {
-    console.warn("[Story WI] no matching world info entry found", { lorebook, comment });
-    return false;
+  const matched: Array<{ comment: string; uid: number }> = [];
+
+  for (const comment of commentList) {
+    const found = entriesArray.find((e) => typeof e?.comment === "string" && e.comment.trim() === comment);
+    if (!found) {
+      console.warn("[Story WI] no matching world info entry found", { lorebook, comment });
+      continue;
+    }
+    matched.push({ comment, uid: found.uid });
   }
-  console.log("[Story WI] enabling world info entry", { lorebook, comment, uid: found.uid });
-  const ok = await runSlash(`/setentryfield file=${quoteArg(lorebook)} uid=${found.uid} field=disable 0`, false);
-  if (!ok) {
-    console.warn("[Story WI] failed to enable world info entry", { lorebook, comment, uid: found.uid });
+
+  if (!matched.length) {
     return false;
   }
 
-  return true;
+  console.log("[Story WI] enabling world info entries", { lorebook, entries: matched });
+  let allOk = true;
+  for (let i = 0; i < matched.length; i++) {
+    const entry = matched[i];
+    const ok = await runSlash(`/setentryfield file=${quoteArg(lorebook)} uid=${entry.uid} field=disable 0`, false);
+    if (!ok) {
+      console.warn("[Story WI] failed to enable world info entry", { lorebook, comment: entry.comment, uid: entry.uid });
+      allOk = false;
+    }
+    if (i < matched.length - 1) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+  }
+
+  return allOk;
 }
 
-export async function disableWIEntry(lorebook: string, comment: string) {
-  if (!lorebook || !comment) return false;
+export async function disableWIEntry(lorebook: string, comments: string | string[]) {
+  if (!lorebook) return false;
+  const commentList = (Array.isArray(comments) ? comments : [comments])
+    .map((comment) => (typeof comment === "string" ? comment.trim() : ""))
+    .filter(Boolean);
+  if (!commentList.length) return false;
   const { loadWorldInfo } = getContext();
   const { entries }: Lorebook = await loadWorldInfo(lorebook);
   const entriesArray = Object.values(entries);
-  const found = entriesArray.find(e => typeof e?.comment === "string" && e.comment.trim() === comment.trim());
-  if (!found) {
-    console.warn("[Story WI] no matching world info entry found", { lorebook, comment });
+  const matched: Array<{ comment: string; uid: number }> = [];
+
+  for (const comment of commentList) {
+    const found = entriesArray.find((e) => typeof e?.comment === "string" && e.comment.trim() === comment);
+    if (!found) {
+      console.warn("[Story WI] no matching world info entry found", { lorebook, comment });
+      continue;
+    }
+    matched.push({ comment, uid: found.uid });
+  }
+
+  if (!matched.length) {
     return false;
   }
-  console.log("[Story WI] disabling world info entry", { lorebook, comment, uid: found.uid });
-  const ok = await runSlash(`/setentryfield file=${quoteArg(lorebook)} uid=${found.uid} field=disable 1`, false);
-  if (!ok) {
-    console.warn("[Story WI] failed to disable world info entry", { lorebook, comment, uid: found.uid });
-    return false;
+
+  console.log("[Story WI] disabling world info entries", { lorebook, entries: matched });
+  let allOk = true;
+  for (let i = 0; i < matched.length; i++) {
+    const entry = matched[i];
+    const ok = await runSlash(`/setentryfield file=${quoteArg(lorebook)} uid=${entry.uid} field=disable 1`, false);
+    if (!ok) {
+      console.warn("[Story WI] failed to disable world info entry", { lorebook, comment: entry.comment, uid: entry.uid });
+      allOk = false;
+    }
+    if (i < matched.length - 1) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
   }
-  return true;
+  return allOk;
 }
 
 

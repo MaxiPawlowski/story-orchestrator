@@ -75,7 +75,8 @@ const SettingsWrapper = () => {
 
     selectLibraryEntry(nextKey);
   }, [libraryEntries, selectLibraryEntry, selectedLibraryKey]);
-  console.log("[Story settings] Render", { arbiterPrompt, arbiterFrequency, isPromptDefault, isOpen });
+
+
   return (
     <div id="stepthink_settings">
       <div className="inline-drawer">

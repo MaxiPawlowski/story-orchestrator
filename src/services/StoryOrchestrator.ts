@@ -24,8 +24,9 @@ import {
   sanitizeTurnsSinceEval,
   clampText,
   type RuntimeStoryState,
-  type CheckpointStatus,
+  CheckpointStatus,
   computeStatusMapForIndex,
+  deriveCheckpointStatuses,
   evaluateTransitionTriggers,
   type TransitionTriggerMatch,
 } from "@utils/story-state";
@@ -35,9 +36,11 @@ import { registerStoryExtensionCommands } from "@utils/slashCommands";
 import {
   ARBITER_RESPONSE_LENGTH,
   ARBITER_SNAPSHOT_LIMIT,
+  ARBITER_PROMPT_MAX_LENGTH,
   STORY_ORCHESTRATOR_LOG_SAMPLE_LIMIT,
 } from "@constants/defaults";
 import type { ArbiterFrequency, ArbiterPrompt } from "@utils/arbiter";
+import { updateStoryMacroSnapshot, resetStoryMacroSnapshot } from "@services/storyMacros";
 
 interface TransitionSelection {
   id: string;
@@ -61,6 +64,14 @@ interface EvaluatedEvent {
 
 export type StoryTransitionSelection = TransitionSelection;
 export type StoryEvaluationEvent = EvaluatedEvent;
+
+interface StoryPromptContextSnapshot {
+  storyTitle: string;
+  storyDescription: string;
+  currentCheckpointSummary: string;
+  pastCheckpointsSummary: string;
+  transitionSummary: string;
+}
 
 class StoryOrchestrator {
   private story: NormalizedStory;
@@ -167,12 +178,10 @@ class StoryOrchestrator {
         const match = matchById.get(edge.id);
         const target = this.story.checkpointById.get(edge.to);
         const trigger = match?.trigger ?? edge.trigger;
+        const triggerLabel = trigger.raw?.label ?? trigger.raw?.id ?? trigger.label;
+
         const pattern = match?.pattern
           ?? (trigger.regexes?.[0] ? trigger.regexes[0].toString() : undefined);
-        const triggerLabel = trigger.raw?.label
-          ?? trigger.raw?.id
-          ?? trigger.label;
-
         return {
           id: edge.id,
           condition: trigger.condition ?? "",
@@ -186,15 +195,15 @@ class StoryOrchestrator {
   }
 
   private resolveTransitionSelection(nextTransitionId: string | null | undefined, matches: TransitionTriggerMatch[]): TransitionSelection | undefined {
-    const regexTransitions = this.activeTransitions.filter((edge) => edge.trigger.type === "regex");
-    if (!regexTransitions.length) return undefined;
+    const transitions = this.activeTransitions ?? [];
+    if (!transitions.length) return undefined;
 
     let chosen: NormalizedTransition | undefined;
     let matched: TransitionTriggerMatch | undefined;
 
     if (nextTransitionId) {
       matched = matches.find((entry) => entry.transition.id === nextTransitionId);
-      chosen = matched?.transition ?? regexTransitions.find((edge) => edge.id === nextTransitionId);
+      chosen = matched?.transition ?? transitions.find((edge) => edge.id === nextTransitionId);
     }
 
     if (!chosen && matches.length) {
@@ -202,8 +211,8 @@ class StoryOrchestrator {
       chosen = matched.transition;
     }
 
-    if (!chosen && regexTransitions.length === 1) {
-      chosen = regexTransitions[0];
+    if (!chosen && transitions.length === 1) {
+      chosen = transitions[0];
     }
 
     if (!chosen) return undefined;
@@ -212,6 +221,118 @@ class StoryOrchestrator {
     }
 
     return this.toTransitionSelection(chosen, matched);
+  }
+
+  private summarizeTransitions(options: ArbiterTransitionOption[]): string {
+    if (!options || !options.length) {
+      return "No transition candidates are currently available.";
+    }
+    const lines: string[] = ["Evaluate the candidate transitions below. Select at most one to advance."];
+    options.forEach((option, idx) => {
+      const segments: string[] = [];
+      const headerParts: string[] = [];
+      if (option.label) headerParts.push(option.label);
+      if (option.targetName) headerParts.push(`Next: ${option.targetName}`);
+      const headerSuffix = headerParts.length ? ` ${headerParts.join(" | ")}` : "";
+      segments.push(`${idx + 1}. [${option.id}]${headerSuffix}`.trim());
+      if (option.description) segments.push(`   ${option.description}`);
+      if (option.condition) segments.push(`   Condition: ${option.condition}`);
+      const triggerMeta: string[] = [];
+      if (option.triggerLabel) triggerMeta.push(option.triggerLabel);
+      if (option.triggerPattern) triggerMeta.push(`Pattern: ${option.triggerPattern}`);
+      if (triggerMeta.length) segments.push(`   ${triggerMeta.join(" | ")}`);
+      lines.push(segments.join("\n"));
+    });
+    lines.push('If none should advance, respond with {"decision": "continue"} and null transition.');
+    return this.clampSummary(lines.join("\n"));
+  }
+
+  private clampSummary(input: string): string {
+    if (!input) return "";
+    if (input.length <= ARBITER_PROMPT_MAX_LENGTH) return input;
+    const limit = Math.max(0, ARBITER_PROMPT_MAX_LENGTH - 3);
+    return `${input.slice(0, limit)}...`;
+  }
+
+  private formatStatusLabel(status: CheckpointStatus): string {
+    switch (status) {
+      case CheckpointStatus.Complete:
+        return "Complete";
+      case CheckpointStatus.Failed:
+        return "Failed";
+      case CheckpointStatus.Current:
+        return "Current";
+      case CheckpointStatus.Pending:
+      default:
+        return "Pending";
+    }
+  }
+
+  private buildStoryDescription(): string {
+    const story = this.story;
+    if (!story) return "";
+    const lines: string[] = [];
+    if (story.title) lines.push(`Title: ${story.title}`);
+    if (story.global_lorebook) lines.push(`Lorebook: ${story.global_lorebook}`);
+    const rawDescription = (story as unknown as { description?: string })?.description;
+    if (typeof rawDescription === "string" && rawDescription.trim()) {
+      lines.push(rawDescription.trim());
+    }
+    return this.clampSummary(lines.join("\n"));
+  }
+
+  private buildCurrentCheckpointSummary(cp?: NormalizedCheckpoint): string {
+    if (!cp) return "";
+    const lines: string[] = [`Name: ${cp.name}`];
+    if (cp.objective) lines.push(`Objective: ${cp.objective}`);
+    return this.clampSummary(lines.join("\n"));
+  }
+
+  private buildPastCheckpointsSummary(statuses: CheckpointStatus[], currentIndex: number): string {
+    if (!statuses.length || currentIndex <= 0) {
+      return "None completed yet.";
+    }
+
+    const checkpoints = this.story.checkpoints ?? [];
+    const summaryLines: string[] = [];
+    for (let i = currentIndex - 1; i >= 0; i -= 1) {
+      const cp = checkpoints[i];
+      if (!cp) continue;
+      const status = statuses[i];
+      if (status !== CheckpointStatus.Complete && status !== CheckpointStatus.Failed) continue;
+      summaryLines.push(`- [${this.formatStatusLabel(status)}] ${cp.name} — ${cp.objective}`);
+    }
+
+    if (!summaryLines.length) {
+      return "None completed yet.";
+    }
+
+    return this.clampSummary(summaryLines.join("\n"));
+  }
+
+  private buildPromptContext(runtime: RuntimeStoryState, candidates?: ArbiterTransitionOption[]): StoryPromptContextSnapshot {
+    const checkpointIndex = clampCheckpointIndex(runtime.checkpointIndex, this.story);
+    const checkpoint = this.story.checkpoints[checkpointIndex];
+    const statuses = deriveCheckpointStatuses(this.story, runtime);
+    const transitionOptions = candidates && candidates.length ? candidates : this.buildArbiterOptions([]);
+
+    return {
+      storyTitle: this.story.title ?? "",
+      storyDescription: this.buildStoryDescription(),
+      currentCheckpointSummary: this.buildCurrentCheckpointSummary(checkpoint),
+      pastCheckpointsSummary: this.buildPastCheckpointsSummary(statuses, checkpointIndex),
+      transitionSummary: this.summarizeTransitions(transitionOptions),
+    };
+  }
+
+  private updateStoryMacrosFromContext(context: StoryPromptContextSnapshot) {
+    updateStoryMacroSnapshot({
+      storyDescription: context.storyDescription,
+      currentCheckpoint: context.currentCheckpointSummary,
+      pastCheckpoints: context.pastCheckpointsSummary,
+      possibleTriggers: context.transitionSummary,
+      storyTitle: context.storyTitle,
+    });
   }
 
   private findTriggeredTimedTransition(turnCount: number): TransitionTriggerMatch | undefined {
@@ -388,6 +509,8 @@ class StoryOrchestrator {
     }, { persist: true });
     this.onTurnTick?.({ turn: nextTurn, sinceEval: updatedRuntime.turnsSinceEval });
 
+    if (!this.activeTransitions.length) return;
+
     const timedMatch = this.findTriggeredTimedTransition(updatedRuntime.checkpointTurnCount ?? 0);
     if (timedMatch) {
       const selection = this.toTransitionSelection(timedMatch.transition, timedMatch);
@@ -411,13 +534,14 @@ class StoryOrchestrator {
     const regexTransitions = this.activeTransitions.filter((edge) => edge.trigger.type === "regex");
     if (!regexTransitions.length) return;
 
-    const matches = evaluateTransitionTriggers({
+    const regexMatches = evaluateTransitionTriggers({
       text,
       transitions: regexTransitions,
       turnsSinceEval: updatedRuntime.turnsSinceEval,
     });
-    if (matches.length) {
-      this.enqueueEval("trigger", text, matches);
+
+    if (regexMatches.length) {
+      this.enqueueEval("trigger", text, regexMatches);
     } else if (updatedRuntime.turnsSinceEval >= this.intervalTurns) {
       this.enqueueEval("interval", text, []);
     }
@@ -457,11 +581,15 @@ class StoryOrchestrator {
       deactivate: worldInfo.deactivate,
     });
 
-    for (const comment of worldInfo.activate) {
-      await enableWIEntry(lorebook, comment);
+    const activateList = Array.isArray(worldInfo.activate) ? worldInfo.activate : [];
+    const deactivateList = Array.isArray(worldInfo.deactivate) ? worldInfo.deactivate : [];
+
+    if (activateList.length) {
+      await enableWIEntry(lorebook, activateList);
     }
-    for (const comment of worldInfo.deactivate) {
-      await disableWIEntry(lorebook, comment);
+
+    if (deactivateList.length) {
+      await disableWIEntry(lorebook, deactivateList);
     }
   }
 
@@ -592,6 +720,13 @@ class StoryOrchestrator {
         checkpointStatusMap: { ...prevRuntime.checkpointStatusMap },
       };
       const sanitized = applyRuntime(emptyRuntime, turn);
+      this.updateStoryMacrosFromContext({
+        storyTitle: this.story.title ?? "",
+        storyDescription: this.buildStoryDescription(),
+        currentCheckpointSummary: "",
+        pastCheckpointsSummary: "",
+        transitionSummary: "No transition candidates are currently available.",
+      });
       if (opts.reason) this.emitActivate(sanitized.checkpointIndex);
       return;
     }
@@ -614,6 +749,8 @@ class StoryOrchestrator {
       checkpointStatusMap: statusMap,
     };
     const sanitized = applyRuntime(runtimePayload, turn);
+    const contextSnapshot = this.buildPromptContext(sanitized, this.buildArbiterOptions([]));
+    this.updateStoryMacrosFromContext(contextSnapshot);
 
     const logReason = opts.reason ?? (persistRequested ? "activate" : "hydrate");
     console.log("[StoryOrch] activate", {
@@ -639,9 +776,13 @@ class StoryOrchestrator {
     const matchedSummary = matches.map((entry) => `${entry.transition.id}:${entry.pattern}`).join(", ");
     console.log("[StoryOrch] eval-queued", { reason, turn: turnSnapshot, matched: matchedSummary });
     if (!options.length) {
-      console.log("[StoryOrch] eval skipped (no regex transitions available)");
+      console.log("[StoryOrch] eval skipped (no transition candidates available)");
       return;
     }
+
+    const promptContext = this.buildPromptContext(runtime, options);
+    this.updateStoryMacrosFromContext(promptContext);
+    const reviewContext = matchedSummary ? `Matched triggers: ${matchedSummary}` : undefined;
 
     void this.checkpointArbiter.evaluate({
       cpName: cp?.name ?? `Checkpoint ${checkpointIndex + 1}`,
@@ -652,6 +793,7 @@ class StoryOrchestrator {
       turn: turnSnapshot,
       intervalTurns: this.intervalTurns,
       candidates: options,
+      reviewContext,
     }).then((payload) => {
       const outcome = payload?.outcome ?? "continue";
       const nextId = payload?.nextTransitionId ?? payload?.parsed?.nextTransitionId;
@@ -729,6 +871,7 @@ class StoryOrchestrator {
     this.lastGroupSelected = false;
     this.onActivateIndex = undefined;
     this.onEvaluated = undefined;
+    resetStoryMacroSnapshot();
   }
 }
 
