@@ -68,6 +68,78 @@ export const OnActivateSchema = z.object({
 
 export type OnActivate = z.infer<typeof OnActivateSchema>;
 
+const TalkControlTriggerSchema = z.enum([
+  "afterSpeak",
+  "beforeArbiter",
+  "afterArbiter",
+  "onEnter",
+  "onExit",
+] as const);
+export type TalkControlTrigger = z.infer<typeof TalkControlTriggerSchema>;
+
+const TalkControlProbabilitySchema = z.object({
+  afterSpeak: z.number().int().min(0).max(100).optional(),
+  beforeArbiter: z.number().int().min(0).max(100).optional(),
+  afterArbiter: z.number().int().min(0).max(100).optional(),
+  onEnter: z.number().int().min(0).max(100).optional(),
+  onExit: z.number().int().min(0).max(100).optional(),
+}).partial();
+
+const TalkControlAutoReplyBaseSchema = z.object({
+  weight: z.number().int().min(1).optional(),
+});
+
+const TalkControlStaticReplySchema = TalkControlAutoReplyBaseSchema.extend({
+  kind: z.literal("static"),
+  text: z.string().min(1),
+});
+
+const TalkControlLlmReplySchema = TalkControlAutoReplyBaseSchema.extend({
+  kind: z.literal("llm"),
+  instruction: z.string().min(1),
+});
+
+export const TalkControlAutoReplySchema = z.discriminatedUnion("kind", [
+  TalkControlStaticReplySchema,
+  TalkControlLlmReplySchema,
+]);
+export type TalkControlAutoReply = z.infer<typeof TalkControlAutoReplySchema>;
+
+export const TalkControlMemberSchema = z.object({
+  memberId: z.string().min(1),
+  enabled: z.boolean().default(true),
+  probabilities: TalkControlProbabilitySchema.default({}),
+  cooldownTurns: z.number().int().min(0).optional(),
+  maxPerTurn: z.number().int().min(1).optional(),
+  maxCharsPerAuto: z.number().int().min(1).optional(),
+  sendAsQuiet: z.boolean().optional(),
+  forceSpeaker: z.boolean().optional(),
+  autoReplies: z.array(TalkControlAutoReplySchema).min(1),
+});
+export type TalkControlMember = z.infer<typeof TalkControlMemberSchema>;
+
+const TalkControlCheckpointSchema = z.object({
+  members: z.array(TalkControlMemberSchema).default([]),
+});
+export type TalkControlCheckpoint = z.infer<typeof TalkControlCheckpointSchema>;
+
+export const TalkControlDefaultsSchema = z.object({
+  cooldownTurns: z.number().int().min(0).optional(),
+  maxPerTurn: z.number().int().min(1).optional(),
+  maxCharsPerAuto: z.number().int().min(1).optional(),
+  sendAsQuiet: z.boolean().optional(),
+  forceSpeaker: z.boolean().optional(),
+});
+export type TalkControlDefaults = z.infer<typeof TalkControlDefaultsSchema>;
+
+export const TalkControlConfigSchema = z.object({
+  enabled: z.boolean().default(false),
+  defaults: TalkControlDefaultsSchema.optional(),
+  checkpoints: z.record(z.string().min(1), TalkControlCheckpointSchema).default({}),
+});
+export type TalkControlConfig = z.infer<typeof TalkControlConfigSchema>;
+export type TalkControlCheckpointMap = z.infer<typeof TalkControlConfigSchema>["checkpoints"];
+
 const TriggerBaseSchema = z.object({
   id: z.string().min(1).optional(),
   label: z.string().min(1).optional(),
@@ -125,6 +197,8 @@ export const StorySchema = z.object({
   checkpoints: z.array(CheckpointSchema).min(1),
   transitions: z.array(TransitionSchema).default([]),
   start: z.string().min(1).optional(),
+  talkControl: TalkControlConfigSchema.optional(),
+  talk_control: TalkControlConfigSchema.optional(),
 }).superRefine((val, ctx) => {
   const seen = new Set<string>();
   for (const [i, cp] of val.checkpoints.entries()) {
@@ -152,6 +226,14 @@ export const StorySchema = z.object({
     } else {
       transitionIds.add(key);
     }
+  }
+
+  if (val.talkControl && val.talk_control) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["talkControl"],
+      message: "Specify either 'talkControl' or 'talk_control', not both.",
+    });
   }
 });
 

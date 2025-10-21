@@ -14,6 +14,11 @@ import {
   type AuthorNoteSettings,
   type AuthorNoteRole,
   type AuthorNotePosition,
+  type TalkControlConfig,
+  type TalkControlDefaults,
+  type TalkControlMember,
+  type TalkControlAutoReply,
+  type TalkControlTrigger,
 } from "./story-schema";
 import {
   AUTHOR_NOTE_DEFAULT_DEPTH,
@@ -51,6 +56,7 @@ export interface NormalizedCheckpoint {
   name: string;
   objective: string;
   onActivate?: NormalizedOnActivate;
+  talkControl?: NormalizedTalkControlCheckpoint;
 }
 
 export type NormalizedTriggerType = "regex" | "timed";
@@ -74,6 +80,56 @@ export interface NormalizedTransition {
   description?: string;
 }
 
+export interface NormalizedTalkControlDefaults {
+  cooldownTurns: number;
+  maxPerTurn: number;
+  maxCharsPerAuto: number;
+  sendAsQuiet: boolean;
+  forceSpeaker: boolean;
+}
+
+export interface NormalizedTalkControlStaticReply {
+  kind: "static";
+  weight: number;
+  text: string;
+}
+
+export interface NormalizedTalkControlLlmReply {
+  kind: "llm";
+  weight: number;
+  instruction: string;
+}
+
+export type NormalizedTalkControlAutoReply =
+  | NormalizedTalkControlStaticReply
+  | NormalizedTalkControlLlmReply;
+
+export type NormalizedTalkControlProbabilityMap = Partial<Record<TalkControlTrigger, number>>;
+
+export interface NormalizedTalkControlMember {
+  memberId: string;
+  normalizedId: string;
+  enabled: boolean;
+  probabilities: NormalizedTalkControlProbabilityMap;
+  cooldownTurns: number;
+  maxPerTurn: number;
+  maxCharsPerAuto: number;
+  sendAsQuiet: boolean;
+  forceSpeaker: boolean;
+  autoReplies: NormalizedTalkControlAutoReply[];
+}
+
+export interface NormalizedTalkControlCheckpoint {
+  members: NormalizedTalkControlMember[];
+  membersById: Map<string, NormalizedTalkControlMember>;
+}
+
+export interface NormalizedTalkControl {
+  enabled: boolean;
+  defaults?: NormalizedTalkControlDefaults;
+  checkpoints: Map<string, NormalizedTalkControlCheckpoint>;
+}
+
 export interface NormalizedStory {
   schemaVersion: "1.0";
   title: string;
@@ -89,6 +145,7 @@ export interface NormalizedStory {
   startId: string;
   roleDefaults?: RolePresetOverrides;
   authorNoteDefaults: NormalizedAuthorNoteSettings;
+  talkControl?: NormalizedTalkControl;
 }
 
 export interface NormalizeOptions {
@@ -163,6 +220,39 @@ const clampInterval = (value: unknown, fallback: number): number => {
   const normalized = Math.floor(num);
   return normalized >= 1 ? normalized : fallback;
 };
+
+const clampInteger = (value: unknown, fallback: number, min: number, max?: number): number => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return fallback;
+  const normalized = Math.floor(num);
+  let result = Number.isFinite(normalized) ? normalized : fallback;
+  if (Number.isFinite(min)) result = Math.max(min, result);
+  if (Number.isFinite(max ?? Number.NaN)) result = Math.min(result, max as number);
+  return Number.isFinite(result) ? result : fallback;
+};
+
+const clampProbability = (value: unknown): number | undefined => {
+  if (value === undefined || value === null) return undefined;
+  const num = Number(value);
+  if (!Number.isFinite(num)) return undefined;
+  const rounded = Math.round(num);
+  if (rounded <= 0) return undefined;
+  if (rounded >= 100) return 100;
+  return Math.max(1, rounded);
+};
+
+const TALK_CONTROL_DEFAULT_SETTINGS: NormalizedTalkControlDefaults = Object.freeze({
+  cooldownTurns: 2,
+  maxPerTurn: 1,
+  maxCharsPerAuto: 600,
+  sendAsQuiet: false,
+  forceSpeaker: true,
+});
+
+const TALK_CONTROL_MAX_CHARS = 4000;
+const TALK_CONTROL_MAX_COOLDOWN = 10000;
+const TALK_CONTROL_MAX_ACTIONS = 10;
+const TALK_CONTROL_TRIGGERS: TalkControlTrigger[] = ["afterSpeak", "beforeArbiter", "afterArbiter", "onEnter", "onExit"];
 
 const clampDepth = (value: unknown, fallback: number): number => {
   const num = Number(value);
@@ -282,6 +372,138 @@ function normalizeAutomations(input?: unknown): string[] | undefined {
   );
   return cleaned.length ? cleaned : undefined;
 }
+
+const normalizeTalkControlDefaults = (input: TalkControlDefaults | undefined): NormalizedTalkControlDefaults => {
+  return {
+    cooldownTurns: clampInteger(input?.cooldownTurns, TALK_CONTROL_DEFAULT_SETTINGS.cooldownTurns, 0, TALK_CONTROL_MAX_COOLDOWN),
+    maxPerTurn: clampInteger(input?.maxPerTurn, TALK_CONTROL_DEFAULT_SETTINGS.maxPerTurn, 1, TALK_CONTROL_MAX_ACTIONS),
+    maxCharsPerAuto: clampInteger(input?.maxCharsPerAuto, TALK_CONTROL_DEFAULT_SETTINGS.maxCharsPerAuto, 1, TALK_CONTROL_MAX_CHARS),
+    sendAsQuiet: typeof input?.sendAsQuiet === "boolean" ? input.sendAsQuiet : TALK_CONTROL_DEFAULT_SETTINGS.sendAsQuiet,
+    forceSpeaker: typeof input?.forceSpeaker === "boolean" ? input.forceSpeaker : TALK_CONTROL_DEFAULT_SETTINGS.forceSpeaker,
+  };
+};
+
+const normalizeTalkControlProbabilities = (
+  probabilities: TalkControlMember["probabilities"] | undefined,
+): NormalizedTalkControlProbabilityMap => {
+  const result: NormalizedTalkControlProbabilityMap = {};
+  if (!probabilities || typeof probabilities !== "object") return result;
+  TALK_CONTROL_TRIGGERS.forEach((trigger) => {
+    const value = clampProbability((probabilities as Record<string, unknown>)[trigger]);
+    if (value !== undefined) {
+      result[trigger] = value;
+    }
+  });
+  return result;
+};
+
+const normalizeTalkControlAutoReply = (
+  reply: TalkControlAutoReply | undefined,
+  maxChars: number,
+): NormalizedTalkControlAutoReply | null => {
+  if (!reply || typeof reply !== "object") return null;
+  const weight = clampInteger((reply as any).weight, 1, 1, 1000);
+  if (reply.kind === "static") {
+    const text = typeof reply.text === "string" ? reply.text.trim() : "";
+    if (!text) return null;
+    const truncated = text.length > maxChars ? text.slice(0, maxChars) : text;
+    return { kind: "static", weight, text: truncated };
+  }
+  if (reply.kind === "llm") {
+    const instruction = typeof reply.instruction === "string" ? reply.instruction.trim() : "";
+    if (!instruction) return null;
+    return { kind: "llm", weight, instruction };
+  }
+  return null;
+};
+
+const normalizeTalkControlMember = (
+  member: TalkControlMember,
+  defaults: NormalizedTalkControlDefaults,
+): NormalizedTalkControlMember | null => {
+  if (!member || typeof member !== "object") return null;
+  const memberId = typeof member.memberId === "string" ? member.memberId.trim() : "";
+  if (!memberId) return null;
+
+  const cooldownTurns = clampInteger(member.cooldownTurns, defaults.cooldownTurns, 0, TALK_CONTROL_MAX_COOLDOWN);
+  const maxPerTurn = clampInteger(member.maxPerTurn, defaults.maxPerTurn, 1, TALK_CONTROL_MAX_ACTIONS);
+  const maxCharsPerAuto = clampInteger(member.maxCharsPerAuto, defaults.maxCharsPerAuto, 1, TALK_CONTROL_MAX_CHARS);
+  const probabilities = normalizeTalkControlProbabilities(member.probabilities);
+  const repliesRaw = Array.isArray(member.autoReplies) ? member.autoReplies : [];
+  const autoReplies = repliesRaw
+    .map((entry) => normalizeTalkControlAutoReply(entry, maxCharsPerAuto))
+    .filter((entry): entry is NormalizedTalkControlAutoReply => Boolean(entry));
+
+  if (!autoReplies.length) return null;
+
+  const normalizedId = normalizeName(memberId);
+
+  return {
+    memberId,
+    normalizedId,
+    enabled: member.enabled !== undefined ? Boolean(member.enabled) : true,
+    probabilities,
+    cooldownTurns,
+    maxPerTurn,
+    maxCharsPerAuto,
+    sendAsQuiet: typeof member.sendAsQuiet === "boolean" ? member.sendAsQuiet : defaults.sendAsQuiet,
+    forceSpeaker: typeof member.forceSpeaker === "boolean" ? member.forceSpeaker : defaults.forceSpeaker,
+    autoReplies,
+  };
+};
+
+const normalizeTalkControl = (
+  config: TalkControlConfig | undefined,
+  checkpointById: Map<string, NormalizedCheckpoint>,
+): NormalizedTalkControl | undefined => {
+  if (!config || typeof config !== "object") return undefined;
+
+  const sanitizedDefaults = config.defaults ? normalizeTalkControlDefaults(config.defaults) : undefined;
+  const baseDefaults = sanitizedDefaults ?? TALK_CONTROL_DEFAULT_SETTINGS;
+  const enabled = Boolean(config.enabled);
+  const checkpoints = new Map<string, NormalizedTalkControlCheckpoint>();
+
+  const source = config.checkpoints && typeof config.checkpoints === "object" ? config.checkpoints : {};
+  for (const [rawId, checkpointConfig] of Object.entries(source)) {
+    if (!checkpointConfig || typeof checkpointConfig !== "object") continue;
+    const normalizedId = normalizeId(rawId, rawId);
+    const checkpoint = checkpointById.get(normalizedId);
+    if (!checkpoint) {
+      console.warn(`[StoryValidator] Talk control references unknown checkpoint '${rawId}'.`);
+      continue;
+    }
+
+    const membersRaw = Array.isArray(checkpointConfig.members) ? checkpointConfig.members : [];
+    const members: NormalizedTalkControlMember[] = [];
+    const membersById = new Map<string, NormalizedTalkControlMember>();
+
+    membersRaw.forEach((entry) => {
+      const normalizedMember = normalizeTalkControlMember(entry, baseDefaults);
+      if (!normalizedMember) return;
+      const key = normalizedMember.normalizedId || normalizeName(normalizedMember.memberId);
+      if (key && membersById.has(key)) return;
+      members.push(normalizedMember);
+      if (key) membersById.set(key, normalizedMember);
+    });
+
+    if (!members.length) continue;
+
+    checkpoints.set(checkpoint.id, {
+      members,
+      membersById,
+    });
+  }
+
+  if (!checkpoints.size && !enabled) {
+    return undefined;
+  }
+
+  return {
+    enabled,
+    defaults: sanitizedDefaults,
+    checkpoints,
+  };
+};
 
 function normalizeOnActivateBlock(
   input: OnActivate | null | undefined,
@@ -458,6 +680,17 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
     checkpointIndexById.set(cp.id, idx);
   });
 
+  const talkControlRaw = (story as any)?.talkControl ?? (story as any)?.talk_control;
+  const talkControl = normalizeTalkControl(talkControlRaw as TalkControlConfig | undefined, checkpointById);
+  if (talkControl) {
+    orderedCheckpoints.forEach((cp) => {
+      const entry = talkControl.checkpoints.get(cp.id);
+      if (entry) {
+        cp.talkControl = entry;
+      }
+    });
+  }
+
   const transitionsByFrom = new Map<string, NormalizedTransition[]>();
   const transitionById = new Map<string, NormalizedTransition>();
   transitions.forEach((edge) => {
@@ -486,6 +719,7 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
     startId: startCheckpoint.id,
     roleDefaults: normalizePresetOverrides(story.role_defaults as RolePresetOverrides | undefined),
     authorNoteDefaults,
+    talkControl,
   };
 }
 

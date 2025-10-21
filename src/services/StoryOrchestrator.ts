@@ -41,6 +41,11 @@ import {
 } from "@constants/defaults";
 import type { ArbiterFrequency, ArbiterPrompt } from "@utils/arbiter";
 import { updateStoryMacroSnapshot, resetStoryMacroSnapshot } from "@services/storyMacros";
+import {
+  setTalkControlCheckpoint,
+  notifyTalkControlArbiterPhase,
+  updateTalkControlTurn,
+} from "@controllers/talkControlManager";
 
 interface TransitionSelection {
   id: string;
@@ -352,7 +357,8 @@ class StoryOrchestrator {
   }
 
   private setTurn(value: number) {
-    storySessionStore.getState().setTurn(value);
+    const normalized = storySessionStore.getState().setTurn(value);
+    updateTalkControlTurn(normalized);
   }
 
   get index() {
@@ -742,6 +748,7 @@ class StoryOrchestrator {
         pastCheckpointsSummary: "",
         transitionSummary: "No transition candidates are currently available.",
       });
+      setTalkControlCheckpoint(null, { emitEnter: false });
       if (opts.reason) this.emitActivate(sanitized.checkpointIndex);
       return;
     }
@@ -766,6 +773,7 @@ class StoryOrchestrator {
     const sanitized = applyRuntime(runtimePayload, turn);
     const contextSnapshot = this.buildPromptContext(sanitized, this.buildArbiterOptions([]));
     this.updateStoryMacrosFromContext(contextSnapshot);
+    setTalkControlCheckpoint(activeKey, { emitEnter: opts.reason !== "hydrate" });
 
     const logReason = opts.reason ?? (persistRequested ? "activate" : "hydrate");
     console.log("[StoryOrch] activate", {
@@ -796,6 +804,7 @@ class StoryOrchestrator {
       return;
     }
 
+    notifyTalkControlArbiterPhase("before");
     this.applyArbiterPreset(cp, reason);
 
     const promptContext = this.buildPromptContext(runtime, options);
@@ -828,6 +837,8 @@ class StoryOrchestrator {
       }
     }).catch((err) => {
       console.warn("[StoryOrch] arbiter error", err);
+    }).finally(() => {
+      notifyTalkControlArbiterPhase("after");
     });
   }
 
@@ -894,6 +905,7 @@ class StoryOrchestrator {
     this.roleNameMap.clear();
     this.activeTransitions = [];
     this.checkpointPrimed = false;
+    setTalkControlCheckpoint(null, { emitEnter: false });
     this.lastChatId = null;
     this.lastGroupSelected = false;
     this.onActivateIndex = undefined;

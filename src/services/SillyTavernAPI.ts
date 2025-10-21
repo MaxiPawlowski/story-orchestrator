@@ -58,9 +58,21 @@ export const saveSettingsDebounced = script["saveSettingsDebounced"];
 export const eventSource = script["eventSource"];
 export const event_types = script["event_types"];
 export const chat = script["chat"];
+export const characters = script["characters"];
+export const selected_group = script["selected_group"];
 export const generateRaw = script["generateRaw"];
 export const getWorldInfoSettings = worldInfo["getWorldInfoSettings"];
 export const MacrosParser = macros["MacrosParser"];
+export const Generate = script["Generate"];
+export const generateGroupWrapper = script["generateGroupWrapper"];
+export const setCharacterId = script["setCharacterId"];
+export const setCharacterName = script["setCharacterName"];
+export const addOneMessage = script["addOneMessage"];
+export const saveChatConditional = script["saveChatConditional"];
+export const getMessageTimeStamp = script["getMessageTimeStamp"];
+export const getThumbnailUrl = script["getThumbnailUrl"];
+export const chat_metadata = script["chat_metadata"];
+export const substituteParams = script["substituteParams"];
 
 export function getCharacterNameById(id: number | string | undefined): string | undefined {
   if (id === undefined || id === null || id === '') return undefined;

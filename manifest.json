@@ -8,5 +8,6 @@
     "author": "Cohee1207",
     "version": "1.0.0",
     "homePage": "https://github.com/Cohee1207/Extension-ReactTemplate",
-    "auto_update": true
+    "auto_update": true,
+    "generate_interceptor": "generate_interceptor"
 }

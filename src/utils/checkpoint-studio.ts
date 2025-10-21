@@ -10,6 +10,11 @@ import type {
   AuthorNoteSettings,
   AuthorNotePosition,
   AuthorNoteRole,
+  TalkControlDefaults,
+  TalkControlConfig,
+  TalkControlMember,
+  TalkControlAutoReply,
+  TalkControlTrigger,
 } from "@utils/story-schema";
 import type {
   NormalizedStory,
@@ -53,9 +58,40 @@ export type TransitionDraft = Omit<Transition, "trigger"> & {
   trigger: TransitionTriggerDraft;
 };
 
-export type StoryDraft = Omit<Story, "checkpoints" | "transitions"> & {
+export type TalkControlAutoReplyDraft =
+  | { kind: "static"; weight: number; text: string }
+  | { kind: "llm"; weight: number; instruction: string };
+
+export type TalkControlProbabilitiesDraft = Partial<Record<TalkControlTrigger, number>>;
+
+export type TalkControlMemberDraft = {
+  memberId: string;
+  enabled: boolean;
+  probabilities: TalkControlProbabilitiesDraft;
+  cooldownTurns?: number;
+  maxPerTurn?: number;
+  maxCharsPerAuto?: number;
+  sendAsQuiet?: boolean;
+  forceSpeaker?: boolean;
+  autoReplies: TalkControlAutoReplyDraft[];
+};
+
+export type TalkControlCheckpointDraft = {
+  members: TalkControlMemberDraft[];
+};
+
+export type TalkControlDraft = {
+  enabled: boolean;
+  defaults?: TalkControlDefaults;
+  checkpoints: Record<string, TalkControlCheckpointDraft>;
+};
+
+const TALK_CONTROL_TRIGGER_LIST: TalkControlTrigger[] = ["afterSpeak", "beforeArbiter", "afterArbiter", "onEnter", "onExit"];
+
+export type StoryDraft = Omit<Story, "checkpoints" | "transitions" | "talkControl" | "talk_control"> & {
   checkpoints: CheckpointDraft[];
   transitions: TransitionDraft[];
+  talkControl?: TalkControlDraft;
 };
 
 export type EnsuredOnActivate = {
@@ -207,6 +243,33 @@ const normalizedTransitionToDraft = (edge: NormalizedTransition): TransitionDraf
   description: edge.description,
 });
 
+const normalizedTalkControlToDraft = (story: NormalizedStory | null | undefined): TalkControlDraft | undefined => {
+  const config = story?.talkControl;
+  if (!config) return undefined;
+  const checkpoints: Record<string, TalkControlCheckpointDraft> = {};
+  for (const [checkpointId, entry] of config.checkpoints.entries()) {
+    checkpoints[checkpointId] = {
+      members: entry.members.map((member) => ({
+        memberId: member.memberId,
+        enabled: member.enabled,
+        probabilities: { ...member.probabilities },
+        cooldownTurns: member.cooldownTurns,
+        maxPerTurn: member.maxPerTurn,
+        maxCharsPerAuto: member.maxCharsPerAuto,
+        sendAsQuiet: member.sendAsQuiet,
+        forceSpeaker: member.forceSpeaker,
+        autoReplies: member.autoReplies.map((reply) => ({ ...reply })),
+      })),
+    };
+  }
+  const defaults = config.defaults ? { ...config.defaults } : undefined;
+  return {
+    enabled: config.enabled,
+    ...(defaults ? { defaults } : {}),
+    checkpoints,
+  };
+};
+
 const createEmptyDraft = (): StoryDraft => ({
   title: "Untitled Story",
   description: "",
@@ -217,6 +280,7 @@ const createEmptyDraft = (): StoryDraft => ({
   checkpoints: [],
   transitions: [],
   start: "",
+  talkControl: undefined,
 });
 
 export const normalizedToDraft = (story: NormalizedStory | null | undefined): StoryDraft => {
@@ -232,6 +296,116 @@ export const normalizedToDraft = (story: NormalizedStory | null | undefined): St
     checkpoints,
     transitions: story.transitions.map((edge) => normalizedTransitionToDraft(edge)),
     start: story.startId ?? checkpoints[0]?.id ?? "",
+    talkControl: normalizedTalkControlToDraft(story),
+  };
+};
+
+const clampTalkControlInt = (value: unknown, min: number, max?: number): number | undefined => {
+  if (value === undefined || value === null || value === "") return undefined;
+  const num = Number(value);
+  if (!Number.isFinite(num)) return undefined;
+  let normalized = Math.floor(num);
+  if (!Number.isFinite(normalized)) return undefined;
+  if (normalized < min) normalized = min;
+  if (typeof max === "number" && Number.isFinite(max)) normalized = Math.min(normalized, max);
+  return normalized;
+};
+
+const sanitizeTalkControlDefaults = (defaults?: TalkControlDefaults): TalkControlDefaults | undefined => {
+  if (!defaults) return undefined;
+  const result: TalkControlDefaults = {};
+  const cooldown = clampTalkControlInt(defaults.cooldownTurns, 0);
+  if (cooldown !== undefined) result.cooldownTurns = cooldown;
+  const maxPerTurn = clampTalkControlInt(defaults.maxPerTurn, 1);
+  if (maxPerTurn !== undefined) result.maxPerTurn = maxPerTurn;
+  const maxChars = clampTalkControlInt(defaults.maxCharsPerAuto, 1);
+  if (maxChars !== undefined) result.maxCharsPerAuto = maxChars;
+  if (typeof defaults.sendAsQuiet === "boolean") result.sendAsQuiet = defaults.sendAsQuiet;
+  if (typeof defaults.forceSpeaker === "boolean") result.forceSpeaker = defaults.forceSpeaker;
+  return Object.keys(result).length ? result : undefined;
+};
+
+const sanitizeTalkControlProbabilities = (probabilities: TalkControlProbabilitiesDraft | undefined): TalkControlMember["probabilities"] => {
+  const result: TalkControlMember["probabilities"] = {};
+  if (!probabilities) return result;
+  TALK_CONTROL_TRIGGER_LIST.forEach((trigger) => {
+    const raw = probabilities[trigger];
+    if (raw === undefined || raw === null) return;
+    const num = Number(raw);
+    if (!Number.isFinite(num)) return;
+    const rounded = Math.round(num);
+    if (rounded <= 0) return;
+    result[trigger] = Math.min(100, Math.max(1, rounded));
+  });
+  return result;
+};
+
+const sanitizeTalkControlAutoReplies = (replies: TalkControlAutoReplyDraft[] | undefined): TalkControlAutoReply[] => {
+  if (!replies || !replies.length) return [];
+  const result: TalkControlAutoReply[] = [];
+  replies.forEach((reply) => {
+    if (!reply) return;
+    const weight = clampTalkControlInt(reply.weight, 1) ?? 1;
+    if (reply.kind === "static") {
+      const text = typeof reply.text === "string" ? reply.text.trim() : "";
+      if (!text) return;
+      result.push({ kind: "static", weight, text });
+    } else if (reply.kind === "llm") {
+      const instruction = typeof reply.instruction === "string" ? reply.instruction.trim() : "";
+      if (!instruction) return;
+      result.push({ kind: "llm", weight, instruction });
+    }
+  });
+  return result;
+};
+
+const sanitizeTalkControlMember = (member: TalkControlMemberDraft | undefined): TalkControlMember | null => {
+  if (!member) return null;
+  const memberId = typeof member.memberId === "string" ? member.memberId.trim() : "";
+  if (!memberId) return null;
+  const autoReplies = sanitizeTalkControlAutoReplies(member.autoReplies);
+  if (!autoReplies.length) return null;
+  const probabilities = sanitizeTalkControlProbabilities(member.probabilities);
+  const result: TalkControlMember = {
+    memberId,
+    enabled: member.enabled !== undefined ? Boolean(member.enabled) : true,
+    probabilities,
+    autoReplies,
+  };
+  const cooldown = clampTalkControlInt(member.cooldownTurns, 0);
+  if (cooldown !== undefined) result.cooldownTurns = cooldown;
+  const maxPerTurn = clampTalkControlInt(member.maxPerTurn, 1);
+  if (maxPerTurn !== undefined) result.maxPerTurn = maxPerTurn;
+  const maxChars = clampTalkControlInt(member.maxCharsPerAuto, 1);
+  if (maxChars !== undefined) result.maxCharsPerAuto = maxChars;
+  if (typeof member.sendAsQuiet === "boolean") result.sendAsQuiet = member.sendAsQuiet;
+  if (typeof member.forceSpeaker === "boolean") result.forceSpeaker = member.forceSpeaker;
+  return result;
+};
+
+const cleanupTalkControlDraft = (input?: TalkControlDraft): TalkControlConfig | undefined => {
+  if (!input) return undefined;
+  const checkpointsEntries: Array<[string, { members: TalkControlMember[] }]> = [];
+  const entries = Object.entries(input.checkpoints ?? {});
+  entries.forEach(([checkpointId, checkpointDraft]) => {
+    const key = checkpointId.trim();
+    if (!key) return;
+    const members = (checkpointDraft?.members ?? [])
+      .map((member) => sanitizeTalkControlMember(member))
+      .filter((member): member is TalkControlMember => Boolean(member));
+    if (!members.length) return;
+    checkpointsEntries.push([key, { members }]);
+  });
+  const checkpoints = Object.fromEntries(checkpointsEntries);
+  const defaults = sanitizeTalkControlDefaults(input.defaults);
+  const enabled = Boolean(input.enabled);
+  if (!Object.keys(checkpoints).length && !enabled && !defaults) {
+    return undefined;
+  }
+  return {
+    enabled,
+    checkpoints,
+    ...(defaults ? { defaults } : {}),
   };
 };
 
@@ -396,6 +570,7 @@ export const draftToStoryInput = (draft: StoryDraft): Story => {
   const lore = draft.global_lorebook.trim();
   const startCandidate = typeof draft.start === "string" ? draft.start.trim() : "";
   const start = startCandidate || checkpoints[0]?.id || undefined;
+  const talkControl = cleanupTalkControlDraft(draft.talkControl);
   return {
     title,
     ...(description ? { description } : {}),
@@ -406,6 +581,7 @@ export const draftToStoryInput = (draft: StoryDraft): Story => {
     checkpoints,
     transitions,
     start,
+    ...(talkControl ? { talkControl } : {}),
   };
 };
 
@@ -445,3 +621,4 @@ export const slugify = (value: string): string => {
   const normalized = value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   return normalized || "story";
 };
+

@@ -6,6 +6,16 @@ import { ExtensionSettingsProvider } from "@components/context/ExtensionSettings
 import DrawerWrapper from "@components/drawer";
 import SettingsWrapper from "@components/settings";
 import "./styles.css";
+import { initializeTalkControl, talkControlInterceptor } from "@controllers/talkControlManager";
+
+initializeTalkControl();
+if (typeof globalThis !== "undefined") {
+  try {
+    (globalThis as any).generate_interceptor = talkControlInterceptor;
+  } catch (err) {
+    console.warn("[Story] Failed to register talk control interceptor", err);
+  }
+}
 
 const settingsRootContainer = document.getElementById("extensions_settings");
 if (!settingsRootContainer) {

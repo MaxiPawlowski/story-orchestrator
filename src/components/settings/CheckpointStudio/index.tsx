@@ -522,6 +522,7 @@ const CheckpointStudio: React.FC<Props> = ({
             onRemoveTransition={handleRemoveTransition}
             updateTransition={updateTransition}
             onRemoveCheckpoint={handleRemoveCheckpoint}
+            setDraft={setDraft}
           />
         </div>
       </div>

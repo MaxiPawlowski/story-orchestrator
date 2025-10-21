@@ -1,5 +1,5 @@
 import React from "react";
-import { StoryDraft } from "@utils/checkpoint-studio";
+import { StoryDraft, TalkControlDraft } from "@utils/checkpoint-studio";
 import { getWorldInfoSettings, eventSource, event_types, getContext } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
 
@@ -11,6 +11,78 @@ type Props = {
 const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
   const [globalLorebooks, setGlobalLorebooks] = React.useState<string[]>([]);
   const [groupMembers, setGroupMembers] = React.useState<string[]>([]);
+  const talkControl = draft.talkControl;
+  const talkControlEnabled = Boolean(talkControl?.enabled);
+
+  const updateTalkControl = React.useCallback((updater: (current: TalkControlDraft | undefined) => TalkControlDraft | undefined) => {
+    setDraft((prev) => {
+      const next = updater(prev.talkControl);
+      return { ...prev, talkControl: next };
+    });
+  }, [setDraft]);
+
+  const handleTalkControlToggle = React.useCallback((enabled: boolean) => {
+    updateTalkControl((current) => {
+      if (enabled) {
+        const base: TalkControlDraft = current ?? { enabled: true, checkpoints: {} };
+        return { ...base, enabled: true };
+      }
+      if (!current) return undefined;
+      const next: TalkControlDraft = { ...current, enabled: false };
+      if (!Object.keys(next.checkpoints ?? {}).length && !next.defaults) {
+        return undefined;
+      }
+      return next;
+    });
+  }, [updateTalkControl]);
+
+  const handleDefaultNumberChange = React.useCallback((key: "cooldownTurns" | "maxPerTurn" | "maxCharsPerAuto", raw: string) => {
+    updateTalkControl((current) => {
+      const base: TalkControlDraft = current
+        ? { ...current, checkpoints: { ...(current.checkpoints ?? {}) } }
+        : { enabled: true, checkpoints: {} };
+      const defaults = { ...(base.defaults ?? {}) } as Record<string, unknown>;
+      const trimmed = raw.trim();
+      if (!trimmed) {
+        delete defaults[key];
+      } else {
+        const num = Number(trimmed);
+        if (Number.isFinite(num)) {
+          const min = key === "maxPerTurn" ? 1 : key === "maxCharsPerAuto" ? 1 : 0;
+          defaults[key] = Math.max(min, Math.floor(num));
+        }
+      }
+      const nextDefaults = Object.keys(defaults).length ? (defaults as TalkControlDraft["defaults"]) : undefined;
+      return { ...base, defaults: nextDefaults };
+    });
+  }, [updateTalkControl]);
+
+  const handleDefaultFlagChange = React.useCallback((key: "sendAsQuiet" | "forceSpeaker", value: string) => {
+    updateTalkControl((current) => {
+      const base: TalkControlDraft = current
+        ? { ...current, checkpoints: { ...(current.checkpoints ?? {}) } }
+        : { enabled: true, checkpoints: {} };
+      const defaults = { ...(base.defaults ?? {}) } as Record<string, unknown>;
+      if (!value) {
+        delete defaults[key];
+      } else {
+        defaults[key] = value === "true";
+      }
+      const nextDefaults = Object.keys(defaults).length ? (defaults as TalkControlDraft["defaults"]) : undefined;
+      return { ...base, defaults: nextDefaults };
+    });
+  }, [updateTalkControl]);
+
+  const handleClearDefaults = React.useCallback(() => {
+    updateTalkControl((current) => {
+      if (!current) return current;
+      const next: TalkControlDraft = { ...current, defaults: undefined };
+      if (!next.enabled && !Object.keys(next.checkpoints ?? {}).length) {
+        return undefined;
+      }
+      return next;
+    });
+  }, [updateTalkControl]);
 
   const refreshGlobalLorebooks = React.useCallback(() => {
     try {
@@ -261,6 +333,100 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
               </datalist>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] shadow-sm">
+        <div className="flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-2 font-semibold">Talk Control</div>
+        <div className="flex flex-col gap-3 p-3">
+          <label className="inline-flex items-center gap-2 text-xs text-slate-300">
+            <input
+              type="checkbox"
+              className="rounded border-slate-600 bg-slate-900 text-slate-200 focus:ring-slate-600"
+              checked={talkControlEnabled}
+              onChange={(e) => handleTalkControlToggle(e.target.checked)}
+            />
+            <span>Enable talk-control automation for this story</span>
+          </label>
+          <div className="text-[11px] text-slate-400">
+            Story-level defaults are optional. Leave fields blank to let checkpoint members define their own behaviour.
+          </div>
+          {talkControl ? (
+            <div className="space-y-3 rounded border border-slate-800 bg-slate-900/40 px-3 py-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="text-xs font-medium text-slate-200">Story Default Overrides</div>
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center rounded border border-slate-700 bg-slate-800 px-3 py-1 text-xs text-red-300 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50"
+                  onClick={handleClearDefaults}
+                  disabled={!talkControl.defaults || !Object.keys(talkControl.defaults).length}
+                >
+                  Clear Defaults
+                </button>
+              </div>
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
+                <label className="flex flex-col gap-1 text-xs text-slate-300">
+                  <span>Cooldown Turns (fallback)</span>
+                  <input
+                    type="number"
+                    min={0}
+                    className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                    value={talkControl.defaults?.cooldownTurns ?? ""}
+                    onChange={(e) => handleDefaultNumberChange("cooldownTurns", e.target.value)}
+                    placeholder="Unset"
+                  />
+                </label>
+                <label className="flex flex-col gap-1 text-xs text-slate-300">
+                  <span>Max Plays per Turn</span>
+                  <input
+                    type="number"
+                    min={1}
+                    className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                    value={talkControl.defaults?.maxPerTurn ?? ""}
+                    onChange={(e) => handleDefaultNumberChange("maxPerTurn", e.target.value)}
+                    placeholder="Unset"
+                  />
+                </label>
+                <label className="flex flex-col gap-1 text-xs text-slate-300">
+                  <span>Max Characters / Auto Reply</span>
+                  <input
+                    type="number"
+                    min={1}
+                    className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                    value={talkControl.defaults?.maxCharsPerAuto ?? ""}
+                    onChange={(e) => handleDefaultNumberChange("maxCharsPerAuto", e.target.value)}
+                    placeholder="Unset"
+                  />
+                </label>
+              </div>
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                <label className="flex flex-col gap-1 text-xs text-slate-300">
+                  <span>Send as Quiet</span>
+                  <select
+                    className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                    value={talkControl.defaults?.sendAsQuiet === undefined ? "" : talkControl.defaults.sendAsQuiet ? "true" : "false"}
+                    onChange={(e) => handleDefaultFlagChange("sendAsQuiet", e.target.value)}
+                  >
+                    <option value="">Unset (per member)</option>
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                  </select>
+                </label>
+                <label className="flex flex-col gap-1 text-xs text-slate-300">
+                  <span>Force Speaker</span>
+                  <select
+                    className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                    value={talkControl.defaults?.forceSpeaker === undefined ? "" : talkControl.defaults.forceSpeaker ? "true" : "false"}
+                    onChange={(e) => handleDefaultFlagChange("forceSpeaker", e.target.value)}
+                  >
+                    <option value="">Unset (per member)</option>
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

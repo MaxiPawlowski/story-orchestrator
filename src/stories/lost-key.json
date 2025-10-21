@@ -1,7 +1,7 @@
 {
   "id": "lost-key",
   "title": "Quest for the Sun Ruins",
-  "description": "Humanity’s last survivors live within the ruined city of Xentar, surrounded by lethal wilderness and weakening magical barriers. The Adventurers’ Guild dispatches an exploration team to recover the legendary Sun's Heart Artifact from the perilous Sun Ruins, facing ancient traps and mystical guardians along the way.",
+  "description": "Humanity’s last survivors live within the ruined city of Xentar, surrounded by lethal wilderness and weakening magical barriers. The Adventurers EGuild dispatches an exploration team to recover the legendary Sun's Heart Artifact from the perilous Sun Ruins, facing ancient traps and mystical guardians along the way.",
   "global_lorebook": "Xentar Checkpoints",
   "roles": {
     "dm": "DM Narrator",
@@ -55,7 +55,7 @@
     {
       "id": "cp2",
       "name": "Heart of the Ruins",
-      "objective": "Overcome the ruins’ trials and claim the Sun’s Heart Artifact.",
+      "objective": "Overcome the ruins Etrials and claim the Sun’s Heart Artifact.",
       "on_activate": {
         "preset_overrides": {
           "dm": {
@@ -178,5 +178,43 @@
         "within_turns": 4
       }
     }
-  ]
+  ],
+  "talkControl": {
+    "enabled": true,
+    "checkpoints": {
+      "cp1": {
+        "members": [
+          {
+            "memberId": "Arin",
+            "enabled": true,
+            "probabilities": {
+              "afterSpeak": 30,
+              "beforeArbiter": 40,
+              "afterArbiter": 50,
+              "onEnter": 60,
+              "onExit": 30
+            },
+            "cooldownTurns": 2,
+            "maxPerTurn": 1,
+            "sendAsQuiet": true,
+            "forceSpeaker": true,
+            "autoReplies": [
+              {
+                "kind": "static",
+                "weight": 60,
+                "text": "Alright, let’s move—{{story_player_name}}."
+              },
+              {
+                "kind": "llm",
+                "weight": 40,
+                "instruction": "As Arin, give a short tactical quip about {{story_active_checkpoint_objective}}."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
 }
+
+
