@@ -13,7 +13,6 @@ const DrawerWrapper = () => {
     currentUserName,
     requirementsReady
   } = useStoryContext();
-  const { story, validate, applyStory } = useStoryContext();
 
   return (
     <div className="rounded">

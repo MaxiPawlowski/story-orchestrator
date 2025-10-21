@@ -3,7 +3,6 @@ import React from "react";
 type Props = {
   disabled?: boolean;
   hasChanges: boolean;
-  applyPending: boolean;
   savePending?: boolean;
   saveDisabled?: boolean;
   saveAsDisabled?: boolean;
@@ -16,13 +15,11 @@ type Props = {
   onReset: () => void;
   onSave: () => void;
   onSaveAs: () => void;
-  onApply: () => void;
 };
 
 const Toolbar: React.FC<Props> = ({
   disabled,
   hasChanges,
-  applyPending,
   savePending,
   saveDisabled,
   saveAsDisabled,
@@ -35,7 +32,6 @@ const Toolbar: React.FC<Props> = ({
   onReset,
   onSave,
   onSaveAs,
-  onApply,
 }) => {
   return (
     <div className="flex flex-wrap gap-2">
@@ -100,14 +96,6 @@ const Toolbar: React.FC<Props> = ({
         disabled={!hasChanges}
       >
         Reset Draft
-      </button>
-      <button
-        type="button"
-        className="inline-flex items-center justify-center rounded border border-blue-700 bg-blue-600 px-3.5 py-1 text-xs font-semibold text-slate-50 shadow-sm transition hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
-        onClick={onApply}
-        disabled={!!disabled || applyPending}
-      >
-        {applyPending ? "Applying..." : "Apply to Runtime"}
       </button>
     </div>
   );

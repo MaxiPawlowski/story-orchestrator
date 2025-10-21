@@ -11,14 +11,12 @@ import CheckpointEditorPanel from "@components/studio/CheckpointEditorPanel";
 import type { StoryLibraryEntry, SaveLibraryStoryResult, DeleteLibraryStoryResult } from "@components/context/StoryContext";
 
 type ValidationResult = { ok: true; story: NormalizedStory } | { ok: false; errors: string[] };
-type ApplyResult = { ok: true; story: NormalizedStory } | { ok: false; errors: string[] };
 type Diagnostic = { ok: boolean; name: string; detail: string };
 type Feedback = { type: "success" | "error"; message: string };
 
 type Props = {
   sourceStory: NormalizedStory | null | undefined;
   validate: (input: unknown) => ValidationResult;
-  onApply: (story: Story) => Promise<ApplyResult> | ApplyResult;
   libraryEntries: StoryLibraryEntry[];
   selectedKey: string | null;
   selectedError: string | null;
@@ -34,7 +32,6 @@ type Props = {
 const CheckpointStudio: React.FC<Props> = ({
   sourceStory,
   validate,
-  onApply,
   libraryEntries,
   selectedKey,
   selectedError,
@@ -50,7 +47,6 @@ const CheckpointStudio: React.FC<Props> = ({
   // layout and dagre lifecycle handled inside GraphPanel
   const [diagnostics, setDiagnostics] = useState<Diagnostic[]>([]);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
-  const [applyPending, setApplyPending] = useState(false);
   const [savePending, setSavePending] = useState(false);
   const [deletePending, setDeletePending] = useState(false);
 
@@ -327,25 +323,6 @@ const CheckpointStudio: React.FC<Props> = ({
     }
   }, [disabled, currentEntry, onDeleteStory]);
 
-  const handleApply = useCallback(async () => {
-    setApplyPending(true);
-    setFeedback(null);
-    try {
-      const payload = draftToStoryInput(draft);
-      const result = await onApply(payload);
-      if (result.ok) {
-        setFeedback({ type: "success", message: `Story applied: ${result.story.title}` });
-      } else {
-        setFeedback({ type: "error", message: result.errors.join("; ") });
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setFeedback({ type: "error", message });
-    } finally {
-      setApplyPending(false);
-    }
-  }, [draft, onApply]);
-
   const handleRunDiagnostics = () => {
     const raw = draftToStoryInput(draft);
     const results: Diagnostic[] = [];
@@ -407,31 +384,49 @@ const CheckpointStudio: React.FC<Props> = ({
     fileInputRef.current?.click();
   };
 
-  const handleFileChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
-    const file = event.target.files?.[0];
+  const handleFileChange: React.ChangeEventHandler<HTMLInputElement> = async (event) => {
+    const input = event.target;
+    const file = input?.files?.[0];
     if (!file) return;
-    file
-      .text()
-      .then((text) => {
-        try {
-          const parsed = JSON.parse(text);
-          const validation = validate(parsed);
-          if (!validation.ok) {
-            setFeedback({ type: "error", message: validation.errors.join("; ") });
-            return;
-          }
-          const nextDraft = normalizedToDraft(validation.story);
-          setDraft(nextDraft);
-          setSelectedId(nextDraft.start || nextDraft.checkpoints[0]?.id || null);
-          setFeedback({ type: "success", message: `Imported ${file.name}` });
-        } catch (err) {
-          const message = err instanceof Error ? err.message : "Failed to parse JSON file.";
-          setFeedback({ type: "error", message });
-        }
-      })
-      .finally(() => {
-        if (event.target) event.target.value = "";
-      });
+
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      const validation = validate(parsed);
+      if (!validation.ok) {
+        setFeedback({ type: "error", message: validation.errors.join("; ") });
+        return;
+      }
+
+      const nextDraft = normalizedToDraft(validation.story);
+      setDraft(nextDraft);
+      setSelectedId(nextDraft.start || nextDraft.checkpoints[0]?.id || null);
+      setFeedback(null);
+
+      const sanitized = draftToStoryInput(nextDraft);
+      const baseFileName = file.name.replace(/\.[^/.]+$/, "");
+      const inferredName = validation.story.title?.trim()
+        || baseFileName
+        || "Imported Story";
+
+      setSavePending(true);
+      const result = await onSaveStory(sanitized, { name: inferredName });
+      if (!result.ok) {
+        setFeedback({ type: "error", message: result.error });
+        return;
+      }
+      onSelectKey(result.key);
+      setFeedback({ type: "success", message: `Imported and saved ${inferredName}` });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to import JSON file.";
+      setFeedback({ type: "error", message });
+    } finally {
+      setSavePending(false);
+      if (input) {
+        // Reset file input for consecutive imports.
+        input.value = "";
+      }
+    }
   };
 
   const mermaid = useMemo(() => buildMermaid(draft), [draft]);
@@ -495,7 +490,6 @@ const CheckpointStudio: React.FC<Props> = ({
       <Toolbar
         disabled={disabled}
         hasChanges={hasChanges}
-        applyPending={applyPending}
         savePending={savePending}
         saveDisabled={!canSave || !!disabled || savePending}
         saveAsDisabled={!!disabled || savePending}
@@ -508,7 +502,6 @@ const CheckpointStudio: React.FC<Props> = ({
         onReset={handleReset}
         onSave={handleSave}
         onSaveAs={handleSaveAs}
-        onApply={handleApply}
       />
 
       <div className="grid gap-4 lg:grid-cols-2">

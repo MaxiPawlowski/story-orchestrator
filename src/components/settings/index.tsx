@@ -20,7 +20,6 @@ const SettingsWrapper = () => {
   const {
     story,
     validate,
-    applyStory,
     loading: libraryLoading,
     libraryEntries,
     selectedLibraryKey,
@@ -201,7 +200,6 @@ const SettingsWrapper = () => {
           onClose={() => setShowEditor(false)}
           sourceStory={story}
           validate={validate}
-          onApply={applyStory}
           libraryEntries={libraryEntries}
           selectedKey={selectedLibraryKey}
           selectedError={selectedLibraryError}

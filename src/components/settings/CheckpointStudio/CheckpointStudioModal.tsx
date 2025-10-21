@@ -6,14 +6,12 @@ import type { NormalizedStory } from "@utils/story-validator";
 import type { StoryLibraryEntry, SaveLibraryStoryResult, DeleteLibraryStoryResult } from "@components/context/StoryContext";
 
 type ValidationResult = { ok: true; story: NormalizedStory } | { ok: false; errors: string[] };
-type ApplyResult = { ok: true; story: NormalizedStory } | { ok: false; errors: string[] };
 
 type Props = {
   open: boolean;
   onClose: () => void;
   sourceStory: NormalizedStory | null | undefined;
   validate: (input: unknown) => ValidationResult;
-  onApply: (story: Story) => Promise<ApplyResult> | ApplyResult;
   libraryEntries: StoryLibraryEntry[];
   selectedKey: string | null;
   selectedError: string | null;
@@ -47,7 +45,6 @@ const CheckpointStudioModal: React.FC<Props> = ({
   onClose,
   sourceStory,
   validate,
-  onApply,
   libraryEntries,
   selectedKey,
   selectedError,
@@ -128,7 +125,6 @@ const CheckpointStudioModal: React.FC<Props> = ({
           <CheckpointStudio
             sourceStory={sourceStory}
             validate={validate}
-            onApply={onApply}
             libraryEntries={libraryEntries}
             selectedKey={selectedKey}
             selectedError={selectedError}

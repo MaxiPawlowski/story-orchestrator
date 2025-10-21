@@ -25,7 +25,6 @@ type CheckpointSummary = { id: string; name: string; objective: string; status: 
 
 export interface StoryContextValue {
   validate: (input: unknown) => ValidationResult;
-  applyStory: (input: Story) => ValidationResult;
   loading: boolean;
 
   story: NormalizedStory | null;
@@ -161,18 +160,6 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
     }
   }, []);
 
-  const applyStory = useCallback((input: Story): ValidationResult => {
-    try {
-      const normalized = parseAndNormalizeStory(input);
-      setStory(normalized);
-      setTitle(normalized.title);
-      return { ok: true, story: normalized };
-    } catch (e) {
-      const errors = formatZodError(e);
-      return { ok: false, errors };
-    }
-  }, []);
-
   const selectLibraryEntry = useCallback((key: string) => {
     selectEntry(key);
   }, [selectEntry]);
@@ -268,7 +255,6 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
   return (
     <StoryContext.Provider value={{
       validate,
-      applyStory,
       loading: libraryLoading,
       story,
       title,
