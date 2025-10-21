@@ -1,6 +1,7 @@
 {
   "id": "lost-key",
   "title": "Quest for the Sun Ruins",
+  "description": "Humanity’s last survivors live within the ruined city of Xentar, surrounded by lethal wilderness and weakening magical barriers. The Adventurers’ Guild dispatches an exploration team to recover the legendary Sun's Heart Artifact from the perilous Sun Ruins, facing ancient traps and mystical guardians along the way.",
   "global_lorebook": "Xentar Checkpoints",
   "roles": {
     "dm": "DM Narrator",

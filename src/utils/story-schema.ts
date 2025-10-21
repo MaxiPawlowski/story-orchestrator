@@ -115,6 +115,7 @@ const BasePresetSchema = z.object({
 
 export const StorySchema = z.object({
   title: z.string().min(1),
+  description: z.string().trim().min(1).optional(),
   global_lorebook: z.string().min(1),
   base_preset: BasePresetSchema.optional(),
   roles: z.record(z.string().min(1), z.string().min(1)).optional(),

@@ -6,7 +6,7 @@ Story Driver is a checkpoint-driven orchestration layer for SillyTavern. Stories
 ## Extension Capabilities
 - Pinned Drawer UI surfaces requirement status, checkpoint progress, turn counters, and manual controls.
 - Settings panel injects arbiter configuration, Checkpoint Studio access, and story library management.
-- Bundled JSON checkpoints (`src/checkpoints/*.json`) are validated on load; user-authored stories persist inside the SillyTavern settings namespace.
+- Stories are imported through Checkpoint Studio and persisted inside the SillyTavern settings namespace.
 - DM/Companion runtime orchestration handles preset cloning, per-role overrides, Author’s Note assignment, and lore toggling.
 - Per-chat persistence snapshots checkpoint index, status map, and evaluation counters so stories resume when chats reopen.
 - Slash commands provide manual control over checkpoints and story runtime toggles (`/checkpoint`, `/story`).
@@ -61,12 +61,11 @@ Additional macros can be registered by calling `MacrosParser.registerMacro` with
 - `src/controllers/` – Imperative managers: orchestrator lifecycle, requirements tracking, persistence, turn routing, slash command wiring.
 - `src/services/` – Stateful logic: `StoryOrchestrator`, `CheckpointArbiterService`, `PresetService`, `SillyTavernAPI` host wrapper.
 - `src/store/` – Zustand vanilla store (`storySessionStore`) and requirement state helpers.
-- `src/utils/` – Story loading/validation, checkpoint studio helpers, event subscriptions, runtime math, slash command registration.
-- `src/checkpoints/` – Numeric JSON assets (0.json, 1.json, …) bundled for shipping and mirrored into `dist/checkpoints/` at build time.
+- `src/utils/` – Story validation, checkpoint studio helpers, persisted library management, event subscriptions, runtime math, slash command registration.
 
 ## Runtime Flow
 1. Extension mounts; Settings + Drawer roots appear after a brief delayed mount.
-2. `StoryProvider` discovers bundled checkpoints via `json-bundle-loader` → `story-loader` → `story-validator`, normalizing regex triggers and activation payloads.
+2. `StoryProvider` hydrates the active story from the persisted library (SillyTavern settings) via `storyLibrary` → `story-validator`, normalizing regex triggers and activation payloads.
 3. `orchestratorManager.ensureStory` creates a singleton `StoryOrchestrator` once a valid story and group chat are detected.
 4. The orchestrator hydrates persisted runtime (if available), primes role presets, and subscribes to SillyTavern host events.
 5. Player turns increment `turnsSinceEval`; interval thresholds or regex matches enqueue evaluations handled by `CheckpointArbiterService`.
@@ -84,7 +83,7 @@ Additional macros can be registered by calling `MacrosParser.registerMacro` with
 - `requirementsController` listens to persona, chat, and lorebook changes via host events; it normalizes role names and updates requirement readiness (persona, group chat, role membership, lore entries, global lorebook selection).
 - `persistenceController` snapshots runtime per `(chatId + story title)` using helpers in `story-state`, ensuring hydration only occurs when group chat context exists.
 - `CheckpointArbiterService` compiles win/fail regex specs, renders a parameterized prompt, evaluates queued turns, and selects outgoing transitions.
-- Utility modules cover story normalization (`story-validator` + `story-schema`), runtime math (`story-state`), multi-strategy bundle discovery (`json-bundle-loader`), event helpers, and slash command registration.
+- Utility modules cover story normalization (`story-validator` + `story-schema`), runtime math (`story-state`), persisted library helpers (`storyLibrary`), event utilities, and slash command registration.
 
 ## State Management & Persistence
 - `storySessionStore` tracks the active story, runtime snapshot (`checkpointIndex`, `activeCheckpointKey`, `checkpointStatusMap`, `turnsSinceEval`), turn counter, hydration flag, requirement state, chat context, and orchestrator readiness.
@@ -92,8 +91,8 @@ Additional macros can be registered by calling `MacrosParser.registerMacro` with
 - Persistence is opt-in per chat: when a story, chatId, and group chat selection exist, runtime is serialized; hydration avoids replaying activation side effects unless the checkpoint index changes.
 
 ## Checkpoint Content & Story Library
-- Bundled stories live under `src/checkpoints/` and are ordered numerically. `story-loader` sorts, validates, and logs detailed errors when schema checks fail.
-- `storyLibrary.ts` merges bundled entries with saved drafts stored in extension settings (`studio` namespace). Entries normalize into `NormalizedStory` objects exposed through `StoryContext`.
+- Story library entries are stored in extension settings (`studio` namespace). Authors import JSON through Checkpoint Studio, and the library persists those stories on the SillyTavern server.
+- `storyLibrary.ts` manages saved entries, normalizes them into `NormalizedStory` objects, and exposes CRUD helpers through `StoryContext`.
 - `story-validator` compiles triggers, builds transition adjacency maps, and normalizes activation blocks (`authors_note`, `world_info`, `preset_overrides`) so runtime code can rely on consistent shapes.
 
 ## Checkpoint Studio
@@ -110,5 +109,5 @@ Additional macros can be registered by calling `MacrosParser.registerMacro` with
 - Install dependencies: `npm install`
 - Start watch + typecheck mode: `npm run dev`
 - One-off type checking: `npm run typecheck`
-- Production build (emits `dist/index.js` and copies assets): `npm run build`
+- Production build (emits `dist/index.js`): `npm run build`
 - Tailwind configuration lives in `tailwind.config.js`; global styles extend `src/styles.css` and are processed through the webpack pipeline.

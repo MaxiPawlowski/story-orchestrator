@@ -1,13 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Story } from "@utils/story-schema";
-import { loadCheckpointBundle, type CheckpointBundle } from "@utils/story-loader";
-import { clearNumericJsonBundleCache } from "@utils/json-bundle-loader";
 import {
   loadStudioState,
   persistStudioState,
   generateStoryId,
   toSavedEntries,
-  toBundleEntries,
   SAVED_KEY_PREFIX,
   type StudioState,
   type StoryLibraryEntry,
@@ -32,18 +29,13 @@ export interface StoryLibraryHook {
 
 export function useStoryLibrary(): StoryLibraryHook {
   const [studioState, setStudioState] = useState<StudioState>(() => loadStudioState());
-  const [bundle, setBundle] = useState<CheckpointBundle | null>(null);
   const [loading, setLoading] = useState(false);
 
   const savedEntries = useMemo(
     () => toSavedEntries(studioState.stories),
     [studioState.stories],
   );
-  const bundleEntries = useMemo(() => toBundleEntries(bundle), [bundle]);
-
-  const libraryEntries = useMemo<StoryLibraryEntry[]>(() => {
-    return [...savedEntries, ...bundleEntries];
-  }, [savedEntries, bundleEntries]);
+  const libraryEntries = useMemo<StoryLibraryEntry[]>(() => savedEntries, [savedEntries]);
 
   const selectedEntry = useMemo(() => {
     if (!studioState.lastSelectedKey) return null;
@@ -142,18 +134,26 @@ export function useStoryLibrary(): StoryLibraryHook {
   const reloadLibrary = useCallback(async (preferredKey?: string | null) => {
     setLoading(true);
     try {
-      clearNumericJsonBundleCache("story-checkpoints");
-      const result = await loadCheckpointBundle({ force: true });
-      setBundle(result ?? null);
-      if (preferredKey) {
-        selectEntry(preferredKey);
-      }
-    } catch (error) {
-      console.warn("[useStoryLibrary] Failed to reload bundle", error);
+      const fresh = loadStudioState();
+      setStudioState((prev) => {
+        const next: StudioState = {
+          stories: fresh.stories,
+          lastSelectedKey: fresh.lastSelectedKey,
+        };
+
+        if (preferredKey && preferredKey !== next.lastSelectedKey) {
+          const exists = next.stories.some((entry) => `${SAVED_KEY_PREFIX}${entry.id}` === preferredKey);
+          if (exists) {
+            next.lastSelectedKey = preferredKey;
+          }
+        }
+
+        return next;
+      });
     } finally {
       setLoading(false);
     }
-  }, [selectEntry]);
+  }, []);
 
   const deleteStory = useCallback(async (key: string): Promise<DeleteLibraryStoryResult> => {
     if (!key || !key.startsWith(SAVED_KEY_PREFIX)) {

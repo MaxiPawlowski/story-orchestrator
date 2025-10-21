@@ -58,7 +58,7 @@ export const ensureStoryMacros = () => {
 
   registerMacro("story_active_title", () => getState().story?.title ?? "", "Active story title");
   registerMacro("story_title", () => dynamicSnapshot.storyTitle || (getState().story?.title ?? ""), "Story title (prompt safe)");
-  registerMacro("story_description", () => dynamicSnapshot.storyDescription, "Story description for arbiter prompts");
+  registerMacro("story_description", () => dynamicSnapshot.storyDescription, "Story description");
   registerMacro("story_active_checkpoint_id", () => getActiveCheckpoint()?.id ?? "", "Current checkpoint id");
   registerMacro("story_active_checkpoint_name", () => getActiveCheckpoint()?.name ?? "", "Current checkpoint name");
   registerMacro("story_active_checkpoint_objective", () => getActiveCheckpoint()?.objective ?? "", "Current checkpoint objective");

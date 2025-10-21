@@ -209,6 +209,7 @@ const normalizedTransitionToDraft = (edge: NormalizedTransition): TransitionDraf
 
 const createEmptyDraft = (): StoryDraft => ({
   title: "Untitled Story",
+  description: "",
   global_lorebook: "",
   base_preset: undefined,
   roles: undefined,
@@ -223,6 +224,7 @@ export const normalizedToDraft = (story: NormalizedStory | null | undefined): St
   const checkpoints = story.checkpoints.map((cp) => normalizedCheckpointToDraft(cp));
   return {
     title: story.title,
+    description: story.description ?? "",
     global_lorebook: story.global_lorebook,
     base_preset: undefined,
     roles: story.roles ? (Object.fromEntries(Object.entries(story.roles).filter(([, v]) => typeof v === "string")) as Record<string, string>) : undefined,
@@ -390,11 +392,13 @@ export const draftToStoryInput = (draft: StoryDraft): Story => {
   const roles = cleanupRoleMap(draft.roles as Record<Role, unknown> | undefined);
 
   const title = draft.title.trim();
+  const description = typeof draft.description === "string" ? draft.description.trim() : "";
   const lore = draft.global_lorebook.trim();
   const startCandidate = typeof draft.start === "string" ? draft.start.trim() : "";
   const start = startCandidate || checkpoints[0]?.id || undefined;
   return {
     title,
+    ...(description ? { description } : {}),
     global_lorebook: lore,
     base_preset: draft.base_preset,
     roles,

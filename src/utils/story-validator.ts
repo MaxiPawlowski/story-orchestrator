@@ -77,6 +77,7 @@ export interface NormalizedTransition {
 export interface NormalizedStory {
   schemaVersion: "1.0";
   title: string;
+  description?: string;
   global_lorebook: string;
   roles?: Partial<Record<Role, string>>;
   checkpoints: NormalizedCheckpoint[];
@@ -348,6 +349,8 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
   const story = validateStoryShape(input);
 
   const authorNoteDefaults = normalizeAuthorNoteDefaults(story.author_note_defaults as AuthorNoteSettings | undefined);
+  const rawDescription = typeof story.description === "string" ? cleanScalar(story.description) : "";
+  const normalizedDescription = rawDescription ? rawDescription : undefined;
 
   const checkpoints: NormalizedCheckpoint[] = story.checkpoints.map((cp, idx) => {
     const id = normalizeId(cp.id, `cp-${idx + 1}`);
@@ -471,6 +474,7 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
   return {
     schemaVersion: "1.0",
     title: cleanScalar(story.title),
+    description: normalizedDescription,
     global_lorebook: cleanScalar(story.global_lorebook),
     roles: sanitizeRoleMap(story.roles as Partial<Record<Role, string>> | undefined),
     checkpoints: orderedCheckpoints,

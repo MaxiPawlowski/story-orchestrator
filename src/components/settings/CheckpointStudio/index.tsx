@@ -284,7 +284,7 @@ const CheckpointStudio: React.FC<Props> = ({
   const handleReloadLibrary = useCallback(async () => {
     try {
       await onReloadLibrary();
-      setFeedback({ type: "success", message: "Reloaded built-in stories." });
+      setFeedback({ type: "success", message: "Reloaded story library." });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setFeedback({ type: "error", message });
@@ -299,7 +299,7 @@ const CheckpointStudio: React.FC<Props> = ({
       return;
     }
     if (target.kind !== "saved") {
-      setFeedback({ type: "error", message: "Built-in stories cannot be deleted." });
+      setFeedback({ type: "error", message: "Only saved stories can be deleted." });
       return;
     }
     const label = typeof target.meta?.name === "string" && target.meta.name.trim().length

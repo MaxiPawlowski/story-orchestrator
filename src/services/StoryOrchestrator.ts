@@ -265,14 +265,8 @@ class StoryOrchestrator {
   private buildStoryDescription(): string {
     const story = this.story;
     if (!story) return "";
-    const lines: string[] = [];
-    if (story.title) lines.push(`Title: ${story.title}`);
-    if (story.global_lorebook) lines.push(`Lorebook: ${story.global_lorebook}`);
-    const rawDescription = (story as unknown as { description?: string })?.description;
-    if (typeof rawDescription === "string" && rawDescription.trim()) {
-      lines.push(rawDescription.trim());
-    }
-    return this.clampSummary(lines.join("\n"));
+    const description = story.description?.trim();
+    return description ? this.clampSummary(description) : "";
   }
 
   private buildCurrentCheckpointSummary(cp?: NormalizedCheckpoint): string {

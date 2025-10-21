@@ -125,6 +125,19 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
           />
         </label>
         <label className="flex flex-col gap-1 text-xs text-slate-300">
+          <span>Story Description</span>
+          <textarea
+            className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+            rows={4}
+            value={draft.description ?? ""}
+            onChange={(e) => setDraft((prev) => ({ ...prev, description: e.target.value }))}
+            placeholder="Summarize the campaign backdrop that the Arbiter sees."
+          />
+          <span className="text-[11px] text-slate-400">
+            Exposed to prompts via <code className="font-mono text-[11px] text-slate-300">{`{{story_description}}`}</code>.
+          </span>
+        </label>
+        <label className="flex flex-col gap-1 text-xs text-slate-300">
           <span>Global Lorebook</span>
           <select
             className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"

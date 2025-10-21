@@ -5,7 +5,7 @@ Story Driver is a checkpoint-driven story runner for SillyTavern. It ensures the
 
 ## Lifecycle & Flow
 1. Extension mounts; Drawer + Settings roots are injected after a short delay.
-2. `StoryProvider` loads bundled checkpoint JSON (numeric filenames) through `json-bundle-loader` → `story-loader` → `story-validator`, yielding a `NormalizedStory`.
+2. `StoryProvider` loads the selected story from the persisted library (SillyTavern settings) via `storyLibrary` → `story-validator`, yielding a `NormalizedStory`.
 3. `orchestratorManager.ensureStory` spins up a singleton `StoryOrchestrator` when a valid story and group chat context are detected.
 4. `StoryOrchestrator` hydrates persisted runtime, primes role presets, registers slash commands, and subscribes to SillyTavern host events.
 5. Each player message increments `turn` and `turnsSinceEval`; interval thresholds or regex matches queue evaluations in `CheckpointArbiterService`.
@@ -36,7 +36,7 @@ Story Driver is a checkpoint-driven story runner for SillyTavern. It ensures the
 ## Checkpoint Studio & Story Library
 - Studio components (`src/components/studio/*`) implement story metadata editing, checkpoint CRUD, diagnostics, and Cytoscape/dagre graph visualization.
 - `utils/checkpoint-studio.ts` defines draft models, regex/string helpers, Mermaid graph output, and cleanup utilities for producing schema-compliant stories.
-- `storyLibrary.ts` merges bundled stories with saved drafts stored under the extension settings `studio` key, normalizes entries, and exposes CRUD helpers to the UI.
+- `storyLibrary.ts` manages saved stories stored under the extension settings `studio` key, normalizes entries, and exposes CRUD helpers to the UI.
 - `utils/arbiter.ts` owns the sanitized arbiter defaults; other modules consume its branded helpers instead of importing `DEFAULT_*` constants directly.
 
 ## Persistence & Host Integration
@@ -45,7 +45,6 @@ Story Driver is a checkpoint-driven story runner for SillyTavern. It ensures the
 - Slash commands are registered in `src/utils/slashCommands.ts` during orchestrator initialization for manual checkpoint control or diagnostics.
 
 ## Assets, Styling & Build
-- Bundled stories reside under `src/checkpoints/`; build output mirrors them into `dist/checkpoints/`.
 - Styling uses Tailwind (`tailwind.config.js`) plus `src/styles.css`, processed through the webpack pipeline.
 - Toolchain: React 19, TypeScript 5, Zustand 5, Cytoscape + dagre for graph layouts.
 - Scripts: `npm run dev` (watch + typecheck), `npm run typecheck`, `npm run build`.

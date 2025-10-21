@@ -76,7 +76,7 @@ type MacroDisplayEntry = {
 const STORY_MACRO_BASE_ENTRIES: MacroDisplayEntry[] = [
   { key: "story_active_title", description: "Active story title", category: "Runtime" },
   { key: "story_title", description: "Story title (prompt safe)", category: "Runtime" },
-  { key: "story_description", description: "Story description for arbiter prompts", category: "Runtime" },
+  { key: "story_description", description: "Story description from schema", category: "Runtime" },
   { key: "story_active_checkpoint_id", description: "Current checkpoint id", category: "Runtime" },
   { key: "story_active_checkpoint_name", description: "Current checkpoint name", category: "Runtime" },
   { key: "story_active_checkpoint_objective", description: "Current checkpoint objective", category: "Runtime" },

@@ -220,6 +220,7 @@ function computeStorySignature(story: NormalizedStory): string {
   return [
     story.schemaVersion ?? "?",
     story.title ?? "",
+    story.description ?? "",
     String(story.checkpoints.length ?? 0),
     cpSig,
     edgeSig,

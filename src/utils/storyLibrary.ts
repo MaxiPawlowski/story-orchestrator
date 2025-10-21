@@ -1,12 +1,10 @@
 import type { Story } from "@utils/story-schema";
 import { parseAndNormalizeStory, formatZodError, type NormalizedStory } from "@utils/story-validator";
-import type { CheckpointBundle } from "@utils/story-loader";
 import { extensionName } from "@constants/main";
 import { extension_settings, saveSettingsDebounced } from "@services/SillyTavernAPI";
 
 export const STUDIO_SETTINGS_KEY = "studio";
 export const SAVED_KEY_PREFIX = "saved:";
-export const BUNDLE_KEY_PREFIX = "bundle:";
 
 export type StoredStoryRecord = {
   id: string;
@@ -22,7 +20,7 @@ export type StudioState = {
 
 export type StoryLibraryEntry = {
   key: string;
-  kind: "saved" | "bundle";
+  kind: "saved";
   label: string;
   ok: boolean;
   story?: NormalizedStory;
@@ -48,6 +46,13 @@ function getSettingsRoot(): Record<string, unknown> {
   extension_settings[extensionName] = created;
   return created;
 }
+
+const normalizeLastSelectedKey = (value: unknown): string | null => {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  if (!trimmed.startsWith(SAVED_KEY_PREFIX)) return null;
+  return trimmed;
+};
 
 export function loadStudioState(): StudioState {
   const root = getSettingsRoot();
@@ -77,14 +82,13 @@ export function loadStudioState(): StudioState {
       : Date.now();
     stories.push({ id, name, story, updatedAt });
   }
-  const lastSelectedKey = typeof candidate.lastSelectedKey === "string"
-    ? candidate.lastSelectedKey
-    : null;
+  const lastSelectedKey = normalizeLastSelectedKey(candidate.lastSelectedKey);
   return { stories, lastSelectedKey };
 }
 
 export function persistStudioState(state: StudioState): void {
   const root = getSettingsRoot();
+  const sanitizedKey = normalizeLastSelectedKey(state.lastSelectedKey);
   root[STUDIO_SETTINGS_KEY] = {
     stories: state.stories.map(({ id, name, story, updatedAt }) => ({
       id,
@@ -92,7 +96,7 @@ export function persistStudioState(state: StudioState): void {
       story,
       updatedAt,
     })),
-    lastSelectedKey: state.lastSelectedKey ?? undefined,
+    lastSelectedKey: sanitizedKey ?? undefined,
   };
   try {
     saveSettingsDebounced();
@@ -160,32 +164,3 @@ export function toSavedEntries(stories: StoredStoryRecord[]): StoryLibraryEntry[
     }
   });
 }
-
-export function toBundleEntries(bundle: CheckpointBundle | null): StoryLibraryEntry[] {
-  if (!bundle) return [];
-  return bundle.results.map((entry) => {
-    if (entry.ok) {
-      const label = entry.json.title?.trim()
-        ? `Builtin · ${entry.json.title.trim()}`
-        : `Builtin · ${entry.file}`;
-      return {
-        key: `${BUNDLE_KEY_PREFIX}${entry.file}`,
-        kind: "bundle" as const,
-        label,
-        ok: true,
-        story: entry.json,
-        meta: { file: entry.file },
-      };
-    }
-    return {
-      key: `${BUNDLE_KEY_PREFIX}${entry.file}`,
-      kind: "bundle" as const,
-      label: `Builtin · ${entry.file}`,
-      ok: false,
-      error: describeStoryError(entry.error),
-      meta: { file: entry.file },
-    };
-  });
-}
-
-export type { CheckpointBundle } from "@utils/story-loader";
