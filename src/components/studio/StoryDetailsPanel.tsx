@@ -1,10 +1,9 @@
 import React from "react";
-import { StoryDraft, TalkControlDraft } from "@utils/checkpoint-studio";
+import { StoryDraft } from "@utils/checkpoint-studio";
 import { getWorldInfoSettings, eventSource, event_types, getContext } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
 import StoryMetadataSection from "./StoryDetails/StoryMetadataSection";
 import StoryRolesSection from "./StoryDetails/StoryRolesSection";
-import TalkControlDefaultsSection from "./StoryDetails/TalkControlDefaultsSection";
 
 type Props = {
   draft: StoryDraft;
@@ -14,62 +13,7 @@ type Props = {
 const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
   const [globalLorebooks, setGlobalLorebooks] = React.useState<string[]>([]);
   const [groupMembers, setGroupMembers] = React.useState<string[]>([]);
-  const talkControl = draft.talkControl;
 
-  const updateTalkControl = React.useCallback((updater: (current: TalkControlDraft | undefined) => TalkControlDraft | undefined) => {
-    setDraft((prev) => {
-      const next = updater(prev.talkControl);
-      return { ...prev, talkControl: next };
-    });
-  }, [setDraft]);
-
-  const handleDefaultNumberChange = React.useCallback((key: "cooldownTurns" | "maxPerTurn" | "maxCharsPerAuto", raw: string) => {
-    updateTalkControl((current) => {
-      const base: TalkControlDraft = current
-        ? { ...current, checkpoints: { ...(current.checkpoints ?? {}) } }
-        : { checkpoints: {} };
-      const defaults = { ...(base.defaults ?? {}) } as Record<string, unknown>;
-      const trimmed = raw.trim();
-      if (!trimmed) {
-        delete defaults[key];
-      } else {
-        const num = Number(trimmed);
-        if (Number.isFinite(num)) {
-          const min = key === "maxPerTurn" ? 1 : key === "maxCharsPerAuto" ? 1 : 0;
-          defaults[key] = Math.max(min, Math.floor(num));
-        }
-      }
-      const nextDefaults = Object.keys(defaults).length ? (defaults as TalkControlDraft["defaults"]) : undefined;
-      return { ...base, defaults: nextDefaults };
-    });
-  }, [updateTalkControl]);
-
-  const handleDefaultFlagChange = React.useCallback((key: "sendAsQuiet" | "forceSpeaker", value: string) => {
-    updateTalkControl((current) => {
-      const base: TalkControlDraft = current
-        ? { ...current, checkpoints: { ...(current.checkpoints ?? {}) } }
-        : { checkpoints: {} };
-      const defaults = { ...(base.defaults ?? {}) } as Record<string, unknown>;
-      if (!value) {
-        delete defaults[key];
-      } else {
-        defaults[key] = value === "true";
-      }
-      const nextDefaults = Object.keys(defaults).length ? (defaults as TalkControlDraft["defaults"]) : undefined;
-      return { ...base, defaults: nextDefaults };
-    });
-  }, [updateTalkControl]);
-
-  const handleClearDefaults = React.useCallback(() => {
-    updateTalkControl((current) => {
-      if (!current) return current;
-      const next: TalkControlDraft = { ...current, defaults: undefined };
-      if (!Object.keys(next.checkpoints ?? {}).length) {
-        return undefined;
-      }
-      return next;
-    });
-  }, [updateTalkControl]);
 
   const refreshGlobalLorebooks = React.useCallback(() => {
     try {
@@ -170,8 +114,6 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
           <StoryRolesSection draft={draft} setDraft={setDraft} groupMembers={groupMembers} />
         </div>
       </div>
-
-      <TalkControlDefaultsSection />
     </div>
   );
 };

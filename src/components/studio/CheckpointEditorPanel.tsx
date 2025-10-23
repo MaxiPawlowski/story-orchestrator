@@ -193,10 +193,8 @@ const CheckpointEditorPanel: React.FC<Props> = ({
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
                 className={[
-                  "border px-3 py-2 font-medium text-sm transition-colors focus:z-10",
-                  "hover:bg-gray-50 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-white",
+                  "border px-1.5 py-2 text-xs transition-colors focus:z-10",
                   "focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900",
-                  "disabled:pointer-events-auto disabled:opacity-50",
                   "dark:border-gray-700 dark:text-gray-200 text-gray-700",
                   isFirst ? "rounded-l-sm" : "-ml-px",
                   isLast ? "rounded-r-sm" : "",

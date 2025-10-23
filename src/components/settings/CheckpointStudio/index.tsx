@@ -483,25 +483,26 @@ const CheckpointStudio: React.FC<Props> = ({
             selectedId={selectedId}
             onSelect={(id) => setSelectedId(id)}
           />
-          <StoryDetailsPanel draft={draft} setDraft={setDraft} />
-          <DiagnosticsPanel diagnostics={diagnostics} />
+
         </div>
 
         <div className="flex flex-col gap-4">
-          <CheckpointEditorPanel
-            draft={draft}
-            selectedCheckpoint={selectedCheckpoint}
-            outgoingTransitions={outgoingTransitions}
-            onCheckpointIdChange={handleCheckpointIdChange}
-            updateCheckpoint={updateCheckpoint}
-            onAddTransition={handleAddTransition}
-            onRemoveTransition={handleRemoveTransition}
-            updateTransition={updateTransition}
-            onRemoveCheckpoint={handleRemoveCheckpoint}
-            setDraft={setDraft}
-          />
+          <StoryDetailsPanel draft={draft} setDraft={setDraft} />
+          <DiagnosticsPanel diagnostics={diagnostics} />
         </div>
       </div>
+      <CheckpointEditorPanel
+        draft={draft}
+        selectedCheckpoint={selectedCheckpoint}
+        outgoingTransitions={outgoingTransitions}
+        onCheckpointIdChange={handleCheckpointIdChange}
+        updateCheckpoint={updateCheckpoint}
+        onAddTransition={handleAddTransition}
+        onRemoveTransition={handleRemoveTransition}
+        updateTransition={updateTransition}
+        onRemoveCheckpoint={handleRemoveCheckpoint}
+        setDraft={setDraft}
+      />
     </div>
   );
 };

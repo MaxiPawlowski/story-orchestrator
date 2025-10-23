@@ -8,6 +8,7 @@ import {
 } from "@utils/checkpoint-studio";
 import { getContext, eventSource, event_types } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
+import HelpTooltip from "../../HelpTooltip";
 
 type Props = {
   draft: StoryDraft;
@@ -72,7 +73,10 @@ const WorldInfoTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }) 
     <div className="space-y-2">
       <div className="font-medium">World Info</div>
       <label className="flex flex-col gap-1 text-xs text-slate-300">
-        <span>Activate</span>
+        <span className="inline-flex items-center gap-1">
+          Activate
+          <HelpTooltip title="Turn on these lore entries as soon as the checkpoint activates." />
+        </span>
         <MultiSelect
           options={buildEntryOptions(checkpoint.on_activate?.world_info?.activate)}
           value={checkpoint.on_activate?.world_info?.activate ?? []}
@@ -86,7 +90,10 @@ const WorldInfoTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }) 
         />
       </label>
       <label className="flex flex-col gap-1 text-xs text-slate-300">
-        <span>Deactivate</span>
+        <span className="inline-flex items-center gap-1">
+          Deactivate
+          <HelpTooltip title="Disable these lore entries when entering the checkpoint to avoid overlap." />
+        </span>
         <MultiSelect
           options={buildEntryOptions(checkpoint.on_activate?.world_info?.deactivate)}
           value={checkpoint.on_activate?.world_info?.deactivate ?? []}
@@ -104,4 +111,3 @@ const WorldInfoTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }) 
 };
 
 export default WorldInfoTab;
-

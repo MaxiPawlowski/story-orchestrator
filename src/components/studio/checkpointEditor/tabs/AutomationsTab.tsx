@@ -1,5 +1,6 @@
 import React from "react";
 import type { SlashCommandMeta, AutomationDraftLine } from "../types";
+import HelpTooltip from "../../HelpTooltip";
 
 type Props = {
   automationDraft: string;
@@ -95,7 +96,10 @@ const AutomationsTab: React.FC<Props> = ({
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="font-medium">Automations</div>
+        <div className="flex items-center gap-1 font-medium text-slate-200">
+          Automations
+          <HelpTooltip title="Queue slash commands that fire immediately when the checkpoint activates." />
+        </div>
         <button
           type="button"
           className="inline-flex items-center justify-center rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
@@ -105,7 +109,10 @@ const AutomationsTab: React.FC<Props> = ({
         </button>
       </div>
       <label className="flex flex-col gap-1 text-xs text-slate-300">
-        <span>Search Commands</span>
+        <span className="inline-flex items-center gap-1">
+          Search Commands
+          <HelpTooltip title="Look up slash commands and insert them with one click." />
+        </span>
         <input
           className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
           value={commandSearch}
@@ -166,6 +173,10 @@ const AutomationsTab: React.FC<Props> = ({
           </div>
         </>
       )}
+      <div className="flex items-center gap-1 text-xs text-slate-300">
+        <span>Automation Script</span>
+        <HelpTooltip title="One command per line. Executed in order after presets, author notes, and world info apply." />
+      </div>
       <textarea
         className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
         rows={6}
@@ -182,7 +193,7 @@ const AutomationsTab: React.FC<Props> = ({
                 className={`text-xs ${entry.status === "ok" ? "text-emerald-300" : "text-red-300"}`}
               >
                 {entry.status === "ok" ? "OK" : "Issue"}: {entry.trimmed}
-                {entry.message ? `  E${entry.message}` : null}
+                {entry.message ? ` - ${entry.message}` : null}
               </div>
             )
           ))}

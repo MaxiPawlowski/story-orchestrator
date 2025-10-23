@@ -2,6 +2,7 @@ import React from "react";
 import type { CheckpointDraft, StoryDraft } from "@utils/checkpoint-studio";
 import type { SlashCommandMeta, MacroDisplayEntry } from "../types";
 import { STORY_MACRO_BASE_ENTRIES } from "../types";
+import HelpTooltip from "../../HelpTooltip";
 
 type Props = {
   draft: StoryDraft;
@@ -92,7 +93,10 @@ const BasicsTab: React.FC<Props> = ({
   return (
     <>
       <label className="flex flex-col gap-1 text-xs text-slate-300">
-        <span>Checkpoint Id</span>
+        <span className="inline-flex items-center gap-1">
+          Checkpoint Id
+          <HelpTooltip title="Stable identifier referenced by transitions and persistence snapshots." />
+        </span>
         <input
           className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
           value={checkpoint.id}
@@ -100,7 +104,10 @@ const BasicsTab: React.FC<Props> = ({
         />
       </label>
       <label className="flex flex-col gap-1 text-xs text-slate-300">
-        <span>Name</span>
+        <span className="inline-flex items-center gap-1">
+          Name
+          <HelpTooltip title="Friendly label shown in the Studio UI." />
+        </span>
         <input
           className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
           value={checkpoint.name}
@@ -108,7 +115,10 @@ const BasicsTab: React.FC<Props> = ({
         />
       </label>
       <label className="flex flex-col gap-1 text-xs text-slate-300">
-        <span>Objective</span>
+        <span className="inline-flex items-center gap-1">
+          Objective
+          <HelpTooltip title="Explain the scene goal so the Player knows what to expect." />
+        </span>
         <textarea
           className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
           rows={3}
@@ -118,7 +128,10 @@ const BasicsTab: React.FC<Props> = ({
       </label>
       <div className="space-y-3">
         <label className="flex flex-col gap-1 text-xs text-slate-300">
-          <span>Search Commands &amp; Macros</span>
+          <span className="inline-flex items-center gap-1">
+            Search Commands &amp; Macros
+            <HelpTooltip title="Filter Story Driver slash commands and macro references without leaving the editor." />
+          </span>
           <input
             className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
             value={referenceQuery}
@@ -128,9 +141,8 @@ const BasicsTab: React.FC<Props> = ({
         </label>
         <div className="space-y-3">
           <div className="space-y-2">
-            <div className="font-medium">Story Driver Slash Commands</div>
-            <div className="text-xs text-slate-400">
-              Read-only reference for commands registered by this extension.
+            <div className="font-medium">Story Driver Slash Commands {' '}
+              <HelpTooltip title="Read-only reference for commands registered by this extension." />
             </div>
             <div className="rounded border border-slate-700 bg-slate-900/40 divide-y divide-slate-800">
               {filteredReferenceCommands.length ? filteredReferenceCommands.map((cmd) => (
@@ -164,10 +176,11 @@ const BasicsTab: React.FC<Props> = ({
             </div>
           </div>
           <div className="space-y-2">
-            <div className="font-medium">Story Driver Macros</div>
-            <div className="text-xs text-slate-400">
-              Macros resolve at runtime; role entries update with the active story cast.
+            <div className="font-medium">
+              Story Driver Macros {' '}
+              <HelpTooltip title="Macros resolve at runtime; role entries update with the active story cast." />
             </div>
+
             <div className="rounded border border-slate-700 bg-slate-900/40 divide-y divide-slate-800">
               {filteredMacroEntries.length ? filteredMacroEntries.map((entry) => (
                 <div key={entry.key} className="space-y-1 p-2">
@@ -198,4 +211,3 @@ const BasicsTab: React.FC<Props> = ({
 };
 
 export default BasicsTab;
-

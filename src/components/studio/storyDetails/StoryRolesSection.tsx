@@ -1,5 +1,6 @@
 import React from "react";
 import type { StoryDraft } from "@utils/checkpoint-studio";
+import HelpTooltip from "../HelpTooltip";
 
 type Props = {
   draft: StoryDraft;
@@ -9,15 +10,19 @@ type Props = {
 
 const StoryRolesSection: React.FC<Props> = ({ draft, setDraft, groupMembers }) => (
   <div className="mt-2 border-t border-slate-800 pt-3">
-    <div className="mb-1 font-medium text-slate-200">Story Roles</div>
-    <div className="mb-2 text-[11px] text-slate-400">
-      Map role name to the participant/character name in your group chat.
+    <div className="mb-1 font-medium text-slate-200">Story Roles
+      <HelpTooltip title="Map role name to the participant/character name in your group chat. Useful to quickly swap characters in your story." />
     </div>
     <div className="space-y-2">
-      {Object.entries(draft.roles ?? {}).map(([roleKey, participant]) => (
+      {Object.entries(draft.roles ?? {}).map(([roleKey, participant], index) => (
         <div key={roleKey} className="grid grid-cols-2 gap-2 items-end">
           <label className="flex flex-col gap-1 text-xs text-slate-300">
-            <span>Role Name</span>
+            <span className="inline-flex items-center gap-1">
+              Role Name
+              {index === 0 && (
+                <HelpTooltip title="Internal identifier used by macros, presets, and automation triggers." />
+              )}
+            </span>
             <input
               className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
               value={roleKey}
@@ -43,7 +48,10 @@ const StoryRolesSection: React.FC<Props> = ({ draft, setDraft, groupMembers }) =
           </label>
           <div className="flex items-end gap-2">
             <label className="flex flex-1 flex-col gap-1 text-xs text-slate-300">
-              <span>Participant Name</span>
+              <span className="inline-flex items-center gap-1">
+                Participant Name
+                {index === 0 && <HelpTooltip title="Match the SillyTavern chat member name so Story Driver links roles correctly." />}
+              </span>
               <input
                 list="st-group-members"
                 className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
@@ -103,4 +111,3 @@ const StoryRolesSection: React.FC<Props> = ({ draft, setDraft, groupMembers }) =
 );
 
 export default StoryRolesSection;
-

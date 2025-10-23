@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import {
   type StoryDraft,
   type CheckpointDraft,
@@ -10,6 +10,7 @@ import {
 import type { TalkControlTrigger } from "@utils/story-schema";
 import { TALK_CONTROL_TRIGGER_OPTIONS } from "../constants";
 import { cloneTalkControlCheckpoint, cloneTalkControlReply } from "../talkControlUtils";
+import HelpTooltip from "../../HelpTooltip";
 
 type Props = {
   draft: StoryDraft;
@@ -22,8 +23,7 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
   const selectedCheckpointId = checkpoint.id;
   const checkpointTalkControl = talkControl?.checkpoints?.[selectedCheckpointId];
   const replies = checkpointTalkControl?.replies ?? [];
-  
-  // Get available roles for dropdowns
+
   const roleOptions = React.useMemo(() => {
     const roles = draft.roles && typeof draft.roles === "object" ? Object.keys(draft.roles) : [];
     return roles;
@@ -203,7 +203,10 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
                 </div>
 
                 <label className="flex flex-col gap-1 text-xs text-slate-300">
-                  <span>Trigger Event</span>
+                  <span className="inline-flex items-center gap-1">
+                    Trigger Event
+                    <HelpTooltip title="Select when this reply should be eligible to fire." />
+                  </span>
                   <select
                     className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
                     value={reply.trigger}
@@ -219,7 +222,10 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
 
                 {reply.trigger === "afterSpeak" ? (
                   <label className="flex flex-col gap-1 text-xs text-slate-300">
-                    <span>Trigger After Character (Optional)</span>
+                    <span className="inline-flex items-center gap-1">
+                      Trigger After Character (Who Speaks)
+                      <HelpTooltip title="Who needs to speak for this reply to trigger." />
+                    </span>
                     <select
                       className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
                       value={reply.memberId}
@@ -232,14 +238,14 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
                         </option>
                       ))}
                     </select>
-                    <div className="text-[11px] text-slate-400">
-                      Select "Any Character" to trigger after anyone speaks, or choose a specific character.
-                    </div>
                   </label>
                 ) : null}
 
                 <label className="flex flex-col gap-1 text-xs text-slate-300">
-                  <span>Speaking Character (Who Replies)</span>
+                  <span className="inline-flex items-center gap-1">
+                    Speaking Character (Who Replies)
+                    <HelpTooltip title="Choose who delivers the automated response." />
+                  </span>
                   <select
                     className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
                     value={reply.speakerId}
@@ -252,15 +258,13 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
                       </option>
                     ))}
                   </select>
-                  {roleOptions.length === 0 && (
-                    <div className="text-[11px] text-amber-400">
-                      ⚠️ No story roles defined. Add roles in the Story Details section.
-                    </div>
-                  )}
                 </label>
 
                 <label className="flex flex-col gap-1 text-xs text-slate-300">
-                  <span>Probability (0-100)</span>
+                  <span className="inline-flex items-center gap-1">
+                    Probability (0-100)
+                    <HelpTooltip title="Control the likelihood of this reply being selected." />
+                  </span>
                   <input
                     type="number"
                     min={0}
@@ -273,7 +277,10 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-xs text-slate-300">
-                    <span>Content Type</span>
+                    <span className="inline-flex items-center gap-1">
+                      Content Type
+                      <HelpTooltip title="Choose static canned text or LLM instructions to generate replies dynamically." />
+                    </span>
                     <select
                       className="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 focus:border-transparent focus:outline-none focus:ring-slate-600"
                       value={reply.content.kind}
@@ -315,4 +322,5 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
 };
 
 export default TalkControlTab;
+
 

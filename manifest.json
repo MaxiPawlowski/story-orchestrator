@@ -1,13 +1,13 @@
 {
-    "display_name": "ProjectStory",
-    "loading_order": 1,
-    "requires": [],
-    "optional": [],
-    "js": "dist/index.js",
-    "css": "",
-    "author": "Cohee1207",
-    "version": "1.0.0",
-    "homePage": "https://github.com/Cohee1207/Extension-ReactTemplate",
-    "auto_update": true,
-    "generate_interceptor": "generate_interceptor"
+  "display_name": "ProjectStory",
+  "loading_order": 1,
+  "requires": [],
+  "optional": [],
+  "js": "dist/index.js",
+  "css": "",
+  "author": "Rolita",
+  "version": "1.0.0",
+  "homePage": "https://github.com/Cohee1207/Extension-ReactTemplate",
+  "auto_update": true,
+  "generate_interceptor": "talkControlInterceptor"
 }

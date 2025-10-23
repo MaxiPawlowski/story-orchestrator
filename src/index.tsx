@@ -11,7 +11,7 @@ import { initializeTalkControl, talkControlInterceptor } from "@controllers/talk
 initializeTalkControl();
 if (typeof globalThis !== "undefined") {
   try {
-    (globalThis as any).generate_interceptor = talkControlInterceptor;
+    (globalThis as any).talkControlInterceptor = talkControlInterceptor;
   } catch (err) {
     console.warn("[Story] Failed to register talk control interceptor", err);
   }

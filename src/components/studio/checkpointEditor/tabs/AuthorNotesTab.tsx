@@ -7,6 +7,7 @@ import {
   type CheckpointDraft,
 } from "@utils/checkpoint-studio";
 import { AUTHOR_NOTE_POSITION_OPTIONS, AUTHOR_NOTE_ROLE_OPTIONS } from "../constants";
+import HelpTooltip from "../../HelpTooltip";
 
 type Props = {
   draft: StoryDraft;
@@ -88,7 +89,10 @@ const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }
               </button>
             </div>
             <label className="flex flex-col gap-1 text-xs text-slate-300">
-              <span>Author Note Text</span>
+              <span className="inline-flex items-center gap-1">
+                Author Note Text
+                <HelpTooltip title="Per-role instructions injected into the runtime Author's Note slot." />
+              </span>
               <textarea
                 className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
                 rows={3}
@@ -105,7 +109,10 @@ const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }
             </label>
             <div className="grid grid-cols-4 gap-3">
               <label className="flex flex-col gap-1 text-xs text-slate-300">
-                <span>Position</span>
+                <span className="inline-flex items-center gap-1">
+                  Position
+                  <HelpTooltip title="Choose where the note appears relative to the main prompt." />
+                </span>
                 <select
                   className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
                   value={note?.position ?? ""}
@@ -129,7 +136,10 @@ const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }
                 </select>
               </label>
               <label className="flex flex-col gap-1 text-xs text-slate-300">
-                <span>Interval</span>
+                <span className="inline-flex items-center gap-1">
+                  Interval
+                  <HelpTooltip title="Apply the note every N turns; leave blank to use the default cadence." />
+                </span>
                 <input
                   className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
                   value={note?.interval ?? ""}
@@ -148,7 +158,10 @@ const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }
                 />
               </label>
               <label className="flex flex-col gap-1 text-xs text-slate-300">
-                <span>Depth</span>
+                <span className="inline-flex items-center gap-1">
+                  Depth
+                  <HelpTooltip title="Adjust how strongly the note influences the model (preset-specific meaning)." />
+                </span>
                 <input
                   className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-slate-600"
                   value={note?.depth ?? ""}
@@ -167,7 +180,10 @@ const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }
                 />
               </label>
               <label className="flex flex-col gap-1 text-xs text-slate-300">
-                <span>Send As</span>
+                <span className="inline-flex items-center gap-1">
+                  Send As
+                  <HelpTooltip title="Override which role supplies the note, useful for DM vs. companion voices." />
+                </span>
                 <select
                   className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
                   value={note?.role ?? ""}
@@ -210,4 +226,3 @@ const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }
 };
 
 export default AuthorNotesTab;
-

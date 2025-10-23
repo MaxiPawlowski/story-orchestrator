@@ -13,6 +13,7 @@ import {
 import { PRESET_SETTING_KEYS, type PresetSettingKey } from "@constants/presetSettingKeys";
 import type { PresetDraftState } from "../types";
 import { parsePresetValue, stringifyPresetValue, readCurrentPresetValue } from "../presetUtils";
+import HelpTooltip from "../../HelpTooltip";
 
 type Props = {
   draft: StoryDraft;
@@ -177,7 +178,7 @@ const PresetOverridesTab: React.FC<Props> = ({
 
   return (
     <div className="space-y-3">
-      {presetRoleKeys.map((roleKey) => {
+      {presetRoleKeys.map((roleKey, roleIndex) => {
         const overridesForRole = roleKey === ARBITER_ROLE_KEY
           ? checkpoint.on_activate?.arbiter_preset ?? {}
           : checkpoint.on_activate?.preset_overrides?.[roleKey] ?? {};
@@ -223,12 +224,15 @@ const PresetOverridesTab: React.FC<Props> = ({
             </div>
             {Object.keys(overridesForRole).length ? (
               <div className="space-y-2">
-                {Object.entries(overridesForRole).map(([settingKey, value]) => {
+                {Object.entries(overridesForRole).map(([settingKey, value], settingIndex) => {
                   const displayValue = draftValues[settingKey] ?? stringifyPresetValue(value);
                   return (
                     <div key={settingKey} className="grid grid-cols-[minmax(140px,0.45fr)_minmax(0,1fr)_auto] items-end gap-2">
                       <label className="flex flex-col gap-1 text-xs text-slate-300">
-                        <span>Setting</span>
+                        <span className="inline-flex items-center gap-1">
+                          Setting
+                          {settingIndex === 0 && roleIndex === 0 && <HelpTooltip title="Select which SillyTavern preset property to override for this role as it appears if you exported your presets as a JSON; current value is default." />}
+                        </span>
                         <select
                           className="w-full rounded border border-slate-700 bg-slate-800 mb-0 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
                           value={settingKey}
@@ -242,7 +246,10 @@ const PresetOverridesTab: React.FC<Props> = ({
                         </select>
                       </label>
                       <label className="flex flex-col gap-1 text-xs text-slate-300">
-                        <span>Value</span>
+                        <span className="inline-flex items-center gap-1">
+                          Value
+                          {settingIndex === 0 && roleIndex === 0 && <HelpTooltip title="Enter the override as it would appear as if you exported your presets as a JSON; current value is default." />}
+                        </span>
                         <input
                           className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
                           value={displayValue}
@@ -272,4 +279,3 @@ const PresetOverridesTab: React.FC<Props> = ({
 };
 
 export default PresetOverridesTab;
-

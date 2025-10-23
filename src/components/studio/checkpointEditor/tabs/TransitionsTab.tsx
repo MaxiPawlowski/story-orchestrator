@@ -6,6 +6,7 @@ import {
   type TransitionTriggerDraft,
   splitLines,
 } from "@utils/checkpoint-studio";
+import HelpTooltip from "../../HelpTooltip";
 
 type Props = {
   draft: StoryDraft;
@@ -26,7 +27,10 @@ const TransitionsTab: React.FC<Props> = ({
 }) => (
   <div className="space-y-2">
     <div className="flex items-center justify-between">
-      <div className="font-medium">Outgoing Transitions</div>
+      <div className="flex items-center gap-1 font-medium text-slate-200">
+        Outgoing Transitions
+        <HelpTooltip title="Define how this checkpoint hands off to the next one through timers or Arbiter matches." />
+      </div>
       <button
         type="button"
         className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
@@ -71,7 +75,10 @@ const TransitionsTab: React.FC<Props> = ({
             <div key={edge.id} className="rounded border border-slate-600 p-2 space-y-2">
               <div className="grid grid-cols-2 gap-2">
                 <label className="flex flex-col gap-1 text-xs text-slate-300">
-                  <span>To</span>
+                  <span className="inline-flex items-center gap-1">
+                    To
+                    <HelpTooltip title="Select the destination checkpoint the story should advance to." />
+                  </span>
                   <select
                     className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
                     value={edge.to}
@@ -85,7 +92,10 @@ const TransitionsTab: React.FC<Props> = ({
                   </select>
                 </label>
                 <label className="flex flex-col gap-1 text-xs text-slate-300">
-                  <span>Type</span>
+                  <span className="inline-flex items-center gap-1">
+                    Type
+                    <HelpTooltip title="Use 'Arbiter Regex' for text triggers or 'Timed Turns' for automatic scheduling." />
+                  </span>
                   <select
                     className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
                     value={trigger.type}
@@ -98,32 +108,50 @@ const TransitionsTab: React.FC<Props> = ({
               </div>
               <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                 <label className="flex flex-col gap-1 text-xs text-slate-300">
-                  <span>Label</span>
+                  <span className="inline-flex items-center gap-1">
+                    Transition ID
+                    <HelpTooltip title="Unique key for diagnostics and referencing this edge elsewhere. Useful for the arbiter to make it meaningful." />
+                  </span>
+                  <input
+                    className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                    value={edge.id}
+                    onChange={(e) => updateTransition(edge.id, { id: e.target.value })}
+                  />
+                </label>
+                <label className="flex flex-col gap-1 text-xs text-slate-300">
+                  <span className="inline-flex items-center gap-1">
+                    Label
+                    <HelpTooltip title="Helper text describing why this transition fires." />
+                  </span>
                   <input
                     className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
                     value={trigger.label ?? ""}
                     onChange={(e) => patchTrigger({ label: e.target.value })}
                   />
                 </label>
-                {isRegex ? (
-                  <div />
-                ) : (
-                  <label className="flex flex-col gap-1 text-xs text-slate-300">
-                    <span>Advance After Turns</span>
-                    <input
-                      type="number"
-                      min={1}
-                      className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                      value={Math.max(1, trigger.within_turns ?? 1)}
-                      onChange={(e) => patchTrigger({ within_turns: Math.max(1, Number(e.target.value) || 1) })}
-                    />
-                  </label>
-                )}
               </div>
+              {!isRegex && (
+                <label className="flex flex-col gap-1 text-xs text-slate-300">
+                  <span className="inline-flex items-center gap-1">
+                    Advance After Turns
+                    <HelpTooltip title="Number of player turns to wait before Story advances automatically." />
+                  </span>
+                  <input
+                    type="number"
+                    min={1}
+                    className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                    value={Math.max(1, trigger.within_turns ?? 1)}
+                    onChange={(e) => patchTrigger({ within_turns: Math.max(1, Number(e.target.value) || 1) })}
+                  />
+                </label>
+              )}
               {isRegex ? (
                 <div className="grid gap-2">
                   <label className="flex flex-col gap-1 text-xs text-slate-300">
-                    <span>Patterns (one per line)</span>
+                    <span className="inline-flex items-center gap-1">
+                      Patterns (one per line)
+                      <HelpTooltip title="Regular expressions evaluated against player messages; use /pattern/flags format." />
+                    </span>
                     <textarea
                       className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
                       rows={3}
@@ -132,7 +160,10 @@ const TransitionsTab: React.FC<Props> = ({
                     />
                   </label>
                   <label className="flex flex-col gap-1 text-xs text-slate-300">
-                    <span>Arbiter Condition (LLM only)</span>
+                    <span className="inline-flex items-center gap-1">
+                      Arbiter Condition (LLM only)
+                      <HelpTooltip title="Natural-language criteria sent to the Arbiter to determine if this transition should fire." />
+                    </span>
                     <textarea
                       className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
                       rows={2}
@@ -146,8 +177,7 @@ const TransitionsTab: React.FC<Props> = ({
                   This transition will advance automatically once the turn counter reaches the specified value.
                 </div>
               )}
-              <div className="flex justify-between items-center">
-                <div className="text-xs opacity-80">{edge.id}</div>
+              <div className="flex justify-end">
                 <button
                   type="button"
                   className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
@@ -165,4 +195,3 @@ const TransitionsTab: React.FC<Props> = ({
 );
 
 export default TransitionsTab;
-
