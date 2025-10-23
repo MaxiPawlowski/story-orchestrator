@@ -15,7 +15,6 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
   const [globalLorebooks, setGlobalLorebooks] = React.useState<string[]>([]);
   const [groupMembers, setGroupMembers] = React.useState<string[]>([]);
   const talkControl = draft.talkControl;
-  const talkControlEnabled = Boolean(talkControl?.enabled);
 
   const updateTalkControl = React.useCallback((updater: (current: TalkControlDraft | undefined) => TalkControlDraft | undefined) => {
     setDraft((prev) => {
@@ -24,26 +23,11 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
     });
   }, [setDraft]);
 
-  const handleTalkControlToggle = React.useCallback((enabled: boolean) => {
-    updateTalkControl((current) => {
-      if (enabled) {
-        const base: TalkControlDraft = current ?? { enabled: true, checkpoints: {} };
-        return { ...base, enabled: true };
-      }
-      if (!current) return undefined;
-      const next: TalkControlDraft = { ...current, enabled: false };
-      if (!Object.keys(next.checkpoints ?? {}).length && !next.defaults) {
-        return undefined;
-      }
-      return next;
-    });
-  }, [updateTalkControl]);
-
   const handleDefaultNumberChange = React.useCallback((key: "cooldownTurns" | "maxPerTurn" | "maxCharsPerAuto", raw: string) => {
     updateTalkControl((current) => {
       const base: TalkControlDraft = current
         ? { ...current, checkpoints: { ...(current.checkpoints ?? {}) } }
-        : { enabled: true, checkpoints: {} };
+        : { checkpoints: {} };
       const defaults = { ...(base.defaults ?? {}) } as Record<string, unknown>;
       const trimmed = raw.trim();
       if (!trimmed) {
@@ -64,7 +48,7 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
     updateTalkControl((current) => {
       const base: TalkControlDraft = current
         ? { ...current, checkpoints: { ...(current.checkpoints ?? {}) } }
-        : { enabled: true, checkpoints: {} };
+        : { checkpoints: {} };
       const defaults = { ...(base.defaults ?? {}) } as Record<string, unknown>;
       if (!value) {
         delete defaults[key];
@@ -80,7 +64,7 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
     updateTalkControl((current) => {
       if (!current) return current;
       const next: TalkControlDraft = { ...current, defaults: undefined };
-      if (!next.enabled && !Object.keys(next.checkpoints ?? {}).length) {
+      if (!Object.keys(next.checkpoints ?? {}).length) {
         return undefined;
       }
       return next;
@@ -187,14 +171,7 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
         </div>
       </div>
 
-      <TalkControlDefaultsSection
-        talkControl={talkControl}
-        enabled={talkControlEnabled}
-        onToggle={handleTalkControlToggle}
-        onNumberChange={handleDefaultNumberChange}
-        onFlagChange={handleDefaultFlagChange}
-        onClearDefaults={handleClearDefaults}
-      />
+      <TalkControlDefaultsSection />
     </div>
   );
 };

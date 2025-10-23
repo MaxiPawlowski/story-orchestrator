@@ -77,63 +77,41 @@ const TalkControlTriggerSchema = z.enum([
 ] as const);
 export type TalkControlTrigger = z.infer<typeof TalkControlTriggerSchema>;
 
-const TalkControlProbabilitySchema = z.object({
-  afterSpeak: z.number().int().min(0).max(100).optional(),
-  beforeArbiter: z.number().int().min(0).max(100).optional(),
-  afterArbiter: z.number().int().min(0).max(100).optional(),
-  onEnter: z.number().int().min(0).max(100).optional(),
-  onExit: z.number().int().min(0).max(100).optional(),
-}).partial();
-
-const TalkControlAutoReplyBaseSchema = z.object({
-  weight: z.number().int().min(1).optional(),
-});
-
-const TalkControlStaticReplySchema = TalkControlAutoReplyBaseSchema.extend({
+const TalkControlStaticReplySchema = z.object({
   kind: z.literal("static"),
   text: z.string().min(1),
 });
 
-const TalkControlLlmReplySchema = TalkControlAutoReplyBaseSchema.extend({
+const TalkControlLlmReplySchema = z.object({
   kind: z.literal("llm"),
   instruction: z.string().min(1),
 });
 
-export const TalkControlAutoReplySchema = z.discriminatedUnion("kind", [
+export const TalkControlReplyContentSchema = z.discriminatedUnion("kind", [
   TalkControlStaticReplySchema,
   TalkControlLlmReplySchema,
 ]);
-export type TalkControlAutoReply = z.infer<typeof TalkControlAutoReplySchema>;
+export type TalkControlReplyContent = z.infer<typeof TalkControlReplyContentSchema>;
 
-export const TalkControlMemberSchema = z.object({
-  memberId: z.string().min(1),
+export const TalkControlReplySchema = z.object({
+  memberId: z.string().default(""),
+  speakerId: z.string().min(1),
   enabled: z.boolean().default(true),
-  probabilities: TalkControlProbabilitySchema.default({}),
-  cooldownTurns: z.number().int().min(0).optional(),
-  maxPerTurn: z.number().int().min(1).optional(),
-  maxCharsPerAuto: z.number().int().min(1).optional(),
-  sendAsQuiet: z.boolean().optional(),
-  forceSpeaker: z.boolean().optional(),
-  autoReplies: z.array(TalkControlAutoReplySchema).min(1),
+  trigger: TalkControlTriggerSchema,
+  probability: z.number().int().min(0).max(100).default(100),
+  content: TalkControlReplyContentSchema,
 });
-export type TalkControlMember = z.infer<typeof TalkControlMemberSchema>;
+export type TalkControlReply = z.infer<typeof TalkControlReplySchema>;
 
 const TalkControlCheckpointSchema = z.object({
-  members: z.array(TalkControlMemberSchema).default([]),
+  replies: z.array(TalkControlReplySchema).default([]),
 });
 export type TalkControlCheckpoint = z.infer<typeof TalkControlCheckpointSchema>;
 
-export const TalkControlDefaultsSchema = z.object({
-  cooldownTurns: z.number().int().min(0).optional(),
-  maxPerTurn: z.number().int().min(1).optional(),
-  maxCharsPerAuto: z.number().int().min(1).optional(),
-  sendAsQuiet: z.boolean().optional(),
-  forceSpeaker: z.boolean().optional(),
-});
+export const TalkControlDefaultsSchema = z.object({});
 export type TalkControlDefaults = z.infer<typeof TalkControlDefaultsSchema>;
 
 export const TalkControlConfigSchema = z.object({
-  enabled: z.boolean().default(false),
   defaults: TalkControlDefaultsSchema.optional(),
   checkpoints: z.record(z.string().min(1), TalkControlCheckpointSchema).default({}),
 });

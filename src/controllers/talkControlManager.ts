@@ -1,4 +1,4 @@
-import type { NormalizedStory, NormalizedTalkControl, NormalizedTalkControlCheckpoint, NormalizedTalkControlMember, NormalizedTalkControlAutoReply } from "@utils/story-validator";
+import type { NormalizedStory, NormalizedTalkControl, NormalizedTalkControlCheckpoint, NormalizedTalkControlReply } from "@utils/story-validator";
 import { normalizeName } from "@utils/story-validator";
 import type { TalkControlTrigger } from "@utils/story-schema";
 import { storySessionStore } from "@store/storySessionStore";
@@ -28,7 +28,7 @@ interface TalkControlEvent {
   metadata?: Record<string, unknown>;
 }
 
-interface MemberRuntimeState {
+interface ReplyRuntimeState {
   lastActionTurn: number;
   actionTurnStamp: number;
   actionsThisTurn: number;
@@ -37,12 +37,11 @@ interface MemberRuntimeState {
 interface PendingAction {
   event: TalkControlEvent;
   checkpointId: string;
-  member: NormalizedTalkControlMember;
-  reply: NormalizedTalkControlAutoReply;
-  state: MemberRuntimeState;
+  reply: NormalizedTalkControlReply;
+  state: ReplyRuntimeState;
 }
 
-const runtimeStates = new Map<string, MemberRuntimeState>();
+const runtimeStates = new Map<string, ReplyRuntimeState>();
 const eventQueue: TalkControlEvent[] = [];
 const listeners: Array<() => void> = [];
 const storyRoleLookup = new Map<string, string>();
@@ -61,7 +60,7 @@ const endInterceptSuppression = () => { interceptSuppressDepth = Math.max(0, int
 const beginSelfDispatch = () => { selfDispatchDepth += 1; };
 const endSelfDispatch = () => { selfDispatchDepth = Math.max(0, selfDispatchDepth - 1); };
 
-const isStoryActive = () => Boolean(config?.enabled);
+const isStoryActive = () => Boolean(config);
 const isGroupActive = () => Boolean(selected_group);
 const isSuppressed = () => interceptSuppressDepth > 0;
 const isSelfDispatching = () => selfDispatchDepth > 0;
@@ -71,10 +70,10 @@ const getCheckpointConfig = (checkpointId: string | null | undefined): Normalize
   return config.checkpoints.get(checkpointId);
 };
 
-const makeStateKey = (checkpointId: string, member: NormalizedTalkControlMember) => `${checkpointId}::${member.normalizedId}`;
+const makeStateKey = (checkpointId: string, replyIndex: number) => `${checkpointId}::${replyIndex}`;
 
-const getMemberRuntimeState = (checkpointId: string, member: NormalizedTalkControlMember): MemberRuntimeState => {
-  const key = makeStateKey(checkpointId, member);
+const getReplyRuntimeState = (checkpointId: string, replyIndex: number): ReplyRuntimeState => {
+  const key = makeStateKey(checkpointId, replyIndex);
   let state = runtimeStates.get(key);
   if (!state) {
     state = { lastActionTurn: -Infinity, actionTurnStamp: -1, actionsThisTurn: 0 };
@@ -88,7 +87,7 @@ const getMemberRuntimeState = (checkpointId: string, member: NormalizedTalkContr
 };
 
 const queueEvent = (type: TalkControlTrigger, checkpointId: string | null, metadata?: Record<string, unknown>) => {
-  if (!config?.enabled) return;
+  if (!config) return;
   eventQueue.push({ id: nextEventId++, type, checkpointId, metadata });
 };
 
@@ -107,17 +106,17 @@ const rebuildRoleLookup = (input: NormalizedStory | null) => {
   }
 };
 
-const resolveCandidateNames = (member: NormalizedTalkControlMember): string[] => {
+const resolveCandidateNames = (reply: NormalizedTalkControlReply): string[] => {
   const names = new Set<string>();
-  if (member.memberId) names.add(member.memberId);
-  if (storyRoleLookup.has(member.normalizedId)) {
-    names.add(storyRoleLookup.get(member.normalizedId)!);
+  if (reply.memberId) names.add(reply.memberId);
+  if (storyRoleLookup.has(reply.normalizedId)) {
+    names.add(storyRoleLookup.get(reply.normalizedId)!);
   }
   return Array.from(names);
 };
 
-const resolveCharacterId = (member: NormalizedTalkControlMember): number | undefined => {
-  const candidates = resolveCandidateNames(member);
+const resolveCharacterId = (reply: NormalizedTalkControlReply): number | undefined => {
+  const candidates = resolveCandidateNames(reply);
   for (const candidate of candidates) {
     const byHelper = getCharacterIdByName(candidate);
     if (byHelper !== undefined) return byHelper;
@@ -131,29 +130,15 @@ const resolveCharacterId = (member: NormalizedTalkControlMember): number | undef
   return undefined;
 };
 
-const pickStaticReplyText = (reply: NormalizedTalkControlAutoReply): string => {
-  if (reply.kind !== "static") return "";
-  const expanded = substituteParams(reply.text);
-  return typeof expanded === "string" ? expanded.trim() : reply.text;
+const pickStaticReplyText = (reply: NormalizedTalkControlReply): string => {
+  if (reply.content.kind !== "static") return "";
+  const text = reply.content.text ?? "";
+  const expanded = substituteParams(text);
+  return typeof expanded === "string" ? expanded.trim() : text;
 };
 
-const pickWeightedReply = (member: NormalizedTalkControlMember): NormalizedTalkControlAutoReply | null => {
-  const entries = member.autoReplies ?? [];
-  if (!entries.length) return null;
-  const total = entries.reduce((acc, item) => acc + Math.max(1, item.weight ?? 1), 0);
-  const roll = Math.random() * total;
-  let cumulative = 0;
-  for (const entry of entries) {
-    cumulative += Math.max(1, entry.weight ?? 1);
-    if (roll <= cumulative) {
-      return entry;
-    }
-  }
-  return entries[entries.length - 1];
-};
-
-const shuffleMembers = (members: NormalizedTalkControlMember[]): NormalizedTalkControlMember[] => {
-  const clone = members.slice();
+const shuffleReplies = (replies: NormalizedTalkControlReply[]): NormalizedTalkControlReply[] => {
+  const clone = replies.slice();
   for (let i = clone.length - 1; i > 0; i -= 1) {
     const j = Math.floor(Math.random() * (i + 1));
     [clone[i], clone[j]] = [clone[j], clone[i]];
@@ -166,24 +151,28 @@ const selectActionForEvent = (event: TalkControlEvent): PendingAction | null => 
   if (!checkpointId) return null;
   const checkpointConfig = getCheckpointConfig(checkpointId);
   if (!checkpointConfig) return null;
-  const members = shuffleMembers(checkpointConfig.members);
-  for (const member of members) {
-    if (!member.enabled) continue;
-    const probability = member.probabilities[event.type];
-    if (!probability || probability <= 0) continue;
+
+  // Get replies for this trigger
+  const candidateReplies = checkpointConfig.repliesByTrigger.get(event.type) ?? [];
+  if (!candidateReplies.length) return null;
+
+  // Shuffle to randomize selection order
+  const replies = shuffleReplies(candidateReplies);
+
+  for (let idx = 0; idx < replies.length; idx += 1) {
+    const reply = replies[idx];
+    if (!reply.enabled) continue;
+
+    // For afterSpeak, check if this reply is for the speaker
     if (event.type === "afterSpeak") {
       const speakerId = typeof event.metadata?.speakerId === "string" ? event.metadata.speakerId : "";
-      if (speakerId && speakerId !== member.normalizedId) continue;
+      if (speakerId && speakerId !== reply.normalizedId) continue;
     }
-    if (Math.random() * 100 >= probability) continue;
-    const state = getMemberRuntimeState(checkpointId, member);
-    if (state.actionsThisTurn >= member.maxPerTurn) continue;
-    if (Number.isFinite(state.lastActionTurn) && (currentTurn - state.lastActionTurn) <= member.cooldownTurns) continue;
-    const reply = pickWeightedReply(member);
-    if (!reply) continue;
-    state.lastActionTurn = currentTurn;
-    state.actionsThisTurn += 1;
-    return { event, checkpointId, member, reply, state };
+
+    // Check probability
+    if (Math.random() * 100 >= reply.probability) continue;
+
+    return { event, checkpointId, reply, state: getReplyRuntimeState(checkpointId, idx) };
   }
   return null;
 };
@@ -198,9 +187,9 @@ const nextPendingAction = (): PendingAction | null => {
 };
 
 const dispatchStaticAction = async (action: PendingAction) => {
-  const charId = resolveCharacterId(action.member);
+  const charId = resolveCharacterId(action.reply);
   if (charId === undefined) {
-    console.warn("[TalkControl] Unable to resolve character for static reply", { member: action.member.memberId });
+    console.warn("[TalkControl] Unable to resolve character for static reply", { member: action.reply.memberId });
     return;
   }
   const character = characters[charId];
@@ -211,15 +200,13 @@ const dispatchStaticAction = async (action: PendingAction) => {
   const text = pickStaticReplyText(action.reply);
   if (!text) return;
 
-  const limited = text.length > action.member.maxCharsPerAuto ? text.slice(0, action.member.maxCharsPerAuto) : text;
-
   const timestamp = getMessageTimeStamp();
   const message: Record<string, any> = {
-    name: character.name ?? action.member.memberId,
+    name: character.name ?? action.reply.memberId,
     is_user: false,
     is_system: false,
     send_date: timestamp,
-    mes: limited,
+    mes: text,
     original_avatar: character.avatar,
     extra: {
       api: "storyDriver",
@@ -228,7 +215,7 @@ const dispatchStaticAction = async (action: PendingAction) => {
       storyDriverTalkControl: { kind: "static", checkpointId: action.checkpointId, event: action.event.type },
     },
     swipe_id: 0,
-    swipes: [limited],
+    swipes: [text],
     swipe_info: [
       {
         send_date: timestamp,
@@ -257,19 +244,18 @@ const dispatchStaticAction = async (action: PendingAction) => {
 };
 
 const dispatchLlmAction = async (action: PendingAction) => {
-  const charId = resolveCharacterId(action.member);
+  const charId = resolveCharacterId(action.reply);
   if (charId === undefined) {
-    console.warn("[TalkControl] Unable to resolve character for LLM reply", { member: action.member.memberId });
+    console.warn("[TalkControl] Unable to resolve character for LLM reply", { member: action.reply.memberId });
     return;
   }
+  const instruction = action.reply.content.kind === "llm" ? action.reply.content.instruction : undefined;
   const params: Record<string, unknown> = {
-    quiet_prompt: action.reply.kind === "llm" ? action.reply.instruction : undefined,
-    quietToLoud: !action.member.sendAsQuiet,
-    quietName: action.member.memberId,
+    quiet_prompt: instruction,
+    quietToLoud: true,
+    quietName: action.reply.memberId,
+    force_chid: charId,
   };
-  if (action.member.forceSpeaker) {
-    params.force_chid = charId;
-  }
 
   await generateGroupWrapper(true, "normal", params);
 };
@@ -279,7 +265,7 @@ const executeAction = async (action: PendingAction) => {
   beginSelfDispatch();
   try {
     if (!isGroupActive()) return;
-    if (action.reply.kind === "static") {
+    if (action.reply.content.kind === "static") {
       await dispatchStaticAction(action);
     } else {
       await dispatchLlmAction(action);
