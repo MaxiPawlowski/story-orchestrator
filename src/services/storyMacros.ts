@@ -56,19 +56,12 @@ export const ensureStoryMacros = () => {
   if (registered) return;
   if (!MacrosParser) return;
 
-  registerMacro("story_active_title", () => getState().story?.title ?? "", "Active story title");
-  registerMacro("story_title", () => dynamicSnapshot.storyTitle || (getState().story?.title ?? ""), "Story title (prompt safe)");
+  registerMacro("story_title", () => dynamicSnapshot.storyTitle || (getState().story?.title ?? ""), "Story title");
   registerMacro("story_description", () => dynamicSnapshot.storyDescription, "Story description");
-  registerMacro("story_active_checkpoint_id", () => getActiveCheckpoint()?.id ?? "", "Current checkpoint id");
-  registerMacro("story_active_checkpoint_name", () => getActiveCheckpoint()?.name ?? "", "Current checkpoint name");
-  registerMacro("story_active_checkpoint_objective", () => getActiveCheckpoint()?.objective ?? "", "Current checkpoint objective");
   registerMacro("story_current_checkpoint", () => dynamicSnapshot.currentCheckpoint, "Formatted current checkpoint summary");
   registerMacro("story_past_checkpoints", () => dynamicSnapshot.pastCheckpoints, "Past checkpoint summary (most recent first)");
   registerMacro("story_possible_triggers", () => dynamicSnapshot.possibleTriggers, "Formatted list of transition candidates");
-  registerMacro("chat_excerpt", () => dynamicSnapshot.chatExcerpt, "Recent conversation excerpt for arbiter prompts");
-  registerMacro("story_turn", () => String(getState().turn ?? 0), "Current turn count");
-  registerMacro("story_turns_since_eval", () => String(getState().runtime?.turnsSinceEval ?? 0), "Turns since last arbiter evaluation");
-  registerMacro("story_checkpoint_turns", () => String(getState().runtime?.checkpointTurnCount ?? 0), "Turns spent in the active checkpoint");
+  registerMacro("chat_excerpt", () => dynamicSnapshot.chatExcerpt, "Recent conversation excerpt for arbiter prompts (most recent first)");
   registerMacro("story_player_name", () => getState().requirements?.currentUserName ?? "", "Active player name");
 
   const roles = Object.keys(getState().story?.roles ?? {});

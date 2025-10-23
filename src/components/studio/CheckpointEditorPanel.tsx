@@ -181,22 +181,37 @@ const CheckpointEditorPanel: React.FC<Props> = ({
       </div>
 
       <div className="sticky top-0 z-[1] border-b border-slate-800 bg-[var(--SmartThemeBlurTintColor)] px-3 pt-2">
-        <div className="flex flex-wrap items-center gap-1">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => setActiveTab(tab.key)}
-              className={(activeTab === tab.key
-                ? "bg-slate-700 text-slate-50"
-                : "bg-slate-800 text-slate-300 hover:bg-slate-900") +
-                " rounded px-3 py-1 text-xs border border-slate-700 transition"}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div className="inline-flex rounded-sm shadow-sm">
+          {TABS.map((tab, index) => {
+            const isFirst = index === 0;
+            const isLast = index === TABS.length - 1;
+            const isActive = activeTab === tab.key;
+
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActiveTab(tab.key)}
+                className={[
+                  "border px-3 py-2 font-medium text-sm transition-colors focus:z-10",
+                  "hover:bg-gray-50 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-white",
+                  "focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900",
+                  "disabled:pointer-events-auto disabled:opacity-50",
+                  "dark:border-gray-700 dark:text-gray-200 text-gray-700",
+                  isFirst ? "rounded-l-sm" : "-ml-px",
+                  isLast ? "rounded-r-sm" : "",
+                  isActive
+                    ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white"
+                    : "bg-white dark:bg-gray-900"
+                ].join(" ")}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
-    </div>
+
 
       <div className="flex flex-col gap-4 p-3">
         {!selectedCheckpoint ? (

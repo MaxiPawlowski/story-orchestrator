@@ -16,7 +16,6 @@ type Props = {
   selectedKey: string | null;
   selectedError: string | null;
   onSelectKey: (key: string) => void;
-  onReloadLibrary: () => Promise<void>;
   onSaveStory: (story: Story, options?: { targetKey?: string; name?: string }) => Promise<SaveLibraryStoryResult>;
   onDeleteStory: (key: string) => Promise<DeleteLibraryStoryResult>;
   disabled?: boolean;
@@ -49,7 +48,6 @@ const CheckpointStudioModal: React.FC<Props> = ({
   selectedKey,
   selectedError,
   onSelectKey,
-  onReloadLibrary,
   onSaveStory,
   onDeleteStory,
   disabled,
@@ -100,7 +98,7 @@ const CheckpointStudioModal: React.FC<Props> = ({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[2000] flex items-center justify-center bg-[color:color-mix(in_srgb,var(--SmartThemeBlurTintColor)_70%,transparent)] p-6"
+      className="fixed inset-0 z-[2000] flex items-center justify-center bg-[color:color-mix(in_srgb,var(--SmartThemeBlurTintColor)_70%,transparent)]"
       role="presentation"
       onClick={handleOverlayClick}
     >
@@ -108,10 +106,9 @@ const CheckpointStudioModal: React.FC<Props> = ({
         role="dialog"
         aria-modal="true"
         aria-label="Checkpoint Editor"
-        className="flex w-full max-h-[96vh] max-w-[1120px] flex-col rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] shadow-2xl"
+        className="flex w-full max-h-[96vh] max-w-[1120px] flex-col rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] shadow-2xl relative"
       >
-        <div className="flex items-center justify-between border-b border-slate-800 px-4 py-0">
-          <h2 className="text-base font-semibold text-slate-200 m-auto">Checkpoint Editor</h2>
+        <div className="flex items-center justify-between border-b border-slate-800 px-4 py-0 absolute top-[10px] w-[50px] right-0">
           <button
             type="button"
             className="rounded p-1 border-none bg-transparent text-lg text-slate-400 transition hover:text-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-600"
@@ -129,7 +126,6 @@ const CheckpointStudioModal: React.FC<Props> = ({
             selectedKey={selectedKey}
             selectedError={selectedError}
             onSelectKey={onSelectKey}
-            onReloadLibrary={onReloadLibrary}
             onSaveStory={onSaveStory}
             onDeleteStory={onDeleteStory}
             disabled={disabled}

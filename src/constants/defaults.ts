@@ -14,10 +14,6 @@ export const ARBITER_RESPONSE_LENGTH = 256;
 export const ARBITER_CHAT_NAME_CLAMP = 40;
 export const ARBITER_CHAT_MESSAGE_CLAMP = 300;
 export const ARBITER_LOG_SAMPLE_LENGTH = 200;
-
-export const JSON_RUNTIME_MAX_FILES = 100;
-export const JSON_RUNTIME_STOP_AFTER_MISSES = 5;
-
 export const UI_SYNC_MAX_ATTEMPTS = 20;
 export const UI_SYNC_RETRY_DELAY_MS = 100;
 export const DEFAULT_ARBITER_PROMPT = `
@@ -25,6 +21,7 @@ You are the Checkpoint Arbiter. Your job is to EVALUATE, not narrate.
 You ONLY judge whether any transition condition is clearly and completely met based on the supplied context.
 Do not continue the story, invent facts, or speculate beyond what is written.
 
+{{story_title}}
 === Story Description ===
 {{story_description}}
 
@@ -34,7 +31,7 @@ Do not continue the story, invent facts, or speculate beyond what is written.
 === Current Checkpoint ===
 {{story_current_checkpoint}}
 
-=== Conversation Excerpt (most-recent-first) ===
+=== Conversation Excerpt (most recent-first) ===
 {{chat_excerpt}}
 
 === Decision Task ===

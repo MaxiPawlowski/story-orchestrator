@@ -204,7 +204,6 @@ const SettingsWrapper = () => {
           selectedKey={selectedLibraryKey}
           selectedError={selectedLibraryError}
           onSelectKey={selectLibraryEntry}
-          onReloadLibrary={reloadLibrary}
           onSaveStory={saveLibraryStory}
           onDeleteStory={deleteLibraryStory}
         />

@@ -9,43 +9,30 @@ Story Driver is a checkpoint-driven automation layer for SillyTavern. Stories ar
 - Checkpoint Studio supports story CRUD, diagnostics, and Cytoscape + dagre graph visualization inside SillyTavern.
 - Runtime orchestration handles preset cloning, per-role Author's Notes, world info toggles, and macro hydration on activation.
 - Per-chat persistence resumes checkpoint state, status map, and evaluation counters whenever a chat is reopened.
-- Slash commands (`/checkpoint`, `/story`, `/arbiter`) provide manual control over checkpoints, automation, persistence, and arbiter runs.
+- Slash commands (`/checkpoint`) provide manual control over checkpoint navigation and evaluation.
 - A rich macro set exposes live story metadata for Author's Notes, world info, and prompt templates.
 
 ## Slash Commands
-The extension registers three command entry points. All commands can be issued from chats where Story Driver is active; errors are reported inline.
+The extension registers checkpoint control commands that can be issued from chats where Story Driver is active; errors are reported inline.
 
-### /checkpoint (`/cp`, `/storycp`)
-- `list` or `status` displays every checkpoint with status markers and highlights the active node.
-- `next` and `prev` step forward/backward one checkpoint when automation is paused or manual intervention is needed.
-- Passing an index (`/checkpoint 2`) or explicit id (`/checkpoint id=finale`) activates that checkpoint immediately.
-
-### /story (`/storyctl`, `/storydriver`)
-- `status` prints orchestrator readiness, turn totals, checkpoint turns, persistence state, and requirement flags.
-- `reset` rewinds to the first checkpoint and clears counters; `persist` forces a runtime snapshot when chat context is valid.
-- `eval` queues a manual arbiter evaluation; `pause`, `resume`, and `toggle` control automatic turn listening.
-
-### /arbiter (`/st-arb`, `/storyarb`)
-- `run` (default), `eval`, or `trigger` queues an immediate arbiter evaluation with an optional `reason` (`manual`, `trigger`, `timed`, `interval`).
-- Commands accept either `/arbiter run reason=manual` or shorthand `/arbiter manual`.
+### /checkpoint (`/cp`)
+- `list` displays every checkpoint with status markers and highlights the active node.
+- `prev` steps backward one checkpoint when automation is paused or manual intervention is needed.
+- `eval` queues a manual arbiter evaluation at the current checkpoint.
+- Passing an explicit id (`/checkpoint finale`) activates that checkpoint immediately.
+- Named argument syntax is also supported: `/checkpoint id=finale`
 
 ## Story Macros
 Macros are registered through SillyTavern's `MacrosParser` and update live as runtime state changes.
 
 | Macro | Description |
 |-------|-------------|
-| `{{story_active_title}}`, `{{story_title}}` | Current story title (raw and sanitized snapshot). |
+| `{{story_title}}` | Current story title. |
 | `{{story_description}}` | Sanitized story description for prompt injection. |
-| `{{story_active_checkpoint_id}}` | Active checkpoint id. |
-| `{{story_active_checkpoint_name}}` | Active checkpoint name. |
-| `{{story_active_checkpoint_objective}}` | Active checkpoint objective. |
 | `{{story_current_checkpoint}}` | Multi-line summary of the active checkpoint. |
 | `{{story_past_checkpoints}}` | Recent checkpoint history with status labels. |
 | `{{story_possible_triggers}}` | Formatted list of current transition candidates. |
 | `{{chat_excerpt}}` | Recent chat transcript snapshot used for arbiter prompts. |
-| `{{story_turn}}` | Total processed turns. |
-| `{{story_turns_since_eval}}` | Turns since the arbiter last evaluated. |
-| `{{story_checkpoint_turns}}` | Turns spent inside the active checkpoint. |
 | `{{story_player_name}}` | Active player name sourced from requirements. |
 | `{{story_role_<role>}}` | Role display names for every role defined in the story (plus `story_role_dm` and `story_role_companion`). |
 

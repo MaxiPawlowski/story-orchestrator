@@ -21,7 +21,6 @@ type Props = {
   selectedKey: string | null;
   selectedError: string | null;
   onSelectKey: (key: string) => void;
-  onReloadLibrary: () => Promise<void>;
   onSaveStory: (story: Story, options?: { targetKey?: string; name?: string }) => Promise<SaveLibraryStoryResult>;
   onDeleteStory: (key: string) => Promise<DeleteLibraryStoryResult>;
   disabled?: boolean;
@@ -36,7 +35,6 @@ const CheckpointStudio: React.FC<Props> = ({
   selectedKey,
   selectedError,
   onSelectKey,
-  onReloadLibrary,
   onSaveStory,
   onDeleteStory,
   disabled,
@@ -112,6 +110,30 @@ const CheckpointStudio: React.FC<Props> = ({
       return { ...prev, checkpoints };
     });
   };
+
+  const runDiagnostics = useCallback((input: StoryDraft) => {
+    const raw = draftToStoryInput(input);
+    const results: Diagnostic[] = [];
+    const validation = validate(raw);
+    if (!validation.ok) {
+      results.push({ ok: false, name: "Schema validation", detail: validation.errors.join("; ") });
+    }
+    const nodeIds = new Set(raw.checkpoints.map((cp) => cp.id));
+    const missing = raw.transitions.filter((edge) => !nodeIds.has(edge.from) || !nodeIds.has(edge.to));
+    if (missing.length) {
+      results.push({
+        ok: false,
+        name: "Transition targets",
+        detail: `Transitions with missing endpoints: ${missing.map((edge) => edge.id).join(", ")}.`,
+      });
+    }
+    setDiagnostics(results);
+  }, [validate]);
+
+  // Run diagnostics when source story changes
+  useEffect(() => {
+    runDiagnostics(baseDraft);
+  }, [baseDraft, runDiagnostics]);
 
   const handleCheckpointIdChange = (id: string, value: string) => {
     const nextId = value.trim();
@@ -220,10 +242,12 @@ const CheckpointStudio: React.FC<Props> = ({
     const validation = validate(payload);
     if (!validation.ok) {
       setFeedback({ type: "error", message: validation.errors.join("; ") });
+      runDiagnostics(draft);
       return;
     }
     setSavePending(true);
     setFeedback(null);
+    setDiagnostics([]);
     try {
       const result = await onSaveStory(payload, {
         targetKey: currentEntry.key,
@@ -242,7 +266,7 @@ const CheckpointStudio: React.FC<Props> = ({
     } finally {
       setSavePending(false);
     }
-  }, [disabled, currentEntry, draft, validate, onSaveStory, onSelectKey]);
+  }, [disabled, currentEntry, draft, validate, onSaveStory, onSelectKey, runDiagnostics]);
 
   const handleSaveAs = useCallback(async () => {
     if (disabled) return;
@@ -250,6 +274,7 @@ const CheckpointStudio: React.FC<Props> = ({
     const validation = validate(payload);
     if (!validation.ok) {
       setFeedback({ type: "error", message: validation.errors.join("; ") });
+      runDiagnostics(draft);
       return;
     }
     const defaultName = suggestedName;
@@ -261,6 +286,7 @@ const CheckpointStudio: React.FC<Props> = ({
     if (!candidate) return;
     setSavePending(true);
     setFeedback(null);
+    setDiagnostics([]);
     try {
       const result = await onSaveStory(payload, { name: candidate });
       if (!result.ok) {
@@ -275,17 +301,7 @@ const CheckpointStudio: React.FC<Props> = ({
     } finally {
       setSavePending(false);
     }
-  }, [disabled, draft, validate, onSaveStory, suggestedName, onSelectKey]);
-
-  const handleReloadLibrary = useCallback(async () => {
-    try {
-      await onReloadLibrary();
-      setFeedback({ type: "success", message: "Reloaded story library." });
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setFeedback({ type: "error", message });
-    }
-  }, [onReloadLibrary]);
+  }, [disabled, draft, validate, onSaveStory, suggestedName, onSelectKey, runDiagnostics]);
 
   const handleDeleteStory = useCallback(async () => {
     if (disabled) return;
@@ -323,43 +339,6 @@ const CheckpointStudio: React.FC<Props> = ({
     }
   }, [disabled, currentEntry, onDeleteStory]);
 
-  const handleRunDiagnostics = () => {
-    const raw = draftToStoryInput(draft);
-    const results: Diagnostic[] = [];
-    const validation = validate(raw);
-    if (validation.ok) {
-      results.push({
-        ok: true,
-        name: "Schema validation",
-        detail: `Loaded ${validation.story.checkpoints.length} checkpoints and ${validation.story.transitions.length} transitions.`,
-      });
-      const triggerTotals = validation.story.transitions.reduce((acc, edge) => {
-        acc.total += 1;
-        if (edge.trigger.type === "timed") acc.timed += 1;
-        return acc;
-      }, { total: 0, timed: 0 });
-      results.push({
-        ok: true,
-        name: "Trigger compilation",
-        detail: `Compiled ${triggerTotals.total} triggers (${triggerTotals.timed} timed).`,
-      });
-    } else {
-      results.push({ ok: false, name: "Schema validation", detail: validation.errors.join("; ") });
-    }
-    const nodeIds = new Set(raw.checkpoints.map((cp) => cp.id));
-    const missing = raw.transitions.filter((edge) => !nodeIds.has(edge.from) || !nodeIds.has(edge.to));
-    if (missing.length) {
-      results.push({
-        ok: false,
-        name: "Transition targets",
-        detail: `Transitions with missing endpoints: ${missing.map((edge) => edge.id).join(", ")}.`,
-      });
-    } else {
-      results.push({ ok: true, name: "Transition targets", detail: "All transitions map to existing checkpoints." });
-    }
-    setDiagnostics(results);
-  };
-
   const handleReset = () => {
     setDraft(baseDraft);
     setSelectedId(baseDraft.start || baseDraft.checkpoints[0]?.id || null);
@@ -395,6 +374,7 @@ const CheckpointStudio: React.FC<Props> = ({
       const validation = validate(parsed);
       if (!validation.ok) {
         setFeedback({ type: "error", message: validation.errors.join("; ") });
+        runDiagnostics(normalizedToDraft(null));
         return;
       }
 
@@ -402,6 +382,8 @@ const CheckpointStudio: React.FC<Props> = ({
       setDraft(nextDraft);
       setSelectedId(nextDraft.start || nextDraft.checkpoints[0]?.id || null);
       setFeedback(null);
+      setDiagnostics([]);
+      runDiagnostics(nextDraft);
 
       const sanitized = draftToStoryInput(nextDraft);
       const baseFileName = file.name.replace(/\.[^/.]+$/, "");
@@ -437,47 +419,49 @@ const CheckpointStudio: React.FC<Props> = ({
     <div className="flex flex-col gap-4 text-sm text-slate-100">
       <input ref={fileInputRef} type="file" accept="application/json" className="hidden" onChange={handleFileChange} />
 
-      <div className="flex flex-col gap-2 rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] p-3">
-        <label className="flex flex-col gap-1 text-xs text-slate-300">
-          <span>Story Entry</span>
-          <div className="flex flex-wrap items-center gap-2">
-            <select
-              className="min-w-[200px] rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-              value={selectedKey ?? ""}
-              disabled={!!disabled || savePending || deletePending || !libraryEntries.length}
-              onChange={(event) => {
-                const next = event.target.value;
-                if (next) {
-                  onSelectKey(next);
-                }
-              }}
-            >
-              {!libraryEntries.length && <option value="">No stories available</option>}
-              {libraryEntries.map((entry) => (
-                <option key={entry.key} value={entry.key}>
-                  {entry.ok ? entry.label : `${entry.label} (invalid)`}
-                </option>
-              ))}
-            </select>
-            <button
-              type="button"
-              className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
-              onClick={handleReloadLibrary}
-              disabled={!!disabled || savePending || deletePending}
-            >
-              Refresh
-            </button>
-            <button
-              type="button"
-              className="inline-flex items-center justify-center rounded border border-red-800 bg-red-700/80 px-3 py-1 text-xs font-medium text-red-50 shadow-sm transition hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-50"
-              onClick={handleDeleteStory}
-              disabled={!!disabled || !canDelete || savePending || deletePending}
-              title={canDelete ? "Delete this saved story" : "Only saved stories can be deleted"}
-            >
-              {deletePending ? "Deleting…" : "Delete"}
-            </button>
-          </div>
-        </label>
+      <div className="flex flex-col gap-2 bg-[var(--SmartThemeBlurTintColor)]">
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            className="min-w-[200px] rounded border border-slate-700 bg-slate-800 px-3 py-1 text-xs mb-0 text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+            value={selectedKey ?? ""}
+            disabled={!!disabled || savePending || deletePending || !libraryEntries.length}
+            onChange={(event) => {
+              const next = event.target.value;
+              if (next) {
+                onSelectKey(next);
+              }
+            }}
+          >
+            {!libraryEntries.length && <option value="">No stories available</option>}
+            {libraryEntries.map((entry) => (
+              <option key={entry.key} value={entry.key}>
+                {entry.ok ? entry.label : `${entry.label} (invalid)`}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            className="inline-flex items-center justify-center rounded border border-red-800 bg-red-700/80 px-3 py-1 text-xs font-medium text-red-50 shadow-sm transition hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={handleDeleteStory}
+            disabled={!!disabled || !canDelete || savePending || deletePending}
+            title={canDelete ? "Delete this saved story" : "Only saved stories can be deleted"}
+          >
+            {deletePending ? "Deleting…" : "Delete"}
+          </button>
+          <Toolbar
+            hasChanges={hasChanges}
+            savePending={savePending}
+            saveDisabled={!canSave || !!disabled || savePending}
+            saveAsDisabled={!!disabled || savePending}
+            canAddTransition={!!selectedId && draft.checkpoints.length > 0}
+
+            onExport={handleExport}
+            onImportPick={handleFilePick}
+            onReset={handleReset}
+            onSave={handleSave}
+            onSaveAs={handleSaveAs}
+          />
+        </div>
         {selectedError && (
           <div className="rounded border border-red-700/60 bg-red-900/30 px-3 py-2 text-xs text-red-200">
             Validation failed: {selectedError}
@@ -487,26 +471,18 @@ const CheckpointStudio: React.FC<Props> = ({
 
       <FeedbackAlert feedback={feedback} />
 
-      <Toolbar
-        disabled={disabled}
-        hasChanges={hasChanges}
-        savePending={savePending}
-        saveDisabled={!canSave || !!disabled || savePending}
-        saveAsDisabled={!!disabled || savePending}
-        canAddTransition={!!selectedId && draft.checkpoints.length > 0}
-        onAddCheckpoint={handleAddCheckpoint}
-        onAddTransition={() => selectedId && handleAddTransition(selectedId)}
-        onExport={handleExport}
-        onImportPick={handleFilePick}
-        onRunDiagnostics={handleRunDiagnostics}
-        onReset={handleReset}
-        onSave={handleSave}
-        onSaveAs={handleSaveAs}
-      />
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="flex flex-col gap-4">
-          <GraphPanel draft={draft} selectedId={selectedId} onSelect={(id) => setSelectedId(id)} />
+          <GraphPanel
+            canAddTransition={!!selectedId && draft.checkpoints.length > 0}
+            disabled={disabled}
+            onAddCheckpoint={handleAddCheckpoint}
+            onAddTransition={() => selectedId && handleAddTransition(selectedId)}
+            draft={draft}
+            selectedId={selectedId}
+            onSelect={(id) => setSelectedId(id)}
+          />
           <StoryDetailsPanel draft={draft} setDraft={setDraft} />
           <DiagnosticsPanel diagnostics={diagnostics} />
         </div>

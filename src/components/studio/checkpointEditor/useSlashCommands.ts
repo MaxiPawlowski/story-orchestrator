@@ -31,9 +31,13 @@ export const useSlashCommands = () => {
       const parser = (ctx as any)?.SlashCommandParser;
       const commandsRaw = parser?.commands ?? {};
       const entries: SlashCommandMeta[] = [];
+      const seen = new Set<any>();
 
       Object.entries(commandsRaw).forEach(([name, raw]) => {
         if (!name) return;
+        if (seen.has(raw)) return;
+        seen.add(raw);
+
         const aliases = Array.isArray((raw as any)?.aliases)
           ? (raw as any).aliases.filter((alias: unknown) => typeof alias === "string" && alias.trim())
           : [];

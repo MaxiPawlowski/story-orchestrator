@@ -5,10 +5,14 @@ import { StoryDraft, LayoutName } from "@utils/checkpoint-studio";
 type Props = {
   draft: StoryDraft;
   selectedId: string | null;
+  disabled?: boolean;
+  canAddTransition: boolean;
   onSelect: (id: string) => void;
+  onAddCheckpoint: () => void;
+  onAddTransition: () => void;
 };
 
-const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect }) => {
+const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, onAddCheckpoint, onAddTransition, canAddTransition }) => {
   const [layout, setLayout] = useState<LayoutName>("breadthfirst");
   const [dagreReady, setDagreReady] = useState(false);
   const [cyReady, setCyReady] = useState(false);
@@ -133,8 +137,31 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect }) => {
   return (
     <div className="rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] shadow-sm">
       <div className="flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-2">
-        <div className="font-semibold">Checkpoint Graph</div>
+        <div className="font-semibold">Graph</div>
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={onAddCheckpoint}
+            disabled={!!disabled}
+          >
+            + Checkpoint
+          </button>
+          <button
+            type="button"
+            className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={onAddTransition}
+            disabled={!!disabled || !canAddTransition}
+          >
+            + Transition
+          </button>
+          <button
+            type="button"
+            className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
+            onClick={() => cyRef.current && runLayout(cyRef.current, layout)}
+          >
+            Re-layout
+          </button>
           <select
             value={layout}
             onChange={(e) => setLayout(e.target.value as LayoutName)}
@@ -147,13 +174,6 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect }) => {
               Dagre {dagreReady ? "" : "(unavailable)"}
             </option>
           </select>
-          <button
-            type="button"
-            className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
-            onClick={() => cyRef.current && runLayout(cyRef.current, layout)}
-          >
-            Re-layout
-          </button>
         </div>
       </div>
       <div ref={containerRef} className="h-80 w-full rounded bg-[var(--SmartThemeBlurTintColor)]" />
