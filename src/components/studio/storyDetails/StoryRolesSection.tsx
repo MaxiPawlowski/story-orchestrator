@@ -1,0 +1,106 @@
+import React from "react";
+import type { StoryDraft } from "@utils/checkpoint-studio";
+
+type Props = {
+  draft: StoryDraft;
+  setDraft: React.Dispatch<React.SetStateAction<StoryDraft>>;
+  groupMembers: string[];
+};
+
+const StoryRolesSection: React.FC<Props> = ({ draft, setDraft, groupMembers }) => (
+  <div className="mt-2 border-t border-slate-800 pt-3">
+    <div className="mb-1 font-medium text-slate-200">Story Roles</div>
+    <div className="mb-2 text-[11px] text-slate-400">
+      Map role name to the participant/character name in your group chat.
+    </div>
+    <div className="space-y-2">
+      {Object.entries(draft.roles ?? {}).map(([roleKey, participant]) => (
+        <div key={roleKey} className="grid grid-cols-2 gap-2 items-end">
+          <label className="flex flex-col gap-1 text-xs text-slate-300">
+            <span>Role Name</span>
+            <input
+              className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+              value={roleKey}
+              onChange={(e) => {
+                const nextKeyRaw = e.target.value;
+                setDraft((prev) => {
+                  const current = { ...(prev.roles ?? {}) } as Record<string, string>;
+                  const value = current[roleKey];
+                  delete current[roleKey];
+                  const nextKey = nextKeyRaw.trim();
+                  if (nextKey) {
+                    let key = nextKey;
+                    let idx = 1;
+                    while (Object.prototype.hasOwnProperty.call(current, key)) {
+                      key = `${nextKey}-${idx++}`;
+                    }
+                    current[key] = value ?? "";
+                  }
+                  return { ...prev, roles: current };
+                });
+              }}
+            />
+          </label>
+          <div className="flex items-end gap-2">
+            <label className="flex flex-1 flex-col gap-1 text-xs text-slate-300">
+              <span>Participant Name</span>
+              <input
+                list="st-group-members"
+                className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                value={participant}
+                onChange={(e) => {
+                  const value = String(e.target.value ?? "").replace(/\.[a-z0-9]+$/i, "");
+                  setDraft((prev) => ({
+                    ...prev,
+                    roles: { ...(prev.roles ?? {}), [roleKey]: value },
+                  }));
+                }}
+                placeholder={groupMembers.length ? "Pick from group…" : "Type participant name…"}
+              />
+            </label>
+            <button
+              type="button"
+              className="inline-flex h-[34px] shrink-0 items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 text-xs font-medium text-red-300/90 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
+              onClick={() => setDraft((prev) => {
+                const next = { ...(prev.roles ?? {}) } as Record<string, string>;
+                delete next[roleKey];
+                return { ...prev, roles: next };
+              })}
+            >
+              Remove
+            </button>
+          </div>
+        </div>
+      ))}
+      <div>
+        <button
+          type="button"
+          className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
+          onClick={() => {
+            setDraft((prev) => {
+              const roles = { ...(prev.roles ?? {}) } as Record<string, string>;
+              let idx = Object.keys(roles).length + 1;
+              let key = `role-${idx}`;
+              while (Object.prototype.hasOwnProperty.call(roles, key)) {
+                idx += 1;
+                key = `role-${idx}`;
+              }
+              roles[key] = "";
+              return { ...prev, roles };
+            });
+          }}
+        >
+          + Add Role
+        </button>
+        <datalist id="st-group-members">
+          {groupMembers.map((name) => (
+            <option key={name} value={name} />
+          ))}
+        </datalist>
+      </div>
+    </div>
+  </div>
+);
+
+export default StoryRolesSection;
+

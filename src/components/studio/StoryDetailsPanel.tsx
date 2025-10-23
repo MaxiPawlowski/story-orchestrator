@@ -2,6 +2,9 @@ import React from "react";
 import { StoryDraft, TalkControlDraft } from "@utils/checkpoint-studio";
 import { getWorldInfoSettings, eventSource, event_types, getContext } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
+import StoryMetadataSection from "./StoryDetails/StoryMetadataSection";
+import StoryRolesSection from "./StoryDetails/StoryRolesSection";
+import TalkControlDefaultsSection from "./StoryDetails/TalkControlDefaultsSection";
 
 type Props = {
   draft: StoryDraft;
@@ -144,11 +147,9 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
   }, []);
 
   React.useEffect(() => {
-    // initial read
     refreshGlobalLorebooks();
     try { refreshGroupMembers(); } catch { }
 
-    // listen to world info setting changes to keep the list in sync
     const offs: Array<() => void> = [];
     const handler = () => refreshGlobalLorebooks();
     const chatChanged = () => { try { refreshGroupMembers(); } catch { } };
@@ -176,259 +177,24 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
     };
   }, [refreshGlobalLorebooks, refreshGroupMembers]);
 
-  const options = React.useMemo(() => {
-    const current = (draft.global_lorebook || "").trim();
-    const base = globalLorebooks.slice();
-    if (current && !base.includes(current)) {
-      return [{ value: current, label: `${current} (inactive)` }, ...base.map((v) => ({ value: v, label: v }))];
-    }
-    return base.map((v) => ({ value: v, label: v }));
-  }, [draft.global_lorebook, globalLorebooks]);
   return (
-    <div className="rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] shadow-sm">
-      <div className="flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-2 font-semibold">Story Details</div>
-      <div className="flex flex-col gap-3 p-3">
-        <label className="flex flex-col gap-1 text-xs text-slate-300">
-          <span>Title</span>
-          <input
-            className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-            value={draft.title}
-            onChange={(e) => setDraft((prev) => ({ ...prev, title: e.target.value }))}
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-slate-300">
-          <span>Story Description</span>
-          <textarea
-            className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-            rows={4}
-            value={draft.description ?? ""}
-            onChange={(e) => setDraft((prev) => ({ ...prev, description: e.target.value }))}
-            placeholder="Summarize the campaign backdrop that the Arbiter sees."
-          />
-          <span className="text-[11px] text-slate-400">
-            Exposed to prompts via <code className="font-mono text-[11px] text-slate-300">{`{{story_description}}`}</code>.
-          </span>
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-slate-300">
-          <span>Global Lorebook</span>
-          <select
-            className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-            value={draft.global_lorebook}
-            onChange={(e) => setDraft((prev) => ({ ...prev, global_lorebook: e.target.value }))}
-          >
-            <option value="">Select active global lorebook…</option>
-            {options.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-slate-300">
-          <span>Start Checkpoint</span>
-          <select
-            className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-            value={draft.start}
-            onChange={(e) => setDraft((prev) => ({ ...prev, start: e.target.value }))}
-          >
-            <option value="">Auto (first)</option>
-            {draft.checkpoints.map((cp) => (
-              <option key={cp.id} value={cp.id}>
-                {cp.name || cp.id}
-              </option>
-            ))}
-          </select>
-        </label>
-        <div className="mt-2 border-t border-slate-800 pt-3">
-          <div className="mb-1 font-medium text-slate-200">Story Roles</div>
-          <div className="mb-2 text-[11px] text-slate-400">
-            Map role name to the participant/character name in your group chat.
-          </div>
-          <div className="space-y-2">
-            {Object.entries(draft.roles ?? {}).map(([roleKey, participant]) => (
-              <div key={roleKey} className="grid grid-cols-2 gap-2 items-end">
-                <label className="flex flex-col gap-1 text-xs text-slate-300">
-                  <span>Role Name</span>
-                  <input
-                    className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                    value={roleKey}
-                    onChange={(e) => {
-                      const nextKeyRaw = e.target.value;
-                      setDraft((prev) => {
-                        const current = { ...(prev.roles ?? {}) } as Record<string, string>;
-                        const value = current[roleKey];
-                        delete current[roleKey];
-                        const nextKey = nextKeyRaw.trim();
-                        if (nextKey) {
-                          // avoid collisions by appending numeric suffix
-                          let k = nextKey;
-                          let i = 1;
-                          while (Object.prototype.hasOwnProperty.call(current, k)) { k = `${nextKey}-${i++}`; }
-                          current[k] = value ?? '';
-                        }
-                        return { ...prev, roles: current };
-                      });
-                    }}
-                  />
-                </label>
-                <div className="flex items-end gap-2">
-                  <label className="flex flex-1 flex-col gap-1 text-xs text-slate-300">
-                    <span>Participant Name</span>
-                    {/* Input with datalist suggestions from current group chat */}
-                    <input
-                      list="st-group-members"
-                      className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                      value={participant}
-                      onChange={(e) => {
-                        // strip a trailing file extension if user picked a filename-like option
-                        const value = String(e.target.value ?? '').replace(/\.[a-z0-9]+$/i, '');
-                        setDraft((prev) => ({
-                          ...prev,
-                          roles: { ...(prev.roles ?? {}), [roleKey]: value },
-                        }));
-                      }}
-                      placeholder={groupMembers.length ? 'Pick from group…' : 'Type participant name…'}
-                    />
-                  </label>
-                  <button
-                    type="button"
-                    className="inline-flex h-[34px] shrink-0 items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 text-xs font-medium text-red-300/90 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                    onClick={() => setDraft((prev) => {
-                      const next = { ...(prev.roles ?? {}) } as Record<string, string>;
-                      delete next[roleKey];
-                      return { ...prev, roles: next };
-                    })}
-                  >
-                    Remove
-                  </button>
-                </div>
-              </div>
-            ))}
-            <div>
-              <button
-                type="button"
-                className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                onClick={() => {
-                  setDraft((prev) => {
-                    const roles = { ...(prev.roles ?? {}) } as Record<string, string>;
-                    // generate a unique role key
-                    let base = 'role';
-                    let idx = Object.keys(roles).length + 1;
-                    let key = `${base}-${idx}`;
-                    while (Object.prototype.hasOwnProperty.call(roles, key)) {
-                      idx += 1; key = `${base}-${idx}`;
-                    }
-                    roles[key] = '';
-                    return { ...prev, roles };
-                  });
-                }}
-              >
-                + Add Role
-              </button>
-              {/* shared datalist for all participant inputs */}
-              <datalist id="st-group-members">
-                {groupMembers.map((name) => (
-                  <option key={name} value={name} />
-                ))}
-              </datalist>
-            </div>
-          </div>
+    <div className="flex flex-col gap-4">
+      <div className="rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] shadow-sm">
+        <div className="flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-2 font-semibold">Story Details</div>
+        <div className="flex flex-col gap-3 p-3">
+          <StoryMetadataSection draft={draft} setDraft={setDraft} globalLorebooks={globalLorebooks} />
+          <StoryRolesSection draft={draft} setDraft={setDraft} groupMembers={groupMembers} />
         </div>
       </div>
 
-      <div className="rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] shadow-sm">
-        <div className="flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-2 font-semibold">Talk Control</div>
-        <div className="flex flex-col gap-3 p-3">
-          <label className="inline-flex items-center gap-2 text-xs text-slate-300">
-            <input
-              type="checkbox"
-              className="rounded border-slate-600 bg-slate-900 text-slate-200 focus:ring-slate-600"
-              checked={talkControlEnabled}
-              onChange={(e) => handleTalkControlToggle(e.target.checked)}
-            />
-            <span>Enable talk-control automation for this story</span>
-          </label>
-          <div className="text-[11px] text-slate-400">
-            Story-level defaults are optional. Leave fields blank to let checkpoint members define their own behaviour.
-          </div>
-          {talkControl ? (
-            <div className="space-y-3 rounded border border-slate-800 bg-slate-900/40 px-3 py-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="text-xs font-medium text-slate-200">Story Default Overrides</div>
-                <button
-                  type="button"
-                  className="inline-flex items-center justify-center rounded border border-slate-700 bg-slate-800 px-3 py-1 text-xs text-red-300 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50"
-                  onClick={handleClearDefaults}
-                  disabled={!talkControl.defaults || !Object.keys(talkControl.defaults).length}
-                >
-                  Clear Defaults
-                </button>
-              </div>
-              <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
-                <label className="flex flex-col gap-1 text-xs text-slate-300">
-                  <span>Cooldown Turns (fallback)</span>
-                  <input
-                    type="number"
-                    min={0}
-                    className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                    value={talkControl.defaults?.cooldownTurns ?? ""}
-                    onChange={(e) => handleDefaultNumberChange("cooldownTurns", e.target.value)}
-                    placeholder="Unset"
-                  />
-                </label>
-                <label className="flex flex-col gap-1 text-xs text-slate-300">
-                  <span>Max Plays per Turn</span>
-                  <input
-                    type="number"
-                    min={1}
-                    className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                    value={talkControl.defaults?.maxPerTurn ?? ""}
-                    onChange={(e) => handleDefaultNumberChange("maxPerTurn", e.target.value)}
-                    placeholder="Unset"
-                  />
-                </label>
-                <label className="flex flex-col gap-1 text-xs text-slate-300">
-                  <span>Max Characters / Auto Reply</span>
-                  <input
-                    type="number"
-                    min={1}
-                    className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                    value={talkControl.defaults?.maxCharsPerAuto ?? ""}
-                    onChange={(e) => handleDefaultNumberChange("maxCharsPerAuto", e.target.value)}
-                    placeholder="Unset"
-                  />
-                </label>
-              </div>
-              <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                <label className="flex flex-col gap-1 text-xs text-slate-300">
-                  <span>Send as Quiet</span>
-                  <select
-                    className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                    value={talkControl.defaults?.sendAsQuiet === undefined ? "" : talkControl.defaults.sendAsQuiet ? "true" : "false"}
-                    onChange={(e) => handleDefaultFlagChange("sendAsQuiet", e.target.value)}
-                  >
-                    <option value="">Unset (per member)</option>
-                    <option value="true">True</option>
-                    <option value="false">False</option>
-                  </select>
-                </label>
-                <label className="flex flex-col gap-1 text-xs text-slate-300">
-                  <span>Force Speaker</span>
-                  <select
-                    className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                    value={talkControl.defaults?.forceSpeaker === undefined ? "" : talkControl.defaults.forceSpeaker ? "true" : "false"}
-                    onChange={(e) => handleDefaultFlagChange("forceSpeaker", e.target.value)}
-                  >
-                    <option value="">Unset (per member)</option>
-                    <option value="true">True</option>
-                    <option value="false">False</option>
-                  </select>
-                </label>
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </div>
+      <TalkControlDefaultsSection
+        talkControl={talkControl}
+        enabled={talkControlEnabled}
+        onToggle={handleTalkControlToggle}
+        onNumberChange={handleDefaultNumberChange}
+        onFlagChange={handleDefaultFlagChange}
+        onClearDefaults={handleClearDefaults}
+      />
     </div>
   );
 };
