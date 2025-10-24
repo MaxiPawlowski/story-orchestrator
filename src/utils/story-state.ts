@@ -92,7 +92,6 @@ export function loadStoryState({
   chatId: string | null | undefined;
   story: NormalizedStory | null | undefined;
 }): LoadedStoryState {
-  console.log("[StoryState] loadStoryState", { chatId, story });
   const defaults = makeDefaultState(story);
   if (!story) {
     return { state: defaults, source: "default", storyKey: null };
@@ -106,7 +105,6 @@ export function loadStoryState({
   const map = getStateMap();
   const entry = map[key];
   const storedKey = entry ? sanitizeStoryKey((entry as PersistedStateCandidate).storyKey) : null;
-  console.log("[StoryState] found entry", { entry });
   if (!isPersistedChatState(entry)) {
     return { state: defaults, source: "default", storyKey: storedKey };
   }

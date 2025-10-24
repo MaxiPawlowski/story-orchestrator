@@ -227,8 +227,8 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
                     </span>
                     <select
                       className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                      value={reply.memberId}
-                      onChange={(e) => handleReplyMemberIdChange(idx, e.target.value)}
+                      value={reply.speakerId}
+                      onChange={(e) => handleReplySpeakerIdChange(idx, e.target.value)}
                     >
                       <option value="">Any Character</option>
                       {roleOptions.map((roleKey) => (
@@ -247,8 +247,8 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
                   </span>
                   <select
                     className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                    value={reply.speakerId}
-                    onChange={(e) => handleReplySpeakerIdChange(idx, e.target.value)}
+                    value={reply.memberId}
+                    onChange={(e) => handleReplyMemberIdChange(idx, e.target.value)}
                   >
                     <option value="">-- Select Character --</option>
                     {roleOptions.map((roleKey) => (

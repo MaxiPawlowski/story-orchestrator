@@ -231,7 +231,6 @@ export async function enableWIEntry(lorebook: string, comments: string | string[
     return false;
   }
 
-  console.log("[Story WI] enabling world info entries", { lorebook, entries: matched });
   let allOk = true;
   for (let i = 0; i < matched.length; i++) {
     const entry = matched[i];
@@ -277,7 +276,6 @@ export async function disableWIEntry(lorebook: string, comments: string | string
     return false;
   }
 
-  console.log("[Story WI] disabling world info entries", { lorebook, entries: matched });
   let allOk = true;
   for (let i = 0; i < matched.length; i++) {
     const entry = matched[i];

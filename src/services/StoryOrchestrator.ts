@@ -113,7 +113,6 @@ class StoryOrchestrator {
     onTurnTick?: (next: { turn: number; sinceEval: number }) => void;
     onActivateIndex?: (index: number) => void;
   }) {
-    console.log("[StoryOrch] initializing for story", { title: opts.story.title });
     this.story = opts.story;
     this.defaultIntervalTurns = opts.intervalTurns;
     this.intervalTurns = opts.intervalTurns;
@@ -574,15 +573,6 @@ class StoryOrchestrator {
 
     if (!Array.isArray(worldInfo.activate) && !Array.isArray(worldInfo.deactivate)) return;
 
-    console.log("[StoryOrch] world info apply", {
-      lorebook,
-      cp: cp.name,
-      index: metadata?.index,
-      reason: metadata?.reason,
-      activate: worldInfo.activate,
-      deactivate: worldInfo.deactivate,
-    });
-
     const activateList = Array.isArray(worldInfo.activate) ? worldInfo.activate : [];
     const deactivateList = Array.isArray(worldInfo.deactivate) ? worldInfo.deactivate : [];
 
@@ -656,7 +646,7 @@ class StoryOrchestrator {
     if (!groupSelected) {
       const runtime = this.persistence.resetRuntime();
       this.reconcileWithRuntime(runtime, { source: "default" });
-      console.log("[StoryOrch] chat sync reset", { reason });
+      console.log("[StoryOrch] handleChatChanged chat sync reset", { reason });
       return;
     }
 
@@ -789,13 +779,7 @@ class StoryOrchestrator {
     setTalkControlCheckpoint(activeKey, { emitEnter: opts.reason !== "hydrate" });
 
     const logReason = opts.reason ?? (persistRequested ? "activate" : "hydrate");
-    console.log("[StoryOrch] activate", {
-      idx: sanitized.checkpointIndex,
-      id: cp?.id,
-      name: cp?.name,
-      transitions: this.activeTransitions.map((edge) => edge.id),
-      reason: logReason,
-    });
+
     this.applyWorldInfoForCheckpoint(cp, { index: sanitized.checkpointIndex, reason: logReason });
     this.applyAutomationsForCheckpoint(cp, { index: sanitized.checkpointIndex, reason: logReason });
     if (opts.reason) this.emitActivate(sanitized.checkpointIndex);

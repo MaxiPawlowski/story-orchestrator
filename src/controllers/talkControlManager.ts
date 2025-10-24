@@ -178,7 +178,7 @@ const selectActionForEvent = (event: TalkControlEvent): PendingAction | null => 
   if (!candidateReplies.length) {
     console.log("[Story TalkControl] No replies configured for trigger", {
       checkpointId,
-      trigger: event.type,
+      event,
     });
     return null;
   }
@@ -210,10 +210,8 @@ const selectActionForEvent = (event: TalkControlEvent): PendingAction | null => 
     // Check probability
     if (Math.random() * 100 >= reply.probability) {
       console.log("[Story TalkControl] Skipped reply due to probability gate", {
-        memberId: reply.memberId,
-        trigger: reply.trigger,
+        reply,
         checkpointId,
-        probability: reply.probability,
       });
       continue;
     }
@@ -222,16 +220,14 @@ const selectActionForEvent = (event: TalkControlEvent): PendingAction | null => 
     const state = getReplyRuntimeState(checkpointId, replyIndex);
     if (state.lastActionTurn === currentTurn) {
       console.log("[Story TalkControl] Skipped reply (already dispatched this turn)", {
-        memberId: reply.memberId,
-        trigger: reply.trigger,
+        reply,
         checkpointId,
       });
       continue;
     }
 
     console.log("[Story TalkControl] Selected reply", {
-      memberId: reply.memberId,
-      trigger: reply.trigger,
+      reply,
       checkpointId,
       replyIndex,
     });
@@ -271,11 +267,8 @@ const resolveCharacterEntry = (action: PendingAction): { id: number; character: 
 const buildExpectedSpeakerIds = (reply: NormalizedTalkControlReply): string[] => {
   const expected = new Set<string>();
   if (reply.normalizedSpeakerId) expected.add(reply.normalizedSpeakerId);
-  if (reply.normalizedId) expected.add(reply.normalizedId);
   const mappedDisplay = storyRoleLookup.get(reply.normalizedSpeakerId);
   if (mappedDisplay) expected.add(normalizeName(mappedDisplay));
-  const mappedMemberDisplay = storyRoleLookup.get(reply.normalizedId);
-  if (mappedMemberDisplay) expected.add(normalizeName(mappedMemberDisplay));
   return Array.from(expected).filter(Boolean);
 };
 
@@ -296,11 +289,15 @@ const injectMessage = async (
     return false;
   }
   const timestamp = getMessageTimeStamp();
+
+
   const message: Record<string, any> = {
     name: character.name ?? action.reply.memberId,
     is_user: false,
     is_system: false,
     send_date: timestamp,
+    character_id: charId,
+    force_avatar: `/thumbnail?type=avatar&file=${encodeURIComponent(character.avatar || "none")}`,
     mes: content,
     original_avatar: character.avatar,
     extra: {
@@ -320,6 +317,8 @@ const injectMessage = async (
       },
     ],
   };
+
+  console.log("[Story TalkControl] Injecting message", message);
 
   if (selected_group && character.avatar && character.avatar !== "none") {
     try {
