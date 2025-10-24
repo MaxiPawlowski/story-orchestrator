@@ -389,11 +389,19 @@ class StoryOrchestrator {
     this.requirements.handleChatContextChanged();
 
     if (!this.chatUnsubscribe) {
-      this.chatUnsubscribe = subscribeToEventSource({
-        source: eventSource,
-        eventName: event_types.CHAT_CHANGED,
-        handler: () => this.handleChatChanged({ reason: "event" }),
-      });
+      const offs: Array<() => void> = [];
+      const handler = () => this.handleChatChanged({ reason: "event" });
+      const events = [
+        event_types.CHAT_CHANGED,
+        event_types.CHAT_CREATED,
+        event_types.GROUP_CHAT_CREATED,
+        event_types.CHAT_DELETED,
+        event_types.GROUP_CHAT_DELETED,
+      ].filter(Boolean);
+      for (const ev of events) {
+        offs.push(subscribeToEventSource({ source: eventSource, eventName: ev, handler }));
+      }
+      this.chatUnsubscribe = () => { offs.splice(0).forEach((off) => { try { off?.(); } catch { /* noop */ } }); };
     }
 
     this.handleChatChanged({ reason: "start", force: true });

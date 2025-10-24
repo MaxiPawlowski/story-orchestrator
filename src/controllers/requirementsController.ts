@@ -209,7 +209,7 @@ export const createRequirementsController = (): RequirementsController => {
       Object.values(input.roles).forEach((name) => {
         if (typeof name === 'string' && name.trim()) names.push(name.trim());
       });
-    } catch {/* ignore */}
+    } catch {/* ignore */ }
     const normalized = names.map((name) => normalizeName(name, { stripExtension: true })).filter(Boolean);
     return { names, normalized };
   };
@@ -251,6 +251,16 @@ export const createRequirementsController = (): RequirementsController => {
         })
       );
     });
+
+    if (event_types.GROUP_UPDATED) {
+      subscriptions.push(
+        subscribeToEventSource({
+          source: eventSource,
+          eventName: event_types.GROUP_UPDATED,
+          handler: () => { refreshGroupMembers(); },
+        })
+      );
+    }
 
     refreshGroupChat();
     void reloadPersona();

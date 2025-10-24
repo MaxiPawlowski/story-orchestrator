@@ -200,15 +200,22 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
     };
 
     updateChatId();
-    const unsubscribe = subscribeToEventSource({
-      source: eventSource,
-      eventName: event_types.CHAT_CHANGED,
-      handler: updateChatId,
-    });
+    const offs: Array<() => void> = [];
+    const events = [
+      event_types.CHAT_CHANGED,
+      event_types.CHAT_CREATED,
+      event_types.GROUP_CHAT_CREATED,
+    ].filter(Boolean);
+    for (const ev of events) {
+      offs.push(subscribeToEventSource({ source: eventSource, eventName: ev, handler: updateChatId }));
+    }
 
     return () => {
       try {
-        unsubscribe();
+        while (offs.length) {
+          const off = offs.pop();
+          try { off?.(); } catch (err) { console.warn("[StoryContext] unsubscribe failed", err); }
+        }
       } catch (err) {
         console.warn("[StoryContext] unsubscribe failed", err);
       }
