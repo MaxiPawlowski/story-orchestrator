@@ -14,7 +14,6 @@ module.exports = {
   devtool: process.env.NODE_ENV === "development" ? "source-map" : false,
   resolve: {
     extensions: [".tsx", ".ts", ".jsx", ".js"],
-    // Path aliases to mirror tsconfig paths for IDE + bundler parity
     alias: {
       "@components": path.resolve(__dirname, "src/components"),
       "@services": path.resolve(__dirname, "src/services"),
@@ -23,6 +22,13 @@ module.exports = {
       "@constants": path.resolve(__dirname, "src/constants"),
       "@controllers": path.resolve(__dirname, "src/controllers"),
       "@store": path.resolve(__dirname, "src/store"),
+    },
+    fallback: {
+      fs: false,
+      http: false,
+      https: false,
+      url: false,
+      crypto: false,
     },
   },
   module: {

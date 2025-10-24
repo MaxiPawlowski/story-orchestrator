@@ -419,10 +419,10 @@ const CheckpointStudio: React.FC<Props> = ({
     <div className="flex flex-col gap-4 text-sm text-slate-100">
       <input ref={fileInputRef} type="file" accept="application/json" className="hidden" onChange={handleFileChange} />
 
-      <div className="flex flex-col gap-2 bg-[var(--SmartThemeBlurTintColor)]">
+      <div className="flex flex-col gap-2 bg-[var(--SmartThemeBlurTintColor)] pr-[30px]">
         <div className="flex flex-wrap items-center gap-2">
           <select
-            className="min-w-[200px] rounded border border-slate-700 bg-slate-800 px-3 py-1 text-xs mb-0 text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+            className="min-w-[200px] rounded border border-slate-700 bg-slate-800 px-3 py-1 text-xs mb-0 text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 flex-1 focus:ring-slate-600"
             value={selectedKey ?? ""}
             disabled={!!disabled || savePending || deletePending || !libraryEntries.length}
             onChange={(event) => {

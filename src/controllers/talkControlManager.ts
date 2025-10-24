@@ -8,7 +8,6 @@ import {
   selected_group,
   eventSource,
   event_types,
-  generateGroupWrapper,
   addOneMessage,
   saveChatConditional,
   getMessageTimeStamp,
@@ -16,6 +15,7 @@ import {
   chat_metadata,
   substituteParams,
   getCharacterIdByName,
+  generateQuietPrompt,
 } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
 
@@ -39,6 +39,7 @@ interface PendingAction {
   checkpointId: string;
   reply: NormalizedTalkControlReply;
   state: ReplyRuntimeState;
+  replyIndex: number;
 }
 
 const runtimeStates = new Map<string, ReplyRuntimeState>();
@@ -54,6 +55,8 @@ let nextEventId = 1;
 let interceptSuppressDepth = 0;
 let selfDispatchDepth = 0;
 let listenersAttached = false;
+let generationActive = false;
+let flushScheduled = false;
 
 const beginInterceptSuppression = () => { interceptSuppressDepth += 1; };
 const endInterceptSuppression = () => { interceptSuppressDepth = Math.max(0, interceptSuppressDepth - 1); };
@@ -61,7 +64,10 @@ const beginSelfDispatch = () => { selfDispatchDepth += 1; };
 const endSelfDispatch = () => { selfDispatchDepth = Math.max(0, selfDispatchDepth - 1); };
 
 const isStoryActive = () => Boolean(config);
-const isGroupActive = () => Boolean(selected_group);
+const isGroupActive = () => {
+  if (selected_group) return true;
+  return Array.isArray(characters) && characters.length > 0;
+};
 const isSuppressed = () => interceptSuppressDepth > 0;
 const isSelfDispatching = () => selfDispatchDepth > 0;
 
@@ -73,6 +79,9 @@ const getCheckpointConfig = (checkpointId: string | null | undefined): Normalize
 const makeStateKey = (checkpointId: string, replyIndex: number) => `${checkpointId}::${replyIndex}`;
 
 const getReplyRuntimeState = (checkpointId: string, replyIndex: number): ReplyRuntimeState => {
+  if (replyIndex < 0) {
+    return { lastActionTurn: -Infinity, actionTurnStamp: -1, actionsThisTurn: 0 };
+  }
   const key = makeStateKey(checkpointId, replyIndex);
   let state = runtimeStates.get(key);
   if (!state) {
@@ -89,6 +98,13 @@ const getReplyRuntimeState = (checkpointId: string, replyIndex: number): ReplyRu
 const queueEvent = (type: TalkControlTrigger, checkpointId: string | null, metadata?: Record<string, unknown>) => {
   if (!config) return;
   eventQueue.push({ id: nextEventId++, type, checkpointId, metadata });
+  console.log("[Story TalkControl] Queued event", {
+    type,
+    checkpointId,
+    queueLength: eventQueue.length,
+    metadata,
+  });
+  scheduleFlush();
 };
 
 const rebuildRoleLookup = (input: NormalizedStory | null) => {
@@ -148,74 +164,153 @@ const shuffleReplies = (replies: NormalizedTalkControlReply[]): NormalizedTalkCo
 
 const selectActionForEvent = (event: TalkControlEvent): PendingAction | null => {
   const checkpointId = event.checkpointId ?? activeCheckpointId;
+  console.log("[Story TalkControl] Selecting action", {
+    type: event.type,
+    checkpointId,
+    metadata: event.metadata,
+  });
   if (!checkpointId) return null;
   const checkpointConfig = getCheckpointConfig(checkpointId);
   if (!checkpointConfig) return null;
 
   // Get replies for this trigger
   const candidateReplies = checkpointConfig.repliesByTrigger.get(event.type) ?? [];
-  if (!candidateReplies.length) return null;
+  if (!candidateReplies.length) {
+    console.log("[Story TalkControl] No replies configured for trigger", {
+      checkpointId,
+      trigger: event.type,
+    });
+    return null;
+  }
 
   // Shuffle to randomize selection order
   const replies = shuffleReplies(candidateReplies);
 
-  for (let idx = 0; idx < replies.length; idx += 1) {
-    const reply = replies[idx];
+  for (const reply of replies) {
     if (!reply.enabled) continue;
 
     // For afterSpeak, check if this reply is for the speaker
     if (event.type === "afterSpeak") {
       const speakerId = typeof event.metadata?.speakerId === "string" ? event.metadata.speakerId : "";
-      if (speakerId && speakerId !== reply.normalizedId) continue;
+      if (speakerId) {
+        const expectedIds = buildExpectedSpeakerIds(reply);
+        if (!expectedIds.includes(speakerId)) {
+          console.log("[Story TalkControl] Skipped reply (speaker mismatch)", {
+            memberId: reply.memberId,
+            trigger: reply.trigger,
+            checkpointId,
+            expected: expectedIds,
+            actual: speakerId,
+          });
+          continue;
+        }
+      }
     }
 
     // Check probability
-    if (Math.random() * 100 >= reply.probability) continue;
+    if (Math.random() * 100 >= reply.probability) {
+      console.log("[Story TalkControl] Skipped reply due to probability gate", {
+        memberId: reply.memberId,
+        trigger: reply.trigger,
+        checkpointId,
+        probability: reply.probability,
+      });
+      continue;
+    }
 
-    return { event, checkpointId, reply, state: getReplyRuntimeState(checkpointId, idx) };
+    const replyIndex = checkpointConfig.replies.findIndex((item) => item === reply);
+    const state = getReplyRuntimeState(checkpointId, replyIndex);
+    if (state.lastActionTurn === currentTurn) {
+      console.log("[Story TalkControl] Skipped reply (already dispatched this turn)", {
+        memberId: reply.memberId,
+        trigger: reply.trigger,
+        checkpointId,
+      });
+      continue;
+    }
+
+    console.log("[Story TalkControl] Selected reply", {
+      memberId: reply.memberId,
+      trigger: reply.trigger,
+      checkpointId,
+      replyIndex,
+    });
+    return { event, checkpointId, reply, state, replyIndex };
   }
+  console.log("[Story TalkControl] No eligible replies matched", {
+    checkpointId,
+    trigger: event.type,
+  });
   return null;
 };
 
 const nextPendingAction = (): PendingAction | null => {
   while (eventQueue.length) {
-    const event = eventQueue.shift()!;
+    const event = eventQueue.shift();
+    if (!event) break;
     const action = selectActionForEvent(event);
     if (action) return action;
   }
   return null;
 };
 
-const dispatchStaticAction = async (action: PendingAction) => {
+const resolveCharacterEntry = (action: PendingAction): { id: number; character: any } | null => {
   const charId = resolveCharacterId(action.reply);
   if (charId === undefined) {
-    console.warn("[Story TalkControl] Unable to resolve character for static reply", { member: action.reply.memberId });
-    return;
+    console.warn("[Story TalkControl] Unable to resolve character for talk-control reply", { member: action.reply.memberId });
+    return null;
   }
   const character = characters[charId];
   if (!character) {
-    console.warn("[Story TalkControl] Character index missing for static reply", { index: charId });
-    return;
+    console.warn("[Story TalkControl] Character index missing for talk-control reply", { index: charId });
+    return null;
   }
-  const text = pickStaticReplyText(action.reply);
-  if (!text) return;
+  return { id: charId, character };
+};
 
+const buildExpectedSpeakerIds = (reply: NormalizedTalkControlReply): string[] => {
+  const expected = new Set<string>();
+  if (reply.normalizedSpeakerId) expected.add(reply.normalizedSpeakerId);
+  if (reply.normalizedId) expected.add(reply.normalizedId);
+  const mappedDisplay = storyRoleLookup.get(reply.normalizedSpeakerId);
+  if (mappedDisplay) expected.add(normalizeName(mappedDisplay));
+  const mappedMemberDisplay = storyRoleLookup.get(reply.normalizedId);
+  if (mappedMemberDisplay) expected.add(normalizeName(mappedMemberDisplay));
+  return Array.from(expected).filter(Boolean);
+};
+
+const injectMessage = async (
+  action: PendingAction,
+  charId: number,
+  character: any,
+  text: string,
+  kind: "static" | "llm",
+): Promise<boolean> => {
+  const content = typeof text === "string" ? text.trim() : "";
+  if (!content) {
+    console.warn("[Story TalkControl] Reply text empty after generation", {
+      memberId: action.reply.memberId,
+      checkpointId: action.checkpointId,
+      trigger: action.event.type,
+    });
+    return false;
+  }
   const timestamp = getMessageTimeStamp();
   const message: Record<string, any> = {
     name: character.name ?? action.reply.memberId,
     is_user: false,
     is_system: false,
     send_date: timestamp,
-    mes: text,
+    mes: content,
     original_avatar: character.avatar,
     extra: {
       api: "storyOrchestrator",
       model: "talkControl",
       reason: `talkControl:${action.event.type}`,
-      storyOrchestratorTalkControl: { kind: "static", checkpointId: action.checkpointId, event: action.event.type },
+      storyOrchestratorTalkControl: { kind, checkpointId: action.checkpointId, event: action.event.type },
     },
     swipe_id: 0,
-    swipes: [text],
+    swipes: [content],
     swipe_info: [
       {
         send_date: timestamp,
@@ -241,34 +336,87 @@ const dispatchStaticAction = async (action: PendingAction) => {
   addOneMessage(message);
   await eventSource.emit(event_types.CHARACTER_MESSAGE_RENDERED, messageId, "talkControl");
   await saveChatConditional();
+  console.log("[Story TalkControl] Injected reply", {
+    memberId: action.reply.memberId,
+    checkpointId: action.checkpointId,
+    trigger: action.event.type,
+    kind,
+  });
+  return true;
 };
 
-const dispatchLlmAction = async (action: PendingAction) => {
-  const charId = resolveCharacterId(action.reply);
-  if (charId === undefined) {
-    console.warn("[Story TalkControl] Unable to resolve character for LLM reply", { member: action.reply.memberId });
-    return;
+const dispatchStaticAction = async (action: PendingAction): Promise<boolean> => {
+  const entry = resolveCharacterEntry(action);
+  if (!entry) return false;
+  const text = pickStaticReplyText(action.reply);
+  if (!text) {
+    console.warn("[Story TalkControl] Static reply text missing", {
+      memberId: action.reply.memberId,
+      checkpointId: action.checkpointId,
+    });
+    return false;
   }
-  const instruction = action.reply.content.kind === "llm" ? action.reply.content.instruction : undefined;
-  const params: Record<string, unknown> = {
-    quiet_prompt: instruction,
-    quietToLoud: true,
-    quietName: action.reply.memberId,
-    force_chid: charId,
-  };
+  return injectMessage(action, entry.id, entry.character, text, "static");
+};
 
-  await generateGroupWrapper(true, "normal", params);
+const dispatchLlmAction = async (action: PendingAction): Promise<boolean> => {
+  const entry = resolveCharacterEntry(action);
+  if (!entry) return false;
+  const instruction = action.reply.content.kind === "llm" ? action.reply.content.instruction : undefined;
+  if (!instruction) {
+    console.warn("[Story TalkControl] LLM instruction missing", {
+      memberId: action.reply.memberId,
+      checkpointId: action.checkpointId,
+    });
+    return false;
+  }
+  console.log("[Story TalkControl] Generating quiet prompt for reply", {
+    memberId: action.reply.memberId,
+    checkpointId: action.checkpointId,
+    trigger: action.event.type,
+  });
+  let result = "";
+  try {
+    result = await generateQuietPrompt({
+      quietPrompt: instruction,
+      quietToLoud: false,
+      quietName: action.reply.memberId,
+      forceChId: entry.id,
+      removeReasoning: true,
+    }) as unknown as string;
+  } catch (err) {
+    console.warn("[Story TalkControl] Quiet prompt generation failed", err);
+    return false;
+  }
+  return injectMessage(action, entry.id, entry.character, typeof result === "string" ? result : "", "llm");
 };
 
 const executeAction = async (action: PendingAction) => {
   beginInterceptSuppression();
   beginSelfDispatch();
   try {
-    if (!isGroupActive()) return;
+    if (!isGroupActive()) {
+      console.warn("[Story TalkControl] Skipped action (group not active)", {
+        memberId: action.reply.memberId,
+        checkpointId: action.checkpointId,
+        trigger: action.event.type,
+      });
+      return;
+    }
+    console.log("[Story TalkControl] Executing action", {
+      memberId: action.reply.memberId,
+      checkpointId: action.checkpointId,
+      trigger: action.event.type,
+    });
+    let dispatched = false;
     if (action.reply.content.kind === "static") {
-      await dispatchStaticAction(action);
+      dispatched = await dispatchStaticAction(action);
     } else {
-      await dispatchLlmAction(action);
+      dispatched = await dispatchLlmAction(action);
+    }
+    if (dispatched) {
+      action.state.lastActionTurn = currentTurn;
+      action.state.actionsThisTurn += 1;
     }
   } catch (err) {
     console.warn("[Story TalkControl] Action dispatch failed", err);
@@ -287,13 +435,79 @@ const handleGenerateIntercept = async (_chat: unknown, _contextSize: number, abo
 
   const action = nextPendingAction();
   if (!action) return;
+  console.log("[Story TalkControl] Intercept aborting host generation", {
+    memberId: action.reply.memberId,
+    trigger: action.event.type,
+    checkpointId: action.checkpointId,
+  });
   try {
     abort(true);
   } catch (err) {
     console.warn("[Story TalkControl] Abort threw", err);
   }
-  executeAction(action);
+  await executeAction(action);
 };
+
+const handleGenerationStarted = () => {
+  generationActive = true;
+  console.log("[Story TalkControl] Detected generation start", { pendingEvents: eventQueue.length });
+};
+
+const handleGenerationSettled = () => {
+  generationActive = false;
+  console.log("[Story TalkControl] Generation settled", { pendingEvents: eventQueue.length });
+  scheduleFlush();
+};
+
+function scheduleFlush(): void {
+  if (flushScheduled) return;
+  flushScheduled = true;
+  const enqueue = typeof queueMicrotask === "function"
+    ? queueMicrotask
+    : (cb: () => void) => Promise.resolve().then(cb);
+  enqueue(() => {
+    flushScheduled = false;
+    void flushPendingActions();
+  });
+}
+
+async function flushPendingActions(): Promise<void> {
+  if (!isStoryActive()) return;
+  if (!isGroupActive()) return;
+  if (generationActive) {
+    console.log("[Story TalkControl] Flush deferred (generation active)", { pendingEvents: eventQueue.length });
+    return;
+  }
+  if (isSuppressed()) {
+    console.log("[Story TalkControl] Flush deferred (suppressed)", { pendingEvents: eventQueue.length });
+    return;
+  }
+
+  let guard = 0;
+  let action = nextPendingAction();
+  while (action && guard < 20) {
+    guard += 1;
+    try {
+      console.log("[Story TalkControl] Dispatching queued action", {
+        memberId: action.reply.memberId,
+        trigger: action.event.type,
+        checkpointId: action.checkpointId,
+      });
+      await executeAction(action);
+    } catch (err) {
+      console.warn("[Story TalkControl] Flush dispatch failed", err);
+    }
+    if (generationActive) {
+      console.log("[Story TalkControl] Flush halted (generation restarted)", { pendingEvents: eventQueue.length });
+      return;
+    }
+    action = nextPendingAction();
+  }
+
+  if (guard >= 20 && action) {
+    console.warn("[Story TalkControl] Flush aborted after guard limit", { remainingEvents: eventQueue.length });
+  }
+}
 
 const onMessageReceived = (messageId: number, messageType?: string) => {
   if (!isStoryActive()) return;
@@ -315,6 +529,8 @@ export const setTalkControlStory = (next: NormalizedStory | null) => {
   activeCheckpointId = null;
   runtimeStates.clear();
   eventQueue.length = 0;
+  generationActive = false;
+  flushScheduled = false;
   rebuildRoleLookup(next ?? null);
 };
 
@@ -356,6 +572,21 @@ export const initializeTalkControl = () => {
     eventName: event_types.MESSAGE_RECEIVED,
     handler: onMessageReceived,
   }));
+  listeners.push(subscribeToEventSource({
+    source: eventSource,
+    eventName: event_types.GENERATION_STARTED,
+    handler: handleGenerationStarted,
+  }));
+  listeners.push(subscribeToEventSource({
+    source: eventSource,
+    eventName: event_types.GENERATION_STOPPED,
+    handler: handleGenerationSettled,
+  }));
+  listeners.push(subscribeToEventSource({
+    source: eventSource,
+    eventName: event_types.GENERATION_ENDED,
+    handler: handleGenerationSettled,
+  }));
 };
 
 export const disposeTalkControl = () => {
@@ -376,4 +607,6 @@ export const disposeTalkControl = () => {
   story = null;
   config = undefined;
   activeCheckpointId = null;
+  generationActive = false;
+  flushScheduled = false;
 };

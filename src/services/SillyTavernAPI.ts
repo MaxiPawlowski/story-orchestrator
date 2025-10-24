@@ -17,29 +17,29 @@ declare global {
   }
 }
 
+const group = await import(
+  "../../../../../../public/scripts/group-chats.js"
+);
 const script = await import(
-  // @ts-ignore
-  /* webpackIgnore: true */ "../../../../../../script.js"
+  "../../../../../../public/script.js"
 );
 const extensions = await import(
-  // @ts-ignore
-  /* webpackIgnore: true */ "../../../../extensions.js"
+  "../../../../../../public/scripts/extensions.js"
 );
 const macros = await import(
-  // @ts-ignore
-  /* webpackIgnore: true */ "../../../../macros.js"
+  "../../../../../../public/scripts/macros.js"
 );
 const worldInfo = await import(
-  // @ts-ignore
-  /* webpackIgnore: true */ "../../../../world-info.js"
+  "../../../../../../public/scripts/world-info.js"
 );
 const textgen_settings = await import(
-  // @ts-ignore
-  /* webpackIgnore: true */ "../../../../textgen-settings.js"
+  "../../../../../../public/scripts/textgen-settings.js"
 );
 const logit_bias = await import(
-  // @ts-ignore
-  /* webpackIgnore: true */ "../../../../logit-bias.js"
+  "../../../../../../public/scripts/logit-bias.js"
+);
+const rossMods = await import(
+  "../../../../../../public/scripts/RossAscends-mods.js"
 );
 
 export const BIAS_CACHE = logit_bias["BIAS_CACHE"];
@@ -51,7 +51,7 @@ export const TG_SETTING_NAMES = textgen_settings["setting_names"];
 export const setSettingByName = textgen_settings["setSettingByName"];
 export const setGenerationParamsFromPreset = script["setGenerationParamsFromPreset"];
 
-export const extension_settings = extensions["extension_settings"];
+export const extension_settings = extensions["extension_settings"] as Record<string, any>;
 export const getContext = extensions["getContext"];
 export const saveMetadataDebounced = extensions["saveMetadataDebounced"];
 export const saveSettingsDebounced = script["saveSettingsDebounced"];
@@ -59,19 +59,36 @@ export const eventSource = script["eventSource"];
 export const event_types = script["event_types"];
 export const chat = script["chat"];
 export const characters = script["characters"];
-export const selected_group = script["selected_group"];
+export const selected_group = group["selected_group"] as string | null | undefined;
+
+
+/**
+ * Background generation based on the provided prompt.
+ * @typedef {object} GenerateQuietPromptParams
+ * @prop {string} [quietPrompt] Instruction prompt for the AI
+ * @prop {boolean} [quietToLoud] Whether the message should be sent in a foreground (loud) or background (quiet) mode
+ * @prop {boolean} [skipWIAN] Whether to skip addition of World Info and Author's Note into the prompt
+ * @prop {string} [quietImage] Image to use for the quiet prompt
+ * @prop {string} [quietName] Name to use for the quiet prompt (defaults to "System:")
+ * @prop {number} [responseLength] Maximum response length. If unset, the global default value is used.
+ * @prop {number} [forceChId] Character ID to use for this generation run. Works in groups only.
+ * @prop {object} [jsonSchema] JSON schema to use for the structured generation. Usually requires a special instruction.
+ * @prop {boolean} [removeReasoning] Parses and removes the reasoning block according to reasoning format preferences
+ * @prop {boolean} [trimToSentence] Whether to trim the response to the last complete sentence
+ * @param {GenerateQuietPromptParams} params Parameters for the quiet prompt generation
+ * @returns {Promise<string>} Generated text. If using structured output, will contain a serialized JSON object.
+ */
+// export async function generateQuietPrompt({ quietPrompt = '', quietToLoud = false, skipWIAN = false, quietImage = null, quietName = null, responseLength = null, forceChId = null, jsonSchema = null, removeReasoning = true, trimToSentence = false } = {}) {
+
+export const generateQuietPrompt = script["generateQuietPrompt"];
 export const generateRaw = script["generateRaw"];
 export const getWorldInfoSettings = worldInfo["getWorldInfoSettings"];
 export const MacrosParser = macros["MacrosParser"];
-export const Generate = script["Generate"];
-export const generateGroupWrapper = script["generateGroupWrapper"];
-export const setCharacterId = script["setCharacterId"];
-export const setCharacterName = script["setCharacterName"];
 export const addOneMessage = script["addOneMessage"];
 export const saveChatConditional = script["saveChatConditional"];
-export const getMessageTimeStamp = script["getMessageTimeStamp"];
+export const getMessageTimeStamp = rossMods["getMessageTimeStamp"];
 export const getThumbnailUrl = script["getThumbnailUrl"];
-export const chat_metadata = script["chat_metadata"];
+export const chat_metadata = script["chat_metadata"] as Record<string, any>;
 export const substituteParams = script["substituteParams"];
 
 export function getCharacterNameById(id: number | string | undefined): string | undefined {
@@ -214,7 +231,12 @@ export async function enableWIEntry(lorebook: string, comments: string | string[
     .filter(Boolean);
   if (!commentList.length) return false;
   const { loadWorldInfo } = getContext();
-  const { entries }: Lorebook = await loadWorldInfo(lorebook);
+  const loadedInfo = await loadWorldInfo(lorebook);
+  if (!loadedInfo) {
+    console.warn("[Story WI] failed to load lorebook", { lorebook });
+    return false;
+  }
+  const { entries }: Lorebook = loadedInfo as Lorebook;
   const entriesArray = Object.values(entries);
   const matched: Array<{ comment: string; uid: number }> = [];
 
@@ -255,7 +277,12 @@ export async function disableWIEntry(lorebook: string, comments: string | string
     .filter(Boolean);
   if (!commentList.length) return false;
   const { loadWorldInfo } = getContext();
-  const { entries }: Lorebook = await loadWorldInfo(lorebook);
+  const loadedInfo = await loadWorldInfo(lorebook);
+  if (!loadedInfo) {
+    console.warn("[Story WI] failed to load lorebook", { lorebook });
+    return false;
+  }
+  const { entries }: Lorebook = loadedInfo as Lorebook;
   const entriesArray = Object.values(entries);
   const matched: Array<{ comment: string; uid: number }> = [];
 

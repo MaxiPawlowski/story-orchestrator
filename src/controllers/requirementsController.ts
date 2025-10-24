@@ -167,9 +167,15 @@ export const createRequirementsController = (): RequirementsController => {
       const { globalMissing, globalLoreBookPresent } = computeGlobalMissing(settings);
       if (!settings?.world_info) { updateState({ worldLoreEntriesPresent: false, worldLoreEntriesMissing: requiredWorldInfoKeys.slice(), globalLoreBookPresent, globalLoreBookMissing: globalMissing }); return; }
       const { loadWorldInfo } = getContext();
-      loadWorldInfo(story?.global_lorebook).then((entries: Lorebook) => {
-        if (!entries?.entries) { updateState({ worldLoreEntriesPresent: false, worldLoreEntriesMissing: requiredWorldInfoKeys.slice(), globalLoreBookPresent, globalLoreBookMissing: globalMissing }); return; }
-        const seen = new Set<string>(Object.values(entries.entries).map(e => typeof e?.comment === 'string' ? e.comment.trim().toLowerCase() : '').filter(Boolean));
+      const globalLorebook = story?.global_lorebook;
+      if (!globalLorebook) {
+        updateState({ worldLoreEntriesPresent: false, worldLoreEntriesMissing: requiredWorldInfoKeys.slice(), globalLoreBookPresent, globalLoreBookMissing: globalMissing });
+        return;
+      }
+      loadWorldInfo(globalLorebook).then((entries: Object | null) => {
+        const lorebook = entries as Lorebook | null;
+        if (!lorebook?.entries) { updateState({ worldLoreEntriesPresent: false, worldLoreEntriesMissing: requiredWorldInfoKeys.slice(), globalLoreBookPresent, globalLoreBookMissing: globalMissing }); return; }
+        const seen = new Set<string>(Object.values(lorebook.entries).map(e => typeof e?.comment === 'string' ? e.comment.trim().toLowerCase() : '').filter(Boolean));
         const missing = requiredWorldInfoKeys.filter(name => !seen.has(name.toLowerCase()));
         updateState({ worldLoreEntriesPresent: missing.length === 0, worldLoreEntriesMissing: missing, globalLoreBookPresent, globalLoreBookMissing: globalMissing });
       }).catch((err: unknown) => {
