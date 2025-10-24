@@ -1,1 +1,1 @@
-export const extensionName = "story-driver";
+export const extensionName = "story-orchestrator";

@@ -48,7 +48,7 @@ const StoryRolesSection: React.FC<Props> = ({ draft, setDraft, groupMembers }) =
             <label className="flex flex-1 flex-col gap-1 text-xs text-slate-300">
               <span className="inline-flex items-center gap-1">
                 Participant Name
-                {index === 0 && <HelpTooltip title="Match the SillyTavern chat member name so Story Driver links roles correctly." />}
+                {index === 0 && <HelpTooltip title="Match the SillyTavern chat member name so Story Orchestrator links roles correctly." />}
               </span>
               <input
                 list="st-group-members"

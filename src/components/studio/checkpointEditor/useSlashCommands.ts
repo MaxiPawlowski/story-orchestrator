@@ -2,13 +2,13 @@ import React from "react";
 import { getContext } from "@services/SillyTavernAPI";
 import { SlashCommandMeta } from "./types";
 
-const STORY_COMMAND_TAG_ATTR = 'data-story-driver="1"';
+const STORY_COMMAND_TAG_ATTR = 'data-story-orchestrator="1"';
 
 const parseHelp = (value: unknown) => {
   if (typeof value !== "string" || !value.trim()) {
-    return { description: undefined, samples: [] as string[], isStoryDriver: false };
+    return { description: undefined, samples: [] as string[], isStoryOrchestrator: false };
   }
-  const isStoryDriver = value.includes(STORY_COMMAND_TAG_ATTR);
+  const isStoryOrchestrator = value.includes(STORY_COMMAND_TAG_ATTR);
   const descMatch = value.match(/<div[^>]*>([\s\S]*?)<\/div>/i);
   const description = descMatch ? descMatch[1].replace(/\s+/g, " ").trim() : undefined;
   const codeMatch = value.match(/<code[^>]*>([\s\S]*?)<\/code>/i);
@@ -18,7 +18,7 @@ const parseHelp = (value: unknown) => {
       .map((line) => line.trim())
       .filter(Boolean)
     : [];
-  return { description, samples, isStoryDriver };
+  return { description, samples, isStoryOrchestrator };
 };
 
 export const useSlashCommands = () => {
@@ -47,7 +47,7 @@ export const useSlashCommands = () => {
           aliases,
           description: help.description,
           samples: help.samples,
-          isStoryDriver: help.isStoryDriver,
+          isStoryOrchestrator: help.isStoryOrchestrator,
         });
       });
       setCommands(entries);
@@ -64,7 +64,7 @@ export const useSlashCommands = () => {
   }, [refresh]);
 
   const projectCommands = React.useMemo(
-    () => commands.filter((cmd) => cmd.isStoryDriver),
+    () => commands.filter((cmd) => cmd.isStoryOrchestrator),
     [commands],
   );
 
@@ -72,4 +72,3 @@ export const useSlashCommands = () => {
 };
 
 export type UseSlashCommandsReturn = ReturnType<typeof useSlashCommands>;
-

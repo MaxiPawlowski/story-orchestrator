@@ -130,7 +130,7 @@ const BasicsTab: React.FC<Props> = ({
         <label className="flex flex-col gap-1 text-xs text-slate-300">
           <span className="inline-flex items-center gap-1">
             Search Commands &amp; Macros
-            <HelpTooltip title="Filter Story Driver slash commands and macro references without leaving the editor." />
+            <HelpTooltip title="Filter Story Orchestrator slash commands and macro references without leaving the editor." />
           </span>
           <input
             className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
@@ -141,7 +141,7 @@ const BasicsTab: React.FC<Props> = ({
         </label>
         <div className="space-y-3">
           <div className="space-y-2">
-            <div className="font-medium">Story Driver Slash Commands {' '}
+            <div className="font-medium">Story Orchestrator Slash Commands {' '}
               <HelpTooltip title="Read-only reference for commands registered by this extension." />
             </div>
             <div className="rounded border border-slate-700 bg-slate-900/40 divide-y divide-slate-800">
@@ -170,14 +170,14 @@ const BasicsTab: React.FC<Props> = ({
                 <div className="p-2 text-xs text-slate-500">
                   {projectSlashCommands.length
                     ? "No commands match the current search."
-                    : "No Story Driver commands detected."}
+                    : "No Story Orchestrator commands detected."}
                 </div>
               )}
             </div>
           </div>
           <div className="space-y-2">
             <div className="font-medium">
-              Story Driver Macros {' '}
+              Story Orchestrator Macros {' '}
               <HelpTooltip title="Macros resolve at runtime; role entries update with the active story cast." />
             </div>
 
@@ -199,7 +199,7 @@ const BasicsTab: React.FC<Props> = ({
                 <div className="p-2 text-xs text-slate-500">
                   {macroEntries.length
                     ? "No macros match the current search."
-                    : "No Story Driver macros available."}
+                    : "No Story Orchestrator macros available."}
                 </div>
               )}
             </div>

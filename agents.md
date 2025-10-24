@@ -1,7 +1,7 @@
-# Codex Agent Brief - Story Driver
+# Codex Agent Brief - Story Orchestrator
 
 ## Purpose
-Story Driver is a SillyTavern extension that automates checkpoint-driven stories. It watches player turns, evaluates regex or timed triggers, and applies Author's Notes, world info toggles, preset overrides, talk-control replies, and slash-command automations while enforcing persona, group, and lore requirements.
+Story Orchestrator is a SillyTavern extension that automates checkpoint-driven stories. It watches player turns, evaluates regex or timed triggers, and applies Author's Notes, world info toggles, preset overrides, talk-control replies, and slash-command automations while enforcing persona, group, and lore requirements.
 
 ## Lifecycle & Flow
 1. `src/index.tsx` mounts Drawer and Settings portals once the host UI is ready, wraps them with `ExtensionSettingsProvider` and `StoryProvider`, and registers the `talkControlInterceptor` on `globalThis`.

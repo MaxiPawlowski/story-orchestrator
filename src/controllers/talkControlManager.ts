@@ -209,10 +209,10 @@ const dispatchStaticAction = async (action: PendingAction) => {
     mes: text,
     original_avatar: character.avatar,
     extra: {
-      api: "storyDriver",
+      api: "storyOrchestrator",
       model: "talkControl",
       reason: `talkControl:${action.event.type}`,
-      storyDriverTalkControl: { kind: "static", checkpointId: action.checkpointId, event: action.event.type },
+      storyOrchestratorTalkControl: { kind: "static", checkpointId: action.checkpointId, event: action.event.type },
     },
     swipe_id: 0,
     swipes: [text],
@@ -300,7 +300,7 @@ const onMessageReceived = (messageId: number, messageType?: string) => {
   if (!Array.isArray(chat)) return;
   const message = chat[messageId];
   if (!message || message.is_user || message.is_system) return;
-  if (message?.extra?.storyDriverTalkControl) return;
+  if (message?.extra?.storyOrchestratorTalkControl) return;
   const speakerName = typeof message?.name === "string" ? message.name : "";
   const speakerId = normalizeName(speakerName);
   queueEvent("afterSpeak", activeCheckpointId, { speakerId, speakerName, messageId, messageType });

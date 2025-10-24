@@ -5,7 +5,7 @@ export type SlashCommandMeta = {
   aliases: string[];
   description?: string;
   samples: string[];
-  isStoryDriver: boolean;
+  isStoryOrchestrator: boolean;
 };
 
 export type AutomationDraftLine = {
@@ -41,4 +41,3 @@ export const STORY_MACRO_BASE_ENTRIES: MacroDisplayEntry[] = [
   { key: "chat_excerpt", description: "Recent conversation excerpt for arbiter prompts (most recent first)", category: "Runtime" },
   { key: "story_player_name", description: "Active player name", category: "Runtime" },
 ];
-

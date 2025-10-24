@@ -3,7 +3,7 @@ import { getOrchestrator } from "@controllers/orchestratorManager";
 import { getContext } from "@services/SillyTavernAPI";
 import { deriveCheckpointStatuses, CheckpointStatus } from "@utils/story-state";
 
-const STORY_COMMAND_TAG_ATTR = 'data-story-driver="1"';
+const STORY_COMMAND_TAG_ATTR = 'data-story-orchestrator="1"';
 
 export function registerStoryExtensionCommands() {
   const ctx = getContext?.();

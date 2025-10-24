@@ -1,6 +1,6 @@
-﻿# Story Driver (SillyTavern Extension)
+﻿# Story Orchestrator
 
-Story Driver is a checkpoint-driven automation layer for SillyTavern that keeps story roles (DM, companion, narrators, or any custom cast you define) synchronized with the player. It models stories as directed graphs, watches every chat turn, evaluates transition triggers, and applies Author's Notes, world info toggles, preset overrides, slash command automations, and talk-control replies only when the active chat satisfies persona, lore, and group membership requirements.
+Story Orchestrator is a checkpoint-driven automation layer for SillyTavern that keeps story roles (DM, companion, narrators, or any custom cast you define) synchronized with the player. It models stories as directed graphs, watches every chat turn, evaluates transition triggers, and applies Author's Notes, world info toggles, preset overrides, slash command automations, and talk-control replies only when the active chat satisfies persona, lore, and group membership requirements.
 
 ## Feature Highlights
 - **Checkpoint automation**: `StoryOrchestrator` advances checkpoints via regex or interval triggers, hydrates presets per role (including the arbiter role), runs `/` command automations, and toggles world info entries when checkpoints activate.
@@ -105,7 +105,7 @@ webpack.config.js                # Build + live-reload pipeline
 
 Testing inside SillyTavern:
 1. Enable the extension from the host settings.
-2. Import or author a story via Checkpoint Studio and select it in the Story Driver settings drawer.
+2. Import or author a story via Checkpoint Studio and select it in the Story Orchestrator settings drawer.
 3. Verify requirement badges, talk-control replies, macros, slash commands, and automations while stepping through checkpoints in a group chat with the required personas and lore.
 
 
