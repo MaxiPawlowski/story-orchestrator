@@ -227,7 +227,7 @@ export const createRequirementsController = (): RequirementsController => {
 
   const handleChatContextChanged = () => {
     refreshGroupChat();
-    void reloadPersona();
+    reloadPersona();
   };
 
   const start = () => {
@@ -263,7 +263,7 @@ export const createRequirementsController = (): RequirementsController => {
     }
 
     refreshGroupChat();
-    void reloadPersona();
+    reloadPersona();
     refreshWorldLore();
   };
 

@@ -689,6 +689,11 @@ class StoryOrchestrator {
       const updatedRuntime = this.persistence.setTurnsSinceEval(sanitizedSince, { persist: false });
       this.setTurn(sanitizedSince);
       this.onTurnTick?.({ turn: sanitizedSince, sinceEval: updatedRuntime.turnsSinceEval });
+
+      const cp = this.story.checkpoints[targetIndex];
+      if (cp && options?.source === "default") {
+        this.applyAutomationsForCheckpoint(cp, { index: targetIndex, reason: "hydrate-same" });
+      }
     }
   }
 
@@ -792,7 +797,7 @@ class StoryOrchestrator {
       reason: logReason,
     });
     this.applyWorldInfoForCheckpoint(cp, { index: sanitized.checkpointIndex, reason: logReason });
-    void this.applyAutomationsForCheckpoint(cp, { index: sanitized.checkpointIndex, reason: logReason });
+    this.applyAutomationsForCheckpoint(cp, { index: sanitized.checkpointIndex, reason: logReason });
     if (opts.reason) this.emitActivate(sanitized.checkpointIndex);
   }
 
@@ -818,7 +823,7 @@ class StoryOrchestrator {
     const promptContext = this.buildPromptContext(runtime, options);
     this.updateStoryMacrosFromContext(promptContext);
 
-    void this.checkpointArbiter.evaluate({
+    this.checkpointArbiter.evaluate({
       cpName: cp?.name ?? `Checkpoint ${checkpointIndex + 1}`,
       checkpointObjective: cp?.objective,
       latestText: text,

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   type AuthorNoteDraft,
   ensureOnActivate,
@@ -16,7 +16,7 @@ type Props = {
 };
 
 const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }) => {
-  const authorNotesSignature = React.useMemo(() => {
+  const authorNotesSignature = useMemo(() => {
     if (!checkpoint.on_activate?.authors_note) return "";
     try {
       return JSON.stringify(checkpoint.on_activate.authors_note);
@@ -25,7 +25,7 @@ const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }
     }
   }, [checkpoint.id, checkpoint.on_activate?.authors_note]);
 
-  const noteRoleKeys = React.useMemo(() => {
+  const noteRoleKeys = useMemo(() => {
     const seen = new Set<string>();
     const ordered: string[] = [];
     const push = (roleKey?: string | null) => {
@@ -39,7 +39,7 @@ const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }
     return ordered;
   }, [draft.roles, checkpoint.id, authorNotesSignature]);
 
-  const updateAuthorNote = React.useCallback((roleKey: string, editor: (prev: AuthorNoteDraft | undefined) => AuthorNoteDraft | undefined) => {
+  const updateAuthorNote = useCallback((roleKey: string, editor: (prev: AuthorNoteDraft | undefined) => AuthorNoteDraft | undefined) => {
     updateCheckpoint(checkpoint.id, (cp) => {
       const next = ensureOnActivate(cp.on_activate);
       const currentMap = { ...(next.authors_note ?? {}) } as Record<string, AuthorNoteDraft | undefined>;

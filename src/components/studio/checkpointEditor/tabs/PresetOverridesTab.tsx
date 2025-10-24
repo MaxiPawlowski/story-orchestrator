@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   ensureOnActivate,
   cleanupOnActivate,
@@ -30,7 +30,7 @@ const PresetOverridesTab: React.FC<Props> = ({
   setPresetDrafts,
   updateCheckpoint,
 }) => {
-  const overridesSignature = React.useMemo(() => {
+  const overridesSignature = useMemo(() => {
     try {
       return JSON.stringify({
         preset_overrides: checkpoint.on_activate?.preset_overrides ?? {},
@@ -41,7 +41,7 @@ const PresetOverridesTab: React.FC<Props> = ({
     }
   }, [checkpoint.id, checkpoint.on_activate?.preset_overrides, checkpoint.on_activate?.arbiter_preset]);
 
-  const presetRoleKeys = React.useMemo(() => {
+  const presetRoleKeys = useMemo(() => {
     const seen = new Set<string>();
     const ordered: string[] = [];
     const push = (roleKey?: string | null) => {
@@ -57,14 +57,14 @@ const PresetOverridesTab: React.FC<Props> = ({
     return ordered;
   }, [draft.roles, presetDrafts, checkpoint.id, overridesSignature]);
 
-  const resolveCurrentOverrides = React.useCallback((roleKey: string): Partial<Record<PresetSettingKey, unknown>> => {
+  const resolveCurrentOverrides = useCallback((roleKey: string): Partial<Record<PresetSettingKey, unknown>> => {
     if (roleKey === ARBITER_ROLE_KEY) {
       return { ...(checkpoint.on_activate?.arbiter_preset ?? {}) } as Partial<Record<PresetSettingKey, unknown>>;
     }
     return { ...(checkpoint.on_activate?.preset_overrides?.[roleKey] ?? {}) } as Partial<Record<PresetSettingKey, unknown>>;
   }, [checkpoint.on_activate?.arbiter_preset, checkpoint.on_activate?.preset_overrides]);
 
-  const updateRoleOverrides = React.useCallback((
+  const updateRoleOverrides = useCallback((
     roleKey: string,
     mutate: (current: Partial<Record<PresetSettingKey, unknown>>) => Partial<Record<PresetSettingKey, unknown>> | undefined,
   ) => {
@@ -86,7 +86,7 @@ const PresetOverridesTab: React.FC<Props> = ({
     });
   }, [checkpoint.id, updateCheckpoint]);
 
-  const addPresetOverride = React.useCallback((roleKey: string) => {
+  const addPresetOverride = useCallback((roleKey: string) => {
     const existing = resolveCurrentOverrides(roleKey);
     const usedKeys = new Set(Object.keys(existing));
     const candidate = PRESET_SETTING_KEYS.find((key) => !usedKeys.has(key));
@@ -109,7 +109,7 @@ const PresetOverridesTab: React.FC<Props> = ({
     });
   }, [resolveCurrentOverrides, updateRoleOverrides, setPresetDrafts]);
 
-  const removePresetOverride = React.useCallback((roleKey: string, settingKey: string) => {
+  const removePresetOverride = useCallback((roleKey: string, settingKey: string) => {
     const key = settingKey as PresetSettingKey;
     updateRoleOverrides(roleKey, (current) => {
       const next = { ...current };
@@ -128,7 +128,7 @@ const PresetOverridesTab: React.FC<Props> = ({
     });
   }, [updateRoleOverrides, setPresetDrafts]);
 
-  const changePresetKey = React.useCallback((roleKey: string, prevKey: string, nextKey: PresetSettingKey) => {
+  const changePresetKey = useCallback((roleKey: string, prevKey: string, nextKey: PresetSettingKey) => {
     if (prevKey === nextKey) return;
     const existing = resolveCurrentOverrides(roleKey);
     if (Object.prototype.hasOwnProperty.call(existing, nextKey) && nextKey !== prevKey) return;
@@ -154,7 +154,7 @@ const PresetOverridesTab: React.FC<Props> = ({
     });
   }, [resolveCurrentOverrides, updateRoleOverrides, setPresetDrafts]);
 
-  const changePresetValue = React.useCallback((roleKey: string, settingKey: string, rawValue: string) => {
+  const changePresetValue = useCallback((roleKey: string, settingKey: string, rawValue: string) => {
     setPresetDrafts((prev) => {
       const next = { ...prev };
       const roleDraft = { ...(next[roleKey] ?? {}) };

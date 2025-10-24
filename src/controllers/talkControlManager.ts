@@ -189,12 +189,12 @@ const nextPendingAction = (): PendingAction | null => {
 const dispatchStaticAction = async (action: PendingAction) => {
   const charId = resolveCharacterId(action.reply);
   if (charId === undefined) {
-    console.warn("[TalkControl] Unable to resolve character for static reply", { member: action.reply.memberId });
+    console.warn("[Story TalkControl] Unable to resolve character for static reply", { member: action.reply.memberId });
     return;
   }
   const character = characters[charId];
   if (!character) {
-    console.warn("[TalkControl] Character index missing for static reply", { index: charId });
+    console.warn("[Story TalkControl] Character index missing for static reply", { index: charId });
     return;
   }
   const text = pickStaticReplyText(action.reply);
@@ -230,7 +230,7 @@ const dispatchStaticAction = async (action: PendingAction) => {
     try {
       message.force_avatar = getThumbnailUrl("avatar", character.avatar);
     } catch (err) {
-      console.warn("[TalkControl] Failed to resolve avatar thumbnail", err);
+      console.warn("[Story TalkControl] Failed to resolve avatar thumbnail", err);
     }
   }
 
@@ -246,7 +246,7 @@ const dispatchStaticAction = async (action: PendingAction) => {
 const dispatchLlmAction = async (action: PendingAction) => {
   const charId = resolveCharacterId(action.reply);
   if (charId === undefined) {
-    console.warn("[TalkControl] Unable to resolve character for LLM reply", { member: action.reply.memberId });
+    console.warn("[Story TalkControl] Unable to resolve character for LLM reply", { member: action.reply.memberId });
     return;
   }
   const instruction = action.reply.content.kind === "llm" ? action.reply.content.instruction : undefined;
@@ -271,7 +271,7 @@ const executeAction = async (action: PendingAction) => {
       await dispatchLlmAction(action);
     }
   } catch (err) {
-    console.warn("[TalkControl] Action dispatch failed", err);
+    console.warn("[Story TalkControl] Action dispatch failed", err);
   } finally {
     endSelfDispatch();
     endInterceptSuppression();
@@ -279,6 +279,7 @@ const executeAction = async (action: PendingAction) => {
 };
 
 const handleGenerateIntercept = async (_chat: unknown, _contextSize: number, abort: (immediate: boolean) => void, type: string) => {
+  console.log("[Story TalkControl] Intercept check", { type });
   if (!isStoryActive()) return;
   if (!isGroupActive()) return;
   if (isSuppressed()) return;
@@ -289,9 +290,9 @@ const handleGenerateIntercept = async (_chat: unknown, _contextSize: number, abo
   try {
     abort(true);
   } catch (err) {
-    console.warn("[TalkControl] Abort threw", err);
+    console.warn("[Story TalkControl] Abort threw", err);
   }
-  void executeAction(action);
+  executeAction(action);
 };
 
 const onMessageReceived = (messageId: number, messageType?: string) => {
@@ -363,7 +364,7 @@ export const disposeTalkControl = () => {
     try {
       off?.();
     } catch (err) {
-      console.warn("[TalkControl] Failed to remove listener", err);
+      console.warn("[Story TalkControl] Failed to remove listener", err);
     }
   }
   listenersAttached = false;

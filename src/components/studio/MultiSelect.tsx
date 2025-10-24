@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 
 export type Option = { value: string; label: string };
 
@@ -12,11 +12,11 @@ type Props = {
 };
 
 const MultiSelect: React.FC<Props> = ({ options, value, onChange, placeholder = "Search…", className = "", listHeight = 180 }) => {
-  const [query, setQuery] = React.useState("");
+  const [query, setQuery] = useState("");
 
-  const normalizedSelected = React.useMemo(() => new Set(value ?? []), [value]);
+  const normalizedSelected = useMemo(() => new Set(value ?? []), [value]);
 
-  const filtered = React.useMemo(() => {
+  const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const sorted = [...options].sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: "base" }));
     if (!q) return sorted;

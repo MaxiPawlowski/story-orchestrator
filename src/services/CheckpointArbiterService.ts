@@ -198,7 +198,7 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
       this.queue.push({ request, resolve });
       if (!this.busy) {
         queueMicrotask(() => {
-          void this.drain();
+          this.drain();
         });
       }
     });
@@ -253,7 +253,7 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
       this.busy = false;
       if (!this.disposed && this.queue.length) {
         queueMicrotask(() => {
-          void this.drain();
+          this.drain();
         });
       }
     }

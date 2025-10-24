@@ -66,7 +66,7 @@ export function useStoryOrchestrator(
     });
 
     return () => {
-      void disposeOrchestrator();
+      disposeOrchestrator();
     };
   }, [story]);
 

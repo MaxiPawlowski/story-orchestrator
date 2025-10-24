@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import type { StoryDraft } from "@utils/checkpoint-studio";
 import HelpTooltip from "../HelpTooltip";
 
@@ -9,7 +9,7 @@ type Props = {
 };
 
 const StoryMetadataSection: React.FC<Props> = ({ draft, setDraft, globalLorebooks }) => {
-  const lorebookOptions = React.useMemo(() => {
+  const lorebookOptions = useMemo(() => {
     const current = (draft.global_lorebook || "").trim();
     const base = globalLorebooks.slice();
     if (current && !base.includes(current)) {

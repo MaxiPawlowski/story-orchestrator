@@ -1,11 +1,10 @@
-﻿import React from "react";
+﻿import React, { useCallback, useMemo } from "react";
 import {
   type StoryDraft,
   type CheckpointDraft,
   type TalkControlDraft,
   type TalkControlCheckpointDraft,
   type TalkControlReplyDraft,
-  type TalkControlReplyContentDraft,
 } from "@utils/checkpoint-studio";
 import type { TalkControlTrigger } from "@utils/story-schema";
 import { TALK_CONTROL_TRIGGER_OPTIONS } from "../constants";
@@ -24,19 +23,19 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
   const checkpointTalkControl = talkControl?.checkpoints?.[selectedCheckpointId];
   const replies = checkpointTalkControl?.replies ?? [];
 
-  const roleOptions = React.useMemo(() => {
+  const roleOptions = useMemo(() => {
     const roles = draft.roles && typeof draft.roles === "object" ? Object.keys(draft.roles) : [];
     return roles;
   }, [draft.roles]);
 
-  const updateTalkControl = React.useCallback((updater: (current: TalkControlDraft | undefined) => TalkControlDraft | undefined) => {
+  const updateTalkControl = useCallback((updater: (current: TalkControlDraft | undefined) => TalkControlDraft | undefined) => {
     setDraft((prev) => {
       const next = updater(prev.talkControl);
       return { ...prev, talkControl: next };
     });
   }, [setDraft]);
 
-  const updateCheckpointTalkControl = React.useCallback((checkpointId: string, updater: (current: TalkControlCheckpointDraft | undefined) => TalkControlCheckpointDraft | undefined) => {
+  const updateCheckpointTalkControl = useCallback((checkpointId: string, updater: (current: TalkControlCheckpointDraft | undefined) => TalkControlCheckpointDraft | undefined) => {
     updateTalkControl((current) => {
       const base: TalkControlDraft = current
         ? { ...current, checkpoints: { ...(current.checkpoints ?? {}) } }
@@ -61,7 +60,7 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
     });
   }, [updateTalkControl]);
 
-  const patchReply = React.useCallback((replyIndex: number, updater: (reply: TalkControlReplyDraft) => TalkControlReplyDraft | null) => {
+  const patchReply = useCallback((replyIndex: number, updater: (reply: TalkControlReplyDraft) => TalkControlReplyDraft | null) => {
     updateCheckpointTalkControl(selectedCheckpointId, (current) => {
       const checkpointDraft = cloneTalkControlCheckpoint(current);
       if (!checkpointDraft.replies[replyIndex]) return checkpointDraft;
@@ -75,11 +74,11 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
     });
   }, [selectedCheckpointId, updateCheckpointTalkControl]);
 
-  const handleClearCheckpointTalkControl = React.useCallback(() => {
+  const handleClearCheckpointTalkControl = useCallback(() => {
     updateCheckpointTalkControl(selectedCheckpointId, () => undefined);
   }, [selectedCheckpointId, updateCheckpointTalkControl]);
 
-  const handleAddReply = React.useCallback(() => {
+  const handleAddReply = useCallback(() => {
     updateCheckpointTalkControl(selectedCheckpointId, (current) => {
       const checkpointDraft = cloneTalkControlCheckpoint(current);
       checkpointDraft.replies.push({
@@ -94,27 +93,27 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
     });
   }, [selectedCheckpointId, updateCheckpointTalkControl]);
 
-  const handleRemoveReply = React.useCallback((index: number) => {
+  const handleRemoveReply = useCallback((index: number) => {
     patchReply(index, () => null);
   }, [patchReply]);
 
-  const handleReplyMemberIdChange = React.useCallback((index: number, value: string) => {
+  const handleReplyMemberIdChange = useCallback((index: number, value: string) => {
     patchReply(index, (reply) => ({ ...reply, memberId: value }));
   }, [patchReply]);
 
-  const handleReplySpeakerIdChange = React.useCallback((index: number, value: string) => {
+  const handleReplySpeakerIdChange = useCallback((index: number, value: string) => {
     patchReply(index, (reply) => ({ ...reply, speakerId: value }));
   }, [patchReply]);
 
-  const handleReplyEnabledChange = React.useCallback((index: number, value: boolean) => {
+  const handleReplyEnabledChange = useCallback((index: number, value: boolean) => {
     patchReply(index, (reply) => ({ ...reply, enabled: value }));
   }, [patchReply]);
 
-  const handleReplyTriggerChange = React.useCallback((index: number, value: TalkControlTrigger) => {
+  const handleReplyTriggerChange = useCallback((index: number, value: TalkControlTrigger) => {
     patchReply(index, (reply) => ({ ...reply, trigger: value }));
   }, [patchReply]);
 
-  const handleReplyProbabilityChange = React.useCallback((index: number, raw: string) => {
+  const handleReplyProbabilityChange = useCallback((index: number, raw: string) => {
     patchReply(index, (reply) => {
       const trimmed = raw.trim();
       if (!trimmed) return { ...reply, probability: 100 };
@@ -126,14 +125,14 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
     });
   }, [patchReply]);
 
-  const handleReplyContentKindChange = React.useCallback((index: number, kind: "static" | "llm") => {
+  const handleReplyContentKindChange = useCallback((index: number, kind: "static" | "llm") => {
     patchReply(index, (reply) => ({
       ...reply,
       content: kind === "static" ? { kind: "static", text: "" } : { kind: "llm", instruction: "" },
     }));
   }, [patchReply]);
 
-  const handleReplyContentChange = React.useCallback((index: number, value: string) => {
+  const handleReplyContentChange = useCallback((index: number, value: string) => {
     patchReply(index, (reply) => {
       if (reply.content.kind === "static") {
         return { ...reply, content: { kind: "static", text: value } };

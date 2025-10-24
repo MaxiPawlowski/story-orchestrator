@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import type { SlashCommandMeta, AutomationDraftLine } from "../types";
 import HelpTooltip from "../../HelpTooltip";
 
@@ -23,7 +23,7 @@ const AutomationsTab: React.FC<Props> = ({
   onAutomationDraftChange,
   onInsertAutomationLine,
 }) => {
-  const slashCommandLookup = React.useMemo(() => {
+  const slashCommandLookup = useMemo(() => {
     const map = new Map<string, SlashCommandMeta>();
     slashCommands.forEach((cmd) => {
       map.set(cmd.name.toLowerCase(), cmd);
@@ -34,7 +34,7 @@ const AutomationsTab: React.FC<Props> = ({
     return map;
   }, [slashCommands]);
 
-  const automationValidation = React.useMemo<AutomationDraftLine[]>(() => {
+  const automationValidation = useMemo<AutomationDraftLine[]>(() => {
     const lines = automationDraft.split(/\r?\n/);
     const seen = new Map<string, number>();
     return lines.map((rawLine, index) => {
@@ -78,7 +78,7 @@ const AutomationsTab: React.FC<Props> = ({
     });
   }, [automationDraft, slashCommandLookup]);
 
-  const filteredCommands = React.useMemo(() => {
+  const filteredCommands = useMemo(() => {
     const query = commandSearch.trim().toLowerCase();
     if (!query) {
       return slashCommands.slice(0, 12);

@@ -332,8 +332,6 @@ export function evaluateTransitionTriggers({
   const matches: TransitionTriggerMatch[] = [];
   const normalizedText = String(text);
 
-  void _turnsSinceEval;
-
   transitions.forEach((transition) => {
     const trigger = transition.trigger;
     if (trigger.type !== "regex") return;

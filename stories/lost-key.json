@@ -43,11 +43,7 @@
         },
         "automations": ["/bg tavern day"],
         "world_info": {
-          "activate": [
-            "CP1 - Mission",
-            "CP1 - Scenario",
-            "CP1 - Automation BG"
-          ],
+          "activate": ["CP1 - Mission", "CP1 - Scenario"],
           "deactivate": ["CP2 - Challenge"]
         }
       }

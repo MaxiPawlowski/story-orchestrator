@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { getContext } from "@services/SillyTavernAPI";
 import { SlashCommandMeta } from "./types";
 
@@ -22,10 +22,10 @@ const parseHelp = (value: unknown) => {
 };
 
 export const useSlashCommands = () => {
-  const [commands, setCommands] = React.useState<SlashCommandMeta[]>([]);
-  const [error, setError] = React.useState<string | null>(null);
+  const [commands, setCommands] = useState<SlashCommandMeta[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  const refresh = React.useCallback(() => {
+  const refresh = useCallback(() => {
     try {
       const ctx = getContext();
       const parser = (ctx as any)?.SlashCommandParser;
@@ -59,11 +59,11 @@ export const useSlashCommands = () => {
     }
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     refresh();
   }, [refresh]);
 
-  const projectCommands = React.useMemo(
+  const projectCommands = useMemo(
     () => commands.filter((cmd) => cmd.isStoryOrchestrator),
     [commands],
   );

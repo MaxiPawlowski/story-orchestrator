@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { ARBITER_ROLE_KEY } from "@utils/story-schema";
 import {
   CheckpointDraft,
@@ -76,11 +76,11 @@ const CheckpointEditorPanel: React.FC<Props> = ({
   onRemoveCheckpoint,
   setDraft,
 }) => {
-  const [activeTab, setActiveTab] = React.useState<TabKey>("basics");
-  const [presetDrafts, setPresetDrafts] = React.useState<PresetDraftState>({});
-  const [automationDraft, setAutomationDraft] = React.useState("");
-  const [commandSearch, setCommandSearch] = React.useState("");
-  const [referenceSearch, setReferenceSearch] = React.useState("");
+  const [activeTab, setActiveTab] = useState<TabKey>("basics");
+  const [presetDrafts, setPresetDrafts] = useState<PresetDraftState>({});
+  const [automationDraft, setAutomationDraft] = useState("");
+  const [commandSearch, setCommandSearch] = useState("");
+  const [referenceSearch, setReferenceSearch] = useState("");
   const {
     commands: slashCommands,
     projectCommands,
@@ -88,7 +88,7 @@ const CheckpointEditorPanel: React.FC<Props> = ({
     refresh: refreshSlashCommands,
   } = useSlashCommands();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!selectedCheckpoint) {
       setAutomationDraft("");
       return;
@@ -97,7 +97,7 @@ const CheckpointEditorPanel: React.FC<Props> = ({
     setAutomationDraft(joined);
   }, [selectedCheckpoint?.id]);
 
-  const overridesSignature = React.useMemo(() => {
+  const overridesSignature = useMemo(() => {
     if (!selectedCheckpoint) return "";
     try {
       return JSON.stringify({
@@ -109,7 +109,7 @@ const CheckpointEditorPanel: React.FC<Props> = ({
     }
   }, [selectedCheckpoint?.id, selectedCheckpoint?.on_activate?.preset_overrides, selectedCheckpoint?.on_activate?.arbiter_preset]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!selectedCheckpoint) {
       setPresetDrafts({});
       return;
@@ -132,7 +132,7 @@ const CheckpointEditorPanel: React.FC<Props> = ({
     setPresetDrafts(next);
   }, [selectedCheckpoint?.id, overridesSignature]);
 
-  const updateAutomationsForCheckpoint = React.useCallback((rawText: string) => {
+  const updateAutomationsForCheckpoint = useCallback((rawText: string) => {
     if (!selectedCheckpoint) return;
     const parsed = parseAutomationInput(rawText);
     updateCheckpoint(selectedCheckpoint.id, (cp) => {
@@ -142,12 +142,12 @@ const CheckpointEditorPanel: React.FC<Props> = ({
     });
   }, [selectedCheckpoint, updateCheckpoint]);
 
-  const handleAutomationDraftChange = React.useCallback((value: string) => {
+  const handleAutomationDraftChange = useCallback((value: string) => {
     setAutomationDraft(value);
     updateAutomationsForCheckpoint(value);
   }, [updateAutomationsForCheckpoint]);
 
-  const handleInsertAutomationLine = React.useCallback((command: string) => {
+  const handleInsertAutomationLine = useCallback((command: string) => {
     const trimmed = command.trim();
     if (!trimmed) return;
     setAutomationDraft((prev) => {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { StoryDraft } from "@utils/checkpoint-studio";
 import { getWorldInfoSettings, eventSource, event_types, getContext } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
@@ -11,11 +11,11 @@ type Props = {
 };
 
 const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
-  const [globalLorebooks, setGlobalLorebooks] = React.useState<string[]>([]);
-  const [groupMembers, setGroupMembers] = React.useState<string[]>([]);
+  const [globalLorebooks, setGlobalLorebooks] = useState<string[]>([]);
+  const [groupMembers, setGroupMembers] = useState<string[]>([]);
 
 
-  const refreshGlobalLorebooks = React.useCallback(() => {
+  const refreshGlobalLorebooks = useCallback(() => {
     try {
       const settings: any = getWorldInfoSettings?.();
       const list = Array.isArray(settings?.world_info?.globalSelect)
@@ -30,7 +30,7 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
     }
   }, []);
 
-  const refreshGroupMembers = React.useCallback(() => {
+  const refreshGroupMembers = useCallback(() => {
     try {
       const ctx = getContext?.();
       const groupIdRaw = ctx?.groupId;
@@ -74,7 +74,7 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
     }
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     refreshGlobalLorebooks();
     try { refreshGroupMembers(); } catch { }
 

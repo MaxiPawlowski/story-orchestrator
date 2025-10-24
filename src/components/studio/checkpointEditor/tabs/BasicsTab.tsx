@@ -1,8 +1,8 @@
-import React from "react";
 import type { CheckpointDraft, StoryDraft } from "@utils/checkpoint-studio";
 import type { SlashCommandMeta, MacroDisplayEntry } from "../types";
 import { STORY_MACRO_BASE_ENTRIES } from "../types";
 import HelpTooltip from "../../HelpTooltip";
+import { useMemo } from "react";
 
 type Props = {
   draft: StoryDraft;
@@ -25,7 +25,7 @@ const BasicsTab: React.FC<Props> = ({
   onCheckpointIdChange,
   updateCheckpoint,
 }) => {
-  const macroEntries = React.useMemo(() => {
+  const macroEntries = useMemo(() => {
     const entries = new Map<string, MacroDisplayEntry>();
     STORY_MACRO_BASE_ENTRIES.forEach((entry) => {
       entries.set(entry.key, { ...entry });
@@ -68,7 +68,7 @@ const BasicsTab: React.FC<Props> = ({
 
   const normalizedReferenceQuery = referenceQuery.trim().toLowerCase();
 
-  const filteredReferenceCommands = React.useMemo(() => {
+  const filteredReferenceCommands = useMemo(() => {
     if (!normalizedReferenceQuery) return projectSlashCommands;
     return projectSlashCommands.filter((cmd) => {
       const lowerName = cmd.name.toLowerCase();
@@ -80,7 +80,7 @@ const BasicsTab: React.FC<Props> = ({
     });
   }, [projectSlashCommands, normalizedReferenceQuery]);
 
-  const filteredMacroEntries = React.useMemo(() => {
+  const filteredMacroEntries = useMemo(() => {
     if (!normalizedReferenceQuery) return macroEntries;
     return macroEntries.filter((entry) => {
       if (entry.key.toLowerCase().includes(normalizedReferenceQuery)) return true;

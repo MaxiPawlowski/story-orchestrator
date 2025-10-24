@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import MultiSelect from "@components/studio/MultiSelect";
 import {
   cleanupOnActivate,
@@ -17,9 +17,9 @@ type Props = {
 };
 
 const WorldInfoTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }) => {
-  const [loreComments, setLoreComments] = React.useState<string[]>([]);
+  const [loreComments, setLoreComments] = useState<string[]>([]);
 
-  const refreshLoreEntries = React.useCallback(async () => {
+  const refreshLoreEntries = useCallback(async () => {
     const lorebook = (draft.global_lorebook || "").trim();
     if (!lorebook) { setLoreComments([]); return; }
     try {
@@ -36,10 +36,10 @@ const WorldInfoTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }) 
     }
   }, [draft.global_lorebook]);
 
-  React.useEffect(() => {
-    void refreshLoreEntries();
+  useEffect(() => {
+    refreshLoreEntries();
     const offs: Array<() => void> = [];
-    const handler = () => void refreshLoreEntries();
+    const handler = () => refreshLoreEntries();
     try {
       [
         event_types?.WORLDINFO_ENTRIES_LOADED,
@@ -60,7 +60,7 @@ const WorldInfoTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }) 
     };
   }, [refreshLoreEntries]);
 
-  const buildEntryOptions = React.useCallback((selected: string[] | undefined) => {
+  const buildEntryOptions = useCallback((selected: string[] | undefined) => {
     const base = loreComments.slice();
     const extra = (selected ?? []).filter((value) => value && !base.includes(value));
     return [
