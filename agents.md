@@ -1,50 +1,51 @@
-# Codex Agent Brief — Story Driver
+# Codex Agent Brief - Story Driver
 
 ## Purpose
-Story Driver is a checkpoint-driven story runner for SillyTavern. It ensures the DM + Companion roles stay synchronized with the player by watching chat turns, evaluating win/fail triggers, advancing checkpoints, and applying contextual runtime effects (Author’s Notes, World Info toggles, preset overrides). Runtime automation only activates once persona, group chat, role, and lore requirements are satisfied.
+Story Driver is a SillyTavern extension that automates checkpoint-driven stories. It watches player turns, evaluates regex or timed triggers, and applies Author's Notes, world info toggles, preset overrides, talk-control replies, and slash-command automations while enforcing persona, group, and lore requirements.
 
 ## Lifecycle & Flow
-1. Extension mounts; Drawer + Settings roots are injected after a short delay.
-2. `StoryProvider` loads the selected story from the persisted library (SillyTavern settings) via `storyLibrary` → `story-validator`, yielding a `NormalizedStory`.
-3. `orchestratorManager.ensureStory` spins up a singleton `StoryOrchestrator` when a valid story and group chat context are detected.
-4. `StoryOrchestrator` hydrates persisted runtime, primes role presets, registers slash commands, and subscribes to SillyTavern host events.
-5. Each player message increments `turn` and `turnsSinceEval`; interval thresholds or regex matches queue evaluations in `CheckpointArbiterService`.
-6. Arbiter outcomes (`continue`, `win`, `fail`) update checkpoint status, optionally follow win/fail transitions, reset evaluation counters, and request persistence snapshots.
-7. Activating a checkpoint applies world info toggles, per-role Author’s Notes, preset overrides, and updates the Zustand store so UI reflects the new state.
+1. `src/index.tsx` mounts Drawer and Settings portals once the host UI is ready, wraps them with `ExtensionSettingsProvider` and `StoryProvider`, and registers the `talkControlInterceptor` on `globalThis`.
+2. `StoryProvider` loads the story library (`storyLibrary` + `story-validator`), restores the chat's selected story, publishes metadata via context, and ensures macros are registered.
+3. `orchestratorManager.ensureStory` sanitizes arbiter settings, instantiates a singleton `StoryOrchestrator`, attaches `turnController`, seeds `talkControlManager`, and syncs `storySessionStore` with chat context.
+4. `StoryOrchestrator` hydrates runtime persistence (`story-state`), hooks SillyTavern events, registers slash commands, tracks requirements, updates macro snapshots, and monitors turn counters for trigger matches.
+5. Player turns and manual `/checkpoint` commands queue `CheckpointArbiterService` jobs. Parsed outcomes advance checkpoints, persist runtime state, and reset timers in the Zustand store.
+6. Checkpoint activation applies per-role Author's Notes, preset overrides, arbiter presets, world info toggles, automation slash commands, macro snapshots, and talk-control scopes. Requirements gating prevents side effects when the chat is not ready.
 
-## Key React Surfaces
-- `src/index.tsx` wraps the Drawer/Settings shells with `ExtensionSettingsProvider` and `StoryProvider`.
-- `StoryContext` exposes story metadata, checkpoint summaries, requirement flags, runtime counters, and story library operations. It also handles chat-change event subscriptions.
-- `ExtensionSettingsContext` persists arbiter prompt/frequency using the branded sanitizers from `utils/arbiter`, keeping runtime consumers behind the same source of truth.
-- Drawer components in `src/components/drawer/` present requirement badges, checkpoint progression, turn counters, and manual activation controls.
-- Settings modules surface arbiter controls plus the Checkpoint Studio editor hosted in `src/components/studio/`.
+## Talk Control
+- `talkControlManager` mirrors normalized story definitions, rebuilds role lookups, and tracks per-checkpoint replies (static text or LLM instructions).
+- Queues triggers (`onEnter`, `onExit`, `afterSpeak`, `beforeArbiter`, `afterArbiter`), throttles actions per turn, resolves character IDs, and dispatches replies via `addOneMessage` or `generateGroupWrapper`.
+- Intercepts loud generations when a pending talk-control action exists, cancels the host generation, and injects its own response while suppressing recursion.
+
+## React Surfaces
+- `src/components/drawer` shows requirement badges, checkpoint status, and the most recent queued evaluation summary.
+- `src/components/settings` exposes arbiter prompt/frequency controls, story selection, refresh, and the Checkpoint Studio modal.
+- `src/components/studio` contains editors for metadata, checkpoints, transitions, automations, talk control, diagnostics, and the Cytoscape/dagre `GraphPanel`.
+- `ExtensionSettingsContext` sanitizes and persists arbiter settings via `utils/arbiter`.
+- `StoryContext` publishes story metadata, runtime counters, requirement flags, library CRUD helpers, and persona reload hooks.
 
 ## Controllers & Services
-- `StoryOrchestrator` (services) coordinates activation, trigger evaluation, preset/world info application, requirement polling, chat context changes, and persistence reconciliation. It only accepts sanitized arbiter settings injected from the manager.
-- `orchestratorManager` ensures a single orchestrator instance, reuses the shared sanitizers from `utils/arbiter`, forwards runtime hooks to React, and manages the `turnController`.
-- `requirementsController` normalizes role names, checks persona + group chat selection, verifies world info entries/global lorebook, and emits requirement readiness flags.
-- `persistenceController` stores runtime snapshots keyed by `(chatId + story title)` via helpers in `story-state`, only hydrating when group chat context exists.
-- `CheckpointArbiterService` compiles win/fail regexes, renders the LLM-style evaluation prompt, handles interval checks, and selects outgoing transitions.
-- `PresetService` clones the current or named base preset and applies per-role overrides during checkpoint activation.
-- `SillyTavernAPI` wraps host globals (event bus, world info, Author’s Notes, presets, settings persistence) to keep build tooling agnostic of runtime globals.
+- `StoryOrchestrator` drives checkpoint state, trigger evaluation, preset and world info application, automations, macro snapshots, persistence, and talk-control notifications.
+- `orchestratorManager` guarantees a single orchestrator instance, forwards sanitized arbiter settings, attaches or detaches `turnController`, exposes pause/resume helpers, and relays evaluation callbacks.
+- `turnController` listens to SillyTavern events (`MESSAGE_SENT`, `GENERATION_STARTED`, etc.), dedupes user text, sets the active role for preset application, and avoids duplicate turn ticks.
+- `requirementsController` validates persona, group membership, and lore prerequisites, updating the requirement snapshot in `storySessionStore`.
+- `persistenceController` loads and saves runtime snapshots keyed by `(chatId + story title)` using utilities in `story-state`, hydrating without replaying activation effects.
+- `CheckpointArbiterService` builds evaluation prompts, snapshots recent chat history, calls `generateRaw`, enforces JSON-only replies, and emits outcomes used to advance checkpoints.
+- `PresetService` clones current or named presets, applies per-role overrides (including `$arbiter`), syncs SillyTavern UI sliders, and resets on story changes.
+- `storyMacros` registers macros at startup and refreshes snapshots (title, descriptions, checkpoint summaries, trigger list, chat excerpt, player name, role aliases) whenever the orchestrator publishes new context.
+- `SillyTavernAPI` is the facade over host globals (event bus, presets, world info, slash commands, chat metadata) so services stay decoupled from runtime globals.
 
-## Zustand Store
-- `storySessionStore` tracks: active story, story key, chat context, runtime (`checkpointIndex`, `activeCheckpointKey`, `checkpointStatusMap`, `turnsSinceEval`), current turn, hydration flag, requirement state, and orchestrator readiness.
-- Actions sanitize inputs (`sanitizeRuntime`, `sanitizeTurnsSinceEval`), derive status maps, update checkpoint statuses, and persist requirement snapshots.
-- Requirement state helpers live in `src/store/requirementsState.ts`; they provide diffing, cloning, and equality checks used by the controller.
+## State & Persistence
+- `storySessionStore` (Zustand) tracks the active story, selected key, chat context, runtime (`checkpointIndex`, `activeCheckpointKey`, `turnsSinceEval`, `checkpointTurnCount`, `checkpointStatusMap`), overall turn count, hydration flag, requirement snapshot, and orchestrator readiness.
+- `story-state` sanitizes runtime updates, clamps indices, derives checkpoint status maps, persists state per chat, and produces summaries for macros and the UI.
+- `requirementsState` exposes immutable helpers for diffing and cloning requirement snapshots so controllers avoid redundant store writes.
 
-## Checkpoint Studio & Story Library
-- Studio components (`src/components/studio/*`) implement story metadata editing, checkpoint CRUD, diagnostics, and Cytoscape/dagre graph visualization.
-- `utils/checkpoint-studio.ts` defines draft models, regex/string helpers, Mermaid graph output, and cleanup utilities for producing schema-compliant stories.
-- `storyLibrary.ts` manages saved stories stored under the extension settings `studio` key, normalizes entries, and exposes CRUD helpers to the UI.
-- `utils/arbiter.ts` owns the sanitized arbiter defaults; other modules consume its branded helpers instead of importing `DEFAULT_*` constants directly.
+## Story Authoring & Library
+- `utils/story-schema.ts` defines the Zod schema (checkpoints, transitions, `talkControl`, automations, role overrides, author-note defaults).
+- `story-validator` normalizes stories into ordered checkpoints, transition maps, regex lists, and talk-control checkpoints.
+- `utils/checkpoint-studio.ts` powers draft models, regex and automation helpers, Mermaid export, and talk-control editors used by the Studio.
+- `storyLibrary.ts` persists stories in extension settings, handles CRUD, generates stable IDs, and is consumed by `useStoryLibrary`.
 
-## Persistence & Host Integration
-- Runtime persistence only executes when a story, chatId, and group chat selection exist. Hydration avoids reapplying activation side effects unless the checkpoint index changes.
-- Requirements polling reacts to SillyTavern events (`CHAT_CHANGED`, persona updates, lorebook loads) via `subscribeToEventSource`.
-- Slash commands are registered in `src/utils/slashCommands.ts` during orchestrator initialization for manual checkpoint control or diagnostics.
-
-## Assets, Styling & Build
-- Styling uses Tailwind (`tailwind.config.js`) plus `src/styles.css`, processed through the webpack pipeline.
-- Toolchain: React 19, TypeScript 5, Zustand 5, Cytoscape + dagre for graph layouts.
-- Scripts: `npm run dev` (watch + typecheck), `npm run typecheck`, `npm run build`.
+## Build & Tooling
+- React 19, TypeScript 5, Zustand 5, Cytoscape + dagre, Tailwind 4 (via PostCSS + webpack).
+- NPM scripts: `npm run dev` (webpack watch + `tsc --watch`), `npm run typecheck`, `npm run build`.
+- Styles live in `src/styles.css`; configuration resides in `tailwind.config.js`. Webpack enables live reload and fork-ts type checking.

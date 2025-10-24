@@ -10,9 +10,7 @@ type Props = {
 
 const StoryRolesSection: React.FC<Props> = ({ draft, setDraft, groupMembers }) => (
   <div className="mt-2 border-t border-slate-800 pt-3">
-    <div className="mb-1 font-medium text-slate-200">Story Roles
-      <HelpTooltip title="Map role name to the participant/character name in your group chat. Useful to quickly swap characters in your story." />
-    </div>
+    <div className="mb-1 font-medium text-slate-200">Story Roles</div>
     <div className="space-y-2">
       {Object.entries(draft.roles ?? {}).map(([roleKey, participant], index) => (
         <div key={roleKey} className="grid grid-cols-2 gap-2 items-end">

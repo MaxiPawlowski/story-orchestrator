@@ -18,6 +18,11 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
   const [cyReady, setCyReady] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const cyRef = useRef<Core | null>(null);
+  const selectHandlerRef = useRef(onSelect);
+
+  useEffect(() => {
+    selectHandlerRef.current = onSelect;
+  }, [onSelect]);
 
   const elements = useMemo(() => {
     const nodes: ElementDefinition[] = draft.checkpoints.map((cp) => ({
@@ -47,8 +52,6 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
   };
 
   useEffect(() => {
-    const containerEl = containerRef.current;
-    if (!containerEl) return;
     let cy: Core | null = null;
     let timeoutHandle: number | null = null;
     let cancelled = false;
@@ -80,7 +83,9 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
 
       const handleTap = (event: EventObject) => {
         const id = (event?.target as any)?.id?.();
-        if (id) onSelect(id);
+        if (id) {
+          selectHandlerRef.current?.(id);
+        }
       };
       cy.on("tap", "node", handleTap);
       cyRef.current = cy;
@@ -106,7 +111,39 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
       }
       if (cleanup) cleanup();
     };
-  }, [onSelect]);
+  }, []);
+
+  useEffect(() => {
+    if (!cyReady) return;
+    const container = containerRef.current;
+    const cy = cyRef.current;
+    if (!container || !cy) return;
+
+    const fitCy = () => {
+      const instance = cyRef.current;
+      if (!instance) return;
+      try {
+        instance.resize();
+        instance.fit(undefined, 32);
+      } catch {
+        /* noop */
+      }
+    };
+
+    fitCy();
+
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", fitCy);
+      return () => window.removeEventListener("resize", fitCy);
+    }
+
+    const observer = new ResizeObserver(() => {
+      window.requestAnimationFrame(fitCy);
+    });
+    observer.observe(container);
+
+    return () => observer.disconnect();
+  }, [cyReady]);
 
   useEffect(() => {
     const cy = cyRef.current;
@@ -135,7 +172,7 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
   }, []);
 
   return (
-    <div className="rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] shadow-sm">
+    <div className="flex flex-1 flex-col overflow-hidden rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] shadow-sm">
       <div className="flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-2">
         <div className="font-semibold">Graph</div>
         <div className="flex items-center gap-2">
@@ -176,7 +213,7 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
           </select>
         </div>
       </div>
-      <div ref={containerRef} className="h-80 w-full rounded bg-[var(--SmartThemeBlurTintColor)]" />
+      <div ref={containerRef} className="flex-1 min-h-[20rem] w-full bg-[var(--SmartThemeBlurTintColor)]" />
     </div>
   );
 };

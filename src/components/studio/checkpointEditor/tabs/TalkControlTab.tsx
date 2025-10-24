@@ -178,9 +178,9 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
                     <div className="text-sm font-semibold text-slate-100">Reply {idx + 1}</div>
-                    <div className="text-[11px] text-slate-400">
+                    {/* <div className="text-[11px] text-slate-400">
                       Trigger: <span className="text-slate-300">{triggerLabel}</span>
-                    </div>
+                    </div> */}
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <label className="inline-flex items-center gap-2 text-[11px] text-slate-300">

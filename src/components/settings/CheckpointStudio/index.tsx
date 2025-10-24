@@ -473,7 +473,7 @@ const CheckpointStudio: React.FC<Props> = ({
 
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="flex flex-col gap-4">
+        <div className="flex h-full flex-col gap-4">
           <GraphPanel
             canAddTransition={!!selectedId && draft.checkpoints.length > 0}
             disabled={disabled}
