@@ -21,5 +21,5 @@
       "@store/*": ["store/*"],
     }
   },
-  "include": ["src", "index.tsx"]
+  "include": ["src", "global.d.ts"]
 }

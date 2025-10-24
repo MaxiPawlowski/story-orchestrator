@@ -7,40 +7,18 @@
   UI_SYNC_RETRY_DELAY_MS,
 } from "@constants/defaults";
 
-declare global {
-  interface Toastr {
-    success?: (...args: any[]) => any;
-    info?: (...args: any[]) => any;
-  }
-  interface Window {
-    toastr?: Toastr;
-  }
+function importSTModule<T>(path: string): Promise<T> {
+  return import(/* webpackIgnore: true */ path);
 }
 
-const group = await import(
-  "../../../../../../public/scripts/group-chats.js"
-);
-const script = await import(
-  "../../../../../../public/script.js"
-);
-const extensions = await import(
-  "../../../../../../public/scripts/extensions.js"
-);
-const macros = await import(
-  "../../../../../../public/scripts/macros.js"
-);
-const worldInfo = await import(
-  "../../../../../../public/scripts/world-info.js"
-);
-const textgen_settings = await import(
-  "../../../../../../public/scripts/textgen-settings.js"
-);
-const logit_bias = await import(
-  "../../../../../../public/scripts/logit-bias.js"
-);
-const rossMods = await import(
-  "../../../../../../public/scripts/RossAscends-mods.js"
-);
+const script = await importSTModule<typeof import("../../../../../../public/script.js")>("/script.js");
+const group = await importSTModule<typeof import("../../../../../../public/scripts/group-chats.js")>("/scripts/group-chats.js");
+const extensions = await importSTModule<typeof import("../../../../../../public/scripts/extensions.js")>("/scripts/extensions.js");
+const macros = await importSTModule<typeof import("../../../../../../public/scripts/macros.js")>("/scripts/macros.js");
+const worldInfo = await importSTModule<typeof import("../../../../../../public/scripts/world-info.js")>("/scripts/world-info.js");
+const textgen_settings = await importSTModule<typeof import("../../../../../../public/scripts/textgen-settings.js")>("/scripts/textgen-settings.js");
+const logit_bias = await importSTModule<typeof import("../../../../../../public/scripts/logit-bias.js")>("/scripts/logit-bias.js");
+const rossMods = await importSTModule<typeof import("../../../../../../public/scripts/RossAscends-mods.js")>("/scripts/RossAscends-mods.js");
 
 export const BIAS_CACHE = logit_bias["BIAS_CACHE"];
 export const displayLogitBias = logit_bias["displayLogitBias"];
