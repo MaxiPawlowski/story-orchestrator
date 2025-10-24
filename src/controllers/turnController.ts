@@ -1,6 +1,6 @@
 import type StoryOrchestrator from "@services/StoryOrchestrator";
 import type { Role } from "@utils/story-schema";
-import { chat, eventSource, event_types, getCharacterNameById } from "@services/SillyTavernAPI";
+import { eventSource, event_types, getCharacterNameById, getContext } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
 
 interface ListenerDisposer {
@@ -8,6 +8,7 @@ interface ListenerDisposer {
 }
 
 const pickUserTextFromChat = (): { text: string; key: string } | null => {
+  const { chat } = getContext();
   if (!Array.isArray(chat) || chat.length === 0) return null;
   for (let i = chat.length - 1; i >= 0; i--) {
     const message = chat[i];

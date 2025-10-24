@@ -12,7 +12,6 @@ function importSTModule<T>(path: string): Promise<T> {
 }
 
 const script = await importSTModule<typeof import("../../../../../../public/script.js")>("/script.js");
-const group = await importSTModule<typeof import("../../../../../../public/scripts/group-chats.js")>("/scripts/group-chats.js");
 const extensions = await importSTModule<typeof import("../../../../../../public/scripts/extensions.js")>("/scripts/extensions.js");
 const macros = await importSTModule<typeof import("../../../../../../public/scripts/macros.js")>("/scripts/macros.js");
 const worldInfo = await importSTModule<typeof import("../../../../../../public/scripts/world-info.js")>("/scripts/world-info.js");
@@ -22,53 +21,17 @@ const rossMods = await importSTModule<typeof import("../../../../../../public/sc
 
 export const BIAS_CACHE = logit_bias["BIAS_CACHE"];
 export const displayLogitBias = logit_bias["displayLogitBias"];
-export const tgSettings = textgen_settings["textgenerationwebui_settings"];
 export const tgPresetObjs = textgen_settings["textgenerationwebui_presets"];
 export const tgPresetNames = textgen_settings["textgenerationwebui_preset_names"];
 export const TG_SETTING_NAMES = textgen_settings["setting_names"];
 export const setSettingByName = textgen_settings["setSettingByName"];
-export const setGenerationParamsFromPreset = script["setGenerationParamsFromPreset"];
-
-export const extension_settings = extensions["extension_settings"] as Record<string, any>;
 export const getContext = extensions["getContext"];
-export const saveMetadataDebounced = extensions["saveMetadataDebounced"];
-export const saveSettingsDebounced = script["saveSettingsDebounced"];
+export const setGenerationParamsFromPreset = script["setGenerationParamsFromPreset"];
 export const eventSource = script["eventSource"];
 export const event_types = script["event_types"];
-export const chat = script["chat"];
-export const characters = script["characters"];
-export const selected_group = group["selected_group"] as string | null | undefined;
-
-
-/**
- * Background generation based on the provided prompt.
- * @typedef {object} GenerateQuietPromptParams
- * @prop {string} [quietPrompt] Instruction prompt for the AI
- * @prop {boolean} [quietToLoud] Whether the message should be sent in a foreground (loud) or background (quiet) mode
- * @prop {boolean} [skipWIAN] Whether to skip addition of World Info and Author's Note into the prompt
- * @prop {string} [quietImage] Image to use for the quiet prompt
- * @prop {string} [quietName] Name to use for the quiet prompt (defaults to "System:")
- * @prop {number} [responseLength] Maximum response length. If unset, the global default value is used.
- * @prop {number} [forceChId] Character ID to use for this generation run. Works in groups only.
- * @prop {object} [jsonSchema] JSON schema to use for the structured generation. Usually requires a special instruction.
- * @prop {boolean} [removeReasoning] Parses and removes the reasoning block according to reasoning format preferences
- * @prop {boolean} [trimToSentence] Whether to trim the response to the last complete sentence
- * @param {GenerateQuietPromptParams} params Parameters for the quiet prompt generation
- * @returns {Promise<string>} Generated text. If using structured output, will contain a serialized JSON object.
- */
-// export async function generateQuietPrompt({ quietPrompt = '', quietToLoud = false, skipWIAN = false, quietImage = null, quietName = null, responseLength = null, forceChId = null, jsonSchema = null, removeReasoning = true, trimToSentence = false } = {}) {
-
-export const generateQuietPrompt = script["generateQuietPrompt"];
-export const generateRaw = script["generateRaw"];
 export const getWorldInfoSettings = worldInfo["getWorldInfoSettings"];
 export const MacrosParser = macros["MacrosParser"];
-export const addOneMessage = script["addOneMessage"];
-export const saveChatConditional = script["saveChatConditional"];
 export const getMessageTimeStamp = rossMods["getMessageTimeStamp"];
-export const getThumbnailUrl = script["getThumbnailUrl"];
-export const chat_metadata = script["chat_metadata"] as Record<string, any>;
-export const substituteParams = script["substituteParams"];
-
 export function getCharacterNameById(id: number | string | undefined): string | undefined {
   if (id === undefined || id === null || id === '') return undefined;
   const index = typeof id === 'string' ? Number.parseInt(id, 10) : Number(id);
@@ -329,12 +292,13 @@ export async function disableWIEntry(lorebook: string, comments: string | string
 
   (window as any).ST_applyTextgenPresetToUI = function apply(name: string, presetObj: any) {
     try {
+      const { textCompletionSettings } = getContext();
       for (const key of TG_SETTING_NAMES) {
         if (Object.prototype.hasOwnProperty.call(presetObj, key)) {
           applySettingWithRetry(key, presetObj[key]);
         }
       }
-      tgSettings.preset = name;
+      textCompletionSettings.preset = name;
       const sel = document.getElementById('settings_preset_textgenerationwebui') as HTMLSelectElement | null;
       if (sel) {
         sel.value = name;

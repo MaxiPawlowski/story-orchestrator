@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
-import { extension_settings, saveSettingsDebounced } from "@services/SillyTavernAPI";
+import { getContext } from "@services/SillyTavernAPI";
 import { extensionName } from "@constants/main";
 import {
   DEFAULT_SANITIZED_ARBITER_FREQUENCY,
@@ -9,6 +9,7 @@ import {
   type ArbiterFrequency,
   type ArbiterPrompt,
 } from "@utils/arbiter";
+import { getSettingsRoot } from "@utils/storyLibrary";
 
 export interface ExtensionRuntimeSettings {
   arbiterPrompt: ArbiterPrompt;
@@ -31,16 +32,6 @@ interface ExtensionSettingsContextValue extends ExtensionRuntimeSettings {
 
 const ExtensionSettingsContext = createContext<ExtensionSettingsContextValue | undefined>(undefined);
 
-function getSettingsRoot(): Record<string, unknown> {
-  const root = extension_settings[extensionName];
-  if (root && typeof root === "object") {
-    return root as Record<string, unknown>;
-  }
-  const created: Record<string, unknown> = {};
-  extension_settings[extensionName] = created;
-  return created;
-}
-
 function loadSettings(): ExtensionRuntimeSettings {
   const root = getSettingsRoot();
   const raw = root[CONFIG_KEY];
@@ -55,6 +46,7 @@ function loadSettings(): ExtensionRuntimeSettings {
 }
 
 function persistSettings(next: ExtensionRuntimeSettings) {
+  const { saveSettingsDebounced } = getContext();
   const root = getSettingsRoot();
   root[CONFIG_KEY] = { ...next };
   try {

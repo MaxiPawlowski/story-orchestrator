@@ -1,4 +1,4 @@
-import { extension_settings, saveSettingsDebounced } from "@services/SillyTavernAPI";
+import { getContext } from "@services/SillyTavernAPI";
 import type { NormalizedCheckpoint, NormalizedStory, NormalizedTransition, NormalizedTransitionTrigger } from "@utils/story-validator";
 import { extensionName } from "@constants/main";
 
@@ -148,6 +148,7 @@ export function persistStoryState({
   const key = sanitizeChatKey(chatId);
   if (!key) return;
 
+  const { saveSettingsDebounced } = getContext();
   const map = getStateMap();
   const sanitized = sanitizeRuntime(state, story);
   const persistedKey = sanitizeStoryKey(storyKey);
@@ -364,12 +365,13 @@ function getStateMap(): StateMap {
 }
 
 function getExtensionSettingsRoot(): Record<string, unknown> {
-  const root = extension_settings[extensionName];
+  const { extensionSettings } = getContext();
+  const root = (extensionSettings as any)[extensionName];
   if (root && typeof root === "object") {
     return root as Record<string, unknown>;
   }
   const created: Record<string, unknown> = {};
-  extension_settings[extensionName] = created;
+  (extensionSettings as any)[extensionName] = created;
   return created;
 }
 

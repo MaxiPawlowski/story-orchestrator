@@ -1,15 +1,14 @@
 ﻿import {
   event_types,
   setGenerationParamsFromPreset,
-  saveSettingsDebounced,
   eventSource,
   setSettingByName,
-  tgSettings,
   tgPresetObjs,
   tgPresetNames,
   TG_SETTING_NAMES,
   BIAS_CACHE,
   displayLogitBias,
+  getContext,
 } from './SillyTavernAPI';
 import type { PresetOverrides, Role } from "@utils/story-schema";
 import { ARBITER_ROLE_KEY, ARBITER_ROLE_LABEL } from "@utils/story-schema";
@@ -48,9 +47,10 @@ export class PresetService {
   }
 
   async initForStory() {
+    const { textCompletionSettings } = getContext();
     console.log('[PresetService] initForStory → ensure preset, select base');
     this.ensureDedicatedPresetExists();
-    tgSettings.preset = this.presetName;
+    textCompletionSettings.preset = this.presetName;
 
     // Apply base snapshot without assuming any specific role
     const baseObj = this.getBasePresetObject();
@@ -60,6 +60,7 @@ export class PresetService {
   applyForRole(role: Role, checkpointOverrides?: PresetPartial, checkpointName?: string): Record<string, any> {
     const overrideKeys = checkpointOverrides ? Object.keys(checkpointOverrides) : [];
     const roleLabel = this.describeRole(role);
+    const { textCompletionSettings } = getContext();
     console.log('[PresetService] applyForRole', { role, roleLabel, checkpointName, overrideKeys });
 
     this.ensureDedicatedPresetExists();
@@ -67,7 +68,7 @@ export class PresetService {
 
     this.writeIntoRegistry(this.presetName, merged);
 
-    tgSettings.preset = this.presetName;
+    textCompletionSettings.preset = this.presetName;
     const label = this.makeLabel({ role, checkpointName });
     this.applyPresetObject(merged, label);
 
@@ -100,7 +101,8 @@ export class PresetService {
       const p = this.resolveExistingNamed(this.base.name);
       if (p) return this.clonePresetFields(p);
     }
-    return this.clonePresetFields(tgSettings, true);
+    const { textCompletionSettings } = getContext();
+    return this.clonePresetFields(textCompletionSettings, true);
   }
   private ensurePresetOptionExists(name: string) {
     const sel = document.getElementById('settings_preset_textgenerationwebui') as HTMLSelectElement | null;
@@ -174,19 +176,19 @@ export class PresetService {
   }
 
   private applyPresetValuesToSettings(presetObj: any) {
+    const { textCompletionSettings } = getContext();
     for (const key of TG_SETTING_NAMES) {
       if (Object.prototype.hasOwnProperty.call(presetObj, key)) {
-        (tgSettings as any)[key] = this.clone(presetObj[key]);
+        (textCompletionSettings as any)[key] = this.clone(presetObj[key]);
       }
     }
   }
 
   private applyPresetObject(presetObj: any, displayLabel?: string) {
-    console.log('[PresetService] applyPresetObject -> setGenerationParamsFromPreset, bias, emit PRESET_CHANGED', { preset: this.presetName, displayLabel, presetObj });
-
+    const { saveSettingsDebounced, textCompletionSettings } = getContext();
     this.applyPresetValuesToSettings(presetObj);
 
-    tgSettings.preset = this.presetName;
+    textCompletionSettings.preset = this.presetName;
 
     setGenerationParamsFromPreset(presetObj);
 

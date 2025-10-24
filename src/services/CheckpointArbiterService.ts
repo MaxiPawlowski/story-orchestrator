@@ -1,5 +1,5 @@
 import { clampText } from "../utils/story-state";
-import { chat, generateRaw } from "@services/SillyTavernAPI";
+import { getContext } from "./SillyTavernAPI";
 import { updateStoryMacroSnapshot } from "./storyMacros";
 import {
   ARBITER_SNAPSHOT_LIMIT,
@@ -68,6 +68,8 @@ interface PendingJob {
 }
 
 function snapshot(limit: number): string {
+  const { chat } = getContext()
+
   return (Array.isArray(chat) ? chat.slice(-limit) : [])
     .map((msg, idx) => {
       const text = (msg?.mes || msg?.text || msg?.message || msg?.data?.text || msg?.data?.mes || "") as string;
@@ -205,6 +207,7 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
   }
 
   private async drain(): Promise<void> {
+    const { generateRaw } = getContext();
     if (this.busy || this.disposed) return;
     this.busy = true;
     try {

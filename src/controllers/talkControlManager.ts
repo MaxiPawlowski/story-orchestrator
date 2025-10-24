@@ -3,19 +3,11 @@ import { normalizeName } from "@utils/story-validator";
 import type { TalkControlTrigger } from "@utils/story-schema";
 import { storySessionStore } from "@store/storySessionStore";
 import {
-  chat,
-  characters,
-  selected_group,
   eventSource,
   event_types,
-  addOneMessage,
-  saveChatConditional,
   getMessageTimeStamp,
-  getThumbnailUrl,
-  chat_metadata,
-  substituteParams,
   getCharacterIdByName,
-  generateQuietPrompt,
+  getContext,
 } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
 
@@ -57,6 +49,8 @@ let selfDispatchDepth = 0;
 let listenersAttached = false;
 let generationActive = false;
 let flushScheduled = false;
+let lastChatId: string | null = null;
+let lastGroupSelected = false;
 
 const beginInterceptSuppression = () => { interceptSuppressDepth += 1; };
 const endInterceptSuppression = () => { interceptSuppressDepth = Math.max(0, interceptSuppressDepth - 1); };
@@ -65,7 +59,8 @@ const endSelfDispatch = () => { selfDispatchDepth = Math.max(0, selfDispatchDept
 
 const isStoryActive = () => Boolean(config);
 const isGroupActive = () => {
-  if (selected_group) return true;
+  const { groupId, characters } = getContext();
+  if (groupId) return true;
   return Array.isArray(characters) && characters.length > 0;
 };
 const isSuppressed = () => interceptSuppressDepth > 0;
@@ -132,6 +127,7 @@ const resolveCandidateNames = (reply: NormalizedTalkControlReply): string[] => {
 };
 
 const resolveCharacterId = (reply: NormalizedTalkControlReply): number | undefined => {
+  const { characters } = getContext();
   const candidates = resolveCandidateNames(reply);
   for (const candidate of candidates) {
     const byHelper = getCharacterIdByName(candidate);
@@ -147,6 +143,7 @@ const resolveCharacterId = (reply: NormalizedTalkControlReply): number | undefin
 };
 
 const pickStaticReplyText = (reply: NormalizedTalkControlReply): string => {
+  const { substituteParams } = getContext()
   if (reply.content.kind !== "static") return "";
   const text = reply.content.text ?? "";
   const expanded = substituteParams(text);
@@ -251,6 +248,7 @@ const nextPendingAction = (): PendingAction | null => {
 };
 
 const resolveCharacterEntry = (action: PendingAction): { id: number; character: any } | null => {
+  const { characters } = getContext();
   const charId = resolveCharacterId(action.reply);
   if (charId === undefined) {
     console.warn("[Story TalkControl] Unable to resolve character for talk-control reply", { member: action.reply.memberId });
@@ -279,6 +277,7 @@ const injectMessage = async (
   text: string,
   kind: "static" | "llm",
 ): Promise<boolean> => {
+  const { chatMetadata, getThumbnailUrl, addOneMessage, saveChat, groupId, chat } = getContext();
   const content = typeof text === "string" ? text.trim() : "";
   if (!content) {
     console.warn("[Story TalkControl] Reply text empty after generation", {
@@ -320,7 +319,7 @@ const injectMessage = async (
 
   console.log("[Story TalkControl] Injecting message", message);
 
-  if (selected_group && character.avatar && character.avatar !== "none") {
+  if (groupId && character.avatar && character.avatar !== "none") {
     try {
       message.force_avatar = getThumbnailUrl("avatar", character.avatar);
     } catch (err) {
@@ -330,11 +329,11 @@ const injectMessage = async (
 
   chat.push(message);
   const messageId = chat.length - 1;
-  chat_metadata["tainted"] = true;
+  (chatMetadata as any)["tainted"] = true;
   await eventSource.emit(event_types.MESSAGE_RECEIVED, messageId, "talkControl");
   addOneMessage(message);
   await eventSource.emit(event_types.CHARACTER_MESSAGE_RENDERED, messageId, "talkControl");
-  await saveChatConditional();
+  await saveChat();
   console.log("[Story TalkControl] Injected reply", {
     memberId: action.reply.memberId,
     checkpointId: action.checkpointId,
@@ -369,6 +368,7 @@ const dispatchLlmAction = async (action: PendingAction): Promise<boolean> => {
     });
     return false;
   }
+  const { generateQuietPrompt } = getContext();
   console.log("[Story TalkControl] Generating quiet prompt for reply", {
     memberId: action.reply.memberId,
     checkpointId: action.checkpointId,
@@ -509,6 +509,7 @@ async function flushPendingActions(): Promise<void> {
 }
 
 const onMessageReceived = (messageId: number, messageType?: string) => {
+  const { chat } = getContext();
   if (!isStoryActive()) return;
   if (isSelfDispatching()) return;
   if (!Array.isArray(chat)) return;
@@ -518,6 +519,51 @@ const onMessageReceived = (messageId: number, messageType?: string) => {
   const speakerName = typeof message?.name === "string" ? message.name : "";
   const speakerId = normalizeName(speakerName);
   queueEvent("afterSpeak", activeCheckpointId, { speakerId, speakerName, messageId, messageType });
+};
+
+const resetTalkControlState = () => {
+  console.log("[Story TalkControl] Resetting state");
+  runtimeStates.clear();
+  eventQueue.length = 0;
+  generationActive = false;
+  flushScheduled = false;
+  interceptSuppressDepth = 0;
+  selfDispatchDepth = 0;
+  nextEventId = 1;
+};
+
+const handleChatChanged = () => {
+  let chatId: string | null = null;
+  let groupSelected = false;
+
+  try {
+    const ctx = getContext() || {};
+    const rawChat = (ctx as any)?.chatId;
+    const groupId = (ctx as any)?.groupId;
+    chatId = rawChat == null ? null : (String(rawChat).trim() || null);
+    groupSelected = Boolean(groupId);
+  } catch (err) {
+    console.warn("[Story TalkControl] Failed to read context", err);
+    chatId = null;
+    groupSelected = false;
+  }
+
+  const sameContext = lastChatId === chatId && lastGroupSelected === groupSelected;
+  if (sameContext) return;
+
+  console.log("[Story TalkControl] Chat context changed", {
+    from: { chatId: lastChatId, groupSelected: lastGroupSelected },
+    to: { chatId, groupSelected },
+  });
+
+  lastChatId = chatId;
+  lastGroupSelected = groupSelected;
+
+  resetTalkControlState();
+
+  if (!groupSelected && activeCheckpointId) {
+    activeCheckpointId = null;
+  }
 };
 
 export const talkControlInterceptor = handleGenerateIntercept;
@@ -566,26 +612,49 @@ export const updateTalkControlTurn = (turn: number) => {
 export const initializeTalkControl = () => {
   if (listenersAttached) return;
   listenersAttached = true;
+
   listeners.push(subscribeToEventSource({
     source: eventSource,
     eventName: event_types.MESSAGE_RECEIVED,
     handler: onMessageReceived,
   }));
+
   listeners.push(subscribeToEventSource({
     source: eventSource,
     eventName: event_types.GENERATION_STARTED,
     handler: handleGenerationStarted,
   }));
+
   listeners.push(subscribeToEventSource({
     source: eventSource,
     eventName: event_types.GENERATION_STOPPED,
     handler: handleGenerationSettled,
   }));
+
   listeners.push(subscribeToEventSource({
     source: eventSource,
     eventName: event_types.GENERATION_ENDED,
     handler: handleGenerationSettled,
   }));
+
+  // Subscribe to chat lifecycle events
+  const chatEvents = [
+    event_types.CHAT_CHANGED,
+    event_types.CHAT_CREATED,
+    event_types.GROUP_CHAT_CREATED,
+    event_types.CHAT_DELETED,
+    event_types.GROUP_CHAT_DELETED,
+  ].filter(Boolean);
+
+  for (const ev of chatEvents) {
+    listeners.push(subscribeToEventSource({
+      source: eventSource,
+      eventName: ev,
+      handler: handleChatChanged,
+    }));
+  }
+
+  handleChatChanged();
 };
 
 export const disposeTalkControl = () => {
@@ -608,4 +677,6 @@ export const disposeTalkControl = () => {
   activeCheckpointId = null;
   generationActive = false;
   flushScheduled = false;
+  lastChatId = null;
+  lastGroupSelected = false;
 };

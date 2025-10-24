@@ -700,6 +700,7 @@ class StoryOrchestrator {
     const persistRequested = opts.persist !== false;
 
     const hydratedFlag = opts.reason === "hydrate" ? true : (persistRequested ? true : undefined);
+    const isManualActivation = opts.reason === "activate";
 
     const computeTurns = (override?: number) => {
       const baseSince = opts.resetSinceEval
@@ -776,7 +777,8 @@ class StoryOrchestrator {
     const sanitized = applyRuntime(runtimePayload, turn);
     const contextSnapshot = this.buildPromptContext(sanitized, this.buildArbiterOptions([]));
     this.updateStoryMacrosFromContext(contextSnapshot);
-    setTalkControlCheckpoint(activeKey, { emitEnter: opts.reason !== "hydrate" });
+
+    setTalkControlCheckpoint(activeKey, { emitEnter: isManualActivation });
 
     const logReason = opts.reason ?? (persistRequested ? "activate" : "hydrate");
 

@@ -1,4 +1,4 @@
-import { MacrosParser } from "@services/SillyTavernAPI";
+import { getContext, MacrosParser } from "@services/SillyTavernAPI";
 import { storySessionStore } from "@store/storySessionStore";
 import type { StorySessionValueState } from "@store/storySessionStore";
 
@@ -20,15 +20,6 @@ const getRoleName = (role: string): string => {
   return sanitize(value);
 };
 
-const getActiveCheckpoint = () => {
-  const { story, runtime } = getState();
-  if (!story) return undefined;
-  const checkpoints = story.checkpoints ?? [];
-  if (!checkpoints.length) return undefined;
-  const index = Math.max(0, Math.min(runtime.checkpointIndex, checkpoints.length - 1));
-  return checkpoints[index];
-};
-
 let registered = false;
 
 const dynamicSnapshot = {
@@ -41,12 +32,12 @@ const dynamicSnapshot = {
 };
 
 const registerMacro = (key: string, resolver: (nonce?: string) => string, description?: string) => {
+  const { registerMacro, unregisterMacro } = getContext();
   try {
-    if (!MacrosParser || typeof MacrosParser.registerMacro !== "function") return;
     if (MacrosParser.has?.(key)) {
-      MacrosParser.unregisterMacro?.(key);
+      unregisterMacro(key);
     }
-    MacrosParser.registerMacro(key, (nonce?: string) => sanitize(resolver(nonce)), description);
+    registerMacro(key, (nonce?: string) => sanitize(resolver(nonce)), description);
   } catch (err) {
     console.warn("[StoryMacros] Failed to register macro", key, err);
   }
@@ -54,7 +45,6 @@ const registerMacro = (key: string, resolver: (nonce?: string) => string, descri
 
 export const ensureStoryMacros = () => {
   if (registered) return;
-  if (!MacrosParser) return;
 
   registerMacro("story_title", () => dynamicSnapshot.storyTitle || (getState().story?.title ?? ""), "Story title");
   registerMacro("story_description", () => dynamicSnapshot.storyDescription, "Story description");
@@ -69,7 +59,6 @@ export const ensureStoryMacros = () => {
     registerMacro(macroKey(role), () => getRoleName(role), `Story role name for ${role}`);
   });
 
-  // Always provide DM/companion shortcuts even if they are absent in story metadata
   registerMacro("story_role_dm", () => getRoleName("dm"), "Story DM role name");
   registerMacro("story_role_companion", () => getRoleName("companion"), "Story companion role name");
 
@@ -77,7 +66,6 @@ export const ensureStoryMacros = () => {
 };
 
 export const refreshRoleMacros = () => {
-  if (!MacrosParser) return;
   const story = getState().story;
   const registeredRoles = Object.keys(story?.roles ?? {});
   registeredRoles.forEach((role) => {

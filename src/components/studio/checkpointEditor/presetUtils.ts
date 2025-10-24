@@ -1,5 +1,5 @@
 import { clone } from "@utils/checkpoint-studio";
-import { tgSettings } from "@services/SillyTavernAPI";
+import { getContext } from "@services/SillyTavernAPI";
 import type { PresetSettingKey } from "@constants/presetSettingKeys";
 
 const NUMERIC_LITERAL_RE = /^-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/;
@@ -62,7 +62,9 @@ const clonePresetValue = (value: unknown): unknown => {
 
 export const readCurrentPresetValue = (key: PresetSettingKey): unknown => {
   try {
-    const base = (tgSettings as any)?.[key];
+    const { textCompletionSettings } = getContext();
+    // TODO: fix any
+    const base = (textCompletionSettings as any)?.[key];
     return clonePresetValue(base);
   } catch {
     return "";
