@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { StoryDraft } from "@utils/checkpoint-studio";
 import { getWorldInfoSettings, getContext } from "@services/SillyTavernAPI";
-import { subscribeToEventSource } from "@utils/eventSource";
+import { subscribeToEventSource } from "@utils/event-source";
 import StoryMetadataSection from "./StoryDetails/StoryMetadataSection";
 import StoryRolesSection from "./StoryDetails/StoryRolesSection";
 

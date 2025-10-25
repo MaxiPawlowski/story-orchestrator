@@ -17,7 +17,7 @@ import {
   getContext,
   executeSlashCommands,
 } from "@services/SillyTavernAPI";
-import { subscribeToEventSource } from "@utils/eventSource";
+import { subscribeToEventSource } from "@utils/event-source";
 import {
   clampCheckpointIndex,
   sanitizeTurnsSinceEval,
@@ -30,14 +30,14 @@ import {
 } from "@utils/story-state";
 import { normalizeName } from "@utils/string";
 import { storySessionStore } from "@store/storySessionStore";
-import { registerStoryExtensionCommands } from "@utils/slashCommands";
+import { registerStoryExtensionCommands } from "@utils/slash-commands";
 import {
   ARBITER_RESPONSE_LENGTH,
   ARBITER_SNAPSHOT_LIMIT,
   STORY_ORCHESTRATOR_LOG_SAMPLE_LIMIT,
 } from "@constants/defaults";
 import type { ArbiterFrequency, ArbiterPrompt } from "@utils/arbiter";
-import { updateStoryMacroSnapshot, resetStoryMacroSnapshot } from "@services/storyMacros";
+import { updateStoryMacroSnapshot, resetStoryMacroSnapshot } from "@utils/story-macros";
 import {
   setTalkControlCheckpoint,
   notifyTalkControlArbiterPhase,

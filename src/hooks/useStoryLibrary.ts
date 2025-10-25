@@ -10,7 +10,7 @@ import {
   type StoryLibraryEntry,
   type SaveLibraryStoryResult,
   type DeleteLibraryStoryResult,
-} from "@utils/storyLibrary";
+} from "@utils/story-library";
 
 type SaveOptions = { targetKey?: string; name?: string };
 

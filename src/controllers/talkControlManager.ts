@@ -7,7 +7,7 @@ import {
   getCharacterIdByName,
   getContext,
 } from "@services/SillyTavernAPI";
-import { subscribeToEventSource } from "@utils/eventSource";
+import { subscribeToEventSource } from "@utils/event-source";
 
 type TalkControlPhase = "before" | "after";
 

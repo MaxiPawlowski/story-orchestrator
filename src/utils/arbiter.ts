@@ -20,11 +20,8 @@ const DEFAULT_FREQUENCY: ArbiterFrequency = (() => {
 })();
 
 const DEFAULT_PROMPT: ArbiterPrompt = (() => {
-  const normalized = normalizePrompt(DEFAULT_ARBITER_PROMPT);
-  if (normalized) return toArbiterPrompt(normalized);
-  // Fallback to original constant if normalization strips everything.
-  const fallback = normalizePrompt(DEFAULT_ARBITER_PROMPT);
-  return toArbiterPrompt(fallback || "Checkpoint arbiter prompt");
+  const normalizedPrompt = normalizePrompt(DEFAULT_ARBITER_PROMPT);
+  return toArbiterPrompt(normalizedPrompt || "Checkpoint arbiter prompt");
 })();
 
 function normalizePrompt(input: string): string {

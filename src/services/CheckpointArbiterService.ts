@@ -1,5 +1,5 @@
 import { getContext } from "./SillyTavernAPI";
-import { updateStoryMacroSnapshot } from "./storyMacros";
+import { updateStoryMacroSnapshot } from "@utils/story-macros";
 import {
   ARBITER_RESPONSE_LENGTH,
   ARBITER_LOG_SAMPLE_LENGTH,

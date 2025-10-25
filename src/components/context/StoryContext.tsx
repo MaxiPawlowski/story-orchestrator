@@ -4,18 +4,18 @@ import { parseAndNormalizeStory, formatZodError, type NormalizedStory } from "@u
 import type { Story } from "@utils/story-schema";
 import { useStoryOrchestrator } from "@hooks/useStoryOrchestrator";
 import { useStoryLibrary } from "@hooks/useStoryLibrary";
-import type { StoryLibraryEntry, SaveLibraryStoryResult, DeleteLibraryStoryResult } from "@utils/storyLibrary";
+import type { StoryLibraryEntry, SaveLibraryStoryResult, DeleteLibraryStoryResult } from "@utils/story-library";
 import { getContext } from "@services/SillyTavernAPI";
-import { subscribeToEventSource } from "@utils/eventSource";
+import { subscribeToEventSource } from "@utils/event-source";
 import {
   deriveCheckpointStatuses,
   CheckpointStatus,
   getPersistedStorySelection,
 } from "@utils/story-state";
 import { storySessionStore } from "@store/storySessionStore";
-import { ensureStoryMacros, refreshRoleMacros } from "@services/storyMacros";
+import { ensureStoryMacros, refreshRoleMacros } from "@utils/story-macros";
 
-export type { StoryLibraryEntry, SaveLibraryStoryResult, DeleteLibraryStoryResult } from "@utils/storyLibrary";
+export type { StoryLibraryEntry, SaveLibraryStoryResult, DeleteLibraryStoryResult } from "@utils/story-library";
 
 type ValidationResult =
   | { ok: true; story: NormalizedStory }

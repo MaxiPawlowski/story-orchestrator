@@ -4,7 +4,7 @@ import {
   Lorebook,
   getWorldInfoSettings,
 } from "@services/SillyTavernAPI";
-import { subscribeToEventSource } from "@utils/eventSource";
+import { subscribeToEventSource } from "@utils/event-source";
 import {
   createRequirementsState,
   mergeRequirementsState,
