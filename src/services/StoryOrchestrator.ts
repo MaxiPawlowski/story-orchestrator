@@ -12,8 +12,6 @@ import { createPersistenceController } from "@controllers/persistenceController"
 import {
   applyCharacterAN,
   clearCharacterAN,
-  eventSource,
-  event_types,
   enableWIEntry,
   disableWIEntry,
   getContext,
@@ -375,6 +373,7 @@ class StoryOrchestrator {
   }
 
   async init() {
+    const { eventSource, eventTypes } = getContext();
     const store = storySessionStore;
     this.persistence.setStory(this.story);
     this.persistence.resetRuntime();
@@ -391,11 +390,11 @@ class StoryOrchestrator {
       const offs: Array<() => void> = [];
       const handler = () => this.handleChatChanged({ reason: "event" });
       const events = [
-        event_types.CHAT_CHANGED,
-        event_types.CHAT_CREATED,
-        event_types.GROUP_CHAT_CREATED,
-        event_types.CHAT_DELETED,
-        event_types.GROUP_CHAT_DELETED,
+        eventTypes.CHAT_CHANGED,
+        eventTypes.CHAT_CREATED,
+        eventTypes.GROUP_CHAT_CREATED,
+        eventTypes.CHAT_DELETED,
+        eventTypes.GROUP_CHAT_DELETED,
       ].filter(Boolean);
       for (const ev of events) {
         offs.push(subscribeToEventSource({ source: eventSource, eventName: ev, handler }));

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { StoryDraft } from "@utils/checkpoint-studio";
-import { getWorldInfoSettings, eventSource, event_types, getContext } from "@services/SillyTavernAPI";
+import { getWorldInfoSettings, getContext } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
 import StoryMetadataSection from "./StoryDetails/StoryMetadataSection";
 import StoryRolesSection from "./StoryDetails/StoryRolesSection";
@@ -81,17 +81,18 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
     const offs: Array<() => void> = [];
     const handler = () => refreshGlobalLorebooks();
     const chatChanged = () => { try { refreshGroupMembers(); } catch { } };
+    const { eventSource, eventTypes } = getContext();
     try {
       [
-        event_types?.WORLDINFO_SETTINGS_UPDATED,
-        event_types?.WORLDINFO_UPDATED,
+        eventTypes?.WORLDINFO_SETTINGS_UPDATED,
+        eventTypes?.WORLDINFO_UPDATED,
       ].forEach((eventName) => {
         if (!eventName) return;
         const off = subscribeToEventSource({ source: eventSource, eventName, handler });
         offs.push(off);
       });
-      if (event_types?.CHAT_CHANGED) {
-        const off = subscribeToEventSource({ source: eventSource, eventName: event_types.CHAT_CHANGED, handler: chatChanged });
+      if (eventTypes?.CHAT_CHANGED) {
+        const off = subscribeToEventSource({ source: eventSource, eventName: eventTypes.CHAT_CHANGED, handler: chatChanged });
         offs.push(off);
       }
     } catch (err) {

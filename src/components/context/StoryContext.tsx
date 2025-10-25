@@ -5,7 +5,7 @@ import type { Story } from "@utils/story-schema";
 import { useStoryOrchestrator } from "@hooks/useStoryOrchestrator";
 import { useStoryLibrary } from "@hooks/useStoryLibrary";
 import type { StoryLibraryEntry, SaveLibraryStoryResult, DeleteLibraryStoryResult } from "@utils/storyLibrary";
-import { eventSource, event_types, getContext } from "@services/SillyTavernAPI";
+import { getContext } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
 import {
   deriveCheckpointStatuses,
@@ -177,16 +177,11 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
   }, [removeSavedStory]);
 
   useEffect(() => {
+    const { eventSource, eventTypes, chatId, groupId } = getContext();
     const updateChatId = () => {
       try {
-        const ctx = getContext();
-        const raw = ctx?.chatId;
-        const groupId = ctx?.groupId;
-
         if (!groupId) return;
-
-        const key = raw === null || raw === undefined ? null : String(raw).trim();
-        setActiveChatId(key ? key : null);
+        setActiveChatId(chatId ? String(chatId).trim() : null);
 
         if (!story) {
           reloadLibraryEntries().catch((error) => {
@@ -202,9 +197,9 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
     updateChatId();
     const offs: Array<() => void> = [];
     const events = [
-      event_types.CHAT_CHANGED,
-      event_types.CHAT_CREATED,
-      event_types.GROUP_CHAT_CREATED,
+      eventTypes.CHAT_CHANGED,
+      eventTypes.CHAT_CREATED,
+      eventTypes.GROUP_CHAT_CREATED,
     ].filter(Boolean);
     for (const ev of events) {
       offs.push(subscribeToEventSource({ source: eventSource, eventName: ev, handler: updateChatId }));

@@ -3,8 +3,6 @@ import { normalizeName } from "@utils/story-validator";
 import type { TalkControlTrigger } from "@utils/story-schema";
 import { storySessionStore } from "@store/storySessionStore";
 import {
-  eventSource,
-  event_types,
   getMessageTimeStamp,
   getCharacterIdByName,
   getContext,
@@ -277,7 +275,7 @@ const injectMessage = async (
   text: string,
   kind: "static" | "llm",
 ): Promise<boolean> => {
-  const { chatMetadata, getThumbnailUrl, addOneMessage, saveChat, groupId, chat } = getContext();
+  const { chatMetadata, getThumbnailUrl, addOneMessage, saveChat, groupId, chat, eventSource, eventTypes } = getContext();
   const content = typeof text === "string" ? text.trim() : "";
   if (!content) {
     console.warn("[Story TalkControl] Reply text empty after generation", {
@@ -330,9 +328,9 @@ const injectMessage = async (
   chat.push(message);
   const messageId = chat.length - 1;
   (chatMetadata as any)["tainted"] = true;
-  await eventSource.emit(event_types.MESSAGE_RECEIVED, messageId, "talkControl");
+  await eventSource.emit(eventTypes.MESSAGE_RECEIVED, messageId, "talkControl");
   addOneMessage(message);
-  await eventSource.emit(event_types.CHARACTER_MESSAGE_RENDERED, messageId, "talkControl");
+  await eventSource.emit(eventTypes.CHARACTER_MESSAGE_RENDERED, messageId, "talkControl");
   await saveChat();
   console.log("[Story TalkControl] Injected reply", {
     memberId: action.reply.memberId,
@@ -610,40 +608,40 @@ export const updateTalkControlTurn = (turn: number) => {
 };
 
 export const initializeTalkControl = () => {
+  const { eventSource, eventTypes } = getContext();
   if (listenersAttached) return;
   listenersAttached = true;
 
   listeners.push(subscribeToEventSource({
     source: eventSource,
-    eventName: event_types.MESSAGE_RECEIVED,
+    eventName: eventTypes.MESSAGE_RECEIVED,
     handler: onMessageReceived,
   }));
 
   listeners.push(subscribeToEventSource({
     source: eventSource,
-    eventName: event_types.GENERATION_STARTED,
+    eventName: eventTypes.GENERATION_STARTED,
     handler: handleGenerationStarted,
   }));
 
   listeners.push(subscribeToEventSource({
     source: eventSource,
-    eventName: event_types.GENERATION_STOPPED,
+    eventName: eventTypes.GENERATION_STOPPED,
     handler: handleGenerationSettled,
   }));
 
   listeners.push(subscribeToEventSource({
     source: eventSource,
-    eventName: event_types.GENERATION_ENDED,
+    eventName: eventTypes.GENERATION_ENDED,
     handler: handleGenerationSettled,
   }));
 
-  // Subscribe to chat lifecycle events
   const chatEvents = [
-    event_types.CHAT_CHANGED,
-    event_types.CHAT_CREATED,
-    event_types.GROUP_CHAT_CREATED,
-    event_types.CHAT_DELETED,
-    event_types.GROUP_CHAT_DELETED,
+    eventTypes.CHAT_CHANGED,
+    eventTypes.CHAT_CREATED,
+    eventTypes.GROUP_CHAT_CREATED,
+    eventTypes.CHAT_DELETED,
+    eventTypes.GROUP_CHAT_DELETED,
   ].filter(Boolean);
 
   for (const ev of chatEvents) {

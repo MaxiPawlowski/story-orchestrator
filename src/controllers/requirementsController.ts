@@ -1,13 +1,8 @@
-// requirementsController.ts
 import type { NormalizedStory } from "@utils/story-validator";
-import type { Role } from "@utils/story-schema";
 import {
-  eventSource,
-  event_types,
   getContext,
+  Lorebook,
   getWorldInfoSettings,
-  // You may also export Lorebook from SillyTavernAPI; we provide a local minimal type
-  // to avoid over-tight coupling and to ensure scanning works even if the API grows.
 } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
 import {
@@ -18,16 +13,6 @@ import {
 } from "@store/requirementsState";
 import { storySessionStore } from "@store/storySessionStore";
 import { normalizeName } from "@utils/story-validator";
-
-/** Minimal types used by this module. Keep them small and future-proof. */
-export interface Lorebook {
-  // Numeric-looking keys come in as strings: "0", "1", ...
-  entries: Record<string, LoreEntry>;
-}
-export interface LoreEntry {
-  comment?: string | null;
-  [key: string]: unknown;
-}
 
 export interface RequirementsController {
   start(): void;
@@ -238,6 +223,7 @@ export const createRequirementsController = (): RequirementsController => {
 
   const start = () => {
     if (started) return;
+    const { eventSource, eventTypes } = getContext();
     started = true;
 
     const worldInfoHandler = () => {
@@ -245,9 +231,9 @@ export const createRequirementsController = (): RequirementsController => {
     };
 
     [
-      event_types.WORLDINFO_UPDATED,
-      event_types.WORLDINFO_SETTINGS_UPDATED,
-      event_types.WORLDINFO_ENTRIES_LOADED,
+      eventTypes.WORLDINFO_UPDATED,
+      eventTypes.WORLDINFO_SETTINGS_UPDATED,
+      eventTypes.WORLDINFO_ENTRIES_LOADED,
     ].forEach((eventName) => {
       subscriptions.push(
         subscribeToEventSource({
@@ -258,11 +244,11 @@ export const createRequirementsController = (): RequirementsController => {
       );
     });
 
-    if (event_types.GROUP_UPDATED) {
+    if (eventTypes.GROUP_UPDATED) {
       subscriptions.push(
         subscribeToEventSource({
           source: eventSource,
-          eventName: event_types.GROUP_UPDATED,
+          eventName: eventTypes.GROUP_UPDATED,
           handler: () => { refreshGroupMembers(); },
         })
       );

@@ -1,7 +1,5 @@
 ﻿import {
-  event_types,
   setGenerationParamsFromPreset,
-  eventSource,
   setSettingByName,
   tgPresetObjs,
   tgPresetNames,
@@ -185,7 +183,7 @@ export class PresetService {
   }
 
   private applyPresetObject(presetObj: any, displayLabel?: string) {
-    const { saveSettingsDebounced, textCompletionSettings } = getContext();
+    const { saveSettingsDebounced, textCompletionSettings, eventTypes, eventSource } = getContext();
     this.applyPresetValuesToSettings(presetObj);
 
     textCompletionSettings.preset = this.presetName;
@@ -207,7 +205,7 @@ export class PresetService {
     }
 
     try {
-      eventSource.emit(event_types.PRESET_CHANGED, {
+      eventSource.emit(eventTypes.PRESET_CHANGED, {
         apiId: 'textgenerationwebui',
         name: this.presetName,
       });

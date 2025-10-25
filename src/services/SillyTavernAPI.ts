@@ -27,12 +27,15 @@ export const TG_SETTING_NAMES = textgen_settings["setting_names"];
 export const setSettingByName = textgen_settings["setSettingByName"];
 export const getContext = extensions["getContext"];
 export const setGenerationParamsFromPreset = script["setGenerationParamsFromPreset"];
-export const eventSource = script["eventSource"];
-export const event_types = script["event_types"];
 export const getWorldInfoSettings = worldInfo["getWorldInfoSettings"];
 export const MacrosParser = macros["MacrosParser"];
 export const getMessageTimeStamp = rossMods["getMessageTimeStamp"];
+
+
+
 export function getCharacterNameById(id: number | string | undefined): string | undefined {
+  // const { characters } = getContext()
+
   if (id === undefined || id === null || id === '') return undefined;
   const index = typeof id === 'string' ? Number.parseInt(id, 10) : Number(id);
   if (!Number.isFinite(index) || index < 0) return undefined;

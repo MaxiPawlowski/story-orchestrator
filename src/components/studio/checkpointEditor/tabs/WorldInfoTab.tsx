@@ -6,7 +6,7 @@ import {
   type CheckpointDraft,
   type StoryDraft,
 } from "@utils/checkpoint-studio";
-import { getContext, eventSource, event_types } from "@services/SillyTavernAPI";
+import { getContext, } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
 import HelpTooltip from "../../HelpTooltip";
 
@@ -37,14 +37,15 @@ const WorldInfoTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }) 
   }, [draft.global_lorebook]);
 
   useEffect(() => {
+    const { eventSource, eventTypes } = getContext();
     refreshLoreEntries();
     const offs: Array<() => void> = [];
     const handler = () => refreshLoreEntries();
     try {
       [
-        event_types?.WORLDINFO_ENTRIES_LOADED,
-        event_types?.WORLDINFO_UPDATED,
-        event_types?.WORLDINFO_SETTINGS_UPDATED,
+        eventTypes?.WORLDINFO_ENTRIES_LOADED,
+        eventTypes?.WORLDINFO_UPDATED,
+        eventTypes?.WORLDINFO_SETTINGS_UPDATED,
       ].forEach((eventName) => {
         if (!eventName) return;
         const off = subscribeToEventSource({ source: eventSource, eventName, handler });

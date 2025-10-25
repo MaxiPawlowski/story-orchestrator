@@ -1,6 +1,6 @@
 import type StoryOrchestrator from "@services/StoryOrchestrator";
 import type { Role } from "@utils/story-schema";
-import { eventSource, event_types, getCharacterNameById, getContext } from "@services/SillyTavernAPI";
+import { getCharacterNameById, getContext } from "@services/SillyTavernAPI";
 import { subscribeToEventSource } from "@utils/eventSource";
 
 interface ListenerDisposer {
@@ -190,34 +190,35 @@ export const createTurnController = (): TurnController => {
     if (started || disposed) return;
     if (!orchestrator) return;
     started = true;
+    const { eventSource, eventTypes } = getContext();
 
     listeners.push(subscribeToEventSource({
       source: eventSource,
-      eventName: event_types.MESSAGE_SENT,
+      eventName: eventTypes.MESSAGE_SENT,
       handler: handleUserMessage,
     }));
 
     listeners.push(subscribeToEventSource({
       source: eventSource,
-      eventName: event_types.GROUP_MEMBER_DRAFTED,
+      eventName: eventTypes.GROUP_MEMBER_DRAFTED,
       handler: handleDrafted,
     }));
 
     listeners.push(subscribeToEventSource({
       source: eventSource,
-      eventName: event_types.GENERATION_STARTED,
+      eventName: eventTypes.GENERATION_STARTED,
       handler: handleGenerationStarted,
     }));
 
     listeners.push(subscribeToEventSource({
       source: eventSource,
-      eventName: event_types.GENERATION_STOPPED,
+      eventName: eventTypes.GENERATION_STOPPED,
       handler: handleGenerationStopped,
     }));
 
     listeners.push(subscribeToEventSource({
       source: eventSource,
-      eventName: event_types.GENERATION_ENDED,
+      eventName: eventTypes.GENERATION_ENDED,
       handler: handleGenerationEnded,
     }));
   };
