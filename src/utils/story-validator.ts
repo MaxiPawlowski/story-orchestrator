@@ -132,18 +132,9 @@ export interface NormalizeOptions {
 }
 
 export const normalizeName = (value: string | null | undefined, options?: NormalizeOptions): string => {
-  const normalized = String(value ?? "")
-    .normalize("NFKC")
-    .trim()
-    .toLowerCase();
-
+  const normalized = (value ?? "").normalize("NFKC").trim().toLowerCase();
   if (!normalized) return "";
-
-  if (options?.stripExtension) {
-    return normalized.replace(/\.\w+$/, "");
-  }
-
-  return normalized;
+  return options?.stripExtension ? normalized.replace(/\.\w+$/, "") : normalized;
 };
 
 export type CheckpointResult =
@@ -187,27 +178,23 @@ function dedupeOrdered<T>(arr: T[]): T[] {
 }
 
 const normalizeId = (value: string | null | undefined, fallback: string): string => {
-  const trimmed = String(value ?? "").trim();
-  return trimmed || fallback;
+  return value?.trim() || fallback;
 };
 
 const cleanScalar = (value: string): string => value.trim();
 
 const clampInterval = (value: unknown, fallback: number): number => {
   const num = Number(value);
-  if (!Number.isFinite(num)) return fallback;
-  const normalized = Math.floor(num);
-  return normalized >= 1 ? normalized : fallback;
+  return Number.isFinite(num) && num >= 1 ? Math.floor(num) : fallback;
 };
 
 const clampInteger = (value: unknown, fallback: number, min: number, max?: number): number => {
   const num = Number(value);
   if (!Number.isFinite(num)) return fallback;
-  const normalized = Math.floor(num);
-  let result = Number.isFinite(normalized) ? normalized : fallback;
-  if (Number.isFinite(min)) result = Math.max(min, result);
-  if (Number.isFinite(max ?? Number.NaN)) result = Math.min(result, max as number);
-  return Number.isFinite(result) ? result : fallback;
+  let result = Math.floor(num);
+  if (min !== undefined) result = Math.max(min, result);
+  if (max !== undefined) result = Math.min(result, max);
+  return result;
 };
 
 const clampProbability = (value: unknown): number | undefined => {
@@ -235,19 +222,18 @@ const TALK_CONTROL_TRIGGERS: TalkControlTrigger[] = ["afterSpeak", "beforeArbite
 
 const clampDepth = (value: unknown, fallback: number): number => {
   const num = Number(value);
-  if (!Number.isFinite(num)) return fallback;
-  const normalized = Math.floor(num);
-  return normalized >= 0 ? normalized : fallback;
+  return Number.isFinite(num) && num >= 0 ? Math.floor(num) : fallback;
 };
 
 const sanitizeRoleMap = (input?: Partial<Record<Role, string>>): Partial<Record<Role, string>> | undefined => {
   if (!input) return undefined;
   const result: Partial<Record<Role, string>> = {};
-  (Object.entries(input) as [Role, unknown][]).forEach(([role, maybeValue]) => {
-    if (typeof maybeValue !== "string") return;
-    const trimmed = cleanScalar(maybeValue);
-    if (trimmed) result[role] = trimmed;
-  });
+  for (const [role, value] of Object.entries(input) as [Role, unknown][]) {
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      if (trimmed) result[role] = trimmed;
+    }
+  }
   return Object.keys(result).length ? result : undefined;
 };
 
@@ -264,19 +250,16 @@ function normalizeAuthorNoteDefinition(
   definition: AuthorNoteDefinition | undefined,
   defaults: NormalizedAuthorNoteSettings,
 ): NormalizedAuthorNote | null {
-  if (!definition || typeof definition !== "object") return null;
-  const text = typeof definition.text === "string" ? definition.text.trim() : "";
+  if (!definition) return null;
+  const text = definition.text?.trim();
   if (!text) return null;
-  const position: AuthorNotePosition = definition.position ?? defaults.position;
-  const interval = clampInterval(definition.interval, defaults.interval);
-  const depth = clampDepth(definition.depth, defaults.depth);
-  const role: AuthorNoteRole = definition.role ?? defaults.role;
+
   return {
     text,
-    position,
-    interval,
-    depth,
-    role,
+    position: definition.position ?? defaults.position,
+    interval: clampInterval(definition.interval, defaults.interval),
+    depth: clampDepth(definition.depth, defaults.depth),
+    role: definition.role ?? defaults.role,
   };
 }
 
@@ -289,9 +272,7 @@ function normalizeAuthorsNote(
   const result: Partial<Record<Role, NormalizedAuthorNote>> = {};
   for (const [role, rawValue] of Object.entries(input) as [Role, AuthorNoteDefinition][]) {
     const normalized = normalizeAuthorNoteDefinition(rawValue, defaults);
-    if (normalized) {
-      result[role] = normalized;
-    }
+    if (normalized) result[role] = normalized;
   }
 
   return Object.keys(result).length ? result : undefined;
@@ -299,7 +280,6 @@ function normalizeAuthorsNote(
 
 function normalizePresetOverrides(input?: RolePresetOverrides | null): RolePresetOverrides | undefined {
   if (!input) return undefined;
-
   const result: RolePresetOverrides = {};
 
   for (const [role, overrides] of Object.entries(input) as [Role, any][]) {
@@ -309,32 +289,28 @@ function normalizePresetOverrides(input?: RolePresetOverrides | null): RolePrese
       const value = overrides[key];
       if (value !== undefined) cleaned[key] = value;
     }
-    if (Object.keys(cleaned).length > 0) result[role] = cleaned;
+    if (Object.keys(cleaned).length) result[role] = cleaned;
   }
 
-  return Object.keys(result).length > 0 ? result : undefined;
+  return Object.keys(result).length ? result : undefined;
 }
 
 function normalizePresetOverride(input?: PresetOverrides | null): PresetOverrides | undefined {
-  if (!input || typeof input !== "object") return undefined;
+  if (!input) return undefined;
   const cleaned: PresetOverrides = {};
   for (const key of Object.keys(input) as PresetOverrideKey[]) {
-    const value = (input as any)[key];
+    const value = input[key];
     if (value !== undefined) cleaned[key] = value;
   }
-  return Object.keys(cleaned).length > 0 ? cleaned : undefined;
+  return Object.keys(cleaned).length ? cleaned : undefined;
 }
 
 function normalizeWorldInfo(input?: unknown): NormalizedWorldInfo | undefined {
   if (!input) return undefined;
   const wi = WorldInfoActivationsSchema.parse(input);
-  const cleanList = (list: string[]) => (
-    dedupeOrdered(
-      list
-        .map((item) => cleanScalar(item))
-        .filter(Boolean)
-    )
-  );
+  const cleanList = (list: string[]) =>
+    [...new Set(list.map(item => item.trim()).filter(Boolean))];
+
   return {
     activate: cleanList(wi.activate),
     deactivate: cleanList(wi.deactivate),
@@ -344,11 +320,7 @@ function normalizeWorldInfo(input?: unknown): NormalizedWorldInfo | undefined {
 function normalizeAutomations(input?: unknown): string[] | undefined {
   if (!input) return undefined;
   const list = Array.isArray(input) ? input : [input];
-  const cleaned = dedupeOrdered(
-    list
-      .map((item) => cleanScalar(item))
-      .filter(Boolean)
-  );
+  const cleaned = [...new Set(list.map(item => item.trim()).filter(Boolean))];
   return cleaned.length ? cleaned : undefined;
 }
 
@@ -360,18 +332,20 @@ const normalizeTalkControlReplyContent = (
   content: TalkControlReplyContent | undefined,
   maxChars: number,
 ): NormalizedTalkControlReplyContent | null => {
-  if (!content || typeof content !== "object") return null;
+  if (!content) return null;
+
   if (content.kind === "static") {
-    const text = typeof content.text === "string" ? content.text.trim() : "";
+    const text = content.text?.trim();
     if (!text) return null;
-    const truncated = text.length > maxChars ? text.slice(0, maxChars) : text;
-    return { kind: "static", text: truncated };
+    return { kind: "static", text: text.slice(0, maxChars) };
   }
+
   if (content.kind === "llm") {
-    const instruction = typeof content.instruction === "string" ? content.instruction.trim() : "";
+    const instruction = content.instruction?.trim();
     if (!instruction) return null;
     return { kind: "llm", instruction };
   }
+
   return null;
 };
 
@@ -379,32 +353,24 @@ const normalizeTalkControlReply = (
   reply: TalkControlReply,
   defaults: NormalizedTalkControlDefaults,
 ): NormalizedTalkControlReply | null => {
-  if (!reply || typeof reply !== "object") return null;
+  if (!reply) return null;
 
-  const speakerId = typeof reply.speakerId === "string" ? reply.speakerId.trim() : "";
+  const speakerId = reply.speakerId?.trim();
   if (!speakerId) return null;
 
-  const memberId = typeof reply.memberId === "string" ? reply.memberId.trim() : "";
-
-  const trigger = reply.trigger;
-  if (!TALK_CONTROL_TRIGGERS.includes(trigger)) return null;
-
-  const probability = clampProbability(reply.probability) ?? 100;
+  if (!TALK_CONTROL_TRIGGERS.includes(reply.trigger)) return null;
 
   const content = normalizeTalkControlReplyContent(reply.content, TALK_CONTROL_MAX_CHARS);
   if (!content) return null;
 
-  const normalizedId = normalizeName(memberId);
-  const normalizedSpeakerId = normalizeName(speakerId);
-
   return {
-    memberId,
-    normalizedId,
+    memberId: reply.memberId?.trim() ?? "",
+    normalizedId: normalizeName(reply.memberId),
     speakerId,
-    normalizedSpeakerId,
-    enabled: reply.enabled !== undefined ? Boolean(reply.enabled) : true,
-    trigger,
-    probability,
+    normalizedSpeakerId: normalizeName(speakerId),
+    enabled: reply.enabled ?? true,
+    trigger: reply.trigger,
+    probability: clampProbability(reply.probability) ?? 100,
     content,
   };
 };

@@ -29,11 +29,7 @@ let runtimeHooks: RuntimeHooks = {};
 let automationPaused = false;
 
 const setReady = (next: boolean) => {
-  try {
-    storySessionStore.getState().setOrchestratorReady(next);
-  } catch (err) {
-    console.warn("[OrchestratorManager] failed to set ready flag", err);
-  }
+  storySessionStore.getState().setOrchestratorReady(next);
 };
 
 const initialize = async (story: NormalizedStory) => {
@@ -44,20 +40,10 @@ const initialize = async (story: NormalizedStory) => {
     arbiterPrompt,
     shouldApplyRole: (role: Role) => turnController.shouldApplyRole(role, instance?.index ?? 0),
     setEvalHooks: (hooks) => {
-      hooks.onEvaluated?.((ev) => {
-        try {
-          runtimeHooks.onEvaluated?.(ev);
-        } catch (err) {
-          console.warn("[OrchestratorManager] onEvaluated handler failed", err);
-        }
-      });
+      hooks.onEvaluated?.(runtimeHooks.onEvaluated ?? (() => { }));
     },
     onTurnTick: ({ turn, sinceEval }) => {
-      try {
-        runtimeHooks.onTurnTick?.({ turn, sinceEval });
-      } catch (err) {
-        console.warn("[OrchestratorManager] onTurnTick handler failed", err);
-      }
+      runtimeHooks.onTurnTick?.({ turn, sinceEval });
     },
     onActivateIndex: undefined,
   });
@@ -88,30 +74,18 @@ const initialize = async (story: NormalizedStory) => {
 
 const teardown = async () => {
   if (pendingInit) {
-    try {
-      await pendingInit;
-    } catch {
-      // ignore previous init failure
-    }
+    await pendingInit.catch(() => { });
     pendingInit = null;
   }
 
   turnController.detach();
 
   if (orchestrator) {
-    try {
-      orchestrator.dispose();
-    } catch (err) {
-      console.warn("[OrchestratorManager] orchestrator dispose failed", err);
-    }
+    orchestrator.dispose();
     orchestrator = null;
   } else {
-    try {
-      storySessionStore.getState().setStory(null);
-      storySessionStore.getState().resetRequirements();
-    } catch (err) {
-      console.warn("[OrchestratorManager] store reset failed", err);
-    }
+    storySessionStore.getState().setStory(null);
+    storySessionStore.getState().resetRequirements();
   }
 
   setReady(false);
@@ -173,28 +147,17 @@ export const getOrchestrator = () => orchestrator;
 export const pauseAutomation = (): boolean => {
   if (automationPaused) return false;
   automationPaused = true;
-  try {
-    turnController.stop();
-  } catch (err) {
-    console.warn("[OrchestratorManager] pauseAutomation stop failed", err);
-  }
+  turnController.stop();
   return true;
 };
 
 export const resumeAutomation = (): boolean => {
   const wasPaused = automationPaused;
   automationPaused = false;
-  if (!wasPaused) {
-    return false;
-  }
+  if (!wasPaused) return false;
   if (orchestrator) {
-    try {
-      turnController.start();
-      return true;
-    } catch (err) {
-      console.warn("[OrchestratorManager] resumeAutomation start failed", err);
-      return false;
-    }
+    turnController.start();
+    return true;
   }
   return true;
 };

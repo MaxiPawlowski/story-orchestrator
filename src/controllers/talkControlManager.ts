@@ -127,25 +127,27 @@ const resolveCandidateNames = (reply: NormalizedTalkControlReply): string[] => {
 const resolveCharacterId = (reply: NormalizedTalkControlReply): number | undefined => {
   const { characters } = getContext();
   const candidates = resolveCandidateNames(reply);
+
   for (const candidate of candidates) {
     const byHelper = getCharacterIdByName(candidate);
-    if (byHelper !== undefined) return byHelper;
+    if (byHelper !== undefined && byHelper >= 0) return byHelper;
+
     const normalizedCandidate = normalizeName(candidate);
-    for (let idx = 0; idx < characters.length; idx += 1) {
-      const entry = characters[idx];
-      const name = typeof entry?.name === "string" ? entry.name : "";
-      if (normalizeName(name) === normalizedCandidate) return idx;
-    }
+    const idx = characters.findIndex(entry =>
+      normalizeName(entry?.name) === normalizedCandidate
+    );
+    if (idx >= 0) return idx;
   }
+
   return undefined;
 };
 
 const pickStaticReplyText = (reply: NormalizedTalkControlReply): string => {
-  const { substituteParams } = getContext()
+  const { substituteParams } = getContext();
   if (reply.content.kind !== "static") return "";
   const text = reply.content.text ?? "";
   const expanded = substituteParams(text);
-  return typeof expanded === "string" ? expanded.trim() : text;
+  return (typeof expanded === "string" ? expanded : text).trim();
 };
 
 const shuffleReplies = (replies: NormalizedTalkControlReply[]): NormalizedTalkControlReply[] => {
@@ -507,14 +509,14 @@ async function flushPendingActions(): Promise<void> {
 }
 
 const onMessageReceived = (messageId: number, messageType?: string) => {
+  if (!isStoryActive() || isSelfDispatching()) return;
+
   const { chat } = getContext();
-  if (!isStoryActive()) return;
-  if (isSelfDispatching()) return;
-  if (!Array.isArray(chat)) return;
   const message = chat[messageId];
   if (!message || message.is_user || message.is_system) return;
   if (message?.extra?.storyOrchestratorTalkControl) return;
-  const speakerName = typeof message?.name === "string" ? message.name : "";
+
+  const speakerName = message?.name ?? "";
   const speakerId = normalizeName(speakerName);
   queueEvent("afterSpeak", activeCheckpointId, { speakerId, speakerName, messageId, messageType });
 };
@@ -531,23 +533,11 @@ const resetTalkControlState = () => {
 };
 
 const handleChatChanged = () => {
-  let chatId: string | null = null;
-  let groupSelected = false;
+  const ctx = getContext();
+  const chatId = ctx?.chatId?.toString().trim() || null;
+  const groupSelected = Boolean(ctx?.groupId);
 
-  try {
-    const ctx = getContext() || {};
-    const rawChat = (ctx as any)?.chatId;
-    const groupId = (ctx as any)?.groupId;
-    chatId = rawChat == null ? null : (String(rawChat).trim() || null);
-    groupSelected = Boolean(groupId);
-  } catch (err) {
-    console.warn("[Story TalkControl] Failed to read context", err);
-    chatId = null;
-    groupSelected = false;
-  }
-
-  const sameContext = lastChatId === chatId && lastGroupSelected === groupSelected;
-  if (sameContext) return;
+  if (lastChatId === chatId && lastGroupSelected === groupSelected) return;
 
   console.log("[Story TalkControl] Chat context changed", {
     from: { chatId: lastChatId, groupSelected: lastGroupSelected },
@@ -556,7 +546,6 @@ const handleChatChanged = () => {
 
   lastChatId = chatId;
   lastGroupSelected = groupSelected;
-
   resetTalkControlState();
 
   if (!groupSelected && activeCheckpointId) {

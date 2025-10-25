@@ -24,10 +24,13 @@ export const isCheckpointStatus = (value: unknown): value is CheckpointStatus =>
 
 export const clampCheckpointIndex = (idx: number, story: NormalizedStory | null | undefined): number => {
   if (!story) return 0;
-  return clampIndex(idx, story);
+  const max = Math.max(0, story.checkpoints.length - 1);
+  return Math.max(0, Math.min(Math.floor(idx), max));
 };
 
-export const sanitizeTurnsSinceEval = (value: number): number => sanitizeTurns(value);
+export const sanitizeTurnsSinceEval = (value: number): number => {
+  return Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
+};
 
 const STORAGE_KEY = "storyState";
 
@@ -61,27 +64,21 @@ export type LoadedStoryState = {
 type PersistedStateCandidate = PersistedChatState;
 
 const sanitizeStoryKey = (value: unknown): string | null => {
-  if (typeof value !== "string") return null;
-  const trimmed = value.trim();
-  return trimmed ? trimmed : null;
+  return typeof value === "string" && value.trim() ? value.trim() : null;
 };
 
 function migratePersistedState(entry: PersistedStateCandidate, story: NormalizedStory): PersistedChatState | null {
-  if (!entry || typeof entry !== "object") return null;
+  if (!entry) return null;
 
-  const candidate = entry as PersistedChatState;
-  const activeKey = typeof candidate.activeCheckpointKey === "string" && candidate.activeCheckpointKey.trim()
-    ? candidate.activeCheckpointKey.trim()
-    : null;
   return {
-    storySignature: candidate.storySignature,
-    storyKey: sanitizeStoryKey(candidate.storyKey),
-    checkpointIndex: clampIndex(candidate.checkpointIndex ?? 0, story),
-    activeCheckpointKey: activeKey ?? story.startId ?? null,
-    turnsSinceEval: sanitizeTurns(candidate.turnsSinceEval ?? 0),
-    checkpointTurnCount: sanitizeTurns(candidate.checkpointTurnCount ?? 0),
-    checkpointStatusMap: candidate.checkpointStatusMap ?? {},
-    updatedAt: candidate.updatedAt ?? Date.now(),
+    storySignature: entry.storySignature,
+    storyKey: sanitizeStoryKey(entry.storyKey),
+    checkpointIndex: clampCheckpointIndex(entry.checkpointIndex ?? 0, story),
+    activeCheckpointKey: entry.activeCheckpointKey?.trim() || story.startId,
+    turnsSinceEval: sanitizeTurnsSinceEval(entry.turnsSinceEval ?? 0),
+    checkpointTurnCount: sanitizeTurnsSinceEval(entry.checkpointTurnCount ?? 0),
+    checkpointStatusMap: entry.checkpointStatusMap ?? {},
+    updatedAt: entry.updatedAt ?? Date.now(),
   };
 }
 
@@ -97,20 +94,19 @@ export function loadStoryState({
     return { state: defaults, source: "default", storyKey: null };
   }
 
-  const key = sanitizeChatKey(chatId);
+  const key = chatId?.trim();
   if (!key) {
     return { state: defaults, source: "default", storyKey: null };
   }
 
   const map = getStateMap();
   const entry = map[key];
-  const storedKey = entry ? sanitizeStoryKey((entry as PersistedStateCandidate).storyKey) : null;
-  if (!isPersistedChatState(entry)) {
+  const storedKey = sanitizeStoryKey(entry?.storyKey);
+
+  if (!isPersistedChatState(entry) || entry.storySignature !== computeStorySignature(story)) {
     return { state: defaults, source: "default", storyKey: storedKey };
   }
-  if (entry.storySignature !== computeStorySignature(story)) {
-    return { state: defaults, source: "default", storyKey: storedKey };
-  }
+
   const migrated = migratePersistedState(entry, story);
   if (!migrated) {
     return { state: defaults, source: "default", storyKey: storedKey };
@@ -145,17 +141,16 @@ export function persistStoryState({
   console.log("[StoryState] persistStoryState", { chatId, story, state });
   if (!story) return;
 
-  const key = sanitizeChatKey(chatId);
+  const key = chatId?.trim();
   if (!key) return;
 
   const { saveSettingsDebounced } = getContext();
   const map = getStateMap();
   const sanitized = sanitizeRuntime(state, story);
-  const persistedKey = sanitizeStoryKey(storyKey);
 
   map[key] = {
     storySignature: computeStorySignature(story),
-    storyKey: persistedKey,
+    storyKey: sanitizeStoryKey(storyKey),
     checkpointIndex: sanitized.checkpointIndex,
     activeCheckpointKey: sanitized.activeCheckpointKey,
     turnsSinceEval: sanitized.turnsSinceEval,
@@ -164,36 +159,26 @@ export function persistStoryState({
     updatedAt: Date.now(),
   };
 
-  try {
-    saveSettingsDebounced();
-  } catch (err) {
-    console.warn("[StoryState] Failed to persist extension settings", err);
-  }
+  saveSettingsDebounced();
 }
 
 export function getPersistedStorySelection(chatId: string | null | undefined): string | null {
-  const key = sanitizeChatKey(chatId);
+  const key = chatId?.trim();
   if (!key) return null;
-  try {
-    const map = getStateMap();
-    const entry = map[key];
-    if (!entry) return null;
-    return sanitizeStoryKey((entry as PersistedStateCandidate).storyKey);
-  } catch (err) {
-    console.warn("[StoryState] getPersistedStorySelection failed", err);
-    return null;
-  }
+  const map = getStateMap();
+  return sanitizeStoryKey(map[key]?.storyKey);
 }
 
 export function makeDefaultState(story: NormalizedStory | null | undefined): RuntimeStoryState {
   const checkpoints = story?.checkpoints ?? [];
-  const startId = story?.startId ?? (checkpoints[0]?.id ?? null);
+  const startId = story?.startId ?? checkpoints[0]?.id ?? null;
   const startIndex = startId ? checkpoints.findIndex((cp) => cp.id === startId) : -1;
   const normalizedIndex = startIndex >= 0 ? startIndex : (checkpoints.length > 0 ? 0 : -1);
   const activeId = checkpoints[normalizedIndex]?.id ?? null;
-  const checkpointStatusMap = computeStatusMapForIndex(story, normalizedIndex < 0 ? 0 : normalizedIndex, undefined);
+  const checkpointStatusMap = computeStatusMapForIndex(story, Math.max(0, normalizedIndex), undefined);
+
   return {
-    checkpointIndex: normalizedIndex < 0 ? 0 : normalizedIndex,
+    checkpointIndex: Math.max(0, normalizedIndex),
     activeCheckpointKey: activeId,
     turnsSinceEval: 0,
     checkpointTurnCount: 0,
@@ -236,9 +221,9 @@ function computeStorySignature(story: NormalizedStory): string {
  */
 export function sanitizeRuntime(candidate: RuntimeStoryState, story: NormalizedStory | null): RuntimeStoryState {
   const turnsSinceEval = sanitizeTurnsSinceEval(candidate.turnsSinceEval);
-  const checkpointTurnCount = sanitizeTurns(candidate.checkpointTurnCount ?? 0);
+  const checkpointTurnCount = sanitizeTurnsSinceEval(candidate.checkpointTurnCount);
 
-  if (!story || !Array.isArray(story.checkpoints) || !story.checkpoints.length) {
+  if (!story?.checkpoints?.length) {
     return {
       checkpointIndex: 0,
       activeCheckpointKey: null,
@@ -249,11 +234,8 @@ export function sanitizeRuntime(candidate: RuntimeStoryState, story: NormalizedS
   }
 
   const checkpoints = story.checkpoints;
-  const trimmedKey = typeof candidate.activeCheckpointKey === "string" ? candidate.activeCheckpointKey.trim() : "";
-  let activeId = trimmedKey || null;
-  let checkpointIndex = Number.isFinite(candidate.checkpointIndex)
-    ? Math.floor(candidate.checkpointIndex)
-    : -1;
+  let activeId = candidate.activeCheckpointKey?.trim() || null;
+  let checkpointIndex = Math.floor(candidate.checkpointIndex);
 
   if (activeId) {
     const matchIndex = checkpoints.findIndex((cp) => cp.id === activeId);
@@ -264,9 +246,9 @@ export function sanitizeRuntime(candidate: RuntimeStoryState, story: NormalizedS
 
   if (checkpointIndex < 0 || checkpointIndex >= checkpoints.length) {
     checkpointIndex = clampCheckpointIndex(candidate.checkpointIndex, story);
-    activeId = checkpoints[checkpointIndex]?.id ?? story.startId ?? null;
+    activeId = checkpoints[checkpointIndex]?.id ?? story.startId;
   } else {
-    activeId = checkpoints[checkpointIndex]?.id ?? story.startId ?? null;
+    activeId = checkpoints[checkpointIndex]?.id ?? story.startId;
   }
 
   const checkpointStatusMap = computeStatusMapForIndex(story, checkpointIndex, candidate.checkpointStatusMap);
@@ -327,30 +309,24 @@ export function evaluateTransitionTriggers({
   transitions: NormalizedTransition[] | undefined;
   turnsSinceEval: number;
 }): TransitionTriggerMatch[] {
-  if (!text || !transitions || !transitions.length) return [];
+  if (!text || !transitions?.length) return [];
   const matches: TransitionTriggerMatch[] = [];
-  const normalizedText = String(text);
 
-  transitions.forEach((transition) => {
+  for (const transition of transitions) {
     const trigger = transition.trigger;
-    if (trigger.type !== "regex") return;
-    const pattern = matchRegexList(normalizedText, trigger.regexes);
+    if (trigger.type !== "regex") continue;
+
+    const pattern = matchRegexList(text, trigger.regexes);
     if (pattern) {
-      matches.push({
-        transition,
-        trigger,
-        pattern,
-      });
+      matches.push({ transition, trigger, pattern });
     }
-  });
+  }
 
   return matches;
 }
 
 export function sanitizeChatKey(chatId: string | null | undefined): string | null {
-  if (chatId === null || chatId === undefined) return null;
-  const key = String(chatId).trim();
-  return key ? key : null;
+  return chatId?.trim() || null;
 }
 
 function getStateMap(): StateMap {
@@ -376,26 +352,20 @@ function getExtensionSettingsRoot(): Record<string, unknown> {
 }
 
 function clampIndex(idx: number, story: NormalizedStory): number {
-  const max = Math.max(0, (story.checkpoints?.length ?? 0) - 1);
-  if (!Number.isFinite(idx)) return 0;
-  if (idx < 0) return 0;
-  if (idx > max) return max;
-  return Math.floor(idx);
+  const max = Math.max(0, story.checkpoints.length - 1);
+  return Math.max(0, Math.min(Math.floor(idx), max));
 }
+
 export function clampText(input: string, limit: number): string {
-  const normalized = (input || '').replace(/\s+/g, ' ').trim();
-  if (!Number.isFinite(limit)) return '';
-  const safeLimit = Math.floor(limit);
-  if (safeLimit <= 0) return normalized ? '...' : '';
-  if (normalized.length <= safeLimit) return normalized;
-  const truncation = Math.max(0, safeLimit - 3);
-  return `${normalized.slice(0, truncation)}...`;
+  const normalized = input.replace(/\s+/g, ' ').trim();
+  if (limit <= 0) return normalized ? '...' : '';
+  if (normalized.length <= limit) return normalized;
+  return `${normalized.slice(0, Math.max(0, limit - 3))}...`;
 }
 
 function sanitizeTurns(value: number | null | undefined): number {
-  if (!Number.isFinite(value)) return 0;
-  const num = Math.floor(Number(value));
-  return num >= 0 ? num : 0;
+  const num = Number(value);
+  return Number.isFinite(num) ? Math.max(0, Math.floor(num)) : 0;
 }
 
 function checkpointKeyFrom(cp: NormalizedCheckpoint | undefined, idx: number): string {

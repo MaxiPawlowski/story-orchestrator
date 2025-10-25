@@ -33,35 +33,17 @@ export const getMessageTimeStamp = rossMods["getMessageTimeStamp"];
 
 
 
-export function getCharacterNameById(id: number | string | undefined): string | undefined {
-  // const { characters } = getContext()
-
-  if (id === undefined || id === null || id === '') return undefined;
-  const index = typeof id === 'string' ? Number.parseInt(id, 10) : Number(id);
-  if (!Number.isFinite(index) || index < 0) return undefined;
-  const list = script["characters"] as Array<{ name?: string }> | undefined;
-  if (!Array.isArray(list)) return undefined;
-  const entry = list[index];
-  if (!entry) return undefined;
-  const name = entry.name;
-  return typeof name === 'string' ? name : undefined;
+export function getCharacterNameById(id: number | undefined): string | undefined {
+  if (id === undefined) return undefined;
+  const characters = script["characters"];
+  return characters[id]?.name;
 }
 
-export function getCharacterIdByName(name?: string | null): number | undefined {
+export function getCharacterIdByName(name: string): number | undefined {
   if (!name) return undefined;
-  try {
-    const list = (script as any)["characters"] as Array<{ name?: string }> | undefined;
-    if (!Array.isArray(list)) return undefined;
-    const lower = String(name).trim();
-    for (let i = 0; i < list.length; i++) {
-      const n = list[i]?.name;
-      if (typeof n === 'string' && n === lower) return i;
-      if (typeof n === 'string' && n.trim().toLowerCase() === lower.toLowerCase()) return i;
-    }
-  } catch (e) {
-    console.warn("[Story - getCharacterIdByName] failed", e);
-  }
-  return undefined;
+  const characters = script["characters"];
+  const searchName = name.trim().toLowerCase();
+  return characters.findIndex(char => char.name?.trim().toLowerCase() === searchName);
 }
 type ANPosition = "after" | "chat" | "before"; // 0,1,2 in author_note.js terms
 type ANRole = "system" | "user" | "assistant"; // 0,1,2
@@ -74,9 +56,9 @@ async function runSlash(cmd: string, silent = true) {
     info: window?.toastr?.info,
   }
 
-  if (silent) {
-    if (toastrData.success && window.toastr) window.toastr.success = () => { };
-    if (toastrData.info && window.toastr) window.toastr.info = () => { };
+  if (silent && window?.toastr) {
+    window.toastr.success = () => { };
+    window.toastr.info = () => { };
   }
 
   try {
@@ -94,8 +76,8 @@ async function runSlash(cmd: string, silent = true) {
     return false;
   } finally {
     if (silent && window?.toastr) {
-      if (toastrData.success && window.toastr) window.toastr.success = toastrData.success;
-      if (toastrData.info && window.toastr) window.toastr.info = toastrData.info;
+      if (toastrData.success) window.toastr.success = toastrData.success;
+      if (toastrData.info) window.toastr.info = toastrData.info;
     }
   }
 }
@@ -142,17 +124,16 @@ export async function applyCharacterAN(
   text: string,
   opts?: { position?: ANPosition; depth?: number; interval?: number; role?: ANRole }
 ) {
-  const position: ANPosition = opts?.position ?? "chat";
-  const depth = Math.max(0, (opts?.depth ?? AUTHOR_NOTE_DEFAULT_DEPTH) | 0);
-  const interval = Math.max(1, (opts?.interval ?? AUTHOR_NOTE_DEFAULT_INTERVAL) | 0); // default = every user msg
-  const role: ANRole = opts?.role ?? "system";
+  const position = opts?.position ?? "chat";
+  const depth = opts?.depth ?? AUTHOR_NOTE_DEFAULT_DEPTH;
+  const interval = opts?.interval ?? AUTHOR_NOTE_DEFAULT_INTERVAL;
+  const role = opts?.role ?? "system";
 
   console.log("[Story A/N slash] applying", {
     role, position, depth, interval,
-    sample: String(text).slice(0, AUTHOR_NOTE_LOG_SAMPLE_LIMIT),
+    sample: text.slice(0, AUTHOR_NOTE_LOG_SAMPLE_LIMIT),
   });
 
-  // await runSlash(`/note-role ${role}`);
   await runSlash(`/note-position ${position}`);
   await runSlash(`/note-depth ${depth}`);
   await runSlash(`/note-frequency ${interval}`);
@@ -170,22 +151,21 @@ export async function clearCharacterAN() {
 
 export async function enableWIEntry(lorebook: string, comments: string | string[]) {
   if (!lorebook) return false;
-  const commentList = (Array.isArray(comments) ? comments : [comments])
-    .map((comment) => (typeof comment === "string" ? comment.trim() : ""))
-    .filter(Boolean);
+  const commentList = (Array.isArray(comments) ? comments : [comments]).filter(Boolean);
   if (!commentList.length) return false;
+
   const { loadWorldInfo } = getContext();
-  const loadedInfo = await loadWorldInfo(lorebook);
+  const loadedInfo = await loadWorldInfo(lorebook) as Lorebook | null;
   if (!loadedInfo) {
     console.warn("[Story WI] failed to load lorebook", { lorebook });
     return false;
   }
-  const { entries }: Lorebook = loadedInfo as Lorebook;
-  const entriesArray = Object.values(entries);
+
+  const entries = Object.values(loadedInfo.entries);
   const matched: Array<{ comment: string; uid: number }> = [];
 
   for (const comment of commentList) {
-    const found = entriesArray.find((e) => typeof e?.comment === "string" && e.comment.trim() === comment);
+    const found = entries.find(e => e.comment?.trim() === comment);
     if (!found) {
       console.warn("[Story WI] no matching world info entry found", { lorebook, comment });
       continue;
@@ -193,9 +173,7 @@ export async function enableWIEntry(lorebook: string, comments: string | string[
     matched.push({ comment, uid: found.uid });
   }
 
-  if (!matched.length) {
-    return false;
-  }
+  if (!matched.length) return false;
 
   let allOk = true;
   for (let i = 0; i < matched.length; i++) {
@@ -215,22 +193,21 @@ export async function enableWIEntry(lorebook: string, comments: string | string[
 
 export async function disableWIEntry(lorebook: string, comments: string | string[]) {
   if (!lorebook) return false;
-  const commentList = (Array.isArray(comments) ? comments : [comments])
-    .map((comment) => (typeof comment === "string" ? comment.trim() : ""))
-    .filter(Boolean);
+  const commentList = (Array.isArray(comments) ? comments : [comments]).filter(Boolean);
   if (!commentList.length) return false;
+
   const { loadWorldInfo } = getContext();
-  const loadedInfo = await loadWorldInfo(lorebook);
+  const loadedInfo = await loadWorldInfo(lorebook) as Lorebook | null;
   if (!loadedInfo) {
     console.warn("[Story WI] failed to load lorebook", { lorebook });
     return false;
   }
-  const { entries }: Lorebook = loadedInfo as Lorebook;
-  const entriesArray = Object.values(entries);
+
+  const entries = Object.values(loadedInfo.entries);
   const matched: Array<{ comment: string; uid: number }> = [];
 
   for (const comment of commentList) {
-    const found = entriesArray.find((e) => typeof e?.comment === "string" && e.comment.trim() === comment);
+    const found = entries.find(e => e.comment?.trim() === comment);
     if (!found) {
       console.warn("[Story WI] no matching world info entry found", { lorebook, comment });
       continue;
@@ -238,9 +215,7 @@ export async function disableWIEntry(lorebook: string, comments: string | string
     matched.push({ comment, uid: found.uid });
   }
 
-  if (!matched.length) {
-    return false;
-  }
+  if (!matched.length) return false;
 
   let allOk = true;
   for (let i = 0; i < matched.length; i++) {
