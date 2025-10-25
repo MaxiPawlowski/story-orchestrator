@@ -1,6 +1,9 @@
 {
+  "root": true,
   "extends": [
-    "react-app",
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
     "plugin:@typescript-eslint/recommended"
   ],
   "parser": "@typescript-eslint/parser",
@@ -13,15 +16,25 @@
     "project": "./tsconfig.json"
   },
   "plugins": [
-    "@typescript-eslint"
+    "@typescript-eslint",
+    "react",
+    "react-hooks"
   ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
   "rules": {
     "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/no-unused-vars": ["error", {
       "argsIgnorePattern": "^_",
       "varsIgnorePattern": "^_"
     }],
-    "no-console": "off"
+    "no-console": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/prop-types": "off",
+    "react/no-unescaped-entities": "off"
   },
   "ignorePatterns": [
     "dist/**",
