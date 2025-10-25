@@ -6,6 +6,7 @@
   UI_SYNC_MAX_ATTEMPTS,
   UI_SYNC_RETRY_DELAY_MS,
 } from "@constants/defaults";
+import { quoteSlashArg } from "@utils/string";
 
 function importSTModule<T>(path: string): Promise<T> {
   return import(/* webpackIgnore: true */ path);
@@ -82,13 +83,6 @@ async function runSlash(cmd: string, silent = true) {
   }
 }
 
-function quoteArg(s: string) {
-  return `"${String(s)
-    .replace(/\\/g, "\\\\")
-    .replace(/"/g, '\\"')
-    .replace(/\r?\n/g, "\\n")}"`;
-}
-
 export async function executeSlashCommands(
   commands: Iterable<string> | string,
   opts?: { silent?: boolean; delayMs?: number },
@@ -138,14 +132,14 @@ export async function applyCharacterAN(
   await runSlash(`/note-depth ${depth}`);
   await runSlash(`/note-frequency ${interval}`);
 
-  const ok = await runSlash(`/note ${quoteArg(text ?? "")}`);
+  const ok = await runSlash(`/note ${quoteSlashArg(text ?? "")}`);
   if (!ok) {
-    await runSlash(`/note ${quoteArg("")}`);
+    await runSlash(`/note ${quoteSlashArg("")}`);
   }
 }
 
 export async function clearCharacterAN() {
-  await runSlash(`/note ${quoteArg("")}`);
+  await runSlash(`/note ${quoteSlashArg("")}`);
   await runSlash(`/note-frequency ${AUTHOR_NOTE_DISABLED_FREQUENCY}`);
 }
 
@@ -178,7 +172,7 @@ export async function enableWIEntry(lorebook: string, comments: string | string[
   let allOk = true;
   for (let i = 0; i < matched.length; i++) {
     const entry = matched[i];
-    const ok = await runSlash(`/setentryfield file=${quoteArg(lorebook)} uid=${entry.uid} field=disable 0`, false);
+    const ok = await runSlash(`/setentryfield file=${quoteSlashArg(lorebook)} uid=${entry.uid} field=disable 0`, false);
     if (!ok) {
       console.warn("[Story WI] failed to enable world info entry", { lorebook, comment: entry.comment, uid: entry.uid });
       allOk = false;
@@ -220,7 +214,7 @@ export async function disableWIEntry(lorebook: string, comments: string | string
   let allOk = true;
   for (let i = 0; i < matched.length; i++) {
     const entry = matched[i];
-    const ok = await runSlash(`/setentryfield file=${quoteArg(lorebook)} uid=${entry.uid} field=disable 1`, false);
+    const ok = await runSlash(`/setentryfield file=${quoteSlashArg(lorebook)} uid=${entry.uid} field=disable 1`, false);
     if (!ok) {
       console.warn("[Story WI] failed to disable world info entry", { lorebook, comment: entry.comment, uid: entry.uid });
       allOk = false;

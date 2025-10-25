@@ -1,6 +1,6 @@
 import { getContext } from "@services/SillyTavernAPI";
 import type { NormalizedCheckpoint, NormalizedStory, NormalizedTransition, NormalizedTransitionTrigger } from "@utils/story-validator";
-import { extensionName } from "@constants/main";
+import { getExtensionSettingsRoot } from "@utils/settings";
 
 export enum CheckpointStatus {
   Pending = "pending",
@@ -340,33 +340,6 @@ function getStateMap(): StateMap {
   return created;
 }
 
-function getExtensionSettingsRoot(): Record<string, unknown> {
-  const { extensionSettings } = getContext();
-  const root = (extensionSettings as any)[extensionName];
-  if (root && typeof root === "object") {
-    return root as Record<string, unknown>;
-  }
-  const created: Record<string, unknown> = {};
-  (extensionSettings as any)[extensionName] = created;
-  return created;
-}
-
-function clampIndex(idx: number, story: NormalizedStory): number {
-  const max = Math.max(0, story.checkpoints.length - 1);
-  return Math.max(0, Math.min(Math.floor(idx), max));
-}
-
-export function clampText(input: string, limit: number): string {
-  const normalized = input.replace(/\s+/g, ' ').trim();
-  if (limit <= 0) return normalized ? '...' : '';
-  if (normalized.length <= limit) return normalized;
-  return `${normalized.slice(0, Math.max(0, limit - 3))}...`;
-}
-
-function sanitizeTurns(value: number | null | undefined): number {
-  const num = Number(value);
-  return Number.isFinite(num) ? Math.max(0, Math.floor(num)) : 0;
-}
 
 function checkpointKeyFrom(cp: NormalizedCheckpoint | undefined, idx: number): string {
   if (cp?.id) return cp.id;

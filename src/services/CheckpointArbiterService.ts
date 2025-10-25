@@ -1,11 +1,7 @@
-import { clampText } from "../utils/story-state";
 import { getContext } from "./SillyTavernAPI";
 import { updateStoryMacroSnapshot } from "./storyMacros";
 import {
-  ARBITER_SNAPSHOT_LIMIT,
   ARBITER_RESPONSE_LENGTH,
-  ARBITER_CHAT_NAME_CLAMP,
-  ARBITER_CHAT_MESSAGE_CLAMP,
   ARBITER_LOG_SAMPLE_LENGTH,
 } from "@constants/defaults";
 
@@ -75,7 +71,7 @@ function snapshot(limit: number): string {
       const text = (msg?.mes || msg?.text || msg?.message || msg?.data?.text || msg?.data?.mes || "") as string;
       if (typeof text !== "string" || !text.trim()) return null;
       const who = (msg?.name || msg?.character || (msg?.is_user ? "Player" : "Companion")) as string;
-      return `${idx + 1}. ${clampText(String(who), ARBITER_CHAT_NAME_CLAMP)}: ${clampText(String(text).trim(), ARBITER_CHAT_MESSAGE_CLAMP)}`;
+      return `${idx + 1}. ${String(who)}: ${String(text).trim()}`;
     })
     .filter(Boolean)
     .reverse()

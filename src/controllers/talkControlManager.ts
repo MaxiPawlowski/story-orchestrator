@@ -1,5 +1,5 @@
 import type { NormalizedStory, NormalizedTalkControl, NormalizedTalkControlCheckpoint, NormalizedTalkControlReply } from "@utils/story-validator";
-import { normalizeName } from "@utils/story-validator";
+import { normalizeName } from "@utils/string";
 import type { TalkControlTrigger } from "@utils/story-schema";
 import { storySessionStore } from "@store/storySessionStore";
 import {

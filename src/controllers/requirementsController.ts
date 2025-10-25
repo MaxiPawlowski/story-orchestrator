@@ -12,7 +12,8 @@ import {
   type StoryRequirementsState,
 } from "@store/requirementsState";
 import { storySessionStore } from "@store/storySessionStore";
-import { normalizeName } from "@utils/story-validator";
+import { resolveGroupMemberName } from "@utils/groups";
+import { normalizeName } from "@utils/string";
 
 export interface RequirementsController {
   start(): void;
@@ -21,16 +22,6 @@ export interface RequirementsController {
   handleChatContextChanged(): void;
   reloadPersona(): Promise<void> | void;
 }
-
-const resolveGroupMemberName = (member: unknown): string => {
-  if (typeof member === 'string' || typeof member === 'number') return String(member);
-  if (member && typeof member === 'object') {
-    const source = member as Record<string, unknown>;
-    const candidate = source.name ?? source.display_name ?? source.id;
-    return candidate ? String(candidate) : "";
-  }
-  return "";
-};
 
 export const createRequirementsController = (): RequirementsController => {
   let story: NormalizedStory | null = null;

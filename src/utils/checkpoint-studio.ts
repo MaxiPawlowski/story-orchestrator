@@ -292,17 +292,6 @@ export const normalizedToDraft = (story: NormalizedStory | null | undefined): St
   };
 };
 
-const clampTalkControlInt = (value: unknown, min: number, max?: number): number | undefined => {
-  if (value === undefined || value === null || value === "") return undefined;
-  const num = Number(value);
-  if (!Number.isFinite(num)) return undefined;
-  let normalized = Math.floor(num);
-  if (!Number.isFinite(normalized)) return undefined;
-  if (normalized < min) normalized = min;
-  if (typeof max === "number" && Number.isFinite(max)) normalized = Math.min(normalized, max);
-  return normalized;
-};
-
 const sanitizeTalkControlDefaults = (defaults?: TalkControlDefaults): TalkControlDefaults | undefined => {
   return undefined;
 };
@@ -334,13 +323,16 @@ const sanitizeTalkControlReply = (reply: TalkControlReplyDraft | undefined): Tal
   const content = sanitizeTalkControlReplyContent(reply.content);
   if (!content) return null;
 
-  const probability = clampTalkControlInt(reply.probability, 0) ?? 100;
+  const probability = typeof reply.probability === "number" && Number.isFinite(reply.probability)
+    ? Math.round(reply.probability)
+    : 100;
+
   return {
     memberId,
     speakerId,
     enabled: reply.enabled !== undefined ? Boolean(reply.enabled) : true,
     trigger: reply.trigger,
-    probability: Math.min(100, Math.max(0, probability)),
+    probability,
     content,
   };
 };

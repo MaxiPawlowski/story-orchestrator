@@ -26,6 +26,7 @@ import {
   AUTHOR_NOTE_DEFAULT_POSITION,
   AUTHOR_NOTE_DEFAULT_ROLE,
 } from "@constants/defaults";
+import { normalizeName } from "./string";
 
 export interface NormalizedWorldInfo {
   activate: string[];
@@ -127,16 +128,6 @@ export interface NormalizedStory {
   talkControl?: NormalizedTalkControl;
 }
 
-export interface NormalizeOptions {
-  stripExtension?: boolean;
-}
-
-export const normalizeName = (value: string | null | undefined, options?: NormalizeOptions): string => {
-  const normalized = (value ?? "").normalize("NFKC").trim().toLowerCase();
-  if (!normalized) return "";
-  return options?.stripExtension ? normalized.replace(/\.\w+$/, "") : normalized;
-};
-
 export type CheckpointResult =
   | { file: string; ok: true; json: NormalizedStory }
   | { file: string; ok: false; error: unknown };
@@ -183,28 +174,15 @@ const normalizeId = (value: string | null | undefined, fallback: string): string
 
 const cleanScalar = (value: string): string => value.trim();
 
-const clampInterval = (value: unknown, fallback: number): number => {
+const toInteger = (value: unknown, fallback: number): number => {
   const num = Number(value);
-  return Number.isFinite(num) && num >= 1 ? Math.floor(num) : fallback;
+  return Number.isFinite(num) ? Math.floor(num) : fallback;
 };
 
-const clampInteger = (value: unknown, fallback: number, min: number, max?: number): number => {
-  const num = Number(value);
-  if (!Number.isFinite(num)) return fallback;
-  let result = Math.floor(num);
-  if (min !== undefined) result = Math.max(min, result);
-  if (max !== undefined) result = Math.min(result, max);
-  return result;
-};
-
-const clampProbability = (value: unknown): number | undefined => {
+const toProbability = (value: unknown): number | undefined => {
   if (value === undefined || value === null) return undefined;
   const num = Number(value);
-  if (!Number.isFinite(num)) return undefined;
-  const rounded = Math.round(num);
-  if (rounded <= 0) return undefined;
-  if (rounded >= 100) return 100;
-  return Math.max(1, rounded);
+  return Number.isFinite(num) ? Math.round(num) : undefined;
 };
 
 const TALK_CONTROL_DEFAULT_SETTINGS: NormalizedTalkControlDefaults = Object.freeze({
@@ -219,11 +197,6 @@ const TALK_CONTROL_MAX_CHARS = 4000;
 const TALK_CONTROL_MAX_COOLDOWN = 10000;
 const TALK_CONTROL_MAX_ACTIONS = 10;
 const TALK_CONTROL_TRIGGERS: TalkControlTrigger[] = ["afterSpeak", "beforeArbiter", "afterArbiter", "onEnter", "onExit"];
-
-const clampDepth = (value: unknown, fallback: number): number => {
-  const num = Number(value);
-  return Number.isFinite(num) && num >= 0 ? Math.floor(num) : fallback;
-};
 
 const sanitizeRoleMap = (input?: Partial<Record<Role, string>>): Partial<Record<Role, string>> | undefined => {
   if (!input) return undefined;
@@ -240,8 +213,8 @@ const sanitizeRoleMap = (input?: Partial<Record<Role, string>>): Partial<Record<
 function normalizeAuthorNoteDefaults(input?: AuthorNoteSettings | null): NormalizedAuthorNoteSettings {
   return {
     position: input?.position ?? AUTHOR_NOTE_DEFAULT_POSITION,
-    interval: clampInterval(input?.interval, AUTHOR_NOTE_DEFAULT_INTERVAL),
-    depth: clampDepth(input?.depth, AUTHOR_NOTE_DEFAULT_DEPTH),
+    interval: toInteger(input?.interval, AUTHOR_NOTE_DEFAULT_INTERVAL),
+    depth: toInteger(input?.depth, AUTHOR_NOTE_DEFAULT_DEPTH),
     role: input?.role ?? AUTHOR_NOTE_DEFAULT_ROLE,
   };
 }
@@ -257,8 +230,8 @@ function normalizeAuthorNoteDefinition(
   return {
     text,
     position: definition.position ?? defaults.position,
-    interval: clampInterval(definition.interval, defaults.interval),
-    depth: clampDepth(definition.depth, defaults.depth),
+    interval: toInteger(definition.interval, defaults.interval),
+    depth: toInteger(definition.depth, defaults.depth),
     role: definition.role ?? defaults.role,
   };
 }
@@ -370,7 +343,7 @@ const normalizeTalkControlReply = (
     normalizedSpeakerId: normalizeName(speakerId),
     enabled: reply.enabled ?? true,
     trigger: reply.trigger,
-    probability: clampProbability(reply.probability) ?? 100,
+    probability: toProbability(reply.probability) ?? 100,
     content,
   };
 };

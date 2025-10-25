@@ -21,7 +21,6 @@ import { subscribeToEventSource } from "@utils/eventSource";
 import {
   clampCheckpointIndex,
   sanitizeTurnsSinceEval,
-  clampText,
   type RuntimeStoryState,
   CheckpointStatus,
   computeStatusMapForIndex,
@@ -29,7 +28,7 @@ import {
   evaluateTransitionTriggers,
   type TransitionTriggerMatch,
 } from "@utils/story-state";
-import { normalizeName } from "@utils/story-validator";
+import { normalizeName } from "@utils/string";
 import { storySessionStore } from "@store/storySessionStore";
 import { registerStoryExtensionCommands } from "@utils/slashCommands";
 import {
@@ -242,12 +241,7 @@ class StoryOrchestrator {
       lines.push(segments.join("\n"));
     });
     lines.push('If none should advance, respond with {"decision": "continue"} and null transition.');
-    return this.clampSummary(lines.join("\n"));
-  }
-
-  private clampSummary(input: string): string {
-    if (!input) return "";
-    return input;
+    return lines.join("\n");
   }
 
   private formatStatusLabel(status: CheckpointStatus): string {
@@ -267,15 +261,14 @@ class StoryOrchestrator {
   private buildStoryDescription(): string {
     const story = this.story;
     if (!story) return "";
-    const description = story.description?.trim();
-    return description ? this.clampSummary(description) : "";
+    return story.description?.trim() ?? "";
   }
 
   private buildCurrentCheckpointSummary(cp?: NormalizedCheckpoint): string {
     if (!cp) return "";
     const lines: string[] = [`Name: ${cp.name}`];
     if (cp.objective) lines.push(`Objective: ${cp.objective}`);
-    return this.clampSummary(lines.join("\n"));
+    return lines.join("\n");
   }
 
   private buildPastCheckpointsSummary(statuses: CheckpointStatus[], currentIndex: number): string {
@@ -297,7 +290,7 @@ class StoryOrchestrator {
       return "None completed yet.";
     }
 
-    return this.clampSummary(summaryLines.join("\n"));
+    return summaryLines.join("\n");
   }
 
   private buildPromptContext(runtime: RuntimeStoryState, candidates?: ArbiterTransitionOption[]): StoryPromptContextSnapshot {
@@ -498,7 +491,8 @@ class StoryOrchestrator {
     const currentSinceEval = currentRuntime.turnsSinceEval;
     const nextTurn = currentTurn + 1;
     const nextSinceEval = currentSinceEval + 1;
-    console.log("[StoryOrch] userText", { turn: nextTurn, sinceEval: nextSinceEval, sample: clampText(raw, STORY_ORCHESTRATOR_LOG_SAMPLE_LIMIT) });
+    const sample = raw.length > STORY_ORCHESTRATOR_LOG_SAMPLE_LIMIT ? raw.slice(0, STORY_ORCHESTRATOR_LOG_SAMPLE_LIMIT) + "..." : raw;
+    console.log("[StoryOrch] userText", { turn: nextTurn, sinceEval: nextSinceEval, sample });
     if (!text) return;
 
     this.setTurn(nextTurn);

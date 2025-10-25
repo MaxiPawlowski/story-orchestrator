@@ -1,8 +1,7 @@
 import type { Story } from "@utils/story-schema";
 import { parseAndNormalizeStory, formatZodError, type NormalizedStory } from "@utils/story-validator";
-import { extensionName } from "@constants/main";
 import { getContext } from "@services/SillyTavernAPI";
-import { get } from "jquery";
+import { getExtensionSettingsRoot } from "@utils/settings";
 
 export const STUDIO_SETTINGS_KEY = "studio";
 export const SAVED_KEY_PREFIX = "saved:";
@@ -38,17 +37,6 @@ export type DeleteLibraryStoryResult =
   | { ok: true }
   | { ok: false; error: string };
 
-export function getSettingsRoot(): Record<string, unknown> {
-  const { extensionSettings } = getContext();
-  const root = (extensionSettings as any)[extensionName];
-  if (root && typeof root === "object") {
-    return root as Record<string, unknown>;
-  }
-  const created: Record<string, unknown> = {};
-  (extensionSettings as any)[extensionName] = created;
-  return created;
-}
-
 const normalizeLastSelectedKey = (value: unknown): string | null => {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
@@ -57,7 +45,7 @@ const normalizeLastSelectedKey = (value: unknown): string | null => {
 };
 
 export function loadStudioState(): StudioState {
-  const root = getSettingsRoot();
+  const root = getExtensionSettingsRoot();
   const raw = root[STUDIO_SETTINGS_KEY];
   if (!raw || typeof raw !== "object") {
     return { stories: [], lastSelectedKey: null };
@@ -90,7 +78,7 @@ export function loadStudioState(): StudioState {
 
 export function persistStudioState(state: StudioState): void {
   const { saveSettingsDebounced } = getContext();
-  const root = getSettingsRoot();
+  const root = getExtensionSettingsRoot();
   const sanitizedKey = normalizeLastSelectedKey(state.lastSelectedKey);
   root[STUDIO_SETTINGS_KEY] = {
     stories: state.stories.map(({ id, name, story, updatedAt }) => ({
