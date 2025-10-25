@@ -392,7 +392,15 @@ class StoryOrchestrator {
       for (const ev of events) {
         offs.push(subscribeToEventSource({ source: eventSource, eventName: ev, handler }));
       }
-      this.chatUnsubscribe = () => { offs.splice(0).forEach((off) => { try { off?.(); } catch { /* noop */ } }); };
+      this.chatUnsubscribe = () => {
+        offs.splice(0).forEach((off) => {
+          try {
+            off?.();
+          } catch (err) {
+            console.warn("[StoryOrch] Failed to unsubscribe from chat event", err);
+          }
+        });
+      };
     }
 
     this.handleChatChanged({ reason: "start", force: true });

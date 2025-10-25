@@ -46,7 +46,7 @@ export class PresetService {
 
   async initForStory() {
     const { textCompletionSettings } = getContext();
-    console.log('[PresetService] initForStory → ensure preset, select base');
+    console.log('[Story - PresetService] initForStory → ensure preset, select base');
     this.ensureDedicatedPresetExists();
     textCompletionSettings.preset = this.presetName;
 
@@ -59,7 +59,7 @@ export class PresetService {
     const overrideKeys = checkpointOverrides ? Object.keys(checkpointOverrides) : [];
     const roleLabel = this.describeRole(role);
     const { textCompletionSettings } = getContext();
-    console.log('[PresetService] applyForRole', { role, roleLabel, checkpointName, overrideKeys });
+    console.log('[Story - PresetService] applyForRole', { role, roleLabel, checkpointName, overrideKeys });
 
     this.ensureDedicatedPresetExists();
     const merged = this.buildMergedPresetObject(role, checkpointOverrides);
@@ -125,12 +125,12 @@ export class PresetService {
   private writeIntoRegistry(name: string, obj: any) {
     const idx = this.findPresetIndex(name);
     if (idx === -1) {
-      console.log('[PresetService] creating dedicated preset in registry:', name);
+      console.log('[Story - PresetService] creating dedicated preset in registry:', name);
       tgPresetNames.push(name);
       tgPresetObjs.push(this.clone(obj));
       this.ensurePresetOptionExists(name);
     } else {
-      console.log('[PresetService] updating dedicated preset in registry:', name);
+      console.log('[Story - PresetService] updating dedicated preset in registry:', name);
       tgPresetObjs[idx] = this.clone(obj);
     }
   }
@@ -210,14 +210,14 @@ export class PresetService {
         name: this.presetName,
       });
     } catch (e) {
-      console.error('[PresetService] error emitting PRESET_CHANGED', e);
+      console.error('[Story - PresetService] error emitting PRESET_CHANGED', e);
     }
 
     const uiBridge = (globalThis as any).ST_applyTextgenPresetToUI;
     if (typeof uiBridge === 'function' && typeof setSettingByName === 'function') {
       uiBridge(this.presetName, presetObj);
     } else {
-      console.log('[PresetService] UI bridge not found; runtime settings are active but UI will not move.');
+      console.log('[Story - PresetService] UI bridge not found; runtime settings are active but UI will not move.');
     }
   }
 

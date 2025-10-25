@@ -25,7 +25,7 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
         : [];
       setGlobalLorebooks(list);
     } catch (err) {
-      console.warn("[CheckpointStudio] Failed to read global lorebooks", err);
+      console.warn("[Story - CheckpointStudio] Failed to read global lorebooks", err);
       setGlobalLorebooks([]);
     }
   }, []);
@@ -42,7 +42,10 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
         try {
           const gid = typeof g?.id === 'number' || typeof g?.id === 'string' ? String(g.id).trim() : '';
           return Boolean(gid) && gid === groupId;
-        } catch { return false; }
+        } catch (err) {
+          console.warn("[Story - StoryDetailsPanel] Failed to match group ID", err);
+          return false;
+        }
       });
 
       if (!current || !Array.isArray(current.members)) { setGroupMembers([]); return; }
@@ -69,18 +72,28 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
       const unique = names.filter((n: string) => { const low = n.toLowerCase(); if (seen.has(low)) return false; seen.add(low); return true; });
       setGroupMembers(unique);
     } catch (err) {
-      console.warn('[CheckpointStudio] Failed to resolve group members', err);
+      console.warn('[Story - CheckpointStudio] Failed to resolve group members', err);
       setGroupMembers([]);
     }
   }, []);
 
   useEffect(() => {
     refreshGlobalLorebooks();
-    try { refreshGroupMembers(); } catch { }
+    try {
+      refreshGroupMembers();
+    } catch (err) {
+      console.warn("[Story - StoryDetailsPanel] Failed to refresh group members on mount", err);
+    }
 
     const offs: Array<() => void> = [];
     const handler = () => refreshGlobalLorebooks();
-    const chatChanged = () => { try { refreshGroupMembers(); } catch { } };
+    const chatChanged = () => {
+      try {
+        refreshGroupMembers();
+      } catch (err) {
+        console.warn("[Story - StoryDetailsPanel] Failed to refresh group members on chat change", err);
+      }
+    };
     const { eventSource, eventTypes } = getContext();
     try {
       [
@@ -96,12 +109,16 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
         offs.push(off);
       }
     } catch (err) {
-      console.warn("[CheckpointStudio] Failed to subscribe to WI events", err);
+      console.warn("[Story - CheckpointStudio] Failed to subscribe to WI events", err);
     }
 
     return () => {
       while (offs.length) {
-        try { offs.pop()?.(); } catch { }
+        try {
+          offs.pop()?.();
+        } catch (err) {
+          console.warn("[Story - StoryDetailsPanel] Failed to unsubscribe from event", err);
+        }
       }
     };
   }, [refreshGlobalLorebooks, refreshGroupMembers]);

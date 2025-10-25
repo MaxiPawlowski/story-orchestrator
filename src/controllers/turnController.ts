@@ -46,7 +46,8 @@ class TurnGate {
     const hashish = (value: unknown) => {
       try {
         return JSON.stringify(value)?.slice(0, 200);
-      } catch {
+      } catch (err) {
+        console.warn("[Story - TurnController] Failed to stringify value for signature", err);
         return String(value);
       }
     };
@@ -99,7 +100,7 @@ export const createTurnController = (): TurnController => {
       try {
         off?.();
       } catch (err) {
-        console.warn("[TurnController] unsubscribe failed", err);
+        console.warn("[Story - TurnController] unsubscribe failed", err);
       }
     }
     started = false;
@@ -113,7 +114,7 @@ export const createTurnController = (): TurnController => {
 
   const ensureOrchestrator = () => {
     if (!orchestrator) {
-      console.warn("[TurnController] event received without orchestrator attached");
+      console.warn("[Story - TurnController] event received without orchestrator attached");
       return false;
     }
     return true;
@@ -131,7 +132,7 @@ export const createTurnController = (): TurnController => {
       try {
         orchestrator?.handleUserText(pick.text);
       } catch (err) {
-        console.warn("[TurnController] handleUserText failed", err);
+        console.warn("[Story - TurnController] handleUserText failed", err);
       }
       return true;
     };
@@ -161,7 +162,7 @@ export const createTurnController = (): TurnController => {
       try {
         orchestrator?.setActiveRole(candidate);
       } catch (err) {
-        console.warn("[TurnController] setActiveRole failed", err);
+        console.warn("[Story - TurnController] setActiveRole failed", err);
       }
     }
   };

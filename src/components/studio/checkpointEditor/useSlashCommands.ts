@@ -53,7 +53,7 @@ export const useSlashCommands = () => {
       setCommands(entries);
       setError(null);
     } catch (err) {
-      console.warn("[CheckpointEditor] Failed to read slash commands", err);
+      console.warn("[Story - CheckpointEditor] Failed to read slash commands", err);
       setCommands([]);
       setError("Unable to read slash commands from host.");
     }

@@ -173,7 +173,7 @@ export const createRequirementsController = (): RequirementsController => {
         globalLoreBookMissing: globalMissing
       });
     }).catch((err: unknown) => {
-      console.warn('[Requirements] loadWorldInfo failed', err);
+      console.warn('[Story - Requirements] loadWorldInfo failed', err);
       updateState({
         worldLoreEntriesPresent: false,
         worldLoreEntriesMissing: requiredWorldInfoKeys.slice(),
@@ -273,7 +273,7 @@ export const createRequirementsController = (): RequirementsController => {
       try {
         off?.();
       } catch (err) {
-        console.warn("[Requirements] unsubscribe failed", err);
+        console.warn("[Story - Requirements] unsubscribe failed", err);
       }
     }
     started = false;

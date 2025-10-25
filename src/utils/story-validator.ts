@@ -194,8 +194,6 @@ const TALK_CONTROL_DEFAULT_SETTINGS: NormalizedTalkControlDefaults = Object.free
 });
 
 const TALK_CONTROL_MAX_CHARS = 4000;
-const TALK_CONTROL_MAX_COOLDOWN = 10000;
-const TALK_CONTROL_MAX_ACTIONS = 10;
 const TALK_CONTROL_TRIGGERS: TalkControlTrigger[] = ["afterSpeak", "beforeArbiter", "afterArbiter", "onEnter", "onExit"];
 
 const sanitizeRoleMap = (input?: Partial<Record<Role, string>>): Partial<Record<Role, string>> | undefined => {

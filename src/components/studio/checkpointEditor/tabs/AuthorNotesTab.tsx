@@ -20,7 +20,8 @@ const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }
     if (!checkpoint.on_activate?.authors_note) return "";
     try {
       return JSON.stringify(checkpoint.on_activate.authors_note);
-    } catch {
+    } catch (err) {
+      console.warn("[Story - AuthorNotesTab] Failed to stringify authors_note for signature", err);
       return `${checkpoint.id ?? ""}-authors-note`;
     }
   }, [checkpoint.id, checkpoint.on_activate?.authors_note]);

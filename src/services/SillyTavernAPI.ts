@@ -228,10 +228,10 @@ export async function disableWIEntry(lorebook: string, comments: string | string
 
 
 (function attachUiBridge() {
-  console.log('[ST UI Bridge] Initializing UI Bridge');
+  console.log('[Story - ST UI Bridge] Initializing UI Bridge');
   const applySettingWithRetry = (key: string, value: any, attempt = 0) => {
     if (typeof setSettingByName !== 'function') {
-      console.warn(`[ST UI Bridge] setSettingByName not available`);
+      console.warn(`[Story - ST UI Bridge] setSettingByName not available`);
       return;
     }
 
@@ -252,9 +252,9 @@ export async function disableWIEntry(lorebook: string, comments: string | string
 
     if (attempt >= UI_SYNC_MAX_ATTEMPTS) {
       if (lastError != null) {
-        console.warn(`[ST UI Bridge] Skipped UI sync for ${key} after ${attempt + 1} attempts`, lastError);
+        console.warn(`[Story - ST UI Bridge] Skipped UI sync for ${key} after ${attempt + 1} attempts`, lastError);
       } else if (!hasTarget) {
-        console.warn(`[ST UI Bridge] Gave up waiting for UI controls for ${key}`);
+        console.warn(`[Story - ST UI Bridge] Gave up waiting for UI controls for ${key}`);
       }
       return;
     }
@@ -275,9 +275,9 @@ export async function disableWIEntry(lorebook: string, comments: string | string
       if (sel) {
         sel.value = name;
       }
-      console.log('[ST UI Bridge] Applied preset to UI:', name);
+      console.log('[Story - ST UI Bridge] Applied preset to UI:', name);
     } catch (err) {
-      console.warn('[ST UI Bridge] Failed to apply preset to UI', err);
+      console.warn('[Story - ST UI Bridge] Failed to apply preset to UI', err);
     }
   };
 })();

@@ -11,7 +11,8 @@ export const stringifyPresetValue = (value: unknown): string => {
   if (typeof value === "number" || typeof value === "boolean") return String(value);
   try {
     return JSON.stringify(value);
-  } catch {
+  } catch (err) {
+    console.warn("[Story - presetUtils] Failed to stringify preset value", err);
     return String(value);
   }
 };
@@ -38,7 +39,8 @@ export const parsePresetValue = (raw: string): unknown => {
   ) {
     try {
       return JSON.parse(trimmed);
-    } catch {
+    } catch (err) {
+      console.warn("[Story - presetUtils] Failed to parse JSON preset value", err);
       return raw;
     }
   }
@@ -49,10 +51,12 @@ const clonePresetValue = (value: unknown): unknown => {
   if (Array.isArray(value) || (value && typeof value === "object")) {
     try {
       return clone(value);
-    } catch {
+    } catch (err) {
+      console.warn("[Story - presetUtils] Failed to clone preset value with clone()", err);
       try {
         return JSON.parse(JSON.stringify(value));
-      } catch {
+      } catch (err2) {
+        console.warn("[Story - presetUtils] Failed to clone preset value with JSON", err2);
         return value;
       }
     }
@@ -66,7 +70,8 @@ export const readCurrentPresetValue = (key: PresetSettingKey): unknown => {
     // TODO: fix any
     const base = (textCompletionSettings as any)?.[key];
     return clonePresetValue(base);
-  } catch {
+  } catch (err) {
+    console.warn("[Story - presetUtils] Failed to read current preset value", key, err);
     return "";
   }
 };

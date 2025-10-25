@@ -39,7 +39,7 @@ const persistIfAllowed = (store: StorySessionStore, runtime: RuntimeStoryState) 
     persistStoryState({ chatId, story, state: runtime, storyKey });
     return true;
   } catch (err) {
-    console.warn("[PersistenceController] persist failed", err);
+    console.warn("[Story - PersistenceController] persist failed", err);
     return false;
   }
 };
@@ -92,7 +92,7 @@ export const createPersistenceController = (store: StorySessionStore = storySess
     try {
       snapshot.setStoryKey(storyKey);
     } catch (err) {
-      console.warn("[PersistenceController] failed to sync story key during hydrate", err);
+      console.warn("[Story - PersistenceController] failed to sync story key during hydrate", err);
     }
     const runtime = writeStoreRuntime(store, state, { hydrated: true, persist: false });
     return { runtime, source, storyKey };

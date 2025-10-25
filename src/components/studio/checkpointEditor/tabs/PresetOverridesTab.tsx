@@ -36,7 +36,8 @@ const PresetOverridesTab: React.FC<Props> = ({
         preset_overrides: checkpoint.on_activate?.preset_overrides ?? {},
         arbiter_preset: checkpoint.on_activate?.arbiter_preset ?? null,
       });
-    } catch {
+    } catch (err) {
+      console.warn("[Story - PresetOverridesTab] Failed to stringify checkpoint for signature", err);
       return `${checkpoint.id ?? ""}-preset-overrides`;
     }
   }, [checkpoint.id, checkpoint.on_activate?.preset_overrides, checkpoint.on_activate?.arbiter_preset]);

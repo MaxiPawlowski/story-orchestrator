@@ -31,7 +31,7 @@ const WorldInfoTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }) 
         .filter(Boolean);
       setLoreComments(comments);
     } catch (err) {
-      console.warn("[CheckpointEditor] Failed to load world info entries", err);
+      console.warn("[Story - CheckpointEditor] Failed to load world info entries", err);
       setLoreComments([]);
     }
   }, [draft.global_lorebook]);
@@ -52,11 +52,15 @@ const WorldInfoTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }) 
         offs.push(off);
       });
     } catch (err) {
-      console.warn("[CheckpointEditor] Failed to subscribe to WI events", err);
+      console.warn("[Story - CheckpointEditor] Failed to subscribe to WI events", err);
     }
     return () => {
       while (offs.length) {
-        try { offs.pop()?.(); } catch { /* noop */ }
+        try { 
+          offs.pop()?.(); 
+        } catch (err) {
+          console.warn("[Story - WorldInfoTab] Failed to unsubscribe from WI event", err);
+        }
       }
     };
   }, [refreshLoreEntries]);

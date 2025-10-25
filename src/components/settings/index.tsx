@@ -51,7 +51,7 @@ const SettingsWrapper = () => {
     try {
       storySessionStore.getState().setStoryKey(nextKey);
     } catch (err) {
-      console.warn("[Settings] Failed to sync story key before selection", err);
+      console.warn("[Story - Settings] Failed to sync story key before selection", err);
     }
 
     const entry = libraryEntries.find((candidate) => candidate.key === nextKey);
@@ -67,7 +67,7 @@ const SettingsWrapper = () => {
             storyKey: nextKey,
           });
         } catch (persistErr) {
-          console.warn("[Settings] Failed to persist story selection", persistErr);
+          console.warn("[Story - Settings] Failed to persist story selection", persistErr);
         }
       }
     }

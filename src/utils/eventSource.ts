@@ -19,7 +19,7 @@ const wrapCleanup = (eventName: string, cleanup: () => void) => {
     try {
       cleanup();
     } catch (err) {
-      console.warn("[subscribeToEventSource] unsubscribe failed", eventName, err);
+      console.warn("[Story - subscribeToEventSource] unsubscribe failed", eventName, err);
     }
   };
 };
@@ -48,7 +48,7 @@ export function subscribeToEventSource({
       return wrapCleanup(eventName, () => removeListener.call(source, eventName, handler));
     }
   } catch (err) {
-    console.warn("[subscribeToEventSource] subscribe failed", eventName, err);
+    console.warn("[Story - subscribeToEventSource] subscribe failed", eventName, err);
   }
 
   return NOOP;

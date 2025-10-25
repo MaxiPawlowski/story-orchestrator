@@ -51,7 +51,7 @@ function persistSettings(next: ExtensionRuntimeSettings) {
   try {
     saveSettingsDebounced();
   } catch (err) {
-    console.warn("[ExtensionSettings] Failed to persist settings", err);
+    console.warn("[Story - ExtensionSettings] Failed to persist settings", err);
   }
 }
 

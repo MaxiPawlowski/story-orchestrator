@@ -45,10 +45,19 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
       const layoutObj = cy.layout(options);
       if (layoutObj && typeof layoutObj.run === "function") layoutObj.run();
       else cy.layout({ name: "grid" }).run();
-    } catch {
-      try { cy.layout({ name: "grid" }).run(); } catch { }
+    } catch (err) {
+      console.warn("[Story - GraphPanel] Primary layout failed, falling back to grid", err);
+      try {
+        cy.layout({ name: "grid" }).run();
+      } catch (err2) {
+        console.warn("[Story - GraphPanel] Grid layout fallback also failed", err2);
+      }
     }
-    try { cy.fit(undefined, 32); } catch { }
+    try {
+      cy.fit(undefined, 32);
+    } catch (err) {
+      console.warn("[Story - GraphPanel] Failed to fit cytoscape view", err);
+    }
   };
 
   useEffect(() => {
@@ -92,8 +101,16 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
       setCyReady(true);
 
       cleanup = () => {
-        try { cy?.off("tap", "node", handleTap); } catch { }
-        try { cy?.destroy(); } catch { }
+        try {
+          cy?.off("tap", "node", handleTap);
+        } catch (err) {
+          console.warn("[Story - GraphPanel] Failed to remove tap handler", err);
+        }
+        try {
+          cy?.destroy();
+        } catch (err) {
+          console.warn("[Story - GraphPanel] Failed to destroy cytoscape instance", err);
+        }
         cyRef.current = null;
         cy = null;
         setCyReady(false);
@@ -125,8 +142,8 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
       try {
         instance.resize();
         instance.fit(undefined, 32);
-      } catch {
-        /* noop */
+      } catch (err) {
+        console.warn("[Story - GraphPanel] Failed to resize/fit cytoscape", err);
       }
     };
 
@@ -165,7 +182,8 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
           setDagreReady(true);
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.warn("[Story - GraphPanel] Failed to load cytoscape-dagre", err);
         setDagreReady(false);
       });
     return () => { cancelled = true; };

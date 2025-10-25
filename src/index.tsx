@@ -32,7 +32,7 @@ const DrawerPortal = () => {
     const drawerRootContainer = document.getElementById("movingDivs");
 
     if (!drawerRootContainer) {
-      console.error("Drawer manager root container not found");
+      console.error("[Story] Drawer manager root container not found");
       return;
     }
 

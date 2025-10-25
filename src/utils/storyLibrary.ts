@@ -92,7 +92,7 @@ export function persistStudioState(state: StudioState): void {
   try {
     saveSettingsDebounced();
   } catch (err) {
-    console.warn("[storyLibrary] Failed to persist studio state", err);
+    console.warn("[Story - storyLibrary] Failed to persist studio state", err);
   }
 }
 

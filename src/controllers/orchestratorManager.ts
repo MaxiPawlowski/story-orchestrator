@@ -63,7 +63,7 @@ const initialize = async (story: NormalizedStory) => {
     await instance.init();
     setReady(true);
   } catch (err) {
-    console.error("[OrchestratorManager] orchestrator init failed", err);
+    console.error("[Story - OrchestratorManager] orchestrator init failed", err);
     turnController.detach();
     instance.dispose();
     orchestrator = null;
@@ -74,7 +74,9 @@ const initialize = async (story: NormalizedStory) => {
 
 const teardown = async () => {
   if (pendingInit) {
-    await pendingInit.catch(() => { });
+    await pendingInit.catch((err) => {
+      console.warn("[Story - OrchestratorManager] Pending init rejected during teardown", err);
+    });
     pendingInit = null;
   }
 
