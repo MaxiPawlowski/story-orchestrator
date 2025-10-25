@@ -565,7 +565,7 @@ class StoryOrchestrator {
   }
 
 
-  private async applyWorldInfoForCheckpoint(cp: NormalizedCheckpoint | undefined, metadata?: { index: number; reason: string }) {
+  private async applyWorldInfoForCheckpoint(cp?: NormalizedCheckpoint) {
     const lorebook = this.story.global_lorebook;
     if (!cp || !lorebook) return;
 
@@ -586,9 +586,8 @@ class StoryOrchestrator {
     }
   }
 
-  private async applyAutomationsForCheckpoint(cp: NormalizedCheckpoint | undefined, metadata?: { index: number; reason: string }) {
+  private async applyAutomationsForCheckpoint(cp?: NormalizedCheckpoint) {
     if (!cp) return;
-    if (metadata?.reason === "hydrate") return;
 
     const automations = cp.onActivate?.automations;
     if (!Array.isArray(automations) || !automations.length) return;
@@ -598,8 +597,6 @@ class StoryOrchestrator {
 
     console.log("[StoryOrch] automations run", {
       cp: cp.name,
-      index: metadata?.index,
-      reason: metadata?.reason,
       commands,
     });
 
@@ -656,7 +653,7 @@ class StoryOrchestrator {
     this.reconcileWithRuntime(hydrateResult.runtime, { source: hydrateResult.source });
   }
 
-  private reconcileWithRuntime(runtime: RuntimeStoryState | null | undefined, options?: { source?: "stored" | "default" }) {
+  private reconcileWithRuntime(runtime?: RuntimeStoryState, options?: { source?: "stored" | "default" }) {
     if (!runtime) return;
     const sanitizedIndex = clampCheckpointIndex(runtime.checkpointIndex, this.story);
     const sanitizedSince = sanitizeTurnsSinceEval(runtime.turnsSinceEval);
@@ -683,7 +680,7 @@ class StoryOrchestrator {
 
       const cp = this.story.checkpoints[targetIndex];
       if (cp && options?.source === "default") {
-        this.applyAutomationsForCheckpoint(cp, { index: targetIndex, reason: "hydrate-same" });
+        this.applyAutomationsForCheckpoint(cp);
       }
     }
   }
@@ -732,7 +729,6 @@ class StoryOrchestrator {
       return sanitized;
     };
 
-    // No checkpoints: just prime empty runtime
     if (!checkpoints.length) {
       this.checkpointPrimed = true;
       this.activeTransitions = [];
@@ -781,10 +777,8 @@ class StoryOrchestrator {
 
     setTalkControlCheckpoint(activeKey, { emitEnter: isManualActivation });
 
-    const logReason = opts.reason ?? (persistRequested ? "activate" : "hydrate");
-
-    this.applyWorldInfoForCheckpoint(cp, { index: sanitized.checkpointIndex, reason: logReason });
-    this.applyAutomationsForCheckpoint(cp, { index: sanitized.checkpointIndex, reason: logReason });
+    this.applyWorldInfoForCheckpoint(cp);
+    this.applyAutomationsForCheckpoint(cp);
     if (opts.reason) this.emitActivate(sanitized.checkpointIndex);
   }
 
@@ -805,7 +799,7 @@ class StoryOrchestrator {
     }
 
     notifyTalkControlArbiterPhase("before");
-    this.applyArbiterPreset(cp, reason);
+    this.applyArbiterPreset(cp);
 
     const promptContext = this.buildPromptContext(runtime, options);
     this.updateStoryMacrosFromContext(promptContext);
@@ -842,12 +836,12 @@ class StoryOrchestrator {
     });
   }
 
-  private applyArbiterPreset(cp: NormalizedCheckpoint | undefined, reason: ArbiterReason) {
+  private applyArbiterPreset(cp: NormalizedCheckpoint) {
     if (!cp) return;
     try {
       const overrides = cp.onActivate?.arbiter_preset;
       this.presetService.applyForRole(ARBITER_ROLE_KEY, overrides, cp.name);
-      console.log("[StoryOrch] applied arbiter preset", { reason, checkpoint: cp.name, overrideKeys: overrides ? Object.keys(overrides) : [] });
+      console.log("[StoryOrch] applied arbiter preset", { checkpoint: cp.name, overrideKeys: overrides ? Object.keys(overrides) : [] });
     } catch (err) {
       console.warn("[StoryOrch] failed to apply arbiter preset", err);
     }

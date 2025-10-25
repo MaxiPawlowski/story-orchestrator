@@ -9,7 +9,6 @@ type Props = {
   checkpoint: CheckpointDraft;
   referenceQuery: string;
   onReferenceQueryChange: (value: string) => void;
-  slashCommands: SlashCommandMeta[];
   projectSlashCommands: SlashCommandMeta[];
   onCheckpointIdChange: (checkpointId: string, nextId: string) => void;
   updateCheckpoint: (id: string, updater: (cp: CheckpointDraft) => CheckpointDraft) => void;
@@ -20,7 +19,6 @@ const BasicsTab: React.FC<Props> = ({
   checkpoint,
   referenceQuery,
   onReferenceQueryChange,
-  slashCommands,
   projectSlashCommands,
   onCheckpointIdChange,
   updateCheckpoint,

@@ -244,7 +244,6 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
           : idx === checkpointIndex
             ? CheckpointStatus.Current
             : CheckpointStatus.Pending);
-      const transitions = story.transitionsByFrom.get(cp.id) ?? [];
       return {
         id: cp.id,
         name: cp.name,

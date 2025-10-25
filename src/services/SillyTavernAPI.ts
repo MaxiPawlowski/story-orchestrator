@@ -58,8 +58,8 @@ async function runSlash(cmd: string, silent = true) {
   }
 
   if (silent && window?.toastr) {
-    window.toastr.success = () => { };
-    window.toastr.info = () => { };
+    window.toastr.success = () => void (0);
+    window.toastr.info = () => void (0);
   }
 
   try {

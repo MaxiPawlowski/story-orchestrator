@@ -3,7 +3,6 @@ import { PRESET_SETTING_KEYS, type PresetSettingKey } from "@constants/presetSet
 
 const PRESET_SETTING_KEY_TUPLE = [...PRESET_SETTING_KEYS] as [PresetSettingKey, ...PresetSettingKey[]];
 
-// Dynamic roles: any non-empty string is a valid role name
 export type Role = string;
 export const ARBITER_ROLE_KEY = "$arbiter";
 export const ARBITER_ROLE_LABEL = "Arbiter";
@@ -14,7 +13,6 @@ export type RolePresetOverrides = Partial<Record<Role, PresetOverrides>>;
 
 const PresetOverridesSchema: z.ZodType<PresetOverrides> = z.record(PRESET_SETTING_KEY_ENUM, z.unknown());
 
-// Allow arbitrary role keys mapping to preset override objects
 const RolePresetOverridesSchema: z.ZodType<RolePresetOverrides> = z.record(z.string().min(1), PresetOverridesSchema);
 
 export const AuthorNotePositionSchema = z.enum(["before", "chat", "after"]);

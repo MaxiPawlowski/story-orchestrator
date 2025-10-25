@@ -33,14 +33,13 @@ const setReady = (next: boolean) => {
 };
 
 const initialize = async (story: NormalizedStory) => {
-  let instance: StoryOrchestrator;
-  instance = new StoryOrchestrator({
+  const instance: StoryOrchestrator = new StoryOrchestrator({
     story,
     intervalTurns,
     arbiterPrompt,
     shouldApplyRole: (role: Role) => turnController.shouldApplyRole(role, instance?.index ?? 0),
     setEvalHooks: (hooks) => {
-      hooks.onEvaluated?.(runtimeHooks.onEvaluated ?? (() => { }));
+      hooks.onEvaluated?.(runtimeHooks.onEvaluated ?? (() => void (0)));
     },
     onTurnTick: ({ turn, sinceEval }) => {
       runtimeHooks.onTurnTick?.({ turn, sinceEval });

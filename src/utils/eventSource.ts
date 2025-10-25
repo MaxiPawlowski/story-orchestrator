@@ -28,7 +28,7 @@ export function subscribeToEventSource({
   eventName,
   handler,
 }: SubscribeToEventSourceOptions): () => void {
-  const NOOP = () => { };
+  const NOOP = () => void (0);
   if (!source) return NOOP;
 
   try {

@@ -170,7 +170,6 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
       {replies.length ? (
         <div className="space-y-4">
           {replies.map((reply, idx) => {
-            const triggerLabel = TALK_CONTROL_TRIGGER_OPTIONS.find((opt) => opt.key === reply.trigger)?.label ?? reply.trigger;
 
             return (
               <div key={`talk-control-reply-${idx}`} className="space-y-3 rounded border border-slate-800 bg-slate-950/50 p-3">

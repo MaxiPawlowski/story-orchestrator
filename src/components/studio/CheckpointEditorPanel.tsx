@@ -222,7 +222,6 @@ const CheckpointEditorPanel: React.FC<Props> = ({
                 checkpoint={selectedCheckpoint}
                 referenceQuery={referenceSearch}
                 onReferenceQueryChange={setReferenceSearch}
-                slashCommands={slashCommands}
                 projectSlashCommands={projectCommands}
                 onCheckpointIdChange={onCheckpointIdChange}
                 updateCheckpoint={updateCheckpoint}

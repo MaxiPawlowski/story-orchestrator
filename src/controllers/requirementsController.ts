@@ -147,7 +147,7 @@ export const createRequirementsController = (): RequirementsController => {
       return;
     }
 
-    loadWorldInfo(globalLorebook).then((entries: Object | null) => {
+    loadWorldInfo(globalLorebook).then((entries) => {
       const lorebook = entries as Lorebook | null;
       if (!lorebook?.entries) {
         updateState({

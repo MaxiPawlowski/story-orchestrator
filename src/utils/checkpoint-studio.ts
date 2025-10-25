@@ -7,7 +7,6 @@ import type {
   RolePresetOverrides,
   PresetOverrides,
   AuthorNoteDefinition,
-  AuthorNoteSettings,
   AuthorNotePosition,
   AuthorNoteRole,
   TalkControlDefaults,
@@ -22,7 +21,6 @@ import type {
   NormalizedOnActivate,
   NormalizedTransition,
   NormalizedTransitionTrigger,
-  NormalizedAuthorNote,
 } from "@utils/story-validator";
 
 export type LayoutName = "breadthfirst" | "cose" | "grid" | "dagre";
@@ -104,7 +102,6 @@ export const sanitizeList = (values: string[] | undefined): string[] =>
   (values ?? []).map((entry) => entry.trim()).filter(Boolean);
 
 export const splitLines = (value: string): string[] => {
-  // Preserve user spacing while stripping out lines that are entirely whitespace.
   const lines = value.split(/\r?\n/);
   const result: string[] = [];
   for (const line of lines) {
@@ -114,16 +111,6 @@ export const splitLines = (value: string): string[] => {
   }
   return result;
 };
-
-export const splitCsv = (value: string): string[] =>
-  value
-    .split(",")
-    .map((entry) => entry.trim())
-    .filter(Boolean);
-
-const escapeMermaidText = (value: string): string => value.replace(/"/g, "\\\"");
-
-const sanitizeMermaidId = (value: string): string => value.replace(/[^a-zA-Z0-9_]/g, "_");
 
 const cleanupAuthorsNoteDrafts = (
   value?: Partial<Record<Role, AuthorNoteDraft>>,
@@ -292,10 +279,6 @@ export const normalizedToDraft = (story: NormalizedStory | null | undefined): St
   };
 };
 
-const sanitizeTalkControlDefaults = (defaults?: TalkControlDefaults): TalkControlDefaults | undefined => {
-  return undefined;
-};
-
 const sanitizeTalkControlReplyContent = (content: TalkControlReplyContentDraft | undefined): TalkControlReplyContent | null => {
   if (!content) return null;
   if (content.kind === "static") {
@@ -351,7 +334,7 @@ const cleanupTalkControlDraft = (input?: TalkControlDraft): TalkControlConfig | 
     checkpointsEntries.push([key, { replies }]);
   });
   const checkpoints = Object.fromEntries(checkpointsEntries);
-  const defaults = sanitizeTalkControlDefaults(input.defaults);
+  const defaults = input.defaults;
   if (!Object.keys(checkpoints).length && !defaults) {
     return undefined;
   }
@@ -535,22 +518,6 @@ export const draftToStoryInput = (draft: StoryDraft): Story => {
     start,
     ...(talkControl ? { talkControl } : {}),
   };
-};
-
-export const buildMermaid = (draft: StoryDraft): string => {
-  const lines: string[] = ["graph TD"];
-  draft.checkpoints.forEach((cp) => {
-    const id = sanitizeMermaidId(cp.id);
-    const label = escapeMermaidText(cp.name || cp.id);
-    lines.push(`  ${id}["${label}"]`);
-  });
-  draft.transitions.forEach((edge) => {
-    const from = sanitizeMermaidId(edge.from);
-    const to = sanitizeMermaidId(edge.to);
-    const label = edge.label ? `|${escapeMermaidText(edge.label)}|` : "";
-    lines.push(`  ${from} -->${label} ${to}`);
-  });
-  return lines.join("\n");
 };
 
 export const generateUniqueId = (existing: Set<string>, prefix: string): string => {

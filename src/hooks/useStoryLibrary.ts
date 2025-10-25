@@ -135,7 +135,7 @@ export function useStoryLibrary(): StoryLibraryHook {
     setLoading(true);
     try {
       const fresh = loadStudioState();
-      setStudioState((prev) => {
+      setStudioState(() => {
         const next: StudioState = {
           stories: fresh.stories,
           lastSelectedKey: fresh.lastSelectedKey,

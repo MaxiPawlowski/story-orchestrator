@@ -37,7 +37,6 @@ const eventQueue: TalkControlEvent[] = [];
 const listeners: Array<() => void> = [];
 const storyRoleLookup = new Map<string, string>();
 
-let story: NormalizedStory | null = null;
 let config: NormalizedTalkControl | undefined;
 let activeCheckpointId: string | null = null;
 let currentTurn = storySessionStore.getState().turn ?? 0;
@@ -556,7 +555,6 @@ const handleChatChanged = () => {
 export const talkControlInterceptor = handleGenerateIntercept;
 
 export const setTalkControlStory = (next: NormalizedStory | null) => {
-  story = next;
   config = next?.talkControl;
   activeCheckpointId = null;
   runtimeStates.clear();
@@ -659,7 +657,6 @@ export const disposeTalkControl = () => {
   interceptSuppressDepth = 0;
   selfDispatchDepth = 0;
   storyRoleLookup.clear();
-  story = null;
   config = undefined;
   activeCheckpointId = null;
   generationActive = false;

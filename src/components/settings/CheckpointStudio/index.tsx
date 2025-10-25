@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import type { Story } from "@utils/story-schema";
 import type { NormalizedStory } from "@utils/story-validator";
-import { StoryDraft, CheckpointDraft, TransitionDraft, normalizedToDraft, draftToStoryInput, buildMermaid, generateUniqueId, slugify } from "@utils/checkpoint-studio";
+import { StoryDraft, CheckpointDraft, TransitionDraft, normalizedToDraft, draftToStoryInput, generateUniqueId, slugify } from "@utils/checkpoint-studio";
 import Toolbar from "@components/studio/Toolbar";
 import FeedbackAlert from "@components/studio/FeedbackAlert";
 import GraphPanel from "@components/studio/GraphPanel";
@@ -26,8 +26,6 @@ type Props = {
   disabled?: boolean;
 };
 
-// Classes are inlined in JSX per request. Local helpers moved into subcomponents.
-
 const CheckpointStudio: React.FC<Props> = ({
   sourceStory,
   validate,
@@ -42,7 +40,6 @@ const CheckpointStudio: React.FC<Props> = ({
   const baseDraft = useMemo(() => normalizedToDraft(sourceStory), [sourceStory]);
   const [draft, setDraft] = useState<StoryDraft>(baseDraft);
   const [selectedId, setSelectedId] = useState<string | null>(baseDraft.start || baseDraft.checkpoints[0]?.id || null);
-  // layout and dagre lifecycle handled inside GraphPanel
   const [diagnostics, setDiagnostics] = useState<Diagnostic[]>([]);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [savePending, setSavePending] = useState(false);
@@ -96,8 +93,6 @@ const CheckpointStudio: React.FC<Props> = ({
     }
   }, [draft, selectedId]);
 
-  // Graph lifecycle moved to GraphPanel
-
   const comparisonBase = useMemo(() => JSON.stringify(draftToStoryInput(baseDraft)), [baseDraft]);
   const comparisonDraft = useMemo(() => JSON.stringify(draftToStoryInput(draft)), [draft]);
   const hasChanges = comparisonBase !== comparisonDraft;
@@ -130,7 +125,6 @@ const CheckpointStudio: React.FC<Props> = ({
     setDiagnostics(results);
   }, [validate]);
 
-  // Run diagnostics when source story changes
   useEffect(() => {
     runDiagnostics(baseDraft);
   }, [baseDraft, runDiagnostics]);
@@ -411,7 +405,6 @@ const CheckpointStudio: React.FC<Props> = ({
     }
   };
 
-  const mermaid = useMemo(() => buildMermaid(draft), [draft]);
   const selectedCheckpoint = selectedId ? draft.checkpoints.find((cp) => cp.id === selectedId) : undefined;
   const outgoingTransitions = selectedId ? draft.transitions.filter((edge) => edge.from === selectedId) : [];
 

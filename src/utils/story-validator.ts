@@ -15,7 +15,6 @@ import {
   type AuthorNoteRole,
   type AuthorNotePosition,
   type TalkControlConfig,
-  type TalkControlDefaults,
   type TalkControlReply,
   type TalkControlReplyContent,
   type TalkControlTrigger,
@@ -81,6 +80,7 @@ export interface NormalizedTransition {
   description?: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface NormalizedTalkControlDefaults { }
 
 export interface NormalizedTalkControlReplyContent {
@@ -159,13 +159,6 @@ function compileRegexList(spec: RegexSpec | RegexSpec[] | undefined, where: stri
     return spec.map((item, idx) => compileRegex(item, `${where}[${idx}]`));
   }
   return [compileRegex(spec, where)];
-}
-
-function dedupeOrdered<T>(arr: T[]): T[] {
-  const seen = new Set<T>();
-  const out: T[] = [];
-  for (const x of arr) if (!seen.has(x)) { seen.add(x); out.push(x); }
-  return out;
 }
 
 const normalizeId = (value: string | null | undefined, fallback: string): string => {
@@ -295,10 +288,6 @@ function normalizeAutomations(input?: unknown): string[] | undefined {
   return cleaned.length ? cleaned : undefined;
 }
 
-const normalizeTalkControlDefaults = (input: TalkControlDefaults | undefined): NormalizedTalkControlDefaults => {
-  return {};
-};
-
 const normalizeTalkControlReplyContent = (
   content: TalkControlReplyContent | undefined,
   maxChars: number,
@@ -322,7 +311,6 @@ const normalizeTalkControlReplyContent = (
 
 const normalizeTalkControlReply = (
   reply: TalkControlReply,
-  defaults: NormalizedTalkControlDefaults,
 ): NormalizedTalkControlReply | null => {
   if (!reply) return null;
 
@@ -352,8 +340,7 @@ const normalizeTalkControl = (
 ): NormalizedTalkControl | undefined => {
   if (!config || typeof config !== "object") return undefined;
 
-  const sanitizedDefaults = config.defaults ? normalizeTalkControlDefaults(config.defaults) : undefined;
-  const baseDefaults = sanitizedDefaults ?? TALK_CONTROL_DEFAULT_SETTINGS;
+  const defaults = config.defaults ?? TALK_CONTROL_DEFAULT_SETTINGS
   const checkpoints = new Map<string, NormalizedTalkControlCheckpoint>();
 
   const source = config.checkpoints && typeof config.checkpoints === "object" ? config.checkpoints : {};
@@ -371,7 +358,7 @@ const normalizeTalkControl = (
     const repliesByTrigger = new Map<TalkControlTrigger, NormalizedTalkControlReply[]>();
 
     repliesRaw.forEach((entry) => {
-      const normalizedReply = normalizeTalkControlReply(entry, baseDefaults);
+      const normalizedReply = normalizeTalkControlReply(entry);
       if (!normalizedReply) return;
       replies.push(normalizedReply);
 
@@ -393,7 +380,7 @@ const normalizeTalkControl = (
   }
 
   return {
-    defaults: sanitizedDefaults,
+    defaults,
     checkpoints,
   };
 };
