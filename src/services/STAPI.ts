@@ -262,10 +262,13 @@ export async function disableWIEntry(lorebook: string, comments: string | string
     setTimeout(() => applySettingWithRetry(key, value, attempt + 1), UI_SYNC_RETRY_DELAY_MS);
   };
 
+
+  const ignoredKeys = ['json_schema', 'sampler_order', 'sampler_priority', 'samplers', 'samplers_priorities', 'extensions'] as const
+
   (window as any).ST_applyTextgenPresetToUI = function apply(name: string, presetObj: any) {
     try {
       const { textCompletionSettings } = getContext();
-      for (const key of TG_SETTING_NAMES) {
+      for (const key of TG_SETTING_NAMES.filter(key => !ignoredKeys.includes(key as any))) {
         if (Object.prototype.hasOwnProperty.call(presetObj, key)) {
           applySettingWithRetry(key, presetObj[key]);
         }

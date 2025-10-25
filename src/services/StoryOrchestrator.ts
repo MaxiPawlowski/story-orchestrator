@@ -94,8 +94,10 @@ class StoryOrchestrator {
   private requirements = createRequirementsController();
   private persistence = createPersistenceController();
   private chatUnsubscribe?: () => void;
+  private requirementsUnsubscribe?: () => void;
   private lastChatId: string | null = null;
   private lastGroupSelected = false;
+  private requirementsSatisfiedOnce = false;
 
   constructor(opts: {
     story: NormalizedStory;
@@ -123,7 +125,6 @@ class StoryOrchestrator {
       base: { source: "current" },
       storyId: this.story.title,
       storyTitle: this.story.title,
-      roleDefaults: this.story.roleDefaults,
     });
     this.talkControlService = new TalkControlService({
       story: this.story,
@@ -145,10 +146,13 @@ class StoryOrchestrator {
     return this.story.checkpoints[this.index];
   }
 
+  private get requirementsReady(): boolean {
+    const state = storySessionStore.getState();
+    return state.requirements.requirementsReady ?? false;
+  }
+
   private resolveTargetIndex(edge: NormalizedTransition): number {
-    const target = this.story.checkpointById.get(edge.to);
-    if (!target) return -1;
-    const idx = this.story.checkpoints.findIndex((cp) => cp.id === target.id);
+    const idx = this.story.checkpoints.findIndex((cp) => cp.id === edge.to);
     return idx;
   }
 
@@ -177,7 +181,7 @@ class StoryOrchestrator {
       .filter((edge) => edge.trigger.type === "regex")
       .map((edge) => {
         const match = matchById.get(edge.id);
-        const target = this.story.checkpointById.get(edge.to);
+        const target = this.story.checkpoints.find(cp => cp.id === edge.to);
         const trigger = match?.trigger ?? edge.trigger;
         const triggerLabel = trigger.raw?.label ?? trigger.raw?.id ?? trigger.label;
 
@@ -381,6 +385,16 @@ class StoryOrchestrator {
 
     this.talkControlService.start();
 
+    // Subscribe to requirements changes
+    if (!this.requirementsUnsubscribe) {
+      this.requirementsUnsubscribe = storySessionStore.subscribe(() => {
+        if (this.requirementsSatisfiedOnce || !this.requirementsReady) return;
+        console.log("[StoryOrch] requirements now satisfied, applying checkpoint effects");
+        this.requirementsSatisfiedOnce = true;
+        this.onRequirementsSatisfied();
+      });
+    }
+
     if (!this.chatUnsubscribe) {
       const offs: Array<() => void> = [];
       const handler = () => this.handleChatChanged({ reason: "event" });
@@ -464,6 +478,10 @@ class StoryOrchestrator {
   }
 
   setActiveRole(roleOrDisplayName: string) {
+    if (!this.requirementsReady) {
+      return;
+    }
+
     const raw = String(roleOrDisplayName ?? "");
     const norm = normalizeName(raw);
     const role = this.roleNameMap.get(norm);
@@ -572,6 +590,10 @@ class StoryOrchestrator {
 
 
   private async applyWorldInfoForCheckpoint(cp?: NormalizedCheckpoint) {
+    if (!this.requirementsReady) {
+      return;
+    }
+
     const lorebook = this.story.global_lorebook;
     if (!cp || !lorebook) return;
 
@@ -593,6 +615,10 @@ class StoryOrchestrator {
   }
 
   private async applyAutomationsForCheckpoint(cp?: NormalizedCheckpoint) {
+    if (!this.requirementsReady) {
+      return;
+    }
+
     if (!cp) return;
 
     const automations = cp.onActivate?.automations;
@@ -765,7 +791,8 @@ class StoryOrchestrator {
     const activeKey = cp?.id ?? null;
 
     this.checkpointPrimed = true;
-    this.activeTransitions = cp ? (this.story.transitionsByFrom.get(cp.id) ?? []) : [];
+    // Compute transitions from this checkpoint on-the-fly
+    this.activeTransitions = cp ? this.story.transitions.filter(t => t.from === cp.id) : [];
     this.checkpointArbiter.clear();
 
     const { since, checkpointTurns, turn } = computeTurns(opts.sinceEvalOverride);
@@ -861,6 +888,20 @@ class StoryOrchestrator {
     });
   }
 
+  private onRequirementsSatisfied() {
+    const cp = this.currentCheckpoint;
+    if (!cp) return;
+
+    console.log("[StoryOrch] applying deferred checkpoint effects", { cp: cp.name });
+
+    // Apply base preset now that requirements are satisfied
+    this.presetService.applyBasePreset();
+
+    // Apply world info and automations for current checkpoint
+    this.applyWorldInfoForCheckpoint(cp);
+    this.applyAutomationsForCheckpoint(cp);
+  }
+
   // removed thin wrappers: call helpers directly to reduce indirection
 
   private emitActivate(index: number) {
@@ -878,6 +919,13 @@ class StoryOrchestrator {
       console.warn("[StoryOrch] failed to unsubscribe chat handler", err);
     }
     this.chatUnsubscribe = undefined;
+
+    try {
+      this.requirementsUnsubscribe?.();
+    } catch (err) {
+      console.warn("[StoryOrch] failed to unsubscribe requirements handler", err);
+    }
+    this.requirementsUnsubscribe = undefined;
 
     try {
       this.requirements.dispose();
@@ -909,6 +957,7 @@ class StoryOrchestrator {
     this.talkControlService.dispose();
     this.lastChatId = null;
     this.lastGroupSelected = false;
+    this.requirementsSatisfiedOnce = false;
     this.onActivateIndex = undefined;
     this.onEvaluated = undefined;
     resetStoryMacroSnapshot();

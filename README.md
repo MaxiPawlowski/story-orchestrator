@@ -25,7 +25,7 @@ ST Story Orchestrator is a checkpoint-driven automation layer that keeps story r
 - **Checkpoints & transitions**: Directed graph with explicit IDs. Transitions support `regex` (with labeled pattern lists) and `timed` triggers; multiple triggers per checkpoint are evaluated and prioritized by regex matches.
 - **On-activate payloads**: `authors_note`, `preset_overrides`, `arbiter_preset`, `world_info`, and `automations` (slash command sequences) are normalized and executed atomically when checkpoints activate or hydrate.
 - **Talk Control**: Optional `talkControl` section (camelCase or snake_case) defines per-checkpoint reply lists. Replies carry probability gates, static text or LLM instructions, and trigger hooks (`onEnter`, `afterSpeak`, etc.). Normalization maps IDs to story roles and exposes replies via `NormalizedCheckpoint.talkControl`.
-- **Roles & defaults**: Role metadata powers macro aliases, preset defaults, automations, and requirement validation. `role_defaults` and `author_note_defaults` provide fallbacks when checkpoints omit overrides.
+- **Roles**: Role metadata powers macro aliases, automations, and requirement validation.
 
 ## Key React Surfaces
 - `src/components/drawer` --Requirement badges, checkpoint progress, and a summary of the last queued arbiter evaluation.

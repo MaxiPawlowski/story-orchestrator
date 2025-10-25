@@ -117,14 +117,8 @@ export interface NormalizedStory {
   global_lorebook: string;
   roles?: Partial<Record<Role, string>>;
   checkpoints: NormalizedCheckpoint[];
-  checkpointIndexById: Map<string, number>;
-  checkpointById: Map<string, NormalizedCheckpoint>;
   transitions: NormalizedTransition[];
-  transitionById: Map<string, NormalizedTransition>;
-  transitionsByFrom: Map<string, NormalizedTransition[]>;
   startId: string;
-  roleDefaults?: RolePresetOverrides;
-  authorNoteDefaults: NormalizedAuthorNoteSettings;
   talkControl?: NormalizedTalkControl;
 }
 
@@ -200,15 +194,6 @@ const sanitizeRoleMap = (input?: Partial<Record<Role, string>>): Partial<Record<
   }
   return Object.keys(result).length ? result : undefined;
 };
-
-function normalizeAuthorNoteDefaults(input?: AuthorNoteSettings | null): NormalizedAuthorNoteSettings {
-  return {
-    position: input?.position ?? AUTHOR_NOTE_DEFAULT_POSITION,
-    interval: toInteger(input?.interval, AUTHOR_NOTE_DEFAULT_INTERVAL),
-    depth: toInteger(input?.depth, AUTHOR_NOTE_DEFAULT_DEPTH),
-    role: input?.role ?? AUTHOR_NOTE_DEFAULT_ROLE,
-  };
-}
 
 function normalizeAuthorNoteDefinition(
   definition: AuthorNoteDefinition | undefined,
@@ -450,9 +435,16 @@ export function validateStoryShape(input: unknown): Story {
 export function parseAndNormalizeStory(input: unknown): NormalizedStory {
   const story = validateStoryShape(input);
 
-  const authorNoteDefaults = normalizeAuthorNoteDefaults(story.author_note_defaults as AuthorNoteSettings | undefined);
   const rawDescription = typeof story.description === "string" ? cleanScalar(story.description) : "";
   const normalizedDescription = rawDescription ? rawDescription : undefined;
+
+  // Use hardcoded defaults for author notes
+  const authorNoteDefaults: NormalizedAuthorNoteSettings = {
+    position: AUTHOR_NOTE_DEFAULT_POSITION,
+    interval: AUTHOR_NOTE_DEFAULT_INTERVAL,
+    depth: AUTHOR_NOTE_DEFAULT_DEPTH,
+    role: AUTHOR_NOTE_DEFAULT_ROLE,
+  };
 
   const checkpoints: NormalizedCheckpoint[] = story.checkpoints.map((cp, idx) => {
     const id = normalizeId(cp.id, `cp-${idx + 1}`);
@@ -555,12 +547,7 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
 
   const orderedCheckpoints = order.map((id) => checkpointById.get(id)!).filter(Boolean);
 
-  const checkpointIndexById = new Map<string, number>();
-  orderedCheckpoints.forEach((cp, idx) => {
-    checkpointIndexById.set(cp.id, idx);
-  });
-
-  const talkControlRaw = (story as any)?.talkControl ?? (story as any)?.talk_control;
+  const talkControlRaw = story.talkControl;
   const talkControl = normalizeTalkControl(talkControlRaw as TalkControlConfig | undefined, checkpointById);
   if (talkControl) {
     orderedCheckpoints.forEach((cp) => {
@@ -570,14 +557,6 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
       }
     });
   }
-
-  const transitionsByFrom = new Map<string, NormalizedTransition[]>();
-  const transitionById = new Map<string, NormalizedTransition>();
-  transitions.forEach((edge) => {
-    const bucket = transitionsByFrom.get(edge.from);
-    if (bucket) bucket.push(edge); else transitionsByFrom.set(edge.from, [edge]);
-    transitionById.set(edge.id, edge);
-  });
 
   const startCheckpoint = checkpointById.get(startId);
   if (!startCheckpoint) {
@@ -591,14 +570,8 @@ export function parseAndNormalizeStory(input: unknown): NormalizedStory {
     global_lorebook: cleanScalar(story.global_lorebook),
     roles: sanitizeRoleMap(story.roles as Partial<Record<Role, string>> | undefined),
     checkpoints: orderedCheckpoints,
-    checkpointIndexById,
-    checkpointById,
     transitions,
-    transitionById,
-    transitionsByFrom,
     startId: startCheckpoint.id,
-    roleDefaults: normalizePresetOverrides(story.role_defaults as RolePresetOverrides | undefined),
-    authorNoteDefaults,
     talkControl,
   };
 }

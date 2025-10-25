@@ -80,7 +80,7 @@ export type TalkControlDraft = {
 
 const TALK_CONTROL_TRIGGER_LIST: TalkControlTrigger[] = ["afterSpeak", "beforeArbiter", "afterArbiter", "onEnter", "onExit"];
 
-export type StoryDraft = Omit<Story, "checkpoints" | "transitions" | "talkControl" | "talk_control"> & {
+export type StoryDraft = Omit<Story, "checkpoints" | "transitions" | "talkControl"> & {
   checkpoints: CheckpointDraft[];
   transitions: TransitionDraft[];
   talkControl?: TalkControlDraft;
@@ -253,9 +253,7 @@ const createEmptyDraft = (): StoryDraft => ({
   title: "Untitled Story",
   description: "",
   global_lorebook: "",
-  base_preset: undefined,
   roles: undefined,
-  on_start: undefined,
   checkpoints: [],
   transitions: [],
   start: "",
@@ -269,9 +267,7 @@ export const normalizedToDraft = (story: NormalizedStory | null | undefined): St
     title: story.title,
     description: story.description ?? "",
     global_lorebook: story.global_lorebook,
-    base_preset: undefined,
     roles: story.roles ? (Object.fromEntries(Object.entries(story.roles).filter(([, v]) => typeof v === "string")) as Record<string, string>) : undefined,
-    on_start: undefined,
     checkpoints,
     transitions: story.transitions.map((edge) => normalizedTransitionToDraft(edge)),
     start: story.startId ?? checkpoints[0]?.id ?? "",
@@ -510,9 +506,7 @@ export const draftToStoryInput = (draft: StoryDraft): Story => {
     title,
     ...(description ? { description } : {}),
     global_lorebook: lore,
-    base_preset: draft.base_preset,
     roles,
-    on_start: draft.on_start,
     checkpoints,
     transitions,
     start,

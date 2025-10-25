@@ -20,7 +20,6 @@ type ConstructorOpts = {
   storyId: string;
   storyTitle?: string;
   base: BaseSource;
-  roleDefaults?: Partial<Record<Role, PresetPartial>>;
 };
 
 type ApplyLabelOpts = {
@@ -34,23 +33,24 @@ export class PresetService {
   private storyId: string;
   private storyTitle?: string;
   private base: BaseSource;
-  private roleDefaults: Partial<Record<Role, PresetPartial>>;
 
   constructor(opts: ConstructorOpts) {
     this.storyId = opts.storyId;
     this.storyTitle = opts.storyTitle;
     this.base = opts.base;
-    this.roleDefaults = opts.roleDefaults ?? {};
     this.presetName = `Story:${this.storyId}`;
   }
 
   async initForStory() {
+    this.ensureDedicatedPresetExists();
+  }
+
+  applyBasePreset() {
     const { textCompletionSettings } = getContext();
-    console.log('[Story - PresetService] initForStory → ensure preset, select base');
+    console.log('[Story - PresetService] applyBasePreset → apply base to UI');
     this.ensureDedicatedPresetExists();
     textCompletionSettings.preset = this.presetName;
 
-    // Apply base snapshot without assuming any specific role
     const baseObj = this.getBasePresetObject();
     this.applyPresetObject(baseObj);
   }
@@ -82,10 +82,9 @@ export class PresetService {
 
   private buildMergedPresetObject(role: Role, checkpointOverride?: PresetPartial): any {
     const base = this.getBasePresetObject();
-    const roleDef = this.roleDefaults[role] ?? {};
     const cp = checkpointOverride ?? {};
 
-    const merged = { ...base, ...roleDef, ...cp };
+    const merged = { ...base, ...cp };
 
     if (!Array.isArray(merged.logit_bias)) {
       merged.logit_bias = Array.isArray(base.logit_bias) ? base.logit_bias : [];

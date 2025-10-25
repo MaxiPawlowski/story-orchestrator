@@ -165,16 +165,11 @@ export const StorySchema = z.object({
   title: z.string().min(1),
   description: z.string().trim().min(1).optional(),
   global_lorebook: z.string().min(1),
-  base_preset: BasePresetSchema.optional(),
   roles: z.record(z.string().min(1), z.string().min(1)).optional(),
-  author_note_defaults: AuthorNoteSettingsSchema.optional(),
-  role_defaults: RolePresetOverridesSchema.optional(),
-  on_start: OnActivateSchema.optional(),
+  start: z.string().min(1).optional(),
   checkpoints: z.array(CheckpointSchema).min(1),
   transitions: z.array(TransitionSchema).default([]),
-  start: z.string().min(1).optional(),
   talkControl: TalkControlConfigSchema.optional(),
-  talk_control: TalkControlConfigSchema.optional(),
 }).superRefine((val, ctx) => {
   const seen = new Set<string>();
   for (const [i, cp] of val.checkpoints.entries()) {
@@ -204,13 +199,6 @@ export const StorySchema = z.object({
     }
   }
 
-  if (val.talkControl && val.talk_control) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["talkControl"],
-      message: "Specify either 'talkControl' or 'talk_control', not both.",
-    });
-  }
 });
 
 export type Story = z.infer<typeof StorySchema>;
