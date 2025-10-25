@@ -1,4 +1,4 @@
-import { getContext } from "@services/SillyTavernAPI";
+import { getContext } from "@services/STAPI";
 import { extensionName } from "@constants/main";
 
 export function getExtensionSettingsRoot(): Record<string, unknown> {

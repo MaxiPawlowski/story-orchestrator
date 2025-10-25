@@ -9,7 +9,6 @@ import {
   type ArbiterPrompt,
 } from "@utils/arbiter";
 import { storySessionStore } from "@store/storySessionStore";
-import { setTalkControlStory } from "@controllers/talkControlManager";
 
 interface RuntimeHooks {
   onTurnTick?: (next: { turn: number; sinceEval: number }) => void;
@@ -50,7 +49,6 @@ const initialize = async (story: NormalizedStory) => {
   orchestrator = instance;
   instance.setIntervalTurns(intervalTurns);
   instance.setArbiterPrompt(arbiterPrompt);
-  setTalkControlStory(story);
 
   turnController.attach(instance);
   if (!automationPaused) {
@@ -91,7 +89,6 @@ const teardown = async () => {
 
   setReady(false);
   currentStory = null;
-  setTalkControlStory(null);
 };
 
 export const setHooks = (next: RuntimeHooks | undefined) => {
@@ -113,7 +110,6 @@ export const ensureStory = async (story: NormalizedStory | null): Promise<void> 
   if (target === currentStory) {
     orchestrator?.setIntervalTurns(intervalTurns);
     orchestrator?.setArbiterPrompt(arbiterPrompt);
-    setTalkControlStory(target);
     return;
   }
 
@@ -144,6 +140,10 @@ export const dispose = async () => {
 };
 
 export const getOrchestrator = () => orchestrator;
+
+export const getTalkControlInterceptor = () => {
+  return orchestrator?.getTalkControlInterceptor();
+};
 
 export const pauseAutomation = (): boolean => {
   if (automationPaused) return false;

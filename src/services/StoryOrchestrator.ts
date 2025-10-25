@@ -1,6 +1,7 @@
 import { ARBITER_ROLE_KEY, type Role } from "@utils/story-schema";
 import type { NormalizedCheckpoint, NormalizedStory, NormalizedTransition } from "@utils/story-validator";
 import { PresetService } from "./PresetService";
+import { TalkControlService } from "./TalkControlService";
 import CheckpointArbiterService, {
   type ArbiterReason,
   type ArbiterTransitionOption,
@@ -16,7 +17,7 @@ import {
   disableWIEntry,
   getContext,
   executeSlashCommands,
-} from "@services/SillyTavernAPI";
+} from "@services/STAPI";
 import { subscribeToEventSource } from "@utils/event-source";
 import {
   clampCheckpointIndex,
@@ -38,11 +39,6 @@ import {
 } from "@constants/defaults";
 import type { ArbiterFrequency, ArbiterPrompt } from "@utils/arbiter";
 import { updateStoryMacroSnapshot, resetStoryMacroSnapshot } from "@utils/story-macros";
-import {
-  setTalkControlCheckpoint,
-  notifyTalkControlArbiterPhase,
-  updateTalkControlTurn,
-} from "@controllers/talkControlManager";
 
 interface TransitionSelection {
   id: string;
@@ -79,6 +75,7 @@ class StoryOrchestrator {
   private story: NormalizedStory;
   private presetService: PresetService;
   private checkpointArbiter: CheckpointArbiterApi;
+  private talkControlService: TalkControlService;
 
   private activeTransitions: NormalizedTransition[] = [];
   private intervalTurns: ArbiterFrequency;
@@ -127,6 +124,9 @@ class StoryOrchestrator {
       storyId: this.story.title,
       storyTitle: this.story.title,
       roleDefaults: this.story.roleDefaults,
+    });
+    this.talkControlService = new TalkControlService({
+      story: this.story,
     });
     registerStoryExtensionCommands();
     this.onRoleApplied = opts.onRoleApplied;
@@ -348,7 +348,7 @@ class StoryOrchestrator {
 
   private setTurn(value: number) {
     const normalized = storySessionStore.getState().setTurn(value);
-    updateTalkControlTurn(normalized);
+    this.talkControlService.updateTurn(normalized);
   }
 
   get index() {
@@ -378,6 +378,8 @@ class StoryOrchestrator {
     this.requirements.setStory(this.story);
     this.requirements.start();
     this.requirements.handleChatContextChanged();
+
+    this.talkControlService.start();
 
     if (!this.chatUnsubscribe) {
       const offs: Array<() => void> = [];
@@ -490,6 +492,10 @@ class StoryOrchestrator {
 
     this.presetService.applyForRole(role, overrides, cp.name);
     this.onRoleApplied?.(role, cp.name);
+  }
+
+  getTalkControlInterceptor() {
+    return this.talkControlService.getInterceptor();
   }
 
   handleUserText(raw: string) {
@@ -749,7 +755,7 @@ class StoryOrchestrator {
         pastCheckpointsSummary: "",
         transitionSummary: "No transition candidates are currently available.",
       });
-      setTalkControlCheckpoint(null, { emitEnter: false });
+      this.talkControlService.setCheckpoint(null, { emitEnter: false });
       if (opts.reason) this.emitActivate(sanitized.checkpointIndex);
       return;
     }
@@ -775,7 +781,7 @@ class StoryOrchestrator {
     const contextSnapshot = this.buildPromptContext(sanitized, this.buildArbiterOptions([]));
     this.updateStoryMacrosFromContext(contextSnapshot);
 
-    setTalkControlCheckpoint(activeKey, { emitEnter: isManualActivation });
+    this.talkControlService.setCheckpoint(activeKey, { emitEnter: isManualActivation });
 
     this.applyWorldInfoForCheckpoint(cp);
     this.applyAutomationsForCheckpoint(cp);
@@ -798,7 +804,7 @@ class StoryOrchestrator {
       return;
     }
 
-    notifyTalkControlArbiterPhase("before");
+    this.talkControlService.notifyArbiterPhase("before");
     this.applyArbiterPreset(cp);
 
     const promptContext = this.buildPromptContext(runtime, options);
@@ -832,7 +838,7 @@ class StoryOrchestrator {
     }).catch((err) => {
       console.warn("[StoryOrch] arbiter error", err);
     }).finally(() => {
-      notifyTalkControlArbiterPhase("after");
+      this.talkControlService.notifyArbiterPhase("after");
     });
   }
 
@@ -899,7 +905,8 @@ class StoryOrchestrator {
     this.roleNameMap.clear();
     this.activeTransitions = [];
     this.checkpointPrimed = false;
-    setTalkControlCheckpoint(null, { emitEnter: false });
+    this.talkControlService.setCheckpoint(null, { emitEnter: false });
+    this.talkControlService.dispose();
     this.lastChatId = null;
     this.lastGroupSelected = false;
     this.onActivateIndex = undefined;

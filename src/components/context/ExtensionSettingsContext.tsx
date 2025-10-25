@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
-import { getContext } from "@services/SillyTavernAPI";
+import { getContext } from "@services/STAPI";
 import {
   DEFAULT_SANITIZED_ARBITER_FREQUENCY,
   DEFAULT_SANITIZED_ARBITER_PROMPT,

@@ -1,6 +1,6 @@
 import { storySessionStore } from "@store/storySessionStore";
 import { getOrchestrator } from "@controllers/orchestratorManager";
-import { getContext } from "@services/SillyTavernAPI";
+import { getContext } from "@services/STAPI";
 import { deriveCheckpointStatuses, CheckpointStatus } from "@utils/story-state";
 
 const STORY_COMMAND_TAG_ATTR = 'data-story-orchestrator="1"';

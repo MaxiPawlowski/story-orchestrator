@@ -1,6 +1,6 @@
 import type StoryOrchestrator from "@services/StoryOrchestrator";
 import type { Role } from "@utils/story-schema";
-import { getCharacterNameById, getContext } from "@services/SillyTavernAPI";
+import { getCharacterNameById, getContext } from "@services/STAPI";
 import { subscribeToEventSource } from "@utils/event-source";
 
 interface ListenerDisposer {

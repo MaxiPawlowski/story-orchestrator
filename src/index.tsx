@@ -6,12 +6,16 @@ import { ExtensionSettingsProvider } from "@components/context/ExtensionSettings
 import DrawerWrapper from "@components/drawer";
 import SettingsWrapper from "@components/settings";
 import "./styles.css";
-import { initializeTalkControl, talkControlInterceptor } from "@controllers/talkControlManager";
+import { getTalkControlInterceptor } from "@controllers/orchestratorManager";
 
-initializeTalkControl();
 if (typeof globalThis !== "undefined") {
   try {
-    (globalThis as any).talkControlInterceptor = talkControlInterceptor;
+    (globalThis as any).talkControlInterceptor = (chat: unknown, contextSize: number, abort: (immediate: boolean) => void, type: string) => {
+      const interceptor = getTalkControlInterceptor();
+      if (interceptor) {
+        return interceptor(chat, contextSize, abort, type);
+      }
+    };
   } catch (err) {
     console.warn("[Story] Failed to register talk control interceptor", err);
   }

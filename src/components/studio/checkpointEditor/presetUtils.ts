@@ -1,5 +1,5 @@
 import { clone } from "@utils/checkpoint-studio";
-import { getContext } from "@services/SillyTavernAPI";
+import { getContext } from "@services/STAPI";
 import type { PresetSettingKey } from "@constants/presetSettingKeys";
 
 const NUMERIC_LITERAL_RE = /^-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/;

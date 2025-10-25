@@ -232,7 +232,7 @@ const PresetOverridesTab: React.FC<Props> = ({
                       <label className="flex flex-col gap-1 text-xs text-slate-300">
                         <span className="inline-flex items-center gap-1">
                           Setting
-                          {settingIndex === 0 && roleIndex === 0 && <HelpTooltip title="Select which SillyTavern preset property to override for this role as it appears if you exported your presets as a JSON; current value is default." />}
+                          {settingIndex === 0 && roleIndex === 0 && <HelpTooltip title="Select which preset property to override for this role as it appears if you exported your presets as a JSON; current value is default." />}
                         </span>
                         <select
                           className="w-full rounded border border-slate-700 bg-slate-800 mb-0 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"

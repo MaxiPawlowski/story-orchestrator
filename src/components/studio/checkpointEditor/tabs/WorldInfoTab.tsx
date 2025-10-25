@@ -6,7 +6,7 @@ import {
   type CheckpointDraft,
   type StoryDraft,
 } from "@utils/checkpoint-studio";
-import { getContext, } from "@services/SillyTavernAPI";
+import { getContext, } from "@services/STAPI";
 import { subscribeToEventSource } from "@utils/event-source";
 import HelpTooltip from "../../HelpTooltip";
 

@@ -1,18 +1,18 @@
 ﻿# Story Orchestrator
 
-Story Orchestrator is a checkpoint-driven automation layer for SillyTavern that keeps story roles (DM, companion, narrators, or any custom cast you define) synchronized with the player. It models stories as directed graphs, watches every chat turn, evaluates transition triggers, and applies Author's Notes, world info toggles, preset overrides, slash command automations, and talk-control replies only when the active chat satisfies persona, lore, and group membership requirements.
+ST Story Orchestrator is a checkpoint-driven automation layer that keeps story roles (DM, companion, narrators, or any custom cast you define) synchronized with the player. It models stories as directed graphs, watches every chat turn, evaluates transition triggers, and applies Author's Notes, world info toggles, preset overrides, slash command automations, and talk-control replies only when the active chat satisfies persona, lore, and group membership requirements.
 
 ## Feature Highlights
 - **Checkpoint automation**: `StoryOrchestrator` advances checkpoints via regex or interval triggers, hydrates presets per role (including the arbiter role), runs `/` command automations, and toggles world info entries when checkpoints activate.
-- **Adaptive talk control**: `talkControlManager` attaches to SillyTavern's generation pipeline, queues replies configured per checkpoint, and injects static or LLM-driven responses on `afterSpeak`, `beforeArbiter`, `afterArbiter`, `onEnter`, and `onExit` hooks without breaking group chat flow.
+- **Adaptive talk control**: `talkControlManager` attaches to the generation pipeline, queues replies configured per checkpoint, and injects static or LLM-driven responses on `afterSpeak`, `beforeArbiter`, `afterArbiter`, `onEnter`, and `onExit` hooks without breaking group chat flow.
 - **Live story macros**: `storyMacros` registers macros (title, checkpoint summaries, trigger candidates, chat excerpts, role aliases, player name) that refresh whenever the runtime or turn counter changes, so presets, Author's Notes, and lore entries stay in sync.
-- **Turn routing + dedupe**: `turnController` listens to SillyTavern host events, filters duplicate/empty user messages, tracks the speaking persona, and tells the orchestrator which role is currently generating so preset application stays targeted.
+- **Turn routing + dedupe**: `turnController` listens to the host events, filters duplicate/empty user messages, tracks the speaking persona, and tells the orchestrator which role is currently generating so preset application stays targeted.
 - **Requirements dashboard**: Drawer UI surfaces persona readiness, group membership gaps, global lorebook state, missing world info entries, and recent checkpoint completions before automation is allowed to run.
-- **Story library + studio**: `useStoryLibrary` persists stories inside SillyTavern settings, while the Checkpoint Studio editor (Cytoscape + dagre graph, diagnostics, CRUD) lets authors maintain schemas, automations, and talk-control replies directly in the host.
+- **Story library + studio**: `useStoryLibrary` persists stories inside settings, while the Checkpoint Studio editor (Cytoscape + dagre graph, diagnostics, CRUD) lets authors maintain schemas, automations, and talk-control replies directly in the host.
 - **Slash commands**: `/checkpoint` (`/cp`) supports `list`, `prev`, `eval`, explicit checkpoint activation, and named arguments. Additional commands fire via checkpoint automations or Checkpoint Studio utilities.
 
 ## Runtime Lifecycle
-1. `src/index.tsx` mounts Drawer + Settings portals after SillyTavern loads, registers the talk-control interceptor on `globalThis`, and wraps the apps with `ExtensionSettingsProvider` and `StoryProvider`.
+1. `src/index.tsx` mounts Drawer + Settings portals after the host loads, registers the talk-control interceptor on `globalThis`, and wraps the apps with `ExtensionSettingsProvider` and `StoryProvider`.
 2. `StoryProvider` loads the persisted story library (`storyLibrary` + `story-validator`), restores the chat's previously selected story, and ensures macros exist. Selecting a story calls `orchestratorManager.ensureStory`.
 3. The orchestrator manager sanitizes arbiter settings, spins up a singleton `StoryOrchestrator`, attaches the `turnController`, seeds `talkControlManager`, and synchronizes the Zustand store (`storySessionStore`) with chat context.
 4. `StoryOrchestrator` hydrates runtime state (`story-state` persistence), registers slash commands, primes presets, subscribes to host events, and updates macros with checkpoint context, transition summaries, and chat excerpts.
@@ -38,8 +38,8 @@ Story Orchestrator is a checkpoint-driven automation layer for SillyTavern that 
 - `turnController` --Watches host events (`MESSAGE_SENT`, `GENERATION_STARTED`, etc.) to forward deduped user text and set active roles before preset application.
 - `requirementsController` --Polls host context, persona name, group membership, and lorebook settings; publishes requirement readiness to the store.
 - `persistenceController` --Loads/saves checkpoint state keyed by `(chatId + story title)` using helpers in `story-state`.
-- `CheckpointArbiterService` --Builds evaluation prompts, snapshots recent chat history, queues SillyTavern `generateRaw` calls, parses JSON results, and hydrates macro excerpts.
-- `PresetService` --Clones current/named presets, applies per-role overrides, syncs SillyTavern UI sliders, and resets when stories change.
+- `CheckpointArbiterService` --Builds evaluation prompts, snapshots recent chat history, queues ST's `generateRaw` calls, parses JSON results, and hydrates macro excerpts.
+- `PresetService` --Clones current/named presets, applies per-role overrides, syncs ST's UI sliders, and resets when stories change.
 - `talkControlManager` --Queues talk-control triggers, resolves speaker IDs, dispatches static and LLM replies, and exposes an interceptor for quiet generation aborts.
 - `SillyTavernAPI` --Thin facade over host globals (event bus, settings persistence, world info operations, preset helpers, slash command execution).
 
@@ -90,23 +90,8 @@ src/
   hooks/                         # React hooks for orchestrator, context, library access
   stories/                       # Sample story JSON (e.g., lost-key.json)
 notes/                           # Design sketches, lore/lorebook experiments
-manifest.json                    # SillyTavern extension manifest
+manifest.json                    # Extension manifest
 package.json                     # Dependencies and scripts (React 19, TS 5, Tailwind 4)
 tailwind.config.js               # Tailwind theme
 webpack.config.js                # Build + live-reload pipeline
 ```
-
-## Development
-- Install dependencies: `npm install`
-- Start watch + live typecheck: `npm run dev` (alias: `npm start`)
-- Type-check once: `npm run typecheck`
-- Production bundle (`dist/index.js`): `npm run build`
-- Tailwind 4 is wired through `postcss.config.js`; global styles live in `src/styles.css`
-
-Testing inside SillyTavern:
-1. Enable the extension from the host settings.
-2. Import or author a story via Checkpoint Studio and select it in the Story Orchestrator settings drawer.
-3. Verify requirement badges, talk-control replies, macros, slash commands, and automations while stepping through checkpoints in a group chat with the required personas and lore.
-
-
-

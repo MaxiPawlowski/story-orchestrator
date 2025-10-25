@@ -1,6 +1,6 @@
 import type { Story } from "@utils/story-schema";
 import { parseAndNormalizeStory, formatZodError, type NormalizedStory } from "@utils/story-validator";
-import { getContext } from "@services/SillyTavernAPI";
+import { getContext } from "@services/STAPI";
 import { getExtensionSettingsRoot } from "@utils/settings";
 
 export const STUDIO_SETTINGS_KEY = "studio";

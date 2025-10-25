@@ -3,7 +3,7 @@ import {
   getContext,
   Lorebook,
   getWorldInfoSettings,
-} from "@services/SillyTavernAPI";
+} from "@services/STAPI";
 import { subscribeToEventSource } from "@utils/event-source";
 import {
   createRequirementsState,

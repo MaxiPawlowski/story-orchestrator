@@ -44,7 +44,7 @@ const StoryMetadataSection: React.FC<Props> = ({ draft, setDraft, globalLorebook
       <label className="flex flex-col gap-1 text-xs text-slate-300">
         <span className="inline-flex items-center gap-1">
           Global Lorebook
-          <HelpTooltip title="Pick the SillyTavern global lorebook that should use for this story." />
+          <HelpTooltip title="Pick the global lorebook that should use for this story." />
         </span>
         <select
           className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"

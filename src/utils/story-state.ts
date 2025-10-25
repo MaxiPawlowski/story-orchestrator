@@ -1,4 +1,4 @@
-import { getContext } from "@services/SillyTavernAPI";
+import { getContext } from "@services/STAPI";
 import type { NormalizedCheckpoint, NormalizedStory, NormalizedTransition, NormalizedTransitionTrigger } from "@utils/story-validator";
 import { getExtensionSettingsRoot } from "@utils/settings";
 

@@ -5,7 +5,7 @@ import type { Story } from "@utils/story-schema";
 import { useStoryOrchestrator } from "@hooks/useStoryOrchestrator";
 import { useStoryLibrary } from "@hooks/useStoryLibrary";
 import type { StoryLibraryEntry, SaveLibraryStoryResult, DeleteLibraryStoryResult } from "@utils/story-library";
-import { getContext } from "@services/SillyTavernAPI";
+import { getContext } from "@services/STAPI";
 import { subscribeToEventSource } from "@utils/event-source";
 import {
   deriveCheckpointStatuses,

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getContext } from "@services/SillyTavernAPI";
+import { getContext } from "@services/STAPI";
 import { SlashCommandMeta } from "./types";
 
 const STORY_COMMAND_TAG_ATTR = 'data-story-orchestrator="1"';

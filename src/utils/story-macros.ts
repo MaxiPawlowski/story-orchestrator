@@ -1,4 +1,4 @@
-import { getContext, MacrosParser } from "@services/SillyTavernAPI";
+import { getContext, MacrosParser } from "@services/STAPI";
 import { storySessionStore } from "@store/storySessionStore";
 import type { StorySessionValueState } from "@store/storySessionStore";
 
