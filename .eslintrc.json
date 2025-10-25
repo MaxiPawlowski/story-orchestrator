@@ -1,0 +1,33 @@
+{
+  "extends": [
+    "react-app",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "project": "./tsconfig.json"
+  },
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-unused-vars": ["error", {
+      "argsIgnorePattern": "^_",
+      "varsIgnorePattern": "^_"
+    }],
+    "no-console": "off"
+  },
+  "ignorePatterns": [
+    "dist/**",
+    "node_modules/**",
+    "webpack.config.js",
+    "postcss.config.js",
+    "tailwind.config.js"
+  ]
+}

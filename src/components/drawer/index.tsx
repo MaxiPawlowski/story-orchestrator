@@ -1,4 +1,4 @@
-﻿import Requirements from "./Requirements";
+import Requirements from "./Requirements";
 import Checkpoints from "./Checkpoints";
 
 import { useState } from "react";

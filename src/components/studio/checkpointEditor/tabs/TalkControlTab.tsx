@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   type StoryDraft,
   type CheckpointDraft,

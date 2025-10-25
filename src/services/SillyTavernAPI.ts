@@ -1,4 +1,4 @@
-﻿import {
+import {
   AUTHOR_NOTE_DEFAULT_DEPTH,
   AUTHOR_NOTE_DEFAULT_INTERVAL,
   AUTHOR_NOTE_DISABLED_FREQUENCY,
@@ -52,7 +52,7 @@ type ANRole = "system" | "user" | "assistant"; // 0,1,2
 async function runSlash(cmd: string, silent = true) {
   const { executeSlashCommandsWithOptions } = getContext();
 
-  let toastrData = {
+  const toastrData = {
     success: window?.toastr?.success,
     info: window?.toastr?.info,
   }

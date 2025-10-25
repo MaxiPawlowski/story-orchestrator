@@ -56,8 +56,8 @@ const WorldInfoTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }) 
     }
     return () => {
       while (offs.length) {
-        try { 
-          offs.pop()?.(); 
+        try {
+          offs.pop()?.();
         } catch (err) {
           console.warn("[Story - WorldInfoTab] Failed to unsubscribe from WI event", err);
         }

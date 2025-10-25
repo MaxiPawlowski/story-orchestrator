@@ -1,4 +1,4 @@
-﻿export type EventHandler = (...args: any[]) => void;
+export type EventHandler = (...args: any[]) => void;
 
 export interface EventSourceLike {
   on?: (eventName: string, handler: EventHandler) => void | (() => void);
@@ -12,7 +12,6 @@ export interface SubscribeToEventSourceOptions {
   handler: EventHandler;
 }
 
-const NOOP = () => {};
 
 const wrapCleanup = (eventName: string, cleanup: () => void) => {
   return () => {
@@ -29,6 +28,7 @@ export function subscribeToEventSource({
   eventName,
   handler,
 }: SubscribeToEventSourceOptions): () => void {
+  const NOOP = () => { };
   if (!source) return NOOP;
 
   try {
