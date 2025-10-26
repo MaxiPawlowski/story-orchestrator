@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { StoryDraft } from "@utils/checkpoint-studio";
-import { getWorldInfoSettings, getContext } from "@services/STAPI";
+import { getWorldInfoSettings, getContext, getAllCharacterNames } from "@services/STAPI";
 import { subscribeToEventSource } from "@utils/event-source";
 import StoryMetadataSection from "./StoryDetails/StoryMetadataSection";
 import StoryRolesSection from "./StoryDetails/StoryRolesSection";
@@ -13,6 +13,7 @@ type Props = {
 const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
   const [globalLorebooks, setGlobalLorebooks] = useState<string[]>([]);
   const [groupMembers, setGroupMembers] = useState<string[]>([]);
+  const [allCharacters, setAllCharacters] = useState<string[]>([]);
 
 
   const refreshGlobalLorebooks = useCallback(() => {
@@ -77,8 +78,19 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
     }
   }, []);
 
+  const refreshAllCharacters = useCallback(() => {
+    try {
+      const names = getAllCharacterNames();
+      setAllCharacters(names);
+    } catch (err) {
+      console.warn('[Story - StoryDetailsPanel] Failed to get all character names', err);
+      setAllCharacters([]);
+    }
+  }, []);
+
   useEffect(() => {
     refreshGlobalLorebooks();
+    refreshAllCharacters();
     try {
       refreshGroupMembers();
     } catch (err) {
@@ -92,6 +104,13 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
         refreshGroupMembers();
       } catch (err) {
         console.warn("[Story - StoryDetailsPanel] Failed to refresh group members on chat change", err);
+      }
+    };
+    const charactersChanged = () => {
+      try {
+        refreshAllCharacters();
+      } catch (err) {
+        console.warn("[Story - StoryDetailsPanel] Failed to refresh characters on character change", err);
       }
     };
     const { eventSource, eventTypes } = getContext();
@@ -108,6 +127,14 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
         const off = subscribeToEventSource({ source: eventSource, eventName: eventTypes.CHAT_CHANGED, handler: chatChanged });
         offs.push(off);
       }
+      if (eventTypes?.CHARACTER_DELETED) {
+        const off = subscribeToEventSource({ source: eventSource, eventName: eventTypes.CHARACTER_DELETED, handler: charactersChanged });
+        offs.push(off);
+      }
+      if (eventTypes?.CHARACTER_EDITED) {
+        const off = subscribeToEventSource({ source: eventSource, eventName: eventTypes.CHARACTER_EDITED, handler: charactersChanged });
+        offs.push(off);
+      }
     } catch (err) {
       console.warn("[Story - CheckpointStudio] Failed to subscribe to WI events", err);
     }
@@ -121,7 +148,7 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
         }
       }
     };
-  }, [refreshGlobalLorebooks, refreshGroupMembers]);
+  }, [refreshGlobalLorebooks, refreshGroupMembers, refreshAllCharacters]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -129,7 +156,7 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
         <div className="flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-2 font-semibold">Story Details</div>
         <div className="flex flex-col gap-3 p-3">
           <StoryMetadataSection draft={draft} setDraft={setDraft} globalLorebooks={globalLorebooks} />
-          <StoryRolesSection draft={draft} setDraft={setDraft} groupMembers={groupMembers} />
+          <StoryRolesSection draft={draft} setDraft={setDraft} groupMembers={groupMembers} allCharacters={allCharacters} />
         </div>
       </div>
     </div>

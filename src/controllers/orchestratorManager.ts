@@ -113,6 +113,19 @@ export const ensureStory = async (story: NormalizedStory | null): Promise<void> 
     return;
   }
 
+  if (target && currentStory && target.title === currentStory.title) {
+    const targetJson = JSON.stringify(target);
+    const currentJson = JSON.stringify(currentStory);
+
+    if (targetJson === currentJson) {
+      console.log("[Story - OrchestratorManager] Story reference changed but content identical, preserving state");
+      currentStory = target;
+      orchestrator?.setIntervalTurns(intervalTurns);
+      orchestrator?.setArbiterPrompt(arbiterPrompt);
+      return;
+    }
+  }
+
   if (!target) {
     await teardown();
     return;

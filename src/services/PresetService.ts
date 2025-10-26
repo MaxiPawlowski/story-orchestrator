@@ -1,3 +1,4 @@
+import { UI_SYNC_MAX_ATTEMPTS, UI_SYNC_RETRY_DELAY_MS } from '@constants/defaults';
 import {
   setGenerationParamsFromPreset,
   setSettingByName,
@@ -27,6 +28,64 @@ type ApplyLabelOpts = {
   checkpointName?: string;
 };
 const BIAS_KEY = '#textgenerationwebui_api-settings';
+
+(function attachUiBridge() {
+  console.log('[Story - ST UI Bridge] Initializing UI Bridge');
+  const applySettingWithRetry = (key: string, value: any, attempt = 0) => {
+    if (typeof setSettingByName !== 'function') {
+      console.warn(`[Story - ST UI Bridge] setSettingByName not available`);
+      return;
+    }
+
+    let lastError: unknown | null = null;
+    try {
+      setSettingByName(key, value, true);
+    } catch (error) {
+      lastError = error as unknown;
+    }
+
+    const inputId = `${key}_textgenerationwebui`;
+    const sliderId = `${key}_textgenerationwebui_zenslider`;
+    const hasTarget = Boolean(document.getElementById(inputId) || document.getElementById(sliderId));
+
+    if (hasTarget && lastError == null) {
+      return;
+    }
+
+    if (attempt >= UI_SYNC_MAX_ATTEMPTS) {
+      if (lastError != null) {
+        console.warn(`[Story - ST UI Bridge] Skipped UI sync for ${key} after ${attempt + 1} attempts`, lastError);
+      } else if (!hasTarget) {
+        console.warn(`[Story - ST UI Bridge] Gave up waiting for UI controls for ${key}`);
+      }
+      return;
+    }
+
+    setTimeout(() => applySettingWithRetry(key, value, attempt + 1), UI_SYNC_RETRY_DELAY_MS);
+  };
+
+
+  const ignoredKeys = ['json_schema', 'sampler_order', 'sampler_priority', 'samplers', 'samplers_priorities', 'extensions'] as const
+
+  (window as any).ST_applyTextgenPresetToUI = function apply(name: string, presetObj: any) {
+    try {
+      const { textCompletionSettings } = getContext();
+      for (const key of TG_SETTING_NAMES.filter(key => !ignoredKeys.includes(key as any))) {
+        if (Object.prototype.hasOwnProperty.call(presetObj, key)) {
+          applySettingWithRetry(key, presetObj[key]);
+        }
+      }
+      textCompletionSettings.preset = name;
+      const sel = document.getElementById('settings_preset_textgenerationwebui') as HTMLSelectElement | null;
+      if (sel) {
+        sel.value = name;
+      }
+      console.log('[Story - ST UI Bridge] Applied preset to UI:', name);
+    } catch (err) {
+      console.warn('[Story - ST UI Bridge] Failed to apply preset to UI', err);
+    }
+  };
+})();
 
 export class PresetService {
   readonly presetName: string;

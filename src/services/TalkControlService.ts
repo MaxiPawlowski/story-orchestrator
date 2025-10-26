@@ -4,6 +4,7 @@ import type { TalkControlTrigger } from "@utils/story-schema";
 import { getContext } from "@services/STAPI";
 import { subscribeToEventSource } from "@utils/event-source";
 import { PLAYER_SPEAKER_ID } from "@constants/main";
+import { storySessionStore } from "@store/storySessionStore";
 import { CharacterResolver } from "./TalkControl/CharacterResolver";
 import { MessageInjector } from "./TalkControl/MessageInjector";
 import { ReplySelector, type PendingAction } from "./TalkControl/ReplySelector";
@@ -23,7 +24,6 @@ interface TalkControlServiceOptions {
 
 export class TalkControlService {
   private config: NormalizedTalkControl | undefined;
-  private activeCheckpointId: string | null = null;
   private nextEventId = 1;
   private interceptSuppressDepth = 0;
   private selfDispatchDepth = 0;
@@ -46,7 +46,6 @@ export class TalkControlService {
     this.replySelector = new ReplySelector(this.config, this.characterResolver);
   }
 
-  // State guards
   private beginInterceptSuppression = () => { this.interceptSuppressDepth += 1; };
   private endInterceptSuppression = () => { this.interceptSuppressDepth = Math.max(0, this.interceptSuppressDepth - 1); };
   private beginSelfDispatch = () => { this.selfDispatchDepth += 1; };
@@ -58,6 +57,9 @@ export class TalkControlService {
   };
   private isSuppressed = () => this.interceptSuppressDepth > 0;
   private isSelfDispatching = () => this.selfDispatchDepth > 0;
+  private get activeCheckpointId(): string | null {
+    return storySessionStore.getState().runtime.activeCheckpointKey ?? null;
+  }
 
   private queueEvent(type: TalkControlTrigger, checkpointId: string | null, metadata?: Record<string, unknown>) {
     if (!this.config) return;
@@ -249,11 +251,9 @@ export class TalkControlService {
     let speakerId: string;
 
     if (message.is_user) {
-      // Player message
       speakerName = PLAYER_SPEAKER_ID;
       speakerId = PLAYER_SPEAKER_ID;
     } else {
-      // Character message
       speakerName = message?.name ?? "";
       speakerId = normalizeName(speakerName);
     }
@@ -276,10 +276,6 @@ export class TalkControlService {
     this.lastChatId = chatId;
     this.lastGroupSelected = groupSelected;
     this.resetState();
-
-    if (!groupSelected && this.activeCheckpointId) {
-      this.activeCheckpointId = null;
-    }
   };
 
   private resetState() {
@@ -298,7 +294,6 @@ export class TalkControlService {
   }
 
   public setCheckpoint(checkpointId: string | null, options?: { emitEnter?: boolean }) {
-    this.activeCheckpointId = checkpointId;
     if (checkpointId && options?.emitEnter !== false) {
       this.queueEvent("onEnter", checkpointId);
     }
@@ -383,7 +378,6 @@ export class TalkControlService {
     this.started = false;
     this.resetState();
     this.config = undefined;
-    this.activeCheckpointId = null;
     this.lastChatId = null;
     this.lastGroupSelected = false;
   }
