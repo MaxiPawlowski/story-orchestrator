@@ -16,6 +16,7 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
   const [layout, setLayout] = useState<LayoutName>("breadthfirst");
   const [dagreReady, setDagreReady] = useState(false);
   const [cyReady, setCyReady] = useState(false);
+  const [layoutTrigger, setLayoutTrigger] = useState(0);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const cyRef = useRef<Core | null>(null);
   const selectHandlerRef = useRef(onSelect);
@@ -165,10 +166,43 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
   useEffect(() => {
     const cy = cyRef.current;
     if (!cy) return;
+
+    // Save current positions before removing elements
+    const positions = new Map<string, { x: number; y: number }>();
+    cy.nodes().forEach((node) => {
+      const pos = node.position();
+      positions.set(node.id(), { x: pos.x, y: pos.y });
+    });
+
+    const hadNodes = positions.size > 0;
+
     cy.elements().remove();
     cy.add(elements);
+
+    // Restore positions for existing nodes
+    let restoredCount = 0;
+    cy.nodes().forEach((node) => {
+      const savedPos = positions.get(node.id());
+      if (savedPos) {
+        node.position(savedPos);
+        restoredCount++;
+      }
+    });
+
+    // Only run layout when there are new nodes without saved positions
+    const hasNewNodes = cy.nodes().length > restoredCount;
+    const needsLayout = !hadNodes || hasNewNodes;
+
+    if (needsLayout && elements.length > 0) {
+      runLayout(cy, layout);
+    }
+  }, [elements, cyReady, layout]);
+
+  useEffect(() => {
+    const cy = cyRef.current;
+    if (!cy || cy.elements().length === 0) return;
     runLayout(cy, layout);
-  }, [elements, layout, cyReady]);
+  }, [layoutTrigger, layout, cyReady]);
 
   useEffect(() => {
     let cancelled = false;
@@ -213,13 +247,16 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
           <button
             type="button"
             className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
-            onClick={() => cyRef.current && runLayout(cyRef.current, layout)}
+            onClick={() => setLayoutTrigger((prev) => prev + 1)}
           >
             Re-layout
           </button>
           <select
             value={layout}
-            onChange={(e) => setLayout(e.target.value as LayoutName)}
+            onChange={(e) => {
+              setLayout(e.target.value as LayoutName);
+              setLayoutTrigger((prev) => prev + 1);
+            }}
             className="w-full rounded border border-slate-700 bg-slate-800 mb-0 px-3 py-1 text-xs text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
           >
             <option value="breadthfirst">Breadthfirst</option>
