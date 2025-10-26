@@ -5,10 +5,10 @@ ST Story Orchestrator is a checkpoint-driven automation layer that keeps story r
 ## Feature Highlights
 - **Checkpoint automation**: `StoryOrchestrator` advances checkpoints via regex or interval triggers, hydrates presets per role (including the arbiter role), runs `/` command automations, and toggles world info entries when checkpoints activate.
 - **Adaptive talk control**: `talkControlManager` attaches to the generation pipeline, queues replies configured per checkpoint, and injects static or LLM-driven responses on `afterSpeak`, `beforeArbiter`, `afterArbiter`, `onEnter`, and `onExit` hooks without breaking group chat flow.
-- **Live story macros**: `storyMacros` registers macros (title, checkpoint summaries, trigger candidates, chat excerpts, role aliases, player name) that refresh whenever the runtime or turn counter changes, so presets, Author's Notes, and lore entries stay in sync.
 - **Turn routing + dedupe**: `turnController` listens to the host events, filters duplicate/empty user messages, tracks the speaking persona, and tells the orchestrator which role is currently generating so preset application stays targeted.
 - **Requirements dashboard**: Drawer UI surfaces persona readiness, group membership gaps, global lorebook state, missing world info entries, and recent checkpoint completions before automation is allowed to run.
-- **Story library + studio**: `useStoryLibrary` persists stories inside settings, while the Checkpoint Studio editor (Cytoscape + dagre graph, diagnostics, CRUD) lets authors maintain schemas, automations, and talk-control replies directly in the host.
+- **Story library + studio**: `useStoryLibrary` persists stories inside settings, while the Checkpoint Studio editor lets authors maintain schemas, automations, and talk-control replies directly in the host.
+- **Macros**: `storyMacros` registers macros (title, checkpoint summaries, trigger candidates, chat excerpts, role aliases, player name) that refresh whenever the runtime or turn counter changes, so presets, Author's Notes, and lore entries stay in sync.
 - **Slash commands**: `/checkpoint` (`/cp`) supports `list`, `prev`, `eval`, explicit checkpoint activation, and named arguments. Additional commands fire via checkpoint automations or Checkpoint Studio utilities.
 
 ## Runtime Lifecycle
@@ -20,12 +20,6 @@ ST Story Orchestrator is a checkpoint-driven automation layer that keeps story r
 6. Arbiter evaluations execute via SillyTavern's `generateRaw`, parse JSON-only replies, apply role-specific arbiter presets, and call `storySessionStore` reducers to advance checkpoints, persist snapshots, and reset timers.
 7. Activating a checkpoint applies Author's Notes, preset overrides, world info toggles, automation slash commands, macro snapshots, talk-control checkpoint scopes, and updates the UI states exposed by `StoryContext`.
 8. `talkControlManager` listens for `MESSAGE_RECEIVED`, generation lifecycle events, and arbiter phases. It can abort quiet generations, enqueue static/LLM replies, and throttle talk-control actions per turn while respecting intercept suppression.
-
-## Story Schema Essentials
-- **Checkpoints & transitions**: Directed graph with explicit IDs. Transitions support `regex` (with labeled pattern lists) and `timed` triggers; multiple triggers per checkpoint are evaluated and prioritized by regex matches.
-- **On-activate payloads**: `authors_note`, `preset_overrides`, `arbiter_preset`, `world_info`, and `automations` (slash command sequences) are normalized and executed atomically when checkpoints activate or hydrate.
-- **Talk Control**: Optional `talkControl` section (camelCase or snake_case) defines per-checkpoint reply lists. Replies carry probability gates, static text or LLM instructions, and trigger hooks (`onEnter`, `afterSpeak`, etc.). Normalization maps IDs to story roles and exposes replies via `NormalizedCheckpoint.talkControl`.
-- **Roles**: Role metadata powers macro aliases, automations, and requirement validation.
 
 ## Key React Surfaces
 - `src/components/drawer` --Requirement badges, checkpoint progress, and a summary of the last queued arbiter evaluation.

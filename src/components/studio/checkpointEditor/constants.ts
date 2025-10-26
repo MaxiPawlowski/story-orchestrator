@@ -19,10 +19,9 @@ export const AUTHOR_NOTE_ROLE_OPTIONS: Array<{ value: "" | AuthorNoteRole; label
 ];
 
 export const TALK_CONTROL_TRIGGER_OPTIONS: Array<{ key: TalkControlTrigger; label: string }> = [
-  { key: "afterSpeak", label: "After Speak" },
-  { key: "beforeArbiter", label: "Before Arbiter" },
-  { key: "afterArbiter", label: "After Arbiter" },
-  { key: "onEnter", label: "On Enter" },
-  { key: "onExit", label: "On Exit" },
+  { key: "afterSpeak", label: "After X Speaks" },
+  { key: "beforeArbiter", label: "Before Arbiter eval" },
+  { key: "afterArbiter", label: "After Arbiter eval" },
+  { key: "onEnter", label: "On Checkpoint Activation" },
 ];
 

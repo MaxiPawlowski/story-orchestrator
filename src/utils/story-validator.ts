@@ -97,6 +97,7 @@ export interface NormalizedTalkControlReply {
   enabled: boolean;
   trigger: TalkControlTrigger;
   probability: number;
+  maxTriggers?: number;
   content: NormalizedTalkControlReplyContent;
 }
 
@@ -181,7 +182,7 @@ const TALK_CONTROL_DEFAULT_SETTINGS: NormalizedTalkControlDefaults = Object.free
 });
 
 const TALK_CONTROL_MAX_CHARS = 4000;
-const TALK_CONTROL_TRIGGERS: TalkControlTrigger[] = ["afterSpeak", "beforeArbiter", "afterArbiter", "onEnter", "onExit"];
+const TALK_CONTROL_TRIGGERS: TalkControlTrigger[] = ["afterSpeak", "beforeArbiter", "afterArbiter", "onEnter"];
 
 const sanitizeRoleMap = (input?: Partial<Record<Role, string>>): Partial<Record<Role, string>> | undefined => {
   if (!input) return undefined;
@@ -307,6 +308,10 @@ const normalizeTalkControlReply = (
   const content = normalizeTalkControlReplyContent(reply.content, TALK_CONTROL_MAX_CHARS);
   if (!content) return null;
 
+  const maxTriggers = reply.maxTriggers !== undefined && Number.isFinite(reply.maxTriggers) && reply.maxTriggers >= 1
+    ? Math.floor(reply.maxTriggers)
+    : undefined;
+
   return {
     memberId: reply.memberId?.trim() ?? "",
     normalizedId: normalizeName(reply.memberId),
@@ -315,6 +320,7 @@ const normalizeTalkControlReply = (
     enabled: reply.enabled ?? true,
     trigger: reply.trigger,
     probability: toProbability(reply.probability) ?? 100,
+    maxTriggers,
     content,
   };
 };

@@ -66,6 +66,7 @@ export type TalkControlReplyDraft = {
   enabled: boolean;
   trigger: TalkControlTrigger;
   probability: number;
+  maxTriggers?: number;
   content: TalkControlReplyContentDraft;
 };
 
@@ -78,7 +79,7 @@ export type TalkControlDraft = {
   checkpoints: Record<string, TalkControlCheckpointDraft>;
 };
 
-const TALK_CONTROL_TRIGGER_LIST: TalkControlTrigger[] = ["afterSpeak", "beforeArbiter", "afterArbiter", "onEnter", "onExit"];
+const TALK_CONTROL_TRIGGER_LIST: TalkControlTrigger[] = ["afterSpeak", "beforeArbiter", "afterArbiter", "onEnter"];
 
 export type StoryDraft = Omit<Story, "checkpoints" | "transitions" | "talkControl"> & {
   checkpoints: CheckpointDraft[];
@@ -306,12 +307,17 @@ const sanitizeTalkControlReply = (reply: TalkControlReplyDraft | undefined): Tal
     ? Math.round(reply.probability)
     : 100;
 
+  const maxTriggers = reply.maxTriggers !== undefined && typeof reply.maxTriggers === "number" && Number.isFinite(reply.maxTriggers) && reply.maxTriggers >= 1
+    ? Math.floor(reply.maxTriggers)
+    : undefined;
+
   return {
     memberId,
     speakerId,
     enabled: reply.enabled !== undefined ? Boolean(reply.enabled) : true,
     trigger: reply.trigger,
     probability,
+    maxTriggers,
     content,
   };
 };

@@ -9,6 +9,7 @@ export const cloneTalkControlReply = (reply: TalkControlReplyDraft): TalkControl
   enabled: reply.enabled,
   trigger: reply.trigger,
   probability: reply.probability,
+  maxTriggers: reply.maxTriggers,
   content: reply.content.kind === "static"
     ? { kind: "static", text: reply.content.text }
     : { kind: "llm", instruction: reply.content.instruction },

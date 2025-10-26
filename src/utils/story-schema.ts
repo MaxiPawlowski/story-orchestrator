@@ -71,7 +71,6 @@ const TalkControlTriggerSchema = z.enum([
   "beforeArbiter",
   "afterArbiter",
   "onEnter",
-  "onExit",
 ] as const);
 export type TalkControlTrigger = z.infer<typeof TalkControlTriggerSchema>;
 
@@ -97,6 +96,7 @@ export const TalkControlReplySchema = z.object({
   enabled: z.boolean().default(true),
   trigger: TalkControlTriggerSchema,
   probability: z.number().int().min(0).max(100).default(100),
+  maxTriggers: z.number().int().min(1).optional(),
   content: TalkControlReplyContentSchema,
 });
 export type TalkControlReply = z.infer<typeof TalkControlReplySchema>;

@@ -3,6 +3,7 @@ import { normalizeName } from "@utils/string";
 import type { TalkControlTrigger } from "@utils/story-schema";
 import { getContext } from "@services/STAPI";
 import { subscribeToEventSource } from "@utils/event-source";
+import { PLAYER_SPEAKER_ID } from "@constants/main";
 import { CharacterResolver } from "./TalkControl/CharacterResolver";
 import { MessageInjector } from "./TalkControl/MessageInjector";
 import { ReplySelector, type PendingAction } from "./TalkControl/ReplySelector";
@@ -131,6 +132,7 @@ export class TalkControlService {
       if (dispatched) {
         action.state.lastActionTurn = action.state.actionTurnStamp;
         action.state.actionsThisTurn += 1;
+        action.state.totalTriggerCount += 1;
       }
     } catch (err) {
       console.warn("[Story TalkControl] Action dispatch failed", err);
@@ -235,11 +237,22 @@ export class TalkControlService {
     const { chat } = getContext();
     const message = chat[messageId];
 
-    if (!message || message.is_user || message.is_system) return;
+    if (!message || message.is_system) return;
     if (message?.extra?.storyOrchestratorTalkControl) return;
 
-    const speakerName = message?.name ?? "";
-    const speakerId = normalizeName(speakerName);
+    let speakerName: string;
+    let speakerId: string;
+
+    if (message.is_user) {
+      // Player message
+      speakerName = PLAYER_SPEAKER_ID;
+      speakerId = PLAYER_SPEAKER_ID;
+    } else {
+      // Character message
+      speakerName = message?.name ?? "";
+      speakerId = normalizeName(speakerName);
+    }
+
     this.queueEvent("afterSpeak", this.activeCheckpointId, { speakerId, speakerName, messageId, messageType });
   };
 
@@ -280,9 +293,6 @@ export class TalkControlService {
   }
 
   public setCheckpoint(checkpointId: string | null, options?: { emitEnter?: boolean }) {
-    if (this.activeCheckpointId && this.activeCheckpointId !== checkpointId) {
-      this.queueEvent("onExit", this.activeCheckpointId);
-    }
     this.activeCheckpointId = checkpointId;
     if (checkpointId && options?.emitEnter !== false) {
       this.queueEvent("onEnter", checkpointId);

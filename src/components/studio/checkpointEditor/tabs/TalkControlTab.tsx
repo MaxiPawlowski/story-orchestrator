@@ -7,6 +7,7 @@ import {
   type TalkControlReplyDraft,
 } from "@utils/checkpoint-studio";
 import type { TalkControlTrigger } from "@utils/story-schema";
+import { PLAYER_SPEAKER_ID, PLAYER_SPEAKER_LABEL } from "@constants/main";
 import { TALK_CONTROL_TRIGGER_OPTIONS } from "../constants";
 import { cloneTalkControlCheckpoint, cloneTalkControlReply } from "../talkControlUtils";
 import HelpTooltip from "../../HelpTooltip";
@@ -87,6 +88,7 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
         enabled: true,
         trigger: "afterSpeak",
         probability: 100,
+        maxTriggers: 1,
         content: { kind: "static", text: "" },
       });
       return checkpointDraft;
@@ -120,6 +122,18 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
       const num = Number(trimmed);
       if (Number.isFinite(num)) {
         return { ...reply, probability: Math.min(100, Math.max(0, Math.floor(num))) };
+      }
+      return reply;
+    });
+  }, [patchReply]);
+
+  const handleReplyMaxTriggersChange = useCallback((index: number, raw: string) => {
+    patchReply(index, (reply) => {
+      const trimmed = raw.trim();
+      if (!trimmed) return { ...reply, maxTriggers: undefined };
+      const num = Number(trimmed);
+      if (Number.isFinite(num) && num >= 1) {
+        return { ...reply, maxTriggers: Math.floor(num) };
       }
       return reply;
     });
@@ -200,44 +214,49 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
                   </div>
                 </div>
 
-                <label className="flex flex-col gap-1 text-xs text-slate-300">
-                  <span className="inline-flex items-center gap-1">
-                    Trigger Event
-                    <HelpTooltip title="Select when this reply should be eligible to fire." />
-                  </span>
-                  <select
-                    className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                    value={reply.trigger}
-                    onChange={(e) => handleReplyTriggerChange(idx, e.target.value as TalkControlTrigger)}
-                  >
-                    {TALK_CONTROL_TRIGGER_OPTIONS.map(({ key, label }) => (
-                      <option key={key} value={key}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                {reply.trigger === "afterSpeak" ? (
+                <div className="grid grid-cols-2 gap-2">
                   <label className="flex flex-col gap-1 text-xs text-slate-300">
                     <span className="inline-flex items-center gap-1">
-                      Trigger After Character (Who Speaks)
-                      <HelpTooltip title="Who needs to speak for this reply to trigger." />
+                      Trigger Event
+                      <HelpTooltip title="Select when this reply should be eligible to fire." />
                     </span>
                     <select
                       className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                      value={reply.speakerId}
-                      onChange={(e) => handleReplySpeakerIdChange(idx, e.target.value)}
+                      value={reply.trigger}
+                      onChange={(e) => handleReplyTriggerChange(idx, e.target.value as TalkControlTrigger)}
                     >
-                      <option value="">Any Character</option>
-                      {roleOptions.map((roleKey) => (
-                        <option key={roleKey} value={roleKey}>
-                          {draft.roles?.[roleKey] || roleKey}
+                      {TALK_CONTROL_TRIGGER_OPTIONS.map(({ key, label }) => (
+                        <option key={key} value={key}>
+                          {label}
                         </option>
                       ))}
                     </select>
                   </label>
-                ) : null}
+
+                  {reply.trigger === "afterSpeak" ? (
+                    <label className="flex flex-col gap-1 text-xs text-slate-300">
+                      <span className="inline-flex items-center gap-1">
+                        Trigger After Character
+                        <HelpTooltip title="Who needs to speak for this reply to trigger." />
+                      </span>
+                      <select
+                        className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                        value={reply.speakerId}
+                        onChange={(e) => handleReplySpeakerIdChange(idx, e.target.value)}
+                      >
+                        <option value="">Any Character</option>
+                        <option value={PLAYER_SPEAKER_ID}>{PLAYER_SPEAKER_LABEL}</option>
+                        {roleOptions.map((roleKey) => (
+                          <option key={roleKey} value={roleKey}>
+                            {draft.roles?.[roleKey] || roleKey}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  ) : (
+                    <div />
+                  )}
+                </div>
 
                 <label className="flex flex-col gap-1 text-xs text-slate-300">
                   <span className="inline-flex items-center gap-1">
@@ -258,20 +277,39 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
                   </select>
                 </label>
 
-                <label className="flex flex-col gap-1 text-xs text-slate-300">
-                  <span className="inline-flex items-center gap-1">
-                    Probability (0-100)
-                    <HelpTooltip title="Control the likelihood of this reply being selected." />
-                  </span>
-                  <input
-                    type="number"
-                    min={0}
-                    max={100}
-                    className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                    value={reply.probability}
-                    onChange={(e) => handleReplyProbabilityChange(idx, e.target.value)}
-                  />
-                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="flex flex-col gap-1 text-xs text-slate-300">
+                    <span className="inline-flex items-center gap-1">
+                      Probability (0-100)
+                      <HelpTooltip title="Control the likelihood of this reply being selected." />
+                    </span>
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                      value={reply.probability}
+                      onChange={(e) => handleReplyProbabilityChange(idx, e.target.value)}
+                    />
+                  </label>
+
+                  {reply.trigger !== "onEnter" && (
+                    <label className="flex flex-col gap-1 text-xs text-slate-300">
+                      <span className="inline-flex items-center gap-1">
+                        Max Triggers
+                        <HelpTooltip title="Limit how many times this reply can trigger during the checkpoint. Leave empty for unlimited." />
+                      </span>
+                      <input
+                        type="number"
+                        min={1}
+                        className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                        value={reply.maxTriggers ?? ""}
+                        placeholder="Unlimited"
+                        onChange={(e) => handleReplyMaxTriggersChange(idx, e.target.value)}
+                      />
+                    </label>
+                  )}
+                </div>
 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-xs text-slate-300">

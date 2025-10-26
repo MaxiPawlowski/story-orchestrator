@@ -1,11 +1,13 @@
 import type { NormalizedTalkControl, NormalizedTalkControlCheckpoint, NormalizedTalkControlReply } from "@utils/story-validator";
 import type { TalkControlTrigger } from "@utils/story-schema";
+import { PLAYER_SPEAKER_ID } from "@constants/main";
 import type { CharacterResolver } from "./CharacterResolver";
 
 interface ReplyRuntimeState {
   lastActionTurn: number;
   actionTurnStamp: number;
   actionsThisTurn: number;
+  totalTriggerCount: number;
 }
 
 interface TalkControlEvent {
@@ -48,14 +50,14 @@ export class ReplySelector {
 
   private getReplyRuntimeState(checkpointId: string, replyIndex: number): ReplyRuntimeState {
     if (replyIndex < 0) {
-      return { lastActionTurn: -Infinity, actionTurnStamp: -1, actionsThisTurn: 0 };
+      return { lastActionTurn: -Infinity, actionTurnStamp: -1, actionsThisTurn: 0, totalTriggerCount: 0 };
     }
 
     const key = `${checkpointId}::${replyIndex}`;
     let state = this.runtimeStates.get(key);
 
     if (!state) {
-      state = { lastActionTurn: -Infinity, actionTurnStamp: -1, actionsThisTurn: 0 };
+      state = { lastActionTurn: -Infinity, actionTurnStamp: -1, actionsThisTurn: 0, totalTriggerCount: 0 };
       this.runtimeStates.set(key, state);
     }
 
@@ -81,6 +83,17 @@ export class ReplySelector {
   }
 
   private matchesSpeaker(reply: NormalizedTalkControlReply, speakerId: string): boolean {
+    // Check if the reply expects the player
+    if (reply.normalizedSpeakerId === PLAYER_SPEAKER_ID) {
+      return speakerId === PLAYER_SPEAKER_ID;
+    }
+
+    // Check if the incoming speaker is the player but reply expects a character
+    if (speakerId === PLAYER_SPEAKER_ID) {
+      return false;
+    }
+
+    // Standard character matching
     const expectedIds = this.characterResolver.buildExpectedSpeakerIds(reply);
     return expectedIds.includes(speakerId);
   }
@@ -137,6 +150,17 @@ export class ReplySelector {
         console.log("[Story TalkControl] Skipped reply (already dispatched this turn)", {
           reply,
           checkpointId,
+        });
+        continue;
+      }
+
+      // Check if maxTriggers limit reached
+      if (reply.maxTriggers !== undefined && state.totalTriggerCount >= reply.maxTriggers) {
+        console.log("[Story TalkControl] Skipped reply (maxTriggers limit reached)", {
+          reply,
+          checkpointId,
+          totalTriggerCount: state.totalTriggerCount,
+          maxTriggers: reply.maxTriggers,
         });
         continue;
       }
