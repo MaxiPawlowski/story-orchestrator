@@ -300,8 +300,7 @@ const normalizeTalkControlReply = (
 ): NormalizedTalkControlReply | null => {
   if (!reply) return null;
 
-  const speakerId = reply.speakerId?.trim();
-  if (!speakerId) return null;
+  const speakerId = reply.speakerId?.trim() ?? "";
 
   if (!TALK_CONTROL_TRIGGERS.includes(reply.trigger)) return null;
 

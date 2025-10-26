@@ -237,6 +237,7 @@ const normalizedTalkControlToDraft = (story: NormalizedStory | null | undefined)
         enabled: reply.enabled,
         trigger: reply.trigger,
         probability: reply.probability,
+        maxTriggers: reply.maxTriggers,
         content: reply.content.kind === "static"
           ? { kind: "static" as const, text: reply.content.text ?? "" }
           : { kind: "llm" as const, instruction: reply.content.instruction ?? "" },
@@ -293,12 +294,12 @@ const sanitizeTalkControlReplyContent = (content: TalkControlReplyContentDraft |
 const sanitizeTalkControlReply = (reply: TalkControlReplyDraft | undefined): TalkControlReply | null => {
   if (!reply) return null;
 
-  const speakerId = typeof reply.speakerId === "string" ? reply.speakerId.trim() : "";
-  if (!speakerId) return null;
-
   const memberId = typeof reply.memberId === "string" ? reply.memberId.trim() : "";
+  if (!memberId) return null;
 
   if (!TALK_CONTROL_TRIGGER_LIST.includes(reply.trigger)) return null;
+
+  const speakerId = typeof reply.speakerId === "string" ? reply.speakerId.trim() : "";
 
   const content = sanitizeTalkControlReplyContent(reply.content);
   if (!content) return null;

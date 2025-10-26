@@ -91,8 +91,8 @@ export const TalkControlReplyContentSchema = z.discriminatedUnion("kind", [
 export type TalkControlReplyContent = z.infer<typeof TalkControlReplyContentSchema>;
 
 export const TalkControlReplySchema = z.object({
-  memberId: z.string().default(""),
-  speakerId: z.string().min(1),
+  memberId: z.string().min(1),
+  speakerId: z.string().default(""),
   enabled: z.boolean().default(true),
   trigger: TalkControlTriggerSchema,
   probability: z.number().int().min(0).max(100).default(100),

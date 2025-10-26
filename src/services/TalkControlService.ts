@@ -220,14 +220,19 @@ export class TalkControlService {
     }
   }
 
-  private handleGenerationStarted = () => {
+  private handleGenerationStarted = (type: string, _options: any, dryRun: boolean) => {
+    const shouldIgnore = type === 'quiet' || dryRun === true || type === undefined;
+
+    if (shouldIgnore) {
+      console.log("[Story TalkControl] Ignoring generation start (quiet/dry run/undefined type)");
+      return;
+    }
+
     this.generationActive = true;
-    console.log("[Story TalkControl] Detected generation start", { pendingEvents: this.eventQueue.length });
   };
 
   private handleGenerationSettled = () => {
     this.generationActive = false;
-    console.log("[Story TalkControl] Generation settled", { pendingEvents: this.eventQueue.length });
     this.scheduleFlush();
   };
 
