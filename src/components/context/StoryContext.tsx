@@ -80,7 +80,7 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
   }, []);
 
   useEffect(() => {
-    refreshRoleMacros();
+    refreshRoleMacros(story);
   }, [story]);
 
   useEffect(() => {

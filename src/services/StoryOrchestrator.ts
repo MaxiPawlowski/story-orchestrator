@@ -38,7 +38,7 @@ import {
   STORY_ORCHESTRATOR_LOG_SAMPLE_LIMIT,
 } from "@constants/defaults";
 import type { ArbiterFrequency, ArbiterPrompt } from "@utils/arbiter";
-import { updateStoryMacroSnapshot, resetStoryMacroSnapshot } from "@utils/story-macros";
+import { updateStoryMacroSnapshot, resetStoryMacroSnapshot, refreshRoleMacros } from "@utils/story-macros";
 
 interface TransitionSelection {
   id: string;
@@ -375,6 +375,8 @@ class StoryOrchestrator {
     this.persistence.setStory(this.story);
     this.persistence.resetRuntime();
     store.getState().resetRequirements();
+
+    refreshRoleMacros(this.story);
 
     this.seedRoleMap();
     await this.presetService.initForStory();

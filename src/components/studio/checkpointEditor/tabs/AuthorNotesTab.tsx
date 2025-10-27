@@ -183,7 +183,7 @@ const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }
               <label className="flex flex-col gap-1 text-xs text-slate-300">
                 <span className="inline-flex items-center gap-1">
                   Send As
-                  <HelpTooltip title="Override which role supplies the note, useful for DM vs. companion voices." />
+                  <HelpTooltip title="Which role should supply the note?" />
                 </span>
                 <select
                   className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"

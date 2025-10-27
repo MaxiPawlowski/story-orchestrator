@@ -32,12 +32,12 @@ const dynamicSnapshot = {
 };
 
 const registerMacro = (key: string, resolver: (nonce?: string) => string, description?: string) => {
-  const { registerMacro, unregisterMacro } = getContext();
+  const { registerMacro: stRegisterMacro, unregisterMacro } = getContext();
   try {
     if (MacrosParser.has?.(key)) {
       unregisterMacro(key);
     }
-    registerMacro(key, (nonce?: string) => sanitize(resolver(nonce)), description);
+    stRegisterMacro(key, (nonce?: string) => sanitize(resolver(nonce)), description);
   } catch (err) {
     console.warn("[StoryMacros] Failed to register macro", key, err);
   }
@@ -59,17 +59,15 @@ export const ensureStoryMacros = () => {
     registerMacro(macroKey(role), () => getRoleName(role), `Story role name for ${role}`);
   });
 
-  registerMacro("story_role_dm", () => getRoleName("dm"), "Story DM role name");
-  registerMacro("story_role_companion", () => getRoleName("companion"), "Story companion role name");
-
   registered = true;
 };
 
-export const refreshRoleMacros = () => {
-  const story = getState().story;
+export const refreshRoleMacros = (storyOverride?: { roles?: Record<string, unknown> } | null) => {
+  const story = storyOverride ?? getState().story;
   const registeredRoles = Object.keys(story?.roles ?? {});
   registeredRoles.forEach((role) => {
-    registerMacro(macroKey(role), () => getRoleName(role), `Story role name for ${role}`);
+    const key = macroKey(role);
+    registerMacro(key, () => getRoleName(role), `Story role name for ${role}`);
   });
 };
 
