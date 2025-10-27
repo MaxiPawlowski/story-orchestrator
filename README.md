@@ -21,7 +21,7 @@ ST Story Orchestrator treats every adventure as a non-linear sequence of checkpo
 3. The orchestrator manager sanitizes arbiter settings, instantiates a singleton `StoryOrchestrator`, attaches the `turnController`, seeds `TalkControlService`, and synchronizes the Zustand vanilla store (`storySessionStore`) with chat context.
 4. `StoryOrchestrator` hydrates runtime state (`story-state` persistence), registers slash commands, initializes `PresetService`, subscribes to host events, starts the `requirementsController`, and updates macros with checkpoint context, transition summaries, and chat excerpts.
 5. Each user turn increments `turn`/`turnsSinceEval`, resolves transition regex matches, and queues evaluations through `CheckpointArbiterService`. Timed transitions trigger automatically when `checkpointTurnCount` reaches threshold. Manual `/checkpoint eval` commands also use the same queue.
-6. Arbiter evaluations execute via SillyTavern's `generateRaw`, parse JSON-only replies, apply role-specific arbiter presets (using `$arbiter` role key), and emit events to advance checkpoints, persist snapshots, and reset timers via `storySessionStore` reducers.
+6. Arbiter evaluations execute via ST's `generateRaw`, parse JSON-only replies, apply role-specific arbiter presets (using `$arbiter` role key), and emit events to advance checkpoints, persist snapshots, and reset timers via `storySessionStore` reducers.
 7. Activating a checkpoint applies Author's Notes, preset overrides, world info toggles, automation slash commands, macro snapshots, talk-control checkpoint scopes, and updates the UI states exposed by `StoryContext`. Checkpoint effects are deferred if requirements are not satisfied, then applied once requirements are met.
 8. `TalkControlService` listens for `MESSAGE_RECEIVED`, generation lifecycle events (`GENERATION_STARTED`, `GENERATION_STOPPED`, `GENERATION_ENDED`), and arbiter phases. It can abort loud (not quiet) generations via the interceptor, enqueue static/LLM replies, and throttle talk-control actions per turn while managing intercept suppression depth and self-dispatch guards.
 
@@ -39,7 +39,7 @@ ST Story Orchestrator treats every adventure as a non-linear sequence of checkpo
 - `CheckpointArbiterService` --Builds evaluation prompts from arbiter template, snapshots recent chat history (last N messages reversed), calls ST's `generateRaw` with JSON-only mode enforced, parses JSON results (handling both raw JSON and code-fenced responses), and emits outcomes used to advance checkpoints. Updates `chat_excerpt` macro during evaluation.
 - `PresetService` --Creates and manages runtime-only preset (named `Story:<storyId>`), applies per-role overrides (including `$arbiter` role for evaluation phases), syncs ST's UI sliders via `setSettingByName` (requires export from `public\scripts\textgen-settings.js`), handles logit bias merging, and resets when stories change.
 - `TalkControlService` --Queues talk-control triggers (`onEnter`, `onExit`, `afterSpeak`, `beforeArbiter`, `afterArbiter`), resolves speaker IDs via `CharacterResolver`, selects replies via `ReplySelector`, dispatches messages via `MessageInjector`, exposes an interceptor for generation aborts (loud generations only), manages intercept suppression and self-dispatch depth guards, and throttles actions per turn.
-- `SillyTavernAPI` (STAPI) --Thin facade over host globals (event bus, settings persistence, world info operations, preset helpers, slash command execution, character lookups, chat operations) so services stay decoupled from runtime globals.
+- `STAPI` --Thin facade over host globals (event bus, settings persistence, world info operations, preset helpers, slash command execution, character lookups, chat operations) so services stay decoupled from runtime globals.
 
 ## State & Persistence
 - `storySessionStore` (Zustand vanilla) tracks active story metadata, selected library key, chat context (`chatId`, `groupChatSelected`), runtime (`checkpointIndex`, `activeCheckpointKey`, `turnsSinceEval`, `checkpointTurnCount`, `checkpointStatusMap`), overall turn counter, hydration flag, requirement state snapshot, and orchestrator readiness flag.
@@ -113,7 +113,7 @@ src/
     StoryOrchestrator.ts
     CheckpointArbiterService.ts
     PresetService.ts
-    STAPI.ts                     # SillyTavern API facade
+    STAPI.ts                     # ST API facade
     TalkControlService.ts
     TalkControl/                 # Talk control subsystem components
       CharacterResolver.ts
