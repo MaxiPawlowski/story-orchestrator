@@ -21,6 +21,7 @@ type ConstructorOpts = {
   storyId: string;
   storyTitle?: string;
   base: BaseSource;
+  fallbackPreset?: string | null;
 };
 
 type ApplyLabelOpts = {
@@ -92,11 +93,13 @@ export class PresetService {
   private storyId: string;
   private storyTitle?: string;
   private base: BaseSource;
+  private fallbackPreset: string | null;
 
   constructor(opts: ConstructorOpts) {
     this.storyId = opts.storyId;
     this.storyTitle = opts.storyTitle;
     this.base = opts.base;
+    this.fallbackPreset = opts.fallbackPreset ?? null;
     this.presetName = `Story:${this.storyId}`;
   }
 
@@ -142,8 +145,25 @@ export class PresetService {
   private buildMergedPresetObject(role: Role, checkpointOverride?: PresetPartial): any {
     const base = this.getBasePresetObject();
     const cp = checkpointOverride ?? {};
-
-    const merged = { ...base, ...cp };
+    
+    // Start with base preset
+    let merged = { ...base };
+    
+    // Apply fallback preset for keys not in checkpoint override
+    if (this.fallbackPreset) {
+      const fallback = this.resolveExistingNamed(this.fallbackPreset);
+      if (fallback) {
+        for (const key of Object.keys(fallback)) {
+          // Only apply fallback value if checkpoint override doesn't define it
+          if (!(key in cp)) {
+            merged[key] = fallback[key];
+          }
+        }
+      }
+    }
+    
+    // Apply checkpoint overrides (highest priority)
+    merged = { ...merged, ...cp };
 
     if (!Array.isArray(merged.logit_bias)) {
       merged.logit_bias = Array.isArray(base.logit_bias) ? base.logit_bias : [];

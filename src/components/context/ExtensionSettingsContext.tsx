@@ -13,6 +13,7 @@ import { getExtensionSettingsRoot } from "@utils/settings";
 export interface ExtensionRuntimeSettings {
   arbiterPrompt: ArbiterPrompt;
   arbiterFrequency: ArbiterFrequency;
+  fallbackPreset: string | null;
 }
 
 const CONFIG_KEY = "config";
@@ -20,6 +21,7 @@ const CONFIG_KEY = "config";
 export const DEFAULT_EXTENSION_SETTINGS: ExtensionRuntimeSettings = Object.freeze({
   arbiterPrompt: DEFAULT_SANITIZED_ARBITER_PROMPT,
   arbiterFrequency: DEFAULT_SANITIZED_ARBITER_FREQUENCY,
+  fallbackPreset: null,
 });
 
 interface ExtensionSettingsContextValue extends ExtensionRuntimeSettings {
@@ -27,6 +29,7 @@ interface ExtensionSettingsContextValue extends ExtensionRuntimeSettings {
   setArbiterPrompt: (value: string) => void;
   resetArbiterPrompt: () => void;
   setArbiterFrequency: (value: number) => void;
+  setFallbackPreset: (value: string | null) => void;
 }
 
 const ExtensionSettingsContext = createContext<ExtensionSettingsContextValue | undefined>(undefined);
@@ -41,6 +44,7 @@ function loadSettings(): ExtensionRuntimeSettings {
   return {
     arbiterPrompt: sanitizeArbiterPrompt(candidate.arbiterPrompt),
     arbiterFrequency: sanitizeArbiterFrequency(candidate.arbiterFrequency),
+    fallbackPreset: typeof candidate.fallbackPreset === "string" ? candidate.fallbackPreset : null,
   };
 }
 
@@ -55,7 +59,7 @@ function persistSettings(next: ExtensionRuntimeSettings) {
   }
 }
 
-type SettingsUpdate = Partial<{ arbiterPrompt: unknown; arbiterFrequency: unknown }>;
+type SettingsUpdate = Partial<{ arbiterPrompt: unknown; arbiterFrequency: unknown; fallbackPreset: unknown }>;
 
 export const ExtensionSettingsProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [settings, setSettings] = useState<ExtensionRuntimeSettings>(() => loadSettings());
@@ -69,6 +73,9 @@ export const ExtensionSettingsProvider: React.FC<React.PropsWithChildren> = ({ c
         arbiterFrequency: partial.arbiterFrequency !== undefined
           ? sanitizeArbiterFrequency(partial.arbiterFrequency)
           : prev.arbiterFrequency,
+        fallbackPreset: partial.fallbackPreset !== undefined
+          ? (typeof partial.fallbackPreset === "string" ? partial.fallbackPreset : null)
+          : prev.fallbackPreset,
       };
       persistSettings(next);
       return next;
@@ -87,14 +94,20 @@ export const ExtensionSettingsProvider: React.FC<React.PropsWithChildren> = ({ c
     applySettings({ arbiterFrequency: value });
   }, [applySettings]);
 
+  const setFallbackPreset = useCallback((value: string | null) => {
+    applySettings({ fallbackPreset: value });
+  }, [applySettings]);
+
   const value = useMemo<ExtensionSettingsContextValue>(() => ({
     arbiterPrompt: settings.arbiterPrompt,
     arbiterFrequency: settings.arbiterFrequency,
+    fallbackPreset: settings.fallbackPreset,
     defaultArbiterPrompt: DEFAULT_EXTENSION_SETTINGS.arbiterPrompt,
     setArbiterPrompt,
     resetArbiterPrompt,
     setArbiterFrequency,
-  }), [settings, setArbiterPrompt, resetArbiterPrompt, setArbiterFrequency]);
+    setFallbackPreset,
+  }), [settings, setArbiterPrompt, resetArbiterPrompt, setArbiterFrequency, setFallbackPreset]);
 
   return (
     <ExtensionSettingsContext.Provider value={value}>

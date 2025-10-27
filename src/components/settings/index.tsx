@@ -4,15 +4,18 @@ import { useStoryContext } from "@hooks/useStoryContext";
 import CheckpointStudioModal from "@components/settings/CheckpointStudio/CheckpointStudioModal";
 import { storySessionStore } from "@store/storySessionStore";
 import { makeDefaultState, persistStoryState } from "@utils/story-state";
+import { tgPresetNames } from "@services/STAPI";
 
 const SettingsWrapper = () => {
   const [isOpen, setIsOpen] = useState(false);
   const {
     arbiterPrompt,
     arbiterFrequency,
+    fallbackPreset,
     defaultArbiterPrompt,
     setArbiterPrompt,
     setArbiterFrequency,
+    setFallbackPreset,
     resetArbiterPrompt,
   } = useExtensionSettings();
 
@@ -95,14 +98,23 @@ const SettingsWrapper = () => {
                 <label htmlFor="story-library-select" className="text-sm font-medium">
                   Active Story
                 </label>
-                <button
-                  type="button"
-                  className="text-xs px-2 py-1 border rounded bg-transparent"
-                  onClick={() => reloadLibrary()}
-                  disabled={libraryLoading}
-                >
-                  {libraryLoading ? "Refreshing…" : "Refresh"}
-                </button>
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    className="text-xs px-2 py-1 border rounded bg-transparent"
+                    onClick={() => setShowEditor((prev) => !prev)}
+                  >
+                    Open Studio
+                  </button>
+                  <button
+                    type="button"
+                    className="text-xs px-2 py-1 border rounded bg-transparent"
+                    onClick={() => reloadLibrary()}
+                    disabled={libraryLoading}
+                  >
+                    {libraryLoading ? "Refreshing…" : "Refresh"}
+                  </button>
+                </div>
               </div>
               <select
                 id="story-library-select"
@@ -140,14 +152,29 @@ const SettingsWrapper = () => {
                 </div>
               )}
             </div>
-            <div className="flex justify-end">
-              <button
-                type="button"
-                className="text-xs px-2 py-1 border rounded bg-transparent"
-                onClick={() => setShowEditor((prev) => !prev)}
+            <div className="flex flex-col gap-1">
+              <label htmlFor="story-fallback-preset" className="text-sm font-medium">
+                Fallback Preset
+              </label>
+              <select
+                id="story-fallback-preset"
+                className="text_pole"
+                value={fallbackPreset ?? ""}
+                onChange={(event) => {
+                  const { value } = event.target;
+                  setFallbackPreset(value || null);
+                }}
               >
-                {showEditor ? "Hide Editor" : "Open Editor"}
-              </button>
+                <option value="">Use Current Settings</option>
+                {tgPresetNames.map((presetName) => (
+                  <option key={presetName} value={presetName}>
+                    {presetName}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs opacity-70">
+                When a checkpoint does not override a preset setting, use this preset instead of current settings.
+              </p>
             </div>
             <div className="flex flex-col gap-1">
               <label htmlFor="story-arbiter-frequency" className="text-sm font-medium">

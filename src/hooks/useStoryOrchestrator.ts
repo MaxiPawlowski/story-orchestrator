@@ -10,6 +10,7 @@ import {
   setHooks as setOrchestratorHooks,
   setIntervalTurns as setOrchestratorIntervalTurns,
   setArbiterPrompt as setOrchestratorArbiterPrompt,
+  setFallbackPreset as setOrchestratorFallbackPreset,
 } from "@controllers/orchestratorManager";
 import { storySessionStore, type StorySessionValueState } from "@store/storySessionStore";
 
@@ -28,6 +29,7 @@ export interface UseStoryOrchestratorOptions {
   onTurnTick?: (next: { turn: number; sinceEval: number }) => void;
   onEvaluated?: (ev: StoryEvaluationEvent) => void;
   arbiterPrompt?: ArbiterPrompt;
+  fallbackPreset?: string | null;
 }
 
 export function useStoryOrchestrator(
@@ -59,6 +61,12 @@ export function useStoryOrchestrator(
       setOrchestratorArbiterPrompt(options.arbiterPrompt);
     }
   }, [options?.arbiterPrompt]);
+
+  useEffect(() => {
+    if (options?.fallbackPreset !== undefined) {
+      setOrchestratorFallbackPreset(options.fallbackPreset);
+    }
+  }, [options?.fallbackPreset]);
 
   useEffect(() => {
     ensureOrchestratorStory(story).catch((err) => {

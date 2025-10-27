@@ -104,6 +104,7 @@ class StoryOrchestrator {
     story: NormalizedStory;
     intervalTurns: ArbiterFrequency;
     arbiterPrompt: ArbiterPrompt;
+    fallbackPreset?: string | null;
     onRoleApplied?: (role: Role, cpName: string) => void;
     shouldApplyRole?: (role: Role) => boolean;
     setEvalHooks?: (hooks: { onEvaluated?: (handler: (ev: EvaluatedEvent) => void) => void }) => void;
@@ -126,6 +127,7 @@ class StoryOrchestrator {
       base: { source: "current" },
       storyId: this.story.title,
       storyTitle: this.story.title,
+      fallbackPreset: opts.fallbackPreset,
     });
     this.talkControlService = new TalkControlService({
       story: this.story,

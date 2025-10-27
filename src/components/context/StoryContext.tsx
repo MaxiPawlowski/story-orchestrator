@@ -104,7 +104,7 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
     }
   }, [selectedKey]);
 
-  const { arbiterFrequency, arbiterPrompt } = useExtensionSettings();
+  const { arbiterFrequency, arbiterPrompt, fallbackPreset } = useExtensionSettings();
   const intervalTurns = arbiterFrequency;
   const normalizedArbiterPrompt = arbiterPrompt;
 
@@ -129,6 +129,7 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
         }
       },
       arbiterPrompt: normalizedArbiterPrompt,
+      fallbackPreset,
     },
   );
 

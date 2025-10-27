@@ -24,6 +24,7 @@ let pendingInit: Promise<void> | null = null;
 let currentStory: NormalizedStory | null = null;
 let intervalTurns: ArbiterFrequency;
 let arbiterPrompt: ArbiterPrompt;
+let fallbackPreset: string | null = null;
 let runtimeHooks: RuntimeHooks = {};
 let automationPaused = false;
 
@@ -36,6 +37,7 @@ const initialize = async (story: NormalizedStory) => {
     story,
     intervalTurns,
     arbiterPrompt,
+    fallbackPreset,
     shouldApplyRole: (role: Role) => turnController.shouldApplyRole(role, instance?.index ?? 0),
     setEvalHooks: (hooks) => {
       hooks.onEvaluated?.(runtimeHooks.onEvaluated ?? (() => void (0)));
@@ -103,6 +105,10 @@ export const setIntervalTurns = (value: ArbiterFrequency) => {
 export const setArbiterPrompt = (value: ArbiterPrompt) => {
   arbiterPrompt = normalizeArbiterPrompt(value);
   orchestrator?.setArbiterPrompt(arbiterPrompt);
+};
+
+export const setFallbackPreset = (value: string | null) => {
+  fallbackPreset = value;
 };
 
 export const ensureStory = async (story: NormalizedStory | null): Promise<void> => {
