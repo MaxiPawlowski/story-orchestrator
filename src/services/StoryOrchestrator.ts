@@ -98,6 +98,7 @@ class StoryOrchestrator {
   private lastChatId: string | null = null;
   private lastGroupSelected = false;
   private requirementsSatisfiedOnce = false;
+  private skipDeferredAutomations = false;
 
   constructor(opts: {
     story: NormalizedStory;
@@ -387,11 +388,9 @@ class StoryOrchestrator {
 
     this.talkControlService.start();
 
-    // Subscribe to requirements changes
     if (!this.requirementsUnsubscribe) {
       this.requirementsUnsubscribe = storySessionStore.subscribe(() => {
         if (this.requirementsSatisfiedOnce || !this.requirementsReady) return;
-        console.log("[StoryOrch] requirements now satisfied, applying checkpoint effects");
         this.requirementsSatisfiedOnce = true;
         this.onRequirementsSatisfied();
       });
@@ -617,10 +616,7 @@ class StoryOrchestrator {
   }
 
   private async applyAutomationsForCheckpoint(cp?: NormalizedCheckpoint) {
-    if (!this.requirementsReady) {
-      return;
-    }
-
+    if (!this.requirementsReady) return;
     if (!cp) return;
 
     const automations = cp.onActivate?.automations;
@@ -629,10 +625,7 @@ class StoryOrchestrator {
     const commands = automations.map((cmd) => (typeof cmd === "string" ? cmd.trim() : "")).filter(Boolean);
     if (!commands.length) return;
 
-    console.log("[StoryOrch] automations run", {
-      cp: cp.name,
-      commands,
-    });
+    console.log("[StoryOrch] automations run", { cp: cp.name, commands });
 
     try {
       const ok = await executeSlashCommands(commands, { silent: true, delayMs: 150 });
@@ -662,29 +655,60 @@ class StoryOrchestrator {
     }
 
     const sameContext = !force && this.lastChatId === chatId && this.lastGroupSelected === groupSelected;
-    if (sameContext) return;
-
-    this.lastChatId = chatId;
+    if (sameContext) return; this.lastChatId = chatId;
     this.lastGroupSelected = groupSelected;
 
     this.persistence.setChatContext({ chatId, groupChatSelected: groupSelected });
 
-    try {
-      this.requirements.handleChatContextChanged();
-    } catch (err) {
-      console.warn("[StoryOrch] requirements chat sync failed", err);
-    }
-
     if (!groupSelected) {
       const runtime = this.persistence.resetRuntime();
+      console.log("[StoryOrch] handleChatChanged: not group selected, resetting", { reason });
+      this.skipDeferredAutomations = false;
+
+      try {
+        this.requirements.handleChatContextChanged();
+      } catch (err) {
+        console.warn("[StoryOrch] requirements chat sync failed", err);
+      }
+
       this.reconcileWithRuntime(runtime, { source: "default" });
-      console.log("[StoryOrch] handleChatChanged chat sync reset", { reason });
       return;
     }
 
-    const hydrateResult = this.persistence.hydrate();
-    console.log("[StoryOrch] chat sync hydrate", { reason, source: hydrateResult.source });
-    this.reconcileWithRuntime(hydrateResult.runtime, { source: hydrateResult.source });
+    // Hydrate first to get the correct checkpoint, but DON'T trigger requirements yet
+    const { runtime: storedState, source: hydrateSource } = this.persistence.hydrate();
+
+    console.log("[StoryOrch] handleChatChanged: hydrating", {
+      reason,
+      source: hydrateSource,
+      checkpointIndex: storedState.checkpointIndex,
+      activeKey: storedState.activeCheckpointKey,
+    });
+
+    // If we're loading from stored state, we need to:
+    // 1. First reconcile to the stored checkpoint WITHOUT triggering requirements (so deferred automations don't fire yet)
+    // 2. Then trigger requirements, which will run deferred automations for the CORRECT checkpoint
+    if (hydrateSource === "stored") {
+      console.log("[StoryOrch] handleChatChanged: applying stored checkpoint before requirements check");
+      this.skipDeferredAutomations = true;
+      this.reconcileWithRuntime(storedState, { source: hydrateSource });
+      // Now reset the flag and trigger requirements - this will run deferred automations for CP2
+      this.skipDeferredAutomations = false;
+      try {
+        this.requirements.handleChatContextChanged();
+      } catch (err) {
+        console.warn("[StoryOrch] requirements chat sync failed", err);
+      }
+    } else {
+      // For defaults, normal flow: requirements first, then reconcile
+      this.skipDeferredAutomations = false;
+      try {
+        this.requirements.handleChatContextChanged();
+      } catch (err) {
+        console.warn("[StoryOrch] requirements chat sync failed", err);
+      }
+      this.reconcileWithRuntime(storedState, { source: hydrateSource });
+    }
   }
 
   private reconcileWithRuntime(runtime?: RuntimeStoryState, options?: { source?: "stored" | "default" }) {
@@ -706,6 +730,7 @@ class StoryOrchestrator {
         resetSinceEval: false,
         sinceEvalOverride: sanitizedSince,
         reason: "hydrate",
+        source: options?.source,
       });
     } else {
       const updatedRuntime = this.persistence.setTurnsSinceEval(sanitizedSince, { persist: false });
@@ -717,13 +742,12 @@ class StoryOrchestrator {
         this.applyAutomationsForCheckpoint(cp);
       }
     }
-  }
-
-  private applyCheckpoint(index: number, opts: {
+  } private applyCheckpoint(index: number, opts: {
     persist?: boolean;
     resetSinceEval?: boolean;
     sinceEvalOverride?: number;
     reason?: "activate" | "hydrate";
+    source?: "stored" | "default";
   } = {}) {
     const checkpoints = Array.isArray(this.story.checkpoints) ? this.story.checkpoints : [];
     const storeSnapshot = storySessionStore.getState();
@@ -813,7 +837,14 @@ class StoryOrchestrator {
     this.talkControlService.setCheckpoint(activeKey, { emitEnter: isManualActivation });
 
     this.applyWorldInfoForCheckpoint(cp);
-    this.applyAutomationsForCheckpoint(cp);
+
+    const shouldRunAutomations = opts.reason === "activate" || opts.source === "default";
+
+
+    if (shouldRunAutomations) {
+      this.applyAutomationsForCheckpoint(cp);
+    }
+
     if (opts.reason) this.emitActivate(sanitized.checkpointIndex);
   }
 
@@ -894,19 +925,15 @@ class StoryOrchestrator {
     const cp = this.currentCheckpoint;
     if (!cp) return;
 
-    console.log("[StoryOrch] applying deferred checkpoint effects", { cp: cp.name });
-
-    // Apply base preset now that requirements are satisfied
     this.presetService.applyBasePreset();
-
-    // Apply world info and automations for current checkpoint
     this.applyWorldInfoForCheckpoint(cp);
-    this.applyAutomationsForCheckpoint(cp);
-  }
 
-  // removed thin wrappers: call helpers directly to reduce indirection
+    if (!this.skipDeferredAutomations) {
+      this.applyAutomationsForCheckpoint(cp);
+    }
 
-  private emitActivate(index: number) {
+    this.skipDeferredAutomations = false;
+  } private emitActivate(index: number) {
     try {
       this.onActivateIndex?.(index);
     } catch (err) {
@@ -960,6 +987,7 @@ class StoryOrchestrator {
     this.lastChatId = null;
     this.lastGroupSelected = false;
     this.requirementsSatisfiedOnce = false;
+    this.skipDeferredAutomations = false;
     this.onActivateIndex = undefined;
     this.onEvaluated = undefined;
     resetStoryMacroSnapshot();

@@ -182,7 +182,7 @@ const AutomationsTab: React.FC<Props> = ({
         rows={6}
         value={automationDraft}
         onChange={(e) => onAutomationDraftChange(e.target.value)}
-        placeholder={`/member-disable <member_id> \n/member-enable <member_id>\n/bg tavern day\n...`}
+        placeholder={`/member-disable {{story_role_companion}} \n/member-enable {{story_role_companion}}\n/bg tavern day\n...`}
       />
       {automationValidation.length ? (
         <div className="space-y-1">
