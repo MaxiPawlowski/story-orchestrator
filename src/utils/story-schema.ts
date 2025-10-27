@@ -155,11 +155,6 @@ export const CheckpointSchema = z.object({
 
 export type Checkpoint = z.infer<typeof CheckpointSchema>;
 
-const BasePresetSchema = z.object({
-  source: z.enum(["named", "current"]).or(z.string().min(1)),
-  name: z.string().min(1).optional(),
-});
-
 export const StorySchema = z.object({
   title: z.string().min(1),
   description: z.string().trim().min(1).optional(),

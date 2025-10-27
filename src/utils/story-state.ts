@@ -303,11 +303,9 @@ function matchRegexList(text: string, regexes: RegExp[]): string | null {
 export function evaluateTransitionTriggers({
   text,
   transitions,
-  turnsSinceEval: _turnsSinceEval,
 }: {
   text: string;
   transitions: NormalizedTransition[] | undefined;
-  turnsSinceEval: number;
 }): TransitionTriggerMatch[] {
   if (!text || !transitions?.length) return [];
   const matches: TransitionTriggerMatch[] = [];

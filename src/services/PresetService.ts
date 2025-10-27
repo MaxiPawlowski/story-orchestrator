@@ -124,7 +124,7 @@ export class PresetService {
     console.log('[Story - PresetService] applyForRole', { role, roleLabel, checkpointName, overrideKeys });
 
     this.ensureDedicatedPresetExists();
-    const merged = this.buildMergedPresetObject(role, checkpointOverrides);
+    const merged = this.buildMergedPresetObject(checkpointOverrides);
 
     this.writeIntoRegistry(this.presetName, merged);
 
@@ -142,13 +142,12 @@ export class PresetService {
     this.writeIntoRegistry(this.presetName, baseObj);
   }
 
-  private buildMergedPresetObject(role: Role, checkpointOverride?: PresetPartial): any {
+  private buildMergedPresetObject(checkpointOverride?: PresetPartial): any {
     const base = this.getBasePresetObject();
     const cp = checkpointOverride ?? {};
-    
-    // Start with base preset
+
     let merged = { ...base };
-    
+
     // Apply fallback preset for keys not in checkpoint override
     if (this.fallbackPreset) {
       const fallback = this.resolveExistingNamed(this.fallbackPreset);
@@ -161,7 +160,7 @@ export class PresetService {
         }
       }
     }
-    
+
     // Apply checkpoint overrides (highest priority)
     merged = { ...merged, ...cp };
 

@@ -566,7 +566,6 @@ class StoryOrchestrator {
     const regexMatches = evaluateTransitionTriggers({
       text,
       transitions: regexTransitions,
-      turnsSinceEval: updatedRuntime.turnsSinceEval,
     });
 
     if (regexMatches.length) {

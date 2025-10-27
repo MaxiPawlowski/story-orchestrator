@@ -11,7 +11,6 @@ import {
   type PresetOverrideKey,
   type TransitionTrigger as StoryTransitionTrigger,
   type AuthorNoteDefinition,
-  type AuthorNoteSettings,
   type AuthorNoteRole,
   type AuthorNotePosition,
   type TalkControlConfig,

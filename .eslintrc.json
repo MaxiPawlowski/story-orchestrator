@@ -31,6 +31,11 @@
       "argsIgnorePattern": "^_",
       "varsIgnorePattern": "^_"
     }],
+    "no-unused-vars": ["error", {
+      "args": "all",
+      "argsIgnorePattern": "^_",
+      "varsIgnorePattern": "^_"
+    }],
     "no-console": "off",
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off",
