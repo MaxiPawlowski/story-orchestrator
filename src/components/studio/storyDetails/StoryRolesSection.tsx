@@ -38,7 +38,7 @@ const StoryRolesSection: React.FC<Props> = ({ draft, setDraft, groupMembers, all
       <div className="mb-1 font-medium text-slate-200">Story Roles</div>
       <div className="space-y-2">
         {Object.entries(draft.roles ?? {}).map(([roleKey, participant], index) => (
-          <div key={roleKey} className="grid grid-cols-2 gap-2 items-end">
+          <div key={`role-${index}`} className="grid grid-cols-2 gap-2 items-end">
             <label className="flex flex-col gap-1 text-xs text-slate-300">
               <span className="inline-flex items-center gap-1">
                 Role Name
