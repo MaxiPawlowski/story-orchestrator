@@ -27,14 +27,16 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
   }, [onSelect]);
 
   const elements = useMemo(() => {
-    const nodes: ElementDefinition[] = draft.checkpoints.map((cp) => ({
-      group: "nodes",
-      data: { id: cp.id, label: cp.name || cp.id, type: draft.start === cp.id ? "start" : "checkpoint" },
-      classes: selectedId === cp.id ? "selected" : undefined,
-    }));
+    const nodes: ElementDefinition[] = draft.checkpoints
+      .filter((cp) => cp.id && cp.id.trim())
+      .map((cp) => ({
+        group: "nodes",
+        data: { id: cp.id, label: cp.name || cp.id, type: draft.start === cp.id ? "start" : "checkpoint" },
+        classes: selectedId === cp.id ? "selected" : undefined,
+      }));
     const nodeIds = new Set(nodes.map((n) => n.data.id));
     const edges: ElementDefinition[] = draft.transitions
-      .filter((e) => nodeIds.has(e.from) && nodeIds.has(e.to))
+      .filter((e) => e.id && e.id.trim() && nodeIds.has(e.from) && nodeIds.has(e.to))
       .map((e) => ({ group: "edges", data: { id: e.id, source: e.from, target: e.to, label: e.label || "" } }));
     return [...nodes, ...edges];
   }, [draft, selectedId]);

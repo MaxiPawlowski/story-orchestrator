@@ -70,7 +70,7 @@ const TransitionsTab: React.FC<Props> = ({
           const isRegex = trigger.type === "regex";
 
           return (
-            <div key={edge.id} className="rounded border border-slate-600 p-2 space-y-2">
+            <div key={edge._stableId} className="rounded border border-slate-600 p-2 space-y-2">
               <div className="grid grid-cols-2 gap-2">
                 <label className="flex flex-col gap-1 text-xs text-slate-300">
                   <span className="inline-flex items-center gap-1">

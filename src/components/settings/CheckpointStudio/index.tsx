@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import type { Story } from "@utils/story-schema";
 import type { NormalizedStory } from "@utils/story-validator";
-import { StoryDraft, CheckpointDraft, TransitionDraft, normalizedToDraft, draftToStoryInput, generateUniqueId, slugify } from "@utils/checkpoint-studio";
+import { StoryDraft, CheckpointDraft, TransitionDraft, normalizedToDraft, safeDraftToStoryInput, generateUniqueId, slugify } from "@utils/checkpoint-studio";
 import Toolbar from "@components/studio/Toolbar";
 import FeedbackAlert from "@components/studio/FeedbackAlert";
 import GraphPanel from "@components/studio/GraphPanel";
@@ -93,8 +93,16 @@ const CheckpointStudio: React.FC<Props> = ({
     }
   }, [draft, selectedId]);
 
-  const comparisonBase = useMemo(() => JSON.stringify(draftToStoryInput(baseDraft)), [baseDraft]);
-  const comparisonDraft = useMemo(() => JSON.stringify(draftToStoryInput(draft)), [draft]);
+  const comparisonBase = useMemo(() => {
+    const result = safeDraftToStoryInput(baseDraft);
+    return result.ok ? JSON.stringify(result.story) : "";
+  }, [baseDraft]);
+
+  const comparisonDraft = useMemo(() => {
+    const result = safeDraftToStoryInput(draft);
+    return result.ok ? JSON.stringify(result.story) : "";
+  }, [draft]);
+
   const hasChanges = comparisonBase !== comparisonDraft;
 
   const updateCheckpoint = (id: string, updater: (cp: CheckpointDraft) => CheckpointDraft) => {
@@ -107,8 +115,20 @@ const CheckpointStudio: React.FC<Props> = ({
   };
 
   const runDiagnostics = useCallback((input: StoryDraft) => {
-    const raw = draftToStoryInput(input);
     const results: Diagnostic[] = [];
+
+    const conversionResult = safeDraftToStoryInput(input);
+    if (!conversionResult.ok) {
+      results.push({
+        ok: false,
+        name: "Story data conversion",
+        detail: conversionResult.error
+      });
+      setDiagnostics(results);
+      return;
+    }
+
+    const raw = conversionResult.story;
     const validation = validate(raw);
     if (!validation.ok) {
       results.push({ ok: false, name: "Schema validation", detail: validation.errors.join("; ") });
@@ -193,6 +213,7 @@ const CheckpointStudio: React.FC<Props> = ({
       const fallbackTarget = prev.checkpoints.find((cp) => cp.id !== fromId)?.id || fromId;
       const existingIds = new Set(prev.transitions.map((edge) => edge.id));
       const id = generateUniqueId(existingIds, "edge");
+      const stableId = `stable-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
       const transitions: TransitionDraft[] = [
         ...prev.transitions,
         {
@@ -206,6 +227,7 @@ const CheckpointStudio: React.FC<Props> = ({
           },
           label: "",
           description: "",
+          _stableId: stableId,
         },
       ];
       return { ...prev, transitions };
@@ -232,7 +254,15 @@ const CheckpointStudio: React.FC<Props> = ({
       setFeedback({ type: "error", message: "Select a saved story before using Save. Try Save As to create a copy." });
       return;
     }
-    const payload = draftToStoryInput(draft);
+
+    const conversionResult = safeDraftToStoryInput(draft);
+    if (!conversionResult.ok) {
+      setFeedback({ type: "error", message: `Story data is incomplete: ${conversionResult.error}` });
+      runDiagnostics(draft);
+      return;
+    }
+
+    const payload = conversionResult.story;
     const validation = validate(payload);
     if (!validation.ok) {
       setFeedback({ type: "error", message: validation.errors.join("; ") });
@@ -264,7 +294,15 @@ const CheckpointStudio: React.FC<Props> = ({
 
   const handleSaveAs = useCallback(async () => {
     if (disabled) return;
-    const payload = draftToStoryInput(draft);
+
+    const conversionResult = safeDraftToStoryInput(draft);
+    if (!conversionResult.ok) {
+      setFeedback({ type: "error", message: `Story data is incomplete: ${conversionResult.error}` });
+      runDiagnostics(draft);
+      return;
+    }
+
+    const payload = conversionResult.story;
     const validation = validate(payload);
     if (!validation.ok) {
       setFeedback({ type: "error", message: validation.errors.join("; ") });
@@ -340,7 +378,13 @@ const CheckpointStudio: React.FC<Props> = ({
   };
 
   const handleExport = () => {
-    const raw = draftToStoryInput(draft);
+    const conversionResult = safeDraftToStoryInput(draft);
+    if (!conversionResult.ok) {
+      setFeedback({ type: "error", message: `Cannot export: ${conversionResult.error}` });
+      return;
+    }
+
+    const raw = conversionResult.story;
     const blob = new Blob([JSON.stringify(raw, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -379,7 +423,13 @@ const CheckpointStudio: React.FC<Props> = ({
       setDiagnostics([]);
       runDiagnostics(nextDraft);
 
-      const sanitized = draftToStoryInput(nextDraft);
+      const conversionResult = safeDraftToStoryInput(nextDraft);
+      if (!conversionResult.ok) {
+        setFeedback({ type: "error", message: `Cannot import: ${conversionResult.error}` });
+        return;
+      }
+
+      const sanitized = conversionResult.story;
       const baseFileName = file.name.replace(/\.[^/.]+$/, "");
       const inferredName = validation.story.title?.trim()
         || baseFileName

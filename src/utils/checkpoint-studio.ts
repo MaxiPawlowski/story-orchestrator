@@ -53,6 +53,7 @@ export type TransitionTriggerDraft = {
 
 export type TransitionDraft = Omit<Transition, "trigger"> & {
   trigger: TransitionTriggerDraft;
+  _stableId: string;
 };
 
 export type TalkControlReplyContentDraft =
@@ -221,6 +222,7 @@ const normalizedTransitionToDraft = (edge: NormalizedTransition): TransitionDraf
   trigger: normalizedTriggerToDraft(edge.trigger),
   label: edge.label,
   description: edge.description,
+  _stableId: `stable-${edge.id}-${edge.from}-${edge.to}`,
 });
 
 const normalizedTalkControlToDraft = (story: NormalizedStory | null | undefined): TalkControlDraft | undefined => {
@@ -472,29 +474,35 @@ const triggerDraftToSchema = (draft: TransitionTriggerDraft): TransitionTrigger 
 };
 
 export const draftToStoryInput = (draft: StoryDraft): Story => {
-  const checkpoints: Story["checkpoints"] = draft.checkpoints.map((cp) => {
-    const ensuredActivate = cp.on_activate ? ensureOnActivate(cp.on_activate) : undefined;
-    const onActivate = cleanupOnActivate(ensuredActivate);
-    const onActivateOut = draftOnActivateToSchema(onActivate);
-    return {
-      id: cp.id.trim(),
-      name: cp.name.trim(),
-      objective: cp.objective.trim(),
-      ...(onActivateOut ? { on_activate: onActivateOut } : {}),
-    };
-  });
+  const checkpoints: Story["checkpoints"] = draft.checkpoints
+    .filter((cp) => cp.id && cp.id.trim())
+    .map((cp) => {
+      const ensuredActivate = cp.on_activate ? ensureOnActivate(cp.on_activate) : undefined;
+      const onActivate = cleanupOnActivate(ensuredActivate);
+      const onActivateOut = draftOnActivateToSchema(onActivate);
+      return {
+        id: cp.id.trim(),
+        name: cp.name.trim(),
+        objective: cp.objective.trim(),
+        ...(onActivateOut ? { on_activate: onActivateOut } : {}),
+      };
+    });
 
-  const transitions: Transition[] = draft.transitions.map((edge) => {
-    const trigger = triggerDraftToSchema(edge.trigger);
-    return {
-      id: edge.id.trim(),
-      from: edge.from.trim(),
-      to: edge.to.trim(),
-      trigger,
-      label: edge.label?.trim() || undefined,
-      description: edge.description?.trim() || undefined,
-    };
-  });
+  const validCheckpointIds = new Set(checkpoints.map((cp) => cp.id));
+  const transitions: Transition[] = draft.transitions
+    .filter((edge) => edge.id && edge.id.trim() && edge.from && edge.from.trim() && edge.to && edge.to.trim())
+    .filter((edge) => validCheckpointIds.has(edge.from.trim()) && validCheckpointIds.has(edge.to.trim()))
+    .map((edge) => {
+      const trigger = triggerDraftToSchema(edge.trigger);
+      return {
+        id: edge.id.trim(),
+        from: edge.from.trim(),
+        to: edge.to.trim(),
+        trigger,
+        label: edge.label?.trim() || undefined,
+        description: edge.description?.trim() || undefined,
+      };
+    });
 
   const roles = cleanupRoleMap(draft.roles as Record<Role, unknown> | undefined);
 
@@ -514,6 +522,20 @@ export const draftToStoryInput = (draft: StoryDraft): Story => {
     start,
     ...(talkControl ? { talkControl } : {}),
   };
+};
+
+/**
+ * Safe wrapper around draftToStoryInput that catches validation errors
+ * and returns a result object instead of throwing.
+ */
+export const safeDraftToStoryInput = (draft: StoryDraft): { ok: true; story: Story } | { ok: false; error: string } => {
+  try {
+    const story = draftToStoryInput(draft);
+    return { ok: true, story };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return { ok: false, error: message };
+  }
 };
 
 export const generateUniqueId = (existing: Set<string>, prefix: string): string => {
