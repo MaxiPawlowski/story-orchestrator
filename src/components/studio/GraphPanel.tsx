@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import cytoscape, { Core, ElementDefinition, EventObject, LayoutOptions } from "cytoscape";
 import { StoryDraft, LayoutName } from "@utils/checkpoint-studio";
+import HelpTooltip from "./HelpTooltip";
 
 type Props = {
   draft: StoryDraft;
@@ -13,7 +14,7 @@ type Props = {
 };
 
 const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, onAddCheckpoint, onAddTransition, canAddTransition }) => {
-  const [layout, setLayout] = useState<LayoutName>("breadthfirst");
+  const [layout, setLayout] = useState<LayoutName>("dagre");
   const [dagreReady, setDagreReady] = useState(false);
   const [cyReady, setCyReady] = useState(false);
   const [layoutTrigger, setLayoutTrigger] = useState(0);
@@ -38,7 +39,7 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
     return [...nodes, ...edges];
   }, [draft, selectedId]);
 
-  const runLayout = (cy: Core, name: LayoutName) => {
+  const runLayout = useCallback((cy: Core, name: LayoutName) => {
     if (cy.elements().length === 0) return;
     const layoutName = name === "dagre" && !dagreReady ? "breadthfirst" : name;
     const options = { name: layoutName } as LayoutOptions;
@@ -59,7 +60,7 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
     } catch (err) {
       console.warn("[Story - GraphPanel] Failed to fit cytoscape view", err);
     }
-  };
+  }, [dagreReady]);
 
   useEffect(() => {
     let cy: Core | null = null;
@@ -196,13 +197,13 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
     if (needsLayout && elements.length > 0) {
       runLayout(cy, layout);
     }
-  }, [elements, cyReady, layout]);
+  }, [elements, cyReady, layout, runLayout]);
 
   useEffect(() => {
     const cy = cyRef.current;
     if (!cy || cy.elements().length === 0) return;
     runLayout(cy, layout);
-  }, [layoutTrigger, layout, cyReady]);
+  }, [layoutTrigger, layout, cyReady, runLayout]);
 
   useEffect(() => {
     let cancelled = false;
@@ -223,10 +224,18 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
     return () => { cancelled = true; };
   }, []);
 
+  if (!dagreReady && layout === "dagre") {
+    return (
+      <div className="flex items-center justify-center p-4">
+        <span className="text-sm text-slate-400">Loading Dagre layout...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-1 flex-col overflow-hidden rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] shadow-sm">
       <div className="flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-2">
-        <div className="font-semibold">Graph</div>
+        <div className="font-semibold">Graph <HelpTooltip title="Click a Checkpoint to configure it" /></div>
         <div className="flex items-center gap-2">
           <button
             type="button"
