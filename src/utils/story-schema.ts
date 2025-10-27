@@ -118,7 +118,6 @@ export type TalkControlCheckpointMap = z.infer<typeof TalkControlConfigSchema>["
 
 const TriggerBaseSchema = z.object({
   id: z.string().min(1).optional(),
-  label: z.string().min(1).optional(),
 });
 
 const RegexTriggerSchema = TriggerBaseSchema.extend({

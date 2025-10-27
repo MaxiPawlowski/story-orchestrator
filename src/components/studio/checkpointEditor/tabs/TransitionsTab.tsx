@@ -57,7 +57,6 @@ const TransitionsTab: React.FC<Props> = ({
               setTrigger({
                 type: "timed",
                 within_turns: Math.max(1, trigger.within_turns ?? 3),
-                label: trigger.label,
                 patterns: [],
               });
             } else {
@@ -65,7 +64,6 @@ const TransitionsTab: React.FC<Props> = ({
                 type: "regex",
                 patterns: trigger.patterns?.length ? trigger.patterns : ["/enter-pattern/i"],
                 condition: trigger.condition ?? "Replace with Arbiter condition",
-                label: trigger.label,
               });
             }
           };
@@ -125,8 +123,8 @@ const TransitionsTab: React.FC<Props> = ({
                   </span>
                   <input
                     className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
-                    value={trigger.label ?? ""}
-                    onChange={(e) => patchTrigger({ label: e.target.value })}
+                    value={edge.label ?? ""}
+                    onChange={(e) => updateTransition(edge.id, { label: e.target.value })}
                   />
                 </label>
               </div>

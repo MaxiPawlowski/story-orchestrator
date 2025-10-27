@@ -63,7 +63,6 @@ export type NormalizedTriggerType = "regex" | "timed";
 
 export interface NormalizedTransitionTrigger {
   id?: string;
-  label?: string;
   type: NormalizedTriggerType;
   regexes: RegExp[];
   withinTurns?: number;
@@ -391,7 +390,6 @@ function normalizeOnActivateBlock(
 
 function normalizeTransitionTrigger(trigger: StoryTransitionTrigger, path: string): NormalizedTransitionTrigger {
   const type = (trigger.type ?? "regex") as NormalizedTriggerType;
-  const label = typeof trigger.label === "string" ? cleanScalar(trigger.label) : undefined;
   const id = typeof trigger.id === "string" ? cleanScalar(trigger.id) : undefined;
 
   if (type === "regex") {
@@ -408,7 +406,6 @@ function normalizeTransitionTrigger(trigger: StoryTransitionTrigger, path: strin
     }
     return {
       id: id || undefined,
-      label: label || undefined,
       type,
       regexes,
       withinTurns: undefined,
@@ -425,7 +422,6 @@ function normalizeTransitionTrigger(trigger: StoryTransitionTrigger, path: strin
 
   return {
     id: id || undefined,
-    label: label || undefined,
     type,
     regexes: [],
     withinTurns: Math.floor(normalized),

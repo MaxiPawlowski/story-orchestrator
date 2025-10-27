@@ -136,7 +136,6 @@
       "description": "The party accepts the mission and heads toward the Sun Ruins.",
       "trigger": {
         "type": "regex",
-        "label": "Mission accepted",
         "condition": "The party confirms the mission and leaves the guild for the Sun Ruins.",
         "patterns": [
           "/\\b(accept|take|claim)\\b[\\s\\S]{0,20}\\b(mission|quest|job)\\b/i",
@@ -153,7 +152,6 @@
       "description": "After securing the artifact, the party returns to the guild.",
       "trigger": {
         "type": "regex",
-        "label": "Artifact secured",
         "condition": "The party secures the artifact and is ready to escape the ruins.",
         "patterns": [
           "/\\b(find|locate|recover|obtain|secure|retrieve)\\b[\\s\\S]{0,30}\\b(artifact|sun('?s)? heart|crystal(?:line)? core|core)\\b/i",
@@ -170,7 +168,6 @@
       "description": "Failsafe: the party escapes after prolonged struggle in the ruins.",
       "trigger": {
         "type": "timed",
-        "label": "Escape under pressure",
         "within_turns": 4
       }
     }

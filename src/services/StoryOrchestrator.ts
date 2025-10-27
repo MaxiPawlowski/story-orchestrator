@@ -163,7 +163,7 @@ class StoryOrchestrator {
     const triggerInfo = match?.trigger ? {
       type: match.trigger.type,
       pattern: match.pattern,
-      label: match.trigger.raw?.label ?? match.trigger.raw?.id ?? match.trigger.label,
+      label: match.trigger.raw?.id ?? edge.label ?? edge.id,
     } : undefined;
     return {
       id: edge.id,
@@ -183,7 +183,7 @@ class StoryOrchestrator {
         const match = matchById.get(edge.id);
         const target = this.story.checkpoints.find(cp => cp.id === edge.to);
         const trigger = match?.trigger ?? edge.trigger;
-        const triggerLabel = trigger.raw?.label ?? trigger.raw?.id ?? trigger.label;
+        const triggerLabel = trigger.raw?.id ?? edge.label ?? edge.id;
 
         const pattern = match?.pattern
           ?? (trigger.regexes?.[0] ? trigger.regexes[0].toString() : undefined);

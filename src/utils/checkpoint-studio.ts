@@ -49,7 +49,6 @@ export type TransitionTriggerDraft = {
   patterns: string[];
   condition?: string;
   within_turns?: number;
-  label?: string;
 };
 
 export type TransitionDraft = Omit<Transition, "trigger"> & {
@@ -213,7 +212,6 @@ const normalizedTriggerToDraft = (trigger: NormalizedTransitionTrigger): Transit
   patterns: trigger.type === "regex" ? trigger.regexes.map(regexToString) : [],
   condition: trigger.condition,
   within_turns: trigger.withinTurns,
-  label: trigger.raw?.label ?? trigger.label,
 });
 
 const normalizedTransitionToDraft = (edge: NormalizedTransition): TransitionDraft => ({
@@ -450,7 +448,6 @@ const sanitizeTriggerDraft = (draft: TransitionTriggerDraft): TransitionTriggerD
     patterns,
     condition,
     within_turns: within,
-    label: draft.label?.trim() || undefined,
   };
 };
 
@@ -465,14 +462,12 @@ const triggerDraftToSchema = (draft: TransitionTriggerDraft): TransitionTrigger 
       type: "regex",
       patterns: sanitized.patterns,
       condition: sanitized.condition ?? "",
-      label: sanitized.label,
     };
   }
   return {
     id: sanitized.id,
     type: "timed",
     within_turns: sanitized.within_turns ?? 1,
-    label: sanitized.label,
   };
 };
 
