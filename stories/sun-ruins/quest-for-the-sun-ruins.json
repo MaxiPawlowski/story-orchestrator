@@ -1,0 +1,588 @@
+{
+  "title": "Quest for the Sun Ruins",
+  "description": "Humanity’s last survivors live within the ruined city of Xentar, surrounded by lethal wilderness and weakening magical barriers. The Adventurers EGuild dispatches an exploration team to recover the legendary Sun's Heart Artifact from the perilous Sun Ruins, facing ancient traps and mystical guardians along the way.",
+  "global_lorebook": "Xentar Checkpoints",
+  "roles": {
+    "dm": "DM Narrator",
+    "companion": "Arin",
+    "guild_master": "Ponticius",
+    "little_brother": "Luke"
+  },
+  "checkpoints": [
+    {
+      "id": "cp1",
+      "name": "1. Investigate the Guild’s Job Board",
+      "objective": "Get closer to the board to see available missions.",
+      "on_activate": {
+        "authors_note": {
+          "dm": {
+            "text": "[Keep the pacing relaxed. Describe the guild’s tavern noise and atmosphere subtly as {{story_player_name}} approaches the job board.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          },
+          "companion": {
+            "text": "[{{story_role_companion}} is strapping on armor and teasing {{story_player_name}} about being late.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          }
+        },
+        "world_info": {
+          "activate": [
+            "CP1 - Mission",
+            "CP1 - Scenario"
+          ],
+          "deactivate": [
+            "CP2 - Mission",
+            "CP2 - Scenario",
+            "CP3 - Luke",
+            "CP4 - Scenario",
+            "CP4 - Sphinx",
+            "CP4 - Sphinx's Riddle"
+          ]
+        },
+        "preset_overrides": {
+          "dm": {
+            "temp": 0.65,
+            "top_p": 0.95,
+            "min_p": 0.025,
+            "rep_pen": 1.08,
+            "guidance_scale": 1.2
+          },
+          "companion": {
+            "temp": 0.85,
+            "top_p": 0.95,
+            "min_p": 0.02,
+            "rep_pen": 1.03,
+            "guidance_scale": 1.1
+          }
+        },
+        "arbiter_preset": {
+          "temp": 0.35
+        },
+        "automations": [
+          "/bg tavern day",
+          "/member-disable {{story_role_guild_master}}",
+          "/member-disable {{story_role_little_brother}}"
+        ]
+      }
+    },
+    {
+      "id": "cp2",
+      "name": "2. Investigate the Guild’s Job Board",
+      "objective": "Pick up a mission from the board.",
+      "on_activate": {
+        "authors_note": {
+          "dm": {
+            "text": "[Emphasize the worn Sun Ruins posting among the others. When {{story_player_name}} commits, have the Guild Master intervene with calm seriousness about the city’s failing wards.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          },
+          "companion": {
+            "text": "[{{story_role_companion}} comments on the board’s clutter and grows serious when the Guild Master arrives.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          },
+          "guild_master": {
+            "text": "[Speak with warm authority. Start lightly, then warn that the Sun Ruins mission is critical to restoring the barriers. Keep the message short and personal.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          }
+        },
+        "world_info": {
+          "activate": [
+            "CP2 - Mission",
+            "CP2 - Scenario"
+          ],
+          "deactivate": [
+            "CP1 - Mission",
+            "CP1 - Scenario"
+          ]
+        },
+        "preset_overrides": {
+          "dm": {
+            "temp": 0.6,
+            "top_p": 0.92,
+            "min_p": 0.03,
+            "rep_pen": 1.1,
+            "guidance_scale": 1.6
+          },
+          "companion": {
+            "temp": 0.8,
+            "top_p": 0.92,
+            "min_p": 0.03,
+            "rep_pen": 1.06,
+            "guidance_scale": 1.4
+          }
+        },
+        "arbiter_preset": {
+          "temp": 0.28
+        },
+        "automations": [
+          "/member-enable {{story_role_guild_master}}"
+        ]
+      }
+    },
+    {
+      "id": "cp3",
+      "name": "3. Departure to the Sun Ruins",
+      "objective": "Deliver the artifact back to the Guild Master and conclude the mission.",
+      "on_activate": {
+        "authors_note": {
+          "dm": {
+            "text": "[Introduce Luke quickly after the Guild Master exits. He interrupts with urgency about his missing brother. Let {{story_player_name}} decide whether to take him.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          },
+          "companion": {
+            "text": "[Challenge Luke if {{story_player_name}} hesitates; show skepticism but restraint.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          },
+          "little_brother": {
+            "text": "[Young and desperate. Pleads to join, needing to find his brother that went missing.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          }
+        },
+        "world_info": {
+          "activate": [
+            "CP3 - Luke"
+          ],
+          "deactivate": [
+            "CP2 - Scenario",
+            "CP2 - Mission"
+          ]
+        },
+        "preset_overrides": {
+          "dm": {
+            "temp": 0.6,
+            "top_p": 0.93,
+            "min_p": 0.025,
+            "rep_pen": 1.09,
+            "guidance_scale": 1.3
+          },
+          "companion": {
+            "temp": 0.75,
+            "top_p": 0.94,
+            "min_p": 0.02,
+            "rep_pen": 1.04,
+            "guidance_scale": 1.2
+          }
+        },
+        "arbiter_preset": {
+          "temp": 0.32
+        },
+        "automations": [
+          "/member-disable {{story_role_guild_master}}",
+          "/member-enable {{story_role_little_brother}}"
+        ]
+      }
+    },
+    {
+      "id": "cp-4a",
+      "name": "4a. Travel to the Sun Ruins",
+      "objective": "Arrive to the Sun ruins with luke.",
+      "on_activate": {
+        "authors_note": {
+          "dm": {
+            "text": "[Trigger the sphinx encounter immediately. Stop the party with its riddle before they can advance.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          },
+          "companion": {
+            "text": "[Distrusts the sphinx and cautions against rash answers.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          },
+          "little_brother": {
+            "text": "[Eager and reckless. Tries to answer before the others.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          }
+        },
+        "world_info": {
+          "activate": [
+            "CP4 - Scenario",
+            "CP4 - Sphinx",
+            "CP4 - Sphinx's Riddle"
+          ],
+          "deactivate": [
+            "CP3 - Luke"
+          ]
+        }
+      }
+    },
+    {
+      "id": "cp-4b",
+      "name": "4b. Travel to the Sun Ruins",
+      "objective": "Traven to Sun Ruins with only your companion.",
+      "on_activate": {
+        "authors_note": {
+          "dm": {
+            "text": "[Present the sphinx immediately. Deliver the riddle in a calm, timeless voice.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          },
+          "companion": {
+            "text": "[Analyzes the riddle carefully, uncertain but composed.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          }
+        },
+        "world_info": {
+          "activate": [
+            "CP4 - Scenario",
+            "CP4 - Sphinx",
+            "CP4 - Sphinx's Riddle"
+          ],
+          "deactivate": [
+            "CP3 - Luke"
+          ]
+        }
+      }
+    },
+    {
+      "id": "cp-4a1",
+      "name": "4a1. Solve the Sphinx’s Riddle",
+      "objective": "Find the artifact.",
+      "on_activate": {
+        "authors_note": {
+          "dm": {
+            "text": "[Confirm the correct answer and grant passage. The sphinx steps aside solemnly.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          },
+          "companion": {
+            "text": "[Relieved and teasing Luke for almost ruining it.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          },
+          "little_brother": {
+            "text": "[Grateful and humbled.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          }
+        }
+      }
+    },
+    {
+      "id": "cp-4a2",
+      "name": "4a2. Failure solving Sphinx’s Riddle",
+      "objective": "Return to the guild.",
+      "on_activate": {
+        "authors_note": {
+          "dm": {
+            "text": "[Describe the sphinx’s wrath striking Luke down instantly. Keep tone tragic and brief.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          },
+          "companion": {
+            "text": "[Shaken, mourns Luke but urges the mission to continue.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          },
+          "little_brother": {
+            "text": "[Dying words express pain and regret.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          }
+        },
+        "automations": [
+          "/member-disable {{story_role_little_brother}}"
+        ]
+      }
+    },
+    {
+      "id": "cp-5",
+      "name": "5. Find the Artifact",
+      "objective": "Find the Artifact.",
+      "on_activate": {
+        "authors_note": {
+          "dm": {
+            "text": "[Describe the recovery of the Sun’s Heart Artifact with restrained awe.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          },
+          "companion": {
+            "text": "[Express pride in {{story_player_name}} and satisfaction at surviving the ruins.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          }
+        },
+        "world_info": {
+          "activate": [],
+          "deactivate": [
+            "CP4 - Sphinx's Riddle",
+            "CP4 - Sphinx",
+            "CP4 - Scenario"
+          ]
+        }
+      }
+    },
+    {
+      "id": "cp-6",
+      "name": "6. Return to the Guild",
+      "objective": "Claim your reward.",
+      "on_activate": {
+        "authors_note": {
+          "dm": {
+            "text": "[Depict relief and hope as {{story_player_name}} delivers the artifact. End with a sense of closure and new beginnings.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          },
+          "companion": {
+            "text": "[Share quiet reflection on the journey.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          },
+          "little_brother": {
+            "text": "[Thank the group sincerely, but still needs to find his brother.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          },
+          "guild_master": {
+            "text": "[Praise the success, deliver the reward, and hint at future challenges.]",
+            "position": "chat",
+            "interval": 1,
+            "depth": 4,
+            "role": "system"
+          }
+        }
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "id": "transition-get-close-board",
+      "from": "cp1",
+      "to": "cp2",
+      "trigger": {
+        "type": "regex",
+        "patterns": [
+          "/\\b(get close|approach|move closer|examine|investigate|look at|read)\\b/i"
+        ],
+        "condition": "{{story_player_name}} has gotten close to the job board."
+      },
+      "label": "Get closer to the board to see available missions.",
+      "description": "The party accepts the mission and heads toward the Sun Ruins."
+    },
+    {
+      "id": "transition-accept-mission",
+      "from": "cp2",
+      "to": "cp3",
+      "trigger": {
+        "type": "regex",
+        "patterns": [
+          "/\\b(accept|take|pick up|get|choose|select|claim)\\b.*\\b(mission|quest|job|task|assignment)\\b/i"
+        ],
+        "condition": "{{story_player_name}} has accepted the Sun Ruins mission, and {{story_player_guild_master}} has left."
+      },
+      "label": "Accept the Sun Ruins mission.",
+      "description": "After securing the artifact, the party returns to the guild."
+    },
+    {
+      "id": "transition-accept-luke",
+      "from": "cp3",
+      "to": "cp-4a",
+      "trigger": {
+        "type": "regex",
+        "patterns": [
+          "/\\b(agree|allow|let|take|bring|include)\\b.*\\b(luke|young adventurer|new companion)\\b/i"
+        ],
+        "condition": "{{story_player_name}} has agreed to take Luke along."
+      },
+      "label": "Take Luke with you"
+    },
+    {
+      "id": "transition-decline-luke",
+      "from": "cp3",
+      "to": "cp-4b",
+      "trigger": {
+        "type": "regex",
+        "patterns": [
+          "/\\b(decline|refuse|deny|leave|depart|go without)\\b.*\\b(luke|young adventurer|new companion)\\b/i"
+        ],
+        "condition": "{{story_player_name}} has declined to take Luke along."
+      },
+      "label": "Decline Luke's request"
+    },
+    {
+      "id": "transition-solve-riddle-companion",
+      "from": "cp-4b",
+      "to": "cp-5",
+      "trigger": {
+        "type": "regex",
+        "patterns": [
+          "/\\b(solve|answer|respond|reply|speak|say|tell)\\b.*\\b(riddle|sphinx|question|puzzle)\\b\\/i/i",
+          "/\\b(the moon)\\b\\/i/i"
+        ],
+        "condition": "{{story_player_name}} or {{story_role_companion}} solved the sphinx’s riddle."
+      },
+      "label": "Solve the sphinx’s riddle."
+    },
+    {
+      "id": "transition-return-guild",
+      "from": "cp-5",
+      "to": "cp-6",
+      "trigger": {
+        "type": "regex",
+        "patterns": [
+          "/\\b(return|go back|head back|leave|depart|travel back)\\b.*\\b(guild|adventurers guild|guild hall|xentar)\\b/i"
+        ],
+        "condition": "{{story_player_name}} has secured the Sun’s Heart Artifact and is ready to return to the Guild."
+      },
+      "label": "Prepare to return to the Guild with the artifact."
+    },
+    {
+      "id": "transition-solve-riddle-luke",
+      "from": "cp-4a",
+      "to": "cp-4a1",
+      "trigger": {
+        "type": "regex",
+        "patterns": [
+          "/\\b(solve|answer|respond|reply|speak|say|tell)\\b.*\\b(riddle|sphinx|question|puzzle)\\b\\/i/i",
+          "/\\b(the moon)\\b\\/i/i"
+        ],
+        "condition": "Someone in the party has solved the sphinx’s riddle, the correct answer is \"the moon\"."
+      },
+      "label": "Solve the Sphinx's Riddle"
+    },
+    {
+      "id": "transition-fail-riddle-luke",
+      "from": "cp-4a",
+      "to": "cp-4a2",
+      "trigger": {
+        "type": "regex",
+        "patterns": [
+          "/\\b(fail|wrong|incorrect|don’t know|no answer|silent)\\b.*\\b(riddle|sphinx|question|puzzle)\\b\\/i/i"
+        ],
+        "condition": "Someone in the party has failed to answer the sphinx’s riddle."
+      },
+      "label": "Fail to answer the sphinx’s riddle."
+    },
+    {
+      "id": "transition-investigate-chamber-luke-fail",
+      "from": "cp-4a2",
+      "to": "cp-5",
+      "trigger": {
+        "type": "regex",
+        "patterns": [
+          "/\\b(investigate|approach|examine|look at|inspect|study)\\b.*\\b(chamber|room|area|space)\\b\\/i/i"
+        ],
+        "condition": "{{story_player_name}} has entered the chamber."
+      },
+      "label": "Investigate the chamber and approach the artifact."
+    },
+    {
+      "id": "transition-investigate-chamber-luke",
+      "from": "cp-4a1",
+      "to": "cp-5",
+      "trigger": {
+        "type": "regex",
+        "patterns": [
+          "/\\b(investigate|approach|examine|look at|inspect|study)\\b.*\\b(chamber|room|area|space)\\b\\/i/i"
+        ],
+        "condition": "{{story_player_name}} has entered the chamber."
+      },
+      "label": "Investigate the chamber and approach the artifact."
+    }
+  ],
+  "start": "cp1",
+  "talkControl": {
+    "checkpoints": {
+      "cp2": {
+        "replies": [
+          {
+            "memberId": "dm",
+            "speakerId": "",
+            "enabled": true,
+            "trigger": "onEnter",
+            "probability": 100,
+            "maxTriggers": 1,
+            "content": {
+              "kind": "llm",
+              "instruction": "[Narrate how {{story_player_name}} takes the mission paper from the board, and prepare a markup description of the Sun Ruins mission description and reward.]"
+            }
+          },
+          {
+            "memberId": "guild_master",
+            "speakerId": "dm",
+            "enabled": true,
+            "trigger": "afterSpeak",
+            "probability": 100,
+            "maxTriggers": 1,
+            "content": {
+              "kind": "llm",
+              "instruction": "[Warn {{story_player_name}} that the Sun Ruins are unstable, and stress the importance of retrieving the artifact to restore Xentar’s wards. Keep it brief but impactful.]"
+            }
+          }
+        ]
+      },
+      "cp3": {
+        "replies": [
+          {
+            "memberId": "little_brother",
+            "speakerId": "",
+            "enabled": true,
+            "trigger": "onEnter",
+            "probability": 100,
+            "maxTriggers": 1,
+            "content": {
+              "kind": "llm",
+              "instruction": "[Describe Luke’s urgent plea to join the mission, explaining his brother’s disappearance in the Sun Ruins. Let {{story_player_name}} feel the weight of the decision.]"
+            }
+          }
+        ]
+      }
+    },
+    "defaults": {}
+  }
+}
