@@ -15,6 +15,17 @@ ST Story Orchestrator treats every adventure as a non-linear sequence of checkpo
 - **Macros**: `storyMacros` registers macros (title, checkpoint summaries, trigger candidates, chat excerpts, role aliases, player name) that refresh whenever the runtime or turn counter changes, so presets, Author's Notes, and lore entries stay in sync.
 - **Slash commands**: `/checkpoint` (`/cp`) supports `list`, `prev`, `eval`, explicit checkpoint activation, and named arguments. Additional commands fire via checkpoint automations or Checkpoint Studio utilities.
 
+<img width="834" height="586" alt="{1CADC0CF-CAAB-40C7-92F4-1BEE3AF14920}" src="https://github.com/user-attachments/assets/0316efed-f851-4b3b-945d-c275b491a50e" />
+<img width="821" height="525" alt="{4328B6CD-2285-4DEC-BA6D-C7A37AA8CFFD}" src="https://github.com/user-attachments/assets/2542fe7c-0615-4b7b-82e3-61e4fef17679" />
+<img width="829" height="537" alt="{D30CE9D4-82B1-47FB-8870-747001CE1299}" src="https://github.com/user-attachments/assets/5d233b5d-6104-4a97-881a-1c4873983926" />
+<img width="818" height="480" alt="{E572E280-03C1-4731-AD95-22696D2AE1AC}" src="https://github.com/user-attachments/assets/4f561b5d-d1dc-465c-be22-f3aaac60c882" />
+<img width="818" height="473" alt="{E0FA58B0-D57D-4902-9BE6-2169215CF5D4}" src="https://github.com/user-attachments/assets/56b5e6a5-2fa3-431f-9363-b21071d7d903" />
+<img width="830" height="430" alt="{39F00F34-5E0F-4750-A353-E194426D9E69}" src="https://github.com/user-attachments/assets/e3346aca-6025-424e-9ff1-7c89ff0cb137" />
+<img width="823" height="385" alt="{41B344A9-D816-4B3D-B368-29663440094F}" src="https://github.com/user-attachments/assets/c14f56e5-29b8-40b0-aacb-417eb622703f" />
+<img width="819" height="392" alt="{2F425582-82E7-41CD-B97B-119C6176C63E}" src="https://github.com/user-attachments/assets/be753133-9c2d-40e2-b11f-9dae69d6f2fc" />
+
+There's a sample story under "stories\sun-ruins\quest-for-the-sun-ruins.json"
+
 ## Runtime Lifecycle
 1. `src/index.tsx` mounts Drawer + Settings portals after the host loads (with a 2-second delay for stability), registers the talk-control interceptor on `globalThis`, and wraps the apps with `ExtensionSettingsProvider` and `StoryProvider`.
 2. `StoryProvider` loads the persisted story library (`storyLibrary` + `story-validator`), restores the chat's previously selected story from persisted state, and ensures macros are registered. Selecting a story calls `orchestratorManager.ensureStory`.
