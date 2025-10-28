@@ -155,3 +155,29 @@ webpack.config.js                # Webpack build + live-reload + fork-ts-checker
 tsconfig.json                    # TypeScript configuration
 global.d.ts                      # Global TypeScript declarations
 ```
+## Currently working on:
+  Creating a new story to test all the features together.
+
+## Testing:
+  add more customizations to checkpoint transition (each X amount of messages)
+  Test Settings configuration
+  default values of configs (an? preset?) are applied when no overrides
+  hook cp events to proper hosts events, new chat? on chat enter? chat creation?
+
+## ToDo:
+  Bugfix: remove requirementsState, it should be its own hook, or some react context
+  Bugfix: rename checkpoint studio for Studio editor.
+  Feature: Better control of automatic generation continuation (max attempts, enable/disable)
+  Feature: add "delay turns" on talk control replies
+  Feature: merge similar checkpoints in user UI
+  Feature: support multiple lorebooks
+  Feature: arbiter/dm stepped thinking
+  Feature: add Group Chat Scenario Override (setScenarioOverride) and personality customization to checkpoint onActivate
+  Feature: predefined user responses 
+  Feature: default values for settings/presets when no overrides
+  Feature: Allow CP transition to change card contents (like changing memories/personal-lorebook, images, description, etc)
+  Feature: Enhance Regex validity checking with real-time feedback in the UI, prevent invalid regex from being saved.
+  Bugfix: User proper types for TG_SETTING_NAMES, PRESET_SETTING_KEYS, remove "any" types
+  Feature: view chats under story editor
+  Feature: use sillytavern's css colors for styling
+  Feature: normalize window behaviour, window position setting? moving UI?
