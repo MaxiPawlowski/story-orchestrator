@@ -5,6 +5,14 @@ import {
   ARBITER_LOG_SAMPLE_LENGTH,
 } from "@constants/defaults";
 
+interface GenerateRawOptions {
+  prompt: string;
+  instructOverride?: boolean;
+  quietToLoud?: boolean;
+  responseLength?: number;
+  trimNames?: boolean;
+}
+
 
 export type ArbiterReason = "trigger" | "timed" | "interval" | "manual";
 
@@ -56,6 +64,8 @@ export interface CheckpointArbiterServiceOptions {
   snapshotLimit: number;
   responseLength: number;
   promptTemplate: string;
+  enableContinuation?: boolean;
+  maxContinuationAttempts?: number;
 }
 
 interface PendingJob {
@@ -169,6 +179,90 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
 
   }
 
+  private isTruncated(raw: string): boolean {
+    if (!raw || !raw.trim()) return false;
+
+    const trimmed = raw.trim();
+
+    const jsonMatch = trimmed.match(/\{[\s\S]*$/);
+    if (!jsonMatch) return false;
+
+    const jsonPart = jsonMatch[0];
+
+    let braceCount = 0;
+    let inString = false;
+    let escapeNext = false;
+
+    for (const char of jsonPart) {
+      if (escapeNext) {
+        escapeNext = false;
+        continue;
+      }
+      if (char === '\\') {
+        escapeNext = true;
+        continue;
+      }
+      if (char === '"') {
+        inString = !inString;
+        continue;
+      }
+      if (!inString) {
+        if (char === '{') braceCount++;
+        if (char === '}') braceCount--;
+      }
+    }
+
+    if (braceCount !== 0) {
+      return true;
+    }
+
+    // Check if it ends mid-property (e.g., ends with comma or colon)
+    if (/[,:]\s*$/.test(trimmed)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private async continueGeneration(
+    previousResponse: string,
+    generateRaw: (options: GenerateRawOptions) => Promise<string>,
+    maxAttempts = 2
+  ): Promise<string> {
+    let fullResponse = "";
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        const continuationPrompt = `Continue the previous JSON response. Complete it without repeating what was already written:\n\n${previousResponse + fullResponse}`;
+
+        const continued = await generateRaw({
+          prompt: continuationPrompt,
+          instructOverride: true,
+          quietToLoud: false,
+          responseLength: this.options?.responseLength ?? ARBITER_RESPONSE_LENGTH,
+          trimNames: false,
+        });
+
+        if (!continued || !continued.trim()) {
+          console.warn("[Story - CheckpointArbiter] Continuation returned empty");
+          break;
+        }
+
+        fullResponse += continued;
+
+
+        if (!this.isTruncated(previousResponse + fullResponse)) {
+          break;
+        }
+      } catch (err) {
+        console.warn("[Story - CheckpointArbiter] Continuation attempt failed", err);
+        break;
+      }
+    }
+
+    return fullResponse;
+  }
+
   updateOptions(options?: Partial<CheckpointArbiterServiceOptions>) {
     if (!options) return;
     const merged: CheckpointArbiterServiceOptions = {
@@ -225,6 +319,16 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
             trimNames: false,
           });
           console.log("[Story - CheckpointArbiter] raw response", { sample: String(raw).slice(0, ARBITER_LOG_SAMPLE_LENGTH) });
+
+          const continuationEnabled = this.options?.enableContinuation ?? true;
+          if (raw && continuationEnabled && this.isTruncated(raw)) {
+            console.log("[Story - CheckpointArbiter] Response appears truncated, attempting continuation");
+            const maxAttempts = this.options?.maxContinuationAttempts ?? 2;
+            const continuation = await this.continueGeneration(raw, generateRaw, maxAttempts);
+            if (continuation) {
+              raw = raw + continuation;
+            }
+          }
         } catch (err) {
           console.warn("[Story - CheckpointArbiter] request failed", err);
         }

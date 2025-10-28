@@ -12,7 +12,17 @@ interface MessageInjectionContext {
   kind: "static" | "llm";
 }
 
+interface GenerateQuietPromptOptions {
+  quietPrompt: string;
+  quietToLoud?: boolean;
+  quietName?: string;
+  forceChId?: number;
+  removeReasoning?: boolean;
+}
+
 export class MessageInjector {
+  private enableContinuation = true;
+  private maxContinuationAttempts = 2;
   async injectMessage(ctx: MessageInjectionContext): Promise<boolean> {
     const { chatMetadata, getThumbnailUrl, addOneMessage, saveChat, groupId, chat, eventSource, eventTypes } = getContext();
 
@@ -111,7 +121,7 @@ export class MessageInjector {
     });
 
     try {
-      const result = await generateQuietPrompt({
+      let result = await generateQuietPrompt({
         quietPrompt: instruction,
         quietToLoud: false,
         quietName: reply.memberId,
@@ -119,10 +129,88 @@ export class MessageInjector {
         removeReasoning: true,
       });
 
+      if (result && this.enableContinuation && this.isTruncatedText(result)) {
+        const continuation = await this.continueQuietGeneration(
+          result,
+          generateQuietPrompt,
+          reply,
+          charId
+        );
+        if (continuation) {
+          result = result + continuation;
+        }
+      }
+
       return result;
     } catch (err) {
       console.warn("[Story TalkControl] Quiet prompt generation failed", err);
       return "";
+    }
+  }
+
+  private isTruncatedText(text: string): boolean {
+    if (!text || !text.trim()) return false;
+
+    const trimmed = text.trim();
+
+    const endsWithPunctuation = /[.!?:;][\s"'`]*$/.test(trimmed);
+    if (!endsWithPunctuation) {
+      return true;
+    }
+
+    if (trimmed.length < 20) {
+      return true;
+    }
+
+    const quoteCount = (trimmed.match(/"/g) || []).length;
+    if (quoteCount % 2 !== 0) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private async continueQuietGeneration(
+    previousResponse: string,
+    generateQuietPrompt: (options: GenerateQuietPromptOptions) => Promise<string>,
+    reply: NormalizedTalkControlReply,
+    charId: number
+  ): Promise<string> {
+    let fullResponse = "";
+
+    for (let attempt = 0; attempt < this.maxContinuationAttempts; attempt++) {
+      try {
+        const continuationInstruction = `Continue your previous response. Complete it naturally without repeating what was already said:\n\nPrevious: ${previousResponse + fullResponse}`;
+
+        const continued = await generateQuietPrompt({
+          quietPrompt: continuationInstruction,
+          quietToLoud: false,
+          quietName: reply.memberId,
+          forceChId: charId,
+          removeReasoning: true,
+        });
+
+        if (!continued || !continued.trim()) {
+          break;
+        }
+
+        fullResponse += continued;
+
+        if (!this.isTruncatedText(previousResponse + fullResponse)) {
+          break;
+        }
+      } catch (err) {
+        break;
+      }
+    }
+
+    return fullResponse;
+  }
+
+  public setContinuationOptions(enabled: boolean, maxAttempts?: number): void {
+    this.enableContinuation = enabled;
+    if (maxAttempts !== undefined) {
+      this.maxContinuationAttempts = maxAttempts;
     }
   }
 }
