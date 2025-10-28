@@ -74,7 +74,9 @@ export class TalkControlService {
       if (!event) break;
 
       const action = this.replySelector.selectAction(event, this.activeCheckpointId);
-      if (action) return action;
+      if (action) {
+        return action;
+      }
     }
     return null;
   }
@@ -100,7 +102,9 @@ export class TalkControlService {
       });
 
       const characterEntry = this.characterResolver.resolveCharacter(action.reply);
-      if (!characterEntry) return;
+      if (!characterEntry) {
+        return;
+      }
 
       let text = "";
       let kind: "static" | "llm" = "static";
@@ -135,6 +139,15 @@ export class TalkControlService {
         action.state.lastActionTurn = action.state.actionTurnStamp;
         action.state.actionsThisTurn += 1;
         action.state.totalTriggerCount += 1;
+
+        const speakerName = characterEntry.character?.name ?? action.reply.memberId;
+        const speakerId = normalizeName(speakerName);
+
+        this.queueEvent("afterSpeak", action.checkpointId, {
+          speakerId,
+          speakerName,
+          isSelfDispatched: true
+        });
       }
     } catch (err) {
       console.warn("[Story TalkControl] Action dispatch failed", err);
@@ -170,7 +183,9 @@ export class TalkControlService {
   }
 
   private scheduleFlush(): void {
-    if (this.flushScheduled) return;
+    if (this.flushScheduled) {
+      return;
+    }
     this.flushScheduled = true;
 
     const enqueue = typeof queueMicrotask === "function"
@@ -196,9 +211,11 @@ export class TalkControlService {
 
       try {
         console.log("[Story TalkControl] Dispatching queued action", {
+          iteration: guard,
           memberId: action.reply.memberId,
           trigger: action.event.type,
           checkpointId: action.checkpointId,
+          remainingInQueue: this.eventQueue.length,
         });
         await this.executeAction(action);
       } catch (err) {
@@ -222,7 +239,7 @@ export class TalkControlService {
     }
   }
 
-  private handleGenerationStarted = (type: string, _options: any, dryRun: boolean) => {
+  private handleGenerationStarted = (type: string, _options: unknown, dryRun: boolean) => {
     const shouldIgnore = type === 'quiet' || dryRun === true || type === undefined;
 
     if (shouldIgnore) {
@@ -239,16 +256,24 @@ export class TalkControlService {
   };
 
   private onMessageReceived = (messageId: number, messageType?: string) => {
-    if (!this.isStoryActive() || this.isSelfDispatching()) return;
+    if (!this.isStoryActive()) {
+      return;
+    }
 
     const { chat } = getContext();
     const message = chat[messageId];
 
-    if (!message || message.is_system) return;
-    if (message?.extra?.storyOrchestratorTalkControl) return;
+    if (!message || message.is_system) {
+      return;
+    }
+
+    if (this.isSelfDispatching()) {
+      return;
+    }
 
     let speakerName: string;
     let speakerId: string;
+    const isSelfDispatched = Boolean(message?.extra?.storyOrchestratorTalkControl);
 
     if (message.is_user) {
       speakerName = PLAYER_SPEAKER_ID;
@@ -258,7 +283,7 @@ export class TalkControlService {
       speakerId = normalizeName(speakerName);
     }
 
-    this.queueEvent("afterSpeak", this.activeCheckpointId, { speakerId, speakerName, messageId, messageType });
+    this.queueEvent("afterSpeak", this.activeCheckpointId, { speakerId, speakerName, messageId, messageType, isSelfDispatched });
   };
 
   private handleChatChanged = () => {

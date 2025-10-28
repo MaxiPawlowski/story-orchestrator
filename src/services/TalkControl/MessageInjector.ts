@@ -81,6 +81,7 @@ export class MessageInjector {
       checkpointId: ctx.checkpointId,
       trigger: ctx.eventType,
       kind: ctx.kind,
+      messageId,
     });
 
     return true;
