@@ -1,5 +1,6 @@
-import { ARBITER_ROLE_KEY, type Role } from "@utils/story-schema";
+import { ARBITER_ROLE_KEY, type Role, isStubCheckpoint, type Checkpoint, type Transition, type TalkControlConfig } from "@utils/story-schema";
 import type { NormalizedCheckpoint, NormalizedStory, NormalizedTransition } from "@utils/story-validator";
+import { StoryGeneratorService, type CheckpointSummary, type ExpansionResult } from "./StoryGeneratorService";
 import { PresetService } from "./PresetService";
 import { TalkControlService } from "./TalkControlService";
 import CheckpointArbiterService, {
@@ -99,6 +100,9 @@ class StoryOrchestrator {
   private lastGroupSelected = false;
   private requirementsSatisfiedOnce = false;
   private skipDeferredAutomations = false;
+  private generatorService = new StoryGeneratorService();
+  private onMergeExpansion?: (result: ExpansionResult, fromCheckpointId: string) => Promise<void>;
+  private expandingStubId: string | null = null;
 
   constructor(opts: {
     story: NormalizedStory;
@@ -590,6 +594,88 @@ class StoryOrchestrator {
     }
   }
 
+  setExpandCallback(cb: (result: ExpansionResult, fromCheckpointId: string) => Promise<void>) {
+    this.onMergeExpansion = cb;
+  }
+
+  private buildExpansionCheckpointSummaries(): CheckpointSummary[] {
+    const { story, runtime } = this;
+    const checkpoints = story.checkpoints ?? [];
+    const currentIndex = runtime.checkpointIndex ?? 0;
+    const result: CheckpointSummary[] = [];
+    for (let i = 0; i < currentIndex && i < checkpoints.length; i++) {
+      const cp = checkpoints[i];
+      if (!cp || isStubCheckpoint(cp as unknown as import("@utils/story-schema").Checkpoint)) continue;
+      result.push({ name: cp.name, objective: cp.objective, status: "complete" });
+    }
+    const current = checkpoints[currentIndex];
+    if (current && !isStubCheckpoint(current as unknown as import("@utils/story-schema").Checkpoint)) {
+      result.push({ name: current.name, objective: current.objective, status: "current" });
+    }
+    return result;
+  }
+
+  private async expandStub(stubIndex: number, transitionTaken?: NormalizedTransition): Promise<void> {
+    const cp = this.story.checkpoints[stubIndex];
+    if (!cp) return;
+    if (this.expandingStubId === cp.id) return;
+    this.expandingStubId = cp.id;
+
+    const store = storySessionStore.getState();
+    store.setExpansion({ isExpanding: true, phase: "roadmap", phaseDone: {}, preview: null });
+
+    try {
+      const existingCheckpointIds = this.story.checkpoints.map(c => c.id);
+      const existingTransitionIds = this.story.transitions.map(t => t.id);
+
+      const meta = this.story as unknown as Record<string, unknown>;
+      const roadmap = typeof meta._roadmap === "string" ? meta._roadmap : "";
+      const premise = typeof meta._premise === "string" ? meta._premise : cp.objective;
+
+      const transitionLabel = transitionTaken?.label ?? transitionTaken?.id ?? "proceed";
+      const transitionCondition = transitionTaken?.trigger.type === "regex"
+        ? (transitionTaken.trigger as unknown as Record<string, unknown>).condition as string ?? ""
+        : `After ${(transitionTaken?.trigger as unknown as Record<string, unknown>)?.withinTurns} turns`;
+
+      const result = await this.generatorService.expandCheckpoint(
+        {
+          premise,
+          roadmap,
+          transitionLabel,
+          transitionCondition,
+          targetCheckpointId: cp.id,
+          targetCheckpointName: (cp as unknown as Record<string, unknown>)._stubName as string ?? cp.name,
+          pastCheckpoints: this.buildExpansionCheckpointSummaries(),
+          characters: StoryGeneratorService.buildCharacterSummaries(),
+          worldInfo: StoryGeneratorService.buildWorldInfoSummaries(),
+          existingCheckpointIds,
+          existingTransitionIds,
+        },
+        (update) => {
+          const current = storySessionStore.getState().expansion;
+          storySessionStore.getState().setExpansion({
+            phase: update.phase,
+            phaseDone: { ...current.phaseDone, ...(update.done ? { [update.phase]: true } : {}) },
+            ...(update.checkpointName ? {
+              preview: {
+                checkpointName: update.checkpointName,
+                checkpointObjective: update.checkpointObjective ?? "",
+                transitionCount: update.transitionCount ?? 0,
+              }
+            } : {}),
+          });
+        }
+      );
+
+      await this.onMergeExpansion?.(result, cp.id);
+    } catch (err) {
+      console.warn("[StoryOrch] stub expansion failed", err);
+    } finally {
+      this.expandingStubId = null;
+      storySessionStore.getState().resetExpansion();
+    }
+  }
+
 
   private async applyWorldInfoForCheckpoint(cp?: NormalizedCheckpoint) {
     if (!this.requirementsReady) {
@@ -817,6 +903,17 @@ class StoryOrchestrator {
     const cp = checkpoints[checkpointIndex] ?? checkpoints[0];
     const activeKey = cp?.id ?? null;
 
+    if (cp && isStubCheckpoint(cp as unknown as import("@utils/story-schema").Checkpoint) && opts.reason === "activate") {
+      const transitionTaken = this.activeTransitions.find(t => t.to === cp.id);
+      this.expandStub(checkpointIndex, transitionTaken).then(() => {
+        const expanded = this.story.checkpoints[checkpointIndex];
+        if (expanded && !isStubCheckpoint(expanded as unknown as import("@utils/story-schema").Checkpoint)) {
+          this.applyCheckpoint(checkpointIndex, opts);
+        }
+      }).catch(err => console.warn("[StoryOrch] expandStub failed", err));
+      return;
+    }
+
     this.checkpointPrimed = true;
     // Compute transitions from this checkpoint on-the-fly
     this.activeTransitions = cp ? this.story.transitions.filter(t => t.from === cp.id) : [];
@@ -989,8 +1086,11 @@ class StoryOrchestrator {
     this.lastGroupSelected = false;
     this.requirementsSatisfiedOnce = false;
     this.skipDeferredAutomations = false;
+    this.expandingStubId = null;
+    this.onMergeExpansion = undefined;
     this.onActivateIndex = undefined;
     this.onEvaluated = undefined;
+    storySessionStore.getState().resetExpansion();
     resetStoryMacroSnapshot();
   }
 }

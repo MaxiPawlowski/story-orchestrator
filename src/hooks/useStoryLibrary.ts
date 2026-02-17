@@ -10,9 +10,10 @@ import {
   type StoryLibraryEntry,
   type SaveLibraryStoryResult,
   type DeleteLibraryStoryResult,
+  type StoredStoryMeta,
 } from "@utils/story-library";
 
-type SaveOptions = { targetKey?: string; name?: string };
+type SaveOptions = { targetKey?: string; name?: string; meta?: StoredStoryMeta };
 
 export interface StoryLibraryHook {
   loading: boolean;
@@ -22,7 +23,7 @@ export interface StoryLibraryHook {
   selectedError: string | null;
 
   selectEntry: (key: string) => void;
-  saveStory: (story: Story, options?: SaveOptions) => Promise<SaveLibraryStoryResult>;
+  saveStory: (story: Story, options?: { targetKey?: string; name?: string; meta?: StoredStoryMeta }) => Promise<SaveLibraryStoryResult>;
   deleteStory: (key: string) => Promise<DeleteLibraryStoryResult>;
   reloadLibrary: (preferredKey?: string | null) => Promise<void>;
 }
@@ -98,6 +99,7 @@ export function useStoryLibrary(): StoryLibraryHook {
       : fallbackName;
     const normalizedName = requestedName.slice(0, 120);
     const targetKey = options?.targetKey;
+    const meta = options?.meta;
 
     let resultKey: string | undefined;
     setStudioState((prev) => {
@@ -107,7 +109,10 @@ export function useStoryLibrary(): StoryLibraryHook {
         const targetId = targetKey.slice(SAVED_KEY_PREFIX.length);
         const index = stories.findIndex((entry) => entry.id === targetId);
         if (index >= 0) {
-          stories[index] = { ...stories[index], story, name: normalizedName, updatedAt: now };
+          const merged: StoredStoryMeta | undefined = meta
+            ? { ...(stories[index].meta ?? {}), ...meta }
+            : stories[index].meta;
+          stories[index] = { ...stories[index], story, name: normalizedName, updatedAt: now, ...(merged ? { meta: merged } : {}) };
           resultKey = `${SAVED_KEY_PREFIX}${targetId}`;
           const next = { stories, lastSelectedKey: resultKey };
           persistStudioState(next);
@@ -117,7 +122,7 @@ export function useStoryLibrary(): StoryLibraryHook {
 
       const used = new Set(stories.map((entry) => entry.id));
       const newId = generateStoryId(used);
-      stories.push({ id: newId, name: normalizedName, story, updatedAt: now });
+      stories.push({ id: newId, name: normalizedName, story, updatedAt: now, ...(meta ? { meta } : {}) });
       resultKey = `${SAVED_KEY_PREFIX}${newId}`;
       const next = { stories, lastSelectedKey: resultKey };
       persistStudioState(next);
