@@ -32,6 +32,8 @@ const SettingsWrapper = () => {
     reloadLibrary,
     saveLibraryStory,
     deleteLibraryStory,
+    activeChatId,
+    groupChatSelected,
   } = useStoryContext();
   const [showEditor, setShowEditor] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
@@ -250,6 +252,8 @@ const SettingsWrapper = () => {
           onSaveStory={saveLibraryStory}
           onSelectKey={selectLibraryEntry}
           globalLorebook={story?.global_lorebook}
+          activeChatId={activeChatId}
+          groupChatSelected={groupChatSelected}
         />
       </div>
     </div>
