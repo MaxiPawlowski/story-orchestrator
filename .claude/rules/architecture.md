@@ -27,7 +27,7 @@ src/
     studio/                 # Checkpoint editor (tabbed), graph view (Cytoscape/dagre), diagnostics
     common/                 # Shared UI components (RequirementIndicator)
   utils/
-    story-schema.ts         # Zod schema for story YAML
+    story-schema.ts         # Zod schema for story JSON
     story-validator.ts      # Normalization: ordered checkpoints, transition maps, regex compilation
     story-state.ts          # Runtime persistence helpers, checkpoint status derivation
     story-library.ts        # CRUD for story library in extension settings
