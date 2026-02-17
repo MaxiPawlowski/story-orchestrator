@@ -1,7 +1,7 @@
-import { getContext } from "./STAPI";
+import { getContext, getCharacters } from "./STAPI";
 import type { Checkpoint, OnActivate, TalkControlConfig, Transition } from "@utils/story-schema";
 
-const GENERATOR_RESPONSE_LENGTH = 2000;
+const GENERATOR_RESPONSE_LENGTH = 4000;
 const CHAT_SUMMARY_LIMIT = 15;
 
 export interface CharacterSummary {
@@ -25,11 +25,12 @@ export interface SeedInput {
     genre: string;
     tone: string;
     length: string;
-    protagonist: string;
+    focus: string;
   };
 }
 
 export interface SeedResult {
+  roadmap: string;
   roles: Record<string, string>;
   initialCheckpoint: Checkpoint;
   transitions: Transition[];
@@ -104,9 +105,15 @@ function buildChatSummary(): string {
 }
 
 function extractJson(raw: string): unknown {
-  const match = raw.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error("No JSON object found in response");
-  return JSON.parse(match[0]);
+  const start = raw.indexOf("{");
+  if (start === -1) throw new Error("No JSON object found in response");
+  const end = raw.lastIndexOf("}");
+  if (end === -1 || end < start) throw new Error("Unterminated JSON object in response");
+  try {
+    return JSON.parse(raw.slice(start, end + 1));
+  } catch (e) {
+    throw new Error(`Failed to parse JSON from LLM response: ${e instanceof Error ? e.message : String(e)}`);
+  }
 }
 
 function extractText(raw: string): string {
@@ -125,20 +132,28 @@ async function callLlm(prompt: string): Promise<string> {
   return typeof raw === "string" ? raw : "";
 }
 
+const MAX_ID_ITER = 1000;
+
 function makeCheckpointId(used: Set<string>, prefix = "cp"): string {
-  for (let i = 1; ; i++) {
+  for (let i = 1; i <= MAX_ID_ITER; i++) {
     const id = `${prefix}-gen-${i}`;
     if (!used.has(id)) { used.add(id); return id; }
   }
+  const fallback = `${prefix}-gen-${Date.now()}`;
+  used.add(fallback);
+  return fallback;
 }
 
 function makeTransitionId(used: Set<string>, from: string, to: string): string {
   const base = `t-${from}-to-${to}`;
   if (!used.has(base)) { used.add(base); return base; }
-  for (let i = 2; ; i++) {
+  for (let i = 2; i <= MAX_ID_ITER; i++) {
     const id = `${base}-${i}`;
     if (!used.has(id)) { used.add(id); return id; }
   }
+  const fallback = `${base}-${Date.now()}`;
+  used.add(fallback);
+  return fallback;
 }
 
 function parseRoles(raw: unknown, characters: CharacterSummary[]): Record<string, string> {
@@ -260,16 +275,17 @@ export class StoryGeneratorService {
   }
 
   async generateSeed(input: SeedInput): Promise<SeedResult> {
-    const { premise, characters, worldInfo, storyTitle, questionnaire } = input;
+    const { premise, characters, worldInfo, storyTitle, globalLorebook, questionnaire } = input;
     const charContext = buildCharacterContext(characters);
     const wiContext = buildWorldInfoContext(worldInfo);
+    const lorebookContext = globalLorebook && globalLorebook !== "Story World" ? `\nSETTING/LOREBOOK: ${globalLorebook}` : "";
     const questionnaireContext = questionnaire
-      ? `\nSTORY PARAMETERS:\n- Genre: ${questionnaire.genre}\n- Tone: ${questionnaire.tone}\n- Length: ${questionnaire.length}\n- Focus: ${questionnaire.protagonist}`
+      ? `\nSTORY PARAMETERS:\n- Genre: ${questionnaire.genre}\n- Tone: ${questionnaire.tone}\n- Length: ${questionnaire.length}\n- Focus: ${questionnaire.focus}`
       : "";
 
     this.notify({ phase: "roadmap", done: false });
     const roadmapRaw = await callLlm(
-      `You are a narrative director.\n\nPREMISE:\n${premise}${questionnaireContext}\n\nCHARACTERS:\n${charContext}\n\nACTIVE WORLD INFO:\n${wiContext}\n\nWrite a narrative roadmap for this story. Include:\n- Tone and themes\n- Each character's arc and motivation\n- Key turning points and possible paths\n- 2-3 possible endings\n\nWrite in prose, 150-250 words. This is a living outline, not a fixed script.\n\nReturn ONLY the prose text, no JSON, no headings.`
+      `You are a narrative director.\n\nPREMISE:\n${premise}${lorebookContext}${questionnaireContext}\n\nCHARACTERS:\n${charContext}\n\nACTIVE WORLD INFO:\n${wiContext}\n\nWrite a narrative roadmap for this story. Include:\n- Tone and themes\n- Each character's arc and motivation\n- Key turning points and possible paths\n- 2-3 possible endings\n\nWrite in prose, 150-250 words. This is a living outline, not a fixed script.\n\nReturn ONLY the prose text, no JSON, no headings.`
     );
     const roadmap = extractText(roadmapRaw) || "A story unfolds.";
     this.notify({ phase: "roadmap", done: true });
@@ -312,7 +328,7 @@ export class StoryGeneratorService {
         : {},
     };
 
-    return { roles, initialCheckpoint: fullCheckpoint, transitions, talkControl };
+    return { roadmap, roles, initialCheckpoint: fullCheckpoint, transitions, talkControl };
   }
 
   async expandCheckpoint(input: ExpansionInput, onPhase?: (update: PhaseUpdate) => void): Promise<ExpansionResult> {
@@ -376,9 +392,7 @@ export class StoryGeneratorService {
 
   static buildCharacterSummaries(): CharacterSummary[] {
     try {
-      const script = (window as unknown as Record<string, unknown>)["characters"];
-      if (!Array.isArray(script)) return [];
-      return script
+      return getCharacters()
         .filter(c => c?.name)
         .map(c => ({
           name: String(c.name).trim(),

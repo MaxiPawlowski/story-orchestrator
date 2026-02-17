@@ -13,7 +13,7 @@ interface StoryQuestionnaire {
   genre: string;
   tone: string;
   length: string;
-  protagonist: string;
+  focus: string;
 }
 
 const PHASE_LABELS: Record<GenerationPhase, string> = {
@@ -63,7 +63,7 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
     genre: "",
     tone: "",
     length: "Medium — 10 beats",
-    protagonist: "Player-driven",
+    focus: "Player-driven",
   });
   const [premise, setPremise] = useState("");
   const [storyTitle, setStoryTitle] = useState("");
@@ -146,7 +146,7 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
         name: title,
         meta: {
           premise: premise.trim(),
-          roadmap: "",
+          roadmap: seedResult.roadmap,
           generatedAt: Date.now(),
           isDynamic: true,
           genre: questionnaire.genre,
@@ -164,7 +164,7 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
               story: story as unknown as NormalizedStory,
               state: defaultRuntime,
               storyKey: result.key,
-              roadmap: "",
+              roadmap: seedResult.roadmap,
             });
           } catch (err) {
             console.warn("[Wizard] Failed to persist story selection for chat", err);
@@ -225,7 +225,7 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
 
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium">Story Focus</label>
-            <select className="text_pole" value={questionnaire.protagonist} onChange={e => setQuestionnaire(q => ({ ...q, protagonist: e.target.value }))}>
+            <select className="text_pole" value={questionnaire.focus} onChange={e => setQuestionnaire(q => ({ ...q, focus: e.target.value }))}>
               {["Player-driven", "NPC-driven", "Ensemble cast", "Mystery/Investigation"].map(p => (
                 <option key={p} value={p}>{p}</option>
               ))}

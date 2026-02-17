@@ -58,6 +58,15 @@ export function getAllCharacterNames(): string[] {
     return [];
   }
 }
+
+export function getCharacters(): Array<Record<string, unknown>> {
+  try {
+    const characters = script["characters"];
+    return Array.isArray(characters) ? characters : [];
+  } catch {
+    return [];
+  }
+}
 type ANPosition = "after" | "chat" | "before"; // 0,1,2 in author_note.js terms
 type ANRole = "system" | "user" | "assistant"; // 0,1,2
 

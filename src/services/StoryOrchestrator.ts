@@ -630,7 +630,11 @@ class StoryOrchestrator {
 
       const meta = this.story as unknown as Record<string, unknown>;
       const roadmap = storySessionStore.getState().roadmap ?? (typeof meta._roadmap === "string" ? meta._roadmap : "");
-      const premise = typeof meta._premise === "string" ? meta._premise : cp.objective;
+      const hasPremise = typeof meta._premise === "string" && (meta._premise as string).trim().length > 0;
+      if (!hasPremise) {
+        console.warn("[StoryOrch] expanding stub without a stored premise — falling back to stub objective; story may lack context");
+      }
+      const premise = hasPremise ? (meta._premise as string) : cp.objective;
 
       const transitionLabel = transitionTaken?.label ?? transitionTaken?.id ?? "proceed";
       const transitionCondition = transitionTaken?.trigger.type === "regex"
