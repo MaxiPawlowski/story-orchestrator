@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import { StoryDraft } from "@utils/checkpoint-studio";
 import { getWorldInfoSettings, getContext, getAllCharacterNames } from "@services/STAPI";
 import { subscribeToEventSource } from "@utils/event-source";
-import StoryMetadataSection from "./StoryDetails/StoryMetadataSection";
-import StoryRolesSection from "./StoryDetails/StoryRolesSection";
+import StoryMetadataSection from "./storyDetails/StoryMetadataSection";
+import StoryRolesSection from "./storyDetails/StoryRolesSection";
 
 type Props = {
   draft: StoryDraft;

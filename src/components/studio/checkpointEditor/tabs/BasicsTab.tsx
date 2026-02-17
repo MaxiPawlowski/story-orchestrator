@@ -1,4 +1,4 @@
-import type { CheckpointDraft, StoryDraft } from "@utils/checkpoint-studio";
+﻿import type { CheckpointDraft, StoryDraft } from "@utils/checkpoint-studio";
 import type { SlashCommandMeta, MacroDisplayEntry } from "../types";
 import { STORY_MACRO_BASE_ENTRIES } from "../types";
 import HelpTooltip from "../../HelpTooltip";

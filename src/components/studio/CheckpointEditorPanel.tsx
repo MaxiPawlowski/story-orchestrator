@@ -7,16 +7,16 @@ import {
   ensureOnActivate,
 } from "@utils/checkpoint-studio";
 import type { TransitionDraft } from "@utils/checkpoint-studio";
-import { useSlashCommands } from "./CheckpointEditor/useSlashCommands";
-import type { PresetDraftState } from "./CheckpointEditor/types";
-import { stringifyPresetValue } from "./CheckpointEditor/presetUtils";
-import BasicsTab from "./CheckpointEditor/tabs/BasicsTab";
-import WorldInfoTab from "./CheckpointEditor/tabs/WorldInfoTab";
-import AutomationsTab from "./CheckpointEditor/tabs/AutomationsTab";
-import AuthorNotesTab from "./CheckpointEditor/tabs/AuthorNotesTab";
-import PresetOverridesTab from "./CheckpointEditor/tabs/PresetOverridesTab";
-import TalkControlTab from "./CheckpointEditor/tabs/TalkControlTab";
-import TransitionsTab from "./CheckpointEditor/tabs/TransitionsTab";
+import { useSlashCommands } from "./checkpointEditor/useSlashCommands";
+import type { PresetDraftState } from "./checkpointEditor/types";
+import { stringifyPresetValue } from "./checkpointEditor/presetUtils";
+import BasicsTab from "./checkpointEditor/tabs/BasicsTab";
+import WorldInfoTab from "./checkpointEditor/tabs/WorldInfoTab";
+import AutomationsTab from "./checkpointEditor/tabs/AutomationsTab";
+import AuthorNotesTab from "./checkpointEditor/tabs/AuthorNotesTab";
+import PresetOverridesTab from "./checkpointEditor/tabs/PresetOverridesTab";
+import TalkControlTab from "./checkpointEditor/tabs/TalkControlTab";
+import TransitionsTab from "./checkpointEditor/tabs/TransitionsTab";
 
 type Props = {
   draft: StoryDraft;
