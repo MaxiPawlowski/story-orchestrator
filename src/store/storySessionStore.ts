@@ -39,6 +39,7 @@ export interface StorySessionValueState {
   requirements: StoryRequirementsState;
   orchestratorReady: boolean;
   expansion: ExpansionState;
+  roadmap: string | null;
 }
 
 export interface StorySessionActions {
@@ -57,6 +58,7 @@ export interface StorySessionActions {
   setOrchestratorReady: (next: boolean) => boolean;
   setExpansion: (next: Partial<ExpansionState>) => void;
   resetExpansion: () => void;
+  setRoadmap: (roadmap: string | null) => void;
 }
 
 export type StorySessionStore = StoreApi<StorySessionValueState & StorySessionActions>;
@@ -80,6 +82,7 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
   requirements: createRequirementsState(),
   orchestratorReady: false,
   expansion: { ...defaultExpansionState },
+  roadmap: null,
 
   setStory: (story) => {
     const runtime = makeDefaultState(story);
@@ -202,5 +205,9 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
 
   resetExpansion: () => {
     set({ expansion: { ...defaultExpansionState } });
+  },
+
+  setRoadmap: (roadmap) => {
+    set({ roadmap: roadmap ?? null });
   },
 }));

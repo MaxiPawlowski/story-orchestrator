@@ -68,6 +68,9 @@ function createStoreDouble(overrides: Record<string, unknown> = {}) {
     state.storyKey = key;
     return key;
   });
+  state.setRoadmap = jest.fn((roadmap: string | null) => {
+    state.roadmap = roadmap;
+  });
 
   return {
     getState: () => state,
