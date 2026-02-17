@@ -194,10 +194,15 @@ export function makeDefaultState(story: NormalizedStory | null | undefined): Run
 }
 
 function computeStorySignature(story: NormalizedStory): string {
+  const isStub = (cp: { id: string }) => !!(cp as unknown as Record<string, unknown>)._isStub;
+  const stubIds = new Set(story.checkpoints.filter(isStub).map(cp => cp.id));
+
   const cpSig = story.checkpoints
+    .filter(cp => !isStub(cp))
     .map((cp) => `${String(cp.id)}::${cp.name ?? ""}::${cp.objective ?? ""}`)
     .join("||");
   const edgeSig = (story.transitions ?? [])
+    .filter(edge => !stubIds.has(edge.to))
     .map((edge) => {
       const trigger = edge.trigger;
       const regexSig = (trigger.regexes ?? [])
@@ -212,7 +217,7 @@ function computeStorySignature(story: NormalizedStory): string {
     story.schemaVersion ?? "?",
     story.title ?? "",
     story.description ?? "",
-    String(story.checkpoints.length ?? 0),
+    String(story.checkpoints.filter(cp => !isStub(cp)).length),
     cpSig,
     edgeSig,
   ].join("|");
