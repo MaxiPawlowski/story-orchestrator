@@ -11,6 +11,7 @@ import {
   deriveCheckpointStatuses,
   CheckpointStatus,
   getPersistedStorySelection,
+  persistStoryState,
 } from "@utils/story-state";
 import { storySessionStore } from "@store/storySessionStore";
 import { ensureStoryMacros, refreshRoleMacros } from "@utils/story-macros";
@@ -228,10 +229,23 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
     };
 
     const storyRaw = updatedStory as import("@utils/story-schema").Story;
-    await persistStory(storyRaw, {
-      targetKey: currentKey ?? undefined,
-      meta: { roadmap: result.roadmap },
-    });
+    await persistStory(storyRaw, { targetKey: currentKey ?? undefined });
+
+    const { chatId, groupChatSelected, runtime } = storySessionStore.getState();
+    if (chatId && groupChatSelected) {
+      try {
+        persistStoryState({
+          chatId,
+          story: updatedStory as NormalizedStory,
+          state: runtime,
+          storyKey: currentKey ?? undefined,
+          roadmap: result.roadmap,
+        });
+      } catch (err) {
+        console.warn("[StoryContext] Failed to persist roadmap for chat", err);
+      }
+    }
+    storySessionStore.getState().setRoadmap(result.roadmap);
   }, [persistStory]);
 
   useEffect(() => {

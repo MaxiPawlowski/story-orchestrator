@@ -629,7 +629,7 @@ class StoryOrchestrator {
       const existingTransitionIds = this.story.transitions.map(t => t.id);
 
       const meta = this.story as unknown as Record<string, unknown>;
-      const roadmap = typeof meta._roadmap === "string" ? meta._roadmap : "";
+      const roadmap = storySessionStore.getState().roadmap ?? (typeof meta._roadmap === "string" ? meta._roadmap : "");
       const premise = typeof meta._premise === "string" ? meta._premise : cp.objective;
 
       const transitionLabel = transitionTaken?.label ?? transitionTaken?.id ?? "proceed";
