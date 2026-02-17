@@ -16,7 +16,9 @@ const pickUserTextFromChat = (): { text: string; key: string } | null => {
     if (!isUser) continue;
     const text = typeof message?.mes === "string" ? message.mes.trim() : "";
     if (!text) continue;
-    const key = String(i);
+    const msg = message as Record<string, unknown>;
+    const mesId = msg["mesId"] ?? msg["id"];
+    const key = mesId != null ? `id:${mesId}` : `idx:${i}`;
     return { text, key };
   }
   return null;

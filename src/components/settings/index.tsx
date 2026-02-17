@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useExtensionSettings } from "@components/context/ExtensionSettingsContext";
 import { useStoryContext } from "@hooks/useStoryContext";
 import CheckpointStudioModal from "@components/settings/CheckpointStudio/CheckpointStudioModal";
+import StoryGeneratorWizardModal from "@components/studio/StoryGeneratorWizard";
 import { storySessionStore } from "@store/storySessionStore";
 import { makeDefaultState, persistStoryState } from "@utils/story-state";
 import { tgPresetNames } from "@services/STAPI";
@@ -31,8 +32,11 @@ const SettingsWrapper = () => {
     reloadLibrary,
     saveLibraryStory,
     deleteLibraryStory,
+    activeChatId,
+    groupChatSelected,
   } = useStoryContext();
   const [showEditor, setShowEditor] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
   const selectedLibraryEntry = useMemo(() => {
     if (!selectedLibraryKey) return null;
     return libraryEntries.find((entry) => entry.key === selectedLibraryKey) ?? null;
@@ -99,6 +103,14 @@ const SettingsWrapper = () => {
                   Active Story
                 </label>
                 <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    className="text-xs px-2 py-1 border rounded bg-transparent"
+                    onClick={() => setShowWizard(true)}
+                    title="Generate a new story with AI"
+                  >
+                    ✨ Generate
+                  </button>
                   <button
                     type="button"
                     className="text-xs px-2 py-1 border rounded bg-transparent"
@@ -233,6 +245,15 @@ const SettingsWrapper = () => {
           onSelectKey={selectLibraryEntry}
           onSaveStory={saveLibraryStory}
           onDeleteStory={deleteLibraryStory}
+        />
+        <StoryGeneratorWizardModal
+          open={showWizard}
+          onClose={() => setShowWizard(false)}
+          onSaveStory={saveLibraryStory}
+          onSelectKey={selectLibraryEntry}
+          globalLorebook={story?.global_lorebook}
+          activeChatId={activeChatId}
+          groupChatSelected={groupChatSelected}
         />
       </div>
     </div>

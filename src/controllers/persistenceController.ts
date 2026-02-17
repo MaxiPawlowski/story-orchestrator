@@ -88,12 +88,13 @@ export const createPersistenceController = (store: StorySessionStore = storySess
       return { runtime, source: "default", storyKey: snapshot.storyKey ?? null };
     }
 
-    const { state, source, storyKey } = loadStoryState({ chatId: snapshot.chatId, story: snapshot.story });
+    const { state, source, storyKey, roadmap } = loadStoryState({ chatId: snapshot.chatId, story: snapshot.story });
     try {
       snapshot.setStoryKey(storyKey);
     } catch (err) {
       console.warn("[Story - PersistenceController] failed to sync story key during hydrate", err);
     }
+    store.getState().setRoadmap(roadmap ?? null);
     const runtime = writeStoreRuntime(store, state, { hydrated: true, persist: false });
     return { runtime, source, storyKey };
   };

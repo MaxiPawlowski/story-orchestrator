@@ -6,11 +6,21 @@ import { getExtensionSettingsRoot } from "@utils/settings";
 export const STUDIO_SETTINGS_KEY = "studio";
 export const SAVED_KEY_PREFIX = "saved:";
 
+export type StoredStoryMeta = {
+  premise?: string;
+  roadmap?: string;
+  generatedAt?: number;
+  isDynamic?: boolean;
+  genre?: string;
+  tone?: string;
+};
+
 export type StoredStoryRecord = {
   id: string;
   name: string;
   story: Story;
   updatedAt: number;
+  meta?: StoredStoryMeta;
 };
 
 export type StudioState = {
@@ -70,7 +80,10 @@ export function loadStudioState(): StudioState {
     const updatedAt = typeof record.updatedAt === "number" && Number.isFinite(record.updatedAt)
       ? record.updatedAt
       : Date.now();
-    stories.push({ id, name, story, updatedAt });
+    const meta: StoredStoryMeta | undefined = record.meta && typeof record.meta === "object"
+      ? record.meta as StoredStoryMeta
+      : undefined;
+    stories.push({ id, name, story, updatedAt, ...(meta ? { meta } : {}) });
   }
   const lastSelectedKey = normalizeLastSelectedKey(candidate.lastSelectedKey);
   return { stories, lastSelectedKey };
@@ -81,11 +94,12 @@ export function persistStudioState(state: StudioState): void {
   const root = getExtensionSettingsRoot();
   const sanitizedKey = normalizeLastSelectedKey(state.lastSelectedKey);
   root[STUDIO_SETTINGS_KEY] = {
-    stories: state.stories.map(({ id, name, story, updatedAt }) => ({
+    stories: state.stories.map(({ id, name, story, updatedAt, meta }) => ({
       id,
       name,
       story,
       updatedAt,
+      ...(meta ? { meta } : {}),
     })),
     lastSelectedKey: sanitizedKey ?? undefined,
   };

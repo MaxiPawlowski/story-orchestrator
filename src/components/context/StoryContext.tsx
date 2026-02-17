@@ -4,16 +4,19 @@ import { parseAndNormalizeStory, formatZodError, type NormalizedStory } from "@u
 import type { Story } from "@utils/story-schema";
 import { useStoryOrchestrator } from "@hooks/useStoryOrchestrator";
 import { useStoryLibrary } from "@hooks/useStoryLibrary";
-import type { StoryLibraryEntry, SaveLibraryStoryResult, DeleteLibraryStoryResult } from "@utils/story-library";
+import type { StoryLibraryEntry, SaveLibraryStoryResult, DeleteLibraryStoryResult, StoredStoryMeta } from "@utils/story-library";
 import { getContext } from "@services/STAPI";
 import { subscribeToEventSource } from "@utils/event-source";
 import {
   deriveCheckpointStatuses,
   CheckpointStatus,
   getPersistedStorySelection,
+  persistStoryState,
 } from "@utils/story-state";
 import { storySessionStore } from "@store/storySessionStore";
 import { ensureStoryMacros, refreshRoleMacros } from "@utils/story-macros";
+import { setExpandCallback } from "@controllers/orchestratorManager";
+import type { ExpansionResult } from "@services/StoryGeneratorService";
 
 export type { StoryLibraryEntry, SaveLibraryStoryResult, DeleteLibraryStoryResult } from "@utils/story-library";
 
@@ -34,7 +37,7 @@ export interface StoryContextValue {
   selectedLibraryError: string | null;
   selectLibraryEntry: (key: string) => void;
   reloadLibrary: () => Promise<void>;
-  saveLibraryStory: (story: Story, options?: { targetKey?: string; name?: string }) => Promise<SaveLibraryStoryResult>;
+  saveLibraryStory: (story: Story, options?: { targetKey?: string; name?: string; meta?: StoredStoryMeta }) => Promise<SaveLibraryStoryResult>;
   deleteLibraryStory: (key: string) => Promise<DeleteLibraryStoryResult>;
   checkpoints: CheckpointSummary[];
   checkpointIndex: number;
@@ -169,13 +172,86 @@ export const StoryProvider: React.FC<React.PropsWithChildren> = ({ children }) =
     await reloadLibrary(selectedKey);
   }, [reloadLibrary, selectedKey]);
 
-  const saveLibraryStory = useCallback((input: Story, options?: { targetKey?: string; name?: string }) => {
+  const saveLibraryStory = useCallback((input: Story, options?: { targetKey?: string; name?: string; meta?: StoredStoryMeta }) => {
     return persistStory(input, options);
   }, [persistStory]);
 
   const deleteLibraryStory = useCallback((key: string) => {
     return removeSavedStory(key);
   }, [removeSavedStory]);
+
+  const selectedKeyRef = useRef(selectedKey);
+  selectedKeyRef.current = selectedKey;
+
+  const mergeExpansionRef = useRef<(result: ExpansionResult, fromId: string) => Promise<void>>();
+  mergeExpansionRef.current = useCallback(async (result: ExpansionResult, _fromId: string) => {
+    const currentKey = selectedKeyRef.current;
+    const currentEntry = storySessionStore.getState().story;
+    if (!currentEntry) return;
+
+    const existing = currentEntry;
+    const newCheckpointIds = new Set(existing.checkpoints.map(c => c.id));
+    const expandedCheckpoint = result.checkpoint;
+    const newTransitionIds = new Set(existing.transitions.map(t => t.id));
+
+    const updatedCheckpoints = existing.checkpoints.map(cp =>
+      cp.id === expandedCheckpoint.id ? expandedCheckpoint as typeof cp : cp
+    );
+    const stubbedIds = new Set(result.transitions.map(t => t.to));
+    for (const stubId of stubbedIds) {
+      if (!newCheckpointIds.has(stubId)) {
+        updatedCheckpoints.push({
+          id: stubId,
+          name: `Upcoming Beat (${stubId})`,
+          objective: "To be revealed…",
+          _isStub: true,
+        } as typeof updatedCheckpoints[0]);
+        newCheckpointIds.add(stubId);
+      }
+    }
+
+    const newTransitions = result.transitions.filter(t => !newTransitionIds.has(t.id));
+    const updatedTransitions = [...existing.transitions, ...newTransitions];
+
+    const mergedTalkControl = {
+      ...existing.talkControl,
+      checkpoints: {
+        ...(existing.talkControl?.checkpoints ?? {}),
+        ...(result.talkControl?.checkpoints ?? {}),
+      },
+    };
+
+    const updatedStory = {
+      ...existing,
+      checkpoints: updatedCheckpoints,
+      transitions: updatedTransitions,
+      talkControl: Object.keys(mergedTalkControl.checkpoints).length ? mergedTalkControl : existing.talkControl,
+    };
+
+    const storyRaw = updatedStory as import("@utils/story-schema").Story;
+    await persistStory(storyRaw, { targetKey: currentKey ?? undefined });
+
+    const { chatId, groupChatSelected, runtime } = storySessionStore.getState();
+    if (chatId && groupChatSelected) {
+      try {
+        persistStoryState({
+          chatId,
+          story: updatedStory as NormalizedStory,
+          state: runtime,
+          storyKey: currentKey ?? undefined,
+          roadmap: result.roadmap,
+        });
+      } catch (err) {
+        console.warn("[StoryContext] Failed to persist roadmap for chat", err);
+      }
+    }
+    storySessionStore.getState().setRoadmap(result.roadmap);
+  }, [persistStory]);
+
+  useEffect(() => {
+    setExpandCallback((result, fromId) => mergeExpansionRef.current?.(result, fromId) ?? Promise.resolve());
+    return () => { setExpandCallback(null); };
+  }, []);
 
   useEffect(() => {
     const { eventSource, eventTypes, chatId, groupId } = getContext();

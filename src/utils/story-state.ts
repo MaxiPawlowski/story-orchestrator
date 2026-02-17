@@ -42,6 +42,7 @@ export interface RuntimeStoryState {
   turnsSinceEval: number;
   checkpointTurnCount: number;
   checkpointStatusMap: CheckpointStatusMap;
+  roadmap?: string;
 }
 
 export interface PersistedChatState {
@@ -53,12 +54,14 @@ export interface PersistedChatState {
   checkpointTurnCount?: number;
   checkpointStatusMap: CheckpointStatusMap;
   updatedAt: number;
+  roadmap?: string;
 }
 
 export type LoadedStoryState = {
   state: RuntimeStoryState;
   source: "stored" | "default";
   storyKey: string | null;
+  roadmap?: string;
 };
 
 type PersistedStateCandidate = PersistedChatState;
@@ -91,12 +94,12 @@ export function loadStoryState({
 }): LoadedStoryState {
   const defaults = makeDefaultState(story);
   if (!story) {
-    return { state: defaults, source: "default", storyKey: null };
+    return { state: defaults, source: "default", storyKey: null, roadmap: undefined };
   }
 
   const key = chatId?.trim();
   if (!key) {
-    return { state: defaults, source: "default", storyKey: null };
+    return { state: defaults, source: "default", storyKey: null, roadmap: undefined };
   }
 
   const map = getStateMap();
@@ -104,12 +107,12 @@ export function loadStoryState({
   const storedKey = sanitizeStoryKey(entry?.storyKey);
 
   if (!isPersistedChatState(entry) || entry.storySignature !== computeStorySignature(story)) {
-    return { state: defaults, source: "default", storyKey: storedKey };
+    return { state: defaults, source: "default", storyKey: storedKey, roadmap: undefined };
   }
 
   const migrated = migratePersistedState(entry, story);
   if (!migrated) {
-    return { state: defaults, source: "default", storyKey: storedKey };
+    return { state: defaults, source: "default", storyKey: storedKey, roadmap: undefined };
   }
 
   const sanitized = sanitizeRuntime({
@@ -124,6 +127,7 @@ export function loadStoryState({
     state: sanitized,
     source: "stored",
     storyKey: storedKey,
+    roadmap: migrated.roadmap ?? undefined,
   };
 }
 
@@ -132,11 +136,13 @@ export function persistStoryState({
   story,
   state,
   storyKey,
+  roadmap,
 }: {
   chatId: string | null | undefined;
   story: NormalizedStory | null | undefined;
   state: RuntimeStoryState;
   storyKey?: string | null | undefined;
+  roadmap?: string;
 }): void {
   console.log("[StoryState] persistStoryState", { chatId, story, state });
   if (!story) return;
@@ -157,6 +163,7 @@ export function persistStoryState({
     checkpointTurnCount: sanitized.checkpointTurnCount,
     checkpointStatusMap: sanitized.checkpointStatusMap,
     updatedAt: Date.now(),
+    roadmap: roadmap ?? map[key]?.roadmap,
   };
 
   saveSettingsDebounced();
@@ -187,10 +194,15 @@ export function makeDefaultState(story: NormalizedStory | null | undefined): Run
 }
 
 function computeStorySignature(story: NormalizedStory): string {
+  const isStub = (cp: { id: string }) => !!(cp as unknown as Record<string, unknown>)._isStub;
+  const stubIds = new Set(story.checkpoints.filter(isStub).map(cp => cp.id));
+
   const cpSig = story.checkpoints
+    .filter(cp => !isStub(cp))
     .map((cp) => `${String(cp.id)}::${cp.name ?? ""}::${cp.objective ?? ""}`)
     .join("||");
   const edgeSig = (story.transitions ?? [])
+    .filter(edge => !stubIds.has(edge.to))
     .map((edge) => {
       const trigger = edge.trigger;
       const regexSig = (trigger.regexes ?? [])
@@ -205,7 +217,7 @@ function computeStorySignature(story: NormalizedStory): string {
     story.schemaVersion ?? "?",
     story.title ?? "",
     story.description ?? "",
-    String(story.checkpoints.length ?? 0),
+    String(story.checkpoints.filter(cp => !isStub(cp)).length),
     cpSig,
     edgeSig,
   ].join("|");

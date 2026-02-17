@@ -24,7 +24,7 @@ export const mockDraft: StoryDraft = {
           dm: { text: "Set tone.", interval: 2, depth: 3, role: "system" },
         },
         preset_overrides: {
-          dm: { temperature: 0.8 },
+          dm: { temp: 0.8 },
         },
       },
     },
