@@ -11,6 +11,8 @@ export type StoredStoryMeta = {
   roadmap?: string;
   generatedAt?: number;
   isDynamic?: boolean;
+  genre?: string;
+  tone?: string;
 };
 
 export type StoredStoryRecord = {

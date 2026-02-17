@@ -3,11 +3,18 @@ import { createPortal } from "react-dom";
 import { StoryGeneratorService, type SeedResult, type GenerationPhase } from "@services/StoryGeneratorService";
 import type { Story } from "@utils/story-schema";
 import { makeStubCheckpoint } from "@utils/story-schema";
-import type { SaveLibraryStoryResult } from "@utils/story-library";
+import type { SaveLibraryStoryResult, StoredStoryMeta } from "@utils/story-library";
 import { makeDefaultState, persistStoryState } from "@utils/story-state";
 import type { NormalizedStory } from "@utils/story-validator";
 
-type WizardStep = "premise" | "roles" | "generating" | "done" | "error";
+type WizardStep = "questionnaire" | "premise" | "roles" | "generating" | "done" | "error";
+
+interface StoryQuestionnaire {
+  genre: string;
+  tone: string;
+  length: string;
+  protagonist: string;
+}
 
 const PHASE_LABELS: Record<GenerationPhase, string> = {
   roadmap: "Generating narrative roadmap",
@@ -25,7 +32,7 @@ interface RoleRow {
 
 interface WizardProps {
   onClose: () => void;
-  onSaveStory: (story: Story, options?: { name?: string; meta?: { premise: string; roadmap: string; generatedAt: number; isDynamic: boolean } }) => Promise<SaveLibraryStoryResult>;
+  onSaveStory: (story: Story, options?: { name?: string; meta?: StoredStoryMeta }) => Promise<SaveLibraryStoryResult>;
   onSelectKey: (key: string) => void;
   globalLorebook?: string;
   activeChatId?: string | null;
@@ -51,7 +58,13 @@ const ensurePortalRoot = (): HTMLElement => {
 };
 
 const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onSelectKey, globalLorebook, activeChatId, groupChatSelected }) => {
-  const [step, setStep] = useState<WizardStep>("premise");
+  const [step, setStep] = useState<WizardStep>("questionnaire");
+  const [questionnaire, setQuestionnaire] = useState<StoryQuestionnaire>({
+    genre: "",
+    tone: "",
+    length: "Medium — 10 beats",
+    protagonist: "Player-driven",
+  });
   const [premise, setPremise] = useState("");
   const [storyTitle, setStoryTitle] = useState("");
   const [roles, setRoles] = useState<RoleRow[]>([]);
@@ -111,6 +124,7 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
         worldInfo,
         storyTitle: title,
         globalLorebook: globalLorebook ?? "Story World",
+        questionnaire,
       });
 
       const mergedRoles = { ...rolesMap, ...seedResult.roles };
@@ -135,6 +149,8 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
           roadmap: "",
           generatedAt: Date.now(),
           isDynamic: true,
+          genre: questionnaire.genre,
+          tone: questionnaire.tone,
         },
       });
 
@@ -165,7 +181,7 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
       setErrorMsg(msg);
       setStep("error");
     }
-  }, [premise, storyTitle, roles, characters, worldInfo, globalLorebook, onSaveStory, onSelectKey, activeChatId, groupChatSelected]);
+  }, [premise, storyTitle, roles, characters, worldInfo, globalLorebook, onSaveStory, onSelectKey, activeChatId, groupChatSelected, questionnaire]);
 
   return (
     <div className="flex flex-col gap-4 p-4 max-w-xl w-full mx-auto">
@@ -173,6 +189,62 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
         <h2 className="text-lg font-semibold">Generate Story</h2>
         <button type="button" className="text-xl bg-transparent border-none" onClick={onClose} aria-label="Close">×</button>
       </div>
+
+      {step === "questionnaire" && (
+        <div className="flex flex-col gap-3">
+          <p className="text-sm opacity-70">Tell us about the story you want to create.</p>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium">Genre</label>
+            <select className="text_pole" value={questionnaire.genre} onChange={e => setQuestionnaire(q => ({ ...q, genre: e.target.value }))}>
+              <option value="">Select genre…</option>
+              {["Fantasy", "Sci-Fi", "Horror", "Mystery", "Romance", "Thriller", "Slice of Life", "Other"].map(g => (
+                <option key={g} value={g}>{g}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium">Tone</label>
+            <select className="text_pole" value={questionnaire.tone} onChange={e => setQuestionnaire(q => ({ ...q, tone: e.target.value }))}>
+              <option value="">Select tone…</option>
+              {["Dark & Gritty", "Lighthearted & Fun", "Suspenseful", "Romantic", "Comedic", "Dramatic", "Other"].map(t => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium">Story Length</label>
+            <select className="text_pole" value={questionnaire.length} onChange={e => setQuestionnaire(q => ({ ...q, length: e.target.value }))}>
+              {["Short — 5 beats", "Medium — 10 beats", "Long — 15 beats", "Epic — 20+ beats"].map(l => (
+                <option key={l} value={l}>{l}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium">Story Focus</label>
+            <select className="text_pole" value={questionnaire.protagonist} onChange={e => setQuestionnaire(q => ({ ...q, protagonist: e.target.value }))}>
+              {["Player-driven", "NPC-driven", "Ensemble cast", "Mystery/Investigation"].map(p => (
+                <option key={p} value={p}>{p}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <button type="button" className="menu_button px-3 py-1" onClick={onClose}>Cancel</button>
+            <button
+              type="button"
+              className="menu_button px-3 py-1"
+              disabled={!questionnaire.genre || !questionnaire.tone}
+              onClick={() => setStep("premise")}
+            >
+              Next →
+            </button>
+          </div>
+        </div>
+      )}
 
       {step === "premise" && (
         <div className="flex flex-col gap-3">
@@ -197,7 +269,7 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
             />
           </div>
           <div className="flex justify-end gap-2">
-            <button type="button" className="menu_button px-3 py-1" onClick={onClose}>Cancel</button>
+            <button type="button" className="menu_button px-3 py-1" onClick={() => setStep("questionnaire")}>← Back</button>
             <button
               type="button"
               className="menu_button px-3 py-1"

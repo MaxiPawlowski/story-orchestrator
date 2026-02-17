@@ -21,6 +21,12 @@ export interface SeedInput {
   worldInfo: string[];
   storyTitle: string;
   globalLorebook: string;
+  questionnaire?: {
+    genre: string;
+    tone: string;
+    length: string;
+    protagonist: string;
+  };
 }
 
 export interface SeedResult {
@@ -254,13 +260,16 @@ export class StoryGeneratorService {
   }
 
   async generateSeed(input: SeedInput): Promise<SeedResult> {
-    const { premise, characters, worldInfo, storyTitle } = input;
+    const { premise, characters, worldInfo, storyTitle, questionnaire } = input;
     const charContext = buildCharacterContext(characters);
     const wiContext = buildWorldInfoContext(worldInfo);
+    const questionnaireContext = questionnaire
+      ? `\nSTORY PARAMETERS:\n- Genre: ${questionnaire.genre}\n- Tone: ${questionnaire.tone}\n- Length: ${questionnaire.length}\n- Focus: ${questionnaire.protagonist}`
+      : "";
 
     this.notify({ phase: "roadmap", done: false });
     const roadmapRaw = await callLlm(
-      `You are a narrative director.\n\nPREMISE:\n${premise}\n\nCHARACTERS:\n${charContext}\n\nACTIVE WORLD INFO:\n${wiContext}\n\nWrite a narrative roadmap for this story. Include:\n- Tone and themes\n- Each character's arc and motivation\n- Key turning points and possible paths\n- 2-3 possible endings\n\nWrite in prose, 150-250 words. This is a living outline, not a fixed script.\n\nReturn ONLY the prose text, no JSON, no headings.`
+      `You are a narrative director.\n\nPREMISE:\n${premise}${questionnaireContext}\n\nCHARACTERS:\n${charContext}\n\nACTIVE WORLD INFO:\n${wiContext}\n\nWrite a narrative roadmap for this story. Include:\n- Tone and themes\n- Each character's arc and motivation\n- Key turning points and possible paths\n- 2-3 possible endings\n\nWrite in prose, 150-250 words. This is a living outline, not a fixed script.\n\nReturn ONLY the prose text, no JSON, no headings.`
     );
     const roadmap = extractText(roadmapRaw) || "A story unfolds.";
     this.notify({ phase: "roadmap", done: true });
