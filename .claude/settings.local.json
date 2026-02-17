@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git worktree:*)",
+      "Bash(npm install)",
+      "Bash(npm run build:*)",
+      "Bash(dir:*)",
+      "Bash(npx jest --passWithNoTests)",
+      "Bash(npx jest:*)",
+      "Bash(git stash:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create --title \"feat: dynamic story generation via live-loop AI pipeline\" --body \"$\\(cat <<''EOF''\n## Summary\n\n- **Wizard** \\(`StoryGeneratorWizard`\\) creates the opening seed: premise → role mapping → 4-phase LLM generation \\(roadmap → checkpoint → transitions → on_activate\\)\n- **Live-loop expansion**: when a transition fires to a stub checkpoint, `StoryOrchestrator` intercepts activation, calls `StoryGeneratorService.expandCheckpoint\\(\\)`, merges the result into the live story, then activates — story graph grows one beat ahead of the player at all times\n- **4-phase pipeline** \\(`StoryGeneratorService`\\): separate `generateRaw` calls for roadmap, checkpoint core, transitions, and on_activate actions — focused prompts, no model confusion\n- **Narrative roadmap** stored in `meta.roadmap`, updated after each expansion to reflect what actually happened and open new paths\n- **Phase progress panel** \\(`StoryExpansionPanel`\\) in the drawer shows ⏳/✅ per phase, displays checkpoint name+objective \\(read-only\\) after phase 2 — non-blocking, auto-dismisses\n\n## New files\n\n- `src/services/StoryGeneratorService.ts` — core 4-call pipeline\n- `src/components/studio/StoryGeneratorWizard/index.tsx` — 3-step seed wizard modal\n- `src/components/drawer/StoryExpansionPanel/index.tsx` — phase progress panel\n\n## Modified files\n\n- `StoryOrchestrator.ts` — stub check + `expandStub\\(\\)` + `mergeExpansion\\(\\)` + `setExpandCallback\\(\\)`\n- `story-schema.ts` — `_isStub`, `_stubName`, `isStubCheckpoint\\(\\)`, `makeStubCheckpoint\\(\\)`\n- `story-library.ts` — `StoredStoryMeta`, `meta` field on `StoredStoryRecord`\n- `storySessionStore.ts` — `expansion` state slice \\(`isExpanding`, `phase`, `phaseDone`, `preview`\\)\n- `useStoryLibrary.ts` — meta-aware save\n- `StoryContext.tsx` — merge callback wired via `orchestratorManager.setExpandCallback`\n- `orchestratorManager.ts` — `setExpandCallback` export\n- `settings/index.tsx` — ✨ Generate button\n- `drawer/index.tsx` — `StoryExpansionPanel` rendered\n\n## Test plan\n\n- [ ] Settings → \"✨ Generate\" → wizard opens → enter premise → role mapping → phase progress → story saved + auto-selected\n- [ ] Play chat → transition fires to stub → drawer shows phase-by-phase progress → checkpoint name appears after phase 2 → activates automatically\n- [ ] Studio graph shows completed + active + stub destinations \\(dimmed\\)\n- [ ] Roadmap updates after each expansion \\(`meta.roadmap` in library record\\)\n- [ ] All 38 tests pass \\(`turnController` failure is pre-existing, unrelated\\)\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\nEOF\n\\)\")",
+      "Bash(npx tsc:*)",
+      "Bash(npx eslint:*)"
+    ]
+  }
+}

@@ -151,9 +151,25 @@ export const CheckpointSchema = z.object({
   name: z.string().min(1),
   objective: z.string().min(1),
   on_activate: OnActivateSchema.optional(),
+  _isStub: z.literal(true).optional(),
+  _stubName: z.string().optional(),
 });
 
 export type Checkpoint = z.infer<typeof CheckpointSchema>;
+
+export function isStubCheckpoint(cp: Checkpoint): boolean {
+  return (cp as Checkpoint & { _isStub?: boolean })._isStub === true;
+}
+
+export function makeStubCheckpoint(id: string, suggestedName: string): Checkpoint {
+  return {
+    id,
+    name: suggestedName || `Upcoming Beat (${id})`,
+    objective: "To be revealed…",
+    _isStub: true,
+    _stubName: suggestedName,
+  };
+}
 
 export const StorySchema = z.object({
   title: z.string().min(1),

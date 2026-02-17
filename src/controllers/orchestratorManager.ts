@@ -1,4 +1,5 @@
 import StoryOrchestrator, { type StoryEvaluationEvent } from "@services/StoryOrchestrator";
+import type { ExpansionResult } from "@services/StoryGeneratorService";
 import { createTurnController } from "@controllers/turnController";
 import type { NormalizedStory } from "@utils/story-validator";
 import type { Role } from "@utils/story-schema";
@@ -27,6 +28,7 @@ let arbiterPrompt: ArbiterPrompt;
 let fallbackPreset: string | null = null;
 let runtimeHooks: RuntimeHooks = {};
 let automationPaused = false;
+let expandCallback: ((result: ExpansionResult, fromId: string) => Promise<void>) | null = null;
 
 const setReady = (next: boolean) => {
   storySessionStore.getState().setOrchestratorReady(next);
@@ -51,6 +53,9 @@ const initialize = async (story: NormalizedStory) => {
   orchestrator = instance;
   instance.setIntervalTurns(intervalTurns);
   instance.setArbiterPrompt(arbiterPrompt);
+  if (expandCallback) {
+    instance.setExpandCallback(expandCallback);
+  }
 
   turnController.attach(instance);
   if (!automationPaused) {
@@ -183,3 +188,8 @@ export const resumeAutomation = (): boolean => {
 };
 
 export const isAutomationPaused = () => automationPaused;
+
+export const setExpandCallback = (cb: ((result: ExpansionResult, fromId: string) => Promise<void>) | null) => {
+  expandCallback = cb;
+  orchestrator?.setExpandCallback(cb ?? (() => Promise.resolve()));
+};

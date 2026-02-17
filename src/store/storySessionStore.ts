@@ -13,6 +13,20 @@ import {
   sanitizeChatKey,
 } from "@utils/story-state";
 import { createRequirementsState, cloneRequirementsState, type StoryRequirementsState } from "./requirementsState";
+import type { GenerationPhase } from "@services/StoryGeneratorService";
+
+export interface ExpansionPreview {
+  checkpointName: string;
+  checkpointObjective: string;
+  transitionCount: number;
+}
+
+export interface ExpansionState {
+  isExpanding: boolean;
+  phase: GenerationPhase | null;
+  phaseDone: Partial<Record<GenerationPhase, boolean>>;
+  preview: ExpansionPreview | null;
+}
 
 export interface StorySessionValueState {
   story: NormalizedStory | null;
@@ -24,6 +38,7 @@ export interface StorySessionValueState {
   hydrated: boolean;
   requirements: StoryRequirementsState;
   orchestratorReady: boolean;
+  expansion: ExpansionState;
 }
 
 export interface StorySessionActions {
@@ -40,10 +55,19 @@ export interface StorySessionActions {
   setRequirementsState: (next: StoryRequirementsState) => StoryRequirementsState;
   resetRequirements: () => StoryRequirementsState;
   setOrchestratorReady: (next: boolean) => boolean;
+  setExpansion: (next: Partial<ExpansionState>) => void;
+  resetExpansion: () => void;
 }
 
 export type StorySessionStore = StoreApi<StorySessionValueState & StorySessionActions>;
 
+
+const defaultExpansionState: ExpansionState = {
+  isExpanding: false,
+  phase: null,
+  phaseDone: {},
+  preview: null,
+};
 
 export const storySessionStore: StorySessionStore = createStore<StorySessionValueState & StorySessionActions>((set, get) => ({
   story: null,
@@ -55,6 +79,7 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
   hydrated: false,
   requirements: createRequirementsState(),
   orchestratorReady: false,
+  expansion: { ...defaultExpansionState },
 
   setStory: (story) => {
     const runtime = makeDefaultState(story);
@@ -168,5 +193,14 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
     if (get().orchestratorReady === normalized) return normalized;
     set({ orchestratorReady: normalized });
     return normalized;
+  },
+
+  setExpansion: (next) => {
+    const current = get().expansion;
+    set({ expansion: { ...current, ...next } });
+  },
+
+  resetExpansion: () => {
+    set({ expansion: { ...defaultExpansionState } });
   },
 }));

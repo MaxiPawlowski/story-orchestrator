@@ -1,5 +1,6 @@
 import Requirements from "./Requirements";
 import Checkpoints from "./Checkpoints";
+import StoryExpansionPanel from "./StoryExpansionPanel";
 
 import { useState } from "react";
 import { useStoryContext } from "@hooks/useStoryContext";
@@ -52,6 +53,7 @@ const DrawerWrapper = () => {
               checkpoints={checkpointRows}
             />
           )}
+          <StoryExpansionPanel />
         </div>
       )}
     </div>
