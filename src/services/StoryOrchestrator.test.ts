@@ -61,6 +61,10 @@ const storeState = {
   resetRequirements: jest.fn(),
   setChatContext: jest.fn(),
   setStory: jest.fn(),
+  setExpansion: jest.fn(),
+  resetExpansion: jest.fn(),
+  setOrchestratorReady: jest.fn(),
+  expansion: { isExpanding: false, phase: null, phaseDone: {}, preview: null },
 };
 
 jest.mock("@services/CheckpointArbiterService", () => ({
@@ -101,6 +105,14 @@ jest.mock("@utils/story-macros", () => ({
   updateStoryMacroSnapshot: jest.fn(),
   resetStoryMacroSnapshot: jest.fn(),
   refreshRoleMacros: jest.fn(),
+}));
+
+jest.mock("@services/StoryGeneratorService", () => ({
+  StoryGeneratorService: jest.fn().mockImplementation(() => ({
+    setPhaseCallback: jest.fn(),
+    generateSeed: jest.fn(),
+    expandCheckpoint: jest.fn(),
+  })),
 }));
 
 jest.mock("@utils/event-source", () => ({
