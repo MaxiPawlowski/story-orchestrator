@@ -9,7 +9,7 @@ const PHASE_LABELS: Record<GenerationPhase, string> = {
   actions: "Configuring scene actions",
 };
 
-const PhaseRow = ({ phase, label, done, active }: { phase: GenerationPhase; label: string; done: boolean; active: boolean }) => (
+const PhaseRow = ({ _phase, label, done, active }: { _phase: GenerationPhase; label: string; done: boolean; active: boolean }) => (
   <div className={`flex items-center gap-2 text-xs ${active ? "opacity-100" : done ? "opacity-70" : "opacity-30"}`}>
     <span className="w-4 text-center">
       {done ? "✅" : active ? "⏳" : "○"}
@@ -34,7 +34,7 @@ const StoryExpansionPanel = () => {
       {PHASES.map(p => (
         <PhaseRow
           key={p}
-          phase={p}
+          _phase={p}
           label={PHASE_LABELS[p]}
           done={!!phaseDone[p]}
           active={phase === p && !phaseDone[p]}
