@@ -7,6 +7,7 @@ import DrawerWrapper from "@components/drawer";
 import SettingsWrapper from "@components/settings";
 import "./styles.css";
 import { getTalkControlInterceptor } from "@controllers/orchestratorManager";
+import { getContext } from "@services/STAPI";
 
 if (typeof globalThis !== "undefined") {
   try {
@@ -72,7 +73,11 @@ const AppRoot = () => {
     </ExtensionSettingsProvider>
   );
 };
-setTimeout(() => {
-  const settingsRoot = ReactDOM.createRoot(settingsRootElement);
-  settingsRoot.render(<AppRoot />);
-}, 2000);
+
+(async () => {
+  const { eventSource, event_types } = await getContext();
+  eventSource.on(event_types.APP_INITIALIZED, () => {
+    const settingsRoot = ReactDOM.createRoot(settingsRootElement);
+    settingsRoot.render(<AppRoot />);
+  });
+})();

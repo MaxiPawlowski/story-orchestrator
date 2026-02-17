@@ -10,13 +10,13 @@ function importSTModule<T>(path: string): Promise<T> {
   return import(/* webpackIgnore: true */ path);
 }
 
-const script = await importSTModule<typeof import("../../../../../../public/script.js")>("/script.js");
-const extensions = await importSTModule<typeof import("../../../../../../public/scripts/extensions.js")>("/scripts/extensions.js");
-const macros = await importSTModule<typeof import("../../../../../../public/scripts/macros.js")>("/scripts/macros.js");
-const worldInfo = await importSTModule<typeof import("../../../../../../public/scripts/world-info.js")>("/scripts/world-info.js");
-const textgen_settings = await importSTModule<typeof import("../../../../../../public/scripts/textgen-settings.js")>("/scripts/textgen-settings.js");
-const logit_bias = await importSTModule<typeof import("../../../../../../public/scripts/logit-bias.js")>("/scripts/logit-bias.js");
-const rossMods = await importSTModule<typeof import("../../../../../../public/scripts/RossAscends-mods.js")>("/scripts/RossAscends-mods.js");
+const script = await importSTModule<typeof import("../../../../../../script.js")>("/script.js");
+const extensions = await importSTModule<typeof import("../../../../../../scripts/extensions.js")>("/scripts/extensions.js");
+const macros = await importSTModule<typeof import("../../../../../../scripts/macros.js")>("/scripts/macros.js");
+const worldInfo = await importSTModule<typeof import("../../../../../../scripts/world-info.js")>("/scripts/world-info.js");
+const textgen_settings = await importSTModule<typeof import("../../../../../../scripts/textgen-settings.js")>("/scripts/textgen-settings.js");
+const logit_bias = await importSTModule<typeof import("../../../../../../scripts/logit-bias.js")>("/scripts/logit-bias.js");
+const rossMods = await importSTModule<typeof import("../../../../../../scripts/RossAscends-mods.js")>("/scripts/RossAscends-mods.js");
 
 export const BIAS_CACHE = logit_bias["BIAS_CACHE"];
 export const displayLogitBias = logit_bias["displayLogitBias"];

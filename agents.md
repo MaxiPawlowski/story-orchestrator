@@ -12,7 +12,7 @@ Story Orchestrator is a ST extension that automates non-linear, checkpoint-drive
 - End every plan with a concise list of unresolved questions (skip if none).
 
 ## Lifecycle & Flow
-1. `src/index.tsx` mounts Drawer and Settings portals once the host UI is ready (2-second delay for stability), wraps them with `ExtensionSettingsProvider` and `StoryProvider`, and registers the `talkControlInterceptor` on `globalThis`.
+1. `src/index.tsx` mounts Drawer and Settings portals once the host UI is ready, wraps them with `ExtensionSettingsProvider` and `StoryProvider`, and registers the `talkControlInterceptor` on `globalThis`.
 2. `StoryProvider` loads the story library (`storyLibrary` + `story-validator`), restores the chat's selected story from persisted state, publishes metadata via context, and ensures macros are registered.
 3. `orchestratorManager.ensureStory` sanitizes arbiter settings, instantiates a singleton `StoryOrchestrator`, attaches `turnController`, seeds `TalkControlService`, and syncs `storySessionStore` with chat context.
 4. `StoryOrchestrator` hydrates runtime persistence (`story-state`), hooks ST events (chat changes, generation lifecycle), registers slash commands, tracks requirements via subscription, updates macro snapshots, and monitors turn counters for trigger matches. Applies deferred checkpoint effects once requirements are satisfied.

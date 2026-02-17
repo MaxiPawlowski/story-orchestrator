@@ -12,17 +12,11 @@ const pickUserTextFromChat = (): { text: string; key: string } | null => {
   if (!Array.isArray(chat) || chat.length === 0) return null;
   for (let i = chat.length - 1; i >= 0; i--) {
     const message = chat[i];
-    const isUser = !!(message?.is_user || message?.isUser || message?.role === "user");
+    const isUser = !!message?.is_user;
     if (!isUser) continue;
-    const text =
-      (typeof message?.mes === "string" && message.mes.trim()) ||
-      (typeof message?.text === "string" && message.text.trim()) ||
-      (typeof message?.message === "string" && message.message.trim()) ||
-      (typeof message?.data?.text === "string" && message.data.text.trim()) ||
-      (typeof message?.data?.mes === "string" && message.data.mes.trim()) ||
-      "";
+    const text = typeof message?.mes === "string" ? message.mes.trim() : "";
     if (!text) continue;
-    const key = String(message?.mesId ?? message?.id ?? message?._ts ?? i);
+    const key = String(i);
     return { text, key };
   }
   return null;

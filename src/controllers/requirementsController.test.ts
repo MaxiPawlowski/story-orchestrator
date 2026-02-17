@@ -1,0 +1,130 @@
+import { createRequirementsController } from "@controllers/requirementsController";
+import { getContext, getWorldInfoSettings } from "@services/STAPI";
+import { subscribeToEventSource } from "@utils/event-source";
+import { resolveGroupMemberName } from "@utils/groups";
+import { storySessionStore } from "@store/storySessionStore";
+
+jest.mock("@services/STAPI", () => ({
+  getContext: jest.fn(),
+  getWorldInfoSettings: jest.fn(),
+}));
+
+jest.mock("@utils/event-source", () => ({
+  subscribeToEventSource: jest.fn(),
+}));
+
+jest.mock("@utils/groups", () => ({
+  resolveGroupMemberName: jest.fn(),
+}));
+
+jest.mock("@store/storySessionStore", () => ({
+  storySessionStore: {
+    getState: jest.fn(),
+  },
+}));
+
+const getContextMock = getContext as jest.MockedFunction<typeof getContext>;
+const getWorldInfoSettingsMock = getWorldInfoSettings as jest.MockedFunction<typeof getWorldInfoSettings>;
+const subscribeToEventSourceMock = subscribeToEventSource as jest.MockedFunction<typeof subscribeToEventSource>;
+const resolveGroupMemberNameMock = resolveGroupMemberName as jest.MockedFunction<typeof resolveGroupMemberName>;
+const storeMock = storySessionStore as any;
+
+describe("requirementsController", () => {
+  beforeEach(() => {
+    getContextMock.mockReset();
+    getWorldInfoSettingsMock.mockReset();
+    subscribeToEventSourceMock.mockReset();
+    resolveGroupMemberNameMock.mockReset();
+  });
+
+  it("evaluates required group members and world lore entries from story data", async () => {
+    const setRequirementsState = jest.fn();
+    storeMock.getState.mockReturnValue({ setRequirementsState });
+    resolveGroupMemberNameMock.mockImplementation((member: any) => (member?.name ?? String(member)));
+    getWorldInfoSettingsMock.mockReturnValue({
+      world_info: {
+        globalSelect: ["MainLore"],
+      },
+    } as any);
+    getContextMock.mockReturnValue({
+      groupId: "group-1",
+      groups: [{ id: "group-1", members: [{ name: "Companion" }] }],
+      name1: "Player",
+      loadWorldInfo: jest.fn().mockResolvedValue({
+        entries: {
+          1: { comment: "Ancient Relic" },
+        },
+      }),
+      eventSource: {},
+      eventTypes: {
+        WORLDINFO_UPDATED: "WORLDINFO_UPDATED",
+        WORLDINFO_SETTINGS_UPDATED: "WORLDINFO_SETTINGS_UPDATED",
+        WORLDINFO_ENTRIES_LOADED: "WORLDINFO_ENTRIES_LOADED",
+        GROUP_UPDATED: "GROUP_UPDATED",
+      },
+    } as any);
+
+    const controller = createRequirementsController();
+    controller.setStory({
+      title: "Story",
+      description: "",
+      startId: "cp-1",
+      global_lorebook: "MainLore",
+      roles: { companion: "Companion" },
+      checkpoints: [
+        {
+          id: "cp-1",
+          name: "Checkpoint 1",
+          objective: "",
+          onActivate: {
+            world_info: {
+              activate: ["Ancient Relic", "Hidden Sigil"],
+              deactivate: [],
+            },
+          },
+        },
+      ],
+      transitions: [],
+    } as any);
+    controller.handleChatContextChanged();
+
+    await Promise.resolve();
+
+    const latest = setRequirementsState.mock.calls.at(-1)?.[0];
+    expect(latest.groupChatSelected).toBe(true);
+    expect(latest.missingGroupMembers).toEqual([]);
+    expect(latest.worldLoreEntriesPresent).toBe(false);
+    expect(latest.worldLoreEntriesMissing).toEqual(["Hidden Sigil"]);
+    expect(latest.globalLoreBookPresent).toBe(true);
+  });
+
+  it("subscribes to world/group events on start and initializes persona/group state", () => {
+    const setRequirementsState = jest.fn();
+    storeMock.getState.mockReturnValue({ setRequirementsState });
+    resolveGroupMemberNameMock.mockImplementation((member: any) => String(member));
+    getWorldInfoSettingsMock.mockReturnValue({ world_info: { globalSelect: [] } } as any);
+    subscribeToEventSourceMock.mockReturnValue(jest.fn());
+    getContextMock.mockReturnValue({
+      groupId: "group-1",
+      groups: [{ id: "group-1", members: ["A"] }],
+      name1: "Player",
+      loadWorldInfo: jest.fn().mockResolvedValue({ entries: {} }),
+      eventSource: {},
+      eventTypes: {
+        WORLDINFO_UPDATED: "WORLDINFO_UPDATED",
+        WORLDINFO_SETTINGS_UPDATED: "WORLDINFO_SETTINGS_UPDATED",
+        WORLDINFO_ENTRIES_LOADED: "WORLDINFO_ENTRIES_LOADED",
+        GROUP_UPDATED: "GROUP_UPDATED",
+      },
+    } as any);
+
+    const controller = createRequirementsController();
+    controller.start();
+
+    expect(subscribeToEventSourceMock).toHaveBeenCalledTimes(4);
+    const latest = setRequirementsState.mock.calls.at(-1)?.[0];
+    expect(latest.groupChatSelected).toBe(true);
+    expect(latest.personaDefined).toBe(true);
+    expect(latest.currentUserName).toBe("Player");
+  });
+});

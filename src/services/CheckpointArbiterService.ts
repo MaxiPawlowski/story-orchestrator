@@ -78,9 +78,9 @@ function snapshot(limit: number): string {
 
   return (Array.isArray(chat) ? chat.slice(-limit) : [])
     .map((msg, idx) => {
-      const text = (msg?.mes || msg?.text || msg?.message || msg?.data?.text || msg?.data?.mes || "") as string;
+      const text = (msg?.mes || "") as string;
       if (typeof text !== "string" || !text.trim()) return null;
-      const who = (msg?.name || msg?.character || (msg?.is_user ? "Player" : "Companion")) as string;
+      const who = (msg?.name || (msg?.is_user ? "Player" : "Companion")) as string;
       return `${idx + 1}. ${String(who)}: ${String(text).trim()}`;
     })
     .filter(Boolean)
