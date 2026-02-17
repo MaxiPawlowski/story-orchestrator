@@ -24,6 +24,7 @@ const config: StorybookConfig = {
       "@constants": path.resolve(__dirname, "../src/constants"),
       "@controllers": path.resolve(__dirname, "../src/controllers"),
       "@store": path.resolve(__dirname, "../src/store"),
+      "@services/STAPI": path.resolve(__dirname, "./mocks/STAPI.ts"),
     };
     cfg.resolve.fallback = {
       ...(cfg.resolve.fallback || {}),
