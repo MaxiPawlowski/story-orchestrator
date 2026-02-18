@@ -121,7 +121,7 @@ input,
 select,
 textarea {
   color: inherit;
-  border-color: var(--SmartThemeBorderColor);
+  border-color: var(--SmartThemeBodyColor);
 }
 
 ::-webkit-scrollbar {
