@@ -5,6 +5,112 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Theme-Aware Utility Classes */
+
+/* Color tokens mapped to ST variables */
+:root {
+  --st-bg-active: var(--SmartThemeBodyActiveColor, #333);
+  --st-text-active: var(--SmartThemeActiveColor, #d1d1d1);
+  --st-border: var(--SmartThemeBorderColor, #555);
+  --st-text-hover: var(--SmartThemeHoverColor, #e0e0e0);
+  --st-bg-tint: var(--SmartThemeBlurTintColor, rgba(0,0,0,0.3));
+}
+
+/* Semantic color utilities */
+.st-bg-active {
+  background-color: var(--st-bg-active);
+}
+
+.st-text-active {
+  color: var(--st-text-active);
+}
+
+.st-border {
+  border-color: var(--st-border);
+}
+
+.st-text-hover {
+  color: var(--st-text-hover);
+}
+
+.st-bg-tint {
+  background-color: var(--st-bg-tint);
+}
+
+/* Button Styling */
+.st-button {
+  @apply inline-flex items-center justify-center rounded border px-3 py-1 text-xs font-medium transition;
+  color: var(--st-text-active);
+  background-color: var(--st-bg-active);
+  border-color: var(--st-border);
+  cursor: pointer;
+}
+
+.st-button:hover {
+  color: var(--st-text-hover);
+  border-color: var(--st-text-hover);
+}
+
+.st-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Input Styling (complements .text_pole) */
+.st-input {
+  color: var(--st-text-active);
+  background-color: var(--st-bg-active);
+  border-color: var(--st-border);
+}
+
+.st-input:focus {
+  border-color: var(--st-text-hover);
+  outline: none;
+}
+
+/* Status Indicator Colors - Theme Aware */
+.status-indicator {
+  border-radius: 100%;
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+}
+
+.status-indicator.red {
+  background-color: #ff6b6b;
+}
+
+.status-indicator.green {
+  background-color: #51cf66;
+}
+
+.status-indicator.yellow {
+  background-color: #ffd43b;
+}
+
+.status-indicator.blue {
+  background-color: #74c0fc;
+}
+
+/* Alert/Feedback Colors */
+.st-alert-success {
+  border-color: #51cf66;
+  background-color: rgba(81, 207, 102, 0.1);
+  color: #51cf66;
+}
+
+.st-alert-error {
+  border-color: #ff6b6b;
+  background-color: rgba(255, 107, 107, 0.1);
+  color: #ff6b6b;
+}
+
+/* Border Utility */
+.st-border-base {
+  border: 1px solid var(--st-border);
+  border-radius: 6px;
+}
+
 @layer base {
   body {
     @apply text-base;
@@ -42,28 +148,6 @@
 
 
 
-  .status-indicator {
-    border-radius: 100%;
-    width: 14px;
-    height: 14px;
-    display: inline-block;
-
-    &.red {
-      background-color: red;
-    }
-
-    &.green {
-      background-color: green;
-    }
-
-    &.yellow {
-      background-color: yellow;
-    }
-
-    &.blue {
-      background-color: blue;
-    }
-  }
 
 
   .tab-container {
