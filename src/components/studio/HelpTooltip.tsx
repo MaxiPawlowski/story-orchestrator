@@ -9,7 +9,7 @@ type Props = {
 const HelpTooltip: React.FC<Props> = ({ title, i18nKey, className }) => (
   <span
     className={[
-      "fa-solid fa-circle-question text-[11px] text-slate-400",
+      "fa-solid fa-circle-question text-[11px] st-help-icon",
       className ?? "",
     ].join(" ").trim()}
     title={title}

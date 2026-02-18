@@ -96,56 +96,56 @@ const AutomationsTab: React.FC<Props> = ({
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-1 font-medium text-slate-200">
+        <div className="flex items-center gap-1 font-medium st-strong">
           Automations
           <HelpTooltip title="Queue slash commands that fire immediately when the checkpoint activates." />
         </div>
         <button
           type="button"
-          className="inline-flex items-center justify-center rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
+          className="st-button secondary px-2"
           onClick={onReloadCommands}
         >
           Reload Commands
         </button>
       </div>
-      <label className="flex flex-col gap-1 text-xs text-slate-300">
+      <label className="flex flex-col gap-1 text-xs">
         <span className="inline-flex items-center gap-1">
           Search Commands
           <HelpTooltip title="Look up slash commands and insert them with one click." />
         </span>
         <input
-          className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+          className="text_pole st-input w-full"
           value={commandSearch}
           onChange={(e) => onCommandSearchChange(e.target.value)}
           placeholder="Type to filter /command names..."
         />
       </label>
       {slashCommandError ? (
-        <div className="text-xs text-red-300">{slashCommandError}</div>
+        <div className="text-xs st-text-error">{slashCommandError}</div>
       ) : (
         <>
-          <div className="text-xs text-slate-400">
+          <div className="text-xs st-muted">
             Commands run when this checkpoint activates. Leading slash required; duplicates are ignored.
           </div>
-          <div className="max-h-48 overflow-y-auto rounded border border-slate-700 bg-slate-900/40 divide-y divide-slate-800">
+          <div className="max-h-48 overflow-y-auto rounded border st-border st-bg-tint divide-y st-divider">
             {filteredCommands.length ? filteredCommands.map((cmd) => (
               <div key={cmd.name} className="p-2 space-y-1">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="text-xs text-slate-200">
+                  <div className="text-xs st-strong">
                     <span className="font-medium">/{cmd.name}</span>
                     {cmd.aliases.length ? (
-                      <span className="ml-2 text-slate-400">
+                      <span className="ml-2 st-muted">
                         ({cmd.aliases.join(", ")})
                       </span>
                     ) : null}
                     {cmd.description ? (
-                      <div className="text-[11px] text-slate-400 mt-0.5">{cmd.description}</div>
+                      <div className="text-[11px] st-muted mt-0.5">{cmd.description}</div>
                     ) : null}
                   </div>
                   <div className="flex flex-wrap gap-1">
                     <button
                       type="button"
-                      className="inline-flex items-center justify-center rounded border border-slate-700 bg-slate-800 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-600"
+                      className="st-button secondary px-2 py-1 text-[11px]"
                       onClick={() => onInsertAutomationLine(`/${cmd.name}`)}
                     >
                       Insert /{cmd.name}
@@ -158,7 +158,7 @@ const AutomationsTab: React.FC<Props> = ({
                       <button
                         key={`${cmd.name}-${sample}`}
                         type="button"
-                        className="inline-flex items-center justify-center rounded border border-slate-800 bg-slate-800/70 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-600"
+                        className="st-button secondary px-2 py-1 text-[11px]"
                         onClick={() => onInsertAutomationLine(sample)}
                       >
                         {sample}
@@ -168,17 +168,17 @@ const AutomationsTab: React.FC<Props> = ({
                 ) : null}
               </div>
             )) : (
-              <div className="p-2 text-xs text-slate-500">No commands match the current search.</div>
+              <div className="p-2 text-xs st-muted-weak">No commands match the current search.</div>
             )}
           </div>
         </>
       )}
-      <div className="flex items-center gap-1 text-xs text-slate-300">
+      <div className="flex items-center gap-1 text-xs">
         <span>Automation Script</span>
         <HelpTooltip title="One command per line. Executed in order after presets, author notes, and world info apply." />
       </div>
       <textarea
-        className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+        className="text_pole textarea_compact st-input w-full resize-y"
         rows={6}
         value={automationDraft}
         onChange={(e) => onAutomationDraftChange(e.target.value)}
@@ -190,7 +190,7 @@ const AutomationsTab: React.FC<Props> = ({
             entry.status === "blank" ? null : (
               <div
                 key={`${entry.line}-${idx}`}
-                className={`text-xs ${entry.status === "ok" ? "text-emerald-300" : "text-red-300"}`}
+                className={`text-xs ${entry.status === "ok" ? "st-strong" : "st-text-error"}`}
               >
                 {entry.status === "ok" ? "OK" : "Issue"}: {entry.trimmed}
                 {entry.message ? ` - ${entry.message}` : null}

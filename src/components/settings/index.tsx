@@ -105,7 +105,7 @@ const SettingsWrapper = () => {
                 <div className="flex justify-end gap-2">
                   <button
                     type="button"
-                    className="text-xs px-2 py-1 border rounded bg-transparent"
+                    className="st-button secondary"
                     onClick={() => setShowWizard(true)}
                     title="Generate a new story with AI"
                   >
@@ -113,14 +113,14 @@ const SettingsWrapper = () => {
                   </button>
                   <button
                     type="button"
-                    className="text-xs px-2 py-1 border rounded bg-transparent"
+                    className="st-button secondary"
                     onClick={() => setShowEditor((prev) => !prev)}
                   >
                     Open Studio
                   </button>
                   <button
                     type="button"
-                    className="text-xs px-2 py-1 border rounded bg-transparent"
+                    className="st-button secondary"
                     onClick={() => reloadLibrary()}
                     disabled={libraryLoading}
                   >
@@ -130,7 +130,7 @@ const SettingsWrapper = () => {
               </div>
               <select
                 id="story-library-select"
-                className="text_pole"
+                className="text_pole st-input"
                 value={selectedLibraryKey ?? ""}
                 onChange={(event) => {
                   const { value } = event.target;
@@ -149,7 +149,7 @@ const SettingsWrapper = () => {
                 ))}
               </select>
               {selectedLibraryError && (
-                <p className="text-xs text-red-400">
+                <p className="text-xs st-text-error">
                   {selectedLibraryError}
                 </p>
               )}
@@ -170,7 +170,7 @@ const SettingsWrapper = () => {
               </label>
               <select
                 id="story-fallback-preset"
-                className="text_pole"
+                className="text_pole st-input"
                 value={fallbackPreset ?? ""}
                 onChange={(event) => {
                   const { value } = event.target;
@@ -197,7 +197,7 @@ const SettingsWrapper = () => {
                 type="number"
                 min={1}
                 max={99}
-                className="text_pole"
+                className="text_pole st-input"
                 value={arbiterFrequency}
                 onChange={(event) => {
                   const next = Number.parseInt(event.target.value, 10);
@@ -215,7 +215,7 @@ const SettingsWrapper = () => {
               </label>
               <textarea
                 id="story-arbiter-prompt"
-                className="text_pole textarea_compact"
+                className="text_pole textarea_compact st-input"
                 rows={6}
                 value={arbiterPrompt}
                 onChange={(event) => setArbiterPrompt(event.target.value)}
@@ -224,7 +224,7 @@ const SettingsWrapper = () => {
                 <span>Custom instructions prepended to Arbiter evaluations.</span>
                 <button
                   type="button"
-                  className="menu_button px-2 py-1"
+                  className="st-button secondary"
                   onClick={resetArbiterPrompt}
                   disabled={isPromptDefault}
                 >

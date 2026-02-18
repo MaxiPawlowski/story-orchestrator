@@ -77,7 +77,7 @@ const WorldInfoTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }) 
   return (
     <div className="space-y-2">
       <div className="font-medium">World Info</div>
-      <label className="flex flex-col gap-1 text-xs text-slate-300">
+      <label className="flex flex-col gap-1 text-xs">
         <span className="inline-flex items-center gap-1">
           Activate
           <HelpTooltip title="Turn on these lore entries as soon as the checkpoint activates." />
@@ -94,7 +94,7 @@ const WorldInfoTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }) 
           }}
         />
       </label>
-      <label className="flex flex-col gap-1 text-xs text-slate-300">
+      <label className="flex flex-col gap-1 text-xs">
         <span className="inline-flex items-center gap-1">
           Deactivate
           <HelpTooltip title="Disable these lore entries when entering the checkpoint to avoid overlap." />

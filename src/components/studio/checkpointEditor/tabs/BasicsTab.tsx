@@ -90,48 +90,48 @@ const BasicsTab: React.FC<Props> = ({
 
   return (
     <>
-      <label className="flex flex-col gap-1 text-xs text-slate-300">
+      <label className="flex flex-col gap-1 text-xs">
         <span className="inline-flex items-center gap-1">
           Checkpoint Id
           <HelpTooltip title="Stable identifier referenced by transitions and persistence snapshots." />
         </span>
         <input
-          className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+          className="text_pole st-input w-full"
           value={checkpoint.id}
           onChange={(e) => onCheckpointIdChange(checkpoint.id, e.target.value)}
         />
       </label>
-      <label className="flex flex-col gap-1 text-xs text-slate-300">
+      <label className="flex flex-col gap-1 text-xs">
         <span className="inline-flex items-center gap-1">
           Name
           <HelpTooltip title="Friendly label shown in the Studio UI." />
         </span>
         <input
-          className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+          className="text_pole st-input w-full"
           value={checkpoint.name}
           onChange={(e) => updateCheckpoint(checkpoint.id, (cp) => ({ ...cp, name: e.target.value }))}
         />
       </label>
-      <label className="flex flex-col gap-1 text-xs text-slate-300">
+      <label className="flex flex-col gap-1 text-xs">
         <span className="inline-flex items-center gap-1">
           Objective
           <HelpTooltip title="Explain the scene goal so the Player knows what to expect." />
         </span>
         <textarea
-          className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+          className="text_pole textarea_compact st-input w-full resize-y"
           rows={3}
           value={checkpoint.objective}
           onChange={(e) => updateCheckpoint(checkpoint.id, (cp) => ({ ...cp, objective: e.target.value }))}
         />
       </label>
       <div className="space-y-3">
-        <label className="flex flex-col gap-1 text-xs text-slate-300">
+        <label className="flex flex-col gap-1 text-xs">
           <span className="inline-flex items-center gap-1">
             Search Commands &amp; Macros
             <HelpTooltip title="Filter Story Orchestrator slash commands and macro references without leaving the editor." />
           </span>
           <input
-            className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+            className="text_pole st-input w-full"
             value={referenceQuery}
             onChange={(e) => onReferenceQueryChange(e.target.value)}
             placeholder="Type to filter /commands and {{macros}}..."
@@ -142,22 +142,22 @@ const BasicsTab: React.FC<Props> = ({
             <div className="font-medium">Story Orchestrator Slash Commands {' '}
               <HelpTooltip title="Read-only reference for commands registered by this extension." />
             </div>
-            <div className="rounded border border-slate-700 bg-slate-900/40 divide-y divide-slate-800">
+            <div className="rounded border st-border st-bg-tint divide-y st-divider">
               {filteredReferenceCommands.length ? filteredReferenceCommands.map((cmd) => (
                 <div key={cmd.name} className="space-y-1 p-2">
                   <div className="flex items-start justify-between gap-2">
-                    <div className="text-sm font-semibold text-slate-100">/{cmd.name}</div>
+                    <div className="text-sm font-semibold st-strong">/{cmd.name}</div>
                     {cmd.aliases.length ? (
-                      <div className="text-[11px] text-slate-400">Aliases: {cmd.aliases.join(", ")}</div>
+                      <div className="text-[11px] st-muted">Aliases: {cmd.aliases.join(", ")}</div>
                     ) : null}
                   </div>
                   {cmd.description ? (
-                    <div className="text-xs text-slate-300">{cmd.description}</div>
+                    <div className="text-xs st-muted">{cmd.description}</div>
                   ) : null}
                   {cmd.samples?.length ? (
                     <div className="flex flex-wrap gap-1">
                       {cmd.samples.slice(0, 3).map((sample) => (
-                        <span key={`${cmd.name}-${sample}`} className="rounded bg-slate-800 px-2 py-0.5 text-[11px] text-slate-200">
+                        <span key={`${cmd.name}-${sample}`} className="st-chip px-2 py-0.5 text-[11px]">
                           {sample}
                         </span>
                       ))}
@@ -165,7 +165,7 @@ const BasicsTab: React.FC<Props> = ({
                   ) : null}
                 </div>
               )) : (
-                <div className="p-2 text-xs text-slate-500">
+                <div className="p-2 text-xs st-muted-weak">
                   {projectSlashCommands.length
                     ? "No commands match the current search."
                     : "No Story Orchestrator commands detected."}
@@ -179,22 +179,22 @@ const BasicsTab: React.FC<Props> = ({
               <HelpTooltip title="Macros resolve at runtime; role entries update with the active story cast." />
             </div>
 
-            <div className="rounded border border-slate-700 bg-slate-900/40 divide-y divide-slate-800">
+            <div className="rounded border st-border st-bg-tint divide-y st-divider">
               {filteredMacroEntries.length ? filteredMacroEntries.map((entry) => (
                 <div key={entry.key} className="space-y-1 p-2">
                   <div className="flex items-center justify-between gap-2">
-                    <div className="font-mono text-xs text-slate-200">{`{{${entry.key}}}`}</div>
-                    <span className="rounded-full border border-slate-700 bg-slate-800 px-2 py-0.5 text-[10px] uppercase tracking-wide text-slate-300">
+                    <div className="font-mono text-xs st-strong">{`{{${entry.key}}}`}</div>
+                    <span className="st-pill px-2 py-0.5 text-[10px] uppercase tracking-wide">
                       {entry.category}
                     </span>
                   </div>
-                  <div className="text-xs text-slate-300">{entry.description}</div>
+                  <div className="text-xs st-muted">{entry.description}</div>
                   {entry.detail ? (
-                    <div className="text-[11px] text-slate-500">{entry.detail}</div>
+                    <div className="text-[11px] st-muted-weak">{entry.detail}</div>
                   ) : null}
                 </div>
               )) : (
-                <div className="p-2 text-xs text-slate-500">
+                <div className="p-2 text-xs st-muted-weak">
                   {macroEntries.length
                     ? "No macros match the current search."
                     : "No Story Orchestrator macros available."}

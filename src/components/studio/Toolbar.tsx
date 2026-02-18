@@ -29,7 +29,7 @@ const Toolbar: React.FC<Props> = ({
     <>
       <button
         type="button"
-        className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
+        className="st-button secondary"
         onClick={onExport}
         disabled={!canAddTransition}
       >
@@ -37,14 +37,14 @@ const Toolbar: React.FC<Props> = ({
       </button>
       <button
         type="button"
-        className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
+        className="st-button secondary"
         onClick={onImportPick}
       >
         Import JSON
       </button>
       <button
         type="button"
-        className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
+        className="st-button primary"
         onClick={onSave}
         disabled={!!saveDisabled}
       >
@@ -52,7 +52,7 @@ const Toolbar: React.FC<Props> = ({
       </button>
       <button
         type="button"
-        className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
+        className="st-button primary"
         onClick={onSaveAs}
         disabled={!!saveAsDisabled || !!savePending}
       >
@@ -60,7 +60,7 @@ const Toolbar: React.FC<Props> = ({
       </button>
       <button
         type="button"
-        className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
+        className="st-button secondary"
         onClick={onReset}
         disabled={!hasChanges}
       >

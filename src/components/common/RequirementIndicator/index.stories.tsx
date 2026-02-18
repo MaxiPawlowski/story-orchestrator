@@ -6,7 +6,7 @@ const meta: Meta<typeof RequirementIndicator> = {
   component: RequirementIndicator,
   args: {
     text: "Persona loaded",
-    color: "green",
+    status: "success",
     detail: "All required role bindings found",
   },
   decorators: [
@@ -26,14 +26,14 @@ export const Ready: Story = {};
 export const MissingLore: Story = {
   args: {
     text: "Lore missing",
-    color: "red",
+    status: "error",
     detail: "Global lorebook not present",
   },
 };
 
 export const NeedsReload: Story = {
   args: {
-    color: "yellow",
+    status: "warning",
     text: "Requirements stale",
     onReload: () => {},
     detail: "Click reload to rescan persona and group",

@@ -161,8 +161,8 @@ const CheckpointEditorPanel: React.FC<Props> = ({
   }, [updateAutomationsForCheckpoint]);
 
   return (
-    <div className="rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] shadow-sm">
-      <div className="flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-2">
+    <div className="st-panel shadow-sm">
+      <div className="st-panel-header flex items-center justify-between gap-2 px-3 py-2">
         <div className="flex items-center gap-2 overflow-hidden">
           <div className="font-semibold shrink-0">Checkpoint Editor</div>
           {selectedCheckpoint ? (
@@ -172,7 +172,7 @@ const CheckpointEditorPanel: React.FC<Props> = ({
         {selectedCheckpoint ? (
           <button
             type="button"
-            className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-2.5 py-1 text-xs font-medium text-red-300/90 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
+            className="st-button danger"
             onClick={() => onRemoveCheckpoint(selectedCheckpoint.id)}
           >
             Remove
@@ -180,7 +180,7 @@ const CheckpointEditorPanel: React.FC<Props> = ({
         ) : null}
       </div>
 
-      <div className="sticky top-0 z-[1] border-b border-slate-800 bg-[var(--SmartThemeBlurTintColor)] px-3 pt-2">
+      <div className="st-panel-header st-bg-tint sticky top-0 z-[1] px-3 pt-2">
         <div className="inline-flex rounded-sm shadow-sm">
           {TABS.map((tab, index) => {
             const isFirst = index === 0;
@@ -193,14 +193,10 @@ const CheckpointEditorPanel: React.FC<Props> = ({
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
                 className={[
-                  "border px-1.5 py-2 text-xs transition-colors focus:z-10",
-                  "focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900",
-                  "dark:border-gray-700 dark:text-gray-200 text-gray-700",
+                  "st-tab px-1.5 py-2 text-xs transition-colors focus:z-10",
                   isFirst ? "rounded-l-sm" : "-ml-px",
                   isLast ? "rounded-r-sm" : "",
-                  isActive
-                    ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white"
-                    : "bg-white dark:bg-gray-900"
+                  isActive ? "st-tab-active" : ""
                 ].join(" ")}
               >
                 {tab.label}
@@ -213,7 +209,7 @@ const CheckpointEditorPanel: React.FC<Props> = ({
 
       <div className="flex flex-col gap-4 p-3">
         {!selectedCheckpoint ? (
-          <div className="text-xs text-slate-400">Select a checkpoint to edit.</div>
+          <div className="text-xs st-muted">Select a checkpoint to edit.</div>
         ) : (
           <>
             {activeTab === "basics" && (

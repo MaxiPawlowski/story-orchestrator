@@ -17,15 +17,15 @@ const Requirements = () => {
     onPersonaReload,
   } = ctx;
 
-  const flagToColor = (present: boolean | undefined) => present ? 'green' : 'yellow';
+  const flagToStatus = (present: boolean | undefined): "success" | "warning" => (present ? "success" : "warning");
 
   const personaDetail = personaDefined ? null : 'No persona name set in your profile. Click reload after setting it.';
 
   const groupText = 'Group chat readiness';
   const hasMissingMembers = Array.isArray(missingGroupMembers) && missingGroupMembers.length > 0;
-  const groupColor = !groupChatSelected
-    ? 'yellow'
-    : (hasMissingMembers ? 'red' : 'green');
+  const groupStatus: "success" | "warning" | "error" = !groupChatSelected
+    ? "warning"
+    : (hasMissingMembers ? "error" : "success");
 
   const groupDetails: string[] = [];
   if (!groupChatSelected) {
@@ -59,9 +59,9 @@ const Requirements = () => {
 
   return (
     <div className="flex flex-col gap-2">
-      <RequirementIndicator text="Persona defined" color={flagToColor(personaDefined)} onReload={onPersonaReload} detail={personaDetail} />
-      <RequirementIndicator text={groupText} color={groupColor} detail={groupDetail} />
-      <RequirementIndicator text="World lore" color={flagToColor(lorePresent)} detail={combinedLoreDetail} />
+      <RequirementIndicator text="Persona defined" status={flagToStatus(personaDefined)} onReload={onPersonaReload} detail={personaDetail} />
+      <RequirementIndicator text={groupText} status={groupStatus} detail={groupDetail} />
+      <RequirementIndicator text="World lore" status={flagToStatus(lorePresent)} detail={combinedLoreDetail} />
     </div>
   );
 };

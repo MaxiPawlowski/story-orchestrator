@@ -1,18 +1,18 @@
 const RequirementIndicator = ({
   text,
-  color,
+  status,
   onReload,
   detail,
 }: {
   text: string,
-  color: string,
+  status: "success" | "error" | "warning" | "info",
   onReload?: () => void,
   detail?: string | null,
 }) => {
   return (
     <div className=" flex flex-col gap-1">
       <div className=" flex items-center gap-2">
-        <div className={`status-indicator ${color}`}></div>
+        <div className={`status-indicator status-${status}`}></div>
         <div className="">{text}</div>
         {onReload && (
           <i

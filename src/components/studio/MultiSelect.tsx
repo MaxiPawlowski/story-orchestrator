@@ -44,45 +44,45 @@ const MultiSelect: React.FC<Props> = ({ options, value, onChange, placeholder = 
       <div className="flex items-center gap-2 mb-2">
         <input
           type="text"
-          className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+          className="text_pole st-input w-full"
           placeholder={placeholder}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <div className="whitespace-nowrap text-[11px] text-slate-400">{selectedCount} selected</div>
+        <div className="whitespace-nowrap text-[11px] st-muted">{selectedCount} selected</div>
       </div>
       <div className="flex items-center gap-2 mb-2 text-[11px]">
         <button
           type="button"
-          className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-2 py-0.5 text-[11px] font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-500"
+          className="st-button secondary px-2 py-0.5 text-[11px]"
           onClick={selectAllFiltered}
         >
           Select filtered
         </button>
         <button
           type="button"
-          className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-2 py-0.5 text-[11px] font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-500"
+          className="st-button secondary px-2 py-0.5 text-[11px]"
           onClick={clearAll}
         >
           Clear
         </button>
       </div>
       <div
-        className="rounded border border-slate-700 bg-slate-800 overflow-auto"
+        className="rounded border st-border st-bg-active overflow-auto"
         style={{ maxHeight: listHeight, minHeight: Math.min(listHeight, 120) }}
       >
         {filtered.length === 0 ? (
-          <div className="px-3 py-2 text-[12px] text-slate-400">No results</div>
+          <div className="px-3 py-2 text-[12px] st-muted">No results</div>
         ) : (
-          <ul className="divide-y divide-slate-700">
+          <ul className="divide-y st-divider">
             {filtered.map((opt) => {
               const checked = normalizedSelected.has(opt.value);
               const isInactive = /\(not in lorebook\)\s*$/i.test(opt.label);
               return (
-                <li key={opt.value} className="px-3 py-1.5 text-sm flex items-center gap-2 cursor-pointer hover:bg-slate-900" onClick={() => toggle(opt.value)}>
+                <li key={opt.value} className="px-3 py-1.5 text-sm flex items-center gap-2 cursor-pointer hover:st-bg-hover" onClick={() => toggle(opt.value)}>
                   <input
                     type="checkbox"
-                    className="h-3.5 w-3.5 rounded border-slate-600 bg-slate-700 text-slate-300 focus:ring-1 focus:ring-slate-500"
+                    className="h-3.5 w-3.5 rounded st-border st-bg-active st-text-active"
                     checked={checked}
                     onChange={() => toggle(opt.value)}
                     onClick={(e) => e.stopPropagation()}

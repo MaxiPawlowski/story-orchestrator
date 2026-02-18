@@ -26,6 +26,39 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
     selectHandlerRef.current = onSelect;
   }, [onSelect]);
 
+  const themeColors = useMemo(() => {
+    const fallback = {
+      bgActive: "currentColor",
+      bgTint: "transparent",
+      border: "currentColor",
+      text: "currentColor",
+      info: "currentColor",
+      warning: "currentColor",
+    };
+
+    if (typeof window === "undefined") {
+      return fallback;
+    }
+
+    const root = getComputedStyle(document.documentElement);
+    const read = (names: string[], nextFallback: string) => {
+      for (const name of names) {
+        const value = root.getPropertyValue(name).trim();
+        if (value) return value;
+      }
+      return nextFallback;
+    };
+
+    return {
+      bgActive: read(["--st-bg-active", "--SmartThemeBodyActiveColor"], fallback.bgActive),
+      bgTint: read(["--st-bg-tint", "--SmartThemeBlurTintColor"], fallback.bgTint),
+      border: read(["--st-border", "--SmartThemeBorderColor"], fallback.border),
+      text: read(["--st-text-active", "--SmartThemeActiveColor"], fallback.text),
+      info: read(["--st-info", "--SmartThemeQuoteColor"], fallback.info),
+      warning: read(["--st-warning", "--SmartThemeWarningColor"], fallback.warning),
+    };
+  }, []);
+
   const elements = useMemo(() => {
     const nodes: ElementDefinition[] = draft.checkpoints
       .filter((cp) => cp.id && cp.id.trim())
@@ -83,10 +116,37 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
           elements: [],
           boxSelectionEnabled: false,
           style: [
-            { selector: "node", style: { "background-color": "#1f2937", "border-color": "#3b82f6", "border-width": "1px", color: "#f8fafc", label: "data(label)", "text-max-width": "140px", "text-wrap": "wrap", "font-size": "11px", padding: "8px" } },
-            { selector: "node[type = 'start']", style: { "background-color": "#2563eb" } },
-            { selector: "node.selected", style: { "border-width": "3px", "border-color": "#facc15" } },
-            { selector: "edge", style: { "curve-style": "bezier", "target-arrow-shape": "triangle", "line-color": "#94a3b8", "target-arrow-color": "#94a3b8", label: "data(label)", color: "#f8fafc", "font-size": "10px", "text-background-color": "#0f172a", "text-background-opacity": "0.6", "text-background-padding": "4px" } },
+            {
+              selector: "node",
+              style: {
+                "background-color": themeColors.bgActive,
+                "border-color": themeColors.info,
+                "border-width": "1px",
+                color: themeColors.text,
+                label: "data(label)",
+                "text-max-width": "140px",
+                "text-wrap": "wrap",
+                "font-size": "11px",
+                padding: "8px",
+              },
+            },
+            { selector: "node[type = 'start']", style: { "background-color": themeColors.info } },
+            { selector: "node.selected", style: { "border-width": "3px", "border-color": themeColors.warning } },
+            {
+              selector: "edge",
+              style: {
+                "curve-style": "bezier",
+                "target-arrow-shape": "triangle",
+                "line-color": themeColors.border,
+                "target-arrow-color": themeColors.border,
+                label: "data(label)",
+                color: themeColors.text,
+                "font-size": "10px",
+                "text-background-color": themeColors.bgTint,
+                "text-background-opacity": "0.8",
+                "text-background-padding": "4px",
+              },
+            },
           ] as any,
         });
       } catch {
@@ -132,7 +192,7 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
       }
       if (cleanup) cleanup();
     };
-  }, []);
+  }, [themeColors]);
 
   useEffect(() => {
     if (!cyReady) return;
@@ -229,19 +289,19 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
   if (!dagreReady && layout === "dagre") {
     return (
       <div className="flex items-center justify-center p-4">
-        <span className="text-sm text-slate-400">Loading Dagre layout...</span>
+        <span className="text-sm st-muted">Loading Dagre layout...</span>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] shadow-sm">
-      <div className="flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-2">
+    <div className="st-panel flex flex-1 flex-col overflow-hidden shadow-sm">
+      <div className="st-panel-header flex items-center justify-between gap-2 px-3 py-2">
         <div className="font-semibold">Graph <HelpTooltip title="Click a Checkpoint to configure it" /></div>
         <div className="flex items-center gap-2">
           <button
             type="button"
-            className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="st-button secondary"
             onClick={onAddCheckpoint}
             disabled={!!disabled}
           >
@@ -249,7 +309,7 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
           </button>
           <button
             type="button"
-            className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="st-button secondary"
             onClick={onAddTransition}
             disabled={!!disabled || !canAddTransition}
           >
@@ -257,7 +317,7 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
           </button>
           <button
             type="button"
-            className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
+            className="st-button secondary"
             onClick={() => setLayoutTrigger((prev) => prev + 1)}
           >
             Re-layout
@@ -268,7 +328,7 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
               setLayout(e.target.value as LayoutName);
               setLayoutTrigger((prev) => prev + 1);
             }}
-            className="w-full rounded border border-slate-700 bg-slate-800 mb-0 px-3 py-1 text-xs text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+            className="text_pole st-input w-full mb-0"
           >
             <option value="breadthfirst">Breadthfirst</option>
             <option value="grid">Grid</option>

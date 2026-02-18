@@ -158,14 +158,14 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="text-xs text-slate-300">
-          Configure automated responses for <span className="font-semibold text-slate-100">{checkpoint.name || checkpoint.id}</span>.
+        <div className="text-xs st-muted">
+          Configure automated responses for <span className="font-semibold st-strong">{checkpoint.name || checkpoint.id}</span>.
         </div>
         <div className="flex flex-wrap gap-2">
           {replies.length ? (
             <button
               type="button"
-              className="inline-flex items-center justify-center rounded border border-slate-700 bg-slate-800 px-3 py-1 text-xs text-red-300 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="st-button danger"
               onClick={handleClearCheckpointTalkControl}
             >
               Clear All
@@ -173,7 +173,7 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
           ) : null}
           <button
             type="button"
-            className="inline-flex items-center justify-center rounded border border-slate-700 bg-slate-800 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
+            className="st-button primary"
             onClick={handleAddReply}
           >
             + Add Reply
@@ -186,19 +186,16 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
           {replies.map((reply, idx) => {
 
             return (
-              <div key={`talk-control-reply-${idx}`} className="space-y-3 rounded border border-slate-800 bg-slate-950/50 p-3">
+              <div key={`talk-control-reply-${idx}`} className="space-y-3 st-subpanel p-3">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
-                    <div className="text-sm font-semibold text-slate-100">Reply {idx + 1}</div>
-                    {/* <div className="text-[11px] text-slate-400">
-                      Trigger: <span className="text-slate-300">{triggerLabel}</span>
-                    </div> */}
+                    <div className="text-sm font-semibold st-strong">Reply {idx + 1}</div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <label className="inline-flex items-center gap-2 text-[11px] text-slate-300">
+                    <label className="inline-flex items-center gap-2 text-[11px] st-muted">
                       <input
                         type="checkbox"
-                        className="rounded border-slate-600 bg-slate-900 text-slate-200 focus:ring-slate-600"
+                        className="rounded st-border st-bg-active st-text-active"
                         checked={reply.enabled}
                         onChange={(e) => handleReplyEnabledChange(idx, e.target.checked)}
                       />
@@ -206,7 +203,7 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
                     </label>
                     <button
                       type="button"
-                      className="inline-flex items-center justify-center rounded border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs text-red-300 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-red-500"
+                      className="st-button danger"
                       onClick={() => handleRemoveReply(idx)}
                     >
                       Remove
@@ -215,13 +212,13 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
-                  <label className="flex flex-col gap-1 text-xs text-slate-300">
+                  <label className="flex flex-col gap-1 text-xs">
                     <span className="inline-flex items-center gap-1">
                       Trigger Event
                       <HelpTooltip title="Select when this reply should be eligible to fire." />
                     </span>
                     <select
-                      className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                      className="text_pole st-input w-full"
                       value={reply.trigger}
                       onChange={(e) => handleReplyTriggerChange(idx, e.target.value as TalkControlTrigger)}
                     >
@@ -234,13 +231,13 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
                   </label>
 
                   {reply.trigger === "afterSpeak" ? (
-                    <label className="flex flex-col gap-1 text-xs text-slate-300">
+                    <label className="flex flex-col gap-1 text-xs">
                       <span className="inline-flex items-center gap-1">
                         Trigger After Character
                         <HelpTooltip title="Who needs to speak for this reply to trigger." />
                       </span>
                       <select
-                        className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                        className="text_pole st-input w-full"
                         value={reply.speakerId}
                         onChange={(e) => handleReplySpeakerIdChange(idx, e.target.value)}
                       >
@@ -258,13 +255,13 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
                   )}
                 </div>
 
-                <label className="flex flex-col gap-1 text-xs text-slate-300">
+                <label className="flex flex-col gap-1 text-xs">
                   <span className="inline-flex items-center gap-1">
                     Speaking Character (Who Replies)
                     <HelpTooltip title="Choose who delivers the automated response." />
                   </span>
                   <select
-                    className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                    className="text_pole st-input w-full"
                     value={reply.memberId}
                     onChange={(e) => handleReplyMemberIdChange(idx, e.target.value)}
                   >
@@ -278,7 +275,7 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
                 </label>
 
                 <div className="grid grid-cols-2 gap-2">
-                  <label className="flex flex-col gap-1 text-xs text-slate-300">
+                  <label className="flex flex-col gap-1 text-xs">
                     <span className="inline-flex items-center gap-1">
                       Probability (0-100)
                       <HelpTooltip title="Control the likelihood of this reply being selected." />
@@ -287,14 +284,14 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
                       type="number"
                       min={0}
                       max={100}
-                      className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                      className="text_pole st-input w-full"
                       value={reply.probability}
                       onChange={(e) => handleReplyProbabilityChange(idx, e.target.value)}
                     />
                   </label>
 
                   {reply.trigger !== "onEnter" && (
-                    <label className="flex flex-col gap-1 text-xs text-slate-300">
+                    <label className="flex flex-col gap-1 text-xs">
                       <span className="inline-flex items-center gap-1">
                         Max Triggers
                         <HelpTooltip title="Limit how many times this reply can trigger during the checkpoint. Leave empty for unlimited." />
@@ -302,7 +299,7 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
                       <input
                         type="number"
                         min={1}
-                        className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                        className="text_pole st-input w-full"
                         value={reply.maxTriggers ?? ""}
                         placeholder="Unlimited"
                         onChange={(e) => handleReplyMaxTriggersChange(idx, e.target.value)}
@@ -312,13 +309,13 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-xs text-slate-300">
+                  <div className="flex items-center gap-2 text-xs">
                     <span className="inline-flex items-center gap-1">
                       Content Type
                       <HelpTooltip title="Choose static canned text or LLM instructions to generate replies dynamically." />
                     </span>
                     <select
-                      className="rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 focus:border-transparent focus:outline-none focus:ring-slate-600"
+                      className="text_pole st-input"
                       value={reply.content.kind}
                       onChange={(e) => handleReplyContentKindChange(idx, e.target.value as "static" | "llm")}
                     >
@@ -328,7 +325,7 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
                   </div>
                   {reply.content.kind === "static" ? (
                     <textarea
-                      className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-slate-600"
+                      className="text_pole textarea_compact st-input w-full resize-y"
                       rows={3}
                       value={reply.content.text}
                       onChange={(e) => handleReplyContentChange(idx, e.target.value)}
@@ -336,7 +333,7 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
                     />
                   ) : (
                     <textarea
-                      className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-slate-600"
+                      className="text_pole textarea_compact st-input w-full resize-y"
                       rows={3}
                       value={reply.content.instruction}
                       onChange={(e) => handleReplyContentChange(idx, e.target.value)}
@@ -349,7 +346,7 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
           })}
         </div>
       ) : (
-        <div className="rounded border border-slate-800 bg-slate-950/30 p-6 text-center text-sm text-slate-400">
+        <div className="st-subpanel p-6 text-center text-sm st-muted">
           No replies configured. Click "Add Reply" to create automated responses.
         </div>
       )}

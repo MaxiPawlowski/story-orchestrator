@@ -3,6 +3,41 @@
 ## Purpose
 Story Orchestrator is a ST extension that automates non-linear, checkpoint-driven stories mapped as directed graphs. It watches player turns, evaluates regex or timed triggers, and applies Author's Notes, world info toggles, preset overrides, talk-control replies, and slash-command automations while enforcing persona, group, and lore requirements.
 
+## Goals
+
+- Turn unstructured SillyTavern chats into authored, non-linear stories.
+- Detect story-beat triggers and advance checkpoint flow automatically.
+- Apply AI-side effects per checkpoint (notes, presets, world info, automations).
+- Let NPCs reply autonomously at story moments via Talk Control.
+- Provide a visual Studio for graph authoring/editing without raw files.
+
+## Core Concepts
+
+- **Checkpoints**: Story beats with effects applied on activation.
+- **Transitions**: Directed edges advanced by regex, timed, arbiter, or manual triggers.
+- **Arbiter**: Scheduled/manual LLM judge that decides whether to advance.
+- **Talk Control**: Triggered NPC reply automation (`onEnter`, `afterSpeak`, `beforeArbiter`, `afterArbiter`).
+- **Story Macros**: Runtime variables (`{{story_title}}`, `{{story_current_checkpoint}}`, `{{chat_excerpt}}`, etc.).
+- **Requirements**: Persona/group/lore constraints that gate and defer side effects.
+
+## Architecture Snapshot
+
+- `src/services`: core runtime (`StoryOrchestrator`, `CheckpointArbiterService`, `PresetService`, `TalkControlService`, `STAPI`, talk-control submodules).
+- `src/controllers`: singleton lifecycle, turn tracking, requirements, persistence (`storyRuntimeController.ts` is re-export only).
+- `src/store`: Zustand vanilla session store + immutable requirement helpers.
+- `src/components`: context providers, drawer, settings, Studio, shared UI.
+- `src/utils`: schema/validation, persistence helpers, story library, macros, slash commands, Studio helpers.
+- `src/constants`, `src/hooks`, `src/types`: defaults/keys, context/library hooks, type shims.
+
+## Key Patterns
+
+- `STAPI.ts` is the only ST host-import surface; host modules load via dynamic `import(/* webpackIgnore: true */ "/scripts/..." )`.
+- Two React roots: settings in `#extensions_settings` and drawer in `#movingDivs`.
+- Mount waits for host readiness (currently delayed with `setTimeout`) before rendering portals.
+- `orchestratorManager` owns singleton lifecycle; `turnController` handles dedupe + generation epoch tracking.
+- Runtime/story state persists in extension settings; selected story is also tracked per chat in local storage.
+- `talkControlInterceptor` generation intercept is registered in `manifest.json` and wired from `src/index.tsx`.
+
 
 ## Working Style
 

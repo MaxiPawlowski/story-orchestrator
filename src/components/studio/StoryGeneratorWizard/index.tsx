@@ -196,7 +196,7 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
 
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium">Genre</label>
-            <select className="text_pole" value={questionnaire.genre} onChange={e => setQuestionnaire(q => ({ ...q, genre: e.target.value }))}>
+            <select className="text_pole st-input" value={questionnaire.genre} onChange={e => setQuestionnaire(q => ({ ...q, genre: e.target.value }))}>
               <option value="">Select genre…</option>
               {["Fantasy", "Sci-Fi", "Horror", "Mystery", "Romance", "Thriller", "Slice of Life", "Other"].map(g => (
                 <option key={g} value={g}>{g}</option>
@@ -206,7 +206,7 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
 
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium">Tone</label>
-            <select className="text_pole" value={questionnaire.tone} onChange={e => setQuestionnaire(q => ({ ...q, tone: e.target.value }))}>
+            <select className="text_pole st-input" value={questionnaire.tone} onChange={e => setQuestionnaire(q => ({ ...q, tone: e.target.value }))}>
               <option value="">Select tone…</option>
               {["Dark & Gritty", "Lighthearted & Fun", "Suspenseful", "Romantic", "Comedic", "Dramatic", "Other"].map(t => (
                 <option key={t} value={t}>{t}</option>
@@ -216,7 +216,7 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
 
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium">Story Length</label>
-            <select className="text_pole" value={questionnaire.length} onChange={e => setQuestionnaire(q => ({ ...q, length: e.target.value }))}>
+            <select className="text_pole st-input" value={questionnaire.length} onChange={e => setQuestionnaire(q => ({ ...q, length: e.target.value }))}>
               {["Short — 5 beats", "Medium — 10 beats", "Long — 15 beats", "Epic — 20+ beats"].map(l => (
                 <option key={l} value={l}>{l}</option>
               ))}
@@ -225,7 +225,7 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
 
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium">Story Focus</label>
-            <select className="text_pole" value={questionnaire.focus} onChange={e => setQuestionnaire(q => ({ ...q, focus: e.target.value }))}>
+            <select className="text_pole st-input" value={questionnaire.focus} onChange={e => setQuestionnaire(q => ({ ...q, focus: e.target.value }))}>
               {["Player-driven", "NPC-driven", "Ensemble cast", "Mystery/Investigation"].map(p => (
                 <option key={p} value={p}>{p}</option>
               ))}
@@ -233,10 +233,10 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
           </div>
 
           <div className="flex justify-end gap-2">
-            <button type="button" className="menu_button px-3 py-1" onClick={onClose}>Cancel</button>
+            <button type="button" className="st-button secondary" onClick={onClose}>Cancel</button>
             <button
               type="button"
-              className="menu_button px-3 py-1"
+              className="st-button primary"
               disabled={!questionnaire.genre || !questionnaire.tone}
               onClick={() => setStep("premise")}
             >
@@ -252,7 +252,7 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
             <label className="text-sm font-medium">Story Title (optional)</label>
             <input
               type="text"
-              className="text_pole"
+              className="text_pole st-input"
               placeholder="Leave blank to auto-name"
               value={storyTitle}
               onChange={e => setStoryTitle(e.target.value)}
@@ -261,7 +261,7 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium">Opening Scenario</label>
             <textarea
-              className="text_pole textarea_compact"
+              className="text_pole textarea_compact st-input"
               rows={6}
               placeholder="Describe the setting, who's present, tone, and what's about to happen…"
               value={premise}
@@ -269,10 +269,10 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
             />
           </div>
           <div className="flex justify-end gap-2">
-            <button type="button" className="menu_button px-3 py-1" onClick={() => setStep("questionnaire")}>← Back</button>
+            <button type="button" className="st-button secondary" onClick={() => setStep("questionnaire")}>← Back</button>
             <button
               type="button"
-              className="menu_button px-3 py-1"
+              className="st-button primary"
               disabled={!premise.trim()}
               onClick={() => setStep("roles")}
             >
@@ -290,7 +290,7 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
               <div key={i} className="flex gap-2 items-center">
                 <input
                   type="text"
-                  className="text_pole flex-1"
+                  className="text_pole st-input flex-1"
                   placeholder="role_id"
                   value={row.roleId}
                   onChange={e => updateRole(i, "roleId", e.target.value)}
@@ -298,7 +298,7 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
                 <span className="opacity-40">→</span>
                 <input
                   type="text"
-                  className="text_pole flex-1"
+                  className="text_pole st-input flex-1"
                   placeholder="Display Name"
                   value={row.displayName}
                   onChange={e => updateRole(i, "displayName", e.target.value)}
@@ -308,8 +308,8 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
             {!roles.length && <p className="text-xs opacity-50">No characters found in current group chat.</p>}
           </div>
           <div className="flex justify-end gap-2">
-            <button type="button" className="menu_button px-3 py-1" onClick={() => setStep("premise")}>← Back</button>
-            <button type="button" className="menu_button px-3 py-1" onClick={handleGenerate}>
+            <button type="button" className="st-button secondary" onClick={() => setStep("premise")}>← Back</button>
+            <button type="button" className="st-button primary" onClick={handleGenerate}>
               Generate ✨
             </button>
           </div>
@@ -326,7 +326,7 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
             </div>
           ))}
           {checkpointPreview && (
-            <div className="mt-3 border-t pt-2 text-xs opacity-80">
+            <div className="mt-3 border-t st-border pt-2 text-xs opacity-80">
               <div className="font-medium">{checkpointPreview.name}</div>
               {checkpointPreview.objective && <div className="opacity-70">{checkpointPreview.objective}</div>}
             </div>
@@ -343,10 +343,10 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
 
       {step === "error" && (
         <div className="flex flex-col gap-3">
-          <p className="text-sm text-red-400">{errorMsg}</p>
+          <p className="text-sm st-text-error">{errorMsg}</p>
           <div className="flex justify-end gap-2">
-            <button type="button" className="menu_button px-3 py-1" onClick={onClose}>Close</button>
-            <button type="button" className="menu_button px-3 py-1" onClick={() => setStep("premise")}>Try Again</button>
+            <button type="button" className="st-button secondary" onClick={onClose}>Close</button>
+            <button type="button" className="st-button primary" onClick={() => setStep("premise")}>Try Again</button>
           </div>
         </div>
       )}
@@ -392,7 +392,7 @@ const StoryGeneratorWizardModal: React.FC<ModalProps> = ({ open, onClose, ...res
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[2000] flex items-center justify-center bg-[color:color-mix(in_srgb,var(--SmartThemeBlurTintColor)_70%,transparent)]"
+      className="st-modal-overlay fixed inset-0 z-[2000] flex items-center justify-center"
       role="presentation"
       onClick={handleOverlay}
     >
@@ -400,7 +400,7 @@ const StoryGeneratorWizardModal: React.FC<ModalProps> = ({ open, onClose, ...res
         role="dialog"
         aria-modal="true"
         aria-label="Story Generator"
-        className="rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] shadow-2xl w-full max-w-lg overflow-y-auto max-h-[90vh]"
+        className="st-panel shadow-2xl w-full max-w-lg overflow-y-auto max-h-[90vh]"
       >
         <StoryGeneratorWizard onClose={onClose} {...rest} />
       </div>

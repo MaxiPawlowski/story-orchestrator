@@ -152,8 +152,8 @@ const StoryDetailsPanel: React.FC<Props> = ({ draft, setDraft }) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] shadow-sm">
-        <div className="flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-2 font-semibold">Story Details</div>
+      <div className="st-panel shadow-sm">
+        <div className="st-panel-header flex items-center justify-between gap-2 px-3 py-2 font-semibold">Story Details</div>
         <div className="flex flex-col gap-3 p-3">
           <StoryMetadataSection draft={draft} setDraft={setDraft} globalLorebooks={globalLorebooks} />
           <StoryRolesSection draft={draft} setDraft={setDraft} groupMembers={groupMembers} allCharacters={allCharacters} />

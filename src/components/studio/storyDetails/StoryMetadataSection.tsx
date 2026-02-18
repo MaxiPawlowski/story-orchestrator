@@ -20,34 +20,34 @@ const StoryMetadataSection: React.FC<Props> = ({ draft, setDraft, globalLorebook
 
   return (
     <div className="flex flex-col gap-3">
-      <label className="flex flex-col gap-1 text-xs text-slate-300">
+      <label className="flex flex-col gap-1 text-xs">
         <span>Title</span>
         <input
-          className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+          className="text_pole st-input w-full"
           value={draft.title}
           onChange={(e) => setDraft((prev) => ({ ...prev, title: e.target.value }))}
         />
       </label>
-      <label className="flex flex-col gap-1 text-xs text-slate-300">
+      <label className="flex flex-col gap-1 text-xs">
         <span className="inline-flex items-center gap-1">
           Story Description
           <HelpTooltip title="Brief campaign summary shown to the Arbiter and exposed as {{story_description}}." />
         </span>
         <textarea
-          className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+          className="text_pole textarea_compact st-input w-full resize-y"
           rows={4}
           value={draft.description ?? ""}
           onChange={(e) => setDraft((prev) => ({ ...prev, description: e.target.value }))}
           placeholder="Summarize the campaign backdrop that the Arbiter sees."
         />
       </label>
-      <label className="flex flex-col gap-1 text-xs text-slate-300">
+      <label className="flex flex-col gap-1 text-xs">
         <span className="inline-flex items-center gap-1">
           Global Lorebook
           <HelpTooltip title="Pick the global lorebook that should use for this story." />
         </span>
         <select
-          className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+          className="text_pole st-input w-full"
           value={draft.global_lorebook}
           onChange={(e) => setDraft((prev) => ({ ...prev, global_lorebook: e.target.value }))}
         >
@@ -59,13 +59,13 @@ const StoryMetadataSection: React.FC<Props> = ({ draft, setDraft, globalLorebook
           ))}
         </select>
       </label>
-      <label className="flex flex-col gap-1 text-xs text-slate-300">
+      <label className="flex flex-col gap-1 text-xs">
         <span className="inline-flex items-center gap-1">
           Start Checkpoint
           <HelpTooltip title="Sets the first checkpoint of the story." />
         </span>
         <select
-          className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+          className="text_pole st-input w-full"
           value={draft.start}
           onChange={(e) => setDraft((prev) => ({ ...prev, start: e.target.value }))}
         >

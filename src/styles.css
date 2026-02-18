@@ -6,17 +6,18 @@
 @tailwind utilities;
 
 /* Theme-Aware Utility Classes */
-
-/* Color tokens mapped to ST variables */
 :root {
-  --st-bg-active: var(--SmartThemeBodyActiveColor, #333);
-  --st-text-active: var(--SmartThemeActiveColor, #d1d1d1);
-  --st-border: var(--SmartThemeBorderColor, #555);
-  --st-text-hover: var(--SmartThemeHoverColor, #e0e0e0);
-  --st-bg-tint: var(--SmartThemeBlurTintColor, rgba(0,0,0,0.3));
+  --st-bg-active: var(--SmartThemeBodyActiveColor, var(--SmartThemeBlurTintColor, var(--greyCAIbg, transparent)));
+  --st-text-active: var(--SmartThemeActiveColor, var(--SmartThemeBodyColor, currentColor));
+  --st-border: var(--SmartThemeBorderColor, var(--SmartThemeEmColor, currentColor));
+  --st-hover: var(--SmartThemeHoverColor, var(--SmartThemeQuoteColor, var(--st-text-active)));
+  --st-bg-tint: var(--SmartThemeBlurTintColor, transparent);
+  --st-success: var(--SmartThemeSuccessColor, var(--SmartThemeQuoteColor, currentColor));
+  --st-error: var(--SmartThemeErrorColor, var(--SmartThemeQuoteColor, currentColor));
+  --st-warning: var(--SmartThemeWarningColor, var(--SmartThemeQuoteColor, currentColor));
+  --st-info: var(--SmartThemeQuoteColor, var(--SmartThemeBodyColor, currentColor));
 }
 
-/* Semantic color utilities */
 .st-bg-active {
   background-color: var(--st-bg-active);
 }
@@ -29,15 +30,94 @@
   border-color: var(--st-border);
 }
 
-.st-text-hover {
-  color: var(--st-text-hover);
+.st-bg-hover {
+  background-color: var(--st-hover);
 }
 
 .st-bg-tint {
   background-color: var(--st-bg-tint);
 }
 
-/* Button Styling */
+.st-muted {
+  color: var(--st-text-active);
+  opacity: 0.75;
+}
+
+.st-muted-weak {
+  color: var(--st-text-active);
+  opacity: 0.6;
+}
+
+.st-strong {
+  color: var(--st-text-active);
+  opacity: 1;
+}
+
+.st-panel {
+  border: 1px solid var(--st-border);
+  background: var(--st-bg-tint);
+  border-radius: 0.5rem;
+}
+
+.st-panel-header {
+  border-bottom: 1px solid var(--st-border);
+}
+
+.st-subpanel {
+  border: 1px solid color-mix(in srgb, var(--st-border) 85%, transparent);
+  background: color-mix(in srgb, var(--st-bg-tint) 80%, transparent);
+  border-radius: 0.5rem;
+}
+
+.st-divider {
+  border-color: color-mix(in srgb, var(--st-border) 90%, transparent);
+}
+
+.st-chip {
+  border: 1px solid var(--st-border);
+  background: color-mix(in srgb, var(--st-bg-active) 75%, transparent);
+  color: var(--st-text-active);
+  border-radius: 0.375rem;
+}
+
+.st-chip-muted {
+  border-color: color-mix(in srgb, var(--st-border) 80%, transparent);
+  background: color-mix(in srgb, var(--st-bg-tint) 70%, transparent);
+  color: var(--st-text-active);
+  opacity: 0.9;
+}
+
+.st-pill {
+  border: 1px solid var(--st-border);
+  background: color-mix(in srgb, var(--st-bg-active) 70%, transparent);
+  color: var(--st-text-active);
+  border-radius: 999px;
+}
+
+.st-tab {
+  border: 1px solid var(--st-border);
+  background: color-mix(in srgb, var(--st-bg-tint) 45%, transparent);
+  color: var(--st-text-active);
+}
+
+.st-tab:hover {
+  border-color: var(--st-hover);
+}
+
+.st-tab-active {
+  background: color-mix(in srgb, var(--st-info) 18%, var(--st-bg-active));
+  border-color: color-mix(in srgb, var(--st-info) 65%, var(--st-border));
+}
+
+.st-help-icon {
+  color: var(--st-text-active);
+  opacity: 0.65;
+}
+
+.st-modal-overlay {
+  background: color-mix(in srgb, var(--st-bg-tint) 70%, transparent);
+}
+
 .st-button {
   @apply inline-flex items-center justify-center rounded border px-3 py-1 text-xs font-medium transition;
   color: var(--st-text-active);
@@ -47,8 +127,13 @@
 }
 
 .st-button:hover {
-  color: var(--st-text-hover);
-  border-color: var(--st-text-hover);
+  background-color: var(--st-bg-tint);
+  border-color: var(--st-hover);
+}
+
+.st-button:focus-visible {
+  outline: 1px solid var(--st-hover);
+  outline-offset: 1px;
 }
 
 .st-button:disabled {
@@ -56,7 +141,20 @@
   cursor: not-allowed;
 }
 
-/* Input Styling (complements .text_pole) */
+.st-button.primary {
+  border-color: var(--st-info);
+  background-color: color-mix(in srgb, var(--st-info) 16%, var(--st-bg-active));
+}
+
+.st-button.secondary {
+  border-color: var(--st-border);
+}
+
+.st-button.danger {
+  border-color: color-mix(in srgb, var(--st-error) 55%, var(--st-border));
+  color: var(--st-error);
+}
+
 .st-input {
   color: var(--st-text-active);
   background-color: var(--st-bg-active);
@@ -64,51 +162,64 @@
 }
 
 .st-input:focus {
-  border-color: var(--st-text-hover);
+  border-color: var(--st-hover);
   outline: none;
 }
 
-/* Status Indicator Colors - Theme Aware */
 .status-indicator {
-  border-radius: 100%;
+  border-radius: 999px;
   width: 14px;
   height: 14px;
   display: inline-block;
+  border: 1px solid color-mix(in srgb, var(--st-border) 65%, transparent);
 }
 
-.status-indicator.red {
-  background-color: #ff6b6b;
+.status-indicator.status-success {
+  background-color: var(--st-success);
 }
 
-.status-indicator.green {
-  background-color: #51cf66;
+.status-indicator.status-error {
+  background-color: var(--st-error);
 }
 
-.status-indicator.yellow {
-  background-color: #ffd43b;
+.status-indicator.status-warning {
+  background-color: var(--st-warning);
 }
 
-.status-indicator.blue {
-  background-color: #74c0fc;
+.status-indicator.status-info {
+  background-color: var(--st-info);
 }
 
-/* Alert/Feedback Colors */
 .st-alert-success {
-  border-color: #51cf66;
-  background-color: rgba(81, 207, 102, 0.1);
-  color: #51cf66;
+  border-color: color-mix(in srgb, var(--st-success) 60%, var(--st-border));
+  background-color: color-mix(in srgb, var(--st-success) 15%, transparent);
+  color: var(--st-success);
 }
 
 .st-alert-error {
-  border-color: #ff6b6b;
-  background-color: rgba(255, 107, 107, 0.1);
-  color: #ff6b6b;
+  border-color: color-mix(in srgb, var(--st-error) 60%, var(--st-border));
+  background-color: color-mix(in srgb, var(--st-error) 15%, transparent);
+  color: var(--st-error);
 }
 
-/* Border Utility */
-.st-border-base {
-  border: 1px solid var(--st-border);
-  border-radius: 6px;
+.st-text-error {
+  color: var(--st-error);
+}
+
+.st-checkpoint-row {
+  border-color: var(--st-border);
+}
+
+.st-checkpoint-row.status-current {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--st-info) 65%, transparent);
+}
+
+.st-checkpoint-row.status-complete {
+  border-left: 3px solid var(--st-success);
+}
+
+.st-checkpoint-row.status-failed {
+  border-left: 3px solid var(--st-error);
 }
 
 @layer base {
@@ -157,8 +268,8 @@
   }
 
   .tab-button {
-    color: var(--SmartThemeActiveColor, #d1d1d1);
-    background-color: var(--SmartThemeBodyActiveColor, #333);
+    color: var(--SmartThemeActiveColor, currentColor);
+    background-color: var(--SmartThemeBodyActiveColor, transparent);
     border: 1px solid var(--SmartThemeBorderColor);
     border-radius: 5px;
     padding: 4px 6px;
@@ -169,12 +280,12 @@
   }
 
   .tab-button:hover {
-    border-color: var(--SmartThemeHoverColor, #e0e0e0);
+    border-color: var(--SmartThemeHoverColor, currentColor);
   }
 
   .tab-button.active {
-    color: var(--SmartThemeActiveColor, #d1d1d1);
-    background-color: var(--SmartThemeBodyActiveColor, #333);
+    color: var(--SmartThemeActiveColor, currentColor);
+    background-color: var(--SmartThemeBodyActiveColor, transparent);
     font-weight: 600;
     transform: scale(1.05);
     border-color: transparent;

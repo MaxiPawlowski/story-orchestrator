@@ -53,7 +53,7 @@ const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }
   }, [checkpoint.id, updateCheckpoint]);
 
   if (!noteRoleKeys.length) {
-    return <div className="text-xs text-slate-400">No story roles available for author notes.</div>;
+    return <div className="text-xs st-muted">No story roles available for author notes.</div>;
   }
 
   return (
@@ -65,12 +65,12 @@ const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }
         const roleLabel = roleName ? `${roleName} (${roleKey})` : roleKey;
 
         return (
-          <div key={roleKey} className="rounded border border-slate-600 p-3 space-y-2">
+          <div key={roleKey} className="st-subpanel p-3 space-y-2">
             <div className="flex items-center justify-between gap-2">
-              <div className="text-sm font-semibold text-slate-100">{roleLabel}</div>
+              <div className="text-sm font-semibold st-strong">{roleLabel}</div>
               <button
                 type="button"
-                className="inline-flex items-center justify-center rounded border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-200 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-600"
+                className="st-button secondary px-2"
                 onClick={() => {
                   updateCheckpoint(checkpoint.id, (cp) => {
                     const next = ensureOnActivate(cp.on_activate);
@@ -89,13 +89,13 @@ const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }
                 {hasNote ? "Edit" : "Create"} Note
               </button>
             </div>
-            <label className="flex flex-col gap-1 text-xs text-slate-300">
+            <label className="flex flex-col gap-1 text-xs">
               <span className="inline-flex items-center gap-1">
                 Author Note Text
                 <HelpTooltip title="Per-role instructions injected into the runtime Author's Note slot." />
               </span>
               <textarea
-                className="w-full resize-y rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                className="text_pole textarea_compact st-input w-full resize-y"
                 rows={3}
                 value={note?.text ?? ""}
                 onChange={(e) => {
@@ -109,13 +109,13 @@ const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }
               />
             </label>
             <div className="grid grid-cols-4 gap-3">
-              <label className="flex flex-col gap-1 text-xs text-slate-300">
+              <label className="flex flex-col gap-1 text-xs">
                 <span className="inline-flex items-center gap-1">
                   Position
                   <HelpTooltip title="Choose where the note appears relative to the main prompt." />
                 </span>
                 <select
-                  className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                  className="text_pole st-input w-full"
                   value={note?.position ?? ""}
                   disabled={!hasNote}
                   onChange={(e) => {
@@ -136,13 +136,13 @@ const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }
                   ))}
                 </select>
               </label>
-              <label className="flex flex-col gap-1 text-xs text-slate-300">
+              <label className="flex flex-col gap-1 text-xs">
                 <span className="inline-flex items-center gap-1">
                   Interval
                   <HelpTooltip title="Apply the note every N turns; leave blank to use the default cadence." />
                 </span>
                 <input
-                  className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                  className="text_pole st-input w-full"
                   value={note?.interval ?? ""}
                   disabled={!hasNote}
                   onChange={(e) => {
@@ -158,13 +158,13 @@ const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }
                   }}
                 />
               </label>
-              <label className="flex flex-col gap-1 text-xs text-slate-300">
+              <label className="flex flex-col gap-1 text-xs">
                 <span className="inline-flex items-center gap-1">
                   Depth
                   <HelpTooltip title="Adjust how strongly the note influences the model (preset-specific meaning)." />
                 </span>
                 <input
-                  className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-slate-600"
+                  className="text_pole st-input w-full"
                   value={note?.depth ?? ""}
                   disabled={!hasNote}
                   onChange={(e) => {
@@ -180,13 +180,13 @@ const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }
                   }}
                 />
               </label>
-              <label className="flex flex-col gap-1 text-xs text-slate-300">
+              <label className="flex flex-col gap-1 text-xs">
                 <span className="inline-flex items-center gap-1">
                   Send As
                   <HelpTooltip title="Which role should supply the note?" />
                 </span>
                 <select
-                  className="w-full rounded border border-slate-700 bg-slate-800 px-2 py-1 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                  className="text_pole st-input w-full"
                   value={note?.role ?? ""}
                   disabled={!hasNote}
                   onChange={(e) => {
@@ -211,7 +211,7 @@ const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }
             <div className="flex justify-end">
               <button
                 type="button"
-                className="inline-flex items-center justify-center rounded border border-slate-700 bg-slate-800 px-3 py-1 text-xs text-red-300 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="st-button danger"
                 onClick={() => {
                   updateAuthorNote(roleKey, () => ({ text: "" }));
                 }}

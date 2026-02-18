@@ -459,13 +459,13 @@ const CheckpointStudio: React.FC<Props> = ({
   const outgoingTransitions = selectedId ? draft.transitions.filter((edge) => edge.from === selectedId) : [];
 
   return (
-    <div className="flex flex-col gap-4 text-sm text-slate-100">
+    <div className="flex flex-col gap-4 text-sm st-strong">
       <input ref={fileInputRef} type="file" accept="application/json" className="hidden" onChange={handleFileChange} />
 
-      <div className="flex flex-col gap-2 bg-[var(--SmartThemeBlurTintColor)] pr-[30px]">
+      <div className="flex flex-col gap-2 st-bg-tint pr-[30px]">
         <div className="flex flex-wrap items-center gap-2">
           <select
-            className="min-w-[200px] rounded border border-slate-700 bg-slate-800 px-3 py-1 text-xs mb-0 text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 flex-1 focus:ring-slate-600"
+            className="text_pole st-input min-w-[200px] px-3 py-1 text-xs mb-0 flex-1"
             value={selectedKey ?? ""}
             disabled={!!disabled || savePending || deletePending || !libraryEntries.length}
             onChange={(event) => {
@@ -484,7 +484,7 @@ const CheckpointStudio: React.FC<Props> = ({
           </select>
           <button
             type="button"
-            className="inline-flex items-center justify-center rounded border border-red-800 bg-red-700/80 px-3 py-1 text-xs font-medium text-red-50 shadow-sm transition hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="st-button danger"
             onClick={handleDeleteStory}
             disabled={!!disabled || !canDelete || savePending || deletePending}
             title={canDelete ? "Delete this saved story" : "Only saved stories can be deleted"}
@@ -506,7 +506,7 @@ const CheckpointStudio: React.FC<Props> = ({
           />
         </div>
         {selectedError && (
-          <div className="rounded border border-red-700/60 bg-red-900/30 px-3 py-2 text-xs text-red-200">
+          <div className="st-alert-error rounded px-3 py-2 text-xs">
             Validation failed: {selectedError}
           </div>
         )}

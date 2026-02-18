@@ -26,11 +26,11 @@ type Props = {
   lastQueuedEvaluation?: QueuedEvaluationInfo | null;
 };
 
-const STATUS_BORDER_CLASS: Record<CheckpointStatus, string> = {
-  [CheckpointStatus.Pending]: "border-gray-200",
-  [CheckpointStatus.Current]: "border-blue-300",
-  [CheckpointStatus.Complete]: "border-green-300",
-  [CheckpointStatus.Failed]: "border-red-300",
+const STATUS_CLASS: Record<CheckpointStatus, string> = {
+  [CheckpointStatus.Pending]: "status-pending",
+  [CheckpointStatus.Current]: "status-current",
+  [CheckpointStatus.Complete]: "status-complete",
+  [CheckpointStatus.Failed]: "status-failed",
 };
 
 const Checkpoints: React.FC<Props> = ({
@@ -86,7 +86,7 @@ const Checkpoints: React.FC<Props> = ({
           })
           .map((cp, i) => {
             const status = cp.status ?? CheckpointStatus.Pending;
-            const borderClass = STATUS_BORDER_CLASS[status] ?? STATUS_BORDER_CLASS[CheckpointStatus.Pending];
+            const statusClass = STATUS_CLASS[status] ?? STATUS_CLASS[CheckpointStatus.Pending];
             const isComplete = status === CheckpointStatus.Complete;
             const key = cp.id ?? `cp-${i}`;
             const objective = cp.objective || "No objective defined";
@@ -94,7 +94,7 @@ const Checkpoints: React.FC<Props> = ({
             return (
               <li
                 key={key}
-                className={`flex items-center py-2 px-2.5 rounded-md border ${borderClass} mb-1.5`}
+                className={`st-checkpoint-row ${statusClass} flex items-center py-2 px-2.5 rounded-md border mb-1.5`}
               >
                 <div className="flex items-center gap-2.5 flex-1">
                   <input

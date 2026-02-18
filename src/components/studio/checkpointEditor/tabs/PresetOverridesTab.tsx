@@ -174,7 +174,7 @@ const PresetOverridesTab: React.FC<Props> = ({
   }, [updateRoleOverrides, setPresetDrafts]);
 
   if (!presetRoleKeys.length) {
-    return <div className="text-xs text-slate-400">Define story roles to configure preset overrides.</div>;
+    return <div className="text-xs st-muted">Define story roles to configure preset overrides.</div>;
   }
 
   return (
@@ -192,18 +192,18 @@ const PresetOverridesTab: React.FC<Props> = ({
         const missingInStory = roleKey !== ARBITER_ROLE_KEY && !(draft.roles && Object.prototype.hasOwnProperty.call(draft.roles, roleKey));
 
         return (
-          <div key={roleKey} className="space-y-2 rounded border border-slate-700 bg-slate-900/40 p-2">
+          <div key={roleKey} className="space-y-2 st-subpanel p-2">
             <div className="flex items-center justify-between gap-2">
-              <div className="text-xs font-semibold text-slate-200">
+              <div className="text-xs font-semibold st-strong">
                 {roleDisplayName}
                 {missingInStory ? (
-                  <span className="ml-2 text-[11px] font-normal text-amber-300/90">Not in Story Roles</span>
+                  <span className="ml-2 text-[11px] font-normal st-muted">Not in Story Roles</span>
                 ) : null}
               </div>
               <div className="flex flex-wrap gap-1">
                 <button
                   type="button"
-                  className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-2.5 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:opacity-50 disabled:hover:bg-slate-800"
+                  className="st-button secondary"
                   disabled={!canAddMore}
                   onClick={() => addPresetOverride(roleKey)}
                 >
@@ -212,7 +212,7 @@ const PresetOverridesTab: React.FC<Props> = ({
                 {Object.keys(overridesForRole).length ? (
                   <button
                     type="button"
-                    className="inline-flex items-center justify-center rounded border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs text-red-300 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="st-button danger"
                     onClick={() => {
                       const keys = Object.keys(overridesForRole);
                       keys.forEach((key) => removePresetOverride(roleKey, key));
@@ -229,13 +229,13 @@ const PresetOverridesTab: React.FC<Props> = ({
                   const displayValue = draftValues[settingKey] ?? stringifyPresetValue(value);
                   return (
                     <div key={settingKey} className="grid grid-cols-[minmax(140px,0.45fr)_minmax(0,1fr)_auto] items-end gap-2">
-                      <label className="flex flex-col gap-1 text-xs text-slate-300">
+                      <label className="flex flex-col gap-1 text-xs">
                         <span className="inline-flex items-center gap-1">
                           Setting
                           {settingIndex === 0 && roleIndex === 0 && <HelpTooltip title="Select which preset property to override for this role as it appears if you exported your presets as a JSON; current value is default." />}
                         </span>
                         <select
-                          className="w-full rounded border border-slate-700 bg-slate-800 mb-0 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                          className="text_pole st-input w-full mb-0"
                           value={settingKey}
                           onChange={(e) => changePresetKey(roleKey, settingKey, e.target.value as PresetSettingKey)}
                         >
@@ -246,13 +246,13 @@ const PresetOverridesTab: React.FC<Props> = ({
                           ))}
                         </select>
                       </label>
-                      <label className="flex flex-col gap-1 text-xs text-slate-300">
+                      <label className="flex flex-col gap-1 text-xs">
                         <span className="inline-flex items-center gap-1">
                           Value
                           {settingIndex === 0 && roleIndex === 0 && <HelpTooltip title="Enter the override as it would appear as if you exported your presets as a JSON; current value is default." />}
                         </span>
                         <input
-                          className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                          className="text_pole st-input w-full"
                           value={displayValue}
                           onChange={(e) => changePresetValue(roleKey, settingKey, e.target.value)}
                           placeholder="Override value..."
@@ -260,7 +260,7 @@ const PresetOverridesTab: React.FC<Props> = ({
                       </label>
                       <button
                         type="button"
-                        className="inline-flex h-[34px] items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 text-xs font-medium text-red-300/90 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                        className="st-button danger h-[34px]"
                         onClick={() => removePresetOverride(roleKey, settingKey)}
                       >
                         Remove
@@ -270,7 +270,7 @@ const PresetOverridesTab: React.FC<Props> = ({
                 })}
               </div>
             ) : (
-              <div className="text-xs text-slate-400">No overrides for this role.</div>
+              <div className="text-xs st-muted">No overrides for this role.</div>
             )}
           </div>
         );

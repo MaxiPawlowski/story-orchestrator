@@ -34,12 +34,12 @@ const StoryRolesSection: React.FC<Props> = ({ draft, setDraft, groupMembers, all
   }, [groupMembers, allCharacters]);
 
   return (
-    <div className="mt-2 border-t border-slate-800 pt-3">
-      <div className="mb-1 font-medium text-slate-200">Story Roles</div>
+    <div className="mt-2 border-t st-border pt-3">
+      <div className="mb-1 font-medium">Story Roles</div>
       <div className="space-y-2">
         {Object.entries(draft.roles ?? {}).map(([roleKey, participant], index) => (
           <div key={`role-${index}`} className="grid grid-cols-2 gap-2 items-end">
-            <label className="flex flex-col gap-1 text-xs text-slate-300">
+            <label className="flex flex-col gap-1 text-xs">
               <span className="inline-flex items-center gap-1">
                 Role Name
                 {index === 0 && (
@@ -47,7 +47,7 @@ const StoryRolesSection: React.FC<Props> = ({ draft, setDraft, groupMembers, all
                 )}
               </span>
               <input
-                className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                className="text_pole st-input w-full"
                 value={roleKey}
                 onChange={(e) => {
                   const nextKeyRaw = e.target.value;
@@ -70,14 +70,14 @@ const StoryRolesSection: React.FC<Props> = ({ draft, setDraft, groupMembers, all
               />
             </label>
             <div className="flex items-end gap-2">
-              <label className="flex flex-1 flex-col gap-1 text-xs text-slate-300">
+              <label className="flex flex-1 flex-col gap-1 text-xs">
                 <span className="inline-flex items-center gap-1">
                   Participant Name
                   {index === 0 && <HelpTooltip title="Match the chat member name to link roles correctly." />}
                 </span>
                 <input
                   list="st-group-members"
-                  className="w-full rounded border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-sm text-slate-200 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-slate-600"
+                  className="text_pole st-input w-full"
                   value={participant}
                   onChange={(e) => {
                     const value = String(e.target.value ?? "").replace(/\.[a-z0-9]+$/i, "");
@@ -91,7 +91,7 @@ const StoryRolesSection: React.FC<Props> = ({ draft, setDraft, groupMembers, all
               </label>
               <button
                 type="button"
-                className="inline-flex h-[34px] shrink-0 items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 text-xs font-medium text-red-300/90 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                className="st-button danger h-[34px] shrink-0"
                 onClick={() => setDraft((prev) => {
                   const next = { ...(prev.roles ?? {}) } as Record<string, string>;
                   delete next[roleKey];
@@ -106,7 +106,7 @@ const StoryRolesSection: React.FC<Props> = ({ draft, setDraft, groupMembers, all
         <div>
           <button
             type="button"
-            className="inline-flex items-center justify-center rounded border bg-slate-800 border-slate-700 px-3 py-1 text-xs font-medium text-slate-200 transition hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500"
+            className="st-button secondary"
             onClick={() => {
               setDraft((prev) => {
                 const roles = { ...(prev.roles ?? {}) } as Record<string, string>;

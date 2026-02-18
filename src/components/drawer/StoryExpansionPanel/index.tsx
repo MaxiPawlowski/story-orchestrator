@@ -28,7 +28,7 @@ const StoryExpansionPanel = () => {
   const { phase, phaseDone, preview } = expansion;
 
   return (
-    <div className="border rounded p-2 mt-2 flex flex-col gap-1 text-xs">
+    <div className="st-panel p-2 mt-2 flex flex-col gap-1 text-xs">
       <div className="text-sm font-medium mb-1">Generating next beat…</div>
 
       {PHASES.map(p => (
@@ -42,7 +42,7 @@ const StoryExpansionPanel = () => {
       ))}
 
       {preview && (
-        <div className="mt-2 border-t pt-2 flex flex-col gap-0.5 opacity-80">
+        <div className="mt-2 border-t st-border pt-2 flex flex-col gap-0.5 opacity-80">
           <div className="font-medium truncate" title={preview.checkpointName}>
             {preview.checkpointName}
           </div>

@@ -98,7 +98,7 @@ const CheckpointStudioModal: React.FC<Props> = ({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[2000] flex items-center justify-center bg-[color:color-mix(in_srgb,var(--SmartThemeBlurTintColor)_70%,transparent)]"
+      className="st-modal-overlay fixed inset-0 z-[2000] flex items-center justify-center"
       role="presentation"
       onClick={handleOverlayClick}
     >
@@ -106,12 +106,12 @@ const CheckpointStudioModal: React.FC<Props> = ({
         role="dialog"
         aria-modal="true"
         aria-label="Checkpoint Editor"
-        className="flex w-full max-h-[96vh] max-w-[1120px] flex-col rounded-lg border border-slate-800 bg-[var(--SmartThemeBlurTintColor)] shadow-2xl relative"
+        className="st-panel flex w-full max-h-[96vh] max-w-[1120px] flex-col shadow-2xl relative"
       >
-        <div className="flex items-center justify-between border-b border-slate-800 px-4 py-0 absolute top-[10px] w-[50px] right-0">
+        <div className="st-panel-header flex items-center justify-between px-4 py-0 absolute top-[10px] w-[50px] right-0">
           <button
             type="button"
-            className="rounded p-1 border-none bg-transparent text-lg text-slate-400 transition hover:text-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-600"
+            className="rounded p-1 border-none bg-transparent text-lg st-muted transition hover:opacity-100 focus:outline-none"
             aria-label="Close checkpoint editor"
             onClick={onClose}
           >
