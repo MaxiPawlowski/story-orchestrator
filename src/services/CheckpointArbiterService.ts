@@ -1,4 +1,4 @@
-import { getContext } from "./STAPI";
+import { getContext } from "@services/STAPI";
 import { updateStoryMacroSnapshot } from "@utils/story-macros";
 import {
   ARBITER_RESPONSE_LENGTH,

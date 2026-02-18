@@ -1,4 +1,4 @@
-import { getContext, getCharacters } from "./STAPI";
+import { getContext, getCharacters } from "@services/STAPI";
 import type { Checkpoint, OnActivate, TalkControlConfig, Transition } from "@utils/story-schema";
 
 const GENERATOR_RESPONSE_LENGTH = 4000;

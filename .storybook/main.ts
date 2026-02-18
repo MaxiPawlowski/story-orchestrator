@@ -3,6 +3,7 @@ import path from "path";
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.stories.@(ts|tsx)"],
+  staticDirs: [{ from: path.resolve(__dirname, "../../../../../"), to: "/st-public" }],
   addons: [
     "@storybook/addon-essentials",
     "@storybook/addon-a11y",
@@ -17,6 +18,7 @@ const config: StorybookConfig = {
     cfg.resolve.extensions = [".tsx", ".ts", ".jsx", ".js", ...(cfg.resolve.extensions || [])];
     cfg.resolve.alias = {
       ...(cfg.resolve.alias || {}),
+      "@services/STAPI": path.resolve(__dirname, "./mocks/STAPI.ts"),
       "@components": path.resolve(__dirname, "../src/components"),
       "@services": path.resolve(__dirname, "../src/services"),
       "@hooks": path.resolve(__dirname, "../src/hooks"),
@@ -24,7 +26,6 @@ const config: StorybookConfig = {
       "@constants": path.resolve(__dirname, "../src/constants"),
       "@controllers": path.resolve(__dirname, "../src/controllers"),
       "@store": path.resolve(__dirname, "../src/store"),
-      "@services/STAPI": path.resolve(__dirname, "./mocks/STAPI.ts"),
     };
     cfg.resolve.fallback = {
       ...(cfg.resolve.fallback || {}),
@@ -78,7 +79,10 @@ const config: StorybookConfig = {
     });
     cfg.module.rules.push({
       test: /\.css$/i,
-      include: path.resolve(__dirname, "../src"),
+      include: [
+        path.resolve(__dirname, "../src"),
+        path.resolve(__dirname, "."),
+      ],
       use: ["style-loader", "css-loader", "postcss-loader"],
     });
 

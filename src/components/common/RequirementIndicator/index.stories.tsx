@@ -9,6 +9,13 @@ const meta: Meta<typeof RequirementIndicator> = {
     color: "green",
     detail: "All required role bindings found",
   },
+  decorators: [
+    (Story) => (
+      <div id="drawer-manager" className="pinnedOpen">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export default meta;

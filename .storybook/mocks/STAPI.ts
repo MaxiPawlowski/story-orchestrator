@@ -22,6 +22,22 @@ const off = (name: string, handler: (...args: any[]) => void) => {
 const extensionSettings: Record<string, any> = {};
 
 export const tgPresetNames = ["Default", "Creative", "Balanced"];
+export const tgPresetObjs: Record<string, any>[] = [];
+export const TG_SETTING_NAMES: Record<string, string> = {};
+export const BIAS_CACHE: Record<string, any> = {};
+export const setSettingByName = (_name: string, _value: any) => {};
+export const displayLogitBias = () => {};
+export const setGenerationParamsFromPreset = (_preset: any) => {};
+export const getMessageTimeStamp = () => "";
+export const MacrosParser = { registerMacro: () => {}, unregisterMacro: () => {} };
+export const getCharacterNameById = (_id: number | undefined): string | undefined => undefined;
+export const getCharacterIdByName = (_name: string): number | undefined => undefined;
+export const getCharacters = (): any[] => [];
+export const applyCharacterAN = async () => {};
+export const clearCharacterAN = async () => {};
+export const executeSlashCommands = async () => true;
+export const enableWIEntry = async () => false;
+export const disableWIEntry = async () => false;
 
 export const getWorldInfoSettings = () => ({
   world_info: { globalSelect: ["Lorebook Alpha", "Lorebook Beta"] },

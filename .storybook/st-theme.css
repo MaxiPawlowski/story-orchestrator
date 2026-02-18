@@ -1,0 +1,144 @@
+/**
+ * SillyTavern global CSS — synced from ST's style.css :root.
+ * Fonts loaded via preview-head.html from /st-public (staticDirs).
+ */
+
+:root {
+  interpolate-size: allow-keywords;
+  --doc-height: 100%;
+  --transparent: rgba(0, 0, 0, 0);
+
+  --black30a: rgba(0, 0, 0, 0.3);
+  --black50a: rgba(0, 0, 0, 0.5);
+  --black60a: rgba(0, 0, 0, 0.6);
+  --black70a: rgba(0, 0, 0, 0.7);
+  --black90a: rgba(0, 0, 0, 0.9);
+  --black100: rgba(0, 0, 0, 1);
+
+  --white20a: rgba(255, 255, 255, 0.2);
+  --white30a: rgba(255, 255, 255, 0.3);
+  --white50a: rgba(255, 255, 255, 0.5);
+  --white60a: rgba(255, 255, 255, 0.6);
+  --white70a: rgba(255, 255, 255, 0.7);
+  --white100: rgba(255, 255, 255, 1);
+
+  --grey10: rgb(25, 25, 25);
+  --grey30: rgb(75, 75, 75);
+  --grey50: rgb(125, 125, 125);
+  --grey5020a: rgba(125, 125, 125, 0.2);
+  --grey5050a: rgba(125, 125, 125, 0.5);
+  --grey70: rgb(175, 175, 175);
+  --grey75: rgb(190, 190, 190);
+  --grey30a: rgba(50, 50, 50, 0.3);
+  --grey7070a: rgba(175, 175, 175, 0.7);
+
+  --fullred: rgba(255, 0, 0, 1);
+  --crimson70a: rgba(100, 0, 0, 0.7);
+  --crimson-hover: rgba(150, 50, 50, 0.5);
+  --okGreen70a: rgba(0, 100, 0, 0.7);
+  --cobalt30a: rgba(100, 100, 255, 0.3);
+  --greyCAIbg: rgb(36, 36, 37);
+  --ivory: rgb(220, 220, 210);
+  --golden: rgb(248, 211, 0);
+  --warning: rgba(255, 0, 0, 0.9);
+  --active: rgb(88, 182, 0);
+  --preferred: rgb(244, 67, 54);
+
+  --interactable-outline-color: var(--white100);
+  --interactable-outline-color-faint: var(--white20a);
+
+  --reasoning-body-color: var(--SmartThemeEmColor);
+  --reasoning-em-color: color-mix(in srgb, var(--SmartThemeEmColor) 67%, var(--SmartThemeBlurTintColor) 33%);
+  --reasoning-saturation: 0.5;
+
+  --SmartThemeBodyColor: rgb(220, 220, 210);
+  --SmartThemeEmColor: rgb(145, 145, 145);
+  --SmartThemeUnderlineColor: rgb(188, 231, 207);
+  --SmartThemeQuoteColor: rgb(225, 138, 36);
+  --SmartThemeBlurTintColor: rgba(23, 23, 23, 1);
+  --SmartThemeChatTintColor: rgba(23, 23, 23, 1);
+  --SmartThemeUserMesBlurTintColor: rgba(0, 0, 0, 0.3);
+  --SmartThemeBotMesBlurTintColor: rgba(60, 60, 60, 0.3);
+  --SmartThemeBlurStrength: calc(var(--blurStrength) * 1px);
+  --SmartThemeShadowColor: rgba(0, 0, 0, 0.5);
+  --SmartThemeBorderColor: rgba(0, 0, 0, 0.5);
+  --SmartThemeCheckboxBgColorR: 220;
+  --SmartThemeCheckboxBgColorG: 220;
+  --SmartThemeCheckboxBgColorB: 210;
+  --SmartThemeCheckboxTickColorValue: calc(((((var(--SmartThemeCheckboxBgColorR) * 299) + (var(--SmartThemeCheckboxBgColorG) * 587) + (var(--SmartThemeCheckboxBgColorB) * 114)) / 1000) - 128) * -1000);
+  --SmartThemeCheckboxTickColor: rgb(var(--SmartThemeCheckboxTickColorValue), var(--SmartThemeCheckboxTickColorValue), var(--SmartThemeCheckboxTickColorValue));
+
+  --sheldWidth: 50vw;
+  --fontScale: 1;
+  --mainFontSize: calc(var(--fontScale) * 15px);
+  --mainFontFamily: "Noto Sans", sans-serif;
+  --monoFontFamily: "Noto Sans Mono", "Courier New", Consolas, monospace;
+  --blurStrength: 10;
+  --shadowWidth: 2;
+
+  --bottomFormBlockPadding: calc(var(--mainFontSize) / 2.5);
+  --bottomFormIconSize: calc(var(--mainFontSize) * 1.9);
+  --bottomFormBlockSize: calc(var(--bottomFormIconSize) + var(--bottomFormBlockPadding));
+  --topBarIconSize: calc(var(--mainFontSize) * 2);
+  --topBarBlockSize: calc(var(--topBarIconSize) + var(--topBarBlockPadding));
+  --topBarBlockPadding: calc(var(--mainFontSize) / 3);
+
+  --mes-right-spacing: 30px;
+  --avatar-base-height: 50px;
+  --avatar-base-width: 50px;
+  --avatar-base-border-radius: 2px;
+  --avatar-base-border-radius-round: 50%;
+  --avatar-base-border-radius-rounded: 10px;
+  --inline-avatar-small-factor: 0.6;
+
+  --animation-duration: 125ms;
+  --animation-duration-2x: calc(var(--animation-duration) * 2);
+  --animation-duration-3x: calc(var(--animation-duration) * 3);
+  --animation-duration-slow: var(--animation-duration-3x);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  -moz-osx-font-smoothing: grayscale;
+  text-shadow: 0px 0px calc(var(--shadowWidth) * 1px) var(--SmartThemeShadowColor);
+}
+
+body {
+  margin: 0;
+  padding: 1rem;
+  background-color: var(--SmartThemeBlurTintColor);
+  font-family: var(--mainFontFamily);
+  font-size: var(--mainFontSize);
+  color: var(--SmartThemeBodyColor);
+}
+
+::-webkit-scrollbar {
+  width: 0.7rem;
+  scrollbar-gutter: stable;
+}
+
+::-webkit-scrollbar-thumb:vertical {
+  background-color: var(--grey7070a);
+  box-shadow: inset 0 0 0 1px var(--black50a);
+  border-radius: 10px;
+  background-clip: content-box;
+  border: 2px solid transparent;
+  min-height: 40px;
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+  background-color: var(--grey7070a);
+  box-shadow: inset 0 0 0 1px var(--black50a);
+  border-radius: 10px;
+  background-clip: content-box;
+  border: 2px solid transparent;
+  min-width: 40px;
+}
+
+::-webkit-scrollbar-corner {
+  background-color: transparent;
+}

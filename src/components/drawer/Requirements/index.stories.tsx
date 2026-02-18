@@ -9,7 +9,9 @@ const meta: Meta<typeof Requirements> = {
   decorators: [
     (Story) => (
       <StoryContext.Provider value={mockStoryContextValue}>
-        <Story />
+        <div id="drawer-manager" className="pinnedOpen">
+          <Story />
+        </div>
       </StoryContext.Provider>
     ),
   ],

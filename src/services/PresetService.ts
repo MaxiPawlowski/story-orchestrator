@@ -8,7 +8,7 @@ import {
   BIAS_CACHE,
   displayLogitBias,
   getContext,
-} from './STAPI';
+} from '@services/STAPI';
 import type { PresetOverrides, Role } from "@utils/story-schema";
 import { ARBITER_ROLE_KEY, ARBITER_ROLE_LABEL } from "@utils/story-schema";
 export type PresetPartial = PresetOverrides;
