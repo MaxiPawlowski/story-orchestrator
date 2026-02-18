@@ -116,6 +116,14 @@ body {
   color: var(--SmartThemeBodyColor);
 }
 
+button,
+input,
+select,
+textarea {
+  color: inherit;
+  border-color: var(--SmartThemeBorderColor);
+}
+
 ::-webkit-scrollbar {
   width: 0.7rem;
   scrollbar-gutter: stable;
