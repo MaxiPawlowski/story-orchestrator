@@ -1,4 +1,4 @@
-import { clone } from "@utils/checkpoint-studio";
+import { cloneStructured } from "@utils/dataHelpers";
 import { getContext } from "@services/STAPI";
 import type { PresetSettingKey } from "@constants/presetSettingKeys";
 
@@ -50,9 +50,9 @@ export const parsePresetValue = (raw: string): unknown => {
 const clonePresetValue = (value: unknown): unknown => {
   if (Array.isArray(value) || (value && typeof value === "object")) {
     try {
-      return clone(value);
+      return cloneStructured(value);
     } catch (err) {
-      console.warn("[Story - presetUtils] Failed to clone preset value with clone()", err);
+      console.warn("[Story - presetUtils] Failed to clone preset value with cloneStructured()", err);
       try {
         return JSON.parse(JSON.stringify(value));
       } catch (err2) {
@@ -67,8 +67,7 @@ const clonePresetValue = (value: unknown): unknown => {
 export const readCurrentPresetValue = (key: PresetSettingKey): unknown => {
   try {
     const { textCompletionSettings } = getContext();
-    // TODO: fix any
-    const base = (textCompletionSettings as any)?.[key];
+    const base = (textCompletionSettings as Partial<Record<PresetSettingKey, unknown>>)[key];
     return clonePresetValue(base);
   } catch (err) {
     console.warn("[Story - presetUtils] Failed to read current preset value", key, err);

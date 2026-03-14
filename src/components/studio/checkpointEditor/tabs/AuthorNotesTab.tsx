@@ -1,8 +1,6 @@
-﻿import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   type AuthorNoteDraft,
-  ensureOnActivate,
-  cleanupOnActivate,
   type StoryDraft,
   type CheckpointDraft,
 } from "@utils/checkpoint-studio";
@@ -17,14 +15,14 @@ type Props = {
 
 const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }) => {
   const authorNotesSignature = useMemo(() => {
-    if (!checkpoint.on_activate?.authors_note) return "";
+    if (!checkpoint.authors_note) return "";
     try {
-      return JSON.stringify(checkpoint.on_activate.authors_note);
+      return JSON.stringify(checkpoint.authors_note);
     } catch (err) {
       console.warn("[Story - AuthorNotesTab] Failed to stringify authors_note for signature", err);
       return `${checkpoint.id ?? ""}-authors-note`;
     }
-  }, [checkpoint.id, checkpoint.on_activate?.authors_note]);
+  }, [checkpoint.id, checkpoint.authors_note]);
 
   const noteRoleKeys = useMemo(() => {
     const seen = new Set<string>();
@@ -36,31 +34,78 @@ const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }
       ordered.push(roleKey);
     };
     Object.keys(draft.roles ?? {}).forEach(push);
-    Object.keys(checkpoint.on_activate?.authors_note ?? {}).forEach(push);
+    Object.keys(checkpoint.authors_note ?? {}).forEach(push);
     return ordered;
   }, [draft.roles, checkpoint.id, authorNotesSignature]);
 
   const updateAuthorNote = useCallback((roleKey: string, editor: (prev: AuthorNoteDraft | undefined) => AuthorNoteDraft | undefined) => {
     updateCheckpoint(checkpoint.id, (cp) => {
-      const next = ensureOnActivate(cp.on_activate);
-      const currentMap = { ...(next.authors_note ?? {}) } as Record<string, AuthorNoteDraft | undefined>;
+      const currentMap = { ...(cp.authors_note ?? {}) } as Record<string, AuthorNoteDraft | undefined>;
       const updated = editor(currentMap[roleKey]);
       if (updated) currentMap[roleKey] = updated;
       else delete currentMap[roleKey];
-      next.authors_note = currentMap;
-      return { ...cp, on_activate: cleanupOnActivate(next) };
+      const authors_note = Object.keys(currentMap).length ? currentMap : undefined;
+      return { ...cp, authors_note };
     });
   }, [checkpoint.id, updateCheckpoint]);
+
+  const patchNoteField = useCallback((roleKey: string, field: keyof AuthorNoteDraft, value: unknown) => {
+    updateAuthorNote(roleKey, (prev) => {
+      if (!prev?.text?.trim()) return prev;
+      const next: AuthorNoteDraft = { ...prev };
+      if (value === undefined || value === "") delete (next as Record<string, unknown>)[field];
+      else (next as Record<string, unknown>)[field] = value;
+      return next;
+    });
+  }, [updateAuthorNote]);
 
   if (!noteRoleKeys.length) {
     return <div className="text-xs st-muted">No story roles available for author notes.</div>;
   }
 
+  const noteFields: Array<{
+    key: keyof Pick<AuthorNoteDraft, "position" | "interval" | "depth" | "role">;
+    label: string;
+    title: string;
+    kind: "select" | "number";
+    min?: number;
+    options?: typeof AUTHOR_NOTE_POSITION_OPTIONS | typeof AUTHOR_NOTE_ROLE_OPTIONS;
+  }> = [
+    {
+      key: "position",
+      label: "Position",
+      title: "Choose where the note appears relative to the main prompt.",
+      kind: "select",
+      options: AUTHOR_NOTE_POSITION_OPTIONS,
+    },
+    {
+      key: "interval",
+      label: "Interval",
+      title: "Apply the note every N turns; leave blank to use the default cadence.",
+      kind: "number",
+      min: 1,
+    },
+    {
+      key: "depth",
+      label: "Depth",
+      title: "Adjust how strongly the note influences the model (preset-specific meaning).",
+      kind: "number",
+      min: 0,
+    },
+    {
+      key: "role",
+      label: "Send As",
+      title: "Which role should supply the note?",
+      kind: "select",
+      options: AUTHOR_NOTE_ROLE_OPTIONS,
+    },
+  ];
+
   return (
     <div className="space-y-4">
       {noteRoleKeys.map((roleKey) => {
         const roleName = draft.roles?.[roleKey];
-        const note = checkpoint.on_activate?.authors_note?.[roleKey];
+        const note = checkpoint.authors_note?.[roleKey];
         const hasNote = Boolean(note?.text?.trim());
         const roleLabel = roleName ? `${roleName} (${roleKey})` : roleKey;
 
@@ -73,16 +118,15 @@ const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }
                 className="st-button secondary px-2"
                 onClick={() => {
                   updateCheckpoint(checkpoint.id, (cp) => {
-                    const next = ensureOnActivate(cp.on_activate);
-                    if (!next.authors_note) next.authors_note = {};
-                    next.authors_note[roleKey] = {
+                    const authors_note = { ...(cp.authors_note ?? {}) };
+                    authors_note[roleKey] = {
                       text: note?.text ?? "",
                       position: note?.position,
                       interval: note?.interval,
                       depth: note?.depth,
                       role: note?.role,
                     };
-                    return { ...cp, on_activate: cleanupOnActivate(next) };
+                    return { ...cp, authors_note };
                   });
                 }}
               >
@@ -109,104 +153,40 @@ const AuthorNotesTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }
               />
             </label>
             <div className="grid grid-cols-4 gap-3">
-              <label className="flex flex-col gap-1 text-xs">
-                <span className="inline-flex items-center gap-1">
-                  Position
-                  <HelpTooltip title="Choose where the note appears relative to the main prompt." />
-                </span>
-                <select
-                  className="text_pole st-input w-full"
-                  value={note?.position ?? ""}
-                  disabled={!hasNote}
-                  onChange={(e) => {
-                    const value = e.target.value as "" | AuthorNoteDraft["position"];
-                    updateAuthorNote(roleKey, (prev) => {
-                      if (!prev?.text?.trim()) return prev;
-                      const next: AuthorNoteDraft = { ...prev };
-                      if (!value) delete next.position;
-                      else next.position = value;
-                      return next;
-                    });
-                  }}
-                >
-                  {AUTHOR_NOTE_POSITION_OPTIONS.map((option) => (
-                    <option key={option.value || "default"} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="flex flex-col gap-1 text-xs">
-                <span className="inline-flex items-center gap-1">
-                  Interval
-                  <HelpTooltip title="Apply the note every N turns; leave blank to use the default cadence." />
-                </span>
-                <input
-                  className="text_pole st-input w-full"
-                  value={note?.interval ?? ""}
-                  disabled={!hasNote}
-                  onChange={(e) => {
-                    const raw = e.target.value;
-                    updateAuthorNote(roleKey, (prev) => {
-                      if (!prev?.text?.trim()) return prev;
-                      const next: AuthorNoteDraft = { ...prev };
-                      const parsed = Number(raw);
-                      if (!Number.isFinite(parsed)) return next;
-                      next.interval = Math.max(1, Math.round(parsed));
-                      return next;
-                    });
-                  }}
-                />
-              </label>
-              <label className="flex flex-col gap-1 text-xs">
-                <span className="inline-flex items-center gap-1">
-                  Depth
-                  <HelpTooltip title="Adjust how strongly the note influences the model (preset-specific meaning)." />
-                </span>
-                <input
-                  className="text_pole st-input w-full"
-                  value={note?.depth ?? ""}
-                  disabled={!hasNote}
-                  onChange={(e) => {
-                    const raw = e.target.value;
-                    updateAuthorNote(roleKey, (prev) => {
-                      if (!prev?.text?.trim()) return prev;
-                      const next: AuthorNoteDraft = { ...prev };
-                      const parsed = Number(raw);
-                      if (!Number.isFinite(parsed)) return next;
-                      next.depth = Math.max(0, Math.round(parsed));
-                      return next;
-                    });
-                  }}
-                />
-              </label>
-              <label className="flex flex-col gap-1 text-xs">
-                <span className="inline-flex items-center gap-1">
-                  Send As
-                  <HelpTooltip title="Which role should supply the note?" />
-                </span>
-                <select
-                  className="text_pole st-input w-full"
-                  value={note?.role ?? ""}
-                  disabled={!hasNote}
-                  onChange={(e) => {
-                    const value = e.target.value as "" | AuthorNoteDraft["role"];
-                    updateAuthorNote(roleKey, (prev) => {
-                      if (!prev?.text?.trim()) return prev;
-                      const next: AuthorNoteDraft = { ...prev };
-                      if (!value) delete next.role;
-                      else next.role = value;
-                      return next;
-                    });
-                  }}
-                >
-                  {AUTHOR_NOTE_ROLE_OPTIONS.map((option) => (
-                    <option key={option.value || "default"} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              {noteFields.map((field) => (
+                <label key={field.key} className="flex flex-col gap-1 text-xs">
+                  <span className="inline-flex items-center gap-1">
+                    {field.label}
+                    <HelpTooltip title={field.title} />
+                  </span>
+                  {field.kind === "select" ? (
+                    <select
+                      className="text_pole st-input w-full"
+                      value={note?.[field.key] ?? ""}
+                      disabled={!hasNote}
+                      onChange={(e) => patchNoteField(roleKey, field.key, e.target.value || undefined)}
+                    >
+                      {field.options?.map((option) => (
+                        <option key={option.value || "default"} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      className="text_pole st-input w-full"
+                      value={note?.[field.key] ?? ""}
+                      disabled={!hasNote}
+                      onChange={(e) => {
+                        const parsed = Number(e.target.value);
+                        if (Number.isFinite(parsed)) {
+                          patchNoteField(roleKey, field.key, Math.max(field.min ?? 0, Math.round(parsed)));
+                        }
+                      }}
+                    />
+                  )}
+                </label>
+              ))}
             </div>
             <div className="flex justify-end">
               <button

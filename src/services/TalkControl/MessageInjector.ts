@@ -1,23 +1,16 @@
 import type { NormalizedTalkControlReply } from "@utils/story-validator";
 import type { TalkControlTrigger } from "@utils/story-schema";
 import { getMessageTimeStamp, getContext } from "@services/STAPI";
+import { continueWhileIncomplete } from "@utils/continuation";
 
 interface MessageInjectionContext {
   reply: NormalizedTalkControlReply;
   checkpointId: string;
   eventType: TalkControlTrigger;
   charId: number;
-  character: any;
+  character: Pick<Character, "name" | "avatar">;
   text: string;
   kind: "static" | "llm";
-}
-
-interface GenerateQuietPromptOptions {
-  quietPrompt: string;
-  quietToLoud?: boolean;
-  quietName?: string;
-  forceChId?: number;
-  removeReasoning?: boolean;
 }
 
 export class MessageInjector {
@@ -38,7 +31,7 @@ export class MessageInjector {
 
     const timestamp = getMessageTimeStamp();
 
-    const message: Record<string, any> = {
+    const message: ChatMessage = {
       name: ctx.character.name ?? ctx.reply.memberId,
       is_user: false,
       is_system: false,
@@ -79,7 +72,7 @@ export class MessageInjector {
 
     chat.push(message);
     const messageId = chat.length - 1;
-    (chatMetadata as any)["tainted"] = true;
+    chatMetadata.tainted = true;
 
     await eventSource.emit(eventTypes.MESSAGE_RECEIVED, messageId, "talkControl");
     addOneMessage(message);
@@ -172,39 +165,23 @@ export class MessageInjector {
 
   private async continueQuietGeneration(
     previousResponse: string,
-    generateQuietPrompt: (options: GenerateQuietPromptOptions) => Promise<string>,
+    generateQuietPrompt: SillyTavernContext["generateQuietPrompt"],
     reply: NormalizedTalkControlReply,
     charId: number
   ): Promise<string> {
-    let fullResponse = "";
-
-    for (let attempt = 0; attempt < this.maxContinuationAttempts; attempt++) {
-      try {
-        const continuationInstruction = `Continue your previous response. Complete it naturally without repeating what was already said:\n\nPrevious: ${previousResponse + fullResponse}`;
-
-        const continued = await generateQuietPrompt({
-          quietPrompt: continuationInstruction,
-          quietToLoud: false,
-          quietName: reply.memberId,
-          forceChId: charId,
-          removeReasoning: true,
-        });
-
-        if (!continued || !continued.trim()) {
-          break;
-        }
-
-        fullResponse += continued;
-
-        if (!this.isTruncatedText(previousResponse + fullResponse)) {
-          break;
-        }
-      } catch (err) {
-        break;
-      }
-    }
-
-    return fullResponse;
+    return continueWhileIncomplete({
+      initialText: previousResponse,
+      maxAttempts: this.maxContinuationAttempts,
+      isIncomplete: (text) => this.isTruncatedText(text),
+      buildRequest: (text) => ({
+        quietPrompt: `Continue your previous response. Complete it naturally without repeating what was already said:\n\nPrevious: ${text}`,
+        quietToLoud: false,
+        quietName: reply.memberId,
+        forceChId: charId,
+        removeReasoning: true,
+      }),
+      requestContinuation: generateQuietPrompt,
+    });
   }
 
   public setContinuationOptions(enabled: boolean, maxAttempts?: number): void {

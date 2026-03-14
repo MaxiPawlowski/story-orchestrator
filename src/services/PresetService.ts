@@ -1,21 +1,19 @@
-import { UI_SYNC_MAX_ATTEMPTS, UI_SYNC_RETRY_DELAY_MS } from '@constants/defaults';
 import {
-  setGenerationParamsFromPreset,
-  setSettingByName,
-  tgPresetObjs,
-  tgPresetNames,
-  TG_SETTING_NAMES,
-  BIAS_CACHE,
-  displayLogitBias,
-  getContext,
-} from '@services/STAPI';
+  applyTextGenPresetRuntime,
+  findTextGenPreset,
+  getTextGenSettingNames,
+  type TextGenPreset,
+  upsertTextGenPreset,
+} from '@services/stHost/presets';
+import { getContext } from '@services/stHost/context';
+import { clonePresetFields, composePresetObject } from '@services/presets/presetComposition';
 import type { PresetOverrides, Role } from "@utils/story-schema";
 import { ARBITER_ROLE_KEY, ARBITER_ROLE_LABEL } from "@utils/story-schema";
 export type PresetPartial = PresetOverrides;
 
 export type BaseSource =
-  | { source: 'current' }                   // snapshot from current sliders
-  | { source: 'named'; name: string };     // copy from an existing named preset
+  | { source: 'current' }
+  | { source: 'named'; name: string };
 
 type ConstructorOpts = {
   storyId: string;
@@ -28,65 +26,6 @@ type ApplyLabelOpts = {
   role: Role;
   checkpointName?: string;
 };
-const BIAS_KEY = '#textgenerationwebui_api-settings';
-
-(function attachUiBridge() {
-  console.log('[Story - ST UI Bridge] Initializing UI Bridge');
-  const applySettingWithRetry = (key: string, value: any, attempt = 0) => {
-    if (typeof setSettingByName !== 'function') {
-      console.warn(`[Story - ST UI Bridge] setSettingByName not available`);
-      return;
-    }
-
-    let lastError: unknown | null = null;
-    try {
-      setSettingByName(key, value, true);
-    } catch (error) {
-      lastError = error as unknown;
-    }
-
-    const inputId = `${key}_textgenerationwebui`;
-    const sliderId = `${key}_textgenerationwebui_zenslider`;
-    const hasTarget = Boolean(document.getElementById(inputId) || document.getElementById(sliderId));
-
-    if (hasTarget && lastError == null) {
-      return;
-    }
-
-    if (attempt >= UI_SYNC_MAX_ATTEMPTS) {
-      if (lastError != null) {
-        console.warn(`[Story - ST UI Bridge] Skipped UI sync for ${key} after ${attempt + 1} attempts`, lastError);
-      } else if (!hasTarget) {
-        console.warn(`[Story - ST UI Bridge] Gave up waiting for UI controls for ${key}`);
-      }
-      return;
-    }
-
-    setTimeout(() => applySettingWithRetry(key, value, attempt + 1), UI_SYNC_RETRY_DELAY_MS);
-  };
-
-
-  const ignoredKeys = ['json_schema', 'sampler_order', 'sampler_priority', 'samplers', 'samplers_priorities', 'extensions'] as const
-
-  (window as any).ST_applyTextgenPresetToUI = function apply(name: string, presetObj: any) {
-    try {
-      const { textCompletionSettings } = getContext();
-      for (const key of TG_SETTING_NAMES.filter(key => !ignoredKeys.includes(key as any))) {
-        if (Object.prototype.hasOwnProperty.call(presetObj, key)) {
-          applySettingWithRetry(key, presetObj[key]);
-        }
-      }
-      textCompletionSettings.preset = name;
-      const sel = document.getElementById('settings_preset_textgenerationwebui') as HTMLSelectElement | null;
-      if (sel) {
-        sel.value = name;
-      }
-      console.log('[Story - ST UI Bridge] Applied preset to UI:', name);
-    } catch (err) {
-      console.warn('[Story - ST UI Bridge] Failed to apply preset to UI', err);
-    }
-  };
-})();
 
 export class PresetService {
   readonly presetName: string;
@@ -94,6 +33,7 @@ export class PresetService {
   private storyTitle?: string;
   private base: BaseSource;
   private fallbackPreset: string | null;
+  private readonly settingNames: string[];
 
   constructor(opts: ConstructorOpts) {
     this.storyId = opts.storyId;
@@ -101,6 +41,7 @@ export class PresetService {
     this.base = opts.base;
     this.fallbackPreset = opts.fallbackPreset ?? null;
     this.presetName = `Story:${this.storyId}`;
+    this.settingNames = getTextGenSettingNames();
   }
 
   async initForStory() {
@@ -117,7 +58,7 @@ export class PresetService {
     this.applyPresetObject(baseObj);
   }
 
-  applyForRole(role: Role, checkpointOverrides?: PresetPartial, checkpointName?: string): Record<string, any> {
+  applyForRole(role: Role, checkpointOverrides?: PresetPartial, checkpointName?: string): TextGenPreset {
     const overrideKeys = checkpointOverrides ? Object.keys(checkpointOverrides) : [];
     const roleLabel = this.describeRole(role);
     const { textCompletionSettings } = getContext();
@@ -136,106 +77,43 @@ export class PresetService {
   }
 
   private ensureDedicatedPresetExists() {
-    if (this.findPresetIndex(this.presetName) !== -1) return;
+    if (this.hasPreset(this.presetName)) return;
 
     const baseObj = this.getBasePresetObject();
     this.writeIntoRegistry(this.presetName, baseObj);
   }
 
-  private buildMergedPresetObject(checkpointOverride?: PresetPartial): any {
+  private buildMergedPresetObject(checkpointOverride?: PresetPartial): TextGenPreset {
     const base = this.getBasePresetObject();
-    const cp = checkpointOverride ?? {};
-
-    let merged = { ...base };
-
-    // Apply fallback preset for keys not in checkpoint override
-    if (this.fallbackPreset) {
-      const fallback = this.resolveExistingNamed(this.fallbackPreset);
-      if (fallback) {
-        for (const key of Object.keys(fallback)) {
-          // Only apply fallback value if checkpoint override doesn't define it
-          if (!(key in cp)) {
-            merged[key] = fallback[key];
-          }
-        }
-      }
-    }
-
-    // Apply checkpoint overrides (highest priority)
-    merged = { ...merged, ...cp };
-
-    if (!Array.isArray(merged.logit_bias)) {
-      merged.logit_bias = Array.isArray(base.logit_bias) ? base.logit_bias : [];
-    }
-
-    return this.clonePresetFields(merged);
+    const fallback = this.fallbackPreset ? this.resolveExistingNamed(this.fallbackPreset) : null;
+    return composePresetObject({
+      base,
+      fallback,
+      checkpointOverride,
+      settingNames: this.settingNames,
+    });
   }
 
-  private getBasePresetObject(): any {
+  private getBasePresetObject(): TextGenPreset {
     if (this.base.source === 'named') {
       const p = this.resolveExistingNamed(this.base.name);
-      if (p) return this.clonePresetFields(p);
+      if (p) return clonePresetFields(p, this.settingNames);
     }
     const { textCompletionSettings } = getContext();
-    return this.clonePresetFields(textCompletionSettings, true);
-  }
-  private ensurePresetOptionExists(name: string) {
-    const sel = document.getElementById('settings_preset_textgenerationwebui') as HTMLSelectElement | null;
-    if (!sel) return;
-
-    for (let i = 0; i < sel.options.length; i++) {
-      if (sel.options[i].value === name) return;
-    }
-
-    const opt = document.createElement('option');
-    opt.value = name;
-    opt.innerText = name;
-    sel.appendChild(opt);
+    return clonePresetFields(textCompletionSettings, this.settingNames, true);
   }
 
-  private resolveExistingNamed(name: string): any | null {
-    const idx = this.findPresetIndex(name);
-    if (idx !== -1) return tgPresetObjs[idx];
-
-    return null;
-  }
-  private writeIntoRegistry(name: string, obj: any) {
-    const idx = this.findPresetIndex(name);
-    if (idx === -1) {
-      console.log('[Story - PresetService] creating dedicated preset in registry:', name);
-      tgPresetNames.push(name);
-      tgPresetObjs.push(this.clone(obj));
-      this.ensurePresetOptionExists(name);
-    } else {
-      console.log('[Story - PresetService] updating dedicated preset in registry:', name);
-      tgPresetObjs[idx] = this.clone(obj);
-    }
+  private resolveExistingNamed(name: string): TextGenPreset | null {
+    return findTextGenPreset(name);
   }
 
-  private findPresetIndex(name: string): number {
-    return tgPresetNames.indexOf(name);
+  private writeIntoRegistry(name: string, obj: TextGenPreset) {
+    console.log(`[Story - PresetService] ${this.hasPreset(name) ? 'updating' : 'creating'} dedicated preset in registry:`, name);
+    upsertTextGenPreset(name, obj);
   }
 
-  private clonePresetFields(source: any, includeAllKnownKeys = false): any {
-    const out: any = {};
-    const target = source ?? {};
-    for (const key of TG_SETTING_NAMES) {
-      if (includeAllKnownKeys || Object.prototype.hasOwnProperty.call(target, key)) {
-        const value = (target as any)[key];
-        out[key] = this.clone(value);
-      }
-    }
-    const maybeBias = (target as any).logit_bias;
-    if (Array.isArray(maybeBias)) {
-      out.logit_bias = this.clone(maybeBias);
-    }
-    return out;
-  }
-
-  private clone<T>(v: T): T {
-    if (Array.isArray(v)) return v.map((x) => this.clone(x)) as any;
-    if (v && typeof v === 'object') return JSON.parse(JSON.stringify(v));
-    return v;
+  private hasPreset(name: string): boolean {
+    return findTextGenPreset(name) !== null;
   }
 
   private describeRole(role: Role): string {
@@ -250,50 +128,9 @@ export class PresetService {
     return parts.join(' ');
   }
 
-  private applyPresetValuesToSettings(presetObj: any) {
-    const { textCompletionSettings } = getContext();
-    for (const key of TG_SETTING_NAMES) {
-      if (Object.prototype.hasOwnProperty.call(presetObj, key)) {
-        (textCompletionSettings as any)[key] = this.clone(presetObj[key]);
-      }
-    }
-  }
-
-  private applyPresetObject(presetObj: any, displayLabel?: string) {
-    const { saveSettingsDebounced, textCompletionSettings, eventTypes, eventSource } = getContext();
-    this.applyPresetValuesToSettings(presetObj);
-
-    textCompletionSettings.preset = this.presetName;
-
-    setGenerationParamsFromPreset(presetObj);
-
-    BIAS_CACHE.delete(BIAS_KEY);
-    displayLogitBias(presetObj.logit_bias, BIAS_KEY);
-    saveSettingsDebounced();
-
-    this.ensurePresetOptionExists(this.presetName);
-    const sel = document.getElementById('settings_preset_textgenerationwebui') as HTMLSelectElement | null;
-    if (sel) {
-      const option = Array.from(sel.options).find((opt) => opt.value === this.presetName);
-      if (option) {
-        option.textContent = displayLabel ?? this.presetName;
-      }
-      sel.value = this.presetName;
-    }
-
-    try {
-      eventSource.emit(eventTypes.PRESET_CHANGED, {
-        apiId: 'textgenerationwebui',
-        name: this.presetName,
-      });
-    } catch (e) {
-      console.error('[Story - PresetService] error emitting PRESET_CHANGED', e);
-    }
-
-    const uiBridge = (globalThis as any).ST_applyTextgenPresetToUI;
-    if (typeof uiBridge === 'function' && typeof setSettingByName === 'function') {
-      uiBridge(this.presetName, presetObj);
-    } else {
+  private applyPresetObject(presetObj: TextGenPreset, displayLabel?: string) {
+    const synced = applyTextGenPresetRuntime(this.presetName, presetObj, displayLabel);
+    if (!synced) {
       console.log('[Story - PresetService] UI bridge not found; runtime settings are active but UI will not move.');
     }
   }

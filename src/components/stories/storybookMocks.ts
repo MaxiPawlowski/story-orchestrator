@@ -1,6 +1,7 @@
 import { CheckpointStatus } from "@utils/story-state";
 import type { StoryContextValue } from "@components/context/StoryContext";
 import type { StoryDraft } from "@utils/checkpoint-studio";
+import type { StoryLibraryEntry, SaveLibraryStoryResult, DeleteLibraryStoryResult } from "@utils/story-library";
 
 export const mockDraft: StoryDraft = {
   title: "Sun Ruins",
@@ -11,64 +12,65 @@ export const mockDraft: StoryDraft = {
     companion: "Arin",
     scout: "Guide",
   },
+  defaults: {
+    author_note: {
+      position: "chat",
+      interval: 3,
+      depth: 4,
+      role: "system",
+    },
+    presets: {
+      dm: { temp: 0.7 },
+    },
+  },
   start: "cp1",
   checkpoints: [
     {
       id: "cp1",
       name: "Arrival",
       objective: "Reach the gate.",
-      on_activate: {
-        automations: ["/bg ruins day", "/checkpoint list"],
-        world_info: { activate: ["Ancient Gate"], deactivate: [] },
-        authors_note: {
-          dm: { text: "Set tone.", interval: 2, depth: 3, role: "system" },
-        },
-        preset_overrides: {
-          dm: { temp: 0.8 },
-        },
+      automations: ["/bg ruins day", "/checkpoint list"],
+      world_info: ["Ancient Gate"],
+      authors_note: {
+        dm: { text: "Set tone.", interval: 2, depth: 3, role: "system" },
       },
+      preset_overrides: {
+        dm: { temp: 0.8 },
+      },
+      transitions: [
+        {
+          id: "edge1",
+          to: "cp2",
+          label: "Open gate",
+          description: "Advance when the gate opens.",
+          trigger: {
+            type: "regex",
+            patterns: ["/open\\s+gate/i"],
+            condition: "Player opens the gate",
+          },
+          _stableId: "stable-edge1",
+        },
+      ],
+      talk_control: [
+        {
+          memberId: "companion",
+          speakerId: "dm",
+          enabled: true,
+          trigger: "afterSpeak",
+          probability: 100,
+          maxTriggers: 2,
+          content: { kind: "static", text: "I can read these runes." },
+        },
+      ],
     },
     {
       id: "cp2",
       name: "Chamber",
       objective: "Solve the seal.",
-      on_activate: {
-        world_info: { activate: ["Ruins Cache"], deactivate: ["Ancient Gate"] },
-      },
+      world_info: ["Ruins Cache"],
+      world_info_deactivate: ["Ancient Gate"],
     },
   ],
-  transitions: [
-    {
-      id: "edge1",
-      from: "cp1",
-      to: "cp2",
-      label: "Open gate",
-      description: "Advance when the gate opens.",
-      trigger: {
-        type: "regex",
-        patterns: ["/open\\s+gate/i"],
-        condition: "Player opens the gate",
-      },
-      _stableId: "stable-edge1",
-    },
-  ],
-  talkControl: {
-    checkpoints: {
-      cp1: {
-        replies: [
-          {
-            memberId: "companion",
-            speakerId: "dm",
-            enabled: true,
-            trigger: "afterSpeak",
-            probability: 100,
-            maxTriggers: 2,
-            content: { kind: "static", text: "I can read these runes." },
-          },
-        ],
-      },
-    },
-  },
 };
 
 export const mockStoryContextValue: StoryContextValue = {
@@ -77,15 +79,15 @@ export const mockStoryContextValue: StoryContextValue = {
   story: null,
   title: mockDraft.title,
   libraryEntries: [
-    { key: "story-1", label: "Sun Ruins", ok: true, kind: "saved", story: null, meta: { name: "Sun Ruins" } } as any,
-    { key: "story-2", label: "Lost Key", ok: true, kind: "saved", story: null, meta: { name: "Lost Key" } } as any,
-  ],
+    { key: "story-1", label: "Sun Ruins", ok: true, kind: "saved", meta: { name: "Sun Ruins" } },
+    { key: "story-2", label: "Lost Key", ok: true, kind: "saved", meta: { name: "Lost Key" } },
+  ] as StoryLibraryEntry[],
   selectedLibraryKey: "story-1",
   selectedLibraryError: null,
   selectLibraryEntry: () => {},
   reloadLibrary: async () => {},
-  saveLibraryStory: async () => ({ ok: true, key: "story-1" } as any),
-  deleteLibraryStory: async () => ({ ok: true, nextSelectedKey: null } as any),
+  saveLibraryStory: async (): Promise<SaveLibraryStoryResult> => ({ ok: true, key: "story-1" }),
+  deleteLibraryStory: async (): Promise<DeleteLibraryStoryResult> => ({ ok: true }),
   checkpoints: [
     { id: "cp1", name: "Arrival", objective: "Reach the gate.", status: CheckpointStatus.Current },
     { id: "cp2", name: "Chamber", objective: "Solve the seal.", status: CheckpointStatus.Pending },

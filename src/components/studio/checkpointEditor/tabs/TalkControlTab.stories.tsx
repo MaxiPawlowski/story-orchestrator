@@ -6,7 +6,16 @@ import { mockDraft } from "@components/stories/storybookMocks";
 const Stateful = () => {
   const [draft, setDraft] = useState(mockDraft);
   const checkpoint = draft.checkpoints[0];
-  return <TalkControlTab draft={draft} checkpoint={checkpoint} setDraft={setDraft} />;
+  return (
+    <TalkControlTab
+      draft={draft}
+      checkpoint={checkpoint}
+      updateCheckpoint={(id, updater) => setDraft((prev) => ({
+        ...prev,
+        checkpoints: prev.checkpoints.map((cp) => (cp.id === id ? updater(cp) : cp)),
+      }))}
+    />
+  );
 };
 
 const meta: Meta<typeof TalkControlTab> = {

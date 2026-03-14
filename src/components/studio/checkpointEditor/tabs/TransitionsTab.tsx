@@ -44,9 +44,11 @@ const TransitionsTab: React.FC<Props> = ({
     ) : (
       <div className="space-y-2">
         {outgoingTransitions.map((edge) => {
+          if (!edge.id) return null;
+          const transitionId = edge.id;
           const trigger = edge.trigger;
           const setTrigger = (next: TransitionTriggerDraft) => {
-            updateTransition(edge.id, { trigger: next });
+            updateTransition(transitionId, { trigger: next });
           };
           const patchTrigger = (patch: Partial<TransitionTriggerDraft>) => {
             setTrigger({ ...trigger, ...patch });
@@ -80,7 +82,7 @@ const TransitionsTab: React.FC<Props> = ({
                   <select
                     className="text_pole st-input w-full"
                     value={edge.to}
-                    onChange={(e) => updateTransition(edge.id, { to: e.target.value })}
+                    onChange={(e) => updateTransition(transitionId, { to: e.target.value })}
                   >
                     {draft.checkpoints.map((cp) => (
                       <option key={cp.id} value={cp.id}>
@@ -112,8 +114,8 @@ const TransitionsTab: React.FC<Props> = ({
                   </span>
                   <input
                     className="text_pole st-input w-full"
-                    value={edge.id}
-                    onChange={(e) => updateTransition(edge.id, { id: e.target.value })}
+                    value={transitionId}
+                    onChange={(e) => updateTransition(transitionId, { id: e.target.value })}
                   />
                 </label>
                 <label className="flex flex-col gap-1 text-xs">
@@ -124,7 +126,7 @@ const TransitionsTab: React.FC<Props> = ({
                   <input
                     className="text_pole st-input w-full"
                     value={edge.label ?? ""}
-                    onChange={(e) => updateTransition(edge.id, { label: e.target.value })}
+                    onChange={(e) => updateTransition(transitionId, { label: e.target.value })}
                   />
                 </label>
               </div>
@@ -179,7 +181,7 @@ const TransitionsTab: React.FC<Props> = ({
                 <button
                   type="button"
                   className="st-button danger"
-                  onClick={() => onRemoveTransition(edge.id)}
+                  onClick={() => onRemoveTransition(transitionId)}
                 >
                   Remove
                 </button>

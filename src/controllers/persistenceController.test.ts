@@ -1,10 +1,7 @@
 import { createPersistenceController } from "@controllers/persistenceController";
 import { createBasicStory, createRuntime } from "@services/__mocks__/testData";
-import { loadStoryState, persistStoryState, sanitizeChatKey } from "@utils/story-state";
 
 jest.mock("@utils/story-state", () => ({
-  loadStoryState: jest.fn(),
-  persistStoryState: jest.fn(),
   sanitizeChatKey: jest.fn((value: unknown) => (typeof value === "string" ? value.trim() : null)),
 }));
 
@@ -14,146 +11,75 @@ jest.mock("@store/storySessionStore", () => ({
   },
 }));
 
-const loadStoryStateMock = loadStoryState as jest.MockedFunction<typeof loadStoryState>;
-const persistStoryStateMock = persistStoryState as jest.MockedFunction<typeof persistStoryState>;
-const sanitizeChatKeyMock = sanitizeChatKey as jest.MockedFunction<typeof sanitizeChatKey>;
-
 function createStoreDouble(overrides: Record<string, unknown> = {}) {
   const state: any = {
-    story: null,
-    storyKey: null,
-    chatId: null,
-    groupChatSelected: false,
+    story: createBasicStory(),
+    storyKey: "story-key",
+    chatId: "chat-1",
+    groupChatSelected: true,
     hydrated: false,
     runtime: createRuntime(),
+    setStory: jest.fn(),
+    setChatContext: jest.fn(),
+    resetRuntime: jest.fn(),
+    hydrateRuntime: jest.fn(),
+    writeRuntime: jest.fn(),
+    setTurnsSinceEval: jest.fn(),
+    setCheckpointTurnCount: jest.fn(),
+    updateCheckpointStatus: jest.fn(),
+    canPersistRuntime: jest.fn().mockReturnValue(true),
     ...overrides,
   };
 
-  state.setStory = jest.fn((story: any) => {
-    state.story = story;
-    state.runtime = createRuntime({ activeCheckpointKey: story?.startId ?? null });
-    state.hydrated = false;
-    return state.runtime;
-  });
-  state.setChatContext = jest.fn(({ chatId, groupChatSelected }: any) => {
-    state.chatId = chatId;
-    state.groupChatSelected = groupChatSelected;
-  });
-  state.resetRuntime = jest.fn(() => {
-    state.runtime = createRuntime();
-    state.hydrated = false;
-    return state.runtime;
-  });
-  state.setRuntime = jest.fn((runtime: any, options?: { hydrated?: boolean }) => {
-    state.runtime = runtime;
-    state.hydrated = options?.hydrated ?? state.hydrated;
-    return runtime;
-  });
-  state.setTurnsSinceEval = jest.fn((next: number) => {
-    state.runtime = { ...state.runtime, turnsSinceEval: next };
-    return state.runtime;
-  });
-  state.setCheckpointTurnCount = jest.fn((next: number) => {
-    state.runtime = { ...state.runtime, checkpointTurnCount: next };
-    return state.runtime;
-  });
-  state.updateCheckpointStatus = jest.fn((index: number, status: string) => {
-    state.runtime = {
-      ...state.runtime,
-      checkpointStatusMap: { ...state.runtime.checkpointStatusMap, [String(index)]: status },
-    };
-    return state.runtime;
-  });
-  state.setStoryKey = jest.fn((key: string | null) => {
-    state.storyKey = key;
-    return key;
-  });
-  state.setRoadmap = jest.fn((roadmap: string | null) => {
-    state.roadmap = roadmap;
-  });
-
   return {
     getState: () => state,
-  };
+  } as any;
 }
 
 describe("persistenceController", () => {
-  beforeEach(() => {
-    loadStoryStateMock.mockReset();
-    persistStoryStateMock.mockReset();
-    sanitizeChatKeyMock.mockClear();
-  });
-
-  it("hydrates defaults when story is missing or group chat is not selected", () => {
-    const store = createStoreDouble({ story: null, groupChatSelected: false, storyKey: "existing-key" }) as any;
-    const controller = createPersistenceController(store);
-
-    const result = controller.hydrate();
-
-    expect(result.source).toBe("default");
-    expect(result.storyKey).toBe("existing-key");
-    expect(store.getState().resetRuntime).toHaveBeenCalledTimes(1);
-    expect(loadStoryStateMock).not.toHaveBeenCalled();
-  });
-
-  it("hydrates stored runtime and syncs story key", () => {
-    const story = createBasicStory();
-    const loadedRuntime = createRuntime({ checkpointIndex: 1, activeCheckpointKey: "cp-2" });
-    loadStoryStateMock.mockReturnValue({
-      state: loadedRuntime as any,
-      source: "stored",
-      storyKey: "story-key-a",
-    });
-
+  it("delegates hydrate and runtime writes to store actions", () => {
+    const hydrated = { runtime: createRuntime({ checkpointIndex: 1 }), source: "stored", storyKey: "story-b" } as const;
     const store = createStoreDouble({
-      story,
-      groupChatSelected: true,
-      chatId: "chat-1",
-      hydrated: false,
-    }) as any;
-    const controller = createPersistenceController(store);
-
-    const result = controller.hydrate();
-
-    expect(loadStoryStateMock).toHaveBeenCalledWith({ chatId: "chat-1", story });
-    expect(store.getState().setStoryKey).toHaveBeenCalledWith("story-key-a");
-    expect(store.getState().setRuntime).toHaveBeenCalledWith(loadedRuntime, { hydrated: true });
-    expect(result.source).toBe("stored");
-  });
-
-  it("persists runtime changes only when persistence is allowed", () => {
-    const story = createBasicStory();
-    const store = createStoreDouble({
-      story,
-      storyKey: "story-key",
-      chatId: "chat-9",
-      groupChatSelected: true,
-      hydrated: false,
-    }) as any;
-    const controller = createPersistenceController(store);
-    const nextRuntime = createRuntime({ turnsSinceEval: 7 });
-
-    const runtime = controller.writeRuntime(nextRuntime as any);
-
-    expect(runtime).toEqual(nextRuntime);
-    expect(persistStoryStateMock).toHaveBeenCalledWith({
-      chatId: "chat-9",
-      story,
-      state: nextRuntime,
-      storyKey: "story-key",
+      hydrateRuntime: jest.fn(() => hydrated),
+      writeRuntime: jest.fn((next: any) => next),
     });
-    expect(store.getState().setRuntime).toHaveBeenCalledWith(nextRuntime, { hydrated: true });
+    const controller = createPersistenceController(store);
+    const runtime = createRuntime({ turnsSinceEval: 3 });
+
+    expect(controller.hydrate()).toEqual(hydrated);
+    expect(controller.writeRuntime(runtime, { persist: true, hydrated: true })).toEqual(runtime);
+    expect(store.getState().hydrateRuntime).toHaveBeenCalledTimes(1);
+    expect(store.getState().writeRuntime).toHaveBeenCalledWith(runtime, { persist: true, hydrated: true });
   });
 
-  it("normalizes chat context and exposes persistability checks", () => {
-    const story = createBasicStory();
-    const store = createStoreDouble({ story, groupChatSelected: false, chatId: null }) as any;
+  it("normalizes chat context before delegating", () => {
+    const store = createStoreDouble();
     const controller = createPersistenceController(store);
 
-    controller.setChatContext({ chatId: "  chat-a  ", groupChatSelected: 1 as any });
+    controller.setChatContext({ chatId: "  chat-a  ", groupChatSelected: 1 as never });
 
-    expect(sanitizeChatKeyMock).toHaveBeenCalledWith("  chat-a  ");
     expect(store.getState().setChatContext).toHaveBeenCalledWith({ chatId: "chat-a", groupChatSelected: true });
-    expect(controller.canPersist()).toBe(true);
+  });
+
+  it("delegates persistability and mutation helpers to the store", () => {
+    const runtime = createRuntime({ checkpointTurnCount: 2 });
+    const store = createStoreDouble({
+      resetRuntime: jest.fn(() => runtime),
+      setTurnsSinceEval: jest.fn(() => runtime),
+      setCheckpointTurnCount: jest.fn(() => runtime),
+      updateCheckpointStatus: jest.fn(() => runtime),
+      canPersistRuntime: jest.fn().mockReturnValue(false),
+    });
+    const controller = createPersistenceController(store);
+
+    expect(controller.resetRuntime()).toBe(runtime);
+    expect(controller.setTurnsSinceEval(4, { persist: true })).toBe(runtime);
+    expect(controller.setCheckpointTurnCount(2, { persist: false })).toBe(runtime);
+    expect(controller.updateCheckpointStatus(0, "complete" as never, { persist: true })).toBe(runtime);
+    expect(controller.canPersist()).toBe(false);
+    expect(controller.isHydrated()).toBe(false);
+    expect(store.getState().setTurnsSinceEval).toHaveBeenCalledWith(4, { persist: true });
+    expect(store.getState().setCheckpointTurnCount).toHaveBeenCalledWith(2, { persist: false });
+    expect(store.getState().updateCheckpointStatus).toHaveBeenCalledWith(0, "complete", { persist: true });
   });
 });

@@ -22,7 +22,7 @@ const Requirements = () => {
   const personaDetail = personaDefined ? null : 'No persona name set in your profile. Click reload after setting it.';
 
   const groupText = 'Group chat readiness';
-  const hasMissingMembers = Array.isArray(missingGroupMembers) && missingGroupMembers.length > 0;
+  const hasMissingMembers = missingGroupMembers.length > 0;
   const groupStatus: "success" | "warning" | "error" = !groupChatSelected
     ? "warning"
     : (hasMissingMembers ? "error" : "success");
@@ -32,11 +32,7 @@ const Requirements = () => {
     groupDetails.push('Please select a group chat in the UI.');
   } else {
     if (hasMissingMembers) {
-      if (missingGroupMembers?.length) {
-        groupDetails.push(`Missing in group: ${missingGroupMembers.join(', ')}`);
-      } else {
-        groupDetails.push('No matching group members detected.');
-      }
+      groupDetails.push(`Missing in group: ${missingGroupMembers.join(', ')}`);
     }
     if (groupDetails.length === 0) {
       groupDetails.push('Group chat contains all required members.');
@@ -44,8 +40,8 @@ const Requirements = () => {
   }
   const groupDetail = groupDetails.length ? groupDetails.join(' | ') : null;
 
-  const worldDetail = worldLoreEntriesPresent ? null : (Array.isArray(worldLoreEntriesMissing) && worldLoreEntriesMissing.length ? `Missing world entries: ${worldLoreEntriesMissing.join(', ')}` : 'No world-info entries found.');
-  const globalDetail = globalLoreBookPresent ? null : (Array.isArray(globalLoreBookMissing) && globalLoreBookMissing.length ? `Missing global lorebook: ${globalLoreBookMissing.join(', ')}` : 'Global lorebook not selected.');
+  const worldDetail = worldLoreEntriesPresent ? null : (worldLoreEntriesMissing.length ? `Missing world entries: ${worldLoreEntriesMissing.join(', ')}` : 'No world-info entries found.');
+  const globalDetail = globalLoreBookPresent ? null : (globalLoreBookMissing.length ? `Missing global lorebook: ${globalLoreBookMissing.join(', ')}` : 'Global lorebook not selected.');
 
   const lorePresent = Boolean(worldLoreEntriesPresent && globalLoreBookPresent);
   const loreDetails: string[] = [];

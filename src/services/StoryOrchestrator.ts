@@ -1,34 +1,27 @@
-import { ARBITER_ROLE_KEY, type Role, isStubCheckpoint, type Checkpoint, type Transition, type TalkControlConfig } from "@utils/story-schema";
-import type { NormalizedCheckpoint, NormalizedStory, NormalizedTransition } from "@utils/story-validator";
+import { ARBITER_ROLE_KEY, type Role } from "@utils/story-schema";
+import {
+  type NormalizedCheckpoint,
+  type NormalizedStory,
+  type NormalizedTransition,
+  isNormalizedStubCheckpoint,
+} from "@utils/story-validator";
 import { StoryGeneratorService, type CheckpointSummary, type ExpansionResult } from "./StoryGeneratorService";
 import { PresetService } from "./PresetService";
 import { TalkControlService } from "./TalkControlService";
 import CheckpointArbiterService, {
   type ArbiterReason,
-  type ArbiterTransitionOption,
   type CheckpointArbiterApi,
-  type EvaluationOutcome,
 } from "./CheckpointArbiterService";
 import { createRequirementsController } from "@controllers/requirementsController";
 import { createPersistenceController } from "@controllers/persistenceController";
-import {
-  applyCharacterAN,
-  clearCharacterAN,
-  enableWIEntry,
-  disableWIEntry,
-  getContext,
-  executeSlashCommands,
-} from "@services/STAPI";
-import { subscribeToEventSource } from "@utils/event-source";
+import { applyCharacterAN, clearCharacterAN } from "@services/stHost/authorNotes";
 import {
   clampCheckpointIndex,
+  sanitizeRuntime,
   sanitizeTurnsSinceEval,
   type RuntimeStoryState,
   CheckpointStatus,
   computeStatusMapForIndex,
-  deriveCheckpointStatuses,
-  evaluateTransitionTriggers,
-  type TransitionTriggerMatch,
 } from "@utils/story-state";
 import { normalizeName } from "@utils/string";
 import { storySessionStore } from "@store/storySessionStore";
@@ -40,37 +33,25 @@ import {
 } from "@constants/defaults";
 import type { ArbiterFrequency, ArbiterPrompt } from "@utils/arbiter";
 import { updateStoryMacroSnapshot, resetStoryMacroSnapshot, refreshRoleMacros } from "@utils/story-macros";
-
-interface TransitionSelection {
-  id: string;
-  targetId: string;
-  targetIndex: number;
-  trigger?: {
-    type: "regex" | "timed";
-    pattern?: string;
-    label?: string;
-  };
-}
-
-interface EvaluatedEvent {
-  outcome: EvaluationOutcome;
-  reason: ArbiterReason;
-  turn: number;
-  cpIndex: number;
-  matches: TransitionTriggerMatch[];
-  selectedTransition?: TransitionSelection;
-}
-
-export type StoryTransitionSelection = TransitionSelection;
-export type StoryEvaluationEvent = EvaluatedEvent;
-
-interface StoryPromptContextSnapshot {
-  storyTitle: string;
-  storyDescription: string;
-  currentCheckpointSummary: string;
-  pastCheckpointsSummary: string;
-  transitionSummary: string;
-}
+import {
+  getChatSessionBridgeSnapshot,
+  type ChatSessionContextSnapshot,
+} from "@controllers/chatSessionBridge";
+import {
+  resolveCheckpointActivationPolicy,
+  type CheckpointActivationReason,
+  type CheckpointActivationSource,
+  type CheckpointRequirementsState,
+} from "@services/runtime/checkpointActivationPolicy";
+import {
+  StoryEvaluationCoordinator,
+  type StoryEvaluationEvent,
+  type StoryTransitionSelection,
+} from "@services/runtime/StoryEvaluationCoordinator";
+import { createEmptyStoryPromptContext } from "@services/runtime/storyPromptContext";
+import { CheckpointExpansionCoordinator } from "@services/runtime/CheckpointExpansionCoordinator";
+import { CheckpointEffectsApplier } from "@services/runtime/CheckpointEffectsApplier";
+import { subscribeWithRetainedChatSessionBridge } from "@services/runtime/chatSessionSubscription";
 
 class StoryOrchestrator {
   private story: NormalizedStory;
@@ -86,7 +67,7 @@ class StoryOrchestrator {
   private roleNameMap = new Map<string, Role>();
   private checkpointPrimed = false;
 
-  private onEvaluated?: (ev: EvaluatedEvent) => void;
+  private onEvaluated?: (ev: StoryEvaluationEvent) => void;
   private shouldApplyRole?: (role: Role) => boolean;
   private onRoleApplied?: (role: Role, cpName: string) => void;
   private onTurnTick?: (next: { turn: number; sinceEval: number }) => void;
@@ -98,11 +79,10 @@ class StoryOrchestrator {
   private requirementsUnsubscribe?: () => void;
   private lastChatId: string | null = null;
   private lastGroupSelected = false;
-  private requirementsSatisfiedOnce = false;
-  private skipDeferredAutomations = false;
   private generatorService = new StoryGeneratorService();
-  private onMergeExpansion?: (result: ExpansionResult, fromCheckpointId: string) => Promise<void>;
-  private expandingStubId: string | null = null;
+  private evaluationCoordinator: StoryEvaluationCoordinator;
+  private expansionCoordinator: CheckpointExpansionCoordinator;
+  private effectsApplier: CheckpointEffectsApplier;
 
   constructor(opts: {
     story: NormalizedStory;
@@ -111,7 +91,7 @@ class StoryOrchestrator {
     fallbackPreset?: string | null;
     onRoleApplied?: (role: Role, cpName: string) => void;
     shouldApplyRole?: (role: Role) => boolean;
-    setEvalHooks?: (hooks: { onEvaluated?: (handler: (ev: EvaluatedEvent) => void) => void }) => void;
+    setEvalHooks?: (hooks: { onEvaluated?: (handler: (ev: StoryEvaluationEvent) => void) => void }) => void;
     onTurnTick?: (next: { turn: number; sinceEval: number }) => void;
     onActivateIndex?: (index: number) => void;
   }) {
@@ -136,12 +116,36 @@ class StoryOrchestrator {
     this.talkControlService = new TalkControlService({
       story: this.story,
     });
+    this.evaluationCoordinator = new StoryEvaluationCoordinator({
+      story: this.story,
+      checkpointArbiter: this.checkpointArbiter,
+      setTurnsSinceEval: (value) => this.persistence.setTurnsSinceEval(value, { persist: true }),
+      applyArbiterPreset: (checkpoint) => { this.applyArbiterPreset(checkpoint); },
+      notifyArbiterPhase: (phase) => { this.talkControlService.notifyArbiterPhase(phase); },
+      updateStoryMacros: (context) => { this.updateStoryMacrosFromContext(context); },
+      onTurnTick: opts.onTurnTick,
+    });
+    this.expansionCoordinator = new CheckpointExpansionCoordinator({
+      story: this.story,
+      generatorService: this.generatorService,
+      buildPastCheckpoints: () => this.buildExpansionCheckpointSummaries(),
+      getRoadmap: () => String(storySessionStore.getState().roadmap ?? ""),
+    });
+    this.effectsApplier = new CheckpointEffectsApplier({
+      story: this.story,
+      presetService: this.presetService,
+      isRequirementsReady: () => this.requirementsReady,
+      getActivationContextKey: () => this.getActivationContextKey(),
+    });
     registerStoryExtensionCommands();
     this.onRoleApplied = opts.onRoleApplied;
     this.shouldApplyRole = opts.shouldApplyRole;
     opts.setEvalHooks?.({ onEvaluated: (handler) => { this.onEvaluated = handler; } });
     this.onTurnTick = opts.onTurnTick;
     this.onActivateIndex = opts.onActivateIndex;
+    this.evaluationCoordinator.setOnEvaluated((event) => {
+      this.onEvaluated?.(event);
+    });
 
   }
 
@@ -158,168 +162,7 @@ class StoryOrchestrator {
     return state.requirements.requirementsReady ?? false;
   }
 
-  private resolveTargetIndex(edge: NormalizedTransition): number {
-    const idx = this.story.checkpoints.findIndex((cp) => cp.id === edge.to);
-    return idx;
-  }
-
-  private toTransitionSelection(edge: NormalizedTransition, match?: TransitionTriggerMatch): TransitionSelection | undefined {
-    const targetIndex = this.resolveTargetIndex(edge);
-    if (targetIndex < 0) return undefined;
-    const target = this.story.checkpoints[targetIndex];
-    const triggerInfo = match?.trigger ? {
-      type: match.trigger.type,
-      pattern: match.pattern,
-      label: match.trigger.raw?.id ?? edge.label ?? edge.id,
-    } : undefined;
-    return {
-      id: edge.id,
-      targetIndex,
-      targetId: target?.id ?? edge.to,
-      ...(triggerInfo ? { trigger: triggerInfo } : {}),
-    };
-  }
-
-  private buildArbiterOptions(matches: TransitionTriggerMatch[]): ArbiterTransitionOption[] {
-    const matchById = new Map<string, TransitionTriggerMatch>();
-    matches.forEach((entry) => { matchById.set(entry.transition.id, entry); });
-
-    return this.activeTransitions
-      .filter((edge) => edge.trigger.type === "regex")
-      .map((edge) => {
-        const match = matchById.get(edge.id);
-        const target = this.story.checkpoints.find(cp => cp.id === edge.to);
-        const trigger = match?.trigger ?? edge.trigger;
-        const triggerLabel = trigger.raw?.id ?? edge.label ?? edge.id;
-
-        const pattern = match?.pattern
-          ?? (trigger.regexes?.[0] ? trigger.regexes[0].toString() : undefined);
-        return {
-          id: edge.id,
-          condition: trigger.condition ?? "",
-          label: edge.label,
-          description: edge.description,
-          targetName: target?.name,
-          triggerLabel,
-          triggerPattern: pattern,
-        };
-      });
-  }
-
-  private resolveTransitionSelection(nextTransitionId: string | null | undefined, matches: TransitionTriggerMatch[]): TransitionSelection | undefined {
-    const transitions = this.activeTransitions ?? [];
-    if (!transitions.length) return undefined;
-
-    let chosen: NormalizedTransition | undefined;
-    let matched: TransitionTriggerMatch | undefined;
-
-    if (nextTransitionId) {
-      matched = matches.find((entry) => entry.transition.id === nextTransitionId);
-      chosen = matched?.transition ?? transitions.find((edge) => edge.id === nextTransitionId);
-    }
-
-    if (!chosen && matches.length) {
-      matched = matches[0];
-      chosen = matched.transition;
-    }
-
-    if (!chosen && transitions.length === 1) {
-      chosen = transitions[0];
-    }
-
-    if (!chosen) return undefined;
-    if (!matched || matched.transition.id !== chosen.id) {
-      matched = matches.find((entry) => entry.transition.id === chosen!.id);
-    }
-
-    return this.toTransitionSelection(chosen, matched);
-  }
-
-  private summarizeTransitions(options: ArbiterTransitionOption[]): string {
-    if (!options || !options.length) {
-      return "No transition candidates are currently available.";
-    }
-    const lines: string[] = ["Evaluate the candidate transitions below. Select at most one to advance."];
-    options.forEach((option, idx) => {
-      const segments: string[] = [];
-      const headerParts: string[] = [];
-      if (option.label) headerParts.push(option.label);
-      if (option.targetName) headerParts.push(`Next: ${option.targetName}`);
-      const headerSuffix = headerParts.length ? ` ${headerParts.join(" | ")}` : "";
-      segments.push(`${idx + 1}. [${option.id}]${headerSuffix}`.trim());
-      if (option.description) segments.push(`   ${option.description}`);
-      if (option.condition) segments.push(`   Condition: ${option.condition}`);
-      lines.push(segments.join("\n"));
-    });
-    lines.push('If none should advance, respond with {"decision": "continue"} and null transition.');
-    return lines.join("\n");
-  }
-
-  private formatStatusLabel(status: CheckpointStatus): string {
-    switch (status) {
-      case CheckpointStatus.Complete:
-        return "Complete";
-      case CheckpointStatus.Failed:
-        return "Failed";
-      case CheckpointStatus.Current:
-        return "Current";
-      case CheckpointStatus.Pending:
-      default:
-        return "Pending";
-    }
-  }
-
-  private buildStoryDescription(): string {
-    const story = this.story;
-    if (!story) return "";
-    return story.description?.trim() ?? "";
-  }
-
-  private buildCurrentCheckpointSummary(cp?: NormalizedCheckpoint): string {
-    if (!cp) return "";
-    const lines: string[] = [`Name: ${cp.name}`];
-    if (cp.objective) lines.push(`Objective: ${cp.objective}`);
-    return lines.join("\n");
-  }
-
-  private buildPastCheckpointsSummary(statuses: CheckpointStatus[], currentIndex: number): string {
-    if (!statuses.length || currentIndex <= 0) {
-      return "None completed yet.";
-    }
-
-    const checkpoints = this.story.checkpoints ?? [];
-    const summaryLines: string[] = [];
-    for (let i = currentIndex - 1; i >= 0; i -= 1) {
-      const cp = checkpoints[i];
-      if (!cp) continue;
-      const status = statuses[i];
-      if (status !== CheckpointStatus.Complete && status !== CheckpointStatus.Failed) continue;
-      summaryLines.push(`- [${this.formatStatusLabel(status)}] ${cp.name} — ${cp.objective}`);
-    }
-
-    if (!summaryLines.length) {
-      return "None completed yet.";
-    }
-
-    return summaryLines.join("\n");
-  }
-
-  private buildPromptContext(runtime: RuntimeStoryState, candidates?: ArbiterTransitionOption[]): StoryPromptContextSnapshot {
-    const checkpointIndex = clampCheckpointIndex(runtime.checkpointIndex, this.story);
-    const checkpoint = this.story.checkpoints[checkpointIndex];
-    const statuses = deriveCheckpointStatuses(this.story, runtime);
-    const transitionOptions = candidates && candidates.length ? candidates : this.buildArbiterOptions([]);
-
-    return {
-      storyTitle: this.story.title ?? "",
-      storyDescription: this.buildStoryDescription(),
-      currentCheckpointSummary: this.buildCurrentCheckpointSummary(checkpoint),
-      pastCheckpointsSummary: this.buildPastCheckpointsSummary(statuses, checkpointIndex),
-      transitionSummary: this.summarizeTransitions(transitionOptions),
-    };
-  }
-
-  private updateStoryMacrosFromContext(context: StoryPromptContextSnapshot) {
+  private updateStoryMacrosFromContext(context: ReturnType<typeof createEmptyStoryPromptContext>) {
     updateStoryMacroSnapshot({
       storyDescription: context.storyDescription,
       currentCheckpoint: context.currentCheckpointSummary,
@@ -327,30 +170,6 @@ class StoryOrchestrator {
       possibleTriggers: context.transitionSummary,
       storyTitle: context.storyTitle,
     });
-  }
-
-  private findTriggeredTimedTransition(turnCount: number): TransitionTriggerMatch | undefined {
-    if (!this.activeTransitions.length || turnCount <= 0) return undefined;
-    const candidates: TransitionTriggerMatch[] = [];
-    this.activeTransitions.forEach((transition) => {
-      const trigger = transition.trigger;
-      if (trigger.type !== "timed") return;
-      const threshold = trigger.withinTurns ?? 0;
-      if (threshold > 0 && turnCount >= threshold) {
-        candidates.push({
-          transition,
-          trigger,
-          pattern: `timed<=${threshold}`,
-        });
-      }
-    });
-    if (!candidates.length) return undefined;
-    candidates.sort((a, b) => (a.trigger.withinTurns ?? Infinity) - (b.trigger.withinTurns ?? Infinity));
-    return candidates[0];
-  }
-
-  private setRuntime(next: RuntimeStoryState, options?: { hydrated?: boolean }) {
-    return storySessionStore.getState().setRuntime(next, options);
   }
 
   private get turn(): number {
@@ -361,6 +180,52 @@ class StoryOrchestrator {
     const normalized = storySessionStore.getState().setTurn(value);
     this.talkControlService.updateTurn(normalized);
   }
+
+  private flushRequirementsSatisfied() {
+    if (!this.requirementsReady) return;
+    void this.effectsApplier.flush(this.currentCheckpoint);
+  }
+
+  private syncRequirementsForChatChange() {
+    try {
+      this.requirements.handleChatContextChanged();
+      this.flushRequirementsSatisfied();
+    } catch (err) {
+      console.warn("[StoryOrch] requirements chat sync failed", err);
+    }
+  }
+
+  private ensureRequirementsSubscription() {
+    if (this.requirementsUnsubscribe) return;
+    this.requirementsUnsubscribe = storySessionStore.subscribe(() => {
+      this.flushRequirementsSatisfied();
+    });
+  }
+
+  private ensureChatSubscription() {
+    if (this.chatUnsubscribe) return;
+    this.chatUnsubscribe = subscribeWithRetainedChatSessionBridge((event) => {
+      if (event.type !== "chat") return;
+      this.handleChatChanged({ reason: "event", chat: event.chat });
+    }, "[StoryOrch]");
+  }
+
+  private getActivationContextKey() {
+    return `${this.lastChatId ?? ""}::${this.lastGroupSelected ? "group" : "solo"}`;
+  }
+
+  private resolveActivationSource(opts: { reason?: CheckpointActivationReason; source?: "stored" | "default" }): CheckpointActivationSource {
+    if (opts.reason === "hydrate") {
+      return opts.source ?? "default";
+    }
+    return "runtime";
+  }
+
+  private resolveRequirementsState(source: CheckpointActivationSource): CheckpointRequirementsState {
+    if (source === "stored") return "pending";
+    return this.requirementsReady ? "ready" : "blocked";
+  }
+
 
   get index() {
     const idx = this.runtime?.checkpointIndex;
@@ -377,7 +242,6 @@ class StoryOrchestrator {
   }
 
   async init() {
-    const { eventSource, eventTypes } = getContext();
     const store = storySessionStore;
     this.persistence.setStory(this.story);
     this.persistence.resetRuntime();
@@ -394,43 +258,14 @@ class StoryOrchestrator {
 
     this.talkControlService.start();
 
-    if (!this.requirementsUnsubscribe) {
-      this.requirementsUnsubscribe = storySessionStore.subscribe(() => {
-        if (this.requirementsSatisfiedOnce || !this.requirementsReady) return;
-        this.requirementsSatisfiedOnce = true;
-        this.onRequirementsSatisfied();
-      });
-    }
+    this.ensureRequirementsSubscription();
+    this.ensureChatSubscription();
 
-    if (!this.chatUnsubscribe) {
-      const offs: Array<() => void> = [];
-      const handler = () => this.handleChatChanged({ reason: "event" });
-      const events = [
-        eventTypes.CHAT_CHANGED,
-        eventTypes.CHAT_CREATED,
-        eventTypes.GROUP_CHAT_CREATED,
-        eventTypes.CHAT_DELETED,
-        eventTypes.GROUP_CHAT_DELETED,
-      ].filter(Boolean);
-      for (const ev of events) {
-        offs.push(subscribeToEventSource({ source: eventSource, eventName: ev, handler }));
-      }
-      this.chatUnsubscribe = () => {
-        offs.splice(0).forEach((off) => {
-          try {
-            off?.();
-          } catch (err) {
-            console.warn("[StoryOrch] Failed to unsubscribe from chat event", err);
-          }
-        });
-      };
-    }
-
-    this.handleChatChanged({ reason: "start", force: true });
+    this.handleChatChanged({ reason: "start", force: true, chat: getChatSessionBridgeSnapshot().chat });
   }
 
   activateIndex(i: number) {
-    this.applyCheckpoint(i, { persist: true, resetSinceEval: true, reason: "activate" });
+    this.applyCheckpoint(i, { persist: true, resetSinceEval: true, reason: "manual" });
   }
 
   activateRelative(delta: number): boolean {
@@ -450,21 +285,28 @@ class StoryOrchestrator {
       ? checkpoints.findIndex((cp) => cp.id === startId)
       : -1;
     if (target < 0) target = 0;
-    this.applyCheckpoint(target, { persist: true, resetSinceEval: true, reason: "activate" });
+    this.applyCheckpoint(target, { persist: true, resetSinceEval: true, reason: "reset" });
     return true;
   }
 
   evaluateNow(reason: ArbiterReason = "manual"): boolean {
-    const hasRegexTransitions = this.activeTransitions.some((edge) => edge.trigger.type === "regex");
-    if (!hasRegexTransitions) return false;
-    this.enqueueEval(reason, "(manual review)", []);
+    if (!this.evaluationCoordinator.hasRegexTransitions(this.activeTransitions)) return false;
+    this.evaluationCoordinator.queueEvaluation({
+      reason,
+      latestText: "(manual review)",
+      matches: [],
+      activeTransitions: this.activeTransitions,
+      turn: this.turn,
+      intervalTurns: this.intervalTurns,
+      checkpointIndex: this.index,
+    });
     return true;
   }
 
   requestPersist(): boolean {
     try {
       if (!this.persistence.canPersist()) return false;
-      this.persistence.writeRuntime(this.runtime, { persist: true, hydrated: true, skipStore: true });
+      this.persistence.writeRuntime(this.runtime, { persist: true, hydrated: true });
       return true;
     } catch (err) {
       console.warn("[StoryOrch] persist request failed", err);
@@ -498,8 +340,8 @@ class StoryOrchestrator {
     const cp = this.story.checkpoints[this.index];
     if (!cp) return;
 
-    const overrides = cp.onActivate?.preset_overrides?.[role];
-    const roleNote = cp.onActivate?.authors_note?.[role];
+    const overrides = cp.preset_overrides?.[role];
+    const roleNote = cp.authors_note?.[role];
     const characterName = this.story.roles?.[role as keyof typeof this.story.roles];
 
     if (characterName && roleNote) {
@@ -544,38 +386,36 @@ class StoryOrchestrator {
 
     if (!this.activeTransitions.length) return;
 
-    const timedMatch = this.findTriggeredTimedTransition(updatedRuntime.checkpointTurnCount ?? 0);
+    const timedMatch = this.evaluationCoordinator.findTriggeredTimedTransition(this.activeTransitions, updatedRuntime.checkpointTurnCount ?? 0);
     if (timedMatch) {
-      const selection = this.toTransitionSelection(timedMatch.transition, timedMatch);
-      if (selection) {
-        try {
-          this.onEvaluated?.({
-            outcome: "advance",
-            reason: "timed",
-            turn: nextTurn,
-            cpIndex: updatedRuntime.checkpointIndex,
-            matches: [timedMatch],
-            selectedTransition: selection,
-          });
-        } catch (err) {
-          console.warn("[StoryOrch] evaluation handler failed", err);
-        }
-      }
+      this.evaluationCoordinator.emitTimedEvaluation(timedMatch, nextTurn, updatedRuntime.checkpointIndex);
       return;
     }
 
-    const regexTransitions = this.activeTransitions.filter((edge) => edge.trigger.type === "regex");
-    if (!regexTransitions.length) return;
+    if (!this.evaluationCoordinator.hasRegexTransitions(this.activeTransitions)) return;
 
-    const regexMatches = evaluateTransitionTriggers({
-      text,
-      transitions: regexTransitions,
-    });
+    const regexMatches = this.evaluationCoordinator.findRegexMatches(text, this.activeTransitions);
 
     if (regexMatches.length) {
-      this.enqueueEval("trigger", text, regexMatches);
+      this.evaluationCoordinator.queueEvaluation({
+        reason: "trigger",
+        latestText: text,
+        matches: regexMatches,
+        activeTransitions: this.activeTransitions,
+        turn: nextTurn,
+        intervalTurns: this.intervalTurns,
+        checkpointIndex: updatedRuntime.checkpointIndex,
+      });
     } else if (updatedRuntime.turnsSinceEval >= this.intervalTurns) {
-      this.enqueueEval("interval", text, []);
+      this.evaluationCoordinator.queueEvaluation({
+        reason: "interval",
+        latestText: text,
+        matches: [],
+        activeTransitions: this.activeTransitions,
+        turn: nextTurn,
+        intervalTurns: this.intervalTurns,
+        checkpointIndex: updatedRuntime.checkpointIndex,
+      });
     }
   }
 
@@ -595,7 +435,7 @@ class StoryOrchestrator {
   }
 
   setExpandCallback(cb: (result: ExpansionResult, fromCheckpointId: string) => Promise<void>) {
-    this.onMergeExpansion = cb;
+    this.expansionCoordinator.setMergeCallback(cb);
   }
 
   private buildExpansionCheckpointSummaries(): CheckpointSummary[] {
@@ -605,168 +445,38 @@ class StoryOrchestrator {
     const result: CheckpointSummary[] = [];
     for (let i = 0; i < currentIndex && i < checkpoints.length; i++) {
       const cp = checkpoints[i];
-      if (!cp || isStubCheckpoint(cp as unknown as import("@utils/story-schema").Checkpoint)) continue;
+      if (!cp || isNormalizedStubCheckpoint(cp)) continue;
       result.push({ name: cp.name, objective: cp.objective, status: "complete" });
     }
     const current = checkpoints[currentIndex];
-    if (current && !isStubCheckpoint(current as unknown as import("@utils/story-schema").Checkpoint)) {
+    if (current && !isNormalizedStubCheckpoint(current)) {
       result.push({ name: current.name, objective: current.objective, status: "current" });
     }
     return result;
   }
 
-  private async expandStub(stubIndex: number, transitionTaken?: NormalizedTransition): Promise<void> {
-    const cp = this.story.checkpoints[stubIndex];
-    if (!cp) return;
-    if (this.expandingStubId === cp.id) return;
-    this.expandingStubId = cp.id;
-
-    const store = storySessionStore.getState();
-    store.setExpansion({ isExpanding: true, phase: "roadmap", phaseDone: {}, preview: null });
-
-    try {
-      const existingCheckpointIds = this.story.checkpoints.map(c => c.id);
-      const existingTransitionIds = this.story.transitions.map(t => t.id);
-
-      const meta = this.story as unknown as Record<string, unknown>;
-      const roadmap = storySessionStore.getState().roadmap ?? (typeof meta._roadmap === "string" ? meta._roadmap : "");
-      const hasPremise = typeof meta._premise === "string" && (meta._premise as string).trim().length > 0;
-      if (!hasPremise) {
-        console.warn("[StoryOrch] expanding stub without a stored premise — falling back to stub objective; story may lack context");
-      }
-      const premise = hasPremise ? (meta._premise as string) : cp.objective;
-
-      const transitionLabel = transitionTaken?.label ?? transitionTaken?.id ?? "proceed";
-      const transitionCondition = transitionTaken?.trigger.type === "regex"
-        ? (transitionTaken.trigger as unknown as Record<string, unknown>).condition as string ?? ""
-        : `After ${(transitionTaken?.trigger as unknown as Record<string, unknown>)?.withinTurns} turns`;
-
-      const result = await this.generatorService.expandCheckpoint(
-        {
-          premise,
-          roadmap,
-          transitionLabel,
-          transitionCondition,
-          targetCheckpointId: cp.id,
-          targetCheckpointName: (cp as unknown as Record<string, unknown>)._stubName as string ?? cp.name,
-          pastCheckpoints: this.buildExpansionCheckpointSummaries(),
-          characters: StoryGeneratorService.buildCharacterSummaries(),
-          worldInfo: StoryGeneratorService.buildWorldInfoSummaries(),
-          existingCheckpointIds,
-          existingTransitionIds,
-        },
-        (update) => {
-          const current = storySessionStore.getState().expansion;
-          storySessionStore.getState().setExpansion({
-            phase: update.phase,
-            phaseDone: { ...current.phaseDone, ...(update.done ? { [update.phase]: true } : {}) },
-            ...(update.checkpointName ? {
-              preview: {
-                checkpointName: update.checkpointName,
-                checkpointObjective: update.checkpointObjective ?? "",
-                transitionCount: update.transitionCount ?? 0,
-              }
-            } : {}),
-          });
-        }
-      );
-
-      await this.onMergeExpansion?.(result, cp.id);
-    } catch (err) {
-      console.warn("[StoryOrch] stub expansion failed", err);
-    } finally {
-      this.expandingStubId = null;
-      storySessionStore.getState().resetExpansion();
-    }
-  }
-
-
-  private async applyWorldInfoForCheckpoint(cp?: NormalizedCheckpoint) {
-    if (!this.requirementsReady) {
-      return;
-    }
-
-    const lorebook = this.story.global_lorebook;
-    if (!cp || !lorebook) return;
-
-    const worldInfo = cp.onActivate?.world_info;
-    if (!worldInfo) return;
-
-    if (!Array.isArray(worldInfo.activate) && !Array.isArray(worldInfo.deactivate)) return;
-
-    const activateList = Array.isArray(worldInfo.activate) ? worldInfo.activate : [];
-    const deactivateList = Array.isArray(worldInfo.deactivate) ? worldInfo.deactivate : [];
-
-    if (activateList.length) {
-      await enableWIEntry(lorebook, activateList);
-    }
-
-    if (deactivateList.length) {
-      await disableWIEntry(lorebook, deactivateList);
-    }
-  }
-
-  private async applyAutomationsForCheckpoint(cp?: NormalizedCheckpoint) {
-    if (!this.requirementsReady) return;
-    if (!cp) return;
-
-    const automations = cp.onActivate?.automations;
-    if (!Array.isArray(automations) || !automations.length) return;
-
-    const commands = automations.map((cmd) => (typeof cmd === "string" ? cmd.trim() : "")).filter(Boolean);
-    if (!commands.length) return;
-
-    console.log("[StoryOrch] automations run", { cp: cp.name, commands });
-
-    try {
-      const ok = await executeSlashCommands(commands, { silent: true, delayMs: 150 });
-      if (!ok) {
-        console.warn("[StoryOrch] automations reported failure", { cp: cp.name, commands });
-      }
-    } catch (err) {
-      console.warn("[StoryOrch] automations failed", { cp: cp.name, err });
-    }
-  }
-
-
-  private handleChatChanged({ reason, force = false }: { reason: string; force?: boolean }) {
-    let chatId: string | null = null;
-    let groupSelected = false;
-
-    try {
-      const ctx = getContext() || {};
-      const rawChat = (ctx as any)?.chatId;
-      const groupId = (ctx as any)?.groupId;
-      chatId = rawChat == null ? null : (String(rawChat).trim() || null);
-      groupSelected = Boolean(groupId);
-    } catch (err) {
-      console.warn("[StoryOrch] failed to read context", err);
-      chatId = null;
-      groupSelected = false;
-    }
+  private handleChatChanged({ reason, force = false, chat }: { reason: string; force?: boolean; chat?: ChatSessionContextSnapshot }) {
+    const session = chat ?? getChatSessionBridgeSnapshot().chat;
+    const chatId = session.chatId;
+    const groupSelected = session.groupChatSelected;
 
     const sameContext = !force && this.lastChatId === chatId && this.lastGroupSelected === groupSelected;
-    if (sameContext) return; this.lastChatId = chatId;
+    if (sameContext) return;
+    this.lastChatId = chatId;
     this.lastGroupSelected = groupSelected;
+    this.checkpointPrimed = false;
+    this.effectsApplier.clearPending();
 
     this.persistence.setChatContext({ chatId, groupChatSelected: groupSelected });
 
     if (!groupSelected) {
       const runtime = this.persistence.resetRuntime();
       console.log("[StoryOrch] handleChatChanged: not group selected, resetting", { reason });
-      this.skipDeferredAutomations = false;
-
-      try {
-        this.requirements.handleChatContextChanged();
-      } catch (err) {
-        console.warn("[StoryOrch] requirements chat sync failed", err);
-      }
-
+      this.syncRequirementsForChatChange();
       this.reconcileWithRuntime(runtime, { source: "default" });
       return;
     }
 
-    // Hydrate first to get the correct checkpoint, but DON'T trigger requirements yet
     const { runtime: storedState, source: hydrateSource } = this.persistence.hydrate();
 
     console.log("[StoryOrch] handleChatChanged: hydrating", {
@@ -776,44 +486,62 @@ class StoryOrchestrator {
       activeKey: storedState.activeCheckpointKey,
     });
 
-    // If we're loading from stored state, we need to:
-    // 1. First reconcile to the stored checkpoint WITHOUT triggering requirements (so deferred automations don't fire yet)
-    // 2. Then trigger requirements, which will run deferred automations for the CORRECT checkpoint
     if (hydrateSource === "stored") {
       console.log("[StoryOrch] handleChatChanged: applying stored checkpoint before requirements check");
-      this.skipDeferredAutomations = true;
       this.reconcileWithRuntime(storedState, { source: hydrateSource });
-      // Now reset the flag and trigger requirements - this will run deferred automations for CP2
-      this.skipDeferredAutomations = false;
-      try {
-        this.requirements.handleChatContextChanged();
-      } catch (err) {
-        console.warn("[StoryOrch] requirements chat sync failed", err);
-      }
+      this.syncRequirementsForChatChange();
     } else {
-      // For defaults, normal flow: requirements first, then reconcile
-      this.skipDeferredAutomations = false;
-      try {
-        this.requirements.handleChatContextChanged();
-      } catch (err) {
-        console.warn("[StoryOrch] requirements chat sync failed", err);
-      }
+      this.syncRequirementsForChatChange();
       this.reconcileWithRuntime(storedState, { source: hydrateSource });
     }
   }
 
+  private computeCheckpointRuntimeState(
+    checkpointIndex: number,
+    prevRuntime: RuntimeStoryState,
+    currentTurn: number,
+    opts: { resetSinceEval?: boolean; sinceEvalOverride?: number },
+  ) {
+    const baseSince = opts.resetSinceEval
+      ? 0
+      : typeof opts.sinceEvalOverride === "number"
+        ? sanitizeTurnsSinceEval(opts.sinceEvalOverride)
+        : prevRuntime.turnsSinceEval;
+    const checkpointTurns = opts.resetSinceEval || checkpointIndex !== prevRuntime.checkpointIndex
+      ? 0
+      : prevRuntime.checkpointTurnCount ?? 0;
+    const turn = opts.resetSinceEval
+      ? 0
+      : typeof opts.sinceEvalOverride === "number"
+        ? Math.max(0, baseSince)
+        : Math.max(currentTurn, baseSince);
+
+    return {
+      since: opts.resetSinceEval ? 0 : baseSince,
+      checkpointTurns,
+      turn,
+    };
+  }
+
+  private commitRuntimeState(
+    runtimePayload: RuntimeStoryState,
+    nextTurn: number,
+    opts: { persistRequested: boolean; hydratedFlag?: boolean },
+  ) {
+    const sanitized = this.persistence.writeRuntime(runtimePayload, {
+      persist: opts.persistRequested,
+      hydrated: opts.hydratedFlag,
+    });
+    this.setTurn(nextTurn);
+    this.onTurnTick?.({ turn: nextTurn, sinceEval: sanitized.turnsSinceEval });
+    return sanitized;
+  }
+
   private reconcileWithRuntime(runtime?: RuntimeStoryState, options?: { source?: "stored" | "default" }) {
     if (!runtime) return;
-    const sanitizedIndex = clampCheckpointIndex(runtime.checkpointIndex, this.story);
-    const sanitizedSince = sanitizeTurnsSinceEval(runtime.turnsSinceEval);
-    const activeKey = runtime.activeCheckpointKey
-      ?? this.story.checkpoints[sanitizedIndex]?.id
-      ?? this.story.startId
-      ?? null;
-    const resolvedIndex = activeKey
-      ? this.story.checkpoints.findIndex((cp) => cp.id === activeKey)
-      : sanitizedIndex;
-    const targetIndex = resolvedIndex >= 0 ? resolvedIndex : sanitizedIndex;
+    const sanitizedRuntime = sanitizeRuntime(runtime, this.story);
+    const targetIndex = sanitizedRuntime.checkpointIndex;
+    const sanitizedSince = sanitizeTurnsSinceEval(sanitizedRuntime.turnsSinceEval);
 
     if (!this.checkpointPrimed || targetIndex !== this.index) {
       this.applyCheckpoint(targetIndex, {
@@ -830,88 +558,67 @@ class StoryOrchestrator {
 
       const cp = this.story.checkpoints[targetIndex];
       if (cp && options?.source === "default") {
-        this.applyAutomationsForCheckpoint(cp);
+        const activationSource = this.resolveActivationSource({ reason: "hydrate", source: options.source });
+        const policy = resolveCheckpointActivationPolicy({
+          reason: "hydrate",
+          source: activationSource,
+          requirementsState: this.resolveRequirementsState(activationSource),
+        });
+        void this.effectsApplier.applyActivationEffects(cp, policy);
       }
     }
-  } private applyCheckpoint(index: number, opts: {
+  }
+
+  private applyCheckpoint(index: number, opts: {
     persist?: boolean;
     resetSinceEval?: boolean;
     sinceEvalOverride?: number;
-    reason?: "activate" | "hydrate";
+    reason?: CheckpointActivationReason;
     source?: "stored" | "default";
   } = {}) {
-    const checkpoints = Array.isArray(this.story.checkpoints) ? this.story.checkpoints : [];
+    const checkpoints = this.story.checkpoints;
     const storeSnapshot = storySessionStore.getState();
     const prevRuntime = storeSnapshot.runtime;
     const currentTurn = storeSnapshot.turn;
     const persistRequested = opts.persist !== false;
+    const checkpointIndex = clampCheckpointIndex(index, this.story);
 
     const hydratedFlag = opts.reason === "hydrate" ? true : (persistRequested ? true : undefined);
-    const isManualActivation = opts.reason === "activate";
-
-    const computeTurns = (override?: number) => {
-      const baseSince = opts.resetSinceEval
-        ? 0
-        : typeof override === "number"
-          ? sanitizeTurnsSinceEval(override)
-          : prevRuntime.turnsSinceEval;
-      const preservedCheckpointTurns = opts.resetSinceEval || checkpointIndex !== prevRuntime.checkpointIndex
-        ? 0
-        : prevRuntime.checkpointTurnCount ?? 0;
-      const turn = opts.resetSinceEval
-        ? 0
-        : typeof override === "number"
-          ? Math.max(0, baseSince)
-          : Math.max(currentTurn, baseSince);
-      return {
-        since: opts.resetSinceEval ? 0 : baseSince,
-        checkpointTurns: preservedCheckpointTurns,
-        turn,
-      };
-    };
-
-    const applyRuntime = (runtimePayload: RuntimeStoryState, nextTurn: number) => {
-      const sanitized = this.setRuntime(runtimePayload, { hydrated: hydratedFlag });
-      this.setTurn(nextTurn);
-      this.onTurnTick?.({ turn: nextTurn, sinceEval: sanitized.turnsSinceEval });
-      this.persistence.writeRuntime(sanitized, { persist: persistRequested, skipStore: true, hydrated: hydratedFlag });
-      return sanitized;
-    };
+    const activationReason = opts.reason ?? "manual";
+    const activationSource = this.resolveActivationSource({ reason: activationReason, source: opts.source });
+    const activationPolicy = resolveCheckpointActivationPolicy({
+      reason: activationReason,
+      source: activationSource,
+      requirementsState: this.resolveRequirementsState(activationSource),
+    });
+    const nextRuntimeState = this.computeCheckpointRuntimeState(checkpointIndex, prevRuntime, currentTurn, opts);
 
     if (!checkpoints.length) {
       this.checkpointPrimed = true;
       this.activeTransitions = [];
       this.checkpointArbiter.clear();
-      const { since, turn } = computeTurns(opts.sinceEvalOverride);
       const emptyRuntime: RuntimeStoryState = {
         checkpointIndex: 0,
         activeCheckpointKey: null,
-        turnsSinceEval: since,
+        turnsSinceEval: nextRuntimeState.since,
         checkpointTurnCount: 0,
         checkpointStatusMap: { ...prevRuntime.checkpointStatusMap },
       };
-      const sanitized = applyRuntime(emptyRuntime, turn);
-      this.updateStoryMacrosFromContext({
-        storyTitle: this.story.title ?? "",
-        storyDescription: this.buildStoryDescription(),
-        currentCheckpointSummary: "",
-        pastCheckpointsSummary: "",
-        transitionSummary: "No transition candidates are currently available.",
-      });
+      const sanitized = this.commitRuntimeState(emptyRuntime, nextRuntimeState.turn, { persistRequested, hydratedFlag });
+      this.updateStoryMacrosFromContext(createEmptyStoryPromptContext(this.story));
       this.talkControlService.setCheckpoint(null, { emitEnter: false });
       if (opts.reason) this.emitActivate(sanitized.checkpointIndex);
       return;
     }
 
-    const checkpointIndex = clampCheckpointIndex(index, this.story);
     const cp = checkpoints[checkpointIndex] ?? checkpoints[0];
     const activeKey = cp?.id ?? null;
 
-    if (cp && isStubCheckpoint(cp as unknown as import("@utils/story-schema").Checkpoint) && opts.reason === "activate") {
+    if (cp && isNormalizedStubCheckpoint(cp) && activationReason === "manual") {
       const transitionTaken = this.activeTransitions.find(t => t.to === cp.id);
-      this.expandStub(checkpointIndex, transitionTaken).then(() => {
+      this.expansionCoordinator.expandStub(checkpointIndex, transitionTaken).then(() => {
         const expanded = this.story.checkpoints[checkpointIndex];
-        if (expanded && !isStubCheckpoint(expanded as unknown as import("@utils/story-schema").Checkpoint)) {
+        if (expanded && !isNormalizedStubCheckpoint(expanded)) {
           this.applyCheckpoint(checkpointIndex, opts);
         }
       }).catch(err => console.warn("[StoryOrch] expandStub failed", err));
@@ -923,91 +630,27 @@ class StoryOrchestrator {
     this.activeTransitions = cp ? this.story.transitions.filter(t => t.from === cp.id) : [];
     this.checkpointArbiter.clear();
 
-    const { since, checkpointTurns, turn } = computeTurns(opts.sinceEvalOverride);
     const statusMap = computeStatusMapForIndex(this.story, checkpointIndex, prevRuntime.checkpointStatusMap);
     const runtimePayload: RuntimeStoryState = {
       checkpointIndex,
       activeCheckpointKey: activeKey,
-      turnsSinceEval: since,
-      checkpointTurnCount: checkpointTurns,
+      turnsSinceEval: nextRuntimeState.since,
+      checkpointTurnCount: nextRuntimeState.checkpointTurns,
       checkpointStatusMap: statusMap,
     };
-    const sanitized = applyRuntime(runtimePayload, turn);
-    const contextSnapshot = this.buildPromptContext(sanitized, this.buildArbiterOptions([]));
-    this.updateStoryMacrosFromContext(contextSnapshot);
+    const sanitized = this.commitRuntimeState(runtimePayload, nextRuntimeState.turn, { persistRequested, hydratedFlag });
+    this.updateStoryMacrosFromContext(this.evaluationCoordinator.buildPromptContext(sanitized, this.activeTransitions));
 
-    this.talkControlService.setCheckpoint(activeKey, { emitEnter: isManualActivation });
-
-    this.applyWorldInfoForCheckpoint(cp);
-
-    const shouldRunAutomations = opts.reason === "activate" || opts.source === "default";
-
-
-    if (shouldRunAutomations) {
-      this.applyAutomationsForCheckpoint(cp);
-    }
+    this.talkControlService.setCheckpoint(activeKey, { emitEnter: activationPolicy.emitEnter });
+    void this.effectsApplier.applyActivationEffects(cp, activationPolicy);
 
     if (opts.reason) this.emitActivate(sanitized.checkpointIndex);
   }
 
-
-  private enqueueEval(reason: ArbiterReason, text: string, matches: TransitionTriggerMatch[]) {
-    const turnSnapshot = this.turn;
-    const runtime = this.persistence.setTurnsSinceEval(0, { persist: true });
-    this.onTurnTick?.({ turn: turnSnapshot, sinceEval: runtime.turnsSinceEval });
-
-    const checkpointIndex = runtime.checkpointIndex;
-    const cp = this.story.checkpoints[checkpointIndex];
-    const options = this.buildArbiterOptions(matches);
-    const matchedSummary = matches.map((entry) => `${entry.transition.id}:${entry.pattern}`).join(", ");
-    console.log("[StoryOrch] eval-queued", { reason, turn: turnSnapshot, matched: matchedSummary });
-    if (!options.length) {
-      console.log("[StoryOrch] eval skipped (no transition candidates available)");
-      return;
-    }
-
-    this.talkControlService.notifyArbiterPhase("before");
-    this.applyArbiterPreset(cp);
-
-    const promptContext = this.buildPromptContext(runtime, options);
-    this.updateStoryMacrosFromContext(promptContext);
-
-    this.checkpointArbiter.evaluate({
-      cpName: cp?.name ?? `Checkpoint ${checkpointIndex + 1}`,
-      checkpointObjective: cp?.objective,
-      latestText: text,
-      reason,
-      matched: matchedSummary || undefined,
-      turn: turnSnapshot,
-      intervalTurns: this.intervalTurns,
-      candidates: options,
-    }).then((payload) => {
-      const outcome = payload?.outcome ?? "continue";
-      const nextId = payload?.nextTransitionId ?? payload?.parsed?.nextTransitionId;
-      const selection = this.resolveTransitionSelection(nextId, matches);
-      try {
-        this.onEvaluated?.({
-          outcome,
-          reason,
-          turn: turnSnapshot,
-          cpIndex: checkpointIndex,
-          matches,
-          selectedTransition: selection,
-        });
-      } catch (err) {
-        console.warn("[StoryOrch] evaluation handler failed", err);
-      }
-    }).catch((err) => {
-      console.warn("[StoryOrch] arbiter error", err);
-    }).finally(() => {
-      this.talkControlService.notifyArbiterPhase("after");
-    });
-  }
-
-  private applyArbiterPreset(cp: NormalizedCheckpoint) {
+  private applyArbiterPreset(cp?: NormalizedCheckpoint) {
     if (!cp) return;
     try {
-      const overrides = cp.onActivate?.arbiter_preset;
+      const overrides = cp.arbiter_preset;
       this.presetService.applyForRole(ARBITER_ROLE_KEY, overrides, cp.name);
       console.log("[StoryOrch] applied arbiter preset", { checkpoint: cp.name, overrideKeys: overrides ? Object.keys(overrides) : [] });
     } catch (err) {
@@ -1023,19 +666,7 @@ class StoryOrchestrator {
     });
   }
 
-  private onRequirementsSatisfied() {
-    const cp = this.currentCheckpoint;
-    if (!cp) return;
-
-    this.presetService.applyBasePreset();
-    this.applyWorldInfoForCheckpoint(cp);
-
-    if (!this.skipDeferredAutomations) {
-      this.applyAutomationsForCheckpoint(cp);
-    }
-
-    this.skipDeferredAutomations = false;
-  } private emitActivate(index: number) {
+  private emitActivate(index: number) {
     try {
       this.onActivateIndex?.(index);
     } catch (err) {
@@ -1044,39 +675,19 @@ class StoryOrchestrator {
   }
 
   dispose() {
-    try {
-      this.chatUnsubscribe?.();
-    } catch (err) {
-      console.warn("[StoryOrch] failed to unsubscribe chat handler", err);
-    }
+    this.chatUnsubscribe?.();
     this.chatUnsubscribe = undefined;
 
-    try {
-      this.requirementsUnsubscribe?.();
-    } catch (err) {
-      console.warn("[StoryOrch] failed to unsubscribe requirements handler", err);
-    }
+    const safe = (fn: () => void) => { try { fn(); } catch { /* swallow */ } };
+    safe(() => this.requirementsUnsubscribe?.());
     this.requirementsUnsubscribe = undefined;
-
-    try {
-      this.requirements.dispose();
-    } catch (err) {
-      console.warn("[StoryOrch] requirements dispose failed", err);
-    }
-
-    try {
-      this.persistence.dispose();
-    } catch (err) {
-      console.warn("[StoryOrch] persistence dispose failed", err);
-    }
-
-    try {
+    safe(() => this.requirements.dispose());
+    safe(() => this.persistence.dispose());
+    safe(() => {
       storySessionStore.getState().setChatContext({ chatId: null, groupChatSelected: false });
       storySessionStore.getState().setStory(null);
       storySessionStore.getState().resetRequirements();
-    } catch (err) {
-      console.warn("[StoryOrch] failed to reset store during dispose", err);
-    }
+    });
 
     this.setTurn(0);
     this.intervalTurns = this.defaultIntervalTurns;
@@ -1088,10 +699,8 @@ class StoryOrchestrator {
     this.talkControlService.dispose();
     this.lastChatId = null;
     this.lastGroupSelected = false;
-    this.requirementsSatisfiedOnce = false;
-    this.skipDeferredAutomations = false;
-    this.expandingStubId = null;
-    this.onMergeExpansion = undefined;
+    this.effectsApplier.reset();
+    this.expansionCoordinator.reset();
     this.onActivateIndex = undefined;
     this.onEvaluated = undefined;
     storySessionStore.getState().resetExpansion();
@@ -1099,4 +708,5 @@ class StoryOrchestrator {
   }
 }
 
+export type { StoryEvaluationEvent, StoryTransitionSelection };
 export default StoryOrchestrator;

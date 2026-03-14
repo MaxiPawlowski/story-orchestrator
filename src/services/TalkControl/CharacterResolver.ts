@@ -52,7 +52,7 @@ export class CharacterResolver {
     return undefined;
   }
 
-  resolveCharacter(reply: NormalizedTalkControlReply): { id: number; character: any } | null {
+  resolveCharacter(reply: NormalizedTalkControlReply): { id: number; character: Character } | null {
     const { characters } = getContext();
     const charId = this.resolveCharacterId(reply);
 

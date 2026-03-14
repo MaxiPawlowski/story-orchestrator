@@ -1,13 +1,11 @@
-﻿import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import MultiSelect from "@components/studio/MultiSelect";
 import {
-  cleanupOnActivate,
-  ensureOnActivate,
   type CheckpointDraft,
   type StoryDraft,
 } from "@utils/checkpoint-studio";
-import { getContext, } from "@services/STAPI";
-import { subscribeToEventSource } from "@utils/event-source";
+import { getContext, listLorebookComments } from "@services/STAPI";
+import { subscribeToEvents } from "@utils/event-source";
 import HelpTooltip from "../../HelpTooltip";
 
 type Props = {
@@ -20,16 +18,8 @@ const WorldInfoTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }) 
   const [loreComments, setLoreComments] = useState<string[]>([]);
 
   const refreshLoreEntries = useCallback(async () => {
-    const lorebook = (draft.global_lorebook || "").trim();
-    if (!lorebook) { setLoreComments([]); return; }
     try {
-      const { loadWorldInfo } = getContext();
-      const res: any = await loadWorldInfo(lorebook);
-      const entries = res?.entries ?? {};
-      const comments = Object.values(entries)
-        .map((entry: any) => (typeof entry?.comment === "string" ? entry.comment.trim() : ""))
-        .filter(Boolean);
-      setLoreComments(comments);
+      setLoreComments(await listLorebookComments(draft.global_lorebook ?? ""));
     } catch (err) {
       console.warn("[Story - CheckpointEditor] Failed to load world info entries", err);
       setLoreComments([]);
@@ -37,36 +27,17 @@ const WorldInfoTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }) 
   }, [draft.global_lorebook]);
 
   useEffect(() => {
+    void refreshLoreEntries();
     const { eventSource, eventTypes } = getContext();
-    refreshLoreEntries();
-    const offs: Array<() => void> = [];
-    const handler = () => refreshLoreEntries();
-    try {
-      [
-        eventTypes?.WORLDINFO_ENTRIES_LOADED,
-        eventTypes?.WORLDINFO_UPDATED,
-        eventTypes?.WORLDINFO_SETTINGS_UPDATED,
-      ].forEach((eventName) => {
-        if (!eventName) return;
-        const off = subscribeToEventSource({ source: eventSource, eventName, handler });
-        offs.push(off);
-      });
-    } catch (err) {
-      console.warn("[Story - CheckpointEditor] Failed to subscribe to WI events", err);
-    }
-    return () => {
-      while (offs.length) {
-        try {
-          offs.pop()?.();
-        } catch (err) {
-          console.warn("[Story - WorldInfoTab] Failed to unsubscribe from WI event", err);
-        }
-      }
-    };
+    return subscribeToEvents(eventSource, [
+      { eventName: eventTypes?.WORLDINFO_ENTRIES_LOADED, handler: refreshLoreEntries },
+      { eventName: eventTypes?.WORLDINFO_UPDATED, handler: refreshLoreEntries },
+      { eventName: eventTypes?.WORLDINFO_SETTINGS_UPDATED, handler: refreshLoreEntries },
+    ]);
   }, [refreshLoreEntries]);
 
   const buildEntryOptions = useCallback((selected: string[] | undefined) => {
-    const base = loreComments.slice();
+    const base = [...loreComments];
     const extra = (selected ?? []).filter((value) => value && !base.includes(value));
     return [
       ...base.map((value) => ({ value, label: value })),
@@ -83,31 +54,29 @@ const WorldInfoTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }) 
           <HelpTooltip title="Turn on these lore entries as soon as the checkpoint activates." />
         </span>
         <MultiSelect
-          options={buildEntryOptions(checkpoint.on_activate?.world_info?.activate)}
-          value={checkpoint.on_activate?.world_info?.activate ?? []}
+          options={buildEntryOptions(checkpoint.world_info)}
+          value={checkpoint.world_info ?? []}
           onChange={(values) => {
-            updateCheckpoint(checkpoint.id, (cp) => {
-              const next = ensureOnActivate(cp.on_activate);
-              next.world_info.activate = values;
-              return { ...cp, on_activate: cleanupOnActivate(next) };
-            });
+            updateCheckpoint(checkpoint.id, (cp) => ({
+              ...cp,
+              world_info: values.length ? values : undefined,
+            }));
           }}
         />
       </label>
       <label className="flex flex-col gap-1 text-xs">
         <span className="inline-flex items-center gap-1">
           Deactivate
-          <HelpTooltip title="Disable these lore entries when entering the checkpoint to avoid overlap." />
+          <HelpTooltip title="Manually disable additional lore entries when entering this checkpoint (auto-deactivation already handles other checkpoints' entries)." />
         </span>
         <MultiSelect
-          options={buildEntryOptions(checkpoint.on_activate?.world_info?.deactivate)}
-          value={checkpoint.on_activate?.world_info?.deactivate ?? []}
+          options={buildEntryOptions(checkpoint.world_info_deactivate)}
+          value={checkpoint.world_info_deactivate ?? []}
           onChange={(values) => {
-            updateCheckpoint(checkpoint.id, (cp) => {
-              const next = ensureOnActivate(cp.on_activate);
-              next.world_info.deactivate = values;
-              return { ...cp, on_activate: cleanupOnActivate(next) };
-            });
+            updateCheckpoint(checkpoint.id, (cp) => ({
+              ...cp,
+              world_info_deactivate: values.length ? values : undefined,
+            }));
           }}
         />
       </label>

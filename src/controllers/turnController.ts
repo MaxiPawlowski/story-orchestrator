@@ -1,28 +1,11 @@
 import type StoryOrchestrator from "@services/StoryOrchestrator";
 import type { Role } from "@utils/story-schema";
-import { getCharacterNameById, getContext } from "@services/STAPI";
-import { subscribeToEventSource } from "@utils/event-source";
-
-interface ListenerDisposer {
-  (): void;
-}
-
-const pickUserTextFromChat = (): { text: string; key: string } | null => {
-  const { chat } = getContext();
-  if (!Array.isArray(chat) || chat.length === 0) return null;
-  for (let i = chat.length - 1; i >= 0; i--) {
-    const message = chat[i];
-    const isUser = !!message?.is_user;
-    if (!isUser) continue;
-    const text = typeof message?.mes === "string" ? message.mes.trim() : "";
-    if (!text) continue;
-    const msg = message as Record<string, unknown>;
-    const mesId = msg["mesId"] ?? msg["id"];
-    const key = mesId != null ? `id:${mesId}` : `idx:${i}`;
-    return { text, key };
-  }
-  return null;
-};
+import {
+  retainChatSessionBridge,
+  releaseChatSessionBridge,
+  subscribeToChatSessionBridge,
+  type ChatSessionBridgeEvent,
+} from "@controllers/chatSessionBridge";
 
 class TurnGate {
   private genEpoch = 0;
@@ -87,24 +70,25 @@ export const createTurnController = (): TurnController => {
   let started = false;
   let disposed = false;
   let lastUserSeenKey: string | null = null;
-  let lastDraftName: string | null = null;
-  const listeners: ListenerDisposer[] = [];
+  let unsubscribeBridge: (() => void) | null = null;
+  let bridgeRetained = false;
 
   const cleanupListeners = () => {
-    while (listeners.length) {
-      const off = listeners.pop();
-      try {
-        off?.();
-      } catch (err) {
-        console.warn("[Story - TurnController] unsubscribe failed", err);
-      }
+    try {
+      unsubscribeBridge?.();
+    } catch (err) {
+      console.warn("[Story - TurnController] unsubscribe failed", err);
+    }
+    unsubscribeBridge = null;
+    if (bridgeRetained) {
+      releaseChatSessionBridge();
+      bridgeRetained = false;
     }
     started = false;
   };
 
   const reset = () => {
     lastUserSeenKey = null;
-    lastDraftName = null;
     gate.reset();
   };
 
@@ -116,44 +100,22 @@ export const createTurnController = (): TurnController => {
     return true;
   };
 
-  const handleUserMessage = () => {
+  const handleUserMessage = (message: { text: string; key: string }) => {
     if (!ensureOrchestrator()) return;
-
-    const fire = () => {
-      const pick = pickUserTextFromChat();
-      if (!pick) return false;
-      if (pick.key === lastUserSeenKey) return false;
-      if (!gate.shouldAcceptUser(pick.text, pick.key).accept) return false;
-      lastUserSeenKey = pick.key;
-      try {
-        orchestrator?.handleUserText(pick.text);
-      } catch (err) {
-        console.warn("[Story - TurnController] handleUserText failed", err);
-      }
-      return true;
-    };
-
-    if (fire()) return;
-    queueMicrotask(() => { fire(); });
-    setTimeout(() => { fire(); }, 0);
+    if (message.key === lastUserSeenKey) return;
+    if (!gate.shouldAcceptUser(message.text, message.key).accept) return;
+    lastUserSeenKey = message.key;
+    try {
+      orchestrator?.handleUserText(message.text);
+    } catch (err) {
+      console.warn("[Story - TurnController] handleUserText failed", err);
+    }
   };
 
-  const handleDrafted = (payload: any) => {
-    if (!ensureOrchestrator()) return;
-    const chid = Array.isArray(payload) ? payload[0] : payload;
-    const idNum = Number.parseInt(String(chid), 10);
-    const name = Number.isFinite(idNum) && !Number.isNaN(idNum)
-      ? getCharacterNameById?.(idNum)
-      : (typeof payload?.name === "string" ? payload.name : undefined);
-    lastDraftName = name ?? null;
-  };
-
-  const handleGenerationStarted = (payload: any) => {
+  const handleGenerationStarted = (speakerName: string | null) => {
     if (!ensureOrchestrator()) return;
     gate.newEpoch();
-    let candidate = lastDraftName ?? "";
-    const data = Array.isArray(payload) ? payload[0] : payload;
-    candidate ||= (data?.character && String(data.character)) || (data?.quietName && String(data.quietName)) || "";
+    const candidate = speakerName ?? "";
     if (candidate) {
       try {
         orchestrator?.setActiveRole(candidate);
@@ -163,13 +125,21 @@ export const createTurnController = (): TurnController => {
     }
   };
 
-  const handleGenerationStopped = () => {
-    gate.endEpoch();
-  };
-
-  const handleGenerationEnded = () => {
-    gate.endEpoch();
-    lastDraftName = null;
+  const handleBridgeEvent = (event: ChatSessionBridgeEvent) => {
+    switch (event.type) {
+      case "user-message":
+        handleUserMessage(event.message);
+        break;
+      case "generation-started":
+        handleGenerationStarted(event.generation.speakerName ?? event.generation.draftedSpeakerName ?? null);
+        break;
+      case "generation-stopped":
+      case "generation-ended":
+        gate.endEpoch();
+        break;
+      default:
+        break;
+    }
   };
 
   const attach = (next: StoryOrchestrator) => {
@@ -187,37 +157,9 @@ export const createTurnController = (): TurnController => {
     if (started || disposed) return;
     if (!orchestrator) return;
     started = true;
-    const { eventSource, eventTypes } = getContext();
-
-    listeners.push(subscribeToEventSource({
-      source: eventSource,
-      eventName: eventTypes.MESSAGE_SENT,
-      handler: handleUserMessage,
-    }));
-
-    listeners.push(subscribeToEventSource({
-      source: eventSource,
-      eventName: eventTypes.GROUP_MEMBER_DRAFTED,
-      handler: handleDrafted,
-    }));
-
-    listeners.push(subscribeToEventSource({
-      source: eventSource,
-      eventName: eventTypes.GENERATION_STARTED,
-      handler: handleGenerationStarted,
-    }));
-
-    listeners.push(subscribeToEventSource({
-      source: eventSource,
-      eventName: eventTypes.GENERATION_STOPPED,
-      handler: handleGenerationStopped,
-    }));
-
-    listeners.push(subscribeToEventSource({
-      source: eventSource,
-      eventName: eventTypes.GENERATION_ENDED,
-      handler: handleGenerationEnded,
-    }));
+    retainChatSessionBridge();
+    bridgeRetained = true;
+    unsubscribeBridge = subscribeToChatSessionBridge(handleBridgeEvent);
   };
 
   const stop = () => {

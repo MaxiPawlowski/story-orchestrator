@@ -2,41 +2,58 @@
 
 import { PresetService } from "@services/PresetService";
 import {
-  BIAS_CACHE,
-  displayLogitBias,
-  getContext,
-  setGenerationParamsFromPreset,
+  applyTextGenPresetRuntime,
+  findTextGenPreset,
+  getTextGenSettingNames,
   tgPresetNames,
   tgPresetObjs,
-} from "@services/STAPI";
+  upsertTextGenPreset,
+} from "@services/stHost/presets";
+import { getContext } from "@services/stHost/context";
 
-jest.mock("@services/STAPI", () => {
+jest.mock("@services/stHost/context", () => ({
+  getContext: jest.fn(),
+}));
+
+jest.mock("@services/stHost/presets", () => {
   const names: string[] = [];
   const objs: any[] = [];
   return {
-    setGenerationParamsFromPreset: jest.fn(),
-    setSettingByName: jest.fn(),
+    applyTextGenPresetRuntime: jest.fn(() => true),
+    findTextGenPreset: jest.fn((name: string) => {
+      const index = names.indexOf(name);
+      return index === -1 ? null : objs[index];
+    }),
+    getTextGenSettingNames: jest.fn(() => ["temperature", "top_p"]),
     tgPresetObjs: objs,
     tgPresetNames: names,
-    TG_SETTING_NAMES: ["temperature", "top_p"],
-    BIAS_CACHE: new Map(),
-    displayLogitBias: jest.fn(),
-    getContext: jest.fn(),
+    upsertTextGenPreset: jest.fn((name: string, preset: any) => {
+      const index = names.indexOf(name);
+      if (index === -1) {
+        names.push(name);
+        objs.push(preset);
+        return;
+      }
+      objs[index] = preset;
+    }),
   };
 });
 
 const getContextMock = getContext as jest.MockedFunction<typeof getContext>;
-const setGenerationParamsFromPresetMock = setGenerationParamsFromPreset as jest.MockedFunction<typeof setGenerationParamsFromPreset>;
-const displayLogitBiasMock = displayLogitBias as jest.MockedFunction<typeof displayLogitBias>;
+const applyTextGenPresetRuntimeMock = applyTextGenPresetRuntime as jest.MockedFunction<typeof applyTextGenPresetRuntime>;
+const getTextGenSettingNamesMock = getTextGenSettingNames as jest.MockedFunction<typeof getTextGenSettingNames>;
+const upsertTextGenPresetMock = upsertTextGenPreset as jest.MockedFunction<typeof upsertTextGenPreset>;
+const findTextGenPresetMock = findTextGenPreset as jest.MockedFunction<typeof findTextGenPreset>;
 
 describe("PresetService", () => {
   beforeEach(() => {
     tgPresetNames.splice(0, tgPresetNames.length);
     tgPresetObjs.splice(0, tgPresetObjs.length);
-    BIAS_CACHE.clear();
     getContextMock.mockReset();
-    setGenerationParamsFromPresetMock.mockReset();
-    displayLogitBiasMock.mockReset();
+    applyTextGenPresetRuntimeMock.mockClear();
+    getTextGenSettingNamesMock.mockClear();
+    upsertTextGenPresetMock.mockClear();
+    findTextGenPresetMock.mockClear();
     document.body.innerHTML = `
       <select id="settings_preset_textgenerationwebui"></select>
       <input id="temperature_textgenerationwebui" />
@@ -48,18 +65,10 @@ describe("PresetService", () => {
     tgPresetNames.push("fallback");
     tgPresetObjs.push({ temperature: 0.6, top_p: 0.7, logit_bias: [] });
 
-    const emit = jest.fn();
-    const saveSettingsDebounced = jest.fn();
     const context = {
       textCompletionSettings: { temperature: 1.1, top_p: 0.95, preset: "", logit_bias: [] },
-      saveSettingsDebounced,
-      eventTypes: { PRESET_CHANGED: "PRESET_CHANGED" },
-      eventSource: { emit },
     };
     getContextMock.mockReturnValue(context as any);
-
-    const uiBridge = jest.fn();
-    (globalThis as any).ST_applyTextgenPresetToUI = uiBridge;
 
     const service = new PresetService({
       storyId: "story-1",
@@ -73,14 +82,12 @@ describe("PresetService", () => {
     expect(merged.temperature).toBe(0.2);
     expect(merged.top_p).toBe(0.7);
     expect(tgPresetNames).toContain("Story:story-1");
-    expect(setGenerationParamsFromPresetMock).toHaveBeenCalled();
-    expect(displayLogitBiasMock).toHaveBeenCalled();
-    expect(saveSettingsDebounced).toHaveBeenCalled();
-    expect(emit).toHaveBeenCalledWith("PRESET_CHANGED", {
-      apiId: "textgenerationwebui",
-      name: "Story:story-1",
-    });
-    expect(uiBridge).toHaveBeenCalled();
+    expect(upsertTextGenPresetMock).toHaveBeenCalledWith("Story:story-1", expect.objectContaining({ temperature: 0.2, top_p: 0.7 }));
+    expect(applyTextGenPresetRuntimeMock).toHaveBeenCalledWith(
+      "Story:story-1",
+      expect.objectContaining({ temperature: 0.2, top_p: 0.7 }),
+      expect.stringContaining("[dm]"),
+    );
   });
 
   it("applies named base preset into runtime settings", () => {
@@ -89,12 +96,8 @@ describe("PresetService", () => {
 
     const context = {
       textCompletionSettings: { temperature: 1.0, top_p: 1.0, preset: "", logit_bias: [] },
-      saveSettingsDebounced: jest.fn(),
-      eventTypes: { PRESET_CHANGED: "PRESET_CHANGED" },
-      eventSource: { emit: jest.fn() },
     };
     getContextMock.mockReturnValue(context as any);
-    (globalThis as any).ST_applyTextgenPresetToUI = jest.fn();
 
     const service = new PresetService({
       storyId: "story-2",
@@ -105,7 +108,10 @@ describe("PresetService", () => {
     service.applyBasePreset();
 
     expect(context.textCompletionSettings.preset).toBe("Story:story-2");
-    expect(context.textCompletionSettings.temperature).toBe(0.5);
-    expect(context.textCompletionSettings.top_p).toBe(0.8);
+    expect(applyTextGenPresetRuntimeMock).toHaveBeenCalledWith(
+      "Story:story-2",
+      expect.objectContaining({ temperature: 0.5, top_p: 0.8 }),
+      undefined,
+    );
   });
 });

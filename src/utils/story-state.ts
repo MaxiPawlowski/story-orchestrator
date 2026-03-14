@@ -1,5 +1,12 @@
 import { getContext } from "@services/STAPI";
-import type { NormalizedCheckpoint, NormalizedStory, NormalizedTransition, NormalizedTransitionTrigger } from "@utils/story-validator";
+import { z } from "zod";
+import {
+  type NormalizedCheckpoint,
+  type NormalizedStory,
+  type NormalizedTransition,
+  type NormalizedTransitionTrigger,
+  isNormalizedStubCheckpoint,
+} from "@utils/story-validator";
 import { getExtensionSettingsRoot } from "@utils/settings";
 
 export enum CheckpointStatus {
@@ -45,6 +52,13 @@ export interface RuntimeStoryState {
   roadmap?: string;
 }
 
+export interface RuntimeCheckpointSummary {
+  id: string;
+  name: string;
+  objective: string;
+  status: CheckpointStatus;
+}
+
 export interface PersistedChatState {
   storySignature: string;
   storyKey?: string | null;
@@ -64,24 +78,80 @@ export type LoadedStoryState = {
   roadmap?: string;
 };
 
-type PersistedStateCandidate = PersistedChatState;
+const OptionalFiniteNumberSchema = z.preprocess((value) => {
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : value;
+  }
+  return value;
+}, z.number().finite().optional());
+
+const OptionalTrimmedStringSchema = z.preprocess((value) => {
+  if (typeof value !== "string") return value;
+  const trimmed = value.trim();
+  return trimmed || null;
+}, z.string().nullable().optional());
+
+const PersistedChatStateSchema = z.object({
+  storySignature: z.string(),
+  storyKey: OptionalTrimmedStringSchema,
+  checkpointIndex: OptionalFiniteNumberSchema,
+  activeCheckpointKey: OptionalTrimmedStringSchema,
+  turnsSinceEval: OptionalFiniteNumberSchema,
+  checkpointTurnCount: OptionalFiniteNumberSchema,
+  checkpointStatusMap: z.record(z.string(), z.unknown()).transform(decodeCheckpointStatusMap).optional(),
+  updatedAt: OptionalFiniteNumberSchema,
+  roadmap: z.string().optional(),
+});
+
+const StateMapSchema = z.record(z.string(), z.unknown());
 
 const sanitizeStoryKey = (value: unknown): string | null => {
   return typeof value === "string" && value.trim() ? value.trim() : null;
 };
 
-function migratePersistedState(entry: PersistedStateCandidate, story: NormalizedStory): PersistedChatState | null {
-  if (!entry) return null;
+const sanitizeActiveCheckpointKey = (value: unknown, story: NormalizedStory): string | null => {
+  const activeKey = typeof value === "string" && value.trim() ? value.trim() : null;
+  return activeKey ?? story.startId;
+};
+
+const decodeInteger = (value: unknown, fallback = 0): number => {
+  return typeof value === "number" && Number.isFinite(value)
+    ? Math.floor(value)
+    : fallback;
+};
+
+const decodeTimestamp = (value: unknown, fallback = Date.now()): number => {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+};
+
+export function decodeCheckpointStatusMap(source: unknown): CheckpointStatusMap {
+  const parsed = StateMapSchema.safeParse(source);
+  if (!parsed.success) return {};
+
+  const result: CheckpointStatusMap = {};
+  for (const [key, value] of Object.entries(parsed.data)) {
+    if (isCheckpointStatus(value)) {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+
+export function decodePersistedChatState(input: unknown, story: NormalizedStory): PersistedChatState | null {
+  const parsed = PersistedChatStateSchema.safeParse(input);
+  if (!parsed.success) return null;
 
   return {
-    storySignature: entry.storySignature,
-    storyKey: sanitizeStoryKey(entry.storyKey),
-    checkpointIndex: clampCheckpointIndex(entry.checkpointIndex ?? 0, story),
-    activeCheckpointKey: entry.activeCheckpointKey?.trim() || story.startId,
-    turnsSinceEval: sanitizeTurnsSinceEval(entry.turnsSinceEval ?? 0),
-    checkpointTurnCount: sanitizeTurnsSinceEval(entry.checkpointTurnCount ?? 0),
-    checkpointStatusMap: entry.checkpointStatusMap ?? {},
-    updatedAt: entry.updatedAt ?? Date.now(),
+    storySignature: parsed.data.storySignature,
+    storyKey: parsed.data.storyKey ?? null,
+    checkpointIndex: decodeInteger(parsed.data.checkpointIndex, 0),
+    activeCheckpointKey: sanitizeActiveCheckpointKey(parsed.data.activeCheckpointKey, story),
+    turnsSinceEval: sanitizeTurnsSinceEval(decodeInteger(parsed.data.turnsSinceEval, 0)),
+    checkpointTurnCount: sanitizeTurnsSinceEval(decodeInteger(parsed.data.checkpointTurnCount, 0)),
+    checkpointStatusMap: parsed.data.checkpointStatusMap ?? {},
+    updatedAt: decodeTimestamp(parsed.data.updatedAt),
+    roadmap: parsed.data.roadmap,
   };
 }
 
@@ -106,28 +176,24 @@ export function loadStoryState({
   const entry = map[key];
   const storedKey = sanitizeStoryKey(entry?.storyKey);
 
-  if (!isPersistedChatState(entry) || entry.storySignature !== computeStorySignature(story)) {
-    return { state: defaults, source: "default", storyKey: storedKey, roadmap: undefined };
-  }
-
-  const migrated = migratePersistedState(entry, story);
-  if (!migrated) {
+  const decoded = decodePersistedChatState(entry, story);
+  if (!decoded || decoded.storySignature !== computeStorySignature(story)) {
     return { state: defaults, source: "default", storyKey: storedKey, roadmap: undefined };
   }
 
   const sanitized = sanitizeRuntime({
-    checkpointIndex: migrated.checkpointIndex,
-    activeCheckpointKey: migrated.activeCheckpointKey,
-    turnsSinceEval: migrated.turnsSinceEval,
-    checkpointTurnCount: migrated.checkpointTurnCount ?? 0,
-    checkpointStatusMap: migrated.checkpointStatusMap,
+    checkpointIndex: decoded.checkpointIndex,
+    activeCheckpointKey: decoded.activeCheckpointKey,
+    turnsSinceEval: decoded.turnsSinceEval,
+    checkpointTurnCount: decoded.checkpointTurnCount ?? 0,
+    checkpointStatusMap: decoded.checkpointStatusMap,
   }, story);
 
   return {
     state: sanitized,
     source: "stored",
     storyKey: storedKey,
-    roadmap: migrated.roadmap ?? undefined,
+    roadmap: decoded.roadmap ?? undefined,
   };
 }
 
@@ -144,7 +210,6 @@ export function persistStoryState({
   storyKey?: string | null | undefined;
   roadmap?: string;
 }): void {
-  console.log("[StoryState] persistStoryState", { chatId, story, state });
   if (!story) return;
 
   const key = chatId?.trim();
@@ -181,28 +246,30 @@ export function makeDefaultState(story: NormalizedStory | null | undefined): Run
   const startId = story?.startId ?? checkpoints[0]?.id ?? null;
   const startIndex = startId ? checkpoints.findIndex((cp) => cp.id === startId) : -1;
   const normalizedIndex = startIndex >= 0 ? startIndex : (checkpoints.length > 0 ? 0 : -1);
-  const activeId = checkpoints[normalizedIndex]?.id ?? null;
-  const checkpointStatusMap = computeStatusMapForIndex(story, Math.max(0, normalizedIndex), undefined);
+  const checkpointState = deriveCheckpointRuntimeState(story, {
+    checkpointIndex: Math.max(0, normalizedIndex),
+    activeCheckpointKey: null,
+    checkpointStatusMap: {},
+  });
 
   return {
-    checkpointIndex: Math.max(0, normalizedIndex),
-    activeCheckpointKey: activeId,
+    checkpointIndex: checkpointState.checkpointIndex,
+    activeCheckpointKey: checkpointState.activeCheckpointKey,
     turnsSinceEval: 0,
     checkpointTurnCount: 0,
-    checkpointStatusMap,
+    checkpointStatusMap: checkpointState.checkpointStatusMap,
   };
 }
 
 function computeStorySignature(story: NormalizedStory): string {
-  const isStub = (cp: { id: string }) => !!(cp as unknown as Record<string, unknown>)._isStub;
-  const stubIds = new Set(story.checkpoints.filter(isStub).map(cp => cp.id));
+  const stubIds = new Set(story.checkpoints.filter(isNormalizedStubCheckpoint).map((cp) => cp.id));
 
   const cpSig = story.checkpoints
-    .filter(cp => !isStub(cp))
+    .filter((cp) => !isNormalizedStubCheckpoint(cp))
     .map((cp) => `${String(cp.id)}::${cp.name ?? ""}::${cp.objective ?? ""}`)
     .join("||");
   const edgeSig = (story.transitions ?? [])
-    .filter(edge => !stubIds.has(edge.to))
+    .filter((edge) => !stubIds.has(edge.to))
     .map((edge) => {
       const trigger = edge.trigger;
       const regexSig = (trigger.regexes ?? [])
@@ -217,7 +284,7 @@ function computeStorySignature(story: NormalizedStory): string {
     story.schemaVersion ?? "?",
     story.title ?? "",
     story.description ?? "",
-    String(story.checkpoints.filter(cp => !isStub(cp)).length),
+    String(story.checkpoints.filter((cp) => !isNormalizedStubCheckpoint(cp)).length),
     cpSig,
     edgeSig,
   ].join("|");
@@ -244,33 +311,14 @@ export function sanitizeRuntime(candidate: RuntimeStoryState, story: NormalizedS
       checkpointStatusMap: {},
     };
   }
-
-  const checkpoints = story.checkpoints;
-  let activeId = candidate.activeCheckpointKey?.trim() || null;
-  let checkpointIndex = Math.floor(candidate.checkpointIndex);
-
-  if (activeId) {
-    const matchIndex = checkpoints.findIndex((cp) => cp.id === activeId);
-    if (matchIndex >= 0) {
-      checkpointIndex = matchIndex;
-    }
-  }
-
-  if (checkpointIndex < 0 || checkpointIndex >= checkpoints.length) {
-    checkpointIndex = clampCheckpointIndex(candidate.checkpointIndex, story);
-    activeId = checkpoints[checkpointIndex]?.id ?? story.startId;
-  } else {
-    activeId = checkpoints[checkpointIndex]?.id ?? story.startId;
-  }
-
-  const checkpointStatusMap = computeStatusMapForIndex(story, checkpointIndex, candidate.checkpointStatusMap);
+  const checkpointState = deriveCheckpointRuntimeState(story, candidate);
 
   return {
-    checkpointIndex,
-    activeCheckpointKey: activeId,
+    checkpointIndex: checkpointState.checkpointIndex,
+    activeCheckpointKey: checkpointState.activeCheckpointKey,
     turnsSinceEval,
     checkpointTurnCount,
-    checkpointStatusMap,
+    checkpointStatusMap: checkpointState.checkpointStatusMap,
   };
 }
 
@@ -281,11 +329,22 @@ export function deriveCheckpointStatuses(
   const checkpoints = story?.checkpoints ?? [];
   if (!checkpoints.length) return [];
 
-  const cpAtIndex = checkpoints[runtime.checkpointIndex];
-  const activeKey = runtime.activeCheckpointKey ?? cpAtIndex?.id ?? story?.startId ?? null;
-
-  const map = normalizeStatusMap(story, activeKey, runtime.checkpointStatusMap);
+  const map = deriveCheckpointRuntimeState(story, runtime).checkpointStatusMap;
   return checkpoints.map((cp) => map[cp.id] ?? CheckpointStatus.Pending);
+}
+
+export function deriveCheckpointSummaries(
+  story: NormalizedStory | null | undefined,
+  runtime: Pick<RuntimeStoryState, "checkpointIndex" | "activeCheckpointKey" | "checkpointStatusMap">,
+): RuntimeCheckpointSummary[] {
+  if (!story?.checkpoints?.length) return [];
+  const statuses = deriveCheckpointStatuses(story, runtime);
+  return story.checkpoints.map((checkpoint, index) => ({
+    id: checkpoint.id,
+    name: checkpoint.name,
+    objective: checkpoint.objective,
+    status: statuses[index] ?? CheckpointStatus.Pending,
+  }));
 }
 
 /**
@@ -339,11 +398,23 @@ export function sanitizeChatKey(chatId: string | null | undefined): string | nul
   return chatId?.trim() || null;
 }
 
+export function canPersistRuntimeState({
+  story,
+  chatId,
+  groupChatSelected,
+}: {
+  story: NormalizedStory | null | undefined;
+  chatId: string | null | undefined;
+  groupChatSelected: boolean | null | undefined;
+}): boolean {
+  return Boolean(story && sanitizeChatKey(chatId) && groupChatSelected);
+}
+
 function getStateMap(): StateMap {
   const root = getExtensionSettingsRoot();
-  const existing = root[STORAGE_KEY];
-  if (existing && typeof existing === "object") {
-    return existing as StateMap;
+  const parsed = StateMapSchema.safeParse(root[STORAGE_KEY]);
+  if (parsed.success) {
+    return parsed.data as StateMap;
   }
   const created: StateMap = {};
   root[STORAGE_KEY] = created;
@@ -352,17 +423,7 @@ function getStateMap(): StateMap {
 
 
 function checkpointKeyFrom(cp: NormalizedCheckpoint | undefined, idx: number): string {
-  if (cp?.id) return cp.id;
-  if (!cp) return String(idx);
-  const rawId = cp.id;
-  if (rawId === null || rawId === undefined) return String(idx);
-  const trimmed = String(rawId).trim();
-  return trimmed ? trimmed : String(idx);
-}
-
-export function checkpointKeyAtIndex(story: NormalizedStory | null | undefined, index: number): string {
-  const cp = story?.checkpoints?.[index];
-  return checkpointKeyFrom(cp, index);
+  return cp?.id || String(idx);
 }
 
 export function computeStatusMapForIndex(
@@ -370,77 +431,89 @@ export function computeStatusMapForIndex(
   checkpointIndex: number,
   prevMap: CheckpointStatusMap | undefined,
 ): CheckpointStatusMap {
+  return buildCheckpointStatusMap(story, checkpointIndex, prevMap, (status) => status === CheckpointStatus.Failed);
+}
+
+function deriveCheckpointRuntimeState(
+  story: NormalizedStory | null | undefined,
+  runtime: Pick<RuntimeStoryState, "checkpointIndex" | "activeCheckpointKey" | "checkpointStatusMap">,
+): Pick<RuntimeStoryState, "checkpointIndex" | "activeCheckpointKey" | "checkpointStatusMap"> {
+  const checkpoints = story?.checkpoints ?? [];
+  if (!checkpoints.length) {
+    return {
+      checkpointIndex: 0,
+      activeCheckpointKey: null,
+      checkpointStatusMap: {},
+    };
+  }
+
+  const checkpointIndex = resolveCheckpointIndex(story, runtime.checkpointIndex, runtime.activeCheckpointKey ?? null);
+  const activeCheckpointKey = checkpoints[checkpointIndex]?.id ?? story?.startId ?? null;
+  const checkpointStatusMap = deriveCheckpointStatusMap(story, checkpointIndex, runtime.checkpointStatusMap);
+
+  return {
+    checkpointIndex,
+    activeCheckpointKey,
+    checkpointStatusMap,
+  };
+}
+
+function deriveCheckpointStatusMap(
+  story: NormalizedStory | null | undefined,
+  checkpointIndex: number,
+  source: unknown,
+): CheckpointStatusMap {
+  return buildCheckpointStatusMap(story, checkpointIndex, source, isCheckpointStatus);
+}
+
+function buildCheckpointStatusMap(
+  story: NormalizedStory | null | undefined,
+  checkpointIndex: number,
+  source: unknown,
+  preserveStatus: (status: CheckpointStatus) => boolean,
+): CheckpointStatusMap {
   const checkpoints = story?.checkpoints ?? [];
   if (!checkpoints.length) return {};
 
+  const incoming = decodeCheckpointStatusMap(source);
   const clampedIndex = clampCheckpointIndex(checkpointIndex, story ?? null);
   const result: CheckpointStatusMap = {};
 
   checkpoints.forEach((cp, idx) => {
     const key = checkpointKeyFrom(cp, idx);
-    const prevStatus = prevMap?.[key];
-    if (idx < clampedIndex) {
-      result[key] = prevStatus === CheckpointStatus.Failed ? CheckpointStatus.Failed : CheckpointStatus.Complete;
-    } else if (idx === clampedIndex) {
-      result[key] = prevStatus === CheckpointStatus.Failed ? CheckpointStatus.Failed : CheckpointStatus.Current;
-    } else {
-      result[key] = prevStatus === CheckpointStatus.Failed ? CheckpointStatus.Failed : CheckpointStatus.Pending;
-    }
+    const incomingStatus = incoming[key];
+    result[key] = incomingStatus && preserveStatus(incomingStatus)
+      ? incomingStatus
+      : checkpointStatusForPosition(idx, clampedIndex);
   });
 
   return result;
 }
 
-function normalizeStatusMap(
+function resolveCheckpointIndex(
   story: NormalizedStory | null | undefined,
-  activeKey: string | null,
-  source: unknown,
-): CheckpointStatusMap {
+  checkpointIndex: number,
+  activeCheckpointKey: string | null,
+): number {
   const checkpoints = story?.checkpoints ?? [];
-  if (!checkpoints.length) return {};
+  if (!checkpoints.length) return 0;
 
-  const incoming = (source && typeof source === "object") ? source as Record<string, unknown> : {};
-  const result: CheckpointStatusMap = {};
-
-  checkpoints.forEach((cp, idx) => {
-    const key = checkpointKeyFrom(cp, idx);
-    const raw = incoming[key];
-    let status: CheckpointStatus = CheckpointStatus.Pending;
-    if (isCheckpointStatus(raw)) {
-      status = raw as CheckpointStatus;
-    }
-
-    result[key] = status;
-  });
-
-  if (activeKey) {
-    const active = checkpoints.find((cp) => cp.id === activeKey);
-    if (active) {
-      const key = active.id;
-      const current = result[key];
-      if (current === undefined || current === CheckpointStatus.Pending || current === CheckpointStatus.Current) {
-        result[key] = CheckpointStatus.Current;
-      }
-    }
+  const normalizedIndex = Number.isFinite(checkpointIndex) ? Math.floor(checkpointIndex) : Number.NaN;
+  if (normalizedIndex >= 0 && normalizedIndex < checkpoints.length) {
+    return normalizedIndex;
   }
 
-  return result;
+  const activeKey = activeCheckpointKey?.trim() || null;
+  if (activeKey) {
+    const indexFromKey = checkpoints.findIndex((cp) => cp.id === activeKey);
+    if (indexFromKey >= 0) return indexFromKey;
+  }
+
+  return clampCheckpointIndex(checkpointIndex, story ?? null);
 }
 
-function isPersistedChatState(input: unknown): input is PersistedStateCandidate {
-  if (!input || typeof input !== "object") return false;
-  const candidate = input as Partial<PersistedStateCandidate>;
-  const statusField = candidate.checkpointStatusMap;
-  const statusValid = statusField === undefined || typeof statusField === "object";
-  const checkpointTurnsValid = candidate.checkpointTurnCount === undefined || typeof candidate.checkpointTurnCount === "number";
-  const keyValid = candidate.storyKey === undefined || candidate.storyKey === null || typeof candidate.storyKey === "string";
-
-  return (
-    typeof candidate.storySignature === "string"
-    && keyValid
-    && typeof candidate.checkpointIndex === "number"
-    && typeof candidate.turnsSinceEval === "number"
-    && statusValid
-    && checkpointTurnsValid
-  );
+function checkpointStatusForPosition(index: number, activeIndex: number): CheckpointStatus {
+  if (index < activeIndex) return CheckpointStatus.Complete;
+  if (index === activeIndex) return CheckpointStatus.Current;
+  return CheckpointStatus.Pending;
 }

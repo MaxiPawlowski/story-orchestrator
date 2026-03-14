@@ -1,0 +1,349 @@
+title: Quest for the Sun Ruins
+description: >-
+  Humanity's last survivors live within the ruined city of Xentar, surrounded by lethal
+  wilderness and weakening magical barriers. The Adventurers Guild dispatches an exploration
+  team to recover the legendary Sun's Heart Artifact from the perilous Sun Ruins, facing
+  ancient traps and mystical guardians along the way.
+global_lorebook: Xentar Checkpoints
+roles:
+  dm: DM Narrator
+  companion: Arin
+  guild_master: Ponticius
+  little_brother: Luke
+defaults:
+  author_note:
+    position: chat
+    interval: 3
+    depth: 4
+    role: system
+start: cp1
+checkpoints:
+  - id: cp1
+    name: 1. Investigate the Guild's Job Board
+    objective: Get closer to the board to see available missions.
+    authors_note:
+      dm:
+        text: >-
+          [Keep the pacing relaxed. Describe the guild's tavern noise and atmosphere subtly
+          as {{story_player_name}} approaches the job board.]
+      companion:
+        text: >-
+          [{{story_role_companion}} is strapping on armor and teasing {{story_player_name}}
+          about being late.]
+    world_info:
+      - CP1 - Mission
+      - CP1 - Scenario
+    preset_overrides:
+      dm:
+        temp: 0.65
+        top_p: 0.95
+        min_p: 0.025
+        rep_pen: 1.08
+        guidance_scale: 1.2
+      companion:
+        temp: 0.85
+        top_p: 0.95
+        min_p: 0.02
+        rep_pen: 1.03
+        guidance_scale: 1.1
+    arbiter_preset:
+      temp: 0.35
+    automations:
+      - /bg tavern day
+      - /member-disable {{story_role_guild_master}}
+      - /member-disable {{story_role_little_brother}}
+    transitions:
+      - id: transition-get-close-board
+        to: cp2
+        label: Get closer to the board to see available missions.
+        description: The party accepts the mission and heads toward the Sun Ruins.
+        trigger:
+          type: regex
+          condition: "{{story_player_name}} has gotten close to the job board."
+          patterns:
+            - /\b(get close|approach|move closer|examine|investigate|look at|read)\b/i
+
+  - id: cp2
+    name: 2. Investigate the Guild's Job Board
+    objective: Pick up a mission from the board.
+    authors_note:
+      dm:
+        text: >-
+          [Emphasize the worn Sun Ruins posting among the others. When {{story_player_name}}
+          commits, have the Guild Master intervene with calm seriousness about the city's
+          failing wards.]
+      companion:
+        text: >-
+          [{{story_role_companion}} comments on the board's clutter and grows serious when
+          the Guild Master arrives.]
+      guild_master:
+        text: >-
+          [Speak with warm authority. Start lightly, then warn that the Sun Ruins mission is
+          critical to restoring the barriers. Keep the message short and personal.]
+    world_info:
+      - CP2 - Mission
+      - CP2 - Scenario
+    preset_overrides:
+      dm:
+        temp: 0.6
+        top_p: 0.92
+        min_p: 0.03
+        rep_pen: 1.1
+        guidance_scale: 1.6
+      companion:
+        temp: 0.8
+        top_p: 0.92
+        min_p: 0.03
+        rep_pen: 1.06
+        guidance_scale: 1.4
+    arbiter_preset:
+      temp: 0.28
+    automations:
+      - /member-enable {{story_role_guild_master}}
+    talk_control:
+      - memberId: dm
+        speakerId: ""
+        enabled: true
+        trigger: onEnter
+        probability: 100
+        maxTriggers: 1
+        content:
+          kind: llm
+          instruction: >-
+            [Narrate how {{story_player_name}} takes the mission paper from the board, and
+            prepare a markup description of the Sun Ruins mission description and reward.]
+      - memberId: guild_master
+        speakerId: dm
+        enabled: true
+        trigger: afterSpeak
+        probability: 100
+        maxTriggers: 1
+        content:
+          kind: llm
+          instruction: >-
+            [Warn {{story_player_name}} that the Sun Ruins are unstable, and stress the
+            importance of retrieving the artifact to restore Xentar's wards. Keep it brief
+            but impactful.]
+    transitions:
+      - id: transition-accept-mission
+        to: cp3
+        label: Accept the Sun Ruins mission.
+        description: After securing the artifact, the party returns to the guild.
+        trigger:
+          type: regex
+          condition: "{{story_player_name}} has accepted the Sun Ruins mission, and {{story_player_guild_master}} has left."
+          patterns:
+            - /\b(accept|take|pick up|get|choose|select|claim)\b.*\b(mission|quest|job|task|assignment)\b/i
+
+  - id: cp3
+    name: 3. Departure to the Sun Ruins
+    objective: Deliver the artifact back to the Guild Master and conclude the mission.
+    authors_note:
+      dm:
+        text: >-
+          [Introduce Luke quickly after the Guild Master exits. He interrupts with urgency
+          about his missing brother. Let {{story_player_name}} decide whether to take him.]
+      companion:
+        text: >-
+          [Challenge Luke if {{story_player_name}} hesitates; show skepticism but restraint.]
+      little_brother:
+        text: >-
+          [Young and desperate. Pleads to join, needing to find his brother that went missing.]
+    world_info:
+      - CP3 - Luke
+    preset_overrides:
+      dm:
+        temp: 0.6
+        top_p: 0.93
+        min_p: 0.025
+        rep_pen: 1.09
+        guidance_scale: 1.3
+      companion:
+        temp: 0.75
+        top_p: 0.94
+        min_p: 0.02
+        rep_pen: 1.04
+        guidance_scale: 1.2
+    arbiter_preset:
+      temp: 0.32
+    automations:
+      - /member-disable {{story_role_guild_master}}
+      - /member-enable {{story_role_little_brother}}
+    talk_control:
+      - memberId: little_brother
+        speakerId: ""
+        enabled: true
+        trigger: onEnter
+        probability: 100
+        maxTriggers: 1
+        content:
+          kind: llm
+          instruction: >-
+            [Describe Luke's urgent plea to join the mission, explaining his brother's
+            disappearance in the Sun Ruins. Let {{story_player_name}} feel the weight of
+            the decision.]
+    transitions:
+      - id: transition-accept-luke
+        to: cp-4a
+        label: Take Luke with you
+        trigger:
+          type: regex
+          condition: "{{story_player_name}} has agreed to take Luke along."
+          patterns:
+            - /\b(agree|allow|let|take|bring|include)\b.*\b(luke|young adventurer|new companion)\b/i
+      - id: transition-decline-luke
+        to: cp-4b
+        label: Decline Luke's request
+        trigger:
+          type: regex
+          condition: "{{story_player_name}} has declined to take Luke along."
+          patterns:
+            - /\b(decline|refuse|deny|leave|depart|go without)\b.*\b(luke|young adventurer|new companion)\b/i
+
+  - id: cp-4a
+    name: 4a. Travel to the Sun Ruins
+    objective: Arrive to the Sun ruins with luke.
+    authors_note:
+      dm:
+        text: >-
+          [Trigger the sphinx encounter immediately. Stop the party with its riddle before
+          they can advance.]
+      companion:
+        text: >-
+          [Distrusts the sphinx and cautions against rash answers.]
+      little_brother:
+        text: >-
+          [Eager and reckless. Tries to answer before the others.]
+    world_info:
+      - CP4 - Scenario
+      - CP4 - Sphinx
+      - "CP4 - Sphinx's Riddle"
+    transitions:
+      - id: transition-solve-riddle-luke
+        to: cp-4a1
+        label: Solve the Sphinx's Riddle
+        trigger:
+          type: regex
+          condition: 'Someone in the party has solved the sphinx''s riddle, the correct answer is "the moon".'
+          patterns:
+            - '/\b(solve|answer|respond|reply|speak|say|tell)\b.*\b(riddle|sphinx|question|puzzle)\b\/i/i'
+            - '/\b(the moon)\b\/i/i'
+      - id: transition-fail-riddle-luke
+        to: cp-4a2
+        label: Fail to answer the sphinx's riddle.
+        trigger:
+          type: regex
+          condition: "Someone in the party has failed to answer the sphinx's riddle."
+          patterns:
+            - '/\b(fail|wrong|incorrect|don''t know|no answer|silent)\b.*\b(riddle|sphinx|question|puzzle)\b\/i/i'
+
+  - id: cp-4b
+    name: 4b. Travel to the Sun Ruins
+    objective: Traven to Sun Ruins with only your companion.
+    authors_note:
+      dm:
+        text: >-
+          [Present the sphinx immediately. Deliver the riddle in a calm, timeless voice.]
+      companion:
+        text: >-
+          [Analyzes the riddle carefully, uncertain but composed.]
+    world_info:
+      - CP4 - Scenario
+      - CP4 - Sphinx
+      - "CP4 - Sphinx's Riddle"
+    transitions:
+      - id: transition-solve-riddle-companion
+        to: cp-5
+        label: Solve the sphinx's riddle.
+        trigger:
+          type: regex
+          condition: "{{story_player_name}} or {{story_role_companion}} solved the sphinx's riddle."
+          patterns:
+            - '/\b(solve|answer|respond|reply|speak|say|tell)\b.*\b(riddle|sphinx|question|puzzle)\b\/i/i'
+            - '/\b(the moon)\b\/i/i'
+
+  - id: cp-4a1
+    name: 4a1. Solve the Sphinx's Riddle
+    objective: Find the artifact.
+    authors_note:
+      dm:
+        text: >-
+          [Confirm the correct answer and grant passage. The sphinx steps aside solemnly.]
+      companion:
+        text: >-
+          [Relieved and teasing Luke for almost ruining it.]
+      little_brother:
+        text: >-
+          [Grateful and humbled.]
+    transitions:
+      - id: transition-investigate-chamber-luke
+        to: cp-5
+        label: Investigate the chamber and approach the artifact.
+        trigger:
+          type: regex
+          condition: "{{story_player_name}} has entered the chamber."
+          patterns:
+            - '/\b(investigate|approach|examine|look at|inspect|study)\b.*\b(chamber|room|area|space)\b\/i/i'
+
+  - id: cp-4a2
+    name: 4a2. Failure solving Sphinx's Riddle
+    objective: Return to the guild.
+    authors_note:
+      dm:
+        text: >-
+          [Describe the sphinx's wrath striking Luke down instantly. Keep tone tragic and brief.]
+      companion:
+        text: >-
+          [Shaken, mourns Luke but urges the mission to continue.]
+      little_brother:
+        text: >-
+          [Dying words express pain and regret.]
+    automations:
+      - /member-disable {{story_role_little_brother}}
+    transitions:
+      - id: transition-investigate-chamber-luke-fail
+        to: cp-5
+        label: Investigate the chamber and approach the artifact.
+        trigger:
+          type: regex
+          condition: "{{story_player_name}} has entered the chamber."
+          patterns:
+            - '/\b(investigate|approach|examine|look at|inspect|study)\b.*\b(chamber|room|area|space)\b\/i/i'
+
+  - id: cp-5
+    name: 5. Find the Artifact
+    objective: Find the Artifact.
+    authors_note:
+      dm:
+        text: >-
+          [Describe the recovery of the Sun's Heart Artifact with restrained awe.]
+      companion:
+        text: >-
+          [Express pride in {{story_player_name}} and satisfaction at surviving the ruins.]
+    transitions:
+      - id: transition-return-guild
+        to: cp-6
+        label: Prepare to return to the Guild with the artifact.
+        trigger:
+          type: regex
+          condition: "{{story_player_name}} has secured the Sun's Heart Artifact and is ready to return to the Guild."
+          patterns:
+            - /\b(return|go back|head back|leave|depart|travel back)\b.*\b(guild|adventurers guild|guild hall|xentar)\b/i
+
+  - id: cp-6
+    name: 6. Return to the Guild
+    objective: Claim your reward.
+    authors_note:
+      dm:
+        text: >-
+          [Depict relief and hope as {{story_player_name}} delivers the artifact. End with a
+          sense of closure and new beginnings.]
+      companion:
+        text: >-
+          [Share quiet reflection on the journey.]
+      little_brother:
+        text: >-
+          [Thank the group sincerely, but still needs to find his brother.]
+      guild_master:
+        text: >-
+          [Praise the success, deliver the reward, and hint at future challenges.]

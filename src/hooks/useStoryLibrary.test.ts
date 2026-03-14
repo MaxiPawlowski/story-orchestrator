@@ -12,6 +12,15 @@ import {
   type StudioState,
 } from "@utils/story-library";
 
+jest.mock("@services/STAPI", () => ({
+  getContext: jest.fn(() => ({
+    extensionSettings: {},
+    saveSettingsDebounced: jest.fn(),
+  })),
+}));
+
+const actualStoryLibrary = jest.requireActual<typeof import("@utils/story-library")>("@utils/story-library");
+
 jest.mock("@utils/story-library", () => ({
   SAVED_KEY_PREFIX: "saved:",
   loadStudioState: jest.fn(),
@@ -26,7 +35,13 @@ const generateStoryIdMock = generateStoryId as jest.MockedFunction<typeof genera
 const toSavedEntriesMock = toSavedEntries as jest.MockedFunction<typeof toSavedEntries>;
 
 function createStory(title: string) {
-  return { title, checkpoints: [], transitions: [] } as any;
+  return {
+    title,
+    global_lorebook: "lorebook",
+    checkpoints: [
+      { id: `${title}-cp-1`, name: `${title} checkpoint`, objective: `${title} objective` },
+    ],
+  } as any;
 }
 
 function renderHook() {
@@ -178,5 +193,103 @@ describe("useStoryLibrary", () => {
     expect(hook.current.selectedKey).toBe("saved:b");
     expect(hook.current.selectedEntry?.key).toBe("saved:b");
     hook.unmount();
+  });
+
+  it("decodeStudioState keeps valid saved records without downstream shape checks", () => {
+    const decoded = actualStoryLibrary.decodeStudioState({
+      stories: [
+        {
+          id: "story-a",
+          name: "Story A",
+          story: createStory("A"),
+          updatedAt: 10,
+          meta: { premise: "premise", isDynamic: true, ignored: "x" },
+        },
+      ],
+      lastSelectedKey: "saved:story-a",
+    }, 999);
+
+    expect(decoded).toEqual({
+      stories: [
+        {
+          id: "story-a",
+          name: "Story A",
+          story: createStory("A"),
+          updatedAt: 10,
+          meta: { premise: "premise", isDynamic: true },
+        },
+      ],
+      lastSelectedKey: "saved:story-a",
+    });
+  });
+
+  it("decodeStudioState normalizes partial legacy and duplicate saved records", () => {
+    const randomSpy = jest.spyOn(Math, "random").mockReturnValue(0.123456789);
+
+    try {
+      const decoded = actualStoryLibrary.decodeStudioState({
+        stories: [
+          {
+            id: "same-id",
+            name: "First",
+            story: createStory("First"),
+            updatedAt: 5,
+          },
+          {
+            id: "same-id",
+            name: "Duplicate",
+            story: createStory("Duplicate"),
+            updatedAt: 6,
+          },
+          {
+            name: "   ",
+            story: createStory("Legacy"),
+          },
+        ],
+        lastSelectedKey: "story-a",
+      }, 321);
+
+      expect(decoded.stories).toEqual([
+        {
+          id: "same-id",
+          name: "First",
+          story: createStory("First"),
+          updatedAt: 5,
+        },
+        {
+          id: "4fzzzxjy",
+          name: "Untitled Story",
+          story: createStory("Legacy"),
+          updatedAt: 321,
+        },
+      ]);
+      expect(decoded.lastSelectedKey).toBeNull();
+    } finally {
+      randomSpy.mockRestore();
+    }
+  });
+
+  it("decodeStudioState drops malformed saved records safely", () => {
+    const decoded = actualStoryLibrary.decodeStudioState({
+      stories: [
+        null,
+        { id: "missing-story", name: "Broken" },
+        { id: "bad-story", name: "Broken", story: "not-an-object" },
+        { id: "ok", name: "Okay", story: createStory("Okay"), meta: "bad-meta" },
+      ],
+      lastSelectedKey: 42,
+    }, 111);
+
+    expect(decoded).toEqual({
+      stories: [
+        {
+          id: "ok",
+          name: "Okay",
+          story: createStory("Okay"),
+          updatedAt: 111,
+        },
+      ],
+      lastSelectedKey: null,
+    });
   });
 });

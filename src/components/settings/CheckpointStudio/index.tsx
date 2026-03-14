@@ -1,7 +1,20 @@
-import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import type { Story } from "@utils/story-schema";
 import type { NormalizedStory } from "@utils/story-validator";
-import { StoryDraft, CheckpointDraft, TransitionDraft, normalizedToDraft, safeDraftToStoryInput, generateUniqueId, slugify } from "@utils/checkpoint-studio";
+import {
+  StoryDraft,
+  CheckpointDraft,
+  TransitionDraft,
+  normalizedToDraft,
+  safeDraftToStoryInput,
+  generateUniqueId,
+  updateCheckpointDraft,
+  renameCheckpointDraftId,
+  removeCheckpointDraft,
+  appendTransitionDraft,
+  removeTransitionDraft,
+  patchTransitionDraft,
+} from "@utils/checkpoint-studio";
 import Toolbar from "@components/studio/Toolbar";
 import FeedbackAlert from "@components/studio/FeedbackAlert";
 import GraphPanel from "@components/studio/GraphPanel";
@@ -9,10 +22,9 @@ import StoryDetailsPanel from "@components/studio/StoryDetailsPanel";
 import DiagnosticsPanel from "@components/studio/DiagnosticsPanel";
 import CheckpointEditorPanel from "@components/studio/CheckpointEditorPanel";
 import type { StoryLibraryEntry, SaveLibraryStoryResult, DeleteLibraryStoryResult } from "@components/context/StoryContext";
+import { useStudioActions } from "./useStudioActions";
 
 type ValidationResult = { ok: true; story: NormalizedStory } | { ok: false; errors: string[] };
-type Diagnostic = { ok: boolean; name: string; detail: string };
-type Feedback = { type: "success" | "error"; message: string };
 
 type Props = {
   sourceStory: NormalizedStory | null | undefined;
@@ -40,12 +52,6 @@ const CheckpointStudio: React.FC<Props> = ({
   const baseDraft = useMemo(() => normalizedToDraft(sourceStory), [sourceStory]);
   const [draft, setDraft] = useState<StoryDraft>(baseDraft);
   const [selectedId, setSelectedId] = useState<string | null>(baseDraft.start || baseDraft.checkpoints[0]?.id || null);
-  const [diagnostics, setDiagnostics] = useState<Diagnostic[]>([]);
-  const [feedback, setFeedback] = useState<Feedback | null>(null);
-  const [savePending, setSavePending] = useState(false);
-  const [deletePending, setDeletePending] = useState(false);
-
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     setDraft(baseDraft);
@@ -105,72 +111,51 @@ const CheckpointStudio: React.FC<Props> = ({
 
   const hasChanges = comparisonBase !== comparisonDraft;
 
+  const feedbackActions = useStudioActions({
+    baseDraft,
+    draft,
+    setDraft,
+    setSelectedId,
+    validate,
+    currentEntry,
+    suggestedName,
+    disabled,
+    onSelectKey,
+    onSaveStory,
+    onDeleteStory,
+  });
+
+  const {
+    diagnostics,
+    feedback,
+    savePending,
+    deletePending,
+    setActionFeedback,
+    fileInputRef,
+    handleSave,
+    handleSaveAs,
+    handleDeleteStory,
+    handleReset,
+    handleExport,
+    handleFilePick,
+    handleFileChange,
+  } = feedbackActions;
+
   const updateCheckpoint = (id: string, updater: (cp: CheckpointDraft) => CheckpointDraft) => {
-    setDraft((prev) => {
-      const index = prev.checkpoints.findIndex((cp) => cp.id === id);
-      if (index < 0) return prev;
-      const checkpoints = prev.checkpoints.map((cp, idx) => (idx === index ? updater(cp) : cp));
-      return { ...prev, checkpoints };
-    });
+    setDraft((prev) => updateCheckpointDraft(prev, id, updater));
   };
-
-  const runDiagnostics = useCallback((input: StoryDraft) => {
-    const results: Diagnostic[] = [];
-
-    const conversionResult = safeDraftToStoryInput(input);
-    if (!conversionResult.ok) {
-      results.push({
-        ok: false,
-        name: "Story data conversion",
-        detail: conversionResult.error
-      });
-      setDiagnostics(results);
-      return;
-    }
-
-    const raw = conversionResult.story;
-    const validation = validate(raw);
-    if (!validation.ok) {
-      results.push({ ok: false, name: "Schema validation", detail: validation.errors.join("; ") });
-    }
-    const nodeIds = new Set(raw.checkpoints.map((cp) => cp.id));
-    const missing = raw.transitions.filter((edge) => !nodeIds.has(edge.from) || !nodeIds.has(edge.to));
-    if (missing.length) {
-      results.push({
-        ok: false,
-        name: "Transition targets",
-        detail: `Transitions with missing endpoints: ${missing.map((edge) => edge.id).join(", ")}.`,
-      });
-    }
-    setDiagnostics(results);
-  }, [validate]);
-
-  useEffect(() => {
-    runDiagnostics(baseDraft);
-  }, [baseDraft, runDiagnostics]);
 
   const handleCheckpointIdChange = (id: string, value: string) => {
     const nextId = value.trim();
     if (!nextId) {
-      setFeedback({ type: "error", message: "Checkpoint id cannot be empty." });
+      setActionFeedback({ type: "error", message: "Checkpoint id cannot be empty." });
       return;
     }
     if (draft.checkpoints.some((cp) => cp.id === nextId && cp.id !== id)) {
-      setFeedback({ type: "error", message: `Checkpoint id '${nextId}' already exists.` });
+      setActionFeedback({ type: "error", message: `Checkpoint id '${nextId}' already exists.` });
       return;
     }
-    setDraft((prev) => {
-      const index = prev.checkpoints.findIndex((cp) => cp.id === id);
-      if (index < 0) return prev;
-      const checkpoints = prev.checkpoints.map((cp, idx) => (idx === index ? { ...cp, id: nextId } : cp));
-      const transitions = prev.transitions.map((edge) => ({
-        ...edge,
-        from: edge.from === id ? nextId : edge.from,
-        to: edge.to === id ? nextId : edge.to,
-      }));
-      const start = prev.start === id ? nextId : prev.start;
-      return { ...prev, checkpoints, transitions, start };
-    });
+    setDraft((prev) => renameCheckpointDraftId(prev, id, nextId));
     setSelectedId(nextId);
   };
 
@@ -186,7 +171,6 @@ const CheckpointStudio: React.FC<Props> = ({
           id,
           name: `Checkpoint ${prev.checkpoints.length + 1}`,
           objective: "",
-          on_activate: undefined,
         },
       ];
       const start = prev.start || id;
@@ -198,11 +182,9 @@ const CheckpointStudio: React.FC<Props> = ({
   const handleRemoveCheckpoint = (id: string) => {
     let nextSelection: string | null = null;
     setDraft((prev) => {
-      const checkpoints = prev.checkpoints.filter((cp) => cp.id !== id);
-      const transitions = prev.transitions.filter((edge) => edge.from !== id && edge.to !== id);
-      const start = prev.start === id ? checkpoints[0]?.id ?? "" : prev.start;
-      nextSelection = start || checkpoints[0]?.id || null;
-      return { ...prev, checkpoints, transitions, start };
+      const result = removeCheckpointDraft(prev, id);
+      nextSelection = result.nextSelection;
+      return result.draft;
     });
     setSelectedId((current) => (current === id ? nextSelection : current));
   };
@@ -211,256 +193,41 @@ const CheckpointStudio: React.FC<Props> = ({
     setDraft((prev) => {
       if (!prev.checkpoints.length) return prev;
       const fallbackTarget = prev.checkpoints.find((cp) => cp.id !== fromId)?.id || fromId;
-      const existingIds = new Set(prev.transitions.map((edge) => edge.id));
+      const existingIds = new Set(
+        prev.checkpoints.flatMap((cp) => (cp.transitions ?? []).map((t) => t.id).filter(Boolean) as string[])
+      );
       const id = generateUniqueId(existingIds, "edge");
       const stableId = `stable-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-      const transitions: TransitionDraft[] = [
-        ...prev.transitions,
-        {
-          id,
-          from: fromId,
-          to: fallbackTarget,
-          trigger: {
-            type: "regex",
-            patterns: ["/enter-pattern/i"],
-            condition: "Replace with Arbiter condition",
-          },
-          label: "",
-          description: "",
-          _stableId: stableId,
+      const newTransition: TransitionDraft = {
+        id,
+        to: fallbackTarget,
+        trigger: {
+          type: "regex",
+          patterns: ["/enter-pattern/i"],
+          condition: "Replace with Arbiter condition",
         },
-      ];
-      return { ...prev, transitions };
+        label: "",
+        description: "",
+        _stableId: stableId,
+      };
+      return appendTransitionDraft(prev, fromId, newTransition);
     });
   };
 
   const handleRemoveTransition = (transitionId: string) => {
-    setDraft((prev) => ({
-      ...prev,
-      transitions: prev.transitions.filter((edge) => edge.id !== transitionId),
-    }));
+    setDraft((prev) => removeTransitionDraft(prev, transitionId));
   };
 
   const updateTransition = (transitionId: string, patch: Partial<TransitionDraft>) => {
-    setDraft((prev) => ({
-      ...prev,
-      transitions: prev.transitions.map((edge) => (edge.id === transitionId ? { ...edge, ...patch } : edge)),
-    }));
-  };
-
-  const handleSave = useCallback(async () => {
-    if (disabled) return;
-    if (!currentEntry || currentEntry.kind !== "saved") {
-      setFeedback({ type: "error", message: "Select a saved story before using Save. Try Save As to create a copy." });
-      return;
-    }
-
-    const conversionResult = safeDraftToStoryInput(draft);
-    if (!conversionResult.ok) {
-      setFeedback({ type: "error", message: `Story data is incomplete: ${conversionResult.error}` });
-      runDiagnostics(draft);
-      return;
-    }
-
-    const payload = conversionResult.story;
-    const validation = validate(payload);
-    if (!validation.ok) {
-      setFeedback({ type: "error", message: validation.errors.join("; ") });
-      runDiagnostics(draft);
-      return;
-    }
-    setSavePending(true);
-    setFeedback(null);
-    setDiagnostics([]);
-    try {
-      const result = await onSaveStory(payload, {
-        targetKey: currentEntry.key,
-        name: typeof currentEntry.meta?.name === "string" ? currentEntry.meta.name : undefined,
-      });
-      if (!result.ok) {
-        setFeedback({ type: "error", message: result.error });
-        return;
-      }
-      onSelectKey(result.key);
-      const label = typeof currentEntry.meta?.name === "string" ? currentEntry.meta.name : "story";
-      setFeedback({ type: "success", message: `Saved ${label}` });
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setFeedback({ type: "error", message });
-    } finally {
-      setSavePending(false);
-    }
-  }, [disabled, currentEntry, draft, validate, onSaveStory, onSelectKey, runDiagnostics]);
-
-  const handleSaveAs = useCallback(async () => {
-    if (disabled) return;
-
-    const conversionResult = safeDraftToStoryInput(draft);
-    if (!conversionResult.ok) {
-      setFeedback({ type: "error", message: `Story data is incomplete: ${conversionResult.error}` });
-      runDiagnostics(draft);
-      return;
-    }
-
-    const payload = conversionResult.story;
-    const validation = validate(payload);
-    if (!validation.ok) {
-      setFeedback({ type: "error", message: validation.errors.join("; ") });
-      runDiagnostics(draft);
-      return;
-    }
-    const defaultName = suggestedName;
-    const input = typeof window !== "undefined"
-      ? window.prompt("Enter a name for the saved story", defaultName)
-      : null;
-    if (input === null) return;
-    const candidate = input.trim();
-    if (!candidate) return;
-    setSavePending(true);
-    setFeedback(null);
-    setDiagnostics([]);
-    try {
-      const result = await onSaveStory(payload, { name: candidate });
-      if (!result.ok) {
-        setFeedback({ type: "error", message: result.error });
-        return;
-      }
-      onSelectKey(result.key);
-      setFeedback({ type: "success", message: `Saved ${candidate}` });
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setFeedback({ type: "error", message });
-    } finally {
-      setSavePending(false);
-    }
-  }, [disabled, draft, validate, onSaveStory, suggestedName, onSelectKey, runDiagnostics]);
-
-  const handleDeleteStory = useCallback(async () => {
-    if (disabled) return;
-    const target = currentEntry;
-    if (!target) {
-      setFeedback({ type: "error", message: "Select a saved story to delete." });
-      return;
-    }
-    if (target.kind !== "saved") {
-      setFeedback({ type: "error", message: "Only saved stories can be deleted." });
-      return;
-    }
-    const label = typeof target.meta?.name === "string" && target.meta.name.trim().length
-      ? target.meta.name.trim()
-      : "saved story";
-    const confirmed = typeof window === "undefined"
-      ? true
-      : window.confirm(`Delete ${label}? This action cannot be undone.`);
-    if (!confirmed) return;
-
-    setDeletePending(true);
-    setFeedback(null);
-    try {
-      const result = await onDeleteStory(target.key);
-      if (!result.ok) {
-        setFeedback({ type: "error", message: result.error });
-        return;
-      }
-      setFeedback({ type: "success", message: `Deleted ${label}` });
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setFeedback({ type: "error", message });
-    } finally {
-      setDeletePending(false);
-    }
-  }, [disabled, currentEntry, onDeleteStory]);
-
-  const handleReset = () => {
-    setDraft(baseDraft);
-    setSelectedId(baseDraft.start || baseDraft.checkpoints[0]?.id || null);
-    setFeedback(null);
-  };
-
-  const handleExport = () => {
-    const conversionResult = safeDraftToStoryInput(draft);
-    if (!conversionResult.ok) {
-      setFeedback({ type: "error", message: `Cannot export: ${conversionResult.error}` });
-      return;
-    }
-
-    const raw = conversionResult.story;
-    const blob = new Blob([JSON.stringify(raw, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${slugify(raw.title || "story")}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const handleFilePick = () => {
-    setFeedback(null);
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange: React.ChangeEventHandler<HTMLInputElement> = async (event) => {
-    const input = event.target;
-    const file = input?.files?.[0];
-    if (!file) return;
-
-    try {
-      const text = await file.text();
-      const parsed = JSON.parse(text);
-      const validation = validate(parsed);
-      if (!validation.ok) {
-        setFeedback({ type: "error", message: validation.errors.join("; ") });
-        runDiagnostics(normalizedToDraft(null));
-        return;
-      }
-
-      const nextDraft = normalizedToDraft(validation.story);
-      setDraft(nextDraft);
-      setSelectedId(nextDraft.start || nextDraft.checkpoints[0]?.id || null);
-      setFeedback(null);
-      setDiagnostics([]);
-      runDiagnostics(nextDraft);
-
-      const conversionResult = safeDraftToStoryInput(nextDraft);
-      if (!conversionResult.ok) {
-        setFeedback({ type: "error", message: `Cannot import: ${conversionResult.error}` });
-        return;
-      }
-
-      const sanitized = conversionResult.story;
-      const baseFileName = file.name.replace(/\.[^/.]+$/, "");
-      const inferredName = validation.story.title?.trim()
-        || baseFileName
-        || "Imported Story";
-
-      setSavePending(true);
-      const result = await onSaveStory(sanitized, { name: inferredName });
-      if (!result.ok) {
-        setFeedback({ type: "error", message: result.error });
-        return;
-      }
-      onSelectKey(result.key);
-      setFeedback({ type: "success", message: `Imported and saved ${inferredName}` });
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to import JSON file.";
-      setFeedback({ type: "error", message });
-    } finally {
-      setSavePending(false);
-      if (input) {
-        // Reset file input for consecutive imports.
-        input.value = "";
-      }
-    }
+    setDraft((prev) => patchTransitionDraft(prev, transitionId, patch));
   };
 
   const selectedCheckpoint = selectedId ? draft.checkpoints.find((cp) => cp.id === selectedId) : undefined;
-  const outgoingTransitions = selectedId ? draft.transitions.filter((edge) => edge.from === selectedId) : [];
+  const outgoingTransitions = selectedCheckpoint?.transitions ?? [];
 
   return (
     <div className="flex flex-col gap-4 text-sm st-strong">
-      <input ref={fileInputRef} type="file" accept="application/json" className="hidden" onChange={handleFileChange} />
+      <input ref={fileInputRef} type="file" accept=".yaml,.yml,text/yaml" className="hidden" onChange={handleFileChange} />
 
       <div className="flex flex-col gap-2 st-bg-tint pr-[30px]">
         <div className="flex flex-wrap items-center gap-2">
@@ -544,7 +311,6 @@ const CheckpointStudio: React.FC<Props> = ({
         onRemoveTransition={handleRemoveTransition}
         updateTransition={updateTransition}
         onRemoveCheckpoint={handleRemoveCheckpoint}
-        setDraft={setDraft}
       />
     </div>
   );

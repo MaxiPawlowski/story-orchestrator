@@ -1,5 +1,6 @@
+import { z } from "zod";
 import type { Story } from "@utils/story-schema";
-import { parseAndNormalizeStory, formatZodError, type NormalizedStory } from "@utils/story-validator";
+import { parseAndNormalizeStory, formatZodError, validateStoryShape, type NormalizedStory } from "@utils/story-validator";
 import { getContext } from "@services/STAPI";
 import { getExtensionSettingsRoot } from "@utils/settings";
 
@@ -47,6 +48,90 @@ export type DeleteLibraryStoryResult =
   | { ok: true }
   | { ok: false; error: string };
 
+const DEFAULT_STUDIO_STATE: StudioState = {
+  stories: [],
+  lastSelectedKey: null,
+};
+
+const StoredStoryMetaSchema = z.object({
+  premise: z.string().optional(),
+  roadmap: z.string().optional(),
+  generatedAt: z.number().finite().optional(),
+  isDynamic: z.boolean().optional(),
+  genre: z.string().optional(),
+  tone: z.string().optional(),
+});
+
+const StoredStoryRecordSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().optional(),
+  story: z.record(z.string(), z.unknown()),
+  updatedAt: z.number().finite().optional(),
+  meta: z.unknown().optional(),
+});
+
+const StudioStateSchema = z.object({
+  stories: z.array(z.unknown()).optional(),
+  lastSelectedKey: z.unknown().optional(),
+});
+
+const decodeStoredStoryMeta = (value: unknown): StoredStoryMeta | undefined => {
+  const parsed = StoredStoryMetaSchema.safeParse(value);
+  return parsed.success ? parsed.data : undefined;
+};
+
+const decodeStoryName = (value: string | undefined): string => {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : "Untitled Story";
+};
+
+const decodeStoryId = (value: string | undefined, usedIds: Set<string>): string | null => {
+  const trimmed = value?.trim() ?? "";
+  if (trimmed) {
+    if (usedIds.has(trimmed)) return null;
+    usedIds.add(trimmed);
+    return trimmed;
+  }
+  return generateStoryId(usedIds);
+};
+
+export const decodeStoredStoryRecord = (
+  value: unknown,
+  usedIds: Set<string>,
+  now = Date.now(),
+): StoredStoryRecord | null => {
+  const parsed = StoredStoryRecordSchema.safeParse(value);
+  if (!parsed.success) return null;
+
+  const id = decodeStoryId(parsed.data.id, usedIds);
+  if (!id) return null;
+
+  const meta = decodeStoredStoryMeta(parsed.data.meta);
+  return {
+    id,
+    name: decodeStoryName(parsed.data.name),
+    story: validateStoryShape(parsed.data.story),
+    updatedAt: parsed.data.updatedAt ?? now,
+    ...(meta ? { meta } : {}),
+  };
+};
+
+export function decodeStudioState(value: unknown, now = Date.now()): StudioState {
+  const parsed = StudioStateSchema.safeParse(value);
+  if (!parsed.success) return { ...DEFAULT_STUDIO_STATE };
+
+  const usedIds = new Set<string>();
+  const stories = parsed.data.stories
+    ?.map((entry) => decodeStoredStoryRecord(entry, usedIds, now))
+    .filter((entry): entry is StoredStoryRecord => entry !== null)
+    ?? [];
+
+  return {
+    stories,
+    lastSelectedKey: normalizeLastSelectedKey(parsed.data.lastSelectedKey),
+  };
+}
+
 const normalizeLastSelectedKey = (value: unknown): string | null => {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
@@ -56,37 +141,7 @@ const normalizeLastSelectedKey = (value: unknown): string | null => {
 
 export function loadStudioState(): StudioState {
   const root = getExtensionSettingsRoot();
-  const raw = root[STUDIO_SETTINGS_KEY];
-  if (!raw || typeof raw !== "object") {
-    return { stories: [], lastSelectedKey: null };
-  }
-  const candidate = raw as Partial<{ stories?: unknown; lastSelectedKey?: unknown }>;
-  const storiesRaw = Array.isArray(candidate.stories) ? candidate.stories : [];
-  const usedIds = new Set<string>();
-  const stories: StoredStoryRecord[] = [];
-  for (const item of storiesRaw) {
-    if (!item || typeof item !== "object") continue;
-    const record = item as Partial<StoredStoryRecord>;
-    const id = typeof record.id === "string" && record.id.trim()
-      ? record.id.trim()
-      : generateStoryId(usedIds);
-    if (usedIds.has(id)) continue;
-    usedIds.add(id);
-    const name = typeof record.name === "string" && record.name.trim()
-      ? record.name.trim()
-      : "Untitled Story";
-    if (!record.story || typeof record.story !== "object") continue;
-    const story = record.story as Story;
-    const updatedAt = typeof record.updatedAt === "number" && Number.isFinite(record.updatedAt)
-      ? record.updatedAt
-      : Date.now();
-    const meta: StoredStoryMeta | undefined = record.meta && typeof record.meta === "object"
-      ? record.meta as StoredStoryMeta
-      : undefined;
-    stories.push({ id, name, story, updatedAt, ...(meta ? { meta } : {}) });
-  }
-  const lastSelectedKey = normalizeLastSelectedKey(candidate.lastSelectedKey);
-  return { stories, lastSelectedKey };
+  return decodeStudioState(root[STUDIO_SETTINGS_KEY]);
 }
 
 export function persistStudioState(state: StudioState): void {

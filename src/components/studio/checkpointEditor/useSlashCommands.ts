@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getContext } from "@services/STAPI";
+import { listSlashCommands } from "@services/STAPI";
 import { SlashCommandMeta } from "./types";
 
 const STORY_COMMAND_TAG_ATTR = 'data-story-orchestrator="1"';
@@ -27,30 +27,16 @@ export const useSlashCommands = () => {
 
   const refresh = useCallback(() => {
     try {
-      const ctx = getContext();
-      const parser = (ctx as any)?.SlashCommandParser;
-      const commandsRaw = parser?.commands ?? {};
-      const entries: SlashCommandMeta[] = [];
-      const seen = new Set<any>();
-
-      Object.entries(commandsRaw).forEach(([name, raw]) => {
-        if (!name) return;
-        if (seen.has(raw)) return;
-        seen.add(raw);
-
-        const aliases = Array.isArray((raw as any)?.aliases)
-          ? (raw as any).aliases.filter((alias: unknown) => typeof alias === "string" && alias.trim())
-          : [];
-        const help = parseHelp((raw as any)?.helpString);
-        entries.push({
+      setCommands(listSlashCommands().map(({ name, aliases, helpString }): SlashCommandMeta => {
+        const help = parseHelp(helpString);
+        return {
           name,
           aliases,
           description: help.description,
           samples: help.samples,
           isStoryOrchestrator: help.isStoryOrchestrator,
-        });
-      });
-      setCommands(entries);
+        };
+      }));
       setError(null);
     } catch (err) {
       console.warn("[Story - CheckpointEditor] Failed to read slash commands", err);

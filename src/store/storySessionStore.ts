@@ -6,11 +6,12 @@ import {
   sanitizeRuntime,
   type RuntimeStoryState,
   CheckpointStatus,
-  checkpointKeyAtIndex,
-  deriveCheckpointStatuses,
   isCheckpointStatus,
   type CheckpointStatusMap,
   sanitizeChatKey,
+  loadStoryState,
+  persistStoryState,
+  canPersistRuntimeState,
 } from "@utils/story-state";
 import { createRequirementsState, cloneRequirementsState, type StoryRequirementsState } from "./requirementsState";
 import type { GenerationPhase } from "@services/StoryGeneratorService";
@@ -42,23 +43,47 @@ export interface StorySessionValueState {
   roadmap: string | null;
 }
 
+export interface RuntimeWriteOptions {
+  persist?: boolean;
+  hydrated?: boolean;
+}
+
+export interface StorySelectionOptions {
+  storyKey?: string | null;
+  roadmap?: string | null;
+}
+
+export interface RoadmapWriteOptions {
+  persist?: boolean;
+  story?: NormalizedStory | null;
+  storyKey?: string | null;
+}
+
+export interface RuntimeHydrateResult {
+  runtime: RuntimeStoryState;
+  source: "stored" | "default";
+  storyKey: string | null;
+}
+
 export interface StorySessionActions {
   setStory: (story: NormalizedStory | null) => RuntimeStoryState;
+  selectStory: (story: NormalizedStory | null, options?: StorySelectionOptions) => RuntimeStoryState;
   setStoryKey: (key: string | null) => string | null;
   setChatContext: (ctx: { chatId: string | null; groupChatSelected: boolean }) => void;
-  resetRuntime: () => RuntimeStoryState;
-  setRuntime: (next: RuntimeStoryState, options?: { hydrated?: boolean }) => RuntimeStoryState;
-  writeRuntime: (next: RuntimeStoryState, options?: { hydrated?: boolean }) => RuntimeStoryState;
-  setTurnsSinceEval: (next: number) => RuntimeStoryState;
-  setCheckpointTurnCount: (next: number) => RuntimeStoryState;
-  updateCheckpointStatus: (index: number, status: CheckpointStatus) => RuntimeStoryState;
+  resetRuntime: (options?: RuntimeWriteOptions) => RuntimeStoryState;
+  hydrateRuntime: () => RuntimeHydrateResult;
+  writeRuntime: (next: RuntimeStoryState, options?: RuntimeWriteOptions) => RuntimeStoryState;
+  setTurnsSinceEval: (next: number, options?: RuntimeWriteOptions) => RuntimeStoryState;
+  setCheckpointTurnCount: (next: number, options?: RuntimeWriteOptions) => RuntimeStoryState;
+  updateCheckpointStatus: (index: number, status: CheckpointStatus, options?: RuntimeWriteOptions) => RuntimeStoryState;
+  canPersistRuntime: () => boolean;
   setTurn: (value: number) => number;
   setRequirementsState: (next: StoryRequirementsState) => StoryRequirementsState;
   resetRequirements: () => StoryRequirementsState;
   setOrchestratorReady: (next: boolean) => boolean;
   setExpansion: (next: Partial<ExpansionState>) => void;
   resetExpansion: () => void;
-  setRoadmap: (roadmap: string | null) => void;
+  setRoadmap: (roadmap: string | null, options?: RoadmapWriteOptions) => void;
 }
 
 export type StorySessionStore = StoreApi<StorySessionValueState & StorySessionActions>;
@@ -69,6 +94,47 @@ const defaultExpansionState: ExpansionState = {
   phase: null,
   phaseDone: {},
   preview: null,
+};
+
+const updateRuntimeCounter = (
+  current: RuntimeStoryState,
+  key: "turnsSinceEval" | "checkpointTurnCount",
+  next: number,
+): RuntimeStoryState | null => {
+  const sanitized = sanitizeTurnsSinceEval(next);
+  if (sanitized === current[key]) return null;
+  return {
+    ...current,
+    [key]: sanitized,
+  };
+};
+
+const persistSnapshotRuntime = (
+  snapshot: Pick<StorySessionValueState, "story" | "chatId" | "groupChatSelected" | "storyKey" | "roadmap">,
+  runtime: RuntimeStoryState,
+  overrides?: {
+    story?: NormalizedStory | null;
+    storyKey?: string | null;
+    roadmap?: string | null;
+  },
+) => {
+  const story = overrides?.story !== undefined ? overrides.story : snapshot.story;
+  const storyKey = overrides?.storyKey !== undefined ? overrides.storyKey : snapshot.storyKey;
+  const roadmap = overrides?.roadmap !== undefined ? overrides.roadmap : snapshot.roadmap;
+  if (!canPersistRuntimeState({ ...snapshot, story })) return false;
+  try {
+    persistStoryState({
+      chatId: snapshot.chatId,
+      story,
+      state: runtime,
+      storyKey,
+      roadmap: roadmap ?? undefined,
+    });
+    return true;
+  } catch (err) {
+    console.warn("[Story - Store] persist failed", err);
+    return false;
+  }
 };
 
 export const storySessionStore: StorySessionStore = createStore<StorySessionValueState & StorySessionActions>((set, get) => ({
@@ -95,6 +161,25 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
     return runtime;
   },
 
+  selectStory: (story, options) => {
+    const snapshot = get();
+    const storyKey = typeof options?.storyKey === "string" ? options.storyKey.trim() || null : (options?.storyKey ?? snapshot.storyKey);
+    const roadmap = options?.roadmap ?? null;
+    const runtime = makeDefaultState(story);
+
+    set(() => ({
+      story: story ?? null,
+      storyKey,
+      runtime,
+      roadmap,
+      turn: 0,
+      hydrated: false,
+    }));
+
+    persistSnapshotRuntime(get(), runtime);
+    return runtime;
+  },
+
   setStoryKey: (key) => {
     const normalized = typeof key === "string" ? key.trim() : null;
     const value = normalized ? normalized : null;
@@ -110,50 +195,65 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
     }));
   },
 
-  resetRuntime: () => {
+  resetRuntime: (options) => {
     const runtime = makeDefaultState(get().story);
-    set({ runtime, turn: 0, hydrated: false });
-    return runtime;
+    set({ turn: 0 });
+    return get().writeRuntime(runtime, {
+      hydrated: options?.hydrated ?? false,
+      persist: options?.persist,
+    });
   },
 
-  setRuntime: (nextRuntime, options) => {
-    const sanitized = sanitizeRuntime(nextRuntime, get().story);
-    const nextHydrated = options?.hydrated ?? get().hydrated;
+  hydrateRuntime: () => {
+    const snapshot = get();
+    if (!snapshot.story || !snapshot.groupChatSelected) {
+      const runtime = snapshot.resetRuntime();
+      return { runtime, source: "default", storyKey: snapshot.storyKey ?? null };
+    }
+
+    const { state, source, storyKey, roadmap } = loadStoryState({
+      chatId: snapshot.chatId,
+      story: snapshot.story,
+    });
+
+    snapshot.setStoryKey(storyKey);
+    get().setRoadmap(roadmap ?? null, { persist: false });
+
+    const runtime = get().writeRuntime(state, { hydrated: true, persist: false });
+    return { runtime, source, storyKey };
+  },
+
+  writeRuntime: (nextRuntime, options) => {
+    const snapshot = get();
+    const sanitized = sanitizeRuntime(nextRuntime, snapshot.story);
+    const shouldPersist = options?.persist !== false && canPersistRuntimeState(snapshot);
+    const nextHydrated = options?.hydrated ?? (shouldPersist ? true : snapshot.hydrated);
     set({ runtime: sanitized, hydrated: nextHydrated });
+    if (shouldPersist) {
+      persistSnapshotRuntime(get(), sanitized);
+    }
     return sanitized;
   },
 
-  writeRuntime: (nextRuntime, options) => { // deprecated alias
-    return get().setRuntime(nextRuntime, options);
+  setTurnsSinceEval: (next, options) => {
+    const current = get().runtime;
+    const updated = updateRuntimeCounter(current, "turnsSinceEval", next);
+    if (!updated) return current;
+    return get().writeRuntime(updated, options);
   },
 
-  setTurnsSinceEval: (next) => {
+  setCheckpointTurnCount: (next, options) => {
     const current = get().runtime;
-    const sanitized = sanitizeTurnsSinceEval(next);
-    if (sanitized === current.turnsSinceEval) return current;
-    const updated: RuntimeStoryState = {
-      ...current,
-      turnsSinceEval: sanitized,
-    };
-    return get().writeRuntime(updated);
-  },
-
-  setCheckpointTurnCount: (next) => {
-    const current = get().runtime;
-    const sanitized = sanitizeTurnsSinceEval(next);
-    if (sanitized === current.checkpointTurnCount) return current;
-    const updated: RuntimeStoryState = {
-      ...current,
-      checkpointTurnCount: sanitized,
-    };
-    const result = get().writeRuntime(updated);
-    if (get().turn < sanitized) {
-      get().setTurn(sanitized);
+    const updated = updateRuntimeCounter(current, "checkpointTurnCount", next);
+    if (!updated) return current;
+    const result = get().writeRuntime(updated, options);
+    if (get().turn < updated.checkpointTurnCount) {
+      get().setTurn(updated.checkpointTurnCount);
     }
     return result;
   },
 
-  updateCheckpointStatus: (index, status) => {
+  updateCheckpointStatus: (index, status, options) => {
     if (!isCheckpointStatus(status)) return get().runtime;
     const snapshot = get();
     const runtime = snapshot.runtime;
@@ -162,15 +262,17 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
     if (!checkpoints.length) return runtime;
     if (index < 0 || index >= checkpoints.length) return runtime;
 
-    const key = checkpointKeyAtIndex(story, index);
-    const currentStatuses = deriveCheckpointStatuses(story, runtime);
-    const currentStatus = currentStatuses[index];
-    if (currentStatus === status) return runtime;
+    const key = checkpoints[index]?.id;
+    if (!key || runtime.checkpointStatusMap[key] === status) return runtime;
 
     const nextMap: CheckpointStatusMap = { ...runtime.checkpointStatusMap };
     nextMap[key] = status;
 
-    return get().setRuntime({ ...runtime, checkpointStatusMap: nextMap });
+    return get().writeRuntime({ ...runtime, checkpointStatusMap: nextMap }, options);
+  },
+
+  canPersistRuntime: () => {
+    return canPersistRuntimeState(get());
   },
 
   setTurn: (value) => {
@@ -207,7 +309,28 @@ export const storySessionStore: StorySessionStore = createStore<StorySessionValu
     set({ expansion: { ...defaultExpansionState } });
   },
 
-  setRoadmap: (roadmap) => {
-    set({ roadmap: roadmap ?? null });
+  setRoadmap: (roadmap, options) => {
+    const normalizedRoadmap = roadmap ?? null;
+    const nextStory = options?.story === undefined ? undefined : (options.story ?? null);
+    const nextStoryKey = options?.storyKey === undefined
+      ? undefined
+      : (typeof options.storyKey === "string" ? options.storyKey.trim() || null : null);
+    const snapshot = get();
+    const story = nextStory === undefined ? snapshot.story : nextStory;
+    const runtime = nextStory === undefined ? snapshot.runtime : sanitizeRuntime(snapshot.runtime, story);
+
+    set({
+      roadmap: normalizedRoadmap,
+      ...(nextStory === undefined ? {} : { story, runtime }),
+      ...(nextStoryKey === undefined ? {} : { storyKey: nextStoryKey }),
+    });
+
+    if (options?.persist !== false) {
+      persistSnapshotRuntime(get(), runtime, {
+        story,
+        storyKey: nextStoryKey,
+        roadmap: normalizedRoadmap,
+      });
+    }
   },
 }));

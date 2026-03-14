@@ -1,13 +1,13 @@
 import { getContext } from "@services/STAPI";
 import { extensionName } from "@constants/main";
 
-export function getExtensionSettingsRoot(): Record<string, unknown> {
+export function getExtensionSettingsRoot(): StoryOrchestratorExtensionSettingsRoot {
   const { extensionSettings } = getContext();
-  const root = (extensionSettings as any)[extensionName];
+  const root = extensionSettings[extensionName];
   if (root && typeof root === "object") {
-    return root as Record<string, unknown>;
+    return root;
   }
-  const created: Record<string, unknown> = {};
-  (extensionSettings as any)[extensionName] = created;
+  const created: StoryOrchestratorExtensionSettingsRoot = {};
+  extensionSettings[extensionName] = created;
   return created;
 }

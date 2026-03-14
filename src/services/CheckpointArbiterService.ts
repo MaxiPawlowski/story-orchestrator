@@ -1,5 +1,6 @@
 import { getContext } from "@services/STAPI";
 import { updateStoryMacroSnapshot } from "@utils/story-macros";
+import { continueWhileIncomplete } from "@utils/continuation";
 import {
   ARBITER_RESPONSE_LENGTH,
   ARBITER_LOG_SAMPLE_LENGTH,
@@ -74,14 +75,13 @@ interface PendingJob {
 }
 
 function snapshot(limit: number): string {
-  const { chat } = getContext()
-
-  return (Array.isArray(chat) ? chat.slice(-limit) : [])
+  const { chat } = getContext();
+  return chat.slice(-limit)
     .map((msg, idx) => {
-      const text = (msg?.mes || "") as string;
-      if (typeof text !== "string" || !text.trim()) return null;
-      const who = (msg?.name || (msg?.is_user ? "Player" : "Companion")) as string;
-      return `${idx + 1}. ${String(who)}: ${String(text).trim()}`;
+      const text = (msg.mes ?? "").trim();
+      if (!text) return null;
+      const who = msg.name || (msg.is_user ? "Player" : "Companion");
+      return `${idx + 1}. ${who}: ${text}`;
     })
     .filter(Boolean)
     .reverse()
@@ -229,38 +229,25 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
     generateRaw: (options: GenerateRawOptions) => Promise<string>,
     maxAttempts = 2
   ): Promise<string> {
-    let fullResponse = "";
-
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      try {
-        const continuationPrompt = `Continue the previous JSON response. Complete it without repeating what was already written:\n\n${previousResponse + fullResponse}`;
-
-        const continued = await generateRaw({
-          prompt: continuationPrompt,
-          instructOverride: true,
-          quietToLoud: false,
-          responseLength: this.options?.responseLength ?? ARBITER_RESPONSE_LENGTH,
-          trimNames: false,
-        });
-
-        if (!continued || !continued.trim()) {
-          console.warn("[Story - CheckpointArbiter] Continuation returned empty");
-          break;
-        }
-
-        fullResponse += continued;
-
-
-        if (!this.isTruncated(previousResponse + fullResponse)) {
-          break;
-        }
-      } catch (err) {
+    return continueWhileIncomplete({
+      initialText: previousResponse,
+      maxAttempts,
+      isIncomplete: (text) => this.isTruncated(text),
+      buildRequest: (text) => ({
+        prompt: `Continue the previous JSON response. Complete it without repeating what was already written:\n\n${text}`,
+        instructOverride: true,
+        quietToLoud: false,
+        responseLength: this.options?.responseLength ?? ARBITER_RESPONSE_LENGTH,
+        trimNames: false,
+      }),
+      requestContinuation: generateRaw,
+      onEmptyResponse: () => {
+        console.warn("[Story - CheckpointArbiter] Continuation returned empty");
+      },
+      onAttemptFailed: (err) => {
         console.warn("[Story - CheckpointArbiter] Continuation attempt failed", err);
-        break;
-      }
-    }
-
-    return fullResponse;
+      },
+    });
   }
 
   updateOptions(options?: Partial<CheckpointArbiterServiceOptions>) {

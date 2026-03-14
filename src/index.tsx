@@ -8,10 +8,13 @@ import SettingsWrapper from "@components/settings";
 import "./styles.css";
 import { getTalkControlInterceptor } from "@controllers/orchestratorManager";
 import { getContext } from "@services/STAPI";
+import { registerTextgenPresetUiBridge } from "@services/textgenPresetUiBridge";
+
+registerTextgenPresetUiBridge();
 
 if (typeof globalThis !== "undefined") {
   try {
-    (globalThis as any).talkControlInterceptor = (chat: unknown, contextSize: number, abort: (immediate: boolean) => void, type: string) => {
+    globalThis.talkControlInterceptor = (chat: unknown, contextSize: number, abort: (immediate: boolean) => void, type: string) => {
       const interceptor = getTalkControlInterceptor();
       if (interceptor) {
         return interceptor(chat, contextSize, abort, type);

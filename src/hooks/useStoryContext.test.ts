@@ -1,8 +1,8 @@
+import * as React from "react";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 jest.mock("@components/context/StoryContext", () => {
-  const React = require("react");
   return {
     __esModule: true,
     default: React.createContext(undefined),

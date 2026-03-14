@@ -1,11 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { ARBITER_ROLE_KEY } from "@utils/story-schema";
-import {
-  CheckpointDraft,
-  StoryDraft,
-  cleanupOnActivate,
-  ensureOnActivate,
-} from "@utils/checkpoint-studio";
+import { CheckpointDraft, StoryDraft } from "@utils/checkpoint-studio";
 import type { TransitionDraft } from "@utils/checkpoint-studio";
 import { useSlashCommands } from "./checkpointEditor/useSlashCommands";
 import type { PresetDraftState } from "./checkpointEditor/types";
@@ -28,7 +23,6 @@ type Props = {
   onRemoveTransition: (transitionId: string) => void;
   updateTransition: (transitionId: string, patch: Partial<TransitionDraft>) => void;
   onRemoveCheckpoint: (id: string) => void;
-  setDraft: React.Dispatch<React.SetStateAction<StoryDraft>>;
 };
 
 type TabKey =
@@ -74,7 +68,6 @@ const CheckpointEditorPanel: React.FC<Props> = ({
   onRemoveTransition,
   updateTransition,
   onRemoveCheckpoint,
-  setDraft,
 }) => {
   const [activeTab, setActiveTab] = useState<TabKey>("basics");
   const [presetDrafts, setPresetDrafts] = useState<PresetDraftState>({});
@@ -93,7 +86,7 @@ const CheckpointEditorPanel: React.FC<Props> = ({
       setAutomationDraft("");
       return;
     }
-    const joined = (selectedCheckpoint.on_activate?.automations ?? []).join("\n");
+    const joined = (selectedCheckpoint.automations ?? []).join("\n");
     setAutomationDraft(joined);
   }, [selectedCheckpoint?.id]);
 
@@ -101,21 +94,21 @@ const CheckpointEditorPanel: React.FC<Props> = ({
     if (!selectedCheckpoint) return "";
     try {
       return JSON.stringify({
-        preset_overrides: selectedCheckpoint.on_activate?.preset_overrides ?? {},
-        arbiter_preset: selectedCheckpoint.on_activate?.arbiter_preset ?? null,
+        preset_overrides: selectedCheckpoint.preset_overrides ?? {},
+        arbiter_preset: selectedCheckpoint.arbiter_preset ?? null,
       });
     } catch {
       return `${selectedCheckpoint.id ?? ""}-preset-overrides`;
     }
-  }, [selectedCheckpoint?.id, selectedCheckpoint?.on_activate?.preset_overrides, selectedCheckpoint?.on_activate?.arbiter_preset]);
+  }, [selectedCheckpoint?.id, selectedCheckpoint?.preset_overrides, selectedCheckpoint?.arbiter_preset]);
 
   useEffect(() => {
     if (!selectedCheckpoint) {
       setPresetDrafts({});
       return;
     }
-    const overrides = selectedCheckpoint.on_activate?.preset_overrides ?? {};
-    const arbiterPreset = selectedCheckpoint.on_activate?.arbiter_preset ?? null;
+    const overrides = selectedCheckpoint.preset_overrides ?? {};
+    const arbiterPreset = selectedCheckpoint.arbiter_preset ?? null;
     const next: PresetDraftState = {};
     Object.entries(overrides).forEach(([roleKey, entries]) => {
       next[roleKey] = {};
@@ -135,11 +128,10 @@ const CheckpointEditorPanel: React.FC<Props> = ({
   const updateAutomationsForCheckpoint = useCallback((rawText: string) => {
     if (!selectedCheckpoint) return;
     const parsed = parseAutomationInput(rawText);
-    updateCheckpoint(selectedCheckpoint.id, (cp) => {
-      const next = ensureOnActivate(cp.on_activate);
-      next.automations = parsed;
-      return { ...cp, on_activate: cleanupOnActivate(next) };
-    });
+    updateCheckpoint(selectedCheckpoint.id, (cp) => ({
+      ...cp,
+      automations: parsed.length ? parsed : undefined,
+    }));
   }, [selectedCheckpoint, updateCheckpoint]);
 
   const handleAutomationDraftChange = useCallback((value: string) => {
@@ -267,7 +259,7 @@ const CheckpointEditorPanel: React.FC<Props> = ({
               <TalkControlTab
                 draft={draft}
                 checkpoint={selectedCheckpoint}
-                setDraft={setDraft}
+                updateCheckpoint={updateCheckpoint}
               />
             )}
 

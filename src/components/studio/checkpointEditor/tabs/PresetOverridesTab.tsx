@@ -1,7 +1,5 @@
 ﻿import React, { useCallback, useMemo } from "react";
 import {
-  ensureOnActivate,
-  cleanupOnActivate,
   type StoryDraft,
   type CheckpointDraft,
 } from "@utils/checkpoint-studio";
@@ -33,14 +31,14 @@ const PresetOverridesTab: React.FC<Props> = ({
   const overridesSignature = useMemo(() => {
     try {
       return JSON.stringify({
-        preset_overrides: checkpoint.on_activate?.preset_overrides ?? {},
-        arbiter_preset: checkpoint.on_activate?.arbiter_preset ?? null,
+        preset_overrides: checkpoint.preset_overrides ?? {},
+        arbiter_preset: checkpoint.arbiter_preset ?? null,
       });
     } catch (err) {
       console.warn("[Story - PresetOverridesTab] Failed to stringify checkpoint for signature", err);
       return `${checkpoint.id ?? ""}-preset-overrides`;
     }
-  }, [checkpoint.id, checkpoint.on_activate?.preset_overrides, checkpoint.on_activate?.arbiter_preset]);
+  }, [checkpoint.id, checkpoint.preset_overrides, checkpoint.arbiter_preset]);
 
   const presetRoleKeys = useMemo(() => {
     const seen = new Set<string>();
@@ -52,7 +50,7 @@ const PresetOverridesTab: React.FC<Props> = ({
       ordered.push(roleKey);
     };
     Object.keys(draft.roles ?? {}).forEach(push);
-    Object.keys(checkpoint.on_activate?.preset_overrides ?? {}).forEach(push);
+    Object.keys(checkpoint.preset_overrides ?? {}).forEach(push);
     Object.keys(presetDrafts).forEach(push);
     push(ARBITER_ROLE_KEY);
     return ordered;
@@ -60,30 +58,27 @@ const PresetOverridesTab: React.FC<Props> = ({
 
   const resolveCurrentOverrides = useCallback((roleKey: string): Partial<Record<PresetSettingKey, unknown>> => {
     if (roleKey === ARBITER_ROLE_KEY) {
-      return { ...(checkpoint.on_activate?.arbiter_preset ?? {}) } as Partial<Record<PresetSettingKey, unknown>>;
+      return { ...(checkpoint.arbiter_preset ?? {}) } as Partial<Record<PresetSettingKey, unknown>>;
     }
-    return { ...(checkpoint.on_activate?.preset_overrides?.[roleKey] ?? {}) } as Partial<Record<PresetSettingKey, unknown>>;
-  }, [checkpoint.on_activate?.arbiter_preset, checkpoint.on_activate?.preset_overrides]);
+    return { ...(checkpoint.preset_overrides?.[roleKey] ?? {}) } as Partial<Record<PresetSettingKey, unknown>>;
+  }, [checkpoint.arbiter_preset, checkpoint.preset_overrides]);
 
   const updateRoleOverrides = useCallback((
     roleKey: string,
     mutate: (current: Partial<Record<PresetSettingKey, unknown>>) => Partial<Record<PresetSettingKey, unknown>> | undefined,
   ) => {
     updateCheckpoint(checkpoint.id, (cp) => {
-      const next = ensureOnActivate(cp.on_activate);
       if (roleKey === ARBITER_ROLE_KEY) {
-        const current = { ...(next.arbiter_preset ?? {}) } as Partial<Record<PresetSettingKey, unknown>>;
+        const current = { ...(cp.arbiter_preset ?? {}) } as Partial<Record<PresetSettingKey, unknown>>;
         const updated = mutate(current);
-        next.arbiter_preset = updated && Object.keys(updated).length ? updated : undefined;
-      } else {
-        const overrides = { ...(next.preset_overrides ?? {}) } as RolePresetOverrides;
-        const current = { ...(overrides[roleKey] ?? {}) } as Partial<Record<PresetSettingKey, unknown>>;
-        const updated = mutate(current);
-        if (updated && Object.keys(updated).length) overrides[roleKey] = updated;
-        else delete overrides[roleKey];
-        next.preset_overrides = Object.keys(overrides).length ? overrides : undefined;
+        return { ...cp, arbiter_preset: updated && Object.keys(updated).length ? updated : undefined };
       }
-      return { ...cp, on_activate: cleanupOnActivate(next) };
+      const overrides = { ...(cp.preset_overrides ?? {}) } as RolePresetOverrides;
+      const current = { ...(overrides[roleKey] ?? {}) } as Partial<Record<PresetSettingKey, unknown>>;
+      const updated = mutate(current);
+      if (updated && Object.keys(updated).length) overrides[roleKey] = updated;
+      else delete overrides[roleKey];
+      return { ...cp, preset_overrides: Object.keys(overrides).length ? overrides : undefined };
     });
   }, [checkpoint.id, updateCheckpoint]);
 
@@ -181,8 +176,8 @@ const PresetOverridesTab: React.FC<Props> = ({
     <div className="space-y-3">
       {presetRoleKeys.map((roleKey, roleIndex) => {
         const overridesForRole = roleKey === ARBITER_ROLE_KEY
-          ? checkpoint.on_activate?.arbiter_preset ?? {}
-          : checkpoint.on_activate?.preset_overrides?.[roleKey] ?? {};
+          ? checkpoint.arbiter_preset ?? {}
+          : checkpoint.preset_overrides?.[roleKey] ?? {};
         const draftValues = presetDrafts[roleKey] ?? {};
         const roleDisplayName = roleKey === ARBITER_ROLE_KEY
           ? ARBITER_ROLE_LABEL

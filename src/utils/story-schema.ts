@@ -33,11 +33,28 @@ export const AuthorNoteDefinitionSchema = AuthorNoteSettingsSchema.extend({
 });
 export type AuthorNoteDefinition = z.infer<typeof AuthorNoteDefinitionSchema>;
 
+export interface StubCheckpointMetadata {
+  _isStub: true;
+  _stubName?: string;
+}
+
+export interface StoryExpansionMetadata {
+  _premise?: string;
+  _roadmap?: string;
+}
+
+// Author note entry: string shorthand (text only) or full object
+export const AuthorNoteEntrySchema = z.union([
+  z.string().min(1),
+  AuthorNoteDefinitionSchema,
+]);
+export type AuthorNoteEntry = z.infer<typeof AuthorNoteEntrySchema>;
+
 export const RegexSpecSchema = z.union([
   z.string().min(1),
   z.object({
     pattern: z.string().min(1),
-    flags: z.string().regex(/^[dgimsuvy]*$/, "Invalid JS RegExp flag(s)").optional(), // Node supports d,g,i,m,s,u,v,y
+    flags: z.string().regex(/^[dgimsuvy]*$/, "Invalid JS RegExp flag(s)").optional(),
   }),
 ]);
 export type RegexSpec = z.infer<typeof RegexSpecSchema>;
@@ -47,24 +64,15 @@ export const RegexSpecListSchema = z.union([
   z.array(RegexSpecSchema).min(1),
 ]);
 
-export const WorldInfoActivationsSchema = z.object({
-  activate: z.array(z.string().min(1)).default([]),
-  deactivate: z.array(z.string().min(1)).default([]),
+// Top-level defaults section
+export const DefaultAuthorNoteSchema = AuthorNoteSettingsSchema;
+export type DefaultAuthorNote = z.infer<typeof DefaultAuthorNoteSchema>;
+
+export const DefaultsSchema = z.object({
+  author_note: DefaultAuthorNoteSchema.optional(),
+  presets: RolePresetOverridesSchema.optional(),
 });
-
-export type WorldInfoActivations = z.infer<typeof WorldInfoActivationsSchema>;
-
-const AuthorsNoteSchema = z.record(z.string().min(1), AuthorNoteDefinitionSchema);
-
-export const OnActivateSchema = z.object({
-  authors_note: AuthorsNoteSchema.optional(),
-  preset_overrides: RolePresetOverridesSchema.optional(),
-  arbiter_preset: PresetOverridesSchema.optional(),
-  world_info: WorldInfoActivationsSchema.optional(),
-  automations: z.array(z.string().min(1)).optional(),
-});
-
-export type OnActivate = z.infer<typeof OnActivateSchema>;
+export type Defaults = z.infer<typeof DefaultsSchema>;
 
 const TalkControlTriggerSchema = z.enum([
   "afterSpeak",
@@ -73,6 +81,7 @@ const TalkControlTriggerSchema = z.enum([
   "onEnter",
 ] as const);
 export type TalkControlTrigger = z.infer<typeof TalkControlTriggerSchema>;
+export const TALK_CONTROL_TRIGGERS: readonly TalkControlTrigger[] = TalkControlTriggerSchema.options;
 
 const TalkControlStaticReplySchema = z.object({
   kind: z.literal("static"),
@@ -101,21 +110,6 @@ export const TalkControlReplySchema = z.object({
 });
 export type TalkControlReply = z.infer<typeof TalkControlReplySchema>;
 
-const TalkControlCheckpointSchema = z.object({
-  replies: z.array(TalkControlReplySchema).default([]),
-});
-export type TalkControlCheckpoint = z.infer<typeof TalkControlCheckpointSchema>;
-
-export const TalkControlDefaultsSchema = z.object({});
-export type TalkControlDefaults = z.infer<typeof TalkControlDefaultsSchema>;
-
-export const TalkControlConfigSchema = z.object({
-  defaults: TalkControlDefaultsSchema.optional(),
-  checkpoints: z.record(z.string().min(1), TalkControlCheckpointSchema).default({}),
-});
-export type TalkControlConfig = z.infer<typeof TalkControlConfigSchema>;
-export type TalkControlCheckpointMap = z.infer<typeof TalkControlConfigSchema>["checkpoints"];
-
 const TriggerBaseSchema = z.object({
   id: z.string().min(1).optional(),
 });
@@ -132,9 +126,19 @@ const TimedTriggerSchema = TriggerBaseSchema.extend({
 });
 
 export const TransitionTriggerSchema = z.discriminatedUnion("type", [RegexTriggerSchema, TimedTriggerSchema]);
-
 export type TransitionTrigger = z.infer<typeof TransitionTriggerSchema>;
 
+// Inline transition: colocated with checkpoint, no `from` field, `id` optional
+export const InlineTransitionSchema = z.object({
+  id: z.string().min(1).optional(),
+  to: z.string().min(1),
+  trigger: TransitionTriggerSchema,
+  label: z.string().min(1).optional(),
+  description: z.string().min(1).optional(),
+});
+export type InlineTransition = z.infer<typeof InlineTransitionSchema>;
+
+// Full transition: used internally after normalization extracts `from`
 export const TransitionSchema = z.object({
   id: z.string().min(1),
   from: z.string().min(1),
@@ -143,22 +147,27 @@ export const TransitionSchema = z.object({
   label: z.string().min(1).optional(),
   description: z.string().min(1).optional(),
 });
-
 export type Transition = z.infer<typeof TransitionSchema>;
 
 export const CheckpointSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   objective: z.string().min(1),
-  on_activate: OnActivateSchema.optional(),
+  authors_note: z.record(z.string().min(1), AuthorNoteEntrySchema).optional(),
+  world_info: z.array(z.string().min(1)).optional(),
+  world_info_deactivate: z.array(z.string().min(1)).optional(),
+  preset_overrides: RolePresetOverridesSchema.optional(),
+  arbiter_preset: PresetOverridesSchema.optional(),
+  automations: z.array(z.string().min(1)).optional(),
+  transitions: z.array(InlineTransitionSchema).optional(),
+  talk_control: z.array(TalkControlReplySchema).optional(),
   _isStub: z.literal(true).optional(),
   _stubName: z.string().optional(),
-});
-
+}).strict();
 export type Checkpoint = z.infer<typeof CheckpointSchema>;
 
 export function isStubCheckpoint(cp: Checkpoint): boolean {
-  return (cp as Checkpoint & { _isStub?: boolean })._isStub === true;
+  return cp._isStub === true;
 }
 
 export function makeStubCheckpoint(id: string, suggestedName: string): Checkpoint {
@@ -176,39 +185,24 @@ export const StorySchema = z.object({
   description: z.string().trim().min(1).optional(),
   global_lorebook: z.string().min(1),
   roles: z.record(z.string().min(1), z.string().min(1)).optional(),
+  defaults: DefaultsSchema.optional(),
   start: z.string().min(1).optional(),
   checkpoints: z.array(CheckpointSchema).min(1),
-  transitions: z.array(TransitionSchema).default([]),
-  talkControl: TalkControlConfigSchema.optional(),
-}).superRefine((val, ctx) => {
+  _premise: z.string().optional(),
+  _roadmap: z.string().optional(),
+}).strict().superRefine((val, ctx) => {
   const seen = new Set<string>();
   for (const [i, cp] of val.checkpoints.entries()) {
-    const key = cp.id;
-    if (seen.has(key)) {
+    if (seen.has(cp.id)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["checkpoints", i, "id"],
-        message: `Duplicate checkpoint id '${String(key)}'`,
+        message: `Duplicate checkpoint id '${cp.id}'`,
       });
     } else {
-      seen.add(key);
+      seen.add(cp.id);
     }
   }
-
-  const transitionIds = new Set<string>();
-  for (const [i, edge] of (val.transitions ?? []).entries()) {
-    const key = edge.id;
-    if (transitionIds.has(key)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["transitions", i, "id"],
-        message: `Duplicate transition id '${String(key)}'`,
-      });
-    } else {
-      transitionIds.add(key);
-    }
-  }
-
 });
 
 export type Story = z.infer<typeof StorySchema>;

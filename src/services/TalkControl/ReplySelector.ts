@@ -1,20 +1,13 @@
 import type { NormalizedTalkControl, NormalizedTalkControlCheckpoint, NormalizedTalkControlReply } from "@utils/story-validator";
-import type { TalkControlTrigger } from "@utils/story-schema";
 import { PLAYER_SPEAKER_ID } from "@constants/main";
 import type { CharacterResolver } from "./CharacterResolver";
+import type { TalkControlEvent } from "./DispatchPipeline";
 
 interface ReplyRuntimeState {
   lastActionTurn: number;
   actionTurnStamp: number;
   actionsThisTurn: number;
   totalTriggerCount: number;
-}
-
-interface TalkControlEvent {
-  id: number;
-  type: TalkControlTrigger;
-  checkpointId: string | null;
-  metadata?: Record<string, unknown>;
 }
 
 export interface PendingAction {

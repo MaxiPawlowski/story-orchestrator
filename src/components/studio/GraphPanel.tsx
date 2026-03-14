@@ -1,7 +1,15 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import cytoscape, { Core, ElementDefinition, EventObject, LayoutOptions } from "cytoscape";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import cytoscape, { Core, EventObject, StylesheetJson } from "cytoscape";
 import { StoryDraft, LayoutName } from "@utils/checkpoint-studio";
 import HelpTooltip from "./HelpTooltip";
+import {
+  buildGraphElements,
+  createGraphStyles,
+  resizeAndFitGraph,
+  resolveGraphThemeColors,
+  runGraphLayout,
+  syncGraphElements,
+} from "./graphPanelUtils";
 
 type Props = {
   draft: StoryDraft;
@@ -26,76 +34,9 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
     selectHandlerRef.current = onSelect;
   }, [onSelect]);
 
-  const themeColors = useMemo(() => {
-    const fallback = {
-      bgActive: "currentColor",
-      bgTint: "transparent",
-      border: "currentColor",
-      text: "currentColor",
-      info: "currentColor",
-      warning: "currentColor",
-    };
+  const themeColors = useMemo(resolveGraphThemeColors, []);
 
-    if (typeof window === "undefined") {
-      return fallback;
-    }
-
-    const root = getComputedStyle(document.documentElement);
-    const read = (names: string[], nextFallback: string) => {
-      for (const name of names) {
-        const value = root.getPropertyValue(name).trim();
-        if (value) return value;
-      }
-      return nextFallback;
-    };
-
-    return {
-      bgActive: read(["--st-bg-active", "--SmartThemeBodyActiveColor"], fallback.bgActive),
-      bgTint: read(["--st-bg-tint", "--SmartThemeBlurTintColor"], fallback.bgTint),
-      border: read(["--st-border", "--SmartThemeBorderColor"], fallback.border),
-      text: read(["--st-text-active", "--SmartThemeActiveColor"], fallback.text),
-      info: read(["--st-info", "--SmartThemeQuoteColor"], fallback.info),
-      warning: read(["--st-warning", "--SmartThemeWarningColor"], fallback.warning),
-    };
-  }, []);
-
-  const elements = useMemo(() => {
-    const nodes: ElementDefinition[] = draft.checkpoints
-      .filter((cp) => cp.id && cp.id.trim())
-      .map((cp) => ({
-        group: "nodes",
-        data: { id: cp.id, label: cp.name || cp.id, type: draft.start === cp.id ? "start" : "checkpoint" },
-        classes: selectedId === cp.id ? "selected" : undefined,
-      }));
-    const nodeIds = new Set(nodes.map((n) => n.data.id));
-    const edges: ElementDefinition[] = draft.transitions
-      .filter((e) => e.id && e.id.trim() && nodeIds.has(e.from) && nodeIds.has(e.to))
-      .map((e) => ({ group: "edges", data: { id: e.id, source: e.from, target: e.to, label: e.label || "" } }));
-    return [...nodes, ...edges];
-  }, [draft, selectedId]);
-
-  const runLayout = useCallback((cy: Core, name: LayoutName) => {
-    if (cy.elements().length === 0) return;
-    const layoutName = name === "dagre" && !dagreReady ? "breadthfirst" : name;
-    const options = { name: layoutName } as LayoutOptions;
-    try {
-      const layoutObj = cy.layout(options);
-      if (layoutObj && typeof layoutObj.run === "function") layoutObj.run();
-      else cy.layout({ name: "grid" }).run();
-    } catch (err) {
-      console.warn("[Story - GraphPanel] Primary layout failed, falling back to grid", err);
-      try {
-        cy.layout({ name: "grid" }).run();
-      } catch (err2) {
-        console.warn("[Story - GraphPanel] Grid layout fallback also failed", err2);
-      }
-    }
-    try {
-      cy.fit(undefined, 32);
-    } catch (err) {
-      console.warn("[Story - GraphPanel] Failed to fit cytoscape view", err);
-    }
-  }, [dagreReady]);
+  const elements = useMemo(() => buildGraphElements(draft, selectedId), [draft, selectedId]);
 
   useEffect(() => {
     let cy: Core | null = null;
@@ -115,39 +56,7 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
           container,
           elements: [],
           boxSelectionEnabled: false,
-          style: [
-            {
-              selector: "node",
-              style: {
-                "background-color": themeColors.bgActive,
-                "border-color": themeColors.info,
-                "border-width": "1px",
-                color: themeColors.text,
-                label: "data(label)",
-                "text-max-width": "140px",
-                "text-wrap": "wrap",
-                "font-size": "11px",
-                padding: "8px",
-              },
-            },
-            { selector: "node[type = 'start']", style: { "background-color": themeColors.info } },
-            { selector: "node.selected", style: { "border-width": "3px", "border-color": themeColors.warning } },
-            {
-              selector: "edge",
-              style: {
-                "curve-style": "bezier",
-                "target-arrow-shape": "triangle",
-                "line-color": themeColors.border,
-                "target-arrow-color": themeColors.border,
-                label: "data(label)",
-                color: themeColors.text,
-                "font-size": "10px",
-                "text-background-color": themeColors.bgTint,
-                "text-background-opacity": "0.8",
-                "text-background-padding": "4px",
-              },
-            },
-          ] as any,
+          style: createGraphStyles(themeColors) as StylesheetJson,
         });
       } catch {
         timeoutHandle = window.setTimeout(initialize, 200);
@@ -155,7 +64,7 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
       }
 
       const handleTap = (event: EventObject) => {
-        const id = (event?.target as any)?.id?.();
+        const id = event.target.id();
         if (id) {
           selectHandlerRef.current?.(id);
         }
@@ -203,12 +112,7 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
     const fitCy = () => {
       const instance = cyRef.current;
       if (!instance) return;
-      try {
-        instance.resize();
-        instance.fit(undefined, 32);
-      } catch (err) {
-        console.warn("[Story - GraphPanel] Failed to resize/fit cytoscape", err);
-      }
+      resizeAndFitGraph(instance);
     };
 
     fitCy();
@@ -229,53 +133,23 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
   useEffect(() => {
     const cy = cyRef.current;
     if (!cy) return;
-
-    // Save current positions before removing elements
-    const positions = new Map<string, { x: number; y: number }>();
-    cy.nodes().forEach((node) => {
-      const pos = node.position();
-      positions.set(node.id(), { x: pos.x, y: pos.y });
-    });
-
-    const hadNodes = positions.size > 0;
-
-    cy.elements().remove();
-    cy.add(elements);
-
-    // Restore positions for existing nodes
-    let restoredCount = 0;
-    cy.nodes().forEach((node) => {
-      const savedPos = positions.get(node.id());
-      if (savedPos) {
-        node.position(savedPos);
-        restoredCount++;
-      }
-    });
-
-    // Only run layout when there are new nodes without saved positions
-    const hasNewNodes = cy.nodes().length > restoredCount;
-    const needsLayout = !hadNodes || hasNewNodes;
-
-    if (needsLayout && elements.length > 0) {
-      runLayout(cy, layout);
-    }
-  }, [elements, cyReady, layout, runLayout]);
+    syncGraphElements(cy, elements, layout, dagreReady);
+  }, [elements, cyReady, layout, dagreReady]);
 
   useEffect(() => {
     const cy = cyRef.current;
     if (!cy || cy.elements().length === 0) return;
-    runLayout(cy, layout);
-  }, [layoutTrigger, layout, cyReady, runLayout]);
+    runGraphLayout(cy, layout, dagreReady);
+  }, [layoutTrigger, layout, cyReady, dagreReady]);
 
   useEffect(() => {
     let cancelled = false;
     import("cytoscape-dagre")
       .then((mod) => {
         if (cancelled) return;
-        const register = (mod as unknown as { default?: (instance: typeof cytoscape) => void }).default;
-        const fn: ((instance: typeof cytoscape) => void) | undefined = register || (mod as unknown as (instance: typeof cytoscape) => void);
-        if (typeof fn === "function") {
-          fn(cytoscape);
+        const register = "default" in mod ? mod.default : mod;
+        if (typeof register === "function") {
+          register(cytoscape);
           setDagreReady(true);
         }
       })

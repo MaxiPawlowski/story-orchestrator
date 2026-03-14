@@ -38,13 +38,13 @@ Story Orchestrator is a ST extension that automates non-linear, checkpoint-drive
 - Runtime/story state persists in extension settings; selected story is also tracked per chat in local storage.
 - `talkControlInterceptor` generation intercept is registered in `manifest.json` and wired from `src/index.tsx`.
 
-
 ## Working Style
 
 - All responses, plans, commit messages: maximally concise, grammar optional.
 - No code comments — code must be self-explanatory.
 - When implementing or planning, first reference how something similar was done in this codebase.
 - End every plan with a concise list of unresolved questions (skip if none).
+- If you are unsure how to do something, use GitHub CLI to search code examples.
 
 ## Lifecycle & Flow
 1. `src/index.tsx` mounts Drawer and Settings portals once the host UI is ready, wraps them with `ExtensionSettingsProvider` and `StoryProvider`, and registers the `talkControlInterceptor` on `globalThis`.

@@ -1,88 +1,51 @@
-﻿import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   type StoryDraft,
   type CheckpointDraft,
-  type TalkControlDraft,
-  type TalkControlCheckpointDraft,
   type TalkControlReplyDraft,
 } from "@utils/checkpoint-studio";
 import type { TalkControlTrigger } from "@utils/story-schema";
 import { PLAYER_SPEAKER_ID, PLAYER_SPEAKER_LABEL } from "@constants/main";
 import { TALK_CONTROL_TRIGGER_OPTIONS } from "../constants";
-import { cloneTalkControlCheckpoint, cloneTalkControlReply } from "../talkControlUtils";
+import { cloneTalkControlReply } from "../talkControlUtils";
 import HelpTooltip from "../../HelpTooltip";
 
 type Props = {
   draft: StoryDraft;
   checkpoint: CheckpointDraft;
-  setDraft: React.Dispatch<React.SetStateAction<StoryDraft>>;
+  updateCheckpoint: (id: string, updater: (cp: CheckpointDraft) => CheckpointDraft) => void;
 };
 
-const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
-  const talkControl = draft.talkControl;
-  const selectedCheckpointId = checkpoint.id;
-  const checkpointTalkControl = talkControl?.checkpoints?.[selectedCheckpointId];
-  const replies = checkpointTalkControl?.replies ?? [];
+const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, updateCheckpoint }) => {
+  const replies = checkpoint.talk_control ?? [];
 
   const roleOptions = useMemo(() => {
     const roles = draft.roles && typeof draft.roles === "object" ? Object.keys(draft.roles) : [];
     return roles;
   }, [draft.roles]);
 
-  const updateTalkControl = useCallback((updater: (current: TalkControlDraft | undefined) => TalkControlDraft | undefined) => {
-    setDraft((prev) => {
-      const next = updater(prev.talkControl);
-      return { ...prev, talkControl: next };
-    });
-  }, [setDraft]);
-
-  const updateCheckpointTalkControl = useCallback((checkpointId: string, updater: (current: TalkControlCheckpointDraft | undefined) => TalkControlCheckpointDraft | undefined) => {
-    updateTalkControl((current) => {
-      const base: TalkControlDraft = current
-        ? { ...current, checkpoints: { ...(current.checkpoints ?? {}) } }
-        : { checkpoints: {} };
-      const existing = base.checkpoints[checkpointId];
-      const nextCheckpoint = updater(existing ? cloneTalkControlCheckpoint(existing) : undefined);
-      if (!nextCheckpoint || !nextCheckpoint.replies.length) {
-        const { [checkpointId]: _removed, ...rest } = base.checkpoints;
-        const nextConfig: TalkControlDraft = { ...base, checkpoints: rest };
-        if (!nextConfig.defaults && !Object.keys(nextConfig.checkpoints).length) {
-          return undefined;
-        }
-        return nextConfig;
-      }
-      return {
-        ...base,
-        checkpoints: {
-          ...base.checkpoints,
-          [checkpointId]: nextCheckpoint,
-        },
-      };
-    });
-  }, [updateTalkControl]);
-
   const patchReply = useCallback((replyIndex: number, updater: (reply: TalkControlReplyDraft) => TalkControlReplyDraft | null) => {
-    updateCheckpointTalkControl(selectedCheckpointId, (current) => {
-      const checkpointDraft = cloneTalkControlCheckpoint(current);
-      if (!checkpointDraft.replies[replyIndex]) return checkpointDraft;
-      const nextReply = updater(cloneTalkControlReply(checkpointDraft.replies[replyIndex]));
-      if (!nextReply) {
-        checkpointDraft.replies.splice(replyIndex, 1);
+    updateCheckpoint(checkpoint.id, (cp) => {
+      const next = [...(cp.talk_control ?? [])];
+      if (!next[replyIndex]) return cp;
+      const result = updater(cloneTalkControlReply(next[replyIndex]));
+      if (!result) {
+        next.splice(replyIndex, 1);
       } else {
-        checkpointDraft.replies[replyIndex] = nextReply;
+        next[replyIndex] = result;
       }
-      return checkpointDraft;
+      return { ...cp, talk_control: next.length ? next : undefined };
     });
-  }, [selectedCheckpointId, updateCheckpointTalkControl]);
+  }, [checkpoint.id, updateCheckpoint]);
 
   const handleClearCheckpointTalkControl = useCallback(() => {
-    updateCheckpointTalkControl(selectedCheckpointId, () => undefined);
-  }, [selectedCheckpointId, updateCheckpointTalkControl]);
+    updateCheckpoint(checkpoint.id, (cp) => ({ ...cp, talk_control: undefined }));
+  }, [checkpoint.id, updateCheckpoint]);
 
   const handleAddReply = useCallback(() => {
-    updateCheckpointTalkControl(selectedCheckpointId, (current) => {
-      const checkpointDraft = cloneTalkControlCheckpoint(current);
-      checkpointDraft.replies.push({
+    updateCheckpoint(checkpoint.id, (cp) => {
+      const next = [...(cp.talk_control ?? [])];
+      next.push({
         memberId: "",
         speakerId: "",
         enabled: true,
@@ -91,9 +54,9 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
         maxTriggers: 1,
         content: { kind: "static", text: "" },
       });
-      return checkpointDraft;
+      return { ...cp, talk_control: next };
     });
-  }, [selectedCheckpointId, updateCheckpointTalkControl]);
+  }, [checkpoint.id, updateCheckpoint]);
 
   const handleRemoveReply = useCallback((index: number) => {
     patchReply(index, () => null);
@@ -355,5 +318,3 @@ const TalkControlTab: React.FC<Props> = ({ draft, checkpoint, setDraft }) => {
 };
 
 export default TalkControlTab;
-
-

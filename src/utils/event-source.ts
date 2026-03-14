@@ -1,4 +1,4 @@
-export type EventHandler = (...args: any[]) => void;
+export type EventHandler = (...args: unknown[]) => void;
 
 export interface EventSourceLike {
   on?: (eventName: string, handler: EventHandler) => void | (() => void);
@@ -52,4 +52,16 @@ export function subscribeToEventSource({
   }
 
   return NOOP;
+}
+
+export function subscribeToEvents(
+  source: EventSourceLike | null | undefined,
+  entries: Array<{ eventName: string | null | undefined; handler: EventHandler }>,
+): () => void {
+  const offs: Array<() => void> = [];
+  for (const { eventName, handler } of entries) {
+    if (!eventName) continue;
+    offs.push(subscribeToEventSource({ source, eventName, handler }));
+  }
+  return () => { for (const off of offs) off(); };
 }

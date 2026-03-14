@@ -4,7 +4,6 @@ import { useStoryContext } from "@hooks/useStoryContext";
 import CheckpointStudioModal from "@components/settings/CheckpointStudio/CheckpointStudioModal";
 import StoryGeneratorWizardModal from "@components/studio/StoryGeneratorWizard";
 import { storySessionStore } from "@store/storySessionStore";
-import { makeDefaultState, persistStoryState } from "@utils/story-state";
 import { tgPresetNames } from "@services/STAPI";
 
 const SettingsWrapper = () => {
@@ -32,8 +31,6 @@ const SettingsWrapper = () => {
     reloadLibrary,
     saveLibraryStory,
     deleteLibraryStory,
-    activeChatId,
-    groupChatSelected,
   } = useStoryContext();
   const [showEditor, setShowEditor] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
@@ -55,28 +52,16 @@ const SettingsWrapper = () => {
       }
     }
 
-    try {
-      storySessionStore.getState().setStoryKey(nextKey);
-    } catch (err) {
-      console.warn("[Story - Settings] Failed to sync story key before selection", err);
-    }
-
     const entry = libraryEntries.find((candidate) => candidate.key === nextKey);
     if (entry?.ok && entry.story) {
       const { chatId, groupChatSelected } = storySessionStore.getState();
-      if (groupChatSelected && chatId) {
-        try {
-          const defaultRuntime = makeDefaultState(entry.story);
-          persistStoryState({
-            chatId,
-            story: entry.story,
-            state: defaultRuntime,
-            storyKey: nextKey,
-          });
-        } catch (persistErr) {
-          console.warn("[Story - Settings] Failed to persist story selection", persistErr);
-        }
+      try {
+        storySessionStore.getState().selectStory(entry.story, { storyKey: nextKey });
+      } catch (persistErr) {
+        console.warn("[Story - Settings] Failed to persist story selection", persistErr, { chatId, groupChatSelected });
       }
+    } else {
+      storySessionStore.getState().setStoryKey(nextKey);
     }
 
     selectLibraryEntry(nextKey);
@@ -252,8 +237,6 @@ const SettingsWrapper = () => {
           onSaveStory={saveLibraryStory}
           onSelectKey={selectLibraryEntry}
           globalLorebook={story?.global_lorebook}
-          activeChatId={activeChatId}
-          groupChatSelected={groupChatSelected}
         />
       </div>
     </div>

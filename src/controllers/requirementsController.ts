@@ -1,9 +1,6 @@
 import type { NormalizedStory } from "@utils/story-validator";
-import {
-  getContext,
-  Lorebook,
-  getWorldInfoSettings,
-} from "@services/STAPI";
+import { getContext } from "@services/stHost/context";
+import { type Lorebook, getWorldInfoSettings } from "@services/stHost/worldInfo";
 import { subscribeToEventSource } from "@utils/event-source";
 import {
   createRequirementsState,
@@ -13,7 +10,15 @@ import {
 } from "@store/requirementsState";
 import { storySessionStore } from "@store/storySessionStore";
 import { resolveGroupMemberName } from "@utils/groups";
-import { normalizeName } from "@utils/string";
+import {
+  buildRequirementsState,
+  collectMissingLoreEntries,
+  computeGlobalLoreStatus,
+  computeMissingGroupMembers as computeMissingGroupMembersForContext,
+  extractRoleNames,
+  extractWorldInfoKeys,
+  getChatContextKey as buildChatContextKey,
+} from "@utils/story-requirements";
 
 export interface RequirementsController {
   start(): void;
@@ -28,6 +33,7 @@ export const createRequirementsController = (): RequirementsController => {
   let requiredWorldInfoKeys: string[] = [];
   let requiredRoleNames: string[] = [];
   let requiredRoleNamesNormalized: string[] = [];
+  let worldLoreRequestVersion = 0;
   let started = false;
   let state: StoryRequirementsState = createRequirementsState();
   const subscriptions: Array<() => void> = [];
@@ -36,181 +42,95 @@ export const createRequirementsController = (): RequirementsController => {
     storySessionStore.getState().setRequirementsState(state);
   };
 
-  const updateState = (patch: Partial<StoryRequirementsState>, recompute = true) => {
-    const next = mergeRequirementsState(state, patch);
+  const setState = (next: StoryRequirementsState) => {
     if (areRequirementStatesEqual(state, next)) return false;
-    state = next; emit(); if (recompute) recomputeReady(); return true;
+    state = mergeRequirementsState(createRequirementsState(), next);
+    emit();
+    return true;
   };
 
-  const recomputeReady = () => {
-    const allMembersPresent = (state.missingGroupMembers?.length ?? 0) === 0;
-    const ready = Boolean(
-      story
-      && state.personaDefined
-      && state.groupChatSelected
-      && allMembersPresent
-      && state.worldLoreEntriesPresent
-      && state.globalLoreBookPresent,
+  const computeMissingGroupMembers = (ctx: ReturnType<typeof getContext>): string[] => {
+    return computeMissingGroupMembersForContext(ctx, requiredRoleNames, requiredRoleNamesNormalized, resolveGroupMemberName);
+  };
+
+  const computeBaseState = (ctx: ReturnType<typeof getContext>) => {
+    const currentUserName = ctx?.name1 ?? "";
+    const groupChatSelected = Boolean(ctx?.groupId);
+    const settings = getWorldInfoSettings();
+    const { globalMissing, globalLoreBookPresent } = computeGlobalLoreStatus(story, settings);
+
+    return {
+      currentUserName,
+      personaDefined: Boolean(currentUserName),
+      groupChatSelected,
+      missingGroupMembers: computeMissingGroupMembers(ctx),
+      globalLoreBookPresent,
+      globalLoreBookMissing: globalMissing,
+    };
+  };
+
+  const getChatContextKey = () => {
+    return buildChatContextKey(getContext());
+  };
+
+  const buildWorldLoreState = (missing: string[], base: ReturnType<typeof computeBaseState>) => buildRequirementsState(story, {
+    ...base,
+    worldLoreEntriesPresent: missing.length === 0,
+    worldLoreEntriesMissing: missing,
+  });
+
+  const refreshSnapshot = () => {
+    const requestVersion = ++worldLoreRequestVersion;
+    const requestStory = story;
+    const requestChatKey = getChatContextKey();
+    const ctx = getContext();
+    const base = computeBaseState(ctx);
+    const isStaleRequest = () => (
+      requestVersion !== worldLoreRequestVersion
+      || requestStory !== story
+      || requestChatKey !== getChatContextKey()
     );
-    // avoid infinite loop: call updateState without re-triggering recompute
-    updateState({ requirementsReady: ready }, false);
-  };
 
-  const refreshGroupChat = () => {
-    const ctx = getContext();
-    updateState({ groupChatSelected: Boolean(ctx?.groupId) });
-    refreshGroupMembers();
-  };
+    const commit = (next: StoryRequirementsState) => {
+      if (isStaleRequest()) return;
+      setState(next);
+    };
 
-  const reloadPersona = async () => {
-    const { name1 } = getContext();
-    updateState({
-      currentUserName: name1 ?? '',
-      personaDefined: Boolean(name1)
-    });
-  };
-
-  const refreshGroupMembers = () => {
-    if (!requiredRoleNames.length) {
-      updateState({ missingGroupMembers: [] });
-      return;
-    }
-
-    const ctx = getContext();
-    const groupId = ctx?.groupId?.toString().trim();
-    if (!groupId) {
-      updateState({ missingGroupMembers: requiredRoleNames.slice() });
-      return;
-    }
-
-    const groups = ctx?.groups ?? [];
-    const currentGroup = groups.find((g: any) => g?.id?.toString().trim() === groupId);
-
-    if (!currentGroup?.members?.length) {
-      updateState({ missingGroupMembers: requiredRoleNames.slice() });
-      return;
-    }
-
-    const groupMembers = currentGroup.members
-      .map((member: unknown) => normalizeName(resolveGroupMemberName(member), { stripExtension: true }))
-      .filter(Boolean);
-
-    const missing = requiredRoleNamesNormalized
-      .map((norm, idx) => groupMembers.includes(norm) ? null : requiredRoleNames[idx])
-      .filter(Boolean) as string[];
-
-    updateState({ missingGroupMembers: missing });
-  };
-
-  const computeGlobalMissing = (settings: any): { globalMissing: string[]; globalLoreBookPresent: boolean } => {
-    const globalMissing: string[] = [];
-    const globalSelect = settings?.world_info?.globalSelect ?? [];
-    const lorebook = story?.global_lorebook;
-
-    if (lorebook) {
-      const want = lorebook.toLowerCase();
-      const found = globalSelect.some((g: string) => g.trim().toLowerCase() === want);
-      if (!found) globalMissing.push(lorebook);
-    }
-
-    return { globalMissing, globalLoreBookPresent: globalMissing.length === 0 };
-  };
-
-  const refreshWorldLore = () => {
     if (!requiredWorldInfoKeys.length) {
-      updateState({ worldLoreEntriesPresent: true, worldLoreEntriesMissing: [] });
+      commit(buildRequirementsState(story, {
+        ...base,
+        worldLoreEntriesPresent: true,
+        worldLoreEntriesMissing: [],
+      }));
       return;
     }
 
     const settings = getWorldInfoSettings();
-    const { globalMissing, globalLoreBookPresent } = computeGlobalMissing(settings);
 
     if (!settings?.world_info) {
-      updateState({
-        worldLoreEntriesPresent: false,
-        worldLoreEntriesMissing: requiredWorldInfoKeys.slice(),
-        globalLoreBookPresent,
-        globalLoreBookMissing: globalMissing
-      });
+      commit(buildWorldLoreState(requiredWorldInfoKeys.slice(), base));
       return;
     }
 
-    const { loadWorldInfo } = getContext();
-    const globalLorebook = story?.global_lorebook;
+    const { loadWorldInfo } = ctx;
+    const globalLorebook = requestStory?.global_lorebook;
     if (!globalLorebook) {
-      updateState({
-        worldLoreEntriesPresent: false,
-        worldLoreEntriesMissing: requiredWorldInfoKeys.slice(),
-        globalLoreBookPresent,
-        globalLoreBookMissing: globalMissing
-      });
+      commit(buildWorldLoreState(requiredWorldInfoKeys.slice(), base));
       return;
     }
 
     loadWorldInfo(globalLorebook).then((entries) => {
       const lorebook = entries as Lorebook | null;
       if (!lorebook?.entries) {
-        updateState({
-          worldLoreEntriesPresent: false,
-          worldLoreEntriesMissing: requiredWorldInfoKeys.slice(),
-          globalLoreBookPresent,
-          globalLoreBookMissing: globalMissing
-        });
+        commit(buildWorldLoreState(requiredWorldInfoKeys.slice(), base));
         return;
       }
 
-      const seen = new Set(
-        Object.values(lorebook.entries)
-          .map(e => e?.comment?.trim().toLowerCase())
-          .filter(Boolean)
-      );
-
-      const missing = requiredWorldInfoKeys.filter(name => !seen.has(name.toLowerCase()));
-      updateState({
-        worldLoreEntriesPresent: missing.length === 0,
-        worldLoreEntriesMissing: missing,
-        globalLoreBookPresent,
-        globalLoreBookMissing: globalMissing
-      });
+      commit(buildWorldLoreState(collectMissingLoreEntries(requiredWorldInfoKeys, lorebook), base));
     }).catch((err: unknown) => {
       console.warn('[Story - Requirements] loadWorldInfo failed', err);
-      updateState({
-        worldLoreEntriesPresent: false,
-        worldLoreEntriesMissing: requiredWorldInfoKeys.slice(),
-        globalLoreBookPresent,
-        globalLoreBookMissing: globalMissing
-      });
+      commit(buildWorldLoreState(requiredWorldInfoKeys.slice(), base));
     });
-  };
-
-  const extractWorldInfoKeys = (input: NormalizedStory | null): string[] => {
-    if (!input) return [];
-    const keys = new Set<string>();
-
-    for (const checkpoint of input.checkpoints) {
-      const wi = checkpoint.onActivate?.world_info;
-      if (!wi) continue;
-
-      [...(wi.activate ?? []), ...(wi.deactivate ?? [])].forEach(name => {
-        if (name) keys.add(name);
-      });
-    }
-
-    return Array.from(keys);
-  };
-
-  const extractRoleNames = (input: NormalizedStory | null): { names: string[]; normalized: string[] } => {
-    if (!input?.roles) return { names: [], normalized: [] };
-
-    const names = Object.values(input.roles)
-      .filter(name => typeof name === 'string' && name.trim())
-      .map(name => name!.trim());
-
-    const normalized = names
-      .map(name => normalizeName(name, { stripExtension: true }))
-      .filter(Boolean);
-
-    return { names, normalized };
   };
 
   const setStory = (next: NormalizedStory | null | undefined) => {
@@ -219,14 +139,15 @@ export const createRequirementsController = (): RequirementsController => {
     const roles = extractRoleNames(story);
     requiredRoleNames = roles.names;
     requiredRoleNamesNormalized = roles.normalized;
-    refreshGroupMembers();
-    refreshWorldLore();
-    recomputeReady();
+    refreshSnapshot();
   };
 
   const handleChatContextChanged = () => {
-    refreshGroupChat();
-    reloadPersona();
+    refreshSnapshot();
+  };
+
+  const reloadPersona = async () => {
+    refreshSnapshot();
   };
 
   const start = () => {
@@ -235,7 +156,7 @@ export const createRequirementsController = (): RequirementsController => {
     started = true;
 
     const worldInfoHandler = () => {
-      refreshWorldLore();
+      refreshSnapshot();
     };
 
     [
@@ -257,14 +178,12 @@ export const createRequirementsController = (): RequirementsController => {
         subscribeToEventSource({
           source: eventSource,
           eventName: eventTypes.GROUP_UPDATED,
-          handler: () => { refreshGroupMembers(); },
+          handler: () => { refreshSnapshot(); },
         })
       );
     }
 
-    refreshGroupChat();
-    reloadPersona();
-    refreshWorldLore();
+    refreshSnapshot();
   };
 
   const dispose = () => {
@@ -277,6 +196,7 @@ export const createRequirementsController = (): RequirementsController => {
       }
     }
     started = false;
+    worldLoreRequestVersion += 1;
     story = null;
     requiredWorldInfoKeys = [];
     requiredRoleNames = [];

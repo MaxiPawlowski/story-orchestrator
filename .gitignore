@@ -29,3 +29,5 @@ yarn-error.log*
 notes/
 .vscode/
 .worktrees/
+.opencode/
+plans/

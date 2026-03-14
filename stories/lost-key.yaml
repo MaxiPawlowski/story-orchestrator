@@ -1,0 +1,158 @@
+title: Quest for the Sun Ruins
+description: >-
+  Humanity's last survivors live within the ruined city of Xentar, surrounded by lethal
+  wilderness and weakening magical barriers. The Adventurers Guild dispatches an exploration
+  team to recover the legendary Sun's Heart Artifact from the perilous Sun Ruins, facing
+  ancient traps and mystical guardians along the way.
+global_lorebook: Xentar Checkpoints
+roles:
+  dm: DM Narrator
+  companion: Arin
+defaults:
+  author_note:
+    position: chat
+    interval: 3
+    depth: 4
+    role: system
+start: cp1
+checkpoints:
+  - id: cp1
+    name: Get the Quest: Heart of the Ruins
+    objective: Accept the mission from the Guild and prepare for departure to the Sun Ruins.
+    authors_note:
+      dm:
+        text: >-
+          [{{story_role_dm}} paints the Adventurer's Guild of Xentar with realistic weariness,
+          framing the mission as both opportunity and risk. Encourage {{story_player_name}} to
+          share ground-level details before departure.]
+      companion:
+        text: >-
+          [{{story_role_companion}} stays relaxed and teasing with {{story_player_name}},
+          packing pragmatically while voicing excitement about leaving the guild again.]
+    preset_overrides:
+      dm:
+        temp: 0.65
+        top_p: 0.95
+        min_p: 0.025
+        rep_pen: 1.08
+        guidance_scale: 1.2
+      companion:
+        temp: 0.85
+        top_p: 0.95
+        min_p: 0.02
+        rep_pen: 1.03
+        guidance_scale: 1.1
+    arbiter_preset:
+      temp: 0.35
+    automations:
+      - /bg tavern day
+    world_info:
+      - CP1 - Mission
+      - CP1 - Scenario
+    talk_control:
+      - memberId: companion
+        speakerId: ""
+        enabled: true
+        trigger: onEnter
+        probability: 60
+        maxTriggers: 1
+        content:
+          kind: static
+          text: "Alright, let's move, {{story_player_name}}."
+    transitions:
+      - id: quest-to-ruins
+        to: cp2
+        label: Depart for the Ruins
+        description: The party accepts the mission and heads toward the Sun Ruins.
+        trigger:
+          type: regex
+          condition: The party confirms the mission and leaves the guild for the Sun Ruins.
+          patterns:
+            - /\b(accept|take|claim)\b[\s\S]{0,20}\b(mission|quest|job)\b/i
+            - /\b(agree|i'?m in|im in|count me in|lets? go|we'?re ready)\b/i
+            - /\b(ready|prepared|set)\b[\s\S]{0,15}\b(depart|leave|go|head out)\b/i
+
+  - id: cp2
+    name: Heart of the Ruins
+    objective: "Overcome the ruins' trials and claim the Sun's Heart Artifact."
+    authors_note:
+      dm:
+        text: >-
+          [{{story_role_dm}} escalates tension inside the ruins, challenging {{story_player_name}}
+          and {{story_role_companion}} to work in sync. Highlight that every discovery may hide
+          danger as they pursue the Sun's Heart Artifact.]
+      companion:
+        text: >-
+          [{{story_role_companion}} becomes focused and tactical, warning {{story_player_name}}
+          about hazards, but still slips in quick jokes to break the fear.]
+    preset_overrides:
+      dm:
+        temp: 0.6
+        top_p: 0.92
+        min_p: 0.03
+        rep_pen: 1.1
+        guidance_scale: 1.6
+      companion:
+        temp: 0.8
+        top_p: 0.92
+        min_p: 0.03
+        rep_pen: 1.06
+        guidance_scale: 1.4
+    arbiter_preset:
+      temp: 0.28
+    automations:
+      - /bg sun_ruins2
+    world_info:
+      - CP2 - Challenge
+    transitions:
+      - id: ruins-to-return
+        to: cp3
+        label: Return to the Guild
+        description: After securing the artifact, the party returns to the guild.
+        trigger:
+          type: regex
+          condition: The party secures the artifact and is ready to escape the ruins.
+          patterns:
+            - /\b(find|locate|recover|obtain|secure|retrieve)\b[\s\S]{0,30}\b(artifact|sun('?s)? heart|crystal(?:line)? core|core)\b/i
+            - /\b(pick(?:\s*up)?|take|grab|claim)\b[\s\S]{0,20}\b(artifact|sun('?s)? heart|crystal(?:line)? core|core)\b/i
+            - /\b(have|got|secured|holding)\b[\s\S]{0,10}\b(the )?(artifact|sun('?s)? heart|core)\b/i
+      - id: ruins-timeout
+        to: cp3
+        label: Escape under pressure
+        description: "Failsafe: the party escapes after prolonged struggle in the ruins."
+        trigger:
+          type: timed
+          within_turns: 4
+
+  - id: cp3
+    name: "Return: Echoes of Light"
+    objective: Deliver the artifact back to the Guild Master and conclude the mission.
+    authors_note:
+      dm:
+        text: >-
+          [{{story_role_dm}} emphasizes consequence as {{story_player_name}} returns with the
+          artifact. Reward the success, yet hint at Xentar's fragility and what this milestone
+          means for their future.]
+      companion:
+        text: >-
+          [{{story_role_companion}} reflects quietly with {{story_player_name}}, fatigue showing
+          as their banter softens into sincere gratitude.]
+    preset_overrides:
+      dm:
+        temp: 0.6
+        top_p: 0.93
+        min_p: 0.025
+        rep_pen: 1.09
+        guidance_scale: 1.3
+      companion:
+        temp: 0.75
+        top_p: 0.94
+        min_p: 0.02
+        rep_pen: 1.04
+        guidance_scale: 1.2
+    arbiter_preset:
+      temp: 0.32
+    automations:
+      - /bg tavern day
+    world_info:
+      - CP3 - Resolution

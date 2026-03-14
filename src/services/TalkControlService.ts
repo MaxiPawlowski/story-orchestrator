@@ -2,21 +2,21 @@ import type { NormalizedStory, NormalizedTalkControl } from "@utils/story-valida
 import { normalizeName } from "@utils/string";
 import type { TalkControlTrigger } from "@utils/story-schema";
 import { getContext } from "@services/STAPI";
-import { subscribeToEventSource } from "@utils/event-source";
-import { PLAYER_SPEAKER_ID } from "@constants/main";
 import { storySessionStore } from "@store/storySessionStore";
 import { CharacterResolver } from "./TalkControl/CharacterResolver";
+import { DispatchPipeline } from "./TalkControl/DispatchPipeline";
 import { MessageInjector } from "./TalkControl/MessageInjector";
 import { ReplySelector, type PendingAction } from "./TalkControl/ReplySelector";
+import { subscribeWithRetainedChatSessionBridge } from "./runtime/chatSessionSubscription";
+import {
+  type ChatSessionBridgeEvent,
+  type ChatSessionContextSnapshot,
+  type ChatSessionGenerationSnapshot,
+  type ChatSessionReceivedMessageEvent,
+  getChatSessionBridgeSnapshot,
+} from "@controllers/chatSessionBridge";
 
 type TalkControlPhase = "before" | "after";
-
-interface TalkControlEvent {
-  id: number;
-  type: TalkControlTrigger;
-  checkpointId: string | null;
-  metadata?: Record<string, unknown>;
-}
 
 interface TalkControlServiceOptions {
   story: NormalizedStory;
@@ -24,17 +24,12 @@ interface TalkControlServiceOptions {
 
 export class TalkControlService {
   private config: NormalizedTalkControl | undefined;
-  private nextEventId = 1;
-  private interceptSuppressDepth = 0;
-  private selfDispatchDepth = 0;
-  private generationActive = false;
-  private flushScheduled = false;
   private lastChatId: string | null = null;
   private lastGroupSelected = false;
   private started = false;
+  private unsubscribeBridge: (() => void) | null = null;
 
-  private readonly eventQueue: TalkControlEvent[] = [];
-  private readonly listeners: Array<() => void> = [];
+  private readonly pipeline = new DispatchPipeline();
   private readonly characterResolver: CharacterResolver;
   private readonly messageInjector: MessageInjector;
   private readonly replySelector: ReplySelector;
@@ -46,44 +41,27 @@ export class TalkControlService {
     this.replySelector = new ReplySelector(this.config, this.characterResolver);
   }
 
-  private beginInterceptSuppression = () => { this.interceptSuppressDepth += 1; };
-  private endInterceptSuppression = () => { this.interceptSuppressDepth = Math.max(0, this.interceptSuppressDepth - 1); };
-  private beginSelfDispatch = () => { this.selfDispatchDepth += 1; };
-  private endSelfDispatch = () => { this.selfDispatchDepth = Math.max(0, this.selfDispatchDepth - 1); };
   private isStoryActive = () => Boolean(this.config);
   private isGroupActive = () => {
     const { groupId, characters } = getContext();
-    return Boolean(groupId || (Array.isArray(characters) && characters.length > 0));
+    return Boolean(groupId || characters.length > 0);
   };
-  private isSuppressed = () => this.interceptSuppressDepth > 0;
-  private isSelfDispatching = () => this.selfDispatchDepth > 0;
   private get activeCheckpointId(): string | null {
     return storySessionStore.getState().runtime.activeCheckpointKey ?? null;
   }
 
   private queueEvent(type: TalkControlTrigger, checkpointId: string | null, metadata?: Record<string, unknown>) {
     if (!this.config) return;
-    this.eventQueue.push({ id: this.nextEventId++, type, checkpointId, metadata });
-    console.log("[Story TalkControl] Queued event", { type, checkpointId, queueLength: this.eventQueue.length, metadata });
+    this.pipeline.enqueue(type, checkpointId, metadata);
     this.scheduleFlush();
   }
 
   private nextPendingAction(): PendingAction | null {
-    while (this.eventQueue.length) {
-      const event = this.eventQueue.shift();
-      if (!event) break;
-
-      const action = this.replySelector.selectAction(event, this.activeCheckpointId);
-      if (action) {
-        return action;
-      }
-    }
-    return null;
+    return this.pipeline.shiftPending((event) => this.replySelector.selectAction(event, this.activeCheckpointId));
   }
 
   private async executeAction(action: PendingAction) {
-    this.beginInterceptSuppression();
-    this.beginSelfDispatch();
+    this.pipeline.beginDispatch();
 
     try {
       if (!this.isGroupActive()) {
@@ -152,15 +130,14 @@ export class TalkControlService {
     } catch (err) {
       console.warn("[Story TalkControl] Action dispatch failed", err);
     } finally {
-      this.endSelfDispatch();
-      this.endInterceptSuppression();
+      this.pipeline.endDispatch();
     }
   }
 
   private async handleGenerateIntercept(_chat: unknown, _contextSize: number, abort: (immediate: boolean) => void, type: string) {
     console.log("[Story TalkControl] Intercept check", { type });
 
-    if (!this.isStoryActive() || !this.isGroupActive() || this.isSuppressed() || type === "quiet") {
+    if (!this.isStoryActive() || !this.isGroupActive() || !this.pipeline.canIntercept(type)) {
       return;
     }
 
@@ -183,135 +160,120 @@ export class TalkControlService {
   }
 
   private scheduleFlush(): void {
-    if (this.flushScheduled) {
-      return;
-    }
-    this.flushScheduled = true;
-
-    const enqueue = typeof queueMicrotask === "function"
-      ? queueMicrotask
-      : (cb: () => void) => Promise.resolve().then(cb);
-
-    enqueue(() => {
-      this.flushScheduled = false;
+    this.pipeline.scheduleFlush(() => {
       void this.flushPendingActions();
     });
   }
 
   private async flushPendingActions(): Promise<void> {
-    if (!this.isStoryActive() || !this.isGroupActive() || this.generationActive || this.isSuppressed()) {
-      return;
-    }
-
-    let guard = 0;
-    let action = this.nextPendingAction();
-
-    while (action && guard < 20) {
-      guard += 1;
-
-      try {
-        console.log("[Story TalkControl] Dispatching queued action", {
-          iteration: guard,
-          memberId: action.reply.memberId,
-          trigger: action.event.type,
-          checkpointId: action.checkpointId,
-          remainingInQueue: this.eventQueue.length,
-        });
-        await this.executeAction(action);
-      } catch (err) {
-        console.warn("[Story TalkControl] Flush dispatch failed", err);
-      }
-
-      if (this.generationActive) {
-        console.log("[Story TalkControl] Flush halted (generation restarted)", {
-          pendingEvents: this.eventQueue.length
-        });
+    try {
+      if (!this.isStoryActive() || !this.isGroupActive() || !this.pipeline.canFlush()) {
         return;
       }
 
-      action = this.nextPendingAction();
-    }
+      let guard = 0;
+      let action = this.nextPendingAction();
 
-    if (guard >= 20 && action) {
-      console.warn("[Story TalkControl] Flush aborted after guard limit", {
-        remainingEvents: this.eventQueue.length
-      });
+      while (action && guard < 20) {
+        guard += 1;
+
+        try {
+          await this.executeAction(action);
+        } catch (err) {
+          console.warn("[Story TalkControl] Flush dispatch failed", err);
+        }
+
+        if (this.pipeline.isGenerationActive()) {
+          return;
+        }
+
+        action = this.nextPendingAction();
+      }
+
+      if (guard >= 20 && action) {
+        console.warn("[Story TalkControl] Flush aborted after guard limit");
+      }
+    } finally {
+      this.pipeline.completeFlush();
+      if (this.isStoryActive() && this.isGroupActive() && this.pipeline.canFlush() && this.pipeline.hasQueuedEvents()) {
+        this.scheduleFlush();
+      }
     }
   }
 
-  private handleGenerationStarted = (type: string, _options: unknown, dryRun: boolean) => {
-    const shouldIgnore = type === 'quiet' || dryRun === true || type === undefined;
+  private handleGenerationStarted = (generation: ChatSessionGenerationSnapshot) => {
+    const shouldIgnore = generation.type === "quiet" || generation.dryRun === true || generation.type == null;
 
     if (shouldIgnore) {
-      console.log("[Story TalkControl] Ignoring generation start (quiet/dry run/undefined type)");
       return;
     }
 
-    this.generationActive = true;
+    this.pipeline.markGenerationStarted();
   };
 
   private handleGenerationSettled = () => {
-    this.generationActive = false;
+    this.pipeline.markGenerationSettled();
     this.scheduleFlush();
   };
 
-  private onMessageReceived = (messageId: number, messageType?: string) => {
+  private onMessageReceived = (message: ChatSessionReceivedMessageEvent) => {
     if (!this.isStoryActive()) {
       return;
     }
 
-    const { chat } = getContext();
-    const message = chat[messageId];
-
-    if (!message || message.is_system) {
+    if (message.isSystem) {
       return;
     }
 
-    if (this.isSelfDispatching()) {
+    if (this.pipeline.isSelfDispatching()) {
       return;
     }
 
-    let speakerName: string;
-    let speakerId: string;
-    const isSelfDispatched = Boolean(message?.extra?.storyOrchestratorTalkControl);
-
-    if (message.is_user) {
-      speakerName = PLAYER_SPEAKER_ID;
-      speakerId = PLAYER_SPEAKER_ID;
-    } else {
-      speakerName = message?.name ?? "";
-      speakerId = normalizeName(speakerName);
-    }
-
-    this.queueEvent("afterSpeak", this.activeCheckpointId, { speakerId, speakerName, messageId, messageType, isSelfDispatched });
+    this.queueEvent("afterSpeak", this.activeCheckpointId, {
+      speakerId: message.speakerId,
+      speakerName: message.speakerName,
+      messageId: message.messageId,
+      messageType: message.messageType,
+      isSelfDispatched: message.isSelfDispatched,
+    });
   };
 
-  private handleChatChanged = () => {
-    const ctx = getContext();
-    const chatId = ctx?.chatId?.toString().trim() || null;
-    const groupSelected = Boolean(ctx?.groupId);
+  private handleChatChanged = (chat: ChatSessionContextSnapshot) => {
+    if (this.lastChatId === chat.chatId && this.lastGroupSelected === chat.groupChatSelected) return;
 
-    if (this.lastChatId === chatId && this.lastGroupSelected === groupSelected) return;
-
-    console.log("[Story TalkControl] Chat context changed", {
-      from: { chatId: this.lastChatId, groupSelected: this.lastGroupSelected },
-      to: { chatId, groupSelected },
-    });
-
-    this.lastChatId = chatId;
-    this.lastGroupSelected = groupSelected;
+    this.lastChatId = chat.chatId;
+    this.lastGroupSelected = chat.groupChatSelected;
     this.resetState();
   };
 
+  private handleBridgeEvent = (event: ChatSessionBridgeEvent) => {
+    switch (event.type) {
+      case "message-received":
+        this.onMessageReceived(event.message);
+        break;
+      case "generation-started":
+        this.handleGenerationStarted(event.generation);
+        break;
+      case "generation-stopped":
+      case "generation-ended":
+        this.handleGenerationSettled();
+        break;
+      case "chat":
+        this.handleChatChanged(event.chat);
+        break;
+      default:
+        break;
+    }
+  };
+
+  private stopBridgeSubscription() {
+    this.unsubscribeBridge?.();
+    this.unsubscribeBridge = null;
+  }
+
   private resetState() {
-    console.log("[Story TalkControl] Resetting state");
     this.replySelector.resetStates();
-    this.eventQueue.length = 0;
-    this.generationActive = false;
-    this.flushScheduled = false;
-    this.interceptSuppressDepth = 0;
-    this.selfDispatchDepth = 0;
-    this.nextEventId = 1;
+    this.pipeline.reset();
   }
 
   public getInterceptor() {
@@ -343,62 +305,13 @@ export class TalkControlService {
 
   public start() {
     if (this.started) return;
-
-    const { eventSource, eventTypes } = getContext();
     this.started = true;
-
-    this.listeners.push(subscribeToEventSource({
-      source: eventSource,
-      eventName: eventTypes.MESSAGE_RECEIVED,
-      handler: this.onMessageReceived,
-    }));
-
-    this.listeners.push(subscribeToEventSource({
-      source: eventSource,
-      eventName: eventTypes.GENERATION_STARTED,
-      handler: this.handleGenerationStarted,
-    }));
-
-    this.listeners.push(subscribeToEventSource({
-      source: eventSource,
-      eventName: eventTypes.GENERATION_STOPPED,
-      handler: this.handleGenerationSettled,
-    }));
-
-    this.listeners.push(subscribeToEventSource({
-      source: eventSource,
-      eventName: eventTypes.GENERATION_ENDED,
-      handler: this.handleGenerationSettled,
-    }));
-
-    const chatEvents = [
-      eventTypes.CHAT_CHANGED,
-      eventTypes.CHAT_CREATED,
-      eventTypes.GROUP_CHAT_CREATED,
-      eventTypes.CHAT_DELETED,
-      eventTypes.GROUP_CHAT_DELETED,
-    ].filter(Boolean);
-
-    for (const ev of chatEvents) {
-      this.listeners.push(subscribeToEventSource({
-        source: eventSource,
-        eventName: ev,
-        handler: this.handleChatChanged,
-      }));
-    }
-
-    this.handleChatChanged();
+    this.unsubscribeBridge = subscribeWithRetainedChatSessionBridge(this.handleBridgeEvent, "[Story TalkControl]");
+    this.handleChatChanged(getChatSessionBridgeSnapshot().chat);
   }
 
   public dispose() {
-    while (this.listeners.length) {
-      const off = this.listeners.pop();
-      try {
-        off?.();
-      } catch (err) {
-        console.warn("[Story TalkControl] Failed to remove listener", err);
-      }
-    }
+    this.stopBridgeSubscription();
 
     this.started = false;
     this.resetState();

@@ -16,7 +16,7 @@ export function createBasicStory(overrides: GenericRecord = {}) {
     title: "Story 1",
     description: "desc",
     roles: { dm: "DM" },
-    checkpoints: [{ id: "cp-1", name: "CP1", objective: "obj", onActivate: {} }],
+    checkpoints: [{ id: "cp-1", name: "CP1", objective: "obj" }],
     transitions: [],
     startId: "cp-1",
     ...overrides,
@@ -25,7 +25,6 @@ export function createBasicStory(overrides: GenericRecord = {}) {
 
 export function createTalkControlStory(overrides: GenericRecord = {}) {
   return {
-    talkControl: {},
     roles: {},
     checkpoints: [],
     transitions: [],

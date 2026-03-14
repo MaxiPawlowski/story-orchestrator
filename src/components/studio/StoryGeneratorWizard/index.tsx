@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { StoryGeneratorService, type SeedResult, type GenerationPhase } from "@services/StoryGeneratorService";
+import { storySessionStore } from "@store/storySessionStore";
 import type { Story } from "@utils/story-schema";
 import { makeStubCheckpoint } from "@utils/story-schema";
 import type { SaveLibraryStoryResult, StoredStoryMeta } from "@utils/story-library";
-import { makeDefaultState, persistStoryState } from "@utils/story-state";
-import type { NormalizedStory } from "@utils/story-validator";
+import { parseAndNormalizeStory } from "@utils/story-validator";
 
 type WizardStep = "questionnaire" | "premise" | "roles" | "generating" | "done" | "error";
 
@@ -35,8 +35,6 @@ interface WizardProps {
   onSaveStory: (story: Story, options?: { name?: string; meta?: StoredStoryMeta }) => Promise<SaveLibraryStoryResult>;
   onSelectKey: (key: string) => void;
   globalLorebook?: string;
-  activeChatId?: string | null;
-  groupChatSelected?: boolean;
 }
 
 const PORTAL_ROOT_ID = "story-wizard-modal-root";
@@ -57,7 +55,7 @@ const ensurePortalRoot = (): HTMLElement => {
   return root;
 };
 
-const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onSelectKey, globalLorebook, activeChatId, groupChatSelected }) => {
+const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onSelectKey, globalLorebook }) => {
   const [step, setStep] = useState<WizardStep>("questionnaire");
   const [questionnaire, setQuestionnaire] = useState<StoryQuestionnaire>({
     genre: "",
@@ -129,7 +127,8 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
 
       const mergedRoles = { ...rolesMap, ...seedResult.roles };
 
-      const stubCheckpoints = seedResult.transitions.map(t =>
+      const inlineTransitions = seedResult.initialCheckpoint.transitions ?? [];
+      const stubCheckpoints = inlineTransitions.map(t =>
         makeStubCheckpoint(t.to, t.label ?? `Upcoming Beat (${t.to})`)
       );
 
@@ -138,8 +137,6 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
         global_lorebook: globalLorebook ?? "Story World",
         roles: Object.keys(mergedRoles).length ? mergedRoles : undefined,
         checkpoints: [seedResult.initialCheckpoint, ...stubCheckpoints],
-        transitions: seedResult.transitions,
-        talkControl: Object.keys(seedResult.talkControl.checkpoints).length ? seedResult.talkControl : undefined,
       };
 
       const result = await onSaveStory(story, {
@@ -155,21 +152,12 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
       });
 
       if (result.ok) {
+        const normalizedStory = parseAndNormalizeStory(story);
+        storySessionStore.getState().selectStory(normalizedStory, {
+          storyKey: result.key,
+          roadmap: seedResult.roadmap,
+        });
         onSelectKey(result.key);
-        if (activeChatId && groupChatSelected) {
-          try {
-            const defaultRuntime = makeDefaultState(story as unknown as NormalizedStory);
-            persistStoryState({
-              chatId: activeChatId,
-              story: story as unknown as NormalizedStory,
-              state: defaultRuntime,
-              storyKey: result.key,
-              roadmap: seedResult.roadmap,
-            });
-          } catch (err) {
-            console.warn("[Wizard] Failed to persist story selection for chat", err);
-          }
-        }
         setStep("done");
         setTimeout(() => onClose(), 1500);
       } else {
@@ -181,7 +169,7 @@ const StoryGeneratorWizard: React.FC<WizardProps> = ({ onClose, onSaveStory, onS
       setErrorMsg(msg);
       setStep("error");
     }
-  }, [premise, storyTitle, roles, characters, worldInfo, globalLorebook, onSaveStory, onSelectKey, activeChatId, groupChatSelected, questionnaire]);
+  }, [premise, storyTitle, roles, characters, worldInfo, globalLorebook, onSaveStory, onSelectKey, questionnaire]);
 
   return (
     <div className="flex flex-col gap-4 p-4 max-w-xl w-full mx-auto">
