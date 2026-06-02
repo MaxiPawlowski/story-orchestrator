@@ -1,6 +1,7 @@
 import Requirements from "./Requirements";
 import Checkpoints from "./Checkpoints";
 import StoryExpansionPanel from "./StoryExpansionPanel";
+import MemoryDebugPanel from "./MemoryDebugPanel";
 
 import { useState } from "react";
 import { useStoryContext } from "@hooks/useStoryContext";
@@ -47,13 +48,18 @@ const DrawerWrapper = () => {
       {!isMinimized && (
         <div className="p-2">
           {!requirementsReady && <Requirements />}
-          {ready && requirementsReady && checkpointRows.length > 0 && (
-            <Checkpoints
-              title={title}
-              checkpoints={checkpointRows}
-            />
+          {ready && requirementsReady && (
+            <>
+              {checkpointRows.length > 0 && (
+                <Checkpoints
+                  title={title}
+                  checkpoints={checkpointRows}
+                />
+              )}
+              <StoryExpansionPanel />
+              <MemoryDebugPanel />
+            </>
           )}
-          <StoryExpansionPanel />
         </div>
       )}
     </div>

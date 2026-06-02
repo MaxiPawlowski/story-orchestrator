@@ -7,7 +7,16 @@ import {
   type NormalizedTransitionTrigger,
   isNormalizedStubCheckpoint,
 } from "@utils/story-validator";
+import { PacingPhase } from "@utils/arc-templates";
 import { getExtensionSettingsRoot } from "@utils/settings";
+import type {
+  Consequence,
+  ForegoneTransition,
+  NarrativeMemoryState,
+  NarrativeSeed,
+  RoleState,
+  SceneMemoryEntry,
+} from "../types/narrative-memory";
 
 export enum CheckpointStatus {
   Pending = "pending",
@@ -49,6 +58,11 @@ export interface RuntimeStoryState {
   turnsSinceEval: number;
   checkpointTurnCount: number;
   checkpointStatusMap: CheckpointStatusMap;
+  tension_current?: number;
+  tension_ema?: number;
+  pacing_phase?: string;
+  pacing_hint?: string;
+  memory?: NarrativeMemoryState;
   roadmap?: string;
 }
 
@@ -67,6 +81,11 @@ export interface PersistedChatState {
   turnsSinceEval: number;
   checkpointTurnCount?: number;
   checkpointStatusMap: CheckpointStatusMap;
+  tension_current?: number;
+  tension_ema?: number;
+  pacing_phase?: string | null;
+  pacing_hint?: string | null;
+  memory?: NarrativeMemoryState;
   updatedAt: number;
   roadmap?: string;
 }
@@ -81,16 +100,117 @@ export type LoadedStoryState = {
 const OptionalFiniteNumberSchema = z.preprocess((value) => {
   if (typeof value === "string" && value.trim()) {
     const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : value;
+    return Number.isFinite(parsed) ? parsed : undefined;
   }
-  return value;
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }, z.number().finite().optional());
 
 const OptionalTrimmedStringSchema = z.preprocess((value) => {
-  if (typeof value !== "string") return value;
+  if (value === null) return null;
+  if (typeof value !== "string") return undefined;
   const trimmed = value.trim();
   return trimmed || null;
 }, z.string().nullable().optional());
+
+const clampOptionalUnitInterval = (value: unknown): number | undefined => {
+  const parsed = OptionalFiniteNumberSchema.safeParse(value);
+  if (!parsed.success || parsed.data === undefined) return undefined;
+  return Math.max(0, Math.min(1, parsed.data));
+};
+
+const sanitizeOptionalTrimmedString = (value: unknown): string | undefined => {
+  const parsed = OptionalTrimmedStringSchema.safeParse(value);
+  if (!parsed.success || parsed.data === null || parsed.data === undefined) return undefined;
+  return parsed.data;
+};
+
+const PACING_PHASE_VALUES = new Set<string>(Object.values(PacingPhase));
+
+const sanitizePacingPhase = (value: unknown): string | undefined => {
+  const parsed = sanitizeOptionalTrimmedString(value);
+  return parsed && PACING_PHASE_VALUES.has(parsed) ? parsed : undefined;
+};
+
+const ConsequenceSchema: z.ZodType<Consequence> = z.object({
+  id: z.string(),
+  text: z.string(),
+  weight: z.number().finite(),
+  tags: z.array(z.string()),
+  sourceCheckpointId: z.string(),
+  createdAtTurn: z.number().int(),
+});
+
+const NarrativeSeedSchema: z.ZodType<NarrativeSeed> = z.object({
+  id: z.string(),
+  text: z.string(),
+  kind: z.enum(["foreshadowing", "thread", "hook"]),
+  resolved: z.boolean(),
+  sourceCheckpointId: z.string(),
+  createdAtTurn: z.number().int(),
+});
+
+const RoleStateSchema: z.ZodType<RoleState> = z.object({
+  role: z.string(),
+  summary: z.string(),
+  lastUpdatedTurn: z.number().int(),
+});
+
+const SceneMemoryEntrySchema: z.ZodType<SceneMemoryEntry> = z.object({
+  text: z.string(),
+  checkpointId: z.string(),
+  turn: z.number().int(),
+});
+
+const ForegoneTransitionSchema: z.ZodType<ForegoneTransition> = z.object({
+  transitionId: z.string(),
+  fromCheckpointId: z.string(),
+  reason: z.string(),
+  turn: z.number().int(),
+});
+
+const decodeSafeArray = <T>(value: unknown, schema: z.ZodType<T>): T[] => {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((entry) => schema.safeParse(entry))
+    .filter((entry): entry is { success: true; data: T } => entry.success)
+    .map((entry) => entry.data);
+};
+
+const decodeSafeRecord = <T>(value: unknown, schema: z.ZodType<T>): Record<string, T> => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value)
+      .map(([key, entry]) => {
+        const parsed = schema.safeParse(entry);
+        return parsed.success ? ([key, parsed.data] as const) : null;
+      })
+      .filter((entry): entry is readonly [string, T] => entry !== null),
+  );
+};
+
+const OptionalCheckpointStatusMapSchema = z.preprocess(
+  (value) => decodeCheckpointStatusMap(value),
+  z.record(z.string(), z.nativeEnum(CheckpointStatus)).optional(),
+);
+
+const NarrativeMemoryStateSchema = z.object({
+  consequences: z.preprocess((value) => decodeSafeArray(value, ConsequenceSchema), z.array(ConsequenceSchema)).default([]),
+  seeds: z.preprocess((value) => decodeSafeArray(value, NarrativeSeedSchema), z.array(NarrativeSeedSchema)).default([]),
+  roleStates: z.preprocess((value) => decodeSafeRecord(value, RoleStateSchema), z.record(z.string(), RoleStateSchema)).default({}),
+  sceneMemory: z.preprocess((value) => decodeSafeArray(value, SceneMemoryEntrySchema), z.array(SceneMemoryEntrySchema)).default([]),
+  foregoneTransitions: z.preprocess((value) => decodeSafeArray(value, ForegoneTransitionSchema), z.array(ForegoneTransitionSchema)).default([]),
+});
+
+const OptionalNarrativeMemoryStateSchema = z.preprocess((value) => {
+  if (value === undefined) return undefined;
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  return value;
+}, NarrativeMemoryStateSchema.optional());
+
+const sanitizeNarrativeMemoryState = (value: unknown): NarrativeMemoryState | undefined => {
+  const parsed = OptionalNarrativeMemoryStateSchema.safeParse(value);
+  return parsed.success ? parsed.data : undefined;
+};
 
 const PersistedChatStateSchema = z.object({
   storySignature: z.string(),
@@ -99,7 +219,12 @@ const PersistedChatStateSchema = z.object({
   activeCheckpointKey: OptionalTrimmedStringSchema,
   turnsSinceEval: OptionalFiniteNumberSchema,
   checkpointTurnCount: OptionalFiniteNumberSchema,
-  checkpointStatusMap: z.record(z.string(), z.unknown()).transform(decodeCheckpointStatusMap).optional(),
+  checkpointStatusMap: OptionalCheckpointStatusMapSchema,
+  tension_current: OptionalFiniteNumberSchema,
+  tension_ema: OptionalFiniteNumberSchema,
+  pacing_phase: OptionalTrimmedStringSchema,
+  pacing_hint: OptionalTrimmedStringSchema,
+  memory: OptionalNarrativeMemoryStateSchema,
   updatedAt: OptionalFiniteNumberSchema,
   roadmap: z.string().optional(),
 });
@@ -150,6 +275,11 @@ export function decodePersistedChatState(input: unknown, story: NormalizedStory)
     turnsSinceEval: sanitizeTurnsSinceEval(decodeInteger(parsed.data.turnsSinceEval, 0)),
     checkpointTurnCount: sanitizeTurnsSinceEval(decodeInteger(parsed.data.checkpointTurnCount, 0)),
     checkpointStatusMap: parsed.data.checkpointStatusMap ?? {},
+    tension_current: clampOptionalUnitInterval(parsed.data.tension_current),
+    tension_ema: clampOptionalUnitInterval(parsed.data.tension_ema),
+    pacing_phase: sanitizePacingPhase(parsed.data.pacing_phase),
+    pacing_hint: sanitizeOptionalTrimmedString(parsed.data.pacing_hint),
+    memory: parsed.data.memory,
     updatedAt: decodeTimestamp(parsed.data.updatedAt),
     roadmap: parsed.data.roadmap,
   };
@@ -187,6 +317,11 @@ export function loadStoryState({
     turnsSinceEval: decoded.turnsSinceEval,
     checkpointTurnCount: decoded.checkpointTurnCount ?? 0,
     checkpointStatusMap: decoded.checkpointStatusMap,
+    tension_current: decoded.tension_current,
+    tension_ema: decoded.tension_ema,
+    pacing_phase: decoded.pacing_phase ?? undefined,
+    pacing_hint: decoded.pacing_hint ?? undefined,
+    memory: decoded.memory,
   }, story);
 
   return {
@@ -227,6 +362,11 @@ export function persistStoryState({
     turnsSinceEval: sanitized.turnsSinceEval,
     checkpointTurnCount: sanitized.checkpointTurnCount,
     checkpointStatusMap: sanitized.checkpointStatusMap,
+    tension_current: sanitized.tension_current,
+    tension_ema: sanitized.tension_ema,
+    pacing_phase: sanitized.pacing_phase,
+    pacing_hint: sanitized.pacing_hint,
+    memory: sanitized.memory,
     updatedAt: Date.now(),
     roadmap: roadmap ?? map[key]?.roadmap,
   };
@@ -258,6 +398,11 @@ export function makeDefaultState(story: NormalizedStory | null | undefined): Run
     turnsSinceEval: 0,
     checkpointTurnCount: 0,
     checkpointStatusMap: checkpointState.checkpointStatusMap,
+    tension_current: undefined,
+    tension_ema: undefined,
+    pacing_phase: undefined,
+    pacing_hint: undefined,
+    memory: undefined,
   };
 }
 
@@ -301,6 +446,11 @@ function computeStorySignature(story: NormalizedStory): string {
 export function sanitizeRuntime(candidate: RuntimeStoryState, story: NormalizedStory | null): RuntimeStoryState {
   const turnsSinceEval = sanitizeTurnsSinceEval(candidate.turnsSinceEval);
   const checkpointTurnCount = sanitizeTurnsSinceEval(candidate.checkpointTurnCount);
+  const tension_current = clampOptionalUnitInterval(candidate.tension_current);
+  const tension_ema = clampOptionalUnitInterval(candidate.tension_ema);
+  const pacing_phase = sanitizePacingPhase(candidate.pacing_phase);
+  const pacing_hint = sanitizeOptionalTrimmedString(candidate.pacing_hint);
+  const memory = sanitizeNarrativeMemoryState(candidate.memory);
 
   if (!story?.checkpoints?.length) {
     return {
@@ -309,6 +459,11 @@ export function sanitizeRuntime(candidate: RuntimeStoryState, story: NormalizedS
       turnsSinceEval,
       checkpointTurnCount,
       checkpointStatusMap: {},
+      tension_current,
+      tension_ema,
+      pacing_phase,
+      pacing_hint,
+      memory,
     };
   }
   const checkpointState = deriveCheckpointRuntimeState(story, candidate);
@@ -319,6 +474,11 @@ export function sanitizeRuntime(candidate: RuntimeStoryState, story: NormalizedS
     turnsSinceEval,
     checkpointTurnCount,
     checkpointStatusMap: checkpointState.checkpointStatusMap,
+    tension_current,
+    tension_ema,
+    pacing_phase,
+    pacing_hint,
+    memory,
   };
 }
 

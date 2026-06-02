@@ -1,7 +1,7 @@
 import type { NormalizedStory } from "@utils/story-validator";
 import { getContext } from "@services/stHost/context";
+import { subscribeToHostEvent } from "@services/stHost/events";
 import { type Lorebook, getWorldInfoSettings } from "@services/stHost/worldInfo";
-import { subscribeToEventSource } from "@utils/event-source";
 import {
   createRequirementsState,
   mergeRequirementsState,
@@ -152,7 +152,7 @@ export const createRequirementsController = (): RequirementsController => {
 
   const start = () => {
     if (started) return;
-    const { eventSource, eventTypes } = getContext();
+    const { eventTypes } = getContext();
     started = true;
 
     const worldInfoHandler = () => {
@@ -164,22 +164,12 @@ export const createRequirementsController = (): RequirementsController => {
       eventTypes.WORLDINFO_SETTINGS_UPDATED,
       eventTypes.WORLDINFO_ENTRIES_LOADED,
     ].forEach((eventName) => {
-      subscriptions.push(
-        subscribeToEventSource({
-          source: eventSource,
-          eventName,
-          handler: worldInfoHandler,
-        })
-      );
+      subscriptions.push(subscribeToHostEvent(eventName, worldInfoHandler));
     });
 
     if (eventTypes.GROUP_UPDATED) {
       subscriptions.push(
-        subscribeToEventSource({
-          source: eventSource,
-          eventName: eventTypes.GROUP_UPDATED,
-          handler: () => { refreshSnapshot(); },
-        })
+        subscribeToHostEvent(eventTypes.GROUP_UPDATED, () => { refreshSnapshot(); })
       );
     }
 

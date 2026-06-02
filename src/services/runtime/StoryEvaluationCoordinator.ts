@@ -27,6 +27,7 @@ interface EvaluatedEvent {
   cpIndex: number;
   matches: TransitionTriggerMatch[];
   selectedTransition?: TransitionSelection;
+  observedEvents?: string[];
 }
 
 interface StoryEvaluationCoordinatorOptions {
@@ -252,6 +253,7 @@ export class StoryEvaluationCoordinator {
           cpIndex: checkpointIndex,
           matches: args.matches,
           selectedTransition: selection,
+          observedEvents: payload?.observedEvents,
         });
       } catch (err) {
         console.warn("[StoryOrch] evaluation handler failed", err);

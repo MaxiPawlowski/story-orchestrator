@@ -52,6 +52,8 @@ import { createEmptyStoryPromptContext } from "@services/runtime/storyPromptCont
 import { CheckpointExpansionCoordinator } from "@services/runtime/CheckpointExpansionCoordinator";
 import { CheckpointEffectsApplier } from "@services/runtime/CheckpointEffectsApplier";
 import { subscribeWithRetainedChatSessionBridge } from "@services/runtime/chatSessionSubscription";
+import ContinuityKeeperService from "@services/ContinuityKeeperService";
+import { buildNarrativeContext } from "@utils/narrative-context";
 
 class StoryOrchestrator {
   private story: NormalizedStory;
@@ -80,6 +82,7 @@ class StoryOrchestrator {
   private lastChatId: string | null = null;
   private lastGroupSelected = false;
   private generatorService = new StoryGeneratorService();
+  private keeper?: ContinuityKeeperService;
   private evaluationCoordinator: StoryEvaluationCoordinator;
   private expansionCoordinator: CheckpointExpansionCoordinator;
   private effectsApplier: CheckpointEffectsApplier;
@@ -88,6 +91,7 @@ class StoryOrchestrator {
     story: NormalizedStory;
     intervalTurns: ArbiterFrequency;
     arbiterPrompt: ArbiterPrompt;
+    keeper?: ContinuityKeeperService;
     fallbackPreset?: string | null;
     onRoleApplied?: (role: Role, cpName: string) => void;
     shouldApplyRole?: (role: Role) => boolean;
@@ -101,6 +105,7 @@ class StoryOrchestrator {
 
     this.defaultArbiterPrompt = opts.arbiterPrompt;
     this.arbiterPrompt = opts.arbiterPrompt;
+    this.keeper = opts.keeper;
 
     this.checkpointArbiter = new CheckpointArbiterService({
       promptTemplate: this.arbiterPrompt,
@@ -264,8 +269,13 @@ class StoryOrchestrator {
     this.handleChatChanged({ reason: "start", force: true, chat: getChatSessionBridgeSnapshot().chat });
   }
 
-  activateIndex(i: number) {
-    this.applyCheckpoint(i, { persist: true, resetSinceEval: true, reason: "manual" });
+  activateIndex(i: number, context?: { reason?: "advance" | "merge"; observedEvents?: string[] }) {
+    this.applyCheckpoint(i, {
+      persist: true,
+      resetSinceEval: true,
+      reason: context?.reason ?? "manual",
+      observedEvents: context?.observedEvents,
+    });
   }
 
   activateRelative(delta: number): boolean {
@@ -574,6 +584,7 @@ class StoryOrchestrator {
     resetSinceEval?: boolean;
     sinceEvalOverride?: number;
     reason?: CheckpointActivationReason;
+    observedEvents?: string[];
     source?: "stored" | "default";
   } = {}) {
     const checkpoints = this.story.checkpoints;
@@ -603,6 +614,7 @@ class StoryOrchestrator {
         turnsSinceEval: nextRuntimeState.since,
         checkpointTurnCount: 0,
         checkpointStatusMap: { ...prevRuntime.checkpointStatusMap },
+        memory: prevRuntime.memory,
       };
       const sanitized = this.commitRuntimeState(emptyRuntime, nextRuntimeState.turn, { persistRequested, hydratedFlag });
       this.updateStoryMacrosFromContext(createEmptyStoryPromptContext(this.story));
@@ -619,7 +631,7 @@ class StoryOrchestrator {
       this.expansionCoordinator.expandStub(checkpointIndex, transitionTaken).then(() => {
         const expanded = this.story.checkpoints[checkpointIndex];
         if (expanded && !isNormalizedStubCheckpoint(expanded)) {
-          this.applyCheckpoint(checkpointIndex, opts);
+          this.applyCheckpoint(checkpointIndex, { ...opts, reason: "merge" });
         }
       }).catch(err => console.warn("[StoryOrch] expandStub failed", err));
       return;
@@ -637,6 +649,7 @@ class StoryOrchestrator {
       turnsSinceEval: nextRuntimeState.since,
       checkpointTurnCount: nextRuntimeState.checkpointTurns,
       checkpointStatusMap: statusMap,
+      memory: prevRuntime.memory,
     };
     const sanitized = this.commitRuntimeState(runtimePayload, nextRuntimeState.turn, { persistRequested, hydratedFlag });
     this.updateStoryMacrosFromContext(this.evaluationCoordinator.buildPromptContext(sanitized, this.activeTransitions));
@@ -645,6 +658,7 @@ class StoryOrchestrator {
     void this.effectsApplier.applyActivationEffects(cp, activationPolicy);
 
     if (opts.reason) this.emitActivate(sanitized.checkpointIndex);
+    this.processKeeperActivation(cp, sanitized, activationReason, opts.observedEvents);
   }
 
   private applyArbiterPreset(cp?: NormalizedCheckpoint) {
@@ -656,6 +670,34 @@ class StoryOrchestrator {
     } catch (err) {
       console.warn("[StoryOrch] failed to apply arbiter preset", err);
     }
+  }
+
+  private processKeeperActivation(
+    checkpoint: NormalizedCheckpoint,
+    runtime: RuntimeStoryState,
+    reason: CheckpointActivationReason,
+    observedEvents?: string[],
+  ) {
+    if (reason === "hydrate" || reason === "reset") return;
+    if (!this.keeper) return;
+    const type = reason === "manual"
+      ? "activation"
+      : reason === "advance"
+        ? "advance"
+        : "merge";
+    const context = buildNarrativeContext({
+      story: this.story,
+      runtime,
+    });
+    void this.keeper.processEvent({
+      type,
+      checkpointId: checkpoint.id,
+      checkpointName: checkpoint.name,
+      observedEvents,
+      context,
+    }).catch((err) => {
+      console.warn("[StoryOrch] keeper event failed", err);
+    });
   }
 
   private seedRoleMap() {
@@ -701,6 +743,8 @@ class StoryOrchestrator {
     this.lastGroupSelected = false;
     this.effectsApplier.reset();
     this.expansionCoordinator.reset();
+    safe(() => (this.keeper as (ContinuityKeeperService & { dispose?: () => void }) | undefined)?.dispose?.());
+    this.keeper = undefined;
     this.onActivateIndex = undefined;
     this.onEvaluated = undefined;
     storySessionStore.getState().resetExpansion();

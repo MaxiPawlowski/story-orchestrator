@@ -145,6 +145,8 @@ function createCheckpointDrafts(story: Story, authorNoteDefaults: NormalizedAuth
       id,
       name: checkpoint.name,
       objective: checkpoint.objective.trim(),
+      ...(checkpoint.tension_target !== undefined ? { tension_target: checkpoint.tension_target } : {}),
+      ...(checkpoint.progress_override !== undefined ? { progress_override: checkpoint.progress_override } : {}),
       authors_note: normalizeAuthorsNote(checkpoint.authors_note, authorNoteDefaults),
       world_info: worldInfo,
       preset_overrides: mergePresetOverrides(story.defaults?.presets, checkpoint.preset_overrides ?? undefined),
@@ -283,6 +285,7 @@ export function normalizeStory(story: Story): NormalizedStory {
     schemaVersion: "2.0",
     title: story.title.trim(),
     description: rawDescription || undefined,
+    ...(story.arc_template !== undefined ? { arc_template: story.arc_template } : {}),
     global_lorebook: story.global_lorebook.trim(),
     roles: sanitizeRoleMap(story.roles),
     defaults: {

@@ -1,4 +1,6 @@
 export const DEFAULT_INTERVAL_TURNS = 3;
+export const DEFAULT_TENSION_EMA_ALPHA = 0.3;
+export const DEFAULT_PACING_DRIFT_THRESHOLD = 0.3;
 
 export const AUTHOR_NOTE_DEFAULT_INTERVAL = 1;
 export const AUTHOR_NOTE_DEFAULT_DEPTH = 4;
@@ -11,6 +13,7 @@ export const AUTHOR_NOTE_LOG_SAMPLE_LIMIT = 80;
 
 export const ARBITER_SNAPSHOT_LIMIT = 10;
 export const ARBITER_RESPONSE_LENGTH = 256;
+export const KEEPER_RESPONSE_LENGTH = 512;
 export const ARBITER_LOG_SAMPLE_LENGTH = 200;
 export const UI_SYNC_MAX_ATTEMPTS = 20;
 export const UI_SYNC_RETRY_DELAY_MS = 100;
@@ -45,6 +48,10 @@ Do not continue the story, invent facts, or speculate beyond what is written.
 - No guessing policy: use only evidence present in the excerpt and the trigger objects.
 - Avoid outcome bias: keep tone neutral and factual. No motivational or dramatic language.
 - Role boundary: You are not continuing the story, only evaluating triggers.
+
+=== Optional Evidence Notes ===
+- You may include an optional "observed_events" array containing short factual events directly supported by the excerpt.
+- Example: "observed_events": ["Player accepted the guide's offer", "Guide revealed the vault key"]
 
 === Transition Candidates ===
 {{story_possible_triggers}}

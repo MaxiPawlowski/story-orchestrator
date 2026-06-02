@@ -44,6 +44,9 @@ export interface ModelEval {
   nextTransitionId?: string | null;
   reason?: string;
   confidence?: number;
+  tension?: number | null;
+  pacingDriftNote?: string;
+  observedEvents?: string[];
 }
 
 export interface CheckpointEvalPayload {
@@ -52,6 +55,9 @@ export interface CheckpointEvalPayload {
   parsed: ModelEval | null;
   outcome: EvaluationOutcome;
   nextTransitionId?: string | null;
+  tension?: number | null;
+  pacingDriftNote?: string;
+  observedEvents?: string[];
 }
 
 export interface CheckpointArbiterApi {
@@ -100,7 +106,10 @@ function buildEvalPrompt(_request: CheckpointEvalRequest, promptTemplate: string
     '  "decision": "transition" | "continue",',
     '  "selected_transition_id": "STRING or null",',
     '  "reason": "SHORT FACTUAL EXPLANATION",',
-    '  "confidence": 0.0 to 1.0',
+    '  "confidence": 0.0 to 1.0,',
+    '  "tension": 0.0 to 1.0 or null,',
+    '  "pacing_drift_note": "OPTIONAL SHORT NOTE" or null,',
+    '  "observed_events": ["OPTIONAL SHORT FACTUAL EVENT", "..."]',
     "}"
   ];
 
@@ -113,6 +122,14 @@ function parseModel(raw: string): ModelEval | null {
   if (!jsonMatch) return null;
   try {
     const obj = JSON.parse(jsonMatch[0]);
+    const toObservedEvents = (value: unknown): string[] | undefined => {
+      if (!Array.isArray(value)) return undefined;
+      const observedEvents = value
+        .filter((entry): entry is string => typeof entry === "string")
+        .map((entry) => entry.trim())
+        .filter(Boolean);
+      return observedEvents.length ? observedEvents : undefined;
+    };
     const normalizeDecision = (value: unknown): "transition" | "continue" | undefined => {
       if (typeof value !== "string") return undefined;
       const normalized = value.trim().toLowerCase();
@@ -149,14 +166,33 @@ function parseModel(raw: string): ModelEval | null {
         ? obj.score
         : undefined;
 
+    const rawTension = obj.tension ?? obj.scene_tension ?? obj.sceneTension;
+    const tensionValue = typeof rawTension === "number"
+      ? rawTension
+      : typeof rawTension === "string"
+        ? Number(rawTension.trim())
+        : Number.NaN;
+    const tension = Number.isFinite(tensionValue)
+      ? Math.max(0, Math.min(1, tensionValue))
+      : null;
+
+    const pacingDriftNoteSource = obj.pacing_drift_note ?? obj.pacingDriftNote;
+    const pacingDriftNote = typeof pacingDriftNoteSource === "string"
+      ? pacingDriftNoteSource.trim() || undefined
+      : undefined;
+
     const reason = typeof obj.reason === "string" ? obj.reason : undefined;
+    const observedEvents = toObservedEvents(obj.observed_events ?? obj.observedEvents);
 
     return {
       advance,
       decision,
       nextTransitionId: next === null || next === undefined ? null : String(next),
       confidence,
+      tension,
+      pacingDriftNote,
       reason,
+      observedEvents,
     };
   } catch (err) {
     console.warn("[Story - CheckpointArbiter] JSON parse failed", err);
@@ -331,6 +367,9 @@ class CheckpointArbiterService implements CheckpointArbiterApi {
           parsed,
           outcome,
           nextTransitionId: parsed?.nextTransitionId ?? null,
+          tension: parsed?.tension ?? null,
+          pacingDriftNote: parsed?.pacingDriftNote,
+          observedEvents: parsed?.observedEvents,
         };
         try { job.resolve(payload); } catch (err) { console.warn("[Story - CheckpointArbiter] resolve failed", err); }
         try { this.options?.onEvaluated?.(payload); } catch (err) { console.warn("[Story - CheckpointArbiter] onEvaluated handler failed", err); }

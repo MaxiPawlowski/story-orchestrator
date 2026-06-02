@@ -41,8 +41,8 @@ export const StoryRuntimeProvider: React.FC<React.PropsWithChildren> = ({ childr
   const runtime = useStore(storySessionStore, (state) => state.runtime);
   const ready = useStore(storySessionStore, (state) => state.orchestratorReady);
 
-  const activateIndex = useCallback((index: number) => {
-    session.getOrchestrator()?.activateIndex(index);
+  const activateIndex = useCallback((index: number, context?: { reason?: "advance" | "merge"; observedEvents?: string[] }) => {
+    session.getOrchestrator()?.activateIndex(index, context);
   }, [session]);
 
   const reloadPersona = useCallback(() => session.getOrchestrator()?.reloadPersona(), [session]);
@@ -51,7 +51,7 @@ export const StoryRuntimeProvider: React.FC<React.PropsWithChildren> = ({ childr
     session.getOrchestrator()?.updateCheckpointStatus(index, status);
   }, [session]);
 
-  const handleEvaluated = useCallback(({ outcome, cpIndex, selectedTransition }: StoryEvaluationEvent) => {
+  const handleEvaluated = useCallback(({ outcome, cpIndex, selectedTransition, observedEvents }: StoryEvaluationEvent) => {
     if (!story) return;
     if (outcome !== "advance") return;
 
@@ -64,7 +64,7 @@ export const StoryRuntimeProvider: React.FC<React.PropsWithChildren> = ({ childr
       && nextIndex < (story.checkpoints?.length ?? 0)
       && nextIndex !== cpIndex
     ) {
-      activateIndex(nextIndex);
+      activateIndex(nextIndex, { reason: "advance", observedEvents });
     }
   }, [activateIndex, story, updateCheckpointStatus]);
 

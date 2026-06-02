@@ -1,4 +1,4 @@
-export type CheckpointActivationReason = "manual" | "reset" | "hydrate";
+export type CheckpointActivationReason = "manual" | "reset" | "hydrate" | "advance" | "merge";
 
 export type CheckpointActivationSource = "runtime" | "stored" | "default";
 

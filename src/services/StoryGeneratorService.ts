@@ -95,9 +95,7 @@ function buildChatSummary(): string {
 }
 
 function extractWorldInfoSummariesFromContext(): string[] {
-  const { worldInfo } = getContext() as {
-    worldInfo?: Record<string, { comment?: unknown; disable?: unknown }>;
-  };
+  const { worldInfo } = getContext();
   const seen = new Set<string>();
   const result: string[] = [];
   for (const entry of Object.values(worldInfo ?? {})) {

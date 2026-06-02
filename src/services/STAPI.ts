@@ -1,5 +1,7 @@
 export { getContext, MacrosParser } from "@services/stHost/context";
 export type { StoryOrchestratorHostContext, StoryOrchestratorMacrosParser } from "@services/stHost/context";
+export { subscribeToHostEvent, subscribeToHostEvents } from "@services/stHost/events";
+export type { HostEventPayloads, HostEventName, TypedHostEventHandler, HostSubscriptionEntry } from "@services/stHost/events";
 export {
   BIAS_CACHE,
   displayLogitBias,

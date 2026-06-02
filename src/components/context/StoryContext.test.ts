@@ -384,7 +384,7 @@ describe("StoryProvider", () => {
     });
 
     expect(updateCheckpointStatusMock).toHaveBeenCalledWith(0, "complete");
-    expect(activateIndexMock).toHaveBeenCalledWith(1);
+    expect(activateIndexMock).toHaveBeenCalledWith(1, { reason: "advance", observedEvents: undefined });
     view.unmount();
   });
 

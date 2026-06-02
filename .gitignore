@@ -31,3 +31,6 @@ notes/
 .worktrees/
 .opencode/
 plans/
+.debug/
+.hf/
+.hybrid-framework/

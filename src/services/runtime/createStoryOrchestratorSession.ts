@@ -1,4 +1,5 @@
 import StoryOrchestrator, { type StoryEvaluationEvent } from "@services/StoryOrchestrator";
+import type ContinuityKeeperService from "@services/ContinuityKeeperService";
 import type { ExpansionResult } from "@services/StoryGeneratorService";
 import { createTurnController } from "@controllers/turnController";
 import type { NormalizedStory } from "@utils/story-validator";
@@ -112,10 +113,18 @@ export const createStoryOrchestratorSession = (): StoryOrchestratorSession => {
   let expandCallback: ((result: ExpansionResult, fromId: string) => Promise<void>) | null = null;
 
   const initialize = async (story: NormalizedStory) => {
+    let keeper: ContinuityKeeperService | undefined;
+    try {
+      const { default: ContinuityKeeperService } = await import("@services/ContinuityKeeperService");
+      keeper = new ContinuityKeeperService();
+    } catch (err) {
+      console.warn("[Story - OrchestratorSession] continuity keeper unavailable", err);
+    }
     const instance: StoryOrchestrator = new StoryOrchestrator({
       story,
       intervalTurns,
       arbiterPrompt,
+      keeper,
       fallbackPreset,
       shouldApplyRole: (role: Role) => turnController.shouldApplyRole(role, instance?.index ?? 0),
       setEvalHooks: (hooks) => {

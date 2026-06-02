@@ -19,6 +19,10 @@ export const AuthorNotePositionSchema = z.enum(["before", "chat", "after"]);
 export const AuthorNoteRoleSchema = z.enum(["system", "user", "assistant"]);
 export type AuthorNotePosition = z.infer<typeof AuthorNotePositionSchema>;
 export type AuthorNoteRole = z.infer<typeof AuthorNoteRoleSchema>;
+export const ARC_TEMPLATE_IDS = ["freytag", "vonnegut_man_in_hole", "vonnegut_icarus", "three_act"] as const;
+export type ArcTemplateId = typeof ARC_TEMPLATE_IDS[number];
+
+const ArcTemplateIdSchema = z.enum(ARC_TEMPLATE_IDS);
 
 export const AuthorNoteSettingsSchema = z.object({
   position: AuthorNotePositionSchema.optional(),
@@ -153,6 +157,8 @@ export const CheckpointSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   objective: z.string().min(1),
+  tension_target: z.number().min(0).max(1).optional(),
+  progress_override: z.number().min(0).max(1).optional(),
   authors_note: z.record(z.string().min(1), AuthorNoteEntrySchema).optional(),
   world_info: z.array(z.string().min(1)).optional(),
   world_info_deactivate: z.array(z.string().min(1)).optional(),
@@ -183,6 +189,7 @@ export function makeStubCheckpoint(id: string, suggestedName: string): Checkpoin
 export const StorySchema = z.object({
   title: z.string().min(1),
   description: z.string().trim().min(1).optional(),
+  arc_template: ArcTemplateIdSchema.optional(),
   global_lorebook: z.string().min(1),
   roles: z.record(z.string().min(1), z.string().min(1)).optional(),
   defaults: DefaultsSchema.optional(),

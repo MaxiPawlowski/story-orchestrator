@@ -1,4 +1,5 @@
 import type {
+  ArcTemplateId,
   AuthorNotePosition,
   AuthorNoteRole,
   PresetOverrides,
@@ -33,6 +34,8 @@ export interface NormalizedCheckpoint {
   id: string;
   name: string;
   objective: string;
+  tension_target?: number;
+  progress_override?: number;
   authors_note?: Partial<Record<Role, NormalizedAuthorNote>>;
   world_info?: NormalizedWorldInfo;
   preset_overrides?: RolePresetOverrides;
@@ -98,6 +101,7 @@ export interface NormalizedStory {
   schemaVersion: "2.0";
   title: string;
   description?: string;
+  arc_template?: ArcTemplateId;
   global_lorebook: string;
   roles?: Partial<Record<Role, string>>;
   defaults?: {

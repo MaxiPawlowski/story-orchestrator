@@ -1,6 +1,7 @@
 import {
   TALK_CONTROL_TRIGGERS,
   type Story,
+  type ArcTemplateId,
   type InlineTransition,
   type TransitionTrigger,
   type Role,
@@ -75,6 +76,8 @@ export type CheckpointDraft = {
   id: string;
   name: string;
   objective: string;
+  tension_target?: number;
+  progress_override?: number;
   authors_note?: Partial<Record<Role, AuthorNoteDraft>>;
   world_info?: string[];
   world_info_deactivate?: string[];
@@ -90,6 +93,7 @@ export type CheckpointDraft = {
 export type StoryDraft = {
   title: string;
   description?: string;
+  arc_template?: ArcTemplateId;
   global_lorebook: string;
   roles?: Record<string, string>;
   defaults?: DefaultsDraft;
@@ -191,6 +195,8 @@ const normalizedCheckpointToDraft = (
     id: cp.id,
     name: cp.name,
     objective: cp.objective,
+    tension_target: cp.tension_target,
+    progress_override: cp.progress_override,
     authors_note: authors,
     world_info: cp.world_info?.activate?.length ? [...cp.world_info.activate] : undefined,
     preset_overrides: cp.preset_overrides ? cloneStructured(cp.preset_overrides) : undefined,
@@ -212,6 +218,7 @@ const normalizedTriggerToDraft = (trigger: NormalizedTransitionTrigger): Transit
 const createEmptyDraft = (): StoryDraft => ({
   title: "Untitled Story",
   description: "",
+  arc_template: undefined,
   global_lorebook: "",
   roles: undefined,
   defaults: undefined,
@@ -236,6 +243,7 @@ export const normalizedToDraft = (story: NormalizedStory | null | undefined): St
   return {
     title: story.title,
     description: story.description ?? "",
+    arc_template: story.arc_template,
     global_lorebook: story.global_lorebook,
     roles: story.roles
       ? (Object.fromEntries(Object.entries(story.roles).filter(([, v]) => typeof v === "string")) as Record<string, string>)
@@ -341,6 +349,8 @@ export const draftToStoryInput = (draft: StoryDraft): Story => {
         id: cp.id.trim(),
         name: cp.name.trim(),
         objective: cp.objective.trim(),
+        ...(cp.tension_target !== undefined ? { tension_target: cp.tension_target } : {}),
+        ...(cp.progress_override !== undefined ? { progress_override: cp.progress_override } : {}),
         ...(authors_note ? { authors_note } : {}),
         ...(world_info.length ? { world_info } : {}),
         ...(world_info_deactivate.length ? { world_info_deactivate } : {}),
@@ -370,6 +380,7 @@ export const draftToStoryInput = (draft: StoryDraft): Story => {
   return {
     title,
     ...(description ? { description } : {}),
+    ...(draft.arc_template ? { arc_template: draft.arc_template } : {}),
     global_lorebook: lore,
     ...(roles ? { roles } : {}),
     ...(defaults ? { defaults } : {}),

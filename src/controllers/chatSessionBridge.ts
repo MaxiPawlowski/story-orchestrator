@@ -1,11 +1,8 @@
 import { PLAYER_SPEAKER_ID } from "@constants/main";
-import { getCharacterNameById, getContext } from "@services/STAPI";
+import { getCharacterNameById, getContext, subscribeToHostEvent } from "@services/STAPI";
+import type { EventHandler } from "@services/stHost/events";
+import { isNonArrayObject } from "@utils/dataHelpers";
 import { normalizeName } from "@utils/string";
-import { subscribeToEventSource } from "@utils/event-source";
-
-interface ListenerDisposer {
-  (): void;
-}
 
 export interface ChatSessionContextSnapshot {
   chatId: string | null;
@@ -52,7 +49,7 @@ export type ChatSessionBridgeEvent =
 export type ChatSessionBridgeListener = (event: ChatSessionBridgeEvent) => void;
 
 const listeners = new Set<ChatSessionBridgeListener>();
-const hostListeners: ListenerDisposer[] = [];
+const hostListeners: Array<() => void> = [];
 
 let retainCount = 0;
 let started = false;
@@ -72,14 +69,6 @@ const createInitialSnapshot = (): ChatSessionBridgeSnapshot => ({
 
 let snapshot: ChatSessionBridgeSnapshot = createInitialSnapshot();
 
-const asRecord = (value: unknown): Record<string, unknown> | null => (
-  value && typeof value === "object" ? value as Record<string, unknown> : null
-);
-
-const firstValue = (value: unknown) => Array.isArray(value) ? value[0] : value;
-
-const readString = (value: unknown) => typeof value === "string" ? value.trim() : "";
-
 const emit = (event: ChatSessionBridgeEvent) => {
   Array.from(listeners).forEach((listener) => {
     try {
@@ -90,7 +79,27 @@ const emit = (event: ChatSessionBridgeEvent) => {
   });
 };
 
-const readChatSnapshot = (): ChatSessionContextSnapshot => {
+// ---------------------------------------------------------------------------
+// Host-event payload parsers
+//
+// Each parser maps a raw ST event payload to a typed result.
+// Defensive handling for inconsistent host payloads is isolated here;
+// all downstream code consumes the typed return values.
+// ---------------------------------------------------------------------------
+
+const readString = (value: unknown): string =>
+  typeof value === "string" ? value.trim() : "";
+
+const readOptionalString = (value: unknown): string | null =>
+  typeof value === "string" ? (value.trim() || null) : null;
+
+const asRecord = (value: unknown): Record<string, unknown> | null =>
+  isNonArrayObject(value) ? value : null;
+
+const firstValue = (value: unknown): unknown =>
+  Array.isArray(value) ? value[0] : value;
+
+export const parseChatContextPayload = (): ChatSessionContextSnapshot => {
   try {
     const { chatId, groupId } = getContext();
     return {
@@ -103,14 +112,27 @@ const readChatSnapshot = (): ChatSessionContextSnapshot => {
   }
 };
 
-const readDraftedSpeakerName = (payload: unknown): string | null => {
+export const parseDraftedSpeakerPayload = (payload: unknown): string | null => {
   const chid = firstValue(payload);
   const idNum = Number.parseInt(String(chid), 10);
   if (Number.isFinite(idNum)) return getCharacterNameById(idNum) ?? null;
-  return readString(asRecord(payload)?.name) || null;
+  return readOptionalString(asRecord(payload)?.name);
 };
 
-const pickUserTextFromChat = (): ChatSessionUserMessageEvent | null => {
+export const parseUserMessagePayload = (...args: unknown[]): ChatSessionUserMessageEvent | null => {
+  const record = asRecord(args.find((value) => value != null));
+  if (!record) return null;
+  const text = readString(record.mes) || readString(record.text);
+  if (!text) return null;
+
+  const messageId = record.mesId ?? record.id;
+  return {
+    text,
+    key: messageId != null ? `id:${messageId}` : `text:${text.toLowerCase()}`,
+  };
+};
+
+export const pickUserTextFromChat = (): ChatSessionUserMessageEvent | null => {
   const { chat } = getContext();
   for (let i = chat.length - 1; i >= 0; i -= 1) {
     const message = chat[i];
@@ -124,20 +146,7 @@ const pickUserTextFromChat = (): ChatSessionUserMessageEvent | null => {
   return null;
 };
 
-const readUserMessageFromPayload = (...args: unknown[]): ChatSessionUserMessageEvent | null => {
-  const record = asRecord(args.find((value) => value != null));
-  if (!record) return null;
-  const text = readString(record.mes) || readString(record.text);
-  if (!text) return null;
-
-  const messageId = record.mesId ?? record.id;
-  return {
-    text,
-    key: messageId != null ? `id:${messageId}` : `text:${text.toLowerCase()}`,
-  };
-};
-
-const readReceivedMessage = (messageId: number, messageType?: string): ChatSessionReceivedMessageEvent | null => {
+export const parseReceivedMessagePayload = (messageId: number, messageType?: string): ChatSessionReceivedMessageEvent | null => {
   const { chat } = getContext();
   const message = chat[messageId];
   if (!message) return null;
@@ -154,16 +163,43 @@ const readReceivedMessage = (messageId: number, messageType?: string): ChatSessi
   };
 };
 
+export interface GenerationStartedFields {
+  type: string | null;
+  dryRun: boolean;
+  speakerCandidate: string | null;
+}
+
+export const parseGenerationStartedPayload = (args: unknown[], draftedSpeakerName: string | null): GenerationStartedFields => {
+  const [firstArg, secondArg, thirdArg, fourthArg] = args;
+  const firstRecord = asRecord(firstArg);
+  const secondRecord = asRecord(secondArg);
+  const type = typeof firstArg === "string" ? firstArg : readOptionalString(firstRecord?.type);
+  const dryRun = typeof thirdArg === "boolean" ? thirdArg : Boolean(secondRecord?.dryRun);
+  const payload = asRecord(firstValue(fourthArg ?? firstRecord));
+  const speakerCandidate = (
+    draftedSpeakerName
+    ?? readOptionalString(payload?.character)
+    ?? readOptionalString(payload?.quietName)
+  );
+  return { type, dryRun, speakerCandidate };
+};
+
+export const parseMessageReceivedArgs = (args: unknown[]): { messageId: number; messageType: string | undefined } => ({
+  messageId: Number(args[0]),
+  messageType: typeof args[1] === "string" ? args[1] : undefined,
+});
+
+// ---------------------------------------------------------------------------
+// Bridge event emitters and host-event handlers
+// ---------------------------------------------------------------------------
+
 const emitChatSnapshot = (force = false) => {
-  const nextChat = readChatSnapshot();
+  const nextChat = parseChatContextPayload();
   const prevChat = snapshot.chat;
   if (!force && prevChat.chatId === nextChat.chatId && prevChat.groupChatSelected === nextChat.groupChatSelected) {
     return;
   }
-  snapshot = {
-    ...snapshot,
-    chat: nextChat,
-  };
+  snapshot = { ...snapshot, chat: nextChat };
   emit({ type: "chat", chat: nextChat });
 };
 
@@ -173,85 +209,63 @@ const setGenerationSnapshot = (
 ) => {
   snapshot = {
     ...snapshot,
-    generation: {
-      ...snapshot.generation,
-      ...next,
-    },
+    generation: { ...snapshot.generation, ...next },
   };
   emit({ type: eventType, generation: snapshot.generation });
 };
 
 const publishUserMessage = (...args: unknown[]) => {
-  const message = readUserMessageFromPayload(...args) ?? pickUserTextFromChat();
+  const message = parseUserMessagePayload(...args) ?? pickUserTextFromChat();
   if (!message) return false;
   emit({ type: "user-message", message });
   return true;
 };
 
-const handleUserMessage = (...args: unknown[]) => {
+const handleUserMessage: EventHandler = (...args) => {
   if (publishUserMessage(...args)) return;
-
-  // ST can emit MESSAGE_SENT before the new chat entry is visible in getContext().chat.
-  setTimeout(() => {
-    publishUserMessage(...args);
-  }, 0);
+  setTimeout(() => { publishUserMessage(...args); }, 0);
 };
 
-const handleDrafted = (payload: unknown) => {
-  setGenerationSnapshot({ draftedSpeakerName: readDraftedSpeakerName(payload) }, "generation-drafted");
+const handleDrafted: EventHandler = (payload) => {
+  setGenerationSnapshot({ draftedSpeakerName: parseDraftedSpeakerPayload(payload) }, "generation-drafted");
 };
 
-const handleGenerationStarted = (...args: unknown[]) => {
-  const [firstArg, secondArg, thirdArg, fourthArg] = args;
-  const firstRecord = asRecord(firstArg);
-  const secondRecord = asRecord(secondArg);
-  const type = typeof firstArg === "string" ? firstArg : readString(firstRecord?.type) || null;
-  const dryRun = typeof thirdArg === "boolean" ? thirdArg : Boolean(secondRecord?.dryRun);
-  const payload = asRecord(firstValue(fourthArg ?? firstRecord));
-  const candidate = (
-    snapshot.generation.draftedSpeakerName
-    ?? readString(payload?.character)
-    ?? readString(payload?.quietName)
-  ) || null;
-  setGenerationSnapshot({ active: true, type, dryRun, speakerName: candidate }, "generation-started");
+const handleGenerationStarted: EventHandler = (...args) => {
+  const { type, dryRun, speakerCandidate } = parseGenerationStartedPayload(args, snapshot.generation.draftedSpeakerName);
+  setGenerationSnapshot({ active: true, type, dryRun, speakerName: speakerCandidate }, "generation-started");
 };
 
-const handleGenerationStopped = () => {
+const handleGenerationStopped: EventHandler = () => {
   setGenerationSnapshot({ active: false }, "generation-stopped");
 };
 
-const handleGenerationEnded = () => {
+const handleGenerationEnded: EventHandler = () => {
   setGenerationSnapshot({ active: false, type: null, dryRun: false, speakerName: null, draftedSpeakerName: null }, "generation-ended");
 };
 
-const handleMessageReceived = (messageId: number, messageType?: string) => {
-  const message = readReceivedMessage(messageId, messageType);
-  if (!message) return;
-  emit({ type: "message-received", message });
+const handleMessageReceived: EventHandler = (...args) => {
+  const { messageId, messageType } = parseMessageReceivedArgs(args);
+  const message = parseReceivedMessagePayload(messageId, messageType);
+  if (message) emit({ type: "message-received", message });
 };
 
-const addHostListener = (eventName: string | undefined, handler: (...args: unknown[]) => void) => {
+// ---------------------------------------------------------------------------
+// Host subscription management
+// ---------------------------------------------------------------------------
+
+const addHostListener = (eventName: string | undefined, handler: EventHandler) => {
   if (!eventName) return;
-  const { eventSource } = getContext();
-  hostListeners.push(subscribeToEventSource({
-    source: eventSource,
-    eventName,
-    handler,
-  }));
+  hostListeners.push(subscribeToHostEvent(eventName, handler));
 };
 
-const addHostListeners = (eventNames: Array<string | undefined>, handler: (...args: unknown[]) => void) => {
-  eventNames.forEach((eventName) => {
-    addHostListener(eventName, handler);
-  });
+const addHostListeners = (eventNames: Array<string | undefined>, handler: EventHandler) => {
+  for (const eventName of eventNames) addHostListener(eventName, handler);
 };
 
 const cleanupHostListeners = () => {
   while (hostListeners.length) {
     const off = hostListeners.pop();
-    try {
-      off?.();
-    } catch (err) {
+    try { off?.(); } catch (err) {
       console.warn("[Story - ChatSessionBridge] unsubscribe failed", err);
     }
   }
@@ -269,13 +283,10 @@ const ensureStarted = () => {
     eventTypes.GROUP_CHAT_CREATED,
     eventTypes.CHAT_DELETED,
     eventTypes.GROUP_CHAT_DELETED,
-  ], () => {
-    emitChatSnapshot();
-  });
+  ], () => { emitChatSnapshot(); });
+
   addHostListener(eventTypes.MESSAGE_SENT, handleUserMessage);
-  addHostListener(eventTypes.MESSAGE_RECEIVED, (...args) => {
-    handleMessageReceived(Number(args[0]), typeof args[1] === "string" ? args[1] : undefined);
-  });
+  addHostListener(eventTypes.MESSAGE_RECEIVED, handleMessageReceived);
   addHostListener(eventTypes.GROUP_MEMBER_DRAFTED, handleDrafted);
   addHostListener(eventTypes.GENERATION_STARTED, handleGenerationStarted);
   addHostListener(eventTypes.GENERATION_STOPPED, handleGenerationStopped);
@@ -306,7 +317,7 @@ export const getChatSessionBridgeSnapshot = (): ChatSessionBridgeSnapshot => {
   if (!started) {
     snapshot = {
       ...snapshot,
-      chat: readChatSnapshot(),
+      chat: parseChatContextPayload(),
     };
   }
   return snapshot;

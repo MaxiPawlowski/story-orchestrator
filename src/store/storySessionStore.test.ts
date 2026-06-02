@@ -23,6 +23,10 @@ import {
   persistStoryState,
   type RuntimeStoryState,
 } from "@utils/story-state";
+import {
+  DEFAULT_PACING_DRIFT_THRESHOLD,
+  DEFAULT_TENSION_EMA_ALPHA,
+} from "@constants/defaults";
 import { extensionName } from "@constants/main";
 import { createBasicStory } from "@services/__mocks__/testData";
 import type { NormalizedStory } from "@utils/story-validator";
@@ -32,6 +36,13 @@ const actualStoryState = jest.requireActual<typeof import("@utils/story-state")>
 
 const loadStoryStateMock = loadStoryState as jest.MockedFunction<typeof loadStoryState>;
 const persistStoryStateMock = persistStoryState as jest.MockedFunction<typeof persistStoryState>;
+
+const pacingRuntimeFields = {
+  tension_current: undefined,
+  tension_ema: undefined,
+  pacing_phase: undefined,
+  pacing_hint: undefined,
+};
 
 const createStory = () => createBasicStory({
   checkpoints: [
@@ -78,6 +89,7 @@ describe("storySessionStore runtime writes", () => {
         "cp-1": CheckpointStatus.Complete,
         "cp-2": CheckpointStatus.Current,
       },
+      ...pacingRuntimeFields,
     };
     loadStoryStateMock.mockReturnValue({
       state: storedRuntime,
@@ -136,6 +148,7 @@ describe("storySessionStore runtime writes", () => {
           "cp-1": CheckpointStatus.Failed,
           "cp-2": CheckpointStatus.Current,
         },
+        ...pacingRuntimeFields,
       },
       storyKey: "story-key",
     });
@@ -171,6 +184,7 @@ describe("storySessionStore runtime writes", () => {
         "cp-1": CheckpointStatus.Complete,
         "cp-2": CheckpointStatus.Current,
       },
+      ...pacingRuntimeFields,
     });
   });
 
@@ -193,6 +207,7 @@ describe("storySessionStore runtime writes", () => {
         "cp-1": CheckpointStatus.Current,
         "cp-2": CheckpointStatus.Pending,
       },
+      ...pacingRuntimeFields,
     });
     expect(storySessionStore.getState().story).toBe(story);
     expect(storySessionStore.getState().storyKey).toBe("story-c");
@@ -236,6 +251,7 @@ describe("storySessionStore runtime writes", () => {
         "cp-1": CheckpointStatus.Complete,
         "cp-2": CheckpointStatus.Current,
       },
+      ...pacingRuntimeFields,
     });
     expect(persistStoryStateMock).toHaveBeenCalledWith({
       chatId: "chat-4",
@@ -249,6 +265,7 @@ describe("storySessionStore runtime writes", () => {
           "cp-1": CheckpointStatus.Complete,
           "cp-2": CheckpointStatus.Current,
         },
+        ...pacingRuntimeFields,
       },
       storyKey: "story-d",
       roadmap: "updated roadmap",
@@ -282,6 +299,7 @@ describe("storySessionStore runtime writes", () => {
         "cp-1": CheckpointStatus.Current,
         "cp-2": CheckpointStatus.Pending,
       },
+      ...pacingRuntimeFields,
     });
     expect(storySessionStore.getState().hydrated).toBe(false);
     expect(persistStoryStateMock).not.toHaveBeenCalled();
@@ -294,6 +312,194 @@ describe("storySessionStore runtime writes", () => {
       "cp-3": 7,
     })).toEqual({
       "cp-1": CheckpointStatus.Complete,
+    });
+  });
+
+  it("exports pacing defaults and leaves default runtime pacing unset", () => {
+    const story = createStory();
+
+    expect(DEFAULT_TENSION_EMA_ALPHA).toBe(0.3);
+    expect(DEFAULT_PACING_DRIFT_THRESHOLD).toBe(0.3);
+    expect(actualStoryState.makeDefaultState(story)).toEqual({
+      checkpointIndex: 0,
+      activeCheckpointKey: "cp-1",
+      turnsSinceEval: 0,
+      checkpointTurnCount: 0,
+      checkpointStatusMap: {
+        "cp-1": CheckpointStatus.Current,
+        "cp-2": CheckpointStatus.Pending,
+      },
+      ...pacingRuntimeFields,
+      memory: undefined,
+    });
+  });
+
+  it("sanitizeRuntime clamps tension and keeps only known pacing phases", () => {
+    const story = createStory();
+
+    expect(actualStoryState.sanitizeRuntime({
+      checkpointIndex: 0,
+      activeCheckpointKey: "cp-1",
+      turnsSinceEval: 1,
+      checkpointTurnCount: 2,
+      checkpointStatusMap: {
+        "cp-1": CheckpointStatus.Current,
+        "cp-2": CheckpointStatus.Pending,
+      },
+      tension_current: 2,
+      tension_ema: -1,
+      pacing_phase: "  rising  ",
+      pacing_hint: "  add pressure  ",
+    }, story)).toEqual({
+      checkpointIndex: 0,
+      activeCheckpointKey: "cp-1",
+      turnsSinceEval: 1,
+      checkpointTurnCount: 2,
+      checkpointStatusMap: {
+        "cp-1": CheckpointStatus.Current,
+        "cp-2": CheckpointStatus.Pending,
+      },
+      tension_current: 1,
+      tension_ema: 0,
+      pacing_phase: "rising",
+      pacing_hint: "add pressure",
+      memory: undefined,
+    });
+
+    expect(actualStoryState.sanitizeRuntime({
+      checkpointIndex: 0,
+      activeCheckpointKey: "cp-1",
+      turnsSinceEval: 1,
+      checkpointTurnCount: 2,
+      checkpointStatusMap: {
+        "cp-1": CheckpointStatus.Current,
+        "cp-2": CheckpointStatus.Pending,
+      },
+      tension_current: 0.4,
+      tension_ema: 0.6,
+      pacing_phase: "  escalation  ",
+      pacing_hint: "  add pressure  ",
+    }, story)).toEqual({
+      checkpointIndex: 0,
+      activeCheckpointKey: "cp-1",
+      turnsSinceEval: 1,
+      checkpointTurnCount: 2,
+      checkpointStatusMap: {
+        "cp-1": CheckpointStatus.Current,
+        "cp-2": CheckpointStatus.Pending,
+      },
+      tension_current: 0.4,
+      tension_ema: 0.6,
+      pacing_phase: undefined,
+      pacing_hint: "add pressure",
+      memory: undefined,
+    });
+  });
+
+  it("decodes pacing fields safely from persisted state", () => {
+    const story = createStory();
+
+    expect(actualStoryState.decodePersistedChatState({
+      storySignature: "sig",
+      storyKey: " story-key ",
+      checkpointIndex: 1,
+      activeCheckpointKey: " cp-2 ",
+      turnsSinceEval: 3,
+      checkpointTurnCount: 4,
+      checkpointStatusMap: {
+        "cp-1": CheckpointStatus.Complete,
+        "cp-2": CheckpointStatus.Current,
+      },
+      tension_current: "1.2",
+      tension_ema: -0.5,
+      pacing_phase: "  climax  ",
+      pacing_hint: "  let them breathe  ",
+      updatedAt: 123,
+    }, story)).toEqual({
+      storySignature: "sig",
+      storyKey: "story-key",
+      checkpointIndex: 1,
+      activeCheckpointKey: "cp-2",
+      turnsSinceEval: 3,
+      checkpointTurnCount: 4,
+      checkpointStatusMap: {
+        "cp-1": CheckpointStatus.Complete,
+        "cp-2": CheckpointStatus.Current,
+      },
+      tension_current: 1,
+      tension_ema: 0,
+      pacing_phase: "climax",
+      pacing_hint: "let them breathe",
+      memory: undefined,
+      updatedAt: 123,
+      roadmap: undefined,
+    });
+
+    expect(actualStoryState.decodePersistedChatState({
+      storySignature: "sig",
+      checkpointIndex: 0,
+      activeCheckpointKey: "cp-1",
+      turnsSinceEval: 0,
+      checkpointTurnCount: 0,
+      checkpointStatusMap: {
+        "cp-1": CheckpointStatus.Current,
+        "cp-2": CheckpointStatus.Pending,
+      },
+      tension_current: { bad: true },
+      tension_ema: "not-a-number",
+      pacing_phase: 7,
+      pacing_hint: ["bad"],
+      updatedAt: 123,
+    }, story)).toEqual({
+      storySignature: "sig",
+      storyKey: null,
+      checkpointIndex: 0,
+      activeCheckpointKey: "cp-1",
+      turnsSinceEval: 0,
+      checkpointTurnCount: 0,
+      checkpointStatusMap: {
+        "cp-1": CheckpointStatus.Current,
+        "cp-2": CheckpointStatus.Pending,
+      },
+      ...pacingRuntimeFields,
+      memory: undefined,
+      updatedAt: 123,
+      roadmap: undefined,
+    });
+
+    expect(actualStoryState.decodePersistedChatState({
+      storySignature: "sig",
+      checkpointIndex: 0,
+      activeCheckpointKey: "cp-1",
+      turnsSinceEval: 0,
+      checkpointTurnCount: 0,
+      checkpointStatusMap: {
+        "cp-1": CheckpointStatus.Current,
+        "cp-2": CheckpointStatus.Pending,
+      },
+      tension_current: 0.4,
+      tension_ema: 0.6,
+      pacing_phase: "  cooldown  ",
+      pacing_hint: "  keep moving  ",
+      updatedAt: 123,
+    }, story)).toEqual({
+      storySignature: "sig",
+      storyKey: null,
+      checkpointIndex: 0,
+      activeCheckpointKey: "cp-1",
+      turnsSinceEval: 0,
+      checkpointTurnCount: 0,
+      checkpointStatusMap: {
+        "cp-1": CheckpointStatus.Current,
+        "cp-2": CheckpointStatus.Pending,
+      },
+      tension_current: 0.4,
+      tension_ema: 0.6,
+      pacing_phase: undefined,
+      pacing_hint: "keep moving",
+      memory: undefined,
+      updatedAt: 123,
+      roadmap: undefined,
     });
   });
 
@@ -340,6 +546,7 @@ describe("storySessionStore runtime writes", () => {
           "cp-1": CheckpointStatus.Complete,
           "cp-2": CheckpointStatus.Current,
         },
+        ...pacingRuntimeFields,
       },
       source: "stored",
       storyKey: "story-legacy",
@@ -447,9 +654,122 @@ describe("storySessionStore runtime writes", () => {
           "cp-1": CheckpointStatus.Current,
           "cp-2": CheckpointStatus.Pending,
         },
+        ...pacingRuntimeFields,
       },
       source: "stored",
       storyKey: "story-stub",
+      roadmap: undefined,
+    });
+  });
+
+  it("round-trips persisted memory while dropping malformed entries per store", () => {
+    const story = createStory();
+    const validMemory = {
+      consequences: [
+        {
+          id: "csq-1",
+          text: "Bridge is damaged",
+          weight: 0.8,
+          tags: ["bridge", "travel"],
+          sourceCheckpointId: "cp-1",
+          createdAtTurn: 3,
+        },
+      ],
+      seeds: [
+        {
+          id: "seed-1",
+          text: "The lantern may matter later",
+          kind: "hook" as const,
+          resolved: false,
+          sourceCheckpointId: "cp-1",
+          createdAtTurn: 4,
+        },
+      ],
+      roleStates: {
+        guide: {
+          role: "guide",
+          summary: "Knows the hidden path",
+          lastUpdatedTurn: 5,
+        },
+      },
+      sceneMemory: [
+        {
+          text: "Rain started over the ruins",
+          checkpointId: "cp-1",
+          turn: 6,
+        },
+      ],
+      foregoneTransitions: [
+        {
+          transitionId: "skip-camp",
+          fromCheckpointId: "cp-1",
+          reason: "Party chose the mountain trail",
+          turn: 7,
+        },
+      ],
+    };
+
+    actualStoryState.persistStoryState({
+      chatId: "chat-memory",
+      story,
+      storyKey: "story-memory",
+      state: {
+        checkpointIndex: 0,
+        activeCheckpointKey: "cp-1",
+        turnsSinceEval: 1,
+        checkpointTurnCount: 2,
+        checkpointStatusMap: {
+          "cp-1": CheckpointStatus.Current,
+          "cp-2": CheckpointStatus.Pending,
+        },
+        memory: validMemory,
+      },
+    });
+
+    const root = mockContext.extensionSettings[extensionName] as { storyState: Record<string, any> };
+    expect(root.storyState["chat-memory"].memory).toEqual(validMemory);
+
+    root.storyState["chat-memory"].memory = {
+      consequences: [
+        validMemory.consequences[0],
+        { id: "bad-csq", text: 42 },
+      ],
+      seeds: [
+        validMemory.seeds[0],
+        { id: "bad-seed", text: "oops", kind: "bad-kind" },
+      ],
+      roleStates: {
+        guide: validMemory.roleStates.guide,
+        broken: { role: "broken", summary: 99 },
+      },
+      sceneMemory: [
+        validMemory.sceneMemory[0],
+        { text: "bad-scene", checkpointId: "cp-1", turn: "later" },
+      ],
+      foregoneTransitions: [
+        validMemory.foregoneTransitions[0],
+        { transitionId: "bad-transition", fromCheckpointId: "cp-1", reason: 123 },
+      ],
+    };
+
+    const decoded = actualStoryState.decodePersistedChatState(root.storyState["chat-memory"], story);
+
+    expect(decoded?.memory).toEqual(validMemory);
+    expect(actualStoryState.loadStoryState({ chatId: "chat-memory", story })).toEqual({
+      state: {
+        checkpointIndex: 0,
+        activeCheckpointKey: "cp-1",
+        turnsSinceEval: 1,
+        checkpointTurnCount: 2,
+        checkpointStatusMap: {
+          "cp-1": CheckpointStatus.Current,
+          "cp-2": CheckpointStatus.Pending,
+        },
+        ...pacingRuntimeFields,
+        memory: validMemory,
+      },
+      source: "stored",
+      storyKey: "story-memory",
       roadmap: undefined,
     });
   });
