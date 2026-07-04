@@ -22,6 +22,8 @@ module.exports = {
       "@constants": path.resolve(__dirname, "src/constants"),
       "@controllers": path.resolve(__dirname, "src/controllers"),
       "@store": path.resolve(__dirname, "src/store"),
+      "@engine": path.resolve(__dirname, "src/engine"),
+      "@runtime": path.resolve(__dirname, "src/runtime"),
     },
     fallback: {
       fs: false,

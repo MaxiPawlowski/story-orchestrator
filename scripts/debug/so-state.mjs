@@ -3,102 +3,62 @@ import { connectToST } from './lib/connection.mjs';
 import { ensureSTReady } from './lib/st-ready.mjs';
 import { evaluateInST } from './lib/evaluate.mjs';
 import { writeJSON } from './lib/output.mjs';
+import { openMostRecentGroupChat } from './st-navigation.mjs';
 
-function decodePersistedEntry(entry) {
+function decodeRuntime(entry) {
   if (!entry || typeof entry !== 'object') return null;
+  const engine = entry.engineState ?? {};
   return {
-    storySignature: entry.storySignature ?? null,
-    storyKey: entry.storyKey ?? null,
-    checkpointIndex: entry.checkpointIndex ?? 0,
-    activeCheckpointKey: entry.activeCheckpointKey ?? null,
-    turnsSinceEval: entry.turnsSinceEval ?? 0,
-    checkpointTurnCount: entry.checkpointTurnCount ?? 0,
-    checkpointStatusMap: entry.checkpointStatusMap ?? {},
-    updatedAt: entry.updatedAt ? new Date(entry.updatedAt).toISOString() : null,
-    roadmap: entry.roadmap ?? null,
+    storyHash: entry.storyHash ?? null,
+    storyTitle: entry.storyTitle ?? null,
+    activeCheckpointId: engine.activeCheckpointId ?? null,
+    boundary: engine.boundary ?? 0,
+    checkpointStartedBoundary: engine.checkpointStartedBoundary ?? null,
+    visitedAnchors: engine.visitedAnchors ?? [],
+    blackboard: engine.blackboard?.values ?? {},
+    versions: engine.blackboard?.versions ?? {},
+    latched: engine.blackboard?.latched ?? {},
+    requirements: entry.extras?.requirements ?? null,
+    firedNpcReplies: entry.extras?.firedNpcReplies ?? {},
+    updatedAt: entry.extras?.updatedAt ?? null,
   };
 }
 
 export async function dumpStoryState(page) {
-  const raw = await evaluateInST(page, () => {
+  return await evaluateInST(page, () => {
     const ctx = SillyTavern.getContext();
-    return ctx.extensionSettings?.['story-orchestrator']?.storyState ?? null;
+    return ctx.chatMetadata?.story_orchestrator ?? null;
   });
-
-  if (!raw || typeof raw !== 'object') return null;
-
-  const result = {};
-  for (const [chatKey, entry] of Object.entries(raw)) {
-    result[chatKey] = decodePersistedEntry(entry);
-  }
-  return result;
 }
 
 export async function dumpCurrentChatState(page) {
+  const before = await evaluateInST(page, () => ({ chatId: SillyTavern.getContext().chatId, groupId: SillyTavern.getContext().groupId }));
+  if (!before?.chatId) {
+    await openMostRecentGroupChat(page);
+  }
   const data = await evaluateInST(page, () => {
     const ctx = SillyTavern.getContext();
-    const chatId = ctx.chatId;
-    const groupId = ctx.groupId ?? null;
-    const ext = ctx.extensionSettings?.['story-orchestrator'];
-    const stateMap = ext?.storyState;
-    const storySelected = ext?.studio?.lastSelectedKey ?? null;
-
-    if (!stateMap || !chatId) {
-      return { chatId, groupId, entry: null, checkpointNames: null, activeStory: null, storySelected };
-    }
-
-    const entry = stateMap[chatId] ?? null;
-    let checkpointNames = null;
-    let activeStory = null;
-
-    if (entry?.storyKey && ext?.studio?.stories) {
-      const storyId = entry.storyKey.replace(/^saved:/, '');
-      const record = ext.studio.stories.find((s) => s.id === storyId);
-      if (record?.story) {
-        const checkpoints = Array.isArray(record.story.checkpoints) ? record.story.checkpoints : [];
-        const transitions = Array.isArray(record.story.transitions) ? record.story.transitions : [];
-        checkpointNames = {};
-        for (const cp of checkpoints) {
-          if (cp.id) checkpointNames[cp.id] = cp.name || cp.id;
-        }
-        activeStory = {
-          id: record.id,
-          name: record.name,
-          checkpointCount: checkpoints.length,
-          transitionCount: transitions.length,
-        };
-      }
-    }
-
-    return { chatId, groupId, entry, checkpointNames, activeStory, storySelected };
+    const blob = ctx.chatMetadata?.story_orchestrator ?? null;
+    const selected = blob?.selectedStoryHash ?? null;
+    const entry = selected && blob?.stories ? blob.stories[selected] ?? null : null;
+    return {
+      chatId: ctx.chatId,
+      groupId: ctx.groupId ?? null,
+      selectedStoryHash: selected,
+      version: blob?.version ?? null,
+      storyCount: blob?.stories ? Object.keys(blob.stories).length : 0,
+      entry,
+    };
   });
 
-  if (!data) return null;
-
-  const decoded = decodePersistedEntry(data.entry);
-  if (!decoded) return { chatId: data.chatId, groupId: data.groupId, state: null };
-
-  if (data.checkpointNames && decoded.checkpointStatusMap) {
-    const enriched = {};
-    for (const [key, status] of Object.entries(decoded.checkpointStatusMap)) {
-      const name = data.checkpointNames[key];
-      enriched[key] = name ? `${status} (${name})` : status;
-    }
-    decoded.checkpointStatusMap = enriched;
-  }
-
-  if (data.checkpointNames && decoded.activeCheckpointKey) {
-    const name = data.checkpointNames[decoded.activeCheckpointKey];
-    if (name) decoded.activeCheckpointName = name;
-  }
-
   return {
-    chatId: data.chatId,
-    groupId: data.groupId,
-    storySelected: data.storySelected,
-    activeStory: data.activeStory,
-    state: decoded,
-    _note: 'State is from persisted snapshot — live Zustand values (e.g. turnsSinceEval between persists) may differ.',
+    chatId: data?.chatId ?? null,
+    groupId: data?.groupId ?? null,
+    version: data?.version ?? null,
+    selectedStoryHash: data?.selectedStoryHash ?? null,
+    storyCount: data?.storyCount ?? 0,
+    state: decodeRuntime(data?.entry),
+    _note: 'State is from chatMetadata.story_orchestrator for the current chat.',
   };
 }
 

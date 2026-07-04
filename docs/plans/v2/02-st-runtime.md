@@ -53,3 +53,36 @@ Make a format-2 story run live in SillyTavern with mechanical gates end to end: 
 ## Delegated decisions
 
 Exact chat_metadata blob layout; boundary heuristics details (must be recorded in Gate record); how much of v1 PresetService composition survives vs simplification; drawer visual design.
+
+## Gate record
+
+Date: 2026-07-04
+
+Baseline:
+- `npm run typecheck` passed.
+- `npm run lint` passed.
+- `npm test` passed: 1 suite, 12 tests.
+- `npm run build` passed with warnings only: stale Browserslist data and webpack asset/entrypoint size over 244 KiB (`dist/index.js` 263 KiB).
+
+Live checks:
+- `node scripts/debug/st-navigation.mjs recent-group` passed: opened group `1759606632088`, chat `2026-03-26@12h08m16s199ms`, user `Max`.
+- `node scripts/debug/so-runtime-check.mjs` passed: imported `Runtime Gate Check`, `/cp state` returned no parser error, `/cp set found_key true` advanced `start -> door`, `onEnter` scripted reply fired once (`door:onEnter:DM Narrator:0 = 1`), `{{story_blackboard}}` resolved with live values, `/cp activate end` persisted active checkpoint `end`.
+- `node scripts/debug/so-state.mjs current` passed after reopening recent group: read `chatMetadata.story_orchestrator`, version `2`, selected story `v2-8373d2be`, active checkpoint `end`, boundary `3`, fired reply counter persisted.
+- `node scripts/debug/st-actions.mjs generation-state` passed: `isGenerating: false`.
+- `node scripts/debug/so-ui.mjs all` passed for extension load: settings and drawer mounted. It starts on the welcome screen, so the generic drawer dump is empty unless a chat is opened first; `so-state.mjs current` now opens recent group before reading state.
+
+Boundary and persistence decisions:
+- TurnBridge commits on `MESSAGE_RECEIVED` / `CHARACTER_MESSAGE_RENDERED`, debounced by 250 ms to avoid duplicate host events.
+- If any generation is in flight, a boundary is queued and committed on `GENERATION_ENDED` / `GENERATION_STOPPED`; quiet and loud generations both block commits.
+- Group member replies are treated as boundaries. In the live check, an `onEnter` scripted `/sendas` reply produced an additional boundary after checkpoint activation.
+- Chat mutations subscribe to `MESSAGE_SWIPED`, `MESSAGE_EDITED`, `MESSAGE_DELETED`, and `MESSAGE_UPDATED`; rollback currently maps message id to nearest engine boundary and re-applies restored checkpoint effects.
+- Runtime state persists in `chatMetadata.story_orchestrator = { version, selectedStoryHash, stories }`, keyed by story hash. Saves call both `saveMetadataDebounced()` and immediate `saveMetadata()` so reload checks are durable.
+- Story library records live in extension settings under `v2Stories`; selected story remains per chat in chat metadata.
+
+Deviations / incomplete plan items:
+- Mechanical live check used `/cp set found_key true` instead of `st-actions.mjs send × N`; extractor is plan 03, and `/sendas` scripted replies were enough to verify boundary commits.
+- Two-member group-round semantics were not fully validated with a model-generated multi-member round. Current decision remains spec-aligned: every rendered member reply is a boundary and effects can apply before subsequent members.
+- Real delete/swipe mutation was not validated live. Event subscriptions and rollback path are wired, but the gate used persisted state checks instead of destructive chat edits.
+- WI toggling was implemented via existing `enableWIEntry` / `disableWIEntry` wrappers but not live-verified because the active test chat has no known disposable lorebook entry.
+- LLM NPC replies use `/trigger await=true <member>`; the old v1 loud-generation intercept semantics were not fully reintroduced beyond keeping `globalThis.talkControlInterceptor` as a no-op. Scripted NPC replies are functional and persisted with counters.
+- Preset effects accept a named preset or inline settings object and apply through `applyTextGenPresetRuntime`; v1 composition/base-preset merging was not restored.

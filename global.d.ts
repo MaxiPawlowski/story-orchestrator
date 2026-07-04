@@ -32,4 +32,5 @@ declare global {
 
   var talkControlInterceptor: TalkControlInterceptor | undefined;
   var ST_applyTextgenPresetToUI: import("@services/stHost/presets").TextGenPresetUiBridge | undefined;
+  var storyOrchestratorRuntime: import("@runtime/index").RuntimeManager | undefined;
 }

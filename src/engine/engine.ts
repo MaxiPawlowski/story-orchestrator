@@ -13,6 +13,8 @@ export interface EngineState {
   activeCheckpointId: string;
   visitedAnchors: string[];
   boundary: number;
+  checkpointStartedBoundary: number;
+  checkpointStartedAt: number;
 }
 
 export interface BoundaryResult {
@@ -28,6 +30,7 @@ export interface BoundaryLogEntry {
   before: EngineState;
   after: EngineState;
   fired: NormalizedTransition | null;
+  source: "gate" | "manual";
 }
 
 const DEFAULT_HOST: EngineHost = { now: () => Date.now() };
@@ -39,6 +42,8 @@ export class StoryEngine {
   private activeCheckpointId = "";
   private visitedAnchors: string[] = [];
   private boundary = 0;
+  private checkpointStartedBoundary = 0;
+  private checkpointStartedAt = 0;
   private readonly snapshots = new Map<number, EngineState>();
   private readonly boundaryLog: BoundaryLogEntry[] = [];
   private readonly advanceCallbacks = new Set<(transition: NormalizedTransition) => void>();
@@ -52,6 +57,8 @@ export class StoryEngine {
     this.activeCheckpointId = normalized.startCheckpointId;
     this.visitedAnchors = normalized.checkpointById[this.activeCheckpointId]?.type === "anchor" ? [this.activeCheckpointId] : [];
     this.boundary = 0;
+    this.checkpointStartedBoundary = 0;
+    this.checkpointStartedAt = this.host.now();
     this.snapshots.clear();
     this.boundaryLog.length = 0;
     this.recordSnapshot();
@@ -64,6 +71,8 @@ export class StoryEngine {
     this.activeCheckpointId = state.activeCheckpointId;
     this.visitedAnchors = [...state.visitedAnchors];
     this.boundary = state.boundary;
+    this.checkpointStartedBoundary = state.checkpointStartedBoundary ?? state.boundary;
+    this.checkpointStartedAt = state.checkpointStartedAt ?? this.host.now();
     this.snapshots.clear();
     this.boundaryLog.length = 0;
     this.recordSnapshot();
@@ -75,6 +84,8 @@ export class StoryEngine {
       activeCheckpointId: this.activeCheckpointId,
       visitedAnchors: [...this.visitedAnchors],
       boundary: this.boundary,
+      checkpointStartedBoundary: this.checkpointStartedBoundary,
+      checkpointStartedAt: this.checkpointStartedAt,
     };
   }
 
@@ -96,6 +107,8 @@ export class StoryEngine {
     if (fired) {
       applyTransitionProgress(blackboard, fired);
       this.activeCheckpointId = fired.to;
+      this.checkpointStartedBoundary = this.boundary + 1;
+      this.checkpointStartedAt = this.host.now();
       const checkpoint = story.checkpointById[fired.to];
       if (checkpoint?.type === "anchor") this.visitedAnchors.push(fired.to);
       effects = checkpoint?.effects ?? null;
@@ -104,7 +117,7 @@ export class StoryEngine {
 
     this.boundary += 1;
     const after = this.serialize();
-    this.boundaryLog.push({ boundary: this.boundary, before, after, fired });
+    this.boundaryLog.push({ boundary: this.boundary, before, after, fired, source: "gate" });
     if (this.boundaryLog.length > 200) this.boundaryLog.shift();
     this.recordSnapshot();
 
@@ -122,6 +135,24 @@ export class StoryEngine {
       if (key > snapshotBoundary) this.snapshots.delete(key);
     });
     return true;
+  }
+
+  activateCheckpoint(id: string): BoundaryResult {
+    const story = this.requireStory();
+    const checkpoint = story.checkpointById[id];
+    if (!checkpoint) throw new Error(`Unknown checkpoint '${id}'`);
+    const before = this.serialize();
+    const queue = this.queue.drainAtBoundary(this.requireBlackboard());
+    this.activeCheckpointId = id;
+    this.checkpointStartedBoundary = this.boundary + 1;
+    this.checkpointStartedAt = this.host.now();
+    if (checkpoint.type === "anchor") this.visitedAnchors.push(id);
+    this.boundary += 1;
+    const after = this.serialize();
+    this.boundaryLog.push({ boundary: this.boundary, before, after, fired: null, source: "manual" });
+    if (this.boundaryLog.length > 200) this.boundaryLog.shift();
+    this.recordSnapshot();
+    return { boundary: this.boundary, queue, fired: null, effects: checkpoint.effects ?? null, activeCheckpointId: this.activeCheckpointId };
   }
 
   get activeCheckpoint() {
@@ -144,7 +175,12 @@ export class StoryEngine {
     if (story.qualityByKey.message_count?.source === "code") {
       blackboard.applyDelta({ q: "message_count", v: this.boundary + 1, source: "code" });
     }
-    void this.host.now();
+    if (story.qualityByKey.messages_in_checkpoint?.source === "code") {
+      blackboard.applyDelta({ q: "messages_in_checkpoint", v: this.boundary - this.checkpointStartedBoundary + 1, source: "code" });
+    }
+    if (story.qualityByKey.elapsed?.source === "code") {
+      blackboard.applyDelta({ q: "elapsed", v: Math.max(0, Math.floor((this.host.now() - this.checkpointStartedAt) / 1000)), source: "code" });
+    }
   }
 
   private recordSnapshot(): void {

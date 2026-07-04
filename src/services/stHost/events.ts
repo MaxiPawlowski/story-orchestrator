@@ -11,6 +11,10 @@ export interface HostEventPayloads {
   GROUP_CHAT_DELETED: [];
   MESSAGE_SENT: [payload: Record<string, unknown> | undefined];
   MESSAGE_RECEIVED: [messageId: number, messageType?: string];
+  MESSAGE_SWIPED: [messageId: number];
+  MESSAGE_EDITED: [messageId: number];
+  MESSAGE_DELETED: [messageId: number];
+  MESSAGE_UPDATED: [messageId: number];
   GROUP_MEMBER_DRAFTED: [characterId: number | [number]];
   GENERATION_STARTED: [
     typeOrPayload: string | Record<string, unknown> | undefined,

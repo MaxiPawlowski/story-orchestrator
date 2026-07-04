@@ -35,4 +35,5 @@ export {
   listSlashCommands,
 } from "@services/stHost/selectors";
 export type { HostSlashCommandMeta } from "@services/stHost/selectors";
+export { getActiveGroup, resolveGroupMemberId, setGroupMembersDisabled } from "@services/stHost/groups";
 

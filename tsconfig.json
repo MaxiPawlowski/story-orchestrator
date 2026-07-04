@@ -20,8 +20,9 @@
       "@constants/*": ["constants/*"],
       "@store/*": ["store/*"],
       "@engine/*": ["engine/*"],
+      "@runtime/*": ["runtime/*"]
     }
   },
-  "include": ["src/index.tsx", "src/engine/**/*.ts", "global.d.ts"],
+  "include": ["src/index.tsx", "src/engine/**/*.ts", "src/runtime/**/*.ts", "src/services/**/*.ts", "src/utils/**/*.ts", "src/constants/**/*.ts", "global.d.ts"],
   "exclude": ["src/**/*.test.ts"]
 }

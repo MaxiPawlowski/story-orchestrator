@@ -1,0 +1,252 @@
+import { StoryEngine, isValidationErrorList, type ApplyQueueEntry, type NormalizedStoryV2, type PrimitiveValue, type ValidationError } from "@engine/index";
+import { EffectsApplier } from "./effectsApplier";
+import { evaluateRequirements } from "./requirements";
+import { loadPersistedRuntime, savePersistedRuntime, setSelectedStoryHash, getSelectedStoryHash } from "./persistence";
+import { findStoryRecord, listStoryRecords, loadStoryRecord, saveStoryRecord } from "./storyLibrary";
+import type { LoadedStory, RuntimeExtras, RuntimeSnapshot } from "./types";
+
+const emptyRequirements = { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] };
+
+const createExtras = (): RuntimeExtras => ({
+  firedNpcReplies: {},
+  requirements: emptyRequirements,
+  lastAppliedCheckpointId: null,
+  updatedAt: new Date().toISOString(),
+});
+
+export class RuntimeManager {
+  private engine = new StoryEngine();
+  private loaded: LoadedStory | null = null;
+  private extras: RuntimeExtras = createExtras();
+  private validationErrors: ValidationError[] = [];
+  private status = "No story loaded";
+  private readonly effects = new EffectsApplier();
+  private readonly listeners = new Set<() => void>();
+
+  subscribe(listener: () => void) {
+    this.listeners.add(listener);
+    return () => { this.listeners.delete(listener); };
+  }
+
+  notify() {
+    this.listeners.forEach((listener) => listener());
+  }
+
+  async loadSelectedFromChat() {
+    const hash = getSelectedStoryHash();
+    if (!hash) {
+      this.loaded = null;
+      this.status = "No story selected for this chat";
+      this.notify();
+      return;
+    }
+    await this.selectStory(hash, "hydrate");
+  }
+
+  async importStory(rawText: string) {
+    let raw: unknown;
+    try {
+      raw = JSON.parse(rawText);
+    } catch (error) {
+      this.validationErrors = [{ path: "$", message: error instanceof Error ? error.message : "Invalid JSON" }];
+      this.status = "Import failed";
+      this.notify();
+      return false;
+    }
+
+    const saved = saveStoryRecord(raw);
+    if (isValidationErrorList(saved)) {
+      this.validationErrors = saved;
+      this.status = "Story validation failed";
+      this.notify();
+      return false;
+    }
+
+    await this.loadStory(saved, "activate");
+    return true;
+  }
+
+  async selectStory(hash: string, mode: "activate" | "hydrate" = "activate") {
+    const record = findStoryRecord(hash);
+    if (!record) {
+      this.validationErrors = [{ path: "story", message: `Unknown story '${hash}'` }];
+      this.status = "Story not found";
+      this.notify();
+      return false;
+    }
+    const loaded = loadStoryRecord(record);
+    if (isValidationErrorList(loaded)) {
+      this.validationErrors = loaded;
+      this.status = "Story validation failed";
+      this.notify();
+      return false;
+    }
+    await this.loadStory(loaded, mode);
+    return true;
+  }
+
+  async commitBoundary() {
+    if (!this.loaded) return null;
+    this.refreshRequirements();
+    const result = this.engine.commitBoundary();
+    if (result.effects) {
+      await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate");
+    } else if (this.extras.requirements.ready && this.extras.lastAppliedCheckpointId !== this.engine.activeCheckpoint.id) {
+      await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate");
+    }
+    this.persist();
+    this.status = result.fired ? `Advanced to ${result.activeCheckpointId}` : `Committed boundary ${result.boundary}`;
+    this.notify();
+    return result;
+  }
+
+  async activateCheckpoint(id: string) {
+    if (!this.loaded) return false;
+    this.refreshRequirements();
+    this.engine.activateCheckpoint(id);
+    await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate");
+    this.persist();
+    this.status = `Manually activated ${id}`;
+    this.notify();
+    return true;
+  }
+
+  async setQuality(key: string, valueText: string) {
+    if (!this.loaded) return false;
+    const quality = this.loaded.story.qualityByKey[key];
+    if (!quality) {
+      this.status = `Unknown quality ${key}`;
+      this.notify();
+      return false;
+    }
+    const value = this.parseQualityValue(quality.type, valueText);
+    if (value === undefined) {
+      this.status = `Invalid ${quality.type} value for ${key}`;
+      this.notify();
+      return false;
+    }
+    const entry: ApplyQueueEntry = {
+      source: "mechanical",
+      basisVersion: 0,
+      deltas: [{ q: key, v: value, source: quality.source }],
+    };
+    this.engine.enqueue(entry);
+    await this.commitBoundary();
+    return true;
+  }
+
+  async fireAfterSpeak() {
+    if (!this.loaded) return;
+    await this.effects.fireNpcReplies(this.engine.activeCheckpoint, this.extras, "afterSpeak");
+    this.persist();
+    this.notify();
+  }
+
+  async rollbackFromMessage(messageId: number) {
+    if (!this.loaded) return;
+    const boundary = Math.max(0, Number.isFinite(messageId) ? Math.floor(messageId) : this.engine.serialize().boundary - 1);
+    const changed = this.engine.rollbackTo(boundary);
+    if (changed) {
+      this.refreshRequirements();
+      await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate");
+      this.persist();
+      this.status = `Rolled back to boundary ${boundary}`;
+      this.notify();
+    }
+  }
+
+  getStory(): NormalizedStoryV2 | null {
+    return this.loaded?.story ?? null;
+  }
+
+  getSnapshot(): RuntimeSnapshot {
+    const state = this.loaded ? this.engine.serialize() : null;
+    const story = this.loaded?.story ?? null;
+    const active = state && story ? story.checkpointById[state.activeCheckpointId] : null;
+    const blackboard = state?.blackboard.values ?? {};
+    const blackboardMeta = Object.fromEntries(Object.keys(blackboard).map((key) => [key, {
+      version: state?.blackboard.versions[key] ?? 0,
+      latched: state?.blackboard.latched[key] ?? false,
+      source: story?.qualityByKey[key]?.source ?? "unknown",
+    }]));
+
+    return {
+      ready: Boolean(this.loaded),
+      storyHash: this.loaded?.record.hash ?? null,
+      storyTitle: this.loaded?.story.title ?? null,
+      storyDescription: this.loaded?.story.description ?? null,
+      activeCheckpointId: active?.id ?? null,
+      activeCheckpointName: active?.name ?? null,
+      activeObjective: active?.objective ?? null,
+      boundary: state?.boundary ?? 0,
+      blackboard,
+      blackboardMeta,
+      checkpoints: story?.checkpoints.map((checkpoint) => ({
+        id: checkpoint.id,
+        name: checkpoint.name,
+        objective: checkpoint.objective,
+        active: checkpoint.id === active?.id,
+        visited: Boolean(state?.visitedAnchors.includes(checkpoint.id)),
+      })) ?? [],
+      requirements: this.extras.requirements,
+      validationErrors: this.validationErrors,
+      library: listStoryRecords(),
+      status: this.status,
+    };
+  }
+
+  private async loadStory(loaded: LoadedStory, mode: "activate" | "hydrate") {
+    this.loaded = loaded;
+    this.validationErrors = [];
+    this.engine.loadStory(loaded.story);
+    const persisted = mode === "hydrate" ? loadPersistedRuntime(loaded.record.hash) : null;
+    this.extras = persisted?.extras ?? createExtras();
+    this.refreshRequirements();
+    if (mode === "hydrate" && persisted?.engineState) {
+      this.engine.hydrate(persisted.engineState);
+      await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate");
+      this.status = `Hydrated ${loaded.story.title}`;
+    } else {
+      await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate");
+      this.status = `Loaded ${loaded.story.title}`;
+    }
+    setSelectedStoryHash(loaded.record.hash);
+    this.persist();
+    this.notify();
+  }
+
+  private persist() {
+    if (!this.loaded) return;
+    savePersistedRuntime({
+      storyHash: this.loaded.record.hash,
+      storyTitle: this.loaded.story.title,
+      engineState: this.engine.serialize(),
+      extras: this.extras,
+    });
+  }
+
+  private refreshRequirements() {
+    this.extras.requirements = evaluateRequirements(this.loaded?.story ?? null);
+    this.extras.updatedAt = new Date().toISOString();
+  }
+
+  private parseQualityValue(type: string, value: string): PrimitiveValue | undefined {
+    const trimmed = value.trim();
+    if (type === "bool") {
+      if (trimmed === "true") return true;
+      if (trimmed === "false") return false;
+      return undefined;
+    }
+    if (type === "int") {
+      const parsed = Number(trimmed);
+      return Number.isInteger(parsed) ? parsed : undefined;
+    }
+    if (type === "float") {
+      const parsed = Number(trimmed);
+      return Number.isFinite(parsed) ? parsed : undefined;
+    }
+    return trimmed;
+  }
+}
+
+export const runtimeManager = new RuntimeManager();
