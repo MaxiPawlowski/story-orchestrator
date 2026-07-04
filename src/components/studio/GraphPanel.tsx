@@ -1,18 +1,19 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import cytoscape, { Core, EventObject, StylesheetJson } from "cytoscape";
-import { StoryDraft, LayoutName } from "@utils/checkpoint-studio";
 import HelpTooltip from "./HelpTooltip";
 import {
   buildGraphElements,
   createGraphStyles,
+  type LayoutName,
   resizeAndFitGraph,
   resolveGraphThemeColors,
   runGraphLayout,
   syncGraphElements,
+  type StoryGraphDraft,
 } from "./graphPanelUtils";
 
 type Props = {
-  draft: StoryDraft;
+  draft: StoryGraphDraft;
   selectedId: string | null;
   disabled?: boolean;
   canAddTransition: boolean;

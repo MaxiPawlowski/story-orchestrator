@@ -59,3 +59,31 @@ Types for `EngineState` (serializable: blackboard values/versions/latches, activ
 ## Delegated decisions
 
 Zod version/idioms; exact normalized index structures; fixture story content; whether `storySessionStore` is stripped or replaced (must keep name/location for UI plans).
+
+## Gate record
+
+Date: 2026-07-04
+
+Command outputs:
+
+- `npm run typecheck`: passed.
+- `npm run lint`: passed.
+- `npm test`: passed, 1 suite / 12 tests.
+- `npm run build`: passed, emitted `dist/index.js`; Browserslist stale-data warning only.
+- Deleted-module reference check in `src/`: passed, no imports/references to removed v1 modules found.
+
+Live-ST checks:
+
+- `node scripts/debug/st-navigation.mjs recent-group`: passed, opened recent group chat `1759606632088` / `2026-03-26@12h08m16s199ms`.
+- `node scripts/debug/so-state.mjs current`: completed, returned `state: null` because v2 runtime persistence is not implemented until plan 02.
+- `node scripts/debug/so-ui.mjs all`: passed after adding selector wait for the inert v2 mount; settings and drawer stubs found, drawer visible.
+- `node scripts/debug/st-actions.mjs generation-state`: passed, `isGenerating: false`.
+
+Deviations:
+
+- `schema.ts`/`validate.ts` use strict manual validation instead of adding a new Zod dependency; the repo did not declare `zod` in `package.json`, and avoiding package-lock churn keeps this phase smaller.
+- `storySessionStore` was removed instead of stripped to a stub because the extension entry is inert for plan 01 and plan 02 owns the new runtime store/persistence binding.
+
+Plan 02 handoff:
+
+- Keep the old persistence key pattern in mind: `story_orchestrator:{chatId}:{hash}` in `chat_metadata`.

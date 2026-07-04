@@ -1,0 +1,23 @@
+{
+  "format": 2,
+  "title": "Branching Vault",
+  "description": "A minimal branching v2 story.",
+  "qualities": [
+    { "key": "route", "type": "enum", "values": ["stealth", "force"], "source": "extractor", "rubric": "Which route did the player choose?" },
+    { "key": "noise", "type": "int", "source": "extractor", "monotonic": true, "rubric": "How much noise has been made?" },
+    { "key": "guard_asleep", "type": "bool", "source": "extractor", "latching": true, "rubric": "Is the guard asleep?" }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "Choose Route", "objective": "Pick a route.", "type": "anchor", "start": true },
+    { "id": "stealth", "name": "Silent Hall", "objective": "Sneak past the guard.", "type": "intermediate" },
+    { "id": "alarm", "name": "Alarm", "objective": "Handle the alarm.", "type": "anchor" },
+    { "id": "exit", "name": "Exit", "objective": "Escape.", "type": "anchor", "convergence_threshold": 2 }
+  ],
+  "transitions": [
+    { "from": "start", "to": "alarm", "priority": 1, "gate": { "q": "noise", "op": ">=", "v": 5 } },
+    { "from": "start", "to": "stealth", "priority": 2, "gate": { "q": "route", "op": "==", "v": "stealth" }, "effects": { "progress": { "anchor": "exit", "amount": 1 } } },
+    { "from": "stealth", "to": "exit", "priority": 1, "gate": { "all": [ { "q": "guard_asleep", "op": "==", "v": true }, { "q": "progress_toward_exit", "op": ">=", "v": 1 } ] }, "effects": { "progress": { "anchor": "exit", "amount": 1 } } },
+    { "from": "alarm", "to": "exit", "priority": 1, "gate": { "q": "progress_toward_exit", "op": ">=", "v": 2 } }
+  ],
+  "roster": []
+}

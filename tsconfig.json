@@ -19,7 +19,9 @@
       "@controllers/*": ["controllers/*"],
       "@constants/*": ["constants/*"],
       "@store/*": ["store/*"],
+      "@engine/*": ["engine/*"],
     }
   },
-  "include": ["src", "global.d.ts"]
+  "include": ["src/index.tsx", "src/engine/**/*.ts", "global.d.ts"],
+  "exclude": ["src/**/*.test.ts"]
 }

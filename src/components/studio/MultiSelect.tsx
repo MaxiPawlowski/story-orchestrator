@@ -8,7 +8,7 @@ type Props = {
   onChange: (next: string[]) => void;
   placeholder?: string;
   className?: string;
-  listHeight?: number; // pixels
+  listHeight?: number;
 };
 
 const MultiSelect: React.FC<Props> = ({ options, value, onChange, placeholder = "Search…", className = "", listHeight = 180 }) => {

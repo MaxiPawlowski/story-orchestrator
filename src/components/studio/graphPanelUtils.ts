@@ -1,5 +1,24 @@
 import type { Core, ElementDefinition, LayoutOptions } from "cytoscape";
-import type { LayoutName, StoryDraft } from "@utils/checkpoint-studio";
+
+export type LayoutName = "breadthfirst" | "grid" | "cose" | "dagre";
+
+export interface StoryGraphTransitionDraft {
+  id?: string;
+  _stableId?: string;
+  to: string;
+  label?: string;
+}
+
+export interface StoryGraphCheckpointDraft {
+  id: string;
+  name?: string;
+  transitions?: StoryGraphTransitionDraft[];
+}
+
+export interface StoryGraphDraft {
+  start?: string;
+  checkpoints: StoryGraphCheckpointDraft[];
+}
 
 export type GraphThemeColors = {
   bgActive: string;
@@ -43,7 +62,7 @@ export const resolveGraphThemeColors = (): GraphThemeColors => {
   };
 };
 
-export const buildGraphElements = (draft: StoryDraft, selectedId: string | null): ElementDefinition[] => {
+export const buildGraphElements = (draft: StoryGraphDraft, selectedId: string | null): ElementDefinition[] => {
   const nodes: ElementDefinition[] = draft.checkpoints
     .filter((cp) => cp.id && cp.id.trim())
     .map((cp) => ({

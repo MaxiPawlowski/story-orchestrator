@@ -1,86 +1,52 @@
-import { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
-import { createPortal } from "react-dom";
-import { StoryProvider } from "./components/context/StoryContext";
-import { ExtensionSettingsProvider } from "@components/context/ExtensionSettingsContext";
-import DrawerWrapper from "@components/drawer";
-import SettingsWrapper from "@components/settings";
 import "./styles.css";
-import { getTalkControlInterceptor } from "@controllers/orchestratorManager";
-import { getContext } from "@services/STAPI";
-import { registerTextgenPresetUiBridge } from "@services/textgenPresetUiBridge";
-
-registerTextgenPresetUiBridge();
 
 if (typeof globalThis !== "undefined") {
-  try {
-    globalThis.talkControlInterceptor = (chat: unknown, contextSize: number, abort: (immediate: boolean) => void, type: string) => {
-      const interceptor = getTalkControlInterceptor();
-      if (interceptor) {
-        return interceptor(chat, contextSize, abort, type);
-      }
-    };
-  } catch (err) {
-    console.warn("[Story] Failed to register talk control interceptor", err);
+  globalThis.talkControlInterceptor = () => undefined;
+}
+
+const StatusPanel = () => (
+  <div id="stepthink_settings">
+    <div className="inline-drawer">
+      <div className="inline-drawer-toggle inline-drawer-header flex items-center justify-between">
+        <b>Story Orchestrator</b>
+      </div>
+      <div className="inline-drawer-content px-3 py-2 !flex flex-col gap-2">
+        <p className="text-sm">v2 engine core installed.</p>
+        <p className="text-xs opacity-70">Runtime, persistence, extraction, and Studio v2 land in later phases.</p>
+      </div>
+    </div>
+  </div>
+);
+
+const DrawerPanel = () => (
+  <div id="drawer-manager" className="drawer-content pinnedOpen">
+    <div className="p-2 text-sm">Story Orchestrator v2 engine installed.</div>
+  </div>
+);
+
+const mount = (attempt = 0) => {
+  const settingsRootContainer = document.getElementById("extensions_settings");
+  if (settingsRootContainer && !document.getElementById("stepthink_settings")) {
+    const settingsRootElement = document.createElement("div");
+    settingsRootContainer.appendChild(settingsRootElement);
+    ReactDOM.createRoot(settingsRootElement).render(<StatusPanel />);
   }
-}
 
-const settingsRootContainer = document.getElementById("extensions_settings");
-if (!settingsRootContainer) {
-  throw new Error("Settings root container not found");
-}
-
-const settingsRootElement = document.createElement("div");
-settingsRootContainer.appendChild(settingsRootElement);
-
-const DrawerPortal = () => {
-  const [drawerNode, setDrawerNode] = useState<HTMLElement | null>(null);
-
-  useEffect(() => {
-    const drawerRootContainer = document.getElementById("movingDivs");
-
-    if (!drawerRootContainer) {
-      console.error("[Story] Drawer manager root container not found");
-      return;
-    }
-
+  const drawerRootContainer = document.getElementById("movingDivs");
+  if (drawerRootContainer && !document.getElementById("drawer-manager")) {
     const drawerRootElement = document.createElement("div");
-    drawerRootElement.id = "drawer-manager";
-    drawerRootElement.classList.add("drawer-content");
-    drawerRootElement.classList.add("pinnedOpen");
-
     drawerRootContainer.appendChild(drawerRootElement);
-    setDrawerNode(drawerRootElement);
-
-    return () => {
-      if (drawerRootContainer.contains(drawerRootElement)) {
-        drawerRootContainer.removeChild(drawerRootElement);
-      }
-    };
-  }, []);
-
-  if (!drawerNode) {
-    return null;
+    ReactDOM.createRoot(drawerRootElement).render(<DrawerPanel />);
   }
 
-  return createPortal(<DrawerWrapper />, drawerNode);
+  if ((!settingsRootContainer || !drawerRootContainer) && attempt < 50) {
+    window.setTimeout(() => mount(attempt + 1), 100);
+  }
 };
 
-const AppRoot = () => {
-  return (
-    <ExtensionSettingsProvider>
-      <StoryProvider>
-        <SettingsWrapper />
-        <DrawerPortal />
-      </StoryProvider>
-    </ExtensionSettingsProvider>
-  );
-};
-
-(async () => {
-  const { eventSource, event_types } = await getContext();
-  eventSource.on(event_types.APP_INITIALIZED, () => {
-    const settingsRoot = ReactDOM.createRoot(settingsRootElement);
-    settingsRoot.render(<AppRoot />);
-  });
-})();
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => mount(), { once: true });
+} else {
+  window.setTimeout(mount, 0);
+}

@@ -197,6 +197,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       browser = conn.browser;
       const { page } = conn;
       await ensureSTReady(page);
+      await page.waitForFunction(
+        () => document.querySelector('#stepthink_settings') || document.querySelector('#drawer-manager'),
+        null,
+        { timeout: 5000 },
+      ).catch(() => undefined);
 
       const subcommand = process.argv[2] || 'all';
 
