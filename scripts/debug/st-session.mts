@@ -3,10 +3,10 @@ import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
-import { clearSession, DEBUG_DIR, DEFAULT_CDP_PORT, DEFAULT_ST_URL, DEFAULT_TIMEOUT_MS, getSessionStatus, SESSION_PATH, writeSession } from './lib/connection.mjs';
-import { ensureSTReady } from './lib/st-ready.mjs';
+import { clearSession, DEBUG_DIR, DEFAULT_CDP_PORT, DEFAULT_ST_URL, DEFAULT_TIMEOUT_MS, getSessionStatus, SESSION_PATH, writeSession } from './lib/connection.mts';
+import { ensureSTReady } from './lib/st-ready.mts';
 
-const USAGE = `Usage: node scripts/debug/st-session.mjs <start|stop|status> [--headed]
+const USAGE = `Usage: node scripts/debug/st-session.mts <start|stop|status> [--headed]
 
 Commands:
   start      Launch shared Chromium with a CDP endpoint
@@ -18,7 +18,7 @@ function argValue(name, fallback) {
   return index >= 0 && process.argv[index + 1] ? process.argv[index + 1] : fallback;
 }
 
-function execFilePromise(file, args, options = {}) {
+function execFilePromise(file, args, options = {}): Promise<string> {
   return new Promise((resolveP, rejectP) => {
     execFile(file, args, { timeout: DEFAULT_TIMEOUT_MS, ...options }, (error, stdout, stderr) => {
       if (error) {
@@ -137,7 +137,7 @@ async function runStarter() {
   } catch (err) {
     if (child.pid) {
       if (process.platform === 'win32') {
-        await new Promise((resolveKill) => execFile('taskkill.exe', ['/pid', String(child.pid), '/t', '/f'], () => resolveKill()));
+        await new Promise<void>((resolveKill) => execFile('taskkill.exe', ['/pid', String(child.pid), '/t', '/f'], () => resolveKill()));
       } else {
         try { process.kill(child.pid, 'SIGTERM'); } catch {}
       }
@@ -191,12 +191,13 @@ async function startSession() {
 
 async function stopSession() {
   const status = await getSessionStatus();
-  if (status.session?.pid) {
-    await new Promise((resolveKill) => {
+  const pid = status.session?.pid;
+  if (pid) {
+    await new Promise<void>((resolveKill) => {
       if (process.platform === 'win32') {
-        execFile('taskkill.exe', ['/pid', String(status.session.pid), '/t', '/f'], () => resolveKill());
+        execFile('taskkill.exe', ['/pid', String(pid), '/t', '/f'], () => resolveKill());
       } else {
-        try { process.kill(status.session.pid, 'SIGTERM'); } catch {}
+        try { process.kill(pid, 'SIGTERM'); } catch {}
         resolveKill();
       }
     });

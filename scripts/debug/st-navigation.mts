@@ -1,8 +1,7 @@
 import { fileURLToPath } from 'node:url';
-import { connectToST } from './lib/connection.mjs';
-import { ensureSTReady } from './lib/st-ready.mjs';
-import { evaluateInST } from './lib/evaluate.mjs';
-import { writeJSON, writeScreenshot } from './lib/output.mjs';
+import { evaluateInST } from './lib/evaluate.mts';
+import { writeJSON, writeScreenshot } from './lib/output.mts';
+import { runCli, hasHelpFlag } from './lib/cli.mts';
 
 async function waitForChatChange(page, previousChatId, timeout = 15000) {
   const deadline = Date.now() + timeout;
@@ -21,7 +20,7 @@ async function waitForChatChange(page, previousChatId, timeout = 15000) {
 
 export async function getWelcomeRecentChats(page) {
   return evaluateInST(page, () => {
-    return Array.from(document.querySelectorAll('.recentChat')).map((el, index) => ({
+    return Array.from(document.querySelectorAll<HTMLElement>('.recentChat')).map((el, index) => ({
       index,
       visible: el.offsetParent !== null,
       hidden: el.classList.contains('hidden'),
@@ -135,57 +134,44 @@ Actions:
   recent-group-new    Open the most recent group chat, then start a new session`;
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  (async () => {
-    const action = process.argv[2];
-    const keepOpen = process.argv.includes('--keep-open');
+  const action = process.argv[2];
+  const keepOpen = process.argv.includes('--keep-open');
 
-    if (!action || action === '--help' || action === '-h') {
+  if (!action || hasHelpFlag()) {
+    console.log(USAGE);
+    process.exit(0);
+  }
+
+  runCli(async (page) => {
+    await page.waitForTimeout(2000);
+
+    let result;
+    if (action === 'recent-group') {
+      result = await openMostRecentGroupChat(page);
+      console.log(JSON.stringify(result, null, 2));
+      await writeJSON(result, 'st-navigation-recent-group');
+      await writeScreenshot(page, 'st-navigation-recent-group');
+    } else if (action === 'new-group-session') {
+      result = await startNewGroupSession(page);
+      console.log(JSON.stringify(result, null, 2));
+      await writeJSON(result, 'st-navigation-new-group-session');
+      await writeScreenshot(page, 'st-navigation-new-group-session');
+    } else if (action === 'recent-group-new') {
+      const opened = await openMostRecentGroupChat(page);
+      const started = await startNewGroupSession(page);
+      result = { opened, started };
+      console.log(JSON.stringify(result, null, 2));
+      await writeJSON(result, 'st-navigation-recent-group-new');
+      await writeScreenshot(page, 'st-navigation-recent-group-new');
+    } else {
+      console.error(`Unknown action: ${action}`);
       console.log(USAGE);
-      process.exit(0);
+      return { ok: false };
     }
 
-    let browser;
-    try {
-      const conn = await connectToST();
-      browser = conn.browser;
-      const { page } = conn;
-      await ensureSTReady(page);
-      await page.waitForTimeout(2000);
-
-      let result;
-      if (action === 'recent-group') {
-        result = await openMostRecentGroupChat(page);
-        console.log(JSON.stringify(result, null, 2));
-        await writeJSON(result, 'st-navigation-recent-group');
-        await writeScreenshot(page, 'st-navigation-recent-group');
-      } else if (action === 'new-group-session') {
-        result = await startNewGroupSession(page);
-        console.log(JSON.stringify(result, null, 2));
-        await writeJSON(result, 'st-navigation-new-group-session');
-        await writeScreenshot(page, 'st-navigation-new-group-session');
-      } else if (action === 'recent-group-new') {
-        const opened = await openMostRecentGroupChat(page);
-        const started = await startNewGroupSession(page);
-        result = { opened, started };
-        console.log(JSON.stringify(result, null, 2));
-        await writeJSON(result, 'st-navigation-recent-group-new');
-        await writeScreenshot(page, 'st-navigation-recent-group-new');
-      } else {
-        console.error(`Unknown action: ${action}`);
-        console.log(USAGE);
-        process.exitCode = 1;
-        return;
-      }
-
-      if (keepOpen) {
-        console.log('Browser left open. Ctrl+C to stop.');
-        await new Promise(() => {});
-      }
-    } catch (err) {
-      console.error('Error:', err.message);
-      process.exitCode = 1;
-    } finally {
-      if (browser && !keepOpen) browser.close();
+    if (keepOpen) {
+      console.log('Browser left open. Ctrl+C to stop.');
+      await new Promise(() => {});
     }
-  })();
+  }, { keepOpen });
 }

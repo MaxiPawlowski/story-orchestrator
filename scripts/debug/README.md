@@ -68,7 +68,7 @@ Supported steps: `import_story`, `select_story`, `send`, `send_generate`, `slash
 Mutation event gate:
 
 ```bash
-node scripts/debug/so-mutation-check.mjs
+node scripts/debug/so-mutation-check.mts
 ```
 
 This creates a scratch group chat, prepares one deterministic multi-swipe message, runs `swipe`, `edit`, and `delete`, then asserts ST emitted `MESSAGE_SWIPED`, `MESSAGE_EDITED`, and `MESSAGE_DELETED`.
@@ -76,10 +76,10 @@ This creates a scratch group chat, prepares one deterministic multi-swipe messag
 ## Payload Capture
 
 ```bash
-node scripts/debug/st-payload.mjs arm
-node scripts/debug/st-actions.mjs send "Trigger a generation"
-node scripts/debug/st-payload.mjs last
-node scripts/debug/st-payload.mjs watch 3 --timeout-ms 60000
+node scripts/debug/st-payload.mts arm
+node scripts/debug/st-actions.mts send "Trigger a generation"
+node scripts/debug/st-payload.mts last
+node scripts/debug/st-payload.mts watch 3 --timeout-ms 60000
 ```
 
 Payload capture hooks fetch/XHR inside the shared page and records recent generation requests. Group generation attribution uses `GROUP_MEMBER_DRAFTED` when available.
@@ -89,7 +89,7 @@ Payload capture hooks fetch/XHR inside the shared page and records recent genera
 For deterministic rollback tests, swipe an existing multi-swipe message:
 
 ```bash
-node scripts/debug/st-actions.mjs swipe 12 1
+node scripts/debug/st-actions.mts swipe 12 1
 ```
 
 If the message has no target swipe, the command fails instead of triggering real generation.

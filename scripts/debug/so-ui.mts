@@ -1,8 +1,7 @@
 import { fileURLToPath } from 'node:url';
-import { connectToST } from './lib/connection.mjs';
-import { ensureSTReady } from './lib/st-ready.mjs';
-import { evaluateInST } from './lib/evaluate.mjs';
-import { writeJSON, writeScreenshot } from './lib/output.mjs';
+import { evaluateInST } from './lib/evaluate.mts';
+import { writeJSON, writeScreenshot } from './lib/output.mts';
+import { runCli, hasHelpFlag } from './lib/cli.mts';
 
 export async function openExtensionSettings(page) {
   const root = page.locator('#stepthink_settings');
@@ -43,7 +42,7 @@ export async function getSettingsPanelState(page) {
 
     let selectedStory = null;
     if (storySelect) {
-      const sel = /** @type {HTMLSelectElement} */ (storySelect);
+      const sel = storySelect as HTMLSelectElement;
       const opt = sel.options[sel.selectedIndex];
       selectedStory = {
         value: sel.value,
@@ -51,8 +50,8 @@ export async function getSettingsPanelState(page) {
       };
     }
 
-    const freq = freqInput ? /** @type {HTMLInputElement} */ (freqInput).value : null;
-    const promptText = promptArea ? /** @type {HTMLTextAreaElement} */ (promptArea).value : null;
+    const freq = freqInput ? (freqInput as HTMLInputElement).value : null;
+    const promptText = promptArea ? (promptArea as HTMLTextAreaElement).value : null;
     const arbiterPromptPreview = promptText
       ? promptText.slice(0, 100) + (promptText.length > 100 ? '...' : '')
       : null;
@@ -199,59 +198,46 @@ open-studio: open Checkpoint Studio modal.
 screenshot [label]: take an annotated screenshot.`;
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  if (process.argv.includes('--help') || process.argv.includes('-h')) {
+  if (hasHelpFlag()) {
     console.log(USAGE);
     process.exit(0);
   }
-  (async () => {
-    let browser;
-    try {
-      const conn = await connectToST();
-      browser = conn.browser;
-      const { page } = conn;
-      await ensureSTReady(page);
-      await page.waitForFunction(
-        () => document.querySelector('#stepthink_settings') || document.querySelector('#drawer-manager'),
-        null,
-        { timeout: 5000 },
-      ).catch(() => undefined);
+  runCli(async (page) => {
+    await page.waitForFunction(
+      () => document.querySelector('#stepthink_settings') || document.querySelector('#drawer-manager'),
+      null,
+      { timeout: 5000 },
+    ).catch(() => undefined);
 
-      const subcommand = process.argv[2] || 'all';
+    const subcommand = process.argv[2] || 'all';
 
-      if (subcommand === 'settings' || subcommand === 'all') {
-        console.log('--- Settings Panel State ---');
-        const state = await getSettingsPanelState(page);
-        console.log(JSON.stringify(state, null, 2));
-        await writeJSON(state, 'so-ui-settings');
-      }
-
-      if (subcommand === 'drawer' || subcommand === 'all') {
-        console.log('--- Drawer State ---');
-        const state = await getDrawerState(page);
-        console.log(JSON.stringify(state, null, 2));
-        await writeJSON(state, 'so-ui-drawer');
-      }
-
-      if (subcommand === 'open-settings') {
-        const result = await openExtensionSettings(page);
-        console.log('Settings panel opened:', JSON.stringify(result));
-      }
-
-      if (subcommand === 'open-studio') {
-        const result = await openCheckpointStudio(page);
-        console.log('Checkpoint Studio opened:', JSON.stringify(result));
-      }
-
-      if (subcommand === 'screenshot') {
-        const result = await takeAnnotatedScreenshot(page, 'so-ui-state');
-        console.log(`Screenshot: ${result.path} (drawer visible: ${result.drawerVisible})`);
-      }
-    } catch (err) {
-      console.error('Error:', err.message);
-      process.exitCode = 1;
-    } finally {
-      if (browser) await browser.close().catch(() => {});
-      process.exit(process.exitCode || 0);
+    if (subcommand === 'settings' || subcommand === 'all') {
+      console.log('--- Settings Panel State ---');
+      const state = await getSettingsPanelState(page);
+      console.log(JSON.stringify(state, null, 2));
+      await writeJSON(state, 'so-ui-settings');
     }
-  })();
+
+    if (subcommand === 'drawer' || subcommand === 'all') {
+      console.log('--- Drawer State ---');
+      const state = await getDrawerState(page);
+      console.log(JSON.stringify(state, null, 2));
+      await writeJSON(state, 'so-ui-drawer');
+    }
+
+    if (subcommand === 'open-settings') {
+      const result = await openExtensionSettings(page);
+      console.log('Settings panel opened:', JSON.stringify(result));
+    }
+
+    if (subcommand === 'open-studio') {
+      const result = await openCheckpointStudio(page);
+      console.log('Checkpoint Studio opened:', JSON.stringify(result));
+    }
+
+    if (subcommand === 'screenshot') {
+      const result = await takeAnnotatedScreenshot(page, 'so-ui-state');
+      console.log(`Screenshot: ${result.path} (drawer visible: ${result.drawerVisible})`);
+    }
+  });
 }

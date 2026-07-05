@@ -4,13 +4,11 @@
 // Not a Playwright script — runs entirely in Node against the filesystem.
 
 import { execFile } from 'node:child_process';
-import { access, readdir, readFile, writeFile, mkdir } from 'node:fs/promises';
-import { resolve, relative, extname, join, dirname } from 'node:path';
+import { access, readdir, readFile } from 'node:fs/promises';
+import { resolve, relative, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-
-const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
-const PROJECT_ROOT = resolve(SCRIPT_DIR, '..', '..');
-const DEBUG_DIR = resolve(PROJECT_ROOT, '.debug');
+import { PROJECT_ROOT } from './lib/connection.mts';
+import { writeJSON } from './lib/output.mts';
 
 async function pathExists(path) {
   try {
@@ -36,21 +34,17 @@ async function findDefaultSTRoot() {
 const DEFAULT_GLOBS = '*.js,*.ts,*.mjs';
 const MAX_RESULTS = 50;
 
-async function writeSearchJSON(data, label = 'st-search') {
-  await mkdir(DEBUG_DIR, { recursive: true });
-  const ts = new Date().toISOString().replace(/[:.]/g, '-');
-  const safe = label.replace(/[^a-zA-Z0-9_-]/g, '_');
-  const path = resolve(DEBUG_DIR, `${ts}_${safe}.json`);
-  await writeFile(path, JSON.stringify(data, null, 2), 'utf-8');
-  console.log(`Wrote JSON: ${path}`);
-  return path;
+interface SearchResult {
+  file: string;
+  line: number;
+  text: string;
 }
 
 function parseFileGlobs(globStr) {
   return globStr.split(',').map((g) => g.trim()).filter(Boolean);
 }
 
-function rgSearch(pattern, { stRoot, globs, maxResults }) {
+function rgSearch(pattern, { stRoot, globs, maxResults }): Promise<SearchResult[]> {
   return new Promise((resolve, reject) => {
     const args = [
       '--json',
@@ -72,7 +66,7 @@ function rgSearch(pattern, { stRoot, globs, maxResults }) {
         reject(new Error(`rg failed: ${stderr || err.message}`));
         return;
       }
-      const results = [];
+      const results: SearchResult[] = [];
       for (const line of stdout.split('\n')) {
         if (!line.trim()) continue;
         try {
@@ -108,14 +102,14 @@ async function walkDir(dir, exts, collected = []) {
   return collected;
 }
 
-async function fsSearch(pattern, { stRoot, globs, maxResults }) {
+async function fsSearch(pattern, { stRoot, globs, maxResults }): Promise<SearchResult[]> {
   const exts = new Set(parseFileGlobs(globs).map((g) => {
     const dot = g.lastIndexOf('.');
     return dot >= 0 ? g.slice(dot) : g;
   }));
   const files = await walkDir(stRoot, exts);
   const regex = new RegExp(pattern, 'i');
-  const results = [];
+  const results: SearchResult[] = [];
   for (const file of files) {
     if (results.length >= maxResults) break;
     let content;
@@ -230,7 +224,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 
       console.log(formatResults(results));
       console.log(`\n(${results.length} result${results.length === 1 ? '' : 's'})`);
-      await writeSearchJSON(results, label);
+      await writeJSON(results, label);
     } catch (err) {
       console.error('Error:', err.message);
       process.exitCode = 1;

@@ -8,7 +8,7 @@ Run via `node scripts/debug/<tool>.mjs [args]` or npm aliases: `npm run debug:se
 
 - Scripts = deterministic reads/actions/assertions; anything a gate depends on; anything run twice.
 - MCP `browser_*` tools = exploratory only (snapshot, screenshot, console, network, ad-hoc evaluate/clicks). Never chain MCP calls into a validation when a script exists.
-- Shared browser first: run `node scripts/debug/st-session.mjs start` before combining scripts and MCP. Both attach to CDP `http://127.0.0.1:9222` and see the same page.
+- Shared browser first: run `node scripts/debug/st-session.mts start` before combining scripts and MCP. Both attach to CDP `http://127.0.0.1:9222` and see the same page.
 - No unbounded gates: scripts use `ST_DEBUG_TIMEOUT_MS` (default 30000), `st-payload watch` times out by default, and `st-session stop` kills the Windows process tree.
 
 ## Tools
@@ -37,10 +37,10 @@ Run via `node scripts/debug/<tool>.mjs [args]` or npm aliases: `npm run debug:se
 ## Standard snapshot
 
 ```bash
-node scripts/debug/st-session.mjs start
-node scripts/debug/st-navigation.mjs recent-group
-node scripts/debug/so-state.mjs current
-node scripts/debug/so-ui.mjs all
+node scripts/debug/st-session.mts start
+node scripts/debug/st-navigation.mts recent-group
+node scripts/debug/so-state.mts current
+node scripts/debug/so-ui.mts all
 ```
 
 ## Errors

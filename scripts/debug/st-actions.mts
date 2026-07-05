@@ -6,16 +6,15 @@
 // All action functions call waitForIdle after triggering generation.
 
 import { fileURLToPath } from 'node:url';
-import { connectToST } from './lib/connection.mjs';
-import { ensureSTReady } from './lib/st-ready.mjs';
-import { evaluateInST } from './lib/evaluate.mjs';
-import { writeJSON } from './lib/output.mjs';
+import { evaluateInST } from './lib/evaluate.mts';
+import { writeJSON } from './lib/output.mts';
+import { runCli, hasHelpFlag } from './lib/cli.mts';
 
 export async function getGenerationState(page) {
   return evaluateInST(page, () => {
     const ctx = SillyTavern.getContext();
     const sp = ctx.streamingProcessor;
-    const sendButton = document.getElementById('send_but');
+    const sendButton = document.getElementById('send_but') as HTMLButtonElement | null;
     const sendButtonDisabled = Boolean(sendButton?.disabled || sendButton?.classList?.contains('disabled'));
     const isGenerating = sp
       ? (sp.isFinished === false || sp.isStopped === false)
@@ -222,7 +221,7 @@ export async function getWIStatus(page, book, comment) {
     const ctx = SillyTavern.getContext();
     const lorebook = await ctx.loadWorldInfo(book);
     if (!lorebook?.entries) return { book, comment, exists: false, enabled: false, disabled: null, uid: null };
-    const entry = Object.values(lorebook.entries).find((entry) => entry?.comment?.trim() === comment.trim());
+    const entry: any = Object.values(lorebook.entries as Record<string, any>).find((entry: any) => entry?.comment?.trim() === comment.trim());
     return {
       book,
       comment,
@@ -251,109 +250,95 @@ Actions:
   wi-status <book> <comment>    Report WI entry exists/enabled state`;
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  (async () => {
-    const action = process.argv[2];
-    if (!action || action === '--help' || action === '-h') {
-      console.log(USAGE);
-      process.exit(0);
-    }
+  const action = process.argv[2];
+  if (!action || hasHelpFlag()) {
+    console.log(USAGE);
+    process.exit(0);
+  }
 
-    let browser;
-    try {
-      const conn = await connectToST();
-      browser = conn.browser;
-      const { page } = conn;
-      await ensureSTReady(page);
-
-      switch (action) {
-        case 'generation-state': {
-          const state = await getGenerationState(page);
-          console.log(JSON.stringify(state, null, 2));
-          await writeJSON(state, 'st-generation-state');
-          break;
-        }
-        case 'wait-idle': {
-          const timeout = process.argv[3] ? Number(process.argv[3]) : 30000;
-          const state = await waitForIdle(page, timeout);
-          console.log('Idle:', JSON.stringify(state, null, 2));
-          break;
-        }
-        case 'send': {
-          const text = process.argv.slice(3).join(' ');
-          if (!text) { console.error('Missing message text.'); process.exitCode = 1; break; }
-          console.log(`Sending: "${text}"`);
-          const result = await sendUserMessage(page, text);
-          console.log(JSON.stringify(result, null, 2));
-          await writeJSON(result, 'st-send-result');
-          break;
-        }
-        case 'send-compact': {
-          const text = process.argv.slice(3).join(' ');
-          if (!text) { console.error('Missing message text.'); process.exitCode = 1; break; }
-          const result = await sendCompactMessage(page, text);
-          console.log(JSON.stringify(result, null, 2));
-          await writeJSON(result, 'st-send-compact-result');
-          break;
-        }
-        case 'slash': {
-          const cmd = process.argv.slice(3).join(' ');
-          if (!cmd) { console.error('Missing slash command.'); process.exitCode = 1; break; }
-          const result = await executeSlashCommand(page, cmd);
-          console.log(JSON.stringify(result, null, 2));
-          await writeJSON(result, 'st-slash-result');
-          break;
-        }
-        case 'checkpoint': {
-          const arg = process.argv.slice(3).join(' ');
-          if (!arg) { console.error('Missing checkpoint id/index.'); process.exitCode = 1; break; }
-          const result = await triggerCheckpoint(page, arg);
-          console.log(JSON.stringify(result, null, 2));
-          await writeJSON(result, 'st-checkpoint-result');
-          break;
-        }
-        case 'swipe': {
-          const messageId = Number(process.argv[3]);
-          const swipeId = process.argv[4] === undefined ? null : Number(process.argv[4]);
-          const result = await swipeMessage(page, messageId, swipeId);
-          console.log(JSON.stringify(result, null, 2));
-          await writeJSON(result, 'st-swipe-result');
-          break;
-        }
-        case 'edit': {
-          const messageId = Number(process.argv[3]);
-          const text = process.argv.slice(4).join(' ');
-          const result = await editMessage(page, messageId, text);
-          console.log(JSON.stringify(result, null, 2));
-          await writeJSON(result, 'st-edit-result');
-          break;
-        }
-        case 'delete': {
-          const messageId = Number(process.argv[3]);
-          const result = await deleteMessage(page, messageId);
-          console.log(JSON.stringify(result, null, 2));
-          await writeJSON(result, 'st-delete-result');
-          break;
-        }
-        case 'wi-status': {
-          const book = process.argv[3];
-          const comment = process.argv.slice(4).join(' ');
-          if (!book || !comment) { console.error('wi-status requires <book> <comment>.'); process.exitCode = 1; break; }
-          const result = await getWIStatus(page, book, comment);
-          console.log(JSON.stringify(result, null, 2));
-          await writeJSON(result, 'st-wi-status');
-          break;
-        }
-        default:
-          console.error(`Unknown action: ${action}`);
-          console.log(USAGE);
-          process.exitCode = 1;
+  runCli(async (page) => {
+    switch (action) {
+      case 'generation-state': {
+        const state = await getGenerationState(page);
+        console.log(JSON.stringify(state, null, 2));
+        await writeJSON(state, 'st-generation-state');
+        break;
       }
-    } catch (err) {
-      console.error('Error:', err.message);
-      process.exitCode = 1;
-    } finally {
-      if (browser) await browser.close().catch(() => {});
-      process.exit(process.exitCode || 0);
+      case 'wait-idle': {
+        const timeout = process.argv[3] ? Number(process.argv[3]) : 30000;
+        const state = await waitForIdle(page, timeout);
+        console.log('Idle:', JSON.stringify(state, null, 2));
+        break;
+      }
+      case 'send': {
+        const text = process.argv.slice(3).join(' ');
+        if (!text) { console.error('Missing message text.'); process.exitCode = 1; break; }
+        console.log(`Sending: "${text}"`);
+        const result = await sendUserMessage(page, text);
+        console.log(JSON.stringify(result, null, 2));
+        await writeJSON(result, 'st-send-result');
+        break;
+      }
+      case 'send-compact': {
+        const text = process.argv.slice(3).join(' ');
+        if (!text) { console.error('Missing message text.'); process.exitCode = 1; break; }
+        const result = await sendCompactMessage(page, text);
+        console.log(JSON.stringify(result, null, 2));
+        await writeJSON(result, 'st-send-compact-result');
+        break;
+      }
+      case 'slash': {
+        const cmd = process.argv.slice(3).join(' ');
+        if (!cmd) { console.error('Missing slash command.'); process.exitCode = 1; break; }
+        const result = await executeSlashCommand(page, cmd);
+        console.log(JSON.stringify(result, null, 2));
+        await writeJSON(result, 'st-slash-result');
+        break;
+      }
+      case 'checkpoint': {
+        const arg = process.argv.slice(3).join(' ');
+        if (!arg) { console.error('Missing checkpoint id/index.'); process.exitCode = 1; break; }
+        const result = await triggerCheckpoint(page, arg);
+        console.log(JSON.stringify(result, null, 2));
+        await writeJSON(result, 'st-checkpoint-result');
+        break;
+      }
+      case 'swipe': {
+        const messageId = Number(process.argv[3]);
+        const swipeId = process.argv[4] === undefined ? null : Number(process.argv[4]);
+        const result = await swipeMessage(page, messageId, swipeId);
+        console.log(JSON.stringify(result, null, 2));
+        await writeJSON(result, 'st-swipe-result');
+        break;
+      }
+      case 'edit': {
+        const messageId = Number(process.argv[3]);
+        const text = process.argv.slice(4).join(' ');
+        const result = await editMessage(page, messageId, text);
+        console.log(JSON.stringify(result, null, 2));
+        await writeJSON(result, 'st-edit-result');
+        break;
+      }
+      case 'delete': {
+        const messageId = Number(process.argv[3]);
+        const result = await deleteMessage(page, messageId);
+        console.log(JSON.stringify(result, null, 2));
+        await writeJSON(result, 'st-delete-result');
+        break;
+      }
+      case 'wi-status': {
+        const book = process.argv[3];
+        const comment = process.argv.slice(4).join(' ');
+        if (!book || !comment) { console.error('wi-status requires <book> <comment>.'); process.exitCode = 1; break; }
+        const result = await getWIStatus(page, book, comment);
+        console.log(JSON.stringify(result, null, 2));
+        await writeJSON(result, 'st-wi-status');
+        break;
+      }
+      default:
+        console.error(`Unknown action: ${action}`);
+        console.log(USAGE);
+        process.exitCode = 1;
     }
-  })();
+  });
 }

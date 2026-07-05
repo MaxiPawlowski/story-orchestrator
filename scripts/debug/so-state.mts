@@ -1,9 +1,8 @@
 import { fileURLToPath } from 'node:url';
-import { connectToST } from './lib/connection.mjs';
-import { ensureSTReady } from './lib/st-ready.mjs';
-import { evaluateInST } from './lib/evaluate.mjs';
-import { writeJSON } from './lib/output.mjs';
-import { openMostRecentGroupChat } from './st-navigation.mjs';
+import { evaluateInST } from './lib/evaluate.mts';
+import { writeJSON } from './lib/output.mts';
+import { runCli, hasHelpFlag } from './lib/cli.mts';
+import { openMostRecentGroupChat } from './st-navigation.mts';
 
 function decodeRuntime(entry) {
   if (!entry || typeof entry !== 'object') return null;
@@ -121,50 +120,36 @@ function checkExpectations(data, args) {
   return failures;
 }
 
-const USAGE = `Usage: node scripts/debug/so-state.mjs [current|all] [--full] [--expect path=value]
+const USAGE = `Usage: node scripts/debug/so-state.mts [current|all] [--full] [--expect path=value]
 
 Examples:
-  node scripts/debug/so-state.mjs
-  node scripts/debug/so-state.mjs current --expect activeCheckpointId=door --expect bb.player_has_key=true`;
+  node scripts/debug/so-state.mts
+  node scripts/debug/so-state.mts current --expect activeCheckpointId=door --expect bb.player_has_key=true`;
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  (async () => {
-    let browser;
-    try {
-      const conn = await connectToST();
-      browser = conn.browser;
-      const { page } = conn;
-      await ensureSTReady(page);
+  if (hasHelpFlag()) {
+    console.log(USAGE);
+    process.exit(0);
+  }
+  runCli(async (page) => {
+    const args = process.argv.slice(2);
+    const subcommand = args.find((arg) => !arg.startsWith('--') && !args[args.indexOf(arg) - 1]?.startsWith('--')) ?? 'current';
+    const full = args.includes('--full');
 
-      const args = process.argv.slice(2);
-      if (args.includes('--help') || args.includes('-h')) {
-        console.log(USAGE);
-        return;
+    if (subcommand === 'current') {
+      const data = await dumpCurrentChatState(page);
+      const output = full ? data : compactCurrent(data);
+      console.log(JSON.stringify(output, null, 2));
+      const failures = checkExpectations(output, args);
+      if (failures.length) {
+        console.error(`Expectation failed: ${failures.join('; ')}`);
+        process.exitCode = 1;
       }
-      const subcommand = args.find((arg) => !arg.startsWith('--') && !args[args.indexOf(arg) - 1]?.startsWith('--')) ?? 'current';
-      const full = args.includes('--full');
-
-      if (subcommand === 'current') {
-        const data = await dumpCurrentChatState(page);
-        const output = full ? data : compactCurrent(data);
-        console.log(JSON.stringify(output, null, 2));
-        const failures = checkExpectations(output, args);
-        if (failures.length) {
-          console.error(`Expectation failed: ${failures.join('; ')}`);
-          process.exitCode = 1;
-        }
-        await writeJSON(data, 'so-state-current');
-      } else {
-        const data = await dumpStoryState(page);
-        console.log(JSON.stringify(data, null, 2));
-        await writeJSON(data, 'so-state-all');
-      }
-    } catch (err) {
-      console.error('Error:', err.message);
-      process.exitCode = 1;
-    } finally {
-      if (browser) await browser.close().catch(() => {});
-      process.exit(process.exitCode || 0);
+      await writeJSON(data, 'so-state-current');
+    } else {
+      const data = await dumpStoryState(page);
+      console.log(JSON.stringify(data, null, 2));
+      await writeJSON(data, 'so-state-all');
     }
-  })();
+  });
 }

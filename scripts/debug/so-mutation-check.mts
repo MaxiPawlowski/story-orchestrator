@@ -1,12 +1,11 @@
 import { fileURLToPath } from 'node:url';
-import { connectToST } from './lib/connection.mjs';
-import { ensureSTReady } from './lib/st-ready.mjs';
-import { evaluateInST } from './lib/evaluate.mjs';
-import { writeJSON } from './lib/output.mjs';
-import { openMostRecentGroupChat, startNewGroupSession } from './st-navigation.mjs';
-import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, swipeMessage } from './st-actions.mjs';
+import { evaluateInST } from './lib/evaluate.mts';
+import { writeJSON } from './lib/output.mts';
+import { runCli, hasHelpFlag } from './lib/cli.mts';
+import { openMostRecentGroupChat, startNewGroupSession } from './st-navigation.mts';
+import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, swipeMessage } from './st-actions.mts';
 
-const USAGE = `Usage: node scripts/debug/so-mutation-check.mjs [--keep]
+const USAGE = `Usage: node scripts/debug/so-mutation-check.mts [--keep]
 
 Creates a scratch group chat, prepares one multi-swipe message, runs swipe/edit/delete,
 and verifies ST emitted MESSAGE_SWIPED, MESSAGE_EDITED, and MESSAGE_DELETED.`;
@@ -74,35 +73,22 @@ export async function runMutationCheck(page, { keep = false } = {}) {
   assertEvent(events, 'message_swiped', prepared.messageId);
   assertEvent(events, 'message_edited', prepared.messageId);
   assertEvent(events, 'message_deleted', prepared.messageId);
-  const result = { ok: true, opened, scratch, prepared, swiped, edited, deleted, events };
+  const result: Record<string, unknown> = { ok: true, opened, scratch, prepared, swiped, edited, deleted, events };
   if (!keep) {
     try { result.cleanup = await executeSlashCommand(page, '/delchat'); }
-    catch (err) { result.cleanup = { ok: false, error: err.message || String(err) }; }
+    catch (err) { result.cleanup = { ok: false, error: err instanceof Error ? err.message : String(err) }; }
   }
   return result;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  if (process.argv.includes('--help') || process.argv.includes('-h')) {
+  if (hasHelpFlag()) {
     console.log(USAGE);
     process.exit(0);
   }
-  (async () => {
-    let browser;
-    try {
-      const conn = await connectToST();
-      browser = conn.browser;
-      const { page } = conn;
-      await ensureSTReady(page);
-      const result = await runMutationCheck(page, { keep: process.argv.includes('--keep') });
-      console.log(JSON.stringify(result, null, 2));
-      await writeJSON(result, 'so-mutation-check');
-    } catch (err) {
-      console.error('Error:', err.message || String(err));
-      process.exitCode = 1;
-    } finally {
-      if (browser) await browser.close().catch(() => {});
-      process.exit(process.exitCode || 0);
-    }
-  })();
+  runCli(async (page) => {
+    const result = await runMutationCheck(page, { keep: process.argv.includes('--keep') });
+    console.log(JSON.stringify(result, null, 2));
+    await writeJSON(result, 'so-mutation-check');
+  });
 }

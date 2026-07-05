@@ -1,15 +1,15 @@
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { connectToST, PROJECT_ROOT } from './lib/connection.mjs';
-import { ensureSTReady } from './lib/st-ready.mjs';
-import { evaluateInST } from './lib/evaluate.mjs';
-import { writeJSON } from './lib/output.mjs';
-import { openMostRecentGroupChat, startNewGroupSession } from './st-navigation.mjs';
-import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, sendUserMessage, swipeMessage, waitForIdle } from './st-actions.mjs';
-import { dumpCurrentChatState } from './so-state.mjs';
+import { PROJECT_ROOT } from './lib/connection.mts';
+import { evaluateInST } from './lib/evaluate.mts';
+import { writeJSON } from './lib/output.mts';
+import { runCli, hasHelpFlag } from './lib/cli.mts';
+import { openMostRecentGroupChat, startNewGroupSession } from './st-navigation.mts';
+import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, sendUserMessage, swipeMessage, waitForIdle } from './st-actions.mts';
+import { dumpCurrentChatState } from './so-state.mts';
 
-const USAGE = `Usage: node scripts/debug/so-scenario.mjs run <file.json> [--sandbox] [--keep]
+const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep]
 
 Step keys:
   import_story, select_story, send, send_generate, slash, extract, swipe, edit, delete, wait, expect`;
@@ -136,9 +136,9 @@ async function cleanupScenario(page, importedHashes, sandboxChatStarted, keep) {
       ctx.saveSettingsDebounced?.();
     }
     return { removedStoryHashes: hashes };
-  }, importedHashes);
+  }, importedHashes) as Record<string, unknown>;
   if (sandboxChatStarted) {
-    try { await executeSlashCommand(page, '/delchat'); } catch (err) { cleaned.chatCleanupError = err.message || String(err); }
+    try { await executeSlashCommand(page, '/delchat'); } catch (err) { cleaned.chatCleanupError = err instanceof Error ? err.message : String(err); }
   }
   return cleaned;
 }
@@ -208,25 +208,9 @@ async function runScenario(page, file, { sandbox = false, keep = false } = {}) {
 export { runScenario };
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  (async () => {
-    if (process.argv[2] !== 'run' || !process.argv[3] || process.argv.includes('--help') || process.argv.includes('-h')) {
-      console.log(USAGE);
-      process.exit(process.argv.includes('--help') || process.argv.includes('-h') ? 0 : 1);
-    }
-    let browser;
-    try {
-      const conn = await connectToST();
-      browser = conn.browser;
-      const { page } = conn;
-      await ensureSTReady(page);
-      const result = await runScenario(page, process.argv[3], { sandbox: readArgFlag('--sandbox'), keep: readArgFlag('--keep') });
-      if (!result.ok) process.exitCode = 1;
-    } catch (err) {
-      console.error('Error:', err.message || String(err));
-      process.exitCode = 1;
-    } finally {
-      if (browser) await browser.close().catch(() => {});
-      process.exit(process.exitCode || 0);
-    }
-  })();
+  if (process.argv[2] !== 'run' || !process.argv[3] || hasHelpFlag()) {
+    console.log(USAGE);
+    process.exit(hasHelpFlag() ? 0 : 1);
+  }
+  runCli((page) => runScenario(page, process.argv[3], { sandbox: readArgFlag('--sandbox'), keep: readArgFlag('--keep') }));
 }

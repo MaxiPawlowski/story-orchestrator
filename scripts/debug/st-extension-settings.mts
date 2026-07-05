@@ -4,10 +4,9 @@
 // to inspect any other extension, or null/undefined for the full map.
 
 import { fileURLToPath } from 'node:url';
-import { connectToST } from './lib/connection.mjs';
-import { ensureSTReady } from './lib/st-ready.mjs';
-import { evaluateInST } from './lib/evaluate.mjs';
-import { writeJSON } from './lib/output.mjs';
+import { evaluateInST } from './lib/evaluate.mts';
+import { writeJSON } from './lib/output.mts';
+import { runCli, hasHelpFlag } from './lib/cli.mts';
 
 export async function dumpExtensionSettings(page, extensionName = 'story-orchestrator') {
   return evaluateInST(page, (extName) => {
@@ -36,33 +35,19 @@ With a name: print that extension's settings.
 --all: print summary of all extension settings.`;
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  if (process.argv.includes('--help') || process.argv.includes('-h')) {
+  if (hasHelpFlag()) {
     console.log(USAGE);
     process.exit(0);
   }
-  (async () => {
-    let browser;
-    try {
-      const conn = await connectToST();
-      browser = conn.browser;
-      const { page } = conn;
-      await ensureSTReady(page);
+  runCli(async (page) => {
+    const extName = process.argv[2] || 'story-orchestrator';
+    const useAll = extName === '--all';
+    const data = useAll
+      ? await dumpExtensionSettings(page, null)
+      : await dumpExtensionSettings(page, extName);
 
-      const extName = process.argv[2] || 'story-orchestrator';
-      const useAll = extName === '--all';
-      const data = useAll
-        ? await dumpExtensionSettings(page, null)
-        : await dumpExtensionSettings(page, extName);
-
-      console.log(JSON.stringify(data, null, 2));
-      const label = useAll ? 'extension-settings-all' : `extension-settings-${extName}`;
-      await writeJSON(data, label);
-    } catch (err) {
-      console.error('Error:', err.message);
-      process.exitCode = 1;
-    } finally {
-      if (browser) await browser.close().catch(() => {});
-      process.exit(process.exitCode || 0);
-    }
-  })();
+    console.log(JSON.stringify(data, null, 2));
+    const label = useAll ? 'extension-settings-all' : `extension-settings-${extName}`;
+    await writeJSON(data, label);
+  });
 }

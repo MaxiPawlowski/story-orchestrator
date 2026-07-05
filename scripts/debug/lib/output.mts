@@ -1,27 +1,28 @@
 import { writeFile, mkdir, readdir, stat, rm } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { DEBUG_DIR } from './connection.mjs';
+import type { Page } from 'playwright';
+import { DEBUG_DIR } from './connection.mts';
 
 const SCREENSHOT_DIR = resolve(DEBUG_DIR, 'screenshots');
 const MAX_ARTIFACTS = 40;
 
-function timestamp() {
+function timestamp(): string {
   return new Date().toISOString().replace(/[:.]/g, '-');
 }
 
-function artifactPath(label, ext, dir = DEBUG_DIR) {
+function artifactPath(label: string, ext: string, dir: string = DEBUG_DIR): string {
   const safe = label.replace(/[^a-zA-Z0-9_-]/g, '_');
   return resolve(dir, `${timestamp()}_${safe}.${ext}`);
 }
 
-async function rotateDir(dir) {
+async function rotateDir(dir: string): Promise<void> {
   let entries;
   try {
     entries = await readdir(dir);
   } catch {
     return;
   }
-  const files = [];
+  const files: { path: string; mtime: number }[] = [];
   for (const entry of entries) {
     const path = resolve(dir, entry);
     try {
@@ -33,12 +34,12 @@ async function rotateDir(dir) {
   await Promise.all(files.slice(MAX_ARTIFACTS).map((file) => rm(file.path, { force: true })));
 }
 
-export async function rotateDebugArtifacts() {
+export async function rotateDebugArtifacts(): Promise<void> {
   await rotateDir(DEBUG_DIR);
   await rotateDir(SCREENSHOT_DIR);
 }
 
-export async function writeJSON(data, label = 'data') {
+export async function writeJSON(data: unknown, label = 'data'): Promise<string> {
   await mkdir(DEBUG_DIR, { recursive: true });
   await rotateDebugArtifacts();
   const path = artifactPath(label, 'json');
@@ -47,7 +48,7 @@ export async function writeJSON(data, label = 'data') {
   return path;
 }
 
-export async function writeText(text, label = 'text') {
+export async function writeText(text: string, label = 'text'): Promise<string> {
   await mkdir(DEBUG_DIR, { recursive: true });
   await rotateDebugArtifacts();
   const path = artifactPath(label, 'txt');
@@ -56,14 +57,14 @@ export async function writeText(text, label = 'text') {
   return path;
 }
 
-export async function writeScreenshot(page, label = 'screenshot') {
+export async function writeScreenshot(page: Page, label = 'screenshot'): Promise<string> {
   await mkdir(SCREENSHOT_DIR, { recursive: true });
   await rotateDebugArtifacts();
   const path = artifactPath(label, 'png', SCREENSHOT_DIR);
   try {
     await page.screenshot({ path, fullPage: true });
   } catch (err) {
-    const message = err.message || String(err);
+    const message = err instanceof Error ? err.message : String(err);
     if (message.includes('Target closed') || message.includes('Session closed')) {
       throw new Error(`Browser closed during screenshot. ${message}`);
     }

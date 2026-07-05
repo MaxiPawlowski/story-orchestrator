@@ -6,10 +6,9 @@
 //   story: Story schema with checkpoints[], transitions[], etc.
 
 import { fileURLToPath } from 'node:url';
-import { connectToST } from './lib/connection.mjs';
-import { ensureSTReady } from './lib/st-ready.mjs';
-import { evaluateInST } from './lib/evaluate.mjs';
-import { writeJSON } from './lib/output.mjs';
+import { evaluateInST } from './lib/evaluate.mts';
+import { writeJSON } from './lib/output.mts';
+import { runCli, hasHelpFlag } from './lib/cli.mts';
 
 export async function dumpStoryLibrary(page) {
   return evaluateInST(page, () => {
@@ -69,40 +68,25 @@ No args: print story library summary.
 With storyId: print full story definition.`;
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  if (process.argv.includes('--help') || process.argv.includes('-h')) {
+  if (hasHelpFlag()) {
     console.log(USAGE);
     process.exit(0);
   }
-  (async () => {
-    let browser;
-    try {
-      const conn = await connectToST();
-      browser = conn.browser;
-      const { page } = conn;
-      await ensureSTReady(page);
+  runCli(async (page) => {
+    const storyId = process.argv[2];
 
-      const storyId = process.argv[2];
-
-      if (storyId) {
-        const data = await dumpStory(page, storyId);
-        if (!data) {
-          console.error(`Story "${storyId}" not found in library.`);
-          process.exitCode = 1;
-          return;
-        }
-        console.log(JSON.stringify(data, null, 2));
-        await writeJSON(data, `so-story-${storyId}`);
-      } else {
-        const data = await dumpStoryLibrary(page);
-        console.log(JSON.stringify(data, null, 2));
-        await writeJSON(data, 'so-library');
+    if (storyId) {
+      const data = await dumpStory(page, storyId);
+      if (!data) {
+        console.error(`Story "${storyId}" not found in library.`);
+        return { ok: false };
       }
-    } catch (err) {
-      console.error('Error:', err.message);
-      process.exitCode = 1;
-    } finally {
-      if (browser) await browser.close().catch(() => {});
-      process.exit(process.exitCode || 0);
+      console.log(JSON.stringify(data, null, 2));
+      await writeJSON(data, `so-story-${storyId}`);
+    } else {
+      const data = await dumpStoryLibrary(page);
+      console.log(JSON.stringify(data, null, 2));
+      await writeJSON(data, 'so-library');
     }
-  })();
+  });
 }

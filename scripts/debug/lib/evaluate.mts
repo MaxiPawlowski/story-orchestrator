@@ -4,14 +4,19 @@
 // and provides clear error messages on evaluation failure.
 
 import { fileURLToPath } from 'node:url';
-import { connectToST } from './connection.mjs';
-import { ensureSTReady } from './st-ready.mjs';
+import type { Page } from 'playwright';
+import { connectToST } from './connection.mts';
+import { ensureSTReady } from './st-ready.mts';
 
-export async function evaluateInST(page, fn, ...args) {
+// The closure passed to page.evaluate() runs inside the ST browser page, against
+// window.SillyTavern's dynamically-shaped runtime context - not worth fabricating
+// types for here (see CLAUDE.md: don't guess at unconfirmed ST value shapes).
+// Only the outer Node-side plumbing (page, return value) is meaningfully typed.
+export async function evaluateInST<R = unknown>(page: Page, fn: (arg: any) => R | Promise<R>, arg?: any): Promise<R> {
   try {
-    return await page.evaluate(fn, ...args);
+    return await page.evaluate(fn, arg);
   } catch (err) {
-    const message = err.message || String(err);
+    const message = err instanceof Error ? err.message : String(err);
     if (message.includes('Target closed') || message.includes('Session closed')) {
       throw new Error(`Browser closed - tab was closed during evaluation. ${message}`);
     }
@@ -37,14 +42,14 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       await ensureSTReady(page);
 
       const info = await evaluateInST(page, () => ({
-        url: globalThis.location.href,
+        url: (globalThis as any).location.href,
         title: document.title,
-        contextKeys: Object.keys(globalThis.SillyTavern.getContext()),
+        contextKeys: Object.keys((globalThis as any).SillyTavern.getContext()),
       }));
       console.log('Evaluation OK:');
       console.log(JSON.stringify(info, null, 2));
     } catch (err) {
-      console.error('Error:', err.message);
+      console.error('Error:', err instanceof Error ? err.message : String(err));
       process.exitCode = 1;
     } finally {
       if (browser) await browser.close().catch(() => {});
