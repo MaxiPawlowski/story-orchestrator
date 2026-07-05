@@ -1,25 +1,40 @@
 # Story Orchestrator
 
-SillyTavern extension for running format-2 authored stories as deterministic checkpoint graphs over an active chat.
+SillyTavern extension running format-2 authored stories as deterministic checkpoint graphs over an active chat.
 
-## V2 Spine
+## Sources of truth (read before implementing)
 
-- Stories declare qualities, checkpoints, typed gates, transitions, roster, effects, requirements, and future arc bridges.
-- `StoryEngine` owns blackboard state, serialized apply queue drains, one-transition-per-boundary advancement, boundary logs, snapshots, and rollback.
-- `RuntimeManager` owns ST integration, per-chat persistence in `chat_metadata.story_orchestrator`, checkpoint effects, macros, slash commands, extraction state, and UI snapshots.
-- `TurnBridge` subscribes to ST generation/message/mutation events and commits only at rendered reply boundaries.
-- Extraction runs off-path through `ExtractionScheduler` and `runSharedRead`; accepted deltas enqueue and apply only on the next boundary.
-- Checkpoint effects can apply author notes, runtime presets, WI toggles, cast changes, and `npc_replies`.
+1. Spec: `docs/plans/v2/story-orchestrator-spec-v2.md`
+2. `docs/plans/v2/00-implementation-overview.md` — canonical build rules, gate protocol, verified ST host facts, plan sequence
+3. Current plan doc + **Gate records** of all prior plans (tail sections — as-built truth and deviations)
 
-## Build Protocol
+**Status: plans 01–04 complete.** Update this line when a plan's gate goes green.
 
-- Read the spec, current plan, and prior Gate records before implementation.
-- Validate against actual SillyTavern host source before assuming event payloads or context shapes.
-- Run deterministic gates first: `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`.
-- Live gates use `scripts/debug/` and shared CDP sessions; record exact commands and deviations in the plan Gate record.
+## V2 spine
 
-## UI Entry Points
+- Stories declare qualities, checkpoints, typed gates, transitions, roster, effects, requirements.
+- `StoryEngine`: blackboard, serialized apply queue drained at boundaries, one transition per boundary, boundary logs, snapshots, rollback.
+- `RuntimeManager`: ST integration, per-chat persistence in `chat_metadata.story_orchestrator`, effects, macros, slash commands, extraction state, UI snapshots.
+- `TurnBridge`: ST events → commits only at rendered reply boundaries; mutations (swipe/edit/delete) → rollback.
+- Extraction runs off-path (`ExtractionScheduler` → `runSharedRead`); accepted deltas apply only at the next boundary.
 
-- Settings panel: story import/select, extraction settings, runtime status.
-- Drawer: checkpoint progress, requirements, extraction status, blackboard state.
-- Studio is planned for v2 plan 11; do not rely on deleted v1 Studio/controller code.
+## SillyTavern integration — non-negotiable
+
+- `src/services/STAPI.ts` + `src/services/stHost/*` are the ONLY host import surface (dynamic `import(/* webpackIgnore: true */ …)`). New host access = new `stHost/` module.
+- Engine purity: `src/engine/**` never imports STAPI; host effects go through the `EngineHost` seam.
+- Never trust an assumed ST shape. Verify in ST host source (`C:\dev\SillyTavern-MainBranch\`), `.claude/sillytavern-docs/`, or `node scripts/debug/st-search.mts`. No blind casts — add a debug log + local type instead.
+
+## Validation before handover — never claim done without gates
+
+| Change touches | Required gates |
+|---|---|
+| docs only | none |
+| pure modules (`engine/`, `extraction/` non-host, `pacing/`) | `npm run typecheck && npm run lint && npm test` |
+| runtime / UI / ST-facing / extraction host paths | above + `npm run build` + live gate via `debug` skill: `st-navigation.mts recent-group` → `so-state.mts current` → change-specific checks or `so-scenario.mts` |
+
+Report exact commands and results at handover. Failing gate = say so plainly; never hedge or sign off around it.
+
+## UI entry points
+
+- Settings panel (`#stepthink_settings`): story import/select, extraction settings. Drawer: checkpoint progress, blackboard. Both currently live in `src/index.tsx`.
+- `src/components/studio/` is dead v1 code (zero imports) — do not use; Studio is rebuilt in plan 11.

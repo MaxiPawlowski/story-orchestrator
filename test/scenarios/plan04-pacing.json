@@ -1,0 +1,29 @@
+{
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "title": "Pacing Gate Check",
+        "description": "Plan 04 live pacing validation story.",
+        "arc_template": "rising",
+        "qualities": [
+          { "key": "message_count", "type": "int", "source": "code", "monotonic": true, "rubric": "Rendered boundary count." },
+          { "key": "reached_climax", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the confrontation reach its climax?" }
+        ],
+        "checkpoints": [
+          { "id": "start", "name": "Approach", "objective": "Approach the confrontation.", "type": "anchor", "start": true, "tension_target": "stirring" },
+          { "id": "climax", "name": "Climax", "objective": "Reach the peak of the scene.", "type": "anchor", "tension_target": "peak" }
+        ],
+        "transitions": [
+          { "from": "start", "to": "climax", "priority": 1, "gate": { "q": "reached_climax", "op": "==", "v": true } }
+        ],
+        "roster": []
+      }
+    },
+    { "send": "The torches flicker as the corridor narrows." },
+    { "extract": { "debugResponse": "DELTA q=tension_current value=\"stirring\" evidence=\"torches flicker as the corridor narrows\"", "reason": "cadence" } },
+    { "expect": { "blackboard": { "tension_current": 0.25 }, "auditCount>=": 1, "tension": { "level": "stirring", "smoothed": 0.25, "expected": 0.5 }, "pacingPrompt": { "position": 1, "depth": 2, "role": 0 } } },
+    { "extract": { "debugResponse": "DELTA q=tension_current value=\"critical\" evidence=\"a scream echoes from the dark\"", "reason": "cadence" } },
+    { "expect": { "blackboard": { "tension_current": { "approx": 0.4 } }, "auditCount>=": 2, "tension": { "level": "tense", "smoothed": { "approx": 0.4 }, "expected": 0.5, "hint": { "direction": "hold" } }, "pacingPrompt": { "value": "Pacing: hold the current tension — sustain the mood without spiking or releasing it.", "position": 1, "depth": 2, "role": 0 } } }
+  ]
+}

@@ -1,6 +1,8 @@
 export const DEFAULT_INTERVAL_TURNS = 3;
 export const DEFAULT_TENSION_EMA_ALPHA = 0.3;
 export const DEFAULT_PACING_DRIFT_THRESHOLD = 0.3;
+export const PACING_HINT_EXTENSION_KEY = "story_orchestrator_pacing";
+export const PACING_HINT_DEPTH = 2;
 
 export const AUTHOR_NOTE_DEFAULT_INTERVAL = 1;
 export const AUTHOR_NOTE_DEFAULT_DEPTH = 4;

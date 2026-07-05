@@ -1,4 +1,4 @@
-import type { BlackboardDelta, GateNode, NormalizedStoryV2, PrimitiveValue, Quality } from "@engine/index";
+import type { BlackboardDelta, GateNode, NormalizedStoryV2, PrimitiveValue, Quality, TensionLevel } from "@engine/index";
 
 export interface ScopedQuality {
   key: string;
@@ -36,6 +36,7 @@ export interface SharedReadContract {
 export interface ParsedDelta {
   delta: BlackboardDelta;
   evidence: string;
+  rawLevel?: TensionLevel;
 }
 
 export interface ParsedFact {

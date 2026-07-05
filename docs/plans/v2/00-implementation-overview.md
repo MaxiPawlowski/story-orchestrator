@@ -20,7 +20,7 @@ How [story-orchestrator-spec-v2.md](story-orchestrator-spec-v2.md) gets built: 1
 npm run typecheck && npm run lint && npm test && npm run build
 ```
 
-plus live-ST validation with SillyTavern running at `http://127.0.0.1:8000/` using `scripts/debug/` tools (see `.claude/rules/debug-scripts.md`): minimum `st-navigation.mjs recent-group` → `so-state.mjs current` → plan-specific checks. A gate is green only when both harness and live checks pass.
+plus live-ST validation with SillyTavern running at `http://127.0.0.1:8000/` using `scripts/debug/` tools (see `.claude/rules/debug-scripts.md`): minimum `st-navigation.mts recent-group` → `so-state.mts current` → plan-specific checks. A gate is green only when both harness and live checks pass.
 
 ## Verified ST host facts (cite these; re-verify only if ST version changes)
 

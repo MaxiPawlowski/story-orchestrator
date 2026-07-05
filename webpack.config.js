@@ -25,6 +25,7 @@ module.exports = {
       "@engine": path.resolve(__dirname, "src/engine"),
       "@runtime": path.resolve(__dirname, "src/runtime"),
       "@extraction": path.resolve(__dirname, "src/extraction"),
+      "@pacing": path.resolve(__dirname, "src/pacing"),
     },
     fallback: {
       fs: false,

@@ -27,7 +27,7 @@ Do not use unbounded terminal processes for gates. Debug scripts have hard conne
 - SillyTavern running at `http://127.0.0.1:8000/` with an LLM backend connected.
 - `npx playwright install chromium` if browser binaries missing.
 
-Scripts run via `node scripts/debug/<tool>.mjs`, attach to the shared session first, otherwise launch a short-lived headless Chromium. Artifacts go to `.debug/` (gitignored; screenshots in `.debug/screenshots/`).
+Scripts run via `node scripts/debug/<tool>.mts`, attach to the shared session first, otherwise launch a short-lived headless Chromium. Artifacts go to `.debug/` (gitignored; screenshots in `.debug/screenshots/`).
 
 ## Script reference
 
@@ -43,7 +43,7 @@ node scripts/debug/st-extension-settings.mts [--all]
 node scripts/debug/st-chat.mts [count|metadata]  # last N messages (default 10) or chat_metadata
 ```
 
-`so-state` reads persisted `chatMetadata.story_orchestrator` (keyed by `selectedStoryHash`) — live in-page values between persist cycles may differ. Raw blob also visible via `st-chat.mjs metadata`.
+`so-state` reads persisted `chatMetadata.story_orchestrator` (keyed by `selectedStoryHash`) — live in-page values between persist cycles may differ. Raw blob also visible via `st-chat.mts metadata`.
 
 ### Actions
 
@@ -120,7 +120,7 @@ Default root: fixed-depth walk (5 up from project root → `C:\dev\SillyTavern-M
 
 ### Library helpers (`scripts/debug/lib/`)
 
-`connection.mjs` (`connectToST`, `DEBUG_DIR`), `st-ready.mjs` (`ensureSTReady`), `evaluate.mjs` (`evaluateInST` — safe page.evaluate with error classification), `output.mjs` (`writeJSON`/`writeText`/`writeScreenshot`).
+`connection.mts` (`connectToST`, `DEBUG_DIR`), `st-ready.mts` (`ensureSTReady`), `evaluate.mts` (`evaluateInST` — safe page.evaluate with error classification), `output.mts` (`writeJSON`/`writeText`/`writeScreenshot`), `cli.mts`.
 
 ## Recipes
 

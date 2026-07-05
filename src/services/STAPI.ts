@@ -25,6 +25,7 @@ export {
 } from "@services/stHost/characters";
 export { executeSlashCommands } from "@services/stHost/slashCommands";
 export { applyCharacterAN, clearCharacterAN } from "@services/stHost/authorNotes";
+export { setStoryExtensionPrompt, clearStoryExtensionPrompt } from "@services/stHost/extensionPrompts";
 export { getWorldInfoSettings, enableWIEntry, disableWIEntry } from "@services/stHost/worldInfo";
 export type { Lorebook, LoreEntry } from "@services/stHost/worldInfo";
 export {

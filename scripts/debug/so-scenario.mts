@@ -38,6 +38,8 @@ function compactState(state) {
     auditCount: runtime?.extraction?.auditCount ?? 0,
     requirementsReady: runtime?.requirements?.ready ?? null,
     npcFired: runtime?.firedNpcReplies ?? {},
+    tension: state?.liveSnapshot?.tension ?? runtime?.tension ?? null,
+    pacingPrompt: state?.pacingPrompt ?? null,
   };
 }
 
@@ -46,7 +48,13 @@ function compareSubset(actual, expected, path = '') {
   for (const [key, expectedValue] of Object.entries(expected ?? {})) {
     const actualValue = actual?.[key];
     const nextPath = path ? `${path}.${key}` : key;
-    if (expectedValue && typeof expectedValue === 'object' && !Array.isArray(expectedValue)) {
+    if (expectedValue && typeof expectedValue === 'object' && !Array.isArray(expectedValue) && typeof expectedValue['approx'] === 'number') {
+      const approximate = expectedValue as { approx: number; tolerance?: number };
+      const tolerance = typeof approximate.tolerance === 'number' ? approximate.tolerance : 0.000001;
+      if (typeof actualValue !== 'number' || Math.abs(actualValue - approximate.approx) > tolerance) {
+        failures.push(`${nextPath}: expected approx ${approximate.approx}, got ${JSON.stringify(actualValue)}`);
+      }
+    } else if (expectedValue && typeof expectedValue === 'object' && !Array.isArray(expectedValue)) {
       failures.push(...compareSubset(actualValue, expectedValue, nextPath));
     } else if (actualValue !== expectedValue) {
       failures.push(`${nextPath}: expected ${JSON.stringify(expectedValue)}, got ${JSON.stringify(actualValue)}`);
@@ -76,6 +84,8 @@ function evaluateExpect(state, expected) {
     failures.push(`auditCount: expected >= ${expected['auditCount>=']}, got ${actual.auditCount}`);
   }
   if (expected.npcFired) failures.push(...compareSubset(actual.npcFired, expected.npcFired, 'npcFired'));
+  if (expected.tension) failures.push(...compareSubset(actual.tension, expected.tension, 'tension'));
+  if (expected.pacingPrompt) failures.push(...compareSubset(actual.pacingPrompt, expected.pacingPrompt, 'pacingPrompt'));
   if (expected.requirementsReady !== undefined && actual.requirementsReady !== expected.requirementsReady) {
     failures.push(`requirementsReady: expected ${expected.requirementsReady}, got ${actual.requirementsReady}`);
   }

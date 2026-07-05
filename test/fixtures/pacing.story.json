@@ -1,0 +1,20 @@
+{
+  "format": 2,
+  "title": "Pacing Ascent",
+  "description": "A rising-tension story for curve-fit replay.",
+  "arc_template": "rising",
+  "qualities": [
+    { "key": "has_key", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player obtain the key?" },
+    { "key": "door_open", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the vault door open?" }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "Find Key", "objective": "Find the key.", "type": "anchor", "start": true, "tension_target": "tense" },
+    { "id": "door", "name": "Open Door", "objective": "Open the door.", "type": "anchor", "tension_target": "critical" },
+    { "id": "end", "name": "Inside", "objective": "Enter the vault.", "type": "anchor", "tension_target": "peak" }
+  ],
+  "transitions": [
+    { "from": "start", "to": "door", "priority": 1, "gate": { "q": "has_key", "op": "==", "v": true } },
+    { "from": "door", "to": "end", "priority": 1, "gate": { "q": "door_open", "op": "==", "v": true } }
+  ],
+  "roster": []
+}

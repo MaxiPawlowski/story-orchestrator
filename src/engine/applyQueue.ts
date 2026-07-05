@@ -1,4 +1,5 @@
 import type { ApplyOutcome, Blackboard, BlackboardDelta } from "./blackboard";
+import type { TensionLevel } from "./schema";
 
 export interface TurnRange {
   from: number;
@@ -10,6 +11,7 @@ export interface ApplyQueueEntry {
   blackboardVersionSum: number;
   turnRange?: TurnRange;
   deltas: BlackboardDelta[];
+  tensionLevels?: TensionLevel[];
 }
 
 export interface AppliedQueueEntry extends ApplyQueueEntry {

@@ -1,4 +1,5 @@
-import type { NormalizedStoryV2, PrimitiveValue, Quality } from "@engine/index";
+import { TENSION_CURRENT_KEY, type NormalizedStoryV2, type PrimitiveValue, type Quality } from "@engine/index";
+import { isTensionLevel, levelToNumeric } from "@pacing/index";
 import type { ParsedSharedRead } from "./types";
 
 const deltaPattern = /^DELTA\s+q=([^\s]+)\s+value=(.+?)\s+evidence="([\s\S]*)"\s*$/;
@@ -41,6 +42,14 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
         continue;
       }
       const value = parseJsonLiteral(delta[2]);
+      if (q === TENSION_CURRENT_KEY) {
+        if (!isTensionLevel(value)) {
+          result.rejected.push({ line, reason: "invalid value" });
+          continue;
+        }
+        result.deltas.push({ delta: { q, v: levelToNumeric(value), source: quality.source }, evidence: delta[3], rawLevel: value });
+        continue;
+      }
       if (value === undefined || !valueMatches(quality, value)) {
         result.rejected.push({ line, reason: "invalid value" });
         continue;

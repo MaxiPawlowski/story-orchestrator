@@ -17,7 +17,7 @@ describe("extraction scope", () => {
   it("derives extractor qualities gated ahead of the active checkpoint", () => {
     const story = parseStoryV2OrThrow(storyFixture);
     const scope = deriveScope(story, "start", { values: {}, versions: {}, latched: {} });
-    expect(scope.map((entry) => entry.key)).toEqual(["location", "mara_trust", "player_has_key"]);
+    expect(scope.map((entry) => entry.key)).toEqual(["location", "mara_trust", "player_has_key", "tension_current"]);
     expect(scope.find((entry) => entry.key === "player_has_key")?.hints).toEqual(["Look for explicit possession of the brass key."]);
   });
 
@@ -37,7 +37,7 @@ describe("extraction scope", () => {
       transitions: [{ from: "start", to: "door", priority: 1, gate: { q: "player_has_key", op: "==", v: true } }],
     });
     const scope = deriveScope(story, "start", { values: {}, versions: {}, latched: {} });
-    expect(scope.map((entry) => entry.key)).toEqual(["location", "mara_trust", "player_has_key"]);
+    expect(scope.map((entry) => entry.key)).toEqual(["location", "mara_trust", "player_has_key", "tension_current"]);
   });
 });
 
@@ -65,6 +65,18 @@ describe("shared read parser", () => {
     ].join("\n"), story);
     expect(parsed.deltas).toEqual([]);
     expect(parsed.rejected.map((entry) => entry.reason)).toEqual(["unknown quality", "invalid value", "missing evidence"]);
+  });
+
+  it("maps a tension level label to a numeric delta and keeps the raw level", () => {
+    const story = parseStoryV2OrThrow(storyFixture);
+    const parsed = parseSharedReadResponse([
+      "DELTA q=tension_current value=\"critical\" evidence=\"the walls begin to shake\"",
+      "DELTA q=tension_current value=\"frantic\" evidence=\"panic sets in\"",
+    ].join("\n"), story);
+    expect(parsed.deltas).toEqual([
+      { delta: { q: "tension_current", v: 0.75, source: "extractor" }, evidence: "the walls begin to shake", rawLevel: "critical" },
+    ]);
+    expect(parsed.rejected.map((entry) => entry.reason)).toEqual(["invalid value"]);
   });
 
   it.each(["extractor2", "extractor3", "extractor4"])("parses the %s suite-A corpus fixture", (name) => {

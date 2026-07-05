@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { listConnectionProfiles } from "@services/STAPI";
+import { isArcTemplateName } from "@pacing/index";
 import { startRuntime } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import "./styles.css";
@@ -91,6 +92,28 @@ const SettingsPanel = () => {
             </div>
             {snapshot.extraction.settings.enabled && !snapshot.extraction.settings.profileId && <div className="text-xs text-yellow-300">Select a Connection Manager profile, or extraction stays paused outside debug runs.</div>}
           </div>
+          <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+            <div className="font-medium text-sm">Pacing</div>
+            <label className="flex flex-col gap-1 text-sm">
+              <span>Dramatic shape</span>
+              <select value={typeof snapshot.pacing.shapeOverride === "string" ? snapshot.pacing.shapeOverride : ""} onChange={(event) => manager.setPacingSettings({ shapeOverride: isArcTemplateName(event.target.value) ? event.target.value : null })}>
+                <option value="">Use story default</option>
+                <option value="rising">Rising to climax</option>
+                <option value="fall_recovery">Fall then recovery</option>
+                <option value="three_act">Three act</option>
+              </select>
+            </label>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <label className="flex flex-col gap-1">
+                <span>Smoothing α</span>
+                <input type="number" min={0} max={1} step={0.05} value={snapshot.pacing.alpha} onChange={(event) => manager.setPacingSettings({ alpha: Math.min(1, Math.max(0, Number(event.target.value) || 0)) })} />
+              </label>
+              <label className="flex items-center gap-2 mt-5">
+                <input type="checkbox" checked={snapshot.pacing.hintEnabled} onChange={(event) => manager.setPacingSettings({ hintEnabled: event.target.checked })} />
+                <span>Steering hint</span>
+              </label>
+            </div>
+          </div>
           <div className="text-xs opacity-80">{snapshot.status}</div>
           {snapshot.validationErrors.length > 0 && (
             <div className="text-xs text-red-400">
@@ -141,6 +164,14 @@ const DrawerPanel = () => {
               </div>
             </div>
             <Requirements snapshot={snapshot} />
+            <div className="flex flex-col gap-1">
+              <div className="font-medium">Tension</div>
+              <div className="text-xs opacity-80">
+                <div>Level: {snapshot.tension.level ?? "—"} {snapshot.tension.smoothed !== null && <span>({snapshot.tension.smoothed.toFixed(2)})</span>}</div>
+                <div>Expected: {snapshot.tension.expected !== null ? snapshot.tension.expected.toFixed(2) : "—"}</div>
+                {snapshot.tension.hint && <div className="opacity-100">Steering: {snapshot.tension.hint.direction} — {snapshot.tension.hint.text}</div>}
+              </div>
+            </div>
             <div>
               <div className="font-medium mb-1">Blackboard</div>
               <table className="w-full text-xs">

@@ -1,9 +1,13 @@
+import { TENSION_CURRENT_KEY, TENSION_LEVELS } from "@engine/index";
 import { stableStringify } from "@runtime/hash";
 import type { SharedReadContract } from "./types";
 
 const renderType = (contract: SharedReadContract) => contract.qualities.map(({ quality, hints }) => {
-  const allowed = quality.values?.length ? ` Allowed values: ${quality.values.join(", ")}.` : "";
   const hintText = hints.length ? ` Hints: ${hints.join(" | ")}` : "";
+  if (quality.key === TENSION_CURRENT_KEY) {
+    return `- ${TENSION_CURRENT_KEY}: type=level; Rate the current tension: ${TENSION_LEVELS.join(" | ")} — write value as one quoted level, cite the strongest signal.${hintText}`;
+  }
+  const allowed = quality.values?.length ? ` Allowed values: ${quality.values.join(", ")}.` : "";
   return `- ${quality.key}: type=${quality.type}; ${quality.rubric}${allowed}${hintText}`;
 }).join("\n");
 

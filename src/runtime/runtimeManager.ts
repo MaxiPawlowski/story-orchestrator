@@ -1,15 +1,32 @@
-import { StoryEngine, isValidationErrorList, type ApplyQueueEntry, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type ValidationError } from "@engine/index";
+import { StoryEngine, isValidationErrorList, TENSION_CURRENT_KEY, type ApplyQueueEntry, type ArcTemplate, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type TensionLevel, type ValidationError } from "@engine/index";
 import { getChatWindow, runSharedRead, type ParsedFact, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
-import { getContext } from "@services/STAPI";
+import { expectedTension, getSteeringHint, numericToLevel, updateEma } from "@pacing/index";
+import { clearStoryExtensionPrompt, getContext, setStoryExtensionPrompt } from "@services/STAPI";
+import { DEFAULT_TENSION_EMA_ALPHA, PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
 import { EffectsApplier } from "./effectsApplier";
 import { evaluateRequirements } from "./requirements";
 import { loadPersistedRuntime, savePersistedRuntime, setSelectedStoryHash, getSelectedStoryHash } from "./persistence";
 import { findStoryRecord, listStoryRecords, loadStoryRecord, saveStoryRecord } from "./storyLibrary";
-import type { ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, RuntimeExtras, RuntimeSnapshot } from "./types";
+import type { ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, PacingSettings, RuntimeExtras, RuntimeSnapshot, TensionRuntimeState } from "./types";
 
 const emptyRequirements = { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] };
 
 const defaultExtractionSettings = (): ExtractionRuntimeSettings => ({ enabled: false, profileId: null, cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 1 });
+
+const defaultPacingSettings = (): PacingSettings => ({ alpha: DEFAULT_TENSION_EMA_ALPHA, shapeOverride: null, hintEnabled: true });
+
+const defaultTension = (): TensionRuntimeState => ({ levels: [], smoothed: null });
+
+const sanitizePacing = (value: PacingSettings | undefined): PacingSettings => ({
+  ...defaultPacingSettings(),
+  ...(value ?? {}),
+  alpha: typeof value?.alpha === "number" && value.alpha >= 0 && value.alpha <= 1 ? value.alpha : DEFAULT_TENSION_EMA_ALPHA,
+});
+
+const sanitizeTension = (value: TensionRuntimeState | undefined): TensionRuntimeState => ({
+  levels: Array.isArray(value?.levels) ? value.levels.slice(-50) : [],
+  smoothed: typeof value?.smoothed === "number" ? value.smoothed : null,
+});
 
 const createExtraction = (): ExtractionRuntimeState => ({
   settings: defaultExtractionSettings(),
@@ -25,6 +42,8 @@ const createExtras = (): RuntimeExtras => ({
   lastAppliedCheckpointId: null,
   lastSelfInjectionMessageId: null,
   extraction: createExtraction(),
+  pacing: defaultPacingSettings(),
+  tension: defaultTension(),
   updatedAt: new Date().toISOString(),
 });
 
@@ -50,6 +69,7 @@ export class RuntimeManager {
   private readonly listeners = new Set<() => void>();
   private readonly boundaryListeners = new Set<(result: BoundaryResult) => void>();
   private readonly rollbackListeners = new Set<(messageId: number, window: SharedReadWindow) => void>();
+  private pendingTension: TensionRuntimeState | null = null;
 
   subscribe(listener: () => void) {
     this.listeners.add(listener);
@@ -74,6 +94,8 @@ export class RuntimeManager {
     const hash = getSelectedStoryHash();
     if (!hash) {
       this.loaded = null;
+      this.pendingTension = null;
+      clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
       this.status = "No story selected for this chat";
       this.notify();
       return;
@@ -132,6 +154,9 @@ export class RuntimeManager {
     } else if (this.extras.requirements.ready && this.extras.lastAppliedCheckpointId !== this.engine.activeCheckpoint.id) {
       await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate");
     }
+    this.applyCommittedTension(result);
+    this.pendingTension = null;
+    this.updateSteering();
     await this.persist();
     this.status = result.fired ? `Advanced to ${result.activeCheckpointId}` : `Committed boundary ${result.boundary}`;
     this.boundaryListeners.forEach((listener) => listener(result));
@@ -144,6 +169,7 @@ export class RuntimeManager {
     this.refreshRequirements();
     this.engine.activateCheckpoint(id, this.getBoundaryContext());
     await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate");
+    this.updateSteering();
     await this.persist();
     this.status = `Manually activated ${id}`;
     this.notify();
@@ -192,8 +218,11 @@ export class RuntimeManager {
       const window = getChatWindow(restored.checkpointStartedMessageId, context.lastMessageId);
       this.extras.extraction.facts = this.extras.extraction.facts.filter((fact) => typeof fact.messageId !== "number" || fact.messageId < messageId);
       this.extras.extraction.audits = this.extras.extraction.audits.filter((audit) => audit.window.to < messageId);
+      this.extras.tension = this.replayCommittedTension();
+      this.pendingTension = null;
       this.refreshRequirements();
       await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate");
+      this.updateSteering();
       await this.persist();
       this.status = `Rolled back to boundary ${boundary}`;
       this.rollbackListeners.forEach((listener) => listener(messageId, window));
@@ -215,6 +244,13 @@ export class RuntimeManager {
 
   setExtractionSettings(settings: Partial<ExtractionRuntimeSettings>) {
     this.extras.extraction.settings = { ...this.extras.extraction.settings, ...settings };
+    void this.persist();
+    this.notify();
+  }
+
+  setPacingSettings(settings: Partial<PacingSettings>) {
+    this.extras.pacing = sanitizePacing({ ...this.extras.pacing, ...settings });
+    this.updateSteering();
     void this.persist();
     this.notify();
   }
@@ -246,11 +282,21 @@ export class RuntimeManager {
     const state = this.engine.serialize();
     const blackboardVersionSum = Object.values(state.blackboard.versions).reduce((sum, version) => sum + version, 0);
     if (audit.acceptedDeltas.length) {
+      const tensionLevels: TensionLevel[] = [];
+      audit.acceptedDeltas.forEach((entry) => {
+        if (entry.delta.q !== TENSION_CURRENT_KEY || !entry.rawLevel) return;
+        const base = this.pendingTension ?? this.extras.tension;
+        const smoothed = updateEma(base.smoothed, entry.delta.v as number, this.extras.pacing.alpha);
+        this.pendingTension = { levels: [...base.levels, entry.rawLevel].slice(-50), smoothed };
+        tensionLevels.push(entry.rawLevel);
+        entry.delta.v = smoothed;
+      });
       this.engine.enqueue({
         source: "extractor",
         blackboardVersionSum,
         turnRange: audit.window,
         deltas: audit.acceptedDeltas.map((entry) => entry.delta),
+        ...(tensionLevels.length ? { tensionLevels } : {}),
       });
     }
     const stampedFacts = facts.map((fact) => ({ ...fact, boundary: state.boundary, messageId: audit.window.to }));
@@ -317,6 +363,19 @@ export class RuntimeManager {
       library: listStoryRecords(),
       status: this.status,
       extraction: this.extras.extraction,
+      pacing: this.extras.pacing,
+      tension: this.buildTensionSnapshot(),
+    };
+  }
+
+  private buildTensionSnapshot(): RuntimeSnapshot["tension"] {
+    const smoothed = this.extras.tension.smoothed;
+    const expected = this.loaded ? this.computeExpectedTension() : null;
+    return {
+      level: smoothed === null ? null : numericToLevel(smoothed),
+      smoothed,
+      expected,
+      hint: getSteeringHint(smoothed, expected),
     };
   }
 
@@ -324,9 +383,12 @@ export class RuntimeManager {
     this.loaded = loaded;
     this.validationErrors = [];
     this.engine.loadStory(loaded.story);
+    this.pendingTension = null;
     const persisted = mode === "hydrate" ? loadPersistedRuntime(loaded.record.hash) : null;
     this.extras = persisted?.extras ?? createExtras();
     this.extras.extraction = sanitizeExtraction(this.extras);
+    this.extras.pacing = sanitizePacing(this.extras.pacing);
+    this.extras.tension = sanitizeTension(this.extras.tension);
     this.extras.lastSelfInjectionMessageId = typeof this.extras.lastSelfInjectionMessageId === "number" ? this.extras.lastSelfInjectionMessageId : null;
     this.refreshRequirements();
     if (mode === "hydrate" && persisted?.engineState) {
@@ -337,6 +399,7 @@ export class RuntimeManager {
       await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate");
       this.status = `Loaded ${loaded.story.title}`;
     }
+    this.updateSteering();
     setSelectedStoryHash(loaded.record.hash);
     await this.persist();
     this.notify();
@@ -351,6 +414,67 @@ export class RuntimeManager {
       extras: this.extras,
     });
     await getContext().saveMetadata?.();
+  }
+
+  private effectiveShape(): ArcTemplate | null {
+    return this.extras.pacing.shapeOverride ?? this.loaded?.story.arc_template ?? null;
+  }
+
+  private computeExpectedTension(): number | null {
+    const shape = this.effectiveShape();
+    const story = this.loaded?.story;
+    if (!shape || !story) return null;
+    const totalAnchors = story.checkpoints.filter((checkpoint) => checkpoint.type === "anchor").length;
+    if (totalAnchors === 0) return null;
+    const progress = this.engine.serialize().visitedAnchors.length / totalAnchors;
+    return expectedTension(shape, progress);
+  }
+
+  private updateSteering() {
+    if (!this.loaded) {
+      clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
+      return;
+    }
+    const hint = getSteeringHint(this.extras.tension.smoothed, this.computeExpectedTension());
+    if (this.extras.pacing.hintEnabled && hint) {
+      setStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY, hint.text, PACING_HINT_DEPTH);
+    } else {
+      clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
+    }
+  }
+
+  private applyCommittedTension(result: BoundaryResult) {
+    result.queue.applied.forEach((entry) => {
+      const levels = entry.tensionLevels ?? [];
+      let levelIndex = 0;
+      entry.deltas.forEach((delta) => {
+        if (delta.q !== TENSION_CURRENT_KEY || typeof delta.v !== "number") return;
+        const level = levels[levelIndex];
+        levelIndex += 1;
+        this.extras.tension = {
+          levels: level ? [...this.extras.tension.levels, level].slice(-50) : this.extras.tension.levels,
+          smoothed: delta.v,
+        };
+      });
+    });
+  }
+
+  private replayCommittedTension(): TensionRuntimeState {
+    const tension = defaultTension();
+    this.engine.stateLog.forEach((entry) => {
+      entry.queue.applied.forEach((applied) => {
+        const levels = applied.tensionLevels ?? [];
+        let levelIndex = 0;
+        applied.deltas.forEach((delta) => {
+          if (delta.q !== TENSION_CURRENT_KEY || typeof delta.v !== "number") return;
+          const level = levels[levelIndex];
+          levelIndex += 1;
+          if (level) tension.levels = [...tension.levels, level].slice(-50);
+          tension.smoothed = delta.v;
+        });
+      });
+    });
+    return tension;
   }
 
   private getBoundaryContext(): BoundaryContext {

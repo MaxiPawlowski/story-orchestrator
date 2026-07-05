@@ -1,5 +1,6 @@
-import type { EngineState, NormalizedStoryV2, PrimitiveValue, ValidationError } from "@engine/index";
+import type { ArcTemplate, EngineState, NormalizedStoryV2, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
 import type { ParsedFact, SharedReadAudit } from "@extraction/index";
+import type { SteeringHint } from "@pacing/index";
 
 export interface StoryLibraryRecord {
   hash: string;
@@ -22,7 +23,20 @@ export interface RuntimeExtras {
   lastAppliedCheckpointId: string | null;
   lastSelfInjectionMessageId: number | null;
   extraction: ExtractionRuntimeState;
+  pacing: PacingSettings;
+  tension: TensionRuntimeState;
   updatedAt: string;
+}
+
+export interface PacingSettings {
+  alpha: number;
+  shapeOverride: ArcTemplate | null;
+  hintEnabled: boolean;
+}
+
+export interface TensionRuntimeState {
+  levels: TensionLevel[];
+  smoothed: number | null;
 }
 
 export interface ExtractionRuntimeSettings {
@@ -71,6 +85,13 @@ export interface RuntimeSnapshot {
   library: StoryLibraryRecord[];
   status: string;
   extraction: ExtractionRuntimeState;
+  pacing: PacingSettings;
+  tension: {
+    level: TensionLevel | null;
+    smoothed: number | null;
+    expected: number | null;
+    hint: SteeringHint | null;
+  };
 }
 
 export interface LoadedStory {

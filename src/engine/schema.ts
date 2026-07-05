@@ -2,6 +2,8 @@ export const QUALITY_TYPES = ["int", "float", "bool", "enum", "string"] as const
 export const QUALITY_SOURCES = ["code", "extractor"] as const;
 export const GATE_OPERATORS = ["==", "!=", ">=", "<=", ">", "<", "in"] as const;
 export const TENSION_LEVELS = ["calm", "stirring", "tense", "critical", "peak"] as const;
+export const ARC_TEMPLATE_NAMES = ["rising", "fall_recovery", "three_act"] as const;
+export const TENSION_CURRENT_KEY = "tension_current";
 export const NPC_REPLY_TRIGGERS = ["onEnter", "afterSpeak"] as const;
 export const NPC_REPLY_KINDS = ["scripted", "llm"] as const;
 
@@ -9,6 +11,11 @@ export type QualityType = typeof QUALITY_TYPES[number];
 export type QualitySource = typeof QUALITY_SOURCES[number];
 export type GateOperator = typeof GATE_OPERATORS[number];
 export type TensionLevel = typeof TENSION_LEVELS[number];
+export type ArcTemplateName = typeof ARC_TEMPLATE_NAMES[number];
+export interface ArcTemplatePoints {
+  points: Array<{ at: number; tension: number }>;
+}
+export type ArcTemplate = ArcTemplateName | ArcTemplatePoints;
 export type NpcReplyTrigger = typeof NPC_REPLY_TRIGGERS[number];
 export type NpcReplyKind = typeof NPC_REPLY_KINDS[number];
 export type PrimitiveValue = string | number | boolean;
@@ -137,7 +144,7 @@ export interface StoryV2 {
   checkpoints: Checkpoint[];
   transitions: Transition[];
   roster: RosterMember[];
-  arc_template?: unknown;
+  arc_template?: ArcTemplate;
   arc_bridges?: ArcBridge[];
   requirements?: unknown;
   scaffolding?: Record<string, Scaffolding>;

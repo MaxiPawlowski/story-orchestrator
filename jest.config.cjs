@@ -1,6 +1,6 @@
 module.exports = {
   testEnvironment: "node",
-  roots: ["<rootDir>/src/engine", "<rootDir>/src/extraction"],
+  roots: ["<rootDir>/src/engine", "<rootDir>/src/extraction", "<rootDir>/src/pacing", "<rootDir>/src/runtime"],
   testMatch: ["**/*.test.ts"],
   transform: {
     "^.+\\.tsx?$": ["ts-jest", { tsconfig: "<rootDir>/tsconfig.jest.json", diagnostics: false }],
@@ -16,6 +16,7 @@ module.exports = {
     "^@engine/(.*)$": "<rootDir>/src/engine/$1",
     "^@runtime/(.*)$": "<rootDir>/src/runtime/$1",
     "^@extraction/(.*)$": "<rootDir>/src/extraction/$1",
+    "^@pacing/(.*)$": "<rootDir>/src/pacing/$1",
   },
   clearMocks: true,
 };

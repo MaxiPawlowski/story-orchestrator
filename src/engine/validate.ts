@@ -1,10 +1,13 @@
 import {
+  ARC_TEMPLATE_NAMES,
   GATE_OPERATORS,
   NPC_REPLY_KINDS,
   NPC_REPLY_TRIGGERS,
   QUALITY_SOURCES,
   QUALITY_TYPES,
+  TENSION_CURRENT_KEY,
   TENSION_LEVELS,
+  type ArcTemplate,
   type Checkpoint,
   type CheckpointEffects,
   type GateLeaf,
@@ -306,6 +309,43 @@ const addProgressQualities = (qualities: Quality[], checkpoints: Checkpoint[], e
   return next;
 };
 
+const addBuiltinTensionQuality = (qualities: Quality[], errors: ValidationError[]) => {
+  const existing = qualities.find((quality) => quality.key === TENSION_CURRENT_KEY);
+  if (existing) {
+    if (existing.type !== "float" || existing.source !== "extractor") {
+      addError(errors, `qualities.${TENSION_CURRENT_KEY}`, "tension_current must be an extractor float quality");
+    }
+    return qualities;
+  }
+  return [...qualities, {
+    key: TENSION_CURRENT_KEY,
+    type: "float" as const,
+    source: "extractor" as const,
+    rubric: "Current dramatic tension, read as a named level and smoothed into a 0-1 value",
+  }];
+};
+
+const readArcTemplate = (value: unknown, errors: ValidationError[]): ArcTemplate | undefined => {
+  if (isOneOf(value, ARC_TEMPLATE_NAMES)) return value;
+  if (isRecord(value) && Array.isArray(value.points)) {
+    const points = value.points.map((entry, index) => {
+      if (!isRecord(entry) || typeof entry.at !== "number" || typeof entry.tension !== "number"
+        || entry.at < 0 || entry.at > 1 || entry.tension < 0 || entry.tension > 1) {
+        addError(errors, `arc_template.points.${index}`, "each point needs at and tension in [0,1]");
+        return null;
+      }
+      return { at: entry.at, tension: entry.tension };
+    }).filter((entry): entry is { at: number; tension: number } => entry !== null);
+    if (!points.length) {
+      addError(errors, "arc_template.points", "custom arc_template needs at least one point");
+      return undefined;
+    }
+    return { points };
+  }
+  addError(errors, "arc_template", `arc_template must be one of ${ARC_TEMPLATE_NAMES.join(", ")} or { points: [...] }`);
+  return undefined;
+};
+
 export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError[] => {
   const errors: ValidationError[] = [];
   if (!isRecord(json)) return [{ path: "$", message: "story must be an object" }];
@@ -321,7 +361,8 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const checkpoints = (json.checkpoints as unknown[]).map((entry, index) => readCheckpoint(entry, `checkpoints.${index}`, errors)).filter((entry): entry is Checkpoint => entry !== null);
   const baseQualities = (json.qualities as unknown[]).map((entry, index) => readQuality(entry, `qualities.${index}`, errors)).filter((entry): entry is Quality => entry !== null);
   const transitions = (json.transitions as unknown[]).map((entry, index) => readTransition(entry, `transitions.${index}`, errors)).filter((entry): entry is Transition => entry !== null);
-  const qualities = addProgressQualities(baseQualities, checkpoints, errors);
+  const qualities = addBuiltinTensionQuality(addProgressQualities(baseQualities, checkpoints, errors), errors);
+  const arcTemplate = json.arc_template !== undefined ? readArcTemplate(json.arc_template, errors) : undefined;
   const arcBridges = Array.isArray(json.arc_bridges) ? json.arc_bridges.map((entry, index) => {
     const bridgePath = `arc_bridges.${index}`;
     if (!isRecord(entry)) {
@@ -401,7 +442,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     checkpoints,
     transitions,
     roster: (json.roster as StoryV2["roster"]),
-    ...(json.arc_template !== undefined ? { arc_template: json.arc_template } : {}),
+    ...(arcTemplate !== undefined ? { arc_template: arcTemplate } : {}),
     ...(arcBridges ? { arc_bridges: arcBridges } : {}),
     ...(json.requirements !== undefined ? { requirements: json.requirements } : {}),
     startCheckpointId,

@@ -29,6 +29,8 @@ function decodeRuntime(entry) {
         ? entry.extras.extraction.audits[entry.extras.extraction.audits.length - 1]
         : null,
     } : null,
+    pacing: entry.extras?.pacing ?? null,
+    tension: entry.extras?.tension ?? null,
     updatedAt: entry.extras?.updatedAt ?? null,
   };
 }
@@ -50,6 +52,8 @@ export async function dumpCurrentChatState(page) {
     const blob = ctx.chatMetadata?.story_orchestrator ?? null;
     const selected = blob?.selectedStoryHash ?? null;
     const entry = selected && blob?.stories ? blob.stories[selected] ?? null : null;
+    const runtimeSnapshot = globalThis.storyOrchestratorRuntime?.getSnapshot?.() ?? null;
+    const pacingPrompt = ctx.extensionPrompts?.story_orchestrator_pacing ?? null;
     return {
       chatId: ctx.chatId,
       groupId: ctx.groupId ?? null,
@@ -57,6 +61,8 @@ export async function dumpCurrentChatState(page) {
       version: blob?.version ?? null,
       storyCount: blob?.stories ? Object.keys(blob.stories).length : 0,
       entry,
+      runtimeSnapshot,
+      pacingPrompt,
     };
   });
 
@@ -67,6 +73,8 @@ export async function dumpCurrentChatState(page) {
     selectedStoryHash: data?.selectedStoryHash ?? null,
     storyCount: data?.storyCount ?? 0,
     state: decodeRuntime(data?.entry),
+    liveSnapshot: data?.runtimeSnapshot ?? null,
+    pacingPrompt: data?.pacingPrompt ?? null,
     _note: 'State is from chatMetadata.story_orchestrator for the current chat.',
   };
 }
@@ -85,6 +93,8 @@ function compactCurrent(data) {
     requirementsReady: state?.requirements?.ready ?? null,
     auditCount: state?.extraction?.auditCount ?? 0,
     factCount: state?.extraction?.factCount ?? 0,
+    tension: data?.liveSnapshot?.tension ?? state?.tension ?? null,
+    pacingPrompt: data?.pacingPrompt ?? null,
   };
 }
 

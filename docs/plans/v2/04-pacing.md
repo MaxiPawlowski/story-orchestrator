@@ -39,3 +39,37 @@ Tension tracking and steering: the extractor reads tension as one of five named 
 ## Delegated decisions
 
 Fit metric details; hint phrasing; whether hint rides AN or its own extension prompt (record choice).
+
+## Gate record
+
+Date: 2026-07-05
+
+Deterministic gates:
+- `npm run typecheck`: passed.
+- `npm run lint`: passed (lint + lint:fix scripts extended to cover `src/pacing`).
+- `npm test`: passed, 4 suites / 42 tests (added `src/pacing/pacing.test.ts`: level→numeric, EMA seed/smooth/clamp, `expectedTension` per shape + custom interp, steering boundaries + null, trajectory, and a curve-fit replay that fits scripted rising tension within MAE ≤ 0.3 and rejects a flat sequence). Updated `extraction.test.ts` scope assertions to include always-in-scope `tension_current`; added a tension level-label parse test.
+- `npm run build`: passed with warnings only (stale Browserslist, asset size 298 KiB).
+
+Live checks (shared CDP session, deterministic debug responses):
+- `node scripts/debug/so-scenario.mts run test/scenarios/plan04-pacing.json --sandbox`: passed. First tension read `stirring` → `tension_current` = 0.25 (exact, EMA seed); second read `critical` → 0.4.
+- Shared-page inspection: `runtime.getSnapshot().tension` = `{ level:"tense", smoothed:0.4, expected:0.5, hint:{direction:"hold", ...} }`; ST `extension_prompts["story_orchestrator_pacing"]` = the hold hint text at `position:1` (IN_CHAT), `depth:2`, `role:0` (SYSTEM) — steering hint injected live.
+- Drawer gauge renders `Level: tense (0.40) / Expected: 0.50 / Steering: hold — …`; blackboard shows `tension_current` (source extractor); last scope includes `tension_current`.
+
+Decisions as built:
+- **Single `tension_current` quality (extractor float) + parser special-case** (delegated "contract question"): the contract asks a level label; `parse.ts` special-cases `q=tension_current`, validates against `TENSION_LEVELS`, maps to the instantaneous numeric as the delta value, and carries `rawLevel`. `applyExtractionAudit` appends `rawLevel` to `extras.tension.levels`, EMA-smooths (α default `DEFAULT_TENSION_EMA_ALPHA` = 0.3), and rewrites the delta value to the smoothed float before enqueue. Built-in quality auto-injected in `validate.ts` alongside `addProgressQualities`.
+- **Hint via own extension prompt** (delegated choice): new `stHost/extensionPrompts.ts` wrapper (`setStoryExtensionPrompt`/`clearStoryExtensionPrompt`) over `getContext().setExtensionPrompt`, IN_CHAT position, depth 2, SYSTEM role; overwritten each boundary (and on activate/rollback/load) so the hint tracks drift. Enum values (`IN_CHAT=1`, `SYSTEM=0`) verified against `public/script.js:484-498`; context does not expose the enums, so local typed consts + a runtime guard/warn are used per working-style.
+- **Fit metric**: mean absolute error of smoothed vs `expectedTension(progress)` over recorded checkpoints; threshold per replay step (`maxMae`). Progress = visited anchors / total anchors.
+- α default kept at the pre-stubbed `DEFAULT_TENSION_EMA_ALPHA` (0.3), not the plan's stated .5 (configurable in settings).
+- Tension always in scope when a story loads (seeded in `deriveScope`), independent of gate/snapshot references; steering `getSteeringHint` returns null (no injection) when no `arc_template`/override is resolvable.
+- 03 §Amendment (stability-lag / in-flight) was already retrofitted in plan 03a (H5) — no further change needed here.
+
+Review fixes:
+- `extras.tension` is now updated only after the queued `tension_current` delta is applied at a boundary. Pre-boundary audits keep their EMA in non-persisted pending state only, so drawer/prompt state cannot advance before the engine does.
+- Rollback recomputes `extras.tension` from the remaining committed boundary log and clears/updates the pacing extension prompt accordingly.
+- No-story chat load clears `story_orchestrator_pacing`, preventing ST-global prompt leakage across chats.
+- `so-state` and `so-scenario` now expose/assert live `snapshot.tension` plus ST `extensionPrompts.story_orchestrator_pacing`; `plan04-pacing.json` asserts second-read EMA, hint direction, prompt position/depth/role/text.
+- Added `src/runtime/runtimeManager.test.ts` coverage for prompt clearing, pre-boundary tension invisibility, and rollback rewind.
+- Review-fix gates: `npm run typecheck`, `npm run lint`, `npm test -- --no-cache`, `npm run debug:typecheck`, `npm run build`, and `node scripts/debug/so-scenario.mts run test/scenarios/plan04-pacing.json --sandbox` passed. Build warnings unchanged: stale Browserslist data and 299 KiB asset size.
+
+Known limitations:
+- Generation-bias (`getGenerationBias`) is interface-only; plan 05 consumes it. Custom `arc_template` points are validated but not authorable in the settings UI (Studio, plan 11).
