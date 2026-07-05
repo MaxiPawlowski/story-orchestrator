@@ -32,7 +32,16 @@ export async function getChatMetadata(page) {
   });
 }
 
+const USAGE = `Usage: node st-chat.mjs [count|metadata]
+
+No args or count: print last N messages (default 10).
+metadata: print full chat_metadata object.`;
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  if (process.argv.includes('--help') || process.argv.includes('-h')) {
+    console.log(USAGE);
+    process.exit(0);
+  }
   (async () => {
     let browser;
     try {
@@ -57,7 +66,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       console.error('Error:', err.message);
       process.exitCode = 1;
     } finally {
-      if (browser) browser.close();
+      if (browser) await browser.close().catch(() => {});
+      process.exit(process.exitCode || 0);
     }
   })();
 }

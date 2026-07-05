@@ -1,4 +1,4 @@
-// Dump SillyTavern's getContext() API — the canonical runtime inspection surface.
+// Dump SillyTavern's getContext() API - the canonical runtime inspection surface.
 //
 // Provides a filtered default summary (safe for large chats) and per-key deep extraction.
 
@@ -63,7 +63,16 @@ export async function getSTContextKey(page, key) {
   }, key);
 }
 
+const USAGE = `Usage: node st-context.mjs [key1 key2 ...]
+
+No args: print summary (chatId, groupId, name1, name2, mainApi, recent messages).
+With keys: print those specific getContext() fields.`;
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  if (process.argv.includes('--help') || process.argv.includes('-h')) {
+    console.log(USAGE);
+    process.exit(0);
+  }
   (async () => {
     let browser;
     try {
@@ -83,7 +92,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       console.error('Error:', err.message);
       process.exitCode = 1;
     } finally {
-      if (browser) browser.close();
+      if (browser) await browser.close().catch(() => {});
+      process.exit(process.exitCode || 0);
     }
   })();
 }

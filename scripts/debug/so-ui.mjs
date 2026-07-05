@@ -189,7 +189,20 @@ export async function takeAnnotatedScreenshot(page, label = 'ui-state') {
   return { path, drawerVisible };
 }
 
+const USAGE = `Usage: node so-ui.mjs <all|settings|drawer|open-settings|open-studio|screenshot> [label]
+
+all: print settings + drawer state.
+settings: print settings panel state.
+drawer: print drawer state.
+open-settings: expand the settings panel.
+open-studio: open Checkpoint Studio modal.
+screenshot [label]: take an annotated screenshot.`;
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  if (process.argv.includes('--help') || process.argv.includes('-h')) {
+    console.log(USAGE);
+    process.exit(0);
+  }
   (async () => {
     let browser;
     try {
@@ -229,7 +242,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         console.log('Checkpoint Studio opened:', JSON.stringify(result));
       }
 
-      if (subcommand === 'screenshot' || subcommand === 'all') {
+      if (subcommand === 'screenshot') {
         const result = await takeAnnotatedScreenshot(page, 'so-ui-state');
         console.log(`Screenshot: ${result.path} (drawer visible: ${result.drawerVisible})`);
       }
@@ -237,7 +250,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       console.error('Error:', err.message);
       process.exitCode = 1;
     } finally {
-      if (browser) browser.close();
+      if (browser) await browser.close().catch(() => {});
+      process.exit(process.exitCode || 0);
     }
   })();
 }

@@ -15,12 +15,15 @@ export async function getGenerationState(page) {
   return evaluateInST(page, () => {
     const ctx = SillyTavern.getContext();
     const sp = ctx.streamingProcessor;
+    const sendButton = document.getElementById('send_but');
+    const sendButtonDisabled = Boolean(sendButton?.disabled || sendButton?.classList?.contains('disabled'));
     const isGenerating = sp
       ? (sp.isFinished === false || sp.isStopped === false)
-      : false;
+      : sendButtonDisabled;
 
     return {
       isGenerating,
+      sendButtonDisabled,
       streamingProcessor: sp ? {
         isFinished: sp.isFinished ?? null,
         isStopped: sp.isStopped ?? null,
@@ -43,6 +46,13 @@ export async function waitForIdle(page, timeout = 30000) {
   const finalState = await getGenerationState(page);
   if (!finalState.isGenerating) return finalState;
   throw new Error(`Generation still active after ${timeout}ms timeout.`);
+}
+
+export async function sendCompactMessage(page, text) {
+  if (!text || typeof text !== 'string') {
+    throw new Error('sendCompactMessage requires a non-empty text string.');
+  }
+  return executeSlashCommand(page, `/send compact=true ${text}`);
 }
 
 export async function sendUserMessage(page, text) {
@@ -109,7 +119,7 @@ export async function executeSlashCommand(page, command) {
   try {
     await waitForIdle(page, 15000);
   } catch {
-    // generation may not have been triggered — that's fine
+    // generation may not have been triggered - that's fine
   }
 
   const chatLenAfter = await evaluateInST(page, () => {
@@ -133,16 +143,112 @@ export async function triggerCheckpoint(page, idOrIndex) {
   return executeSlashCommand(page, cmd);
 }
 
+export async function swipeMessage(page, messageId, targetSwipeId = null) {
+  return evaluateInST(page, async ({ messageId: rawId, targetSwipeId: rawSwipeId }) => {
+    const ctx = SillyTavern.getContext();
+    const id = Number(rawId);
+    const message = ctx.chat?.[id];
+    if (!Number.isInteger(id) || !message) throw new Error(`Message ${rawId} not found.`);
+    const current = Number(message.swipe_id ?? 0);
+    const target = rawSwipeId === null || rawSwipeId === undefined
+      ? current + 1
+      : Number(rawSwipeId);
+    if (!Array.isArray(message.swipes) || target >= message.swipes.length) {
+      throw new Error(`Message ${id} has no deterministic swipe ${target}. Create a multi-swipe message or pass an existing swipe id.`);
+    }
+    const seen = [];
+    const handler = (value) => seen.push(value);
+    ctx.eventSource.on(ctx.eventTypes.MESSAGE_SWIPED, handler);
+    try {
+      await ctx.swipe.to(null, target > current ? 'right' : 'left', {
+        source: 'swipe_picker',
+        forceMesId: id,
+        forceSwipeId: target,
+        forceDuration: 0,
+      });
+    } finally {
+      ctx.eventSource.removeListener?.(ctx.eventTypes.MESSAGE_SWIPED, handler);
+      ctx.eventSource.off?.(ctx.eventTypes.MESSAGE_SWIPED, handler);
+    }
+    return {
+      messageId: id,
+      previousSwipeId: current,
+      swipeId: ctx.chat[id]?.swipe_id ?? null,
+      eventPayloads: seen,
+    };
+  }, { messageId, targetSwipeId });
+}
+
+export async function editMessage(page, messageId, text) {
+  if (!text || typeof text !== 'string') throw new Error('edit requires non-empty text.');
+  return evaluateInST(page, async ({ messageId: rawId, text }) => {
+    const ctx = SillyTavern.getContext();
+    const id = Number(rawId);
+    const message = ctx.chat?.[id];
+    if (!Number.isInteger(id) || !message) throw new Error(`Message ${rawId} not found.`);
+    const before = message.mes;
+    message.mes = text;
+    if (Array.isArray(message.swipes) && Number.isInteger(message.swipe_id)) {
+      message.swipes[message.swipe_id] = text;
+    }
+    await ctx.updateMessageBlock?.(id, message);
+    await ctx.saveChat?.();
+    await ctx.eventSource.emit(ctx.eventTypes.MESSAGE_EDITED, id);
+    return { messageId: id, before, after: text };
+  }, { messageId, text });
+}
+
+export async function deleteMessage(page, messageId) {
+  return evaluateInST(page, async (rawId) => {
+    const ctx = SillyTavern.getContext();
+    const id = Number(rawId);
+    if (!Number.isInteger(id) || id < 0 || id >= (ctx.chat?.length ?? 0)) throw new Error(`Message ${rawId} not found.`);
+    const beforeLength = ctx.chat.length;
+    const removed = ctx.chat.slice(id).map((message) => ({ name: message.name, mes: String(message.mes ?? '').slice(0, 120) }));
+    ctx.chat.length = id;
+    if (ctx.chatMetadata) ctx.chatMetadata.tainted = true;
+    document.querySelectorAll(`.mes[mesid]`).forEach((element) => {
+      const elementId = Number(element.getAttribute('mesid'));
+      if (elementId >= id) element.remove();
+    });
+    await ctx.saveChat?.();
+    await ctx.eventSource.emit(ctx.eventTypes.MESSAGE_DELETED, id);
+    return { messageId: id, beforeLength, afterLength: ctx.chat.length, removed };
+  }, messageId);
+}
+
+export async function getWIStatus(page, book, comment) {
+  return evaluateInST(page, async ({ book, comment }) => {
+    const ctx = SillyTavern.getContext();
+    const lorebook = await ctx.loadWorldInfo(book);
+    if (!lorebook?.entries) return { book, comment, exists: false, enabled: false, disabled: null, uid: null };
+    const entry = Object.values(lorebook.entries).find((entry) => entry?.comment?.trim() === comment.trim());
+    return {
+      book,
+      comment,
+      exists: Boolean(entry),
+      enabled: entry ? entry.disable !== true : false,
+      disabled: entry ? entry.disable === true : null,
+      uid: entry?.uid ?? null,
+    };
+  }, { book, comment });
+}
+
 const USAGE = `Usage: node st-actions.mjs <action> [args...]
 
 Actions:
   generation-state              Check if generation is in progress
   wait-idle [timeout_ms]        Wait until generation finishes (default 30s)
   send <text>                   Send a user message (triggers LLM generation!)
+  send-compact <text>           Add a message via /send compact=true (no generation)
   slash <command>               Execute a slash command (e.g. "/checkpoint list")
   checkpoint <id_or_index>      Activate a checkpoint by id or 1-based index
   checkpoint list               List checkpoints via /checkpoint list
-  checkpoint eval               Queue arbiter evaluation via /checkpoint eval`;
+  checkpoint eval               Queue arbiter evaluation via /checkpoint eval
+  swipe <messageId> [swipeId]   Switch to an existing swipe and emit MESSAGE_SWIPED
+  edit <messageId> <text>       Edit a message and emit MESSAGE_EDITED
+  delete <messageId>            Delete message and later messages, emit MESSAGE_DELETED
+  wi-status <book> <comment>    Report WI entry exists/enabled state`;
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   (async () => {
@@ -181,6 +287,14 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
           await writeJSON(result, 'st-send-result');
           break;
         }
+        case 'send-compact': {
+          const text = process.argv.slice(3).join(' ');
+          if (!text) { console.error('Missing message text.'); process.exitCode = 1; break; }
+          const result = await sendCompactMessage(page, text);
+          console.log(JSON.stringify(result, null, 2));
+          await writeJSON(result, 'st-send-compact-result');
+          break;
+        }
         case 'slash': {
           const cmd = process.argv.slice(3).join(' ');
           if (!cmd) { console.error('Missing slash command.'); process.exitCode = 1; break; }
@@ -197,6 +311,38 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
           await writeJSON(result, 'st-checkpoint-result');
           break;
         }
+        case 'swipe': {
+          const messageId = Number(process.argv[3]);
+          const swipeId = process.argv[4] === undefined ? null : Number(process.argv[4]);
+          const result = await swipeMessage(page, messageId, swipeId);
+          console.log(JSON.stringify(result, null, 2));
+          await writeJSON(result, 'st-swipe-result');
+          break;
+        }
+        case 'edit': {
+          const messageId = Number(process.argv[3]);
+          const text = process.argv.slice(4).join(' ');
+          const result = await editMessage(page, messageId, text);
+          console.log(JSON.stringify(result, null, 2));
+          await writeJSON(result, 'st-edit-result');
+          break;
+        }
+        case 'delete': {
+          const messageId = Number(process.argv[3]);
+          const result = await deleteMessage(page, messageId);
+          console.log(JSON.stringify(result, null, 2));
+          await writeJSON(result, 'st-delete-result');
+          break;
+        }
+        case 'wi-status': {
+          const book = process.argv[3];
+          const comment = process.argv.slice(4).join(' ');
+          if (!book || !comment) { console.error('wi-status requires <book> <comment>.'); process.exitCode = 1; break; }
+          const result = await getWIStatus(page, book, comment);
+          console.log(JSON.stringify(result, null, 2));
+          await writeJSON(result, 'st-wi-status');
+          break;
+        }
         default:
           console.error(`Unknown action: ${action}`);
           console.log(USAGE);
@@ -206,7 +352,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       console.error('Error:', err.message);
       process.exitCode = 1;
     } finally {
-      if (browser) browser.close();
+      if (browser) await browser.close().catch(() => {});
+      process.exit(process.exitCode || 0);
     }
   })();
 }

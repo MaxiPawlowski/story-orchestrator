@@ -4,7 +4,7 @@
 // Not a Playwright script — runs entirely in Node against the filesystem.
 
 import { execFile } from 'node:child_process';
-import { readdir, readFile, writeFile, mkdir } from 'node:fs/promises';
+import { access, readdir, readFile, writeFile, mkdir } from 'node:fs/promises';
 import { resolve, relative, extname, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -12,7 +12,26 @@ const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = resolve(SCRIPT_DIR, '..', '..');
 const DEBUG_DIR = resolve(PROJECT_ROOT, '.debug');
 
-const DEFAULT_ST_ROOT = resolve(PROJECT_ROOT, '..', '..', '..', '..', '..');
+async function pathExists(path) {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function findDefaultSTRoot() {
+  if (process.env.ST_ROOT) return resolve(process.env.ST_ROOT);
+  let current = PROJECT_ROOT;
+  for (let i = 0; i < 12; i += 1) {
+    if (await pathExists(resolve(current, 'public', 'script.js'))) return current;
+    const parent = resolve(current, '..');
+    if (parent === current) break;
+    current = parent;
+  }
+  return resolve(PROJECT_ROOT, '..', '..', '..', '..', '..');
+}
 
 const DEFAULT_GLOBS = '*.js,*.ts,*.mjs';
 const MAX_RESULTS = 50;
@@ -124,36 +143,37 @@ async function hasRg() {
 }
 
 export async function searchSTSource(pattern, {
-  stRoot = DEFAULT_ST_ROOT,
+  stRoot = null,
   files = DEFAULT_GLOBS,
   maxResults = MAX_RESULTS,
 } = {}) {
-  const opts = { stRoot, globs: files, maxResults };
+  const opts = { stRoot: stRoot ? resolve(stRoot) : await findDefaultSTRoot(), globs: files, maxResults };
   if (await hasRg()) {
     return rgSearch(pattern, opts);
   }
   return fsSearch(pattern, opts);
 }
 
-export async function findEventTypes({ stRoot = DEFAULT_ST_ROOT } = {}) {
+export async function findEventTypes({ stRoot = null } = {}) {
   return searchSTSource('event_types\\.', { stRoot, files: '*.js,*.ts,*.mjs', maxResults: 100 });
 }
 
-export async function findEndpoints(pathPattern, { stRoot = DEFAULT_ST_ROOT } = {}) {
+export async function findEndpoints(pathPattern, { stRoot = null } = {}) {
   const pattern = pathPattern
     ? `(app|router)\\.(get|post|put|delete|patch)\\(.*${pathPattern}`
     : '(app|router)\\.(get|post|put|delete|patch)\\(';
   return searchSTSource(pattern, { stRoot, files: '*.js,*.ts,*.mjs', maxResults: 100 });
 }
 
-export async function findContextExports({ stRoot = DEFAULT_ST_ROOT } = {}) {
+export async function findContextExports({ stRoot = null } = {}) {
+  stRoot = stRoot ? resolve(stRoot) : await findDefaultSTRoot();
   const ctxPath = resolve(stRoot, 'public', 'scripts', 'st-context.js');
   const rel = relative(stRoot, ctxPath).replace(/\\/g, '/');
   const results = await searchSTSource('export ', { stRoot, files: 'st-context.js' });
   return results.filter((r) => r.file === rel || r.file.endsWith('/st-context.js'));
 }
 
-export async function findModuleExports(modulePath, { stRoot = DEFAULT_ST_ROOT } = {}) {
+export async function findModuleExports(modulePath, { stRoot = null } = {}) {
   const glob = modulePath.includes('*') ? modulePath : modulePath.replace(/\\/g, '/').split('/').pop();
   return searchSTSource('^export ', { stRoot, files: glob });
 }
@@ -172,7 +192,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     let presetArg = null;
     let pattern = null;
     let files = DEFAULT_GLOBS;
-    let stRoot = DEFAULT_ST_ROOT;
+    let stRoot = process.env.ST_ROOT ?? null;
 
     for (let i = 0; i < args.length; i++) {
       if (args[i] === '--files' && args[i + 1]) { files = args[++i]; continue; }

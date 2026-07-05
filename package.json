@@ -19,6 +19,9 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/index.tsx src/engine src/extraction src/runtime src/services src/utils src/constants --ext .ts,.tsx --ignore-pattern \"src/**/*.test.ts\"",
     "lint:fix": "eslint src/index.tsx src/engine src/extraction src/runtime src/services src/utils src/constants --ext .ts,.tsx --ignore-pattern \"src/**/*.test.ts\" --fix",
+    "debug:session": "node scripts/debug/st-session.mjs",
+    "debug:state": "node scripts/debug/so-state.mjs current",
+    "debug:scenario": "node scripts/debug/so-scenario.mjs run",
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build --output-dir .sb-static"
   },

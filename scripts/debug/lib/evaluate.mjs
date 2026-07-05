@@ -13,13 +13,13 @@ export async function evaluateInST(page, fn, ...args) {
   } catch (err) {
     const message = err.message || String(err);
     if (message.includes('Target closed') || message.includes('Session closed')) {
-      throw new Error(`Browser closed — tab was closed during evaluation. ${message}`);
+      throw new Error(`Browser closed - tab was closed during evaluation. ${message}`);
     }
     if (message.includes('Execution context was destroyed')) {
       throw new Error(`SillyTavern page navigated away during evaluation. ${message}`);
     }
     if (message.includes('Cannot find context')) {
-      throw new Error(`Browser closed — browser context lost. ${message}`);
+      throw new Error(`Browser closed - browser context lost. ${message}`);
     }
     throw new Error(`Evaluation failed in SillyTavern page: ${message}`);
   }
@@ -47,7 +47,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       console.error('Error:', err.message);
       process.exitCode = 1;
     } finally {
-      if (browser) browser.close();
+      if (browser) await browser.close().catch(() => {});
+      process.exit(process.exitCode || 0);
     }
   })();
 }

@@ -63,7 +63,16 @@ export async function dumpStory(page, storyId) {
   }, storyId);
 }
 
+const USAGE = `Usage: node so-library.mjs [storyId]
+
+No args: print story library summary.
+With storyId: print full story definition.`;
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  if (process.argv.includes('--help') || process.argv.includes('-h')) {
+    console.log(USAGE);
+    process.exit(0);
+  }
   (async () => {
     let browser;
     try {
@@ -92,7 +101,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       console.error('Error:', err.message);
       process.exitCode = 1;
     } finally {
-      if (browser) browser.close();
+      if (browser) await browser.close().catch(() => {});
+      process.exit(process.exitCode || 0);
     }
   })();
 }

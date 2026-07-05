@@ -1,0 +1,27 @@
+{
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "title": "Extraction Gate Check",
+        "description": "Plan 03 live extraction validation story.",
+        "qualities": [
+          { "key": "message_count", "type": "int", "source": "code", "monotonic": true, "rubric": "Rendered boundary count." },
+          { "key": "player_has_key", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player explicitly take the brass key?" }
+        ],
+        "checkpoints": [
+          { "id": "start", "name": "Find Key", "objective": "Find the brass key.", "type": "anchor", "start": true },
+          { "id": "door", "name": "Use Key", "objective": "Use the key at the door.", "type": "anchor" }
+        ],
+        "transitions": [
+          { "from": "start", "to": "door", "priority": 1, "gate": { "q": "player_has_key", "op": "==", "v": true }, "extractor_trigger": "brass key", "extraction_hint": "Look for the player taking possession of the brass key." }
+        ],
+        "roster": []
+      }
+    },
+    { "send": "I take the brass key from the hook." },
+    { "extract": { "debugResponse": "DELTA q=player_has_key value=true evidence=\"I take the brass key\"\nFACT importance=2 text=\"Max took the brass key.\" evidence=\"I take the brass key\"", "reason": "cue:start->door" } },
+    { "wait": { "checkpoint": "door", "timeoutMs": 10000 } },
+    { "expect": { "activeCheckpoint": "door", "blackboard": { "player_has_key": true }, "latched": ["player_has_key"], "auditCount>=": 1 } }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    ".claude/CLAUDE.md",
+    ".claude/rules/*.md"
+  ],
+  "skills": {
+    "paths": [
+      ".claude/skills"
+    ]
+  },
+  "mcp": {
+    "playwright": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@playwright/mcp@latest",
+        "--cdp-endpoint",
+        "http://127.0.0.1:9222"
+      ],
+      "enabled": true,
+      "timeout": 30000
+    }
+  }
+}

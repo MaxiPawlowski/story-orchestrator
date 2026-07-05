@@ -29,7 +29,17 @@ export async function dumpExtensionSettings(page, extensionName = 'story-orchest
   }, extensionName);
 }
 
+const USAGE = `Usage: node st-extension-settings.mjs [extensionName|--all]
+
+No args: print story-orchestrator settings.
+With a name: print that extension's settings.
+--all: print summary of all extension settings.`;
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  if (process.argv.includes('--help') || process.argv.includes('-h')) {
+    console.log(USAGE);
+    process.exit(0);
+  }
   (async () => {
     let browser;
     try {
@@ -51,7 +61,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       console.error('Error:', err.message);
       process.exitCode = 1;
     } finally {
-      if (browser) browser.close();
+      if (browser) await browser.close().catch(() => {});
+      process.exit(process.exitCode || 0);
     }
   })();
 }
