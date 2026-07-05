@@ -20,7 +20,7 @@ Prove the guarantee: a drifting, open-ended playthrough still reaches every auth
 - Anchor entry conditions: integration-assert 05's insertion rule — `progress_toward_<anchor> >= threshold` conjoined only into transitions entering the anchor from generated intermediates, those transitions carrying no increment, direct authored transitions untouched; progress available at gate evaluation equals the chain's declared sum.
 - Stall + reconcile in anger: reconciliation may fire while intermediates are active; confirm it re-reads narrative qualities only, never progress; add a `reconciliation_events` audit list.
 - Drawer: per upcoming anchor, progress/threshold bar.
-- **Drifting-fixture proof** (the deliverable): replay fixture where scripted extraction outputs wander (irrelevant deltas, missed readings, contradictory tension) across a 2-stub story; assert every anchor reached within `horizon = k × Σ target_turn_length` boundaries (k in fixture, e.g. 2). Add a second fixture where the player "refuses" the likely branch — on-demand path still converges.
+- **Drifting-fixture proof** (the deliverable): replay fixture where scripted extraction outputs wander (irrelevant deltas, missed readings, contradictory tension) across a 2-stub story; assert every anchor reached within `horizon = k × Σ target_turn_length` boundaries (k in fixture, e.g. 2). Add a second fixture where the player "refuses" the likely branch — on-demand path still converges. Live drift scripting: use the as-built `/cp extract [response]` deterministic debug-response path — full drift scenarios need no LLM.
 - Property test: `progress_toward_*` strictly non-decreasing across any event ordering (fuzz write orderings through the apply queue).
 
 ## Implementation notes

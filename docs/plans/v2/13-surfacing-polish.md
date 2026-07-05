@@ -17,11 +17,12 @@ Finish the author/user surface (v2 macros, WI/AN cadence polish, debug panels), 
 ## Deliverables
 
 - **Macros** (registered via `MacrosParser`, auto-updated): `{{story_title}}`, `{{story_description}}`, `{{story_current_checkpoint}}`, `{{story_past_checkpoints}}`, `{{story_possible_transitions}}` (gate texts via `renderGateText`), `{{story_blackboard}}` (absorbed from plan 02), `{{story_tension}}`, `{{story_canon}}`, `{{story_player_name}}`, `{{story_role_<role>}}` per roster, per-tier memory macros (`{{story_memory_facts}}`, `{{story_memory_arcs}}`, …) for custom placement (Smart-Memory pattern).
+- **Memory slash commands**: `/so-mem list|pin|exclude|backlog` alongside `/cp` (pin/exclude wiring exists from plan 07).
 - **Cadence polish**: audit every injection writer (AN, WI, extension prompts, private blocks) for write-on-change discipline and depth collisions; consolidate injection-key registry in one module.
 - **Debug panels**: unify drawer debug tabs (blackboard w/ evidence, memory tiers, scheduler queue, extraction audit, expansion cache) + `so-state.mjs`/`so-ui.mjs` final shape; payload-inspector view showing the exact injected prompt blocks per generation (ST-Copilot pattern).
 - **Away recap** (Smart-Memory pattern): on reopening a chat after a long gap, one popup summarizing story position (active checkpoint, open arcs, canon excerpt).
 - **Budget auto-tune** (optional, keep small): observe trim pressure per tier over a session; suggest budget adjustments in settings (suggest only).
-- **Docs refresh**: delete `docs/story-orchestrator-spec.md` (v1), `docs/story-orchestrator-core-overview.md`, `docs/stateless-weaving-cerf.md`; write `docs/architecture-v2.md` (current source layout + data flow, concise); update `.claude/CLAUDE.md` + `.claude/rules/architecture.md`, `patterns.md`, `gotchas.md` to v2 reality (these currently describe v1 — build agents after this point must not be misled); README with Smart-Memory/ST-Copilot attribution + AGPL note.
+- **Docs refresh**: v1 docs were already removed during the repo move — verify none linger; write `docs/architecture-v2.md` (current source layout + data flow, concise); polish `.claude/CLAUDE.md` + `.claude/rules/*` (skeleton-refreshed in 03a) to final v2 reality; reconcile the build-session root artifacts (`FEATURE_SPECS.md`, `agents.md`, `notes/`) — fold anything load-bearing into the docs, delete the rest; README with Smart-Memory/ST-Copilot/MessageSummarize attribution + AGPL note. Plan docs live under `docs/plans/v2/` — keep references consistent.
 - **Packaging**: `npm run build` production; manifest review; version bump; storybook build not required to pass but must not be broken.
 
 ## Final validation — Success-criteria run

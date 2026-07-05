@@ -22,7 +22,7 @@ Generate scaffolding (not prose) for stub segments in the background: state-delt
 - `planner.ts` — N = f(delta size, tension distance) with declared bounds (e.g. 1..6); builds generator input: delta, tension trajectory (04), `getCanon()`, roster, stub guidance from the authored transition.
 - `generate.ts` — memory-LLM call producing beats JSON: per beat `{objective, guidance, tension_target, outcomes[]: {label, gate-able declared deltas, progress increment}}`; strict parse against closed vocabulary (reuse 03's validators); malformed → one re-ask then fail to on-demand-later. Terminology: a *beat* is the scaffolding unit — once inserted it *is* an intermediate checkpoint. Progress increments live only on transitions **between intermediates**; the transition entering the anchor carries the progress condition and **no increment** (spec §Convergence).
 - `critic.ts` — separate call + **code checks first** (code verifies arithmetic, critic judges content): Σ increments ≥ `thresholdFor(anchor)`; cumulative declared deltas reach snapshot; tension follows trajectory; then critic prompt for contradictions vs facts+canon and guidance quality. Bounded revision (max 2 rounds), stop at pass, else accept + `needs_review`.
-- `cache.ts` — `ExpansionCache` in chat_metadata: per stub, chain + `basis` snapshot + verdicts; bounded (evict oldest non-active).
+- `cache.ts` — `ExpansionCache` under `extras.expansion` (the established RuntimeExtras pattern): per stub, chain + `basis` snapshot + verdicts; bounded (evict oldest non-active). Replace `Scaffolding.outcomes?: unknown[]` in schema.ts with the typed shape.
 - `revalidate.ts` — at stub entry: cumulative declared deltas bridge *current* blackboard → anchor snapshot (numeric tolerance config; exact flags/enums). Pass → insert beats as intermediates; insertion conjoins `progress_toward_<anchor> >= threshold` into the chain's anchor-entry transitions (from generated intermediates only — direct authored transitions untouched) and, as a named step, rebuilds the reachability index + re-derives scope. Partial → insert valid prefix, regenerate tail (P3); fail → regenerate, on-demand wait UI state.
 - `coordinator.ts` — triggers: entering a checkpoint whose forward path hits a stub → schedule P3 generation for the likeliest branch (priority = authored transition priority); unexpected branch at arrival → on-demand path.
 - Layer-4 tests: golden generator/critic outputs; assertions = arithmetic checks always verified in code, critic pass-rate measured and reported (test emits metric, does not hard-fail on rate), revalidation catches a drifted-basis fixture.
@@ -31,10 +31,10 @@ Drawer: expansion status (per stub: cached/generating/needs_review/stale), previ
 
 ## Implementation notes
 
-- Generated intermediates are runtime-only: they live in chat_metadata (cache) and are merged into the *session's* normalized story, never written back to the library story.
+- Generated intermediates are runtime-only: they live in chat_metadata (cache) and are merged into the *session's* normalized story, never written back to the library story. **Merge strategy**: compose the merged raw story and re-run `parseStoryV2` on it — reuses the hard validator and index building; generated beats must pass the same validation the critic relies on.
 - Progress increments ride transition effects (01's `convergence.ts` applies them on fire) — the generator only declares them.
 - Cached-but-not-yet-inserted chains feed their gate qualities into scope via 03's `extraGateSources` (likeliest branch) so evidence just before a stub is not missed; insertion then makes them first-class via the index rebuild.
-- All generation on the memory LLM (scheduler P3), never the roleplay connection; single in-flight P3, preempted by P0/P1.
+- All generation on the memory LLM (scheduler P3), never the roleplay connection. **Scheduler gains a second in-flight lane** (spec §Off-path scheduler): reads lane (P0–P2) and heavy lane (P3–P4) — a multi-second scaffolding call must never delay a forced read. The as-built scheduler is single-flight global; extend it here.
 
 ## Validation gate
 

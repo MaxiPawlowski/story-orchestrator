@@ -7,8 +7,8 @@ Make format-2 authorable without touching JSON: quality editor, type-aware gate 
 ## Context
 
 - Spec: §Checkpoint Studio (editors + 7 diagnostics), §Blackboard (gate grammar, scope), §Data model.
-- Consumes from 01: schema/validate, `renderGateText`, normalized indexes. From 03: `deriveScope` (pure — callable on drafts). From 05: scaffolding cache read (stub status display). Reuse: `GraphPanel.tsx` + `graphPanelUtils.ts` (Cytoscape, format-agnostic), Studio modal shell, `MultiSelect`/`FeedbackAlert`/`HelpTooltip`/`Toolbar`, `story-library.ts` CRUD.
-- v1 `checkpoint-studio.ts` adapter and editor tabs were deleted (01) — new draft model against v2 types.
+- Consumes from 01: schema/validate, `renderGateText`, normalized indexes. From 03: `deriveScope` (pure — callable on drafts). From 05: scaffolding cache read (stub status display). Reuse: `GraphPanel.tsx` + `graphPanelUtils.ts` (Cytoscape, format-agnostic — verify they survived plan 01's rip-out before relying on them), Studio modal shell, `MultiSelect`/`FeedbackAlert`/`HelpTooltip`/`Toolbar`, `story-library.ts` CRUD.
+- v1 `checkpoint-studio.ts` adapter and editor tabs were deleted (01) — new draft model against v2 types. **As-built note**: `storySessionStore` was fully deleted in plan 01 (gate deviation), not stripped — the Studio draft store is new code, not a retarget. Diagnostics extend `validate.ts`'s `ValidationError` shape rather than inventing a parallel one.
 
 ## Scope
 

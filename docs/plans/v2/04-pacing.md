@@ -9,6 +9,7 @@ Tension tracking and steering: the extractor reads tension as one of five named 
 - Spec: §Tension & pacing, §Data model (`tension_target`, `arc_template`).
 - Consumes from 03: shared-read contract (standing-questions block), apply queue path, drawer. From 02: effects/AN injection, settings shell.
 - v1 experiments `PacingMonitorService` / `arc-templates.ts` were deleted in plan 01 — rebuild per spec, do not restore old shapes.
+- **Prerequisite**: plan 03a-hardening executed and gated (it owns the stability-lag/in-flight amendments plus the review fixes). Read its Gate record.
 
 ## Scope
 
@@ -18,7 +19,7 @@ Tension tracking and steering: the extractor reads tension as one of five named 
 ## Deliverables
 
 `src/pacing/`:
-- `tension.ts` — built-in quality `tension_current` (source: extractor, float, engine-managed): contract question added to 03's standing block ("Rate the current tension: calm | stirring | tense | critical | peak — cite the strongest signal"); parse level label; the extractor delta carries the *level*, an apply-time transform maps (0, .25, .5, .75, 1) and computes the EMA (configurable α, default .5), writing the smoothed float to blackboard quality `tension_current` — gates read that; raw level history in runtime state.
+- `tension.ts` — built-in quality `tension_current` (source: extractor, float): contract question added to 03's standing block ("Rate the current tension: calm | stirring | tense | critical | peak — cite the strongest signal"); parse level label. **Mechanism (pinned to as-built architecture — no engine transform hook exists)**: `runtimeManager.applyExtractionAudit` intercepts accepted tension-level deltas before enqueue, appends the raw level to `extras.tension.levels`, computes the EMA (configurable α, default .5), and enqueues the smoothed float to `tension_current` — gates read that.
 - `shapes.ts` — `arc_template` definitions: `rising`, `fall_recovery`, `three_act`, `custom` (piecewise points). `expectedTension(progressFraction): number` where progress fraction = visited anchors / total anchors (simple, deterministic; note the definition in code types).
 - `steering.ts` — `getSteeringHint(): 'escalate'|'hold'|'ease' + one-line text`; injected via `setExtensionPrompt` (own key, shallow depth) or appended to the AN block from 02 — pick one, record it. Exposed for plan 05: `getTensionTrajectory(fromTension, toTarget, steps)`.
 - Settings: shape picker, α, hint on/off. Drawer: tension gauge (level + smoothed + expected).

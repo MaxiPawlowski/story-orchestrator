@@ -4,7 +4,7 @@ How [story-orchestrator-spec-v2.md](story-orchestrator-spec-v2.md) gets built: 1
 
 ## Rules for every build agent
 
-1. Read, in order: the spec (`docs/story-orchestrator-spec-v2.md`), this file, your plan file. Nothing else is required context.
+1. Read, in order: the spec (`story-orchestrator-spec-v2.md`), this file, your plan file, and the **Gate records of all previously executed plans** (tail sections of their plan docs — they carry as-built truth and deviations). Nothing else is required context.
 2. **STAPI boundary**: only `src/services/STAPI.ts` + `src/services/stHost/*` import SillyTavern host modules (dynamic `import(/* webpackIgnore: true */ …)`). Everything else imports through STAPI. New host access = new `stHost/` module.
 3. Never typeguard or cast an unverified ST value. Confirm shapes in ST source (`C:\dev\SillyTavern-MainBranch\`, docs in `.claude/sillytavern-docs/`) or add a debug log + local type.
 4. No code comments; self-explanatory code. TypeScript strict. Match existing idiom.
@@ -12,6 +12,7 @@ How [story-orchestrator-spec-v2.md](story-orchestrator-spec-v2.md) gets built: 1
 6. Fixtures in `test/fixtures/` (stories `*.story.json`, transcripts `*.transcript.json`, answer keys `*.expected.json`); recorded LLM goldens in `test/goldens/`. Live re-record via `LIVE=1 npm test`.
 7. On finishing, append a `## Gate record` section to your own plan file: date, command outputs (summary), Playwright checks run and their results, deviations from plan. The next agent reads it.
 8. Deviations from your plan are allowed when the code proves the plan wrong — record them in the Gate record. Deviations from the spec are not; stop and surface instead.
+9. **Tooling grows with the build**: any plan that adds runtime state or new live behavior must, in the same plan, extend `so-state`'s summary, add the matching `so-scenario` verbs/expectations, and update `scripts/debug/README.md` — the next agent must never explore to see your feature. Gate validations ship as `test/scenarios/*.json` and run via `so-scenario` (exit code = pass).
 
 ## Gate protocol (baseline for every plan; plans add specifics)
 
@@ -41,6 +42,7 @@ plus live-ST validation with SillyTavern running at `http://127.0.0.1:8000/` usi
 | [Smart-Memory](https://github.com/senjinthedragon/Smart-Memory) | AGPL-3.0 | 07–10 | Vendor: pin a commit, port modules to TS under `src/memory/`. Tiers, prompts, parsers, consolidation, embeddings, supersession, epistemic, ledger, canon. Read its `docs/architecture.html` first. |
 | [ST-Copilot](https://github.com/Supker/ST-Copilot) | MIT | 12 | Patterns: OOC assistant window, proposal + diff-review-before-apply, context pickers. |
 | [MultihogDnDFramework](https://github.com/MultihogAurelius/SillyTavern-MultihogDnDFramework) | MIT | 02, 12 | Patterns: state-memo injection, snapshot/delta log, narrative hooks. |
+| [SillyTavern-MessageSummarize](https://github.com/qvink/SillyTavern-MessageSummarize) | AGPL-3.0 | 03-amendment, 07, 13 | Patterns only, no code vendored: extraction stability lag, manual memory controls (pin/exclude/edit), memory slash commands. |
 
 AGPL note: repo is private/unlicensed; vendoring Smart-Memory means the extension is AGPL-3.0 **if ever distributed**. Add `LICENSE` (AGPL-3.0) in plan 07.
 
@@ -51,6 +53,8 @@ AGPL note: repo is private/unlicensed; vendoring Smart-Memory means the extensio
 | [01-engine-core](01-engine-core.md) | P0 (+ v1 removal) | `StoryEngine`, `EngineHost`, `NormalizedStoryV2`, `Blackboard`, `BlackboardDelta`, `evaluateGate`/`renderGateText`, apply-queue semantics, replay harness, fixture formats |
 | [02-st-runtime](02-st-runtime.md) | new | `runtime/` host binding: persistence, `TurnBridge`, `EffectsApplier`, TalkControl v2 triggers, minimal UI, `/cp` commands |
 | [03-extractor](03-extractor.md) | P1 | `SharedRead` contract+parser, `deriveScope`, `Scheduler` (P0/P1), `Reconciler`, `getCanon()` (canon-lite), extraction eval suites, memory-LLM profile client |
+| [03a-hardening](03a-hardening.md) | review | fixes from the plans-01–03 implementation review: message-id↔boundary mapping, queue flush on rollback, terminal-value latching, snapshot-quality scope, stability lag + in-flight guard, property tests, live burn-down, LIVE eval baseline, `.claude` rules skeleton |
+| [03b-devtools](03b-devtools.md) | tooling | persistent browser session, `so-scenario` runner (assertions + exit codes, sandbox), swipe/edit/delete + WI-status + payload-capture verbs, st-search root fix, README + rules refresh. **Execute before 03a's live burn-down** |
 | [04-pacing](04-pacing.md) | P2 | `tension_current` pipeline, `getSteeringHint()`, shape configs |
 | [05-background-generation](05-background-generation.md) | P3 | `ScaffoldingGenerator`, `Critic`, `ExpansionCache` + `revalidate()`, scheduler P3 |
 | [06-convergence](06-convergence.md) | P4 | proven convergence loop (increments, thresholds, stall+reconcile live) |

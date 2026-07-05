@@ -63,7 +63,7 @@ Validated at load: every `q` declared, op/type compatible (`>=` needs numeric, `
 
 ### Extraction scope
 
-The quality set is declared once per story; the extractor is never asked about all of it. **Default scope is wide**: while a checkpoint is active, scope = all not-yet-latched qualities whose first gating point lies at or ahead of the active checkpoint on *any* reachable path — union over all reachable next anchors and any inserted intermediates' gates. Evidence for a checkpoint-five gate that appears at checkpoint two is therefore read at checkpoint two and latched.
+The quality set is declared once per story; the extractor is never asked about all of it. **Default scope is wide**: while a checkpoint is active, scope = all not-yet-latched qualities whose first gating point lies at or ahead of the active checkpoint on *any* reachable path — union over all reachable next anchors and any inserted intermediates' gates — plus qualities referenced by the active checkpoint's and any reachable checkpoint's `state_snapshot` (the generator's delta computation needs them read). Evidence for a checkpoint-five gate that appears at checkpoint two is therefore read at checkpoint two and latched.
 
 Scope derives over the current session graph, inserted intermediates included; cached-but-not-yet-inserted scaffolding for the likeliest branch contributes its gate qualities too, so evidence arriving just before a stub is not missed. Narrowing is an opt-in optimization, never correctness-bearing: a quality may declare `scope_hint: { from, until }` to trim its window when the author knows evidence cannot appear elsewhere. Studio previews each checkpoint's derived scope so the effect of a hint is visible. Qualities already latched at terminal values drop out automatically.
 
@@ -75,11 +75,11 @@ The response path is deterministic and AI-free in steady state:
 2. **Evaluate outgoing gates** over the current blackboard. One opens → advance (priority breaks ties), fire the destination's effects, inject its guidance. No AI.
 3. **Main model narrates**, steered by the active beat's guidance and injected memory.
 
-Extraction runs off-path on the memory LLM, on a cadence (every N messages) and on forced cues. A slight lag before a gate opens is acceptable — the story should not advance mid-sentence — and reconciliation catches misses.
+Extraction runs off-path on the memory LLM, on a cadence (every N messages) and on forced cues. Cadence windows carry a **stability lag**: the newest K messages are excluded (default 1 — the newest reply is the likeliest swipe target), so most swipes never require rollback; forced reads may include everything. A slight lag before a gate opens is acceptable — the story should not advance mid-sentence — and reconciliation catches misses.
 
 **Commit semantics.** All blackboard writes — extraction deltas, reconciliation, mechanical updates — enter one **serialized apply queue**, drained only at **turn boundaries**: after a reply is fully rendered and before the next generation starts. Checkpoint activation and its effects (preset swap, author's note, world info, cast changes) obey the same rule — never mid-generation. In group chats every fully rendered member reply is a boundary; a checkpoint may advance mid-round and its effects apply to subsequent members. Each extraction result records the turn range it read; a completed read whose range is fully covered by a newer completed read is discarded whole. Applied deltas pass type and latching checks individually.
 
-**Chat mutations.** Swipes, edits, and deletions rewrite history the scoreboard already read. The engine keeps a boundary-indexed log of applied deltas and fired transitions (bounded window). On a mutation at turn T: if nothing applied references turns ≥ T, it is a no-op; otherwise restore the nearest snapshot before T, re-apply older log entries, revert any transition fired after T (re-applying the restored checkpoint's effects idempotently), drop memory entries created at turns ≥ T, and schedule a forced re-read over the mutated window.
+**Chat mutations.** Swipes, edits, and deletions rewrite history the scoreboard already read. The engine keeps a boundary-indexed log of applied deltas and fired transitions (bounded window); each boundary records the chat message id at commit, giving the message-id → boundary mapping mutations are resolved against (boundary counters and message ids are distinct sequences). On a mutation at turn T: if nothing applied references turns ≥ T, it is a no-op; otherwise restore the nearest snapshot before T, re-apply older log entries, revert any transition fired after T (re-applying the restored checkpoint's effects idempotently), drop memory entries created at turns ≥ T, and schedule a forced re-read over the mutated window.
 
 ## Extractor hardening
 
@@ -146,6 +146,8 @@ The blackboard drives *gates*; memory grounds the *narration* — "should the st
 
 **Consolidation** — per type, new entries are deduped against the base: dropped, folded, or kept; embeddings catch paraphrases, keyword overlap is the fallback.
 
+**Manual control** — any entry can be **pinned** (never trimmed or expired), **excluded** (deleted, with the exclusion honored by consolidation so it is not re-added), or edited by the user.
+
 **Relevance scoring** — when a tier exceeds its token budget, entries score by weighted blend (importance, durability, confidence, recall count, recency, entity overlap, arc relevance, temporal proximity, semantic similarity to the last turn, minus contradiction penalty), with a diversity floor per type and activation triggers boosting entries whose keywords appear in the current turn. Lowest trims first.
 
 **Bridges to the gate spine** — arc resolution applies a declared convergence increment; gate-relevant ledger fields are blackboard qualities; supersession ≡ quality mutation. Defined points, no blurring.
@@ -174,7 +176,7 @@ One work queue on the memory LLM, priority-ordered:
 | 3 | scaffolding generation + critic |
 | 4 | consolidation, canon refresh |
 
-Coalescing: pending cadence reads with overlapping turn ranges merge; results superseded per the commit-semantics staleness rule drop. Under pressure (queue depth past a threshold): cadence N widens automatically; scene-break passes coalesce to the latest break. The reply path never waits on this queue — that boundary is absolute. Within it, extra compute is spent only when it buys a real quality gain (a critic round fixing a genuine flaw), never gratuitously: unfinished background work the player reaches *becomes* latency.
+Coalescing: pending cadence reads with overlapping turn ranges merge; results superseded per the commit-semantics staleness rule drop. Two in-flight lanes: a reads lane (P0–P2) and a heavy lane (P3–P4) — a long generation or consolidation call never delays a forced read. Under pressure (queue depth past a threshold): cadence N widens automatically; scene-break passes coalesce to the latest break. The reply path never waits on this queue — that boundary is absolute. Within it, extra compute is spent only when it buys a real quality gain (a critic round fixing a genuine flaw), never gratuitously: unfinished background work the player reaches *becomes* latency.
 
 The memory LLM is chosen as capable as possible while keeping pace with realtime play — **cost is not the constraint; wall-clock is**. All rich features default on. A **capability profile** downgrades a feature only when the model cannot do it well (e.g. a small local model and epistemic extraction) — never to ration calls.
 
@@ -192,7 +194,7 @@ All verified against ST source:
 - **Repo seams kept**: the STAPI facade remains the only file importing ST modules; debug scripts (`scripts/debug/`) and the Studio shell carry over.
 - **Macros**: state and memory surface to authors via template macros — `{{story_blackboard}}` (compact state memo), `{{story_canon}}`, per-tier memory macros, `{{story_role_<role>}}`, and the story/checkpoint set.
 
-**Provenance & licensing.** The memory subsystem is a vendored TypeScript adaptation of [Smart-Memory](https://github.com/senjinthedragon/Smart-Memory) (AGPL-3.0 — the extension is AGPL if ever distributed); the copilot's proposal/diff-review pattern comes from [ST-Copilot](https://github.com/Supker/ST-Copilot) (MIT); the state-memo and delta-log/rollback patterns come from [MultihogDnDFramework](https://github.com/MultihogAurelius/SillyTavern-MultihogDnDFramework) (MIT).
+**Provenance & licensing.** The memory subsystem is a vendored TypeScript adaptation of [Smart-Memory](https://github.com/senjinthedragon/Smart-Memory) (AGPL-3.0 — the extension is AGPL if ever distributed); the copilot's proposal/diff-review pattern comes from [ST-Copilot](https://github.com/Supker/ST-Copilot) (MIT); the state-memo and delta-log/rollback patterns come from [MultihogDnDFramework](https://github.com/MultihogAurelius/SillyTavern-MultihogDnDFramework) (MIT); the extraction stability lag and manual memory controls follow [SillyTavern-MessageSummarize](https://github.com/qvink/SillyTavern-MessageSummarize) (AGPL-3.0 — patterns only, no code vendored).
 
 ## Data model
 

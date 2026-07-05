@@ -105,3 +105,12 @@ Deviations / incomplete plan items:
 - Reconciliation is wired and schedules P0 reads on stall, but the deliberate missed-golden recovery scenario was not added as a separate fixture/live script in this pass.
 - Facts first-cut lives inside runtime extras under `extraction.facts` rather than a separate chat metadata key. Plan 07 can migrate this into proper memory tiers.
 - Canon-lite currently includes passed anchors and top facts; fired-gate history is a placeholder until runtime exposes transition log details beyond engine-local logs.
+
+## Amendment (post-gate — MOVED: now owned by plan 03a-hardening, item H5)
+
+From the qvink/SillyTavern-MessageSummarize review (spec §Turn loop updated accordingly):
+
+1. **Stability lag**: cadence (P1) windows exclude the newest K messages (default K=1 — the newest AI reply is the likeliest swipe target); forced P0 reads (cues, reconciliation, scene-break confirmation) may include everything. Retrofit in `sharedRead.ts` window selection; configurable in extraction settings. Most swipes then never need rollback.
+2. **In-flight guard**: extraction windows never include a message whose generation is still streaming; window text snapshots when the read is dispatched, not re-read at completion. Retrofit in `sharedRead.ts`/`chatWindow.ts`.
+
+Record the retrofit in plan 04's Gate record.
