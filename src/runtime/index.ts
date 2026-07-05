@@ -43,6 +43,7 @@ export function startRuntime() {
     scheduler.onBoundary(result.boundary, Boolean(result.fired), result.context.lastMessageId);
     scheduleForcedCues(runtimeManager.getStory(), result.activeCheckpointId, scheduler);
     maybeScheduleReconciliation(runtimeManager.getStory(), runtimeManager.getEngineState(), runtimeManager.getExtractionSettings().reconciliationMultiplier, scheduler);
+    runtimeManager.scheduleExpansionForActive((reason, run) => scheduler?.schedule({ priority: 3, reason, run }));
   });
   runtimeManager.onRollback((messageId, window) => {
     scheduler?.schedule({ priority: 0, reason: `rollback:${messageId}`, window });

@@ -194,6 +194,18 @@ const DrawerPanel = () => {
               {snapshot.extraction.scheduler.lastError && <div className="text-red-300">{snapshot.extraction.scheduler.lastError}</div>}
               {snapshot.extraction.audits[0] && <div>Last scope: {snapshot.extraction.audits[snapshot.extraction.audits.length - 1]?.scope.join(", ") || "none"}</div>}
             </div>
+            <div className="text-xs opacity-80">
+              <div className="font-medium opacity-100">Expansion</div>
+              <div>Queue {snapshot.expansion.scheduler.queueDepth}, in flight {snapshot.expansion.scheduler.inFlight ? "yes" : "no"}</div>
+              {snapshot.expansion.scheduler.lastError && <div className="text-red-300">{snapshot.expansion.scheduler.lastError}</div>}
+              {Object.values(snapshot.expansion.entries).map((entry) => (
+                <div key={entry.key} className="border-t border-solid border-white/10 mt-1 pt-1">
+                  <div>{entry.stubId} → {entry.targetAnchorId}: {entry.status}{entry.needsReview ? " review" : ""}</div>
+                  <div>{entry.beats.length} beats{entry.lastError ? ` — ${entry.lastError}` : ""}</div>
+                  {entry.beats.slice(0, 3).map((beat) => <div key={beat.objective}>- {beat.objective}</div>)}
+                </div>
+              ))}
+            </div>
           </>
         )}
       </div>

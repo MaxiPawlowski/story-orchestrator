@@ -29,6 +29,11 @@ function decodeRuntime(entry) {
         ? entry.extras.extraction.audits[entry.extras.extraction.audits.length - 1]
         : null,
     } : null,
+    expansion: entry.extras?.expansion ? {
+      scheduler: entry.extras.expansion.scheduler ?? null,
+      entries: entry.extras.expansion.entries ?? {},
+      entryCount: entry.extras.expansion.entries ? Object.keys(entry.extras.expansion.entries).length : 0,
+    } : null,
     pacing: entry.extras?.pacing ?? null,
     tension: entry.extras?.tension ?? null,
     updatedAt: entry.extras?.updatedAt ?? null,
@@ -93,6 +98,7 @@ function compactCurrent(data) {
     requirementsReady: state?.requirements?.ready ?? null,
     auditCount: state?.extraction?.auditCount ?? 0,
     factCount: state?.extraction?.factCount ?? 0,
+    expansion: data?.liveSnapshot?.expansion ?? state?.expansion ?? null,
     tension: data?.liveSnapshot?.tension ?? state?.tension ?? null,
     pacingPrompt: data?.pacingPrompt ?? null,
   };

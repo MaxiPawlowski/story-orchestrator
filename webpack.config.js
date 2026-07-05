@@ -26,6 +26,7 @@ module.exports = {
       "@runtime": path.resolve(__dirname, "src/runtime"),
       "@extraction": path.resolve(__dirname, "src/extraction"),
       "@pacing": path.resolve(__dirname, "src/pacing"),
+      "@generation": path.resolve(__dirname, "src/generation"),
     },
     fallback: {
       fs: false,

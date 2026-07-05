@@ -1,5 +1,6 @@
 import { StoryEngine, isValidationErrorList, TENSION_CURRENT_KEY, type ApplyQueueEntry, type ArcTemplate, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type TensionLevel, type ValidationError } from "@engine/index";
-import { getChatWindow, runSharedRead, type ParsedFact, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
+import { getCanonLite, getChatWindow, runSharedRead, type ParsedFact, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
+import { findStubExpansionCandidate, generateReviewedBeats, insertedCheckpointIds, mergeExpansions, planExpansion, revalidateExpansion, type ExpansionCacheEntry, type ExpansionRuntimeState, type StubExpansionCandidate } from "@generation/index";
 import { expectedTension, getSteeringHint, numericToLevel, updateEma } from "@pacing/index";
 import { clearStoryExtensionPrompt, getContext, setStoryExtensionPrompt } from "@services/STAPI";
 import { DEFAULT_TENSION_EMA_ALPHA, PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
@@ -36,12 +37,18 @@ const createExtraction = (): ExtractionRuntimeState => ({
   scheduler: { queueDepth: 0, inFlight: false, lastError: null },
 });
 
+const createExpansion = (): ExpansionRuntimeState => ({
+  entries: {},
+  scheduler: { queueDepth: 0, inFlight: false, lastError: null },
+});
+
 const createExtras = (): RuntimeExtras => ({
   firedNpcReplies: {},
   requirements: emptyRequirements,
   lastAppliedCheckpointId: null,
   lastSelfInjectionMessageId: null,
   extraction: createExtraction(),
+  expansion: createExpansion(),
   pacing: defaultPacingSettings(),
   tension: defaultTension(),
   updatedAt: new Date().toISOString(),
@@ -58,6 +65,17 @@ const sanitizeExtraction = (value: RuntimeExtras | undefined): ExtractionRuntime
     scheduler: existing.scheduler ?? { queueDepth: 0, inFlight: false, lastError: null },
   };
 };
+
+const sanitizeExpansion = (value: RuntimeExtras | undefined): ExpansionRuntimeState => {
+  const existing = value?.expansion;
+  if (!existing) return createExpansion();
+  return {
+    entries: existing.entries && typeof existing.entries === "object" ? existing.entries : {},
+    scheduler: existing.scheduler ?? { queueDepth: 0, inFlight: false, lastError: null },
+  };
+};
+
+const expansionKey = (candidate: Pick<StubExpansionCandidate, "sourceCheckpointId" | "stubId" | "targetAnchorId">) => `${candidate.sourceCheckpointId}->${candidate.stubId}->${candidate.targetAnchorId}`;
 
 export class RuntimeManager {
   private engine = new StoryEngine();
@@ -94,6 +112,7 @@ export class RuntimeManager {
     const hash = getSelectedStoryHash();
     if (!hash) {
       this.loaded = null;
+      this.extras = createExtras();
       this.pendingTension = null;
       clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
       this.status = "No story selected for this chat";
@@ -148,6 +167,7 @@ export class RuntimeManager {
   async commitBoundary() {
     if (!this.loaded) return null;
     this.refreshRequirements();
+    this.revalidateInsertedExpansions();
     const result = this.engine.commitBoundary(this.getBoundaryContext());
     if (result.effects) {
       await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate");
@@ -155,6 +175,7 @@ export class RuntimeManager {
       await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate");
     }
     this.applyCommittedTension(result);
+    this.revalidateInsertedExpansions();
     this.pendingTension = null;
     this.updateSteering();
     await this.persist();
@@ -264,7 +285,13 @@ export class RuntimeManager {
   }
 
   setSchedulerSnapshot(snapshot: ExtractionRuntimeState["scheduler"]) {
+    const extended = snapshot as unknown as { heavyQueueDepth?: number; heavyInFlight?: boolean; lastHeavyError?: string | null };
     this.extras.extraction.scheduler = snapshot;
+    this.extras.expansion.scheduler = {
+      queueDepth: typeof extended.heavyQueueDepth === "number" ? extended.heavyQueueDepth : this.extras.expansion.scheduler.queueDepth,
+      inFlight: Boolean(extended.heavyInFlight),
+      lastError: typeof extended.lastHeavyError === "string" ? extended.lastHeavyError : null,
+    };
     void this.persist();
     this.notify();
   }
@@ -324,6 +351,32 @@ export class RuntimeManager {
     return true;
   }
 
+  scheduleExpansionForActive(schedule: (reason: string, run: () => Promise<void>) => void) {
+    if (!this.loaded) return false;
+    const candidate = findStubExpansionCandidate(this.loaded.story, this.engine.serialize().activeCheckpointId);
+    if (!candidate) return false;
+    const key = expansionKey(candidate);
+    const existing = this.extras.expansion.entries[key];
+    if (existing) return false;
+    this.extras.expansion.entries[key] = this.createEmptyExpansionEntry(candidate, "queued");
+    void this.persist();
+    this.notify();
+    schedule(`expand:${candidate.stubId}`, () => this.generateExpansion(candidate));
+    return true;
+  }
+
+  async runExpansionNow(debugResponse?: string) {
+    if (!this.loaded) return false;
+    const candidate = findStubExpansionCandidate(this.loaded.story, this.engine.serialize().activeCheckpointId);
+    if (!candidate) {
+      this.status = "No reachable stub from active checkpoint";
+      this.notify();
+      return false;
+    }
+    await this.generateExpansion(candidate, debugResponse ?? globalThis.storyOrchestratorDebugGenerationResponse ?? null);
+    return true;
+  }
+
   getSnapshot(): RuntimeSnapshot {
     const state = this.loaded ? this.engine.serialize() : null;
     const story = this.loaded?.story ?? null;
@@ -363,6 +416,7 @@ export class RuntimeManager {
       library: listStoryRecords(),
       status: this.status,
       extraction: this.extras.extraction,
+      expansion: this.extras.expansion,
       pacing: this.extras.pacing,
       tension: this.buildTensionSnapshot(),
     };
@@ -380,16 +434,17 @@ export class RuntimeManager {
   }
 
   private async loadStory(loaded: LoadedStory, mode: "activate" | "hydrate") {
-    this.loaded = loaded;
     this.validationErrors = [];
-    this.engine.loadStory(loaded.story);
     this.pendingTension = null;
     const persisted = mode === "hydrate" ? loadPersistedRuntime(loaded.record.hash) : null;
     this.extras = persisted?.extras ?? createExtras();
     this.extras.extraction = sanitizeExtraction(this.extras);
+    this.extras.expansion = sanitizeExpansion(this.extras);
     this.extras.pacing = sanitizePacing(this.extras.pacing);
     this.extras.tension = sanitizeTension(this.extras.tension);
     this.extras.lastSelfInjectionMessageId = typeof this.extras.lastSelfInjectionMessageId === "number" ? this.extras.lastSelfInjectionMessageId : null;
+    this.loaded = { record: loaded.record, story: this.mergedStoryOrBase(loaded.record.raw, loaded.story) };
+    this.engine.loadStory(this.loaded.story);
     this.refreshRequirements();
     if (mode === "hydrate" && persisted?.engineState) {
       this.engine.hydrate(persisted.engineState);
@@ -414,6 +469,98 @@ export class RuntimeManager {
       extras: this.extras,
     });
     await getContext().saveMetadata?.();
+  }
+
+  private createEmptyExpansionEntry(candidate: StubExpansionCandidate, status: ExpansionCacheEntry["status"]): ExpansionCacheEntry {
+    const state = this.engine.serialize();
+    return {
+      key: expansionKey(candidate),
+      status,
+      sourceCheckpointId: candidate.sourceCheckpointId,
+      stubId: candidate.stubId,
+      targetAnchorId: candidate.targetAnchorId,
+      basis: { ...state.blackboard.values },
+      blackboardVersionSum: Object.values(state.blackboard.versions).reduce((sum, version) => sum + version, 0),
+      beats: [],
+      needsReview: false,
+      verdicts: [],
+      codeCheck: null,
+      insertedCheckpointIds: [],
+      lastError: null,
+      attempts: 0,
+      updatedAt: new Date().toISOString(),
+    };
+  }
+
+  private async generateExpansion(candidate: StubExpansionCandidate, debugResponse?: string | null) {
+    if (!this.loaded) return;
+    const key = expansionKey(candidate);
+    const baseEntry = this.extras.expansion.entries[key] ?? this.createEmptyExpansionEntry(candidate, "generating");
+    this.extras.expansion.entries[key] = { ...baseEntry, status: "generating", attempts: baseEntry.attempts + 1, updatedAt: new Date().toISOString(), lastError: null };
+    this.notify();
+    try {
+      const state = this.engine.serialize();
+      const facts = this.getExtractionFacts();
+      const input = planExpansion(this.loaded.story, state.blackboard, candidate, getCanonLite(this.loaded.story, state.visitedAnchors, this.getFiredTransitions(), facts), facts.map((fact) => fact.text));
+      const settings = this.getExtractionSettings();
+      const generated = await generateReviewedBeats(this.loaded.story, input, { ...settings, debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugGenerationResponse ?? null });
+      if (generated.issues.length || !generated.codeCheck || !generated.codeCheck.ok) {
+        this.extras.expansion.entries[key] = { ...this.extras.expansion.entries[key], status: "failed", beats: generated.beats, codeCheck: generated.codeCheck, lastError: generated.issues.join("; ") || generated.codeCheck?.issues.join("; ") || "Generation failed", updatedAt: new Date().toISOString() };
+      } else {
+        const entry: ExpansionCacheEntry = {
+          ...this.extras.expansion.entries[key],
+          status: generated.needsReview ? "needs_review" : "inserted",
+          basis: { ...state.blackboard.values },
+          blackboardVersionSum: Object.values(state.blackboard.versions).reduce((sum, version) => sum + version, 0),
+          beats: generated.beats,
+          needsReview: generated.needsReview,
+          verdicts: [generated.verdict],
+          codeCheck: generated.codeCheck,
+          insertedCheckpointIds: insertedCheckpointIds({ ...this.extras.expansion.entries[key], beats: generated.beats }),
+          lastError: null,
+          updatedAt: new Date().toISOString(),
+        };
+        this.extras.expansion.entries[key] = entry;
+        this.rebuildMergedStory();
+      }
+    } catch (error) {
+      this.extras.expansion.entries[key] = { ...this.extras.expansion.entries[key], status: "failed", lastError: error instanceof Error ? error.message : "Generation failed", updatedAt: new Date().toISOString() };
+    }
+    await this.persist();
+    this.notify();
+  }
+
+  private mergedStoryOrBase(raw: unknown, base: NormalizedStoryV2): NormalizedStoryV2 {
+    try {
+      return mergeExpansions(raw, this.extras.expansion.entries);
+    } catch (error) {
+      this.status = error instanceof Error ? `Expansion merge failed: ${error.message}` : "Expansion merge failed";
+      return base;
+    }
+  }
+
+  private rebuildMergedStory() {
+    if (!this.loaded) return;
+    const state = this.engine.serialize();
+    const story = mergeExpansions(this.loaded.record.raw, this.extras.expansion.entries);
+    this.loaded = { ...this.loaded, story };
+    this.engine.loadStory(story);
+    this.engine.hydrate(state);
+  }
+
+  private revalidateInsertedExpansions() {
+    if (!this.loaded) return;
+    const story = this.loaded.story;
+    let changed = false;
+    const values = this.engine.serialize().blackboard.values;
+    Object.entries(this.extras.expansion.entries).forEach(([key, entry]) => {
+      if (!["inserted", "cached", "needs_review"].includes(entry.status)) return;
+      const verdict = revalidateExpansion(story, entry, values);
+      if (verdict.status === "pass") return;
+      this.extras.expansion.entries[key] = { ...entry, status: "stale", lastError: verdict.issues.join("; "), updatedAt: new Date().toISOString() };
+      changed = true;
+    });
+    if (changed) this.rebuildMergedStory();
   }
 
   private effectiveShape(): ArcTemplate | null {

@@ -1,0 +1,20 @@
+{
+  "format": 2,
+  "title": "Background Bridge",
+  "description": "A minimal stub expansion story.",
+  "arc_template": "rising",
+  "qualities": [
+    { "key": "key_found", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player find the key?" },
+    { "key": "approach", "type": "enum", "values": ["unknown", "safe", "blocked"], "source": "extractor", "rubric": "Which approach is available?" }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "Start", "objective": "Find a route toward the vault.", "type": "anchor", "start": true, "tension_target": "stirring" },
+    { "id": "bridge_stub", "name": "Bridge Stub", "objective": "Generated bridge placeholder.", "type": "intermediate" },
+    { "id": "finish", "name": "Finish", "objective": "Arrive ready at the vault.", "type": "anchor", "state_snapshot": { "key_found": true, "approach": "safe" }, "tension_target": "critical", "convergence_threshold": 1 }
+  ],
+  "transitions": [
+    { "from": "start", "to": "bridge_stub", "priority": 1, "gate": { "q": "key_found", "op": "==", "v": true } },
+    { "from": "bridge_stub", "to": "finish", "priority": 1, "gate": { "q": "progress_toward_finish", "op": ">=", "v": 1 } }
+  ],
+  "roster": []
+}

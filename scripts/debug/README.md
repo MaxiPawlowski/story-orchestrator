@@ -55,15 +55,16 @@ Playwright MCP is configured with `--cdp-endpoint http://127.0.0.1:9222`, so it 
     { "import_story": { "file": "../fixtures/example.story.json" } },
     { "send": "I take the brass key." },
     { "extract": { "debugResponse": "DELTA q=player_has_key value=true evidence=\"I take the brass key\"" } },
+    { "expand": { "debugResponse": "{\"beats\":[...]}" } },
     { "wait": { "checkpoint": "door", "timeoutMs": 10000 } },
     { "expect": { "activeCheckpoint": "door", "blackboard": { "player_has_key": true }, "latched": ["player_has_key"] } }
   ]
 }
 ```
 
-Supported steps: `import_story`, `select_story`, `send`, `send_generate`, `slash`, `extract`, `swipe`, `edit`, `delete`, `wait`, `expect`.
+Supported steps: `import_story`, `select_story`, `send`, `send_generate`, `slash`, `extract`, `expand`, `swipe`, `edit`, `delete`, `wait`, `expect`.
 
-`expect` can assert compact runtime state: `activeCheckpoint`, `blackboard`, `latched`, `auditCount>=`, `npcFired`, `requirementsReady`, `tension`, and `pacingPrompt`. Numeric leaves can use `{ "approx": 0.4, "tolerance": 0.000001 }`.
+`expect` can assert compact runtime state: `activeCheckpoint`, `blackboard`, `latched`, `auditCount>=`, `npcFired`, `requirementsReady`, `expansion`, `tension`, and `pacingPrompt`. Numeric leaves can use `{ "approx": 0.4, "tolerance": 0.000001 }`.
 
 `--sandbox` opens the most recent group chat and starts `/newchat` before the scenario. Unless `--keep` is passed, it removes imported test stories and best-effort deletes the scratch chat.
 

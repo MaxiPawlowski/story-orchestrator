@@ -34,4 +34,5 @@ declare global {
   var ST_applyTextgenPresetToUI: import("@services/stHost/presets").TextGenPresetUiBridge | undefined;
   var storyOrchestratorRuntime: import("@runtime/index").RuntimeManager | undefined;
   var storyOrchestratorDebugExtractionResponse: string | null | undefined;
+  var storyOrchestratorDebugGenerationResponse: string | null | undefined;
 }

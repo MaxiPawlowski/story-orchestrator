@@ -117,11 +117,27 @@ export interface RosterMember {
 }
 
 export interface ScaffoldingBeat {
+  objective: string;
   gate?: GateNode;
   state_snapshot?: Record<string, PrimitiveValue>;
   tension_target?: TensionLevel;
   guidance?: string;
-  outcomes?: unknown[];
+  outcomes: ScaffoldingOutcome[];
+}
+
+export interface ScaffoldingDelta {
+  q: string;
+  v: PrimitiveValue;
+}
+
+export interface ScaffoldingOutcome {
+  label: string;
+  gate: GateNode;
+  deltas?: ScaffoldingDelta[];
+  progress?: {
+    anchor: string;
+    amount: number;
+  };
 }
 
 export interface Scaffolding {

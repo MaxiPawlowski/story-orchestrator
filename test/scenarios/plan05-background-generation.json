@@ -1,0 +1,17 @@
+{
+  "steps": [
+    { "import_story": { "file": "../fixtures/background-generation.story.json" } },
+    { "expand": { "debugResponse": "{\"beats\":[{\"objective\":\"Secure the key route\",\"guidance\":\"Let the player confirm the key matters and keep pressure rising.\",\"tension_target\":\"tense\",\"outcomes\":[{\"label\":\"key secured\",\"gate\":{\"q\":\"key_found\",\"op\":\"==\",\"v\":true},\"deltas\":[{\"q\":\"key_found\",\"v\":true}],\"progress\":{\"anchor\":\"finish\",\"amount\":1}}]},{\"objective\":\"Choose the safe approach\",\"guidance\":\"Frame a clear safe route toward the vault without resolving the anchor early.\",\"tension_target\":\"critical\",\"outcomes\":[{\"label\":\"safe route\",\"gate\":{\"q\":\"approach\",\"op\":\"==\",\"v\":\"safe\"},\"deltas\":[{\"q\":\"approach\",\"v\":\"safe\"}]}]}]}" } },
+    { "expect": { "expansion": { "entries": { "start->bridge_stub->finish": { "status": "inserted", "targetAnchorId": "finish" } } } } },
+    { "slash": "/cp set approach blocked" },
+    { "expect": { "activeCheckpoint": "start", "blackboard": { "approach": "blocked" }, "expansion": { "entries": { "start->bridge_stub->finish": { "status": "stale" } } } } },
+    { "expand": { "debugResponse": "{\"beats\":[{\"objective\":\"Secure the key route\",\"guidance\":\"Let the player confirm the key matters and keep pressure rising.\",\"tension_target\":\"tense\",\"outcomes\":[{\"label\":\"key secured\",\"gate\":{\"q\":\"key_found\",\"op\":\"==\",\"v\":true},\"deltas\":[{\"q\":\"key_found\",\"v\":true}],\"progress\":{\"anchor\":\"finish\",\"amount\":1}}]},{\"objective\":\"Choose the safe approach\",\"guidance\":\"Frame a clear safe route toward the vault without resolving the anchor early.\",\"tension_target\":\"critical\",\"outcomes\":[{\"label\":\"safe route\",\"gate\":{\"q\":\"approach\",\"op\":\"==\",\"v\":\"safe\"},\"deltas\":[{\"q\":\"approach\",\"v\":\"safe\"}]}]}]}" } },
+    { "expect": { "expansion": { "entries": { "start->bridge_stub->finish": { "status": "inserted" } } } } },
+    { "slash": "/cp set key_found true" },
+    { "expect": { "activeCheckpoint": "gen_bridge_stub_1", "blackboard": { "key_found": true } } },
+    { "slash": "/cp set approach safe" },
+    { "expect": { "activeCheckpoint": "gen_bridge_stub_2", "blackboard": { "approach": "safe", "progress_toward_finish": 1 } } },
+    { "slash": "/cp set approach safe" },
+    { "expect": { "activeCheckpoint": "finish", "blackboard": { "key_found": true, "approach": "safe" } } }
+  ]
+}

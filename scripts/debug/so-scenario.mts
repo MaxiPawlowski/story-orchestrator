@@ -12,7 +12,7 @@ import { dumpCurrentChatState } from './so-state.mts';
 const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep]
 
 Step keys:
-  import_story, select_story, send, send_generate, slash, extract, swipe, edit, delete, wait, expect`;
+  import_story, select_story, send, send_generate, slash, extract, expand, swipe, edit, delete, wait, expect`;
 
 function readArgFlag(name) {
   return process.argv.includes(name);
@@ -36,6 +36,7 @@ function compactState(state) {
     blackboard: runtime?.blackboard ?? {},
     latched: runtime?.latched ?? {},
     auditCount: runtime?.extraction?.auditCount ?? 0,
+    expansion: state?.liveSnapshot?.expansion ?? runtime?.expansion ?? null,
     requirementsReady: runtime?.requirements?.ready ?? null,
     npcFired: runtime?.firedNpcReplies ?? {},
     tension: state?.liveSnapshot?.tension ?? runtime?.tension ?? null,
@@ -84,6 +85,7 @@ function evaluateExpect(state, expected) {
     failures.push(`auditCount: expected >= ${expected['auditCount>=']}, got ${actual.auditCount}`);
   }
   if (expected.npcFired) failures.push(...compareSubset(actual.npcFired, expected.npcFired, 'npcFired'));
+  if (expected.expansion) failures.push(...compareSubset(actual.expansion, expected.expansion, 'expansion'));
   if (expected.tension) failures.push(...compareSubset(actual.tension, expected.tension, 'tension'));
   if (expected.pacingPrompt) failures.push(...compareSubset(actual.pacingPrompt, expected.pacingPrompt, 'pacingPrompt'));
   if (expected.requirementsReady !== undefined && actual.requirementsReady !== expected.requirementsReady) {
@@ -102,6 +104,10 @@ async function waitForCondition(page, spec) {
     const runtime = last?.state;
     if (spec.boundary !== undefined && runtime?.boundary >= spec.boundary) return last;
     if (spec.auditCount !== undefined && (runtime?.extraction?.auditCount ?? 0) >= spec.auditCount) return last;
+    if (spec.expansionStatus !== undefined) {
+      const entries = Object.values(last?.liveSnapshot?.expansion?.entries ?? runtime?.expansion?.entries ?? {});
+      if (entries.some((entry: any) => entry?.status === spec.expansionStatus)) return last;
+    }
     if (spec.checkpoint !== undefined && runtime?.activeCheckpointId === spec.checkpoint) return last;
     await page.waitForTimeout(250);
   }
@@ -134,6 +140,14 @@ async function extract(page, spec) {
     const ok = await globalThis.storyOrchestratorRuntime.runExtractionNow(debugResponse, reason);
     return { ok, snapshot: globalThis.storyOrchestratorRuntime.getSnapshot() };
   }, { debugResponse, reason });
+}
+
+async function expand(page, spec) {
+  const debugResponse = typeof spec === 'string' ? spec : spec?.debugResponse;
+  return evaluateInST(page, async (debugResponse) => {
+    const ok = await globalThis.storyOrchestratorRuntime.runExpansionNow(debugResponse);
+    return { ok, snapshot: globalThis.storyOrchestratorRuntime.getSnapshot() };
+  }, debugResponse);
 }
 
 async function cleanupScenario(page, importedHashes, sandboxChatStarted, keep) {
@@ -185,6 +199,7 @@ async function runScenario(page, file, { sandbox = false, keep = false } = {}) {
         else if (key === 'send_generate') output = await sendUserMessage(page, value);
         else if (key === 'slash') output = await executeSlashCommand(page, value);
         else if (key === 'extract') output = await extract(page, value);
+        else if (key === 'expand') output = await expand(page, value);
         else if (key === 'swipe') output = await swipeMessage(page, value.messageId, value.swipeId ?? null);
         else if (key === 'edit') output = await editMessage(page, value.messageId, value.text);
         else if (key === 'delete') output = await deleteMessage(page, value.messageId ?? value);

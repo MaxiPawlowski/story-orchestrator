@@ -13,9 +13,10 @@ export interface SchedulerSettings {
 }
 
 export interface SchedulerJob {
-  priority: 0 | 1;
+  priority: 0 | 1 | 2 | 3 | 4;
   reason: string;
   window?: SharedReadWindow;
+  run?: () => Promise<void>;
 }
 
 export interface SchedulerHost {
@@ -31,12 +32,22 @@ export interface SchedulerHost {
 
 export class ExtractionScheduler {
   private readonly queue: SchedulerJob[] = [];
+  private readonly heavyQueue: SchedulerJob[] = [];
   private inFlight = false;
+  private heavyInFlight = false;
   private lastError: string | null = null;
+  private lastHeavyError: string | null = null;
 
   constructor(private readonly host: SchedulerHost) {}
 
   schedule(job: SchedulerJob) {
+    if (job.priority >= 3) {
+      this.heavyQueue.push(job);
+      this.heavyQueue.sort((left, right) => left.priority - right.priority);
+      this.host.onSchedulerChange();
+      void this.pumpHeavy();
+      return;
+    }
     if (job.priority === 1) {
       const existing = this.queue.find((entry) => entry.priority === 1);
       if (existing) {
@@ -62,7 +73,7 @@ export class ExtractionScheduler {
   }
 
   getSnapshot() {
-    return { queueDepth: this.queue.length, inFlight: this.inFlight, lastError: this.lastError };
+    return { queueDepth: this.queue.length, inFlight: this.inFlight, lastError: this.lastError, heavyQueueDepth: this.heavyQueue.length, heavyInFlight: this.heavyInFlight, lastHeavyError: this.lastHeavyError };
   }
 
   private async pump() {
@@ -79,7 +90,8 @@ export class ExtractionScheduler {
     this.inFlight = true;
     this.host.onSchedulerChange();
     try {
-      const result = await this.runWithRetries(() => runSharedRead({ story, state, priority: job.priority, reason: job.reason, window: job.window, stabilityLag: settings.stabilityLag, firedTransitions: this.host.getFiredTransitions(), facts: this.host.getFacts(), client: settings }));
+      const priority = job.priority === 0 ? 0 : 1;
+      const result = await this.runWithRetries(() => runSharedRead({ story, state, priority, reason: job.reason, window: job.window, stabilityLag: settings.stabilityLag, firedTransitions: this.host.getFiredTransitions(), facts: this.host.getFacts(), client: settings }));
       await this.host.applyExtractionAudit(result.audit, result.facts);
       this.lastError = null;
     } catch (error) {
@@ -89,6 +101,25 @@ export class ExtractionScheduler {
       this.inFlight = false;
       this.host.onSchedulerChange();
       void this.pump();
+    }
+  }
+
+  private async pumpHeavy() {
+    if (this.heavyInFlight) return;
+    const job = this.heavyQueue.shift();
+    if (!job) return;
+    if (!job.run) return;
+    this.heavyInFlight = true;
+    this.host.onSchedulerChange();
+    try {
+      await this.runWithRetries(job.run);
+      this.lastHeavyError = null;
+    } catch (error) {
+      this.lastHeavyError = error instanceof Error ? error.message : "Background generation failed";
+    } finally {
+      this.heavyInFlight = false;
+      this.host.onSchedulerChange();
+      void this.pumpHeavy();
     }
   }
 

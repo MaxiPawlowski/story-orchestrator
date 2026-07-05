@@ -66,9 +66,14 @@ export function registerSlashCommands(manager: RuntimeManager): boolean {
         await manager.runExtractionNow(response || undefined);
         return show(manager.getSnapshot().status);
       }
-      return show("Commands: /cp list, /cp state, /cp activate <id>, /cp set <quality> <value>, /cp extract [response]");
+      if (command === "expand") {
+        const response = parts.slice(1).join(" ");
+        await manager.runExpansionNow(response || undefined);
+        return show(manager.getSnapshot().status);
+      }
+      return show("Commands: /cp list, /cp state, /cp activate <id>, /cp set <quality> <value>, /cp extract [response], /cp expand [response]");
     },
-    helpString: "Story Orchestrator v2 commands: list, state, activate <id>, set <quality> <value>",
+    helpString: "Story Orchestrator v2 commands: list, state, activate <id>, set <quality> <value>, extract [response], expand [response]",
   }));
   return Boolean(parser.commands?.cp);
 }
