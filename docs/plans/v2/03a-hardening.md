@@ -61,6 +61,72 @@ Fix the correctness defects found by the plans-01–03 implementation review, pa
 3. `LIVE=1 npm test` with a configured Connection Manager profile; record model + suite-A live exact-match score in the Gate record (plan 13 baseline).
 4. Gate record: H1 mapping design as built, all H-item outcomes, deviations if any.
 
-## Delegated decisions
+## Gate record
 
-Host-context shape for commitBoundary; non-bool latch semantics (record); flush-all vs overlap-flush on rollback; K default plumbing; backoff constants.
+Date: 2026-07-05
+
+Command outputs:
+- `npm run typecheck`: passed.
+- `npm run lint`: passed.
+- `npm test`: passed, 3 suites / 28 tests.
+- `npm run build`: passed with warnings only (stale Browserslist data, asset size 290 KiB).
+
+Live checks:
+- `node scripts/debug/st-session.mjs start --headed` passed, headed session running.
+- `node scripts/debug/so-scenario.mjs run test/scenarios/plan03-extraction.json --sandbox` passed.
+- `node scripts/debug/so-scenario.mjs run test/scenarios/plan03a-edit-rollback.json --sandbox` passed.
+- `node scripts/debug/so-scenario.mjs run test/scenarios/plan03a-delete-rollback.json --sandbox` passed.
+- `node scripts/debug/so-scenario.mjs run test/scenarios/plan03a-llm-npc-reply.json --sandbox` passed.
+- `node scripts/debug/so-runtime-check.mjs` passed.
+- `node scripts/debug/so-mutation-check.mjs` passed.
+- `node scripts/debug/st-navigation.mjs recent-group` passed after manual toast cleanup (toast overlay interferes with click).
+- `node scripts/debug/so-state.mjs current` passed.
+- `node scripts/debug/so-ui.mjs all` passed.
+- `LIVE=1 npm test` passed, runs deterministic suite only; no live model path exists yet.
+
+Deviations:
+- Standard snapshot blocked by persistent toast overlay from LLM attempts; manual page-side toast removal allowed navigation and state checks to proceed.
+
+H1 mapping as built:
+- `commitBoundary(context)` on `RuntimeManager` → `StoryEngine` maps ST `lastMessageId` and `chatLength` to boundaries.
+- `boundaryBeforeMessage(messageId)` finds newest boundary with `lastMessageId < messageId`.
+- `shouldRollbackFromMessage(messageId)` fast-path no-ops when no applied queue entry overlaps and no later transition fired.
+- Rollback clears pending queue entries, truncates boundary log and snapshots, drops extraction audits/facts with `messageId ≥ mutatedMessageId`.
+- `message_count` uses `chatLength` from boundary context.
+- Extraction windows use message ids from boundary context; P1 cadence excludes newest `stabilityLag` messages (default 1), P0 forced reads include newest.
+
+H3 bool latch as built: bools latch only when value becomes `true`; non-bool latching remains first-write latch.
+
+H4 scope as built: `deriveScope` includes keys from active and reachable checkpoints’ `state_snapshot`.
+
+H5 amendments as built: `stabilityLag` setting (default 1); P1 cadence windows exclude newest K messages; P0 forced reads include all.
+
+H6 small fixes as built:
+- `npc_replies` typed in schema/validate as `NpcReplyEffect[]` with trigger/member/kind/maxTriggers/probability.
+- `arc_bridges` typed and validated in schema/validate.
+- Scheduler retry: 3 attempts with exponential backoff (250ms × 2^n); pauses extraction with surfaced error on persistent failure.
+- `canonLite` passes real fired transitions via `getFiredTransitions()`.
+- `afterSpeak` tracks `lastSelfInjectionMessageId` and ignores self-injected messages.
+- Facts stamped with `{ boundary, messageId }` at accept time; rollback drops affected facts.
+- `basisVersion` renamed to `blackboardVersionSum`.
+
+H7 tests as built:
+- Engine tests added for message-id rollback mapping, queue flush, log truncation, rollback ≡ never-applied, `message_count` from chat length, bool latch terminal behavior.
+- Extraction tests added for snapshot-derived scope.
+- Engine validation tests added for `npc_replies` (valid entry, invalid trigger, missing member, non-array) and `arc_bridges` (valid entry, unknown anchor, missing fields, non-array) — `src/engine/engine.test.ts`.
+- Reconciliation recovery fixture added: `src/extraction/reconcile.test.ts` drives a cadence golden that misses `player_has_key` (`test/goldens/reconcile-cadence.response.txt`), confirms `maybeScheduleReconciliation` schedules a targeted P0 job once the stall threshold is hit, then a targeted golden (`test/goldens/reconcile-targeted.response.txt`) supplies the delta and the transition fires on the next boundary. Required mocking `@services/STAPI` in this file — `sharedRead.ts`/`reconcile.ts`/`chatWindow.ts`/`client.ts` transitively import the ST host-module loader (`src/services/stHost/modules.ts`), which uses top-level `await import(...)` unsupported by ts-jest; unmocked, importing these modules crashes the whole suite.
+- Suite-A extraction corpus grown from 1 to 4 fixtures: `extractor2` (enum delta + invalid-enum-value rejection), `extractor3` (bool latch delta + missing-evidence rejection), `extractor4` (float delta + unknown-quality rejection), wired via `it.each` in `extraction.test.ts`.
+
+H9 docs refresh as built: `.claude/CLAUDE.md` and `.claude/rules/architecture.md` rewritten to v2 as-built.
+
+Post-review fixes (2026-07-05, second pass):
+- `lastSelfInjectionMessageId` sanitized on hydrate to `number | null` in `loadStory` (was defaulting to `undefined`).
+- `rollbackTo`/`hydrate` DRY violation removed via shared `restoreStateFields` helper on `StoryEngine`.
+- Delete-rollback re-read window fixed: `rollbackFromMessage` now derives the window's start from the restored checkpoint's `checkpointStartedMessageId` instead of the mutated `messageId`, so a trailing delete no longer produces an empty re-read window.
+
+Delegated decisions as built:
+- `commitBoundary(context)` explicit over host callback.
+- Flush all pending queue entries on rollback.
+- `stabilityLag` default 1.
+- Scheduler retry: 3 attempts with exponential backoff.
+- Non-bool latching remains first-write latch.

@@ -1,9 +1,12 @@
 import {
   GATE_OPERATORS,
+  NPC_REPLY_KINDS,
+  NPC_REPLY_TRIGGERS,
   QUALITY_SOURCES,
   QUALITY_TYPES,
   TENSION_LEVELS,
   type Checkpoint,
+  type CheckpointEffects,
   type GateLeaf,
   type GateNode,
   type NormalizedStoryV2,
@@ -86,6 +89,42 @@ const readQuality = (value: unknown, path: string, errors: ValidationError[]): Q
   };
 };
 
+const readCheckpointEffects = (value: unknown, path: string, errors: ValidationError[]): CheckpointEffects | null => {
+  if (!isRecord(value)) return null;
+  const effects: CheckpointEffects = { ...value };
+  if (value.npc_replies === undefined) return effects;
+  if (!Array.isArray(value.npc_replies)) {
+    addError(errors, `${path}.npc_replies`, "npc_replies must be an array");
+    delete effects.npc_replies;
+    return effects;
+  }
+  const replies = value.npc_replies.map((entry, index) => {
+    const replyPath = `${path}.npc_replies.${index}`;
+    if (!isRecord(entry)) {
+      addError(errors, replyPath, "npc reply must be an object");
+      return null;
+    }
+    const trigger = isOneOf(entry.trigger, NPC_REPLY_TRIGGERS) ? entry.trigger : null;
+    const member = asString(entry.member);
+    const kind = isOneOf(entry.kind, NPC_REPLY_KINDS) ? entry.kind : null;
+    if (!trigger) addError(errors, `${replyPath}.trigger`, "npc reply trigger is invalid");
+    if (!member) addError(errors, `${replyPath}.member`, "npc reply member is required");
+    if (!kind) addError(errors, `${replyPath}.kind`, "npc reply kind is invalid");
+    if (!trigger || !member || !kind) return null;
+    return {
+      trigger,
+      member,
+      kind,
+      ...(typeof entry.text === "string" ? { text: entry.text } : {}),
+      ...(typeof entry.instruction === "string" ? { instruction: entry.instruction } : {}),
+      ...(typeof entry.maxTriggers === "number" && Number.isFinite(entry.maxTriggers) ? { maxTriggers: entry.maxTriggers } : {}),
+      ...(typeof entry.probability === "number" && Number.isFinite(entry.probability) ? { probability: entry.probability } : {}),
+    };
+  }).filter((entry): entry is NonNullable<typeof entry> => entry !== null);
+  effects.npc_replies = replies;
+  return effects;
+};
+
 const readCheckpoint = (value: unknown, path: string, errors: ValidationError[]): Checkpoint | null => {
   if (!isRecord(value)) {
     addError(errors, path, "checkpoint must be an object");
@@ -110,7 +149,7 @@ const readCheckpoint = (value: unknown, path: string, errors: ValidationError[])
   if (typeof value.target_turn_length === "number" && Number.isFinite(value.target_turn_length)) {
     checkpoint.target_turn_length = value.target_turn_length;
   }
-  if (isRecord(value.effects)) checkpoint.effects = value.effects;
+  if (isRecord(value.effects)) checkpoint.effects = readCheckpointEffects(value.effects, `${path}.effects`, errors) ?? undefined;
   if (typeof value.guidance === "string") checkpoint.guidance = value.guidance;
   if (typeof value.convergence_threshold === "number" && Number.isFinite(value.convergence_threshold)) {
     checkpoint.convergence_threshold = value.convergence_threshold;
@@ -283,6 +322,20 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const baseQualities = (json.qualities as unknown[]).map((entry, index) => readQuality(entry, `qualities.${index}`, errors)).filter((entry): entry is Quality => entry !== null);
   const transitions = (json.transitions as unknown[]).map((entry, index) => readTransition(entry, `transitions.${index}`, errors)).filter((entry): entry is Transition => entry !== null);
   const qualities = addProgressQualities(baseQualities, checkpoints, errors);
+  const arcBridges = Array.isArray(json.arc_bridges) ? json.arc_bridges.map((entry, index) => {
+    const bridgePath = `arc_bridges.${index}`;
+    if (!isRecord(entry)) {
+      addError(errors, bridgePath, "arc bridge must be an object");
+      return null;
+    }
+    const arcMatch = asString(entry.arcMatch);
+    const anchor = asString(entry.anchor);
+    const amount = typeof entry.amount === "number" && Number.isFinite(entry.amount) ? entry.amount : null;
+    if (!arcMatch) addError(errors, `${bridgePath}.arcMatch`, "arcMatch is required");
+    if (!anchor) addError(errors, `${bridgePath}.anchor`, "anchor is required");
+    if (amount === null) addError(errors, `${bridgePath}.amount`, "amount is required");
+    return arcMatch && anchor && amount !== null ? { arcMatch, anchor, amount } : null;
+  }).filter((entry): entry is NonNullable<typeof entry> => entry !== null) : undefined;
 
   const checkpointById: Record<string, Checkpoint> = {};
   checkpoints.forEach((checkpoint, index) => {
@@ -307,6 +360,12 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     validateGate(transition.gate, qualityByKey, `transitions.${index}.gate`, errors);
     if (transition.effects?.progress && !checkpointById[transition.effects.progress.anchor]) {
       addError(errors, `transitions.${index}.effects.progress.anchor`, `unknown anchor '${transition.effects.progress.anchor}'`);
+    }
+  });
+
+  arcBridges?.forEach((bridge, index) => {
+    if (!checkpointById[bridge.anchor] || checkpointById[bridge.anchor].type !== "anchor") {
+      addError(errors, `arc_bridges.${index}.anchor`, `unknown anchor '${bridge.anchor}'`);
     }
   });
 
@@ -343,6 +402,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     transitions,
     roster: (json.roster as StoryV2["roster"]),
     ...(json.arc_template !== undefined ? { arc_template: json.arc_template } : {}),
+    ...(arcBridges ? { arc_bridges: arcBridges } : {}),
     ...(json.requirements !== undefined ? { requirements: json.requirements } : {}),
     startCheckpointId,
     checkpointById,

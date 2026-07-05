@@ -14,6 +14,7 @@ export interface ExtraGateSource {
 
 export interface ChatMessageWindowEntry {
   index: number;
+  messageId: number;
   speaker: string;
   text: string;
 }
@@ -41,6 +42,8 @@ export interface ParsedFact {
   text: string;
   evidence: string;
   importance: 1 | 2 | 3;
+  boundary?: number;
+  messageId?: number;
 }
 
 export interface ParsedSharedRead {

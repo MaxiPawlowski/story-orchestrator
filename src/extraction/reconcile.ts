@@ -34,7 +34,7 @@ const gateMatches = (gate: GateNode, values: Record<string, unknown>): boolean =
   return !gateMatches(gate.not, values);
 };
 
-export function maybeScheduleReconciliation(story: NormalizedStoryV2 | null, state: { activeCheckpointId: string; boundary: number; checkpointStartedBoundary: number; blackboard: { values: Record<string, unknown> } } | null, multiplier: number, scheduler: ExtractionScheduler) {
+export function maybeScheduleReconciliation(story: NormalizedStoryV2 | null, state: { activeCheckpointId: string; boundary: number; checkpointStartedBoundary: number; checkpointStartedMessageId: number; lastMessageId: number; blackboard: { values: Record<string, unknown> } } | null, multiplier: number, scheduler: ExtractionScheduler) {
   if (!story || !state) return;
   const checkpoint = story.checkpointById[state.activeCheckpointId];
   const target = Math.max(Math.ceil((checkpoint?.target_turn_length ?? 4) * multiplier), 6);
@@ -46,5 +46,5 @@ export function maybeScheduleReconciliation(story: NormalizedStoryV2 | null, sta
       collectUnmet(transition.gate, story, state.blackboard.values, unmet);
     }
   }
-  if (unmet.size) scheduler.schedule({ priority: 0, reason: `reconcile:${[...unmet].join(",")}`, window: getChatWindow(Math.max(0, state.checkpointStartedBoundary)) });
+  if (unmet.size) scheduler.schedule({ priority: 0, reason: `reconcile:${[...unmet].join(",")}`, window: getChatWindow(Math.max(0, state.checkpointStartedMessageId + 1), state.lastMessageId) });
 }

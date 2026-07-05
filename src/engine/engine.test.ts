@@ -12,7 +12,7 @@ import { parseStoryV2, parseStoryV2OrThrow } from "./validate";
 
 const entry = (q: string, v: string | number | boolean, from = 1, to = 1) => ({
   source: "extractor" as const,
-  basisVersion: 0,
+  blackboardVersionSum: 0,
   turnRange: { from, to },
   deltas: [{ q, v, source: "extractor" as const }],
 });
@@ -47,6 +47,74 @@ describe("v2 schema validation", () => {
     };
     expect(JSON.stringify(parseStoryV2(invalid))).toContain("no reachable anchor");
   });
+
+  it("accepts valid npc_replies and drops malformed entries", () => {
+    const valid = {
+      ...linearStory,
+      checkpoints: [
+        {
+          ...(linearStory as any).checkpoints[0],
+          effects: { npc_replies: [{ trigger: "onEnter", member: "guard", kind: "scripted", text: "Halt!", maxTriggers: 1, probability: 0.5 }] },
+        },
+        ...(linearStory as any).checkpoints.slice(1),
+      ],
+    };
+    const result = parseStoryV2OrThrow(valid);
+    expect(result.checkpointById.start.effects?.npc_replies).toEqual([
+      { trigger: "onEnter", member: "guard", kind: "scripted", text: "Halt!", maxTriggers: 1, probability: 0.5 },
+    ]);
+
+    const invalidTrigger = {
+      ...linearStory,
+      checkpoints: [
+        {
+          ...(linearStory as any).checkpoints[0],
+          effects: { npc_replies: [{ trigger: "onExit", member: "guard", kind: "scripted" }] },
+        },
+        ...(linearStory as any).checkpoints.slice(1),
+      ],
+    };
+    expect(JSON.stringify(parseStoryV2(invalidTrigger))).toContain("npc reply trigger is invalid");
+
+    const missingMember = {
+      ...linearStory,
+      checkpoints: [
+        {
+          ...(linearStory as any).checkpoints[0],
+          effects: { npc_replies: [{ trigger: "onEnter", kind: "scripted" }] },
+        },
+        ...(linearStory as any).checkpoints.slice(1),
+      ],
+    };
+    expect(JSON.stringify(parseStoryV2(missingMember))).toContain("npc reply member is required");
+
+    const notAnArray = {
+      ...linearStory,
+      checkpoints: [
+        { ...(linearStory as any).checkpoints[0], effects: { npc_replies: "guard" } },
+        ...(linearStory as any).checkpoints.slice(1),
+      ],
+    };
+    const errors = parseStoryV2(notAnArray);
+    expect(Array.isArray(errors)).toBe(true);
+    expect(JSON.stringify(errors)).toContain("npc_replies must be an array");
+  });
+
+  it("accepts valid arc_bridges and rejects bad shapes", () => {
+    const valid = { ...linearStory, arc_bridges: [{ arcMatch: "vault-arc", anchor: "end", amount: 2 }] };
+    expect(parseStoryV2OrThrow(valid).arc_bridges).toEqual([{ arcMatch: "vault-arc", anchor: "end", amount: 2 }]);
+
+    const unknownAnchor = { ...linearStory, arc_bridges: [{ arcMatch: "vault-arc", anchor: "nowhere", amount: 2 }] };
+    expect(JSON.stringify(parseStoryV2(unknownAnchor))).toContain("unknown anchor 'nowhere'");
+
+    const missingFields = { ...linearStory, arc_bridges: [{ anchor: "end" }] };
+    const errors = parseStoryV2(missingFields);
+    expect(JSON.stringify(errors)).toContain("arcMatch is required");
+    expect(JSON.stringify(errors)).toContain("amount is required");
+
+    const notAnArray = { ...linearStory, arc_bridges: "end" };
+    expect(parseStoryV2OrThrow(notAnArray).arc_bridges).toBeUndefined();
+  });
 });
 
 describe("blackboard and gates", () => {
@@ -66,6 +134,7 @@ describe("blackboard and gates", () => {
     const blackboard = new Blackboard(story);
     expect(blackboard.applyDelta({ q: "message_count", v: 3, source: "code" }).ok).toBe(true);
     expect(blackboard.applyDelta({ q: "message_count", v: 2, source: "code" })).toMatchObject({ ok: false, reason: "monotonic decrease" });
+    expect(blackboard.applyDelta({ q: "has_key", v: false, source: "extractor" }).ok).toBe(true);
     expect(blackboard.applyDelta({ q: "has_key", v: true, source: "extractor" }).ok).toBe(true);
     expect(blackboard.applyDelta({ q: "has_key", v: false, source: "extractor" })).toMatchObject({ ok: false, reason: "latched value change" });
     expect(blackboard.applyDelta({ q: "has_key", v: false, source: "extractor", strictUnlatch: true }).ok).toBe(true);
@@ -87,7 +156,7 @@ describe("apply queue", () => {
     const queue = new ApplyQueue();
     queue.enqueue(entry("has_key", true, 1, 1));
     expect(blackboard.get("has_key")).toBeUndefined();
-    queue.enqueue({ source: "extractor", basisVersion: 0, turnRange: { from: 1, to: 2 }, deltas: [{ q: "door_open", v: true, source: "extractor" }] });
+    queue.enqueue({ source: "extractor", blackboardVersionSum: 0, turnRange: { from: 1, to: 2 }, deltas: [{ q: "door_open", v: true, source: "extractor" }] });
     const result = queue.drainAtBoundary(blackboard);
     expect(result.discarded).toHaveLength(1);
     expect(blackboard.get("has_key")).toBeUndefined();
@@ -103,6 +172,14 @@ describe("story engine", () => {
     engine.enqueue(entry("has_key", true));
     expect(engine.serialize().activeCheckpointId).toBe("start");
     expect(engine.commitBoundary().activeCheckpointId).toBe("door");
+  });
+
+  it("refreshes message_count from chat length", () => {
+    const story = parseStoryV2OrThrow(linearStory);
+    const engine = new StoryEngine({ now: () => 0 });
+    engine.loadStory(story);
+    engine.commitBoundary({ lastMessageId: 4, chatLength: 5 });
+    expect(engine.serialize().blackboard.values.message_count).toBe(5);
   });
 
   it("fires one transition per boundary and applies convergence effects", () => {
@@ -130,6 +207,49 @@ describe("story engine", () => {
     expect(engine.serialize().activeCheckpointId).toBe("door");
     expect(engine.rollbackTo(5)).toBe(false);
   });
+
+  it("maps mutations by message id and ignores untouched swipes", () => {
+    const story = parseStoryV2OrThrow(linearStory);
+    const engine = new StoryEngine({ now: () => 0 });
+    engine.loadStory(story);
+    engine.enqueue(entry("has_key", true, 0, 0));
+    engine.commitBoundary({ lastMessageId: 0, chatLength: 1 });
+    expect(engine.serialize().activeCheckpointId).toBe("door");
+    expect(engine.shouldRollbackFromMessage(1)).toBe(false);
+    expect(engine.shouldRollbackFromMessage(0)).toBe(true);
+    expect(engine.boundaryBeforeMessage(0)).toBe(0);
+  });
+
+  it("flushes pending writes and truncates logs on rollback", () => {
+    const story = parseStoryV2OrThrow(linearStory);
+    const engine = new StoryEngine({ now: () => 0 });
+    engine.loadStory(story);
+    engine.enqueue(entry("has_key", true, 0, 0));
+    engine.commitBoundary({ lastMessageId: 0, chatLength: 1 });
+    engine.enqueue(entry("door_open", true, 1, 1));
+    expect(engine.rollbackTo(0)).toBe(true);
+    engine.commitBoundary({ lastMessageId: 0, chatLength: 1 });
+    expect(engine.serialize().blackboard.values.door_open).toBeUndefined();
+    expect(engine.stateLog).toHaveLength(1);
+  });
+
+  it("rollback matches never-applied state", () => {
+    const story = parseStoryV2OrThrow(linearStory);
+    const withRollback = new StoryEngine({ now: () => 0 });
+    withRollback.loadStory(story);
+    withRollback.enqueue(entry("has_key", true, 0, 0));
+    withRollback.commitBoundary({ lastMessageId: 0, chatLength: 1 });
+    withRollback.enqueue(entry("door_open", true, 1, 1));
+    withRollback.commitBoundary({ lastMessageId: 1, chatLength: 2 });
+    withRollback.rollbackTo(withRollback.boundaryBeforeMessage(1));
+
+    const neverApplied = new StoryEngine({ now: () => 0 });
+    neverApplied.loadStory(story);
+    neverApplied.enqueue(entry("has_key", true, 0, 0));
+    neverApplied.commitBoundary({ lastMessageId: 0, chatLength: 1 });
+
+    expect(withRollback.serialize()).toEqual(neverApplied.serialize());
+  });
 });
 
 describe("replay harness", () => {
@@ -151,7 +271,7 @@ describe("replay harness", () => {
         type: "write",
         entry: {
           source: "extractor",
-          basisVersion: 0,
+          blackboardVersionSum: 0,
           turnRange: { from: 1, to: 1 },
           deltas: [
             { q: "route", v: "stealth", source: "extractor" },

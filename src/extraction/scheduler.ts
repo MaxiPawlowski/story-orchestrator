@@ -1,4 +1,4 @@
-import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
 import { getChatWindow } from "./chatWindow";
 import { runSharedRead } from "./sharedRead";
 import type { ParsedFact, SharedReadAudit, SharedReadWindow } from "./types";
@@ -8,6 +8,7 @@ export interface SchedulerSettings {
   profileId: string | null;
   cadence: number;
   reconciliationMultiplier: number;
+  stabilityLag: number;
   debugResponse?: string | null;
 }
 
@@ -22,8 +23,10 @@ export interface SchedulerHost {
   getEngineState(): EngineState | null;
   getExtractionSettings(): SchedulerSettings;
   getFacts(): ParsedFact[];
+  getFiredTransitions(): NormalizedTransition[];
   applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[]): Promise<void>;
   onSchedulerChange(): void;
+  pauseExtraction(message: string): void;
 }
 
 export class ExtractionScheduler {
@@ -49,11 +52,12 @@ export class ExtractionScheduler {
     void this.pump();
   }
 
-  onBoundary(boundary: number, fired: boolean) {
+  onBoundary(boundary: number, fired: boolean, lastMessageId: number) {
     const settings = this.host.getExtractionSettings();
     if (!settings.enabled || settings.cadence <= 0) return;
     if (!fired && boundary > 0 && boundary % settings.cadence === 0) {
-      this.schedule({ priority: 1, reason: "cadence", window: getChatWindow(Math.max(0, boundary - settings.cadence)) });
+      const stableTo = lastMessageId - Math.max(0, settings.stabilityLag ?? 1);
+      if (stableTo >= 0) this.schedule({ priority: 1, reason: "cadence", window: getChatWindow(Math.max(0, stableTo - settings.cadence + 1), stableTo) });
     }
   }
 
@@ -75,15 +79,29 @@ export class ExtractionScheduler {
     this.inFlight = true;
     this.host.onSchedulerChange();
     try {
-      const result = await runSharedRead({ story, state, priority: job.priority, reason: job.reason, window: job.window, facts: this.host.getFacts(), client: settings });
+      const result = await this.runWithRetries(() => runSharedRead({ story, state, priority: job.priority, reason: job.reason, window: job.window, stabilityLag: settings.stabilityLag, firedTransitions: this.host.getFiredTransitions(), facts: this.host.getFacts(), client: settings }));
       await this.host.applyExtractionAudit(result.audit, result.facts);
       this.lastError = null;
     } catch (error) {
       this.lastError = error instanceof Error ? error.message : "Extraction failed";
+      this.host.pauseExtraction(this.lastError);
     } finally {
       this.inFlight = false;
       this.host.onSchedulerChange();
       void this.pump();
     }
+  }
+
+  private async runWithRetries<T>(task: () => Promise<T>): Promise<T> {
+    let lastError: unknown;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        return await task();
+      } catch (error) {
+        lastError = error;
+        if (attempt < 2) await new Promise((resolve) => globalThis.setTimeout(resolve, 250 * 2 ** attempt));
+      }
+    }
+    throw lastError;
   }
 }

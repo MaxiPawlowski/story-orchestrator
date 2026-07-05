@@ -1,0 +1,4 @@
+DELTA q=torch_lit value=true evidence="torch catches"
+DELTA q=rats_seen value=3 evidence="Three rats scurry"
+DELTA q=torch_lit value=false evidence=""
+FACT importance=3 text="Bo lit the cellar torch." evidence="torch catches"

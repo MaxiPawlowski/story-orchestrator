@@ -1,0 +1,25 @@
+{
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "title": "03a LLM NPC Reply",
+        "description": "LLM NPC reply counter validation story.",
+        "qualities": [
+          { "key": "ready", "type": "bool", "source": "extractor", "latching": true, "rubric": "Is the NPC ready to speak?" }
+        ],
+        "checkpoints": [
+          { "id": "start", "name": "Start", "objective": "Prepare.", "type": "anchor", "start": true },
+          { "id": "speak", "name": "Speak", "objective": "NPC speaks once.", "type": "anchor", "effects": { "npc_replies": [{ "trigger": "onEnter", "member": "DM Narrator", "kind": "llm", "maxTriggers": 1 }] } }
+        ],
+        "transitions": [
+          { "from": "start", "to": "speak", "priority": 1, "gate": { "q": "ready", "op": "==", "v": true } }
+        ],
+        "roster": [{ "id": "DM Narrator", "name": "DM Narrator" }]
+      }
+    },
+    { "slash": "/cp set ready true" },
+    { "wait": { "checkpoint": "speak", "timeoutMs": 60000 } },
+    { "expect": { "activeCheckpoint": "speak", "npcFired": { "speak:onEnter:DM Narrator:0": 1 } } }
+  ]
+}

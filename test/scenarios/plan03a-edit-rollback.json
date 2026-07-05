@@ -1,0 +1,31 @@
+{
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "title": "03a Edit Rollback",
+        "description": "Edit rollback validation story.",
+        "qualities": [
+          { "key": "message_count", "type": "int", "source": "code", "monotonic": true, "rubric": "Rendered message count." },
+          { "key": "player_has_key", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player take the brass key?" }
+        ],
+        "checkpoints": [
+          { "id": "start", "name": "Start", "objective": "Find the key.", "type": "anchor", "start": true },
+          { "id": "door", "name": "Door", "objective": "Use the key.", "type": "anchor" }
+        ],
+        "transitions": [
+          { "from": "start", "to": "door", "priority": 1, "gate": { "q": "player_has_key", "op": "==", "v": true }, "extractor_trigger": "brass key" }
+        ],
+        "roster": []
+      }
+    },
+    { "send": "I take the brass key from the hook." },
+    { "extract": { "debugResponse": "DELTA q=player_has_key value=true evidence=\"I take the brass key\"", "reason": "scenario:edit" } },
+    { "wait": { "checkpoint": "door", "timeoutMs": 10000 } },
+    { "edit": { "messageId": "last", "text": "I leave the hook untouched." } },
+    { "wait": { "checkpoint": "start", "timeoutMs": 10000 } },
+    { "expect": { "activeCheckpoint": "start", "blackboardMissing": ["player_has_key"] } },
+    { "extract": { "debugResponse": "NO_DELTA", "reason": "rollback:edit" } },
+    { "expect": { "activeCheckpoint": "start", "blackboardMissing": ["player_has_key"], "auditCount>=": 1 } }
+  ]
+}

@@ -1,0 +1,1 @@
+DELTA q=player_has_key value=true evidence="found the brass key wedged behind the shelf"

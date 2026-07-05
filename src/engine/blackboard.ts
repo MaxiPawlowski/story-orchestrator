@@ -44,7 +44,7 @@ export class Blackboard {
     return this.versions[key] ?? 0;
   }
 
-  get basisVersion(): number {
+  get blackboardVersionSum(): number {
     return Object.values(this.versions).reduce((sum, version) => sum + version, 0);
   }
 
@@ -68,7 +68,7 @@ export class Blackboard {
 
     this.values[delta.q] = delta.v;
     this.versions[delta.q] = (this.versions[delta.q] ?? 0) + 1;
-    if (quality.latching) this.latched[delta.q] = true;
+    if (quality.latching && (quality.type !== "bool" || delta.v === true)) this.latched[delta.q] = true;
     return { ok: true, key: delta.q, previous, value: delta.v, version: this.versions[delta.q] };
   }
 

@@ -7,7 +7,7 @@ export interface TurnRange {
 
 export interface ApplyQueueEntry {
   source: "mechanical" | "extractor" | "reconciliation";
-  basisVersion: number;
+  blackboardVersionSum: number;
   turnRange?: TurnRange;
   deltas: BlackboardDelta[];
 }
@@ -30,6 +30,12 @@ export class ApplyQueue {
 
   enqueue(entry: ApplyQueueEntry): void {
     this.entries.push({ ...entry, deltas: entry.deltas.map((delta) => ({ ...delta })) });
+  }
+
+  flush(): ApplyQueueEntry[] {
+    const pending = this.entries;
+    this.entries = [];
+    return pending;
   }
 
   drainAtBoundary(blackboard: Blackboard): QueueDrainResult {

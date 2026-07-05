@@ -26,6 +26,19 @@ describe("extraction scope", () => {
     const scope = deriveScope(story, "start", { values: { player_has_key: true }, versions: { player_has_key: 1 }, latched: { player_has_key: true } });
     expect(scope.map((entry) => entry.key)).not.toContain("player_has_key");
   });
+
+  it("includes active and reachable checkpoint snapshots", () => {
+    const story = parseStoryV2OrThrow({
+      ...(storyFixture as Record<string, unknown>),
+      checkpoints: [
+        { id: "start", name: "Search", objective: "Find the key.", type: "anchor", start: true, state_snapshot: { location: "hall" } },
+        { id: "door", name: "Door", objective: "Open the vault door.", type: "anchor", state_snapshot: { mara_trust: 3 } },
+      ],
+      transitions: [{ from: "start", to: "door", priority: 1, gate: { q: "player_has_key", op: "==", v: true } }],
+    });
+    const scope = deriveScope(story, "start", { values: {}, versions: {}, latched: {} });
+    expect(scope.map((entry) => entry.key)).toEqual(["location", "mara_trust", "player_has_key"]);
+  });
 });
 
 describe("shared read parser", () => {
@@ -52,6 +65,26 @@ describe("shared read parser", () => {
     ].join("\n"), story);
     expect(parsed.deltas).toEqual([]);
     expect(parsed.rejected.map((entry) => entry.reason)).toEqual(["unknown quality", "invalid value", "missing evidence"]);
+  });
+
+  it.each(["extractor2", "extractor3", "extractor4"])("parses the %s suite-A corpus fixture", (name) => {
+    const story = parseStoryV2OrThrow(readJson<unknown>(`${name}.story.json`));
+    const golden = fs.readFileSync(path.join(process.cwd(), "test/goldens", `${name}.response.txt`), "utf8");
+    const expected = readJson<{
+      deltas: Array<{ q: string; v: unknown; evidence: string }>;
+      rejected: Array<{ reason: string }>;
+      facts: { minCount: number; mustContain: string[]; mustNotContain: string[] };
+    }>(`${name}.expected.json`);
+    const parsed = parseSharedReadResponse(golden, story);
+
+    expect(parsed.deltas.map((entry) => ({ q: entry.delta.q, v: entry.delta.v }))).toEqual(expected.deltas.map((entry) => ({ q: entry.q, v: entry.v })));
+    expected.deltas.forEach((entry) => {
+      expect(parsed.deltas.find((delta) => delta.delta.q === entry.q)?.evidence).toContain(entry.evidence);
+    });
+    expect(parsed.rejected.map((entry) => entry.reason)).toEqual(expected.rejected.map((entry) => entry.reason));
+    expect(parsed.facts.length).toBeGreaterThanOrEqual(expected.facts.minCount);
+    expect(parsed.facts.some((fact) => fact.text.includes(expected.facts.mustContain[0]))).toBe(true);
+    expect(parsed.facts.some((fact) => fact.text.includes(expected.facts.mustNotContain[0]))).toBe(false);
   });
 });
 

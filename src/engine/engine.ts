@@ -8,6 +8,11 @@ export interface EngineHost {
   now(): number;
 }
 
+export interface BoundaryContext {
+  lastMessageId: number;
+  chatLength: number;
+}
+
 export interface EngineState {
   blackboard: BlackboardSnapshot;
   activeCheckpointId: string;
@@ -15,6 +20,9 @@ export interface EngineState {
   boundary: number;
   checkpointStartedBoundary: number;
   checkpointStartedAt: number;
+  checkpointStartedMessageId: number;
+  lastMessageId: number;
+  chatLength: number;
 }
 
 export interface BoundaryResult {
@@ -23,6 +31,7 @@ export interface BoundaryResult {
   fired: NormalizedTransition | null;
   effects: CheckpointEffects | null;
   activeCheckpointId: string;
+  context: BoundaryContext;
 }
 
 export interface BoundaryLogEntry {
@@ -31,6 +40,8 @@ export interface BoundaryLogEntry {
   after: EngineState;
   fired: NormalizedTransition | null;
   source: "gate" | "manual";
+  context: BoundaryContext;
+  queue: QueueDrainResult;
 }
 
 const DEFAULT_HOST: EngineHost = { now: () => Date.now() };
@@ -44,6 +55,9 @@ export class StoryEngine {
   private boundary = 0;
   private checkpointStartedBoundary = 0;
   private checkpointStartedAt = 0;
+  private checkpointStartedMessageId = -1;
+  private lastMessageId = -1;
+  private chatLength = 0;
   private readonly snapshots = new Map<number, EngineState>();
   private readonly boundaryLog: BoundaryLogEntry[] = [];
   private readonly advanceCallbacks = new Set<(transition: NormalizedTransition) => void>();
@@ -59,20 +73,18 @@ export class StoryEngine {
     this.boundary = 0;
     this.checkpointStartedBoundary = 0;
     this.checkpointStartedAt = this.host.now();
+    this.checkpointStartedMessageId = -1;
+    this.lastMessageId = -1;
+    this.chatLength = 0;
     this.snapshots.clear();
     this.boundaryLog.length = 0;
     this.recordSnapshot();
   }
 
   hydrate(state: EngineState): void {
-    const story = this.requireStory();
-    this.blackboard = new Blackboard(story, state.blackboard);
+    this.blackboard = new Blackboard(this.requireStory(), state.blackboard);
     this.queue = new ApplyQueue();
-    this.activeCheckpointId = state.activeCheckpointId;
-    this.visitedAnchors = [...state.visitedAnchors];
-    this.boundary = state.boundary;
-    this.checkpointStartedBoundary = state.checkpointStartedBoundary ?? state.boundary;
-    this.checkpointStartedAt = state.checkpointStartedAt ?? this.host.now();
+    this.restoreStateFields(state);
     this.snapshots.clear();
     this.boundaryLog.length = 0;
     this.recordSnapshot();
@@ -86,6 +98,9 @@ export class StoryEngine {
       boundary: this.boundary,
       checkpointStartedBoundary: this.checkpointStartedBoundary,
       checkpointStartedAt: this.checkpointStartedAt,
+      checkpointStartedMessageId: this.checkpointStartedMessageId,
+      lastMessageId: this.lastMessageId,
+      chatLength: this.chatLength,
     };
   }
 
@@ -93,10 +108,13 @@ export class StoryEngine {
     this.queue.enqueue(write);
   }
 
-  commitBoundary(): BoundaryResult {
+  commitBoundary(context: BoundaryContext = this.currentContext()): BoundaryResult {
     const story = this.requireStory();
     const blackboard = this.requireBlackboard();
     const before = this.serialize();
+    const normalizedContext = this.normalizeContext(context);
+    this.lastMessageId = normalizedContext.lastMessageId;
+    this.chatLength = normalizedContext.chatLength;
     const queue = this.queue.drainAtBoundary(blackboard);
     this.refreshMechanicalQualities();
 
@@ -109,6 +127,7 @@ export class StoryEngine {
       this.activeCheckpointId = fired.to;
       this.checkpointStartedBoundary = this.boundary + 1;
       this.checkpointStartedAt = this.host.now();
+      this.checkpointStartedMessageId = normalizedContext.lastMessageId;
       const checkpoint = story.checkpointById[fired.to];
       if (checkpoint?.type === "anchor") this.visitedAnchors.push(fired.to);
       effects = checkpoint?.effects ?? null;
@@ -117,11 +136,11 @@ export class StoryEngine {
 
     this.boundary += 1;
     const after = this.serialize();
-    this.boundaryLog.push({ boundary: this.boundary, before, after, fired, source: "gate" });
+    this.boundaryLog.push({ boundary: this.boundary, before, after, fired, source: "gate", context: normalizedContext, queue });
     if (this.boundaryLog.length > 200) this.boundaryLog.shift();
     this.recordSnapshot();
 
-    return { boundary: this.boundary, queue, fired, effects, activeCheckpointId: this.activeCheckpointId };
+    return { boundary: this.boundary, queue, fired, effects, activeCheckpointId: this.activeCheckpointId, context: normalizedContext };
   }
 
   rollbackTo(boundary: number): boolean {
@@ -130,29 +149,55 @@ export class StoryEngine {
     if (snapshotBoundary === undefined) return false;
     const snapshot = this.snapshots.get(snapshotBoundary);
     if (!snapshot) return false;
-    this.hydrate(snapshot);
+    this.blackboard = new Blackboard(this.requireStory(), snapshot.blackboard);
+    this.queue.flush();
+    this.restoreStateFields(snapshot);
     [...this.snapshots.keys()].forEach((key) => {
       if (key > snapshotBoundary) this.snapshots.delete(key);
     });
+    for (let index = this.boundaryLog.length - 1; index >= 0; index -= 1) {
+      if (this.boundaryLog[index].boundary > snapshotBoundary) this.boundaryLog.splice(index, 1);
+    }
     return true;
   }
 
-  activateCheckpoint(id: string): BoundaryResult {
+  activateCheckpoint(id: string, context: BoundaryContext = this.currentContext()): BoundaryResult {
     const story = this.requireStory();
     const checkpoint = story.checkpointById[id];
     if (!checkpoint) throw new Error(`Unknown checkpoint '${id}'`);
     const before = this.serialize();
+    const normalizedContext = this.normalizeContext(context);
+    this.lastMessageId = normalizedContext.lastMessageId;
+    this.chatLength = normalizedContext.chatLength;
     const queue = this.queue.drainAtBoundary(this.requireBlackboard());
     this.activeCheckpointId = id;
     this.checkpointStartedBoundary = this.boundary + 1;
     this.checkpointStartedAt = this.host.now();
+    this.checkpointStartedMessageId = normalizedContext.lastMessageId;
     if (checkpoint.type === "anchor") this.visitedAnchors.push(id);
     this.boundary += 1;
     const after = this.serialize();
-    this.boundaryLog.push({ boundary: this.boundary, before, after, fired: null, source: "manual" });
+    this.boundaryLog.push({ boundary: this.boundary, before, after, fired: null, source: "manual", context: normalizedContext, queue });
     if (this.boundaryLog.length > 200) this.boundaryLog.shift();
     this.recordSnapshot();
-    return { boundary: this.boundary, queue, fired: null, effects: checkpoint.effects ?? null, activeCheckpointId: this.activeCheckpointId };
+    return { boundary: this.boundary, queue, fired: null, effects: checkpoint.effects ?? null, activeCheckpointId: this.activeCheckpointId, context: normalizedContext };
+  }
+
+  boundaryBeforeMessage(messageId: number): number {
+    const normalized = Math.max(0, Math.floor(messageId));
+    const candidate = [...this.snapshots.values()]
+      .filter((snapshot) => snapshot.lastMessageId < normalized)
+      .sort((left, right) => right.boundary - left.boundary)[0];
+    return candidate?.boundary ?? 0;
+  }
+
+  shouldRollbackFromMessage(messageId: number): boolean {
+    const normalized = Math.max(0, Math.floor(messageId));
+    return this.boundaryLog.some((entry) => {
+      if (entry.context.lastMessageId < normalized) return false;
+      if (entry.fired) return true;
+      return entry.queue.applied.some((applied) => applied.turnRange && applied.turnRange.to >= normalized);
+    });
   }
 
   get activeCheckpoint() {
@@ -173,7 +218,7 @@ export class StoryEngine {
     const story = this.requireStory();
     const blackboard = this.requireBlackboard();
     if (story.qualityByKey.message_count?.source === "code") {
-      blackboard.applyDelta({ q: "message_count", v: this.boundary + 1, source: "code" });
+      blackboard.applyDelta({ q: "message_count", v: this.chatLength, source: "code" });
     }
     if (story.qualityByKey.messages_in_checkpoint?.source === "code") {
       blackboard.applyDelta({ q: "messages_in_checkpoint", v: this.boundary - this.checkpointStartedBoundary + 1, source: "code" });
@@ -189,6 +234,27 @@ export class StoryEngine {
       const oldest = [...this.snapshots.keys()].sort((a, b) => a - b)[0];
       this.snapshots.delete(oldest);
     }
+  }
+
+  private currentContext(): BoundaryContext {
+    return { lastMessageId: this.lastMessageId, chatLength: this.chatLength };
+  }
+
+  private restoreStateFields(state: EngineState): void {
+    this.activeCheckpointId = state.activeCheckpointId;
+    this.visitedAnchors = [...state.visitedAnchors];
+    this.boundary = state.boundary;
+    this.checkpointStartedBoundary = state.checkpointStartedBoundary ?? state.boundary;
+    this.checkpointStartedAt = state.checkpointStartedAt ?? this.host.now();
+    this.checkpointStartedMessageId = state.checkpointStartedMessageId ?? state.lastMessageId ?? Math.max(-1, state.boundary - 1);
+    this.lastMessageId = state.lastMessageId ?? Math.max(-1, state.boundary - 1);
+    this.chatLength = state.chatLength ?? Math.max(0, this.lastMessageId + 1);
+  }
+
+  private normalizeContext(context: BoundaryContext): BoundaryContext {
+    const chatLength = Math.max(0, Math.floor(Number.isFinite(context.chatLength) ? context.chatLength : this.chatLength));
+    const lastMessageId = Math.max(-1, Math.floor(Number.isFinite(context.lastMessageId) ? context.lastMessageId : chatLength - 1));
+    return { lastMessageId, chatLength };
   }
 
   private requireStory(): NormalizedStoryV2 {

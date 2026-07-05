@@ -1,4 +1,4 @@
-import type { Checkpoint, CheckpointEffects, NormalizedStoryV2 } from "@engine/index";
+import type { Checkpoint, CheckpointEffects, NormalizedStoryV2, NpcReplyEffect, NpcReplyTrigger } from "@engine/index";
 import {
   applyCharacterAN,
   applyTextGenPresetRuntime,
@@ -8,33 +8,18 @@ import {
   executeSlashCommands,
   findTextGenPreset,
   setGroupMembersDisabled,
+  getContext,
 } from "@services/STAPI";
 import { quoteSlashArg } from "@utils/string";
 import { renderBlackboardMemo } from "./blackboardMemo";
 import type { RuntimeExtras, RuntimeSnapshot } from "./types";
-
-type TriggerName = "onEnter" | "afterSpeak";
-
-interface NpcReplyEffect {
-  trigger: TriggerName;
-  member: string;
-  kind: "scripted" | "llm";
-  text?: string;
-  instruction?: string;
-  maxTriggers?: number;
-  probability?: number;
-}
 
 const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 const readStrings = (value: unknown): string[] => Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0) : typeof value === "string" && value.trim() ? [value] : [];
 
 const readNpcReplies = (effects: CheckpointEffects | undefined): NpcReplyEffect[] => {
   const value = effects?.npc_replies;
-  if (!Array.isArray(value)) return [];
-  return value.filter((entry): entry is NpcReplyEffect => {
-    if (!isRecord(entry)) return false;
-    return (entry.trigger === "onEnter" || entry.trigger === "afterSpeak") && typeof entry.member === "string" && (entry.kind === "scripted" || entry.kind === "llm");
-  });
+  return Array.isArray(value) ? value : [];
 };
 
 const applyAuthorNote = async (value: unknown, snapshot: RuntimeSnapshot) => {
@@ -106,6 +91,11 @@ const fireReply = async (reply: NpcReplyEffect) => {
   await executeSlashCommands(`/trigger await=true ${quoteSlashArg(reply.member)}`, { silent: false });
 };
 
+const lastMessageId = () => {
+  const chat = Array.isArray(getContext().chat) ? getContext().chat : [];
+  return chat.length - 1;
+};
+
 export class EffectsApplier {
   async applyCheckpoint(story: NormalizedStoryV2, checkpoint: Checkpoint, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate") {
     if (!extras.requirements.ready) return;
@@ -120,7 +110,8 @@ export class EffectsApplier {
     extras.updatedAt = new Date().toISOString();
   }
 
-  async fireNpcReplies(checkpoint: Checkpoint, extras: RuntimeExtras, trigger: TriggerName) {
+  async fireNpcReplies(checkpoint: Checkpoint, extras: RuntimeExtras, trigger: NpcReplyTrigger) {
+    if (trigger === "afterSpeak" && extras.lastSelfInjectionMessageId === lastMessageId()) return;
     const replies = readNpcReplies(checkpoint.effects).filter((reply) => reply.trigger === trigger);
     for (let index = 0; index < replies.length; index += 1) {
       const reply = replies[index];
@@ -131,6 +122,7 @@ export class EffectsApplier {
       if (typeof reply.probability === "number" && Math.random() > reply.probability) continue;
       extras.firedNpcReplies[key] = count + 1;
       await fireReply(reply);
+      extras.lastSelfInjectionMessageId = lastMessageId();
     }
   }
 }

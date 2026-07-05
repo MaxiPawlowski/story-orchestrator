@@ -20,6 +20,7 @@ export interface RuntimeExtras {
   firedNpcReplies: Record<string, number>;
   requirements: RequirementsState;
   lastAppliedCheckpointId: string | null;
+  lastSelfInjectionMessageId: number | null;
   extraction: ExtractionRuntimeState;
   updatedAt: string;
 }
@@ -29,6 +30,7 @@ export interface ExtractionRuntimeSettings {
   profileId: string | null;
   cadence: number;
   reconciliationMultiplier: number;
+  stabilityLag: number;
 }
 
 export interface ExtractionRuntimeState {

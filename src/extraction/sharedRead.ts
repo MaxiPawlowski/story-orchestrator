@@ -1,4 +1,4 @@
-import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
 import { stableStringify } from "@runtime/hash";
 import { callExtractionModel, type ExtractionClientOptions } from "./client";
 import { getChatWindow } from "./chatWindow";
@@ -14,6 +14,8 @@ export interface RunSharedReadOptions {
   priority: 0 | 1;
   reason: string;
   window?: SharedReadWindow;
+  stabilityLag?: number;
+  firedTransitions?: NormalizedTransition[];
   facts?: ParsedFact[];
   client: ExtractionClientOptions;
 }
@@ -29,14 +31,15 @@ const createId = (parts: unknown) => {
 };
 
 export async function runSharedRead(options: RunSharedReadOptions): Promise<SharedReadResult> {
-  const window = options.window ?? getChatWindow(Math.max(0, options.state.boundary - 8));
+  const latestMessageId = options.state.lastMessageId - (options.priority === 1 ? Math.max(0, options.stabilityLag ?? 1) : 0);
+  const window = options.window ?? getChatWindow(Math.max(0, latestMessageId - 7), latestMessageId);
   const scope = deriveScope(options.story, options.state.activeCheckpointId, options.state.blackboard);
   const contract = {
     storyTitle: options.story.title,
     activeCheckpointId: options.state.activeCheckpointId,
     qualities: scope,
     window,
-    canon: getCanonLite(options.story, options.state.visitedAnchors, [], options.facts ?? []),
+    canon: getCanonLite(options.story, options.state.visitedAnchors, options.firedTransitions ?? [], options.facts ?? []),
   };
   const prompt = renderSharedReadPrompt(contract);
   const rawResponse = scope.length ? await callExtractionModel(prompt, options.client) : "NO_DELTA";

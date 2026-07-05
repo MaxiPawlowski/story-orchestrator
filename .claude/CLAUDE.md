@@ -1,42 +1,25 @@
 # Story Orchestrator
 
-SillyTavern is an AI chat frontend for running roleplay and storytelling sessions with LLMs. This extension adds structured, automated storytelling on top of SillyTavern's free-form chat.
+SillyTavern extension for running format-2 authored stories as deterministic checkpoint graphs over an active chat.
 
-The plugin lets authors define stories as directed graphs of checkpoints (story beats), then automates progression through them based on what's happening in the chat. Stories are defined in JSON and run inside an active SillyTavern chat session with characters.
+## V2 Spine
 
-## Goals
+- Stories declare qualities, checkpoints, typed gates, transitions, roster, effects, requirements, and future arc bridges.
+- `StoryEngine` owns blackboard state, serialized apply queue drains, one-transition-per-boundary advancement, boundary logs, snapshots, and rollback.
+- `RuntimeManager` owns ST integration, per-chat persistence in `chat_metadata.story_orchestrator`, checkpoint effects, macros, slash commands, extraction state, and UI snapshots.
+- `TurnBridge` subscribes to ST generation/message/mutation events and commits only at rendered reply boundaries.
+- Extraction runs off-path through `ExtractionScheduler` and `runSharedRead`; accepted deltas enqueue and apply only on the next boundary.
+- Checkpoint effects can apply author notes, runtime presets, WI toggles, cast changes, and `npc_replies`.
 
-- Turn unstructured SillyTavern chats into authored, non-linear stories
-- Automatically detect when story beats are reached and advance the narrative
-- Apply AI-side effects per checkpoint: author notes, preset tweaks, world info toggles
-- Let NPCs speak autonomously at story moments via Talk Control
-- Give authors a visual graph editor (Studio) to design stories without editing raw YAML
+## Build Protocol
 
-## Core Concepts
-
-**Checkpoints** — Named story beats with a description/objective. Each checkpoint can configure what happens when it activates: author notes injected into the prompt, AI preset overrides, world info entries toggled, and NPC replies triggered.
-
-**Transitions** — Directed edges between checkpoints. A transition fires when a trigger condition is met: a regex match against recent chat messages, a fixed number of turns elapsed, or a manual user action.
-
-**Arbiter** — An AI judge that runs on a schedule (every N turns) or on trigger, reads the chat transcript, and decides whether the story should advance to the next checkpoint. Evaluation can also be forced manually via slash command.
-
-**Talk Control** — Allows NPCs to automatically inject replies at story moments. Responds to four events: checkpoint activation, after an NPC speaks, before/after arbiter evaluation. Each rule can target specific group chat members and limit how many times it fires per checkpoint.
-
-**Story Macros** — Template variables (`{{story_title}}`, `{{story_current_checkpoint}}`, `{{chat_excerpt}}`, etc.) available in author notes and arbiter prompts. Auto-update as the story progresses.
-
-**Requirements** — Stories can require specific personas, group chat members, world info entries, and lorebooks to be active. If requirements aren't met, checkpoint effects are deferred until they are.
-
-## How It Works (User Flow)
-
-1. Author writes a story in JSON (or builds it in Studio) and loads it via the extension settings panel
-2. A chat session is started in SillyTavern with the appropriate characters
-3. The extension activates and begins watching the chat for trigger conditions
-4. When a transition fires (regex match, turn count, or arbiter decision), the next checkpoint activates
-5. Checkpoint effects apply immediately: prompt injections, preset changes, world info toggles, NPC replies
-6. User can navigate manually via slash commands or the drawer UI
+- Read the spec, current plan, and prior Gate records before implementation.
+- Validate against actual SillyTavern host source before assuming event payloads or context shapes.
+- Run deterministic gates first: `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`.
+- Live gates use `scripts/debug/` and shared CDP sessions; record exact commands and deviations in the plan Gate record.
 
 ## UI Entry Points
 
-- **Extension Settings Panel** — Story selection, arbiter configuration, Studio launcher
-- **Drawer (Checkpoint Progress)** — Shows active checkpoint, requirements status, progress badges
-- **Checkpoint Studio** — Visual graph editor with tabbed checkpoint editor, Cytoscape/dagre graph view, diagnostics panel
+- Settings panel: story import/select, extraction settings, runtime status.
+- Drawer: checkpoint progress, requirements, extraction status, blackboard state.
+- Studio is planned for v2 plan 11; do not rely on deleted v1 Studio/controller code.

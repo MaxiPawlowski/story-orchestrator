@@ -9,6 +9,7 @@ const SESSION_PATH = resolve(DEBUG_DIR, 'session.json');
 const DEFAULT_ST_URL = process.env.ST_URL || 'http://127.0.0.1:8000/';
 const DEFAULT_CDP_PORT = Number(process.env.ST_DEBUG_CDP_PORT || 9222);
 const DEFAULT_TIMEOUT_MS = Number(process.env.ST_DEBUG_TIMEOUT_MS || 30000);
+const DEFAULT_HEADED = String(process.env.ST_DEBUG_HEADED || '').toLowerCase() === 'true';
 
 function normalizeUrl(value) {
   return new URL(value).href;
@@ -84,7 +85,7 @@ async function attachToSession(stUrl) {
 
 export async function connectToST({
   stUrl = DEFAULT_ST_URL,
-  headless = true,
+  headless = !DEFAULT_HEADED,
   attach = true,
   timeout = DEFAULT_TIMEOUT_MS,
 } = {}) {

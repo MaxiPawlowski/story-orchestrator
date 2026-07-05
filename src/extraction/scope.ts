@@ -30,6 +30,7 @@ export function deriveScope(
   const hints = new Map<string, Set<string>>();
 
   checkpointIds.forEach((checkpointId) => {
+    Object.keys(story.checkpointById[checkpointId]?.state_snapshot ?? {}).forEach((key) => keys.add(key));
     for (const transition of story.outgoingByCheckpoint[checkpointId] ?? []) {
       collectGateKeys(transition.gate, keys);
       if (transition.extraction_hint) {

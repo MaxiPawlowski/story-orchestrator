@@ -146,7 +146,7 @@ export async function triggerCheckpoint(page, idOrIndex) {
 export async function swipeMessage(page, messageId, targetSwipeId = null) {
   return evaluateInST(page, async ({ messageId: rawId, targetSwipeId: rawSwipeId }) => {
     const ctx = SillyTavern.getContext();
-    const id = Number(rawId);
+    const id = rawId === 'last' ? (ctx.chat?.length ?? 0) - 1 : Number(rawId);
     const message = ctx.chat?.[id];
     if (!Number.isInteger(id) || !message) throw new Error(`Message ${rawId} not found.`);
     const current = Number(message.swipe_id ?? 0);
@@ -183,7 +183,7 @@ export async function editMessage(page, messageId, text) {
   if (!text || typeof text !== 'string') throw new Error('edit requires non-empty text.');
   return evaluateInST(page, async ({ messageId: rawId, text }) => {
     const ctx = SillyTavern.getContext();
-    const id = Number(rawId);
+    const id = rawId === 'last' ? (ctx.chat?.length ?? 0) - 1 : Number(rawId);
     const message = ctx.chat?.[id];
     if (!Number.isInteger(id) || !message) throw new Error(`Message ${rawId} not found.`);
     const before = message.mes;
@@ -201,7 +201,7 @@ export async function editMessage(page, messageId, text) {
 export async function deleteMessage(page, messageId) {
   return evaluateInST(page, async (rawId) => {
     const ctx = SillyTavern.getContext();
-    const id = Number(rawId);
+    const id = rawId === 'last' ? (ctx.chat?.length ?? 0) - 1 : Number(rawId);
     if (!Number.isInteger(id) || id < 0 || id >= (ctx.chat?.length ?? 0)) throw new Error(`Message ${rawId} not found.`);
     const beforeLength = ctx.chat.length;
     const removed = ctx.chat.slice(id).map((message) => ({ name: message.name, mes: String(message.mes ?? '').slice(0, 120) }));

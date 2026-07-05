@@ -1,5 +1,5 @@
-import { StoryEngine, isValidationErrorList, type ApplyQueueEntry, type BoundaryResult, type EngineState, type NormalizedStoryV2, type PrimitiveValue, type ValidationError } from "@engine/index";
-import { runSharedRead, type ParsedFact, type SharedReadAudit } from "@extraction/index";
+import { StoryEngine, isValidationErrorList, type ApplyQueueEntry, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type ValidationError } from "@engine/index";
+import { getChatWindow, runSharedRead, type ParsedFact, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
 import { getContext } from "@services/STAPI";
 import { EffectsApplier } from "./effectsApplier";
 import { evaluateRequirements } from "./requirements";
@@ -9,7 +9,7 @@ import type { ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, Ru
 
 const emptyRequirements = { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] };
 
-const defaultExtractionSettings = (): ExtractionRuntimeSettings => ({ enabled: false, profileId: null, cadence: 3, reconciliationMultiplier: 1.5 });
+const defaultExtractionSettings = (): ExtractionRuntimeSettings => ({ enabled: false, profileId: null, cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 1 });
 
 const createExtraction = (): ExtractionRuntimeState => ({
   settings: defaultExtractionSettings(),
@@ -23,6 +23,7 @@ const createExtras = (): RuntimeExtras => ({
   firedNpcReplies: {},
   requirements: emptyRequirements,
   lastAppliedCheckpointId: null,
+  lastSelfInjectionMessageId: null,
   extraction: createExtraction(),
   updatedAt: new Date().toISOString(),
 });
@@ -48,7 +49,7 @@ export class RuntimeManager {
   private readonly effects = new EffectsApplier();
   private readonly listeners = new Set<() => void>();
   private readonly boundaryListeners = new Set<(result: BoundaryResult) => void>();
-  private readonly rollbackListeners = new Set<(messageId: number) => void>();
+  private readonly rollbackListeners = new Set<(messageId: number, window: SharedReadWindow) => void>();
 
   subscribe(listener: () => void) {
     this.listeners.add(listener);
@@ -64,7 +65,7 @@ export class RuntimeManager {
     return () => { this.boundaryListeners.delete(listener); };
   }
 
-  onRollback(listener: (messageId: number) => void) {
+  onRollback(listener: (messageId: number, window: SharedReadWindow) => void) {
     this.rollbackListeners.add(listener);
     return () => { this.rollbackListeners.delete(listener); };
   }
@@ -125,7 +126,7 @@ export class RuntimeManager {
   async commitBoundary() {
     if (!this.loaded) return null;
     this.refreshRequirements();
-    const result = this.engine.commitBoundary();
+    const result = this.engine.commitBoundary(this.getBoundaryContext());
     if (result.effects) {
       await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate");
     } else if (this.extras.requirements.ready && this.extras.lastAppliedCheckpointId !== this.engine.activeCheckpoint.id) {
@@ -141,7 +142,7 @@ export class RuntimeManager {
   async activateCheckpoint(id: string) {
     if (!this.loaded) return false;
     this.refreshRequirements();
-    this.engine.activateCheckpoint(id);
+    this.engine.activateCheckpoint(id, this.getBoundaryContext());
     await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate");
     await this.persist();
     this.status = `Manually activated ${id}`;
@@ -165,7 +166,7 @@ export class RuntimeManager {
     }
     const entry: ApplyQueueEntry = {
       source: "mechanical",
-      basisVersion: 0,
+      blackboardVersionSum: 0,
       deltas: [{ q: key, v: value, source: quality.source }],
     };
     this.engine.enqueue(entry);
@@ -182,14 +183,20 @@ export class RuntimeManager {
 
   async rollbackFromMessage(messageId: number) {
     if (!this.loaded) return;
-    const boundary = Math.max(0, Number.isFinite(messageId) ? Math.floor(messageId) : this.engine.serialize().boundary - 1);
+    if (!this.engine.shouldRollbackFromMessage(messageId)) return;
+    const boundary = this.engine.boundaryBeforeMessage(messageId);
     const changed = this.engine.rollbackTo(boundary);
     if (changed) {
+      const context = this.getBoundaryContext();
+      const restored = this.engine.serialize();
+      const window = getChatWindow(restored.checkpointStartedMessageId, context.lastMessageId);
+      this.extras.extraction.facts = this.extras.extraction.facts.filter((fact) => typeof fact.messageId !== "number" || fact.messageId < messageId);
+      this.extras.extraction.audits = this.extras.extraction.audits.filter((audit) => audit.window.to < messageId);
       this.refreshRequirements();
       await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate");
       await this.persist();
       this.status = `Rolled back to boundary ${boundary}`;
-      this.rollbackListeners.forEach((listener) => listener(messageId));
+      this.rollbackListeners.forEach((listener) => listener(messageId, window));
       this.notify();
     }
   }
@@ -216,8 +223,20 @@ export class RuntimeManager {
     return [...this.extras.extraction.facts];
   }
 
+  getFiredTransitions(): NormalizedTransition[] {
+    return this.engine.stateLog.map((entry) => entry.fired).filter((transition): transition is NormalizedTransition => Boolean(transition));
+  }
+
   setSchedulerSnapshot(snapshot: ExtractionRuntimeState["scheduler"]) {
     this.extras.extraction.scheduler = snapshot;
+    void this.persist();
+    this.notify();
+  }
+
+  pauseExtraction(message: string) {
+    this.extras.extraction.settings.enabled = false;
+    this.extras.extraction.scheduler = { ...this.extras.extraction.scheduler, lastError: message };
+    this.status = `Extraction paused: ${message}`;
     void this.persist();
     this.notify();
   }
@@ -225,16 +244,17 @@ export class RuntimeManager {
   async applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[]) {
     if (!this.loaded) return;
     const state = this.engine.serialize();
-    const basisVersion = Object.values(state.blackboard.versions).reduce((sum, version) => sum + version, 0);
+    const blackboardVersionSum = Object.values(state.blackboard.versions).reduce((sum, version) => sum + version, 0);
     if (audit.acceptedDeltas.length) {
       this.engine.enqueue({
         source: "extractor",
-        basisVersion,
+        blackboardVersionSum,
         turnRange: audit.window,
         deltas: audit.acceptedDeltas.map((entry) => entry.delta),
       });
     }
-    this.extras.extraction.facts = [...this.extras.extraction.facts, ...facts].slice(-50);
+    const stampedFacts = facts.map((fact) => ({ ...fact, boundary: state.boundary, messageId: audit.window.to }));
+    this.extras.extraction.facts = [...this.extras.extraction.facts, ...stampedFacts].slice(-50);
     this.extras.extraction.audits = [...this.extras.extraction.audits, audit].slice(-20);
     this.extras.extraction.lastReadBoundary = state.boundary;
     await this.persist();
@@ -250,6 +270,7 @@ export class RuntimeManager {
       priority: 0,
       reason,
       facts: this.getExtractionFacts(),
+      firedTransitions: this.getFiredTransitions(),
       client: { ...settings, debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugExtractionResponse ?? null },
     });
     await this.applyExtractionAudit(result.audit, result.facts);
@@ -306,6 +327,7 @@ export class RuntimeManager {
     const persisted = mode === "hydrate" ? loadPersistedRuntime(loaded.record.hash) : null;
     this.extras = persisted?.extras ?? createExtras();
     this.extras.extraction = sanitizeExtraction(this.extras);
+    this.extras.lastSelfInjectionMessageId = typeof this.extras.lastSelfInjectionMessageId === "number" ? this.extras.lastSelfInjectionMessageId : null;
     this.refreshRequirements();
     if (mode === "hydrate" && persisted?.engineState) {
       this.engine.hydrate(persisted.engineState);
@@ -329,6 +351,11 @@ export class RuntimeManager {
       extras: this.extras,
     });
     await getContext().saveMetadata?.();
+  }
+
+  private getBoundaryContext(): BoundaryContext {
+    const chat = Array.isArray(getContext().chat) ? getContext().chat : [];
+    return { lastMessageId: chat.length - 1, chatLength: chat.length };
   }
 
   private refreshRequirements() {

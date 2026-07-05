@@ -1,0 +1,14 @@
+{
+  "deltas": [
+    { "q": "torch_lit", "v": true, "evidence": "torch catches" },
+    { "q": "rats_seen", "v": 3, "evidence": "Three rats scurry" }
+  ],
+  "rejected": [
+    { "reason": "missing evidence" }
+  ],
+  "facts": {
+    "minCount": 1,
+    "mustContain": ["torch"],
+    "mustNotContain": ["dragon"]
+  }
+}

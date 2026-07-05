@@ -1,0 +1,18 @@
+{
+  "format": 2,
+  "title": "Village Watch",
+  "description": "Extractor test story exercising enum qualities and invalid-value rejection.",
+  "qualities": [
+    { "key": "message_count", "type": "int", "source": "code", "monotonic": true, "rubric": "Rendered boundary count." },
+    { "key": "district", "type": "enum", "values": ["market", "docks", "keep"], "source": "extractor", "rubric": "Which district is the party in?" },
+    { "key": "threat_level", "type": "int", "source": "extractor", "monotonic": true, "rubric": "How dangerous does the district feel, 0 to 5?" }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "Patrol", "objective": "Patrol the market.", "type": "anchor", "start": true },
+    { "id": "docks", "name": "Docks", "objective": "Reach the docks.", "type": "anchor" }
+  ],
+  "transitions": [
+    { "from": "start", "to": "docks", "priority": 1, "gate": { "q": "district", "op": "==", "v": "docks" }, "extraction_hint": "Watch for the party moving toward the docks." }
+  ],
+  "roster": []
+}

@@ -2,63 +2,54 @@
 
 ```
 src/
-  index.tsx                 # Entry: mounts React roots, registers talkControlInterceptor
-  Apps.tsx                  # Exports SettingsApp, LoreManagerApp
-  services/                 # Core business logic
-    StoryOrchestrator.ts    # Main engine (~998 lines): checkpoint state, triggers, evaluations
-    CheckpointArbiterService.ts  # LLM evaluation via ST's generateRaw (JSON-only mode)
-    PresetService.ts        # Runtime preset management (Story:<id>), role overrides, UI sync
-    TalkControlService.ts   # NPC reply injection, generation intercept, trigger queues
-    STAPI.ts                # Facade over SillyTavern host globals (dynamic imports)
-    TalkControl/            # Subsystem: CharacterResolver, MessageInjector, ReplySelector
-  controllers/
-    orchestratorManager.ts      # Singleton lifecycle for StoryOrchestrator
-    turnController.ts           # ST event listener, dedup (TurnGate), epoch-based role tracking
-    requirementsController.ts   # Validates persona, group members, world info, lorebooks
-    persistenceController.ts    # Load/save runtime state keyed by (chatId + story title)
-    storyRuntimeController.ts   # Re-export of orchestratorManager (not a real controller)
-  store/
-    storySessionStore.ts    # Zustand vanilla store (story, runtime, requirements, turns)
-    requirementsState.ts    # Immutable helpers for diffing/cloning requirement snapshots
-  components/
-    context/                # StoryContext + ExtensionSettingsContext providers
-    drawer/                 # Requirements badges, checkpoint progress
-    settings/               # Arbiter config, story selection, Studio launcher
-    studio/                 # Checkpoint editor (tabbed), graph view (Cytoscape/dagre), diagnostics
-    common/                 # Shared UI components (RequirementIndicator)
-  utils/
-    story-schema.ts         # Zod schema for story JSON
-    story-validator.ts      # Normalization: ordered checkpoints, transition maps, regex compilation
-    story-state.ts          # Runtime persistence helpers, checkpoint status derivation
-    story-library.ts        # CRUD for story library in extension settings
-    story-macros.ts         # Macro registration via MacrosParser (story_title, chat_excerpt, etc.)
-    slash-commands.ts       # /checkpoint (/cp): list, prev, eval, activate by index/id
-    checkpoint-studio.ts    # Studio draft models, regex helpers, Mermaid export
-    arbiter.ts              # Arbiter frequency/prompt sanitization
-    event-source.ts         # Event subscription helpers
-    settings.ts             # Extension settings persistence (getExtensionSettingsRoot)
-    groups.ts               # Group chat utilities
-    string.ts               # String manipulation (quoteSlashArg, etc.)
-  constants/
-    main.ts                 # extensionName, PLAYER_SPEAKER_ID/LABEL
-    defaults.ts             # DEFAULT_INTERVAL_TURNS=3, ARBITER_SNAPSHOT_LIMIT=10, etc.
-    presetSettingKeys.ts    # Text generation preset key mappings
-  hooks/
-    useStoryContext.ts      # Access StoryContext
-    useStoryLibrary.ts      # Story library CRUD
-    useStoryOrchestrator.ts # Orchestrator lifecycle binding
-  types/
-    cytoscape-dagre.d.ts    # Type defs for graph library
+  index.tsx                  # mounts settings/drawer UI and starts v2 runtime
+  engine/
+    schema.ts                # format-2 types
+    validate.ts              # manual normalization/validation and graph indexes
+    blackboard.ts            # typed values, versions, latching, monotonic checks
+    applyQueue.ts            # serialized writes drained only at boundaries
+    engine.ts                # checkpoint state, gates, boundary logs, rollback
+    replay.ts                # deterministic fixture runner
+  runtime/
+    index.ts                 # runtime bootstrap, scheduler wiring, TurnBridge
+    runtimeManager.ts        # ST-facing coordinator and persistence boundary
+    turnBridge.ts            # ST events -> boundary commits / mutation rollback
+    effectsApplier.ts        # AN, preset, WI, cast, NPC replies
+    persistence.ts           # chat_metadata.story_orchestrator storage
+    storyLibrary.ts          # extension-settings story library
+    slashCommands.ts         # /cp state/set/activate/extract
+    macros.ts                # v2 story macros
+  extraction/
+    scope.ts                 # active + reachable gate/snapshot scope
+    contract.ts              # shared-read prompt
+    parse.ts                 # strict DELTA/FACT parser
+    sharedRead.ts            # window -> scope -> prompt -> parse -> audit
+    scheduler.ts             # P0/P1 queue, cadence, retry/pause
+    reconcile.ts             # stall-triggered targeted reads
+    canonLite.ts             # anchors, fired gates, top facts
+  services/stHost/           # SillyTavern host wrappers
+  services/STAPI.ts          # only import surface for host modules
+  components/                # current lightweight settings/drawer UI
+  utils/                     # event-source/string/data helpers
 ```
 
-## Path Aliases (tsconfig + webpack)
+## Invariants
+
+- `STAPI.ts` is the only public import surface for ST host modules.
+- Runtime state is per chat in `chat_metadata`; story library is extension settings.
+- Boundary counters and ST message indexes are distinct. Boundary snapshots/logs record `{lastMessageId, chatLength}`.
+- Pending queue writes are not persisted. Reload drops them; reconciliation recovers.
+- Extraction audits/facts are persisted in runtime extras until plan 07 migrates facts to memory tiers.
+- Build output `dist/` is generated and gitignored.
+
+## Path Aliases
 
 ```
-@components/* → src/components/*
-@services/*   → src/services/*
-@hooks/*      → src/hooks/*
-@utils/*      → src/utils/*
-@controllers/* → src/controllers/*
-@constants/*  → src/constants/*
-@store/*      → src/store/*
+@components/* -> src/components/*
+@services/*   -> src/services/*
+@hooks/*      -> src/hooks/*
+@utils/*      -> src/utils/*
+@controllers/* -> src/controllers/*
+@constants/*  -> src/constants/*
+@store/*      -> src/store/*
 ```

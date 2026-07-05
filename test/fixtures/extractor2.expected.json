@@ -1,0 +1,14 @@
+{
+  "deltas": [
+    { "q": "district", "v": "docks", "evidence": "toward the docks" },
+    { "q": "threat_level", "v": 2, "evidence": "air grows tense" }
+  ],
+  "rejected": [
+    { "reason": "invalid value" }
+  ],
+  "facts": {
+    "minCount": 1,
+    "mustContain": ["docks"],
+    "mustNotContain": ["dragon"]
+  }
+}

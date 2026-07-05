@@ -1,0 +1,18 @@
+{
+  "format": 2,
+  "title": "Signal Fire",
+  "description": "Extractor test story exercising float qualities and unknown-quality rejection.",
+  "qualities": [
+    { "key": "message_count", "type": "int", "source": "code", "monotonic": true, "rubric": "Rendered boundary count." },
+    { "key": "signal_strength", "type": "float", "source": "extractor", "monotonic": true, "rubric": "How strong is the beacon signal, 0.0 to 1.0?" },
+    { "key": "crew_morale", "type": "int", "source": "extractor", "rubric": "Crew morale, 0 to 10." }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "Dark Coast", "objective": "Light the beacon.", "type": "anchor", "start": true },
+    { "id": "lit", "name": "Beacon Lit", "objective": "Signal the fleet.", "type": "anchor" }
+  ],
+  "transitions": [
+    { "from": "start", "to": "lit", "priority": 1, "gate": { "q": "signal_strength", "op": ">=", "v": 0.8 } }
+  ],
+  "roster": []
+}

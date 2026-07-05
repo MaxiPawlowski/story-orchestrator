@@ -2,11 +2,15 @@ export const QUALITY_TYPES = ["int", "float", "bool", "enum", "string"] as const
 export const QUALITY_SOURCES = ["code", "extractor"] as const;
 export const GATE_OPERATORS = ["==", "!=", ">=", "<=", ">", "<", "in"] as const;
 export const TENSION_LEVELS = ["calm", "stirring", "tense", "critical", "peak"] as const;
+export const NPC_REPLY_TRIGGERS = ["onEnter", "afterSpeak"] as const;
+export const NPC_REPLY_KINDS = ["scripted", "llm"] as const;
 
 export type QualityType = typeof QUALITY_TYPES[number];
 export type QualitySource = typeof QUALITY_SOURCES[number];
 export type GateOperator = typeof GATE_OPERATORS[number];
 export type TensionLevel = typeof TENSION_LEVELS[number];
+export type NpcReplyTrigger = typeof NPC_REPLY_TRIGGERS[number];
+export type NpcReplyKind = typeof NPC_REPLY_KINDS[number];
 export type PrimitiveValue = string | number | boolean;
 
 export interface QualityScopeHint {
@@ -56,7 +60,17 @@ export interface CheckpointEffects {
   preset?: unknown;
   world_info?: unknown;
   cast_changes?: unknown;
-  npc_replies?: unknown;
+  npc_replies?: NpcReplyEffect[];
+}
+
+export interface NpcReplyEffect {
+  trigger: NpcReplyTrigger;
+  member: string;
+  kind: NpcReplyKind;
+  text?: string;
+  instruction?: string;
+  maxTriggers?: number;
+  probability?: number;
 }
 
 export interface Checkpoint {
@@ -109,6 +123,12 @@ export interface Scaffolding {
   needs_review?: boolean;
 }
 
+export interface ArcBridge {
+  arcMatch: string;
+  anchor: string;
+  amount: number;
+}
+
 export interface StoryV2 {
   format: 2;
   title: string;
@@ -118,6 +138,7 @@ export interface StoryV2 {
   transitions: Transition[];
   roster: RosterMember[];
   arc_template?: unknown;
+  arc_bridges?: ArcBridge[];
   requirements?: unknown;
   scaffolding?: Record<string, Scaffolding>;
 }

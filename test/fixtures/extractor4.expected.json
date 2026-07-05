@@ -1,0 +1,14 @@
+{
+  "deltas": [
+    { "q": "signal_strength", "v": 0.9, "evidence": "signal strength near full" },
+    { "q": "crew_morale", "v": 8, "evidence": "cheers rise across the crew" }
+  ],
+  "rejected": [
+    { "reason": "unknown quality" }
+  ],
+  "facts": {
+    "minCount": 1,
+    "mustContain": ["beacon"],
+    "mustNotContain": ["dragon"]
+  }
+}

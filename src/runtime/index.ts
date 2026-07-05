@@ -30,20 +30,22 @@ export function startRuntime() {
       debugResponse: globalThis.storyOrchestratorDebugExtractionResponse ?? null,
     }),
     getFacts: () => runtimeManager.getExtractionFacts(),
+    getFiredTransitions: () => runtimeManager.getFiredTransitions(),
     applyExtractionAudit: (audit, facts) => runtimeManager.applyExtractionAudit(audit, facts),
     onSchedulerChange: () => {
       if (scheduler) runtimeManager.setSchedulerSnapshot(scheduler.getSnapshot());
     },
+    pauseExtraction: (message) => runtimeManager.pauseExtraction(message),
   };
   scheduler = new ExtractionScheduler(schedulerHost);
   runtimeManager.onBoundary((result) => {
     if (!scheduler) return;
-    scheduler.onBoundary(result.boundary, Boolean(result.fired));
+    scheduler.onBoundary(result.boundary, Boolean(result.fired), result.context.lastMessageId);
     scheduleForcedCues(runtimeManager.getStory(), result.activeCheckpointId, scheduler);
     maybeScheduleReconciliation(runtimeManager.getStory(), runtimeManager.getEngineState(), runtimeManager.getExtractionSettings().reconciliationMultiplier, scheduler);
   });
-  runtimeManager.onRollback((messageId) => {
-    scheduler?.schedule({ priority: 0, reason: `rollback:${messageId}` });
+  runtimeManager.onRollback((messageId, window) => {
+    scheduler?.schedule({ priority: 0, reason: `rollback:${messageId}`, window });
   });
   registerRuntimeMacros(runtimeManager);
   window.setTimeout(() => registerSlashCommandsWhenReady(), 0);

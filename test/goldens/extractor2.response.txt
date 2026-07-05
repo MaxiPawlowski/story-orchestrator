@@ -1,0 +1,4 @@
+DELTA q=district value="docks" evidence="leads the group past the market stalls toward the docks"
+DELTA q=threat_level value=2 evidence="air grows tense"
+DELTA q=district value="harbor" evidence="unrecognized ward"
+FACT importance=1 text="Rin led the group toward the docks." evidence="toward the docks"

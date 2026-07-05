@@ -62,6 +62,11 @@ function evaluateExpect(state, expected) {
     failures.push(`activeCheckpoint: expected ${expected.activeCheckpoint}, got ${actual.activeCheckpoint}`);
   }
   if (expected.blackboard) failures.push(...compareSubset(actual.blackboard, expected.blackboard, 'blackboard'));
+  if (Array.isArray(expected.blackboardMissing)) {
+    for (const key of expected.blackboardMissing) {
+      if (Object.prototype.hasOwnProperty.call(actual.blackboard, key)) failures.push(`blackboard.${key}: expected missing, got ${JSON.stringify(actual.blackboard[key])}`);
+    }
+  }
   if (Array.isArray(expected.latched)) {
     for (const key of expected.latched) {
       if (actual.latched[key] !== true) failures.push(`latched.${key}: expected true, got ${JSON.stringify(actual.latched[key])}`);
