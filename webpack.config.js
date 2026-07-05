@@ -27,6 +27,7 @@ module.exports = {
       "@extraction": path.resolve(__dirname, "src/extraction"),
       "@pacing": path.resolve(__dirname, "src/pacing"),
       "@generation": path.resolve(__dirname, "src/generation"),
+      "@memory": path.resolve(__dirname, "src/memory"),
     },
     fallback: {
       fs: false,

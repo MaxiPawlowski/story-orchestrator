@@ -1,6 +1,7 @@
 import type { ArcTemplate, EngineState, NormalizedStoryV2, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
-import type { ParsedFact, ReconciliationEvent, SharedReadAudit } from "@extraction/index";
+import type { ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
+import type { MemoryStoreState, MemoryTier } from "@memory/index";
 import type { SteeringHint } from "@pacing/index";
 
 export interface StoryLibraryRecord {
@@ -25,8 +26,29 @@ export interface RuntimeExtras {
   lastSelfInjectionMessageId: number | null;
   extraction: ExtractionRuntimeState;
   expansion: ExpansionRuntimeState;
+  memory: MemoryRuntimeState;
   pacing: PacingSettings;
   tension: TensionRuntimeState;
+  updatedAt: string;
+}
+
+export interface MemoryRuntimeSettings {
+  enabled: boolean;
+  injectionDepths: Record<MemoryTier, number>;
+  tierBudgets: Record<MemoryTier, number>;
+}
+
+export interface MemoryBackfillState {
+  running: boolean;
+  processed: number;
+  total: number;
+  lastError: string | null;
+}
+
+export interface MemoryRuntimeState extends MemoryStoreState {
+  settings: MemoryRuntimeSettings;
+  backfill: MemoryBackfillState | null;
+  sceneCount: number;
   updatedAt: string;
 }
 
@@ -51,7 +73,6 @@ export interface ExtractionRuntimeSettings {
 
 export interface ExtractionRuntimeState {
   settings: ExtractionRuntimeSettings;
-  facts: ParsedFact[];
   audits: SharedReadAudit[];
   reconciliationEvents: ReconciliationEvent[];
   lastReadBoundary: number;
@@ -97,6 +118,7 @@ export interface RuntimeSnapshot {
   status: string;
   extraction: ExtractionRuntimeState;
   expansion: ExpansionRuntimeState;
+  memory: MemoryRuntimeState;
   pacing: PacingSettings;
   convergence: ConvergenceReadout[];
   tension: {

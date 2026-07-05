@@ -69,3 +69,11 @@ export function deriveScope(
     .sort((left, right) => left.key.localeCompare(right.key))
     .map((quality) => ({ key: quality.key, quality, hints: [...(hints.get(quality.key) ?? [])] }));
 }
+
+export function deriveFullScope(story: NormalizedStoryV2, blackboard: BlackboardSnapshot): ScopedQuality[] {
+  return Object.values(story.qualityByKey)
+    .filter((quality) => quality.source === "extractor")
+    .filter((quality) => !blackboard.latched[quality.key])
+    .sort((left, right) => left.key.localeCompare(right.key))
+    .map((quality) => ({ key: quality.key, quality, hints: [] }));
+}

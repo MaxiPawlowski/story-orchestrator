@@ -23,9 +23,10 @@
       "@runtime/*": ["runtime/*"],
       "@extraction/*": ["extraction/*"],
       "@pacing/*": ["pacing/*"],
-      "@generation/*": ["generation/*"]
+      "@generation/*": ["generation/*"],
+      "@memory/*": ["memory/*"]
     }
   },
-  "include": ["src/index.tsx", "src/engine/**/*.ts", "src/extraction/**/*.ts", "src/runtime/**/*.ts", "src/pacing/**/*.ts", "src/generation/**/*.ts", "src/services/**/*.ts", "src/utils/**/*.ts", "src/constants/**/*.ts", "global.d.ts"],
+  "include": ["src/index.tsx", "src/engine/**/*.ts", "src/extraction/**/*.ts", "src/runtime/**/*.ts", "src/pacing/**/*.ts", "src/generation/**/*.ts", "src/services/**/*.ts", "src/utils/**/*.ts", "src/constants/**/*.ts", "src/memory/**/*.ts", "global.d.ts"],
   "exclude": ["src/**/*.test.ts"]
 }

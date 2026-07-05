@@ -1,4 +1,5 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
+import type { ParsedMemoryLine } from "@memory/index";
 import type { ExtraGateSource } from "./types";
 import { getChatWindow } from "./chatWindow";
 import { runSharedRead } from "./sharedRead";
@@ -27,7 +28,7 @@ export interface SchedulerHost {
   getFacts(): ParsedFact[];
   getFiredTransitions(): NormalizedTransition[];
   getExpansionGateSources(): ExtraGateSource[];
-  applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[]): Promise<void>;
+  applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memory: ParsedMemoryLine[]): Promise<void>;
   onSchedulerChange(): void;
   pauseExtraction(message: string): void;
 }
@@ -92,9 +93,13 @@ export class ExtractionScheduler {
     this.inFlight = true;
     this.host.onSchedulerChange();
     try {
-      const priority = job.priority === 0 ? 0 : 1;
-      const result = await this.runWithRetries(() => runSharedRead({ story, state, priority, reason: job.reason, window: job.window, stabilityLag: settings.stabilityLag, firedTransitions: this.host.getFiredTransitions(), facts: this.host.getFacts(), extraGateSources: this.host.getExpansionGateSources(), client: settings }));
-      await this.host.applyExtractionAudit(result.audit, result.facts);
+      if (job.run) {
+        await this.runWithRetries(job.run);
+      } else {
+        const priority = job.priority === 0 ? 0 : 1;
+        const result = await this.runWithRetries(() => runSharedRead({ story, state, priority, reason: job.reason, window: job.window, stabilityLag: settings.stabilityLag, firedTransitions: this.host.getFiredTransitions(), facts: this.host.getFacts(), extraGateSources: this.host.getExpansionGateSources(), client: settings }));
+        await this.host.applyExtractionAudit(result.audit, result.facts, result.memory);
+      }
       this.lastError = null;
     } catch (error) {
       this.lastError = error instanceof Error ? error.message : "Extraction failed";

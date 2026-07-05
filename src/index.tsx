@@ -1,10 +1,18 @@
 import { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { listConnectionProfiles } from "@services/STAPI";
+import { MEMORY_TIERS, type MemoryTier } from "@memory/index";
 import { isArcTemplateName } from "@pacing/index";
 import { startRuntime } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import "./styles.css";
+
+const MEMORY_TIER_LABELS: Record<MemoryTier, string> = {
+  facts: "Facts",
+  session_details: "Session details",
+  short_term: "Short-term",
+  scene_history: "Scene history",
+};
 
 const manager = startRuntime();
 
@@ -42,6 +50,12 @@ const SettingsPanel = () => {
     setBusy(true);
     const ok = await manager.importStory(importText);
     if (ok) setImportText("");
+    setBusy(false);
+  };
+
+  const memorizeChat = async () => {
+    setBusy(true);
+    await manager.runMemorizeBacklog();
     setBusy(false);
   };
 
@@ -93,6 +107,12 @@ const SettingsPanel = () => {
             {snapshot.extraction.settings.enabled && !snapshot.extraction.settings.profileId && <div className="text-xs text-yellow-300">Select a Connection Manager profile, or extraction stays paused outside debug runs.</div>}
           </div>
           <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+            <div className="font-medium text-sm">Memory</div>
+            <button className="menu_button" disabled={busy || !snapshot.ready || snapshot.memory.backfill?.running} onClick={() => void memorizeChat()}>Memorize Chat</button>
+            {snapshot.memory.backfill?.running && <div className="text-xs opacity-80">Backfilling {snapshot.memory.backfill.processed}/{snapshot.memory.backfill.total}…</div>}
+            {snapshot.memory.backfill?.lastError && <div className="text-xs text-red-400">{snapshot.memory.backfill.lastError}</div>}
+          </div>
+          <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
             <div className="font-medium text-sm">Pacing</div>
             <label className="flex flex-col gap-1 text-sm">
               <span>Dramatic shape</span>
@@ -140,6 +160,82 @@ const Requirements = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
           {item.missing.length > 0 && <div className="text-xs opacity-80">Missing: {item.missing.join(", ")}</div>}
         </div>
       ))}
+    </div>
+  );
+};
+
+const MemoryPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
+  const [characterFilter, setCharacterFilter] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draftText, setDraftText] = useState("");
+
+  const characterIds = Array.from(new Set(snapshot.memory.entries.map((entry) => entry.characterId).filter((id): id is string => Boolean(id)))).sort();
+  const filtered = characterFilter ? snapshot.memory.entries.filter((entry) => entry.characterId === characterFilter) : snapshot.memory.entries;
+  const lastAudit = snapshot.extraction.audits[snapshot.extraction.audits.length - 1];
+
+  const startEdit = (id: string, text: string) => {
+    setEditingId(id);
+    setDraftText(text);
+  };
+
+  const saveEdit = async () => {
+    if (!editingId) return;
+    await manager.editMemoryEntry(editingId, draftText);
+    setEditingId(null);
+  };
+
+  return (
+    <div className="text-xs opacity-80">
+      <div className="font-medium opacity-100">Memory</div>
+      <label className="flex items-center gap-2">
+        <input type="checkbox" checked={snapshot.memory.settings.enabled} onChange={(event) => manager.setMemorySettings({ enabled: event.target.checked })} />
+        <span>Enabled</span>
+      </label>
+      <div>Scene count {snapshot.memory.sceneCount}</div>
+      {snapshot.memory.backfill?.running && <div>Memorizing: {snapshot.memory.backfill.processed}/{snapshot.memory.backfill.total}</div>}
+      {snapshot.memory.backfill?.lastError && <div className="text-red-300">{snapshot.memory.backfill.lastError}</div>}
+      {lastAudit && <div title={`${lastAudit.prompt}\n---\n${lastAudit.rawResponse}`}>Last audit: {lastAudit.id} ({lastAudit.reason})</div>}
+      {characterIds.length > 0 && (
+        <label className="flex items-center gap-2 mt-1">
+          <span>Character</span>
+          <select value={characterFilter} onChange={(event) => setCharacterFilter(event.target.value)}>
+            <option value="">All</option>
+            {characterIds.map((id) => <option key={id} value={id}>{id}</option>)}
+          </select>
+        </label>
+      )}
+      {MEMORY_TIERS.map((tier) => {
+        const entries = filtered.filter((entry) => entry.tier === tier);
+        if (!entries.length) return null;
+        return (
+          <div key={tier} className="border-t border-solid border-white/10 mt-1 pt-1">
+            <div className="opacity-100">{MEMORY_TIER_LABELS[tier]} ({entries.length})</div>
+            {entries.map((entry) => (
+              <div key={entry.id} className="mt-1">
+                {editingId === entry.id ? (
+                  <div className="flex flex-col gap-1">
+                    <textarea className="text_pole" rows={2} value={draftText} onChange={(event) => setDraftText(event.target.value)} />
+                    <div className="flex gap-2">
+                      <button className="menu_button" onClick={() => void saveEdit()}>Save</button>
+                      <button className="menu_button" onClick={() => setEditingId(null)}>Cancel</button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div title={entry.evidence}>{entry.text}{entry.pinned ? " 📌" : ""}{entry.characterId ? ` (${entry.characterId})` : ""}</div>
+                    <div className="flex gap-2 opacity-80">
+                      <span>imp {entry.importance} · {entry.expiration}</span>
+                      <button className="menu_button" onClick={() => void manager.setMemoryPinned(entry.id, !entry.pinned)}>{entry.pinned ? "Unpin" : "Pin"}</button>
+                      <button className="menu_button" onClick={() => startEdit(entry.id, entry.text)}>Edit</button>
+                      <button className="menu_button" onClick={() => void manager.excludeMemoryEntry(entry.id)}>Exclude</button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        );
+      })}
     </div>
   );
 };
@@ -206,6 +302,7 @@ const DrawerPanel = () => {
                 })}
               </div>
             )}
+            <MemoryPanel snapshot={snapshot} />
             <div className="text-xs opacity-80">
               <div className="font-medium opacity-100">Extraction</div>
               <div>Queue {snapshot.extraction.scheduler.queueDepth}, in flight {snapshot.extraction.scheduler.inFlight ? "yes" : "no"}</div>

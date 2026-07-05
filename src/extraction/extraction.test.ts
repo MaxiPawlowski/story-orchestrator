@@ -1,7 +1,7 @@
 import { parseStoryV2OrThrow } from "@engine/index";
 import { renderSharedReadPrompt } from "./contract";
 import { parseSharedReadResponse } from "./parse";
-import { deriveScope } from "./scope";
+import { deriveFullScope, deriveScope } from "./scope";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
@@ -41,6 +41,26 @@ describe("extraction scope", () => {
   });
 });
 
+describe("deriveFullScope", () => {
+  it("includes every extractor-source quality regardless of reachability from any checkpoint", () => {
+    const story = parseStoryV2OrThrow(storyFixture);
+    const scope = deriveFullScope(story, { values: {}, versions: {}, latched: {} });
+    expect(scope.map((entry) => entry.key)).toEqual(["location", "mara_trust", "player_has_key", "tension_current"]);
+  });
+
+  it("excludes latched qualities", () => {
+    const story = parseStoryV2OrThrow(storyFixture);
+    const scope = deriveFullScope(story, { values: { player_has_key: true }, versions: { player_has_key: 1 }, latched: { player_has_key: true } });
+    expect(scope.map((entry) => entry.key)).not.toContain("player_has_key");
+  });
+
+  it("excludes code-source qualities", () => {
+    const story = parseStoryV2OrThrow(storyFixture);
+    const scope = deriveFullScope(story, { values: {}, versions: {}, latched: {} });
+    expect(scope.map((entry) => entry.key)).not.toContain("message_count");
+  });
+});
+
 describe("shared read parser", () => {
   it("parses golden deltas and facts", () => {
     const story = parseStoryV2OrThrow(storyFixture);
@@ -77,6 +97,33 @@ describe("shared read parser", () => {
       { delta: { q: "tension_current", v: 0.75, source: "extractor" }, evidence: "the walls begin to shake", rawLevel: "critical" },
     ]);
     expect(parsed.rejected.map((entry) => entry.reason)).toEqual(["invalid value"]);
+  });
+
+  it("parses DELTA, legacy FACT, tagged MEMORY, and a confirmed scene break from one combined response", () => {
+    const story = parseStoryV2OrThrow(storyFixture);
+    const parsed = parseSharedReadResponse([
+      "DELTA q=player_has_key value=true evidence=\"brass key from the hook\"",
+      "FACT importance=2 text=\"Max took the brass key from the hook.\" evidence=\"brass key from the hook\"",
+      "MEMORY type=relationship importance=3 expiration=permanent character=\"mara\" text=\"Mara trusts Max after the vault ordeal.\" evidence=\"trusting Max a little more\"",
+      "MEMORY type=scene importance=1 expiration=scene text=\"Candlelit hall, late evening.\" evidence=\"the hall was dim and quiet\"",
+      "SCENE_BREAK at=5 reason=location",
+    ].join("\n"), story);
+
+    expect(parsed.rejected).toEqual([]);
+    expect(parsed.deltas.map((entry) => entry.delta.q)).toEqual(["player_has_key"]);
+    expect(parsed.facts).toHaveLength(1);
+    expect(parsed.memory).toEqual([
+      { tier: "facts", type: "relationship", importance: 3, expiration: "permanent", entities: [], characterId: "mara", text: "Mara trusts Max after the vault ordeal.", evidence: "trusting Max a little more" },
+      { tier: "session_details", type: "scene", importance: 1, expiration: "scene", entities: [], characterId: undefined, text: "Candlelit hall, late evening.", evidence: "the hall was dim and quiet" },
+    ]);
+    expect(parsed.sceneBreak).toEqual({ at: 5, reason: "location" });
+  });
+
+  it("treats SCENE_NONE as an explicit no-break rather than a rejection", () => {
+    const story = parseStoryV2OrThrow(storyFixture);
+    const parsed = parseSharedReadResponse("SCENE_NONE", story);
+    expect(parsed.sceneBreak).toBeUndefined();
+    expect(parsed.rejected).toEqual([]);
   });
 
   it.each(["extractor2", "extractor3", "extractor4"])("parses the %s suite-A corpus fixture", (name) => {

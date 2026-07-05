@@ -4,6 +4,14 @@ export const DEFAULT_PACING_DRIFT_THRESHOLD = 0.3;
 export const PACING_HINT_EXTENSION_KEY = "story_orchestrator_pacing";
 export const PACING_HINT_DEPTH = 2;
 
+export const MEMORY_INJECTION_KEY_PREFIX = "story_orchestrator_memory_";
+export const MEMORY_TIER_INJECTION_DEPTHS = {
+  facts: 4,
+  session_details: 3,
+  short_term: 2,
+  scene_history: 6,
+} as const;
+
 export const AUTHOR_NOTE_DEFAULT_INTERVAL = 1;
 export const AUTHOR_NOTE_DEFAULT_DEPTH = 4;
 export const AUTHOR_NOTE_DISABLED_FREQUENCY = 0;

@@ -1,4 +1,5 @@
 import { TENSION_CURRENT_KEY, TENSION_LEVELS } from "@engine/index";
+import { renderMemoryContractAddendum } from "@memory/contract";
 import { stableStringify } from "@runtime/hash";
 import type { SharedReadContract } from "./types";
 
@@ -28,6 +29,8 @@ export function renderSharedReadPrompt(contract: SharedReadContract): string {
     "DELTA q=<quality_key> value=<json_literal> evidence=\"exact quote from transcript\"",
     "FACT importance=<1|2|3> text=\"fact text\" evidence=\"exact quote from transcript\"",
     "If nothing changed, output NO_DELTA.",
+    "",
+    renderMemoryContractAddendum(),
     "",
     "Quality questions:",
     renderType(contract) || "(no in-scope qualities)",

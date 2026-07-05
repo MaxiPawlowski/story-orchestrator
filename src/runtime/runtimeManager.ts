@@ -1,14 +1,15 @@
 import { StoryEngine, effectiveThresholdFor, isValidationErrorList, progressQualityForAnchor, TENSION_CURRENT_KEY, type ApplyQueueEntry, type ArcTemplate, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type TensionLevel, type ValidationError } from "@engine/index";
-import { getCanonLite, getChatWindow, runSharedRead, type ParsedFact, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
+import { callExtractionModel, deriveFullScope, getCanonLite, getChatWindow, getLastMessageText, runSharedRead, type ParsedFact, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
 import { findStubExpansionCandidate, collectExpansionGateSources, generateReviewedBeats, insertedCheckpointIds, mergeExpansions, planExpansion, revalidateExpansion, type ExpansionCacheEntry, type ExpansionRuntimeState, type StubExpansionCandidate } from "@generation/index";
+import { addMemoryEntries, applyMemoryInjection, buildSceneSummaryPrompt, capAllTiers, clearAllMemoryInjection, createMemoryState, DEFAULT_TIER_BUDGETS, detectSceneBreakHeuristic, dropByMessageId, editEntryText, excludeEntry, expireScoped, generateMemoryId, setPinned, type MemoryEntry, type ParsedMemoryLine } from "@memory/index";
 import { expectedTension, getSteeringHint, numericToLevel, updateEma } from "@pacing/index";
-import { clearStoryExtensionPrompt, getContext, setStoryExtensionPrompt } from "@services/STAPI";
-import { DEFAULT_TENSION_EMA_ALPHA, PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
+import { clearStoryExtensionPrompt, getActiveGroup, getContext, resolveGroupMemberId, setStoryExtensionPrompt } from "@services/STAPI";
+import { DEFAULT_TENSION_EMA_ALPHA, MEMORY_TIER_INJECTION_DEPTHS, PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
 import { EffectsApplier } from "./effectsApplier";
 import { evaluateRequirements } from "./requirements";
 import { loadPersistedRuntime, savePersistedRuntime, setSelectedStoryHash, getSelectedStoryHash } from "./persistence";
 import { findStoryRecord, listStoryRecords, loadStoryRecord, saveStoryRecord } from "./storyLibrary";
-import type { ConvergenceReadout, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, PacingSettings, RuntimeExtras, RuntimeSnapshot, TensionRuntimeState } from "./types";
+import type { ConvergenceReadout, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, MemoryBackfillState, MemoryRuntimeSettings, MemoryRuntimeState, PacingSettings, RuntimeExtras, RuntimeSnapshot, TensionRuntimeState } from "./types";
 
 const emptyRequirements = { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] };
 
@@ -31,7 +32,6 @@ const sanitizeTension = (value: TensionRuntimeState | undefined): TensionRuntime
 
 const createExtraction = (): ExtractionRuntimeState => ({
   settings: defaultExtractionSettings(),
-  facts: [],
   audits: [],
   reconciliationEvents: [],
   lastReadBoundary: 0,
@@ -43,6 +43,61 @@ const createExpansion = (): ExpansionRuntimeState => ({
   scheduler: { queueDepth: 0, inFlight: false, lastError: null },
 });
 
+const defaultMemorySettings = (): MemoryRuntimeSettings => ({
+  enabled: true,
+  injectionDepths: { ...MEMORY_TIER_INJECTION_DEPTHS },
+  tierBudgets: { ...DEFAULT_TIER_BUDGETS },
+});
+
+const createMemory = (): MemoryRuntimeState => ({
+  ...createMemoryState(),
+  settings: defaultMemorySettings(),
+  backfill: null,
+  sceneCount: 0,
+  updatedAt: new Date().toISOString(),
+});
+
+const migrateLegacyFacts = (facts: ParsedFact[]): MemoryEntry[] => facts.map((fact) => ({
+  id: generateMemoryId(),
+  tier: "facts",
+  text: fact.text,
+  type: "fact",
+  importance: fact.importance,
+  expiration: "permanent",
+  entities: [],
+  confidence: 1,
+  activationTriggers: [],
+  evidence: fact.evidence,
+  createdAt: fact.boundary ?? 0,
+  messageId: fact.messageId,
+  recallCount: 0,
+}));
+
+const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeState => {
+  const existing = value?.memory;
+  if (existing && Array.isArray(existing.entries)) {
+    return {
+      entries: existing.entries,
+      excluded: Array.isArray(existing.excluded) ? existing.excluded : [],
+      writeLog: Array.isArray(existing.writeLog) ? existing.writeLog.slice(-100) : [],
+      settings: { ...defaultMemorySettings(), ...existing.settings },
+      backfill: existing.backfill ? { ...existing.backfill, running: false } : null,
+      sceneCount: typeof existing.sceneCount === "number" ? existing.sceneCount : 0,
+      updatedAt: existing.updatedAt ?? new Date().toISOString(),
+    };
+  }
+  const legacyFacts = (value?.extraction as unknown as { facts?: ParsedFact[] } | undefined)?.facts;
+  return {
+    entries: Array.isArray(legacyFacts) ? migrateLegacyFacts(legacyFacts) : [],
+    excluded: [],
+    writeLog: [],
+    settings: defaultMemorySettings(),
+    backfill: null,
+    sceneCount: 0,
+    updatedAt: new Date().toISOString(),
+  };
+};
+
 const createExtras = (): RuntimeExtras => ({
   firedNpcReplies: {},
   requirements: emptyRequirements,
@@ -50,6 +105,7 @@ const createExtras = (): RuntimeExtras => ({
   lastSelfInjectionMessageId: null,
   extraction: createExtraction(),
   expansion: createExpansion(),
+  memory: createMemory(),
   pacing: defaultPacingSettings(),
   tension: defaultTension(),
   updatedAt: new Date().toISOString(),
@@ -60,7 +116,6 @@ const sanitizeExtraction = (value: RuntimeExtras | undefined): ExtractionRuntime
   if (!existing) return createExtraction();
   return {
     settings: { ...defaultExtractionSettings(), ...existing.settings },
-    facts: Array.isArray(existing.facts) ? existing.facts : [],
     audits: Array.isArray(existing.audits) ? existing.audits.slice(-20) : [],
     reconciliationEvents: Array.isArray(existing.reconciliationEvents) ? existing.reconciliationEvents.slice(-50) : [],
     lastReadBoundary: typeof existing.lastReadBoundary === "number" ? existing.lastReadBoundary : 0,
@@ -89,7 +144,9 @@ export class RuntimeManager {
   private readonly listeners = new Set<() => void>();
   private readonly boundaryListeners = new Set<(result: BoundaryResult) => void>();
   private readonly rollbackListeners = new Set<(messageId: number, window: SharedReadWindow) => void>();
+  private readonly sceneBreakListeners = new Set<(audit: SharedReadAudit) => void>();
   private pendingTension: TensionRuntimeState | null = null;
+  private sceneDetectCursor: { location: string | null; cast: string | null } | null = null;
 
   subscribe(listener: () => void) {
     this.listeners.add(listener);
@@ -110,6 +167,11 @@ export class RuntimeManager {
     return () => { this.rollbackListeners.delete(listener); };
   }
 
+  onSceneBreakConfirmed(listener: (audit: SharedReadAudit) => void) {
+    this.sceneBreakListeners.add(listener);
+    return () => { this.sceneBreakListeners.delete(listener); };
+  }
+
   async loadSelectedFromChat() {
     const hash = getSelectedStoryHash();
     if (!hash) {
@@ -117,6 +179,7 @@ export class RuntimeManager {
       this.extras = createExtras();
       this.pendingTension = null;
       clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
+      clearAllMemoryInjection();
       this.status = "No story selected for this chat";
       this.notify();
       return;
@@ -180,6 +243,7 @@ export class RuntimeManager {
     this.revalidateInsertedExpansions();
     this.pendingTension = null;
     this.updateSteering();
+    this.updateMemoryInjection();
     await this.persist();
     this.status = result.fired ? `Advanced to ${result.activeCheckpointId}` : `Committed boundary ${result.boundary}`;
     this.boundaryListeners.forEach((listener) => listener(result));
@@ -193,6 +257,7 @@ export class RuntimeManager {
     this.engine.activateCheckpoint(id, this.getBoundaryContext());
     await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate");
     this.updateSteering();
+    this.updateMemoryInjection();
     await this.persist();
     this.status = `Manually activated ${id}`;
     this.notify();
@@ -239,13 +304,14 @@ export class RuntimeManager {
       const context = this.getBoundaryContext();
       const restored = this.engine.serialize();
       const window = getChatWindow(restored.checkpointStartedMessageId, context.lastMessageId);
-      this.extras.extraction.facts = this.extras.extraction.facts.filter((fact) => typeof fact.messageId !== "number" || fact.messageId < messageId);
+      this.extras.memory = { ...this.extras.memory, ...dropByMessageId(this.extras.memory, messageId) };
       this.extras.extraction.audits = this.extras.extraction.audits.filter((audit) => audit.window.to < messageId);
       this.extras.tension = this.replayCommittedTension();
       this.pendingTension = null;
       this.refreshRequirements();
       await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate");
       this.updateSteering();
+      this.updateMemoryInjection();
       await this.persist();
       this.status = `Rolled back to boundary ${boundary}`;
       this.rollbackListeners.forEach((listener) => listener(messageId, window));
@@ -278,8 +344,17 @@ export class RuntimeManager {
     this.notify();
   }
 
+  setMemorySettings(settings: Partial<MemoryRuntimeSettings>) {
+    this.extras.memory = { ...this.extras.memory, settings: { ...this.extras.memory.settings, ...settings } };
+    this.updateMemoryInjection();
+    void this.persist();
+    this.notify();
+  }
+
   getExtractionFacts(): ParsedFact[] {
-    return [...this.extras.extraction.facts];
+    return this.extras.memory.entries
+      .filter((entry) => entry.tier === "facts")
+      .map((entry) => ({ text: entry.text, evidence: entry.evidence, importance: entry.importance, boundary: entry.createdAt, messageId: entry.messageId }));
   }
 
   getFiredTransitions(): NormalizedTransition[] {
@@ -318,7 +393,7 @@ export class RuntimeManager {
     this.notify();
   }
 
-  async applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[]) {
+  async applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memoryLines: ParsedMemoryLine[] = []) {
     if (!this.loaded) return;
     const state = this.engine.serialize();
     const blackboardVersionSum = Object.values(state.blackboard.versions).reduce((sum, version) => sum + version, 0);
@@ -340,8 +415,45 @@ export class RuntimeManager {
         ...(tensionLevels.length ? { tensionLevels } : {}),
       });
     }
-    const stampedFacts = facts.map((fact) => ({ ...fact, boundary: state.boundary, messageId: audit.window.to }));
-    this.extras.extraction.facts = [...this.extras.extraction.facts, ...stampedFacts].slice(-50);
+    const newMemoryEntries: MemoryEntry[] = [
+      ...facts.map((fact): MemoryEntry => ({
+        id: generateMemoryId(),
+        tier: "facts",
+        text: fact.text,
+        type: "fact",
+        importance: fact.importance,
+        expiration: "permanent",
+        entities: [],
+        confidence: 1,
+        activationTriggers: [],
+        evidence: fact.evidence,
+        createdAt: state.boundary,
+        messageId: audit.window.to,
+        recallCount: 0,
+      })),
+      ...memoryLines.map((line): MemoryEntry => ({
+        id: generateMemoryId(),
+        tier: line.tier,
+        text: line.text,
+        type: line.type,
+        importance: line.importance,
+        expiration: line.expiration,
+        entities: line.entities,
+        confidence: 1,
+        activationTriggers: [],
+        evidence: line.evidence,
+        characterId: line.characterId,
+        createdAt: state.boundary,
+        messageId: audit.window.to,
+        recallCount: 0,
+      })),
+    ];
+    const memoryEnabled = this.extras.memory.settings.enabled;
+    if (memoryEnabled && newMemoryEntries.length) {
+      const written = addMemoryEntries(this.extras.memory, newMemoryEntries, audit.window);
+      const capped = capAllTiers(written.state, this.extras.memory.settings.tierBudgets);
+      this.extras.memory = { ...this.extras.memory, ...capped, updatedAt: new Date().toISOString() };
+    }
     this.extras.extraction.audits = [...this.extras.extraction.audits, audit].slice(-20);
     if (audit.reason.startsWith("reconcile:")) {
       const evidence = audit.acceptedDeltas.map((entry) => `${entry.delta.q}=${String(entry.delta.v)} (${entry.evidence})`);
@@ -355,6 +467,60 @@ export class RuntimeManager {
       this.extras.extraction.reconciliationEvents = events;
     }
     this.extras.extraction.lastReadBoundary = state.boundary;
+    if (memoryEnabled && newMemoryEntries.length) this.updateMemoryInjection();
+    await this.persist();
+    this.notify();
+    if (memoryEnabled && audit.sceneBreak) this.sceneBreakListeners.forEach((listener) => listener(audit));
+  }
+
+  detectSceneBreak() {
+    if (!this.loaded || !this.extras.memory.settings.enabled) return null;
+    const text = getLastMessageText();
+    if (!text) return null;
+    const location = this.engine.serialize().blackboard.values.location;
+    const locationValue = typeof location === "string" ? location : null;
+    const group = getActiveGroup();
+    const cast = group ? group.members.filter((member) => !(group.disabled_members ?? []).includes(member)).sort().join(",") : null;
+
+    const cursor = this.sceneDetectCursor;
+    const locationChanged = Boolean(cursor && cursor.location !== null && locationValue !== null && cursor.location !== locationValue);
+    const castChanged = Boolean(cursor && cursor.cast !== null && cast !== null && cursor.cast !== cast);
+    this.sceneDetectCursor = { location: locationValue, cast };
+
+    return detectSceneBreakHeuristic(text, locationChanged, castChanged);
+  }
+
+  async runSceneBreakPass(audit: SharedReadAudit) {
+    if (!this.loaded || !audit.sceneBreak || !this.extras.memory.settings.enabled) return;
+    const settings = this.getExtractionSettings();
+    const window = getChatWindow(audit.window.from, audit.window.to);
+    const sceneText = window.messages.map((message) => `${message.speaker}: ${message.text}`).join("\n") || "(empty)";
+    const summary = await callExtractionModel(buildSceneSummaryPrompt(sceneText), {
+      profileId: settings.profileId,
+      debugResponse: globalThis.storyOrchestratorDebugSceneSummaryResponse ?? null,
+    });
+    const state = this.engine.serialize();
+    const summaryEntry: MemoryEntry = {
+      id: generateMemoryId(),
+      tier: "scene_history",
+      text: summary.trim(),
+      type: "scene",
+      importance: 2,
+      expiration: "permanent",
+      entities: [],
+      confidence: 1,
+      activationTriggers: [],
+      evidence: sceneText,
+      createdAt: state.boundary,
+      messageId: audit.window.to,
+      recallCount: 0,
+    };
+    const written = addMemoryEntries(this.extras.memory, [summaryEntry], audit.window);
+    const capped = capAllTiers(expireScoped(written.state, "scene"), this.extras.memory.settings.tierBudgets);
+    const sceneOccurrence = this.extras.memory.sceneCount + 1;
+    this.extras.memory = { ...this.extras.memory, ...capped, sceneCount: sceneOccurrence, updatedAt: new Date().toISOString() };
+    this.updateMemoryInjection();
+    await this.effects.fireNpcReplies(this.engine.activeCheckpoint, this.extras, "sceneBreak", sceneOccurrence);
     await this.persist();
     this.notify();
   }
@@ -372,9 +538,92 @@ export class RuntimeManager {
       extraGateSources: this.getExpansionGateSources(),
       client: { ...settings, debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugExtractionResponse ?? null },
     });
-    await this.applyExtractionAudit(result.audit, result.facts);
+    await this.applyExtractionAudit(result.audit, result.facts, result.memory);
     await this.commitBoundary();
     return true;
+  }
+
+  async runMemorizeBacklog(windowSize = 8): Promise<boolean> {
+    if (!this.loaded || !this.extras.memory.settings.enabled || this.extras.memory.backfill?.running) return false;
+    const chat = Array.isArray(getContext().chat) ? getContext().chat : [];
+    const totalWindows = Math.max(1, Math.ceil(chat.length / windowSize));
+    const total = totalWindows + 1;
+    this.extras.memory.backfill = { running: true, processed: 0, total, lastError: null };
+    await this.persist();
+    this.notify();
+    try {
+      const settings = this.getExtractionSettings();
+      const client = { ...settings, debugResponse: globalThis.storyOrchestratorDebugExtractionResponse ?? null };
+      for (let from = 0; from < chat.length; from += windowSize) {
+        const to = Math.min(chat.length - 1, from + windowSize - 1);
+        const state = this.engine.serialize();
+        const result = await runSharedRead({
+          story: this.loaded.story,
+          state,
+          priority: 0,
+          reason: "memorize:window",
+          window: getChatWindow(from, to),
+          scope: deriveFullScope(this.loaded.story, state.blackboard),
+          firedTransitions: this.getFiredTransitions(),
+          facts: this.getExtractionFacts(),
+          client,
+        });
+        await this.applyExtractionAudit({ ...result.audit, acceptedDeltas: [] }, result.facts, result.memory);
+        const progress = this.extras.memory.backfill as MemoryBackfillState;
+        this.extras.memory.backfill = { ...progress, processed: progress.processed + 1 };
+        await this.persist();
+        this.notify();
+      }
+
+      const finalState = this.engine.serialize();
+      const fullResult = await runSharedRead({
+        story: this.loaded.story,
+        state: finalState,
+        priority: 0,
+        reason: "memorize:full",
+        window: getChatWindow(0, Math.max(0, chat.length - 1)),
+        scope: deriveFullScope(this.loaded.story, finalState.blackboard),
+        firedTransitions: this.getFiredTransitions(),
+        facts: this.getExtractionFacts(),
+        client,
+      });
+      await this.applyExtractionAudit(fullResult.audit, [], []);
+      await this.commitBoundary();
+
+      this.extras.memory.backfill = { running: false, processed: total, total, lastError: null };
+      this.status = "Memorize backlog complete";
+      await this.persist();
+      this.notify();
+      return true;
+    } catch (error) {
+      const progress = this.extras.memory.backfill as MemoryBackfillState;
+      this.extras.memory.backfill = { ...progress, running: false, lastError: error instanceof Error ? error.message : "Memorize backlog failed" };
+      this.status = "Memorize backlog failed";
+      await this.persist();
+      this.notify();
+      return false;
+    }
+  }
+
+  async setMemoryPinned(id: string, pinned: boolean) {
+    this.extras.memory = { ...this.extras.memory, ...setPinned(this.extras.memory, id, pinned) };
+    this.updateMemoryInjection();
+    await this.persist();
+    this.notify();
+  }
+
+  async excludeMemoryEntry(id: string) {
+    this.extras.memory = { ...this.extras.memory, ...excludeEntry(this.extras.memory, id) };
+    this.updateMemoryInjection();
+    await this.persist();
+    this.notify();
+  }
+
+  async editMemoryEntry(id: string, text: string) {
+    this.extras.memory = { ...this.extras.memory, ...editEntryText(this.extras.memory, id, text) };
+    this.updateMemoryInjection();
+    await this.persist();
+    this.notify();
   }
 
   scheduleExpansionForActive(schedule: (reason: string, run: () => Promise<void>) => void) {
@@ -443,6 +692,7 @@ export class RuntimeManager {
       status: this.status,
       extraction: this.extras.extraction,
       expansion: this.extras.expansion,
+      memory: this.extras.memory,
       pacing: this.extras.pacing,
       convergence: this.buildConvergenceReadout(),
       tension: this.buildTensionSnapshot(),
@@ -492,6 +742,7 @@ export class RuntimeManager {
     this.pendingTension = null;
     const persisted = mode === "hydrate" ? loadPersistedRuntime(loaded.record.hash) : null;
     this.extras = persisted?.extras ?? createExtras();
+    this.extras.memory = sanitizeMemory(this.extras);
     this.extras.extraction = sanitizeExtraction(this.extras);
     this.extras.expansion = sanitizeExpansion(this.extras);
     this.extras.pacing = sanitizePacing(this.extras.pacing);
@@ -509,6 +760,7 @@ export class RuntimeManager {
       this.status = `Loaded ${loaded.story.title}`;
     }
     this.updateSteering();
+    this.updateMemoryInjection();
     setSelectedStoryHash(loaded.record.hash);
     await this.persist();
     this.notify();
@@ -642,6 +894,43 @@ export class RuntimeManager {
     } else {
       clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
     }
+  }
+
+  getEnabledCharacterIds(): string[] {
+    if (!this.loaded) return [];
+    const group = getActiveGroup();
+    if (!group) return [];
+    const disabled = new Set(group.disabled_members ?? []);
+    return this.loaded.story.roster
+      .filter((rosterMember) => {
+        const memberId = resolveGroupMemberId(rosterMember.name ?? rosterMember.id);
+        return memberId ? !disabled.has(memberId) : false;
+      })
+      .map((rosterMember) => rosterMember.id);
+  }
+
+  private getActiveSpeakerId(): string | null {
+    if (!this.loaded) return null;
+    const enabled = new Set(this.getEnabledCharacterIds());
+    if (!enabled.size) return null;
+    const chat = Array.isArray(getContext().chat) ? getContext().chat : [];
+    for (let index = chat.length - 1; index >= 0; index -= 1) {
+      const entry = chat[index] as { name?: string; is_user?: boolean } | undefined;
+      if (!entry || entry.is_user || typeof entry.name !== "string" || !entry.name.trim()) continue;
+      const speakerName = entry.name.trim().toLowerCase();
+      const rosterMatch = this.loaded.story.roster.find((rosterMember) => (rosterMember.name ?? rosterMember.id).trim().toLowerCase() === speakerName);
+      if (rosterMatch && enabled.has(rosterMatch.id)) return rosterMatch.id;
+      return null;
+    }
+    return null;
+  }
+
+  private updateMemoryInjection() {
+    if (!this.loaded || !this.extras.memory.settings.enabled) {
+      clearAllMemoryInjection();
+      return;
+    }
+    applyMemoryInjection(this.extras.memory.entries, this.getActiveSpeakerId(), this.extras.memory.settings.injectionDepths);
   }
 
   private applyCommittedTension(result: BoundaryResult) {

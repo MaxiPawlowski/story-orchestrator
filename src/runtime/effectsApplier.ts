@@ -110,12 +110,12 @@ export class EffectsApplier {
     extras.updatedAt = new Date().toISOString();
   }
 
-  async fireNpcReplies(checkpoint: Checkpoint, extras: RuntimeExtras, trigger: NpcReplyTrigger) {
+  async fireNpcReplies(checkpoint: Checkpoint, extras: RuntimeExtras, trigger: NpcReplyTrigger, occurrence?: number) {
     if (trigger === "afterSpeak" && extras.lastSelfInjectionMessageId === lastMessageId()) return;
     const replies = readNpcReplies(checkpoint.effects).filter((reply) => reply.trigger === trigger);
     for (let index = 0; index < replies.length; index += 1) {
       const reply = replies[index];
-      const key = `${checkpoint.id}:${trigger}:${reply.member}:${index}`;
+      const key = `${checkpoint.id}:${trigger}:${reply.member}:${index}${occurrence === undefined ? "" : `:${occurrence}`}`;
       const count = extras.firedNpcReplies[key] ?? 0;
       const max = Math.max(1, reply.maxTriggers ?? 1);
       if (count >= max) continue;

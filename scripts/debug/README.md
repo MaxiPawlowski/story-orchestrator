@@ -70,9 +70,11 @@ Supported steps: `import_story`, `select_story`, `send`, `send_generate`, `slash
 
 `convergence` expects a list of `{ anchorId, progress?, threshold?, reached? }` matched against the live snapshot's convergence readout.
 
-`wait` verbs: `idle`, `boundary`, `auditCount`, `expansionStatus`, `checkpoint`, `progress` (+`progressAnchor`), `reconciliationEvidence`.
+`memory` expects `{ "<tier>": { "count"?: number, "contains"?: string[] } }` against the live memory snapshot's entries (tiers: `facts`, `session_details`, `short_term`, `scene_history`). `sceneBreaks>=` checks `memory.sceneCount`. `memoryInjection` expects `{ "<tier>": boolean }` — whether `ctx.extensionPrompts.story_orchestrator_memory_<tier>` currently has non-empty content.
 
-`/cp` slash commands: `list`, `state`, `activate <id>`, `set <quality> <value>`, `extract [response]`, `expand [response]`, `converge` (dumps per-anchor progress/threshold).
+`wait` verbs: `idle`, `boundary`, `auditCount`, `expansionStatus`, `checkpoint`, `progress` (+`progressAnchor`), `reconciliationEvidence`, `backfillComplete` (waits for `memory.backfill.running === false` with `processed === total`).
+
+`/cp` slash commands: `list`, `state`, `activate <id>`, `set <quality> <value>`, `extract [response]`, `expand [response]`, `converge` (dumps per-anchor progress/threshold), `memorize` (runs the memorize-backlog mid-chat adoption pass).
 
 `--sandbox` opens the most recent group chat and starts `/newchat` before the scenario. Unless `--keep` is passed, it removes imported test stories and best-effort deletes the scratch chat.
 

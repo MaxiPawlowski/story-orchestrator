@@ -1,0 +1,63 @@
+{
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "title": "Memory Foundation Gate Check",
+        "description": "Plan 07 live memory validation story.",
+        "qualities": [
+          { "key": "location", "type": "enum", "values": ["hall", "vault"], "source": "extractor", "rubric": "Where is the party now?" }
+        ],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "Start",
+            "objective": "Start.",
+            "type": "anchor",
+            "start": true,
+            "effects": {
+              "cast_changes": { "enable": ["Arin", "DM Narrator"] },
+              "npc_replies": [ { "trigger": "sceneBreak", "member": "DM Narrator", "kind": "scripted", "text": "The scene shifts." } ]
+            }
+          },
+          { "id": "disable_arin", "name": "Disable Arin", "objective": "Disable Arin.", "type": "anchor", "effects": { "cast_changes": { "disable": ["Arin"] } } },
+          { "id": "restore_cast", "name": "Restore Cast", "objective": "Restore cast.", "type": "anchor", "effects": { "cast_changes": { "enable": ["Arin"] } } }
+        ],
+        "transitions": [],
+        "roster": [ { "id": "arin", "name": "Arin" }, { "id": "narrator", "name": "DM Narrator" } ]
+      }
+    },
+    { "slash": "/cp set location hall" },
+    { "slash": "/sendas name=\"Arin\" We arrive at the hall and talk quietly." },
+    {
+      "eval": "await globalThis.storyOrchestratorRuntime.applyExtractionAudit({ id:'a1', createdAt:new Date().toISOString(), priority:0, reason:'manual', contractHash:'h', scope:[], window:{from:0,to:1}, prompt:'p', rawResponse:'r', acceptedDeltas:[], rejected:[] }, [], [ { tier:'facts', type:'fact', importance:2, expiration:'permanent', entities:[], characterId:'arin', text:'Arin distrusts the vault door.', evidence:'quote' }, { tier:'session_details', type:'scene', importance:1, expiration:'scene', entities:[], text:'Candlelit hall, hushed voices.', evidence:'quote' } ]); return globalThis.storyOrchestratorRuntime.getSnapshot().memory.entries.length;"
+    },
+    { "expect": { "memory": { "facts": { "count": 1, "contains": ["Arin distrusts the vault door."] }, "session_details": { "count": 1, "contains": ["Candlelit hall, hushed voices."] } } } },
+    { "expect": { "memoryInjection": { "facts": true } } },
+    { "slash": "/cp set location vault" },
+    {
+      "eval": "globalThis.storyOrchestratorDebugSceneSummaryResponse = 'They lingered in the hall before the vault door creaked open.'; await globalThis.storyOrchestratorRuntime.runSceneBreakPass({ id:'a2', createdAt:new Date().toISOString(), priority:0, reason:'scene:location', contractHash:'h', scope:[], window:{from:0,to:1}, prompt:'p', rawResponse:'r', acceptedDeltas:[], rejected:[], sceneBreak:{at:1, reason:'location'} }); return globalThis.storyOrchestratorRuntime.getSnapshot().memory;"
+    },
+    { "expect": { "memory": { "scene_history": { "count": 1, "contains": ["They lingered in the hall before the vault door creaked open."] }, "session_details": { "count": 0 } }, "sceneBreaks>=": 1 } },
+    { "wait": { "idle": true, "timeoutMs": 10000 } },
+    { "eval": "const chat = SillyTavern.getContext().chat; const last = chat[chat.length - 1]; if (!last || !last.mes.includes('The scene shifts.')) throw new Error('expected sceneBreak scripted reply, last=' + JSON.stringify(last)); return last;" },
+    {
+      "eval": "globalThis.storyOrchestratorDebugSceneSummaryResponse = 'They pressed deeper as the vault split into a second chamber.'; await globalThis.storyOrchestratorRuntime.runSceneBreakPass({ id:'a3', createdAt:new Date().toISOString(), priority:0, reason:'scene:divider', contractHash:'h', scope:[], window:{from:2,to:3}, prompt:'p', rawResponse:'r', acceptedDeltas:[], rejected:[], sceneBreak:{at:3, reason:'divider'} }); return globalThis.storyOrchestratorRuntime.getSnapshot().memory.sceneCount;"
+    },
+    { "expect": { "memory": { "scene_history": { "count": 2 } }, "sceneBreaks>=": 2 } },
+    { "wait": { "idle": true, "timeoutMs": 10000 } },
+    { "eval": "const chat = SillyTavern.getContext().chat; const n = chat.filter((m) => typeof m.mes === 'string' && m.mes.includes('The scene shifts.')).length; if (n < 2) throw new Error('expected the sceneBreak reply to fire on each distinct break, got ' + n); return n;" },
+    { "slash": "/cp activate disable_arin" },
+    { "expect": { "memory": { "facts": { "count": 1, "contains": ["Arin distrusts the vault door."] } } } },
+    {
+      "eval": "const s = globalThis.storyOrchestratorRuntime.getSnapshot(); const p = SillyTavern.getContext().extensionPrompts['story_orchestrator_memory_facts']; if (p && p.value && p.value.includes('Arin distrusts the vault door.')) throw new Error('expected Arin fact to stop injecting after cast disable, prompt=' + JSON.stringify(p)); return { ids: globalThis.storyOrchestratorRuntime.getEnabledCharacterIds() };"
+    },
+    { "slash": "/sendas name=\"DM Narrator\" The vault hums with old magic." },
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'MEMORY type=fact importance=2 expiration=permanent text=\"The vault hums with residual magic.\" evidence=\"hums with old magic\"'; return await globalThis.storyOrchestratorRuntime.runMemorizeBacklog(2);"
+    },
+    { "wait": { "backfillComplete": true, "timeoutMs": 15000 } },
+    { "expect": { "memory": { "facts": { "contains": ["The vault hums with residual magic."] } } } },
+    { "slash": "/cp activate restore_cast" }
+  ]
+}

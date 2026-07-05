@@ -16,10 +16,11 @@ Step keys:
 
 expect verbs:
   activeCheckpoint, blackboard, blackboardMissing, latched, auditCount>=, npcFired,
-  expansion, tension, pacingPrompt, requirementsReady, convergence, reconciliationEvents>=
+  expansion, tension, pacingPrompt, requirementsReady, convergence, reconciliationEvents>=,
+  memory ({tier: {count, contains}}), sceneBreaks>=, memoryInjection ({tier: bool})
 
 wait verbs:
-  idle, boundary, auditCount, expansionStatus, checkpoint, progress (+progressAnchor)`;
+  idle, boundary, auditCount, expansionStatus, checkpoint, progress (+progressAnchor), backfillComplete`;
 
 function readArgFlag(name) {
   return process.argv.includes(name);
@@ -112,6 +113,31 @@ function evaluateExpect(state, expected) {
     const count = state?.liveSnapshot?.extraction?.reconciliationEvents?.length ?? state?.state?.extraction?.reconciliationEventCount ?? 0;
     if (count < expected['reconciliationEvents>=']) failures.push(`reconciliationEvents: expected >= ${expected['reconciliationEvents>=']}, got ${count}`);
   }
+  if (expected.memory) {
+    const entries = state?.liveSnapshot?.memory?.entries ?? [];
+    for (const [tier, spec] of Object.entries(expected.memory) as Array<[string, { count?: number; contains?: string[] }]>) {
+      const tierEntries = entries.filter((entry: any) => entry?.tier === tier);
+      if (spec.count !== undefined && tierEntries.length !== spec.count) failures.push(`memory.${tier}.count: expected ${spec.count}, got ${tierEntries.length}`);
+      if (Array.isArray(spec.contains)) {
+        for (const substring of spec.contains) {
+          if (!tierEntries.some((entry: any) => typeof entry?.text === 'string' && entry.text.includes(substring))) {
+            failures.push(`memory.${tier}.contains: expected an entry containing "${substring}"`);
+          }
+        }
+      }
+    }
+  }
+  if (expected['sceneBreaks>='] !== undefined) {
+    const sceneCount = state?.liveSnapshot?.memory?.sceneCount ?? 0;
+    if (sceneCount < expected['sceneBreaks>=']) failures.push(`sceneBreaks: expected >= ${expected['sceneBreaks>=']}, got ${sceneCount}`);
+  }
+  if (expected.memoryInjection) {
+    const prompts = state?.memoryPrompts ?? {};
+    for (const [tier, want] of Object.entries(expected.memoryInjection) as Array<[string, boolean]>) {
+      const present = Boolean((prompts as Record<string, { value?: unknown } | null>)?.[tier]?.value);
+      if (present !== want) failures.push(`memoryInjection.${tier}: expected present=${want}, got ${present}`);
+    }
+  }
   return { ok: failures.length === 0, failures, actual };
 }
 
@@ -140,6 +166,10 @@ async function waitForCondition(page, spec) {
     if (spec.reconciliationEvidence !== undefined && spec.reconciliationEvidence) {
       const events = last?.liveSnapshot?.extraction?.reconciliationEvents ?? [];
       if (events.some((event: any) => Array.isArray(event?.evidence) && event.evidence.length > 0)) return last;
+    }
+    if (spec.backfillComplete !== undefined && spec.backfillComplete) {
+      const backfill = last?.liveSnapshot?.memory?.backfill;
+      if (backfill && !backfill.running && backfill.processed === backfill.total) return last;
     }
     await page.waitForTimeout(250);
   }

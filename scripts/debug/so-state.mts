@@ -23,7 +23,9 @@ function decodeRuntime(entry) {
       settings: entry.extras.extraction.settings ?? null,
       scheduler: entry.extras.extraction.scheduler ?? null,
       lastReadBoundary: entry.extras.extraction.lastReadBoundary ?? 0,
-      factCount: Array.isArray(entry.extras.extraction.facts) ? entry.extras.extraction.facts.length : 0,
+      factCount: Array.isArray(entry.extras?.memory?.entries)
+        ? entry.extras.memory.entries.filter((e) => e.tier === 'facts').length
+        : (Array.isArray(entry.extras.extraction.facts) ? entry.extras.extraction.facts.length : 0),
       auditCount: Array.isArray(entry.extras.extraction.audits) ? entry.extras.extraction.audits.length : 0,
       lastAudit: Array.isArray(entry.extras.extraction.audits) && entry.extras.extraction.audits.length
         ? entry.extras.extraction.audits[entry.extras.extraction.audits.length - 1]
@@ -35,6 +37,18 @@ function decodeRuntime(entry) {
       scheduler: entry.extras.expansion.scheduler ?? null,
       entries: entry.extras.expansion.entries ?? {},
       entryCount: entry.extras.expansion.entries ? Object.keys(entry.extras.expansion.entries).length : 0,
+    } : null,
+    memory: entry.extras?.memory ? {
+      tierCounts: ['facts', 'session_details', 'short_term', 'scene_history'].reduce((acc, tier) => {
+        acc[tier] = (entry.extras.memory.entries ?? []).filter((e) => e.tier === tier).length;
+        return acc;
+      }, {}),
+      entryCount: Array.isArray(entry.extras.memory.entries) ? entry.extras.memory.entries.length : 0,
+      excludedCount: Array.isArray(entry.extras.memory.excluded) ? entry.extras.memory.excluded.length : 0,
+      pinnedCount: Array.isArray(entry.extras.memory.entries) ? entry.extras.memory.entries.filter((e) => e.pinned).length : 0,
+      sceneCount: entry.extras.memory.sceneCount ?? 0,
+      backfill: entry.extras.memory.backfill ?? null,
+      settings: entry.extras.memory.settings ?? null,
     } : null,
     pacing: entry.extras?.pacing ?? null,
     tension: entry.extras?.tension ?? null,
@@ -61,6 +75,10 @@ export async function dumpCurrentChatState(page) {
     const entry = selected && blob?.stories ? blob.stories[selected] ?? null : null;
     const runtimeSnapshot = globalThis.storyOrchestratorRuntime?.getSnapshot?.() ?? null;
     const pacingPrompt = ctx.extensionPrompts?.story_orchestrator_pacing ?? null;
+    const memoryPrompts = ['facts', 'session_details', 'short_term', 'scene_history'].reduce((acc, tier) => {
+      acc[tier] = ctx.extensionPrompts?.[`story_orchestrator_memory_${tier}`] ?? null;
+      return acc;
+    }, {});
     return {
       chatId: ctx.chatId,
       groupId: ctx.groupId ?? null,
@@ -70,6 +88,7 @@ export async function dumpCurrentChatState(page) {
       entry,
       runtimeSnapshot,
       pacingPrompt,
+      memoryPrompts,
     };
   });
 
@@ -82,6 +101,7 @@ export async function dumpCurrentChatState(page) {
     state: decodeRuntime(data?.entry),
     liveSnapshot: data?.runtimeSnapshot ?? null,
     pacingPrompt: data?.pacingPrompt ?? null,
+    memoryPrompts: data?.memoryPrompts ?? null,
     _note: 'State is from chatMetadata.story_orchestrator for the current chat.',
   };
 }
@@ -103,6 +123,8 @@ function compactCurrent(data) {
     reconciliationEventCount: state?.extraction?.reconciliationEventCount ?? 0,
     convergence: data?.liveSnapshot?.convergence ?? null,
     expansion: data?.liveSnapshot?.expansion ?? state?.expansion ?? null,
+    memory: state?.memory ?? null,
+    memoryInjected: data?.memoryPrompts ? Object.fromEntries(Object.entries(data.memoryPrompts).map(([tier, prompt]) => [tier, Boolean((prompt as { value?: unknown } | null)?.value)])) : null,
     tension: data?.liveSnapshot?.tension ?? state?.tension ?? null,
     pacingPrompt: data?.pacingPrompt ?? null,
   };

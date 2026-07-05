@@ -35,4 +35,5 @@ declare global {
   var storyOrchestratorRuntime: import("@runtime/index").RuntimeManager | undefined;
   var storyOrchestratorDebugExtractionResponse: string | null | undefined;
   var storyOrchestratorDebugGenerationResponse: string | null | undefined;
+  var storyOrchestratorDebugSceneSummaryResponse: string | null | undefined;
 }

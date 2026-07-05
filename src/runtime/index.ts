@@ -46,9 +46,14 @@ export function startRuntime() {
     const reconciliation = maybeScheduleReconciliation(runtimeManager.getStory(), runtimeManager.getEngineState(), runtimeManager.getExtractionSettings().reconciliationMultiplier, scheduler);
     if (reconciliation) runtimeManager.recordReconciliation(reconciliation);
     runtimeManager.scheduleExpansionForActive((reason, run) => scheduler?.schedule({ priority: 3, reason, run }));
+    const sceneHit = runtimeManager.detectSceneBreak();
+    if (sceneHit?.hit) scheduler.schedule({ priority: 0, reason: `scene:${sceneHit.reason}` });
   });
   runtimeManager.onRollback((messageId, window) => {
     scheduler?.schedule({ priority: 0, reason: `rollback:${messageId}`, window });
+  });
+  runtimeManager.onSceneBreakConfirmed((audit) => {
+    scheduler?.schedule({ priority: 2, reason: `scene-break:${audit.sceneBreak?.reason}`, run: () => runtimeManager.runSceneBreakPass(audit) });
   });
   registerRuntimeMacros(runtimeManager);
   window.setTimeout(() => registerSlashCommandsWhenReady(), 0);

@@ -6,7 +6,7 @@ import { getCanonLite } from "./canonLite";
 import { hashContract, renderSharedReadPrompt } from "./contract";
 import { parseSharedReadResponse } from "./parse";
 import { deriveScope } from "./scope";
-import type { ExtraGateSource, ParsedFact, SharedReadAudit, SharedReadResult, SharedReadWindow } from "./types";
+import type { ExtraGateSource, ParsedFact, ScopedQuality, SharedReadAudit, SharedReadResult, SharedReadWindow } from "./types";
 
 export interface RunSharedReadOptions {
   story: NormalizedStoryV2;
@@ -18,6 +18,7 @@ export interface RunSharedReadOptions {
   firedTransitions?: NormalizedTransition[];
   facts?: ParsedFact[];
   extraGateSources?: ExtraGateSource[];
+  scope?: ScopedQuality[];
   client: ExtractionClientOptions;
 }
 
@@ -34,7 +35,7 @@ const createId = (parts: unknown) => {
 export async function runSharedRead(options: RunSharedReadOptions): Promise<SharedReadResult> {
   const latestMessageId = options.state.lastMessageId - (options.priority === 1 ? Math.max(0, options.stabilityLag ?? 1) : 0);
   const window = options.window ?? getChatWindow(Math.max(0, latestMessageId - 7), latestMessageId);
-  const scope = deriveScope(options.story, options.state.activeCheckpointId, options.state.blackboard, options.extraGateSources ?? []);
+  const scope = options.scope ?? deriveScope(options.story, options.state.activeCheckpointId, options.state.blackboard, options.extraGateSources ?? []);
   const contract = {
     storyTitle: options.story.title,
     activeCheckpointId: options.state.activeCheckpointId,
@@ -57,6 +58,7 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     rawResponse,
     acceptedDeltas: parsed.deltas,
     rejected: parsed.rejected,
+    ...(parsed.sceneBreak ? { sceneBreak: parsed.sceneBreak } : {}),
   };
-  return { audit, facts: parsed.facts };
+  return { audit, facts: parsed.facts, memory: parsed.memory };
 }

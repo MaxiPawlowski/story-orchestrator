@@ -4,7 +4,7 @@ export const GATE_OPERATORS = ["==", "!=", ">=", "<=", ">", "<", "in"] as const;
 export const TENSION_LEVELS = ["calm", "stirring", "tense", "critical", "peak"] as const;
 export const ARC_TEMPLATE_NAMES = ["rising", "fall_recovery", "three_act"] as const;
 export const TENSION_CURRENT_KEY = "tension_current";
-export const NPC_REPLY_TRIGGERS = ["onEnter", "afterSpeak"] as const;
+export const NPC_REPLY_TRIGGERS = ["onEnter", "afterSpeak", "sceneBreak"] as const;
 export const NPC_REPLY_KINDS = ["scripted", "llm"] as const;
 
 export type QualityType = typeof QUALITY_TYPES[number];
