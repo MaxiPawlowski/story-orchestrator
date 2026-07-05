@@ -1,0 +1,21 @@
+{
+  "format": 2,
+  "title": "Extractor Vault",
+  "description": "Extractor test story.",
+  "qualities": [
+    { "key": "message_count", "type": "int", "source": "code", "monotonic": true, "rubric": "Rendered boundary count." },
+    { "key": "player_has_key", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player obtain the brass key?" },
+    { "key": "mara_trust", "type": "int", "source": "extractor", "monotonic": true, "rubric": "How much does Mara trust the player, 0 to 5?" },
+    { "key": "location", "type": "enum", "values": ["hall", "vault"], "source": "extractor", "rubric": "Where is the party now?" }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "Search", "objective": "Find the key.", "type": "anchor", "start": true },
+    { "id": "door", "name": "Door", "objective": "Open the vault door.", "type": "anchor" },
+    { "id": "inside", "name": "Inside", "objective": "Enter the vault.", "type": "anchor" }
+  ],
+  "transitions": [
+    { "from": "start", "to": "door", "priority": 1, "gate": { "q": "player_has_key", "op": "==", "v": true }, "extractor_trigger": "key", "extraction_hint": "Look for explicit possession of the brass key." },
+    { "from": "door", "to": "inside", "priority": 1, "gate": { "all": [ { "q": "mara_trust", "op": ">=", "v": 3 }, { "q": "location", "op": "==", "v": "vault" } ] } }
+  ],
+  "roster": []
+}

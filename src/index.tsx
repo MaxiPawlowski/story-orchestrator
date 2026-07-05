@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
+import { listConnectionProfiles } from "@services/STAPI";
 import { startRuntime } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import "./styles.css";
@@ -26,6 +27,7 @@ const SettingsPanel = () => {
   const snapshot = useRuntimeSnapshot();
   const [importText, setImportText] = useState("");
   const [busy, setBusy] = useState(false);
+  const profiles = listConnectionProfiles();
 
   const selectStory = async (hash: string) => {
     if (!hash) return;
@@ -61,6 +63,30 @@ const SettingsPanel = () => {
             <textarea className="text_pole" rows={6} value={importText} onChange={(event) => setImportText(event.target.value)} placeholder="Paste story JSON" />
           </label>
           <button className="menu_button" disabled={busy || !importText.trim()} onClick={() => void importStory()}>Import and Load</button>
+          <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={snapshot.extraction.settings.enabled} onChange={(event) => manager.setExtractionSettings({ enabled: event.target.checked })} />
+              <span>Enable shared read extraction</span>
+            </label>
+            <label className="flex flex-col gap-1 text-sm">
+              <span>Memory LLM profile</span>
+              <select value={snapshot.extraction.settings.profileId ?? ""} onChange={(event) => manager.setExtractionSettings({ profileId: event.target.value || null })}>
+                <option value="">No profile selected</option>
+                {profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.name}{profile.model ? ` (${profile.model})` : ""}</option>)}
+              </select>
+            </label>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <label className="flex flex-col gap-1">
+                <span>Cadence</span>
+                <input type="number" min={1} value={snapshot.extraction.settings.cadence} onChange={(event) => manager.setExtractionSettings({ cadence: Math.max(1, Number(event.target.value) || 1) })} />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span>Reconcile ×</span>
+                <input type="number" min={1} step={0.1} value={snapshot.extraction.settings.reconciliationMultiplier} onChange={(event) => manager.setExtractionSettings({ reconciliationMultiplier: Math.max(1, Number(event.target.value) || 1) })} />
+              </label>
+            </div>
+            {snapshot.extraction.settings.enabled && !snapshot.extraction.settings.profileId && <div className="text-xs text-yellow-300">Select a Connection Manager profile, or extraction stays paused outside debug runs.</div>}
+          </div>
           <div className="text-xs opacity-80">{snapshot.status}</div>
           {snapshot.validationErrors.length > 0 && (
             <div className="text-xs text-red-400">
@@ -120,11 +146,18 @@ const DrawerPanel = () => {
                     <tr key={key}>
                       <td>{key}</td>
                       <td>{String(value)}</td>
-                      <td>{snapshot.blackboardMeta[key]?.source}{snapshot.blackboardMeta[key]?.latched ? " locked" : ""}</td>
+                      <td title={snapshot.blackboardMeta[key]?.evidence ?? ""}>{snapshot.blackboardMeta[key]?.source}{snapshot.blackboardMeta[key]?.latched ? " locked" : ""}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+            <div className="text-xs opacity-80">
+              <div className="font-medium opacity-100">Extraction</div>
+              <div>Queue {snapshot.extraction.scheduler.queueDepth}, in flight {snapshot.extraction.scheduler.inFlight ? "yes" : "no"}</div>
+              <div>Last read boundary {snapshot.extraction.lastReadBoundary}</div>
+              {snapshot.extraction.scheduler.lastError && <div className="text-red-300">{snapshot.extraction.scheduler.lastError}</div>}
+              {snapshot.extraction.audits[0] && <div>Last scope: {snapshot.extraction.audits[snapshot.extraction.audits.length - 1]?.scope.join(", ") || "none"}</div>}
             </div>
           </>
         )}

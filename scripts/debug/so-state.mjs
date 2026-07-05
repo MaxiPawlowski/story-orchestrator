@@ -20,6 +20,16 @@ function decodeRuntime(entry) {
     latched: engine.blackboard?.latched ?? {},
     requirements: entry.extras?.requirements ?? null,
     firedNpcReplies: entry.extras?.firedNpcReplies ?? {},
+    extraction: entry.extras?.extraction ? {
+      settings: entry.extras.extraction.settings ?? null,
+      scheduler: entry.extras.extraction.scheduler ?? null,
+      lastReadBoundary: entry.extras.extraction.lastReadBoundary ?? 0,
+      factCount: Array.isArray(entry.extras.extraction.facts) ? entry.extras.extraction.facts.length : 0,
+      auditCount: Array.isArray(entry.extras.extraction.audits) ? entry.extras.extraction.audits.length : 0,
+      lastAudit: Array.isArray(entry.extras.extraction.audits) && entry.extras.extraction.audits.length
+        ? entry.extras.extraction.audits[entry.extras.extraction.audits.length - 1]
+        : null,
+    } : null,
     updatedAt: entry.extras?.updatedAt ?? null,
   };
 }

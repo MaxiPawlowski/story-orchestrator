@@ -61,7 +61,12 @@ export function registerSlashCommands(manager: RuntimeManager): boolean {
         await manager.setQuality(key, raw);
         return show(manager.getSnapshot().status);
       }
-      return show("Commands: /cp list, /cp state, /cp activate <id>, /cp set <quality> <value>");
+      if (command === "extract") {
+        const response = parts.slice(1).join(" ");
+        await manager.runExtractionNow(response || undefined);
+        return show(manager.getSnapshot().status);
+      }
+      return show("Commands: /cp list, /cp state, /cp activate <id>, /cp set <quality> <value>, /cp extract [response]");
     },
     helpString: "Story Orchestrator v2 commands: list, state, activate <id>, set <quality> <value>",
   }));

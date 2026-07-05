@@ -36,4 +36,6 @@ export {
 } from "@services/stHost/selectors";
 export type { HostSlashCommandMeta } from "@services/stHost/selectors";
 export { getActiveGroup, resolveGroupMemberId, setGroupMembersDisabled } from "@services/stHost/groups";
+export { getSelectedConnectionProfileId, listConnectionProfiles, sendConnectionProfileRequest } from "@services/stHost/connectionProfiles";
+export type { ConnectionProfileSummary } from "@services/stHost/connectionProfiles";
 

@@ -1,0 +1,11 @@
+{
+  "deltas": [
+    { "q": "player_has_key", "v": true, "evidence": "brass key" },
+    { "q": "mara_trust", "v": 3, "evidence": "trusting" }
+  ],
+  "facts": {
+    "minCount": 1,
+    "mustContain": ["brass key"],
+    "mustNotContain": ["dragon"]
+  }
+}

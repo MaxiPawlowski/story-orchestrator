@@ -57,3 +57,51 @@ Update `so-state.mjs` to include scope + queue snapshot.
 ## Delegated decisions
 
 Contract/prompt wording (must keep: closed vocab list, evidence-mandatory, question form); audit ring-buffer size; exact coalescing window math; whether facts first-cut lives in its own chat_metadata key (recommended) — record for plan 07.
+
+## Gate record
+
+Date: 2026-07-04
+
+Baseline:
+- `npm run typecheck` passed.
+- `npm run lint` passed.
+- `npm test` passed: 2 suites, 17 tests.
+- `npm run build` passed with warnings only: stale Browserslist data and webpack asset/entrypoint size over 244 KiB (`dist/index.js` 284 KiB).
+
+Implemented contracts:
+- `src/extraction/scope.ts`: pure `deriveScope(story, activeCheckpointId, blackboard, extraGateSources?)`; includes reachable future gates, transition hints, `scope_hint` trimming, extractor-only qualities, and latched-quality exclusion.
+- `src/extraction/contract.ts`: closed-vocabulary prompt with question/rubric per quality, allowed enum values, active transition hints, transcript, canon-lite, and strict output format.
+- `src/extraction/parse.ts`: strict tagged-line parser for `DELTA` and `FACT`, rejecting undeclared keys, invalid values, empty evidence, and unrecognized lines.
+- `src/extraction/scheduler.ts`: P0/P1 single-flight queue, P1 coalescing, cadence scheduling, scheduler snapshot.
+- `src/extraction/sharedRead.ts`: window → scope → contract → client → parser → audit/facts.
+- `src/extraction/cues.ts`: `extractor_trigger` regex scheduling path.
+- `src/extraction/reconcile.ts`: stall detector scheduling targeted P0 reads over current checkpoint window.
+- `src/extraction/canonLite.ts`: deterministic passed-anchor/objective + fired-gate placeholder + top facts string.
+- `src/services/stHost/connectionProfiles.ts`: Connection Manager profile list, selected profile, and `ConnectionManagerRequestService.sendRequest` wrapper. Override payload uses `temperature: 0.1`, `top_p: 0.9`, `stream: false`; ST forwards these directly into ChatCompletion/TextCompletion request payloads (`public/scripts/extensions/shared.js:423-483`).
+
+Runtime/UI:
+- Runtime extras now persist extraction settings, facts, audit ring buffer, last read boundary, and scheduler status in `chatMetadata.story_orchestrator`.
+- Accepted extraction deltas enqueue into the engine apply queue with `{ source: 'extractor', basisVersion, turnRange }` and apply only on the next committed boundary.
+- Settings UI adds extraction enable, Connection Manager profile picker, cadence, and reconciliation multiplier.
+- Drawer shows extraction queue/in-flight/error, last read boundary, last scope, and latest evidence as blackboard cell tooltip.
+- `/cp extract [response]` added for diagnostics; it runs the same shared-read parse/enqueue path and commits a boundary.
+- `so-state.mjs` includes extraction settings, scheduler status, fact count, audit count, and last audit.
+
+Eval:
+- Parser/scope/contract tests pass deterministically from `test/fixtures/extractor.*` and `test/goldens/extractor.response.txt`.
+- Suite A asserts exact expected deltas (`player_has_key=true`, `mara_trust=3`) and evidence substrings.
+- Suite B asserts first-cut fact minimum count and must/must-not containment.
+- `LIVE=1 npm test` was not run because no configured memory LLM profile was selected for this build session; deterministic goldens are the default path.
+
+Live checks:
+- `node scripts/debug/so-extraction-check.mjs` passed. It opened recent group `1759606632088`, imported `Extraction Gate Check`, injected scripted chat text `I take the brass key from the hook.`, ran shared-read with deterministic debug response, persisted an audit with reason `cue:start->door`, accepted `player_has_key=true` with evidence `I take the brass key`, stored one fact, committed boundary `1`, and advanced `start -> door`.
+- `node scripts/debug/so-state.mjs current` passed after reopening the recent group: active checkpoint `door`, blackboard `player_has_key: true`, audit count `1`, fact count `1`, last scope `[player_has_key]`, evidence preserved.
+- `node scripts/debug/st-actions.mjs generation-state` passed: `isGenerating: false`.
+- `node scripts/debug/so-ui.mjs all` passed for extension load: settings and drawer mounted. Like plan 02, generic UI dump starts from welcome context unless a chat is opened first.
+
+Deviations / incomplete plan items:
+- Live model call was not executed; the live extraction gate used a deterministic debug response through the same parser/enqueue/audit path. Profile-less setup keeps extraction disabled and mechanical play continues.
+- Forced cue was represented by audit reason `cue:start->door` in the live debug script. The runtime regex watcher is wired on boundaries, but a fully automatic cue-from-real-message live run was not separately demonstrated.
+- Reconciliation is wired and schedules P0 reads on stall, but the deliberate missed-golden recovery scenario was not added as a separate fixture/live script in this pass.
+- Facts first-cut lives inside runtime extras under `extraction.facts` rather than a separate chat metadata key. Plan 07 can migrate this into proper memory tiers.
+- Canon-lite currently includes passed anchors and top facts; fired-gate history is a placeholder until runtime exposes transition log details beyond engine-local logs.

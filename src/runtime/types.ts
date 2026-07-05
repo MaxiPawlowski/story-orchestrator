@@ -1,4 +1,5 @@
 import type { EngineState, NormalizedStoryV2, PrimitiveValue, ValidationError } from "@engine/index";
+import type { ParsedFact, SharedReadAudit } from "@extraction/index";
 
 export interface StoryLibraryRecord {
   hash: string;
@@ -19,7 +20,23 @@ export interface RuntimeExtras {
   firedNpcReplies: Record<string, number>;
   requirements: RequirementsState;
   lastAppliedCheckpointId: string | null;
+  extraction: ExtractionRuntimeState;
   updatedAt: string;
+}
+
+export interface ExtractionRuntimeSettings {
+  enabled: boolean;
+  profileId: string | null;
+  cadence: number;
+  reconciliationMultiplier: number;
+}
+
+export interface ExtractionRuntimeState {
+  settings: ExtractionRuntimeSettings;
+  facts: ParsedFact[];
+  audits: SharedReadAudit[];
+  lastReadBoundary: number;
+  scheduler: { queueDepth: number; inFlight: boolean; lastError: string | null };
 }
 
 export interface PersistedStoryRuntime {
@@ -45,12 +62,13 @@ export interface RuntimeSnapshot {
   activeObjective: string | null;
   boundary: number;
   blackboard: Record<string, PrimitiveValue>;
-  blackboardMeta: Record<string, { version: number; latched: boolean; source: string }>;
+  blackboardMeta: Record<string, { version: number; latched: boolean; source: string; evidence?: string }>;
   checkpoints: Array<{ id: string; name: string; objective: string; active: boolean; visited: boolean }>;
   requirements: RequirementsState;
   validationErrors: ValidationError[];
   library: StoryLibraryRecord[];
   status: string;
+  extraction: ExtractionRuntimeState;
 }
 
 export interface LoadedStory {

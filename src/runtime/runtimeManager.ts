@@ -1,18 +1,43 @@
-import { StoryEngine, isValidationErrorList, type ApplyQueueEntry, type NormalizedStoryV2, type PrimitiveValue, type ValidationError } from "@engine/index";
+import { StoryEngine, isValidationErrorList, type ApplyQueueEntry, type BoundaryResult, type EngineState, type NormalizedStoryV2, type PrimitiveValue, type ValidationError } from "@engine/index";
+import { runSharedRead, type ParsedFact, type SharedReadAudit } from "@extraction/index";
+import { getContext } from "@services/STAPI";
 import { EffectsApplier } from "./effectsApplier";
 import { evaluateRequirements } from "./requirements";
 import { loadPersistedRuntime, savePersistedRuntime, setSelectedStoryHash, getSelectedStoryHash } from "./persistence";
 import { findStoryRecord, listStoryRecords, loadStoryRecord, saveStoryRecord } from "./storyLibrary";
-import type { LoadedStory, RuntimeExtras, RuntimeSnapshot } from "./types";
+import type { ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, RuntimeExtras, RuntimeSnapshot } from "./types";
 
 const emptyRequirements = { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] };
+
+const defaultExtractionSettings = (): ExtractionRuntimeSettings => ({ enabled: false, profileId: null, cadence: 3, reconciliationMultiplier: 1.5 });
+
+const createExtraction = (): ExtractionRuntimeState => ({
+  settings: defaultExtractionSettings(),
+  facts: [],
+  audits: [],
+  lastReadBoundary: 0,
+  scheduler: { queueDepth: 0, inFlight: false, lastError: null },
+});
 
 const createExtras = (): RuntimeExtras => ({
   firedNpcReplies: {},
   requirements: emptyRequirements,
   lastAppliedCheckpointId: null,
+  extraction: createExtraction(),
   updatedAt: new Date().toISOString(),
 });
+
+const sanitizeExtraction = (value: RuntimeExtras | undefined): ExtractionRuntimeState => {
+  const existing = value?.extraction;
+  if (!existing) return createExtraction();
+  return {
+    settings: { ...defaultExtractionSettings(), ...existing.settings },
+    facts: Array.isArray(existing.facts) ? existing.facts : [],
+    audits: Array.isArray(existing.audits) ? existing.audits.slice(-20) : [],
+    lastReadBoundary: typeof existing.lastReadBoundary === "number" ? existing.lastReadBoundary : 0,
+    scheduler: existing.scheduler ?? { queueDepth: 0, inFlight: false, lastError: null },
+  };
+};
 
 export class RuntimeManager {
   private engine = new StoryEngine();
@@ -22,6 +47,8 @@ export class RuntimeManager {
   private status = "No story loaded";
   private readonly effects = new EffectsApplier();
   private readonly listeners = new Set<() => void>();
+  private readonly boundaryListeners = new Set<(result: BoundaryResult) => void>();
+  private readonly rollbackListeners = new Set<(messageId: number) => void>();
 
   subscribe(listener: () => void) {
     this.listeners.add(listener);
@@ -30,6 +57,16 @@ export class RuntimeManager {
 
   notify() {
     this.listeners.forEach((listener) => listener());
+  }
+
+  onBoundary(listener: (result: BoundaryResult) => void) {
+    this.boundaryListeners.add(listener);
+    return () => { this.boundaryListeners.delete(listener); };
+  }
+
+  onRollback(listener: (messageId: number) => void) {
+    this.rollbackListeners.add(listener);
+    return () => { this.rollbackListeners.delete(listener); };
   }
 
   async loadSelectedFromChat() {
@@ -94,8 +131,9 @@ export class RuntimeManager {
     } else if (this.extras.requirements.ready && this.extras.lastAppliedCheckpointId !== this.engine.activeCheckpoint.id) {
       await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate");
     }
-    this.persist();
+    await this.persist();
     this.status = result.fired ? `Advanced to ${result.activeCheckpointId}` : `Committed boundary ${result.boundary}`;
+    this.boundaryListeners.forEach((listener) => listener(result));
     this.notify();
     return result;
   }
@@ -105,7 +143,7 @@ export class RuntimeManager {
     this.refreshRequirements();
     this.engine.activateCheckpoint(id);
     await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate");
-    this.persist();
+    await this.persist();
     this.status = `Manually activated ${id}`;
     this.notify();
     return true;
@@ -138,7 +176,7 @@ export class RuntimeManager {
   async fireAfterSpeak() {
     if (!this.loaded) return;
     await this.effects.fireNpcReplies(this.engine.activeCheckpoint, this.extras, "afterSpeak");
-    this.persist();
+    await this.persist();
     this.notify();
   }
 
@@ -149,8 +187,9 @@ export class RuntimeManager {
     if (changed) {
       this.refreshRequirements();
       await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate");
-      this.persist();
+      await this.persist();
       this.status = `Rolled back to boundary ${boundary}`;
+      this.rollbackListeners.forEach((listener) => listener(messageId));
       this.notify();
     }
   }
@@ -159,15 +198,79 @@ export class RuntimeManager {
     return this.loaded?.story ?? null;
   }
 
+  getEngineState(): EngineState | null {
+    return this.loaded ? this.engine.serialize() : null;
+  }
+
+  getExtractionSettings(): ExtractionRuntimeSettings {
+    return this.extras.extraction.settings;
+  }
+
+  setExtractionSettings(settings: Partial<ExtractionRuntimeSettings>) {
+    this.extras.extraction.settings = { ...this.extras.extraction.settings, ...settings };
+    void this.persist();
+    this.notify();
+  }
+
+  getExtractionFacts(): ParsedFact[] {
+    return [...this.extras.extraction.facts];
+  }
+
+  setSchedulerSnapshot(snapshot: ExtractionRuntimeState["scheduler"]) {
+    this.extras.extraction.scheduler = snapshot;
+    void this.persist();
+    this.notify();
+  }
+
+  async applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[]) {
+    if (!this.loaded) return;
+    const state = this.engine.serialize();
+    const basisVersion = Object.values(state.blackboard.versions).reduce((sum, version) => sum + version, 0);
+    if (audit.acceptedDeltas.length) {
+      this.engine.enqueue({
+        source: "extractor",
+        basisVersion,
+        turnRange: audit.window,
+        deltas: audit.acceptedDeltas.map((entry) => entry.delta),
+      });
+    }
+    this.extras.extraction.facts = [...this.extras.extraction.facts, ...facts].slice(-50);
+    this.extras.extraction.audits = [...this.extras.extraction.audits, audit].slice(-20);
+    this.extras.extraction.lastReadBoundary = state.boundary;
+    await this.persist();
+    this.notify();
+  }
+
+  async runExtractionNow(debugResponse?: string, reason = "manual") {
+    if (!this.loaded) return false;
+    const settings = this.getExtractionSettings();
+    const result = await runSharedRead({
+      story: this.loaded.story,
+      state: this.engine.serialize(),
+      priority: 0,
+      reason,
+      facts: this.getExtractionFacts(),
+      client: { ...settings, debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugExtractionResponse ?? null },
+    });
+    await this.applyExtractionAudit(result.audit, result.facts);
+    await this.commitBoundary();
+    return true;
+  }
+
   getSnapshot(): RuntimeSnapshot {
     const state = this.loaded ? this.engine.serialize() : null;
     const story = this.loaded?.story ?? null;
     const active = state && story ? story.checkpointById[state.activeCheckpointId] : null;
     const blackboard = state?.blackboard.values ?? {};
+    const evidenceByKey = new Map<string, string>();
+    this.extras.extraction.audits.forEach((audit) => {
+      audit.acceptedDeltas.forEach((entry) => evidenceByKey.set(entry.delta.q, entry.evidence));
+    });
     const blackboardMeta = Object.fromEntries(Object.keys(blackboard).map((key) => [key, {
       version: state?.blackboard.versions[key] ?? 0,
       latched: state?.blackboard.latched[key] ?? false,
       source: story?.qualityByKey[key]?.source ?? "unknown",
+      evidence: evidenceByKey.get(key),
     }]));
 
     return {
@@ -192,6 +295,7 @@ export class RuntimeManager {
       validationErrors: this.validationErrors,
       library: listStoryRecords(),
       status: this.status,
+      extraction: this.extras.extraction,
     };
   }
 
@@ -201,6 +305,7 @@ export class RuntimeManager {
     this.engine.loadStory(loaded.story);
     const persisted = mode === "hydrate" ? loadPersistedRuntime(loaded.record.hash) : null;
     this.extras = persisted?.extras ?? createExtras();
+    this.extras.extraction = sanitizeExtraction(this.extras);
     this.refreshRequirements();
     if (mode === "hydrate" && persisted?.engineState) {
       this.engine.hydrate(persisted.engineState);
@@ -211,11 +316,11 @@ export class RuntimeManager {
       this.status = `Loaded ${loaded.story.title}`;
     }
     setSelectedStoryHash(loaded.record.hash);
-    this.persist();
+    await this.persist();
     this.notify();
   }
 
-  private persist() {
+  private async persist() {
     if (!this.loaded) return;
     savePersistedRuntime({
       storyHash: this.loaded.record.hash,
@@ -223,6 +328,7 @@ export class RuntimeManager {
       engineState: this.engine.serialize(),
       extras: this.extras,
     });
+    await getContext().saveMetadata?.();
   }
 
   private refreshRequirements() {

@@ -1,0 +1,3 @@
+DELTA q=player_has_key value=true evidence="brass key from the hook"
+DELTA q=mara_trust value=3 evidence="trusting Max a little more"
+FACT importance=2 text="Max took the brass key from the hook." evidence="brass key from the hook"
