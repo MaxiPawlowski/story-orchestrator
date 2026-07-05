@@ -36,7 +36,8 @@
       "mcp__playwright__browser_click",
       "Bash(npm run *)",
       "Bash(npm test *)",
-      "Bash(node scripts/debug/st-session.mts start)"
+      "Bash(node scripts/debug/st-session.mts start)",
+      "PowerShell(npm run typecheck 2>&1)"
     ]
   }
 }

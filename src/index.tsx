@@ -222,9 +222,13 @@ const MemoryPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
                   </div>
                 ) : (
                   <>
-                    <div title={entry.evidence}>{entry.text}{entry.pinned ? " 📌" : ""}{entry.characterId ? ` (${entry.characterId})` : ""}</div>
-                    <div className="flex gap-2 opacity-80">
+                    <div title={entry.evidence} className={entry.supersededBy || entry.foldedInto ? "opacity-40 line-through" : ""}>{entry.text}{entry.pinned ? " 📌" : ""}{entry.characterId ? ` (${entry.characterId})` : ""}</div>
+                    <div className="flex gap-2 opacity-80 flex-wrap">
                       <span>imp {entry.importance} · {entry.expiration}</span>
+                      {entry.supersededBy && <span title={`superseded by ${entry.supersededBy}`}>⤳ superseded</span>}
+                      {entry.foldedInto && <span title={`folded into ${entry.foldedInto}`}>🗜 folded</span>}
+                      {entry.contradicted && !entry.supersededBy && <span>⚠ contradicted</span>}
+                      {entry.recallCount > 0 && <span>recall {entry.recallCount}</span>}
                       <button className="menu_button" onClick={() => void manager.setMemoryPinned(entry.id, !entry.pinned)}>{entry.pinned ? "Unpin" : "Pin"}</button>
                       <button className="menu_button" onClick={() => startEdit(entry.id, entry.text)}>Edit</button>
                       <button className="menu_button" onClick={() => void manager.excludeMemoryEntry(entry.id)}>Exclude</button>

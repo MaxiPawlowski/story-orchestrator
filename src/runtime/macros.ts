@@ -1,4 +1,4 @@
-import { buildMemoryInjectionBlocks, MEMORY_TIERS } from "@memory/index";
+import { MEMORY_TIERS } from "@memory/index";
 import { MacrosParser } from "@services/STAPI";
 import { renderBlackboardMemo } from "./blackboardMemo";
 import type { RuntimeManager } from "./runtimeManager";
@@ -6,6 +6,6 @@ import type { RuntimeManager } from "./runtimeManager";
 export function registerRuntimeMacros(manager: RuntimeManager) {
   MacrosParser.registerMacro("story_blackboard", () => renderBlackboardMemo(manager.getSnapshot()), "Story Orchestrator v2 blackboard");
   MEMORY_TIERS.forEach((tier) => {
-    MacrosParser.registerMacro(`story_memory_${tier}`, () => buildMemoryInjectionBlocks(manager.getSnapshot().memory.entries, null)[tier] || "(none)", `Story Orchestrator v2 memory tier: ${tier}`);
+    MacrosParser.registerMacro(`story_memory_${tier}`, () => manager.getMemoryInjectionBlocks()[tier] || "(none)", `Story Orchestrator v2 memory tier: ${tier}`);
   });
 }

@@ -91,6 +91,13 @@ export const DEFAULT_TIER_BUDGETS: Record<MemoryTier, number> = {
   scene_history: 30,
 };
 
+export const DEFAULT_TIER_TOKEN_BUDGETS: Record<MemoryTier, number> = {
+  facts: 800,
+  session_details: 600,
+  short_term: 300,
+  scene_history: 500,
+};
+
 export function capAllTiers(state: MemoryStoreState, budgets: Record<MemoryTier, number> = DEFAULT_TIER_BUDGETS): MemoryStoreState {
   return (Object.keys(budgets) as MemoryTier[]).reduce((next, tier) => capTier(next, tier, budgets[tier]), state);
 }

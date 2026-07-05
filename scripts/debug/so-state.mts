@@ -46,6 +46,14 @@ function decodeRuntime(entry) {
       entryCount: Array.isArray(entry.extras.memory.entries) ? entry.extras.memory.entries.length : 0,
       excludedCount: Array.isArray(entry.extras.memory.excluded) ? entry.extras.memory.excluded.length : 0,
       pinnedCount: Array.isArray(entry.extras.memory.entries) ? entry.extras.memory.entries.filter((e) => e.pinned).length : 0,
+      supersededCount: Array.isArray(entry.extras.memory.entries) ? entry.extras.memory.entries.filter((e) => e.supersededBy).length : 0,
+      foldedCount: Array.isArray(entry.extras.memory.entries) ? entry.extras.memory.entries.filter((e) => e.foldedInto).length : 0,
+      contradictedCount: Array.isArray(entry.extras.memory.entries) ? entry.extras.memory.entries.filter((e) => e.contradicted).length : 0,
+      tierTokens: ['facts', 'session_details', 'short_term', 'scene_history'].reduce((acc, tier) => {
+        acc[tier] = (entry.extras.memory.entries ?? []).filter((e) => e.tier === tier && !e.supersededBy && !e.foldedInto).reduce((sum, e) => sum + (typeof e.tokens === 'number' ? e.tokens : Math.ceil((e.text ?? '').length / 4)), 0);
+        return acc;
+      }, {}),
+      wiWriteCount: entry.extras.memory.wiWrites ? Object.keys(entry.extras.memory.wiWrites).length : 0,
       sceneCount: entry.extras.memory.sceneCount ?? 0,
       backfill: entry.extras.memory.backfill ?? null,
       settings: entry.extras.memory.settings ?? null,

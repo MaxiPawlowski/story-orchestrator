@@ -12,7 +12,10 @@ export interface SchedulerSettings {
   reconciliationMultiplier: number;
   stabilityLag: number;
   debugResponse?: string | null;
+  pressureThreshold?: number;
 }
+
+export const PRESSURE_DEFAULT_THRESHOLD = 3;
 
 export interface SchedulerJob {
   priority: 0 | 1 | 2 | 3 | 4;
@@ -43,6 +46,11 @@ export class ExtractionScheduler {
 
   constructor(private readonly host: SchedulerHost) {}
 
+  private underPressure(): boolean {
+    const threshold = this.host.getExtractionSettings().pressureThreshold ?? PRESSURE_DEFAULT_THRESHOLD;
+    return this.queue.length >= threshold;
+  }
+
   schedule(job: SchedulerJob) {
     if (job.priority >= 3) {
       this.heavyQueue.push(job);
@@ -50,6 +58,11 @@ export class ExtractionScheduler {
       this.host.onSchedulerChange();
       void this.pumpHeavy();
       return;
+    }
+    if (job.priority === 2 && this.underPressure()) {
+      for (let index = this.queue.length - 1; index >= 0; index -= 1) {
+        if (this.queue[index].priority === 2) this.queue.splice(index, 1);
+      }
     }
     if (job.priority === 1) {
       const existing = this.queue.find((entry) => entry.priority === 1);
@@ -69,10 +82,11 @@ export class ExtractionScheduler {
   onBoundary(boundary: number, fired: boolean, lastMessageId: number) {
     const settings = this.host.getExtractionSettings();
     if (!settings.enabled || settings.cadence <= 0) return;
-    if (!fired && boundary > 0 && boundary % settings.cadence === 0) {
+    if (!fired && boundary > 0 && boundary % settings.cadence === 0 && !this.underPressure()) {
       const stableTo = lastMessageId - Math.max(0, settings.stabilityLag ?? 1);
       if (stableTo >= 0) this.schedule({ priority: 1, reason: "cadence", window: getChatWindow(Math.max(0, stableTo - settings.cadence + 1), stableTo) });
     }
+    void this.pumpHeavy();
   }
 
   getSnapshot() {
@@ -108,11 +122,15 @@ export class ExtractionScheduler {
       this.inFlight = false;
       this.host.onSchedulerChange();
       void this.pump();
+      void this.pumpHeavy();
     }
   }
 
   private async pumpHeavy() {
     if (this.heavyInFlight) return;
+    const next = this.heavyQueue[0];
+    if (!next) return;
+    if (next.priority === 4 && this.underPressure()) return;
     const job = this.heavyQueue.shift();
     if (!job) return;
     if (!job.run) return;

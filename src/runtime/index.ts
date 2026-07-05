@@ -4,6 +4,8 @@ import { runtimeManager } from "./runtimeManager";
 import { registerSlashCommands } from "./slashCommands";
 import { TurnBridge } from "./turnBridge";
 
+const CONSOLIDATION_CADENCE = 10;
+
 let started = false;
 let bridge: TurnBridge | null = null;
 let slashRegistered = false;
@@ -48,6 +50,9 @@ export function startRuntime() {
     runtimeManager.scheduleExpansionForActive((reason, run) => scheduler?.schedule({ priority: 3, reason, run }));
     const sceneHit = runtimeManager.detectSceneBreak();
     if (sceneHit?.hit) scheduler.schedule({ priority: 0, reason: `scene:${sceneHit.reason}` });
+    if (result.boundary > 0 && result.boundary % CONSOLIDATION_CADENCE === 0) {
+      scheduler.schedule({ priority: 4, reason: "consolidate", run: async () => { await runtimeManager.runConsolidation(); } });
+    }
   });
   runtimeManager.onRollback((messageId, window) => {
     scheduler?.schedule({ priority: 0, reason: `rollback:${messageId}`, window });

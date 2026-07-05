@@ -90,6 +90,10 @@ export class StoryEngine {
     this.recordSnapshot();
   }
 
+  getBoundary(): number {
+    return this.boundary;
+  }
+
   serialize(): EngineState {
     return {
       blackboard: this.requireBlackboard().snapshot(),

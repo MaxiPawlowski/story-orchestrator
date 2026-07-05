@@ -82,3 +82,33 @@ export async function enableWIEntry(lorebook: string, comments: string | string[
 export async function disableWIEntry(lorebook: string, comments: string | string[]) {
   return setWIEntryDisabledState(lorebook, comments, true);
 }
+
+export type WIUpsertResult = "created" | "updated" | "unchanged" | "failed";
+
+async function loadOrCreateLorebook(name: string): Promise<Lorebook | null> {
+  const existing = await loadLorebook(name);
+  if (existing) return existing;
+  await worldInfoModule.createNewWorldInfo(name, { interactive: false });
+  return loadLorebook(name);
+}
+
+export async function upsertWIEntry(lorebook: string, comment: string, content: string, keys: string[] = []): Promise<WIUpsertResult> {
+  const name = lorebook.trim();
+  if (!name || !comment) return "failed";
+  const data = await loadOrCreateLorebook(name);
+  if (!data) {
+    console.warn("[Story WI] could not load or create lorebook", { lorebook: name });
+    return "failed";
+  }
+  const existing = Object.values(data.entries).find((entry) => entry.comment?.trim() === comment);
+  if (existing && String(existing.content ?? "").trim() === content.trim()) return "unchanged";
+
+  const target = existing ?? (worldInfoModule.createWorldInfoEntry(name, data) as LoreEntry | undefined);
+  if (!target) return "failed";
+  target.comment = comment;
+  target.content = content;
+  if (keys.length) target.key = keys;
+  target.disable = false;
+  await worldInfoModule.saveWorldInfo(name, data, true);
+  return existing ? "updated" : "created";
+}

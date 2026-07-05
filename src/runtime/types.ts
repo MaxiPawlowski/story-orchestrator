@@ -1,7 +1,7 @@
 import type { ArcTemplate, EngineState, NormalizedStoryV2, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
 import type { ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
-import type { MemoryStoreState, MemoryTier } from "@memory/index";
+import type { MemoryStoreState, MemoryTier, ScoreWeights } from "@memory/index";
 import type { SteeringHint } from "@pacing/index";
 
 export interface StoryLibraryRecord {
@@ -36,6 +36,8 @@ export interface MemoryRuntimeSettings {
   enabled: boolean;
   injectionDepths: Record<MemoryTier, number>;
   tierBudgets: Record<MemoryTier, number>;
+  tierTokenBudgets: Record<MemoryTier, number>;
+  scoreWeights?: ScoreWeights;
 }
 
 export interface MemoryBackfillState {
@@ -49,6 +51,7 @@ export interface MemoryRuntimeState extends MemoryStoreState {
   settings: MemoryRuntimeSettings;
   backfill: MemoryBackfillState | null;
   sceneCount: number;
+  wiWrites: Record<string, string>;
   updatedAt: string;
 }
 

@@ -55,11 +55,14 @@ export interface MemoryEntry {
   activationTriggers: string[];
   evidence: string;
   supersededBy?: string;
+  foldedInto?: string;
+  contradicted?: boolean;
   characterId?: string;
   createdAt: number;
   messageId?: number;
   recallCount: number;
   pinned?: boolean;
+  tokens?: number;
 }
 
 export interface MemoryWriteLogEntry {

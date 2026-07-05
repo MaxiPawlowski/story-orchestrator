@@ -1,9 +1,9 @@
 import { StoryEngine, effectiveThresholdFor, isValidationErrorList, progressQualityForAnchor, TENSION_CURRENT_KEY, type ApplyQueueEntry, type ArcTemplate, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type TensionLevel, type ValidationError } from "@engine/index";
-import { callExtractionModel, deriveFullScope, getCanonLite, getChatWindow, getLastMessageText, runSharedRead, type ParsedFact, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
+import { callExtractionModel, deriveFullScope, deriveScope, getCanonLite, getChatWindow, getLastMessageText, runSharedRead, type ParsedDelta, type ParsedFact, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
 import { findStubExpansionCandidate, collectExpansionGateSources, generateReviewedBeats, insertedCheckpointIds, mergeExpansions, planExpansion, revalidateExpansion, type ExpansionCacheEntry, type ExpansionRuntimeState, type StubExpansionCandidate } from "@generation/index";
-import { addMemoryEntries, applyMemoryInjection, buildSceneSummaryPrompt, capAllTiers, clearAllMemoryInjection, createMemoryState, DEFAULT_TIER_BUDGETS, detectSceneBreakHeuristic, dropByMessageId, editEntryText, excludeEntry, expireScoped, generateMemoryId, setPinned, type MemoryEntry, type ParsedMemoryLine } from "@memory/index";
+import { addMemoryEntries, applyConsolidation, applyMemoryInjection, buildJaccardMatchSets, buildMemoryInjectionBlocks, buildSceneSummaryPrompt, capAllTiers, clearAllMemoryInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, createMemoryState, DEFAULT_DEDUP_THRESHOLDS, DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS, detectSceneBreakHeuristic, dropByMessageId, editEntryText, excludeEntry, expireScoped, generateMemoryId, hashMemoryText, markContradicted, setPinned, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedMemoryLine, type ScoreContext, type UncertainPair } from "@memory/index";
 import { expectedTension, getSteeringHint, numericToLevel, updateEma } from "@pacing/index";
-import { clearStoryExtensionPrompt, getActiveGroup, getContext, resolveGroupMemberId, setStoryExtensionPrompt } from "@services/STAPI";
+import { clearStoryExtensionPrompt, countTokens, DEFAULT_VECTOR_SOURCE, disableWIEntry, getActiveGroup, getContext, resolveGroupMemberId, setStoryExtensionPrompt, upsertWIEntry, vectorInsert, vectorPurge, vectorQuery } from "@services/STAPI";
 import { DEFAULT_TENSION_EMA_ALPHA, MEMORY_TIER_INJECTION_DEPTHS, PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
 import { EffectsApplier } from "./effectsApplier";
 import { evaluateRequirements } from "./requirements";
@@ -47,6 +47,7 @@ const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   enabled: true,
   injectionDepths: { ...MEMORY_TIER_INJECTION_DEPTHS },
   tierBudgets: { ...DEFAULT_TIER_BUDGETS },
+  tierTokenBudgets: { ...DEFAULT_TIER_TOKEN_BUDGETS },
 });
 
 const createMemory = (): MemoryRuntimeState => ({
@@ -54,6 +55,7 @@ const createMemory = (): MemoryRuntimeState => ({
   settings: defaultMemorySettings(),
   backfill: null,
   sceneCount: 0,
+  wiWrites: {},
   updatedAt: new Date().toISOString(),
 });
 
@@ -83,6 +85,7 @@ const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeState =>
       settings: { ...defaultMemorySettings(), ...existing.settings },
       backfill: existing.backfill ? { ...existing.backfill, running: false } : null,
       sceneCount: typeof existing.sceneCount === "number" ? existing.sceneCount : 0,
+      wiWrites: existing.wiWrites && typeof existing.wiWrites === "object" ? existing.wiWrites : {},
       updatedAt: existing.updatedAt ?? new Date().toISOString(),
     };
   }
@@ -94,6 +97,7 @@ const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeState =>
     settings: defaultMemorySettings(),
     backfill: null,
     sceneCount: 0,
+    wiWrites: {},
     updatedAt: new Date().toISOString(),
   };
 };
@@ -147,6 +151,7 @@ export class RuntimeManager {
   private readonly sceneBreakListeners = new Set<(audit: SharedReadAudit) => void>();
   private pendingTension: TensionRuntimeState | null = null;
   private sceneDetectCursor: { location: string | null; cast: string | null } | null = null;
+  private consolidationInFlight = false;
 
   subscribe(listener: () => void) {
     this.listeners.add(listener);
@@ -393,28 +398,32 @@ export class RuntimeManager {
     this.notify();
   }
 
+  private enqueueExtractorDeltas(acceptedDeltas: ParsedDelta[], window: { from: number; to: number }) {
+    if (!acceptedDeltas.length) return;
+    const versions = this.engine.serialize().blackboard.versions;
+    const blackboardVersionSum = Object.values(versions).reduce((sum, version) => sum + version, 0);
+    const tensionLevels: TensionLevel[] = [];
+    acceptedDeltas.forEach((entry) => {
+      if (entry.delta.q !== TENSION_CURRENT_KEY || !entry.rawLevel) return;
+      const base = this.pendingTension ?? this.extras.tension;
+      const smoothed = updateEma(base.smoothed, entry.delta.v as number, this.extras.pacing.alpha);
+      this.pendingTension = { levels: [...base.levels, entry.rawLevel].slice(-50), smoothed };
+      tensionLevels.push(entry.rawLevel);
+      entry.delta.v = smoothed;
+    });
+    this.engine.enqueue({
+      source: "extractor",
+      blackboardVersionSum,
+      turnRange: window,
+      deltas: acceptedDeltas.map((entry) => entry.delta),
+      ...(tensionLevels.length ? { tensionLevels } : {}),
+    });
+  }
+
   async applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memoryLines: ParsedMemoryLine[] = []) {
     if (!this.loaded) return;
     const state = this.engine.serialize();
-    const blackboardVersionSum = Object.values(state.blackboard.versions).reduce((sum, version) => sum + version, 0);
-    if (audit.acceptedDeltas.length) {
-      const tensionLevels: TensionLevel[] = [];
-      audit.acceptedDeltas.forEach((entry) => {
-        if (entry.delta.q !== TENSION_CURRENT_KEY || !entry.rawLevel) return;
-        const base = this.pendingTension ?? this.extras.tension;
-        const smoothed = updateEma(base.smoothed, entry.delta.v as number, this.extras.pacing.alpha);
-        this.pendingTension = { levels: [...base.levels, entry.rawLevel].slice(-50), smoothed };
-        tensionLevels.push(entry.rawLevel);
-        entry.delta.v = smoothed;
-      });
-      this.engine.enqueue({
-        source: "extractor",
-        blackboardVersionSum,
-        turnRange: audit.window,
-        deltas: audit.acceptedDeltas.map((entry) => entry.delta),
-        ...(tensionLevels.length ? { tensionLevels } : {}),
-      });
-    }
+    this.enqueueExtractorDeltas(audit.acceptedDeltas, audit.window);
     const newMemoryEntries: MemoryEntry[] = [
       ...facts.map((fact): MemoryEntry => ({
         id: generateMemoryId(),
@@ -450,6 +459,7 @@ export class RuntimeManager {
     ];
     const memoryEnabled = this.extras.memory.settings.enabled;
     if (memoryEnabled && newMemoryEntries.length) {
+      await this.computeEntryTokens(newMemoryEntries);
       const written = addMemoryEntries(this.extras.memory, newMemoryEntries, audit.window);
       const capped = capAllTiers(written.state, this.extras.memory.settings.tierBudgets);
       this.extras.memory = { ...this.extras.memory, ...capped, updatedAt: new Date().toISOString() };
@@ -515,6 +525,7 @@ export class RuntimeManager {
       messageId: audit.window.to,
       recallCount: 0,
     };
+    await this.computeEntryTokens([summaryEntry]);
     const written = addMemoryEntries(this.extras.memory, [summaryEntry], audit.window);
     const capped = capAllTiers(expireScoped(written.state, "scene"), this.extras.memory.settings.tierBudgets);
     const sceneOccurrence = this.extras.memory.sceneCount + 1;
@@ -523,6 +534,7 @@ export class RuntimeManager {
     await this.effects.fireNpcReplies(this.engine.activeCheckpoint, this.extras, "sceneBreak", sceneOccurrence);
     await this.persist();
     this.notify();
+    await this.syncWorldInfo();
   }
 
   async runExtractionNow(debugResponse?: string, reason = "manual") {
@@ -925,12 +937,208 @@ export class RuntimeManager {
     return null;
   }
 
+  private buildScoreContext(): ScoreContext {
+    const chat = Array.isArray(getContext().chat) ? getContext().chat : [];
+    let turnText = "";
+    for (let index = chat.length - 1; index >= 0; index -= 1) {
+      const entry = chat[index] as { mes?: string; is_system?: boolean } | undefined;
+      if (entry && !entry.is_system && typeof entry.mes === "string" && entry.mes.trim()) {
+        turnText = entry.mes;
+        break;
+      }
+    }
+    const rosterNames = this.loaded?.story.roster.map((member) => member.name ?? member.id) ?? [];
+    const lowerTurn = turnText.toLowerCase();
+    const turnEntities = rosterNames.filter((name) => lowerTurn.includes(name.trim().toLowerCase()));
+    return {
+      boundary: this.engine.getBoundary(),
+      lastMessageId: chat.length - 1,
+      turnText,
+      turnEntities,
+      weights: this.extras.memory.settings.scoreWeights,
+    };
+  }
+
+  private async computeEntryTokens(entries: MemoryEntry[]) {
+    for (const entry of entries) {
+      try {
+        entry.tokens = await countTokens(entry.text);
+      } catch {
+        entry.tokens = undefined;
+      }
+    }
+  }
+
   private updateMemoryInjection() {
     if (!this.loaded || !this.extras.memory.settings.enabled) {
       clearAllMemoryInjection();
       return;
     }
-    applyMemoryInjection(this.extras.memory.entries, this.getActiveSpeakerId(), this.extras.memory.settings.injectionDepths);
+    applyMemoryInjection(this.extras.memory.entries, this.getActiveSpeakerId(), this.extras.memory.settings.injectionDepths, {
+      tokenBudgets: this.extras.memory.settings.tierTokenBudgets,
+      scoreContext: this.buildScoreContext(),
+    });
+  }
+
+  getMemoryInjectionBlocks(): Record<MemoryTier, string> {
+    const entries = this.loaded && this.extras.memory.settings.enabled ? this.extras.memory.entries : [];
+    return buildMemoryInjectionBlocks(entries, this.getActiveSpeakerId(), {
+      tokenBudgets: this.extras.memory.settings.tierTokenBudgets,
+      scoreContext: this.buildScoreContext(),
+    });
+  }
+
+  async runConsolidation(): Promise<{ dropped: number; superseded: number; confirmed: number; uncertain: UncertainPair[] }> {
+    const summary = { dropped: 0, superseded: 0, confirmed: 0, uncertain: [] as UncertainPair[] };
+    if (!this.loaded || !this.extras.memory.settings.enabled || this.consolidationInFlight || this.extras.memory.backfill?.running) return summary;
+    this.consolidationInFlight = true;
+    try {
+      const supersededWinnerIds = new Set<string>();
+      const groupOf = () => {
+        const active = this.extras.memory.entries.filter((entry) => !entry.supersededBy && !entry.foldedInto);
+        const groups = new Map<string, MemoryEntry[]>();
+        active.forEach((entry) => {
+          const key = `${entry.tier}:${entry.characterId ?? "shared"}`;
+          groups.set(key, [...(groups.get(key) ?? []), entry]);
+        });
+        return groups;
+      };
+      for (const group of groupOf().values()) {
+        if (group.length < CONSOLIDATION_MIN_GROUP) continue;
+        const matches = await this.buildMatchSets(group);
+        const result = consolidateTier(group, matches);
+        summary.uncertain.push(...result.uncertain);
+        result.supersededPairs.forEach((pair) => supersededWinnerIds.add(pair.winnerId));
+        if (!result.droppedIds.length && !result.supersededPairs.length && !result.confirmedIds.length) continue;
+        this.extras.memory = { ...this.extras.memory, ...applyConsolidation(this.extras.memory, result), updatedAt: new Date().toISOString() };
+        summary.dropped += result.droppedIds.length;
+        summary.superseded += result.supersededPairs.length;
+        summary.confirmed += result.confirmedIds.length;
+      }
+      if (summary.uncertain.length) this.extras.memory = { ...this.extras.memory, ...markContradicted(this.extras.memory, summary.uncertain) };
+      if (summary.dropped || summary.superseded || summary.confirmed || summary.uncertain.length) {
+        this.updateMemoryInjection();
+        await this.persist();
+        this.notify();
+      }
+      if (supersededWinnerIds.size) {
+        const winners = this.extras.memory.entries.filter((entry) => supersededWinnerIds.has(entry.id));
+        await this.runSupersessionBridge(winners);
+      }
+      await this.syncWorldInfo();
+      return summary;
+    } finally {
+      this.consolidationInFlight = false;
+    }
+  }
+
+  async runSupersessionBridge(supersedingEntries: MemoryEntry[]): Promise<boolean> {
+    if (!this.loaded || !supersedingEntries.length) return false;
+    const state = this.engine.serialize();
+    const scope = deriveScope(this.loaded.story, state.activeCheckpointId, state.blackboard, this.getExpansionGateSources());
+    if (!scope.length) return false;
+    const settings = this.getExtractionSettings();
+    const messages = supersedingEntries.map((entry, index) => ({
+      index,
+      messageId: entry.messageId ?? state.boundary,
+      speaker: "narration",
+      text: entry.text,
+    }));
+    const window: SharedReadWindow = { from: messages[0].messageId, to: messages[messages.length - 1].messageId, messages };
+    const result = await runSharedRead({
+      story: this.loaded.story,
+      state,
+      priority: 1,
+      reason: "supersede:bridge",
+      window,
+      scope,
+      firedTransitions: this.getFiredTransitions(),
+      facts: this.getExtractionFacts(),
+      client: { ...settings, debugResponse: globalThis.storyOrchestratorDebugSupersessionResponse ?? null },
+    });
+    if (!result.audit.acceptedDeltas.length) return false;
+    this.enqueueExtractorDeltas(result.audit.acceptedDeltas, result.audit.window);
+    await this.persist();
+    this.notify();
+    return true;
+  }
+
+  private worldInfoLorebookName(): string {
+    return `Story Orchestrator - ${this.loaded?.story.title ?? "memory"}`;
+  }
+
+  async syncWorldInfo(): Promise<{ created: number; updated: number; unchanged: number; disabled: number }> {
+    const summary = { created: 0, updated: 0, unchanged: 0, disabled: 0 };
+    if (!this.loaded || !this.extras.memory.settings.enabled) return summary;
+    const lorebook = this.worldInfoLorebookName();
+    const surfaceable = this.extras.memory.entries.filter((entry) =>
+      !entry.supersededBy && !entry.foldedInto && (entry.type === "relationship" || (entry.tier === "scene_history" && entry.type === "scene")));
+    const liveComments = new Set(surfaceable.map((entry) => `so_${entry.id}`));
+    const writes = { ...this.extras.memory.wiWrites };
+    for (const comment of Object.keys(writes)) {
+      if (liveComments.has(comment)) continue;
+      await disableWIEntry(lorebook, comment);
+      delete writes[comment];
+      summary.disabled += 1;
+    }
+    for (const entry of surfaceable) {
+      const comment = `so_${entry.id}`;
+      const hash = hashMemoryText(entry.text);
+      if (writes[comment] === hash) {
+        summary.unchanged += 1;
+        continue;
+      }
+      const result = await upsertWIEntry(lorebook, comment, entry.text, entry.entities);
+      if (result === "failed") continue;
+      writes[comment] = hash;
+      if (result === "created") summary.created += 1;
+      else if (result === "updated") summary.updated += 1;
+      else summary.unchanged += 1;
+    }
+    if (summary.created || summary.updated || summary.disabled) {
+      this.extras.memory = { ...this.extras.memory, wiWrites: writes };
+      await this.persist();
+      this.notify();
+    }
+    return summary;
+  }
+
+  private async buildMatchSets(group: MemoryEntry[]): Promise<MatchSets> {
+    const thresholds = DEFAULT_DEDUP_THRESHOLDS;
+    const collectionId = `so_consol_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
+    try {
+      await vectorInsert(collectionId, group.map((entry, index) => ({ hash: index, text: entry.text, index })), DEFAULT_VECTOR_SOURCE);
+      const queryAt = (text: string, threshold: number) => vectorQuery(collectionId, text, group.length, threshold, DEFAULT_VECTOR_SOURCE).then((matches) => new Set(matches.map((match) => match.index)));
+      const dup: Set<number>[] = [];
+      const sameTopic: Set<number>[] = [];
+      for (let i = 0; i < group.length; i += 1) {
+        const [dupSameIdx, dupCrossIdx, sameIdx] = await Promise.all([
+          queryAt(group[i].text, thresholds.cosineDup),
+          queryAt(group[i].text, thresholds.cosineCrossDup),
+          queryAt(group[i].text, thresholds.cosineSameTopic),
+        ]);
+        const dupSet = new Set<number>();
+        const sameSet = new Set<number>();
+        for (let j = 0; j < group.length; j += 1) {
+          if (j === i) continue;
+          const sameType = group[j].type === group[i].type;
+          if (sameType ? dupSameIdx.has(j) : dupCrossIdx.has(j)) dupSet.add(j);
+          else if (sameType && sameIdx.has(j)) sameSet.add(j);
+        }
+        dup.push(dupSet);
+        sameTopic.push(sameSet);
+      }
+      return { dup, sameTopic };
+    } catch (error) {
+      console.warn("[Story memory] vector consolidation unavailable, using keyword overlap", error);
+      return buildJaccardMatchSets(group, thresholds);
+    } finally {
+      try {
+        await vectorPurge(collectionId);
+      } catch {
+        /* best effort */
+      }
+    }
   }
 
   private applyCommittedTension(result: BoundaryResult) {
