@@ -62,9 +62,17 @@ Playwright MCP is configured with `--cdp-endpoint http://127.0.0.1:9222`, so it 
 }
 ```
 
-Supported steps: `import_story`, `select_story`, `send`, `send_generate`, `slash`, `extract`, `expand`, `swipe`, `edit`, `delete`, `wait`, `expect`.
+Supported steps: `import_story`, `select_story`, `send`, `send_generate`, `slash`, `extract`, `expand`, `eval`, `swipe`, `edit`, `delete`, `wait`, `expect`.
 
-`expect` can assert compact runtime state: `activeCheckpoint`, `blackboard`, `latched`, `auditCount>=`, `npcFired`, `requirementsReady`, `expansion`, `tension`, and `pacingPrompt`. Numeric leaves can use `{ "approx": 0.4, "tolerance": 0.000001 }`.
+`eval` runs arbitrary JS in the ST page (access to `globalThis.storyOrchestratorRuntime`, debug response globals); use it to toggle runtime state like extraction settings.
+
+`expect` can assert compact runtime state: `activeCheckpoint`, `blackboard`, `latched`, `auditCount>=`, `npcFired`, `requirementsReady`, `expansion`, `tension`, `pacingPrompt`, `convergence`, and `reconciliationEvents>=`. Numeric leaves can use `{ "approx": 0.4, "tolerance": 0.000001 }`.
+
+`convergence` expects a list of `{ anchorId, progress?, threshold?, reached? }` matched against the live snapshot's convergence readout.
+
+`wait` verbs: `idle`, `boundary`, `auditCount`, `expansionStatus`, `checkpoint`, `progress` (+`progressAnchor`), `reconciliationEvidence`.
+
+`/cp` slash commands: `list`, `state`, `activate <id>`, `set <quality> <value>`, `extract [response]`, `expand [response]`, `converge` (dumps per-anchor progress/threshold).
 
 `--sandbox` opens the most recent group chat and starts `/newchat` before the scenario. Unless `--keep` is passed, it removes imported test stories and best-effort deletes the scratch chat.
 

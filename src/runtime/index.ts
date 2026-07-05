@@ -31,6 +31,7 @@ export function startRuntime() {
     }),
     getFacts: () => runtimeManager.getExtractionFacts(),
     getFiredTransitions: () => runtimeManager.getFiredTransitions(),
+    getExpansionGateSources: () => runtimeManager.getExpansionGateSources(),
     applyExtractionAudit: (audit, facts) => runtimeManager.applyExtractionAudit(audit, facts),
     onSchedulerChange: () => {
       if (scheduler) runtimeManager.setSchedulerSnapshot(scheduler.getSnapshot());
@@ -42,7 +43,8 @@ export function startRuntime() {
     if (!scheduler) return;
     scheduler.onBoundary(result.boundary, Boolean(result.fired), result.context.lastMessageId);
     scheduleForcedCues(runtimeManager.getStory(), result.activeCheckpointId, scheduler);
-    maybeScheduleReconciliation(runtimeManager.getStory(), runtimeManager.getEngineState(), runtimeManager.getExtractionSettings().reconciliationMultiplier, scheduler);
+    const reconciliation = maybeScheduleReconciliation(runtimeManager.getStory(), runtimeManager.getEngineState(), runtimeManager.getExtractionSettings().reconciliationMultiplier, scheduler);
+    if (reconciliation) runtimeManager.recordReconciliation(reconciliation);
     runtimeManager.scheduleExpansionForActive((reason, run) => scheduler?.schedule({ priority: 3, reason, run }));
   });
   runtimeManager.onRollback((messageId, window) => {

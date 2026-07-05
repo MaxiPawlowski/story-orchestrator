@@ -12,7 +12,14 @@ import { dumpCurrentChatState } from './so-state.mts';
 const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep]
 
 Step keys:
-  import_story, select_story, send, send_generate, slash, extract, expand, swipe, edit, delete, wait, expect`;
+  import_story, select_story, send, send_generate, slash, extract, expand, eval, swipe, edit, delete, wait, expect
+
+expect verbs:
+  activeCheckpoint, blackboard, blackboardMissing, latched, auditCount>=, npcFired,
+  expansion, tension, pacingPrompt, requirementsReady, convergence, reconciliationEvents>=
+
+wait verbs:
+  idle, boundary, auditCount, expansionStatus, checkpoint, progress (+progressAnchor)`;
 
 function readArgFlag(name) {
   return process.argv.includes(name);
@@ -91,6 +98,20 @@ function evaluateExpect(state, expected) {
   if (expected.requirementsReady !== undefined && actual.requirementsReady !== expected.requirementsReady) {
     failures.push(`requirementsReady: expected ${expected.requirementsReady}, got ${actual.requirementsReady}`);
   }
+  if (expected.convergence) {
+    const liveConvergence = state?.liveSnapshot?.convergence ?? [];
+    for (const want of expected.convergence) {
+      const found = liveConvergence.find((entry: any) => entry?.anchorId === want.anchorId);
+      if (!found) { failures.push(`convergence.${want.anchorId}: not found`); continue; }
+      if (want.progress !== undefined && found.progress !== want.progress) failures.push(`convergence.${want.anchorId}.progress: expected ${want.progress}, got ${found.progress}`);
+      if (want.threshold !== undefined && found.threshold !== want.threshold) failures.push(`convergence.${want.anchorId}.threshold: expected ${want.threshold}, got ${found.threshold}`);
+      if (want.reached !== undefined && found.reached !== want.reached) failures.push(`convergence.${want.anchorId}.reached: expected ${want.reached}, got ${found.reached}`);
+    }
+  }
+  if (expected['reconciliationEvents>='] !== undefined) {
+    const count = state?.liveSnapshot?.extraction?.reconciliationEvents?.length ?? state?.state?.extraction?.reconciliationEventCount ?? 0;
+    if (count < expected['reconciliationEvents>=']) failures.push(`reconciliationEvents: expected >= ${expected['reconciliationEvents>=']}, got ${count}`);
+  }
   return { ok: failures.length === 0, failures, actual };
 }
 
@@ -109,6 +130,17 @@ async function waitForCondition(page, spec) {
       if (entries.some((entry: any) => entry?.status === spec.expansionStatus)) return last;
     }
     if (spec.checkpoint !== undefined && runtime?.activeCheckpointId === spec.checkpoint) return last;
+    if (spec.progress !== undefined) {
+      const anchor = spec.progressAnchor;
+      const convergence = last?.liveSnapshot?.convergence ?? [];
+      const entry = anchor ? convergence.find((item: any) => item?.anchorId === anchor) : convergence[0];
+      const progress = entry?.progress ?? 0;
+      if (progress >= spec.progress) return last;
+    }
+    if (spec.reconciliationEvidence !== undefined && spec.reconciliationEvidence) {
+      const events = last?.liveSnapshot?.extraction?.reconciliationEvents ?? [];
+      if (events.some((event: any) => Array.isArray(event?.evidence) && event.evidence.length > 0)) return last;
+    }
     await page.waitForTimeout(250);
   }
   throw new Error(`Timed out waiting for ${JSON.stringify(spec)}. Last state: ${JSON.stringify(compactState(last))}`);
@@ -148,6 +180,13 @@ async function expand(page, spec) {
     const ok = await globalThis.storyOrchestratorRuntime.runExpansionNow(debugResponse);
     return { ok, snapshot: globalThis.storyOrchestratorRuntime.getSnapshot() };
   }, debugResponse);
+}
+
+async function evalStep(page, code) {
+  return evaluateInST(page, (code) => {
+    const fn = new Function(`return (async () => { ${code} })();`);
+    return fn();
+  }, code);
 }
 
 async function cleanupScenario(page, importedHashes, sandboxChatStarted, keep) {
@@ -200,6 +239,7 @@ async function runScenario(page, file, { sandbox = false, keep = false } = {}) {
         else if (key === 'slash') output = await executeSlashCommand(page, value);
         else if (key === 'extract') output = await extract(page, value);
         else if (key === 'expand') output = await expand(page, value);
+        else if (key === 'eval') output = await evalStep(page, value);
         else if (key === 'swipe') output = await swipeMessage(page, value.messageId, value.swipeId ?? null);
         else if (key === 'edit') output = await editMessage(page, value.messageId, value.text);
         else if (key === 'delete') output = await deleteMessage(page, value.messageId ?? value);

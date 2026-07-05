@@ -187,6 +187,25 @@ const DrawerPanel = () => {
                 </tbody>
               </table>
             </div>
+            {snapshot.convergence.length > 0 && (
+              <div className="text-xs opacity-80">
+                <div className="font-medium opacity-100">Convergence</div>
+                {snapshot.convergence.map((entry) => {
+                  const pct = entry.threshold > 0 ? Math.min(100, Math.round((entry.progress / entry.threshold) * 100)) : 100;
+                  return (
+                    <div key={entry.anchorId} className="border-t border-solid border-white/10 mt-1 pt-1">
+                      <div>{entry.anchorName}{entry.reached ? " ✔" : ""}</div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-1.5 bg-white/10 rounded">
+                          <div className="h-full bg-white/60 rounded" style={{ width: `${pct}%` }} />
+                        </div>
+                        <span>{entry.progress}/{entry.threshold}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
             <div className="text-xs opacity-80">
               <div className="font-medium opacity-100">Extraction</div>
               <div>Queue {snapshot.extraction.scheduler.queueDepth}, in flight {snapshot.extraction.scheduler.inFlight ? "yes" : "no"}</div>

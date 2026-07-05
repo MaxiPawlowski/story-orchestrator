@@ -8,7 +8,7 @@ SillyTavern extension running format-2 authored stories as deterministic checkpo
 2. `docs/plans/v2/00-implementation-overview.md` — canonical build rules, gate protocol, verified ST host facts, plan sequence
 3. Current plan doc + **Gate records** of all prior plans (tail sections — as-built truth and deviations)
 
-**Status: plans 01–05 complete.** Update this line when a plan's gate goes green.
+**Status: plans 01–06 complete.** Update this line when a plan's gate goes green.
 
 ## V2 spine
 

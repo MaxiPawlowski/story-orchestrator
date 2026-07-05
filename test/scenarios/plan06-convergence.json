@@ -1,0 +1,26 @@
+{
+  "steps": [
+    { "import_story": { "file": "../fixtures/convergence-drift.story.json" } },
+    { "eval": "globalThis.storyOrchestratorRuntime.setExtractionSettings({enabled:true, cadence:3, reconciliationMultiplier:1.5, stabilityLag:1}); globalThis.storyOrchestratorDebugExtractionResponse = 'DELTA q=mood value=\"tense\" evidence=\"reconcile reads tense scene mood\"'; return globalThis.storyOrchestratorRuntime.getSnapshot().extraction.settings.enabled;" },
+    { "expand": { "debugResponse": "{\"beats\":[{\"objective\":\"Secure the safe approach\",\"guidance\":\"Steer toward the safe route.\",\"tension_target\":\"tense\",\"outcomes\":[{\"label\":\"safe route\",\"gate\":{\"q\":\"mood\",\"op\":\"==\",\"v\":\"tense\"},\"deltas\":[{\"q\":\"approach\",\"v\":\"safe\"}],\"progress\":{\"anchor\":\"midway\",\"amount\":2}}]},{\"objective\":\"Confirm the key\",\"guidance\":\"Confirm key is found.\",\"tension_target\":\"critical\",\"outcomes\":[{\"label\":\"key confirmed\",\"gate\":{\"q\":\"key_found\",\"op\":\"==\",\"v\":true},\"deltas\":[{\"q\":\"key_found\",\"v\":true}]}]}]}" } },
+    { "expect": { "expansion": { "entries": { "start->bridge_a->midway": { "status": "inserted", "targetAnchorId": "midway" } } } } },
+    { "slash": "/cp set key_found true" },
+    { "expect": { "activeCheckpoint": "gen_bridge_a_1" } },
+    { "eval": "for (let i=0;i<6;i++){ await globalThis.storyOrchestratorRuntime.setQuality('mood','calm'); } return globalThis.storyOrchestratorRuntime.getSnapshot().boundary;" },
+    { "wait": { "reconciliationEvidence": true, "timeoutMs": 15000 } },
+    { "expect": { "reconciliationEvents>=": 1 } },
+    { "slash": "/cp set mood tense" },
+    { "expect": { "activeCheckpoint": "gen_bridge_a_2", "blackboard": { "progress_toward_midway": 2 } } },
+    { "slash": "/cp set key_found true" },
+    { "expect": { "activeCheckpoint": "midway" } },
+    { "expand": { "debugResponse": "{\"beats\":[{\"objective\":\"Open the vault\",\"guidance\":\"Open the vault.\",\"tension_target\":\"tense\",\"outcomes\":[{\"label\":\"vault open\",\"gate\":{\"q\":\"vault_open\",\"op\":\"==\",\"v\":true},\"deltas\":[{\"q\":\"vault_open\",\"v\":true}],\"progress\":{\"anchor\":\"finale\",\"amount\":2}}]},{\"objective\":\"Confirm the ally\",\"guidance\":\"Confirm ally convinced.\",\"tension_target\":\"critical\",\"outcomes\":[{\"label\":\"ally convinced\",\"gate\":{\"q\":\"ally_convinced\",\"op\":\"==\",\"v\":true},\"deltas\":[{\"q\":\"ally_convinced\",\"v\":true}]}]}]}" } },
+    { "expect": { "expansion": { "entries": { "midway->bridge_b->finale": { "status": "inserted", "targetAnchorId": "finale" } } } } },
+    { "slash": "/cp set ally_convinced true" },
+    { "expect": { "activeCheckpoint": "gen_bridge_b_1" } },
+    { "slash": "/cp set vault_open true" },
+    { "expect": { "activeCheckpoint": "gen_bridge_b_2", "blackboard": { "progress_toward_finale": 2 } } },
+    { "slash": "/cp set ally_convinced true" },
+    { "expect": { "activeCheckpoint": "finale" } },
+    { "expect": { "convergence": [ { "anchorId": "midway", "reached": true }, { "anchorId": "finale", "reached": true } ] } }
+  ]
+}

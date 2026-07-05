@@ -1,5 +1,5 @@
 import type { ArcTemplate, EngineState, NormalizedStoryV2, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
-import type { ParsedFact, SharedReadAudit } from "@extraction/index";
+import type { ParsedFact, ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
 import type { SteeringHint } from "@pacing/index";
 
@@ -53,6 +53,7 @@ export interface ExtractionRuntimeState {
   settings: ExtractionRuntimeSettings;
   facts: ParsedFact[];
   audits: SharedReadAudit[];
+  reconciliationEvents: ReconciliationEvent[];
   lastReadBoundary: number;
   scheduler: { queueDepth: number; inFlight: boolean; lastError: string | null };
 }
@@ -68,6 +69,14 @@ export interface StoryOrchestratorMetadataBlob {
   version: 2;
   selectedStoryHash: string | null;
   stories: Record<string, PersistedStoryRuntime>;
+}
+
+export interface ConvergenceReadout {
+  anchorId: string;
+  anchorName: string;
+  progress: number;
+  threshold: number;
+  reached: boolean;
 }
 
 export interface RuntimeSnapshot {
@@ -89,6 +98,7 @@ export interface RuntimeSnapshot {
   extraction: ExtractionRuntimeState;
   expansion: ExpansionRuntimeState;
   pacing: PacingSettings;
+  convergence: ConvergenceReadout[];
   tension: {
     level: TensionLevel | null;
     smoothed: number | null;

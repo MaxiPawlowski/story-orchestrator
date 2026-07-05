@@ -1,4 +1,5 @@
 import type { GateNode, NormalizedStoryV2, PrimitiveValue } from "@engine/index";
+import type { ReconciliationDescriptor } from "./types";
 import { getChatWindow } from "./chatWindow";
 import type { ExtractionScheduler } from "./scheduler";
 
@@ -34,17 +35,19 @@ const gateMatches = (gate: GateNode, values: Record<string, unknown>): boolean =
   return !gateMatches(gate.not, values);
 };
 
-export function maybeScheduleReconciliation(story: NormalizedStoryV2 | null, state: { activeCheckpointId: string; boundary: number; checkpointStartedBoundary: number; checkpointStartedMessageId: number; lastMessageId: number; blackboard: { values: Record<string, unknown> } } | null, multiplier: number, scheduler: ExtractionScheduler) {
-  if (!story || !state) return;
+export function maybeScheduleReconciliation(story: NormalizedStoryV2 | null, state: { activeCheckpointId: string; boundary: number; checkpointStartedBoundary: number; checkpointStartedMessageId: number; lastMessageId: number; blackboard: { values: Record<string, unknown> } } | null, multiplier: number, scheduler: ExtractionScheduler): ReconciliationDescriptor | null {
+  if (!story || !state) return null;
   const checkpoint = story.checkpointById[state.activeCheckpointId];
   const target = Math.max(Math.ceil((checkpoint?.target_turn_length ?? 4) * multiplier), 6);
   const turns = state.boundary - state.checkpointStartedBoundary;
-  if (turns < target || (turns - target) % 3 !== 0) return;
+  if (turns < target || (turns - target) % 3 !== 0) return null;
   const unmet = new Set<string>();
   for (const transition of story.outgoingByCheckpoint[state.activeCheckpointId] ?? []) {
     if (!gateMatches(transition.gate, state.blackboard.values)) {
       collectUnmet(transition.gate, story, state.blackboard.values, unmet);
     }
   }
-  if (unmet.size) scheduler.schedule({ priority: 0, reason: `reconcile:${[...unmet].join(",")}`, window: getChatWindow(Math.max(0, state.checkpointStartedMessageId + 1), state.lastMessageId) });
+  if (!unmet.size) return null;
+  scheduler.schedule({ priority: 0, reason: `reconcile:${[...unmet].join(",")}`, window: getChatWindow(Math.max(0, state.checkpointStartedMessageId + 1), state.lastMessageId) });
+  return { checkpointId: state.activeCheckpointId, boundary: state.boundary, targetedKeys: [...unmet] };
 }

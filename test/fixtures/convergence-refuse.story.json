@@ -1,0 +1,23 @@
+{
+  "format": 2,
+  "title": "Convergence Refuse",
+  "description": "Likely branch refused; alternative authored path still converges.",
+  "arc_template": "rising",
+  "qualities": [
+    { "key": "bribed", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player bribe the guard?" },
+    { "key": "sneaked_in", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player sneak in?" }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "Start", "objective": "Choose how to enter.", "type": "anchor", "start": true, "tension_target": "stirring", "target_turn_length": 3 },
+    { "id": "door_stub", "name": "Door Stub", "objective": "Generated door placeholder.", "type": "intermediate" },
+    { "id": "side_entry", "name": "Side Entry", "objective": "Sneak in through the side.", "type": "intermediate", "guidance": "Sneak in.", "state_snapshot": { "sneaked_in": true } },
+    { "id": "finale", "name": "Finale", "objective": "Inside.", "type": "anchor", "state_snapshot": { "sneaked_in": true }, "tension_target": "critical", "target_turn_length": 3 }
+  ],
+  "transitions": [
+    { "from": "start", "to": "door_stub", "priority": 2, "gate": { "q": "bribed", "op": "==", "v": true } },
+    { "from": "door_stub", "to": "finale", "priority": 1, "gate": { "q": "progress_toward_finale", "op": ">=", "v": 1 } },
+    { "from": "start", "to": "side_entry", "priority": 1, "gate": { "q": "sneaked_in", "op": "==", "v": true } },
+    { "from": "side_entry", "to": "finale", "priority": 1, "gate": { "q": "sneaked_in", "op": "==", "v": true } }
+  ],
+  "roster": []
+}

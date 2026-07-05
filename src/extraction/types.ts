@@ -72,6 +72,22 @@ export interface SharedReadResult {
   facts: ParsedFact[];
 }
 
+export interface ReconciliationDescriptor {
+  checkpointId: string;
+  boundary: number;
+  targetedKeys: string[];
+}
+
+export interface ReconciliationEvent {
+  id: string;
+  boundary: number;
+  checkpointId: string;
+  targetedKeys: string[];
+  scheduledAt: string;
+  resolvedAt: string | null;
+  evidence: string[];
+}
+
 export type ValueParser = (quality: Quality, raw: string) => PrimitiveValue | undefined;
 
 export type StoryForExtraction = Pick<NormalizedStoryV2, "title" | "checkpointById" | "outgoingByCheckpoint" | "reachableByCheckpoint" | "qualityByKey">;

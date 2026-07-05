@@ -71,9 +71,14 @@ export function registerSlashCommands(manager: RuntimeManager): boolean {
         await manager.runExpansionNow(response || undefined);
         return show(manager.getSnapshot().status);
       }
-      return show("Commands: /cp list, /cp state, /cp activate <id>, /cp set <quality> <value>, /cp extract [response], /cp expand [response]");
+      if (command === "converge") {
+        const snapshot = manager.getSnapshot();
+        if (!snapshot.convergence.length) return show("No convergence anchors with progress qualities.");
+        return show(snapshot.convergence.map((entry) => `${entry.reached ? "✔" : "○"} ${entry.anchorId} ${entry.progress}/${entry.threshold}`).join("\n"));
+      }
+      return show("Commands: /cp list, /cp state, /cp activate <id>, /cp set <quality> <value>, /cp extract [response], /cp expand [response], /cp converge");
     },
-    helpString: "Story Orchestrator v2 commands: list, state, activate <id>, set <quality> <value>, extract [response], expand [response]",
+    helpString: "Story Orchestrator v2 commands: list, state, activate <id>, set <quality> <value>, extract [response], expand [response], converge",
   }));
   return Boolean(parser.commands?.cp);
 }

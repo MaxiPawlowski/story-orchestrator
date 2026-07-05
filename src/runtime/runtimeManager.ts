@@ -1,6 +1,6 @@
-import { StoryEngine, isValidationErrorList, TENSION_CURRENT_KEY, type ApplyQueueEntry, type ArcTemplate, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type TensionLevel, type ValidationError } from "@engine/index";
+import { StoryEngine, effectiveThresholdFor, isValidationErrorList, progressQualityForAnchor, TENSION_CURRENT_KEY, type ApplyQueueEntry, type ArcTemplate, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type TensionLevel, type ValidationError } from "@engine/index";
 import { getCanonLite, getChatWindow, runSharedRead, type ParsedFact, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
-import { findStubExpansionCandidate, generateReviewedBeats, insertedCheckpointIds, mergeExpansions, planExpansion, revalidateExpansion, type ExpansionCacheEntry, type ExpansionRuntimeState, type StubExpansionCandidate } from "@generation/index";
+import { findStubExpansionCandidate, collectExpansionGateSources, generateReviewedBeats, insertedCheckpointIds, mergeExpansions, planExpansion, revalidateExpansion, type ExpansionCacheEntry, type ExpansionRuntimeState, type StubExpansionCandidate } from "@generation/index";
 import { expectedTension, getSteeringHint, numericToLevel, updateEma } from "@pacing/index";
 import { clearStoryExtensionPrompt, getContext, setStoryExtensionPrompt } from "@services/STAPI";
 import { DEFAULT_TENSION_EMA_ALPHA, PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
@@ -8,7 +8,7 @@ import { EffectsApplier } from "./effectsApplier";
 import { evaluateRequirements } from "./requirements";
 import { loadPersistedRuntime, savePersistedRuntime, setSelectedStoryHash, getSelectedStoryHash } from "./persistence";
 import { findStoryRecord, listStoryRecords, loadStoryRecord, saveStoryRecord } from "./storyLibrary";
-import type { ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, PacingSettings, RuntimeExtras, RuntimeSnapshot, TensionRuntimeState } from "./types";
+import type { ConvergenceReadout, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, PacingSettings, RuntimeExtras, RuntimeSnapshot, TensionRuntimeState } from "./types";
 
 const emptyRequirements = { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] };
 
@@ -33,6 +33,7 @@ const createExtraction = (): ExtractionRuntimeState => ({
   settings: defaultExtractionSettings(),
   facts: [],
   audits: [],
+  reconciliationEvents: [],
   lastReadBoundary: 0,
   scheduler: { queueDepth: 0, inFlight: false, lastError: null },
 });
@@ -61,6 +62,7 @@ const sanitizeExtraction = (value: RuntimeExtras | undefined): ExtractionRuntime
     settings: { ...defaultExtractionSettings(), ...existing.settings },
     facts: Array.isArray(existing.facts) ? existing.facts : [],
     audits: Array.isArray(existing.audits) ? existing.audits.slice(-20) : [],
+    reconciliationEvents: Array.isArray(existing.reconciliationEvents) ? existing.reconciliationEvents.slice(-50) : [],
     lastReadBoundary: typeof existing.lastReadBoundary === "number" ? existing.lastReadBoundary : 0,
     scheduler: existing.scheduler ?? { queueDepth: 0, inFlight: false, lastError: null },
   };
@@ -284,6 +286,18 @@ export class RuntimeManager {
     return this.engine.stateLog.map((entry) => entry.fired).filter((transition): transition is NormalizedTransition => Boolean(transition));
   }
 
+  getExpansionGateSources() {
+    return collectExpansionGateSources(this.extras.expansion.entries);
+  }
+
+  recordReconciliation(descriptor: { checkpointId: string; boundary: number; targetedKeys: string[] }) {
+    const id = `${descriptor.boundary}:${descriptor.targetedKeys.join(",")}`;
+    const event = { id, boundary: descriptor.boundary, checkpointId: descriptor.checkpointId, targetedKeys: descriptor.targetedKeys, scheduledAt: new Date().toISOString(), resolvedAt: null, evidence: [] };
+    this.extras.extraction.reconciliationEvents = [...this.extras.extraction.reconciliationEvents, event].slice(-50);
+    void this.persist();
+    this.notify();
+  }
+
   setSchedulerSnapshot(snapshot: ExtractionRuntimeState["scheduler"]) {
     const extended = snapshot as unknown as { heavyQueueDepth?: number; heavyInFlight?: boolean; lastHeavyError?: string | null };
     this.extras.extraction.scheduler = snapshot;
@@ -329,6 +343,17 @@ export class RuntimeManager {
     const stampedFacts = facts.map((fact) => ({ ...fact, boundary: state.boundary, messageId: audit.window.to }));
     this.extras.extraction.facts = [...this.extras.extraction.facts, ...stampedFacts].slice(-50);
     this.extras.extraction.audits = [...this.extras.extraction.audits, audit].slice(-20);
+    if (audit.reason.startsWith("reconcile:")) {
+      const evidence = audit.acceptedDeltas.map((entry) => `${entry.delta.q}=${String(entry.delta.v)} (${entry.evidence})`);
+      const events = [...this.extras.extraction.reconciliationEvents];
+      for (let index = 0; index < events.length; index += 1) {
+        if (events[index].resolvedAt === null) {
+          events[index] = { ...events[index], resolvedAt: new Date().toISOString(), evidence: [...events[index].evidence, ...evidence] };
+          break;
+        }
+      }
+      this.extras.extraction.reconciliationEvents = events;
+    }
     this.extras.extraction.lastReadBoundary = state.boundary;
     await this.persist();
     this.notify();
@@ -344,6 +369,7 @@ export class RuntimeManager {
       reason,
       facts: this.getExtractionFacts(),
       firedTransitions: this.getFiredTransitions(),
+      extraGateSources: this.getExpansionGateSources(),
       client: { ...settings, debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugExtractionResponse ?? null },
     });
     await this.applyExtractionAudit(result.audit, result.facts);
@@ -418,8 +444,36 @@ export class RuntimeManager {
       extraction: this.extras.extraction,
       expansion: this.extras.expansion,
       pacing: this.extras.pacing,
+      convergence: this.buildConvergenceReadout(),
       tension: this.buildTensionSnapshot(),
     };
+  }
+
+  private buildConvergenceReadout(): ConvergenceReadout[] {
+    const story = this.loaded?.story;
+    const state = this.loaded ? this.engine.serialize() : null;
+    if (!story || !state) return [];
+    const visited = new Set(state.visitedAnchors);
+    return story.checkpoints
+      .filter((checkpoint) => checkpoint.type === "anchor")
+      .map((anchor) => {
+        const key = progressQualityForAnchor(anchor.id);
+        return { anchor, hasProgress: Boolean(story.qualityByKey[key]) };
+      })
+      .filter((entry) => entry.hasProgress)
+      .map(({ anchor }) => {
+        const progressKey = progressQualityForAnchor(anchor.id);
+        const raw = state.blackboard.values[progressKey];
+        const progress = typeof raw === "number" ? raw : 0;
+        const threshold = effectiveThresholdFor(story, anchor.id);
+        return {
+          anchorId: anchor.id,
+          anchorName: anchor.name,
+          progress,
+          threshold,
+          reached: visited.has(anchor.id),
+        };
+      });
   }
 
   private buildTensionSnapshot(): RuntimeSnapshot["tension"] {

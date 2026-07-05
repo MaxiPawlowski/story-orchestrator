@@ -28,6 +28,8 @@ function decodeRuntime(entry) {
       lastAudit: Array.isArray(entry.extras.extraction.audits) && entry.extras.extraction.audits.length
         ? entry.extras.extraction.audits[entry.extras.extraction.audits.length - 1]
         : null,
+      reconciliationEvents: Array.isArray(entry.extras.extraction.reconciliationEvents) ? entry.extras.extraction.reconciliationEvents : [],
+      reconciliationEventCount: Array.isArray(entry.extras.extraction.reconciliationEvents) ? entry.extras.extraction.reconciliationEvents.length : 0,
     } : null,
     expansion: entry.extras?.expansion ? {
       scheduler: entry.extras.expansion.scheduler ?? null,
@@ -98,6 +100,8 @@ function compactCurrent(data) {
     requirementsReady: state?.requirements?.ready ?? null,
     auditCount: state?.extraction?.auditCount ?? 0,
     factCount: state?.extraction?.factCount ?? 0,
+    reconciliationEventCount: state?.extraction?.reconciliationEventCount ?? 0,
+    convergence: data?.liveSnapshot?.convergence ?? null,
     expansion: data?.liveSnapshot?.expansion ?? state?.expansion ?? null,
     tension: data?.liveSnapshot?.tension ?? state?.tension ?? null,
     pacingPrompt: data?.pacingPrompt ?? null,

@@ -1,4 +1,5 @@
-import { parseStoryV2, progressQualityForAnchor, thresholdFor, type GateNode, type NormalizedStoryV2, type StoryV2, type Transition } from "@engine/index";
+import { chainThresholdFor, parseStoryV2, progressQualityForAnchor, type GateNode, type NormalizedStoryV2, type StoryV2, type Transition } from "@engine/index";
+import type { ExtraGateSource } from "@extraction/types";
 import type { ExpansionCacheEntry } from "./types";
 
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
@@ -31,6 +32,8 @@ export function mergeExpansions(rawStory: unknown, entries: Record<string, Expan
       });
     });
     transitions.push({ ...sourceTransition, to: generatedId(entry, 0), priority: sourceTransition.priority + 0.001 });
+    const chainSum = entry.beats.reduce((sum, beat, index) => index < entry.beats.length - 1 ? sum + (beat.outcomes[0]?.progress?.amount ?? 0) : sum, 0);
+    const threshold = chainThresholdFor(target, chainSum);
     entry.beats.forEach((beat, index) => {
       const outcome = beat.outcomes[0];
       if (!outcome) return;
@@ -40,7 +43,7 @@ export function mergeExpansions(rawStory: unknown, entries: Record<string, Expan
         from,
         to: isFinal ? entry.targetAnchorId : generatedId(entry, index + 1),
         priority: 1,
-        gate: isFinal ? allGate(outcome.gate, { q: progressQualityForAnchor(entry.targetAnchorId), op: ">=", v: thresholdFor(target) }) : outcome.gate,
+        gate: isFinal ? allGate(outcome.gate, { q: progressQualityForAnchor(entry.targetAnchorId), op: ">=", v: threshold }) : outcome.gate,
       };
       if (!isFinal && outcome.progress) transition.effects = { progress: outcome.progress };
       transitions.push(transition);
@@ -53,4 +56,17 @@ export function mergeExpansions(rawStory: unknown, entries: Record<string, Expan
 
 export function insertedCheckpointIds(entry: ExpansionCacheEntry): string[] {
   return entry.beats.map((_, index) => generatedId(entry, index));
+}
+
+export function collectExpansionGateSources(entries: Record<string, ExpansionCacheEntry>): ExtraGateSource[] {
+  const sources: ExtraGateSource[] = [];
+  Object.values(entries).forEach((entry) => {
+    if (!["cached", "needs_review"].includes(entry.status)) return;
+    entry.beats.forEach((beat) => {
+      beat.outcomes.forEach((outcome) => {
+        sources.push({ checkpointId: entry.sourceCheckpointId, gate: outcome.gate });
+      });
+    });
+  });
+  return sources;
 }

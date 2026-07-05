@@ -250,6 +250,26 @@ describe("story engine", () => {
 
     expect(withRollback.serialize()).toEqual(neverApplied.serialize());
   });
+
+  it("hydrate does not double-apply progress on rehydration", () => {
+    const story = parseStoryV2OrThrow(branchingStory);
+    const engine = new StoryEngine({ now: () => 0 });
+    engine.loadStory(story);
+    engine.enqueue(entry("route", "stealth"));
+    engine.commitBoundary();
+    engine.enqueue(entry("guard_asleep", true, 2, 2));
+    engine.commitBoundary();
+    const before = engine.serialize();
+    expect(before.blackboard.values.progress_toward_exit).toBe(2);
+    expect(before.activeCheckpointId).toBe("exit");
+
+    const rehydrated = new StoryEngine({ now: () => 0 });
+    rehydrated.loadStory(story);
+    rehydrated.hydrate(before);
+    const after = rehydrated.serialize();
+    expect(after.blackboard.values.progress_toward_exit).toBe(2);
+    expect(after.activeCheckpointId).toBe("exit");
+  });
 });
 
 describe("replay harness", () => {
