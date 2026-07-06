@@ -1,0 +1,12 @@
+[
+  { "index": 10, "speaker": "Sela", "text": "Sela crouches in the shadow of the aqueduct, counting the patrol torches." },
+  { "index": 11, "speaker": "Narrator", "text": "Two guards trade complaints about the cold; neither looks toward the wall." },
+  { "index": 12, "speaker": "Bram", "text": "Bram whispers about opening the north gate once the patrol passes — just a plan for now." },
+  { "index": 13, "speaker": "Sela", "text": "\"Not yet,\" Sela hisses. \"If we're seen, the whole watch comes down on us.\"" },
+  { "index": 14, "speaker": "Narrator", "text": "A cart rattles by; a drunk sings about a gate of gold in some faraway city." },
+  { "index": 15, "speaker": "Guard", "text": "\"Did you hear something?\" The guard peers into the dark, then shrugs and moves on." },
+  { "index": 16, "speaker": "Bram", "text": "Bram imagines the gate swinging wide, then shakes off the daydream and waits." },
+  { "index": 17, "speaker": "Narrator", "text": "The patrol rounds the corner at last, torchlight fading down the lane." },
+  { "index": 18, "speaker": "Sela", "text": "Sela darts forward, throws the heavy bolt, and hauls the north gate open on silent, greased hinges." },
+  { "index": 19, "speaker": "Narrator", "text": "No cry goes up. The watch suspects nothing as the crew slips through." }
+]

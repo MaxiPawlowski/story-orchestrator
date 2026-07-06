@@ -1,0 +1,18 @@
+{
+  "format": 2,
+  "title": "Long Watch",
+  "description": "Suite-A corpus fixture: long multi-speaker window with distractors; the only true delta lands late.",
+  "qualities": [
+    { "key": "message_count", "type": "int", "source": "code", "monotonic": true, "rubric": "Rendered boundary count." },
+    { "key": "gate_opened", "type": "bool", "source": "extractor", "latching": true, "rubric": "Was the north gate actually opened?" },
+    { "key": "watch_alerted", "type": "bool", "source": "extractor", "rubric": "Has the night watch been alerted to intruders?" }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "Start", "objective": "Slip into the city.", "type": "anchor", "start": true },
+    { "id": "next", "name": "Next", "objective": "Reach the safehouse.", "type": "anchor" }
+  ],
+  "transitions": [
+    { "from": "start", "to": "next", "priority": 1, "gate": { "all": [{ "q": "gate_opened", "op": "==", "v": true }, { "q": "watch_alerted", "op": "==", "v": false }] } }
+  ],
+  "roster": []
+}

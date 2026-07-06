@@ -1,0 +1,3 @@
+DELTA q=door_open value=true evidence="wrenches the vault door open"
+DELTA q=alarm value=true evidence="the alarm begins to wail"
+DELTA q=guards value=2 evidence="two guards round the corner"

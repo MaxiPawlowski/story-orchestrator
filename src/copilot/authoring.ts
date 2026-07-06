@@ -1,5 +1,5 @@
 import type { StoryV2 } from "@engine/index";
-import { callExtractionModel, type ExtractionClientOptions } from "@extraction/index";
+import { callExtractionModel, stripChannelNoise, type ExtractionClientOptions } from "@extraction/index";
 import { parseProposal, parseSuggestions } from "./parse";
 import { renderReportPrompt, renderStagePrompt, renderSuggestPrompt } from "./prompts";
 import { validateProposal } from "./validate";
@@ -50,5 +50,5 @@ export async function runDriverSuggest(context: DriverContext, client: Extractio
 }
 
 export async function runDriverReport(context: DriverContext, client: ExtractionClientOptions): Promise<string> {
-  return (await callExtractionModel(renderReportPrompt(context), { ...client, maxTokens: DRIVER_MAX_TOKENS })).trim();
+  return stripChannelNoise(await callExtractionModel(renderReportPrompt(context), { ...client, maxTokens: DRIVER_MAX_TOKENS }));
 }

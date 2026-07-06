@@ -5,6 +5,8 @@ const EXTENSION_PROMPT_ROLE_SYSTEM = 0;
 
 type SetExtensionPromptFn = (key: string, value: string, position: number, depth: number, scan?: boolean, role?: number) => void;
 
+const lastWritten = new Map<string, { text: string; depth: number }>();
+
 const resolveSetExtensionPrompt = (): SetExtensionPromptFn | null => {
   const context = getContext() as unknown as { setExtensionPrompt?: SetExtensionPromptFn };
   if (typeof context.setExtensionPrompt !== "function") {
@@ -15,9 +17,18 @@ const resolveSetExtensionPrompt = (): SetExtensionPromptFn | null => {
 };
 
 export function setStoryExtensionPrompt(key: string, text: string, depth: number) {
-  resolveSetExtensionPrompt()?.(key, text, EXTENSION_PROMPT_IN_CHAT, depth, false, EXTENSION_PROMPT_ROLE_SYSTEM);
+  const previous = lastWritten.get(key);
+  if (previous && previous.text === text && previous.depth === depth) return;
+  const write = resolveSetExtensionPrompt();
+  if (!write) return;
+  write(key, text, EXTENSION_PROMPT_IN_CHAT, depth, false, EXTENSION_PROMPT_ROLE_SYSTEM);
+  lastWritten.set(key, { text, depth });
 }
 
 export function clearStoryExtensionPrompt(key: string) {
-  resolveSetExtensionPrompt()?.(key, "", EXTENSION_PROMPT_IN_CHAT, 0, false, EXTENSION_PROMPT_ROLE_SYSTEM);
+  if (!lastWritten.has(key)) return;
+  const write = resolveSetExtensionPrompt();
+  if (!write) return;
+  write(key, "", EXTENSION_PROMPT_IN_CHAT, 0, false, EXTENSION_PROMPT_ROLE_SYSTEM);
+  lastWritten.delete(key);
 }

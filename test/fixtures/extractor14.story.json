@@ -1,0 +1,48 @@
+{
+  "format": 2,
+  "title": "Bare Delta",
+  "description": "Suite-A corpus fixture: Bare Delta.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "rope_cut",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Was the rope cut?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Open the scene.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Advance the scene.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+        "q": "rope_cut",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": []
+}

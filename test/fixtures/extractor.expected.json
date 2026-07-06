@@ -1,7 +1,7 @@
 {
   "deltas": [
     { "q": "player_has_key", "v": true, "evidence": "brass key" },
-    { "q": "mara_trust", "v": 3, "evidence": "trusting" }
+    { "q": "mara_trust", "v": 3, "evidence": "trust in Max rising to three" }
   ],
   "facts": {
     "minCount": 1,

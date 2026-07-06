@@ -34,7 +34,8 @@ src/
   services/stHost/           # SillyTavern host wrappers (one module per concern)
   services/STAPI.ts          # only import surface for host modules
   components/studio/         # the 6 reused presentational primitives (GraphPanel, graphPanelUtils, MultiSelect, Toolbar, FeedbackAlert, HelpTooltip) — rest of v1 deleted
-  utils/ constants/
+  components/drawer/         # plan 13: DrawerTabs — overview/blackboard/memory/scheduler/payload debug tabs (moved out of index.tsx)
+  utils/ constants/          # constants/injectionRegistry.ts = single source of truth for injection keys+depths
 ```
 
 ## Invariants
@@ -45,10 +46,9 @@ src/
 - Boundary counters ≠ ST message indexes. Boundary snapshots/logs record `{lastMessageId, chatLength}`.
 - Pending queue writes not persisted; reload drops them, reconciliation recovers.
 - Extraction audits persist in runtime extras (`extras.extraction.audits`); facts moved to the memory tiers (`extras.memory`, facts tier) as of plan 07 — `extras.extraction.facts` no longer exists.
-- Fixtures: `test/fixtures/*.story.json|*.transcript.json|*.expected.json`; recorded LLM goldens in `test/goldens/`. `LIVE=1` re-record NOT implemented (no code reads it; tests always run deterministic goldens) — real re-record path lands in plan 13.
+- Fixtures: `test/fixtures/*.story.json|*.transcript.json|*.expected.json`; recorded LLM goldens in `test/goldens/`. Jest always runs deterministic goldens. **Live delta accuracy is a browser-driven script, not a jest env flag**: `scripts/debug/so-live-suite.mts` runs each `extractor*` triple through the real memory model via `globalThis.storyOrchestratorLiveSuite.runFixture` (same pure `extraction/fixtureRun.ts` prompt path as jest) and scores exact-match on `{q,v}` deltas; `--record` writes `test/goldens/live/`.
 - Build output `dist/` generated + gitignored.
 
 ## Path aliases (tsconfig + webpack)
 
-Active: `@components @services @utils @constants @engine @runtime @extraction @pacing @generation @memory` → `src/<name>/*`.
-Legacy, no backing dir — do not use: `@hooks @controllers @store`.
+Active: `@components @services @utils @constants @engine @runtime @extraction @pacing @generation @memory @copilot` → `src/<name>/*`. (Dead `@hooks @controllers @store` aliases + their empty dirs removed in plan 13.)

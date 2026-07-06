@@ -1,0 +1,7 @@
+<|channel>thought
+<channel|>DELTA q=ally_wounded value=true evidence="A crossbow bolt catches Toma in the shoulder"
+DELTA q=tension_current value="tense" evidence="A crossbow bolt catches Toma in the shoulder and she staggers, blood soaking her sleeve."
+FACT importance=2 text="Toma was shot in the shoulder with a crossbow bolt" evidence="A crossbow bolt catches Toma in the shoulder"
+MEMORY type=detail importance=2 expiration=session entity="Toma" text="Toma has a crossbow bolt wound in her shoulder" evidence="A crossbow bolt catches Toma in the shoulder and she staggers, blood soaking her sleeve."
+SCENE_NONE
+[arc] Toma's recovery from the shoulder wound

@@ -3,12 +3,20 @@ import { parseArcLine, parseEpistemicLine, parseLedgerLine, parseMemoryLine, par
 import { isTensionLevel, levelToNumeric } from "@pacing/index";
 import type { ParsedSharedRead } from "./types";
 
-const deltaPattern = /^DELTA\s+q=([^\s]+)\s+value=(.+?)\s+evidence="([\s\S]*)"\s*$/;
+const deltaPattern = /^DELTA\s+(?:q=)?([^\s=]+)\s+value=(.+?)\s+evidence="([\s\S]*)"\s*$/;
 const bareDeltaPattern = /^([A-Za-z0-9_]+)=(.+?)\s+evidence="([\s\S]*)"\s*$/;
 const factPattern = /^FACT\s+importance=([123])\s+text="([\s\S]+?)"\s+evidence="([\s\S]+)"\s*$/;
 const channelNoisePattern = /^(?:\[\d+\]|<[^<>\n]{0,32}>)+\s*/;
+const harmonyFinalPattern = /<\|channel\|>final<\|message\|>([\s\S]*?)(?:<\|(?:end|return|start)\|>|$)/i;
+const harmonyTokenPattern = /<\|[^|>]*\|>/g;
 
 const stripChannelTokens = (line: string): string => line.replace(channelNoisePattern, "").trim();
+
+export function stripChannelNoise(raw: string): string {
+  const finalMatch = raw.match(harmonyFinalPattern);
+  const body = finalMatch ? finalMatch[1] : raw;
+  return body.replace(harmonyTokenPattern, "").replace(/^(?:\[\d+\]\s*)+/gm, "").trim();
+}
 
 const valueMatches = (quality: Quality, value: PrimitiveValue) => {
   if (quality.type === "bool") return typeof value === "boolean";
@@ -34,7 +42,7 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
 
   for (const line of lines) {
     if (line === "NO_DELTA") continue;
-    const delta = line.match(deltaPattern) ?? line.match(bareDeltaPattern);
+    const delta = line.match(deltaPattern) ?? line.replace(/^DELTA\s+/, "").match(bareDeltaPattern);
     if (delta) {
       const q = delta[1];
       const quality = story.qualityByKey[q];

@@ -1,0 +1,19 @@
+{
+  "deltas": [
+    {
+      "q": "rope_cut",
+      "v": true,
+      "evidence": "saws through the rope"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [
+      ""
+    ],
+    "mustNotContain": [
+      "zzz"
+    ]
+  }
+}

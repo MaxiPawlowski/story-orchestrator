@@ -1,0 +1,19 @@
+{
+  "deltas": [
+    {
+      "q": "supplies",
+      "v": 3,
+      "evidence": "three ration packs"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [
+      ""
+    ],
+    "mustNotContain": [
+      "zzz"
+    ]
+  }
+}

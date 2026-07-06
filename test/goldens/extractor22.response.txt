@@ -1,0 +1,1 @@
+DELTA q=seal_broken value=true evidence="drives the iron pry-bar under the tomb seal and it cracks apart"

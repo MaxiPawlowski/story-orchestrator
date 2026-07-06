@@ -1,0 +1,48 @@
+{
+  "format": 2,
+  "title": "Missing Evidence Reject",
+  "description": "Suite-A corpus fixture: Missing Evidence Reject.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "pact_sealed",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Was the pact sealed?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Open the scene.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Advance the scene.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+        "q": "pact_sealed",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": []
+}

@@ -4,13 +4,14 @@ import { callExtractionModel, deriveFullScope, deriveScope, getCanonLite, getCha
 import { findStubExpansionCandidate, collectExpansionGateSources, generateReviewedBeats, insertedCheckpointIds, mergeExpansions, planExpansion, revalidateExpansion, type ExpansionCacheEntry, type ExpansionRuntimeState, type StubExpansionCandidate } from "@generation/index";
 import { addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicInjection, applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildBoundKeySet, buildEpistemicPassPrompt, buildLedgerPassPrompt, buildLedgerView, capEpistemic, capLedger, clearEpistemicInjection, activeEpistemic, memoryExtensionKey, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, removeEpistemic, removeLedger, renderLedgerBlock, renderPrivateEpistemicBlock, rollbackEpistemic, rollbackLedger, setEpistemicPinned, setLedgerPinned, type EpistemicEntry, type LedgerBinding, type LedgerView, type ParsedEpistemicSignal, type ParsedLedgerSignal, buildArcSummaryPrompt, buildCanonSummaryPrompt, buildJaccardMatchSets, buildMemoryInjectionBlocks, buildSceneSummaryPrompt, canonInputHash, capAllTiers, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, createMemoryState, DEFAULT_DEDUP_THRESHOLDS, DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS, detectSceneBreakHeuristic, dropByMessageId, editEntryText, excludeEntry, expireScoped, generateMemoryId, hashMemoryText, markContradicted, matchArcBridges, openArcTexts, removeArc, resolvedArcs, rollbackArcs, setArcPinned, setArcSummary, setPinned, type ArcEntry, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedMemoryLine, type ScoreContext, type UncertainPair } from "@memory/index";
 import { expectedTension, getSteeringHint, numericToLevel, updateEma } from "@pacing/index";
-import { clearStoryExtensionPrompt, countTokens, DEFAULT_VECTOR_SOURCE, disableWIEntry, getActiveGroup, getCharacterNameById, getContext, resolveGroupMemberId, setStoryExtensionPrompt, upsertWIEntry, vectorInsert, vectorPurge, vectorQuery } from "@services/STAPI";
-import { DEFAULT_TENSION_EMA_ALPHA, EPISTEMIC_INJECTION_DEPTH, LEDGER_INJECTION_DEPTH, MEMORY_TIER_INJECTION_DEPTHS, PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
+import { clearStoryExtensionPrompt, countTokens, DEFAULT_VECTOR_SOURCE, disableWIEntry, getActiveGroup, getCharacterNameById, getContext, readInjectedPromptBlocks, resolveGroupMemberId, setStoryExtensionPrompt, showTextPopup, upsertWIEntry, vectorInsert, vectorPurge, vectorQuery } from "@services/STAPI";
+import { buildAwayRecap, shouldShowAwayRecap, type AwayRecap } from "./awayRecap";
+import { COPILOT_NUDGE_KEY, DEFAULT_TENSION_EMA_ALPHA, EPISTEMIC_INJECTION_DEPTH, LEDGER_INJECTION_DEPTH, MEMORY_TIER_INJECTION_DEPTHS, PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
 import { EffectsApplier } from "./effectsApplier";
 import { evaluateRequirements } from "./requirements";
 import { loadPersistedRuntime, savePersistedRuntime, setSelectedStoryHash, getSelectedStoryHash } from "./persistence";
 import { findStoryRecord, listStoryRecords, loadStoryRecord, saveStoryRecord } from "./storyLibrary";
-import type { ConvergenceReadout, CopilotRuntimeSettings, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, MemoryBackfillState, MemoryRuntimeSettings, MemoryRuntimeState, PacingSettings, RuntimeExtras, RuntimeSnapshot, TensionRuntimeState } from "./types";
+import type { ConvergenceReadout, CopilotRuntimeSettings, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, MemoryBackfillState, MemoryRuntimeSettings, MemoryRuntimeState, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, TensionRuntimeState } from "./types";
 
 const emptyRequirements = { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] };
 
@@ -116,7 +117,7 @@ const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeState =>
   };
 };
 
-const COPILOT_NUDGE_KEY = "story_copilot_nudge";
+const PAYLOAD_CAPTURE_LIMIT = 5;
 const createCopilot = (): CopilotRuntimeSettings => ({ enabled: true });
 const sanitizeCopilot = (value: RuntimeExtras | undefined): CopilotRuntimeSettings => ({ enabled: value?.copilot?.enabled ?? true });
 
@@ -131,6 +132,7 @@ const createExtras = (): RuntimeExtras => ({
   pacing: defaultPacingSettings(),
   tension: defaultTension(),
   copilot: createCopilot(),
+  lastSessionAt: null,
   updatedAt: new Date().toISOString(),
 });
 
@@ -175,6 +177,8 @@ export class RuntimeManager {
   private stagedPrivate = new Map<string, { facts: string; epistemic: string }>();
   private canonInFlight = false;
   private activeNudge: string | null = null;
+  private pendingAwayRecap: AwayRecap | null = null;
+  private payloadCaptures: PayloadCapture[] = [];
 
   subscribe(listener: () => void) {
     this.listeners.add(listener);
@@ -218,6 +222,7 @@ export class RuntimeManager {
       return;
     }
     await this.selectStory(hash, "hydrate");
+    void this.showAwayRecap();
   }
 
   async importStory(rawText: string) {
@@ -935,6 +940,17 @@ export class RuntimeManager {
     return getCanonLite(this.loaded.story, state.visitedAnchors, this.getFiredTransitions(), this.getExtractionFacts());
   }
 
+  getPossibleTransitions(): string[] {
+    if (!this.loaded) return [];
+    const story = this.loaded.story;
+    const state = this.engine.serialize();
+    return (story.outgoingByCheckpoint[state.activeCheckpointId] ?? []).map((transition) => {
+      const toName = story.checkpointById[transition.to]?.name ?? transition.to;
+      const gateText = renderGateText(transition.gate).trim();
+      return `→ ${toName}${gateText ? ` when ${gateText}` : ""}`;
+    });
+  }
+
   private highImportanceFacts(limit: number): MemoryEntry[] {
     return this.extras.memory.entries
       .filter((entry) => entry.tier === "facts" && !entry.supersededBy && !entry.foldedInto && entry.importance >= 2)
@@ -1043,7 +1059,24 @@ export class RuntimeManager {
       copilot: this.extras.copilot,
       convergence: this.buildConvergenceReadout(),
       tension: this.buildTensionSnapshot(),
+      payloadCaptures: this.payloadCaptures,
     };
+  }
+
+  capturePayload(reason = "generation") {
+    if (!this.loaded) return;
+    const capture: PayloadCapture = {
+      at: new Date().toISOString(),
+      boundary: this.engine.serialize().boundary,
+      reason,
+      blocks: readInjectedPromptBlocks(),
+    };
+    this.payloadCaptures = [capture, ...this.payloadCaptures].slice(0, PAYLOAD_CAPTURE_LIMIT);
+    this.notify();
+  }
+
+  getPayloadCaptures(): PayloadCapture[] {
+    return this.payloadCaptures;
   }
 
   private buildConvergenceReadout(): ConvergenceReadout[] {
@@ -1088,6 +1121,7 @@ export class RuntimeManager {
     this.validationErrors = [];
     this.pendingTension = null;
     const persisted = mode === "hydrate" ? loadPersistedRuntime(loaded.record.hash) : null;
+    const priorSessionAt = persisted?.extras?.lastSessionAt ?? null;
     this.extras = persisted?.extras ?? createExtras();
     this.extras.memory = sanitizeMemory(this.extras);
     this.extras.extraction = sanitizeExtraction(this.extras);
@@ -1109,13 +1143,44 @@ export class RuntimeManager {
     }
     this.updateSteering();
     this.updateMemoryInjection();
+    this.detectAwayRecap(priorSessionAt);
     setSelectedStoryHash(loaded.record.hash);
     await this.persist();
     this.notify();
   }
 
+  private detectAwayRecap(priorSessionAt: string | null) {
+    if (!shouldShowAwayRecap(priorSessionAt, Date.now())) {
+      this.pendingAwayRecap = null;
+      return;
+    }
+    const snapshot = this.getSnapshot();
+    this.pendingAwayRecap = buildAwayRecap({
+      storyTitle: snapshot.storyTitle,
+      activeCheckpointName: snapshot.activeCheckpointName,
+      activeObjective: snapshot.activeObjective,
+      openArcs: this.getOpenArcs(),
+      canon: this.getCanon(),
+      tensionLevel: snapshot.tension.level,
+      gapMs: Date.now() - Date.parse(priorSessionAt as string),
+    });
+  }
+
+  getAwayRecap(): AwayRecap | null {
+    return this.pendingAwayRecap;
+  }
+
+  async showAwayRecap(): Promise<boolean> {
+    const recap = this.pendingAwayRecap;
+    if (!recap) return false;
+    this.pendingAwayRecap = null;
+    await showTextPopup(recap.html, { okButton: "Continue" });
+    return true;
+  }
+
   private async persist() {
     if (!this.loaded) return;
+    this.extras.lastSessionAt = new Date().toISOString();
     savePersistedRuntime({
       storyHash: this.loaded.record.hash,
       storyTitle: this.loaded.story.title,
@@ -1206,9 +1271,11 @@ export class RuntimeManager {
     if (!this.loaded) return;
     const story = this.loaded.story;
     let changed = false;
-    const values = this.engine.serialize().blackboard.values;
+    const state = this.engine.serialize();
+    const values = state.blackboard.values;
     Object.entries(this.extras.expansion.entries).forEach(([key, entry]) => {
       if (!["inserted", "cached", "needs_review"].includes(entry.status)) return;
+      if (entry.insertedCheckpointIds.includes(state.activeCheckpointId)) return;
       const verdict = revalidateExpansion(story, entry, values);
       if (verdict.status === "pass") return;
       this.extras.expansion.entries[key] = { ...entry, status: "stale", lastError: verdict.issues.join("; "), updatedAt: new Date().toISOString() };

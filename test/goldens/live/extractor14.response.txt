@@ -1,0 +1,7 @@
+<|channel>thought
+<channel|>DELTA q=rope_cut value=true evidence="Mira saws through the rope"
+DELTA q=tension_current value="stirring" evidence="the crate crashes down"
+FACT importance=2 text="Mira sawed through a rope to drop a crate" evidence="Mira saws through the rope and the crate crashes down"
+MEMORY type=event importance=2 expiration=session character="Mira" text="Mira cut a rope, causing a crate to crash down" evidence="Mira saws through the rope and the crate crashes down"
+SCENE_NONE
+[arc] The aftermath of the crate crashing (impact/result)

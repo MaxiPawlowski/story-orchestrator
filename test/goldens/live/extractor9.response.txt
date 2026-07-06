@@ -1,0 +1,6 @@
+<|channel>thought
+<channel|>DELTA q=stance value="wary" evidence="he eyes the party warily"
+DELTA q=tension_current value="stirring" evidence="The guard's hand drifts to his sword"
+MEMORY type=detail importance=1 expiration=scene entity="Guard" text="The guard is eyeing the party and preparing for potential combat." evidence="The guard's hand drifts to his sword; he eyes the party warily."
+SCENE_NONE
+[arc] The encounter with the guard at the In-Gate.

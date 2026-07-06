@@ -1,0 +1,29 @@
+{
+  "deltas": [
+    {
+      "q": "door_open",
+      "v": true,
+      "evidence": "vault door open"
+    },
+    {
+      "q": "alarm",
+      "v": true,
+      "evidence": "alarm begins to wail"
+    },
+    {
+      "q": "guards",
+      "v": 2,
+      "evidence": "two guards"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [
+      ""
+    ],
+    "mustNotContain": [
+      "zzz"
+    ]
+  }
+}

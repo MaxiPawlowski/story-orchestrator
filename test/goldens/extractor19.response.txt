@@ -1,0 +1,1 @@
+DELTA q=bribe_taken value=true evidence="palms the pouch of coins"

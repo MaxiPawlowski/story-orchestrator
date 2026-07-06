@@ -1,0 +1,7 @@
+<|channel>thought
+<channel|>DELTA q=location value="cave" evidence="descend into the cave"
+DELTA q=tension_current value="stirring" evidence="the air turns cold and wet"
+FACT importance=2 text="The air in the cave is cold and wet." evidence="the air turns cold and wet"
+MEMORY type=scene importance=2 expiration=scene entity="cave" text="The air is cold and wet." evidence="the air turns cold and wet"
+SCENE_BREAK at=8 reason=location
+[arc] Exploration of the cave

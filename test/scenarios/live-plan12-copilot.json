@@ -3,6 +3,7 @@
     { "eval": "for (const key of Object.keys(globalThis).filter((entry) => entry.startsWith('storyOrchestratorDebug'))) delete globalThis[key];" },
     { "import_story": { "format": 2, "title": "Copilot Scenario Live", "description": "Plan 12 copilot real-LLM gate.", "qualities": [{ "key": "has_key", "type": "bool", "source": "extractor", "rubric": "Does the crew have the vault key?" }], "checkpoints": [{ "id": "start", "name": "Start", "objective": "Case the vault.", "type": "anchor", "start": true }, { "id": "vault", "name": "Vault", "objective": "Open the vault.", "type": "anchor" }], "transitions": [{ "from": "start", "to": "vault", "priority": 0, "gate": { "q": "has_key", "op": "==", "v": true }, "effects": { "progress": { "anchor": "vault", "amount": 1 } } }], "roster": [] } },
     { "select_story": "Copilot Scenario Live" },
+    { "eval": "globalThis.storyOrchestratorRuntime.setExtractionSettings({ enabled: true, profileId: 'afcc7073-3510-4f67-8070-35ce449d4792' }); return globalThis.storyOrchestratorRuntime.getExtractionSettings();" },
     { "copilot": { "action": "stage", "stage": "qualities", "draft": { "format": 2, "title": "The Vault Job", "description": "A tense heist against a private vault.", "qualities": [], "checkpoints": [{ "id": "start", "name": "Start", "objective": "Case the vault and its guards.", "type": "anchor", "start": true }], "transitions": [], "roster": [] } } },
     { "copilot": { "action": "suggest" } },
     { "copilot": { "action": "nudge", "text": "Push the crew toward the vault door before the patrol returns." } },

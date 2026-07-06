@@ -1,0 +1,57 @@
+{
+  "format": 2,
+  "title": "Enum Switch",
+  "description": "Suite-A corpus fixture: Enum Switch.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "weather",
+      "type": "enum",
+      "source": "extractor",
+      "rubric": "Current weather.",
+      "values": [
+        "clear",
+        "storm",
+        "fog"
+      ]
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Open the scene.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Advance the scene.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+        "q": "weather",
+        "op": "in",
+        "v": [
+          "clear",
+          "storm",
+          "fog"
+        ]
+      }
+    }
+  ],
+  "roster": []
+}

@@ -1,0 +1,3 @@
+<|channel>analysis
+<channel|>DELTA q=gate_breached value=true evidence="splinters the gate"
+[3]<channel|>FACT importance=2 text="The gate was breached by the ram." evidence="splinters the gate"

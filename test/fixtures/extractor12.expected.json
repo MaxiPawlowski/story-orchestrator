@@ -1,0 +1,23 @@
+{
+  "deltas": [
+    {
+      "q": "pact_sealed",
+      "v": true,
+      "evidence": "pact is sealed in smoke"
+    }
+  ],
+  "rejected": [
+    {
+      "reason": "missing evidence"
+    }
+  ],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [
+      ""
+    ],
+    "mustNotContain": [
+      "zzz"
+    ]
+  }
+}

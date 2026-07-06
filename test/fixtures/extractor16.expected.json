@@ -1,0 +1,19 @@
+{
+  "deltas": [
+    {
+      "q": "tension_current",
+      "v": 0.75,
+      "evidence": "ceiling begins to collapse"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [
+      ""
+    ],
+    "mustNotContain": [
+      "zzz"
+    ]
+  }
+}

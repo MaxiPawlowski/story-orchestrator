@@ -1,0 +1,48 @@
+{
+  "format": 2,
+  "title": "Integer Step",
+  "description": "Suite-A corpus fixture: Integer Step.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "supplies",
+      "type": "int",
+      "source": "extractor",
+      "rubric": "How many ration packs remain, 0 to 10?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Open the scene.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Advance the scene.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+        "q": "supplies",
+        "op": ">=",
+        "v": 1
+      }
+    }
+  ],
+  "roster": []
+}

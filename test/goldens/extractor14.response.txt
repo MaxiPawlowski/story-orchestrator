@@ -1,0 +1,1 @@
+rope_cut=true evidence="saws through the rope"

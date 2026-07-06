@@ -13,6 +13,7 @@ export const DIAGNOSTIC_CODES = [
   "enum-value-invalid",
   "anchor-unreachable",
   "quality-out-of-scope",
+  "quality-never-in-scope",
   "snapshot-latching-conflict",
   "stub-no-anchor",
   "threshold-unsatisfiable",
@@ -119,6 +120,16 @@ export const runDiagnostics = (draft: StoryV2): Diagnostic[] => {
       });
     });
     if (conflict) push("snapshot-latching-conflict", "warning", "qualities", `latching quality '${quality.key}' is snapshotted then gated at a conflicting value downstream`);
+  });
+
+  const referencedKeys = new Set<string>();
+  draft.transitions.forEach((transition) => walkLeaves(transition.gate, (leaf) => referencedKeys.add(leaf.q)));
+  draft.checkpoints.forEach((checkpoint) => Object.keys(checkpoint.state_snapshot ?? {}).forEach((key) => referencedKeys.add(key)));
+  draft.qualities.forEach((quality, index) => {
+    if (quality.source !== "extractor" || quality.key === TENSION_CURRENT_KEY) return;
+    if (!referencedKeys.has(quality.key)) {
+      push("quality-never-in-scope", "warning", `qualities.${index}`, `'${quality.key}' appears in no gate or state_snapshot — it never enters extraction scope, so the extractor is never asked about it`);
+    }
   });
 
   Object.keys(draft.scaffolding ?? {}).forEach((stubId) => {

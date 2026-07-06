@@ -1,0 +1,2 @@
+DELTA q=bridge_lowered value=true evidence="drawbridge groans down"
+DELTA q=moat_drained value=true evidence="across the moat"

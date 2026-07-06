@@ -1,0 +1,23 @@
+{
+  "deltas": [
+    {
+      "q": "bridge_lowered",
+      "v": true,
+      "evidence": "drawbridge groans down"
+    }
+  ],
+  "rejected": [
+    {
+      "reason": "unknown quality"
+    }
+  ],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [
+      ""
+    ],
+    "mustNotContain": [
+      "zzz"
+    ]
+  }
+}

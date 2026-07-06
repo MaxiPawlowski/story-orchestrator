@@ -1,0 +1,1 @@
+DELTA q=tension_current value="critical" evidence="the ceiling begins to collapse"

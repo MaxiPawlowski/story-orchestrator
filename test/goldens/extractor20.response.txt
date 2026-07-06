@@ -1,0 +1,3 @@
+DELTA q=location value="cave" evidence="descend into the cave"
+MEMORY type=scene importance=1 expiration=scene text="A cold, wet cave interior." evidence="the air turns cold and wet"
+SCENE_BREAK at=8 reason=location

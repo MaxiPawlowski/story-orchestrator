@@ -3,6 +3,14 @@ import type { ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
 import type { ArcEntry, EpistemicEntry, LedgerEntry, MemoryStoreState, MemoryTier, ScoreWeights } from "@memory/index";
 import type { SteeringHint } from "@pacing/index";
+import type { InjectedPromptBlock } from "@services/STAPI";
+
+export interface PayloadCapture {
+  at: string;
+  boundary: number;
+  reason: string;
+  blocks: InjectedPromptBlock[];
+}
 
 export interface StoryLibraryRecord {
   hash: string;
@@ -30,6 +38,7 @@ export interface RuntimeExtras {
   pacing: PacingSettings;
   tension: TensionRuntimeState;
   copilot: CopilotRuntimeSettings;
+  lastSessionAt: string | null;
   updatedAt: string;
 }
 
@@ -147,6 +156,7 @@ export interface RuntimeSnapshot {
     expected: number | null;
     hint: SteeringHint | null;
   };
+  payloadCaptures: PayloadCapture[];
 }
 
 export interface LoadedStory {

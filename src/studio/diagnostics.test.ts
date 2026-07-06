@@ -61,4 +61,29 @@ describe("runDiagnostics", () => {
     });
     expect(diagnostics).toHaveLength(DIAGNOSTIC_CODES.length);
   });
+
+  it("warns when an extractor quality appears in no gate or snapshot", () => {
+    const story: StoryV2 = {
+      ...clean,
+      qualities: [...clean.qualities, { key: "orphan", type: "bool", source: "extractor", rubric: "r" }],
+    };
+    const hits = runDiagnostics(story).filter((entry) => entry.code === "quality-never-in-scope");
+    expect(hits).toHaveLength(1);
+    expect(hits[0].severity).toBe("warning");
+    expect(hits[0].message).toContain("orphan");
+  });
+
+  it("does not warn for code qualities, tension_current, or snapshot-only references", () => {
+    const story: StoryV2 = {
+      ...clean,
+      qualities: [
+        ...clean.qualities,
+        { key: "counter", type: "int", source: "code", monotonic: true, rubric: "r" },
+        { key: "tension_current", type: "float", source: "extractor", rubric: "r" },
+        { key: "snapped", type: "bool", source: "extractor", rubric: "r" },
+      ],
+      checkpoints: clean.checkpoints.map((checkpoint) => checkpoint.id === "cache" ? { ...checkpoint, state_snapshot: { snapped: true } } : checkpoint),
+    };
+    expect(runDiagnostics(story).filter((entry) => entry.code === "quality-never-in-scope")).toHaveLength(0);
+  });
 });

@@ -3,16 +3,57 @@
   "title": "Cellar Ledger",
   "description": "Extractor test story exercising bool latching and missing-evidence rejection.",
   "qualities": [
-    { "key": "message_count", "type": "int", "source": "code", "monotonic": true, "rubric": "Rendered boundary count." },
-    { "key": "torch_lit", "type": "bool", "source": "extractor", "latching": true, "rubric": "Is the torch burning?" },
-    { "key": "rats_seen", "type": "int", "source": "extractor", "monotonic": true, "rubric": "How many rats has the party spotted?" }
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "torch_lit",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Is the torch burning?"
+    },
+    {
+      "key": "rats_seen",
+      "type": "int",
+      "source": "extractor",
+      "monotonic": true,
+      "rubric": "How many rats has the party spotted?"
+    }
   ],
   "checkpoints": [
-    { "id": "start", "name": "Cellar", "objective": "Light the cellar.", "type": "anchor", "start": true },
-    { "id": "lit", "name": "Lit Cellar", "objective": "Proceed with light.", "type": "anchor" }
+    {
+      "id": "start",
+      "name": "Cellar",
+      "objective": "Light the cellar.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "lit",
+      "name": "Lit Cellar",
+      "objective": "Proceed with light.",
+      "type": "anchor",
+      "state_snapshot": {
+        "rats_seen": 1
+      }
+    }
   ],
   "transitions": [
-    { "from": "start", "to": "lit", "priority": 1, "gate": { "q": "torch_lit", "op": "==", "v": true } }
+    {
+      "from": "start",
+      "to": "lit",
+      "priority": 1,
+      "gate": {
+        "q": "torch_lit",
+        "op": "==",
+        "v": true
+      }
+    }
   ],
   "roster": []
 }

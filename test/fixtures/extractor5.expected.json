@@ -1,0 +1,19 @@
+{
+  "deltas": [
+    {
+      "q": "torch_lit",
+      "v": true,
+      "evidence": "torch flares to life"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "minCount": 1,
+    "mustContain": [
+      "torch"
+    ],
+    "mustNotContain": [
+      "dragon"
+    ]
+  }
+}

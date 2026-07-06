@@ -1,0 +1,19 @@
+{
+  "deltas": [
+    {
+      "q": "password",
+      "v": "nightingale",
+      "evidence": "password tonight is"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [
+      ""
+    ],
+    "mustNotContain": [
+      "zzz"
+    ]
+  }
+}

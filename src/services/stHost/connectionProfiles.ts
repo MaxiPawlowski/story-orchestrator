@@ -43,7 +43,7 @@ export function getSelectedConnectionProfileId(): string | null {
 export async function sendConnectionProfileRequest(profileId: string, prompt: string, maxTokens: number, overridePayload?: Record<string, unknown>): Promise<string> {
   const response = await extensionsSharedModule.ConnectionManagerRequestService.sendRequest(
     profileId,
-    prompt,
+    [{ role: "user", content: prompt }],
     maxTokens,
     { extractData: true, includePreset: true, includeInstruct: true, stream: false },
     overridePayload ?? {},

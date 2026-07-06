@@ -1,5 +1,6 @@
-import { scheduleForcedCues, ExtractionScheduler, maybeScheduleReconciliation, type SchedulerHost, type SchedulerSettings } from "@extraction/index";
+import { getChatWindow, scheduleForcedCues, ExtractionScheduler, maybeScheduleReconciliation, type SchedulerHost, type SchedulerSettings } from "@extraction/index";
 import { subscribeToHostEvents, type HostSubscriptionEntry } from "@services/STAPI";
+import { registerLiveSuite } from "./liveSuite";
 import { registerRuntimeMacros } from "./macros";
 import { runtimeManager } from "./runtimeManager";
 import { registerSlashCommands } from "./slashCommands";
@@ -12,6 +13,7 @@ let bridge: TurnBridge | null = null;
 let slashRegistered = false;
 let scheduler: ExtractionScheduler | null = null;
 let privateInjectionUnsub: (() => void) | null = null;
+let prevBoundaryLastMessageId = -1;
 
 const registerSlashCommandsWhenReady = (attempt = 0) => {
   if (slashRegistered) return;
@@ -49,7 +51,9 @@ export function startRuntime() {
   runtimeManager.onBoundary((result) => {
     if (!scheduler) return;
     scheduler.onBoundary(result.boundary, Boolean(result.fired), result.context.lastMessageId);
-    scheduleForcedCues(runtimeManager.getStory(), result.activeCheckpointId, scheduler);
+    const cueFrom = prevBoundaryLastMessageId >= 0 ? prevBoundaryLastMessageId + 1 : result.context.lastMessageId;
+    scheduleForcedCues(runtimeManager.getStory(), result.activeCheckpointId, scheduler, getChatWindow(cueFrom, result.context.lastMessageId));
+    prevBoundaryLastMessageId = result.context.lastMessageId;
     const reconciliation = maybeScheduleReconciliation(runtimeManager.getStory(), runtimeManager.getEngineState(), runtimeManager.getExtractionSettings().reconciliationMultiplier, scheduler);
     if (reconciliation) runtimeManager.recordReconciliation(reconciliation);
     runtimeManager.scheduleExpansionForActive((reason, run) => scheduler?.schedule({ priority: 3, reason, run }));
@@ -72,12 +76,14 @@ export function startRuntime() {
     scheduler?.schedule({ priority: 4, reason: `arc-summary:${arcIds.length}`, run: async () => { await runtimeManager.runArcSummaryPass(arcIds); } });
   });
   registerRuntimeMacros(runtimeManager);
+  registerLiveSuite(runtimeManager);
   window.setTimeout(() => registerSlashCommandsWhenReady(), 0);
   window.setTimeout(() => registerSlashCommandsWhenReady(), 1000);
   bridge = new TurnBridge(runtimeManager);
   bridge.start();
   const privateInjectionEntries: HostSubscriptionEntry[] = [
     { eventName: "group_member_drafted", handler: (characterId) => runtimeManager.onMemberDrafted(characterId as number | [number]) },
+    { eventName: "generation_started", handler: () => runtimeManager.capturePayload() },
     { eventName: "generation_ended", handler: () => { runtimeManager.clearPrivateInjection(); runtimeManager.clearCopilotNudge(); } },
     { eventName: "generation_stopped", handler: () => { runtimeManager.clearPrivateInjection(); runtimeManager.clearCopilotNudge(); } },
   ];
@@ -92,6 +98,7 @@ export function stopRuntime() {
   privateInjectionUnsub?.();
   privateInjectionUnsub = null;
   scheduler = null;
+  prevBoundaryLastMessageId = -1;
   started = false;
 }
 

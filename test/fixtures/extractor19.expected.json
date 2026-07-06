@@ -1,0 +1,19 @@
+{
+  "deltas": [
+    {
+      "q": "bribe_taken",
+      "v": true,
+      "evidence": "palms the pouch of coins"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [
+      ""
+    ],
+    "mustNotContain": [
+      "zzz"
+    ]
+  }
+}

@@ -11,7 +11,7 @@ npm run debug:scenario -- test/scenarios/plan03-extraction.json --sandbox
 npm run debug:session -- stop
 ```
 
-`st-session.mjs start` launches Chromium with CDP at `http://127.0.0.1:9222` and writes `.debug/session.json`. All scripts attach to that browser first and fall back to a short-lived headless browser when no session is running.
+`st-session.mts start` launches Chromium with CDP at `http://127.0.0.1:9222` and writes `.debug/session.json`. All scripts attach to that browser first and fall back to a short-lived headless browser when no session is running.
 
 Use `--headed` when starting the session if you need to watch the browser.
 
@@ -36,18 +36,19 @@ Playwright MCP is configured via the repo `.mcp.json` (`npx @playwright/mcp@late
 
 | Script | Key commands |
 |---|---|
-| `st-session.mjs` | `start`, `stop`, `status` |
-| `so-scenario.mjs` | `run <file.json> [--sandbox] [--keep]` |
-| `so-mutation-check.mjs` | `[--keep]` |
-| `so-state.mjs` | `current [--full] [--expect path=value]`, `all` |
-| `st-actions.mjs` | `send`, `send-compact`, `trigger <member>`, `slash`, `checkpoint`, `swipe`, `edit`, `delete`, `wi-status`, `wait-idle` |
-| `st-payload.mjs` | `arm`, `last [n]`, `watch [n]` |
-| `st-navigation.mjs` | `recent-group`, `new-group-session`, `recent-group-new`, `list-entities`, `open-group <id\|name>`, `open-character <name>`, `list-chats`, `open-chat <chatId>`, `new-chat` |
-| `st-eval.mjs` | `"<js>"` or `--file <path>` — run an async snippet in the ST page with `ctx` (getContext()) and `rt` (runtime handle) in scope, JSON result |
-| `so-ui.mjs` | `all`, `settings`, `drawer`, `open-settings`, `open-studio`, `studio`, `studio-tab <label>`, `screenshot` |
-| `so-copilot.mjs` | `context`, `suggest [--debug j]`, `report [--debug j]`, `nudge <text>`, `clear-nudge`, `probe [--debug d]`, `advance <id>`, `stage <stage> [--message m] [--debug j]` |
-| `so-library.mjs` | v2 library summary, `<hash>` detail, `remove <hash\|title>`, `wipe-chat-meta [--hash h]`, `--legacy` |
-| `st-search.mjs` | ST host source search, `--context-exports`, `--event-types`, `--endpoints` |
+| `st-session.mts` | `start`, `stop`, `status` |
+| `so-scenario.mts` | `run <file.json> [--sandbox] [--keep]` |
+| `so-mutation-check.mts` | `[--keep]` |
+| `so-state.mts` | `current [--full] [--expect path=value]`, `all` |
+| `st-actions.mts` | `send`, `send-compact`, `trigger <member>`, `slash`, `checkpoint`, `swipe`, `edit`, `delete`, `wi-status`, `wait-idle` |
+| `st-payload.mts` | `arm`, `last [n]`, `watch [n]` |
+| `st-navigation.mts` | `recent-group`, `new-group-session`, `recent-group-new`, `list-entities`, `open-group <id\|name>`, `open-character <name>`, `list-chats`, `open-chat <chatId>`, `new-chat` |
+| `st-eval.mts` | `"<js>"` or `--file <path>` — run an async snippet in the ST page with `ctx` (getContext()) and `rt` (runtime handle) in scope, JSON result |
+| `so-ui.mts` | `all`, `settings`, `drawer`, `open-settings`, `open-studio`, `studio`, `studio-tab <label>`, `drawer-tab <Overview\|Blackboard\|Memory\|Scheduler\|Payload>`, `screenshot` |
+| `so-copilot.mts` | `context`, `suggest [--debug j]`, `report [--debug j]`, `nudge <text>`, `clear-nudge`, `probe [--debug d]`, `advance <id>`, `stage <stage> [--message m] [--debug j]` |
+| `so-library.mts` | v2 library summary, `<hash>` detail, `remove <hash\|title>`, `wipe-chat-meta [--hash h]`, `--legacy` |
+| `so-live-suite.mts` | `run [--min 0.9] [--filter <substr>] [--record]` — real-model delta accuracy over `test/fixtures/extractor*` triples; exact-match on `{q,v}` |
+| `st-search.mts` | ST host source search, `--context-exports`, `--event-types`, `--endpoints` |
 
 ## Scenario Format
 

@@ -1,0 +1,75 @@
+{
+  "format": 2,
+  "title": "Multi Delta",
+  "description": "Suite-A corpus fixture: Multi Delta.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "door_open",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Is the vault door open?",
+      "latching": true
+    },
+    {
+      "key": "alarm",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Is the alarm sounding?"
+    },
+    {
+      "key": "guards",
+      "type": "int",
+      "source": "extractor",
+      "rubric": "How many guards are present?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Open the scene.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Advance the scene.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+        "all": [
+          {
+            "q": "door_open",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "alarm",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "guards",
+            "op": ">=",
+            "v": 1
+          }
+        ]
+      }
+    }
+  ],
+  "roster": []
+}

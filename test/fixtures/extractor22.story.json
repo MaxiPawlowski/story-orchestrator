@@ -1,0 +1,18 @@
+{
+  "format": 2,
+  "title": "Latched Oath",
+  "description": "Suite-A corpus fixture: a latched quality must be excluded from scope; only the live quality is asked.",
+  "qualities": [
+    { "key": "message_count", "type": "int", "source": "code", "monotonic": true, "rubric": "Rendered boundary count." },
+    { "key": "oath_sworn", "type": "bool", "source": "extractor", "latching": true, "rubric": "Has the blood oath been sworn?" },
+    { "key": "seal_broken", "type": "bool", "source": "extractor", "latching": true, "rubric": "Has the tomb seal been broken?" }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "Start", "objective": "Enter the tomb.", "type": "anchor", "start": true },
+    { "id": "next", "name": "Next", "objective": "Reach the crypt heart.", "type": "anchor" }
+  ],
+  "transitions": [
+    { "from": "start", "to": "next", "priority": 1, "gate": { "all": [{ "q": "oath_sworn", "op": "==", "v": true }, { "q": "seal_broken", "op": "==", "v": true }] } }
+  ],
+  "roster": []
+}

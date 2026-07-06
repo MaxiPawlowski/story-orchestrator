@@ -1,0 +1,48 @@
+{
+  "format": 2,
+  "title": "Float Reading",
+  "description": "Suite-A corpus fixture: Float Reading.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "hull_integrity",
+      "type": "float",
+      "source": "extractor",
+      "rubric": "Fraction of hull intact, 0.0 to 1.0."
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Open the scene.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Advance the scene.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+        "q": "hull_integrity",
+        "op": ">=",
+        "v": 0.5
+      }
+    }
+  ],
+  "roster": []
+}

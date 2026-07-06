@@ -1,0 +1,2 @@
+DELTA q=gate_opened value=true evidence="hauls the north gate open on silent, greased hinges"
+DELTA q=watch_alerted value=false evidence="The watch suspects nothing"

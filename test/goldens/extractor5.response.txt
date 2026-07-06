@@ -1,0 +1,2 @@
+DELTA q=torch_lit value=true evidence="the torch flares to life"
+FACT importance=1 text="Bram lit the torch in the corridor." evidence="torch flares to life"

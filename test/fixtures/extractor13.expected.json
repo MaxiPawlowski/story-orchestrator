@@ -1,0 +1,13 @@
+{
+  "deltas": [],
+  "rejected": [],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [
+      ""
+    ],
+    "mustNotContain": [
+      "chest"
+    ]
+  }
+}

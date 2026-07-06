@@ -1,0 +1,1 @@
+DELTA q=stance value="wary" evidence="he eyes the party warily"

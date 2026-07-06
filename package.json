@@ -1,6 +1,6 @@
 {
-  "name": "extension-template",
-  "version": "0.1.0",
+  "name": "story-orchestrator",
+  "version": "2.0.0",
   "private": true,
   "dependencies": {
     "cytoscape": "^3.28.1",

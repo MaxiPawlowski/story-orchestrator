@@ -120,6 +120,16 @@ export async function switchStudioTab(page, label) {
   return { tab: label };
 }
 
+export async function switchDrawerTab(page, label) {
+  const drawer = page.locator('#drawer-manager');
+  if (!(await drawer.count())) throw new Error('Drawer (#drawer-manager) is not mounted.');
+  const tab = drawer.locator('[role="tablist"] button', { hasText: label });
+  if (!(await tab.count())) throw new Error(`Drawer tab "${label}" not found.`);
+  await tab.first().click();
+  const selected = await tab.first().getAttribute('aria-selected');
+  return { tab: label, selected: selected === 'true' };
+}
+
 export async function getDrawerState(page) {
   const drawer = page.locator('#drawer-manager');
   if (!(await drawer.count())) {
@@ -212,7 +222,7 @@ export async function takeAnnotatedScreenshot(page, label = 'ui-state') {
   return { path, drawerVisible };
 }
 
-const USAGE = `Usage: node so-ui.mjs <all|settings|drawer|open-settings|open-studio|studio|studio-tab|screenshot> [label]
+const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-settings|open-studio|studio|studio-tab|drawer-tab|screenshot> [label]
 
 all: print settings + drawer state.
 settings: print settings panel state.
@@ -272,6 +282,13 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       if (!label) throw new Error('studio-tab requires a tab label');
       const result = await switchStudioTab(page, label);
       console.log('Switched studio tab:', JSON.stringify(result));
+    }
+
+    if (subcommand === 'drawer-tab') {
+      const label = process.argv[3];
+      if (!label) throw new Error('drawer-tab requires a tab label (Overview|Blackboard|Memory|Scheduler|Payload)');
+      const result = await switchDrawerTab(page, label);
+      console.log('Switched drawer tab:', JSON.stringify(result));
     }
 
     if (subcommand === 'screenshot') {

@@ -1,5 +1,6 @@
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryV2OrThrow, type BlackboardSnapshot } from "@engine/index";
 import { renderSharedReadPrompt } from "./contract";
+import { buildFixtureRun } from "./fixtureRun";
 import { parseSharedReadResponse } from "./parse";
 import { deriveFullScope, deriveScope } from "./scope";
 import * as fs from "node:fs";
@@ -147,6 +148,22 @@ describe("shared read parser", () => {
     expect(parsed.rejected.map((entry) => entry.reason)).toEqual(["unrecognized line", "unknown quality"]);
   });
 
+  it("accepts DELTA-prefixed bare and q-less value= delta variants (gemma live quirks)", () => {
+    const story = parseStoryV2OrThrow(storyFixture);
+    const parsed = parseSharedReadResponse([
+      "DELTA player_has_key=true evidence=\"I take the brass key\"",
+      "<channel|>DELTA tension_current=\"stirring\" evidence=\"the air turns cold\"",
+      "DELTA player_has_key value=true evidence=\"the key is in hand\"",
+      "DELTA not_a_quality=true evidence=\"x\"",
+    ].join("\n"), story);
+    expect(parsed.deltas.map((entry) => ({ q: entry.delta.q, v: entry.delta.v }))).toEqual([
+      { q: "player_has_key", v: true },
+      { q: "tension_current", v: 0.25 },
+      { q: "player_has_key", v: true },
+    ]);
+    expect(parsed.rejected.map((entry) => entry.reason)).toEqual(["unknown quality"]);
+  });
+
   it("treats SCENE_NONE as an explicit no-break rather than a rejection", () => {
     const story = parseStoryV2OrThrow(storyFixture);
     const parsed = parseSharedReadResponse("SCENE_NONE", story);
@@ -173,24 +190,50 @@ describe("shared read parser", () => {
     expect(parsed.rejected).toEqual([]);
   });
 
-  it.each(["extractor2", "extractor3", "extractor4"])("parses the %s suite-A corpus fixture", (name) => {
-    const story = parseStoryV2OrThrow(readJson<unknown>(`${name}.story.json`));
+  const fixturesDir = path.join(process.cwd(), "test/fixtures");
+  const CORPUS = fs.readdirSync(fixturesDir)
+    .filter((file) => /^extractor.+\.story\.json$/.test(file))
+    .map((file) => file.replace(/\.story\.json$/, ""))
+    .filter((name) => ["transcript", "expected"].every((kind) => fs.existsSync(path.join(fixturesDir, `${name}.${kind}.json`))))
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+  it("discovers the full suite-A corpus (≥20 fixtures)", () => {
+    expect(CORPUS.length).toBeGreaterThanOrEqual(20);
+  });
+
+  it.each(CORPUS)("parses the %s suite-A corpus fixture and lists its scope in the prompt", (name) => {
+    const storyRaw = readJson<unknown>(`${name}.story.json`);
+    const transcript = readJson<Array<{ index: number; speaker: string; text: string }>>(`${name}.transcript.json`);
     const golden = fs.readFileSync(path.join(process.cwd(), "test/goldens", `${name}.response.txt`), "utf8");
     const expected = readJson<{
       deltas: Array<{ q: string; v: unknown; evidence: string }>;
       rejected: Array<{ reason: string }>;
       facts: { minCount: number; mustContain: string[]; mustNotContain: string[] };
+      spec?: { activeCheckpointId?: string; window?: { from: number; to: number }; canon?: string; blackboard?: BlackboardSnapshot };
+      promptExcludes?: string[];
     }>(`${name}.expected.json`);
-    const parsed = parseSharedReadResponse(golden, story);
 
+    const run = buildFixtureRun({ story: storyRaw, transcript, ...(expected.spec ?? {}) });
+    expected.deltas.forEach((entry) => {
+      expect(run.prompt).toContain(entry.q);
+    });
+    (expected.promptExcludes ?? []).forEach((needle) => {
+      expect(run.prompt).not.toContain(needle);
+    });
+
+    const parsed = parseSharedReadResponse(golden, run.story);
     expect(parsed.deltas.map((entry) => ({ q: entry.delta.q, v: entry.delta.v }))).toEqual(expected.deltas.map((entry) => ({ q: entry.q, v: entry.v })));
     expected.deltas.forEach((entry) => {
       expect(parsed.deltas.find((delta) => delta.delta.q === entry.q)?.evidence).toContain(entry.evidence);
     });
     expect(parsed.rejected.map((entry) => entry.reason)).toEqual(expected.rejected.map((entry) => entry.reason));
-    expect(parsed.facts.length).toBeGreaterThanOrEqual(expected.facts.minCount);
-    expect(parsed.facts.some((fact) => fact.text.includes(expected.facts.mustContain[0]))).toBe(true);
-    expect(parsed.facts.some((fact) => fact.text.includes(expected.facts.mustNotContain[0]))).toBe(false);
+    if (expected.facts.minCount > 0) expect(parsed.facts.length).toBeGreaterThanOrEqual(expected.facts.minCount);
+    for (const substring of expected.facts.mustContain) {
+      if (substring) expect(parsed.facts.some((fact) => fact.text.includes(substring))).toBe(true);
+    }
+    for (const substring of expected.facts.mustNotContain) {
+      if (substring) expect(parsed.facts.some((fact) => fact.text.includes(substring))).toBe(false);
+    }
   });
 });
 
@@ -208,5 +251,14 @@ describe("shared read contract", () => {
     expect(prompt).toContain("Closed vocabulary");
     expect(prompt).toContain("player_has_key");
     expect(prompt).toContain("[4] Max");
+  });
+
+  it("buildFixtureRun produces the same live/deterministic prompt path for the base fixture", () => {
+    const run = buildFixtureRun({ story: storyFixture, transcript: transcriptFixture, activeCheckpointId: "start", window: { from: 4, to: 5 }, canon: "Anchor start: Find the key." });
+    expect(run.activeCheckpointId).toBe("start");
+    expect(run.scope.map((entry) => entry.key)).toEqual(["location", "mara_trust", "player_has_key", "tension_current"]);
+    expect(run.prompt).toContain("Closed vocabulary");
+    expect(run.prompt).toContain("player_has_key");
+    expect(run.prompt).toContain("[4] Max");
   });
 });

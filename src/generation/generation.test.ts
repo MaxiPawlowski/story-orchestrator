@@ -93,6 +93,27 @@ describe("background generation", () => {
     expect(invalid.issues.some((issue) => issue.includes("unknown quality"))).toBe(true);
   });
 
+  it("coerces stringified bool/number gate and delta values against the quality type (gemma live quirk)", () => {
+    const parsed = parseGeneratedBeats(JSON.stringify({ beats: [{
+      objective: "Search the ruins",
+      guidance: "Cross the bridge",
+      tension_target: "stirring",
+      outcomes: [{ label: "Key found", gate: { q: "key_found", op: "==", v: "false" }, deltas: [{ q: "key_found", v: "true" }] }],
+    }] }), story);
+    expect(parsed.issues).toEqual([]);
+    expect(parsed.beats[0].outcomes[0].gate).toEqual({ q: "key_found", op: "==", v: false });
+    expect(parsed.beats[0].outcomes[0].deltas).toEqual([{ q: "key_found", v: true }]);
+
+    const enumStays = parseGeneratedBeats(JSON.stringify({ beats: [{
+      objective: "Approach",
+      guidance: "Pick a path",
+      tension_target: "tense",
+      outcomes: [{ label: "Safe", gate: { q: "approach", op: "==", v: "unknown" } }],
+    }] }), story);
+    expect(enumStays.issues).toEqual([]);
+    expect(enumStays.beats[0].outcomes[0].gate).toEqual({ q: "approach", op: "==", v: "unknown" });
+  });
+
   it("runs hard arithmetic checks before critic judgement", () => {
     const input = planExpansion(story, { values: { key_found: false, approach: "unknown" } }, candidate(), "", []);
     const result = runCodeChecks(story, input, parsedBeats());
@@ -112,6 +133,19 @@ describe("background generation", () => {
     entry.beats = [entry.beats[0]];
     const partial = revalidateExpansion(story, entry, { key_found: false, approach: "unknown" });
     expect(partial.status).toBe("partial");
+  });
+
+  it("does not treat values missing from the basis as drift when beats still bridge to target", () => {
+    const entry = { ...cacheEntry(), basis: {} };
+    const midFlight = revalidateExpansion(story, entry, { key_found: true, approach: "unknown", tension_current: 0.25 });
+    expect(midFlight.status).toBe("pass");
+    expect(midFlight.issues).toEqual([]);
+  });
+
+  it("still flags drift for basis-tracked values that moved off-plan", () => {
+    const drifted = revalidateExpansion(story, cacheEntry(), { key_found: false, approach: "risky" });
+    expect(drifted.status).toBe("fail");
+    expect(drifted.issues).toEqual(["approach drifted from expansion basis"]);
   });
 
   it("merges generated intermediates into a runtime-only story", () => {

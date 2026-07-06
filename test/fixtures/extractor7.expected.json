@@ -1,0 +1,19 @@
+{
+  "deltas": [
+    {
+      "q": "hull_integrity",
+      "v": 0.6,
+      "evidence": "hull integrity is down to zero point six"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [
+      ""
+    ],
+    "mustNotContain": [
+      "zzz"
+    ]
+  }
+}

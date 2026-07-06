@@ -19,6 +19,7 @@ function decodeRuntime(entry) {
     latched: engine.blackboard?.latched ?? {},
     requirements: entry.extras?.requirements ?? null,
     firedNpcReplies: entry.extras?.firedNpcReplies ?? {},
+    lastSessionAt: entry.extras?.lastSessionAt ?? null,
     extraction: entry.extras?.extraction ? {
       settings: entry.extras.extraction.settings ?? null,
       scheduler: entry.extras.extraction.scheduler ?? null,
@@ -92,6 +93,7 @@ export async function dumpCurrentChatState(page) {
     const entry = selected && blob?.stories ? blob.stories[selected] ?? null : null;
     const runtimeSnapshot = globalThis.storyOrchestratorRuntime?.getSnapshot?.() ?? null;
     const activeNudge = globalThis.storyOrchestratorRuntime?.getActiveNudge?.() ?? null;
+    const possibleTransitions = globalThis.storyOrchestratorRuntime?.getPossibleTransitions?.() ?? null;
     const copilotNudgePrompt = ctx.extensionPrompts?.story_copilot_nudge ?? null;
     const pacingPrompt = ctx.extensionPrompts?.story_orchestrator_pacing ?? null;
     const memoryPrompts = ['facts', 'session_details', 'short_term', 'scene_history'].reduce((acc, tier) => {
@@ -107,6 +109,7 @@ export async function dumpCurrentChatState(page) {
       entry,
       runtimeSnapshot,
       activeNudge,
+      possibleTransitions,
       copilotNudgePrompt,
       pacingPrompt,
       memoryPrompts,
@@ -122,6 +125,7 @@ export async function dumpCurrentChatState(page) {
     state: decodeRuntime(data?.entry),
     liveSnapshot: data?.runtimeSnapshot ?? null,
     activeNudge: data?.activeNudge ?? null,
+    possibleTransitions: data?.possibleTransitions ?? null,
     copilotNudgePrompt: data?.copilotNudgePrompt ?? null,
     pacingPrompt: data?.pacingPrompt ?? null,
     memoryPrompts: data?.memoryPrompts ?? null,
@@ -150,6 +154,12 @@ function compactCurrent(data) {
     memoryInjected: data?.memoryPrompts ? Object.fromEntries(Object.entries(data.memoryPrompts).map(([tier, prompt]) => [tier, Boolean((prompt as { value?: unknown } | null)?.value)])) : null,
     tension: data?.liveSnapshot?.tension ?? state?.tension ?? null,
     pacingPrompt: data?.pacingPrompt ?? null,
+    possibleTransitions: data?.possibleTransitions ?? null,
+    lastSessionAt: state?.lastSessionAt ?? null,
+    payloadCaptures: (() => {
+      const captures = data?.liveSnapshot?.payloadCaptures ?? [];
+      return { count: captures.length, latestReason: captures[0]?.reason ?? null, latestBlocks: captures[0]?.blocks?.length ?? null };
+    })(),
     copilot: {
       enabled: data?.liveSnapshot?.copilot?.enabled ?? null,
       activeNudge: data?.activeNudge ?? null,

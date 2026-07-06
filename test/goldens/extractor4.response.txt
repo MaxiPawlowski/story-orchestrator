@@ -1,4 +1,4 @@
-DELTA q=signal_strength value=0.9 evidence="signal strength near full"
+DELTA q=signal_strength value=0.9 evidence="signal strength at nine-tenths"
 DELTA q=crew_spirit value=8 evidence="cheers rise"
 DELTA q=crew_morale value=8 evidence="cheers rise across the crew"
-FACT importance=2 text="Dee stoked the beacon to near full strength." evidence="signal strength near full"
+FACT importance=2 text="Dee stoked the beacon to nine-tenths strength." evidence="signal strength at nine-tenths"

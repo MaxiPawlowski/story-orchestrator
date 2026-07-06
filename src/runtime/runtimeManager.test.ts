@@ -44,6 +44,10 @@ jest.mock("@services/STAPI", () => {
     getActiveGroup: getActiveGroupMock,
     resolveGroupMemberId: resolveGroupMemberIdMock,
     getCharacterNameById: (id: number) => (id === 0 ? "Mara" : id === 1 ? "Kael" : id === 2 ? "Narrator" : undefined),
+    readInjectedPromptBlocks: () => Object.entries(mockExtensionPrompts)
+      .filter(([key, entry]) => key.startsWith("story_") && entry.value.trim())
+      .map(([key, entry]) => ({ key, depth: entry.depth, role: 0, value: entry.value })),
+    showTextPopup: jest.fn(async () => undefined),
   };
 });
 
@@ -824,5 +828,64 @@ describe("RuntimeManager copilot seam", () => {
 
     manager.setCopilotNudge("Ignored while off.");
     expect(mockExtensionPrompts.story_copilot_nudge).toBeUndefined();
+  });
+});
+
+describe("RuntimeManager plan-13 surfacing", () => {
+  beforeEach(() => resetHost());
+
+  const gatedStory = {
+    ...story,
+    title: "Surfacing Test",
+    qualities: [{ key: "has_key", type: "bool", source: "extractor", latching: true, rubric: "Key?" }],
+    transitions: [{ from: "start", to: "end", priority: 1, gate: { q: "has_key", op: "==", v: true } }],
+  };
+
+  it("renders possible transitions with gate text and target name", async () => {
+    const manager = new RuntimeManager();
+    expect(manager.getPossibleTransitions()).toEqual([]);
+    await manager.importStory(JSON.stringify(gatedStory));
+    expect(manager.getPossibleTransitions()).toEqual(["→ End when has_key == true"]);
+  });
+
+  it("keeps only the last five payload captures, newest first", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(gatedStory));
+    mockExtensionPrompts.story_orchestrator_pacing = { value: "Pacing: hold.", depth: 2 };
+    for (let index = 1; index <= 7; index += 1) manager.capturePayload(`reason-${index}`);
+    const captures = manager.getPayloadCaptures();
+    expect(captures).toHaveLength(5);
+    expect(captures[0].reason).toBe("reason-7");
+    expect(captures[4].reason).toBe("reason-3");
+    expect(captures[0].blocks.map((block) => block.key)).toContain("story_orchestrator_pacing");
+  });
+
+  it("detects an away recap on hydrate after a long gap and none after a short one", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(gatedStory));
+    const metadata = mockContext.chatMetadata.story_orchestrator as { stories: Record<string, { extras: { lastSessionAt: string | null } }> };
+    const hash = Object.keys(metadata.stories)[0];
+
+    metadata.stories[hash].extras.lastSessionAt = new Date(Date.now() - 9 * 60 * 60 * 1000).toISOString();
+    await manager.selectStory(hash, "hydrate");
+    const recap = manager.getAwayRecap();
+    expect(recap).not.toBeNull();
+    expect(recap?.lines[0]).toContain("Start");
+
+    metadata.stories[hash].extras.lastSessionAt = new Date().toISOString();
+    await manager.selectStory(hash, "hydrate");
+    expect(manager.getAwayRecap()).toBeNull();
+  });
+
+  it("showAwayRecap consumes the pending recap once", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(gatedStory));
+    const metadata = mockContext.chatMetadata.story_orchestrator as { stories: Record<string, { extras: { lastSessionAt: string | null } }> };
+    const hash = Object.keys(metadata.stories)[0];
+    metadata.stories[hash].extras.lastSessionAt = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    await manager.selectStory(hash, "hydrate");
+    expect(await manager.showAwayRecap()).toBe(true);
+    expect(manager.getAwayRecap()).toBeNull();
+    expect(await manager.showAwayRecap()).toBe(false);
   });
 });

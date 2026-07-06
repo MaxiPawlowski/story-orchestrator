@@ -1,0 +1,48 @@
+{
+  "format": 2,
+  "title": "String Quality",
+  "description": "Suite-A corpus fixture: String Quality.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "password",
+      "type": "string",
+      "source": "extractor",
+      "rubric": "The spoken password, if any."
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Open the scene.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Advance the scene.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+        "q": "password",
+        "op": "==",
+        "v": "any"
+      }
+    }
+  ],
+  "roster": []
+}

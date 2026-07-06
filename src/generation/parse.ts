@@ -20,6 +20,13 @@ const valueMatches = (quality: Quality, value: PrimitiveValue) => {
   return typeof value === "number" && Number.isInteger(value);
 };
 
+const coerceValue = (quality: Quality | undefined, value: PrimitiveValue): PrimitiveValue => {
+  if (!quality || typeof value !== "string") return value;
+  if (quality.type === "bool" && /^(true|false)$/i.test(value)) return value.toLowerCase() === "true";
+  if ((quality.type === "int" || quality.type === "float") && value.trim() !== "" && Number.isFinite(Number(value))) return Number(value);
+  return value;
+};
+
 const readGate = (value: unknown, story: NormalizedStoryV2, path: string, issues: string[]): GateNode | null => {
   if (!isRecord(value)) {
     issues.push(`${path}: gate must be an object`);
@@ -30,7 +37,9 @@ const readGate = (value: unknown, story: NormalizedStoryV2, path: string, issues
     if (typeof value.op !== "string" || !(GATE_OPERATORS as readonly string[]).includes(value.op)) issues.push(`${path}.op: invalid operator`);
     if (!isPrimitive(value.v) && !(Array.isArray(value.v) && value.v.every(isPrimitive))) issues.push(`${path}.v: invalid value`);
     if (typeof value.q !== "string" || typeof value.op !== "string" || !(GATE_OPERATORS as readonly string[]).includes(value.op) || (!isPrimitive(value.v) && !(Array.isArray(value.v) && value.v.every(isPrimitive)))) return null;
-    return { q: value.q, op: value.op as GateOperator, v: value.v as PrimitiveValue | PrimitiveValue[] };
+    const quality = story.qualityByKey[value.q];
+    const v = Array.isArray(value.v) ? value.v.map((entry) => coerceValue(quality, entry as PrimitiveValue)) : coerceValue(quality, value.v as PrimitiveValue);
+    return { q: value.q, op: value.op as GateOperator, v };
   }
   if (Array.isArray(value.all)) return { all: value.all.map((entry, index) => readGate(entry, story, `${path}.all.${index}`, issues)).filter((entry): entry is GateNode => Boolean(entry)) };
   if (Array.isArray(value.any)) return { any: value.any.map((entry, index) => readGate(entry, story, `${path}.any.${index}`, issues)).filter((entry): entry is GateNode => Boolean(entry)) };
@@ -55,11 +64,12 @@ const readDeltas = (value: unknown, story: NormalizedStoryV2, path: string, issu
       return null;
     }
     const quality = story.qualityByKey[entry.q];
-    if (!quality || !valueMatches(quality, entry.v)) {
+    const v = coerceValue(quality, entry.v);
+    if (!quality || !valueMatches(quality, v)) {
       issues.push(`${entryPath}: invalid delta value`);
       return null;
     }
-    return { q: entry.q, v: entry.v };
+    return { q: entry.q, v };
   }).filter((entry): entry is ScaffoldingDelta => Boolean(entry));
 };
 

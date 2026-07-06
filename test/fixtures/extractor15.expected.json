@@ -1,0 +1,23 @@
+{
+  "deltas": [
+    {
+      "q": "gate_breached",
+      "v": true,
+      "evidence": "splinters the gate"
+    }
+  ],
+  "rejected": [
+    {
+      "reason": "unrecognized line"
+    }
+  ],
+  "facts": {
+    "minCount": 1,
+    "mustContain": [
+      "gate"
+    ],
+    "mustNotContain": [
+      "zzz"
+    ]
+  }
+}

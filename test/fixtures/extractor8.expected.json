@@ -1,0 +1,19 @@
+{
+  "deltas": [
+    {
+      "q": "weather",
+      "v": "fog",
+      "evidence": "wall of fog"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [
+      ""
+    ],
+    "mustNotContain": [
+      "zzz"
+    ]
+  }
+}

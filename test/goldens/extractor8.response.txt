@@ -1,0 +1,1 @@
+DELTA q=weather value="fog" evidence="A wall of fog rolls in"

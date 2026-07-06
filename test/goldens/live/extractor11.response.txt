@@ -1,0 +1,7 @@
+<|channel>thought
+<channel|>DELTA q=bridge_lowered value=true evidence="The drawbridge groans down across the moat."
+DELTA q=tension_current value="calm" evidence="The drawbridge groans down across the moat."
+FACT importance=2 text="The drawbridge has been lowered across the moat." evidence="The drawbridge groans down across the moat."
+MEMORY type=scene importance=2 expiration=session text="The drawbridge is lowered across the moat." evidence="The drawbridge groans down across the moat."
+SCENE_NONE
+[arc] The journey/entry into the location beyond the drawbridge.

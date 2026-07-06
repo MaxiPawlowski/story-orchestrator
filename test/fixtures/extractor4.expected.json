@@ -1,6 +1,6 @@
 {
   "deltas": [
-    { "q": "signal_strength", "v": 0.9, "evidence": "signal strength near full" },
+    { "q": "signal_strength", "v": 0.9, "evidence": "signal strength at nine-tenths" },
     { "q": "crew_morale", "v": 8, "evidence": "cheers rise across the crew" }
   ],
   "rejected": [

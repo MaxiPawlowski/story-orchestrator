@@ -1,0 +1,35 @@
+{
+  "steps": [
+    { "import_story": {
+      "format": 2,
+      "title": "Plan 13 Surfacing",
+      "description": "Surfacing smoke: macros, /so-mem, away-recap surface.",
+      "qualities": [
+        { "key": "has_key", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player obtain the key?" }
+      ],
+      "checkpoints": [
+        { "id": "start", "name": "Gate", "objective": "Reach the sanctum.", "type": "anchor", "start": true },
+        { "id": "end", "name": "Sanctum", "objective": "Enter the sanctum.", "type": "anchor" }
+      ],
+      "transitions": [
+        { "from": "start", "to": "end", "priority": 1, "gate": { "q": "has_key", "op": "==", "v": true } }
+      ],
+      "roster": [{ "id": "arin", "name": "Arin" }]
+    } },
+    { "eval": "const ctx=SillyTavern.getContext(); const t=ctx.substituteParams('{{story_title}}'); if(t!=='Plan 13 Surfacing') throw new Error('story_title='+t);" },
+    { "eval": "const ctx=SillyTavern.getContext(); const c=ctx.substituteParams('{{story_current_checkpoint}}'); if(!c.includes('Gate')||!c.includes('sanctum')) throw new Error('story_current_checkpoint='+c);" },
+    { "eval": "const ctx=SillyTavern.getContext(); const p=ctx.substituteParams('{{story_possible_transitions}}'); if(!p.includes('Sanctum')||!p.includes('has_key')) throw new Error('story_possible_transitions='+p);" },
+    { "eval": "const ctx=SillyTavern.getContext(); const r=ctx.substituteParams('{{story_role_arin}}'); if(r!=='Arin') throw new Error('story_role_arin='+r);" },
+    { "slash": "/so-mem list" },
+    { "eval": "const rt=globalThis.storyOrchestratorRuntime; if(typeof rt.getAwayRecap!=='function') throw new Error('getAwayRecap missing'); if(rt.getAwayRecap()!==null) throw new Error('unexpected pending recap on fresh import');" },
+    { "eval": "const rt=globalThis.storyOrchestratorRuntime; const pt=rt.getPossibleTransitions(); if(!Array.isArray(pt)||pt.length!==1) throw new Error('getPossibleTransitions='+JSON.stringify(pt));" },
+    { "extract": "MEMORY type=fact importance=2 expiration=permanent text=\"The sanctum key hangs by the gate.\" evidence=\"the key by the gate\"" },
+    { "expect": { "memory": { "facts": { "count": 1, "contains": ["sanctum key"] } } } },
+    { "eval": "const rt=globalThis.storyOrchestratorRuntime; const entry=rt.getSnapshot().memory.entries.find(e=>e.text.includes('sanctum key')); if(!entry) throw new Error('seeded entry missing'); globalThis.__p13memId=entry.id;" },
+    { "eval": "const ctx=SillyTavern.getContext(); await ctx.executeSlashCommandsWithOptions('/so-mem pin '+globalThis.__p13memId);" },
+    { "eval": "const rt=globalThis.storyOrchestratorRuntime; const entry=rt.getSnapshot().memory.entries.find(e=>e.id===globalThis.__p13memId); if(!entry?.pinned) throw new Error('entry not pinned via /so-mem');" },
+    { "eval": "const ctx=SillyTavern.getContext(); await ctx.executeSlashCommandsWithOptions('/so-mem exclude '+globalThis.__p13memId);" },
+    { "eval": "const rt=globalThis.storyOrchestratorRuntime; if(rt.getSnapshot().memory.entries.some(e=>e.id===globalThis.__p13memId)) throw new Error('entry not excluded via /so-mem'); delete globalThis.__p13memId;" },
+    { "eval": "const rt=globalThis.storyOrchestratorRuntime; rt.capturePayload('scenario'); const c=rt.getPayloadCaptures(); if(!c.length||c[0].reason!=='scenario') throw new Error('payload capture failed: '+JSON.stringify(c[0]??null));" }
+  ]
+}

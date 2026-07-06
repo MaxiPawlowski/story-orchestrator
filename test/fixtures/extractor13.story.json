@@ -1,0 +1,48 @@
+{
+  "format": 2,
+  "title": "No Delta",
+  "description": "Suite-A corpus fixture: No Delta.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "chest_found",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Was the treasure chest found?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Open the scene.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Advance the scene.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+        "q": "chest_found",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": []
+}

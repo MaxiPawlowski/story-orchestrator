@@ -14,11 +14,8 @@
     "paths": {
       "@components/*": ["components/*"],
       "@services/*": ["services/*"],
-      "@hooks/*": ["hooks/*"],
       "@utils/*": ["utils/*"],
-      "@controllers/*": ["controllers/*"],
       "@constants/*": ["constants/*"],
-      "@store/*": ["store/*"],
       "@engine/*": ["engine/*"],
       "@runtime/*": ["runtime/*"],
       "@extraction/*": ["extraction/*"],

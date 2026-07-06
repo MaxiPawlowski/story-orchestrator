@@ -20,10 +20,19 @@ import {
 } from "../studio/mutations";
 import type { ProposalOp, TransitionRef } from "./types";
 
-export const resolveTransitionRef = (draft: StoryV2, ref: TransitionRef): number =>
-  draft.transitions.findIndex(
-    (entry) => entry.from === ref.from && entry.to === ref.to && (ref.priority === undefined || entry.priority === ref.priority),
-  );
+export const transitionRefMatches = (draft: StoryV2, ref: TransitionRef): number[] =>
+  draft.transitions.reduce<number[]>((matches, entry, index) => {
+    if (entry.from === ref.from && entry.to === ref.to && (ref.priority === undefined || entry.priority === ref.priority)) matches.push(index);
+    return matches;
+  }, []);
+
+export const resolveTransitionRef = (draft: StoryV2, ref: TransitionRef): number => transitionRefMatches(draft, ref)[0] ?? -1;
+
+export const ambiguousRef = (draft: StoryV2, op: ProposalOp): string | null => {
+  if (op.kind !== "updateTransition" && op.kind !== "removeTransition" && op.kind !== "setTransitionGate") return null;
+  const matches = transitionRefMatches(draft, op.ref);
+  return matches.length > 1 ? `transition ${op.ref.from} → ${op.ref.to} is ambiguous (${matches.length} matches; set priority to disambiguate)` : null;
+};
 
 export const applyOp = (draft: StoryV2, op: ProposalOp): StoryV2 => {
   switch (op.kind) {
@@ -99,6 +108,11 @@ export const applyOpsChecked = (draft: StoryV2, ops: ProposalOp[]): { next: Stor
     const missing = missingTarget(current, op);
     if (missing) {
       issues.push(`ops.${index}: ${missing} not found`);
+      return current;
+    }
+    const ambiguous = ambiguousRef(current, op);
+    if (ambiguous) {
+      issues.push(`ops.${index}: ${ambiguous}`);
       return current;
     }
     return applyOp(current, op);

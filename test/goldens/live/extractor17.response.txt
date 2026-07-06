@@ -1,0 +1,7 @@
+<|channel>thought
+<channel|>DELTA q=password value="nightingale" evidence="the password tonight is 'nightingale'"
+DELTA q=tension_current value="calm" evidence="The sentry leans in"
+FACT importance=2 text="The password for the night is 'nightingale'." evidence="the password tonight is 'nightingale'"
+MEMORY type=detail importance=2 expiration=session text="The password is 'nightingale'." evidence="the password tonight is 'nightingale'"
+SCENE_NONE
+[arc] The protagonist must provide the password to the sentry to proceed.

@@ -1,0 +1,49 @@
+{
+  "format": 2,
+  "title": "Boolean Flip",
+  "description": "Suite-A corpus fixture: Boolean Flip.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "torch_lit",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Did the torch get lit?",
+      "latching": true
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Open the scene.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Advance the scene.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+        "q": "torch_lit",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": []
+}

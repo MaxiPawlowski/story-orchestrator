@@ -1,0 +1,2 @@
+DELTA q=pact_sealed value=true evidence="the pact is sealed in smoke"
+DELTA q=pact_sealed value=false evidence=""

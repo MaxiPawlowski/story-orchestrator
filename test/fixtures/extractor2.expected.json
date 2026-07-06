@@ -1,7 +1,7 @@
 {
   "deltas": [
     { "q": "district", "v": "docks", "evidence": "toward the docks" },
-    { "q": "threat_level", "v": 2, "evidence": "air grows tense" }
+    { "q": "threat_level", "v": 2, "evidence": "two out of five" }
   ],
   "rejected": [
     { "reason": "invalid value" }

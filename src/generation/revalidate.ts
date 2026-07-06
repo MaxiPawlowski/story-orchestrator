@@ -21,7 +21,7 @@ export function revalidateExpansion(
   const target = story.checkpointById[entry.targetAnchorId];
   if (!target) return { status: "fail", validBeatCount: 0, issues: [`Unknown target anchor ${entry.targetAnchorId}`] };
   const driftIssues = Object.entries(target.state_snapshot ?? {})
-    .filter(([key, value]) => blackboard[key] !== entry.basis[key] && !matches(blackboard[key], value, tolerance))
+    .filter(([key, value]) => key in entry.basis && blackboard[key] !== entry.basis[key] && !matches(blackboard[key], value, tolerance))
     .map(([key]) => `${key} drifted from expansion basis`);
   if (driftIssues.length) return { status: "fail", validBeatCount: 0, issues: driftIssues };
   let values = { ...blackboard };

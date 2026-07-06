@@ -1,0 +1,1 @@
+DELTA q=ally_wounded value=true evidence="blood soaking her sleeve"

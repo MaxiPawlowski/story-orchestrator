@@ -1,0 +1,19 @@
+{
+  "deltas": [
+    {
+      "q": "location",
+      "v": "cave",
+      "evidence": "descend into the cave"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [
+      ""
+    ],
+    "mustNotContain": [
+      "zzz"
+    ]
+  }
+}

@@ -12,6 +12,7 @@ export type RossModsHostModule = typeof import("../../../../../../../scripts/Ros
 export type GroupChatsHostModule = typeof import("../../../../../../../scripts/group-chats.js");
 export type ExtensionsSharedHostModule = typeof import("../../../../../../../scripts/extensions/shared.js");
 export type TokenizersHostModule = typeof import("../../../../../../../scripts/tokenizers.js");
+export type PopupHostModule = typeof import("../../../../../../../scripts/popup.js");
 
 export const scriptModule = await importSTModule<ScriptHostModule>("/script.js");
 export const extensionsModule = await importSTModule<ExtensionsHostModule>("/scripts/extensions.js");
@@ -23,3 +24,4 @@ export const rossModsModule = await importSTModule<RossModsHostModule>("/scripts
 export const groupChatsModule = await importSTModule<GroupChatsHostModule>("/scripts/group-chats.js");
 export const extensionsSharedModule = await importSTModule<ExtensionsSharedHostModule>("/scripts/extensions/shared.js");
 export const tokenizersModule = await importSTModule<TokenizersHostModule>("/scripts/tokenizers.js");
+export const popupModule = await importSTModule<PopupHostModule>("/scripts/popup.js");

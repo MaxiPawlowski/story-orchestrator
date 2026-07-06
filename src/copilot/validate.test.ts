@@ -52,6 +52,25 @@ describe("validateProposal", () => {
     }
   });
 
+  it("blocks a transition ref that matches multiple transitions without a disambiguating priority", () => {
+    const ops: ProposalOp[] = [
+      { kind: "addTransition", transition: { from: "start", to: "vault", gate: { all: [] }, priority: 0 } },
+      { kind: "addTransition", transition: { from: "start", to: "vault", gate: { all: [] }, priority: 1 } },
+      { kind: "setTransitionGate", ref: { from: "start", to: "vault" }, gate: { q: "has_key", op: "==", v: true } },
+    ];
+    const result = validateProposal(baseDraft(), ops);
+    expect(result.blocking.some((issue) => issue.includes("ambiguous"))).toBe(true);
+  });
+
+  it("allows a transition ref disambiguated by priority", () => {
+    const ops: ProposalOp[] = [
+      { kind: "addTransition", transition: { from: "start", to: "vault", gate: { all: [] }, priority: 0 } },
+      { kind: "addTransition", transition: { from: "start", to: "vault", gate: { all: [] }, priority: 1 } },
+      { kind: "setTransitionGate", ref: { from: "start", to: "vault", priority: 1 }, gate: { q: "has_key", op: "==", v: true } },
+    ];
+    expect(validateProposal(baseDraft(), ops).blocking).toEqual([]);
+  });
+
   it("resolves an intra-proposal target added by an earlier op", () => {
     const ops: ProposalOp[] = [
       { kind: "addTransition", transition: { from: "start", to: "vault", gate: { all: [] }, priority: 0 } },

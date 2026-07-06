@@ -1,0 +1,13 @@
+<|channel>thought
+<channel|>DELTA gate_opened value=true evidence="Sela darts forward, throws the heavy bolt, and hauls the north gate open"
+DELTA tension_current value="stirring" evidence="Sela hisses. 'If we're seen, the whole watch comes down on us.'"
+DELTA watch_alerted value=false evidence="The watch suspects nothing as the crew slips through."
+
+FACT importance=2 text="Sela and Bram are attempting to enter a city via the north gate." evidence="Bram whispers about opening the north gate once the patrol passes"
+MEMORY type=scene importance=2 expiration=session entity="Sela,Bram" text="Sela and Bram are hiding by the aqueduct watching patrol torches." evidence="Sela crouches in the shadow of the aqueduct, counting the patrol torches."
+MEMORY type=detail importance=1 expiration=session text="The north gate hinges are greased for silence." evidence="hauls the north gate open on silent, greased hinges."
+MEMORY type=event importance=2 expiration=session entity="Sela" text="Sela successfully opened the north gate after the patrol passed." evidence="Sela darts forward, throws the heavy bolt, and hauls the north gate open"
+
+SCENE_NONE
+
+[arc] Slip into the city.

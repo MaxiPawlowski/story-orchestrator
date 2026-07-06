@@ -1,0 +1,1 @@
+DELTA q=supplies value=3 evidence="three ration packs left"

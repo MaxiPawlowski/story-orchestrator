@@ -1,0 +1,37 @@
+{
+  "format": 2,
+  "title": "Tension Level",
+  "description": "Suite-A corpus fixture: Tension Level.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "tension_current",
+      "type": "float",
+      "source": "extractor",
+      "rubric": "Rate the current tension."
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Open the scene.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Advance the scene.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [],
+  "roster": []
+}

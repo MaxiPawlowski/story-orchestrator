@@ -85,5 +85,49 @@ export function registerSlashCommands(manager: RuntimeManager): boolean {
     },
     helpString: "Story Orchestrator v2 commands: list, state, activate <id>, set <quality> <value>, extract [response], expand [response], converge, memorize",
   }));
-  return Boolean(parser.commands?.cp);
+
+  const memArgumentList = hasSlashArgumentFactory(slashArgument) && hasSlashArgumentTypes(context.ARGUMENT_TYPE) ? [slashArgument.fromProps({
+    description: "Story Orchestrator memory command",
+    typeList: [context.ARGUMENT_TYPE.STRING],
+    isRequired: false,
+    acceptsMultiple: true,
+  })] : [];
+
+  parser.addCommandObject(slashCommand.fromProps({
+    name: "so-mem",
+    rawQuotes: true,
+    unnamedArgumentList: memArgumentList,
+    callback: async (_args: SlashArgs, value: string | string[]) => {
+      const raw = Array.isArray(value) ? value.join(" ") : String(value ?? "");
+      const parts = raw.trim().split(/\s+/).filter(Boolean);
+      const command = parts[0] ?? "list";
+      if (command === "list") {
+        const entries = manager.getSnapshot().memory.entries.filter((entry) => !entry.supersededBy && !entry.foldedInto);
+        if (!entries.length) return show("No memory entries.");
+        return show(entries.map((entry) => `${entry.pinned ? "📌" : "•"} [${entry.tier}] ${entry.id} — ${entry.text}`).join("\n"));
+      }
+      if (command === "pin") {
+        const id = parts[1];
+        const state = (parts[2] ?? "on").toLowerCase();
+        if (!id) return show("Usage: /so-mem pin <id> on|off");
+        await manager.setMemoryPinned(id, state !== "off");
+        return show(`${state !== "off" ? "Pinned" : "Unpinned"} ${id}`);
+      }
+      if (command === "exclude") {
+        const id = parts[1];
+        if (!id) return show("Usage: /so-mem exclude <id>");
+        await manager.excludeMemoryEntry(id);
+        return show(`Excluded ${id}`);
+      }
+      if (command === "backlog") {
+        const ok = await manager.runMemorizeBacklog();
+        if (!ok) return show(manager.getSnapshot().memory.backfill?.lastError ?? "Memorize backlog could not start.");
+        return show(manager.getSnapshot().status);
+      }
+      return show("Commands: /so-mem list, /so-mem pin <id> on|off, /so-mem exclude <id>, /so-mem backlog");
+    },
+    helpString: "Story Orchestrator v2 memory commands: list, pin <id> on|off, exclude <id>, backlog",
+  }));
+
+  return Boolean(parser.commands?.cp && parser.commands?.["so-mem"]);
 }

@@ -1,0 +1,19 @@
+{
+  "spec": {
+    "blackboard": {
+      "values": { "oath_sworn": true },
+      "versions": { "oath_sworn": 1 },
+      "latched": { "oath_sworn": true }
+    }
+  },
+  "promptExcludes": ["oath_sworn"],
+  "deltas": [
+    { "q": "seal_broken", "v": true, "evidence": "it cracks apart" }
+  ],
+  "rejected": [],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [""],
+    "mustNotContain": ["oath"]
+  }
+}

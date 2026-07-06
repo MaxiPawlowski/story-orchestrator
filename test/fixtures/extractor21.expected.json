@@ -1,0 +1,12 @@
+{
+  "deltas": [
+    { "q": "gate_opened", "v": true, "evidence": "hauls the north gate open" },
+    { "q": "watch_alerted", "v": false, "evidence": "The watch suspects nothing" }
+  ],
+  "rejected": [],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [""],
+    "mustNotContain": ["gold"]
+  }
+}

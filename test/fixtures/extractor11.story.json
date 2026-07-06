@@ -1,0 +1,48 @@
+{
+  "format": 2,
+  "title": "Unknown Quality Reject",
+  "description": "Suite-A corpus fixture: Unknown Quality Reject.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "bridge_lowered",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Is the bridge lowered?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Open the scene.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Advance the scene.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+        "q": "bridge_lowered",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": []
+}
