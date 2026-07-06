@@ -354,6 +354,24 @@ describe("RuntimeManager memory injection and cast", () => {
     expect(mockExtensionPrompts.story_orchestrator_memory_facts).toBeUndefined();
   });
 
+  it("opens and resolves story arcs through the shared-read audit", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(castStory));
+    await manager.applyExtractionAudit(memoryAudit(), [], [], [
+      { kind: "open", text: "Mira swore revenge on the merchant and has not acted yet." },
+      { kind: "open", text: "The identity of the granary arsonist is still unknown to all." },
+    ]);
+    expect(manager.getArcs().filter((arc) => arc.status === "open")).toHaveLength(2);
+    expect(manager.getOpenArcs()).toContain("Mira swore revenge on the merchant and has not acted yet.");
+
+    await manager.applyExtractionAudit(memoryAudit(), [], [], [
+      { kind: "resolved", text: "Mira finally took her revenge on the merchant at the market." },
+    ]);
+    const arcs = manager.getArcs();
+    expect(arcs.find((arc) => arc.text.startsWith("Mira"))?.status).toBe("resolved");
+    expect(arcs.filter((arc) => arc.status === "open")).toHaveLength(1);
+  });
+
   it("clears all memory injection prompts when no story is loaded", async () => {
     (getActiveGroup as jest.Mock).mockReturnValue({ members: ["mara.png"], disabled_members: [] });
     const manager = new RuntimeManager();
@@ -503,5 +521,107 @@ describe("RuntimeManager manual memory controls", () => {
 
     await manager.editMemoryEntry(id, "Corrected text.");
     expect(manager.getSnapshot().memory.entries.find((entry) => entry.id === id)?.text).toBe("Corrected text.");
+  });
+});
+
+const bridgeStory = {
+  format: 2,
+  title: "Bridge Test",
+  description: "Arc bridge regression fixture.",
+  qualities: [],
+  checkpoints: [
+    { id: "start", name: "Start", objective: "Start.", type: "anchor", start: true },
+    { id: "reveal", name: "Reveal", objective: "The truth comes out.", type: "anchor", convergence_threshold: 2 },
+  ],
+  transitions: [
+    { from: "start", to: "reveal", priority: 1, gate: { q: "progress_toward_reveal", op: ">=", v: 2 } },
+  ],
+  roster: [],
+  arc_bridges: [{ arcMatch: "granary", anchor: "reveal", amount: 2 }],
+};
+
+describe("RuntimeManager arc bridge and canon", () => {
+  beforeEach(() => resetHost());
+  afterEach(() => {
+    delete globalThis.storyOrchestratorDebugArcSummaryResponse;
+    delete globalThis.storyOrchestratorDebugCanonResponse;
+  });
+
+  it("applies a declared arc bridge increment on resolution, opening the anchor gate", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(bridgeStory));
+    await manager.applyExtractionAudit(memoryAudit(), [], [], [{ kind: "open", text: "The identity of the granary arsonist is still unknown to all." }]);
+    await manager.applyExtractionAudit(memoryAudit(), [], [], [{ kind: "resolved", text: "The granary arsonist is now known to all." }]);
+    await manager.commitBoundary();
+
+    const state = manager.getEngineState();
+    expect(state?.blackboard.values.progress_toward_reveal).toBe(2);
+    expect(state?.activeCheckpointId).toBe("reveal");
+    expect(manager.getArcs().find((arc) => arc.status === "resolved")?.bridgeApplied).toBe(true);
+  });
+
+  it("recovers a bridge increment whose pending queue was dropped by a reload", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(bridgeStory));
+    const hash = manager.getSnapshot().storyHash as string;
+    await manager.applyExtractionAudit(memoryAudit(), [], [], [{ kind: "open", text: "The identity of the granary arsonist is still unknown to all." }]);
+    await manager.applyExtractionAudit(memoryAudit(), [], [], [{ kind: "resolved", text: "The granary arsonist is now known to all." }]);
+    expect(manager.getArcs().find((arc) => arc.status === "resolved")?.bridgeApplied).toBeFalsy();
+
+    await manager.selectStory(hash, "hydrate");
+    expect(manager.getEngineState()?.blackboard.values.progress_toward_reveal ?? 0).not.toBe(2);
+
+    await manager.commitBoundary();
+    expect(manager.getEngineState()?.blackboard.values.progress_toward_reveal).toBe(2);
+    expect(manager.getEngineState()?.activeCheckpointId).toBe("reveal");
+    expect(manager.getArcs().find((arc) => arc.status === "resolved")?.bridgeApplied).toBe(true);
+
+    await manager.commitBoundary();
+    expect(manager.getEngineState()?.blackboard.values.progress_toward_reveal).toBe(2);
+  });
+
+  it("summarizes a resolved arc and derives canon, caching by input hash", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(bridgeStory));
+    await manager.applyExtractionAudit(memoryAudit(), [], [], [{ kind: "open", text: "The identity of the granary arsonist is still unknown to all." }]);
+    await manager.applyExtractionAudit(memoryAudit(), [], [], [{ kind: "resolved", text: "The granary arsonist is now known to all." }]);
+    const resolved = manager.getArcs().find((arc) => arc.status === "resolved");
+    if (!resolved) throw new Error("expected a resolved arc");
+
+    expect(typeof manager.getCanon()).toBe("string");
+
+    globalThis.storyOrchestratorDebugArcSummaryResponse = "The granary arsonist was unmasked as the steward, ending the mystery.";
+    globalThis.storyOrchestratorDebugCanonResponse = "WHAT HAS HAPPENED: The granary mystery was solved.";
+    await manager.runArcSummaryPass([resolved.id]);
+
+    expect(manager.getArcs().find((arc) => arc.status === "resolved")?.summary).toContain("unmasked as the steward");
+    expect(manager.getCanon()).toContain("granary mystery was solved");
+
+    globalThis.storyOrchestratorDebugCanonResponse = "DIFFERENT CANON TEXT";
+    expect(await manager.regenerateCanon()).toBe(false);
+    expect(manager.getCanon()).toContain("granary mystery was solved");
+    expect(await manager.regenerateCanon(true)).toBe(true);
+    expect(manager.getCanon()).toBe("DIFFERENT CANON TEXT");
+  });
+
+  it("clears derived canon on a rollback that changes the resolved-arc set", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(bridgeStory));
+    await manager.applyExtractionAudit({ ...memoryAudit(), window: { from: 0, to: 0 } }, [], [], [{ kind: "open", text: "The identity of the granary arsonist is still unknown to all." }]);
+    await manager.applyExtractionAudit({ ...memoryAudit(), window: { from: 0, to: 0 } }, [], [], [{ kind: "resolved", text: "The granary arsonist is now known to all." }]);
+    const resolved = manager.getArcs().find((arc) => arc.status === "resolved");
+    if (!resolved) throw new Error("expected a resolved arc");
+
+    globalThis.storyOrchestratorDebugArcSummaryResponse = "The mystery closed.";
+    globalThis.storyOrchestratorDebugCanonResponse = "WHAT HAS HAPPENED: the mystery was solved.";
+    await manager.runArcSummaryPass([resolved.id]);
+    expect(manager.getSnapshot().memory.canon?.text).toContain("solved");
+
+    mockContext.chat = [{ mes: "m0" }];
+    await manager.commitBoundary();
+    await manager.rollbackFromMessage(0);
+
+    expect(manager.getSnapshot().memory.canon).toBeNull();
+    expect(manager.getArcs().some((arc) => arc.status === "resolved")).toBe(false);
   });
 });

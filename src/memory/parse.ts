@@ -1,4 +1,4 @@
-import { MEMORY_ENTRY_TYPES, MEMORY_EXPIRATIONS, SCENE_BREAK_REASONS, TIER_FOR_ENTRY_TYPE, type MemoryEntryType, type ParsedMemoryLine, type SceneBreakSignal } from "./types";
+import { MEMORY_ENTRY_TYPES, MEMORY_EXPIRATIONS, SCENE_BREAK_REASONS, TIER_FOR_ENTRY_TYPE, type MemoryEntryType, type ParsedArcSignal, type ParsedMemoryLine, type SceneBreakSignal } from "./types";
 
 const isMemoryEntryType = (value: string): value is MemoryEntryType => (MEMORY_ENTRY_TYPES as readonly string[]).includes(value);
 
@@ -62,6 +62,16 @@ export function parseMemoryLine(line: string): MemoryLineParseResult {
       evidence,
     },
   };
+}
+
+const arcPattern = /^\[(arc|resolved)\]\s+(.+)$/i;
+
+export function parseArcLine(line: string): ParsedArcSignal | null {
+  const match = line.match(arcPattern);
+  if (!match) return null;
+  const text = match[2].trim();
+  if (!text) return null;
+  return { kind: match[1].toLowerCase() === "resolved" ? "resolved" : "open", text };
 }
 
 export function parseSceneBreakLine(line: string): SceneBreakSignal | null | undefined {

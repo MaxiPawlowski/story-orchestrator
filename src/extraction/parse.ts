@@ -1,5 +1,5 @@
 import { TENSION_CURRENT_KEY, type NormalizedStoryV2, type PrimitiveValue, type Quality } from "@engine/index";
-import { parseMemoryLine, parseSceneBreakLine } from "@memory/parse";
+import { parseArcLine, parseMemoryLine, parseSceneBreakLine } from "@memory/parse";
 import { isTensionLevel, levelToNumeric } from "@pacing/index";
 import type { ParsedSharedRead } from "./types";
 
@@ -25,7 +25,7 @@ const parseJsonLiteral = (raw: string): PrimitiveValue | undefined => {
 };
 
 export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStoryV2, "qualityByKey">): ParsedSharedRead {
-  const result: ParsedSharedRead = { deltas: [], facts: [], memory: [], rejected: [] };
+  const result: ParsedSharedRead = { deltas: [], facts: [], memory: [], arcs: [], rejected: [] };
   const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
 
   for (const line of lines) {
@@ -80,6 +80,13 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
         continue;
       }
       result.rejected.push({ line, reason: "invalid scene break line" });
+      continue;
+    }
+
+    if (/^\[(arc|resolved)\]/i.test(line)) {
+      const arc = parseArcLine(line);
+      if (arc) result.arcs.push(arc);
+      else result.rejected.push({ line, reason: "invalid arc line" });
       continue;
     }
 

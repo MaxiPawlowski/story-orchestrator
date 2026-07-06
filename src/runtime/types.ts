@@ -1,7 +1,7 @@
 import type { ArcTemplate, EngineState, NormalizedStoryV2, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
 import type { ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
-import type { MemoryStoreState, MemoryTier, ScoreWeights } from "@memory/index";
+import type { ArcEntry, MemoryStoreState, MemoryTier, ScoreWeights } from "@memory/index";
 import type { SteeringHint } from "@pacing/index";
 
 export interface StoryLibraryRecord {
@@ -47,11 +47,19 @@ export interface MemoryBackfillState {
   lastError: string | null;
 }
 
+export interface CanonState {
+  text: string;
+  inputHash: string;
+  updatedAt: string;
+}
+
 export interface MemoryRuntimeState extends MemoryStoreState {
   settings: MemoryRuntimeSettings;
   backfill: MemoryBackfillState | null;
   sceneCount: number;
   wiWrites: Record<string, string>;
+  arcs: ArcEntry[];
+  canon: CanonState | null;
   updatedAt: string;
 }
 

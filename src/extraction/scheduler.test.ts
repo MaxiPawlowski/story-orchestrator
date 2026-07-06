@@ -1,5 +1,14 @@
 jest.mock("@services/STAPI", () => ({ getContext: () => ({ chat: [] }) }));
 
+jest.mock("./sharedRead", () => ({
+  runSharedRead: jest.fn(async () => ({
+    audit: { id: "x", createdAt: "t", priority: 0, reason: "r", contractHash: "h", scope: [], window: { from: 0, to: 0 }, prompt: "p", rawResponse: "r", acceptedDeltas: [], rejected: [] },
+    facts: [{ text: "a fact", evidence: "e", importance: 2 }],
+    memory: [{ tier: "facts", type: "fact", importance: 2, expiration: "permanent", entities: [], text: "a memory", evidence: "e" }],
+    arcs: [{ kind: "open", text: "an unresolved thread from the read" }],
+  })),
+}));
+
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import { ExtractionScheduler, type SchedulerHost, type SchedulerSettings } from "./scheduler";
 
@@ -12,6 +21,7 @@ const makeHost = (settings: Partial<SchedulerSettings> = {}): SchedulerHost => (
   getFacts: () => [],
   getFiredTransitions: () => [],
   getExpansionGateSources: () => [],
+  getOpenArcs: () => [],
   applyExtractionAudit: async () => undefined,
   onSchedulerChange: () => undefined,
   pauseExtraction: () => undefined,
@@ -37,6 +47,19 @@ describe("ExtractionScheduler reply-path isolation", () => {
   it("onBoundary returns synchronously and never rejects", () => {
     const scheduler = new ExtractionScheduler(makeHost({ cadence: 1 }));
     expect(scheduler.onBoundary(4, false, 10)).toBeUndefined();
+  });
+
+  it("forwards parsed memory and arcs from the read to applyExtractionAudit", async () => {
+    const applied: unknown[][] = [];
+    const host: SchedulerHost = { ...makeHost(), applyExtractionAudit: async (...args: unknown[]) => { applied.push(args); } };
+    const scheduler = new ExtractionScheduler(host);
+    scheduler.schedule({ priority: 0, reason: "read" });
+    await flush();
+    expect(applied).toHaveLength(1);
+    const [, facts, memory, arcs] = applied[0] as [unknown, Array<{ text: string }>, Array<{ text: string }>, Array<{ text: string }>];
+    expect(facts[0].text).toBe("a fact");
+    expect(memory[0].text).toBe("a memory");
+    expect(arcs[0].text).toBe("an unresolved thread from the read");
   });
 });
 

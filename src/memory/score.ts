@@ -25,7 +25,7 @@ export const DEFAULT_SCORE_WEIGHTS: ScoreWeights = {
   semanticSimilarity: 1.3,
   temporalProximity: 0.5,
   activation: 1,
-  arcRelevance: 0,
+  arcRelevance: 1,
   contradiction: 2,
 };
 
@@ -34,6 +34,7 @@ export interface ScoreContext {
   lastMessageId?: number;
   turnText: string;
   turnEntities: string[];
+  openArcs?: string[];
   weights?: Partial<ScoreWeights>;
 }
 
@@ -68,6 +69,9 @@ export function scoreEntry(entry: MemoryEntry, context: ScoreContext): number {
   const activation = entry.activationTriggers.some((trigger) => trigger && turnText.includes(lower(trigger))) ? 1 : 0;
   const contradiction = entry.contradicted ? 1 : 0;
 
+  const openArcs = context.openArcs ?? [];
+  const arcRelevance = openArcs.length ? Math.max(...openArcs.map((arc) => jaccardSimilarity(entry.text, arc))) : 0;
+
   return (
     weights.importance * importance +
     weights.durability * durability +
@@ -77,7 +81,8 @@ export function scoreEntry(entry: MemoryEntry, context: ScoreContext): number {
     weights.entityOverlap * overlap +
     weights.semanticSimilarity * semanticSimilarity +
     weights.temporalProximity * temporalProximity +
-    weights.activation * activation -
+    weights.activation * activation +
+    weights.arcRelevance * arcRelevance -
     weights.contradiction * contradiction
   );
 }

@@ -1,5 +1,5 @@
 import type { BlackboardDelta, GateNode, NormalizedStoryV2, PrimitiveValue, Quality, TensionLevel } from "@engine/index";
-import type { ParsedMemoryLine, SceneBreakSignal } from "@memory/index";
+import type { ParsedArcSignal, ParsedMemoryLine, SceneBreakSignal } from "@memory/index";
 
 export interface ScopedQuality {
   key: string;
@@ -32,6 +32,7 @@ export interface SharedReadContract {
   qualities: ScopedQuality[];
   window: SharedReadWindow;
   canon: string;
+  openArcs?: string[];
 }
 
 export interface ParsedDelta {
@@ -52,6 +53,7 @@ export interface ParsedSharedRead {
   deltas: ParsedDelta[];
   facts: ParsedFact[];
   memory: ParsedMemoryLine[];
+  arcs: ParsedArcSignal[];
   sceneBreak?: SceneBreakSignal;
   rejected: Array<{ line: string; reason: string }>;
 }
@@ -75,6 +77,7 @@ export interface SharedReadResult {
   audit: SharedReadAudit;
   facts: ParsedFact[];
   memory: ParsedMemoryLine[];
+  arcs: ParsedArcSignal[];
 }
 
 export interface ReconciliationDescriptor {

@@ -17,7 +17,8 @@ Step keys:
 expect verbs:
   activeCheckpoint, blackboard, blackboardMissing, latched, auditCount>=, npcFired,
   expansion, tension, pacingPrompt, requirementsReady, convergence, reconciliationEvents>=,
-  memory ({tier: {count, contains}}), sceneBreaks>=, memoryInjection ({tier: bool})
+  memory ({tier: {count, contains}}), sceneBreaks>=, memoryInjection ({tier: bool}),
+  arcs ({open, resolved, summarized, openContains, resolvedContains}), canon ({present, contains})
 
 wait verbs:
   idle, boundary, auditCount, expansionStatus, checkpoint, progress (+progressAnchor), backfillComplete`;
@@ -136,6 +137,32 @@ function evaluateExpect(state, expected) {
     for (const [tier, want] of Object.entries(expected.memoryInjection) as Array<[string, boolean]>) {
       const present = Boolean((prompts as Record<string, { value?: unknown } | null>)?.[tier]?.value);
       if (present !== want) failures.push(`memoryInjection.${tier}: expected present=${want}, got ${present}`);
+    }
+  }
+  if (expected.arcs) {
+    const arcs = state?.liveSnapshot?.memory?.arcs ?? [];
+    const open = arcs.filter((a: any) => a?.status === 'open');
+    const resolved = arcs.filter((a: any) => a?.status === 'resolved');
+    const spec = expected.arcs as { open?: number; resolved?: number; summarized?: number; openContains?: string[]; resolvedContains?: string[] };
+    if (spec.open !== undefined && open.length !== spec.open) failures.push(`arcs.open: expected ${spec.open}, got ${open.length}`);
+    if (spec.resolved !== undefined && resolved.length !== spec.resolved) failures.push(`arcs.resolved: expected ${spec.resolved}, got ${resolved.length}`);
+    if (spec.summarized !== undefined) {
+      const summarized = resolved.filter((a: any) => a?.summary).length;
+      if (summarized !== spec.summarized) failures.push(`arcs.summarized: expected ${spec.summarized}, got ${summarized}`);
+    }
+    for (const substring of spec.openContains ?? []) {
+      if (!open.some((a: any) => typeof a?.text === 'string' && a.text.includes(substring))) failures.push(`arcs.openContains: expected an open arc containing "${substring}"`);
+    }
+    for (const substring of spec.resolvedContains ?? []) {
+      if (!resolved.some((a: any) => typeof a?.text === 'string' && a.text.includes(substring))) failures.push(`arcs.resolvedContains: expected a resolved arc containing "${substring}"`);
+    }
+  }
+  if (expected.canon) {
+    const canon = state?.liveSnapshot?.memory?.canon ?? null;
+    const spec = expected.canon as { present?: boolean; contains?: string[] };
+    if (spec.present !== undefined && Boolean(canon?.text) !== spec.present) failures.push(`canon.present: expected ${spec.present}, got ${Boolean(canon?.text)}`);
+    for (const substring of spec.contains ?? []) {
+      if (typeof canon?.text !== 'string' || !canon.text.includes(substring)) failures.push(`canon.contains: expected canon containing "${substring}"`);
     }
   }
   return { ok: failures.length === 0, failures, actual };

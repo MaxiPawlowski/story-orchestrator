@@ -240,6 +240,36 @@ const MemoryPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
           </div>
         );
       })}
+      <ArcCanonPanel snapshot={snapshot} />
+    </div>
+  );
+};
+
+const ArcCanonPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
+  const arcs = snapshot.memory.arcs ?? [];
+  const openArcs = arcs.filter((arc) => arc.status === "open");
+  const resolvedArcs = arcs.filter((arc) => arc.status === "resolved");
+  const canon = snapshot.memory.canon;
+  if (!arcs.length && !canon) return null;
+  return (
+    <div className="border-t border-solid border-white/10 mt-1 pt-1">
+      <div className="opacity-100">Arcs (open {openArcs.length} · resolved {resolvedArcs.length})</div>
+      {arcs.map((arc) => (
+        <div key={arc.id} className="mt-1">
+          <div className={arc.status === "resolved" ? "opacity-60" : ""}>{arc.status === "resolved" ? "✓ " : "◦ "}{arc.text}{arc.pinned ? " 📌" : ""}</div>
+          {arc.summary && <div className="opacity-70 italic">{arc.summary}</div>}
+          <div className="flex gap-2 opacity-80 flex-wrap">
+            <button className="menu_button" onClick={() => void manager.setArcPinned(arc.id, !arc.pinned)}>{arc.pinned ? "Unpin" : "Pin"}</button>
+            <button className="menu_button" onClick={() => void manager.removeArc(arc.id)}>Remove</button>
+          </div>
+        </div>
+      ))}
+      {canon && (
+        <div className="border-t border-solid border-white/10 mt-1 pt-1">
+          <div className="opacity-100">Canon</div>
+          <div className="opacity-80 whitespace-pre-wrap">{canon.text}</div>
+        </div>
+      )}
     </div>
   );
 };

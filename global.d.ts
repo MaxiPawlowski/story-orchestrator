@@ -37,4 +37,6 @@ declare global {
   var storyOrchestratorDebugGenerationResponse: string | null | undefined;
   var storyOrchestratorDebugSceneSummaryResponse: string | null | undefined;
   var storyOrchestratorDebugSupersessionResponse: string | null | undefined;
+  var storyOrchestratorDebugArcSummaryResponse: string | null | undefined;
+  var storyOrchestratorDebugCanonResponse: string | null | undefined;
 }

@@ -37,6 +37,13 @@ describe("scoreEntry", () => {
     expect(contradicted).toBeLessThan(clean);
   });
 
+  it("rewards entries overlapping an open arc", () => {
+    const arcs = ["The stolen vault key has not yet been recovered by anyone."];
+    const relevant = scoreEntry(entry({ text: "The stolen vault key was hidden in the cellar." }), ctx({ openArcs: arcs }));
+    const irrelevant = scoreEntry(entry({ text: "The tavern served warm cider tonight." }), ctx({ openArcs: arcs }));
+    expect(relevant).toBeGreaterThan(irrelevant);
+  });
+
   it("rewards entity overlap with the current turn", () => {
     const context = ctx({ turnText: "Mara enters the room", turnEntities: ["Mara"] });
     const overlapping = scoreEntry(entry({ entities: ["Mara"] }), context);

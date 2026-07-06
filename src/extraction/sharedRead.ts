@@ -19,6 +19,7 @@ export interface RunSharedReadOptions {
   facts?: ParsedFact[];
   extraGateSources?: ExtraGateSource[];
   scope?: ScopedQuality[];
+  openArcs?: string[];
   client: ExtractionClientOptions;
 }
 
@@ -42,6 +43,7 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     qualities: scope,
     window,
     canon: getCanonLite(options.story, options.state.visitedAnchors, options.firedTransitions ?? [], options.facts ?? []),
+    openArcs: options.openArcs ?? [],
   };
   const prompt = renderSharedReadPrompt(contract);
   const rawResponse = scope.length ? await callExtractionModel(prompt, options.client) : "NO_DELTA";
@@ -60,5 +62,5 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     rejected: parsed.rejected,
     ...(parsed.sceneBreak ? { sceneBreak: parsed.sceneBreak } : {}),
   };
-  return { audit, facts: parsed.facts, memory: parsed.memory };
+  return { audit, facts: parsed.facts, memory: parsed.memory, arcs: parsed.arcs };
 }

@@ -1,7 +1,7 @@
-import { StoryEngine, effectiveThresholdFor, isValidationErrorList, progressQualityForAnchor, TENSION_CURRENT_KEY, type ApplyQueueEntry, type ArcTemplate, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type TensionLevel, type ValidationError } from "@engine/index";
+import { StoryEngine, effectiveThresholdFor, isValidationErrorList, progressQualityForAnchor, TENSION_CURRENT_KEY, type ApplyQueueEntry, type ArcTemplate, type BlackboardDelta, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type TensionLevel, type ValidationError } from "@engine/index";
 import { callExtractionModel, deriveFullScope, deriveScope, getCanonLite, getChatWindow, getLastMessageText, runSharedRead, type ParsedDelta, type ParsedFact, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
 import { findStubExpansionCandidate, collectExpansionGateSources, generateReviewedBeats, insertedCheckpointIds, mergeExpansions, planExpansion, revalidateExpansion, type ExpansionCacheEntry, type ExpansionRuntimeState, type StubExpansionCandidate } from "@generation/index";
-import { addMemoryEntries, applyConsolidation, applyMemoryInjection, buildJaccardMatchSets, buildMemoryInjectionBlocks, buildSceneSummaryPrompt, capAllTiers, clearAllMemoryInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, createMemoryState, DEFAULT_DEDUP_THRESHOLDS, DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS, detectSceneBreakHeuristic, dropByMessageId, editEntryText, excludeEntry, expireScoped, generateMemoryId, hashMemoryText, markContradicted, setPinned, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedMemoryLine, type ScoreContext, type UncertainPair } from "@memory/index";
+import { addMemoryEntries, applyArcSignals, applyConsolidation, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildArcSummaryPrompt, buildCanonSummaryPrompt, buildJaccardMatchSets, buildMemoryInjectionBlocks, buildSceneSummaryPrompt, canonInputHash, capAllTiers, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, createMemoryState, DEFAULT_DEDUP_THRESHOLDS, DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS, detectSceneBreakHeuristic, dropByMessageId, editEntryText, excludeEntry, expireScoped, generateMemoryId, hashMemoryText, markContradicted, matchArcBridges, openArcTexts, removeArc, resolvedArcs, rollbackArcs, setArcPinned, setArcSummary, setPinned, type ArcEntry, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedMemoryLine, type ScoreContext, type UncertainPair } from "@memory/index";
 import { expectedTension, getSteeringHint, numericToLevel, updateEma } from "@pacing/index";
 import { clearStoryExtensionPrompt, countTokens, DEFAULT_VECTOR_SOURCE, disableWIEntry, getActiveGroup, getContext, resolveGroupMemberId, setStoryExtensionPrompt, upsertWIEntry, vectorInsert, vectorPurge, vectorQuery } from "@services/STAPI";
 import { DEFAULT_TENSION_EMA_ALPHA, MEMORY_TIER_INJECTION_DEPTHS, PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
@@ -56,6 +56,8 @@ const createMemory = (): MemoryRuntimeState => ({
   backfill: null,
   sceneCount: 0,
   wiWrites: {},
+  arcs: [],
+  canon: null,
   updatedAt: new Date().toISOString(),
 });
 
@@ -86,6 +88,8 @@ const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeState =>
       backfill: existing.backfill ? { ...existing.backfill, running: false } : null,
       sceneCount: typeof existing.sceneCount === "number" ? existing.sceneCount : 0,
       wiWrites: existing.wiWrites && typeof existing.wiWrites === "object" ? existing.wiWrites : {},
+      arcs: Array.isArray(existing.arcs) ? existing.arcs : [],
+      canon: existing.canon && typeof existing.canon === "object" ? existing.canon : null,
       updatedAt: existing.updatedAt ?? new Date().toISOString(),
     };
   }
@@ -98,6 +102,8 @@ const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeState =>
     backfill: null,
     sceneCount: 0,
     wiWrites: {},
+    arcs: [],
+    canon: null,
     updatedAt: new Date().toISOString(),
   };
 };
@@ -149,9 +155,11 @@ export class RuntimeManager {
   private readonly boundaryListeners = new Set<(result: BoundaryResult) => void>();
   private readonly rollbackListeners = new Set<(messageId: number, window: SharedReadWindow) => void>();
   private readonly sceneBreakListeners = new Set<(audit: SharedReadAudit) => void>();
+  private readonly arcResolvedListeners = new Set<(arcIds: string[]) => void>();
   private pendingTension: TensionRuntimeState | null = null;
   private sceneDetectCursor: { location: string | null; cast: string | null } | null = null;
   private consolidationInFlight = false;
+  private canonInFlight = false;
 
   subscribe(listener: () => void) {
     this.listeners.add(listener);
@@ -175,6 +183,11 @@ export class RuntimeManager {
   onSceneBreakConfirmed(listener: (audit: SharedReadAudit) => void) {
     this.sceneBreakListeners.add(listener);
     return () => { this.sceneBreakListeners.delete(listener); };
+  }
+
+  onArcsResolvedConfirmed(listener: (arcIds: string[]) => void) {
+    this.arcResolvedListeners.add(listener);
+    return () => { this.arcResolvedListeners.delete(listener); };
   }
 
   async loadSelectedFromChat() {
@@ -238,7 +251,13 @@ export class RuntimeManager {
     if (!this.loaded) return null;
     this.refreshRequirements();
     this.revalidateInsertedExpansions();
+    const pendingBridges = this.pendingBridgeArcs();
+    this.enqueuePendingArcBridges(pendingBridges);
     const result = this.engine.commitBoundary(this.getBoundaryContext());
+    if (pendingBridges.length) {
+      const applied = new Set(pendingBridges.map((arc) => arc.id));
+      this.extras.memory = { ...this.extras.memory, arcs: this.extras.memory.arcs.map((arc) => (applied.has(arc.id) ? { ...arc, bridgeApplied: true } : arc)) };
+    }
     if (result.effects) {
       await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate");
     } else if (this.extras.requirements.ready && this.extras.lastAppliedCheckpointId !== this.engine.activeCheckpoint.id) {
@@ -309,7 +328,10 @@ export class RuntimeManager {
       const context = this.getBoundaryContext();
       const restored = this.engine.serialize();
       const window = getChatWindow(restored.checkpointStartedMessageId, context.lastMessageId);
-      this.extras.memory = { ...this.extras.memory, ...dropByMessageId(this.extras.memory, messageId) };
+      const resolvedBefore = new Set(this.extras.memory.arcs.filter((arc) => arc.status === "resolved").map((arc) => arc.id));
+      const rolledArcs = rollbackArcs(this.extras.memory.arcs, messageId, boundary);
+      const canonStale = rolledArcs.filter((arc) => arc.status === "resolved" && resolvedBefore.has(arc.id)).length !== resolvedBefore.size;
+      this.extras.memory = { ...this.extras.memory, ...dropByMessageId(this.extras.memory, messageId), arcs: rolledArcs, ...(canonStale ? { canon: null } : {}) };
       this.extras.extraction.audits = this.extras.extraction.audits.filter((audit) => audit.window.to < messageId);
       this.extras.tension = this.replayCommittedTension();
       this.pendingTension = null;
@@ -420,7 +442,7 @@ export class RuntimeManager {
     });
   }
 
-  async applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memoryLines: ParsedMemoryLine[] = []) {
+  async applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memoryLines: ParsedMemoryLine[] = [], arcSignals: ParsedArcSignal[] = []) {
     if (!this.loaded) return;
     const state = this.engine.serialize();
     this.enqueueExtractorDeltas(audit.acceptedDeltas, audit.window);
@@ -464,6 +486,12 @@ export class RuntimeManager {
       const capped = capAllTiers(written.state, this.extras.memory.settings.tierBudgets);
       this.extras.memory = { ...this.extras.memory, ...capped, updatedAt: new Date().toISOString() };
     }
+    let resolvedArcs: ArcEntry[] = [];
+    if (memoryEnabled && arcSignals.length) {
+      const applied = applyArcSignals(this.extras.memory.arcs, arcSignals, { boundary: state.boundary, messageId: audit.window.to });
+      this.extras.memory = { ...this.extras.memory, arcs: capOpenArcs(capResolvedArcs(applied.arcs)), updatedAt: new Date().toISOString() };
+      resolvedArcs = applied.resolved;
+    }
     this.extras.extraction.audits = [...this.extras.extraction.audits, audit].slice(-20);
     if (audit.reason.startsWith("reconcile:")) {
       const evidence = audit.acceptedDeltas.map((entry) => `${entry.delta.q}=${String(entry.delta.v)} (${entry.evidence})`);
@@ -477,10 +505,67 @@ export class RuntimeManager {
       this.extras.extraction.reconciliationEvents = events;
     }
     this.extras.extraction.lastReadBoundary = state.boundary;
-    if (memoryEnabled && newMemoryEntries.length) this.updateMemoryInjection();
+    if (memoryEnabled && (newMemoryEntries.length || arcSignals.length)) this.updateMemoryInjection();
+    if (resolvedArcs.length) this.onArcsResolved(resolvedArcs);
     await this.persist();
     this.notify();
     if (memoryEnabled && audit.sceneBreak) this.sceneBreakListeners.forEach((listener) => listener(audit));
+  }
+
+  private onArcsResolved(resolved: ArcEntry[]): void {
+    if (!this.loaded || !resolved.length) return;
+    this.arcResolvedListeners.forEach((listener) => listener(resolved.map((arc) => arc.id)));
+  }
+
+  private pendingBridgeArcs(): ArcEntry[] {
+    if (!this.loaded) return [];
+    const bridges = this.loaded.story.arc_bridges ?? [];
+    if (!bridges.length) return [];
+    return this.extras.memory.arcs.filter((arc) => arc.status === "resolved" && !arc.bridgeApplied && matchArcBridges(bridges, [arc]).size > 0);
+  }
+
+  private enqueuePendingArcBridges(pending: ArcEntry[]): void {
+    if (!this.loaded || !pending.length) return;
+    const increments = matchArcBridges(this.loaded.story.arc_bridges ?? [], pending);
+    if (!increments.size) return;
+    const values = this.engine.serialize().blackboard.values;
+    const deltas: BlackboardDelta[] = [];
+    increments.forEach((amount, anchor) => {
+      const key = progressQualityForAnchor(anchor);
+      const current = typeof values[key] === "number" ? (values[key] as number) : 0;
+      deltas.push({ q: key, v: current + amount, source: "code" });
+    });
+    this.engine.enqueue({ source: "mechanical", blackboardVersionSum: 0, deltas });
+  }
+
+  async runArcSummaryPass(arcIds: string[]): Promise<boolean> {
+    if (!this.loaded || !this.extras.memory.settings.enabled || !arcIds.length) return false;
+    const settings = this.getExtractionSettings();
+    const sceneSummaries = this.extras.memory.entries
+      .filter((entry) => entry.tier === "scene_history")
+      .slice(-5)
+      .map((entry, index) => `Scene ${index + 1}: ${entry.text}`)
+      .join("\n");
+    const memories = this.highImportanceFacts(20).map((entry) => `[${entry.type}] ${entry.text}`).join("\n");
+    let changed = false;
+    for (const id of arcIds) {
+      const arc = this.extras.memory.arcs.find((candidate) => candidate.id === id);
+      if (!arc || arc.status !== "resolved" || arc.summary) continue;
+      const summary = await callExtractionModel(buildArcSummaryPrompt(arc.text, sceneSummaries, memories), {
+        profileId: settings.profileId,
+        debugResponse: globalThis.storyOrchestratorDebugArcSummaryResponse ?? null,
+      });
+      const trimmed = summary.trim();
+      if (!trimmed) continue;
+      this.extras.memory = { ...this.extras.memory, arcs: setArcSummary(this.extras.memory.arcs, id, trimmed), updatedAt: new Date().toISOString() };
+      changed = true;
+    }
+    if (changed) {
+      await this.regenerateCanon();
+      await this.persist();
+      this.notify();
+    }
+    return changed;
   }
 
   detectSceneBreak() {
@@ -548,9 +633,10 @@ export class RuntimeManager {
       facts: this.getExtractionFacts(),
       firedTransitions: this.getFiredTransitions(),
       extraGateSources: this.getExpansionGateSources(),
+      openArcs: this.getOpenArcs(),
       client: { ...settings, debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugExtractionResponse ?? null },
     });
-    await this.applyExtractionAudit(result.audit, result.facts, result.memory);
+    await this.applyExtractionAudit(result.audit, result.facts, result.memory, result.arcs);
     await this.commitBoundary();
     return true;
   }
@@ -578,9 +664,10 @@ export class RuntimeManager {
           scope: deriveFullScope(this.loaded.story, state.blackboard),
           firedTransitions: this.getFiredTransitions(),
           facts: this.getExtractionFacts(),
+          openArcs: this.getOpenArcs(),
           client,
         });
-        await this.applyExtractionAudit({ ...result.audit, acceptedDeltas: [] }, result.facts, result.memory);
+        await this.applyExtractionAudit({ ...result.audit, acceptedDeltas: [] }, result.facts, result.memory, result.arcs);
         const progress = this.extras.memory.backfill as MemoryBackfillState;
         this.extras.memory.backfill = { ...progress, processed: progress.processed + 1 };
         await this.persist();
@@ -636,6 +723,73 @@ export class RuntimeManager {
     this.updateMemoryInjection();
     await this.persist();
     this.notify();
+  }
+
+  getArcs(): ArcEntry[] {
+    return this.extras.memory.arcs;
+  }
+
+  getOpenArcs(): string[] {
+    return this.loaded && this.extras.memory.settings.enabled ? openArcTexts(this.extras.memory.arcs, ARC_OPEN_INJECT_LIMIT) : [];
+  }
+
+  async setArcPinned(id: string, pinned: boolean) {
+    this.extras.memory = { ...this.extras.memory, arcs: setArcPinned(this.extras.memory.arcs, id, pinned) };
+    this.updateMemoryInjection();
+    await this.persist();
+    this.notify();
+  }
+
+  async removeArc(id: string) {
+    this.extras.memory = { ...this.extras.memory, arcs: removeArc(this.extras.memory.arcs, id) };
+    this.updateMemoryInjection();
+    await this.persist();
+    this.notify();
+  }
+
+  getCanon(): string {
+    const canon = this.extras.memory.canon;
+    if (canon?.text) return canon.text;
+    if (!this.loaded) return "";
+    const state = this.engine.serialize();
+    return getCanonLite(this.loaded.story, state.visitedAnchors, this.getFiredTransitions(), this.getExtractionFacts());
+  }
+
+  private highImportanceFacts(limit: number): MemoryEntry[] {
+    return this.extras.memory.entries
+      .filter((entry) => entry.tier === "facts" && !entry.supersededBy && !entry.foldedInto && entry.importance >= 2)
+      .slice(0, limit);
+  }
+
+  private canonInputs(): { arcSummaries: string[]; facts: string[] } {
+    const arcSummaries = resolvedArcs(this.extras.memory.arcs)
+      .map((arc) => arc.summary)
+      .filter((summary): summary is string => Boolean(summary));
+    return { arcSummaries, facts: this.highImportanceFacts(30).map((entry) => entry.text) };
+  }
+
+  async regenerateCanon(force = false): Promise<boolean> {
+    if (!this.loaded || !this.extras.memory.settings.enabled || this.canonInFlight) return false;
+    const { arcSummaries, facts } = this.canonInputs();
+    if (!arcSummaries.length) return false;
+    const inputHash = canonInputHash(arcSummaries, facts);
+    if (!force && this.extras.memory.canon?.inputHash === inputHash) return false;
+    this.canonInFlight = true;
+    try {
+      const settings = this.getExtractionSettings();
+      const text = await callExtractionModel(buildCanonSummaryPrompt(this.loaded.story.title, arcSummaries, facts), {
+        profileId: settings.profileId,
+        debugResponse: globalThis.storyOrchestratorDebugCanonResponse ?? null,
+      });
+      const trimmed = text.trim();
+      if (!trimmed) return false;
+      this.extras.memory = { ...this.extras.memory, canon: { text: trimmed, inputHash, updatedAt: new Date().toISOString() }, updatedAt: new Date().toISOString() };
+      await this.persist();
+      this.notify();
+      return true;
+    } finally {
+      this.canonInFlight = false;
+    }
   }
 
   scheduleExpansionForActive(schedule: (reason: string, run: () => Promise<void>) => void) {
@@ -819,7 +973,7 @@ export class RuntimeManager {
     try {
       const state = this.engine.serialize();
       const facts = this.getExtractionFacts();
-      const input = planExpansion(this.loaded.story, state.blackboard, candidate, getCanonLite(this.loaded.story, state.visitedAnchors, this.getFiredTransitions(), facts), facts.map((fact) => fact.text));
+      const input = planExpansion(this.loaded.story, state.blackboard, candidate, this.getCanon(), facts.map((fact) => fact.text));
       const settings = this.getExtractionSettings();
       const generated = await generateReviewedBeats(this.loaded.story, input, { ...settings, debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugGenerationResponse ?? null });
       if (generated.issues.length || !generated.codeCheck || !generated.codeCheck.ok) {
@@ -955,6 +1109,7 @@ export class RuntimeManager {
       lastMessageId: chat.length - 1,
       turnText,
       turnEntities,
+      openArcs: this.extras.memory.settings.enabled ? openArcTexts(this.extras.memory.arcs, ARC_OPEN_INJECT_LIMIT) : [],
       weights: this.extras.memory.settings.scoreWeights,
     };
   }
@@ -1026,6 +1181,7 @@ export class RuntimeManager {
         await this.runSupersessionBridge(winners);
       }
       await this.syncWorldInfo();
+      await this.regenerateCanon();
       return summary;
     } finally {
       this.consolidationInFlight = false;

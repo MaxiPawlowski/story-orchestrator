@@ -34,7 +34,8 @@ export function startRuntime() {
     getFacts: () => runtimeManager.getExtractionFacts(),
     getFiredTransitions: () => runtimeManager.getFiredTransitions(),
     getExpansionGateSources: () => runtimeManager.getExpansionGateSources(),
-    applyExtractionAudit: (audit, facts) => runtimeManager.applyExtractionAudit(audit, facts),
+    getOpenArcs: () => runtimeManager.getOpenArcs(),
+    applyExtractionAudit: (audit, facts, memory, arcs) => runtimeManager.applyExtractionAudit(audit, facts, memory, arcs),
     onSchedulerChange: () => {
       if (scheduler) runtimeManager.setSchedulerSnapshot(scheduler.getSnapshot());
     },
@@ -59,6 +60,9 @@ export function startRuntime() {
   });
   runtimeManager.onSceneBreakConfirmed((audit) => {
     scheduler?.schedule({ priority: 2, reason: `scene-break:${audit.sceneBreak?.reason}`, run: () => runtimeManager.runSceneBreakPass(audit) });
+  });
+  runtimeManager.onArcsResolvedConfirmed((arcIds) => {
+    scheduler?.schedule({ priority: 4, reason: `arc-summary:${arcIds.length}`, run: async () => { await runtimeManager.runArcSummaryPass(arcIds); } });
   });
   registerRuntimeMacros(runtimeManager);
   window.setTimeout(() => registerSlashCommandsWhenReady(), 0);

@@ -1,0 +1,37 @@
+{
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "title": "Arcs and Canon Gate Check",
+        "description": "Plan 09 live arc lifecycle, bridge, and canon validation story.",
+        "qualities": [],
+        "checkpoints": [
+          { "id": "start", "name": "Start", "objective": "The granary mystery opens.", "type": "anchor", "start": true },
+          { "id": "reveal", "name": "Reveal", "objective": "The arsonist is unmasked.", "type": "anchor", "convergence_threshold": 2 }
+        ],
+        "transitions": [
+          { "from": "start", "to": "reveal", "priority": 1, "gate": { "q": "progress_toward_reveal", "op": ">=", "v": 2 } }
+        ],
+        "roster": [],
+        "arc_bridges": [ { "arcMatch": "granary", "anchor": "reveal", "amount": 2 } ]
+      }
+    },
+    {
+      "eval": "await globalThis.storyOrchestratorRuntime.applyExtractionAudit({ id:'arc-open', createdAt:new Date().toISOString(), priority:0, reason:'manual', contractHash:'h', scope:[], window:{from:0,to:1}, prompt:'p', rawResponse:'r', acceptedDeltas:[], rejected:[] }, [], [], [ { kind:'open', text:'The identity of the granary arsonist is still unknown to all.' }, { kind:'open', text:'Mira swore revenge on the traveling merchant and has not yet acted.' } ]); return globalThis.storyOrchestratorRuntime.getSnapshot().memory.arcs;"
+    },
+    { "expect": { "arcs": { "open": 2, "resolved": 0, "openContains": ["granary arsonist", "Mira swore revenge"] } } },
+    {
+      "eval": "await globalThis.storyOrchestratorRuntime.applyExtractionAudit({ id:'arc-resolve', createdAt:new Date().toISOString(), priority:0, reason:'manual', contractHash:'h', scope:[], window:{from:2,to:3}, prompt:'p', rawResponse:'r', acceptedDeltas:[], rejected:[] }, [], [], [ { kind:'resolved', text:'The granary arsonist is now known to all.' } ]); await globalThis.storyOrchestratorRuntime.commitBoundary(); return { arcs: globalThis.storyOrchestratorRuntime.getSnapshot().memory.arcs, cp: globalThis.storyOrchestratorRuntime.getEngineState().activeCheckpointId, bb: globalThis.storyOrchestratorRuntime.getEngineState().blackboard.values };"
+    },
+    { "expect": { "arcs": { "open": 1, "resolved": 1, "resolvedContains": ["granary arsonist"] }, "activeCheckpoint": "reveal", "blackboard": { "progress_toward_reveal": 2 }, "convergence": [ { "anchorId": "reveal", "reached": true } ] } },
+    {
+      "eval": "globalThis.storyOrchestratorDebugArcSummaryResponse = 'The granary arsonist was unmasked as the steward, closing the mystery that had haunted the village.'; globalThis.storyOrchestratorDebugCanonResponse = 'WHAT HAS HAPPENED: The granary mystery was solved when the steward was exposed.\\nCURRENT STATE: Mira still seeks revenge on the merchant.\\nESTABLISHED FACTS: The village trusts the reeve again.'; const arc = globalThis.storyOrchestratorRuntime.getArcs().find((a) => a.status === 'resolved'); await globalThis.storyOrchestratorRuntime.runArcSummaryPass([arc.id]); return { arcs: globalThis.storyOrchestratorRuntime.getArcs(), canon: globalThis.storyOrchestratorRuntime.getSnapshot().memory.canon };"
+    },
+    { "expect": { "arcs": { "summarized": 1 }, "canon": { "present": true, "contains": ["granary mystery was solved"] } } },
+    {
+      "eval": "return { canon: globalThis.storyOrchestratorRuntime.getCanon(), macro: SillyTavern.getContext().substituteParams('{{story_canon}}') };"
+    },
+    { "eval": "const c = globalThis.storyOrchestratorRuntime.getCanon(); if (!c.includes('granary mystery was solved')) throw new Error('getCanon() did not return derived canon: ' + c); const m = SillyTavern.getContext().substituteParams('{{story_canon}}'); if (!m.includes('granary mystery was solved')) throw new Error('story_canon macro did not resolve to derived canon: ' + m); return true;" }
+  ]
+}

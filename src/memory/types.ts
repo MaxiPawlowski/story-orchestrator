@@ -27,6 +27,27 @@ export type MemoryExpiration = typeof MEMORY_EXPIRATIONS[number];
 export const SCENE_BREAK_REASONS = ["time_skip", "location", "divider", "cast"] as const;
 export type SceneBreakReason = typeof SCENE_BREAK_REASONS[number];
 
+export const ARC_STATUSES = ["open", "resolved"] as const;
+export type ArcStatus = typeof ARC_STATUSES[number];
+
+export interface ParsedArcSignal {
+  kind: "open" | "resolved";
+  text: string;
+}
+
+export interface ArcEntry {
+  id: string;
+  text: string;
+  status: ArcStatus;
+  entities: string[];
+  openedAt: number;
+  openedMessageId?: number;
+  resolvedAt?: number;
+  summary?: string;
+  pinned?: boolean;
+  bridgeApplied?: boolean;
+}
+
 export interface SceneBreakSignal {
   at: number;
   reason: SceneBreakReason;
