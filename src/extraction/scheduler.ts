@@ -1,5 +1,5 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
-import type { ParsedArcSignal, ParsedMemoryLine } from "@memory/index";
+import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine } from "@memory/index";
 import type { ExtraGateSource } from "./types";
 import { getChatWindow } from "./chatWindow";
 import { runSharedRead } from "./sharedRead";
@@ -32,7 +32,9 @@ export interface SchedulerHost {
   getFiredTransitions(): NormalizedTransition[];
   getExpansionGateSources(): ExtraGateSource[];
   getOpenArcs(): string[];
-  applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memory: ParsedMemoryLine[], arcs: ParsedArcSignal[]): Promise<void>;
+  getEpistemicLedgerCapable?(): boolean;
+  getEntities?(): string[];
+  applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memory: ParsedMemoryLine[], arcs: ParsedArcSignal[], epistemic?: ParsedEpistemicSignal[], ledger?: ParsedLedgerSignal[]): Promise<void>;
   onSchedulerChange(): void;
   pauseExtraction(message: string): void;
 }
@@ -112,8 +114,8 @@ export class ExtractionScheduler {
         await this.runWithRetries(job.run);
       } else {
         const priority = job.priority === 0 ? 0 : 1;
-        const result = await this.runWithRetries(() => runSharedRead({ story, state, priority, reason: job.reason, window: job.window, stabilityLag: settings.stabilityLag, firedTransitions: this.host.getFiredTransitions(), facts: this.host.getFacts(), extraGateSources: this.host.getExpansionGateSources(), openArcs: this.host.getOpenArcs(), client: settings }));
-        await this.host.applyExtractionAudit(result.audit, result.facts, result.memory, result.arcs);
+        const result = await this.runWithRetries(() => runSharedRead({ story, state, priority, reason: job.reason, window: job.window, stabilityLag: settings.stabilityLag, firedTransitions: this.host.getFiredTransitions(), facts: this.host.getFacts(), extraGateSources: this.host.getExpansionGateSources(), openArcs: this.host.getOpenArcs(), epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false, entities: this.host.getEntities?.() ?? [], client: settings }));
+        await this.host.applyExtractionAudit(result.audit, result.facts, result.memory, result.arcs, result.epistemic, result.ledger);
       }
       this.lastError = null;
     } catch (error) {

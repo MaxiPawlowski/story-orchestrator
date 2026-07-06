@@ -1,5 +1,5 @@
 import { TENSION_CURRENT_KEY, type NormalizedStoryV2, type PrimitiveValue, type Quality } from "@engine/index";
-import { parseArcLine, parseMemoryLine, parseSceneBreakLine } from "@memory/parse";
+import { parseArcLine, parseEpistemicLine, parseLedgerLine, parseMemoryLine, parseSceneBreakLine } from "@memory/parse";
 import { isTensionLevel, levelToNumeric } from "@pacing/index";
 import type { ParsedSharedRead } from "./types";
 
@@ -29,7 +29,7 @@ const parseJsonLiteral = (raw: string): PrimitiveValue | undefined => {
 };
 
 export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStoryV2, "qualityByKey">): ParsedSharedRead {
-  const result: ParsedSharedRead = { deltas: [], facts: [], memory: [], arcs: [], rejected: [] };
+  const result: ParsedSharedRead = { deltas: [], facts: [], memory: [], arcs: [], epistemic: [], ledger: [], rejected: [] };
   const lines = raw.split(/\r?\n/).map((line) => stripChannelTokens(line)).filter(Boolean);
 
   for (const line of lines) {
@@ -91,6 +91,20 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
       const arc = parseArcLine(line);
       if (arc) result.arcs.push(arc);
       else result.rejected.push({ line, reason: "invalid arc line" });
+      continue;
+    }
+
+    if (/^\[(knows|unaware|suspects|believes|hiding)\]/i.test(line)) {
+      const signal = parseEpistemicLine(line);
+      if (signal) result.epistemic.push(signal);
+      else result.rejected.push({ line, reason: "invalid epistemic line" });
+      continue;
+    }
+
+    if (/^\[state:/i.test(line)) {
+      const signals = parseLedgerLine(line);
+      if (signals.length) result.ledger.push(...signals);
+      else result.rejected.push({ line, reason: "invalid state line" });
       continue;
     }
 

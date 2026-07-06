@@ -12,6 +12,11 @@ export const MEMORY_TIER_INJECTION_DEPTHS = {
   scene_history: 6,
 } as const;
 
+export const EPISTEMIC_INJECTION_KEY = "story_orchestrator_epistemic";
+export const LEDGER_INJECTION_KEY = "story_orchestrator_ledger";
+export const EPISTEMIC_INJECTION_DEPTH = 4;
+export const LEDGER_INJECTION_DEPTH = 3;
+
 export const AUTHOR_NOTE_DEFAULT_INTERVAL = 1;
 export const AUTHOR_NOTE_DEFAULT_DEPTH = 4;
 export const AUTHOR_NOTE_DISABLED_FREQUENCY = 0;

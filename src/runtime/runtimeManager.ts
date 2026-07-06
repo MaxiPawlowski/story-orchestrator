@@ -1,10 +1,10 @@
 import { StoryEngine, effectiveThresholdFor, isValidationErrorList, progressQualityForAnchor, TENSION_CURRENT_KEY, type ApplyQueueEntry, type ArcTemplate, type BlackboardDelta, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type TensionLevel, type ValidationError } from "@engine/index";
 import { callExtractionModel, deriveFullScope, deriveScope, getCanonLite, getChatWindow, getLastMessageText, runSharedRead, type ParsedDelta, type ParsedFact, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
 import { findStubExpansionCandidate, collectExpansionGateSources, generateReviewedBeats, insertedCheckpointIds, mergeExpansions, planExpansion, revalidateExpansion, type ExpansionCacheEntry, type ExpansionRuntimeState, type StubExpansionCandidate } from "@generation/index";
-import { addMemoryEntries, applyArcSignals, applyConsolidation, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildArcSummaryPrompt, buildCanonSummaryPrompt, buildJaccardMatchSets, buildMemoryInjectionBlocks, buildSceneSummaryPrompt, canonInputHash, capAllTiers, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, createMemoryState, DEFAULT_DEDUP_THRESHOLDS, DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS, detectSceneBreakHeuristic, dropByMessageId, editEntryText, excludeEntry, expireScoped, generateMemoryId, hashMemoryText, markContradicted, matchArcBridges, openArcTexts, removeArc, resolvedArcs, rollbackArcs, setArcPinned, setArcSummary, setPinned, type ArcEntry, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedMemoryLine, type ScoreContext, type UncertainPair } from "@memory/index";
+import { addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicInjection, applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildBoundKeySet, buildEpistemicPassPrompt, buildLedgerPassPrompt, buildLedgerView, capEpistemic, capLedger, clearEpistemicInjection, activeEpistemic, memoryExtensionKey, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, removeEpistemic, removeLedger, renderLedgerBlock, renderPrivateEpistemicBlock, rollbackEpistemic, rollbackLedger, setEpistemicPinned, setLedgerPinned, type EpistemicEntry, type LedgerBinding, type LedgerView, type ParsedEpistemicSignal, type ParsedLedgerSignal, buildArcSummaryPrompt, buildCanonSummaryPrompt, buildJaccardMatchSets, buildMemoryInjectionBlocks, buildSceneSummaryPrompt, canonInputHash, capAllTiers, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, createMemoryState, DEFAULT_DEDUP_THRESHOLDS, DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS, detectSceneBreakHeuristic, dropByMessageId, editEntryText, excludeEntry, expireScoped, generateMemoryId, hashMemoryText, markContradicted, matchArcBridges, openArcTexts, removeArc, resolvedArcs, rollbackArcs, setArcPinned, setArcSummary, setPinned, type ArcEntry, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedMemoryLine, type ScoreContext, type UncertainPair } from "@memory/index";
 import { expectedTension, getSteeringHint, numericToLevel, updateEma } from "@pacing/index";
-import { clearStoryExtensionPrompt, countTokens, DEFAULT_VECTOR_SOURCE, disableWIEntry, getActiveGroup, getContext, resolveGroupMemberId, setStoryExtensionPrompt, upsertWIEntry, vectorInsert, vectorPurge, vectorQuery } from "@services/STAPI";
-import { DEFAULT_TENSION_EMA_ALPHA, MEMORY_TIER_INJECTION_DEPTHS, PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
+import { clearStoryExtensionPrompt, countTokens, DEFAULT_VECTOR_SOURCE, disableWIEntry, getActiveGroup, getCharacterNameById, getContext, resolveGroupMemberId, setStoryExtensionPrompt, upsertWIEntry, vectorInsert, vectorPurge, vectorQuery } from "@services/STAPI";
+import { DEFAULT_TENSION_EMA_ALPHA, EPISTEMIC_INJECTION_DEPTH, LEDGER_INJECTION_DEPTH, MEMORY_TIER_INJECTION_DEPTHS, PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
 import { EffectsApplier } from "./effectsApplier";
 import { evaluateRequirements } from "./requirements";
 import { loadPersistedRuntime, savePersistedRuntime, setSelectedStoryHash, getSelectedStoryHash } from "./persistence";
@@ -45,6 +45,7 @@ const createExpansion = (): ExpansionRuntimeState => ({
 
 const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   enabled: true,
+  epistemicLedgerCapable: true,
   injectionDepths: { ...MEMORY_TIER_INJECTION_DEPTHS },
   tierBudgets: { ...DEFAULT_TIER_BUDGETS },
   tierTokenBudgets: { ...DEFAULT_TIER_TOKEN_BUDGETS },
@@ -57,6 +58,8 @@ const createMemory = (): MemoryRuntimeState => ({
   sceneCount: 0,
   wiWrites: {},
   arcs: [],
+  epistemic: [],
+  ledger: [],
   canon: null,
   updatedAt: new Date().toISOString(),
 });
@@ -89,6 +92,8 @@ const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeState =>
       sceneCount: typeof existing.sceneCount === "number" ? existing.sceneCount : 0,
       wiWrites: existing.wiWrites && typeof existing.wiWrites === "object" ? existing.wiWrites : {},
       arcs: Array.isArray(existing.arcs) ? existing.arcs : [],
+      epistemic: Array.isArray(existing.epistemic) ? existing.epistemic : [],
+      ledger: Array.isArray(existing.ledger) ? existing.ledger : [],
       canon: existing.canon && typeof existing.canon === "object" ? existing.canon : null,
       updatedAt: existing.updatedAt ?? new Date().toISOString(),
     };
@@ -103,6 +108,8 @@ const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeState =>
     sceneCount: 0,
     wiWrites: {},
     arcs: [],
+    epistemic: [],
+    ledger: [],
     canon: null,
     updatedAt: new Date().toISOString(),
   };
@@ -159,6 +166,7 @@ export class RuntimeManager {
   private pendingTension: TensionRuntimeState | null = null;
   private sceneDetectCursor: { location: string | null; cast: string | null } | null = null;
   private consolidationInFlight = false;
+  private stagedPrivate = new Map<string, { facts: string; epistemic: string }>();
   private canonInFlight = false;
 
   subscribe(listener: () => void) {
@@ -331,7 +339,7 @@ export class RuntimeManager {
       const resolvedBefore = new Set(this.extras.memory.arcs.filter((arc) => arc.status === "resolved").map((arc) => arc.id));
       const rolledArcs = rollbackArcs(this.extras.memory.arcs, messageId, boundary);
       const canonStale = rolledArcs.filter((arc) => arc.status === "resolved" && resolvedBefore.has(arc.id)).length !== resolvedBefore.size;
-      this.extras.memory = { ...this.extras.memory, ...dropByMessageId(this.extras.memory, messageId), arcs: rolledArcs, ...(canonStale ? { canon: null } : {}) };
+      this.extras.memory = { ...this.extras.memory, ...dropByMessageId(this.extras.memory, messageId), arcs: rolledArcs, epistemic: rollbackEpistemic(this.extras.memory.epistemic, messageId), ledger: rollbackLedger(this.extras.memory.ledger, messageId), ...(canonStale ? { canon: null } : {}) };
       this.extras.extraction.audits = this.extras.extraction.audits.filter((audit) => audit.window.to < messageId);
       this.extras.tension = this.replayCommittedTension();
       this.pendingTension = null;
@@ -344,6 +352,13 @@ export class RuntimeManager {
       this.rollbackListeners.forEach((listener) => listener(messageId, window));
       this.notify();
     }
+  }
+
+  private ledgerBindings(): LedgerBinding[] {
+    if (!this.loaded) return [];
+    return Object.values(this.loaded.story.qualityByKey)
+      .filter((quality) => quality.ledger_binding)
+      .map((quality) => ({ entity: quality.ledger_binding!.entity, field: quality.ledger_binding!.field, qualityKey: quality.key }));
   }
 
   getStory(): NormalizedStoryV2 | null {
@@ -442,7 +457,7 @@ export class RuntimeManager {
     });
   }
 
-  async applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memoryLines: ParsedMemoryLine[] = [], arcSignals: ParsedArcSignal[] = []) {
+  async applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memoryLines: ParsedMemoryLine[] = [], arcSignals: ParsedArcSignal[] = [], epistemicSignals: ParsedEpistemicSignal[] = [], ledgerSignals: ParsedLedgerSignal[] = []) {
     if (!this.loaded) return;
     const state = this.engine.serialize();
     this.enqueueExtractorDeltas(audit.acceptedDeltas, audit.window);
@@ -492,6 +507,15 @@ export class RuntimeManager {
       this.extras.memory = { ...this.extras.memory, arcs: capOpenArcs(capResolvedArcs(applied.arcs)), updatedAt: new Date().toISOString() };
       resolvedArcs = applied.resolved;
     }
+    const capable = memoryEnabled && this.extras.memory.settings.epistemicLedgerCapable;
+    if (capable && epistemicSignals.length) {
+      const applied = applyEpistemicSignals(this.extras.memory.epistemic, epistemicSignals, { boundary: state.boundary, messageId: audit.window.to });
+      this.extras.memory = { ...this.extras.memory, epistemic: capEpistemic(applied.entries), updatedAt: new Date().toISOString() };
+    }
+    if (capable && ledgerSignals.length) {
+      const applied = applyLedgerSignals(this.extras.memory.ledger, ledgerSignals, buildBoundKeySet(this.ledgerBindings()), { boundary: state.boundary, messageId: audit.window.to });
+      this.extras.memory = { ...this.extras.memory, ledger: capLedger(applied), updatedAt: new Date().toISOString() };
+    }
     this.extras.extraction.audits = [...this.extras.extraction.audits, audit].slice(-20);
     if (audit.reason.startsWith("reconcile:")) {
       const evidence = audit.acceptedDeltas.map((entry) => `${entry.delta.q}=${String(entry.delta.v)} (${entry.evidence})`);
@@ -505,7 +529,7 @@ export class RuntimeManager {
       this.extras.extraction.reconciliationEvents = events;
     }
     this.extras.extraction.lastReadBoundary = state.boundary;
-    if (memoryEnabled && (newMemoryEntries.length || arcSignals.length)) this.updateMemoryInjection();
+    if (memoryEnabled && (newMemoryEntries.length || arcSignals.length || epistemicSignals.length || ledgerSignals.length)) this.updateMemoryInjection();
     if (resolvedArcs.length) this.onArcsResolved(resolvedArcs);
     await this.persist();
     this.notify();
@@ -622,6 +646,62 @@ export class RuntimeManager {
     await this.syncWorldInfo();
   }
 
+  private enabledCharacterNames(): string[] {
+    if (!this.loaded) return [];
+    const enabled = new Set(this.getEnabledCharacterIds());
+    const names = this.loaded.story.roster.filter((member) => enabled.has(member.id)).map((member) => member.name ?? member.id);
+    return names.length ? names : this.loaded.story.roster.map((member) => member.name ?? member.id);
+  }
+
+  private ledgerEntityList(): Array<{ name: string; type: string }> {
+    if (!this.loaded) return [];
+    const types = new Map<string, string>();
+    for (const member of this.loaded.story.roster) types.set(member.name ?? member.id, "character");
+    for (const binding of this.ledgerBindings()) if (!types.has(binding.entity)) types.set(binding.entity, "character");
+    for (const entry of this.extras.memory.ledger) types.set(entry.entity, entry.entityType);
+    return [...types].map(([name, type]) => ({ name, type }));
+  }
+
+  async runEpistemicLedgerPass(audit: SharedReadAudit): Promise<boolean> {
+    if (!this.loaded || !audit.sceneBreak || !this.getEpistemicLedgerCapable()) return false;
+    const settings = this.getExtractionSettings();
+    const window = getChatWindow(audit.window.from, audit.window.to);
+    const sceneText = window.messages.map((message) => `${message.speaker}: ${message.text}`).join("\n") || "(empty)";
+    const state = this.engine.serialize();
+    const participants = this.enabledCharacterNames();
+
+    const existing = activeEpistemic(this.extras.memory.epistemic);
+    const epistemicResponse = await callExtractionModel(buildEpistemicPassPrompt(sceneText, participants, existing.map((entry) => ({ tag: entry.tag, subject: entry.subject, content: entry.content, hiddenFrom: entry.hiddenFrom }))), {
+      profileId: settings.profileId,
+      debugResponse: globalThis.storyOrchestratorDebugEpistemicResponse ?? null,
+    });
+    const epistemicSignals: ParsedEpistemicSignal[] = [];
+    const retireIndices = new Set<number>();
+    for (const line of epistemicResponse.split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.toUpperCase() === "NONE") continue;
+      parseEpistemicRetire(trimmed).forEach((index) => retireIndices.add(index));
+      const signal = parseEpistemicLine(trimmed);
+      if (signal) epistemicSignals.push(signal);
+    }
+    const retireIds = [...retireIndices].map((index) => existing[index - 1]?.id).filter((id): id is string => Boolean(id));
+    const appliedEpistemic = applyEpistemicSignals(this.extras.memory.epistemic, epistemicSignals, { boundary: state.boundary, messageId: audit.window.to }, retireIds);
+
+    const ledgerResponse = await callExtractionModel(buildLedgerPassPrompt(sceneText, this.ledgerEntityList()), {
+      profileId: settings.profileId,
+      debugResponse: globalThis.storyOrchestratorDebugLedgerResponse ?? null,
+    });
+    const ledgerSignals: ParsedLedgerSignal[] = [];
+    for (const line of ledgerResponse.split(/\r?\n/)) ledgerSignals.push(...parseLedgerLine(line.trim()));
+    const appliedLedger = applyLedgerSignals(this.extras.memory.ledger, ledgerSignals, buildBoundKeySet(this.ledgerBindings()), { boundary: state.boundary, messageId: audit.window.to });
+
+    this.extras.memory = { ...this.extras.memory, epistemic: capEpistemic(appliedEpistemic.entries), ledger: capLedger(appliedLedger), updatedAt: new Date().toISOString() };
+    this.updateMemoryInjection();
+    await this.persist();
+    this.notify();
+    return epistemicSignals.length > 0 || ledgerSignals.length > 0 || retireIds.length > 0;
+  }
+
   async runExtractionNow(debugResponse?: string, reason = "manual") {
     if (!this.loaded) return false;
     const settings = this.getExtractionSettings();
@@ -634,9 +714,11 @@ export class RuntimeManager {
       firedTransitions: this.getFiredTransitions(),
       extraGateSources: this.getExpansionGateSources(),
       openArcs: this.getOpenArcs(),
+      epistemicLedgerCapable: this.getEpistemicLedgerCapable(),
+      entities: this.getEntities(),
       client: { ...settings, debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugExtractionResponse ?? null },
     });
-    await this.applyExtractionAudit(result.audit, result.facts, result.memory, result.arcs);
+    await this.applyExtractionAudit(result.audit, result.facts, result.memory, result.arcs, result.epistemic, result.ledger);
     await this.commitBoundary();
     return true;
   }
@@ -665,9 +747,11 @@ export class RuntimeManager {
           firedTransitions: this.getFiredTransitions(),
           facts: this.getExtractionFacts(),
           openArcs: this.getOpenArcs(),
+          epistemicLedgerCapable: this.getEpistemicLedgerCapable(),
+          entities: this.getEntities(),
           client,
         });
-        await this.applyExtractionAudit({ ...result.audit, acceptedDeltas: [] }, result.facts, result.memory, result.arcs);
+        await this.applyExtractionAudit({ ...result.audit, acceptedDeltas: [] }, result.facts, result.memory, result.arcs, result.epistemic, result.ledger);
         const progress = this.extras.memory.backfill as MemoryBackfillState;
         this.extras.memory.backfill = { ...progress, processed: progress.processed + 1 };
         await this.persist();
@@ -731,6 +815,19 @@ export class RuntimeManager {
 
   getOpenArcs(): string[] {
     return this.loaded && this.extras.memory.settings.enabled ? openArcTexts(this.extras.memory.arcs, ARC_OPEN_INJECT_LIMIT) : [];
+  }
+
+  getEpistemicLedgerCapable(): boolean {
+    return this.extras.memory.settings.enabled && this.extras.memory.settings.epistemicLedgerCapable;
+  }
+
+  getEntities(): string[] {
+    if (!this.loaded) return [];
+    const names = new Set<string>();
+    for (const member of this.loaded.story.roster) names.add(member.name ?? member.id);
+    for (const binding of this.ledgerBindings()) names.add(binding.entity);
+    for (const entry of this.extras.memory.ledger) names.add(entry.entity);
+    return [...names].filter(Boolean);
   }
 
   async setArcPinned(id: string, pinned: boolean) {
@@ -1124,15 +1221,123 @@ export class RuntimeManager {
     }
   }
 
+  private namesForRosterId(id: string): string[] {
+    const member = this.loaded?.story.roster.find((rosterMember) => rosterMember.id === id);
+    return member ? [member.name ?? member.id, member.id] : [id];
+  }
+
+  private rosterIdForName(name: string): string | null {
+    if (!this.loaded) return null;
+    const search = name.trim().toLowerCase();
+    const match = this.loaded.story.roster.find((rosterMember) => (rosterMember.name ?? rosterMember.id).trim().toLowerCase() === search);
+    return match ? match.id : null;
+  }
+
   private updateMemoryInjection() {
     if (!this.loaded || !this.extras.memory.settings.enabled) {
       clearAllMemoryInjection();
+      this.stagedPrivate.clear();
       return;
     }
-    applyMemoryInjection(this.extras.memory.entries, this.getActiveSpeakerId(), this.extras.memory.settings.injectionDepths, {
-      tokenBudgets: this.extras.memory.settings.tierTokenBudgets,
-      scoreContext: this.buildScoreContext(),
-    });
+    const options = { tokenBudgets: this.extras.memory.settings.tierTokenBudgets, scoreContext: this.buildScoreContext() };
+    const activeSpeaker = this.getActiveSpeakerId();
+    applyMemoryInjection(this.extras.memory.entries, activeSpeaker, this.extras.memory.settings.injectionDepths, options);
+
+    const blackboard = this.engine.serialize().blackboard;
+    applyLedgerInjection(renderLedgerBlock(buildLedgerView(this.extras.memory.ledger, this.ledgerBindings(), blackboard.values, blackboard.versions)), LEDGER_INJECTION_DEPTH);
+
+    this.stagedPrivate.clear();
+    if (this.getEpistemicLedgerCapable()) {
+      for (const id of this.getEnabledCharacterIds()) {
+        const facts = buildMemoryInjectionBlocks(this.extras.memory.entries, id, options).facts;
+        const epistemic = renderPrivateEpistemicBlock(this.extras.memory.epistemic, this.namesForRosterId(id));
+        this.stagedPrivate.set(id, { facts, epistemic });
+      }
+      const speakerBlock = activeSpeaker ? (this.stagedPrivate.get(activeSpeaker)?.epistemic ?? "") : renderPrivateEpistemicBlock(this.extras.memory.epistemic, this.enabledCharacterNames());
+      applyEpistemicInjection(speakerBlock, EPISTEMIC_INJECTION_DEPTH);
+    } else {
+      clearEpistemicInjection();
+    }
+  }
+
+  private setPrivateInjectionBlocks(facts: string, epistemic: string) {
+    applyEpistemicInjection(epistemic, EPISTEMIC_INJECTION_DEPTH);
+    const factsKey = memoryExtensionKey("facts");
+    if (facts) setStoryExtensionPrompt(factsKey, facts, this.extras.memory.settings.injectionDepths.facts);
+    else clearStoryExtensionPrompt(factsKey);
+  }
+
+  onMemberDrafted(chId: number | [number]) {
+    if (!this.loaded || !this.getEpistemicLedgerCapable()) return;
+    const numericId = typeof chId === "number" ? chId : Array.isArray(chId) ? chId[0] : undefined;
+    const name = getCharacterNameById(numericId);
+    const rosterId = name ? this.rosterIdForName(name) : null;
+    const staged = rosterId ? this.stagedPrivate.get(rosterId) : undefined;
+    if (!staged) {
+      const options = { tokenBudgets: this.extras.memory.settings.tierTokenBudgets, scoreContext: this.buildScoreContext() };
+      this.setPrivateInjectionBlocks(buildMemoryInjectionBlocks(this.extras.memory.entries, this.getActiveSpeakerId(), options).facts, "");
+      return;
+    }
+    this.setPrivateInjectionBlocks(staged.facts, staged.epistemic);
+  }
+
+  clearPrivateInjection() {
+    if (!this.loaded) return;
+    this.updateMemoryInjection();
+  }
+
+  getEpistemic(): EpistemicEntry[] {
+    return this.extras.memory.epistemic;
+  }
+
+  getLedger(): LedgerView[] {
+    if (!this.loaded) return [];
+    const blackboard = this.engine.serialize().blackboard;
+    return buildLedgerView(this.extras.memory.ledger, this.ledgerBindings(), blackboard.values, blackboard.versions);
+  }
+
+  getEpistemicBlock(): string {
+    if (!this.loaded || !this.getEpistemicLedgerCapable()) return "";
+    const speaker = this.getActiveSpeakerId();
+    const names = speaker ? this.namesForRosterId(speaker) : this.enabledCharacterNames();
+    return renderPrivateEpistemicBlock(this.extras.memory.epistemic, names);
+  }
+
+  getLedgerBlock(): string {
+    if (!this.loaded || !this.extras.memory.settings.enabled) return "";
+    return renderLedgerBlock(this.getLedger());
+  }
+
+  setEpistemicLedgerCapable(capable: boolean) {
+    this.setMemorySettings({ epistemicLedgerCapable: capable });
+  }
+
+  async setEpistemicPinned(id: string, pinned: boolean) {
+    this.extras.memory = { ...this.extras.memory, epistemic: setEpistemicPinned(this.extras.memory.epistemic, id, pinned) };
+    this.updateMemoryInjection();
+    await this.persist();
+    this.notify();
+  }
+
+  async removeEpistemicEntry(id: string) {
+    this.extras.memory = { ...this.extras.memory, epistemic: removeEpistemic(this.extras.memory.epistemic, id) };
+    this.updateMemoryInjection();
+    await this.persist();
+    this.notify();
+  }
+
+  async setLedgerPinned(id: string, pinned: boolean) {
+    this.extras.memory = { ...this.extras.memory, ledger: setLedgerPinned(this.extras.memory.ledger, id, pinned) };
+    this.updateMemoryInjection();
+    await this.persist();
+    this.notify();
+  }
+
+  async removeLedgerEntry(id: string) {
+    this.extras.memory = { ...this.extras.memory, ledger: removeLedger(this.extras.memory.ledger, id) };
+    this.updateMemoryInjection();
+    await this.persist();
+    this.notify();
   }
 
   getMemoryInjectionBlocks(): Record<MemoryTier, string> {

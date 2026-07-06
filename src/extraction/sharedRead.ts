@@ -20,6 +20,8 @@ export interface RunSharedReadOptions {
   extraGateSources?: ExtraGateSource[];
   scope?: ScopedQuality[];
   openArcs?: string[];
+  epistemicLedgerCapable?: boolean;
+  entities?: string[];
   client: ExtractionClientOptions;
 }
 
@@ -44,6 +46,8 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     window,
     canon: getCanonLite(options.story, options.state.visitedAnchors, options.firedTransitions ?? [], options.facts ?? []),
     openArcs: options.openArcs ?? [],
+    epistemicLedgerCapable: options.epistemicLedgerCapable ?? false,
+    entities: options.entities ?? [],
   };
   const prompt = renderSharedReadPrompt(contract);
   const rawResponse = scope.length ? await callExtractionModel(prompt, options.client) : "NO_DELTA";
@@ -62,5 +66,5 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     rejected: parsed.rejected,
     ...(parsed.sceneBreak ? { sceneBreak: parsed.sceneBreak } : {}),
   };
-  return { audit, facts: parsed.facts, memory: parsed.memory, arcs: parsed.arcs };
+  return { audit, facts: parsed.facts, memory: parsed.memory, arcs: parsed.arcs, epistemic: parsed.epistemic, ledger: parsed.ledger };
 }

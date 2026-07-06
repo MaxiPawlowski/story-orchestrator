@@ -191,6 +191,11 @@ const MemoryPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
         <input type="checkbox" checked={snapshot.memory.settings.enabled} onChange={(event) => manager.setMemorySettings({ enabled: event.target.checked })} />
         <span>Enabled</span>
       </label>
+      <label className="flex items-center gap-2">
+        <input type="checkbox" checked={snapshot.memory.settings.epistemicLedgerCapable} onChange={(event) => manager.setEpistemicLedgerCapable(event.target.checked)} />
+        <span>Epistemic/ledger extraction (model-capable)</span>
+      </label>
+      <div className="opacity-60">Turn off only if your memory model over-infers who knows what or invents entity state — small local models tend to. Never disable purely to save calls.</div>
       <div>Scene count {snapshot.memory.sceneCount}</div>
       {snapshot.memory.backfill?.running && <div>Memorizing: {snapshot.memory.backfill.processed}/{snapshot.memory.backfill.total}</div>}
       {snapshot.memory.backfill?.lastError && <div className="text-red-300">{snapshot.memory.backfill.lastError}</div>}
@@ -241,6 +246,61 @@ const MemoryPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
         );
       })}
       <ArcCanonPanel snapshot={snapshot} />
+      <EpistemicPanel snapshot={snapshot} />
+      <LedgerPanel snapshot={snapshot} />
+    </div>
+  );
+};
+
+const EPISTEMIC_TAG_LABELS: Record<string, string> = { knows: "knows", suspects: "suspects", believes: "believes (false)", unaware: "unaware", hiding: "hiding" };
+
+const EpistemicPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
+  const entries = (snapshot.memory.epistemic ?? []).filter((entry) => !entry.supersededBy);
+  if (!entries.length) return null;
+  const subjects = Array.from(new Set(entries.map((entry) => entry.subject)));
+  return (
+    <div className="border-t border-solid border-white/10 mt-1 pt-1">
+      <div className="opacity-100">Epistemic map ({entries.length})</div>
+      {subjects.map((subject) => (
+        <div key={subject} className="mt-1">
+          <div className="opacity-100">{subject}</div>
+          {entries.filter((entry) => entry.subject === subject).map((entry) => (
+            <div key={entry.id} className="flex gap-2 opacity-80 flex-wrap">
+              <span>[{EPISTEMIC_TAG_LABELS[entry.tag] ?? entry.tag}{entry.hiddenFrom ? ` from ${entry.hiddenFrom}` : ""}] {entry.content}{entry.pinned ? " 📌" : ""}</span>
+              <button className="menu_button" onClick={() => void manager.setEpistemicPinned(entry.id, !entry.pinned)}>{entry.pinned ? "Unpin" : "Pin"}</button>
+              <button className="menu_button" onClick={() => void manager.removeEpistemicEntry(entry.id)}>Remove</button>
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const LedgerPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
+  const stored = snapshot.memory.ledger ?? [];
+  const rows = manager.getLedger();
+  if (!rows.length) return null;
+  const entities = Array.from(new Set(rows.map((row) => row.entity)));
+  const idFor = (entity: string, field: string) => stored.find((entry) => entry.entity.toLowerCase() === entity.toLowerCase() && entry.field.toLowerCase() === field.toLowerCase())?.id;
+  return (
+    <div className="border-t border-solid border-white/10 mt-1 pt-1">
+      <div className="opacity-100">State ledger ({rows.length})</div>
+      {entities.map((entity) => (
+        <div key={entity} className="mt-1">
+          <div className="opacity-100">{entity}</div>
+          {rows.filter((row) => row.entity === entity).map((row) => {
+            const id = row.bound ? undefined : idFor(row.entity, row.field);
+            return (
+              <div key={`${entity}-${row.field}`} className="flex gap-2 opacity-80 flex-wrap">
+                <span>{row.field}={row.value}{row.bound ? " 🔒" : ""}</span>
+                {row.bound && <span className="opacity-60" title="mirrored read-only from a blackboard quality">blackboard</span>}
+                {id && <button className="menu_button" onClick={() => void manager.removeLedgerEntry(id)}>Remove</button>}
+              </div>
+            );
+          })}
+        </div>
+      ))}
     </div>
   );
 };

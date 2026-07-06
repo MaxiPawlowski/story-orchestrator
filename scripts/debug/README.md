@@ -30,7 +30,7 @@ Hang prevention:
 | Deterministic state, actions, assertions, gate checks | debug scripts |
 | Visual inspection, console/network review, ad-hoc clicks | Playwright MCP |
 
-Playwright MCP is configured with `--cdp-endpoint http://127.0.0.1:9222`, so it needs `st-session start` first. If no session is running, MCP browser tools fail to connect; start the session and retry.
+Playwright MCP is configured via the repo `.mcp.json` (`npx @playwright/mcp@latest --cdp-endpoint=http://127.0.0.1:9222`), so scripts and MCP share ONE browser — but only after `st-session start`. If no session is running, MCP browser tools fail to connect; start the session and retry. A user-level playwright MCP server without `--cdp-endpoint` launches its own isolated Chromium whose state is invisible to the scripts (this bit us live: seeded runtime state on the MCP browser, sends going to a different chat on the script browser). Use only the project-configured server for shared-state work, and verify with a marker round-trip: MCP `browser_evaluate` sets `globalThis.__x`, `st-eval.mts "globalThis.__x"` must read it.
 
 ## Commands
 
@@ -40,11 +40,12 @@ Playwright MCP is configured with `--cdp-endpoint http://127.0.0.1:9222`, so it 
 | `so-scenario.mjs` | `run <file.json> [--sandbox] [--keep]` |
 | `so-mutation-check.mjs` | `[--keep]` |
 | `so-state.mjs` | `current [--full] [--expect path=value]`, `all` |
-| `st-actions.mjs` | `send`, `send-compact`, `slash`, `checkpoint`, `swipe`, `edit`, `delete`, `wi-status`, `wait-idle` |
+| `st-actions.mjs` | `send`, `send-compact`, `trigger <member>`, `slash`, `checkpoint`, `swipe`, `edit`, `delete`, `wi-status`, `wait-idle` |
 | `st-payload.mjs` | `arm`, `last [n]`, `watch [n]` |
-| `st-navigation.mjs` | `recent-group`, `new-group-session`, `recent-group-new` |
+| `st-navigation.mjs` | `recent-group`, `new-group-session`, `recent-group-new`, `list-entities`, `open-group <id\|name>`, `open-character <name>`, `list-chats`, `open-chat <chatId>`, `new-chat` |
+| `st-eval.mjs` | `"<js>"` or `--file <path>` — run an async snippet in the ST page with `ctx` (getContext()) and `rt` (runtime handle) in scope, JSON result |
 | `so-ui.mjs` | `all`, `settings`, `drawer`, `open-settings`, `open-studio`, `screenshot` |
-| `so-library.mjs` | library summary or story detail |
+| `so-library.mjs` | v2 library summary, `<hash>` detail, `remove <hash\|title>`, `wipe-chat-meta [--hash h]`, `--legacy` |
 | `st-search.mjs` | ST host source search, `--context-exports`, `--event-types`, `--endpoints` |
 
 ## Scenario Format
@@ -73,6 +74,8 @@ Supported steps: `import_story`, `select_story`, `send`, `send_generate`, `slash
 `memory` expects `{ "<tier>": { "count"?: number, "contains"?: string[] } }` against the live memory snapshot's entries (tiers: `facts`, `session_details`, `short_term`, `scene_history`). `sceneBreaks>=` checks `memory.sceneCount`. `memoryInjection` expects `{ "<tier>": boolean }` — whether `ctx.extensionPrompts.story_orchestrator_memory_<tier>` currently has non-empty content.
 
 `arcs` expects `{ open?, resolved?, summarized?, openContains?: string[], resolvedContains?: string[] }` against the live memory snapshot's `arcs`. `canon` expects `{ present?: boolean, contains?: string[] }` against the derived canon (`memory.canon.text`). `so-state current` surfaces `memory.{openArcCount, resolvedArcCount, arcSummaryCount, canonPresent, canonHash}`.
+
+`epistemic` expects `{ count?: number, contains?: [{ subject, tag, contains, hiddenFrom? }] }` against the live memory snapshot's active (non-superseded) `epistemic` entries. `ledger` expects `{ count?: number, contains?: [{ entity, field, value }] }` against the stored (unbound) `ledger` entries — blackboard-mirrored bound rows only appear in `runtime.getLedger()`, so assert those with an `eval` step. `capability` expects a boolean against `memory.settings.epistemicLedgerCapable`. `so-state current` surfaces `memory.{epistemicCount, hidingCount, ledgerCount, epistemicLedgerCapable}`.
 
 `wait` verbs: `idle`, `boundary`, `auditCount`, `acceptedDelta` (a delta for the named quality accepted in any audit), `expansionStatus`, `checkpoint`, `progress` (+`progressAnchor`), `reconciliationEvidence`, `reconciliationEvents` (count >=), `memoryEntries` (count >=, +`memoryTier`), `arcsSummarized` (resolved arcs with summaries >=), `canonPresent`, `backfillComplete` (waits for `memory.backfill.running === false` with `processed === total`).
 

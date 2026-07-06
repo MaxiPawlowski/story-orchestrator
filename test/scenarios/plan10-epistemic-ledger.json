@@ -1,0 +1,37 @@
+{
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "title": "Epistemic and Ledger Gate Check",
+        "description": "Plan 10 deterministic epistemic map + state ledger validation.",
+        "qualities": [
+          { "key": "arin_location", "type": "string", "source": "extractor", "rubric": "Where Arin currently is.", "ledger_binding": { "entity": "Arin", "field": "location" } }
+        ],
+        "checkpoints": [
+          { "id": "start", "name": "Start", "objective": "The heist unfolds.", "type": "anchor", "start": true }
+        ],
+        "transitions": [],
+        "roster": [ { "id": "arin", "name": "Arin" }, { "id": "mira", "name": "Mira" } ]
+      }
+    },
+    {
+      "eval": "const audit = { id:'seed', createdAt:new Date().toISOString(), priority:0, reason:'manual', contractHash:'h', scope:[], window:{from:0,to:1}, prompt:'p', rawResponse:'r', acceptedDeltas:[], rejected:[] }; await globalThis.storyOrchestratorRuntime.applyExtractionAudit(audit, [], [], [], [ {tag:'knows',subject:'Arin',content:'he took the gem'}, {tag:'hiding',subject:'Arin',hiddenFrom:'Mira',content:'the theft'}, {tag:'believes',subject:'Mira',content:'nothing was taken from the vault'} ], [ {entity:'Arin',entityType:'character',field:'location',value:'the dungeon'}, {entity:'Arin',entityType:'character',field:'mood',value:'grim'} ]); return { epistemic: globalThis.storyOrchestratorRuntime.getEpistemic().length, ledger: globalThis.storyOrchestratorRuntime.getSnapshot().memory.ledger.map((e) => e.field) };"
+    },
+    { "expect": { "epistemic": { "count": 3, "contains": [ { "subject": "Arin", "tag": "knows", "contains": "took the gem" }, { "subject": "Arin", "tag": "hiding", "hiddenFrom": "Mira", "contains": "the theft" }, { "subject": "Mira", "tag": "believes", "contains": "nothing was taken" } ] }, "ledger": { "count": 1, "contains": [ { "entity": "Arin", "field": "mood", "value": "grim" } ] } } },
+    { "eval": "const ep = SillyTavern.getContext().extensionPrompts || {}; const epi = ep.story_orchestrator_epistemic?.value ?? ''; const led = ep.story_orchestrator_ledger?.value ?? ''; if (!/You (know|are concealing)/.test(epi)) throw new Error('real epistemic injection block missing: ' + JSON.stringify(epi)); if (!led.includes('mood=grim')) throw new Error('real ledger injection block missing: ' + JSON.stringify(led)); return { epistemicInjected: epi, ledgerInjected: led };" },
+    {
+      "eval": "const audit = { id:'loc', createdAt:new Date().toISOString(), priority:0, reason:'manual', contractHash:'h', scope:[], window:{from:1,to:2}, prompt:'p', rawResponse:'r', acceptedDeltas:[ { delta:{ q:'arin_location', v:'the tower', source:'extractor' }, evidence:'Arin slipped up into the tower' } ], rejected:[] }; await globalThis.storyOrchestratorRuntime.applyExtractionAudit(audit, [], [], [], [], []); await globalThis.storyOrchestratorRuntime.commitBoundary(); const view = globalThis.storyOrchestratorRuntime.getLedger(); if (!view.some((r) => r.bound && r.entity==='Arin' && r.field==='location' && r.value==='the tower')) throw new Error('bound ledger row missing: '+JSON.stringify(view)); return view;"
+    },
+    {
+      "eval": "globalThis.storyOrchestratorDebugEpistemicResponse = '[knows] Mira | Arin took the gem\\n[retire] 3'; globalThis.storyOrchestratorDebugLedgerResponse = 'NONE'; const audit = { id:'p2', createdAt:new Date().toISOString(), priority:0, reason:'manual', contractHash:'h', scope:[], window:{from:1,to:2}, prompt:'p', rawResponse:'r', acceptedDeltas:[], rejected:[], sceneBreak:{ at:1, reason:'divider' } }; const changed = await globalThis.storyOrchestratorRuntime.runEpistemicLedgerPass(audit); const believes = globalThis.storyOrchestratorRuntime.getEpistemic().find((e) => e.tag==='believes' && e.subject==='Mira'); if (!believes || !believes.supersededBy) throw new Error('false belief was not retired on reveal'); delete globalThis.storyOrchestratorDebugEpistemicResponse; delete globalThis.storyOrchestratorDebugLedgerResponse; return { changed, retired: Boolean(believes.supersededBy) };"
+    },
+    { "expect": { "epistemic": { "contains": [ { "subject": "Mira", "tag": "knows", "contains": "Arin took the gem" } ] } } },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setEpistemicLedgerCapable(false); const before = globalThis.storyOrchestratorRuntime.getEpistemic().length; const audit = { id:'off', createdAt:new Date().toISOString(), priority:0, reason:'manual', contractHash:'h', scope:[], window:{from:2,to:3}, prompt:'p', rawResponse:'r', acceptedDeltas:[], rejected:[] }; await globalThis.storyOrchestratorRuntime.applyExtractionAudit(audit, [], [], [], [ {tag:'knows',subject:'Arin',content:'a brand new secret'} ], [ {entity:'Mira',entityType:'character',field:'mood',value:'furious'} ]); return { before, after: globalThis.storyOrchestratorRuntime.getEpistemic().length };"
+    },
+    { "expect": { "capability": false } },
+    { "eval": "globalThis.storyOrchestratorRuntime.setEpistemicLedgerCapable(true); return globalThis.storyOrchestratorRuntime.getSnapshot().memory.settings.epistemicLedgerCapable;" },
+    { "expect": { "capability": true } }
+  ]
+}

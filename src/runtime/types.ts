@@ -1,7 +1,7 @@
 import type { ArcTemplate, EngineState, NormalizedStoryV2, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
 import type { ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
-import type { ArcEntry, MemoryStoreState, MemoryTier, ScoreWeights } from "@memory/index";
+import type { ArcEntry, EpistemicEntry, LedgerEntry, MemoryStoreState, MemoryTier, ScoreWeights } from "@memory/index";
 import type { SteeringHint } from "@pacing/index";
 
 export interface StoryLibraryRecord {
@@ -34,6 +34,7 @@ export interface RuntimeExtras {
 
 export interface MemoryRuntimeSettings {
   enabled: boolean;
+  epistemicLedgerCapable: boolean;
   injectionDepths: Record<MemoryTier, number>;
   tierBudgets: Record<MemoryTier, number>;
   tierTokenBudgets: Record<MemoryTier, number>;
@@ -59,6 +60,8 @@ export interface MemoryRuntimeState extends MemoryStoreState {
   sceneCount: number;
   wiWrites: Record<string, string>;
   arcs: ArcEntry[];
+  epistemic: EpistemicEntry[];
+  ledger: LedgerEntry[];
   canon: CanonState | null;
   updatedAt: string;
 }

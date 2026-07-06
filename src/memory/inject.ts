@@ -1,4 +1,4 @@
-import { MEMORY_INJECTION_KEY_PREFIX } from "@constants/defaults";
+import { EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_KEY, MEMORY_INJECTION_KEY_PREFIX } from "@constants/defaults";
 import { clearStoryExtensionPrompt, setStoryExtensionPrompt } from "@services/STAPI";
 import { selectWithinBudget } from "./budget";
 import { scoreEntry, type ScoreContext } from "./score";
@@ -43,6 +43,26 @@ export function applyMemoryInjection(entries: MemoryEntry[], activeSpeakerId: st
   });
 }
 
+export function applyEpistemicInjection(block: string, depth: number) {
+  if (block) setStoryExtensionPrompt(EPISTEMIC_INJECTION_KEY, block, depth);
+  else clearStoryExtensionPrompt(EPISTEMIC_INJECTION_KEY);
+}
+
+export function clearEpistemicInjection() {
+  clearStoryExtensionPrompt(EPISTEMIC_INJECTION_KEY);
+}
+
+export function applyLedgerInjection(block: string, depth: number) {
+  if (block) setStoryExtensionPrompt(LEDGER_INJECTION_KEY, block, depth);
+  else clearStoryExtensionPrompt(LEDGER_INJECTION_KEY);
+}
+
+export function clearLedgerInjection() {
+  clearStoryExtensionPrompt(LEDGER_INJECTION_KEY);
+}
+
 export function clearAllMemoryInjection() {
   MEMORY_TIERS.forEach((tier) => clearStoryExtensionPrompt(memoryExtensionKey(tier)));
+  clearStoryExtensionPrompt(EPISTEMIC_INJECTION_KEY);
+  clearStoryExtensionPrompt(LEDGER_INJECTION_KEY);
 }

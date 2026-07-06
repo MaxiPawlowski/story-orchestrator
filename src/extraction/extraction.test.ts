@@ -154,6 +154,25 @@ describe("shared read parser", () => {
     expect(parsed.rejected).toEqual([]);
   });
 
+  it("routes epistemic and state lines into their own buckets without arc collision", () => {
+    const story = parseStoryV2OrThrow(storyFixture);
+    const parsed = parseSharedReadResponse([
+      "[arc] The thief's identity remains unknown to the guard.",
+      "[knows] Kael | he took the gem",
+      "[hiding] Kael from Lyria | the theft",
+      "[believes] Lyria | nothing was taken",
+      "[state:Kael:character] location=dungeon | mood=grim",
+    ].join("\n"), story);
+    expect(parsed.arcs).toHaveLength(1);
+    expect(parsed.epistemic.map((entry) => entry.tag)).toEqual(["knows", "hiding", "believes"]);
+    expect(parsed.epistemic[1]).toMatchObject({ subject: "Kael", hiddenFrom: "Lyria", content: "the theft" });
+    expect(parsed.ledger).toEqual([
+      { entity: "Kael", entityType: "character", field: "location", value: "dungeon" },
+      { entity: "Kael", entityType: "character", field: "mood", value: "grim" },
+    ]);
+    expect(parsed.rejected).toEqual([]);
+  });
+
   it.each(["extractor2", "extractor3", "extractor4"])("parses the %s suite-A corpus fixture", (name) => {
     const story = parseStoryV2OrThrow(readJson<unknown>(`${name}.story.json`));
     const golden = fs.readFileSync(path.join(process.cwd(), "test/goldens", `${name}.response.txt`), "utf8");

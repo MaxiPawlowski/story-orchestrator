@@ -8,7 +8,7 @@ SillyTavern extension running format-2 authored stories as deterministic checkpo
 2. `docs/plans/v2/00-implementation-overview.md` — canonical build rules, gate protocol, verified ST host facts, plan sequence
 3. Current plan doc + **Gate records** of all prior plans (tail sections — as-built truth and deviations)
 
-**Status: plans 01–09 complete; real-LLM retro validation done (see `docs/plans/v2/retro-live-validation.md` — fixed TurnBridge group-chat boundaries + extractor parse; open finding F1 for plan 10+).** Update this line when a plan's gate goes green.
+**Status: plans 01–10 complete. Plan 10 (epistemic map + state ledger) gate green — harness (23 suites/1224 tests, build) + live: `plan10-epistemic-ledger.json` 11/11 (real ST), `live-plan10-epistemic-ledger.json` 4/4 (real gemma P2), and the previously-flagged per-draft private swap now CLOSED (real `group_member_drafted`→swap captured in a real 2-member group generation payload: each member saw only its own epistemic block). Review-pass fix: F-A `onMemberDrafted` fail-open leak on an unresolved/non-roster draft → now fail-safe clear (see `docs/plans/v2/10-epistemic-ledger.md` Gate record, 2026-07-06 pass). Open finding F1 still deferred.** Update this line when a plan's gate goes green.
 
 ## V2 spine
 

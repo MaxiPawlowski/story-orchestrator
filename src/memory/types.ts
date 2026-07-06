@@ -48,6 +48,54 @@ export interface ArcEntry {
   bridgeApplied?: boolean;
 }
 
+export const EPISTEMIC_TAGS = ["knows", "unaware", "suspects", "believes", "hiding"] as const;
+export type EpistemicTag = typeof EPISTEMIC_TAGS[number];
+
+export interface ParsedEpistemicSignal {
+  tag: EpistemicTag;
+  subject: string;
+  content: string;
+  hiddenFrom?: string;
+}
+
+export interface EpistemicEntry {
+  id: string;
+  subject: string;
+  tag: EpistemicTag;
+  content: string;
+  hiddenFrom?: string;
+  createdAt: number;
+  messageId?: number;
+  pinned?: boolean;
+  supersededBy?: string;
+}
+
+export interface ParsedLedgerSignal {
+  entity: string;
+  entityType: string;
+  field: string;
+  value: string;
+}
+
+export interface LedgerEntry {
+  id: string;
+  entity: string;
+  entityType: string;
+  field: string;
+  value: string;
+  createdAt: number;
+  messageId?: number;
+  pinned?: boolean;
+}
+
+export interface LedgerView {
+  entity: string;
+  field: string;
+  value: string;
+  bound: boolean;
+  turn: number;
+}
+
 export interface SceneBreakSignal {
   at: number;
   reason: SceneBreakReason;

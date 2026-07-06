@@ -18,7 +18,8 @@ expect verbs:
   activeCheckpoint, blackboard, blackboardMissing, latched, auditCount>=, npcFired,
   expansion, tension, pacingPrompt, requirementsReady, convergence, reconciliationEvents>=,
   memory ({tier: {count, contains}}), sceneBreaks>=, memoryInjection ({tier: bool}),
-  arcs ({open, resolved, summarized, openContains, resolvedContains}), canon ({present, contains})
+  arcs ({open, resolved, summarized, openContains, resolvedContains}), canon ({present, contains}),
+  epistemic ({count, contains:[{subject,tag,contains,hiddenFrom?}]}), ledger ({count, contains:[{entity,field,value}]}), capability (bool)
 
 wait verbs:
   idle, boundary, auditCount, acceptedDelta, expansionStatus, checkpoint, progress (+progressAnchor), reconciliationEvents, memoryEntries (+memoryTier), arcsSummarized, canonPresent, backfillComplete`;
@@ -164,6 +165,28 @@ function evaluateExpect(state, expected) {
     for (const substring of spec.contains ?? []) {
       if (typeof canon?.text !== 'string' || !canon.text.includes(substring)) failures.push(`canon.contains: expected canon containing "${substring}"`);
     }
+  }
+  if (expected.epistemic) {
+    const entries = (state?.liveSnapshot?.memory?.epistemic ?? []).filter((e: any) => !e?.supersededBy);
+    const spec = expected.epistemic as { count?: number; contains?: Array<{ subject: string; tag: string; contains: string; hiddenFrom?: string }> };
+    if (spec.count !== undefined && entries.length !== spec.count) failures.push(`epistemic.count: expected ${spec.count}, got ${entries.length}`);
+    for (const want of spec.contains ?? []) {
+      const hit = entries.some((e: any) => e?.tag === want.tag && String(e?.subject).toLowerCase() === want.subject.toLowerCase() && String(e?.content).includes(want.contains) && (want.hiddenFrom === undefined || String(e?.hiddenFrom ?? '').toLowerCase() === want.hiddenFrom.toLowerCase()));
+      if (!hit) failures.push(`epistemic.contains: expected [${want.tag}] ${want.subject}${want.hiddenFrom ? ` from ${want.hiddenFrom}` : ''} containing "${want.contains}"`);
+    }
+  }
+  if (expected.ledger) {
+    const entries = state?.liveSnapshot?.memory?.ledger ?? [];
+    const spec = expected.ledger as { count?: number; contains?: Array<{ entity: string; field: string; value: string }> };
+    if (spec.count !== undefined && entries.length !== spec.count) failures.push(`ledger.count: expected ${spec.count}, got ${entries.length}`);
+    for (const want of spec.contains ?? []) {
+      const hit = entries.some((e: any) => String(e?.entity).toLowerCase() === want.entity.toLowerCase() && String(e?.field).toLowerCase() === want.field.toLowerCase() && String(e?.value).includes(want.value));
+      if (!hit) failures.push(`ledger.contains: expected ${want.entity}.${want.field} containing "${want.value}"`);
+    }
+  }
+  if (expected.capability !== undefined) {
+    const cap = state?.liveSnapshot?.memory?.settings?.epistemicLedgerCapable;
+    if (Boolean(cap) !== expected.capability) failures.push(`capability: expected ${expected.capability}, got ${Boolean(cap)}`);
   }
   return { ok: failures.length === 0, failures, actual };
 }

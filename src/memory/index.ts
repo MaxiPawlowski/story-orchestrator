@@ -2,6 +2,8 @@ export * from "./types";
 export * from "./similarity";
 export * from "./stores";
 export * from "./arcs";
+export * from "./epistemic";
+export * from "./ledger";
 export * from "./canon";
 export * from "./budget";
 export * from "./score";

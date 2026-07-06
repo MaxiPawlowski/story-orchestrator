@@ -93,6 +93,46 @@ export async function sendUserMessage(page, text) {
   };
 }
 
+export async function triggerGroupMember(page, member) {
+  if (!member || typeof member !== 'string') {
+    throw new Error('triggerGroupMember requires a group member name or 0-based index.');
+  }
+
+  await waitForIdle(page, 10000);
+
+  const before = await evaluateInST(page, () => {
+    const ctx = SillyTavern.getContext();
+    return { groupId: ctx.groupId, chatLength: ctx.chat?.length ?? 0 };
+  });
+  if (!before.groupId) throw new Error('No active group chat. trigger requires an open group.');
+
+  await evaluateInST(page, async (arg) => {
+    const ctx = SillyTavern.getContext();
+    await ctx.executeSlashCommandsWithOptions(`/trigger await=true ${arg}`);
+  }, member);
+
+  await waitForIdle(page, 120000);
+
+  const after = await evaluateInST(page, () => {
+    const ctx = SillyTavern.getContext();
+    const last = ctx.chat?.[ctx.chat.length - 1];
+    return {
+      chatLength: ctx.chat?.length ?? 0,
+      lastSpeaker: last?.name ?? null,
+      lastMessage: (last?.mes ?? '').slice(0, 200),
+    };
+  });
+
+  return {
+    triggered: member,
+    messagesBefore: before.chatLength,
+    messagesAfter: after.chatLength,
+    newMessages: after.chatLength - before.chatLength,
+    lastSpeaker: after.lastSpeaker,
+    lastMessage: after.lastMessage,
+  };
+}
+
 export async function executeSlashCommand(page, command) {
   if (!command || typeof command !== 'string') {
     throw new Error('executeSlashCommand requires a non-empty command string.');
@@ -240,6 +280,7 @@ Actions:
   wait-idle [timeout_ms]        Wait until generation finishes (default 30s)
   send <text>                   Send a user message (triggers LLM generation!)
   send-compact <text>           Add a message via /send compact=true (no generation)
+  trigger <member>              Draft a specific group member (/trigger await=true; real generation!)
   slash <command>               Execute a slash command (e.g. "/checkpoint list")
   checkpoint <id_or_index>      Activate a checkpoint by id or 1-based index
   checkpoint list               List checkpoints via /checkpoint list
@@ -285,6 +326,14 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         const result = await sendCompactMessage(page, text);
         console.log(JSON.stringify(result, null, 2));
         await writeJSON(result, 'st-send-compact-result');
+        break;
+      }
+      case 'trigger': {
+        const member = process.argv.slice(3).join(' ');
+        if (!member) { console.error('Missing group member name or index.'); process.exitCode = 1; break; }
+        const result = await triggerGroupMember(page, member);
+        console.log(JSON.stringify(result, null, 2));
+        await writeJSON(result, 'st-trigger-result');
         break;
       }
       case 'slash': {

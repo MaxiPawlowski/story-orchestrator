@@ -9,4 +9,6 @@ export function registerRuntimeMacros(manager: RuntimeManager) {
   MEMORY_TIERS.forEach((tier) => {
     MacrosParser.registerMacro(`story_memory_${tier}`, () => manager.getMemoryInjectionBlocks()[tier] || "(none)", `Story Orchestrator v2 memory tier: ${tier}`);
   });
+  MacrosParser.registerMacro("story_epistemic", () => manager.getEpistemicBlock() || "(none)", "Story Orchestrator v2 active-speaker epistemic block");
+  MacrosParser.registerMacro("story_ledger", () => manager.getLedgerBlock() || "(none)", "Story Orchestrator v2 state ledger");
 }

@@ -1,5 +1,5 @@
 import type { BlackboardDelta, GateNode, NormalizedStoryV2, PrimitiveValue, Quality, TensionLevel } from "@engine/index";
-import type { ParsedArcSignal, ParsedMemoryLine, SceneBreakSignal } from "@memory/index";
+import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine, SceneBreakSignal } from "@memory/index";
 
 export interface ScopedQuality {
   key: string;
@@ -33,6 +33,8 @@ export interface SharedReadContract {
   window: SharedReadWindow;
   canon: string;
   openArcs?: string[];
+  epistemicLedgerCapable?: boolean;
+  entities?: string[];
 }
 
 export interface ParsedDelta {
@@ -54,6 +56,8 @@ export interface ParsedSharedRead {
   facts: ParsedFact[];
   memory: ParsedMemoryLine[];
   arcs: ParsedArcSignal[];
+  epistemic: ParsedEpistemicSignal[];
+  ledger: ParsedLedgerSignal[];
   sceneBreak?: SceneBreakSignal;
   rejected: Array<{ line: string; reason: string }>;
 }
@@ -78,6 +82,8 @@ export interface SharedReadResult {
   facts: ParsedFact[];
   memory: ParsedMemoryLine[];
   arcs: ParsedArcSignal[];
+  epistemic: ParsedEpistemicSignal[];
+  ledger: ParsedLedgerSignal[];
 }
 
 export interface ReconciliationDescriptor {

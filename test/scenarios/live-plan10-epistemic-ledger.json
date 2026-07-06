@@ -1,0 +1,20 @@
+{
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "title": "Live Epistemic Ledger Gate Check",
+        "description": "Plan 10 retro validation: real-model epistemic + state-ledger P2 pass.",
+        "qualities": [
+          { "key": "kael_location", "type": "string", "source": "extractor", "rubric": "Where Kael currently is.", "ledger_binding": { "entity": "Kael", "field": "location" } }
+        ],
+        "checkpoints": [ { "id": "start", "name": "Start", "objective": "The theft unfolds.", "type": "anchor", "start": true } ],
+        "transitions": [],
+        "roster": [ { "id": "kael", "name": "Kael" }, { "id": "lyria", "name": "Lyria" } ]
+      }
+    },
+    { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorRuntime.setExtractionSettings({ enabled: true, profileId: 'afcc7073-3510-4f67-8070-35ce449d4792', cadence: 6 }); globalThis.storyOrchestratorRuntime.setMemorySettings({ enabled: true, epistemicLedgerCapable: true }); return true;" },
+    { "slash": "/send compact=true Kael pocketed the emerald in the dungeon while Lyria watched from the doorway. Later he swore Fen to silence about the theft. When Lyria asked Kael if anything was missing, he shrugged and said he had not noticed." },
+    { "eval": "const chat = SillyTavern.getContext().chat; const to = chat.length - 1; const from = Math.max(0, to - 2); const audit = { id: 'live-p2', createdAt: new Date().toISOString(), priority: 0, reason: 'manual', contractHash: 'h', scope: [], window: { from, to }, prompt: 'p', rawResponse: 'r', acceptedDeltas: [], rejected: [], sceneBreak: { at: to, reason: 'divider' } }; const changed = await globalThis.storyOrchestratorRuntime.runEpistemicLedgerPass(audit); const epi = globalThis.storyOrchestratorRuntime.getEpistemic().filter((e) => !e.supersededBy); if (epi.length < 2) throw new Error('real epistemic pass produced too few entries: ' + JSON.stringify(epi)); if (!epi.some((e) => e.tag === 'knows')) throw new Error('expected a [knows] entry from the real model: ' + JSON.stringify(epi.map((e) => e.tag))); return { changed, tags: epi.map((e) => e.tag + ':' + e.subject), ledger: globalThis.storyOrchestratorRuntime.getSnapshot().memory.ledger.map((l) => l.entity + '.' + l.field) };" }
+  ]
+}

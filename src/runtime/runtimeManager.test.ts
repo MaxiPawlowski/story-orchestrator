@@ -43,6 +43,7 @@ jest.mock("@services/STAPI", () => {
     setGroupMembersDisabled: jest.fn(async () => undefined),
     getActiveGroup: getActiveGroupMock,
     resolveGroupMemberId: resolveGroupMemberIdMock,
+    getCharacterNameById: (id: number) => (id === 0 ? "Mara" : id === 1 ? "Kael" : id === 2 ? "Narrator" : undefined),
   };
 });
 
@@ -370,6 +371,118 @@ describe("RuntimeManager memory injection and cast", () => {
     const arcs = manager.getArcs();
     expect(arcs.find((arc) => arc.text.startsWith("Mira"))?.status).toBe("resolved");
     expect(arcs.filter((arc) => arc.status === "open")).toHaveLength(1);
+  });
+
+  it("writes per-subject epistemic entries from a shared-read audit", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(castStory));
+    await manager.applyExtractionAudit(memoryAudit(), [], [], [], [
+      { tag: "knows", subject: "Kael", content: "he took the gem" },
+      { tag: "hiding", subject: "Kael", hiddenFrom: "Mara", content: "the theft" },
+      { tag: "believes", subject: "Mara", content: "nothing was taken" },
+    ]);
+    const epistemic = manager.getSnapshot().memory.epistemic;
+    expect(epistemic).toHaveLength(3);
+    expect(epistemic.filter((entry) => entry.subject === "Kael")).toHaveLength(2);
+  });
+
+  it("drops an extracted state line for a ledger-bound field (blackboard is the single writer)", async () => {
+    const boundStory = {
+      ...castStory,
+      qualities: [{ key: "kael_location", type: "string", source: "extractor", rubric: "Where Kael is.", ledger_binding: { entity: "Kael", field: "location" } }],
+    };
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(boundStory));
+    await manager.applyExtractionAudit(memoryAudit(), [], [], [], [], [
+      { entity: "Kael", entityType: "character", field: "location", value: "dungeon" },
+      { entity: "Kael", entityType: "character", field: "mood", value: "grim" },
+    ]);
+    const ledger = manager.getSnapshot().memory.ledger;
+    expect(ledger).toHaveLength(1);
+    expect(ledger[0].field).toBe("mood");
+  });
+
+  it("swaps in each drafted member's own private epistemic block, hiding others' knowledge", async () => {
+    (getActiveGroup as jest.Mock).mockReturnValue({ members: ["mara.png", "kael.png"], disabled_members: [] });
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(castStory));
+    mockContext.chat = [{ name: "Mara", mes: "We should talk.", is_user: false }];
+    await manager.applyExtractionAudit(memoryAudit(), [], [], [], [
+      { tag: "knows", subject: "Kael", content: "he took the gem" },
+      { tag: "hiding", subject: "Kael", hiddenFrom: "Mara", content: "the theft" },
+      { tag: "believes", subject: "Mara", content: "nothing was taken" },
+    ]);
+
+    manager.onMemberDrafted(1);
+    const kaelBlock = mockExtensionPrompts.story_orchestrator_epistemic?.value ?? "";
+    expect(kaelBlock).toContain("You know: he took the gem");
+    expect(kaelBlock).toContain("You are concealing from Mara: the theft");
+    expect(kaelBlock).not.toContain("nothing was taken");
+
+    manager.onMemberDrafted(0);
+    const maraBlock = mockExtensionPrompts.story_orchestrator_epistemic?.value ?? "";
+    expect(maraBlock).toContain("You believe: nothing was taken");
+    expect(maraBlock).not.toContain("the theft");
+  });
+
+  it("clears the private epistemic block for a non-roster drafted member instead of leaking the prior one's", async () => {
+    (getActiveGroup as jest.Mock).mockReturnValue({ members: ["mara.png", "kael.png"], disabled_members: [] });
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(castStory));
+    mockContext.chat = [{ name: "Mara", mes: "We should talk.", is_user: false }];
+    await manager.applyExtractionAudit(memoryAudit(), [], [], [], [
+      { tag: "knows", subject: "Kael", content: "he took the gem" },
+      { tag: "hiding", subject: "Kael", hiddenFrom: "Mara", content: "the theft" },
+    ]);
+
+    manager.onMemberDrafted(1);
+    expect(mockExtensionPrompts.story_orchestrator_epistemic?.value ?? "").toContain("the theft");
+
+    manager.onMemberDrafted(2);
+    expect(mockExtensionPrompts.story_orchestrator_epistemic?.value ?? "").toBe("");
+  });
+
+  it("injects the state-ledger grounding block", async () => {
+    (getActiveGroup as jest.Mock).mockReturnValue({ members: ["mara.png"], disabled_members: [] });
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(castStory));
+    await manager.applyExtractionAudit(memoryAudit(), [], [], [], [], [
+      { entity: "Kael", entityType: "character", field: "location", value: "the dungeon" },
+    ]);
+    expect(mockExtensionPrompts.story_orchestrator_ledger?.value).toContain("Kael: location=the dungeon");
+  });
+
+  it("runs the P2 pass adding knowledge and retiring a superseded false belief on reveal", async () => {
+    delete globalThis.storyOrchestratorDebugEpistemicResponse;
+    delete globalThis.storyOrchestratorDebugLedgerResponse;
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(castStory));
+    await manager.applyExtractionAudit(memoryAudit(), [], [], [], [
+      { tag: "believes", subject: "Mara", content: "nothing was taken from the vault" },
+    ]);
+    globalThis.storyOrchestratorDebugEpistemicResponse = "[knows] Mara | Kael took the gem\n[retire] 1";
+    globalThis.storyOrchestratorDebugLedgerResponse = "[state:Kael:character] location=dungeon | mood=grim";
+    const changed = await manager.runEpistemicLedgerPass({ ...memoryAudit(), sceneBreak: { at: 0, reason: "divider" } });
+    expect(changed).toBe(true);
+    const epistemic = manager.getSnapshot().memory.epistemic;
+    expect(epistemic.find((entry) => entry.tag === "believes")?.supersededBy).toBeTruthy();
+    expect(epistemic.some((entry) => entry.tag === "knows" && entry.subject === "Mara")).toBe(true);
+    expect(manager.getSnapshot().memory.ledger.find((row) => row.field === "location")?.value).toBe("dungeon");
+    delete globalThis.storyOrchestratorDebugEpistemicResponse;
+    delete globalThis.storyOrchestratorDebugLedgerResponse;
+  });
+
+  it("skips epistemic and ledger writes when the capability profile is off", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(castStory));
+    manager.setMemorySettings({ epistemicLedgerCapable: false });
+    await manager.applyExtractionAudit(memoryAudit(), [], [], [], [
+      { tag: "knows", subject: "Kael", content: "he took the gem" },
+    ], [
+      { entity: "Kael", entityType: "character", field: "mood", value: "grim" },
+    ]);
+    expect(manager.getSnapshot().memory.epistemic).toHaveLength(0);
+    expect(manager.getSnapshot().memory.ledger).toHaveLength(0);
   });
 
   it("clears all memory injection prompts when no story is loaded", async () => {

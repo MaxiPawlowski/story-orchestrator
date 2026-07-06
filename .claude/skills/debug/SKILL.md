@@ -18,7 +18,7 @@ Two complementary toolsets. Pick by task, don't mix roles:
 | **Key tools** | `st-session`, `so-scenario`, `so-state current`, `st-actions`, `st-payload`, `so-ui` | `browser_snapshot` (a11y tree), `browser_take_screenshot`, `browser_console_messages`, `browser_network_requests`, `browser_evaluate` |
 | **Rule** | Gate validations are scripts with exit codes | Never build multi-step validation chains from MCP calls when a script exists; if you repeat an MCP sequence, promote it to a script |
 
-Start with `node scripts/debug/st-session.mts start` when using scripts and MCP together. Scripts attach to `.debug/session.json`; MCP attaches to `http://127.0.0.1:9222`. If MCP browser tools fail to connect, start the session and retry.
+Start with `node scripts/debug/st-session.mts start` when using scripts and MCP together. Scripts attach to `.debug/session.json`; MCP attaches to `http://127.0.0.1:9222` via the repo `.mcp.json` (`--cdp-endpoint`), so both drive ONE browser. If MCP browser tools fail to connect, start the session and retry. **Warning**: an MCP playwright server configured without `--cdp-endpoint` (e.g. user-level default) silently launches its own isolated Chromium — state seeded there is invisible to the scripts and vice versa. Before any shared-state MCP work, verify with a marker round-trip: MCP `browser_evaluate` sets `globalThis.__x`, then `st-eval.mts "globalThis.__x"` must return it.
 
 Do not use unbounded terminal processes for gates. Debug scripts have hard connection timeouts (`ST_DEBUG_TIMEOUT_MS`, default 30000), `st-payload watch` has a default 60s timeout, and `st-session stop` cleans up the Windows process tree. Use WSL/tmux only for unrelated long-running app servers, not for these validation scripts.
 
@@ -59,7 +59,13 @@ One malformed model response correctly audited/retried = plumbing pass. Repeated
 node scripts/debug/so-state.mts current        # primary runtime snapshot: chatId, groupId, selectedStoryHash, activeCheckpointId, boundary, visitedAnchors, blackboard, versions, latched, requirements, firedNpcReplies, extraction (settings, scheduler, auditCount, lastAudit incl. prompt/rawResponse/acceptedDeltas)
 node scripts/debug/so-state.mts current --expect bb.player_has_key=true
 node scripts/debug/so-state.mts all --full
-node scripts/debug/so-library.mts [<storyId>]  # library summary | full story definition
+node scripts/debug/so-library.mts              # v2 story library (extensionSettings["story-orchestrator"].v2Stories)
+node scripts/debug/so-library.mts <hash>       # full v2 story record
+node scripts/debug/so-library.mts remove "<hash|title>"       # remove from library + flush settings (test cleanup)
+node scripts/debug/so-library.mts wipe-chat-meta [--hash h]   # delete chat_metadata.story_orchestrator from current chat
+node scripts/debug/so-library.mts --legacy     # old v1 studio store
+node scripts/debug/st-eval.mts "<js>"          # run async JS in the ST page; ctx + rt in scope; bare expression or statements with return
+node scripts/debug/st-eval.mts --file <path>   # same, snippet from file — replaces throwaway one-off .mts scripts
 node scripts/debug/st-context.mts [keys...]    # getContext() summary or specific keys (chatId mainApi ...)
 node scripts/debug/st-extension-settings.mts [--all]
 node scripts/debug/st-chat.mts [count|metadata]  # last N messages (default 10) or chat_metadata
@@ -74,6 +80,7 @@ node scripts/debug/st-actions.mts generation-state
 node scripts/debug/st-actions.mts wait-idle [timeout_ms]        # default 30s
 node scripts/debug/st-actions.mts send <text>                   # triggers real LLM generation!
 node scripts/debug/st-actions.mts send-compact <text>           # /send compact=true, no generation
+node scripts/debug/st-actions.mts trigger <member>              # draft a specific group member (/trigger await=true; real generation!)
 node scripts/debug/st-actions.mts slash "/checkpoint list"
 node scripts/debug/st-actions.mts checkpoint <id_or_index|list|eval>
 node scripts/debug/st-actions.mts swipe <messageId> [swipeId]
@@ -121,8 +128,16 @@ Selectors: settings root `#stepthink_settings`, story dropdown `#story-library-s
 node scripts/debug/st-navigation.mts recent-group        # open most recent group chat — run before any inspection
 node scripts/debug/st-navigation.mts new-group-session   # new session for current group
 node scripts/debug/st-navigation.mts recent-group-new    # both — run before destructive tests
+node scripts/debug/st-navigation.mts list-entities       # all groups (id, members, chat count) + characters (index, name, avatar)
+node scripts/debug/st-navigation.mts open-group "<id|name>"      # open a specific group
+node scripts/debug/st-navigation.mts open-character "<name>"     # open a character (via /go — no DOM dependency)
+node scripts/debug/st-navigation.mts list-chats          # chat ids of the open group/character
+node scripts/debug/st-navigation.mts open-chat "<chatId>"        # open a specific chat of the current entity
+node scripts/debug/st-navigation.mts new-chat            # fresh chat for current group OR character (/newchat)
 # all accept --keep-open
 ```
+
+Standard test loop: `open-group` → `new-chat` → seed via `st-eval` → `send`/`trigger` → assertions → `/delchat` + `so-library remove` + `wipe-chat-meta`.
 
 ### Gate check scripts (assert-style, self-contained)
 
@@ -179,3 +194,5 @@ Then MCP `browser_console_messages` + `browser_network_requests` for the explora
 | `ERR_CONNECTION_REFUSED` | SillyTavern not running |
 | `SillyTavern not loaded` | ST not ready yet — retry |
 | `Settings panel not mounted` / `Drawer not mounted` | Extension not loaded / element not created |
+| MCP browser tools connect but see different state than scripts (chat/group/runtime mismatch) | MCP launched its own Chromium (server missing `--cdp-endpoint`). Run `st-session start`, restart the Claude session so `.mcp.json` takes effect, verify with the `globalThis.__x` marker round-trip |
+| MCP browser tools fail to connect | `st-session start` first — the cdp-endpoint config requires the shared browser to exist |

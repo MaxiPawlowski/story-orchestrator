@@ -1,4 +1,4 @@
-import { MEMORY_ENTRY_TYPES, MEMORY_EXPIRATIONS, SCENE_BREAK_REASONS, TIER_FOR_ENTRY_TYPE, type MemoryEntryType, type ParsedArcSignal, type ParsedMemoryLine, type SceneBreakSignal } from "./types";
+import { EPISTEMIC_TAGS, MEMORY_ENTRY_TYPES, MEMORY_EXPIRATIONS, SCENE_BREAK_REASONS, TIER_FOR_ENTRY_TYPE, type EpistemicTag, type MemoryEntryType, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine, type SceneBreakSignal } from "./types";
 
 const isMemoryEntryType = (value: string): value is MemoryEntryType => (MEMORY_ENTRY_TYPES as readonly string[]).includes(value);
 
@@ -72,6 +72,60 @@ export function parseArcLine(line: string): ParsedArcSignal | null {
   const text = match[2].trim();
   if (!text) return null;
   return { kind: match[1].toLowerCase() === "resolved" ? "resolved" : "open", text };
+}
+
+const epistemicHidingPattern = /^\[hiding\]\s+(.+?)\s+from\s+(.+?)\s*\|\s*(.+)$/i;
+const epistemicStandardPattern = /^\[(\w+)\]\s+(.+?)\s*\|\s*(.+)$/i;
+const isEpistemicTag = (value: string): value is EpistemicTag => (EPISTEMIC_TAGS as readonly string[]).includes(value);
+
+export function parseEpistemicLine(line: string): ParsedEpistemicSignal | null {
+  const hiding = line.match(epistemicHidingPattern);
+  if (hiding) {
+    const subject = hiding[1].trim();
+    const hiddenFrom = hiding[2].trim();
+    const content = hiding[3].trim();
+    if (!subject || !hiddenFrom || !content) return null;
+    return { tag: "hiding", subject, hiddenFrom, content };
+  }
+  const standard = line.match(epistemicStandardPattern);
+  if (!standard) return null;
+  const tag = standard[1].toLowerCase();
+  if (!isEpistemicTag(tag) || tag === "hiding") return null;
+  const subject = standard[2].trim();
+  const content = standard[3].trim();
+  if (!subject || !content) return null;
+  return { tag, subject, content };
+}
+
+const epistemicRetirePattern = /^\[retire\]/i;
+
+export function parseEpistemicRetire(line: string): number[] {
+  if (!epistemicRetirePattern.test(line.trim())) return [];
+  const nums = line.trim().replace(epistemicRetirePattern, "").match(/\d+/g);
+  return nums ? nums.map(Number) : [];
+}
+
+const ledgerLinePattern = /^\[state:([^\]]+):([^\]]+)\]\s*(.*)$/i;
+const LEDGER_NOISE_VALUES = new Set(["unknown", "none", "n/a", "na", "not mentioned", "not specified", "unspecified", "unclear", "nothing"]);
+
+export function parseLedgerLine(line: string): ParsedLedgerSignal[] {
+  const match = line.match(ledgerLinePattern);
+  if (!match) return [];
+  const entity = match[1].trim();
+  const entityType = match[2].trim().toLowerCase();
+  const rest = match[3].trim();
+  if (!entity || !entityType || !rest) return [];
+  const signals: ParsedLedgerSignal[] = [];
+  for (const chunk of rest.split("|")) {
+    const eqIndex = chunk.indexOf("=");
+    if (eqIndex === -1) continue;
+    const field = chunk.slice(0, eqIndex).trim().toLowerCase().replace(/\s+/g, "_");
+    const value = chunk.slice(eqIndex + 1).trim();
+    if (!field || !value) continue;
+    if (LEDGER_NOISE_VALUES.has(value.toLowerCase())) continue;
+    signals.push({ entity, entityType, field, value });
+  }
+  return signals;
 }
 
 export function parseSceneBreakLine(line: string): SceneBreakSignal | null | undefined {

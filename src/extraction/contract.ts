@@ -30,7 +30,7 @@ export function renderSharedReadPrompt(contract: SharedReadContract): string {
     "FACT importance=<1|2|3> text=\"fact text\" evidence=\"exact quote from transcript\"",
     "If nothing changed, output NO_DELTA.",
     "",
-    renderMemoryContractAddendum(contract.openArcs ?? []),
+    renderMemoryContractAddendum(contract.openArcs ?? [], contract.epistemicLedgerCapable ?? false, contract.entities ?? []),
     "",
     "Quality questions:",
     renderType(contract) || "(no in-scope qualities)",
@@ -49,6 +49,8 @@ export function hashContract(contract: SharedReadContract): string {
     window: { from: contract.window.from, to: contract.window.to },
     canon: contract.canon,
     openArcs: contract.openArcs ?? [],
+    epistemicLedgerCapable: contract.epistemicLedgerCapable ?? false,
+    entities: contract.entities ?? [],
   });
   for (let index = 0; index < text.length; index += 1) {
     hash ^= text.charCodeAt(index);
