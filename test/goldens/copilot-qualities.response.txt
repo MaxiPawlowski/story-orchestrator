@@ -1,0 +1,7 @@
+{
+  "summary": "Core qualities that measure the heist's dramatic state.",
+  "ops": [
+    { "kind": "addQuality", "quality": { "key": "alarm_tripped", "type": "bool", "source": "extractor", "rubric": "Has the alarm been tripped?" } },
+    { "kind": "addQuality", "quality": { "key": "loot", "type": "int", "source": "extractor", "rubric": "How many loot items has the crew secured?" } }
+  ]
+}

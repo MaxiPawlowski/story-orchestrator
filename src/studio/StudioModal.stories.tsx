@@ -35,3 +35,21 @@ export const Empty: Story = {
     await expect(args.onClose).toHaveBeenCalledTimes(1);
   },
 };
+
+export const CopilotTabEnabled: Story = {
+  args: { copilotEnabled: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("tab", { name: "Copilot" })).toBeInTheDocument();
+    await userEvent.click(canvas.getByRole("tab", { name: "Copilot" }));
+    await expect(canvas.getByLabelText("Copilot unavailable")).toBeInTheDocument();
+  },
+};
+
+export const CopilotTabHiddenWhenDisabled: Story = {
+  args: { copilotEnabled: false },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.queryByRole("tab", { name: "Copilot" })).toBeNull();
+  },
+};

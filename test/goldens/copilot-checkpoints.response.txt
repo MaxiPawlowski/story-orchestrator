@@ -1,0 +1,9 @@
+```json
+{
+  "summary": "Add a midpoint anchor and make the vault convergent.",
+  "ops": [
+    { "kind": "addCheckpoint", "checkpoint": { "id": "midpoint", "name": "Midpoint", "objective": "Breach the inner perimeter.", "type": "anchor", "tension_target": "tense" } },
+    { "kind": "updateCheckpoint", "id": "vault", "patch": { "convergence_threshold": 1 } }
+  ]
+}
+```

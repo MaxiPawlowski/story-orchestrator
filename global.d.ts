@@ -33,6 +33,7 @@ declare global {
   var talkControlInterceptor: TalkControlInterceptor | undefined;
   var ST_applyTextgenPresetToUI: import("@services/stHost/presets").TextGenPresetUiBridge | undefined;
   var storyOrchestratorRuntime: import("@runtime/index").RuntimeManager | undefined;
+  var storyOrchestratorStudioDraft: typeof import("./src/studio/draft").useDraftStore | undefined;
   var storyOrchestratorDebugExtractionResponse: string | null | undefined;
   var storyOrchestratorDebugGenerationResponse: string | null | undefined;
   var storyOrchestratorDebugSceneSummaryResponse: string | null | undefined;
@@ -41,4 +42,5 @@ declare global {
   var storyOrchestratorDebugCanonResponse: string | null | undefined;
   var storyOrchestratorDebugEpistemicResponse: string | null | undefined;
   var storyOrchestratorDebugLedgerResponse: string | null | undefined;
+  var storyOrchestratorDebugCopilotResponse: string | null | undefined;
 }

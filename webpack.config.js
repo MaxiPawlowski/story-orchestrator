@@ -28,6 +28,7 @@ module.exports = {
       "@pacing": path.resolve(__dirname, "src/pacing"),
       "@generation": path.resolve(__dirname, "src/generation"),
       "@memory": path.resolve(__dirname, "src/memory"),
+      "@copilot": path.resolve(__dirname, "src/copilot"),
     },
     fallback: {
       fs: false,

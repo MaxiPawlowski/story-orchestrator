@@ -78,8 +78,8 @@ export function startRuntime() {
   bridge.start();
   const privateInjectionEntries: HostSubscriptionEntry[] = [
     { eventName: "group_member_drafted", handler: (characterId) => runtimeManager.onMemberDrafted(characterId as number | [number]) },
-    { eventName: "generation_ended", handler: () => runtimeManager.clearPrivateInjection() },
-    { eventName: "generation_stopped", handler: () => runtimeManager.clearPrivateInjection() },
+    { eventName: "generation_ended", handler: () => { runtimeManager.clearPrivateInjection(); runtimeManager.clearCopilotNudge(); } },
+    { eventName: "generation_stopped", handler: () => { runtimeManager.clearPrivateInjection(); runtimeManager.clearCopilotNudge(); } },
   ];
   privateInjectionUnsub = subscribeToHostEvents(privateInjectionEntries);
   void runtimeManager.loadSelectedFromChat();

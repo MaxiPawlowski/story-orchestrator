@@ -738,3 +738,91 @@ describe("RuntimeManager arc bridge and canon", () => {
     expect(manager.getArcs().some((arc) => arc.status === "resolved")).toBe(false);
   });
 });
+
+const copilotDraft = {
+  format: 2,
+  title: "Copilot Draft",
+  description: "",
+  qualities: [{ key: "has_key", type: "bool", source: "extractor", rubric: "Does the crew have the vault key?" }],
+  checkpoints: [{ id: "start", name: "Start", objective: "Case the vault.", type: "anchor", start: true }],
+  transitions: [],
+  roster: [],
+};
+
+const driverStory = {
+  format: 2,
+  title: "Driver Test",
+  description: "Driver context fixture.",
+  qualities: [{ key: "has_key", type: "bool", source: "extractor", rubric: "Does the crew have the vault key?" }],
+  checkpoints: [
+    { id: "start", name: "Start", objective: "Find the key.", type: "anchor", start: true },
+    { id: "vault", name: "Vault", objective: "Open the vault.", type: "anchor", convergence_threshold: 1 },
+  ],
+  transitions: [
+    { from: "start", to: "vault", priority: 0, gate: { q: "has_key", op: "==", v: true }, effects: { progress: { anchor: "vault", amount: 1 } } },
+  ],
+  roster: [],
+};
+
+describe("RuntimeManager copilot seam", () => {
+  beforeEach(() => resetHost());
+
+  it("defaults copilot enabled and toggles the setting", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(story));
+    expect(manager.getSnapshot().copilot.enabled).toBe(true);
+
+    manager.setCopilotSettings({ enabled: false });
+    expect(manager.getSnapshot().copilot.enabled).toBe(false);
+  });
+
+  it("returns an ok proposal for a valid debug response", async () => {
+    const manager = new RuntimeManager();
+    const debugResponse = JSON.stringify({ summary: "q", ops: [{ kind: "addQuality", quality: { key: "trust", type: "int", source: "extractor", rubric: "How much trust?" } }] });
+    const result = await manager.runCopilotStage({ draft: copilotDraft, stage: "qualities", message: "", history: [] }, debugResponse);
+    expect(result.status).toBe("ok");
+    expect(result.proposal.ops).toHaveLength(1);
+    expect(result.preview.errors).toEqual([]);
+  });
+
+  it("builds a driver context with unmet gates and upcoming anchors", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(driverStory));
+    const context = manager.getDriverContext();
+    expect(context?.activeCheckpointId).toBe("start");
+    expect(context?.unmetGates.some((gate) => gate.includes("has_key"))).toBe(true);
+    expect(context?.upcomingAnchors.some((anchor) => anchor.id === "vault")).toBe(true);
+  });
+
+  it("returns driver suggestions from a debug response", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(driverStory));
+    const suggestions = await manager.runCopilotSuggest(JSON.stringify({ suggestions: [{ title: "Find the key", rationale: "has_key is false" }] }));
+    expect(suggestions).toEqual([{ title: "Find the key", rationale: "has_key is false" }]);
+  });
+
+  it("sets a nudge extension prompt and clears it", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(driverStory));
+
+    manager.setCopilotNudge("Escalate the standoff.");
+    expect(mockExtensionPrompts.story_copilot_nudge?.value).toBe("Escalate the standoff.");
+
+    manager.clearCopilotNudge();
+    expect(mockExtensionPrompts.story_copilot_nudge).toBeUndefined();
+  });
+
+  it("suppresses nudges and clears an active one when copilot is disabled", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(driverStory));
+
+    manager.setCopilotNudge("Steer harder.");
+    expect(mockExtensionPrompts.story_copilot_nudge?.value).toBe("Steer harder.");
+
+    manager.setCopilotSettings({ enabled: false });
+    expect(mockExtensionPrompts.story_copilot_nudge).toBeUndefined();
+
+    manager.setCopilotNudge("Ignored while off.");
+    expect(mockExtensionPrompts.story_copilot_nudge).toBeUndefined();
+  });
+});

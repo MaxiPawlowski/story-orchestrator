@@ -1,0 +1,7 @@
+{
+  "summary": "Broken proposal for the failure path.",
+  "ops": [
+    { "kind": "addTransition", "transition": { "from": "start", "to": "vault", "gate": { "q": "ghost_quality", "op": "==", "v": true }, "priority": 0 } },
+    { "kind": "frobnicate", "id": "x" }
+  ]
+}

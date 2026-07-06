@@ -1,4 +1,5 @@
-import { StoryEngine, effectiveThresholdFor, isValidationErrorList, progressQualityForAnchor, TENSION_CURRENT_KEY, type ApplyQueueEntry, type ArcTemplate, type BlackboardDelta, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type TensionLevel, type ValidationError } from "@engine/index";
+import { Blackboard, StoryEngine, effectiveThresholdFor, evaluateGate, isValidationErrorList, progressQualityForAnchor, renderGateText, TENSION_CURRENT_KEY, type ApplyQueueEntry, type ArcTemplate, type BlackboardDelta, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type StoryV2, type TensionLevel, type ValidationError } from "@engine/index";
+import { runAuthoringStage, runDriverReport, runDriverSuggest, type CopilotMessage, type CopilotStage, type DriverContext, type ProposalResult, type Suggestion } from "@copilot/index";
 import { callExtractionModel, deriveFullScope, deriveScope, getCanonLite, getChatWindow, getLastMessageText, runSharedRead, type ParsedDelta, type ParsedFact, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
 import { findStubExpansionCandidate, collectExpansionGateSources, generateReviewedBeats, insertedCheckpointIds, mergeExpansions, planExpansion, revalidateExpansion, type ExpansionCacheEntry, type ExpansionRuntimeState, type StubExpansionCandidate } from "@generation/index";
 import { addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicInjection, applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildBoundKeySet, buildEpistemicPassPrompt, buildLedgerPassPrompt, buildLedgerView, capEpistemic, capLedger, clearEpistemicInjection, activeEpistemic, memoryExtensionKey, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, removeEpistemic, removeLedger, renderLedgerBlock, renderPrivateEpistemicBlock, rollbackEpistemic, rollbackLedger, setEpistemicPinned, setLedgerPinned, type EpistemicEntry, type LedgerBinding, type LedgerView, type ParsedEpistemicSignal, type ParsedLedgerSignal, buildArcSummaryPrompt, buildCanonSummaryPrompt, buildJaccardMatchSets, buildMemoryInjectionBlocks, buildSceneSummaryPrompt, canonInputHash, capAllTiers, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, createMemoryState, DEFAULT_DEDUP_THRESHOLDS, DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS, detectSceneBreakHeuristic, dropByMessageId, editEntryText, excludeEntry, expireScoped, generateMemoryId, hashMemoryText, markContradicted, matchArcBridges, openArcTexts, removeArc, resolvedArcs, rollbackArcs, setArcPinned, setArcSummary, setPinned, type ArcEntry, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedMemoryLine, type ScoreContext, type UncertainPair } from "@memory/index";
@@ -9,7 +10,7 @@ import { EffectsApplier } from "./effectsApplier";
 import { evaluateRequirements } from "./requirements";
 import { loadPersistedRuntime, savePersistedRuntime, setSelectedStoryHash, getSelectedStoryHash } from "./persistence";
 import { findStoryRecord, listStoryRecords, loadStoryRecord, saveStoryRecord } from "./storyLibrary";
-import type { ConvergenceReadout, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, MemoryBackfillState, MemoryRuntimeSettings, MemoryRuntimeState, PacingSettings, RuntimeExtras, RuntimeSnapshot, TensionRuntimeState } from "./types";
+import type { ConvergenceReadout, CopilotRuntimeSettings, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, MemoryBackfillState, MemoryRuntimeSettings, MemoryRuntimeState, PacingSettings, RuntimeExtras, RuntimeSnapshot, TensionRuntimeState } from "./types";
 
 const emptyRequirements = { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] };
 
@@ -115,6 +116,10 @@ const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeState =>
   };
 };
 
+const COPILOT_NUDGE_KEY = "story_copilot_nudge";
+const createCopilot = (): CopilotRuntimeSettings => ({ enabled: true });
+const sanitizeCopilot = (value: RuntimeExtras | undefined): CopilotRuntimeSettings => ({ enabled: value?.copilot?.enabled ?? true });
+
 const createExtras = (): RuntimeExtras => ({
   firedNpcReplies: {},
   requirements: emptyRequirements,
@@ -125,6 +130,7 @@ const createExtras = (): RuntimeExtras => ({
   memory: createMemory(),
   pacing: defaultPacingSettings(),
   tension: defaultTension(),
+  copilot: createCopilot(),
   updatedAt: new Date().toISOString(),
 });
 
@@ -168,6 +174,7 @@ export class RuntimeManager {
   private consolidationInFlight = false;
   private stagedPrivate = new Map<string, { facts: string; epistemic: string }>();
   private canonInFlight = false;
+  private activeNudge: string | null = null;
 
   subscribe(listener: () => void) {
     this.listeners.add(listener);
@@ -391,6 +398,82 @@ export class RuntimeManager {
     this.updateMemoryInjection();
     void this.persist();
     this.notify();
+  }
+
+  getCopilotSettings(): CopilotRuntimeSettings {
+    return this.extras.copilot;
+  }
+
+  setCopilotSettings(settings: Partial<CopilotRuntimeSettings>) {
+    this.extras.copilot = { ...this.extras.copilot, ...settings };
+    if (!this.extras.copilot.enabled) this.clearCopilotNudge();
+    void this.persist();
+    this.notify();
+  }
+
+  private copilotClient(debugResponse?: string): { profileId: string | null; debugResponse: string | null } {
+    return { profileId: this.getExtractionSettings().profileId, debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugCopilotResponse ?? null };
+  }
+
+  async runCopilotStage(input: { draft: StoryV2; stage: CopilotStage; message: string; history: CopilotMessage[] }, debugResponse?: string): Promise<ProposalResult> {
+    return runAuthoringStage(input, this.copilotClient(debugResponse));
+  }
+
+  getDriverContext(): DriverContext | null {
+    if (!this.loaded) return null;
+    const story = this.loaded.story;
+    const state = this.engine.serialize();
+    const blackboard = new Blackboard(story, state.blackboard);
+    const active = story.checkpointById[state.activeCheckpointId] ?? null;
+    const outgoing = story.outgoingByCheckpoint[state.activeCheckpointId] ?? [];
+    const unmetGates = outgoing
+      .filter((transition) => !evaluateGate(transition.gate, blackboard))
+      .map((transition) => `${renderGateText(transition.gate)} → ${transition.to}`)
+      .filter((text) => text.length > 0);
+    const upcomingAnchors = this.buildConvergenceReadout()
+      .filter((entry) => !entry.reached)
+      .map((entry) => ({ id: entry.anchorId, name: entry.anchorName, progress: entry.progress, threshold: entry.threshold }));
+    return {
+      title: story.title,
+      activeCheckpointId: active?.id ?? null,
+      activeObjective: active?.objective ?? "",
+      unmetGates,
+      upcomingAnchors,
+      blackboard: state.blackboard.values,
+      canon: this.getCanon(),
+      recentChat: getLastMessageText(),
+    };
+  }
+
+  async runCopilotSuggest(debugResponse?: string): Promise<Suggestion[]> {
+    const context = this.getDriverContext();
+    if (!context) return [];
+    return runDriverSuggest(context, this.copilotClient(debugResponse));
+  }
+
+  async runCopilotReport(debugResponse?: string): Promise<string> {
+    const context = this.getDriverContext();
+    if (!context) return "";
+    return runDriverReport(context, this.copilotClient(debugResponse));
+  }
+
+  setCopilotNudge(text: string, depth = 1) {
+    const trimmed = text.trim();
+    if (!trimmed || !this.extras.copilot.enabled) return;
+    setStoryExtensionPrompt(COPILOT_NUDGE_KEY, trimmed, depth);
+    this.activeNudge = trimmed;
+    this.notify();
+  }
+
+  clearCopilotNudge() {
+    if (this.activeNudge === null) return;
+    clearStoryExtensionPrompt(COPILOT_NUDGE_KEY);
+    this.activeNudge = null;
+    this.notify();
+  }
+
+  getActiveNudge(): string | null {
+    return this.activeNudge;
   }
 
   getExtractionFacts(): ParsedFact[] {
@@ -957,6 +1040,7 @@ export class RuntimeManager {
       expansion: this.extras.expansion,
       memory: this.extras.memory,
       pacing: this.extras.pacing,
+      copilot: this.extras.copilot,
       convergence: this.buildConvergenceReadout(),
       tension: this.buildTensionSnapshot(),
     };
@@ -1010,6 +1094,7 @@ export class RuntimeManager {
     this.extras.expansion = sanitizeExpansion(this.extras);
     this.extras.pacing = sanitizePacing(this.extras.pacing);
     this.extras.tension = sanitizeTension(this.extras.tension);
+    this.extras.copilot = sanitizeCopilot(this.extras);
     this.extras.lastSelfInjectionMessageId = typeof this.extras.lastSelfInjectionMessageId === "number" ? this.extras.lastSelfInjectionMessageId : null;
     this.loaded = { record: loaded.record, story: this.mergedStoryOrBase(loaded.record.raw, loaded.story) };
     this.engine.loadStory(this.loaded.story);

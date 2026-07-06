@@ -45,6 +45,7 @@ Playwright MCP is configured via the repo `.mcp.json` (`npx @playwright/mcp@late
 | `st-navigation.mjs` | `recent-group`, `new-group-session`, `recent-group-new`, `list-entities`, `open-group <id\|name>`, `open-character <name>`, `list-chats`, `open-chat <chatId>`, `new-chat` |
 | `st-eval.mjs` | `"<js>"` or `--file <path>` — run an async snippet in the ST page with `ctx` (getContext()) and `rt` (runtime handle) in scope, JSON result |
 | `so-ui.mjs` | `all`, `settings`, `drawer`, `open-settings`, `open-studio`, `studio`, `studio-tab <label>`, `screenshot` |
+| `so-copilot.mjs` | `context`, `suggest [--debug j]`, `report [--debug j]`, `nudge <text>`, `clear-nudge`, `probe [--debug d]`, `advance <id>`, `stage <stage> [--message m] [--debug j]` |
 | `so-library.mjs` | v2 library summary, `<hash>` detail, `remove <hash\|title>`, `wipe-chat-meta [--hash h]`, `--legacy` |
 | `st-search.mjs` | ST host source search, `--context-exports`, `--event-types`, `--endpoints` |
 
@@ -63,7 +64,9 @@ Playwright MCP is configured via the repo `.mcp.json` (`npx @playwright/mcp@late
 }
 ```
 
-Supported steps: `import_story`, `select_story`, `send`, `send_generate`, `slash`, `extract`, `expand`, `eval`, `swipe`, `edit`, `delete`, `wait`, `expect`.
+Supported steps: `import_story`, `select_story`, `send`, `send_generate`, `slash`, `extract`, `expand`, `eval`, `copilot`, `swipe`, `edit`, `delete`, `wait`, `expect`.
+
+`copilot` drives plan 12: `{ "copilot": { "action": ... } }`. Actions: `stage` (`{ draft, stage, message?, debug? }` — runs an authoring stage on the given draft and throws if the proposal is invalid), `suggest`/`report` (`{ debug? }`), `nudge` (`{ text }`), `clear-nudge`, `probe` (`{ debug? }` — P0 forced extraction, reason=probe), `advance` (`{ id }` — manual checkpoint activation). Omit `debug` for a real-LLM run. `expect` gains `copilot: { enabled?, activeNudge?, nudgeInjected? }` (`nudgeInjected` reflects `ctx.extensionPrompts.story_copilot_nudge`). `so-state current` surfaces `copilot.{enabled, activeNudge, nudgeInjected}`.
 
 `eval` runs arbitrary JS in the ST page (access to `globalThis.storyOrchestratorRuntime`, debug response globals); use it to toggle runtime state like extraction settings.
 
@@ -79,7 +82,7 @@ Supported steps: `import_story`, `select_story`, `send`, `send_generate`, `slash
 
 `wait` verbs: `idle`, `boundary`, `auditCount`, `acceptedDelta` (a delta for the named quality accepted in any audit), `expansionStatus`, `checkpoint`, `progress` (+`progressAnchor`), `reconciliationEvidence`, `reconciliationEvents` (count >=), `memoryEntries` (count >=, +`memoryTier`), `arcsSummarized` (resolved arcs with summaries >=), `canonPresent`, `backfillComplete` (waits for `memory.backfill.running === false` with `processed === total`).
 
-Real-LLM scenarios (no `debugResponse`; extraction profile must be selected — see the debug skill's "Real-LLM validation" section): `live-plan02-runtime.json`, `live-plan03-extraction.json`, `live-plan04-pacing.json`, `live-plan05-expansion.json`, `live-plan06-convergence.json`, `live-plan07-memory.json`, `plan08-hygiene.json`, `live-plan09-arcs.json`. These assert pipeline behavior (audits, tier writes, fired transitions), not exact model output; the tolerant `wait` verbs above exist for them.
+Real-LLM scenarios (no `debugResponse`; extraction profile must be selected — see the debug skill's "Real-LLM validation" section): `live-plan02-runtime.json`, `live-plan03-extraction.json`, `live-plan04-pacing.json`, `live-plan05-expansion.json`, `live-plan06-convergence.json`, `live-plan07-memory.json`, `plan08-hygiene.json`, `live-plan09-arcs.json`, `live-plan12-copilot.json`. These assert pipeline behavior (audits, tier writes, fired transitions, copilot wiring), not exact model output; the tolerant `wait` verbs above exist for them. `plan12-copilot.json` is the mocked (debug-response) copilot scenario.
 
 `/cp` slash commands: `list`, `state`, `activate <id>`, `set <quality> <value>`, `extract [response]`, `expand [response]`, `converge` (dumps per-anchor progress/threshold), `memorize` (runs the memorize-backlog mid-chat adoption pass).
 

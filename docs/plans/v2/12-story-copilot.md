@@ -45,3 +45,37 @@ Tests: proposal-parse goldens per stage (valid/invalid); mutation-application un
 ## Delegated decisions
 
 Panel placement/UX; stage prompt wording; suggestion count; whether driver Report reuses canon text or its own summary call.
+
+## Gate record
+
+**Date:** 2026-07-06. Built as milestones M0–M6.
+
+**M0 pure core** — new `src/copilot/` (`types`, `parse`, `proposal`, `validate`, `prompts`, `authoring`, `index`), never imports STAPI (LLM injected as `ExtractionClientOptions`). Proposal grammar = strict JSON of typed ops 1:1 with `mutations.ts`; `parseProposal` clones `generation/parse.ts` skeleton (fence-strip, try/catch, path-scoped `issues[]`, typed readers). `@copilot` alias added to tsconfig/jest/webpack/`.storybook/main`/lint; `src/copilot` added to jest `roots`. Goldens `test/goldens/copilot-{qualities,checkpoints,transitions,effects,invalid}.response.txt`. **M1 runtime seam** — `runtimeManager`: `runCopilotStage/runCopilotSuggest/runCopilotReport`, `getDriverContext`, `setCopilotNudge/clearCopilotNudge/getActiveNudge`, `getCopilotSettings/setCopilotSettings`; `copilot: {enabled}` extras slice (default true, sanitized on hydrate) + snapshot field; `storyOrchestratorDebugCopilotResponse` global; Nudge injected via `setStoryExtensionPrompt(story_copilot_nudge,…)` and cleared on `generation_ended`/`generation_stopped` (`runtime/index.ts`). **M2** — 6th Studio tab `StudioCopilot.tsx` + `ProposalReview.tsx` (per-item/accept-all → `store.mutate(applyOp)`, one undoable step each). **M3** — drawer `DriverPanel.tsx` (Suggest/Nudge/Probe/Advance/Report via injected `DriverController`). **M4** — `copilot.enabled` checkbox in settings; tab filtered + driver section hidden when off. **M5** — `so-copilot.mts` (context/suggest/report/nudge/clear-nudge/probe/advance/stage), `so-state` copilot fields, `so-scenario` `copilot` step + `copilot` expect verb, `test/scenarios/{plan12-copilot,live-plan12-copilot}.json`, README. `globalThis.storyOrchestratorStudioDraft` exposed for headless authoring.
+
+**Command outputs (green):** `typecheck` clean · `lint` clean (src/copilot added to the enumerated dirs) · `test` **36 suites / 1303 tests** (was 32/1272; +copilot pure `parse/proposal/validate/authoring` + `runtimeManager` copilot-seam) · `build` ok, `dist/index.js` **945 KiB** (was 909) · `test-storybook:ci` **17 suites / 47 tests** (was 14/36; +StudioCopilot/ProposalReview/DriverPanel + 2 StudioModal copilot-tab stories, all with play + axe-a11y).
+
+**Live gate (real Gemma via LM Studio CM profile `afcc7073…`, no `debugResponse`, headed browser, real recent group chat):**
+- Authoring `stage qualities` (real LLM) → valid proposal (enum `alarm_state` w/ values + monotonic float `vault_progress` + bool + int), **diagnostics 0**, status ok.
+- `suggest` (real) → 3 suggestions citing the live `has_key == true` gate and objective.
+- `report` (real) → grounded world-progression summary (Gemma occasionally prefixes a `<|channel>thought` wrapper — cosmetic, see deviations).
+- `probe` (real extraction) → P0 read, `auditCount` 1.
+- `advance vault` → `activeCheckpointId` vault (effects applied).
+- `nudge` → `nudgeInjected: true` (present in `ctx.extensionPrompts.story_copilot_nudge`); next real group reply visibly committed to the vault ("The heavy vault door swings open… revealing a corridor"); after that generation `nudgeInjected: false` (cleared on `generation_ended`).
+- Toggle off → `copilot.enabled` false + active nudge cleared; re-enable restores.
+- Mocked `so-scenario run test/scenarios/plan12-copilot.json --sandbox` → **13/13 steps ok** (copilot stage/suggest/nudge±clear/advance/probe + expects), cleanup removed the imported story.
+- Cleanup verified: test messages deleted, chat restored to 3 msgs, `story_orchestrator` chat-meta wiped, `Copilot Live Gate` removed from `v2Stories`. Session stopped.
+
+**Deviations from plan:**
+1. `parseProposal(raw)` (not `(raw, draft)`) — structural parse only; all cross-reference/type checks deferred to `validateProposal` (apply ops on a cloned draft → `parseStoryV2` + `runDiagnostics`), which sidesteps the add-quality-then-gate-it ordering problem in a single proposal. `status: "ok"` ⇔ zero blocking (schema errors + blocking diagnostics); warnings are shown, not blocking.
+2. Transition index-brittleness: proposal ops reference transitions by `{from,to}`; `resolveTransitionRef` resolves to an index at apply time. `mutations.ts` (plan 11 contract) left untouched — no batch/id-addressed variant added.
+3. Copilot LLM calls reuse the extraction memory-LLM profile (`getExtractionSettings().profileId`); no separate copilot profile. Note: `importStory`/`selectStory` reset extras, so set the profile after load.
+4. `runDriverReport` returns raw trimmed prose; Gemma sometimes emits a `<|channel>thought…<channel|>` wrapper. Cosmetic; follow-up: reuse the extraction channel-noise strip in `runDriverReport`. (Delegated Report-source decision: implemented as its own summary call, not `getCanon()` text.)
+5. Probe uses full-scope `runExtractionNow(undefined,"probe")` (P0); quality-targeted scoped read deferred (stretch).
+6. `globalThis.storyOrchestratorStudioDraft` (zustand store) added for headless authoring-stage debug and Studio-tab live reads.
+
+**Post-review hardening (2026-07-06, same day):** code review found two low-severity gaps, both fixed + gated:
+- **Silent accept-no-op on missing targets.** `updateQuality/updateCheckpoint/setStartCheckpoint/setCheckpointSnapshot/setCheckpointEffects/updateTransition/setTransitionGate/updateRosterMember` all no-op silently when their target id/ref does not exist, yet the proposal reported `status: "ok"` and the diff still rendered a change card. Added `missingTarget`/`applyOpsChecked` (`proposal.ts`); `validateProposal` now prepends `ops.N: <target> not found` to `blocking` → such ops are `failed` (and trigger repair-once). Intra-proposal targets added by an earlier op still resolve (checked against the accumulated draft). Removes stay idempotent (unchecked). +2 `validate.test.ts` cases.
+- **Prompt/grammar drift.** `OP_GRAMMAR` (`prompts.ts`) omitted `removeCheckpoint/removeTransition/updateRosterMember/removeRosterMember` (parser handled them, model wasn't told the shape) — added, plus "Only reference ids that already exist in the draft."
+- Gates: `typecheck`/`lint` clean · `test` **36 suites / 1305 tests** (+2) · `build` ok. Real-LLM live (Gemma via `afcc7073…`, no `debugResponse`): authoring `stage qualities` with expanded prompt → status ok, **diagnostics 0**, 3 grounded qualities (`alarm_level/loot_secured/crew_trust`), no repair; mocked `updateCheckpoint id=ghost` through `runCopilotStage` → `failed`, issue `ops.0: checkpoint "ghost" not found`. Session cleaned up (extraction reset, no story/msgs touched).
+
+**Not carried into 12 (left for later plans):** plan 13 (v2 macros, memory slash commands, packaging, success-criteria run) unchanged. Remaining deviations: #2 (transition {from,to} ref brittleness under duplicate priorities), #4 (`runDriverReport` channel-noise strip), #5 (quality-scoped Probe). Open finding: none new.

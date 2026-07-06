@@ -91,6 +91,8 @@ export async function dumpCurrentChatState(page) {
     const selected = blob?.selectedStoryHash ?? null;
     const entry = selected && blob?.stories ? blob.stories[selected] ?? null : null;
     const runtimeSnapshot = globalThis.storyOrchestratorRuntime?.getSnapshot?.() ?? null;
+    const activeNudge = globalThis.storyOrchestratorRuntime?.getActiveNudge?.() ?? null;
+    const copilotNudgePrompt = ctx.extensionPrompts?.story_copilot_nudge ?? null;
     const pacingPrompt = ctx.extensionPrompts?.story_orchestrator_pacing ?? null;
     const memoryPrompts = ['facts', 'session_details', 'short_term', 'scene_history'].reduce((acc, tier) => {
       acc[tier] = ctx.extensionPrompts?.[`story_orchestrator_memory_${tier}`] ?? null;
@@ -104,6 +106,8 @@ export async function dumpCurrentChatState(page) {
       storyCount: blob?.stories ? Object.keys(blob.stories).length : 0,
       entry,
       runtimeSnapshot,
+      activeNudge,
+      copilotNudgePrompt,
       pacingPrompt,
       memoryPrompts,
     };
@@ -117,6 +121,8 @@ export async function dumpCurrentChatState(page) {
     storyCount: data?.storyCount ?? 0,
     state: decodeRuntime(data?.entry),
     liveSnapshot: data?.runtimeSnapshot ?? null,
+    activeNudge: data?.activeNudge ?? null,
+    copilotNudgePrompt: data?.copilotNudgePrompt ?? null,
     pacingPrompt: data?.pacingPrompt ?? null,
     memoryPrompts: data?.memoryPrompts ?? null,
     _note: 'State is from chatMetadata.story_orchestrator for the current chat.',
@@ -144,6 +150,11 @@ function compactCurrent(data) {
     memoryInjected: data?.memoryPrompts ? Object.fromEntries(Object.entries(data.memoryPrompts).map(([tier, prompt]) => [tier, Boolean((prompt as { value?: unknown } | null)?.value)])) : null,
     tension: data?.liveSnapshot?.tension ?? state?.tension ?? null,
     pacingPrompt: data?.pacingPrompt ?? null,
+    copilot: {
+      enabled: data?.liveSnapshot?.copilot?.enabled ?? null,
+      activeNudge: data?.activeNudge ?? null,
+      nudgeInjected: Boolean((data?.copilotNudgePrompt as { value?: unknown } | null)?.value),
+    },
   };
 }
 

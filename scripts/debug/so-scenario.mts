@@ -12,14 +12,19 @@ import { dumpCurrentChatState } from './so-state.mts';
 const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep]
 
 Step keys:
-  import_story, select_story, send, send_generate, slash, extract, expand, eval, swipe, edit, delete, wait, expect
+  import_story, select_story, send, send_generate, slash, extract, expand, eval, copilot, swipe, edit, delete, wait, expect
+
+copilot actions ({copilot: {action, ...}}):
+  stage ({draft, stage, message?, debug?} — throws if the proposal is invalid),
+  suggest ({debug?}), report ({debug?}), nudge ({text}), clear-nudge, probe ({debug?}), advance ({id})
 
 expect verbs:
   activeCheckpoint, blackboard, blackboardMissing, latched, auditCount>=, npcFired,
   expansion, tension, pacingPrompt, requirementsReady, convergence, reconciliationEvents>=,
   memory ({tier: {count, contains}}), sceneBreaks>=, memoryInjection ({tier: bool}),
   arcs ({open, resolved, summarized, openContains, resolvedContains}), canon ({present, contains}),
-  epistemic ({count, contains:[{subject,tag,contains,hiddenFrom?}]}), ledger ({count, contains:[{entity,field,value}]}), capability (bool)
+  epistemic ({count, contains:[{subject,tag,contains,hiddenFrom?}]}), ledger ({count, contains:[{entity,field,value}]}), capability (bool),
+  copilot ({enabled, activeNudge, nudgeInjected})
 
 wait verbs:
   idle, boundary, auditCount, acceptedDelta, expansionStatus, checkpoint, progress (+progressAnchor), reconciliationEvents, memoryEntries (+memoryTier), arcsSummarized, canonPresent, backfillComplete`;
@@ -51,6 +56,11 @@ function compactState(state) {
     npcFired: runtime?.firedNpcReplies ?? {},
     tension: state?.liveSnapshot?.tension ?? runtime?.tension ?? null,
     pacingPrompt: state?.pacingPrompt ?? null,
+    copilot: {
+      enabled: state?.liveSnapshot?.copilot?.enabled ?? null,
+      activeNudge: state?.activeNudge ?? null,
+      nudgeInjected: Boolean((state?.copilotNudgePrompt as { value?: unknown } | null)?.value),
+    },
   };
 }
 
@@ -188,6 +198,12 @@ function evaluateExpect(state, expected) {
     const cap = state?.liveSnapshot?.memory?.settings?.epistemicLedgerCapable;
     if (Boolean(cap) !== expected.capability) failures.push(`capability: expected ${expected.capability}, got ${Boolean(cap)}`);
   }
+  if (expected.copilot) {
+    const spec = expected.copilot as { enabled?: boolean; activeNudge?: string | null; nudgeInjected?: boolean };
+    if (spec.enabled !== undefined && actual.copilot.enabled !== spec.enabled) failures.push(`copilot.enabled: expected ${spec.enabled}, got ${actual.copilot.enabled}`);
+    if (spec.activeNudge !== undefined && actual.copilot.activeNudge !== spec.activeNudge) failures.push(`copilot.activeNudge: expected ${JSON.stringify(spec.activeNudge)}, got ${JSON.stringify(actual.copilot.activeNudge)}`);
+    if (spec.nudgeInjected !== undefined && actual.copilot.nudgeInjected !== spec.nudgeInjected) failures.push(`copilot.nudgeInjected: expected ${spec.nudgeInjected}, got ${actual.copilot.nudgeInjected}`);
+  }
   return { ok: failures.length === 0, failures, actual };
 }
 
@@ -290,6 +306,26 @@ async function evalStep(page, code) {
   }, code);
 }
 
+async function copilotStep(page, spec) {
+  return evaluateInST(page, async (spec) => {
+    const runtime = globalThis.storyOrchestratorRuntime;
+    if (!runtime) throw new Error('storyOrchestratorRuntime not ready');
+    const action = spec?.action;
+    if (action === 'stage') {
+      const result = await runtime.runCopilotStage({ draft: spec.draft, stage: spec.stage, message: spec.message ?? '', history: spec.history ?? [] }, spec.debug);
+      if (result.status !== 'ok') throw new Error(`copilot stage failed: ${result.issues.join('; ')}`);
+      return { proposal: result.proposal, diagnostics: result.preview.diagnostics.length };
+    }
+    if (action === 'suggest') return { suggestions: await runtime.runCopilotSuggest(spec.debug) };
+    if (action === 'report') return { report: await runtime.runCopilotReport(spec.debug) };
+    if (action === 'nudge') { runtime.setCopilotNudge(spec.text ?? '', spec.depth ?? 1); return { activeNudge: runtime.getActiveNudge() }; }
+    if (action === 'clear-nudge') { runtime.clearCopilotNudge(); return { activeNudge: runtime.getActiveNudge() }; }
+    if (action === 'probe') { const ok = await runtime.runExtractionNow(spec.debug, 'probe'); return { ok }; }
+    if (action === 'advance') { const ok = await runtime.activateCheckpoint(spec.id); return { ok, activeCheckpointId: runtime.getSnapshot().activeCheckpointId }; }
+    throw new Error(`Unknown copilot action: ${action}`);
+  }, spec);
+}
+
 async function cleanupScenario(page, importedHashes, sandboxChatStarted, keep) {
   if (keep) return { kept: true };
   const cleaned = await evaluateInST(page, async (hashes) => {
@@ -341,6 +377,7 @@ async function runScenario(page, file, { sandbox = false, keep = false } = {}) {
         else if (key === 'extract') output = await extract(page, value);
         else if (key === 'expand') output = await expand(page, value);
         else if (key === 'eval') output = await evalStep(page, value);
+        else if (key === 'copilot') output = await copilotStep(page, value);
         else if (key === 'swipe') output = await swipeMessage(page, value.messageId, value.swipeId ?? null);
         else if (key === 'edit') output = await editMessage(page, value.messageId, value.text);
         else if (key === 'delete') output = await deleteMessage(page, value.messageId ?? value);

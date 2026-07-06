@@ -1,0 +1,7 @@
+{
+  "summary": "Add cast and a checkpoint effect.",
+  "ops": [
+    { "kind": "addRosterMember", "member": { "id": "safecracker", "name": "The Safecracker" } },
+    { "kind": "setCheckpointEffects", "id": "vault", "effects": { "author_note": "The vault door looms, cold and certain." } }
+  ]
+}

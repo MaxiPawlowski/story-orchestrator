@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import type { AuthoringStageInput, ProposalResult } from "@copilot/index";
 import { useDraftStore } from "./draft";
 import { setStoryField } from "./mutations";
 import QualityEditor from "./components/QualityEditor";
@@ -6,11 +7,12 @@ import CheckpointEditor from "./components/CheckpointEditor";
 import TransitionEditor from "./components/TransitionEditor";
 import DiagnosticsPanel from "./components/DiagnosticsPanel";
 import StudioGraph from "./components/StudioGraph";
+import StudioCopilot from "./components/StudioCopilot";
 import StudioToolbar from "./components/StudioToolbar";
 
-export type StudioTab = "graph" | "qualities" | "checkpoints" | "transitions" | "diagnostics";
+export type StudioTab = "graph" | "qualities" | "checkpoints" | "transitions" | "diagnostics" | "copilot";
 
-const TABS: Array<{ id: StudioTab; label: string }> = [
+const BASE_TABS: Array<{ id: StudioTab; label: string }> = [
   { id: "graph", label: "Graph" },
   { id: "qualities", label: "Qualities" },
   { id: "checkpoints", label: "Checkpoints" },
@@ -18,10 +20,16 @@ const TABS: Array<{ id: StudioTab; label: string }> = [
   { id: "diagnostics", label: "Diagnostics" },
 ];
 
-type Props = { onClose: () => void };
+type Props = {
+  onClose: () => void;
+  copilotEnabled?: boolean;
+  runCopilotStage?: (input: AuthoringStageInput) => Promise<ProposalResult>;
+};
 
-const StudioModal: React.FC<Props> = ({ onClose }) => {
+const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopilotStage }) => {
   const [tab, setTab] = useState<StudioTab>("graph");
+  const tabs = copilotEnabled ? [...BASE_TABS, { id: "copilot" as StudioTab, label: "Copilot" }] : BASE_TABS;
+  const activeTab = tabs.some((entry) => entry.id === tab) ? tab : "graph";
   const draft = useDraftStore((state) => state.draft);
   const dirty = useDraftStore((state) => state.dirty);
   const errors = useDraftStore((state) => state.errors);
@@ -33,10 +41,11 @@ const StudioModal: React.FC<Props> = ({ onClose }) => {
   const canRedo = useDraftStore((state) => state.future.length > 0);
 
   const renderTab = () => {
-    if (tab === "qualities") return <QualityEditor />;
-    if (tab === "checkpoints") return <CheckpointEditor />;
-    if (tab === "transitions") return <TransitionEditor />;
-    if (tab === "diagnostics") return <DiagnosticsPanel />;
+    if (activeTab === "qualities") return <QualityEditor />;
+    if (activeTab === "checkpoints") return <CheckpointEditor />;
+    if (activeTab === "transitions") return <TransitionEditor />;
+    if (activeTab === "diagnostics") return <DiagnosticsPanel />;
+    if (activeTab === "copilot") return <StudioCopilot enabled={copilotEnabled} runStage={runCopilotStage} />;
     return <StudioGraph />;
   };
 
@@ -58,13 +67,13 @@ const StudioModal: React.FC<Props> = ({ onClose }) => {
         </div>
 
         <div className="flex items-center gap-2 px-3 py-2" role="tablist" aria-label="Studio sections">
-          {TABS.map((entry) => (
+          {tabs.map((entry) => (
             <button
               key={entry.id}
               type="button"
               role="tab"
-              aria-selected={tab === entry.id}
-              className={`st-tab rounded px-3 py-1 text-sm ${tab === entry.id ? "st-tab-active" : ""}`}
+              aria-selected={activeTab === entry.id}
+              className={`st-tab rounded px-3 py-1 text-sm ${activeTab === entry.id ? "st-tab-active" : ""}`}
               onClick={() => setTab(entry.id)}
             >
               {entry.label}
@@ -72,7 +81,7 @@ const StudioModal: React.FC<Props> = ({ onClose }) => {
           ))}
         </div>
 
-        <div className="flex-1 overflow-auto p-3" role="tabpanel" aria-label={tab}>
+        <div className="flex-1 overflow-auto p-3" role="tabpanel" aria-label={activeTab}>
           {renderTab()}
         </div>
 

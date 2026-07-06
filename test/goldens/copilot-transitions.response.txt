@@ -1,0 +1,6 @@
+{
+  "summary": "Wire the path from start to the vault.",
+  "ops": [
+    { "kind": "addTransition", "transition": { "from": "start", "to": "vault", "gate": { "q": "has_key", "op": "==", "v": true }, "priority": 0, "effects": { "progress": { "anchor": "vault", "amount": 1 } } } }
+  ]
+}

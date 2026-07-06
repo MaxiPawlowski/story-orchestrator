@@ -1,0 +1,17 @@
+{
+  "steps": [
+    { "import_story": { "format": 2, "title": "Copilot Scenario", "description": "Plan 12 copilot mocked scenario.", "qualities": [{ "key": "has_key", "type": "bool", "source": "extractor", "rubric": "Does the crew have the vault key?" }], "checkpoints": [{ "id": "start", "name": "Start", "objective": "Case the vault.", "type": "anchor", "start": true }, { "id": "vault", "name": "Vault", "objective": "Open the vault.", "type": "anchor" }], "transitions": [{ "from": "start", "to": "vault", "priority": 0, "gate": { "q": "has_key", "op": "==", "v": true }, "effects": { "progress": { "anchor": "vault", "amount": 1 } } }], "roster": [] } },
+    { "select_story": "Copilot Scenario" },
+    { "copilot": { "action": "stage", "stage": "qualities", "draft": { "format": 2, "title": "Draft", "description": "", "qualities": [], "checkpoints": [{ "id": "start", "name": "Start", "objective": "Case the vault.", "type": "anchor", "start": true }], "transitions": [], "roster": [] }, "debug": "{\"summary\":\"Add a trust quality.\",\"ops\":[{\"kind\":\"addQuality\",\"quality\":{\"key\":\"trust\",\"type\":\"int\",\"source\":\"extractor\",\"rubric\":\"How much does the crew trust the fixer?\"}}]}" } },
+    { "copilot": { "action": "suggest", "debug": "{\"suggestions\":[{\"title\":\"Find the vault key\",\"rationale\":\"has_key is false, so the crew cannot advance to the vault.\"}]}" } },
+    { "copilot": { "action": "nudge", "text": "Escalate the crew toward the vault door." } },
+    { "expect": { "copilot": { "enabled": true, "activeNudge": "Escalate the crew toward the vault door.", "nudgeInjected": true } } },
+    { "copilot": { "action": "clear-nudge" } },
+    { "expect": { "copilot": { "activeNudge": null, "nudgeInjected": false } } },
+    { "copilot": { "action": "advance", "id": "vault" } },
+    { "expect": { "activeCheckpoint": "vault" } },
+    { "copilot": { "action": "probe", "debug": "DELTA q=has_key value=true evidence=\"I lift the brass key from the guard\"" } },
+    { "wait": { "auditCount": 1 } },
+    { "expect": { "auditCount>=": 1 } }
+  ]
+}

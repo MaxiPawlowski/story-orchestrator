@@ -29,7 +29,12 @@ export interface RuntimeExtras {
   memory: MemoryRuntimeState;
   pacing: PacingSettings;
   tension: TensionRuntimeState;
+  copilot: CopilotRuntimeSettings;
   updatedAt: string;
+}
+
+export interface CopilotRuntimeSettings {
+  enabled: boolean;
 }
 
 export interface MemoryRuntimeSettings {
@@ -134,6 +139,7 @@ export interface RuntimeSnapshot {
   expansion: ExpansionRuntimeState;
   memory: MemoryRuntimeState;
   pacing: PacingSettings;
+  copilot: CopilotRuntimeSettings;
   convergence: ConvergenceReadout[];
   tension: {
     level: TensionLevel | null;

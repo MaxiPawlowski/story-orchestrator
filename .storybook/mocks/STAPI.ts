@@ -38,6 +38,11 @@ export const clearCharacterAN = async () => {};
 export const executeSlashCommands = async () => true;
 export const enableWIEntry = async () => false;
 export const disableWIEntry = async () => false;
+export const sendConnectionProfileRequest = async () => "";
+export const listConnectionProfiles = () => [];
+export const getSelectedConnectionProfileId = (): string | null => null;
+export const setStoryExtensionPrompt = () => {};
+export const clearStoryExtensionPrompt = () => {};
 
 export const getWorldInfoSettings = () => ({
   world_info: { globalSelect: ["Lorebook Alpha", "Lorebook Beta"] },

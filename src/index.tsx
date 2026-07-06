@@ -6,6 +6,7 @@ import { isArcTemplateName } from "@pacing/index";
 import { startRuntime } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import StudioModal from "./studio/StudioModal";
+import DriverPanel, { type DriverController } from "./studio/components/DriverPanel";
 import { useDraftStore, type StoryDraft } from "./studio/draft";
 import "./styles.css";
 
@@ -21,7 +22,17 @@ const manager = startRuntime();
 if (typeof globalThis !== "undefined") {
   globalThis.talkControlInterceptor = () => undefined;
   globalThis.storyOrchestratorRuntime = manager;
+  globalThis.storyOrchestratorStudioDraft = useDraftStore;
 }
+
+const driverController: DriverController = {
+  suggest: () => manager.runCopilotSuggest(),
+  nudge: (text) => manager.setCopilotNudge(text),
+  clearNudge: () => manager.clearCopilotNudge(),
+  probe: async () => { await manager.runExtractionNow(undefined, "probe"); },
+  advance: async (checkpointId) => { await manager.activateCheckpoint(checkpointId); },
+  report: () => manager.runCopilotReport(),
+};
 
 const useRuntimeSnapshot = () => {
   const [snapshot, setSnapshot] = useState<RuntimeSnapshot>(() => manager.getSnapshot());
@@ -92,7 +103,11 @@ const SettingsPanel = () => {
             <button className="menu_button" disabled={busy || !importText.trim()} onClick={() => void importStory()}>Import and Load</button>
             <button id="so-open-studio" className="menu_button" onClick={openStudio}>Open Studio</button>
           </div>
-          {studioOpen ? <StudioModal onClose={() => setStudioOpen(false)} /> : null}
+          {studioOpen ? <StudioModal onClose={() => setStudioOpen(false)} copilotEnabled={snapshot.copilot.enabled} runCopilotStage={(input) => manager.runCopilotStage(input)} /> : null}
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={snapshot.copilot.enabled} onChange={(event) => manager.setCopilotSettings({ enabled: event.target.checked })} />
+            <span>Enable story copilot (authoring tab + in-play driver)</span>
+          </label>
           <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={snapshot.extraction.settings.enabled} onChange={(event) => manager.setExtractionSettings({ enabled: event.target.checked })} />
@@ -412,6 +427,11 @@ const DrawerPanel = () => {
               </div>
             )}
             <MemoryPanel snapshot={snapshot} />
+            {snapshot.copilot.enabled && (
+              <div className="border-t border-solid border-white/10 pt-2">
+                <DriverPanel context={manager.getDriverContext()} checkpoints={snapshot.checkpoints} activeNudge={manager.getActiveNudge()} controller={driverController} />
+              </div>
+            )}
             <div className="text-xs opacity-80">
               <div className="font-medium opacity-100">Extraction</div>
               <div>Queue {snapshot.extraction.scheduler.queueDepth}, in flight {snapshot.extraction.scheduler.inFlight ? "yes" : "no"}</div>
