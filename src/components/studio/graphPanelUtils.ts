@@ -12,6 +12,7 @@ export interface StoryGraphTransitionDraft {
 export interface StoryGraphCheckpointDraft {
   id: string;
   name?: string;
+  type?: "anchor" | "intermediate" | "stub";
   transitions?: StoryGraphTransitionDraft[];
 }
 
@@ -67,8 +68,8 @@ export const buildGraphElements = (draft: StoryGraphDraft, selectedId: string | 
     .filter((cp) => cp.id && cp.id.trim())
     .map((cp) => ({
       group: "nodes",
-      data: { id: cp.id, label: cp.name || cp.id, type: draft.start === cp.id ? "start" : "checkpoint" },
-      classes: selectedId === cp.id ? "selected" : undefined,
+      data: { id: cp.id, label: cp.name || cp.id, type: cp.type ?? "checkpoint" },
+      classes: [selectedId === cp.id ? "selected" : "", draft.start === cp.id ? "start" : ""].filter(Boolean).join(" ") || undefined,
     }));
   const nodeIds = new Set(nodes.map((node) => node.data.id));
   const edges: ElementDefinition[] = draft.checkpoints
@@ -97,7 +98,9 @@ export const createGraphStyles = (themeColors: GraphThemeColors) => ([
       padding: "8px",
     },
   },
-  { selector: "node[type = 'start']", style: { "background-color": themeColors.info } },
+  { selector: "node[type = 'anchor']", style: { "background-color": themeColors.info } },
+  { selector: "node[type = 'stub']", style: { "background-color": themeColors.warning } },
+  { selector: "node.start", style: { "border-width": "2px", "border-color": themeColors.info } },
   { selector: "node.selected", style: { "border-width": "3px", "border-color": themeColors.warning } },
   {
     selector: "edge",

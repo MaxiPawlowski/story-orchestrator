@@ -7,6 +7,16 @@ export interface ScopedQuality {
   hints: string[];
 }
 
+export interface ScopePull {
+  kind: "gate" | "snapshot" | "builtin";
+  checkpointId: string;
+  detail: string;
+}
+
+export interface ScopedQualityExplained extends ScopedQuality {
+  pulledBy: ScopePull[];
+}
+
 export interface ExtraGateSource {
   checkpointId: string;
   gate: GateNode;

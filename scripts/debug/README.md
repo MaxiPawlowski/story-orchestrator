@@ -44,7 +44,7 @@ Playwright MCP is configured via the repo `.mcp.json` (`npx @playwright/mcp@late
 | `st-payload.mjs` | `arm`, `last [n]`, `watch [n]` |
 | `st-navigation.mjs` | `recent-group`, `new-group-session`, `recent-group-new`, `list-entities`, `open-group <id\|name>`, `open-character <name>`, `list-chats`, `open-chat <chatId>`, `new-chat` |
 | `st-eval.mjs` | `"<js>"` or `--file <path>` — run an async snippet in the ST page with `ctx` (getContext()) and `rt` (runtime handle) in scope, JSON result |
-| `so-ui.mjs` | `all`, `settings`, `drawer`, `open-settings`, `open-studio`, `screenshot` |
+| `so-ui.mjs` | `all`, `settings`, `drawer`, `open-settings`, `open-studio`, `studio`, `studio-tab <label>`, `screenshot` |
 | `so-library.mjs` | v2 library summary, `<hash>` detail, `remove <hash\|title>`, `wipe-chat-meta [--hash h]`, `--legacy` |
 | `st-search.mjs` | ST host source search, `--context-exports`, `--event-types`, `--endpoints` |
 

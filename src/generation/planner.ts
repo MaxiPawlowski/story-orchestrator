@@ -34,13 +34,17 @@ export function findStubExpansionCandidate(story: NormalizedStoryV2, sourceCheck
 
 export function planExpansion(
   story: NormalizedStoryV2,
-  blackboard: { values: Record<string, PrimitiveValue> },
+  blackboard: { values: Record<string, PrimitiveValue>; latched?: Record<string, boolean> },
   candidate: StubExpansionCandidate,
   canon: string,
   facts: string[],
 ): PlannedExpansionInput {
   const target = story.checkpointById[candidate.targetAnchorId];
   const deltas = computeStateDelta({ values: blackboard.values, versions: {}, latched: {} }, target.state_snapshot, story);
+  const latched: Record<string, PrimitiveValue> = {};
+  Object.keys(blackboard.latched ?? {}).forEach((key) => {
+    if (blackboard.latched?.[key] && blackboard.values[key] !== undefined) latched[key] = blackboard.values[key];
+  });
   const currentTension = typeof blackboard.values.tension_current === "number" ? blackboard.values.tension_current : 0;
   const targetTension = target.tension_target ? tensionToNumeric[target.tension_target] : currentTension;
   const deltaWeight = deltas.reduce((sum, delta) => sum + (delta.distance ?? 1), 0);
@@ -53,5 +57,6 @@ export function planExpansion(
     generationBias: getGenerationBias(currentTension, targetTension),
     canon,
     facts,
+    latched,
   };
 }

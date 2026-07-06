@@ -1,4 +1,4 @@
-import { progressQualityForAnchor, thresholdFor, type NormalizedStoryV2, type PrimitiveValue, type ScaffoldingDelta } from "@engine/index";
+import { progressQualityForAnchor, thresholdFor, type GateLeaf, type GateNode, type NormalizedStoryV2, type PrimitiveValue, type ScaffoldingDelta } from "@engine/index";
 import { callExtractionModel, type ExtractionClientOptions } from "@extraction/index";
 import { renderCriticPrompt } from "./prompts";
 import { parseCriticVerdict } from "./parse";
@@ -10,6 +10,23 @@ const applyDeltas = (values: Record<string, PrimitiveValue>, deltas: Scaffolding
   const next = { ...values };
   deltas?.forEach((delta) => { next[delta.q] = delta.v; });
   return next;
+};
+
+const collectAndLeaves = (gate: GateNode, out: GateLeaf[]) => {
+  if ("q" in gate) { out.push(gate); return; }
+  if ("all" in gate) gate.all.forEach((entry) => collectAndLeaves(entry, out));
+};
+
+const leafSatisfiedBy = (leaf: GateLeaf, value: PrimitiveValue): boolean => {
+  if (leaf.op === "==") return value === leaf.v;
+  if (leaf.op === "!=") return value !== leaf.v;
+  if (leaf.op === "in") return Array.isArray(leaf.v) && leaf.v.includes(value);
+  if (typeof value !== "number" || typeof leaf.v !== "number") return true;
+  if (leaf.op === ">=") return value >= leaf.v;
+  if (leaf.op === "<=") return value <= leaf.v;
+  if (leaf.op === ">") return value > leaf.v;
+  if (leaf.op === "<") return value < leaf.v;
+  return true;
 };
 
 export function runCodeChecks(story: NormalizedStoryV2, input: PlannedExpansionInput, beats: GeneratedBeat[]): CodeCheckResult {
@@ -29,6 +46,20 @@ export function runCodeChecks(story: NormalizedStoryV2, input: PlannedExpansionI
   const threshold = thresholdFor(target);
   if (progressTotal < threshold) issues.push(`${progressQualityForAnchor(target.id)} increments ${progressTotal} < threshold ${threshold}`);
   if (beats.length < 2) issues.push("generated chain needs at least two beats so progress can apply before anchor entry");
+
+  const latched = input.latched ?? {};
+  beats.forEach((beat, index) => {
+    beat.outcomes.forEach((outcome) => {
+      const leaves: GateLeaf[] = [];
+      collectAndLeaves(outcome.gate, leaves);
+      leaves.forEach((leaf) => {
+        if (Object.prototype.hasOwnProperty.call(latched, leaf.q) && !leafSatisfiedBy(leaf, latched[leaf.q])) {
+          issues.push(`beat ${index + 1} outcome '${outcome.label}' gate contradicts latched ${leaf.q}=${String(latched[leaf.q])}`);
+        }
+      });
+    });
+  });
+
   return { ok: issues.length === 0, issues, progressTotal };
 }
 

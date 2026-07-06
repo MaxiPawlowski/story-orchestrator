@@ -5,6 +5,8 @@ import { MEMORY_TIERS, type MemoryTier } from "@memory/index";
 import { isArcTemplateName } from "@pacing/index";
 import { startRuntime } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
+import StudioModal from "./studio/StudioModal";
+import { useDraftStore, type StoryDraft } from "./studio/draft";
 import "./styles.css";
 
 const MEMORY_TIER_LABELS: Record<MemoryTier, string> = {
@@ -36,7 +38,16 @@ const SettingsPanel = () => {
   const snapshot = useRuntimeSnapshot();
   const [importText, setImportText] = useState("");
   const [busy, setBusy] = useState(false);
+  const [studioOpen, setStudioOpen] = useState(false);
   const profiles = listConnectionProfiles();
+
+  const openStudio = () => {
+    const active = snapshot.library.find((story) => story.hash === snapshot.storyHash);
+    const store = useDraftStore.getState();
+    if (active) store.loadDraft(active.raw as StoryDraft, active.hash);
+    else store.newDraft();
+    setStudioOpen(true);
+  };
 
   const selectStory = async (hash: string) => {
     if (!hash) return;
@@ -77,7 +88,11 @@ const SettingsPanel = () => {
             <span>Import format-2 JSON</span>
             <textarea className="text_pole" rows={6} value={importText} onChange={(event) => setImportText(event.target.value)} placeholder="Paste story JSON" />
           </label>
-          <button className="menu_button" disabled={busy || !importText.trim()} onClick={() => void importStory()}>Import and Load</button>
+          <div className="flex items-center gap-2">
+            <button className="menu_button" disabled={busy || !importText.trim()} onClick={() => void importStory()}>Import and Load</button>
+            <button id="so-open-studio" className="menu_button" onClick={openStudio}>Open Studio</button>
+          </div>
+          {studioOpen ? <StudioModal onClose={() => setStudioOpen(false)} /> : null}
           <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={snapshot.extraction.settings.enabled} onChange={(event) => manager.setExtractionSettings({ enabled: event.target.checked })} />

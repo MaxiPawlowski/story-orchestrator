@@ -30,9 +30,10 @@ src/
     canonLite.ts / cues.ts / client.ts / chatWindow.ts
   pacing/                    # plan 04: tension.ts, shapes.ts, steering.ts
   memory/                    # plan 07: tier stores (facts/session/short_term/scene), scene detection, injection — pure except inject.ts
+  studio/                    # plan 11: Checkpoint Studio v2 — draft.ts (zustand store), mutations.ts (typed API = 12's contract), diagnostics.ts (8 checks), gateOptions.ts, qualityUsage.ts, graphAdapter.ts (v2→GraphPanel + Mermaid), io.ts (export/import), StudioModal.tsx + components/*, *.stories.tsx
   services/stHost/           # SillyTavern host wrappers (one module per concern)
   services/STAPI.ts          # only import surface for host modules
-  components/studio/         # DEAD v1 code, zero imports — plan 11 rebuilds
+  components/studio/         # the 6 reused presentational primitives (GraphPanel, graphPanelUtils, MultiSelect, Toolbar, FeedbackAlert, HelpTooltip) — rest of v1 deleted
   utils/ constants/
 ```
 

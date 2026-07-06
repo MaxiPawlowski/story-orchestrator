@@ -24,6 +24,7 @@ export interface PlannedExpansionInput {
   generationBias: { direction: string; magnitude: number } | null;
   canon: string;
   facts: string[];
+  latched?: Record<string, PrimitiveValue>;
 }
 
 export interface GeneratedBeat extends ScaffoldingBeat {

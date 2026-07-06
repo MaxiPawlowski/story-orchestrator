@@ -117,10 +117,10 @@ Payload capture hooks fetch/XHR in the shared page and records recent generation
 ### UI
 
 ```bash
-node scripts/debug/so-ui.mts all|settings|drawer|open-settings|open-studio|screenshot [label]
+node scripts/debug/so-ui.mts all|settings|drawer|open-settings|open-studio|studio|studio-tab <label>|screenshot [label]
 ```
 
-Selectors: settings root `#stepthink_settings`, story dropdown `#story-library-select`, arbiter frequency `#story-arbiter-frequency`, drawer `#drawer-manager` (open when `.pinnedOpen`), Studio modal `#checkpoint-editor-modal-root`.
+Selectors: settings root `#stepthink_settings`, story dropdown `#story-library-select`, arbiter frequency `#story-arbiter-frequency`, drawer `#drawer-manager` (open when `.pinnedOpen`), **Open Studio button `#so-open-studio`, v2 Studio modal `#so-studio-modal`** (tabs `[role="tab"]`; `studio` verb reports title/active tab/error+issue badges; `studio-tab <Graph|Qualities|Checkpoints|Transitions|Diagnostics>` switches). The button lives inside ST's collapsed inline-drawer — `so-ui open-studio` clicks it; if driving by hand, the button may be `display:none` until the drawer is expanded.
 
 ### Navigation
 

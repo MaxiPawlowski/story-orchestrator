@@ -8,7 +8,7 @@ SillyTavern extension running format-2 authored stories as deterministic checkpo
 2. `docs/plans/v2/00-implementation-overview.md` — canonical build rules, gate protocol, verified ST host facts, plan sequence
 3. Current plan doc + **Gate records** of all prior plans (tail sections — as-built truth and deviations)
 
-**Status: plans 01–10 complete. Plan 10 (epistemic map + state ledger) gate green — harness (23 suites/1224 tests, build) + live: `plan10-epistemic-ledger.json` 11/11 (real ST), `live-plan10-epistemic-ledger.json` 4/4 (real gemma P2), and the previously-flagged per-draft private swap now CLOSED (real `group_member_drafted`→swap captured in a real 2-member group generation payload: each member saw only its own epistemic block). Review-pass fix: F-A `onMemberDrafted` fail-open leak on an unresolved/non-roster draft → now fail-safe clear (see `docs/plans/v2/10-epistemic-ledger.md` Gate record, 2026-07-06 pass). Open finding F1 still deferred.** Update this line when a plan's gate goes green.
+**Status: plans 01–11 complete. Plan 11 (Checkpoint Studio v2) gate green — harness (32 suites/1272 tests, build `dist/index.js` 909 KiB) + Storybook (14 story suites/36 play-function interaction + a11y tests via `npm run test-storybook:ci`) + live: StudioModal mounts in real ST (`#so-open-studio` → `#so-studio-modal`), authored "Studio Live Test" saved to the real `v2Stories` library and loaded (`activeCheckpointId: start`, `ready: true`); cleanup verified. Carry-in F1 CLOSED (expansion `runCodeChecks` rejects outcome gates contradicting a latched value — `src/generation/latchGuard.test.ts`). See `docs/plans/v2/11-studio.md` Gate record. Next: plan 12 (story copilot).** Update this line when a plan's gate goes green.
 
 ## V2 spine
 
@@ -38,5 +38,6 @@ Report exact commands and results at handover. Failing gate = say so plainly; ne
 
 ## UI entry points
 
-- Settings panel (`#stepthink_settings`): story import/select, extraction settings. Drawer: checkpoint progress, blackboard. Both currently live in `src/index.tsx`.
-- `src/components/studio/` is dead v1 code (zero imports) — do not use; Studio is rebuilt in plan 11.
+- Settings panel (`#stepthink_settings`): story import/select, extraction settings, **"Open Studio" button (`#so-open-studio`)**. Drawer: checkpoint progress, blackboard. Both live in `src/index.tsx`.
+- **Checkpoint Studio v2 (plan 11) lives in `src/studio/`** — `StudioModal` (`#so-studio-modal`, opened from the settings panel) over a zustand draft store (`draft.ts`); all edits go through the typed `mutations.ts` (plan 12's copilot contract). Editors: quality/gate/checkpoint/transition/scope-preview/diagnostics. Every UI part has a `.stories.tsx` (interaction + a11y via `test-storybook:ci`).
+- `src/components/studio/` = the 6 reused presentational primitives only (`GraphPanel`, `graphPanelUtils`, `MultiSelect`, `Toolbar`, `FeedbackAlert`, `HelpTooltip`); the rest of v1 was deleted. Do not resurrect deleted v1 editor/context/session code.

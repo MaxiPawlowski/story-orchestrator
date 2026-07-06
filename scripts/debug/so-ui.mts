@@ -74,7 +74,7 @@ export async function openCheckpointStudio(page) {
     throw new Error('Settings panel not found. Cannot open Studio.');
   }
 
-  const modal = page.locator('#checkpoint-editor-modal-root');
+  const modal = page.locator('#so-studio-modal');
   if (await modal.count()) {
     return { alreadyOpen: true };
   }
@@ -84,16 +84,40 @@ export async function openCheckpointStudio(page) {
     await openExtensionSettings(page);
   }
 
-  const studioBtn = root.locator('button', { hasText: 'Open Studio' });
+  const studioBtn = root.locator('#so-open-studio');
   if (!(await studioBtn.count())) {
-    throw new Error(
-      '"Open Studio" button not found. The settings panel may need a story selected first.',
-    );
+    throw new Error('"Open Studio" button (#so-open-studio) not found.');
   }
 
   await studioBtn.click();
   await modal.waitFor({ state: 'attached', timeout: 10000 });
   return { alreadyOpen: false };
+}
+
+export async function getStudioState(page) {
+  const modal = page.locator('#so-studio-modal');
+  if (!(await modal.count())) {
+    return { open: false };
+  }
+  return await evaluateInST(page, () => {
+    const container = document.getElementById('so-studio-modal');
+    if (!container) return { open: false };
+    const title = (container.querySelector('input[aria-label="Story title"]') as HTMLInputElement | null)?.value ?? '';
+    const activeTab = container.querySelector('[role="tab"][aria-selected="true"]')?.textContent?.trim() ?? '';
+    const footer = container.querySelector('.st-panel-header:last-child')?.textContent ?? '';
+    const errorsBadge = Array.from(container.querySelectorAll('span')).find((s) => /\d+ errors/.test(s.textContent ?? ''))?.textContent?.trim() ?? null;
+    const issuesBadge = Array.from(container.querySelectorAll('span')).find((s) => /\d+ issues/.test(s.textContent ?? ''))?.textContent?.trim() ?? null;
+    return { open: true, title, activeTab, footer: footer.trim().slice(0, 120), errorsBadge, issuesBadge };
+  });
+}
+
+export async function switchStudioTab(page, label) {
+  const modal = page.locator('#so-studio-modal');
+  if (!(await modal.count())) throw new Error('Studio modal is not open.');
+  const tab = modal.locator('[role="tab"]', { hasText: label });
+  if (!(await tab.count())) throw new Error(`Studio tab "${label}" not found.`);
+  await tab.first().click();
+  return { tab: label };
 }
 
 export async function getDrawerState(page) {
@@ -188,13 +212,15 @@ export async function takeAnnotatedScreenshot(page, label = 'ui-state') {
   return { path, drawerVisible };
 }
 
-const USAGE = `Usage: node so-ui.mjs <all|settings|drawer|open-settings|open-studio|screenshot> [label]
+const USAGE = `Usage: node so-ui.mjs <all|settings|drawer|open-settings|open-studio|studio|studio-tab|screenshot> [label]
 
 all: print settings + drawer state.
 settings: print settings panel state.
 drawer: print drawer state.
 open-settings: expand the settings panel.
-open-studio: open Checkpoint Studio modal.
+open-studio: open Checkpoint Studio modal (v2).
+studio: print Checkpoint Studio modal state (title, active tab, error/issue badges).
+studio-tab <Graph|Qualities|Checkpoints|Transitions|Diagnostics>: switch the studio tab.
 screenshot [label]: take an annotated screenshot.`;
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
@@ -233,6 +259,19 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     if (subcommand === 'open-studio') {
       const result = await openCheckpointStudio(page);
       console.log('Checkpoint Studio opened:', JSON.stringify(result));
+    }
+
+    if (subcommand === 'studio') {
+      const state = await getStudioState(page);
+      console.log(JSON.stringify(state, null, 2));
+      await writeJSON(state, 'so-ui-studio');
+    }
+
+    if (subcommand === 'studio-tab') {
+      const label = process.argv[3];
+      if (!label) throw new Error('studio-tab requires a tab label');
+      const result = await switchStudioTab(page, label);
+      console.log('Switched studio tab:', JSON.stringify(result));
     }
 
     if (subcommand === 'screenshot') {

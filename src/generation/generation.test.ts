@@ -65,6 +65,17 @@ describe("background generation", () => {
     expect(input.tensionTrajectory.length).toBe(input.beats);
   });
 
+  it("carries latched blackboard values into the plan (F1 bridge)", () => {
+    const input = planExpansion(
+      story,
+      { values: { key_found: true, approach: "unknown" }, latched: { key_found: true, approach: false } },
+      candidate(),
+      "",
+      [],
+    );
+    expect(input.latched).toEqual({ key_found: true });
+  });
+
   it("parses generated beat JSON strictly", () => {
     const parsed = parseGeneratedBeats(readText("test/goldens/background-generator1.response.txt"), story);
     expect(parsed.issues).toEqual([]);

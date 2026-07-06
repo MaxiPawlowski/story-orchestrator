@@ -3,7 +3,7 @@ import path from "path";
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.stories.@(ts|tsx)"],
-  staticDirs: [{ from: path.resolve(__dirname, "../../../../../"), to: "/st-public" }],
+  staticDirs: [{ from: path.resolve(__dirname, "../../../../../webfonts"), to: "/st-public/webfonts" }],
   addons: [
     "@storybook/addon-essentials",
     "@storybook/addon-a11y",
@@ -26,6 +26,12 @@ const config: StorybookConfig = {
       "@constants": path.resolve(__dirname, "../src/constants"),
       "@controllers": path.resolve(__dirname, "../src/controllers"),
       "@store": path.resolve(__dirname, "../src/store"),
+      "@engine": path.resolve(__dirname, "../src/engine"),
+      "@runtime": path.resolve(__dirname, "../src/runtime"),
+      "@extraction": path.resolve(__dirname, "../src/extraction"),
+      "@pacing": path.resolve(__dirname, "../src/pacing"),
+      "@generation": path.resolve(__dirname, "../src/generation"),
+      "@memory": path.resolve(__dirname, "../src/memory"),
     };
     cfg.resolve.fallback = {
       ...(cfg.resolve.fallback || {}),

@@ -199,6 +199,7 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
           </button>
           <select
             value={layout}
+            aria-label="Graph layout"
             onChange={(e) => {
               setLayout(e.target.value as LayoutName);
               setLayoutTrigger((prev) => prev + 1);

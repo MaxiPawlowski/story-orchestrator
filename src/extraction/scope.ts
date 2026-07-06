@@ -1,5 +1,5 @@
 import { TENSION_CURRENT_KEY, type BlackboardSnapshot, type GateNode, type NormalizedStoryV2, type Quality } from "@engine/index";
-import type { ExtraGateSource, ScopedQuality } from "./types";
+import type { ExtraGateSource, ScopePull, ScopedQuality, ScopedQualityExplained } from "./types";
 
 const collectGateKeys = (gate: GateNode, keys: Set<string>) => {
   if ("q" in gate) {
@@ -19,31 +19,46 @@ const hintApplies = (quality: Quality, activeCheckpointId: string, story: Normal
   return true;
 };
 
-export function deriveScope(
+export function deriveScopeExplained(
   story: NormalizedStoryV2,
   activeCheckpointId: string,
   blackboard: BlackboardSnapshot,
   extraGateSources: ExtraGateSource[] = [],
-): ScopedQuality[] {
+): ScopedQualityExplained[] {
   const checkpointIds = new Set([activeCheckpointId, ...(story.reachableByCheckpoint[activeCheckpointId] ?? [])]);
   const keys = new Set<string>();
   const hints = new Map<string, Set<string>>();
+  const pulls = new Map<string, ScopePull[]>();
+  const addPull = (key: string, pull: ScopePull) => {
+    const list = pulls.get(key) ?? [];
+    list.push(pull);
+    pulls.set(key, list);
+  };
+  const addHint = (key: string, hint: string) => {
+    const list = hints.get(key) ?? new Set<string>();
+    list.add(hint);
+    hints.set(key, list);
+  };
 
-  if (story.qualityByKey[TENSION_CURRENT_KEY]) keys.add(TENSION_CURRENT_KEY);
+  if (story.qualityByKey[TENSION_CURRENT_KEY]) {
+    keys.add(TENSION_CURRENT_KEY);
+    addPull(TENSION_CURRENT_KEY, { kind: "builtin", checkpointId: activeCheckpointId, detail: "built-in tension quality" });
+  }
 
   checkpointIds.forEach((checkpointId) => {
-    Object.keys(story.checkpointById[checkpointId]?.state_snapshot ?? {}).forEach((key) => keys.add(key));
+    const checkpoint = story.checkpointById[checkpointId];
+    Object.keys(checkpoint?.state_snapshot ?? {}).forEach((key) => {
+      keys.add(key);
+      addPull(key, { kind: "snapshot", checkpointId, detail: `${checkpoint?.name ?? checkpointId} snapshot` });
+    });
     for (const transition of story.outgoingByCheckpoint[checkpointId] ?? []) {
-      collectGateKeys(transition.gate, keys);
-      if (transition.extraction_hint) {
-        const gateKeys = new Set<string>();
-        collectGateKeys(transition.gate, gateKeys);
-        gateKeys.forEach((key) => {
-          const list = hints.get(key) ?? new Set<string>();
-          list.add(transition.extraction_hint as string);
-          hints.set(key, list);
-        });
-      }
+      const gateKeys = new Set<string>();
+      collectGateKeys(transition.gate, gateKeys);
+      gateKeys.forEach((key) => {
+        keys.add(key);
+        addPull(key, { kind: "gate", checkpointId, detail: `${transition.from} → ${transition.to} gate` });
+        if (transition.extraction_hint) addHint(key, transition.extraction_hint);
+      });
     }
   });
 
@@ -53,10 +68,8 @@ export function deriveScope(
     collectGateKeys(source.gate, gateKeys);
     gateKeys.forEach((key) => {
       keys.add(key);
-      if (!source.extractionHint) return;
-      const list = hints.get(key) ?? new Set<string>();
-      list.add(source.extractionHint);
-      hints.set(key, list);
+      addPull(key, { kind: "gate", checkpointId: source.checkpointId, detail: "reachable gate source" });
+      if (source.extractionHint) addHint(key, source.extractionHint);
     });
   });
 
@@ -67,7 +80,17 @@ export function deriveScope(
     .filter((quality) => !blackboard.latched[quality.key])
     .filter((quality) => hintApplies(quality, activeCheckpointId, story))
     .sort((left, right) => left.key.localeCompare(right.key))
-    .map((quality) => ({ key: quality.key, quality, hints: [...(hints.get(quality.key) ?? [])] }));
+    .map((quality) => ({ key: quality.key, quality, hints: [...(hints.get(quality.key) ?? [])], pulledBy: pulls.get(quality.key) ?? [] }));
+}
+
+export function deriveScope(
+  story: NormalizedStoryV2,
+  activeCheckpointId: string,
+  blackboard: BlackboardSnapshot,
+  extraGateSources: ExtraGateSource[] = [],
+): ScopedQuality[] {
+  return deriveScopeExplained(story, activeCheckpointId, blackboard, extraGateSources)
+    .map(({ key, quality, hints }) => ({ key, quality, hints }));
 }
 
 export function deriveFullScope(story: NormalizedStoryV2, blackboard: BlackboardSnapshot): ScopedQuality[] {
