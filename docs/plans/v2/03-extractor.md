@@ -114,3 +114,7 @@ From the qvink/SillyTavern-MessageSummarize review (spec §Turn loop updated acc
 2. **In-flight guard**: extraction windows never include a message whose generation is still streaming; window text snapshots when the read is dispatched, not re-read at completion. Retrofit in `sharedRead.ts`/`chatWindow.ts`.
 
 Record the retrofit in plan 04's Gate record.
+
+### Retro live validation addendum (2026-07-06)
+
+Real-LLM retro (see [retro-live-validation.md](retro-live-validation.md)): parser lost the first extraction line with reasoning-token models (fixed); bare-delta fallback added. `live-plan03-extraction.json` 13/13 fully real (cue+cadence reads on gemma, delta→boundary drain→transition); forced cue from a real message demonstrated; degenerate-output resilience proven.

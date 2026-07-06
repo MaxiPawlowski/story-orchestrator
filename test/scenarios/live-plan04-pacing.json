@@ -1,0 +1,43 @@
+{
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "title": "Live Pacing Gate Check",
+        "description": "Plan 04 retro validation with real tension extraction.",
+        "arc_template": "rising",
+        "qualities": [
+          { "key": "message_count", "type": "int", "source": "code", "monotonic": true, "rubric": "Rendered boundary count." },
+          { "key": "reached_climax", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the confrontation reach its climax?" }
+        ],
+        "checkpoints": [
+          { "id": "start", "name": "Approach", "objective": "Approach the confrontation.", "type": "anchor", "start": true, "tension_target": "stirring" },
+          { "id": "climax", "name": "Climax", "objective": "Reach the peak of the scene.", "type": "anchor", "tension_target": "peak" }
+        ],
+        "transitions": [
+          { "from": "start", "to": "climax", "priority": 1, "gate": { "q": "reached_climax", "op": "==", "v": true } }
+        ],
+        "roster": []
+      }
+    },
+    { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorRuntime.setExtractionSettings({ enabled: true, profileId: 'afcc7073-3510-4f67-8070-35ce449d4792', cadence: 2 }); return true;" },
+    { "send_generate": "The torches gutter out one by one as we edge down the narrowing corridor. Something is breathing in the dark ahead." },
+    { "wait": { "idle": true, "timeoutMs": 120000 } },
+    { "wait": { "boundary": 1, "timeoutMs": 30000 } },
+    { "send_generate": "I draw my blade as the breathing turns into a low growl right behind the last torch bracket." },
+    { "wait": { "idle": true, "timeoutMs": 120000 } },
+    { "wait": { "boundary": 2, "timeoutMs": 30000 } },
+    { "send_generate": "The growl explodes into a roar and claws scrape against stone as the thing charges at us." },
+    { "wait": { "idle": true, "timeoutMs": 120000 } },
+    { "wait": { "boundary": 3, "timeoutMs": 30000 } },
+    { "send_generate": "I brace against the wall and swing my blade at the shape hurtling out of the darkness." },
+    { "wait": { "idle": true, "timeoutMs": 120000 } },
+    { "wait": { "boundary": 4, "timeoutMs": 30000 } },
+    { "wait": { "acceptedDelta": "tension_current", "timeoutMs": 120000 } },
+    { "send_generate": "I press the attack while the creature reels backward." },
+    { "wait": { "idle": true, "timeoutMs": 120000 } },
+    { "wait": { "boundary": 5, "timeoutMs": 30000 } },
+    { "expect": { "pacingPrompt": { "position": 1, "depth": 2, "role": 0 } } },
+    { "eval": "const snap = globalThis.storyOrchestratorRuntime.getSnapshot(); if (!snap.tension || snap.tension.smoothed === null || snap.tension.smoothed === undefined) throw new Error('tension EMA missing: ' + JSON.stringify(snap.tension)); if (!snap.pacing || snap.pacing.enabled === false) throw new Error('pacing disabled'); return snap.tension;" }
+  ]
+}

@@ -86,3 +86,7 @@ Deviations / incomplete plan items:
 - WI toggling was implemented via existing `enableWIEntry` / `disableWIEntry` wrappers but not live-verified because the active test chat has no known disposable lorebook entry.
 - LLM NPC replies use `/trigger await=true <member>`; the old v1 loud-generation intercept semantics were not fully reintroduced beyond keeping `globalThis.talkControlInterceptor` as a no-op. Scripted NPC replies are functional and persisted with counters.
 - Preset effects accept a named preset or inline settings object and apply through `applyTextGenPresetRuntime`; v1 composition/base-preset merging was not restored.
+
+### Retro live validation addendum (2026-07-06)
+
+Real-LLM retro (see [retro-live-validation.md](retro-live-validation.md)): **critical bug found+fixed** — TurnBridge depth accounting never committed boundaries in group chats under real generation (mocked gates masked it). `live-plan02-runtime.json` 13/13 real; AN+blackboard verified in captured payload; real llm NPC reply.

@@ -73,3 +73,7 @@ Review fixes:
 
 Known limitations:
 - Generation-bias (`getGenerationBias`) is interface-only; plan 05 consumes it. Custom `arc_template` points are validated but not authorable in the settings UI (Studio, plan 11).
+
+### Retro live validation addendum (2026-07-06)
+
+Real-LLM retro (see [retro-live-validation.md](retro-live-validation.md)): `live-plan04-pacing.json` 20/20 — real tension extraction → EMA → steering prompt injected; extensionPrompts channel payload-proven via plan-07 check.

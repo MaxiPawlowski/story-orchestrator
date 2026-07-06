@@ -1,10 +1,13 @@
-import { subscribeToHostEvents, type HostSubscriptionEntry } from "@services/STAPI";
+import { isHostGenerating, subscribeToHostEvents, type HostSubscriptionEntry } from "@services/STAPI";
 import type { RuntimeManager } from "./runtimeManager";
 
+const FLUSH_POLL_MS = 300;
+const FLUSH_POLL_MAX_MS = 60000;
+
 export class TurnBridge {
-  private generationDepth = 0;
   private pendingBoundary = false;
   private lastRenderedAt = 0;
+  private flushTimer: ReturnType<typeof setTimeout> | null = null;
   private unsubscribe: (() => void) | null = null;
 
   constructor(private readonly manager: RuntimeManager) {}
@@ -12,16 +15,15 @@ export class TurnBridge {
   start() {
     if (this.unsubscribe) return;
     const entries: HostSubscriptionEntry[] = [
-      { eventName: "generation_started", handler: () => this.onGenerationStarted() },
-      { eventName: "generation_ended", handler: () => void this.onGenerationFinished() },
-      { eventName: "generation_stopped", handler: () => void this.onGenerationFinished() },
+      { eventName: "generation_ended", handler: () => void this.flushPendingBoundary() },
+      { eventName: "generation_stopped", handler: () => void this.flushPendingBoundary() },
       { eventName: "message_received", handler: () => void this.onRenderedReply() },
       { eventName: "character_message_rendered", handler: () => void this.onRenderedReply() },
       { eventName: "message_swiped", handler: (messageId) => void this.onMutation(messageId) },
       { eventName: "message_edited", handler: (messageId) => void this.onMutation(messageId) },
       { eventName: "message_deleted", handler: (messageId) => void this.onMutation(messageId) },
       { eventName: "message_updated", handler: (messageId) => void this.onMutation(messageId) },
-      { eventName: "chat_id_changed", handler: () => void this.manager.loadSelectedFromChat() },
+      { eventName: "chat_id_changed", handler: () => void this.onChatChanged() },
       { eventName: "worldinfo_settings_updated", handler: () => this.manager.notify() },
       { eventName: "group_updated", handler: () => this.manager.notify() },
     ];
@@ -31,17 +33,8 @@ export class TurnBridge {
   stop() {
     this.unsubscribe?.();
     this.unsubscribe = null;
-  }
-
-  private onGenerationStarted() {
-    this.generationDepth += 1;
-  }
-
-  private async onGenerationFinished() {
-    this.generationDepth = Math.max(0, this.generationDepth - 1);
-    if (!this.pendingBoundary || this.generationDepth > 0) return;
+    this.cancelFlushPoll();
     this.pendingBoundary = false;
-    await this.manager.commitBoundary();
   }
 
   private async onRenderedReply() {
@@ -50,9 +43,46 @@ export class TurnBridge {
     this.lastRenderedAt = now;
     this.pendingBoundary = true;
     await this.manager.fireAfterSpeak();
-    if (this.generationDepth > 0) return;
+    await this.flushPendingBoundary();
+  }
+
+  private async flushPendingBoundary() {
+    if (!this.pendingBoundary) return;
+    if (isHostGenerating()) {
+      this.scheduleFlushPoll();
+      return;
+    }
     this.pendingBoundary = false;
+    this.cancelFlushPoll();
     await this.manager.commitBoundary();
+  }
+
+  private scheduleFlushPoll() {
+    if (this.flushTimer !== null) return;
+    const startedAt = Date.now();
+    const tick = () => {
+      this.flushTimer = null;
+      if (!this.pendingBoundary) return;
+      if (!isHostGenerating()) {
+        void this.flushPendingBoundary();
+        return;
+      }
+      if (Date.now() - startedAt >= FLUSH_POLL_MAX_MS) return;
+      this.flushTimer = setTimeout(tick, FLUSH_POLL_MS);
+    };
+    this.flushTimer = setTimeout(tick, FLUSH_POLL_MS);
+  }
+
+  private cancelFlushPoll() {
+    if (this.flushTimer === null) return;
+    clearTimeout(this.flushTimer);
+    this.flushTimer = null;
+  }
+
+  private async onChatChanged() {
+    this.cancelFlushPoll();
+    this.pendingBoundary = false;
+    await this.manager.loadSelectedFromChat();
   }
 
   private async onMutation(value: unknown) {

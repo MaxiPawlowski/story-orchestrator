@@ -1,0 +1,30 @@
+{
+  "steps": [
+    { "import_story": { "file": "../fixtures/convergence-drift.story.json" } },
+    { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorRuntime.setExtractionSettings({ enabled: true, profileId: 'afcc7073-3510-4f67-8070-35ce449d4792', cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 1 }); return true;" },
+    { "expand": {} },
+    { "wait": { "expansionStatus": "inserted", "timeoutMs": 300000 } },
+    { "slash": "/cp set key_found true" },
+    { "wait": { "checkpoint": "gen_bridge_a_1", "timeoutMs": 15000 } },
+    { "send_generate": "I pace around the chamber, idly tapping the walls." },
+    { "wait": { "boundary": 1, "timeoutMs": 120000 } },
+    { "send_generate": "I sit down on a fallen pillar and share some rations." },
+    { "wait": { "boundary": 2, "timeoutMs": 120000 } },
+    { "send_generate": "I ask about the weather back home to pass the time." },
+    { "wait": { "boundary": 3, "timeoutMs": 120000 } },
+    { "send_generate": "I whistle an old tavern tune and stretch my legs." },
+    { "wait": { "boundary": 4, "timeoutMs": 120000 } },
+    { "send_generate": "I check my pack again, counting the same supplies twice." },
+    { "wait": { "boundary": 5, "timeoutMs": 120000 } },
+    { "send_generate": "I doodle shapes in the dust on the floor with a stick." },
+    { "wait": { "boundary": 6, "timeoutMs": 120000 } },
+    { "send_generate": "I lean against the wall and close my eyes for a moment." },
+    { "wait": { "boundary": 7, "timeoutMs": 120000 } },
+    { "send_generate": "I flip a coin and catch it without looking." },
+    { "wait": { "boundary": 8, "timeoutMs": 120000 } },
+    { "send_generate": "I trace the mortar lines between the stones." },
+    { "wait": { "boundary": 9, "timeoutMs": 120000 } },
+    { "wait": { "reconciliationEvents": 1, "timeoutMs": 120000 } },
+    { "expect": { "reconciliationEvents>=": 1 } }
+  ]
+}

@@ -91,6 +91,10 @@ async function pickPage(browser: Browser, stUrl: string): Promise<Page> {
   const pages = context.pages();
   const existing = pages.find((page) => sameOriginOrBlank(page, stUrl));
   const page = existing || await context.newPage();
+  const viewport = page.viewportSize();
+  if (!viewport || viewport.width < 1280) {
+    await page.setViewportSize({ width: 1920, height: 1080 });
+  }
   if (page.url() === 'about:blank') {
     await page.goto(stUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
   }

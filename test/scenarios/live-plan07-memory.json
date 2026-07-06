@@ -1,0 +1,39 @@
+{
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "title": "Live Memory Gate Check",
+        "description": "Plan 07 retro validation with real memory extraction and real scene summary.",
+        "qualities": [
+          { "key": "location", "type": "enum", "values": ["hall", "vault"], "source": "extractor", "rubric": "Where is the party now?" }
+        ],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "Start",
+            "objective": "Explore the hall.",
+            "type": "anchor",
+            "start": true,
+            "effects": {
+              "npc_replies": [ { "trigger": "sceneBreak", "member": "DM Narrator", "kind": "scripted", "text": "The scene shifts." } ]
+            }
+          }
+        ],
+        "transitions": [],
+        "roster": [ { "id": "arin", "name": "Arin" }, { "id": "narrator", "name": "DM Narrator" } ]
+      }
+    },
+    { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorRuntime.setExtractionSettings({ enabled: true, profileId: 'afcc7073-3510-4f67-8070-35ce449d4792', cadence: 2 }); return true;" },
+    { "send_generate": "We step into the moonlit hall. I tell Arin that the brass statue by the stairs is the one from my dream." },
+    { "wait": { "boundary": 1, "timeoutMs": 120000 } },
+    { "send_generate": "I ask Arin to guard the statue while I copy the inscription on its base into my journal." },
+    { "wait": { "boundary": 2, "timeoutMs": 120000 } },
+    { "wait": { "memoryEntries": 1, "timeoutMs": 180000 } },
+    { "wait": { "memoryEntries": 1, "memoryTier": "facts", "timeoutMs": 180000 } },
+    { "expect": { "memoryInjection": { "facts": true } } },
+    { "eval": "const audit = { id: 'retro-scene', createdAt: new Date().toISOString(), priority: 0, reason: 'scene:location', contractHash: 'h', scope: [], window: { from: 0, to: 3 }, prompt: 'p', rawResponse: 'r', acceptedDeltas: [], rejected: [], sceneBreak: { at: 3, reason: 'location' } }; await globalThis.storyOrchestratorRuntime.runSceneBreakPass(audit); const memory = globalThis.storyOrchestratorRuntime.getSnapshot().memory; const scenes = memory.entries.filter((entry) => entry.tier === 'scene_history'); if (!scenes.length || !scenes[0].text || scenes[0].text.length < 10) throw new Error('expected real scene summary, got ' + JSON.stringify(scenes)); return scenes[0].text;" },
+    { "wait": { "idle": true, "timeoutMs": 30000 } },
+    { "eval": "const chat = SillyTavern.getContext().chat; const found = chat.some((m) => typeof m.mes === 'string' && m.mes.includes('The scene shifts.')); if (!found) throw new Error('expected sceneBreak scripted reply'); return true;" }
+  ]
+}

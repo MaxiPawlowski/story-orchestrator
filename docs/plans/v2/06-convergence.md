@@ -91,3 +91,7 @@ Code review before commit surfaced three correctness gaps, all fixed:
 - `runtime/runtimeManager.ts` `applyExtractionAudit`: reconciliation-event resolution scanned for the *last* unresolved event (LIFO) while `ExtractionScheduler` completes priority-0 jobs FIFO — an overlapping second reconcile job (scheduled while the first's extraction call is still in flight) would resolve out of order and attribute evidence to the wrong event. Changed the scan to oldest-unresolved-first.
 
 Re-verified: `npm run typecheck && npm run lint && npm test` (8 suites / 1058 tests, unchanged), `npm run build`, live gate `so-scenario.mts run test/scenarios/plan06-convergence.json --sandbox` (22/22 steps), `so-state.mts current --full` clean post-cleanup.
+
+### Retro live validation addendum (2026-07-06)
+
+Real-LLM retro (see [retro-live-validation.md](retro-live-validation.md)): real drift → stall → real targeted reconcile read (honest NO_DELTA, event resolved); deterministic 22/22 regression re-run; `live-plan06-convergence.json` added.

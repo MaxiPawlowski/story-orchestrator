@@ -9,7 +9,7 @@ How [story-orchestrator-spec-v2.md](story-orchestrator-spec-v2.md) gets built: 1
 3. Never typeguard or cast an unverified ST value. Confirm shapes in ST source (`C:\dev\SillyTavern-MainBranch\`, docs in `.claude/sillytavern-docs/`) or add a debug log + local type.
 4. No code comments; self-explanatory code. TypeScript strict. Match existing idiom.
 5. Engine purity: `src/engine/**` and `src/extraction/scope*` never import STAPI — host effects go through the `EngineHost` seam so the harness can fake them.
-6. Fixtures in `test/fixtures/` (stories `*.story.json`, transcripts `*.transcript.json`, answer keys `*.expected.json`); recorded LLM goldens in `test/goldens/`. Live re-record via `LIVE=1 npm test`.
+6. Fixtures in `test/fixtures/` (stories `*.story.json`, transcripts `*.transcript.json`, answer keys `*.expected.json`); recorded LLM goldens in `test/goldens/`. `LIVE=1` re-record not implemented yet (deterministic goldens only) — real re-record path lands in plan 13.
 7. On finishing, append a `## Gate record` section to your own plan file: date, command outputs (summary), Playwright checks run and their results, deviations from plan. The next agent reads it.
 8. Deviations from your plan are allowed when the code proves the plan wrong — record them in the Gate record. Deviations from the spec are not; stop and surface instead.
 9. **Tooling grows with the build**: any plan that adds runtime state or new live behavior must, in the same plan, extend `so-state`'s summary, add the matching `so-scenario` verbs/expectations, and update `scripts/debug/README.md` — the next agent must never explore to see your feature. Gate validations ship as `test/scenarios/*.json` and run via `so-scenario` (exit code = pass).
@@ -20,7 +20,7 @@ How [story-orchestrator-spec-v2.md](story-orchestrator-spec-v2.md) gets built: 1
 npm run typecheck && npm run lint && npm test && npm run build
 ```
 
-plus live-ST validation with SillyTavern running at `http://127.0.0.1:8000/` using `scripts/debug/` tools (see `.claude/rules/debug-scripts.md`): minimum `st-navigation.mts recent-group` → `so-state.mts current` → plan-specific checks. A gate is green only when both harness and live checks pass.
+plus live-ST validation with SillyTavern running at `http://127.0.0.1:8000/` using `scripts/debug/` tools (see `.claude/rules/debug-scripts.md`): minimum `st-navigation.mts recent-group` → `so-state.mts current` → plan-specific checks. **Live checks run as an end user would: real main-model generation for chat-path behavior, and real extraction/expansion/memory passes via the selected Connection Manager profile (no `debugResponse`) for every LLM-consuming pipeline the plan touches.** `debugResponse` mocks are for unit determinism and scenario plumbing only — never gate sign-off. A gate is green only when both harness and live checks pass; if the real-LLM live gate cannot run (ST down, no backend, no profile), the Gate record must say so explicitly and the gate is not green.
 
 ## Verified ST host facts (cite these; re-verify only if ST version changes)
 

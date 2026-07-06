@@ -119,6 +119,34 @@ describe("shared read parser", () => {
     expect(parsed.sceneBreak).toEqual({ at: 5, reason: "location" });
   });
 
+  it("strips reasoning-channel token prefixes before matching directives", () => {
+    const story = parseStoryV2OrThrow(storyFixture);
+    const parsed = parseSharedReadResponse([
+      "<|channel>thought",
+      "<channel|>DELTA q=player_has_key value=true evidence=\"I take the brass key\"",
+      "[7]<|channel>thought",
+      "[3]<channel|>FACT importance=2 text=\"Max took the brass key.\" evidence=\"I take the brass key\"",
+    ].join("\n"), story);
+    expect(parsed.deltas.map((entry) => entry.delta.q)).toEqual(["player_has_key"]);
+    expect(parsed.facts).toHaveLength(1);
+    expect(parsed.rejected.map((entry) => entry.line)).toEqual(["thought", "thought"]);
+  });
+
+  it("accepts bare known-quality delta lines missing the DELTA prefix, still requiring evidence", () => {
+    const story = parseStoryV2OrThrow(storyFixture);
+    const parsed = parseSharedReadResponse([
+      "tension_current=\"tense\" evidence=\"a low growl in the dark\"",
+      "player_has_key=true evidence=\"took the key\"",
+      "player_has_key=true",
+      "not_a_quality=true evidence=\"x\"",
+    ].join("\n"), story);
+    expect(parsed.deltas.map((entry) => ({ q: entry.delta.q, v: entry.delta.v }))).toEqual([
+      { q: "tension_current", v: 0.5 },
+      { q: "player_has_key", v: true },
+    ]);
+    expect(parsed.rejected.map((entry) => entry.reason)).toEqual(["unrecognized line", "unknown quality"]);
+  });
+
   it("treats SCENE_NONE as an explicit no-break rather than a rejection", () => {
     const story = parseStoryV2OrThrow(storyFixture);
     const parsed = parseSharedReadResponse("SCENE_NONE", story);

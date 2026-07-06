@@ -35,7 +35,18 @@ export async function getWelcomeRecentChats(page) {
   });
 }
 
+export async function closeUnpinnedDrawers(page) {
+  return evaluateInST(page, () => {
+    const drawers = Array.from(document.querySelectorAll<HTMLElement>('#top-settings-holder .openDrawer:not(.pinnedOpen)'));
+    for (const drawer of drawers) drawer.classList.replace('openDrawer', 'closedDrawer');
+    const icons = Array.from(document.querySelectorAll<HTMLElement>('#top-settings-holder .openIcon:not(.drawerPinnedOpen)'));
+    for (const icon of icons) icon.classList.replace('openIcon', 'closedIcon');
+    return { closedDrawers: drawers.length };
+  });
+}
+
 export async function ensureWelcomeRecentChatsVisible(page) {
+  await closeUnpinnedDrawers(page);
   const welcomePanel = page.locator('.welcomePanel');
   if (!(await welcomePanel.count())) {
     await page.locator('#options_button').click();
@@ -72,6 +83,7 @@ export async function openMostRecentGroupChat(page) {
     chatId: SillyTavern.getContext().chatId,
   }));
 
+  await closeUnpinnedDrawers(page);
   await page.locator('.recentChat.group:not(.hidden)').first().click();
 
   await page.waitForFunction(

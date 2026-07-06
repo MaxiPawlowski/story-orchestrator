@@ -88,3 +88,7 @@ A full code review of the as-built plan-08 surfaced one correctness bug and six 
 - **F5** — added `engine.getBoundary()`; `buildScoreContext` no longer clones the blackboard snapshot on every injection.
 - **F6** — extracted `enqueueExtractorDeltas` (shared by `applyExtractionAudit` and the bridge); the supersession bridge now enqueues deltas directly instead of routing a synthetic read through `applyExtractionAudit`, so it no longer pollutes `extras.extraction.audits`/`lastReadBoundary`.
 - **F7** — removed the dead `arcRelevance * 0` scorer term (field retained for plan 09).
+
+### Retro live validation addendum (2026-07-06)
+
+Real-LLM retro (see [retro-live-validation.md](retro-live-validation.md)): deferred story-loaded P4 chain shipped+proven — `plan08-hygiene.json` 10/10: live embedding dedup, supersession, REAL bridge DELTA fired a transition, WI round-trip.

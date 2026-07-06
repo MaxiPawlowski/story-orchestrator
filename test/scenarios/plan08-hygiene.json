@@ -1,0 +1,32 @@
+{
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "title": "Live Hygiene Gate Check",
+        "description": "Plan 08 retro validation: story-loaded consolidation, supersession bridge, WI sync.",
+        "qualities": [
+          { "key": "message_count", "type": "int", "source": "code", "monotonic": true, "rubric": "Rendered boundary count." },
+          { "key": "vault_status", "type": "enum", "values": ["sealed", "breached"], "source": "extractor", "rubric": "Is the vault door sealed or breached?" }
+        ],
+        "checkpoints": [
+          { "id": "start", "name": "Outside", "objective": "Deal with the vault door.", "type": "anchor", "start": true },
+          { "id": "breach", "name": "Breached", "objective": "Enter through the breach.", "type": "anchor" }
+        ],
+        "transitions": [
+          { "from": "start", "to": "breach", "priority": 1, "gate": { "q": "vault_status", "op": "==", "v": "breached" }, "extraction_hint": "Look for the vault door being opened or destroyed." }
+        ],
+        "roster": []
+      }
+    },
+    { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorRuntime.setExtractionSettings({ enabled: true, profileId: 'afcc7073-3510-4f67-8070-35ce449d4792', cadence: 6 }); return true;" },
+    { "eval": "const mk = (text, type) => ({ tier: 'facts', type: type || 'fact', importance: 2, expiration: 'permanent', entities: [], text, evidence: 'seed' }); await globalThis.storyOrchestratorRuntime.applyExtractionAudit({ id: 'seed', createdAt: new Date().toISOString(), priority: 0, reason: 'manual', contractHash: 'h', scope: [], window: { from: 0, to: 0 }, prompt: 'p', rawResponse: 'r', acceptedDeltas: [], rejected: [] }, [], [ mk('The vault door is sealed shut behind three heavy locks.'), mk('Arin keeps his daggers oiled and ready.'), mk('Arin keeps his daggers oiled and ready.'), mk('The guild hall smells of pine smoke and roasted meat.'), mk('Luke owes the guild master three gold coins.'), mk('Ponticius collects maps of the northern ruins.'), mk('The statue by the stairs depicts a forgotten king.'), mk('Max carries a leather journal for inscriptions.'), mk('The vault door is now blasted open, no longer sealed shut behind its three heavy locks.'), mk('Arin trusts Max with the vault plan.', 'relationship') ]); return globalThis.storyOrchestratorRuntime.getSnapshot().memory.entries.length;" },
+    { "eval": "const summary = await globalThis.storyOrchestratorRuntime.runConsolidation(); if (summary.dropped < 1) throw new Error('expected >=1 dropped duplicate: ' + JSON.stringify(summary)); if (summary.superseded < 1) throw new Error('expected >=1 superseded: ' + JSON.stringify(summary)); return summary;" },
+    { "eval": "const memory = globalThis.storyOrchestratorRuntime.getSnapshot().memory; const superseded = memory.entries.filter((entry) => entry.supersededBy); if (!superseded.some((entry) => entry.text.includes('sealed shut'))) throw new Error('expected sealed-door fact superseded: ' + JSON.stringify(superseded.map((e) => e.text))); return superseded.map((e) => e.text);" },
+    { "eval": "const wi = await import('/scripts/world-info.js'); const book = await wi.loadWorldInfo('Story Orchestrator - Live Hygiene Gate Check'); if (!book || !book.entries) throw new Error('lorebook missing'); const entries = Object.values(book.entries); const hit = entries.find((entry) => typeof entry.content === 'string' && entry.content.includes('trusts Max')); if (!hit) throw new Error('expected relationship WI entry, got ' + JSON.stringify(entries.map((e) => e.comment))); return { comment: hit.comment, content: hit.content };" },
+    { "send_generate": "I step toward the vault door to see what is left of it." },
+    { "wait": { "checkpoint": "breach", "timeoutMs": 120000 } },
+    { "expect": { "activeCheckpoint": "breach", "blackboard": { "vault_status": "breached" } } },
+    { "eval": "const ctx = SillyTavern.getContext(); const resp = await fetch('/api/worldinfo/delete', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: 'Story Orchestrator - Live Hygiene Gate Check' }) }); return { deleted: resp.ok };" }
+  ]
+}

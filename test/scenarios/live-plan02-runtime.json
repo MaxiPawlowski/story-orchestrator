@@ -1,0 +1,39 @@
+{
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "title": "Live Runtime Gate Check",
+        "description": "Plan 02 retro validation with real main-model generation.",
+        "requirements": { "personas": ["Max"], "members": ["DM Narrator"] },
+        "qualities": [
+          { "key": "message_count", "type": "int", "source": "code", "monotonic": true, "rubric": "Rendered boundary count." },
+          { "key": "found_key", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player find the key?" },
+          { "key": "door_open", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the door open?" }
+        ],
+        "checkpoints": [
+          { "id": "start", "name": "Find Key", "objective": "Find the key.", "type": "anchor", "start": true },
+          { "id": "door", "name": "Open Door", "objective": "Open the door.", "type": "anchor", "effects": { "author_note": { "text": "Runtime check: keep focus on the vault door.", "inject_blackboard": true }, "npc_replies": [{ "trigger": "onEnter", "member": "DM Narrator", "kind": "scripted", "text": "The vault door waits for proof.", "maxTriggers": 1 }] } },
+          { "id": "end", "name": "Inside", "objective": "Enter the vault.", "type": "anchor" }
+        ],
+        "transitions": [
+          { "from": "start", "to": "door", "priority": 1, "gate": { "q": "found_key", "op": "==", "v": true } },
+          { "from": "door", "to": "end", "priority": 1, "gate": { "q": "door_open", "op": "==", "v": true } }
+        ],
+        "roster": [{ "id": "DM Narrator", "name": "DM Narrator" }]
+      }
+    },
+    { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; return true;" },
+    { "send_generate": "I search the dusty study for anything that might open the old vault." },
+    { "wait": { "idle": true, "timeoutMs": 120000 } },
+    { "wait": { "boundary": 1, "timeoutMs": 30000 } },
+    { "expect": { "activeCheckpoint": "start" } },
+    { "slash": "/cp set found_key true" },
+    { "wait": { "checkpoint": "door", "timeoutMs": 15000 } },
+    { "expect": { "activeCheckpoint": "door", "blackboard": { "found_key": true }, "latched": ["found_key"], "npcFired": { "door:onEnter:DM Narrator:0": 1 } } },
+    { "send_generate": "I press the key into the lock of the vault door and turn it slowly." },
+    { "wait": { "idle": true, "timeoutMs": 120000 } },
+    { "wait": { "boundary": 3, "timeoutMs": 30000 } },
+    { "expect": { "activeCheckpoint": "door" } }
+  ]
+}

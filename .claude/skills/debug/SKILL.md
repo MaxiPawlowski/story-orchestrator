@@ -29,6 +29,28 @@ Do not use unbounded terminal processes for gates. Debug scripts have hard conne
 
 Scripts run via `node scripts/debug/<tool>.mts`, attach to the shared session first, otherwise launch a short-lived headless Chromium. Artifacts go to `.debug/` (gitignored; screenshots in `.debug/screenshots/`).
 
+## Real-LLM validation (default gate)
+
+Handover sign-off for LLM-consuming paths requires the real model, not `debugResponse` mocks. Mocks (`storyOrchestratorDebug*Response` globals, scenario `extract`/`expand` step values) stay valid for unit determinism and scenario plumbing — never for sign-off.
+
+Prerequisites: extraction Connection Manager profile selected in extension settings (`#stepthink_settings` profile picker; visible as `extraction.settings.profileId` in `so-state.mts current`). If ST is down, no backend connected, or no profile selected: state it at handover and flag the gate NOT green — do not silently fall back to mocks.
+
+Triggering real passes (all route through `callExtractionModel` — real path = profile set + no `debugResponse`):
+
+- Main-model generation: `st-actions.mts send <text>` or scenario step `send_generate`.
+- Shared read / memory / arc / canon passes: `storyOrchestratorRuntime.runExtractionNow()` with NO response arg, or scenario `extract` step without `debugResponse`.
+- Expansion + critic: `runExpansionNow()` with no arg, or scenario `expand` without `debugResponse`.
+- Clear leftover `storyOrchestratorDebug*Response` globals first — a set global wins over the real path.
+
+Pass criteria under nondeterminism — assert pipeline behavior, never exact model output:
+
+- audit recorded with prompt + rawResponse, no `debugResponse` marker
+- parse succeeded, or failure audited + retried per scheduler policy
+- expected delta/memory/arc effect lands within N boundaries (pick N per check, not =1)
+- injected blocks (`story_blackboard`, pacing, memory, canon) present in a real generation payload via `st-payload.mts`
+
+One malformed model response correctly audited/retried = plumbing pass. Repeated hard failures against a contract = real finding (prompt/contract issue) — report it, don't paper over with a mock.
+
 ## Script reference
 
 ### State & data
@@ -71,7 +93,9 @@ node scripts/debug/so-runtime-check.mts
 node scripts/debug/so-extraction-check.mts
 ```
 
-Steps: `import_story`, `select_story`, `send`, `send_generate`, `slash`, `extract`, `swipe`, `edit`, `delete`, `wait`, `expect`. `--sandbox` starts `/newchat`; cleanup removes imported stories and best-effort deletes the scratch chat unless `--keep` is passed.
+Steps: `import_story`, `select_story`, `send`, `send_generate`, `slash`, `extract`, `expand`, `eval`, `swipe`, `edit`, `delete`, `wait`, `expect`. `--sandbox` starts `/newchat`; cleanup removes imported stories and best-effort deletes the scratch chat unless `--keep` is passed.
+
+Real-LLM scenarios: `test/scenarios/live-plan*.json` + `plan08-hygiene.json` run every step against the real backend (no `debugResponse`). Tolerant wait verbs for nondeterminism: `acceptedDelta`, `reconciliationEvents`, `memoryEntries` (+`memoryTier`), `arcsSummarized`, `canonPresent`. After real `send_generate`, wait on `boundary`, not `idle` — group activation can lag and `idle` passes before generation starts.
 
 ### Payloads
 

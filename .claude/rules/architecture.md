@@ -44,7 +44,7 @@ src/
 - Boundary counters ≠ ST message indexes. Boundary snapshots/logs record `{lastMessageId, chatLength}`.
 - Pending queue writes not persisted; reload drops them, reconciliation recovers.
 - Extraction audits persist in runtime extras (`extras.extraction.audits`); facts moved to the memory tiers (`extras.memory`, facts tier) as of plan 07 — `extras.extraction.facts` no longer exists.
-- Fixtures: `test/fixtures/*.story.json|*.transcript.json|*.expected.json`; recorded LLM goldens in `test/goldens/`, re-record via `LIVE=1 npm test`.
+- Fixtures: `test/fixtures/*.story.json|*.transcript.json|*.expected.json`; recorded LLM goldens in `test/goldens/`. `LIVE=1` re-record NOT implemented (no code reads it; tests always run deterministic goldens) — real re-record path lands in plan 13.
 - Build output `dist/` generated + gitignored.
 
 ## Path aliases (tsconfig + webpack)

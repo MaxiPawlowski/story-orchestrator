@@ -4,7 +4,11 @@ import { isTensionLevel, levelToNumeric } from "@pacing/index";
 import type { ParsedSharedRead } from "./types";
 
 const deltaPattern = /^DELTA\s+q=([^\s]+)\s+value=(.+?)\s+evidence="([\s\S]*)"\s*$/;
+const bareDeltaPattern = /^([A-Za-z0-9_]+)=(.+?)\s+evidence="([\s\S]*)"\s*$/;
 const factPattern = /^FACT\s+importance=([123])\s+text="([\s\S]+?)"\s+evidence="([\s\S]+)"\s*$/;
+const channelNoisePattern = /^(?:\[\d+\]|<[^<>\n]{0,32}>)+\s*/;
+
+const stripChannelTokens = (line: string): string => line.replace(channelNoisePattern, "").trim();
 
 const valueMatches = (quality: Quality, value: PrimitiveValue) => {
   if (quality.type === "bool") return typeof value === "boolean";
@@ -26,11 +30,11 @@ const parseJsonLiteral = (raw: string): PrimitiveValue | undefined => {
 
 export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStoryV2, "qualityByKey">): ParsedSharedRead {
   const result: ParsedSharedRead = { deltas: [], facts: [], memory: [], arcs: [], rejected: [] };
-  const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const lines = raw.split(/\r?\n/).map((line) => stripChannelTokens(line)).filter(Boolean);
 
   for (const line of lines) {
     if (line === "NO_DELTA") continue;
-    const delta = line.match(deltaPattern);
+    const delta = line.match(deltaPattern) ?? line.match(bareDeltaPattern);
     if (delta) {
       const q = delta[1];
       const quality = story.qualityByKey[q];

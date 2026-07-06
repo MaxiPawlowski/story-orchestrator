@@ -8,7 +8,7 @@ SillyTavern extension running format-2 authored stories as deterministic checkpo
 2. `docs/plans/v2/00-implementation-overview.md` — canonical build rules, gate protocol, verified ST host facts, plan sequence
 3. Current plan doc + **Gate records** of all prior plans (tail sections — as-built truth and deviations)
 
-**Status: plans 01–09 complete.** Update this line when a plan's gate goes green.
+**Status: plans 01–09 complete; real-LLM retro validation done (see `docs/plans/v2/retro-live-validation.md` — fixed TurnBridge group-chat boundaries + extractor parse; open finding F1 for plan 10+).** Update this line when a plan's gate goes green.
 
 ## V2 spine
 
@@ -30,7 +30,9 @@ SillyTavern extension running format-2 authored stories as deterministic checkpo
 |---|---|
 | docs only | none |
 | pure modules (`engine/`, `extraction/` non-host, `pacing/`) | `npm run typecheck && npm run lint && npm test` |
-| runtime / UI / ST-facing / extraction host paths | above + `npm run build` + live gate via `debug` skill: `st-navigation.mts recent-group` → `so-state.mts current` → change-specific checks or `so-scenario.mts` |
+| runtime / UI / ST-facing / extraction host paths | above + `npm run build` + live gate via `debug` skill: `st-navigation.mts recent-group` → `so-state.mts current` → change-specific checks or `so-scenario.mts`. **Live gate default = real-LLM browser validation, as an end user**: real generation (`send`/`send_generate`) for chat-path changes; real extraction/expansion/memory passes (Connection Manager profile selected, no `debugResponse`) for any LLM-consuming pipeline touched |
+
+`debugResponse` mocks are for unit determinism and scenario plumbing only — never sufficient for sign-off on LLM-consuming paths. If the real-LLM live gate cannot run (ST down, no backend, no extraction profile), say so explicitly at handover and flag the gate as NOT green — do not fall back to mocks silently.
 
 Report exact commands and results at handover. Failing gate = say so plainly; never hedge or sign off around it.
 

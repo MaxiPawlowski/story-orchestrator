@@ -133,3 +133,7 @@ Post-gate real-model check (2026-07-05):
 - Real `/cp expand` equivalent (`runExpansionNow()` without debug response) passed after prompt/parser hardening: 27.4 s, expansion status `inserted`, code check `ok`, critic verdict parsed `pass`, generated `gen_bridge_stub_1` and `gen_bridge_stub_2`.
 - Hardening added after live attempts: strip/extract fenced JSON from model responses, stricter gate/progress prompt, one bounded code-check repair round, simpler N formula that does not add a beat solely for tension drift, and hard-fail runtime entries whose code checks fail.
 - Re-ran `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run debug:typecheck`, and `node scripts/debug/so-scenario.mts run test/scenarios/plan05-background-generation.json --sandbox`; all passed. Build warnings unchanged except bundle size now 324 KiB.
+
+### Retro live validation addendum (2026-07-06)
+
+Real-LLM retro (see [retro-live-validation.md](retro-live-validation.md)): `live-plan05-expansion.json` 8/8 — real scaffold generation + real critic. OPEN FINDING F1: code check passes outcome gates that contradict latched values (unwinnable beats).

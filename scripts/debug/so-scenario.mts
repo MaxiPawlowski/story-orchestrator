@@ -21,7 +21,7 @@ expect verbs:
   arcs ({open, resolved, summarized, openContains, resolvedContains}), canon ({present, contains})
 
 wait verbs:
-  idle, boundary, auditCount, expansionStatus, checkpoint, progress (+progressAnchor), backfillComplete`;
+  idle, boundary, auditCount, acceptedDelta, expansionStatus, checkpoint, progress (+progressAnchor), reconciliationEvents, memoryEntries (+memoryTier), arcsSummarized, canonPresent, backfillComplete`;
 
 function readArgFlag(name) {
   return process.argv.includes(name);
@@ -178,6 +178,10 @@ async function waitForCondition(page, spec) {
     const runtime = last?.state;
     if (spec.boundary !== undefined && runtime?.boundary >= spec.boundary) return last;
     if (spec.auditCount !== undefined && (runtime?.extraction?.auditCount ?? 0) >= spec.auditCount) return last;
+    if (spec.acceptedDelta !== undefined) {
+      const audits = last?.liveSnapshot?.extraction?.audits ?? [];
+      if (audits.some((audit: any) => (audit?.acceptedDeltas ?? []).some((entry: any) => entry?.delta?.q === spec.acceptedDelta))) return last;
+    }
     if (spec.expansionStatus !== undefined) {
       const entries = Object.values(last?.liveSnapshot?.expansion?.entries ?? runtime?.expansion?.entries ?? {});
       if (entries.some((entry: any) => entry?.status === spec.expansionStatus)) return last;
@@ -193,6 +197,23 @@ async function waitForCondition(page, spec) {
     if (spec.reconciliationEvidence !== undefined && spec.reconciliationEvidence) {
       const events = last?.liveSnapshot?.extraction?.reconciliationEvents ?? [];
       if (events.some((event: any) => Array.isArray(event?.evidence) && event.evidence.length > 0)) return last;
+    }
+    if (spec.reconciliationEvents !== undefined) {
+      const events = last?.liveSnapshot?.extraction?.reconciliationEvents ?? [];
+      if (events.length >= spec.reconciliationEvents) return last;
+    }
+    if (spec.memoryEntries !== undefined) {
+      const entries = last?.liveSnapshot?.memory?.entries ?? [];
+      const tier = spec.memoryTier;
+      const count = tier ? entries.filter((entry: any) => entry?.tier === tier).length : entries.length;
+      if (count >= spec.memoryEntries) return last;
+    }
+    if (spec.arcsSummarized !== undefined) {
+      const arcs = last?.liveSnapshot?.memory?.arcs ?? [];
+      if (arcs.filter((arc: any) => arc?.status === 'resolved' && arc?.summary).length >= spec.arcsSummarized) return last;
+    }
+    if (spec.canonPresent !== undefined && spec.canonPresent) {
+      if (last?.liveSnapshot?.memory?.canon?.text) return last;
     }
     if (spec.backfillComplete !== undefined && spec.backfillComplete) {
       const backfill = last?.liveSnapshot?.memory?.backfill;

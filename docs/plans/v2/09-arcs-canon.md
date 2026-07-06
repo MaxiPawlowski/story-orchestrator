@@ -91,3 +91,7 @@ A full code review of the as-built plan-09 work surfaced six findings; all fixed
 - **F6 — polish.** Extracted `highImportanceFacts(limit)` shared by `runArcSummaryPass` and `regenerateCanon`; `buildScoreContext` now guards `openArcs` by the memory-enabled flag.
 
 Live re-validation: the script-driven `so-scenario` runner was blocked by an ambient welcome-screen state (no chat loaded, recent-group nav found nothing), so the core plan-09 flow was re-run via deterministic `browser_evaluate` against the real runtime on the freshly-built `dist` — two arcs opened, the granary arc resolved (Mira stayed open), the F2 commit-driven bridge drove `progress_toward_reveal → 2` and fired the `reveal` gate with `bridgeApplied: true`, the arc summary + derived canon + `{{story_canon}}` macro all resolved. Imported story and chat metadata restored afterward (no residue). The scheduler forwarding change is otherwise locked by the F1 unit test; a script-runner re-pass of `plan07-memory.json` + `plan09-arcs.json` is the recommended first step next session once a group chat is open.
+
+### Retro live validation addendum (2026-07-06)
+
+Real-LLM retro (see [retro-live-validation.md](retro-live-validation.md)): `plan09-arcs.json` 9/9 re-run (blocker was a viewport/drawer tooling bug, fixed); `live-plan09-arcs.json` 10/10 via real scheduler P4 lane — real arc summary, real canon synthesis, `{{story_canon}}` resolves.

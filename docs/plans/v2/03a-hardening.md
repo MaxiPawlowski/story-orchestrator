@@ -130,3 +130,7 @@ Delegated decisions as built:
 - `stabilityLag` default 1.
 - Scheduler retry: 3 attempts with exponential backoff.
 - Non-bool latching remains first-write latch.
+
+### Retro live validation addendum (2026-07-06)
+
+Real-LLM retro (see [retro-live-validation.md](retro-live-validation.md)): rollback after a REAL accepted delta verified live (boundary/checkpoint/latch/audit prune); `plan03a-llm-npc-reply.json` re-run with real generation.

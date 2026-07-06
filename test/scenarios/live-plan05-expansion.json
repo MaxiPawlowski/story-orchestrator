@@ -1,0 +1,12 @@
+{
+  "steps": [
+    { "import_story": { "file": "../fixtures/background-generation.story.json" } },
+    { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorRuntime.setExtractionSettings({ enabled: true, profileId: 'afcc7073-3510-4f67-8070-35ce449d4792', cadence: 3 }); return true;" },
+    { "expand": {} },
+    { "wait": { "expansionStatus": "inserted", "timeoutMs": 300000 } },
+    { "expect": { "expansion": { "entries": { "start->bridge_stub->finish": { "status": "inserted", "targetAnchorId": "finish" } } } } },
+    { "slash": "/cp set key_found true" },
+    { "wait": { "checkpoint": "gen_bridge_stub_1", "timeoutMs": 15000 } },
+    { "expect": { "activeCheckpoint": "gen_bridge_stub_1", "blackboard": { "key_found": true } } }
+  ]
+}

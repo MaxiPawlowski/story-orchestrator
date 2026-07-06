@@ -98,3 +98,7 @@ Post-implementation review found and fixed four issues (gates re-run green: type
 - **F2 (rough edge) — `runMemorizeBacklog`'s final full-scope read re-added memory already captured by the windowed passes.** The final read exists for blackboard deltas; it now passes `[]`/`[]` for facts/memory. Cross-window content-level dedup remains deferred to plan-08 consolidation.
 
 Informational (no change): scene detection reads a hardcoded `location` quality key (stories naming it differently lose the quality-delta signal but keep the prose-regex one); `sceneDetectCursor` is instance-only (resets on reload).
+
+### Retro live validation addendum (2026-07-06)
+
+Real-LLM retro (see [retro-live-validation.md](retro-live-validation.md)): `plan07-memory.json` 23/23 re-run via script runner (deferred item); `live-plan07-memory.json` 12/12 — real memory tier writes, real P2 scene summary, real facts confirmed in captured generation payload.
