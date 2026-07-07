@@ -26,9 +26,7 @@ export function getSelectedStoryHash(): string | null {
 export function setSelectedStoryHash(hash: string | null) {
   const blob = getMetadataBlob();
   blob.selectedStoryHash = hash;
-  const context = getContext();
-  context.saveMetadataDebounced();
-  void context.saveMetadata?.();
+  void getContext().saveMetadata?.();
 }
 
 export function loadPersistedRuntime(hash: string): PersistedStoryRuntime | null {
@@ -39,9 +37,7 @@ export function savePersistedRuntime(record: PersistedStoryRuntime) {
   const blob = getMetadataBlob();
   blob.stories[record.storyHash] = record;
   blob.selectedStoryHash = record.storyHash;
-  const context = getContext();
-  context.saveMetadataDebounced();
-  void context.saveMetadata?.();
+  void getContext().saveMetadata?.();
 }
 
 export function dumpPersistedRuntime() {

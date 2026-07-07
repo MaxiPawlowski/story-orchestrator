@@ -35,6 +35,28 @@ plus live-ST validation with SillyTavern running at `http://127.0.0.1:8000/` usi
 | Per-character draft hook | event `GROUP_MEMBER_DRAFTED` (`'group_member_drafted'`) | `public/scripts/events.js:59` |
 | Presets / AN / WI / slash / events | existing `stHost/` modules: `presets.ts` (`applyTextGenPresetRuntime`…), `authorNotes.ts`, `worldInfo.ts` (`enableWIEntry`/`disableWIEntry`), `slashCommands.ts`, `events.ts` | `src/services/stHost/` |
 
+Vendored host-type ledger (post-acceptance hardening 2026-07-07; `src/services/stHost/hostTypes.ts` — verify against these host locations before widening a type):
+
+| hostTypes member | Host source |
+|---|---|
+| `globalThis.SillyTavern.getContext` (base context) | `public/script.js:293` |
+| `MacrosParser.registerMacro/unregisterMacro` (via `registerHostMacro` seam) | `public/scripts/macros.js:184,227` (dual-engine bridge at `:205`) |
+| context `eventTypes` constants (keys resolved in `stHost/events.ts`) | `public/scripts/events.js` |
+| context `callGenericPopup`, `POPUP_TYPE` | `public/scripts/st-context.js:195,225` |
+| context `getTokenCountAsync` | `public/scripts/st-context.js:151` |
+| context `getRequestHeaders` | `public/scripts/st-context.js:129` |
+| context `characters` | `public/scripts/st-context.js:119` |
+| context `saveWorldInfo`, `loadWorldInfo` | `public/scripts/st-context.js:107` |
+| context `executeSlashCommandsWithOptions` | `public/scripts/st-context.js` (slash-commands.js:7033) |
+| `ScriptHostModule.setGenerationParamsFromPreset` | `public/script.js:8095` |
+| `ScriptHostModule.isGenerating` | `public/script.js:604` |
+| `WorldInfoHostModule.getWorldInfoSettings/createNewWorldInfo/createWorldInfoEntry/saveWorldInfo` | `public/scripts/world-info.js:795,4448,4137,4177` |
+| `TextgenSettingsHostModule.*` (presets, names, setting_names, setSettingByName) | `public/scripts/textgen-settings.js:245-248,1199` |
+| `LogitBiasHostModule.BIAS_CACHE/displayLogitBias` | `public/scripts/logit-bias.js:5,13` |
+| `RossModsHostModule.getMessageTimeStamp` | `public/scripts/RossAscends-mods.js:192` |
+| `GroupChatsHostModule.editGroup` | `public/scripts/group-chats.js:1359` |
+| `ExtensionsSharedHostModule.ConnectionManagerRequestService.{getSupportedProfiles,sendRequest}` | `public/scripts/extensions/shared.js:530,423` |
+
 ## External bases
 
 | Repo | License | Used by | Take |

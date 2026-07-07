@@ -1,7 +1,7 @@
 <|channel>thought
 <channel|>DELTA q=supplies value=3 evidence="The quartermaster counts three ration packs left in the crate."
 DELTA q=tension_current value="calm" evidence="The quartermaster counts three ration packs left in the crate."
-FACT importance=2 text="There are three ration packs remaining in the crate." evidence="The quartermaster counts three ration packs left in the crate."
-MEMORY type=detail importance=2 expiration=session entity="Quartermaster" character="Quartermaster" text="The quartermaster counted three ration packs left in the crate." evidence="The quartermaster counts three ration packs left in the crate."
+FACT importance=2 text="There are three ration packs remaining." evidence="The quartermaster counts three ration packs left in the crate."
+MEMORY type=detail importance=2 expiration=session entity="Quartermaster" character="Quartermaster" text="The quartermaster is managing the supplies." evidence="The quartermaster counts three ration packs left in the crate."
 SCENE_NONE
-[arc] Managing remaining supplies
+[arc] Managing dwindling food supplies.

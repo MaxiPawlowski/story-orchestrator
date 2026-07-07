@@ -70,6 +70,19 @@ describe("steering", () => {
     expect(getSteeringHint(0.5, null)).toBeNull();
   });
 
+  it("names the expected tension level in the hint text", () => {
+    expect(getSteeringHint(0.3, 0.75)?.text).toContain("critical");
+    expect(getSteeringHint(0.5, 0.5)?.text).toContain("tense");
+    expect(getSteeringHint(0.9, 0.25)?.text).toContain("stirring");
+  });
+
+  it("switches to strong wording past 0.5 drift", () => {
+    expect(getSteeringHint(0.1, 0.9)?.text).toContain("escalate sharply toward peak");
+    expect(getSteeringHint(0.25, 0.75)?.text).toContain("raise the tension toward critical");
+    expect(getSteeringHint(0.9, 0.2)?.text).toContain("wind down decisively");
+    expect(getSteeringHint(0.7, 0.3)?.text).toContain("ease the tension toward");
+  });
+
   it("interpolates a tension trajectory", () => {
     expect(getTensionTrajectory(0, 1, 3)).toEqual([0, 0.5, 1]);
     expect(getTensionTrajectory(0.5, 0.5, 1)).toEqual([0.5]);

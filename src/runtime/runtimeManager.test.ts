@@ -135,6 +135,30 @@ describe("RuntimeManager pacing", () => {
     expect(manager.getSnapshot().tension.smoothed).toBeNull();
     expect(mockExtensionPrompts.story_orchestrator_pacing).toBeUndefined();
   });
+
+  it("prefers the active checkpoint tension_target over the arc shape", async () => {
+    const manager = new RuntimeManager();
+    const targeted = { ...story, checkpoints: [{ ...story.checkpoints[0], tension_target: "peak" }, story.checkpoints[1]] };
+    await manager.importStory(JSON.stringify(targeted));
+    await manager.applyExtractionAudit(tensionAudit("stirring", 0.25), []);
+    mockContext.chat = [{ mes: "quiet camp" }];
+    await manager.commitBoundary();
+
+    const snapshot = manager.getSnapshot();
+    expect(snapshot.tension.expected).toBe(1);
+    expect(snapshot.tension.hint?.direction).toBe("escalate");
+    expect(mockExtensionPrompts.story_orchestrator_pacing?.value).toContain("peak");
+  });
+
+  it("falls back to the arc template when the checkpoint has no tension_target", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(story));
+    await manager.applyExtractionAudit(tensionAudit("stirring", 0.25), []);
+    mockContext.chat = [{ mes: "quiet camp" }];
+    await manager.commitBoundary();
+
+    expect(manager.getSnapshot().tension.expected).toBe(0.5);
+  });
 });
 
 describe("RuntimeManager memory migration", () => {
@@ -288,6 +312,80 @@ describe("RuntimeManager scene detection", () => {
     const shiftCalls = (executeSlashCommands as jest.Mock).mock.calls.filter(([command]) => typeof command === "string" && command.includes("The scene shifts."));
     expect(shiftCalls).toHaveLength(2);
     expect(manager.getSnapshot().memory.sceneCount).toBe(2);
+  });
+});
+
+describe("RuntimeManager short-term rolling compaction", () => {
+  const chatOf = (count: number) => Array.from({ length: count }, (_, index) => ({ name: index % 2 ? "Arin" : "Max", mes: `Message ${index} of the long scene.` }));
+
+  beforeEach(() => {
+    resetHost();
+    delete globalThis.storyOrchestratorDebugShortTermResponse;
+  });
+
+  it("compacts once enough messages accumulate, then holds until the watermark is passed again", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(sceneStory));
+    mockContext.chat = chatOf(6);
+    expect(manager.shouldCompactShortTerm(5)).toBe(false);
+
+    mockContext.chat = chatOf(13);
+    expect(manager.shouldCompactShortTerm(12)).toBe(true);
+    globalThis.storyOrchestratorDebugShortTermResponse = "The party searched the ruins for hours.";
+    await manager.runShortTermCompaction();
+
+    const entries = manager.getSnapshot().memory.entries.filter((entry) => entry.tier === "short_term");
+    expect(entries).toHaveLength(1);
+    expect(entries[0].text).toBe("The party searched the ruins for hours.");
+    expect(manager.shouldCompactShortTerm(12)).toBe(false);
+  });
+
+  it("replaces the previous rolling entry instead of appending", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(sceneStory));
+    mockContext.chat = chatOf(13);
+    globalThis.storyOrchestratorDebugShortTermResponse = "First rolling summary.";
+    await manager.runShortTermCompaction();
+    mockContext.chat = chatOf(26);
+    globalThis.storyOrchestratorDebugShortTermResponse = "Second rolling summary.";
+    await manager.runShortTermCompaction();
+
+    const entries = manager.getSnapshot().memory.entries.filter((entry) => entry.tier === "short_term");
+    expect(entries).toHaveLength(1);
+    expect(entries[0].text).toBe("Second rolling summary.");
+  });
+
+  it("recompacts over the same window (write-log coverage must not block the rolling replace)", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(sceneStory));
+    mockContext.chat = chatOf(13);
+    globalThis.storyOrchestratorDebugShortTermResponse = "First pass.";
+    await manager.runShortTermCompaction();
+    (manager as unknown as { extras: { memory: { shortTermSummaryEnd: number } } }).extras.memory.shortTermSummaryEnd = -1;
+    globalThis.storyOrchestratorDebugShortTermResponse = "Second pass over the same window.";
+    await manager.runShortTermCompaction();
+
+    const entries = manager.getSnapshot().memory.entries.filter((entry) => entry.tier === "short_term");
+    expect(entries).toHaveLength(1);
+    expect(entries[0].text).toBe("Second pass over the same window.");
+  });
+
+  it("leaves a pinned rolling summary untouched", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(sceneStory));
+    mockContext.chat = chatOf(13);
+    globalThis.storyOrchestratorDebugShortTermResponse = "Pinned summary.";
+    await manager.runShortTermCompaction();
+    const id = manager.getSnapshot().memory.entries.find((entry) => entry.tier === "short_term")?.id ?? "";
+    manager.setMemoryPinned(id, true);
+
+    mockContext.chat = chatOf(26);
+    globalThis.storyOrchestratorDebugShortTermResponse = "Should not land.";
+    await manager.runShortTermCompaction();
+
+    const entries = manager.getSnapshot().memory.entries.filter((entry) => entry.tier === "short_term");
+    expect(entries).toHaveLength(1);
+    expect(entries[0].text).toBe("Pinned summary.");
   });
 });
 
@@ -887,5 +985,27 @@ describe("RuntimeManager plan-13 surfacing", () => {
     expect(await manager.showAwayRecap()).toBe(true);
     expect(manager.getAwayRecap()).toBeNull();
     expect(await manager.showAwayRecap()).toBe(false);
+  });
+
+  it("strips channel noise from persisted memory prose on hydrate", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(gatedStory));
+    await manager.applyExtractionAudit({ ...sceneBreakAudit(), sceneBreak: undefined }, [], [
+      { tier: "session_details", type: "detail", importance: 1, expiration: "session", entities: [], text: "Clean detail.", evidence: "quote" },
+    ]);
+    const metadata = mockContext.chatMetadata.story_orchestrator as { stories: Record<string, { extras: { memory: { entries: Array<{ text: string }>; arcs: unknown[]; canon: unknown } } }> };
+    const hash = Object.keys(metadata.stories)[0];
+    const memory = metadata.stories[hash].extras.memory;
+    memory.entries[0].text = "<|channel>thought\n<channel|>The party searched the ruins.";
+    memory.arcs = [{ id: "arc-1", text: "<channel|>Find the key.", status: "resolved", summary: "<|channel>thought\nKey found.", openedAt: 0, messageId: 0 }];
+    memory.canon = { text: "<|channel>thought\n<channel|>Canon so far.", inputHash: "x", updatedAt: "2026-07-06T00:00:00.000Z" };
+
+    await manager.selectStory(hash, "hydrate");
+    const snapshot = manager.getSnapshot();
+    expect(snapshot.memory.entries[0].text).toBe("The party searched the ruins.");
+    const arcs = manager.getArcs();
+    expect(arcs[0].text).toBe("Find the key.");
+    expect(arcs[0].summary).toBe("Key found.");
+    expect(manager.getCanon()).toContain("Canon so far.");
   });
 });

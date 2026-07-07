@@ -4,10 +4,11 @@ DELTA q=door_open value=true evidence="Vex wrenches the vault door open"
 DELTA q=guards value=2 evidence="two guards round the corner"
 DELTA q=tension_current value="tense" evidence="the alarm begins to wail and two guards round the corner"
 
-FACT importance=2 text="Vex opened the vault door" evidence="Vex wrenches the vault door open"
-MEMORY type=detail importance=2 expiration=session entity="Vex" character="Vex" text="Vex opened the vault door" evidence="Vex wrenches the vault door open"
-MEMORY type=scene importance=2 expiration=scene text="The alarm is sounding and two guards have arrived" evidence="the alarm begins to wail and two guards round the corner"
+FACT importance=2 text="Vex is capable of opening the vault door" evidence="Vex wrenches the vault door open"
+
+MEMORY type=event importance=2 expiration=session entity="Vex" character="Vex" text="Vex opened the vault door as the alarm triggered and guards arrived" evidence="Vex wrenches the vault door open just as the alarm begins to wail and two guards round the corner"
+MEMORY type=scene importance=2 expiration=scene text="The vault door is open, the alarm is sounding, and two guards are approaching" evidence="Vex wrenches the vault door open just as the alarm begins to wail and two guards round the corner"
 
 SCENE_NONE
 
-[arc] Vex must deal with the two guards and the sounding alarm.
+[arc] Vex's escape or confrontation with the guards now that the vault is open.

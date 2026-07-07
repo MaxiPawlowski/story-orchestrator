@@ -1,12 +1,12 @@
 import { Blackboard, StoryEngine, effectiveThresholdFor, evaluateGate, isValidationErrorList, progressQualityForAnchor, renderGateText, TENSION_CURRENT_KEY, type ApplyQueueEntry, type ArcTemplate, type BlackboardDelta, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type StoryV2, type TensionLevel, type ValidationError } from "@engine/index";
 import { runAuthoringStage, runDriverReport, runDriverSuggest, type CopilotMessage, type CopilotStage, type DriverContext, type ProposalResult, type Suggestion } from "@copilot/index";
-import { callExtractionModel, deriveFullScope, deriveScope, getCanonLite, getChatWindow, getLastMessageText, runSharedRead, type ParsedDelta, type ParsedFact, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
+import { callExtractionModel, deriveFullScope, deriveScope, getCanonLite, getChatWindow, getLastMessageText, runSharedRead, stripChannelNoise, type ParsedDelta, type ParsedFact, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
 import { findStubExpansionCandidate, collectExpansionGateSources, generateReviewedBeats, insertedCheckpointIds, mergeExpansions, planExpansion, revalidateExpansion, type ExpansionCacheEntry, type ExpansionRuntimeState, type StubExpansionCandidate } from "@generation/index";
-import { addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicInjection, applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildBoundKeySet, buildEpistemicPassPrompt, buildLedgerPassPrompt, buildLedgerView, capEpistemic, capLedger, clearEpistemicInjection, activeEpistemic, memoryExtensionKey, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, removeEpistemic, removeLedger, renderLedgerBlock, renderPrivateEpistemicBlock, rollbackEpistemic, rollbackLedger, setEpistemicPinned, setLedgerPinned, type EpistemicEntry, type LedgerBinding, type LedgerView, type ParsedEpistemicSignal, type ParsedLedgerSignal, buildArcSummaryPrompt, buildCanonSummaryPrompt, buildJaccardMatchSets, buildMemoryInjectionBlocks, buildSceneSummaryPrompt, canonInputHash, capAllTiers, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, createMemoryState, DEFAULT_DEDUP_THRESHOLDS, DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS, detectSceneBreakHeuristic, dropByMessageId, editEntryText, excludeEntry, expireScoped, generateMemoryId, hashMemoryText, markContradicted, matchArcBridges, openArcTexts, removeArc, resolvedArcs, rollbackArcs, setArcPinned, setArcSummary, setPinned, type ArcEntry, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedMemoryLine, type ScoreContext, type UncertainPair } from "@memory/index";
-import { expectedTension, getSteeringHint, numericToLevel, updateEma } from "@pacing/index";
+import { addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicInjection, applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildBoundKeySet, buildEpistemicPassPrompt, buildLedgerPassPrompt, buildLedgerView, capEpistemic, capLedger, clearEpistemicInjection, activeEpistemic, memoryExtensionKey, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, removeEpistemic, removeLedger, renderLedgerBlock, renderPrivateEpistemicBlock, rollbackEpistemic, rollbackLedger, setEpistemicPinned, setLedgerPinned, type EpistemicEntry, type LedgerBinding, type LedgerView, type ParsedEpistemicSignal, type ParsedLedgerSignal, buildArcSummaryPrompt, buildCanonSummaryPrompt, buildJaccardMatchSets, buildMemoryInjectionBlocks, buildSceneSummaryPrompt, buildShortTermSummaryPrompt, canonInputHash, capAllTiers, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, createMemoryState, DEFAULT_DEDUP_THRESHOLDS, DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS, detectSceneBreakHeuristic, dropByMessageId, editEntryText, excludeEntry, expireScoped, generateMemoryId, hashMemoryText, markContradicted, matchArcBridges, openArcTexts, removeArc, resolvedArcs, rollbackArcs, setArcPinned, setArcSummary, setPinned, type ArcEntry, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedMemoryLine, type ScoreContext, type UncertainPair } from "@memory/index";
+import { expectedTension, getSteeringHint, levelToNumeric, numericToLevel, updateEma } from "@pacing/index";
 import { clearStoryExtensionPrompt, countTokens, DEFAULT_VECTOR_SOURCE, disableWIEntry, getActiveGroup, getCharacterNameById, getContext, readInjectedPromptBlocks, resolveGroupMemberId, setStoryExtensionPrompt, showTextPopup, upsertWIEntry, vectorInsert, vectorPurge, vectorQuery } from "@services/STAPI";
 import { buildAwayRecap, shouldShowAwayRecap, type AwayRecap } from "./awayRecap";
-import { COPILOT_NUDGE_KEY, DEFAULT_TENSION_EMA_ALPHA, EPISTEMIC_INJECTION_DEPTH, LEDGER_INJECTION_DEPTH, MEMORY_TIER_INJECTION_DEPTHS, PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
+import { COPILOT_NUDGE_KEY, DEFAULT_TENSION_EMA_ALPHA, EPISTEMIC_INJECTION_DEPTH, LEDGER_INJECTION_DEPTH, MEMORY_TIER_INJECTION_DEPTHS, PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY, SHORT_TERM_COMPACTION_MESSAGES } from "@constants/defaults";
 import { EffectsApplier } from "./effectsApplier";
 import { evaluateRequirements } from "./requirements";
 import { loadPersistedRuntime, savePersistedRuntime, setSelectedStoryHash, getSelectedStoryHash } from "./persistence";
@@ -15,7 +15,7 @@ import type { ConvergenceReadout, CopilotRuntimeSettings, ExtractionRuntimeSetti
 
 const emptyRequirements = { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] };
 
-const defaultExtractionSettings = (): ExtractionRuntimeSettings => ({ enabled: false, profileId: null, cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 1 });
+const defaultExtractionSettings = (): ExtractionRuntimeSettings => ({ enabled: false, profileId: null, cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 });
 
 const defaultPacingSettings = (): PacingSettings => ({ alpha: DEFAULT_TENSION_EMA_ALPHA, shapeOverride: null, hintEnabled: true });
 
@@ -58,6 +58,7 @@ const createMemory = (): MemoryRuntimeState => ({
   settings: defaultMemorySettings(),
   backfill: null,
   sceneCount: 0,
+  shortTermSummaryEnd: -1,
   wiWrites: {},
   arcs: [],
   epistemic: [],
@@ -86,17 +87,18 @@ const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeState =>
   const existing = value?.memory;
   if (existing && Array.isArray(existing.entries)) {
     return {
-      entries: existing.entries,
+      entries: existing.entries.map((entry) => ({ ...entry, text: stripChannelNoise(entry.text) })),
       excluded: Array.isArray(existing.excluded) ? existing.excluded : [],
       writeLog: Array.isArray(existing.writeLog) ? existing.writeLog.slice(-100) : [],
       settings: { ...defaultMemorySettings(), ...existing.settings },
       backfill: existing.backfill ? { ...existing.backfill, running: false } : null,
       sceneCount: typeof existing.sceneCount === "number" ? existing.sceneCount : 0,
+      shortTermSummaryEnd: typeof existing.shortTermSummaryEnd === "number" ? existing.shortTermSummaryEnd : -1,
       wiWrites: existing.wiWrites && typeof existing.wiWrites === "object" ? existing.wiWrites : {},
-      arcs: Array.isArray(existing.arcs) ? existing.arcs : [],
+      arcs: Array.isArray(existing.arcs) ? existing.arcs.map((arc) => ({ ...arc, text: stripChannelNoise(arc.text), ...(arc.summary ? { summary: stripChannelNoise(arc.summary) } : {}) })) : [],
       epistemic: Array.isArray(existing.epistemic) ? existing.epistemic : [],
       ledger: Array.isArray(existing.ledger) ? existing.ledger : [],
-      canon: existing.canon && typeof existing.canon === "object" ? existing.canon : null,
+      canon: existing.canon && typeof existing.canon === "object" ? { ...existing.canon, text: stripChannelNoise(existing.canon.text) } : null,
       updatedAt: existing.updatedAt ?? new Date().toISOString(),
     };
   }
@@ -108,6 +110,7 @@ const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeState =>
     settings: defaultMemorySettings(),
     backfill: null,
     sceneCount: 0,
+    shortTermSummaryEnd: -1,
     wiWrites: {},
     arcs: [],
     epistemic: [],
@@ -667,7 +670,7 @@ export class RuntimeManager {
         profileId: settings.profileId,
         debugResponse: globalThis.storyOrchestratorDebugArcSummaryResponse ?? null,
       });
-      const trimmed = summary.trim();
+      const trimmed = stripChannelNoise(summary);
       if (!trimmed) continue;
       this.extras.memory = { ...this.extras.memory, arcs: setArcSummary(this.extras.memory.arcs, id, trimmed), updatedAt: new Date().toISOString() };
       changed = true;
@@ -710,7 +713,7 @@ export class RuntimeManager {
     const summaryEntry: MemoryEntry = {
       id: generateMemoryId(),
       tier: "scene_history",
-      text: summary.trim(),
+      text: stripChannelNoise(summary),
       type: "scene",
       importance: 2,
       expiration: "permanent",
@@ -732,6 +735,50 @@ export class RuntimeManager {
     await this.persist();
     this.notify();
     await this.syncWorldInfo();
+  }
+
+  shouldCompactShortTerm(lastMessageId: number): boolean {
+    if (!this.loaded || !this.extras.memory.settings.enabled) return false;
+    return lastMessageId - this.extras.memory.shortTermSummaryEnd >= SHORT_TERM_COMPACTION_MESSAGES;
+  }
+
+  async runShortTermCompaction() {
+    if (!this.loaded || !this.extras.memory.settings.enabled) return;
+    const lastId = (Array.isArray(getContext().chat) ? getContext().chat.length : 0) - 1;
+    if (!this.shouldCompactShortTerm(lastId)) return;
+    const window = getChatWindow(this.extras.memory.shortTermSummaryEnd + 1, lastId);
+    const recentText = window.messages.map((message) => `${message.speaker}: ${message.text}`).join("\n");
+    if (!recentText) return;
+    const previous = this.extras.memory.entries.find((entry) => entry.tier === "short_term");
+    if (previous?.pinned) return;
+    const settings = this.getExtractionSettings();
+    const summary = stripChannelNoise(await callExtractionModel(buildShortTermSummaryPrompt(previous?.text ?? null, recentText), {
+      profileId: settings.profileId,
+      debugResponse: globalThis.storyOrchestratorDebugShortTermResponse ?? null,
+    }));
+    if (!summary) return;
+    const state = this.engine.serialize();
+    const entry: MemoryEntry = {
+      id: generateMemoryId(),
+      tier: "short_term",
+      text: summary,
+      type: "scene",
+      importance: 2,
+      expiration: "session",
+      entities: [],
+      confidence: 1,
+      activationTriggers: [],
+      evidence: recentText,
+      createdAt: state.boundary,
+      messageId: window.to,
+      recallCount: 0,
+    };
+    await this.computeEntryTokens([entry]);
+    const entries = [...this.extras.memory.entries.filter((candidate) => candidate.tier !== "short_term"), entry];
+    this.extras.memory = { ...this.extras.memory, entries, shortTermSummaryEnd: window.to, updatedAt: new Date().toISOString() };
+    this.updateMemoryInjection();
+    await this.persist();
+    this.notify();
   }
 
   private enabledCharacterNames(): string[] {
@@ -765,7 +812,7 @@ export class RuntimeManager {
     });
     const epistemicSignals: ParsedEpistemicSignal[] = [];
     const retireIndices = new Set<number>();
-    for (const line of epistemicResponse.split(/\r?\n/)) {
+    for (const line of stripChannelNoise(epistemicResponse).split(/\r?\n/)) {
       const trimmed = line.trim();
       if (!trimmed || trimmed.toUpperCase() === "NONE") continue;
       parseEpistemicRetire(trimmed).forEach((index) => retireIndices.add(index));
@@ -780,7 +827,7 @@ export class RuntimeManager {
       debugResponse: globalThis.storyOrchestratorDebugLedgerResponse ?? null,
     });
     const ledgerSignals: ParsedLedgerSignal[] = [];
-    for (const line of ledgerResponse.split(/\r?\n/)) ledgerSignals.push(...parseLedgerLine(line.trim()));
+    for (const line of stripChannelNoise(ledgerResponse).split(/\r?\n/)) ledgerSignals.push(...parseLedgerLine(line.trim()));
     const appliedLedger = applyLedgerSignals(this.extras.memory.ledger, ledgerSignals, buildBoundKeySet(this.ledgerBindings()), { boundary: state.boundary, messageId: audit.window.to });
 
     this.extras.memory = { ...this.extras.memory, epistemic: capEpistemic(appliedEpistemic.entries), ledger: capLedger(appliedLedger), updatedAt: new Date().toISOString() };
@@ -977,7 +1024,7 @@ export class RuntimeManager {
         profileId: settings.profileId,
         debugResponse: globalThis.storyOrchestratorDebugCanonResponse ?? null,
       });
-      const trimmed = text.trim();
+      const trimmed = stripChannelNoise(text);
       if (!trimmed) return false;
       this.extras.memory = { ...this.extras.memory, canon: { text: trimmed, inputHash, updatedAt: new Date().toISOString() }, updatedAt: new Date().toISOString() };
       await this.persist();
@@ -1289,9 +1336,12 @@ export class RuntimeManager {
   }
 
   private computeExpectedTension(): number | null {
-    const shape = this.effectiveShape();
     const story = this.loaded?.story;
-    if (!shape || !story) return null;
+    if (!story) return null;
+    const target = this.engine.activeCheckpoint?.tension_target;
+    if (target) return levelToNumeric(target);
+    const shape = this.effectiveShape();
+    if (!shape) return null;
     const totalAnchors = story.checkpoints.filter((checkpoint) => checkpoint.type === "anchor").length;
     if (totalAnchors === 0) return null;
     const progress = this.engine.serialize().visitedAnchors.length / totalAnchors;

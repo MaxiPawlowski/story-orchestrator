@@ -59,6 +59,9 @@ export function startRuntime() {
     runtimeManager.scheduleExpansionForActive((reason, run) => scheduler?.schedule({ priority: 3, reason, run }));
     const sceneHit = runtimeManager.detectSceneBreak();
     if (sceneHit?.hit) scheduler.schedule({ priority: 0, reason: `scene:${sceneHit.reason}` });
+    if (runtimeManager.shouldCompactShortTerm(result.context.lastMessageId)) {
+      scheduler.schedule({ priority: 2, reason: "short-term-compaction", run: async () => { await runtimeManager.runShortTermCompaction(); } });
+    }
     if (result.boundary > 0 && result.boundary % CONSOLIDATION_CADENCE === 0) {
       scheduler.schedule({ priority: 4, reason: "consolidate", run: async () => { await runtimeManager.runConsolidation(); } });
     }
@@ -82,10 +85,10 @@ export function startRuntime() {
   bridge = new TurnBridge(runtimeManager);
   bridge.start();
   const privateInjectionEntries: HostSubscriptionEntry[] = [
-    { eventName: "group_member_drafted", handler: (characterId) => runtimeManager.onMemberDrafted(characterId as number | [number]) },
-    { eventName: "generation_started", handler: () => runtimeManager.capturePayload() },
-    { eventName: "generation_ended", handler: () => { runtimeManager.clearPrivateInjection(); runtimeManager.clearCopilotNudge(); } },
-    { eventName: "generation_stopped", handler: () => { runtimeManager.clearPrivateInjection(); runtimeManager.clearCopilotNudge(); } },
+    { eventName: "GROUP_MEMBER_DRAFTED", handler: (characterId) => runtimeManager.onMemberDrafted(characterId as number | [number]) },
+    { eventName: "GENERATION_STARTED", handler: () => runtimeManager.capturePayload() },
+    { eventName: "GENERATION_ENDED", handler: () => { runtimeManager.clearPrivateInjection(); runtimeManager.clearCopilotNudge(); } },
+    { eventName: "GENERATION_STOPPED", handler: () => { runtimeManager.clearPrivateInjection(); runtimeManager.clearCopilotNudge(); } },
   ];
   privateInjectionUnsub = subscribeToHostEvents(privateInjectionEntries);
   void runtimeManager.loadSelectedFromChat();

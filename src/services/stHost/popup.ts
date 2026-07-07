@@ -1,6 +1,4 @@
-import { popupModule } from "./modules";
-
-const POPUP_TYPE_TEXT = 1;
+import { getContext } from "./context";
 
 export interface TextPopupOptions {
   okButton?: string;
@@ -8,10 +6,14 @@ export interface TextPopupOptions {
 }
 
 export async function showTextPopup(content: string | HTMLElement, options: TextPopupOptions = {}): Promise<void> {
-  const popup = popupModule as unknown as { callGenericPopup?: (content: string | HTMLElement, type: number, inputValue?: string, popupOptions?: Record<string, unknown>) => Promise<unknown> };
-  if (typeof popup.callGenericPopup !== "function") {
+  const context = getContext() as unknown as {
+    callGenericPopup?: (content: string | HTMLElement, type: number, inputValue?: string, popupOptions?: Record<string, unknown>) => Promise<unknown>;
+    POPUP_TYPE?: { TEXT?: number };
+  };
+  if (typeof context.callGenericPopup !== "function") {
     console.warn("[Story Orchestrator] host has no callGenericPopup; popup suppressed");
     return;
   }
-  await popup.callGenericPopup(content, POPUP_TYPE_TEXT, "", { okButton: options.okButton ?? "OK", wide: options.wide ?? false, allowVerticalScrolling: true });
+  const type = context.POPUP_TYPE?.TEXT ?? 1;
+  await context.callGenericPopup(content, type, "", { okButton: options.okButton ?? "OK", wide: options.wide ?? false, allowVerticalScrolling: true });
 }

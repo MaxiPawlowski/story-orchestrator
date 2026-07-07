@@ -1,4 +1,4 @@
-import { scriptModule } from "./modules";
+import { getContext } from "./context";
 
 export const DEFAULT_VECTOR_SOURCE = "transformers";
 
@@ -14,9 +14,10 @@ export interface VectorMatch {
 }
 
 function post(path: string, body: unknown): Promise<Response> {
+  const context = getContext() as unknown as { getRequestHeaders: () => Record<string, string> };
   return fetch(path, {
     method: "POST",
-    headers: scriptModule.getRequestHeaders(),
+    headers: context.getRequestHeaders(),
     body: JSON.stringify(body),
   });
 }

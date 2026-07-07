@@ -45,7 +45,7 @@ describe("TurnBridge boundary commits", () => {
     const bridge = new TurnBridge(manager as unknown as RuntimeManager);
     bridge.start();
 
-    await emit("character_message_rendered");
+    await emit("CHARACTER_MESSAGE_RENDERED");
 
     expect(manager.fireAfterSpeak).toHaveBeenCalledTimes(1);
     expect(manager.commitBoundary).toHaveBeenCalledTimes(1);
@@ -57,10 +57,10 @@ describe("TurnBridge boundary commits", () => {
     bridge.start();
 
     hostGenerating = true;
-    await emit("message_received");
+    await emit("MESSAGE_RECEIVED");
     expect(manager.commitBoundary).not.toHaveBeenCalled();
 
-    await emit("generation_ended");
+    await emit("GENERATION_ENDED");
     expect(manager.commitBoundary).not.toHaveBeenCalled();
 
     hostGenerating = false;
@@ -75,13 +75,13 @@ describe("TurnBridge boundary commits", () => {
     const bridge = new TurnBridge(manager as unknown as RuntimeManager);
     bridge.start();
 
-    await emit("message_received");
-    await emit("character_message_rendered");
+    await emit("MESSAGE_RECEIVED");
+    await emit("CHARACTER_MESSAGE_RENDERED");
 
     expect(manager.commitBoundary).toHaveBeenCalledTimes(1);
 
     jest.advanceTimersByTime(300);
-    await emit("character_message_rendered");
+    await emit("CHARACTER_MESSAGE_RENDERED");
     expect(manager.commitBoundary).toHaveBeenCalledTimes(2);
   });
 
@@ -91,8 +91,8 @@ describe("TurnBridge boundary commits", () => {
     bridge.start();
 
     hostGenerating = true;
-    await emit("message_received");
-    await emit("chat_id_changed");
+    await emit("MESSAGE_RECEIVED");
+    await emit("CHAT_CHANGED");
 
     hostGenerating = false;
     jest.advanceTimersByTime(1000);
@@ -108,7 +108,7 @@ describe("TurnBridge boundary commits", () => {
     bridge.start();
 
     hostGenerating = true;
-    await emit("message_received");
+    await emit("MESSAGE_RECEIVED");
     bridge.stop();
 
     hostGenerating = false;

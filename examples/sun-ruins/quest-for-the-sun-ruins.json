@@ -4,15 +4,83 @@
   "description": "Humanity's last survivors shelter in the ruined city of Xentar as its magical wards fail. The Adventurers Guild sends a team to recover the legendary Sun's Heart Artifact from the perilous Sun Ruins, past ancient traps and a riddling sphinx.",
   "arc_template": "rising",
   "qualities": [
-    { "key": "approached_board", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player move close to or examine the guild job board?" },
-    { "key": "mission_accepted", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the party accept the Sun Ruins mission from the board?" },
-    { "key": "luke_decision", "type": "enum", "values": ["undecided", "accepted", "declined"], "source": "extractor", "rubric": "Has the player decided whether to bring Luke along? accepted if they agree, declined if they refuse, otherwise undecided." },
-    { "key": "riddle_answer", "type": "enum", "values": ["unanswered", "moon", "wrong"], "source": "extractor", "scope_hint": { "from": "cp3", "until": "cp-5" }, "rubric": "What answer was given to the sphinx's riddle? moon if the correct answer 'the moon' was spoken, wrong if an incorrect answer was given, otherwise unanswered." },
-    { "key": "luke_alive", "type": "bool", "source": "extractor", "rubric": "Is Luke still alive?" },
-    { "key": "chamber_entered", "type": "bool", "source": "extractor", "latching": true, "rubric": "Has the party entered the inner chamber where the artifact rests?" },
-    { "key": "artifact_secured", "type": "bool", "source": "extractor", "latching": true, "rubric": "Has the party secured the Sun's Heart Artifact?" },
-    { "key": "reward_claimed", "type": "bool", "source": "extractor", "latching": true, "rubric": "Has the party returned to the guild and claimed their reward?" },
-    { "key": "guardian_respect", "type": "int", "source": "extractor", "ledger_binding": { "entity": "Sphinx", "field": "respect" }, "rubric": "How much does the sphinx guardian respect the party, from 0 (contempt) to 5 (deep respect)?" }
+    {
+      "key": "approached_board",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Did the player move close to or examine the guild job board?"
+    },
+    {
+      "key": "mission_accepted",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Did the party accept the Sun Ruins mission from the board?"
+    },
+    {
+      "key": "luke_decision",
+      "type": "enum",
+      "values": [
+        "undecided",
+        "accepted",
+        "declined"
+      ],
+      "source": "extractor",
+      "rubric": "Has the player decided whether to bring Luke along? accepted if they agree, declined if they refuse, otherwise undecided."
+    },
+    {
+      "key": "riddle_answer",
+      "type": "enum",
+      "values": [
+        "unanswered",
+        "moon",
+        "wrong"
+      ],
+      "source": "extractor",
+      "scope_hint": {
+        "from": "cp3",
+        "until": "cp-5"
+      },
+      "rubric": "What answer was given to the sphinx's riddle? moon if the correct answer 'the moon' was spoken, wrong if an incorrect answer was given, otherwise unanswered."
+    },
+    {
+      "key": "luke_alive",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Is Luke still alive?"
+    },
+    {
+      "key": "chamber_entered",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the party entered the inner chamber where the artifact rests?"
+    },
+    {
+      "key": "artifact_secured",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the party secured the Sun's Heart Artifact?"
+    },
+    {
+      "key": "reward_claimed",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the party returned to the guild and claimed their reward?"
+    },
+    {
+      "key": "guardian_respect",
+      "type": "int",
+      "source": "extractor",
+      "ledger_binding": {
+        "entity": "Sphinx",
+        "field": "respect"
+      },
+      "rubric": "How much does the sphinx guardian respect the party, from 0 (contempt) to 5 (deep respect)?"
+    }
   ],
   "checkpoints": [
     {
@@ -25,10 +93,37 @@
       "guidance": "A relaxed guild-hall opening. Let the player wander toward the job board at their own pace.",
       "target_turn_length": 3,
       "effects": {
-        "author_note": { "text": "[Keep the pacing relaxed. Describe the guild tavern's noise and atmosphere as {{story_player_name}} approaches the job board. {{story_role_companion}} is strapping on armor and teasing {{story_player_name}} about being late.]", "position": "chat", "depth": 4, "interval": 3, "role": "system" },
-        "preset": { "name": "Story: Sun Ruins", "settings": { "temp": 0.65, "top_p": 0.95 } },
-        "world_info": { "enable": [{ "lorebook": "Xentar Checkpoints", "comments": ["CP1 - Mission", "CP1 - Scenario"] }] },
-        "cast_changes": { "disable": ["Ponticius", "Luke"] }
+        "author_note": {
+          "text": "[Keep the pacing relaxed. Describe the guild tavern's noise and atmosphere as {{story_player_name}} approaches the job board. {{story_role_companion}} is strapping on armor and teasing {{story_player_name}} about being late.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 3,
+          "role": "system"
+        },
+        "preset": {
+          "name": "Story: Sun Ruins",
+          "settings": {
+            "temp": 0.65,
+            "top_p": 0.95
+          }
+        },
+        "world_info": {
+          "enable": [
+            {
+              "lorebook": "Xentar Checkpoints",
+              "comments": [
+                "CP1 - Mission",
+                "CP1 - Scenario"
+              ]
+            }
+          ]
+        },
+        "cast_changes": {
+          "disable": [
+            "Ponticius",
+            "Luke"
+          ]
+        }
       }
     },
     {
@@ -39,12 +134,46 @@
       "tension_target": "stirring",
       "target_turn_length": 3,
       "effects": {
-        "author_note": { "text": "[Emphasize the worn Sun Ruins posting among the others. When {{story_player_name}} commits, have {{story_role_guild_master}} intervene with calm seriousness about the city's failing wards. Keep it short and personal.]", "position": "chat", "depth": 4, "interval": 3, "role": "system" },
-        "world_info": { "enable": [{ "lorebook": "Xentar Checkpoints", "comments": ["CP2 - Mission", "CP2 - Scenario"] }] },
-        "cast_changes": { "enable": ["Ponticius"] },
+        "author_note": {
+          "text": "[Emphasize the worn Sun Ruins posting among the others. When {{story_player_name}} commits, have {{story_role_guild_master}} intervene with calm seriousness about the city's failing wards. Keep it short and personal.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 3,
+          "role": "system"
+        },
+        "world_info": {
+          "enable": [
+            {
+              "lorebook": "Xentar Checkpoints",
+              "comments": [
+                "CP2 - Mission",
+                "CP2 - Scenario"
+              ]
+            }
+          ]
+        },
+        "cast_changes": {
+          "enable": [
+            "Ponticius"
+          ]
+        },
         "npc_replies": [
-          { "trigger": "onEnter", "member": "DM Narrator", "kind": "llm", "instruction": "[Narrate how {{story_player_name}} takes the mission paper from the board, and describe the Sun Ruins mission and its reward.]", "maxTriggers": 1, "probability": 1 },
-          { "trigger": "afterSpeak", "member": "Ponticius", "kind": "llm", "instruction": "[Warn {{story_player_name}} that the Sun Ruins are unstable and stress the importance of retrieving the artifact to restore Xentar's wards. Keep it brief but impactful.]", "maxTriggers": 1, "probability": 1 }
+          {
+            "trigger": "onEnter",
+            "member": "DM Narrator",
+            "kind": "llm",
+            "instruction": "[Narrate how {{story_player_name}} takes the mission paper from the board, and describe the Sun Ruins mission and its reward.]",
+            "maxTriggers": 1,
+            "probability": 1
+          },
+          {
+            "trigger": "afterSpeak",
+            "member": "Ponticius",
+            "kind": "llm",
+            "instruction": "[Warn {{story_player_name}} that the Sun Ruins are unstable and stress the importance of retrieving the artifact to restore Xentar's wards. Keep it brief but impactful.]",
+            "maxTriggers": 1,
+            "probability": 1
+          }
         ]
       }
     },
@@ -56,11 +185,40 @@
       "tension_target": "stirring",
       "target_turn_length": 3,
       "effects": {
-        "author_note": { "text": "[Introduce Luke shortly after {{story_role_guild_master}} exits. He interrupts with urgency about his missing brother in the Sun Ruins, and pleads to join. Let {{story_player_name}} decide whether to take him. {{story_role_companion}} shows skepticism but restraint.]", "position": "chat", "depth": 4, "interval": 3, "role": "system" },
-        "world_info": { "enable": [{ "lorebook": "Xentar Checkpoints", "comments": ["CP3 - Luke"] }] },
-        "cast_changes": { "disable": ["Ponticius"], "enable": ["Luke"] },
+        "author_note": {
+          "text": "[Introduce Luke shortly after {{story_role_guild_master}} exits. He interrupts with urgency about his missing brother in the Sun Ruins, and pleads to join. Let {{story_player_name}} decide whether to take him. {{story_role_companion}} shows skepticism but restraint.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 3,
+          "role": "system"
+        },
+        "world_info": {
+          "enable": [
+            {
+              "lorebook": "Xentar Checkpoints",
+              "comments": [
+                "CP3 - Luke"
+              ]
+            }
+          ]
+        },
+        "cast_changes": {
+          "disable": [
+            "Ponticius"
+          ],
+          "enable": [
+            "Luke"
+          ]
+        },
         "npc_replies": [
-          { "trigger": "onEnter", "member": "Luke", "kind": "llm", "instruction": "[Describe Luke's urgent plea to join the mission, explaining his brother's disappearance in the Sun Ruins. Let {{story_player_name}} feel the weight of the decision.]", "maxTriggers": 1, "probability": 1 }
+          {
+            "trigger": "onEnter",
+            "member": "Luke",
+            "kind": "llm",
+            "instruction": "[Describe Luke's urgent plea to join the mission, explaining his brother's disappearance in the Sun Ruins. Let {{story_player_name}} feel the weight of the decision.]",
+            "maxTriggers": 1,
+            "probability": 1
+          }
         ]
       }
     },
@@ -70,11 +228,30 @@
       "objective": "Reach the Sun Ruins with Luke and face the sphinx's riddle.",
       "type": "intermediate",
       "tension_target": "tense",
-      "state_snapshot": { "luke_alive": true },
+      "state_snapshot": {
+        "luke_alive": true
+      },
       "guidance": "The sphinx blocks the only way in. It can be passed by answering its riddle — or by earning its deep respect.",
       "effects": {
-        "author_note": { "text": "[Trigger the sphinx encounter. Stop the party with its riddle before they can advance: 'I am always coming but never arrive; I follow the sun yet rule the night. What am I?' (answer: the moon). {{story_role_companion}} distrusts the sphinx; Luke is eager and reckless.]", "position": "chat", "depth": 4, "interval": 3, "role": "system" },
-        "world_info": { "enable": [{ "lorebook": "Xentar Checkpoints", "comments": ["CP4 - Scenario", "CP4 - Sphinx", "CP4 - Sphinx's Riddle"] }] }
+        "author_note": {
+          "text": "[Trigger the sphinx encounter. Stop the party with its riddle before they can advance: 'I am always coming but never arrive; I follow the sun yet rule the night. What am I?' (answer: the moon). {{story_role_companion}} distrusts the sphinx; Luke is eager and reckless.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 3,
+          "role": "system"
+        },
+        "world_info": {
+          "enable": [
+            {
+              "lorebook": "Xentar Checkpoints",
+              "comments": [
+                "CP4 - Scenario",
+                "CP4 - Sphinx",
+                "CP4 - Sphinx's Riddle"
+              ]
+            }
+          ]
+        }
       }
     },
     {
@@ -84,9 +261,30 @@
       "type": "intermediate",
       "tension_target": "tense",
       "effects": {
-        "author_note": { "text": "[Present the sphinx immediately and deliver the riddle in a calm, timeless voice: 'I am always coming but never arrive; I follow the sun yet rule the night. What am I?' (answer: the moon). {{story_role_companion}} analyzes it carefully, uncertain but composed.]", "position": "chat", "depth": 4, "interval": 3, "role": "system" },
-        "world_info": { "enable": [{ "lorebook": "Xentar Checkpoints", "comments": ["CP4 - Scenario", "CP4 - Sphinx", "CP4 - Sphinx's Riddle"] }] },
-        "cast_changes": { "disable": ["Luke"] }
+        "author_note": {
+          "text": "[Present the sphinx immediately and deliver the riddle in a calm, timeless voice: 'I am always coming but never arrive; I follow the sun yet rule the night. What am I?' (answer: the moon). {{story_role_companion}} analyzes it carefully, uncertain but composed.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 3,
+          "role": "system"
+        },
+        "world_info": {
+          "enable": [
+            {
+              "lorebook": "Xentar Checkpoints",
+              "comments": [
+                "CP4 - Scenario",
+                "CP4 - Sphinx",
+                "CP4 - Sphinx's Riddle"
+              ]
+            }
+          ]
+        },
+        "cast_changes": {
+          "disable": [
+            "Luke"
+          ]
+        }
       }
     },
     {
@@ -96,7 +294,13 @@
       "type": "intermediate",
       "tension_target": "tense",
       "effects": {
-        "author_note": { "text": "[Confirm the correct answer and grant passage; the sphinx steps aside solemnly. {{story_role_companion}} is relieved and teases Luke for almost ruining it.]", "position": "chat", "depth": 4, "interval": 3, "role": "system" }
+        "author_note": {
+          "text": "[Confirm the correct answer and grant passage; the sphinx steps aside solemnly. {{story_role_companion}} is relieved and teases Luke for almost ruining it.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 3,
+          "role": "system"
+        }
       }
     },
     {
@@ -105,11 +309,23 @@
       "objective": "Enter the chamber and approach the artifact despite the loss.",
       "type": "intermediate",
       "tension_target": "critical",
-      "state_snapshot": { "luke_alive": false },
+      "state_snapshot": {
+        "luke_alive": false
+      },
       "guidance": "Luke paid for the wrong answer. Grief hangs over the party, but the chamber lies open ahead.",
       "effects": {
-        "author_note": { "text": "[The sphinx's wrath strikes Luke down instantly. Keep the tone tragic and brief. {{story_role_companion}} is shaken but urges the mission onward. The sphinx allows the survivors to pass.]", "position": "chat", "depth": 4, "interval": 3, "role": "system" },
-        "cast_changes": { "disable": ["Luke"] }
+        "author_note": {
+          "text": "[The sphinx's wrath strikes Luke down instantly. Keep the tone tragic and brief. {{story_role_companion}} is shaken but urges the mission onward. The sphinx allows the survivors to pass.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 3,
+          "role": "system"
+        },
+        "cast_changes": {
+          "disable": [
+            "Luke"
+          ]
+        }
       }
     },
     {
@@ -120,7 +336,13 @@
       "tension_target": "critical",
       "target_turn_length": 3,
       "effects": {
-        "author_note": { "text": "[Describe the recovery of the Sun's Heart Artifact with restrained awe. {{story_role_companion}} expresses pride in {{story_player_name}} and relief at surviving the ruins.]", "position": "chat", "depth": 4, "interval": 3, "role": "system" }
+        "author_note": {
+          "text": "[Describe the recovery of the Sun's Heart Artifact with restrained awe. {{story_role_companion}} expresses pride in {{story_player_name}} and relief at surviving the ruins.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 3,
+          "role": "system"
+        }
       }
     },
     {
@@ -131,40 +353,229 @@
       "tension_target": "peak",
       "target_turn_length": 3,
       "convergence_threshold": 1,
-      "state_snapshot": { "reward_claimed": true },
+      "state_snapshot": {
+        "reward_claimed": true
+      },
       "effects": {
-        "author_note": { "text": "[Depict relief and hope as {{story_player_name}} delivers the artifact. {{story_role_guild_master}} praises the success, delivers the reward, and hints at future challenges. End with a sense of closure and new beginnings.]", "position": "chat", "depth": 4, "interval": 3, "role": "system" },
-        "cast_changes": { "enable": ["Ponticius"] },
+        "author_note": {
+          "text": "[Depict relief and hope as {{story_player_name}} delivers the artifact. {{story_role_guild_master}} praises the success, delivers the reward, and hints at future challenges. End with a sense of closure and new beginnings.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 3,
+          "role": "system"
+        },
+        "cast_changes": {
+          "enable": [
+            "Ponticius"
+          ]
+        },
         "npc_replies": [
-          { "trigger": "onEnter", "member": "Ponticius", "kind": "llm", "instruction": "[Praise the party's success, deliver the reward, and hint at future challenges facing Xentar.]", "maxTriggers": 1, "probability": 1 }
+          {
+            "trigger": "onEnter",
+            "member": "Ponticius",
+            "kind": "llm",
+            "instruction": "[Praise the party's success, deliver the reward, and hint at future challenges facing Xentar.]",
+            "maxTriggers": 1,
+            "probability": 1
+          }
         ]
       }
     }
   ],
   "transitions": [
-    { "from": "cp1", "to": "cp2", "priority": 1, "gate": { "q": "approached_board", "op": "==", "v": true }, "extractor_trigger": "\\b(get close|approach|move closer|examine|investigate|look at|read)\\b.*\\b(board|posting|mission)\\b", "extraction_hint": "Watch for the player moving toward or reading the job board." },
-    { "from": "cp2", "to": "cp3", "priority": 1, "gate": { "q": "mission_accepted", "op": "==", "v": true }, "extractor_trigger": "\\b(accept|take|pick up|choose|claim)\\b.*\\b(mission|quest|job|task)\\b", "extraction_hint": "Watch for the player accepting the Sun Ruins mission." },
-    { "from": "cp3", "to": "cp-4a", "priority": 2, "gate": { "q": "luke_decision", "op": "==", "v": "accepted" }, "extractor_trigger": "\\b(agree|allow|let|take|bring|include)\\b.*\\b(luke|young adventurer|new companion)\\b", "extraction_hint": "Set luke_decision to accepted when the player agrees to bring Luke." },
-    { "from": "cp3", "to": "cp-4b", "priority": 1, "gate": { "q": "luke_decision", "op": "==", "v": "declined" }, "extractor_trigger": "\\b(decline|refuse|deny|leave|go without)\\b.*\\b(luke|young adventurer|new companion)\\b", "extraction_hint": "Set luke_decision to declined when the player refuses to bring Luke." },
-    { "from": "cp-4a", "to": "cp-4a1", "priority": 2, "gate": { "any": [{ "q": "riddle_answer", "op": "==", "v": "moon" }, { "q": "guardian_respect", "op": ">=", "v": 4 }] }, "extractor_trigger": "\\b(the moon|moon)\\b", "extraction_hint": "Set riddle_answer to moon only if the correct answer 'the moon' is spoken. Track guardian_respect if the party impresses the sphinx." },
-    { "from": "cp-4a", "to": "cp-4a2", "priority": 1, "gate": { "q": "riddle_answer", "op": "==", "v": "wrong" }, "extraction_hint": "Set riddle_answer to wrong if an incorrect answer is given to the sphinx." },
-    { "from": "cp-4b", "to": "cp-5", "priority": 1, "gate": { "q": "riddle_answer", "op": "==", "v": "moon" }, "effects": { "progress": { "anchor": "cp-6", "amount": 1 } }, "extractor_trigger": "\\b(the moon|moon)\\b" },
-    { "from": "cp-4a1", "to": "cp-5", "priority": 1, "gate": { "q": "chamber_entered", "op": "==", "v": true }, "effects": { "progress": { "anchor": "cp-6", "amount": 1 } }, "extractor_trigger": "\\b(investigate|approach|examine|enter|inspect|study)\\b.*\\b(chamber|room|hall|space)\\b" },
-    { "from": "cp-4a2", "to": "cp-5", "priority": 1, "gate": { "q": "chamber_entered", "op": "==", "v": true }, "effects": { "progress": { "anchor": "cp-6", "amount": 1 } }, "extractor_trigger": "\\b(investigate|approach|examine|enter|inspect|study)\\b.*\\b(chamber|room|hall|space)\\b" },
-    { "from": "cp-5", "to": "cp-6", "priority": 1, "gate": { "all": [{ "q": "artifact_secured", "op": "==", "v": true }, { "q": "progress_toward_cp-6", "op": ">=", "v": 1 }] }, "extractor_trigger": "\\b(return|go back|head back|depart|travel back)\\b.*\\b(guild|xentar)\\b", "extraction_hint": "Watch for the party securing the artifact and setting out for the guild." }
+    {
+      "from": "cp1",
+      "to": "cp2",
+      "priority": 1,
+      "gate": {
+        "q": "approached_board",
+        "op": "==",
+        "v": true
+      },
+      "extractor_trigger": "\\b(get close|approach|move closer|examine|investigate|look at|read)\\b.*\\b(board|posting|mission)\\b",
+      "extraction_hint": "Watch for the player moving toward or reading the job board."
+    },
+    {
+      "from": "cp2",
+      "to": "cp3",
+      "priority": 1,
+      "gate": {
+        "q": "mission_accepted",
+        "op": "==",
+        "v": true
+      },
+      "extractor_trigger": "\\b(accept|take|pick up|choose|claim)\\b.*\\b(mission|quest|job|task)\\b",
+      "extraction_hint": "Watch for the player accepting the Sun Ruins mission."
+    },
+    {
+      "from": "cp3",
+      "to": "cp-4a",
+      "priority": 2,
+      "gate": {
+        "q": "luke_decision",
+        "op": "==",
+        "v": "accepted"
+      },
+      "extractor_trigger": "\\b(agree|allow|let|take|bring|include)\\b.*\\b(luke|young adventurer|new companion)\\b",
+      "extraction_hint": "Set luke_decision to accepted when the player agrees to bring Luke."
+    },
+    {
+      "from": "cp3",
+      "to": "cp-4b",
+      "priority": 1,
+      "gate": {
+        "q": "luke_decision",
+        "op": "==",
+        "v": "declined"
+      },
+      "extractor_trigger": "\\b(decline|refuse|deny|leave|go without)\\b.*\\b(luke|young adventurer|new companion)\\b",
+      "extraction_hint": "Set luke_decision to declined when the player refuses to bring Luke."
+    },
+    {
+      "from": "cp-4a",
+      "to": "cp-4a1",
+      "priority": 2,
+      "gate": {
+        "any": [
+          {
+            "q": "riddle_answer",
+            "op": "==",
+            "v": "moon"
+          },
+          {
+            "q": "guardian_respect",
+            "op": ">=",
+            "v": 4
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(the moon|moon)\\b",
+      "extraction_hint": "Set riddle_answer to moon only if the correct answer 'the moon' is spoken. Track guardian_respect if the party impresses the sphinx."
+    },
+    {
+      "from": "cp-4a",
+      "to": "cp-4a2",
+      "priority": 1,
+      "gate": {
+        "q": "riddle_answer",
+        "op": "==",
+        "v": "wrong"
+      },
+      "extraction_hint": "Set riddle_answer to wrong if an incorrect answer is given to the sphinx.",
+      "extractor_trigger": "\b(wrong|incorrect|fail(s|ed|ure)?)\b"
+    },
+    {
+      "from": "cp-4b",
+      "to": "cp-5",
+      "priority": 1,
+      "gate": {
+        "q": "riddle_answer",
+        "op": "==",
+        "v": "moon"
+      },
+      "effects": {
+        "progress": {
+          "anchor": "cp-6",
+          "amount": 1
+        }
+      },
+      "extractor_trigger": "\\b(the moon|moon)\\b"
+    },
+    {
+      "from": "cp-4a1",
+      "to": "cp-5",
+      "priority": 1,
+      "gate": {
+        "q": "chamber_entered",
+        "op": "==",
+        "v": true
+      },
+      "effects": {
+        "progress": {
+          "anchor": "cp-6",
+          "amount": 1
+        }
+      },
+      "extractor_trigger": "\\b(investigate|approach|examine|enter|inspect|study)\\b.*\\b(chamber|room|hall|space)\\b"
+    },
+    {
+      "from": "cp-4a2",
+      "to": "cp-5",
+      "priority": 1,
+      "gate": {
+        "q": "chamber_entered",
+        "op": "==",
+        "v": true
+      },
+      "effects": {
+        "progress": {
+          "anchor": "cp-6",
+          "amount": 1
+        }
+      },
+      "extractor_trigger": "\\b(investigate|approach|examine|enter|inspect|study)\\b.*\\b(chamber|room|hall|space)\\b"
+    },
+    {
+      "from": "cp-5",
+      "to": "cp-6",
+      "priority": 1,
+      "gate": {
+        "all": [
+          {
+            "q": "artifact_secured",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "progress_toward_cp-6",
+            "op": ">=",
+            "v": 1
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(return|go back|head back|depart|travel back)\\b.*\\b(guild|xentar)\\b",
+      "extraction_hint": "Watch for the party securing the artifact and setting out for the guild."
+    }
   ],
   "roster": [
-    { "id": "dm", "name": "DM Narrator" },
-    { "id": "companion", "name": "Arin" },
-    { "id": "guild_master", "name": "Ponticius" },
-    { "id": "little_brother", "name": "Luke" }
+    {
+      "id": "dm",
+      "name": "DM Narrator"
+    },
+    {
+      "id": "companion",
+      "name": "Arin"
+    },
+    {
+      "id": "guild_master",
+      "name": "Ponticius"
+    },
+    {
+      "id": "little_brother",
+      "name": "Luke"
+    }
   ],
   "arc_bridges": [
-    { "arcMatch": "sun's heart", "anchor": "cp-6", "amount": 1 },
-    { "arcMatch": "missing brother", "anchor": "cp-6", "amount": 1 }
+    {
+      "arcMatch": "sun's heart",
+      "anchor": "cp-6",
+      "amount": 1
+    },
+    {
+      "arcMatch": "missing brother",
+      "anchor": "cp-6",
+      "amount": 1
+    }
   ],
   "requirements": {
-    "members": ["DM Narrator", "Arin", "Ponticius", "Luke"],
-    "lorebooks": ["Xentar Checkpoints"]
+    "members": [
+      "DM Narrator",
+      "Arin",
+      "Ponticius",
+      "Luke"
+    ],
+    "lorebooks": [
+      "Xentar Checkpoints"
+    ]
   }
 }

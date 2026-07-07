@@ -1,9 +1,9 @@
-export { getContext, getPlayerName, MacrosParser } from "@services/stHost/context";
+export { getContext, getPlayerName, registerHostMacro, unregisterHostMacro } from "@services/stHost/context";
 export { showTextPopup } from "@services/stHost/popup";
 export type { TextPopupOptions } from "@services/stHost/popup";
 export { readInjectedPromptBlocks } from "@services/stHost/promptInspector";
 export type { InjectedPromptBlock } from "@services/stHost/promptInspector";
-export type { StoryOrchestratorHostContext, StoryOrchestratorMacrosParser } from "@services/stHost/context";
+export type { StoryOrchestratorHostContext } from "@services/stHost/context";
 export { subscribeToHostEvent, subscribeToHostEvents } from "@services/stHost/events";
 export type { HostEventPayloads, HostEventName, TypedHostEventHandler, HostSubscriptionEntry } from "@services/stHost/events";
 export {
@@ -16,8 +16,6 @@ export {
   setGenerationParamsFromPreset,
   getTextGenSettingNames,
   findTextGenPreset,
-  upsertTextGenPreset,
-  syncTextGenPresetUi,
   applyTextGenPresetRuntime,
 } from "@services/stHost/presets";
 export {

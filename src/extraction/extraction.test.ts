@@ -1,7 +1,7 @@
 import { parseStoryV2OrThrow, type BlackboardSnapshot } from "@engine/index";
 import { renderSharedReadPrompt } from "./contract";
 import { buildFixtureRun } from "./fixtureRun";
-import { parseSharedReadResponse } from "./parse";
+import { parseSharedReadResponse, stripChannelNoise } from "./parse";
 import { deriveFullScope, deriveScope } from "./scope";
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -162,6 +162,24 @@ describe("shared read parser", () => {
       { q: "player_has_key", v: true },
     ]);
     expect(parsed.rejected.map((entry) => entry.reason)).toEqual(["unknown quality"]);
+  });
+
+  it("stripChannelNoise removes malformed channel wrappers and channel-name lines from free text", () => {
+    expect(stripChannelNoise("<|channel>thought\n<channel|>The party searched the ruins.\nA second line survives.")).toBe("The party searched the ruins.\nA second line survives.");
+    expect(stripChannelNoise("<|channel|>final<|message|>Only the final channel body.<|end|>")).toBe("Only the final channel body.");
+    expect(stripChannelNoise("Plain summary, untouched.")).toBe("Plain summary, untouched.");
+  });
+
+  it("accepts unquoted enum/string/level values as bare words, still rejecting type mismatches", () => {
+    const story = parseStoryV2OrThrow(storyFixture);
+    const parsed = parseSharedReadResponse([
+      "DELTA q=tension_current value=stirring evidence=\"a low growl\"",
+      "DELTA q=player_has_key value=maybe evidence=\"unclear\"",
+    ].join("\n"), story);
+    expect(parsed.deltas.map((entry) => ({ q: entry.delta.q, v: entry.delta.v }))).toEqual([
+      { q: "tension_current", v: 0.25 },
+    ]);
+    expect(parsed.rejected.map((entry) => entry.reason)).toEqual(["invalid value"]);
   });
 
   it("treats SCENE_NONE as an explicit no-break rather than a rejection", () => {

@@ -1,8 +1,8 @@
 <|channel>thought
-<channel|>DELTA q=player_has_key value=true evidence="Max: I lift the brass key from the hook"
-DELTA q=mara_trust value=3 evidence="Mara nods, her trust in Max rising to three out of five."
-FACT importance=2 text="Max has the brass key" evidence="Max: I lift the brass key from the hook"
-MEMORY type=detail importance=2 expiration=session entity="Max" character="Max" text="Max obtained the brass key from the hook" evidence="Max: I lift the brass key from the hook"
-MEMORY type=development importance=2 expiration=session entity="Mara,Max" text="Mara's trust in Max increased to 3/5" evidence="Mara nods, her trust in Max rising to three out of five."
+<channel|>DELTA q=player_has_key value=true evidence="I lift the brass key from the hook"
+DELTA q=mara_trust value=3 evidence="her trust in Max rising to three out of five"
+FACT importance=2 text="Max has the brass key" evidence="I lift the brass key from the hook"
+MEMORY type=detail importance=2 expiration=session entity="Max" character="Max" text="Max obtained the brass key from a hook" evidence="I lift the brass key from the hook"
+MEMORY type=development importance=2 expiration=session entity="Mara,Max" text="Mara's trust in Max increased to 3/5" evidence="her trust in Max rising to three out of five"
 SCENE_NONE
 [resolved] Find the key.

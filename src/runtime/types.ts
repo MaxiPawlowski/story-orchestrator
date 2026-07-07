@@ -72,6 +72,7 @@ export interface MemoryRuntimeState extends MemoryStoreState {
   settings: MemoryRuntimeSettings;
   backfill: MemoryBackfillState | null;
   sceneCount: number;
+  shortTermSummaryEnd: number;
   wiWrites: Record<string, string>;
   arcs: ArcEntry[];
   epistemic: EpistemicEntry[];

@@ -1,12 +1,23 @@
-import { TENSION_CURRENT_KEY, TENSION_LEVELS } from "@engine/index";
+import { TENSION_CURRENT_KEY, TENSION_LEVELS, type TensionLevel } from "@engine/index";
 import { renderMemoryContractAddendum } from "@memory/contract";
 import { stableStringify } from "@runtime/hash";
 import type { SharedReadContract } from "./types";
 
+const TENSION_SCALE: Record<TensionLevel, string> = {
+  calm: "safety, rest, or routine; no active threat",
+  stirring: "unease, foreshadowing, or first signs of trouble",
+  tense: "open conflict, danger, or pressure in the current scene",
+  critical: "high stakes in motion: violence, chase, ultimatum, imminent loss",
+  peak: "climactic confrontation or catastrophe at full intensity",
+};
+
 const renderType = (contract: SharedReadContract) => contract.qualities.map(({ quality, hints }) => {
   const hintText = hints.length ? ` Hints: ${hints.join(" | ")}` : "";
   if (quality.key === TENSION_CURRENT_KEY) {
-    return `- ${TENSION_CURRENT_KEY}: type=level; Rate the current tension: ${TENSION_LEVELS.join(" | ")} — write value as one quoted level, cite the strongest signal.${hintText}`;
+    return [
+      `- ${TENSION_CURRENT_KEY}: type=level; Rate the current tension — pick the highest level whose description is met, not the average mood; write value as one quoted level, cite the strongest signal.${hintText}`,
+      ...TENSION_LEVELS.map((level) => `  ${level}: ${TENSION_SCALE[level]}`),
+    ].join("\n");
   }
   const allowed = quality.values?.length ? ` Allowed values: ${quality.values.join(", ")}.` : "";
   return `- ${quality.key}: type=${quality.type}; ${quality.rubric}${allowed}${hintText}`;

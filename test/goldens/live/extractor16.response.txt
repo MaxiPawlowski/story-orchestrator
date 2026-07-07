@@ -1,6 +1,6 @@
 <|channel>thought
 <channel|>DELTA q=tension_current value="tense" evidence="The floor cracks and the ceiling begins to collapse around them."
-FACT importance=2 text="The environment is physically destabilizing." evidence="The floor cracks and the ceiling begins to collapse around them."
+FACT importance=2 text="The environment is physically failing." evidence="The floor cracks and the ceiling begins to collapse around them."
 MEMORY type=scene importance=2 expiration=scene text="The floor is cracking and the ceiling is collapsing." evidence="The floor cracks and the ceiling begins to collapse around them."
 SCENE_NONE
-[arc] Survival of the collapsing environment
+[arc] Escape from the collapsing structure

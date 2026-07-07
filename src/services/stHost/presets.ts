@@ -1,13 +1,13 @@
 import { cloneStructured } from "@utils/dataHelpers";
 import { getContext } from "./context";
+import type { HostTextCompletionSettings } from "./hostTypes";
 import { logitBiasModule, scriptModule, textgenSettingsModule } from "./modules";
 
 const TEXTGEN_BIAS_KEY = "#textgenerationwebui_api-settings";
 const TEXTGEN_PRESET_SELECT_ID = "settings_preset_textgenerationwebui";
 
 export type TextGenPreset = Record<string, unknown>;
-export type TextGenPresetUiBridge = (name: string, presetObj: TextGenPreset) => void;
-type MutableTextCompletionSettings = TextCompletionSettings & Record<string, unknown>;
+type MutableTextCompletionSettings = HostTextCompletionSettings;
 
 export const BIAS_CACHE = logitBiasModule.BIAS_CACHE;
 export const displayLogitBias = logitBiasModule.displayLogitBias;
@@ -36,25 +36,6 @@ function ensureTextGenPresetOption(name: string) {
   option.value = name;
   option.innerText = name;
   select.appendChild(option);
-}
-
-export function upsertTextGenPreset(name: string, presetObj: TextGenPreset) {
-  const index = tgPresetNames.indexOf(name);
-  const clonedPreset = cloneStructured(presetObj);
-  if (index === -1) {
-    tgPresetNames.push(name);
-    tgPresetObjs.push(clonedPreset);
-    ensureTextGenPresetOption(name);
-    return;
-  }
-  tgPresetObjs[index] = clonedPreset;
-}
-
-export function syncTextGenPresetUi(name: string, presetObj: TextGenPreset): boolean {
-  const bridge = globalThis.ST_applyTextgenPresetToUI;
-  if (typeof bridge !== "function") return false;
-  bridge(name, presetObj);
-  return true;
 }
 
 export function applyTextGenPresetRuntime(name: string, presetObj: TextGenPreset, displayLabel?: string) {
@@ -89,6 +70,4 @@ export function applyTextGenPresetRuntime(name: string, presetObj: TextGenPreset
   } catch (err) {
     console.error("[Story - STAPI] error emitting PRESET_CHANGED", err);
   }
-
-  return syncTextGenPresetUi(name, presetObj);
 }

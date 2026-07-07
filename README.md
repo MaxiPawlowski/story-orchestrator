@@ -64,6 +64,14 @@ Registered via `MacrosParser` and auto-updated from the active story:
 - `/cp list | state | activate <id> | set <quality> <value> | extract [response] | expand [response] | converge | memorize`
 - `/so-mem list | pin <id> on|off | exclude <id> | backlog`
 
+## Extraction timing
+
+Accepted blackboard deltas apply at the **next** turn boundary (one transition per boundary, by
+design). Cadenced reads cover a window ending `stabilityLag` messages behind the newest (default
+0 — swipes are handled by rollback plus a forced re-read). Transitions with an
+`extractor_trigger` regex force an immediate P0 read the moment the cue appears, so decisive
+beats land without waiting for cadence — give your decisive transitions a cue.
+
 ## Development
 
 - `npm run typecheck && npm run lint && npm test` — pure/harness gate.

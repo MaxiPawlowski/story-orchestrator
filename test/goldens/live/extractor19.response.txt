@@ -1,7 +1,7 @@
 <|channel>thought
 <channel|>DELTA q=bribe_taken value=true evidence="The official palms the pouch of coins"
 DELTA q=tension_current value="stirring" evidence="surely a few coins can smooth this over?"
-FACT importance=2 text="The Official accepted a bribe from the Merchant." evidence="The official palms the pouch of coins"
+FACT importance=2 text="The official accepted a bribe from the merchant." evidence="The official palms the pouch of coins"
 MEMORY type=event importance=2 expiration=session entity="Merchant,Official" text="The Official accepted a bribe from the Merchant to smooth over a situation." evidence="The official palms the pouch of coins and looks away."
 SCENE_NONE
-[arc] The outcome of the Official's decision (what was being "smoothed over")
+[arc] The outcome of the "smoothed over" situation (what the bribe was for).

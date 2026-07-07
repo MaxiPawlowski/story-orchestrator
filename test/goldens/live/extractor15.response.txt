@@ -1,6 +1,6 @@
 <|channel>thought
-<channel|>DELTA q=gate_breached value=true evidence="The battering ram splinters the gate at last."
-DELTA q=tension_current value="tense" evidence="The battering ram splinters the gate at last."
+<channel|>DELTA gate_breached value=true evidence="The battering ram splinters the gate at last."
+DELTA tension_current value="tense" evidence="The battering ram splinters the gate at last."
 FACT importance=2 text="The gate has been splintered by a battering ram." evidence="The battering ram splinters the gate at last."
 MEMORY type=event importance=2 expiration=session text="The gate was breached by a battering ram." evidence="The battering ram splinters the gate at last."
 SCENE_NONE

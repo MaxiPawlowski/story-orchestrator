@@ -1,8 +1,7 @@
 import { trimStringList } from "@utils/dataHelpers";
-import { quoteSlashArg } from "@utils/string";
 import { getContext } from "./context";
+import type { HostWorldInfoSettings } from "./hostTypes";
 import { worldInfoModule } from "./modules";
-import { executeSlashCommands } from "./slashCommands";
 
 export interface Lorebook {
   entries: Record<number, LoreEntry>;
@@ -14,12 +13,21 @@ export interface LoreEntry {
   [key: string]: unknown;
 }
 
-export const getWorldInfoSettings: () => WorldInfoSettings = worldInfoModule.getWorldInfoSettings;
+export const getWorldInfoSettings: () => HostWorldInfoSettings = worldInfoModule.getWorldInfoSettings;
 
 export async function loadLorebook(name: string): Promise<Lorebook | null> {
   const lorebook = name.trim();
   if (!lorebook) return null;
   return await getContext().loadWorldInfo(lorebook) as Lorebook | null;
+}
+
+async function saveLorebook(name: string, data: Lorebook): Promise<void> {
+  const context = getContext() as unknown as { saveWorldInfo?: (name: string, data: unknown, immediately?: boolean) => Promise<unknown> };
+  if (typeof context.saveWorldInfo === "function") {
+    await context.saveWorldInfo(name, data, true);
+    return;
+  }
+  await worldInfoModule.saveWorldInfo(name, data, true);
 }
 
 function findMatchedLoreEntries(lorebook: Lorebook, comments: string[]) {
@@ -52,27 +60,15 @@ async function setWIEntryDisabledState(lorebook: string, comments: string | stri
   }
   if (!matched.length) return false;
 
-  let allOk = true;
-  for (let index = 0; index < matched.length; index += 1) {
-    const entry = matched[index];
-    const ok = await executeSlashCommands(
-      `/setentryfield file=${quoteSlashArg(lorebook)} uid=${entry.uid} field=disable ${disabled ? 1 : 0}`,
-      { silent: false },
-    );
-    if (!ok) {
-      console.warn(`[Story WI] failed to ${disabled ? "disable" : "enable"} world info entry`, {
-        lorebook,
-        comment: entry.comment,
-        uid: entry.uid,
-      });
-      allOk = false;
-    }
-    if (index < matched.length - 1) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-    }
+  let changed = false;
+  for (const entry of matched) {
+    const target = loadedInfo.entries[entry.uid];
+    if (!target || target.disable === disabled) continue;
+    target.disable = disabled;
+    changed = true;
   }
-
-  return allOk;
+  if (changed) await saveLorebook(lorebook, loadedInfo);
+  return true;
 }
 
 export async function enableWIEntry(lorebook: string, comments: string | string[]) {
@@ -109,6 +105,6 @@ export async function upsertWIEntry(lorebook: string, comment: string, content: 
   target.content = content;
   if (keys.length) target.key = keys;
   target.disable = false;
-  await worldInfoModule.saveWorldInfo(name, data, true);
+  await saveLorebook(name, data);
   return existing ? "updated" : "created";
 }

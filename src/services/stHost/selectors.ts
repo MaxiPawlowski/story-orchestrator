@@ -1,4 +1,5 @@
 import { getContext } from "./context";
+import type { HostSlashCommand } from "./hostTypes";
 import { getWorldInfoSettings, type Lorebook } from "./worldInfo";
 
 const trim = (value: string | null | undefined) => value?.trim() ?? "";
@@ -48,7 +49,7 @@ export function listGroupMembers(): string[] {
 
 export function listSlashCommands(): HostSlashCommandMeta[] {
   const commands = getContext().SlashCommandParser?.commands ?? {};
-  const seen = new Set<SillyTavernSlashCommand>();
+  const seen = new Set<HostSlashCommand>();
   const entries: HostSlashCommandMeta[] = [];
   for (const [name, command] of Object.entries(commands)) {
     if (!name || seen.has(command)) continue;

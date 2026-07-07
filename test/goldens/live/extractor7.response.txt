@@ -4,4 +4,4 @@ DELTA q=tension_current value="stirring" evidence="hull integrity is down to zer
 FACT importance=2 text="The hull integrity is at 60% following an impact." evidence="hull integrity is down to zero point six after the impact"
 MEMORY type=detail importance=2 expiration=session text="Hull integrity is at 0.6 after an impact" evidence="hull integrity is down to zero point six after the impact"
 SCENE_NONE
-[arc] Recovering from the impact to stabilize the ship.
+[arc] Recovering from the impact and restoring hull integrity

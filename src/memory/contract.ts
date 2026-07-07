@@ -164,3 +164,17 @@ export function buildSceneSummaryPrompt(sceneText: string): string {
     sceneText,
   ].join("\n");
 }
+
+export function buildShortTermSummaryPrompt(previousSummary: string | null, recentText: string): string {
+  return [
+    "Maintain a rolling 3-5 sentence summary of recent play; it complements scene history during long scenes.",
+    previousSummary
+      ? "Update the existing summary with the new messages: keep what still matters, fold in what changed, drop what the new messages made irrelevant."
+      : "Write the summary from the messages below.",
+    "Write in past tense, narrative style. Output only the updated summary text. No notes, no commentary.",
+    ...(previousSummary ? ["", "EXISTING SUMMARY:", previousSummary] : []),
+    "",
+    "NEW MESSAGES:",
+    recentText,
+  ].join("\n");
+}

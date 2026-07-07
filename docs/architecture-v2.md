@@ -42,7 +42,15 @@ src/
 ## Invariants
 
 - `services/STAPI.ts` + `services/stHost/*` are the only files importing SillyTavern host
-  modules, via dynamic `import(/* webpackIgnore: true */ …)`.
+  modules, via dynamic `import(/* webpackIgnore: true */ …)`. The base context comes from the
+  official `globalThis.SillyTavern.getContext` (extensions-module fallback); most host access
+  goes through context members, leaving six directly-imported host modules (`modules.ts`).
+- Host types are vendored locally in `stHost/hostTypes.ts` (narrow interfaces + index
+  signatures, one ledger row per member in `docs/plans/v2/00-implementation-overview.md`), so
+  typecheck/build work outside the SillyTavern tree; runtime guards remain the safety net.
+- Macros register through the `registerHostMacro`/`unregisterHostMacro` seam
+  (`stHost/context.ts`) — currently `MacrosParser`, the only API that feeds both the legacy and
+  the flag-gated new macro engine; migrating later is a one-function-body edit.
 - `engine/**` and `extraction/scope*` never import STAPI; host effects go through seams so tests
   can fake them.
 - Runtime state persists per chat in `chat_metadata.story_orchestrator`; the story library lives
@@ -58,9 +66,16 @@ src/
    checkpoint effects (author's note, world info, cast changes, NPC replies, preset), and logs
    the boundary.
 3. `runtime/index.ts` schedules off-path work: forced cues over the boundary window, cadence
-   extraction, reconciliation, expansion, scene-break and consolidation passes.
+   extraction, reconciliation, expansion, scene-break, short-term rolling compaction (a single
+   `short_term` entry summarizing play since the last watermark, updated every ~12 messages,
+   replaced not appended, skipped while pinned), and consolidation passes.
 4. The `ExtractionScheduler` runs a shared read on the memory LLM; accepted deltas are enqueued
-   and applied at the *next* boundary — the response path stays AI-free.
+   and applied at the *next* boundary — the response path stays AI-free. Cadence windows end
+   `stabilityLag` messages behind the newest (default 0; swipes are covered by rollback + a P0
+   re-read); cue/scene/rollback/reconcile reads always include the newest message.
+   Live expected tension prefers the active checkpoint's authored `tension_target`
+   (`levelToNumeric`) and falls back to the `arc_template` curve; steering hints name the
+   expected level and switch to stronger wording past 0.5 drift.
 5. `generation_started` captures the injected prompt blocks into a ring buffer for the Payload
    tab; `generation_ended` clears the copilot nudge and private per-speaker injection.
 

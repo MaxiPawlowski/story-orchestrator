@@ -1,10 +1,8 @@
 const mockRegistry = new Map<string, () => unknown>();
 
 jest.mock("@services/STAPI", () => ({
-  MacrosParser: {
-    registerMacro: (key: string, value: () => unknown) => mockRegistry.set(key, value),
-    unregisterMacro: (key: string) => mockRegistry.delete(key),
-  },
+  registerHostMacro: (key: string, value: () => unknown) => mockRegistry.set(key, value),
+  unregisterHostMacro: (key: string) => mockRegistry.delete(key),
   getPlayerName: () => "Max",
 }));
 

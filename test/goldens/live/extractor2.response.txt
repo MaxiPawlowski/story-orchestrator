@@ -1,8 +1,8 @@
 <|channel>thought
-<channel|>DELTA q=district value="docks" evidence="Rin leads the group past the market stalls toward the docks."
-DELTA q=tension_current value="stirring" evidence="The air grows tense"
-DELTA q=threat_level value=2 evidence="a dockhand mutters the threat here is two out of five tonight."
-FACT importance=2 text="The threat level at the docks is 2/5." evidence="a dockhand mutters the threat here is two out of five tonight."
+<channel|>DELTA district="docks" evidence="Rin leads the group past the market stalls toward the docks."
+DELTA tension_current="stirring" evidence="The air grows tense"
+DELTA threat_level=2 evidence="the threat here is two out of five tonight."
+FACT importance=2 text="The current threat level at the docks is 2/5." evidence="the threat here is two out of five tonight."
 MEMORY type=scene importance=2 expiration=session entity="Rin" character="Rin" text="Rin is leading the group from the market to the docks." evidence="Rin leads the group past the market stalls toward the docks."
 SCENE_BREAK at=2 reason=location
-[arc] Patrol the docks and monitor the threat level.
+[arc] Patrol the docks (transitioned from market)

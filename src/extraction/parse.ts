@@ -15,7 +15,9 @@ const stripChannelTokens = (line: string): string => line.replace(channelNoisePa
 export function stripChannelNoise(raw: string): string {
   const finalMatch = raw.match(harmonyFinalPattern);
   const body = finalMatch ? finalMatch[1] : raw;
-  return body.replace(harmonyTokenPattern, "").replace(/^(?:\[\d+\]\s*)+/gm, "").trim();
+  const lines = body.replace(harmonyTokenPattern, "").split(/\r?\n/).map((line) => stripChannelTokens(line));
+  while (lines.length && /^(?:thought|analysis|final)?$/i.test(lines[0])) lines.shift();
+  return lines.join("\n").trim();
 }
 
 const valueMatches = (quality: Quality, value: PrimitiveValue) => {
@@ -54,7 +56,8 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
         result.rejected.push({ line, reason: "missing evidence" });
         continue;
       }
-      const value = parseJsonLiteral(delta[2]);
+      const rawValue = delta[2].trim();
+      const value = parseJsonLiteral(rawValue) ?? (/^[A-Za-z][\w -]*$/.test(rawValue) ? rawValue : undefined);
       if (q === TENSION_CURRENT_KEY) {
         if (!isTensionLevel(value)) {
           result.rejected.push({ line, reason: "invalid value" });

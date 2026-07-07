@@ -1,23 +1,28 @@
-import { rossModsModule, scriptModule } from "./modules";
+import { getContext } from "./context";
+import type { HostCharacter } from "./hostTypes";
+import { rossModsModule } from "./modules";
 
-export type StoryOrchestratorCharacter = Character;
+export type StoryOrchestratorCharacter = HostCharacter;
+
+const hostCharacters = (): StoryOrchestratorCharacter[] => {
+  const characters = (getContext() as unknown as { characters?: unknown }).characters;
+  return Array.isArray(characters) ? characters as StoryOrchestratorCharacter[] : [];
+};
 
 export function getCharacterNameById(id: number | undefined): string | undefined {
   if (id === undefined) return undefined;
-  const characters = scriptModule.characters;
-  return characters[id]?.name;
+  return hostCharacters()[id]?.name;
 }
 
 export function getCharacterIdByName(name: string): number | undefined {
   if (!name) return undefined;
-  const characters = scriptModule.characters;
   const searchName = name.trim().toLowerCase();
-  return characters.findIndex((character) => character.name?.trim().toLowerCase() === searchName);
+  return hostCharacters().findIndex((character) => character.name?.trim().toLowerCase() === searchName);
 }
 
 export function getAllCharacterNames(): string[] {
   try {
-    return scriptModule.characters
+    return hostCharacters()
       .map((character) => character?.name)
       .filter((name): name is string => typeof name === "string" && name.trim().length > 0)
       .map((name) => name.trim());
@@ -29,7 +34,7 @@ export function getAllCharacterNames(): string[] {
 
 export function getCharacters(): StoryOrchestratorCharacter[] {
   try {
-    return scriptModule.characters;
+    return hostCharacters();
   } catch {
     return [];
   }

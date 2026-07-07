@@ -3,7 +3,6 @@
 DELTA q=rats_seen value=3 evidence="Three rats scurry from the light"
 DELTA q=tension_current value="stirring" evidence="Three rats scurry from the light"
 FACT importance=2 text="Bo lit the torch" evidence="Bo strikes flint against the wall and the torch catches"
-MEMORY type=detail importance=1 expiration=scene entity="Bo" character="Bo" text="Bo lit the torch using flint against the wall" evidence="Bo strikes flint against the wall and the torch catches"
-MEMORY type=detail importance=1 expiration=scene text="Three rats were spotted upon lighting the torch" evidence="Three rats scurry from the light"
+MEMORY type=detail importance=1 expiration=scene text="Three rats scurried away when the light appeared" evidence="Three rats scurry from the light"
 SCENE_NONE
-[arc] Exploring the cellar
+[arc] Exploring the cellar (implied by "Light the cellar")

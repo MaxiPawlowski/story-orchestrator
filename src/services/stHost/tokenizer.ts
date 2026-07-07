@@ -1,9 +1,10 @@
-import { tokenizersModule } from "./modules";
+import { getContext } from "./context";
 
 export async function countTokens(text: string): Promise<number> {
   const value = text?.trim();
   if (!value) return 0;
-  return tokenizersModule.getTokenCountAsync(value);
+  const context = getContext() as unknown as { getTokenCountAsync: (str: string, padding?: number) => Promise<number> };
+  return context.getTokenCountAsync(value);
 }
 
 export async function countTokensBatch(texts: string[]): Promise<number> {

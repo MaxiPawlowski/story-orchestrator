@@ -1,4 +1,6 @@
-jest.mock("@services/STAPI", () => ({ getContext: () => ({ chat: [] }) }));
+const mockChat: Array<{ name: string; mes: string }> = [];
+
+jest.mock("@services/STAPI", () => ({ getContext: () => ({ chat: mockChat }) }));
 
 jest.mock("./sharedRead", () => ({
   runSharedRead: jest.fn(async () => ({
@@ -11,6 +13,7 @@ jest.mock("./sharedRead", () => ({
 
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import { ExtractionScheduler, type SchedulerHost, type SchedulerSettings } from "./scheduler";
+import { runSharedRead } from "./sharedRead";
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 5));
 
@@ -47,6 +50,23 @@ describe("ExtractionScheduler reply-path isolation", () => {
   it("onBoundary returns synchronously and never rejects", () => {
     const scheduler = new ExtractionScheduler(makeHost({ cadence: 1 }));
     expect(scheduler.onBoundary(4, false, 10)).toBeUndefined();
+  });
+
+  it("cadence window ends at lastMessageId with lag 0 and lags behind otherwise", async () => {
+    mockChat.length = 0;
+    for (let index = 0; index < 12; index += 1) mockChat.push({ name: index % 2 ? "Arin" : "Max", mes: `m${index}` });
+    const read = runSharedRead as jest.Mock;
+
+    read.mockClear();
+    new ExtractionScheduler(makeHost({ cadence: 1, stabilityLag: 0 })).onBoundary(3, false, 11);
+    await flush();
+    expect(read.mock.calls[0][0].window).toMatchObject({ from: 11, to: 11 });
+
+    read.mockClear();
+    new ExtractionScheduler(makeHost({ cadence: 1, stabilityLag: 2 })).onBoundary(3, false, 11);
+    await flush();
+    expect(read.mock.calls[0][0].window).toMatchObject({ from: 9, to: 9 });
+    mockChat.length = 0;
   });
 
   it("forwards parsed memory and arcs from the read to applyExtractionAudit", async () => {

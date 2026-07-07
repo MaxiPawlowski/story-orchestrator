@@ -1,7 +1,8 @@
 <|channel>thought
-<channel|>DELTA q=tension_current value="calm" evidence="Warm light fills the corridor."
-DELTA q=torch_lit value=true evidence="the torch flares to life."
-FACT importance=2 text="Bram has a torch" evidence="Bram strikes flint and the torch flares to life."
-MEMORY type=detail importance=1 expiration=scene entity="Bram" character="Bram" text="Bram lit a torch to illuminate the corridor" evidence="Bram strikes flint and the torch flares to life. Warm light fills the corridor."
+<channel|>DELTA q=torch_lit value=true evidence="the torch flares to life"
+FACT importance=2 text="Bram lit a torch" evidence="Bram strikes flint and the torch flares to life"
+MEMORY type=detail importance=1 expiration=scene entity="Bram" character="Bram" text="Bram lit a torch to illuminate the corridor" evidence="Bram strikes flint and the torch flares to life"
+MEMORY type=scene importance=2 expiration=scene text="The corridor is filled with warm light" evidence="Warm light fills the corridor"
 SCENE_NONE
 [arc] Exploring the corridor
+DELTA q=tension_current value="calm" evidence="Warm light fills the corridor"

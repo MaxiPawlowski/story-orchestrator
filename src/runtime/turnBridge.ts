@@ -15,17 +15,17 @@ export class TurnBridge {
   start() {
     if (this.unsubscribe) return;
     const entries: HostSubscriptionEntry[] = [
-      { eventName: "generation_ended", handler: () => void this.flushPendingBoundary() },
-      { eventName: "generation_stopped", handler: () => void this.flushPendingBoundary() },
-      { eventName: "message_received", handler: () => void this.onRenderedReply() },
-      { eventName: "character_message_rendered", handler: () => void this.onRenderedReply() },
-      { eventName: "message_swiped", handler: (messageId) => void this.onMutation(messageId) },
-      { eventName: "message_edited", handler: (messageId) => void this.onMutation(messageId) },
-      { eventName: "message_deleted", handler: (messageId) => void this.onMutation(messageId) },
-      { eventName: "message_updated", handler: (messageId) => void this.onMutation(messageId) },
-      { eventName: "chat_id_changed", handler: () => void this.onChatChanged() },
-      { eventName: "worldinfo_settings_updated", handler: () => this.manager.notify() },
-      { eventName: "group_updated", handler: () => this.manager.notify() },
+      { eventName: "GENERATION_ENDED", handler: () => void this.flushPendingBoundary() },
+      { eventName: "GENERATION_STOPPED", handler: () => void this.flushPendingBoundary() },
+      { eventName: "MESSAGE_RECEIVED", handler: () => void this.onRenderedReply() },
+      { eventName: "CHARACTER_MESSAGE_RENDERED", handler: () => void this.onRenderedReply() },
+      { eventName: "MESSAGE_SWIPED", handler: (messageId) => void this.onMutation(messageId) },
+      { eventName: "MESSAGE_EDITED", handler: (messageId) => void this.onMutation(messageId) },
+      { eventName: "MESSAGE_DELETED", handler: (messageId) => void this.onMutation(messageId) },
+      { eventName: "MESSAGE_UPDATED", handler: (messageId) => void this.onMutation(messageId) },
+      { eventName: "CHAT_CHANGED", handler: () => void this.onChatChanged() },
+      { eventName: "WORLDINFO_SETTINGS_UPDATED", handler: () => this.manager.notify() },
+      { eventName: "GROUP_UPDATED", handler: () => this.manager.notify() },
     ];
     this.unsubscribe = subscribeToHostEvents(entries);
   }

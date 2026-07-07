@@ -1,7 +1,7 @@
 <|channel>thought
 <channel|>DELTA q=pact_sealed value=true evidence="the pact is sealed in smoke"
-DELTA q=tension_current value="calm" evidence="The witch presses her palm to his"
-FACT importance=3 text="The witch and her partner have sealed a pact." evidence="the pact is sealed in smoke"
-MEMORY type=event importance=3 expiration=permanent entity="Witch" text="The witch sealed a pact via a palm-press." evidence="The witch presses her palm to his and the pact is sealed in smoke"
+DELTA q=tension_current value="stirring" evidence="the pact is sealed in smoke"
+FACT importance=2 text="The Witch and a male companion sealed a pact." evidence="The witch presses her palm to his and the pact is sealed in smoke"
+MEMORY type=event importance=3 expiration=permanent entity="Witch" text="The Witch sealed a pact via a palm-press." evidence="The witch presses her palm to his and the pact is sealed in smoke"
 SCENE_NONE
-[arc] The consequences of the sealed pact.
+[arc] The consequences of the sealed pact

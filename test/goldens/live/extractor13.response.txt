@@ -1,6 +1,6 @@
 <|channel>thought
 <channel|>DELTA q=tension_current value="calm" evidence="Dax pokes at the moss but finds only damp stone."
 FACT importance=1 text="Dax is interacting with moss and stone." evidence="Dax pokes at the moss but finds only damp stone."
-MEMORY type=detail importance=1 expiration=scene character="Dax" text="Dax poked at moss and found damp stone." evidence="Dax pokes at the moss but finds only damp stone."
+MEMORY type=detail importance=1 expiration=scene character="Dax" text="Dax is poking at moss on damp stone." evidence="Dax pokes at the moss but finds only damp stone."
 SCENE_NONE
-NO_DELTA
+[arc] Dax's exploration of the environment.

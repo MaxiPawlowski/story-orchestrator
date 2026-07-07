@@ -1,7 +1,6 @@
 <|channel>thought
 <channel|>DELTA q=weather value="fog" evidence="A wall of fog rolls in"
-DELTA q=tension_current value="stirring" evidence="swallows the mast"
-FACT importance=1 text="A wall of fog has rolled in" evidence="A wall of fog rolls in"
-MEMORY type=scene importance=2 expiration=scene text="The ship is currently enveloped in a wall of fog" evidence="A wall of fog rolls in and swallows the mast"
+DELTA q=tension_current value="stirring" evidence="A wall of fog rolls in and swallows the mast"
+MEMORY type=scene importance=2 expiration=scene entity="Lookout" text="A wall of fog has rolled in, obscuring the mast." evidence="A wall of fog rolls in and swallows the mast."
 SCENE_NONE
 [arc] Navigating through the fog
