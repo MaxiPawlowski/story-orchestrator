@@ -75,10 +75,14 @@ export const buildGraphElements = (draft: StoryGraphDraft, selectedId: string | 
   const edges: ElementDefinition[] = draft.checkpoints
     .flatMap((cp) => (cp.transitions ?? []).map((transition) => ({ ...transition, from: cp.id })))
     .filter((edge) => (edge.id || edge._stableId) && nodeIds.has(edge.from) && nodeIds.has(edge.to))
-    .map((edge) => ({
-      group: "edges",
-      data: { id: edge.id || edge._stableId, source: edge.from, target: edge.to, label: edge.label || "" },
-    }));
+    .map((edge) => {
+      const fullLabel = edge.label || "";
+      const label = fullLabel.length > 28 ? `${fullLabel.slice(0, 26)}…` : fullLabel;
+      return {
+        group: "edges" as const,
+        data: { id: edge.id || edge._stableId, source: edge.from, target: edge.to, label, fullLabel },
+      };
+    });
 
   return [...nodes, ...edges];
 };
@@ -98,9 +102,10 @@ export const createGraphStyles = (themeColors: GraphThemeColors) => ([
       padding: "8px",
     },
   },
-  { selector: "node[type = 'anchor']", style: { "background-color": themeColors.info } },
-  { selector: "node[type = 'stub']", style: { "background-color": themeColors.warning } },
-  { selector: "node.start", style: { "border-width": "2px", "border-color": themeColors.info } },
+  { selector: "node[type = 'anchor']", style: { "background-color": themeColors.info, shape: "ellipse" } },
+  { selector: "node[type = 'intermediate']", style: { shape: "round-rectangle" } },
+  { selector: "node[type = 'stub']", style: { "background-color": themeColors.warning, shape: "diamond" } },
+  { selector: "node.start", style: { "border-width": "3px", "border-style": "double", "border-color": themeColors.info } },
   { selector: "node.selected", style: { "border-width": "3px", "border-color": themeColors.warning } },
   {
     selector: "edge",
@@ -122,7 +127,7 @@ export const createGraphStyles = (themeColors: GraphThemeColors) => ([
 export const runGraphLayout = (cy: Core, name: LayoutName, dagreReady: boolean): void => {
   if (cy.elements().length === 0) return;
   const layoutName = name === "dagre" && !dagreReady ? "breadthfirst" : name;
-  const options = { name: layoutName } as LayoutOptions;
+  const options = { name: layoutName, nodeDimensionsIncludeLabels: true, spacingFactor: 1.2, padding: 24 } as unknown as LayoutOptions;
   try {
     const layout = cy.layout(options);
     if (layout && typeof layout.run === "function") layout.run();

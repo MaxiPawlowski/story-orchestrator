@@ -33,7 +33,7 @@ Scripts run via `node scripts/debug/<tool>.mts`, attach to the shared session fi
 
 Handover sign-off for LLM-consuming paths requires the real model, not `debugResponse` mocks. Mocks (`storyOrchestratorDebug*Response` globals, scenario `extract`/`expand` step values) stay valid for unit determinism and scenario plumbing — never for sign-off.
 
-Prerequisites: extraction Connection Manager profile selected in extension settings (`#stepthink_settings` profile picker; visible as `extraction.settings.profileId` in `so-state.mts current`). If ST is down, no backend connected, or no profile selected: state it at handover and flag the gate NOT green — do not silently fall back to mocks.
+Prerequisites: extraction Connection Manager profile selected in extension settings (`#story-orchestrator-settings` profile picker; visible as `extraction.settings.profileId` in `so-state.mts current`). If ST is down, no backend connected, or no profile selected: state it at handover and flag the gate NOT green — do not silently fall back to mocks.
 
 Triggering real passes (all route through `callExtractionModel` — real path = profile set + no `debugResponse`):
 
@@ -120,7 +120,7 @@ Payload capture hooks fetch/XHR in the shared page and records recent generation
 node scripts/debug/so-ui.mts all|settings|drawer|open-settings|open-studio|studio|studio-tab <label>|screenshot [label]
 ```
 
-Selectors: settings root `#stepthink_settings`, story dropdown `#story-library-select`, arbiter frequency `#story-arbiter-frequency`, drawer `#drawer-manager` (open when `.pinnedOpen`), **Open Studio button `#so-open-studio`, v2 Studio modal `#so-studio-modal`** (tabs `[role="tab"]`; `studio` verb reports title/active tab/error+issue badges; `studio-tab <Graph|Qualities|Checkpoints|Transitions|Diagnostics>` switches). The button lives inside ST's collapsed inline-drawer — `so-ui open-studio` clicks it; if driving by hand, the button may be `display:none` until the drawer is expanded.
+Selectors: settings root `#story-orchestrator-settings`, story dropdown `#story-library-select`, arbiter frequency `#story-arbiter-frequency`, drawer = ST top-bar drawer `#so-drawer` with content `#drawer-manager` (open when `.openDrawer`; `so-ui open-drawer` opens it), HUD strip `#so-hud` above the chat input, **Open Studio button `#so-open-studio`, v2 Studio modal `#so-studio-modal`** (portaled to `document.body`; tabs `[role="tab"]`; `studio` verb reports title/active tab/error+issue badges; `studio-tab <Graph|Qualities|Checkpoints|Transitions|Diagnostics>` switches). The button lives inside ST's collapsed inline-drawer — `so-ui open-studio` clicks it; if driving by hand, the button may be `display:none` until the drawer is expanded. Drawer tabs depend on the per-chat "Author view" toggle (`extras.ui.authorView`): player mode shows Overview/Memory only — flip via the drawer-header checkbox or `rt.setUiSettings({authorView:true})` before asserting on Blackboard/Scheduler/Payload.
 
 ### Navigation
 

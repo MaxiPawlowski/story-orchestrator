@@ -18,6 +18,8 @@ import {
   type Quality,
   type QualityType,
   type StoryV2,
+  type TalkControl,
+  type TalkControlSpeaker,
   type Transition,
   type ValidationError,
 } from "./schema";
@@ -122,10 +124,74 @@ const readCheckpointEffects = (value: unknown, path: string, errors: ValidationE
       ...(typeof entry.instruction === "string" ? { instruction: entry.instruction } : {}),
       ...(typeof entry.maxTriggers === "number" && Number.isFinite(entry.maxTriggers) ? { maxTriggers: entry.maxTriggers } : {}),
       ...(typeof entry.probability === "number" && Number.isFinite(entry.probability) ? { probability: entry.probability } : {}),
+      ...(asString(entry.after_member) ? { after_member: entry.after_member as string } : {}),
+      ...(typeof entry.enabled === "boolean" ? { enabled: entry.enabled } : {}),
     };
   }).filter((entry): entry is NonNullable<typeof entry> => entry !== null);
   effects.npc_replies = replies;
   return effects;
+};
+
+const readTalkControl = (value: unknown, path: string, errors: ValidationError[]): TalkControl | null => {
+  if (!isRecord(value)) {
+    addError(errors, path, "talk_control must be an object");
+    return null;
+  }
+  const control: TalkControl = {};
+  if (value.speakers !== undefined) {
+    if (!Array.isArray(value.speakers)) {
+      addError(errors, `${path}.speakers`, "speakers must be an array");
+      return null;
+    }
+    control.speakers = value.speakers.map((entry, index) => {
+      const speakerPath = `${path}.speakers.${index}`;
+      if (typeof entry === "string") {
+        if (entry.trim()) return { member: entry };
+        addError(errors, speakerPath, "speaker member is required");
+        return null;
+      }
+      if (!isRecord(entry)) {
+        addError(errors, speakerPath, "speaker must be a member string or object");
+        return null;
+      }
+      const member = asString(entry.member);
+      if (!member) {
+        addError(errors, `${speakerPath}.member`, "speaker member is required");
+        return null;
+      }
+      if (entry.weight !== undefined && (typeof entry.weight !== "number" || !Number.isFinite(entry.weight) || entry.weight <= 0)) {
+        addError(errors, `${speakerPath}.weight`, "speaker weight must be a positive number");
+        return null;
+      }
+      return { member, ...(typeof entry.weight === "number" ? { weight: entry.weight } : {}) };
+    }).filter((entry): entry is TalkControlSpeaker => entry !== null);
+  }
+  if (value.lead !== undefined) {
+    const lead = asString(value.lead);
+    if (!lead) addError(errors, `${path}.lead`, "lead must be a non-empty string");
+    else control.lead = lead;
+  }
+  if (value.no_repeat !== undefined) {
+    if (typeof value.no_repeat !== "boolean") addError(errors, `${path}.no_repeat`, "no_repeat must be a boolean");
+    else control.no_repeat = value.no_repeat;
+  }
+  if (value.allow_silence !== undefined) {
+    if (typeof value.allow_silence !== "boolean") addError(errors, `${path}.allow_silence`, "allow_silence must be a boolean");
+    else control.allow_silence = value.allow_silence;
+  }
+  if (value.director !== undefined) {
+    if (typeof value.director === "boolean") control.director = value.director;
+    else if (isRecord(value.director)) {
+      if (value.director.instruction !== undefined && typeof value.director.instruction !== "string") {
+        addError(errors, `${path}.director.instruction`, "director instruction must be a string");
+      } else {
+        control.director = typeof value.director.instruction === "string" ? { instruction: value.director.instruction } : {};
+      }
+    } else {
+      addError(errors, `${path}.director`, "director must be a boolean or object");
+    }
+  }
+  return control;
 };
 
 const readCheckpoint = (value: unknown, path: string, errors: ValidationError[]): Checkpoint | null => {
@@ -153,6 +219,7 @@ const readCheckpoint = (value: unknown, path: string, errors: ValidationError[])
     checkpoint.target_turn_length = value.target_turn_length;
   }
   if (isRecord(value.effects)) checkpoint.effects = readCheckpointEffects(value.effects, `${path}.effects`, errors) ?? undefined;
+  if (value.talk_control !== undefined) checkpoint.talk_control = readTalkControl(value.talk_control, `${path}.talk_control`, errors) ?? undefined;
   if (typeof value.guidance === "string") checkpoint.guidance = value.guidance;
   if (typeof value.convergence_threshold === "number" && Number.isFinite(value.convergence_threshold)) {
     checkpoint.convergence_threshold = value.convergence_threshold;

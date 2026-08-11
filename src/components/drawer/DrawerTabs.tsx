@@ -15,12 +15,12 @@ const MEMORY_TIER_LABELS: Record<MemoryTier, string> = {
 
 const EPISTEMIC_TAG_LABELS: Record<string, string> = { knows: "knows", suspects: "suspects", believes: "believes (false)", unaware: "unaware", hiding: "hiding" };
 
-const TABS: Array<{ id: DrawerTabId; label: string }> = [
+const TABS: Array<{ id: DrawerTabId; label: string; authorOnly?: boolean }> = [
   { id: "overview", label: "Overview" },
-  { id: "blackboard", label: "Blackboard" },
+  { id: "blackboard", label: "Blackboard", authorOnly: true },
   { id: "memory", label: "Memory" },
-  { id: "scheduler", label: "Scheduler" },
-  { id: "payload", label: "Payload" },
+  { id: "scheduler", label: "Scheduler", authorOnly: true },
+  { id: "payload", label: "Payload", authorOnly: true },
 ];
 
 export interface DrawerDriver {
@@ -35,6 +35,8 @@ export interface DrawerTabsProps {
   driver: DrawerDriver;
 }
 
+const extractionReady = (snapshot: RuntimeSnapshot): boolean => snapshot.extraction.settings.enabled && Boolean(snapshot.extraction.settings.profileId);
+
 const StatusDot = ({ ok }: { ok: boolean }) => <span className={`status-indicator status-${ok ? "success" : "error"}`} />;
 
 const Requirements = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
@@ -43,6 +45,7 @@ const Requirements = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
     { label: "Group", missing: snapshot.requirements.missingMembers },
     { label: "Lore", missing: snapshot.requirements.missingLorebooks },
   ];
+  const ready = extractionReady(snapshot);
   return (
     <div className="flex flex-col gap-1">
       {items.map((item) => (
@@ -51,20 +54,37 @@ const Requirements = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
           {item.missing.length > 0 && <div className="text-xs opacity-80">Missing: {item.missing.join(", ")}</div>}
         </div>
       ))}
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-2"><StatusDot ok={ready} /><span>Extraction</span></div>
+        {!ready && <div className="text-xs opacity-80">Off — the story will not advance on its own. Enable it and pick a model profile in settings.</div>}
+      </div>
     </div>
   );
 };
 
-const OverviewTab = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
+const PendingDeltas = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
+  if (!snapshot.pendingDeltas.length) return null;
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="font-medium">Heard, applies next turn</div>
+      {snapshot.pendingDeltas.map((pending) => (
+        <div key={pending.quality} className="text-xs opacity-80">{pending.quality} → {String(pending.value)}</div>
+      ))}
+    </div>
+  );
+};
+
+const OverviewTab = ({ snapshot, authorView }: { snapshot: RuntimeSnapshot; authorView: boolean }) => (
   <div className="flex flex-col gap-3">
     <div className="checkpoints-wrapper flex flex-col gap-1">
       <div className="font-medium">Checkpoint</div>
       <div className="st-checkpoint-row status-current">
         <div className="font-semibold">{snapshot.activeCheckpointName}</div>
         <div className="text-sm opacity-80">{snapshot.activeObjective}</div>
-        <div className="text-xs opacity-70">Boundary {snapshot.boundary}</div>
+        {authorView && <div className="text-xs opacity-70">Boundary {snapshot.boundary}</div>}
       </div>
     </div>
+    <PendingDeltas snapshot={snapshot} />
     <Requirements snapshot={snapshot} />
     <div className="flex flex-col gap-1">
       <div className="font-medium">Tension</div>
@@ -81,7 +101,7 @@ const OverviewTab = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
           const pct = entry.threshold > 0 ? Math.min(100, Math.round((entry.progress / entry.threshold) * 100)) : 100;
           return (
             <div key={entry.anchorId} className="border-t border-solid border-white/10 mt-1 pt-1">
-              <div>{entry.anchorName}{entry.reached ? " ✔" : ""}</div>
+              <div>{entry.anchorName}{entry.visited ? " · visited" : ""}{entry.reached ? " ✔" : ""}</div>
               <div className="flex items-center gap-2">
                 <div className="flex-1 h-1.5 bg-white/10 rounded">
                   <div className="h-full bg-white/60 rounded" style={{ width: `${pct}%` }} />
@@ -109,7 +129,7 @@ const BlackboardTab = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
             <tr key={key}>
               <td>{key}</td>
               <td>{String(value)}</td>
-              <td title={snapshot.blackboardMeta[key]?.evidence ?? ""}>{snapshot.blackboardMeta[key]?.source}{snapshot.blackboardMeta[key]?.latched ? " locked" : ""}</td>
+              <td title={snapshot.blackboardMeta[key]?.evidence ?? ""}>{snapshot.blackboardMeta[key]?.source}{snapshot.blackboardMeta[key]?.latched ? " (locked)" : ""}</td>
             </tr>
           ))}
         </tbody>
@@ -131,6 +151,16 @@ const MemoryTab = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: 
     setEditingId(id);
     setDraftText(text);
   };
+
+  const excludeWithUndo = async (id: string) => {
+    const entry = snapshot.memory.entries.find((candidate) => candidate.id === id);
+    await manager.excludeMemoryEntry(id);
+    if (!entry) return;
+    window.toastr?.info?.("Memory excluded — click here to undo", "Story Orchestrator", {
+      timeOut: 8000,
+      onclick: () => { void manager.restoreMemoryEntry(entry); },
+    });
+  };
   const saveEdit = async () => {
     if (!editingId) return;
     await manager.editMemoryEntry(editingId, draftText);
@@ -150,6 +180,10 @@ const MemoryTab = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: 
       </label>
       <div className="opacity-60">Turn off only if your memory model over-infers who knows what or invents entity state — small local models tend to. Never disable purely to save calls.</div>
       <div>Scene count {snapshot.memory.sceneCount}</div>
+      <div className="flex items-center gap-2 mt-1">
+        <button className="menu_button" disabled={snapshot.memory.backfill?.running} onClick={() => void manager.runMemorizeBacklog()}>Memorize chat</button>
+        <span className="opacity-60">Read the whole chat history into memory.</span>
+      </div>
       {snapshot.memory.backfill?.running && <div>Memorizing: {snapshot.memory.backfill.processed}/{snapshot.memory.backfill.total}</div>}
       {snapshot.memory.backfill?.lastError && <div className="text-red-300">{snapshot.memory.backfill.lastError}</div>}
       {lastAudit && <div title={`${lastAudit.prompt}\n---\n${lastAudit.rawResponse}`}>Last audit: {lastAudit.id} ({lastAudit.reason})</div>}
@@ -182,14 +216,14 @@ const MemoryTab = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: 
                   <>
                     <div title={entry.evidence} className={entry.supersededBy || entry.foldedInto ? "opacity-40 line-through" : ""}>{entry.text}{entry.pinned ? " 📌" : ""}{entry.characterId ? ` (${entry.characterId})` : ""}</div>
                     <div className="flex gap-2 opacity-80 flex-wrap">
-                      <span>imp {entry.importance} · {entry.expiration}</span>
+                      <span>importance {entry.importance} · {entry.expiration}</span>
                       {entry.supersededBy && <span title={`superseded by ${entry.supersededBy}`}>⤳ superseded</span>}
                       {entry.foldedInto && <span title={`folded into ${entry.foldedInto}`}>🗜 folded</span>}
                       {entry.contradicted && !entry.supersededBy && <span>⚠ contradicted</span>}
                       {entry.recallCount > 0 && <span>recall {entry.recallCount}</span>}
                       <button className="menu_button" onClick={() => void manager.setMemoryPinned(entry.id, !entry.pinned)}>{entry.pinned ? "Unpin" : "Pin"}</button>
                       <button className="menu_button" onClick={() => startEdit(entry.id, entry.text)}>Edit</button>
-                      <button className="menu_button" onClick={() => void manager.excludeMemoryEntry(entry.id)}>Exclude</button>
+                      <button className="menu_button" onClick={() => void excludeWithUndo(entry.id)}>Exclude</button>
                     </div>
                   </>
                 )}
@@ -285,8 +319,36 @@ const ArcCanonPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
   );
 };
 
+const TALK_SOURCE_LABELS: Record<string, string> = {
+  mention: "name mention",
+  director: "LLM director",
+  rules: "weighted rules",
+  fallback: "rules fallback",
+};
+
+const TalkDecisionsPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
+  const decisions = [...snapshot.talk.decisions].reverse();
+  return (
+    <div className="text-xs opacity-80">
+      <div className="font-medium opacity-100">Speaker direction</div>
+      {!snapshot.talk.enabled && <div className="opacity-70">Disabled in settings.</div>}
+      {decisions.length === 0 ? (
+        <div className="opacity-70">No decisions yet. Recorded when a talk-control checkpoint picks the next speaker.</div>
+      ) : (
+        decisions.map((decision) => (
+          <div key={`${decision.checkpointId}-${decision.messageId}-${decision.at}`} className="border-t border-solid border-white/10 mt-1 pt-1">
+            <div className="opacity-100">{decision.chosenName ?? "silence"} <span className="opacity-60">via {TALK_SOURCE_LABELS[decision.source] ?? decision.source}</span></div>
+            <div>msg {decision.messageId} · {decision.checkpointId} · {decision.latencyMs} ms</div>
+          </div>
+        ))
+      )}
+    </div>
+  );
+};
+
 const SchedulerTab = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
   <div className="flex flex-col gap-3">
+    <TalkDecisionsPanel snapshot={snapshot} />
     <div className="text-xs opacity-80">
       <div className="font-medium opacity-100">Extraction</div>
       <div>Queue {snapshot.extraction.scheduler.queueDepth}, in flight {snapshot.extraction.scheduler.inFlight ? "yes" : "no"}</div>
@@ -340,15 +402,18 @@ const PayloadTab = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
 
 export const DrawerTabs = ({ snapshot, manager, driver }: DrawerTabsProps) => {
   const [active, setActive] = useState<DrawerTabId>("overview");
+  const authorView = snapshot.ui.authorView;
+  const tabs = TABS.filter((tab) => authorView || !tab.authorOnly);
+  const activeTab = tabs.some((tab) => tab.id === active) ? active : "overview";
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap gap-1" role="tablist" aria-label="Story Orchestrator debug tabs">
-        {TABS.map((tab) => (
+      <div className="flex flex-wrap gap-1" role="tablist" aria-label="Story Orchestrator tabs">
+        {tabs.map((tab) => (
           <button
             key={tab.id}
             role="tab"
-            aria-selected={active === tab.id}
-            className={`menu_button ${active === tab.id ? "" : "opacity-60"}`}
+            aria-selected={activeTab === tab.id}
+            className={`menu_button ${activeTab === tab.id ? "" : "opacity-60"}`}
             onClick={() => setActive(tab.id)}
           >
             {tab.label}
@@ -356,15 +421,15 @@ export const DrawerTabs = ({ snapshot, manager, driver }: DrawerTabsProps) => {
         ))}
       </div>
       <div role="tabpanel">
-        {active === "overview" && <OverviewTab snapshot={snapshot} />}
-        {active === "blackboard" && <BlackboardTab snapshot={snapshot} />}
-        {active === "memory" && <MemoryTab snapshot={snapshot} manager={manager} />}
-        {active === "scheduler" && <SchedulerTab snapshot={snapshot} />}
-        {active === "payload" && <PayloadTab snapshot={snapshot} />}
+        {activeTab === "overview" && <OverviewTab snapshot={snapshot} authorView={authorView} />}
+        {activeTab === "blackboard" && <BlackboardTab snapshot={snapshot} />}
+        {activeTab === "memory" && <MemoryTab snapshot={snapshot} manager={manager} />}
+        {activeTab === "scheduler" && <SchedulerTab snapshot={snapshot} />}
+        {activeTab === "payload" && <PayloadTab snapshot={snapshot} />}
       </div>
       {snapshot.copilot.enabled && (
         <div className="border-t border-solid border-white/10 pt-2">
-          <DriverPanel context={driver.context} checkpoints={snapshot.checkpoints} activeNudge={driver.activeNudge} controller={driver.controller} />
+          <DriverPanel context={driver.context} checkpoints={snapshot.checkpoints} activeNudge={driver.activeNudge} controller={driver.controller} authorView={authorView} />
         </div>
       )}
     </div>

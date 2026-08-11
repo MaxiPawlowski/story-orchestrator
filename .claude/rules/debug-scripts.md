@@ -5,6 +5,7 @@ For any live/E2E work, load the **`debug` skill** (`.claude/skills/debug/SKILL.m
 Essentials:
 
 - Scripts are `.mts`, run directly: `node scripts/debug/<tool>.mts`. Artifacts → `.debug/` (gitignored).
+- Responsive testing: prefix EVERY command with `ST_DEBUG_VIEWPORT=<W>x<H>` (e.g. `390x844`) to hold an emulated viewport; unprefixed runs snap viewports narrower than 1280px back to 1920×1080.
 - Browser is **headless by default** — the user sees nothing. `st-session.mts start --headed` opens a visible window (scripts + MCP then drive it live); use it whenever the user wants to watch.
 - Scripts = deterministic reads/actions/assertions, anything a gate depends on, anything run twice. Playwright MCP `browser_*` = exploratory only; never chain MCP calls into a validation when a script exists.
 - **Default gate for LLM-consuming paths = real-LLM validation** (profile selected, no `debugResponse`) — see "Real-LLM validation" in the debug skill. Can't run it → flag at handover, gate NOT green.

@@ -119,7 +119,7 @@ const StudioCopilot: React.FC<Props> = ({ enabled = true, runStage }) => {
           value={message}
           onChange={(event) => setMessage(event.target.value)}
         />
-        <button type="button" className="st-button" disabled={busy} onClick={() => void send()}>{busy ? "Working…" : "Run stage"}</button>
+        <button type="button" className="st-button primary" disabled={busy} onClick={() => void send()}>{busy ? "Working…" : "Run stage"}</button>
       </div>
     </div>
   );

@@ -14,6 +14,12 @@ export function getCharacterNameById(id: number | undefined): string | undefined
   return hostCharacters()[id]?.name;
 }
 
+export function getActiveCharacterId(): number | undefined {
+  const raw = getContext().characterId;
+  const parsed = typeof raw === "number" ? raw : typeof raw === "string" ? Number.parseInt(raw, 10) : Number.NaN;
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : undefined;
+}
+
 export function getCharacterIdByName(name: string): number | undefined {
   if (!name) return undefined;
   const searchName = name.trim().toLowerCase();

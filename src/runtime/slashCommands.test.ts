@@ -11,7 +11,9 @@ const fakeContext = {
   ARGUMENT_TYPE: { STRING: "string" },
 };
 
-jest.mock("@services/STAPI", () => ({ getContext: () => fakeContext }));
+const sendSystemChatMessage = jest.fn(() => true);
+
+jest.mock("@services/STAPI", () => ({ getContext: () => fakeContext, sendSystemChatMessage: (text: string) => sendSystemChatMessage(text) }));
 
 import { registerSlashCommands } from "./slashCommands";
 import type { RuntimeManager } from "./runtimeManager";
@@ -51,15 +53,17 @@ describe("registerSlashCommands", () => {
     expect(Object.keys(commands).sort()).toEqual(["cp", "so-mem"]);
   });
 
-  it("/so-mem list shows active entries and hides superseded ones", async () => {
+  it("/so-mem list numbers active entries, hides superseded ones, and posts a chat message", async () => {
     registerSlashCommands(makeManager());
+    sendSystemChatMessage.mockClear();
     const output = await commands["so-mem"].callback({}, "list");
-    expect(output).toContain("m1");
-    expect(output).toContain("The key opens the vault.");
+    expect(output).toContain("1. [facts] The key opens the vault.");
     expect(output).not.toContain("Old rumor.");
+    expect(output).not.toContain("m1");
+    expect(sendSystemChatMessage).toHaveBeenCalledWith(output);
   });
 
-  it("/so-mem pin and exclude call the manager with parsed args", async () => {
+  it("/so-mem pin and exclude accept ids and list numbers", async () => {
     const manager = makeManager();
     registerSlashCommands(manager);
     await commands["so-mem"].callback({}, "pin m1 off");
@@ -68,6 +72,11 @@ describe("registerSlashCommands", () => {
     expect(manager.setMemoryPinned).toHaveBeenCalledWith("m1", true);
     await commands["so-mem"].callback({}, "exclude m2");
     expect(manager.excludeMemoryEntry).toHaveBeenCalledWith("m2");
+    await commands["so-mem"].callback({}, "list");
+    await commands["so-mem"].callback({}, "pin 1");
+    expect(manager.setMemoryPinned).toHaveBeenLastCalledWith("m1", true);
+    await commands["so-mem"].callback({}, "exclude 1");
+    expect(manager.excludeMemoryEntry).toHaveBeenLastCalledWith("m1");
   });
 
   it("/so-mem backlog starts the memorize backlog; bad subcommands return usage", async () => {

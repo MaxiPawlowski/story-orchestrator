@@ -1,4 +1,5 @@
 import { progressQualityForAnchor, TENSION_CURRENT_KEY, type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type StoryV2, type ValidationError } from "@engine/index";
+import { directorEnabled } from "@talk/index";
 
 export type DiagnosticSeverity = "blocking" | "warning";
 
@@ -17,6 +18,9 @@ export const DIAGNOSTIC_CODES = [
   "snapshot-latching-conflict",
   "stub-no-anchor",
   "threshold-unsatisfiable",
+  "talk-member-unknown",
+  "talk-lead-outside-speakers",
+  "talk-silence-without-director",
 ] as const;
 
 const walkLeaves = (gate: GateNode, visit: (leaf: GateLeaf) => void) => {
@@ -136,6 +140,40 @@ export const runDiagnostics = (draft: StoryV2): Diagnostic[] => {
     const reachable = reachableFrom(stubId);
     const hasAnchor = [...reachable].some((id) => checkpointById.get(id)?.type === "anchor");
     if (!hasAnchor) push("stub-no-anchor", "warning", `scaffolding.${stubId}`, `stub '${stubId}' has no anchor reachable beyond it`);
+  });
+
+  const rosterIdByRef = new Map<string, string>();
+  draft.roster.forEach((member) => {
+    rosterIdByRef.set(member.id.trim().toLowerCase(), member.id);
+    if (member.name) rosterIdByRef.set(member.name.trim().toLowerCase(), member.id);
+  });
+  const resolveRosterRef = (ref: string): string | null => rosterIdByRef.get(ref.trim().toLowerCase()) ?? null;
+
+  draft.checkpoints.forEach((checkpoint, index) => {
+    const control = checkpoint.talk_control;
+    const path = `checkpoints.${index}.talk_control`;
+    if (control) {
+      (control.speakers ?? []).forEach((speaker, speakerIndex) => {
+        if (!resolveRosterRef(speaker.member)) push("talk-member-unknown", "warning", `${path}.speakers.${speakerIndex}`, `speaker '${speaker.member}' is not a roster member`);
+      });
+      if (control.lead) {
+        const leadId = resolveRosterRef(control.lead);
+        if (!leadId) {
+          push("talk-member-unknown", "warning", `${path}.lead`, `lead '${control.lead}' is not a roster member`);
+        } else if (control.speakers?.length) {
+          const speakerIds = new Set(control.speakers.map((speaker) => resolveRosterRef(speaker.member)).filter(Boolean));
+          if (!speakerIds.has(leadId)) push("talk-lead-outside-speakers", "warning", `${path}.lead`, `lead '${control.lead}' is not in the speakers list`);
+        }
+      }
+      if (control.allow_silence && !directorEnabled(control)) {
+        push("talk-silence-without-director", "warning", path, "allow_silence only takes effect when the director is enabled");
+      }
+    }
+    (checkpoint.effects?.npc_replies ?? []).forEach((reply, replyIndex) => {
+      if (reply.after_member && !resolveRosterRef(reply.after_member)) {
+        push("talk-member-unknown", "warning", `checkpoints.${index}.effects.npc_replies.${replyIndex}.after_member`, `after_member '${reply.after_member}' is not a roster member`);
+      }
+    });
   });
 
   draft.checkpoints.forEach((checkpoint, index) => {

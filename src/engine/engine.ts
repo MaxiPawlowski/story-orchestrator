@@ -213,6 +213,10 @@ export class StoryEngine {
     return [...this.boundaryLog];
   }
 
+  get pendingWrites(): ApplyQueueEntry[] {
+    return this.queue.peek();
+  }
+
   onAdvance(callback: (transition: NormalizedTransition) => void): () => void {
     this.advanceCallbacks.add(callback);
     return () => this.advanceCallbacks.delete(callback);

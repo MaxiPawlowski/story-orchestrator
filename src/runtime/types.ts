@@ -4,6 +4,7 @@ import type { ExpansionRuntimeState } from "@generation/index";
 import type { ArcEntry, EpistemicEntry, LedgerEntry, MemoryStoreState, MemoryTier, ScoreWeights } from "@memory/index";
 import type { SteeringHint } from "@pacing/index";
 import type { InjectedPromptBlock } from "@services/STAPI";
+import type { TalkDecisionSource } from "@talk/index";
 
 export interface PayloadCapture {
   at: string;
@@ -27,6 +28,21 @@ export interface RequirementsState {
   missingLorebooks: string[];
 }
 
+export interface TalkDecisionAudit {
+  at: string;
+  messageId: number;
+  checkpointId: string;
+  chosenRosterId: string | null;
+  chosenName: string | null;
+  source: TalkDecisionSource;
+  latencyMs: number;
+}
+
+export interface TalkRuntimeState {
+  enabled: boolean;
+  decisions: TalkDecisionAudit[];
+}
+
 export interface RuntimeExtras {
   firedNpcReplies: Record<string, number>;
   requirements: RequirementsState;
@@ -38,12 +54,26 @@ export interface RuntimeExtras {
   pacing: PacingSettings;
   tension: TensionRuntimeState;
   copilot: CopilotRuntimeSettings;
+  ui: UiRuntimeSettings;
+  talk: TalkRuntimeState;
   lastSessionAt: string | null;
   updatedAt: string;
 }
 
 export interface CopilotRuntimeSettings {
   enabled: boolean;
+}
+
+export interface UiRuntimeSettings {
+  authorView: boolean;
+  announceTransitions: boolean;
+  hudEnabled: boolean;
+}
+
+export interface PendingDeltaReadout {
+  quality: string;
+  value: PrimitiveValue;
+  source: string;
 }
 
 export interface MemoryRuntimeSettings {
@@ -127,6 +157,7 @@ export interface ConvergenceReadout {
   progress: number;
   threshold: number;
   reached: boolean;
+  visited: boolean;
 }
 
 export interface RuntimeSnapshot {
@@ -150,6 +181,9 @@ export interface RuntimeSnapshot {
   memory: MemoryRuntimeState;
   pacing: PacingSettings;
   copilot: CopilotRuntimeSettings;
+  ui: UiRuntimeSettings;
+  talk: TalkRuntimeState;
+  pendingDeltas: PendingDeltaReadout[];
   convergence: ConvergenceReadout[];
   tension: {
     level: TensionLevel | null;

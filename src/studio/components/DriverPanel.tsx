@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { DriverContext, Suggestion } from "@copilot/index";
 
 export interface DriverController {
@@ -15,9 +15,10 @@ type Props = {
   checkpoints: Array<{ id: string; name: string; active: boolean }>;
   activeNudge: string | null;
   controller: DriverController;
+  authorView?: boolean;
 };
 
-const DriverPanel: React.FC<Props> = ({ context, checkpoints, activeNudge, controller }) => {
+const DriverPanel: React.FC<Props> = ({ context, checkpoints, activeNudge, controller, authorView = true }) => {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [report, setReport] = useState<string>("");
   const [busy, setBusy] = useState<string | null>(null);
@@ -25,6 +26,19 @@ const DriverPanel: React.FC<Props> = ({ context, checkpoints, activeNudge, contr
   const [advanceTarget, setAdvanceTarget] = useState<string>("");
   const [confirmAdvance, setConfirmAdvance] = useState(false);
   const [nudgeText, setNudgeText] = useState("");
+  const suggestionsRef = useRef<HTMLDivElement | null>(null);
+  const activeCheckpointId = context?.activeCheckpointId ?? null;
+
+  useEffect(() => {
+    setSuggestions([]);
+    setReport("");
+    setAdvanceTarget("");
+    setConfirmAdvance(false);
+  }, [activeCheckpointId]);
+
+  useEffect(() => {
+    if (suggestions.length > 0) suggestionsRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [suggestions]);
 
   if (!context) {
     return <div className="text-xs opacity-70" aria-label="Driver unavailable">Load a story to use the in-play driver.</div>;
@@ -59,7 +73,7 @@ const DriverPanel: React.FC<Props> = ({ context, checkpoints, activeNudge, contr
     <div className="flex flex-col gap-2 text-xs" aria-label="In-play driver">
       <div className="font-medium opacity-100">Driver</div>
       <div className="opacity-80">Active: {context.activeCheckpointId ?? "—"} — {context.activeObjective || "(no objective)"}</div>
-      {context.unmetGates.length > 0 && (
+      {authorView && context.unmetGates.length > 0 && (
         <div className="opacity-80">
           <div className="font-medium opacity-100">Unmet gates</div>
           {context.unmetGates.map((gate, index) => <div key={index}>{gate}</div>)}
@@ -94,7 +108,7 @@ const DriverPanel: React.FC<Props> = ({ context, checkpoints, activeNudge, contr
       </div>
 
       {suggestions.length > 0 && (
-        <div className="flex flex-col gap-1" aria-label="Driver suggestions">
+        <div ref={suggestionsRef} className="flex flex-col gap-1" aria-label="Driver suggestions">
           {suggestions.map((suggestion, index) => (
             <div key={index} className="st-subpanel flex flex-col gap-1 p-2">
               <div className="font-medium opacity-100">{suggestion.title}</div>

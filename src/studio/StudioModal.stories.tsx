@@ -18,10 +18,10 @@ type Story = StoryObj<typeof StudioModal>;
 
 export const Seeded: Story = {
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByLabelText("Story title")).toHaveValue("The Ruins Heist");
-    await userEvent.click(canvas.getByRole("tab", { name: "Qualities" }));
-    await expect(canvas.getByText("trust")).toBeInTheDocument();
+    const canvas = within(canvasElement.ownerDocument.body);
+    await expect(await canvas.findByLabelText("Story title")).toHaveValue("The Ruins Heist");
+    await userEvent.click(await canvas.findByRole("tab", { name: "Qualities" }));
+    await expect(await canvas.findByText("trust")).toBeInTheDocument();
   },
 };
 
@@ -30,8 +30,8 @@ export const Empty: Story = {
     seedEmptyDraft();
   },
   play: async ({ args, canvasElement }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("button", { name: "Close studio" }));
+    const canvas = within(canvasElement.ownerDocument.body);
+    await userEvent.click(await canvas.findByRole("button", { name: "Close studio" }));
     await expect(args.onClose).toHaveBeenCalledTimes(1);
   },
 };
@@ -39,17 +39,17 @@ export const Empty: Story = {
 export const CopilotTabEnabled: Story = {
   args: { copilotEnabled: true },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByRole("tab", { name: "Copilot" })).toBeInTheDocument();
-    await userEvent.click(canvas.getByRole("tab", { name: "Copilot" }));
-    await expect(canvas.getByLabelText("Copilot unavailable")).toBeInTheDocument();
+    const canvas = within(canvasElement.ownerDocument.body);
+    await userEvent.click(await canvas.findByRole("tab", { name: "Copilot" }));
+    await expect(await canvas.findByLabelText("Copilot unavailable")).toBeInTheDocument();
   },
 };
 
 export const CopilotTabHiddenWhenDisabled: Story = {
   args: { copilotEnabled: false },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+    const canvas = within(canvasElement.ownerDocument.body);
+    await canvas.findByRole("button", { name: "Close studio" });
     await expect(canvas.queryByRole("tab", { name: "Copilot" })).toBeNull();
   },
 };

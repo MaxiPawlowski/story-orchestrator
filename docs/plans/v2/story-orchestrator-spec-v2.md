@@ -162,7 +162,9 @@ A story is a group chat with a **roster**; enabling/disabling a character is a *
 
 ## Talk Control
 
-NPC auto-replies are checkpoint effects: `npc_replies[] { trigger: onEnter | afterSpeak | sceneBreak, member, kind: scripted | llm, maxTriggers, probability? }`. `onEnter` fires on checkpoint activation, `afterSpeak` after an NPC reply, `sceneBreak` on a confirmed scene break. Per-checkpoint fired counters persist, so hydration never re-fires a reply. The generation intercept aborts loud generations only, never quiet ones.
+NPC auto-replies are checkpoint effects: `npc_replies[] { trigger: onEnter | afterSpeak | sceneBreak, member, kind: scripted | llm, maxTriggers, probability?, after_member?, enabled? }`. `onEnter` fires on checkpoint activation, `afterSpeak` after an NPC reply (`after_member` restricts it to firing only after that member spoke), `sceneBreak` on a confirmed scene break. `enabled: false` disables a reply without deleting it. Per-checkpoint fired counters persist, so hydration never re-fires a reply.
+
+**Speaker direction (plan 14).** A checkpoint may declare `talk_control? { speakers?: [{member, weight?}], lead?, no_repeat? (default true), allow_silence?, director?: boolean | {instruction?} }` — strict-when-declared: while active (and the per-chat "Speaker direction" setting is on), the orchestrator decides who talks next in the group for loud generations. One decision per group pass (key pinned at pass start): explicit `force_chid` (user speak button, `/trigger`, npc_replies, our own reconcile) is always respected → a single name mention of a candidate in the triggering message wins deterministically (no LLM call; multiple mentions narrow the pool) → LLM director (window + candidates + checkpoint objective + authored instruction, over the memory-model profile; strict `SPEAKER: <name|NONE>` output with bare-word tolerance; `NONE` honored only with `allow_silence`) → weighted rules (`lead` first, weights, `no_repeat` excludes the previous speaker). Director timeout/parse failure falls back to rules; an empty candidate set fails open to ST. Enforcement: the `generate_interceptor` (`talkControlInterceptor`) vetoes non-chosen drafted members via `abort(false)` — loud (`normal`) generations only, never quiet/swipe/continue/impersonate; a `GROUP_WRAPPER_FINISHED` reconcile `/trigger`s the chosen member when the pass ended without them speaking (covers MANUAL-strategy empty passes), at most once per decision. Silence = veto all, no reconcile. Decisions are audited in a persisted ring (`extras.talk.decisions`: chosen, source mention|director|rules|fallback, latency) shown in the drawer Scheduler tab.
 
 ## Off-path scheduler
 
@@ -218,6 +220,8 @@ Checkpoint:
   target_turn_length?
   effects?          author_note, preset, world_info, cast_changes,
                     npc_replies (§Talk Control)
+  talk_control?     speakers / lead / no_repeat / allow_silence / director
+                    (§Talk Control — speaker direction)
   guidance?         steering text while active (authored or generated)
 
 Transition:

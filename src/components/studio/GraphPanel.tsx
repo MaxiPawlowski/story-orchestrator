@@ -70,13 +70,24 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
           selectHandlerRef.current?.(id);
         }
       };
+      const handleEdgeOver = (event: EventObject) => {
+        const full = event.target.data("fullLabel");
+        if (container && typeof full === "string" && full) container.title = full;
+      };
+      const handleEdgeOut = () => {
+        if (container) container.title = "";
+      };
       cy.on("tap", "node", handleTap);
+      cy.on("mouseover", "edge", handleEdgeOver);
+      cy.on("mouseout", "edge", handleEdgeOut);
       cyRef.current = cy;
       setCyReady(true);
 
       cleanup = () => {
         try {
           cy?.off("tap", "node", handleTap);
+          cy?.off("mouseover", "edge", handleEdgeOver);
+          cy?.off("mouseout", "edge", handleEdgeOut);
         } catch (err) {
           console.warn("[Story - GraphPanel] Failed to remove tap handler", err);
         }
@@ -171,9 +182,9 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
 
   return (
     <div className="st-panel flex flex-1 flex-col overflow-hidden shadow-sm">
-      <div className="st-panel-header flex items-center justify-between gap-2 px-3 py-2">
+      <div className="st-panel-header flex flex-wrap items-center justify-between gap-2 px-3 py-2">
         <div className="font-semibold">Graph <HelpTooltip title="Click a Checkpoint to configure it" /></div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             className="st-button secondary"

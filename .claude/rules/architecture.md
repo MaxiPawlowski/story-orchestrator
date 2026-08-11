@@ -20,6 +20,7 @@ src/
     storyLibrary.ts          # extension-settings story library
     slashCommands.ts         # /cp state/set/activate/extract/expand/converge/memorize
     macros.ts                # story_blackboard + story_memory_<tier> macros (more in plan 13)
+    talkControl.ts           # plan 14: TalkController — real talkControlInterceptor routing, per-pass decision, wrapper-finished reconcile (host seam built in runtime/index.ts)
     hash.ts / requirements.ts / blackboardMemo.ts
   extraction/
     scope.ts                 # active + reachable gate/snapshot scope (pure)
@@ -29,6 +30,7 @@ src/
     reconcile.ts             # stall-triggered targeted reads
     canonLite.ts / cues.ts / client.ts / chatWindow.ts
   pacing/                    # plan 04: tension.ts, shapes.ts, steering.ts
+  talk/                      # plan 14 (pure): rules.ts (candidates/mention/weighted chooser), prompt.ts + parse.ts (director SPEAKER: <name|NONE>), types.ts
   memory/                    # plan 07: tier stores (facts/session/short_term/scene), scene detection, injection — pure except inject.ts
   studio/                    # plan 11: Checkpoint Studio v2 — draft.ts (zustand store), mutations.ts (typed API = 12's contract), diagnostics.ts (8 checks), gateOptions.ts, qualityUsage.ts, graphAdapter.ts (v2→GraphPanel + Mermaid), io.ts (export/import), StudioModal.tsx + components/*, *.stories.tsx
   services/stHost/           # SillyTavern host wrappers (one module per concern)
@@ -51,4 +53,4 @@ src/
 
 ## Path aliases (tsconfig + webpack)
 
-Active: `@components @services @utils @constants @engine @runtime @extraction @pacing @generation @memory @copilot` → `src/<name>/*`. (Dead `@hooks @controllers @store` aliases + their empty dirs removed in plan 13.)
+Active: `@components @services @utils @constants @engine @runtime @extraction @pacing @generation @memory @copilot @talk` → `src/<name>/*`. (Dead `@hooks @controllers @store` aliases + their empty dirs removed in plan 13.)

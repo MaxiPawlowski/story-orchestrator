@@ -22,9 +22,10 @@
       "@pacing/*": ["pacing/*"],
       "@generation/*": ["generation/*"],
       "@memory/*": ["memory/*"],
-      "@copilot/*": ["copilot/*"]
+      "@copilot/*": ["copilot/*"],
+      "@talk/*": ["talk/*"]
     }
   },
-  "include": ["src/index.tsx", "src/engine/**/*.ts", "src/extraction/**/*.ts", "src/runtime/**/*.ts", "src/pacing/**/*.ts", "src/generation/**/*.ts", "src/services/**/*.ts", "src/utils/**/*.ts", "src/constants/**/*.ts", "src/memory/**/*.ts", "src/studio/**/*.ts", "src/studio/**/*.tsx", "src/copilot/**/*.ts", "src/components/**/*.ts", "src/components/**/*.tsx", "global.d.ts"],
+  "include": ["src/index.tsx", "src/engine/**/*.ts", "src/extraction/**/*.ts", "src/runtime/**/*.ts", "src/pacing/**/*.ts", "src/generation/**/*.ts", "src/services/**/*.ts", "src/utils/**/*.ts", "src/constants/**/*.ts", "src/memory/**/*.ts", "src/studio/**/*.ts", "src/studio/**/*.tsx", "src/copilot/**/*.ts", "src/talk/**/*.ts", "src/components/**/*.ts", "src/components/**/*.tsx", "global.d.ts"],
   "exclude": ["src/**/*.test.ts"]
 }

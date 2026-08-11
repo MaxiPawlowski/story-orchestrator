@@ -1009,3 +1009,83 @@ describe("RuntimeManager plan-13 surfacing", () => {
     expect(manager.getCanon()).toContain("Canon so far.");
   });
 });
+
+describe("RuntimeManager transition announcements and pending deltas", () => {
+  beforeEach(() => resetHost());
+
+  const gatedStory = {
+    ...story,
+    title: "Announce Test",
+    qualities: [{ key: "has_key", type: "bool", source: "extractor", latching: true, rubric: "Key?" }],
+    transitions: [{ from: "start", to: "end", priority: 1, gate: { q: "has_key", op: "==", v: true } }],
+  };
+
+  const keyAudit = (): SharedReadAudit => ({
+    id: "audit-key",
+    createdAt: "2026-07-05T00:00:00.000Z",
+    priority: 0,
+    reason: "test",
+    contractHash: "hash",
+    scope: ["has_key"],
+    window: { from: 0, to: 0 },
+    prompt: "prompt",
+    rawResponse: "raw",
+    acceptedDeltas: [{ delta: { q: "has_key", v: true, source: "extractor" }, evidence: "found the key" }],
+    rejected: [],
+  });
+
+  it("posts a compact comment to chat when a transition fires", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(gatedStory));
+    (executeSlashCommands as jest.Mock).mockClear();
+    await manager.setQuality("has_key", "true");
+    const commentCalls = (executeSlashCommands as jest.Mock).mock.calls.filter(([command]) => typeof command === "string" && command.startsWith("/comment"));
+    expect(commentCalls).toHaveLength(1);
+    expect(commentCalls[0][0]).toContain("compact=true");
+    expect(commentCalls[0][0]).toContain("End");
+  });
+
+  it("stays silent when announcements are disabled", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(gatedStory));
+    manager.setUiSettings({ announceTransitions: false });
+    (executeSlashCommands as jest.Mock).mockClear();
+    await manager.setQuality("has_key", "true");
+    const commentCalls = (executeSlashCommands as jest.Mock).mock.calls.filter(([command]) => typeof command === "string" && command.startsWith("/comment"));
+    expect(commentCalls).toHaveLength(0);
+    expect(manager.getSnapshot().activeCheckpointId).toBe("end");
+  });
+
+  it("does not announce boundaries without a fired transition", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(gatedStory));
+    (executeSlashCommands as jest.Mock).mockClear();
+    mockContext.chat = [{ mes: "nothing decisive" }];
+    await manager.commitBoundary();
+    const commentCalls = (executeSlashCommands as jest.Mock).mock.calls.filter(([command]) => typeof command === "string" && command.startsWith("/comment"));
+    expect(commentCalls).toHaveLength(0);
+  });
+
+  it("exposes accepted-but-unapplied deltas until the next boundary", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(gatedStory));
+    await manager.applyExtractionAudit(keyAudit(), []);
+    expect(manager.getSnapshot().pendingDeltas).toEqual([{ quality: "has_key", value: true, source: "extractor" }]);
+    mockContext.chat = [{ mes: "found it" }];
+    await manager.commitBoundary();
+    expect(manager.getSnapshot().pendingDeltas).toEqual([]);
+    expect(manager.getSnapshot().activeCheckpointId).toBe("end");
+  });
+
+  it("defaults ui settings on hydrate and persists overrides", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(gatedStory));
+    expect(manager.getSnapshot().ui).toEqual({ authorView: false, announceTransitions: true, hudEnabled: true });
+    manager.setUiSettings({ authorView: true });
+    const metadata = mockContext.chatMetadata.story_orchestrator as { stories: Record<string, { extras: { ui?: { authorView?: boolean } } }> };
+    const hash = Object.keys(metadata.stories)[0];
+    delete metadata.stories[hash].extras.ui;
+    await manager.selectStory(hash, "hydrate");
+    expect(manager.getSnapshot().ui.authorView).toBe(false);
+  });
+});

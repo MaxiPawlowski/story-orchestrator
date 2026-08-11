@@ -70,6 +70,11 @@ export function excludeEntry(state: MemoryStoreState, id: string): MemoryStoreSt
   return { ...state, entries: state.entries.filter((candidate) => candidate.id !== id), excluded: [...state.excluded, hashMemoryText(entry.text)] };
 }
 
+export function restoreEntry(state: MemoryStoreState, entry: MemoryEntry): MemoryStoreState {
+  if (state.entries.some((candidate) => candidate.id === entry.id)) return state;
+  return { ...state, entries: [...state.entries, entry], excluded: state.excluded.filter((hash) => hash !== hashMemoryText(entry.text)) };
+}
+
 export function editEntryText(state: MemoryStoreState, id: string, text: string): MemoryStoreState {
   return { ...state, entries: state.entries.map((entry) => (entry.id === id ? { ...entry, text } : entry)) };
 }

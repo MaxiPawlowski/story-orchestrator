@@ -46,6 +46,7 @@ export interface SillyTavernContext {
   executeSlashCommandsWithOptions: (command: string, options?: { handleParserErrors?: boolean; handleExecutionErrors?: boolean }) => Promise<HostSlashCommandResult | undefined>;
   loadWorldInfo: (name: string) => Promise<unknown>;
   name1: string;
+  characterId?: number | string;
   groupId: string | null | undefined;
   groups: HostGroup[];
   characters: HostCharacter[];
@@ -57,6 +58,7 @@ export interface SillyTavernContext {
 export interface ScriptHostModule {
   setGenerationParamsFromPreset: (preset: Record<string, unknown>) => void;
   isGenerating: () => boolean;
+  doNavbarIconClick: (this: Element) => Promise<void>;
   [key: string]: unknown;
 }
 

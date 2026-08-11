@@ -1,6 +1,8 @@
 export { getContext, getPlayerName, registerHostMacro, unregisterHostMacro } from "@services/stHost/context";
-export { showTextPopup } from "@services/stHost/popup";
-export type { TextPopupOptions } from "@services/stHost/popup";
+export { showTextPopup, showConfirmPopup } from "@services/stHost/popup";
+export { bindNavbarDrawerToggle, toggleNavbarDrawer } from "@services/stHost/drawers";
+export { sendSystemChatMessage } from "@services/stHost/chatMessages";
+export type { TextPopupOptions, ConfirmPopupOptions } from "@services/stHost/popup";
 export { readInjectedPromptBlocks } from "@services/stHost/promptInspector";
 export type { InjectedPromptBlock } from "@services/stHost/promptInspector";
 export type { StoryOrchestratorHostContext } from "@services/stHost/context";
@@ -19,6 +21,7 @@ export {
   applyTextGenPresetRuntime,
 } from "@services/stHost/presets";
 export {
+  getActiveCharacterId,
   getCharacterNameById,
   getCharacterIdByName,
   getAllCharacterNames,

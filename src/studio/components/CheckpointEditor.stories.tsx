@@ -41,6 +41,9 @@ export const AddAndDelete: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "+ Checkpoint" }));
     await expect(useDraftStore.getState().draft.checkpoints).toHaveLength(4);
     await userEvent.click(canvas.getByRole("button", { name: "Delete checkpoint" }));
+    await expect(useDraftStore.getState().draft.checkpoints).toHaveLength(4);
+    await expect(canvas.getByText(/click Delete again to confirm/)).toBeInTheDocument();
+    await userEvent.click(canvas.getByRole("button", { name: "Delete checkpoint" }));
     await expect(useDraftStore.getState().draft.checkpoints).toHaveLength(3);
   },
 };
@@ -50,5 +53,15 @@ export const ToggleNpcReply: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByLabelText("NPC replies"));
     await expect(useDraftStore.getState().draft.checkpoints[0].effects?.npc_replies).toHaveLength(1);
+  },
+};
+
+export const ToggleTalkControl: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByLabelText("Talk control"));
+    await expect(useDraftStore.getState().draft.checkpoints[0].talk_control).toEqual({});
+    await userEvent.click(canvas.getByLabelText("LLM director picks the speaker"));
+    await expect(useDraftStore.getState().draft.checkpoints[0].talk_control).toEqual({ director: true });
   },
 };

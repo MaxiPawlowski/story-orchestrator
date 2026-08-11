@@ -1,4 +1,4 @@
-import { getContext } from "@services/STAPI";
+import { getContext, sendSystemChatMessage } from "@services/STAPI";
 import type { RuntimeManager } from "./runtimeManager";
 import { renderBlackboardMemo } from "./blackboardMemo";
 
@@ -17,6 +17,19 @@ const hasSlashArgumentTypes = (value: unknown): value is SlashArgumentTypes => v
 const show = (message: string) => {
   window.toastr?.info?.(message, "Story Orchestrator");
   return message;
+};
+
+const dump = (message: string) => {
+  if (!sendSystemChatMessage(message)) show(message);
+  return message;
+};
+
+let lastMemListIds: string[] = [];
+
+const resolveMemId = (token: string | undefined): string | undefined => {
+  if (!token) return undefined;
+  if (/^\d+$/.test(token)) return lastMemListIds[Number(token) - 1];
+  return token;
 };
 
 export function registerSlashCommands(manager: RuntimeManager): boolean {
@@ -43,10 +56,10 @@ export function registerSlashCommands(manager: RuntimeManager): boolean {
       const command = parts[0] ?? "list";
       if (command === "list") {
         const snapshot = manager.getSnapshot();
-        return show(snapshot.checkpoints.map((checkpoint) => `${checkpoint.active ? "●" : checkpoint.visited ? "✔" : "○"} ${checkpoint.id} ${checkpoint.name}`).join("\n") || "No story loaded");
+        return dump(snapshot.checkpoints.map((checkpoint) => `${checkpoint.active ? "●" : checkpoint.visited ? "✔" : "○"} ${checkpoint.id} ${checkpoint.name}`).join("\n") || "No story loaded");
       }
       if (command === "state") {
-        return show(renderBlackboardMemo(manager.getSnapshot()));
+        return dump(renderBlackboardMemo(manager.getSnapshot()));
       }
       if (command === "activate") {
         const id = parts[1];
@@ -74,14 +87,14 @@ export function registerSlashCommands(manager: RuntimeManager): boolean {
       if (command === "converge") {
         const snapshot = manager.getSnapshot();
         if (!snapshot.convergence.length) return show("No convergence anchors with progress qualities.");
-        return show(snapshot.convergence.map((entry) => `${entry.reached ? "✔" : "○"} ${entry.anchorId} ${entry.progress}/${entry.threshold}`).join("\n"));
+        return dump(snapshot.convergence.map((entry) => `${entry.reached ? "✔" : "○"} ${entry.anchorId} ${entry.progress}/${entry.threshold}`).join("\n"));
       }
       if (command === "memorize") {
         const ok = await manager.runMemorizeBacklog();
         if (!ok) return show(manager.getSnapshot().memory.backfill?.lastError ?? "Memorize backlog could not start.");
         return show(manager.getSnapshot().status);
       }
-      return show("Commands: /cp list, /cp state, /cp activate <id>, /cp set <quality> <value>, /cp extract [response], /cp expand [response], /cp converge, /cp memorize");
+      return dump("Commands: /cp list, /cp state, /cp activate <id>, /cp set <quality> <value>, /cp extract [response], /cp expand [response], /cp converge, /cp memorize");
     },
     helpString: "Story Orchestrator v2 commands: list, state, activate <id>, set <quality> <value>, extract [response], expand [response], converge, memorize",
   }));
@@ -104,29 +117,30 @@ export function registerSlashCommands(manager: RuntimeManager): boolean {
       if (command === "list") {
         const entries = manager.getSnapshot().memory.entries.filter((entry) => !entry.supersededBy && !entry.foldedInto);
         if (!entries.length) return show("No memory entries.");
-        return show(entries.map((entry) => `${entry.pinned ? "📌" : "•"} [${entry.tier}] ${entry.id} — ${entry.text}`).join("\n"));
+        lastMemListIds = entries.map((entry) => entry.id);
+        return dump(entries.map((entry, index) => `${index + 1}. ${entry.pinned ? "📌 " : ""}[${entry.tier}] ${entry.text}`).join("\n"));
       }
       if (command === "pin") {
-        const id = parts[1];
+        const id = resolveMemId(parts[1]);
         const state = (parts[2] ?? "on").toLowerCase();
-        if (!id) return show("Usage: /so-mem pin <id> on|off");
+        if (!id) return show("Usage: /so-mem pin <number|id> on|off — run /so-mem list first for numbers");
         await manager.setMemoryPinned(id, state !== "off");
-        return show(`${state !== "off" ? "Pinned" : "Unpinned"} ${id}`);
+        return show(`${state !== "off" ? "Pinned" : "Unpinned"} memory ${parts[1]}`);
       }
       if (command === "exclude") {
-        const id = parts[1];
-        if (!id) return show("Usage: /so-mem exclude <id>");
+        const id = resolveMemId(parts[1]);
+        if (!id) return show("Usage: /so-mem exclude <number|id> — run /so-mem list first for numbers");
         await manager.excludeMemoryEntry(id);
-        return show(`Excluded ${id}`);
+        return show(`Excluded memory ${parts[1]}`);
       }
       if (command === "backlog") {
         const ok = await manager.runMemorizeBacklog();
         if (!ok) return show(manager.getSnapshot().memory.backfill?.lastError ?? "Memorize backlog could not start.");
         return show(manager.getSnapshot().status);
       }
-      return show("Commands: /so-mem list, /so-mem pin <id> on|off, /so-mem exclude <id>, /so-mem backlog");
+      return dump("Commands: /so-mem list, /so-mem pin <number|id> on|off, /so-mem exclude <number|id>, /so-mem backlog");
     },
-    helpString: "Story Orchestrator v2 memory commands: list, pin <id> on|off, exclude <id>, backlog",
+    helpString: "Story Orchestrator v2 memory commands: list, pin <number|id> on|off, exclude <number|id>, backlog",
   }));
 
   return Boolean(parser.commands?.cp && parser.commands?.["so-mem"]);

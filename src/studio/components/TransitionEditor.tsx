@@ -19,6 +19,7 @@ const TransitionEditor: React.FC = () => {
   const anchors = checkpoints.filter((checkpoint) => checkpoint.type === "anchor");
 
   const [selectedIndex, setSelectedIndex] = useState<number>(transitions.length ? 0 : -1);
+  const [confirmDeleteIndex, setConfirmDeleteIndex] = useState<number | null>(null);
   const selected = selectedIndex >= 0 ? transitions[selectedIndex] ?? null : null;
 
   const patch = (change: Partial<Transition>) => {
@@ -33,7 +34,12 @@ const TransitionEditor: React.FC = () => {
 
   const handleDelete = () => {
     if (selectedIndex < 0) return;
+    if (confirmDeleteIndex !== selectedIndex) {
+      setConfirmDeleteIndex(selectedIndex);
+      return;
+    }
     const index = selectedIndex;
+    setConfirmDeleteIndex(null);
     mutate((current) => removeTransition(current, index));
     setSelectedIndex(transitions.length - 2 >= 0 ? Math.min(index, transitions.length - 2) : -1);
   };
@@ -41,8 +47,8 @@ const TransitionEditor: React.FC = () => {
   const progress = selected?.effects?.progress;
 
   return (
-    <div className="flex gap-3">
-      <div className="flex w-56 flex-col gap-2">
+    <div className="flex flex-col gap-3 sm:flex-row">
+      <div className="flex w-full flex-col gap-2 sm:w-56">
         <button type="button" className="st-button primary" onClick={handleAdd} disabled={checkpoints.length === 0}>+ Transition</button>
         <ul className="flex flex-col gap-1" aria-label="Transitions">
           {transitions.length === 0 ? <li className="text-sm st-muted">No transitions yet</li> : null}
@@ -52,7 +58,7 @@ const TransitionEditor: React.FC = () => {
                 type="button"
                 aria-pressed={index === selectedIndex}
                 className={`st-chip flex w-full flex-col items-start px-2 py-1 text-left text-sm ${index === selectedIndex ? "st-tab-active" : ""}`}
-                onClick={() => setSelectedIndex(index)}
+                onClick={() => { setConfirmDeleteIndex(null); setSelectedIndex(index); }}
               >
                 <span className="truncate">{transition.from} → {transition.to}</span>
                 <span className="truncate text-[10px] st-muted">{renderGateText(transition.gate) || "(always)"}</span>
@@ -123,6 +129,9 @@ const TransitionEditor: React.FC = () => {
 
             <div className="flex items-center gap-2 border-t st-divider pt-3">
               <button type="button" className="st-button danger" onClick={handleDelete}>Delete transition</button>
+              {confirmDeleteIndex === selectedIndex ? (
+                <span className="text-xs st-text-error">Click Delete again to confirm.</span>
+              ) : null}
             </div>
           </div>
         )}

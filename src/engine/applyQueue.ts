@@ -62,4 +62,8 @@ export class ApplyQueue {
   get size(): number {
     return this.entries.length;
   }
+
+  peek(): ApplyQueueEntry[] {
+    return this.entries.map((entry) => ({ ...entry, deltas: entry.deltas.map((delta) => ({ ...delta })) }));
+  }
 }

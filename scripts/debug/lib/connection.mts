@@ -85,14 +85,27 @@ function sameOriginOrBlank(page: Page, stUrl: string): boolean {
   }
 }
 
+function requestedViewport(): { width: number; height: number } | null {
+  const raw = process.env.ST_DEBUG_VIEWPORT;
+  if (!raw) return null;
+  const match = /^(\d+)x(\d+)$/.exec(raw.trim());
+  if (!match) return null;
+  return { width: Number(match[1]), height: Number(match[2]) };
+}
+
 async function pickPage(browser: Browser, stUrl: string): Promise<Page> {
   const contexts = browser.contexts();
   const context = contexts[0] || await browser.newContext({ viewport: { width: 1920, height: 1080 } });
   const pages = context.pages();
   const existing = pages.find((page) => sameOriginOrBlank(page, stUrl));
   const page = existing || await context.newPage();
+  const override = requestedViewport();
   const viewport = page.viewportSize();
-  if (!viewport || viewport.width < 1280) {
+  if (override) {
+    if (!viewport || viewport.width !== override.width || viewport.height !== override.height) {
+      await page.setViewportSize(override);
+    }
+  } else if (!viewport || viewport.width < 1280) {
     await page.setViewportSize({ width: 1920, height: 1080 });
   }
   if (page.url() === 'about:blank') {

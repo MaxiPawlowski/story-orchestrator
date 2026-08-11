@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { TENSION_LEVELS, type ArcBridge, type Checkpoint, type CheckpointEffects, type PrimitiveValue, type TensionLevel } from "@engine/index";
+import { TENSION_LEVELS, type ArcBridge, type Checkpoint, type CheckpointEffects, type PrimitiveValue, type TalkControl, type TensionLevel } from "@engine/index";
 import { useDraftStore } from "../draft";
 import { addCheckpoint, clearStartCheckpoint, removeCheckpoint, setArcBridges, setStartCheckpoint, updateCheckpoint } from "../mutations";
 import SnapshotEditor from "./SnapshotEditor";
 import EffectsEditor from "./EffectsEditor";
 import ScopePreview from "./ScopePreview";
+import TalkControlEditor from "./TalkControlEditor";
 
 const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
   <label className="flex flex-col gap-1 text-sm">
@@ -33,15 +34,24 @@ const ArcBridgesPanel: React.FC = () => {
 
   return (
     <div className="st-subpanel mt-3 flex flex-col gap-2 p-3">
-      <div className="text-xs st-muted">Story arc bridges</div>
+      <div className="text-xs st-muted">Story arc bridges — when a resolved arc matches the keyword, add progress toward the anchor</div>
       {bridges.map((bridge, index) => (
-        <div key={index} className="flex flex-wrap items-center gap-2">
-          <input className="text_pole st-input flex-1" aria-label={`Arc match ${index + 1}`} placeholder="arc keyword" value={bridge.arcMatch} onChange={(event) => update(index, { arcMatch: event.target.value })} />
-          <select className="text_pole st-input" aria-label={`Arc bridge anchor ${index + 1}`} value={bridge.anchor} onChange={(event) => update(index, { anchor: event.target.value })}>
-            <option value="" disabled>anchor…</option>
-            {anchors.map((anchor) => <option key={anchor.id} value={anchor.id}>{anchor.name}</option>)}
-          </select>
-          <input type="number" className="text_pole st-input w-24" aria-label={`Arc bridge amount ${index + 1}`} value={bridge.amount} onChange={(event) => update(index, { amount: optionalFloat(event.target.value) ?? 0 })} />
+        <div key={index} className="flex flex-wrap items-end gap-2">
+          <label className="flex min-w-[9rem] flex-1 flex-col gap-1 text-xs st-muted">
+            <span>Arc keyword</span>
+            <input className="text_pole st-input w-full min-w-0" aria-label={`Arc match ${index + 1}`} placeholder="e.g. missing brother" value={bridge.arcMatch} onChange={(event) => update(index, { arcMatch: event.target.value })} />
+          </label>
+          <label className="flex min-w-0 max-w-full flex-col gap-1 text-xs st-muted">
+            <span>Toward anchor</span>
+            <select className="text_pole st-input w-full max-w-full" aria-label={`Arc bridge anchor ${index + 1}`} value={bridge.anchor} onChange={(event) => update(index, { anchor: event.target.value })}>
+              <option value="" disabled>anchor…</option>
+              {anchors.map((anchor) => <option key={anchor.id} value={anchor.id}>{anchor.name}</option>)}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 text-xs st-muted">
+            <span>Progress</span>
+            <input type="number" className="text_pole st-input w-24" aria-label={`Arc bridge amount ${index + 1}`} value={bridge.amount} onChange={(event) => update(index, { amount: optionalFloat(event.target.value) ?? 0 })} />
+          </label>
           <button type="button" className="st-button danger" aria-label={`Remove arc bridge ${index + 1}`} onClick={() => mutate((current) => setArcBridges(current, bridges.filter((_, entryIndex) => entryIndex !== index)))}>×</button>
         </div>
       ))}
@@ -54,7 +64,9 @@ const CheckpointEditor: React.FC = () => {
   const draft = useDraftStore((state) => state.draft);
   const mutate = useDraftStore((state) => state.mutate);
   const checkpoints = draft.checkpoints;
-  const [selectedId, setSelectedId] = useState<string | null>(checkpoints[0]?.id ?? null);
+  const selectedId = useDraftStore((state) => state.selectedCheckpointId);
+  const setSelectedId = useDraftStore((state) => state.selectCheckpoint);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const selected = checkpoints.find((checkpoint) => checkpoint.id === selectedId) ?? null;
   const isStub = selected ? Boolean(draft.scaffolding?.[selected.id]) : false;
@@ -74,9 +86,16 @@ const CheckpointEditor: React.FC = () => {
     if (createdId) setSelectedId(createdId);
   };
 
+  const touchingTransitions = selected ? draft.transitions.filter((transition) => transition.from === selected.id || transition.to === selected.id).length : 0;
+
   const handleDelete = () => {
     if (!selected) return;
+    if (confirmDeleteId !== selected.id) {
+      setConfirmDeleteId(selected.id);
+      return;
+    }
     const removedId = selected.id;
+    setConfirmDeleteId(null);
     mutate((current) => removeCheckpoint(current, removedId));
     setSelectedId(checkpoints.find((checkpoint) => checkpoint.id !== removedId)?.id ?? null);
   };
@@ -88,8 +107,8 @@ const CheckpointEditor: React.FC = () => {
 
   return (
     <div>
-      <div className="flex gap-3">
-        <div className="flex w-56 flex-col gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex w-full flex-col gap-2 sm:w-56">
           <button type="button" className="st-button primary" onClick={handleAdd}>+ Checkpoint</button>
           <ul className="flex flex-col gap-1" aria-label="Checkpoints">
             {checkpoints.map((checkpoint) => (
@@ -98,7 +117,7 @@ const CheckpointEditor: React.FC = () => {
                   type="button"
                   aria-pressed={checkpoint.id === selectedId}
                   className={`st-chip flex w-full items-center justify-between px-2 py-1 text-left text-sm ${checkpoint.id === selectedId ? "st-tab-active" : ""}`}
-                  onClick={() => setSelectedId(checkpoint.id)}
+                  onClick={() => { setConfirmDeleteId(null); setSelectedId(checkpoint.id); }}
                 >
                   <span className="truncate">{checkpoint.name || checkpoint.id}</span>
                   <span className="text-[10px] st-muted">{checkpoint.start ? "start · " : ""}{checkpoint.type}</span>
@@ -172,12 +191,24 @@ const CheckpointEditor: React.FC = () => {
               </div>
 
               <div className="flex flex-col gap-1">
+                <span className="text-xs st-muted">Talk control</span>
+                <TalkControlEditor
+                  control={selected.talk_control}
+                  roster={draft.roster}
+                  onChange={(next: TalkControl | undefined) => patch({ talk_control: next })}
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
                 <span className="text-xs st-muted">Extraction scope preview</span>
                 <ScopePreview checkpointId={selected.id} />
               </div>
 
               <div className="flex items-center gap-2 border-t st-divider pt-3">
                 <button type="button" className="st-button danger" onClick={handleDelete}>Delete checkpoint</button>
+                {confirmDeleteId === selected.id ? (
+                  <span className="text-xs st-text-error">{touchingTransitions > 0 ? `Also removes ${touchingTransitions} connected transition${touchingTransitions === 1 ? "" : "s"} — ` : ""}click Delete again to confirm.</span>
+                ) : null}
               </div>
             </div>
           )}

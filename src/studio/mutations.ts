@@ -6,6 +6,7 @@ import type {
   PrimitiveValue,
   Quality,
   RosterMember,
+  TalkControl,
   Transition,
 } from "@engine/index";
 import type { StoryDraft } from "./draft";
@@ -68,6 +69,9 @@ export const setCheckpointSnapshot = (draft: StoryDraft, id: string, snapshot: R
 
 export const setCheckpointEffects = (draft: StoryDraft, id: string, effects: CheckpointEffects): StoryDraft =>
   updateCheckpoint(draft, id, { effects });
+
+export const setCheckpointTalkControl = (draft: StoryDraft, id: string, talkControl: TalkControl | undefined): StoryDraft =>
+  updateCheckpoint(draft, id, { talk_control: talkControl });
 
 export const newTransition = (from: string, to: string): Transition => ({ from, to, gate: { all: [] }, priority: 0 });
 

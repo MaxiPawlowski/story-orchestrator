@@ -5,6 +5,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(v
 
 const readMessage = (entry: unknown, index: number): ChatMessageWindowEntry | null => {
   if (!isRecord(entry)) return null;
+  if (entry.is_system === true) return null;
   if (entry.gen_started && !entry.gen_finished) return null;
   const text = typeof entry.mes === "string" ? entry.mes.trim() : "";
   if (!text) return null;

@@ -78,6 +78,25 @@ export interface NpcReplyEffect {
   instruction?: string;
   maxTriggers?: number;
   probability?: number;
+  after_member?: string;
+  enabled?: boolean;
+}
+
+export interface TalkControlSpeaker {
+  member: string;
+  weight?: number;
+}
+
+export interface TalkControlDirector {
+  instruction?: string;
+}
+
+export interface TalkControl {
+  speakers?: TalkControlSpeaker[];
+  lead?: string;
+  no_repeat?: boolean;
+  allow_silence?: boolean;
+  director?: boolean | TalkControlDirector;
 }
 
 export interface Checkpoint {
@@ -90,6 +109,7 @@ export interface Checkpoint {
   tension_target?: TensionLevel;
   target_turn_length?: number;
   effects?: CheckpointEffects;
+  talk_control?: TalkControl;
   guidance?: string;
   convergence_threshold?: number;
 }

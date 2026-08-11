@@ -100,6 +100,84 @@ describe("v2 schema validation", () => {
     expect(JSON.stringify(errors)).toContain("npc_replies must be an array");
   });
 
+  it("accepts npc reply after_member and enabled fields", () => {
+    const valid = {
+      ...linearStory,
+      checkpoints: [
+        {
+          ...(linearStory as any).checkpoints[0],
+          effects: { npc_replies: [{ trigger: "afterSpeak", member: "guard", kind: "llm", after_member: "captain", enabled: false }] },
+        },
+        ...(linearStory as any).checkpoints.slice(1),
+      ],
+    };
+    expect(parseStoryV2OrThrow(valid).checkpointById.start.effects?.npc_replies).toEqual([
+      { trigger: "afterSpeak", member: "guard", kind: "llm", after_member: "captain", enabled: false },
+    ]);
+  });
+
+  it("accepts valid talk_control and rejects bad shapes", () => {
+    const valid = {
+      ...linearStory,
+      checkpoints: [
+        {
+          ...(linearStory as any).checkpoints[0],
+          talk_control: {
+            speakers: [{ member: "guard", weight: 2 }, "captain"],
+            lead: "guard",
+            no_repeat: false,
+            allow_silence: true,
+            director: { instruction: "Prefer whoever was addressed." },
+          },
+        },
+        ...(linearStory as any).checkpoints.slice(1),
+      ],
+    };
+    expect(parseStoryV2OrThrow(valid).checkpointById.start.talk_control).toEqual({
+      speakers: [{ member: "guard", weight: 2 }, { member: "captain" }],
+      lead: "guard",
+      no_repeat: false,
+      allow_silence: true,
+      director: { instruction: "Prefer whoever was addressed." },
+    });
+
+    const boolDirector = {
+      ...valid,
+      checkpoints: [
+        { ...(valid as any).checkpoints[0], talk_control: { director: true } },
+        ...(valid as any).checkpoints.slice(1),
+      ],
+    };
+    expect(parseStoryV2OrThrow(boolDirector).checkpointById.start.talk_control).toEqual({ director: true });
+
+    const badWeight = {
+      ...linearStory,
+      checkpoints: [
+        { ...(linearStory as any).checkpoints[0], talk_control: { speakers: [{ member: "guard", weight: 0 }] } },
+        ...(linearStory as any).checkpoints.slice(1),
+      ],
+    };
+    expect(JSON.stringify(parseStoryV2(badWeight))).toContain("speaker weight must be a positive number");
+
+    const badLead = {
+      ...linearStory,
+      checkpoints: [
+        { ...(linearStory as any).checkpoints[0], talk_control: { lead: "" } },
+        ...(linearStory as any).checkpoints.slice(1),
+      ],
+    };
+    expect(JSON.stringify(parseStoryV2(badLead))).toContain("lead must be a non-empty string");
+
+    const notAnObject = {
+      ...linearStory,
+      checkpoints: [
+        { ...(linearStory as any).checkpoints[0], talk_control: "guard" },
+        ...(linearStory as any).checkpoints.slice(1),
+      ],
+    };
+    expect(JSON.stringify(parseStoryV2(notAnObject))).toContain("talk_control must be an object");
+  });
+
   it("accepts valid arc_bridges and rejects bad shapes", () => {
     const valid = { ...linearStory, arc_bridges: [{ arcMatch: "vault-arc", anchor: "end", amount: 2 }] };
     expect(parseStoryV2OrThrow(valid).arc_bridges).toEqual([{ arcMatch: "vault-arc", anchor: "end", amount: 2 }]);

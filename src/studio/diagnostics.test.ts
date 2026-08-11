@@ -27,7 +27,17 @@ const seeded: StoryV2 = {
   ],
   checkpoints: [
     { id: "start", name: "Start", objective: "", type: "intermediate", start: true, state_snapshot: { morale: 1 } },
-    { id: "mid", name: "Mid", objective: "", type: "intermediate" },
+    {
+      id: "mid",
+      name: "Mid",
+      objective: "",
+      type: "intermediate",
+      talk_control: {
+        speakers: [{ member: "ghost-member" }, { member: "The Guide" }],
+        lead: "warden",
+        allow_silence: true,
+      },
+    },
     { id: "cache", name: "Cache", objective: "", type: "anchor", convergence_threshold: 5 },
     { id: "lost", name: "Lost", objective: "", type: "anchor" },
     { id: "stubby", name: "Stubby", objective: "", type: "intermediate" },
@@ -44,7 +54,7 @@ const seeded: StoryV2 = {
     },
     { from: "mid", to: "stubby", priority: 0, gate: { all: [] } },
   ],
-  roster: [],
+  roster: [{ id: "guide", name: "The Guide" }, { id: "warden", name: "The Warden" }],
 };
 
 describe("runDiagnostics", () => {

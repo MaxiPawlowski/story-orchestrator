@@ -40,6 +40,9 @@ export const AddAndDelete: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "+ Transition" }));
     await expect(useDraftStore.getState().draft.transitions).toHaveLength(3);
     await userEvent.click(canvas.getByRole("button", { name: "Delete transition" }));
+    await expect(useDraftStore.getState().draft.transitions).toHaveLength(3);
+    await expect(canvas.getByText("Click Delete again to confirm.")).toBeInTheDocument();
+    await userEvent.click(canvas.getByRole("button", { name: "Delete transition" }));
     await expect(useDraftStore.getState().draft.transitions).toHaveLength(2);
   },
 };

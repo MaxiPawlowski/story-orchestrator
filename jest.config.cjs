@@ -1,6 +1,6 @@
 module.exports = {
   testEnvironment: "node",
-  roots: ["<rootDir>/src/constants", "<rootDir>/src/engine", "<rootDir>/src/extraction", "<rootDir>/src/pacing", "<rootDir>/src/generation", "<rootDir>/src/runtime", "<rootDir>/src/memory", "<rootDir>/src/studio", "<rootDir>/src/copilot", "<rootDir>/src/services"],
+  roots: ["<rootDir>/src/constants", "<rootDir>/src/engine", "<rootDir>/src/extraction", "<rootDir>/src/pacing", "<rootDir>/src/generation", "<rootDir>/src/runtime", "<rootDir>/src/memory", "<rootDir>/src/studio", "<rootDir>/src/copilot", "<rootDir>/src/talk", "<rootDir>/src/services"],
   testMatch: ["**/*.test.ts"],
   transform: {
     "^.+\\.tsx?$": ["ts-jest", { tsconfig: "<rootDir>/tsconfig.jest.json", diagnostics: false }],
@@ -17,6 +17,7 @@ module.exports = {
     "^@generation/(.*)$": "<rootDir>/src/generation/$1",
     "^@memory/(.*)$": "<rootDir>/src/memory/$1",
     "^@copilot/(.*)$": "<rootDir>/src/copilot/$1",
+    "^@talk/(.*)$": "<rootDir>/src/talk/$1",
   },
   clearMocks: true,
 };

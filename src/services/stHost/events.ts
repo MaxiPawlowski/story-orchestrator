@@ -16,6 +16,8 @@ export interface HostEventPayloads {
   MESSAGE_DELETED: [messageId: number];
   MESSAGE_UPDATED: [messageId: number];
   GROUP_MEMBER_DRAFTED: [characterId: number | [number]];
+  GROUP_WRAPPER_STARTED: [payload: Record<string, unknown> | undefined];
+  GROUP_WRAPPER_FINISHED: [payload: Record<string, unknown> | undefined];
   GENERATION_STARTED: [
     typeOrPayload: string | Record<string, unknown> | undefined,
     params?: Record<string, unknown>,

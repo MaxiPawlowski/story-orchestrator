@@ -4,10 +4,10 @@ import { writeJSON, writeScreenshot } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 
 export async function openExtensionSettings(page) {
-  const root = page.locator('#stepthink_settings');
+  const root = page.locator('#story-orchestrator-settings');
   if (!(await root.count())) {
     throw new Error(
-      'Story Orchestrator settings panel (#stepthink_settings) not found. ' +
+      'Story Orchestrator settings panel (#story-orchestrator-settings) not found. ' +
       'Extension may not be loaded.',
     );
   }
@@ -28,7 +28,7 @@ export async function openExtensionSettings(page) {
 }
 
 export async function getSettingsPanelState(page) {
-  const root = page.locator('#stepthink_settings');
+  const root = page.locator('#story-orchestrator-settings');
   if (!(await root.count())) {
     return { found: false, reason: 'Settings panel not mounted' };
   }
@@ -69,7 +69,7 @@ export async function getSettingsPanelState(page) {
 }
 
 export async function openCheckpointStudio(page) {
-  const root = page.locator('#stepthink_settings');
+  const root = page.locator('#story-orchestrator-settings');
   if (!(await root.count())) {
     throw new Error('Settings panel not found. Cannot open Studio.');
   }
@@ -138,7 +138,7 @@ export async function getDrawerState(page) {
 
   const visible = await evaluateInST(page, () => {
     const el = document.getElementById('drawer-manager');
-    return el?.classList.contains('pinnedOpen') ?? false;
+    return el?.classList.contains('openDrawer') ?? false;
   });
 
   const minimized = (await drawer.locator('[aria-label="Restore"]').count()) > 0;
@@ -215,18 +215,35 @@ export async function getDrawerState(page) {
 export async function takeAnnotatedScreenshot(page, label = 'ui-state') {
   const drawerVisible = (await page.locator('#drawer-manager').count()) > 0 &&
     await evaluateInST(page, () =>
-      document.getElementById('drawer-manager')?.classList.contains('pinnedOpen') ?? false
+      document.getElementById('drawer-manager')?.classList.contains('openDrawer') ?? false
     );
 
   const path = await writeScreenshot(page, label);
   return { path, drawerVisible };
 }
 
-const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-settings|open-studio|studio|studio-tab|drawer-tab|screenshot> [label]
+export async function openStoryDrawer(page) {
+  const toggle = page.locator('#so-drawer .drawer-toggle');
+  if (!(await toggle.count())) throw new Error('Story drawer toggle (#so-drawer .drawer-toggle) not found.');
+  const alreadyOpen = await evaluateInST(page, () =>
+    document.getElementById('drawer-manager')?.classList.contains('openDrawer') ?? false
+  );
+  if (alreadyOpen) return { alreadyOpen: true };
+  await toggle.click();
+  await page.waitForFunction(
+    () => document.getElementById('drawer-manager')?.classList.contains('openDrawer'),
+    null,
+    { timeout: 5000 },
+  );
+  return { alreadyOpen: false };
+}
+
+const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|drawer-tab|screenshot> [label]
 
 all: print settings + drawer state.
 settings: print settings panel state.
 drawer: print drawer state.
+open-drawer: open the Story Orchestrator top-bar drawer.
 open-settings: expand the settings panel.
 open-studio: open Checkpoint Studio modal (v2).
 studio: print Checkpoint Studio modal state (title, active tab, error/issue badges).
@@ -240,7 +257,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   }
   runCli(async (page) => {
     await page.waitForFunction(
-      () => document.querySelector('#stepthink_settings') || document.querySelector('#drawer-manager'),
+      () => document.querySelector('#story-orchestrator-settings') || document.querySelector('#drawer-manager'),
       null,
       { timeout: 5000 },
     ).catch(() => undefined);
@@ -259,6 +276,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       const state = await getDrawerState(page);
       console.log(JSON.stringify(state, null, 2));
       await writeJSON(state, 'so-ui-drawer');
+    }
+
+    if (subcommand === 'open-drawer') {
+      const result = await openStoryDrawer(page);
+      console.log('Story drawer opened:', JSON.stringify(result));
     }
 
     if (subcommand === 'open-settings') {

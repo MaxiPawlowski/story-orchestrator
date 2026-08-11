@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { showConfirmPopup } from "@services/STAPI";
 import type { AuthoringStageInput, ProposalResult } from "@copilot/index";
 import { useDraftStore } from "./draft";
 import { setStoryField } from "./mutations";
@@ -40,33 +42,79 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
   const canUndo = useDraftStore((state) => state.past.length > 0);
   const canRedo = useDraftStore((state) => state.future.length > 0);
 
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const titleRef = useRef<HTMLInputElement | null>(null);
+  const dialogRef = useRef<HTMLDialogElement | null>(null);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (dialog && !dialog.open) dialog.showModal();
+    titleRef.current?.focus();
+  }, []);
+
+  const requestClose = async () => {
+    if (useDraftStore.getState().dirty && !(await showConfirmPopup("Discard unsaved Studio changes?", { okButton: "Discard", cancelButton: "Keep editing" }))) return;
+    onClose();
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      void requestClose();
+      return;
+    }
+    if (event.key !== "Tab") return;
+    const panel = panelRef.current;
+    if (!panel) return;
+    const focusable = Array.from(panel.querySelectorAll<HTMLElement>("button, input, select, textarea, [tabindex]:not([tabindex='-1'])")).filter((element) => !element.hasAttribute("disabled") && element.offsetParent !== null);
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
+
   const renderTab = () => {
     if (activeTab === "qualities") return <QualityEditor />;
     if (activeTab === "checkpoints") return <CheckpointEditor />;
     if (activeTab === "transitions") return <TransitionEditor />;
     if (activeTab === "diagnostics") return <DiagnosticsPanel />;
     if (activeTab === "copilot") return <StudioCopilot enabled={copilotEnabled} runStage={runCopilotStage} />;
-    return <StudioGraph />;
+    return <StudioGraph onOpenCheckpoint={() => setTab("checkpoints")} />;
   };
 
-  return (
-    <div id="so-studio-modal" className="st-modal-overlay fixed inset-0 z-[4100] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Checkpoint Studio">
-      <div className="st-panel flex h-[85dvh] w-[min(1100px,95dvw)] flex-col overflow-hidden shadow-lg">
-        <div className="st-panel-header flex items-center gap-3 px-3 py-2">
+  return createPortal(
+    <dialog
+      ref={dialogRef}
+      id="so-studio-modal"
+      className="st-modal-overlay fixed inset-0 z-[4100] p-4"
+      aria-label="Checkpoint Studio"
+      onKeyDown={handleKeyDown}
+      onCancel={(event) => { event.preventDefault(); void requestClose(); }}
+    >
+      <div ref={panelRef} className="st-panel flex h-[85dvh] w-[min(1100px,95dvw)] flex-col overflow-hidden shadow-lg">
+        <div className="st-panel-header flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2">
           <span className="font-semibold whitespace-nowrap">Checkpoint Studio</span>
           <input
+            ref={titleRef}
             className="text_pole st-input min-w-0 flex-1"
             aria-label="Story title"
             value={draft.title}
             onChange={(event) => mutate((current) => setStoryField(current, "title", event.target.value))}
           />
           {dirty ? <span className="st-pill px-2 py-0.5 text-[11px]" aria-label="Unsaved changes">Unsaved</span> : null}
-          {errors.length > 0 ? <span className="st-alert-error rounded px-2 py-0.5 text-[11px]" aria-label={`${errors.length} validation errors`}>{errors.length} errors</span> : null}
-          {diagnostics.length > 0 ? <span className="st-pill px-2 py-0.5 text-[11px]" aria-label={`${diagnostics.length} diagnostics`}>{diagnostics.length} issues</span> : null}
-          <button type="button" className="st-button secondary" onClick={onClose} aria-label="Close studio">Close</button>
+          {errors.length > 0 ? <span className="st-alert-error rounded px-2 py-0.5 text-[11px]" aria-label={`${errors.length} validation ${errors.length === 1 ? "error" : "errors"}`}>{errors.length} {errors.length === 1 ? "error" : "errors"}</span> : null}
+          {diagnostics.length > 0 ? <span className="st-pill px-2 py-0.5 text-[11px]" aria-label={`${diagnostics.length} diagnostics`}>{diagnostics.length} {diagnostics.length === 1 ? "issue" : "issues"}</span> : null}
+          <button type="button" className="st-button secondary" onClick={() => void requestClose()} aria-label="Close studio">Close</button>
         </div>
 
-        <div className="flex items-center gap-2 px-3 py-2" role="tablist" aria-label="Studio sections">
+        <div className="flex flex-wrap items-center gap-2 px-3 py-2" role="tablist" aria-label="Studio sections">
           {tabs.map((entry) => (
             <button
               key={entry.id}
@@ -85,13 +133,14 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
           {renderTab()}
         </div>
 
-        <div className="st-panel-header flex items-center gap-2 border-t px-3 py-2">
+        <div className="st-panel-header flex flex-wrap items-center gap-2 border-t px-3 py-2">
           <button type="button" className="st-button secondary" onClick={undo} disabled={!canUndo}>Undo</button>
           <button type="button" className="st-button secondary" onClick={redo} disabled={!canRedo}>Redo</button>
           <StudioToolbar />
         </div>
       </div>
-    </div>
+    </dialog>,
+    document.body,
   );
 };
 

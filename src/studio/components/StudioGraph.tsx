@@ -4,7 +4,11 @@ import { useDraftStore } from "../draft";
 import { addCheckpoint, addTransition } from "../mutations";
 import { toGraphDraft, toMermaid } from "../graphAdapter";
 
-const StudioGraph: React.FC = () => {
+type Props = {
+  onOpenCheckpoint?: (id: string) => void;
+};
+
+const StudioGraph: React.FC<Props> = ({ onOpenCheckpoint }) => {
   const draft = useDraftStore((state) => state.draft);
   const mutate = useDraftStore((state) => state.mutate);
   const selectCheckpoint = useDraftStore((state) => state.selectCheckpoint);
@@ -30,7 +34,7 @@ const StudioGraph: React.FC = () => {
           draft={graphDraft}
           selectedId={selectedCheckpointId}
           canAddTransition={draft.checkpoints.length > 0}
-          onSelect={selectCheckpoint}
+          onSelect={(id) => { selectCheckpoint(id); onOpenCheckpoint?.(id); }}
           onAddCheckpoint={() => mutate((current) => addCheckpoint(current))}
           onAddTransition={() => mutate((current) => addTransition(current))}
         />

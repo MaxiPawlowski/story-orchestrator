@@ -1,17 +1,17 @@
-import { Blackboard, StoryEngine, effectiveThresholdFor, evaluateGate, isValidationErrorList, progressQualityForAnchor, renderGateText, TENSION_CURRENT_KEY, type ApplyQueueEntry, type ArcTemplate, type BlackboardDelta, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type StoryV2, type TensionLevel, type ValidationError } from "@engine/index";
+import { Blackboard, StoryEngine, effectiveThresholdFor, evaluateGate, isValidationErrorList, progressQualityForAnchor, renderGateText, TENSION_CURRENT_KEY, type ApplyQueueEntry, type ArcTemplate, type BlackboardDelta, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type StoryV2, type TalkControl, type TensionLevel, type ValidationError } from "@engine/index";
 import { runAuthoringStage, runDriverReport, runDriverSuggest, type CopilotMessage, type CopilotStage, type DriverContext, type ProposalResult, type Suggestion } from "@copilot/index";
 import { callExtractionModel, deriveFullScope, deriveScope, getCanonLite, getChatWindow, getLastMessageText, runSharedRead, stripChannelNoise, type ParsedDelta, type ParsedFact, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
 import { findStubExpansionCandidate, collectExpansionGateSources, generateReviewedBeats, insertedCheckpointIds, mergeExpansions, planExpansion, revalidateExpansion, type ExpansionCacheEntry, type ExpansionRuntimeState, type StubExpansionCandidate } from "@generation/index";
-import { addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicInjection, applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildBoundKeySet, buildEpistemicPassPrompt, buildLedgerPassPrompt, buildLedgerView, capEpistemic, capLedger, clearEpistemicInjection, activeEpistemic, memoryExtensionKey, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, removeEpistemic, removeLedger, renderLedgerBlock, renderPrivateEpistemicBlock, rollbackEpistemic, rollbackLedger, setEpistemicPinned, setLedgerPinned, type EpistemicEntry, type LedgerBinding, type LedgerView, type ParsedEpistemicSignal, type ParsedLedgerSignal, buildArcSummaryPrompt, buildCanonSummaryPrompt, buildJaccardMatchSets, buildMemoryInjectionBlocks, buildSceneSummaryPrompt, buildShortTermSummaryPrompt, canonInputHash, capAllTiers, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, createMemoryState, DEFAULT_DEDUP_THRESHOLDS, DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS, detectSceneBreakHeuristic, dropByMessageId, editEntryText, excludeEntry, expireScoped, generateMemoryId, hashMemoryText, markContradicted, matchArcBridges, openArcTexts, removeArc, resolvedArcs, rollbackArcs, setArcPinned, setArcSummary, setPinned, type ArcEntry, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedMemoryLine, type ScoreContext, type UncertainPair } from "@memory/index";
+import { addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicInjection, applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildBoundKeySet, buildEpistemicPassPrompt, buildLedgerPassPrompt, buildLedgerView, capEpistemic, capLedger, clearEpistemicInjection, activeEpistemic, memoryExtensionKey, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, removeEpistemic, removeLedger, renderLedgerBlock, renderPrivateEpistemicBlock, rollbackEpistemic, rollbackLedger, setEpistemicPinned, setLedgerPinned, type EpistemicEntry, type LedgerBinding, type LedgerView, type ParsedEpistemicSignal, type ParsedLedgerSignal, buildArcSummaryPrompt, buildCanonSummaryPrompt, buildJaccardMatchSets, buildMemoryInjectionBlocks, buildSceneSummaryPrompt, buildShortTermSummaryPrompt, canonInputHash, capAllTiers, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, createMemoryState, DEFAULT_DEDUP_THRESHOLDS, DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS, detectSceneBreakHeuristic, dropByMessageId, editEntryText, excludeEntry, expireScoped, generateMemoryId, hashMemoryText, markContradicted, matchArcBridges, openArcTexts, removeArc, resolvedArcs, restoreEntry, rollbackArcs, setArcPinned, setArcSummary, setPinned, type ArcEntry, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedMemoryLine, type ScoreContext, type UncertainPair } from "@memory/index";
 import { expectedTension, getSteeringHint, levelToNumeric, numericToLevel, updateEma } from "@pacing/index";
-import { clearStoryExtensionPrompt, countTokens, DEFAULT_VECTOR_SOURCE, disableWIEntry, getActiveGroup, getCharacterNameById, getContext, readInjectedPromptBlocks, resolveGroupMemberId, setStoryExtensionPrompt, showTextPopup, upsertWIEntry, vectorInsert, vectorPurge, vectorQuery } from "@services/STAPI";
+import { clearStoryExtensionPrompt, countTokens, DEFAULT_VECTOR_SOURCE, disableWIEntry, executeSlashCommands, getActiveGroup, getCharacterNameById, getContext, readInjectedPromptBlocks, resolveGroupMemberId, setStoryExtensionPrompt, showTextPopup, upsertWIEntry, vectorInsert, vectorPurge, vectorQuery } from "@services/STAPI";
 import { buildAwayRecap, shouldShowAwayRecap, type AwayRecap } from "./awayRecap";
 import { COPILOT_NUDGE_KEY, DEFAULT_TENSION_EMA_ALPHA, EPISTEMIC_INJECTION_DEPTH, LEDGER_INJECTION_DEPTH, MEMORY_TIER_INJECTION_DEPTHS, PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY, SHORT_TERM_COMPACTION_MESSAGES } from "@constants/defaults";
 import { EffectsApplier } from "./effectsApplier";
 import { evaluateRequirements } from "./requirements";
 import { loadPersistedRuntime, savePersistedRuntime, setSelectedStoryHash, getSelectedStoryHash } from "./persistence";
-import { findStoryRecord, listStoryRecords, loadStoryRecord, saveStoryRecord } from "./storyLibrary";
-import type { ConvergenceReadout, CopilotRuntimeSettings, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, MemoryBackfillState, MemoryRuntimeSettings, MemoryRuntimeState, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, TensionRuntimeState } from "./types";
+import { findStoryRecord, listStoryRecords, loadStoryRecord, removeStoryRecord, saveStoryRecord } from "./storyLibrary";
+import type { ConvergenceReadout, CopilotRuntimeSettings, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, MemoryBackfillState, MemoryRuntimeSettings, MemoryRuntimeState, PacingSettings, PayloadCapture, PendingDeltaReadout, RuntimeExtras, RuntimeSnapshot, TalkDecisionAudit, TalkRuntimeState, TensionRuntimeState, UiRuntimeSettings } from "./types";
 
 const emptyRequirements = { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] };
 
@@ -121,8 +121,16 @@ const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeState =>
 };
 
 const PAYLOAD_CAPTURE_LIMIT = 5;
+const TALK_DECISION_LIMIT = 10;
 const createCopilot = (): CopilotRuntimeSettings => ({ enabled: true });
 const sanitizeCopilot = (value: RuntimeExtras | undefined): CopilotRuntimeSettings => ({ enabled: value?.copilot?.enabled ?? true });
+const createUi = (): UiRuntimeSettings => ({ authorView: false, announceTransitions: true, hudEnabled: true });
+const sanitizeUi = (value: RuntimeExtras | undefined): UiRuntimeSettings => ({ ...createUi(), ...value?.ui });
+const createTalk = (): TalkRuntimeState => ({ enabled: true, decisions: [] });
+const sanitizeTalk = (value: RuntimeExtras | undefined): TalkRuntimeState => ({
+  enabled: value?.talk?.enabled ?? true,
+  decisions: Array.isArray(value?.talk?.decisions) ? value.talk.decisions.slice(-TALK_DECISION_LIMIT) : [],
+});
 
 const createExtras = (): RuntimeExtras => ({
   firedNpcReplies: {},
@@ -135,6 +143,8 @@ const createExtras = (): RuntimeExtras => ({
   pacing: defaultPacingSettings(),
   tension: defaultTension(),
   copilot: createCopilot(),
+  ui: createUi(),
+  talk: createTalk(),
   lastSessionAt: null,
   updatedAt: new Date().toISOString(),
 });
@@ -293,9 +303,19 @@ export class RuntimeManager {
     this.updateMemoryInjection();
     await this.persist();
     this.status = result.fired ? `Advanced to ${result.activeCheckpointId}` : `Committed boundary ${result.boundary}`;
+    if (result.fired) await this.announceTransition();
     this.boundaryListeners.forEach((listener) => listener(result));
     this.notify();
     return result;
+  }
+
+  private async announceTransition() {
+    if (!this.extras.ui.announceTransitions) return;
+    const checkpoint = this.engine.activeCheckpoint;
+    if (!checkpoint) return;
+    const raw = checkpoint.objective ? `◈ ${checkpoint.name} — ${checkpoint.objective}` : `◈ ${checkpoint.name}`;
+    const label = raw.replace(/[|{}]/g, " ").replace(/\s*\r?\n\s*/g, " ").trim();
+    await executeSlashCommands(`/comment compact=true ${label}`, { silent: true });
   }
 
   async activateCheckpoint(id: string) {
@@ -337,7 +357,8 @@ export class RuntimeManager {
 
   async fireAfterSpeak() {
     if (!this.loaded) return;
-    await this.effects.fireNpcReplies(this.engine.activeCheckpoint, this.extras, "afterSpeak");
+    const speakerId = this.getActiveSpeakerId();
+    await this.effects.fireNpcReplies(this.engine.activeCheckpoint, this.extras, "afterSpeak", undefined, speakerId ? this.namesForRosterId(speakerId) : []);
     await this.persist();
     this.notify();
   }
@@ -394,6 +415,33 @@ export class RuntimeManager {
     this.notify();
   }
 
+  getActiveTalkControl(): TalkControl | null {
+    if (!this.loaded || !this.extras.requirements.ready || !this.extras.talk.enabled) return null;
+    return this.engine.activeCheckpoint?.talk_control ?? null;
+  }
+
+  getTalkState(): TalkRuntimeState {
+    return this.extras.talk;
+  }
+
+  setTalkDirectionEnabled(enabled: boolean) {
+    this.extras.talk = { ...this.extras.talk, enabled };
+    void this.persist();
+    this.notify();
+  }
+
+  recordTalkDecision(audit: TalkDecisionAudit) {
+    this.extras.talk = { ...this.extras.talk, decisions: [...this.extras.talk.decisions, audit].slice(-TALK_DECISION_LIMIT) };
+    void this.persist();
+    this.notify();
+  }
+
+  getActiveCheckpointInfo(): { id: string; name: string; objective: string; storyTitle: string } | null {
+    if (!this.loaded) return null;
+    const checkpoint = this.engine.activeCheckpoint;
+    return checkpoint ? { id: checkpoint.id, name: checkpoint.name, objective: checkpoint.objective, storyTitle: this.loaded.story.title } : null;
+  }
+
   setPacingSettings(settings: Partial<PacingSettings>) {
     this.extras.pacing = sanitizePacing({ ...this.extras.pacing, ...settings });
     this.updateSteering();
@@ -415,6 +463,28 @@ export class RuntimeManager {
   setCopilotSettings(settings: Partial<CopilotRuntimeSettings>) {
     this.extras.copilot = { ...this.extras.copilot, ...settings };
     if (!this.extras.copilot.enabled) this.clearCopilotNudge();
+    void this.persist();
+    this.notify();
+  }
+
+  async removeStory(hash: string): Promise<boolean> {
+    const record = findStoryRecord(hash);
+    if (!record || !removeStoryRecord(hash)) return false;
+    if (this.loaded?.record.hash === hash) {
+      setSelectedStoryHash(null);
+      await this.loadSelectedFromChat();
+    }
+    this.status = `Removed "${record.title}" from the library`;
+    this.notify();
+    return true;
+  }
+
+  getUiSettings(): UiRuntimeSettings {
+    return this.extras.ui;
+  }
+
+  setUiSettings(settings: Partial<UiRuntimeSettings>) {
+    this.extras.ui = { ...this.extras.ui, ...settings };
     void this.persist();
     this.notify();
   }
@@ -937,6 +1007,13 @@ export class RuntimeManager {
     this.notify();
   }
 
+  async restoreMemoryEntry(entry: MemoryEntry) {
+    this.extras.memory = { ...this.extras.memory, ...restoreEntry(this.extras.memory, entry) };
+    this.updateMemoryInjection();
+    await this.persist();
+    this.notify();
+  }
+
   async editMemoryEntry(id: string, text: string) {
     this.extras.memory = { ...this.extras.memory, ...editEntryText(this.extras.memory, id, text) };
     this.updateMemoryInjection();
@@ -1104,10 +1181,25 @@ export class RuntimeManager {
       memory: this.extras.memory,
       pacing: this.extras.pacing,
       copilot: this.extras.copilot,
+      ui: this.extras.ui,
+      talk: this.extras.talk,
+      pendingDeltas: this.buildPendingDeltas(),
       convergence: this.buildConvergenceReadout(),
       tension: this.buildTensionSnapshot(),
       payloadCaptures: this.payloadCaptures,
     };
+  }
+
+  private buildPendingDeltas(): PendingDeltaReadout[] {
+    if (!this.loaded) return [];
+    const seen = new Map<string, PendingDeltaReadout>();
+    for (const entry of this.engine.pendingWrites) {
+      for (const delta of entry.deltas) {
+        seen.set(delta.q, { quality: delta.q, value: delta.v, source: entry.source });
+      }
+    }
+    const state = this.engine.serialize();
+    return Array.from(seen.values()).filter((pending) => state.blackboard.values[pending.quality] !== pending.value);
   }
 
   capturePayload(reason = "generation") {
@@ -1118,6 +1210,8 @@ export class RuntimeManager {
       reason,
       blocks: readInjectedPromptBlocks(),
     };
+    const latest = this.payloadCaptures[0];
+    if (latest && latest.boundary === capture.boundary && latest.reason === capture.reason && JSON.stringify(latest.blocks) === JSON.stringify(capture.blocks)) return;
     this.payloadCaptures = [capture, ...this.payloadCaptures].slice(0, PAYLOAD_CAPTURE_LIMIT);
     this.notify();
   }
@@ -1148,7 +1242,8 @@ export class RuntimeManager {
           anchorName: anchor.name,
           progress,
           threshold,
-          reached: visited.has(anchor.id),
+          reached: threshold > 0 && progress >= threshold,
+          visited: visited.has(anchor.id),
         };
       });
   }
@@ -1176,6 +1271,8 @@ export class RuntimeManager {
     this.extras.pacing = sanitizePacing(this.extras.pacing);
     this.extras.tension = sanitizeTension(this.extras.tension);
     this.extras.copilot = sanitizeCopilot(this.extras);
+    this.extras.ui = sanitizeUi(this.extras);
+    this.extras.talk = sanitizeTalk(this.extras);
     this.extras.lastSelfInjectionMessageId = typeof this.extras.lastSelfInjectionMessageId === "number" ? this.extras.lastSelfInjectionMessageId : null;
     this.loaded = { record: loaded.record, story: this.mergedStoryOrBase(loaded.record.raw, loaded.story) };
     this.engine.loadStory(this.loaded.story);
@@ -1374,7 +1471,7 @@ export class RuntimeManager {
       .map((rosterMember) => rosterMember.id);
   }
 
-  private getActiveSpeakerId(): string | null {
+  getActiveSpeakerId(): string | null {
     if (!this.loaded) return null;
     const enabled = new Set(this.getEnabledCharacterIds());
     if (!enabled.size) return null;
@@ -1428,7 +1525,7 @@ export class RuntimeManager {
     return member ? [member.name ?? member.id, member.id] : [id];
   }
 
-  private rosterIdForName(name: string): string | null {
+  rosterIdForName(name: string): string | null {
     if (!this.loaded) return null;
     const search = name.trim().toLowerCase();
     const match = this.loaded.story.roster.find((rosterMember) => (rosterMember.name ?? rosterMember.id).trim().toLowerCase() === search);

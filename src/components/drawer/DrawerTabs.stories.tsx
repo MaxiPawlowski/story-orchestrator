@@ -54,6 +54,15 @@ const sampleSnapshot = (): RuntimeSnapshot =>
     },
     pacing: { alpha: 0.3, shapeOverride: null, hintEnabled: true },
     copilot: { enabled: false },
+    ui: { authorView: true, announceTransitions: true, hudEnabled: true },
+    talk: {
+      enabled: true,
+      decisions: [
+        { at: "2026-07-06T12:00:00.000Z", messageId: 6, checkpointId: "gate", chosenRosterId: "sphinx", chosenName: "Sphinx", source: "director", latencyMs: 840 },
+        { at: "2026-07-06T12:01:00.000Z", messageId: 8, checkpointId: "gate", chosenRosterId: null, chosenName: null, source: "director", latencyMs: 620 },
+      ],
+    },
+    pendingDeltas: [],
     convergence: [{ anchorId: "sanctum", anchorName: "Inner Sanctum", progress: 1, threshold: 2, reached: false }],
     tension: { level: "high", smoothed: 0.72, expected: 0.6, hint: null },
     payloadCaptures: [
@@ -192,6 +201,51 @@ export const Memory: Story = {
     await expect(canvas.getByText(/State ledger \(2\)/)).toBeInTheDocument();
     await expect(canvas.getByText(/respect=2/)).toBeInTheDocument();
     await expect(canvas.getByText("blackboard")).toBeInTheDocument();
+  },
+};
+
+const playerSnapshot = (): RuntimeSnapshot => {
+  const snapshot = sampleSnapshot() as unknown as { ui: Record<string, unknown>; pendingDeltas: unknown[] };
+  snapshot.ui = { authorView: false, announceTransitions: true, hudEnabled: true };
+  snapshot.pendingDeltas = [{ quality: "luke_decision", value: "accepted", source: "extractor" }];
+  return snapshot as unknown as RuntimeSnapshot;
+};
+
+export const PlayerView: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={playerSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.queryByRole("tab", { name: "Blackboard" })).toBeNull();
+    await expect(canvas.queryByRole("tab", { name: "Scheduler" })).toBeNull();
+    await expect(canvas.queryByRole("tab", { name: "Payload" })).toBeNull();
+    await expect(canvas.getByRole("tab", { name: "Memory" })).toBeInTheDocument();
+    await expect(canvas.queryByText(/Boundary 6/)).toBeNull();
+    await expect(canvas.getByText(/Heard, applies next turn/)).toBeInTheDocument();
+    await expect(canvas.getByText(/luke_decision → accepted/)).toBeInTheDocument();
+    await expect(canvas.getByText("Extraction")).toBeInTheDocument();
+  },
+};
+
+const extractionOffSnapshot = (): RuntimeSnapshot => {
+  const snapshot = playerSnapshot() as unknown as { extraction: { settings: Record<string, unknown> }; pendingDeltas: unknown[] };
+  snapshot.extraction = { ...snapshot.extraction, settings: { ...snapshot.extraction.settings, enabled: false, profileId: null } };
+  snapshot.pendingDeltas = [];
+  return snapshot as unknown as RuntimeSnapshot;
+};
+
+export const ExtractionOff: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={extractionOffSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/the story will not advance on its own/)).toBeInTheDocument();
   },
 };
 

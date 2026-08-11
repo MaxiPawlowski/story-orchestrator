@@ -43,6 +43,10 @@ Vendored host-type ledger (post-acceptance hardening 2026-07-07; `src/services/s
 | `MacrosParser.registerMacro/unregisterMacro` (via `registerHostMacro` seam) | `public/scripts/macros.js:184,227` (dual-engine bridge at `:205`) |
 | context `eventTypes` constants (keys resolved in `stHost/events.ts`) | `public/scripts/events.js` |
 | context `callGenericPopup`, `POPUP_TYPE` | `public/scripts/st-context.js:195,225` |
+| context `POPUP_RESULT` (CONFIRM popups; `AFFIRMATIVE=1` at `public/scripts/popup.js:25`) | `public/scripts/st-context.js:226` |
+| script.js `doNavbarIconClick` (top-bar drawer toggle; ST binds it at `:12121`, non-delegated — extension binds it to its own `.drawer-toggle` via `stHost/drawers.ts`) | `public/script.js:10926` |
+| `/comment compact=true` message shape (`is_system: true`, `extra.type: COMMENT`, `isSmallSys`, persisted via `saveChatConditional`; emits only MESSAGE_SENT/USER_MESSAGE_RENDERED — TurnBridge-inert) | `public/scripts/slash-commands.js:6113` |
+| context `sendSystemMessage` (GENERIC type `'generic'` at `system-messages.js:22`; pushes to chat + `addOneMessage`, saved on next chat save) | `public/scripts/st-context.js:159` |
 | context `getTokenCountAsync` | `public/scripts/st-context.js:151` |
 | context `getRequestHeaders` | `public/scripts/st-context.js:129` |
 | context `characters` | `public/scripts/st-context.js:119` |
@@ -56,6 +60,12 @@ Vendored host-type ledger (post-acceptance hardening 2026-07-07; `src/services/s
 | `RossModsHostModule.getMessageTimeStamp` | `public/scripts/RossAscends-mods.js:192` |
 | `GroupChatsHostModule.editGroup` | `public/scripts/group-chats.js:1359` |
 | `ExtensionsSharedHostModule.ConnectionManagerRequestService.{getSupportedProfiles,sendRequest}` | `public/scripts/extensions/shared.js:530,423` |
+| context `characterId` = `this_chid` (numeric **string** or undefined — `setCharacterId` stringifies; parse before use) | `public/scripts/st-context.js:123`, `public/script.js:7096-7110` |
+| events `GROUP_WRAPPER_STARTED/FINISHED` (`{selected_group, type}`; fire even when no member drafted — MANUAL empty pass) | `public/scripts/events.js:60-61`, emitted `public/scripts/group-chats.js:1049,1088` (finished emits AFTER `is_group_generating=false` at `:1078` — safe to `/trigger` from the handler) |
+| `GENERATION_STARTED` payload carries `force_chid` and fires BEFORE interceptors | `public/script.js:4273` vs `:4538` |
+| `generate_interceptor` contract: `(chat, contextSize, abort, type)`, runs once per drafted member inside `Generate()`, loud only (`dryRun` skips), `abort(false)` skips just that member and the wrapper loop continues; abort → `unblockGeneration` | `public/scripts/extensions.js:2015-2040`, `public/script.js:4536-4544` |
+| group dispatch: `force_chid` checked first; per-member loop `setCharacterId` → awaited `GROUP_MEMBER_DRAFTED` → `Generate` (auto-continue re-enters as type `continue`) | `public/scripts/group-chats.js:1006,1051-1076` |
+| per-member speak button = `Generate('normal', {force_chid})` | `public/scripts/group-chats.js:1998` |
 
 ## External bases
 
@@ -87,6 +97,7 @@ AGPL note: repo is private/unlicensed; vendoring Smart-Memory means the extensio
 | [11-studio](11-studio.md) | P7 | Studio v2: quality editor, gate builder, scope preview, diagnostics |
 | [12-story-copilot](12-story-copilot.md) | new | authoring copilot (premise→draft w/ diff review), in-play driver panel |
 | [13-surfacing-polish](13-surfacing-polish.md) | P8 | v2 macros, cadence polish, docs refresh, packaging, success-criteria run |
+| [14-speaker-direction](14-speaker-direction.md) | post-acceptance | `talk_control` checkpoint schema, `src/talk/` chooser+director prompt/parse, `TalkController` + real `talkControlInterceptor`, npc_replies `after_member`/`enabled` (v1 parity), Studio TalkControlEditor, drawer decision panel |
 
 ## Spec → plan traceability
 

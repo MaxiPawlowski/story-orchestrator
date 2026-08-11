@@ -103,8 +103,8 @@ const QualityEditor: React.FC = () => {
   const usages = selected ? findQualityUsages(draft, selected.key) : [];
 
   return (
-    <div className="flex gap-3">
-      <div className="flex w-56 flex-col gap-2">
+    <div className="flex flex-col gap-3 sm:flex-row">
+      <div className="flex w-full flex-col gap-2 sm:w-56">
         <button type="button" className="st-button primary" onClick={handleAdd}>+ Quality</button>
         <ul className="flex flex-col gap-1" aria-label="Qualities">
           {qualities.length === 0 ? <li className="text-sm st-muted">No qualities yet</li> : null}

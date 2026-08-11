@@ -44,6 +44,16 @@ export function saveStoryRecord(raw: unknown): LoadedStory | RuntimeSnapshot["va
   return { record, story: parsed };
 }
 
+export function removeStoryRecord(hash: string): boolean {
+  const root = getRoot();
+  const records = listStoryRecords();
+  const remaining = records.filter((entry) => entry.hash !== hash);
+  if (remaining.length === records.length) return false;
+  root[SETTINGS_KEY] = remaining;
+  getContext().saveSettingsDebounced();
+  return true;
+}
+
 export function loadStoryRecord(record: StoryLibraryRecord): LoadedStory | RuntimeSnapshot["validationErrors"] {
   const parsed = parseStoryV2(record.raw);
   if (isValidationErrorList(parsed)) return parsed;
