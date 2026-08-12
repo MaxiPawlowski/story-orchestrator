@@ -400,6 +400,35 @@ const PayloadTab = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
   );
 };
 
+const FlagControl = ({ manager }: { manager: RuntimeManager }) => {
+  const [open, setOpen] = useState(false);
+  const [note, setNote] = useState("");
+
+  const submit = async () => {
+    await manager.flagMoment(note);
+    setNote("");
+    setOpen(false);
+    window.toastr?.info?.("Moment flagged in the session journal.", "Story Orchestrator");
+  };
+
+  if (!open) return <button id="so-flag-moment" className="menu_button opacity-60" title="Flag this moment — it lands in the session journal for review" aria-label="Flag this moment" onClick={() => setOpen(true)}>⚑</button>;
+  return (
+    <div className="flex items-center gap-1 flex-1">
+      <input
+        id="so-flag-note"
+        className="text_pole flex-1"
+        autoFocus
+        placeholder="What happened here? (optional)"
+        value={note}
+        onChange={(event) => setNote(event.target.value)}
+        onKeyDown={(event) => { if (event.key === "Enter") void submit(); if (event.key === "Escape") setOpen(false); }}
+      />
+      <button id="so-flag-submit" className="menu_button" onClick={() => void submit()}>Flag</button>
+      <button className="menu_button opacity-60" aria-label="Cancel flag" onClick={() => { setNote(""); setOpen(false); }}>✕</button>
+    </div>
+  );
+};
+
 export const DrawerTabs = ({ snapshot, manager, driver }: DrawerTabsProps) => {
   const [active, setActive] = useState<DrawerTabId>("overview");
   const authorView = snapshot.ui.authorView;
@@ -407,18 +436,21 @@ export const DrawerTabs = ({ snapshot, manager, driver }: DrawerTabsProps) => {
   const activeTab = tabs.some((tab) => tab.id === active) ? active : "overview";
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap gap-1" role="tablist" aria-label="Story Orchestrator tabs">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            role="tab"
-            aria-selected={activeTab === tab.id}
-            className={`menu_button ${activeTab === tab.id ? "" : "opacity-60"}`}
-            onClick={() => setActive(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div className="flex flex-wrap items-center gap-1">
+        <div className="flex flex-wrap gap-1" role="tablist" aria-label="Story Orchestrator tabs">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              role="tab"
+              aria-selected={activeTab === tab.id}
+              className={`menu_button ${activeTab === tab.id ? "" : "opacity-60"}`}
+              onClick={() => setActive(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        <FlagControl manager={manager} />
       </div>
       <div role="tabpanel">
         {activeTab === "overview" && <OverviewTab snapshot={snapshot} authorView={authorView} />}

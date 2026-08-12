@@ -15,6 +15,11 @@ Essentials:
 - **Git Bash mangles leading-slash slash-command args**: `node scripts/debug/st-actions.mts slash "/delchat"` gets MSYS-path-converted to a Windows path (`C:/Program Files/Git/delchat`) and silently no-ops — the JSON result's `"command"` field shows the mangled path. Prefix with `MSYS_NO_PATHCONV=1` for any slash command starting with `/`.
 - **`cast_changes`/`setGroupMembersDisabled` mutate the group's `disabled_members`, not the chat** — this persists across `/newchat` sandbox sessions and outlives `--sandbox` cleanup. A live scenario that disables a roster member leaves that member disabled in the real group afterward; restore it (e.g. another `cast_changes: {enable:[...]}` pass) before ending the session.
 
+- **Journeys are the composition gate** (v2.1): `so-journey.mts --list` / `run <id>`; catalog and check tables in `docs/plans/v2.1/test-plan.md`. Fresh-start by default; outcomes are `pass|fail|blocked|not-runnable|skipped`; `--strict` turns `blocked` into failure at acceptance. Global-settings clearing is snapshotted to `.debug/so-journey-config-snapshot.json` first — `so-journey.mts restore-config` recovers a crashed run.
+- **Session journal**: `so-journal.mts export|show` writes `.debug/journal-<chat>.md|json` — the artifact a human-eval session hands back. The drawer's ⚑ control files a flag (`#so-flag-moment`).
+- **ST hides `#send_but` while generating** (it swaps in `#mes_stop`), and a stopped stream leaves `streamingProcessor.isFinished === false` behind forever — `getGenerationState` treats the button swap as truth and requires a continuous idle window, so group turns are not cut short between members.
+- **ST nests our settings panel two drawers deep** (`#extensions-settings-button` → `#rm_extensions_block` → our `.inline-drawer`). Anything driving the panel must open by *visibility*, and must close the nav drawer afterwards — an open Extensions drawer hides `#options_button` and `#send_but`.
+
 Standard snapshot:
 
 ```bash

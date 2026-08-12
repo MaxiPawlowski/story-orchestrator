@@ -1,0 +1,161 @@
+import type { BoundaryLogEntry } from "@engine/index";
+import type { SharedReadAudit } from "@extraction/index";
+import { buildSessionJournal, JOURNAL_LIMIT, PAYLOAD_CAPTURE_LIMIT, sanitizeJournalRecords, SessionJournal, type JournalRecord } from "./journal";
+import type { PayloadCapture, TalkDecisionAudit } from "./types";
+
+const at = (seconds: number) => new Date(Date.parse("2026-08-11T10:00:00.000Z") + seconds * 1000).toISOString();
+
+const boundaryEntry = (overrides: Partial<BoundaryLogEntry> = {}): BoundaryLogEntry => ({
+  at: Date.parse(at(2)),
+  boundary: 1,
+  before: { activeCheckpointId: "cp1" } as BoundaryLogEntry["before"],
+  after: { activeCheckpointId: "cp2" } as BoundaryLogEntry["after"],
+  fired: { from: "cp1", to: "cp2", gate: "mission_accepted == true", declarationIndex: 0 } as BoundaryLogEntry["fired"],
+  source: "gate",
+  context: { lastMessageId: 8, chatLength: 9 },
+  queue: { applied: [{ source: "extractor", blackboardVersionSum: 0, deltas: [{ q: "mission_accepted", v: true }], outcomes: [] }], discarded: [] },
+  ...overrides,
+});
+
+const audit = (overrides: Partial<SharedReadAudit> = {}): SharedReadAudit => ({
+  id: "audit-1",
+  createdAt: at(1),
+  priority: 0,
+  reason: "cadence",
+  contractHash: "hash",
+  scope: ["mission_accepted"],
+  window: { from: 4, to: 8 },
+  prompt: "",
+  rawResponse: "",
+  acceptedDeltas: [{ delta: { q: "mission_accepted", v: true }, evidence: "I take the notice." }],
+  rejected: [{ line: "DELTA q=nope", reason: "unknown quality" }],
+  ...overrides,
+});
+
+const capture: PayloadCapture = { at: at(3), boundary: 1, reason: "generation", blocks: [{ key: "story_orchestrator_memory_facts", depth: 2, role: 0, value: "..." }] };
+
+const talkDecision: TalkDecisionAudit = { at: at(4), messageId: 9, checkpointId: "cp2", chosenRosterId: "arin", chosenName: "Arin", source: "director", latencyMs: 420 };
+
+describe("buildSessionJournal", () => {
+  const journal = buildSessionJournal({
+    records: [{ at: at(0), boundary: 0, messageId: 7, kind: "status", summary: "Loaded Quest for the Sun Ruins" }, { at: at(5), boundary: 1, messageId: 9, kind: "flag", summary: "felt railroaded", note: "felt railroaded" }],
+    boundaryLog: [boundaryEntry()],
+    audits: [audit()],
+    reconciliationEvents: [{ id: "1:x", boundary: 1, checkpointId: "cp2", targetedKeys: ["luke_decision"], scheduledAt: at(6), resolvedAt: at(7), evidence: ["Luke stays behind."] }],
+    payloadCaptures: [capture],
+    talkDecisions: [talkDecision],
+  });
+
+  it("orders every ring onto one ascending timeline", () => {
+    expect(journal.map((event) => event.kind)).toEqual(["status", "extraction", "delta", "boundary", "transition", "payload", "talk", "flag", "reconciliation", "reconciliation"]);
+  });
+
+  it("keeps the four gate-critical kinds addressable", () => {
+    const kinds = new Set(journal.map((event) => event.kind));
+    for (const kind of ["extraction", "transition", "payload", "flag"]) expect(kinds.has(kind as never)).toBe(true);
+  });
+
+  it("summarizes a transition by checkpoint ids", () => {
+    expect(journal.find((event) => event.kind === "transition")?.summary).toBe("cp1 → cp2");
+  });
+
+  it("summarizes an extraction read with accepted and rejected counts", () => {
+    const event = journal.find((item) => item.kind === "extraction");
+    expect(event?.summary).toBe("read cadence msgs 4-8 → 1 accepted, 1 rejected");
+    expect(event?.detail?.scope).toEqual(["mission_accepted"]);
+  });
+
+  it("emits one delta event per accepted delta with its evidence", () => {
+    const event = journal.find((item) => item.kind === "delta");
+    expect(event?.summary).toBe("mission_accepted = true");
+    expect(event?.detail?.evidence).toBe("I take the notice.");
+  });
+
+  it("emits scheduled and resolved reconciliation events", () => {
+    const events = journal.filter((item) => item.kind === "reconciliation");
+    expect(events[0].summary).toContain("queued for luke_decision");
+    expect(events[1].summary).toContain("resolved");
+  });
+
+  it("carries the flag note", () => {
+    expect(journal.find((event) => event.kind === "flag")?.detail?.note).toBe("felt railroaded");
+  });
+
+  it("skips silent boundaries", () => {
+    const quiet = buildSessionJournal({
+      records: [],
+      boundaryLog: [boundaryEntry({ fired: null, queue: { applied: [], discarded: [] } })],
+      audits: [],
+      reconciliationEvents: [],
+      payloadCaptures: [],
+      talkDecisions: [],
+    });
+    expect(quiet).toEqual([]);
+  });
+});
+
+describe("SessionJournal", () => {
+  it("records only status changes", () => {
+    const journal = new SessionJournal();
+    expect(journal.observeStatus("Loaded", { boundary: 0, messageId: -1 })).toBe(true);
+    expect(journal.observeStatus("Loaded", { boundary: 0, messageId: -1 })).toBe(false);
+    expect(journal.observeStatus("Committed boundary 1", { boundary: 1, messageId: 4 })).toBe(true);
+    expect(journal.getRecords()).toHaveLength(2);
+  });
+
+  it("ignores an empty status", () => {
+    const journal = new SessionJournal();
+    expect(journal.observeStatus("", { boundary: 0, messageId: -1 })).toBe(false);
+  });
+
+  it("flags a moment with and without a note", () => {
+    const journal = new SessionJournal();
+    expect(journal.flag("  ", { boundary: 2, messageId: 11 }).summary).toBe("flagged this moment");
+    const noted = journal.flag(" spoiled the twist ", { boundary: 2, messageId: 11 });
+    expect(noted.summary).toBe("spoiled the twist");
+    expect(noted.note).toBe("spoiled the twist");
+  });
+
+  it("caps the persisted ring", () => {
+    const journal = new SessionJournal();
+    for (let index = 0; index < JOURNAL_LIMIT + 10; index += 1) journal.observeStatus(`status ${index}`, { boundary: index, messageId: index });
+    expect(journal.getRecords()).toHaveLength(JOURNAL_LIMIT);
+    expect(journal.getRecords()[0].summary).toBe("status 10");
+  });
+
+  it("dedupes identical payload captures and caps the ring", () => {
+    const journal = new SessionJournal();
+    expect(journal.capture(capture)).toBe(true);
+    expect(journal.capture({ ...capture, at: at(9) })).toBe(false);
+    for (let index = 0; index < PAYLOAD_CAPTURE_LIMIT + 3; index += 1) journal.capture({ ...capture, boundary: index + 2 });
+    expect(journal.getCaptures()).toHaveLength(PAYLOAD_CAPTURE_LIMIT);
+  });
+
+  it("hydrates persisted records and drops the in-memory captures", () => {
+    const journal = new SessionJournal();
+    journal.capture(capture);
+    journal.hydrate([{ at: at(0), boundary: 0, messageId: 1, kind: "flag", summary: "kept" }] satisfies JournalRecord[]);
+    expect(journal.getRecords()).toHaveLength(1);
+    expect(journal.getCaptures()).toEqual([]);
+  });
+
+  it("builds from its own records and captures", () => {
+    const journal = new SessionJournal();
+    journal.observeStatus("Loaded", { boundary: 0, messageId: -1 });
+    journal.capture(capture);
+    const events = journal.build({ boundaryLog: [], audits: [], reconciliationEvents: [], talkDecisions: [] });
+    expect(events.map((event) => event.kind).sort()).toEqual(["payload", "status"]);
+  });
+});
+
+describe("sanitizeJournalRecords", () => {
+  it("drops non-array and malformed input", () => {
+    expect(sanitizeJournalRecords(undefined)).toEqual([]);
+    expect(sanitizeJournalRecords([null, { kind: "flag" }, { at: at(0), boundary: 0, messageId: 0, kind: "flag", summary: "ok" }])).toHaveLength(1);
+  });
+
+  it("truncates to the ring cap", () => {
+    const records = Array.from({ length: JOURNAL_LIMIT + 5 }, (_, index) => ({ at: at(index), boundary: index, messageId: index, kind: "status" as const, summary: `s${index}` }));
+    expect(sanitizeJournalRecords(records)).toHaveLength(JOURNAL_LIMIT);
+  });
+});

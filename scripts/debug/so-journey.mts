@@ -1,0 +1,347 @@
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
+import { basename, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { DEBUG_DIR, PROJECT_ROOT } from './lib/connection.mts';
+import { evaluateInST } from './lib/evaluate.mts';
+import { writeJSON } from './lib/output.mts';
+import { runCli, hasHelpFlag, stripCommonArgs } from './lib/cli.mts';
+import { closeUnpinnedDrawers, openGroup, openMostRecentGroupChat, startNewGroupSession } from './st-navigation.mts';
+import { executeSlashCommand } from './st-actions.mts';
+import { runSteps } from './so-scenario.mts';
+import { selectMemoryProfile } from './so-ui.mts';
+import { wipeChatMeta } from './so-library.mts';
+
+const JOURNEY_DIR = resolve(PROJECT_ROOT, 'test/journeys');
+const CONFIG_SNAPSHOT = resolve(DEBUG_DIR, 'so-journey-config-snapshot.json');
+const EXTENSION_KEY = 'story-orchestrator';
+
+const USAGE = `Usage: node scripts/debug/so-journey.mts <command> [args]
+
+Commands:
+  --list                       List the journey catalog (id, title, status, check counts)
+  run <id|file> [options]      Run one journey end to end
+  restore-config [--file p]    Re-apply the global-settings snapshot left by a dead run
+
+run options:
+  --strict        treat "blocked" as failure (acceptance mode; baseline runs without it)
+  --keep          skip cleanup (leave the sandbox chat and imported stories in place)
+  --only <ids>    comma-separated check ids to run; the rest report "skipped"
+  --no-config     never touch global extension settings, whatever the journey's setup says
+
+Check outcomes: pass | fail | blocked | not-runnable | skipped.
+Exit code 1 when any check fails (or, with --strict, is blocked). A journey whose steps
+cannot even execute is a runner failure and also exits 1.`;
+
+const OUTCOME_ICON = { pass: 'PASS', fail: 'FAIL', blocked: 'BLOCKED', 'not-runnable': 'N/A', skipped: 'SKIP' };
+
+function argValue(args, name) {
+  const index = args.indexOf(name);
+  return index >= 0 ? args[index + 1] : undefined;
+}
+
+async function readJSON(path) {
+  return JSON.parse(await readFile(path, 'utf-8'));
+}
+
+export async function listJourneys() {
+  const files = (await readdir(JOURNEY_DIR)).filter((file) => file.endsWith('.journey.json')).sort();
+  const journeys = [];
+  for (const file of files) {
+    const journey = await readJSON(resolve(JOURNEY_DIR, file));
+    journeys.push({
+      id: journey.id,
+      title: journey.title,
+      status: journey.status ?? 'active',
+      file: `test/journeys/${file}`,
+      objective: journey.objective ?? '',
+      auto: (journey.checks ?? []).filter((check) => check.mode !== 'human').length,
+      human: (journey.checks ?? []).filter((check) => check.mode === 'human').length,
+    });
+  }
+  return journeys;
+}
+
+async function resolveJourney(idOrFile) {
+  if (idOrFile.endsWith('.json')) return { path: resolve(PROJECT_ROOT, idOrFile), journey: await readJSON(resolve(PROJECT_ROOT, idOrFile)) };
+  const files = (await readdir(JOURNEY_DIR)).filter((file) => file.endsWith('.journey.json'));
+  for (const file of files) {
+    const path = resolve(JOURNEY_DIR, file);
+    const journey = await readJSON(path);
+    if (String(journey.id).toLowerCase() === idOrFile.toLowerCase() || basename(file, '.journey.json') === idOrFile) return { path, journey };
+  }
+  throw new Error(`Journey "${idOrFile}" not found in test/journeys/.`);
+}
+
+// Surgical and crash-safe: only extensionSettings["story-orchestrator"] is ever read or written.
+// Connection Manager profiles and every other extension's settings are never touched.
+async function snapshotGlobalConfig(page) {
+  const data = await evaluateInST(page, (key) => {
+    const ctx = SillyTavern.getContext();
+    const root = ctx.extensionSettings?.[key] ?? null;
+    return { present: root !== null && root !== undefined, value: root ? JSON.parse(JSON.stringify(root)) : null };
+  }, EXTENSION_KEY);
+  await mkdir(DEBUG_DIR, { recursive: true });
+  await writeFile(CONFIG_SNAPSHOT, JSON.stringify({ takenAt: new Date().toISOString(), key: EXTENSION_KEY, ...data }, null, 2), 'utf-8');
+  console.log(`Global config snapshot: ${CONFIG_SNAPSHOT}`);
+  return data;
+}
+
+async function writeGlobalConfig(page, value) {
+  return evaluateInST(page, async ({ key, next }) => {
+    const ctx = SillyTavern.getContext();
+    if (next === null) delete ctx.extensionSettings[key];
+    else ctx.extensionSettings[key] = next;
+    if (typeof ctx.saveSettings === 'function') await ctx.saveSettings();
+    else { ctx.saveSettingsDebounced(); await new Promise((done) => setTimeout(done, 1500)); }
+    return { key, cleared: next === null, keys: next ? Object.keys(next) : [] };
+  }, { key: EXTENSION_KEY, next: value });
+}
+
+export async function restoreGlobalConfig(page, file = CONFIG_SNAPSHOT) {
+  const snapshot = await readJSON(file);
+  const result = await writeGlobalConfig(page, snapshot.present ? snapshot.value : null);
+  console.log(`Restored global config from ${file}: ${JSON.stringify(result)}`);
+  return result;
+}
+
+// Capabilities answer "does this build have the feature at all?" and are probed lazily, right
+// before the first check that needs one: a check earlier in the journey may be what puts the
+// surface on screen. Missing capability => blocked, never a fake failure.
+function capabilityProbe(page, capabilities) {
+  const cache = {};
+  return {
+    cache,
+    async has(id) {
+      if (id in cache) return cache[id];
+      const expression = (capabilities ?? {})[id];
+      cache[id] = expression === undefined ? false : await evaluateInST(page, (code) => {
+        try {
+          return Boolean(new Function(`return (${code});`)());
+        } catch {
+          return false;
+        }
+      }, expression);
+      return cache[id];
+    },
+  };
+}
+
+async function configureExtraction(page, setup) {
+  const selected = await selectMemoryProfile(page);
+  if (setup.cadence) {
+    await evaluateInST(page, (cadence) => {
+      globalThis.storyOrchestratorRuntime?.setExtractionSettings({ cadence });
+      return true;
+    }, setup.cadence);
+  }
+  const settings = await evaluateInST(page, () => globalThis.storyOrchestratorRuntime?.getSnapshot()?.extraction?.settings ?? null);
+  console.log(`extraction configured via the settings panel: profile="${selected.profile}" ${JSON.stringify(settings)}`);
+  return { ...selected, settings };
+}
+
+async function applySetup(page, setup, { allowConfig }) {
+  const applied: { configSnapshot: unknown; chat: unknown; extraction?: unknown; libraryBefore?: string[]; cleanup?: unknown } = { configSnapshot: null, chat: null };
+  if (setup.clearGlobalConfig && allowConfig) {
+    applied.configSnapshot = await snapshotGlobalConfig(page);
+    await writeGlobalConfig(page, null);
+  } else if (setup.snapshotGlobalConfig && allowConfig) {
+    applied.configSnapshot = await snapshotGlobalConfig(page);
+  }
+  await closeUnpinnedDrawers(page).catch(() => undefined);
+  // A modal left open by a previous run (e.g. the away recap) blocks every chat control.
+  await evaluateInST(page, () => {
+    const dialogs = Array.from(document.querySelectorAll('dialog[open]'));
+    for (const dialog of dialogs) {
+      const ok = dialog.querySelector('.popup-button-ok') as HTMLElement | null;
+      if (ok) ok.click();
+      else (dialog as HTMLDialogElement).close();
+    }
+    return { dismissed: dialogs.length };
+  }).catch(() => undefined);
+  const active = await evaluateInST(page, () => ({ groupId: SillyTavern.getContext().groupId ?? null }));
+  if (setup.group && setup.group !== 'recent') await openGroup(page, setup.group);
+  // A group chat already open is the group we want; going via the welcome screen only risks
+  // getting stuck there when a previous run died mid-journey.
+  else if (!active?.groupId) await openMostRecentGroupChat(page);
+  if (setup.newChat !== false) {
+    // A chat deleted by the previous run can leave ST mid-transition; one retry settles it.
+    applied.chat = await startNewGroupSession(page).catch(async (error) => {
+      console.log(`new chat retry after: ${error.message}`);
+      await page.waitForTimeout(3000);
+      await openMostRecentGroupChat(page);
+      return startNewGroupSession(page);
+    });
+    if (setup.resetChatState !== false) await wipeChatMeta(page, null).catch(() => undefined);
+    await evaluateInST(page, async () => {
+      for (const key of Object.keys(globalThis).filter((name) => name.startsWith('storyOrchestratorDebug'))) delete globalThis[key];
+      await globalThis.storyOrchestratorRuntime?.loadSelectedFromChat?.();
+      return true;
+    });
+  }
+  if (setup.configureExtraction) applied.extraction = await configureExtraction(page, setup);
+  // Remember what the library already held: cleanup may only remove records this run created.
+  applied.libraryBefore = await evaluateInST(page, () => {
+    const records = SillyTavern.getContext().extensionSettings?.['story-orchestrator']?.v2Stories;
+    return Array.isArray(records) ? records.map((record) => record.hash) : [];
+  });
+  return applied;
+}
+
+async function runCleanup(page, journey, { importedHashes, libraryBefore, configSnapshot, chatStarted, keep, allowConfig }) {
+  const cleanup = journey.cleanup ?? {};
+  const report: Record<string, unknown> = {};
+  if (keep) return { kept: true };
+  if (configSnapshot && allowConfig && cleanup.restoreConfig !== false) {
+    report.config = await restoreGlobalConfig(page).catch((error) => ({ error: error.message }));
+  }
+  const preExisting = new Set(libraryBefore ?? []);
+  const removable = [...new Set(importedHashes)].filter((hash) => !preExisting.has(hash));
+  if (cleanup.removeImportedStories !== false && removable.length) {
+    report.stories = await evaluateInST(page, async (hashes) => {
+      const ctx = SillyTavern.getContext();
+      const root = ctx.extensionSettings?.['story-orchestrator'];
+      if (!root || !Array.isArray(root.v2Stories)) return { removed: 0 };
+      root.v2Stories = root.v2Stories.filter((record) => !hashes.includes(record.hash));
+      if (typeof ctx.saveSettings === 'function') await ctx.saveSettings();
+      else ctx.saveSettingsDebounced();
+      return { removed: hashes.length };
+    }, removable).catch((error) => ({ error: error.message }));
+  }
+  if (removable.length !== importedHashes.length) report.keptPreExistingStories = importedHashes.filter((hash) => preExisting.has(hash));
+  // cast_changes mutates the group's disabled_members, which outlives the sandbox chat
+  // (see .claude/rules/debug-scripts.md) — put the roster back before leaving.
+  for (const member of cleanup.enableMembers ?? []) {
+    report[`member:${member}`] = await executeSlashCommand(page, `/member-enable ${member}`).then(() => ({ enabled: true })).catch((error) => ({ error: error.message }));
+  }
+  if (chatStarted && cleanup.deleteChat !== false) {
+    report.chat = await executeSlashCommand(page, '/delchat').then(() => ({ deleted: true })).catch((error) => ({ error: error.message }));
+  }
+  return report;
+}
+
+function renderMatrix(journey, results) {
+  const rows = results.map((row) => `| ${row.id} | ${row.mode} | ${row.findings.join(', ') || '—'} | ${row.outcome} | ${(row.detail ?? '').replace(/\|/g, '/').slice(0, 160)} |`);
+  return [
+    `### ${journey.id} ${journey.title} — ${journey.objective ?? ''}`,
+    '',
+    '| Check | Mode | Findings | Outcome | Detail |',
+    '|---|---|---|---|---|',
+    ...rows,
+    '',
+  ].join('\n');
+}
+
+function renderChecklist(results) {
+  const human = results.filter((row) => row.mode === 'human');
+  if (!human.length) return '';
+  return [
+    '',
+    '--- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---',
+    ...human.map((row) => `[${row.id}] (${row.findings.join(', ') || '—'}) ${row.prompt}${row.anchors ? `\n      anchors: ${row.anchors}` : ''}`),
+    '[free] What would make you stop using this?',
+    '',
+  ].join('\n');
+}
+
+export async function runJourney(page, idOrFile, { strict = false, keep = false, only = null, allowConfig = true } = {}) {
+  const { journey, path } = await resolveJourney(idOrFile);
+  const checks = journey.checks ?? [];
+  const reserved = (journey.status ?? 'active') === 'reserved';
+  const results = [];
+  const importedHashes = [];
+  let setupApplied: { configSnapshot: unknown; chat: unknown; extraction?: unknown; libraryBefore?: string[]; cleanup?: unknown } = { configSnapshot: null, chat: null };
+  let runnerError = null;
+  const capabilities = capabilityProbe(page, journey.capabilities);
+
+  console.log(`\n=== ${journey.id} ${journey.title} ===\n${journey.objective ?? ''}\n`);
+
+  if (reserved) {
+    for (const check of checks) results.push({ ...summarize(check), outcome: 'not-runnable', detail: journey.reservedReason ?? 'journey not defined on this build' });
+  } else {
+    try {
+      setupApplied = await applySetup(page, journey.setup ?? {}, { allowConfig });
+      for (const check of checks) {
+        const summary = summarize(check);
+        if (only && !only.includes(check.id)) { results.push({ ...summary, outcome: 'skipped', detail: 'not selected by --only' }); continue; }
+        if (check.mode === 'human') { results.push({ ...summary, outcome: 'skipped', detail: 'human check — operator scores it' }); continue; }
+        const missing = [];
+        for (const id of check.requires ?? []) if (!(await capabilities.has(id))) missing.push(id);
+        if (missing.length) {
+          results.push({ ...summary, outcome: 'blocked', detail: `missing capability: ${missing.join(', ')}` });
+          console.log(`${check.id} BLOCKED (${missing.join(', ')})`);
+          continue;
+        }
+        console.log(`--- ${check.id} ${check.goal ?? ''}`);
+        const outcome = await runSteps(page, check.steps ?? [], { scenarioDir: JOURNEY_DIR, importedHashes, label: `${check.id} ` });
+        results.push({ ...summary, outcome: outcome.ok ? 'pass' : 'fail', detail: outcome.error ?? '' });
+      }
+    } catch (error) {
+      runnerError = error instanceof Error ? error.message : String(error);
+      console.error(`Runner error: ${runnerError}`);
+    } finally {
+      setupApplied.cleanup = await runCleanup(page, journey, {
+        importedHashes,
+        libraryBefore: (setupApplied as { libraryBefore?: string[] }).libraryBefore,
+        configSnapshot: setupApplied.configSnapshot,
+        chatStarted: Boolean(setupApplied.chat),
+        keep,
+        allowConfig,
+      }).catch((error) => ({ error: error.message }));
+    }
+  }
+
+  const tally = results.reduce((acc, row) => ({ ...acc, [row.outcome]: (acc[row.outcome] ?? 0) + 1 }), {});
+  const failed = (tally.fail ?? 0) > 0 || Boolean(runnerError) || (strict && (tally.blocked ?? 0) > 0);
+
+  console.log('');
+  for (const row of results) console.log(`${(OUTCOME_ICON[row.outcome] ?? row.outcome).padEnd(12)} ${row.id.padEnd(8)} ${row.goal ?? row.prompt ?? ''}${row.detail ? ` — ${row.detail}` : ''}`);
+  console.log(`\n${journey.id}: ${JSON.stringify(tally)}${runnerError ? ` runnerError=${runnerError}` : ''}`);
+  console.log(renderChecklist(results));
+
+  const record = { id: journey.id, title: journey.title, file: path, ranAt: new Date().toISOString(), strict, tally, runnerError, capabilities: capabilities.cache, results, cleanup: setupApplied.cleanup ?? null };
+  await mkdir(DEBUG_DIR, { recursive: true });
+  await writeFile(resolve(DEBUG_DIR, `journey-${journey.id}.md`), `${renderMatrix(journey, results)}${renderChecklist(results)}`, 'utf-8');
+  await writeJSON(record, `journey-${journey.id}`);
+  console.log(`Matrix: ${resolve(DEBUG_DIR, `journey-${journey.id}.md`)}`);
+  return { ok: !failed, record };
+}
+
+function summarize(check) {
+  return { id: check.id, mode: check.mode ?? 'auto', findings: check.findings ?? [], goal: check.goal ?? '', prompt: check.prompt ?? '', anchors: check.anchors ?? '' };
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const args = stripCommonArgs(process.argv.slice(2));
+  if (hasHelpFlag() || args.length === 0) {
+    console.log(USAGE);
+    process.exit(hasHelpFlag() ? 0 : 1);
+  }
+  if (args.includes('--list')) {
+    const journeys = await listJourneys();
+    for (const journey of journeys) console.log(`${journey.id.padEnd(4)} ${String(journey.status).padEnd(9)} ${journey.title.padEnd(20)} auto=${journey.auto} human=${journey.human}  ${journey.objective}`);
+    process.exit(0);
+  }
+  const command = args[0];
+  if (command === 'restore-config') {
+    runCli(async (page) => { await restoreGlobalConfig(page, argValue(args, '--file') ?? CONFIG_SNAPSHOT); });
+  } else if (command === 'run') {
+    const target = args[1];
+    if (!target) {
+      console.log(USAGE);
+      process.exit(1);
+    }
+    const only = argValue(args, '--only');
+    runCli(async (page) => {
+      const { ok } = await runJourney(page, target, {
+        strict: args.includes('--strict'),
+        keep: args.includes('--keep'),
+        only: only ? only.split(',').map((id) => id.trim()) : null,
+        allowConfig: !args.includes('--no-config'),
+      });
+      return { ok };
+    });
+  } else {
+    console.log(USAGE);
+    process.exit(1);
+  }
+}

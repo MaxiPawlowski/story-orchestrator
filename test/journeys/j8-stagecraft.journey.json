@@ -1,0 +1,14 @@
+{
+  "id": "J8",
+  "title": "stagecraft",
+  "objective": "Reserved for plan 07: deterministic background effect plus one agentic curator (World Info) proposing, audited in the session journal, never writing the blackboard or memory tiers.",
+  "status": "reserved",
+  "reservedReason": "defined by plan 07 (stagecraft agents) — not runnable before it lands",
+  "setup": { "newChat": true },
+  "checks": [
+    { "id": "J8.1", "mode": "auto", "findings": ["D1"], "goal": "a checkpoint's background effect switches the ST background deterministically" },
+    { "id": "J8.2", "mode": "auto", "findings": ["D1"], "goal": "the WI curator proposes an entry off-path and the proposal is applied as a boundary effect only" },
+    { "id": "J8.3", "mode": "auto", "findings": ["D1"], "goal": "every curator action appears in the session journal and never touches the blackboard or memory tiers" },
+    { "id": "J8.4", "mode": "human", "findings": ["D1"], "prompt": "Did the presentation (scene, background, cast) feel handled for you, without you asking?", "anchors": "1 = nothing happened · 3 = noticed it once · 5 = the stage kept up with the story" }
+  ]
+}

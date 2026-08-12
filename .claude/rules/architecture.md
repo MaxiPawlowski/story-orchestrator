@@ -20,6 +20,8 @@ src/
     storyLibrary.ts          # extension-settings story library
     slashCommands.ts         # /cp state/set/activate/extract/expand/converge/memorize
     macros.ts                # story_blackboard + story_memory_<tier> macros (more in plan 13)
+    extras.ts                # v2.1 plan 01: RuntimeExtras factory/sanitizers + hydrateExtras (moved out of runtimeManager)
+    journal.ts               # v2.1 plan 01: SessionJournal — status/flag records + payload ring, buildSessionJournal() over the existing rings
     talkControl.ts           # plan 14: TalkController — real talkControlInterceptor routing, per-pass decision, wrapper-finished reconcile (host seam built in runtime/index.ts)
     hash.ts / requirements.ts / blackboardMemo.ts
   extraction/
@@ -48,6 +50,8 @@ src/
 - Boundary counters ≠ ST message indexes. Boundary snapshots/logs record `{lastMessageId, chatLength}`.
 - Pending queue writes not persisted; reload drops them, reconciliation recovers.
 - Extraction audits persist in runtime extras (`extras.extraction.audits`); facts moved to the memory tiers (`extras.memory`, facts tier) as of plan 07 — `extras.extraction.facts` no longer exists.
+- Journeys (v2.1 layer 5): `test/journeys/*.journey.json`, run by `scripts/debug/so-journey.mts` (wraps the `so-scenario` step engine, never forks it). Catalog + checks: `docs/plans/v2.1/test-plan.md`.
+- Session journal derives from the existing rings at read time; only status transitions and player flags are persisted (`extras.journal`, cap 200). Payload captures stay in-memory (ring of 5) inside `SessionJournal`.
 - Fixtures: `test/fixtures/*.story.json|*.transcript.json|*.expected.json`; recorded LLM goldens in `test/goldens/`. Jest always runs deterministic goldens. **Live delta accuracy is a browser-driven script, not a jest env flag**: `scripts/debug/so-live-suite.mts` runs each `extractor*` triple through the real memory model via `globalThis.storyOrchestratorLiveSuite.runFixture` (same pure `extraction/fixtureRun.ts` prompt path as jest) and scores exact-match on `{q,v}` deltas; `--record` writes `test/goldens/live/`.
 - Build output `dist/` generated + gitignored.
 

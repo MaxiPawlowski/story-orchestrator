@@ -1,0 +1,213 @@
+{
+  "id": "J2",
+  "title": "author-loop",
+  "objective": "Author a playable mini-story in the Studio without touching JSON, play it, hit a wrong gate, edit, continue the same chat. Includes one author-view driver pass (Probe + Nudge).",
+  "setup": {
+    "newChat": true,
+    "resetChatState": true,
+    "snapshotGlobalConfig": true
+  },
+  "cleanup": {
+    "restoreConfig": true,
+    "deleteChat": true
+  },
+  "capabilities": {
+    "studio-open": "Boolean(document.querySelector('#so-studio-modal'))",
+    "studio-roster-editor": "Boolean(document.querySelector('#so-studio-modal [data-so=\"roster\"]'))",
+    "studio-requirements-editor": "Boolean(document.querySelector('#so-studio-modal [data-so=\"requirements\"]'))",
+    "story-identity": "typeof globalThis.storyOrchestratorRuntime?.getSnapshot()?.storyId === 'string'",
+    "hot-swap": "typeof globalThis.storyOrchestratorRuntime?.applyStoryVersion === 'function'"
+  },
+  "checks": [
+    {
+      "id": "J2.1",
+      "mode": "auto",
+      "findings": [
+        "U7"
+      ],
+      "goal": "the Studio opens on an empty draft",
+      "steps": [
+        {
+          "eval": "globalThis.storyOrchestratorStudioDraft.getState().newDraft(); return true;"
+        },
+        {
+          "ui": {
+            "action": "open-studio"
+          }
+        },
+        {
+          "expect_ui": {
+            "selector": "#so-studio-modal",
+            "contains": [
+              "Qualities",
+              "Checkpoints",
+              "Transitions"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "J2.2",
+      "mode": "auto",
+      "findings": [
+        "U7"
+      ],
+      "goal": "roster members can be authored in the Studio UI",
+      "requires": [
+        "studio-roster-editor"
+      ],
+      "steps": [
+        {
+          "expect_ui": {
+            "selector": "#so-studio-modal",
+            "contains": [
+              "Roster"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "J2.3",
+      "mode": "auto",
+      "findings": [
+        "U7"
+      ],
+      "goal": "story requirements (members, lorebooks) can be authored in the Studio UI",
+      "requires": [
+        "studio-requirements-editor"
+      ],
+      "steps": [
+        {
+          "expect_ui": {
+            "selector": "#so-studio-modal",
+            "contains": [
+              "Requirements"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "J2.4",
+      "mode": "auto",
+      "findings": [
+        "U2"
+      ],
+      "goal": "a story has a stable identity, so re-selecting it hydrates instead of forking",
+      "requires": [
+        "story-identity"
+      ],
+      "steps": [
+        {
+          "eval": "const s = globalThis.storyOrchestratorRuntime.getSnapshot(); if (!s.storyId) throw new Error('no stable story id'); return { storyId: s.storyId };"
+        }
+      ]
+    },
+    {
+      "id": "J2.5",
+      "mode": "auto",
+      "findings": [
+        "U2"
+      ],
+      "goal": "saving an edited story into the running chat keeps its progress (hot-swap, not reset)",
+      "requires": [
+        "hot-swap"
+      ],
+      "steps": [
+        {
+          "eval": "const before = globalThis.storyOrchestratorRuntime.getSnapshot().boundary; await globalThis.storyOrchestratorRuntime.applyStoryVersion(); const after = globalThis.storyOrchestratorRuntime.getSnapshot().boundary; if (after < before) throw new Error(`hot-swap reset progress: ${before} -> ${after}`); return { before, after };"
+        }
+      ]
+    },
+    {
+      "id": "J2.6",
+      "mode": "auto",
+      "findings": [
+        "U3"
+      ],
+      "goal": "the in-play author driver still works in author view (Probe + Nudge, real model)",
+      "steps": [
+        {
+          "ui": {
+            "action": "close-studio"
+          }
+        },
+        {
+          "import_story": {
+            "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
+          }
+        },
+        {
+          "ui": {
+            "action": "select-profile"
+          }
+        },
+        {
+          "eval": "globalThis.storyOrchestratorRuntime.setExtractionSettings({ cadence: 2 }); const s = globalThis.storyOrchestratorRuntime.getSnapshot().extraction.settings; if (!s.enabled || !s.profileId) throw new Error(`extraction not configured after import: ${JSON.stringify(s)}`); return s;"
+        },
+        {
+          "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); globalThis.storyOrchestratorRuntime.setCopilotSettings({ enabled: true }); return true;"
+        },
+        {
+          "send": "Arin taps the notice board. \"That one. The Sun Ruins.\""
+        },
+        {
+          "copilot": {
+            "action": "probe"
+          }
+        },
+        {
+          "expect": {
+            "auditCount>=": 1
+          }
+        },
+        {
+          "copilot": {
+            "action": "nudge",
+            "text": "Let Ponticius interrupt within the next beat."
+          }
+        },
+        {
+          "expect": {
+            "copilot": {
+              "activeNudge": "Let Ponticius interrupt within the next beat.",
+              "nudgeInjected": true
+            }
+          }
+        },
+        {
+          "copilot": {
+            "action": "clear-nudge"
+          }
+        },
+        {
+          "expect": {
+            "copilot": {
+              "activeNudge": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "J2.7",
+      "mode": "human",
+      "findings": [
+        "U7"
+      ],
+      "prompt": "Could you author a playable checkpoint — quality, gate, transition, cast — without opening a JSON editor?",
+      "anchors": "1 = impossible without JSON · 3 = possible but I had to work around gaps · 5 = everything the story needed was authorable"
+    },
+    {
+      "id": "J2.8",
+      "mode": "human",
+      "findings": [
+        "U2"
+      ],
+      "prompt": "After you edited the story mid-play, did the running chat behave the way you expected?",
+      "anchors": "1 = lost my progress · 3 = confusing but recoverable · 5 = exactly as expected"
+    }
+  ]
+}

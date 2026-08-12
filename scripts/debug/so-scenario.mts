@@ -8,18 +8,22 @@ import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { openMostRecentGroupChat, startNewGroupSession } from './st-navigation.mts';
 import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, sendUserMessage, swipeMessage, waitForIdle } from './st-actions.mts';
 import { dumpCurrentChatState } from './so-state.mts';
+import { closeCheckpointStudio, openCheckpointStudio, openExtensionSettings, openStoryDrawer, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot } from './so-ui.mts';
 
 const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep]
 
 Step keys:
-  import_story, select_story, send, send_generate, slash, extract, expand, eval, copilot, swipe, edit, delete, wait, expect
+  import_story, select_story, send, send_generate, slash, extract, expand, eval, copilot, ui, reload, swipe, edit, delete, wait, expect, expect_ui
+
+ui actions ({ui: {action, label?, note?}}):
+  open-drawer, drawer-tab, open-settings, select-profile, open-studio, close-studio, studio-tab, flag, screenshot
 
 copilot actions ({copilot: {action, ...}}):
   stage ({draft, stage, message?, debug?} — throws if the proposal is invalid),
   suggest ({debug?}), report ({debug?}), nudge ({text}), clear-nudge, probe ({debug?}), advance ({id})
 
 expect verbs:
-  activeCheckpoint, blackboard, blackboardMissing, latched, auditCount>=, npcFired,
+  activeCheckpoint, activeCheckpointIn, blackboard, blackboardMissing, latched, auditCount>=, npcFired,
   expansion, tension, pacingPrompt, requirementsReady, convergence, reconciliationEvents>=,
   memory ({tier: {count, contains}}), sceneBreaks>=, memoryInjection ({tier: bool}),
   arcs ({open, resolved, summarized, openContains, resolvedContains}), canon ({present, contains}),
@@ -27,7 +31,7 @@ expect verbs:
   copilot ({enabled, activeNudge, nudgeInjected})
 
 wait verbs:
-  idle, boundary, auditCount, acceptedDelta, expansionStatus, checkpoint, progress (+progressAnchor), reconciliationEvents, memoryEntries (+memoryTier), arcsSummarized, canonPresent, backfillComplete`;
+  idle, boundary, auditCount, acceptedDelta, expansionStatus, checkpoint, checkpointNot, checkpointIn, progress (+progressAnchor), reconciliationEvents, memoryEntries (+memoryTier), arcsSummarized, canonPresent, backfillComplete`;
 
 function readArgFlag(name) {
   return process.argv.includes(name);
@@ -89,6 +93,10 @@ function evaluateExpect(state, expected) {
   const failures = [];
   if (expected.activeCheckpoint !== undefined && actual.activeCheckpoint !== expected.activeCheckpoint) {
     failures.push(`activeCheckpoint: expected ${expected.activeCheckpoint}, got ${actual.activeCheckpoint}`);
+  }
+  // Real-model runs can overshoot a checkpoint between polls; assert the set the story may be in.
+  if (Array.isArray(expected.activeCheckpointIn) && !expected.activeCheckpointIn.includes(actual.activeCheckpoint)) {
+    failures.push(`activeCheckpoint: expected one of ${expected.activeCheckpointIn.join(', ')}, got ${actual.activeCheckpoint}`);
   }
   if (expected.blackboard) failures.push(...compareSubset(actual.blackboard, expected.blackboard, 'blackboard'));
   if (Array.isArray(expected.blackboardMissing)) {
@@ -226,6 +234,8 @@ async function waitForCondition(page, spec) {
       if (entries.some((entry: any) => entry?.status === spec.expansionStatus)) return last;
     }
     if (spec.checkpoint !== undefined && runtime?.activeCheckpointId === spec.checkpoint) return last;
+    if (spec.checkpointNot !== undefined && runtime?.activeCheckpointId && runtime.activeCheckpointId !== spec.checkpointNot) return last;
+    if (Array.isArray(spec.checkpointIn) && spec.checkpointIn.includes(runtime?.activeCheckpointId)) return last;
     if (spec.progress !== undefined) {
       const anchor = spec.progressAnchor;
       const convergence = last?.liveSnapshot?.convergence ?? [];
@@ -326,8 +336,92 @@ async function copilotStep(page, spec) {
   }, spec);
 }
 
-async function cleanupScenario(page, importedHashes, sandboxChatStarted, keep) {
+// Reload the ST page and wait for the extension to come back up: the honest way to test
+// hydration, migration and "return after a gap" paths.
+async function reloadStep(page, spec) {
+  const timeout = (typeof spec === 'object' && spec?.timeoutMs) || 60000;
+  await page.reload({ waitUntil: 'domcontentloaded', timeout });
+  await page.waitForFunction(() => Boolean(globalThis.storyOrchestratorRuntime), null, { timeout });
+  await page.waitForTimeout(1500);
+  // ST comes back on the welcome screen, so reopening the chat is part of "returning to it".
+  const reopen = spec?.reopenChat !== false;
+  const chatId = await evaluateInST(page, () => SillyTavern.getContext().chatId ?? null);
+  if (!chatId && reopen) await openMostRecentGroupChat(page);
+  await page.waitForTimeout(1500);
+  return evaluateInST(page, () => ({ chatId: SillyTavern.getContext().chatId ?? null, ready: globalThis.storyOrchestratorRuntime?.getSnapshot?.().ready ?? false }));
+}
+
+async function uiStep(page, spec) {
+  const action = typeof spec === 'string' ? spec : spec?.action;
+  const label = typeof spec === 'object' ? spec?.label : undefined;
+  if (action === 'open-drawer') return openStoryDrawer(page);
+  if (action === 'drawer-tab') return switchDrawerTab(page, label);
+  if (action === 'open-settings') return openExtensionSettings(page);
+  if (action === 'select-profile') return selectMemoryProfile(page, label ?? '');
+  if (action === 'open-studio') return openCheckpointStudio(page);
+  if (action === 'close-studio') return closeCheckpointStudio(page);
+  if (action === 'studio-tab') return switchStudioTab(page, label);
+  if (action === 'screenshot') return takeAnnotatedScreenshot(page, label ?? 'so-scenario');
+  if (action === 'flag') {
+    await openStoryDrawer(page);
+    const button = page.locator('#so-flag-moment');
+    if (!(await button.count())) throw new Error('Flag control (#so-flag-moment) not found in the drawer.');
+    await button.click();
+    const note = typeof spec === 'object' ? spec?.note ?? '' : '';
+    if (note) await page.locator('#so-flag-note').fill(note);
+    await page.locator('#so-flag-submit').click();
+    return { flagged: true, note };
+  }
+  throw new Error(`Unknown ui action: ${action}`);
+}
+
+async function readUiText(page, selector) {
+  return evaluateInST(page, (target) => {
+    const node = document.querySelector(target);
+    return node ? (node as HTMLElement).innerText ?? node.textContent ?? '' : null;
+  }, selector);
+}
+
+async function evaluateExpectUi(page, spec) {
+  const selector = spec.selector ?? '#drawer-manager';
+  // UI assertions retry: React re-renders and ST popups land a beat after the state they reflect.
+  const deadline = Date.now() + (spec.timeoutMs ?? 5000);
+  let text = await readUiText(page, selector);
+  while (Date.now() < deadline) {
+    const failing = uiFailures(selector, text, spec);
+    if (!failing.length) break;
+    await page.waitForTimeout(500);
+    text = await readUiText(page, selector);
+  }
+  const failures = uiFailures(selector, text, spec);
+  return { ok: failures.length === 0, failures, actual: { selector, length: (text ?? '').length } };
+}
+
+function uiFailures(selector, text, spec) {
+  const failures = [];
+  if (text === null) failures.push(`${selector}: not present in the DOM`);
+  for (const needle of spec.contains ?? []) {
+    if (!(text ?? '').includes(needle)) failures.push(`${selector}: expected to contain "${needle}"`);
+  }
+  for (const needle of spec.notContains ?? []) {
+    if ((text ?? '').includes(needle)) failures.push(`${selector}: expected NOT to contain "${needle}"`);
+  }
+  return failures;
+}
+
+async function libraryHashes(page) {
+  return evaluateInST(page, () => {
+    const records = SillyTavern.getContext().extensionSettings?.['story-orchestrator']?.v2Stories;
+    return Array.isArray(records) ? records.map((record) => record.hash) : [];
+  });
+}
+
+// Only stories this run introduced may be removed: a scenario story whose content matches a
+// record the user already had would otherwise delete the user's library entry.
+async function cleanupScenario(page, importedHashes, sandboxChatStarted, keep, libraryBefore = []) {
   if (keep) return { kept: true };
+  const preExisting = new Set(libraryBefore);
+  const removable = [...new Set(importedHashes)].filter((hash) => !preExisting.has(hash));
   const cleaned = await evaluateInST(page, async (hashes) => {
     const ctx = SillyTavern.getContext();
     const root = ctx.extensionSettings?.['story-orchestrator'];
@@ -336,11 +430,71 @@ async function cleanupScenario(page, importedHashes, sandboxChatStarted, keep) {
       ctx.saveSettingsDebounced?.();
     }
     return { removedStoryHashes: hashes };
-  }, importedHashes) as Record<string, unknown>;
+  }, removable) as Record<string, unknown>;
+  if (removable.length !== new Set(importedHashes).size) cleaned.keptPreExistingStories = importedHashes.filter((hash) => preExisting.has(hash));
   if (sandboxChatStarted) {
     try { await executeSlashCommand(page, '/delchat'); } catch (err) { cleaned.chatCleanupError = err instanceof Error ? err.message : String(err); }
   }
   return cleaned;
+}
+
+async function runStep(page, key, value, { scenarioDir = PROJECT_ROOT, importedHashes = [] } = {}) {
+  if (key === 'import_story') {
+    const output = await importStory(page, await resolveStory(value, scenarioDir));
+    if (output?.snapshot?.storyHash) importedHashes.push(output.snapshot.storyHash);
+    return output;
+  }
+  if (key === 'select_story') return selectStory(page, value);
+  if (key === 'send') return sendCompactMessage(page, value);
+  if (key === 'send_generate') return typeof value === 'string' ? sendUserMessage(page, value) : sendUserMessage(page, value.text, { idleTimeoutMs: value.timeoutMs });
+  if (key === 'slash') return executeSlashCommand(page, value);
+  if (key === 'extract') return extract(page, value);
+  if (key === 'expand') return expand(page, value);
+  if (key === 'eval') return evalStep(page, value);
+  if (key === 'copilot') return copilotStep(page, value);
+  if (key === 'ui') return uiStep(page, value);
+  if (key === 'reload') return reloadStep(page, value);
+  if (key === 'swipe') return swipeMessage(page, value.messageId, value.swipeId ?? null);
+  if (key === 'edit') return editMessage(page, value.messageId, value.text);
+  if (key === 'delete') return deleteMessage(page, value.messageId ?? value);
+  if (key === 'wait') return waitForCondition(page, value);
+  if (key === 'expect') {
+    const assertion = evaluateExpect(await dumpCurrentChatState(page), value);
+    if (!assertion.ok) throw new Error(assertion.failures.join('; '));
+    return assertion.actual;
+  }
+  if (key === 'expect_ui') {
+    const assertion = await evaluateExpectUi(page, value);
+    if (!assertion.ok) throw new Error(assertion.failures.join('; '));
+    return assertion.actual;
+  }
+  throw new Error(`Unknown step key: ${key}`);
+}
+
+// Shared step engine: so-scenario (feature level) and so-journey (composition level) run the
+// exact same verbs. New verbs land here, never in a parallel runner.
+async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashes = [], label = '' } = {}) {
+  const result = { steps: [], ok: true, error: null };
+  for (let index = 0; index < steps.length; index += 1) {
+    const step = steps[index];
+    const key = Object.keys(step)[0];
+    const startedAt = Date.now();
+    let output;
+    try {
+      output = await runStep(page, key, step[key], { scenarioDir, importedHashes });
+      const entry = { index, key, ok: true, ms: Date.now() - startedAt };
+      result.steps.push(entry);
+      console.log(`${label}${index + 1}/${steps.length} ${key} ok ${entry.ms}ms`);
+    } catch (err) {
+      const entry = { index, key, ok: false, ms: Date.now() - startedAt, error: err.message || String(err), output };
+      result.steps.push(entry);
+      result.ok = false;
+      result.error = entry.error;
+      console.log(`${label}${index + 1}/${steps.length} ${key} FAIL ${entry.error}`);
+      break;
+    }
+  }
+  return result;
 }
 
 async function runScenario(page, file, { sandbox = false, keep = false } = {}) {
@@ -349,58 +503,23 @@ async function runScenario(page, file, { sandbox = false, keep = false } = {}) {
   const scenario = await readJSON(scenarioPath);
   const steps = Array.isArray(scenario) ? scenario : scenario.steps;
   if (!Array.isArray(steps)) throw new Error('Scenario must be an array or { steps: [] }.');
-  const result = { file, steps: [], ok: true, cleanup: null };
   const importedHashes = [];
   let sandboxChatStarted = false;
+  let result = { file, steps: [], ok: true, cleanup: null };
 
+  let libraryBefore = [];
   if (sandbox) {
     await openMostRecentGroupChat(page);
     await startNewGroupSession(page);
     sandboxChatStarted = true;
+    libraryBefore = await libraryHashes(page);
   }
 
   try {
-    for (let index = 0; index < steps.length; index += 1) {
-      const step = steps[index];
-      const key = Object.keys(step)[0];
-      const value = step[key];
-      const startedAt = Date.now();
-      let output;
-      try {
-        if (key === 'import_story') {
-          output = await importStory(page, await resolveStory(value, scenarioDir));
-          if (output?.snapshot?.storyHash) importedHashes.push(output.snapshot.storyHash);
-        } else if (key === 'select_story') output = await selectStory(page, value);
-        else if (key === 'send') output = await sendCompactMessage(page, value);
-        else if (key === 'send_generate') output = await sendUserMessage(page, value);
-        else if (key === 'slash') output = await executeSlashCommand(page, value);
-        else if (key === 'extract') output = await extract(page, value);
-        else if (key === 'expand') output = await expand(page, value);
-        else if (key === 'eval') output = await evalStep(page, value);
-        else if (key === 'copilot') output = await copilotStep(page, value);
-        else if (key === 'swipe') output = await swipeMessage(page, value.messageId, value.swipeId ?? null);
-        else if (key === 'edit') output = await editMessage(page, value.messageId, value.text);
-        else if (key === 'delete') output = await deleteMessage(page, value.messageId ?? value);
-        else if (key === 'wait') output = await waitForCondition(page, value);
-        else if (key === 'expect') {
-          const assertion = evaluateExpect(await dumpCurrentChatState(page), value);
-          if (!assertion.ok) throw new Error(assertion.failures.join('; '));
-          output = assertion.actual;
-        } else throw new Error(`Unknown step key: ${key}`);
-        const entry = { index, key, ok: true, ms: Date.now() - startedAt };
-        result.steps.push(entry);
-        console.log(`${index + 1}/${steps.length} ${key} ok ${entry.ms}ms`);
-      } catch (err) {
-        const entry = { index, key, ok: false, ms: Date.now() - startedAt, error: err.message || String(err), output };
-        result.steps.push(entry);
-        result.ok = false;
-        console.log(`${index + 1}/${steps.length} ${key} FAIL ${entry.error}`);
-        await writeJSON({ result, state: await dumpCurrentChatState(page).catch(() => null) }, 'so-scenario-failure');
-        break;
-      }
-    }
+    result = { file, ...(await runSteps(page, steps, { scenarioDir, importedHashes })), cleanup: null };
+    if (!result.ok) await writeJSON({ result, state: await dumpCurrentChatState(page).catch(() => null) }, 'so-scenario-failure');
   } finally {
-    if (sandbox) result.cleanup = await cleanupScenario(page, importedHashes, sandboxChatStarted, keep);
+    if (sandbox) result.cleanup = await cleanupScenario(page, importedHashes, sandboxChatStarted, keep, libraryBefore);
   }
 
   await writeJSON(result, 'so-scenario-result');
@@ -408,7 +527,7 @@ async function runScenario(page, file, { sandbox = false, keep = false } = {}) {
   return result;
 }
 
-export { runScenario };
+export { cleanupScenario, evaluateExpect, runScenario, runSteps };
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   if (process.argv[2] !== 'run' || !process.argv[3] || hasHelpFlag()) {

@@ -1,0 +1,218 @@
+{
+  "id": "J1",
+  "title": "first-contact",
+  "objective": "A new user with a cleared install: install state → import the example → configure → first real transition fires.",
+  "setup": {
+    "clearGlobalConfig": true,
+    "newChat": true,
+    "resetChatState": true
+  },
+  "cleanup": {
+    "restoreConfig": true,
+    "deleteChat": true,
+    "enableMembers": [
+      "DM Narrator",
+      "Arin",
+      "Ponticius",
+      "Luke"
+    ]
+  },
+  "capabilities": {
+    "global-extraction-settings": "typeof globalThis.storyOrchestratorRuntime?.getGlobalSettings === 'function'",
+    "first-run-path": "Boolean(document.querySelector('#so-first-run'))"
+  },
+  "checks": [
+    {
+      "id": "J1.1",
+      "mode": "auto",
+      "findings": [
+        "U6"
+      ],
+      "goal": "with nothing installed, the drawer says what to do next",
+      "steps": [
+        {
+          "ui": {
+            "action": "open-drawer"
+          }
+        },
+        {
+          "expect_ui": {
+            "selector": "#drawer-manager",
+            "contains": [
+              "Load a story from the extension settings."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "J1.2",
+      "mode": "auto",
+      "findings": [
+        "U1"
+      ],
+      "goal": "a brand-new chat has extraction enabled by default",
+      "steps": [
+        {
+          "eval": "const s = globalThis.storyOrchestratorRuntime.getSnapshot().extraction.settings; if (!s.enabled) throw new Error(`extraction disabled by default on a fresh chat: ${JSON.stringify(s)}`); return s;"
+        }
+      ]
+    },
+    {
+      "id": "J1.3",
+      "mode": "auto",
+      "findings": [
+        "U1",
+        "I3"
+      ],
+      "goal": "the memory profile is an install-level setting, so a new chat inherits it",
+      "requires": [
+        "global-extraction-settings"
+      ],
+      "steps": [
+        {
+          "eval": "const g = globalThis.storyOrchestratorRuntime.getGlobalSettings(); if (!g.extraction?.profileId) throw new Error('no global memory profile'); return g.extraction;"
+        }
+      ]
+    },
+    {
+      "id": "J1.4",
+      "mode": "auto",
+      "findings": [
+        "U6"
+      ],
+      "goal": "there is a first-run path that walks an empty install to playable",
+      "requires": [
+        "first-run-path"
+      ],
+      "steps": [
+        {
+          "expect_ui": {
+            "selector": "#so-first-run",
+            "contains": [
+              "Start"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "J1.5",
+      "mode": "auto",
+      "findings": [
+        "U6"
+      ],
+      "goal": "importing the shipped example story from the settings panel makes it playable",
+      "steps": [
+        {
+          "ui": {
+            "action": "open-settings"
+          }
+        },
+        {
+          "import_story": {
+            "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
+          }
+        },
+        {
+          "expect": {
+            "activeCheckpoint": "cp1",
+            "requirementsReady": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "J1.6",
+      "mode": "auto",
+      "findings": [
+        "U1"
+      ],
+      "goal": "after configuring the memory model in the settings panel, the first real transition fires",
+      "steps": [
+        {
+          "ui": {
+            "action": "select-profile"
+          }
+        },
+        {
+          "eval": "const s = globalThis.storyOrchestratorRuntime.getSnapshot().extraction.settings; if (!s.enabled || !s.profileId) throw new Error(`settings panel did not configure extraction: ${JSON.stringify(s)}`); return s;"
+        },
+        {
+          "send_generate": {
+            "text": "I push through the crowd and get close to the job board to read the postings.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I lean in and read the brightest notice on the board out loud to Arin.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I trace the seal on the Sun Ruins posting with a finger, still standing at the board.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "checkpointNot": "cp1",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "expect": {
+            "activeCheckpointIn": [
+              "cp2",
+              "cp3",
+              "cp-4a",
+              "cp-4b"
+            ],
+            "blackboard": {
+              "approached_board": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "J1.7",
+      "mode": "auto",
+      "findings": [
+        "U6"
+      ],
+      "goal": "the transition is announced to the player in chat",
+      "steps": [
+        {
+          "expect_ui": {
+            "selector": "#chat",
+            "contains": [
+              "Accept the Mission"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "J1.8",
+      "mode": "human",
+      "findings": [
+        "U6"
+      ],
+      "prompt": "From opening SillyTavern with the extension installed, could you tell what to do to get a story running?",
+      "anchors": "1 = no idea where to start · 3 = worked it out by poking around · 5 = the next step was obvious at every point"
+    },
+    {
+      "id": "J1.9",
+      "mode": "human",
+      "findings": [
+        "U1",
+        "U6"
+      ],
+      "prompt": "Once you were playing, was it clear that the story was actually running (and would advance on its own)?",
+      "anchors": "1 = no signal at all · 3 = guessed from the drawer · 5 = unmistakable"
+    }
+  ]
+}

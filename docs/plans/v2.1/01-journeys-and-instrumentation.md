@@ -58,3 +58,107 @@ Harness: typecheck/lint/test/build (journal module unit-tested; runner has a sel
 ## Unresolved questions
 
 - J7 duration vs gate practicality: acceptable to run J7 only at plans 01 (baseline) and 07 (acceptance), not per-plan? (Assumed yes.)
+
+## Gate record
+
+**Date**: 2026-08-11 · **Status**: COMPLETE. Harness green; live baseline recorded against the current build with the real LLM (gemma4-mtp via "Story Orchestrator Memory Local", headed browser, no `debugResponse` on any LLM-consuming path except the two deliberately deterministic latch steps in J6).
+
+### Delivered
+
+| Deliverable | Where |
+|---|---|
+| Journey catalog J1–J7 + J8/J9 reserved + J0 runner selftest | `test/journeys/*.journey.json` (+ `j5-group.story.json` fixture) |
+| Test plan (living, D2 artifact) | `docs/plans/v2.1/test-plan.md` |
+| `so-journey` runner | `scripts/debug/so-journey.mts` — `--list`, `run`, `restore-config`; fresh-start setup, crash-safe config snapshot, lazy capability probes, human checklist, `.debug/journey-<id>.{md,json}` |
+| Session journal | `src/runtime/journal.ts` (`SessionJournal`, `buildSessionJournal`), handle `getSessionJournal()`, persisted `extras.journal` (status + flags only, cap 200) |
+| Flag affordance (persona `both`) | `#so-flag-moment` in `DrawerTabs` + `manager.flagMoment(note?)`; Storybook `FlagMoment` play |
+| Journal export | `scripts/debug/so-journal.mts export|show` → `.debug/journal-<chat>.{md,json}` |
+| Shared-engine verbs (added to `so-scenario`, not a fork) | `ui` (open-drawer / drawer-tab / open-settings / select-profile / open-studio / close-studio / flag / screenshot), `reload`, `expect_ui` (retrying), `expect.activeCheckpointIn`, `wait.checkpointNot` / `checkpointIn`, `send_generate {text,timeoutMs}` |
+
+Rule 3 (no net RuntimeManager growth): `runtimeManager.ts` **1867 → 1718** lines — the extras factory/sanitizer block moved to `src/runtime/extras.ts` (`hydrateExtras`), payload captures into `SessionJournal`. Rule 4: the one UI element this plan adds (the drawer ⚑) is tagged `both` and shows no story state. Rule 5: `.claude/rules/architecture.md`, `.claude/rules/gotchas.md`, `.claude/rules/debug-scripts.md`, `docs/architecture-v2.md`, `scripts/debug/README.md` and `.claude/CLAUDE.md` updated in this plan.
+
+### Harness
+
+```
+npm run typecheck         -> clean
+npm run lint              -> clean
+npm test                  -> 48 suites / 1445 tests passed (was 47/1427; +journal.test.ts)
+npm run build             -> webpack compiled (2 pre-existing size warnings)
+npm run debug:typecheck   -> clean
+npm run test-storybook:ci -> 20 suites / 65 tests passed (was 20/64; +FlagMoment)
+```
+
+v2 scenario corpus (`--sandbox`, deterministic subset): `plan02-runtime`, `plan03-extraction`, `plan03a-edit-rollback`, `plan03a-delete-rollback`, `plan04-pacing`, `plan06-convergence`, `plan07-memory`, `plan08-hygiene`, `plan09-arcs`, `plan10-epistemic-ledger`, `plan12-copilot`, `plan13-surfacing` — **all `ok: true`**. Three had rotted against v2 *post-acceptance* changes (not against this plan) and were fixed here:
+
+- `plan04-pacing`: asserted `tension.expected 0.5` (shape curve) and the pre-calibration hint wording; the authored `tension_target` now drives expected tension → 0.25 + "hold the tension near stirring …".
+- `plan03a-edit-rollback` / `plan03a-delete-rollback`: mutated `messageId: "last"`, which is now the scripted NPC reply added *after* the commit, so no rollback was due. Pointed at message 0 (the message that carries the delta) — the check's actual intent.
+- **Known-stale, explicitly excluded from the green list**: `plan05-background-generation` step 4 expects an inserted expansion to go `stale` after `/cp set approach blocked`; v2 plan-13 acceptance made staleing *basis-tracked*, so a value outside the expansion's basis no longer stales it. The scenario needs a basis-touching mutation. Owner: whichever plan next touches `generation/` (03 or 07). Recorded, not silent.
+
+### Baseline matrix (real LLM, fresh-start, headed)
+
+Legend: `pass` · `fail` (ran, wrong result) · `blocked` (feature absent, declared via `requires`) · `skipped` (human check).
+
+| Check | Outcome | Findings | Evidence |
+|---|---|---|---|
+| J0.1–J0.2 | pass | — | runner selftest: virgin chat; drawer ⚑ writes a journal record |
+| J0.3 | blocked | — | proves `requires` → blocked, not a fake failure |
+| J1.1 | pass | U6 | empty install: drawer says "Load a story from the extension settings." |
+| **J1.2** | **fail** | **U1** | fresh chat: `{"enabled":false,"profileId":null,…}` — extraction off by default |
+| J1.3 | blocked | U1 I3 | no `getGlobalSettings` — the profile is per-chat |
+| J1.4 | blocked | U6 | no first-run path (`#so-first-run`) |
+| J1.5 | pass | U6 | example story imports and is playable (cp1, requirements ready) |
+| J1.6 | pass | U1 | after configuring in the settings panel, 3 real turns fire cp1 → cp2 |
+| J1.7 | pass | U6 | "Accept the Mission" announced in `#chat` |
+| J2.1 | pass | U7 | Studio opens on an empty draft |
+| J2.2 / J2.3 | blocked | U7 | no roster / requirements editors in the Studio UI |
+| J2.4 / J2.5 | blocked | U2 | no stable story id, no hot-swap |
+| J2.6 | pass | U3 | author-view driver: real Probe (audit recorded) + Nudge injected + cleared |
+| J3.1 / J3.2 | pass | — | 3 real turns → cp1 → cp2, announced in chat |
+| **J3.3** | **fail** | **U3** | player mode (`authorView:false`) drawer contains "Epistemic map" and "State ledger" |
+| J3.4 | pass | U8 | player Overview free of `cp*`, "Boundary ", audit vocabulary |
+| J3.5 | blocked | U4 | no composed narrative status surface |
+| J3.6 | blocked | U5 | no player-visible stall signal |
+| J3.7 | pass | — | memory written and the facts tier injected into the next generation |
+| J3.8 | pass | — | journal carries extraction + delta + boundary + transition + payload + flag |
+| J4.1–J4.4 | pass | — | away recap after a simulated 3-day gap (on reopen), names the checkpoint, dismisses; memorize backlog fills memory with the real model |
+| J5.1–J5.5 | pass | — | talk_control active, `cast_changes` disabled Luke, scripted npc_reply fired, real group turn routed + decision recorded, payload captured |
+| J5.6 | blocked | U3 | no epistemic entry produced in this short run → private-injection assertion not runnable |
+| J6.1–J6.3 | pass | — | boundary latched; edit → rollback to cp1; delete → engine state consistent |
+| J6.4 | blocked | U5 | no player-facing rollback notice |
+| J7.1–J7.8 | pass | — | full play-through cp1 → cp2 → cp3 → cp-4a → cp-4a1 → cp-5 → cp-6; all 5 anchors visited, convergence 1, 5+ transitions and memory in the journal |
+| J1.8–J1.9, J2.7–J2.8, J3.9–J3.13, J4.5–J4.6, J5.7, J6.5, J7.9–J7.10 | skipped (human) | — | checklist emitted every run; see below |
+| J8.*, J9.* | not-runnable | D1, D3 | reserved for plans 07 / 06 |
+
+Totals: **J1** 4 pass / 1 fail / 2 blocked · **J2** 2 / 0 / 4 · **J3** 5 / 1 / 2 · **J4** 4 / 0 / 0 · **J5** 5 / 0 / 1 · **J6** 3 / 0 / 1 · **J7** 7 / 1 / 0. The single J7 fail was a harness artifact (an exact-checkpoint wait missed an overshoot to cp3); the check now waits on `checkpointIn: [cp2, cp3]` and was re-run green in isolation.
+
+Every `fail` and `blocked` maps to a finding a later plan owns: U1/I3 → plan 02, U2/U7 → plans 02 + 05, U3/U4/U5/U8 → plan 04, D1/D3 → plans 06/07. Plan 08 re-runs this matrix with `--strict`, where `blocked` is forbidden.
+
+### Baseline human rubric — NOT RUN
+
+The J3 human checklist (immersion, spoilers, language, stall legibility, pacing, plus the standing "What would make you stop using this?") is emitted by every run and specified in `docs/plans/v2.1/test-plan.md`, but the ~15-message human session is the **user's** to play — an agent cannot answer it honestly. It is therefore explicitly open, and plan 08's "≥ 4/5" has no *before* number until the user plays it once. Protocol: test-plan.md, §Session journal & human-eval protocol.
+
+### Live-gate evidence
+
+- Runner selftest `so-journey run J0`: pass / blocked / skipped / checklist / cleanup all exercised.
+- Config snapshot+restore proven crash-safe: `run J1 --only J1.1 --keep` cleared `extensionSettings["story-orchestrator"]` (Connection Manager profiles verified untouched), then `so-journey restore-config` put the library back.
+- Journal export from a real J3 session: `.debug/journal-2026-08-11_22h06m15s490ms.md` — 27 events on one timeline (`status → extraction → delta → boundary → transition → payload → … → flag`) with a "Flagged moments" section written by the drawer ⚑ control.
+- `so-journey --list` lists 10 journeys with status and auto/human counts.
+
+### Deviations and fixes made along the way
+
+- **Two destructive tooling bugs found and fixed.** They cost the user's story library once during this run; it was restored from `data/default-user/backups/settings_default-user_20260707-153214.json` plus a re-import of the shipped example (same hashes, so existing chats still resolve).
+  - `so-journey` cleanup removed every story hash the run imported, including records that already existed. It now snapshots the library at setup and removes only new hashes (`keptPreExistingStories` in the cleanup report).
+  - `so-scenario --sandbox` cleanup had the identical bug; same fix.
+  - `.debug` artifact rotation (40 files) deleted journey matrices, journal exports and the config snapshot. Those names are now protected from rotation.
+- `st-actions.getGenerationState` treated a *stopped* stream (`isFinished:false, isStopped:true`) as generating forever and ignored ST's send/stop button swap. The buttons are now the primary signal, and `waitForIdle` requires a continuous idle window so the gap between two group members is not read as the end of the turn. `send_generate` accepts `timeoutMs` (default 300 s — group turns on a local model regularly need minutes).
+- `so-ui.openExtensionSettings` opened by *presence*; ST nests our panel behind `#extensions-settings-button` → `#rm_extensions_block`. It now opens by visibility and closes the nav drawer again (an open Extensions drawer hides `#options_button` and `#send_but`).
+- Journey setup dismisses stray ST modals and retries `/newchat` once — a chat deleted by the previous run can leave ST mid-transition.
+- **Extraction settings are per-chat**, so `setup.configureExtraction` before a story import is wiped by `loadStory`. Journeys therefore configure the profile *after* importing (`ui: select-profile`). That is U1/I3 showing up inside the harness itself; when plan 02 makes settings global, the per-check step can go away.
+- Environment note: ST's own "Chat integrity check failed while saving the file" popup fires under rapid sandbox chat churn (`/newchat` + `/delchat` back to back) and wedges the client at "Initializing…" after its forced reload; recovery is killing the Playwright browser and running `st-session start` again. Run scenario/journey batches one at a time. Extension state was intact each time (server `settings.json` verified).
+- `BoundaryLogEntry` gained `at` (host clock) so boundary/transition events order against the timestamped rings.
+
+### Unresolved
+
+- **Baseline human rubric** (above) — needs one ~15-message session from the user.
+- `plan05-background-generation` known-stale (above).
+- J7 wall-clock is ~25 min on the local model; confirmed practical only at plans 01 and 07/08, as the plan assumed.

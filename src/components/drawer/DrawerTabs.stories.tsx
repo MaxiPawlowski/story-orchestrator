@@ -86,6 +86,7 @@ const fakeManager = (): RuntimeManager =>
     setArcPinned: fn(),
     removeArc: fn(),
     removeLedgerEntry: fn(),
+    flagMoment: fn(),
   }) as unknown as RuntimeManager;
 
 const memorySnapshot = (): RuntimeSnapshot => {
@@ -261,5 +262,24 @@ export const Empty: Story = {
     await expect(canvas.getByText("No blackboard values yet.")).toBeInTheDocument();
     await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
     await expect(canvas.getByText(/No captures yet\./)).toBeInTheDocument();
+  },
+};
+
+export const FlagMoment: Story = {
+  render: () => {
+    const manager = fakeManager();
+    return (
+      <div style={{ maxWidth: 360 }}>
+        <DrawerTabs snapshot={playerSnapshot()} manager={manager} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByLabelText("Flag this moment"));
+    const note = canvas.getByPlaceholderText("What happened here? (optional)");
+    await userEvent.type(note, "recap was useless");
+    await userEvent.click(canvas.getByRole("button", { name: "Flag" }));
+    await expect(canvas.getByLabelText("Flag this moment")).toBeInTheDocument();
   },
 };

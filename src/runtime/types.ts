@@ -3,6 +3,7 @@ import type { ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
 import type { ArcEntry, EpistemicEntry, LedgerEntry, MemoryStoreState, MemoryTier, ScoreWeights } from "@memory/index";
 import type { SteeringHint } from "@pacing/index";
+import type { JournalRecord } from "./journal";
 import type { InjectedPromptBlock } from "@services/STAPI";
 import type { TalkDecisionSource } from "@talk/index";
 
@@ -56,6 +57,7 @@ export interface RuntimeExtras {
   copilot: CopilotRuntimeSettings;
   ui: UiRuntimeSettings;
   talk: TalkRuntimeState;
+  journal: JournalRecord[];
   lastSessionAt: string | null;
   updatedAt: string;
 }

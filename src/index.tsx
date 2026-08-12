@@ -128,12 +128,12 @@ const SettingsPanel = () => {
           </label>
           <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
             <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={snapshot.extraction.settings.enabled} onChange={(event) => manager.setExtractionSettings({ enabled: event.target.checked })} />
+              <input id="so-extraction-enabled" type="checkbox" checked={snapshot.extraction.settings.enabled} onChange={(event) => manager.setExtractionSettings({ enabled: event.target.checked })} />
               <span>Enable shared read extraction</span>
             </label>
             <label className="flex flex-col gap-1 text-sm">
               <span>Memory LLM profile</span>
-              <select value={snapshot.extraction.settings.profileId ?? ""} onChange={(event) => manager.setExtractionSettings({ profileId: event.target.value || null })}>
+              <select id="so-extraction-profile" value={snapshot.extraction.settings.profileId ?? ""} onChange={(event) => manager.setExtractionSettings({ profileId: event.target.value || null })}>
                 <option value="">No profile selected</option>
                 {profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.name}{profile.model ? ` (${profile.model})` : ""}</option>)}
               </select>

@@ -2,7 +2,10 @@ import { fileURLToPath } from 'node:url';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON, writeScreenshot } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
+import { closeUnpinnedDrawers } from './st-navigation.mts';
 
+// ST nests our panel two drawers deep: #extensions-settings-button (nav drawer) then our own
+// .inline-drawer. Both can be attached-but-hidden, so open by visibility, never by presence.
 export async function openExtensionSettings(page) {
   const root = page.locator('#story-orchestrator-settings');
   if (!(await root.count())) {
@@ -12,19 +15,24 @@ export async function openExtensionSettings(page) {
     );
   }
 
+  const navToggle = page.locator('#extensions-settings-button .drawer-toggle');
+  const navContent = page.locator('#rm_extensions_block');
+  const navWasOpen = await navContent.isVisible().catch(() => false);
+  if (!navWasOpen && (await navToggle.count())) {
+    await navToggle.click();
+    await navContent.waitFor({ state: 'visible', timeout: 5000 }).catch(() => undefined);
+  }
+
   const content = root.locator('.inline-drawer-content');
-  if (await content.count()) {
-    return { alreadyOpen: true };
+  const alreadyOpen = await content.isVisible().catch(() => false);
+  if (!alreadyOpen) {
+    const toggle = root.locator('.inline-drawer-toggle');
+    if (!(await toggle.count())) throw new Error('Settings panel toggle (.inline-drawer-toggle) not found.');
+    await toggle.click();
+    await content.waitFor({ state: 'visible', timeout: 5000 });
   }
-
-  const toggle = root.locator('.inline-drawer-toggle');
-  if (!(await toggle.count())) {
-    throw new Error('Settings panel toggle (.inline-drawer-toggle) not found.');
-  }
-
-  await toggle.click();
-  await content.waitFor({ state: 'attached', timeout: 5000 });
-  return { alreadyOpen: false };
+  await root.scrollIntoViewIfNeeded().catch(() => undefined);
+  return { alreadyOpen, navWasOpen };
 }
 
 export async function getSettingsPanelState(page) {
@@ -68,6 +76,28 @@ export async function getSettingsPanelState(page) {
   };
 }
 
+// Configure the memory LLM the way an end user does: through the settings panel controls.
+// Journey/scenario files never carry a profile id — ST_DEBUG_PROFILE (name) selects one when
+// several exist, otherwise the first configured profile wins.
+export async function selectMemoryProfile(page, wanted = process.env.ST_DEBUG_PROFILE ?? '') {
+  const { navWasOpen } = await openExtensionSettings(page);
+  const enable = page.locator('#so-extraction-enabled');
+  if (!(await enable.count())) throw new Error('Extraction toggle (#so-extraction-enabled) not found in the settings panel.');
+  if (!(await enable.isChecked())) await enable.check();
+  const select = page.locator('#so-extraction-profile');
+  if (!(await select.count())) throw new Error('Memory profile select (#so-extraction-profile) not found.');
+  const labels = (await select.locator('option').allTextContents()).map((label) => label.trim()).filter((label) => label && label !== 'No profile selected');
+  if (!labels.length) throw new Error('No connection profiles offered by the settings panel.');
+  const search = String(wanted).trim().toLowerCase();
+  const label = (search && labels.find((option) => option.toLowerCase().startsWith(search))) || labels[0];
+  await select.selectOption({ label });
+  const result = { profile: label, available: labels, enabled: await enable.isChecked() };
+  // Leave the nav as we found it: an open Extensions drawer hides #options_button and #send_but,
+  // so anything that plays the chat afterwards would time out.
+  if (!navWasOpen) await closeUnpinnedDrawers(page).catch(() => undefined);
+  return result;
+}
+
 export async function openCheckpointStudio(page) {
   const root = page.locator('#story-orchestrator-settings');
   if (!(await root.count())) {
@@ -79,19 +109,28 @@ export async function openCheckpointStudio(page) {
     return { alreadyOpen: true };
   }
 
-  const content = root.locator('.inline-drawer-content');
-  if (!(await content.count())) {
-    await openExtensionSettings(page);
-  }
-
+  // The button can be attached but hidden behind two collapsed drawers — open by visibility.
+  await openExtensionSettings(page);
   const studioBtn = root.locator('#so-open-studio');
   if (!(await studioBtn.count())) {
     throw new Error('"Open Studio" button (#so-open-studio) not found.');
   }
-
+  await studioBtn.scrollIntoViewIfNeeded().catch(() => undefined);
+  await studioBtn.waitFor({ state: 'visible', timeout: 10000 });
   await studioBtn.click();
   await modal.waitFor({ state: 'attached', timeout: 10000 });
   return { alreadyOpen: false };
+}
+
+export async function closeCheckpointStudio(page) {
+  return evaluateInST(page, () => {
+    const modal = document.getElementById('so-studio-modal') as HTMLDialogElement | null;
+    if (!modal) return { closed: false, reason: 'studio not open' };
+    const close = modal.querySelector('[aria-label="Close"], [title="Close"]') as HTMLElement | null;
+    if (close) close.click();
+    else modal.close();
+    return { closed: true };
+  });
 }
 
 export async function getStudioState(page) {

@@ -1,174 +1,19 @@
 import { Blackboard, StoryEngine, effectiveThresholdFor, evaluateGate, isValidationErrorList, progressQualityForAnchor, renderGateText, TENSION_CURRENT_KEY, type ApplyQueueEntry, type ArcTemplate, type BlackboardDelta, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type StoryV2, type TalkControl, type TensionLevel, type ValidationError } from "@engine/index";
 import { runAuthoringStage, runDriverReport, runDriverSuggest, type CopilotMessage, type CopilotStage, type DriverContext, type ProposalResult, type Suggestion } from "@copilot/index";
 import { callExtractionModel, deriveFullScope, deriveScope, getCanonLite, getChatWindow, getLastMessageText, runSharedRead, stripChannelNoise, type ParsedDelta, type ParsedFact, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
-import { findStubExpansionCandidate, collectExpansionGateSources, generateReviewedBeats, insertedCheckpointIds, mergeExpansions, planExpansion, revalidateExpansion, type ExpansionCacheEntry, type ExpansionRuntimeState, type StubExpansionCandidate } from "@generation/index";
-import { addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicInjection, applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildBoundKeySet, buildEpistemicPassPrompt, buildLedgerPassPrompt, buildLedgerView, capEpistemic, capLedger, clearEpistemicInjection, activeEpistemic, memoryExtensionKey, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, removeEpistemic, removeLedger, renderLedgerBlock, renderPrivateEpistemicBlock, rollbackEpistemic, rollbackLedger, setEpistemicPinned, setLedgerPinned, type EpistemicEntry, type LedgerBinding, type LedgerView, type ParsedEpistemicSignal, type ParsedLedgerSignal, buildArcSummaryPrompt, buildCanonSummaryPrompt, buildJaccardMatchSets, buildMemoryInjectionBlocks, buildSceneSummaryPrompt, buildShortTermSummaryPrompt, canonInputHash, capAllTiers, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, createMemoryState, DEFAULT_DEDUP_THRESHOLDS, DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS, detectSceneBreakHeuristic, dropByMessageId, editEntryText, excludeEntry, expireScoped, generateMemoryId, hashMemoryText, markContradicted, matchArcBridges, openArcTexts, removeArc, resolvedArcs, restoreEntry, rollbackArcs, setArcPinned, setArcSummary, setPinned, type ArcEntry, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedMemoryLine, type ScoreContext, type UncertainPair } from "@memory/index";
+import { findStubExpansionCandidate, collectExpansionGateSources, generateReviewedBeats, insertedCheckpointIds, mergeExpansions, planExpansion, revalidateExpansion, type ExpansionCacheEntry, type StubExpansionCandidate } from "@generation/index";
+import { addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicInjection, applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildBoundKeySet, buildEpistemicPassPrompt, buildLedgerPassPrompt, buildLedgerView, capEpistemic, capLedger, clearEpistemicInjection, activeEpistemic, memoryExtensionKey, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, removeEpistemic, removeLedger, renderLedgerBlock, renderPrivateEpistemicBlock, rollbackEpistemic, rollbackLedger, setEpistemicPinned, setLedgerPinned, type EpistemicEntry, type LedgerBinding, type LedgerView, type ParsedEpistemicSignal, type ParsedLedgerSignal, buildArcSummaryPrompt, buildCanonSummaryPrompt, buildJaccardMatchSets, buildMemoryInjectionBlocks, buildSceneSummaryPrompt, buildShortTermSummaryPrompt, canonInputHash, capAllTiers, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, DEFAULT_DEDUP_THRESHOLDS, detectSceneBreakHeuristic, dropByMessageId, editEntryText, excludeEntry, expireScoped, generateMemoryId, hashMemoryText, markContradicted, matchArcBridges, openArcTexts, removeArc, resolvedArcs, restoreEntry, rollbackArcs, setArcPinned, setArcSummary, setPinned, type ArcEntry, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedMemoryLine, type ScoreContext, type UncertainPair } from "@memory/index";
 import { expectedTension, getSteeringHint, levelToNumeric, numericToLevel, updateEma } from "@pacing/index";
 import { clearStoryExtensionPrompt, countTokens, DEFAULT_VECTOR_SOURCE, disableWIEntry, executeSlashCommands, getActiveGroup, getCharacterNameById, getContext, readInjectedPromptBlocks, resolveGroupMemberId, setStoryExtensionPrompt, showTextPopup, upsertWIEntry, vectorInsert, vectorPurge, vectorQuery } from "@services/STAPI";
 import { buildAwayRecap, shouldShowAwayRecap, type AwayRecap } from "./awayRecap";
-import { COPILOT_NUDGE_KEY, DEFAULT_TENSION_EMA_ALPHA, EPISTEMIC_INJECTION_DEPTH, LEDGER_INJECTION_DEPTH, MEMORY_TIER_INJECTION_DEPTHS, PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY, SHORT_TERM_COMPACTION_MESSAGES } from "@constants/defaults";
+import { COPILOT_NUDGE_KEY, EPISTEMIC_INJECTION_DEPTH, LEDGER_INJECTION_DEPTH, PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY, SHORT_TERM_COMPACTION_MESSAGES } from "@constants/defaults";
 import { EffectsApplier } from "./effectsApplier";
+import { createExtras, defaultTension, hydrateExtras, sanitizePacing, TALK_DECISION_LIMIT } from "./extras";
+import { SessionJournal, type JournalEvent } from "./journal";
 import { evaluateRequirements } from "./requirements";
 import { loadPersistedRuntime, savePersistedRuntime, setSelectedStoryHash, getSelectedStoryHash } from "./persistence";
 import { findStoryRecord, listStoryRecords, loadStoryRecord, removeStoryRecord, saveStoryRecord } from "./storyLibrary";
-import type { ConvergenceReadout, CopilotRuntimeSettings, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, MemoryBackfillState, MemoryRuntimeSettings, MemoryRuntimeState, PacingSettings, PayloadCapture, PendingDeltaReadout, RuntimeExtras, RuntimeSnapshot, TalkDecisionAudit, TalkRuntimeState, TensionRuntimeState, UiRuntimeSettings } from "./types";
-
-const emptyRequirements = { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] };
-
-const defaultExtractionSettings = (): ExtractionRuntimeSettings => ({ enabled: false, profileId: null, cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 });
-
-const defaultPacingSettings = (): PacingSettings => ({ alpha: DEFAULT_TENSION_EMA_ALPHA, shapeOverride: null, hintEnabled: true });
-
-const defaultTension = (): TensionRuntimeState => ({ levels: [], smoothed: null });
-
-const sanitizePacing = (value: PacingSettings | undefined): PacingSettings => ({
-  ...defaultPacingSettings(),
-  ...(value ?? {}),
-  alpha: typeof value?.alpha === "number" && value.alpha >= 0 && value.alpha <= 1 ? value.alpha : DEFAULT_TENSION_EMA_ALPHA,
-});
-
-const sanitizeTension = (value: TensionRuntimeState | undefined): TensionRuntimeState => ({
-  levels: Array.isArray(value?.levels) ? value.levels.slice(-50) : [],
-  smoothed: typeof value?.smoothed === "number" ? value.smoothed : null,
-});
-
-const createExtraction = (): ExtractionRuntimeState => ({
-  settings: defaultExtractionSettings(),
-  audits: [],
-  reconciliationEvents: [],
-  lastReadBoundary: 0,
-  scheduler: { queueDepth: 0, inFlight: false, lastError: null },
-});
-
-const createExpansion = (): ExpansionRuntimeState => ({
-  entries: {},
-  scheduler: { queueDepth: 0, inFlight: false, lastError: null },
-});
-
-const defaultMemorySettings = (): MemoryRuntimeSettings => ({
-  enabled: true,
-  epistemicLedgerCapable: true,
-  injectionDepths: { ...MEMORY_TIER_INJECTION_DEPTHS },
-  tierBudgets: { ...DEFAULT_TIER_BUDGETS },
-  tierTokenBudgets: { ...DEFAULT_TIER_TOKEN_BUDGETS },
-});
-
-const createMemory = (): MemoryRuntimeState => ({
-  ...createMemoryState(),
-  settings: defaultMemorySettings(),
-  backfill: null,
-  sceneCount: 0,
-  shortTermSummaryEnd: -1,
-  wiWrites: {},
-  arcs: [],
-  epistemic: [],
-  ledger: [],
-  canon: null,
-  updatedAt: new Date().toISOString(),
-});
-
-const migrateLegacyFacts = (facts: ParsedFact[]): MemoryEntry[] => facts.map((fact) => ({
-  id: generateMemoryId(),
-  tier: "facts",
-  text: fact.text,
-  type: "fact",
-  importance: fact.importance,
-  expiration: "permanent",
-  entities: [],
-  confidence: 1,
-  activationTriggers: [],
-  evidence: fact.evidence,
-  createdAt: fact.boundary ?? 0,
-  messageId: fact.messageId,
-  recallCount: 0,
-}));
-
-const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeState => {
-  const existing = value?.memory;
-  if (existing && Array.isArray(existing.entries)) {
-    return {
-      entries: existing.entries.map((entry) => ({ ...entry, text: stripChannelNoise(entry.text) })),
-      excluded: Array.isArray(existing.excluded) ? existing.excluded : [],
-      writeLog: Array.isArray(existing.writeLog) ? existing.writeLog.slice(-100) : [],
-      settings: { ...defaultMemorySettings(), ...existing.settings },
-      backfill: existing.backfill ? { ...existing.backfill, running: false } : null,
-      sceneCount: typeof existing.sceneCount === "number" ? existing.sceneCount : 0,
-      shortTermSummaryEnd: typeof existing.shortTermSummaryEnd === "number" ? existing.shortTermSummaryEnd : -1,
-      wiWrites: existing.wiWrites && typeof existing.wiWrites === "object" ? existing.wiWrites : {},
-      arcs: Array.isArray(existing.arcs) ? existing.arcs.map((arc) => ({ ...arc, text: stripChannelNoise(arc.text), ...(arc.summary ? { summary: stripChannelNoise(arc.summary) } : {}) })) : [],
-      epistemic: Array.isArray(existing.epistemic) ? existing.epistemic : [],
-      ledger: Array.isArray(existing.ledger) ? existing.ledger : [],
-      canon: existing.canon && typeof existing.canon === "object" ? { ...existing.canon, text: stripChannelNoise(existing.canon.text) } : null,
-      updatedAt: existing.updatedAt ?? new Date().toISOString(),
-    };
-  }
-  const legacyFacts = (value?.extraction as unknown as { facts?: ParsedFact[] } | undefined)?.facts;
-  return {
-    entries: Array.isArray(legacyFacts) ? migrateLegacyFacts(legacyFacts) : [],
-    excluded: [],
-    writeLog: [],
-    settings: defaultMemorySettings(),
-    backfill: null,
-    sceneCount: 0,
-    shortTermSummaryEnd: -1,
-    wiWrites: {},
-    arcs: [],
-    epistemic: [],
-    ledger: [],
-    canon: null,
-    updatedAt: new Date().toISOString(),
-  };
-};
-
-const PAYLOAD_CAPTURE_LIMIT = 5;
-const TALK_DECISION_LIMIT = 10;
-const createCopilot = (): CopilotRuntimeSettings => ({ enabled: true });
-const sanitizeCopilot = (value: RuntimeExtras | undefined): CopilotRuntimeSettings => ({ enabled: value?.copilot?.enabled ?? true });
-const createUi = (): UiRuntimeSettings => ({ authorView: false, announceTransitions: true, hudEnabled: true });
-const sanitizeUi = (value: RuntimeExtras | undefined): UiRuntimeSettings => ({ ...createUi(), ...value?.ui });
-const createTalk = (): TalkRuntimeState => ({ enabled: true, decisions: [] });
-const sanitizeTalk = (value: RuntimeExtras | undefined): TalkRuntimeState => ({
-  enabled: value?.talk?.enabled ?? true,
-  decisions: Array.isArray(value?.talk?.decisions) ? value.talk.decisions.slice(-TALK_DECISION_LIMIT) : [],
-});
-
-const createExtras = (): RuntimeExtras => ({
-  firedNpcReplies: {},
-  requirements: emptyRequirements,
-  lastAppliedCheckpointId: null,
-  lastSelfInjectionMessageId: null,
-  extraction: createExtraction(),
-  expansion: createExpansion(),
-  memory: createMemory(),
-  pacing: defaultPacingSettings(),
-  tension: defaultTension(),
-  copilot: createCopilot(),
-  ui: createUi(),
-  talk: createTalk(),
-  lastSessionAt: null,
-  updatedAt: new Date().toISOString(),
-});
-
-const sanitizeExtraction = (value: RuntimeExtras | undefined): ExtractionRuntimeState => {
-  const existing = value?.extraction;
-  if (!existing) return createExtraction();
-  return {
-    settings: { ...defaultExtractionSettings(), ...existing.settings },
-    audits: Array.isArray(existing.audits) ? existing.audits.slice(-20) : [],
-    reconciliationEvents: Array.isArray(existing.reconciliationEvents) ? existing.reconciliationEvents.slice(-50) : [],
-    lastReadBoundary: typeof existing.lastReadBoundary === "number" ? existing.lastReadBoundary : 0,
-    scheduler: existing.scheduler ?? { queueDepth: 0, inFlight: false, lastError: null },
-  };
-};
-
-const sanitizeExpansion = (value: RuntimeExtras | undefined): ExpansionRuntimeState => {
-  const existing = value?.expansion;
-  if (!existing) return createExpansion();
-  return {
-    entries: existing.entries && typeof existing.entries === "object" ? existing.entries : {},
-    scheduler: existing.scheduler ?? { queueDepth: 0, inFlight: false, lastError: null },
-  };
-};
+import type { ConvergenceReadout, CopilotRuntimeSettings, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, MemoryBackfillState, MemoryRuntimeSettings, PacingSettings, PayloadCapture, PendingDeltaReadout, RuntimeExtras, RuntimeSnapshot, TalkDecisionAudit, TalkRuntimeState, TensionRuntimeState, UiRuntimeSettings } from "./types";
 
 const expansionKey = (candidate: Pick<StubExpansionCandidate, "sourceCheckpointId" | "stubId" | "targetAnchorId">) => `${candidate.sourceCheckpointId}->${candidate.stubId}->${candidate.targetAnchorId}`;
 
@@ -191,7 +36,7 @@ export class RuntimeManager {
   private canonInFlight = false;
   private activeNudge: string | null = null;
   private pendingAwayRecap: AwayRecap | null = null;
-  private payloadCaptures: PayloadCapture[] = [];
+  private readonly journal = new SessionJournal();
 
   subscribe(listener: () => void) {
     this.listeners.add(listener);
@@ -199,7 +44,29 @@ export class RuntimeManager {
   }
 
   notify() {
+    if (this.journal.observeStatus(this.status, this.journalContext())) this.extras.journal = this.journal.getRecords();
     this.listeners.forEach((listener) => listener());
+  }
+
+  private journalContext() {
+    const state = this.loaded ? this.engine.serialize() : null;
+    return { boundary: state?.boundary ?? 0, messageId: state?.lastMessageId ?? -1 };
+  }
+
+  getSessionJournal(): JournalEvent[] {
+    return this.journal.build({
+      boundaryLog: this.loaded ? this.engine.stateLog : [],
+      audits: this.extras.extraction.audits,
+      reconciliationEvents: this.extras.extraction.reconciliationEvents,
+      talkDecisions: this.extras.talk.decisions,
+    });
+  }
+
+  async flagMoment(note = "") {
+    this.journal.flag(note, this.journalContext());
+    this.extras.journal = this.journal.getRecords();
+    await this.persist();
+    this.notify();
   }
 
   onBoundary(listener: (result: BoundaryResult) => void) {
@@ -1186,7 +1053,7 @@ export class RuntimeManager {
       pendingDeltas: this.buildPendingDeltas(),
       convergence: this.buildConvergenceReadout(),
       tension: this.buildTensionSnapshot(),
-      payloadCaptures: this.payloadCaptures,
+      payloadCaptures: this.journal.getCaptures(),
     };
   }
 
@@ -1204,20 +1071,12 @@ export class RuntimeManager {
 
   capturePayload(reason = "generation") {
     if (!this.loaded) return;
-    const capture: PayloadCapture = {
-      at: new Date().toISOString(),
-      boundary: this.engine.serialize().boundary,
-      reason,
-      blocks: readInjectedPromptBlocks(),
-    };
-    const latest = this.payloadCaptures[0];
-    if (latest && latest.boundary === capture.boundary && latest.reason === capture.reason && JSON.stringify(latest.blocks) === JSON.stringify(capture.blocks)) return;
-    this.payloadCaptures = [capture, ...this.payloadCaptures].slice(0, PAYLOAD_CAPTURE_LIMIT);
-    this.notify();
+    const capture: PayloadCapture = { at: new Date().toISOString(), boundary: this.engine.serialize().boundary, reason, blocks: readInjectedPromptBlocks() };
+    if (this.journal.capture(capture)) this.notify();
   }
 
   getPayloadCaptures(): PayloadCapture[] {
-    return this.payloadCaptures;
+    return this.journal.getCaptures();
   }
 
   private buildConvergenceReadout(): ConvergenceReadout[] {
@@ -1264,16 +1123,8 @@ export class RuntimeManager {
     this.pendingTension = null;
     const persisted = mode === "hydrate" ? loadPersistedRuntime(loaded.record.hash) : null;
     const priorSessionAt = persisted?.extras?.lastSessionAt ?? null;
-    this.extras = persisted?.extras ?? createExtras();
-    this.extras.memory = sanitizeMemory(this.extras);
-    this.extras.extraction = sanitizeExtraction(this.extras);
-    this.extras.expansion = sanitizeExpansion(this.extras);
-    this.extras.pacing = sanitizePacing(this.extras.pacing);
-    this.extras.tension = sanitizeTension(this.extras.tension);
-    this.extras.copilot = sanitizeCopilot(this.extras);
-    this.extras.ui = sanitizeUi(this.extras);
-    this.extras.talk = sanitizeTalk(this.extras);
-    this.extras.lastSelfInjectionMessageId = typeof this.extras.lastSelfInjectionMessageId === "number" ? this.extras.lastSelfInjectionMessageId : null;
+    this.extras = hydrateExtras(persisted?.extras);
+    this.journal.hydrate(this.extras.journal);
     this.loaded = { record: loaded.record, story: this.mergedStoryOrBase(loaded.record.raw, loaded.story) };
     this.engine.loadStory(this.loaded.story);
     this.refreshRequirements();

@@ -1,0 +1,15 @@
+{
+  "id": "J9",
+  "title": "wizard",
+  "objective": "Reserved for plan 06: premise → interview → staged proposals → provisioned ST assets → playable story, create-only and reviewed per operation.",
+  "status": "reserved",
+  "reservedReason": "defined by plan 06 (story wizard) — not runnable before it lands",
+  "setup": { "newChat": true },
+  "checks": [
+    { "id": "J9.1", "mode": "auto", "findings": ["D3", "U6"], "goal": "the wizard interviews before proposing (in-protocol questions), and 'you decide' proceeds under stated defaults" },
+    { "id": "J9.2", "mode": "auto", "findings": ["D3"], "goal": "provisioning proposals are create-only and rejected by op validation when they target an existing user character or a non-story lorebook" },
+    { "id": "J9.3", "mode": "auto", "findings": ["D3"], "goal": "each provisioning op is applied by explicit per-op review and excluded from bulk accept" },
+    { "id": "J9.4", "mode": "auto", "findings": ["U6"], "goal": "'Fix with wizard' from the requirements panel resolves a missing member or lorebook" },
+    { "id": "J9.5", "mode": "human", "findings": ["D3"], "prompt": "Starting from a one-line premise, did the wizard get you to a story you actually wanted to play?", "anchors": "1 = fought it · 3 = usable after edits · 5 = better than what I would have written" }
+  ]
+}

@@ -15,14 +15,21 @@ export async function getGenerationState(page) {
     const ctx = SillyTavern.getContext();
     const sp = ctx.streamingProcessor;
     const sendButton = document.getElementById('send_but') as HTMLButtonElement | null;
+    const stopButton = document.getElementById('mes_stop');
     const sendButtonDisabled = Boolean(sendButton?.disabled || sendButton?.classList?.contains('disabled'));
-    const isGenerating = sp
-      ? (sp.isFinished === false || sp.isStopped === false)
-      : sendButtonDisabled;
+    // ST swaps send for stop while generating (group replies included) — that swap is the most
+    // reliable signal there is; the streaming processor is absent for non-streamed backends.
+    const buttonsSayGenerating = Boolean(stopButton && stopButton.offsetParent !== null) || Boolean(sendButton && sendButton.offsetParent === null);
+    // A stopped stream leaves the processor behind with isFinished === false; treating that as
+    // "generating" makes every later step time out. Generating means running AND not stopped.
+    const isGenerating = buttonsSayGenerating || (sp
+      ? (sp.isFinished === false && sp.isStopped !== true)
+      : sendButtonDisabled);
 
     return {
       isGenerating,
       sendButtonDisabled,
+      buttonsSayGenerating,
       streamingProcessor: sp ? {
         isFinished: sp.isFinished ?? null,
         isStopped: sp.isStopped ?? null,
@@ -32,13 +39,21 @@ export async function getGenerationState(page) {
   });
 }
 
-export async function waitForIdle(page, timeout = 30000) {
+export async function waitForIdle(page, timeout = 30000, { settleMs = 1500 } = {}) {
   const pollInterval = 500;
   const deadline = Date.now() + timeout;
+  let idleSince = 0;
 
   while (Date.now() < deadline) {
     const state = await getGenerationState(page);
-    if (!state.isGenerating) return state;
+    // Group replies come one member at a time; require a continuous idle window so the gap
+    // between two members is never mistaken for the end of the turn.
+    if (!state.isGenerating) {
+      if (!idleSince) idleSince = Date.now();
+      if (Date.now() - idleSince >= settleMs) return state;
+    } else {
+      idleSince = 0;
+    }
     await page.waitForTimeout(pollInterval);
   }
 
@@ -54,12 +69,12 @@ export async function sendCompactMessage(page, text) {
   return executeSlashCommand(page, `/send compact=true ${text}`);
 }
 
-export async function sendUserMessage(page, text) {
+export async function sendUserMessage(page, text, { idleTimeoutMs = 300000 } = {}) {
   if (!text || typeof text !== 'string') {
     throw new Error('sendUserMessage requires a non-empty text string.');
   }
 
-  await waitForIdle(page, 10000);
+  await waitForIdle(page, 15000);
 
   const textarea = page.locator('#send_textarea');
   if (!(await textarea.count())) {
@@ -77,9 +92,10 @@ export async function sendUserMessage(page, text) {
   if (!(await sendBtn.count())) {
     throw new Error('Send button (#send_but) not found.');
   }
+  await sendBtn.waitFor({ state: 'visible', timeout: 15000 });
   await sendBtn.click();
 
-  await waitForIdle(page, 60000);
+  await waitForIdle(page, idleTimeoutMs);
 
   const chatLenAfter = await evaluateInST(page, () => {
     return SillyTavern.getContext().chat?.length ?? 0;

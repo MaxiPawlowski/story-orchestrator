@@ -1,0 +1,64 @@
+{
+  "format": 2,
+  "title": "Journey J5 — Group Direction",
+  "description": "Two checkpoints exercising talk_control, npc_replies and cast_changes over the sun-ruins roster.",
+  "qualities": [
+    { "key": "briefing_done", "type": "bool", "source": "extractor", "rubric": "Has the guild master finished briefing the party on the job?" }
+  ],
+  "checkpoints": [
+    {
+      "id": "brief",
+      "name": "The Briefing",
+      "objective": "Ponticius briefs the party on the Sun Ruins job.",
+      "type": "anchor",
+      "start": true,
+      "tension_target": "calm",
+      "talk_control": {
+        "speakers": [
+          { "member": "Ponticius", "weight": 3 },
+          { "member": "Arin", "weight": 1 }
+        ],
+        "lead": "Ponticius",
+        "no_repeat": true,
+        "allow_silence": false,
+        "director": { "instruction": "Prefer whoever the player addressed; otherwise let Ponticius carry the briefing." }
+      },
+      "effects": {
+        "cast_changes": { "disable": ["Luke"] },
+        "npc_replies": [
+          { "trigger": "onEnter", "member": "DM Narrator", "kind": "scripted", "text": "The guild hall quiets as Ponticius unrolls the map.", "maxTriggers": 1 }
+        ]
+      }
+    },
+    {
+      "id": "muster",
+      "name": "Muster Out",
+      "objective": "The party leaves for the ruins.",
+      "type": "anchor",
+      "tension_target": "stirring",
+      "talk_control": {
+        "speakers": [{ "member": "Arin", "weight": 1 }],
+        "allow_silence": true
+      },
+      "effects": {
+        "cast_changes": { "enable": ["Luke"] }
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "from": "brief",
+      "to": "muster",
+      "priority": 1,
+      "gate": { "q": "briefing_done", "op": "==", "v": true },
+      "extractor_trigger": "\\b(understood|we're ready|let's go|move out|set out)\\b"
+    }
+  ],
+  "roster": [
+    { "id": "dm", "name": "DM Narrator" },
+    { "id": "companion", "name": "Arin" },
+    { "id": "guild_master", "name": "Ponticius" },
+    { "id": "little_brother", "name": "Luke" }
+  ],
+  "requirements": { "members": ["DM Narrator", "Arin", "Ponticius", "Luke"] }
+}

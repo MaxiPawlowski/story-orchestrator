@@ -27,7 +27,13 @@ async function rotateDir(dir: string): Promise<void> {
     const path = resolve(dir, entry);
     try {
       const info = await stat(path);
-      if (info.isFile() && entry !== 'session.json') files.push({ path, mtime: info.mtimeMs });
+      // Keep the fixed-name artifacts gates depend on: the session, the journey matrices, the
+      // journal exports and the config snapshot a crashed run needs to restore from.
+      const protectedArtifact = entry === 'session.json'
+        || entry === 'so-journey-config-snapshot.json'
+        || entry.startsWith('journey-')
+        || entry.startsWith('journal-');
+      if (info.isFile() && !protectedArtifact) files.push({ path, mtime: info.mtimeMs });
     } catch {}
   }
   files.sort((a, b) => b.mtime - a.mtime);

@@ -35,6 +35,7 @@ export interface BoundaryResult {
 }
 
 export interface BoundaryLogEntry {
+  at: number;
   boundary: number;
   before: EngineState;
   after: EngineState;
@@ -140,7 +141,7 @@ export class StoryEngine {
 
     this.boundary += 1;
     const after = this.serialize();
-    this.boundaryLog.push({ boundary: this.boundary, before, after, fired, source: "gate", context: normalizedContext, queue });
+    this.boundaryLog.push({ at: this.host.now(), boundary: this.boundary, before, after, fired, source: "gate", context: normalizedContext, queue });
     if (this.boundaryLog.length > 200) this.boundaryLog.shift();
     this.recordSnapshot();
 
@@ -181,7 +182,7 @@ export class StoryEngine {
     if (checkpoint.type === "anchor") this.visitedAnchors.push(id);
     this.boundary += 1;
     const after = this.serialize();
-    this.boundaryLog.push({ boundary: this.boundary, before, after, fired: null, source: "manual", context: normalizedContext, queue });
+    this.boundaryLog.push({ at: this.host.now(), boundary: this.boundary, before, after, fired: null, source: "manual", context: normalizedContext, queue });
     if (this.boundaryLog.length > 200) this.boundaryLog.shift();
     this.recordSnapshot();
     return { boundary: this.boundary, queue, fired: null, effects: checkpoint.effects ?? null, activeCheckpointId: this.activeCheckpointId, context: normalizedContext };

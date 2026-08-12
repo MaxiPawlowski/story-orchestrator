@@ -29,6 +29,8 @@ src/
     runtimeManager.ts       # persistence boundary, snapshot, effects orchestration
     turnBridge.ts           # ST events -> boundary commits / mutation rollback
     effectsApplier.ts persistence.ts storyLibrary.ts
+    extras.ts               # RuntimeExtras factories/sanitizers + hydrateExtras (persistence shape)
+    journal.ts              # SessionJournal: status/flag records, payload ring, buildSessionJournal()
     macros.ts slashCommands.ts awayRecap.ts liveSuite.ts
   components/
     studio/                 # 6 reused presentational primitives
@@ -113,6 +115,16 @@ already skips unchanged content.
   interaction + a11y checks (`npm run test-storybook:ci`).
 - `scripts/debug/*.mts` drive a live SillyTavern over CDP for E2E validation; `so-scenario.mts`
   replays scenario JSON in `test/scenarios/`.
+- **Journeys** (v2.1 evaluation layer 5) are the composition gate above scenarios:
+  `scripts/debug/so-journey.mts` runs `test/journeys/*.journey.json` fresh-start against the real
+  model, wrapping the same `so-scenario` step engine. Per-check outcomes are
+  `pass|fail|blocked|not-runnable|skipped`; catalog, checks and the spoiler checklist live in
+  `docs/plans/v2.1/test-plan.md`.
+- **Session journal**: `runtime/journal.ts` merges the persisted rings (boundary log, transitions,
+  extraction audits + accepted deltas, reconciliation, payload captures, talk decisions) with
+  status transitions and player ⚑ flags into one ordered timeline. Only status/flag records are
+  persisted (`extras.journal`, cap 200); everything else is derived at read time. Handle:
+  `getSessionJournal()`; export: `scripts/debug/so-journal.mts`.
 - **Live delta accuracy** is measured by `scripts/debug/so-live-suite.mts`, which runs every
   `test/fixtures/extractor*` triple through the real memory model
   (`globalThis.storyOrchestratorLiveSuite.runFixture`, built from the same pure `fixtureRun.ts`

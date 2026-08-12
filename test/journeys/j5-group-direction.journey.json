@@ -1,0 +1,154 @@
+{
+  "id": "J5",
+  "title": "group-direction",
+  "objective": "Speaker direction, npc_replies and cast_changes across checkpoints in a real group chat, with per-speaker private injection asserted in the captured payload.",
+  "setup": {
+    "newChat": true,
+    "resetChatState": true,
+    "snapshotGlobalConfig": true
+  },
+  "cleanup": {
+    "restoreConfig": true,
+    "deleteChat": true,
+    "enableMembers": [
+      "DM Narrator",
+      "Arin",
+      "Ponticius",
+      "Luke"
+    ]
+  },
+  "capabilities": {
+    "talk-control": "typeof globalThis.storyOrchestratorRuntime?.getTalkState === 'function' && typeof globalThis.talkControlInterceptor === 'function'",
+    "epistemic-present": "(globalThis.storyOrchestratorRuntime?.getEpistemic?.() ?? []).length > 0"
+  },
+  "checks": [
+    {
+      "id": "J5.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "a talk-control checkpoint loads with speaker direction enabled",
+      "requires": [
+        "talk-control"
+      ],
+      "steps": [
+        {
+          "import_story": {
+            "file": "./j5-group.story.json"
+          }
+        },
+        {
+          "ui": {
+            "action": "select-profile"
+          }
+        },
+        {
+          "eval": "globalThis.storyOrchestratorRuntime.setExtractionSettings({ cadence: 2 }); const s = globalThis.storyOrchestratorRuntime.getSnapshot().extraction.settings; if (!s.enabled || !s.profileId) throw new Error(`extraction not configured after import: ${JSON.stringify(s)}`); return s;"
+        },
+        {
+          "eval": "globalThis.storyOrchestratorRuntime.setTalkDirectionEnabled(true); const control = globalThis.storyOrchestratorRuntime.getActiveTalkControl(); if (!control) throw new Error('no active talk control at the start checkpoint'); return control;"
+        },
+        {
+          "expect": {
+            "activeCheckpoint": "brief",
+            "requirementsReady": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "J5.2",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cast_changes applied the checkpoint's roster (Luke disabled at the briefing)",
+      "requires": [
+        "talk-control"
+      ],
+      "steps": [
+        {
+          "eval": "const ctx = SillyTavern.getContext(); const group = ctx.groups.find((g) => String(g.id) === String(ctx.groupId)); const disabled = (group?.disabled_members ?? []).join(','); if (!disabled.toLowerCase().includes('luke')) throw new Error(`Luke not disabled by cast_changes: ${disabled}`); return { disabled };"
+        }
+      ]
+    },
+    {
+      "id": "J5.3",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the scripted npc_reply for entering the checkpoint fired",
+      "requires": [
+        "talk-control"
+      ],
+      "steps": [
+        {
+          "expect": {
+            "npcFired": {
+              "brief:onEnter:DM Narrator:0": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "J5.4",
+      "mode": "auto",
+      "findings": [],
+      "goal": "a real group turn is routed by speaker direction and the decision is recorded",
+      "requires": [
+        "talk-control"
+      ],
+      "steps": [
+        {
+          "send_generate": {
+            "text": "Ponticius, what exactly are we being paid to bring back?",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "idle": true,
+            "timeoutMs": 240000
+          }
+        },
+        {
+          "eval": "const decisions = globalThis.storyOrchestratorRuntime.getTalkState().decisions; if (!decisions.length) throw new Error('no talk decision recorded for a talk-control group turn'); return decisions[decisions.length - 1];"
+        }
+      ]
+    },
+    {
+      "id": "J5.5",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the injected payload for that turn was captured",
+      "requires": [
+        "talk-control"
+      ],
+      "steps": [
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures(); if (!captures.length) throw new Error('no payload capture for the group turn'); return { count: captures.length, blocks: captures[0].blocks.map((b) => b.key) };"
+        }
+      ]
+    },
+    {
+      "id": "J5.6",
+      "mode": "auto",
+      "findings": [
+        "U3"
+      ],
+      "goal": "private per-speaker injection: the drafted member sees their own epistemic block, not another's",
+      "requires": [
+        "epistemic-present"
+      ],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const epistemic = rt.getEpistemic(); const subject = epistemic[0].subject; const character = (ctx.characters ?? []).findIndex((c) => c.name === subject); if (character < 0) throw new Error(`no character card for epistemic subject ${subject}`); rt.onMemberDrafted(character); const blocks = rt.getMemoryInjectionBlocks(); const text = JSON.stringify(blocks); rt.clearPrivateInjection(); const others = epistemic.filter((e) => e.subject !== subject); const leaked = others.find((e) => text.includes(e.content)); if (leaked) throw new Error(`private block leaked ${leaked.subject}'s knowledge to ${subject}`); return { subject, blocks: blocks.length };"
+        }
+      ]
+    },
+    {
+      "id": "J5.7",
+      "mode": "human",
+      "findings": [],
+      "prompt": "Did the right characters speak at the right moments, and did silence read as a choice rather than a bug?",
+      "anchors": "1 = wrong speaker constantly · 3 = mostly right · 5 = felt directed by a GM"
+    }
+  ]
+}

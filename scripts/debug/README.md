@@ -38,6 +38,8 @@ Playwright MCP is configured via the repo `.mcp.json` (`npx @playwright/mcp@late
 |---|---|
 | `st-session.mts` | `start`, `stop`, `status` |
 | `so-scenario.mts` | `run <file.json> [--sandbox] [--keep]` |
+| `so-journey.mts` | `--list`, `run <id\|file> [--strict] [--keep] [--only ids] [--no-config]`, `restore-config [--file p]` |
+| `so-journal.mts` | `export [--md\|--json] [--kind k,k] [--limit n]`, `show` |
 | `so-mutation-check.mts` | `[--keep]` |
 | `so-state.mts` | `current [--full] [--expect path=value]`, `all` |
 | `st-actions.mts` | `send`, `send-compact`, `trigger <member>`, `slash`, `checkpoint`, `swipe`, `edit`, `delete`, `wi-status`, `wait-idle` |
@@ -65,7 +67,15 @@ Playwright MCP is configured via the repo `.mcp.json` (`npx @playwright/mcp@late
 }
 ```
 
-Supported steps: `import_story`, `select_story`, `send`, `send_generate`, `slash`, `extract`, `expand`, `eval`, `copilot`, `swipe`, `edit`, `delete`, `wait`, `expect`.
+Supported steps: `import_story`, `select_story`, `send`, `send_generate`, `slash`, `extract`, `expand`, `eval`, `copilot`, `ui`, `reload`, `swipe`, `edit`, `delete`, `wait`, `expect`, `expect_ui`.
+
+`send_generate` also takes `{ "text": "...", "timeoutMs": 300000 }` — group turns on a local model regularly need minutes.
+
+`ui` drives the real surfaces: `{ "ui": { "action": "open-drawer" } }`, `drawer-tab` / `studio-tab` (+`label`), `open-settings`, `select-profile` (picks the memory profile through the settings panel; `ST_DEBUG_PROFILE=<name>` disambiguates), `open-studio`, `close-studio`, `flag` (+`note` — files a session-journal flag through the drawer control), `screenshot`.
+
+`reload` reloads the ST page, waits for the extension handle and reopens the chat (`{ "reload": { "timeoutMs": 90000, "reopenChat": false } }`) — the honest path for hydration, migration and "return after a gap" checks.
+
+`expect_ui` asserts visible text: `{ "expect_ui": { "selector": "#drawer-manager", "contains": [...], "notContains": [...], "timeoutMs": 5000 } }`. It retries until the timeout, so React re-renders and ST popups do not race it.
 
 `copilot` drives plan 12: `{ "copilot": { "action": ... } }`. Actions: `stage` (`{ draft, stage, message?, debug? }` — runs an authoring stage on the given draft and throws if the proposal is invalid), `suggest`/`report` (`{ debug? }`), `nudge` (`{ text }`), `clear-nudge`, `probe` (`{ debug? }` — P0 forced extraction, reason=probe), `advance` (`{ id }` — manual checkpoint activation). Omit `debug` for a real-LLM run. `expect` gains `copilot: { enabled?, activeNudge?, nudgeInjected? }` (`nudgeInjected` reflects `ctx.extensionPrompts.story_copilot_nudge`). `so-state current` surfaces `copilot.{enabled, activeNudge, nudgeInjected}`.
 
@@ -81,7 +91,9 @@ Supported steps: `import_story`, `select_story`, `send`, `send_generate`, `slash
 
 `epistemic` expects `{ count?: number, contains?: [{ subject, tag, contains, hiddenFrom? }] }` against the live memory snapshot's active (non-superseded) `epistemic` entries. `ledger` expects `{ count?: number, contains?: [{ entity, field, value }] }` against the stored (unbound) `ledger` entries — blackboard-mirrored bound rows only appear in `runtime.getLedger()`, so assert those with an `eval` step. `capability` expects a boolean against `memory.settings.epistemicLedgerCapable`. `so-state current` surfaces `memory.{epistemicCount, hidingCount, ledgerCount, epistemicLedgerCapable}`.
 
-`wait` verbs: `idle`, `boundary`, `auditCount`, `acceptedDelta` (a delta for the named quality accepted in any audit), `expansionStatus`, `checkpoint`, `progress` (+`progressAnchor`), `reconciliationEvidence`, `reconciliationEvents` (count >=), `memoryEntries` (count >=, +`memoryTier`), `arcsSummarized` (resolved arcs with summaries >=), `canonPresent`, `backfillComplete` (waits for `memory.backfill.running === false` with `processed === total`).
+`expect` also takes `activeCheckpointIn: [ids]` — real-model runs can overshoot a checkpoint between polls.
+
+`wait` verbs: `idle`, `boundary`, `auditCount`, `acceptedDelta` (a delta for the named quality accepted in any audit), `expansionStatus`, `checkpoint`, `checkpointNot`, `checkpointIn`, `progress` (+`progressAnchor`), `reconciliationEvidence`, `reconciliationEvents` (count >=), `memoryEntries` (count >=, +`memoryTier`), `arcsSummarized` (resolved arcs with summaries >=), `canonPresent`, `backfillComplete` (waits for `memory.backfill.running === false` with `processed === total`).
 
 Real-LLM scenarios (no `debugResponse`; extraction profile must be selected — see the debug skill's "Real-LLM validation" section): `live-plan02-runtime.json`, `live-plan03-extraction.json`, `live-plan04-pacing.json`, `live-plan05-expansion.json`, `live-plan06-convergence.json`, `live-plan07-memory.json`, `plan08-hygiene.json`, `live-plan09-arcs.json`, `live-plan12-copilot.json`. These assert pipeline behavior (audits, tier writes, fired transitions, copilot wiring), not exact model output; the tolerant `wait` verbs above exist for them. `plan12-copilot.json` is the mocked (debug-response) copilot scenario.
 
@@ -117,3 +129,41 @@ node scripts/debug/st-actions.mts swipe 12 1
 ```
 
 If the message has no target swipe, the command fails instead of triggering real generation.
+
+## Journeys (v2.1 layer 5)
+
+```bash
+node scripts/debug/so-journey.mts --list
+node scripts/debug/so-journey.mts run J3
+```
+
+`so-journey` wraps — never forks — the `so-scenario` step engine and adds the composition layer:
+fresh-start setup, per-check outcomes and the human checklist. Catalog and check tables live in
+`docs/plans/v2.1/test-plan.md`; files are `test/journeys/*.journey.json`.
+
+- **Setup**: `newChat`, `resetChatState`, `group`, `snapshotGlobalConfig`, `clearGlobalConfig`.
+  Only `extensionSettings["story-orchestrator"]` is ever touched — never other extensions, never
+  Connection Manager profiles. The snapshot lands in `.debug/so-journey-config-snapshot.json`
+  *before* clearing; `so-journey.mts restore-config` re-applies it after a crashed run.
+- **Cleanup**: `restoreConfig`, `removeImportedStories`, `deleteChat`, `enableMembers` (put the group
+  roster back after `cast_changes` disabled someone — see `.claude/rules/debug-scripts.md`).
+- **Outcomes**: `pass` · `fail` · `blocked` (a `requires: [capability]` the build lacks) ·
+  `not-runnable` (`status: "reserved"` journeys) · `skipped`. Exit 1 on any `fail`, or on `blocked`
+  with `--strict` (acceptance mode).
+- **Capabilities** are probed lazily, right before the first check that needs one, so a check may
+  depend on a surface an earlier check opened.
+- Human checks print as a checklist with 1–5 anchors plus the standing question
+  ("What would make you stop using this?"). Artifacts: `.debug/journey-<id>.md` + `.json`.
+
+## Session journal
+
+```bash
+node scripts/debug/so-journal.mts export
+node scripts/debug/so-journal.mts show --kind transition,delta --limit 40
+```
+
+Correlates the persisted rings (boundary log, transitions, extraction audits, accepted deltas,
+reconciliation, payload captures, talk decisions) with status changes and player flags onto one
+timeline; in-page handle `storyOrchestratorRuntime.getSessionJournal()`. The drawer's ⚑ control
+(`#so-flag-moment`, note field `#so-flag-note`, submit `#so-flag-submit`) files a flag at the
+current boundary — that is what a human-eval session hands back with the export.
