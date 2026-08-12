@@ -1,7 +1,8 @@
 import type { ArcTemplate, EngineState, NormalizedStoryV2, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
 import type { ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
-import type { ArcEntry, EpistemicEntry, LedgerEntry, MemoryStoreState, MemoryTier, ScoreWeights } from "@memory/index";
+import type { ArcEntry, EpistemicEntry, LedgerEntry, LedgerView, MemoryStoreState, MemoryTier, ScoreWeights } from "@memory/index";
+import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
 import type { JournalRecord } from "./journal";
 import type { InjectedPromptBlock } from "@services/STAPI";
@@ -209,6 +210,9 @@ export interface RuntimeSnapshot {
     expected: number | null;
     hint: SteeringHint | null;
   };
+  ledger: LedgerView[];
+  driver: DriverContext | null;
+  activeNudge: string | null;
   payloadCaptures: PayloadCapture[];
 }
 

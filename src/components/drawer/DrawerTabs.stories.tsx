@@ -65,6 +65,9 @@ const sampleSnapshot = (): RuntimeSnapshot =>
     pendingDeltas: [],
     convergence: [{ anchorId: "sanctum", anchorName: "Inner Sanctum", progress: 1, threshold: 2, reached: false }],
     tension: { level: "high", smoothed: 0.72, expected: 0.6, hint: null },
+    ledger: [],
+    driver: null,
+    activeNudge: null,
     payloadCaptures: [
       { at: "2026-07-06T12:00:00.000Z", boundary: 6, reason: "generation", blocks: [
         { key: "story_orchestrator_memory_facts", depth: 4, role: 0, value: "The sun-key opens the inner sanctum." },
@@ -75,7 +78,6 @@ const sampleSnapshot = (): RuntimeSnapshot =>
 
 const fakeManager = (): RuntimeManager =>
   ({
-    getLedger: () => [],
     editMemoryEntry: fn(),
     setMemoryPinned: fn(),
     excludeMemoryEntry: fn(),
@@ -111,6 +113,10 @@ const memorySnapshot = (): RuntimeSnapshot => {
       { id: "l1", entity: "Sphinx", entityType: "character", field: "mood", value: "watchful", createdAt: 1 },
     ],
   };
+  (snapshot as unknown as { ledger: unknown[] }).ledger = [
+    { entity: "Sphinx", field: "mood", value: "watchful", bound: false },
+    { entity: "Sphinx", field: "respect", value: "2", bound: true },
+  ];
   return snapshot as unknown as RuntimeSnapshot;
 };
 
@@ -123,15 +129,6 @@ const emptySnapshot = (): RuntimeSnapshot => {
   snapshot.extraction = { ...snapshot.extraction, audits: [] };
   return snapshot as unknown as RuntimeSnapshot;
 };
-
-const ledgerManager = (): RuntimeManager =>
-  ({
-    ...fakeManager(),
-    getLedger: () => [
-      { entity: "Sphinx", field: "mood", value: "watchful", bound: false },
-      { entity: "Sphinx", field: "respect", value: "2", bound: true },
-    ],
-  }) as unknown as RuntimeManager;
 
 const meta: Meta<typeof DrawerTabs> = {
   title: "Drawer/DrawerTabs",
@@ -185,7 +182,7 @@ export const Payload: Story = {
 export const Memory: Story = {
   render: () => (
     <div style={{ maxWidth: 360 }}>
-      <DrawerTabs snapshot={memorySnapshot()} manager={ledgerManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      <DrawerTabs snapshot={memorySnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
     </div>
   ),
   play: async ({ canvasElement }) => {

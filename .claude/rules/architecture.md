@@ -14,6 +14,15 @@ src/
   runtime/
     index.ts                 # bootstrap, scheduler wiring, TurnBridge
     runtimeManager.ts        # ST-facing coordinator, persistence boundary
+    coordinators/            # v2.1 plan 03: service layer between the pure modules and the manager
+      memoryCoordinator.ts   #   extras.memory — tiers, arcs, canon, epistemic, ledger, consolidation, WI sync, injection
+      extractionCoordinator.ts # extras.extraction — audit pipeline, scene/short-term/epistemic-ledger passes, memorize backlog
+      expansionCoordinator.ts  # extras.expansion — beat cache, generation, staleness revalidation, merge
+      copilotCoordinator.ts    # authoring stages, driver read-model, one-turn nudge
+      pacingCoordinator.ts     # tension EMA (pending + committed), expected tension, steering hint
+    boundaryWork.ts          # v2.1 plan 03: declarative registry of everything a committed boundary schedules
+    snapshotBuilder.ts       # v2.1 plan 03: composes the single RuntimeSnapshot the UI subscribes to
+    roster.ts                # v2.1 plan 03: roster <-> ST group/chat resolution (enabled ids/names, active speaker, name<->id)
     turnBridge.ts            # ST events -> boundary commits / mutation rollback
     effectsApplier.ts        # AN, preset, WI, cast, NPC replies
     persistence.ts           # chat_metadata.story_orchestrator storage
@@ -38,16 +47,20 @@ src/
   services/stHost/           # SillyTavern host wrappers (one module per concern)
   services/STAPI.ts          # only import surface for host modules
   components/studio/         # the 6 reused presentational primitives (GraphPanel, graphPanelUtils, MultiSelect, Toolbar, FeedbackAlert, HelpTooltip) — rest of v1 deleted
-  components/drawer/         # plan 13: DrawerTabs — overview/blackboard/memory/scheduler/payload debug tabs (moved out of index.tsx)
+  components/drawer/         # plan 13: DrawerTabs — overview/blackboard/memory/scheduler/payload debug tabs (moved out of index.tsx); DriverPanel (moved out of studio/ in v2.1 plan 03)
   utils/ constants/          # constants/injectionRegistry.ts = single source of truth for injection keys+depths
 ```
 
 ## Invariants
 
 - `STAPI.ts` + `stHost/*` are the only files importing ST host modules, via dynamic `import(/* webpackIgnore: true */ …)`.
-- `src/engine/**` and `extraction/scope*` never import STAPI; host effects go through the `EngineHost` seam so tests can fake them.
+- `src/engine/**` and `extraction/scope*` never import STAPI. `EngineHost` is the clock seam (`{ now }`), not an effects seam: host effects live in `runtime/effectsApplier.ts` and `runtime/coordinators/*`, which tests fake by injecting deps.
 - Three lifetimes, three homes (spec addendum v2.1 §Configuration homes): install-wide settings in `extensionSettings["story-orchestrator"].settings`; per-chat engine state, rings and the overrides `{ui.authorView, pacing.shapeOverride, talk.enabled}` in `chat_metadata`; authored content in the story record. `extras` still exposes a full settings view in memory (`applyGlobalSettings`), but `stripGlobalSettings` removes the install-wide half before persisting.
 - Story identity is the authored `id` (+ `version`), never the content hash: the library is keyed by id, the per-chat blob is keyed by id, and each chat **pins a full copy** of the story it plays (`pinnedStory`), so library edits and deletion never reach a running chat. `contentHash` stays for integrity and drift detection (`contentHashAtLoad`). Re-selecting hydrates; `restartStory()` is the only reset.
+- Coordinators (`runtime/coordinators/*`) get constructor-injected deps and never import each other or call `saveMetadata`: they mutate their extras slice through injected accessors and ask the manager to persist/notify. Engine writes go through injected enqueue callbacks — the engine stays manager-owned.
+- One snapshot, one subscription: `snapshotBuilder` composes it and coordinator read-models (`ledger`, `driver`, `activeNudge`) ride on it — drawer components never call manager getters during render.
+- Boundary work is a registry (`runtime/boundaryWork.ts`), not a callback: new work = a new `{id, order, when, run}` entry.
+- `src/runtime/architecture.test.ts` enforces the manager size budget, the coordinator budget, the components<->studio import boundary, drawer-reads-snapshot and engine purity. A failing guard is a failing build.
 - Boundary counters ≠ ST message indexes. Boundary snapshots/logs record `{lastMessageId, chatLength}`.
 - Pending queue writes not persisted; reload drops them, reconciliation recovers.
 - Extraction audits persist in runtime extras (`extras.extraction.audits`); facts moved to the memory tiers (`extras.memory`, facts tier) as of plan 07 — `extras.extraction.facts` no longer exists.

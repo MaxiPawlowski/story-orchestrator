@@ -29,7 +29,7 @@ const makeController = (): DriverController => ({
 });
 
 const meta: Meta<typeof DriverPanel> = {
-  title: "Studio/DriverPanel",
+  title: "Drawer/DriverPanel",
   component: DriverPanel,
   args: { context, checkpoints, activeNudge: null },
 };

@@ -26,7 +26,16 @@ src/
   studio/                   # Checkpoint Studio v2 (zustand draft, typed mutations, diagnostics)
   runtime/                  # ST-facing coordination
     index.ts                # bootstrap, scheduler wiring, TurnBridge, event subscriptions
-    runtimeManager.ts       # persistence boundary, snapshot, effects orchestration
+    runtimeManager.ts       # lifecycle, boundary commit, persistence boundary, event fan-out, delegation
+    coordinators/           # the service layer between the pure modules and the manager
+      memoryCoordinator.ts      # extras.memory: tiers, arcs, canon, epistemic, ledger, consolidation, WI, injection
+      extractionCoordinator.ts  # extras.extraction: audit pipeline, scene/short-term/epistemic passes, memorize backlog
+      expansionCoordinator.ts   # extras.expansion: beat cache, generation, staleness revalidation
+      copilotCoordinator.ts     # authoring stages, driver read-model, one-turn nudge
+      pacingCoordinator.ts      # tension EMA (pending + committed), steering hint
+    boundaryWork.ts         # declarative registry of everything a committed boundary schedules
+    snapshotBuilder.ts      # composes the one RuntimeSnapshot the UI subscribes to
+    roster.ts               # roster <-> ST group/chat resolution
     turnBridge.ts           # ST events -> boundary commits / mutation rollback
     effectsApplier.ts persistence.ts storyLibrary.ts
     extras.ts               # RuntimeExtras factories/sanitizers, hydrateExtras, applyGlobalSettings/stripGlobalSettings
@@ -37,7 +46,7 @@ src/
     macros.ts slashCommands.ts awayRecap.ts liveSuite.ts
   components/
     studio/                 # 6 reused presentational primitives
-    drawer/                 # DrawerTabs — overview/blackboard/memory/scheduler/payload tabs
+    drawer/                 # DrawerTabs + DriverPanel — overview/blackboard/memory/scheduler/payload tabs
   services/
     STAPI.ts                # the ONLY import surface for host modules
     stHost/*                # one host wrapper per concern (dynamic webpackIgnore imports)
@@ -56,8 +65,16 @@ src/
 - Macros register through the `registerHostMacro`/`unregisterHostMacro` seam
   (`stHost/context.ts`) — currently `MacrosParser`, the only API that feeds both the legacy and
   the flag-gated new macro engine; migrating later is a one-function-body edit.
-- `engine/**` and `extraction/scope*` never import STAPI; host effects go through seams so tests
-  can fake them.
+- `engine/**` and `extraction/scope*` never import STAPI. `EngineHost` is a clock seam
+  (`{ now }`), not an effects seam: host effects live in `runtime/effectsApplier.ts` and the
+  `runtime/coordinators/*`, which tests fake through their injected deps.
+- Coordinators own one `extras` slice each, never import one another, and never call
+  `saveMetadata`: they mutate through injected accessors and ask the manager to persist/notify.
+  Engine writes go through injected enqueue callbacks — the engine stays manager-owned.
+- The UI reads one composed model (`snapshotBuilder`) through one subscription; coordinator
+  read-models (`ledger`, `driver`, `activeNudge`) are fields on the snapshot, not getters a
+  component calls during render. `src/runtime/architecture.test.ts` enforces this, the manager
+  size budget and the component/studio import boundary.
 - Runtime state persists per chat in `chat_metadata.story_orchestrator`; the story library lives
   in extension settings.
 - Boundary counters are not ST message indexes; snapshots/logs record `{lastMessageId,
@@ -70,7 +87,8 @@ src/
 2. The engine drains its apply queue, evaluates gates, fires at most one transition, applies
    checkpoint effects (author's note, world info, cast changes, NPC replies, preset), and logs
    the boundary.
-3. `runtime/index.ts` schedules off-path work: forced cues over the boundary window, cadence
+3. `runtime/boundaryWork.ts` (a declarative registry `runtime/index.ts` just runs) schedules
+   off-path work: forced cues over the boundary window, cadence
    extraction, reconciliation, expansion, scene-break, short-term rolling compaction (a single
    `short_term` entry summarizing play since the last watermark, updated every ~12 messages,
    replaced not appended, skipped while pinned), and consolidation passes.

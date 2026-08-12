@@ -2,7 +2,7 @@ import { useState } from "react";
 import { MEMORY_TIERS, type MemoryTier } from "@memory/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
-import DriverPanel, { type DriverController } from "../../studio/components/DriverPanel";
+import DriverPanel, { type DriverController } from "./DriverPanel";
 
 export type DrawerTabId = "overview" | "blackboard" | "memory" | "scheduler" | "payload";
 
@@ -264,7 +264,7 @@ const EpistemicPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; mana
 
 const LedgerPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: RuntimeManager }) => {
   const stored = snapshot.memory.ledger ?? [];
-  const rows = manager.getLedger();
+  const rows = snapshot.ledger;
   if (!rows.length) return null;
   const entities = Array.from(new Set(rows.map((row) => row.entity)));
   const idFor = (entity: string, field: string) => stored.find((entry) => entry.entity.toLowerCase() === entity.toLowerCase() && entry.field.toLowerCase() === field.toLowerCase())?.id;

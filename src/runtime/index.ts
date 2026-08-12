@@ -1,6 +1,7 @@
-import { callExtractionModel, getChatWindow, scheduleForcedCues, ExtractionScheduler, maybeScheduleReconciliation, type SchedulerHost, type SchedulerSettings } from "@extraction/index";
+import { callExtractionModel, getChatWindow, ExtractionScheduler, type SchedulerHost, type SchedulerSettings } from "@extraction/index";
 import { executeSlashCommands, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, subscribeToHostEvents, type HostSubscriptionEntry } from "@services/STAPI";
 import { quoteSlashArg } from "@utils/string";
+import { runBoundaryWork, type BoundaryCursor } from "./boundaryWork";
 import { registerLiveSuite } from "./liveSuite";
 import { registerRuntimeMacros } from "./macros";
 import { runtimeManager } from "./runtimeManager";
@@ -8,15 +9,13 @@ import { registerSlashCommands } from "./slashCommands";
 import { DIRECTOR_MAX_TOKENS, DIRECTOR_WINDOW_MESSAGES, TalkController, type TalkControlHost } from "./talkControl";
 import { TurnBridge } from "./turnBridge";
 
-const CONSOLIDATION_CADENCE = 10;
-
 let started = false;
 let bridge: TurnBridge | null = null;
 let slashRegistered = false;
 let scheduler: ExtractionScheduler | null = null;
 let privateInjectionUnsub: (() => void) | null = null;
-let prevBoundaryLastMessageId = -1;
 let talkController: TalkController | null = null;
+const boundaryCursor: BoundaryCursor = { previousLastMessageId: -1 };
 
 const registerSlashCommandsWhenReady = (attempt = 0) => {
   if (slashRegistered) return;
@@ -52,22 +51,7 @@ export function startRuntime() {
   };
   scheduler = new ExtractionScheduler(schedulerHost);
   runtimeManager.onBoundary((result) => {
-    if (!scheduler) return;
-    scheduler.onBoundary(result.boundary, Boolean(result.fired), result.context.lastMessageId);
-    const cueFrom = prevBoundaryLastMessageId >= 0 ? prevBoundaryLastMessageId + 1 : result.context.lastMessageId;
-    scheduleForcedCues(runtimeManager.getStory(), result.activeCheckpointId, scheduler, getChatWindow(cueFrom, result.context.lastMessageId));
-    prevBoundaryLastMessageId = result.context.lastMessageId;
-    const reconciliation = maybeScheduleReconciliation(runtimeManager.getStory(), runtimeManager.getEngineState(), runtimeManager.getExtractionSettings().reconciliationMultiplier, scheduler);
-    if (reconciliation) runtimeManager.recordReconciliation(reconciliation);
-    runtimeManager.scheduleExpansionForActive((reason, run) => scheduler?.schedule({ priority: 3, reason, run }));
-    const sceneHit = runtimeManager.detectSceneBreak();
-    if (sceneHit?.hit) scheduler.schedule({ priority: 0, reason: `scene:${sceneHit.reason}` });
-    if (runtimeManager.shouldCompactShortTerm(result.context.lastMessageId)) {
-      scheduler.schedule({ priority: 2, reason: "short-term-compaction", run: async () => { await runtimeManager.runShortTermCompaction(); } });
-    }
-    if (result.boundary > 0 && result.boundary % CONSOLIDATION_CADENCE === 0) {
-      scheduler.schedule({ priority: 4, reason: "consolidate", run: async () => { await runtimeManager.runConsolidation(); } });
-    }
+    if (scheduler) runBoundaryWork({ result, manager: runtimeManager, scheduler, cursor: boundaryCursor });
   });
   runtimeManager.onRollback((messageId, window) => {
     scheduler?.schedule({ priority: 0, reason: `rollback:${messageId}`, window });
@@ -132,7 +116,7 @@ export function stopRuntime() {
   privateInjectionUnsub?.();
   privateInjectionUnsub = null;
   scheduler = null;
-  prevBoundaryLastMessageId = -1;
+  boundaryCursor.previousLastMessageId = -1;
   talkController = null;
   globalThis.talkControlInterceptor = () => undefined;
   started = false;

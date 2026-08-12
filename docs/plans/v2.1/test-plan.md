@@ -8,6 +8,11 @@ Layer 5 of the evaluation framework (spec addendum §Evaluation): end-to-end use
 against the real system, fresh-start, with the real LLM. Layers 1–4 (unit, golden, scenario,
 live-suite) are unchanged and still run in every gate.
 
+Layer 1 additionally carries the **structural guards** (`src/runtime/architecture.test.ts`, plan 03):
+manager/coordinator size budgets, the `components`↔`studio` import boundary, drawer-reads-snapshot
+and engine purity. They are ordinary jest tests — a violated architecture rule fails the build
+instead of waiting for a reviewer to notice it (overview rule 9).
+
 ## How to run
 
 ```bash

@@ -6,7 +6,7 @@ import { isArcTemplateName } from "@pacing/index";
 import { startRuntime } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import StudioModal from "./studio/StudioModal";
-import { type DriverController } from "./studio/components/DriverPanel";
+import { type DriverController } from "@components/drawer/DriverPanel";
 import DrawerTabs from "./components/drawer/DrawerTabs";
 import HudStrip from "./components/drawer/HudStrip";
 import HelpTooltip from "./components/studio/HelpTooltip";
@@ -285,7 +285,7 @@ const DrawerPanel = () => {
         <DrawerTabs
           snapshot={snapshot}
           manager={manager}
-          driver={{ context: manager.getDriverContext(), activeNudge: manager.getActiveNudge(), controller: driverController }}
+          driver={{ context: snapshot.driver, activeNudge: snapshot.activeNudge, controller: driverController }}
         />
       )}
     </div>
