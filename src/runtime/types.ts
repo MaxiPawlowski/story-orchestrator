@@ -15,11 +15,14 @@ export interface PayloadCapture {
 }
 
 export interface StoryLibraryRecord {
+  id: string;
+  version: number;
   hash: string;
   title: string;
   description: string;
   raw: unknown;
   importedAt: string;
+  updatedAt: string;
 }
 
 export interface RequirementsState {
@@ -141,15 +144,18 @@ export interface ExtractionRuntimeState {
 }
 
 export interface PersistedStoryRuntime {
-  storyHash: string;
+  storyId: string;
   storyTitle: string;
+  pinnedStory: unknown;
+  playedVersion: number;
+  contentHashAtLoad: string;
   engineState: EngineState;
   extras: RuntimeExtras;
 }
 
 export interface StoryOrchestratorMetadataBlob {
-  version: 2;
-  selectedStoryHash: string | null;
+  version: 3;
+  selectedStoryId: string | null;
   stories: Record<string, PersistedStoryRuntime>;
 }
 
@@ -162,9 +168,19 @@ export interface ConvergenceReadout {
   visited: boolean;
 }
 
+export interface StoryIdentity {
+  id: string | null;
+  playedVersion: number | null;
+  libraryVersion: number | null;
+  pinned: boolean;
+  drifted: boolean;
+}
+
 export interface RuntimeSnapshot {
   ready: boolean;
+  storyId: string | null;
   storyHash: string | null;
+  storyIdentity: StoryIdentity;
   storyTitle: string | null;
   storyDescription: string | null;
   activeCheckpointId: string | null;

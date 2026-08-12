@@ -8,7 +8,10 @@ function decodeRuntime(entry) {
   if (!entry || typeof entry !== 'object') return null;
   const engine = entry.engineState ?? {};
   return {
-    storyHash: entry.storyHash ?? null,
+    storyId: entry.storyId ?? null,
+    storyHash: entry.contentHashAtLoad ?? entry.storyHash ?? null,
+    playedVersion: entry.playedVersion ?? null,
+    pinned: Boolean(entry.pinnedStory),
     storyTitle: entry.storyTitle ?? null,
     activeCheckpointId: engine.activeCheckpointId ?? null,
     boundary: engine.boundary ?? 0,
@@ -89,7 +92,7 @@ export async function dumpCurrentChatState(page) {
   const data = await evaluateInST(page, () => {
     const ctx = SillyTavern.getContext();
     const blob = ctx.chatMetadata?.story_orchestrator ?? null;
-    const selected = blob?.selectedStoryHash ?? null;
+    const selected = blob?.selectedStoryId ?? blob?.selectedStoryHash ?? null;
     const entry = selected && blob?.stories ? blob.stories[selected] ?? null : null;
     const runtimeSnapshot = globalThis.storyOrchestratorRuntime?.getSnapshot?.() ?? null;
     const activeNudge = globalThis.storyOrchestratorRuntime?.getActiveNudge?.() ?? null;
@@ -103,7 +106,9 @@ export async function dumpCurrentChatState(page) {
     return {
       chatId: ctx.chatId,
       groupId: ctx.groupId ?? null,
-      selectedStoryHash: selected,
+      selectedStoryId: selected,
+      globalSettings: ctx.extensionSettings?.['story-orchestrator']?.settings ?? null,
+      libraryIds: (ctx.extensionSettings?.['story-orchestrator']?.v2Stories ?? []).map((record) => ({ id: record.id ?? null, version: record.version ?? null, hash: record.hash, title: record.title })),
       version: blob?.version ?? null,
       storyCount: blob?.stories ? Object.keys(blob.stories).length : 0,
       entry,
@@ -120,7 +125,9 @@ export async function dumpCurrentChatState(page) {
     chatId: data?.chatId ?? null,
     groupId: data?.groupId ?? null,
     version: data?.version ?? null,
-    selectedStoryHash: data?.selectedStoryHash ?? null,
+    selectedStoryId: data?.selectedStoryId ?? null,
+    globalSettings: data?.globalSettings ?? null,
+    libraryIds: data?.libraryIds ?? [],
     storyCount: data?.storyCount ?? 0,
     state: decodeRuntime(data?.entry),
     liveSnapshot: data?.runtimeSnapshot ?? null,
@@ -138,7 +145,9 @@ function compactCurrent(data) {
   return {
     chatId: data?.chatId ?? null,
     groupId: data?.groupId ?? null,
-    selectedStoryHash: data?.selectedStoryHash ?? null,
+    selectedStoryId: data?.selectedStoryId ?? null,
+    storyIdentity: data?.liveSnapshot?.storyIdentity ?? null,
+    settingsHome: data?.globalSettings ? { extraction: data.globalSettings.extraction, display: data.globalSettings.display } : null,
     storyTitle: state?.storyTitle ?? null,
     activeCheckpointId: state?.activeCheckpointId ?? null,
     boundary: state?.boundary ?? 0,

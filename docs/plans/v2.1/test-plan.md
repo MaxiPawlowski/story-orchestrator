@@ -30,7 +30,7 @@ node scripts/debug/so-journey.mts run J3
 - `--strict` makes `blocked` fail (acceptance mode, plan 08). `--only <ids>` runs a subset.
   `--keep` skips cleanup. `--no-config` forbids any global-settings write.
 - Artifacts per run: `.debug/journey-<id>.md` (matrix + human checklist) and a timestamped
-  `.debug/*_journey-<id>.json`.
+  `.debug/*_journey-<id>.json`. Both, and the config snapshot, are protected from `.debug` rotation.
 
 ## Check outcome vocabulary
 
@@ -58,6 +58,7 @@ arrive. The operator records scores in the plan's Gate record.
 | J5 | group-direction | talk_control + npc_replies + cast_changes; per-speaker private injection in the payload | 6 | 1 | Restores the group roster in cleanup |
 | J6 | mutation-storm | Edit/delete around a boundary; rollback correct and comprehensible | 4 | 1 | Deterministic (`extract` with a debug response for the latch only) |
 | J7 | long-haul | Full sun-ruins play-through to the finale; success-criteria hooks | 8 | 2 | **Expensive** — plan 01 (baseline) and plans 07/08 (acceptance) only |
+| J10 | identity-and-settings | Story identity, pinning, settings homes, migration, Restart | 8 | 2 | Plan 02's gate journey |
 | J8 | stagecraft | *Reserved — defined by plan 07* | 3 | 1 | `not-runnable` until then |
 | J9 | wizard | *Reserved — defined by plan 06* | 4 | 1 | `not-runnable` until then |
 
@@ -72,7 +73,7 @@ register), so plan 08's Evidence column writes itself.
 |---|---|---|---|
 | J1.1 | auto | U6 | With nothing installed, the drawer says what to do next |
 | J1.2 | auto | U1 | A brand-new chat has extraction enabled by default |
-| J1.3 | auto | U1 I3 | The memory profile is install-level, so a new chat inherits it (`requires: global-extraction-settings`) |
+| J1.3 | auto | U1 I3 | The memory profile is install-level, not stored per chat (`requires: global-extraction-settings`); J10.6 proves a new chat inherits it |
 | J1.4 | auto | U6 | A first-run path walks an empty install to playable (`requires: first-run-path`) |
 | J1.5 | auto | U6 | Importing the shipped example from the settings panel makes it playable |
 | J1.6 | auto | U1 | After configuring the memory model in the panel, the first real transition fires |
@@ -87,7 +88,7 @@ register), so plan 08's Evidence column writes itself.
 | J2.1 | auto | U7 | The Studio opens on an empty draft |
 | J2.2 | auto | U7 | Roster members are authorable in the Studio UI (`requires: studio-roster-editor`) |
 | J2.3 | auto | U7 | Requirements (members, lorebooks) are authorable (`requires: studio-requirements-editor`) |
-| J2.4 | auto | U2 | A story has a stable identity; re-selecting hydrates (`requires: story-identity`) |
+| J2.4 | auto | U2 | A story keeps one identity across edits: re-import updates the record instead of forking |
 | J2.5 | auto | U2 | Saving an edit into the running chat keeps progress (`requires: hot-swap`) |
 | J2.6 | auto | U3 | The author-view driver still works in play (Probe + Nudge, real model) |
 | J2.7 | human | U7 | "Could you author a playable checkpoint without JSON?" |
@@ -153,6 +154,21 @@ register), so plan 08's Evidence column writes itself.
 | J7.8 | auto | — | The long session left a coherent journal and memory behind |
 | J7.9 | human | — | "Did it feel authored, or like rails?" |
 | J7.10 | human | — | "Did the finale land given what actually happened?" |
+
+### J10 identity-and-settings
+
+| Check | Mode | Findings | What it proves |
+|---|---|---|---|
+| J10.1 | auto | U2 | The example story carries an authored id and the chat keys its state by it (blob v3, pinned) |
+| J10.2 | auto | U1 I3 | The memory profile is stored install-wide, never in the chat |
+| J10.3 | auto | U2 | Re-selecting the same story hydrates progress instead of wiping it |
+| J10.4 | auto | U2 | A library edit does not reach a chat that already pinned the story |
+| J10.5 | auto | U2 | Deleting the library record leaves the running chat playable from its pinned copy |
+| J10.6 | auto | U1 I3 | A brand-new chat on a configured install plays immediately, with no per-chat setup |
+| J10.7 | auto | U2 | Restart is the only reset, and it re-pins the latest library version |
+| J10.8 | auto | I3 | A pre-v2.1 (hash-keyed) chat blob migrates to id-keyed state with the story pinned |
+| J10.9 | human | U6 | "Was it clear which settings apply to every chat and which only to this one?" |
+| J10.10 | human | U6 | "Did the memory-model self-test tell you something you could act on?" |
 
 ### J8 stagecraft *(reserved — plan 07)*
 

@@ -172,8 +172,12 @@ export interface ArcBridge {
   amount: number;
 }
 
+export const STORY_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,63}$/;
+
 export interface StoryV2 {
   format: 2;
+  id?: string;
+  version?: number;
   title: string;
   description: string;
   qualities: Quality[];
@@ -191,6 +195,7 @@ export interface NormalizedTransition extends Transition {
 }
 
 export interface NormalizedStoryV2 extends StoryV2 {
+  version: number;
   startCheckpointId: string;
   checkpointById: Record<string, Checkpoint>;
   outgoingByCheckpoint: Record<string, NormalizedTransition[]>;

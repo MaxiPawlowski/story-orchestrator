@@ -65,13 +65,18 @@
         "U1",
         "I3"
       ],
-      "goal": "the memory profile is an install-level setting, so a new chat inherits it",
+      "goal": "the memory profile is an install-level setting, so it is not stored per chat",
       "requires": [
         "global-extraction-settings"
       ],
       "steps": [
         {
-          "eval": "const g = globalThis.storyOrchestratorRuntime.getGlobalSettings(); if (!g.extraction?.profileId) throw new Error('no global memory profile'); return g.extraction;"
+          "ui": {
+            "action": "select-profile"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const global = rt.getGlobalSettings(); if (!global.extraction?.profileId) throw new Error('no install-wide memory profile after configuring'); const blob = SillyTavern.getContext().chatMetadata.story_orchestrator; const extras = Object.values(blob?.stories ?? {})[0]?.extras; if (extras?.extraction?.settings) throw new Error('the chat is still storing extraction settings'); return { profileId: global.extraction.profileId };"
         }
       ]
     },

@@ -15,7 +15,7 @@
     "studio-open": "Boolean(document.querySelector('#so-studio-modal'))",
     "studio-roster-editor": "Boolean(document.querySelector('#so-studio-modal [data-so=\"roster\"]'))",
     "studio-requirements-editor": "Boolean(document.querySelector('#so-studio-modal [data-so=\"requirements\"]'))",
-    "story-identity": "typeof globalThis.storyOrchestratorRuntime?.getSnapshot()?.storyId === 'string'",
+    "story-identity": "'storyId' in (globalThis.storyOrchestratorRuntime?.getSnapshot() ?? {})",
     "hot-swap": "typeof globalThis.storyOrchestratorRuntime?.applyStoryVersion === 'function'"
   },
   "checks": [
@@ -95,13 +95,31 @@
       "findings": [
         "U2"
       ],
-      "goal": "a story has a stable identity, so re-selecting it hydrates instead of forking",
+      "goal": "a story keeps one identity across edits, so re-selecting hydrates instead of forking a new record",
       "requires": [
         "story-identity"
       ],
       "steps": [
         {
-          "eval": "const s = globalThis.storyOrchestratorRuntime.getSnapshot(); if (!s.storyId) throw new Error('no stable story id'); return { storyId: s.storyId };"
+          "ui": {
+            "action": "close-studio"
+          }
+        },
+        {
+          "import_story": {
+            "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = rt.getSnapshot(); if (!before.storyId) throw new Error('no story id after import'); const response = await fetch('/scripts/extensions/third-party/story-orchestrator/examples/sun-ruins/quest-for-the-sun-ruins.json'); const story = await response.json(); story.description = 'Edited by journey J2.'; await rt.importStory(JSON.stringify(story)); const after = rt.getSnapshot(); if (after.storyId !== before.storyId) throw new Error(`identity forked: ${before.storyId} -> ${after.storyId}`); const records = after.library.filter((record) => record.id === after.storyId); if (records.length !== 1) throw new Error(`library forked into ${records.length} records`); return { storyId: after.storyId, libraryVersion: records[0].version, identity: after.storyIdentity };"
+        },
+        {
+          "expect": {
+            "storyId": "sun-ruins",
+            "storyIdentity": {
+              "pinned": true
+            }
+          }
         }
       ]
     },

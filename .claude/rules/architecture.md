@@ -46,7 +46,8 @@ src/
 
 - `STAPI.ts` + `stHost/*` are the only files importing ST host modules, via dynamic `import(/* webpackIgnore: true */ …)`.
 - `src/engine/**` and `extraction/scope*` never import STAPI; host effects go through the `EngineHost` seam so tests can fake them.
-- Runtime state per chat in `chat_metadata`; story library in extension settings.
+- Three lifetimes, three homes (spec addendum v2.1 §Configuration homes): install-wide settings in `extensionSettings["story-orchestrator"].settings`; per-chat engine state, rings and the overrides `{ui.authorView, pacing.shapeOverride, talk.enabled}` in `chat_metadata`; authored content in the story record. `extras` still exposes a full settings view in memory (`applyGlobalSettings`), but `stripGlobalSettings` removes the install-wide half before persisting.
+- Story identity is the authored `id` (+ `version`), never the content hash: the library is keyed by id, the per-chat blob is keyed by id, and each chat **pins a full copy** of the story it plays (`pinnedStory`), so library edits and deletion never reach a running chat. `contentHash` stays for integrity and drift detection (`contentHashAtLoad`). Re-selecting hydrates; `restartStory()` is the only reset.
 - Boundary counters ≠ ST message indexes. Boundary snapshots/logs record `{lastMessageId, chatLength}`.
 - Pending queue writes not persisted; reload drops them, reconciliation recovers.
 - Extraction audits persist in runtime extras (`extras.extraction.audits`); facts moved to the memory tiers (`extras.memory`, facts tier) as of plan 07 — `extras.extraction.facts` no longer exists.

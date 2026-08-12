@@ -13,7 +13,7 @@ import { closeCheckpointStudio, openCheckpointStudio, openExtensionSettings, ope
 const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep]
 
 Step keys:
-  import_story, select_story, send, send_generate, slash, extract, expand, eval, copilot, ui, reload, swipe, edit, delete, wait, expect, expect_ui
+  import_story, select_story, restart_story, send, send_generate, slash, extract, expand, eval, copilot, ui, reload, swipe, edit, delete, wait, expect, expect_ui
 
 ui actions ({ui: {action, label?, note?}}):
   open-drawer, drawer-tab, open-settings, select-profile, open-studio, close-studio, studio-tab, flag, screenshot
@@ -23,6 +23,7 @@ copilot actions ({copilot: {action, ...}}):
   suggest ({debug?}), report ({debug?}), nudge ({text}), clear-nudge, probe ({debug?}), advance ({id})
 
 expect verbs:
+  storyId, storyIdentity ({id,playedVersion,libraryVersion,pinned,drifted}),
   activeCheckpoint, activeCheckpointIn, blackboard, blackboardMissing, latched, auditCount>=, npcFired,
   expansion, tension, pacingPrompt, requirementsReady, convergence, reconciliationEvents>=,
   memory ({tier: {count, contains}}), sceneBreaks>=, memoryInjection ({tier: bool}),
@@ -91,6 +92,10 @@ function compareSubset(actual, expected, path = '') {
 function evaluateExpect(state, expected) {
   const actual = compactState(state);
   const failures = [];
+  if (expected.storyIdentity) failures.push(...compareSubset(state?.liveSnapshot?.storyIdentity ?? {}, expected.storyIdentity, 'storyIdentity'));
+  if (expected.storyId !== undefined && (state?.liveSnapshot?.storyId ?? null) !== expected.storyId) {
+    failures.push(`storyId: expected ${expected.storyId}, got ${state?.liveSnapshot?.storyId ?? null}`);
+  }
   if (expected.activeCheckpoint !== undefined && actual.activeCheckpoint !== expected.activeCheckpoint) {
     failures.push(`activeCheckpoint: expected ${expected.activeCheckpoint}, got ${actual.activeCheckpoint}`);
   }
@@ -285,11 +290,27 @@ async function selectStory(page, selector) {
   return evaluateInST(page, async (selector) => {
     const runtime = globalThis.storyOrchestratorRuntime;
     const library = runtime.getSnapshot().library ?? [];
-    const record = library.find((entry) => entry.hash === selector || entry.title === selector);
-    if (!record) throw new Error(`Story not found: ${selector}`);
-    const ok = await runtime.selectStory(record.hash);
-    return { ok, hash: record.hash, title: record.title };
+    const record = library.find((entry) => entry.id === selector || entry.hash === selector || entry.title === selector);
+    const target = record?.id ?? selector;
+    const ok = await runtime.selectStory(target);
+    if (!ok) throw new Error(`Story not found: ${selector}`);
+    const snapshot = runtime.getSnapshot();
+    return { ok, id: snapshot.storyId, title: snapshot.storyTitle, identity: snapshot.storyIdentity };
   }, selector);
+}
+
+// Restart asks for confirmation, so the step answers the popup the way the verb's argument says
+// ({restart_story: true} confirms, false cancels) instead of hanging on an unattended dialog.
+async function restartStory(page, spec) {
+  const confirm = spec !== false;
+  const pending = evaluateInST(page, async () => {
+    const ok = await globalThis.storyOrchestratorRuntime.restartStory();
+    return { ok, activeCheckpointId: globalThis.storyOrchestratorRuntime.getSnapshot().activeCheckpointId };
+  });
+  const button = page.locator(confirm ? 'dialog[open] .popup-button-ok' : 'dialog[open] .popup-button-cancel');
+  await button.waitFor({ state: 'visible', timeout: 10000 }).catch(() => undefined);
+  await button.click().catch(() => undefined);
+  return pending;
 }
 
 async function extract(page, spec) {
@@ -445,6 +466,7 @@ async function runStep(page, key, value, { scenarioDir = PROJECT_ROOT, importedH
     return output;
   }
   if (key === 'select_story') return selectStory(page, value);
+  if (key === 'restart_story') return restartStory(page, value);
   if (key === 'send') return sendCompactMessage(page, value);
   if (key === 'send_generate') return typeof value === 'string' ? sendUserMessage(page, value) : sendUserMessage(page, value.text, { idleTimeoutMs: value.timeoutMs });
   if (key === 'slash') return executeSlashCommand(page, value);

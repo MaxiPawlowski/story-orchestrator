@@ -48,7 +48,7 @@ Playwright MCP is configured via the repo `.mcp.json` (`npx @playwright/mcp@late
 | `st-eval.mts` | `"<js>"` or `--file <path>` — run an async snippet in the ST page with `ctx` (getContext()) and `rt` (runtime handle) in scope, JSON result |
 | `so-ui.mts` | `all`, `settings`, `drawer`, `open-settings`, `open-studio`, `studio`, `studio-tab <label>`, `drawer-tab <Overview\|Blackboard\|Memory\|Scheduler\|Payload>`, `screenshot` |
 | `so-copilot.mts` | `context`, `suggest [--debug j]`, `report [--debug j]`, `nudge <text>`, `clear-nudge`, `probe [--debug d]`, `advance <id>`, `stage <stage> [--message m] [--debug j]` |
-| `so-library.mts` | v2 library summary, `<hash>` detail, `remove <hash\|title>`, `wipe-chat-meta [--hash h]`, `--legacy` |
+| `so-library.mts` | library summary (id + version), `<id\|hash>` detail, `remove <id\|hash\|title>`, `wipe-chat-meta [--hash h]`, `--legacy` |
 | `so-live-suite.mts` | `run [--min 0.9] [--filter <substr>] [--record]` — real-model delta accuracy over `test/fixtures/extractor*` triples; exact-match on `{q,v}` |
 | `st-search.mts` | ST host source search, `--context-exports`, `--event-types`, `--endpoints` |
 
@@ -67,7 +67,7 @@ Playwright MCP is configured via the repo `.mcp.json` (`npx @playwright/mcp@late
 }
 ```
 
-Supported steps: `import_story`, `select_story`, `send`, `send_generate`, `slash`, `extract`, `expand`, `eval`, `copilot`, `ui`, `reload`, `swipe`, `edit`, `delete`, `wait`, `expect`, `expect_ui`.
+Supported steps: `import_story`, `select_story`, `restart_story`, `send`, `send_generate`, `slash`, `extract`, `expand`, `eval`, `copilot`, `ui`, `reload`, `swipe`, `edit`, `delete`, `wait`, `expect`, `expect_ui`.
 
 `send_generate` also takes `{ "text": "...", "timeoutMs": 300000 }` — group turns on a local model regularly need minutes.
 
@@ -91,7 +91,9 @@ Supported steps: `import_story`, `select_story`, `send`, `send_generate`, `slash
 
 `epistemic` expects `{ count?: number, contains?: [{ subject, tag, contains, hiddenFrom? }] }` against the live memory snapshot's active (non-superseded) `epistemic` entries. `ledger` expects `{ count?: number, contains?: [{ entity, field, value }] }` against the stored (unbound) `ledger` entries — blackboard-mirrored bound rows only appear in `runtime.getLedger()`, so assert those with an `eval` step. `capability` expects a boolean against `memory.settings.epistemicLedgerCapable`. `so-state current` surfaces `memory.{epistemicCount, hidingCount, ledgerCount, epistemicLedgerCapable}`.
 
-`expect` also takes `activeCheckpointIn: [ids]` — real-model runs can overshoot a checkpoint between polls.
+`select_story` takes a story id (or, still, a hash or title). `restart_story` answers its own confirm popup: `{"restart_story": true}` confirms, `false` cancels.
+
+`expect` also takes `storyId` and `storyIdentity: { id?, playedVersion?, libraryVersion?, pinned?, drifted? }`, plus `activeCheckpointIn: [ids]` — real-model runs can overshoot a checkpoint between polls.
 
 `wait` verbs: `idle`, `boundary`, `auditCount`, `acceptedDelta` (a delta for the named quality accepted in any audit), `expansionStatus`, `checkpoint`, `checkpointNot`, `checkpointIn`, `progress` (+`progressAnchor`), `reconciliationEvidence`, `reconciliationEvents` (count >=), `memoryEntries` (count >=, +`memoryTier`), `arcsSummarized` (resolved arcs with summaries >=), `canonPresent`, `backfillComplete` (waits for `memory.backfill.running === false` with `processed === total`).
 

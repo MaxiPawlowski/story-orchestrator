@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { bindNavbarDrawerToggle, listConnectionProfiles, showConfirmPopup, toggleNavbarDrawer } from "@services/STAPI";
+import { runModelSelfTest, type SelfTestReport } from "@runtime/selfTest";
 import { isArcTemplateName } from "@pacing/index";
 import { startRuntime } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
@@ -42,10 +43,14 @@ const SettingsPanel = () => {
   const [importText, setImportText] = useState("");
   const [busy, setBusy] = useState(false);
   const [studioOpen, setStudioOpen] = useState(false);
+  const [selfTest, setSelfTest] = useState<SelfTestReport | null>(null);
+  const [selfTestRunning, setSelfTestRunning] = useState(false);
+  const selfTestCancelled = useRef(false);
   const profiles = listConnectionProfiles();
+  const identity = snapshot.storyIdentity;
 
   const openStudio = async () => {
-    const active = snapshot.library.find((story) => story.hash === snapshot.storyHash);
+    const active = snapshot.library.find((story) => story.id === snapshot.storyId);
     const store = useDraftStore.getState();
     const resumable = store.dirty && store.sourceHash === (active?.hash ?? null);
     const resume = resumable && (await showConfirmPopup("You have an unsaved Studio draft for this story. Resume it?", { okButton: "Resume draft", cancelButton: "Start fresh" }));
@@ -56,11 +61,38 @@ const SettingsPanel = () => {
     setStudioOpen(true);
   };
 
-  const selectStory = async (hash: string) => {
-    if (!hash) return;
+  const selectStory = async (id: string) => {
+    if (!id) return;
     setBusy(true);
-    await manager.selectStory(hash);
+    await manager.selectStory(id);
     setBusy(false);
+  };
+
+  const restartStory = async () => {
+    setBusy(true);
+    await manager.restartStory();
+    setBusy(false);
+  };
+
+  const runSelfTest = async () => {
+    if (selfTestRunning) {
+      selfTestCancelled.current = true;
+      return;
+    }
+    selfTestCancelled.current = false;
+    setSelfTestRunning(true);
+    setSelfTest(null);
+    const report = await runModelSelfTest({
+      profileId: snapshot.extraction.settings.profileId,
+      cancelled: () => selfTestCancelled.current,
+    });
+    setSelfTest(report);
+    setSelfTestRunning(false);
+  };
+
+  const applySelfTestSuggestion = () => {
+    if (!selfTest?.suggestion) return;
+    manager.setMemorySettings({ epistemicLedgerCapable: selfTest.suggestion.epistemicLedgerCapable });
   };
 
   const importStory = async () => {
@@ -81,12 +113,12 @@ const SettingsPanel = () => {
 
   const deleteStory = async () => {
     const current = manager.getSnapshot();
-    const active = current.library.find((story) => story.hash === current.storyHash);
+    const active = current.library.find((story) => story.id === current.storyId);
     if (!active) return;
-    const ok = await showConfirmPopup(`Delete "${active.title}" from the library? Chats that used it keep their saved progress, but the story must be re-imported to play it again.`, { okButton: "Delete", cancelButton: "Keep" });
+    const ok = await showConfirmPopup(`Delete "${active.title}" from the library? Chats already playing it keep their own pinned copy and carry on; new chats can no longer pick it.`, { okButton: "Delete", cancelButton: "Keep" });
     if (!ok) return;
     setBusy(true);
-    await manager.removeStory(active.hash);
+    await manager.removeStory(active.id);
     setBusy(false);
   };
 
@@ -100,12 +132,19 @@ const SettingsPanel = () => {
           <label className="flex flex-col gap-1 text-sm">
             <span>Story</span>
             <div className="flex items-center gap-2">
-              <select id="story-library-select" className="flex-1" value={snapshot.storyHash ?? ""} disabled={busy} onChange={(event) => void selectStory(event.target.value)}>
+              <select id="story-library-select" className="flex-1" value={snapshot.storyId ?? ""} disabled={busy} onChange={(event) => void selectStory(event.target.value)}>
                 <option value="">Select a story</option>
-                {snapshot.library.map((story) => <option key={story.hash} value={story.hash}>{story.title}</option>)}
+                {snapshot.library.map((story) => <option key={story.id} value={story.id}>{story.title}</option>)}
               </select>
-              <button id="so-delete-story" className="menu_button fa-solid fa-trash-can" title="Delete the selected story from the library" disabled={busy || !snapshot.storyHash} onClick={() => void deleteStory()} />
+              <button id="so-restart-story" className="menu_button fa-solid fa-rotate-left" title="Restart this story in this chat (clears progress and memory for it)" disabled={busy || !snapshot.storyId} onClick={() => void restartStory()} />
+              <button id="so-delete-story" className="menu_button fa-solid fa-trash-can" title="Delete the selected story from the library" disabled={busy || !snapshot.storyId} onClick={() => void deleteStory()} />
             </div>
+            {snapshot.storyId && (
+              <div id="so-story-identity" className="text-xs opacity-70">
+                Playing your pinned copy{identity.playedVersion ? ` (v${identity.playedVersion})` : ""}.
+                {identity.drifted && identity.libraryVersion ? ` The library has a newer version (v${identity.libraryVersion}); this chat keeps playing what it started with.` : ""}
+              </div>
+            )}
           </label>
           <label className="flex flex-col gap-1 text-sm">
             <span>Import story (JSON)</span>
@@ -127,9 +166,10 @@ const SettingsPanel = () => {
             <span>Enable story copilot (authoring tab + in-play driver)</span>
           </label>
           <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+            <div className="font-medium text-sm">Memory model <span className="opacity-60 font-normal">— install-wide, used by every chat</span></div>
             <label className="flex items-center gap-2 text-sm">
               <input id="so-extraction-enabled" type="checkbox" checked={snapshot.extraction.settings.enabled} onChange={(event) => manager.setExtractionSettings({ enabled: event.target.checked })} />
-              <span>Enable shared read extraction</span>
+              <span>Let the story advance on its own (shared read extraction)</span>
             </label>
             <label className="flex flex-col gap-1 text-sm">
               <span>Memory LLM profile</span>
@@ -155,10 +195,31 @@ const SettingsPanel = () => {
                 </label>
               </div>
             </details>
-            {snapshot.extraction.settings.enabled && !snapshot.extraction.settings.profileId && <div className="text-xs text-yellow-300">Select a model profile above, or the story cannot advance on its own.</div>}
+            {snapshot.extraction.settings.enabled && !snapshot.extraction.settings.profileId && <div id="so-not-configured" className="text-xs text-yellow-300">Not configured: pick a memory model profile above and every chat, including this one, starts advancing on its own.</div>}
+            <div className="flex items-center gap-2">
+              <button id="so-self-test" className="menu_button" disabled={!snapshot.extraction.settings.profileId} onClick={() => void runSelfTest()}>{selfTestRunning ? "Cancel test" : "Test memory model"}</button>
+              <span className="text-xs opacity-70">Runs fixed scenes through the real pipeline and reports what this model can actually do.</span>
+            </div>
+            {selfTest && (
+              <div id="so-self-test-result" className="text-xs flex flex-col gap-1">
+                {selfTest.error && <div className="text-yellow-300">{selfTest.error}</div>}
+                {selfTest.results.map((result) => (
+                  <div key={result.tier} className="flex items-start gap-2">
+                    <span className={result.status === "pass" ? "text-green-400" : "text-red-300"}>{result.status === "pass" ? "PASS" : "FAIL"}</span>
+                    <span className="opacity-80">{result.tier} — {result.detail}{result.got.length ? ` · got: ${result.got.slice(0, 2).join("; ")}` : ""}</span>
+                  </div>
+                ))}
+                {selfTest.suggestion && (
+                  <div className="flex items-center gap-2">
+                    <span className="opacity-80">{selfTest.suggestion.reason}</span>
+                    <button id="so-self-test-apply" className="menu_button" onClick={applySelfTestSuggestion}>Turn epistemic/ledger off</button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
-            <div className="font-medium text-sm">Display</div>
+            <div className="font-medium text-sm">Display <span className="opacity-60 font-normal">— install-wide</span></div>
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={snapshot.ui.announceTransitions} onChange={(event) => manager.setUiSettings({ announceTransitions: event.target.checked })} />
               <span>Announce checkpoint changes in chat</span>
@@ -169,7 +230,7 @@ const SettingsPanel = () => {
             </label>
           </div>
           <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
-            <div className="font-medium text-sm">Group chat</div>
+            <div className="font-medium text-sm">Group chat <span className="opacity-60 font-normal">— this chat only</span></div>
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={snapshot.talk.enabled} onChange={(event) => manager.setTalkDirectionEnabled(event.target.checked)} />
               <span>Speaker direction <HelpTooltip title="Let checkpoints with talk control decide who speaks next in group chats: name mentions win, then the LLM director, then weighted rules. Swipes, quiet passes, and explicit /trigger are never affected." /></span>
@@ -178,7 +239,7 @@ const SettingsPanel = () => {
           <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
             <div className="font-medium text-sm">Pacing</div>
             <label className="flex flex-col gap-1 text-sm">
-              <span>Dramatic shape</span>
+              <span>Dramatic shape <span className="opacity-60">— this chat only</span></span>
               <select value={typeof snapshot.pacing.shapeOverride === "string" ? snapshot.pacing.shapeOverride : ""} onChange={(event) => manager.setPacingSettings({ shapeOverride: isArcTemplateName(event.target.value) ? event.target.value : null })}>
                 <option value="">Use story default</option>
                 <option value="rising">Rising to climax</option>
@@ -188,7 +249,7 @@ const SettingsPanel = () => {
             </label>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <label className="flex flex-col gap-1">
-                <span>Smoothing α <HelpTooltip title="How quickly the measured tension follows the latest scene. Higher = jumpier, lower = smoother." /></span>
+                <span>Smoothing α <span className="opacity-60">(install-wide)</span> <HelpTooltip title="How quickly the measured tension follows the latest scene. Higher = jumpier, lower = smoother." /></span>
                 <input type="number" min={0} max={1} step={0.05} value={snapshot.pacing.alpha} onChange={(event) => manager.setPacingSettings({ alpha: Math.min(1, Math.max(0, Number(event.target.value) || 0)) })} />
               </label>
               <label className="flex items-center gap-2 mt-5">

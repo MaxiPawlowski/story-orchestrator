@@ -29,7 +29,10 @@ src/
     runtimeManager.ts       # persistence boundary, snapshot, effects orchestration
     turnBridge.ts           # ST events -> boundary commits / mutation rollback
     effectsApplier.ts persistence.ts storyLibrary.ts
-    extras.ts               # RuntimeExtras factories/sanitizers + hydrateExtras (persistence shape)
+    extras.ts               # RuntimeExtras factories/sanitizers, hydrateExtras, applyGlobalSettings/stripGlobalSettings
+    settingsStore.ts        # install-wide settings home; liftLegacyChatSettings migration
+    persistenceMigration.ts # v2 hash-keyed blob -> v3 id-keyed blob with a pinned story copy
+    selfTest.ts snapshot.ts # model self-test over fixtures; pure snapshot readouts
     journal.ts              # SessionJournal: status/flag records, payload ring, buildSessionJournal()
     macros.ts slashCommands.ts awayRecap.ts liveSuite.ts
   components/

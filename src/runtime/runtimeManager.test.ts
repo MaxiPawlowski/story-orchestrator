@@ -98,8 +98,8 @@ describe("RuntimeManager pacing", () => {
     await manager.commitBoundary();
     expect(mockExtensionPrompts.story_orchestrator_pacing?.value).toContain("Pacing:");
 
-    const metadata = mockContext.chatMetadata.story_orchestrator as { selectedStoryHash: string | null };
-    metadata.selectedStoryHash = null;
+    const metadata = mockContext.chatMetadata.story_orchestrator as { selectedStoryId: string | null };
+    metadata.selectedStoryId = null;
     await manager.loadSelectedFromChat();
 
     expect(mockExtensionPrompts.story_orchestrator_pacing).toBeUndefined();
@@ -167,17 +167,17 @@ describe("RuntimeManager memory migration", () => {
   it("migrates a legacy extras.extraction.facts blob into the facts memory tier on hydrate", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(story));
-    const hash = manager.getSnapshot().storyHash as string;
+    const storyId = manager.getSnapshot().storyId as string;
 
     const blob = mockContext.chatMetadata.story_orchestrator as { stories: Record<string, { extras: Record<string, unknown> }> };
-    const persistedExtras = blob.stories[hash].extras;
+    const persistedExtras = blob.stories[storyId].extras;
     delete persistedExtras.memory;
     persistedExtras.extraction = {
       ...(persistedExtras.extraction as Record<string, unknown>),
       facts: [{ text: "Mara trusts the player.", evidence: "I trust you.", importance: 2, boundary: 1, messageId: 3 }],
     };
 
-    await manager.selectStory(hash, "hydrate");
+    await manager.selectStory(storyId, "hydrate");
 
     const migrated = manager.getSnapshot().memory.entries;
     expect(migrated).toHaveLength(1);
@@ -187,21 +187,21 @@ describe("RuntimeManager memory migration", () => {
   it("does not re-migrate once extras.memory already exists", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(story));
-    const hash = manager.getSnapshot().storyHash as string;
+    const storyId = manager.getSnapshot().storyId as string;
 
-    await manager.selectStory(hash, "hydrate");
+    await manager.selectStory(storyId, "hydrate");
     expect(manager.getSnapshot().memory.entries).toHaveLength(0);
   });
 
   it("clears a stuck backfill.running flag on reload so a new backlog can start", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(story));
-    const hash = manager.getSnapshot().storyHash as string;
+    const storyId = manager.getSnapshot().storyId as string;
 
     const blob = mockContext.chatMetadata.story_orchestrator as { stories: Record<string, { extras: { memory: { backfill: unknown } } }> };
-    blob.stories[hash].extras.memory.backfill = { running: true, processed: 1, total: 3, lastError: null };
+    blob.stories[storyId].extras.memory.backfill = { running: true, processed: 1, total: 3, lastError: null };
 
-    await manager.selectStory(hash, "hydrate");
+    await manager.selectStory(storyId, "hydrate");
     expect(manager.getSnapshot().memory.backfill).toMatchObject({ running: false, processed: 1, total: 3 });
   });
 });
@@ -597,8 +597,8 @@ describe("RuntimeManager memory injection and cast", () => {
     ]);
     expect(mockExtensionPrompts.story_orchestrator_memory_facts).toBeDefined();
 
-    const metadata = mockContext.chatMetadata.story_orchestrator as { selectedStoryHash: string | null };
-    metadata.selectedStoryHash = null;
+    const metadata = mockContext.chatMetadata.story_orchestrator as { selectedStoryId: string | null };
+    metadata.selectedStoryId = null;
     await manager.loadSelectedFromChat();
 
     expect(mockExtensionPrompts.story_orchestrator_memory_facts).toBeUndefined();
@@ -778,12 +778,12 @@ describe("RuntimeManager arc bridge and canon", () => {
   it("recovers a bridge increment whose pending queue was dropped by a reload", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(bridgeStory));
-    const hash = manager.getSnapshot().storyHash as string;
+    const storyId = manager.getSnapshot().storyId as string;
     await manager.applyExtractionAudit(memoryAudit(), [], [], [{ kind: "open", text: "The identity of the granary arsonist is still unknown to all." }]);
     await manager.applyExtractionAudit(memoryAudit(), [], [], [{ kind: "resolved", text: "The granary arsonist is now known to all." }]);
     expect(manager.getArcs().find((arc) => arc.status === "resolved")?.bridgeApplied).toBeFalsy();
 
-    await manager.selectStory(hash, "hydrate");
+    await manager.selectStory(storyId, "hydrate");
     expect(manager.getEngineState()?.blackboard.values.progress_toward_reveal ?? 0).not.toBe(2);
 
     await manager.commitBoundary();
@@ -962,16 +962,16 @@ describe("RuntimeManager plan-13 surfacing", () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(gatedStory));
     const metadata = mockContext.chatMetadata.story_orchestrator as { stories: Record<string, { extras: { lastSessionAt: string | null } }> };
-    const hash = Object.keys(metadata.stories)[0];
+    const storyId = Object.keys(metadata.stories)[0];
 
-    metadata.stories[hash].extras.lastSessionAt = new Date(Date.now() - 9 * 60 * 60 * 1000).toISOString();
-    await manager.selectStory(hash, "hydrate");
+    metadata.stories[storyId].extras.lastSessionAt = new Date(Date.now() - 9 * 60 * 60 * 1000).toISOString();
+    await manager.selectStory(storyId, "hydrate");
     const recap = manager.getAwayRecap();
     expect(recap).not.toBeNull();
     expect(recap?.lines[0]).toContain("Start");
 
-    metadata.stories[hash].extras.lastSessionAt = new Date().toISOString();
-    await manager.selectStory(hash, "hydrate");
+    metadata.stories[storyId].extras.lastSessionAt = new Date().toISOString();
+    await manager.selectStory(storyId, "hydrate");
     expect(manager.getAwayRecap()).toBeNull();
   });
 
@@ -979,9 +979,9 @@ describe("RuntimeManager plan-13 surfacing", () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(gatedStory));
     const metadata = mockContext.chatMetadata.story_orchestrator as { stories: Record<string, { extras: { lastSessionAt: string | null } }> };
-    const hash = Object.keys(metadata.stories)[0];
-    metadata.stories[hash].extras.lastSessionAt = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    await manager.selectStory(hash, "hydrate");
+    const storyId = Object.keys(metadata.stories)[0];
+    metadata.stories[storyId].extras.lastSessionAt = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    await manager.selectStory(storyId, "hydrate");
     expect(await manager.showAwayRecap()).toBe(true);
     expect(manager.getAwayRecap()).toBeNull();
     expect(await manager.showAwayRecap()).toBe(false);
@@ -994,13 +994,13 @@ describe("RuntimeManager plan-13 surfacing", () => {
       { tier: "session_details", type: "detail", importance: 1, expiration: "session", entities: [], text: "Clean detail.", evidence: "quote" },
     ]);
     const metadata = mockContext.chatMetadata.story_orchestrator as { stories: Record<string, { extras: { memory: { entries: Array<{ text: string }>; arcs: unknown[]; canon: unknown } } }> };
-    const hash = Object.keys(metadata.stories)[0];
-    const memory = metadata.stories[hash].extras.memory;
+    const storyId = Object.keys(metadata.stories)[0];
+    const memory = metadata.stories[storyId].extras.memory;
     memory.entries[0].text = "<|channel>thought\n<channel|>The party searched the ruins.";
     memory.arcs = [{ id: "arc-1", text: "<channel|>Find the key.", status: "resolved", summary: "<|channel>thought\nKey found.", openedAt: 0, messageId: 0 }];
     memory.canon = { text: "<|channel>thought\n<channel|>Canon so far.", inputHash: "x", updatedAt: "2026-07-06T00:00:00.000Z" };
 
-    await manager.selectStory(hash, "hydrate");
+    await manager.selectStory(storyId, "hydrate");
     const snapshot = manager.getSnapshot();
     expect(snapshot.memory.entries[0].text).toBe("The party searched the ruins.");
     const arcs = manager.getArcs();
@@ -1083,9 +1083,9 @@ describe("RuntimeManager transition announcements and pending deltas", () => {
     expect(manager.getSnapshot().ui).toEqual({ authorView: false, announceTransitions: true, hudEnabled: true });
     manager.setUiSettings({ authorView: true });
     const metadata = mockContext.chatMetadata.story_orchestrator as { stories: Record<string, { extras: { ui?: { authorView?: boolean } } }> };
-    const hash = Object.keys(metadata.stories)[0];
-    delete metadata.stories[hash].extras.ui;
-    await manager.selectStory(hash, "hydrate");
+    const storyId = Object.keys(metadata.stories)[0];
+    delete metadata.stories[storyId].extras.ui;
+    await manager.selectStory(storyId, "hydrate");
     expect(manager.getSnapshot().ui.authorView).toBe(false);
   });
 });

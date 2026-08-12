@@ -1,15 +1,14 @@
 import { stripChannelNoise, type ParsedFact } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
-import { createMemoryState, DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS, generateMemoryId, type MemoryEntry } from "@memory/index";
-import { DEFAULT_TENSION_EMA_ALPHA, MEMORY_TIER_INJECTION_DEPTHS } from "@constants/defaults";
+import { createMemoryState, generateMemoryId, type MemoryEntry } from "@memory/index";
+import { DEFAULT_TENSION_EMA_ALPHA } from "@constants/defaults";
 import { sanitizeJournalRecords } from "./journal";
-import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, ExtractionRuntimeState, MemoryRuntimeSettings, MemoryRuntimeState, PacingSettings, RuntimeExtras, TalkRuntimeState, TensionRuntimeState, UiRuntimeSettings } from "./types";
+import { defaultExtractionSettings, defaultMemorySettings, getGlobalSettings, type ChatOverrides } from "./settingsStore";
+import type { CopilotRuntimeSettings, ExtractionRuntimeState, MemoryRuntimeState, PacingSettings, RuntimeExtras, TalkRuntimeState, TensionRuntimeState, UiRuntimeSettings } from "./types";
 
 export const TALK_DECISION_LIMIT = 10;
 
 export const emptyRequirements = { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] };
-
-export const defaultExtractionSettings = (): ExtractionRuntimeSettings => ({ enabled: false, profileId: null, cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 });
 
 export const defaultPacingSettings = (): PacingSettings => ({ alpha: DEFAULT_TENSION_EMA_ALPHA, shapeOverride: null, hintEnabled: true });
 
@@ -37,14 +36,6 @@ export const createExtraction = (): ExtractionRuntimeState => ({
 export const createExpansion = (): ExpansionRuntimeState => ({
   entries: {},
   scheduler: { queueDepth: 0, inFlight: false, lastError: null },
-});
-
-export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
-  enabled: true,
-  epistemicLedgerCapable: true,
-  injectionDepths: { ...MEMORY_TIER_INJECTION_DEPTHS },
-  tierBudgets: { ...DEFAULT_TIER_BUDGETS },
-  tierTokenBudgets: { ...DEFAULT_TIER_TOKEN_BUDGETS },
 });
 
 export const createMemory = (): MemoryRuntimeState => ({
@@ -163,7 +154,39 @@ export const sanitizeExpansion = (value: RuntimeExtras | undefined): ExpansionRu
   };
 };
 
+export const readChatOverrides = (extras: RuntimeExtras | undefined): ChatOverrides => ({
+  authorView: extras?.ui?.authorView === true,
+  shapeOverride: extras?.pacing?.shapeOverride ?? null,
+  talkEnabled: typeof extras?.talk?.enabled === "boolean" ? extras.talk.enabled : null,
+});
+
+// In memory, extras still carries a full settings view so every reader stays simple; the values
+// come from the install-wide store, with only the per-chat overrides taken from the chat.
+export const applyGlobalSettings = (extras: RuntimeExtras, overrides: ChatOverrides = readChatOverrides(extras)): RuntimeExtras => {
+  const global = getGlobalSettings();
+  extras.extraction = { ...extras.extraction, settings: { ...global.extraction } };
+  extras.pacing = { alpha: global.pacing.alpha, hintEnabled: global.pacing.hintEnabled, shapeOverride: overrides.shapeOverride };
+  extras.copilot = { ...global.copilot };
+  extras.ui = { authorView: overrides.authorView, announceTransitions: global.display.announceTransitions, hudEnabled: global.display.hudEnabled };
+  extras.memory = { ...extras.memory, settings: { ...global.memory } };
+  extras.talk = { ...extras.talk, enabled: overrides.talkEnabled ?? global.talk.enabled };
+  return extras;
+};
+
+// Persisted chat state keeps engine state, rings and the overrides only (spec addendum
+// §Configuration homes) - install-wide settings are stripped on the way out.
+export const stripGlobalSettings = (extras: RuntimeExtras): RuntimeExtras => ({
+  ...extras,
+  extraction: { audits: extras.extraction.audits, reconciliationEvents: extras.extraction.reconciliationEvents, lastReadBoundary: extras.extraction.lastReadBoundary, scheduler: extras.extraction.scheduler } as RuntimeExtras["extraction"],
+  pacing: { shapeOverride: extras.pacing.shapeOverride } as RuntimeExtras["pacing"],
+  copilot: {} as RuntimeExtras["copilot"],
+  ui: { authorView: extras.ui.authorView } as RuntimeExtras["ui"],
+  memory: { ...extras.memory, settings: undefined } as unknown as RuntimeExtras["memory"],
+  talk: { enabled: extras.talk.enabled, decisions: extras.talk.decisions },
+});
+
 export const hydrateExtras = (persisted: RuntimeExtras | undefined): RuntimeExtras => {
+  const overrides = readChatOverrides(persisted);
   const extras = persisted ?? createExtras();
   extras.memory = sanitizeMemory(extras);
   extras.extraction = sanitizeExtraction(extras);
@@ -175,5 +198,5 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined): RuntimeExtr
   extras.talk = sanitizeTalk(extras);
   extras.journal = sanitizeJournalRecords(extras.journal);
   extras.lastSelfInjectionMessageId = typeof extras.lastSelfInjectionMessageId === "number" ? extras.lastSelfInjectionMessageId : null;
-  return extras;
+  return applyGlobalSettings(extras, overrides);
 };

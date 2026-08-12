@@ -1,19 +1,21 @@
-import { Blackboard, StoryEngine, effectiveThresholdFor, evaluateGate, isValidationErrorList, progressQualityForAnchor, renderGateText, TENSION_CURRENT_KEY, type ApplyQueueEntry, type ArcTemplate, type BlackboardDelta, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type StoryV2, type TalkControl, type TensionLevel, type ValidationError } from "@engine/index";
+import { Blackboard, StoryEngine, evaluateGate, isValidationErrorList, progressQualityForAnchor, renderGateText, TENSION_CURRENT_KEY, type ApplyQueueEntry, type ArcTemplate, type BlackboardDelta, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type StoryV2, type TalkControl, type TensionLevel, type ValidationError } from "@engine/index";
 import { runAuthoringStage, runDriverReport, runDriverSuggest, type CopilotMessage, type CopilotStage, type DriverContext, type ProposalResult, type Suggestion } from "@copilot/index";
 import { callExtractionModel, deriveFullScope, deriveScope, getCanonLite, getChatWindow, getLastMessageText, runSharedRead, stripChannelNoise, type ParsedDelta, type ParsedFact, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
 import { findStubExpansionCandidate, collectExpansionGateSources, generateReviewedBeats, insertedCheckpointIds, mergeExpansions, planExpansion, revalidateExpansion, type ExpansionCacheEntry, type StubExpansionCandidate } from "@generation/index";
 import { addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicInjection, applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildBoundKeySet, buildEpistemicPassPrompt, buildLedgerPassPrompt, buildLedgerView, capEpistemic, capLedger, clearEpistemicInjection, activeEpistemic, memoryExtensionKey, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, removeEpistemic, removeLedger, renderLedgerBlock, renderPrivateEpistemicBlock, rollbackEpistemic, rollbackLedger, setEpistemicPinned, setLedgerPinned, type EpistemicEntry, type LedgerBinding, type LedgerView, type ParsedEpistemicSignal, type ParsedLedgerSignal, buildArcSummaryPrompt, buildCanonSummaryPrompt, buildJaccardMatchSets, buildMemoryInjectionBlocks, buildSceneSummaryPrompt, buildShortTermSummaryPrompt, canonInputHash, capAllTiers, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, DEFAULT_DEDUP_THRESHOLDS, detectSceneBreakHeuristic, dropByMessageId, editEntryText, excludeEntry, expireScoped, generateMemoryId, hashMemoryText, markContradicted, matchArcBridges, openArcTexts, removeArc, resolvedArcs, restoreEntry, rollbackArcs, setArcPinned, setArcSummary, setPinned, type ArcEntry, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedMemoryLine, type ScoreContext, type UncertainPair } from "@memory/index";
-import { expectedTension, getSteeringHint, levelToNumeric, numericToLevel, updateEma } from "@pacing/index";
-import { clearStoryExtensionPrompt, countTokens, DEFAULT_VECTOR_SOURCE, disableWIEntry, executeSlashCommands, getActiveGroup, getCharacterNameById, getContext, readInjectedPromptBlocks, resolveGroupMemberId, setStoryExtensionPrompt, showTextPopup, upsertWIEntry, vectorInsert, vectorPurge, vectorQuery } from "@services/STAPI";
+import { getSteeringHint, updateEma } from "@pacing/index";
+import { clearStoryExtensionPrompt, countTokens, DEFAULT_VECTOR_SOURCE, disableWIEntry, executeSlashCommands, getActiveGroup, getCharacterNameById, getContext, readInjectedPromptBlocks, resolveGroupMemberId, setStoryExtensionPrompt, showConfirmPopup, showTextPopup, upsertWIEntry, vectorInsert, vectorPurge, vectorQuery } from "@services/STAPI";
 import { buildAwayRecap, shouldShowAwayRecap, type AwayRecap } from "./awayRecap";
 import { COPILOT_NUDGE_KEY, EPISTEMIC_INJECTION_DEPTH, LEDGER_INJECTION_DEPTH, PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY, SHORT_TERM_COMPACTION_MESSAGES } from "@constants/defaults";
 import { EffectsApplier } from "./effectsApplier";
-import { createExtras, defaultTension, hydrateExtras, sanitizePacing, TALK_DECISION_LIMIT } from "./extras";
+import { applyGlobalSettings, createExtras, defaultTension, hydrateExtras, stripGlobalSettings, TALK_DECISION_LIMIT } from "./extras";
+import { getGlobalSettings, liftLegacyChatSettings, setGlobalSettings } from "./settingsStore";
+import { buildConvergenceReadout, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot, computeExpectedTension } from "./snapshot";
 import { SessionJournal, type JournalEvent } from "./journal";
 import { evaluateRequirements } from "./requirements";
-import { loadPersistedRuntime, savePersistedRuntime, setSelectedStoryHash, getSelectedStoryHash } from "./persistence";
-import { findStoryRecord, listStoryRecords, loadStoryRecord, removeStoryRecord, saveStoryRecord } from "./storyLibrary";
-import type { ConvergenceReadout, CopilotRuntimeSettings, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, MemoryBackfillState, MemoryRuntimeSettings, PacingSettings, PayloadCapture, PendingDeltaReadout, RuntimeExtras, RuntimeSnapshot, TalkDecisionAudit, TalkRuntimeState, TensionRuntimeState, UiRuntimeSettings } from "./types";
+import { dropPersistedRuntime, loadPersistedRuntime, savePersistedRuntime, setSelectedStoryId, getSelectedStoryId } from "./persistence";
+import { findStoryRecord, listStoryRecords, loadPinnedStory, loadStoryRecord, removeStoryRecord, saveStoryRecord } from "./storyLibrary";
+import type { CopilotRuntimeSettings, PersistedStoryRuntime, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, MemoryBackfillState, MemoryRuntimeSettings, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, TalkDecisionAudit, TalkRuntimeState, TensionRuntimeState, UiRuntimeSettings } from "./types";
 
 const expansionKey = (candidate: Pick<StubExpansionCandidate, "sourceCheckpointId" | "stubId" | "targetAnchorId">) => `${candidate.sourceCheckpointId}->${candidate.stubId}->${candidate.targetAnchorId}`;
 
@@ -90,8 +92,8 @@ export class RuntimeManager {
   }
 
   async loadSelectedFromChat() {
-    const hash = getSelectedStoryHash();
-    if (!hash) {
+    const id = getSelectedStoryId();
+    if (!id) {
       this.loaded = null;
       this.extras = createExtras();
       this.pendingTension = null;
@@ -101,7 +103,7 @@ export class RuntimeManager {
       this.notify();
       return;
     }
-    await this.selectStory(hash, "hydrate");
+    await this.selectStory(id, "hydrate");
     void this.showAwayRecap();
   }
 
@@ -124,14 +126,25 @@ export class RuntimeManager {
       return false;
     }
 
-    await this.loadStory(saved, "activate");
-    return true;
+    return this.selectStory(saved.record.id);
   }
 
-  async selectStory(hash: string, mode: "activate" | "hydrate" = "activate") {
-    const record = findStoryRecord(hash);
+  // Selecting is never destructive: a chat that already played this story hydrates its pinned
+  // copy (library edits, and even deletion, cannot reach it); a story new to this chat pins the
+  // version the library holds right now. Reset lives only in restartStory().
+  async selectStory(idOrHash: string, _mode: "activate" | "hydrate" = "activate") {
+    const record = findStoryRecord(idOrHash);
+    const persisted = loadPersistedRuntime(idOrHash) ?? (record ? loadPersistedRuntime(record.id) : null);
+    if (persisted?.pinnedStory) {
+      const pinned = loadPinnedStory(persisted.storyId, persisted.pinnedStory, persisted.playedVersion, persisted.contentHashAtLoad, persisted.storyTitle);
+      if (!isValidationErrorList(pinned)) {
+        await this.loadStory(pinned, "hydrate", persisted);
+        return true;
+      }
+      console.warn(`[Story Orchestrator] pinned copy of '${persisted.storyId}' did not parse; falling back to the library`, pinned);
+    }
     if (!record) {
-      this.validationErrors = [{ path: "story", message: `Unknown story '${hash}'` }];
+      this.validationErrors = [{ path: "story", message: `Unknown story '${idOrHash}'` }];
       this.status = "Story not found";
       this.notify();
       return false;
@@ -143,7 +156,26 @@ export class RuntimeManager {
       this.notify();
       return false;
     }
-    await this.loadStory(loaded, mode);
+    await this.loadStory(loaded, persisted ? "hydrate" : "activate", persisted);
+    return true;
+  }
+
+  // The only reset path. Drops this chat's progress for the story and re-pins the latest library
+  // version, so a restart also adopts whatever the author changed meanwhile.
+  async restartStory(): Promise<boolean> {
+    const id = this.loaded?.record.id ?? getSelectedStoryId();
+    if (!id) return false;
+    const confirmed = await showConfirmPopup("Restart this story? The chat keeps its messages, but checkpoint progress, blackboard and story memory are cleared.", { okButton: "Restart story", cancelButton: "Keep playing" });
+    if (!confirmed) return false;
+    const fallback = this.loaded ? { ...this.loaded } : null;
+    dropPersistedRuntime(id);
+    const record = findStoryRecord(id);
+    const fromLibrary = record ? loadStoryRecord(record) : null;
+    const next = fromLibrary && !isValidationErrorList(fromLibrary) ? fromLibrary : fallback;
+    if (!next) return false;
+    await this.loadStory(next, "activate");
+    this.status = "Story restarted";
+    this.notify();
     return true;
   }
 
@@ -277,9 +309,8 @@ export class RuntimeManager {
   }
 
   setExtractionSettings(settings: Partial<ExtractionRuntimeSettings>) {
-    this.extras.extraction.settings = { ...this.extras.extraction.settings, ...settings };
-    void this.persist();
-    this.notify();
+    setGlobalSettings({ extraction: settings });
+    this.refreshSettingsView();
   }
 
   getActiveTalkControl(): TalkControl | null {
@@ -291,7 +322,8 @@ export class RuntimeManager {
     return this.extras.talk;
   }
 
-  setTalkDirectionEnabled(enabled: boolean) {
+  setTalkDirectionEnabled(enabled: boolean, scope: "chat" | "global" = "chat") {
+    if (scope === "global") setGlobalSettings({ talk: { enabled } });
     this.extras.talk = { ...this.extras.talk, enabled };
     void this.persist();
     this.notify();
@@ -310,17 +342,15 @@ export class RuntimeManager {
   }
 
   setPacingSettings(settings: Partial<PacingSettings>) {
-    this.extras.pacing = sanitizePacing({ ...this.extras.pacing, ...settings });
-    this.updateSteering();
-    void this.persist();
-    this.notify();
+    const { shapeOverride, ...global } = settings;
+    if (Object.keys(global).length) setGlobalSettings({ pacing: global });
+    if ("shapeOverride" in settings) this.extras.pacing = { ...this.extras.pacing, shapeOverride: shapeOverride ?? null };
+    this.refreshSettingsView(() => this.updateSteering());
   }
 
   setMemorySettings(settings: Partial<MemoryRuntimeSettings>) {
-    this.extras.memory = { ...this.extras.memory, settings: { ...this.extras.memory.settings, ...settings } };
-    this.updateMemoryInjection();
-    void this.persist();
-    this.notify();
+    setGlobalSettings({ memory: settings });
+    this.refreshSettingsView(() => this.updateMemoryInjection());
   }
 
   getCopilotSettings(): CopilotRuntimeSettings {
@@ -328,17 +358,16 @@ export class RuntimeManager {
   }
 
   setCopilotSettings(settings: Partial<CopilotRuntimeSettings>) {
-    this.extras.copilot = { ...this.extras.copilot, ...settings };
-    if (!this.extras.copilot.enabled) this.clearCopilotNudge();
-    void this.persist();
-    this.notify();
+    setGlobalSettings({ copilot: settings });
+    this.refreshSettingsView(() => { if (!getGlobalSettings().copilot.enabled) this.clearCopilotNudge(); });
   }
 
-  async removeStory(hash: string): Promise<boolean> {
-    const record = findStoryRecord(hash);
-    if (!record || !removeStoryRecord(hash)) return false;
-    if (this.loaded?.record.hash === hash) {
-      setSelectedStoryHash(null);
+  async removeStory(idOrHash: string): Promise<boolean> {
+    const record = findStoryRecord(idOrHash);
+    if (!record || !removeStoryRecord(idOrHash)) return false;
+    // Chats keep playing their pinned copies; only a chat without one loses the story.
+    if (this.loaded?.record.id === record.id && !loadPersistedRuntime(record.id)?.pinnedStory) {
+      setSelectedStoryId(null);
       await this.loadSelectedFromChat();
     }
     this.status = `Removed "${record.title}" from the library`;
@@ -351,7 +380,21 @@ export class RuntimeManager {
   }
 
   setUiSettings(settings: Partial<UiRuntimeSettings>) {
-    this.extras.ui = { ...this.extras.ui, ...settings };
+    const { authorView, ...display } = settings;
+    if (Object.keys(display).length) setGlobalSettings({ display });
+    if (authorView !== undefined) this.extras.ui = { ...this.extras.ui, authorView };
+    this.refreshSettingsView();
+  }
+
+  getGlobalSettings() {
+    return getGlobalSettings();
+  }
+
+  // Global settings changed: re-derive the in-memory view every reader uses, then persist the
+  // per-chat part only.
+  private refreshSettingsView(after?: () => void) {
+    applyGlobalSettings(this.extras);
+    after?.();
     void this.persist();
     this.notify();
   }
@@ -375,7 +418,7 @@ export class RuntimeManager {
       .filter((transition) => !evaluateGate(transition.gate, blackboard))
       .map((transition) => `${renderGateText(transition.gate)} → ${transition.to}`)
       .filter((text) => text.length > 0);
-    const upcomingAnchors = this.buildConvergenceReadout()
+    const upcomingAnchors = buildConvergenceReadout(story, state)
       .filter((entry) => !entry.reached)
       .map((entry) => ({ id: entry.anchorId, name: entry.anchorName, progress: entry.progress, threshold: entry.threshold }));
     return {
@@ -456,7 +499,8 @@ export class RuntimeManager {
   }
 
   pauseExtraction(message: string) {
-    this.extras.extraction.settings.enabled = false;
+    setGlobalSettings({ extraction: { enabled: false } });
+    applyGlobalSettings(this.extras);
     this.extras.extraction.scheduler = { ...this.extras.extraction.scheduler, lastError: message };
     this.status = `Extraction paused: ${message}`;
     void this.persist();
@@ -1023,7 +1067,9 @@ export class RuntimeManager {
 
     return {
       ready: Boolean(this.loaded),
+      storyId: this.loaded?.record.id ?? null,
       storyHash: this.loaded?.record.hash ?? null,
+      storyIdentity: buildStoryIdentity(this.loaded?.record ?? null, this.loaded ? findStoryRecord(this.loaded.record.id) : null, Boolean(this.loaded && loadPersistedRuntime(this.loaded.record.id)?.pinnedStory)),
       storyTitle: this.loaded?.story.title ?? null,
       storyDescription: this.loaded?.story.description ?? null,
       activeCheckpointId: active?.id ?? null,
@@ -1050,23 +1096,11 @@ export class RuntimeManager {
       copilot: this.extras.copilot,
       ui: this.extras.ui,
       talk: this.extras.talk,
-      pendingDeltas: this.buildPendingDeltas(),
-      convergence: this.buildConvergenceReadout(),
-      tension: this.buildTensionSnapshot(),
+      pendingDeltas: buildPendingDeltas(this.loaded ? this.engine.pendingWrites : [], state),
+      convergence: buildConvergenceReadout(story, state),
+      tension: buildTensionSnapshot(this.extras.tension.smoothed, this.loaded ? this.computeExpectedTension() : null),
       payloadCaptures: this.journal.getCaptures(),
     };
-  }
-
-  private buildPendingDeltas(): PendingDeltaReadout[] {
-    if (!this.loaded) return [];
-    const seen = new Map<string, PendingDeltaReadout>();
-    for (const entry of this.engine.pendingWrites) {
-      for (const delta of entry.deltas) {
-        seen.set(delta.q, { quality: delta.q, value: delta.v, source: entry.source });
-      }
-    }
-    const state = this.engine.serialize();
-    return Array.from(seen.values()).filter((pending) => state.blackboard.values[pending.quality] !== pending.value);
   }
 
   capturePayload(reason = "generation") {
@@ -1079,50 +1113,12 @@ export class RuntimeManager {
     return this.journal.getCaptures();
   }
 
-  private buildConvergenceReadout(): ConvergenceReadout[] {
-    const story = this.loaded?.story;
-    const state = this.loaded ? this.engine.serialize() : null;
-    if (!story || !state) return [];
-    const visited = new Set(state.visitedAnchors);
-    return story.checkpoints
-      .filter((checkpoint) => checkpoint.type === "anchor")
-      .map((anchor) => {
-        const key = progressQualityForAnchor(anchor.id);
-        return { anchor, hasProgress: Boolean(story.qualityByKey[key]) };
-      })
-      .filter((entry) => entry.hasProgress)
-      .map(({ anchor }) => {
-        const progressKey = progressQualityForAnchor(anchor.id);
-        const raw = state.blackboard.values[progressKey];
-        const progress = typeof raw === "number" ? raw : 0;
-        const threshold = effectiveThresholdFor(story, anchor.id);
-        return {
-          anchorId: anchor.id,
-          anchorName: anchor.name,
-          progress,
-          threshold,
-          reached: threshold > 0 && progress >= threshold,
-          visited: visited.has(anchor.id),
-        };
-      });
-  }
-
-  private buildTensionSnapshot(): RuntimeSnapshot["tension"] {
-    const smoothed = this.extras.tension.smoothed;
-    const expected = this.loaded ? this.computeExpectedTension() : null;
-    return {
-      level: smoothed === null ? null : numericToLevel(smoothed),
-      smoothed,
-      expected,
-      hint: getSteeringHint(smoothed, expected),
-    };
-  }
-
-  private async loadStory(loaded: LoadedStory, mode: "activate" | "hydrate") {
+  private async loadStory(loaded: LoadedStory, mode: "activate" | "hydrate", knownPersisted: PersistedStoryRuntime | null = null) {
     this.validationErrors = [];
     this.pendingTension = null;
-    const persisted = mode === "hydrate" ? loadPersistedRuntime(loaded.record.hash) : null;
+    const persisted = mode === "hydrate" ? knownPersisted ?? loadPersistedRuntime(loaded.record.id) : null;
     const priorSessionAt = persisted?.extras?.lastSessionAt ?? null;
+    liftLegacyChatSettings(persisted?.extras, String(getContext().chatId ?? "an earlier chat"));
     this.extras = hydrateExtras(persisted?.extras);
     this.journal.hydrate(this.extras.journal);
     this.loaded = { record: loaded.record, story: this.mergedStoryOrBase(loaded.record.raw, loaded.story) };
@@ -1139,7 +1135,7 @@ export class RuntimeManager {
     this.updateSteering();
     this.updateMemoryInjection();
     this.detectAwayRecap(priorSessionAt);
-    setSelectedStoryHash(loaded.record.hash);
+    setSelectedStoryId(loaded.record.id);
     await this.persist();
     this.notify();
   }
@@ -1177,10 +1173,13 @@ export class RuntimeManager {
     if (!this.loaded) return;
     this.extras.lastSessionAt = new Date().toISOString();
     savePersistedRuntime({
-      storyHash: this.loaded.record.hash,
+      storyId: this.loaded.record.id,
       storyTitle: this.loaded.story.title,
+      pinnedStory: this.loaded.record.raw,
+      playedVersion: this.loaded.record.version,
+      contentHashAtLoad: this.loaded.record.hash,
       engineState: this.engine.serialize(),
-      extras: this.extras,
+      extras: stripGlobalSettings(this.extras),
     });
     await getContext().saveMetadata?.();
   }
@@ -1284,16 +1283,7 @@ export class RuntimeManager {
   }
 
   private computeExpectedTension(): number | null {
-    const story = this.loaded?.story;
-    if (!story) return null;
-    const target = this.engine.activeCheckpoint?.tension_target;
-    if (target) return levelToNumeric(target);
-    const shape = this.effectiveShape();
-    if (!shape) return null;
-    const totalAnchors = story.checkpoints.filter((checkpoint) => checkpoint.type === "anchor").length;
-    if (totalAnchors === 0) return null;
-    const progress = this.engine.serialize().visitedAnchors.length / totalAnchors;
-    return expectedTension(shape, progress);
+    return computeExpectedTension(this.loaded?.story ?? null, this.loaded ? this.engine.serialize() : null, this.engine.activeCheckpoint?.tension_target, this.effectiveShape());
   }
 
   private updateSteering() {

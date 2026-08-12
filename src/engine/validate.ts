@@ -5,6 +5,7 @@ import {
   NPC_REPLY_TRIGGERS,
   QUALITY_SOURCES,
   QUALITY_TYPES,
+  STORY_ID_PATTERN,
   TENSION_CURRENT_KEY,
   TENSION_LEVELS,
   type ArcTemplate,
@@ -417,6 +418,12 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const errors: ValidationError[] = [];
   if (!isRecord(json)) return [{ path: "$", message: "story must be an object" }];
   if (json.format !== 2) addError(errors, "format", "story format must be 2");
+  const storyId = json.id === undefined ? undefined : asString(json.id)?.trim().toLowerCase();
+  if (json.id !== undefined && (!storyId || !STORY_ID_PATTERN.test(storyId))) {
+    addError(errors, "id", "id must be a slug: lowercase letters, digits, '-' or '_', starting alphanumeric, max 64 chars");
+  }
+  const storyVersion = json.version === undefined ? 1 : (typeof json.version === "number" && Number.isInteger(json.version) && json.version >= 1 ? json.version : null);
+  if (storyVersion === null) addError(errors, "version", "version must be an integer >= 1");
   if (typeof json.title !== "string") addError(errors, "title", "title is required");
   if (typeof json.description !== "string") addError(errors, "description", "description is required");
   if (!Array.isArray(json.qualities)) addError(errors, "qualities", "qualities must be an array");
@@ -503,6 +510,8 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
 
   return {
     format: 2,
+    ...(storyId ? { id: storyId } : {}),
+    version: storyVersion ?? 1,
     title: json.title as string,
     description: json.description as string,
     qualities,

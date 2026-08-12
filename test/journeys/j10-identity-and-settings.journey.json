@@ -1,0 +1,127 @@
+{
+  "id": "J10",
+  "title": "identity-and-settings",
+  "objective": "Story identity and settings homes: a pre-v2.1 chat migrates intact, a chat plays its pinned copy through library edits and deletion, a new chat inherits the install profile, and Restart is the only reset.",
+  "setup": { "newChat": true, "resetChatState": true, "snapshotGlobalConfig": true },
+  "cleanup": { "restoreConfig": true, "deleteChat": true, "enableMembers": ["DM Narrator", "Arin", "Ponticius", "Luke"] },
+  "capabilities": {
+    "story-identity": "typeof globalThis.storyOrchestratorRuntime?.getSnapshot()?.storyId === 'string' || globalThis.storyOrchestratorRuntime?.getSnapshot()?.storyId === null",
+    "global-settings": "typeof globalThis.storyOrchestratorRuntime?.getGlobalSettings === 'function'",
+    "restart-story": "typeof globalThis.storyOrchestratorRuntime?.restartStory === 'function'"
+  },
+  "checks": [
+    {
+      "id": "J10.1",
+      "mode": "auto",
+      "findings": ["U2"],
+      "goal": "the example story carries an authored id, and the chat keys its state by it",
+      "requires": ["story-identity"],
+      "steps": [
+        { "import_story": { "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json" } },
+        { "expect": { "storyId": "sun-ruins", "activeCheckpoint": "cp1" } },
+        { "eval": "const blob = SillyTavern.getContext().chatMetadata.story_orchestrator; if (blob.version !== 3) throw new Error(`expected blob version 3, got ${blob.version}`); if (!blob.stories['sun-ruins']?.pinnedStory) throw new Error('story was not pinned into the chat'); if (blob.selectedStoryId !== 'sun-ruins') throw new Error(`selection not keyed by id: ${blob.selectedStoryId}`); return { keys: Object.keys(blob.stories), playedVersion: blob.stories['sun-ruins'].playedVersion };" }
+      ]
+    },
+    {
+      "id": "J10.2",
+      "mode": "auto",
+      "findings": ["U1", "I3"],
+      "goal": "the memory profile is stored install-wide, never in the chat",
+      "requires": ["global-settings"],
+      "steps": [
+        { "ui": { "action": "select-profile" } },
+        { "eval": "const rt = globalThis.storyOrchestratorRuntime; const global = rt.getGlobalSettings(); if (!global.extraction.profileId) throw new Error('profile did not land in the install settings'); const extras = SillyTavern.getContext().chatMetadata.story_orchestrator.stories['sun-ruins'].extras; if (extras.extraction?.settings) throw new Error('chat still carries extraction settings'); if (extras.memory?.settings) throw new Error('chat still carries memory settings'); return { profileId: global.extraction.profileId, chatExtractionKeys: Object.keys(extras.extraction ?? {}) };" }
+      ]
+    },
+    {
+      "id": "J10.3",
+      "mode": "auto",
+      "findings": ["U2"],
+      "goal": "re-selecting the same story hydrates progress instead of wiping it",
+      "requires": ["story-identity"],
+      "steps": [
+        { "slash": "/cp set approached_board true" },
+        { "send": "I am standing at the board." },
+        { "wait": { "checkpoint": "cp2", "timeoutMs": 30000 } },
+        { "select_story": "sun-ruins" },
+        { "expect": { "activeCheckpoint": "cp2", "blackboard": { "approached_board": true } } }
+      ]
+    },
+    {
+      "id": "J10.4",
+      "mode": "auto",
+      "findings": ["U2"],
+      "goal": "a library edit does not reach a chat that already pinned the story",
+      "requires": ["story-identity"],
+      "steps": [
+        { "eval": "const response = await fetch('/scripts/extensions/third-party/story-orchestrator/examples/sun-ruins/quest-for-the-sun-ruins.json'); const story = await response.json(); story.description = 'Edited in the library while a chat is playing.'; await globalThis.storyOrchestratorRuntime.importStory(JSON.stringify(story)); return globalThis.storyOrchestratorRuntime.getSnapshot().storyIdentity;" },
+        { "expect": { "activeCheckpoint": "cp2", "storyIdentity": { "id": "sun-ruins", "pinned": true, "drifted": true } } },
+        { "eval": "const snapshot = globalThis.storyOrchestratorRuntime.getSnapshot(); if (snapshot.storyDescription.startsWith('Edited in the library')) throw new Error('library edit leaked into the running chat'); return { description: snapshot.storyDescription.slice(0, 60), identity: snapshot.storyIdentity };" }
+      ]
+    },
+    {
+      "id": "J10.5",
+      "mode": "auto",
+      "findings": ["U2"],
+      "goal": "deleting the library record leaves the running chat playable from its pinned copy",
+      "requires": ["story-identity"],
+      "steps": [
+        { "eval": "const rt = globalThis.storyOrchestratorRuntime; const ok = await rt.removeStory('sun-ruins'); if (!ok) throw new Error('remove failed'); await rt.loadSelectedFromChat(); const snapshot = rt.getSnapshot(); if (snapshot.activeCheckpointId !== 'cp2') throw new Error(`chat lost its story after library delete: ${snapshot.activeCheckpointId}`); return { identity: snapshot.storyIdentity, library: snapshot.library.length };" },
+        { "expect": { "activeCheckpoint": "cp2", "storyIdentity": { "pinned": true, "libraryVersion": null } } }
+      ]
+    },
+    {
+      "id": "J10.6",
+      "mode": "auto",
+      "findings": ["U1", "I3"],
+      "goal": "a brand-new chat on a configured install plays immediately, with no per-chat setup",
+      "requires": ["global-settings"],
+      "steps": [
+        { "eval": "const response = await fetch('/scripts/extensions/third-party/story-orchestrator/examples/sun-ruins/quest-for-the-sun-ruins.json'); await globalThis.storyOrchestratorRuntime.importStory(await response.text()); return true;" },
+        { "eval": "await SillyTavern.getContext().executeSlashCommandsWithOptions('/newchat'); await new Promise((done) => setTimeout(done, 2500)); return { chatId: SillyTavern.getContext().chatId };" },
+        { "select_story": "sun-ruins" },
+        { "eval": "const settings = globalThis.storyOrchestratorRuntime.getSnapshot().extraction.settings; if (!settings.enabled || !settings.profileId) throw new Error(`fresh chat is not configured: ${JSON.stringify(settings)}`); return settings;" },
+        { "expect": { "storyId": "sun-ruins", "activeCheckpoint": "cp1", "storyIdentity": { "pinned": true } } }
+      ]
+    },
+    {
+      "id": "J10.7",
+      "mode": "auto",
+      "findings": ["U2"],
+      "goal": "Restart is the only reset, and it re-pins the latest library version",
+      "requires": ["restart-story"],
+      "steps": [
+        { "slash": "/cp set approached_board true" },
+        { "send": "Back at the board again." },
+        { "wait": { "checkpoint": "cp2", "timeoutMs": 30000 } },
+        { "restart_story": true },
+        { "expect": { "activeCheckpoint": "cp1", "blackboardMissing": ["approached_board"] } }
+      ]
+    },
+    {
+      "id": "J10.8",
+      "mode": "auto",
+      "findings": ["I3"],
+      "goal": "a pre-v2.1 chat blob migrates to id-keyed state with the story pinned",
+      "requires": ["story-identity"],
+      "steps": [
+        { "eval": "const ctx = SillyTavern.getContext(); const hash = globalThis.storyOrchestratorRuntime.getSnapshot().storyHash; const engineState = ctx.chatMetadata.story_orchestrator.stories['sun-ruins'].engineState; ctx.chatMetadata.story_orchestrator = { version: 2, selectedStoryHash: 'v2-legacyhash', stories: { 'v2-legacyhash': { storyHash: 'v2-legacyhash', storyTitle: 'Quest for the Sun Ruins', engineState, extras: { updatedAt: new Date().toISOString() } } } }; await ctx.saveMetadata(); await globalThis.storyOrchestratorRuntime.loadSelectedFromChat(); const blob = ctx.chatMetadata.story_orchestrator; if (blob.version !== 3) throw new Error(`blob not migrated: version ${blob.version}`); if (blob.selectedStoryId !== 'sun-ruins') throw new Error(`legacy hash not rekeyed: ${blob.selectedStoryId}`); if (!blob.stories['sun-ruins'].pinnedStory) throw new Error('migration did not pin the story'); return { selectedStoryId: blob.selectedStoryId, keys: Object.keys(blob.stories) };" },
+        { "expect": { "storyId": "sun-ruins" } }
+      ]
+    },
+    {
+      "id": "J10.9",
+      "mode": "human",
+      "findings": ["U6"],
+      "prompt": "Reading the settings panel, was it clear which settings apply to every chat and which only to this one?",
+      "anchors": "1 = no idea · 3 = worked it out · 5 = obvious at a glance"
+    },
+    {
+      "id": "J10.10",
+      "mode": "human",
+      "findings": ["U6"],
+      "prompt": "The memory-model self-test: did its result tell you something you could act on?",
+      "anchors": "1 = meaningless · 3 = confirmed it works · 5 = told me exactly what this model can and cannot do"
+    }
+  ]
+}

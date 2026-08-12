@@ -16,6 +16,9 @@ export interface ExtractionFixtureSpec {
   window?: { from: number; to: number };
   canon?: string;
   blackboard?: BlackboardSnapshot;
+  openArcs?: string[];
+  epistemicLedgerCapable?: boolean;
+  entities?: string[];
 }
 
 export interface FixtureRun {
@@ -42,6 +45,9 @@ export function buildFixtureRun(spec: ExtractionFixtureSpec): FixtureRun {
     qualities: scope,
     window: { from, to, messages },
     canon,
+    ...(spec.openArcs ? { openArcs: spec.openArcs } : {}),
+    ...(spec.epistemicLedgerCapable ? { epistemicLedgerCapable: true } : {}),
+    ...(spec.entities ? { entities: spec.entities } : {}),
   });
   return { story, activeCheckpointId, scope, prompt };
 }
