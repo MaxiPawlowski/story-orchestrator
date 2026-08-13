@@ -1,5 +1,8 @@
 import { ARC_TEMPLATE_NAMES, GATE_OPERATORS, QUALITY_SOURCES, QUALITY_TYPES, TENSION_LEVELS, type StoryV2 } from "@engine/index";
+import type { ProvisioningEnvironment } from "@wizard/index";
 import type { CopilotMessage, CopilotStage, DriverContext } from "./types";
+
+export type WizardEnvironmentView = ProvisioningEnvironment;
 
 const SCHEMA_SUMMARY = [
   "Format-2 story vocabulary:",
@@ -37,24 +40,61 @@ const OP_GRAMMAR = [
   "setArcBridges and setRequirements replace the whole list — send the full intended set, never a fragment.",
 ].join("\n");
 
+const PROVISIONING_GRAMMAR = [
+  "Provisioning ops create the SillyTavern assets this story needs. They never modify anything that already exists:",
+  '  { "kind": "createCharacterCard", "name": string, "description": string, "personality"?: string, "scenario"?: string, "first_mes"?: string, "mes_example"?: string, "tags"?: string[] }',
+  '  { "kind": "createStoryLorebook", "name": string }',
+  '  { "kind": "upsertLorebookEntry", "lorebook": string, "comment": string, "keys": string[], "content": string, "constant"?: boolean }',
+  '  { "kind": "createGroup", "name": string, "members": string[] }',
+  "Order matters: create a card before a group that lists it, and the story lorebook before its entries.",
+  "Never name an existing character, an existing lorebook or an existing group — those ops are rejected.",
+  "upsertLorebookEntry may only target the story's own lorebook, never one of the user's other books.",
+  "Never propose creating or changing a persona: personas are the author's own.",
+].join("\n");
+
+// The interview (spec addendum §Story wizard). The failure mode this fixes is inventing specifics on
+// a thin premise, so asking is only allowed when the answer actually changes the proposal.
+const INTERVIEW_PROTOCOL = [
+  'Instead of proposing, you MAY interview the author first: { "summary": string, "questions": [{ "id": string, "text": string, "why"?: string, "options"?: string[] }] } with at most 3 questions and no "ops" key.',
+  "Ask only when the premise genuinely underdetermines this stage and a wrong guess would be wasted work. If you can proceed on reasonable defaults, propose instead of asking.",
+  "Offer concrete `options` where a small set of choices covers the space. The author may answer any question with \"you decide\" — then proceed under your own defaults and say in the summary which ones you picked.",
+  "Never ask the same question twice; the conversation above already contains every answer you were given.",
+].join("\n");
+
 const STAGE_INSTRUCTIONS: Record<CopilotStage, string> = {
   qualities: "Stage QUALITIES: propose the quality set that measures this story's dramatic state. Every quality needs a rubric question. Prefer extractor source unless the value is purely code-driven. Only emit setStoryField/addQuality/updateQuality/removeQuality ops.",
   checkpoints: "Stage CHECKPOINTS: propose anchor and intermediate checkpoints with objectives, tension targets, and state_snapshots for pivotal or latching qualities. Keep exactly one start checkpoint. Only emit addCheckpoint/updateCheckpoint/setStartCheckpoint/setCheckpointSnapshot ops.",
   transitions: "Stage TRANSITIONS: wire checkpoints toward their anchors with transitions, each carrying a gate over declared qualities and a progress effect toward the target anchor so the convergence threshold is reachable. Only emit addTransition/updateTransition/setTransitionGate ops.",
   effects: "Stage EFFECTS/CAST: propose checkpoint effects (author_note, world_info, cast_changes), the roster this story directs, what the chat must provide before it can run (requirements), the dramatic shape, and any thread bridges. Only emit setCheckpointEffects/addRosterMember/updateRosterMember/removeRosterMember/setRequirements/setArcTemplate/setArcBridges/setStoryField ops.",
+  provisioning: "Stage PROVISIONING: this story's requirements name people, lore and a group that may not exist on this install yet. Propose the create steps that close exactly that gap — one card per cast member the story directs, the story's own lorebook plus the entries the story leans on, and the group that plays it. Only emit createCharacterCard/createStoryLorebook/upsertLorebookEntry/createGroup ops. Propose nothing for assets the environment below already lists.",
+};
+
+const renderEnvironment = (environment?: WizardEnvironmentView): string => {
+  if (!environment) return "";
+  const list = (values: string[]) => (values.length ? values.join(", ") : "(none)");
+  return [
+    "This install already has (never create or edit these):",
+    `- characters: ${list(environment.characterNames)}`,
+    `- lorebooks: ${list(environment.lorebookNames)}`,
+    `- groups: ${list(environment.groupNames)}`,
+    `- this story's own lorebooks (entries may be written here): ${list(environment.storyLorebooks)}`,
+  ].join("\n");
 };
 
 const renderHistory = (history: CopilotMessage[]): string =>
   history.length ? `Conversation so far:\n${history.map((message) => `${message.role}: ${message.text}`).join("\n")}` : "";
 
-export const renderStagePrompt = (stage: CopilotStage, draft: StoryV2, message: string, history: CopilotMessage[]): string =>
+export const renderStagePrompt = (stage: CopilotStage, draft: StoryV2, message: string, history: CopilotMessage[], environment?: WizardEnvironmentView): string =>
   [
-    "You are a story-authoring copilot building a format-2 interactive story with the author.",
-    SCHEMA_SUMMARY,
-    OP_GRAMMAR,
+    "You are a story-setup wizard building a format-2 interactive story with the author, from premise to playable.",
+    stage === "provisioning" ? "" : SCHEMA_SUMMARY,
+    stage === "provisioning" ? PROVISIONING_GRAMMAR : OP_GRAMMAR,
+    stage === "provisioning" ? 'Return exact JSON only: { "summary": string, "ops": Op[] }. No prose outside the JSON.' : "",
+    INTERVIEW_PROTOCOL,
     STAGE_INSTRUCTIONS[stage],
     "Stay consistent with the current draft — reference existing ids, do not duplicate them.",
     `Current draft (JSON):\n${JSON.stringify(draft)}`,
+    renderEnvironment(stage === "provisioning" ? environment : undefined),
     renderHistory(history),
     message ? `Author: ${message}` : "",
     "Respond with the JSON object only.",

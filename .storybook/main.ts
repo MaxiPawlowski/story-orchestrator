@@ -31,6 +31,7 @@ const config: StorybookConfig = {
       "@memory": path.resolve(__dirname, "../src/memory"),
       "@copilot": path.resolve(__dirname, "../src/copilot"),
       "@talk": path.resolve(__dirname, "../src/talk"),
+      "@wizard": path.resolve(__dirname, "../src/wizard"),
     };
     cfg.resolve.fallback = {
       ...(cfg.resolve.fallback || {}),

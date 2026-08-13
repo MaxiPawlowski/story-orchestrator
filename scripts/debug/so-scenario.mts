@@ -8,7 +8,8 @@ import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { openMostRecentGroupChat, startNewGroupSession } from './st-navigation.mts';
 import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, sendUserMessage, swipeMessage, waitForIdle } from './st-actions.mts';
 import { dumpCurrentChatState } from './so-state.mts';
-import { assertPlayerClean, closeCheckpointStudio, getPipelineState, openCheckpointStudio, openExtensionSettings, openStoryDrawer, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot } from './so-ui.mts';
+import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, closeCheckpointStudio, getPipelineState, getWizardState, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot } from './so-ui.mts';
+import { listMarkedAssets, removeMarkedAssets } from './so-assets.mts';
 
 const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep]
 
@@ -16,11 +17,18 @@ Step keys:
   import_story, select_story, restart_story, studio_save, send, send_generate, slash, extract, expand, eval, copilot, ui, reload, swipe, edit, delete, wait, expect, expect_ui
 
 ui actions ({ui: {action, label?, note?}}):
-  open-drawer, drawer-tab, open-settings, select-profile, open-studio, close-studio, studio-tab, studio-save, flag, screenshot
+  open-drawer, drawer-tab, open-settings, select-profile, open-studio, close-studio, studio-tab, studio-save, flag, screenshot,
+  open-wizard, new-story-wizard, wizard-run ({stage?, message?}), wizard-answer ({answers?}), wizard-apply ({index?}), wizard-state
 
 copilot actions ({copilot: {action, ...}}):
-  stage ({draft, stage, message?, debug?} — throws if the proposal is invalid),
+  stage ({draft, stage, message?, debug?, expect?: "questions"|"ok"} — throws if the outcome is not what expect says),
+  provision ({op, debug?} — applies one provisioning op through the runtime; expectFail:true asserts create-only rejection),
+  environment (the provisioning environment the wizard sees),
   suggest ({debug?}), report ({debug?}), nudge ({text}), clear-nudge, probe ({debug?}), advance ({id})
+
+assets steps:
+  {assets: {action: "list"|"expect"|"remove"|"assert-clean", marker?, characters?, groups?, lorebooks?}} —
+  marker-scoped view of the ST assets a wizard run created; assert-clean is J9's leak assertion.
 
 expect verbs:
   storyId, storyIdentity ({id,playedVersion,libraryVersion,pinned,drifted}),
@@ -369,10 +377,20 @@ async function copilotStep(page, spec) {
     if (!runtime) throw new Error('storyOrchestratorRuntime not ready');
     const action = spec?.action;
     if (action === 'stage') {
-      const result = await runtime.runCopilotStage({ draft: spec.draft, stage: spec.stage, message: spec.message ?? '', history: spec.history ?? [] }, spec.debug);
-      if (result.status !== 'ok') throw new Error(`copilot stage failed: ${result.issues.join('; ')}`);
-      return { proposal: result.proposal, diagnostics: result.preview.diagnostics.length };
+      const result = await runtime.runCopilotStage({ draft: spec.draft, stage: spec.stage, message: spec.message ?? '', history: spec.history ?? [], environment: spec.environment }, spec.debug);
+      const wanted = spec.expect ?? 'ok';
+      if (result.status !== wanted) throw new Error(`copilot stage returned "${result.status}", expected "${wanted}": ${result.issues.join('; ') || result.questions.map((q) => q.text).join(' | ')}`);
+      return { status: result.status, proposal: result.proposal, questions: result.questions, diagnostics: result.preview.diagnostics.length };
     }
+    // Provisioning goes through the runtime, so create-only validation is exercised where it lives.
+    if (action === 'provision') {
+      const outcome = await runtime.applyProvisioning(spec.op, spec.draft);
+      if (spec.expectFail && outcome.ok) throw new Error(`provisioning was expected to be rejected but succeeded: ${outcome.message}`);
+      if (!spec.expectFail && !outcome.ok) throw new Error(`provisioning failed: ${outcome.message}`);
+      if (spec.messageContains && !String(outcome.message).includes(spec.messageContains)) throw new Error(`provisioning message "${outcome.message}" does not contain "${spec.messageContains}"`);
+      return outcome;
+    }
+    if (action === 'environment') return runtime.getProvisioningEnvironment(spec.draft);
     if (action === 'suggest') return { suggestions: await runtime.runCopilotSuggest(spec.debug) };
     if (action === 'report') return { report: await runtime.runCopilotReport(spec.debug) };
     if (action === 'nudge') { runtime.setCopilotNudge(spec.text ?? '', spec.depth ?? 1); return { activeNudge: runtime.getActiveNudge() }; }
@@ -409,6 +427,12 @@ async function uiStep(page, spec) {
   if (action === 'close-studio') return closeCheckpointStudio(page);
   if (action === 'studio-tab') return switchStudioTab(page, label);
   if (action === 'studio-save') return saveStudioDraft(page, (typeof spec === 'object' ? spec?.choice : null) ?? null);
+  if (action === 'open-wizard') return openWizard(page);
+  if (action === 'new-story-wizard') return openWizard(page, { newStory: true });
+  if (action === 'wizard-state') return getWizardState(page);
+  if (action === 'wizard-run') return runWizardStage(page, { stage: spec?.stage ?? null, message: spec?.message ?? '', timeoutMs: spec?.timeoutMs });
+  if (action === 'wizard-answer') return answerWizardQuestions(page, spec?.answers ?? null, { timeoutMs: spec?.timeoutMs });
+  if (action === 'wizard-apply') return applyWizardProvisioning(page, spec?.index ?? 0, { timeoutMs: spec?.timeoutMs });
   if (action === 'screenshot') return takeAnnotatedScreenshot(page, label ?? 'so-scenario');
   if (action === 'pipeline') return getPipelineState(page);
   if (action === 'assert-player-clean') {
@@ -427,6 +451,36 @@ async function uiStep(page, spec) {
     return { flagged: true, note };
   }
   throw new Error(`Unknown ui action: ${action}`);
+}
+
+// The wizard writes to the user's real install, so a journey that creates assets must be able to
+// prove it cleaned up after itself. Only marker-prefixed assets are ever in scope.
+async function assetsStep(page, spec) {
+  const action = typeof spec === 'string' ? spec : spec?.action ?? 'list';
+  const marker = (typeof spec === 'object' ? spec?.marker : null) ?? undefined;
+  if (action === 'remove') {
+    const result = await removeMarkedAssets(page, marker);
+    if (!result.clean) throw new Error(`assets leaked after cleanup: ${JSON.stringify(result.leaked)}`);
+    return result;
+  }
+  const found = await listMarkedAssets(page, marker);
+  if (action === 'assert-clean' && found.characters.length + found.groups.length + found.lorebooks.length > 0) {
+    throw new Error(`assets leaked: ${JSON.stringify(found)}`);
+  }
+  if (action === 'expect' && typeof spec === 'object') {
+    for (const name of spec.characters ?? []) if (!found.characters.some((entry) => entry.name === name)) throw new Error(`expected a character named "${name}"`);
+    for (const name of spec.groups ?? []) if (!found.groups.some((entry) => entry.name === name)) throw new Error(`expected a group named "${name}"`);
+    for (const name of spec.lorebooks ?? []) if (!found.lorebooks.includes(name)) throw new Error(`expected a lorebook named "${name}"`);
+    // Counts, not names: the model chooses the names, so proving the host seam really wrote is what
+    // matters. `assets: {action: "list"}` in the artifact records exactly what it created.
+    const atLeast = (kind: string, actual: number, wanted: unknown) => {
+      if (typeof wanted === 'number' && actual < wanted) throw new Error(`expected at least ${wanted} created ${kind}, got ${actual}: ${JSON.stringify(found)}`);
+    };
+    atLeast('characters', found.characters.length, spec.minCharacters);
+    atLeast('groups', found.groups.length, spec.minGroups);
+    atLeast('lorebooks', found.lorebooks.length, spec.minLorebooks);
+  }
+  return found;
 }
 
 async function readUiText(page, selector) {
@@ -509,6 +563,7 @@ async function runStep(page, key, value, { scenarioDir = PROJECT_ROOT, importedH
   if (key === 'eval') return evalStep(page, value);
   if (key === 'copilot') return copilotStep(page, value);
   if (key === 'ui') return uiStep(page, value);
+  if (key === 'assets') return assetsStep(page, value);
   if (key === 'reload') return reloadStep(page, value);
   if (key === 'swipe') return swipeMessage(page, value.messageId, value.swipeId ?? null);
   if (key === 'edit') return editMessage(page, value.messageId, value.text);

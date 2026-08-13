@@ -189,6 +189,124 @@ export async function saveStudioDraft(page, choice = null) {
   });
 }
 
+// The wizard, driven the way an author drives it: the Studio's Wizard tab, the question cards and
+// the per-op "Create it" buttons. Never the store — the review step is the feature.
+export async function openWizard(page, { newStory = false } = {}) {
+  if (newStory) {
+    await openExtensionSettings(page);
+    const button = page.locator('#so-new-story-wizard');
+    if (!(await button.count())) throw new Error('"New story (wizard)" button (#so-new-story-wizard) not found.');
+    await button.click();
+    await answerStudioPopup(page, '.popup-button-ok');
+    await page.locator('#so-studio-modal').waitFor({ state: 'visible', timeout: 10000 });
+  } else {
+    await openCheckpointStudio(page);
+    await switchStudioTab(page, 'Wizard');
+  }
+  await page.locator('#so-wizard').waitFor({ state: 'visible', timeout: 10000 });
+  return getWizardState(page);
+}
+
+export async function getWizardState(page) {
+  return evaluateInST(page, () => {
+    const root = document.getElementById('so-wizard');
+    if (!root) return { open: false };
+    const questions = Array.from(root.querySelectorAll('#so-wizard-questions label[for^="so-wizard-answer-"]')).map((label) => (label as HTMLElement).innerText.trim());
+    const provisioning = Array.from(root.querySelectorAll('[data-so="provisioning-card"]')).map((card) => ({
+      label: card.getAttribute('aria-label') ?? '',
+      applied: (card.querySelector('[data-so="provisioning-apply"]') as HTMLButtonElement | null)?.textContent?.trim() === 'Created',
+      blocked: Boolean((card.querySelector('[data-so="provisioning-apply"]') as HTMLButtonElement | null)?.disabled),
+      error: card.querySelector('[role="alert"]')?.textContent?.trim() ?? null,
+      status: card.querySelector('[role="status"]')?.textContent?.trim() ?? null,
+    }));
+    const stage = Array.from(root.querySelectorAll('[aria-pressed="true"]')).map((button) => button.textContent?.trim())[0] ?? null;
+    return {
+      open: true,
+      stage,
+      questions,
+      provisioning,
+      created: document.getElementById('so-wizard-created')?.textContent?.trim() ?? null,
+      turns: root.querySelectorAll('[aria-label="Copilot conversation"] li').length,
+      error: root.querySelector('[role="alert"]')?.textContent?.trim() ?? null,
+    };
+  });
+}
+
+// React commits "Working…" a tick after the click, so waiting only for it to *clear* can return
+// before the model has even been called. Wait for it to appear first (tolerating a call that
+// resolves instantly), then for it to go.
+async function waitForWizardIdle(page, timeoutMs) {
+  await page.waitForFunction(() => document.getElementById('so-wizard-run')?.textContent?.trim() === 'Working…', null, { timeout: 5000 }).catch(() => undefined);
+  await page.waitForFunction(() => document.getElementById('so-wizard-run')?.textContent?.trim() !== 'Working…', null, { timeout: timeoutMs });
+}
+
+export async function runWizardStage(page, { stage = null, message = '', timeoutMs = 120000 } = {}) {
+  if (stage) await page.locator('#so-wizard button', { hasText: stage }).first().click();
+  if (message) await page.locator('#so-wizard-message').fill(message);
+  await page.locator('#so-wizard-run').click();
+  await waitForWizardIdle(page, timeoutMs);
+  return getWizardState(page);
+}
+
+// `answers` maps question index -> text; an empty value is "you decide". Passing none clicks the
+// explicit "You decide" button, which is the path that must always proceed.
+export async function answerWizardQuestions(page, answers = null, { timeoutMs = 120000 } = {}) {
+  const block = page.locator('#so-wizard-questions');
+  if (!(await block.count())) throw new Error('The wizard is not asking anything (#so-wizard-questions absent).');
+  if (answers) {
+    const inputs = block.locator('input[id^="so-wizard-answer-"]');
+    const count = await inputs.count();
+    for (let index = 0; index < count; index += 1) {
+      const text = answers[index] ?? answers[String(index)];
+      if (text) await inputs.nth(index).fill(String(text));
+    }
+    await page.locator('#so-wizard-answer').click();
+  } else {
+    await page.locator('#so-wizard-you-decide').click();
+  }
+  await waitForWizardIdle(page, timeoutMs);
+  return getWizardState(page);
+}
+
+// `index: "all"` walks every still-pending card in order — the honest way to prove all three host
+// seams really wrote to SillyTavern, while a single index proves the per-op rule.
+export async function applyWizardProvisioning(page, index: number | 'all' = 0, { timeoutMs = 60000 } = {}) {
+  if (index === 'all') {
+    const total = await page.locator('#so-wizard [data-so="provisioning-card"]').count();
+    if (!total) throw new Error('No provisioning cards on screen.');
+    let state = await getWizardState(page);
+    for (let position = 0; position < total; position += 1) {
+      if (state.provisioning?.[position]?.applied) continue;
+      state = await applyWizardProvisioning(page, position, { timeoutMs });
+    }
+    return state;
+  }
+  const cards = page.locator('#so-wizard [data-so="provisioning-card"]');
+  if (!(await cards.count())) throw new Error('No provisioning cards on screen.');
+  const button = cards.nth(index).locator('[data-so="provisioning-apply"]');
+  if (await button.isDisabled()) {
+    const state = await getWizardState(page);
+    throw new Error(`Provisioning step ${index} is blocked: ${state.provisioning?.[index]?.error ?? 'unknown reason'}`);
+  }
+  await button.click();
+  await page.waitForFunction((target) => {
+    const card = document.querySelectorAll('#so-wizard [data-so="provisioning-card"]')[target];
+    const apply = card?.querySelector('[data-so="provisioning-apply"]') as HTMLButtonElement | null;
+    return apply?.textContent?.trim() === 'Creating…';
+  }, index, { timeout: 5000 }).catch(() => undefined);
+  await page.waitForFunction((target) => {
+    const card = document.querySelectorAll('#so-wizard [data-so="provisioning-card"]')[target];
+    const apply = card?.querySelector('[data-so="provisioning-apply"]') as HTMLButtonElement | null;
+    return apply?.textContent?.trim() !== 'Creating…';
+  }, index, { timeout: timeoutMs });
+  const state = await getWizardState(page);
+  const card = state.provisioning?.[index];
+  // A provisioning step that came back with an error is a failed step, not a completed one: the
+  // verb says so rather than leaving the caller to notice the wording on a button.
+  if (card && !card.applied) throw new Error(`Provisioning step ${index} did not apply: ${card.status ?? card.error ?? 'no result reported'}`);
+  return state;
+}
+
 export async function getStudioState(page) {
   const modal = page.locator('#so-studio-modal');
   if (!(await modal.count())) {
@@ -376,7 +494,7 @@ export async function openStoryDrawer(page) {
   return { alreadyOpen: false };
 }
 
-const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|assert-player-clean|screenshot> [label]
+const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|screenshot> [label]
 
 all: print settings + drawer state.
 settings: print settings panel state.
@@ -390,6 +508,12 @@ studio-save [keep|restart|cancel]: click Save and answer the invalidation popup 
 drawer-tab <Overview|Memory|Blackboard|Scheduler|Payload>: switch the drawer tab.
 pipeline: print the pipeline state (snapshot + status line + HUD chip).
 assert-player-clean: walk the player-mode drawer and fail on anything the spoiler checklist forbids.
+wizard: print the wizard state (stage, pending questions, provisioning cards, created assets).
+open-wizard: open the Studio on the Wizard tab for the story this chat plays.
+new-story-wizard: click "New story (wizard)" in the settings panel (fresh draft).
+wizard-run [stage] [message]: run a wizard stage through the UI and wait for the model.
+wizard-answer [a1|a2|a3]: answer the pending questions ('|' separated); no argument clicks "You decide".
+wizard-apply [index]: click "Create it" on one provisioning card (default 0).
 screenshot [label]: take an annotated screenshot.`;
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
@@ -472,6 +596,36 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       console.log(JSON.stringify(result, null, 2));
       await writeJSON(result, 'so-ui-player-clean');
       if (!result.ok) throw new Error(`player surface leaks: ${result.findings.map((finding) => `${finding.tab}:${finding.needle}`).join(', ')}`);
+    }
+
+    if (subcommand === 'wizard') {
+      const state = await getWizardState(page);
+      console.log(JSON.stringify(state, null, 2));
+      await writeJSON(state, 'so-ui-wizard');
+    }
+
+    if (subcommand === 'open-wizard' || subcommand === 'new-story-wizard') {
+      const state = await openWizard(page, { newStory: subcommand === 'new-story-wizard' });
+      console.log(JSON.stringify(state, null, 2));
+    }
+
+    if (subcommand === 'wizard-run') {
+      const state = await runWizardStage(page, { stage: process.argv[3] ?? null, message: process.argv[4] ?? '' });
+      console.log(JSON.stringify(state, null, 2));
+      await writeJSON(state, 'so-ui-wizard-run');
+    }
+
+    if (subcommand === 'wizard-answer') {
+      const raw = process.argv[3];
+      const state = await answerWizardQuestions(page, raw ? raw.split('|') : null);
+      console.log(JSON.stringify(state, null, 2));
+      await writeJSON(state, 'so-ui-wizard-answer');
+    }
+
+    if (subcommand === 'wizard-apply') {
+      const state = await applyWizardProvisioning(page, Number(process.argv[3] ?? 0));
+      console.log(JSON.stringify(state, null, 2));
+      await writeJSON(state, 'so-ui-wizard-apply');
     }
 
     if (subcommand === 'screenshot') {

@@ -18,14 +18,14 @@ Driver commands (operate on the loaded story via storyOrchestratorRuntime):
   advance <checkpointId>           Manually activate a checkpoint (applies its effects)
 
 Authoring command (operates on the current Studio draft store):
-  stage <qualities|checkpoints|transitions|effects> [--message <text>] [--debug <json|@file>]
+  stage <qualities|checkpoints|transitions|effects|provisioning> [--message <text>] [--debug <json|@file>]
                                    Run an authoring stage; prints the proposal ops + diagnostics count
 
 Notes:
   --debug takes inline JSON or @path (mocks the LLM; omit for a real-LLM run).
   'stage' needs the Studio draft store — open the Studio at least once so the draft is initialized.`;
 
-const STAGES = ['qualities', 'checkpoints', 'transitions', 'effects'];
+const STAGES = ['qualities', 'checkpoints', 'transitions', 'effects', 'provisioning'];
 
 async function readDebug(value) {
   if (!value) return null;
@@ -85,7 +85,7 @@ async function runCopilotCommand(page, args) {
       if (!store) throw new Error('Studio draft store not ready — open the Studio once');
       const draft = store.getState().draft;
       const result = await globalThis.storyOrchestratorRuntime.runCopilotStage({ draft, stage, message, history: [] }, debug ?? undefined);
-      return { status: result.status, issues: result.issues, ops: result.proposal.ops, summary: result.proposal.summary, diagnostics: result.preview.diagnostics.length };
+      return { status: result.status, issues: result.issues, questions: result.questions, ops: result.proposal.ops, summary: result.proposal.summary, diagnostics: result.preview.diagnostics.length };
     }, { stage, message, debug });
   }
   throw new Error(`Unknown command: ${command}`);

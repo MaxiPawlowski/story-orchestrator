@@ -24,8 +24,13 @@ src/
                              # canon, epistemic, ledger, injection (pure except inject.ts)
   generation/               # background beat expansion + critic
   copilot/                  # authoring + in-play driver over the studio mutation API
+                            #   stages: qualities, checkpoints, transitions, effects, provisioning;
+                            #   a stage may answer with `questions` instead of ops (the interview)
+  wizard/                   # pure wizard core: provisioning ops, create-only validation,
+                            #   environment fold, interview/session helpers
   studio/                   # Checkpoint Studio v2 (zustand draft, typed mutations, diagnostics)
-                            #   tabs: Graph, Story, Qualities, Checkpoints, Transitions, Roster, Diagnostics
+                            #   tabs: Graph, Story, Qualities, Checkpoints, Transitions, Roster,
+                            #   Diagnostics, Wizard (interview + staged proposals + provisioning cards)
   runtime/                  # ST-facing coordination
     index.ts                # bootstrap, scheduler wiring, TurnBridge, event subscriptions
     runtimeManager.ts       # lifecycle, boundary commit, persistence boundary, event fan-out, delegation
@@ -33,7 +38,7 @@ src/
       memoryCoordinator.ts      # extras.memory: tiers, arcs, canon, epistemic, ledger, consolidation, WI, injection
       extractionCoordinator.ts  # extras.extraction: audit pipeline, scene/short-term/epistemic passes, memorize backlog
       expansionCoordinator.ts   # extras.expansion: beat cache, generation, staleness revalidation
-      copilotCoordinator.ts     # authoring stages, driver read-model, one-turn nudge
+      copilotCoordinator.ts     # authoring stages, wizard provisioning + environment, driver read-model, nudge
       pacingCoordinator.ts      # tension EMA (pending + committed), steering hint
     boundaryWork.ts         # declarative registry of everything a committed boundary schedules
     snapshotBuilder.ts      # composes the one RuntimeSnapshot the UI subscribes to
@@ -49,6 +54,7 @@ src/
     pipeline.ts             # derived working/reading/stalled/idle/not-configured/error signal
     storyUpdate.ts          # the author's save applied to this chat: diff, choice popup, swap, re-pin
     values.ts               # typed text -> PrimitiveValue (author input paths)
+    wizardSessions.ts       # wizard conversation/stage/created-asset ledger, install-wide
     macros.ts slashCommands.ts awayRecap.ts liveSuite.ts
   components/
     studio/                 # 6 reused presentational primitives
@@ -57,6 +63,7 @@ src/
   services/
     STAPI.ts                # the ONLY import surface for host modules
     stHost/*                # one host wrapper per concern (dynamic webpackIgnore imports)
+                            #   provisioning.ts: character + group creation; worldInfo.ts: lorebook creation
   constants/ utils/
 ```
 
@@ -94,6 +101,14 @@ src/
   diffed against live engine state, applied silently when compatible, and put to the author as
   keep / restart / cancel when it invalidates something the run holds. Keeping drops exactly the
   orphaned values and re-pins; every other chat keeps playing what it started with.
+- The wizard may create SillyTavern assets, and it may only ever *create*. `wizard/provisioning.ts`
+  is the single decision point — the review card and `copilotCoordinator.applyProvisioning` both
+  call it, so an op naming an existing character, a foreign lorebook or an existing group is
+  rejected regardless of what the model asked for. Provisioning ops ride the `ProposalOp` union for
+  one grammar and one audit path, but `applyOp` ignores them and `diffProposal` keeps them out of
+  the bulk-accept list: each is edited and applied on its own. What a created asset leaves in the
+  story is an ordinary `setRequirements`/`addRosterMember` mutation, so the requirements panel goes
+  green from evidence rather than from optimism. Personas are never provisioned.
 - Boundary counters are not ST message indexes; snapshots/logs record `{lastMessageId,
   chatLength}`.
 - Pending queue writes are not persisted; a reload drops them and reconciliation recovers.
@@ -172,9 +187,16 @@ already skips unchanged content.
   and `promptExcludes` (e.g. proving a latched quality is never asked about).
 - Studio diagnostics include `quality-never-in-scope` (warning): an extractor quality in no gate
   or `state_snapshot` never enters extraction scope, so the extractor is never asked about it.
+- **Wizard runs are driven through the UI, not the store**: `so-ui.mts open-wizard | new-story-wizard |
+  wizard-run | wizard-answer | wizard-apply | wizard` (also `ui` actions in scenarios and journeys),
+  because the review step is the feature under test. A wizard journey creates real assets in the
+  user's install, so `scripts/debug/so-assets.mts list|remove|assert-clean --marker <prefix>` scopes
+  cleanup to the marker plus the wizard's own created-asset ledger, and `cleanup.removeCreatedAssets`
+  runs in the runner's `finally` and re-checks for leaks. J9 fails on a leaked asset.
 
 ## Packaging
 
 `manifest.json` loads the gitignored `dist/index.js` produced by `npm run build`. The
-`generate_interceptor` (`talkControlInterceptor`) is a retained no-op stub for manifest
-compatibility; it performs no interception.
+`generate_interceptor` (`talkControlInterceptor`) is the live speaker-direction enforcement point,
+assigned once inside `startRuntime()` (plan 14) — never re-assigned after startup, which silently
+disabled the feature once.

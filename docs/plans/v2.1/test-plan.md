@@ -42,6 +42,13 @@ node scripts/debug/so-journey.mts run J3
   ui action); `expect: {storyVersion: {played, library, drifted}}` and
   `expect: {hotSwap: {applied, classification, choice, dropped, boundaryAtLeast}}` assert what the update
   did to the run.
+- Wizard verbs (plan 06): `so-ui.mts wizard | open-wizard | new-story-wizard | wizard-run [stage] [message] |
+  wizard-answer [a1|a2|a3] | wizard-apply [index]` drive the wizard through the real UI (the review step is
+  the feature, so nothing here writes the draft store); the same names are `ui` actions in scenarios and
+  journeys. `copilot: {action: "provision", op, expectFail?, messageContains?}` exercises one provisioning
+  op through the runtime — which is where create-only lives — and `copilot: {action: "stage", expect:
+  "questions"}` asserts the interview variant. `assets: {action: "list"|"expect"|"remove"|"assert-clean",
+  marker}` is the asset ledger (`so-assets.mts`).
 - Cleanup restores group members **after** `/delchat` and reports the resulting `disabledMembers` —
   enabling them while the sandbox chat is open is silently undone (plan 04 live finding).
 - Artifacts per run: `.debug/journey-<id>.md` (matrix + human checklist) and a timestamped
@@ -74,8 +81,8 @@ arrive. The operator records scores in the plan's Gate record.
 | J6 | mutation-storm | Edit/delete around a boundary; rollback correct and comprehensible | 4 | 1 | Deterministic (`extract` with a debug response for the latch only) |
 | J7 | long-haul | Full sun-ruins play-through to the finale; success-criteria hooks | 8 | 2 | **Expensive** — plan 01 (baseline) and plans 07/08 (acceptance) only |
 | J10 | identity-and-settings | Story identity, pinning, settings homes, migration, Restart | 8 | 2 | Plan 02's gate journey |
+| J9 | wizard | Premise → interview → staged proposals → provisioned ST assets → playable story | 5 | 2 | Plan 06's gate journey. **Writes real ST assets** — every one is marked `SO-J9` and deleted in cleanup |
 | J8 | stagecraft | *Reserved — defined by plan 07* | 3 | 1 | `not-runnable` until then |
-| J9 | wizard | *Reserved — defined by plan 06* | 4 | 1 | `not-runnable` until then |
 
 ## Checks
 
@@ -188,15 +195,34 @@ register), so plan 08's Evidence column writes itself.
 | J10.9 | human | U6 | "Was it clear which settings apply to every chat and which only to this one?" |
 | J10.10 | human | U6 | "Did the memory-model self-test tell you something you could act on?" |
 
+### J9 wizard
+
+| Check | Mode | Findings | What it proves |
+|---|---|---|---|
+| J9.1 | auto | D3 U6 | The wizard interviews before proposing (≤3 in-protocol questions), and "You decide" always proceeds to a valid proposal (`requires: wizard-interview, wizard-entry-points`) |
+| J9.2 | auto | D3 | Create-only is enforced in op validation, not the prompt: an existing character, a non-story lorebook, a duplicate group name and an unknown cast member are all rejected, and nothing is created (`requires: wizard-provisioning`) |
+| J9.3 | auto | D3 | Every provisioning step is its own editable card, applied one at a time, and "Accept all" cannot reach them |
+| J9.4 | auto | U6 | "Fix with wizard" opens the provisioning stage pre-filled from the unmet requirements |
+| J9.5 | auto | D3 U6 | The provisioned story is playable: requirements go green and a real transition fires from real play |
+| J9.6 | human | D3 | "Starting from a one-line premise, did the wizard get you to a story you actually wanted to play?" |
+| J9.7 | human | D3 U6 | "When it offered to create characters, lore and a group, did you trust what it was about to do?" |
+
+**Asset-leak safety.** J9 writes to the user's real install, so cleanup is load-bearing rather than
+hygiene. Every asset it asks for is named with the `SO-J9` prefix, and `so-assets.mts` scopes both
+listing and deletion to that marker **plus** whatever the wizard recorded as created in its own
+session (`extensionSettings["story-orchestrator"].wizardSessions[].applied`) — the second source
+catches a model that drifted off the prescribed name. `cleanup.removeCreatedAssets` runs in the
+runner's `finally`, so a failed check still cleans up, and it re-lists afterwards: anything left is
+reported as a leak and fails the run. Pre-existing user assets are never in scope.
+
+```bash
+node scripts/debug/so-assets.mts assert-clean --marker SO-J9
+```
+
 ### J8 stagecraft *(reserved — plan 07)*
 
 Background effect; WI curator proposing off-path; every curator action audited in the journal and
 never writing the blackboard or memory tiers; human: "did the stage keep up with the story?"
-
-### J9 wizard *(reserved — plan 06)*
-
-Interview before proposing; create-only provisioning enforced in op validation; per-op review;
-"Fix with wizard" from the requirements panel; human: "did it get you to a story you wanted to play?"
 
 ## Spoiler checklist (player mode) — v2 (plan 04)
 
@@ -216,6 +242,9 @@ that adds a player-visible element adds a row here.
 | Memory curation of established facts (pin / edit / exclude, evidence tooltip), Memorize chat | player | drawer Memory tab |
 | ⚑ flag moment, display toggles, Restart story (`#so-restart-story-drawer`) | both | drawer Overview footer, settings panel |
 | "Edit story" (opens Studio on this chat's story) and "Update to v*N*" (takes a newer library version) | author | drawer Overview footer (`#so-edit-story`, `#so-update-story`) |
+| "Fix with wizard" on the unmet-requirements panel | author | drawer Overview author view (`#so-fix-with-wizard`) |
+| The wizard itself — stages, interview question cards, proposals, provisioning cards, "created so far" | author | Studio Wizard tab (`#so-wizard`, `#so-wizard-questions`, `[data-so="provisioning-card"]`, `#so-wizard-created`) |
+| "New story (wizard)" and "Start with the wizard" entry points | author | settings panel (`#so-new-story-wizard`), Studio empty state (`#so-start-wizard`) |
 | Story-update choice popup (keep playing / restart / cancel) — only ever raised by the author's own save | author | plan-05 invalidation flow |
 | Superseded / folded memory entries, importance · expiration · recall counts, last audit id | author | drawer Memory tab (author view) |
 | Arc bookkeeping (pin/remove/resolved), epistemic map (esp. `hiding from`), state ledger | author | drawer Memory tab (author view) |

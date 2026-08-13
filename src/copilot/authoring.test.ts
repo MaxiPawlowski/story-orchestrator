@@ -42,6 +42,57 @@ describe("runAuthoringStage", () => {
     expect(result.issues.length).toBeGreaterThan(0);
     expect(result.audit.repairResponse).toBeDefined();
   });
+
+  it("returns the interview instead of a proposal, without spending a repair pass", async () => {
+    const result = await runAuthoringStage(
+      { draft: baseDraft(), stage: "qualities", message: "a heist, but make it strange", history: [] },
+      { profileId: null, debugResponse: JSON.stringify({ summary: "Two calls to make.", questions: [{ id: "tone", text: "Comic or grim?", options: ["comic", "grim"] }] }) },
+    );
+    expect(result.status).toBe("questions");
+    expect(result.questions).toHaveLength(1);
+    expect(result.issues).toEqual([]);
+    expect(result.audit.repairResponse).toBeUndefined();
+  });
+
+  it("fails a provisioning proposal that names an asset the install already has", async () => {
+    const result = await runAuthoringStage(
+      {
+        draft: baseDraft(),
+        stage: "provisioning",
+        message: "",
+        history: [],
+        environment: { characterNames: ["Arin"], lorebookNames: [], groupNames: [], storyLorebooks: [] },
+      },
+      { profileId: null, debugResponse: JSON.stringify({ summary: "", ops: [{ kind: "createCharacterCard", name: "Arin", description: "A guide." }] }) },
+    );
+    expect(result.status).toBe("failed");
+    expect(result.issues.join(" ")).toContain("never edits yours");
+    expect(result.audit.repairResponse).toBeDefined();
+  });
+
+  it("accepts a provisioning proposal that only creates what is missing", async () => {
+    const result = await runAuthoringStage(
+      {
+        draft: baseDraft(),
+        stage: "provisioning",
+        message: "",
+        history: [],
+        environment: { characterNames: [], lorebookNames: [], groupNames: [], storyLorebooks: [] },
+      },
+      {
+        profileId: null,
+        debugResponse: JSON.stringify({
+          summary: "Two steps.",
+          ops: [
+            { kind: "createCharacterCard", name: "Arin", description: "A guide." },
+            { kind: "createGroup", name: "Vault Crew", members: ["Arin"] },
+          ],
+        }),
+      },
+    );
+    expect(result.status).toBe("ok");
+    expect(result.proposal.ops.map((op) => op.kind)).toEqual(["createCharacterCard", "createGroup"]);
+  });
 });
 
 describe("driver passes", () => {

@@ -77,6 +77,68 @@ describe("parseProposal", () => {
     const { issues } = parseProposal(JSON.stringify({ summary: "hi" }));
     expect(issues).toContain("ops: required array");
   });
+
+  it("reads the interview variant as questions, not as a malformed proposal", () => {
+    const { proposal, issues, questions } = parseProposal(JSON.stringify({
+      summary: "Two things would change the shape of this.",
+      questions: [
+        { id: "antagonist", text: "Who opposes the party?", why: "it decides the mid-story gates", options: ["a rival", "the ruins themselves"] },
+        "How does it end?",
+      ],
+    }));
+    expect(issues).toEqual([]);
+    expect(proposal.ops).toEqual([]);
+    expect(questions).toEqual([
+      { id: "antagonist", text: "Who opposes the party?", why: "it decides the mid-story gates", options: ["a rival", "the ruins themselves"] },
+      { id: "q2", text: "How does it end?" },
+    ]);
+  });
+
+  it("caps the interview at three questions and drops empty ones", () => {
+    const { questions } = parseProposal(JSON.stringify({ questions: ["a", "b", "c", "d", "   "] }));
+    expect(questions.map((question) => question.text)).toEqual(["a", "b", "c"]);
+  });
+
+  it("prefers ops over questions when the model sends both", () => {
+    const { proposal, questions } = parseProposal(JSON.stringify({
+      questions: ["Should I really?"],
+      ops: [{ kind: "addQuality", quality: { key: "trust", type: "bool", source: "extractor", rubric: "Does the guide trust the party?" } }],
+    }));
+    expect(proposal.ops).toHaveLength(1);
+    expect(questions).toEqual([]);
+  });
+
+  it("parses every provisioning op kind", () => {
+    const { proposal, issues } = parseProposal(JSON.stringify({
+      summary: "provision the install",
+      ops: [
+        { kind: "createCharacterCard", name: "Arin", description: "A guide.", first_mes: "You came.", tags: "guide, sun-ruins" },
+        { kind: "createStoryLorebook", name: "Sun Ruins Lore" },
+        { kind: "upsertLorebookEntry", lorebook: "Sun Ruins Lore", comment: "The ruins", keys: ["ruins", "sun"], content: "Sunken halls.", constant: true },
+        { kind: "createGroup", name: "Sun Ruins Party", members: ["Arin"] },
+      ],
+    }));
+    expect(issues).toEqual([]);
+    expect(proposal.ops).toEqual([
+      { kind: "createCharacterCard", name: "Arin", description: "A guide.", first_mes: "You came.", tags: ["guide", "sun-ruins"] },
+      { kind: "createStoryLorebook", name: "Sun Ruins Lore" },
+      { kind: "upsertLorebookEntry", lorebook: "Sun Ruins Lore", comment: "The ruins", content: "Sunken halls.", keys: ["ruins", "sun"], constant: true },
+      { kind: "createGroup", name: "Sun Ruins Party", members: ["Arin"] },
+    ]);
+  });
+
+  it("rejects provisioning ops missing what the host needs", () => {
+    const { proposal, issues } = parseProposal(JSON.stringify({
+      summary: "",
+      ops: [
+        { kind: "createCharacterCard", name: "Arin" },
+        { kind: "createGroup", name: "Party", members: [] },
+      ],
+    }));
+    expect(proposal.ops).toEqual([]);
+    expect(issues.some((issue) => issue.includes("ops.0.description"))).toBe(true);
+    expect(issues.some((issue) => issue.includes("ops.1.members"))).toBe(true);
+  });
 });
 
 describe("parseSuggestions", () => {

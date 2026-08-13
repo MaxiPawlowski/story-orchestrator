@@ -1,0 +1,41 @@
+{
+  "format": 2,
+  "id": "so-j9-wizard",
+  "version": 1,
+  "title": "SO-J9 Courier Run",
+  "description": "Journey J9 wizard fixture: a two-anchor story whose only unmet requirement is a lorebook the wizard can create.",
+  "requirements": {
+    "lorebooks": ["SO-J9 Lore"]
+  },
+  "qualities": [
+    { "key": "reached_bridge", "type": "bool", "source": "extractor", "rubric": "Has the courier reached or climbed onto the broken bridge?" }
+  ],
+  "checkpoints": [
+    {
+      "id": "wharf",
+      "name": "The Drowned Wharf",
+      "objective": "Set out from the wharf across the flooded city.",
+      "type": "anchor",
+      "start": true,
+      "tension_target": "calm"
+    },
+    {
+      "id": "bridge",
+      "name": "The Broken Bridge",
+      "objective": "Cross where the water runs fastest.",
+      "type": "anchor",
+      "tension_target": "tense",
+      "convergence_threshold": 1
+    }
+  ],
+  "transitions": [
+    {
+      "from": "wharf",
+      "to": "bridge",
+      "gate": { "q": "reached_bridge", "op": "==", "v": true },
+      "priority": 0,
+      "effects": { "progress": { "anchor": "bridge", "amount": 1 } }
+    }
+  ],
+  "roster": []
+}

@@ -9,6 +9,7 @@ import { closeUnpinnedDrawers, openGroup, openMostRecentGroupChat, startNewGroup
 import { executeSlashCommand } from './st-actions.mts';
 import { runSteps } from './so-scenario.mts';
 import { selectMemoryProfile } from './so-ui.mts';
+import { removeMarkedAssets } from './so-assets.mts';
 import { wipeChatMeta } from './so-library.mts';
 
 const JOURNEY_DIR = resolve(PROJECT_ROOT, 'test/journeys');
@@ -191,6 +192,12 @@ async function runCleanup(page, journey, { importedHashes, libraryBefore, config
   const cleanup = journey.cleanup ?? {};
   const report: Record<string, unknown> = {};
   if (keep) return { kept: true };
+  // Assets go FIRST: the wizard's created-asset ledger lives in extension settings, and restoring
+  // the config snapshot would wipe the very record cleanup uses to catch a renamed asset (plan 06).
+  if (cleanup.removeCreatedAssets) {
+    const marker = typeof cleanup.removeCreatedAssets === 'string' ? cleanup.removeCreatedAssets : undefined;
+    report.assets = await removeMarkedAssets(page, marker).catch((error) => ({ error: error.message }));
+  }
   if (configSnapshot && allowConfig && cleanup.restoreConfig !== false) {
     report.config = await restoreGlobalConfig(page).catch((error) => ({ error: error.message }));
   }

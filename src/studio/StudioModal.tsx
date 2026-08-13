@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { listGlobalLorebooks, listGroupMembers, listPersonas, showConfirmPopup } from "@services/STAPI";
-import type { AuthoringStageInput, ProposalResult } from "@copilot/index";
+import type { AuthoringStageInput, CopilotStage, ProposalResult } from "@copilot/index";
 import { useDraftStore } from "./draft";
 import { setStoryField } from "./mutations";
 import QualityEditor from "./components/QualityEditor";
@@ -11,10 +11,16 @@ import DiagnosticsPanel from "./components/DiagnosticsPanel";
 import RosterEditor from "./components/RosterEditor";
 import StoryEditor from "./components/StoryEditor";
 import StudioGraph from "./components/StudioGraph";
-import StudioCopilot from "./components/StudioCopilot";
+import StudioCopilot, { type WizardHost } from "./components/StudioCopilot";
 import StudioToolbar, { type StudioSaveHandler } from "./components/StudioToolbar";
 
 export type StudioTab = "graph" | "story" | "qualities" | "checkpoints" | "transitions" | "roster" | "diagnostics" | "copilot";
+
+export interface StudioOpenIntent {
+  tab?: StudioTab;
+  stage?: CopilotStage;
+  missing?: { personas?: string[]; members?: string[]; lorebooks?: string[] };
+}
 
 const BASE_TABS: Array<{ id: StudioTab; label: string }> = [
   { id: "graph", label: "Graph" },
@@ -47,13 +53,15 @@ type Props = {
   runCopilotStage?: (input: AuthoringStageInput) => Promise<ProposalResult>;
   onSaved?: StudioSaveHandler;
   hostOptions?: StudioHostOptions;
+  wizardHost?: WizardHost;
+  intent?: StudioOpenIntent;
 };
 
-const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopilotStage, onSaved, hostOptions }) => {
-  const [tab, setTab] = useState<StudioTab>("graph");
+const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopilotStage, onSaved, hostOptions, wizardHost, intent }) => {
+  const [tab, setTab] = useState<StudioTab>(intent?.tab ?? "graph");
   const options = useMemo(() => hostOptions ?? readHostOptions(), [hostOptions]);
   const idLocked = useDraftStore((state) => state.sourceHash !== null);
-  const tabs = copilotEnabled ? [...BASE_TABS, { id: "copilot" as StudioTab, label: "Copilot" }] : BASE_TABS;
+  const tabs = copilotEnabled ? [...BASE_TABS, { id: "copilot" as StudioTab, label: "Wizard" }] : BASE_TABS;
   const activeTab = tabs.some((entry) => entry.id === tab) ? tab : "graph";
   const draft = useDraftStore((state) => state.draft);
   const dirty = useDraftStore((state) => state.dirty);
@@ -103,6 +111,10 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
     }
   };
 
+  // An untouched draft is the one moment where "start with the wizard" is unambiguously the right
+  // next step, so the empty graph offers it instead of an empty canvas.
+  const isEmptyDraft = draft.qualities.length === 0 && draft.transitions.length === 0 && draft.checkpoints.length <= 1;
+
   const renderTab = () => {
     if (activeTab === "story") return <StoryEditor personaNames={options.personaNames} memberNames={options.memberNames} lorebookNames={options.lorebookNames} idLocked={idLocked} />;
     if (activeTab === "qualities") return <QualityEditor />;
@@ -110,8 +122,18 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
     if (activeTab === "transitions") return <TransitionEditor />;
     if (activeTab === "roster") return <RosterEditor memberNames={options.memberNames} />;
     if (activeTab === "diagnostics") return <DiagnosticsPanel />;
-    if (activeTab === "copilot") return <StudioCopilot enabled={copilotEnabled} runStage={runCopilotStage} />;
-    return <StudioGraph onOpenCheckpoint={() => setTab("checkpoints")} />;
+    if (activeTab === "copilot") return <StudioCopilot enabled={copilotEnabled} runStage={runCopilotStage} host={wizardHost} initialStage={intent?.stage} seedMissing={intent?.missing} />;
+    return (
+      <div className="flex h-full flex-col gap-3">
+        {copilotEnabled && isEmptyDraft && (
+          <div id="so-studio-empty" className="st-subpanel flex flex-wrap items-center gap-2 p-3 text-sm">
+            <span>Nothing authored yet. The wizard can take you from a one-line premise to a playable story.</span>
+            <button id="so-start-wizard" type="button" className="st-button primary" onClick={() => setTab("copilot")}>Start with the wizard</button>
+          </div>
+        )}
+        <StudioGraph onOpenCheckpoint={() => setTab("checkpoints")} />
+      </div>
+    );
   };
 
   return createPortal(

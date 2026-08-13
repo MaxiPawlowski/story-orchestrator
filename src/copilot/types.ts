@@ -11,9 +11,10 @@ import type {
   Transition,
   ValidationError,
 } from "@engine/index";
+import type { ProvisioningOp, WizardQuestion } from "@wizard/index";
 import type { Diagnostic } from "../studio/diagnostics";
 
-export const COPILOT_STAGES = ["qualities", "checkpoints", "transitions", "effects"] as const;
+export const COPILOT_STAGES = ["qualities", "checkpoints", "transitions", "effects", "provisioning"] as const;
 export type CopilotStage = (typeof COPILOT_STAGES)[number];
 
 export interface TransitionRef {
@@ -42,7 +43,8 @@ export type ProposalOp =
   | { kind: "removeRosterMember"; id: string }
   | { kind: "setArcTemplate"; template: ArcTemplate | null }
   | { kind: "setArcBridges"; bridges: ArcBridge[] }
-  | { kind: "setRequirements"; requirements: StoryRequirements };
+  | { kind: "setRequirements"; requirements: StoryRequirements }
+  | ProvisioningOp;
 
 export type ProposalOpKind = ProposalOp["kind"];
 
@@ -63,12 +65,15 @@ export interface CopilotAudit {
   repairResponse?: string;
 }
 
+// `questions` is the interview variant (spec addendum §Story wizard): the copilot may ask before it
+// proposes, so a thin premise stops producing invented specifics. `proposal.ops` is empty then.
 export interface ProposalResult {
   stage: CopilotStage;
   proposal: Proposal;
   preview: { errors: ValidationError[]; diagnostics: Diagnostic[] };
-  status: "ok" | "failed";
+  status: "ok" | "failed" | "questions";
   issues: string[];
+  questions: WizardQuestion[];
   audit: CopilotAudit;
 }
 

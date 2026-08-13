@@ -374,6 +374,46 @@ export const PlayerStoryControls: Story = {
   },
 };
 
+const unmetSnapshot = (): RuntimeSnapshot => {
+  const snapshot = sampleSnapshot() as unknown as { requirements: Record<string, unknown> };
+  snapshot.requirements = { ready: false, missingPersonas: ["Traveller"], missingMembers: ["Arin"], missingLorebooks: ["Sun Ruins Lore"] };
+  return derive(snapshot as unknown as RuntimeSnapshot);
+};
+
+// "Fix with wizard" (plan 06) replaces the diagnose-only dots: the author gets a step that can
+// actually create the missing cast and lore. Author view only — it opens the Studio.
+export const FixRequirementsWithWizard: Story = {
+  args: { onFixWithWizard: fn() },
+  render: (args) => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={unmetSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} onFixWithWizard={args.onFixWithWizard} />
+    </div>
+  ),
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("Missing: Arin")).toBeInTheDocument();
+    await userEvent.click(canvas.getByRole("button", { name: "Fix with wizard" }));
+    await expect(args.onFixWithWizard).toHaveBeenCalled();
+  },
+};
+
+export const PlayerSeesNoWizardFix: Story = {
+  render: () => {
+    const snapshot = playerSnapshot() as unknown as { requirements: Record<string, unknown> };
+    snapshot.requirements = { ready: false, missingPersonas: [], missingMembers: ["Arin"], missingLorebooks: [] };
+    return (
+      <div style={{ maxWidth: 360 }}>
+        <DrawerTabs snapshot={derive(snapshot as unknown as RuntimeSnapshot)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} onFixWithWizard={fn()} />
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("Cast: Arin")).toBeInTheDocument();
+    await expect(canvas.queryByRole("button", { name: "Fix with wizard" })).toBeNull();
+  },
+};
+
 export const FlagMoment: Story = {
   render: () => {
     const manager = fakeManager();

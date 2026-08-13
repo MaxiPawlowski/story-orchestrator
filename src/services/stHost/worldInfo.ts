@@ -2,6 +2,7 @@ import { trimStringList } from "@utils/dataHelpers";
 import { getContext } from "./context";
 import type { HostWorldInfoSettings } from "./hostTypes";
 import { worldInfoModule } from "./modules";
+import { executeSlashCommands } from "./slashCommands";
 
 export interface Lorebook {
   entries: Record<number, LoreEntry>;
@@ -14,6 +15,14 @@ export interface LoreEntry {
 }
 
 export const getWorldInfoSettings: () => HostWorldInfoSettings = worldInfoModule.getWorldInfoSettings;
+
+// Every lorebook that exists, active or not (st-context.js:284 over world-info.js `world_names`).
+export function listAllLorebooks(): string[] {
+  const names = getContext().getWorldInfoNames?.();
+  return (Array.isArray(names) ? names : [])
+    .map((name) => (typeof name === "string" ? name.trim() : ""))
+    .filter((name) => name.length > 0);
+}
 
 export async function loadLorebook(name: string): Promise<Lorebook | null> {
   const lorebook = name.trim();
@@ -88,7 +97,36 @@ async function loadOrCreateLorebook(name: string): Promise<Lorebook | null> {
   return loadLorebook(name);
 }
 
-export async function upsertWIEntry(lorebook: string, comment: string, content: string, keys: string[] = []): Promise<WIUpsertResult> {
+// Two host quirks meet here. `loadWorldInfo` can never say whether a book exists — the server
+// answers an unknown name with a dummy `{entries:{}}` (src/endpoints/worldinfo.js:18), so existence
+// comes from `world_names` instead. And `createNewWorldInfo` writes the file and refreshes the
+// picker but does NOT activate the book (world-info.js:4448 — no `globalSelect` write), while a
+// story's `requirements.lorebooks` is satisfied only by the *globally selected* books; `/world
+// state=on` is ST's own activation path and is what makes a freshly created book count.
+export async function createLorebook(name: string): Promise<{ created: boolean; activated: boolean }> {
+  const lorebook = name.trim();
+  if (!lorebook) return { created: false, activated: false };
+  const created = lorebookExists(lorebook) ? false : Boolean(await worldInfoModule.createNewWorldInfo(lorebook, { interactive: false }));
+  const activated = await activateGlobalLorebook(lorebook);
+  return { created, activated };
+}
+
+export const lorebookExists = (name: string): boolean => {
+  const wanted = name.trim().toLowerCase();
+  return Boolean(wanted) && listAllLorebooks().some((entry) => entry.toLowerCase() === wanted);
+};
+
+export async function activateGlobalLorebook(name: string): Promise<boolean> {
+  const lorebook = name.trim();
+  if (!lorebook) return false;
+  if (listGlobalSelect().some((entry) => entry.toLowerCase() === lorebook.toLowerCase())) return true;
+  await executeSlashCommands(`/world silent=true state=on ${lorebook}`);
+  return listGlobalSelect().some((entry) => entry.toLowerCase() === lorebook.toLowerCase());
+}
+
+const listGlobalSelect = (): string[] => (getWorldInfoSettings() as { world_info?: { globalSelect?: string[] } }).world_info?.globalSelect ?? [];
+
+export async function upsertWIEntry(lorebook: string, comment: string, content: string, keys: string[] = [], options: { constant?: boolean } = {}): Promise<WIUpsertResult> {
   const name = lorebook.trim();
   if (!name || !comment) return "failed";
   const data = await loadOrCreateLorebook(name);
@@ -97,13 +135,14 @@ export async function upsertWIEntry(lorebook: string, comment: string, content: 
     return "failed";
   }
   const existing = Object.values(data.entries).find((entry) => entry.comment?.trim() === comment);
-  if (existing && String(existing.content ?? "").trim() === content.trim()) return "unchanged";
+  if (existing && String(existing.content ?? "").trim() === content.trim() && options.constant === undefined) return "unchanged";
 
   const target = existing ?? (worldInfoModule.createWorldInfoEntry(name, data) as LoreEntry | undefined);
   if (!target) return "failed";
   target.comment = comment;
   target.content = content;
   if (keys.length) target.key = keys;
+  if (options.constant !== undefined) target.constant = options.constant;
   target.disable = false;
   await saveLorebook(name, data);
   return existing ? "updated" : "created";

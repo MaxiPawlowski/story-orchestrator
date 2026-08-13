@@ -59,3 +59,60 @@ export const Disabled: Story = {
     await expect(canvas.getByLabelText("Copilot unavailable")).toBeInTheDocument();
   },
 };
+
+// The interview: a thin premise gets questions, and answering them re-runs the stage with the
+// answers folded into the conversation as one author turn.
+const INTERVIEW_THEN_PROPOSAL = (() => {
+  let call = 0;
+  return (input: AuthoringStageInput) => {
+    call += 1;
+    return runAuthoringStage(input, {
+      profileId: null,
+      debugResponse: call === 1
+        ? JSON.stringify({ summary: "Two calls would change the shape.", questions: [{ id: "tone", text: "Comic or grim?", why: "it sets the tension curve", options: ["comic", "grim"] }] })
+        : VALID_RESPONSE,
+    });
+  };
+})();
+
+export const InterviewsBeforeProposing: Story = {
+  args: { enabled: true, runStage: INTERVIEW_THEN_PROPOSAL },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.type(canvas.getByLabelText("Copilot message"), "a heist, but strange");
+    await userEvent.click(canvas.getByRole("button", { name: "Run stage" }));
+    await expect(await canvas.findByLabelText("Wizard questions")).toBeInTheDocument();
+    await expect(canvas.getByText("Comic or grim?")).toBeInTheDocument();
+    await userEvent.click(canvas.getByRole("button", { name: "grim" }));
+    await userEvent.click(canvas.getByRole("button", { name: "Send answers" }));
+    await expect(await canvas.findByLabelText("Copilot proposal")).toBeInTheDocument();
+    await expect(canvas.getByText(/Comic or grim\? → grim/)).toBeInTheDocument();
+  },
+};
+
+const PROVISIONING_RESPONSE = JSON.stringify({
+  summary: "This story needs one card.",
+  ops: [{ kind: "createCharacterCard", name: "Arin", description: "A guide who knows the ruins." }],
+});
+
+export const ProvisioningCreatesAndRequires: Story = {
+  args: {
+    enabled: true,
+    initialStage: "provisioning",
+    runStage: stageRunner(PROVISIONING_RESPONSE),
+    host: {
+      environment: () => ({ characterNames: [], lorebookNames: [], groupNames: [], storyLorebooks: [] }),
+      applyProvisioning: async () => ({ ok: true, message: 'Created the character card "Arin".', created: "Arin" }),
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "Run stage" }));
+    await expect(await canvas.findByLabelText("Provisioning steps")).toBeInTheDocument();
+    await userEvent.click(canvas.getByRole("button", { name: "Create it" }));
+    await expect(await canvas.findByRole("button", { name: "Created" })).toBeDisabled();
+    // Applying makes the story *require* what was created, which is what turns the dots green.
+    await expect(useDraftStore.getState().draft.requirements?.members).toContain("Arin");
+    await expect(useDraftStore.getState().draft.roster.map((member) => member.name)).toContain("Arin");
+  },
+};

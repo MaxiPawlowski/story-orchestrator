@@ -46,7 +46,8 @@ Playwright MCP is configured via the repo `.mcp.json` (`npx @playwright/mcp@late
 | `st-payload.mts` | `arm`, `last [n]`, `watch [n]` |
 | `st-navigation.mts` | `recent-group`, `new-group-session`, `recent-group-new`, `list-entities`, `open-group <id\|name>`, `open-character <name>`, `list-chats`, `open-chat <chatId>`, `new-chat` |
 | `st-eval.mts` | `"<js>"` or `--file <path>` — run an async snippet in the ST page with `ctx` (getContext()) and `rt` (runtime handle) in scope, JSON result |
-| `so-ui.mts` | `all`, `settings`, `drawer`, `open-settings`, `open-studio`, `studio`, `studio-tab <label>`, `drawer-tab <Overview\|Blackboard\|Memory\|Scheduler\|Payload>`, `screenshot` |
+| `so-ui.mts` | `all`, `settings`, `drawer`, `open-settings`, `open-studio`, `studio`, `studio-tab <label>`, `studio-save [keep\|restart\|cancel]`, `drawer-tab <Overview\|Blackboard\|Memory\|Scheduler\|Payload>`, `pipeline`, `assert-player-clean`, `wizard`, `open-wizard`, `new-story-wizard`, `wizard-run [stage] [message]`, `wizard-answer [a1\|a2\|a3]`, `wizard-apply [index]`, `screenshot` |
+| `so-assets.mts` | `list`, `remove`, `assert-clean` `[--marker <prefix>]` — the ST assets a wizard run created (marker + the wizard's own `applied` ledger); nothing unmarked is ever touched |
 | `so-copilot.mts` | `context`, `suggest [--debug j]`, `report [--debug j]`, `nudge <text>`, `clear-nudge`, `probe [--debug d]`, `advance <id>`, `stage <stage> [--message m] [--debug j]` |
 | `so-library.mts` | library summary (id + version), `<id\|hash>` detail, `remove <id\|hash\|title>`, `wipe-chat-meta [--hash h]`, `--legacy` |
 | `so-live-suite.mts` | `run [--min 0.9] [--filter <substr>] [--record]` — real-model delta accuracy over `test/fixtures/extractor*` triples; exact-match on `{q,v}` |

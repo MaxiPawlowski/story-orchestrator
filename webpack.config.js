@@ -27,6 +27,7 @@ module.exports = {
       "@memory": path.resolve(__dirname, "src/memory"),
       "@copilot": path.resolve(__dirname, "src/copilot"),
       "@talk": path.resolve(__dirname, "src/talk"),
+      "@wizard": path.resolve(__dirname, "src/wizard"),
     },
     fallback: {
       fs: false,

@@ -17,6 +17,7 @@ const okResult: ProposalResult = {
   preview: { errors: [], diagnostics: [{ code: "threshold-unsatisfiable", severity: "warning", path: "checkpoints.2", message: "cache threshold 2 exceeds available progress 0" }] },
   status: "ok",
   issues: [],
+  questions: [],
   audit: { prompt: "", rawResponse: "" },
 };
 
@@ -26,13 +27,32 @@ const failedResult: ProposalResult = {
   preview: { errors: [], diagnostics: [] },
   status: "failed",
   issues: ["transitions.0.gate: gate references undeclared quality 'ghost'"],
+  questions: [],
+  audit: { prompt: "", rawResponse: "" },
+};
+
+// Provisioning steps ride the same card but are excluded from Accept all: they write to the user's
+// install and each one is reviewed on its own (plan 06).
+const provisioningResult: ProposalResult = {
+  stage: "provisioning",
+  proposal: parseProposal(JSON.stringify({
+    summary: "This story needs one card and a lorebook.",
+    ops: [
+      { kind: "createCharacterCard", name: "Arin", description: "A guide who knows the ruins." },
+      { kind: "createStoryLorebook", name: "Sun Ruins Lore" },
+    ],
+  })).proposal,
+  preview: { errors: [], diagnostics: [] },
+  status: "ok",
+  issues: [],
+  questions: [],
   audit: { prompt: "", rawResponse: "" },
 };
 
 const meta: Meta<typeof ProposalReview> = {
   title: "Studio/ProposalReview",
   component: ProposalReview,
-  args: { onAccept: fn(), onAcceptAll: fn(), onDismiss: fn() },
+  args: { onAccept: fn(), onAcceptAll: fn(), onDismiss: fn(), onProvision: fn() },
 };
 
 export default meta;
@@ -57,5 +77,35 @@ export const Failed: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByText("Invalid proposal")).toBeInTheDocument();
     await expect(canvas.getByText(/undeclared quality 'ghost'/)).toBeInTheDocument();
+  },
+};
+
+export const ProvisioningIsReviewedPerStep: Story = {
+  args: {
+    result: provisioningResult,
+    acceptedIndices: new Set<number>(),
+    environment: { characterNames: ["Ponticius"], lorebookNames: [], groupNames: [], storyLorebooks: [] },
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    // Nothing to bulk-accept: both ops are provisioning.
+    await expect(canvas.getByRole("button", { name: "Accept all" })).toBeDisabled();
+    const applyButtons = canvas.getAllByRole("button", { name: "Create it" });
+    await expect(applyButtons).toHaveLength(2);
+    await userEvent.click(applyButtons[0]);
+    await expect(args.onProvision).toHaveBeenCalled();
+  },
+};
+
+export const ProvisioningRefusesAnExistingAsset: Story = {
+  args: {
+    result: provisioningResult,
+    acceptedIndices: new Set<number>(),
+    environment: { characterNames: ["Arin"], lorebookNames: [], groupNames: [], storyLorebooks: [] },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/never edits yours/)).toBeInTheDocument();
+    await expect(canvas.getAllByRole("button", { name: "Create it" })[0]).toBeDisabled();
   },
 };

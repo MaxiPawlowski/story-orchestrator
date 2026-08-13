@@ -35,6 +35,7 @@ src/
     narrative.ts             # v2.1 plan 04 (pure): the one composed player "where am I" view — drawer Overview, away popup, /story recap
     pipeline.ts              # v2.1 plan 04 (pure): derived working/reading/stalled-rechecking/idle/not-configured/error signal
     storyUpdate.ts           # v2.1 plan 05: library -> running chat (diff, choice popup, swap, re-pin, journal record)
+    wizardSessions.ts        # v2.1 plan 06: wizard conversation + stage + created-asset ledger, persisted in extension settings
     values.ts                # v2.1 plan 05 (pure): typed text -> PrimitiveValue for /cp set and the driver
     awayRecap.ts             # gap detection + welcome-back rendering of narrative.ts (popup injected, module stays pure)
     talkControl.ts           # plan 14: TalkController — real talkControlInterceptor routing, per-pass decision, wrapper-finished reconcile (host seam built in runtime/index.ts)
@@ -48,13 +49,15 @@ src/
     canonLite.ts / cues.ts / client.ts / chatWindow.ts
   pacing/                    # plan 04: tension.ts, shapes.ts, steering.ts
   talk/                      # plan 14 (pure): rules.ts (candidates/mention/weighted chooser), prompt.ts + parse.ts (director SPEAKER: <name|NONE>), types.ts
+  wizard/                    # v2.1 plan 06 (pure): types.ts (questions + provisioning ops), provisioning.ts (create-only validation, environment fold), interview.ts (session key, answer rendering, "Fix with wizard" seed)
   memory/                    # plan 07: tier stores (facts/session/short_term/scene), scene detection, injection — pure except inject.ts
   studio/                    # plan 11: Checkpoint Studio v2 — draft.ts (zustand store), mutations.ts (typed API = 12's contract), diagnostics.ts (8 checks), gateOptions.ts, qualityUsage.ts, graphAdapter.ts (v2→GraphPanel + Mermaid), io.ts (export/import), StudioModal.tsx + components/*, *.stories.tsx
                              #   v2.1 plan 05 tabs: Story (id/version/description/arc_template/requirements/arc_bridges) + Roster; save hands the record to the host via onSaved
-  services/stHost/           # SillyTavern host wrappers (one module per concern)
+                             #   v2.1 plan 06: the Copilot tab is the Wizard (StudioCopilot = interview + staged proposals + provisioning), WizardQuestions.tsx, ProvisioningCard.tsx
+  services/stHost/           # SillyTavern host wrappers (one module per concern); provisioning.ts = v2.1 plan 06 character/group creation
   services/STAPI.ts          # only import surface for host modules
   components/studio/         # the 6 reused presentational primitives (GraphPanel, graphPanelUtils, MultiSelect, Toolbar, FeedbackAlert, HelpTooltip) — rest of v1 deleted
-  components/drawer/         # DrawerTabs (player: Overview/Memory; author adds Blackboard/Scheduler/Payload + engine panels),
+  components/drawer/         # DrawerTabs (player: Overview/Memory; author adds Blackboard/Scheduler/Payload + engine panels, incl. "Fix with wizard"),
                              #   PlayerOverview (v2.1 plan 04: narrative view + pipeline signal + rollback notice), HudStrip, DriverPanel (author-only)
   utils/ constants/          # constants/injectionRegistry.ts = single source of truth for injection keys+depths
 ```
@@ -65,6 +68,8 @@ src/
 - `src/engine/**` and `extraction/scope*` never import STAPI. `EngineHost` is the clock seam (`{ now }`), not an effects seam: host effects live in `runtime/effectsApplier.ts` and `runtime/coordinators/*`, which tests fake by injecting deps.
 - Three lifetimes, three homes (spec addendum v2.1 §Configuration homes): install-wide settings in `extensionSettings["story-orchestrator"].settings`; per-chat engine state, rings and the overrides `{ui.authorView, pacing.shapeOverride, talk.enabled}` in `chat_metadata`; authored content in the story record. `extras` still exposes a full settings view in memory (`applyGlobalSettings`), but `stripGlobalSettings` removes the install-wide half before persisting.
 - Story identity is the authored `id` (+ `version`), never the content hash: the library is keyed by id, the per-chat blob is keyed by id, and each chat **pins a full copy** of the story it plays (`pinnedStory`), so library edits and deletion never reach a running chat. `contentHash` stays for integrity and drift detection (`contentHashAtLoad`). Re-selecting hydrates; `restartStory()` is the only reset.
+- **The wizard is create-only, and validation is the guard** (v2.1 plan 06): `src/wizard/provisioning.ts` decides whether a provisioning op may run, folding the environment forward so a step can depend on the previous one; the UI card and `copilotCoordinator.applyProvisioning` both call it, so nothing reaches the install because a prompt asked nicely. Provisioning ops travel in the `ProposalOp` union but `applyOp` deliberately ignores them and `diffProposal` keeps them out of `items` — bulk accept can never reach them. What a created asset leaves in the story is a `setRequirements`/`addRosterMember` op through the ordinary mutation path (`provisioningFollowUpOps`), which is why the requirements panel goes green from evidence. Personas are never provisioned.
+- Wizard sessions live install-wide (`extensionSettings["story-orchestrator"].wizardSessions`, cap 8, `runtime/wizardSessions.ts`), keyed by draft id/title, and carry the created-asset ledger that `so-assets.mts` cleans up against.
 - One automatic library→chat path, and it is the author's own save (v2.1 plan 05): `applyStoryUpdate(record?)` diffs the **merged** old and new stories against live engine state (`engine/storyDiff.ts`), hot-swaps silently when compatible, and raises a keep/restart/cancel choice when invalidating; keeping prunes exactly the orphaned values (`pruneEngineState`) and re-pins this chat. Other chats are never touched — they take a newer version only through their own "Update to v*N*" or Restart.
 - Coordinators (`runtime/coordinators/*`) get constructor-injected deps and never import each other or call `saveMetadata`: they mutate their extras slice through injected accessors and ask the manager to persist/notify. Engine writes go through injected enqueue callbacks — the engine stays manager-owned.
 - One snapshot, one subscription: `snapshotBuilder` composes it and coordinator read-models (`ledger`, `driver`, `activeNudge`, plus v2.1 plan 04's `narrative`, `pipeline`, `lastRollback`) ride on it — drawer components never call manager getters during render.
@@ -82,4 +87,4 @@ src/
 
 ## Path aliases (tsconfig + webpack)
 
-Active: `@components @services @utils @constants @engine @runtime @extraction @pacing @generation @memory @copilot @talk` → `src/<name>/*`. (Dead `@hooks @controllers @store` aliases + their empty dirs removed in plan 13.)
+Active: `@components @services @utils @constants @engine @runtime @extraction @pacing @generation @memory @copilot @talk @wizard` → `src/<name>/*`. (Dead `@hooks @controllers @store` aliases + their empty dirs removed in plan 13.)

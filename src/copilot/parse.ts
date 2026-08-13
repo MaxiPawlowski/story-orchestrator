@@ -28,6 +28,7 @@ import {
   type Transition,
   type TransitionEffects,
 } from "@engine/index";
+import { capQuestions, type WizardQuestion } from "@wizard/index";
 import type { Proposal, ProposalOp, Suggestion, TransitionRef } from "./types";
 
 const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -291,6 +292,11 @@ const readRequirements = (value: unknown, path: string, issues: string[]): Story
   return requirements;
 };
 
+const readStringList = (value: unknown): string[] =>
+  Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0).map((entry) => entry.trim())
+    : typeof value === "string" ? value.split(",").map((entry) => entry.trim()).filter(Boolean)
+      : [];
+
 const requireString = (value: unknown, field: string, path: string, issues: string[]): string | null => {
   if (typeof value !== "string" || !value.trim()) {
     issues.push(`${path}.${field}: required`);
@@ -396,28 +402,87 @@ const readOp = (value: unknown, path: string, issues: string[]): ProposalOp | nu
       const requirements = readRequirements(value.requirements, `${path}.requirements`, issues);
       return requirements ? { kind: "setRequirements", requirements } : null;
     }
+    // Provisioning ops (plan 06): parsed here so the wizard shares one grammar, but never applied to
+    // the draft — the runtime creates the ST asset and validation enforces create-only.
+    case "createCharacterCard": {
+      const name = requireString(value.name, "name", path, issues);
+      const description = requireString(value.description, "description", path, issues);
+      if (!name || !description) return null;
+      return {
+        kind: "createCharacterCard",
+        name,
+        description,
+        ...(typeof value.personality === "string" ? { personality: value.personality } : {}),
+        ...(typeof value.scenario === "string" ? { scenario: value.scenario } : {}),
+        ...(typeof value.first_mes === "string" ? { first_mes: value.first_mes } : {}),
+        ...(typeof value.mes_example === "string" ? { mes_example: value.mes_example } : {}),
+        ...(value.tags !== undefined ? { tags: readStringList(value.tags) } : {}),
+      };
+    }
+    case "createStoryLorebook": {
+      const name = requireString(value.name, "name", path, issues);
+      return name ? { kind: "createStoryLorebook", name } : null;
+    }
+    case "upsertLorebookEntry": {
+      const lorebook = requireString(value.lorebook, "lorebook", path, issues);
+      const comment = requireString(value.comment, "comment", path, issues);
+      const content = requireString(value.content, "content", path, issues);
+      if (!lorebook || !comment || !content) return null;
+      return { kind: "upsertLorebookEntry", lorebook, comment, content, keys: readStringList(value.keys), ...(typeof value.constant === "boolean" ? { constant: value.constant } : {}) };
+    }
+    case "createGroup": {
+      const name = requireString(value.name, "name", path, issues);
+      if (!name) return null;
+      const members = readStringList(value.members);
+      if (!members.length) {
+        issues.push(`${path}.members: at least one cast member is required`);
+        return null;
+      }
+      return { kind: "createGroup", name, members };
+    }
     default:
       issues.push(`${path}.kind: unknown '${value.kind}'`);
       return null;
   }
 };
 
-export const parseProposal = (raw: string): { proposal: Proposal; issues: string[] } => {
+const readQuestions = (value: unknown): WizardQuestion[] => {
+  if (!Array.isArray(value)) return [];
+  const questions = value
+    .map((entry, index): WizardQuestion | null => {
+      if (typeof entry === "string") return entry.trim() ? { id: `q${index + 1}`, text: entry.trim() } : null;
+      if (!isRecord(entry) || typeof entry.text !== "string" || !entry.text.trim()) return null;
+      const options = readStringList(entry.options);
+      return {
+        id: typeof entry.id === "string" && entry.id.trim() ? entry.id.trim() : `q${index + 1}`,
+        text: entry.text.trim(),
+        ...(typeof entry.why === "string" && entry.why.trim() ? { why: entry.why.trim() } : {}),
+        ...(options.length ? { options } : {}),
+      };
+    })
+    .filter((entry): entry is WizardQuestion => Boolean(entry));
+  return capQuestions(questions);
+};
+
+export const parseProposal = (raw: string): { proposal: Proposal; issues: string[]; questions: WizardQuestion[] } => {
   const issues: string[] = [];
   let parsed: unknown;
   try {
     parsed = JSON.parse(normalizeJsonText(raw));
   } catch (error) {
-    return { proposal: { summary: "", ops: [] }, issues: [error instanceof Error ? error.message : "Invalid JSON"] };
+    return { proposal: { summary: "", ops: [] }, issues: [error instanceof Error ? error.message : "Invalid JSON"], questions: [] };
   }
-  if (!isRecord(parsed)) return { proposal: { summary: "", ops: [] }, issues: ["response must be a JSON object"] };
+  if (!isRecord(parsed)) return { proposal: { summary: "", ops: [] }, issues: ["response must be a JSON object"], questions: [] };
   const summary = typeof parsed.summary === "string" ? parsed.summary : "";
+  // Interview variant: questions instead of ops is a valid answer, not a malformed proposal.
+  const questions = readQuestions(parsed.questions);
+  if (questions.length && !Array.isArray(parsed.ops)) return { proposal: { summary, ops: [] }, issues, questions };
   if (!Array.isArray(parsed.ops)) {
     issues.push("ops: required array");
-    return { proposal: { summary, ops: [] }, issues };
+    return { proposal: { summary, ops: [] }, issues, questions };
   }
   const ops = parsed.ops.map((entry, index) => readOp(entry, `ops.${index}`, issues)).filter((entry): entry is ProposalOp => Boolean(entry));
-  return { proposal: { summary, ops }, issues };
+  return { proposal: { summary, ops }, issues, questions: ops.length ? [] : questions };
 };
 
 export const parseSuggestions = (raw: string): Suggestion[] => {

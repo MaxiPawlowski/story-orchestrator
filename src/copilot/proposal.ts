@@ -1,4 +1,5 @@
 import type { StoryV2 } from "@engine/index";
+import { describeProvisioningOp, isProvisioningKind, provisioningRequirements, type ProvisioningOp } from "@wizard/index";
 import {
   addCheckpoint,
   addQuality,
@@ -37,7 +38,32 @@ export const ambiguousRef = (draft: StoryV2, op: ProposalOp): string | null => {
   return matches.length > 1 ? `transition ${op.ref.from} → ${op.ref.to} is ambiguous (${matches.length} matches; set priority to disambiguate)` : null;
 };
 
+export const isProvisioningOp = (op: ProposalOp): op is ProvisioningOp => isProvisioningKind(op.kind);
+
+// A provisioning op acts on the ST install, so applying it to the draft is a no-op; what it leaves
+// behind in the story is its requirement, added through the ordinary mutation path.
+export const provisioningFollowUpOps = (draft: StoryV2, op: ProvisioningOp): ProposalOp[] => {
+  const wanted = provisioningRequirements(op);
+  const current = draft.requirements ?? {};
+  const merge = (existing: string[] | undefined, additions: string[]) => {
+    const seen = new Set((existing ?? []).map((entry) => entry.trim().toLowerCase()));
+    return [...(existing ?? []), ...additions.filter((entry) => !seen.has(entry.trim().toLowerCase()))];
+  };
+  const requirements = {
+    ...current,
+    ...(wanted.members.length ? { members: merge(current.members, wanted.members) } : {}),
+    ...(wanted.lorebooks.length ? { lorebooks: merge(current.lorebooks, wanted.lorebooks) } : {}),
+  };
+  const ops: ProposalOp[] = [];
+  if (wanted.members.length || wanted.lorebooks.length) ops.push({ kind: "setRequirements", requirements });
+  if (op.kind === "createCharacterCard" && !draft.roster.some((member) => (member.name ?? member.id).trim().toLowerCase() === op.name.trim().toLowerCase())) {
+    ops.push({ kind: "addRosterMember", member: { id: op.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "_"), name: op.name } });
+  }
+  return ops;
+};
+
 export const applyOp = (draft: StoryV2, op: ProposalOp): StoryV2 => {
+  if (isProvisioningOp(op)) return draft;
   switch (op.kind) {
     case "setStoryField":
       return setStoryField(draft, op.field, op.value);
@@ -129,7 +155,7 @@ export const applyOpsChecked = (draft: StoryV2, ops: ProposalOp[]): { next: Stor
   return { next, issues };
 };
 
-export type OpAction = "add" | "update" | "remove";
+export type OpAction = "add" | "update" | "remove" | "provision";
 
 export interface OpDescription {
   action: OpAction;
@@ -140,6 +166,10 @@ export interface OpDescription {
 const refLabel = (ref: TransitionRef): string => `${ref.from} → ${ref.to}`;
 
 export const describeOp = (op: ProposalOp): OpDescription => {
+  if (isProvisioningOp(op)) {
+    const described = describeProvisioningOp(op);
+    return { action: "provision", entity: `st:${op.kind}:${described.target}`, label: described.label };
+  }
   switch (op.kind) {
     case "setStoryField":
       return { action: "update", entity: `story.${op.field}`, label: `Set ${op.field} to "${op.value}"` };
@@ -196,14 +226,19 @@ export interface ProposalDiff {
   added: ProposalDiffItem[];
   changed: ProposalDiffItem[];
   removed: ProposalDiffItem[];
+  provisioning: ProposalDiffItem[];
 }
 
+// `items` stays draft-only: provisioning is reviewed on its own cards and is deliberately outside
+// bulk accept (spec addendum §Story wizard — "applied per-op by explicit review").
 export const diffProposal = (ops: ProposalOp[]): ProposalDiff => {
-  const items: ProposalDiffItem[] = ops.map((op, index) => ({ index, op, ...describeOp(op) }));
+  const all: ProposalDiffItem[] = ops.map((op, index) => ({ index, op, ...describeOp(op) }));
+  const items = all.filter((item) => item.action !== "provision");
   return {
     items,
     added: items.filter((item) => item.action === "add"),
     changed: items.filter((item) => item.action === "update"),
     removed: items.filter((item) => item.action === "remove"),
+    provisioning: all.filter((item) => item.action === "provision"),
   };
 };

@@ -5,7 +5,8 @@ import { runModelSelfTest, type SelfTestReport } from "@runtime/selfTest";
 import { isArcTemplateName } from "@pacing/index";
 import { startRuntime } from "@runtime/index";
 import type { RuntimeSnapshot, StoryLibraryRecord } from "@runtime/types";
-import StudioModal, { STUDIO_TAB_IDS } from "./studio/StudioModal";
+import StudioModal, { STUDIO_TAB_IDS, type StudioOpenIntent } from "./studio/StudioModal";
+import type { WizardHost } from "./studio/components/StudioCopilot";
 import { type DriverController } from "@components/drawer/DriverPanel";
 import DrawerTabs from "./components/drawer/DrawerTabs";
 import HudStrip from "./components/drawer/HudStrip";
@@ -25,12 +26,14 @@ if (typeof globalThis !== "undefined") {
 // React roots, so the modal lives in its own root with a module-level open flag both can flip.
 const studioListeners = new Set<() => void>();
 let studioOpen = false;
-const setStudioOpen = (next: boolean) => {
+let studioIntent: StudioOpenIntent | undefined;
+const setStudioOpen = (next: boolean, intent?: StudioOpenIntent) => {
   studioOpen = next;
+  studioIntent = next ? intent : undefined;
   studioListeners.forEach((listener) => listener());
 };
 
-const openStudio = async () => {
+const openStudio = async (intent?: StudioOpenIntent) => {
   const snapshot = manager.getSnapshot();
   const active = snapshot.library.find((story) => story.id === snapshot.storyId);
   const source = (active?.raw ?? manager.getPlayedStoryRaw()) as StoryDraft | null;
@@ -41,7 +44,32 @@ const openStudio = async () => {
     if (source) store.loadDraft(source, active?.hash ?? null);
     else store.newDraft();
   }
-  setStudioOpen(true);
+  setStudioOpen(true, intent);
+};
+
+// A brand-new story: the wizard starts from an empty draft, never from whatever this chat plays.
+const openWizard = async () => {
+  if (useDraftStore.getState().dirty && !(await showConfirmPopup("Start a new story? Your unsaved Studio draft will be discarded.", { okButton: "New story", cancelButton: "Keep editing" }))) return;
+  useDraftStore.getState().newDraft();
+  setStudioOpen(true, { tab: "copilot", stage: "qualities" });
+};
+
+// "Fix with wizard" (U6): the unmet requirements are the premise, so the author lands on the
+// provisioning stage already knowing what is missing instead of re-describing it.
+const openWizardForRequirements = async () => {
+  const { requirements } = manager.getSnapshot();
+  await openStudio({
+    tab: "copilot",
+    stage: "provisioning",
+    missing: { personas: requirements.missingPersonas, members: requirements.missingMembers, lorebooks: requirements.missingLorebooks },
+  });
+};
+
+const wizardHost: WizardHost = {
+  environment: () => manager.getProvisioningEnvironment(),
+  applyProvisioning: (op, draft) => manager.applyProvisioning(op, draft),
+  loadSession: (key) => manager.getWizardSession(key),
+  saveSession: (session) => manager.saveWizardSession(session),
 };
 
 // Saving from the chat that is playing this story is the one automatic library→chat path
@@ -60,7 +88,16 @@ const StudioHost = () => {
   );
   const snapshot = useRuntimeSnapshot();
   if (!open) return null;
-  return <StudioModal onClose={() => setStudioOpen(false)} copilotEnabled={snapshot.copilot.enabled} runCopilotStage={(input) => manager.runCopilotStage(input)} onSaved={applySavedStory} />;
+  return (
+    <StudioModal
+      onClose={() => setStudioOpen(false)}
+      copilotEnabled={snapshot.copilot.enabled}
+      runCopilotStage={(input) => manager.runCopilotStage(input)}
+      onSaved={applySavedStory}
+      wizardHost={wizardHost}
+      intent={studioIntent}
+    />
+  );
 };
 
 const driverController: DriverController = {
@@ -184,6 +221,7 @@ const SettingsPanel = () => {
           <div className="flex items-center gap-2">
             <button className="menu_button" disabled={busy || !importText.trim()} onClick={() => void importStory()}>Import and Load</button>
             <button id="so-open-studio" className="menu_button" onClick={() => void openStudio()}>Open Studio</button>
+            <button id="so-new-story-wizard" className="menu_button" title="Start a new story from a premise: the wizard interviews you, proposes the graph, and creates the cards, lore and group it needs." onClick={() => void openWizard()}>New story (wizard)</button>
           </div>
           {snapshot.validationErrors.length > 0 && (
             <div className="text-xs text-red-400">
@@ -328,6 +366,7 @@ const DrawerPanel = () => {
           driver={{ context: snapshot.driver, activeNudge: snapshot.activeNudge, controller: driverController }}
           onOpenSettings={openStorySettings}
           onEditStory={() => void openStudio()}
+          onFixWithWizard={() => void openWizardForRequirements()}
         />
       )}
     </div>

@@ -20,10 +20,15 @@ export type HostSlashCommandMeta = {
   helpString?: string;
 };
 
+// The *active* global books — what a story's `requirements.lorebooks` is satisfied by.
 export function listGlobalLorebooks(): string[] {
   const settings = getWorldInfoSettings() as { world_info?: { globalSelect?: string[] } };
   return uniq((settings.world_info?.globalSelect ?? []).map((name: string) => trim(name)).filter(Boolean));
 }
+
+// Every book that exists, active or not — the set create-only validation must use. Lives in
+// worldInfo.ts (selectors imports from it, never the other way round).
+export { listAllLorebooks } from "./worldInfo";
 
 export async function listLorebookComments(lorebook: string): Promise<string[]> {
   const name = trim(lorebook);

@@ -1,6 +1,6 @@
 import { progressQualityForAnchor, type BlackboardDelta, type EngineState, type NormalizedStoryV2, type NormalizedTransition } from "@engine/index";
 import { callExtractionModel, deriveScope, getCanonLite, runSharedRead, stripChannelNoise, type ExtraGateSource, type ParsedDelta, type ParsedFact, type SharedReadWindow } from "@extraction/index";
-import { activeEpistemic, addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicInjection, applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildArcSummaryPrompt, buildBoundKeySet, buildCanonSummaryPrompt, buildJaccardMatchSets, buildLedgerView, buildMemoryInjectionBlocks, canonInputHash, capAllTiers, capEpistemic, capLedger, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, clearEpistemicInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, DEFAULT_DEDUP_THRESHOLDS, editEntryText, excludeEntry, expireScoped, hashMemoryText, markContradicted, matchArcBridges, memoryExtensionKey, openArcTexts, removeArc, removeEpistemic, removeLedger, renderLedgerBlock, renderPrivateEpistemicBlock, resolvedArcs, restoreEntry, setArcPinned, setArcSummary, setEpistemicPinned, setLedgerPinned, setPinned, type ArcEntry, type EpistemicEntry, type LedgerBinding, type LedgerView, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ScoreContext, type UncertainPair } from "@memory/index";
+import { activeEpistemic, addMemoryEntries, applyArcSignals, dropByMessageId, rollbackArcs, rollbackEpistemic, rollbackLedger,applyConsolidation, applyEpistemicInjection, applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildArcSummaryPrompt, buildBoundKeySet, buildCanonSummaryPrompt, buildJaccardMatchSets, buildLedgerView, buildMemoryInjectionBlocks, canonInputHash, capAllTiers, capEpistemic, capLedger, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, clearEpistemicInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, DEFAULT_DEDUP_THRESHOLDS, editEntryText, excludeEntry, expireScoped, hashMemoryText, markContradicted, matchArcBridges, memoryExtensionKey, openArcTexts, removeArc, removeEpistemic, removeLedger, renderLedgerBlock, renderPrivateEpistemicBlock, resolvedArcs, restoreEntry, setArcPinned, setArcSummary, setEpistemicPinned, setLedgerPinned, setPinned, type ArcEntry, type EpistemicEntry, type LedgerBinding, type LedgerView, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ScoreContext, type UncertainPair } from "@memory/index";
 import { clearStoryExtensionPrompt, countTokens, DEFAULT_VECTOR_SOURCE, disableWIEntry, getCharacterNameById, getContext, setStoryExtensionPrompt, upsertWIEntry, vectorInsert, vectorPurge, vectorQuery } from "@services/STAPI";
 import { EPISTEMIC_INJECTION_DEPTH, LEDGER_INJECTION_DEPTH } from "@constants/defaults";
 import { activeSpeakerId, enabledCharacterIds, enabledCharacterNames, namesForRosterId, rosterIdForName, rosterMemberName } from "../roster";
@@ -254,8 +254,19 @@ export class MemoryCoordinator {
     return changed;
   }
 
-  rollback(next: Partial<MemoryRuntimeState>) {
-    this.patch(next, false);
+  // Everything a rollback means for memory: entries dropped by message, arcs/epistemic/ledger wound
+  // back, and canon invalidated when an arc that fed it is no longer resolved.
+  rollbackFromMessage(messageId: number, boundary: number) {
+    const resolvedBefore = new Set(this.state.arcs.filter((arc) => arc.status === "resolved").map((arc) => arc.id));
+    const arcs = rollbackArcs(this.state.arcs, messageId, boundary);
+    const canonStale = arcs.filter((arc) => arc.status === "resolved" && resolvedBefore.has(arc.id)).length !== resolvedBefore.size;
+    this.patch({
+      ...dropByMessageId(this.state, messageId),
+      arcs,
+      epistemic: rollbackEpistemic(this.state.epistemic, messageId),
+      ledger: rollbackLedger(this.state.ledger, messageId),
+      ...(canonStale ? { canon: null } : {}),
+    }, false);
   }
 
   // --- canon -------------------------------------------------------------

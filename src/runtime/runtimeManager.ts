@@ -1,7 +1,8 @@
 import { StoryEngine, isValidationErrorList, type ApplyQueueEntry, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type StoryV2, type TalkControl, type ValidationError } from "@engine/index";
 import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Suggestion } from "@copilot/index";
+import type { ProvisioningEnvironment, ProvisioningOp, ProvisioningResult, WizardSessionState } from "@wizard/index";
 import { getChatWindow, type ExtraGateSource, type ParsedDelta, type ParsedFact, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
-import { clearAllMemoryInjection, dropByMessageId, rollbackArcs, rollbackEpistemic, rollbackLedger, type ArcEntry, type EpistemicEntry, type LedgerView, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine, type UncertainPair } from "@memory/index";
+import { clearAllMemoryInjection, type ArcEntry, type EpistemicEntry, type LedgerView, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine, type UncertainPair } from "@memory/index";
 import { clearStoryExtensionPrompt, getContext, readInjectedPromptBlocks, showConfirmPopup, showTextPopup } from "@services/STAPI";
 import { AwayRecapController, type AwayRecap } from "./awayRecap";
 import type { NarrativeStatus, RollbackNotice } from "./narrative";
@@ -23,6 +24,7 @@ import { SessionJournal, type JournalEvent } from "./journal";
 import { evaluateRequirements } from "./requirements";
 import { dropPersistedRuntime, loadPersistedRuntime, savePersistedRuntime, setSelectedStoryId, getSelectedStoryId } from "./persistence";
 import { findStoryRecord, loadPinnedStory, loadStoryRecord, removeStoryRecord, saveStoryRecord } from "./storyLibrary";
+import { clearWizardSession, loadWizardSession, saveWizardSession } from "./wizardSessions";
 import type { CopilotRuntimeSettings, PersistedStoryRuntime, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, MemoryRuntimeSettings, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, StoryLibraryRecord, TalkDecisionAudit, TalkRuntimeState, UiRuntimeSettings } from "./types";
 
 export class RuntimeManager {
@@ -78,7 +80,7 @@ export class RuntimeManager {
     commitBoundary: () => this.commitBoundary(),
     fireSceneBreakReplies: (occurrence) => this.effects.fireNpcReplies(this.engine.activeCheckpoint, this.extras, "sceneBreak", occurrence),
     emitSceneBreak: (audit) => this.sceneBreakListeners.forEach((listener) => listener(audit)),
-    emitArcsResolved: (arcs) => this.onArcsResolved(arcs),
+    emitArcsResolved: (arcs) => { if (this.loaded && arcs.length) this.arcResolvedListeners.forEach((listener) => listener(arcs.map((arc) => arc.id))); },
     setStatus: (status) => { this.status = status; },
     persist: () => this.persist(),
     notify: () => this.notify(),
@@ -333,10 +335,7 @@ export class RuntimeManager {
       const context = this.getBoundaryContext();
       const restored = this.engine.serialize();
       const window = getChatWindow(restored.checkpointStartedMessageId, context.lastMessageId);
-      const resolvedBefore = new Set(this.extras.memory.arcs.filter((arc) => arc.status === "resolved").map((arc) => arc.id));
-      const rolledArcs = rollbackArcs(this.extras.memory.arcs, messageId, boundary);
-      const canonStale = rolledArcs.filter((arc) => arc.status === "resolved" && resolvedBefore.has(arc.id)).length !== resolvedBefore.size;
-      this.memory.rollback({ ...dropByMessageId(this.extras.memory, messageId), arcs: rolledArcs, epistemic: rollbackEpistemic(this.extras.memory.epistemic, messageId), ledger: rollbackLedger(this.extras.memory.ledger, messageId), ...(canonStale ? { canon: null } : {}) });
+      this.memory.rollbackFromMessage(messageId, boundary);
       this.extras.extraction.audits = this.extras.extraction.audits.filter((audit) => audit.window.to < messageId);
       this.pacing.replayCommitted();
       this.refreshRequirements();
@@ -441,7 +440,12 @@ export class RuntimeManager {
     this.notify();
   }
 
-  async runCopilotStage(input: { draft: StoryV2; stage: CopilotStage; message: string; history: CopilotMessage[] }, debugResponse?: string): Promise<ProposalResult> { return this.copilot.runStage(input, debugResponse); }
+  async runCopilotStage(input: { draft: StoryV2; stage: CopilotStage; message: string; history: CopilotMessage[]; environment?: ProvisioningEnvironment }, debugResponse?: string): Promise<ProposalResult> { return this.copilot.runStage(input, debugResponse); }
+  getProvisioningEnvironment(draft?: StoryV2): ProvisioningEnvironment { return this.copilot.getProvisioningEnvironment(draft); }
+  async applyProvisioning(op: ProvisioningOp, draft?: StoryV2): Promise<ProvisioningResult> { return this.copilot.applyProvisioning(op, draft); }
+  getWizardSession(key: string): WizardSessionState | null { return loadWizardSession(key); }
+  saveWizardSession(session: WizardSessionState) { saveWizardSession(session); }
+  clearWizardSession(key: string) { clearWizardSession(key); }
   getDriverContext(): DriverContext | null { return this.copilot.getDriverContext(); }
   async runCopilotSuggest(debugResponse?: string): Promise<Suggestion[]> { return this.copilot.runSuggest(debugResponse); }
   async runCopilotReport(debugResponse?: string): Promise<string> { return this.copilot.runReport(debugResponse); }
@@ -484,11 +488,6 @@ export class RuntimeManager {
   }
 
   async applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memoryLines: ParsedMemoryLine[] = [], arcSignals: ParsedArcSignal[] = [], epistemicSignals: ParsedEpistemicSignal[] = [], ledgerSignals: ParsedLedgerSignal[] = []) { await this.extraction.applyAudit(audit, facts, memoryLines, arcSignals, epistemicSignals, ledgerSignals); }
-
-  private onArcsResolved(resolved: ArcEntry[]): void {
-    if (!this.loaded || !resolved.length) return;
-    this.arcResolvedListeners.forEach((listener) => listener(resolved.map((arc) => arc.id)));
-  }
 
   async runArcSummaryPass(arcIds: string[]): Promise<boolean> { return this.memory.runArcSummaryPass(arcIds); }
   detectSceneBreak() { return this.extraction.detectSceneBreak(); }
@@ -645,9 +644,7 @@ export class RuntimeManager {
   getEpistemicBlock(): string { return this.memory.getEpistemicBlock(); }
   getLedgerBlock(): string { return this.memory.getLedgerBlock(); }
 
-  setEpistemicLedgerCapable(capable: boolean) {
-    this.setMemorySettings({ epistemicLedgerCapable: capable });
-  }
+  setEpistemicLedgerCapable(capable: boolean) { this.setMemorySettings({ epistemicLedgerCapable: capable }); }
 
   async setEpistemicPinned(id: string, pinned: boolean) { await this.memory.setEpistemicPinned(id, pinned); }
   async removeEpistemicEntry(id: string) { await this.memory.removeEpistemicEntry(id); }
@@ -674,7 +671,6 @@ export class RuntimeManager {
     this.extras.requirements = evaluateRequirements(this.loaded?.story ?? null);
     this.extras.updatedAt = new Date().toISOString();
   }
-
 }
 
 export const runtimeManager = new RuntimeManager();

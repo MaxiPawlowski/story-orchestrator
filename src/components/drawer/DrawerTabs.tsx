@@ -36,19 +36,23 @@ export interface DrawerTabsProps {
   driver: DrawerDriver;
   onOpenSettings?: () => void;
   onEditStory?: () => void;
+  onFixWithWizard?: () => void;
 }
 
 const extractionReady = (snapshot: RuntimeSnapshot): boolean => snapshot.extraction.settings.enabled && Boolean(snapshot.extraction.settings.profileId);
 
 const StatusDot = ({ ok }: { ok: boolean }) => <span className={`status-indicator status-${ok ? "success" : "error"}`} />;
 
-const AuthorRequirements = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
+// Diagnose-only dots were the U6 half of this panel: the wizard turns them into a next step it can
+// actually take — create the missing cards, lorebook and group (plan 06). Personas stay diagnostic.
+const AuthorRequirements = ({ snapshot, onFixWithWizard }: { snapshot: RuntimeSnapshot; onFixWithWizard?: () => void }) => {
   const items = [
     { label: "Persona", missing: snapshot.requirements.missingPersonas },
     { label: "Group", missing: snapshot.requirements.missingMembers },
     { label: "Lore", missing: snapshot.requirements.missingLorebooks },
   ];
   const ready = extractionReady(snapshot);
+  const provisionable = snapshot.requirements.missingMembers.length + snapshot.requirements.missingLorebooks.length > 0;
   return (
     <div className="flex flex-col gap-1">
       {items.map((item) => (
@@ -57,6 +61,9 @@ const AuthorRequirements = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
           {item.missing.length > 0 && <div className="text-xs opacity-80">Missing: {item.missing.join(", ")}</div>}
         </div>
       ))}
+      {provisionable && onFixWithWizard && (
+        <button id="so-fix-with-wizard" className="menu_button self-start" title="Open the wizard on the provisioning step, pre-filled with what this story is missing." onClick={onFixWithWizard}>Fix with wizard</button>
+      )}
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2"><StatusDot ok={ready} /><span>Extraction</span></div>
         {!ready && <div className="text-xs opacity-80">Off — the story will not advance on its own. Enable it and pick a model profile in settings.</div>}
@@ -68,7 +75,7 @@ const AuthorRequirements = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
 // Author-only machine view of the same checkpoint: ids, counters, gate progress and the raw
 // pending queue. Convergence is a spoiler by construction (it names a future anchor), so it never
 // appears without author view.
-const AuthorOverview = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
+const AuthorOverview = ({ snapshot, onFixWithWizard }: { snapshot: RuntimeSnapshot; onFixWithWizard?: () => void }) => (
   <div className="flex flex-col gap-3 border-t border-solid border-white/10 pt-2">
     <div className="text-xs opacity-80">
       <div className="font-medium opacity-100">Engine</div>
@@ -81,7 +88,7 @@ const AuthorOverview = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
         {snapshot.pendingDeltas.map((pending) => <div key={pending.quality}>{pending.quality} → {String(pending.value)}</div>)}
       </div>
     )}
-    <AuthorRequirements snapshot={snapshot} />
+    <AuthorRequirements snapshot={snapshot} onFixWithWizard={onFixWithWizard} />
     <div className="text-xs opacity-80">
       <div className="font-medium opacity-100">Tension</div>
       <div>Level: {snapshot.tension.level ?? "—"} {snapshot.tension.smoothed !== null && <span>({snapshot.tension.smoothed.toFixed(2)})</span>}</div>
@@ -110,10 +117,10 @@ const AuthorOverview = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
   </div>
 );
 
-const OverviewTab = ({ snapshot, authorView, onOpenSettings }: { snapshot: RuntimeSnapshot; authorView: boolean; onOpenSettings?: () => void }) => (
+const OverviewTab = ({ snapshot, authorView, onOpenSettings, onFixWithWizard }: { snapshot: RuntimeSnapshot; authorView: boolean; onOpenSettings?: () => void; onFixWithWizard?: () => void }) => (
   <div className="flex flex-col gap-3">
     <PlayerOverview snapshot={snapshot} onOpenSettings={onOpenSettings} />
-    {authorView && <AuthorOverview snapshot={snapshot} />}
+    {authorView && <AuthorOverview snapshot={snapshot} onFixWithWizard={onFixWithWizard} />}
   </div>
 );
 
@@ -477,7 +484,7 @@ const StoryControls = ({ snapshot, manager, onEditStory }: { snapshot: RuntimeSn
   </div>
 );
 
-export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditStory }: DrawerTabsProps) => {
+export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditStory, onFixWithWizard }: DrawerTabsProps) => {
   const [active, setActive] = useState<DrawerTabId>("overview");
   const authorView = snapshot.ui.authorView;
   const tabs = TABS.filter((tab) => authorView || !tab.authorOnly);
@@ -501,7 +508,7 @@ export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditSt
         <FlagControl manager={manager} />
       </div>
       <div role="tabpanel">
-        {activeTab === "overview" && <OverviewTab snapshot={snapshot} authorView={authorView} onOpenSettings={onOpenSettings} />}
+        {activeTab === "overview" && <OverviewTab snapshot={snapshot} authorView={authorView} onOpenSettings={onOpenSettings} onFixWithWizard={onFixWithWizard} />}
         {activeTab === "blackboard" && <BlackboardTab snapshot={snapshot} />}
         {activeTab === "memory" && <MemoryTab snapshot={snapshot} manager={manager} authorView={authorView} />}
         {activeTab === "scheduler" && <SchedulerTab snapshot={snapshot} />}

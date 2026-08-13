@@ -1,7 +1,8 @@
 import { Blackboard, evaluateGate, renderGateText, type EngineState, type NormalizedStoryV2, type StoryV2 } from "@engine/index";
 import { runAuthoringStage, runDriverReport, runDriverSuggest, type CopilotMessage, type CopilotStage, type DriverContext, type ProposalResult, type Suggestion } from "@copilot/index";
 import { getLastMessageText } from "@extraction/index";
-import { clearStoryExtensionPrompt, setStoryExtensionPrompt } from "@services/STAPI";
+import { validateProvisioningOp, type ProvisioningEnvironment, type ProvisioningOp, type ProvisioningResult } from "@wizard/index";
+import { activateGlobalLorebook, clearStoryExtensionPrompt, createCharacterCard, createGroup, createLorebook, getAllCharacterNames, listAllLorebooks, listGlobalLorebooks, listGroupNames, setStoryExtensionPrompt, upsertWIEntry } from "@services/STAPI";
 import { COPILOT_NUDGE_KEY } from "@constants/defaults";
 import { buildConvergenceReadout } from "../snapshot";
 import type { CopilotRuntimeSettings } from "../types";
@@ -26,8 +27,51 @@ export class CopilotCoordinator {
     return { profileId: this.deps.getProfileId(), debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugCopilotResponse ?? null };
   }
 
-  async runStage(input: { draft: StoryV2; stage: CopilotStage; message: string; history: CopilotMessage[] }, debugResponse?: string): Promise<ProposalResult> {
-    return runAuthoringStage(input, this.client(debugResponse));
+  async runStage(input: { draft: StoryV2; stage: CopilotStage; message: string; history: CopilotMessage[]; environment?: ProvisioningEnvironment }, debugResponse?: string): Promise<ProposalResult> {
+    return runAuthoringStage({ ...input, environment: input.environment ?? (input.stage === "provisioning" ? this.getProvisioningEnvironment(input.draft) : undefined) }, this.client(debugResponse));
+  }
+
+  // What the install already has, plus which lorebooks this story owns — the only facts the
+  // create-only rule needs. Read fresh every time: the wizard is creating assets as it goes.
+  // `lorebookNames` is *every* book, not just the globally selected ones: an inactive book the user
+  // wrote is still theirs, and creating over it would be exactly the thing create-only forbids.
+  getProvisioningEnvironment(draft?: StoryV2): ProvisioningEnvironment {
+    const safe = <T>(read: () => T[], fallback: T[]): T[] => { try { return read(); } catch { return fallback; } };
+    const story = draft ?? this.deps.getStory();
+    return {
+      characterNames: safe(getAllCharacterNames, []),
+      lorebookNames: safe(listAllLorebooks, safe(listGlobalLorebooks, [])),
+      groupNames: safe(listGroupNames, []),
+      storyLorebooks: story?.requirements?.lorebooks ?? [],
+    };
+  }
+
+  // The one write path to the user's install. Validation runs again here — the UI is a convenience,
+  // never the guard (spec addendum §Story wizard: enforced in op validation, not prompt-trusted).
+  async applyProvisioning(op: ProvisioningOp, draft?: StoryV2): Promise<ProvisioningResult> {
+    const validation = validateProvisioningOp(op, this.getProvisioningEnvironment(draft));
+    if (!validation.ok) return { ok: false, message: validation.message };
+    try {
+      if (op.kind === "createCharacterCard") {
+        const created = await createCharacterCard(op);
+        return { ok: true, message: `Created the character card "${created.name}".`, created: created.name };
+      }
+      if (op.kind === "createStoryLorebook") {
+        const result = await createLorebook(op.name);
+        if (!result.created) return { ok: false, message: `Could not create the lorebook "${op.name}".` };
+        return { ok: true, message: `Created the lorebook "${op.name}"${result.activated ? " and switched it on" : " — switch it on in World Info to use it"}.`, created: op.name };
+      }
+      if (op.kind === "upsertLorebookEntry") {
+        await activateGlobalLorebook(op.lorebook);
+        const result = await upsertWIEntry(op.lorebook, op.comment, op.content, op.keys, op.constant === undefined ? {} : { constant: op.constant });
+        if (result === "failed") return { ok: false, message: `Could not write "${op.comment}" into "${op.lorebook}".` };
+        return { ok: true, message: `${result === "created" ? "Added" : "Updated"} "${op.comment}" in "${op.lorebook}".`, created: `${op.lorebook}/${op.comment}` };
+      }
+      const group = await createGroup(op.name, op.members);
+      return { ok: true, message: `Created the group "${group.name}" with ${group.members.length} member(s).`, created: group.name };
+    } catch (error) {
+      return { ok: false, message: error instanceof Error ? error.message : "Provisioning failed" };
+    }
   }
 
   getDriverContext(): DriverContext | null {

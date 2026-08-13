@@ -1,0 +1,27 @@
+{
+  "format": 2,
+  "id": "so-j9-fixme",
+  "version": 1,
+  "title": "SO-J9 Unrunnable Story",
+  "description": "Journey J9 fixture for 'Fix with wizard': it requires a lorebook no check ever creates, so the unmet state is stable whatever order the checks run in.",
+  "requirements": {
+    "lorebooks": ["SO-J9 Missing Lore"]
+  },
+  "qualities": [
+    { "key": "gate_open", "type": "bool", "source": "extractor", "rubric": "Is the gate open?" }
+  ],
+  "checkpoints": [
+    { "id": "outside", "name": "Outside the Gate", "objective": "Find a way in.", "type": "anchor", "start": true },
+    { "id": "inside", "name": "Inside", "objective": "Go through.", "type": "anchor", "convergence_threshold": 1 }
+  ],
+  "transitions": [
+    {
+      "from": "outside",
+      "to": "inside",
+      "gate": { "q": "gate_open", "op": "==", "v": true },
+      "priority": 0,
+      "effects": { "progress": { "anchor": "inside", "amount": 1 } }
+    }
+  ],
+  "roster": []
+}
