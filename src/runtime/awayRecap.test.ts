@@ -1,4 +1,25 @@
 import { AWAY_RECAP_MIN_MS, buildAwayRecap, shouldShowAwayRecap } from "./awayRecap";
+import { buildNarrativeStatus } from "./narrative";
+import { derivePipelineStatus } from "./pipeline";
+
+const narrative = (overrides: Parameters<typeof buildNarrativeStatus>[0] extends infer T ? Partial<T> : never = {}) => buildNarrativeStatus({
+  storyTitle: "Sun Ruins",
+  checkpointName: "The Ruined Gate",
+  objective: "Reach the sanctum.",
+  lastTransition: null,
+  openThreads: ["The missing sun-heart", "Ponticius's true loyalty"],
+  canon: "The party crossed the dunes and reached the gate.",
+  tensionLevel: "critical",
+  pendingCount: 0,
+  pipeline: derivePipelineStatus({
+    settings: { enabled: true, profileId: "p1", cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 },
+    audits: [],
+    reconciliationEvents: [],
+    lastReadBoundary: 0,
+    scheduler: { queueDepth: 0, inFlight: false, lastError: null },
+  }),
+  ...overrides,
+});
 
 describe("shouldShowAwayRecap", () => {
   const now = Date.parse("2026-07-06T12:00:00.000Z");
@@ -21,33 +42,17 @@ describe("shouldShowAwayRecap", () => {
 });
 
 describe("buildAwayRecap", () => {
-  it("summarizes checkpoint, tension, arcs and canon", () => {
-    const recap = buildAwayRecap({
-      storyTitle: "Sun Ruins",
-      activeCheckpointName: "The Ruined Gate",
-      activeObjective: "Reach the sanctum.",
-      openArcs: ["The missing sun-heart", "Ponticius's true loyalty"],
-      canon: "The party crossed the dunes and reached the gate.",
-      tensionLevel: "high",
-      gapMs: 26 * 60 * 60 * 1000,
-    });
+  it("shows the standing player composition under a welcome-back heading", () => {
+    const recap = buildAwayRecap(narrative(), 26 * 60 * 60 * 1000);
     expect(recap.title).toContain("Sun Ruins");
     expect(recap.title).toContain("1d");
-    expect(recap.lines[0]).toBe("Checkpoint: The Ruined Gate — Reach the sanctum.");
+    expect(recap.lines[0]).toContain("The Ruined Gate");
     expect(recap.lines.some((line) => line.includes("The missing sun-heart"))).toBe(true);
-    expect(recap.html).toContain("Canon so far");
+    expect(recap.html).toContain("The story so far");
   });
 
   it("escapes html in dynamic content", () => {
-    const recap = buildAwayRecap({
-      storyTitle: "<script>",
-      activeCheckpointName: null,
-      activeObjective: null,
-      openArcs: [],
-      canon: "",
-      tensionLevel: null,
-      gapMs: AWAY_RECAP_MIN_MS,
-    });
+    const recap = buildAwayRecap(narrative({ storyTitle: "<script>" }), AWAY_RECAP_MIN_MS);
     expect(recap.html).not.toContain("<script>");
     expect(recap.html).toContain("&lt;script&gt;");
   });

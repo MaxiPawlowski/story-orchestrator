@@ -33,6 +33,8 @@ plus live-ST validation with SillyTavern running at `http://127.0.0.1:8000/` usi
 | Macros | `MacrosParser` (already wrapped in `stHost/context.ts`) | existing |
 | Roster toggle | group `disabled_members` | `public/scripts/group-chats.js` |
 | Per-character draft hook | event `GROUP_MEMBER_DRAFTED` (`'group_member_drafted'`) | `public/scripts/events.js:59` |
+| Persona names (story requirements picker) | `getContext().powerUserSettings.personas` — `Record<avatarFile, name>` | `public/scripts/st-context.js:229`, `public/scripts/power-user.js:286` |
+| Three-way popup (v2.1 plan 05 invalidation choice) | `callGenericPopup(content, POPUP_TYPE.CONFIRM, "", { customButtons: [{text, result}] })`; results start at 2, built-ins are AFFIRMATIVE=1 / NEGATIVE=0 / CANCELLED=null | `public/scripts/popup.js:24`, `public/scripts/popup.js:288` |
 | Presets / AN / WI / slash / events | existing `stHost/` modules: `presets.ts` (`applyTextGenPresetRuntime`…), `authorNotes.ts`, `worldInfo.ts` (`enableWIEntry`/`disableWIEntry`), `slashCommands.ts`, `events.ts` | `src/services/stHost/` |
 
 Vendored host-type ledger (post-acceptance hardening 2026-07-07; `src/services/stHost/hostTypes.ts` — verify against these host locations before widening a type):

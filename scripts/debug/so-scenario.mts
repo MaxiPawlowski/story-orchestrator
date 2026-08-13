@@ -8,15 +8,15 @@ import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { openMostRecentGroupChat, startNewGroupSession } from './st-navigation.mts';
 import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, sendUserMessage, swipeMessage, waitForIdle } from './st-actions.mts';
 import { dumpCurrentChatState } from './so-state.mts';
-import { closeCheckpointStudio, openCheckpointStudio, openExtensionSettings, openStoryDrawer, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot } from './so-ui.mts';
+import { assertPlayerClean, closeCheckpointStudio, getPipelineState, openCheckpointStudio, openExtensionSettings, openStoryDrawer, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot } from './so-ui.mts';
 
 const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep]
 
 Step keys:
-  import_story, select_story, restart_story, send, send_generate, slash, extract, expand, eval, copilot, ui, reload, swipe, edit, delete, wait, expect, expect_ui
+  import_story, select_story, restart_story, studio_save, send, send_generate, slash, extract, expand, eval, copilot, ui, reload, swipe, edit, delete, wait, expect, expect_ui
 
 ui actions ({ui: {action, label?, note?}}):
-  open-drawer, drawer-tab, open-settings, select-profile, open-studio, close-studio, studio-tab, flag, screenshot
+  open-drawer, drawer-tab, open-settings, select-profile, open-studio, close-studio, studio-tab, studio-save, flag, screenshot
 
 copilot actions ({copilot: {action, ...}}):
   stage ({draft, stage, message?, debug?} — throws if the proposal is invalid),
@@ -24,6 +24,7 @@ copilot actions ({copilot: {action, ...}}):
 
 expect verbs:
   storyId, storyIdentity ({id,playedVersion,libraryVersion,pinned,drifted}),
+  storyVersion ({played,library,drifted}), hotSwap ({applied,classification,choice,boundaryAtLeast,dropped}),
   activeCheckpoint, activeCheckpointIn, blackboard, blackboardMissing, latched, auditCount>=, npcFired,
   expansion, tension, pacingPrompt, requirementsReady, convergence, reconciliationEvents>=,
   memory ({tier: {count, contains}}), sceneBreaks>=, memoryInjection ({tier: bool}),
@@ -102,6 +103,31 @@ function evaluateExpect(state, expected) {
   // Real-model runs can overshoot a checkpoint between polls; assert the set the story may be in.
   if (Array.isArray(expected.activeCheckpointIn) && !expected.activeCheckpointIn.includes(actual.activeCheckpoint)) {
     failures.push(`activeCheckpoint: expected one of ${expected.activeCheckpointIn.join(', ')}, got ${actual.activeCheckpoint}`);
+  }
+  // assertStoryVersion: what this chat plays versus what the library holds (plan 05).
+  if (expected.storyVersion) {
+    const identity = state?.liveSnapshot?.storyIdentity ?? {};
+    const spec = expected.storyVersion as { played?: number; library?: number; drifted?: boolean };
+    if (spec.played !== undefined && identity.playedVersion !== spec.played) failures.push(`storyVersion.played: expected ${spec.played}, got ${identity.playedVersion}`);
+    if (spec.library !== undefined && identity.libraryVersion !== spec.library) failures.push(`storyVersion.library: expected ${spec.library}, got ${identity.libraryVersion}`);
+    if (spec.drifted !== undefined && Boolean(identity.drifted) !== spec.drifted) failures.push(`storyVersion.drifted: expected ${spec.drifted}, got ${Boolean(identity.drifted)}`);
+  }
+  // assertHotSwap: the last library→chat update and what it cost the run.
+  if (expected.hotSwap) {
+    const update = state?.lastStoryUpdate ?? null;
+    const spec = expected.hotSwap as { applied?: boolean; classification?: string; choice?: string; boundaryAtLeast?: number; dropped?: string[] };
+    if (!update) failures.push('hotSwap: no story update recorded in this chat');
+    else {
+      if (spec.applied !== undefined && update.applied !== spec.applied) failures.push(`hotSwap.applied: expected ${spec.applied}, got ${update.applied} (${update.reason ?? 'no reason'})`);
+      if (spec.classification !== undefined && update.classification !== spec.classification) failures.push(`hotSwap.classification: expected ${spec.classification}, got ${update.classification}`);
+      if (spec.choice !== undefined && update.choice !== spec.choice) failures.push(`hotSwap.choice: expected ${spec.choice}, got ${update.choice}`);
+      for (const key of spec.dropped ?? []) {
+        if (!(update.dropped ?? []).includes(key)) failures.push(`hotSwap.dropped: expected ${key} to be dropped, got ${JSON.stringify(update.dropped)}`);
+      }
+    }
+    if (spec.boundaryAtLeast !== undefined && (actual.boundary ?? 0) < spec.boundaryAtLeast) {
+      failures.push(`hotSwap.boundaryAtLeast: expected the run to survive to boundary >= ${spec.boundaryAtLeast}, got ${actual.boundary}`);
+    }
   }
   if (expected.blackboard) failures.push(...compareSubset(actual.blackboard, expected.blackboard, 'blackboard'));
   if (Array.isArray(expected.blackboardMissing)) {
@@ -382,7 +408,14 @@ async function uiStep(page, spec) {
   if (action === 'open-studio') return openCheckpointStudio(page);
   if (action === 'close-studio') return closeCheckpointStudio(page);
   if (action === 'studio-tab') return switchStudioTab(page, label);
+  if (action === 'studio-save') return saveStudioDraft(page, (typeof spec === 'object' ? spec?.choice : null) ?? null);
   if (action === 'screenshot') return takeAnnotatedScreenshot(page, label ?? 'so-scenario');
+  if (action === 'pipeline') return getPipelineState(page);
+  if (action === 'assert-player-clean') {
+    const result = await assertPlayerClean(page);
+    if (!result.ok) throw new Error(`player surface leaks: ${result.findings.map((finding) => `${finding.tab}:${finding.needle}`).join(', ')}`);
+    return result;
+  }
   if (action === 'flag') {
     await openStoryDrawer(page);
     const button = page.locator('#so-flag-moment');
@@ -467,6 +500,7 @@ async function runStep(page, key, value, { scenarioDir = PROJECT_ROOT, importedH
   }
   if (key === 'select_story') return selectStory(page, value);
   if (key === 'restart_story') return restartStory(page, value);
+  if (key === 'studio_save') return saveStudioDraft(page, typeof value === 'string' ? value : value?.choice ?? null);
   if (key === 'send') return sendCompactMessage(page, value);
   if (key === 'send_generate') return typeof value === 'string' ? sendUserMessage(page, value) : sendUserMessage(page, value.text, { idleTimeoutMs: value.timeoutMs });
   if (key === 'slash') return executeSlashCommand(page, value);

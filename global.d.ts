@@ -40,6 +40,7 @@ declare global {
   var talkControlInterceptor: TalkControlInterceptor | undefined;
   var storyOrchestratorRuntime: import("@runtime/index").RuntimeManager | undefined;
   var storyOrchestratorStudioDraft: typeof import("./src/studio/draft").useDraftStore | undefined;
+  var storyOrchestratorStudioTabs: import("./src/studio/StudioModal").StudioTab[] | undefined;
   var storyOrchestratorLiveSuite: import("./src/runtime/liveSuite").LiveSuiteHandle | undefined;
   var storyOrchestratorDebugExtractionResponse: string | null | undefined;
   var storyOrchestratorDebugGenerationResponse: string | null | undefined;

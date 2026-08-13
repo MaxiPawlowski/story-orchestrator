@@ -10,13 +10,14 @@ const baseSnapshot = (overrides: Record<string, unknown> = {}): RuntimeSnapshot 
     tension: { level: "high", smoothed: 0.72, expected: 0.6, hint: null },
     ui: { authorView: false, announceTransitions: true, hudEnabled: true },
     pendingDeltas: [],
+    pipeline: { state: "idle", text: "Following along.", detail: null, needsSetup: false },
     ...overrides,
   }) as unknown as RuntimeSnapshot;
 
 const meta: Meta<typeof HudStrip> = {
   title: "Drawer/HudStrip",
   component: HudStrip,
-  args: { onOpenDrawer: fn() },
+  args: { onOpenDrawer: fn(), onOpenSettings: fn() },
 };
 
 export default meta;
@@ -31,6 +32,25 @@ export const Default: Story = {
     await expect(canvas.getByText(/tension high/)).toBeInTheDocument();
     await userEvent.click(canvas.getByRole("button"));
     await expect(args.onOpenDrawer).toHaveBeenCalledTimes(1);
+  },
+};
+
+export const CatchingUp: Story = {
+  args: { snapshot: baseSnapshot({ pipeline: { state: "stalled-rechecking", text: "Catching up — re-checking recent scenes.", detail: null, needsSetup: false } }) },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByText("catching up…"));
+    await expect(args.onOpenDrawer).toHaveBeenCalled();
+    await expect(args.onOpenSettings).not.toHaveBeenCalled();
+  },
+};
+
+export const NeedsSetup: Story = {
+  args: { snapshot: baseSnapshot({ pipeline: { state: "not-configured", text: "Nothing is following the story yet — choose a memory model in the extension settings.", detail: null, needsSetup: true } }) },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByText("needs setup"));
+    await expect(args.onOpenSettings).toHaveBeenCalledTimes(1);
   },
 };
 

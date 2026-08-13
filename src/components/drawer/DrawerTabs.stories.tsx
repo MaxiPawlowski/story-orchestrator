@@ -1,13 +1,37 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn, within, userEvent, expect } from "@storybook/test";
 import type { RuntimeManager } from "@runtime/index";
-import type { RuntimeSnapshot } from "@runtime/types";
+import { buildNarrativeStatus } from "@runtime/narrative";
+import { derivePipelineStatus } from "@runtime/pipeline";
+import type { ExtractionRuntimeState, RuntimeSnapshot } from "@runtime/types";
 import { DrawerTabs } from "./DrawerTabs";
 
-const sampleSnapshot = (): RuntimeSnapshot =>
-  ({
+// The narrative and pipeline slices are derived, never hand-written: a story that faked them
+// could pass while the real composition is broken.
+const derive = (snapshot: RuntimeSnapshot): RuntimeSnapshot => {
+  const pipeline = derivePipelineStatus(snapshot.extraction as ExtractionRuntimeState);
+  return {
+    ...snapshot,
+    pipeline,
+    narrative: buildNarrativeStatus({
+      storyTitle: snapshot.storyTitle,
+      checkpointName: snapshot.activeCheckpointName,
+      objective: snapshot.activeObjective,
+      lastTransition: { fromName: "Camp", toName: snapshot.activeCheckpointName ?? "here" },
+      openThreads: (snapshot.memory.arcs ?? []).filter((arc) => arc.status === "open").map((arc) => arc.text),
+      canon: snapshot.memory.canon?.text ?? "",
+      tensionLevel: snapshot.tension.level,
+      pendingCount: snapshot.pendingDeltas.length,
+      pipeline,
+    }),
+  };
+};
+
+const sampleSnapshot = (): RuntimeSnapshot => derive(({
     ready: true,
+    storyId: "sun-ruins",
     storyHash: "v2-demo",
+    storyIdentity: { id: "sun-ruins", playedVersion: 1, libraryVersion: 1, pinned: true, drifted: false },
     storyTitle: "Quest for the Sun Ruins",
     storyDescription: "A desert expedition toward a buried temple.",
     activeCheckpointId: "gate",
@@ -64,7 +88,7 @@ const sampleSnapshot = (): RuntimeSnapshot =>
     },
     pendingDeltas: [],
     convergence: [{ anchorId: "sanctum", anchorName: "Inner Sanctum", progress: 1, threshold: 2, reached: false }],
-    tension: { level: "high", smoothed: 0.72, expected: 0.6, hint: null },
+    tension: { level: "tense", smoothed: 0.72, expected: 0.6, hint: null },
     ledger: [],
     driver: null,
     activeNudge: null,
@@ -74,7 +98,7 @@ const sampleSnapshot = (): RuntimeSnapshot =>
         { key: "story_orchestrator_pacing", depth: 2, role: 0, value: "Raise the stakes toward the sanctum." },
       ] },
     ],
-  }) as unknown as RuntimeSnapshot;
+  }) as unknown as RuntimeSnapshot);
 
 const fakeManager = (): RuntimeManager =>
   ({
@@ -89,6 +113,8 @@ const fakeManager = (): RuntimeManager =>
     removeArc: fn(),
     removeLedgerEntry: fn(),
     flagMoment: fn(),
+    restartStory: fn(),
+    applyStoryUpdate: fn(),
   }) as unknown as RuntimeManager;
 
 const memorySnapshot = (): RuntimeSnapshot => {
@@ -117,7 +143,7 @@ const memorySnapshot = (): RuntimeSnapshot => {
     { entity: "Sphinx", field: "mood", value: "watchful", bound: false },
     { entity: "Sphinx", field: "respect", value: "2", bound: true },
   ];
-  return snapshot as unknown as RuntimeSnapshot;
+  return derive(snapshot as unknown as RuntimeSnapshot);
 };
 
 const emptySnapshot = (): RuntimeSnapshot => {
@@ -127,7 +153,7 @@ const emptySnapshot = (): RuntimeSnapshot => {
   snapshot.payloadCaptures = [];
   snapshot.convergence = [];
   snapshot.extraction = { ...snapshot.extraction, audits: [] };
-  return snapshot as unknown as RuntimeSnapshot;
+  return derive(snapshot as unknown as RuntimeSnapshot);
 };
 
 const meta: Meta<typeof DrawerTabs> = {
@@ -167,6 +193,7 @@ export const Scheduler: Story = {
     await userEvent.click(canvas.getByRole("tab", { name: "Scheduler" }));
     await expect(canvas.getByText("Extraction")).toBeInTheDocument();
     await expect(canvas.getByText("Expansion")).toBeInTheDocument();
+    await expect(canvas.getByText("Stall re-checks")).toBeInTheDocument();
   },
 };
 
@@ -206,7 +233,7 @@ const playerSnapshot = (): RuntimeSnapshot => {
   const snapshot = sampleSnapshot() as unknown as { ui: Record<string, unknown>; pendingDeltas: unknown[] };
   snapshot.ui = { authorView: false, announceTransitions: true, hudEnabled: true };
   snapshot.pendingDeltas = [{ quality: "luke_decision", value: "accepted", source: "extractor" }];
-  return snapshot as unknown as RuntimeSnapshot;
+  return derive(snapshot as unknown as RuntimeSnapshot);
 };
 
 export const PlayerView: Story = {
@@ -221,29 +248,78 @@ export const PlayerView: Story = {
     await expect(canvas.queryByRole("tab", { name: "Scheduler" })).toBeNull();
     await expect(canvas.queryByRole("tab", { name: "Payload" })).toBeNull();
     await expect(canvas.getByRole("tab", { name: "Memory" })).toBeInTheDocument();
-    await expect(canvas.queryByText(/Boundary 6/)).toBeNull();
-    await expect(canvas.getByText(/Heard, applies next turn/)).toBeInTheDocument();
-    await expect(canvas.getByText(/luke_decision → accepted/)).toBeInTheDocument();
-    await expect(canvas.getByText("Extraction")).toBeInTheDocument();
+    await expect(canvas.getByText("The Ruined Gate")).toBeInTheDocument();
+    await expect(canvas.getByText(/1 thing the story picked up/)).toBeInTheDocument();
+    // No engine vocabulary, no gate progress, no raw quality keys on the player surface.
+    await expect(canvas.queryByText(/boundary 6/i)).toBeNull();
+    await expect(canvas.queryByText(/luke_decision/)).toBeNull();
+    await expect(canvas.queryByText(/Convergence/)).toBeNull();
+    await expect(canvas.queryByText(/Inner Sanctum/)).toBeNull();
   },
 };
 
-const extractionOffSnapshot = (): RuntimeSnapshot => {
-  const snapshot = playerSnapshot() as unknown as { extraction: { settings: Record<string, unknown> }; pendingDeltas: unknown[] };
-  snapshot.extraction = { ...snapshot.extraction, settings: { ...snapshot.extraction.settings, enabled: false, profileId: null } };
-  snapshot.pendingDeltas = [];
-  return snapshot as unknown as RuntimeSnapshot;
+const playerMemorySnapshot = (): RuntimeSnapshot => {
+  const snapshot = memorySnapshot() as unknown as { ui: Record<string, unknown> };
+  snapshot.ui = { authorView: false, announceTransitions: true, hudEnabled: true };
+  return derive(snapshot as unknown as RuntimeSnapshot);
 };
 
-export const ExtractionOff: Story = {
+export const PlayerMemory: Story = {
   render: () => (
     <div style={{ maxWidth: 360 }}>
-      <DrawerTabs snapshot={extractionOffSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      <DrawerTabs snapshot={playerMemorySnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
     </div>
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText(/the story will not advance on its own/)).toBeInTheDocument();
+    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await expect(canvas.getByText(/The sun-key opens the inner sanctum\./)).toBeInTheDocument();
+    await expect(canvas.getAllByRole("button", { name: "Exclude" }).length).toBeGreaterThan(0);
+    await expect(canvas.queryByText(/Epistemic map/)).toBeNull();
+    await expect(canvas.queryByText(/State ledger/)).toBeNull();
+    await expect(canvas.queryByText(/hiding from Arin/)).toBeNull();
+    await expect(canvas.queryByText(/⤳ superseded/)).toBeNull();
+    await expect(canvas.queryByText(/The gate is sealed by dawn wards\./)).toBeNull();
+    await expect(canvas.queryByText(/Arcs \(open/)).toBeNull();
+  },
+};
+
+const notConfiguredSnapshot = (): RuntimeSnapshot => {
+  const snapshot = playerSnapshot() as unknown as { extraction: { settings: Record<string, unknown> }; pendingDeltas: unknown[] };
+  snapshot.extraction = { ...snapshot.extraction, settings: { ...snapshot.extraction.settings, enabled: true, profileId: null } };
+  snapshot.pendingDeltas = [];
+  return derive(snapshot as unknown as RuntimeSnapshot);
+};
+
+export const NotConfigured: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={notConfiguredSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} onOpenSettings={fn()} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/choose a memory model/)).toBeInTheDocument();
+    await expect(canvas.getByRole("button", { name: "Open story settings" })).toBeInTheDocument();
+  },
+};
+
+const catchingUpSnapshot = (): RuntimeSnapshot => {
+  const snapshot = playerSnapshot() as unknown as { extraction: Record<string, unknown> };
+  snapshot.extraction = { ...snapshot.extraction, reconciliationEvents: [{ id: "r1", boundary: 6, checkpointId: "gate", targetedKeys: ["has_key"], scheduledAt: "t", resolvedAt: null, evidence: [] }] };
+  return derive(snapshot as unknown as RuntimeSnapshot);
+};
+
+export const CatchingUp: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={catchingUpSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/re-checking recent scenes/)).toBeInTheDocument();
+    await expect(canvas.queryByText(/has_key/)).toBeNull();
   },
 };
 
@@ -259,6 +335,42 @@ export const Empty: Story = {
     await expect(canvas.getByText("No blackboard values yet.")).toBeInTheDocument();
     await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
     await expect(canvas.getByText(/No captures yet\./)).toBeInTheDocument();
+  },
+};
+
+const driftedSnapshot = (): RuntimeSnapshot => {
+  const snapshot = sampleSnapshot() as unknown as { storyIdentity: Record<string, unknown> };
+  snapshot.storyIdentity = { id: "sun-ruins", playedVersion: 1, libraryVersion: 3, pinned: true, drifted: true };
+  return derive(snapshot as unknown as RuntimeSnapshot);
+};
+
+// The author loop's entry points (plan 05): Edit story and the explicit "take the newer version"
+// are author-view only; Restart is the player's too.
+export const AuthorStoryControls: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={driftedSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} onEditStory={fn()} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("button", { name: "Edit story" })).toBeInTheDocument();
+    await expect(canvas.getByRole("button", { name: "Update to v3" })).toBeInTheDocument();
+    await expect(canvas.getByRole("button", { name: "Restart story" })).toBeInTheDocument();
+  },
+};
+
+export const PlayerStoryControls: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={playerSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} onEditStory={fn()} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("button", { name: "Restart story" })).toBeInTheDocument();
+    await expect(canvas.queryByRole("button", { name: "Edit story" })).toBeNull();
+    await expect(canvas.queryByRole("button", { name: /Update to v/ })).toBeNull();
   },
 };
 

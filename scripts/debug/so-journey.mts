@@ -208,13 +208,22 @@ async function runCleanup(page, journey, { importedHashes, libraryBefore, config
     }, removable).catch((error) => ({ error: error.message }));
   }
   if (removable.length !== importedHashes.length) report.keptPreExistingStories = importedHashes.filter((hash) => preExisting.has(hash));
-  // cast_changes mutates the group's disabled_members, which outlives the sandbox chat
-  // (see .claude/rules/debug-scripts.md) — put the roster back before leaving.
+  if (chatStarted && cleanup.deleteChat !== false) {
+    report.chat = await executeSlashCommand(page, '/delchat').then(() => ({ deleted: true })).catch((error) => ({ error: error.message }));
+  }
+  // cast_changes mutates the group's disabled_members, which outlives the sandbox chat (see
+  // .claude/rules/debug-scripts.md). Restore AFTER deleting the chat: enabling members while the
+  // sandbox chat is still open gets undone when ST reloads the group behind /delchat, which is how
+  // a "clean" J5 run left Ponticius and Luke disabled (plan 04). Verified, not assumed.
   for (const member of cleanup.enableMembers ?? []) {
     report[`member:${member}`] = await executeSlashCommand(page, `/member-enable ${member}`).then(() => ({ enabled: true })).catch((error) => ({ error: error.message }));
   }
-  if (chatStarted && cleanup.deleteChat !== false) {
-    report.chat = await executeSlashCommand(page, '/delchat').then(() => ({ deleted: true })).catch((error) => ({ error: error.message }));
+  if (cleanup.enableMembers?.length) {
+    report.disabledMembers = await evaluateInST(page, () => {
+      const ctx = SillyTavern.getContext();
+      const group = (ctx.groups ?? []).find((entry) => entry.id === ctx.groupId);
+      return group?.disabled_members ?? [];
+    }).catch((error) => ({ error: error.message }));
   }
   return report;
 }

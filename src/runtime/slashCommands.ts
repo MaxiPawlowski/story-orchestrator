@@ -24,6 +24,18 @@ const dump = (message: string) => {
   return message;
 };
 
+type SlashEnumValueFactory = new (value: string, description?: string) => unknown;
+
+const hasSlashEnumValue = (value: unknown): value is SlashEnumValueFactory => typeof value === "function";
+
+// SlashCommandArgument wraps bare strings itself; the typed values only add the description line
+// in autocomplete, so a host without the class still gets a usable enum.
+const buildEnumList = (context: ReturnType<typeof getContext>, values: Array<[string, string]>): unknown[] => {
+  const EnumValue = context.SlashCommandEnumValue;
+  if (!hasSlashEnumValue(EnumValue)) return values.map(([value]) => value);
+  return values.map(([value, description]) => new EnumValue(value, description));
+};
+
 let lastMemListIds: string[] = [];
 
 const resolveMemId = (token: string | undefined): string | undefined => {
@@ -94,9 +106,9 @@ export function registerSlashCommands(manager: RuntimeManager): boolean {
         if (!ok) return show(manager.getSnapshot().memory.backfill?.lastError ?? "Memorize backlog could not start.");
         return show(manager.getSnapshot().status);
       }
-      return dump("Commands: /cp list, /cp state, /cp activate <id>, /cp set <quality> <value>, /cp extract [response], /cp expand [response], /cp converge, /cp memorize");
+      return dump("Author commands: /cp list, /cp state, /cp activate <id>, /cp set <quality> <value>, /cp converge · debug: /cp extract [response], /cp expand [response] · players want /story");
     },
-    helpString: "Story Orchestrator v2 commands: list, state, activate <id>, set <quality> <value>, extract [response], expand [response], converge, memorize",
+    helpString: "Story Orchestrator author tools (spoils the story — players want /story): list, state, activate <id>, set <quality> <value>, converge; debug: extract [response], expand [response]",
   }));
 
   const memArgumentList = hasSlashArgumentFactory(slashArgument) && hasSlashArgumentTypes(context.ARGUMENT_TYPE) ? [slashArgument.fromProps({
@@ -143,5 +155,44 @@ export function registerSlashCommands(manager: RuntimeManager): boolean {
     helpString: "Story Orchestrator v2 memory commands: list, pin <number|id> on|off, exclude <number|id>, backlog",
   }));
 
-  return Boolean(parser.commands?.cp && parser.commands?.["so-mem"]);
+  // The player-safe surface: where am I, what is open, mark this moment. No ids, no debug verbs,
+  // nothing that steers the story (D1) — /cp stays whole, but it is an author tool.
+  const storyArgumentList = hasSlashArgumentFactory(slashArgument) && hasSlashArgumentTypes(context.ARGUMENT_TYPE) ? [slashArgument.fromProps({
+    description: "recap | threads | flag [note]",
+    typeList: [context.ARGUMENT_TYPE.STRING],
+    isRequired: false,
+    acceptsMultiple: true,
+    enumList: buildEnumList(context, [
+      ["recap", "where the story is right now"],
+      ["threads", "what is still open"],
+      ["flag", "mark this moment for later review"],
+    ]),
+  })] : [];
+
+  parser.addCommandObject(slashCommand.fromProps({
+    name: "story",
+    rawQuotes: true,
+    unnamedArgumentList: storyArgumentList,
+    callback: async (_args: SlashArgs, value: string | string[]) => {
+      const raw = Array.isArray(value) ? value.join(" ") : String(value ?? "");
+      const parts = raw.trim().split(/\s+/).filter(Boolean);
+      const command = parts[0] ?? "recap";
+      if (command === "recap") {
+        const narrative = manager.getNarrativeStatus();
+        return dump(`${narrative.title}\n\n${narrative.text}`);
+      }
+      if (command === "threads") {
+        const threads = manager.getOpenArcs();
+        return dump(threads.length ? threads.map((thread) => `• ${thread}`).join("\n") : "No open threads right now.");
+      }
+      if (command === "flag") {
+        await manager.flagMoment(parts.slice(1).join(" "));
+        return show("Flagged this moment.");
+      }
+      return dump("Commands: /story recap, /story threads, /story flag [note]");
+    },
+    helpString: "Story Orchestrator: recap (where the story is), threads (what is still open), flag [note] (mark this moment for review)",
+  }));
+
+  return Boolean(parser.commands?.cp && parser.commands?.["so-mem"] && parser.commands?.story);
 }

@@ -11,6 +11,7 @@ src/
   index.tsx                  # boots the runtime, mounts settings panel + drawer
   engine/                    # pure — never imports STAPI
     schema.ts validate.ts    # format-2 types, normalization, graph indexes
+    storyDiff.ts             # classifies an edit against live state (compatible/invalidating) + state pruning
     blackboard.ts            # typed values, versions, latching, monotonic checks
     gates.ts transitions.ts convergence.ts
     applyQueue.ts engine.ts  # serialized writes drained at boundaries; boundary log; rollback
@@ -24,6 +25,7 @@ src/
   generation/               # background beat expansion + critic
   copilot/                  # authoring + in-play driver over the studio mutation API
   studio/                   # Checkpoint Studio v2 (zustand draft, typed mutations, diagnostics)
+                            #   tabs: Graph, Story, Qualities, Checkpoints, Transitions, Roster, Diagnostics
   runtime/                  # ST-facing coordination
     index.ts                # bootstrap, scheduler wiring, TurnBridge, event subscriptions
     runtimeManager.ts       # lifecycle, boundary commit, persistence boundary, event fan-out, delegation
@@ -43,10 +45,15 @@ src/
     persistenceMigration.ts # v2 hash-keyed blob -> v3 id-keyed blob with a pinned story copy
     selfTest.ts snapshot.ts # model self-test over fixtures; pure snapshot readouts
     journal.ts              # SessionJournal: status/flag records, payload ring, buildSessionJournal()
+    narrative.ts            # the one composed player "where am I" view (drawer, away popup, /story)
+    pipeline.ts             # derived working/reading/stalled/idle/not-configured/error signal
+    storyUpdate.ts          # the author's save applied to this chat: diff, choice popup, swap, re-pin
+    values.ts               # typed text -> PrimitiveValue (author input paths)
     macros.ts slashCommands.ts awayRecap.ts liveSuite.ts
   components/
     studio/                 # 6 reused presentational primitives
-    drawer/                 # DrawerTabs + DriverPanel — overview/blackboard/memory/scheduler/payload tabs
+    drawer/                 # DrawerTabs (player Overview/Memory; author adds Blackboard/Scheduler/Payload),
+                            #   PlayerOverview (narrative view + pipeline signal), HudStrip, DriverPanel (author)
   services/
     STAPI.ts                # the ONLY import surface for host modules
     stHost/*                # one host wrapper per concern (dynamic webpackIgnore imports)
@@ -75,8 +82,18 @@ src/
   read-models (`ledger`, `driver`, `activeNudge`) are fields on the snapshot, not getters a
   component calls during render. `src/runtime/architecture.test.ts` enforces this, the manager
   size budget and the component/studio import boundary.
+- Two personas, one default: the drawer's player mode is the publishable surface (narrative view,
+  memory curation, honest status); author view *adds* internals, never conditionally reveals them.
+  Everything that steers the story (driver, Advance, Nudge, Probe, `/cp`) is author-only.
+  The player composition itself is pure (`narrative.ts` + `pipeline.ts`) and reaches the drawer,
+  the away-recap popup and `/story` from the same snapshot fields.
 - Runtime state persists per chat in `chat_metadata.story_orchestrator`; the story library lives
   in extension settings.
+- A chat plays its own pinned copy of the story. The one automatic path from the library into a
+  running chat is the author's own save from that chat (`runtime/storyUpdate.ts`): the edit is
+  diffed against live engine state, applied silently when compatible, and put to the author as
+  keep / restart / cancel when it invalidates something the run holds. Keeping drops exactly the
+  orphaned values and re-pins; every other chat keeps playing what it started with.
 - Boundary counters are not ST message indexes; snapshots/logs record `{lastMessageId,
   chatLength}`.
 - Pending queue writes are not persisted; a reload drops them and reconciliation recovers.

@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { showConfirmPopup } from "@services/STAPI";
+import { listGlobalLorebooks, listGroupMembers, listPersonas, showConfirmPopup } from "@services/STAPI";
 import type { AuthoringStageInput, ProposalResult } from "@copilot/index";
 import { useDraftStore } from "./draft";
 import { setStoryField } from "./mutations";
@@ -8,28 +8,51 @@ import QualityEditor from "./components/QualityEditor";
 import CheckpointEditor from "./components/CheckpointEditor";
 import TransitionEditor from "./components/TransitionEditor";
 import DiagnosticsPanel from "./components/DiagnosticsPanel";
+import RosterEditor from "./components/RosterEditor";
+import StoryEditor from "./components/StoryEditor";
 import StudioGraph from "./components/StudioGraph";
 import StudioCopilot from "./components/StudioCopilot";
-import StudioToolbar from "./components/StudioToolbar";
+import StudioToolbar, { type StudioSaveHandler } from "./components/StudioToolbar";
 
-export type StudioTab = "graph" | "qualities" | "checkpoints" | "transitions" | "diagnostics" | "copilot";
+export type StudioTab = "graph" | "story" | "qualities" | "checkpoints" | "transitions" | "roster" | "diagnostics" | "copilot";
 
 const BASE_TABS: Array<{ id: StudioTab; label: string }> = [
   { id: "graph", label: "Graph" },
+  { id: "story", label: "Story" },
   { id: "qualities", label: "Qualities" },
   { id: "checkpoints", label: "Checkpoints" },
   { id: "transitions", label: "Transitions" },
+  { id: "roster", label: "Roster" },
   { id: "diagnostics", label: "Diagnostics" },
 ];
+
+export const STUDIO_TAB_IDS: StudioTab[] = [...BASE_TABS.map((entry) => entry.id), "copilot"];
+
+export interface StudioHostOptions {
+  personaNames: string[];
+  memberNames: string[];
+  lorebookNames: string[];
+}
+
+// The pickers are a convenience, never a dependency: a Studio opened with no host around still
+// authors every field by hand.
+const readHostOptions = (): StudioHostOptions => {
+  const safe = (read: () => string[]) => { try { return read(); } catch { return []; } };
+  return { personaNames: safe(listPersonas), memberNames: safe(listGroupMembers), lorebookNames: safe(listGlobalLorebooks) };
+};
 
 type Props = {
   onClose: () => void;
   copilotEnabled?: boolean;
   runCopilotStage?: (input: AuthoringStageInput) => Promise<ProposalResult>;
+  onSaved?: StudioSaveHandler;
+  hostOptions?: StudioHostOptions;
 };
 
-const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopilotStage }) => {
+const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopilotStage, onSaved, hostOptions }) => {
   const [tab, setTab] = useState<StudioTab>("graph");
+  const options = useMemo(() => hostOptions ?? readHostOptions(), [hostOptions]);
+  const idLocked = useDraftStore((state) => state.sourceHash !== null);
   const tabs = copilotEnabled ? [...BASE_TABS, { id: "copilot" as StudioTab, label: "Copilot" }] : BASE_TABS;
   const activeTab = tabs.some((entry) => entry.id === tab) ? tab : "graph";
   const draft = useDraftStore((state) => state.draft);
@@ -81,9 +104,11 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
   };
 
   const renderTab = () => {
+    if (activeTab === "story") return <StoryEditor personaNames={options.personaNames} memberNames={options.memberNames} lorebookNames={options.lorebookNames} idLocked={idLocked} />;
     if (activeTab === "qualities") return <QualityEditor />;
     if (activeTab === "checkpoints") return <CheckpointEditor />;
     if (activeTab === "transitions") return <TransitionEditor />;
+    if (activeTab === "roster") return <RosterEditor memberNames={options.memberNames} />;
     if (activeTab === "diagnostics") return <DiagnosticsPanel />;
     if (activeTab === "copilot") return <StudioCopilot enabled={copilotEnabled} runStage={runCopilotStage} />;
     return <StudioGraph onOpenCheckpoint={() => setTab("checkpoints")} />;
@@ -97,6 +122,10 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
       aria-label="Checkpoint Studio"
       onKeyDown={handleKeyDown}
       onCancel={(event) => { event.preventDefault(); void requestClose(); }}
+      // A native dialog can also be closed from outside React (`dialog.close()`, a debug script,
+      // the browser): without this the element stays mounted but invisible and the Studio looks
+      // open to everything that only counts the node (live finding, plan 05 J2 run).
+      onClose={onClose}
     >
       <div ref={panelRef} className="st-panel flex h-[85dvh] w-[min(1100px,95dvw)] flex-col overflow-hidden shadow-lg">
         <div className="st-panel-header flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2">
@@ -136,7 +165,7 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
         <div className="st-panel-header flex flex-wrap items-center gap-2 border-t px-3 py-2">
           <button type="button" className="st-button secondary" onClick={undo} disabled={!canUndo}>Undo</button>
           <button type="button" className="st-button secondary" onClick={redo} disabled={!canRedo}>Redo</button>
-          <StudioToolbar />
+          <StudioToolbar onSaved={onSaved} />
         </div>
       </div>
     </dialog>,

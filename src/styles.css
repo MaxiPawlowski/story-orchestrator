@@ -316,6 +316,32 @@ body.no-blur .st-modal-overlay {
   border-color: var(--st-hover);
 }
 
+#so-hud .so-hud-main {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+#so-hud .so-hud-chip {
+  padding: 0 8px;
+  background: color-mix(in srgb, var(--st-info) 20%, transparent);
+  border: 1px solid color-mix(in srgb, var(--st-info) 45%, transparent);
+  border-radius: 999px;
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
 #so-hud .so-hud-name {
   font-weight: 600;
   white-space: nowrap;

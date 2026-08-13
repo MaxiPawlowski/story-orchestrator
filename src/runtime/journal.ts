@@ -5,13 +5,17 @@ import type { PayloadCapture, TalkDecisionAudit } from "./types";
 export const JOURNAL_LIMIT = 200;
 export const PAYLOAD_CAPTURE_LIMIT = 5;
 
-export type JournalEventKind = "status" | "flag" | "boundary" | "transition" | "extraction" | "delta" | "reconciliation" | "payload" | "talk";
+export type JournalEventKind = "status" | "flag" | "story" | "boundary" | "transition" | "extraction" | "delta" | "reconciliation" | "payload" | "talk";
+
+// The persisted half of the journal: things nothing else records. Additive kinds read back fine
+// from older chats — `sanitizeJournalRecords` keeps any record that carries a kind and a summary.
+export type JournalRecordKind = "status" | "flag" | "story";
 
 export interface JournalRecord {
   at: string;
   boundary: number;
   messageId: number;
-  kind: "status" | "flag";
+  kind: JournalRecordKind;
   summary: string;
   note?: string;
 }
@@ -39,7 +43,7 @@ export interface JournalSources {
   talkDecisions: TalkDecisionAudit[];
 }
 
-const KIND_ORDER: JournalEventKind[] = ["flag", "boundary", "transition", "extraction", "delta", "reconciliation", "talk", "payload", "status"];
+const KIND_ORDER: JournalEventKind[] = ["flag", "story", "boundary", "transition", "extraction", "delta", "reconciliation", "talk", "payload", "status"];
 
 const rank = (kind: JournalEventKind) => KIND_ORDER.indexOf(kind);
 
@@ -153,6 +157,12 @@ export class SessionJournal {
     this.lastStatus = status;
     this.push({ at: new Date().toISOString(), boundary: context.boundary, messageId: context.messageId, kind: "status", summary: status });
     return true;
+  }
+
+  record(kind: JournalRecordKind, summary: string, context: JournalContext, note?: string): JournalRecord {
+    const record: JournalRecord = { at: new Date().toISOString(), boundary: context.boundary, messageId: context.messageId, kind, summary, ...(note ? { note } : {}) };
+    this.push(record);
+    return record;
   }
 
   flag(note: string, context: JournalContext): JournalRecord {

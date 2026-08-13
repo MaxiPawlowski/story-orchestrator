@@ -67,7 +67,7 @@
           "eval": "globalThis.storyOrchestratorRuntime.setExtractionSettings({ enabled: false }); await new Promise((done) => setTimeout(done, 1500)); return globalThis.storyOrchestratorRuntime.getSnapshot().extraction.settings;"
         },
         {
-          "eval": "const ctx = SillyTavern.getContext(); const blob = ctx.chatMetadata.story_orchestrator; const hash = blob.selectedStoryHash; const away = new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString(); blob.stories[hash].extras.lastSessionAt = away; await ctx.saveMetadata(); const stored = ctx.chatMetadata.story_orchestrator.stories[hash].extras.lastSessionAt; if (stored !== away) throw new Error(`lastSessionAt overwritten before reload: ${stored}`); return stored;"
+          "eval": "const ctx = SillyTavern.getContext(); const blob = ctx.chatMetadata.story_orchestrator; const id = blob.selectedStoryId; if (!id) throw new Error('no story selected in chat metadata: ' + JSON.stringify(Object.keys(blob))); const away = new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString(); blob.stories[id].extras.lastSessionAt = away; await ctx.saveMetadata(); const stored = ctx.chatMetadata.story_orchestrator.stories[id].extras.lastSessionAt; if (stored !== away) throw new Error(`lastSessionAt overwritten before reload: ${stored}`); return { id, stored };"
         },
         {
           "reload": {
@@ -99,7 +99,8 @@
           "expect_ui": {
             "selector": "dialog[open]",
             "contains": [
-              "Investigate the Job Board"
+              "Investigate the Job Board",
+              "Where you are"
             ],
             "timeoutMs": 30000
           }

@@ -1,4 +1,4 @@
-import { GATE_OPERATORS, QUALITY_SOURCES, QUALITY_TYPES, TENSION_LEVELS, type StoryV2 } from "@engine/index";
+import { ARC_TEMPLATE_NAMES, GATE_OPERATORS, QUALITY_SOURCES, QUALITY_TYPES, TENSION_LEVELS, type StoryV2 } from "@engine/index";
 import type { CopilotMessage, CopilotStage, DriverContext } from "./types";
 
 const SCHEMA_SUMMARY = [
@@ -30,14 +30,18 @@ const OP_GRAMMAR = [
   '  { "kind": "addRosterMember", "member": { "id": string, "name"?: string } }',
   '  { "kind": "updateRosterMember", "id": string, "patch": { "name"?: string } }',
   '  { "kind": "removeRosterMember", "id": string }',
+  `  { "kind": "setArcTemplate", "template": ${ARC_TEMPLATE_NAMES.map((name) => `"${name}"`).join("|")}|{ "points": [{ "at": 0-1, "tension": 0-1 }] }|null }`,
+  '  { "kind": "setArcBridges", "bridges": [{ "arcMatch": string, "anchor": checkpoint_id, "amount": number }] }',
+  '  { "kind": "setRequirements", "requirements": { "personas"?: string[], "members"?: string[], "lorebooks"?: string[] } }',
   "Transitions are referenced by { from, to }, never by index. Only reference ids that already exist in the draft.",
+  "setArcBridges and setRequirements replace the whole list — send the full intended set, never a fragment.",
 ].join("\n");
 
 const STAGE_INSTRUCTIONS: Record<CopilotStage, string> = {
   qualities: "Stage QUALITIES: propose the quality set that measures this story's dramatic state. Every quality needs a rubric question. Prefer extractor source unless the value is purely code-driven. Only emit setStoryField/addQuality/updateQuality/removeQuality ops.",
   checkpoints: "Stage CHECKPOINTS: propose anchor and intermediate checkpoints with objectives, tension targets, and state_snapshots for pivotal or latching qualities. Keep exactly one start checkpoint. Only emit addCheckpoint/updateCheckpoint/setStartCheckpoint/setCheckpointSnapshot ops.",
   transitions: "Stage TRANSITIONS: wire checkpoints toward their anchors with transitions, each carrying a gate over declared qualities and a progress effect toward the target anchor so the convergence threshold is reachable. Only emit addTransition/updateTransition/setTransitionGate ops.",
-  effects: "Stage EFFECTS/CAST: propose checkpoint effects (author_note, world_info, cast_changes) and roster members that fit the story. Only emit setCheckpointEffects/addRosterMember/updateRosterMember ops.",
+  effects: "Stage EFFECTS/CAST: propose checkpoint effects (author_note, world_info, cast_changes), the roster this story directs, what the chat must provide before it can run (requirements), the dramatic shape, and any thread bridges. Only emit setCheckpointEffects/addRosterMember/updateRosterMember/removeRosterMember/setRequirements/setArcTemplate/setArcBridges/setStoryField ops.",
 };
 
 const renderHistory = (history: CopilotMessage[]): string =>

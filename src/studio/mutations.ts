@@ -1,11 +1,13 @@
 import type {
   ArcBridge,
+  ArcTemplate,
   Checkpoint,
   CheckpointEffects,
   GateNode,
   PrimitiveValue,
   Quality,
   RosterMember,
+  StoryRequirements,
   TalkControl,
   Transition,
 } from "@engine/index";
@@ -117,4 +119,42 @@ export const setStoryField = <K extends keyof StoryDraft>(draft: StoryDraft, key
   [key]: value,
 });
 
-export const setArcBridges = (draft: StoryDraft, bridges: ArcBridge[]): StoryDraft => ({ ...draft, arc_bridges: bridges });
+export const setArcBridges = (draft: StoryDraft, bridges: ArcBridge[]): StoryDraft => ({ ...draft, arc_bridges: bridges.length ? bridges : undefined });
+
+export const newArcBridge = (anchor: string): ArcBridge => ({ arcMatch: "", anchor, amount: 1 });
+
+export const addArcBridge = (draft: StoryDraft, bridge?: ArcBridge): StoryDraft =>
+  setArcBridges(draft, [...(draft.arc_bridges ?? []), bridge ?? newArcBridge(draft.checkpoints.find((entry) => entry.type === "anchor")?.id ?? "")]);
+
+export const updateArcBridge = (draft: StoryDraft, index: number, patch: Partial<ArcBridge>): StoryDraft =>
+  setArcBridges(draft, (draft.arc_bridges ?? []).map((entry, entryIndex) => (entryIndex === index ? { ...entry, ...patch } : entry)));
+
+export const removeArcBridge = (draft: StoryDraft, index: number): StoryDraft =>
+  setArcBridges(draft, (draft.arc_bridges ?? []).filter((_, entryIndex) => entryIndex !== index));
+
+export const setArcTemplate = (draft: StoryDraft, template: ArcTemplate | undefined): StoryDraft => {
+  const { arc_template: _dropped, ...rest } = draft;
+  return template ? { ...rest, arc_template: template } : rest;
+};
+
+// An empty list is an absent requirement, never a requirement for nothing.
+export const setRequirements = (draft: StoryDraft, requirements: StoryRequirements): StoryDraft => {
+  const cleaned: StoryRequirements = {};
+  (["personas", "members", "lorebooks"] as const).forEach((key) => {
+    const values = (requirements[key] ?? []).map((entry) => entry.trim()).filter(Boolean);
+    if (values.length) cleaned[key] = values;
+  });
+  const { requirements: _dropped, ...rest } = draft;
+  return Object.keys(cleaned).length ? { ...rest, requirements: cleaned } : rest;
+};
+
+// The id is the story's identity: it is derived from the title until the author fixes it, and the
+// library keys by it forever after (spec addendum §Story identity).
+export const slugifyStoryId = (title: string): string =>
+  title.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^[^a-z0-9]+|-+$/g, "").slice(0, 64) || "story";
+
+export const setStoryId = (draft: StoryDraft, id: string): StoryDraft => {
+  const { id: _dropped, ...rest } = draft;
+  const next = id.trim().toLowerCase();
+  return next ? { ...rest, id: next } : rest;
+};

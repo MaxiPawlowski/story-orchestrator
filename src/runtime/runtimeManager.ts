@@ -1,9 +1,10 @@
-import { StoryEngine, isValidationErrorList, renderGateText, type ApplyQueueEntry, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type StoryV2, type TalkControl, type ValidationError } from "@engine/index";
+import { StoryEngine, isValidationErrorList, type ApplyQueueEntry, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type StoryV2, type TalkControl, type ValidationError } from "@engine/index";
 import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Suggestion } from "@copilot/index";
 import { getChatWindow, type ExtraGateSource, type ParsedDelta, type ParsedFact, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
 import { clearAllMemoryInjection, dropByMessageId, rollbackArcs, rollbackEpistemic, rollbackLedger, type ArcEntry, type EpistemicEntry, type LedgerView, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine, type UncertainPair } from "@memory/index";
-import { clearStoryExtensionPrompt, executeSlashCommands, getContext, readInjectedPromptBlocks, showConfirmPopup, showTextPopup } from "@services/STAPI";
-import { buildAwayRecap, shouldShowAwayRecap, type AwayRecap } from "./awayRecap";
+import { clearStoryExtensionPrompt, getContext, readInjectedPromptBlocks, showConfirmPopup, showTextPopup } from "@services/STAPI";
+import { AwayRecapController, type AwayRecap } from "./awayRecap";
+import type { NarrativeStatus, RollbackNotice } from "./narrative";
 import { PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
 import { CopilotCoordinator } from "./coordinators/copilotCoordinator";
 import { PacingCoordinator } from "./coordinators/pacingCoordinator";
@@ -14,12 +15,15 @@ import { activeSpeakerId, enabledCharacterIds, namesForRosterId, rosterIdForName
 import { EffectsApplier } from "./effectsApplier";
 import { applyGlobalSettings, createExtras, hydrateExtras, stripGlobalSettings, TALK_DECISION_LIMIT } from "./extras";
 import { getGlobalSettings, liftLegacyChatSettings, setGlobalSettings } from "./settingsStore";
+import { buildPossibleTransitions } from "./snapshot";
 import { buildRuntimeSnapshot } from "./snapshotBuilder";
+import { applyStoryUpdate, type StoryUpdateDeps, type StoryUpdateOutcome } from "./storyUpdate";
+import { parseQualityValue } from "./values";
 import { SessionJournal, type JournalEvent } from "./journal";
 import { evaluateRequirements } from "./requirements";
 import { dropPersistedRuntime, loadPersistedRuntime, savePersistedRuntime, setSelectedStoryId, getSelectedStoryId } from "./persistence";
 import { findStoryRecord, loadPinnedStory, loadStoryRecord, removeStoryRecord, saveStoryRecord } from "./storyLibrary";
-import type { CopilotRuntimeSettings, PersistedStoryRuntime, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, MemoryRuntimeSettings, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, TalkDecisionAudit, TalkRuntimeState, UiRuntimeSettings } from "./types";
+import type { CopilotRuntimeSettings, PersistedStoryRuntime, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, MemoryRuntimeSettings, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, StoryLibraryRecord, TalkDecisionAudit, TalkRuntimeState, UiRuntimeSettings } from "./types";
 
 export class RuntimeManager {
   private engine = new StoryEngine();
@@ -33,7 +37,8 @@ export class RuntimeManager {
   private readonly rollbackListeners = new Set<(messageId: number, window: SharedReadWindow) => void>();
   private readonly sceneBreakListeners = new Set<(audit: SharedReadAudit) => void>();
   private readonly arcResolvedListeners = new Set<(arcIds: string[]) => void>();
-  private pendingAwayRecap: AwayRecap | null = null;
+  private readonly awayRecap = new AwayRecapController((html) => showTextPopup(html, { okButton: "Continue" }));
+  private lastRollback: RollbackNotice | null = null;
   private readonly journal = new SessionJournal();
   private readonly memory: MemoryCoordinator = new MemoryCoordinator({
     getStory: () => this.loaded?.story ?? null,
@@ -87,6 +92,19 @@ export class RuntimeManager {
     setTension: (next) => { this.extras.tension = next; },
     getPacing: () => this.extras.pacing,
   });
+  private lastStoryUpdate: StoryUpdateOutcome | null = null;
+  private readonly storyUpdateDeps: StoryUpdateDeps = {
+    getLoaded: () => this.loaded,
+    getState: () => (this.loaded ? this.engine.serialize() : null),
+    mergeStory: (raw, base) => this.expansion.mergedStoryOrBase(raw, base),
+    swapStory: (loaded, state, reanchored) => this.swapStory(loaded, state, reanchored),
+    restart: () => this.restartStory(true),
+    journal: (outcome) => {
+      this.lastStoryUpdate = outcome;
+      this.journal.record("story", `story updated v${outcome.fromVersion} → v${outcome.toVersion} (${outcome.classification}${outcome.choice ? `, ${outcome.choice}` : ""})`, this.journalContext(), outcome.reason);
+      this.extras.journal = this.journal.getRecords();
+    },
+  };
   private readonly copilot: CopilotCoordinator = new CopilotCoordinator({
     getStory: () => this.loaded?.story ?? null,
     getState: () => (this.loaded ? this.engine.serialize() : null),
@@ -218,10 +236,10 @@ export class RuntimeManager {
 
   // The only reset path. Drops this chat's progress for the story and re-pins the latest library
   // version, so a restart also adopts whatever the author changed meanwhile.
-  async restartStory(): Promise<boolean> {
+  async restartStory(alreadyConfirmed = false): Promise<boolean> {
     const id = this.loaded?.record.id ?? getSelectedStoryId();
     if (!id) return false;
-    const confirmed = await showConfirmPopup("Restart this story? The chat keeps its messages, but checkpoint progress, blackboard and story memory are cleared.", { okButton: "Restart story", cancelButton: "Keep playing" });
+    const confirmed = alreadyConfirmed || await showConfirmPopup("Restart this story? The chat keeps its messages, but checkpoint progress, blackboard and story memory are cleared.", { okButton: "Restart story", cancelButton: "Keep playing" });
     if (!confirmed) return false;
     const fallback = this.loaded ? { ...this.loaded } : null;
     dropPersistedRuntime(id);
@@ -237,6 +255,7 @@ export class RuntimeManager {
 
   async commitBoundary() {
     if (!this.loaded) return null;
+    this.lastRollback = null;
     this.refreshRequirements();
     this.expansion.revalidateInserted();
     const pendingBridges = this.memory.enqueueArcBridges();
@@ -253,20 +272,11 @@ export class RuntimeManager {
     this.pacing.updateSteering();
     this.memory.updateInjection();
     await this.persist();
-    this.status = result.fired ? `Advanced to ${result.activeCheckpointId}` : `Committed boundary ${result.boundary}`;
-    if (result.fired) await this.announceTransition();
+    this.status = result.fired ? `Moved into ${this.engine.activeCheckpoint?.name ?? result.activeCheckpointId}` : `Following ${this.engine.activeCheckpoint?.name ?? "the story"}`;
+    if (result.fired) await this.effects.announceTransition(this.engine.activeCheckpoint, this.extras);
     this.boundaryListeners.forEach((listener) => listener(result));
     this.notify();
     return result;
-  }
-
-  private async announceTransition() {
-    if (!this.extras.ui.announceTransitions) return;
-    const checkpoint = this.engine.activeCheckpoint;
-    if (!checkpoint) return;
-    const raw = checkpoint.objective ? `◈ ${checkpoint.name} — ${checkpoint.objective}` : `◈ ${checkpoint.name}`;
-    const label = raw.replace(/[|{}]/g, " ").replace(/\s*\r?\n\s*/g, " ").trim();
-    await executeSlashCommands(`/comment compact=true ${label}`, { silent: true });
   }
 
   async activateCheckpoint(id: string) {
@@ -277,7 +287,7 @@ export class RuntimeManager {
     this.pacing.updateSteering();
     this.memory.updateInjection();
     await this.persist();
-    this.status = `Manually activated ${id}`;
+    this.status = `Now at ${this.engine.activeCheckpoint?.name ?? id}`;
     this.notify();
     return true;
   }
@@ -290,7 +300,7 @@ export class RuntimeManager {
       this.notify();
       return false;
     }
-    const value = this.parseQualityValue(quality.type, valueText);
+    const value = parseQualityValue(quality.type, valueText);
     if (value === undefined) {
       this.status = `Invalid ${quality.type} value for ${key}`;
       this.notify();
@@ -334,13 +344,17 @@ export class RuntimeManager {
       this.pacing.updateSteering();
       this.memory.updateInjection();
       await this.persist();
-      this.status = `Rolled back to boundary ${boundary}`;
+      this.lastRollback = { checkpointName: this.engine.activeCheckpoint?.name ?? "an earlier point", at: new Date().toISOString() };
+      this.status = `Stepped back to ${this.engine.activeCheckpoint?.name ?? "an earlier point"}`;
       this.rollbackListeners.forEach((listener) => listener(messageId, window));
       this.notify();
     }
   }
 
   getStory(): NormalizedStoryV2 | null { return this.loaded?.story ?? null; }
+  // What this chat is actually playing, authored form — the Studio edits this, not the library's
+  // copy, when the two have drifted apart.
+  getPlayedStoryRaw(): unknown { return this.loaded?.record.raw ?? null; }
   getEngineState(): EngineState | null { return this.loaded ? this.engine.serialize() : null; }
   getExtractionSettings(): ExtractionRuntimeSettings { return this.extras.extraction.settings; }
 
@@ -450,7 +464,7 @@ export class RuntimeManager {
     setGlobalSettings({ extraction: { enabled: false } });
     applyGlobalSettings(this.extras);
     this.extraction.pause(message);
-    this.status = `Extraction paused: ${message}`;
+    this.status = "Story tracking paused";
     void this.persist();
     this.notify();
   }
@@ -496,16 +510,7 @@ export class RuntimeManager {
   async removeArc(id: string) { await this.memory.removeArc(id); }
   getCanon(): string { return this.memory.getCanon(); }
 
-  getPossibleTransitions(): string[] {
-    if (!this.loaded) return [];
-    const story = this.loaded.story;
-    const state = this.engine.serialize();
-    return (story.outgoingByCheckpoint[state.activeCheckpointId] ?? []).map((transition) => {
-      const toName = story.checkpointById[transition.to]?.name ?? transition.to;
-      const gateText = renderGateText(transition.gate).trim();
-      return `→ ${toName}${gateText ? ` when ${gateText}` : ""}`;
-    });
-  }
+  getPossibleTransitions(): string[] { return buildPossibleTransitions(this.loaded?.story ?? null, this.loaded ? this.engine.serialize() : null); }
 
   async regenerateCanon(force = false): Promise<boolean> { return this.memory.regenerateCanon(force); }
   scheduleExpansionForActive(schedule: (reason: string, run: () => Promise<void>) => void) { return this.expansion.scheduleForActive(schedule); }
@@ -519,7 +524,11 @@ export class RuntimeManager {
       validationErrors: this.validationErrors,
       status: this.status,
       pendingWrites: this.loaded ? this.engine.pendingWrites : [],
+      boundaryLog: this.loaded ? this.engine.stateLog : [],
       expectedTension: this.loaded ? this.pacing.expectedTension() : null,
+      openThreads: this.memory.getOpenArcs(),
+      canon: this.memory.getCanonProse(),
+      lastRollback: this.lastRollback,
       ledger: this.memory.getLedger(),
       driver: this.copilot.getDriverContext(),
       activeNudge: this.copilot.getActiveNudge(),
@@ -549,45 +558,22 @@ export class RuntimeManager {
     if (mode === "hydrate" && persisted?.engineState) {
       this.engine.hydrate(persisted.engineState);
       await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate");
-      this.status = `Hydrated ${loaded.story.title}`;
+      this.status = `Continuing ${loaded.story.title}`;
     } else {
       await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate");
-      this.status = `Loaded ${loaded.story.title}`;
+      this.status = `Started ${loaded.story.title}`;
     }
     this.pacing.updateSteering();
     this.memory.updateInjection();
-    this.detectAwayRecap(priorSessionAt);
+    this.awayRecap.detect(priorSessionAt, this.getSnapshot().narrative);
     setSelectedStoryId(loaded.record.id);
     await this.persist();
     this.notify();
   }
 
-  private detectAwayRecap(priorSessionAt: string | null) {
-    if (!shouldShowAwayRecap(priorSessionAt, Date.now())) {
-      this.pendingAwayRecap = null;
-      return;
-    }
-    const snapshot = this.getSnapshot();
-    this.pendingAwayRecap = buildAwayRecap({
-      storyTitle: snapshot.storyTitle,
-      activeCheckpointName: snapshot.activeCheckpointName,
-      activeObjective: snapshot.activeObjective,
-      openArcs: this.getOpenArcs(),
-      canon: this.getCanon(),
-      tensionLevel: snapshot.tension.level,
-      gapMs: Date.now() - Date.parse(priorSessionAt as string),
-    });
-  }
-
-  getAwayRecap(): AwayRecap | null { return this.pendingAwayRecap; }
-
-  async showAwayRecap(): Promise<boolean> {
-    const recap = this.pendingAwayRecap;
-    if (!recap) return false;
-    this.pendingAwayRecap = null;
-    await showTextPopup(recap.html, { okButton: "Continue" });
-    return true;
-  }
+  getNarrativeStatus(): NarrativeStatus { return this.getSnapshot().narrative; }
+  getAwayRecap(): AwayRecap | null { return this.awayRecap.get(); }
+  async showAwayRecap(): Promise<boolean> { return this.awayRecap.show(); }
 
   private async persist() {
     if (!this.loaded) return;
@@ -602,6 +588,27 @@ export class RuntimeManager {
       extras: stripGlobalSettings(this.extras),
     });
     await getContext().saveMetadata?.();
+  }
+
+  // The author edited this story from this chat: take the saved version without losing the run.
+  // Every other chat keeps its pinned copy (spec addendum §Story identity).
+  async applyStoryUpdate(record?: StoryLibraryRecord): Promise<StoryUpdateOutcome> { return applyStoryUpdate(this.storyUpdateDeps, record); }
+  getLastStoryUpdate(): StoryUpdateOutcome | null { return this.lastStoryUpdate; }
+
+  private async swapStory(loaded: LoadedStory, state: EngineState | null, reanchored: boolean) {
+    this.loaded = loaded;
+    this.engine.loadStory(loaded.story);
+    if (state) this.engine.hydrate(state);
+    this.refreshRequirements();
+    this.expansion.revalidateInserted();
+    await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), reanchored ? "activate" : "hydrate");
+    this.pacing.replayCommitted();
+    this.pacing.updateSteering();
+    this.memory.updateInjection();
+    setSelectedStoryId(loaded.record.id);
+    await this.persist();
+    this.status = reanchored ? `Now at ${this.engine.activeCheckpoint?.name ?? loaded.story.startCheckpointId}` : `Following ${this.engine.activeCheckpoint?.name ?? "the story"}`;
+    this.notify();
   }
 
   // Merged expansions change the played graph under a live engine: reload, then restore the
@@ -668,23 +675,6 @@ export class RuntimeManager {
     this.extras.updatedAt = new Date().toISOString();
   }
 
-  private parseQualityValue(type: string, value: string): PrimitiveValue | undefined {
-    const trimmed = value.trim();
-    if (type === "bool") {
-      if (trimmed === "true") return true;
-      if (trimmed === "false") return false;
-      return undefined;
-    }
-    if (type === "int") {
-      const parsed = Number(trimmed);
-      return Number.isInteger(parsed) ? parsed : undefined;
-    }
-    if (type === "float") {
-      const parsed = Number(trimmed);
-      return Number.isFinite(parsed) ? parsed : undefined;
-    }
-    return trimmed;
-  }
 }
 
 export const runtimeManager = new RuntimeManager();

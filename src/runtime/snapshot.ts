@@ -1,5 +1,6 @@
-import { effectiveThresholdFor, progressQualityForAnchor, type ApplyQueueEntry, type ArcTemplate, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { effectiveThresholdFor, progressQualityForAnchor, renderGateText, type ApplyQueueEntry, type ArcTemplate, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { expectedTension, getSteeringHint, levelToNumeric, numericToLevel } from "@pacing/index";
+import type { NarrativeInput } from "./narrative";
 import type { ConvergenceReadout, PendingDeltaReadout, RuntimeSnapshot, StoryIdentity, StoryLibraryRecord } from "./types";
 
 // Pure readouts over engine state — the composition half of the snapshot, kept out of the
@@ -40,6 +41,28 @@ export const buildConvergenceReadout = (story: NormalizedStoryV2 | null, state: 
         visited: visited.has(anchor.id),
       };
     });
+};
+
+export const buildLastTransition = (story: NormalizedStoryV2 | null, boundaryLog: BoundaryLogEntry[]): NarrativeInput["lastTransition"] => {
+  if (!story) return null;
+  for (let index = boundaryLog.length - 1; index >= 0; index -= 1) {
+    const entry = boundaryLog[index];
+    if (!entry.fired) continue;
+    const fromName = story.checkpointById[entry.before.activeCheckpointId]?.name;
+    const toName = story.checkpointById[entry.after.activeCheckpointId]?.name;
+    return fromName && toName ? { fromName, toName } : null;
+  }
+  return null;
+};
+
+// The `story_possible_transitions` macro source: where the story could go from here, in names.
+export const buildPossibleTransitions = (story: NormalizedStoryV2 | null, state: EngineState | null): string[] => {
+  if (!story || !state) return [];
+  return (story.outgoingByCheckpoint[state.activeCheckpointId] ?? []).map((transition) => {
+    const toName = story.checkpointById[transition.to]?.name ?? transition.to;
+    const gateText = renderGateText(transition.gate).trim();
+    return `→ ${toName}${gateText ? ` when ${gateText}` : ""}`;
+  });
 };
 
 export const computeExpectedTension = (story: NormalizedStoryV2 | null, state: EngineState | null, tensionTarget: string | undefined, shape: ArcTemplate | null): number | null => {

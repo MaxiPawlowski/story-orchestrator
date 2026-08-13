@@ -1,7 +1,7 @@
 {
   "id": "J2",
   "title": "author-loop",
-  "objective": "Author a playable mini-story in the Studio without touching JSON, play it, hit a wrong gate, edit, continue the same chat. Includes one author-view driver pass (Probe + Nudge).",
+  "objective": "Author a playable mini-story in the Studio without touching JSON, play it, hit a wrong gate, edit, continue the same chat — including an invalidating edit that goes through the choice popup. Includes one author-view driver pass (Probe + Nudge).",
   "setup": {
     "newChat": true,
     "resetChatState": true,
@@ -13,36 +13,25 @@
   },
   "capabilities": {
     "studio-open": "Boolean(document.querySelector('#so-studio-modal'))",
-    "studio-roster-editor": "Boolean(document.querySelector('#so-studio-modal [data-so=\"roster\"]'))",
-    "studio-requirements-editor": "Boolean(document.querySelector('#so-studio-modal [data-so=\"requirements\"]'))",
+    "studio-roster-editor": "(globalThis.storyOrchestratorStudioTabs ?? []).includes('roster')",
+    "studio-requirements-editor": "(globalThis.storyOrchestratorStudioTabs ?? []).includes('story')",
     "story-identity": "'storyId' in (globalThis.storyOrchestratorRuntime?.getSnapshot() ?? {})",
-    "hot-swap": "typeof globalThis.storyOrchestratorRuntime?.applyStoryVersion === 'function'"
+    "hot-swap": "typeof globalThis.storyOrchestratorRuntime?.applyStoryUpdate === 'function'",
+    "drawer-edit-story": "typeof globalThis.storyOrchestratorRuntime?.getPlayedStoryRaw === 'function'"
   },
   "checks": [
     {
       "id": "J2.1",
       "mode": "auto",
-      "findings": [
-        "U7"
-      ],
-      "goal": "the Studio opens on an empty draft",
+      "findings": ["U7"],
+      "goal": "the Studio opens on an empty draft and offers every authoring surface",
       "steps": [
-        {
-          "eval": "globalThis.storyOrchestratorStudioDraft.getState().newDraft(); return true;"
-        },
-        {
-          "ui": {
-            "action": "open-studio"
-          }
-        },
+        { "eval": "globalThis.storyOrchestratorStudioDraft.getState().newDraft(); return true;" },
+        { "ui": { "action": "open-studio" } },
         {
           "expect_ui": {
             "selector": "#so-studio-modal",
-            "contains": [
-              "Qualities",
-              "Checkpoints",
-              "Transitions"
-            ]
+            "contains": ["Story", "Qualities", "Checkpoints", "Transitions", "Roster", "Diagnostics"]
           }
         }
       ]
@@ -50,41 +39,27 @@
     {
       "id": "J2.2",
       "mode": "auto",
-      "findings": [
-        "U7"
-      ],
+      "findings": ["U7"],
       "goal": "roster members can be authored in the Studio UI",
-      "requires": [
-        "studio-roster-editor"
-      ],
+      "requires": ["studio-roster-editor"],
       "steps": [
-        {
-          "expect_ui": {
-            "selector": "#so-studio-modal",
-            "contains": [
-              "Roster"
-            ]
-          }
-        }
+        { "ui": { "action": "studio-tab", "label": "Roster" } },
+        { "expect_ui": { "selector": "#so-studio-modal [data-so=\"roster\"]", "contains": ["Member"] } },
+        { "eval": "const s = globalThis.storyOrchestratorStudioDraft.getState(); s.mutate((d) => ({ ...d, roster: [{ id: 'guide', name: 'Arin' }] })); return s.draft.roster;" }
       ]
     },
     {
       "id": "J2.3",
       "mode": "auto",
-      "findings": [
-        "U7"
-      ],
-      "goal": "story requirements (members, lorebooks) can be authored in the Studio UI",
-      "requires": [
-        "studio-requirements-editor"
-      ],
+      "findings": ["U7"],
+      "goal": "story identity, requirements, dramatic shape and thread bridges are authorable",
+      "requires": ["studio-requirements-editor"],
       "steps": [
+        { "ui": { "action": "studio-tab", "label": "Story" } },
         {
           "expect_ui": {
-            "selector": "#so-studio-modal",
-            "contains": [
-              "Requirements"
-            ]
+            "selector": "#so-studio-modal [data-so=\"story\"]",
+            "contains": ["Story id", "Version", "Description", "Dramatic shape", "Requirements", "Persona", "Cast member", "Lorebook", "Thread bridges"]
           }
         }
       ]
@@ -92,139 +67,115 @@
     {
       "id": "J2.4",
       "mode": "auto",
-      "findings": [
-        "U2"
-      ],
+      "findings": ["U2"],
       "goal": "a story keeps one identity across edits, so re-selecting hydrates instead of forking a new record",
-      "requires": [
-        "story-identity"
-      ],
+      "requires": ["story-identity"],
       "steps": [
-        {
-          "ui": {
-            "action": "close-studio"
-          }
-        },
-        {
-          "import_story": {
-            "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
-          }
-        },
-        {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = rt.getSnapshot(); if (!before.storyId) throw new Error('no story id after import'); const response = await fetch('/scripts/extensions/third-party/story-orchestrator/examples/sun-ruins/quest-for-the-sun-ruins.json'); const story = await response.json(); story.description = 'Edited by journey J2.'; await rt.importStory(JSON.stringify(story)); const after = rt.getSnapshot(); if (after.storyId !== before.storyId) throw new Error(`identity forked: ${before.storyId} -> ${after.storyId}`); const records = after.library.filter((record) => record.id === after.storyId); if (records.length !== 1) throw new Error(`library forked into ${records.length} records`); return { storyId: after.storyId, libraryVersion: records[0].version, identity: after.storyIdentity };"
-        },
-        {
-          "expect": {
-            "storyId": "sun-ruins",
-            "storyIdentity": {
-              "pinned": true
-            }
-          }
-        }
+        { "ui": { "action": "close-studio" } },
+        { "import_story": { "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json" } },
+        { "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = rt.getSnapshot(); if (!before.storyId) throw new Error('no story id after import'); const response = await fetch('/scripts/extensions/third-party/story-orchestrator/examples/sun-ruins/quest-for-the-sun-ruins.json'); const story = await response.json(); story.description = 'Edited by journey J2.'; await rt.importStory(JSON.stringify(story)); const after = rt.getSnapshot(); if (after.storyId !== before.storyId) throw new Error(`identity forked: ${before.storyId} -> ${after.storyId}`); const records = after.library.filter((record) => record.id === after.storyId); if (records.length !== 1) throw new Error(`library forked into ${records.length} records`); return { storyId: after.storyId, libraryVersion: records[0].version, identity: after.storyIdentity };" },
+        { "expect": { "storyId": "sun-ruins", "storyIdentity": { "pinned": true } } }
       ]
     },
     {
       "id": "J2.5",
       "mode": "auto",
-      "findings": [
-        "U2"
-      ],
-      "goal": "saving an edited story into the running chat keeps its progress (hot-swap, not reset)",
-      "requires": [
-        "hot-swap"
-      ],
+      "findings": ["U2", "U7"],
+      "goal": "the drawer's author view opens the Studio on the story this chat is playing",
+      "requires": ["drawer-edit-story"],
       "steps": [
-        {
-          "eval": "const before = globalThis.storyOrchestratorRuntime.getSnapshot().boundary; await globalThis.storyOrchestratorRuntime.applyStoryVersion(); const after = globalThis.storyOrchestratorRuntime.getSnapshot().boundary; if (after < before) throw new Error(`hot-swap reset progress: ${before} -> ${after}`); return { before, after };"
-        }
+        { "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); return true;" },
+        { "ui": { "action": "open-drawer" } },
+        { "expect_ui": { "selector": "#drawer-manager", "contains": ["Edit story", "Restart story"] } },
+        { "eval": "document.getElementById('so-edit-story').click(); return true;" },
+        { "eval": "await new Promise((done) => setTimeout(done, 500)); const modal = document.getElementById('so-studio-modal'); if (!modal) throw new Error('Edit story did not open the Studio'); const title = modal.querySelector('input[aria-label=\"Story title\"]').value; if (title !== 'Quest for the Sun Ruins') throw new Error(`Studio opened on the wrong story: ${title}`); const id = globalThis.storyOrchestratorStudioDraft.getState().draft.id; if (id !== 'sun-ruins') throw new Error(`Studio draft is not this chat's story: ${id}`); return { title, id };" }
       ]
     },
     {
       "id": "J2.6",
       "mode": "auto",
-      "findings": [
-        "U3"
-      ],
-      "goal": "the in-play author driver still works in author view (Probe + Nudge, real model)",
+      "findings": ["U2"],
+      "goal": "playing, then saving a compatible edit from this chat keeps the run going (hot-swap, not reset)",
+      "requires": ["hot-swap"],
       "steps": [
-        {
-          "ui": {
-            "action": "close-studio"
-          }
-        },
-        {
-          "import_story": {
-            "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
-          }
-        },
-        {
-          "ui": {
-            "action": "select-profile"
-          }
-        },
-        {
-          "eval": "globalThis.storyOrchestratorRuntime.setExtractionSettings({ cadence: 2 }); const s = globalThis.storyOrchestratorRuntime.getSnapshot().extraction.settings; if (!s.enabled || !s.profileId) throw new Error(`extraction not configured after import: ${JSON.stringify(s)}`); return s;"
-        },
-        {
-          "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); globalThis.storyOrchestratorRuntime.setCopilotSettings({ enabled: true }); return true;"
-        },
-        {
-          "send": "Arin taps the notice board. \"That one. The Sun Ruins.\""
-        },
-        {
-          "copilot": {
-            "action": "probe"
-          }
-        },
-        {
-          "expect": {
-            "auditCount>=": 1
-          }
-        },
-        {
-          "copilot": {
-            "action": "nudge",
-            "text": "Let Ponticius interrupt within the next beat."
-          }
-        },
-        {
-          "expect": {
-            "copilot": {
-              "activeNudge": "Let Ponticius interrupt within the next beat.",
-              "nudgeInjected": true
-            }
-          }
-        },
-        {
-          "copilot": {
-            "action": "clear-nudge"
-          }
-        },
-        {
-          "expect": {
-            "copilot": {
-              "activeNudge": null
-            }
-          }
-        }
+        { "ui": { "action": "close-studio" } },
+        { "ui": { "action": "select-profile" } },
+        { "eval": "globalThis.storyOrchestratorRuntime.setExtractionSettings({ cadence: 2 }); return globalThis.storyOrchestratorRuntime.getSnapshot().extraction.settings;" },
+        { "send": "Arin taps the notice board. \"That one. The Sun Ruins.\"" },
+        { "extract": { "reason": "journey" } },
+        { "eval": "const before = globalThis.storyOrchestratorRuntime.getSnapshot(); globalThis.__j2Boundary = before.boundary; globalThis.__j2Blackboard = JSON.stringify(before.blackboard); return { boundary: before.boundary };" },
+        { "ui": { "action": "open-studio" } },
+        { "eval": "const store = globalThis.storyOrchestratorStudioDraft.getState(); store.mutate((d) => ({ ...d, description: 'Edited mid-play by journey J2.' })); return { dirty: globalThis.storyOrchestratorStudioDraft.getState().dirty, id: store.draft.id };" },
+        { "studio_save": "keep" },
+        { "expect": { "hotSwap": { "applied": true, "classification": "compatible", "choice": "keep" } } },
+        { "eval": "const after = globalThis.storyOrchestratorRuntime.getSnapshot(); if (after.boundary < globalThis.__j2Boundary) throw new Error(`hot-swap reset progress: ${globalThis.__j2Boundary} -> ${after.boundary}`); if (JSON.stringify(after.blackboard) !== globalThis.__j2Blackboard) throw new Error('hot-swap lost blackboard values'); return { boundary: after.boundary, storyIdentity: after.storyIdentity };" },
+        { "expect": { "storyVersion": { "drifted": false } } }
       ]
     },
     {
       "id": "J2.7",
-      "mode": "human",
-      "findings": [
-        "U7"
-      ],
-      "prompt": "Could you author a playable checkpoint — quality, gate, transition, cast — without opening a JSON editor?",
-      "anchors": "1 = impossible without JSON · 3 = possible but I had to work around gaps · 5 = everything the story needed was authorable"
+      "mode": "auto",
+      "findings": ["U2"],
+      "goal": "an invalidating edit asks first: keeping progress drops only what no longer fits",
+      "requires": ["hot-swap"],
+      "steps": [
+        { "ui": { "action": "open-studio" } },
+        { "eval": "globalThis.storyOrchestratorStudioDraft.getState().mutate((d) => ({ ...d, qualities: [...d.qualities, { key: 'j2_probe', type: 'string', source: 'extractor', rubric: 'Journey J2 probe value.' }] })); return { added: 'j2_probe' };" },
+        { "studio_save": "keep" },
+        { "ui": { "action": "close-studio" } },
+        { "slash": "/cp set j2_probe carried" },
+        { "eval": "const snapshot = globalThis.storyOrchestratorRuntime.getSnapshot(); if (snapshot.blackboard.j2_probe !== 'carried') throw new Error(`probe value did not land: ${JSON.stringify(snapshot.blackboard.j2_probe)}`); globalThis.__j2Boundary = snapshot.boundary; return { boundary: snapshot.boundary, j2_probe: snapshot.blackboard.j2_probe };" },
+        { "ui": { "action": "open-studio" } },
+        { "eval": "globalThis.storyOrchestratorStudioDraft.getState().mutate((d) => ({ ...d, qualities: d.qualities.filter((q) => q.key !== 'j2_probe') })); return { removed: 'j2_probe' };" },
+        { "studio_save": "keep" },
+        { "expect": { "hotSwap": { "applied": true, "classification": "invalidating", "choice": "keep", "dropped": ["j2_probe"] } } },
+        { "eval": "const snapshot = globalThis.storyOrchestratorRuntime.getSnapshot(); if ('j2_probe' in snapshot.blackboard) throw new Error('orphaned value survived the update'); if (snapshot.boundary < globalThis.__j2Boundary) throw new Error('invalidating keep-playing reset the run'); return { boundary: snapshot.boundary, dropped: globalThis.storyOrchestratorRuntime.getLastStoryUpdate().dropped };" },
+        { "ui": { "action": "close-studio" } }
+      ]
     },
     {
       "id": "J2.8",
+      "mode": "auto",
+      "findings": ["U2"],
+      "goal": "cancelling an invalidating edit leaves the chat on its pinned version, library still saved",
+      "requires": ["hot-swap"],
+      "steps": [
+        { "ui": { "action": "open-studio" } },
+        { "eval": "const active = globalThis.storyOrchestratorRuntime.getSnapshot().activeCheckpointId; globalThis.__j2Active = active; globalThis.storyOrchestratorStudioDraft.getState().mutate((d) => ({ ...d, checkpoints: d.checkpoints.filter((c) => c.id !== active), transitions: d.transitions.filter((t) => t.from !== active && t.to !== active) })); return { active };" },
+        { "studio_save": "cancel" },
+        { "expect": { "hotSwap": { "applied": false, "classification": "invalidating", "choice": "cancel" } } },
+        { "eval": "const snapshot = globalThis.storyOrchestratorRuntime.getSnapshot(); if (snapshot.activeCheckpointId !== globalThis.__j2Active) throw new Error(`cancel still moved the chat: ${snapshot.activeCheckpointId}`); if (!snapshot.storyIdentity.drifted) throw new Error('library edit was not saved (nothing to drift from)'); return { activeCheckpointId: snapshot.activeCheckpointId, identity: snapshot.storyIdentity };" },
+        { "expect": { "storyVersion": { "drifted": true } } },
+        { "ui": { "action": "close-studio" } }
+      ]
+    },
+    {
+      "id": "J2.9",
+      "mode": "auto",
+      "findings": ["U3"],
+      "goal": "the in-play author driver still works in author view (Probe + Nudge, real model)",
+      "steps": [
+        { "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); globalThis.storyOrchestratorRuntime.setCopilotSettings({ enabled: true }); return true;" },
+        { "copilot": { "action": "probe" } },
+        { "expect": { "auditCount>=": 1 } },
+        { "copilot": { "action": "nudge", "text": "Let Ponticius interrupt within the next beat." } },
+        { "expect": { "copilot": { "activeNudge": "Let Ponticius interrupt within the next beat.", "nudgeInjected": true } } },
+        { "copilot": { "action": "clear-nudge" } },
+        { "expect": { "copilot": { "activeNudge": null } } }
+      ]
+    },
+    {
+      "id": "J2.10",
       "mode": "human",
-      "findings": [
-        "U2"
-      ],
-      "prompt": "After you edited the story mid-play, did the running chat behave the way you expected?",
+      "findings": ["U7"],
+      "prompt": "Could you author a playable checkpoint — quality, gate, transition, cast, requirements — without opening a JSON editor?",
+      "anchors": "1 = impossible without JSON · 3 = possible but I had to work around gaps · 5 = everything the story needed was authorable"
+    },
+    {
+      "id": "J2.11",
+      "mode": "human",
+      "findings": ["U2"],
+      "prompt": "After you edited the story mid-play, did the running chat behave the way you expected — including when it asked you to choose?",
       "anchors": "1 = lost my progress · 3 = confusing but recoverable · 5 = exactly as expected"
     }
   ]

@@ -269,6 +269,12 @@ export class MemoryCoordinator {
     return getCanonLite(story, state.visitedAnchors, this.deps.getFiredTransitions(), this.getFacts());
   }
 
+  // Canon-lite is prompt scaffolding ("Anchor cp1: …", "Gate a -> b"): fine for the memory model,
+  // never for the player. Reader surfaces take the synthesized prose or nothing.
+  getCanonProse(): string {
+    return this.state.canon?.text ?? "";
+  }
+
   async regenerateCanon(force = false): Promise<boolean> {
     const story = this.deps.getStory();
     if (!story || !this.enabled || this.canonInFlight) return false;

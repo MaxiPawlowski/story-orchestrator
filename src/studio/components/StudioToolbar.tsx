@@ -1,14 +1,18 @@
 import React, { useRef, useState } from "react";
 import { isValidationErrorList } from "@engine/index";
-import { saveStoryRecord } from "@runtime/storyLibrary";
+import { availableStoryId, saveStoryRecord } from "@runtime/storyLibrary";
+import type { StoryLibraryRecord } from "@runtime/types";
 import Toolbar from "@components/studio/Toolbar";
 import FeedbackAlert from "@components/studio/FeedbackAlert";
 import { useDraftStore } from "../draft";
 import { exportDraft, importDraft } from "../io";
+import { slugifyStoryId } from "../mutations";
 
 type Feedback = { type: "success" | "error"; message: string } | null;
 
-const slug = (title: string) => title.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase() || "story";
+// What the host does with a saved record. The Studio never reaches into the runtime itself: the
+// chat that is playing this story decides whether to take the update (plan 05 hot-swap).
+export type StudioSaveHandler = (record: StoryLibraryRecord) => Promise<string | null> | string | null;
 
 const download = (filename: string, text: string) => {
   try {
@@ -24,7 +28,7 @@ const download = (filename: string, text: string) => {
   }
 };
 
-const StudioToolbar: React.FC = () => {
+const StudioToolbar: React.FC<{ onSaved?: StudioSaveHandler }> = ({ onSaved }) => {
   const draft = useDraftStore((state) => state.draft);
   const dirty = useDraftStore((state) => state.dirty);
   const loadDraft = useDraftStore((state) => state.loadDraft);
@@ -33,16 +37,29 @@ const StudioToolbar: React.FC = () => {
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [pending, setPending] = useState(false);
 
-  const handleSave = () => {
+  // Re-read the store at action time: the toolbar outlives several draft loads and a captured
+  // draft is a stale closure waiting to overwrite the library (ux-eval incident).
+  const handleSave = async () => {
     setPending(true);
-    const result = saveStoryRecord(draft);
-    setPending(false);
+    const draftNow = useDraftStore.getState().draft;
+    const current = draftNow.id ? draftNow : { ...draftNow, id: availableStoryId(slugifyStoryId(draftNow.title)) };
+    const result = saveStoryRecord(current);
     if (isValidationErrorList(result)) {
+      setPending(false);
       setFeedback({ type: "error", message: `${result.length} validation error(s) block save.` });
       return;
     }
-    loadDraft(draft, result.record.hash);
-    setFeedback({ type: "success", message: `Saved “${result.record.title}” to library.` });
+    loadDraft({ ...current, id: result.record.id, version: result.record.version }, result.record.hash);
+    // The save itself already succeeded; a failing hand-off must not leave the toolbar stuck on
+    // "Saving..." with the author unsure whether the library took the edit.
+    try {
+      const applied = await onSaved?.(result.record);
+      setFeedback({ type: "success", message: `Saved “${result.record.title}” v${result.record.version} to library.${applied ? ` ${applied}` : ""}` });
+    } catch (error) {
+      setFeedback({ type: "error", message: `Saved “${result.record.title}” v${result.record.version} to library, but this chat could not take it: ${error instanceof Error ? error.message : String(error)}` });
+    } finally {
+      setPending(false);
+    }
   };
 
   const handleFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,11 +81,11 @@ const StudioToolbar: React.FC = () => {
         hasChanges={dirty}
         savePending={pending}
         canAddTransition={draft.checkpoints.length > 0}
-        onExport={() => download(`${slug(draft.title)}.json`, exportDraft(draft))}
+        onExport={() => download(`${draft.id ?? slugifyStoryId(draft.title)}.json`, exportDraft(draft))}
         onImportPick={() => fileRef.current?.click()}
         onReset={reset}
-        onSave={handleSave}
-        onSaveAs={handleSave}
+        onSave={() => void handleSave()}
+        onSaveAs={() => void handleSave()}
       />
       <input ref={fileRef} type="file" accept="application/json,.json" className="hidden" aria-label="Import story file" onChange={handleFile} />
       <div className="min-w-0 flex-1">

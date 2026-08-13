@@ -37,6 +37,42 @@ describe("parseProposal", () => {
     expect(issues.some((issue) => issue.includes("op: invalid operator"))).toBe(true);
   });
 
+  it("parses the story-level ops the wizard needs (plan 05 parity)", () => {
+    const { proposal, issues } = parseProposal(JSON.stringify({
+      summary: "wire the story up",
+      ops: [
+        { kind: "setArcTemplate", template: "rising" },
+        { kind: "setArcBridges", bridges: [{ arcMatch: "the relic", anchor: "cache", amount: 1 }] },
+        { kind: "setRequirements", requirements: { members: ["Arin"], lorebooks: ["Xentar"], personas: [] } },
+      ],
+    }));
+    expect(issues).toEqual([]);
+    expect(proposal.ops).toEqual([
+      { kind: "setArcTemplate", template: "rising" },
+      { kind: "setArcBridges", bridges: [{ arcMatch: "the relic", anchor: "cache", amount: 1 }] },
+      { kind: "setRequirements", requirements: { members: ["Arin"], lorebooks: ["Xentar"] } },
+    ]);
+  });
+
+  it("rejects a malformed arc template and a bridge missing its anchor", () => {
+    const { proposal, issues } = parseProposal(JSON.stringify({
+      summary: "",
+      ops: [
+        { kind: "setArcTemplate", template: "spiral" },
+        { kind: "setArcBridges", bridges: [{ arcMatch: "x" }] },
+      ],
+    }));
+    expect(proposal.ops).toEqual([{ kind: "setArcBridges", bridges: [] }]);
+    expect(issues.some((issue) => issue.includes("ops.0.template"))).toBe(true);
+    expect(issues.some((issue) => issue.includes("ops.1.bridges.0"))).toBe(true);
+  });
+
+  it("clears the dramatic shape with an explicit null", () => {
+    const { proposal, issues } = parseProposal(JSON.stringify({ summary: "", ops: [{ kind: "setArcTemplate", template: null }] }));
+    expect(issues).toEqual([]);
+    expect(proposal.ops).toEqual([{ kind: "setArcTemplate", template: null }]);
+  });
+
   it("requires ops to be an array", () => {
     const { issues } = parseProposal(JSON.stringify({ summary: "hi" }));
     expect(issues).toContain("ops: required array");

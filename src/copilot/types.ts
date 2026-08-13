@@ -1,10 +1,13 @@
 import type {
+  ArcBridge,
+  ArcTemplate,
   Checkpoint,
   CheckpointEffects,
   GateNode,
   PrimitiveValue,
   Quality,
   RosterMember,
+  StoryRequirements,
   Transition,
   ValidationError,
 } from "@engine/index";
@@ -36,7 +39,10 @@ export type ProposalOp =
   | { kind: "setTransitionGate"; ref: TransitionRef; gate: GateNode }
   | { kind: "addRosterMember"; member: RosterMember }
   | { kind: "updateRosterMember"; id: string; patch: Partial<RosterMember> }
-  | { kind: "removeRosterMember"; id: string };
+  | { kind: "removeRosterMember"; id: string }
+  | { kind: "setArcTemplate"; template: ArcTemplate | null }
+  | { kind: "setArcBridges"; bridges: ArcBridge[] }
+  | { kind: "setRequirements"; requirements: StoryRequirements };
 
 export type ProposalOpKind = ProposalOp["kind"];
 

@@ -23,13 +23,13 @@ export async function dumpStoryLibrary(page) {
   });
 }
 
-export async function dumpStory(page, hash) {
+export async function dumpStory(page, idOrHash) {
   return evaluateInST(page, (needle) => {
     const ctx = SillyTavern.getContext();
     const records = ctx.extensionSettings?.['story-orchestrator']?.v2Stories;
     if (!Array.isArray(records)) return null;
     return records.find((record) => record.id === needle) ?? records.find((record) => record.hash === needle) ?? null;
-  }, hash);
+  }, idOrHash);
 }
 
 export async function dumpLegacyLibrary(page) {
@@ -69,21 +69,23 @@ export async function removeStory(page, hashOrTitle) {
   }, hashOrTitle);
 }
 
-export async function wipeChatMeta(page, hash) {
-  return evaluateInST(page, async (onlyHash) => {
+// Per-chat state is keyed by story id (blob v3); `only` is an id, and a v2 chat's hash keys still
+// match because the migration keeps unresolvable ones as `legacy-<hash>`.
+export async function wipeChatMeta(page, only) {
+  return evaluateInST(page, async (onlyId) => {
     const ctx = SillyTavern.getContext();
     const meta = ctx.chatMetadata?.story_orchestrator;
     if (!meta) return { wiped: false, reason: 'no story_orchestrator metadata on this chat' };
-    if (onlyHash) {
+    if (onlyId) {
       const keys = meta.stories ? Object.keys(meta.stories) : [];
-      const others = keys.filter((candidate) => candidate !== onlyHash);
+      const others = keys.filter((candidate) => candidate !== onlyId && candidate !== `legacy-${onlyId}`);
       if (others.length) return { wiped: false, reason: `chat also references ${others.join(', ')} — refusing partial wipe`, keys };
     }
     const summary = { selected: meta.selectedStoryId ?? meta.selectedStoryHash ?? null, storyKeys: meta.stories ? Object.keys(meta.stories) : [] };
     delete ctx.chatMetadata.story_orchestrator;
     if (typeof ctx.saveMetadata === 'function') await ctx.saveMetadata();
     return { wiped: true, chatId: ctx.chatId, was: summary };
-  }, hash ?? null);
+  }, only ?? null);
 }
 
 const USAGE = `Usage: node so-library.mts [action] [args]
@@ -91,9 +93,9 @@ const USAGE = `Usage: node so-library.mts [action] [args]
 Actions:
   (none)                     Print the v2 story library (extensionSettings["story-orchestrator"].v2Stories)
   <id|hash>                  Print the full story record for an id or content hash
-  remove <id|hash|title>     Remove matching stories from the library and flush settings
-  wipe-chat-meta [--hash h]  Delete chat_metadata.story_orchestrator from the current chat
-                             (with --hash: only when the chat references solely that story)
+  remove <id|hash|title>     Remove matching stories from the library (by id first) and flush settings
+  wipe-chat-meta [--id i]    Delete chat_metadata.story_orchestrator from the current chat
+                             (with --id: only when the chat references solely that story)
   --legacy                   Print the legacy v1 studio library instead`;
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
@@ -113,16 +115,16 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     }
     if (action === 'remove') {
       const target = args.slice(1).join(' ');
-      if (!target) { console.error('Usage: remove <hash|title>'); return { ok: false }; }
+      if (!target) { console.error('Usage: remove <id|hash|title>'); return { ok: false }; }
       const data = await removeStory(page, target);
       console.log(JSON.stringify(data, null, 2));
       await writeJSON(data, 'so-library-remove');
       return { ok: data.removed.length > 0 };
     }
     if (action === 'wipe-chat-meta') {
-      const hashIndex = args.indexOf('--hash');
-      const hash = hashIndex >= 0 ? args[hashIndex + 1] : undefined;
-      const data = await wipeChatMeta(page, hash);
+      const idIndex = args.indexOf('--id') >= 0 ? args.indexOf('--id') : args.indexOf('--hash');
+      const only = idIndex >= 0 ? args[idIndex + 1] : undefined;
+      const data = await wipeChatMeta(page, only);
       console.log(JSON.stringify(data, null, 2));
       await writeJSON(data, 'so-library-wipe-chat-meta');
       return { ok: data.wiped };

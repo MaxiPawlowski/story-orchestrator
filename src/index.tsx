@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import ReactDOM from "react-dom/client";
 import { bindNavbarDrawerToggle, listConnectionProfiles, showConfirmPopup, toggleNavbarDrawer } from "@services/STAPI";
 import { runModelSelfTest, type SelfTestReport } from "@runtime/selfTest";
 import { isArcTemplateName } from "@pacing/index";
 import { startRuntime } from "@runtime/index";
-import type { RuntimeSnapshot } from "@runtime/types";
-import StudioModal from "./studio/StudioModal";
+import type { RuntimeSnapshot, StoryLibraryRecord } from "@runtime/types";
+import StudioModal, { STUDIO_TAB_IDS } from "./studio/StudioModal";
 import { type DriverController } from "@components/drawer/DriverPanel";
 import DrawerTabs from "./components/drawer/DrawerTabs";
 import HudStrip from "./components/drawer/HudStrip";
@@ -18,7 +18,50 @@ const manager = startRuntime();
 if (typeof globalThis !== "undefined") {
   globalThis.storyOrchestratorRuntime = manager;
   globalThis.storyOrchestratorStudioDraft = useDraftStore;
+  globalThis.storyOrchestratorStudioTabs = STUDIO_TAB_IDS;
 }
+
+// One Studio for the whole extension: the settings panel and the drawer's author view are separate
+// React roots, so the modal lives in its own root with a module-level open flag both can flip.
+const studioListeners = new Set<() => void>();
+let studioOpen = false;
+const setStudioOpen = (next: boolean) => {
+  studioOpen = next;
+  studioListeners.forEach((listener) => listener());
+};
+
+const openStudio = async () => {
+  const snapshot = manager.getSnapshot();
+  const active = snapshot.library.find((story) => story.id === snapshot.storyId);
+  const source = (active?.raw ?? manager.getPlayedStoryRaw()) as StoryDraft | null;
+  const store = useDraftStore.getState();
+  const resumable = store.dirty && store.sourceHash === (active?.hash ?? null);
+  const resume = resumable && (await showConfirmPopup("You have an unsaved Studio draft for this story. Resume it?", { okButton: "Resume draft", cancelButton: "Start fresh" }));
+  if (!resume) {
+    if (source) store.loadDraft(source, active?.hash ?? null);
+    else store.newDraft();
+  }
+  setStudioOpen(true);
+};
+
+// Saving from the chat that is playing this story is the one automatic library→chat path
+// (spec addendum §Story identity); every other chat keeps its pinned copy.
+const applySavedStory = async (record: StoryLibraryRecord): Promise<string | null> => {
+  if (manager.getSnapshot().storyId !== record.id) return null;
+  const outcome = await manager.applyStoryUpdate(record);
+  if (outcome.applied) return outcome.choice === "restart" ? "This chat restarted on it." : "This chat is playing it now.";
+  return outcome.reason ? `This chat kept its version — ${outcome.reason}.` : null;
+};
+
+const StudioHost = () => {
+  const open = useSyncExternalStore(
+    (listener) => { studioListeners.add(listener); return () => { studioListeners.delete(listener); }; },
+    () => studioOpen,
+  );
+  const snapshot = useRuntimeSnapshot();
+  if (!open) return null;
+  return <StudioModal onClose={() => setStudioOpen(false)} copilotEnabled={snapshot.copilot.enabled} runCopilotStage={(input) => manager.runCopilotStage(input)} onSaved={applySavedStory} />;
+};
 
 const driverController: DriverController = {
   suggest: () => manager.runCopilotSuggest(),
@@ -42,24 +85,11 @@ const SettingsPanel = () => {
   const snapshot = useRuntimeSnapshot();
   const [importText, setImportText] = useState("");
   const [busy, setBusy] = useState(false);
-  const [studioOpen, setStudioOpen] = useState(false);
   const [selfTest, setSelfTest] = useState<SelfTestReport | null>(null);
   const [selfTestRunning, setSelfTestRunning] = useState(false);
   const selfTestCancelled = useRef(false);
   const profiles = listConnectionProfiles();
   const identity = snapshot.storyIdentity;
-
-  const openStudio = async () => {
-    const active = snapshot.library.find((story) => story.id === snapshot.storyId);
-    const store = useDraftStore.getState();
-    const resumable = store.dirty && store.sourceHash === (active?.hash ?? null);
-    const resume = resumable && (await showConfirmPopup("You have an unsaved Studio draft for this story. Resume it?", { okButton: "Resume draft", cancelButton: "Start fresh" }));
-    if (!resume) {
-      if (active) store.loadDraft(active.raw as StoryDraft, active.hash);
-      else store.newDraft();
-    }
-    setStudioOpen(true);
-  };
 
   const selectStory = async (id: string) => {
     if (!id) return;
@@ -160,7 +190,6 @@ const SettingsPanel = () => {
               {snapshot.validationErrors.map((error) => <div key={`${error.path}:${error.message}`}>{error.path}: {error.message}</div>)}
             </div>
           )}
-          {studioOpen ? <StudioModal onClose={() => setStudioOpen(false)} copilotEnabled={snapshot.copilot.enabled} runCopilotStage={(input) => manager.runCopilotStage(input)} /> : null}
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={snapshot.copilot.enabled} onChange={(event) => manager.setCopilotSettings({ enabled: event.target.checked })} />
             <span>Enable story copilot (authoring tab + in-play driver)</span>
@@ -265,6 +294,17 @@ const SettingsPanel = () => {
   );
 };
 
+// Turning author view on is a one-way look behind the curtain for this chat: gates, future
+// checkpoints and what the cast is hiding. Confirm before spoiling a story you may not have
+// written (plan 04 unresolved question, resolved yes).
+const toggleAuthorView = async (next: boolean) => {
+  if (next) {
+    const ok = await showConfirmPopup("Author view shows gates, upcoming checkpoints and what characters are hiding. That will spoil this story for you as a player. Show it anyway?", { okButton: "Show author view", cancelButton: "Keep playing" });
+    if (!ok) return;
+  }
+  manager.setUiSettings({ authorView: next });
+};
+
 const DrawerPanel = () => {
   const snapshot = useRuntimeSnapshot();
   return (
@@ -276,7 +316,7 @@ const DrawerPanel = () => {
         </div>
         {snapshot.ready && (
           <label className="flex items-center gap-1 text-xs whitespace-nowrap" title="Show gates, blackboard, scheduler and payload debugging. Spoils upcoming story branches.">
-            <input type="checkbox" checked={snapshot.ui.authorView} onChange={(event) => manager.setUiSettings({ authorView: event.target.checked })} />
+            <input id="so-author-view" type="checkbox" checked={snapshot.ui.authorView} onChange={(event) => void toggleAuthorView(event.target.checked)} />
             <span>Author view</span>
           </label>
         )}
@@ -286,6 +326,8 @@ const DrawerPanel = () => {
           snapshot={snapshot}
           manager={manager}
           driver={{ context: snapshot.driver, activeNudge: snapshot.activeNudge, controller: driverController }}
+          onOpenSettings={openStorySettings}
+          onEditStory={() => void openStudio()}
         />
       )}
     </div>
@@ -298,9 +340,23 @@ const openSoDrawer = () => {
   if (toggle && content && !content.classList.contains("openDrawer")) toggleNavbarDrawer(toggle);
 };
 
+// The one missing setup step is always in one place (plan 02 made settings install-wide), so the
+// player surface points straight at it instead of describing it: ST's Extensions drawer, then our
+// own inline drawer, then scroll it into view.
+const openStorySettings = () => {
+  const navToggle = document.querySelector<HTMLElement>("#extensions-settings-button .drawer-toggle");
+  const navContent = document.getElementById("rm_extensions_block");
+  if (navToggle && navContent && !navContent.classList.contains("openDrawer")) toggleNavbarDrawer(navToggle);
+  const panel = document.getElementById("story-orchestrator-settings");
+  const inlineToggle = panel?.querySelector<HTMLElement>(".inline-drawer-toggle");
+  const inlineContent = panel?.querySelector<HTMLElement>(".inline-drawer-content");
+  if (inlineToggle && inlineContent && inlineContent.offsetParent === null) inlineToggle.click();
+  window.setTimeout(() => panel?.scrollIntoView({ block: "start", behavior: "smooth" }), 100);
+};
+
 const HudMount = () => {
   const snapshot = useRuntimeSnapshot();
-  return <HudStrip snapshot={snapshot} onOpenDrawer={openSoDrawer} />;
+  return <HudStrip snapshot={snapshot} onOpenDrawer={openSoDrawer} onOpenSettings={openStorySettings} />;
 };
 
 const mountTopBarDrawer = () => {
@@ -338,6 +394,15 @@ const mountHud = () => {
   return true;
 };
 
+const mountStudioHost = () => {
+  if (document.getElementById("so-studio-root")) return true;
+  const root = document.createElement("div");
+  root.id = "so-studio-root";
+  document.body.appendChild(root);
+  ReactDOM.createRoot(root).render(<StudioHost />);
+  return true;
+};
+
 const mount = (attempt = 0) => {
   const settingsRootContainer = document.getElementById("extensions_settings");
   if (settingsRootContainer && !document.getElementById("story-orchestrator-settings")) {
@@ -348,6 +413,7 @@ const mount = (attempt = 0) => {
 
   const drawerMounted = mountTopBarDrawer();
   const hudMounted = mountHud();
+  mountStudioHost();
 
   if ((!settingsRootContainer || !drawerMounted || !hudMounted) && attempt < 50) {
     window.setTimeout(() => mount(attempt + 1), 100);

@@ -105,7 +105,7 @@ export async function openCheckpointStudio(page) {
   }
 
   const modal = page.locator('#so-studio-modal');
-  if (await modal.count()) {
+  if (await modal.isVisible().catch(() => false)) {
     return { alreadyOpen: true };
   }
 
@@ -118,18 +118,74 @@ export async function openCheckpointStudio(page) {
   await studioBtn.scrollIntoViewIfNeeded().catch(() => undefined);
   await studioBtn.waitFor({ state: 'visible', timeout: 10000 });
   await studioBtn.click();
-  await modal.waitFor({ state: 'attached', timeout: 10000 });
-  return { alreadyOpen: false };
+  // An unsaved draft for this story asks whether to resume it: keep it, so a draft prepared by the
+  // caller survives the open.
+  const resumed = await answerStudioPopup(page, '.popup-button-ok');
+  await modal.waitFor({ state: 'visible', timeout: 10000 });
+  return { alreadyOpen: false, ...(resumed.answered ? { resumedDraft: true } : {}) };
+}
+
+// The Studio guards a dirty draft with an ST confirm popup; an unanswered popup then blocks every
+// other control on the page (live finding, plan 05 J2 run).
+async function answerStudioPopup(page, button = '.popup-button-ok') {
+  const popup = page.locator('dialog.popup[open]');
+  if (!(await popup.count())) return { answered: false };
+  const control = popup.last().locator(button);
+  if (!(await control.count())) return { answered: false };
+  await control.first().click().catch(() => undefined);
+  await popup.last().waitFor({ state: 'detached', timeout: 5000 }).catch(() => undefined);
+  return { answered: true };
 }
 
 export async function closeCheckpointStudio(page) {
-  return evaluateInST(page, () => {
+  const result = await evaluateInST(page, () => {
     const modal = document.getElementById('so-studio-modal') as HTMLDialogElement | null;
     if (!modal) return { closed: false, reason: 'studio not open' };
-    const close = modal.querySelector('[aria-label="Close"], [title="Close"]') as HTMLElement | null;
+    const close = modal.querySelector('[aria-label="Close studio"], [aria-label="Close"], [title="Close"]') as HTMLElement | null;
     if (close) close.click();
     else modal.close();
     return { closed: true };
+  });
+  // A dirty draft asks "Discard unsaved Studio changes?" first — answer it, then wait for the node
+  // to go so a following open-studio actually opens instead of finding a stale element.
+  const discarded = await answerStudioPopup(page, '.popup-button-ok');
+  await page.locator('#so-studio-modal').waitFor({ state: 'detached', timeout: 5000 }).catch(() => undefined);
+  return { ...result, ...(discarded.answered ? { discardedDraft: true } : {}) };
+}
+
+// Save the Studio draft the way an author does — the button, not the store. A save from the chat
+// that is playing this story may pop the plan-05 invalidation choice; `choice` answers it.
+export async function saveStudioDraft(page, choice = null) {
+  const modal = page.locator('#so-studio-modal');
+  if (!(await modal.count())) throw new Error('Studio modal is not open.');
+  const save = modal.locator('button', { hasText: /^Save$/ });
+  if (!(await save.count())) throw new Error('Studio Save button not found.');
+  await save.first().click();
+  if (choice) {
+    const popup = page.locator('dialog[open]:not(#so-studio-modal)');
+    await popup.waitFor({ state: 'visible', timeout: 10000 }).catch(() => undefined);
+    const button = choice === 'keep' ? popup.locator('.popup-button-ok')
+      : choice === 'cancel' ? popup.locator('.popup-button-cancel')
+        : popup.locator('.popup-button-custom');
+    await button.first().click().catch(() => undefined);
+    // Restart asks for its own confirmation on top of the update choice.
+    if (choice === 'restart') {
+      const confirm = page.locator('dialog[open]:not(#so-studio-modal) .popup-button-ok');
+      await confirm.first().waitFor({ state: 'visible', timeout: 10000 }).catch(() => undefined);
+      await confirm.first().click().catch(() => undefined);
+    }
+  }
+  await page.waitForTimeout(500);
+  return evaluateInST(page, () => {
+    const container = document.getElementById('so-studio-modal');
+    const feedback = container?.querySelector('.st-alert-success, .st-alert-error')?.textContent?.trim() ?? null;
+    const snapshot = globalThis.storyOrchestratorRuntime?.getSnapshot?.() ?? null;
+    return {
+      feedback,
+      draftId: globalThis.storyOrchestratorStudioDraft?.getState?.().draft?.id ?? null,
+      storyIdentity: snapshot?.storyIdentity ?? null,
+      lastStoryUpdate: globalThis.storyOrchestratorRuntime?.getLastStoryUpdate?.() ?? null,
+    };
   });
 }
 
@@ -251,6 +307,49 @@ export async function getDrawerState(page) {
   return { found: true, visible, minimized, username, requirements, checkpoints, evaluationSummary, isExpanding };
 }
 
+// The player-surface signal (plan 04): what the pipeline says it is doing, in the snapshot and on
+// screen. Use it to tell a stalled story from a slow one without reading the scheduler.
+export async function getPipelineState(page) {
+  return evaluateInST(page, () => {
+    const text = (id: string) => document.getElementById(id)?.textContent?.trim() ?? null;
+    return {
+      snapshot: globalThis.storyOrchestratorRuntime?.getSnapshot?.().pipeline ?? null,
+      statusLine: text('so-pipeline-status'),
+      stallSignal: text('so-stall-signal'),
+      hudChip: text('so-hud-pipeline'),
+      setupButton: Boolean(document.getElementById('so-open-story-settings')),
+    };
+  });
+}
+
+// The spoiler checklist as an assertion (test-plan.md §Spoiler checklist). Player mode only: it
+// walks every tab the player can reach and fails on anything the checklist forbids.
+const PLAYER_FORBIDDEN = [
+  'Epistemic map', 'State ledger', 'hiding from', 'blackboard', 'Blackboard',
+  'Steering:', 'Convergence', 'Unmet gates', 'Driver', 'Advance to', 'Nudge',
+  'boundary ', 'Boundary ', 'Audits recorded', 'superseded', 'Last audit',
+];
+
+export async function assertPlayerClean(page) {
+  await openStoryDrawer(page);
+  const authorView = await evaluateInST(page, () => globalThis.storyOrchestratorRuntime?.getSnapshot?.().ui?.authorView ?? null);
+  if (authorView !== false) throw new Error(`assert-player-clean requires player mode (authorView=${authorView}). Turn Author view off first.`);
+  const tabs = await evaluateInST(page, () => Array.from(document.querySelectorAll('#drawer-manager [role="tablist"] button')).map((button) => button.textContent?.trim() ?? ''));
+  const findings = [];
+  for (const tab of tabs) {
+    await switchDrawerTab(page, tab);
+    const text = await evaluateInST(page, () => (document.getElementById('drawer-manager') as HTMLElement | null)?.innerText ?? '');
+    for (const needle of PLAYER_FORBIDDEN) {
+      if ((text ?? '').includes(needle)) findings.push({ tab, needle });
+    }
+  }
+  const authorOnlyTabs = tabs.filter((tab) => ['Blackboard', 'Scheduler', 'Payload'].includes(tab));
+  if (authorOnlyTabs.length) findings.push({ tab: authorOnlyTabs.join(', '), needle: 'author-only tab offered in player mode' });
+  // Leave the drawer where a player would: on the narrative view, not on the last tab we walked.
+  if (tabs.includes('Overview')) await switchDrawerTab(page, 'Overview');
+  return { ok: findings.length === 0, tabs, findings };
+}
+
 export async function takeAnnotatedScreenshot(page, label = 'ui-state') {
   const drawerVisible = (await page.locator('#drawer-manager').count()) > 0 &&
     await evaluateInST(page, () =>
@@ -277,7 +376,7 @@ export async function openStoryDrawer(page) {
   return { alreadyOpen: false };
 }
 
-const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|drawer-tab|screenshot> [label]
+const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|assert-player-clean|screenshot> [label]
 
 all: print settings + drawer state.
 settings: print settings panel state.
@@ -286,7 +385,11 @@ open-drawer: open the Story Orchestrator top-bar drawer.
 open-settings: expand the settings panel.
 open-studio: open Checkpoint Studio modal (v2).
 studio: print Checkpoint Studio modal state (title, active tab, error/issue badges).
-studio-tab <Graph|Qualities|Checkpoints|Transitions|Diagnostics>: switch the studio tab.
+studio-tab <Graph|Story|Qualities|Checkpoints|Transitions|Roster|Diagnostics>: switch the studio tab.
+studio-save [keep|restart|cancel]: click Save and answer the invalidation popup if one appears.
+drawer-tab <Overview|Memory|Blackboard|Scheduler|Payload>: switch the drawer tab.
+pipeline: print the pipeline state (snapshot + status line + HUD chip).
+assert-player-clean: walk the player-mode drawer and fail on anything the spoiler checklist forbids.
 screenshot [label]: take an annotated screenshot.`;
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
@@ -345,11 +448,30 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       console.log('Switched studio tab:', JSON.stringify(result));
     }
 
+    if (subcommand === 'studio-save') {
+      const result = await saveStudioDraft(page, process.argv[3] ?? null);
+      console.log(JSON.stringify(result, null, 2));
+      await writeJSON(result, 'so-ui-studio-save');
+    }
+
     if (subcommand === 'drawer-tab') {
       const label = process.argv[3];
       if (!label) throw new Error('drawer-tab requires a tab label (Overview|Blackboard|Memory|Scheduler|Payload)');
       const result = await switchDrawerTab(page, label);
       console.log('Switched drawer tab:', JSON.stringify(result));
+    }
+
+    if (subcommand === 'pipeline') {
+      const state = await getPipelineState(page);
+      console.log(JSON.stringify(state, null, 2));
+      await writeJSON(state, 'so-ui-pipeline');
+    }
+
+    if (subcommand === 'assert-player-clean') {
+      const result = await assertPlayerClean(page);
+      console.log(JSON.stringify(result, null, 2));
+      await writeJSON(result, 'so-ui-player-clean');
+      if (!result.ok) throw new Error(`player surface leaks: ${result.findings.map((finding) => `${finding.tab}:${finding.needle}`).join(', ')}`);
     }
 
     if (subcommand === 'screenshot') {

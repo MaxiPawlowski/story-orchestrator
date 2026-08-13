@@ -8,8 +8,11 @@ import {
   removeQuality,
   removeRosterMember,
   removeTransition,
+  setArcBridges,
+  setArcTemplate,
   setCheckpointEffects,
   setCheckpointSnapshot,
+  setRequirements,
   setStartCheckpoint,
   setStoryField,
   setTransitionGate,
@@ -76,6 +79,12 @@ export const applyOp = (draft: StoryV2, op: ProposalOp): StoryV2 => {
       return updateRosterMember(draft, op.id, op.patch);
     case "removeRosterMember":
       return removeRosterMember(draft, op.id);
+    case "setArcTemplate":
+      return setArcTemplate(draft, op.template ?? undefined);
+    case "setArcBridges":
+      return setArcBridges(draft, op.bridges);
+    case "setRequirements":
+      return setRequirements(draft, op.requirements);
     default:
       return draft;
   }
@@ -166,6 +175,12 @@ export const describeOp = (op: ProposalOp): OpDescription => {
       return { action: "update", entity: `member:${op.id}`, label: `Update roster member "${op.id}"` };
     case "removeRosterMember":
       return { action: "remove", entity: `member:${op.id}`, label: `Remove roster member "${op.id}"` };
+    case "setArcTemplate":
+      return { action: "update", entity: "story.arc_template", label: op.template ? `Set dramatic shape to ${typeof op.template === "string" ? op.template : "a custom curve"}` : "Clear the dramatic shape" };
+    case "setArcBridges":
+      return { action: "update", entity: "story.arc_bridges", label: `Set ${op.bridges.length} thread bridge(s)` };
+    case "setRequirements":
+      return { action: "update", entity: "story.requirements", label: `Require ${[...(op.requirements.personas ?? []), ...(op.requirements.members ?? []), ...(op.requirements.lorebooks ?? [])].join(", ") || "nothing"}` };
     default:
       return { action: "update", entity: "unknown", label: "Unknown change" };
   }

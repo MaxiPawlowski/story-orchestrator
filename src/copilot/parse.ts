@@ -1,10 +1,14 @@
 import {
+  ARC_TEMPLATE_NAMES,
   GATE_OPERATORS,
   NPC_REPLY_KINDS,
   NPC_REPLY_TRIGGERS,
   QUALITY_SOURCES,
   QUALITY_TYPES,
   TENSION_LEVELS,
+  type ArcBridge,
+  type ArcTemplate,
+  type ArcTemplateName,
   type Checkpoint,
   type CheckpointEffects,
   type GateNode,
@@ -19,6 +23,7 @@ import {
   type QualitySource,
   type QualityType,
   type RosterMember,
+  type StoryRequirements,
   type TensionLevel,
   type Transition,
   type TransitionEffects,
@@ -245,6 +250,47 @@ const readRosterMember = (value: unknown, path: string, issues: string[]): Roste
   return { id: value.id, ...(typeof value.name === "string" ? { name: value.name } : {}) };
 };
 
+const readArcTemplate = (value: unknown, path: string, issues: string[]): ArcTemplate | null | undefined => {
+  if (value === null) return null;
+  if (typeof value === "string" && (ARC_TEMPLATE_NAMES as readonly string[]).includes(value)) return value as ArcTemplateName;
+  if (isRecord(value) && Array.isArray(value.points)) {
+    const points = value.points.filter((entry): entry is { at: number; tension: number } => isRecord(entry) && typeof entry.at === "number" && typeof entry.tension === "number");
+    if (points.length) return { points };
+  }
+  issues.push(`${path}: must be ${ARC_TEMPLATE_NAMES.join("|")}, { points: [...] } or null`);
+  return undefined;
+};
+
+const readArcBridges = (value: unknown, path: string, issues: string[]): ArcBridge[] | undefined => {
+  if (!Array.isArray(value)) {
+    issues.push(`${path}: bridges must be an array`);
+    return undefined;
+  }
+  return value.map((entry, index) => {
+    if (!isRecord(entry) || typeof entry.arcMatch !== "string" || typeof entry.anchor !== "string" || typeof entry.amount !== "number") {
+      issues.push(`${path}.${index}: needs { arcMatch, anchor, amount }`);
+      return null;
+    }
+    return { arcMatch: entry.arcMatch, anchor: entry.anchor, amount: entry.amount };
+  }).filter((entry): entry is ArcBridge => Boolean(entry));
+};
+
+const readRequirements = (value: unknown, path: string, issues: string[]): StoryRequirements | undefined => {
+  if (!isRecord(value)) {
+    issues.push(`${path}: requirements must be an object`);
+    return undefined;
+  }
+  const list = (entry: unknown) => (Array.isArray(entry) ? entry.filter((item): item is string => typeof item === "string" && item.trim().length > 0) : []);
+  const requirements: StoryRequirements = {};
+  const personas = list(value.personas);
+  const members = list(value.members);
+  const lorebooks = list(value.lorebooks);
+  if (personas.length) requirements.personas = personas;
+  if (members.length) requirements.members = members;
+  if (lorebooks.length) requirements.lorebooks = lorebooks;
+  return requirements;
+};
+
 const requireString = (value: unknown, field: string, path: string, issues: string[]): string | null => {
   if (typeof value !== "string" || !value.trim()) {
     issues.push(`${path}.${field}: required`);
@@ -337,6 +383,18 @@ const readOp = (value: unknown, path: string, issues: string[]): ProposalOp | nu
     case "removeRosterMember": {
       const id = requireString(value.id, "id", path, issues);
       return id ? { kind: "removeRosterMember", id } : null;
+    }
+    case "setArcTemplate": {
+      const template = readArcTemplate(value.template, `${path}.template`, issues);
+      return template === undefined ? null : { kind: "setArcTemplate", template };
+    }
+    case "setArcBridges": {
+      const bridges = readArcBridges(value.bridges, `${path}.bridges`, issues);
+      return bridges ? { kind: "setArcBridges", bridges } : null;
+    }
+    case "setRequirements": {
+      const requirements = readRequirements(value.requirements, `${path}.requirements`, issues);
+      return requirements ? { kind: "setRequirements", requirements } : null;
     }
     default:
       issues.push(`${path}.kind: unknown '${value.kind}'`);

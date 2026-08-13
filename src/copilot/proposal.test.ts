@@ -26,6 +26,20 @@ describe("applyOp", () => {
     expect(next.checkpoints.find((checkpoint) => checkpoint.id === "vault")?.convergence_threshold).toBe(2);
   });
 
+  it("sets the story-level fields the Studio now edits", () => {
+    const next = applyOps(baseDraft(), [
+      { kind: "setArcTemplate", template: "three_act" },
+      { kind: "setRequirements", requirements: { members: ["Arin"], personas: [] } },
+      { kind: "setArcBridges", bridges: [{ arcMatch: "the key", anchor: "vault", amount: 1 }] },
+    ]);
+    expect(next.arc_template).toBe("three_act");
+    expect(next.requirements).toEqual({ members: ["Arin"] });
+    expect(next.arc_bridges).toEqual([{ arcMatch: "the key", anchor: "vault", amount: 1 }]);
+    const cleared = applyOps(next, [{ kind: "setArcTemplate", template: null }, { kind: "setArcBridges", bridges: [] }]);
+    expect(cleared.arc_template).toBeUndefined();
+    expect(cleared.arc_bridges).toBeUndefined();
+  });
+
   it("does not mutate the input draft", () => {
     const draft = baseDraft();
     applyOp(draft, { kind: "addQuality", quality: { key: "loot", type: "int", source: "extractor", rubric: "?" } });

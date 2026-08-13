@@ -18,7 +18,7 @@
     ]
   },
   "capabilities": {
-    "rollback-notice": "Boolean(document.querySelector('#so-rollback-notice'))"
+    "rollback-notice": "typeof globalThis.storyOrchestratorRuntime?.getSnapshot?.().lastRollback !== 'undefined'"
   },
   "checks": [
     {
@@ -126,6 +126,17 @@
         "rollback-notice"
       ],
       "steps": [
+        {
+          "ui": {
+            "action": "open-drawer"
+          }
+        },
+        {
+          "ui": {
+            "action": "drawer-tab",
+            "label": "Overview"
+          }
+        },
         {
           "expect_ui": {
             "selector": "#so-rollback-notice",

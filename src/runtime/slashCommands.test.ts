@@ -23,6 +23,13 @@ const makeManager = () => {
     setMemoryPinned: jest.fn(async () => undefined),
     excludeMemoryEntry: jest.fn(async () => undefined),
     runMemorizeBacklog: jest.fn(async () => true),
+    flagMoment: jest.fn(async () => undefined),
+    getOpenArcs: jest.fn(() => ["The missing sun-heart"]),
+    getNarrativeStatus: jest.fn(() => ({
+      title: "Quest for the Sun Ruins",
+      sections: [{ id: "now", label: "Where you are", lines: ["The Ruined Gate"] }],
+      text: "Where you are\n  The Ruined Gate",
+    })),
     getSnapshot: jest.fn(() => ({
       status: "ok",
       checkpoints: [],
@@ -48,9 +55,21 @@ beforeEach(() => {
 });
 
 describe("registerSlashCommands", () => {
-  it("registers /cp and /so-mem", () => {
+  it("registers /cp, /so-mem and the player-safe /story", () => {
     expect(registerSlashCommands(makeManager())).toBe(true);
-    expect(Object.keys(commands).sort()).toEqual(["cp", "so-mem"]);
+    expect(Object.keys(commands).sort()).toEqual(["cp", "so-mem", "story"]);
+  });
+
+  it("/story recap prints the narrative composition, /story threads the open ones", async () => {
+    const manager = makeManager();
+    registerSlashCommands(manager);
+    sendSystemChatMessage.mockClear();
+    const recap = await commands.story.callback({}, "recap");
+    expect(recap).toContain("Quest for the Sun Ruins");
+    expect(recap).toContain("Where you are");
+    expect(await commands.story.callback({}, "threads")).toContain("• The missing sun-heart");
+    await commands.story.callback({}, "flag it dragged here");
+    expect(manager.flagMoment).toHaveBeenCalledWith("it dragged here");
   });
 
   it("/so-mem list numbers active entries, hides superseded ones, and posts a chat message", async () => {

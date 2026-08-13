@@ -19,7 +19,7 @@
   },
   "capabilities": {
     "narrative-status": "typeof globalThis.storyOrchestratorRuntime?.getNarrativeStatus === 'function'",
-    "stall-signal": "Boolean(document.querySelector('#so-stall-signal'))",
+    "stall-signal": "typeof globalThis.storyOrchestratorRuntime?.getSnapshot?.().pipeline?.state === 'string'",
     "epistemic-present": "(globalThis.storyOrchestratorRuntime?.getEpistemic?.() ?? []).length > 0"
   },
   "checks": [
@@ -124,6 +124,11 @@
         },
         {
           "ui": {
+            "action": "assert-player-clean"
+          }
+        },
+        {
+          "ui": {
             "action": "drawer-tab",
             "label": "Memory"
           }
@@ -136,7 +141,10 @@
               "State ledger",
               "hiding from",
               "Steering:",
-              "blackboard"
+              "blackboard",
+              "Convergence",
+              "Unmet gates",
+              "Advance to"
             ]
           }
         }
@@ -161,10 +169,20 @@
             "selector": "#drawer-manager",
             "notContains": [
               "Boundary ",
+              "boundary ",
               "cp1",
               "cp2",
               "auditCount",
-              "extractor"
+              "extractor",
+              "Audits recorded"
+            ]
+          }
+        },
+        {
+          "expect_ui": {
+            "selector": "#drawer-manager",
+            "contains": [
+              "Where you are"
             ]
           }
         }
@@ -182,7 +200,15 @@
       ],
       "steps": [
         {
-          "eval": "const status = globalThis.storyOrchestratorRuntime.getNarrativeStatus(); if (!status?.text) throw new Error('empty narrative status'); return status;"
+          "eval": "const status = globalThis.storyOrchestratorRuntime.getNarrativeStatus(); if (!status?.text) throw new Error('empty narrative status'); const ids = status.sections.map((s) => s.id); if (!ids.includes('now') || !ids.includes('status')) throw new Error('narrative missing sections: ' + ids.join(',')); return { ids, text: status.text.slice(0, 200) };"
+        },
+        {
+          "expect_ui": {
+            "selector": "#so-player-overview",
+            "contains": [
+              "Where you are"
+            ]
+          }
         }
       ]
     },
@@ -192,11 +218,20 @@
       "findings": [
         "U5"
       ],
-      "goal": "a stalled pipeline is visibly distinct from a slow one on the player surface",
+      "goal": "a stalled pipeline is visibly distinct from a slow one, and the signal clears when the re-check lands",
       "requires": [
         "stall-signal"
       ],
       "steps": [
+        {
+          "ui": {
+            "action": "drawer-tab",
+            "label": "Overview"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); const state = rt.getEngineState(); rt.recordReconciliation({ checkpointId: snap.activeCheckpointId, boundary: state.boundary, targetedKeys: ['stall-probe'] }); return rt.getSnapshot().pipeline;"
+        },
         {
           "expect_ui": {
             "selector": "#so-stall-signal",
@@ -204,6 +239,12 @@
               "re-checking"
             ]
           }
+        },
+        {
+          "eval": "await globalThis.storyOrchestratorRuntime.runExtractionNow(undefined, 'reconcile:stall-probe'); const pipeline = globalThis.storyOrchestratorRuntime.getSnapshot().pipeline; if (pipeline.state === 'stalled-rechecking') throw new Error('stall signal did not clear after the re-check landed'); return pipeline;"
+        },
+        {
+          "eval": "if (document.querySelector('#so-stall-signal')) throw new Error('stall signal still on screen: ' + document.querySelector('#so-stall-signal').textContent); return true;"
         }
       ]
     },

@@ -38,6 +38,13 @@ export function listActiveWorldInfoComments(): string[] {
   return uniq(Object.values(worldInfo ?? {}).filter((entry) => !entry.disable).map((entry) => trim(entry.comment)).filter(Boolean));
 }
 
+// power_user.personas maps avatar file -> persona name (power-user.js:286, exposed on the context
+// as powerUserSettings in st-context.js:229). Names are what a story's requirements reference.
+export function listPersonas(): string[] {
+  const personas = getContext().powerUserSettings?.personas ?? {};
+  return uniq(Object.values(personas).map((name) => trim(name)).filter(Boolean));
+}
+
 export function listGroupMembers(): string[] {
   const { groupId, groups } = getContext();
   const activeGroupId = trim(groupId == null ? "" : String(groupId));

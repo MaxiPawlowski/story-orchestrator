@@ -97,6 +97,14 @@ const lastMessageId = () => {
 };
 
 export class EffectsApplier {
+  // The one thing a transition posts into the chat itself: a compact system note naming where the
+  // story moved (opt-out in settings). Macro/newline characters would break the slash parser.
+  async announceTransition(checkpoint: Checkpoint | undefined, extras: RuntimeExtras) {
+    if (!extras.ui.announceTransitions || !checkpoint) return;
+    const raw = checkpoint.objective ? `◈ ${checkpoint.name} — ${checkpoint.objective}` : `◈ ${checkpoint.name}`;
+    await executeSlashCommands(`/comment compact=true ${raw.replace(/[|{}]/g, " ").replace(/\s*\r?\n\s*/g, " ").trim()}`, { silent: true });
+  }
+
   async applyCheckpoint(story: NormalizedStoryV2, checkpoint: Checkpoint, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate") {
     if (!extras.requirements.ready) return;
     const effects = checkpoint.effects;

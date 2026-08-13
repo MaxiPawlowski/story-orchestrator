@@ -18,6 +18,7 @@ import {
   type PrimitiveValue,
   type Quality,
   type QualityType,
+  type StoryRequirements,
   type StoryV2,
   type TalkControl,
   type TalkControlSpeaker,
@@ -393,6 +394,28 @@ const addBuiltinTensionQuality = (qualities: Quality[], errors: ValidationError[
   }];
 };
 
+const readRequirementList = (value: unknown): string[] => {
+  if (Array.isArray(value)) return value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0).map((entry) => entry.trim());
+  return typeof value === "string" && value.trim() ? [value.trim()] : [];
+};
+
+// Authored aliases collapse here so nothing downstream has to know them (runtime/requirements.ts,
+// the Studio editor and the wizard all read {personas, members, lorebooks}).
+const readRequirements = (value: unknown, errors: ValidationError[]): StoryRequirements | undefined => {
+  if (!isRecord(value)) {
+    addError(errors, "requirements", "requirements must be an object");
+    return undefined;
+  }
+  const personas = readRequirementList(value.personas ?? value.persona);
+  const members = readRequirementList(value.members ?? value.groupMembers ?? value.group_members);
+  const lorebooks = readRequirementList(value.lorebooks ?? value.globalLorebooks ?? value.global_lorebooks);
+  return {
+    ...(personas.length ? { personas } : {}),
+    ...(members.length ? { members } : {}),
+    ...(lorebooks.length ? { lorebooks } : {}),
+  };
+};
+
 const readArcTemplate = (value: unknown, errors: ValidationError[]): ArcTemplate | undefined => {
   if (isOneOf(value, ARC_TEMPLATE_NAMES)) return value;
   if (isRecord(value) && Array.isArray(value.points)) {
@@ -437,6 +460,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const transitions = (json.transitions as unknown[]).map((entry, index) => readTransition(entry, `transitions.${index}`, errors)).filter((entry): entry is Transition => entry !== null);
   const qualities = addBuiltinTensionQuality(addProgressQualities(baseQualities, checkpoints, errors), errors);
   const arcTemplate = json.arc_template !== undefined ? readArcTemplate(json.arc_template, errors) : undefined;
+  const requirements = json.requirements !== undefined ? readRequirements(json.requirements, errors) : undefined;
   const arcBridges = Array.isArray(json.arc_bridges) ? json.arc_bridges.map((entry, index) => {
     const bridgePath = `arc_bridges.${index}`;
     if (!isRecord(entry)) {
@@ -520,7 +544,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     roster: (json.roster as StoryV2["roster"]),
     ...(arcTemplate !== undefined ? { arc_template: arcTemplate } : {}),
     ...(arcBridges ? { arc_bridges: arcBridges } : {}),
-    ...(json.requirements !== undefined ? { requirements: json.requirements } : {}),
+    ...(requirements ? { requirements } : {}),
     startCheckpointId,
     checkpointById,
     outgoingByCheckpoint,

@@ -76,6 +76,16 @@ export function findStoryRecord(idOrHash: string): StoryLibraryRecord | null {
   return records.find((record) => record.id === idOrHash) ?? records.find((record) => record.hash === idOrHash) ?? null;
 }
 
+// A Studio-born story must enter the library with a real id: without one it keys as
+// `legacy-<contentHash>` and every save forks a new record — finding U2, from the authoring side.
+export function availableStoryId(base: string): string {
+  const used = new Set(listStoryRecords().map((record) => record.id));
+  if (!used.has(base)) return base;
+  let suffix = 2;
+  while (used.has(`${base}-${suffix}`)) suffix += 1;
+  return `${base}-${suffix}`;
+}
+
 export function saveStoryRecord(raw: unknown): LoadedStory | RuntimeSnapshot["validationErrors"] {
   const parsed = parseStoryV2(raw);
   if (isValidationErrorList(parsed)) return parsed;

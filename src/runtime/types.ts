@@ -5,6 +5,8 @@ import type { ArcEntry, EpistemicEntry, LedgerEntry, LedgerView, MemoryStoreStat
 import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
 import type { JournalRecord } from "./journal";
+import type { NarrativeStatus, RollbackNotice } from "./narrative";
+import type { PipelineStatus } from "./pipeline";
 import type { InjectedPromptBlock } from "@services/STAPI";
 import type { TalkDecisionSource } from "@talk/index";
 
@@ -210,6 +212,9 @@ export interface RuntimeSnapshot {
     expected: number | null;
     hint: SteeringHint | null;
   };
+  pipeline: PipelineStatus;
+  narrative: NarrativeStatus;
+  lastRollback: RollbackNotice | null;
   ledger: LedgerView[];
   driver: DriverContext | null;
   activeNudge: string | null;

@@ -51,6 +51,13 @@ export const getWorldInfoSettings = () => ({
 
 export const getAllCharacterNames = () => ["Narrator", "Arin", "Companion", "Guide"];
 
+export const listGroupMembers = () => ["Arin", "Companion"];
+export const listGlobalLorebooks = () => ["Lorebook Alpha", "Lorebook Beta"];
+export const listPersonas = () => ["Traveller"];
+export const showConfirmPopup = async () => true;
+export const showTextPopup = async () => {};
+export const showChoicePopup = async () => null;
+
 export const getContext = () => ({
   saveSettingsDebounced: () => {},
   extensionSettings,

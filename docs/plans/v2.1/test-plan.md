@@ -34,6 +34,16 @@ node scripts/debug/so-journey.mts run J3
   settings panel; `ST_DEBUG_PROFILE=<name>` chooses when several profiles exist.
 - `--strict` makes `blocked` fail (acceptance mode, plan 08). `--only <ids>` runs a subset.
   `--keep` skips cleanup. `--no-config` forbids any global-settings write.
+- Player-surface verbs (plan 04): `so-ui.mts pipeline` prints the derived pipeline slice next to what is
+  actually on screen; `so-ui.mts assert-player-clean` walks every player-mode tab and fails on any
+  checklist violation. Both are also scenario/journey steps (`ui: {action: "pipeline"|"assert-player-clean"}`).
+- Author-loop verbs (plan 05): `so-ui.mts studio-save [keep|restart|cancel]` clicks the Studio's Save and
+  answers the invalidation popup (`studio_save` as a step key, `ui: {action: "studio-save", choice}` as a
+  ui action); `expect: {storyVersion: {played, library, drifted}}` and
+  `expect: {hotSwap: {applied, classification, choice, dropped, boundaryAtLeast}}` assert what the update
+  did to the run.
+- Cleanup restores group members **after** `/delchat` and reports the resulting `disabledMembers` —
+  enabling them while the sandbox chat is open is silently undone (plan 04 live finding).
 - Artifacts per run: `.debug/journey-<id>.md` (matrix + human checklist) and a timestamped
   `.debug/*_journey-<id>.json`. Both, and the config snapshot, are protected from `.debug` rotation.
 
@@ -57,7 +67,7 @@ arrive. The operator records scores in the plan's Gate record.
 |---|---|---|---|---|---|
 | J0 | runner-selftest | The runner itself: fresh-start, pass/blocked/skipped, cleanup | 3 | 1 | No LLM. Run it whenever the harness changes |
 | J1 | first-contact | Cleared install → install state → import example → configure → first real transition | 7 | 2 | Only journey that clears global config |
-| J2 | author-loop | Empty Studio → authored story → play → edit → continue; author-view driver (Probe + Nudge) | 6 | 2 | Authoring checks blocked until plan 05 |
+| J2 | author-loop | Empty Studio → authored story → play → edit → continue, incl. an invalidating edit and its choice popup; author-view driver (Probe + Nudge) | 9 | 2 | Plan 05's gate journey |
 | J3 | player-session | Real session on sun-ruins: transitions announced, memory recalled, spoiler sweep, journal | 8 | 5 | The human-eval workhorse |
 | J4 | return-and-adopt | Simulated multi-day gap → away recap on return; mid-chat adoption via memorize backlog | 4 | 2 | Uses the `reload` verb (real return path) |
 | J5 | group-direction | talk_control + npc_replies + cast_changes; per-speaker private injection in the payload | 6 | 1 | Restores the group roster in cleanup |
@@ -90,14 +100,17 @@ register), so plan 08's Evidence column writes itself.
 
 | Check | Mode | Findings | What it proves |
 |---|---|---|---|
-| J2.1 | auto | U7 | The Studio opens on an empty draft |
+| J2.1 | auto | U7 | The Studio opens on an empty draft and offers Story/Qualities/Checkpoints/Transitions/Roster/Diagnostics |
 | J2.2 | auto | U7 | Roster members are authorable in the Studio UI (`requires: studio-roster-editor`) |
-| J2.3 | auto | U7 | Requirements (members, lorebooks) are authorable (`requires: studio-requirements-editor`) |
+| J2.3 | auto | U7 | Id/version, description, dramatic shape, requirements (persona/cast/lorebook) and thread bridges are authorable (`requires: studio-requirements-editor`) |
 | J2.4 | auto | U2 | A story keeps one identity across edits: re-import updates the record instead of forking |
-| J2.5 | auto | U2 | Saving an edit into the running chat keeps progress (`requires: hot-swap`) |
-| J2.6 | auto | U3 | The author-view driver still works in play (Probe + Nudge, real model) |
-| J2.7 | human | U7 | "Could you author a playable checkpoint without JSON?" |
-| J2.8 | human | U2 | "After editing mid-play, did the chat behave as expected?" |
+| J2.5 | auto | U2 U7 | The drawer's author view opens Studio on the story this chat plays (`requires: drawer-edit-story`) |
+| J2.6 | auto | U2 | Saving a compatible edit from this chat hot-swaps it: boundary and blackboard survive (`requires: hot-swap`) |
+| J2.7 | auto | U2 | An invalidating edit asks first; "keep playing" drops only the orphaned value and the run continues |
+| J2.8 | auto | U2 | "Cancel" leaves the chat on its pinned version while the library keeps the edit (identity reads drifted) |
+| J2.9 | auto | U3 | The author-view driver still works in play (Probe + Nudge, real model) |
+| J2.10 | human | U7 | "Could you author a playable checkpoint without JSON?" |
+| J2.11 | human | U2 | "After editing mid-play, did the chat behave as expected — including when it asked you to choose?" |
 
 ### J3 player-session
 
@@ -105,10 +118,10 @@ register), so plan 08's Evidence column writes itself.
 |---|---|---|---|
 | J3.1 | auto | — | The story loads and the first real transition fires from play alone |
 | J3.2 | auto | — | The checkpoint change is announced in the chat |
-| J3.3 | auto | U3 | Player mode shows no author-only internals (spoiler sweep: epistemic map, ledger, `hiding from`, steering, blackboard) |
+| J3.3 | auto | U3 | Player mode shows no author-only internals — `ui: assert-player-clean` walks every player tab against the checklist below, plus an explicit sweep |
 | J3.4 | auto | U8 | Player surfaces avoid implementation vocabulary (checkpoint ids, boundary, audit counts, "extractor") |
-| J3.5 | auto | U4 | One composed narrative "where am I" surface exists (`requires: narrative-status`) |
-| J3.6 | auto | U5 | A stalled pipeline is visibly distinct from a slow one (`requires: stall-signal`) |
+| J3.5 | auto | U4 | One composed narrative "where am I" surface exists — `getNarrativeStatus()` sections and `#so-player-overview` (`requires: narrative-status`) |
+| J3.6 | auto | U5 | An induced stall shows the player signal (`#so-stall-signal`, "re-checking") and it clears when the real re-read lands (`requires: stall-signal`) |
 | J3.7 | auto | — | The session produced memory and injected it into the next generation |
 | J3.8 | auto | — | The session journal correlates extraction, transition, payload and flag on one timeline |
 | J3.9 | human | U4 | "Did you always know where the story was?" |
@@ -147,7 +160,7 @@ register), so plan 08's Evidence column writes itself.
 | J6.1 | auto | — | A boundary is committed and a gate latches |
 | J6.2 | auto | — | Editing the message that carried the delta rolls the story back |
 | J6.3 | auto | — | Deleting the last message leaves engine state consistent |
-| J6.4 | auto | U5 | The player is told the story stepped back (`requires: rollback-notice`) |
+| J6.4 | auto | U5 | The player is told the story stepped back — `#so-rollback-notice` in the drawer, chip in the HUD (`requires: rollback-notice`) |
 | J6.5 | human | U5 | "Was it clear what the story did in response?" |
 
 ### J7 long-haul
@@ -185,20 +198,36 @@ never writing the blackboard or memory tiers; human: "did the stage keep up with
 Interview before proposing; create-only provisioning enforced in op validation; per-op review;
 "Fix with wizard" from the requirements panel; human: "did it get you to a story you wanted to play?"
 
-## Spoiler checklist (player mode)
+## Spoiler checklist (player mode) — v2 (plan 04)
 
-Applied by J3.3/J3.4 automatically and by the human checks J3.10/J3.11. Plan 04 extends this list
-and re-audits every player-visible element it touches. A player-mode surface must never show:
+Applied automatically by J3.3 (`ui: assert-player-clean` + an explicit sweep) and
+`node scripts/debug/so-ui.mts assert-player-clean`, and by the human checks J3.10/J3.11. Any plan
+that adds a player-visible element adds a row here.
 
-- gate expressions or unmet-gate values, checkpoint ids, boundary numbers
-- future/unvisited checkpoint names, transition targets, the Advance list
-- the epistemic map (especially `hiding`), ledger internals, arc bookkeeping
-- scheduler, audit, payload or queue debugging
-- any control that steers the story (Advance / Nudge / Probe / Suggest / `set`)
+| Element | Persona | Where |
+|---|---|---|
+| Narrative view: where you are · recently · open threads · the story so far · noted · status | player | `PlayerOverview` (drawer Overview), away-recap popup, `/story recap` |
+| Checkpoint **name** + objective, tension **level word** (no numbers) | player | narrative "now" section, HUD |
+| Open-arc texts, canon prose (never canon-lite) | player | narrative "threads"/"story" sections, `/story threads` |
+| Pending deltas as "N things noted, apply next turn" (no quality keys) | player | narrative "pending" section, HUD chip |
+| Pipeline status + stall/needs-setup/error signal + setup deep link | player | `#so-pipeline-status`, `#so-stall-signal`, `#so-hud-pipeline`, `#so-open-story-settings` |
+| Rollback notice after an edit/delete | player | `#so-rollback-notice`, HUD chip |
+| Missing requirements (persona / cast / lore) | player | `#so-player-requirements` |
+| Memory curation of established facts (pin / edit / exclude, evidence tooltip), Memorize chat | player | drawer Memory tab |
+| ⚑ flag moment, display toggles, Restart story (`#so-restart-story-drawer`) | both | drawer Overview footer, settings panel |
+| "Edit story" (opens Studio on this chat's story) and "Update to v*N*" (takes a newer library version) | author | drawer Overview footer (`#so-edit-story`, `#so-update-story`) |
+| Story-update choice popup (keep playing / restart / cancel) — only ever raised by the author's own save | author | plan-05 invalidation flow |
+| Superseded / folded memory entries, importance · expiration · recall counts, last audit id | author | drawer Memory tab (author view) |
+| Arc bookkeeping (pin/remove/resolved), epistemic map (esp. `hiding from`), state ledger | author | drawer Memory tab (author view) |
+| Checkpoint id, boundary number, pipeline state name + error detail, raw pending writes | author | drawer Overview "Engine" panel |
+| Tension numbers, expected tension, steering hint | author | drawer Overview (author view) |
+| Convergence bars (they name a future anchor and its distance) | author | drawer Overview (author view) |
+| Blackboard / Scheduler / Payload tabs, stall re-check detail, talk decisions | author | drawer tabs (author view) |
+| DriverPanel in full — Suggest / Probe / Report / Advance / Nudge, unmet gates | author | drawer footer (author view + copilot on) |
+| `/cp` in full (`list`, `state`, `activate`, `set`, `converge`, debug `extract`/`expand`) | author | slash commands |
 
-Player-mode surfaces may show: where the story is narratively, open threads, that the machine is
-working (or stuck and self-correcting), memory curation of established facts, display toggles,
-Restart, and the ⚑ flag control (persona `both` — it is meta, not steering).
+Turning **Author view** on asks for confirmation first: it is a one-way look behind the curtain
+for that chat.
 
 ## Session journal & human-eval protocol
 

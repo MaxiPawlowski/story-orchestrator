@@ -97,6 +97,7 @@ export async function dumpCurrentChatState(page) {
     const runtimeSnapshot = globalThis.storyOrchestratorRuntime?.getSnapshot?.() ?? null;
     const activeNudge = globalThis.storyOrchestratorRuntime?.getActiveNudge?.() ?? null;
     const possibleTransitions = globalThis.storyOrchestratorRuntime?.getPossibleTransitions?.() ?? null;
+    const lastStoryUpdate = globalThis.storyOrchestratorRuntime?.getLastStoryUpdate?.() ?? null;
     const copilotNudgePrompt = ctx.extensionPrompts?.story_copilot_nudge ?? null;
     const pacingPrompt = ctx.extensionPrompts?.story_orchestrator_pacing ?? null;
     const memoryPrompts = ['facts', 'session_details', 'short_term', 'scene_history'].reduce((acc, tier) => {
@@ -115,6 +116,7 @@ export async function dumpCurrentChatState(page) {
       runtimeSnapshot,
       activeNudge,
       possibleTransitions,
+      lastStoryUpdate,
       copilotNudgePrompt,
       pacingPrompt,
       memoryPrompts,
@@ -133,6 +135,7 @@ export async function dumpCurrentChatState(page) {
     liveSnapshot: data?.runtimeSnapshot ?? null,
     activeNudge: data?.activeNudge ?? null,
     possibleTransitions: data?.possibleTransitions ?? null,
+    lastStoryUpdate: data?.lastStoryUpdate ?? null,
     copilotNudgePrompt: data?.copilotNudgePrompt ?? null,
     pacingPrompt: data?.pacingPrompt ?? null,
     memoryPrompts: data?.memoryPrompts ?? null,
@@ -164,6 +167,7 @@ function compactCurrent(data) {
     tension: data?.liveSnapshot?.tension ?? state?.tension ?? null,
     pacingPrompt: data?.pacingPrompt ?? null,
     possibleTransitions: data?.possibleTransitions ?? null,
+    lastStoryUpdate: data?.lastStoryUpdate ?? null,
     lastSessionAt: state?.lastSessionAt ?? null,
     payloadCaptures: (() => {
       const captures = data?.liveSnapshot?.payloadCaptures ?? [];

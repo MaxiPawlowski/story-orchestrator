@@ -3,6 +3,7 @@ import { MEMORY_TIERS, type MemoryTier } from "@memory/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
 import DriverPanel, { type DriverController } from "./DriverPanel";
+import PlayerOverview from "./PlayerOverview";
 
 export type DrawerTabId = "overview" | "blackboard" | "memory" | "scheduler" | "payload";
 
@@ -33,13 +34,15 @@ export interface DrawerTabsProps {
   snapshot: RuntimeSnapshot;
   manager: RuntimeManager;
   driver: DrawerDriver;
+  onOpenSettings?: () => void;
+  onEditStory?: () => void;
 }
 
 const extractionReady = (snapshot: RuntimeSnapshot): boolean => snapshot.extraction.settings.enabled && Boolean(snapshot.extraction.settings.profileId);
 
 const StatusDot = ({ ok }: { ok: boolean }) => <span className={`status-indicator status-${ok ? "success" : "error"}`} />;
 
-const Requirements = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
+const AuthorRequirements = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
   const items = [
     { label: "Persona", missing: snapshot.requirements.missingPersonas },
     { label: "Group", missing: snapshot.requirements.missingMembers },
@@ -62,37 +65,28 @@ const Requirements = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
   );
 };
 
-const PendingDeltas = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
-  if (!snapshot.pendingDeltas.length) return null;
-  return (
-    <div className="flex flex-col gap-1">
-      <div className="font-medium">Heard, applies next turn</div>
-      {snapshot.pendingDeltas.map((pending) => (
-        <div key={pending.quality} className="text-xs opacity-80">{pending.quality} → {String(pending.value)}</div>
-      ))}
+// Author-only machine view of the same checkpoint: ids, counters, gate progress and the raw
+// pending queue. Convergence is a spoiler by construction (it names a future anchor), so it never
+// appears without author view.
+const AuthorOverview = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
+  <div className="flex flex-col gap-3 border-t border-solid border-white/10 pt-2">
+    <div className="text-xs opacity-80">
+      <div className="font-medium opacity-100">Engine</div>
+      <div>{snapshot.activeCheckpointId} · boundary {snapshot.boundary}</div>
+      <div>Pipeline: {snapshot.pipeline.state}{snapshot.pipeline.detail ? ` — ${snapshot.pipeline.detail}` : ""}</div>
     </div>
-  );
-};
-
-const OverviewTab = ({ snapshot, authorView }: { snapshot: RuntimeSnapshot; authorView: boolean }) => (
-  <div className="flex flex-col gap-3">
-    <div className="checkpoints-wrapper flex flex-col gap-1">
-      <div className="font-medium">Checkpoint</div>
-      <div className="st-checkpoint-row status-current">
-        <div className="font-semibold">{snapshot.activeCheckpointName}</div>
-        <div className="text-sm opacity-80">{snapshot.activeObjective}</div>
-        {authorView && <div className="text-xs opacity-70">Boundary {snapshot.boundary}</div>}
-      </div>
-    </div>
-    <PendingDeltas snapshot={snapshot} />
-    <Requirements snapshot={snapshot} />
-    <div className="flex flex-col gap-1">
-      <div className="font-medium">Tension</div>
+    {snapshot.pendingDeltas.length > 0 && (
       <div className="text-xs opacity-80">
-        <div>Level: {snapshot.tension.level ?? "—"} {snapshot.tension.smoothed !== null && <span>({snapshot.tension.smoothed.toFixed(2)})</span>}</div>
-        <div>Expected: {snapshot.tension.expected !== null ? snapshot.tension.expected.toFixed(2) : "—"}</div>
-        {snapshot.tension.hint && <div className="opacity-100">Steering: {snapshot.tension.hint.direction} — {snapshot.tension.hint.text}</div>}
+        <div className="font-medium opacity-100">Pending writes</div>
+        {snapshot.pendingDeltas.map((pending) => <div key={pending.quality}>{pending.quality} → {String(pending.value)}</div>)}
       </div>
+    )}
+    <AuthorRequirements snapshot={snapshot} />
+    <div className="text-xs opacity-80">
+      <div className="font-medium opacity-100">Tension</div>
+      <div>Level: {snapshot.tension.level ?? "—"} {snapshot.tension.smoothed !== null && <span>({snapshot.tension.smoothed.toFixed(2)})</span>}</div>
+      <div>Expected: {snapshot.tension.expected !== null ? snapshot.tension.expected.toFixed(2) : "—"}</div>
+      {snapshot.tension.hint && <div className="opacity-100">Steering: {snapshot.tension.hint.direction} — {snapshot.tension.hint.text}</div>}
     </div>
     {snapshot.convergence.length > 0 && (
       <div className="text-xs opacity-80">
@@ -113,6 +107,13 @@ const OverviewTab = ({ snapshot, authorView }: { snapshot: RuntimeSnapshot; auth
         })}
       </div>
     )}
+  </div>
+);
+
+const OverviewTab = ({ snapshot, authorView, onOpenSettings }: { snapshot: RuntimeSnapshot; authorView: boolean; onOpenSettings?: () => void }) => (
+  <div className="flex flex-col gap-3">
+    <PlayerOverview snapshot={snapshot} onOpenSettings={onOpenSettings} />
+    {authorView && <AuthorOverview snapshot={snapshot} />}
   </div>
 );
 
@@ -138,13 +139,15 @@ const BlackboardTab = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
   </div>
 );
 
-const MemoryTab = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: RuntimeManager }) => {
+const MemoryTab = ({ snapshot, manager, authorView }: { snapshot: RuntimeSnapshot; manager: RuntimeManager; authorView: boolean }) => {
   const [characterFilter, setCharacterFilter] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftText, setDraftText] = useState("");
 
   const characterIds = Array.from(new Set(snapshot.memory.entries.map((entry) => entry.characterId).filter((id): id is string => Boolean(id)))).sort();
   const filtered = characterFilter ? snapshot.memory.entries.filter((entry) => entry.characterId === characterFilter) : snapshot.memory.entries;
+  // Superseded and folded entries are bookkeeping: the player curates established facts only.
+  const visible = authorView ? filtered : filtered.filter((entry) => !entry.supersededBy && !entry.foldedInto);
   const lastAudit = snapshot.extraction.audits[snapshot.extraction.audits.length - 1];
 
   const startEdit = (id: string, text: string) => {
@@ -169,24 +172,28 @@ const MemoryTab = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: 
 
   return (
     <div className="text-xs opacity-80">
-      <div className="font-medium opacity-100">Memory</div>
-      <label className="flex items-center gap-2">
-        <input type="checkbox" checked={snapshot.memory.settings.enabled} onChange={(event) => manager.setMemorySettings({ enabled: event.target.checked })} />
-        <span>Enabled</span>
-      </label>
-      <label className="flex items-center gap-2">
-        <input type="checkbox" checked={snapshot.memory.settings.epistemicLedgerCapable} onChange={(event) => manager.setEpistemicLedgerCapable(event.target.checked)} />
-        <span>Epistemic/ledger extraction (model-capable)</span>
-      </label>
-      <div className="opacity-60">Turn off only if your memory model over-infers who knows what or invents entity state — small local models tend to. Never disable purely to save calls.</div>
-      <div>Scene count {snapshot.memory.sceneCount}</div>
+      <div className="font-medium opacity-100">What the story remembers</div>
+      {authorView && (
+        <>
+          <label className="flex items-center gap-2">
+            <input type="checkbox" checked={snapshot.memory.settings.enabled} onChange={(event) => manager.setMemorySettings({ enabled: event.target.checked })} />
+            <span>Enabled</span>
+          </label>
+          <label className="flex items-center gap-2">
+            <input type="checkbox" checked={snapshot.memory.settings.epistemicLedgerCapable} onChange={(event) => manager.setEpistemicLedgerCapable(event.target.checked)} />
+            <span>Epistemic/ledger extraction (model-capable)</span>
+          </label>
+          <div className="opacity-60">Turn off only if your memory model over-infers who knows what or invents entity state — small local models tend to. Never disable purely to save calls.</div>
+          <div>Scene count {snapshot.memory.sceneCount}</div>
+        </>
+      )}
       <div className="flex items-center gap-2 mt-1">
         <button className="menu_button" disabled={snapshot.memory.backfill?.running} onClick={() => void manager.runMemorizeBacklog()}>Memorize chat</button>
         <span className="opacity-60">Read the whole chat history into memory.</span>
       </div>
       {snapshot.memory.backfill?.running && <div>Memorizing: {snapshot.memory.backfill.processed}/{snapshot.memory.backfill.total}</div>}
       {snapshot.memory.backfill?.lastError && <div className="text-red-300">{snapshot.memory.backfill.lastError}</div>}
-      {lastAudit && <div title={`${lastAudit.prompt}\n---\n${lastAudit.rawResponse}`}>Last audit: {lastAudit.id} ({lastAudit.reason})</div>}
+      {authorView && lastAudit && <div title={`${lastAudit.prompt}\n---\n${lastAudit.rawResponse}`}>Last audit: {lastAudit.id} ({lastAudit.reason})</div>}
       {characterIds.length > 0 && (
         <label className="flex items-center gap-2 mt-1">
           <span>Character</span>
@@ -197,7 +204,7 @@ const MemoryTab = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: 
         </label>
       )}
       {MEMORY_TIERS.map((tier) => {
-        const entries = filtered.filter((entry) => entry.tier === tier);
+        const entries = visible.filter((entry) => entry.tier === tier);
         if (!entries.length) return null;
         return (
           <div key={tier} className="border-t border-solid border-white/10 mt-1 pt-1">
@@ -216,11 +223,11 @@ const MemoryTab = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: 
                   <>
                     <div title={entry.evidence} className={entry.supersededBy || entry.foldedInto ? "opacity-40 line-through" : ""}>{entry.text}{entry.pinned ? " 📌" : ""}{entry.characterId ? ` (${entry.characterId})` : ""}</div>
                     <div className="flex gap-2 opacity-80 flex-wrap">
-                      <span>importance {entry.importance} · {entry.expiration}</span>
-                      {entry.supersededBy && <span title={`superseded by ${entry.supersededBy}`}>⤳ superseded</span>}
-                      {entry.foldedInto && <span title={`folded into ${entry.foldedInto}`}>🗜 folded</span>}
-                      {entry.contradicted && !entry.supersededBy && <span>⚠ contradicted</span>}
-                      {entry.recallCount > 0 && <span>recall {entry.recallCount}</span>}
+                      {authorView && <span>importance {entry.importance} · {entry.expiration}</span>}
+                      {authorView && entry.supersededBy && <span title={`superseded by ${entry.supersededBy}`}>⤳ superseded</span>}
+                      {authorView && entry.foldedInto && <span title={`folded into ${entry.foldedInto}`}>🗜 folded</span>}
+                      {authorView && entry.contradicted && !entry.supersededBy && <span>⚠ contradicted</span>}
+                      {authorView && entry.recallCount > 0 && <span>recall {entry.recallCount}</span>}
                       <button className="menu_button" onClick={() => void manager.setMemoryPinned(entry.id, !entry.pinned)}>{entry.pinned ? "Unpin" : "Pin"}</button>
                       <button className="menu_button" onClick={() => startEdit(entry.id, entry.text)}>Edit</button>
                       <button className="menu_button" onClick={() => void excludeWithUndo(entry.id)}>Exclude</button>
@@ -232,9 +239,13 @@ const MemoryTab = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: 
           </div>
         );
       })}
-      <ArcCanonPanel snapshot={snapshot} manager={manager} />
-      <EpistemicPanel snapshot={snapshot} manager={manager} />
-      <LedgerPanel snapshot={snapshot} manager={manager} />
+      {authorView && (
+        <>
+          <ArcCanonPanel snapshot={snapshot} manager={manager} />
+          <EpistemicPanel snapshot={snapshot} manager={manager} />
+          <LedgerPanel snapshot={snapshot} manager={manager} />
+        </>
+      )}
     </div>
   );
 };
@@ -346,6 +357,28 @@ const TalkDecisionsPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
   );
 };
 
+// The author half of the stall signal (U5): the player sees "catching up", the author sees which
+// keys the re-read is chasing and what it came back with.
+const ReconciliationPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
+  const events = [...snapshot.extraction.reconciliationEvents].reverse();
+  return (
+    <div className="text-xs opacity-80">
+      <div className="font-medium opacity-100">Stall re-checks</div>
+      {events.length === 0 ? (
+        <div className="opacity-70">None. Queued when a checkpoint overstays its target length with gate qualities still unmet.</div>
+      ) : (
+        events.map((event) => (
+          <div key={`${event.id}-${event.scheduledAt}`} className="border-t border-solid border-white/10 mt-1 pt-1">
+            <div className="opacity-100">{event.resolvedAt ? "✔ resolved" : "… pending"} · boundary {event.boundary} · {event.checkpointId}</div>
+            <div>chasing {event.targetedKeys.join(", ") || "recent scenes"}</div>
+            {event.evidence.map((line) => <div key={line} className="opacity-70">{line}</div>)}
+          </div>
+        ))
+      )}
+    </div>
+  );
+};
+
 const SchedulerTab = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
   <div className="flex flex-col gap-3">
     <TalkDecisionsPanel snapshot={snapshot} />
@@ -357,6 +390,7 @@ const SchedulerTab = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
       {snapshot.extraction.audits[0] && <div>Last scope: {snapshot.extraction.audits[snapshot.extraction.audits.length - 1]?.scope.join(", ") || "none"}</div>}
       <div>Audits recorded {snapshot.extraction.audits.length}</div>
     </div>
+    <ReconciliationPanel snapshot={snapshot} />
     <div className="text-xs opacity-80">
       <div className="font-medium opacity-100">Expansion</div>
       <div>Queue {snapshot.expansion.scheduler.queueDepth}, in flight {snapshot.expansion.scheduler.inFlight ? "yes" : "no"}</div>
@@ -429,7 +463,21 @@ const FlagControl = ({ manager }: { manager: RuntimeManager }) => {
   );
 };
 
-export const DrawerTabs = ({ snapshot, manager, driver }: DrawerTabsProps) => {
+// Restart is the player's one destructive control (it asks first); "Edit story" is the author's
+// way into Studio from the chat they are playing — that is the chat the save can hot-swap into.
+const StoryControls = ({ snapshot, manager, onEditStory }: { snapshot: RuntimeSnapshot; manager: RuntimeManager; onEditStory?: () => void }) => (
+  <div className="flex flex-wrap items-center gap-2 border-t border-solid border-white/10 pt-2">
+    {snapshot.ui.authorView && onEditStory && (
+      <button id="so-edit-story" className="menu_button" title="Open this story in the Checkpoint Studio. Saving there offers to update this chat." onClick={onEditStory}>Edit story</button>
+    )}
+    <button id="so-restart-story-drawer" className="menu_button opacity-80" title="Start this story over in this chat. Messages stay; progress and story memory are cleared." onClick={() => void manager.restartStory()}>Restart story</button>
+    {snapshot.ui.authorView && snapshot.storyIdentity.drifted && (
+      <button id="so-update-story" className="menu_button" title="Take the newer version from the library into this chat." onClick={() => void manager.applyStoryUpdate()}>Update to v{snapshot.storyIdentity.libraryVersion}</button>
+    )}
+  </div>
+);
+
+export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditStory }: DrawerTabsProps) => {
   const [active, setActive] = useState<DrawerTabId>("overview");
   const authorView = snapshot.ui.authorView;
   const tabs = TABS.filter((tab) => authorView || !tab.authorOnly);
@@ -453,13 +501,16 @@ export const DrawerTabs = ({ snapshot, manager, driver }: DrawerTabsProps) => {
         <FlagControl manager={manager} />
       </div>
       <div role="tabpanel">
-        {activeTab === "overview" && <OverviewTab snapshot={snapshot} authorView={authorView} />}
+        {activeTab === "overview" && <OverviewTab snapshot={snapshot} authorView={authorView} onOpenSettings={onOpenSettings} />}
         {activeTab === "blackboard" && <BlackboardTab snapshot={snapshot} />}
-        {activeTab === "memory" && <MemoryTab snapshot={snapshot} manager={manager} />}
+        {activeTab === "memory" && <MemoryTab snapshot={snapshot} manager={manager} authorView={authorView} />}
         {activeTab === "scheduler" && <SchedulerTab snapshot={snapshot} />}
         {activeTab === "payload" && <PayloadTab snapshot={snapshot} />}
       </div>
-      {snapshot.copilot.enabled && (
+      {activeTab === "overview" && <StoryControls snapshot={snapshot} manager={manager} onEditStory={onEditStory} />}
+      {/* The driver steers the story — Suggest/Probe/Advance/Nudge are author tools by D1, never
+          part of the player surface, whatever the copilot setting says. */}
+      {snapshot.copilot.enabled && authorView && (
         <div className="border-t border-solid border-white/10 pt-2">
           <DriverPanel context={driver.context} checkpoints={snapshot.checkpoints} activeNudge={driver.activeNudge} controller={driver.controller} authorView={authorView} />
         </div>

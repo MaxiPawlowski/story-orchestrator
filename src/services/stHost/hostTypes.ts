@@ -51,6 +51,7 @@ export interface SillyTavernContext {
   groups: HostGroup[];
   characters: HostCharacter[];
   worldInfo?: Record<string, HostWorldInfoEntry>;
+  powerUserSettings?: { personas?: Record<string, string> };
   SlashCommandParser?: { commands?: Record<string, HostSlashCommand> };
   [key: string]: unknown;
 }

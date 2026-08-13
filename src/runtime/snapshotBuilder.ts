@@ -1,7 +1,9 @@
-import type { ApplyQueueEntry, EngineState, ValidationError } from "@engine/index";
+import type { ApplyQueueEntry, BoundaryLogEntry, EngineState, ValidationError } from "@engine/index";
 import type { DriverContext } from "@copilot/index";
 import type { LedgerView } from "@memory/index";
-import { buildConvergenceReadout, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot } from "./snapshot";
+import { buildConvergenceReadout, buildLastTransition, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot } from "./snapshot";
+import { buildNarrativeStatus, type RollbackNotice } from "./narrative";
+import { derivePipelineStatus } from "./pipeline";
 import { loadPersistedRuntime } from "./persistence";
 import { findStoryRecord, listStoryRecords } from "./storyLibrary";
 import type { LoadedStory, PayloadCapture, RuntimeExtras, RuntimeSnapshot } from "./types";
@@ -16,7 +18,11 @@ export interface SnapshotSources {
   validationErrors: ValidationError[];
   status: string;
   pendingWrites: ApplyQueueEntry[];
+  boundaryLog: BoundaryLogEntry[];
   expectedTension: number | null;
+  openThreads: string[];
+  canon: string;
+  lastRollback: RollbackNotice | null;
   ledger: LedgerView[];
   driver: DriverContext | null;
   activeNudge: string | null;
@@ -31,6 +37,20 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
   const evidenceByKey = new Map<string, string>();
   extras.extraction.audits.forEach((audit) => {
     audit.acceptedDeltas.forEach((entry) => evidenceByKey.set(entry.delta.q, entry.evidence));
+  });
+  const pendingDeltas = buildPendingDeltas(sources.pendingWrites, state);
+  const tension = buildTensionSnapshot(extras.tension.smoothed, sources.expectedTension);
+  const pipeline = derivePipelineStatus(extras.extraction);
+  const narrative = buildNarrativeStatus({
+    storyTitle: story?.title ?? null,
+    checkpointName: active?.name ?? null,
+    objective: active?.objective ?? null,
+    lastTransition: buildLastTransition(story, sources.boundaryLog),
+    openThreads: sources.openThreads,
+    canon: sources.canon,
+    tensionLevel: tension.level,
+    pendingCount: pendingDeltas.length,
+    pipeline,
   });
 
   return {
@@ -69,9 +89,12 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     copilot: extras.copilot,
     ui: extras.ui,
     talk: extras.talk,
-    pendingDeltas: buildPendingDeltas(sources.pendingWrites, state),
+    pendingDeltas,
     convergence: buildConvergenceReadout(story, state),
-    tension: buildTensionSnapshot(extras.tension.smoothed, sources.expectedTension),
+    tension,
+    pipeline,
+    narrative,
+    lastRollback: sources.lastRollback,
     ledger: sources.ledger,
     driver: sources.driver,
     activeNudge: sources.activeNudge,

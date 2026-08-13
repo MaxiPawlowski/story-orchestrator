@@ -172,6 +172,14 @@ export interface ArcBridge {
   amount: number;
 }
 
+// What a story needs from the install before it can run. Authored aliases (persona, groupMembers,
+// global_lorebooks) normalize into this shape at parse time, so every reader sees one vocabulary.
+export interface StoryRequirements {
+  personas?: string[];
+  members?: string[];
+  lorebooks?: string[];
+}
+
 export const STORY_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,63}$/;
 
 export interface StoryV2 {
@@ -186,7 +194,7 @@ export interface StoryV2 {
   roster: RosterMember[];
   arc_template?: ArcTemplate;
   arc_bridges?: ArcBridge[];
-  requirements?: unknown;
+  requirements?: StoryRequirements;
   scaffolding?: Record<string, Scaffolding>;
 }
 
