@@ -4,6 +4,7 @@ import type { ExpansionRuntimeState } from "@generation/index";
 import type { ArcEntry, EpistemicEntry, LedgerEntry, LedgerView, MemoryStoreState, MemoryTier, ScoreWeights } from "@memory/index";
 import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
+import type { CuratorPassAudit, CuratorProposalRecord, StagecraftAcceptMode } from "@stagecraft/index";
 import type { JournalRecord } from "./journal";
 import type { NarrativeStatus, RollbackNotice } from "./narrative";
 import type { PipelineStatus } from "./pipeline";
@@ -50,6 +51,22 @@ export interface TalkRuntimeState {
   decisions: TalkDecisionAudit[];
 }
 
+// v2.1 plan 07. `curatorEnabled` is the capability flag (default off until a real run earns it);
+// `acceptMode` decides what happens to a proposal: review = wait for the author, auto = apply at the
+// next boundary, off = record and journal it but never write.
+export interface StagecraftSettings {
+  curatorEnabled: boolean;
+  acceptMode: StagecraftAcceptMode;
+}
+
+export interface StagecraftRuntimeState {
+  settings: StagecraftSettings;
+  proposals: CuratorProposalRecord[];
+  lastPass: CuratorPassAudit | null;
+  lastRunBoundary: number;
+  lastError: string | null;
+}
+
 export interface RuntimeExtras {
   firedNpcReplies: Record<string, number>;
   requirements: RequirementsState;
@@ -63,6 +80,7 @@ export interface RuntimeExtras {
   copilot: CopilotRuntimeSettings;
   ui: UiRuntimeSettings;
   talk: TalkRuntimeState;
+  stagecraft: StagecraftRuntimeState;
   journal: JournalRecord[];
   lastSessionAt: string | null;
   updatedAt: string;
@@ -106,12 +124,18 @@ export interface CanonState {
   updatedAt: string;
 }
 
+export interface MemoryMirrorBook {
+  name: string;
+  chatId: string;
+}
+
 export interface MemoryRuntimeState extends MemoryStoreState {
   settings: MemoryRuntimeSettings;
   backfill: MemoryBackfillState | null;
   sceneCount: number;
   shortTermSummaryEnd: number;
   wiWrites: Record<string, string>;
+  wiBook: MemoryMirrorBook | null;
   arcs: ArcEntry[];
   epistemic: EpistemicEntry[];
   ledger: LedgerEntry[];
@@ -204,6 +228,10 @@ export interface RuntimeSnapshot {
   copilot: CopilotRuntimeSettings;
   ui: UiRuntimeSettings;
   talk: TalkRuntimeState;
+  stagecraft: StagecraftRuntimeState;
+  // The story's authored curator allowlist, so the review panel can say what is in scope without
+  // reading the story record itself.
+  stagecraftScope: string[];
   pendingDeltas: PendingDeltaReadout[];
   convergence: ConvergenceReadout[];
   tension: {

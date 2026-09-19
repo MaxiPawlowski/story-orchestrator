@@ -1,0 +1,44 @@
+
+=== J6 mutation-storm ===
+Edit and delete messages around a committed boundary; the engine rolls back correctly and the player can tell what happened.
+
+Global config snapshot: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\so-journey-config-snapshot.json
+--- J6.1 a boundary is committed and a gate latches from a scripted turn
+J6.1 1/8 import_story ok 379ms
+J6.1 2/8 ui ok 227ms
+J6.1 3/8 eval ok 7ms
+J6.1 4/8 send ok 2303ms
+J6.1 5/8 extract ok 8379ms
+J6.1 6/8 send ok 14643ms
+J6.1 7/8 wait ok 25ms
+J6.1 8/8 expect ok 21ms
+--- J6.2 editing the message that carried the delta rolls the story back
+J6.2 1/4 eval ok 2ms
+J6.2 2/4 edit ok 530ms
+J6.2 3/4 wait ok 1574ms
+J6.2 4/4 expect ok 17ms
+--- J6.3 deleting the last message leaves engine state consistent, not orphaned
+J6.3 1/3 delete ok 119ms
+J6.3 2/3 wait ok 1522ms
+J6.3 3/3 eval ok 2ms
+--- J6.4 the player is told the story stepped back after a mutation
+J6.4 1/3 ui ok 52ms
+J6.4 2/3 ui ok 72ms
+J6.4 3/3 expect_ui ok 2ms
+Restored global config from C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions"]}
+
+PASS         J6.1     a boundary is committed and a gate latches from a scripted turn
+PASS         J6.2     editing the message that carried the delta rolls the story back
+PASS         J6.3     deleting the last message leaves engine state consistent, not orphaned
+PASS         J6.4     the player is told the story stepped back after a mutation
+SKIP         J6.5      — human check — operator scores it
+
+J6: {"pass":4,"skipped":1}
+
+--- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+[J6.5] (U5) After you edited and deleted messages, was it clear what the story did in response?
+      anchors: 1 = no idea, felt broken · 3 = worked it out from the drawer · 5 = the system said what it did
+[free] What would make you stop using this?
+
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-08-13T10-05-11-005Z_journey-J6.json
+Matrix: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\journey-J6.md

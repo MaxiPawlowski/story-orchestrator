@@ -56,6 +56,37 @@ export const ToggleNpcReply: Story = {
   },
 };
 
+// Deterministic stagecraft: a checkpoint names a background and the boundary switches to it.
+export const ToggleBackground: Story = {
+  args: { backgroundNames: ["tavern day.jpg", "landscape postapoc.jpg"] },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByLabelText("Background"));
+    await expect(useDraftStore.getState().draft.checkpoints[0].effects?.background).toEqual({ name: "tavern day.jpg" });
+    const field = canvas.getByLabelText("Background file");
+    await userEvent.clear(field);
+    await userEvent.type(field, "royal.jpg");
+    await expect(useDraftStore.getState().draft.checkpoints[0].effects?.background).toEqual({ name: "royal.jpg" });
+    await userEvent.click(canvas.getByLabelText("Background"));
+    await expect(useDraftStore.getState().draft.checkpoints[0].effects?.background).toBeUndefined();
+  },
+};
+
+export const AuthorNoteKeepsRole: Story = {
+  beforeEach: () => {
+    const story = sampleStory();
+    story.checkpoints[0].effects = { author_note: { text: "Whisper.", position: "chat", depth: 2, role: "user" } };
+    seedDraft(story);
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.type(canvas.getByLabelText("Author note text"), "!");
+    await expect(useDraftStore.getState().draft.checkpoints[0].effects?.author_note).toEqual({ text: "Whisper.!", position: "chat", depth: 2, role: "user" });
+    await userEvent.click(canvas.getByLabelText("Inject blackboard"));
+    await expect(useDraftStore.getState().draft.checkpoints[0].effects?.author_note).toEqual({ text: "Whisper.!", position: "chat", depth: 2, role: "user", inject_blackboard: true });
+  },
+};
+
 export const ToggleTalkControl: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

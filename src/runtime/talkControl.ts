@@ -18,6 +18,7 @@ export interface TalkCheckpointInfo {
 
 export interface TalkControlHost {
   isGroupChat(): boolean;
+  getChatId(): string | null;
   getActiveTalkControl(): TalkControl | null;
   getRoster(): RosterMember[];
   getEnabledRosterIds(): string[];
@@ -109,7 +110,7 @@ export class TalkController {
   }
 
   private decisionKey(): string {
-    return `${this.host.getCheckpointInfo()?.id ?? "?"}:${this.host.getLastMessageId()}`;
+    return `${this.host.getChatId() ?? "?"}:${this.host.getCheckpointInfo()?.id ?? "?"}:${this.host.getLastMessageId()}`;
   }
 
   private passKey(): string {

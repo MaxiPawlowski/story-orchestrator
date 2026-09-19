@@ -68,6 +68,13 @@ export interface CheckpointEffects {
   world_info?: unknown;
   cast_changes?: unknown;
   npc_replies?: NpcReplyEffect[];
+  background?: BackgroundEffect;
+}
+
+// Deterministic stagecraft (spec addendum §Stagecraft): the checkpoint names a background and the
+// boundary switches to it. A bare string authored form normalizes into this shape at parse time.
+export interface BackgroundEffect {
+  name: string;
 }
 
 export interface NpcReplyEffect {
@@ -180,6 +187,13 @@ export interface StoryRequirements {
   lorebooks?: string[];
 }
 
+// The explicit allowlist a background curator may write into (user decision 2026-08-11). No
+// inference from requirements or effects: an absent or empty list means the curator has nothing to
+// write, full stop.
+export interface StoryStagecraft {
+  lorebooks: string[];
+}
+
 export const STORY_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,63}$/;
 
 export interface StoryV2 {
@@ -195,6 +209,7 @@ export interface StoryV2 {
   arc_template?: ArcTemplate;
   arc_bridges?: ArcBridge[];
   requirements?: StoryRequirements;
+  stagecraft?: StoryStagecraft;
   scaffolding?: Record<string, Scaffolding>;
 }
 

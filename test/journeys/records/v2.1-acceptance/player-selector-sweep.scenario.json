@@ -1,0 +1,11 @@
+{
+  "steps": [
+    { "import_story": { "file": "../examples/sun-ruins/quest-for-the-sun-ruins.json" } },
+    { "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); return globalThis.storyOrchestratorRuntime.getSnapshot().ui;" },
+    { "ui": { "action": "open-drawer" } },
+    { "ui": { "action": "drawer-tab", "label": "Scheduler" } },
+    { "eval": "const selectors = ['#so-edit-story','#so-update-story','#so-fix-with-wizard','#so-stagecraft','[data-so=\"curator-proposal\"]','[data-so=\"curator-op\"]','[data-so=\"curator-accept\"]','[data-so=\"curator-reject\"]','[aria-label=\"In-play driver\"]','[aria-label=\"Advance target\"]','[aria-label=\"Nudge text\"]','[aria-label=\"Driver suggestions\"]','[aria-label=\"Driver report\"]','[aria-label=\"Active nudge\"]','[aria-label=\"Driver unavailable\"]','[aria-label=\"Talk decisions\"]']; const surfaces = ['#drawer-manager','#so-hud','#story-orchestrator-settings']; const present = surfaces.filter((surface) => document.querySelector(surface)); const hits = []; for (const surface of present) { const root = document.querySelector(surface); for (const selector of selectors) if (root.querySelector(selector)) hits.push(surface + ' ' + selector); } if (present.length !== surfaces.length) throw new Error('a player surface is missing from the DOM: ' + JSON.stringify(present)); if (!hits.length) throw new Error('author view rendered none of the swept controls — the selector list is stale'); return { surfaces: present, hits };" },
+    { "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); return globalThis.storyOrchestratorRuntime.getSnapshot().ui;" },
+    { "ui": { "action": "assert-player-clean" } }
+  ]
+}

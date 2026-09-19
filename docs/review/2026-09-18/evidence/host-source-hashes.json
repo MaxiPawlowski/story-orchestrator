@@ -1,0 +1,38 @@
+﻿[
+    {
+        "path":  "package.json",
+        "sha256":  "ad0c248ac5c9fec256a4f5ff3b9fb9cb6d86b747c264fd8cf6a082a742854a68"
+    },
+    {
+        "path":  "package-lock.json",
+        "sha256":  "5f63dcddc2a4ae2d6f16d77e4295c8bdc898acf0fdc8c035b8ec5ad742d2a80c"
+    },
+    {
+        "path":  "public/script.js",
+        "sha256":  "d1e248efbae8a1df0a248410225cea76901f33533919fc32a28a172c1514600f"
+    },
+    {
+        "path":  "public/scripts/world-info.js",
+        "sha256":  "c42d11f113b53b93bf03786ac5c1190be3cad5152f23805906fce5ebd12fb416"
+    },
+    {
+        "path":  "public/scripts/group-chats.js",
+        "sha256":  "e7f8b4d2d1e1c8a47c8354150dc06e7585180201246f4905a900b340897c2f23"
+    },
+    {
+        "path":  "public/scripts/extensions/shared.js",
+        "sha256":  "183ce2f27b12d09b777f89523c044fa09ed874bd0747cc5d034a96aec6343b7a"
+    },
+    {
+        "path":  "public/scripts/extensions/connection-manager/index.js",
+        "sha256":  "618138d177a2791b9ce031b0eb2cf2c5cb3629965ac20b2a055a2963f95c214f"
+    },
+    {
+        "path":  "public/scripts/popup.js",
+        "sha256":  "4fa5adcee05646834493967f05d90bb3946425abb2f1c642a148544ba2c38a45"
+    },
+    {
+        "path":  "public/scripts/backgrounds.js",
+        "sha256":  "89f48d78409502c1d84ea1afcdd1d527da0528d230d6155b0b4dc71e1514f0c9"
+    }
+]

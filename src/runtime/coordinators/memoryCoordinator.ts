@@ -1,8 +1,9 @@
 import { progressQualityForAnchor, type BlackboardDelta, type EngineState, type NormalizedStoryV2, type NormalizedTransition } from "@engine/index";
 import { callExtractionModel, deriveScope, getCanonLite, runSharedRead, stripChannelNoise, type ExtraGateSource, type ParsedDelta, type ParsedFact, type SharedReadWindow } from "@extraction/index";
-import { activeEpistemic, addMemoryEntries, applyArcSignals, dropByMessageId, rollbackArcs, rollbackEpistemic, rollbackLedger,applyConsolidation, applyEpistemicInjection, applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildArcSummaryPrompt, buildBoundKeySet, buildCanonSummaryPrompt, buildJaccardMatchSets, buildLedgerView, buildMemoryInjectionBlocks, canonInputHash, capAllTiers, capEpistemic, capLedger, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, clearEpistemicInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, DEFAULT_DEDUP_THRESHOLDS, editEntryText, excludeEntry, expireScoped, hashMemoryText, markContradicted, matchArcBridges, memoryExtensionKey, openArcTexts, removeArc, removeEpistemic, removeLedger, renderLedgerBlock, renderPrivateEpistemicBlock, resolvedArcs, restoreEntry, setArcPinned, setArcSummary, setEpistemicPinned, setLedgerPinned, setPinned, type ArcEntry, type EpistemicEntry, type LedgerBinding, type LedgerView, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ScoreContext, type UncertainPair } from "@memory/index";
-import { clearStoryExtensionPrompt, countTokens, DEFAULT_VECTOR_SOURCE, disableWIEntry, getCharacterNameById, getContext, setStoryExtensionPrompt, upsertWIEntry, vectorInsert, vectorPurge, vectorQuery } from "@services/STAPI";
+import { activeEpistemic, addMemoryEntries, applyArcSignals, dropByMessageId, rollbackArcs, rollbackEpistemic, rollbackLedger,applyConsolidation, applyEpistemicInjection, applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildArcSummaryPrompt, buildBoundKeySet, buildCanonSummaryPrompt, buildJaccardMatchSets, buildLedgerView, buildMemoryInjectionBlocks, canonInputHash, capAllTiers, capEpistemic, capLedger, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, clearEpistemicInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, DEFAULT_DEDUP_THRESHOLDS, editEntryText, excludeEntry, expireScoped, markContradicted, matchArcBridges, memoryExtensionKey, openArcTexts, removeArc, removeEpistemic, removeLedger, renderLedgerBlock, renderPrivateEpistemicBlock, resolvedArcs, restoreEntry, setArcPinned, setArcSummary, setEpistemicPinned, setLedgerPinned, setPinned, type ArcEntry, type EpistemicEntry, type LedgerBinding, type LedgerView, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ScoreContext, type UncertainPair } from "@memory/index";
+import { bindChatLorebook, clearStoryExtensionPrompt, countTokens, DEFAULT_VECTOR_SOURCE, disableWIEntry, ensureLorebook, getCharacterNameById, getContext, loadLorebook, setStoryExtensionPrompt, upsertWIEntry, vectorInsert, vectorPurge, vectorQuery } from "@services/STAPI";
 import { EPISTEMIC_INJECTION_DEPTH, LEDGER_INJECTION_DEPTH } from "@constants/defaults";
+import { emptyMirrorSummary, syncMemoryMirror, type MemoryMirrorSummary } from "../memoryMirror";
 import { activeSpeakerId, enabledCharacterIds, enabledCharacterNames, namesForRosterId, rosterIdForName, rosterMemberName } from "../roster";
 import type { ExtractionRuntimeSettings, MemoryBackfillState, MemoryRuntimeState } from "../types";
 
@@ -117,7 +118,7 @@ export class MemoryCoordinator {
 
   async addSceneSummary(entry: MemoryEntry, window: { from: number; to: number }): Promise<number> {
     await this.computeEntryTokens([entry]);
-    const written = addMemoryEntries(this.state, [entry], window);
+    const written = addMemoryEntries(this.state, entry.text ? [entry] : [], window);
     const capped = capAllTiers(expireScoped(written.state, "scene"), this.state.settings.tierBudgets);
     const sceneOccurrence = this.state.sceneCount + 1;
     this.patch({ ...capped, sceneCount: sceneOccurrence });
@@ -575,39 +576,16 @@ export class MemoryCoordinator {
 
   // --- world info --------------------------------------------------------
 
-  async syncWorldInfo(): Promise<{ created: number; updated: number; unchanged: number; disabled: number }> {
-    const summary = { created: 0, updated: 0, unchanged: 0, disabled: 0 };
+  async syncWorldInfo(): Promise<MemoryMirrorSummary> {
     const story = this.deps.getStory();
-    if (!story || !this.enabled) return summary;
-    const lorebook = `Story Orchestrator - ${story.title}`;
-    const surfaceable = this.state.entries.filter((entry) =>
-      !entry.supersededBy && !entry.foldedInto && (entry.type === "relationship" || (entry.tier === "scene_history" && entry.type === "scene")));
-    const liveComments = new Set(surfaceable.map((entry) => `so_${entry.id}`));
-    const writes = { ...this.state.wiWrites };
-    for (const comment of Object.keys(writes)) {
-      if (liveComments.has(comment)) continue;
-      await disableWIEntry(lorebook, comment);
-      delete writes[comment];
-      summary.disabled += 1;
-    }
-    for (const entry of surfaceable) {
-      const comment = `so_${entry.id}`;
-      const hash = hashMemoryText(entry.text);
-      if (writes[comment] === hash) {
-        summary.unchanged += 1;
-        continue;
-      }
-      const result = await upsertWIEntry(lorebook, comment, entry.text, entry.entities);
-      if (result === "failed") continue;
-      writes[comment] = hash;
-      if (result === "created") summary.created += 1;
-      else if (result === "updated") summary.updated += 1;
-      else summary.unchanged += 1;
-    }
-    if (summary.created || summary.updated || summary.disabled) {
-      this.patch({ wiWrites: writes }, false);
+    if (!story || !this.enabled) return emptyMirrorSummary();
+    const host = { getChatId: () => getContext().chatId ?? null, ensureLorebook, loadLorebook, upsertWIEntry, disableWIEntry, bindChatLorebook };
+    const result = await syncMemoryMirror({ title: story.title, entries: this.state.entries, writes: this.state.wiWrites, book: this.state.wiBook }, host);
+    if (!result) return emptyMirrorSummary();
+    if (result.changed) {
+      this.patch({ wiWrites: result.writes, wiBook: result.book }, false);
       await this.save();
     }
-    return summary;
+    return result.summary;
   }
 }

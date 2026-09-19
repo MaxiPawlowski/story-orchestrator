@@ -1,6 +1,6 @@
-import type { ExtensionsSharedHostModule, GroupChatsHostModule, LogitBiasHostModule, RossModsHostModule, ScriptHostModule, TextgenSettingsHostModule, WorldInfoHostModule } from "./hostTypes";
+import type { BackgroundsHostModule, ExtensionsSharedHostModule, GroupChatsHostModule, LogitBiasHostModule, RossModsHostModule, ScriptHostModule, TextgenSettingsHostModule, WorldInfoHostModule } from "./hostTypes";
 
-export type { ExtensionsSharedHostModule, GroupChatsHostModule, LogitBiasHostModule, RossModsHostModule, ScriptHostModule, TextgenSettingsHostModule, WorldInfoHostModule } from "./hostTypes";
+export type { BackgroundsHostModule, ExtensionsSharedHostModule, GroupChatsHostModule, LogitBiasHostModule, RossModsHostModule, ScriptHostModule, TextgenSettingsHostModule, WorldInfoHostModule } from "./hostTypes";
 
 export function importSTModule<T>(path: string): Promise<T> {
   return import(/* webpackIgnore: true */ path);
@@ -13,3 +13,4 @@ export const logitBiasModule = await importSTModule<LogitBiasHostModule>("/scrip
 export const rossModsModule = await importSTModule<RossModsHostModule>("/scripts/RossAscends-mods.js");
 export const groupChatsModule = await importSTModule<GroupChatsHostModule>("/scripts/group-chats.js");
 export const extensionsSharedModule = await importSTModule<ExtensionsSharedHostModule>("/scripts/extensions/shared.js");
+export const backgroundsModule = await importSTModule<BackgroundsHostModule>("/scripts/backgrounds.js");

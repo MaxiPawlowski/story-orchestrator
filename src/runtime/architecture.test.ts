@@ -57,6 +57,15 @@ describe("architecture guards", () => {
     }
   });
 
+  // The one stagecraft invariant that must never be re-argued: a curator proposes presentation and
+  // nothing else. It cannot reach a memory tier or the apply queue, so it cannot write either.
+  it("keeps the stagecraft coordinator away from the blackboard and the memory tiers", () => {
+    const path = join(SRC, "runtime/coordinators/stagecraftCoordinator.ts");
+    const source = readFileSync(path, "utf8");
+    expect({ path, offenders: importsOf(path).filter((specifier) => /@memory|@generation|@pacing/.test(specifier)) }).toEqual({ path, offenders: [] });
+    expect({ path, writes: [...source.matchAll(/enqueue\w*\(|applyEntries\(|setMemory\(/g)].map((match) => match[0]) }).toEqual({ path, writes: [] });
+  });
+
   it("keeps coordinators from importing each other outside their typed deps", () => {
     for (const path of walk(join(SRC, "runtime/coordinators"))) {
       const source = readFileSync(path, "utf8");

@@ -1,0 +1,94 @@
+
+=== J2 author-loop ===
+Author a playable mini-story in the Studio without touching JSON, play it, hit a wrong gate, edit, continue the same chat — including an invalidating edit that goes through the choice popup. Includes one author-view driver pass (Probe + Nudge).
+
+Global config snapshot: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\so-journey-config-snapshot.json
+--- J2.1 the Studio opens on an empty draft and offers every authoring surface
+J2.1 1/3 eval ok 3ms
+J2.1 2/3 ui ok 367ms
+J2.1 3/3 expect_ui ok 3ms
+--- J2.2 roster members can be authored in the Studio UI
+J2.2 1/3 ui ok 70ms
+J2.2 2/3 expect_ui ok 1ms
+J2.2 3/3 eval ok 4ms
+--- J2.3 story identity, requirements, dramatic shape and thread bridges are authorable
+J2.3 1/2 ui ok 63ms
+J2.3 2/2 expect_ui ok 1ms
+--- J2.4 a story keeps one identity across edits, so re-selecting hydrates instead of forking a new record
+J2.4 1/4 ui ok 138ms
+J2.4 2/4 import_story ok 688ms
+J2.4 3/4 eval ok 363ms
+J2.4 4/4 expect ok 27ms
+--- J2.5 the drawer's author view opens the Studio on the story this chat is playing
+J2.5 1/5 eval ok 2ms
+J2.5 2/5 ui ok 57ms
+J2.5 3/5 expect_ui ok 1ms
+J2.5 4/5 eval ok 23ms
+J2.5 5/5 eval ok 525ms
+--- J2.6 playing, then saving a compatible edit from this chat keeps the run going (hot-swap, not reset)
+J2.6 1/12 ui ok 31ms
+J2.6 2/12 ui ok 177ms
+J2.6 3/12 eval ok 3ms
+J2.6 4/12 send ok 1765ms
+J2.6 5/12 extract ok 2858ms
+J2.6 6/12 eval ok 4ms
+J2.6 7/12 ui ok 360ms
+J2.6 8/12 eval ok 5ms
+J2.6 9/12 studio_save ok 40720ms
+J2.6 10/12 expect ok 21ms
+J2.6 11/12 eval ok 2ms
+J2.6 12/12 expect ok 19ms
+--- J2.7 an invalidating edit asks first: keeping progress drops only what no longer fits
+J2.7 1/12 ui ok 11ms
+J2.7 2/12 eval ok 6ms
+J2.7 3/12 studio_save ok 40638ms
+J2.7 4/12 ui ok 34ms
+J2.7 5/12 slash ok 1782ms
+J2.7 6/12 eval ok 2ms
+J2.7 7/12 ui ok 281ms
+J2.7 8/12 eval ok 4ms
+J2.7 9/12 studio_save ok 809ms
+J2.7 10/12 expect ok 17ms
+J2.7 11/12 eval ok 2ms
+J2.7 12/12 ui ok 26ms
+--- J2.8 cancelling an invalidating edit leaves the chat on its pinned version, library still saved
+J2.8 1/7 ui ok 247ms
+J2.8 2/7 eval ok 5ms
+J2.8 3/7 studio_save ok 744ms
+J2.8 4/7 expect ok 18ms
+J2.8 5/7 eval ok 3ms
+J2.8 6/7 expect ok 21ms
+J2.8 7/7 ui ok 28ms
+--- J2.9 the in-play author driver still works in author view (Probe + Nudge, real model)
+J2.9 1/7 eval ok 3ms
+J2.9 2/7 copilot ok 14526ms
+J2.9 3/7 expect ok 44ms
+J2.9 4/7 copilot ok 7ms
+J2.9 5/7 expect ok 24ms
+J2.9 6/7 copilot ok 6ms
+J2.9 7/7 expect ok 24ms
+Restored global config from C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions"]}
+
+PASS         J2.1     the Studio opens on an empty draft and offers every authoring surface
+PASS         J2.2     roster members can be authored in the Studio UI
+PASS         J2.3     story identity, requirements, dramatic shape and thread bridges are authorable
+PASS         J2.4     a story keeps one identity across edits, so re-selecting hydrates instead of forking a new record
+PASS         J2.5     the drawer's author view opens the Studio on the story this chat is playing
+PASS         J2.6     playing, then saving a compatible edit from this chat keeps the run going (hot-swap, not reset)
+PASS         J2.7     an invalidating edit asks first: keeping progress drops only what no longer fits
+PASS         J2.8     cancelling an invalidating edit leaves the chat on its pinned version, library still saved
+PASS         J2.9     the in-play author driver still works in author view (Probe + Nudge, real model)
+SKIP         J2.10     — human check — operator scores it
+SKIP         J2.11     — human check — operator scores it
+
+J2: {"pass":9,"skipped":2}
+
+--- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+[J2.10] (U7) Could you author a playable checkpoint — quality, gate, transition, cast, requirements — without opening a JSON editor?
+      anchors: 1 = impossible without JSON · 3 = possible but I had to work around gaps · 5 = everything the story needed was authorable
+[J2.11] (U2) After you edited the story mid-play, did the running chat behave the way you expected — including when it asked you to choose?
+      anchors: 1 = lost my progress · 3 = confusing but recoverable · 5 = exactly as expected
+[free] What would make you stop using this?
+
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-08-13T10-03-33-334Z_journey-J2.json
+Matrix: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\journey-J2.md

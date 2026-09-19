@@ -1,0 +1,110 @@
+{
+  "id": "J4",
+  "title": "return-and-adopt",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j4-return-and-adopt.journey.json",
+  "ranAt": "2026-08-13T10:04:30.305Z",
+  "strict": true,
+  "tally": {
+    "pass": 4,
+    "skipped": 2
+  },
+  "runnerError": null,
+  "capabilities": {
+    "away-recap": true,
+    "memorize-backlog": true
+  },
+  "results": [
+    {
+      "id": "J4.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "a chat played before the gap exists to return to",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": ""
+    },
+    {
+      "id": "J4.2",
+      "mode": "auto",
+      "findings": [],
+      "goal": "reopening the chat after a simulated multi-day gap shows the away recap",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": ""
+    },
+    {
+      "id": "J4.3",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the recap names the checkpoint the player left off at, then dismisses cleanly",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": ""
+    },
+    {
+      "id": "J4.4",
+      "mode": "auto",
+      "findings": [],
+      "goal": "mid-chat adoption: memorizing the backlog fills memory from history already in the chat (real model)",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": ""
+    },
+    {
+      "id": "J4.5",
+      "mode": "human",
+      "findings": [
+        "U4"
+      ],
+      "goal": "",
+      "prompt": "After the gap, did the recap actually put you back in the story — enough to take your next turn without scrolling up?",
+      "anchors": "1 = useless · 3 = reminded me of the checkpoint only · 5 = I knew exactly where I was and what was open",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    },
+    {
+      "id": "J4.6",
+      "mode": "human",
+      "findings": [],
+      "goal": "",
+      "prompt": "Adopting an already-running chat: was it clear that the extension had caught up on what happened before?",
+      "anchors": "1 = no idea whether it worked · 3 = saw it finish · 5 = obvious, and the story used what it learned",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    }
+  ],
+  "cleanup": {
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions"
+      ]
+    },
+    "stories": {
+      "removed": 1
+    },
+    "chat": {
+      "deleted": true
+    },
+    "member:DM Narrator": {
+      "enabled": true
+    },
+    "member:Arin": {
+      "enabled": true
+    },
+    "member:Ponticius": {
+      "enabled": true
+    },
+    "member:Luke": {
+      "enabled": true
+    },
+    "disabledMembers": []
+  }
+}

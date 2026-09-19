@@ -1,0 +1,23 @@
+{
+    "ranAt":  "2026-09-19T03:45:50.4925172Z",
+    "script":  "scripts/review/prepare.ps1",
+    "fixture":  "disposable minimal Git source and host",
+    "passed":  true,
+    "checks":  {
+                   "targetedBrowserLaunchDisable":  true,
+                   "topLevelPortChanged":  true,
+                   "unrelatedEnabledFlagsPreserved":  true,
+                   "activeRootConfigExcluded":  true,
+                   "defaultConfigRestoredByteForByte":  true,
+                   "priorReviewArtifactsExcluded":  true,
+                   "trackedAndUntrackedSourceCopied":  true,
+                   "evidenceCollisionRefusedBeforeDestinationCreation":  true,
+                   "utf8NoBom":  true,
+                   "preservedBaselineEvidenceHashesUnchanged":  true
+               },
+    "preserved":  {
+                      "inventorySha256":  "1ecffaae7698ed2ad0eeb67a99e16553ef4c6ad73a66534f66532b02133b2819",
+                      "environmentSha256":  "dc743e30e158dfda318e3e679dd3a65eab96f8d62169807359aaa72f5e1ce3e9"
+                  },
+    "output":  "Isolated review: C:\\Users\\RolaPorElNapo\\AppData\\Local\\Temp\\so-prepare-fixture-3445ac0f4a6c4d21b9eb4b4ef0126cab\\review-output (2 extension files)"
+}

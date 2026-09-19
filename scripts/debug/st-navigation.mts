@@ -138,6 +138,141 @@ export async function startNewGroupSession(page) {
   return { before, after };
 }
 
+// A sandbox run may only stand on, and only ever delete, chats that did not exist when it started.
+// The debug browser is shared between sessions, so the open chat can change under a run: on
+// 2026-09-19 another session switched the page to a real group chat mid-scenario, the steps wrote
+// into it, and cleanup's /delchat deleted it.
+export async function readActiveChat(page) {
+  return evaluateInST(page, () => {
+    const ctx = SillyTavern.getContext();
+    const group = (ctx.groups ?? []).find((entry) => entry.id === ctx.groupId);
+    return { groupId: ctx.groupId ?? null, chatId: ctx.chatId ?? null, groupChats: group ? [...group.chats] : [] };
+  });
+}
+
+export async function beginSandboxSession(page) {
+  const before = await readActiveChat(page);
+  if (!before.groupId) throw new Error('No active group chat. Open a group chat before starting a sandbox.');
+  const session = await startNewGroupSession(page);
+  const { groupId, chatId } = session.after;
+  if (groupId !== before.groupId || !chatId || before.groupChats.includes(chatId)) {
+    throw new Error(`Sandbox not created: expected a new chat in group ${before.groupId}, the page is on ${chatId ?? 'no chat'} in ${groupId ?? 'no group'}.`);
+  }
+  const guard = {
+    groupId,
+    sandboxChatId: chatId,
+    owned: [chatId],
+    preexisting: before.groupChats,
+    current: chatId,
+    escaped: null,
+    storyTitles: [] as string[],
+    mirrorBooks: [] as Array<{ name: string; chatId: string }>,
+  };
+  return { ...session, guard };
+}
+
+export async function assertInSandbox(page, guard, where) {
+  const now = await readActiveChat(page);
+  if (now.groupId === guard.groupId && guard.owned.includes(now.chatId)) {
+    guard.current = now.chatId;
+    return now;
+  }
+  guard.escaped = now.chatId ?? '(no chat open)';
+  const elsewhere = now.groupId && now.groupId !== guard.groupId ? ` in group ${now.groupId}` : '';
+  throw new Error(`sandbox escaped ${where}: now on ${now.chatId ?? 'no chat'}${elsewhere}, sandbox is ${guard.sandboxChatId}; aborting before anything else writes to that chat`);
+}
+
+// Only a step that declares `adoptsNewChat` may move the run to another chat, and only to one it
+// just created in the sandbox group.
+export async function adoptNewSandboxChat(page, guard, chatsBeforeStep) {
+  const now = await readActiveChat(page);
+  const fresh = now.groupId === guard.groupId && now.chatId && !guard.owned.includes(now.chatId)
+    && !guard.preexisting.includes(now.chatId) && !chatsBeforeStep.includes(now.chatId);
+  if (fresh) guard.owned.push(now.chatId);
+  return { adopted: fresh ? now.chatId : null, owned: [...guard.owned] };
+}
+
+// After a page reload ST sits on the welcome screen. Reopen the chat the run was on by id: the
+// "most recent chat" on the welcome screen may belong to someone else by now. Opening before ST
+// finishes starting up gets undone by its own init, so wait until APP_READY is recorded as fired.
+// Do not listen for it: ST's emitter awaits each listener in turn and records the event only after
+// the last one, so a listener added during that window is never called (lib/eventemitter.js).
+export async function reopenSandboxChat(page, guard) {
+  const target = guard.current ?? guard.sandboxChatId;
+  await page.waitForFunction(() => {
+    const ctx = SillyTavern.getContext();
+    const fired = ctx.eventSource?.autoFireLastArgs;
+    return fired instanceof Map ? fired.has(ctx.eventTypes.APP_READY) : Boolean(document.querySelector('.welcomePanel') || ctx.chatId);
+  }, null, { timeout: 60000 });
+  await evaluateInST(page, async ({ groupId, chatId }) => {
+    const ctx = SillyTavern.getContext();
+    if (ctx.groupId !== groupId) {
+      const { openGroupById } = await import(/* webpackIgnore: true */ '/scripts/group-chats.js' as string) as { openGroupById: (id: string) => Promise<unknown> };
+      await openGroupById(groupId);
+    }
+    if (SillyTavern.getContext().chatId !== chatId) await SillyTavern.getContext().openGroupChat(groupId, chatId);
+    return true;
+  }, { groupId: guard.groupId, chatId: target });
+  const deadline = Date.now() + 20000;
+  let openSince = 0;
+  while (Date.now() < deadline) {
+    const now = await readActiveChat(page);
+    const onTarget = now.groupId === guard.groupId && now.chatId === target;
+    if (onTarget && openSince && Date.now() - openSince >= 1000) return now;
+    openSince = onTarget ? openSince || Date.now() : 0;
+    await page.waitForTimeout(250);
+  }
+  return readActiveChat(page);
+}
+
+// Deletes the run's own chats by id, never the open chat unless the run owns it, and re-checks
+// ownership inside the same evaluate that deletes.
+export async function deleteSandboxChats(page, guard) {
+  return evaluateInST(page, async ({ groupId, owned, preexisting }) => {
+    const ctx = SillyTavern.getContext();
+    const { groups, deleteGroupChat, editGroup } = await import(/* webpackIgnore: true */ '/scripts/group-chats.js' as string) as {
+      groups: Array<{ id: string; chats: string[] }>;
+      deleteGroupChat: (groupId: string, chatId: string, options?: { jumpToNewChat?: boolean }) => Promise<void>;
+      editGroup: (id: string, immediately: boolean, reload?: boolean) => Promise<unknown>;
+    };
+    const currentChatAtCleanup = ctx.chatId ?? null;
+    const currentGroupAtCleanup = ctx.groupId ?? null;
+    const group = groups.find((entry) => entry.id === groupId);
+    const deleted = [];
+    const skipped = [];
+    if (!group) return { sandboxChatId: owned[0], owned, deleted, skipped: owned.map((id) => ({ id, reason: 'group not found' })), currentChatAtCleanup };
+    const isOpen = (id) => SillyTavern.getContext().groupId === groupId && SillyTavern.getContext().chatId === id;
+    const ordered = [...owned].sort((a, b) => Number(isOpen(a)) - Number(isOpen(b)));
+    let jumped = false;
+    for (const id of ordered) {
+      if (preexisting.includes(id)) { skipped.push({ id, reason: 'existed before the run' }); continue; }
+      if (!group.chats.includes(id)) { skipped.push({ id, reason: 'not listed in the group' }); continue; }
+      const open = isOpen(id);
+      await deleteGroupChat(groupId, id, { jumpToNewChat: open });
+      jumped = jumped || open;
+      deleted.push(id);
+    }
+    if (deleted.length && !jumped) await editGroup(groupId, true, false);
+    const post = async (url: string, body: unknown = {}) => (await fetch(url, { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify(body) })).json();
+    const stillListed = (await post('/api/groups/all')).find((entry) => entry.id === groupId)?.chats ?? [];
+    const gone = [];
+    for (const id of deleted) {
+      const data = await post('/api/chats/group/get', { id });
+      if (!stillListed.includes(id) && !(Array.isArray(data) && data.length)) gone.push(id);
+    }
+    return {
+      sandboxChatId: owned[0],
+      owned,
+      deleted: gone,
+      notDeleted: deleted.filter((id) => !gone.includes(id)),
+      skipped,
+      currentChatAtCleanup,
+      currentGroupAtCleanup,
+      chatAfterCleanup: SillyTavern.getContext().chatId ?? null,
+    };
+  }, { groupId: guard.groupId, owned: [...guard.owned], preexisting: [...guard.preexisting] });
+}
+
 export async function listEntities(page) {
   return evaluateInST(page, () => {
     const ctx = SillyTavern.getContext();

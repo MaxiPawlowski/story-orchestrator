@@ -1,0 +1,20 @@
+{
+    "ranAt":  "2026-09-19T03:46:31.4866620Z",
+    "passed":  true,
+    "fixture":  "full current host default/config.yaml copied into disposable host",
+    "changedLineCount":  2,
+    "changes":  [
+                    {
+                        "line":  22,
+                        "before":  "  enabled: true",
+                        "after":  "  enabled: false"
+                    },
+                    {
+                        "line":  40,
+                        "before":  "port: 8000",
+                        "after":  "port: 18000"
+                    }
+                ],
+    "defaultSha256":  "7b64c6bc1be857345d7b3b5b8ba6e145f18a137f80664c656b22b9a8ac7d3c4f",
+    "copiedDefaultSha256":  "7b64c6bc1be857345d7b3b5b8ba6e145f18a137f80664c656b22b9a8ac7d3c4f"
+}

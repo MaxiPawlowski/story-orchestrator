@@ -28,6 +28,9 @@ src/
                             #   a stage may answer with `questions` instead of ops (the interview)
   wizard/                   # pure wizard core: provisioning ops, create-only validation,
                             #   environment fold, interview/session helpers
+  stagecraft/               # pure curator core: op types + accept modes, the curation prompt,
+                            #   the strict line parser, "first || last" patch application,
+                            #   and the stagecraft.lorebooks allowlist
   studio/                   # Checkpoint Studio v2 (zustand draft, typed mutations, diagnostics)
                             #   tabs: Graph, Story, Qualities, Checkpoints, Transitions, Roster,
                             #   Diagnostics, Wizard (interview + staged proposals + provisioning cards)
@@ -40,6 +43,7 @@ src/
       expansionCoordinator.ts   # extras.expansion: beat cache, generation, staleness revalidation
       copilotCoordinator.ts     # authoring stages, wizard provisioning + environment, driver read-model, nudge
       pacingCoordinator.ts      # tension EMA (pending + committed), steering hint
+      stagecraftCoordinator.ts  # extras.stagecraft: the WI curator pass, the review ring, the boundary write, rollback revert
     boundaryWork.ts         # declarative registry of everything a committed boundary schedules
     snapshotBuilder.ts      # composes the one RuntimeSnapshot the UI subscribes to
     roster.ts               # roster <-> ST group/chat resolution
@@ -53,17 +57,20 @@ src/
     narrative.ts            # the one composed player "where am I" view (drawer, away popup, /story)
     pipeline.ts             # derived working/reading/stalled/idle/not-configured/error signal
     storyUpdate.ts          # the author's save applied to this chat: diff, choice popup, swap, re-pin
+    storySelection.ts       # which story this chat plays: import, select, restart, remove
     values.ts               # typed text -> PrimitiveValue (author input paths)
     wizardSessions.ts       # wizard conversation/stage/created-asset ledger, install-wide
     macros.ts slashCommands.ts awayRecap.ts liveSuite.ts
   components/
     studio/                 # 6 reused presentational primitives
     drawer/                 # DrawerTabs (player Overview/Memory; author adds Blackboard/Scheduler/Payload),
-                            #   PlayerOverview (narrative view + pipeline signal), HudStrip, DriverPanel (author)
+                            #   PlayerOverview (narrative view + pipeline signal), HudStrip, DriverPanel (author),
+                            #   StagecraftPanel (author: the curator review ring in the Scheduler tab)
   services/
     STAPI.ts                # the ONLY import surface for host modules
     stHost/*                # one host wrapper per concern (dynamic webpackIgnore imports)
                             #   provisioning.ts: character + group creation; worldInfo.ts: lorebook creation
+                            #   backgrounds.ts: read the active background, list installed ones, switch by name
   constants/ utils/
 ```
 
@@ -91,7 +98,9 @@ src/
   size budget and the component/studio import boundary.
 - Two personas, one default: the drawer's player mode is the publishable surface (narrative view,
   memory curation, honest status); author view *adds* internals, never conditionally reveals them.
-  Everything that steers the story (driver, Advance, Nudge, Probe, `/cp`) is author-only.
+  Everything that steers the story (driver, Advance, Nudge, Probe, `/cp`) is author-only, and that is
+  asserted as a **selector sweep** over every player-visible surface — the drawer's tabs, the HUD strip
+  and the settings panel — not as a reading of the labels (`so-ui.mts assert-player-clean`).
   The player composition itself is pure (`narrative.ts` + `pipeline.ts`) and reaches the drawer,
   the away-recap popup and `/story` from the same snapshot fields.
 - Runtime state persists per chat in `chat_metadata.story_orchestrator`; the story library lives
@@ -109,6 +118,17 @@ src/
   the bulk-accept list: each is edited and applied on its own. What a created asset leaves in the
   story is an ordinary `setRequirements`/`addRosterMember` mutation, so the requirements panel goes
   green from evidence rather than from optimism. Personas are never provisioned.
+- Stagecraft proposes and never writes. A curator returns typed ops on the memory LLM off-path; the
+  runtime applies the *accepted* ones inside `commitBoundary`, through the same effects path as every
+  other host write. Its entire scope is the story's authored `stagecraft.lorebooks` — nothing is
+  inferred from `requirements` or from `world_info` effects — and the allowlist is checked again at
+  the write edge, so an edited proposal cannot widen it. `StagecraftCoordinator` holds no engine,
+  memory, generation or pacing dependency, which is what makes "a curator can never move the
+  blackboard or a memory tier" a fact rather than a promise; `architecture.test.ts` fails the build
+  if that changes. Proposals and applications are journaled, each applied op records the entry's
+  pre-write state so a mutation rollback reverts it, and the curator ships capability-flagged off
+  with accept mode `review | auto | off`. Deterministic stagecraft comes first: `effects.background`
+  is an ordinary checkpoint effect, applied idempotently on activate and hydrate.
 - Boundary counters are not ST message indexes; snapshots/logs record `{lastMessageId,
   chatLength}`.
 - Pending queue writes are not persisted; a reload drops them and reconciliation recovers.
@@ -116,12 +136,15 @@ src/
 ## Turn flow
 
 1. ST renders a reply → `TurnBridge` detects a boundary and calls `runtimeManager` to commit.
+   Greetings (`first_message`) and extension posts such as `/sd` images (`extension`) are not
+   turns and commit nothing (`NON_TURN_MESSAGE_TYPES`).
 2. The engine drains its apply queue, evaluates gates, fires at most one transition, applies
-   checkpoint effects (author's note, world info, cast changes, NPC replies, preset), and logs
-   the boundary.
+   checkpoint effects (author's note, world info, cast changes, NPC replies, preset, background),
+   applies any curator changes the author accepted, and logs the boundary.
 3. `runtime/boundaryWork.ts` (a declarative registry `runtime/index.ts` just runs) schedules
    off-path work: forced cues over the boundary window, cadence
-   extraction, reconciliation, expansion, scene-break, short-term rolling compaction (a single
+   extraction, reconciliation, expansion, scene-break, the World Info curator pass (P4, coalesced,
+   only on a checkpoint change or scene break), short-term rolling compaction (a single
    `short_term` entry summarizing play since the last watermark, updated every ~12 messages,
    replaced not appended, skipped while pinned), and consolidation passes.
 4. The `ExtractionScheduler` runs a shared read on the memory LLM; accepted deltas are enqueued
@@ -172,7 +195,14 @@ already skips unchanged content.
   `scripts/debug/so-journey.mts` runs `test/journeys/*.journey.json` fresh-start against the real
   model, wrapping the same `so-scenario` step engine. Per-check outcomes are
   `pass|fail|blocked|not-runnable|skipped`; catalog, checks and the spoiler checklist live in
-  `docs/plans/v2.1/test-plan.md`.
+  `docs/plans/v2.1/test-plan.md`. `--strict` (acceptance mode) makes `blocked` a failure. The run
+  that greens a gate is archived under `test/journeys/records/<gate>/`, because `.debug` rotates.
+  Journeys are run **twice** before a gate is called green: the v2.1 acceptance run found two defects
+  that only a second consecutive run exposed (a chat-scoped cache bug and a 0-op curator proposal).
+- **Nondeterminism belongs in the checks, never in a mock**: `wait: {talkDecisions}` waits for the
+  signal instead of reading at `idle`; `stagecraft: {expectOps, attempts}` re-asks the curator when a
+  small model formats every line unparseably; migration gates use `seed_metadata: {file}` so they run
+  over a blob captured from a real pre-v2.1 chat rather than one synthesized from live state.
 - **Session journal**: `runtime/journal.ts` merges the persisted rings (boundary log, transitions,
   extraction audits + accepted deltas, reconciliation, payload captures, talk decisions) with
   status transitions and player ⚑ flags into one ordered timeline. Only status/flag records are
@@ -191,8 +221,14 @@ already skips unchanged content.
   wizard-run | wizard-answer | wizard-apply | wizard` (also `ui` actions in scenarios and journeys),
   because the review step is the feature under test. A wizard journey creates real assets in the
   user's install, so `scripts/debug/so-assets.mts list|remove|assert-clean --marker <prefix>` scopes
-  cleanup to the marker plus the wizard's own created-asset ledger, and `cleanup.removeCreatedAssets`
+  cleanup to the marker plus the created-asset ledger of *test* wizard sessions (marker-keyed, or
+  recorded since the run's baseline — a real author's sessions are never touched), and `cleanup.removeCreatedAssets`
   runs in the runner's `finally` and re-checks for leaks. J9 fails on a leaked asset.
+- **The curator is reviewed through the drawer, not the store**, for the same reason: `so-ui.mts
+  stagecraft | curator-accept [index] [text] | curator-reject [index]` (also `ui` actions), with
+  `{stagecraft: {action}}` for the runtime side and `expect: {background}` / `expect: {stagecraft}`
+  for the assertions. J8 switches the curator on inside the journey, snapshots the global config, and
+  deletes the `SO-J8` lorebook it wrote into.
 
 ## Packaging
 

@@ -8,6 +8,7 @@ import type {
   Quality,
   RosterMember,
   StoryRequirements,
+  StoryStagecraft,
   Transition,
   ValidationError,
 } from "@engine/index";
@@ -44,6 +45,7 @@ export type ProposalOp =
   | { kind: "setArcTemplate"; template: ArcTemplate | null }
   | { kind: "setArcBridges"; bridges: ArcBridge[] }
   | { kind: "setRequirements"; requirements: StoryRequirements }
+  | { kind: "setStagecraft"; stagecraft: StoryStagecraft }
   | ProvisioningOp;
 
 export type ProposalOpKind = ProposalOp["kind"];

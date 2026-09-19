@@ -1,5 +1,6 @@
 {
   "steps": [
+    { "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return true;" },
     {
       "import_story": {
         "format": 2,

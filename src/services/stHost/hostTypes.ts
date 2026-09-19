@@ -43,11 +43,13 @@ export interface SillyTavernContext {
   eventSource: SillyTavernEventSource;
   eventTypes: { PRESET_CHANGED: string } & Record<string, string | undefined>;
   textCompletionSettings: HostTextCompletionSettings;
-  executeSlashCommandsWithOptions: (command: string, options?: { handleParserErrors?: boolean; handleExecutionErrors?: boolean }) => Promise<HostSlashCommandResult | undefined>;
+  executeSlashCommandsWithOptions: (command: string, options?: { handleParserErrors?: boolean; handleExecutionErrors?: boolean; parserFlags?: Record<number, boolean> }) => Promise<HostSlashCommandResult | undefined>;
   loadWorldInfo: (name: string) => Promise<unknown>;
   name1: string;
   characterId?: number | string;
   groupId: string | null | undefined;
+  // The open chat file's id: a group's chat_id, or the character's chat (st-context.js:125).
+  chatId?: string | null;
   groups: HostGroup[];
   characters: HostCharacter[];
   worldInfo?: Record<string, HostWorldInfoEntry>;
@@ -70,8 +72,25 @@ export interface ScriptHostModule {
   [key: string]: unknown;
 }
 
+// backgrounds.js:108 — a live `export let`, so reading `.name` always gives the active background.
+export interface BackgroundsHostModule {
+  background_settings: { name?: string; url?: string } & Record<string, unknown>;
+  [key: string]: unknown;
+}
+
 export interface WorldInfoHostModule {
   getWorldInfoSettings: () => HostWorldInfoSettings;
+  // The live list of globally active books. `world_info.globalSelect` is only a mirror of it, and
+  // the mirror is written inside a *debounced* save (world-info.js:83), so this is the array to read.
+  selected_world_info: string[];
+  // The chat's own lorebook slot: `chat_metadata[METADATA_KEY]`, scanned for that chat only
+  // (world-info.js:94, getChatLore at :4544).
+  METADATA_KEY: string;
+  // Re-reads `world_names` from the server and rebuilds both pickers (world-info.js:2061).
+  updateWorldInfoList: () => Promise<void>;
+  // `loadWorldInfo`'s cache (world-info.js:882, a Map). It also keeps the dummy `{entries:{}}` a
+  // missing name returns, and `importWorldInfo` never evicts it.
+  worldInfoCache: { delete: (name: string) => boolean };
   createNewWorldInfo: (worldName: string, options?: { interactive?: boolean }) => Promise<boolean>;
   createWorldInfoEntry: (name: string, data: unknown) => unknown;
   saveWorldInfo: (name: string, data: unknown, immediately?: boolean) => Promise<unknown>;

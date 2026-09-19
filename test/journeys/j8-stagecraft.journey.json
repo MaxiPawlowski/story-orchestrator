@@ -1,14 +1,279 @@
 {
   "id": "J8",
   "title": "stagecraft",
-  "objective": "Reserved for plan 07: deterministic background effect plus one agentic curator (World Info) proposing, audited in the session journal, never writing the blackboard or memory tiers.",
-  "status": "reserved",
-  "reservedReason": "defined by plan 07 (stagecraft agents) — not runnable before it lands",
-  "setup": { "newChat": true },
+  "objective": "Deterministic background effect plus one agentic curator (World Info) proposing off-path from real canon, reviewed by the author, applied at a boundary, journaled — and never writing the blackboard or memory tiers. Every asset it creates is marked SO-J8 and deleted in cleanup.",
+  "setup": {
+    "newChat": true,
+    "resetChatState": true,
+    "snapshotGlobalConfig": true,
+    "configureExtraction": true,
+    "cadence": 1
+  },
+  "cleanup": {
+    "restoreConfig": true,
+    "deleteChat": true,
+    "removeCreatedAssets": "SO-J8"
+  },
+  "capabilities": {
+    "background-effect": "typeof globalThis.storyOrchestratorRuntime?.getSnapshot === 'function' && Boolean(document.querySelector('.bg_example'))",
+    "wi-curator": "typeof globalThis.storyOrchestratorRuntime?.runWiCuratorPass === 'function' && typeof globalThis.storyOrchestratorRuntime?.applyCuratorProposals === 'function'",
+    "curator-review-ring": "Boolean(document.querySelector('#so-curator-enabled'))"
+  },
   "checks": [
-    { "id": "J8.1", "mode": "auto", "findings": ["D1"], "goal": "a checkpoint's background effect switches the ST background deterministically" },
-    { "id": "J8.2", "mode": "auto", "findings": ["D1"], "goal": "the WI curator proposes an entry off-path and the proposal is applied as a boundary effect only" },
-    { "id": "J8.3", "mode": "auto", "findings": ["D1"], "goal": "every curator action appears in the session journal and never touches the blackboard or memory tiers" },
-    { "id": "J8.4", "mode": "human", "findings": ["D1"], "prompt": "Did the presentation (scene, background, cast) feel handled for you, without you asking?", "anchors": "1 = nothing happened · 3 = noticed it once · 5 = the stage kept up with the story" }
+    {
+      "id": "J8.1",
+      "mode": "auto",
+      "findings": [
+        "D1"
+      ],
+      "goal": "a checkpoint's background effect switches the ST background deterministically, and re-applies on hydrate",
+      "requires": [
+        "background-effect"
+      ],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lorebook = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-J8 Lore' }, { requirements: { lorebooks: [] } }); if (!lorebook.ok && !lorebook.message.includes('already exists')) throw new Error(`could not create the story lorebook: ${lorebook.message}`); const entry = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook: 'SO-J8 Lore', comment: 'The washed road', keys: ['road', 'flood'], content: 'The road to the tavern is flooded and impassable; nobody has crossed it in a week.', constant: true }, { requirements: { lorebooks: ['SO-J8 Lore'] } }); if (!entry.ok) throw new Error(`could not write the story lorebook entry: ${entry.message}`); const wi = await import('/scripts/world-info.js'); const active = (wi.selected_world_info ?? []).some((name) => String(name).toLowerCase() === 'so-j8 lore'); if (!active) throw new Error(`the story lorebook was created but never switched on, so requirements can never go green: ${lorebook.message}`); return { lorebook, entry, active };"
+        },
+        {
+          "eval": "const names = Array.from(document.querySelectorAll('.bg_example')).map((node) => node.getAttribute('bgfile')); for (const wanted of ['landscape postapoc.jpg', 'tavern day.jpg']) { if (!names.includes(wanted)) throw new Error(`this install has no background named \"${wanted}\" — J8 needs the two shipped defaults`); } return { backgrounds: names.length };"
+        },
+        {
+          "import_story": {
+            "file": "j8-stagecraft.story.json"
+          }
+        },
+        {
+          "expect": {
+            "storyId": "so-j8-stagecraft",
+            "requirementsReady": true,
+            "activeCheckpoint": "washed-road",
+            "background": "landscape postapoc.jpg"
+          }
+        },
+        {
+          "copilot": {
+            "action": "advance",
+            "id": "tavern"
+          }
+        },
+        {
+          "expect": {
+            "activeCheckpoint": "tavern",
+            "background": "tavern day.jpg"
+          }
+        },
+        {
+          "copilot": {
+            "action": "advance",
+            "id": "washed-road"
+          }
+        },
+        {
+          "expect": {
+            "background": "landscape postapoc.jpg"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; await rt.activateCheckpoint('tavern'); await rt.selectStory('so-j8-stagecraft'); return { activeCheckpointId: rt.getSnapshot().activeCheckpointId };"
+        },
+        {
+          "expect": {
+            "activeCheckpoint": "tavern",
+            "background": "tavern day.jpg"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J8.2",
+      "mode": "auto",
+      "findings": [
+        "D1"
+      ],
+      "goal": "the WI curator proposes a change off-path from real canon, the author reviews it on the drawer's cards (editing it when it is a text change), and the boundary write — whatever op kind the model chose — reaches the server file and the next generation's prompt",
+      "requires": [
+        "wi-curator",
+        "curator-review-ring"
+      ],
+      "steps": [
+        {
+          "eval": "globalThis.storyOrchestratorRuntime.setStagecraftSettings({ curatorEnabled: true, acceptMode: 'review' }); globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); return globalThis.storyOrchestratorRuntime.getStagecraftState().settings;"
+        },
+        {
+          "expect": {
+            "stagecraft": {
+              "curatorEnabled": true,
+              "acceptMode": "review",
+              "scope": [
+                "SO-J8 Lore"
+              ]
+            }
+          }
+        },
+        {
+          "eval": "const c = SillyTavern.getContext(); if (globalThis.__soJ8PromptHandler) c.eventSource.removeListener(c.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8PromptHandler); globalThis.__soJ8Prompts = []; globalThis.__soJ8PromptHandler = (data, dryRun) => { if (!dryRun) globalThis.__soJ8Prompts.push(JSON.stringify(data ?? null)); }; c.eventSource.on(c.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8PromptHandler); return { armed: true };"
+        },
+        {
+          "send_generate": {
+            "text": "By morning the flood has drained off the road, leaving only mud and driftwood. The courier steps onto the bare stones and walks across to the tavern door.",
+            "timeoutMs": 180000
+          }
+        },
+        {
+          "eval": "const prompts = globalThis.__soJ8Prompts ?? []; if (!prompts.length) throw new Error('no main-generation prompt was captured'); const ctx = SillyTavern.getContext(); const server = await fetch('/api/worldinfo/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: 'SO-J8 Lore' }) }).then((response) => response.json()); const entry = Object.values(server.entries ?? {}).find((candidate) => candidate.comment === 'The washed road'); if (!entry) throw new Error('the story lorebook entry is missing from the server file before the curator ran'); if (entry.disable) throw new Error('the story lorebook entry is already switched off before the curator ran'); const escape = (text) => JSON.stringify(String(text)).slice(1, -1); const missing = prompts.filter((body) => !body.includes(escape(entry.content))).length; if (missing) throw new Error(`the untouched entry is missing from ${missing} of ${prompts.length} prompt(s), so what the curator changes could never be seen: ${prompts[prompts.length - 1].slice(0, 400)}`); globalThis.__soJ8Original = String(entry.content); return { prompts: prompts.length, content: String(entry.content).slice(0, 120) };",
+          "log": true
+        },
+        {
+          "extract": {
+            "reason": "journey"
+          }
+        },
+        {
+          "stagecraft": {
+            "action": "curate",
+            "reason": "journey",
+            "expectProposal": true,
+            "expectOps": 1,
+            "attempts": 3
+          }
+        },
+        {
+          "expect": {
+            "stagecraft": {
+              "proposalsAtLeast": 1,
+              "opStatus": [
+                "pending"
+              ],
+              "noError": true,
+              "opsAtLeast": 1
+            }
+          }
+        },
+        {
+          "ui": {
+            "action": "stagecraft",
+            "minOps": 1
+          }
+        },
+        {
+          "eval": "const ring = document.getElementById('so-stagecraft'); if (!ring) throw new Error('the review ring is not on the Scheduler tab'); const cards = ring.querySelectorAll('[data-so=\"curator-op\"]'); if (!cards.length) throw new Error('the proposal produced no review cards'); if (!ring.querySelector('[data-so=\"curator-accept\"]')) throw new Error('nothing to accept — the change was applied without review'); return { cards: cards.length, text: ring.innerText.slice(0, 400) };"
+        },
+        {
+          "ui": {
+            "action": "curator-accept",
+            "pick": "text-first",
+            "text": "The road to the tavern has drained; the bare stones are walkable again."
+          },
+          "log": true
+        },
+        {
+          "expect": {
+            "stagecraft": {
+              "opStatus": [
+                "accepted"
+              ]
+            }
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const records = rt.getStagecraftState().proposals.filter((record) => record.ops.some((entry) => entry.status === 'accepted')); const accepted = records.flatMap((record) => record.ops.map((entry, index) => ({ record, entry, index })).filter(({ entry }) => entry.status === 'accepted')); if (accepted.length !== 1) throw new Error(`expected exactly the one reviewed change to be accepted, got ${JSON.stringify(rt.getStagecraftState().proposals.map((record) => record.ops.map((entry) => `${entry.op.kind}:${entry.status}`)))}`); const { record, entry, index } = accepted[0]; const textKinds = ['rewrite', 'patch']; const isText = textKinds.includes(entry.op.kind); if (!isText && record.ops.some((candidate) => textKinds.includes(candidate.op.kind))) throw new Error(`the proposal offered a text change but the review accepted a ${entry.op.kind}`); const edit = \"The road to the tavern has drained; the bare stones are walkable again.\"; if (isText && (entry.op.kind === 'rewrite' ? entry.op.text : entry.op.replace) !== edit) throw new Error(`the author's edit did not reach the accepted op: ${JSON.stringify(entry.op)}`); const scope = rt.getSnapshot().stagecraftScope ?? []; if (!scope.some((name) => name.toLowerCase() === String(entry.op.lorebook).toLowerCase())) throw new Error(`the accepted change targets \"${entry.op.lorebook}\", outside the stagecraft allowlist ${JSON.stringify(scope)}`); globalThis.__soJ8Choice = { id: record.id, index, kind: entry.op.kind, comment: entry.op.comment, text: isText ? edit : null }; return { ...globalThis.__soJ8Choice, ops: record.ops.map((candidate) => `${candidate.op.kind}:${candidate.status}`), raw: String(rt.getStagecraftState().lastPass?.rawResponse ?? '').slice(0, 400) };",
+          "log": true
+        },
+        {
+          "extract": {
+            "reason": "journey-boundary"
+          }
+        },
+        {
+          "expect": {
+            "stagecraft": {
+              "appliedAtLeast": 1
+            }
+          }
+        },
+        {
+          "eval": "const choice = globalThis.__soJ8Choice; const rt = globalThis.storyOrchestratorRuntime; const op = rt.getStagecraftState().proposals.find((record) => record.id === choice.id)?.ops[choice.index]; if (op?.status !== 'applied') throw new Error(`the accepted ${choice.kind} was not written at the boundary: ${op?.status} ${op?.message ?? ''}`); const ctx = SillyTavern.getContext(); const server = await fetch('/api/worldinfo/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: 'SO-J8 Lore' }) }).then((response) => response.json()); const entry = Object.values(server.entries ?? {}).find((candidate) => candidate.comment === 'The washed road'); if (!entry) throw new Error('the entry the curator wrote is gone from the server file'); const content = String(entry.content); if (choice.text !== null) { if (!content.includes(choice.text)) throw new Error(`the ${choice.kind} did not reach the server file: ${content.slice(0, 200)}`); if (Boolean(entry.disable) !== Boolean(op.before?.disabled)) throw new Error(`the ${choice.kind} flipped the entry's switch: disable=${entry.disable}`); } else { if (Boolean(entry.disable) !== (choice.kind === 'disable')) throw new Error(`expected disable=${choice.kind === 'disable'} on the server file after the ${choice.kind}, got ${entry.disable}`); if (content !== globalThis.__soJ8Original) throw new Error(`the ${choice.kind} changed the entry text: ${content.slice(0, 200)}`); } globalThis.__soJ8Prompts.length = 0; return { kind: choice.kind, disable: Boolean(entry.disable), content: content.slice(0, 200) };",
+          "log": true
+        },
+        {
+          "send_generate": {
+            "text": "The courier pushes the tavern door open and looks for the innkeeper.",
+            "timeoutMs": 180000
+          }
+        },
+        {
+          "eval": "const c = SillyTavern.getContext(); c.eventSource.removeListener(c.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8PromptHandler); delete globalThis.__soJ8PromptHandler; const prompts = globalThis.__soJ8Prompts ?? []; const choice = globalThis.__soJ8Choice; if (!prompts.length) throw new Error('no main-generation prompt was captured'); const escape = (text) => JSON.stringify(String(text)).slice(1, -1); const probe = escape(choice.text ?? globalThis.__soJ8Original); const present = prompts.filter((body) => body.includes(probe)).length; const wanted = choice.kind !== 'disable'; if (wanted && present < prompts.length) throw new Error(`the ${choice.kind} is missing from ${prompts.length - present} of ${prompts.length} prompt(s): ${prompts[prompts.length - 1].slice(0, 400)}`); if (!wanted && present) throw new Error(`a switched-off entry still reached ${present} of ${prompts.length} prompt(s)`); return { kind: choice.kind, prompts: prompts.length, inPrompt: present };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J8.3",
+      "mode": "auto",
+      "findings": [
+        "D1"
+      ],
+      "goal": "every curator action is journaled, it can never write the blackboard or a memory tier, and a write outside the story's allowlist is refused",
+      "requires": [
+        "wi-curator"
+      ],
+      "steps": [
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 240000
+          },
+          "log": true
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snapshot = rt.getSnapshot(); globalThis.__j8Before = { blackboard: JSON.stringify(snapshot.blackboard), boundary: snapshot.boundary, memory: snapshot.memory.entries.length, arcs: (snapshot.memory.arcs ?? []).length, epistemic: (snapshot.memory.epistemic ?? []).length, ledger: (snapshot.memory.ledger ?? []).length }; return globalThis.__j8Before;"
+        },
+        {
+          "stagecraft": {
+            "action": "curate",
+            "reason": "journey-guard",
+            "debugResponse": "[rewrite] The washed road || The road is a mudflat, walkable at low water.\n[why] The flood drained overnight."
+          }
+        },
+        {
+          "stagecraft": {
+            "action": "accept"
+          }
+        },
+        {
+          "stagecraft": {
+            "action": "apply"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snapshot = rt.getSnapshot(); const before = globalThis.__j8Before; const now = { blackboard: JSON.stringify(snapshot.blackboard), memory: snapshot.memory.entries.length, arcs: (snapshot.memory.arcs ?? []).length, epistemic: (snapshot.memory.epistemic ?? []).length, ledger: (snapshot.memory.ledger ?? []).length }; if (now.blackboard !== before.blackboard) throw new Error(`the curator moved the blackboard: ${before.blackboard} -> ${now.blackboard}`); for (const key of ['memory', 'arcs', 'epistemic', 'ledger']) { if (now[key] !== before[key]) throw new Error(`the curator changed the ${key} tier: ${before[key]} -> ${now[key]}`); } return now;"
+        },
+        {
+          "eval": "const journal = globalThis.storyOrchestratorRuntime.getSessionJournal(); const records = journal.filter((event) => event.kind === 'stagecraft'); if (!records.length) throw new Error('no stagecraft events in the session journal'); if (!records.some((event) => event.summary.includes('proposed'))) throw new Error('the proposal was not journaled'); if (!records.some((event) => event.summary.includes('applied'))) throw new Error('the application was not journaled'); return { records: records.map((event) => event.summary) };"
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const proposals = rt.getStagecraftState().proposals; const target = proposals[proposals.length - 1]; await rt.setCuratorOpDecision(target.id, 0, 'accepted', { kind: 'rewrite', lorebook: 'SO-J8 Not Ours', comment: 'The washed road', text: 'hijacked' }); const applied = await rt.applyCuratorProposals(); if (applied !== 0) throw new Error(`a write outside the stagecraft allowlist was applied (${applied})`); const op = rt.getStagecraftState().proposals.find((record) => record.id === target.id).ops[0]; if (op.status !== 'failed' || !op.message.includes('allowlist')) throw new Error(`expected an allowlist refusal, got ${op.status}: ${op.message}`); return { status: op.status, message: op.message };"
+        },
+        {
+          "assets": {
+            "action": "expect",
+            "marker": "SO-J8",
+            "lorebooks": [
+              "SO-J8 Lore"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "J8.4",
+      "mode": "human",
+      "findings": [
+        "D1"
+      ],
+      "prompt": "Did the presentation (scene, background, cast) feel handled for you, without you asking?",
+      "anchors": "1 = nothing happened · 3 = noticed it once · 5 = the stage kept up with the story"
+    }
   ]
 }

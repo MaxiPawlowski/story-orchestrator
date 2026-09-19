@@ -1,0 +1,6 @@
+﻿{
+    "at":  "2026-09-19T03:39:15.9232391Z",
+    "query":  "name,memory.total,memory.used,memory.free,utilization.gpu",
+    "output":  "NVIDIA GeForce RTX 3090, 24576 MiB, 24108 MiB, 219 MiB, 100 %",
+    "note":  "Read-only observation during review; not a measurement of Windows shared GPU residency."
+}

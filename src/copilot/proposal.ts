@@ -14,6 +14,7 @@ import {
   setCheckpointEffects,
   setCheckpointSnapshot,
   setRequirements,
+  setStagecraft,
   setStartCheckpoint,
   setStoryField,
   setTransitionGate,
@@ -56,6 +57,11 @@ export const provisioningFollowUpOps = (draft: StoryV2, op: ProvisioningOp): Pro
   };
   const ops: ProposalOp[] = [];
   if (wanted.members.length || wanted.lorebooks.length) ops.push({ kind: "setRequirements", requirements });
+  // A lorebook the wizard made for this story is the one book a curator may write into, so creating
+  // it also grants the scope (plan 07's `stagecraft.lorebooks` allowlist).
+  if (op.kind === "createStoryLorebook") {
+    ops.push({ kind: "setStagecraft", stagecraft: { lorebooks: merge(draft.stagecraft?.lorebooks, [op.name]) } });
+  }
   if (op.kind === "createCharacterCard" && !draft.roster.some((member) => (member.name ?? member.id).trim().toLowerCase() === op.name.trim().toLowerCase())) {
     ops.push({ kind: "addRosterMember", member: { id: op.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "_"), name: op.name } });
   }
@@ -111,6 +117,8 @@ export const applyOp = (draft: StoryV2, op: ProposalOp): StoryV2 => {
       return setArcBridges(draft, op.bridges);
     case "setRequirements":
       return setRequirements(draft, op.requirements);
+    case "setStagecraft":
+      return setStagecraft(draft, op.stagecraft);
     default:
       return draft;
   }
@@ -211,6 +219,8 @@ export const describeOp = (op: ProposalOp): OpDescription => {
       return { action: "update", entity: "story.arc_bridges", label: `Set ${op.bridges.length} thread bridge(s)` };
     case "setRequirements":
       return { action: "update", entity: "story.requirements", label: `Require ${[...(op.requirements.personas ?? []), ...(op.requirements.members ?? []), ...(op.requirements.lorebooks ?? [])].join(", ") || "nothing"}` };
+    case "setStagecraft":
+      return { action: "update", entity: "story.stagecraft", label: op.stagecraft.lorebooks.length ? `Let the curator edit ${op.stagecraft.lorebooks.join(", ")}` : "Give the curator no lorebooks" };
     default:
       return { action: "update", entity: "unknown", label: "Unknown change" };
   }

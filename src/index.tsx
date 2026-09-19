@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { bindNavbarDrawerToggle, listConnectionProfiles, showConfirmPopup, toggleNavbarDrawer } from "@services/STAPI";
 import { runModelSelfTest, type SelfTestReport } from "@runtime/selfTest";
 import { isArcTemplateName } from "@pacing/index";
+import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
 import { startRuntime } from "@runtime/index";
 import type { RuntimeSnapshot, StoryLibraryRecord } from "@runtime/types";
 import StudioModal, { STUDIO_TAB_IDS, type StudioOpenIntent } from "./studio/StudioModal";
@@ -15,6 +16,8 @@ import { useDraftStore, type StoryDraft } from "./studio/draft";
 import "./styles.css";
 
 const manager = startRuntime();
+
+const isAcceptMode = (value: string): value is StagecraftAcceptMode => (STAGECRAFT_ACCEPT_MODES as readonly string[]).includes(value);
 
 if (typeof globalThis !== "undefined") {
   globalThis.storyOrchestratorRuntime = manager;
@@ -302,6 +305,24 @@ const SettingsPanel = () => {
               <input type="checkbox" checked={snapshot.talk.enabled} onChange={(event) => manager.setTalkDirectionEnabled(event.target.checked)} />
               <span>Speaker direction <HelpTooltip title="Let checkpoints with talk control decide who speaks next in group chats: name mentions win, then the LLM director, then weighted rules. Swipes, quiet passes, and explicit /trigger are never affected." /></span>
             </label>
+          </div>
+          <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+            <div className="font-medium text-sm">Stagecraft <span className="opacity-60 font-normal">— install-wide</span></div>
+            <label className="flex items-center gap-2 text-sm">
+              <input id="so-curator-enabled" type="checkbox" checked={snapshot.stagecraft.settings.curatorEnabled} onChange={(event) => manager.setStagecraftSettings({ curatorEnabled: event.target.checked })} />
+              <span>World Info curator <HelpTooltip title="A background agent that reads what has happened and proposes changes to the story's own lorebook — switching entries on or off, correcting text the story has overtaken. It only ever touches the lorebooks the story lists for it, it proposes rather than writes, and it can never change story progress or memory." /></span>
+            </label>
+            <label className="flex flex-col gap-1 text-sm">
+              <span>Curator changes</span>
+              <select id="so-curator-accept-mode" value={snapshot.stagecraft.settings.acceptMode} onChange={(event) => manager.setStagecraftSettings({ acceptMode: isAcceptMode(event.target.value) ? event.target.value : "review" })}>
+                <option value="review">Ask me first</option>
+                <option value="auto">Apply on their own</option>
+                <option value="off">Only show me what it would do</option>
+              </select>
+            </label>
+            {snapshot.stagecraft.settings.curatorEnabled && snapshot.ready && snapshot.stagecraftScope.length === 0 && (
+              <div id="so-curator-unscoped" className="text-xs opacity-70">This story lists no lorebook for the curator, so it stays idle. Add one on the Studio&apos;s Story tab.</div>
+            )}
           </div>
           <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
             <div className="font-medium text-sm">Pacing</div>

@@ -37,6 +37,14 @@ node scripts/debug/so-journey.mts run J3
 - Player-surface verbs (plan 04): `so-ui.mts pipeline` prints the derived pipeline slice next to what is
   actually on screen; `so-ui.mts assert-player-clean` walks every player-mode tab and fails on any
   checklist violation. Both are also scenario/journey steps (`ui: {action: "pipeline"|"assert-player-clean"}`).
+  Plan 08 made it a **selector sweep as well as a text sweep**: across the drawer (every tab it
+  offers), the HUD strip and the settings panel, no steering control or author-only panel may be
+  present in the DOM — driver controls (`[aria-label="In-play driver"|"Advance target"|"Nudge text"|
+  "Driver suggestions"|"Driver report"|"Active nudge"]`), the curator ring (`#so-stagecraft`,
+  `[data-so="curator-*"]`) and the author's story controls (`#so-edit-story`, `#so-update-story`,
+  `#so-fix-with-wizard`). A renamed label can no longer slip a control past the checklist. `/cp` and
+  the other author slash commands stay typeable by anyone — they are documented author-only (plan 04),
+  and the sweep asserts no player-visible surface offers them.
 - Author-loop verbs (plan 05): `so-ui.mts studio-save [keep|restart|cancel]` clicks the Studio's Save and
   answers the invalidation popup (`studio_save` as a step key, `ui: {action: "studio-save", choice}` as a
   ui action); `expect: {storyVersion: {played, library, drifted}}` and
@@ -48,11 +56,29 @@ node scripts/debug/so-journey.mts run J3
   journeys. `copilot: {action: "provision", op, expectFail?, messageContains?}` exercises one provisioning
   op through the runtime — which is where create-only lives — and `copilot: {action: "stage", expect:
   "questions"}` asserts the interview variant. `assets: {action: "list"|"expect"|"remove"|"assert-clean",
-  marker}` is the asset ledger (`so-assets.mts`).
+  marker}` is the asset ledger (`so-assets.mts`; in a journey it is scoped by the run's baseline).
+- Stagecraft verbs (plan 07): `stagecraft: {action: "curate"|"accept"|"reject"|"accept-op"|"reject-op"|"apply"|"state"}`
+  drives the World Info curator through the runtime (`curate` is a real model call unless a
+  `debugResponse` is given), and `ui: {action: "stagecraft"|"curator-accept"|"curator-reject", index?, text?, pick?: "text-first", minOps?}`
+  reviews it through the drawer the way an author does (`so-ui.mts stagecraft | curator-accept | curator-reject`).
+  `expect: {background}` asserts the background the chat is showing; `expect: {stagecraft: {...}}` asserts
+  proposals, applied ops, op statuses, the allowlist scope and dropped lines.
+- Migration verbs (plan 08): `seed_metadata: {file}` writes a captured `chat_metadata.story_orchestrator`
+  blob into the sandbox chat **verbatim** and hydrates it through the ordinary load path — a migration
+  gate must run over bytes this build never wrote, not over state synthesized from the live snapshot.
+- Nondeterminism verbs (plan 08): `wait: {talkDecisions: n}` waits for speaker direction to record a
+  decision instead of reading it the instant the chat goes idle; `stagecraft: {action: "curate",
+  expectOps: 1, attempts: 3}` re-asks the curator when a small model formats every line unparseably,
+  and `expect: {stagecraft: {opsAtLeast: 1}}` fails a proposal that carries nothing to review (a
+  0-op proposal used to satisfy `proposalsAtLeast`).
 - Cleanup restores group members **after** `/delchat` and reports the resulting `disabledMembers` —
   enabling them while the sandbox chat is open is silently undone (plan 04 live finding).
 - Artifacts per run: `.debug/journey-<id>.md` (matrix + human checklist) and a timestamped
   `.debug/*_journey-<id>.json`. Both, and the config snapshot, are protected from `.debug` rotation.
+- Acceptance archive (plan 08, delegated decision): the run that greened a gate is copied out of
+  `.debug` into `test/journeys/records/<gate>/` — per-journey matrix + JSON record, journal exports and
+  a `README.md` naming the tree, the model and the operator. `.debug` is scratch and rotates; a gate
+  record must still be readable a year later.
 
 ## Check outcome vocabulary
 
@@ -80,9 +106,9 @@ arrive. The operator records scores in the plan's Gate record.
 | J5 | group-direction | talk_control + npc_replies + cast_changes; per-speaker private injection in the payload | 6 | 1 | Restores the group roster in cleanup |
 | J6 | mutation-storm | Edit/delete around a boundary; rollback correct and comprehensible | 4 | 1 | Deterministic (`extract` with a debug response for the latch only) |
 | J7 | long-haul | Full sun-ruins play-through to the finale; success-criteria hooks | 8 | 2 | **Expensive** — plan 01 (baseline) and plans 07/08 (acceptance) only |
-| J10 | identity-and-settings | Story identity, pinning, settings homes, migration, Restart | 8 | 2 | Plan 02's gate journey |
+| J10 | identity-and-settings | Story identity, pinning, settings homes, migration, Restart | 9 | 2 | Plan 02's gate journey; plan 08 added J10.11, the migration over a real captured blob |
 | J9 | wizard | Premise → interview → staged proposals → provisioned ST assets → playable story | 5 | 2 | Plan 06's gate journey. **Writes real ST assets** — every one is marked `SO-J9` and deleted in cleanup |
-| J8 | stagecraft | *Reserved — defined by plan 07* | 3 | 1 | `not-runnable` until then |
+| J8 | stagecraft | Background effect + the World Info curator: propose off-path, review, apply at a boundary, journal it, touch nothing else | 3 | 1 | Plan 07's gate journey. **Writes a real lorebook** — marked `SO-J8` and deleted in cleanup |
 
 ## Checks
 
@@ -96,7 +122,7 @@ register), so plan 08's Evidence column writes itself.
 | J1.1 | auto | U6 | With nothing installed, the drawer says what to do next |
 | J1.2 | auto | U1 | A brand-new chat has extraction enabled by default |
 | J1.3 | auto | U1 I3 | The memory profile is install-level, not stored per chat (`requires: global-extraction-settings`); J10.6 proves a new chat inherits it |
-| J1.4 | auto | U6 | A first-run path walks an empty install to playable (`requires: first-run-path`) |
+| J1.4 | auto | U6 | A first-run path walks an empty install to playable: the settings panel offers "New story (wizard)" and it opens the wizard on an empty draft (`requires: first-run-path`) |
 | J1.5 | auto | U6 | Importing the shipped example from the settings panel makes it playable |
 | J1.6 | auto | U1 | After configuring the memory model in the panel, the first real transition fires |
 | J1.7 | auto | U6 | The transition is announced to the player in chat |
@@ -157,7 +183,7 @@ register), so plan 08's Evidence column writes itself.
 | J5.3 | auto | — | The scripted `npc_replies` entry fired |
 | J5.4 | auto | — | A real group turn is routed by speaker direction and the decision recorded |
 | J5.5 | auto | — | The injected payload for that turn was captured |
-| J5.6 | auto | U3 | Private per-speaker injection: the drafted member sees their own epistemic block, not another's (`requires: epistemic-present`) |
+| J5.6 | auto | U3 | Private per-speaker injection: the journey turns the epistemic capability on, runs the **real** epistemic/ledger pass over a scene with two secrets, then asserts each drafted member's injected block carries only their own lines and that the two blocks differ (`requires: epistemic-ledger`) |
 | J5.7 | human | — | "Did the right characters speak, and did silence read as a choice?" |
 
 ### J6 mutation-storm
@@ -192,6 +218,7 @@ register), so plan 08's Evidence column writes itself.
 | J10.6 | auto | U1 I3 | A brand-new chat on a configured install plays immediately, with no per-chat setup |
 | J10.7 | auto | U2 | Restart is the only reset, and it re-pins the latest library version |
 | J10.8 | auto | I3 | A pre-v2.1 (hash-keyed) chat blob migrates to id-keyed state with the story pinned |
+| J10.11 | auto | I3 | The same migration over a blob **captured verbatim from a real pre-v2.1 chat** (`test/fixtures/legacy-v2-chat-blob.json`, provenance recorded in the file): both stories survive, keys are id-keyed, and checkpoint / boundary / blackboard values are unchanged |
 | J10.9 | human | U6 | "Was it clear which settings apply to every chat and which only to this one?" |
 | J10.10 | human | U6 | "Did the memory-model self-test tell you something you could act on?" |
 
@@ -209,20 +236,47 @@ register), so plan 08's Evidence column writes itself.
 
 **Asset-leak safety.** J9 writes to the user's real install, so cleanup is load-bearing rather than
 hygiene. Every asset it asks for is named with the `SO-J9` prefix, and `so-assets.mts` scopes both
-listing and deletion to that marker **plus** whatever the wizard recorded as created in its own
-session (`extensionSettings["story-orchestrator"].wizardSessions[].applied`) — the second source
-catches a model that drifted off the prescribed name. `cleanup.removeCreatedAssets` runs in the
-runner's `finally`, so a failed check still cleans up, and it re-lists afterwards: anything left is
-reported as a leak and fails the run. Pre-existing user assets are never in scope.
+listing and deletion to that marker **plus** whatever a *test* wizard session recorded as created
+(`extensionSettings["story-orchestrator"].wizardSessions[].applied`) — the second source catches a
+model that drifted off the prescribed name. A test session is one keyed by the slugged marker
+(`so-j9-wizard`), or, via the baseline the runner takes before setup (`snapshotAssets`), any entry
+recorded during this run. A real author's wizard sessions are never read, their assets never
+deleted, their resume state never cleared; an asset that existed before the run is spared even when
+a test ledger names it (`protected` in the record), and only the test sessions are dropped.
+`cleanup.removeCreatedAssets` runs in the runner's `finally`, so a failed check still cleans up,
+and it re-lists afterwards against the pre-removal ledger: anything left is reported as a leak and
+fails the run.
 
 ```bash
 node scripts/debug/so-assets.mts assert-clean --marker SO-J9
 ```
 
-### J8 stagecraft *(reserved — plan 07)*
+### J8 stagecraft
 
-Background effect; WI curator proposing off-path; every curator action audited in the journal and
-never writing the blackboard or memory tiers; human: "did the stage keep up with the story?"
+| Check | Mode | Findings | What it proves |
+|---|---|---|---|
+| J8.1 | auto | D1 | A checkpoint's `background` effect switches the ST background deterministically, both ways, and re-applies on hydrate (`requires: background-effect`) |
+| J8.2 | auto | D1 | The WI curator proposes off-path from real canon, the author reviews it on the drawer cards, the boundary writes it, and the result reaches the server file and the next generation's prompt, **whatever op kind the model chose** (`requires: wi-curator, curator-review-ring`). `curator-accept pick: text-first` edits the first text change when there is one (edited text must land in `/api/worldinfo/get` and every captured prompt). Otherwise it accepts the first switch as proposed (`disable` on the server file, entry gone from the prompt). A before-control proves the untouched entry was in the first prompt, so its later absence means something. Prompts come from `GENERATE_AFTER_DATA` (main generation only), not a fetch wrapper that also sees memory-model calls |
+| J8.3 | auto | D1 | Every curator action is journaled; the blackboard, memory tiers, arcs, epistemic map and ledger are untouched; a write outside `stagecraft.lorebooks` is refused at the write edge. The before-snapshot waits for `wait: {schedulerIdle}`: on a slow model J8.2's last turn is still being read (memory 8→9, 2026-09-19), and that is not the curator |
+| J8.4 | human | D1 | "Did the presentation (scene, background, cast) feel handled for you, without you asking?" |
+
+**Curator rubric** (score the proposals J8.2 produced, alongside the J8.4 score):
+
+| Dimension | 1 | 3 | 5 |
+|---|---|---|---|
+| Necessity | changed something the story had not changed | plausible but optional | only what the story had actually overtaken |
+| Precision | rewrote a whole entry to fix a clause | patched roughly the right span | patched exactly the stale span |
+| Scope discipline | reached for an entry it was not shown | stayed in scope | stayed in scope and said what it deliberately left alone |
+| Reviewability | had to open the lorebook to understand it | readable after a re-read | obvious what would change, before accepting |
+
+**Asset safety.** J8 creates one real lorebook (`SO-J8 Lore`) and writes entries into it. It is
+marked, `cleanup.removeCreatedAssets: "SO-J8"` deletes it, and the run reports a leak as a failure —
+the same load-bearing cleanup as J9. The curator is switched on *inside* the journey and the global
+config snapshot is restored in cleanup, so an interrupted run never leaves the flag on.
+
+```bash
+node scripts/debug/so-journey.mts run J8
+```
 
 ## Spoiler checklist (player mode) — v2 (plan 04)
 
@@ -252,6 +306,10 @@ that adds a player-visible element adds a row here.
 | Tension numbers, expected tension, steering hint | author | drawer Overview (author view) |
 | Convergence bars (they name a future anchor and its distance) | author | drawer Overview (author view) |
 | Blackboard / Scheduler / Payload tabs, stall re-check detail, talk decisions | author | drawer tabs (author view) |
+| World Info curator review ring — proposals, editable replacement text, accept / decline, dropped lines | author | drawer Scheduler tab (`#so-stagecraft`, `[data-so="curator-proposal"]`, `[data-so="curator-op"]`) |
+| Curator settings (on/off, accept mode) and the "no lorebook listed" notice | author | settings panel (`#so-curator-enabled`, `#so-curator-accept-mode`, `#so-curator-unscoped`) |
+| The curator's write scope (`stagecraft.lorebooks`) and a checkpoint's `background` file | author | Studio Story tab (`[data-so="stagecraft"]`) and Checkpoints → Effects |
+| The background switch itself — the player sees the scene change, never the filename or the effect | player | ST background |
 | DriverPanel in full — Suggest / Probe / Report / Advance / Nudge, unmet gates | author | drawer footer (author view + copilot on) |
 | `/cp` in full (`list`, `state`, `activate`, `set`, `converge`, debug `extract`/`expand`) | author | slash commands |
 

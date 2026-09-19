@@ -1,0 +1,1 @@
+﻿ABORTED after backend process exited: host recorded ECONNREFUSED 127.0.0.1:8888; J3.1 checkpoint wait timed out; J3.6 real extraction failed; operator stopped later bounded waits to recover environment. This attempt is retained and is not counted as a strict completion.

@@ -1,6 +1,6 @@
 import { getContext } from "./context";
 import type { HostSlashCommand } from "./hostTypes";
-import { getWorldInfoSettings, type Lorebook } from "./worldInfo";
+import { listAllLorebooks, listSelectedLorebooks, type Lorebook } from "./worldInfo";
 
 const trim = (value: string | null | undefined) => value?.trim() ?? "";
 
@@ -20,10 +20,15 @@ export type HostSlashCommandMeta = {
   helpString?: string;
 };
 
-// The *active* global books — what a story's `requirements.lorebooks` is satisfied by.
+// The *active* global books — what a story's `requirements.lorebooks` is satisfied by. Two host
+// quirks decide how this is read (v2.1 plan 07 live findings): activation lands in
+// `selected_world_info` and only reaches `world_info.globalSelect` on a debounced save, and deleting
+// a book leaves its name behind in the selection — so read the live array and intersect it with the
+// books that actually exist, or a requirement goes green over a lorebook that is gone.
 export function listGlobalLorebooks(): string[] {
-  const settings = getWorldInfoSettings() as { world_info?: { globalSelect?: string[] } };
-  return uniq((settings.world_info?.globalSelect ?? []).map((name: string) => trim(name)).filter(Boolean));
+  const existing = new Set(listAllLorebooks().map((name) => name.toLowerCase()));
+  const selected = uniq(listSelectedLorebooks().map((name) => trim(name)).filter(Boolean));
+  return existing.size ? selected.filter((name) => existing.has(name.toLowerCase())) : selected;
 }
 
 // Every book that exists, active or not — the set create-only validation must use. Lives in

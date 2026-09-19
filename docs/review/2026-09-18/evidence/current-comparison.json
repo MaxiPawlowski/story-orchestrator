@@ -1,0 +1,20 @@
+{
+  "snapshotCreatedUtc": "2026-09-18T22:35:48.0531964Z",
+  "baselineRevision": "0a094e58734df99c287e0356b42407dd9e3e95e1",
+  "sourceManifest": {
+    "fileCount": 407,
+    "sha256": "7e979f6fdf8f897591ed8993618dcf18cd97184b11998bb6cb9209514ecf4d52",
+    "path": "evidence/current-source-sha256.tsv"
+  },
+  "harnesses": {
+    "reviewRegression": "bde52da0eaee373c1d45ce499fbdbb4075019e18c1d6a2a8a9ddbecf4f211510",
+    "memoryEngine": "7f2292cfcc612ae25e4290db96f52b72a231c71bb95663cb9d0b602b31bf2cc0"
+  },
+  "baselineRegression": { "passed": 4, "failed": 9, "total": 13 },
+  "currentRegression": { "passed": 5, "failed": 8, "total": 13 },
+  "fixedInCurrent": ["R3"],
+  "stillFailingInCurrent": ["R1", "R2", "R4", "R5", "R6", "R7", "R8", "R9", "M1", "M2", "M3", "M4", "M5", "M6", "M7", "E1"],
+  "currentMemoryEngine": { "passed": 6, "failed": 8, "total": 14 },
+  "hostStateTouched": false,
+  "activeIsolatedSourceUpdatedFromCurrent": false
+}

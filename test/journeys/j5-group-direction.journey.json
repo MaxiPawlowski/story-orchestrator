@@ -19,7 +19,7 @@
   },
   "capabilities": {
     "talk-control": "typeof globalThis.storyOrchestratorRuntime?.getTalkState === 'function' && typeof globalThis.talkControlInterceptor === 'function'",
-    "epistemic-present": "(globalThis.storyOrchestratorRuntime?.getEpistemic?.() ?? []).length > 0"
+    "epistemic-ledger": "typeof globalThis.storyOrchestratorRuntime?.runEpistemicLedgerPass === 'function' && typeof globalThis.storyOrchestratorRuntime?.onMemberDrafted === 'function'"
   },
   "checks": [
     {
@@ -104,7 +104,7 @@
         },
         {
           "wait": {
-            "idle": true,
+            "talkDecisions": 1,
             "timeoutMs": 240000
           }
         },
@@ -135,11 +135,20 @@
       ],
       "goal": "private per-speaker injection: the drafted member sees their own epistemic block, not another's",
       "requires": [
-        "epistemic-present"
+        "epistemic-ledger"
       ],
       "steps": [
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const epistemic = rt.getEpistemic(); const subject = epistemic[0].subject; const character = (ctx.characters ?? []).findIndex((c) => c.name === subject); if (character < 0) throw new Error(`no character card for epistemic subject ${subject}`); rt.onMemberDrafted(character); const blocks = rt.getMemoryInjectionBlocks(); const text = JSON.stringify(blocks); rt.clearPrivateInjection(); const others = epistemic.filter((e) => e.subject !== subject); const leaked = others.find((e) => text.includes(e.content)); if (leaked) throw new Error(`private block leaked ${leaked.subject}'s knowledge to ${subject}`); return { subject, blocks: blocks.length };"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; rt.setEpistemicLedgerCapable(true); rt.setMemorySettings({ enabled: true }); return rt.getSnapshot().memory.settings.epistemicLedgerCapable;"
+        },
+        {
+          "slash": "/send compact=true Ponticius quietly pocketed the sealed client letter and told nobody in the hall that the job comes from the Duke's steward; he means to keep that from Arin. Arin, meanwhile, saw the north road wash out on her way in and has said nothing about it to Ponticius."
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const chat = SillyTavern.getContext().chat; const subjects = () => new Set(rt.getEpistemic().filter((e) => !e.supersededBy).map((e) => e.subject)); for (let attempt = 0; attempt < 2 && subjects().size < 2; attempt += 1) { const to = chat.length - 1; const from = Math.max(0, to - 3); await rt.runEpistemicLedgerPass({ id: `j5-epistemic-${attempt}`, createdAt: new Date().toISOString(), priority: 0, reason: 'manual', contractHash: 'j5', scope: [], window: { from, to }, prompt: 'j5', rawResponse: 'j5', acceptedDeltas: [], rejected: [], sceneBreak: { at: to, reason: 'divider' } }); } const entries = rt.getEpistemic().filter((e) => !e.supersededBy); const found = [...subjects()]; if (found.length < 2) throw new Error(`the real epistemic pass produced fewer than two subjects: ${JSON.stringify(entries.map((e) => e.tag + ':' + e.subject))}`); return { subjects: found, tags: entries.map((e) => e.tag + ':' + e.subject) };"
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const entries = rt.getEpistemic().filter((e) => !e.supersededBy); const named = entries.filter((e) => (ctx.characters ?? []).some((c) => c.name === e.subject)); const subjects = [...new Set(named.map((e) => e.subject))]; if (subjects.length < 2) throw new Error(`fewer than two epistemic subjects have character cards: ${JSON.stringify([...new Set(entries.map((e) => e.subject))])}`); const read = () => ctx.extensionPrompts?.story_orchestrator_epistemic?.value ?? ''; const blocks = {}; for (const subject of subjects.slice(0, 2)) { const chId = (ctx.characters ?? []).findIndex((c) => c.name === subject); rt.onMemberDrafted(chId); const block = read(); const own = named.filter((e) => e.subject === subject); if (!own.some((e) => block.includes(e.content))) throw new Error(`${subject} was drafted but their own private block was not injected: ${JSON.stringify({ block, own: own.map((e) => e.content) })}`); const lines = block.split('\\n').filter((line) => line.startsWith('- ')); const foreign = lines.filter((line) => !own.some((e) => line.includes(e.content))); if (foreign.length) throw new Error(`${subject}'s private block carries lines that are not theirs: ${JSON.stringify({ foreign, own: own.map((e) => e.tag + ': ' + e.content) })}`); blocks[subject] = block; } rt.clearPrivateInjection(); const [a, b] = Object.keys(blocks); if (blocks[a] === blocks[b]) throw new Error(`both members were injected the same private block, so it is not per-speaker: ${blocks[a]}`); return { subjects: [a, b], lengths: { [a]: blocks[a].length, [b]: blocks[b].length } };"
         }
       ]
     },

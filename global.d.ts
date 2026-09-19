@@ -53,4 +53,5 @@ declare global {
   var storyOrchestratorDebugLedgerResponse: string | null | undefined;
   var storyOrchestratorDebugCopilotResponse: string | null | undefined;
   var storyOrchestratorDebugDirectorResponse: string | null | undefined;
+  var storyOrchestratorDebugCuratorResponse: string | null | undefined;
 }

@@ -1,6 +1,7 @@
 import type { ApplyQueueEntry, BoundaryLogEntry, EngineState, ValidationError } from "@engine/index";
 import type { DriverContext } from "@copilot/index";
 import type { LedgerView } from "@memory/index";
+import { curatorLorebooks } from "@stagecraft/index";
 import { buildConvergenceReadout, buildLastTransition, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot } from "./snapshot";
 import { buildNarrativeStatus, type RollbackNotice } from "./narrative";
 import { derivePipelineStatus } from "./pipeline";
@@ -89,6 +90,8 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     copilot: extras.copilot,
     ui: extras.ui,
     talk: extras.talk,
+    stagecraft: extras.stagecraft,
+    stagecraftScope: curatorLorebooks(story),
     pendingDeltas,
     convergence: buildConvergenceReadout(story, state),
     tension,

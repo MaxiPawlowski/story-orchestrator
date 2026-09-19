@@ -1,0 +1,113 @@
+{
+  "format": 2,
+  "id": "so-slash-quoting-probe",
+  "version": 1,
+  "title": "SO Slash Quoting Probe",
+  "description": "Live check: text with pipes, quotes, backslashes, newlines and macro braces reaches ST verbatim through our slash commands.",
+  "qualities": [
+    {
+      "key": "go_tricky",
+      "type": "bool",
+      "source": "code",
+      "rubric": "Test switch."
+    },
+    {
+      "key": "go_announced",
+      "type": "bool",
+      "source": "code",
+      "rubric": "Test switch."
+    },
+    {
+      "key": "go_cleared",
+      "type": "bool",
+      "source": "code",
+      "rubric": "Test switch."
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Begin.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "tricky",
+      "name": "Tricky",
+      "objective": "Tricky note and line.",
+      "type": "intermediate",
+      "effects": {
+        "author_note": {
+          "text": "SO-QUOTE-PROBE a | b || c\nline two \"quoted\" and \\\"pre-escaped\\\" C:\\path\\to\\ {{char}} {: /echo x :} \\n-literal\nlast line ends with backslash \\",
+          "position": "chat",
+          "depth": 0,
+          "interval": 1,
+          "role": "system"
+        },
+        "npc_replies": [
+          {
+            "trigger": "onEnter",
+            "member": "DM Narrator",
+            "kind": "scripted",
+            "text": "SO-QUOTE-NPC \"Halt\" | who goes\nthere? back\\slash \\n-literal",
+            "maxTriggers": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "announced",
+      "name": "Quote | \"Probe\" {x}",
+      "objective": "first line\nsecond | line",
+      "type": "intermediate"
+    },
+    {
+      "id": "cleared",
+      "name": "Cleared",
+      "objective": "Note cleared.",
+      "type": "anchor",
+      "effects": {
+        "author_note": null
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "tricky",
+      "priority": 1,
+      "gate": {
+        "q": "go_tricky",
+        "op": "==",
+        "v": true
+      }
+    },
+    {
+      "from": "tricky",
+      "to": "announced",
+      "priority": 1,
+      "gate": {
+        "q": "go_announced",
+        "op": "==",
+        "v": true
+      }
+    },
+    {
+      "from": "announced",
+      "to": "cleared",
+      "priority": 1,
+      "gate": {
+        "q": "go_cleared",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": [
+    {
+      "id": "DM Narrator",
+      "name": "DM Narrator"
+    }
+  ]
+}

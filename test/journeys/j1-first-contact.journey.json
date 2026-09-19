@@ -19,7 +19,7 @@
   },
   "capabilities": {
     "global-extraction-settings": "typeof globalThis.storyOrchestratorRuntime?.getGlobalSettings === 'function'",
-    "first-run-path": "Boolean(document.querySelector('#so-first-run'))"
+    "first-run-path": "Boolean(document.querySelector('#so-new-story-wizard'))"
   },
   "checks": [
     {
@@ -92,11 +92,34 @@
       ],
       "steps": [
         {
+          "ui": {
+            "action": "open-settings"
+          }
+        },
+        {
           "expect_ui": {
-            "selector": "#so-first-run",
+            "selector": "#story-orchestrator-settings",
             "contains": [
-              "Start"
+              "New story (wizard)"
             ]
+          }
+        },
+        {
+          "ui": {
+            "action": "new-story-wizard"
+          }
+        },
+        {
+          "expect_ui": {
+            "selector": "#so-wizard",
+            "contains": [
+              "premise"
+            ]
+          }
+        },
+        {
+          "ui": {
+            "action": "close-studio"
           }
         }
       ]

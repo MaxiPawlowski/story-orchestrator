@@ -1,0 +1,264 @@
+{
+  "before": {
+    "active": "Graph",
+    "selected": [
+      "Qualities"
+    ]
+  },
+  "afterArrow": {
+    "active": "Graph",
+    "selected": [
+      "Qualities"
+    ]
+  },
+  "afterTab": {
+    "active": "Story",
+    "selected": [
+      "Qualities"
+    ]
+  },
+  "trace": [
+    {
+      "tag": "BUTTON",
+      "label": "Qualities",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "Checkpoints",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "Transitions",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "Roster",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "Diagnostics",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "Wizard",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "+ Quality",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "trustint",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "routeenum",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "alarmbool",
+      "inDialog": true
+    },
+    {
+      "tag": "INPUT",
+      "label": "",
+      "inDialog": true
+    },
+    {
+      "tag": "SELECT",
+      "label": "intfloatboolenumstring",
+      "inDialog": true
+    },
+    {
+      "tag": "SELECT",
+      "label": "codeextractor",
+      "inDialog": true
+    },
+    {
+      "tag": "INPUT",
+      "label": "",
+      "inDialog": true
+    },
+    {
+      "tag": "INPUT",
+      "label": "",
+      "inDialog": true
+    },
+    {
+      "tag": "TEXTAREA",
+      "label": "How much the guide trusts the party, 0-5.",
+      "inDialog": true
+    },
+    {
+      "tag": "SELECT",
+      "label": "— none —ApproachInfiltrateThe Cache",
+      "inDialog": true
+    },
+    {
+      "tag": "SELECT",
+      "label": "— none —ApproachInfiltrateThe Cache",
+      "inDialog": true
+    },
+    {
+      "tag": "INPUT",
+      "label": "",
+      "inDialog": true
+    },
+    {
+      "tag": "INPUT",
+      "label": "",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "Delete quality",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "Export JSON",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "Import JSON",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "Save",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "Save As",
+      "inDialog": true
+    },
+    {
+      "tag": "INPUT",
+      "label": "Story title",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "Close studio",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "Graph",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "Story",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "Qualities",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "Checkpoints",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "Transitions",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "Roster",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "Diagnostics",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "Wizard",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "+ Quality",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "trustint",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "routeenum",
+      "inDialog": true
+    },
+    {
+      "tag": "BUTTON",
+      "label": "alarmbool",
+      "inDialog": true
+    },
+    {
+      "tag": "INPUT",
+      "label": "",
+      "inDialog": true
+    },
+    {
+      "tag": "SELECT",
+      "label": "intfloatboolenumstring",
+      "inDialog": true
+    },
+    {
+      "tag": "SELECT",
+      "label": "codeextractor",
+      "inDialog": true
+    },
+    {
+      "tag": "INPUT",
+      "label": "",
+      "inDialog": true
+    },
+    {
+      "tag": "INPUT",
+      "label": "",
+      "inDialog": true
+    },
+    {
+      "tag": "TEXTAREA",
+      "label": "How much the guide trusts the party, 0-5.",
+      "inDialog": true
+    }
+  ],
+  "textScale": {
+    "width": 390,
+    "documentWidth": 390,
+    "dialog": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844,
+      "top": 0,
+      "right": 390,
+      "bottom": 844,
+      "left": 0
+    }
+  },
+  "escapeClosed": false,
+  "htmlMarker": 1,
+  "note": "Marker used an independent blank browser page, not the host. HTML source string matches R7. Text scaling is not browser zoom."
+}

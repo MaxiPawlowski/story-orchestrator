@@ -1,0 +1,20 @@
+﻿{
+    "tested":  "2026-09-18T22:44:07.6435825Z",
+    "backendRestarted":  true,
+    "idleAutoloadWithinSeconds":  180,
+    "idleAutoload":  false,
+    "autoloadTrigger":  "first authenticated OpenAI-compatible request",
+    "coldRequestStatus":  200,
+    "coldRequestSeconds":  39.746,
+    "model":  "TheDrummer/Artemis-31B-v1.1-GGUF:Q4_K_M",
+    "settings":  {
+                     "context":  32768,
+                     "kvCache":  "q8_0",
+                     "parallelSlots":  1,
+                     "nUbatch":  128,
+                     "speculative":  "off",
+                     "thinking":  false
+                 },
+    "sourceLog":  "isolated logs/studio-restart.out.log",
+    "secretRedacted":  true
+}

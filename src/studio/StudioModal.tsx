@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { listGlobalLorebooks, listGroupMembers, listPersonas, showConfirmPopup } from "@services/STAPI";
+import { listBackgrounds, listGlobalLorebooks, listGroupMembers, listPersonas, showConfirmPopup } from "@services/STAPI";
 import type { AuthoringStageInput, CopilotStage, ProposalResult } from "@copilot/index";
 import { useDraftStore } from "./draft";
 import { setStoryField } from "./mutations";
@@ -38,13 +38,14 @@ export interface StudioHostOptions {
   personaNames: string[];
   memberNames: string[];
   lorebookNames: string[];
+  backgroundNames: string[];
 }
 
 // The pickers are a convenience, never a dependency: a Studio opened with no host around still
 // authors every field by hand.
 const readHostOptions = (): StudioHostOptions => {
   const safe = (read: () => string[]) => { try { return read(); } catch { return []; } };
-  return { personaNames: safe(listPersonas), memberNames: safe(listGroupMembers), lorebookNames: safe(listGlobalLorebooks) };
+  return { personaNames: safe(listPersonas), memberNames: safe(listGroupMembers), lorebookNames: safe(listGlobalLorebooks), backgroundNames: safe(listBackgrounds) };
 };
 
 type Props = {
@@ -118,7 +119,7 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
   const renderTab = () => {
     if (activeTab === "story") return <StoryEditor personaNames={options.personaNames} memberNames={options.memberNames} lorebookNames={options.lorebookNames} idLocked={idLocked} />;
     if (activeTab === "qualities") return <QualityEditor />;
-    if (activeTab === "checkpoints") return <CheckpointEditor />;
+    if (activeTab === "checkpoints") return <CheckpointEditor backgroundNames={options.backgroundNames} />;
     if (activeTab === "transitions") return <TransitionEditor />;
     if (activeTab === "roster") return <RosterEditor memberNames={options.memberNames} />;
     if (activeTab === "diagnostics") return <DiagnosticsPanel />;
@@ -140,7 +141,6 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
     <dialog
       ref={dialogRef}
       id="so-studio-modal"
-      className="st-modal-overlay fixed inset-0 z-[4100] p-4"
       aria-label="Checkpoint Studio"
       onKeyDown={handleKeyDown}
       onCancel={(event) => { event.preventDefault(); void requestClose(); }}

@@ -1,0 +1,27 @@
+Current snapshot source drift relative to preserved isolated baseline
+
+ADDED src/extraction/client.test.ts
+ADDED src/runtime/memoryMirror.test.ts
+ADDED src/runtime/memoryMirror.ts
+ADDED src/services/stHost/authorNotes.test.ts
+ADDED src/services/stHost/worldInfo.test.ts
+CHANGED src/extraction/client.ts
+CHANGED src/extraction/parse.test.ts
+CHANGED src/extraction/parse.ts
+CHANGED src/runtime/coordinators/memoryCoordinator.ts
+CHANGED src/runtime/coordinators/stagecraftCoordinator.ts
+CHANGED src/runtime/effectsApplier.test.ts
+CHANGED src/runtime/extras.ts
+CHANGED src/runtime/runtimeManager.test.ts
+CHANGED src/runtime/runtimeManager.ts
+CHANGED src/runtime/types.ts
+CHANGED src/services/STAPI.ts
+CHANGED src/services/stHost/authorNotes.ts
+CHANGED src/services/stHost/hostTypes.ts
+CHANGED src/services/stHost/worldInfo.ts
+CHANGED src/studio/components/CheckpointEditor.stories.tsx
+CHANGED src/studio/components/EffectsEditor.tsx
+CHANGED src/wizard/provisioning.ts
+DELETED src/runtime/reviewRegression.test.ts
+
+Comparison was by SHA-256 for files in the separate snapshot, excluding the two injected *.current.test.ts harness copies.

@@ -1,0 +1,78 @@
+{
+  "steps": [
+    {
+      "import_story": {
+        "file": "../journeys/j8-stagecraft.story.json"
+      }
+    },
+    {
+      "ui": {
+        "action": "select-profile"
+      }
+    },
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const rt = globalThis.storyOrchestratorRuntime; const settings = rt.getStagecraftState().settings; if (!settings.curatorEnabled || settings.acceptMode !== 'review') throw new Error('this check reuses the install as it is and needs the curator on in review mode: ' + JSON.stringify(settings)); const lorebook = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-J8 Lore' }, { requirements: { lorebooks: [] } }); if (!lorebook.ok && !lorebook.message.includes('already exists')) throw new Error(`could not create the story lorebook: ${lorebook.message}`); const entry = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook: 'SO-J8 Lore', comment: 'The washed road', keys: ['road', 'flood'], content: 'The road to the tavern is flooded and impassable; nobody has crossed it in a week.', constant: true }, { requirements: { lorebooks: ['SO-J8 Lore'] } }); if (!entry.ok) throw new Error(`could not write the story lorebook entry: ${entry.message}`); const ctx = SillyTavern.getContext(); const wi = await import('/scripts/world-info.js'); globalThis.__soCurator = { log: [{ setup: { lorebook: lorebook.message, entry: entry.message, listed: ctx.getWorldInfoNames().includes('SO-J8 Lore'), active: wi.selected_world_info.includes('SO-J8 Lore') } }] }; return globalThis.__soCurator.log[0];"
+    },
+    {
+      "eval": "const c = SillyTavern.getContext(); if (globalThis.__soCuratorPromptHandler) c.eventSource.removeListener(c.eventTypes.GENERATE_AFTER_DATA, globalThis.__soCuratorPromptHandler); globalThis.__soCuratorPrompts = []; globalThis.__soCuratorPromptHandler = (data, dryRun) => { if (!dryRun) globalThis.__soCuratorPrompts.push(JSON.stringify(data ?? null)); }; c.eventSource.on(c.eventTypes.GENERATE_AFTER_DATA, globalThis.__soCuratorPromptHandler); return { armed: true };"
+    },
+    {
+      "send_generate": {
+        "text": "By morning the flood has drained off the road, leaving only mud and driftwood. The courier steps onto the bare stones and walks across to the tavern door.",
+        "timeoutMs": 180000
+      }
+    },
+    {
+      "eval": "const prompts = globalThis.__soCuratorPrompts ?? []; if (!prompts.length) throw new Error('no main-generation prompt was captured'); const ctx = SillyTavern.getContext(); const server = await fetch('/api/worldinfo/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: 'SO-J8 Lore' }) }).then((r) => r.json()); const live = Object.values(server.entries ?? {}).find((candidate) => candidate.comment === 'The washed road'); if (!live) throw new Error('the story lorebook entry is missing from the server file before the curator ran'); if (live.disable) throw new Error('the story lorebook entry is already switched off before the curator ran'); const escape = (text) => JSON.stringify(String(text).trim()).slice(1, -1); const missing = prompts.filter((body) => !body.includes(escape(live.content))).length; if (missing) throw new Error(`the untouched entry is missing from ${missing} of ${prompts.length} prompt(s), so what the curator changes could never be seen: ${prompts[prompts.length - 1].slice(0, 400)}`); const out = { control: { prompts: prompts.length, content: String(live.content).slice(0, 120) } }; globalThis.__soCurator.log.push(out); return out;",
+      "log": true
+    },
+    {
+      "extract": {
+        "reason": "live-write"
+      }
+    },
+    {
+      "copilot": {
+        "action": "advance",
+        "id": "tavern"
+      }
+    },
+    {
+      "expect": {
+        "activeCheckpoint": "tavern"
+      }
+    },
+    {
+      "stagecraft": {
+        "action": "curate",
+        "reason": "live-write",
+        "expectProposal": true,
+        "expectOps": 1,
+        "attempts": 3
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const proposals = rt.getStagecraftState().proposals; const target = proposals[proposals.length - 1]; await rt.decideCuratorProposal(target.id, 'accepted'); const accepted = rt.getStagecraftState().proposals.find((record) => record.id === target.id); globalThis.__soCurator.id = target.id; const out = { raw: rt.getStagecraftState().lastPass?.rawResponse ?? null, ops: accepted.ops.map((entry) => ({ op: entry.op, status: entry.status })) }; globalThis.__soCurator.log.push(out); return out;",
+      "log": true
+    },
+    {
+      "stagecraft": {
+        "action": "apply"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const record = rt.getStagecraftState().proposals.find((candidate) => candidate.id === globalThis.__soCurator.id); const applied = record.ops.filter((entry) => entry.status === 'applied'); if (!applied.length) throw new Error('nothing was applied: ' + JSON.stringify(record.ops.map((entry) => ({ kind: entry.op.kind, status: entry.status, message: entry.message })))); const server = await fetch('/api/worldinfo/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: 'SO-J8 Lore' }) }).then((r) => r.json()); const live = Object.values(server.entries ?? {}).find((candidate) => candidate.comment === 'The washed road'); if (!live) throw new Error('the entry is gone from the server file'); const texts = applied.filter((entry) => entry.op.kind === 'rewrite' || entry.op.kind === 'patch'); const flips = applied.filter((entry) => entry.op.kind === 'enable' || entry.op.kind === 'disable'); for (const entry of texts) { const want = entry.op.kind === 'rewrite' ? entry.op.text : entry.op.replace; if (!String(live.content).includes(want)) throw new Error(`the ${entry.op.kind} did not reach the server file: ${live.content}`); } const wantDisabled = flips.length ? flips[flips.length - 1].op.kind === 'disable' : Boolean(texts[0]?.before?.disabled); if (Boolean(live.disable) !== wantDisabled) throw new Error(`expected disable=${wantDisabled} on the server, got ${live.disable}`); const out = { applied: applied.map((entry) => entry.op.kind), server: { content: live.content, disable: Boolean(live.disable) }, wantDisabled }; globalThis.__soCurator.log.push(out); globalThis.__soCurator.expect = { disabled: wantDisabled, content: String(live.content) }; globalThis.__soCuratorPrompts.length = 0; return out;",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "The courier pushes the tavern door open and looks for the innkeeper.",
+        "timeoutMs": 180000
+      }
+    },
+    {
+      "eval": "const c = SillyTavern.getContext(); c.eventSource.removeListener(c.eventTypes.GENERATE_AFTER_DATA, globalThis.__soCuratorPromptHandler); delete globalThis.__soCuratorPromptHandler; const prompts = globalThis.__soCuratorPrompts ?? []; delete globalThis.__soCuratorPrompts; if (!prompts.length) throw new Error('no main-generation prompt was captured'); const { disabled, content } = globalThis.__soCurator.expect; const escape = (text) => JSON.stringify(String(text).trim()).slice(1, -1); const present = prompts.filter((body) => body.includes(escape(content))).length; if (disabled && present) throw new Error(`a switched-off entry still reached ${present} of ${prompts.length} prompt(s)`); if (!disabled && present < prompts.length) throw new Error(`the written entry is missing from ${prompts.length - present} of ${prompts.length} prompt(s): ${prompts[prompts.length - 1].slice(0, 400)}`); const out = { prompts: prompts.length, disabled, inPrompt: present }; globalThis.__soCurator.log.push(out); return out;",
+      "log": true
+    }
+  ]
+}

@@ -60,7 +60,7 @@ const ArcBridgesPanel: React.FC = () => {
   );
 };
 
-const CheckpointEditor: React.FC = () => {
+const CheckpointEditor: React.FC<{ backgroundNames?: string[] }> = ({ backgroundNames = [] }) => {
   const draft = useDraftStore((state) => state.draft);
   const mutate = useDraftStore((state) => state.mutate);
   const checkpoints = draft.checkpoints;
@@ -186,6 +186,7 @@ const CheckpointEditor: React.FC = () => {
                 <EffectsEditor
                   effects={selected.effects ?? {}}
                   roster={draft.roster}
+                  backgroundNames={backgroundNames}
                   onChange={(next: CheckpointEffects) => patch({ effects: Object.keys(next).length ? next : undefined })}
                 />
               </div>

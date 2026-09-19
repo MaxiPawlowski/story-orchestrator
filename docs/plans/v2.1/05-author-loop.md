@@ -98,6 +98,11 @@ audits and the journal are untouched.
   anchor picker / amount) — and **Roster** (`data-so="roster"`, id + character name rows), which is
   what every cast picker reads, so `talk_control`/`npc_replies`/`cast_changes` are no longer empty
   for a Studio-born story. `.stories.tsx` for both.
+- **Extended by plan 07**: format-2 gained `stagecraft.lorebooks` (the background curator's write
+  allowlist) and `effects.background`, so "a whole story is authorable in the Studio" now also means
+  the Story tab's **Stagecraft** panel (`[data-so="stagecraft"]`) and the Effects editor's
+  **Background** section, with `setStagecraft` joining the copilot op union at parity. J2.3 asserts
+  both. Nothing else in this plan's completeness claim changed.
 - **`requirements` is typed** (`StoryRequirements {personas?, members?, lorebooks?}`) and authored
   aliases (`persona`, `groupMembers`, `group_members`, `globalLorebooks`, `global_lorebooks`)
   normalize at parse time, so `runtime/requirements.ts`, the editor and plan 06's wizard read one

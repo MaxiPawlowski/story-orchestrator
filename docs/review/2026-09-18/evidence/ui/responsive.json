@@ -1,0 +1,659 @@
+[
+  {
+    "id": "drawer-drawertabs--player-view",
+    "width": 1440,
+    "height": 900,
+    "documentWidth": 1440,
+    "viewport": 1440,
+    "controls": 4,
+    "offscreenControls": [],
+    "text": "Overview\nMemory\n⚑\nWhere you are\nThe Ruined Gate\nBreach the sanctum.\nThe scene is tense.\nRecently\nYou left Camp behind and moved into The Ruined Gate.\nThe story so far\nThe party crossed the dunes and reached the gate.\nNoted\n1 thing the story picked up — they take effect on the next turn.\nFollowing along.\nRestart story",
+    "tabs": [
+      {
+        "label": "Overview",
+        "tabIndex": 0,
+        "selected": "true"
+      },
+      {
+        "label": "Memory",
+        "tabIndex": 0,
+        "selected": "false"
+      }
+    ],
+    "errors": [],
+    "image": "drawer-drawertabs--player-view-1440.png"
+  },
+  {
+    "id": "drawer-drawertabs--player-memory",
+    "width": 1440,
+    "height": 900,
+    "documentWidth": 1440,
+    "viewport": 1440,
+    "controls": 13,
+    "offscreenControls": [],
+    "text": "Overview\nMemory\n⚑\nWhat the story remembers\nMemorize chat\nRead the whole chat history into memory.\nFacts (1)\nThe sun-key opens the inner sanctum. 📌\nUnpin\nEdit\nExclude\nSession details (1)\nArin sprained her wrist on the dunes.\nPin\nEdit\nExclude\nScene history (1)\nCrossed the singing dunes at dusk.\nPin\nEdit\nExclude",
+    "tabs": [
+      {
+        "label": "Overview",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Memory",
+        "tabIndex": 0,
+        "selected": "true"
+      }
+    ],
+    "errors": [],
+    "image": "drawer-drawertabs--player-memory-1440.png"
+  },
+  {
+    "id": "drawer-drawertabs--not-configured",
+    "width": 1440,
+    "height": 900,
+    "documentWidth": 1440,
+    "viewport": 1440,
+    "controls": 5,
+    "offscreenControls": [],
+    "text": "Overview\nMemory\n⚑\nWhere you are\nThe Ruined Gate\nBreach the sanctum.\nThe scene is tense.\nRecently\nYou left Camp behind and moved into The Ruined Gate.\nThe story so far\nThe party crossed the dunes and reached the gate.\nNothing is following the story yet — choose a memory model in the extension settings.\nOpen story settings\nRestart story",
+    "tabs": [
+      {
+        "label": "Overview",
+        "tabIndex": 0,
+        "selected": "true"
+      },
+      {
+        "label": "Memory",
+        "tabIndex": 0,
+        "selected": "false"
+      }
+    ],
+    "errors": [],
+    "image": "drawer-drawertabs--not-configured-1440.png"
+  },
+  {
+    "id": "drawer-stagecraftpanel--awaiting-review",
+    "width": 1440,
+    "height": 900,
+    "documentWidth": 1440,
+    "viewport": 1440,
+    "controls": 3,
+    "offscreenControls": [],
+    "text": "World Info curator\nWatching Xentar Checkpoints · changes wait for you\nThe gate was breached, so the ward entry is out of date.\ngate · checkpoint · boundary 4\npatch \"The dawn wards\" at “The wards hold || until dawn” · waiting for you\nAccept\nDecline\ndropped — rewrite: \"Sanctum floor\" is not an entry this story owns",
+    "tabs": [],
+    "errors": [],
+    "image": "drawer-stagecraftpanel--awaiting-review-1440.png"
+  },
+  {
+    "id": "studio-studiomodal--seeded",
+    "width": 1440,
+    "height": 900,
+    "documentWidth": 1440,
+    "viewport": 1440,
+    "controls": 32,
+    "offscreenControls": [],
+    "text": "Checkpoint Studio\nClose\nGraph\nStory\nQualities\nCheckpoints\nTransitions\nRoster\nDiagnostics\nWizard\n+ Quality\ntrust\nint\nroute\nenum\nalarm\nbool\nKey\nType\nint\nfloat\nbool\nenum\nstring\nSource\ncode\nextractor\nLatching\nMonotonic\nRubric\nScope hint from\n— none —\nApproach\nInfiltrate\nThe Cache\nScope hint until\n— none —\nApproach\nInfiltrate\nThe Cache\nLedger entity\nLedger field\nDelete quality\nUndo\nRedo\nExport JSON\nImport JSON\nSave\nSave As\nReset Draft",
+    "tabs": [
+      {
+        "label": "Graph",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Story",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Qualities",
+        "tabIndex": 0,
+        "selected": "true"
+      },
+      {
+        "label": "Checkpoints",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Transitions",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Roster",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Diagnostics",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Wizard",
+        "tabIndex": 0,
+        "selected": "false"
+      }
+    ],
+    "errors": [],
+    "image": "studio-studiomodal--seeded-1440.png"
+  },
+  {
+    "id": "studio-studiomodal--empty",
+    "width": 1440,
+    "height": 900,
+    "documentWidth": 1440,
+    "viewport": 1440,
+    "controls": 23,
+    "offscreenControls": [],
+    "text": "Checkpoint Studio\nClose\nGraph\nStory\nQualities\nCheckpoints\nTransitions\nRoster\nDiagnostics\nWizard\nNothing authored yet. The wizard can take you from a one-line premise to a playable story.\nStart with the wizard\nGraph\n+ Checkpoint\n+ Transition\nRe-layout\nBreadthfirst\nGrid\nCOSE\nDagre\nMermaid export\nUndo\nRedo\nExport JSON\nImport JSON\nSave\nSave As\nReset Draft",
+    "tabs": [
+      {
+        "label": "Graph",
+        "tabIndex": 0,
+        "selected": "true"
+      },
+      {
+        "label": "Story",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Qualities",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Checkpoints",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Transitions",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Roster",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Diagnostics",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Wizard",
+        "tabIndex": 0,
+        "selected": "false"
+      }
+    ],
+    "errors": [],
+    "image": "studio-studiomodal--empty-1440.png"
+  },
+  {
+    "id": "studio-studiocopilot--interviews-before-proposing",
+    "width": 1440,
+    "height": 900,
+    "documentWidth": 1440,
+    "viewport": 1440,
+    "controls": 10,
+    "offscreenControls": [],
+    "text": "Qualities\nCheckpoints\nTransitions\nEffects & Cast\nProvisioning\nDescribe your premise. The wizard proposes what this story measures.\nYoua heist, but strange\nWizardTwo calls would change the shape.\nYouComic or grim? → grim\nWizardAdd a morale quality.\nqualities\nAdd a morale quality.\nAccept all\nDismiss\nadd\nAdd quality \"morale\" (int)\nAccept\nWarnings (1)\n'morale' appears in no gate or state_snapshot — it never enters extraction scope, so the extractor is never asked about it\nRun stage",
+    "tabs": [],
+    "errors": [],
+    "image": "studio-studiocopilot--interviews-before-proposing-1440.png"
+  },
+  {
+    "id": "studio-proposalreview--failed",
+    "width": 1440,
+    "height": 900,
+    "documentWidth": 1440,
+    "viewport": 1440,
+    "controls": 1,
+    "offscreenControls": [],
+    "text": "Invalid proposal\nDismiss\ntransitions.0.gate: gate references undeclared quality 'ghost'",
+    "tabs": [],
+    "errors": [],
+    "image": "studio-proposalreview--failed-1440.png"
+  },
+  {
+    "id": "drawer-drawertabs--player-view",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 768,
+    "viewport": 768,
+    "controls": 4,
+    "offscreenControls": [],
+    "text": "Overview\nMemory\n⚑\nWhere you are\nThe Ruined Gate\nBreach the sanctum.\nThe scene is tense.\nRecently\nYou left Camp behind and moved into The Ruined Gate.\nThe story so far\nThe party crossed the dunes and reached the gate.\nNoted\n1 thing the story picked up — they take effect on the next turn.\nFollowing along.\nRestart story",
+    "tabs": [
+      {
+        "label": "Overview",
+        "tabIndex": 0,
+        "selected": "true"
+      },
+      {
+        "label": "Memory",
+        "tabIndex": 0,
+        "selected": "false"
+      }
+    ],
+    "errors": [],
+    "image": "drawer-drawertabs--player-view-768.png"
+  },
+  {
+    "id": "drawer-drawertabs--player-memory",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 768,
+    "viewport": 768,
+    "controls": 13,
+    "offscreenControls": [],
+    "text": "Overview\nMemory\n⚑\nWhat the story remembers\nMemorize chat\nRead the whole chat history into memory.\nFacts (1)\nThe sun-key opens the inner sanctum. 📌\nUnpin\nEdit\nExclude\nSession details (1)\nArin sprained her wrist on the dunes.\nPin\nEdit\nExclude\nScene history (1)\nCrossed the singing dunes at dusk.\nPin\nEdit\nExclude",
+    "tabs": [
+      {
+        "label": "Overview",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Memory",
+        "tabIndex": 0,
+        "selected": "true"
+      }
+    ],
+    "errors": [],
+    "image": "drawer-drawertabs--player-memory-768.png"
+  },
+  {
+    "id": "drawer-drawertabs--not-configured",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 768,
+    "viewport": 768,
+    "controls": 5,
+    "offscreenControls": [],
+    "text": "Overview\nMemory\n⚑\nWhere you are\nThe Ruined Gate\nBreach the sanctum.\nThe scene is tense.\nRecently\nYou left Camp behind and moved into The Ruined Gate.\nThe story so far\nThe party crossed the dunes and reached the gate.\nNothing is following the story yet — choose a memory model in the extension settings.\nOpen story settings\nRestart story",
+    "tabs": [
+      {
+        "label": "Overview",
+        "tabIndex": 0,
+        "selected": "true"
+      },
+      {
+        "label": "Memory",
+        "tabIndex": 0,
+        "selected": "false"
+      }
+    ],
+    "errors": [],
+    "image": "drawer-drawertabs--not-configured-768.png"
+  },
+  {
+    "id": "drawer-stagecraftpanel--awaiting-review",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 768,
+    "viewport": 768,
+    "controls": 3,
+    "offscreenControls": [],
+    "text": "World Info curator\nWatching Xentar Checkpoints · changes wait for you\nThe gate was breached, so the ward entry is out of date.\ngate · checkpoint · boundary 4\npatch \"The dawn wards\" at “The wards hold || until dawn” · waiting for you\nAccept\nDecline\ndropped — rewrite: \"Sanctum floor\" is not an entry this story owns",
+    "tabs": [],
+    "errors": [],
+    "image": "drawer-stagecraftpanel--awaiting-review-768.png"
+  },
+  {
+    "id": "studio-studiomodal--seeded",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 768,
+    "viewport": 768,
+    "controls": 32,
+    "offscreenControls": [],
+    "text": "Checkpoint Studio\nClose\nGraph\nStory\nQualities\nCheckpoints\nTransitions\nRoster\nDiagnostics\nWizard\n+ Quality\ntrust\nint\nroute\nenum\nalarm\nbool\nKey\nType\nint\nfloat\nbool\nenum\nstring\nSource\ncode\nextractor\nLatching\nMonotonic\nRubric\nScope hint from\n— none —\nApproach\nInfiltrate\nThe Cache\nScope hint until\n— none —\nApproach\nInfiltrate\nThe Cache\nLedger entity\nLedger field\nDelete quality\nUndo\nRedo\nExport JSON\nImport JSON\nSave\nSave As\nReset Draft",
+    "tabs": [
+      {
+        "label": "Graph",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Story",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Qualities",
+        "tabIndex": 0,
+        "selected": "true"
+      },
+      {
+        "label": "Checkpoints",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Transitions",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Roster",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Diagnostics",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Wizard",
+        "tabIndex": 0,
+        "selected": "false"
+      }
+    ],
+    "errors": [],
+    "image": "studio-studiomodal--seeded-768.png"
+  },
+  {
+    "id": "studio-studiomodal--empty",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 768,
+    "viewport": 768,
+    "controls": 23,
+    "offscreenControls": [],
+    "text": "Checkpoint Studio\nClose\nGraph\nStory\nQualities\nCheckpoints\nTransitions\nRoster\nDiagnostics\nWizard\nNothing authored yet. The wizard can take you from a one-line premise to a playable story.\nStart with the wizard\nGraph\n+ Checkpoint\n+ Transition\nRe-layout\nBreadthfirst\nGrid\nCOSE\nDagre\nMermaid export\nUndo\nRedo\nExport JSON\nImport JSON\nSave\nSave As\nReset Draft",
+    "tabs": [
+      {
+        "label": "Graph",
+        "tabIndex": 0,
+        "selected": "true"
+      },
+      {
+        "label": "Story",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Qualities",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Checkpoints",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Transitions",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Roster",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Diagnostics",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Wizard",
+        "tabIndex": 0,
+        "selected": "false"
+      }
+    ],
+    "errors": [],
+    "image": "studio-studiomodal--empty-768.png"
+  },
+  {
+    "id": "studio-studiocopilot--interviews-before-proposing",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 768,
+    "viewport": 768,
+    "controls": 10,
+    "offscreenControls": [],
+    "text": "Qualities\nCheckpoints\nTransitions\nEffects & Cast\nProvisioning\nDescribe your premise. The wizard proposes what this story measures.\nYoua heist, but strange\nWizardTwo calls would change the shape.\nYouComic or grim? → grim\nWizardAdd a morale quality.\nqualities\nAdd a morale quality.\nAccept all\nDismiss\nadd\nAdd quality \"morale\" (int)\nAccept\nWarnings (1)\n'morale' appears in no gate or state_snapshot — it never enters extraction scope, so the extractor is never asked about it\nRun stage",
+    "tabs": [],
+    "errors": [],
+    "image": "studio-studiocopilot--interviews-before-proposing-768.png"
+  },
+  {
+    "id": "studio-proposalreview--failed",
+    "width": 768,
+    "height": 1024,
+    "documentWidth": 768,
+    "viewport": 768,
+    "controls": 1,
+    "offscreenControls": [],
+    "text": "Invalid proposal\nDismiss\ntransitions.0.gate: gate references undeclared quality 'ghost'",
+    "tabs": [],
+    "errors": [],
+    "image": "studio-proposalreview--failed-768.png"
+  },
+  {
+    "id": "drawer-drawertabs--player-view",
+    "width": 390,
+    "height": 844,
+    "documentWidth": 390,
+    "viewport": 390,
+    "controls": 4,
+    "offscreenControls": [],
+    "text": "Overview\nMemory\n⚑\nWhere you are\nThe Ruined Gate\nBreach the sanctum.\nThe scene is tense.\nRecently\nYou left Camp behind and moved into The Ruined Gate.\nThe story so far\nThe party crossed the dunes and reached the gate.\nNoted\n1 thing the story picked up — they take effect on the next turn.\nFollowing along.\nRestart story",
+    "tabs": [
+      {
+        "label": "Overview",
+        "tabIndex": 0,
+        "selected": "true"
+      },
+      {
+        "label": "Memory",
+        "tabIndex": 0,
+        "selected": "false"
+      }
+    ],
+    "errors": [],
+    "image": "drawer-drawertabs--player-view-390.png"
+  },
+  {
+    "id": "drawer-drawertabs--player-memory",
+    "width": 390,
+    "height": 844,
+    "documentWidth": 390,
+    "viewport": 390,
+    "controls": 13,
+    "offscreenControls": [],
+    "text": "Overview\nMemory\n⚑\nWhat the story remembers\nMemorize chat\nRead the whole chat history into memory.\nFacts (1)\nThe sun-key opens the inner sanctum. 📌\nUnpin\nEdit\nExclude\nSession details (1)\nArin sprained her wrist on the dunes.\nPin\nEdit\nExclude\nScene history (1)\nCrossed the singing dunes at dusk.\nPin\nEdit\nExclude",
+    "tabs": [
+      {
+        "label": "Overview",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Memory",
+        "tabIndex": 0,
+        "selected": "true"
+      }
+    ],
+    "errors": [],
+    "image": "drawer-drawertabs--player-memory-390.png"
+  },
+  {
+    "id": "drawer-drawertabs--not-configured",
+    "width": 390,
+    "height": 844,
+    "documentWidth": 390,
+    "viewport": 390,
+    "controls": 5,
+    "offscreenControls": [],
+    "text": "Overview\nMemory\n⚑\nWhere you are\nThe Ruined Gate\nBreach the sanctum.\nThe scene is tense.\nRecently\nYou left Camp behind and moved into The Ruined Gate.\nThe story so far\nThe party crossed the dunes and reached the gate.\nNothing is following the story yet — choose a memory model in the extension settings.\nOpen story settings\nRestart story",
+    "tabs": [
+      {
+        "label": "Overview",
+        "tabIndex": 0,
+        "selected": "true"
+      },
+      {
+        "label": "Memory",
+        "tabIndex": 0,
+        "selected": "false"
+      }
+    ],
+    "errors": [],
+    "image": "drawer-drawertabs--not-configured-390.png"
+  },
+  {
+    "id": "drawer-stagecraftpanel--awaiting-review",
+    "width": 390,
+    "height": 844,
+    "documentWidth": 390,
+    "viewport": 390,
+    "controls": 3,
+    "offscreenControls": [],
+    "text": "World Info curator\nWatching Xentar Checkpoints · changes wait for you\nThe gate was breached, so the ward entry is out of date.\ngate · checkpoint · boundary 4\npatch \"The dawn wards\" at “The wards hold || until dawn” · waiting for you\nAccept\nDecline\ndropped — rewrite: \"Sanctum floor\" is not an entry this story owns",
+    "tabs": [],
+    "errors": [],
+    "image": "drawer-stagecraftpanel--awaiting-review-390.png"
+  },
+  {
+    "id": "studio-studiomodal--seeded",
+    "width": 390,
+    "height": 844,
+    "documentWidth": 390,
+    "viewport": 390,
+    "controls": 32,
+    "offscreenControls": [],
+    "text": "Checkpoint Studio\nClose\nGraph\nStory\nQualities\nCheckpoints\nTransitions\nRoster\nDiagnostics\nWizard\n+ Quality\ntrust\nint\nroute\nenum\nalarm\nbool\nKey\nType\nint\nfloat\nbool\nenum\nstring\nSource\ncode\nextractor\nLatching\nMonotonic\nRubric\nScope hint from\n— none —\nApproach\nInfiltrate\nThe Cache\nScope hint until\n— none —\nApproach\nInfiltrate\nThe Cache\nLedger entity\nLedger field\nDelete quality\nUndo\nRedo\nExport JSON\nImport JSON\nSave\nSave As\nReset Draft",
+    "tabs": [
+      {
+        "label": "Graph",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Story",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Qualities",
+        "tabIndex": 0,
+        "selected": "true"
+      },
+      {
+        "label": "Checkpoints",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Transitions",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Roster",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Diagnostics",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Wizard",
+        "tabIndex": 0,
+        "selected": "false"
+      }
+    ],
+    "errors": [],
+    "image": "studio-studiomodal--seeded-390.png"
+  },
+  {
+    "id": "studio-studiomodal--empty",
+    "width": 390,
+    "height": 844,
+    "documentWidth": 390,
+    "viewport": 390,
+    "controls": 23,
+    "offscreenControls": [],
+    "text": "Checkpoint Studio\nClose\nGraph\nStory\nQualities\nCheckpoints\nTransitions\nRoster\nDiagnostics\nWizard\nNothing authored yet. The wizard can take you from a one-line premise to a playable story.\nStart with the wizard\nGraph\n+ Checkpoint\n+ Transition\nRe-layout\nBreadthfirst\nGrid\nCOSE\nDagre\nMermaid export\nUndo\nRedo\nExport JSON\nImport JSON\nSave\nSave As\nReset Draft",
+    "tabs": [
+      {
+        "label": "Graph",
+        "tabIndex": 0,
+        "selected": "true"
+      },
+      {
+        "label": "Story",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Qualities",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Checkpoints",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Transitions",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Roster",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Diagnostics",
+        "tabIndex": 0,
+        "selected": "false"
+      },
+      {
+        "label": "Wizard",
+        "tabIndex": 0,
+        "selected": "false"
+      }
+    ],
+    "errors": [],
+    "image": "studio-studiomodal--empty-390.png"
+  },
+  {
+    "id": "studio-studiocopilot--interviews-before-proposing",
+    "width": 390,
+    "height": 844,
+    "documentWidth": 390,
+    "viewport": 390,
+    "controls": 10,
+    "offscreenControls": [],
+    "text": "Qualities\nCheckpoints\nTransitions\nEffects & Cast\nProvisioning\nDescribe your premise. The wizard proposes what this story measures.\nYoua heist, but strange\nWizardTwo calls would change the shape.\nYouComic or grim? → grim\nWizardAdd a morale quality.\nqualities\nAdd a morale quality.\nAccept all\nDismiss\nadd\nAdd quality \"morale\" (int)\nAccept\nWarnings (1)\n'morale' appears in no gate or state_snapshot — it never enters extraction scope, so the extractor is never asked about it\nRun stage",
+    "tabs": [],
+    "errors": [],
+    "image": "studio-studiocopilot--interviews-before-proposing-390.png"
+  },
+  {
+    "id": "studio-proposalreview--failed",
+    "width": 390,
+    "height": 844,
+    "documentWidth": 390,
+    "viewport": 390,
+    "controls": 1,
+    "offscreenControls": [],
+    "text": "Invalid proposal\nDismiss\ntransitions.0.gate: gate references undeclared quality 'ghost'",
+    "tabs": [],
+    "errors": [],
+    "image": "studio-proposalreview--failed-390.png"
+  }
+]

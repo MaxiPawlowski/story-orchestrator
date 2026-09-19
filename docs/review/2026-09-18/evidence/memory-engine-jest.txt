@@ -1,0 +1,42 @@
+Story Orchestrator independent memory/engine review evidence
+Date: 2026-09-18
+Revision: 0a094e58734df99c287e0356b42407dd9e3e95e1
+Isolated extension: C:\Users\RolaPorElNapo\AppData\Local\Temp\story-orchestrator-review-20260918\host\public\scripts\extensions\third-party\story-orchestrator
+Review harness: scripts/review/memory-engine.test.ts, copied only for execution to src/memory/memory-engine.review.test.ts in the isolated tree.
+
+COMMAND
+.\node_modules\.bin\jest.cmd --runInBand --runTestsByPath src\memory\memory-engine.review.test.ts
+
+RESULT
+Exit 1. One suite ran: 8 intended-contract assertions failed, 6 negative controls passed, 14 total, 2.948 s.
+
+REPRODUCED FAILURES
+M1 Fact rollback removes the superseding winner but leaves the predecessor supersededBy the missing id.
+M2 Memory rollback retains writeLog coverage; a forced reread of the same range accepts zero entries.
+M3 Updating a ledger row overwrites its prior value and stamp; rollback drops the row instead of restoring the old value.
+M4 Epistemic retirement mutates an old row with supersededBy; rollback does not reactivate it.
+M5 A pinned old fact causes a later state-change fact to be dropped instead of retiring the old truth.
+M6 A pinned private epistemic fact created by removed chat text survives rollback and remains renderable for injection.
+M7 Manual text editing keeps a cached token count; an 80-character unpinned edit is selected under a four-token budget.
+E1 After 205 boundaries, shouldRollbackFromMessage(0) is true, but boundaryBeforeMessage(0) falls back to 0 and rollbackTo(0) returns false because snapshot 0 was evicted.
+
+PASSING NEGATIVE CONTROLS
+Ordinary unpinned supersession; removal of a newly-created ledger row on rollback; pin protection from count trimming and scene expiry; rejection of uncached oversized text under the same token budget; recent-message rollback after 205 boundaries; 1,000-checkpoint linear graph parse and traversal to cp999.
+
+STRESS OUTPUT
+{"reviewMeasurement":"large-graph","checkpoints":1000,"parsedMs":90,"traversalMs":10}
+
+EXISTING FOCUSED CONTROL COMMAND
+.\node_modules\.bin\jest.cmd --runInBand --runTestsByPath src\memory\stores.test.ts src\memory\consolidate.test.ts src\memory\epistemic.test.ts src\memory\ledger.test.ts src\memory\budget.test.ts src\memory\inject.test.ts src\engine\engine.test.ts
+RESULT: exit 0, 7/7 suites, 79/79 tests, 2.501 s.
+
+EXISTING LONG CONTROL COMMAND
+.\node_modules\.bin\jest.cmd --runInBand --runTestsByPath src\memory\longFixture.test.ts src\engine\convergence.property.test.ts
+RESULT: exit 0, 2/2 suites, 1006/1006 tests, 3.365 s.
+
+VENDOR COMPARISON
+vendor/smart-memory/longterm.js:966-1002 and session.js:660-681 estimate current formatted content at injection time. The adaptation trusts cached entry.tokens, which manual editing does not invalidate.
+vendor/smart-memory/embeddings.js:347-393 preserves a state-change candidate and records the predecessor it supersedes. Pin-aware suppression of that update is adaptation-specific.
+vendor/smart-memory/longterm.js:517-559 and session.js:355-377 store valid_from/valid_to on supersession. The adapted MemoryEntry only has supersededBy, leaving insufficient event provenance to reverse supersession on rollback.
+
+No production source, contracts, host settings, profiles, sessions, or browser state were changed.

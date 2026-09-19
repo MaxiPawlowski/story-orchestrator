@@ -12,6 +12,7 @@ const makeHost = (overrides: Partial<TalkControlHost> = {}) => {
   const calls: HostCalls = { director: [], triggered: [], decisions: [] };
   const host: TalkControlHost = {
     isGroupChat: () => true,
+    getChatId: () => "chat-1",
     getActiveTalkControl: (): TalkControl | null => ({ director: true, allow_silence: true }),
     getRoster: () => [{ id: "guard", name: "Mara" }, { id: "sage", name: "Finn" }],
     getEnabledRosterIds: () => ["guard", "sage"],
@@ -104,6 +105,17 @@ describe("TalkController intercept", () => {
     await controller.intercept(makeAbort().abort, "normal");
     expect(calls.director).toHaveLength(1);
     expect(calls.decisions).toHaveLength(1);
+  });
+
+  it("scopes the decision to the chat, so a new chat at the same checkpoint and message index decides again", async () => {
+    let chatId = "chat-a";
+    const { host, calls } = makeHost({ getChatId: () => chatId, getDraftedRosterId: () => "sage" });
+    const controller = new TalkController(host);
+    await controller.intercept(makeAbort().abort, "normal");
+    chatId = "chat-b";
+    await controller.intercept(makeAbort().abort, "normal");
+    expect(calls.director).toHaveLength(2);
+    expect(calls.decisions).toHaveLength(2);
   });
 
   it("pins the decision key for the whole pass even when the chat grows mid-pass", async () => {

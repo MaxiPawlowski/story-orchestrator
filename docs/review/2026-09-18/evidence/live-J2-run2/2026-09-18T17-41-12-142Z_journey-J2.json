@@ -1,0 +1,167 @@
+{
+  "id": "J2",
+  "title": "author-loop",
+  "file": "C:\\Users\\RolaPorElNapo\\AppData\\Local\\Temp\\story-orchestrator-review-20260918\\host\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j2-author-loop.journey.json",
+  "ranAt": "2026-09-18T17:41:12.134Z",
+  "strict": true,
+  "tally": {
+    "pass": 9,
+    "skipped": 2
+  },
+  "runnerError": null,
+  "capabilities": {
+    "studio-roster-editor": true,
+    "studio-requirements-editor": true,
+    "story-identity": true,
+    "drawer-edit-story": true,
+    "hot-swap": true
+  },
+  "results": [
+    {
+      "id": "J2.1",
+      "mode": "auto",
+      "findings": [
+        "U7"
+      ],
+      "goal": "the Studio opens on an empty draft and offers every authoring surface",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": ""
+    },
+    {
+      "id": "J2.2",
+      "mode": "auto",
+      "findings": [
+        "U7"
+      ],
+      "goal": "roster members can be authored in the Studio UI",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": ""
+    },
+    {
+      "id": "J2.3",
+      "mode": "auto",
+      "findings": [
+        "U7"
+      ],
+      "goal": "story identity, requirements, dramatic shape and thread bridges are authorable",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": ""
+    },
+    {
+      "id": "J2.4",
+      "mode": "auto",
+      "findings": [
+        "U2"
+      ],
+      "goal": "a story keeps one identity across edits, so re-selecting hydrates instead of forking a new record",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": ""
+    },
+    {
+      "id": "J2.5",
+      "mode": "auto",
+      "findings": [
+        "U2",
+        "U7"
+      ],
+      "goal": "the drawer's author view opens the Studio on the story this chat is playing",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": ""
+    },
+    {
+      "id": "J2.6",
+      "mode": "auto",
+      "findings": [
+        "U2"
+      ],
+      "goal": "playing, then saving a compatible edit from this chat keeps the run going (hot-swap, not reset)",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": ""
+    },
+    {
+      "id": "J2.7",
+      "mode": "auto",
+      "findings": [
+        "U2"
+      ],
+      "goal": "an invalidating edit asks first: keeping progress drops only what no longer fits",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": ""
+    },
+    {
+      "id": "J2.8",
+      "mode": "auto",
+      "findings": [
+        "U2"
+      ],
+      "goal": "cancelling an invalidating edit leaves the chat on its pinned version, library still saved",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": ""
+    },
+    {
+      "id": "J2.9",
+      "mode": "auto",
+      "findings": [
+        "U3"
+      ],
+      "goal": "the in-play author driver still works in author view (Probe + Nudge, real model)",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": ""
+    },
+    {
+      "id": "J2.10",
+      "mode": "human",
+      "findings": [
+        "U7"
+      ],
+      "goal": "",
+      "prompt": "Could you author a playable checkpoint — quality, gate, transition, cast, requirements — without opening a JSON editor?",
+      "anchors": "1 = impossible without JSON · 3 = possible but I had to work around gaps · 5 = everything the story needed was authorable",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    },
+    {
+      "id": "J2.11",
+      "mode": "human",
+      "findings": [
+        "U2"
+      ],
+      "goal": "",
+      "prompt": "After you edited the story mid-play, did the running chat behave the way you expected — including when it asked you to choose?",
+      "anchors": "1 = lost my progress · 3 = confusing but recoverable · 5 = exactly as expected",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    }
+  ],
+  "cleanup": {
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": []
+    },
+    "stories": {
+      "removed": 0
+    },
+    "chat": {
+      "deleted": true
+    }
+  }
+}

@@ -299,6 +299,20 @@ describe("RuntimeManager scene detection", () => {
     expect(executeSlashCommands).toHaveBeenCalledWith(expect.stringContaining("The scene shifts."), expect.anything());
   });
 
+  it("stores the answer, not the reasoning, and writes no summary when the model only reasoned", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(sceneStory));
+
+    globalThis.storyOrchestratorDebugSceneSummaryResponse = "<think>\nThe hall scene ends here.\n</think>\nThey lingered in the hall.";
+    await manager.runSceneBreakPass(sceneBreakAudit());
+    globalThis.storyOrchestratorDebugSceneSummaryResponse = "<think>\nThe vault scene is about to";
+    await manager.runSceneBreakPass({ ...sceneBreakAudit(), id: "audit-scene-2", window: { from: 3, to: 4 } });
+
+    const scenes = manager.getSnapshot().memory.entries.filter((entry) => entry.tier === "scene_history");
+    expect(scenes.map((entry) => entry.text)).toEqual(["They lingered in the hall."]);
+    expect(manager.getSnapshot().memory.sceneCount).toBe(2);
+  });
+
   it("fires the sceneBreak reply once per distinct break, not once per checkpoint", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(sceneStory));
@@ -1005,7 +1019,7 @@ describe("RuntimeManager plan-13 surfacing", () => {
     expect(snapshot.memory.entries[0].text).toBe("The party searched the ruins.");
     const arcs = manager.getArcs();
     expect(arcs[0].text).toBe("Find the key.");
-    expect(arcs[0].summary).toBe("Key found.");
+    expect(arcs[0].summary).toBe("");
     expect(manager.getCanon()).toContain("Canon so far.");
   });
 });

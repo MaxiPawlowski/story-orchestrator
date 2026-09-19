@@ -41,13 +41,14 @@ Playwright MCP is configured via the repo `.mcp.json` (`npx @playwright/mcp@late
 | `so-journey.mts` | `--list`, `run <id\|file> [--strict] [--keep] [--only ids] [--no-config]`, `restore-config [--file p]` |
 | `so-journal.mts` | `export [--md\|--json] [--kind k,k] [--limit n]`, `show` |
 | `so-mutation-check.mts` | `[--keep]` |
+| `so-turn-types-check.mts` | `[--group <name>] [--character <name>] [--image sd\|synthetic\|auto] [--skip-reply] [--skip-image] [--skip-solo] [--keep]` |
 | `so-state.mts` | `current [--full] [--expect path=value]`, `all` |
 | `st-actions.mts` | `send`, `send-compact`, `trigger <member>`, `slash`, `checkpoint`, `swipe`, `edit`, `delete`, `wi-status`, `wait-idle` |
 | `st-payload.mts` | `arm`, `last [n]`, `watch [n]` |
 | `st-navigation.mts` | `recent-group`, `new-group-session`, `recent-group-new`, `list-entities`, `open-group <id\|name>`, `open-character <name>`, `list-chats`, `open-chat <chatId>`, `new-chat` |
 | `st-eval.mts` | `"<js>"` or `--file <path>` — run an async snippet in the ST page with `ctx` (getContext()) and `rt` (runtime handle) in scope, JSON result |
-| `so-ui.mts` | `all`, `settings`, `drawer`, `open-settings`, `open-studio`, `studio`, `studio-tab <label>`, `studio-save [keep\|restart\|cancel]`, `drawer-tab <Overview\|Blackboard\|Memory\|Scheduler\|Payload>`, `pipeline`, `assert-player-clean`, `wizard`, `open-wizard`, `new-story-wizard`, `wizard-run [stage] [message]`, `wizard-answer [a1\|a2\|a3]`, `wizard-apply [index]`, `screenshot` |
-| `so-assets.mts` | `list`, `remove`, `assert-clean` `[--marker <prefix>]` — the ST assets a wizard run created (marker + the wizard's own `applied` ledger); nothing unmarked is ever touched |
+| `so-ui.mts` | `all`, `settings`, `drawer`, `open-settings`, `open-studio`, `studio`, `studio-tab <label>`, `studio-save [keep\|restart\|cancel]`, `drawer-tab <Overview\|Blackboard\|Memory\|Scheduler\|Payload>`, `pipeline`, `assert-player-clean`, `wizard`, `open-wizard`, `new-story-wizard`, `wizard-run [stage] [message]`, `wizard-answer [a1\|a2\|a3]`, `wizard-apply [index]`, `stagecraft`, `curator-accept [index\|text-first] [text]`, `curator-reject [index]`, `screenshot` |
+| `so-assets.mts` | `list`, `remove`, `assert-clean` `[--marker <prefix>]` — the ST assets a wizard run created (marker + the `applied` ledger of test sessions only — marker-keyed, or recorded since a journey's baseline); a real author's sessions and assets are never touched |
 | `so-copilot.mts` | `context`, `suggest [--debug j]`, `report [--debug j]`, `nudge <text>`, `clear-nudge`, `probe [--debug d]`, `advance <id>`, `stage <stage> [--message m] [--debug j]` |
 | `so-library.mts` | library summary (id + version), `<id\|hash>` detail, `remove <id\|hash\|title>`, `wipe-chat-meta [--hash h]`, `--legacy` |
 | `so-live-suite.mts` | `run [--min 0.9] [--filter <substr>] [--record]` — real-model delta accuracy over `test/fixtures/extractor*` triples; exact-match on `{q,v}` |
@@ -68,11 +69,16 @@ Playwright MCP is configured via the repo `.mcp.json` (`npx @playwright/mcp@late
 }
 ```
 
-Supported steps: `import_story`, `select_story`, `restart_story`, `send`, `send_generate`, `slash`, `extract`, `expand`, `eval`, `copilot`, `ui`, `reload`, `swipe`, `edit`, `delete`, `wait`, `expect`, `expect_ui`.
+Supported steps: `import_story`, `seed_metadata`, `select_story`, `restart_story`, `studio_save`, `send`, `send_generate`, `slash`, `extract`, `expand`, `eval`, `copilot`, `ui`, `stagecraft`, `assets`, `reload`, `swipe`, `edit`, `delete`, `wait`, `expect`, `expect_ui`.
+
+`seed_metadata` writes a captured `chat_metadata.story_orchestrator` blob into the sandbox chat
+verbatim and hydrates it (`{ "seed_metadata": { "file": "../fixtures/legacy-v2-chat-blob.json" } }`) —
+a migration gate has to run over bytes this build never wrote, not over state built from the live
+snapshot.
 
 `send_generate` also takes `{ "text": "...", "timeoutMs": 300000 }` — group turns on a local model regularly need minutes.
 
-`ui` drives the real surfaces: `{ "ui": { "action": "open-drawer" } }`, `drawer-tab` / `studio-tab` (+`label`), `open-settings`, `select-profile` (picks the memory profile through the settings panel; `ST_DEBUG_PROFILE=<name>` disambiguates), `open-studio`, `close-studio`, `flag` (+`note` — files a session-journal flag through the drawer control), `screenshot`.
+`ui` drives the real surfaces: `{ "ui": { "action": "open-drawer" } }`, `drawer-tab` / `studio-tab` (+`label`), `open-settings`, `select-profile` (picks the memory profile through the settings panel and then enables extraction: `+label`, else `ST_DEBUG_PROFILE=<name>`, matched by prefix, and a name that matches nothing fails the step; with no name it keeps the profile already selected, because the setting is install-wide, and only falls back to the first profile when none is selected; scenario and journey files never carry a profile id), `open-studio`, `close-studio`, `flag` (+`note` — files a session-journal flag through the drawer control), `screenshot`.
 
 `reload` reloads the ST page, waits for the extension handle and reopens the chat (`{ "reload": { "timeoutMs": 90000, "reopenChat": false } }`) — the honest path for hydration, migration and "return after a gap" checks.
 
@@ -102,7 +108,7 @@ Real-LLM scenarios (no `debugResponse`; extraction profile must be selected — 
 
 `/cp` slash commands: `list`, `state`, `activate <id>`, `set <quality> <value>`, `extract [response]`, `expand [response]`, `converge` (dumps per-anchor progress/threshold), `memorize` (runs the memorize-backlog mid-chat adoption pass).
 
-`--sandbox` opens the most recent group chat and starts `/newchat` before the scenario. Unless `--keep` is passed, it removes imported test stories and best-effort deletes the scratch chat.
+`--sandbox` opens the most recent group chat and starts `/newchat` before the scenario. The run then owns only the chats it created: before every step it checks the page is still on one of them and aborts with `sandbox escaped … now on <id>` if another session switched the shared page. A step that opens a new chat on purpose marks itself with `"adoptsNewChat": true` next to its verb (J10.6 does). `reload` reopens the run's chat by id, not the welcome screen's most recent chat. Unless `--keep` is passed, cleanup removes imported test stories and deletes the run's chats **by id** through ST's `deleteGroupChat`, never with `/delchat` and never a chat that existed before the run. The cleanup record reports `sandboxChatId`, `owned`, `deleted`, `skipped` and `currentChatAtCleanup`. `so-journey` and `so-mutation-check` share the same guard (`st-navigation.mts` `beginSandboxSession`/`assertInSandbox`/`deleteSandboxChats`). The guard stops a run from writing into or deleting someone else's chat; it does not make two sessions driving one browser safe, so check `ListAgents` before a live run.
 
 Mutation event gate:
 
@@ -111,6 +117,14 @@ node scripts/debug/so-mutation-check.mts
 ```
 
 This creates a scratch group chat, prepares one deterministic multi-swipe message, runs `swipe`, `edit`, and `delete`, then asserts ST emitted `MESSAGE_SWIPED`, `MESSAGE_EDITED`, and `MESSAGE_DELETED`.
+
+Turn-type gate (which rendered messages commit a story boundary):
+
+```bash
+node scripts/debug/so-turn-types-check.mts
+```
+
+In a sandbox chat of `AdolionGroup` (every member greets) with a throwaway story, it asserts that an image posted by a real `/sd` (type `extension`; `--image synthetic` posts one the way sd's `sendMessage` does) commits no boundary, a real player turn commits exactly one, and a new group chat's greetings commit nothing and inherit no story state. It then checks a greeting-only solo chat that plays the story: reopening it and swiping its greeting to an alternate commit and roll back nothing. Every check also asserts the triggering ST event actually arrived with that type, so a check cannot pass vacuously. It needs a real backend (`--skip-reply` otherwise); chats are deleted by id and the story is removed from the library afterwards.
 
 ## Payload Capture
 
@@ -157,6 +171,10 @@ fresh-start setup, per-check outcomes and the human checklist. Catalog and check
   depend on a surface an earlier check opened.
 - Human checks print as a checklist with 1–5 anchors plus the standing question
   ("What would make you stop using this?"). Artifacts: `.debug/journey-<id>.md` + `.json`.
+- **Run a journey twice before believing it, and archive the run that greened a gate.** The v2.1
+  acceptance run found two defects that only a second consecutive run exposed (a cache keyed without
+  the chat id, and a curator proposal with nothing in it). `.debug` rotates; the gate copy lives in
+  `test/journeys/records/<gate>/` — see `test/journeys/records/v2.1-acceptance/`.
 
 ## Session journal
 

@@ -18,10 +18,23 @@ state — all without an AI in the steady-state response path.
   a typed entity-state ledger, injected privately per drafted speaker (never written to World
   Info).
 - **Pacing.** Smoothed tension tracking against a chosen dramatic shape, with steering hints.
-- **Checkpoint Studio.** A visual authoring modal over a typed mutation API, with a diagnostics
-  pass and an optional authoring/in-play **copilot**.
-- **Author surface.** Template macros, `/cp` and `/so-mem` slash commands, an away-recap popup,
-  and a tabbed debug drawer (blackboard, memory, scheduler, injected-payload inspector).
+- **Two surfaces, one default.** **Player mode** is the drawer's default: where you are, what
+  happened recently, open threads, the story so far, and an honest status line for what the machine
+  is doing. **Author view** (per chat, asks before it reveals) *adds* the internals — blackboard,
+  scheduler, injected payload, convergence, epistemic map, state ledger and the in-play driver.
+- **Story identity.** Stories carry an `id` and a `version`; each chat pins the copy it plays, so
+  library edits and deletions never reach a running game. Saving from the chat that plays a story
+  hot-swaps compatible edits and asks before anything invalidating.
+- **Checkpoint Studio + setup wizard.** A visual authoring modal over a typed mutation API with a
+  diagnostics pass, plus a wizard that interviews you about a premise, proposes the graph, and
+  **creates** the character cards, lorebook and group the story requires — create-only, reviewed one
+  card at a time.
+- **Stagecraft.** Deterministic presentation effects first (a checkpoint can switch the background),
+  then background curators that only ever *propose*: the World Info curator reads real canon,
+  suggests patches inside the story's declared lorebooks, and writes only what the author accepted,
+  at a boundary. Off by default.
+- **Author surface.** Template macros, `/cp` and `/so-mem` slash commands, an away-recap popup, and
+  a tabbed drawer (blackboard, memory, scheduler, injected-payload inspector, curator review ring).
 
 ## Install
 
@@ -33,13 +46,24 @@ state — all without an AI in the steady-state response path.
 
 ## Quick start
 
-1. Open the settings panel and paste a format-2 JSON into **Import format-2 JSON → Import and
-   Load** (previously imported stories can be re-selected from the Story dropdown). See
-   [`examples/`](examples/) for a complete, playable story (*Quest for the Sun Ruins*).
-2. Select a **Memory LLM profile** (a SillyTavern Connection Manager profile) so extraction can
-   run — without one, extraction stays paused outside debug runs.
-3. Play. The drawer shows the active checkpoint, blackboard, tension, convergence, memory, and
-   the exact prompt blocks injected on the last generation.
+1. Select a **Memory LLM profile** (a SillyTavern Connection Manager profile) in the settings panel.
+   It is an **install-wide** setting: every chat, including new ones, inherits it. Extraction itself
+   is on by default; without a profile it stays paused and the drawer says so.
+2. Get a story:
+   - **From a premise** — **New story (wizard)**: the wizard asks a couple of questions, proposes the
+     graph, and offers to create the cards, lorebook and group it needs (each as its own card you
+     review and apply).
+   - **From JSON** — paste a format-2 story into **Import format-2 JSON → Import and Load**;
+     previously imported stories re-select from the Story dropdown without losing progress. See
+     [`examples/`](examples/) for a complete, playable story (*Quest for the Sun Ruins*).
+3. Play. The drawer opens on the player view: where you are, what happened recently, open threads,
+   what the story has established, and whether the extension is reading, working, waiting or stuck.
+   Turn on **Author view** for the internals, **Edit story** to open the Studio on the story this chat
+   is playing, and **Restart story** for the one honest reset.
+
+Three lifetimes, three homes: install-wide settings (memory profile, display, stagecraft) in the
+extension settings; per-chat state (progress, memory, author view, shape override, speaker direction)
+in the chat; authored content in the story record.
 
 ## Macros
 
@@ -61,7 +85,10 @@ Registered via `MacrosParser` and auto-updated from the active story:
 
 ## Slash commands
 
+- `/story recap | threads | flag [note]` — player-safe: the same narrative view the drawer and the
+  away-recap popup render, and a way to flag a moment that felt wrong.
 - `/cp list | state | activate <id> | set <quality> <value> | extract [response] | expand [response] | converge | memorize`
+  — **author-only** (`extract`/`expand` are debug verbs).
 - `/so-mem list | pin <id> on|off | exclude <id> | backlog`
 
 ## Extraction timing

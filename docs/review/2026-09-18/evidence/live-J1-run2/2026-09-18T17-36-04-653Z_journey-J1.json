@@ -1,0 +1,155 @@
+{
+  "id": "J1",
+  "title": "first-contact",
+  "file": "C:\\Users\\RolaPorElNapo\\AppData\\Local\\Temp\\story-orchestrator-review-20260918\\host\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j1-first-contact.journey.json",
+  "ranAt": "2026-09-18T17:36:04.647Z",
+  "strict": true,
+  "tally": {
+    "pass": 6,
+    "fail": 1,
+    "skipped": 2
+  },
+  "runnerError": null,
+  "capabilities": {
+    "global-extraction-settings": true,
+    "first-run-path": true
+  },
+  "results": [
+    {
+      "id": "J1.1",
+      "mode": "auto",
+      "findings": [
+        "U6"
+      ],
+      "goal": "with nothing installed, the drawer says what to do next",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": ""
+    },
+    {
+      "id": "J1.2",
+      "mode": "auto",
+      "findings": [
+        "U1"
+      ],
+      "goal": "a brand-new chat has extraction enabled by default",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": ""
+    },
+    {
+      "id": "J1.3",
+      "mode": "auto",
+      "findings": [
+        "U1",
+        "I3"
+      ],
+      "goal": "the memory profile is an install-level setting, so it is not stored per chat",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": ""
+    },
+    {
+      "id": "J1.4",
+      "mode": "auto",
+      "findings": [
+        "U6"
+      ],
+      "goal": "there is a first-run path that walks an empty install to playable",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#so-new-story-wizard')\u001b[22m\n\u001b[2m    - locator resolved to <button tabindex=\"0\" role=\"button\" id=\"so-new-story-wizard\" class=\"menu_button interactable\" title=\"Start a new story from a premise: the wizard interviews you, proposes the graph, and creates the cards, lore and group it needs.\">New story (wizard)</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <div id=\"chat\">…</div> from <div id=\"sheld\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <q>“Still… I’m in. What’s life without a little bad …</q> from <div id=\"sheld\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <div type=\"\" mesid=\"0\" swipeid=\"0\" ch_name=\"Arin\" is_user=\"false\" bookmark_link=\"\" is_system=\"false\" force_avatar=\"true\" timestamp=\"September 18, 2026 2:34 PM\" class=\"mes last_mes fade swipes_visible\">…</div> from <div id=\"sheld\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m  2 × retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m      - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m  57 × retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n"
+    },
+    {
+      "id": "J1.5",
+      "mode": "auto",
+      "findings": [
+        "U6"
+      ],
+      "goal": "importing the shipped example story from the settings panel makes it playable",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": ""
+    },
+    {
+      "id": "J1.6",
+      "mode": "auto",
+      "findings": [
+        "U1"
+      ],
+      "goal": "after configuring the memory model in the settings panel, the first real transition fires",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": ""
+    },
+    {
+      "id": "J1.7",
+      "mode": "auto",
+      "findings": [
+        "U6"
+      ],
+      "goal": "the transition is announced to the player in chat",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": ""
+    },
+    {
+      "id": "J1.8",
+      "mode": "human",
+      "findings": [
+        "U6"
+      ],
+      "goal": "",
+      "prompt": "From opening SillyTavern with the extension installed, could you tell what to do to get a story running?",
+      "anchors": "1 = no idea where to start · 3 = worked it out by poking around · 5 = the next step was obvious at every point",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    },
+    {
+      "id": "J1.9",
+      "mode": "human",
+      "findings": [
+        "U1",
+        "U6"
+      ],
+      "goal": "",
+      "prompt": "Once you were playing, was it clear that the story was actually running (and would advance on its own)?",
+      "anchors": "1 = no signal at all · 3 = guessed from the drawer · 5 = unmistakable",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    }
+  ],
+  "cleanup": {
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": []
+    },
+    "stories": {
+      "removed": 0
+    },
+    "chat": {
+      "deleted": true
+    },
+    "member:DM Narrator": {
+      "enabled": true
+    },
+    "member:Arin": {
+      "enabled": true
+    },
+    "member:Ponticius": {
+      "enabled": true
+    },
+    "member:Luke": {
+      "enabled": true
+    },
+    "disabledMembers": []
+  }
+}

@@ -19,7 +19,8 @@
         "roster": []
       }
     },
-    { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorRuntime.setExtractionSettings({ enabled: true, profileId: 'afcc7073-3510-4f67-8070-35ce449d4792', cadence: 2 }); return globalThis.storyOrchestratorRuntime.getExtractionSettings();" },
+    { "ui": { "action": "select-profile" } },
+    { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorRuntime.setExtractionSettings({ enabled: true, cadence: 2 }); return globalThis.storyOrchestratorRuntime.getExtractionSettings();" },
     { "send_generate": "I step into the vault antechamber and look around." },
     { "wait": { "idle": true, "timeoutMs": 120000 } },
     { "wait": { "boundary": 1, "timeoutMs": 30000 } },

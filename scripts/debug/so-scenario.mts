@@ -5,20 +5,29 @@ import { PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
-import { openMostRecentGroupChat, startNewGroupSession } from './st-navigation.mts';
+import { adoptNewSandboxChat, assertInSandbox, beginSandboxSession, deleteSandboxChats, openMostRecentGroupChat, readActiveChat, reopenSandboxChat } from './st-navigation.mts';
 import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, sendUserMessage, swipeMessage, waitForIdle } from './st-actions.mts';
 import { dumpCurrentChatState } from './so-state.mts';
-import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, closeCheckpointStudio, getPipelineState, getWizardState, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot } from './so-ui.mts';
+import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot } from './so-ui.mts';
 import { listMarkedAssets, removeMarkedAssets } from './so-assets.mts';
 
 const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep]
 
+--sandbox runs in a new chat of the most recent group and only ever stays on, or deletes, chats the run created.
+Every step first checks the page is still on a sandbox chat and aborts ("sandbox escaped") if it is not.
+Sandbox cleanup deletes the run's chats, then each memory-mirror book named for one of them
+("Story Orchestrator - <title> - <owned chat id>"), and clears every storyOrchestratorDebug* response (also cleared at start).
+A step that deliberately opens a new chat carries "adoptsNewChat": true next to its verb, e.g. {"eval": "...", "adoptsNewChat": true}.
+"log": true (or a character budget) next to a verb prints its output after the ok line, so a run log shows what a
+nondeterministic step actually got (e.g. which op kind the real curator proposed).
+
 Step keys:
-  import_story, select_story, restart_story, studio_save, send, send_generate, slash, extract, expand, eval, copilot, ui, reload, swipe, edit, delete, wait, expect, expect_ui
+  import_story, seed_metadata, select_story, restart_story, studio_save, send, send_generate, slash, extract, expand, eval, copilot, ui, stagecraft, assets, reload, swipe, edit, delete, wait, expect, expect_ui
 
 ui actions ({ui: {action, label?, note?}}):
   open-drawer, drawer-tab, open-settings, select-profile, open-studio, close-studio, studio-tab, studio-save, flag, screenshot,
-  open-wizard, new-story-wizard, wizard-run ({stage?, message?}), wizard-answer ({answers?}), wizard-apply ({index?}), wizard-state
+  open-wizard, new-story-wizard, wizard-run ({stage?, message?}), wizard-answer ({answers?}), wizard-apply ({index?}), wizard-state,
+  stagecraft ({minOps?, timeoutMs?} — waits for that many review cards), curator-accept ({index?, text?, pick?: 'text-first'}), curator-reject ({index?, pick?})
 
 copilot actions ({copilot: {action, ...}}):
   stage ({draft, stage, message?, debug?, expect?: "questions"|"ok"} — throws if the outcome is not what expect says),
@@ -30,6 +39,12 @@ assets steps:
   {assets: {action: "list"|"expect"|"remove"|"assert-clean", marker?, characters?, groups?, lorebooks?}} —
   marker-scoped view of the ST assets a wizard run created; assert-clean is J9's leak assertion.
 
+stagecraft steps ({stagecraft: {action, ...}}):
+  curate ({reason?, debugResponse?, expectProposal?, expectOps?, attempts?} — runs one WI curator pass, real model unless debugResponse;
+          expectOps retries the pass while every line was dropped, so an unparseable reply is a retry, not a fake failure),
+  accept | reject ({id?} — decides every pending op of a proposal, newest by default),
+  accept-op | reject-op ({id?, index?}), apply (writes accepted ops now, as a boundary would), state
+
 expect verbs:
   storyId, storyIdentity ({id,playedVersion,libraryVersion,pinned,drifted}),
   storyVersion ({played,library,drifted}), hotSwap ({applied,classification,choice,boundaryAtLeast,dropped}),
@@ -38,10 +53,12 @@ expect verbs:
   memory ({tier: {count, contains}}), sceneBreaks>=, memoryInjection ({tier: bool}),
   arcs ({open, resolved, summarized, openContains, resolvedContains}), canon ({present, contains}),
   epistemic ({count, contains:[{subject,tag,contains,hiddenFrom?}]}), ledger ({count, contains:[{entity,field,value}]}), capability (bool),
-  copilot ({enabled, activeNudge, nudgeInjected})
+  copilot ({enabled, activeNudge, nudgeInjected}),
+  background ("<file>" or {name, locked}),
+  stagecraft ({proposals, proposalsAtLeast, applied, appliedAtLeast, opStatus:[...], scope:[...], dropped:[...], curatorEnabled, acceptMode, noError})
 
 wait verbs:
-  idle, boundary, auditCount, acceptedDelta, expansionStatus, checkpoint, checkpointNot, checkpointIn, progress (+progressAnchor), reconciliationEvents, memoryEntries (+memoryTier), arcsSummarized, canonPresent, backfillComplete`;
+  idle, schedulerIdle (+quietMs, default 3000 — every off-path queue empty for that long), boundary, auditCount, acceptedDelta, expansionStatus, checkpoint, checkpointNot, checkpointIn, progress (+progressAnchor), reconciliationEvents, talkDecisions, memoryEntries (+memoryTier), arcsSummarized, canonPresent, backfillComplete`;
 
 function readArgFlag(name) {
   return process.argv.includes(name);
@@ -54,6 +71,23 @@ async function readJSON(path) {
 async function resolveStory(value, scenarioDir) {
   if (value?.file) return readJSON(resolve(scenarioDir, value.file));
   return value;
+}
+
+// Migration gates need a blob this build never wrote. The fixture is captured verbatim from a real
+// chat (`test/fixtures/legacy-v2-chat-blob.json` carries its provenance), written into the sandbox
+// chat as-is, and hydrated through the ordinary load path — no synthesizing from live state.
+async function seedMetadata(page, spec, scenarioDir) {
+  const raw = spec?.file ? await readJSON(resolve(scenarioDir, spec.file)) : spec?.blob;
+  const blob = raw?.blob ?? raw;
+  if (!blob || typeof blob !== 'object') throw new Error('seed_metadata needs {file} pointing at a chat-metadata fixture, or {blob}');
+  return evaluateInST(page, async (seed) => {
+    const ctx = SillyTavern.getContext();
+    ctx.chatMetadata.story_orchestrator = JSON.parse(JSON.stringify(seed));
+    await ctx.saveMetadata?.();
+    await globalThis.storyOrchestratorRuntime.loadSelectedFromChat();
+    const now = ctx.chatMetadata.story_orchestrator;
+    return { version: now?.version ?? null, selectedStoryId: now?.selectedStoryId ?? now?.selectedStoryHash ?? null, keys: Object.keys(now?.stories ?? {}) };
+  }, blob);
 }
 
 function compactState(state) {
@@ -245,6 +279,41 @@ function evaluateExpect(state, expected) {
     const cap = state?.liveSnapshot?.memory?.settings?.epistemicLedgerCapable;
     if (Boolean(cap) !== expected.capability) failures.push(`capability: expected ${expected.capability}, got ${Boolean(cap)}`);
   }
+  // Deterministic stagecraft: the background the chat is actually showing, by filename.
+  if (expected.background !== undefined) {
+    const current = state?.background?.name ?? null;
+    const wanted: { name?: string; locked?: boolean } = typeof expected.background === 'string' ? { name: expected.background } : expected.background;
+    if (wanted.name !== undefined && current !== wanted.name) failures.push(`background: expected ${wanted.name}, got ${current}`);
+    if (wanted.locked !== undefined && Boolean(state?.background?.locked) !== wanted.locked) failures.push(`background.locked: expected ${wanted.locked}, got ${Boolean(state?.background?.locked)}`);
+  }
+  // The curator: what it proposed, what got written, and what it may write at all.
+  if (expected.stagecraft) {
+    const live = state?.liveSnapshot?.stagecraft ?? null;
+    const proposals = live?.proposals ?? [];
+    const ops = proposals.flatMap((record: any) => record?.ops ?? []);
+    const spec = expected.stagecraft as { proposals?: number; proposalsAtLeast?: number; opsAtLeast?: number; applied?: number; appliedAtLeast?: number; opStatus?: string[]; scope?: string[]; curatorEnabled?: boolean; acceptMode?: string; noError?: boolean; dropped?: string[] };
+    if (!live) failures.push('stagecraft: no stagecraft slice in the snapshot');
+    if (spec.opsAtLeast !== undefined && ops.length < spec.opsAtLeast) {
+      failures.push(`stagecraft.ops: expected >= ${spec.opsAtLeast} reviewable op(s), got ${ops.length} (dropped: ${JSON.stringify(proposals.flatMap((record: any) => record?.dropped ?? []))})`);
+    }
+    if (spec.proposals !== undefined && proposals.length !== spec.proposals) failures.push(`stagecraft.proposals: expected ${spec.proposals}, got ${proposals.length}`);
+    if (spec.proposalsAtLeast !== undefined && proposals.length < spec.proposalsAtLeast) failures.push(`stagecraft.proposals: expected >= ${spec.proposalsAtLeast}, got ${proposals.length}`);
+    const applied = ops.filter((op: any) => op?.status === 'applied').length;
+    if (spec.applied !== undefined && applied !== spec.applied) failures.push(`stagecraft.applied: expected ${spec.applied}, got ${applied}`);
+    if (spec.appliedAtLeast !== undefined && applied < spec.appliedAtLeast) failures.push(`stagecraft.applied: expected >= ${spec.appliedAtLeast}, got ${applied}`);
+    for (const status of spec.opStatus ?? []) {
+      if (!ops.some((op: any) => op?.status === status)) failures.push(`stagecraft.opStatus: expected an op with status "${status}", got ${JSON.stringify(ops.map((op: any) => op?.status))}`);
+    }
+    for (const name of spec.scope ?? []) {
+      if (!(state?.liveSnapshot?.stagecraftScope ?? []).includes(name)) failures.push(`stagecraft.scope: expected "${name}" in ${JSON.stringify(state?.liveSnapshot?.stagecraftScope ?? [])}`);
+    }
+    for (const needle of spec.dropped ?? []) {
+      if (!proposals.some((record: any) => (record?.dropped ?? []).some((line: string) => line.includes(needle)))) failures.push(`stagecraft.dropped: expected a dropped line containing "${needle}"`);
+    }
+    if (spec.curatorEnabled !== undefined && Boolean(live?.settings?.curatorEnabled) !== spec.curatorEnabled) failures.push(`stagecraft.curatorEnabled: expected ${spec.curatorEnabled}, got ${Boolean(live?.settings?.curatorEnabled)}`);
+    if (spec.acceptMode !== undefined && live?.settings?.acceptMode !== spec.acceptMode) failures.push(`stagecraft.acceptMode: expected ${spec.acceptMode}, got ${live?.settings?.acceptMode}`);
+    if (spec.noError && live?.lastError) failures.push(`stagecraft.lastError: ${live.lastError}`);
+  }
   if (expected.copilot) {
     const spec = expected.copilot as { enabled?: boolean; activeNudge?: string | null; nudgeInjected?: boolean };
     if (spec.enabled !== undefined && actual.copilot.enabled !== spec.enabled) failures.push(`copilot.enabled: expected ${spec.enabled}, got ${actual.copilot.enabled}`);
@@ -254,10 +323,29 @@ function evaluateExpect(state, expected) {
   return { ok: failures.length === 0, failures, actual };
 }
 
+// Off-path passes (P1 reads, P2 scene/short-term/epistemic, P4 curator/consolidation) keep landing
+// after the chat goes idle, and one pass can queue the next: a check that measures "nothing else
+// changed" has to start once the scheduler has stayed empty for a while, not the instant it is.
+async function waitForSchedulerIdle(page, timeoutMs, quietMs) {
+  const deadline = Date.now() + timeoutMs;
+  let quietSince = null;
+  let last = null;
+  while (Date.now() < deadline) {
+    last = await evaluateInST(page, () => globalThis.storyOrchestratorRuntime?.getSnapshot?.().extraction?.scheduler ?? null);
+    const busy = !last || last.inFlight || last.queueDepth > 0 || last.heavyInFlight || (last.heavyQueueDepth ?? 0) > 0;
+    if (busy) quietSince = null;
+    else if (quietSince === null) quietSince = Date.now();
+    else if (Date.now() - quietSince >= quietMs) return { scheduler: last, quietMs };
+    await page.waitForTimeout(250);
+  }
+  throw new Error(`Timed out waiting for the extraction scheduler to drain: ${JSON.stringify(last)}`);
+}
+
 async function waitForCondition(page, spec) {
   const timeout = spec.timeoutMs ?? 10000;
   const deadline = Date.now() + timeout;
   let last = null;
+  if (spec.schedulerIdle) return waitForSchedulerIdle(page, timeout, spec.quietMs ?? 3000);
   while (Date.now() < deadline) {
     if (spec.idle) return waitForIdle(page, timeout);
     last = await dumpCurrentChatState(page);
@@ -289,6 +377,10 @@ async function waitForCondition(page, spec) {
     if (spec.reconciliationEvents !== undefined) {
       const events = last?.liveSnapshot?.extraction?.reconciliationEvents ?? [];
       if (events.length >= spec.reconciliationEvents) return last;
+    }
+    if (spec.talkDecisions !== undefined) {
+      const decisions = last?.liveSnapshot?.talk?.decisions ?? [];
+      if (decisions.length >= spec.talkDecisions) return last;
     }
     if (spec.memoryEntries !== undefined) {
       const entries = last?.liveSnapshot?.memory?.entries ?? [];
@@ -403,7 +495,7 @@ async function copilotStep(page, spec) {
 
 // Reload the ST page and wait for the extension to come back up: the honest way to test
 // hydration, migration and "return after a gap" paths.
-async function reloadStep(page, spec) {
+async function reloadStep(page, spec, guard = null) {
   const timeout = (typeof spec === 'object' && spec?.timeoutMs) || 60000;
   await page.reload({ waitUntil: 'domcontentloaded', timeout });
   await page.waitForFunction(() => Boolean(globalThis.storyOrchestratorRuntime), null, { timeout });
@@ -411,7 +503,10 @@ async function reloadStep(page, spec) {
   // ST comes back on the welcome screen, so reopening the chat is part of "returning to it".
   const reopen = spec?.reopenChat !== false;
   const chatId = await evaluateInST(page, () => SillyTavern.getContext().chatId ?? null);
-  if (!chatId && reopen) await openMostRecentGroupChat(page);
+  if (!chatId && reopen) {
+    if (guard) await reopenSandboxChat(page, guard);
+    else await openMostRecentGroupChat(page);
+  }
   await page.waitForTimeout(1500);
   return evaluateInST(page, () => ({ chatId: SillyTavern.getContext().chatId ?? null, ready: globalThis.storyOrchestratorRuntime?.getSnapshot?.().ready ?? false }));
 }
@@ -422,7 +517,7 @@ async function uiStep(page, spec) {
   if (action === 'open-drawer') return openStoryDrawer(page);
   if (action === 'drawer-tab') return switchDrawerTab(page, label);
   if (action === 'open-settings') return openExtensionSettings(page);
-  if (action === 'select-profile') return selectMemoryProfile(page, label ?? '');
+  if (action === 'select-profile') return selectMemoryProfile(page, label);
   if (action === 'open-studio') return openCheckpointStudio(page);
   if (action === 'close-studio') return closeCheckpointStudio(page);
   if (action === 'studio-tab') return switchStudioTab(page, label);
@@ -433,6 +528,9 @@ async function uiStep(page, spec) {
   if (action === 'wizard-run') return runWizardStage(page, { stage: spec?.stage ?? null, message: spec?.message ?? '', timeoutMs: spec?.timeoutMs });
   if (action === 'wizard-answer') return answerWizardQuestions(page, spec?.answers ?? null, { timeoutMs: spec?.timeoutMs });
   if (action === 'wizard-apply') return applyWizardProvisioning(page, spec?.index ?? 0, { timeoutMs: spec?.timeoutMs });
+  if (action === 'stagecraft') return getStagecraftState(page, { minOps: spec?.minOps ?? 0, timeoutMs: spec?.timeoutMs });
+  if (action === 'curator-accept') return decideCuratorOp(page, 'accept', { index: spec?.index ?? 0, text: spec?.text ?? null, pick: spec?.pick ?? null, timeoutMs: spec?.timeoutMs });
+  if (action === 'curator-reject') return decideCuratorOp(page, 'reject', { index: spec?.index ?? 0, pick: spec?.pick ?? null, timeoutMs: spec?.timeoutMs });
   if (action === 'screenshot') return takeAnnotatedScreenshot(page, label ?? 'so-scenario');
   if (action === 'pipeline') return getPipelineState(page);
   if (action === 'assert-player-clean') {
@@ -453,17 +551,90 @@ async function uiStep(page, spec) {
   throw new Error(`Unknown ui action: ${action}`);
 }
 
+// The stagecraft side (plan 07): drive one curator pass, review it the way an author does, and let a
+// boundary write it. `curate` is a real model call unless a debugResponse is supplied.
+async function stagecraftStep(page, spec) {
+  const action = typeof spec === 'string' ? spec : spec?.action ?? 'state';
+  if (action === 'accept' || action === 'reject' || action === 'accept-op' || action === 'reject-op') {
+    return evaluateInST(page, async ({ action, id, index }) => {
+      const runtime = globalThis.storyOrchestratorRuntime;
+      const proposals = runtime.getStagecraftState().proposals ?? [];
+      const target = id ? proposals.find((record) => record.id === id) : proposals[proposals.length - 1];
+      if (!target) throw new Error('no curator proposal to decide on');
+      const status = action.startsWith('accept') ? 'accepted' : 'rejected';
+      if (action.endsWith('-op')) await runtime.setCuratorOpDecision(target.id, index ?? 0, status);
+      else await runtime.decideCuratorProposal(target.id, status);
+      return { id: target.id, ops: runtime.getStagecraftState().proposals.find((record) => record.id === target.id)?.ops.map((entry) => entry.status) };
+    }, { action, id: spec?.id ?? null, index: spec?.index ?? 0 });
+  }
+  if (action === 'apply') {
+    return evaluateInST(page, async () => ({ applied: await globalThis.storyOrchestratorRuntime.applyCuratorProposals() }));
+  }
+  if (action === 'curate') {
+    // A small model formats a line unparseably now and then: the pass runs, every line is dropped and
+    // the proposal carries no reviewable op. That is scheduler-retry territory, not a mock — so ask
+    // again up to `attempts` times when the caller says it needs ops (`expectOps`).
+    const attempts = Math.max(1, spec?.attempts ?? (spec?.expectOps ? 3 : 1));
+    let last = null;
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      last = await curatePass(page, spec);
+      const opCount = (last?.record?.ops ?? []).length;
+      if (!spec?.expectOps || opCount >= (typeof spec.expectOps === 'number' ? spec.expectOps : 1)) return last;
+    }
+    const pass = last?.state?.lastPass ?? null;
+    throw new Error(`the curator produced no reviewable op in ${attempts} pass(es) (dropped: ${JSON.stringify(pass?.dropped ?? [])}) — raw response: ${JSON.stringify(String(pass?.rawResponse ?? '').slice(0, 600))}`);
+  }
+  return evaluateInST(page, () => ({
+    settings: globalThis.storyOrchestratorRuntime.getStagecraftState().settings,
+    scope: globalThis.storyOrchestratorRuntime.getSnapshot().stagecraftScope,
+    proposals: globalThis.storyOrchestratorRuntime.getStagecraftState().proposals,
+  }));
+}
+
+// One curator pass. A boundary may already have a P4 pass in flight: forcing another one is refused,
+// and treating that refusal as "the curator proposed nothing" blamed the model for a call that was
+// never made (plan 07 live finding) — so wait for the running pass and report *its* result. A pass
+// writes lastPass before it finishes saving, so `before` can already be the running pass's own
+// audit: while waiting, ask again too, and once the other pass is done ours runs for real.
+async function curatePass(page, spec) {
+  const before = await evaluateInST(page, () => globalThis.storyOrchestratorRuntime.getStagecraftState().lastPass?.at ?? null);
+  const run = () => evaluateInST(page, async ({ debugResponse, reason }) => {
+    const outcome = await globalThis.storyOrchestratorRuntime.runWiCuratorPass(reason ?? 'scenario', debugResponse ?? undefined);
+    return { ...outcome, proposed: Boolean(outcome.record), state: globalThis.storyOrchestratorRuntime.getStagecraftState() };
+  }, { debugResponse: spec?.debugResponse ?? null, reason: spec?.reason ?? null });
+  let result = await run();
+  if (result?.skipped === 'in-flight') {
+    const deadline = Date.now() + (spec?.timeoutMs ?? 120000);
+    while (Date.now() < deadline && result?.skipped === 'in-flight') {
+      await page.waitForTimeout(1000);
+      const state = await evaluateInST(page, () => globalThis.storyOrchestratorRuntime.getStagecraftState());
+      if ((state?.lastPass?.at ?? null) !== before) {
+        const record = (state.proposals ?? []).slice(-1)[0] ?? null;
+        result = { ran: true, observed: true, record: state.lastPass?.proposed ? record : null, proposed: Boolean(state.lastPass?.proposed), state };
+        break;
+      }
+      result = await run();
+    }
+  }
+  if (spec?.expectProposal && !result?.proposed) {
+    const pass = result?.state?.lastPass ?? null;
+    throw new Error(`the curator proposed nothing (ran: ${result?.ran}, skipped: ${result?.skipped ?? 'none'}, error: ${JSON.stringify(result?.state?.lastError ?? null)}, dropped: ${JSON.stringify(pass?.dropped ?? [])}) — raw response: ${JSON.stringify(String(pass?.rawResponse ?? '').slice(0, 600))}`);
+  }
+  return result;
+}
+
 // The wizard writes to the user's real install, so a journey that creates assets must be able to
-// prove it cleaned up after itself. Only marker-prefixed assets are ever in scope.
-async function assetsStep(page, spec) {
+// prove it cleaned up after itself. Only marker-prefixed assets and test-session ledgers are ever in
+// scope; a journey passes the baseline it took at start so its own ledger entries count too.
+async function assetsStep(page, spec, baseline = null) {
   const action = typeof spec === 'string' ? spec : spec?.action ?? 'list';
   const marker = (typeof spec === 'object' ? spec?.marker : null) ?? undefined;
   if (action === 'remove') {
-    const result = await removeMarkedAssets(page, marker);
+    const result = await removeMarkedAssets(page, marker, { baseline });
     if (!result.clean) throw new Error(`assets leaked after cleanup: ${JSON.stringify(result.leaked)}`);
     return result;
   }
-  const found = await listMarkedAssets(page, marker);
+  const found = await listMarkedAssets(page, marker, { baseline });
   if (action === 'assert-clean' && found.characters.length + found.groups.length + found.lorebooks.length > 0) {
     throw new Error(`assets leaked: ${JSON.stringify(found)}`);
   }
@@ -524,10 +695,65 @@ async function libraryHashes(page) {
   });
 }
 
+// `storyOrchestratorDebug*` responses stand in for the model until the page reloads, so one run's
+// mock answered the next run's first real pass (plan07-memory, second run) and would answer a real
+// player's in the shared browser. A sandbox run starts and ends without any.
+async function clearDebugResponses(page) {
+  return evaluateInST(page, () => {
+    const keys = Object.keys(globalThis).filter((name) => name.startsWith('storyOrchestratorDebug'));
+    for (const key of keys) delete globalThis[key];
+    return keys;
+  });
+}
+
+// The memory mirror files each chat's memory in its own book, `Story Orchestrator - <title> - <chatId>`
+// (src/runtime/memoryMirror.ts), which outlives the chat. The guard remembers every story a sandbox
+// played and every book the runtime recorded, so cleanup can name the books the run's chats own.
+async function recordSandboxStory(page, guard) {
+  const seen = await evaluateInST(page, () => {
+    const snapshot = globalThis.storyOrchestratorRuntime?.getSnapshot?.();
+    return { title: snapshot?.storyTitle ?? null, book: snapshot?.memory?.wiBook ?? null };
+  }).catch(() => null);
+  if (seen?.title && !guard.storyTitles.includes(seen.title)) guard.storyTitles.push(seen.title);
+  const book = seen?.book;
+  if (book?.name && guard.owned.includes(book.chatId) && !guard.mirrorBooks.some((entry) => entry.name === book.name)) {
+    guard.mirrorBooks.push({ name: book.name, chatId: book.chatId });
+  }
+}
+
+// Runs after the chats are gone, so no pass of theirs can re-create a book behind it. Only a listed
+// book whose name ends in ` - <owned chat id>` is ever deleted; names compare as the server files
+// them (sanitized, case-insensitive), the way `stHost/worldInfo.ts` resolves them.
+async function deleteSandboxMirrorBooks(page, guard) {
+  return evaluateInST(page, async ({ owned, titles, books }) => {
+    const wi = await import(/* webpackIgnore: true */ '/scripts/world-info.js' as string) as {
+      updateWorldInfoList: () => Promise<void>;
+      deleteWorldInfo: (name: string) => Promise<boolean>;
+    };
+    const illegal = new Set([...'/?<>\\:*|"']);
+    const control = (char: string) => char.charCodeAt(0) <= 0x1f || (char.charCodeAt(0) >= 0x80 && char.charCodeAt(0) <= 0x9f);
+    const fileId = (name: string) => [...name.trim()].filter((char) => !illegal.has(char) && !control(char)).join('').toLowerCase();
+    const owners = new Map<string, string>();
+    for (const chatId of owned) for (const title of titles) owners.set(fileId(`Story Orchestrator - ${title} - ${chatId}`), chatId);
+    for (const book of books) if (owned.includes(book.chatId)) owners.set(fileId(book.name), book.chatId);
+    const ownedBook = (name: string) => {
+      const id = fileId(name);
+      const chatId = owners.get(id);
+      return Boolean(chatId) && id.startsWith('story orchestrator - ') && id.endsWith(` - ${fileId(chatId)}`);
+    };
+    await wi.updateWorldInfoList();
+    const deleted = [];
+    const failed = [];
+    for (const name of SillyTavern.getContext().getWorldInfoNames().filter(ownedBook)) (await wi.deleteWorldInfo(name) ? deleted : failed).push(name);
+    await wi.updateWorldInfoList();
+    return { deleted, failed, leaked: SillyTavern.getContext().getWorldInfoNames().filter(ownedBook) };
+  }, { owned: [...guard.owned], titles: [...guard.storyTitles], books: [...guard.mirrorBooks] });
+}
+
 // Only stories this run introduced may be removed: a scenario story whose content matches a
 // record the user already had would otherwise delete the user's library entry.
-async function cleanupScenario(page, importedHashes, sandboxChatStarted, keep, libraryBefore = []) {
-  if (keep) return { kept: true };
+async function cleanupScenario(page, importedHashes, guard, keep, libraryBefore = []) {
+  if (keep) return { kept: true, sandboxChatId: guard?.sandboxChatId ?? null, owned: guard?.owned ?? [] };
   const preExisting = new Set(libraryBefore);
   const removable = [...new Set(importedHashes)].filter((hash) => !preExisting.has(hash));
   const cleaned = await evaluateInST(page, async (hashes) => {
@@ -540,18 +766,22 @@ async function cleanupScenario(page, importedHashes, sandboxChatStarted, keep, l
     return { removedStoryHashes: hashes };
   }, removable) as Record<string, unknown>;
   if (removable.length !== new Set(importedHashes).size) cleaned.keptPreExistingStories = importedHashes.filter((hash) => preExisting.has(hash));
-  if (sandboxChatStarted) {
-    try { await executeSlashCommand(page, '/delchat'); } catch (err) { cleaned.chatCleanupError = err instanceof Error ? err.message : String(err); }
+  if (guard) {
+    cleaned.clearedDebugResponses = await clearDebugResponses(page).catch((err) => ({ error: err instanceof Error ? err.message : String(err) }));
+    await recordSandboxStory(page, guard);
+    try { Object.assign(cleaned, await deleteSandboxChats(page, guard)); } catch (err) { cleaned.chatCleanupError = err instanceof Error ? err.message : String(err); }
+    try { cleaned.mirrorBooks = await deleteSandboxMirrorBooks(page, guard); } catch (err) { cleaned.mirrorBookCleanupError = err instanceof Error ? err.message : String(err); }
   }
   return cleaned;
 }
 
-async function runStep(page, key, value, { scenarioDir = PROJECT_ROOT, importedHashes = [] } = {}) {
+async function runStep(page, key, value, { scenarioDir = PROJECT_ROOT, importedHashes = [], assetBaseline = null, guard = null } = {}) {
   if (key === 'import_story') {
     const output = await importStory(page, await resolveStory(value, scenarioDir));
     if (output?.snapshot?.storyHash) importedHashes.push(output.snapshot.storyHash);
     return output;
   }
+  if (key === 'seed_metadata') return seedMetadata(page, value, scenarioDir);
   if (key === 'select_story') return selectStory(page, value);
   if (key === 'restart_story') return restartStory(page, value);
   if (key === 'studio_save') return saveStudioDraft(page, typeof value === 'string' ? value : value?.choice ?? null);
@@ -563,8 +793,9 @@ async function runStep(page, key, value, { scenarioDir = PROJECT_ROOT, importedH
   if (key === 'eval') return evalStep(page, value);
   if (key === 'copilot') return copilotStep(page, value);
   if (key === 'ui') return uiStep(page, value);
-  if (key === 'assets') return assetsStep(page, value);
-  if (key === 'reload') return reloadStep(page, value);
+  if (key === 'stagecraft') return stagecraftStep(page, value);
+  if (key === 'assets') return assetsStep(page, value, assetBaseline);
+  if (key === 'reload') return reloadStep(page, value, guard);
   if (key === 'swipe') return swipeMessage(page, value.messageId, value.swipeId ?? null);
   if (key === 'edit') return editMessage(page, value.messageId, value.text);
   if (key === 'delete') return deleteMessage(page, value.messageId ?? value);
@@ -584,18 +815,27 @@ async function runStep(page, key, value, { scenarioDir = PROJECT_ROOT, importedH
 
 // Shared step engine: so-scenario (feature level) and so-journey (composition level) run the
 // exact same verbs. New verbs land here, never in a parallel runner.
-async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashes = [], label = '' } = {}) {
+const STEP_MODIFIERS = new Set(['adoptsNewChat', 'log']);
+
+// With a sandbox guard every step first proves the page is still on a chat the run created, so a
+// chat switched under the run (a shared debug browser) stops it before it writes anywhere else.
+async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashes = [], label = '', assetBaseline = null, guard = null } = {}) {
   const result = { steps: [], ok: true, error: null };
   for (let index = 0; index < steps.length; index += 1) {
     const step = steps[index];
-    const key = Object.keys(step)[0];
+    const key = Object.keys(step).find((name) => !STEP_MODIFIERS.has(name));
     const startedAt = Date.now();
     let output;
     try {
-      output = await runStep(page, key, step[key], { scenarioDir, importedHashes });
+      if (guard) await assertInSandbox(page, guard, `before step ${index + 1} (${key})`);
+      const chatsBeforeStep = guard && step.adoptsNewChat ? (await readActiveChat(page)).groupChats : null;
+      output = await runStep(page, key, step[key], { scenarioDir, importedHashes, assetBaseline, guard });
+      if (chatsBeforeStep) await adoptNewSandboxChat(page, guard, chatsBeforeStep);
+      if (guard) await recordSandboxStory(page, guard);
       const entry = { index, key, ok: true, ms: Date.now() - startedAt };
       result.steps.push(entry);
       console.log(`${label}${index + 1}/${steps.length} ${key} ok ${entry.ms}ms`);
+      if (step.log) console.log(`${label}${index + 1}/${steps.length} ${key} -> ${JSON.stringify(output ?? null).slice(0, typeof step.log === 'number' ? step.log : 800)}`);
     } catch (err) {
       const entry = { index, key, ok: false, ms: Date.now() - startedAt, error: err.message || String(err), output };
       result.steps.push(entry);
@@ -603,6 +843,15 @@ async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashe
       result.error = entry.error;
       console.log(`${label}${index + 1}/${steps.length} ${key} FAIL ${entry.error}`);
       break;
+    }
+  }
+  if (guard && result.ok) {
+    try {
+      await assertInSandbox(page, guard, 'after the last step');
+    } catch (err) {
+      result.ok = false;
+      result.error = err.message || String(err);
+      console.log(`${label}FAIL ${result.error}`);
     }
   }
   return result;
@@ -615,22 +864,22 @@ async function runScenario(page, file, { sandbox = false, keep = false } = {}) {
   const steps = Array.isArray(scenario) ? scenario : scenario.steps;
   if (!Array.isArray(steps)) throw new Error('Scenario must be an array or { steps: [] }.');
   const importedHashes = [];
-  let sandboxChatStarted = false;
+  let guard = null;
   let result = { file, steps: [], ok: true, cleanup: null };
 
   let libraryBefore = [];
   if (sandbox) {
     await openMostRecentGroupChat(page);
-    await startNewGroupSession(page);
-    sandboxChatStarted = true;
+    guard = (await beginSandboxSession(page)).guard;
+    await clearDebugResponses(page);
     libraryBefore = await libraryHashes(page);
   }
 
   try {
-    result = { file, ...(await runSteps(page, steps, { scenarioDir, importedHashes })), cleanup: null };
+    result = { file, ...(await runSteps(page, steps, { scenarioDir, importedHashes, guard })), cleanup: null };
     if (!result.ok) await writeJSON({ result, state: await dumpCurrentChatState(page).catch(() => null) }, 'so-scenario-failure');
   } finally {
-    if (sandbox) result.cleanup = await cleanupScenario(page, importedHashes, sandboxChatStarted, keep, libraryBefore);
+    if (sandbox) result.cleanup = await cleanupScenario(page, importedHashes, guard, keep, libraryBefore);
   }
 
   await writeJSON(result, 'so-scenario-result');
@@ -638,7 +887,7 @@ async function runScenario(page, file, { sandbox = false, keep = false } = {}) {
   return result;
 }
 
-export { cleanupScenario, evaluateExpect, runScenario, runSteps };
+export { cleanupScenario, deleteSandboxMirrorBooks, evaluateExpect, recordSandboxStory, runScenario, runSteps };
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   if (process.argv[2] !== 'run' || !process.argv[3] || hasHelpFlag()) {

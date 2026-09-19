@@ -32,6 +32,7 @@ export interface BoundaryResult {
   effects: CheckpointEffects | null;
   activeCheckpointId: string;
   context: BoundaryContext;
+  previousLastMessageId: number;
 }
 
 export interface BoundaryLogEntry {
@@ -145,7 +146,7 @@ export class StoryEngine {
     if (this.boundaryLog.length > 200) this.boundaryLog.shift();
     this.recordSnapshot();
 
-    return { boundary: this.boundary, queue, fired, effects, activeCheckpointId: this.activeCheckpointId, context: normalizedContext };
+    return { boundary: this.boundary, queue, fired, effects, activeCheckpointId: this.activeCheckpointId, context: normalizedContext, previousLastMessageId: before.lastMessageId };
   }
 
   rollbackTo(boundary: number): boolean {
@@ -185,7 +186,7 @@ export class StoryEngine {
     this.boundaryLog.push({ at: this.host.now(), boundary: this.boundary, before, after, fired: null, source: "manual", context: normalizedContext, queue });
     if (this.boundaryLog.length > 200) this.boundaryLog.shift();
     this.recordSnapshot();
-    return { boundary: this.boundary, queue, fired: null, effects: checkpoint.effects ?? null, activeCheckpointId: this.activeCheckpointId, context: normalizedContext };
+    return { boundary: this.boundary, queue, fired: null, effects: checkpoint.effects ?? null, activeCheckpointId: this.activeCheckpointId, context: normalizedContext, previousLastMessageId: before.lastMessageId };
   }
 
   boundaryBeforeMessage(messageId: number): number {

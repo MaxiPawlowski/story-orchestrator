@@ -48,6 +48,20 @@ export const AuthorRequirements: Story = {
   },
 };
 
+// The curator's write scope is authored here and nowhere else (plan 07): an empty list means no
+// background agent may touch any lorebook.
+export const CuratorAllowlist: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(useDraftStore.getState().draft.stagecraft).toBeUndefined();
+    await userEvent.click(canvas.getByRole("button", { name: "+ Curator lorebook" }));
+    await expect(canvas.getByLabelText("Curator lorebook 1")).toHaveValue("Xentar Checkpoints");
+    await expect(useDraftStore.getState().draft.stagecraft).toEqual({ lorebooks: ["Xentar Checkpoints"] });
+    await userEvent.click(canvas.getByRole("button", { name: "Remove Curator lorebook 1" }));
+    await expect(useDraftStore.getState().draft.stagecraft).toBeUndefined();
+  },
+};
+
 export const ArcShapeAndBridges: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

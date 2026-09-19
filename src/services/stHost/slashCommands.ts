@@ -2,6 +2,12 @@ import { getContext, type StoryOrchestratorHostContext } from "./context";
 
 type SlashCommandHostResult = Awaited<ReturnType<StoryOrchestratorHostContext["executeSlashCommandsWithOptions"]>>;
 
+// PARSER_FLAG ids (SlashCommandParser.js:38-41), passed per run so the user's STscript settings
+// cannot change how `quoteSlashArg` output parses (slash-commands.js:7005).
+const STRICT_ESCAPING = 1;
+const REPLACE_GETVAR = 2;
+const PARSER_FLAGS = { [STRICT_ESCAPING]: true, [REPLACE_GETVAR]: false };
+
 async function runSlash(cmd: string, silent = true) {
   const { executeSlashCommandsWithOptions } = getContext();
   const toastrData = {
@@ -16,8 +22,9 @@ async function runSlash(cmd: string, silent = true) {
 
   try {
     const result: SlashCommandHostResult = await executeSlashCommandsWithOptions(cmd, {
-      handleParserErrors: true,
+      handleParserErrors: false,
       handleExecutionErrors: true,
+      parserFlags: PARSER_FLAGS,
     });
     if (result?.isError) {
       console.warn("[Story A/N slash] error:", cmd, result?.errorMessage);

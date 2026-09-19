@@ -1,0 +1,572 @@
+{
+  "chatId": "2026-08-13@07h11m39s382ms",
+  "storyTitle": "Quest for the Sun Ruins",
+  "activeCheckpoint": "Departure Preparations",
+  "boundary": 6,
+  "events": [
+    {
+      "at": "2026-08-13T10:11:39.964Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "status",
+      "summary": "Started Quest for the Sun Ruins"
+    },
+    {
+      "at": "2026-08-13T10:11:57.468Z",
+      "boundary": 1,
+      "messageId": 3,
+      "kind": "status",
+      "summary": "Following Investigate the Job Board"
+    },
+    {
+      "at": "2026-08-13T10:12:05.613Z",
+      "boundary": -1,
+      "messageId": 3,
+      "kind": "extraction",
+      "summary": "read scene:cast msgs 0-3 → 2 accepted, 1 rejected",
+      "detail": {
+        "scope": [
+          "approached_board",
+          "artifact_secured",
+          "chamber_entered",
+          "guardian_respect",
+          "luke_alive",
+          "luke_decision",
+          "mission_accepted",
+          "reward_claimed",
+          "tension_current"
+        ],
+        "accepted": [
+          "approached_board=true",
+          "tension_current=0"
+        ],
+        "rejected": [
+          "unrecognized line"
+        ],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-08-13T10:12:05.613Z",
+      "boundary": -1,
+      "messageId": 3,
+      "kind": "delta",
+      "summary": "approached_board = true",
+      "detail": {
+        "evidence": "Max: I shoulder past the morning drinkers and get close to the job board.",
+        "reason": "scene:cast"
+      }
+    },
+    {
+      "at": "2026-08-13T10:12:05.613Z",
+      "boundary": -1,
+      "messageId": 3,
+      "kind": "delta",
+      "summary": "tension_current = 0",
+      "detail": {
+        "evidence": "The chatter of the crowd becomes a louder, chaotic hum, a rhythmic backdrop of the city's survival.",
+        "reason": "scene:cast"
+      }
+    },
+    {
+      "at": "2026-08-13T10:12:12.075Z",
+      "boundary": 2,
+      "messageId": 5,
+      "kind": "boundary",
+      "summary": "applied approached_board=true, tension_current=0",
+      "detail": {
+        "source": "gate",
+        "applied": [
+          "approached_board=true",
+          "tension_current=0"
+        ],
+        "discarded": 0
+      }
+    },
+    {
+      "at": "2026-08-13T10:12:12.075Z",
+      "boundary": 2,
+      "messageId": 5,
+      "kind": "transition",
+      "summary": "cp1 → cp2",
+      "detail": {
+        "gate": {
+          "q": "approached_board",
+          "op": "==",
+          "v": true
+        },
+        "source": "gate"
+      }
+    },
+    {
+      "at": "2026-08-13T10:12:12.326Z",
+      "boundary": 2,
+      "messageId": -1,
+      "kind": "payload",
+      "summary": "1 story blocks injected (generation)",
+      "detail": {
+        "keys": [
+          "story_orchestrator_memory_session_details@3"
+        ]
+      }
+    },
+    {
+      "at": "2026-08-13T10:12:20.839Z",
+      "boundary": 2,
+      "messageId": -1,
+      "kind": "payload",
+      "summary": "2 story blocks injected (generation)",
+      "detail": {
+        "keys": [
+          "story_orchestrator_pacing@2",
+          "story_orchestrator_memory_session_details@3"
+        ]
+      }
+    },
+    {
+      "at": "2026-08-13T10:12:22.318Z",
+      "boundary": 2,
+      "messageId": 5,
+      "kind": "status",
+      "summary": "Moved into Accept the Mission"
+    },
+    {
+      "at": "2026-08-13T10:12:30.803Z",
+      "boundary": -1,
+      "messageId": 5,
+      "kind": "extraction",
+      "summary": "read scene:cast msgs 0-5 → 2 accepted, 1 rejected",
+      "detail": {
+        "scope": [
+          "artifact_secured",
+          "chamber_entered",
+          "guardian_respect",
+          "luke_alive",
+          "luke_decision",
+          "mission_accepted",
+          "reward_claimed",
+          "tension_current"
+        ],
+        "accepted": [
+          "mission_accepted=true",
+          "tension_current=0"
+        ],
+        "rejected": [
+          "unrecognized line"
+        ],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-08-13T10:12:30.803Z",
+      "boundary": -1,
+      "messageId": 5,
+      "kind": "delta",
+      "summary": "mission_accepted = true",
+      "detail": {
+        "evidence": "Max: I read the brightest posting aloud: the Sun Ruins job. 'Arin, look at this one.' Arin: 'The Sun Ruins... now we're talking.'",
+        "reason": "scene:cast"
+      }
+    },
+    {
+      "at": "2026-08-13T10:12:30.803Z",
+      "boundary": -1,
+      "messageId": 5,
+      "kind": "delta",
+      "summary": "tension_current = 0",
+      "detail": {
+        "evidence": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.",
+        "reason": "scene:cast"
+      }
+    },
+    {
+      "at": "2026-08-13T10:12:38.212Z",
+      "boundary": 3,
+      "messageId": 8,
+      "kind": "boundary",
+      "summary": "applied mission_accepted=true, tension_current=0",
+      "detail": {
+        "source": "gate",
+        "applied": [
+          "mission_accepted=true",
+          "tension_current=0"
+        ],
+        "discarded": 0
+      }
+    },
+    {
+      "at": "2026-08-13T10:12:38.212Z",
+      "boundary": 3,
+      "messageId": 8,
+      "kind": "transition",
+      "summary": "cp2 → cp3",
+      "detail": {
+        "gate": {
+          "q": "mission_accepted",
+          "op": "==",
+          "v": true
+        },
+        "source": "gate"
+      }
+    },
+    {
+      "at": "2026-08-13T10:12:38.471Z",
+      "boundary": 3,
+      "messageId": -1,
+      "kind": "payload",
+      "summary": "3 story blocks injected (generation)",
+      "detail": {
+        "keys": [
+          "story_orchestrator_pacing@2",
+          "story_orchestrator_memory_session_details@3",
+          "story_orchestrator_memory_facts@4"
+        ]
+      }
+    },
+    {
+      "at": "2026-08-13T10:12:50.455Z",
+      "boundary": 3,
+      "messageId": 8,
+      "kind": "status",
+      "summary": "Moved into Departure Preparations"
+    },
+    {
+      "at": "2026-08-13T10:13:00.543Z",
+      "boundary": -1,
+      "messageId": 8,
+      "kind": "extraction",
+      "summary": "read scene:cast msgs 1-8 → 1 accepted, 1 rejected",
+      "detail": {
+        "scope": [
+          "artifact_secured",
+          "chamber_entered",
+          "guardian_respect",
+          "luke_alive",
+          "luke_decision",
+          "reward_claimed",
+          "riddle_answer",
+          "tension_current"
+        ],
+        "accepted": [
+          "luke_decision=undecided"
+        ],
+        "rejected": [
+          "unrecognized line"
+        ],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-08-13T10:13:00.543Z",
+      "boundary": -1,
+      "messageId": 8,
+      "kind": "delta",
+      "summary": "luke_decision = undecided",
+      "detail": {
+        "evidence": "Decide whether to take Luke along before departing for the Sun Ruins.",
+        "reason": "scene:cast"
+      }
+    },
+    {
+      "at": "2026-08-13T10:13:06.990Z",
+      "boundary": 4,
+      "messageId": 10,
+      "kind": "boundary",
+      "summary": "applied luke_decision=undecided",
+      "detail": {
+        "source": "gate",
+        "applied": [
+          "luke_decision=undecided"
+        ],
+        "discarded": 0
+      }
+    },
+    {
+      "at": "2026-08-13T10:13:07.204Z",
+      "boundary": 4,
+      "messageId": 10,
+      "kind": "status",
+      "summary": "Following Departure Preparations"
+    },
+    {
+      "at": "2026-08-13T10:13:10.053Z",
+      "boundary": 4,
+      "messageId": -1,
+      "kind": "payload",
+      "summary": "4 story blocks injected (generation)",
+      "detail": {
+        "keys": [
+          "story_orchestrator_pacing@2",
+          "story_orchestrator_ledger@3",
+          "story_orchestrator_memory_session_details@3",
+          "story_orchestrator_memory_facts@4"
+        ]
+      }
+    },
+    {
+      "at": "2026-08-13T10:13:16.633Z",
+      "boundary": -1,
+      "messageId": 9,
+      "kind": "extraction",
+      "summary": "read cadence msgs 8-9 → 1 accepted, 1 rejected",
+      "detail": {
+        "scope": [
+          "artifact_secured",
+          "chamber_entered",
+          "guardian_respect",
+          "luke_alive",
+          "luke_decision",
+          "reward_claimed",
+          "riddle_answer",
+          "tension_current"
+        ],
+        "accepted": [
+          "luke_decision=undecided"
+        ],
+        "rejected": [
+          "unrecognized line"
+        ],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-08-13T10:13:16.633Z",
+      "boundary": -1,
+      "messageId": 9,
+      "kind": "delta",
+      "summary": "luke_decision = undecided",
+      "detail": {
+        "evidence": "Luke suddenly bursts from the crowd, nearly tripping over his own oversized chainmail. He skids to a stop in front of Max... 'Please! Please let me come along!'",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-08-13T10:13:24.550Z",
+      "boundary": 4,
+      "messageId": -1,
+      "kind": "payload",
+      "summary": "4 story blocks injected (generation)",
+      "detail": {
+        "keys": [
+          "story_orchestrator_pacing@2",
+          "story_orchestrator_ledger@3",
+          "story_orchestrator_memory_session_details@3",
+          "story_orchestrator_memory_facts@4"
+        ]
+      }
+    },
+    {
+      "at": "2026-08-13T10:13:36.064Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "extraction",
+      "summary": "read cue:cp3->cp-4a msgs 3-10 → 2 accepted, 1 rejected",
+      "detail": {
+        "scope": [
+          "artifact_secured",
+          "chamber_entered",
+          "guardian_respect",
+          "luke_alive",
+          "luke_decision",
+          "reward_claimed",
+          "riddle_answer",
+          "tension_current"
+        ],
+        "accepted": [
+          "luke_decision=undecided",
+          "tension_current=0.075"
+        ],
+        "rejected": [
+          "unrecognized line"
+        ],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-08-13T10:13:36.064Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "luke_decision = undecided",
+      "detail": {
+        "evidence": "Luke suddenly bursts from the crowd... 'Please! Please let me come along!'",
+        "reason": "cue:cp3->cp-4a"
+      }
+    },
+    {
+      "at": "2026-08-13T10:13:36.064Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "tension_current = 0.075",
+      "detail": {
+        "evidence": "Luke suddenly bursts from the crowd, nearly tripping over his own oversized chainmail.",
+        "reason": "cue:cp3->cp-4a"
+      }
+    },
+    {
+      "at": "2026-08-13T10:13:45.059Z",
+      "boundary": 5,
+      "messageId": 13,
+      "kind": "boundary",
+      "summary": "applied luke_decision=undecided, tension_current=0.075",
+      "detail": {
+        "source": "gate",
+        "applied": [
+          "luke_decision=undecided",
+          "tension_current=0.075"
+        ],
+        "discarded": 1
+      }
+    },
+    {
+      "at": "2026-08-13T10:13:46.962Z",
+      "boundary": 5,
+      "messageId": -1,
+      "kind": "reconciliation",
+      "summary": "stall re-check queued for stall-probe",
+      "detail": {
+        "checkpointId": "cp3",
+        "targetedKeys": [
+          "stall-probe"
+        ]
+      }
+    },
+    {
+      "at": "2026-08-13T10:13:57.181Z",
+      "boundary": -1,
+      "messageId": 13,
+      "kind": "extraction",
+      "summary": "read cue:cp3->cp-4a msgs 6-13 → 2 accepted, 1 rejected",
+      "detail": {
+        "scope": [
+          "artifact_secured",
+          "chamber_entered",
+          "guardian_respect",
+          "luke_alive",
+          "luke_decision",
+          "reward_claimed",
+          "riddle_answer",
+          "tension_current"
+        ],
+        "accepted": [
+          "luke_decision=undecided",
+          "tension_current=0.1275"
+        ],
+        "rejected": [
+          "unrecognized line"
+        ],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-08-13T10:13:57.181Z",
+      "boundary": -1,
+      "messageId": 13,
+      "kind": "delta",
+      "summary": "luke_decision = undecided",
+      "detail": {
+        "evidence": "Arin shifts his weight, glancing from the desperate young man to Max... 'Do we really want to bring a walking, clanking, oversized suit of armor along for the ride?'",
+        "reason": "cue:cp3->cp-4a"
+      }
+    },
+    {
+      "at": "2026-08-13T10:13:57.181Z",
+      "boundary": -1,
+      "messageId": 13,
+      "kind": "delta",
+      "summary": "tension_current = 0.1275",
+      "detail": {
+        "evidence": "Luke suddenly bursts from the crowd, nearly tripping over his own oversized chainmail... his eyes wide and desperate",
+        "reason": "cue:cp3->cp-4a"
+      }
+    },
+    {
+      "at": "2026-08-13T10:14:05.523Z",
+      "boundary": -1,
+      "messageId": 13,
+      "kind": "extraction",
+      "summary": "read reconcile:stall-probe msgs 6-13 → 2 accepted, 1 rejected",
+      "detail": {
+        "scope": [
+          "artifact_secured",
+          "chamber_entered",
+          "guardian_respect",
+          "luke_alive",
+          "luke_decision",
+          "reward_claimed",
+          "riddle_answer",
+          "tension_current"
+        ],
+        "accepted": [
+          "luke_decision=undecided",
+          "tension_current=0.16425"
+        ],
+        "rejected": [
+          "unrecognized line"
+        ],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-08-13T10:14:05.523Z",
+      "boundary": -1,
+      "messageId": 13,
+      "kind": "delta",
+      "summary": "luke_decision = undecided",
+      "detail": {
+        "evidence": "Arin shifts his weight, glancing from the desperate young man to Max. He raises a one of his eyebrows... 'Do we really want to bring a walking, clanking, oversized suit of armor along for the ride?'",
+        "reason": "reconcile:stall-probe"
+      }
+    },
+    {
+      "at": "2026-08-13T10:14:05.523Z",
+      "boundary": -1,
+      "messageId": 13,
+      "kind": "delta",
+      "summary": "tension_current = 0.16425",
+      "detail": {
+        "evidence": "Luke suddenly bursts from the crowd, nearly tripping over his own oversized chainmail... his eyes wide and desperate",
+        "reason": "reconcile:stall-probe"
+      }
+    },
+    {
+      "at": "2026-08-13T10:14:05.535Z",
+      "boundary": 5,
+      "messageId": -1,
+      "kind": "reconciliation",
+      "summary": "stall re-check resolved (2 evidence)",
+      "detail": {
+        "evidence": [
+          "luke_decision=undecided (Arin shifts his weight, glancing from the desperate young man to Max. He raises a one of his eyebrows... 'Do we really want to bring a walking, clanking, oversized suit of armor along for the ride?')",
+          "tension_current=0.16425 (Luke suddenly bursts from the crowd, nearly tripping over his own oversized chainmail... his eyes wide and desperate)"
+        ]
+      }
+    },
+    {
+      "at": "2026-08-13T10:14:05.777Z",
+      "boundary": 6,
+      "messageId": 13,
+      "kind": "boundary",
+      "summary": "applied luke_decision=undecided, tension_current=0.16425",
+      "detail": {
+        "source": "gate",
+        "applied": [
+          "luke_decision=undecided",
+          "tension_current=0.16425"
+        ],
+        "discarded": 1
+      }
+    },
+    {
+      "at": "2026-08-13T10:14:06.212Z",
+      "boundary": 6,
+      "messageId": 13,
+      "kind": "flag",
+      "summary": "journey J3 checkpoint",
+      "detail": {
+        "note": "journey J3 checkpoint"
+      }
+    }
+  ]
+}

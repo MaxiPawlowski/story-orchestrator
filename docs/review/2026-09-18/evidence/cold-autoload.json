@@ -1,0 +1,56 @@
+{
+  "status": 200,
+  "seconds": 38.078000000008615,
+  "response": {
+    "id": "chatcmpl-26657caef443",
+    "object": "chat.completion",
+    "created": 1789751837,
+    "model": "TheDrummer/Artemis-31B-v1.1-GGUF",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "",
+          "refusal": null,
+          "reasoning_content": "*   Character: A traveler.\n    *   Setting: A bridge at sunset.\n    *   Goal: Describe the scene in two sentences, leaving the next action open.\n    *   Constraint: Concise roleplay narrator, do not reason aloud.\n\n    *   Sentence 1: Establish the time and place (sunset, bridge).\n    *   Sentence 2: Add atmospheric details, leaving room for action.\n\n    *   *Draft 1:* The sun dips below the horizon, painting the sky in bruised purples and burning golds. Before the traveler stretches a weathered stone bridge, its",
+          "tool_calls": null
+        },
+        "finish_reason": "length",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 50,
+      "completion_tokens": 128,
+      "total_tokens": 178,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "audio_tokens": 0
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "audio_tokens": 0,
+        "accepted_prediction_tokens": 0,
+        "rejected_prediction_tokens": 0
+      }
+    },
+    "system_fingerprint": null
+  },
+  "request": {
+    "model": "TheDrummer/Artemis-31B-v1.1-GGUF:Q4_K_M",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a concise roleplay narrator. Do not reason aloud."
+      },
+      {
+        "role": "user",
+        "content": "A traveler reaches a bridge at sunset. Describe the scene in two sentences, leaving their next action open."
+      }
+    ],
+    "max_tokens": 128,
+    "temperature": 0.7,
+    "stream": false
+  }
+}

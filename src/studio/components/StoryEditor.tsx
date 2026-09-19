@@ -2,7 +2,7 @@ import React from "react";
 import { ARC_TEMPLATE_NAMES, type ArcTemplateName, type StoryRequirements } from "@engine/index";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import { useDraftStore } from "../draft";
-import { addArcBridge, removeArcBridge, setArcTemplate, setRequirements, setStoryField, setStoryId, slugifyStoryId, updateArcBridge } from "../mutations";
+import { addArcBridge, removeArcBridge, setArcTemplate, setRequirements, setStagecraft, setStoryField, setStoryId, slugifyStoryId, updateArcBridge } from "../mutations";
 
 export interface StoryEditorProps {
   personaNames?: string[];
@@ -116,6 +116,18 @@ const StoryEditor: React.FC<StoryEditorProps> = ({ personaNames = [], memberName
         <RequirementList label="Persona" hint="The user persona this story is written for. A mismatch shows the player a 'this story still needs' notice instead of silently misfiring." values={requirements.personas ?? []} options={personaNames} listId="so-req-personas" onChange={(personas) => patchRequirements({ personas })} />
         <RequirementList label="Cast member" hint="Characters that must be in the group. Names must match the character cards." values={requirements.members ?? []} options={memberNames} listId="so-req-members" onChange={(members) => patchRequirements({ members })} />
         <RequirementList label="Lorebook" hint="Global lorebooks that must be active — the world_info effects assume their entries exist." values={requirements.lorebooks ?? []} options={lorebookNames} listId="so-req-lorebooks" onChange={(lorebooks) => patchRequirements({ lorebooks })} />
+      </div>
+
+      <div data-so="stagecraft" className="st-subpanel flex flex-col gap-3 p-3">
+        <div className="text-sm font-medium">Stagecraft <span className="st-muted font-normal">— what a background curator may edit</span></div>
+        <RequirementList
+          label="Curator lorebook"
+          hint="The only lorebooks the World Info curator may ever write into. Leave empty and it can write nothing at all — never list a book you keep for yourself."
+          values={draft.stagecraft?.lorebooks ?? []}
+          options={lorebookNames}
+          listId="so-stagecraft-lorebooks"
+          onChange={(lorebooks) => mutate((current) => setStagecraft(current, { lorebooks }))}
+        />
       </div>
 
       <div data-so="arc-bridges" className="st-subpanel flex flex-col gap-2 p-3">

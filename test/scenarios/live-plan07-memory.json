@@ -24,7 +24,8 @@
         "roster": [ { "id": "arin", "name": "Arin" }, { "id": "narrator", "name": "DM Narrator" } ]
       }
     },
-    { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorRuntime.setExtractionSettings({ enabled: true, profileId: 'afcc7073-3510-4f67-8070-35ce449d4792', cadence: 2 }); return true;" },
+    { "ui": { "action": "select-profile" } },
+    { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorRuntime.setExtractionSettings({ enabled: true, cadence: 2 }); return true;" },
     { "send_generate": "We step into the moonlit hall. I tell Arin that the brass statue by the stairs is the one from my dream." },
     { "wait": { "boundary": 1, "timeoutMs": 120000 } },
     { "send_generate": "I ask Arin to guard the statue while I copy the inscription on its base into my journal." },

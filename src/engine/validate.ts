@@ -9,6 +9,7 @@ import {
   TENSION_CURRENT_KEY,
   TENSION_LEVELS,
   type ArcTemplate,
+  type BackgroundEffect,
   type Checkpoint,
   type CheckpointEffects,
   type GateLeaf,
@@ -19,6 +20,7 @@ import {
   type Quality,
   type QualityType,
   type StoryRequirements,
+  type StoryStagecraft,
   type StoryV2,
   type TalkControl,
   type TalkControlSpeaker,
@@ -96,9 +98,25 @@ const readQuality = (value: unknown, path: string, errors: ValidationError[]): Q
   };
 };
 
+// `background: "tavern day.jpg"` and `background: { name: "tavern day.jpg" }` are the same effect;
+// the shorthand collapses here so the applier only ever sees one shape.
+const readBackground = (value: unknown, path: string, errors: ValidationError[]): BackgroundEffect | undefined => {
+  const name = typeof value === "string" ? asString(value) : isRecord(value) ? asString(value.name) : null;
+  if (!name) {
+    addError(errors, path, "background must be a filename string or { name }");
+    return undefined;
+  }
+  return { name: name.trim() };
+};
+
 const readCheckpointEffects = (value: unknown, path: string, errors: ValidationError[]): CheckpointEffects | null => {
   if (!isRecord(value)) return null;
   const effects: CheckpointEffects = { ...value };
+  if (value.background !== undefined) {
+    const background = readBackground(value.background, `${path}.background`, errors);
+    if (background) effects.background = background;
+    else delete effects.background;
+  }
   if (value.npc_replies === undefined) return effects;
   if (!Array.isArray(value.npc_replies)) {
     addError(errors, `${path}.npc_replies`, "npc_replies must be an array");
@@ -416,6 +434,17 @@ const readRequirements = (value: unknown, errors: ValidationError[]): StoryRequi
   };
 };
 
+// The curator's write scope, authored explicitly. An empty list is no scope at all, which is the
+// safe default: nothing here is inferred from requirements or world_info effects.
+const readStagecraft = (value: unknown, errors: ValidationError[]): StoryStagecraft | undefined => {
+  if (!isRecord(value)) {
+    addError(errors, "stagecraft", "stagecraft must be an object");
+    return undefined;
+  }
+  const lorebooks = readRequirementList(value.lorebooks ?? value.lorebook);
+  return lorebooks.length ? { lorebooks } : undefined;
+};
+
 const readArcTemplate = (value: unknown, errors: ValidationError[]): ArcTemplate | undefined => {
   if (isOneOf(value, ARC_TEMPLATE_NAMES)) return value;
   if (isRecord(value) && Array.isArray(value.points)) {
@@ -461,6 +490,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const qualities = addBuiltinTensionQuality(addProgressQualities(baseQualities, checkpoints, errors), errors);
   const arcTemplate = json.arc_template !== undefined ? readArcTemplate(json.arc_template, errors) : undefined;
   const requirements = json.requirements !== undefined ? readRequirements(json.requirements, errors) : undefined;
+  const stagecraft = json.stagecraft !== undefined ? readStagecraft(json.stagecraft, errors) : undefined;
   const arcBridges = Array.isArray(json.arc_bridges) ? json.arc_bridges.map((entry, index) => {
     const bridgePath = `arc_bridges.${index}`;
     if (!isRecord(entry)) {
@@ -545,6 +575,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     ...(arcTemplate !== undefined ? { arc_template: arcTemplate } : {}),
     ...(arcBridges ? { arc_bridges: arcBridges } : {}),
     ...(requirements ? { requirements } : {}),
+    ...(stagecraft ? { stagecraft } : {}),
     startCheckpointId,
     checkpointById,
     outgoingByCheckpoint,

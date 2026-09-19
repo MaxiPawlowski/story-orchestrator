@@ -1,7 +1,8 @@
 import { getContext } from "@services/STAPI";
 import { DEFAULT_TENSION_EMA_ALPHA, MEMORY_TIER_INJECTION_DEPTHS } from "@constants/defaults";
 import { DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS } from "@memory/index";
-import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, RuntimeExtras, UiRuntimeSettings } from "./types";
+import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
+import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, RuntimeExtras, StagecraftSettings, UiRuntimeSettings } from "./types";
 
 const SETTINGS_KEY = "settings";
 
@@ -14,6 +15,7 @@ export interface GlobalSettings {
   copilot: CopilotRuntimeSettings;
   memory: MemoryRuntimeSettings;
   talk: { enabled: boolean };
+  stagecraft: StagecraftSettings;
   migratedFromChat?: string;
 }
 
@@ -33,6 +35,9 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   tierTokenBudgets: { ...DEFAULT_TIER_TOKEN_BUDGETS },
 });
 
+// Off by default: an agent that edits the author's lorebook has to be asked for (plan 07).
+export const defaultStagecraftSettings = (): StagecraftSettings => ({ curatorEnabled: false, acceptMode: "review" });
+
 export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
   pacing: { alpha: DEFAULT_TENSION_EMA_ALPHA, hintEnabled: true },
@@ -40,6 +45,7 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   copilot: { enabled: true },
   memory: defaultMemorySettings(),
   talk: { enabled: true },
+  stagecraft: defaultStagecraftSettings(),
 });
 
 const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -68,6 +74,12 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     copilot: { enabled: isRecord(value.copilot) ? value.copilot.enabled !== false : true },
     memory: { ...defaults.memory, ...memory, injectionDepths: { ...defaults.memory.injectionDepths, ...(isRecord(memory.injectionDepths) ? memory.injectionDepths : {}) } } as MemoryRuntimeSettings,
     talk: { enabled: isRecord(value.talk) ? value.talk.enabled !== false : true },
+    stagecraft: {
+      curatorEnabled: isRecord(value.stagecraft) && value.stagecraft.curatorEnabled === true,
+      acceptMode: isRecord(value.stagecraft) && STAGECRAFT_ACCEPT_MODES.includes(value.stagecraft.acceptMode as StagecraftAcceptMode)
+        ? (value.stagecraft.acceptMode as StagecraftAcceptMode)
+        : defaults.stagecraft.acceptMode,
+    },
     ...(typeof value.migratedFromChat === "string" ? { migratedFromChat: value.migratedFromChat } : {}),
   };
 };
@@ -100,6 +112,7 @@ export function setGlobalSettings(patch: Partial<{ [K in keyof GlobalSettings]: 
     copilot: { ...current.copilot, ...(patch.copilot ?? {}) },
     memory: { ...current.memory, ...(patch.memory ?? {}) },
     talk: { ...current.talk, ...(patch.talk ?? {}) },
+    stagecraft: { ...current.stagecraft, ...(patch.stagecraft ?? {}) },
   };
   const sanitized = sanitizeGlobalSettings(next);
   getRoot()[SETTINGS_KEY] = sanitized;
@@ -121,6 +134,7 @@ export function liftLegacyChatSettings(extras: RuntimeExtras | undefined, chatLa
     copilot: { enabled: extras.copilot?.enabled },
     memory: extras.memory?.settings,
     talk: { enabled: extras.talk?.enabled },
+    stagecraft: extras.stagecraft?.settings,
   });
   getRoot()[SETTINGS_KEY] = { ...getGlobalSettings(), migratedFromChat: chatLabel };
   getContext().saveSettingsDebounced();

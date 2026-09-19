@@ -28,6 +28,7 @@ module.exports = {
       "@copilot": path.resolve(__dirname, "src/copilot"),
       "@talk": path.resolve(__dirname, "src/talk"),
       "@wizard": path.resolve(__dirname, "src/wizard"),
+      "@stagecraft": path.resolve(__dirname, "src/stagecraft"),
     },
     fallback: {
       fs: false,

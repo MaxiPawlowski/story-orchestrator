@@ -77,21 +77,32 @@ export async function getSettingsPanelState(page) {
 }
 
 // Configure the memory LLM the way an end user does: through the settings panel controls.
-// Journey/scenario files never carry a profile id — ST_DEBUG_PROFILE (name) selects one when
-// several exist, otherwise the first configured profile wins.
+// Journey/scenario files never carry a profile id. A name (step label, else ST_DEBUG_PROFILE) picks
+// by prefix and fails when nothing matches; without one the profile the user already chose stays,
+// because the setting is install-wide, and only an install with none selected falls back to the
+// first profile. "Already chose" is read from the stored setting, not the dropdown: a write that
+// skipped the runtime leaves the panel showing a stale choice. The profile is set before extraction is enabled: enabling while a dead profile is
+// still selected fails the first read, and the scheduler then pauses extraction install-wide.
 export async function selectMemoryProfile(page, wanted = process.env.ST_DEBUG_PROFILE ?? '') {
   const { navWasOpen } = await openExtensionSettings(page);
   const enable = page.locator('#so-extraction-enabled');
   if (!(await enable.count())) throw new Error('Extraction toggle (#so-extraction-enabled) not found in the settings panel.');
-  if (!(await enable.isChecked())) await enable.check();
   const select = page.locator('#so-extraction-profile');
   if (!(await select.count())) throw new Error('Memory profile select (#so-extraction-profile) not found.');
   const labels = (await select.locator('option').allTextContents()).map((label) => label.trim()).filter((label) => label && label !== 'No profile selected');
   if (!labels.length) throw new Error('No connection profiles offered by the settings panel.');
   const search = String(wanted).trim().toLowerCase();
-  const label = (search && labels.find((option) => option.toLowerCase().startsWith(search))) || labels[0];
-  await select.selectOption({ label });
-  const result = { profile: label, available: labels, enabled: await enable.isChecked() };
+  const current = await evaluateInST(page, () => {
+    const stored = SillyTavern.getContext().extensionSettings?.['story-orchestrator']?.settings?.extraction?.profileId ?? '';
+    const option = Array.from(document.querySelectorAll('#so-extraction-profile option')).find((entry) => stored && (entry as HTMLOptionElement).value === stored);
+    return (option?.textContent ?? '').trim();
+  });
+  const kept = !search && labels.includes(current);
+  const label = search ? labels.find((option) => option.toLowerCase().startsWith(search)) : kept ? current : labels[0];
+  if (!label) throw new Error(`No memory profile named "${wanted}" in the settings panel (offered: ${labels.join(', ')}).`);
+  if (label !== current) await select.selectOption({ label });
+  if (!(await enable.isChecked())) await enable.check();
+  const result = { profile: label, kept, previous: current || null, available: labels, enabled: await enable.isChecked() };
   // Leave the nav as we found it: an open Extensions drawer hides #options_button and #send_but,
   // so anything that plays the chat afterwards would time out.
   if (!navWasOpen) await closeUnpinnedDrawers(page).catch(() => undefined);
@@ -307,6 +318,105 @@ export async function applyWizardProvisioning(page, index: number | 'all' = 0, {
   return state;
 }
 
+async function showStagecraftRing(page) {
+  await openStoryDrawer(page);
+  try {
+    await switchDrawerTab(page, 'Scheduler');
+    return null;
+  } catch (error) {
+    return error instanceof Error ? error.message : String(error);
+  }
+}
+
+async function readStagecraftCounts(page) {
+  return evaluateInST(page, () => ({
+    drawerOpen: document.getElementById('drawer-manager')?.classList.contains('openDrawer') ?? false,
+    activeTab: document.querySelector('#drawer-manager [role="tablist"] button[aria-selected="true"]')?.textContent?.trim() ?? null,
+    ring: Boolean(document.getElementById('so-stagecraft')),
+    cards: document.querySelectorAll('#so-stagecraft [data-so="curator-op"]').length,
+    runtimeOps: (globalThis.storyOrchestratorRuntime?.getStagecraftState?.().proposals ?? []).reduce((sum, record) => sum + (record.ops?.length ?? 0), 0),
+  }));
+}
+
+// A card renders a beat after the proposal lands, and anything that re-lays the page out (another
+// tool attaching, a resize) can close the drawer or drop the tab under us: re-open and re-select
+// until the cards are there, then say exactly what was on screen if they never came.
+async function waitForCuratorCards(page, minOps, timeoutMs) {
+  const deadline = Date.now() + timeoutMs;
+  let tabError = null;
+  let counts = null;
+  while (true) {
+    tabError = await showStagecraftRing(page);
+    counts = await readStagecraftCounts(page);
+    if (counts.cards >= minOps) return;
+    if (Date.now() >= deadline) break;
+    await page.waitForTimeout(500);
+  }
+  throw new Error(`expected >= ${minOps} curator review card(s) on screen within ${timeoutMs} ms: ${JSON.stringify({ ...counts, tabError })}`);
+}
+
+// The curator review ring, driven through the drawer the way an author reviews it (author view
+// only — the panel is author-side by the spoiler checklist). `minOps` waits for that many op cards.
+export async function getStagecraftState(page, { minOps = 0, timeoutMs = 15000 } = {}) {
+  if (minOps > 0) await waitForCuratorCards(page, minOps, timeoutMs);
+  const tabError = await showStagecraftRing(page);
+  const state = await evaluateInST(page, () => {
+    const root = document.getElementById('so-stagecraft');
+    if (!root) return { visible: false, reason: 'author view is off, or the Scheduler tab is not open' };
+    return {
+      visible: true,
+      header: root.querySelector('.opacity-70')?.textContent?.trim() ?? null,
+      proposals: Array.from(root.querySelectorAll('[data-so="curator-proposal"]')).map((card) => ({
+        summary: card.querySelector('.opacity-100')?.textContent?.trim() ?? '',
+        ops: Array.from(card.querySelectorAll('[data-so="curator-op"]')).map((op) => (op as HTMLElement).innerText.split('\n')[0]),
+        pending: card.querySelectorAll('[data-so="curator-accept"]').length,
+      })),
+      snapshot: globalThis.storyOrchestratorRuntime?.getStagecraftState?.() ?? null,
+      scope: globalThis.storyOrchestratorRuntime?.getSnapshot?.().stagecraftScope ?? [],
+    };
+  });
+  return tabError ? { ...state, tabError } : state;
+}
+
+// The card an author would reach for first on the newest proposal still waiting for review: its
+// first pending change that carries editable text, else its first pending change of any kind.
+// Index is ring-wide.
+async function pickPendingCuratorCard(page) {
+  return evaluateInST(page, () => {
+    const ring = document.getElementById('so-stagecraft');
+    const all = Array.from(ring?.querySelectorAll('[data-so="curator-op"]') ?? []);
+    const waiting = (card: Element) => Boolean(card.querySelector('[data-so="curator-accept"]'));
+    const newest = Array.from(ring?.querySelectorAll('[data-so="curator-proposal"]') ?? []).find((proposal) => all.some((card) => proposal.contains(card) && waiting(card)));
+    const pending = all.filter((card) => newest?.contains(card) && waiting(card));
+    const chosen = pending.find((card) => card.querySelector('[data-so="curator-text"]')) ?? pending[0];
+    return chosen ? all.indexOf(chosen) : -1;
+  });
+}
+
+// index: which op card in the ring (newest proposal first). Editing the text first is the author's
+// real path, so `text` fills the textarea before accepting. pick 'text-first' lets the model decide
+// the op kind: the first pending text change gets `text`, and a proposal with only on/off switches
+// has its first switch decided as proposed.
+export async function decideCuratorOp(page, decision: 'accept' | 'reject', { index = 0, text = null, pick = null, timeoutMs = 15000 } = {}) {
+  await getStagecraftState(page, { minOps: 1, timeoutMs });
+  const cards = page.locator('#so-stagecraft [data-so="curator-op"]');
+  const target = pick === 'text-first' ? await pickPendingCuratorCard(page) : index;
+  if (target < 0) throw new Error('The newest curator proposal has no change waiting for review.');
+  if (target >= (await cards.count())) throw new Error(`No curator change ${target} on screen to review.`);
+  const card = cards.nth(target);
+  const field = card.locator('[data-so="curator-text"]');
+  const editable = (await field.count()) > 0;
+  if (text !== null && !editable && pick !== 'text-first') throw new Error(`Curator change ${target} has no editable text.`);
+  if (text !== null && editable) await field.fill(String(text));
+  const label = ((await card.innerText()) ?? '').split('\n')[0].trim();
+  await card.locator(decision === 'accept' ? '[data-so="curator-accept"]' : '[data-so="curator-reject"]').click();
+  await page.waitForFunction((at) => {
+    const node = document.querySelectorAll('#so-stagecraft [data-so="curator-op"]')[at];
+    return Boolean(node) && !node.querySelector('[data-so="curator-accept"]');
+  }, target, { timeout: 5000 });
+  return { decided: { index: target, decision, label, edited: text !== null && editable }, ...(await getStagecraftState(page)) };
+}
+
 export async function getStudioState(page) {
   const modal = page.locator('#so-studio-modal');
   if (!(await modal.count())) {
@@ -446,7 +556,24 @@ const PLAYER_FORBIDDEN = [
   'Epistemic map', 'State ledger', 'hiding from', 'blackboard', 'Blackboard',
   'Steering:', 'Convergence', 'Unmet gates', 'Driver', 'Advance to', 'Nudge',
   'boundary ', 'Boundary ', 'Audits recorded', 'superseded', 'Last audit',
+  'World Info curator',
 ];
+
+// D1 as a selector sweep, not a reading of the copy (plan 08 success criteria): no steering control
+// and no author-only panel may be *reachable* on a player-visible surface. Text needles catch a
+// label; these catch the control itself, including one rendered with its label changed.
+const PLAYER_FORBIDDEN_SELECTORS = [
+  '#so-edit-story', '#so-update-story', '#so-fix-with-wizard', '#so-stagecraft',
+  '[data-so="curator-proposal"]', '[data-so="curator-op"]', '[data-so="curator-accept"]', '[data-so="curator-reject"]',
+  '[aria-label="In-play driver"]', '[aria-label="Advance target"]', '[aria-label="Nudge text"]',
+  '[aria-label="Driver suggestions"]', '[aria-label="Driver report"]', '[aria-label="Active nudge"]',
+  '[aria-label="Driver unavailable"]', '[aria-label="Talk decisions"]',
+];
+
+// Surfaces a player can reach without turning anything on: the drawer (every tab it offers), the HUD
+// strip above the composer, and the settings panel — which is `both`, so it may carry display
+// toggles and Restart, but never a steering control.
+const PLAYER_SURFACES = ['#drawer-manager', '#so-hud', '#story-orchestrator-settings'];
 
 export async function assertPlayerClean(page) {
   await openStoryDrawer(page);
@@ -463,9 +590,31 @@ export async function assertPlayerClean(page) {
   }
   const authorOnlyTabs = tabs.filter((tab) => ['Blackboard', 'Scheduler', 'Payload'].includes(tab));
   if (authorOnlyTabs.length) findings.push({ tab: authorOnlyTabs.join(', '), needle: 'author-only tab offered in player mode' });
+  const sweep = [];
+  for (const tab of tabs) {
+    await switchDrawerTab(page, tab);
+    const hits = await evaluateInST(page, ({ surfaces, selectors }) => {
+      const found = [];
+      for (const surface of surfaces) {
+        const root = document.querySelector(surface);
+        if (!root) continue;
+        for (const selector of selectors) {
+          for (const node of Array.from(root.querySelectorAll(selector))) {
+            const element = node as HTMLElement;
+            found.push({ surface, selector, visible: element.offsetParent !== null, text: (element.innerText ?? '').slice(0, 60) });
+          }
+        }
+      }
+      return found;
+    }, { surfaces: PLAYER_SURFACES, selectors: PLAYER_FORBIDDEN_SELECTORS });
+    for (const hit of hits ?? []) {
+      findings.push({ tab, needle: `${hit.selector} reachable in ${hit.surface}` });
+      sweep.push({ tab, ...hit });
+    }
+  }
   // Leave the drawer where a player would: on the narrative view, not on the last tab we walked.
   if (tabs.includes('Overview')) await switchDrawerTab(page, 'Overview');
-  return { ok: findings.length === 0, tabs, findings };
+  return { ok: findings.length === 0, tabs, surfaces: PLAYER_SURFACES, selectorsChecked: PLAYER_FORBIDDEN_SELECTORS.length, findings, sweep };
 }
 
 export async function takeAnnotatedScreenshot(page, label = 'ui-state') {
@@ -494,7 +643,7 @@ export async function openStoryDrawer(page) {
   return { alreadyOpen: false };
 }
 
-const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|screenshot> [label]
+const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|stagecraft|curator-accept|curator-reject|screenshot> [label]
 
 all: print settings + drawer state.
 settings: print settings panel state.
@@ -514,6 +663,10 @@ new-story-wizard: click "New story (wizard)" in the settings panel (fresh draft)
 wizard-run [stage] [message]: run a wizard stage through the UI and wait for the model.
 wizard-answer [a1|a2|a3]: answer the pending questions ('|' separated); no argument clicks "You decide".
 wizard-apply [index]: click "Create it" on one provisioning card (default 0).
+stagecraft: print the World Info curator review ring from the drawer (author view, Scheduler tab).
+curator-accept [index|text-first] [text]: accept one proposed change, optionally replacing its text first. text-first picks the
+  newest proposal's first pending text change (text applied) or, with none, its first pending switch.
+curator-reject [index|text-first]: decline one proposed change.
 screenshot [label]: take an annotated screenshot.`;
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
@@ -626,6 +779,23 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       const state = await applyWizardProvisioning(page, Number(process.argv[3] ?? 0));
       console.log(JSON.stringify(state, null, 2));
       await writeJSON(state, 'so-ui-wizard-apply');
+    }
+
+    if (subcommand === 'stagecraft') {
+      const state = await getStagecraftState(page);
+      console.log(JSON.stringify(state, null, 2));
+      await writeJSON(state, 'so-ui-stagecraft');
+    }
+
+    if (subcommand === 'curator-accept' || subcommand === 'curator-reject') {
+      const which = process.argv[3] ?? '0';
+      const state = await decideCuratorOp(page, subcommand === 'curator-accept' ? 'accept' : 'reject', {
+        index: which === 'text-first' ? 0 : Number(which),
+        pick: which === 'text-first' ? 'text-first' : null,
+        text: process.argv[4] ?? null,
+      });
+      console.log(JSON.stringify(state, null, 2));
+      await writeJSON(state, `so-ui-${subcommand}`);
     }
 
     if (subcommand === 'screenshot') {

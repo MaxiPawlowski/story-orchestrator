@@ -1,7 +1,7 @@
 import { callExtractionModel, getChatWindow, ExtractionScheduler, type SchedulerHost, type SchedulerSettings } from "@extraction/index";
 import { executeSlashCommands, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, subscribeToHostEvents, type HostSubscriptionEntry } from "@services/STAPI";
 import { quoteSlashArg } from "@utils/string";
-import { runBoundaryWork, type BoundaryCursor } from "./boundaryWork";
+import { runBoundaryWork } from "./boundaryWork";
 import { registerLiveSuite } from "./liveSuite";
 import { registerRuntimeMacros } from "./macros";
 import { runtimeManager } from "./runtimeManager";
@@ -15,7 +15,6 @@ let slashRegistered = false;
 let scheduler: ExtractionScheduler | null = null;
 let privateInjectionUnsub: (() => void) | null = null;
 let talkController: TalkController | null = null;
-const boundaryCursor: BoundaryCursor = { previousLastMessageId: -1 };
 
 const registerSlashCommandsWhenReady = (attempt = 0) => {
   if (slashRegistered) return;
@@ -51,7 +50,7 @@ export function startRuntime() {
   };
   scheduler = new ExtractionScheduler(schedulerHost);
   runtimeManager.onBoundary((result) => {
-    if (scheduler) runBoundaryWork({ result, manager: runtimeManager, scheduler, cursor: boundaryCursor });
+    if (scheduler) runBoundaryWork({ result, manager: runtimeManager, scheduler });
   });
   runtimeManager.onRollback((messageId, window) => {
     scheduler?.schedule({ priority: 0, reason: `rollback:${messageId}`, window });
@@ -60,6 +59,9 @@ export function startRuntime() {
     scheduler?.schedule({ priority: 2, reason: `scene-break:${audit.sceneBreak?.reason}`, run: () => runtimeManager.runSceneBreakPass(audit) });
     if (runtimeManager.getEpistemicLedgerCapable()) {
       scheduler?.schedule({ priority: 2, reason: `epistemic-ledger:${audit.sceneBreak?.reason}`, run: async () => { await runtimeManager.runEpistemicLedgerPass(audit); } });
+    }
+    if (runtimeManager.curatorDueForRun()) {
+      scheduler?.schedule({ priority: 4, reason: `wi-curator:scene-${audit.sceneBreak?.reason}`, run: async () => { await runtimeManager.runWiCuratorPass("scene-break"); } });
     }
   });
   runtimeManager.onArcsResolvedConfirmed((arcIds) => {
@@ -73,6 +75,7 @@ export function startRuntime() {
   bridge.start();
   const talkHost: TalkControlHost = {
     isGroupChat: () => Boolean(getActiveGroup()),
+    getChatId: () => getContext().chatId ?? null,
     getActiveTalkControl: () => runtimeManager.getActiveTalkControl(),
     getRoster: () => runtimeManager.getStory()?.roster ?? [],
     getEnabledRosterIds: () => runtimeManager.getEnabledCharacterIds(),
@@ -116,7 +119,6 @@ export function stopRuntime() {
   privateInjectionUnsub?.();
   privateInjectionUnsub = null;
   scheduler = null;
-  boundaryCursor.previousLastMessageId = -1;
   talkController = null;
   globalThis.talkControlInterceptor = () => undefined;
   started = false;

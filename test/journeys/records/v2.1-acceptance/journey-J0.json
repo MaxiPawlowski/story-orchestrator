@@ -1,0 +1,68 @@
+{
+  "id": "J0",
+  "title": "runner-selftest",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\selftest.journey.json",
+  "ranAt": "2026-08-13T10:05:14.719Z",
+  "strict": true,
+  "tally": {
+    "pass": 2,
+    "blocked": 1,
+    "skipped": 1
+  },
+  "runnerError": null,
+  "capabilities": {
+    "runtime-handle": true,
+    "session-journal": true,
+    "feature-from-the-future": false
+  },
+  "results": [
+    {
+      "id": "J0.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the runner starts on a virgin chat with no story selected",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": ""
+    },
+    {
+      "id": "J0.2",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the drawer opens and the flag control writes a journal record",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": ""
+    },
+    {
+      "id": "J0.3",
+      "mode": "auto",
+      "findings": [],
+      "goal": "a check requiring a capability this build lacks reports blocked, not failed",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "blocked",
+      "detail": "missing capability: feature-from-the-future"
+    },
+    {
+      "id": "J0.4",
+      "mode": "human",
+      "findings": [],
+      "goal": "",
+      "prompt": "Ignore — selftest placeholder proving human checks are emitted as a checklist and reported as skipped.",
+      "anchors": "1 = not emitted, 5 = emitted",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    }
+  ],
+  "cleanup": {
+    "stories": {
+      "removed": 1
+    },
+    "chat": {
+      "deleted": true
+    }
+  }
+}

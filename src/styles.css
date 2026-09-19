@@ -1,9 +1,5 @@
 @reference "tailwindcss";
-
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@source "./";
 
 /* Theme-Aware Utility Classes */
 :root {
@@ -18,110 +14,218 @@
   --st-info: var(--SmartThemeQuoteColor, var(--SmartThemeBodyColor, currentColor));
 }
 
-.st-bg-active {
-  background-color: var(--st-bg-active);
-}
+:is(#drawer-manager, #so-hud-root, #story-orchestrator-settings, #so-studio-root, #so-studio-modal) {
+  @apply text-base;
 
-.st-text-active {
-  color: var(--st-text-active);
-}
+  @tailwind utilities source(none);
 
-.st-border {
-  border-color: var(--st-border);
-}
+  .st-bg-active {
+    background-color: var(--st-bg-active);
+  }
 
-.st-bg-hover {
-  background-color: var(--st-hover);
-}
+  .st-text-active {
+    color: var(--st-text-active);
+  }
 
-.st-bg-tint {
-  background-color: var(--st-bg-tint);
-}
+  .st-border {
+    border-color: var(--st-border);
+  }
 
-.st-muted {
-  color: var(--st-text-active);
-  opacity: 0.75;
-}
+  .st-bg-hover {
+    background-color: var(--st-hover);
+  }
 
-.st-muted-weak {
-  color: var(--st-text-active);
-  opacity: 0.6;
-}
+  .st-bg-tint {
+    background-color: var(--st-bg-tint);
+  }
 
-.st-strong {
-  color: var(--st-text-active);
-  opacity: 1;
-}
+  .st-muted {
+    color: var(--st-text-active);
+    opacity: 0.75;
+  }
 
-.st-panel {
-  border: 1px solid var(--st-border);
-  background: var(--st-bg-tint);
-  border-radius: 0.5rem;
-}
+  .st-muted-weak {
+    color: var(--st-text-active);
+    opacity: 0.6;
+  }
 
-.st-panel-header {
-  border-bottom: 1px solid var(--st-border);
-}
+  .st-strong {
+    color: var(--st-text-active);
+    opacity: 1;
+  }
 
-.st-subpanel {
-  border: 1px solid color-mix(in srgb, var(--st-border) 85%, transparent);
-  background: color-mix(in srgb, var(--st-bg-tint) 80%, transparent);
-  border-radius: 0.5rem;
-}
+  .st-panel {
+    border: 1px solid var(--st-border);
+    background: var(--st-bg-tint);
+    border-radius: 0.5rem;
+  }
 
-.st-divider {
-  border-color: color-mix(in srgb, var(--st-border) 90%, transparent);
-}
+  .st-panel-header {
+    border-bottom: 1px solid var(--st-border);
+  }
 
-.st-chip {
-  border: 1px solid var(--st-border);
-  background: color-mix(in srgb, var(--st-bg-active) 75%, transparent);
-  color: var(--st-text-active);
-  border-radius: 0.375rem;
-}
+  .st-subpanel {
+    border: 1px solid color-mix(in srgb, var(--st-border) 85%, transparent);
+    background: color-mix(in srgb, var(--st-bg-tint) 80%, transparent);
+    border-radius: 0.5rem;
+  }
 
-.st-chip-muted {
-  border-color: color-mix(in srgb, var(--st-border) 80%, transparent);
-  background: color-mix(in srgb, var(--st-bg-tint) 70%, transparent);
-  color: var(--st-text-active);
-  opacity: 0.9;
-}
+  .st-divider {
+    border-color: color-mix(in srgb, var(--st-border) 90%, transparent);
+  }
 
-.st-pill {
-  border: 1px solid var(--st-border);
-  background: color-mix(in srgb, var(--st-bg-active) 70%, transparent);
-  color: var(--st-text-active);
-  border-radius: 999px;
-}
+  .st-chip {
+    border: 1px solid var(--st-border);
+    background: color-mix(in srgb, var(--st-bg-active) 75%, transparent);
+    color: var(--st-text-active);
+    border-radius: 0.375rem;
+  }
 
-.st-tab {
-  border: 1px solid var(--st-border);
-  background: color-mix(in srgb, var(--st-bg-tint) 45%, transparent);
-  color: var(--st-text-active);
-}
+  .st-chip-muted {
+    border-color: color-mix(in srgb, var(--st-border) 80%, transparent);
+    background: color-mix(in srgb, var(--st-bg-tint) 70%, transparent);
+    color: var(--st-text-active);
+    opacity: 0.9;
+  }
 
-.st-tab:hover {
-  border-color: var(--st-hover);
-}
+  .st-pill {
+    border: 1px solid var(--st-border);
+    background: color-mix(in srgb, var(--st-bg-active) 70%, transparent);
+    color: var(--st-text-active);
+    border-radius: 999px;
+  }
 
-.st-tab-active {
-  background: color-mix(in srgb, var(--st-info) 18%, var(--st-bg-active));
-  border-color: color-mix(in srgb, var(--st-info) 65%, var(--st-border));
-}
+  .st-tab {
+    border: 1px solid var(--st-border);
+    background: color-mix(in srgb, var(--st-bg-tint) 45%, transparent);
+    color: var(--st-text-active);
+  }
 
-.st-help-icon {
-  color: var(--st-text-active);
-  opacity: 0.65;
-}
+  .st-tab:hover {
+    border-color: var(--st-hover);
+  }
 
-.st-modal-overlay {
-  background: var(--black30a, rgba(0, 0, 0, 0.3));
-  backdrop-filter: blur(calc(var(--SmartThemeBlurStrength, 5px) * 2));
-  -webkit-backdrop-filter: blur(calc(var(--SmartThemeBlurStrength, 5px) * 2));
+  .st-tab-active {
+    background: color-mix(in srgb, var(--st-info) 18%, var(--st-bg-active));
+    border-color: color-mix(in srgb, var(--st-info) 65%, var(--st-border));
+  }
+
+  .st-help-icon {
+    color: var(--st-text-active);
+    opacity: 0.65;
+  }
+
+  .st-button {
+    @apply inline-flex items-center justify-center rounded border px-3 py-1 text-xs font-medium transition;
+    color: var(--st-text-active);
+    background-color: var(--st-bg-active);
+    border-color: var(--st-border);
+    cursor: pointer;
+  }
+
+  .st-button:hover {
+    background-color: var(--st-bg-tint);
+    border-color: var(--st-hover);
+  }
+
+  .st-button:focus-visible {
+    outline: 1px solid var(--st-hover);
+    outline-offset: 1px;
+  }
+
+  .st-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .st-button.primary {
+    border-color: var(--st-info);
+    background-color: color-mix(in srgb, var(--st-info) 16%, var(--st-bg-active));
+  }
+
+  .st-button.secondary {
+    border-color: var(--st-border);
+  }
+
+  .st-button.danger {
+    border-color: color-mix(in srgb, var(--st-error) 55%, var(--st-border));
+    color: var(--st-error);
+  }
+
+  .st-input {
+    color: var(--st-text-active);
+    background-color: var(--st-bg-active);
+    border-color: var(--st-border);
+  }
+
+  .st-input:focus {
+    border-color: var(--st-hover);
+    outline: none;
+  }
+
+  .status-indicator {
+    border-radius: 999px;
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    border: 1px solid color-mix(in srgb, var(--st-border) 65%, transparent);
+  }
+
+  .status-indicator.status-success {
+    background-color: var(--st-success);
+  }
+
+  .status-indicator.status-error {
+    background-color: var(--st-error);
+  }
+
+  .status-indicator.status-warning {
+    background-color: var(--st-warning);
+  }
+
+  .status-indicator.status-info {
+    background-color: var(--st-info);
+  }
+
+  .st-alert-success {
+    border-color: color-mix(in srgb, var(--st-success) 60%, var(--st-border));
+    background-color: color-mix(in srgb, var(--st-success) 15%, transparent);
+    color: var(--st-success);
+  }
+
+  .st-alert-error {
+    border-color: color-mix(in srgb, var(--st-error) 60%, var(--st-border));
+    background-color: color-mix(in srgb, var(--st-error) 15%, transparent);
+    color: var(--st-error);
+  }
+
+  .st-text-error {
+    color: var(--st-error);
+  }
+
+  .st-checkpoint-row {
+    border-color: var(--st-border);
+  }
+
+  .st-checkpoint-row.status-current {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--st-info) 65%, transparent);
+  }
+
+  .st-checkpoint-row.status-complete {
+    border-left: 3px solid var(--st-success);
+  }
+
+  .st-checkpoint-row.status-failed {
+    border-left: 3px solid var(--st-error);
+  }
 }
 
 dialog#so-studio-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 4100;
   margin: 0;
+  padding: 1rem;
   border: none;
   outline: none;
   width: auto;
@@ -129,6 +233,9 @@ dialog#so-studio-modal {
   max-width: none;
   max-height: none;
   color: inherit;
+  background: var(--black30a, rgba(0, 0, 0, 0.3));
+  backdrop-filter: blur(calc(var(--SmartThemeBlurStrength, 5px) * 2));
+  -webkit-backdrop-filter: blur(calc(var(--SmartThemeBlurStrength, 5px) * 2));
 }
 
 dialog#so-studio-modal[open] {
@@ -139,6 +246,12 @@ dialog#so-studio-modal[open] {
 
 dialog#so-studio-modal::backdrop {
   background: transparent;
+}
+
+body.no-blur dialog#so-studio-modal {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: var(--black70a, rgba(0, 0, 0, 0.7));
 }
 
 #so-studio-modal [role="tabpanel"],
@@ -164,122 +277,6 @@ dialog#so-studio-modal::backdrop {
   min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
-}
-
-body.no-blur .st-modal-overlay {
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  background: var(--black70a, rgba(0, 0, 0, 0.7));
-}
-
-.st-button {
-  @apply inline-flex items-center justify-center rounded border px-3 py-1 text-xs font-medium transition;
-  color: var(--st-text-active);
-  background-color: var(--st-bg-active);
-  border-color: var(--st-border);
-  cursor: pointer;
-}
-
-.st-button:hover {
-  background-color: var(--st-bg-tint);
-  border-color: var(--st-hover);
-}
-
-.st-button:focus-visible {
-  outline: 1px solid var(--st-hover);
-  outline-offset: 1px;
-}
-
-.st-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.st-button.primary {
-  border-color: var(--st-info);
-  background-color: color-mix(in srgb, var(--st-info) 16%, var(--st-bg-active));
-}
-
-.st-button.secondary {
-  border-color: var(--st-border);
-}
-
-.st-button.danger {
-  border-color: color-mix(in srgb, var(--st-error) 55%, var(--st-border));
-  color: var(--st-error);
-}
-
-.st-input {
-  color: var(--st-text-active);
-  background-color: var(--st-bg-active);
-  border-color: var(--st-border);
-}
-
-.st-input:focus {
-  border-color: var(--st-hover);
-  outline: none;
-}
-
-.status-indicator {
-  border-radius: 999px;
-  width: 14px;
-  height: 14px;
-  display: inline-block;
-  border: 1px solid color-mix(in srgb, var(--st-border) 65%, transparent);
-}
-
-.status-indicator.status-success {
-  background-color: var(--st-success);
-}
-
-.status-indicator.status-error {
-  background-color: var(--st-error);
-}
-
-.status-indicator.status-warning {
-  background-color: var(--st-warning);
-}
-
-.status-indicator.status-info {
-  background-color: var(--st-info);
-}
-
-.st-alert-success {
-  border-color: color-mix(in srgb, var(--st-success) 60%, var(--st-border));
-  background-color: color-mix(in srgb, var(--st-success) 15%, transparent);
-  color: var(--st-success);
-}
-
-.st-alert-error {
-  border-color: color-mix(in srgb, var(--st-error) 60%, var(--st-border));
-  background-color: color-mix(in srgb, var(--st-error) 15%, transparent);
-  color: var(--st-error);
-}
-
-.st-text-error {
-  color: var(--st-error);
-}
-
-.st-checkpoint-row {
-  border-color: var(--st-border);
-}
-
-.st-checkpoint-row.status-current {
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--st-info) 65%, transparent);
-}
-
-.st-checkpoint-row.status-complete {
-  border-left: 3px solid var(--st-success);
-}
-
-.st-checkpoint-row.status-failed {
-  border-left: 3px solid var(--st-error);
-}
-
-@layer base {
-  body {
-    @apply text-base;
-  }
 }
 
 #drawer-manager {

@@ -2,9 +2,10 @@ import { stripChannelNoise, type ParsedFact } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
 import { createMemoryState, generateMemoryId, type MemoryEntry } from "@memory/index";
 import { DEFAULT_TENSION_EMA_ALPHA } from "@constants/defaults";
+import { CURATOR_PROPOSAL_LIMIT } from "@stagecraft/index";
 import { sanitizeJournalRecords } from "./journal";
-import { defaultExtractionSettings, defaultMemorySettings, getGlobalSettings, type ChatOverrides } from "./settingsStore";
-import type { CopilotRuntimeSettings, ExtractionRuntimeState, MemoryRuntimeState, PacingSettings, RuntimeExtras, TalkRuntimeState, TensionRuntimeState, UiRuntimeSettings } from "./types";
+import { defaultExtractionSettings, defaultMemorySettings, defaultStagecraftSettings, getGlobalSettings, type ChatOverrides } from "./settingsStore";
+import type { CopilotRuntimeSettings, ExtractionRuntimeState, MemoryMirrorBook, MemoryRuntimeState, PacingSettings, RuntimeExtras, StagecraftRuntimeState, TalkRuntimeState, TensionRuntimeState, UiRuntimeSettings } from "./types";
 
 export const TALK_DECISION_LIMIT = 10;
 
@@ -45,6 +46,7 @@ export const createMemory = (): MemoryRuntimeState => ({
   sceneCount: 0,
   shortTermSummaryEnd: -1,
   wiWrites: {},
+  wiBook: null,
   arcs: [],
   epistemic: [],
   ledger: [],
@@ -68,6 +70,11 @@ const migrateLegacyFacts = (facts: ParsedFact[]): MemoryEntry[] => facts.map((fa
   recallCount: 0,
 }));
 
+const sanitizeMirrorBook = (value: unknown): MemoryMirrorBook | null => {
+  const book = value as Partial<MemoryMirrorBook> | null | undefined;
+  return typeof book?.name === "string" && typeof book.chatId === "string" && book.name && book.chatId ? { name: book.name, chatId: book.chatId } : null;
+};
+
 export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeState => {
   const existing = value?.memory;
   if (existing && Array.isArray(existing.entries)) {
@@ -80,6 +87,7 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
       sceneCount: typeof existing.sceneCount === "number" ? existing.sceneCount : 0,
       shortTermSummaryEnd: typeof existing.shortTermSummaryEnd === "number" ? existing.shortTermSummaryEnd : -1,
       wiWrites: existing.wiWrites && typeof existing.wiWrites === "object" ? existing.wiWrites : {},
+      wiBook: sanitizeMirrorBook(existing.wiBook),
       arcs: Array.isArray(existing.arcs) ? existing.arcs.map((arc) => ({ ...arc, text: stripChannelNoise(arc.text), ...(arc.summary ? { summary: stripChannelNoise(arc.summary) } : {}) })) : [],
       epistemic: Array.isArray(existing.epistemic) ? existing.epistemic : [],
       ledger: Array.isArray(existing.ledger) ? existing.ledger : [],
@@ -97,6 +105,7 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
     sceneCount: 0,
     shortTermSummaryEnd: -1,
     wiWrites: {},
+    wiBook: null,
     arcs: [],
     epistemic: [],
     ledger: [],
@@ -109,6 +118,20 @@ export const createCopilot = (): CopilotRuntimeSettings => ({ enabled: true });
 export const sanitizeCopilot = (value: RuntimeExtras | undefined): CopilotRuntimeSettings => ({ enabled: value?.copilot?.enabled ?? true });
 export const createUi = (): UiRuntimeSettings => ({ authorView: false, announceTransitions: true, hudEnabled: true });
 export const sanitizeUi = (value: RuntimeExtras | undefined): UiRuntimeSettings => ({ ...createUi(), ...value?.ui });
+export const createStagecraft = (): StagecraftRuntimeState => ({ settings: defaultStagecraftSettings(), proposals: [], lastPass: null, lastRunBoundary: -1, lastError: null });
+
+export const sanitizeStagecraft = (value: RuntimeExtras | undefined): StagecraftRuntimeState => {
+  const existing = value?.stagecraft;
+  if (!existing) return createStagecraft();
+  return {
+    settings: { ...defaultStagecraftSettings(), ...existing.settings },
+    proposals: Array.isArray(existing.proposals) ? existing.proposals.filter((entry) => Boolean(entry) && Array.isArray(entry.ops)).slice(-CURATOR_PROPOSAL_LIMIT) : [],
+    lastPass: existing.lastPass && typeof existing.lastPass === "object" ? existing.lastPass : null,
+    lastRunBoundary: typeof existing.lastRunBoundary === "number" ? existing.lastRunBoundary : -1,
+    lastError: typeof existing.lastError === "string" ? existing.lastError : null,
+  };
+};
+
 export const createTalk = (): TalkRuntimeState => ({ enabled: true, decisions: [] });
 export const sanitizeTalk = (value: RuntimeExtras | undefined): TalkRuntimeState => ({
   enabled: value?.talk?.enabled ?? true,
@@ -128,6 +151,7 @@ export const createExtras = (): RuntimeExtras => ({
   copilot: createCopilot(),
   ui: createUi(),
   talk: createTalk(),
+  stagecraft: createStagecraft(),
   journal: [],
   lastSessionAt: null,
   updatedAt: new Date().toISOString(),
@@ -170,6 +194,7 @@ export const applyGlobalSettings = (extras: RuntimeExtras, overrides: ChatOverri
   extras.ui = { authorView: overrides.authorView, announceTransitions: global.display.announceTransitions, hudEnabled: global.display.hudEnabled };
   extras.memory = { ...extras.memory, settings: { ...global.memory } };
   extras.talk = { ...extras.talk, enabled: overrides.talkEnabled ?? global.talk.enabled };
+  extras.stagecraft = { ...extras.stagecraft, settings: { ...global.stagecraft } };
   return extras;
 };
 
@@ -183,6 +208,7 @@ export const stripGlobalSettings = (extras: RuntimeExtras): RuntimeExtras => ({
   ui: { authorView: extras.ui.authorView } as RuntimeExtras["ui"],
   memory: { ...extras.memory, settings: undefined } as unknown as RuntimeExtras["memory"],
   talk: { enabled: extras.talk.enabled, decisions: extras.talk.decisions },
+  stagecraft: { proposals: extras.stagecraft.proposals, lastPass: extras.stagecraft.lastPass, lastRunBoundary: extras.stagecraft.lastRunBoundary, lastError: extras.stagecraft.lastError } as RuntimeExtras["stagecraft"],
 });
 
 export const hydrateExtras = (persisted: RuntimeExtras | undefined): RuntimeExtras => {
@@ -196,6 +222,7 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined): RuntimeExtr
   extras.copilot = sanitizeCopilot(extras);
   extras.ui = sanitizeUi(extras);
   extras.talk = sanitizeTalk(extras);
+  extras.stagecraft = sanitizeStagecraft(extras);
   extras.journal = sanitizeJournalRecords(extras.journal);
   extras.lastSelfInjectionMessageId = typeof extras.lastSelfInjectionMessageId === "number" ? extras.lastSelfInjectionMessageId : null;
   return applyGlobalSettings(extras, overrides);

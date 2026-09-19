@@ -71,6 +71,13 @@ function decodeRuntime(entry) {
       backfill: entry.extras.memory.backfill ?? null,
       settings: entry.extras.memory.settings ?? null,
     } : null,
+    stagecraft: entry.extras?.stagecraft ? {
+      proposals: entry.extras.stagecraft.proposals ?? [],
+      proposalCount: Array.isArray(entry.extras.stagecraft.proposals) ? entry.extras.stagecraft.proposals.length : 0,
+      appliedOpCount: (entry.extras.stagecraft.proposals ?? []).reduce((sum, record) => sum + (record.ops ?? []).filter((op) => op.status === 'applied').length, 0),
+      lastRunBoundary: entry.extras.stagecraft.lastRunBoundary ?? -1,
+      lastError: entry.extras.stagecraft.lastError ?? null,
+    } : null,
     pacing: entry.extras?.pacing ?? null,
     tension: entry.extras?.tension ?? null,
     updatedAt: entry.extras?.updatedAt ?? null,
@@ -99,6 +106,14 @@ export async function dumpCurrentChatState(page) {
     const possibleTransitions = globalThis.storyOrchestratorRuntime?.getPossibleTransitions?.() ?? null;
     const lastStoryUpdate = globalThis.storyOrchestratorRuntime?.getLastStoryUpdate?.() ?? null;
     const copilotNudgePrompt = ctx.extensionPrompts?.story_copilot_nudge ?? null;
+    // The active background is a host read, not persisted state: `/bg` with no argument returns it.
+    const background = (() => {
+      const locked = ctx.chatMetadata?.custom_background;
+      const source = typeof locked === 'string' && locked ? locked : (document.querySelector('.bg_example.selected-background') as HTMLElement | null)?.getAttribute('bgfile') ?? '';
+      const inner = source.replace(/^url\((['"]?)/, '').replace(/(['"]?)\)$/, '');
+      const file = inner.split('/').pop() ?? inner;
+      try { return { name: decodeURIComponent(file), locked: Boolean(locked) }; } catch { return { name: file, locked: Boolean(locked) }; }
+    })();
     const pacingPrompt = ctx.extensionPrompts?.story_orchestrator_pacing ?? null;
     const memoryPrompts = ['facts', 'session_details', 'short_term', 'scene_history'].reduce((acc, tier) => {
       acc[tier] = ctx.extensionPrompts?.[`story_orchestrator_memory_${tier}`] ?? null;
@@ -120,6 +135,7 @@ export async function dumpCurrentChatState(page) {
       copilotNudgePrompt,
       pacingPrompt,
       memoryPrompts,
+      background,
     };
   });
 
@@ -139,6 +155,7 @@ export async function dumpCurrentChatState(page) {
     copilotNudgePrompt: data?.copilotNudgePrompt ?? null,
     pacingPrompt: data?.pacingPrompt ?? null,
     memoryPrompts: data?.memoryPrompts ?? null,
+    background: data?.background ?? null,
     _note: 'State is from chatMetadata.story_orchestrator for the current chat.',
   };
 }
@@ -163,6 +180,11 @@ function compactCurrent(data) {
     convergence: data?.liveSnapshot?.convergence ?? null,
     expansion: data?.liveSnapshot?.expansion ?? state?.expansion ?? null,
     memory: state?.memory ?? null,
+    background: data?.background ?? null,
+    stagecraft: (() => {
+      const live = data?.liveSnapshot?.stagecraft ?? null;
+      return live ? { settings: live.settings, scope: data?.liveSnapshot?.stagecraftScope ?? [], proposalCount: (live.proposals ?? []).length, appliedOpCount: state?.stagecraft?.appliedOpCount ?? 0, lastError: live.lastError ?? null } : null;
+    })(),
     memoryInjected: data?.memoryPrompts ? Object.fromEntries(Object.entries(data.memoryPrompts).map(([tier, prompt]) => [tier, Boolean((prompt as { value?: unknown } | null)?.value)])) : null,
     tension: data?.liveSnapshot?.tension ?? state?.tension ?? null,
     pacingPrompt: data?.pacingPrompt ?? null,

@@ -1,0 +1,11 @@
+{
+  "repository": "TheDrummer/Artemis-31B-v1.1-GGUF",
+  "revision": "65d0086759d0d45f728b610f48651d4a98d89ed4",
+  "filename": "Artemis-31B-v1m-Q4_K_M.gguf",
+  "size": 18687063072,
+  "expected_sha256": "f763178ae1f4505070326fb773105cb8e56413a3bcda0de6f5c3eb81128977f1",
+  "status": "complete",
+  "path": "C:\\dev\\models\\hf\\hub\\models--TheDrummer--Artemis-31B-v1.1-GGUF\\snapshots\\65d0086759d0d45f728b610f48651d4a98d89ed4\\Artemis-31B-v1m-Q4_K_M.gguf",
+  "sha256": "f763178ae1f4505070326fb773105cb8e56413a3bcda0de6f5c3eb81128977f1",
+  "verified": true
+}

@@ -128,9 +128,14 @@ describe("provisioning ops against the draft", () => {
     expect(provisioningFollowUpOps(draft, { kind: "createCharacterCard", name: "Arin", description: "A guide." })).toEqual([
       { kind: "setRequirements", requirements: { members: ["Arin"], lorebooks: ["Vault Lore"] } },
     ]);
+    // A created story lorebook is also the curator's write scope (plan 07 `stagecraft.lorebooks`).
     expect(provisioningFollowUpOps(draft, { kind: "createStoryLorebook", name: "Heist Lore" })).toEqual([
       { kind: "setRequirements", requirements: { members: ["Arin"], lorebooks: ["Vault Lore", "Heist Lore"] } },
+      { kind: "setStagecraft", stagecraft: { lorebooks: ["Heist Lore"] } },
     ]);
+    const scoped: StoryV2 = { ...draft, stagecraft: { lorebooks: ["Vault Lore"] } };
+    expect(provisioningFollowUpOps(scoped, { kind: "createStoryLorebook", name: "Heist Lore" })[1])
+      .toEqual({ kind: "setStagecraft", stagecraft: { lorebooks: ["Vault Lore", "Heist Lore"] } });
   });
 
   it("leaves the story alone for ops that create nothing it must require", () => {

@@ -1,0 +1,12 @@
+{
+  "model": "TheDrummer/Artemis-31B-v1.1-GGUF:Q4_K_M",
+  "autoSwitch": true,
+  "loadSettings": {
+    "max_seq_length": 32768,
+    "kv_cache_dtype": "q8_0",
+    "speculative_type": "off",
+    "n_parallel": 1,
+    "n_ubatch": 128
+  },
+  "apiKeyRotated": false
+}

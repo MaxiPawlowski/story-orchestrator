@@ -1,7 +1,8 @@
 {
   "steps": [
     { "import_story": { "file": "../fixtures/convergence-drift.story.json" } },
-    { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorRuntime.setExtractionSettings({ enabled: true, profileId: 'afcc7073-3510-4f67-8070-35ce449d4792', cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 1 }); return true;" },
+    { "ui": { "action": "select-profile" } },
+    { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorRuntime.setExtractionSettings({ enabled: true, cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 1 }); return true;" },
     { "expand": {} },
     { "wait": { "expansionStatus": "inserted", "timeoutMs": 300000 } },
     { "slash": "/cp set key_found true" },

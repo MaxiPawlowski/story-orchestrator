@@ -1,0 +1,74 @@
+﻿[
+    {
+        "name":  "host-ci",
+        "command":  "npm ci --no-audit --no-fund",
+        "directory":  "C:\\Users\\RolaPorElNapo\\AppData\\Local\\Temp\\story-orchestrator-review-20260918\\host",
+        "started":  "2026-09-18T17:08:10.5133850Z",
+        "seconds":  22.842423099999998,
+        "exitCode":  -4058,
+        "log":  "host-ci.log"
+    },
+    {
+        "name":  "extension-ci",
+        "command":  "npm ci --no-audit --no-fund",
+        "directory":  "C:\\Users\\RolaPorElNapo\\AppData\\Local\\Temp\\story-orchestrator-review-20260918\\host\\public\\scripts\\extensions\\third-party\\story-orchestrator",
+        "started":  "2026-09-18T17:08:33.3820052Z",
+        "seconds":  53.2507884,
+        "exitCode":  -4058,
+        "log":  "extension-ci.log"
+    },
+    {
+        "name":  "typecheck",
+        "command":  "npm run typecheck",
+        "directory":  "C:\\Users\\RolaPorElNapo\\AppData\\Local\\Temp\\story-orchestrator-review-20260918\\host\\public\\scripts\\extensions\\third-party\\story-orchestrator",
+        "started":  "2026-09-18T17:09:26.6383337Z",
+        "seconds":  1.0295185,
+        "exitCode":  1,
+        "log":  "typecheck.log"
+    },
+    {
+        "name":  "lint",
+        "command":  "npm run lint",
+        "directory":  "C:\\Users\\RolaPorElNapo\\AppData\\Local\\Temp\\story-orchestrator-review-20260918\\host\\public\\scripts\\extensions\\third-party\\story-orchestrator",
+        "started":  "2026-09-18T17:09:27.6719295Z",
+        "seconds":  0.9566407,
+        "exitCode":  1,
+        "log":  "lint.log"
+    },
+    {
+        "name":  "debug-typecheck",
+        "command":  "npm run debug:typecheck",
+        "directory":  "C:\\Users\\RolaPorElNapo\\AppData\\Local\\Temp\\story-orchestrator-review-20260918\\host\\public\\scripts\\extensions\\third-party\\story-orchestrator",
+        "started":  "2026-09-18T17:09:28.6305673Z",
+        "seconds":  0.6533333,
+        "exitCode":  1,
+        "log":  "debug-typecheck.log"
+    },
+    {
+        "name":  "test",
+        "command":  "npm run test",
+        "directory":  "C:\\Users\\RolaPorElNapo\\AppData\\Local\\Temp\\story-orchestrator-review-20260918\\host\\public\\scripts\\extensions\\third-party\\story-orchestrator",
+        "started":  "2026-09-18T17:09:29.2859103Z",
+        "seconds":  0.7879592,
+        "exitCode":  1,
+        "log":  "test.log"
+    },
+    {
+        "name":  "build",
+        "command":  "npm run build",
+        "directory":  "C:\\Users\\RolaPorElNapo\\AppData\\Local\\Temp\\story-orchestrator-review-20260918\\host\\public\\scripts\\extensions\\third-party\\story-orchestrator",
+        "started":  "2026-09-18T17:09:30.0773809Z",
+        "seconds":  0.8186042,
+        "exitCode":  1,
+        "log":  "build.log"
+    },
+    {
+        "name":  "test-storybook-ci",
+        "command":  "npm run test-storybook:ci",
+        "directory":  "C:\\Users\\RolaPorElNapo\\AppData\\Local\\Temp\\story-orchestrator-review-20260918\\host\\public\\scripts\\extensions\\third-party\\story-orchestrator",
+        "started":  "2026-09-18T17:09:30.8995054Z",
+        "seconds":  1.2186502,
+        "exitCode":  1,
+        "log":  "test-storybook-ci.log"
+    }
+]

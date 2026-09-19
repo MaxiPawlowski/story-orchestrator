@@ -11,22 +11,26 @@ Spec deltas live in [spec-addendum-v2.1.md](spec-addendum-v2.1.md) — read it a
 
 ## Findings register
 
-| Id | Finding (one line) | Fixed in |
-|---|---|---|
-| U1 | Extraction defaults off + profileId per-chat → every new chat is dead until configured in a global-looking panel | 02 |
-| U2 | Story identity = content hash → Studio save forks a new record; re-select wipes progress/memory/settings silently | 02 (identity), 05 (loop) |
-| U3 | Player/author split applied to tabs not content: epistemic map (incl. `hiding`), arcs internals, driver + Advance list visible to player | 04 |
-| U4 | "Where am I" rendered 6 ways sharing nothing; only the away-recap composes the narrative view | 04 |
-| U5 | Stall/reconciliation invisible — stuck story indistinguishable from slow one | 04 |
-| U6 | Settings grouped by implementation area; no first-run path | 02 (homes), 04 (surfacing), 06 (wizard/"Fix with wizard") |
-| U7 | Studio can't author roster/requirements/arc_template/arc_bridges/description — half the checkpoint features unauthorable | 05 |
-| U8 | Player surfaces speak author vocabulary (cp ids, positional `/cp` mini-language, debug verbs exposed) | 04 |
-| I1 | RuntimeManager: 1867 lines / 90 public methods — every plan's orchestration landed in one class | 03 |
-| I2 | Snapshot contract leaks: drawer calls `getLedger()`/`getDriverContext()`/`getActiveNudge()` outside the subscription | 03 |
-| I3 | Three lifetimes in one per-chat blob: story progress + chat knowledge + user settings | 02 |
-| I4 | Layer inversion: drawer imports `studio/`; DriverPanel (play surface) lives in `src/studio/components/` | 03 |
-| I5 | Docs claim host effects go through `EngineHost`; it is `{ now }` — map ≠ terrain | 03 |
-| I6 | Boundary scheduling policy = hand-appended branches in `runtime/index.ts` | 03 |
+Evidence is the plan-08 acceptance run (2026-08-13, real LLM, fresh-start, `--strict`): the journey
+check that proves the finding closed, or the jest guard that keeps it closed. A finding without
+evidence stays open and is said so plainly.
+
+| Id | Finding (one line) | Fixed in | Evidence (plan-08 acceptance) |
+|---|---|---|---|
+| U1 | Extraction defaults off + profileId per-chat → every new chat is dead until configured in a global-looking panel | 02 | J1.2 (fresh chat has extraction on), J1.3 + J10.2 (profile is install-wide, never in the chat), J10.6 (a brand-new chat plays with zero setup) |
+| U2 | Story identity = content hash → Studio save forks a new record; re-select wipes progress/memory/settings silently | 02 (identity), 05 (loop) | J10.1/J10.3/J10.4/J10.5/J10.7, J2.4 (one identity across edits), J2.6–J2.8 (hot-swap · keep · cancel) |
+| U3 | Player/author split applied to tabs not content: epistemic map (incl. `hiding`), arcs internals, driver + Advance list visible to player | 04 | J3.3 (`assert-player-clean`: text needles **and** the plan-08 selector sweep over drawer/HUD/settings), J5.6 (hidden ≠ broken: private injection still works) |
+| U4 | "Where am I" rendered 6 ways sharing nothing; only the away-recap composes the narrative view | 04 | J3.5 (`getNarrativeStatus()` sections + `#so-player-overview`), J4.2/J4.3 (the same composition in the away recap) |
+| U5 | Stall/reconciliation invisible — stuck story indistinguishable from slow one | 04 | J3.6 (induced stall shows `#so-stall-signal`, clears when the real re-read lands), J6.4 (`#so-rollback-notice` + HUD chip) |
+| U6 | Settings grouped by implementation area; no first-run path | 02 (homes), 04 (surfacing), 06 (wizard/"Fix with wizard") | J1.1/J1.4/J1.5 (empty install → wizard entry → playable), J9.4 ("Fix with wizard" pre-filled from the unmet list) |
+| U7 | Studio can't author roster/requirements/arc_template/arc_bridges/description — half the checkpoint features unauthorable | 05 | J2.1/J2.2/J2.3 (Story + Roster + requirements + bridges authored through the UI) |
+| U8 | Player surfaces speak author vocabulary (cp ids, positional `/cp` mini-language, debug verbs exposed) | 04 | J3.4 (no cp ids, boundary numbers or audit vocabulary on any player surface) |
+| I1 | RuntimeManager: 1867 lines / 90 public methods — every plan's orchestration landed in one class | 03 | 1867 → **630** lines; `src/runtime/architecture.test.ts` fails the build over the budget |
+| I2 | Snapshot contract leaks: drawer calls `getLedger()`/`getDriverContext()`/`getActiveNudge()` outside the subscription | 03 | `architecture.test.ts` drawer-reads-snapshot guard (no `manager.get*(` under `components/drawer/**`) |
+| I3 | Three lifetimes in one per-chat blob: story progress + chat knowledge + user settings | 02 | J10.2 (settings home), J10.8 (synthetic v2 blob migrates), J10.11 (a blob captured from a real pre-v2.1 chat migrates without losing a value) |
+| I4 | Layer inversion: drawer imports `studio/`; DriverPanel (play surface) lives in `src/studio/components/` | 03 | `architecture.test.ts` import-boundary guard (`components` ↔ `studio`); DriverPanel lives in `components/drawer/` |
+| I5 | Docs claim host effects go through `EngineHost`; it is `{ now }` — map ≠ terrain | 03 | `architecture.test.ts` engine-purity guard + the corrected seam description in `.claude/rules/architecture.md`, `docs/architecture-v2.md` and this plan set |
+| I6 | Boundary scheduling policy = hand-appended branches in `runtime/index.ts` | 03 | `runtime/boundaryWork.ts` registry; the boundary callback in `runtime/index.ts` is 3 lines |
 
 ## Why v2 missed these — and the rules that prevent recurrence
 

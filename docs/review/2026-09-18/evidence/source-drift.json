@@ -1,0 +1,117 @@
+﻿[
+    {
+        "path":  ".claude/CLAUDE.md",
+        "baseline":  "41485ce1b6a61bbedea56966692016940f7bea66e882e196be1688b1a4cf68ef",
+        "current":  "b6905cf5ddfba804ce24fd1fb3e8627f642447a88fbba5db566728cc971aeb11"
+    },
+    {
+        "path":  ".claude/rules/gotchas.md",
+        "baseline":  "6656796f3a324d435dde8482a429fa5f9cda3561dbac5998113d824bf00f98bc",
+        "current":  "f013c6fbcf63213e23b599771012d7e9534c9eccc7e18e56780ef660e85610fb"
+    },
+    {
+        "path":  "dist/index.js",
+        "baseline":  "052b62a2a573ce35c848b08e17b900a89f067fdb4d8ed3589b00916405f5c190",
+        "current":  "2f465c7d260ed0606708d8ab9e3549ccd4b60533981de7a835b718b8c1377eeb"
+    },
+    {
+        "path":  "scripts/debug/so-assets.mts",
+        "baseline":  "57d64abfe68d8dad0906718b8e8c1d5ab9122fef49eda141f5afdec3402dd2c7",
+        "current":  "5e9b457447856002cd832f9210cc91792de1c8302ee040ac0b45e8ee6da9edba"
+    },
+    {
+        "path":  "scripts/debug/so-journey.mts",
+        "baseline":  "9dfdf850a1d01661fa17b60186b46156da78d5032478f7e1901fab7e22c187bd",
+        "current":  "ef727f53bf6c26379c574bcede32fc6283937f3c5b9484538cd6ec00ef5eee09"
+    },
+    {
+        "path":  "scripts/debug/so-scenario.mts",
+        "baseline":  "06efe98ef119a5525f3e565a55361be5a2c3d08ec17eef5e08bbbc22615a7f6b",
+        "current":  "ae2ffddc63175f1165d6e6bf8c2d655ccdfaf0c9e5a5484773e204ff8f5e5ebd"
+    },
+    {
+        "path":  "src/extraction/client.ts",
+        "baseline":  "2af1f2705e3bb8924e48014c637c7306fabe3ab52ee454df8114de143fd3ee03",
+        "current":  "6e5862c6a6fd41b737da35e28c1644a3d81da9dab642c04052c89e85dbf6617e"
+    },
+    {
+        "path":  "src/extraction/parse.test.ts",
+        "baseline":  "78e9e78d4b2ef058fb914f67e268cfc0cf52fde34d9f13ae2e0ff031f9284273",
+        "current":  "d8756caf043d8dec58d26140d3952b2fe5b7346fb9fb2b9db8e4ead39d84707d"
+    },
+    {
+        "path":  "src/extraction/parse.ts",
+        "baseline":  "3af938c4dbe0109f1a7d46c54d513e17314e27b32c1f7d0aaad6ed6ab90a0e11",
+        "current":  "c3e3c399d82993185db9f7b3864f2e86802594c43e2c7dd7e26b664ae849b2ba"
+    },
+    {
+        "path":  "src/runtime/coordinators/memoryCoordinator.ts",
+        "baseline":  "7d44233d5b485cedaef853f847966cddb8478b226ac763108105d0aee0ede9f6",
+        "current":  "912fc3f6c7d6bbe8f39a9df2bbaf08f4804e5b886d2313f174c0b35771ca2a1d"
+    },
+    {
+        "path":  "src/runtime/coordinators/stagecraftCoordinator.ts",
+        "baseline":  "45ae145fec1965984966e88e8113d033f35944ea35565186b1a64c9507fdeb16",
+        "current":  "5fa674b50c0a9eba51a358aa3cd956756a8501348b0b4e2019370b9a2fd24b1a"
+    },
+    {
+        "path":  "src/runtime/effectsApplier.test.ts",
+        "baseline":  "200c1ce96e1ac6758da79c133deda4910f3df2ec49c5839d952d37296ce788ef",
+        "current":  "ee0dc124ccde282afa697f733436cb6b0fde98ef453995a4a7da2bf34189324b"
+    },
+    {
+        "path":  "src/runtime/extras.ts",
+        "baseline":  "dadc67eb9a22fda67e847e841eafa245ba450b90e8ae7faafff102e6a857dfd1",
+        "current":  "2ce7a8c644865280b0ad3faf5ed202d44138117e6200ac65f562f5f3ee19747d"
+    },
+    {
+        "path":  "src/runtime/runtimeManager.test.ts",
+        "baseline":  "9857f18b2559a3238141e86639c6e73d0af0b6b81d0ca6efa22a5af524da4689",
+        "current":  "e113500d3860f9848e29c7352d732ea4e7870dd256c69353e72b0b2fe4f18d01"
+    },
+    {
+        "path":  "src/runtime/runtimeManager.ts",
+        "baseline":  "c497d27376855de43e9586ced0792f64aedac3f2a98192e137a4f7a72c79327c",
+        "current":  "a8fa684232a6656da34a0d93556ec93a6cdb043f645c6a98b1da25802e5b0ef1"
+    },
+    {
+        "path":  "src/runtime/types.ts",
+        "baseline":  "2c4c1b4b4ab981445042a64fb2c69b863204df216f88af82fa669f63bc6a0bcb",
+        "current":  "10603996cad6acf2c8da147c9086eed783aa27c12fa8d6420e9594edfa2429fb"
+    },
+    {
+        "path":  "src/services/STAPI.ts",
+        "baseline":  "2d19d3841cdee2ba03b6808add2d3d893c8a00681a6aa32384de63a40fe6a0f7",
+        "current":  "dd344502c0db9062601b9c7fa197ca99e75b3b456b22ea016aa265c6813a7703"
+    },
+    {
+        "path":  "src/services/stHost/authorNotes.ts",
+        "baseline":  "6125dff9894b4bb3c56d8c60598f642b93933921435e8507bcb6de4409d5291a",
+        "current":  "0db467c061002e1ee33f48dae46c8da730424a8d9e97e5af0f6265157bff6eb2"
+    },
+    {
+        "path":  "src/services/stHost/hostTypes.ts",
+        "baseline":  "cc51d34a184169e5915e22821dd70c90c57cc436f28e5afd72cbf92c6e1b1f15",
+        "current":  "e0146411e094db5db36536fa1fd49a6b23d071faaa927659144d172d78fc1f13"
+    },
+    {
+        "path":  "src/services/stHost/worldInfo.ts",
+        "baseline":  "623a3fd7b4c24238b7d0366af25e56686c9fb91ed328b5ff8d19601126834bb5",
+        "current":  "7db08654cf10caee166fc91c42cc8c27818f8df539b6d8b6e4609f16980d921d"
+    },
+    {
+        "path":  "src/studio/components/CheckpointEditor.stories.tsx",
+        "baseline":  "f51131f4f703d7a2dc0ce2dae05be3e8c33acfadf37df64ec94c5da31ebbe7bd",
+        "current":  "d047ff643cf52c3964ce3c45c51754d0f41a608ef26857c2f0dc10cdfdfe794a"
+    },
+    {
+        "path":  "src/studio/components/EffectsEditor.tsx",
+        "baseline":  "18702226b80eee309231adb2ca717b11b73146c29b67bd038873ed11a2fb0d47",
+        "current":  "1488c6219886c5374aed0904566ea57c0c6dd39bc2ec80da1fc774d3eb107077"
+    },
+    {
+        "path":  "src/wizard/provisioning.ts",
+        "baseline":  "e4ff4966f535bdc8df1b694383fff386693942a6b0de7854106242e1da212889",
+        "current":  "fd9fe2686f7f0880f594fcfe7acd7e5af585a3d23010cb6faa6b652c33554141"
+    }
+]

@@ -1,0 +1,21 @@
+Preserved baseline regression rerun
+Baseline revision: 0a094e58734df99c287e0356b42407dd9e3e95e1
+Harness SHA-256: bde52da0eaee373c1d45ce499fbdbb4075019e18c1d6a2a8a9ddbecf4f211510
+Command: .\node_modules\.bin\jest.cmd --runInBand --runTestsByPath src\memory\review-regression.review.test.ts
+Result: exit 1; 1 suite; 9 failed, 4 passed, 13 total; 3.042 s.
+
+PASS control: normal same-session curator write applies
+FAIL R1 late curator result entered a different chat
+FAIL R2 rollback of two writes restored First, expected Original
+FAIL R3 false host result was counted as applied
+FAIL R4 hydrated engine did not recognize persisted transition evidence
+FAIL R5 parser accepted a code-owned quality
+FAIL R6 shared read accepted an out-of-scope quality
+PASS control: unknown quality is rejected
+FAIL R7 imported title remained unescaped in HTML
+FAIL R8 a declared dependency granted wizard write ownership
+FAIL R9 generated alternative outcome was lost during graph merge
+PASS control: plain story title is retained
+PASS control: wizard rejects a book absent from story requirements
+
+This evidence is redacted to stable test identifiers and observed values. No host/session/profile state was used.

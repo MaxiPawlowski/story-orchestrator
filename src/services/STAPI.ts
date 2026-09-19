@@ -31,8 +31,10 @@ export {
 export { executeSlashCommands } from "@services/stHost/slashCommands";
 export { applyCharacterAN, clearCharacterAN } from "@services/stHost/authorNotes";
 export { setStoryExtensionPrompt, clearStoryExtensionPrompt } from "@services/stHost/extensionPrompts";
-export { getWorldInfoSettings, enableWIEntry, disableWIEntry, upsertWIEntry, createLorebook, activateGlobalLorebook, lorebookExists, listAllLorebooks } from "@services/stHost/worldInfo";
-export type { Lorebook, LoreEntry, WIUpsertResult } from "@services/stHost/worldInfo";
+export { getWorldInfoSettings, enableWIEntry, disableWIEntry, upsertWIEntry, createLorebook, ensureLorebook, bindChatLorebook, activateGlobalLorebook, loadLorebook, lorebookExists, listAllLorebooks } from "@services/stHost/worldInfo";
+export type { ChatLorebookBinding, Lorebook, LoreEntry, WIUpsertResult } from "@services/stHost/worldInfo";
+export { applyBackground, backgroundExists, getCurrentBackground, listBackgrounds } from "@services/stHost/backgrounds";
+export type { CurrentBackground } from "@services/stHost/backgrounds";
 export { createCharacterCard, createGroup, listGroupNames } from "@services/stHost/provisioning";
 export type { CharacterCardInput } from "@services/stHost/provisioning";
 export {

@@ -1,0 +1,20 @@
+Current-source snapshot memory/engine review run
+Snapshot created UTC: 2026-09-18T22:35:48.0531964Z
+Harness SHA-256: 7f2292cfcc612ae25e4290db96f52b72a231c71bb95663cb9d0b602b31bf2cc0
+Command: .\node_modules\.bin\jest.cmd --runInBand --runTestsByPath src\memory\memory-engine.current.test.ts
+Result: exit 1; 1 suite; 8 failed, 6 passed, 14 total; 2.374 s.
+
+FAIL M1 superseding-winner rollback leaves predecessor retired
+FAIL M2 rolled-back read coverage blocks correction reread
+FAIL M3 ledger update rollback loses prior value
+FAIL M4 epistemic retirement rollback does not reactivate belief
+FAIL M5 pinned predecessor discards later state change
+FAIL M6 pinned private fact from removed text remains injectable to its intended subject
+FAIL M7 manual edit retains stale token cost
+FAIL E1 mutation older than 200 snapshots cannot roll back
+
+All six negative controls passed. The 1,000-checkpoint chain parsed and traversed correctly.
+Stress output: {"checkpoints":1000,"parsedMs":76,"traversalMs":8}
+Delta from baseline: none of M1-M7 or E1 changed result.
+
+M6 is a provenance/semantic rollback conflict. It does not reproduce wrong-character injection: the retained fact is rendered for the same intended subject.

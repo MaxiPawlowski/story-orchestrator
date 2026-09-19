@@ -39,5 +39,8 @@
       "Bash(node scripts/debug/st-session.mts start)",
       "PowerShell(npm run typecheck 2>&1)"
     ]
+  },
+  "enabledPlugins": {
+    "runpod@runpod": true
   }
 }

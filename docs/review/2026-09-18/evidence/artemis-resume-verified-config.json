@@ -1,0 +1,57 @@
+{
+  "status": 200,
+  "seconds": 290.4059999999881,
+  "response": {
+    "id": "chatcmpl-e7fe51b04a2c",
+    "object": "chat.completion",
+    "created": 1789789855,
+    "model": "TheDrummer/Artemis-31B-v1.1-GGUF",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "The ancient stone bridge stretches across a churning river, its weathered arches silhouetted against a sky bleeding crimson and gold. Below, the water roars in the twilight, while a single hooded figure waits at the far end, motionless.",
+          "refusal": null,
+          "reasoning_content": null,
+          "tool_calls": null
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 52,
+      "completion_tokens": 48,
+      "total_tokens": 100,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "audio_tokens": 0
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "audio_tokens": 0,
+        "accepted_prediction_tokens": 0,
+        "rejected_prediction_tokens": 0
+      }
+    },
+    "system_fingerprint": null
+  },
+  "request": {
+    "model": "TheDrummer/Artemis-31B-v1.1-GGUF:Q4_K_M",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a concise roleplay narrator. Do not reason aloud."
+      },
+      {
+        "role": "user",
+        "content": "A traveler reaches a bridge at sunset. Describe the scene in two sentences, leaving their next action open."
+      }
+    ],
+    "max_tokens": 128,
+    "temperature": 0.7,
+    "stream": false,
+    "enable_thinking": false
+  }
+}

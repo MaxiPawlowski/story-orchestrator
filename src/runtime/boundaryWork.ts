@@ -8,16 +8,14 @@ export const CONSOLIDATION_CADENCE = 10;
 // `order`: adding boundary work means adding an entry here, never editing a fan-out callback
 // (finding I6). `when` decides, `run` acts — except where the probe itself is the condition
 // (scene detection advances a cursor), which is stated on the entry.
-export interface BoundaryCursor {
-  previousLastMessageId: number;
-}
-
 export interface BoundaryWorkContext {
   result: BoundaryResult;
   manager: RuntimeManager;
   scheduler: ExtractionScheduler;
-  cursor: BoundaryCursor;
 }
+
+export const cueScanStart = (result: BoundaryResult): number =>
+  Math.min(result.previousLastMessageId + 1, result.context.lastMessageId);
 
 export interface BoundaryWorkItem {
   id: string;
@@ -37,10 +35,8 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
   {
     id: "forced-cues",
     order: 20,
-    run: ({ result, manager, scheduler, cursor }) => {
-      const from = cursor.previousLastMessageId >= 0 ? cursor.previousLastMessageId + 1 : result.context.lastMessageId;
-      scheduleForcedCues(manager.getStory(), result.activeCheckpointId, scheduler, getChatWindow(from, result.context.lastMessageId));
-      cursor.previousLastMessageId = result.context.lastMessageId;
+    run: ({ result, manager, scheduler }) => {
+      scheduleForcedCues(manager.getStory(), result.activeCheckpointId, scheduler, getChatWindow(cueScanStart(result), result.context.lastMessageId));
     },
   },
   {
@@ -74,6 +70,16 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     when: ({ result, manager }) => manager.shouldCompactShortTerm(result.context.lastMessageId),
     run: ({ manager, scheduler }) => {
       scheduler.schedule({ priority: 2, reason: "short-term-compaction", run: async () => { await manager.runShortTermCompaction(); } });
+    },
+  },
+  {
+    // Presentation, off-path and coalesced: a checkpoint change is the moment a story's lorebook is
+    // most likely to have gone stale (scene breaks queue the same pass from runtime/index.ts).
+    id: "stagecraft-curator",
+    order: 65,
+    when: ({ result, manager }) => Boolean(result.fired) && manager.curatorDueForRun(),
+    run: ({ manager, scheduler }) => {
+      scheduler.schedule({ priority: 4, reason: "wi-curator:checkpoint", run: async () => { await manager.runWiCuratorPass("checkpoint"); } });
     },
   },
   {

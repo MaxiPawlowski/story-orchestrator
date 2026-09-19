@@ -1,0 +1,50 @@
+{
+  "steps": [
+    {
+      "eval": "globalThis.__soQuoteWant = {\"an\":\"SO-QUOTE-PROBE a | b || c\\nline two \\\"quoted\\\" and \\\\\\\"pre-escaped\\\\\\\" C:\\\\path\\\\to\\\\ {{char}} {: /echo x :} \\\\n-literal\\nlast line ends with backslash \\\\\",\"npc\":\"SO-QUOTE-NPC \\\"Halt\\\" | who goes\\nthere? back\\\\slash \\\\n-literal\",\"comment\":\"◈ Quote | \\\"Probe\\\" {x} — first line second | line\"}; return 'probe ready';"
+    },
+    {
+      "import_story": {
+        "file": "slash-quoting.story.json"
+      }
+    },
+    {
+      "slash": "/cp set go_tricky true"
+    },
+    {
+      "wait": {
+        "checkpoint": "tricky",
+        "timeoutMs": 10000
+      }
+    },
+    {
+      "eval": "const c = SillyTavern.getContext(); const w = globalThis.__soQuoteWant; const md = c.chatMetadata; const box = document.querySelector('#extension_floating_prompt')?.value; const an = c.extensionPrompts['2_floating_prompt'] ?? {}; let prompt = null; const grab = (data) => { if (data?.dryRun) prompt = data.prompt; }; c.eventSource.on(c.eventTypes.GENERATE_AFTER_COMBINE_PROMPTS, grab); try { await c.generate('normal', {}, true); } finally { c.eventSource.removeListener(c.eventTypes.GENERATE_AFTER_COMBINE_PROMPTS, grab); } const npc = c.chat.filter((m) => String(m.mes ?? '').startsWith('SO-QUOTE-NPC')); const fail = []; if (md.note_prompt !== w.an) fail.push('note_prompt differs: ' + JSON.stringify(md.note_prompt)); if (box !== w.an) fail.push('AN text box differs: ' + JSON.stringify(box)); if (an.value !== w.an) fail.push('extensionPrompts value differs: ' + JSON.stringify(an.value)); if (typeof prompt !== 'string') fail.push('dry-run prompt not captured'); else { if (!prompt.includes('SO-QUOTE-PROBE a | b || c\\nline two')) fail.push('assembled prompt lacks the multi-line note'); if (prompt.includes('{{char}}')) fail.push('{{char}} not substituted at prompt time'); } if (npc.length !== 1) fail.push('expected 1 scripted line, got ' + npc.length); else if (npc[0].mes !== w.npc) fail.push('scripted line differs: ' + JSON.stringify(npc[0].mes)); if (fail.length) throw new Error(fail.join('; ')); return { note_prompt: md.note_prompt, npc: npc.map((m) => m.mes), promptHasNote: prompt.includes('SO-QUOTE-PROBE a | b || c') };",
+      "log": 800
+    },
+    {
+      "slash": "/cp set go_announced true"
+    },
+    {
+      "wait": {
+        "checkpoint": "announced",
+        "timeoutMs": 10000
+      }
+    },
+    {
+      "eval": "const w = globalThis.__soQuoteWant; const chat = SillyTavern.getContext().chat; const notes = chat.filter((m) => String(m.mes ?? '').startsWith('◈ Quote')); if (notes.length !== 1 || notes[0].mes !== w.comment) throw new Error('transition note differs: ' + JSON.stringify(notes.map((m) => m.mes))); return notes[0].mes;",
+      "log": true
+    },
+    {
+      "slash": "/cp set go_cleared true"
+    },
+    {
+      "wait": {
+        "checkpoint": "cleared",
+        "timeoutMs": 10000
+      }
+    },
+    {
+      "eval": "const md = SillyTavern.getContext().chatMetadata; const fail = []; if (String(md.note_prompt ?? '') !== '') fail.push('note_prompt not cleared: ' + JSON.stringify(md.note_prompt)); if (md.note_interval !== 0) fail.push('note_interval ' + md.note_interval); if (fail.length) throw new Error(fail.join('; ')); delete globalThis.__soQuoteWant; return 'cleared';"
+    }
+  ]
+}

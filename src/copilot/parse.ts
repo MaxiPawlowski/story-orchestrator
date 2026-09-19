@@ -165,6 +165,10 @@ const readEffects = (value: unknown, path: string, issues: string[]): Checkpoint
     const replies = readNpcReplies(value.npc_replies, `${path}.npc_replies`, issues);
     if (replies) effects.npc_replies = replies;
   }
+  // Same shorthand the story parser accepts, folded here so a proposal never carries a bare string
+  // into the draft (validate.ts §readBackground).
+  const background = typeof value.background === "string" ? value.background : isRecord(value.background) && typeof value.background.name === "string" ? value.background.name : null;
+  if (background?.trim()) effects.background = { name: background.trim() };
   return effects;
 };
 
@@ -401,6 +405,10 @@ const readOp = (value: unknown, path: string, issues: string[]): ProposalOp | nu
     case "setRequirements": {
       const requirements = readRequirements(value.requirements, `${path}.requirements`, issues);
       return requirements ? { kind: "setRequirements", requirements } : null;
+    }
+    case "setStagecraft": {
+      const source = isRecord(value.stagecraft) ? value.stagecraft.lorebooks : value.lorebooks;
+      return { kind: "setStagecraft", stagecraft: { lorebooks: readStringList(source) } };
     }
     // Provisioning ops (plan 06): parsed here so the wizard shares one grammar, but never applied to
     // the draft — the runtime creates the ST asset and validation enforces create-only.

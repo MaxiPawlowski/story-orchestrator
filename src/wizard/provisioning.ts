@@ -36,6 +36,7 @@ export function validateProvisioningOp(op: ProvisioningOp, environment: Provisio
       if (!op.comment.trim()) return fail("A lorebook entry needs a title.");
       if (!op.content.trim()) return fail(`"${op.comment}" has no content.`);
       if (!has(environment.storyLorebooks, op.lorebook)) return fail(`"${op.lorebook}" is not this story's lorebook. The wizard never writes into your other books — create the story lorebook first.`);
+      if (!has(environment.lorebookNames, op.lorebook)) return fail(`"${op.lorebook}" does not exist yet. Add a step that creates it before writing entries into it.`);
       return OK;
     }
     case "createGroup": {

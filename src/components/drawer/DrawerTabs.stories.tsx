@@ -86,6 +86,29 @@ const sampleSnapshot = (): RuntimeSnapshot => derive(({
         { at: "2026-07-06T12:01:00.000Z", messageId: 8, checkpointId: "gate", chosenRosterId: null, chosenName: null, source: "director", latencyMs: 620 },
       ],
     },
+    stagecraft: {
+      settings: { curatorEnabled: true, acceptMode: "review" },
+      lastRunBoundary: 4,
+      lastError: null,
+      proposals: [{
+        id: "wi-4-6",
+        at: "2026-08-13T10:00:00.000Z",
+        boundary: 4,
+        messageId: 6,
+        checkpointId: "gate",
+        reason: "checkpoint",
+        summary: "The gate was breached, so the ward entry is out of date.",
+        mode: "review",
+        ops: [{
+          op: { kind: "patch", lorebook: "Xentar Checkpoints", comment: "The dawn wards", anchor: "The wards hold || until dawn", replace: "The wards are broken" },
+          status: "pending",
+          message: 'Patch "The dawn wards"',
+          before: { content: "The wards hold the gate until dawn.", disabled: false },
+        }],
+        dropped: ['rewrite: "Sanctum floor" is not an entry this story owns'],
+      }],
+    },
+    stagecraftScope: ["Xentar Checkpoints"],
     pendingDeltas: [],
     convergence: [{ anchorId: "sanctum", anchorName: "Inner Sanctum", progress: 1, threshold: 2, reached: false }],
     tension: { level: "tense", smoothed: 0.72, expected: 0.6, hint: null },
@@ -115,6 +138,7 @@ const fakeManager = (): RuntimeManager =>
     flagMoment: fn(),
     restartStory: fn(),
     applyStoryUpdate: fn(),
+    setCuratorOpDecision: fn(),
   }) as unknown as RuntimeManager;
 
 const memorySnapshot = (): RuntimeSnapshot => {
@@ -194,6 +218,8 @@ export const Scheduler: Story = {
     await expect(canvas.getByText("Extraction")).toBeInTheDocument();
     await expect(canvas.getByText("Expansion")).toBeInTheDocument();
     await expect(canvas.getByText("Stall re-checks")).toBeInTheDocument();
+    await expect(canvas.getByText("World Info curator")).toBeInTheDocument();
+    await expect(canvas.getByText(/Watching Xentar Checkpoints/)).toBeInTheDocument();
   },
 };
 

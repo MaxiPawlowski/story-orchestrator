@@ -34,6 +34,13 @@ describe("provisioning validation (create-only)", () => {
     expect(validateProvisioningOp(op, environment({ lorebookNames: ["My Personal Notes"], storyLorebooks: ["My Personal Notes"] })).ok).toBe(true);
   });
 
+  it("never writes an entry into a story lorebook that does not exist yet: creating it is its own step", () => {
+    const op: ProvisioningOp = { kind: "upsertLorebookEntry", lorebook: "Sun Ruins Lore", comment: "Ruins", keys: ["ruins"], content: "Sunken halls." };
+    const result = validateProvisioningOp(op, environment({ storyLorebooks: ["Sun Ruins Lore"] }));
+    expect(result.ok).toBe(false);
+    expect(result.message).toContain("does not exist yet");
+  });
+
   it("refuses a group whose members do not exist yet", () => {
     const result = validateProvisioningOp({ kind: "createGroup", name: "Sun Ruins", members: ["Arin", "Ponticius"] }, environment({ characterNames: ["Arin"] }));
     expect(result.ok).toBe(false);

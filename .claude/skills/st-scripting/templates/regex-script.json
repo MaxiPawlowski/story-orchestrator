@@ -1,0 +1,17 @@
+{
+    "id": "5b3f1c2e-8d4a-4e6b-9c71-0a2d3e4f5a6b",
+    "scriptName": "so-test check chip",
+    "findRegex": "/\\[\\s*Check:\\s*(?<skill>[^\\]|]+?)\\s*\\|\\s*DC\\s*(?<dc>\\d+)\\s*\\|\\s*Roll\\s*(?<roll>\\d+)\\s*\\|\\s*(?<result>[^\\]]+?)\\s*\\]/g",
+    "replaceString": "<span class=\"check-chip\"><i class=\"fa-solid fa-dice\"></i> <b>$<skill></b> DC $<dc> · rolled $<roll> · <i>$<result></i></span>",
+    "trimStrings": [],
+    "placement": [
+        2
+    ],
+    "disabled": false,
+    "markdownOnly": true,
+    "promptOnly": false,
+    "runOnEdit": true,
+    "substituteRegex": 0,
+    "minDepth": null,
+    "maxDepth": null
+}

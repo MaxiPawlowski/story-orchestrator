@@ -59,7 +59,7 @@
         {
           "expect_ui": {
             "selector": "#so-studio-modal [data-so=\"story\"]",
-            "contains": ["Story id", "Version", "Description", "Dramatic shape", "Requirements", "Persona", "Cast member", "Lorebook", "Thread bridges"]
+            "contains": ["Story id", "Version", "Description", "Dramatic shape", "Requirements", "Persona", "Cast member", "Lorebook", "Stagecraft", "Curator lorebook", "Thread bridges"]
           }
         }
       ]

@@ -1,0 +1,14 @@
+{
+  "model": "TheDrummer/Artemis-31B-v1.1-GGUF:Q4_K_M",
+  "autoload": true,
+  "load_settings": {
+    "max_seq_length": 32768,
+    "kv_cache_dtype": "q8_0",
+    "speculative_type": "off",
+    "n_parallel": 1,
+    "n_ubatch": 128
+  },
+  "api_key_id": 6,
+  "api_key_name": "Story Orchestrator isolated review 2026-09-18",
+  "existing_presets_preserved": true
+}

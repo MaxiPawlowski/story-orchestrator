@@ -51,6 +51,9 @@ export const getWorldInfoSettings = () => ({
 
 export const getAllCharacterNames = () => ["Narrator", "Arin", "Companion", "Guide"];
 
+export const listBackgrounds = () => ["tavern day.jpg", "landscape postapoc.jpg"];
+export const applyBackground = async (name: string) => ({ changed: true, from: "royal.jpg", to: name });
+export const getCurrentBackground = () => ({ name: "royal.jpg", locked: false });
 export const listGroupMembers = () => ["Arin", "Companion"];
 export const listGlobalLorebooks = () => ["Lorebook Alpha", "Lorebook Beta"];
 export const listPersonas = () => ["Traveller"];

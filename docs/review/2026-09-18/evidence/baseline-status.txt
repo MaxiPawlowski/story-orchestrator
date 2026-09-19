@@ -1,0 +1,82 @@
+﻿ M .claude/CLAUDE.md
+ M .claude/rules/architecture.md
+ M .claude/rules/debug-scripts.md
+ M .claude/rules/gotchas.md
+ M .storybook/main.ts
+ M .storybook/mocks/STAPI.ts
+ M README.md
+ M dist/index.js
+ M docs/architecture-v2.md
+ M docs/plans/v2.1/00-overview.md
+ M docs/plans/v2.1/05-author-loop.md
+ M docs/plans/v2.1/07-stagecraft-agents.md
+ M docs/plans/v2.1/08-acceptance.md
+ M docs/plans/v2.1/test-plan.md
+ M docs/plans/v2/00-implementation-overview.md
+ M examples/README.md
+ M global.d.ts
+ M jest.config.cjs
+ M package.json
+ M scripts/debug/README.md
+ M scripts/debug/so-assets.mts
+ M scripts/debug/so-scenario.mts
+ M scripts/debug/so-state.mts
+ M scripts/debug/so-ui.mts
+ M src/components/drawer/DrawerTabs.stories.tsx
+ M src/components/drawer/DrawerTabs.tsx
+ M src/copilot/parse.ts
+ M src/copilot/prompts.ts
+ M src/copilot/proposal.test.ts
+ M src/copilot/proposal.ts
+ M src/copilot/types.ts
+ M src/engine/schema.ts
+ M src/engine/storyDiff.test.ts
+ M src/engine/storyDiff.ts
+ M src/engine/validate.ts
+ M src/index.tsx
+ M src/runtime/architecture.test.ts
+ M src/runtime/boundaryWork.ts
+ M src/runtime/effectsApplier.test.ts
+ M src/runtime/effectsApplier.ts
+ M src/runtime/extras.ts
+ M src/runtime/index.ts
+ M src/runtime/journal.ts
+ M src/runtime/runtimeManager.ts
+ M src/runtime/settingsStore.ts
+ M src/runtime/snapshotBuilder.ts
+ M src/runtime/talkControl.test.ts
+ M src/runtime/talkControl.ts
+ M src/runtime/types.ts
+ M src/services/STAPI.ts
+ M src/services/stHost/hostTypes.ts
+ M src/services/stHost/modules.ts
+ M src/services/stHost/selectors.ts
+ M src/services/stHost/worldInfo.ts
+ M src/studio/StudioModal.tsx
+ M src/studio/components/CheckpointEditor.stories.tsx
+ M src/studio/components/CheckpointEditor.tsx
+ M src/studio/components/EffectsEditor.tsx
+ M src/studio/components/StoryEditor.stories.tsx
+ M src/studio/components/StoryEditor.tsx
+ M src/studio/mutations.ts
+ M test/journeys/j1-first-contact.journey.json
+ M test/journeys/j10-identity-and-settings.journey.json
+ M test/journeys/j2-author-loop.journey.json
+ M test/journeys/j5-group-direction.journey.json
+ M test/journeys/j8-stagecraft.journey.json
+ M test/scenarios/plan05-background-generation.json
+ M tsconfig.json
+ M webpack.config.js
+?? docs/plans/v2.1/stagecraft-design.md
+?? scripts/review/
+?? src/components/drawer/StagecraftPanel.stories.tsx
+?? src/components/drawer/StagecraftPanel.tsx
+?? src/engine/stagecraftFormat.test.ts
+?? src/runtime/coordinators/stagecraftCoordinator.ts
+?? src/runtime/stagecraftCoordinator.test.ts
+?? src/runtime/storySelection.ts
+?? src/services/stHost/backgrounds.ts
+?? src/stagecraft/
+?? test/fixtures/legacy-v2-chat-blob.json
+?? test/journeys/j8-stagecraft.story.json
+?? test/journeys/records/

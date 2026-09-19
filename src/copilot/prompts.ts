@@ -36,8 +36,9 @@ const OP_GRAMMAR = [
   `  { "kind": "setArcTemplate", "template": ${ARC_TEMPLATE_NAMES.map((name) => `"${name}"`).join("|")}|{ "points": [{ "at": 0-1, "tension": 0-1 }] }|null }`,
   '  { "kind": "setArcBridges", "bridges": [{ "arcMatch": string, "anchor": checkpoint_id, "amount": number }] }',
   '  { "kind": "setRequirements", "requirements": { "personas"?: string[], "members"?: string[], "lorebooks"?: string[] } }',
+  '  { "kind": "setStagecraft", "stagecraft": { "lorebooks": string[] } }',
   "Transitions are referenced by { from, to }, never by index. Only reference ids that already exist in the draft.",
-  "setArcBridges and setRequirements replace the whole list — send the full intended set, never a fragment.",
+  "setArcBridges, setRequirements and setStagecraft replace the whole list — send the full intended set, never a fragment.",
 ].join("\n");
 
 const PROVISIONING_GRAMMAR = [
@@ -65,7 +66,7 @@ const STAGE_INSTRUCTIONS: Record<CopilotStage, string> = {
   qualities: "Stage QUALITIES: propose the quality set that measures this story's dramatic state. Every quality needs a rubric question. Prefer extractor source unless the value is purely code-driven. Only emit setStoryField/addQuality/updateQuality/removeQuality ops.",
   checkpoints: "Stage CHECKPOINTS: propose anchor and intermediate checkpoints with objectives, tension targets, and state_snapshots for pivotal or latching qualities. Keep exactly one start checkpoint. Only emit addCheckpoint/updateCheckpoint/setStartCheckpoint/setCheckpointSnapshot ops.",
   transitions: "Stage TRANSITIONS: wire checkpoints toward their anchors with transitions, each carrying a gate over declared qualities and a progress effect toward the target anchor so the convergence threshold is reachable. Only emit addTransition/updateTransition/setTransitionGate ops.",
-  effects: "Stage EFFECTS/CAST: propose checkpoint effects (author_note, world_info, cast_changes), the roster this story directs, what the chat must provide before it can run (requirements), the dramatic shape, and any thread bridges. Only emit setCheckpointEffects/addRosterMember/updateRosterMember/removeRosterMember/setRequirements/setArcTemplate/setArcBridges/setStoryField ops.",
+  effects: "Stage EFFECTS/CAST: propose checkpoint effects (author_note, world_info, cast_changes, background — a background filename that suits the scene), the roster this story directs, what the chat must provide before it can run (requirements), which lorebooks the background curator may edit (stagecraft — the story's own books only), the dramatic shape, and any thread bridges. Only emit setCheckpointEffects/addRosterMember/updateRosterMember/removeRosterMember/setRequirements/setStagecraft/setArcTemplate/setArcBridges/setStoryField ops.",
   provisioning: "Stage PROVISIONING: this story's requirements name people, lore and a group that may not exist on this install yet. Propose the create steps that close exactly that gap — one card per cast member the story directs, the story's own lorebook plus the entries the story leans on, and the group that plays it. Only emit createCharacterCard/createStoryLorebook/upsertLorebookEntry/createGroup ops. Propose nothing for assets the environment below already lists.",
 };
 

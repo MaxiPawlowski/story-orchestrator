@@ -8,6 +8,7 @@ import type {
   Quality,
   RosterMember,
   StoryRequirements,
+  StoryStagecraft,
   TalkControl,
   Transition,
 } from "@engine/index";
@@ -146,6 +147,14 @@ export const setRequirements = (draft: StoryDraft, requirements: StoryRequiremen
   });
   const { requirements: _dropped, ...rest } = draft;
   return Object.keys(cleaned).length ? { ...rest, requirements: cleaned } : rest;
+};
+
+// The curator's write scope. An empty list drops the block entirely — the safe default is a story
+// that grants no background agent any lorebook.
+export const setStagecraft = (draft: StoryDraft, stagecraft: StoryStagecraft): StoryDraft => {
+  const lorebooks = (stagecraft.lorebooks ?? []).map((entry) => entry.trim()).filter(Boolean);
+  const { stagecraft: _dropped, ...rest } = draft;
+  return lorebooks.length ? { ...rest, stagecraft: { lorebooks } } : rest;
 };
 
 // The id is the story's identity: it is derived from the title until the author fixes it, and the

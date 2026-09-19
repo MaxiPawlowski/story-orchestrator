@@ -298,6 +298,31 @@ describe("story engine", () => {
     expect(engine.boundaryBeforeMessage(0)).toBe(0);
   });
 
+  it("has nothing to roll back from the greeting before the first committed turn", () => {
+    const story = parseStoryV2OrThrow(linearStory);
+    const engine = new StoryEngine({ now: () => 0 });
+    engine.loadStory(story);
+    expect(engine.shouldRollbackFromMessage(0)).toBe(false);
+    expect(engine.rollbackTo(engine.boundaryBeforeMessage(0))).toBe(false);
+  });
+
+  it("reports where the previous boundary ended, following rollback and hydrate", () => {
+    const story = parseStoryV2OrThrow(linearStory);
+    const engine = new StoryEngine({ now: () => 0 });
+    engine.loadStory(story);
+    expect(engine.commitBoundary({ lastMessageId: 2, chatLength: 3 }).previousLastMessageId).toBe(-1);
+    expect(engine.commitBoundary({ lastMessageId: 4, chatLength: 5 }).previousLastMessageId).toBe(2);
+    expect(engine.commitBoundary({ lastMessageId: 4, chatLength: 5 }).previousLastMessageId).toBe(4);
+    expect(engine.rollbackTo(1)).toBe(true);
+    expect(engine.commitBoundary({ lastMessageId: 4, chatLength: 5 }).previousLastMessageId).toBe(2);
+
+    const rehydrated = new StoryEngine({ now: () => 0 });
+    rehydrated.loadStory(story);
+    rehydrated.hydrate(engine.serialize());
+    expect(rehydrated.commitBoundary({ lastMessageId: 6, chatLength: 7 }).previousLastMessageId).toBe(4);
+    expect(rehydrated.activateCheckpoint("door", { lastMessageId: 8, chatLength: 9 }).previousLastMessageId).toBe(6);
+  });
+
   it("flushes pending writes and truncates logs on rollback", () => {
     const story = parseStoryV2OrThrow(linearStory);
     const engine = new StoryEngine({ now: () => 0 });

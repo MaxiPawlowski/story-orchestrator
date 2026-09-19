@@ -1,0 +1,33 @@
+{
+  "auto_switch": false,
+  "overrides": {
+    "unsloth/Qwen3.8-27B-GGUF": {
+      "llama_extra_args": [
+        "--image-min-tokens",
+        "1024"
+      ],
+      "max_seq_length": 65536,
+      "kv_cache_dtype": "q8_0",
+      "speculative_type": "mtp",
+      "spec_draft_n_max": 3,
+      "n_parallel": 1,
+      "n_ubatch": 256
+    },
+    "JonathanColetti/Qwen3.8-27B-Uncensored-GGUF": {
+      "max_seq_length": 65536,
+      "kv_cache_dtype": "q8_0",
+      "speculative_type": "mtp",
+      "spec_draft_n_max": 3,
+      "n_parallel": 1,
+      "n_ubatch": 256
+    },
+    "JonathanColetti/Qwen3.8-27B-Uncensored-GGUF:Q4_K_M": {
+      "custom_context_length": 65536,
+      "kv_cache_dtype": "q8_0",
+      "speculative_type": "mtp",
+      "spec_draft_n_max": 3,
+      "n_parallel": 1,
+      "n_ubatch": 256
+    }
+  }
+}

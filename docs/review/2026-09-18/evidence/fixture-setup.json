@@ -1,0 +1,15 @@
+{
+  "group": "Story Orchestrator Review",
+  "profile": "so-review-artemis",
+  "model": "TheDrummer/Artemis-31B-v1.1-GGUF:Q4_K_M",
+  "templates": "Chat-completion message array; embedded GGUF template applied by Studio only",
+  "narration": {
+    "temperature": 0.8,
+    "max_tokens": 384
+  },
+  "background": {
+    "temperature": 0.2,
+    "max_tokens": 2048
+  },
+  "thinking": false
+}

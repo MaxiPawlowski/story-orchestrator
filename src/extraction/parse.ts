@@ -10,11 +10,63 @@ const channelNoisePattern = /^(?:\[\d+\]|<[^<>\n]{0,32}>)+\s*/;
 const harmonyFinalPattern = /<\|channel\|>final<\|message\|>([\s\S]*?)(?:<\|(?:end|return|start)\|>|$)/i;
 const harmonyTokenPattern = /<\|[^|>]*\|>/g;
 
+const reasoningLeadPattern = /^(?:\s|\[\d+\]|<\|start\|>assistant|<\|assistant\|>)*/i;
+
+interface ReasoningForm {
+  open: string;
+  close: string;
+  orphanClose: boolean;
+}
+
+const reasoningForms: ReasoningForm[] = [
+  { open: "<think>", close: "<\\/think>", orphanClose: true },
+  { open: "<thinking>", close: "<\\/thinking>", orphanClose: true },
+  { open: "<\\|channel>(?:thought|analysis)", close: "<channel\\|>", orphanClose: false },
+  { open: "<\\|channel\\|>analysis<\\|message\\|>", close: "<\\|end\\|>|(?=<\\|(?:start|channel)\\|>)", orphanClose: false },
+];
+
+const reasoningBlockEnd = (text: string, form: ReasoningForm): number => {
+  const tokens = new RegExp(`${form.open}|(${form.close})`, "gi");
+  let depth = 0;
+  let lastClose = -1;
+  for (let match = tokens.exec(text); match; match = tokens.exec(text)) {
+    if (!match[0]) tokens.lastIndex += 1;
+    if (match[1] === undefined) {
+      depth += 1;
+      continue;
+    }
+    depth -= 1;
+    lastClose = match.index + match[0].length;
+    if (depth === 0) return lastClose;
+  }
+  return lastClose;
+};
+
+const orphanCloseEnd = (text: string, form: ReasoningForm): number => {
+  const close = new RegExp(form.close, "i").exec(text);
+  if (!close || new RegExp(form.open, "i").test(text.slice(0, close.index))) return -1;
+  return close.index + close[0].length;
+};
+
+export function stripReasoningBlocks(raw: string): string {
+  let text = raw;
+  let stripped = false;
+  for (;;) {
+    const rest = text.slice(text.match(reasoningLeadPattern)?.[0].length ?? 0);
+    const opened = reasoningForms.find((form) => new RegExp(`^(?:${form.open})`, "i").test(rest));
+    const end = opened ? reasoningBlockEnd(rest, opened) : Math.max(-1, ...reasoningForms.filter((form) => form.orphanClose).map((form) => orphanCloseEnd(rest, form)));
+    if (opened && end < 0) return "";
+    if (end < 0) return stripped ? text.trim() : text;
+    text = rest.slice(end);
+    stripped = true;
+  }
+}
+
 const stripChannelTokens = (line: string): string => line.replace(channelNoisePattern, "").trim();
 
 export function stripChannelNoise(raw: string): string {
   const finalMatch = raw.match(harmonyFinalPattern);
-  const body = finalMatch ? finalMatch[1] : raw;
+  const body = stripReasoningBlocks(finalMatch ? finalMatch[1] : raw);
   const lines = body.replace(harmonyTokenPattern, "").split(/\r?\n/).map((line) => stripChannelTokens(line));
   while (lines.length && /^(?:thought|analysis|final)?$/i.test(lines[0])) lines.shift();
   return lines.join("\n").trim();

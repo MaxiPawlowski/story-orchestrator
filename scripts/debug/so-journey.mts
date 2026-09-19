@@ -5,11 +5,13 @@ import { DEBUG_DIR, PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag, stripCommonArgs } from './lib/cli.mts';
-import { closeUnpinnedDrawers, openGroup, openMostRecentGroupChat, startNewGroupSession } from './st-navigation.mts';
+import { beginSandboxSession, closeUnpinnedDrawers, deleteSandboxChats, openGroup, openMostRecentGroupChat } from './st-navigation.mts';
+
+type SandboxGuard = Awaited<ReturnType<typeof beginSandboxSession>>['guard'];
 import { executeSlashCommand } from './st-actions.mts';
-import { runSteps } from './so-scenario.mts';
+import { deleteSandboxMirrorBooks, recordSandboxStory, runSteps } from './so-scenario.mts';
 import { selectMemoryProfile } from './so-ui.mts';
-import { removeMarkedAssets } from './so-assets.mts';
+import { removeMarkedAssets, snapshotAssets } from './so-assets.mts';
 import { wipeChatMeta } from './so-library.mts';
 
 const JOURNEY_DIR = resolve(PROJECT_ROOT, 'test/journeys');
@@ -141,7 +143,7 @@ async function configureExtraction(page, setup) {
 }
 
 async function applySetup(page, setup, { allowConfig }) {
-  const applied: { configSnapshot: unknown; chat: unknown; extraction?: unknown; libraryBefore?: string[]; cleanup?: unknown } = { configSnapshot: null, chat: null };
+  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; libraryBefore?: string[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
   if (setup.clearGlobalConfig && allowConfig) {
     applied.configSnapshot = await snapshotGlobalConfig(page);
     await writeGlobalConfig(page, null);
@@ -166,12 +168,14 @@ async function applySetup(page, setup, { allowConfig }) {
   else if (!active?.groupId) await openMostRecentGroupChat(page);
   if (setup.newChat !== false) {
     // A chat deleted by the previous run can leave ST mid-transition; one retry settles it.
-    applied.chat = await startNewGroupSession(page).catch(async (error) => {
+    const session = await beginSandboxSession(page).catch(async (error) => {
       console.log(`new chat retry after: ${error.message}`);
       await page.waitForTimeout(3000);
       await openMostRecentGroupChat(page);
-      return startNewGroupSession(page);
+      return beginSandboxSession(page);
     });
+    applied.chat = { before: session.before, after: session.after };
+    applied.guard = session.guard;
     if (setup.resetChatState !== false) await wipeChatMeta(page, null).catch(() => undefined);
     await evaluateInST(page, async () => {
       for (const key of Object.keys(globalThis).filter((name) => name.startsWith('storyOrchestratorDebug'))) delete globalThis[key];
@@ -188,15 +192,17 @@ async function applySetup(page, setup, { allowConfig }) {
   return applied;
 }
 
-async function runCleanup(page, journey, { importedHashes, libraryBefore, configSnapshot, chatStarted, keep, allowConfig }) {
+async function runCleanup(page, journey, { importedHashes, libraryBefore, configSnapshot, guard, keep, allowConfig, assetBaseline }) {
   const cleanup = journey.cleanup ?? {};
   const report: Record<string, unknown> = {};
-  if (keep) return { kept: true };
+  if (keep) return { kept: true, sandboxChatId: guard?.sandboxChatId ?? null, owned: guard?.owned ?? [] };
   // Assets go FIRST: the wizard's created-asset ledger lives in extension settings, and restoring
   // the config snapshot would wipe the very record cleanup uses to catch a renamed asset (plan 06).
+  // The baseline scopes that ledger to this run: a real author's wizard sessions and the assets
+  // they created are never in scope.
   if (cleanup.removeCreatedAssets) {
     const marker = typeof cleanup.removeCreatedAssets === 'string' ? cleanup.removeCreatedAssets : undefined;
-    report.assets = await removeMarkedAssets(page, marker).catch((error) => ({ error: error.message }));
+    report.assets = await removeMarkedAssets(page, marker, { baseline: assetBaseline }).catch((error) => ({ error: error.message }));
   }
   if (configSnapshot && allowConfig && cleanup.restoreConfig !== false) {
     report.config = await restoreGlobalConfig(page).catch((error) => ({ error: error.message }));
@@ -215,12 +221,14 @@ async function runCleanup(page, journey, { importedHashes, libraryBefore, config
     }, removable).catch((error) => ({ error: error.message }));
   }
   if (removable.length !== importedHashes.length) report.keptPreExistingStories = importedHashes.filter((hash) => preExisting.has(hash));
-  if (chatStarted && cleanup.deleteChat !== false) {
-    report.chat = await executeSlashCommand(page, '/delchat').then(() => ({ deleted: true })).catch((error) => ({ error: error.message }));
+  if (guard && cleanup.deleteChat !== false) {
+    await recordSandboxStory(page, guard);
+    report.chat = await deleteSandboxChats(page, guard).catch((error) => ({ error: error.message }));
+    report.mirrorBooks = await deleteSandboxMirrorBooks(page, guard).catch((error) => ({ error: error.message }));
   }
   // cast_changes mutates the group's disabled_members, which outlives the sandbox chat (see
   // .claude/rules/debug-scripts.md). Restore AFTER deleting the chat: enabling members while the
-  // sandbox chat is still open gets undone when ST reloads the group behind /delchat, which is how
+  // sandbox chat is still open gets undone when ST reloads the group behind the delete, which is how
   // a "clean" J5 run left Ponticius and Luke disabled (plan 04). Verified, not assumed.
   for (const member of cleanup.enableMembers ?? []) {
     report[`member:${member}`] = await executeSlashCommand(page, `/member-enable ${member}`).then(() => ({ enabled: true })).catch((error) => ({ error: error.message }));
@@ -265,8 +273,9 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
   const reserved = (journey.status ?? 'active') === 'reserved';
   const results = [];
   const importedHashes = [];
-  let setupApplied: { configSnapshot: unknown; chat: unknown; extraction?: unknown; libraryBefore?: string[]; cleanup?: unknown } = { configSnapshot: null, chat: null };
+  let setupApplied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; libraryBefore?: string[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
   let runnerError = null;
+  let assetBaseline = null;
   const capabilities = capabilityProbe(page, journey.capabilities);
 
   console.log(`\n=== ${journey.id} ${journey.title} ===\n${journey.objective ?? ''}\n`);
@@ -275,6 +284,9 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
     for (const check of checks) results.push({ ...summarize(check), outcome: 'not-runnable', detail: journey.reservedReason ?? 'journey not defined on this build' });
   } else {
     try {
+      // Before setup can clear the config: what the install held when the run started is how asset
+      // cleanup tells this run's creations from the user's own.
+      assetBaseline = await snapshotAssets(page);
       setupApplied = await applySetup(page, journey.setup ?? {}, { allowConfig });
       for (const check of checks) {
         const summary = summarize(check);
@@ -288,8 +300,13 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
           continue;
         }
         console.log(`--- ${check.id} ${check.goal ?? ''}`);
-        const outcome = await runSteps(page, check.steps ?? [], { scenarioDir: JOURNEY_DIR, importedHashes, label: `${check.id} ` });
+        const outcome = await runSteps(page, check.steps ?? [], { scenarioDir: JOURNEY_DIR, importedHashes, label: `${check.id} `, assetBaseline, guard: setupApplied.guard ?? null });
         results.push({ ...summary, outcome: outcome.ok ? 'pass' : 'fail', detail: outcome.error ?? '' });
+        if (setupApplied.guard?.escaped) {
+          runnerError = outcome.error;
+          console.error(`Journey stopped: ${runnerError}`);
+          break;
+        }
       }
     } catch (error) {
       runnerError = error instanceof Error ? error.message : String(error);
@@ -299,9 +316,10 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
         importedHashes,
         libraryBefore: (setupApplied as { libraryBefore?: string[] }).libraryBefore,
         configSnapshot: setupApplied.configSnapshot,
-        chatStarted: Boolean(setupApplied.chat),
+        guard: setupApplied.guard ?? null,
         keep,
         allowConfig,
+        assetBaseline,
       }).catch((error) => ({ error: error.message }));
     }
   }

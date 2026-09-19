@@ -4,6 +4,10 @@ import type { RuntimeManager } from "./runtimeManager";
 const FLUSH_POLL_MS = 300;
 const FLUSH_POLL_MAX_MS = 60000;
 
+export const NON_TURN_MESSAGE_TYPES: ReadonlySet<string> = new Set(["first_message", "extension"]);
+
+export const isTurnMessageType = (type: unknown): boolean => typeof type !== "string" || !NON_TURN_MESSAGE_TYPES.has(type);
+
 export class TurnBridge {
   private pendingBoundary = false;
   private lastRenderedAt = 0;
@@ -17,8 +21,8 @@ export class TurnBridge {
     const entries: HostSubscriptionEntry[] = [
       { eventName: "GENERATION_ENDED", handler: () => void this.flushPendingBoundary() },
       { eventName: "GENERATION_STOPPED", handler: () => void this.flushPendingBoundary() },
-      { eventName: "MESSAGE_RECEIVED", handler: () => void this.onRenderedReply() },
-      { eventName: "CHARACTER_MESSAGE_RENDERED", handler: () => void this.onRenderedReply() },
+      { eventName: "MESSAGE_RECEIVED", handler: (_messageId, type) => void this.onRenderedReply(type) },
+      { eventName: "CHARACTER_MESSAGE_RENDERED", handler: (_messageId, type) => void this.onRenderedReply(type) },
       { eventName: "MESSAGE_SWIPED", handler: (messageId) => void this.onMutation(messageId) },
       { eventName: "MESSAGE_EDITED", handler: (messageId) => void this.onMutation(messageId) },
       { eventName: "MESSAGE_DELETED", handler: (messageId) => void this.onMutation(messageId) },
@@ -37,7 +41,8 @@ export class TurnBridge {
     this.pendingBoundary = false;
   }
 
-  private async onRenderedReply() {
+  private async onRenderedReply(type: unknown) {
+    if (!isTurnMessageType(type)) return;
     const now = Date.now();
     if (now - this.lastRenderedAt < 250) return;
     this.lastRenderedAt = now;

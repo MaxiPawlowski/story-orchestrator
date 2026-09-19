@@ -93,6 +93,16 @@ function requestedViewport(): { width: number; height: number } | null {
   return { width: Number(match[1]), height: Number(match[2]) };
 }
 
+async function measuredViewport(page: Page): Promise<{ width: number; height: number } | null> {
+  const known = page.viewportSize();
+  if (known) return known;
+  try {
+    return await page.evaluate(() => ({ width: window.innerWidth, height: window.innerHeight }));
+  } catch {
+    return null;
+  }
+}
+
 async function pickPage(browser: Browser, stUrl: string): Promise<Page> {
   const contexts = browser.contexts();
   const context = contexts[0] || await browser.newContext({ viewport: { width: 1920, height: 1080 } });
@@ -100,7 +110,7 @@ async function pickPage(browser: Browser, stUrl: string): Promise<Page> {
   const existing = pages.find((page) => sameOriginOrBlank(page, stUrl));
   const page = existing || await context.newPage();
   const override = requestedViewport();
-  const viewport = page.viewportSize();
+  const viewport = await measuredViewport(page);
   if (override) {
     if (!viewport || viewport.width !== override.width || viewport.height !== override.height) {
       await page.setViewportSize(override);

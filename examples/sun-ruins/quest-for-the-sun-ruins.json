@@ -1,7 +1,7 @@
 {
   "format": 2,
   "id": "sun-ruins",
-  "version": 1,
+  "version": 2,
   "title": "Quest for the Sun Ruins",
   "description": "Humanity's last survivors shelter in the ruined city of Xentar as its magical wards fail. The Adventurers Guild sends a team to recover the legendary Sun's Heart Artifact from the perilous Sun Ruins, past ancient traps and a riddling sphinx.",
   "arc_template": "rising",
@@ -105,8 +105,8 @@
         "preset": {
           "name": "Story: Sun Ruins",
           "settings": {
-            "temp": 0.65,
-            "top_p": 0.95
+            "temp": 1.0,
+            "top_p": 1.0
           }
         },
         "world_info": {

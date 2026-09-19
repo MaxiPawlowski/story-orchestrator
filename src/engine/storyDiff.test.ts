@@ -74,6 +74,12 @@ describe("storyDiff classification table", () => {
     expect(codes(result)).toEqual(expect.arrayContaining(["text-changed", "requirements-changed", "arc-template-changed", "arc-bridges-changed"]));
   });
 
+  it("keeps a stagecraft allowlist edit compatible", () => {
+    const result = run(edited((draft) => { draft.stagecraft = { lorebooks: ["Diff Lore"] }; }));
+    expect(result.classification).toBe("compatible");
+    expect(codes(result)).toContain("stagecraft-changed");
+  });
+
   it("treats an added quality as compatible", () => {
     const result = run(edited((draft) => draft.qualities.push({ key: "coin", type: "int", source: "extractor", rubric: "How much coin?" })));
     expect(result).toMatchObject({ classification: "compatible" });

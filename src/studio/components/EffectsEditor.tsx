@@ -8,11 +8,12 @@ const readStrings = (value: unknown): string[] => (Array.isArray(value) ? value.
 
 interface WorldInfoEntry { lorebook: string; comments: string[] }
 
-const readAuthorNote = (value: unknown): { text: string; inject: boolean } | null => {
+const readAuthorNote = (value: unknown): { text: string; inject: boolean; rest: Record<string, unknown> } | null => {
   if (value === undefined || value === null) return null;
-  if (typeof value === "string") return { text: value, inject: false };
-  if (isRecord(value)) return { text: typeof value.text === "string" ? value.text : "", inject: value.inject_blackboard === true || value.include_blackboard === true };
-  return null;
+  if (typeof value === "string") return { text: value, inject: false, rest: {} };
+  if (!isRecord(value)) return null;
+  const { text, inject_blackboard, include_blackboard, ...rest } = value;
+  return { text: typeof text === "string" ? text : "", inject: inject_blackboard === true || include_blackboard === true, rest };
 };
 
 const readPresetName = (value: unknown): string | null => {
@@ -114,7 +115,7 @@ const NpcRepliesEditor: React.FC<{ replies: NpcReplyEffect[]; roster: RosterMemb
   );
 };
 
-const EffectsEditor: React.FC<{ effects: CheckpointEffects; roster: RosterMember[]; onChange: (next: CheckpointEffects) => void }> = ({ effects, roster, onChange }) => {
+const EffectsEditor: React.FC<{ effects: CheckpointEffects; roster: RosterMember[]; backgroundNames?: string[]; onChange: (next: CheckpointEffects) => void }> = ({ effects, roster, backgroundNames = [], onChange }) => {
   const emit = (next: CheckpointEffects) => {
     const cleaned: CheckpointEffects = { ...next };
     (Object.keys(cleaned) as Array<keyof CheckpointEffects>).forEach((key) => {
@@ -136,9 +137,9 @@ const EffectsEditor: React.FC<{ effects: CheckpointEffects; roster: RosterMember
       <Section title="Author note" enabled={authorNote !== null} onToggle={(on) => emit({ ...effects, author_note: on ? { text: "" } : undefined })}>
         {authorNote ? (
           <>
-            <textarea className="text_pole st-input min-h-[3rem]" aria-label="Author note text" value={authorNote.text} onChange={(event) => emit({ ...effects, author_note: { text: event.target.value, ...(authorNote.inject ? { inject_blackboard: true } : {}) } })} />
+            <textarea className="text_pole st-input min-h-[3rem]" aria-label="Author note text" value={authorNote.text} onChange={(event) => emit({ ...effects, author_note: { ...authorNote.rest, text: event.target.value, ...(authorNote.inject ? { inject_blackboard: true } : {}) } })} />
             <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={authorNote.inject} onChange={(event) => emit({ ...effects, author_note: { text: authorNote.text, ...(event.target.checked ? { inject_blackboard: true } : {}) } })} />
+              <input type="checkbox" checked={authorNote.inject} onChange={(event) => emit({ ...effects, author_note: { ...authorNote.rest, text: authorNote.text, ...(event.target.checked ? { inject_blackboard: true } : {}) } })} />
               Inject blackboard
             </label>
           </>
@@ -149,6 +150,22 @@ const EffectsEditor: React.FC<{ effects: CheckpointEffects; roster: RosterMember
         <label className="flex flex-col gap-1 text-sm">
           <span className="text-xs st-muted">Preset name</span>
           <input className="text_pole st-input" value={presetName ?? ""} onChange={(event) => emit({ ...effects, preset: event.target.value })} />
+        </label>
+      </Section>
+
+      <Section title="Background" help="Switches the SillyTavern background when the story enters this checkpoint. Partial filenames match, and re-entering or reloading re-applies the same background without side effects." enabled={effects.background !== undefined} onToggle={(on) => emit({ ...effects, background: on ? { name: backgroundNames[0] ?? "" } : undefined })}>
+        <label className="flex flex-col gap-1 text-sm">
+          <span className="text-xs st-muted">Background file</span>
+          <input
+            className="text_pole st-input"
+            aria-label="Background file"
+            list="so-effect-backgrounds"
+            value={effects.background?.name ?? ""}
+            onChange={(event) => emit({ ...effects, background: { name: event.target.value } })}
+          />
+          <datalist id="so-effect-backgrounds">
+            {backgroundNames.map((name) => <option key={name} value={name} />)}
+          </datalist>
         </label>
       </Section>
 

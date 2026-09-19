@@ -1,0 +1,146 @@
+{
+  "format": 2,
+  "id": "so-an-role-probe",
+  "version": 1,
+  "title": "SO AN Role Probe",
+  "description": "Live check: an authored author_note role reaches ST's Author's Note and the assembled prompt.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Begin.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "as_user",
+      "name": "As User",
+      "objective": "User-role note.",
+      "type": "intermediate",
+      "effects": {
+        "author_note": {
+          "text": "SO-AN-ROLE-PROBE user whisper.",
+          "position": "chat",
+          "depth": 0,
+          "interval": 1,
+          "role": "user"
+        }
+      }
+    },
+    {
+      "id": "as_assistant",
+      "name": "As Assistant",
+      "objective": "Assistant-role note.",
+      "type": "intermediate",
+      "effects": {
+        "author_note": {
+          "text": "SO-AN-ROLE-PROBE assistant aside.",
+          "position": "chat",
+          "depth": 0,
+          "interval": 1,
+          "role": "assistant"
+        }
+      }
+    },
+    {
+      "id": "as_default",
+      "name": "As Default",
+      "objective": "Bare string note, role defaults.",
+      "type": "intermediate",
+      "effects": {
+        "author_note": "SO-AN-ROLE-PROBE default note."
+      }
+    },
+    {
+      "id": "back_to_user",
+      "name": "Back To User",
+      "objective": "User role again before clearing.",
+      "type": "intermediate",
+      "effects": {
+        "author_note": {
+          "text": "SO-AN-ROLE-PROBE user again.",
+          "position": "chat",
+          "depth": 0,
+          "interval": 1,
+          "role": "user"
+        }
+      }
+    },
+    {
+      "id": "cleared",
+      "name": "Cleared",
+      "objective": "Note cleared.",
+      "type": "anchor",
+      "effects": {
+        "author_note": null
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "as_user",
+      "priority": 1,
+      "gate": {
+        "q": "message_count",
+        "op": ">=",
+        "v": 1000
+      }
+    },
+    {
+      "from": "as_user",
+      "to": "as_assistant",
+      "priority": 1,
+      "gate": {
+        "q": "message_count",
+        "op": ">=",
+        "v": 1000
+      }
+    },
+    {
+      "from": "as_assistant",
+      "to": "as_default",
+      "priority": 1,
+      "gate": {
+        "q": "message_count",
+        "op": ">=",
+        "v": 1000
+      }
+    },
+    {
+      "from": "as_default",
+      "to": "back_to_user",
+      "priority": 1,
+      "gate": {
+        "q": "message_count",
+        "op": ">=",
+        "v": 1000
+      }
+    },
+    {
+      "from": "back_to_user",
+      "to": "cleared",
+      "priority": 1,
+      "gate": {
+        "q": "message_count",
+        "op": ">=",
+        "v": 1000
+      }
+    }
+  ],
+  "roster": [
+    {
+      "id": "DM Narrator",
+      "name": "DM Narrator"
+    }
+  ]
+}

@@ -102,7 +102,17 @@ node scripts/debug/so-extraction-check.mts
 
 Steps: `import_story`, `select_story`, `send`, `send_generate`, `slash`, `extract`, `expand`, `eval`, `swipe`, `edit`, `delete`, `wait`, `expect`. `--sandbox` starts `/newchat`; cleanup removes imported stories and best-effort deletes the scratch chat unless `--keep` is passed.
 
-Real-LLM scenarios: `test/scenarios/live-plan*.json` + `plan08-hygiene.json` run every step against the real backend (no `debugResponse`). Tolerant wait verbs for nondeterminism: `acceptedDelta`, `reconciliationEvents`, `memoryEntries` (+`memoryTier`), `arcsSummarized`, `canonPresent`. After real `send_generate`, wait on `boundary`, not `idle` — group activation can lag and `idle` passes before generation starts.
+Real-LLM scenarios: `test/scenarios/live-plan*.json` + `plan08-hygiene.json` + `live-memory-mirror.json` (the per-chat memory WI book: created without a reload, chat-bound, fires in a real generation; clean up with `so-assets.mts remove --marker SO-MIRROR`) + `live-curator-write.json` (J8's story and lorebook. It accepts whatever the real curator proposes and checks the server file, plus every main-generation prompt via `GENERATE_AFTER_DATA`, against a before-control. The author advances to `tavern` before the pass, because the curator reads only the checkpoint and canon, never the chat. It needs the curator on in review mode; clean up with `--marker SO-J8`) run every step against the real backend (no `debugResponse`). Tolerant wait verbs for nondeterminism: `acceptedDelta`, `reconciliationEvents`, `memoryEntries` (+`memoryTier`), `arcsSummarized`, `canonPresent`. After real `send_generate`, wait on `boundary`, not `idle` — group activation can lag and `idle` passes before generation starts.
+
+### Test assets (wizard / curator runs)
+
+```bash
+node scripts/debug/so-assets.mts list --marker SO-J9          # dry run — ALWAYS before remove
+node scripts/debug/so-assets.mts remove --marker SO-J9        # delete + leak re-check
+node scripts/debug/so-assets.mts assert-clean --marker SO-J9
+```
+
+The scope is marker-prefixed names, plus the created-asset ledger (`wizardSessions[].applied`) of **test** sessions only, i.e. keys starting with the slugged marker (`so-j9-wizard`). A real author's wizard sessions and their assets are never read, deleted or cleared. A journey (`cleanup.removeCreatedAssets`, `assets` steps) also passes the `snapshotAssets` baseline it took before setup. That counts ledger entries recorded during the run in any session, spares assets that existed before (`protected`), and restores the sessions to what the run found, minus the test ones. `list` output: `ledger` (name, session, `test-session`/`this-run`), `sessions`, `protected`. An empty `--marker` is refused.
 
 ### Payloads
 
@@ -144,6 +154,7 @@ Standard test loop: `open-group` → `new-chat` → seed via `st-eval` → `send
 ```bash
 node scripts/debug/so-runtime-check.mts      # plan 02: imports inline test story, sets quality, activates checkpoint, checks effects
 node scripts/debug/so-extraction-check.mts   # plan 03: imports story, /send compact, runs deterministic extraction via debugResponse
+node scripts/debug/so-turn-types-check.mts   # TurnBridge types: /sd image + new-group greetings + solo greeting reopen/swipe commit nothing, a real reply commits exactly one
 ```
 
 Both use the in-page debug handle `globalThis.storyOrchestratorRuntime` (`importStory(json)`, `runExtractionNow(response, cueId)`) — also usable directly from `browser_evaluate` or `evaluateInST` for ad-hoc runtime poking.

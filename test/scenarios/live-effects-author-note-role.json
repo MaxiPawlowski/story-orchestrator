@@ -1,0 +1,19 @@
+{
+  "steps": [
+    {
+      "eval": "const c = SillyTavern.getContext(); if (globalThis.__soAnSentHandler) c.eventSource.removeListener(c.eventTypes.GENERATE_AFTER_DATA, globalThis.__soAnSentHandler); globalThis.__soAnSent = []; globalThis.__soAnSentLog = []; globalThis.__soAnSentHandler = (data, dryRun) => { if (dryRun) return; globalThis.__soAnSent.push(typeof data?.prompt === 'string' ? data.prompt : JSON.stringify(data?.messages ?? data ?? null)); }; c.eventSource.on(c.eventTypes.GENERATE_AFTER_DATA, globalThis.__soAnSentHandler); globalThis.__soAnSentCheck = async (want) => { const sleep = (ms) => new Promise((r) => setTimeout(r, ms)); const deadline = Date.now() + 300000; const lastReply = () => { const chat = SillyTavern.getContext().chat; const last = chat[chat.length - 1]; return last && !last.is_user && !last.is_system && String(last.mes ?? '').trim() ? last : null; }; while (!(globalThis.__soAnSent.length > globalThis.__soAnMark && lastReply() && !document.body.dataset.generating)) { if (Date.now() > deadline) throw new Error(`no settled real reply (sends ${globalThis.__soAnSent.length}, mark ${globalThis.__soAnMark})`); await sleep(500); } const prompt = globalThis.__soAnSent[globalThis.__soAnSent.length - 1]; const marker = 'SO-AN-ROLE-PROBE'; const at = prompt.indexOf(marker); const turnAt = at >= 0 ? prompt.lastIndexOf('<|turn>', at) : -1; const turn = turnAt >= 0 ? prompt.slice(turnAt + 7, prompt.indexOf('\\n', turnAt)) : null; const md = SillyTavern.getContext().chatMetadata; const reply = lastReply(); const got = { sends: globalThis.__soAnSent.length - globalThis.__soAnMark, turn, context: at >= 0 ? prompt.slice(turnAt, at + marker.length) : null, note_role: md.note_role, note_prompt: md.note_prompt, replyFrom: reply.name, replySample: String(reply.mes).slice(0, 160) }; const fail = []; if (want.turn) { if (at < 0) fail.push('AN missing from the sent prompt'); else if (turn !== want.turn) fail.push(`AN sent in a '${turn}' turn, expected '${want.turn}'`); } else { if (at >= 0) fail.push('AN still in the sent prompt after clear'); if (String(md.note_prompt ?? '') !== '') fail.push(`note_prompt still holds '${md.note_prompt}' after clear`); } globalThis.__soAnSentLog.push({ want, got, fail }); if (fail.length) throw new Error(fail.join('; ') + ' :: ' + JSON.stringify(got)); return got; }; return 'recorder ready';"
+    },
+    { "import_story": { "file": "author-note-role.story.json" } },
+    { "slash": "/cp activate as_user" },
+    { "wait": { "checkpoint": "as_user", "timeoutMs": 10000 } },
+    { "eval": "globalThis.__soAnMark = globalThis.__soAnSent.length; return globalThis.__soAnMark;" },
+    { "send_generate": { "text": "I push open the guild hall door and look around. What catches my eye?", "timeoutMs": 300000 } },
+    { "eval": "return await globalThis.__soAnSentCheck({ turn: 'user' });" },
+    { "slash": "/cp activate cleared" },
+    { "wait": { "checkpoint": "cleared", "timeoutMs": 10000 } },
+    { "eval": "globalThis.__soAnMark = globalThis.__soAnSent.length; return globalThis.__soAnMark;" },
+    { "send_generate": { "text": "I walk over to the job board and read the newest notice.", "timeoutMs": 300000 } },
+    { "eval": "return await globalThis.__soAnSentCheck({ turn: null });" },
+    { "eval": "const c = SillyTavern.getContext(); c.eventSource.removeListener(c.eventTypes.GENERATE_AFTER_DATA, globalThis.__soAnSentHandler); delete globalThis.__soAnSentHandler; delete globalThis.__soAnSentCheck; delete globalThis.__soAnSent; delete globalThis.__soAnMark; return globalThis.__soAnSentLog.length;" }
+  ]
+}

@@ -4,6 +4,7 @@ import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
 import DriverPanel, { type DriverController } from "./DriverPanel";
 import PlayerOverview from "./PlayerOverview";
+import StagecraftPanel from "./StagecraftPanel";
 
 export type DrawerTabId = "overview" | "blackboard" | "memory" | "scheduler" | "payload";
 
@@ -386,8 +387,9 @@ const ReconciliationPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
   );
 };
 
-const SchedulerTab = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
+const SchedulerTab = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: RuntimeManager }) => (
   <div className="flex flex-col gap-3">
+    <StagecraftPanel snapshot={snapshot} manager={manager} />
     <TalkDecisionsPanel snapshot={snapshot} />
     <div className="text-xs opacity-80">
       <div className="font-medium opacity-100">Extraction</div>
@@ -511,7 +513,7 @@ export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditSt
         {activeTab === "overview" && <OverviewTab snapshot={snapshot} authorView={authorView} onOpenSettings={onOpenSettings} onFixWithWizard={onFixWithWizard} />}
         {activeTab === "blackboard" && <BlackboardTab snapshot={snapshot} />}
         {activeTab === "memory" && <MemoryTab snapshot={snapshot} manager={manager} authorView={authorView} />}
-        {activeTab === "scheduler" && <SchedulerTab snapshot={snapshot} />}
+        {activeTab === "scheduler" && <SchedulerTab snapshot={snapshot} manager={manager} />}
         {activeTab === "payload" && <PayloadTab snapshot={snapshot} />}
       </div>
       {activeTab === "overview" && <StoryControls snapshot={snapshot} manager={manager} onEditStory={onEditStory} />}

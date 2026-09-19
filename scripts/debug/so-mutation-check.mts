@@ -2,8 +2,8 @@ import { fileURLToPath } from 'node:url';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
-import { openMostRecentGroupChat, startNewGroupSession } from './st-navigation.mts';
-import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, swipeMessage } from './st-actions.mts';
+import { assertInSandbox, beginSandboxSession, deleteSandboxChats, openMostRecentGroupChat } from './st-navigation.mts';
+import { deleteMessage, editMessage, sendCompactMessage, swipeMessage } from './st-actions.mts';
 
 const USAGE = `Usage: node scripts/debug/so-mutation-check.mts [--keep]
 
@@ -63,20 +63,30 @@ function assertEvent(events, type, messageId) {
 
 export async function runMutationCheck(page, { keep = false } = {}) {
   const opened = await openMostRecentGroupChat(page);
-  const scratch = await startNewGroupSession(page);
-  await armMutationEvents(page);
-  const prepared = await prepareMultiSwipeMessage(page);
-  const swiped = await swipeMessage(page, prepared.messageId, 1);
-  const edited = await editMessage(page, prepared.messageId, 'Mutation gate edited message.');
-  const deleted = await deleteMessage(page, prepared.messageId);
-  const events = await readMutationEvents(page);
-  assertEvent(events, 'message_swiped', prepared.messageId);
-  assertEvent(events, 'message_edited', prepared.messageId);
-  assertEvent(events, 'message_deleted', prepared.messageId);
-  const result: Record<string, unknown> = { ok: true, opened, scratch, prepared, swiped, edited, deleted, events };
-  if (!keep) {
-    try { result.cleanup = await executeSlashCommand(page, '/delchat'); }
-    catch (err) { result.cleanup = { ok: false, error: err instanceof Error ? err.message : String(err) }; }
+  const scratch = await beginSandboxSession(page);
+  const { guard } = scratch;
+  const result: Record<string, unknown> = { ok: false, opened, scratch: { before: scratch.before, after: scratch.after } };
+  try {
+    await assertInSandbox(page, guard, 'before arming mutation events');
+    await armMutationEvents(page);
+    await assertInSandbox(page, guard, 'before preparing the message');
+    const prepared = await prepareMultiSwipeMessage(page);
+    await assertInSandbox(page, guard, 'before swiping');
+    const swiped = await swipeMessage(page, prepared.messageId, 1);
+    await assertInSandbox(page, guard, 'before editing');
+    const edited = await editMessage(page, prepared.messageId, 'Mutation gate edited message.');
+    await assertInSandbox(page, guard, 'before deleting');
+    const deleted = await deleteMessage(page, prepared.messageId);
+    const events = await readMutationEvents(page);
+    assertEvent(events, 'message_swiped', prepared.messageId);
+    assertEvent(events, 'message_edited', prepared.messageId);
+    assertEvent(events, 'message_deleted', prepared.messageId);
+    Object.assign(result, { ok: true, prepared, swiped, edited, deleted, events });
+  } finally {
+    if (!keep) {
+      try { result.cleanup = await deleteSandboxChats(page, guard); }
+      catch (err) { result.cleanup = { ok: false, error: err instanceof Error ? err.message : String(err) }; }
+    }
   }
   return result;
 }

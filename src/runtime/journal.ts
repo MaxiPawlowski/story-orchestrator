@@ -5,11 +5,11 @@ import type { PayloadCapture, TalkDecisionAudit } from "./types";
 export const JOURNAL_LIMIT = 200;
 export const PAYLOAD_CAPTURE_LIMIT = 5;
 
-export type JournalEventKind = "status" | "flag" | "story" | "boundary" | "transition" | "extraction" | "delta" | "reconciliation" | "payload" | "talk";
+export type JournalEventKind = "status" | "flag" | "story" | "boundary" | "transition" | "extraction" | "delta" | "reconciliation" | "payload" | "talk" | "stagecraft";
 
 // The persisted half of the journal: things nothing else records. Additive kinds read back fine
 // from older chats — `sanitizeJournalRecords` keeps any record that carries a kind and a summary.
-export type JournalRecordKind = "status" | "flag" | "story";
+export type JournalRecordKind = "status" | "flag" | "story" | "stagecraft";
 
 export interface JournalRecord {
   at: string;
@@ -43,7 +43,7 @@ export interface JournalSources {
   talkDecisions: TalkDecisionAudit[];
 }
 
-const KIND_ORDER: JournalEventKind[] = ["flag", "story", "boundary", "transition", "extraction", "delta", "reconciliation", "talk", "payload", "status"];
+const KIND_ORDER: JournalEventKind[] = ["flag", "story", "boundary", "transition", "extraction", "delta", "reconciliation", "talk", "stagecraft", "payload", "status"];
 
 const rank = (kind: JournalEventKind) => KIND_ORDER.indexOf(kind);
 

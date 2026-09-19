@@ -1,5 +1,6 @@
 import type { Checkpoint, CheckpointEffects, NormalizedStoryV2, NpcReplyEffect, NpcReplyTrigger } from "@engine/index";
 import {
+  applyBackground,
   applyCharacterAN,
   applyTextGenPresetRuntime,
   clearCharacterAN,
@@ -85,7 +86,7 @@ const fireReply = async (reply: NpcReplyEffect) => {
   if (reply.kind === "scripted") {
     const text = reply.text ?? reply.instruction ?? "";
     if (!text.trim()) return;
-    await executeSlashCommands(`/sendas name=${quoteSlashArg(reply.member)} ${quoteSlashArg(text)}`, { silent: false });
+    await executeSlashCommands(`/sendas name=${quoteSlashArg(reply.member)} raw=false ${quoteSlashArg(text)}`, { silent: false });
     return;
   }
   await executeSlashCommands(`/trigger await=true ${quoteSlashArg(reply.member)}`, { silent: false });
@@ -98,11 +99,11 @@ const lastMessageId = () => {
 
 export class EffectsApplier {
   // The one thing a transition posts into the chat itself: a compact system note naming where the
-  // story moved (opt-out in settings). Macro/newline characters would break the slash parser.
+  // story moved (opt-out in settings), kept to one line.
   async announceTransition(checkpoint: Checkpoint | undefined, extras: RuntimeExtras) {
     if (!extras.ui.announceTransitions || !checkpoint) return;
     const raw = checkpoint.objective ? `◈ ${checkpoint.name} — ${checkpoint.objective}` : `◈ ${checkpoint.name}`;
-    await executeSlashCommands(`/comment compact=true ${raw.replace(/[|{}]/g, " ").replace(/\s*\r?\n\s*/g, " ").trim()}`, { silent: true });
+    await executeSlashCommands(`/comment compact=true raw=false ${quoteSlashArg(raw.replace(/\s*\r?\n\s*/g, " ").trim())}`, { silent: true });
   }
 
   async applyCheckpoint(story: NormalizedStoryV2, checkpoint: Checkpoint, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate") {
@@ -113,6 +114,9 @@ export class EffectsApplier {
     if (effects.preset !== undefined) applyPreset(effects.preset, story);
     if (effects.world_info !== undefined) await applyWorldInfo(effects.world_info);
     if (effects.cast_changes !== undefined) await applyCastChanges(effects.cast_changes);
+    // Deterministic stagecraft: idempotent, so hydrating a chat and rolling back into this
+    // checkpoint both restore its background without re-triggering anything.
+    if (effects.background) await applyBackground(effects.background.name);
     if (mode === "activate") await this.fireNpcReplies(checkpoint, extras, "onEnter");
     extras.lastAppliedCheckpointId = checkpoint.id;
     extras.updatedAt = new Date().toISOString();

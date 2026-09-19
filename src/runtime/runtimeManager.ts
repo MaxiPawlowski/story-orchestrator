@@ -1,9 +1,10 @@
-import { StoryEngine, isValidationErrorList, type ApplyQueueEntry, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type StoryV2, type TalkControl, type ValidationError } from "@engine/index";
+import { StoryEngine, type ApplyQueueEntry, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type StoryV2, type TalkControl, type ValidationError } from "@engine/index";
 import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Suggestion } from "@copilot/index";
 import type { ProvisioningEnvironment, ProvisioningOp, ProvisioningResult, WizardSessionState } from "@wizard/index";
 import { getChatWindow, type ExtraGateSource, type ParsedDelta, type ParsedFact, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
 import { clearAllMemoryInjection, type ArcEntry, type EpistemicEntry, type LedgerView, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine, type UncertainPair } from "@memory/index";
-import { clearStoryExtensionPrompt, getContext, readInjectedPromptBlocks, showConfirmPopup, showTextPopup } from "@services/STAPI";
+import type { CuratorOp, CuratorPassOutcome } from "@stagecraft/index";
+import { clearStoryExtensionPrompt, getContext, readInjectedPromptBlocks, showTextPopup } from "@services/STAPI";
 import { AwayRecapController, type AwayRecap } from "./awayRecap";
 import type { NarrativeStatus, RollbackNotice } from "./narrative";
 import { PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
@@ -12,6 +13,8 @@ import { PacingCoordinator } from "./coordinators/pacingCoordinator";
 import { ExpansionCoordinator } from "./coordinators/expansionCoordinator";
 import { ExtractionCoordinator } from "./coordinators/extractionCoordinator";
 import { MemoryCoordinator } from "./coordinators/memoryCoordinator";
+import type { MemoryMirrorSummary } from "./memoryMirror";
+import { StagecraftCoordinator } from "./coordinators/stagecraftCoordinator";
 import { activeSpeakerId, enabledCharacterIds, namesForRosterId, rosterIdForName } from "./roster";
 import { EffectsApplier } from "./effectsApplier";
 import { applyGlobalSettings, createExtras, hydrateExtras, stripGlobalSettings, TALK_DECISION_LIMIT } from "./extras";
@@ -22,10 +25,10 @@ import { applyStoryUpdate, type StoryUpdateDeps, type StoryUpdateOutcome } from 
 import { parseQualityValue } from "./values";
 import { SessionJournal, type JournalEvent } from "./journal";
 import { evaluateRequirements } from "./requirements";
-import { dropPersistedRuntime, loadPersistedRuntime, savePersistedRuntime, setSelectedStoryId, getSelectedStoryId } from "./persistence";
-import { findStoryRecord, loadPinnedStory, loadStoryRecord, removeStoryRecord, saveStoryRecord } from "./storyLibrary";
+import { loadPersistedRuntime, savePersistedRuntime, setSelectedStoryId } from "./persistence";
+import { importStoryJson, loadSelectedStory, removeStory, restartStory, selectStory, type StorySelectionDeps } from "./storySelection";
 import { clearWizardSession, loadWizardSession, saveWizardSession } from "./wizardSessions";
-import type { CopilotRuntimeSettings, PersistedStoryRuntime, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, MemoryRuntimeSettings, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, StoryLibraryRecord, TalkDecisionAudit, TalkRuntimeState, UiRuntimeSettings } from "./types";
+import type { CopilotRuntimeSettings, PersistedStoryRuntime, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, MemoryRuntimeSettings, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, StagecraftRuntimeState, StagecraftSettings, StoryLibraryRecord, TalkDecisionAudit, TalkRuntimeState, UiRuntimeSettings } from "./types";
 
 export class RuntimeManager {
   private engine = new StoryEngine();
@@ -107,6 +110,21 @@ export class RuntimeManager {
       this.extras.journal = this.journal.getRecords();
     },
   };
+  private readonly stagecraft: StagecraftCoordinator = new StagecraftCoordinator({
+    getStory: () => this.loaded?.story ?? null,
+    getState: () => (this.loaded ? this.engine.serialize() : null),
+    getStagecraft: () => this.extras.stagecraft,
+    setStagecraft: (next) => { this.extras.stagecraft = next; },
+    getExtractionSettings: () => this.getExtractionSettings(),
+    getCanon: () => this.memory.getCanon(),
+    getOpenArcs: () => this.memory.getOpenArcs(),
+    journal: (summary, note) => {
+      this.journal.record("stagecraft", summary, this.journalContext(), note);
+      this.extras.journal = this.journal.getRecords();
+    },
+    persist: () => this.persist(),
+    notify: () => this.notify(),
+  });
   private readonly copilot: CopilotCoordinator = new CopilotCoordinator({
     getStory: () => this.loaded?.story ?? null,
     getState: () => (this.loaded ? this.engine.serialize() : null),
@@ -167,93 +185,31 @@ export class RuntimeManager {
     return () => { this.arcResolvedListeners.delete(listener); };
   }
 
-  async loadSelectedFromChat() {
-    const id = getSelectedStoryId();
-    if (!id) {
+  private readonly selectionDeps: StorySelectionDeps = {
+    loadStory: (loaded, mode, persisted) => this.loadStory(loaded, mode, persisted ?? null),
+    clearStory: (status) => {
       this.loaded = null;
       this.extras = createExtras();
       this.pacing.clearPending();
       clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
       clearAllMemoryInjection();
-      this.status = "No story selected for this chat";
+      this.status = status;
       this.notify();
-      return;
-    }
-    await this.selectStory(id, "hydrate");
-    void this.showAwayRecap();
+    },
+    fail: (errors, status) => { this.validationErrors = errors; this.status = status; this.notify(); },
+    setStatus: (status) => { this.status = status; this.notify(); },
+    isLoaded: (id) => this.loaded?.record.id === id,
+    loadedFallback: () => (this.loaded ? { ...this.loaded } : null),
+  };
+
+  async loadSelectedFromChat() {
+    if (await loadSelectedStory(this.selectionDeps)) void this.showAwayRecap();
   }
 
-  async importStory(rawText: string) {
-    let raw: unknown;
-    try {
-      raw = JSON.parse(rawText);
-    } catch (error) {
-      this.validationErrors = [{ path: "$", message: error instanceof Error ? error.message : "Invalid JSON" }];
-      this.status = "Import failed";
-      this.notify();
-      return false;
-    }
-
-    const saved = saveStoryRecord(raw);
-    if (isValidationErrorList(saved)) {
-      this.validationErrors = saved;
-      this.status = "Story validation failed";
-      this.notify();
-      return false;
-    }
-
-    return this.selectStory(saved.record.id);
-  }
-
-  // Selecting is never destructive: a chat that already played this story hydrates its pinned
-  // copy (library edits, and even deletion, cannot reach it); a story new to this chat pins the
-  // version the library holds right now. Reset lives only in restartStory().
-  async selectStory(idOrHash: string, _mode: "activate" | "hydrate" = "activate") {
-    const record = findStoryRecord(idOrHash);
-    const persisted = loadPersistedRuntime(idOrHash) ?? (record ? loadPersistedRuntime(record.id) : null);
-    if (persisted?.pinnedStory) {
-      const pinned = loadPinnedStory(persisted.storyId, persisted.pinnedStory, persisted.playedVersion, persisted.contentHashAtLoad, persisted.storyTitle);
-      if (!isValidationErrorList(pinned)) {
-        await this.loadStory(pinned, "hydrate", persisted);
-        return true;
-      }
-      console.warn(`[Story Orchestrator] pinned copy of '${persisted.storyId}' did not parse; falling back to the library`, pinned);
-    }
-    if (!record) {
-      this.validationErrors = [{ path: "story", message: `Unknown story '${idOrHash}'` }];
-      this.status = "Story not found";
-      this.notify();
-      return false;
-    }
-    const loaded = loadStoryRecord(record);
-    if (isValidationErrorList(loaded)) {
-      this.validationErrors = loaded;
-      this.status = "Story validation failed";
-      this.notify();
-      return false;
-    }
-    await this.loadStory(loaded, persisted ? "hydrate" : "activate", persisted);
-    return true;
-  }
-
-  // The only reset path. Drops this chat's progress for the story and re-pins the latest library
-  // version, so a restart also adopts whatever the author changed meanwhile.
-  async restartStory(alreadyConfirmed = false): Promise<boolean> {
-    const id = this.loaded?.record.id ?? getSelectedStoryId();
-    if (!id) return false;
-    const confirmed = alreadyConfirmed || await showConfirmPopup("Restart this story? The chat keeps its messages, but checkpoint progress, blackboard and story memory are cleared.", { okButton: "Restart story", cancelButton: "Keep playing" });
-    if (!confirmed) return false;
-    const fallback = this.loaded ? { ...this.loaded } : null;
-    dropPersistedRuntime(id);
-    const record = findStoryRecord(id);
-    const fromLibrary = record ? loadStoryRecord(record) : null;
-    const next = fromLibrary && !isValidationErrorList(fromLibrary) ? fromLibrary : fallback;
-    if (!next) return false;
-    await this.loadStory(next, "activate");
-    this.status = "Story restarted";
-    this.notify();
-    return true;
-  }
+  async importStory(rawText: string) { return importStoryJson(this.selectionDeps, rawText); }
+  async selectStory(idOrHash: string, _mode: "activate" | "hydrate" = "activate") { return selectStory(this.selectionDeps, idOrHash); }
+  async restartStory(alreadyConfirmed = false): Promise<boolean> { return restartStory(this.selectionDeps, this.loaded?.record.id ?? null, alreadyConfirmed); }
+  async removeStory(idOrHash: string): Promise<boolean> { return removeStory(this.selectionDeps, idOrHash); }
 
   async commitBoundary() {
     if (!this.loaded) return null;
@@ -268,6 +224,9 @@ export class RuntimeManager {
     } else if (this.extras.requirements.ready && this.extras.lastAppliedCheckpointId !== this.engine.activeCheckpoint.id) {
       await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate");
     }
+    // Curator proposals the author (or auto mode) accepted are boundary-applied, exactly like the
+    // checkpoint's own effects — never mid-turn (spec addendum §Stagecraft).
+    await this.stagecraft.applyAccepted();
     this.pacing.applyCommitted(result);
     this.expansion.revalidateInserted();
     this.pacing.clearPending();
@@ -336,6 +295,7 @@ export class RuntimeManager {
       const restored = this.engine.serialize();
       const window = getChatWindow(restored.checkpointStartedMessageId, context.lastMessageId);
       this.memory.rollbackFromMessage(messageId, boundary);
+      await this.stagecraft.revertAppliedSince(messageId);
       this.extras.extraction.audits = this.extras.extraction.audits.filter((audit) => audit.window.to < messageId);
       this.pacing.replayCommitted();
       this.refreshRequirements();
@@ -405,19 +365,6 @@ export class RuntimeManager {
   setCopilotSettings(settings: Partial<CopilotRuntimeSettings>) {
     setGlobalSettings({ copilot: settings });
     this.refreshSettingsView(() => { if (!getGlobalSettings().copilot.enabled) this.clearCopilotNudge(); });
-  }
-
-  async removeStory(idOrHash: string): Promise<boolean> {
-    const record = findStoryRecord(idOrHash);
-    if (!record || !removeStoryRecord(idOrHash)) return false;
-    // Chats keep playing their pinned copies; only a chat without one loses the story.
-    if (this.loaded?.record.id === record.id && !loadPersistedRuntime(record.id)?.pinnedStory) {
-      setSelectedStoryId(null);
-      await this.loadSelectedFromChat();
-    }
-    this.status = `Removed "${record.title}" from the library`;
-    this.notify();
-    return true;
   }
 
   getUiSettings(): UiRuntimeSettings { return this.extras.ui; }
@@ -658,9 +605,17 @@ export class RuntimeManager {
 
   async runSupersessionBridge(supersedingEntries: MemoryEntry[]): Promise<boolean> { return this.memory.runSupersessionBridge(supersedingEntries); }
 
-  async syncWorldInfo(): Promise<{ created: number; updated: number; unchanged: number; disabled: number }> {
+  async syncWorldInfo(): Promise<MemoryMirrorSummary> {
     return this.memory.syncWorldInfo();
   }
+
+  getStagecraftState(): StagecraftRuntimeState { return this.stagecraft.getState(); }
+  setStagecraftSettings(settings: Partial<StagecraftSettings>) { setGlobalSettings({ stagecraft: settings }); this.refreshSettingsView(); }
+  curatorDueForRun(): boolean { return this.stagecraft.dueForRun(); }
+  async runWiCuratorPass(reason?: string, debugResponse?: string): Promise<CuratorPassOutcome> { return this.stagecraft.runCuratorPass(reason, debugResponse); }
+  async setCuratorOpDecision(id: string, index: number, status: "accepted" | "rejected", op?: CuratorOp) { await this.stagecraft.setOpDecision(id, index, status, op); }
+  async decideCuratorProposal(id: string, status: "accepted" | "rejected") { await this.stagecraft.decideProposal(id, status); }
+  async applyCuratorProposals(): Promise<number> { return this.stagecraft.applyAccepted(); }
 
   private getBoundaryContext(): BoundaryContext {
     const chat = Array.isArray(getContext().chat) ? getContext().chat : [];
