@@ -1,6 +1,7 @@
-import { applyConsolidation, buildJaccardMatchSets, consolidateTier } from "./consolidate";
+import { applyConsolidation, buildJaccardMatchSets, candidatePairs, consolidateTier, consolidateTierJudged, type PairRelation } from "./consolidate";
 import { createMemoryState } from "./stores";
 import type { MemoryEntry } from "./types";
+import { DEFAULT_DEDUP_THRESHOLDS as DEFAULTS } from "./consolidate";
 
 let seq = 0;
 const entry = (overrides: Partial<MemoryEntry>): MemoryEntry => ({
@@ -85,5 +86,61 @@ describe("applyConsolidation", () => {
     const state = { ...createMemoryState(), entries: [entry({ id: "a", contradicted: true })] };
     const next = applyConsolidation(state, { droppedIds: [], supersededPairs: [], confirmedIds: ["a"], uncertain: [] });
     expect(next.entries.find((e) => e.id === "a")?.contradicted).toBe(false);
+  });
+});
+
+describe("consolidateTierJudged (v2.2 plan 02)", () => {
+  const judged = (entries: MemoryEntry[], relations: Record<string, PairRelation>) =>
+    consolidateTierJudged(entries, buildJaccardMatchSets(entries), (olderId, newerId) => relations[`${olderId}>${newerId}`] ?? null);
+
+  it("with no answers, decides exactly like consolidateTier", () => {
+    const entries = [
+      entry({ id: "a", text: "Arin carries a curved blade from a pirate captain", createdAt: 1 }),
+      entry({ id: "b", text: "Arin carries a curved blade taken from a pirate captain", createdAt: 2 }),
+      entry({ id: "c", text: "The party is in the guild hall today", createdAt: 3 }),
+      entry({ id: "d", text: "The party is now in the ruins today", createdAt: 4 }),
+    ];
+    const { clearedIds, ...rest } = judged(entries, {});
+    expect(rest).toEqual(run(entries));
+    expect(clearedIds).toEqual([]);
+  });
+
+  it("drops a judged duplicate, supersedes a judged update, and keeps a judged distinct pair", () => {
+    const dup = judged([entry({ id: "a", text: "the guild pays 250 crowns for the heart", createdAt: 1 }), entry({ id: "b", text: "the guild will pay two hundred and fifty crowns for the heart", createdAt: 2 })], { "a>b": "duplicate" });
+    const dupEntries = [entry({ id: "a", text: "the guild pays 250 crowns for the heart", createdAt: 1 }), entry({ id: "b", text: "the guild will pay two hundred and fifty crowns for the heart", createdAt: 2 })];
+    expect(candidatePairs(dupEntries, buildJaccardMatchSets(dupEntries, { ...DEFAULTS, jaccardSameTopic: 0.2 }))).toHaveLength(1);
+    const lowFloor = consolidateTierJudged(dupEntries, buildJaccardMatchSets(dupEntries, { ...DEFAULTS, jaccardSameTopic: 0.2 }), () => "duplicate");
+    expect(lowFloor.droppedIds).toEqual(["b"]);
+    expect(lowFloor.confirmedIds).toEqual(["a"]);
+    expect(dup.droppedIds).toEqual([]);
+
+    const update = consolidateTierJudged(
+      [entry({ id: "a", text: "Luke is staying home with their mother", createdAt: 1 }), entry({ id: "b", text: "Luke is joining the expedition with the party", createdAt: 2 })],
+      { dup: [new Set(), new Set()], sameTopic: [new Set(), new Set([0])] },
+      () => "update",
+    );
+    expect(update.supersededPairs).toEqual([{ loserId: "a", winnerId: "b" }]);
+
+    const distinct = consolidateTierJudged(
+      [entry({ id: "a", text: "Tommy Sayer is hiding at the safehouse", createdAt: 1, contradicted: true }), entry({ id: "b", text: "Tommy Sayer's brother is hiding at the safehouse", createdAt: 2 })],
+      { dup: [new Set(), new Set([0])], sameTopic: [new Set(), new Set()] },
+      () => "distinct",
+    );
+    expect(distinct).toMatchObject({ droppedIds: [], supersededPairs: [], uncertain: [], clearedIds: ["a"] });
+  });
+
+  it("never supersedes a pinned older entry, even when the judge says update", () => {
+    const result = consolidateTierJudged(
+      [entry({ id: "a", text: "x", createdAt: 1, pinned: true }), entry({ id: "b", text: "y", createdAt: 2 })],
+      { dup: [new Set(), new Set()], sameTopic: [new Set(), new Set([0])] },
+      () => "update",
+    );
+    expect(result.supersededPairs).toEqual([]);
+  });
+
+  it("lists candidate pairs oldest-first, flagging dup-band pairs", () => {
+    const entries = [entry({ id: "b", createdAt: 2 }), entry({ id: "a", createdAt: 1 })];
+    const pairs = candidatePairs(entries, { dup: [new Set([1]), new Set()], sameTopic: [new Set(), new Set()] });
+    expect(pairs.map((pair) => [pair.older.id, pair.newer.id, pair.dup])).toEqual([["a", "b", true]]);
   });
 });

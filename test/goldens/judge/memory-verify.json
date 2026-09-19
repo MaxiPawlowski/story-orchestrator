@@ -1,0 +1,286 @@
+{
+  "source": "spike cache, criteria question WITHOUT the story clause (production adds it; live calibration measures that shape)",
+  "recordedAt": "2026-09-19T13:27:51.656Z",
+  "rows": [
+    {
+      "case": "H03",
+      "text": "Max negotiated the Sun Ruins fee up from two hundred to two hundred and fifty crowns.",
+      "supported": true,
+      "kind": "paraphrase",
+      "p": 0.97
+    },
+    {
+      "case": "H03",
+      "text": "Ponticius agreed to pay 250 crowns for the artifact.",
+      "supported": true,
+      "kind": "paraphrase",
+      "p": 0.76
+    },
+    {
+      "case": "H03",
+      "text": "Ponticius paid half the fee in advance.",
+      "supported": false,
+      "kind": "fabricated",
+      "p": 0.02
+    },
+    {
+      "case": "H03",
+      "text": "Arin signed the Sun Ruins contract.",
+      "supported": false,
+      "kind": "wrong-actor",
+      "p": 0.02
+    },
+    {
+      "case": "H13",
+      "text": "A falling stone slab nearly crushed Luke.",
+      "supported": true,
+      "kind": "paraphrase",
+      "p": 0.96
+    },
+    {
+      "case": "H13",
+      "text": "Luke jumped clear of the slab and survived.",
+      "supported": true,
+      "kind": "paraphrase",
+      "p": 0.87
+    },
+    {
+      "case": "H13",
+      "text": "Luke broke his arm under the rubble.",
+      "supported": false,
+      "kind": "embellished",
+      "p": 0.02
+    },
+    {
+      "case": "H13",
+      "text": "Max was knocked unconscious by the collapse.",
+      "supported": false,
+      "kind": "fabricated",
+      "p": 0.01
+    },
+    {
+      "case": "H23",
+      "text": "The reactor's containment field keeps flickering.",
+      "supported": true,
+      "kind": "verbatim",
+      "p": 0.93
+    },
+    {
+      "case": "H23",
+      "text": "Two crew members are in the medbay with burns.",
+      "supported": true,
+      "kind": "verbatim",
+      "p": 0.97
+    },
+    {
+      "case": "H23",
+      "text": "HALO sealed the hull breach on deck three.",
+      "supported": false,
+      "kind": "contradicted",
+      "p": 0.04
+    },
+    {
+      "case": "H23",
+      "text": "Pell caused the reactor accident.",
+      "supported": false,
+      "kind": "invented-cause",
+      "p": 0.03
+    },
+    {
+      "case": "H27",
+      "text": "Maeve claimed she had never heard of the ledger.",
+      "supported": true,
+      "kind": "paraphrase",
+      "p": 0.95
+    },
+    {
+      "case": "H27",
+      "text": "The ledger lies under a stack of racing forms behind Maeve.",
+      "supported": true,
+      "kind": "paraphrase",
+      "p": 0.94
+    },
+    {
+      "case": "H27",
+      "text": "Maeve admitted she was hiding the ledger.",
+      "supported": false,
+      "kind": "inverted",
+      "p": 0.07
+    },
+    {
+      "case": "H27",
+      "text": "Max took the ledger and put it in his coat.",
+      "supported": false,
+      "kind": "fabricated",
+      "p": 0.02
+    },
+    {
+      "case": "L03",
+      "text": "Brandt offered Max five hundred for a short memory.",
+      "supported": true,
+      "kind": "paraphrase",
+      "p": 0.98
+    },
+    {
+      "case": "L03",
+      "text": "Max slipped Brandt's envelope into his inside pocket.",
+      "supported": true,
+      "kind": "paraphrase",
+      "p": 0.93
+    },
+    {
+      "case": "L03",
+      "text": "Max told Mae he never took money from Brandt.",
+      "supported": true,
+      "kind": "reported-claim",
+      "p": 0.97
+    },
+    {
+      "case": "L03",
+      "text": "Max never took any money from Brandt.",
+      "supported": false,
+      "kind": "lie-as-fact",
+      "p": 0.14
+    },
+    {
+      "case": "H32",
+      "text": "Three candles burn along the gallery wall.",
+      "supported": true,
+      "kind": "paraphrase",
+      "p": 0.2
+    },
+    {
+      "case": "H32",
+      "text": "In the portrait, Lord Ashworth's hand now points at the door.",
+      "supported": true,
+      "kind": "paraphrase",
+      "p": 0.97
+    },
+    {
+      "case": "H32",
+      "text": "Graves moved the portrait himself.",
+      "supported": false,
+      "kind": "fabricated",
+      "p": 0.03
+    },
+    {
+      "case": "H32",
+      "text": "Graves says the master's portrait has always been restless.",
+      "supported": true,
+      "kind": "paraphrase",
+      "p": 0.95
+    },
+    {
+      "case": "H09",
+      "text": "Max first agreed to take Luke, then changed his mind.",
+      "supported": true,
+      "kind": "summary",
+      "p": 0.97
+    },
+    {
+      "case": "H09",
+      "text": "Luke is staying behind.",
+      "supported": true,
+      "kind": "paraphrase",
+      "p": 0.98
+    },
+    {
+      "case": "H09",
+      "text": "Arin wanted Luke to come along.",
+      "supported": false,
+      "kind": "inverted",
+      "p": 0.02
+    },
+    {
+      "case": "H09",
+      "text": "Luke burst into tears when he was told.",
+      "supported": false,
+      "kind": "embellished",
+      "p": 0.05
+    },
+    {
+      "case": "H24",
+      "text": "Pell got the reactor stable.",
+      "supported": true,
+      "kind": "paraphrase",
+      "p": 0.44
+    },
+    {
+      "case": "H24",
+      "text": "The captain ordered a mayday broadcast on all frequencies.",
+      "supported": true,
+      "kind": "paraphrase",
+      "p": 0.98
+    },
+    {
+      "case": "H24",
+      "text": "A nearby ship answered the mayday.",
+      "supported": false,
+      "kind": "fabricated",
+      "p": 0.02
+    },
+    {
+      "case": "H24",
+      "text": "HALO refused the captain's order.",
+      "supported": false,
+      "kind": "inverted",
+      "p": 0.01
+    },
+    {
+      "case": "L02",
+      "text": "Pell sealed the hull breach on deck three.",
+      "supported": true,
+      "kind": "paraphrase",
+      "p": 0.97
+    },
+    {
+      "case": "L02",
+      "text": "Coolant loop two is running at about a third of its capacity.",
+      "supported": true,
+      "kind": "paraphrase",
+      "p": 0.96
+    },
+    {
+      "case": "L02",
+      "text": "The reactor is now stable.",
+      "supported": false,
+      "kind": "contradicted",
+      "p": 0.02
+    },
+    {
+      "case": "L02",
+      "text": "Okafor ordered loop one rerouted to cover loop two.",
+      "supported": true,
+      "kind": "paraphrase",
+      "p": 0.97
+    },
+    {
+      "case": "H21",
+      "text": "Max aceptó el trabajo de las Ruinas del Sol.",
+      "supported": true,
+      "kind": "spanish",
+      "p": 0.98
+    },
+    {
+      "case": "H21",
+      "text": "The Sun Ruins job pays two hundred crowns.",
+      "supported": true,
+      "kind": "cross-language",
+      "p": 0.97
+    },
+    {
+      "case": "H21",
+      "text": "Ponticius raised the fee to three hundred crowns.",
+      "supported": false,
+      "kind": "fabricated",
+      "p": 0.01
+    },
+    {
+      "case": "H21",
+      "text": "Max signed the contract.",
+      "supported": true,
+      "kind": "cross-language",
+      "p": 0.97
+    }
+  ]
+}

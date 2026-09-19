@@ -121,3 +121,96 @@ export function applyConsolidation(state: MemoryStoreState, result: Consolidatio
     });
   return { ...state, entries };
 }
+
+export type PairRelation = "duplicate" | "update" | "distinct" | "unrelated";
+export type RelationLookup = (olderId: string, newerId: string) => PairRelation | null;
+
+export interface JudgedConsolidationResult extends ConsolidationResult {
+  clearedIds: string[];
+}
+
+// v2.2 plan 02: the same oldest-first walk as consolidateTier, but a judged relation decides each
+// candidate pair. A pair the lookup cannot answer (no call, low confidence) falls back to exactly
+// the heuristic decision consolidateTier would have made, so the judge only ever replaces a guess.
+export function consolidateTierJudged(entries: MemoryEntry[], matches: MatchSets, relationOf: RelationLookup): JudgedConsolidationResult {
+  const result: JudgedConsolidationResult = { droppedIds: [], supersededPairs: [], confirmedIds: [], uncertain: [], clearedIds: [] };
+  const normalized = entries.map((entry) => normalize(entry.text));
+  const order = entries.map((_, index) => index).sort((a, b) => entries[a].createdAt - entries[b].createdAt);
+  const kept: number[] = [];
+  const retired = new Set<number>();
+  const confirmed = new Set<string>();
+  const cleared = new Set<string>();
+
+  for (const i of order) {
+    const entry = entries[i];
+    const hasMarker = hasStateChangeMarker(entry.text);
+    let isDuplicate = false;
+    let confirmedId: string | null = null;
+    let supersededIdx = -1;
+    let uncertainIdx = -1;
+
+    for (const j of kept) {
+      if (retired.has(j)) continue;
+      const inDup = matches.dup[i].has(j);
+      const inSameTopic = matches.sameTopic[i].has(j);
+      if (!inDup && !inSameTopic) continue;
+      const relation = relationOf(entries[j].id, entry.id);
+      if (relation === "duplicate") {
+        isDuplicate = true;
+        confirmedId = entries[j].id;
+        break;
+      }
+      if (relation === "update") {
+        if (!entries[j].pinned && supersededIdx === -1) supersededIdx = j;
+        continue;
+      }
+      if (relation === "distinct" || relation === "unrelated") {
+        if (entries[j].contradicted) cleared.add(entries[j].id);
+        continue;
+      }
+      const sameType = entries[j].type === entry.type;
+      const identical = normalized[i] === normalized[j];
+      if (inDup && sameType && !identical && !entries[j].pinned) {
+        if (hasMarker) supersededIdx = supersededIdx === -1 ? j : supersededIdx;
+        else uncertainIdx = uncertainIdx === -1 ? j : uncertainIdx;
+      } else if (inDup) {
+        isDuplicate = true;
+        confirmedId = entries[j].id;
+        break;
+      } else if (inSameTopic && sameType && !entries[j].pinned) {
+        if (hasMarker) supersededIdx = supersededIdx === -1 ? j : supersededIdx;
+        else uncertainIdx = uncertainIdx === -1 ? j : uncertainIdx;
+      }
+    }
+
+    if (isDuplicate && !entry.pinned) {
+      result.droppedIds.push(entry.id);
+      if (confirmedId) confirmed.add(confirmedId);
+      continue;
+    }
+    if (supersededIdx !== -1) {
+      retired.add(supersededIdx);
+      result.supersededPairs.push({ loserId: entries[supersededIdx].id, winnerId: entry.id });
+    } else if (uncertainIdx !== -1) {
+      result.uncertain.push({ candidateId: entry.id, existingId: entries[uncertainIdx].id });
+    }
+    kept.push(i);
+  }
+
+  result.confirmedIds = [...confirmed];
+  result.clearedIds = [...cleared].filter((id) => !result.uncertain.some((pair) => pair.existingId === id));
+  return result;
+}
+
+// The candidate pairs consolidateTierJudged will visit, in walk order: what the judge must answer.
+export function candidatePairs(entries: MemoryEntry[], matches: MatchSets): Array<{ older: MemoryEntry; newer: MemoryEntry; dup: boolean }> {
+  const order = entries.map((_, index) => index).sort((a, b) => entries[a].createdAt - entries[b].createdAt);
+  const pairs: Array<{ older: MemoryEntry; newer: MemoryEntry; dup: boolean }> = [];
+  order.forEach((i, position) => {
+    order.slice(0, position).forEach((j) => {
+      const dup = matches.dup[i].has(j);
+      if (dup || matches.sameTopic[i].has(j)) pairs.push({ older: entries[j], newer: entries[i], dup });
+    });
+  });
+  return pairs;
+}

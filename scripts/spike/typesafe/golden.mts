@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { OUT_ROOT, PROJECT_ROOT } from './lib/client.mts';
 import { loadData, worlds } from './lib/story.mts';
 
-const USAGE = `Usage: node --experimental-transform-types scripts/spike/typesafe/golden.mts director
+const USAGE = `Usage: node --experimental-transform-types scripts/spike/typesafe/golden.mts director|memory
 
 Exports real Jev answers from the spike cache as a jest golden for the production judge code.
 Only cached answers are used, so nothing is sent to the API. Director answers are remapped from the
@@ -60,6 +60,28 @@ function director() {
   console.log(`wrote ${rows.length} rows to ${file}`);
 }
 
+function memory() {
+  const cached = cachedBodies();
+  const pairs = loadData<Array<{ id: string; label: string; a: string; b: string }>>('memory-pairs.json').map((pair) => {
+    const match = cached.find((entry) => entry.body?.state?.older_note === pair.a && entry.body?.state?.newer_note === pair.b && entry.response?.answers?.structured);
+    if (!match) throw new Error(`no cached pair answers for ${pair.id}; run run.mts --only memory-pairs first`);
+    return { id: pair.id, label: pair.label, older: pair.a, newer: pair.b, model: match.response.model, answers: { relation: match.response.answers.structured } };
+  });
+  const verify = loadData<Array<{ case: string; lines: Array<{ text: string; supported: boolean; kind: string }> }>>('verify-lines.json').flatMap((window) => {
+    const match = cached.find((entry) => entry.body?.questions?.['structured:0'] && String(entry.body.questions['structured:0'].instructions).includes(window.lines[0].text) && !entry.body?.state?.story);
+    if (!match) throw new Error(`no cached verify answers for ${window.case}; run run.mts --only memory-verify first`);
+    return window.lines.map((line, index) => ({ case: window.case, text: line.text, supported: line.supported, kind: line.kind, p: match.response.answers[`structured:${index}`].noul }));
+  });
+  const out = join(PROJECT_ROOT, 'test', 'goldens', 'judge');
+  mkdirSync(out, { recursive: true });
+  writeFileSync(join(out, 'memory-pairs.json'), `${JSON.stringify({ source: 'spike cache, described-label question (production wording)', recordedAt: new Date().toISOString(), rows: pairs }, null, 2)}
+`);
+  writeFileSync(join(out, 'memory-verify.json'), `${JSON.stringify({ source: 'spike cache, criteria question WITHOUT the story clause (production adds it; live calibration measures that shape)', recordedAt: new Date().toISOString(), rows: verify }, null, 2)}
+`);
+  console.log(`wrote ${pairs.length} pair rows and ${verify.length} verify rows`);
+}
+
 const [command] = process.argv.slice(2);
 if (command === 'director') director();
+else if (command === 'memory') memory();
 else console.log(USAGE);

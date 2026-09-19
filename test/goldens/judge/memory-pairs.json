@@ -1,0 +1,406 @@
+{
+  "source": "spike cache, described-label question (production wording)",
+  "recordedAt": "2026-09-19T13:27:51.655Z",
+  "rows": [
+    {
+      "id": "M01",
+      "label": "duplicate",
+      "older": "Arin carries a curved blade she took from a pirate captain.",
+      "newer": "Arin's sword is a curved blade taken from a pirate captain.",
+      "model": "jev-1.13.0",
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "duplicate",
+          "confidence": 0.95,
+          "probabilities": {
+            "duplicate": 0.96,
+            "unrelated": 0,
+            "distinct": 0.01,
+            "update": 0.03
+          }
+        }
+      }
+    },
+    {
+      "id": "M02",
+      "label": "update",
+      "older": "Luke is staying home with their mother.",
+      "newer": "Luke joined the expedition after all.",
+      "model": "jev-1.13.0",
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "update",
+          "confidence": 0.99,
+          "probabilities": {
+            "distinct": 0,
+            "update": 1,
+            "unrelated": 0,
+            "duplicate": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "M03",
+      "label": "distinct",
+      "older": "Ponticius runs the guild's job board.",
+      "newer": "Ponticius once served in the royal navy.",
+      "model": "jev-1.13.0",
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "distinct",
+          "confidence": 0.99,
+          "probabilities": {
+            "update": 0,
+            "duplicate": 0,
+            "distinct": 1,
+            "unrelated": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "M04",
+      "label": "unrelated",
+      "older": "The sphinx asks a riddle about the moon.",
+      "newer": "Pell rerouted coolant loop one.",
+      "model": "jev-1.13.0",
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "unrelated",
+          "confidence": 0.99,
+          "probabilities": {
+            "unrelated": 1,
+            "update": 0,
+            "distinct": 0,
+            "duplicate": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "M05",
+      "label": "duplicate",
+      "older": "The guild pays 250 crowns for the Sun's Heart.",
+      "newer": "The guild will pay two hundred and fifty crowns for the Sun's Heart.",
+      "model": "jev-1.13.0",
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "duplicate",
+          "confidence": 1,
+          "probabilities": {
+            "update": 0,
+            "duplicate": 1,
+            "distinct": 0,
+            "unrelated": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "M06",
+      "label": "update",
+      "older": "The reactor is unstable.",
+      "newer": "The reactor is now stable after Pell's repairs.",
+      "model": "jev-1.13.0",
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "update",
+          "confidence": 1,
+          "probabilities": {
+            "distinct": 0,
+            "duplicate": 0,
+            "unrelated": 0,
+            "update": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "M07",
+      "label": "update",
+      "older": "The payoffs to the harbor police come from Maeve.",
+      "newer": "The payoffs to the harbor police trace back to the dockmaster, not Maeve.",
+      "model": "jev-1.13.0",
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "update",
+          "confidence": 1,
+          "probabilities": {
+            "unrelated": 0,
+            "distinct": 0,
+            "update": 1,
+            "duplicate": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "M08",
+      "label": "distinct",
+      "older": "Tommy Sayer is hiding at the safehouse on Pier Street.",
+      "newer": "Tommy Sayer's brother is hiding at the safehouse on Pier Street.",
+      "model": "jev-1.13.0",
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "update",
+          "confidence": 0.59,
+          "probabilities": {
+            "duplicate": 0.02,
+            "update": 0.69,
+            "unrelated": 0.21,
+            "distinct": 0.08
+          }
+        }
+      }
+    },
+    {
+      "id": "M09",
+      "label": "update",
+      "older": "Luke is alive.",
+      "newer": "Luke was killed by the sphinx.",
+      "model": "jev-1.13.0",
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "update",
+          "confidence": 0.99,
+          "probabilities": {
+            "update": 0.99,
+            "unrelated": 0,
+            "duplicate": 0,
+            "distinct": 0.01
+          }
+        }
+      }
+    },
+    {
+      "id": "M10",
+      "label": "duplicate",
+      "older": "HALO sealed the emergency bulkheads on deck three.",
+      "newer": "The ship's AI closed the deck three emergency bulkheads.",
+      "model": "jev-1.13.0",
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "duplicate",
+          "confidence": 0.98,
+          "probabilities": {
+            "unrelated": 0,
+            "duplicate": 0.99,
+            "update": 0.01,
+            "distinct": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "M11",
+      "label": "distinct",
+      "older": "Lady Ashworth wears black mourning clothes.",
+      "newer": "Lady Ashworth never leaves the east wing.",
+      "model": "jev-1.13.0",
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "distinct",
+          "confidence": 0.99,
+          "probabilities": {
+            "distinct": 1,
+            "duplicate": 0,
+            "unrelated": 0,
+            "update": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "M12",
+      "label": "update",
+      "older": "Arin distrusts Max since the lie about the map.",
+      "newer": "Arin trusts Max again after the bridge.",
+      "model": "jev-1.13.0",
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "update",
+          "confidence": 0.99,
+          "probabilities": {
+            "duplicate": 0,
+            "unrelated": 0,
+            "distinct": 0,
+            "update": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "M13",
+      "label": "duplicate",
+      "older": "The party accepted the Sun Ruins contract.",
+      "newer": "Max signed the contract for the Sun Ruins job.",
+      "model": "jev-1.13.0",
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "duplicate",
+          "confidence": 0.6,
+          "probabilities": {
+            "distinct": 0.19,
+            "unrelated": 0,
+            "update": 0.1,
+            "duplicate": 0.71
+          }
+        }
+      }
+    },
+    {
+      "id": "M14",
+      "label": "update",
+      "older": "Two crew members are injured.",
+      "newer": "Five crew members are injured.",
+      "model": "jev-1.13.0",
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "update",
+          "confidence": 1,
+          "probabilities": {
+            "unrelated": 0,
+            "update": 1,
+            "duplicate": 0,
+            "distinct": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "M15",
+      "label": "distinct",
+      "older": "Graves polishes the silver every morning.",
+      "newer": "Graves was born in Dunmore.",
+      "model": "jev-1.13.0",
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "distinct",
+          "confidence": 0.98,
+          "probabilities": {
+            "distinct": 0.98,
+            "duplicate": 0,
+            "unrelated": 0.02,
+            "update": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "M16",
+      "label": "duplicate",
+      "older": "Brandt offered Max a bribe.",
+      "newer": "Brandt offered Max a five-hundred-dollar bribe in the back of the Blue Anchor.",
+      "model": "jev-1.13.0",
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "duplicate",
+          "confidence": 0.86,
+          "probabilities": {
+            "distinct": 0.09,
+            "unrelated": 0,
+            "duplicate": 0.89,
+            "update": 0.02
+          }
+        }
+      }
+    },
+    {
+      "id": "M17",
+      "label": "update",
+      "older": "The party is in the guild hall.",
+      "newer": "The party has reached the Sun Ruins.",
+      "model": "jev-1.13.0",
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "update",
+          "confidence": 0.97,
+          "probabilities": {
+            "duplicate": 0,
+            "distinct": 0.02,
+            "unrelated": 0,
+            "update": 0.98
+          }
+        }
+      }
+    },
+    {
+      "id": "M18",
+      "label": "distinct",
+      "older": "The Sun's Heart glows gold.",
+      "newer": "The Sun's Heart is warm to the touch.",
+      "model": "jev-1.13.0",
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "distinct",
+          "confidence": 0.71,
+          "probabilities": {
+            "update": 0.21,
+            "unrelated": 0,
+            "distinct": 0.78,
+            "duplicate": 0.01
+          }
+        }
+      }
+    },
+    {
+      "id": "M19",
+      "label": "update",
+      "older": "The smuggler's ledger is missing.",
+      "newer": "Max found the smuggler's ledger under Maeve's racing forms.",
+      "model": "jev-1.13.0",
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "update",
+          "confidence": 0.99,
+          "probabilities": {
+            "update": 0.99,
+            "duplicate": 0,
+            "distinct": 0.01,
+            "unrelated": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "M20",
+      "label": "unrelated",
+      "older": "Maeve sings at the Blue Anchor.",
+      "newer": "The north gate was opened quietly.",
+      "model": "jev-1.13.0",
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "unrelated",
+          "confidence": 1,
+          "probabilities": {
+            "unrelated": 1,
+            "distinct": 0,
+            "update": 0,
+            "duplicate": 0
+          }
+        }
+      }
+    }
+  ]
+}

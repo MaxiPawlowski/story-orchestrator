@@ -5,6 +5,7 @@ import { buildDirectorRequest, decideDirector, directorJudgeEligible, directorRe
 import { choice, noul, score, validateJudgeRequest } from "./questions";
 import { JUDGE_CALL_RING_LIMIT } from "./policy";
 import { runJudgeDirectorSelfTest } from "./selfTest";
+import { buildPairRequest, buildVerifyRequest, pairDecision, readPair, verifyVerdict, VERIFY_CRITERIA, type JudgePairRelation } from "./memory";
 import { JUDGE_SELF_TEST_CASES } from "./selfTestCases";
 import { appendJudgeCall, createJudgeRuntime, defaultJudgeSettings, dropJudgeCallsAfter, JUDGE_USE_KEYS, judgeUseActive, sanitizeJudgeRuntime, sanitizeJudgeSettings } from "./settings";
 import type { JudgeAnswer, JudgeRequest, JudgeResponse, JudgeTransport } from "./types";
@@ -251,5 +252,43 @@ describe("runJudgeDirectorSelfTest", () => {
 
   it("bundles eligible cases only", () => {
     expect(JUDGE_SELF_TEST_CASES.every((entry) => directorJudgeEligible(entry.input.candidates, entry.input.allowSilence))).toBe(true);
+  });
+});
+
+describe("memory questions and policy (v2.2 plan 02)", () => {
+  const readJson = (name: string) => JSON.parse(readFileSync(join(process.cwd(), "test/goldens/judge", name), "utf8"));
+
+  it("builds the spike's verify and pair questions", () => {
+    const verify = buildVerifyRequest({ storyTitle: "Sun Ruins", cast: ["Arin"], transcript: [{ id: "msg_1", speaker: "Arin", text: "hi" }], lines: ["Arin says hi."] });
+    expect(verify.state).toEqual({ story: { title: "Sun Ruins", cast: ["Arin"] }, transcript: [{ id: "msg_1", speaker: "Arin", text: "hi" }] });
+    expect(verify.questions["line:0"]).toEqual({ type: "noul", instructions: 'Is this note supported by `transcript`: "Arin says hi."? Use `story` only as background for names and places.', criteria: { ...VERIFY_CRITERIA } });
+    const pair = buildPairRequest("old", "new");
+    expect(pair.state).toEqual({ older_note: "old", newer_note: "new" });
+    expect(pair.questions.relation.type === "choice" && Object.keys(pair.questions.relation.criteria)).toEqual(["duplicate", "update", "distinct", "unrelated"]);
+    expect(validateJudgeRequest(verify)).toEqual([]);
+    expect(validateJudgeRequest(pair)).toEqual([]);
+  });
+
+  it("drops below 0.2, down-weights below 0.5, keeps the rest, and keeps on no answer", () => {
+    expect(verifyVerdict(0.1)).toEqual({ action: "drop" });
+    expect(verifyVerdict(0.3)).toEqual({ action: "downweight", confidence: 0.3 });
+    expect(verifyVerdict(0.8)).toEqual({ action: "keep" });
+    expect(verifyVerdict(null)).toEqual({ action: "keep" });
+  });
+
+  it("on the spike's 40 labelled lines (real answers): every unsupported line dropped, no supported line dropped", () => {
+    const rows = readJson("memory-verify.json").rows as Array<{ supported: boolean; p: number }>;
+    const verdicts = rows.map((row) => ({ supported: row.supported, action: verifyVerdict(row.p).action }));
+    expect(verdicts.filter((row) => !row.supported && row.action === "drop")).toHaveLength(16);
+    expect(verdicts.filter((row) => row.supported && row.action === "drop")).toHaveLength(0);
+    expect(verdicts.filter((row) => row.supported && row.action === "downweight").length).toBeLessThanOrEqual(2);
+  });
+
+  it("on the spike's 20 labelled pairs (real answers): every decided pair gets the right action; M08 falls back", () => {
+    const rows = readJson("memory-pairs.json").rows as Array<{ id: string; label: JudgePairRelation; answers: Record<string, JudgeAnswer> }>;
+    const action = (relation: JudgePairRelation) => (relation === "duplicate" ? "drop" : relation === "update" ? "supersede" : "keep");
+    const decided = rows.map((row) => ({ id: row.id, label: row.label, decision: pairDecision(readPair(row.answers)) }));
+    expect(decided.filter((row) => row.decision === null).map((row) => row.id)).toEqual(["M08"]);
+    expect(decided.filter((row) => row.decision !== null && action(row.decision) === action(row.label))).toHaveLength(19);
   });
 });
