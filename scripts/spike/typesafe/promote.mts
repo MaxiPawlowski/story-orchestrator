@@ -3,12 +3,12 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { PROJECT_ROOT } from './lib/client.mts';
 import { readFileSync } from 'node:fs';
-import { loadData, loadHardCases, msgId, worlds, type WorldDef } from './lib/story.mts';
+import { expectedFinal, loadData, loadFixtureCases, loadHardCases, msgId, worlds, type ExtractionCase, type QualityDef, type WorldDef } from './lib/story.mts';
 
 register('./lib/loader.mts', import.meta.url);
 const { worldForSpeakers } = await import('./lib/sharedRead.mts');
 
-const USAGE = `Usage: node --no-warnings --experimental-transform-types scripts/spike/typesafe/promote.mts scene|scene-holdout|lore|lore-holdout|curator-filter|continuity|continuity-holdout|backgrounds
+const USAGE = `Usage: node --no-warnings --experimental-transform-types scripts/spike/typesafe/promote.mts scene|scene-holdout|lore|lore-holdout|curator-filter|continuity|continuity-holdout|backgrounds|typed|stall
 
 Promotes Phase A spike data to a production calibration fixture in test/fixtures/judge/. The rows
 carry the production input (src/judge SceneReadInput) plus the labels written before any answer
@@ -189,6 +189,75 @@ function backgrounds() {
   console.log(`${rows.length} background cases over ${installed.length} installed`);
 }
 
+const productionQuality = (key: string, quality: QualityDef) => {
+  const readAs = quality.type === 'bool' || quality.type === 'enum' ? 'choice' : quality.jev === 'score' ? 'rating' : 'stated';
+  const hasRange = /from\s+-?\d+\s*\([^)]+\)\s*to\s+-?\d+\s*\([^)]+\)/i.test(quality.rubric);
+  const levels = readAs === 'rating' && !hasRange && Array.isArray(quality.structured?.levels)
+    ? (quality.structured!.levels as string[]).map((label, index) => ({ value: (quality.min ?? 0) + index, label }))
+    : null;
+  return { key, type: quality.type, source: 'extractor', rubric: quality.rubric, ...(quality.values ? { values: quality.values } : {}), ...(quality.latching ? { latching: true } : {}), read_as: readAs, ...(levels ? { criteria: { levels } } : {}) };
+};
+const windowOf = (entry: ExtractionCase) => entry.transcript.map((message) => ({ id: message.index, speaker: message.speaker, text: message.text }));
+const langOf = (entry: ExtractionCase) => (entry.tags.includes('spanish') ? 'es' : 'en');
+
+function typed() {
+  const cases = [...loadHardCases(), ...loadFixtureCases()];
+  const rows = cases.map((entry) => ({
+    id: entry.id,
+    lang: langOf(entry),
+    story: { title: entry.title, checkpointName: entry.checkpoint.name, objective: entry.checkpoint.objective },
+    qualities: entry.ask.map((key) => productionQuality(key, entry.qualities[key])),
+    window: windowOf(entry),
+    prior: entry.prior,
+    acceptable: Object.fromEntries(entry.ask.map((key) => [key, expectedFinal(entry.qualities[key], entry.expected[key] ?? null, entry.prior[key]) ?? null])),
+  }));
+  writeFileSync(join(PROJECT_ROOT, 'test', 'fixtures', 'judge', 'typed.json'), `${JSON.stringify({
+    use: 'typed',
+    floors: { answered: 0.95, coverage: 0 },
+    labelledAt: '2026-09-19',
+    source: 'Spike hard set (extraction-hard.json) plus the extractor* live-suite fixtures, labels as recorded there. Every asked quality gets the plain hint its type implies (bool/enum choice, spike score qualities rating, numbers and strings stated), which is the measured shape. answered = the value the chain would hold is right when the judge answered over the floor; coverage = how many it answered at all (the rest stays with the LLM read, no floor).',
+    rows,
+  }, null, 2)}\n`);
+  console.log(`${rows.length} typed cases, ${rows.reduce((sum, row) => sum + row.qualities.length, 0)} qualities`);
+}
+
+function stall() {
+  const cases = [...loadHardCases(), ...loadFixtureCases()];
+  const rows = cases.flatMap((entry) => {
+    const leaves: Array<Record<string, unknown>> = [];
+    for (const key of entry.ask) {
+      const quality = entry.qualities[key];
+      if (quality.type !== 'bool' && quality.type !== 'enum') continue;
+      const final = expectedFinal(quality, entry.expected[key] ?? null, entry.prior[key]);
+      const shown = entry.expected[key] !== null && entry.expected[key] !== undefined && Boolean(final?.length);
+      const leaf = (v: unknown, isShown: boolean) => leaves.push({ q: key, rubric: quality.rubric, type: quality.type, op: '==', v, shown: isShown });
+      if (quality.type === 'bool') {
+        if (shown) { leaf(final![0], true); leaf(!final![0], false); } else leaf(entry.prior[key] === true ? false : true, false);
+        continue;
+      }
+      const values = quality.values ?? [];
+      if (shown) {
+        const accepted = final!.map(String);
+        leaf(accepted[0], true);
+        const other = values.find((candidate) => !accepted.includes(candidate) && candidate !== 'unknown');
+        if (other) leaf(other, false);
+      } else {
+        const other = values.find((candidate) => candidate !== entry.prior[key] && candidate !== 'unknown');
+        if (other) leaf(other, false);
+      }
+    }
+    return leaves.length ? [{ id: entry.id, lang: langOf(entry), window: windowOf(entry), leaves }] : [];
+  });
+  writeFileSync(join(PROJECT_ROOT, 'test', 'fixtures', 'judge', 'stall.json'), `${JSON.stringify({
+    use: 'stall',
+    floors: { direct: 1, kept: 1 },
+    labelledAt: '2026-09-19',
+    source: 'Phase A leaves (spike experiments/stallLeaves.mts leavesFor) over the hard set plus the live-suite fixtures: one shown leaf and one contradicting or never-shown leaf per bool/enum quality. direct = a leaf the pre-check would write at STALL_DIRECT_P was really shown; kept = a shown leaf never falls under STALL_GENUINE_P (a real stall taken as genuine).',
+    rows,
+  }, null, 2)}\n`);
+  console.log(`${rows.length} stall cases, ${rows.reduce((sum, row) => sum + row.leaves.length, 0)} leaves`);
+}
+
 const [command] = process.argv.slice(2);
 if (command === 'scene') scene();
 else if (command === 'scene-holdout') scene(true);
@@ -203,4 +272,6 @@ else if (command === 'continuity-holdout') {
   console.log(`${rows.length} held-out continuity cases`);
 }
 else if (command === 'backgrounds') backgrounds();
+else if (command === 'typed') typed();
+else if (command === 'stall') stall();
 else console.log(USAGE);

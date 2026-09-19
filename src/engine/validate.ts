@@ -20,6 +20,8 @@ import {
   type Quality,
   type QualityType,
   type StoryRequirements,
+  type QualityCriterion,
+  type QualityRatingLevel,
   type StoryLoreSelect,
   type StorySceneRead,
   type StoryStagecraft,
@@ -29,6 +31,7 @@ import {
   type Transition,
   type ValidationError,
 } from "./schema";
+import { QUALITY_READ_AS, ratingLevels, READ_AS_TYPES } from "./qualityRead";
 import { progressQualityForAnchor } from "./convergence";
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
@@ -57,6 +60,59 @@ const asString = (value: unknown): string | null => typeof value === "string" &&
 
 const isOneOf = <T extends readonly string[]>(value: unknown, values: T): value is T[number] => {
   return typeof value === "string" && (values as readonly string[]).includes(value);
+};
+
+const readCriterion = (value: unknown): string | QualityCriterion | null => {
+  if (typeof value === "string") return value.trim() || null;
+  if (!isRecord(value) || typeof value.what !== "string" || !value.what.trim()) return null;
+  const examples = Array.isArray(value.examples) ? value.examples.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0) : [];
+  return { what: value.what.trim(), ...(typeof value.not_for === "string" && value.not_for.trim() ? { not_for: value.not_for.trim() } : {}), ...(examples.length ? { examples } : {}) };
+};
+
+// v2.2 plan 06: `read_as` + `criteria`. A hint that cannot work is an error, never a silent no-op.
+const readQualityRead = (value: Record<string, unknown>, type: Quality["type"], source: Quality["source"], rubric: string, values: string[] | undefined, path: string, errors: ValidationError[]): Pick<Quality, "read_as" | "criteria"> => {
+  if (value.read_as === undefined) {
+    if (value.criteria !== undefined) addError(errors, `${path}.criteria`, "criteria need a read_as hint");
+    return {};
+  }
+  if (!isOneOf(value.read_as, QUALITY_READ_AS)) {
+    addError(errors, `${path}.read_as`, "read_as must be choice, stated or rating");
+    return {};
+  }
+  const readAs = value.read_as;
+  if (source !== "extractor") addError(errors, `${path}.read_as`, "only extractor qualities can be read by the judge");
+  if (!READ_AS_TYPES[readAs].includes(type)) addError(errors, `${path}.read_as`, `read_as ${readAs} does not fit a ${type} quality`);
+  if (value.criteria === undefined) {
+    if (readAs === "rating" && !ratingLevels({ rubric })) addError(errors, `${path}.criteria`, "a rating needs criteria.levels or a rubric that reads \"from N (low) to M (high)\"");
+    return { read_as: readAs };
+  }
+  if (!isRecord(value.criteria)) {
+    addError(errors, `${path}.criteria`, "criteria must be an object");
+    return { read_as: readAs };
+  }
+  if (readAs === "rating") {
+    const levels = Array.isArray(value.criteria.levels)
+      ? value.criteria.levels.filter((level): level is QualityRatingLevel => isRecord(level) && typeof level.value === "number" && typeof level.label === "string" && level.label.trim().length > 0)
+      : [];
+    if (levels.length < 2) addError(errors, `${path}.criteria.levels`, "a rating needs at least two levels with a number value and a label");
+    return levels.length >= 2 ? { read_as: readAs, criteria: { levels } } : { read_as: readAs };
+  }
+  if (readAs === "stated") {
+    addError(errors, `${path}.criteria`, "a stated quality takes no criteria: its options are found in the text");
+    return { read_as: readAs };
+  }
+  const allowed = new Set(type === "bool" ? ["true", "false"] : values ?? []);
+  const criteria: Record<string, string | QualityCriterion> = {};
+  Object.entries(value.criteria).forEach(([option, raw]) => {
+    if (!allowed.has(option)) {
+      addError(errors, `${path}.criteria.${option}`, `'${option}' is not ${type === "bool" ? "true or false" : "one of the enum values"}`);
+      return;
+    }
+    const criterion = readCriterion(raw);
+    if (!criterion) addError(errors, `${path}.criteria.${option}`, "a criterion is text or { what, not_for?, examples? }");
+    else criteria[option] = criterion;
+  });
+  return { read_as: readAs, ...(Object.keys(criteria).length ? { criteria } : {}) };
 };
 
 const readQuality = (value: unknown, path: string, errors: ValidationError[]): Quality | null => {
@@ -107,6 +163,7 @@ const readQuality = (value: unknown, path: string, errors: ValidationError[]): Q
     ...(typeof value.monotonic === "boolean" ? { monotonic: value.monotonic } : {}),
     ...(isRecord(value.scope_hint) ? { scope_hint: value.scope_hint as Quality["scope_hint"] } : {}),
     ...(ledgerBinding ? { ledger_binding: ledgerBinding } : {}),
+    ...readQualityRead(value, type, source, rubric, values, path, errors),
   };
 };
 

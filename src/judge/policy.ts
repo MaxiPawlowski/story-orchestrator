@@ -38,3 +38,9 @@ export const CONTINUITY_MAX_FACTS = 40;
 export const CONTINUITY_MAX_NOTE_FACTS = 2;
 export const BACKGROUND_CONFIDENCE = 0.6;
 export const BACKGROUND_MAX_OPTIONS = 254;
+
+export const EXTRACTION_CONFIDENCE = 0.8;
+export const EXTRACTION_LATCHING_BUMP = 0.1;
+export const STALL_DIRECT_P = 0.95;
+export const STALL_GENUINE_P = 0.1;
+export const TYPED_TIMEOUT_MS = 2500;

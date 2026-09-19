@@ -226,6 +226,33 @@ the hinted set must reach 0.9. The LLM-only run keeps `--min 0.9`.
 | J11.23 | An induced stall where the fact was stated two turns ago (bool leaf) → `judge:reconcile` delta, and no LLM reconcile read in the fetch counter. A second stall where nothing was stated → no LLM re-read, the event stays unresolved, and `#so-stall-signal` stays visible |
 | J11.24 | Judge off → audits carry no `judge` source, and the live suite matches the recorded goldens' rate |
 
+### Calibration record (off-page, 2026-09-19)
+
+Production code (`src/judge/extraction.ts`, `numbers.ts`, `extractionCalibration.ts`) → the real
+plugin handler → the live API, `jev-1.13.0`, via `calibrate-node.mts typed|stall --record`. Fixtures
+come from `promote.mts typed|stall`: the spike hard set plus the `extractor*` live-suite fixtures,
+with labels as recorded there. Every quality gets the plain hint its type implies, which is the
+measured shape.
+
+| Set | Result | Floor |
+|---|---|---|
+| Typed read, answered over the floor (`EXTRACTION_CONFIDENCE` 0.8, +0.1 latching) | **61/62 (98%)**; the miss is `extractor4` `crew_morale`, which the fixture expects to change and the judge left at its prior with confidence | ≥ 0.95: pass |
+| Typed read, coverage | 62/77 (81%) answered over the floor; the rest go to the LLM read (residual scope) | none |
+| Stall pre-check, direct writes at `STALL_DIRECT_P` 0.95 | **29/29** were really shown | 1.0: pass |
+| Stall pre-check, real stalls kept (a shown leaf never under `STALL_GENUINE_P` 0.1) | **59/59** | 1.0: pass |
+
+Built with it:
+- `read_as` + `criteria` in format 2. `engine/qualityRead.ts` has the type table and the rubric-range
+  levels, and validate has an error for every hint that cannot work.
+- `parse.ts` exports `qualityAccepts`, so a judged value passes the same type check as a
+  shared-read `DELTA` line.
+- When no evidence answer arrives, a stated value cites the message its candidate came from.
+
+The runtime is not built yet: the `typed-read` boundary entry, the residual scope in
+`runSharedRead`, the stall pre-check in `reconciliation`, the Studio Extraction section with its
+preview, `so-live-suite --judge`, and J11.20–J11.24. That is the next step, and none of it touches
+the peer's uncommitted files.
+
 ## Implementation notes
 
 - One writer per quality per read: the judge wins over the floor, the LLM covers the rest. The

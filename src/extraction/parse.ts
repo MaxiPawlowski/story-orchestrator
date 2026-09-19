@@ -72,7 +72,7 @@ export function stripChannelNoise(raw: string): string {
   return lines.join("\n").trim();
 }
 
-const valueMatches = (quality: Quality, value: PrimitiveValue) => {
+export const qualityAccepts = (quality: Pick<Quality, "type" | "values">, value: PrimitiveValue) => {
   if (quality.type === "bool") return typeof value === "boolean";
   if (quality.type === "string") return typeof value === "string";
   if (quality.type === "enum") return typeof value === "string" && Boolean(quality.values?.includes(value));
@@ -118,7 +118,7 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
         result.deltas.push({ delta: { q, v: levelToNumeric(value), source: quality.source }, evidence: delta[3], rawLevel: value });
         continue;
       }
-      if (value === undefined || !valueMatches(quality, value)) {
+      if (value === undefined || !qualityAccepts(quality, value)) {
         result.rejected.push({ line, reason: "invalid value" });
         continue;
       }

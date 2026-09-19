@@ -30,6 +30,22 @@ export interface QualityLedgerBinding {
   field: string;
 }
 
+// v2.2 plan 06: how a quality opts in to the judged typed read (never inferred).
+export type QualityReadAs = "choice" | "stated" | "rating";
+
+export interface QualityCriterion {
+  what: string;
+  not_for?: string;
+  examples?: string[];
+}
+
+export interface QualityRatingLevel {
+  value: number;
+  label: string;
+}
+
+export type QualityCriteria = Record<string, string | QualityCriterion> | { levels: QualityRatingLevel[] };
+
 export interface Quality {
   key: string;
   type: QualityType;
@@ -40,6 +56,8 @@ export interface Quality {
   rubric: string;
   scope_hint?: QualityScopeHint;
   ledger_binding?: QualityLedgerBinding;
+  read_as?: QualityReadAs;
+  criteria?: QualityCriteria;
 }
 
 export type GateNode = GateLeaf | GateAll | GateAny | GateNot;

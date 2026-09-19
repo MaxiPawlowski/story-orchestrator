@@ -10,7 +10,7 @@ const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
 
   status                              plugin reachability, key source (never the key), install settings
   ask <request.json>                  POST one System One request through the plugin from the page
-  calibrate [--use director|memory-verify|memory-pairs|scene|lore|curator-filter|continuity|backgrounds] [--fixture <name>] [--min 0.85] [--record]
+  calibrate [--use director|memory-verify|memory-pairs|scene|lore|curator-filter|continuity|backgrounds|typed|stall] [--fixture <name>] [--min 0.85] [--record]
                                       run test/fixtures/judge/<fixture|use>.json page -> plugin -> TypeSafe;
                                       exit 1 below --min; --record writes test/goldens/judge/<use>.calibration.json
   calls [--last 20]                   the current chat's judge call ring (extras.judge.calls)
@@ -75,7 +75,7 @@ async function calibrate(page: any, use: string, fixtureName: string, min: numbe
   for (const row of report.rows) console.log(`${row.right ? 'ok  ' : 'MISS'} ${row.id.padEnd(5)} ${String(row.picked).padEnd(16)} ${String(row.latencyMs).padStart(5)} ms  ${tagsOf(row.id).join(',')}${row.fallback ? `  fallback=${row.fallback}` : ''}${row.detail ? `  [${row.id in labelOf ? labelOf[row.id] : ''}] ${row.detail}` : ''}`);
   const rate = report.total ? report.right / report.total : 0;
   const spanish = report.rows.filter((row: any) => tagsOf(row.id).includes('spanish'));
-  const families = ['scene', 'lore', 'curator-filter', 'continuity', 'backgrounds'].includes(use) ? familyScores(report.rows, fixture.floors ?? {}) : [];
+  const families = ['scene', 'lore', 'curator-filter', 'continuity', 'backgrounds', 'typed', 'stall'].includes(use) ? familyScores(report.rows, fixture.floors ?? {}) : [];
   families.forEach((row) => console.log(`${row.ok ? 'ok  ' : 'FAIL'} ${row.family.padEnd(9)} ${row.right}/${row.total} floor ${row.floor}`));
   const summary = { use, fixture: fixtureName, right: report.right, total: report.total, rate: Number(rate.toFixed(4)), ...(families.length ? { families } : {}), spanish: `${spanish.filter((row: any) => row.right).length}/${spanish.length}`, p50LatencyMs: report.p50LatencyMs, model: report.model, min, ok: families.length ? families.every((row) => row.ok) : rate >= min };
   console.log(JSON.stringify(summary, null, 2));
