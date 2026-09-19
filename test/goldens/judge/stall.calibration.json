@@ -1,0 +1,642 @@
+{
+  "recordedAt": "2026-09-19T22:49:07.116Z",
+  "summary": {
+    "use": "stall",
+    "fixture": "stall",
+    "right": 87,
+    "total": 87,
+    "rate": 1,
+    "families": [
+      {
+        "family": "direct",
+        "right": 28,
+        "total": 28,
+        "floor": 1,
+        "ok": true
+      },
+      {
+        "family": "kept",
+        "right": 59,
+        "total": 59,
+        "floor": 1,
+        "ok": true
+      }
+    ],
+    "spanish": "4/4",
+    "p50LatencyMs": 1263,
+    "model": "jev-1.13.0",
+    "min": 0.85,
+    "ok": true
+  },
+  "rows": [
+    {
+      "id": "H01.direct:0",
+      "right": true,
+      "picked": "p=0.97",
+      "detail": "approached_board == true",
+      "latencyMs": 238
+    },
+    {
+      "id": "H01.kept:0",
+      "right": true,
+      "picked": "p=0.97",
+      "detail": "approached_board == true",
+      "latencyMs": 238
+    },
+    {
+      "id": "H02.kept:0",
+      "right": true,
+      "picked": "p=0.9",
+      "detail": "approached_board == false",
+      "latencyMs": 406
+    },
+    {
+      "id": "H03.kept:0",
+      "right": true,
+      "picked": "p=0.89",
+      "detail": "mission_accepted == true",
+      "latencyMs": 224
+    },
+    {
+      "id": "H04.kept:0",
+      "right": true,
+      "picked": "p=0.92",
+      "detail": "mission_accepted == false",
+      "latencyMs": 279
+    },
+    {
+      "id": "H05.kept:0",
+      "right": true,
+      "picked": "p=0.86",
+      "detail": "mission_accepted == false",
+      "latencyMs": 238
+    },
+    {
+      "id": "H06.direct:0",
+      "right": true,
+      "picked": "p=0.96",
+      "detail": "luke_decision == \"accepted\"",
+      "latencyMs": 299
+    },
+    {
+      "id": "H06.kept:0",
+      "right": true,
+      "picked": "p=0.96",
+      "detail": "luke_decision == \"accepted\"",
+      "latencyMs": 299
+    },
+    {
+      "id": "H07.kept:0",
+      "right": true,
+      "picked": "p=0.91",
+      "detail": "luke_decision == \"declined\"",
+      "latencyMs": 479
+    },
+    {
+      "id": "H08.direct:0",
+      "right": true,
+      "picked": "p=0.95",
+      "detail": "luke_decision == \"undecided\"",
+      "latencyMs": 476
+    },
+    {
+      "id": "H08.kept:0",
+      "right": true,
+      "picked": "p=0.95",
+      "detail": "luke_decision == \"undecided\"",
+      "latencyMs": 476
+    },
+    {
+      "id": "H09.direct:0",
+      "right": true,
+      "picked": "p=0.96",
+      "detail": "luke_decision == \"declined\"",
+      "latencyMs": 458
+    },
+    {
+      "id": "H09.kept:0",
+      "right": true,
+      "picked": "p=0.96",
+      "detail": "luke_decision == \"declined\"",
+      "latencyMs": 458
+    },
+    {
+      "id": "H10.direct:0",
+      "right": true,
+      "picked": "p=0.98",
+      "detail": "riddle_answer == \"moon\"",
+      "latencyMs": 552
+    },
+    {
+      "id": "H10.kept:0",
+      "right": true,
+      "picked": "p=0.98",
+      "detail": "riddle_answer == \"moon\"",
+      "latencyMs": 552
+    },
+    {
+      "id": "H10.kept:2",
+      "right": true,
+      "picked": "p=0.4",
+      "detail": "chamber_entered == false",
+      "latencyMs": 552
+    },
+    {
+      "id": "H11.direct:0",
+      "right": true,
+      "picked": "p=0.96",
+      "detail": "riddle_answer == \"wrong\"",
+      "latencyMs": 522
+    },
+    {
+      "id": "H11.kept:0",
+      "right": true,
+      "picked": "p=0.96",
+      "detail": "riddle_answer == \"wrong\"",
+      "latencyMs": 522
+    },
+    {
+      "id": "H12.kept:0",
+      "right": true,
+      "picked": "p=0.12",
+      "detail": "riddle_answer == \"unanswered\"",
+      "latencyMs": 646
+    },
+    {
+      "id": "H13.direct:0",
+      "right": true,
+      "picked": "p=0.97",
+      "detail": "luke_alive == true",
+      "latencyMs": 777
+    },
+    {
+      "id": "H13.kept:0",
+      "right": true,
+      "picked": "p=0.97",
+      "detail": "luke_alive == true",
+      "latencyMs": 777
+    },
+    {
+      "id": "H14.kept:0",
+      "right": true,
+      "picked": "p=0.91",
+      "detail": "luke_alive == false",
+      "latencyMs": 726
+    },
+    {
+      "id": "H15.direct:0",
+      "right": true,
+      "picked": "p=0.97",
+      "detail": "chamber_entered == true",
+      "latencyMs": 770
+    },
+    {
+      "id": "H15.kept:0",
+      "right": true,
+      "picked": "p=0.97",
+      "detail": "chamber_entered == true",
+      "latencyMs": 770
+    },
+    {
+      "id": "H15.direct:2",
+      "right": true,
+      "picked": "p=0.95",
+      "detail": "artifact_secured == false",
+      "latencyMs": 770
+    },
+    {
+      "id": "H15.kept:2",
+      "right": true,
+      "picked": "p=0.95",
+      "detail": "artifact_secured == false",
+      "latencyMs": 770
+    },
+    {
+      "id": "H16.direct:0",
+      "right": true,
+      "picked": "p=0.97",
+      "detail": "artifact_secured == true",
+      "latencyMs": 779
+    },
+    {
+      "id": "H16.kept:0",
+      "right": true,
+      "picked": "p=0.97",
+      "detail": "artifact_secured == true",
+      "latencyMs": 779
+    },
+    {
+      "id": "H17.kept:0",
+      "right": true,
+      "picked": "p=0.43",
+      "detail": "reward_claimed == true",
+      "latencyMs": 850
+    },
+    {
+      "id": "H18.kept:0",
+      "right": true,
+      "picked": "p=0.83",
+      "detail": "reward_claimed == false",
+      "latencyMs": 866
+    },
+    {
+      "id": "H20.direct:0",
+      "right": true,
+      "picked": "p=0.96",
+      "detail": "riddle_answer == \"wrong\"",
+      "latencyMs": 1012
+    },
+    {
+      "id": "H20.kept:0",
+      "right": true,
+      "picked": "p=0.96",
+      "detail": "riddle_answer == \"wrong\"",
+      "latencyMs": 1012
+    },
+    {
+      "id": "H20.kept:2",
+      "right": true,
+      "picked": "p=0.23",
+      "detail": "artifact_secured == false",
+      "latencyMs": 1012
+    },
+    {
+      "id": "H21.direct:0",
+      "right": true,
+      "picked": "p=0.95",
+      "detail": "mission_accepted == true",
+      "latencyMs": 1021
+    },
+    {
+      "id": "H21.kept:0",
+      "right": true,
+      "picked": "p=0.95",
+      "detail": "mission_accepted == true",
+      "latencyMs": 1021
+    },
+    {
+      "id": "H22.direct:0",
+      "right": true,
+      "picked": "p=0.96",
+      "detail": "luke_decision == \"declined\"",
+      "latencyMs": 1033
+    },
+    {
+      "id": "H22.kept:0",
+      "right": true,
+      "picked": "p=0.96",
+      "detail": "luke_decision == \"declined\"",
+      "latencyMs": 1033
+    },
+    {
+      "id": "H23.kept:0",
+      "right": true,
+      "picked": "p=0.92",
+      "detail": "hull_breach_sealed == false",
+      "latencyMs": 1058
+    },
+    {
+      "id": "H23.kept:2",
+      "right": true,
+      "picked": "p=0.83",
+      "detail": "reactor_state == \"unstable\"",
+      "latencyMs": 1058
+    },
+    {
+      "id": "H23.kept:4",
+      "right": true,
+      "picked": "p=0.53",
+      "detail": "distress_sent == false",
+      "latencyMs": 1058
+    },
+    {
+      "id": "H24.kept:0",
+      "right": true,
+      "picked": "p=0.35",
+      "detail": "reactor_state == \"stable\"",
+      "latencyMs": 1075
+    },
+    {
+      "id": "H24.kept:2",
+      "right": true,
+      "picked": "p=0.8",
+      "detail": "distress_sent == false",
+      "latencyMs": 1075
+    },
+    {
+      "id": "H27.kept:0",
+      "right": true,
+      "picked": "p=0.86",
+      "detail": "ledger_found == true",
+      "latencyMs": 1130
+    },
+    {
+      "id": "H28.direct:0",
+      "right": true,
+      "picked": "p=0.96",
+      "detail": "bribe_accepted == false",
+      "latencyMs": 1310
+    },
+    {
+      "id": "H28.kept:0",
+      "right": true,
+      "picked": "p=0.96",
+      "detail": "bribe_accepted == false",
+      "latencyMs": 1310
+    },
+    {
+      "id": "H28.kept:2",
+      "right": true,
+      "picked": "p=0.76",
+      "detail": "suspect == \"brandt\"",
+      "latencyMs": 1310
+    },
+    {
+      "id": "H29.kept:0",
+      "right": true,
+      "picked": "p=0.93",
+      "detail": "suspect == \"dockmaster\"",
+      "latencyMs": 1263
+    },
+    {
+      "id": "H30.kept:0",
+      "right": true,
+      "picked": "p=0.66",
+      "detail": "witness_alive == true",
+      "latencyMs": 1265
+    },
+    {
+      "id": "H31.kept:0",
+      "right": true,
+      "picked": "p=0.24",
+      "detail": "ghost_seen == false",
+      "latencyMs": 1304
+    },
+    {
+      "id": "H32.kept:0",
+      "right": true,
+      "picked": "p=0.78",
+      "detail": "portrait_moved == true",
+      "latencyMs": 1318
+    },
+    {
+      "id": "H32.kept:2",
+      "right": true,
+      "picked": "p=0.5",
+      "detail": "ghost_seen == false",
+      "latencyMs": 1318
+    },
+    {
+      "id": "L01.direct:0",
+      "right": true,
+      "picked": "p=0.97",
+      "detail": "luke_decision == \"accepted\"",
+      "latencyMs": 1426
+    },
+    {
+      "id": "L01.kept:0",
+      "right": true,
+      "picked": "p=0.97",
+      "detail": "luke_decision == \"accepted\"",
+      "latencyMs": 1426
+    },
+    {
+      "id": "L02.direct:0",
+      "right": true,
+      "picked": "p=0.98",
+      "detail": "hull_breach_sealed == true",
+      "latencyMs": 1586
+    },
+    {
+      "id": "L02.kept:0",
+      "right": true,
+      "picked": "p=0.98",
+      "detail": "hull_breach_sealed == true",
+      "latencyMs": 1586
+    },
+    {
+      "id": "L02.direct:2",
+      "right": true,
+      "picked": "p=0.96",
+      "detail": "reactor_state == \"unstable\"",
+      "latencyMs": 1586
+    },
+    {
+      "id": "L02.kept:2",
+      "right": true,
+      "picked": "p=0.96",
+      "detail": "reactor_state == \"unstable\"",
+      "latencyMs": 1586
+    },
+    {
+      "id": "L03.kept:0",
+      "right": true,
+      "picked": "p=0.69",
+      "detail": "bribe_accepted == true",
+      "latencyMs": 1498
+    },
+    {
+      "id": "extractor.kept:0",
+      "right": true,
+      "picked": "p=0.93",
+      "detail": "player_has_key == true",
+      "latencyMs": 1543
+    },
+    {
+      "id": "extractor2.kept:0",
+      "right": true,
+      "picked": "p=0.88",
+      "detail": "district == \"docks\"",
+      "latencyMs": 1609
+    },
+    {
+      "id": "extractor3.direct:0",
+      "right": true,
+      "picked": "p=0.97",
+      "detail": "torch_lit == true",
+      "latencyMs": 1564
+    },
+    {
+      "id": "extractor3.kept:0",
+      "right": true,
+      "picked": "p=0.97",
+      "detail": "torch_lit == true",
+      "latencyMs": 1564
+    },
+    {
+      "id": "extractor5.direct:0",
+      "right": true,
+      "picked": "p=0.99",
+      "detail": "torch_lit == true",
+      "latencyMs": 1684
+    },
+    {
+      "id": "extractor5.kept:0",
+      "right": true,
+      "picked": "p=0.99",
+      "detail": "torch_lit == true",
+      "latencyMs": 1684
+    },
+    {
+      "id": "extractor8.kept:0",
+      "right": true,
+      "picked": "p=0.94",
+      "detail": "weather == \"fog\"",
+      "latencyMs": 1799
+    },
+    {
+      "id": "extractor9.kept:0",
+      "right": true,
+      "picked": "p=0.79",
+      "detail": "stance == \"wary\"",
+      "latencyMs": 1807
+    },
+    {
+      "id": "extractor10.direct:0",
+      "right": true,
+      "picked": "p=0.96",
+      "detail": "door_open == true",
+      "latencyMs": 1804
+    },
+    {
+      "id": "extractor10.kept:0",
+      "right": true,
+      "picked": "p=0.96",
+      "detail": "door_open == true",
+      "latencyMs": 1804
+    },
+    {
+      "id": "extractor10.direct:2",
+      "right": true,
+      "picked": "p=0.98",
+      "detail": "alarm == true",
+      "latencyMs": 1804
+    },
+    {
+      "id": "extractor10.kept:2",
+      "right": true,
+      "picked": "p=0.98",
+      "detail": "alarm == true",
+      "latencyMs": 1804
+    },
+    {
+      "id": "extractor11.direct:0",
+      "right": true,
+      "picked": "p=0.96",
+      "detail": "bridge_lowered == true",
+      "latencyMs": 1813
+    },
+    {
+      "id": "extractor11.kept:0",
+      "right": true,
+      "picked": "p=0.96",
+      "detail": "bridge_lowered == true",
+      "latencyMs": 1813
+    },
+    {
+      "id": "extractor12.direct:0",
+      "right": true,
+      "picked": "p=0.98",
+      "detail": "pact_sealed == true",
+      "latencyMs": 1883
+    },
+    {
+      "id": "extractor12.kept:0",
+      "right": true,
+      "picked": "p=0.98",
+      "detail": "pact_sealed == true",
+      "latencyMs": 1883
+    },
+    {
+      "id": "extractor14.direct:0",
+      "right": true,
+      "picked": "p=0.98",
+      "detail": "rope_cut == true",
+      "latencyMs": 2045
+    },
+    {
+      "id": "extractor14.kept:0",
+      "right": true,
+      "picked": "p=0.98",
+      "detail": "rope_cut == true",
+      "latencyMs": 2045
+    },
+    {
+      "id": "extractor15.direct:0",
+      "right": true,
+      "picked": "p=0.95",
+      "detail": "gate_breached == true",
+      "latencyMs": 2066
+    },
+    {
+      "id": "extractor15.kept:0",
+      "right": true,
+      "picked": "p=0.95",
+      "detail": "gate_breached == true",
+      "latencyMs": 2066
+    },
+    {
+      "id": "extractor18.kept:0",
+      "right": true,
+      "picked": "p=0.36",
+      "detail": "ally_wounded == true",
+      "latencyMs": 2068
+    },
+    {
+      "id": "extractor19.kept:0",
+      "right": true,
+      "picked": "p=0.94",
+      "detail": "bribe_taken == true",
+      "latencyMs": 2108
+    },
+    {
+      "id": "extractor20.kept:0",
+      "right": true,
+      "picked": "p=0.89",
+      "detail": "location == \"cave\"",
+      "latencyMs": 2184
+    },
+    {
+      "id": "extractor21.direct:0",
+      "right": true,
+      "picked": "p=0.98",
+      "detail": "gate_opened == true",
+      "latencyMs": 2211
+    },
+    {
+      "id": "extractor21.kept:0",
+      "right": true,
+      "picked": "p=0.98",
+      "detail": "gate_opened == true",
+      "latencyMs": 2211
+    },
+    {
+      "id": "extractor21.direct:2",
+      "right": true,
+      "picked": "p=0.97",
+      "detail": "watch_alerted == false",
+      "latencyMs": 2211
+    },
+    {
+      "id": "extractor21.kept:2",
+      "right": true,
+      "picked": "p=0.97",
+      "detail": "watch_alerted == false",
+      "latencyMs": 2211
+    },
+    {
+      "id": "extractor22.direct:1",
+      "right": true,
+      "picked": "p=0.98",
+      "detail": "seal_broken == true",
+      "latencyMs": 2329
+    },
+    {
+      "id": "extractor22.kept:1",
+      "right": true,
+      "picked": "p=0.98",
+      "detail": "seal_broken == true",
+      "latencyMs": 2329
+    }
+  ]
+}

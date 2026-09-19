@@ -1,0 +1,533 @@
+{
+  "recordedAt": "2026-09-19T22:48:51.425Z",
+  "summary": {
+    "use": "lore",
+    "fixture": "lore",
+    "right": 68,
+    "total": 77,
+    "rate": 0.8831,
+    "families": [
+      {
+        "family": "recall",
+        "right": 34,
+        "total": 39,
+        "floor": 0.8,
+        "ok": true
+      },
+      {
+        "family": "precision",
+        "right": 34,
+        "total": 38,
+        "floor": 0.7,
+        "ok": true
+      }
+    ],
+    "spanish": "16/19",
+    "p50LatencyMs": 559,
+    "model": "jev-1.13.0",
+    "min": 0.85,
+    "ok": true
+  },
+  "rows": [
+    {
+      "id": "L01.recall:SO-J11 Adolion World.18",
+      "right": true,
+      "picked": "p=0.76",
+      "latencyMs": 335
+    },
+    {
+      "id": "L01.recall:SO-J11 Adolion World.5",
+      "right": true,
+      "picked": "p=0.85",
+      "latencyMs": 335
+    },
+    {
+      "id": "L01.recall:SO-J11 Adolion World.3",
+      "right": true,
+      "picked": "p=0.81",
+      "latencyMs": 335
+    },
+    {
+      "id": "L01.recall:SO-J11 Adolion World.13",
+      "right": false,
+      "picked": "p=0.57",
+      "latencyMs": 335
+    },
+    {
+      "id": "L01.precision:SO-J11 Adolion World.5",
+      "right": true,
+      "picked": "p=0.85",
+      "detail": "Lore - Adventurer Rank",
+      "latencyMs": 335
+    },
+    {
+      "id": "L01.precision:SO-J11 Adolion World.3",
+      "right": true,
+      "picked": "p=0.81",
+      "detail": "Lore - Adventurer's Guild",
+      "latencyMs": 335
+    },
+    {
+      "id": "L01.precision:SO-J11 Adolion World.18",
+      "right": true,
+      "picked": "p=0.76",
+      "detail": "NPC - Ellie",
+      "latencyMs": 335
+    },
+    {
+      "id": "L02.recall:SO-J11 Adolion World.44",
+      "right": true,
+      "picked": "p=0.62",
+      "latencyMs": 311
+    },
+    {
+      "id": "L02.recall:SO-J11 Adolion World.43",
+      "right": true,
+      "picked": "p=0.85",
+      "latencyMs": 311
+    },
+    {
+      "id": "L02.recall:SO-J11 Adolion World.42",
+      "right": true,
+      "picked": "p=0.88",
+      "latencyMs": 311
+    },
+    {
+      "id": "L02.recall:SO-J11 Adolion World.41",
+      "right": true,
+      "picked": "p=0.63",
+      "latencyMs": 311
+    },
+    {
+      "id": "L02.precision:SO-J11 Adolion World.42",
+      "right": true,
+      "picked": "p=0.88",
+      "detail": "NPC - Soul Painter",
+      "latencyMs": 311
+    },
+    {
+      "id": "L02.precision:SO-J11 Adolion World.43",
+      "right": true,
+      "picked": "p=0.85",
+      "detail": "NPC - Kuromu",
+      "latencyMs": 311
+    },
+    {
+      "id": "L02.precision:SO-J11 Adolion World.41",
+      "right": true,
+      "picked": "p=0.63",
+      "detail": "NPC - Butcher",
+      "latencyMs": 311
+    },
+    {
+      "id": "L02.precision:SO-J11 Adolion World.44",
+      "right": true,
+      "picked": "p=0.62",
+      "detail": "Place - Slums",
+      "latencyMs": 311
+    },
+    {
+      "id": "L03.recall:SO-J11 Adolion World.10",
+      "right": true,
+      "picked": "p=0.82",
+      "latencyMs": 348
+    },
+    {
+      "id": "L03.recall:SO-J11 Adolion World.40",
+      "right": true,
+      "picked": "p=0.82",
+      "latencyMs": 348
+    },
+    {
+      "id": "L03.recall:SO-J11 Adolion World.17",
+      "right": true,
+      "picked": "p=0.87",
+      "latencyMs": 348
+    },
+    {
+      "id": "L03.precision:SO-J11 Adolion World.17",
+      "right": true,
+      "picked": "p=0.87",
+      "detail": "Race - Orcs",
+      "latencyMs": 348
+    },
+    {
+      "id": "L03.precision:SO-J11 Adolion World.10",
+      "right": true,
+      "picked": "p=0.82",
+      "detail": "Place - Vile Jungle",
+      "latencyMs": 348
+    },
+    {
+      "id": "L03.precision:SO-J11 Adolion World.40",
+      "right": true,
+      "picked": "p=0.82",
+      "detail": "Lore - Bloody Hand Tribe",
+      "latencyMs": 348
+    },
+    {
+      "id": "L03.precision:SO-J11 Adolion World.58",
+      "right": false,
+      "picked": "p=0.64",
+      "detail": "Place - The Forbidden Forest",
+      "latencyMs": 348
+    },
+    {
+      "id": "L04.recall:SO-J11 Adolion World.12",
+      "right": true,
+      "picked": "p=0.67",
+      "latencyMs": 343
+    },
+    {
+      "id": "L04.recall:SO-J11 Adolion World.26",
+      "right": true,
+      "picked": "p=0.76",
+      "latencyMs": 343
+    },
+    {
+      "id": "L04.recall:SO-J11 Adolion World.25",
+      "right": true,
+      "picked": "p=0.78",
+      "latencyMs": 343
+    },
+    {
+      "id": "L04.precision:SO-J11 Adolion World.25",
+      "right": true,
+      "picked": "p=0.78",
+      "detail": "NPC - Belle",
+      "latencyMs": 343
+    },
+    {
+      "id": "L04.precision:SO-J11 Adolion World.26",
+      "right": true,
+      "picked": "p=0.76",
+      "detail": "Lore - Clan Nabba",
+      "latencyMs": 343
+    },
+    {
+      "id": "L04.precision:SO-J11 Adolion World.12",
+      "right": true,
+      "picked": "p=0.67",
+      "detail": "Place - Mountains of Shadow",
+      "latencyMs": 343
+    },
+    {
+      "id": "L05.recall:SO-J11 Adolion World.29",
+      "right": true,
+      "picked": "p=0.85",
+      "latencyMs": 297
+    },
+    {
+      "id": "L05.recall:SO-J11 Adolion World.4",
+      "right": true,
+      "picked": "p=0.75",
+      "latencyMs": 297
+    },
+    {
+      "id": "L05.recall:SO-J11 Adolion World.9",
+      "right": true,
+      "picked": "p=0.63",
+      "latencyMs": 297
+    },
+    {
+      "id": "L05.precision:SO-J11 Adolion World.29",
+      "right": true,
+      "picked": "p=0.85",
+      "detail": "Lore - Inquisition",
+      "latencyMs": 297
+    },
+    {
+      "id": "L05.precision:SO-J11 Adolion World.4",
+      "right": true,
+      "picked": "p=0.75",
+      "detail": "Lore - Holy Church",
+      "latencyMs": 297
+    },
+    {
+      "id": "L05.precision:SO-J11 Adolion World.9",
+      "right": true,
+      "picked": "p=0.63",
+      "detail": "Creature - Demons",
+      "latencyMs": 297
+    },
+    {
+      "id": "L06.recall:SO-J11 Adolion World.49",
+      "right": true,
+      "picked": "p=0.85",
+      "latencyMs": 316
+    },
+    {
+      "id": "L06.recall:SO-J11 Adolion World.48",
+      "right": true,
+      "picked": "p=0.76",
+      "latencyMs": 316
+    },
+    {
+      "id": "L06.recall:SO-J11 Adolion World.51",
+      "right": true,
+      "picked": "p=0.79",
+      "latencyMs": 316
+    },
+    {
+      "id": "L06.recall:SO-J11 Adolion World.14",
+      "right": false,
+      "picked": "p=0.33",
+      "latencyMs": 316
+    },
+    {
+      "id": "L06.precision:SO-J11 Adolion World.49",
+      "right": true,
+      "picked": "p=0.85",
+      "detail": "Place - Castle Bathorya",
+      "latencyMs": 316
+    },
+    {
+      "id": "L06.precision:SO-J11 Adolion World.51",
+      "right": true,
+      "picked": "p=0.79",
+      "detail": "Race - Elder Vampire",
+      "latencyMs": 316
+    },
+    {
+      "id": "L06.precision:SO-J11 Adolion World.48",
+      "right": true,
+      "picked": "p=0.76",
+      "detail": "NPC - Gabriel Malvoraux",
+      "latencyMs": 316
+    },
+    {
+      "id": "L07.recall:SO-J11 Adolion World.16",
+      "right": true,
+      "picked": "p=0.76",
+      "latencyMs": 559
+    },
+    {
+      "id": "L07.recall:SO-J11 Adolion World.52",
+      "right": true,
+      "picked": "p=0.82",
+      "latencyMs": 559
+    },
+    {
+      "id": "L07.recall:SO-J11 Adolion World.53",
+      "right": true,
+      "picked": "p=0.76",
+      "latencyMs": 559
+    },
+    {
+      "id": "L07.precision:SO-J11 Adolion World.52",
+      "right": true,
+      "picked": "p=0.82",
+      "detail": "Creature - Goblin Lord",
+      "latencyMs": 559
+    },
+    {
+      "id": "L07.precision:SO-J11 Adolion World.16",
+      "right": true,
+      "picked": "p=0.76",
+      "detail": "Creature - goblin",
+      "latencyMs": 559
+    },
+    {
+      "id": "L07.precision:SO-J11 Adolion World.53",
+      "right": true,
+      "picked": "p=0.76",
+      "detail": "Creature - Hobgoblin",
+      "latencyMs": 559
+    },
+    {
+      "id": "L07.precision:SO-J11 Adolion World.30",
+      "right": false,
+      "picked": "p=0.67",
+      "detail": "Lore - Quest Target",
+      "latencyMs": 559
+    },
+    {
+      "id": "L08.recall:SO-J11 Adolion World.57",
+      "right": true,
+      "picked": "p=0.86",
+      "latencyMs": 599
+    },
+    {
+      "id": "L08.recall:SO-J11 Adolion World.58",
+      "right": true,
+      "picked": "p=0.87",
+      "latencyMs": 599
+    },
+    {
+      "id": "L08.recall:SO-J11 Adolion World.59",
+      "right": true,
+      "picked": "p=0.87",
+      "latencyMs": 599
+    },
+    {
+      "id": "L08.precision:SO-J11 Adolion World.58",
+      "right": true,
+      "picked": "p=0.87",
+      "detail": "Place - The Forbidden Forest",
+      "latencyMs": 599
+    },
+    {
+      "id": "L08.precision:SO-J11 Adolion World.59",
+      "right": true,
+      "picked": "p=0.87",
+      "detail": "Lore - Kazzym's Chosen",
+      "latencyMs": 599
+    },
+    {
+      "id": "L08.precision:SO-J11 Adolion World.57",
+      "right": true,
+      "picked": "p=0.86",
+      "detail": "NPC - Kazzym",
+      "latencyMs": 599
+    },
+    {
+      "id": "L09.recall:SO-J11 Adolion World.63",
+      "right": true,
+      "picked": "p=0.79",
+      "latencyMs": 597
+    },
+    {
+      "id": "L09.recall:SO-J11 Adolion World.62",
+      "right": true,
+      "picked": "p=0.88",
+      "latencyMs": 597
+    },
+    {
+      "id": "L09.recall:SO-J11 Adolion World.61",
+      "right": true,
+      "picked": "p=0.78",
+      "latencyMs": 597
+    },
+    {
+      "id": "L09.precision:SO-J11 Adolion World.62",
+      "right": true,
+      "picked": "p=0.88",
+      "detail": "NPC - Rhea",
+      "latencyMs": 597
+    },
+    {
+      "id": "L09.precision:SO-J11 Adolion World.63",
+      "right": true,
+      "picked": "p=0.79",
+      "detail": "Place - Allstadt Manor",
+      "latencyMs": 597
+    },
+    {
+      "id": "L09.precision:SO-J11 Adolion World.61",
+      "right": true,
+      "picked": "p=0.78",
+      "detail": "Creature - Cursed Doll",
+      "latencyMs": 597
+    },
+    {
+      "id": "L09.precision:SO-J11 Adolion World.29",
+      "right": false,
+      "picked": "p=0.66",
+      "detail": "Lore - Inquisition",
+      "latencyMs": 597
+    },
+    {
+      "id": "L10.recall:SO-J11 Adolion World.27",
+      "right": true,
+      "picked": "p=0.89",
+      "latencyMs": 661
+    },
+    {
+      "id": "L10.recall:SO-J11 Adolion World.18",
+      "right": true,
+      "picked": "p=0.82",
+      "latencyMs": 661
+    },
+    {
+      "id": "L10.precision:SO-J11 Adolion World.27",
+      "right": true,
+      "picked": "p=0.89",
+      "detail": "NPC - Fiana",
+      "latencyMs": 661
+    },
+    {
+      "id": "L10.precision:SO-J11 Adolion World.18",
+      "right": true,
+      "picked": "p=0.82",
+      "detail": "NPC - Ellie",
+      "latencyMs": 661
+    },
+    {
+      "id": "L10.precision:SO-J11 Adolion World.24",
+      "right": false,
+      "picked": "p=0.64",
+      "detail": "NPC - Arryn",
+      "latencyMs": 661
+    },
+    {
+      "id": "W1.recall:spike-sun-ruins.0",
+      "right": true,
+      "picked": "p=0.75",
+      "latencyMs": 602
+    },
+    {
+      "id": "W1.recall:spike-sun-ruins.1",
+      "right": true,
+      "picked": "p=0.83",
+      "latencyMs": 602
+    },
+    {
+      "id": "W1.precision:spike-sun-ruins.1",
+      "right": true,
+      "picked": "p=0.83",
+      "detail": "Ponticius",
+      "latencyMs": 602
+    },
+    {
+      "id": "W1.precision:spike-sun-ruins.0",
+      "right": true,
+      "picked": "p=0.75",
+      "detail": "Guild hall",
+      "latencyMs": 602
+    },
+    {
+      "id": "W2.recall:spike-sun-ruins.2",
+      "right": true,
+      "picked": "p=0.82",
+      "latencyMs": 620
+    },
+    {
+      "id": "W2.recall:spike-sun-ruins.3",
+      "right": false,
+      "picked": "p=0.25",
+      "latencyMs": 620
+    },
+    {
+      "id": "W2.precision:spike-sun-ruins.2",
+      "right": true,
+      "picked": "p=0.82",
+      "detail": "The sphinx",
+      "latencyMs": 620
+    },
+    {
+      "id": "W3.recall:spike-sun-ruins.4",
+      "right": false,
+      "picked": "p=0.55",
+      "latencyMs": 827
+    },
+    {
+      "id": "W4.recall:spike-noir.0",
+      "right": true,
+      "picked": "p=0.65",
+      "latencyMs": 888
+    },
+    {
+      "id": "W4.recall:spike-noir.1",
+      "right": false,
+      "picked": "p=0.39",
+      "latencyMs": 888
+    },
+    {
+      "id": "W4.precision:spike-noir.0",
+      "right": true,
+      "picked": "p=0.65",
+      "detail": "The Blue Anchor",
+      "latencyMs": 888
+    }
+  ]
+}
