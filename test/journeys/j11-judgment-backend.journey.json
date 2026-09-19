@@ -1,0 +1,109 @@
+{
+  "id": "J11",
+  "title": "judgment-backend",
+  "objective": "The judgment model behind the ST server plugin: reachable with a key, off by default, deciding speaker direction when opted in, falling back to today's chain on a timeout, recorded in its own ring, and never leaking the key.",
+  "setup": {
+    "newChat": true,
+    "resetChatState": true,
+    "snapshotGlobalConfig": true
+  },
+  "cleanup": {
+    "restoreConfig": true,
+    "deleteChat": true
+  },
+  "capabilities": {
+    "judge-runtime": "typeof globalThis.storyOrchestratorJudge?.director === 'function' && typeof globalThis.storyOrchestratorRuntime?.recordJudgeCall === 'function'",
+    "judge-plugin": "globalThis.__soJ11PluginStatus?.configured === true"
+  },
+  "checks": [
+    {
+      "id": "J11.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the server plugin answers /status with a configured key, and reports where the key came from without the key itself",
+      "requires": ["judge-runtime"],
+      "steps": [
+        {
+          "eval": "const headers = SillyTavern.getContext().getRequestHeaders(); const response = await fetch('/api/plugins/story-orchestrator-judge/status', { headers }).catch(() => null); if (!response) throw new Error('no response from the judge plugin route'); if (response.status === 404) throw new Error('judge plugin not loaded: install it with npm run plugin:install and start ST with enableServerPlugins: true'); const body = await response.json(); globalThis.__soJ11PluginStatus = body; if (!body.configured) throw new Error(`plugin loaded but no key: ${JSON.stringify(body)}`); if (JSON.stringify(body).length > 200) throw new Error('status body unexpectedly large'); return body;"
+        }
+      ]
+    },
+    {
+      "id": "J11.2",
+      "mode": "auto",
+      "findings": [],
+      "goal": "judge off (the default): a real group turn is decided by today's chain and nothing reaches the plugin",
+      "requires": ["judge-runtime", "judge-plugin"],
+      "steps": [
+        { "import_story": { "file": "./j11-judge.story.json" } },
+        { "ui": { "action": "select-profile" } },
+        {
+          "eval": "const settings = globalThis.storyOrchestratorRuntime.getGlobalSettings().judge; if (settings.enabled || Object.values(settings.uses).some(Boolean)) throw new Error(`judge not off by default: ${JSON.stringify(settings)}`); globalThis.storyOrchestratorRuntime.setTalkDirectionEnabled(true); globalThis.__soJ11PluginCalls = 0; if (!globalThis.__soJ11FetchWrapped) { const original = globalThis.fetch; globalThis.fetch = (input, init) => { if (String(input?.url ?? input).includes('/api/plugins/story-orchestrator-judge/systemone')) globalThis.__soJ11PluginCalls += 1; return original(input, init); }; globalThis.__soJ11FetchWrapped = true; } return settings;"
+        },
+        { "send_generate": { "text": "I lean on the counter and ask what this job actually pays.", "timeoutMs": 300000 } },
+        { "wait": { "talkDecisions": 1, "timeoutMs": 240000 } },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const decision = rt.getTalkState().decisions.at(-1); if (!['mention', 'director', 'rules', 'fallback'].includes(decision.source)) throw new Error(`judge off but source was ${decision.source}`); if (globalThis.__soJ11PluginCalls !== 0) throw new Error(`${globalThis.__soJ11PluginCalls} plugin calls with the judge off`); const ring = rt.getSessionJournal().filter((event) => event.kind === 'judge'); if (ring.length) throw new Error(`judge ring not empty: ${JSON.stringify(ring)}`); return decision;"
+        }
+      ]
+    },
+    {
+      "id": "J11.3",
+      "mode": "auto",
+      "findings": [],
+      "goal": "judge on with speaker direction opted in: the judge decides the turn inside its budget, records the answering model in its own ring, and adds nothing to the persisted journal",
+      "requires": ["judge-runtime", "judge-plugin"],
+      "steps": [
+        {
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, director: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); globalThis.__soJ11JournalBefore = SillyTavern.getContext().chatMetadata.story_orchestrator?.stories?.[SillyTavern.getContext().chatMetadata.story_orchestrator.selectedStoryId]?.extras?.journal?.length ?? 0; return globalThis.storyOrchestratorRuntime.getGlobalSettings().judge;"
+        },
+        { "send_generate": { "text": "I turn to the old man behind the job board: what is the pay for the Sun Ruins?", "timeoutMs": 300000 } },
+        { "wait": { "talkDecisions": 2, "timeoutMs": 240000 } },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const decision = rt.getTalkState().decisions.at(-1); if (decision.source !== 'judge') throw new Error(`expected a judge decision, got ${JSON.stringify(decision)}`); if (decision.latencyMs > 1500) throw new Error(`judge decision took ${decision.latencyMs} ms`); const calls = rt.getSessionJournal().filter((event) => event.kind === 'judge'); const last = calls.at(-1); if (!last || !String(last.detail?.model ?? '').startsWith('jev-')) throw new Error(`no judge record with a model: ${JSON.stringify(calls)}`); if (globalThis.__soJ11PluginCalls < 1) throw new Error('the judge decided without a plugin call'); const meta = SillyTavern.getContext().chatMetadata.story_orchestrator; const journal = meta.stories[meta.selectedStoryId].extras.journal ?? []; if (journal.some((record) => record.kind === 'judge')) throw new Error('judge rows leaked into the persisted journal'); return { decision, record: last, pluginCalls: globalThis.__soJ11PluginCalls };"
+        }
+      ]
+    },
+    {
+      "id": "J11.4",
+      "mode": "auto",
+      "findings": [],
+      "goal": "a 1 ms judge budget falls back to today's chain, records the fallback, and the turn still gets a reply",
+      "requires": ["judge-runtime", "judge-plugin"],
+      "steps": [
+        {
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, timeoutMs: 1 }; globalThis.__soJ11ChatBefore = SillyTavern.getContext().chat.length; return root.settings.judge.timeoutMs;"
+        },
+        { "send_generate": { "text": "Arin, you have been quiet. What do you make of the sphinx story?", "timeoutMs": 300000 } },
+        { "wait": { "talkDecisions": 3, "timeoutMs": 240000 } },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const decision = rt.getTalkState().decisions.at(-1); if (decision.source === 'judge') throw new Error('a 1 ms budget still produced a judge decision'); const last = rt.getSessionJournal().filter((event) => event.kind === 'judge').at(-1); if (!last?.summary.includes('fell back (timeout)')) throw new Error(`no timeout fallback recorded: ${JSON.stringify(last)}`); if (SillyTavern.getContext().chat.length <= globalThis.__soJ11ChatBefore + 1) throw new Error('no reply after the fallback'); return { decision, record: last };"
+        }
+      ]
+    },
+    {
+      "id": "J11.5",
+      "mode": "auto",
+      "findings": ["U3"],
+      "goal": "player mode shows nothing judge-internal: no probabilities, no judge sources, no steering controls",
+      "requires": ["judge-runtime"],
+      "steps": [
+        { "ui": { "action": "open-drawer" } },
+        { "ui": { "action": "assert-player-clean" } }
+      ]
+    },
+    {
+      "id": "J11.6",
+      "mode": "auto",
+      "findings": [],
+      "goal": "judge settings survive a reload, and the key appears nowhere in extension settings or chat metadata",
+      "requires": ["judge-runtime"],
+      "steps": [
+        { "reload": { "timeoutMs": 90000 } },
+        {
+          "eval": "const settings = globalThis.storyOrchestratorRuntime.getGlobalSettings().judge; if (!settings.enabled || !settings.uses.director) throw new Error(`judge settings lost on reload: ${JSON.stringify(settings)}`); const ctx = SillyTavern.getContext(); const dump = JSON.stringify(ctx.extensionSettings['story-orchestrator']) + JSON.stringify(ctx.chatMetadata ?? {}); if (/typesafe_api_key|TYPESAFE_API_KEY|Bearer /.test(dump)) throw new Error('a key reference leaked into settings or chat metadata'); const suspicious = [...dump.matchAll(/\"[^\"]*(?:key|secret|token)[^\"]*\"\\s*:\\s*\"([^\"]{24,})\"/gi)].map((match) => match[0].slice(0, 40)); if (suspicious.length) throw new Error(`long secret-like values stored: ${suspicious.join(' | ')}`); return { settings };"
+        }
+      ]
+    }
+  ]
+}

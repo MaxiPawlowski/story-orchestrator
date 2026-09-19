@@ -1,0 +1,36 @@
+{
+  "format": 2,
+  "id": "journey-j11-judge",
+  "title": "Journey J11 — Judgment Backend",
+  "description": "One talk-controlled checkpoint over the sun-ruins roster, every member with a role, no authored director: the judge is the only opt-in.",
+  "qualities": [
+    { "key": "briefing_done", "type": "bool", "source": "extractor", "rubric": "Has the guild master finished briefing the party on the job?" }
+  ],
+  "checkpoints": [
+    {
+      "id": "brief",
+      "name": "The Briefing",
+      "objective": "Ponticius briefs the party on the Sun Ruins job.",
+      "type": "anchor",
+      "start": true,
+      "tension_target": "calm",
+      "talk_control": {
+        "speakers": [
+          { "member": "Ponticius", "weight": 1 },
+          { "member": "Arin", "weight": 1 },
+          { "member": "DM Narrator", "weight": 1 }
+        ],
+        "no_repeat": true,
+        "allow_silence": false
+      }
+    }
+  ],
+  "transitions": [],
+  "roster": [
+    { "id": "dm", "name": "DM Narrator", "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast" },
+    { "id": "companion", "name": "Arin", "role": "The player's companion, a sharp-tongued swordswoman who travels with the party" },
+    { "id": "guild_master", "name": "Ponticius", "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards" },
+    { "id": "little_brother", "name": "Luke", "role": "The player's twelve-year-old little brother, desperate to join the adventure" }
+  ],
+  "requirements": { "members": ["DM Narrator", "Arin", "Ponticius", "Luke"] }
+}

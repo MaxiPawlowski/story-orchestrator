@@ -1,4 +1,4 @@
-import { askJudge, buildDirectorRequest, decideDirector, directorJudgeEligible, directorRecordP, judgeUseActive, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord, type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeRequest, type JudgeResponse, type JudgeResult, type JudgeSettings, type JudgeTransport, type JudgeUseKey } from "@judge/index";
+import { askJudge, buildDirectorRequest, runJudgeDirectorSelfTest, type JudgeSelfTestCase, type JudgeSelfTestReport, decideDirector, directorJudgeEligible, directorRecordP, judgeUseActive, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord, type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeRequest, type JudgeResponse, type JudgeResult, type JudgeSettings, type JudgeTransport, type JudgeUseKey } from "@judge/index";
 
 export interface JudgeStatusLike {
   configured: boolean;
@@ -52,6 +52,12 @@ export class JudgeRuntime {
   probe(request: JudgeRequest): Promise<JudgeResult> {
     const settings = this.deps.getSettings();
     return askJudge(this.deps.transport, { ...request, model: settings.model }, { timeoutMs: Math.max(settings.timeoutMs, JUDGE_PROBE_TIMEOUT_MS) });
+  }
+
+  // so-judge calibrate: the page → plugin → API path over a fixture set, recorded nowhere.
+  calibrate(use: string, cases: JudgeSelfTestCase[]): Promise<JudgeSelfTestReport> {
+    if (use !== "director") return Promise.reject(new Error(`no calibration for judge use '${use}' yet`));
+    return runJudgeDirectorSelfTest((request) => this.probe(request), cases);
   }
 
   recordFallback(use: string, fallback: JudgeFallback, request?: JudgeRequest) {

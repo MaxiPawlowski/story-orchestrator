@@ -101,6 +101,7 @@ arrive. The operator records scores in the plan's Gate record.
 | J0 | runner-selftest | The runner itself: fresh-start, pass/blocked/skipped, cleanup | 3 | 1 | No LLM. Run it whenever the harness changes |
 | J1 | first-contact | Cleared install → install state → import example → configure → first real transition | 7 | 2 | Only journey that clears global config |
 | J2 | author-loop | Empty Studio → authored story → play → edit → continue, incl. an invalidating edit and its choice popup; author-view driver (Probe + Nudge) | 9 | 2 | Plan 05's gate journey |
+| J11 | judgment-backend | The judgment model (v2.2 plan 01): plugin reachable with a key, off by default, deciding speaker direction when opted in, timeout fallback, own call ring, no key leak | 6 | 0 | Needs the server plugin and `enableServerPlugins: true`; without it J11.1 fails with the reason and the rest block |
 | J3 | player-session | Real session on sun-ruins: transitions announced, memory recalled, spoiler sweep, journal | 8 | 5 | The human-eval workhorse |
 | J4 | return-and-adopt | Simulated multi-day gap → away recap on return; mid-chat adoption via memorize backlog | 4 | 2 | Uses the `reload` verb (real return path) |
 | J5 | group-direction | talk_control + npc_replies + cast_changes; per-speaker private injection in the payload | 6 | 1 | Restores the group roster in cleanup |
@@ -278,6 +279,26 @@ config snapshot is restored in cleanup, so an interrupted run never leaves the f
 node scripts/debug/so-journey.mts run J8
 ```
 
+### J11 judgment-backend (v2.2 plan 01)
+
+| Check | Mode | Findings | What it proves |
+|---|---|---|---|
+| J11.1 | auto | — | The server plugin answers `/status` with `configured: true` and a key **source** (`st-secrets` / `env` / `dotenv`), never the key |
+| J11.2 | auto | — | Judge off (the default, asserted): a real group turn is decided by today's chain (`mention`/`director`/`rules`/`fallback`), zero plugin calls, empty judge ring |
+| J11.3 | auto | — | Judge on + speaker direction opted in: the turn's source is `judge`, inside 1500 ms, the ring records the answering `jev-*` model, and `extras.journal` gains no judge row |
+| J11.4 | auto | — | A 1 ms budget: today's chain decides, the ring records `fell back (timeout)`, and the turn still gets its reply |
+| J11.5 | auto | U3 | Player mode shows nothing judge-internal (`assert-player-clean`) |
+| J11.6 | auto | — | Judge settings survive a reload; no key or key-like value appears in extension settings or chat metadata |
+
+The story (`j11-judge.story.json`) gives every roster member a role and authors **no** director, so
+the install-wide flag is the only opt-in. The calibration half of the gate is separate:
+`node scripts/debug/so-judge.mts calibrate --use director --min 0.85` (page → plugin → API) and, off
+the page, `scripts/spike/typesafe/calibrate-node.mts director`.
+
+```bash
+node scripts/debug/so-journey.mts run J11 --strict
+```
+
 ## Spoiler checklist (player mode) — v2 (plan 04)
 
 Applied automatically by J3.3 (`ui: assert-player-clean` + an explicit sweep) and
@@ -311,6 +332,9 @@ that adds a player-visible element adds a row here.
 | The curator's write scope (`stagecraft.lorebooks`) and a checkpoint's `background` file | author | Studio Story tab (`[data-so="stagecraft"]`) and Checkpoints → Effects |
 | The background switch itself — the player sees the scene change, never the filename or the effect | player | ST background |
 | DriverPanel in full — Suggest / Probe / Report / Advance / Nudge, unmet gates | author | drawer footer (author view + copilot on) |
+| Judgment-model settings: status, key field, master switch, per-usage opt-ins with what each sends, self-test (v2.2) | both | settings panel (`#so-judge`, `#so-judge-key`, `#so-judge-enabled`, `#so-judge-use-*`, `#so-judge-self-test`) |
+| Judge decision sources and probabilities (`source: judge`, confidence, via), the judge call ring (v2.2) | author | drawer Scheduler tab talk decisions (author view), session journal export |
+| Roster role lines and the "missing roles" hint (v2.2) | author | Studio Roster tab (`[data-so="roster-roles-hint"]`), wizard provisioning card |
 | `/cp` in full (`list`, `state`, `activate`, `set`, `converge`, debug `extract`/`expand`) | author | slash commands |
 
 Turning **Author view** on asks for confirmation first: it is a one-way look behind the curtain
