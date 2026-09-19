@@ -185,6 +185,29 @@ either:
 The journey logs which branch ran. With variants = 2, the expansion entry shows 2 generations and
 1 pick, and the call ring holds the judge scores.
 
+### Calibration record (off-page, 2026-09-19)
+
+Production code (`src/judge/expansion.ts` + `expansionCalibration.ts`) → the real plugin handler → the
+live API, `jev-1.13.0`: `calibrate-node.mts critic|variants --record`, fixtures from
+`promote.mts critic`.
+
+| Set | Result | Floor |
+|---|---|---|
+| Critic verdict: K01–K10 plus the 30 Phase A chains, verdict at the production cuts (contradicts < 0.3, advances ≥ 0.5, new character < 0.5) | **40/40** | 1.0 |
+| Per check | contradicts 38/40, advances 39/40, new character 40/40. The three misses are all on defective chains the verdict rejects anyway: two wandering chains at contradicts 0.35, and V01's contradicting chain at advances 0.32 | 0.9 each |
+| Variant pick (code): clean chain first | **10/10** | 0.8 |
+| Contradicting chains rejected | **10/10** | 1.0 |
+
+The spike report's three critic misses were all data or label errors, and the fixture records each
+fix:
+- K02 `advances` → false: the target is to arrive *with* Luke, and the beats leave him behind.
+- K02's new-character flag was the player's own name, missing from the spike's cast. Production
+  sends the player in `cast`, so every fixture cast includes Max.
+- K06 `newCharacter` → true: Tommy Sayer is named and not in the cast.
+
+With those fixes the spike's 10/10 verdict holds, and the per-check rates go from 9/10 and 8/10 to
+10/10.
+
 ## Implementation notes
 
 - The judge never writes beats. It only accepts, rejects or ranks what the LLM wrote, and code

@@ -1,4 +1,4 @@
-import { askJudge, buildDirectorRequest, runJudgeDirectorSelfTest, runMemoryPairsCalibration, runMemoryVerifyCalibration, runSceneCalibration, type SceneCalibrationCase, runLoreCalibration, type LoreCalibrationCase, runCuratorFilterCalibration, type CuratorFilterCase, runContinuityCalibration, type ContinuityCase, runBackgroundCalibration, type BackgroundCase, runTypedCalibration, type TypedCase, runStallCalibration, type StallCase, type MemoryPairCase, type MemoryVerifyCase, type JudgeSelfTestCase, type JudgeSelfTestReport, decideDirector, directorJudgeEligible, directorRecordP, judgeUseActive, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord, type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeRequest, type JudgeResponse, type JudgeResult, type JudgeSettings, type JudgeTransport, type JudgeUseKey } from "@judge/index";
+import { askJudge, buildDirectorRequest, runJudgeDirectorSelfTest, runMemoryPairsCalibration, runMemoryVerifyCalibration, runSceneCalibration, type SceneCalibrationCase, runLoreCalibration, type LoreCalibrationCase, runCuratorFilterCalibration, type CuratorFilterCase, runContinuityCalibration, type ContinuityCase, runBackgroundCalibration, type BackgroundCase, runTypedCalibration, type TypedCase, runStallCalibration, type StallCase, runCriticCalibration, type CriticCase, runVariantCalibration, type VariantStub, type MemoryPairCase, type MemoryVerifyCase, type JudgeSelfTestCase, type JudgeSelfTestReport, decideDirector, directorJudgeEligible, directorRecordP, judgeUseActive, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord, type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeRequest, type JudgeResponse, type JudgeResult, type JudgeSettings, type JudgeTransport, type JudgeUseKey } from "@judge/index";
 
 export interface JudgeStatusLike {
   configured: boolean;
@@ -66,6 +66,8 @@ export class JudgeRuntime {
     if (use === "continuity") return runContinuityCalibration(ask, cases as ContinuityCase[]);
     if (use === "typed") return runTypedCalibration(ask, cases as TypedCase[]);
     if (use === "stall") return runStallCalibration(ask, cases as StallCase[]);
+    if (use === "critic") return runCriticCalibration(ask, cases as CriticCase[]);
+    if (use === "variants") return runVariantCalibration(ask, cases as VariantStub[]);
     if (use === "backgrounds") return runBackgroundCalibration(ask, (cases as Array<BackgroundCase & { installed?: string[] }>), (cases as Array<{ installed?: string[] }>)[0]?.installed ?? []);
     return Promise.reject(new Error(`no calibration for judge use '${use}' yet`));
   }

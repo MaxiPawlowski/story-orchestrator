@@ -1,0 +1,3803 @@
+{
+  "source": "calibrate-node critic over test/fixtures/judge/critic.json: the production question shape, real answers, replayed by jest keyed on state + questions, so a wording change must re-record",
+  "recordedAt": "2026-09-19T15:50:31.338Z",
+  "model": "jev-1.13.0",
+  "right": 157,
+  "total": 160,
+  "calls": [
+    {
+      "state": {
+        "established_facts": [
+          "Tommy Sayer is hiding at the Pier Street safehouse."
+        ],
+        "target_checkpoint": {
+          "name": "Find out who has been paying off the harbor police.",
+          "objective": "Find out who has been paying off the harbor police."
+        },
+        "cast": [
+          "Mae Hollis",
+          "Maeve",
+          "Lt. Brandt",
+          "Narrator",
+          "Max"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Mae pulls the payroll stubs at the dockmaster's office."
+          },
+          {
+            "objective": "The initials on every payment match the dockmaster's."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.89
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.17
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "The reactor was restored.",
+          "The ship's long-range antenna was torn off.",
+          "There are four escape pods on deck two."
+        ],
+        "target_checkpoint": {
+          "name": "Reach Kepler Station",
+          "objective": "Bring the damaged ship into Kepler Station's repair dock."
+        },
+        "cast": [
+          "Max",
+          "Captain Okafor",
+          "Pell",
+          "HALO"
+        ],
+        "tension_trajectory": [
+          "stirring",
+          "tense",
+          "calm"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Okafor plots the course to Kepler Station."
+          },
+          {
+            "objective": "The ship slips through an asteroid field on short-range sensors."
+          },
+          {
+            "objective": "HALO hails Kepler on short range and they dock."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.15
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "shape": {
+          "type": "score",
+          "score": 2.37,
+          "confidence": 0.13,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.08,
+            "1": 0.21,
+            "2": 0.19,
+            "3": 0.31,
+            "4": 0.21
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "Ponticius raised the reward to 500 crowns.",
+          "Max holds the Sun's Heart."
+        ],
+        "target_checkpoint": {
+          "name": "Return to the Guild",
+          "objective": "Deliver the artifact to the Guild Master and claim your reward."
+        },
+        "cast": [
+          "Max",
+          "Arin",
+          "Luke",
+          "Ponticius"
+        ],
+        "tension_trajectory": [
+          "tense",
+          "stirring",
+          "calm"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Cross the desert home with the Sun's Heart wrapped in a cloak."
+          },
+          {
+            "objective": "Enter the guild hall late at night."
+          },
+          {
+            "objective": "Set the artifact on Ponticius's counter and collect the 500 crowns."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "shape": {
+          "type": "score",
+          "score": 2.48,
+          "confidence": 0.12,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.08,
+            "1": 0.17,
+            "2": 0.21,
+            "3": 0.27,
+            "4": 0.27
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "The reactor is failing.",
+          "Pell is the ship's engineer."
+        ],
+        "target_checkpoint": {
+          "name": "Restore Main Power",
+          "objective": "Bring the reactor back online."
+        },
+        "cast": [
+          "Max",
+          "Captain Okafor",
+          "Pell",
+          "HALO"
+        ],
+        "tension_trajectory": [
+          "tense",
+          "peak",
+          "calm"
+        ],
+        "generated_beats": [
+          {
+            "objective": "The reactor has been running perfectly all week, so Pell naps."
+          },
+          {
+            "objective": "Max checks the logs."
+          },
+          {
+            "objective": "Main power comes back on."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.81
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.72
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.12
+        },
+        "shape": {
+          "type": "score",
+          "score": 0.37,
+          "confidence": 0.69,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.73,
+            "1": 0.2,
+            "2": 0.04,
+            "3": 0.02,
+            "4": 0.01
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "Ponticius raised the reward to 500 crowns.",
+          "Max holds the Sun's Heart."
+        ],
+        "target_checkpoint": {
+          "name": "Return to the Guild",
+          "objective": "Deliver the artifact to the Guild Master and claim your reward."
+        },
+        "cast": [
+          "Max",
+          "Arin",
+          "Luke",
+          "Ponticius"
+        ],
+        "tension_trajectory": [
+          "tense",
+          "stirring",
+          "calm"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Cross the desert home."
+          },
+          {
+            "objective": "Enter the guild hall."
+          },
+          {
+            "objective": "Accept the 250 crowns Ponticius first promised, since the reward never changed."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.91
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.78
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "shape": {
+          "type": "score",
+          "score": 2.03,
+          "confidence": 0,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.15,
+            "1": 0.24,
+            "2": 0.19,
+            "3": 0.26,
+            "4": 0.16
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "The reactor was restored.",
+          "The ship's long-range antenna was torn off.",
+          "There are four escape pods on deck two."
+        ],
+        "target_checkpoint": {
+          "name": "Reach Kepler Station",
+          "objective": "Bring the damaged ship into Kepler Station's repair dock."
+        },
+        "cast": [
+          "Max",
+          "Captain Okafor",
+          "Pell",
+          "HALO"
+        ],
+        "tension_trajectory": [
+          "stirring",
+          "tense",
+          "calm"
+        ],
+        "generated_beats": [
+          {
+            "objective": "HALO calls Kepler Station on long-range comms from three days out."
+          },
+          {
+            "objective": "The ship crosses the asteroid field."
+          },
+          {
+            "objective": "They dock at Kepler."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.84
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.94
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "shape": {
+          "type": "score",
+          "score": 2.11,
+          "confidence": 0,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.15,
+            "1": 0.21,
+            "2": 0.18,
+            "3": 0.28,
+            "4": 0.18
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "Ponticius raised the reward to 500 crowns.",
+          "Max holds the Sun's Heart."
+        ],
+        "target_checkpoint": {
+          "name": "Return to the Guild",
+          "objective": "Deliver the artifact to the Guild Master and claim your reward."
+        },
+        "cast": [
+          "Max",
+          "Arin",
+          "Luke",
+          "Ponticius"
+        ],
+        "tension_trajectory": [
+          "tense",
+          "stirring",
+          "calm"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Sell the Sun's Heart to a stranger at an oasis."
+          },
+          {
+            "objective": "Travel north to a different city."
+          },
+          {
+            "objective": "Open a tavern with the money."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.35
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "shape": {
+          "type": "score",
+          "score": 1.61,
+          "confidence": 0,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.33,
+            "1": 0.22,
+            "2": 0.09,
+            "3": 0.24,
+            "4": 0.12
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "Luke joined the expedition.",
+          "A sphinx guards the gate of the Sun Ruins.",
+          "Arin carries a curved blade."
+        ],
+        "target_checkpoint": {
+          "name": "Travel with Luke",
+          "objective": "Reach the Sun Ruins with Luke and face the sphinx's riddle."
+        },
+        "cast": [
+          "Max",
+          "Arin",
+          "Luke",
+          "Ponticius"
+        ],
+        "tension_trajectory": [
+          "calm",
+          "stirring",
+          "tense"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Leave town at dawn while Luke stays home with their mother."
+          },
+          {
+            "objective": "Cross the dunes with Arin alone."
+          },
+          {
+            "objective": "Arrive at the ruins, where the sphinx waits at the gate."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.89
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.32
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "shape": {
+          "type": "score",
+          "score": 2.75,
+          "confidence": 0.33,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.03,
+            "1": 0.14,
+            "2": 0.17,
+            "3": 0.39,
+            "4": 0.27
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "The reactor is failing.",
+          "Pell is the ship's engineer."
+        ],
+        "target_checkpoint": {
+          "name": "Restore Main Power",
+          "objective": "Bring the reactor back online."
+        },
+        "cast": [
+          "Max",
+          "Captain Okafor",
+          "Pell",
+          "HALO"
+        ],
+        "tension_trajectory": [
+          "tense",
+          "peak",
+          "calm"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Pell traces the fault to coolant loop two."
+          },
+          {
+            "objective": "Max holds the valve while Pell bypasses the loop as the heat climbs."
+          },
+          {
+            "objective": "The reactor settles and main power comes back."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.98
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "shape": {
+          "type": "score",
+          "score": 2.72,
+          "confidence": 0,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.03,
+            "1": 0.17,
+            "2": 0.2,
+            "3": 0.26,
+            "4": 0.34
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "The portraits move because of a mechanism Graves works from behind the walls.",
+          "Lady Ashworth is selling the house."
+        ],
+        "target_checkpoint": {
+          "name": "Confront Graves",
+          "objective": "Make Graves admit why he scared off the buyers."
+        },
+        "cast": [
+          "Max",
+          "Lady Ashworth",
+          "Graves"
+        ],
+        "tension_trajectory": [
+          "calm",
+          "stirring",
+          "tense"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Max finds the lever hidden behind the gallery wall."
+          },
+          {
+            "objective": "Max waits for Graves in the servants' corridor."
+          },
+          {
+            "objective": "Graves admits he wanted to keep the house in the family."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.94
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "shape": {
+          "type": "score",
+          "score": 2.32,
+          "confidence": 0,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.05,
+            "1": 0.28,
+            "2": 0.19,
+            "3": 0.27,
+            "4": 0.21
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "Brandt fue arrestado por Asuntos Internos.",
+          "Doyle, el jefe del puerto, pagaba a la policía."
+        ],
+        "target_checkpoint": {
+          "name": "Atrapar a Doyle",
+          "objective": "Arrest the harbor master before he flees."
+        },
+        "cast": [
+          "Max",
+          "Mae Hollis",
+          "Maeve",
+          "Lt. Brandt",
+          "Doyle"
+        ],
+        "tension_trajectory": [
+          "stirring",
+          "tense",
+          "peak"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Max y Mae van a cenar al Blue Anchor."
+          },
+          {
+            "objective": "Escuchan a Maeve cantar toda la noche."
+          },
+          {
+            "objective": "Se toman el fin de semana libre."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.15
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.16
+        },
+        "shape": {
+          "type": "score",
+          "score": 0.02,
+          "confidence": 0.98,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.99,
+            "1": 0.01,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "Pell's left arm is in a sling."
+        ],
+        "target_checkpoint": {
+          "name": "Stabilize the reactor and seal the breach before the ship loses air.",
+          "objective": "Stabilize the reactor and seal the breach before the ship loses air."
+        },
+        "cast": [
+          "Captain Okafor",
+          "Pell",
+          "HALO",
+          "Narrator",
+          "Max"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Pell swings from the overhead pipes with both arms to reach the valve."
+          },
+          {
+            "objective": "The reactor finally settles."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.94
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.77
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.05
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [],
+        "target_checkpoint": {
+          "name": "Stabilize the reactor and seal the breach before the ship loses air.",
+          "objective": "Stabilize the reactor and seal the breach before the ship loses air."
+        },
+        "cast": [
+          "Captain Okafor",
+          "Pell",
+          "HALO",
+          "Narrator",
+          "Max"
+        ],
+        "generated_beats": [
+          {
+            "objective": "The crew argues about who is to blame."
+          },
+          {
+            "objective": "Okafor locks herself in her quarters."
+          },
+          {
+            "objective": "HALO plays old music over the intercom."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.07
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "Luke travels with the party.",
+          "The party left the guild at dawn."
+        ],
+        "target_checkpoint": {
+          "name": "Reach the Sun Ruins with Luke and face the sphinx's riddle.",
+          "objective": "Reach the Sun Ruins with Luke and face the sphinx's riddle."
+        },
+        "cast": [
+          "DM Narrator",
+          "Arin",
+          "Ponticius",
+          "Luke",
+          "Max"
+        ],
+        "generated_beats": [
+          {
+            "objective": "The party crosses the salt flats on the first day."
+          },
+          {
+            "objective": "A sandstorm forces them to shelter in a ruined watchtower; Luke keeps the fire going."
+          },
+          {
+            "objective": "At dawn the Sun Ruins' gate appears on the horizon, the sphinx waiting before it."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.06
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "Arin has distrusted Max since he lied about the map.",
+          "The Sun Ruins contract is signed."
+        ],
+        "target_checkpoint": {
+          "name": "Departure Preparations",
+          "objective": "Decide whether to take Luke along before departing for the Sun Ruins."
+        },
+        "cast": [
+          "Max",
+          "Arin",
+          "Luke"
+        ],
+        "tension_trajectory": [
+          "calm",
+          "calm",
+          "stirring"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Spend the day fishing at the harbor."
+          },
+          {
+            "objective": "Visit an old friend in the next town over."
+          },
+          {
+            "objective": "Forget about the contract for a while."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.19
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "shape": {
+          "type": "score",
+          "score": 0.27,
+          "confidence": 0.77,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.86,
+            "1": 0.06,
+            "2": 0.03,
+            "3": 0.03,
+            "4": 0.02
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "The sphinx's riddle was answered wrong.",
+          "The front gate of the ruins collapsed.",
+          "Arin is wounded and bleeding."
+        ],
+        "target_checkpoint": {
+          "name": "Find the Artifact",
+          "objective": "Recover the Sun's Heart Artifact from the inner chamber."
+        },
+        "cast": [
+          "Max",
+          "Arin",
+          "Luke"
+        ],
+        "tension_trajectory": [
+          "stirring",
+          "tense",
+          "peak"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Camp outside the ruins for a week while Arin heals."
+          },
+          {
+            "objective": "Hunt sand lizards for food."
+          },
+          {
+            "objective": "Decide to go back to the guild empty-handed."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "shape": {
+          "type": "score",
+          "score": 0.19,
+          "confidence": 0.84,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.87,
+            "1": 0.1,
+            "2": 0.01,
+            "3": 0.01,
+            "4": 0.01
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "El libro de cuentas apareció en la lavandería de Pike Street.",
+          "Maeve es la informante."
+        ],
+        "target_checkpoint": {
+          "name": "Proteger a Maeve",
+          "objective": "Get Maeve out of the city safely."
+        },
+        "cast": [
+          "Max",
+          "Mae Hollis",
+          "Maeve",
+          "Doyle"
+        ],
+        "tension_trajectory": [
+          "tense",
+          "tense",
+          "calm"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Siguen buscando el libro de cuentas, que nadie ha encontrado todavía."
+          },
+          {
+            "objective": "Mae esconde a Maeve."
+          },
+          {
+            "objective": "Suben a Maeve al tren."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.39
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.9
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.13
+        },
+        "shape": {
+          "type": "score",
+          "score": 2.71,
+          "confidence": 0,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.07,
+            "1": 0.15,
+            "2": 0.13,
+            "3": 0.3,
+            "4": 0.35
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "Brandt fue arrestado por Asuntos Internos.",
+          "Doyle, el jefe del puerto, pagaba a la policía."
+        ],
+        "target_checkpoint": {
+          "name": "Atrapar a Doyle",
+          "objective": "Arrest the harbor master before he flees."
+        },
+        "cast": [
+          "Max",
+          "Mae Hollis",
+          "Maeve",
+          "Lt. Brandt",
+          "Doyle"
+        ],
+        "tension_trajectory": [
+          "stirring",
+          "tense",
+          "peak"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Max y Mae buscan a Doyle en la oficina del puerto."
+          },
+          {
+            "objective": "Descubren que huye hacia su lancha en el muelle doce."
+          },
+          {
+            "objective": "Lo alcanzan en el muelle y lo arrestan."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.97
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "shape": {
+          "type": "score",
+          "score": 2.95,
+          "confidence": 0.34,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.02,
+            "1": 0.11,
+            "2": 0.13,
+            "3": 0.37,
+            "4": 0.37
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "Luke joined the expedition.",
+          "A sphinx guards the gate of the Sun Ruins.",
+          "Arin carries a curved blade."
+        ],
+        "target_checkpoint": {
+          "name": "Travel with Luke",
+          "objective": "Reach the Sun Ruins with Luke and face the sphinx's riddle."
+        },
+        "cast": [
+          "Max",
+          "Arin",
+          "Luke",
+          "Ponticius"
+        ],
+        "tension_trajectory": [
+          "calm",
+          "stirring",
+          "tense"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Leave town at dawn with Luke and Arin."
+          },
+          {
+            "objective": "Cross the dunes; Luke struggles in the heat and Arin shares her water."
+          },
+          {
+            "objective": "Arrive at the ruins, where the sphinx waits at the gate with its riddle."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.97
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "shape": {
+          "type": "score",
+          "score": 3.35,
+          "confidence": 0.46,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0.04,
+            "2": 0.06,
+            "3": 0.4,
+            "4": 0.49
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "Tommy Sayer testified in court yesterday and is now under police protection."
+        ],
+        "target_checkpoint": {
+          "name": "Find out who has been paying off the harbor police.",
+          "objective": "Find out who has been paying off the harbor police."
+        },
+        "cast": [
+          "Mae Hollis",
+          "Maeve",
+          "Lt. Brandt",
+          "Narrator",
+          "Max"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Tommy Sayer, still waiting to testify, hides in Maeve's attic."
+          },
+          {
+            "objective": "Maeve lets slip that Brandt collects the payoffs."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.82
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.9
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.72
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "Luke joined the expedition.",
+          "A sphinx guards the gate of the Sun Ruins.",
+          "Arin carries a curved blade."
+        ],
+        "target_checkpoint": {
+          "name": "Travel with Luke",
+          "objective": "Reach the Sun Ruins with Luke and face the sphinx's riddle."
+        },
+        "cast": [
+          "Max",
+          "Arin",
+          "Luke",
+          "Ponticius"
+        ],
+        "tension_trajectory": [
+          "calm",
+          "stirring",
+          "tense"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Stop at a desert market to trade trinkets."
+          },
+          {
+            "objective": "Spend three days gambling at a caravan camp."
+          },
+          {
+            "objective": "Ride back toward town to buy new boots."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.17
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "shape": {
+          "type": "score",
+          "score": 0.4,
+          "confidence": 0.67,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.74,
+            "1": 0.17,
+            "2": 0.05,
+            "3": 0.03,
+            "4": 0.01
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "Luke travels with the party."
+        ],
+        "target_checkpoint": {
+          "name": "Reach the Sun Ruins with Luke and face the sphinx's riddle.",
+          "objective": "Reach the Sun Ruins with Luke and face the sphinx's riddle."
+        },
+        "cast": [
+          "DM Narrator",
+          "Arin",
+          "Ponticius",
+          "Luke",
+          "Max"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Captain Varro of the Desert Legion joins the party at the oasis and offers to guide them."
+          },
+          {
+            "objective": "Varro leads them through a hidden canyon."
+          },
+          {
+            "objective": "The Sun Ruins' gate comes into view."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.94
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.98
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "The family records were found in the library.",
+          "The estate carriage leaves at sunset."
+        ],
+        "target_checkpoint": {
+          "name": "Leave the Manor",
+          "objective": "Pack and leave Ashworth Hall before nightfall."
+        },
+        "cast": [
+          "Max",
+          "Lady Ashworth",
+          "Graves"
+        ],
+        "tension_trajectory": [
+          "calm",
+          "stirring",
+          "calm"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Max searches the house for the family records, which have never been found."
+          },
+          {
+            "objective": "Lady Ashworth gives a cold farewell."
+          },
+          {
+            "objective": "Max boards the carriage at sunset."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.52
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.92
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "shape": {
+          "type": "score",
+          "score": 1.58,
+          "confidence": 0.35,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.1,
+            "1": 0.52,
+            "2": 0.16,
+            "3": 0.14,
+            "4": 0.08
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "Pell's left arm is in a sling."
+        ],
+        "target_checkpoint": {
+          "name": "Stabilize the reactor and seal the breach before the ship loses air.",
+          "objective": "Stabilize the reactor and seal the breach before the ship loses air."
+        },
+        "cast": [
+          "Captain Okafor",
+          "Pell",
+          "HALO",
+          "Narrator",
+          "Max"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Pell reroutes coolant one-handed while HALO balances the load."
+          },
+          {
+            "objective": "Containment holds, and a repair drone welds the breach shut."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.09
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "The sphinx's riddle was answered wrong.",
+          "The front gate of the ruins collapsed.",
+          "Arin is wounded and bleeding."
+        ],
+        "target_checkpoint": {
+          "name": "Find the Artifact",
+          "objective": "Recover the Sun's Heart Artifact from the inner chamber."
+        },
+        "cast": [
+          "Max",
+          "Arin",
+          "Luke"
+        ],
+        "tension_trajectory": [
+          "stirring",
+          "tense",
+          "peak"
+        ],
+        "generated_beats": [
+          {
+            "objective": "The sphinx, pleased with their answer, opens the front gate for them."
+          },
+          {
+            "objective": "Walk down the grand hall past painted columns."
+          },
+          {
+            "objective": "Reach the inner chamber and see the Sun's Heart."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.93
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.86
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.24
+        },
+        "shape": {
+          "type": "score",
+          "score": 0.84,
+          "confidence": 0.3,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.56,
+            "1": 0.21,
+            "2": 0.11,
+            "3": 0.08,
+            "4": 0.04
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "The family records were found in the library.",
+          "The estate carriage leaves at sunset."
+        ],
+        "target_checkpoint": {
+          "name": "Leave the Manor",
+          "objective": "Pack and leave Ashworth Hall before nightfall."
+        },
+        "cast": [
+          "Max",
+          "Lady Ashworth",
+          "Graves"
+        ],
+        "tension_trajectory": [
+          "calm",
+          "stirring",
+          "calm"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Max packs the family records into his bag."
+          },
+          {
+            "objective": "Lady Ashworth gives a cold farewell in the hall."
+          },
+          {
+            "objective": "Max boards the carriage at sunset."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.95
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "shape": {
+          "type": "score",
+          "score": 1.63,
+          "confidence": 0.3,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.1,
+            "1": 0.51,
+            "2": 0.16,
+            "3": 0.12,
+            "4": 0.11
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "The portraits move because of a mechanism Graves works from behind the walls.",
+          "Lady Ashworth is selling the house."
+        ],
+        "target_checkpoint": {
+          "name": "Confront Graves",
+          "objective": "Make Graves admit why he scared off the buyers."
+        },
+        "cast": [
+          "Max",
+          "Lady Ashworth",
+          "Graves"
+        ],
+        "tension_trajectory": [
+          "calm",
+          "stirring",
+          "tense"
+        ],
+        "generated_beats": [
+          {
+            "objective": "At midnight a real ghost moves the portraits while everyone watches."
+          },
+          {
+            "objective": "Max follows the ghost to the attic."
+          },
+          {
+            "objective": "Graves admits he knew about the ghost."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.58
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.77
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "shape": {
+          "type": "score",
+          "score": 2.28,
+          "confidence": 0,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.06,
+            "1": 0.26,
+            "2": 0.22,
+            "3": 0.25,
+            "4": 0.21
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "El libro de cuentas apareció en la lavandería de Pike Street.",
+          "Maeve es la informante."
+        ],
+        "target_checkpoint": {
+          "name": "Proteger a Maeve",
+          "objective": "Get Maeve out of the city safely."
+        },
+        "cast": [
+          "Max",
+          "Mae Hollis",
+          "Maeve",
+          "Doyle"
+        ],
+        "tension_trajectory": [
+          "tense",
+          "tense",
+          "calm"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Mae esconde a Maeve en su apartamento."
+          },
+          {
+            "objective": "Los hombres de Doyle vigilan la estación de tren."
+          },
+          {
+            "objective": "Suben a Maeve al tren de medianoche sin que la vean."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.92
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.19
+        },
+        "shape": {
+          "type": "score",
+          "score": 2.15,
+          "confidence": 0,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.12,
+            "1": 0.26,
+            "2": 0.19,
+            "3": 0.22,
+            "4": 0.21
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "Luke travels with the party."
+        ],
+        "target_checkpoint": {
+          "name": "Reach the Sun Ruins with Luke and face the sphinx's riddle.",
+          "objective": "Reach the Sun Ruins with Luke and face the sphinx's riddle."
+        },
+        "cast": [
+          "DM Narrator",
+          "Arin",
+          "Ponticius",
+          "Luke",
+          "Max"
+        ],
+        "generated_beats": [
+          {
+            "objective": "The party returns to the guild to renegotiate the fee."
+          },
+          {
+            "objective": "Ponticius refuses to budge."
+          },
+          {
+            "objective": "They spend the evening drinking in the common room."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.12
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.06
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "The family records were found in the library.",
+          "The estate carriage leaves at sunset."
+        ],
+        "target_checkpoint": {
+          "name": "Leave the Manor",
+          "objective": "Pack and leave Ashworth Hall before nightfall."
+        },
+        "cast": [
+          "Max",
+          "Lady Ashworth",
+          "Graves"
+        ],
+        "tension_trajectory": [
+          "calm",
+          "stirring",
+          "calm"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Max decides to stay another month."
+          },
+          {
+            "objective": "Max helps Graves repaint the gallery."
+          },
+          {
+            "objective": "Max misses the carriage on purpose."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.35
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "shape": {
+          "type": "score",
+          "score": 1.33,
+          "confidence": 0,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.37,
+            "1": 0.29,
+            "2": 0.11,
+            "3": 0.11,
+            "4": 0.12
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "The reactor was restored.",
+          "The ship's long-range antenna was torn off.",
+          "There are four escape pods on deck two."
+        ],
+        "target_checkpoint": {
+          "name": "Reach Kepler Station",
+          "objective": "Bring the damaged ship into Kepler Station's repair dock."
+        },
+        "cast": [
+          "Max",
+          "Captain Okafor",
+          "Pell",
+          "HALO"
+        ],
+        "tension_trajectory": [
+          "stirring",
+          "tense",
+          "calm"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Stop to salvage a derelict freighter."
+          },
+          {
+            "objective": "Land to explore an uncharted moon."
+          },
+          {
+            "objective": "Turn around and head for Earth."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.15
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "shape": {
+          "type": "score",
+          "score": 1.08,
+          "confidence": 0.1,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.47,
+            "1": 0.23,
+            "2": 0.13,
+            "3": 0.1,
+            "4": 0.07
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "Graves is loyal to Lady Ashworth."
+        ],
+        "target_checkpoint": {
+          "name": "Discover why the Ashworth portraits keep moving.",
+          "objective": "Discover why the Ashworth portraits keep moving."
+        },
+        "cast": [
+          "Lady Ashworth",
+          "Graves",
+          "Narrator",
+          "Max"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Max hides behind the gallery curtain at midnight."
+          },
+          {
+            "objective": "Dr. Pembrooke, the family physician, creeps in and turns the portrait of Lord Ashworth."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.88
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.98
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "The sphinx's riddle was answered wrong.",
+          "The front gate of the ruins collapsed.",
+          "Arin is wounded and bleeding."
+        ],
+        "target_checkpoint": {
+          "name": "Find the Artifact",
+          "objective": "Recover the Sun's Heart Artifact from the inner chamber."
+        },
+        "cast": [
+          "Max",
+          "Arin",
+          "Luke"
+        ],
+        "tension_trajectory": [
+          "stirring",
+          "tense",
+          "peak"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Crawl through a side tunnel while Arin presses a cloth to her wound."
+          },
+          {
+            "objective": "Dodge falling stones in the collapsing corridor."
+          },
+          {
+            "objective": "Reach the inner chamber and see the Sun's Heart on its altar."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "shape": {
+          "type": "score",
+          "score": 2.86,
+          "confidence": 0.05,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.02,
+            "1": 0.14,
+            "2": 0.18,
+            "3": 0.28,
+            "4": 0.38
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "Luke travels with the party.",
+          "The party left the guild at dawn."
+        ],
+        "target_checkpoint": {
+          "name": "Reach the Sun Ruins with Luke and face the sphinx's riddle.",
+          "objective": "Reach the Sun Ruins with Luke and face the sphinx's riddle."
+        },
+        "cast": [
+          "DM Narrator",
+          "Arin",
+          "Ponticius",
+          "Luke",
+          "Max"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Luke stays behind at the guild to help Ponticius sort contracts."
+          },
+          {
+            "objective": "Max and Arin cross the salt flats alone."
+          },
+          {
+            "objective": "The sphinx's gate rises from the sand."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.24
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.07
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "The reactor is failing.",
+          "Pell is the ship's engineer."
+        ],
+        "target_checkpoint": {
+          "name": "Restore Main Power",
+          "objective": "Bring the reactor back online."
+        },
+        "cast": [
+          "Max",
+          "Captain Okafor",
+          "Pell",
+          "HALO"
+        ],
+        "tension_trajectory": [
+          "tense",
+          "peak",
+          "calm"
+        ],
+        "generated_beats": [
+          {
+            "objective": "The crew throws a birthday party in the galley."
+          },
+          {
+            "objective": "Max plays cards with HALO."
+          },
+          {
+            "objective": "Everyone goes to sleep."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.28
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "shape": {
+          "type": "score",
+          "score": 0.19,
+          "confidence": 0.85,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.87,
+            "1": 0.08,
+            "2": 0.03,
+            "3": 0.01,
+            "4": 0.01
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "El libro de cuentas apareció en la lavandería de Pike Street.",
+          "Maeve es la informante."
+        ],
+        "target_checkpoint": {
+          "name": "Proteger a Maeve",
+          "objective": "Get Maeve out of the city safely."
+        },
+        "cast": [
+          "Max",
+          "Mae Hollis",
+          "Maeve",
+          "Doyle"
+        ],
+        "tension_trajectory": [
+          "tense",
+          "tense",
+          "calm"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Max investiga un robo de joyas sin relación."
+          },
+          {
+            "objective": "Mae se toma unas vacaciones."
+          },
+          {
+            "objective": "Maeve vuelve a cantar en el club como si nada."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.18
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.2
+        },
+        "shape": {
+          "type": "score",
+          "score": 0.92,
+          "confidence": 0.24,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.45,
+            "1": 0.34,
+            "2": 0.11,
+            "3": 0.07,
+            "4": 0.03
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "Brandt fue arrestado por Asuntos Internos.",
+          "Doyle, el jefe del puerto, pagaba a la policía."
+        ],
+        "target_checkpoint": {
+          "name": "Atrapar a Doyle",
+          "objective": "Arrest the harbor master before he flees."
+        },
+        "cast": [
+          "Max",
+          "Mae Hollis",
+          "Maeve",
+          "Lt. Brandt",
+          "Doyle"
+        ],
+        "tension_trajectory": [
+          "stirring",
+          "tense",
+          "peak"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Brandt, todavía al mando de la policía del puerto, avisa a Doyle."
+          },
+          {
+            "objective": "Doyle escapa por la puerta de atrás."
+          },
+          {
+            "objective": "Max y Mae lo alcanzan en el muelle."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.84
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.82
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "shape": {
+          "type": "score",
+          "score": 3.14,
+          "confidence": 0.28,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.02,
+            "1": 0.08,
+            "2": 0.09,
+            "3": 0.39,
+            "4": 0.42
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "Arin has distrusted Max since he lied about the map.",
+          "The Sun Ruins contract is signed."
+        ],
+        "target_checkpoint": {
+          "name": "Departure Preparations",
+          "objective": "Decide whether to take Luke along before departing for the Sun Ruins."
+        },
+        "cast": [
+          "Max",
+          "Arin",
+          "Luke"
+        ],
+        "tension_trajectory": [
+          "calm",
+          "calm",
+          "stirring"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Pack supplies while Arin says she trusts Max completely and always has."
+          },
+          {
+            "objective": "Luke begs to come along."
+          },
+          {
+            "objective": "Max decides whether Luke comes on the journey."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.94
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.79
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "shape": {
+          "type": "score",
+          "score": 1.41,
+          "confidence": 0.37,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.17,
+            "1": 0.47000000000000003,
+            "2": 0.19,
+            "3": 0.13,
+            "4": 0.04
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "The portraits move because of a mechanism Graves works from behind the walls.",
+          "Lady Ashworth is selling the house."
+        ],
+        "target_checkpoint": {
+          "name": "Confront Graves",
+          "objective": "Make Graves admit why he scared off the buyers."
+        },
+        "cast": [
+          "Max",
+          "Lady Ashworth",
+          "Graves"
+        ],
+        "tension_trajectory": [
+          "calm",
+          "stirring",
+          "tense"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Max tours the rose garden."
+          },
+          {
+            "objective": "Max reads botany books in the library."
+          },
+          {
+            "objective": "Max naps in the guest room."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "shape": {
+          "type": "score",
+          "score": 0.11,
+          "confidence": 0.91,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.95,
+            "1": 0.02,
+            "2": 0.01,
+            "3": 0.01,
+            "4": 0.01
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": [
+          "Arin has distrusted Max since he lied about the map.",
+          "The Sun Ruins contract is signed."
+        ],
+        "target_checkpoint": {
+          "name": "Departure Preparations",
+          "objective": "Decide whether to take Luke along before departing for the Sun Ruins."
+        },
+        "cast": [
+          "Max",
+          "Arin",
+          "Luke"
+        ],
+        "tension_trajectory": [
+          "calm",
+          "calm",
+          "stirring"
+        ],
+        "generated_beats": [
+          {
+            "objective": "Pack supplies at home while Luke begs to come along."
+          },
+          {
+            "objective": "Arin argues coldly with Max, still sore about the map lie."
+          },
+          {
+            "objective": "Max decides whether Luke comes on the journey."
+          }
+        ]
+      },
+      "questions": {
+        "contradicts": {
+          "type": "noul",
+          "instructions": "Does any beat in `generated_beats` contradict one of `established_facts`?",
+          "criteria": {
+            "true": "A beat shows something an established fact rules out",
+            "false": "Every beat is compatible with every established fact"
+          }
+        },
+        "advances": {
+          "type": "noul",
+          "instructions": "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+          "criteria": {
+            "true": "The beats end at or clearly closer to the target",
+            "false": "The beats wander, go backwards, or make the target impossible"
+          }
+        },
+        "newCharacter": {
+          "type": "noul",
+          "instructions": "Do `generated_beats` bring in a named character who is not in `cast`?",
+          "criteria": {
+            "true": "A new named person appears in a beat",
+            "false": "Only cast members or unnamed people appear"
+          }
+        },
+        "shape": {
+          "type": "score",
+          "instructions": "How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?",
+          "criteria": [
+            "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "The beats follow the trajectory in one place and break it elsewhere",
+            "The beats roughly follow the trajectory, with one step out of place",
+            "The beats follow the trajectory closely, each step close to its target level",
+            "The beats match the trajectory step for step"
+          ]
+        }
+      },
+      "answers": {
+        "contradicts": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "advances": {
+          "type": "noul",
+          "noul": 0.88
+        },
+        "newCharacter": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "shape": {
+          "type": "score",
+          "score": 2.37,
+          "confidence": 0.2,
+          "legend": {
+            "0": "The beats ignore the trajectory: their tension runs the opposite way or stays flat where it should move",
+            "1": "The beats follow the trajectory in one place and break it elsewhere",
+            "2": "The beats roughly follow the trajectory, with one step out of place",
+            "3": "The beats follow the trajectory closely, each step close to its target level",
+            "4": "The beats match the trajectory step for step"
+          },
+          "probabilities": {
+            "0": 0.02,
+            "1": 0.23,
+            "2": 0.29,
+            "3": 0.3,
+            "4": 0.16
+          }
+        }
+      }
+    }
+  ]
+}

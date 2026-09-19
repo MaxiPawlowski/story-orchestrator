@@ -8,7 +8,7 @@ import { expectedFinal, loadData, loadFixtureCases, loadHardCases, msgId, worlds
 register('./lib/loader.mts', import.meta.url);
 const { worldForSpeakers } = await import('./lib/sharedRead.mts');
 
-const USAGE = `Usage: node --no-warnings --experimental-transform-types scripts/spike/typesafe/promote.mts scene|scene-holdout|lore|lore-holdout|curator-filter|continuity|continuity-holdout|backgrounds|typed|stall
+const USAGE = `Usage: node --no-warnings --experimental-transform-types scripts/spike/typesafe/promote.mts scene|scene-holdout|lore|lore-holdout|curator-filter|continuity|continuity-holdout|backgrounds|typed|stall|critic
 
 Promotes Phase A spike data to a production calibration fixture in test/fixtures/judge/. The rows
 carry the production input (src/judge SceneReadInput) plus the labels written before any answer
@@ -258,6 +258,39 @@ function stall() {
   console.log(`${rows.length} stall cases, ${rows.reduce((sum, row) => sum + row.leaves.length, 0)} leaves`);
 }
 
+function critic() {
+  const cases = loadData<Array<{ id: string; target: string; roster: string[]; facts: string[]; beats: string[]; labels: { contradicts: boolean; advances: boolean; newCharacter: boolean } }>>('critic.json');
+  const relabel: Record<string, Partial<{ contradicts: boolean; advances: boolean; newCharacter: boolean }>> = { K02: { advances: false }, K06: { newCharacter: true } };
+  const rows = cases.map((entry) => ({
+    id: entry.id,
+    lang: 'en',
+    input: { facts: entry.facts, target: { name: entry.target, objective: entry.target }, cast: [...new Set([...entry.roster, 'Max'])], beats: entry.beats.map((objective) => ({ objective })) },
+    labels: { ...entry.labels, ...(relabel[entry.id] ?? {}) },
+  }));
+  const stubs = loadData<{ stubs: Array<{ id: string; lang: string; facts: string[]; target: { name: string; objective: string }; cast: string[]; trajectory: string[]; chains: Array<{ label: string; beats: string[] }> }> }>('variants.json').stubs;
+  const variantRows = stubs.flatMap((stub) => stub.chains.map((chain) => ({
+    id: `${stub.id}-${chain.label}`,
+    lang: stub.lang,
+    input: { facts: stub.facts, target: stub.target, cast: stub.cast, trajectory: stub.trajectory, beats: chain.beats.map((objective) => ({ objective })) },
+    labels: { contradicts: chain.label === 'contradicts', advances: chain.label !== 'wanders', newCharacter: false },
+  })));
+  writeFileSync(join(PROJECT_ROOT, 'test', 'fixtures', 'judge', 'critic.json'), `${JSON.stringify({
+    use: 'critic',
+    floors: { verdict: 1, contradicts: 0.9, advances: 0.9, newCharacter: 0.9 },
+    labelledAt: '2026-09-19',
+    source: 'Spike K01-K10 (scripts/spike/typesafe/data/critic.json) relabelled where the spike report showed a label error: K02 advances=false (the target is to arrive WITH Luke, and the beats leave him behind), K06 newCharacter=true (Tommy Sayer is named and not in the cast); the player Max joins every cast, as production sends the player (the spike\u2019s K02 new-character flag was the player\u2019s own name). Plus the Phase A chains (V01-V10 x clean/contradicts/wanders; a wandering chain is labelled advances=false).',
+    rows: [...rows, ...variantRows],
+  }, null, 2)}\n`);
+  writeFileSync(join(PROJECT_ROOT, 'test', 'fixtures', 'judge', 'variants.json'), `${JSON.stringify({
+    use: 'variants',
+    floors: { pick: 0.8, rejected: 1 },
+    labelledAt: '2026-09-19',
+    source: 'Phase A stubs (scripts/spike/typesafe/data/variants.json), 3 hand-written chains each: clean, contradicting a fact, wandering. pick = code picks the clean chain; rejected = the contradicting chain fails the verdict at CRITIC_CONTRADICTS_MAX.',
+    rows: stubs.map((stub) => ({ id: stub.id, lang: stub.lang, base: { facts: stub.facts, target: stub.target, cast: stub.cast, trajectory: stub.trajectory }, chains: stub.chains.map((chain) => ({ label: chain.label, beats: chain.beats.map((objective) => ({ objective })) })) })),
+  }, null, 2)}\n`);
+  console.log(`${rows.length + variantRows.length} critic rows, ${stubs.length} variant stubs`);
+}
+
 const [command] = process.argv.slice(2);
 if (command === 'scene') scene();
 else if (command === 'scene-holdout') scene(true);
@@ -274,4 +307,5 @@ else if (command === 'continuity-holdout') {
 else if (command === 'backgrounds') backgrounds();
 else if (command === 'typed') typed();
 else if (command === 'stall') stall();
+else if (command === 'critic') critic();
 else console.log(USAGE);
