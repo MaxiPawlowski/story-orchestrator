@@ -83,6 +83,31 @@ includes a Spanish slice of ≥ 4.
 
 Record the numbers in this plan's Gate record, and state a threshold per family.
 
+**Measured 2026-09-19** (`run.mts --only scene-read`, `jev-1.13.0`; data
+`scripts/spike/typesafe/data/scene-read.json`, labels written before any answer was read):
+
+| Family | Result | Floor | Build? |
+|---|---|---|---|
+| Presence | 52/53 per member at 0.5, AUROC 1.00; Spanish 13/13 | ≥ 0.9 | **yes** (`PRESENT_P` 0.7) |
+| Location | 19/21 exact | ≥ 0.85 | **yes** |
+| Time of day | 21/21 exact, 21/21 within one bucket | ≥ 0.8 / ≥ 0.95 | **yes** |
+| Look-ahead | AUROC 1.00; p ≥ 0.7 right 18/20 | AUROC ≥ 0.8, ≥ 0.85 | **yes** (`HEADING_P` 0.7) |
+| OOC | 88% on 24; 3 false positives among 12 in-character (0/21 on the windows' own last messages) | ≥ 0.9, ≤ 1 per 12 | **no** — below both floors |
+| scene_break inside the full state | 22/22 at 0.5, AUROC 1.00 | 22/22 | **yes** |
+
+What the misses say:
+- **Location.** R08 ends with Max leaving the bridge for the pod bay, so the judge's `elsewhere`
+  (0.78) is defensible and the label is ambiguous. R03's miss sat at 0.44, below
+  `SCENE_FIELD_CONFIDENCE`, so it would not have been shown.
+- **Look-ahead.** Both confident misses (R02, R04) were "moving toward Find the Artifact" while the
+  party travelled toward it. The question cannot tell the next checkpoint from a later one on the
+  same path. Plan 07's pre-generation already restricts candidates to one hop ahead; the author-view
+  row shows only 1-hop checkpoints for the same reason.
+- **OOC.** The false positives are in-character commands that read like meta ("HALO, describe the
+  room. Every sensor reading." at 0.82; "Continue the story, old man…" at 0.51). The OOC consumer
+  and `judge.uses.sceneOoc` are **not built** in v2.2. That is a v2.3 seed, with a question that
+  also sees the addressee list.
+
 ### Pure core: `src/judge/scene.ts`
 
 - `buildSceneReadQuestions(input)` makes one fan-out call per boundary. It includes only the
