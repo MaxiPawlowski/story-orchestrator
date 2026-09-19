@@ -80,7 +80,7 @@ const answer = (request: JudgeRequest): JudgeResponse => {
     const older = String(request.state.older_note);
     const newer = String(request.state.newer_note);
     const duplicate = older.includes("crowns") && newer.includes("crowns");
-    return { model: "jev-1.13.0", answers: { relation: { type: "choice", choice: duplicate ? "duplicate" : "distinct", confidence: 0.9, probabilities: {} } } };
+    return { model: "jev-1.13.0", answers: { relation: { type: "choice", choice: duplicate ? "duplicate" : "update", confidence: 0.9, probabilities: {} }, same_thing: { type: "noul", noul: duplicate ? 0.95 : 0.1 } } };
   }
   const answers = Object.fromEntries(Object.entries(request.questions).map(([id, question]) => {
     const line = Object.keys(VERIFY_P).find((text) => question.instructions.includes(text));

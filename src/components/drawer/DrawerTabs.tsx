@@ -249,12 +249,32 @@ const MemoryTab = ({ snapshot, manager, authorView }: { snapshot: RuntimeSnapsho
       })}
       {authorView && (
         <>
+          <NotStoredPanel snapshot={snapshot} manager={manager} />
           <ArcCanonPanel snapshot={snapshot} manager={manager} />
           <EpistemicPanel snapshot={snapshot} manager={manager} />
           <LedgerPanel snapshot={snapshot} manager={manager} />
         </>
       )}
     </div>
+  );
+};
+
+// v2.2 plan 02: lines the judgment model found no support for, kept here instead of in memory. The
+// author can store one anyway; it goes in at its judged confidence.
+const NotStoredPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: RuntimeManager }) => {
+  const drops = snapshot.memory.verifyDrops ?? [];
+  if (!drops.length) return null;
+  return (
+    <details data-so="memory-not-stored" className="border-t border-solid border-white/10 mt-1 pt-1">
+      <summary className="opacity-100 cursor-pointer">Not stored — no support in the chat ({drops.length})</summary>
+      {drops.map((drop) => (
+        <div key={drop.entry.id} className="flex gap-2 opacity-80 flex-wrap mt-1">
+          <span title={drop.entry.evidence}>{drop.entry.text}</span>
+          <span className="opacity-60">support {drop.p.toFixed(2)}{drop.model ? ` · ${drop.model}` : ""}</span>
+          <button className="menu_button" data-so="memory-store-anyway" onClick={() => void manager.storeDroppedMemory(drop.entry.id)}>Store anyway</button>
+        </div>
+      ))}
+    </details>
   );
 };
 

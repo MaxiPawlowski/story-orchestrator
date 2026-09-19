@@ -1,286 +1,1057 @@
 {
-  "source": "spike cache, criteria question WITHOUT the story clause (production adds it; live calibration measures that shape)",
-  "recordedAt": "2026-09-19T13:27:51.656Z",
-  "rows": [
+  "source": "calibrate-node memory-verify over test/fixtures/judge/memory-verify.json: the production question shape, real answers, replayed by jest keyed on state + questions, so a wording change must re-record",
+  "recordedAt": "2026-09-19T13:51:28.909Z",
+  "model": "jev-1.13.0",
+  "right": 47,
+  "total": 48,
+  "calls": [
     {
-      "case": "H03",
-      "text": "Max negotiated the Sun Ruins fee up from two hundred to two hundred and fifty crowns.",
-      "supported": true,
-      "kind": "paraphrase",
-      "p": 0.97
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins",
+          "cast": [
+            "DM Narrator",
+            "Arin",
+            "Ponticius",
+            "Luke"
+          ]
+        },
+        "transcript": [
+          {
+            "id": "msg_20",
+            "speaker": "Ponticius",
+            "text": "\"El trabajo de las Ruinas del Sol. Doscientas coronas. ¿Lo tomas o no?\""
+          },
+          {
+            "id": "msg_21",
+            "speaker": "Max",
+            "text": "\"Lo tomo. Firmaré ahora mismo.\" Firmo el contrato y se lo devuelvo."
+          }
+        ]
+      },
+      "questions": {
+        "line:0": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Max aceptó el trabajo de las Ruinas del Sol.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:1": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Ponticius ofreció doscientas coronas por el trabajo.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:2": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Ponticius ofreció quinientas coronas por el trabajo.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:3": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Arin firmó el contrato.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        }
+      },
+      "answers": {
+        "line:0": {
+          "type": "noul",
+          "noul": 0.9
+        },
+        "line:1": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "line:2": {
+          "type": "noul",
+          "noul": 0.01
+        },
+        "line:3": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      }
     },
     {
-      "case": "H03",
-      "text": "Ponticius agreed to pay 250 crowns for the artifact.",
-      "supported": true,
-      "kind": "paraphrase",
-      "p": 0.76
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins",
+          "cast": [
+            "DM Narrator",
+            "Arin",
+            "Ponticius",
+            "Luke"
+          ]
+        },
+        "transcript": [
+          {
+            "id": "msg_44",
+            "speaker": "Max",
+            "text": "\"Alright, Luke, you can come.\""
+          },
+          {
+            "id": "msg_45",
+            "speaker": "Arin",
+            "text": "Arin pulls you aside. \"He's twelve. The ruins killed three grown adventurers last spring. Think about what you're doing.\""
+          },
+          {
+            "id": "msg_46",
+            "speaker": "Max",
+            "text": "I look at Luke's hopeful face, then shake my head. \"Arin's right. I'm sorry, kid. You're staying.\""
+          }
+        ]
+      },
+      "questions": {
+        "line:0": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Max first agreed to take Luke, then changed his mind.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:1": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Luke is staying behind.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:2": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Arin wanted Luke to come along.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:3": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Luke burst into tears when he was told.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        }
+      },
+      "answers": {
+        "line:0": {
+          "type": "noul",
+          "noul": 0.97
+        },
+        "line:1": {
+          "type": "noul",
+          "noul": 0.97
+        },
+        "line:2": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "line:3": {
+          "type": "noul",
+          "noul": 0.05
+        }
+      }
     },
     {
-      "case": "H03",
-      "text": "Ponticius paid half the fee in advance.",
-      "supported": false,
-      "kind": "fabricated",
-      "p": 0.02
+      "state": {
+        "story": {
+          "title": "The Long Dark",
+          "cast": [
+            "Captain Okafor",
+            "Pell",
+            "HALO",
+            "Narrator"
+          ]
+        },
+        "transcript": [
+          {
+            "id": "msg_12",
+            "speaker": "Pell",
+            "text": "\"Reactor's holding at sixty percent, but the containment field keeps flickering. I can't promise it'll hold.\""
+          },
+          {
+            "id": "msg_13",
+            "speaker": "HALO",
+            "text": "\"Deck three is venting atmosphere. I have sealed the emergency bulkheads around the section, but the breach itself remains open.\""
+          },
+          {
+            "id": "msg_14",
+            "speaker": "Captain Okafor",
+            "text": "\"Two of my people are in the medbay with burns. Pell, I need that reactor steady.\""
+          }
+        ]
+      },
+      "questions": {
+        "line:0": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"The reactor's containment field keeps flickering.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:1": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Two crew members are in the medbay with burns.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:2": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"HALO sealed the hull breach on deck three.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:3": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Pell caused the reactor accident.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        }
+      },
+      "answers": {
+        "line:0": {
+          "type": "noul",
+          "noul": 0.97
+        },
+        "line:1": {
+          "type": "noul",
+          "noul": 0.98
+        },
+        "line:2": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "line:3": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      }
     },
     {
-      "case": "H03",
-      "text": "Arin signed the Sun Ruins contract.",
-      "supported": false,
-      "kind": "wrong-actor",
-      "p": 0.02
+      "state": {
+        "story": {
+          "title": "Rain on Mercer Street",
+          "cast": [
+            "Mae Hollis",
+            "Maeve",
+            "Lt. Brandt",
+            "Narrator"
+          ]
+        },
+        "transcript": [
+          {
+            "id": "msg_50",
+            "speaker": "Maeve",
+            "text": "Maeve lights a cigarette and doesn't meet your eyes. \"Ledger? Never heard of it. And if I had, it'd be at the bottom of the harbor by now.\""
+          },
+          {
+            "id": "msg_51",
+            "speaker": "Narrator",
+            "text": "Behind her, poking out from under a stack of racing forms, is the corner of a leather ledger stamped with the Mercer Street smugglers' crow."
+          },
+          {
+            "id": "msg_52",
+            "speaker": "Max",
+            "text": "My eyes settle on the ledger's spine. I say nothing about it. Not yet."
+          }
+        ]
+      },
+      "questions": {
+        "line:0": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Maeve claimed she had never heard of the ledger.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:1": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"The ledger lies under a stack of racing forms behind Maeve.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:2": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Maeve admitted she was hiding the ledger.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:3": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Max took the ledger and put it in his coat.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        }
+      },
+      "answers": {
+        "line:0": {
+          "type": "noul",
+          "noul": 0.94
+        },
+        "line:1": {
+          "type": "noul",
+          "noul": 0.92
+        },
+        "line:2": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "line:3": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      }
     },
     {
-      "case": "H13",
-      "text": "A falling stone slab nearly crushed Luke.",
-      "supported": true,
-      "kind": "paraphrase",
-      "p": 0.96
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins",
+          "cast": [
+            "DM Narrator",
+            "Arin",
+            "Ponticius",
+            "Luke"
+          ]
+        },
+        "transcript": [
+          {
+            "id": "msg_70",
+            "speaker": "DM Narrator",
+            "text": "The ceiling gives way. A slab of stone crashes down where Luke was standing a heartbeat ago."
+          },
+          {
+            "id": "msg_71",
+            "speaker": "Max",
+            "text": "\"LUKE!\" I claw at the rubble with my bare hands."
+          },
+          {
+            "id": "msg_72",
+            "speaker": "Luke",
+            "text": "From behind the fallen slab comes a muffled cough. \"I'm... I'm okay! I jumped!\""
+          }
+        ]
+      },
+      "questions": {
+        "line:0": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"A falling stone slab nearly crushed Luke.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:1": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Luke jumped clear of the slab and survived.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:2": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Luke broke his arm under the rubble.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:3": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Max was knocked unconscious by the collapse.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        }
+      },
+      "answers": {
+        "line:0": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "line:1": {
+          "type": "noul",
+          "noul": 0.83
+        },
+        "line:2": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "line:3": {
+          "type": "noul",
+          "noul": 0.01
+        }
+      }
     },
     {
-      "case": "H13",
-      "text": "Luke jumped clear of the slab and survived.",
-      "supported": true,
-      "kind": "paraphrase",
-      "p": 0.87
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins",
+          "cast": [
+            "DM Narrator",
+            "Arin",
+            "Ponticius",
+            "Luke"
+          ]
+        },
+        "transcript": [
+          {
+            "id": "msg_40",
+            "speaker": "Luke",
+            "text": "\"¡Déjame ir contigo, por favor!\""
+          },
+          {
+            "id": "msg_41",
+            "speaker": "Max",
+            "text": "\"No, Luke. Te quedas en casa con mamá. Es demasiado peligroso.\""
+          }
+        ]
+      },
+      "questions": {
+        "line:0": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Luke quiere ir con Max.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:1": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Max le dijo a Luke que se quede en casa con su madre.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:2": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Luke se unió a la expedición.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:3": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Max le prometió a Luke llevarlo la próxima vez.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        }
+      },
+      "answers": {
+        "line:0": {
+          "type": "noul",
+          "noul": 0.58
+        },
+        "line:1": {
+          "type": "noul",
+          "noul": 0.87
+        },
+        "line:2": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "line:3": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      }
     },
     {
-      "case": "H13",
-      "text": "Luke broke his arm under the rubble.",
-      "supported": false,
-      "kind": "embellished",
-      "p": 0.02
+      "state": {
+        "story": {
+          "title": "The Long Dark",
+          "cast": [
+            "Captain Okafor",
+            "Pell",
+            "HALO",
+            "Narrator"
+          ]
+        },
+        "transcript": [
+          {
+            "id": "msg_20",
+            "speaker": "Pell",
+            "text": "\"There. Containment's green across the board. She's stable, Captain.\""
+          },
+          {
+            "id": "msg_21",
+            "speaker": "Captain Okafor",
+            "text": "\"Good. HALO, broadcast a mayday on all frequencies. I want every ship in this sector to know where we are.\""
+          },
+          {
+            "id": "msg_22",
+            "speaker": "HALO",
+            "text": "\"Acknowledged. Preparing the broadcast. Transmission will begin once the antenna array finishes realigning, in approximately four minutes.\""
+          }
+        ]
+      },
+      "questions": {
+        "line:0": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Pell got the reactor stable.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:1": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"The captain ordered a mayday broadcast on all frequencies.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:2": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"A nearby ship answered the mayday.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:3": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"HALO refused the captain's order.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        }
+      },
+      "answers": {
+        "line:0": {
+          "type": "noul",
+          "noul": 0.53
+        },
+        "line:1": {
+          "type": "noul",
+          "noul": 0.98
+        },
+        "line:2": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "line:3": {
+          "type": "noul",
+          "noul": 0.01
+        }
+      }
     },
     {
-      "case": "H13",
-      "text": "Max was knocked unconscious by the collapse.",
-      "supported": false,
-      "kind": "fabricated",
-      "p": 0.01
+      "state": {
+        "story": {
+          "title": "Ashworth Hall",
+          "cast": [
+            "Lady Ashworth",
+            "Graves",
+            "Narrator"
+          ]
+        },
+        "transcript": [
+          {
+            "id": "msg_92",
+            "speaker": "Narrator",
+            "text": "Three candles gutter along the gallery wall. When you look back at the portrait of Lord Ashworth, his painted hand is no longer resting on the sword. It points at the door."
+          },
+          {
+            "id": "msg_93",
+            "speaker": "Graves",
+            "text": "Graves stiffens. \"The master's portrait has always been... restless, sir.\""
+          }
+        ]
+      },
+      "questions": {
+        "line:0": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Three candles burn along the gallery wall.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:1": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"In the portrait, Lord Ashworth's hand now points at the door.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:2": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Graves moved the portrait himself.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:3": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Graves says the master's portrait has always been restless.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        }
+      },
+      "answers": {
+        "line:0": {
+          "type": "noul",
+          "noul": 0.15
+        },
+        "line:1": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "line:2": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "line:3": {
+          "type": "noul",
+          "noul": 0.93
+        }
+      }
     },
     {
-      "case": "H23",
-      "text": "The reactor's containment field keeps flickering.",
-      "supported": true,
-      "kind": "verbatim",
-      "p": 0.93
+      "state": {
+        "story": {
+          "title": "The Long Dark",
+          "cast": [
+            "Captain Okafor",
+            "Pell",
+            "HALO",
+            "Narrator"
+          ]
+        },
+        "transcript": [
+          {
+            "id": "msg_200",
+            "speaker": "Pell",
+            "text": "Pell braces against the bulkhead and drives the last rivet home. \"Patch is on. Deck three's breach is sealed.\""
+          },
+          {
+            "id": "msg_201",
+            "speaker": "HALO",
+            "text": "\"Confirmed. Pressure on deck three is rising toward nominal.\""
+          },
+          {
+            "id": "msg_202",
+            "speaker": "Captain Okafor",
+            "text": "\"Good work. Now the reactor.\""
+          },
+          {
+            "id": "msg_203",
+            "speaker": "Narrator",
+            "text": "The corridor lights dim and brighten in slow waves, following the reactor's pulse."
+          },
+          {
+            "id": "msg_204",
+            "speaker": "Pell",
+            "text": "\"Containment's still jumping around. I'd call it sixty-forty we don't lose it.\""
+          },
+          {
+            "id": "msg_205",
+            "speaker": "Captain Okafor",
+            "text": "\"Which way round, Pell?\""
+          },
+          {
+            "id": "msg_206",
+            "speaker": "Pell",
+            "text": "\"You don't want to know, Captain.\""
+          },
+          {
+            "id": "msg_207",
+            "speaker": "HALO",
+            "text": "\"Coolant flow in loop two is at thirty-one percent of rated capacity.\""
+          },
+          {
+            "id": "msg_208",
+            "speaker": "Captain Okafor",
+            "text": "\"Reroute loop one to cover it.\""
+          },
+          {
+            "id": "msg_209",
+            "speaker": "Pell",
+            "text": "Pell hammers at the console. \"Rerouting. This is going to get loud.\""
+          },
+          {
+            "id": "msg_210",
+            "speaker": "Narrator",
+            "text": "A shudder runs through the deck plates as the pumps spin up."
+          },
+          {
+            "id": "msg_211",
+            "speaker": "HALO",
+            "text": "\"Containment fluctuation reduced by twelve percent. It is still outside safe limits.\""
+          }
+        ]
+      },
+      "questions": {
+        "line:0": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Pell sealed the hull breach on deck three.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:1": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Coolant loop two is running at about a third of its capacity.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:2": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"The reactor is now stable.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:3": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Okafor ordered loop one rerouted to cover loop two.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        }
+      },
+      "answers": {
+        "line:0": {
+          "type": "noul",
+          "noul": 0.97
+        },
+        "line:1": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "line:2": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "line:3": {
+          "type": "noul",
+          "noul": 0.96
+        }
+      }
     },
     {
-      "case": "H23",
-      "text": "Two crew members are in the medbay with burns.",
-      "supported": true,
-      "kind": "verbatim",
-      "p": 0.97
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins",
+          "cast": [
+            "DM Narrator",
+            "Arin",
+            "Ponticius",
+            "Luke"
+          ]
+        },
+        "transcript": [
+          {
+            "id": "msg_20",
+            "speaker": "Ponticius",
+            "text": "\"The Sun Ruins. Three days' ride, a sphinx at the gate, and a guild that'll pay two hundred crowns for the artifact inside. Well? Do you want it or not?\""
+          },
+          {
+            "id": "msg_21",
+            "speaker": "Max",
+            "text": "\"Two hundred? Make it two-fifty and you've got yourself a party.\""
+          },
+          {
+            "id": "msg_22",
+            "speaker": "Ponticius",
+            "text": "The guild master snorts, then scrawls a new figure on the sheet. \"Two-fifty. Don't make me regret it.\" He slaps the contract into your hand."
+          },
+          {
+            "id": "msg_23",
+            "speaker": "Max",
+            "text": "I sign my name under his and tuck the contract into my coat. \"We leave at dawn.\""
+          }
+        ]
+      },
+      "questions": {
+        "line:0": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Max negotiated the Sun Ruins fee up from two hundred to two hundred and fifty crowns.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:1": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Ponticius agreed to pay 250 crowns for the artifact.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:2": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Ponticius paid half the fee in advance.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:3": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Arin signed the Sun Ruins contract.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        }
+      },
+      "answers": {
+        "line:0": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "line:1": {
+          "type": "noul",
+          "noul": 0.75
+        },
+        "line:2": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "line:3": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      }
     },
     {
-      "case": "H23",
-      "text": "HALO sealed the hull breach on deck three.",
-      "supported": false,
-      "kind": "contradicted",
-      "p": 0.04
+      "state": {
+        "story": {
+          "title": "Rain on Mercer Street",
+          "cast": [
+            "Mae Hollis",
+            "Maeve",
+            "Lt. Brandt",
+            "Narrator"
+          ]
+        },
+        "transcript": [
+          {
+            "id": "msg_300",
+            "speaker": "Narrator",
+            "text": "The back room of the Blue Anchor smells of spilled gin and wet wool."
+          },
+          {
+            "id": "msg_301",
+            "speaker": "Lt. Brandt",
+            "text": "\"Sit down, detective. Let's talk like reasonable men.\""
+          },
+          {
+            "id": "msg_302",
+            "speaker": "Lt. Brandt",
+            "text": "He sets a fat envelope on the table between you. \"Five hundred. For a short memory.\""
+          },
+          {
+            "id": "msg_303",
+            "speaker": "Max",
+            "text": "I glance at the door, then slide the envelope into my inside pocket. \"My memory's getting shorter already.\""
+          },
+          {
+            "id": "msg_304",
+            "speaker": "Lt. Brandt",
+            "text": "Brandt smiles for the first time all night. \"Smart man.\""
+          },
+          {
+            "id": "msg_305",
+            "speaker": "Narrator",
+            "text": "Outside, the rain has turned to sleet. The street lamps hiss."
+          },
+          {
+            "id": "msg_306",
+            "speaker": "Mae Hollis",
+            "text": "Mae is waiting by the car, collar up. \"Well? What did Brandt want?\""
+          },
+          {
+            "id": "msg_307",
+            "speaker": "Max",
+            "text": "\"To threaten me. I told him where to stick it. I never took a dime from that man, Mae.\""
+          },
+          {
+            "id": "msg_308",
+            "speaker": "Mae Hollis",
+            "text": "She studies my face a moment too long. \"Sure. Get in, we're late.\""
+          },
+          {
+            "id": "msg_309",
+            "speaker": "Narrator",
+            "text": "The car pulls away from the curb, wipers beating against the sleet."
+          }
+        ]
+      },
+      "questions": {
+        "line:0": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Brandt offered Max five hundred for a short memory.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:1": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Max slipped Brandt's envelope into his inside pocket.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:2": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Max told Mae he never took money from Brandt.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:3": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Max never took any money from Brandt.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        }
+      },
+      "answers": {
+        "line:0": {
+          "type": "noul",
+          "noul": 0.92
+        },
+        "line:1": {
+          "type": "noul",
+          "noul": 0.93
+        },
+        "line:2": {
+          "type": "noul",
+          "noul": 0.95
+        },
+        "line:3": {
+          "type": "noul",
+          "noul": 0.15
+        }
+      }
     },
     {
-      "case": "H23",
-      "text": "Pell caused the reactor accident.",
-      "supported": false,
-      "kind": "invented-cause",
-      "p": 0.03
-    },
-    {
-      "case": "H27",
-      "text": "Maeve claimed she had never heard of the ledger.",
-      "supported": true,
-      "kind": "paraphrase",
-      "p": 0.95
-    },
-    {
-      "case": "H27",
-      "text": "The ledger lies under a stack of racing forms behind Maeve.",
-      "supported": true,
-      "kind": "paraphrase",
-      "p": 0.94
-    },
-    {
-      "case": "H27",
-      "text": "Maeve admitted she was hiding the ledger.",
-      "supported": false,
-      "kind": "inverted",
-      "p": 0.07
-    },
-    {
-      "case": "H27",
-      "text": "Max took the ledger and put it in his coat.",
-      "supported": false,
-      "kind": "fabricated",
-      "p": 0.02
-    },
-    {
-      "case": "L03",
-      "text": "Brandt offered Max five hundred for a short memory.",
-      "supported": true,
-      "kind": "paraphrase",
-      "p": 0.98
-    },
-    {
-      "case": "L03",
-      "text": "Max slipped Brandt's envelope into his inside pocket.",
-      "supported": true,
-      "kind": "paraphrase",
-      "p": 0.93
-    },
-    {
-      "case": "L03",
-      "text": "Max told Mae he never took money from Brandt.",
-      "supported": true,
-      "kind": "reported-claim",
-      "p": 0.97
-    },
-    {
-      "case": "L03",
-      "text": "Max never took any money from Brandt.",
-      "supported": false,
-      "kind": "lie-as-fact",
-      "p": 0.14
-    },
-    {
-      "case": "H32",
-      "text": "Three candles burn along the gallery wall.",
-      "supported": true,
-      "kind": "paraphrase",
-      "p": 0.2
-    },
-    {
-      "case": "H32",
-      "text": "In the portrait, Lord Ashworth's hand now points at the door.",
-      "supported": true,
-      "kind": "paraphrase",
-      "p": 0.97
-    },
-    {
-      "case": "H32",
-      "text": "Graves moved the portrait himself.",
-      "supported": false,
-      "kind": "fabricated",
-      "p": 0.03
-    },
-    {
-      "case": "H32",
-      "text": "Graves says the master's portrait has always been restless.",
-      "supported": true,
-      "kind": "paraphrase",
-      "p": 0.95
-    },
-    {
-      "case": "H09",
-      "text": "Max first agreed to take Luke, then changed his mind.",
-      "supported": true,
-      "kind": "summary",
-      "p": 0.97
-    },
-    {
-      "case": "H09",
-      "text": "Luke is staying behind.",
-      "supported": true,
-      "kind": "paraphrase",
-      "p": 0.98
-    },
-    {
-      "case": "H09",
-      "text": "Arin wanted Luke to come along.",
-      "supported": false,
-      "kind": "inverted",
-      "p": 0.02
-    },
-    {
-      "case": "H09",
-      "text": "Luke burst into tears when he was told.",
-      "supported": false,
-      "kind": "embellished",
-      "p": 0.05
-    },
-    {
-      "case": "H24",
-      "text": "Pell got the reactor stable.",
-      "supported": true,
-      "kind": "paraphrase",
-      "p": 0.44
-    },
-    {
-      "case": "H24",
-      "text": "The captain ordered a mayday broadcast on all frequencies.",
-      "supported": true,
-      "kind": "paraphrase",
-      "p": 0.98
-    },
-    {
-      "case": "H24",
-      "text": "A nearby ship answered the mayday.",
-      "supported": false,
-      "kind": "fabricated",
-      "p": 0.02
-    },
-    {
-      "case": "H24",
-      "text": "HALO refused the captain's order.",
-      "supported": false,
-      "kind": "inverted",
-      "p": 0.01
-    },
-    {
-      "case": "L02",
-      "text": "Pell sealed the hull breach on deck three.",
-      "supported": true,
-      "kind": "paraphrase",
-      "p": 0.97
-    },
-    {
-      "case": "L02",
-      "text": "Coolant loop two is running at about a third of its capacity.",
-      "supported": true,
-      "kind": "paraphrase",
-      "p": 0.96
-    },
-    {
-      "case": "L02",
-      "text": "The reactor is now stable.",
-      "supported": false,
-      "kind": "contradicted",
-      "p": 0.02
-    },
-    {
-      "case": "L02",
-      "text": "Okafor ordered loop one rerouted to cover loop two.",
-      "supported": true,
-      "kind": "paraphrase",
-      "p": 0.97
-    },
-    {
-      "case": "H21",
-      "text": "Max aceptó el trabajo de las Ruinas del Sol.",
-      "supported": true,
-      "kind": "spanish",
-      "p": 0.98
-    },
-    {
-      "case": "H21",
-      "text": "The Sun Ruins job pays two hundred crowns.",
-      "supported": true,
-      "kind": "cross-language",
-      "p": 0.97
-    },
-    {
-      "case": "H21",
-      "text": "Ponticius raised the fee to three hundred crowns.",
-      "supported": false,
-      "kind": "fabricated",
-      "p": 0.01
-    },
-    {
-      "case": "H21",
-      "text": "Max signed the contract.",
-      "supported": true,
-      "kind": "cross-language",
-      "p": 0.97
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins",
+          "cast": [
+            "DM Narrator",
+            "Arin",
+            "Ponticius",
+            "Luke"
+          ]
+        },
+        "transcript": [
+          {
+            "id": "msg_20",
+            "speaker": "Ponticius",
+            "text": "\"El trabajo de las Ruinas del Sol. Doscientas coronas. ¿Lo tomas o no?\""
+          },
+          {
+            "id": "msg_21",
+            "speaker": "Max",
+            "text": "\"Lo tomo. Firmaré ahora mismo.\" Firmo el contrato y se lo devuelvo."
+          }
+        ]
+      },
+      "questions": {
+        "line:0": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Max aceptó el trabajo de las Ruinas del Sol.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:1": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"The Sun Ruins job pays two hundred crowns.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:2": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Ponticius raised the fee to three hundred crowns.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        },
+        "line:3": {
+          "type": "noul",
+          "instructions": "Is this note supported by `transcript`: \"Max signed the contract.\"? Use `story` only as background for names and places.",
+          "criteria": {
+            "true": "The transcript states or clearly shows everything the note says",
+            "false": "The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact"
+          }
+        }
+      },
+      "answers": {
+        "line:0": {
+          "type": "noul",
+          "noul": 0.91
+        },
+        "line:1": {
+          "type": "noul",
+          "noul": 0.97
+        },
+        "line:2": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "line:3": {
+          "type": "noul",
+          "noul": 0.91
+        }
+      }
     }
   ]
 }

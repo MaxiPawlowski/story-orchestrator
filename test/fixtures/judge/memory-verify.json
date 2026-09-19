@@ -1,0 +1,1803 @@
+{
+  "use": "memory-verify",
+  "floors": {
+    "unsupportedDropped": 0.9,
+    "supportedDropped": 0.1
+  },
+  "labelledAt": "2026-09-19",
+  "source": "40 spike lines (scripts/spike/typesafe/data/verify-lines.json) + 8 Spanish lines ES.0-ES.7 labelled 2026-09-19 before any judge answer was read",
+  "rows": [
+    {
+      "id": "H03.0",
+      "case": "H03",
+      "lang": "en",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_20",
+          "speaker": "Ponticius",
+          "text": "\"The Sun Ruins. Three days' ride, a sphinx at the gate, and a guild that'll pay two hundred crowns for the artifact inside. Well? Do you want it or not?\""
+        },
+        {
+          "id": "msg_21",
+          "speaker": "Max",
+          "text": "\"Two hundred? Make it two-fifty and you've got yourself a party.\""
+        },
+        {
+          "id": "msg_22",
+          "speaker": "Ponticius",
+          "text": "The guild master snorts, then scrawls a new figure on the sheet. \"Two-fifty. Don't make me regret it.\" He slaps the contract into your hand."
+        },
+        {
+          "id": "msg_23",
+          "speaker": "Max",
+          "text": "I sign my name under his and tuck the contract into my coat. \"We leave at dawn.\""
+        }
+      ],
+      "line": "Max negotiated the Sun Ruins fee up from two hundred to two hundred and fifty crowns.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "H03.1",
+      "case": "H03",
+      "lang": "en",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_20",
+          "speaker": "Ponticius",
+          "text": "\"The Sun Ruins. Three days' ride, a sphinx at the gate, and a guild that'll pay two hundred crowns for the artifact inside. Well? Do you want it or not?\""
+        },
+        {
+          "id": "msg_21",
+          "speaker": "Max",
+          "text": "\"Two hundred? Make it two-fifty and you've got yourself a party.\""
+        },
+        {
+          "id": "msg_22",
+          "speaker": "Ponticius",
+          "text": "The guild master snorts, then scrawls a new figure on the sheet. \"Two-fifty. Don't make me regret it.\" He slaps the contract into your hand."
+        },
+        {
+          "id": "msg_23",
+          "speaker": "Max",
+          "text": "I sign my name under his and tuck the contract into my coat. \"We leave at dawn.\""
+        }
+      ],
+      "line": "Ponticius agreed to pay 250 crowns for the artifact.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "H03.2",
+      "case": "H03",
+      "lang": "en",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_20",
+          "speaker": "Ponticius",
+          "text": "\"The Sun Ruins. Three days' ride, a sphinx at the gate, and a guild that'll pay two hundred crowns for the artifact inside. Well? Do you want it or not?\""
+        },
+        {
+          "id": "msg_21",
+          "speaker": "Max",
+          "text": "\"Two hundred? Make it two-fifty and you've got yourself a party.\""
+        },
+        {
+          "id": "msg_22",
+          "speaker": "Ponticius",
+          "text": "The guild master snorts, then scrawls a new figure on the sheet. \"Two-fifty. Don't make me regret it.\" He slaps the contract into your hand."
+        },
+        {
+          "id": "msg_23",
+          "speaker": "Max",
+          "text": "I sign my name under his and tuck the contract into my coat. \"We leave at dawn.\""
+        }
+      ],
+      "line": "Ponticius paid half the fee in advance.",
+      "supported": false,
+      "kind": "fabricated"
+    },
+    {
+      "id": "H03.3",
+      "case": "H03",
+      "lang": "en",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_20",
+          "speaker": "Ponticius",
+          "text": "\"The Sun Ruins. Three days' ride, a sphinx at the gate, and a guild that'll pay two hundred crowns for the artifact inside. Well? Do you want it or not?\""
+        },
+        {
+          "id": "msg_21",
+          "speaker": "Max",
+          "text": "\"Two hundred? Make it two-fifty and you've got yourself a party.\""
+        },
+        {
+          "id": "msg_22",
+          "speaker": "Ponticius",
+          "text": "The guild master snorts, then scrawls a new figure on the sheet. \"Two-fifty. Don't make me regret it.\" He slaps the contract into your hand."
+        },
+        {
+          "id": "msg_23",
+          "speaker": "Max",
+          "text": "I sign my name under his and tuck the contract into my coat. \"We leave at dawn.\""
+        }
+      ],
+      "line": "Arin signed the Sun Ruins contract.",
+      "supported": false,
+      "kind": "wrong-actor"
+    },
+    {
+      "id": "H13.0",
+      "case": "H13",
+      "lang": "en",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_70",
+          "speaker": "DM Narrator",
+          "text": "The ceiling gives way. A slab of stone crashes down where Luke was standing a heartbeat ago."
+        },
+        {
+          "id": "msg_71",
+          "speaker": "Max",
+          "text": "\"LUKE!\" I claw at the rubble with my bare hands."
+        },
+        {
+          "id": "msg_72",
+          "speaker": "Luke",
+          "text": "From behind the fallen slab comes a muffled cough. \"I'm... I'm okay! I jumped!\""
+        }
+      ],
+      "line": "A falling stone slab nearly crushed Luke.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "H13.1",
+      "case": "H13",
+      "lang": "en",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_70",
+          "speaker": "DM Narrator",
+          "text": "The ceiling gives way. A slab of stone crashes down where Luke was standing a heartbeat ago."
+        },
+        {
+          "id": "msg_71",
+          "speaker": "Max",
+          "text": "\"LUKE!\" I claw at the rubble with my bare hands."
+        },
+        {
+          "id": "msg_72",
+          "speaker": "Luke",
+          "text": "From behind the fallen slab comes a muffled cough. \"I'm... I'm okay! I jumped!\""
+        }
+      ],
+      "line": "Luke jumped clear of the slab and survived.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "H13.2",
+      "case": "H13",
+      "lang": "en",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_70",
+          "speaker": "DM Narrator",
+          "text": "The ceiling gives way. A slab of stone crashes down where Luke was standing a heartbeat ago."
+        },
+        {
+          "id": "msg_71",
+          "speaker": "Max",
+          "text": "\"LUKE!\" I claw at the rubble with my bare hands."
+        },
+        {
+          "id": "msg_72",
+          "speaker": "Luke",
+          "text": "From behind the fallen slab comes a muffled cough. \"I'm... I'm okay! I jumped!\""
+        }
+      ],
+      "line": "Luke broke his arm under the rubble.",
+      "supported": false,
+      "kind": "embellished"
+    },
+    {
+      "id": "H13.3",
+      "case": "H13",
+      "lang": "en",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_70",
+          "speaker": "DM Narrator",
+          "text": "The ceiling gives way. A slab of stone crashes down where Luke was standing a heartbeat ago."
+        },
+        {
+          "id": "msg_71",
+          "speaker": "Max",
+          "text": "\"LUKE!\" I claw at the rubble with my bare hands."
+        },
+        {
+          "id": "msg_72",
+          "speaker": "Luke",
+          "text": "From behind the fallen slab comes a muffled cough. \"I'm... I'm okay! I jumped!\""
+        }
+      ],
+      "line": "Max was knocked unconscious by the collapse.",
+      "supported": false,
+      "kind": "fabricated"
+    },
+    {
+      "id": "H23.0",
+      "case": "H23",
+      "lang": "en",
+      "storyTitle": "The Long Dark",
+      "cast": [
+        "Captain Okafor",
+        "Pell",
+        "HALO",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_12",
+          "speaker": "Pell",
+          "text": "\"Reactor's holding at sixty percent, but the containment field keeps flickering. I can't promise it'll hold.\""
+        },
+        {
+          "id": "msg_13",
+          "speaker": "HALO",
+          "text": "\"Deck three is venting atmosphere. I have sealed the emergency bulkheads around the section, but the breach itself remains open.\""
+        },
+        {
+          "id": "msg_14",
+          "speaker": "Captain Okafor",
+          "text": "\"Two of my people are in the medbay with burns. Pell, I need that reactor steady.\""
+        }
+      ],
+      "line": "The reactor's containment field keeps flickering.",
+      "supported": true,
+      "kind": "verbatim"
+    },
+    {
+      "id": "H23.1",
+      "case": "H23",
+      "lang": "en",
+      "storyTitle": "The Long Dark",
+      "cast": [
+        "Captain Okafor",
+        "Pell",
+        "HALO",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_12",
+          "speaker": "Pell",
+          "text": "\"Reactor's holding at sixty percent, but the containment field keeps flickering. I can't promise it'll hold.\""
+        },
+        {
+          "id": "msg_13",
+          "speaker": "HALO",
+          "text": "\"Deck three is venting atmosphere. I have sealed the emergency bulkheads around the section, but the breach itself remains open.\""
+        },
+        {
+          "id": "msg_14",
+          "speaker": "Captain Okafor",
+          "text": "\"Two of my people are in the medbay with burns. Pell, I need that reactor steady.\""
+        }
+      ],
+      "line": "Two crew members are in the medbay with burns.",
+      "supported": true,
+      "kind": "verbatim"
+    },
+    {
+      "id": "H23.2",
+      "case": "H23",
+      "lang": "en",
+      "storyTitle": "The Long Dark",
+      "cast": [
+        "Captain Okafor",
+        "Pell",
+        "HALO",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_12",
+          "speaker": "Pell",
+          "text": "\"Reactor's holding at sixty percent, but the containment field keeps flickering. I can't promise it'll hold.\""
+        },
+        {
+          "id": "msg_13",
+          "speaker": "HALO",
+          "text": "\"Deck three is venting atmosphere. I have sealed the emergency bulkheads around the section, but the breach itself remains open.\""
+        },
+        {
+          "id": "msg_14",
+          "speaker": "Captain Okafor",
+          "text": "\"Two of my people are in the medbay with burns. Pell, I need that reactor steady.\""
+        }
+      ],
+      "line": "HALO sealed the hull breach on deck three.",
+      "supported": false,
+      "kind": "contradicted"
+    },
+    {
+      "id": "H23.3",
+      "case": "H23",
+      "lang": "en",
+      "storyTitle": "The Long Dark",
+      "cast": [
+        "Captain Okafor",
+        "Pell",
+        "HALO",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_12",
+          "speaker": "Pell",
+          "text": "\"Reactor's holding at sixty percent, but the containment field keeps flickering. I can't promise it'll hold.\""
+        },
+        {
+          "id": "msg_13",
+          "speaker": "HALO",
+          "text": "\"Deck three is venting atmosphere. I have sealed the emergency bulkheads around the section, but the breach itself remains open.\""
+        },
+        {
+          "id": "msg_14",
+          "speaker": "Captain Okafor",
+          "text": "\"Two of my people are in the medbay with burns. Pell, I need that reactor steady.\""
+        }
+      ],
+      "line": "Pell caused the reactor accident.",
+      "supported": false,
+      "kind": "invented-cause"
+    },
+    {
+      "id": "H27.0",
+      "case": "H27",
+      "lang": "en",
+      "storyTitle": "Rain on Mercer Street",
+      "cast": [
+        "Mae Hollis",
+        "Maeve",
+        "Lt. Brandt",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_50",
+          "speaker": "Maeve",
+          "text": "Maeve lights a cigarette and doesn't meet your eyes. \"Ledger? Never heard of it. And if I had, it'd be at the bottom of the harbor by now.\""
+        },
+        {
+          "id": "msg_51",
+          "speaker": "Narrator",
+          "text": "Behind her, poking out from under a stack of racing forms, is the corner of a leather ledger stamped with the Mercer Street smugglers' crow."
+        },
+        {
+          "id": "msg_52",
+          "speaker": "Max",
+          "text": "My eyes settle on the ledger's spine. I say nothing about it. Not yet."
+        }
+      ],
+      "line": "Maeve claimed she had never heard of the ledger.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "H27.1",
+      "case": "H27",
+      "lang": "en",
+      "storyTitle": "Rain on Mercer Street",
+      "cast": [
+        "Mae Hollis",
+        "Maeve",
+        "Lt. Brandt",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_50",
+          "speaker": "Maeve",
+          "text": "Maeve lights a cigarette and doesn't meet your eyes. \"Ledger? Never heard of it. And if I had, it'd be at the bottom of the harbor by now.\""
+        },
+        {
+          "id": "msg_51",
+          "speaker": "Narrator",
+          "text": "Behind her, poking out from under a stack of racing forms, is the corner of a leather ledger stamped with the Mercer Street smugglers' crow."
+        },
+        {
+          "id": "msg_52",
+          "speaker": "Max",
+          "text": "My eyes settle on the ledger's spine. I say nothing about it. Not yet."
+        }
+      ],
+      "line": "The ledger lies under a stack of racing forms behind Maeve.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "H27.2",
+      "case": "H27",
+      "lang": "en",
+      "storyTitle": "Rain on Mercer Street",
+      "cast": [
+        "Mae Hollis",
+        "Maeve",
+        "Lt. Brandt",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_50",
+          "speaker": "Maeve",
+          "text": "Maeve lights a cigarette and doesn't meet your eyes. \"Ledger? Never heard of it. And if I had, it'd be at the bottom of the harbor by now.\""
+        },
+        {
+          "id": "msg_51",
+          "speaker": "Narrator",
+          "text": "Behind her, poking out from under a stack of racing forms, is the corner of a leather ledger stamped with the Mercer Street smugglers' crow."
+        },
+        {
+          "id": "msg_52",
+          "speaker": "Max",
+          "text": "My eyes settle on the ledger's spine. I say nothing about it. Not yet."
+        }
+      ],
+      "line": "Maeve admitted she was hiding the ledger.",
+      "supported": false,
+      "kind": "inverted"
+    },
+    {
+      "id": "H27.3",
+      "case": "H27",
+      "lang": "en",
+      "storyTitle": "Rain on Mercer Street",
+      "cast": [
+        "Mae Hollis",
+        "Maeve",
+        "Lt. Brandt",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_50",
+          "speaker": "Maeve",
+          "text": "Maeve lights a cigarette and doesn't meet your eyes. \"Ledger? Never heard of it. And if I had, it'd be at the bottom of the harbor by now.\""
+        },
+        {
+          "id": "msg_51",
+          "speaker": "Narrator",
+          "text": "Behind her, poking out from under a stack of racing forms, is the corner of a leather ledger stamped with the Mercer Street smugglers' crow."
+        },
+        {
+          "id": "msg_52",
+          "speaker": "Max",
+          "text": "My eyes settle on the ledger's spine. I say nothing about it. Not yet."
+        }
+      ],
+      "line": "Max took the ledger and put it in his coat.",
+      "supported": false,
+      "kind": "fabricated"
+    },
+    {
+      "id": "L03.0",
+      "case": "L03",
+      "lang": "en",
+      "storyTitle": "Rain on Mercer Street",
+      "cast": [
+        "Mae Hollis",
+        "Maeve",
+        "Lt. Brandt",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_300",
+          "speaker": "Narrator",
+          "text": "The back room of the Blue Anchor smells of spilled gin and wet wool."
+        },
+        {
+          "id": "msg_301",
+          "speaker": "Lt. Brandt",
+          "text": "\"Sit down, detective. Let's talk like reasonable men.\""
+        },
+        {
+          "id": "msg_302",
+          "speaker": "Lt. Brandt",
+          "text": "He sets a fat envelope on the table between you. \"Five hundred. For a short memory.\""
+        },
+        {
+          "id": "msg_303",
+          "speaker": "Max",
+          "text": "I glance at the door, then slide the envelope into my inside pocket. \"My memory's getting shorter already.\""
+        },
+        {
+          "id": "msg_304",
+          "speaker": "Lt. Brandt",
+          "text": "Brandt smiles for the first time all night. \"Smart man.\""
+        },
+        {
+          "id": "msg_305",
+          "speaker": "Narrator",
+          "text": "Outside, the rain has turned to sleet. The street lamps hiss."
+        },
+        {
+          "id": "msg_306",
+          "speaker": "Mae Hollis",
+          "text": "Mae is waiting by the car, collar up. \"Well? What did Brandt want?\""
+        },
+        {
+          "id": "msg_307",
+          "speaker": "Max",
+          "text": "\"To threaten me. I told him where to stick it. I never took a dime from that man, Mae.\""
+        },
+        {
+          "id": "msg_308",
+          "speaker": "Mae Hollis",
+          "text": "She studies my face a moment too long. \"Sure. Get in, we're late.\""
+        },
+        {
+          "id": "msg_309",
+          "speaker": "Narrator",
+          "text": "The car pulls away from the curb, wipers beating against the sleet."
+        }
+      ],
+      "line": "Brandt offered Max five hundred for a short memory.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "L03.1",
+      "case": "L03",
+      "lang": "en",
+      "storyTitle": "Rain on Mercer Street",
+      "cast": [
+        "Mae Hollis",
+        "Maeve",
+        "Lt. Brandt",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_300",
+          "speaker": "Narrator",
+          "text": "The back room of the Blue Anchor smells of spilled gin and wet wool."
+        },
+        {
+          "id": "msg_301",
+          "speaker": "Lt. Brandt",
+          "text": "\"Sit down, detective. Let's talk like reasonable men.\""
+        },
+        {
+          "id": "msg_302",
+          "speaker": "Lt. Brandt",
+          "text": "He sets a fat envelope on the table between you. \"Five hundred. For a short memory.\""
+        },
+        {
+          "id": "msg_303",
+          "speaker": "Max",
+          "text": "I glance at the door, then slide the envelope into my inside pocket. \"My memory's getting shorter already.\""
+        },
+        {
+          "id": "msg_304",
+          "speaker": "Lt. Brandt",
+          "text": "Brandt smiles for the first time all night. \"Smart man.\""
+        },
+        {
+          "id": "msg_305",
+          "speaker": "Narrator",
+          "text": "Outside, the rain has turned to sleet. The street lamps hiss."
+        },
+        {
+          "id": "msg_306",
+          "speaker": "Mae Hollis",
+          "text": "Mae is waiting by the car, collar up. \"Well? What did Brandt want?\""
+        },
+        {
+          "id": "msg_307",
+          "speaker": "Max",
+          "text": "\"To threaten me. I told him where to stick it. I never took a dime from that man, Mae.\""
+        },
+        {
+          "id": "msg_308",
+          "speaker": "Mae Hollis",
+          "text": "She studies my face a moment too long. \"Sure. Get in, we're late.\""
+        },
+        {
+          "id": "msg_309",
+          "speaker": "Narrator",
+          "text": "The car pulls away from the curb, wipers beating against the sleet."
+        }
+      ],
+      "line": "Max slipped Brandt's envelope into his inside pocket.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "L03.2",
+      "case": "L03",
+      "lang": "en",
+      "storyTitle": "Rain on Mercer Street",
+      "cast": [
+        "Mae Hollis",
+        "Maeve",
+        "Lt. Brandt",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_300",
+          "speaker": "Narrator",
+          "text": "The back room of the Blue Anchor smells of spilled gin and wet wool."
+        },
+        {
+          "id": "msg_301",
+          "speaker": "Lt. Brandt",
+          "text": "\"Sit down, detective. Let's talk like reasonable men.\""
+        },
+        {
+          "id": "msg_302",
+          "speaker": "Lt. Brandt",
+          "text": "He sets a fat envelope on the table between you. \"Five hundred. For a short memory.\""
+        },
+        {
+          "id": "msg_303",
+          "speaker": "Max",
+          "text": "I glance at the door, then slide the envelope into my inside pocket. \"My memory's getting shorter already.\""
+        },
+        {
+          "id": "msg_304",
+          "speaker": "Lt. Brandt",
+          "text": "Brandt smiles for the first time all night. \"Smart man.\""
+        },
+        {
+          "id": "msg_305",
+          "speaker": "Narrator",
+          "text": "Outside, the rain has turned to sleet. The street lamps hiss."
+        },
+        {
+          "id": "msg_306",
+          "speaker": "Mae Hollis",
+          "text": "Mae is waiting by the car, collar up. \"Well? What did Brandt want?\""
+        },
+        {
+          "id": "msg_307",
+          "speaker": "Max",
+          "text": "\"To threaten me. I told him where to stick it. I never took a dime from that man, Mae.\""
+        },
+        {
+          "id": "msg_308",
+          "speaker": "Mae Hollis",
+          "text": "She studies my face a moment too long. \"Sure. Get in, we're late.\""
+        },
+        {
+          "id": "msg_309",
+          "speaker": "Narrator",
+          "text": "The car pulls away from the curb, wipers beating against the sleet."
+        }
+      ],
+      "line": "Max told Mae he never took money from Brandt.",
+      "supported": true,
+      "kind": "reported-claim"
+    },
+    {
+      "id": "L03.3",
+      "case": "L03",
+      "lang": "en",
+      "storyTitle": "Rain on Mercer Street",
+      "cast": [
+        "Mae Hollis",
+        "Maeve",
+        "Lt. Brandt",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_300",
+          "speaker": "Narrator",
+          "text": "The back room of the Blue Anchor smells of spilled gin and wet wool."
+        },
+        {
+          "id": "msg_301",
+          "speaker": "Lt. Brandt",
+          "text": "\"Sit down, detective. Let's talk like reasonable men.\""
+        },
+        {
+          "id": "msg_302",
+          "speaker": "Lt. Brandt",
+          "text": "He sets a fat envelope on the table between you. \"Five hundred. For a short memory.\""
+        },
+        {
+          "id": "msg_303",
+          "speaker": "Max",
+          "text": "I glance at the door, then slide the envelope into my inside pocket. \"My memory's getting shorter already.\""
+        },
+        {
+          "id": "msg_304",
+          "speaker": "Lt. Brandt",
+          "text": "Brandt smiles for the first time all night. \"Smart man.\""
+        },
+        {
+          "id": "msg_305",
+          "speaker": "Narrator",
+          "text": "Outside, the rain has turned to sleet. The street lamps hiss."
+        },
+        {
+          "id": "msg_306",
+          "speaker": "Mae Hollis",
+          "text": "Mae is waiting by the car, collar up. \"Well? What did Brandt want?\""
+        },
+        {
+          "id": "msg_307",
+          "speaker": "Max",
+          "text": "\"To threaten me. I told him where to stick it. I never took a dime from that man, Mae.\""
+        },
+        {
+          "id": "msg_308",
+          "speaker": "Mae Hollis",
+          "text": "She studies my face a moment too long. \"Sure. Get in, we're late.\""
+        },
+        {
+          "id": "msg_309",
+          "speaker": "Narrator",
+          "text": "The car pulls away from the curb, wipers beating against the sleet."
+        }
+      ],
+      "line": "Max never took any money from Brandt.",
+      "supported": false,
+      "kind": "lie-as-fact"
+    },
+    {
+      "id": "H32.0",
+      "case": "H32",
+      "lang": "en",
+      "storyTitle": "Ashworth Hall",
+      "cast": [
+        "Lady Ashworth",
+        "Graves",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_92",
+          "speaker": "Narrator",
+          "text": "Three candles gutter along the gallery wall. When you look back at the portrait of Lord Ashworth, his painted hand is no longer resting on the sword. It points at the door."
+        },
+        {
+          "id": "msg_93",
+          "speaker": "Graves",
+          "text": "Graves stiffens. \"The master's portrait has always been... restless, sir.\""
+        }
+      ],
+      "line": "Three candles burn along the gallery wall.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "H32.1",
+      "case": "H32",
+      "lang": "en",
+      "storyTitle": "Ashworth Hall",
+      "cast": [
+        "Lady Ashworth",
+        "Graves",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_92",
+          "speaker": "Narrator",
+          "text": "Three candles gutter along the gallery wall. When you look back at the portrait of Lord Ashworth, his painted hand is no longer resting on the sword. It points at the door."
+        },
+        {
+          "id": "msg_93",
+          "speaker": "Graves",
+          "text": "Graves stiffens. \"The master's portrait has always been... restless, sir.\""
+        }
+      ],
+      "line": "In the portrait, Lord Ashworth's hand now points at the door.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "H32.2",
+      "case": "H32",
+      "lang": "en",
+      "storyTitle": "Ashworth Hall",
+      "cast": [
+        "Lady Ashworth",
+        "Graves",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_92",
+          "speaker": "Narrator",
+          "text": "Three candles gutter along the gallery wall. When you look back at the portrait of Lord Ashworth, his painted hand is no longer resting on the sword. It points at the door."
+        },
+        {
+          "id": "msg_93",
+          "speaker": "Graves",
+          "text": "Graves stiffens. \"The master's portrait has always been... restless, sir.\""
+        }
+      ],
+      "line": "Graves moved the portrait himself.",
+      "supported": false,
+      "kind": "fabricated"
+    },
+    {
+      "id": "H32.3",
+      "case": "H32",
+      "lang": "en",
+      "storyTitle": "Ashworth Hall",
+      "cast": [
+        "Lady Ashworth",
+        "Graves",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_92",
+          "speaker": "Narrator",
+          "text": "Three candles gutter along the gallery wall. When you look back at the portrait of Lord Ashworth, his painted hand is no longer resting on the sword. It points at the door."
+        },
+        {
+          "id": "msg_93",
+          "speaker": "Graves",
+          "text": "Graves stiffens. \"The master's portrait has always been... restless, sir.\""
+        }
+      ],
+      "line": "Graves says the master's portrait has always been restless.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "H09.0",
+      "case": "H09",
+      "lang": "en",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_44",
+          "speaker": "Max",
+          "text": "\"Alright, Luke, you can come.\""
+        },
+        {
+          "id": "msg_45",
+          "speaker": "Arin",
+          "text": "Arin pulls you aside. \"He's twelve. The ruins killed three grown adventurers last spring. Think about what you're doing.\""
+        },
+        {
+          "id": "msg_46",
+          "speaker": "Max",
+          "text": "I look at Luke's hopeful face, then shake my head. \"Arin's right. I'm sorry, kid. You're staying.\""
+        }
+      ],
+      "line": "Max first agreed to take Luke, then changed his mind.",
+      "supported": true,
+      "kind": "summary"
+    },
+    {
+      "id": "H09.1",
+      "case": "H09",
+      "lang": "en",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_44",
+          "speaker": "Max",
+          "text": "\"Alright, Luke, you can come.\""
+        },
+        {
+          "id": "msg_45",
+          "speaker": "Arin",
+          "text": "Arin pulls you aside. \"He's twelve. The ruins killed three grown adventurers last spring. Think about what you're doing.\""
+        },
+        {
+          "id": "msg_46",
+          "speaker": "Max",
+          "text": "I look at Luke's hopeful face, then shake my head. \"Arin's right. I'm sorry, kid. You're staying.\""
+        }
+      ],
+      "line": "Luke is staying behind.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "H09.2",
+      "case": "H09",
+      "lang": "en",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_44",
+          "speaker": "Max",
+          "text": "\"Alright, Luke, you can come.\""
+        },
+        {
+          "id": "msg_45",
+          "speaker": "Arin",
+          "text": "Arin pulls you aside. \"He's twelve. The ruins killed three grown adventurers last spring. Think about what you're doing.\""
+        },
+        {
+          "id": "msg_46",
+          "speaker": "Max",
+          "text": "I look at Luke's hopeful face, then shake my head. \"Arin's right. I'm sorry, kid. You're staying.\""
+        }
+      ],
+      "line": "Arin wanted Luke to come along.",
+      "supported": false,
+      "kind": "inverted"
+    },
+    {
+      "id": "H09.3",
+      "case": "H09",
+      "lang": "en",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_44",
+          "speaker": "Max",
+          "text": "\"Alright, Luke, you can come.\""
+        },
+        {
+          "id": "msg_45",
+          "speaker": "Arin",
+          "text": "Arin pulls you aside. \"He's twelve. The ruins killed three grown adventurers last spring. Think about what you're doing.\""
+        },
+        {
+          "id": "msg_46",
+          "speaker": "Max",
+          "text": "I look at Luke's hopeful face, then shake my head. \"Arin's right. I'm sorry, kid. You're staying.\""
+        }
+      ],
+      "line": "Luke burst into tears when he was told.",
+      "supported": false,
+      "kind": "embellished"
+    },
+    {
+      "id": "H24.0",
+      "case": "H24",
+      "lang": "en",
+      "storyTitle": "The Long Dark",
+      "cast": [
+        "Captain Okafor",
+        "Pell",
+        "HALO",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_20",
+          "speaker": "Pell",
+          "text": "\"There. Containment's green across the board. She's stable, Captain.\""
+        },
+        {
+          "id": "msg_21",
+          "speaker": "Captain Okafor",
+          "text": "\"Good. HALO, broadcast a mayday on all frequencies. I want every ship in this sector to know where we are.\""
+        },
+        {
+          "id": "msg_22",
+          "speaker": "HALO",
+          "text": "\"Acknowledged. Preparing the broadcast. Transmission will begin once the antenna array finishes realigning, in approximately four minutes.\""
+        }
+      ],
+      "line": "Pell got the reactor stable.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "H24.1",
+      "case": "H24",
+      "lang": "en",
+      "storyTitle": "The Long Dark",
+      "cast": [
+        "Captain Okafor",
+        "Pell",
+        "HALO",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_20",
+          "speaker": "Pell",
+          "text": "\"There. Containment's green across the board. She's stable, Captain.\""
+        },
+        {
+          "id": "msg_21",
+          "speaker": "Captain Okafor",
+          "text": "\"Good. HALO, broadcast a mayday on all frequencies. I want every ship in this sector to know where we are.\""
+        },
+        {
+          "id": "msg_22",
+          "speaker": "HALO",
+          "text": "\"Acknowledged. Preparing the broadcast. Transmission will begin once the antenna array finishes realigning, in approximately four minutes.\""
+        }
+      ],
+      "line": "The captain ordered a mayday broadcast on all frequencies.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "H24.2",
+      "case": "H24",
+      "lang": "en",
+      "storyTitle": "The Long Dark",
+      "cast": [
+        "Captain Okafor",
+        "Pell",
+        "HALO",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_20",
+          "speaker": "Pell",
+          "text": "\"There. Containment's green across the board. She's stable, Captain.\""
+        },
+        {
+          "id": "msg_21",
+          "speaker": "Captain Okafor",
+          "text": "\"Good. HALO, broadcast a mayday on all frequencies. I want every ship in this sector to know where we are.\""
+        },
+        {
+          "id": "msg_22",
+          "speaker": "HALO",
+          "text": "\"Acknowledged. Preparing the broadcast. Transmission will begin once the antenna array finishes realigning, in approximately four minutes.\""
+        }
+      ],
+      "line": "A nearby ship answered the mayday.",
+      "supported": false,
+      "kind": "fabricated"
+    },
+    {
+      "id": "H24.3",
+      "case": "H24",
+      "lang": "en",
+      "storyTitle": "The Long Dark",
+      "cast": [
+        "Captain Okafor",
+        "Pell",
+        "HALO",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_20",
+          "speaker": "Pell",
+          "text": "\"There. Containment's green across the board. She's stable, Captain.\""
+        },
+        {
+          "id": "msg_21",
+          "speaker": "Captain Okafor",
+          "text": "\"Good. HALO, broadcast a mayday on all frequencies. I want every ship in this sector to know where we are.\""
+        },
+        {
+          "id": "msg_22",
+          "speaker": "HALO",
+          "text": "\"Acknowledged. Preparing the broadcast. Transmission will begin once the antenna array finishes realigning, in approximately four minutes.\""
+        }
+      ],
+      "line": "HALO refused the captain's order.",
+      "supported": false,
+      "kind": "inverted"
+    },
+    {
+      "id": "L02.0",
+      "case": "L02",
+      "lang": "en",
+      "storyTitle": "The Long Dark",
+      "cast": [
+        "Captain Okafor",
+        "Pell",
+        "HALO",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_200",
+          "speaker": "Pell",
+          "text": "Pell braces against the bulkhead and drives the last rivet home. \"Patch is on. Deck three's breach is sealed.\""
+        },
+        {
+          "id": "msg_201",
+          "speaker": "HALO",
+          "text": "\"Confirmed. Pressure on deck three is rising toward nominal.\""
+        },
+        {
+          "id": "msg_202",
+          "speaker": "Captain Okafor",
+          "text": "\"Good work. Now the reactor.\""
+        },
+        {
+          "id": "msg_203",
+          "speaker": "Narrator",
+          "text": "The corridor lights dim and brighten in slow waves, following the reactor's pulse."
+        },
+        {
+          "id": "msg_204",
+          "speaker": "Pell",
+          "text": "\"Containment's still jumping around. I'd call it sixty-forty we don't lose it.\""
+        },
+        {
+          "id": "msg_205",
+          "speaker": "Captain Okafor",
+          "text": "\"Which way round, Pell?\""
+        },
+        {
+          "id": "msg_206",
+          "speaker": "Pell",
+          "text": "\"You don't want to know, Captain.\""
+        },
+        {
+          "id": "msg_207",
+          "speaker": "HALO",
+          "text": "\"Coolant flow in loop two is at thirty-one percent of rated capacity.\""
+        },
+        {
+          "id": "msg_208",
+          "speaker": "Captain Okafor",
+          "text": "\"Reroute loop one to cover it.\""
+        },
+        {
+          "id": "msg_209",
+          "speaker": "Pell",
+          "text": "Pell hammers at the console. \"Rerouting. This is going to get loud.\""
+        },
+        {
+          "id": "msg_210",
+          "speaker": "Narrator",
+          "text": "A shudder runs through the deck plates as the pumps spin up."
+        },
+        {
+          "id": "msg_211",
+          "speaker": "HALO",
+          "text": "\"Containment fluctuation reduced by twelve percent. It is still outside safe limits.\""
+        }
+      ],
+      "line": "Pell sealed the hull breach on deck three.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "L02.1",
+      "case": "L02",
+      "lang": "en",
+      "storyTitle": "The Long Dark",
+      "cast": [
+        "Captain Okafor",
+        "Pell",
+        "HALO",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_200",
+          "speaker": "Pell",
+          "text": "Pell braces against the bulkhead and drives the last rivet home. \"Patch is on. Deck three's breach is sealed.\""
+        },
+        {
+          "id": "msg_201",
+          "speaker": "HALO",
+          "text": "\"Confirmed. Pressure on deck three is rising toward nominal.\""
+        },
+        {
+          "id": "msg_202",
+          "speaker": "Captain Okafor",
+          "text": "\"Good work. Now the reactor.\""
+        },
+        {
+          "id": "msg_203",
+          "speaker": "Narrator",
+          "text": "The corridor lights dim and brighten in slow waves, following the reactor's pulse."
+        },
+        {
+          "id": "msg_204",
+          "speaker": "Pell",
+          "text": "\"Containment's still jumping around. I'd call it sixty-forty we don't lose it.\""
+        },
+        {
+          "id": "msg_205",
+          "speaker": "Captain Okafor",
+          "text": "\"Which way round, Pell?\""
+        },
+        {
+          "id": "msg_206",
+          "speaker": "Pell",
+          "text": "\"You don't want to know, Captain.\""
+        },
+        {
+          "id": "msg_207",
+          "speaker": "HALO",
+          "text": "\"Coolant flow in loop two is at thirty-one percent of rated capacity.\""
+        },
+        {
+          "id": "msg_208",
+          "speaker": "Captain Okafor",
+          "text": "\"Reroute loop one to cover it.\""
+        },
+        {
+          "id": "msg_209",
+          "speaker": "Pell",
+          "text": "Pell hammers at the console. \"Rerouting. This is going to get loud.\""
+        },
+        {
+          "id": "msg_210",
+          "speaker": "Narrator",
+          "text": "A shudder runs through the deck plates as the pumps spin up."
+        },
+        {
+          "id": "msg_211",
+          "speaker": "HALO",
+          "text": "\"Containment fluctuation reduced by twelve percent. It is still outside safe limits.\""
+        }
+      ],
+      "line": "Coolant loop two is running at about a third of its capacity.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "L02.2",
+      "case": "L02",
+      "lang": "en",
+      "storyTitle": "The Long Dark",
+      "cast": [
+        "Captain Okafor",
+        "Pell",
+        "HALO",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_200",
+          "speaker": "Pell",
+          "text": "Pell braces against the bulkhead and drives the last rivet home. \"Patch is on. Deck three's breach is sealed.\""
+        },
+        {
+          "id": "msg_201",
+          "speaker": "HALO",
+          "text": "\"Confirmed. Pressure on deck three is rising toward nominal.\""
+        },
+        {
+          "id": "msg_202",
+          "speaker": "Captain Okafor",
+          "text": "\"Good work. Now the reactor.\""
+        },
+        {
+          "id": "msg_203",
+          "speaker": "Narrator",
+          "text": "The corridor lights dim and brighten in slow waves, following the reactor's pulse."
+        },
+        {
+          "id": "msg_204",
+          "speaker": "Pell",
+          "text": "\"Containment's still jumping around. I'd call it sixty-forty we don't lose it.\""
+        },
+        {
+          "id": "msg_205",
+          "speaker": "Captain Okafor",
+          "text": "\"Which way round, Pell?\""
+        },
+        {
+          "id": "msg_206",
+          "speaker": "Pell",
+          "text": "\"You don't want to know, Captain.\""
+        },
+        {
+          "id": "msg_207",
+          "speaker": "HALO",
+          "text": "\"Coolant flow in loop two is at thirty-one percent of rated capacity.\""
+        },
+        {
+          "id": "msg_208",
+          "speaker": "Captain Okafor",
+          "text": "\"Reroute loop one to cover it.\""
+        },
+        {
+          "id": "msg_209",
+          "speaker": "Pell",
+          "text": "Pell hammers at the console. \"Rerouting. This is going to get loud.\""
+        },
+        {
+          "id": "msg_210",
+          "speaker": "Narrator",
+          "text": "A shudder runs through the deck plates as the pumps spin up."
+        },
+        {
+          "id": "msg_211",
+          "speaker": "HALO",
+          "text": "\"Containment fluctuation reduced by twelve percent. It is still outside safe limits.\""
+        }
+      ],
+      "line": "The reactor is now stable.",
+      "supported": false,
+      "kind": "contradicted"
+    },
+    {
+      "id": "L02.3",
+      "case": "L02",
+      "lang": "en",
+      "storyTitle": "The Long Dark",
+      "cast": [
+        "Captain Okafor",
+        "Pell",
+        "HALO",
+        "Narrator"
+      ],
+      "transcript": [
+        {
+          "id": "msg_200",
+          "speaker": "Pell",
+          "text": "Pell braces against the bulkhead and drives the last rivet home. \"Patch is on. Deck three's breach is sealed.\""
+        },
+        {
+          "id": "msg_201",
+          "speaker": "HALO",
+          "text": "\"Confirmed. Pressure on deck three is rising toward nominal.\""
+        },
+        {
+          "id": "msg_202",
+          "speaker": "Captain Okafor",
+          "text": "\"Good work. Now the reactor.\""
+        },
+        {
+          "id": "msg_203",
+          "speaker": "Narrator",
+          "text": "The corridor lights dim and brighten in slow waves, following the reactor's pulse."
+        },
+        {
+          "id": "msg_204",
+          "speaker": "Pell",
+          "text": "\"Containment's still jumping around. I'd call it sixty-forty we don't lose it.\""
+        },
+        {
+          "id": "msg_205",
+          "speaker": "Captain Okafor",
+          "text": "\"Which way round, Pell?\""
+        },
+        {
+          "id": "msg_206",
+          "speaker": "Pell",
+          "text": "\"You don't want to know, Captain.\""
+        },
+        {
+          "id": "msg_207",
+          "speaker": "HALO",
+          "text": "\"Coolant flow in loop two is at thirty-one percent of rated capacity.\""
+        },
+        {
+          "id": "msg_208",
+          "speaker": "Captain Okafor",
+          "text": "\"Reroute loop one to cover it.\""
+        },
+        {
+          "id": "msg_209",
+          "speaker": "Pell",
+          "text": "Pell hammers at the console. \"Rerouting. This is going to get loud.\""
+        },
+        {
+          "id": "msg_210",
+          "speaker": "Narrator",
+          "text": "A shudder runs through the deck plates as the pumps spin up."
+        },
+        {
+          "id": "msg_211",
+          "speaker": "HALO",
+          "text": "\"Containment fluctuation reduced by twelve percent. It is still outside safe limits.\""
+        }
+      ],
+      "line": "Okafor ordered loop one rerouted to cover loop two.",
+      "supported": true,
+      "kind": "paraphrase"
+    },
+    {
+      "id": "H21.0",
+      "case": "H21",
+      "lang": "en",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_20",
+          "speaker": "Ponticius",
+          "text": "\"El trabajo de las Ruinas del Sol. Doscientas coronas. ¿Lo tomas o no?\""
+        },
+        {
+          "id": "msg_21",
+          "speaker": "Max",
+          "text": "\"Lo tomo. Firmaré ahora mismo.\" Firmo el contrato y se lo devuelvo."
+        }
+      ],
+      "line": "Max aceptó el trabajo de las Ruinas del Sol.",
+      "supported": true,
+      "kind": "spanish"
+    },
+    {
+      "id": "H21.1",
+      "case": "H21",
+      "lang": "en",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_20",
+          "speaker": "Ponticius",
+          "text": "\"El trabajo de las Ruinas del Sol. Doscientas coronas. ¿Lo tomas o no?\""
+        },
+        {
+          "id": "msg_21",
+          "speaker": "Max",
+          "text": "\"Lo tomo. Firmaré ahora mismo.\" Firmo el contrato y se lo devuelvo."
+        }
+      ],
+      "line": "The Sun Ruins job pays two hundred crowns.",
+      "supported": true,
+      "kind": "cross-language"
+    },
+    {
+      "id": "H21.2",
+      "case": "H21",
+      "lang": "en",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_20",
+          "speaker": "Ponticius",
+          "text": "\"El trabajo de las Ruinas del Sol. Doscientas coronas. ¿Lo tomas o no?\""
+        },
+        {
+          "id": "msg_21",
+          "speaker": "Max",
+          "text": "\"Lo tomo. Firmaré ahora mismo.\" Firmo el contrato y se lo devuelvo."
+        }
+      ],
+      "line": "Ponticius raised the fee to three hundred crowns.",
+      "supported": false,
+      "kind": "fabricated"
+    },
+    {
+      "id": "H21.3",
+      "case": "H21",
+      "lang": "en",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_20",
+          "speaker": "Ponticius",
+          "text": "\"El trabajo de las Ruinas del Sol. Doscientas coronas. ¿Lo tomas o no?\""
+        },
+        {
+          "id": "msg_21",
+          "speaker": "Max",
+          "text": "\"Lo tomo. Firmaré ahora mismo.\" Firmo el contrato y se lo devuelvo."
+        }
+      ],
+      "line": "Max signed the contract.",
+      "supported": true,
+      "kind": "cross-language"
+    },
+    {
+      "id": "ES.0",
+      "case": "H21",
+      "lang": "es",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_20",
+          "speaker": "Ponticius",
+          "text": "\"El trabajo de las Ruinas del Sol. Doscientas coronas. ¿Lo tomas o no?\""
+        },
+        {
+          "id": "msg_21",
+          "speaker": "Max",
+          "text": "\"Lo tomo. Firmaré ahora mismo.\" Firmo el contrato y se lo devuelvo."
+        }
+      ],
+      "line": "Max aceptó el trabajo de las Ruinas del Sol.",
+      "supported": true,
+      "kind": "supported"
+    },
+    {
+      "id": "ES.1",
+      "case": "H21",
+      "lang": "es",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_20",
+          "speaker": "Ponticius",
+          "text": "\"El trabajo de las Ruinas del Sol. Doscientas coronas. ¿Lo tomas o no?\""
+        },
+        {
+          "id": "msg_21",
+          "speaker": "Max",
+          "text": "\"Lo tomo. Firmaré ahora mismo.\" Firmo el contrato y se lo devuelvo."
+        }
+      ],
+      "line": "Ponticius ofreció doscientas coronas por el trabajo.",
+      "supported": true,
+      "kind": "supported"
+    },
+    {
+      "id": "ES.2",
+      "case": "H21",
+      "lang": "es",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_20",
+          "speaker": "Ponticius",
+          "text": "\"El trabajo de las Ruinas del Sol. Doscientas coronas. ¿Lo tomas o no?\""
+        },
+        {
+          "id": "msg_21",
+          "speaker": "Max",
+          "text": "\"Lo tomo. Firmaré ahora mismo.\" Firmo el contrato y se lo devuelvo."
+        }
+      ],
+      "line": "Ponticius ofreció quinientas coronas por el trabajo.",
+      "supported": false,
+      "kind": "wrong-detail"
+    },
+    {
+      "id": "ES.3",
+      "case": "H21",
+      "lang": "es",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_20",
+          "speaker": "Ponticius",
+          "text": "\"El trabajo de las Ruinas del Sol. Doscientas coronas. ¿Lo tomas o no?\""
+        },
+        {
+          "id": "msg_21",
+          "speaker": "Max",
+          "text": "\"Lo tomo. Firmaré ahora mismo.\" Firmo el contrato y se lo devuelvo."
+        }
+      ],
+      "line": "Arin firmó el contrato.",
+      "supported": false,
+      "kind": "wrong-actor"
+    },
+    {
+      "id": "ES.4",
+      "case": "H22",
+      "lang": "es",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_40",
+          "speaker": "Luke",
+          "text": "\"¡Déjame ir contigo, por favor!\""
+        },
+        {
+          "id": "msg_41",
+          "speaker": "Max",
+          "text": "\"No, Luke. Te quedas en casa con mamá. Es demasiado peligroso.\""
+        }
+      ],
+      "line": "Luke quiere ir con Max.",
+      "supported": true,
+      "kind": "supported"
+    },
+    {
+      "id": "ES.5",
+      "case": "H22",
+      "lang": "es",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_40",
+          "speaker": "Luke",
+          "text": "\"¡Déjame ir contigo, por favor!\""
+        },
+        {
+          "id": "msg_41",
+          "speaker": "Max",
+          "text": "\"No, Luke. Te quedas en casa con mamá. Es demasiado peligroso.\""
+        }
+      ],
+      "line": "Max le dijo a Luke que se quede en casa con su madre.",
+      "supported": true,
+      "kind": "supported"
+    },
+    {
+      "id": "ES.6",
+      "case": "H22",
+      "lang": "es",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_40",
+          "speaker": "Luke",
+          "text": "\"¡Déjame ir contigo, por favor!\""
+        },
+        {
+          "id": "msg_41",
+          "speaker": "Max",
+          "text": "\"No, Luke. Te quedas en casa con mamá. Es demasiado peligroso.\""
+        }
+      ],
+      "line": "Luke se unió a la expedición.",
+      "supported": false,
+      "kind": "inverted"
+    },
+    {
+      "id": "ES.7",
+      "case": "H22",
+      "lang": "es",
+      "storyTitle": "Quest for the Sun Ruins",
+      "cast": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius",
+        "Luke"
+      ],
+      "transcript": [
+        {
+          "id": "msg_40",
+          "speaker": "Luke",
+          "text": "\"¡Déjame ir contigo, por favor!\""
+        },
+        {
+          "id": "msg_41",
+          "speaker": "Max",
+          "text": "\"No, Luke. Te quedas en casa con mamá. Es demasiado peligroso.\""
+        }
+      ],
+      "line": "Max le prometió a Luke llevarlo la próxima vez.",
+      "supported": false,
+      "kind": "fabricated"
+    }
+  ]
+}

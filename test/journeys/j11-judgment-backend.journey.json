@@ -21,7 +21,9 @@
       "mode": "auto",
       "findings": [],
       "goal": "the server plugin answers /status with a configured key, and reports where the key came from without the key itself",
-      "requires": ["judge-runtime"],
+      "requires": [
+        "judge-runtime"
+      ],
       "steps": [
         {
           "eval": "const headers = SillyTavern.getContext().getRequestHeaders(); const response = await fetch('/api/plugins/story-orchestrator-judge/status', { headers }).catch(() => null); if (!response) throw new Error('no response from the judge plugin route'); if (response.status === 404) throw new Error('judge plugin not loaded: install it with npm run plugin:install and start ST with enableServerPlugins: true'); const body = await response.json(); globalThis.__soJ11PluginStatus = body; if (!body.configured) throw new Error(`plugin loaded but no key: ${JSON.stringify(body)}`); if (JSON.stringify(body).length > 200) throw new Error('status body unexpectedly large'); return body;"
@@ -33,15 +35,36 @@
       "mode": "auto",
       "findings": [],
       "goal": "judge off (the default): a real group turn is decided by today's chain and nothing reaches the plugin",
-      "requires": ["judge-runtime", "judge-plugin"],
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
       "steps": [
-        { "import_story": { "file": "./j11-judge.story.json" } },
-        { "ui": { "action": "select-profile" } },
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
+        {
+          "ui": {
+            "action": "select-profile"
+          }
+        },
         {
           "eval": "const settings = globalThis.storyOrchestratorRuntime.getGlobalSettings().judge; if (settings.enabled || Object.values(settings.uses).some(Boolean)) throw new Error(`judge not off by default: ${JSON.stringify(settings)}`); globalThis.storyOrchestratorRuntime.setTalkDirectionEnabled(true); globalThis.__soJ11PluginCalls = 0; if (!globalThis.__soJ11FetchWrapped) { const original = globalThis.fetch; globalThis.fetch = (input, init) => { if (String(input?.url ?? input).includes('/api/plugins/story-orchestrator-judge/systemone')) globalThis.__soJ11PluginCalls += 1; return original(input, init); }; globalThis.__soJ11FetchWrapped = true; } return settings;"
         },
-        { "send_generate": { "text": "I lean on the counter and ask what this job actually pays.", "timeoutMs": 300000 } },
-        { "wait": { "talkDecisions": 1, "timeoutMs": 240000 } },
+        {
+          "send_generate": {
+            "text": "I lean on the counter and ask what this job actually pays.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "talkDecisions": 1,
+            "timeoutMs": 240000
+          }
+        },
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const decision = rt.getTalkState().decisions.at(-1); if (!['mention', 'director', 'rules', 'fallback'].includes(decision.source)) throw new Error(`judge off but source was ${decision.source}`); if (globalThis.__soJ11PluginCalls !== 0) throw new Error(`${globalThis.__soJ11PluginCalls} plugin calls with the judge off`); const ring = rt.getSessionJournal().filter((event) => event.kind === 'judge'); if (ring.length) throw new Error(`judge ring not empty: ${JSON.stringify(ring)}`); return decision;"
         }
@@ -52,13 +75,26 @@
       "mode": "auto",
       "findings": [],
       "goal": "judge on with speaker direction opted in: the judge decides the turn inside its budget, records the answering model in its own ring, and adds nothing to the persisted journal",
-      "requires": ["judge-runtime", "judge-plugin"],
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
       "steps": [
         {
           "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, director: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); globalThis.__soJ11JournalBefore = SillyTavern.getContext().chatMetadata.story_orchestrator?.stories?.[SillyTavern.getContext().chatMetadata.story_orchestrator.selectedStoryId]?.extras?.journal?.length ?? 0; return globalThis.storyOrchestratorRuntime.getGlobalSettings().judge;"
         },
-        { "send_generate": { "text": "I turn to the old man behind the job board: what is the pay for the Sun Ruins?", "timeoutMs": 300000 } },
-        { "wait": { "talkDecisions": 2, "timeoutMs": 240000 } },
+        {
+          "send_generate": {
+            "text": "I turn to the old man behind the job board: what is the pay for the Sun Ruins?",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "talkDecisions": 2,
+            "timeoutMs": 240000
+          }
+        },
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const decision = rt.getTalkState().decisions.at(-1); if (decision.source !== 'judge') throw new Error(`expected a judge decision, got ${JSON.stringify(decision)}`); if (decision.latencyMs > 1500) throw new Error(`judge decision took ${decision.latencyMs} ms`); const calls = rt.getSessionJournal().filter((event) => event.kind === 'judge'); const last = calls.at(-1); if (!last || !String(last.detail?.model ?? '').startsWith('jev-')) throw new Error(`no judge record with a model: ${JSON.stringify(calls)}`); if (globalThis.__soJ11PluginCalls < 1) throw new Error('the judge decided without a plugin call'); const meta = SillyTavern.getContext().chatMetadata.story_orchestrator; const journal = meta.stories[meta.selectedStoryId].extras.journal ?? []; if (journal.some((record) => record.kind === 'judge')) throw new Error('judge rows leaked into the persisted journal'); return { decision, record: last, pluginCalls: globalThis.__soJ11PluginCalls };"
         }
@@ -69,13 +105,26 @@
       "mode": "auto",
       "findings": [],
       "goal": "a 1 ms judge budget falls back to today's chain, records the fallback, and the turn still gets a reply",
-      "requires": ["judge-runtime", "judge-plugin"],
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
       "steps": [
         {
           "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, timeoutMs: 1 }; globalThis.__soJ11ChatBefore = SillyTavern.getContext().chat.length; return root.settings.judge.timeoutMs;"
         },
-        { "send_generate": { "text": "Arin, you have been quiet. What do you make of the sphinx story?", "timeoutMs": 300000 } },
-        { "wait": { "talkDecisions": 3, "timeoutMs": 240000 } },
+        {
+          "send_generate": {
+            "text": "Arin, you have been quiet. What do you make of the sphinx story?",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "talkDecisions": 3,
+            "timeoutMs": 240000
+          }
+        },
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const decision = rt.getTalkState().decisions.at(-1); if (decision.source === 'judge') throw new Error('a 1 ms budget still produced a judge decision'); const last = rt.getSessionJournal().filter((event) => event.kind === 'judge').at(-1); if (!last?.summary.includes('fell back (timeout)')) throw new Error(`no timeout fallback recorded: ${JSON.stringify(last)}`); if (SillyTavern.getContext().chat.length <= globalThis.__soJ11ChatBefore + 1) throw new Error('no reply after the fallback'); return { decision, record: last };"
         }
@@ -84,12 +133,24 @@
     {
       "id": "J11.5",
       "mode": "auto",
-      "findings": ["U3"],
+      "findings": [
+        "U3"
+      ],
       "goal": "player mode shows nothing judge-internal: no probabilities, no judge sources, no steering controls",
-      "requires": ["judge-runtime"],
+      "requires": [
+        "judge-runtime"
+      ],
       "steps": [
-        { "ui": { "action": "open-drawer" } },
-        { "ui": { "action": "assert-player-clean" } }
+        {
+          "ui": {
+            "action": "open-drawer"
+          }
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        }
       ]
     },
     {
@@ -97,11 +158,126 @@
       "mode": "auto",
       "findings": [],
       "goal": "judge settings survive a reload, and the key appears nowhere in extension settings or chat metadata",
-      "requires": ["judge-runtime"],
+      "requires": [
+        "judge-runtime"
+      ],
       "steps": [
-        { "reload": { "timeoutMs": 90000 } },
+        {
+          "reload": {
+            "timeoutMs": 90000
+          }
+        },
         {
           "eval": "const settings = globalThis.storyOrchestratorRuntime.getGlobalSettings().judge; if (!settings.enabled || !settings.uses.director) throw new Error(`judge settings lost on reload: ${JSON.stringify(settings)}`); const ctx = SillyTavern.getContext(); const dump = JSON.stringify(ctx.extensionSettings['story-orchestrator']) + JSON.stringify(ctx.chatMetadata ?? {}); if (/typesafe_api_key|TYPESAFE_API_KEY|Bearer /.test(dump)) throw new Error('a key reference leaked into settings or chat metadata'); const suspicious = [...dump.matchAll(/\"[^\"]*(?:key|secret|token)[^\"]*\"\\s*:\\s*\"([^\"]{24,})\"/gi)].map((match) => match[0].slice(0, 40)); if (suspicious.length) throw new Error(`long secret-like values stored: ${suspicious.join(' | ')}`); return { settings };"
+        }
+      ]
+    },
+    {
+      "id": "J11.7",
+      "mode": "auto",
+      "findings": [],
+      "goal": "memoryVerify on (opt-in): a real read's memory lines are judged against the transcript before they are stored; every read with lines leaves a memoryVerify record, stored confidences follow policy",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, memoryVerify: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); globalThis.__soJ11Mem = { judgeCalls: rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge memoryVerify')).length, entryIds: snap.memory.entries.map((entry) => entry.id), drops: snap.memory.verifyDrops.length }; return globalThis.__soJ11Mem.entryIds.length;"
+        },
+        {
+          "send_generate": {
+            "text": "I slide my silver signet ring across the counter as a deposit. Ponticius, write it down: we take the Sun Ruins job for 250 crowns, and Luke stays here.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "extract": {
+            "reason": "j11.7"
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const base = globalThis.__soJ11Mem; const snap = rt.getSnapshot(); const added = snap.memory.entries.filter((entry) => !base.entryIds.includes(entry.id)); const drops = snap.memory.verifyDrops.slice(base.drops); const calls = rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge memoryVerify')).slice(base.judgeCalls); const lines = added.length + drops.length; if (!lines) return { branch: 'the read produced no memory lines this time; nothing to verify', calls: calls.length }; if (!calls.length) throw new Error(`${lines} new memory lines but no memoryVerify record`); if (calls.every((event) => event.summary.includes('fell back'))) throw new Error(`every memoryVerify call fell back: ${calls.map((event) => event.summary).join(' | ')}`); const bad = added.filter((entry) => typeof entry.confidence === 'number' && (entry.confidence > 1 || entry.confidence < 0.2)); if (bad.length) throw new Error(`stored confidence outside policy: ${JSON.stringify(bad.map((entry) => [entry.text, entry.confidence]))}`); const badDrops = drops.filter((drop) => !(drop.p < 0.2) || drop.model !== 'jev-1.13.0'); if (badDrops.length) throw new Error(`drop outside policy: ${JSON.stringify(badDrops)}`); return { branch: drops.length ? 'some lines dropped as unsupported' : 'every line supported', stored: added.map((entry) => [entry.text, entry.confidence ?? 1]), drops: drops.map((drop) => [drop.entry.text, drop.p]), calls: calls.map((event) => event.summary) };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.8",
+      "mode": "auto",
+      "findings": [],
+      "goal": "a scripted reply that contradicts itself, then a real read: an unsupported line lands in verifyDrops (author-visible, restorable), or the model wrote only supported lines; the check logs which branch ran",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); globalThis.__soJ11Mem = { judgeCalls: rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge memoryVerify')).length, entryIds: snap.memory.entries.map((entry) => entry.id), drops: snap.memory.verifyDrops.length }; return globalThis.__soJ11Mem.entryIds.length;"
+        },
+        {
+          "slash": "/sendas name=\"Ponticius\" raw=false \"Two hundred and fifty crowns, half up front. Though, mind you, I never offered you any job, and there is no Sun Ruins contract on this board.\""
+        },
+        {
+          "extract": {
+            "reason": "j11.8"
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const base = globalThis.__soJ11Mem; const snap = rt.getSnapshot(); const added = snap.memory.entries.filter((entry) => !base.entryIds.includes(entry.id)); const drops = snap.memory.verifyDrops.slice(base.drops); const calls = rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge memoryVerify')).slice(base.judgeCalls); const lines = added.length + drops.length; if (!lines) return { branch: 'the read produced no memory lines this time; nothing to verify', calls: calls.length }; if (!calls.length) throw new Error(`${lines} new memory lines but no memoryVerify record`); if (calls.every((event) => event.summary.includes('fell back'))) throw new Error(`every memoryVerify call fell back: ${calls.map((event) => event.summary).join(' | ')}`); const bad = added.filter((entry) => typeof entry.confidence === 'number' && (entry.confidence > 1 || entry.confidence < 0.2)); if (bad.length) throw new Error(`stored confidence outside policy: ${JSON.stringify(bad.map((entry) => [entry.text, entry.confidence]))}`); const badDrops = drops.filter((drop) => !(drop.p < 0.2) || drop.model !== 'jev-1.13.0'); if (badDrops.length) throw new Error(`drop outside policy: ${JSON.stringify(badDrops)}`); return { branch: drops.length ? `dropped ${drops.length}: ${drops.map((drop) => `${drop.entry.text} (p=${drop.p})`).join(' | ')}` : 'model wrote only supported lines', stored: added.map((entry) => [entry.text, entry.confidence ?? 1]) };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.9",
+      "mode": "auto",
+      "findings": [],
+      "goal": "memoryPairs on (opt-in): seeded labelled pairs are consolidated by the judge; a duplicate is dropped, an update supersedes, and a pair about two different things (same owner or place) is never superseded or dropped",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, memoryVerify: false, memoryPairs: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const rt = globalThis.storyOrchestratorRuntime; const at = SillyTavern.getContext().chat.length - 1; const seed = [[\"M01\", \"Arin carries a curved blade she took from a pirate captain.\", \"Arin's sword is a curved blade taken from a pirate captain.\"], [\"M07\", \"The payoffs to the harbor police come from Maeve.\", \"The payoffs to the harbor police trace back to the dockmaster, not Maeve.\"], [\"M08\", \"Tommy Sayer is hiding at the safehouse on Pier Street.\", \"Tommy Sayer's brother is hiding at the safehouse on Pier Street.\"], [\"P21\", \"Arin's sword is a curved blade.\", \"Arin's dagger is a curved blade.\"], [\"P31\", \"El libro de cuentas apareció en Pike Street.\", \"Encontraron el libro de cuentas en la lavandería de Pike Street.\"]]; const lines = seed.flatMap(([id, older, newer]) => [older, newer].map((text) => ({ tier: 'facts', type: 'fact', importance: 2, expiration: 'permanent', entities: [], characterId: 'j11-on', text, evidence: `J11 seed ${id}` }))); await rt.applyExtractionAudit({ id: 'j11-seed-j11-on', createdAt: new Date().toISOString(), priority: 0, reason: 'j11-seed', contractHash: 'j11', scope: [], window: { from: at, to: at }, prompt: '', rawResponse: '', acceptedDeltas: [], rejected: [] }, [], lines); const count = rt.getSnapshot().memory.entries.filter((entry) => entry.characterId === 'j11-on').length; if (count !== 10) throw new Error(`seeded ${count} of 10 into j11-on`); const pairCallsBefore = rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge memoryPairs')).length; const summary = await rt.runConsolidation(); const after = rt.getSnapshot().memory.entries.filter((entry) => entry.characterId === 'j11-on'); const state = (text) => { const entry = after.find((item) => item.text === text); return !entry ? 'gone' : entry.supersededBy ? 'superseded' : entry.foldedInto ? 'folded' : entry.contradicted ? 'contradicted' : 'kept'; }; const pairs = Object.fromEntries(seed.map(([id, older, newer]) => [id, [state(older), state(newer)]])); const pairCalls = rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge memoryPairs')).slice(pairCallsBefore); if (!pairCalls.length) throw new Error('memoryPairs on but no memoryPairs record'); if (pairCalls.every((event) => event.summary.includes('fell back'))) throw new Error(`every pair call fell back: ${pairCalls[0].summary}`); if (!['gone', 'folded'].includes(pairs.M01[1])) throw new Error(`M01 duplicate not dropped: ${JSON.stringify(pairs.M01)}`); if (pairs.M07[0] !== 'superseded') throw new Error(`M07 update did not supersede the older note: ${JSON.stringify(pairs.M07)}`); const harmed = ['M08', 'P21'].filter((id) => pairs[id].some((value) => ['gone', 'superseded', 'folded'].includes(value))); if (harmed.length) throw new Error(`a note about something else was removed: ${JSON.stringify(Object.fromEntries(harmed.map((id) => [id, pairs[id]])))}`); const p31 = pairs.P31.includes('gone') ? 'P31 decided duplicate over the confidence floor' : pairs.P31.includes('contradicted') ? 'P31 under the floor: the heuristic flag held' : 'P31 kept (not a candidate, or judged distinct)'; globalThis.__soJ11OnPairs = pairs; return { pairs, p31, summary, pairCalls: pairCalls.length };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.10",
+      "mode": "auto",
+      "findings": [],
+      "goal": "memoryPairs off: the same seed consolidates by today's heuristic alone, with no memoryPairs call",
+      "requires": [
+        "judge-runtime"
+      ],
+      "steps": [
+        {
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, memoryPairs: false } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const rt = globalThis.storyOrchestratorRuntime; const at = SillyTavern.getContext().chat.length - 1; const seed = [[\"M01\", \"Arin carries a curved blade she took from a pirate captain.\", \"Arin's sword is a curved blade taken from a pirate captain.\"], [\"M07\", \"The payoffs to the harbor police come from Maeve.\", \"The payoffs to the harbor police trace back to the dockmaster, not Maeve.\"], [\"M08\", \"Tommy Sayer is hiding at the safehouse on Pier Street.\", \"Tommy Sayer's brother is hiding at the safehouse on Pier Street.\"], [\"P21\", \"Arin's sword is a curved blade.\", \"Arin's dagger is a curved blade.\"], [\"P31\", \"El libro de cuentas apareció en Pike Street.\", \"Encontraron el libro de cuentas en la lavandería de Pike Street.\"]]; const lines = seed.flatMap(([id, older, newer]) => [older, newer].map((text) => ({ tier: 'facts', type: 'fact', importance: 2, expiration: 'permanent', entities: [], characterId: 'j11-off', text, evidence: `J11 seed ${id}` }))); await rt.applyExtractionAudit({ id: 'j11-seed-j11-off', createdAt: new Date().toISOString(), priority: 0, reason: 'j11-seed', contractHash: 'j11', scope: [], window: { from: at, to: at }, prompt: '', rawResponse: '', acceptedDeltas: [], rejected: [] }, [], lines); const count = rt.getSnapshot().memory.entries.filter((entry) => entry.characterId === 'j11-off').length; if (count !== 10) throw new Error(`seeded ${count} of 10 into j11-off`); const pairCallsBefore = rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge memoryPairs')).length; const summary = await rt.runConsolidation(); const after = rt.getSnapshot().memory.entries.filter((entry) => entry.characterId === 'j11-off'); const state = (text) => { const entry = after.find((item) => item.text === text); return !entry ? 'gone' : entry.supersededBy ? 'superseded' : entry.foldedInto ? 'folded' : entry.contradicted ? 'contradicted' : 'kept'; }; const pairs = Object.fromEntries(seed.map(([id, older, newer]) => [id, [state(older), state(newer)]])); const pairCalls = rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge memoryPairs')).slice(pairCallsBefore); if (pairCalls.length) throw new Error(`${pairCalls.length} memoryPairs calls with the use off`); const differs = Object.keys(pairs).filter((id) => JSON.stringify(pairs[id]) !== JSON.stringify(globalThis.__soJ11OnPairs?.[id])); return { pairs, summary, differsFromJudged: differs };",
+          "log": true
         }
       ]
     }

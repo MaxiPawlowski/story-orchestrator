@@ -108,8 +108,16 @@ described-label answers as the judge):
   - State: `{story: {title, cast}, transcript: [{id, speaker, text}]}`. The transcript is the
     audit's own window (`getChatWindow(audit.window.from, audit.window.to)`).
 - `buildPairQuestion(older, newer)`:
-  - One choice with the spike's **described** labels (`duplicate` / `update` / `distinct` /
-    `unrelated`).
+  - One choice with **described** labels (`duplicate` / `update` / `distinct` / `unrelated`), plus
+    one noul `same_thing`: "are both notes about one and the same person, object or place, and the
+    same property of it?" Both questions go in one request, so they run in parallel.
+  - **Revised at calibration (2026-09-19).** The spike's wording alone scored 24/32 on the new
+    fixture and 9/14 on a held-out set. It called same-owner, different-object pairs (a sword and a
+    dagger, the silver and the portrait frames) `update` at ≥ 0.6 in 3 held-out cases, and each of
+    those would have superseded a true note. The labels now say what "the same fact" means, and
+    `pairDecision` keeps both notes (`distinct`, or `unrelated` if Jev said so) whenever
+    `same_thing < PAIR_SAME_THING_BELOW`, whatever the relation says. The veto only ever moves
+    toward keeping both notes, which is the cheap direction.
   - State `{older_note, newer_note}`, one request per pair, which is the measured shape. Batching
     pairs over shared state is a different, unmeasured question.
 - New constants in `policy.ts`:
@@ -119,9 +127,10 @@ described-label answers as the judge):
 | `VERIFY_DROP_BELOW` | 0.2 |
 | `VERIFY_DOWNWEIGHT_BELOW` | 0.5 (confidence = p) |
 | `PAIR_MIN_CONFIDENCE` | 0.6 |
+| `PAIR_SAME_THING_BELOW` | 0.5: below it, a pair is kept whatever its relation (added at calibration) |
 | `PAIR_MAX_PER_PASS` | 32 (revised from Phase A) |
 | `PAIR_CONCURRENCY` | 8 |
-| `PAIR_JACCARD_FLOOR` | from Phase A |
+| `PAIR_JACCARD_FLOOR` | 0.2 (Phase A) |
 
   In judge mode, the Jaccard fallback's sameTopic floor may drop below 0.4 so more pairs reach
   the judge, which then filters them. How far is decided by Phase A. Today's 0.4 is kept for the
@@ -214,8 +223,8 @@ the relation and confidence per pair asked, and fallbacks).
 |---|---|
 | J11.7 | Real play with `memoryVerify` on. At least one `memory-verify` record per read that produced lines. Stored entries carry `confidence` ≤ 1 per policy |
 | J11.8 | A scripted `/sendas` reply that contradicts itself, plus a real read. If the model writes an unsupported line, it lands in `verifyDrops`. The check passes either way and logs which branch ran (the J8 nondeterminism rule) |
-| J11.9 | Seeded pairs → `judge_consolidate`. M01 dropped (spike: duplicate at 0.95). M07 superseded (update at 1.00). M08 **falls back**: Jev said update at 0.59, below `PAIR_MIN_CONFIDENCE`, so today's decision holds and the older note stays `contradicted`, which proves the floor. One of the new high-overlap distinct pairs has `contradicted` cleared, if Jev answers it over the floor; the check logs which branch ran |
-| J11.10 | `memoryPairs` off → identical consolidation result to `consolidateTier` on the same seed |
+| J11.9 | Seeded pairs (M01 M07 M08 P21 P31) → `runConsolidation`. M01's newer note dropped, M07's older note superseded. M08 and P21 (same owner or place, different thing) are **never** superseded or dropped: the same-thing veto keeps them (calibration: `same_thing` 0.06 and 0.08). P31 sits at the confidence floor (duplicate at 0.47–0.53 across three runs), so the check logs whether it was decided or the heuristic held |
+| J11.10 | `memoryPairs` off, the same seed in another group: zero `memoryPairs` calls, and the check logs where the heuristic result differs from J11.9's. Off = `consolidateTier` exactly is a jest property (`judgeMemory.test.ts`), not a live one |
 
 ## Implementation notes
 
@@ -254,6 +263,37 @@ Live (fresh-start, headed, real LLM + real judge):
 |---|---|
 | "Not stored" list, Store anyway | `author` |
 | `#so-judge-use-memory-verify`, `#so-judge-use-memory-pairs` | `both` |
+
+### Calibration record (off-page, 2026-09-19)
+
+Production question code (`src/judge`) → the real plugin handler → the live API, `jev-1.13.0`, via
+`scripts/spike/typesafe/calibrate-node.mts <use> [--fixture <name>]`. Three consecutive runs agreed
+on every verdict; the table is the recorded run (`--record` → `test/goldens/judge/`, which jest
+replays keyed on state + questions, so a wording change fails until it is re-recorded).
+
+| Set | Rows | Result | Floor |
+|---|---|---|---|
+| `memory-verify` (40 spike + 8 Spanish) | 48 | 47/48; Spanish 8/8; every unsupported line dropped; one supported line dropped (H32.0, p 0.15–0.16) | ≥ 0.9 unsupported dropped, ≤ 0.1 supported dropped: PASS |
+| `memory-pairs`, today's wording (baseline) | 32 | 24/32, 3 harmful (distinct pairs decided `update`) | FAIL |
+| `memory-pairs-holdout`, today's wording (baseline) | 14 | 9/14, 3 harmful | FAIL |
+| `memory-pairs`, revised question + veto | 32 | 29/32, Spanish 2/3, 0 harmful. Misses: M13 and M17 kept (the veto's cheap direction), P31 under the floor | ≥ 0.85: PASS |
+| `memory-pairs-holdout`, revised question + veto | 14 | 14/14, Spanish 3/3, 0 harmful | ≥ 0.85: PASS |
+
+The held-out set (`test/fixtures/judge/memory-pairs-holdout.json`) was written and labelled before any
+rewording was tried and was scored once per wording, never used to tune. p50 latency ~720 ms per
+call off-page (cold TLS included).
+
+Deviations from the plan text:
+- The verify fixture has the 40 spike lines and 8 Spanish lines. The "93 Artemis lines" were an
+  ad-hoc read of a live chat during the spike and never landed in the repo, so they cannot be
+  labelled from here. The live gate captures real lines through J11.7/J11.8 instead, and the gate
+  record labels any drop by hand.
+- There is no `judge_consolidate` scenario verb. J11.9/J11.10 seed through the existing
+  `applyExtractionAudit` handle, each into its own `characterId` group. The group key separates
+  the two seeds, so the same texts can be consolidated judge-on and judge-off in one chat. The
+  manager did not grow.
+- The vector half of Phase A (how many labelled pairs the transformers bands put in front of the
+  judge) still needs ST; J11.9 logs it for P31.
 
 ## Delegated decisions
 

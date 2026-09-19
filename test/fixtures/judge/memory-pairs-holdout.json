@@ -1,0 +1,22 @@
+{
+  "use": "memory-pairs",
+  "floors": { "rightAction": 0.85 },
+  "labelledAt": "2026-09-19",
+  "source": "Held out: written and labelled before any rewording of the pair question was tried, never used to tune it. Scored once per wording.",
+  "rows": [
+    { "id": "H01", "lang": "en", "label": "duplicate", "older": "Captain Rhee lost her left eye in the war.", "newer": "Rhee's left eye was lost during the war." },
+    { "id": "H02", "lang": "en", "label": "update", "older": "The bridge to Varn is open.", "newer": "The bridge to Varn collapsed in the storm." },
+    { "id": "H03", "lang": "en", "label": "distinct", "older": "Oswin keeps the vault key in his boot.", "newer": "Oswin keeps the letter opener in his boot." },
+    { "id": "H04", "lang": "en", "label": "distinct", "older": "Sera owes the moneylender forty crowns.", "newer": "Dav owes the moneylender forty crowns." },
+    { "id": "H05", "lang": "en", "label": "update", "older": "Jun is staying at the Gilded Stag inn.", "newer": "Jun checked out of the Gilded Stag and moved to the docks." },
+    { "id": "H06", "lang": "en", "label": "unrelated", "older": "The chapel bell is cracked.", "newer": "Mira prefers her tea without sugar." },
+    { "id": "H07", "lang": "en", "label": "distinct", "older": "Tomas is a locksmith.", "newer": "Tomas has a daughter in the capital." },
+    { "id": "H08", "lang": "en", "label": "duplicate", "older": "The smugglers meet at midnight under the old mill.", "newer": "Midnight, under the old mill: that's where the smugglers gather." },
+    { "id": "H09", "lang": "en", "label": "update", "older": "The bounty on Kell is 100 silver.", "newer": "The bounty on Kell was raised to 300 silver." },
+    { "id": "H10", "lang": "es", "label": "distinct", "older": "Lucía esconde la carta en el cajón del escritorio.", "newer": "Lucía esconde el dinero en el cajón del escritorio." },
+    { "id": "H11", "lang": "es", "label": "update", "older": "Andrés trabaja de noche en el puerto.", "newer": "Andrés dejó el trabajo del puerto la semana pasada." },
+    { "id": "H12", "lang": "es", "label": "duplicate", "older": "La puerta del sótano está cerrada con candado.", "newer": "Alguien puso un candado en la puerta del sótano." },
+    { "id": "H13", "lang": "en", "label": "distinct", "older": "Nell's horse is lame in the left foreleg.", "newer": "Nell's mule is lame in the left foreleg." },
+    { "id": "H14", "lang": "en", "label": "update", "older": "Brother Aldo is alive, imprisoned in the tower.", "newer": "Brother Aldo died in the tower last night." }
+  ]
+}

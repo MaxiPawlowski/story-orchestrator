@@ -12,6 +12,7 @@ export const VERIFY_DROP_BELOW = 0.2;
 export const VERIFY_DOWNWEIGHT_BELOW = 0.5;
 export const VERIFY_MAX_LINES_PER_CALL = 64;
 export const PAIR_MIN_CONFIDENCE = 0.6;
+export const PAIR_SAME_THING_BELOW = 0.5;
 export const PAIR_MAX_PER_PASS = 32;
 export const PAIR_CONCURRENCY = 8;
 export const PAIR_JACCARD_FLOOR = 0.2;

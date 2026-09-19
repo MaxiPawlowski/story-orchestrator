@@ -126,6 +126,7 @@ const sampleSnapshot = (): RuntimeSnapshot => derive(({
 const fakeManager = (): RuntimeManager =>
   ({
     editMemoryEntry: fn(),
+    storeDroppedMemory: fn(),
     setMemoryPinned: fn(),
     excludeMemoryEntry: fn(),
     setMemorySettings: fn(),
@@ -252,6 +253,49 @@ export const Memory: Story = {
     await expect(canvas.getByText(/State ledger \(2\)/)).toBeInTheDocument();
     await expect(canvas.getByText(/respect=2/)).toBeInTheDocument();
     await expect(canvas.getByText("blackboard")).toBeInTheDocument();
+  },
+};
+
+const notStoredSnapshot = (authorView: boolean): RuntimeSnapshot => {
+  const snapshot = memorySnapshot() as unknown as { memory: Record<string, unknown>; ui: Record<string, unknown> };
+  snapshot.memory = {
+    ...snapshot.memory,
+    verifyDrops: [{ entry: { id: "d1", tier: "facts", text: "Arin killed the sphinx.", type: "fact", importance: 2, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [], evidence: "e", createdAt: 5, recallCount: 0, messageId: 4 }, p: 0.04, at: "2026-09-19T00:00:00.000Z", model: "jev-1.13.0" }],
+  };
+  snapshot.ui = { ...snapshot.ui, authorView };
+  return derive(snapshot as unknown as RuntimeSnapshot);
+};
+
+export const MemoryNotStored: Story = {
+  render: () => {
+    const manager = fakeManager();
+    return (
+      <div style={{ maxWidth: 360 }}>
+        <DrawerTabs snapshot={notStoredSnapshot(true)} manager={manager} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await userEvent.click(canvas.getByText(/Not stored — no support in the chat \(1\)/));
+    await expect(canvas.getByText("Arin killed the sphinx.")).toBeInTheDocument();
+    await expect(canvas.getByText(/support 0\.04 · jev-1\.13\.0/)).toBeInTheDocument();
+    await expect(canvas.getByRole("button", { name: "Store anyway" })).toBeInTheDocument();
+  },
+};
+
+export const PlayerNeverSeesNotStored: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={notStoredSnapshot(false)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await expect(canvas.queryByText(/Not stored/)).toBeNull();
+    await expect(canvas.queryByText("Arin killed the sphinx.")).toBeNull();
   },
 };
 

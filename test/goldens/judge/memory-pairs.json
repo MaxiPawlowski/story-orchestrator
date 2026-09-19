@@ -1,404 +1,1383 @@
 {
-  "source": "spike cache, described-label question (production wording)",
-  "recordedAt": "2026-09-19T13:27:51.655Z",
-  "rows": [
+  "source": "calibrate-node memory-pairs over test/fixtures/judge/memory-pairs.json: the production question shape, real answers, replayed by jest keyed on state + questions, so a wording change must re-record",
+  "recordedAt": "2026-09-19T13:51:30.073Z",
+  "model": "jev-1.13.0",
+  "right": 29,
+  "total": 32,
+  "calls": [
     {
-      "id": "M01",
-      "label": "duplicate",
-      "older": "Arin carries a curved blade she took from a pirate captain.",
-      "newer": "Arin's sword is a curved blade taken from a pirate captain.",
-      "model": "jev-1.13.0",
-      "answers": {
+      "state": {
+        "older_note": "Luke is staying home with their mother.",
+        "newer_note": "Luke joined the expedition after all."
+      },
+      "questions": {
         "relation": {
           "type": "choice",
-          "choice": "duplicate",
-          "confidence": 0.95,
-          "probabilities": {
-            "duplicate": 0.96,
-            "unrelated": 0,
-            "distinct": 0.01,
-            "update": 0.03
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
           }
         }
-      }
-    },
-    {
-      "id": "M02",
-      "label": "update",
-      "older": "Luke is staying home with their mother.",
-      "newer": "Luke joined the expedition after all.",
-      "model": "jev-1.13.0",
+      },
       "answers": {
         "relation": {
           "type": "choice",
           "choice": "update",
-          "confidence": 0.99,
+          "confidence": 0.94,
           "probabilities": {
-            "distinct": 0,
-            "update": 1,
-            "unrelated": 0,
-            "duplicate": 0
+            "update": 0.96,
+            "duplicate": 0,
+            "distinct": 0.04,
+            "unrelated": 0
           }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.58
         }
       }
     },
     {
-      "id": "M03",
-      "label": "distinct",
-      "older": "Ponticius runs the guild's job board.",
-      "newer": "Ponticius once served in the royal navy.",
-      "model": "jev-1.13.0",
+      "state": {
+        "older_note": "Ponticius runs the guild's job board.",
+        "newer_note": "Ponticius once served in the royal navy."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
       "answers": {
         "relation": {
           "type": "choice",
           "choice": "distinct",
           "confidence": 0.99,
           "probabilities": {
-            "update": 0,
             "duplicate": 0,
-            "distinct": 1,
-            "unrelated": 0
+            "unrelated": 0,
+            "update": 0,
+            "distinct": 1
           }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.07
         }
       }
     },
     {
-      "id": "M04",
-      "label": "unrelated",
-      "older": "The sphinx asks a riddle about the moon.",
-      "newer": "Pell rerouted coolant loop one.",
-      "model": "jev-1.13.0",
+      "state": {
+        "older_note": "The party is in the guild hall.",
+        "newer_note": "The party has reached the Sun Ruins."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "update",
+          "confidence": 0.96,
+          "probabilities": {
+            "update": 0.97,
+            "duplicate": 0,
+            "distinct": 0.03,
+            "unrelated": 0
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.34
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "Arin carries a curved blade she took from a pirate captain.",
+        "newer_note": "Arin's sword is a curved blade taken from a pirate captain."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "duplicate",
+          "confidence": 0.99,
+          "probabilities": {
+            "distinct": 0,
+            "update": 0.01,
+            "unrelated": 0,
+            "duplicate": 0.99
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.83
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "The reactor is unstable.",
+        "newer_note": "The reactor is now stable after Pell's repairs."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "update",
+          "confidence": 1,
+          "probabilities": {
+            "duplicate": 0,
+            "update": 1,
+            "distinct": 0,
+            "unrelated": 0
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.94
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "Two crew members are injured.",
+        "newer_note": "Five crew members are injured."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "update",
+          "confidence": 1,
+          "probabilities": {
+            "unrelated": 0,
+            "update": 1,
+            "distinct": 0,
+            "duplicate": 0
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.73
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "Mae guarda un revólver en la guantera.",
+        "newer_note": "Mae guarda una linterna en la guantera."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "update",
+          "confidence": 0.81,
+          "probabilities": {
+            "unrelated": 0,
+            "duplicate": 0,
+            "distinct": 0.14,
+            "update": 0.86
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.22
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "Graves polishes the silver every morning.",
+        "newer_note": "Graves polishes the portrait frames every morning."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "distinct",
+          "confidence": 0.42,
+          "probabilities": {
+            "distinct": 0.5700000000000001,
+            "update": 0.43,
+            "unrelated": 0,
+            "duplicate": 0
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.08
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "Maeve sings at the Blue Anchor.",
+        "newer_note": "HALO controls the ship doors."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
       "answers": {
         "relation": {
           "type": "choice",
           "choice": "unrelated",
-          "confidence": 0.99,
+          "confidence": 0.97,
           "probabilities": {
-            "unrelated": 1,
-            "update": 0,
-            "distinct": 0,
-            "duplicate": 0
-          }
-        }
-      }
-    },
-    {
-      "id": "M05",
-      "label": "duplicate",
-      "older": "The guild pays 250 crowns for the Sun's Heart.",
-      "newer": "The guild will pay two hundred and fifty crowns for the Sun's Heart.",
-      "model": "jev-1.13.0",
-      "answers": {
-        "relation": {
-          "type": "choice",
-          "choice": "duplicate",
-          "confidence": 1,
-          "probabilities": {
-            "update": 0,
-            "duplicate": 1,
-            "distinct": 0,
-            "unrelated": 0
-          }
-        }
-      }
-    },
-    {
-      "id": "M06",
-      "label": "update",
-      "older": "The reactor is unstable.",
-      "newer": "The reactor is now stable after Pell's repairs.",
-      "model": "jev-1.13.0",
-      "answers": {
-        "relation": {
-          "type": "choice",
-          "choice": "update",
-          "confidence": 1,
-          "probabilities": {
-            "distinct": 0,
+            "unrelated": 0.98,
             "duplicate": 0,
-            "unrelated": 0,
-            "update": 1
-          }
-        }
-      }
-    },
-    {
-      "id": "M07",
-      "label": "update",
-      "older": "The payoffs to the harbor police come from Maeve.",
-      "newer": "The payoffs to the harbor police trace back to the dockmaster, not Maeve.",
-      "model": "jev-1.13.0",
-      "answers": {
-        "relation": {
-          "type": "choice",
-          "choice": "update",
-          "confidence": 1,
-          "probabilities": {
-            "unrelated": 0,
-            "distinct": 0,
-            "update": 1,
-            "duplicate": 0
-          }
-        }
-      }
-    },
-    {
-      "id": "M08",
-      "label": "distinct",
-      "older": "Tommy Sayer is hiding at the safehouse on Pier Street.",
-      "newer": "Tommy Sayer's brother is hiding at the safehouse on Pier Street.",
-      "model": "jev-1.13.0",
-      "answers": {
-        "relation": {
-          "type": "choice",
-          "choice": "update",
-          "confidence": 0.59,
-          "probabilities": {
-            "duplicate": 0.02,
-            "update": 0.69,
-            "unrelated": 0.21,
-            "distinct": 0.08
-          }
-        }
-      }
-    },
-    {
-      "id": "M09",
-      "label": "update",
-      "older": "Luke is alive.",
-      "newer": "Luke was killed by the sphinx.",
-      "model": "jev-1.13.0",
-      "answers": {
-        "relation": {
-          "type": "choice",
-          "choice": "update",
-          "confidence": 0.99,
-          "probabilities": {
-            "update": 0.99,
-            "unrelated": 0,
-            "duplicate": 0,
-            "distinct": 0.01
-          }
-        }
-      }
-    },
-    {
-      "id": "M10",
-      "label": "duplicate",
-      "older": "HALO sealed the emergency bulkheads on deck three.",
-      "newer": "The ship's AI closed the deck three emergency bulkheads.",
-      "model": "jev-1.13.0",
-      "answers": {
-        "relation": {
-          "type": "choice",
-          "choice": "duplicate",
-          "confidence": 0.98,
-          "probabilities": {
-            "unrelated": 0,
-            "duplicate": 0.99,
-            "update": 0.01,
-            "distinct": 0
-          }
-        }
-      }
-    },
-    {
-      "id": "M11",
-      "label": "distinct",
-      "older": "Lady Ashworth wears black mourning clothes.",
-      "newer": "Lady Ashworth never leaves the east wing.",
-      "model": "jev-1.13.0",
-      "answers": {
-        "relation": {
-          "type": "choice",
-          "choice": "distinct",
-          "confidence": 0.99,
-          "probabilities": {
-            "distinct": 1,
-            "duplicate": 0,
-            "unrelated": 0,
+            "distinct": 0.02,
             "update": 0
           }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.01
         }
       }
     },
     {
-      "id": "M12",
-      "label": "update",
-      "older": "Arin distrusts Max since the lie about the map.",
-      "newer": "Arin trusts Max again after the bridge.",
-      "model": "jev-1.13.0",
-      "answers": {
+      "state": {
+        "older_note": "The party has two torches left.",
+        "newer_note": "The party's last torch just burned out."
+      },
+      "questions": {
         "relation": {
           "type": "choice",
-          "choice": "update",
-          "confidence": 0.99,
-          "probabilities": {
-            "duplicate": 0,
-            "unrelated": 0,
-            "distinct": 0,
-            "update": 1
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
           }
         }
-      }
-    },
-    {
-      "id": "M13",
-      "label": "duplicate",
-      "older": "The party accepted the Sun Ruins contract.",
-      "newer": "Max signed the contract for the Sun Ruins job.",
-      "model": "jev-1.13.0",
-      "answers": {
-        "relation": {
-          "type": "choice",
-          "choice": "duplicate",
-          "confidence": 0.6,
-          "probabilities": {
-            "distinct": 0.19,
-            "unrelated": 0,
-            "update": 0.1,
-            "duplicate": 0.71
-          }
-        }
-      }
-    },
-    {
-      "id": "M14",
-      "label": "update",
-      "older": "Two crew members are injured.",
-      "newer": "Five crew members are injured.",
-      "model": "jev-1.13.0",
-      "answers": {
-        "relation": {
-          "type": "choice",
-          "choice": "update",
-          "confidence": 1,
-          "probabilities": {
-            "unrelated": 0,
-            "update": 1,
-            "duplicate": 0,
-            "distinct": 0
-          }
-        }
-      }
-    },
-    {
-      "id": "M15",
-      "label": "distinct",
-      "older": "Graves polishes the silver every morning.",
-      "newer": "Graves was born in Dunmore.",
-      "model": "jev-1.13.0",
-      "answers": {
-        "relation": {
-          "type": "choice",
-          "choice": "distinct",
-          "confidence": 0.98,
-          "probabilities": {
-            "distinct": 0.98,
-            "duplicate": 0,
-            "unrelated": 0.02,
-            "update": 0
-          }
-        }
-      }
-    },
-    {
-      "id": "M16",
-      "label": "duplicate",
-      "older": "Brandt offered Max a bribe.",
-      "newer": "Brandt offered Max a five-hundred-dollar bribe in the back of the Blue Anchor.",
-      "model": "jev-1.13.0",
-      "answers": {
-        "relation": {
-          "type": "choice",
-          "choice": "duplicate",
-          "confidence": 0.86,
-          "probabilities": {
-            "distinct": 0.09,
-            "unrelated": 0,
-            "duplicate": 0.89,
-            "update": 0.02
-          }
-        }
-      }
-    },
-    {
-      "id": "M17",
-      "label": "update",
-      "older": "The party is in the guild hall.",
-      "newer": "The party has reached the Sun Ruins.",
-      "model": "jev-1.13.0",
+      },
       "answers": {
         "relation": {
           "type": "choice",
           "choice": "update",
           "confidence": 0.97,
           "probabilities": {
-            "duplicate": 0,
-            "distinct": 0.02,
             "unrelated": 0,
-            "update": 0.98
+            "distinct": 0.02,
+            "update": 0.98,
+            "duplicate": 0
           }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.69
         }
       }
     },
     {
-      "id": "M18",
-      "label": "distinct",
-      "older": "The Sun's Heart glows gold.",
-      "newer": "The Sun's Heart is warm to the touch.",
-      "model": "jev-1.13.0",
+      "state": {
+        "older_note": "Lady Ashworth wears black mourning clothes.",
+        "newer_note": "Lady Ashworth never leaves the east wing."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
       "answers": {
         "relation": {
           "type": "choice",
           "choice": "distinct",
-          "confidence": 0.71,
+          "confidence": 0.99,
           "probabilities": {
-            "update": 0.21,
+            "distinct": 1,
+            "update": 0,
             "unrelated": 0,
-            "distinct": 0.78,
-            "duplicate": 0.01
+            "duplicate": 0
           }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.08
         }
       }
     },
     {
-      "id": "M19",
-      "label": "update",
-      "older": "The smuggler's ledger is missing.",
-      "newer": "Max found the smuggler's ledger under Maeve's racing forms.",
-      "model": "jev-1.13.0",
+      "state": {
+        "older_note": "Luke se queda en casa.",
+        "newer_note": "Luke se unió a la expedición al final."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
       "answers": {
         "relation": {
           "type": "choice",
           "choice": "update",
-          "confidence": 0.99,
+          "confidence": 0.96,
           "probabilities": {
-            "update": 0.99,
+            "unrelated": 0,
             "duplicate": 0,
-            "distinct": 0.01,
-            "unrelated": 0
+            "distinct": 0.03,
+            "update": 0.97
           }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.69
         }
       }
     },
     {
-      "id": "M20",
-      "label": "unrelated",
-      "older": "Maeve sings at the Blue Anchor.",
-      "newer": "The north gate was opened quietly.",
-      "model": "jev-1.13.0",
+      "state": {
+        "older_note": "The guild pays 250 crowns for the Sun's Heart.",
+        "newer_note": "The guild will pay two hundred and fifty crowns for the Sun's Heart."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "duplicate",
+          "confidence": 1,
+          "probabilities": {
+            "duplicate": 1,
+            "distinct": 0,
+            "update": 0,
+            "unrelated": 0
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.97
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "Luke is hiding at the safehouse on Pier Street.",
+        "newer_note": "Maeve is hiding at the safehouse on Pier Street."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "update",
+          "confidence": 0.68,
+          "probabilities": {
+            "distinct": 0.17,
+            "update": 0.76,
+            "duplicate": 0,
+            "unrelated": 0.07
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.08
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "The sphinx asks a riddle about the moon.",
+        "newer_note": "Pell rerouted coolant loop one."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
       "answers": {
         "relation": {
           "type": "choice",
           "choice": "unrelated",
-          "confidence": 1,
+          "confidence": 0.96,
           "probabilities": {
-            "unrelated": 1,
-            "distinct": 0,
+            "unrelated": 0.97,
             "update": 0,
+            "distinct": 0.03,
             "duplicate": 0
           }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.01
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "The Sun's Heart glows gold.",
+        "newer_note": "The Sun's Heart is warm to the touch."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "distinct",
+          "confidence": 0.57,
+          "probabilities": {
+            "unrelated": 0,
+            "distinct": 0.68,
+            "update": 0.24,
+            "duplicate": 0.08
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.21
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "Lady Ashworth is selling the house.",
+        "newer_note": "Lady Ashworth plans to sell Ashworth Hall."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "duplicate",
+          "confidence": 0.89,
+          "probabilities": {
+            "unrelated": 0,
+            "update": 0.07,
+            "distinct": 0.02,
+            "duplicate": 0.91
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.76
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "HALO sealed the emergency bulkheads on deck three.",
+        "newer_note": "The ship's AI closed the deck three emergency bulkheads."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "duplicate",
+          "confidence": 0.94,
+          "probabilities": {
+            "update": 0.04,
+            "distinct": 0,
+            "unrelated": 0,
+            "duplicate": 0.96
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.75
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "Brandt offered Max a bribe.",
+        "newer_note": "Brandt offered Max a five-hundred-dollar bribe in the back of the Blue Anchor."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "duplicate",
+          "confidence": 0.96,
+          "probabilities": {
+            "duplicate": 0.97,
+            "unrelated": 0,
+            "distinct": 0,
+            "update": 0.03
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.89
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "The payoffs to the harbor police come from Maeve.",
+        "newer_note": "The payoffs to the harbor police trace back to the dockmaster, not Maeve."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "update",
+          "confidence": 1,
+          "probabilities": {
+            "update": 1,
+            "unrelated": 0,
+            "distinct": 0,
+            "duplicate": 0
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.54
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "The reactor was restored by Pell.",
+        "newer_note": "Pell got the reactor working again."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "duplicate",
+          "confidence": 1,
+          "probabilities": {
+            "duplicate": 1,
+            "unrelated": 0,
+            "update": 0,
+            "distinct": 0
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.97
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "Tommy Sayer is hiding at the safehouse on Pier Street.",
+        "newer_note": "Tommy Sayer's brother is hiding at the safehouse on Pier Street."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "update",
+          "confidence": 0.33,
+          "probabilities": {
+            "unrelated": 0.03,
+            "duplicate": 0.01,
+            "update": 0.49,
+            "distinct": 0.47
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.06
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "Maeve sings at the Blue Anchor.",
+        "newer_note": "The north gate was opened quietly."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "unrelated",
+          "confidence": 0.97,
+          "probabilities": {
+            "update": 0,
+            "duplicate": 0,
+            "distinct": 0.02,
+            "unrelated": 0.98
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.01
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "Arin distrusts Max since the lie about the map.",
+        "newer_note": "Arin trusts Max again after the bridge."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "update",
+          "confidence": 0.98,
+          "probabilities": {
+            "duplicate": 0,
+            "unrelated": 0,
+            "distinct": 0.01,
+            "update": 0.99
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.84
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "Brandt runs the harbor police.",
+        "newer_note": "Brandt was arrested and no longer runs the harbor police."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "update",
+          "confidence": 1,
+          "probabilities": {
+            "update": 1,
+            "unrelated": 0,
+            "distinct": 0,
+            "duplicate": 0
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.93
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "The party accepted the Sun Ruins contract.",
+        "newer_note": "Max signed the contract for the Sun Ruins job."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "duplicate",
+          "confidence": 0.35,
+          "probabilities": {
+            "update": 0.37,
+            "distinct": 0.12,
+            "duplicate": 0.51,
+            "unrelated": 0
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.33
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "The guild pays 250 crowns for the Sun's Heart.",
+        "newer_note": "The guild pays 250 crowns for the sphinx's head."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "distinct",
+          "confidence": 0.73,
+          "probabilities": {
+            "unrelated": 0,
+            "update": 0.19,
+            "duplicate": 0.01,
+            "distinct": 0.8
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.05
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "The smuggler's ledger is missing.",
+        "newer_note": "Max found the smuggler's ledger under Maeve's racing forms."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "update",
+          "confidence": 0.98,
+          "probabilities": {
+            "duplicate": 0,
+            "unrelated": 0,
+            "distinct": 0.01,
+            "update": 0.99
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.77
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "El libro de cuentas apareció en Pike Street.",
+        "newer_note": "Encontraron el libro de cuentas en la lavandería de Pike Street."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "duplicate",
+          "confidence": 0.48,
+          "probabilities": {
+            "update": 0.39,
+            "unrelated": 0,
+            "duplicate": 0.61,
+            "distinct": 0
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.75
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "Graves polishes the silver every morning.",
+        "newer_note": "Graves was born in Dunmore."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "distinct",
+          "confidence": 0.95,
+          "probabilities": {
+            "duplicate": 0,
+            "update": 0,
+            "distinct": 0.97,
+            "unrelated": 0.03
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.06
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "Luke is alive.",
+        "newer_note": "Luke was killed by the sphinx."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "update",
+          "confidence": 1,
+          "probabilities": {
+            "update": 1,
+            "distinct": 0,
+            "duplicate": 0,
+            "unrelated": 0
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.74
+        }
+      }
+    },
+    {
+      "state": {
+        "older_note": "Arin's sword is a curved blade.",
+        "newer_note": "Arin's dagger is a curved blade."
+      },
+      "questions": {
+        "relation": {
+          "type": "choice",
+          "instructions": "Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?",
+          "criteria": {
+            "duplicate": "The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant",
+            "update": "The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date",
+            "distinct": "Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true",
+            "unrelated": "The notes are about different subjects"
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "instructions": "Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?",
+          "criteria": {
+            "true": "Both notes are about one and the same person, object or place, and the same property of it",
+            "false": "The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another"
+          }
+        }
+      },
+      "answers": {
+        "relation": {
+          "type": "choice",
+          "choice": "distinct",
+          "confidence": 0.87,
+          "probabilities": {
+            "duplicate": 0,
+            "distinct": 0.9,
+            "unrelated": 0,
+            "update": 0.1
+          }
+        },
+        "same_thing": {
+          "type": "noul",
+          "noul": 0.07
         }
       }
     }

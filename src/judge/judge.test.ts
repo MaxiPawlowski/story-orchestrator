@@ -4,8 +4,8 @@ import { askJudge, JUDGE_CACHE_LIMIT, JudgeTimeoutError } from "./client";
 import { buildDirectorRequest, decideDirector, directorJudgeEligible, directorRecordP, DIRECTOR_NOBODY, type JudgeDirectorInput } from "./director";
 import { choice, noul, score, validateJudgeRequest } from "./questions";
 import { JUDGE_CALL_RING_LIMIT } from "./policy";
-import { runJudgeDirectorSelfTest } from "./selfTest";
-import { buildPairRequest, buildVerifyRequest, pairDecision, readPair, verifyVerdict, VERIFY_CRITERIA, type JudgePairRelation } from "./memory";
+import { runJudgeDirectorSelfTest, runMemoryPairsCalibration, runMemoryVerifyCalibration } from "./selfTest";
+import { buildPairRequest, buildVerifyRequest, pairDecision, PAIR_SAME_THING_CRITERIA, verifyVerdict, VERIFY_CRITERIA, type JudgePairRelation } from "./memory";
 import { JUDGE_SELF_TEST_CASES } from "./selfTestCases";
 import { appendJudgeCall, createJudgeRuntime, defaultJudgeSettings, dropJudgeCallsAfter, JUDGE_USE_KEYS, judgeUseActive, sanitizeJudgeRuntime, sanitizeJudgeSettings } from "./settings";
 import type { JudgeAnswer, JudgeRequest, JudgeResponse, JudgeTransport } from "./types";
@@ -265,6 +265,7 @@ describe("memory questions and policy (v2.2 plan 02)", () => {
     const pair = buildPairRequest("old", "new");
     expect(pair.state).toEqual({ older_note: "old", newer_note: "new" });
     expect(pair.questions.relation.type === "choice" && Object.keys(pair.questions.relation.criteria)).toEqual(["duplicate", "update", "distinct", "unrelated"]);
+    expect(pair.questions.same_thing).toEqual({ type: "noul", instructions: expect.stringContaining("one and the same person, object or place"), criteria: { ...PAIR_SAME_THING_CRITERIA } });
     expect(validateJudgeRequest(verify)).toEqual([]);
     expect(validateJudgeRequest(pair)).toEqual([]);
   });
@@ -276,19 +277,42 @@ describe("memory questions and policy (v2.2 plan 02)", () => {
     expect(verifyVerdict(null)).toEqual({ action: "keep" });
   });
 
-  it("on the spike's 40 labelled lines (real answers): every unsupported line dropped, no supported line dropped", () => {
-    const rows = readJson("memory-verify.json").rows as Array<{ supported: boolean; p: number }>;
-    const verdicts = rows.map((row) => ({ supported: row.supported, action: verifyVerdict(row.p).action }));
-    expect(verdicts.filter((row) => !row.supported && row.action === "drop")).toHaveLength(16);
-    expect(verdicts.filter((row) => row.supported && row.action === "drop")).toHaveLength(0);
-    expect(verdicts.filter((row) => row.supported && row.action === "downweight").length).toBeLessThanOrEqual(2);
+  const replay = (name: string) => {
+    const golden = readJson(name) as { model: string; calls: Array<{ state: unknown; questions: unknown; answers: Record<string, JudgeAnswer> }> };
+    const byRequest = new Map(golden.calls.map((call) => [JSON.stringify([call.state, call.questions]), call.answers]));
+    return async (request: JudgeRequest) => ({ answers: byRequest.get(JSON.stringify([request.state, request.questions])) ?? null, model: golden.model, latencyMs: 0, stateChars: 0, questionCount: Object.keys(request.questions).length, cached: false });
+  };
+  const fixture = (name: string) => JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/judge", name), "utf8")).rows;
+
+  it("on 48 labelled lines, en + es (real answers, production shape): no supported line lost but one, every unsupported one dropped", async () => {
+    const report = await runMemoryVerifyCalibration(replay("memory-verify.json"), fixture("memory-verify.json"));
+    const rows = fixture("memory-verify.json") as Array<{ id: string; supported: boolean }>;
+    const supported = new Set(rows.filter((row) => row.supported).map((row) => row.id));
+    expect(report.total).toBe(48);
+    expect(report.rows.filter((row) => row.picked === null)).toEqual([]);
+    expect(report.rows.filter((row) => !row.right && supported.has(row.id)).map((row) => row.id)).toEqual(["H32.0"]);
+    expect(report.rows.filter((row) => !row.right && !supported.has(row.id))).toEqual([]);
   });
 
-  it("on the spike's 20 labelled pairs (real answers): every decided pair gets the right action; M08 falls back", () => {
-    const rows = readJson("memory-pairs.json").rows as Array<{ id: string; label: JudgePairRelation; answers: Record<string, JudgeAnswer> }>;
-    const action = (relation: JudgePairRelation) => (relation === "duplicate" ? "drop" : relation === "update" ? "supersede" : "keep");
-    const decided = rows.map((row) => ({ id: row.id, label: row.label, decision: pairDecision(readPair(row.answers)) }));
-    expect(decided.filter((row) => row.decision === null).map((row) => row.id)).toEqual(["M08"]);
-    expect(decided.filter((row) => row.decision !== null && action(row.decision) === action(row.label))).toHaveLength(19);
+  it("on 32 tuning pairs (real answers): 29 right, and never supersedes or drops a note about something else", async () => {
+    const report = await runMemoryPairsCalibration(replay("memory-pairs.json"), fixture("memory-pairs.json"));
+    const labels = new Map((fixture("memory-pairs.json") as Array<{ id: string; label: JudgePairRelation }>).map((row) => [row.id, row.label]));
+    expect(report.right).toBe(29);
+    expect(report.rows.filter((row) => !row.right).map((row) => row.id)).toEqual(["M13", "M17", "P31"]);
+    expect(report.rows.filter((row) => ["duplicate", "update"].includes(row.picked ?? "") && ["distinct", "unrelated"].includes(labels.get(row.id) ?? ""))).toEqual([]);
+  });
+
+  it("on 14 held-out pairs, never used to tune the question (real answers): all right", async () => {
+    const report = await runMemoryPairsCalibration(replay("memory-pairs-holdout.json"), fixture("memory-pairs-holdout.json"));
+    expect([report.right, report.total]).toEqual([14, 14]);
+  });
+
+  it("keeps a pair Jev thinks is about two different things, whatever the relation; the confidence floor still applies otherwise", () => {
+    expect(pairDecision({ relation: "update", confidence: 0.97, sameThing: 0.37 })).toBe("distinct");
+    expect(pairDecision({ relation: "duplicate", confidence: 0.99, sameThing: 0.1 })).toBe("distinct");
+    expect(pairDecision({ relation: "unrelated", confidence: 0.3, sameThing: 0.01 })).toBe("unrelated");
+    expect(pairDecision({ relation: "duplicate", confidence: 0.53, sameThing: 0.74 })).toBeNull();
+    expect(pairDecision({ relation: "update", confidence: 0.97, sameThing: 0.76 })).toBe("update");
+    expect(pairDecision({ relation: "update", confidence: 0.97, sameThing: null })).toBe("update");
   });
 });

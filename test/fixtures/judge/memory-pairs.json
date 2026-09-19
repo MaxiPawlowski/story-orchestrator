@@ -1,0 +1,234 @@
+{
+  "use": "memory-pairs",
+  "floors": {
+    "rightAction": 0.85
+  },
+  "labelledAt": "2026-09-19",
+  "source": "M01-M20 from the spike + P21-P32 labelled 2026-09-19 before any judge answer was read (5 high-overlap distinct pairs, 3 Spanish)",
+  "rows": [
+    {
+      "id": "M01",
+      "lang": "en",
+      "label": "duplicate",
+      "older": "Arin carries a curved blade she took from a pirate captain.",
+      "newer": "Arin's sword is a curved blade taken from a pirate captain."
+    },
+    {
+      "id": "M02",
+      "lang": "en",
+      "label": "update",
+      "older": "Luke is staying home with their mother.",
+      "newer": "Luke joined the expedition after all."
+    },
+    {
+      "id": "M03",
+      "lang": "en",
+      "label": "distinct",
+      "older": "Ponticius runs the guild's job board.",
+      "newer": "Ponticius once served in the royal navy."
+    },
+    {
+      "id": "M04",
+      "lang": "en",
+      "label": "unrelated",
+      "older": "The sphinx asks a riddle about the moon.",
+      "newer": "Pell rerouted coolant loop one."
+    },
+    {
+      "id": "M05",
+      "lang": "en",
+      "label": "duplicate",
+      "older": "The guild pays 250 crowns for the Sun's Heart.",
+      "newer": "The guild will pay two hundred and fifty crowns for the Sun's Heart."
+    },
+    {
+      "id": "M06",
+      "lang": "en",
+      "label": "update",
+      "older": "The reactor is unstable.",
+      "newer": "The reactor is now stable after Pell's repairs."
+    },
+    {
+      "id": "M07",
+      "lang": "en",
+      "label": "update",
+      "older": "The payoffs to the harbor police come from Maeve.",
+      "newer": "The payoffs to the harbor police trace back to the dockmaster, not Maeve."
+    },
+    {
+      "id": "M08",
+      "lang": "en",
+      "label": "distinct",
+      "older": "Tommy Sayer is hiding at the safehouse on Pier Street.",
+      "newer": "Tommy Sayer's brother is hiding at the safehouse on Pier Street."
+    },
+    {
+      "id": "M09",
+      "lang": "en",
+      "label": "update",
+      "older": "Luke is alive.",
+      "newer": "Luke was killed by the sphinx."
+    },
+    {
+      "id": "M10",
+      "lang": "en",
+      "label": "duplicate",
+      "older": "HALO sealed the emergency bulkheads on deck three.",
+      "newer": "The ship's AI closed the deck three emergency bulkheads."
+    },
+    {
+      "id": "M11",
+      "lang": "en",
+      "label": "distinct",
+      "older": "Lady Ashworth wears black mourning clothes.",
+      "newer": "Lady Ashworth never leaves the east wing."
+    },
+    {
+      "id": "M12",
+      "lang": "en",
+      "label": "update",
+      "older": "Arin distrusts Max since the lie about the map.",
+      "newer": "Arin trusts Max again after the bridge."
+    },
+    {
+      "id": "M13",
+      "lang": "en",
+      "label": "duplicate",
+      "older": "The party accepted the Sun Ruins contract.",
+      "newer": "Max signed the contract for the Sun Ruins job."
+    },
+    {
+      "id": "M14",
+      "lang": "en",
+      "label": "update",
+      "older": "Two crew members are injured.",
+      "newer": "Five crew members are injured."
+    },
+    {
+      "id": "M15",
+      "lang": "en",
+      "label": "distinct",
+      "older": "Graves polishes the silver every morning.",
+      "newer": "Graves was born in Dunmore."
+    },
+    {
+      "id": "M16",
+      "lang": "en",
+      "label": "duplicate",
+      "older": "Brandt offered Max a bribe.",
+      "newer": "Brandt offered Max a five-hundred-dollar bribe in the back of the Blue Anchor."
+    },
+    {
+      "id": "M17",
+      "lang": "en",
+      "label": "update",
+      "older": "The party is in the guild hall.",
+      "newer": "The party has reached the Sun Ruins."
+    },
+    {
+      "id": "M18",
+      "lang": "en",
+      "label": "distinct",
+      "older": "The Sun's Heart glows gold.",
+      "newer": "The Sun's Heart is warm to the touch."
+    },
+    {
+      "id": "M19",
+      "lang": "en",
+      "label": "update",
+      "older": "The smuggler's ledger is missing.",
+      "newer": "Max found the smuggler's ledger under Maeve's racing forms."
+    },
+    {
+      "id": "M20",
+      "lang": "en",
+      "label": "unrelated",
+      "older": "Maeve sings at the Blue Anchor.",
+      "newer": "The north gate was opened quietly."
+    },
+    {
+      "id": "P21",
+      "lang": "en",
+      "label": "distinct",
+      "older": "Arin's sword is a curved blade.",
+      "newer": "Arin's dagger is a curved blade."
+    },
+    {
+      "id": "P22",
+      "lang": "en",
+      "label": "distinct",
+      "older": "The guild pays 250 crowns for the Sun's Heart.",
+      "newer": "The guild pays 250 crowns for the sphinx's head."
+    },
+    {
+      "id": "P23",
+      "lang": "en",
+      "label": "distinct",
+      "older": "Luke is hiding at the safehouse on Pier Street.",
+      "newer": "Maeve is hiding at the safehouse on Pier Street."
+    },
+    {
+      "id": "P24",
+      "lang": "en",
+      "label": "update",
+      "older": "Brandt runs the harbor police.",
+      "newer": "Brandt was arrested and no longer runs the harbor police."
+    },
+    {
+      "id": "P25",
+      "lang": "en",
+      "label": "duplicate",
+      "older": "The reactor was restored by Pell.",
+      "newer": "Pell got the reactor working again."
+    },
+    {
+      "id": "P26",
+      "lang": "en",
+      "label": "duplicate",
+      "older": "Lady Ashworth is selling the house.",
+      "newer": "Lady Ashworth plans to sell Ashworth Hall."
+    },
+    {
+      "id": "P27",
+      "lang": "en",
+      "label": "update",
+      "older": "The party has two torches left.",
+      "newer": "The party's last torch just burned out."
+    },
+    {
+      "id": "P28",
+      "lang": "en",
+      "label": "unrelated",
+      "older": "Maeve sings at the Blue Anchor.",
+      "newer": "HALO controls the ship doors."
+    },
+    {
+      "id": "P29",
+      "lang": "en",
+      "label": "distinct",
+      "older": "Graves polishes the silver every morning.",
+      "newer": "Graves polishes the portrait frames every morning."
+    },
+    {
+      "id": "P30",
+      "lang": "es",
+      "label": "update",
+      "older": "Luke se queda en casa.",
+      "newer": "Luke se unió a la expedición al final."
+    },
+    {
+      "id": "P31",
+      "lang": "es",
+      "label": "duplicate",
+      "older": "El libro de cuentas apareció en Pike Street.",
+      "newer": "Encontraron el libro de cuentas en la lavandería de Pike Street."
+    },
+    {
+      "id": "P32",
+      "lang": "es",
+      "label": "distinct",
+      "older": "Mae guarda un revólver en la guantera.",
+      "newer": "Mae guarda una linterna en la guantera."
+    }
+  ]
+}

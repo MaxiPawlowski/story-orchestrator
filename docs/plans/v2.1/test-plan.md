@@ -101,7 +101,7 @@ arrive. The operator records scores in the plan's Gate record.
 | J0 | runner-selftest | The runner itself: fresh-start, pass/blocked/skipped, cleanup | 3 | 1 | No LLM. Run it whenever the harness changes |
 | J1 | first-contact | Cleared install → install state → import example → configure → first real transition | 7 | 2 | Only journey that clears global config |
 | J2 | author-loop | Empty Studio → authored story → play → edit → continue, incl. an invalidating edit and its choice popup; author-view driver (Probe + Nudge) | 9 | 2 | Plan 05's gate journey |
-| J11 | judgment-backend | The judgment model (v2.2 plan 01): plugin reachable with a key, off by default, deciding speaker direction when opted in, timeout fallback, own call ring, no key leak | 6 | 0 | Needs the server plugin and `enableServerPlugins: true`; without it J11.1 fails with the reason and the rest block |
+| J11 | judgment-backend | The judgment model (v2.2 plans 01–02): plugin reachable with a key, off by default, deciding speaker direction when opted in, timeout fallback, own call ring, no key leak; memory lines verified before storing, judged consolidation | 10 | 0 | Needs the server plugin and `enableServerPlugins: true`; without it J11.1 fails with the reason and the rest block |
 | J3 | player-session | Real session on sun-ruins: transitions announced, memory recalled, spoiler sweep, journal | 8 | 5 | The human-eval workhorse |
 | J4 | return-and-adopt | Simulated multi-day gap → away recap on return; mid-chat adoption via memorize backlog | 4 | 2 | Uses the `reload` verb (real return path) |
 | J5 | group-direction | talk_control + npc_replies + cast_changes; per-speaker private injection in the payload | 6 | 1 | Restores the group roster in cleanup |
@@ -289,11 +289,16 @@ node scripts/debug/so-journey.mts run J8
 | J11.4 | auto | — | A 1 ms budget: today's chain decides, the ring records `fell back (timeout)`, and the turn still gets its reply |
 | J11.5 | auto | U3 | Player mode shows nothing judge-internal (`assert-player-clean`) |
 | J11.6 | auto | — | Judge settings survive a reload; no key or key-like value appears in extension settings or chat metadata |
+| J11.7 | auto | — | `memoryVerify` opted in, real turn + real read: every read with memory lines leaves a `memoryVerify` record (not all fallbacks), stored confidences are 1 or down-weighted into [0.2, 0.5), a drop carries `p < 0.2` and the model; logs `no lines this read` when the model wrote none |
+| J11.8 | auto | — | A scripted self-contradicting `/sendas` reply + a real read: an unsupported line lands in `verifyDrops` or the model wrote only supported lines; logs which branch ran |
+| J11.9 | auto | — | `memoryPairs` opted in, seeded labelled pairs (M01 M07 M08 P21 P31, in their own `characterId` group) → `runConsolidation`: M01's newer note dropped, M07's older note superseded, M08/P21 (same owner or place, different thing) **never** superseded or dropped; logs whether P31 was decided over the confidence floor |
+| J11.10 | auto | — | `memoryPairs` off, same seed in another group: zero `memoryPairs` calls; logs where the heuristic result differs from J11.9's |
 
 The story (`j11-judge.story.json`) gives every roster member a role and authors **no** director, so
 the install-wide flag is the only opt-in. The calibration half of the gate is separate:
-`node scripts/debug/so-judge.mts calibrate --use director --min 0.85` (page → plugin → API) and, off
-the page, `scripts/spike/typesafe/calibrate-node.mts director`.
+`node scripts/debug/so-judge.mts calibrate --use director|memory-verify|memory-pairs --min 0.85`
+(page → plugin → API; `--fixture memory-pairs-holdout` for the held-out pairs) and, off the page,
+`scripts/spike/typesafe/calibrate-node.mts <use>` (`--record` re-records the memory goldens jest replays).
 
 ```bash
 node scripts/debug/so-journey.mts run J11 --strict
@@ -335,6 +340,7 @@ that adds a player-visible element adds a row here.
 | Judgment-model settings: status, key field, master switch, per-usage opt-ins with what each sends, self-test (v2.2) | both | settings panel (`#so-judge`, `#so-judge-key`, `#so-judge-enabled`, `#so-judge-use-*`, `#so-judge-self-test`) |
 | Judge decision sources and probabilities (`source: judge`, confidence, via), the judge call ring (v2.2) | author | drawer Scheduler tab talk decisions (author view), session journal export |
 | Roster role lines and the "missing roles" hint (v2.2) | author | Studio Roster tab (`[data-so="roster-roles-hint"]`), wizard provisioning card |
+| Memory lines the judge declined to store ("Not stored", with its probability) and "Store anyway" (v2.2) | author | drawer Memory tab (author view, `[data-so="memory-not-stored"]`, `[data-so="memory-store-anyway"]`) |
 | `/cp` in full (`list`, `state`, `activate`, `set`, `converge`, debug `extract`/`expand`) | author | slash commands |
 
 Turning **Author view** on asks for confirmation first: it is a one-way look behind the curtain

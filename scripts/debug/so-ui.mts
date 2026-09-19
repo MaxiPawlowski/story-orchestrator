@@ -568,6 +568,7 @@ const PLAYER_FORBIDDEN_SELECTORS = [
   '[aria-label="In-play driver"]', '[aria-label="Advance target"]', '[aria-label="Nudge text"]',
   '[aria-label="Driver suggestions"]', '[aria-label="Driver report"]', '[aria-label="Active nudge"]',
   '[aria-label="Driver unavailable"]', '[aria-label="Talk decisions"]',
+  '[data-so="memory-not-stored"]', '[data-so="memory-store-anyway"]',
 ];
 
 // Surfaces a player can reach without turning anything on: the drawer (every tab it offers), the HUD

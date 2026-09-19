@@ -45,11 +45,11 @@ export const OffByDefault: Story = {
 export const OnlyBuiltUsesAreListed: Story = {
   args: { settings: settings({ enabled: true }) },
   play: async ({ args, canvasElement }) => {
-    const rows = canvasElement.querySelectorAll("[id^=so-judge-use-]");
-    await expect(rows.length).toBe(1);
-    await expect(JUDGE_USE_KEYS.length).toBeGreaterThan(1);
-    await userEvent.click(rows[0] as HTMLInputElement);
-    await expect(args.onChange).toHaveBeenCalledWith({ uses: { director: true } });
+    const rows = [...canvasElement.querySelectorAll<HTMLInputElement>("[id^=so-judge-use-]")];
+    await expect(rows.map((row) => row.id)).toEqual(["so-judge-use-director", "so-judge-use-memory-verify", "so-judge-use-memory-pairs"]);
+    await expect(JUDGE_USE_KEYS.length).toBeGreaterThan(rows.length);
+    await userEvent.click(rows[1]);
+    await expect(args.onChange).toHaveBeenCalledWith({ uses: { memoryVerify: true } });
   },
 };
 

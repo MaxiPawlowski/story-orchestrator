@@ -10,8 +10,8 @@ const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
 
   status                              plugin reachability, key source (never the key), install settings
   ask <request.json>                  POST one System One request through the plugin from the page
-  calibrate [--use director] [--min 0.85] [--record]
-                                      run test/fixtures/judge/<use>.json page -> plugin -> TypeSafe;
+  calibrate [--use director|memory-verify|memory-pairs] [--fixture <name>] [--min 0.85] [--record]
+                                      run test/fixtures/judge/<fixture|use>.json page -> plugin -> TypeSafe;
                                       exit 1 below --min; --record writes test/goldens/judge/<use>.calibration.json
   calls [--last 20]                   the current chat's judge call ring (extras.judge.calls)
 
@@ -52,23 +52,24 @@ async function ask(page: any, file: string) {
   return { ok: result.http === 200 };
 }
 
-async function calibrate(page: any, use: string, min: number, record: boolean) {
-  const fixture = JSON.parse(await readFile(join(PROJECT_ROOT, 'test', 'fixtures', 'judge', `${use}.json`), 'utf-8'));
+async function calibrate(page: any, use: string, fixtureName: string, min: number, record: boolean) {
+  const fixture = JSON.parse(await readFile(join(PROJECT_ROOT, 'test', 'fixtures', 'judge', `${fixtureName}.json`), 'utf-8'));
   const report = await evaluateInST(page, async ({ use, rows }: { use: string; rows: unknown[] }) => {
     const judge = (globalThis as any).storyOrchestratorJudge;
     if (!judge) throw new Error('storyOrchestratorJudge not registered (extension not loaded?)');
     return judge.calibrate(use, rows);
   }, { use, rows: fixture.rows });
-  const tagOf = Object.fromEntries(fixture.rows.map((row: any) => [row.id, row.tags ?? []]));
-  for (const row of report.rows) console.log(`${row.right ? 'ok  ' : 'MISS'} ${row.id.padEnd(5)} ${String(row.picked).padEnd(16)} ${String(row.latencyMs).padStart(5)} ms  ${tagOf[row.id].join(',')}${row.fallback ? `  fallback=${row.fallback}` : ''}`);
+  const labelOf: Record<string, string> = Object.fromEntries(fixture.rows.filter((row: any) => row.label).map((row: any) => [row.id, row.label]));
+  const tagOf = Object.fromEntries(fixture.rows.map((row: any) => [row.id, row.tags ?? (row.lang === 'es' ? ['spanish'] : [])]));
+  for (const row of report.rows) console.log(`${row.right ? 'ok  ' : 'MISS'} ${row.id.padEnd(5)} ${String(row.picked).padEnd(16)} ${String(row.latencyMs).padStart(5)} ms  ${tagOf[row.id].join(',')}${row.fallback ? `  fallback=${row.fallback}` : ''}${row.detail ? `  [${row.id in labelOf ? labelOf[row.id] : ''}] ${row.detail}` : ''}`);
   const rate = report.total ? report.right / report.total : 0;
   const spanish = report.rows.filter((row: any) => tagOf[row.id].includes('spanish'));
-  const summary = { use, right: report.right, total: report.total, rate: Number(rate.toFixed(4)), spanish: `${spanish.filter((row: any) => row.right).length}/${spanish.length}`, p50LatencyMs: report.p50LatencyMs, model: report.model, min, ok: rate >= min };
+  const summary = { use, fixture: fixtureName, right: report.right, total: report.total, rate: Number(rate.toFixed(4)), spanish: `${spanish.filter((row: any) => row.right).length}/${spanish.length}`, p50LatencyMs: report.p50LatencyMs, model: report.model, min, ok: rate >= min };
   console.log(JSON.stringify(summary, null, 2));
-  await writeJSON({ summary, report }, `so-judge-calibrate-${use}`);
+  await writeJSON({ summary, report }, `so-judge-calibrate-${fixtureName}`);
   if (record) {
     await mkdir(join(PROJECT_ROOT, 'test', 'goldens', 'judge'), { recursive: true });
-    await writeFile(join(PROJECT_ROOT, 'test', 'goldens', 'judge', `${use}.calibration.json`), `${JSON.stringify({ recordedAt: new Date().toISOString(), summary, rows: report.rows }, null, 2)}\n`);
+    await writeFile(join(PROJECT_ROOT, 'test', 'goldens', 'judge', `${fixtureName}.calibration.json`), `${JSON.stringify({ recordedAt: new Date().toISOString(), summary, rows: report.rows }, null, 2)}\n`);
   }
   return { ok: summary.ok };
 }
@@ -93,6 +94,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     if (command === 'status') return status(page);
     if (command === 'ask') return ask(page, arg);
     if (command === 'calls') return calls(page, Number(argValue('--last', '20')));
-    return calibrate(page, argValue('--use', 'director'), Number(argValue('--min', '0.85')), process.argv.includes('--record'));
+    return calibrate(page, argValue('--use', 'director'), argValue('--fixture', argValue('--use', 'director')), Number(argValue('--min', '0.85')), process.argv.includes('--record'));
   });
 }
