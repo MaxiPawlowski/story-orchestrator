@@ -19,6 +19,7 @@ export interface ExtractionFixtureSpec {
   openArcs?: string[];
   epistemicLedgerCapable?: boolean;
   entities?: string[];
+  excludeKeys?: string[];
 }
 
 export interface FixtureRun {
@@ -34,7 +35,7 @@ export function buildFixtureRun(spec: ExtractionFixtureSpec): FixtureRun {
   const story = parseStoryV2OrThrow(spec.story);
   const startId = story.checkpoints.find((checkpoint) => checkpoint.start)?.id ?? story.checkpoints[0]?.id ?? "";
   const activeCheckpointId = spec.activeCheckpointId ?? startId;
-  const scope = deriveScope(story, activeCheckpointId, spec.blackboard ?? emptyBlackboard());
+  const scope = deriveScope(story, activeCheckpointId, spec.blackboard ?? emptyBlackboard()).filter((entry) => !spec.excludeKeys?.includes(entry.key));
   const messages = spec.transcript.map((entry) => ({ ...entry, messageId: entry.index }));
   const from = spec.window?.from ?? messages[0]?.index ?? 0;
   const to = spec.window?.to ?? messages[messages.length - 1]?.index ?? 0;

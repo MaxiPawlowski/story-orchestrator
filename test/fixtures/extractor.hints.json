@@ -1,0 +1,11 @@
+{
+  "player_has_key": {
+    "read_as": "choice"
+  },
+  "mara_trust": {
+    "read_as": "stated"
+  },
+  "location": {
+    "read_as": "choice"
+  }
+}

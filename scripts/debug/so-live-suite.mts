@@ -6,7 +6,7 @@ import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 
-const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record]
+const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge]
 
 Runs every test/fixtures/extractor*.{story,transcript,expected}.json triple through the live
 extraction model (globalThis.storyOrchestratorLiveSuite.runFixture) and scores exact-match on
@@ -17,10 +17,15 @@ memory profile selected in the extension settings.
 
   --min <n>       minimum accuracy for exit 0 (default 0.9)
   --filter <s>    only run fixtures whose name contains <s>
-  --record        write each live raw response to test/goldens/live/<name>.response.txt`;
+  --record        write each live raw response to test/goldens/live/<name>.response.txt
+  --judge         v2.2 plan 06: merge test/fixtures/<name>.hints.json (read_as + criteria per quality)
+                  into the fixture's story, let the judge read the hinted qualities first and the LLM
+                  the rest (the cadence read's split). Needs the judge plugin; recordings go to
+                  test/goldens/judge/live/<name>.json. Floor --min 0.85 before miss triage.`;
 
 const FIX_DIR = join(PROJECT_ROOT, 'test/fixtures');
 const LIVE_GOLDEN_DIR = join(PROJECT_ROOT, 'test/goldens/live');
+const JUDGE_GOLDEN_DIR = join(PROJECT_ROOT, 'test/goldens/judge/live');
 
 const readJson = async (path) => JSON.parse(await readFile(path, 'utf-8'));
 
@@ -62,7 +67,8 @@ async function discoverFixtures(filter) {
       const story = await readJson(join(FIX_DIR, `${name}.story.json`));
       const transcript = await readJson(join(FIX_DIR, `${name}.transcript.json`));
       const expected = await readJson(join(FIX_DIR, `${name}.expected.json`));
-      fixtures.push({ name, story, transcript, expected });
+      const hints = await readJson(join(FIX_DIR, `${name}.hints.json`)).catch(() => null);
+      fixtures.push({ name, story, transcript, expected, hints });
     } catch {
       // skip fixtures without a full triple
     }
@@ -70,10 +76,10 @@ async function discoverFixtures(filter) {
   return fixtures;
 }
 
-async function runSuite(page, { min, filter, record }) {
+async function runSuite(page, { min, filter, record, judge = false }) {
   const fixtures = await discoverFixtures(filter);
   if (!fixtures.length) throw new Error(`No fixtures found in ${FIX_DIR}`);
-  if (record) await mkdir(LIVE_GOLDEN_DIR, { recursive: true });
+  if (record) await mkdir(judge ? JUDGE_GOLDEN_DIR : LIVE_GOLDEN_DIR, { recursive: true });
 
   const results = [];
   for (const fixture of fixtures) {
@@ -82,13 +88,15 @@ async function runSuite(page, { min, filter, record }) {
       const live = await evaluateInST(page, async (spec) => {
         const suite = globalThis.storyOrchestratorLiveSuite;
         if (!suite) throw new Error('storyOrchestratorLiveSuite not registered');
-        return suite.runFixture({ story: spec.story, transcript: spec.transcript, ...(spec.overrides ?? {}) });
-      }, { story: fixture.story, transcript: fixture.transcript, overrides: fixture.expected?.spec ?? {} });
+        return suite.runFixture({ story: spec.story, transcript: spec.transcript, ...(spec.overrides ?? {}) }, spec.judge ? { judge: true, hints: spec.hints ?? {} } : {});
+      }, { story: fixture.story, transcript: fixture.transcript, overrides: fixture.expected?.spec ?? {}, judge, hints: fixture.hints });
 
       const { pass, expectedNorm, liveNorm } = scoreFixture(fixture.expected.deltas ?? [], live.deltas ?? []);
-      results.push({ name: fixture.name, pass, expected: expectedNorm, live: liveNorm, ms: Date.now() - startedAt });
-      if (record) await writeFile(join(LIVE_GOLDEN_DIR, `${fixture.name}.response.txt`), `${live.rawResponse}\n`);
-      console.log(`${pass ? 'PASS' : 'FAIL'} ${fixture.name} expected=[${expectedNorm.join(', ')}] live=[${liveNorm.join(', ')}]`);
+      const sources = (live.deltas ?? []).map((d) => `${d.q}:${d.judge === undefined ? 'llm' : `judge@${d.judge}`}`);
+      results.push({ name: fixture.name, pass, expected: expectedNorm, live: liveNorm, ...(judge ? { sources, judged: live.judged?.answered ?? [] } : {}), ms: Date.now() - startedAt });
+      if (record && judge) await writeFile(join(JUDGE_GOLDEN_DIR, `${fixture.name}.json`), `${JSON.stringify({ rawResponse: live.rawResponse, judged: live.judged ?? null }, null, 2)}\n`);
+      else if (record) await writeFile(join(LIVE_GOLDEN_DIR, `${fixture.name}.response.txt`), `${live.rawResponse}\n`);
+      console.log(`${pass ? 'PASS' : 'FAIL'} ${fixture.name} expected=[${expectedNorm.join(', ')}] live=[${liveNorm.join(', ')}]${judge ? ` sources=[${sources.join(', ')}]` : ''}`);
     } catch (err) {
       results.push({ name: fixture.name, pass: false, error: err instanceof Error ? err.message : String(err), ms: Date.now() - startedAt });
       console.log(`FAIL ${fixture.name} ERROR ${err instanceof Error ? err.message : String(err)}`);
@@ -97,8 +105,8 @@ async function runSuite(page, { min, filter, record }) {
 
   const passed = results.filter((entry) => entry.pass).length;
   const accuracy = passed / results.length;
-  const report = { total: results.length, passed, accuracy: Number(accuracy.toFixed(4)), min, ok: accuracy >= min, recorded: record, results };
-  await writeJSON(report, 'so-live-suite-report');
+  const report = { total: results.length, passed, accuracy: Number(accuracy.toFixed(4)), min, ok: accuracy >= min, recorded: record, judge, results };
+  await writeJSON(report, judge ? 'so-live-suite-judge-report' : 'so-live-suite-report');
   console.log(JSON.stringify({ total: report.total, passed, accuracy: report.accuracy, min, ok: report.ok }, null, 2));
   return { ok: report.ok };
 }
@@ -113,5 +121,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const min = Number(argValue('--min', '0.9'));
   const filter = argValue('--filter', '');
   const record = process.argv.includes('--record');
-  runCli((page) => runSuite(page, { min, filter, record }));
+  runCli((page) => runSuite(page, { min, filter, record, judge: process.argv.includes('--judge') }));
 }

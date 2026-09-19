@@ -1,0 +1,8 @@
+{
+  "gate_opened": {
+    "read_as": "choice"
+  },
+  "watch_alerted": {
+    "read_as": "choice"
+  }
+}

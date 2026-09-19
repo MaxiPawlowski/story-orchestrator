@@ -1,0 +1,88 @@
+{
+  "format": 2,
+  "id": "so-j11-stall",
+  "version": 1,
+  "title": "SO-J11 Stall",
+  "description": "v2.2 plan 06 fixture: two short checkpoints whose gates only a stall re-check can settle.",
+  "qualities": [
+    {
+      "key": "lever_pulled",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has anyone pulled the iron lever beside the gate?"
+    },
+    {
+      "key": "door_open",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Is the sealed stone door open?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "gate",
+      "name": "The Gate",
+      "objective": "Open the gate.",
+      "type": "anchor",
+      "start": true,
+      "target_turn_length": 2
+    },
+    {
+      "id": "door",
+      "name": "The Door",
+      "objective": "Open the stone door.",
+      "type": "anchor",
+      "target_turn_length": 2
+    },
+    {
+      "id": "end",
+      "name": "Beyond",
+      "objective": "Go on.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "gate",
+      "to": "door",
+      "priority": 1,
+      "gate": {
+        "q": "lever_pulled",
+        "op": "==",
+        "v": true
+      }
+    },
+    {
+      "from": "door",
+      "to": "end",
+      "priority": 1,
+      "gate": {
+        "q": "door_open",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": [
+    {
+      "id": "dm",
+      "name": "DM Narrator",
+      "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+    },
+    {
+      "id": "companion",
+      "name": "Arin",
+      "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+    },
+    {
+      "id": "guild_master",
+      "name": "Ponticius",
+      "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+    },
+    {
+      "id": "little_brother",
+      "name": "Luke",
+      "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+    }
+  ]
+}

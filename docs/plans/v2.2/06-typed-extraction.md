@@ -297,8 +297,24 @@ Built with it:
 - **Blackboard tab.** Each quality shows its last reader (`judge` with its confidence, or `llm`),
   taken from both the audits and the judged-read ring.
 
-Not built yet: the sun-ruins hints and version bump (they wait for the live suite's `--judge` run to
-say which qualities keep parity), `so-live-suite --judge`, and J11.20–J11.24.
+### As built: live suite and journeys (2026-09-19; not run: needs the plugin in ST)
+
+- `so-live-suite.mts run --judge`. Each `extractor*` fixture has a hint sidecar
+  (`test/fixtures/<name>.hints.json`), and every extractor quality gets the plain hint its type
+  implies: 22 sidecars, 31 qualities. That is the measured shape, and the gate's miss triage
+  either removes hints or adds criteria. `runFixture(spec, {judge, hints})` merges the hints,
+  probes the judge (nothing is recorded in the open chat), and builds the LLM prompt without the
+  judged keys (`ExtractionFixtureSpec.excludeKeys`). Scoring is unchanged (exact `{q, v}` per
+  fixture), and each delta's reader is printed. `--record` writes
+  `test/goldens/judge/live/<name>.json`.
+- `extraction/hintSidecars.test.ts` proves every sidecar merges into a story that still
+  validates. `engine/journeyStories.test.ts` validates every journey story file.
+- J11.20–J11.24 are in the J11 journey, with two new stories (`j11-typed`, `j11-stall`). Settings
+  change through `setExtractionSettings`. Checks whose outcome depends on the model's answer log
+  their branch (J11.21 is structural, J11.22 logs whether the judge settled the latching quality).
+
+Not built yet: the sun-ruins hints and version bump. They wait for `--judge`'s miss triage, which
+says which qualities keep parity.
 
 ## Implementation notes
 

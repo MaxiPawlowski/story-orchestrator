@@ -565,6 +565,228 @@
           "log": true
         }
       ]
+    },
+    {
+      "id": "J11.20",
+      "mode": "auto",
+      "findings": [],
+      "goal": "typed extraction opted in, cadence 50 (no LLM read for fifty boundaries): the player takes the key, the judge reads the hinted gate quality on that boundary, and the transition fires at the next boundary, long before any cadence read",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const root = ctx.extensionSettings['story-orchestrator']; rt.setExtractionSettings({ enabled: true, cadence: 50, reconciliationMultiplier: 1.5 }); root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, false])), typedExtraction: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); return root.settings.judge.uses;"
+        },
+        {
+          "import_story": {
+            "file": "./j11-typed.story.json"
+          }
+        },
+        {
+          "expect": {
+            "storyId": "so-j11-typed",
+            "activeCheckpoint": "hall"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; globalThis.__soJ11Typed = { reads: rt.getSnapshot().extraction.judgedReads.length, audits: rt.getSnapshot().extraction.audits.length, boundary: rt.getEngineState().boundary }; return globalThis.__soJ11Typed;"
+        },
+        {
+          "send_generate": {
+            "text": "I lift the mat, take the brass key and close my fist around it.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const read = await until(() => rt.getSnapshot().extraction.judgedReads.slice(globalThis.__soJ11Typed.reads).find((entry) => entry.deltas.some((delta) => delta.q === 'has_key' && delta.v === true)), 30000); if (!read) throw new Error(`no judged has_key=true: ${JSON.stringify(rt.getSnapshot().extraction.judgedReads.slice(globalThis.__soJ11Typed.reads))}`); globalThis.__soJ11Typed.read = read; return read;",
+          "log": true
+        },
+        {
+          "send_generate": {
+            "text": "Key in hand, I walk to the vault door.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const snap = rt.getSnapshot(); const state = rt.getEngineState(); if (snap.activeCheckpointId !== 'vault') throw new Error(`still at ${snap.activeCheckpointId}: the judged delta did not fire the gate`); if (state.boundary >= 50) throw new Error(`reached boundary ${state.boundary}; the cadence read may have fired it`); const llmReads = snap.extraction.audits.slice(globalThis.__soJ11Typed.audits).filter((audit) => audit.acceptedDeltas.some((entry) => entry.delta.q === 'has_key' && entry.judge === undefined)); if (llmReads.length) throw new Error(`an LLM read also wrote has_key: ${llmReads.map((audit) => audit.reason).join(', ')}`); if (snap.blackboardMeta.has_key?.reader !== 'judge') throw new Error(`has_key's last reader is ${snap.blackboardMeta.has_key?.reader}`); return { transitionedAt: state.boundary, judgedAt: globalThis.__soJ11Typed.read.boundary, confidence: snap.blackboardMeta.has_key.confidence };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.21",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cadence 1 with typed extraction on: every cadence read's LLM prompt leaves out exactly the qualities the judge settled, and keeps every hinted quality it did not (residual scope)",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const root = ctx.extensionSettings['story-orchestrator']; rt.setExtractionSettings({ enabled: true, cadence: 1, reconciliationMultiplier: 1.5 }); root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, false])), typedExtraction: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); globalThis.__soJ11Audits = rt.getSnapshot().extraction.audits.length; return root.settings.extraction.cadence;"
+        },
+        {
+          "send_generate": {
+            "text": "The guard squints at us. I can't tell if he's bored or about to call for help.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const audits = rt.getSnapshot().extraction.audits.slice(globalThis.__soJ11Audits).filter((audit) => audit.judged); if (!audits.length) throw new Error('no LLM read carried a judged step'); const problems = audits.flatMap((audit) => [...audit.judged.keys.filter((key) => audit.scope.includes(key) || audit.prompt.includes(`${key}`)).map((key) => `${audit.reason}: judged ${key} still in the LLM scope`), ...['guard_mood'].filter((key) => !audit.judged.keys.includes(key) && !audit.scope.includes(key) && rt.getSnapshot().blackboardMeta[key]?.latched !== true).map((key) => `${audit.reason}: unsettled ${key} missing from the LLM scope`)]); if (problems.length) throw new Error(problems.join(' | ')); return audits.map((audit) => ({ reason: audit.reason, judged: audit.judged.keys, llmScope: audit.scope }));",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.22",
+      "mode": "auto",
+      "findings": [],
+      "goal": "a latching hinted quality is written by the judge only at confidence 0.9 or more (0.8 + 0.1)",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const snap = rt.getSnapshot(); const judged = [...snap.extraction.judgedReads.flatMap((read) => read.deltas), ...snap.extraction.audits.flatMap((audit) => audit.acceptedDeltas.filter((entry) => entry.judge !== undefined).map((entry) => ({ q: entry.delta.q, v: entry.delta.v, confidence: entry.judge })))].filter((delta) => delta.q === 'guard_mood'); const low = judged.filter((delta) => delta.confidence < 0.9); if (low.length) throw new Error(`latching guard_mood written under 0.9: ${JSON.stringify(low)}`); return { branch: judged.length ? `${judged.length} judged guard_mood writes, all >= 0.9` : 'the judge never settled guard_mood (the LLM read covered it)', judged };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.23",
+      "mode": "auto",
+      "findings": [],
+      "goal": "stall check opted in, reads off (cadence 50): a lever pulled six turns ago is written straight from the stall check with no LLM re-read; then a door nobody opens stays a genuine stall with the player's stall signal still showing",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const root = ctx.extensionSettings['story-orchestrator']; rt.setExtractionSettings({ enabled: true, cadence: 50, reconciliationMultiplier: 1.5 }); root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, false])), stallCheck: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); return root.settings.judge.uses;"
+        },
+        {
+          "import_story": {
+            "file": "./j11-stall.story.json"
+          }
+        },
+        {
+          "expect": {
+            "storyId": "so-j11-stall",
+            "activeCheckpoint": "gate"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; globalThis.__soJ11Stall = { audits: rt.getSnapshot().extraction.audits.length, reads: rt.getSnapshot().extraction.judgedReads.length }; return globalThis.__soJ11Stall;"
+        },
+        {
+          "slash": "/sendas name=\"Arin\" raw=false \"I grab the iron lever beside the gate and haul it all the way down. It locks with a clunk.\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (1)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (2)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (3)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (4)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (5)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (6)\""
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const direct = await until(() => rt.getSnapshot().extraction.judgedReads.slice(globalThis.__soJ11Stall.reads).find((read) => read.kind === 'stall' && read.note === 'direct'), 30000); if (!direct) throw new Error(`no direct stall write: ${JSON.stringify(rt.getSnapshot().extraction.judgedReads.slice(globalThis.__soJ11Stall.reads))}`); return direct;",
+          "log": true
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The gate groans.\""
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const snap = rt.getSnapshot(); if (snap.activeCheckpointId !== 'door') throw new Error(`still at ${snap.activeCheckpointId}`); const rereads = snap.extraction.audits.slice(globalThis.__soJ11Stall.audits).filter((audit) => audit.reason.startsWith('reconcile:')); if (rereads.length) throw new Error(`an LLM reconcile read ran: ${rereads.map((audit) => audit.reason).join(', ')}`); const event = snap.extraction.reconciliationEvents.find((entry) => entry.checkpointId === 'gate'); if (!event?.resolvedAt || !event.evidence.some((line) => line.includes('judge:reconcile'))) throw new Error(`gate stall not resolved by the judge: ${JSON.stringify(event)}`); globalThis.__soJ11Stall.reads = snap.extraction.judgedReads.length; return { event };",
+          "log": true
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (1)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (2)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (3)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (4)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (5)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (6)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (7)\""
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const genuine = await until(() => rt.getSnapshot().extraction.judgedReads.slice(globalThis.__soJ11Stall.reads).find((read) => read.kind === 'stall'), 30000); if (!genuine) throw new Error('no stall check on the door'); const snap = rt.getSnapshot(); const event = snap.extraction.reconciliationEvents.filter((entry) => entry.checkpointId === 'door').at(-1); if (genuine.note?.startsWith('nothing shown')) { if (event?.resolvedAt) throw new Error('a genuine stall was resolved'); if (snap.extraction.audits.slice(globalThis.__soJ11Stall.audits).some((audit) => audit.reason.startsWith('reconcile:door'))) throw new Error('a genuine stall still spent an LLM re-read'); } return { branch: genuine.note, event };",
+          "log": true
+        },
+        {
+          "ui": {
+            "action": "open-drawer"
+          }
+        },
+        {
+          "eval": "const stalled = globalThis.storyOrchestratorRuntime.getSnapshot().extraction.reconciliationEvents.some((entry) => entry.checkpointId === 'door' && !entry.resolvedAt); const signal = document.querySelector('#so-stall-signal'); if (stalled && !signal) throw new Error('an open stall with no #so-stall-signal'); return { stalled, signal: Boolean(signal) };"
+        }
+      ]
+    },
+    {
+      "id": "J11.24",
+      "mode": "auto",
+      "findings": [],
+      "goal": "typed extraction and the stall check off: reads carry no judged step and no judge-sourced delta, and nothing lands in the judged-read ring",
+      "requires": [
+        "judge-runtime"
+      ],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const root = ctx.extensionSettings['story-orchestrator']; rt.setExtractionSettings({ enabled: true, cadence: 1, reconciliationMultiplier: 1.5 }); root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, false])), director: false } }; globalThis.storyOrchestratorJudge.invalidateStatus(); globalThis.__soJ11Off = { audits: rt.getSnapshot().extraction.audits.length, reads: rt.getSnapshot().extraction.judgedReads.length }; return root.settings.judge.uses;"
+        },
+        {
+          "send_generate": {
+            "text": "I wait by the door and listen.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const snap = rt.getSnapshot(); const audits = snap.extraction.audits.slice(globalThis.__soJ11Off.audits); if (!audits.length) throw new Error('no read ran at cadence 1'); const judged = audits.filter((audit) => audit.judged || audit.acceptedDeltas.some((entry) => entry.judge !== undefined)); if (judged.length) throw new Error(`judge output in ${judged.length} reads with the usages off`); if (snap.extraction.judgedReads.length !== globalThis.__soJ11Off.reads) throw new Error('the judged-read ring grew with the usages off'); return { reads: audits.map((audit) => audit.reason) };",
+          "log": true
+        }
+      ]
     }
   ]
 }

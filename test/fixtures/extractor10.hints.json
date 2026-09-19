@@ -1,0 +1,11 @@
+{
+  "door_open": {
+    "read_as": "choice"
+  },
+  "alarm": {
+    "read_as": "choice"
+  },
+  "guards": {
+    "read_as": "stated"
+  }
+}

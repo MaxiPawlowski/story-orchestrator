@@ -1,0 +1,88 @@
+{
+  "format": 2,
+  "id": "so-j11-typed",
+  "version": 1,
+  "title": "SO-J11 Typed",
+  "description": "v2.2 plan 06 fixture: a hinted gate quality (read by the judge every turn) and a latching hinted enum.",
+  "qualities": [
+    {
+      "key": "has_key",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Does the player now hold the brass vault key?",
+      "read_as": "choice"
+    },
+    {
+      "key": "guard_mood",
+      "type": "enum",
+      "values": [
+        "calm",
+        "suspicious",
+        "hostile"
+      ],
+      "source": "extractor",
+      "latching": true,
+      "rubric": "How does the vault guard feel about the party right now?",
+      "read_as": "choice"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "hall",
+      "name": "The Hall",
+      "objective": "Find the brass key.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "vault",
+      "name": "The Vault",
+      "objective": "Get past the guard.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "hall",
+      "to": "vault",
+      "priority": 1,
+      "gate": {
+        "q": "has_key",
+        "op": "==",
+        "v": true
+      }
+    },
+    {
+      "from": "vault",
+      "to": "hall",
+      "priority": 1,
+      "gate": {
+        "q": "guard_mood",
+        "op": "==",
+        "v": "hostile"
+      }
+    }
+  ],
+  "roster": [
+    {
+      "id": "dm",
+      "name": "DM Narrator",
+      "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+    },
+    {
+      "id": "companion",
+      "name": "Arin",
+      "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+    },
+    {
+      "id": "guild_master",
+      "name": "Ponticius",
+      "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+    },
+    {
+      "id": "little_brother",
+      "name": "Luke",
+      "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+    }
+  ]
+}

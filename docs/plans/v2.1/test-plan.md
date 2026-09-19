@@ -101,7 +101,7 @@ arrive. The operator records scores in the plan's Gate record.
 | J0 | runner-selftest | The runner itself: fresh-start, pass/blocked/skipped, cleanup | 3 | 1 | No LLM. Run it whenever the harness changes |
 | J1 | first-contact | Cleared install → install state → import example → configure → first real transition | 7 | 2 | Only journey that clears global config |
 | J2 | author-loop | Empty Studio → authored story → play → edit → continue, incl. an invalidating edit and its choice popup; author-view driver (Probe + Nudge) | 9 | 2 | Plan 05's gate journey |
-| J11 | judgment-backend | The judgment model (v2.2 plans 01–04): plugin reachable with a key, off by default, deciding speaker direction when opted in, timeout fallback, own call ring, no key leak; memory lines verified before storing, judged consolidation; scene read (trigger, tracker block, rollback, union with the regex); lore-select (force, seam, disabled entries, dry/quiet, off) | 19 | 0 | Needs the server plugin and `enableServerPlugins: true`; without it J11.1 fails with the reason and the rest block |
+| J11 | judgment-backend | The judgment model (v2.2 plans 01–04, 06): plugin reachable with a key, off by default, deciding speaker direction when opted in, timeout fallback, own call ring, no key leak; memory lines verified before storing, judged consolidation; scene read (trigger, tracker block, rollback, union with the regex); lore-select (force, seam, disabled entries, dry/quiet, off); typed extraction and the stall check | 24 | 0 | Needs the server plugin and `enableServerPlugins: true`; without it J11.1 fails with the reason and the rest block |
 | J3 | player-session | Real session on sun-ruins: transitions announced, memory recalled, spoiler sweep, journal | 8 | 5 | The human-eval workhorse |
 | J4 | return-and-adopt | Simulated multi-day gap → away recap on return; mid-chat adoption via memorize backlog | 4 | 2 | Uses the `reload` verb (real return path) |
 | J5 | group-direction | talk_control + npc_replies + cast_changes; per-speaker private injection in the payload | 6 | 1 | Restores the group roster in cleanup |
@@ -301,6 +301,11 @@ node scripts/debug/so-journey.mts run J8
 | J11.17 | auto | — | The switched-off `Vault combination` entry (disabled as checkpoint gating does) is never picked, activated, or in the prompt, even when asked for directly |
 | J11.18 | auto | — | A dry run (`generate(…, dryRun)`) and a quiet `/gen` make no `lore` call |
 | J11.19 | auto | — | Lore-select off: no `lore` call, and the keywordless password entry is not activated (only a force could have done it). Cleanup removes the marked book (`removeCreatedAssets: SO-J11`) |
+| J11.20 | auto | — | `so-j11-typed`, cadence 50, typed extraction opted in: the player takes the key, a judged read writes `has_key=true`, and the transition to The Vault fires on the next turn, far before any cadence read, with no LLM read writing `has_key` and the Blackboard reader `judge` |
+| J11.21 | auto | — | Cadence 1 + typed extraction: every LLM read with a judged step leaves the judged keys out of its scope and prompt, and keeps the unsettled hinted `guard_mood` (residual scope) |
+| J11.22 | auto | — | Every judged write of the latching `guard_mood` has confidence ≥ 0.9; logs whether the judge settled it at all |
+| J11.23 | auto | — | `so-j11-stall`, cadence 50, stall check opted in: a lever pulled six turns ago is written straight from the stall check (`judge:reconcile`, no `reconcile:` LLM read) and the transition fires; a door nobody opens stays a genuine stall (event open, no re-read) with `#so-stall-signal` showing |
+| J11.24 | auto | — | Typed extraction and the stall check off: cadence reads carry no `judged` step or judge-sourced delta, and the judged-read ring does not grow |
 | J11.15 | auto | — | Every scene usage off: zero `scene` calls, no stored read, no block. Then trigger on + a blackboard `location` change with no text cue: the heuristic's `scene:location` read still runs (union), logging whether the judge added any read |
 
 The story (`j11-judge.story.json`) gives every roster member a role and authors **no** director, so

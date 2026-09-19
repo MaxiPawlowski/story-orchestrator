@@ -1,0 +1,8 @@
+{
+  "district": {
+    "read_as": "choice"
+  },
+  "threat_level": {
+    "read_as": "stated"
+  }
+}

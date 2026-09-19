@@ -1,0 +1,8 @@
+{
+  "torch_lit": {
+    "read_as": "choice"
+  },
+  "rats_seen": {
+    "read_as": "stated"
+  }
+}

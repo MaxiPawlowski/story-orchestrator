@@ -1,0 +1,5 @@
+{
+  "torch_lit": {
+    "read_as": "choice"
+  }
+}
