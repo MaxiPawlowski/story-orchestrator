@@ -20,6 +20,7 @@ import {
   type Quality,
   type QualityType,
   type StoryRequirements,
+  type StoryLoreSelect,
   type StorySceneRead,
   type StoryStagecraft,
   type StoryV2,
@@ -468,6 +469,26 @@ const readSceneRead = (value: unknown, errors: ValidationError[]): StorySceneRea
   return Object.keys(out).length ? out : undefined;
 };
 
+const readLoreSelect = (value: unknown, errors: ValidationError[]): StoryLoreSelect | undefined => {
+  if (!isRecord(value)) {
+    addError(errors, "lore_select", "lore_select must be an object");
+    return undefined;
+  }
+  const lorebooks = readRequirementList(value.lorebooks ?? value.lorebook);
+  const number = (key: "top_k" | "min_p", min: number, max: number) => {
+    const raw = value[key];
+    if (raw === undefined) return undefined;
+    if (typeof raw !== "number" || !Number.isFinite(raw) || raw < min || raw > max) {
+      addError(errors, `lore_select.${key}`, `lore_select.${key} must be a number from ${min} to ${max}`);
+      return undefined;
+    }
+    return key === "top_k" ? Math.round(raw) : raw;
+  };
+  const topK = number("top_k", 1, 12);
+  const minP = number("min_p", 0, 1);
+  return lorebooks.length ? { lorebooks, ...(topK !== undefined ? { top_k: topK } : {}), ...(minP !== undefined ? { min_p: minP } : {}) } : undefined;
+};
+
 const readArcTemplate = (value: unknown, errors: ValidationError[]): ArcTemplate | undefined => {
   if (isOneOf(value, ARC_TEMPLATE_NAMES)) return value;
   if (isRecord(value) && Array.isArray(value.points)) {
@@ -515,6 +536,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const requirements = json.requirements !== undefined ? readRequirements(json.requirements, errors) : undefined;
   const stagecraft = json.stagecraft !== undefined ? readStagecraft(json.stagecraft, errors) : undefined;
   const sceneRead = json.scene_read !== undefined ? readSceneRead(json.scene_read, errors) : undefined;
+  const loreSelect = json.lore_select !== undefined ? readLoreSelect(json.lore_select, errors) : undefined;
   const roster = readRoster(json.roster as StoryV2["roster"], errors);
   const arcBridges = Array.isArray(json.arc_bridges) ? json.arc_bridges.map((entry, index) => {
     const bridgePath = `arc_bridges.${index}`;
@@ -602,6 +624,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     ...(requirements ? { requirements } : {}),
     ...(stagecraft ? { stagecraft } : {}),
     ...(sceneRead ? { scene_read: sceneRead } : {}),
+    ...(loreSelect ? { lore_select: loreSelect } : {}),
     startCheckpointId,
     checkpointById,
     outgoingByCheckpoint,

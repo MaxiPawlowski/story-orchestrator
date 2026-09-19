@@ -69,3 +69,16 @@ describe("format-2 scene_read (v2.2 plan 03)", () => {
   });
 });
 
+describe("format-2 lore_select (v2.2 plan 04)", () => {
+  it("keeps the books, rounds top_k, and drops an empty block", () => {
+    expect(parseStoryV2OrThrow(story({ lore_select: { lorebooks: [" Story Lore "], top_k: 5.6, min_p: 0.7 } })).lore_select).toEqual({ lorebooks: ["Story Lore"], top_k: 6, min_p: 0.7 });
+    expect(parseStoryV2OrThrow(story({ lore_select: { lorebooks: [] } })).lore_select).toBeUndefined();
+  });
+
+  it("rejects out-of-range numbers and a non-object block", () => {
+    expect(errors(story({ lore_select: { lorebooks: ["L"], top_k: 40 } }))).toEqual([{ path: "lore_select.top_k", message: "lore_select.top_k must be a number from 1 to 12" }]);
+    expect(errors(story({ lore_select: { lorebooks: ["L"], min_p: 2 } }))).toEqual([{ path: "lore_select.min_p", message: "lore_select.min_p must be a number from 0 to 1" }]);
+    expect(errors(story({ lore_select: "Story Lore" as never }))).toEqual([{ path: "lore_select", message: "lore_select must be an object" }]);
+  });
+});
+

@@ -255,6 +255,38 @@ gate measures it through the page and decides.
 `CURATOR_FILTER_P` 0.2, and 9 of the 11 fine switched-on entries dropped from the curator's prompt.
 It passes.
 
+### As built (code, 2026-09-19; live gate pending)
+
+- `src/judge/lore.ts` + `loreCalibration.ts` (pure), `src/runtime/loreSelect.ts` (`LoreSelector`,
+  injected deps, no extras slice), `stHost/worldInfoActivate.ts` (`getScannableEntries`,
+  `forceActivateEntries`) and `stHost/generation.ts` `willAddUserMessage`. The vendored members are
+  in the v2 host-facts ledger with their lines.
+- **Wiring was written against the source-read table, before the Phase 0 probe ran.** The probe
+  needs the live page (`scripts/debug/so-lore-probe.mts arm|dump|disarm` is built), and every row
+  of the table was re-read in ST source first:
+  - `GENERATION_STARTED` at `script.js:4299` comes before the box read at `:4401`;
+  - `sendMessageAsUser` → `MESSAGE_SENT` comes at `:4453`;
+  - the scan is at `:4635`.
+  The probe is the first live-gate step. A row it contradicts changes `runtime/index.ts` before
+  `loreSelect` is ever switched on. Only the two event handlers depend on the table.
+- `MESSAGE_SENT` only picks when the same generation's `GENERATION_STARTED` saw a player message
+  coming. A `/comment` or `/sendas` `MESSAGE_SENT` therefore never spends a call, and never leaves
+  a force in the static map for an unrelated scan.
+- The record's use is `lore`, and its `p` holds `trigger` plus each chunk's picks by entry title. The
+  author Payload tab shows the latest one ("Lore forced this turn"); the snapshot reads it from the
+  ring, so the manager did not grow.
+- A cache key hit at the same `chatId:lastMessageId:scope` re-forces the cached picks without
+  asking again. A judge failure caches no picks, so ST's keyword scan runs alone for that message.
+- The wizard's created story lorebook also becomes `lore_select.lorebooks`, next to
+  `stagecraft.lorebooks`. Nothing runs until the install opts in.
+- J11.16 runs in the J11 group chat, whose first member takes the `MESSAGE_SENT` path that a solo
+  send takes. A separate solo-chat run is not scripted, so the gate record should say whether a
+  solo chat was checked by hand.
+- **Curator pre-filter: pure half and calibration only.** Wiring it into
+  `stagecraftCoordinator.readScope` waits for the peer's uncommitted curator change (`isCheckpointGated`,
+  `stagecraft/scope.ts`, the coordinator). Building it on top of those files before they land would
+  guarantee a conflict. `curatorFilter` stays out of `BUILT_JUDGE_USES` until then.
+
 ## Implementation notes
 
 - Force, don't write. The only host effect is the per-generation event, so rollback has nothing to

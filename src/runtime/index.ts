@@ -1,10 +1,11 @@
 import { callExtractionModel, getChatWindow, ExtractionScheduler, type SchedulerHost, type SchedulerSettings } from "@extraction/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
-import { clearStoryExtensionPrompt, executeSlashCommands, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, judgeStatus, judgeTransport, setStoryExtensionPrompt, subscribeToHostEvents, type HostSubscriptionEntry } from "@services/STAPI";
+import { clearStoryExtensionPrompt, executeSlashCommands, forceActivateEntries, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, getScannableEntries, judgeStatus, judgeTransport, setStoryExtensionPrompt, subscribeToHostEvents, willAddUserMessage, type HostSubscriptionEntry } from "@services/STAPI";
 import { quoteSlashArg } from "@utils/string";
 import { runBoundaryWork } from "./boundaryWork";
 import { SceneCoordinator } from "./coordinators/sceneCoordinator";
 import { JudgeRuntime } from "./judge";
+import { LoreSelector } from "./loreSelect";
 import { getGlobalSettings } from "./settingsStore";
 import { registerLiveSuite } from "./liveSuite";
 import { registerRuntimeMacros } from "./macros";
@@ -106,6 +107,27 @@ export function startRuntime() {
   });
   sceneCoordinator = scene;
   runtimeManager.subscribe(() => scene.sync());
+  const lore = new LoreSelector({
+    judge: () => judgeRuntime,
+    getStory: () => runtimeManager.getStory(),
+    getState: () => runtimeManager.getEngineState(),
+    getWindow: recentWindow,
+    getChatId: () => getContext().chatId ?? null,
+    getLastMessageId: chatLastId,
+    getEntries: getScannableEntries,
+    force: forceActivateEntries,
+  });
+  // v2.2 plan 04 seam: force at the last awaited event before a scan whose chat already holds the
+  // message that triggered it. A generation about to add the player's message waits for MESSAGE_SENT.
+  globalThis.storyOrchestratorLore = { selector: lore, willAddUserMessage };
+  let loreAwaitsMessage = false;
+  const selectLore = (trigger: "MESSAGE_SENT" | "GENERATION_STARTED") => lore.select(trigger).catch((error) => console.warn("[Story Orchestrator] lore-select failed", error));
+  const onLoreGenerationStarted = async (type: string | undefined, params: Record<string, unknown> | undefined, dryRun: boolean | undefined) => {
+    loreAwaitsMessage = false;
+    if (!lore.active() || dryRun || type === "quiet" || params?.quiet_prompt) return;
+    if (willAddUserMessage(type, params, dryRun)) loreAwaitsMessage = true;
+    else await selectLore("GENERATION_STARTED");
+  };
   const talkHost: TalkControlHost = {
     isGroupChat: () => Boolean(getActiveGroup()),
     getChatId: () => getContext().chatId ?? null,
@@ -134,7 +156,8 @@ export function startRuntime() {
   globalThis.talkControlInterceptor = (_chat, _contextSize, abort, type) => talkController?.intercept(abort, type);
   const privateInjectionEntries: HostSubscriptionEntry[] = [
     { eventName: "GROUP_MEMBER_DRAFTED", handler: (characterId) => runtimeManager.onMemberDrafted(characterId as number | [number]) },
-    { eventName: "GENERATION_STARTED", handler: (...args: unknown[]) => { runtimeManager.onGenerationStarted(args[0]); runtimeManager.capturePayload(); talkController?.onGenerationStarted(args[1] as Record<string, unknown> | undefined); } },
+    { eventName: "GENERATION_STARTED", handler: async (...args: unknown[]) => { runtimeManager.onGenerationStarted(args[0]); runtimeManager.capturePayload(); talkController?.onGenerationStarted(args[1] as Record<string, unknown> | undefined); await onLoreGenerationStarted(typeof args[0] === "string" ? args[0] : undefined, args[1] as Record<string, unknown> | undefined, args[2] === true); } },
+    { eventName: "MESSAGE_SENT", handler: async () => { if (!loreAwaitsMessage) return; loreAwaitsMessage = false; await selectLore("MESSAGE_SENT"); } },
     { eventName: "GENERATION_ENDED", handler: () => { runtimeManager.clearPrivateInjection(); runtimeManager.clearCopilotNudge(); talkController?.onGenerationEnded(); } },
     { eventName: "GENERATION_STOPPED", handler: () => { runtimeManager.clearPrivateInjection(); runtimeManager.clearCopilotNudge(); talkController?.onGenerationEnded(); } },
     { eventName: "GROUP_WRAPPER_STARTED", handler: (payload) => talkController?.onWrapperStarted(payload as Record<string, unknown> | undefined) },

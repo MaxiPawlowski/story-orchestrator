@@ -9,7 +9,8 @@
   },
   "cleanup": {
     "restoreConfig": true,
-    "deleteChat": true
+    "deleteChat": true,
+    "removeCreatedAssets": "SO-J11"
   },
   "capabilities": {
     "judge-runtime": "typeof globalThis.storyOrchestratorJudge?.director === 'function' && typeof globalThis.storyOrchestratorRuntime?.recordJudgeCall === 'function'",
@@ -440,6 +441,127 @@
         },
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; const reasons = rt.getSnapshot().extraction.audits.slice(globalThis.__soJ11Audits).map((entry) => entry.reason); if (!reasons.some((reason) => reason === 'scene:location')) throw new Error(`the location-quality change scheduled no scene:location read: ${JSON.stringify(reasons)}`); const judged = reasons.filter((reason) => reason === 'scene:judge').length; return { reasons, judgeAddedReads: judged, note: judged ? 'the judge also triggered on a later boundary of this step' : 'union held: no second read' };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.16",
+      "mode": "auto",
+      "findings": [],
+      "goal": "lore-select opted in: a player question whose answer lives in an entry whose keys never appear gets that entry forced into every generation of the turn; the first pick is made at MESSAGE_SENT, later group members pick again at GENERATION_STARTED",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const loreCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge lore')); const made = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-J11 Lore' }, { requirements: { lorebooks: [] } }); if (!made.ok && !made.message.includes('already exists')) throw new Error(`could not create SO-J11 Lore: ${made.message}`); const entries = [{\"comment\": \"Trade route 1\", \"keys\": [\"zqx-route-1\"], \"content\": \"The market town of Hallow Ford trades salt for amber with Silt Harbor every spring, over the old north road.\"}, {\"comment\": \"Trade route 2\", \"keys\": [\"zqx-route-2\"], \"content\": \"The market town of Brine Cross trades wool for rope with Greywick every summer, over the old east road.\"}, {\"comment\": \"Trade route 3\", \"keys\": [\"zqx-route-3\"], \"content\": \"The market town of Ashvale trades tin for cider with Tallow Reach every autumn, over the old south road.\"}, {\"comment\": \"Trade route 4\", \"keys\": [\"zqx-route-4\"], \"content\": \"The market town of Kettle Mere trades amber for slate with Hallow Ford every winter, over the old west road.\"}, {\"comment\": \"Trade route 5\", \"keys\": [\"zqx-route-5\"], \"content\": \"The market town of Dunmarrow trades rope for wax with Brine Cross every spring, over the old north road.\"}, {\"comment\": \"Trade route 6\", \"keys\": [\"zqx-route-6\"], \"content\": \"The market town of Silt Harbor trades cider for salt with Ashvale every summer, over the old east road.\"}, {\"comment\": \"Trade route 7\", \"keys\": [\"zqx-route-7\"], \"content\": \"The market town of Greywick trades slate for wool with Kettle Mere every autumn, over the old south road.\"}, {\"comment\": \"Trade route 8\", \"keys\": [\"zqx-route-8\"], \"content\": \"The market town of Tallow Reach trades wax for tin with Dunmarrow every winter, over the old west road.\"}, {\"comment\": \"Trade route 9\", \"keys\": [\"zqx-route-9\"], \"content\": \"The market town of Hallow Ford trades salt for amber with Silt Harbor every spring, over the old north road.\"}, {\"comment\": \"Trade route 10\", \"keys\": [\"zqx-route-10\"], \"content\": \"The market town of Brine Cross trades wool for rope with Greywick every summer, over the old east road.\"}, {\"comment\": \"Trade route 11\", \"keys\": [\"zqx-route-11\"], \"content\": \"The market town of Ashvale trades tin for cider with Tallow Reach every autumn, over the old south road.\"}, {\"comment\": \"Trade route 12\", \"keys\": [\"zqx-route-12\"], \"content\": \"The market town of Kettle Mere trades amber for slate with Hallow Ford every winter, over the old west road.\"}, {\"comment\": \"Trade route 13\", \"keys\": [\"zqx-route-13\"], \"content\": \"The market town of Dunmarrow trades rope for wax with Brine Cross every spring, over the old north road.\"}, {\"comment\": \"Trade route 14\", \"keys\": [\"zqx-route-14\"], \"content\": \"The market town of Silt Harbor trades cider for salt with Ashvale every summer, over the old east road.\"}, {\"comment\": \"Trade route 15\", \"keys\": [\"zqx-route-15\"], \"content\": \"The market town of Greywick trades slate for wool with Kettle Mere every autumn, over the old south road.\"}, {\"comment\": \"Trade route 16\", \"keys\": [\"zqx-route-16\"], \"content\": \"The market town of Tallow Reach trades wax for tin with Dunmarrow every winter, over the old west road.\"}, {\"comment\": \"Trade route 17\", \"keys\": [\"zqx-route-17\"], \"content\": \"The market town of Hallow Ford trades salt for amber with Silt Harbor every spring, over the old north road.\"}, {\"comment\": \"Trade route 18\", \"keys\": [\"zqx-route-18\"], \"content\": \"The market town of Brine Cross trades wool for rope with Greywick every summer, over the old east road.\"}, {\"comment\": \"Trade route 19\", \"keys\": [\"zqx-route-19\"], \"content\": \"The market town of Ashvale trades tin for cider with Tallow Reach every autumn, over the old south road.\"}, {\"comment\": \"Back room password\", \"keys\": [\"zqx-pass\"], \"content\": \"The password to the guild's back room is \\\"amber heron\\\". Ponticius changes it every winter and tells only members in good standing.\"}, {\"comment\": \"Trade route 20\", \"keys\": [\"zqx-route-20\"], \"content\": \"The market town of Kettle Mere trades amber for slate with Hallow Ford every winter, over the old west road.\"}, {\"comment\": \"Trade route 21\", \"keys\": [\"zqx-route-21\"], \"content\": \"The market town of Dunmarrow trades rope for wax with Brine Cross every spring, over the old north road.\"}, {\"comment\": \"Trade route 22\", \"keys\": [\"zqx-route-22\"], \"content\": \"The market town of Silt Harbor trades cider for salt with Ashvale every summer, over the old east road.\"}, {\"comment\": \"Trade route 23\", \"keys\": [\"zqx-route-23\"], \"content\": \"The market town of Greywick trades slate for wool with Kettle Mere every autumn, over the old south road.\"}, {\"comment\": \"Trade route 24\", \"keys\": [\"zqx-route-24\"], \"content\": \"The market town of Tallow Reach trades wax for tin with Dunmarrow every winter, over the old west road.\"}, {\"comment\": \"Trade route 25\", \"keys\": [\"zqx-route-25\"], \"content\": \"The market town of Hallow Ford trades salt for amber with Silt Harbor every spring, over the old north road.\"}, {\"comment\": \"Trade route 26\", \"keys\": [\"zqx-route-26\"], \"content\": \"The market town of Brine Cross trades wool for rope with Greywick every summer, over the old east road.\"}, {\"comment\": \"Trade route 27\", \"keys\": [\"zqx-route-27\"], \"content\": \"The market town of Ashvale trades tin for cider with Tallow Reach every autumn, over the old south road.\"}, {\"comment\": \"Trade route 28\", \"keys\": [\"zqx-route-28\"], \"content\": \"The market town of Kettle Mere trades amber for slate with Hallow Ford every winter, over the old west road.\"}, {\"comment\": \"Trade route 29\", \"keys\": [\"zqx-route-29\"], \"content\": \"The market town of Dunmarrow trades rope for wax with Brine Cross every spring, over the old north road.\"}, {\"comment\": \"Trade route 30\", \"keys\": [\"zqx-route-30\"], \"content\": \"The market town of Silt Harbor trades cider for salt with Ashvale every summer, over the old east road.\"}, {\"comment\": \"Trade route 31\", \"keys\": [\"zqx-route-31\"], \"content\": \"The market town of Greywick trades slate for wool with Kettle Mere every autumn, over the old south road.\"}, {\"comment\": \"Trade route 32\", \"keys\": [\"zqx-route-32\"], \"content\": \"The market town of Tallow Reach trades wax for tin with Dunmarrow every winter, over the old west road.\"}, {\"comment\": \"Trade route 33\", \"keys\": [\"zqx-route-33\"], \"content\": \"The market town of Hallow Ford trades salt for amber with Silt Harbor every spring, over the old north road.\"}, {\"comment\": \"Trade route 34\", \"keys\": [\"zqx-route-34\"], \"content\": \"The market town of Brine Cross trades wool for rope with Greywick every summer, over the old east road.\"}, {\"comment\": \"Trade route 35\", \"keys\": [\"zqx-route-35\"], \"content\": \"The market town of Ashvale trades tin for cider with Tallow Reach every autumn, over the old south road.\"}, {\"comment\": \"Trade route 36\", \"keys\": [\"zqx-route-36\"], \"content\": \"The market town of Kettle Mere trades amber for slate with Hallow Ford every winter, over the old west road.\"}, {\"comment\": \"Trade route 37\", \"keys\": [\"zqx-route-37\"], \"content\": \"The market town of Dunmarrow trades rope for wax with Brine Cross every spring, over the old north road.\"}, {\"comment\": \"Trade route 38\", \"keys\": [\"zqx-route-38\"], \"content\": \"The market town of Silt Harbor trades cider for salt with Ashvale every summer, over the old east road.\"}, {\"comment\": \"Vault combination\", \"keys\": [\"zqx-vault\"], \"content\": \"The guild vault opens with the combination seven-two-nine. Only Ponticius knows it.\"}]; for (const entry of entries) { const result = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook: 'SO-J11 Lore', comment: entry.comment, keys: entry.keys, content: entry.content }, { requirements: { lorebooks: ['SO-J11 Lore'] } }); if (!result.ok) throw new Error(`entry ${entry.comment}: ${result.message}`); } const found = await ctx.executeSlashCommandsWithOptions('/findentry file=\"SO-J11 Lore\" field=comment Vault combination', { handleParserErrors: false }); const uid = String(found?.pipe ?? '').trim(); if (!uid) throw new Error('could not find the vault entry to switch off'); await ctx.executeSlashCommandsWithOptions(`/setentryfield file=\"SO-J11 Lore\" uid=${uid} field=disable 1`, { handleParserErrors: false }); return { entries: entries.length, vaultUid: uid };"
+        },
+        {
+          "import_story": {
+            "file": "./j11-lore.story.json"
+          }
+        },
+        {
+          "expect": {
+            "storyId": "so-j11-lore",
+            "requirementsReady": true
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const loreCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge lore')); const root = ctx.extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, sceneTrigger: false, sceneTracker: false, lookahead: false, loreSelect: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); if (globalThis.__soJ11Lore?.off) globalThis.__soJ11Lore.off(); const prompts = []; const activated = []; const onPrompt = (data, dryRun) => { if (!dryRun) prompts.push(JSON.stringify(data ?? null)); }; const onActivated = (entries) => { activated.push((entries ?? []).map((entry) => entry.comment)); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, onPrompt); ctx.eventSource.on(ctx.eventTypes.WORLD_INFO_ACTIVATED, onActivated); globalThis.__soJ11Lore = { prompts, activated, calls: loreCalls().length, off: () => { ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, onPrompt); ctx.eventSource.removeListener(ctx.eventTypes.WORLD_INFO_ACTIVATED, onActivated); } }; return { armed: true, calls: globalThis.__soJ11Lore.calls };"
+        },
+        {
+          "send_generate": {
+            "text": "Ponticius, I've paid my dues. What's the word that gets me into the back room?",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "idle": true,
+            "timeoutMs": 240000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const loreCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge lore')); const probe = globalThis.__soJ11Lore; probe.off(); const calls = loreCalls().slice(probe.calls); const inPrompt = (text) => probe.prompts.filter((body) => body.includes(text)).length; const activatedWith = (title) => probe.activated.filter((list) => list.includes(title)).length; if (!probe.prompts.length) throw new Error('no main-generation prompt was captured'); if (!calls.length) throw new Error('lore-select made no judge call this turn'); const first = calls[0]; if (!first.summary.includes('lore') || first.detail?.p?.trigger !== 'MESSAGE_SENT') throw new Error(`the first pick was not made at MESSAGE_SENT: ${JSON.stringify(first)}`); if (calls.every((event) => event.summary.includes('fell back'))) throw new Error(`every lore call fell back: ${first.summary}`); if (!('Back room password' in (first.detail?.p ?? {}))) throw new Error(`the password entry was not picked: ${JSON.stringify(first.detail?.p)}`); const missing = probe.activated.filter((list) => !list.includes('Back room password')).length; if (missing) throw new Error(`the password entry was not activated in ${missing} of ${probe.activated.length} scans`); const later = calls.slice(1).map((event) => event.detail?.p?.trigger); if (later.some((trigger) => trigger !== 'GENERATION_STARTED')) throw new Error(`a later pick used ${JSON.stringify(later)}`); return { prompts: probe.prompts.length, scans: probe.activated.length, picks: calls.map((event) => event.detail?.p), withPassword: inPrompt('amber heron') };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.17",
+      "mode": "auto",
+      "findings": [],
+      "goal": "an entry switched off in its book (as checkpoint gating does) is never asked about or forced, whatever the question",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const loreCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge lore')); if (globalThis.__soJ11Lore?.off) globalThis.__soJ11Lore.off(); const prompts = []; const activated = []; const onPrompt = (data, dryRun) => { if (!dryRun) prompts.push(JSON.stringify(data ?? null)); }; const onActivated = (entries) => { activated.push((entries ?? []).map((entry) => entry.comment)); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, onPrompt); ctx.eventSource.on(ctx.eventTypes.WORLD_INFO_ACTIVATED, onActivated); globalThis.__soJ11Lore = { prompts, activated, calls: loreCalls().length, off: () => { ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, onPrompt); ctx.eventSource.removeListener(ctx.eventTypes.WORLD_INFO_ACTIVATED, onActivated); } }; return { armed: true };"
+        },
+        {
+          "send_generate": {
+            "text": "And the strongbox behind the desk, how does it open? Give me the numbers.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "idle": true,
+            "timeoutMs": 240000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const loreCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge lore')); const probe = globalThis.__soJ11Lore; probe.off(); const calls = loreCalls().slice(probe.calls); const inPrompt = (text) => probe.prompts.filter((body) => body.includes(text)).length; const activatedWith = (title) => probe.activated.filter((list) => list.includes(title)).length; if (activatedWith('Vault combination')) throw new Error('the switched-off vault entry was activated'); if (calls.some((event) => 'Vault combination' in (event.detail?.p ?? {}))) throw new Error('the switched-off vault entry was picked'); if (inPrompt('seven-two-nine')) throw new Error('the switched-off combination reached the prompt'); return { calls: calls.length, scans: probe.activated.length };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.18",
+      "mode": "auto",
+      "findings": [],
+      "goal": "a dry run (prompt itemization) and a quiet generation make no lore judge call",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const loreCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge lore')); const before = loreCalls().length; await ctx.generate('normal', {}, true); await ctx.executeSlashCommandsWithOptions('/gen Say only the word ready.', { handleParserErrors: false }); const extra = loreCalls().length - before; if (extra) throw new Error(`${extra} lore calls for a dry run and a quiet generation`); return { loreCalls: 0 };"
+        }
+      ]
+    },
+    {
+      "id": "J11.19",
+      "mode": "auto",
+      "findings": [],
+      "goal": "lore-select off: nothing is forced, so the keywordless password entry stays out of the scan, and no lore call is made",
+      "requires": [
+        "judge-runtime"
+      ],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const loreCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge lore')); const root = ctx.extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, sceneTrigger: false, sceneTracker: false, lookahead: false, loreSelect: false } }; globalThis.storyOrchestratorJudge.invalidateStatus(); if (globalThis.__soJ11Lore?.off) globalThis.__soJ11Lore.off(); const prompts = []; const activated = []; const onPrompt = (data, dryRun) => { if (!dryRun) prompts.push(JSON.stringify(data ?? null)); }; const onActivated = (entries) => { activated.push((entries ?? []).map((entry) => entry.comment)); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, onPrompt); ctx.eventSource.on(ctx.eventTypes.WORLD_INFO_ACTIVATED, onActivated); globalThis.__soJ11Lore = { prompts, activated, calls: loreCalls().length, off: () => { ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, onPrompt); ctx.eventSource.removeListener(ctx.eventTypes.WORLD_INFO_ACTIVATED, onActivated); } }; return { armed: true };"
+        },
+        {
+          "send_generate": {
+            "text": "Remind me, what's the word for the back room again?",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "idle": true,
+            "timeoutMs": 240000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const loreCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge lore')); const probe = globalThis.__soJ11Lore; probe.off(); const calls = loreCalls().slice(probe.calls); const inPrompt = (text) => probe.prompts.filter((body) => body.includes(text)).length; const activatedWith = (title) => probe.activated.filter((list) => list.includes(title)).length; if (calls.length) throw new Error(`${calls.length} lore calls with lore-select off`); if (activatedWith('Back room password')) throw new Error('the password entry activated with lore-select off: its keys never appear, so only a force could have done it'); return { scans: probe.activated.length, loreCalls: 0 };",
           "log": true
         }
       ]

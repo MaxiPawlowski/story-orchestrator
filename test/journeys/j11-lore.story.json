@@ -1,0 +1,86 @@
+{
+  "format": 2,
+  "id": "so-j11-lore",
+  "title": "SO-J11 Lore",
+  "description": "v2.2 plan 04 lore-select fixture: the J11 cast in the guild, with a marked test lorebook whose keys never appear in play.",
+  "qualities": [
+    {
+      "key": "briefing_done",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has the guild master finished briefing the party on the job?"
+    },
+    {
+      "key": "location",
+      "type": "enum",
+      "values": [
+        "guild hall",
+        "town gate",
+        "desert road"
+      ],
+      "source": "extractor",
+      "rubric": "Where is the scene taking place?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "brief",
+      "name": "The Briefing",
+      "objective": "Ponticius briefs the party on the Sun Ruins job.",
+      "type": "anchor",
+      "start": true,
+      "tension_target": "calm",
+      "talk_control": {
+        "speakers": [
+          {
+            "member": "Ponticius",
+            "weight": 1
+          },
+          {
+            "member": "Arin",
+            "weight": 1
+          },
+          {
+            "member": "DM Narrator",
+            "weight": 1
+          }
+        ],
+        "no_repeat": true,
+        "allow_silence": false
+      }
+    }
+  ],
+  "transitions": [],
+  "roster": [
+    {
+      "id": "dm",
+      "name": "DM Narrator",
+      "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+    },
+    {
+      "id": "companion",
+      "name": "Arin",
+      "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+    },
+    {
+      "id": "guild_master",
+      "name": "Ponticius",
+      "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+    },
+    {
+      "id": "little_brother",
+      "name": "Luke",
+      "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+    }
+  ],
+  "requirements": {
+    "lorebooks": [
+      "SO-J11 Lore"
+    ]
+  },
+  "lore_select": {
+    "lorebooks": [
+      "SO-J11 Lore"
+    ]
+  }
+}

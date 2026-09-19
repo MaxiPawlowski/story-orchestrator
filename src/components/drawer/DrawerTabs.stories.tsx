@@ -320,6 +320,26 @@ const sceneSnapshot = (authorView: boolean): RuntimeSnapshot => {
   return derive(snapshot as unknown as RuntimeSnapshot);
 };
 
+export const PayloadLoreForced: Story = {
+  render: () => {
+    const snapshot = sceneSnapshot(true) as unknown as Record<string, unknown>;
+    snapshot.loreForced = { at: "2026-09-19T00:00:00.000Z", boundary: 6, messageId: 9, use: "lore", model: "jev-1.13.0", latencyMs: 912, stateChars: 900, questionCount: 64, p: { trigger: "MESSAGE_SENT", "NPC - Ellie": 0.91, "Lore - Adventurer Rank": 0.84 } };
+    return (
+      <div style={{ maxWidth: 360 }}>
+        <DrawerTabs snapshot={snapshot as unknown as RuntimeSnapshot} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
+    const forced = within(await canvas.findByText("Lore forced this turn").then((node) => node.closest("[data-so=\"lore-forced\"]") as HTMLElement));
+    await expect(forced.getByText(/message 9 · MESSAGE_SENT · 912 ms/)).toBeInTheDocument();
+    await expect(forced.getByText("NPC - Ellie")).toBeInTheDocument();
+    await expect(forced.getByText("91%")).toBeInTheDocument();
+  },
+};
+
 export const AuthorSceneRead: Story = {
   render: () => (
     <div style={{ maxWidth: 360 }}>

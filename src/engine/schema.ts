@@ -203,6 +203,14 @@ export interface StorySceneRead {
   inject?: boolean;
 }
 
+// v2.2 plan 04: which lorebooks lore-select may judge and force for one generation. Authored, never
+// inferred: entry text leaves the machine.
+export interface StoryLoreSelect {
+  lorebooks: string[];
+  top_k?: number;
+  min_p?: number;
+}
+
 export const STORY_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,63}$/;
 
 export interface StoryV2 {
@@ -220,6 +228,7 @@ export interface StoryV2 {
   requirements?: StoryRequirements;
   stagecraft?: StoryStagecraft;
   scene_read?: StorySceneRead;
+  lore_select?: StoryLoreSelect;
   scaffolding?: Record<string, Scaffolding>;
 }
 

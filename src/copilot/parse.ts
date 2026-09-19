@@ -411,6 +411,11 @@ const readOp = (value: unknown, path: string, issues: string[]): ProposalOp | nu
       const source = isRecord(value.stagecraft) ? value.stagecraft.lorebooks : value.lorebooks;
       return { kind: "setStagecraft", stagecraft: { lorebooks: readStringList(source) } };
     }
+    case "setLoreSelect": {
+      const source = isRecord(value.loreSelect) ? value.loreSelect : isRecord(value.lore_select) ? value.lore_select : value;
+      const topK = typeof source.top_k === "number" ? source.top_k : undefined;
+      return { kind: "setLoreSelect", loreSelect: { lorebooks: readStringList(source.lorebooks), ...(topK !== undefined ? { top_k: topK } : {}) } };
+    }
     case "setSceneRead": {
       const source = isRecord(value.sceneRead) ? value.sceneRead : isRecord(value.scene_read) ? value.scene_read : value;
       return { kind: "setSceneRead", sceneRead: { locations: readStringList(source.locations), times: readStringList(source.times), ...(source.inject === false ? { inject: false } : {}) } };

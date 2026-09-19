@@ -18,6 +18,13 @@ export interface HostWorldInfoEntry {
   [key: string]: unknown;
 }
 
+export interface HostScannableEntry extends HostWorldInfoEntry {
+  world: string;
+  uid: number;
+  content: string;
+  constant?: boolean;
+}
+
 export interface HostSlashCommand {
   aliases?: string[];
   helpString?: string;
@@ -50,6 +57,10 @@ export interface SillyTavernContext {
   groupId: string | null | undefined;
   // The open chat file's id: a group's chat_id, or the character's chat (st-context.js:125).
   chatId?: string | null;
+  // v2.2 plan 04: `main_api` and `oai_settings` (st-context.js:200, :227), read for Generate()'s
+  // `send_if_empty` branch (script.js:4455).
+  mainApi?: string;
+  chatCompletionSettings?: { send_if_empty?: string };
   groups: HostGroup[];
   characters: HostCharacter[];
   worldInfo?: Record<string, HostWorldInfoEntry>;
@@ -94,6 +105,10 @@ export interface WorldInfoHostModule {
   createNewWorldInfo: (worldName: string, options?: { interactive?: boolean }) => Promise<boolean>;
   createWorldInfoEntry: (name: string, data: unknown) => unknown;
   saveWorldInfo: (name: string, data: unknown, immediately?: boolean) => Promise<unknown>;
+  // v2.2 plan 04: every entry of every active source (global, character, chat, persona), stamped
+  // with `world`, decorators parsed and hashed, structured-cloned (world-info.js:4590). It emits
+  // WORLDINFO_ENTRIES_LOADED on the way (:4603).
+  getSortedEntries: () => Promise<HostScannableEntry[]>;
   [key: string]: unknown;
 }
 

@@ -56,6 +56,7 @@ const seeded: StoryV2 = {
     { from: "mid", to: "stubby", priority: 0, gate: { all: [] } },
   ],
   roster: [{ id: "guide", name: "The Guide" }, { id: "warden", name: "The Warden" }],
+  lore_select: { lorebooks: ["Unlisted Lore"] },
 };
 
 describe("runDiagnostics", () => {
@@ -105,5 +106,9 @@ describe("runDiagnostics", () => {
     const enumLocation: StoryV2 = { ...clean, qualities: [...clean.qualities, { key: "location", type: "enum", values: ["hall"], source: "extractor", rubric: "Where?" }] };
     expect(runDiagnostics(enumLocation).some((entry) => entry.code === "scene-read-location-empty")).toBe(false);
   });
-});
 
+  it("warns about a lore-select book the story does not require, case-insensitively (v2.2 plan 04)", () => {
+    const story: StoryV2 = { ...clean, requirements: { lorebooks: ["Vault Lore"] }, lore_select: { lorebooks: ["vault lore", "Other Lore"] } };
+    expect(runDiagnostics(story).filter((entry) => entry.code === "lore-select-inactive").map((entry) => entry.path)).toEqual(["lore_select.lorebooks.1"]);
+  });
+});

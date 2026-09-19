@@ -437,10 +437,24 @@ const SchedulerTab = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manage
   </div>
 );
 
+// v2.2 plan 04, author only: what lore-select forced into the latest scan, with each entry's p.
+const LoreForced = ({ record }: { record: RuntimeSnapshot["loreForced"] | undefined }) => {
+  if (!record) return null;
+  const picks = Object.entries(record.p ?? {}).filter(([key]) => key !== "trigger");
+  return (
+    <div data-so="lore-forced">
+      <div className="font-medium opacity-100">Lore forced this turn</div>
+      <div className="opacity-70">message {record.messageId} · {String(record.p?.trigger ?? "")} · {record.fallback ? `fell back (${record.fallback})` : `${record.latencyMs} ms`}</div>
+      {picks.length === 0 ? <div className="opacity-60">Nothing over the floor; ST's keyword scan ran as usual.</div> : picks.map(([title, p]) => <div key={title}>{title} <span className="opacity-60">{typeof p === "number" ? `${Math.round(p * 100)}%` : p}</span></div>)}
+    </div>
+  );
+};
+
 const PayloadTab = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
   const captures = snapshot.payloadCaptures;
   return (
     <div className="text-xs opacity-80 flex flex-col gap-2">
+      <LoreForced record={snapshot.loreForced} />
       <div className="font-medium opacity-100">Injected prompt payload</div>
       {captures.length === 0 ? (
         <div className="opacity-70">No captures yet. Blocks are recorded when a generation starts.</div>

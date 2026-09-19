@@ -8,6 +8,7 @@ import type {
   Quality,
   RosterMember,
   StoryRequirements,
+  StoryLoreSelect,
   StorySceneRead,
   StoryStagecraft,
   Transition,
@@ -48,6 +49,7 @@ export type ProposalOp =
   | { kind: "setRequirements"; requirements: StoryRequirements }
   | { kind: "setStagecraft"; stagecraft: StoryStagecraft }
   | { kind: "setSceneRead"; sceneRead: StorySceneRead }
+  | { kind: "setLoreSelect"; loreSelect: StoryLoreSelect }
   | ProvisioningOp;
 
 export type ProposalOpKind = ProposalOp["kind"];

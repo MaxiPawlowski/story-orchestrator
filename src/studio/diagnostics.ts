@@ -22,6 +22,7 @@ export const DIAGNOSTIC_CODES = [
   "talk-lead-outside-speakers",
   "talk-silence-without-director",
   "scene-read-location-empty",
+  "lore-select-inactive",
 ] as const;
 
 const walkLeaves = (gate: GateNode, visit: (leaf: GateLeaf) => void) => {
@@ -181,6 +182,11 @@ export const runDiagnostics = (draft: StoryV2): Diagnostic[] => {
     if (checkpoint.type !== "anchor" || typeof checkpoint.convergence_threshold !== "number") return;
     const available = draft.transitions.reduce((sum, transition) => sum + (transition.effects?.progress?.anchor === checkpoint.id ? transition.effects.progress.amount ?? 0 : 0), 0);
     if (available < checkpoint.convergence_threshold) push("threshold-unsatisfiable", "warning", `checkpoints.${index}`, `anchor '${checkpoint.id}' threshold ${checkpoint.convergence_threshold} exceeds total available progress ${available}`);
+  });
+
+  const required = new Set((draft.requirements?.lorebooks ?? []).map((name) => name.trim().toLowerCase()));
+  (draft.lore_select?.lorebooks ?? []).forEach((name, index) => {
+    if (name.trim() && !required.has(name.trim().toLowerCase())) push("lore-select-inactive", "warning", `lore_select.lorebooks.${index}`, `'${name}' is not a required lorebook, so it may not be active; lore-select only reaches books ST is scanning. Add it under Requirements`);
   });
 
   const locationIndex = draft.qualities.findIndex((quality) => quality.key === "location");

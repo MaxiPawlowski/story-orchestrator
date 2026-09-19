@@ -37,9 +37,10 @@ const OP_GRAMMAR = [
   '  { "kind": "setArcBridges", "bridges": [{ "arcMatch": string, "anchor": checkpoint_id, "amount": number }] }',
   '  { "kind": "setRequirements", "requirements": { "personas"?: string[], "members"?: string[], "lorebooks"?: string[] } }',
   '  { "kind": "setStagecraft", "stagecraft": { "lorebooks": string[] } }',
+  '  { "kind": "setLoreSelect", "loreSelect": { "lorebooks": string[], "top_k"?: number } }',
   '  { "kind": "setSceneRead", "sceneRead": { "locations": string[], "times"?: string[], "inject"?: boolean } }',
   "Transitions are referenced by { from, to }, never by index. Only reference ids that already exist in the draft.",
-  "setArcBridges, setRequirements, setStagecraft and setSceneRead replace the whole list — send the full intended set, never a fragment.",
+  "setArcBridges, setRequirements, setStagecraft, setSceneRead and setLoreSelect replace the whole list — send the full intended set, never a fragment.",
 ].join("\n");
 
 const PROVISIONING_GRAMMAR = [
@@ -67,7 +68,7 @@ const STAGE_INSTRUCTIONS: Record<CopilotStage, string> = {
   qualities: "Stage QUALITIES: propose the quality set that measures this story's dramatic state. Every quality needs a rubric question. Prefer extractor source unless the value is purely code-driven. Only emit setStoryField/addQuality/updateQuality/removeQuality ops.",
   checkpoints: "Stage CHECKPOINTS: propose anchor and intermediate checkpoints with objectives, tension targets, and state_snapshots for pivotal or latching qualities. Keep exactly one start checkpoint. Only emit addCheckpoint/updateCheckpoint/setStartCheckpoint/setCheckpointSnapshot ops.",
   transitions: "Stage TRANSITIONS: wire checkpoints toward their anchors with transitions, each carrying a gate over declared qualities and a progress effect toward the target anchor so the convergence threshold is reachable. Only emit addTransition/updateTransition/setTransitionGate ops.",
-  effects: "Stage EFFECTS/CAST: propose checkpoint effects (author_note, world_info, cast_changes, background — a background filename that suits the scene), the roster this story directs (each member with a one-line role: what they do in this story), what the chat must provide before it can run (requirements), which lorebooks the background curator may edit (stagecraft — the story's own books only), the places the story happens in (sceneRead.locations — short names the scene tracker can pick from), the dramatic shape, and any thread bridges. Only emit setCheckpointEffects/addRosterMember/updateRosterMember/removeRosterMember/setRequirements/setStagecraft/setSceneRead/setArcTemplate/setArcBridges/setStoryField ops.",
+  effects: "Stage EFFECTS/CAST: propose checkpoint effects (author_note, world_info, cast_changes, background — a background filename that suits the scene), the roster this story directs (each member with a one-line role: what they do in this story), what the chat must provide before it can run (requirements), which lorebooks the background curator may edit (stagecraft — the story's own books only), the places the story happens in (sceneRead.locations — short names the scene tracker can pick from), which of the story's own lorebooks lore-select may pick entries from each turn (loreSelect.lorebooks), the dramatic shape, and any thread bridges. Only emit setCheckpointEffects/addRosterMember/updateRosterMember/removeRosterMember/setRequirements/setStagecraft/setSceneRead/setLoreSelect/setArcTemplate/setArcBridges/setStoryField ops.",
   provisioning: "Stage PROVISIONING: this story's requirements name people, lore and a group that may not exist on this install yet. Propose the create steps that close exactly that gap — one card per cast member the story directs (each with a one-line \"role\": what they do in this story), the story's own lorebook plus the entries the story leans on, and the group that plays it. Only emit createCharacterCard/createStoryLorebook/upsertLorebookEntry/createGroup ops. Propose nothing for assets the environment below already lists.",
 };
 

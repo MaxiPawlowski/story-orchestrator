@@ -8,6 +8,7 @@ import type {
   Quality,
   RosterMember,
   StoryRequirements,
+  StoryLoreSelect,
   StorySceneRead,
   StoryStagecraft,
   TalkControl,
@@ -170,6 +171,13 @@ export const setSceneRead = (draft: StoryDraft, sceneRead: StorySceneRead): Stor
   };
   const { scene_read: _dropped, ...rest } = draft;
   return Object.keys(next).length ? { ...rest, scene_read: next } : rest;
+};
+
+// v2.2 plan 04: lore-select's scope, kept as typed like setSceneRead. No book means no block.
+export const setLoreSelect = (draft: StoryDraft, loreSelect: StoryLoreSelect): StoryDraft => {
+  const { lore_select: _dropped, ...rest } = draft;
+  if (!loreSelect.lorebooks.length) return rest;
+  return { ...rest, lore_select: { lorebooks: loreSelect.lorebooks, ...(loreSelect.top_k !== undefined ? { top_k: loreSelect.top_k } : {}), ...(loreSelect.min_p !== undefined ? { min_p: loreSelect.min_p } : {}) } };
 };
 
 // The id is the story's identity: it is derived from the title until the author fixes it, and the

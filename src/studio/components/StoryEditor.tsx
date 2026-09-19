@@ -2,7 +2,7 @@ import React from "react";
 import { ARC_TEMPLATE_NAMES, type ArcTemplateName, type StoryRequirements } from "@engine/index";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import { useDraftStore } from "../draft";
-import { addArcBridge, removeArcBridge, setArcTemplate, setRequirements, setSceneRead, setStagecraft, setStoryField, setStoryId, slugifyStoryId, updateArcBridge } from "../mutations";
+import { addArcBridge, removeArcBridge, setArcTemplate, setLoreSelect, setRequirements, setSceneRead, setStagecraft, setStoryField, setStoryId, slugifyStoryId, updateArcBridge } from "../mutations";
 
 export interface StoryEditorProps {
   personaNames?: string[];
@@ -129,6 +129,33 @@ const StoryEditor: React.FC<StoryEditorProps> = ({ personaNames = [], memberName
           listId="so-stagecraft-lorebooks"
           onChange={(lorebooks) => mutate((current) => setStagecraft(current, { lorebooks }))}
         />
+      </div>
+
+      <div data-so="lore-select-field" className="st-subpanel flex flex-col gap-3 p-3">
+        <div className="text-sm font-medium">Lore-select <span className="st-muted font-normal">— lorebooks the judge may pick entries from each turn</span></div>
+        <RequirementList
+          label="Lore-select lorebook"
+          hint="When the player's install turns lore-select on, each generation asks the judge which entries of these books the next reply needs, and forces the top few for that one generation. It never edits a book. Entry titles and text are sent to the judgment service. List only books this story requires: an inactive book is never scanned."
+          values={draft.lore_select?.lorebooks ?? []}
+          options={lorebookNames}
+          listId="so-lore-select-lorebooks"
+          onChange={(lorebooks) => mutate((current) => setLoreSelect(current, { ...current.lore_select, lorebooks }))}
+        />
+        {draft.lore_select ? (
+          <label className="flex items-center gap-2 text-sm">
+            <span className="text-xs st-muted">Entries forced per turn<HelpTooltip title="1 to 12, default 4. Forced entries still compete for ST's World Info budget; give an entry probability 100 if it must survive." /></span>
+            <input
+              className="text_pole st-input w-20"
+              type="number"
+              min={1}
+              max={12}
+              aria-label="Entries forced per turn"
+              value={draft.lore_select.top_k ?? ""}
+              placeholder="4"
+              onChange={(event) => mutate((current) => setLoreSelect(current, { ...(current.lore_select ?? { lorebooks: [] }), top_k: event.target.value === "" ? undefined : Number(event.target.value) }))}
+            />
+          </label>
+        ) : null}
       </div>
 
       <div data-so="scene-read-field" className="st-subpanel flex flex-col gap-3 p-3">

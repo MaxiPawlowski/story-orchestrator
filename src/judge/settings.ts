@@ -113,7 +113,7 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
   sceneTracker: { label: "Scene tracker", description: "Keeps location, time and who is present, and adds them to the prompt.", sends: "the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name, the story's locations" },
   sceneOoc: { label: "Out-of-character messages", description: "Keeps out-of-character requests from counting as story events.", sends: "the last 8 messages" },
   lookahead: { label: "Heading toward (author view)", description: "Shows which upcoming checkpoints play is moving toward.", sends: "the last 8 messages and the names and goals of the next checkpoints" },
-  loreSelect: { label: "Lore selection", description: "Adds the lore entries that matter to the next reply, even without their keywords.", sends: "the last 8 messages and the story's lore entries" },
+  loreSelect: { label: "Lore selection", description: "Adds the lore entries that matter to the next reply, even without their keywords.", sends: "the last 8 messages, the checkpoint name and goal, and the title and text of each entry in the story's lore-select books" },
   curatorFilter: { label: "Curator focus", description: "Shows the World Info curator only the entries the story may have overtaken.", sends: "the story so far and the story's lore entries" },
   memoryRerank: { label: "Memory relevance", description: "Ranks memory for the next reply when there is more than fits.", sends: "the last 8 messages and memory notes" },
   typedExtraction: { label: "Every-turn story reads", description: "Reads qualities the author marked for it on every turn, so gates fire sooner.", sends: "the last messages and the marked qualities' descriptions" },
@@ -122,4 +122,4 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
   expansionLookahead: { label: "Prepare ahead", description: "Writes the next generated beats before the story gets there.", sends: "same as Heading toward, plus expansion review" },
 };
 
-export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = ["director", "memoryVerify", "memoryPairs", "sceneTrigger", "sceneTracker", "lookahead"];
+export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = ["director", "memoryVerify", "memoryPairs", "sceneTrigger", "sceneTracker", "lookahead", "loreSelect"];

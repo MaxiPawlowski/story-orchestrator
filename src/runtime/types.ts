@@ -1,5 +1,5 @@
 import type { ArcTemplate, EngineState, NormalizedStoryV2, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
-import type { JudgeRuntimeState, SceneReadRecord } from "@judge/index";
+import type { JudgeCallRecord, JudgeRuntimeState, SceneReadRecord } from "@judge/index";
 import type { ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
 import type { ArcEntry, EpistemicEntry, LedgerEntry, LedgerView, MemoryEntry, MemoryStoreState, MemoryTier, ScoreWeights } from "@memory/index";
@@ -243,6 +243,7 @@ export interface RuntimeSnapshot {
   talk: TalkRuntimeState;
   stagecraft: StagecraftRuntimeState;
   scene: SceneReadRecord | null;
+  loreForced: JudgeCallRecord | null;
   // The story's authored curator allowlist, so the review panel can say what is in scope without
   // reading the story record itself.
   stagecraftScope: string[];

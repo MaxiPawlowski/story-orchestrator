@@ -93,6 +93,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     talk: extras.talk,
     stagecraft: extras.stagecraft,
     scene: extras.judge.scene,
+    loreForced: [...extras.judge.calls].reverse().find((call) => call.use === "lore") ?? null,
     stagecraftScope: curatorLorebooks(story),
     pendingDeltas,
     convergence: buildConvergenceReadout(story, state),

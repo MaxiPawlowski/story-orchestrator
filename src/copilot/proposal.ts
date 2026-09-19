@@ -14,6 +14,7 @@ import {
   setCheckpointEffects,
   setCheckpointSnapshot,
   setRequirements,
+  setLoreSelect,
   setSceneRead,
   setStagecraft,
   setStartCheckpoint,
@@ -59,9 +60,11 @@ export const provisioningFollowUpOps = (draft: StoryV2, op: ProvisioningOp): Pro
   const ops: ProposalOp[] = [];
   if (wanted.members.length || wanted.lorebooks.length) ops.push({ kind: "setRequirements", requirements });
   // A lorebook the wizard made for this story is the one book a curator may write into, so creating
-  // it also grants the scope (plan 07's `stagecraft.lorebooks` allowlist).
+  // it also grants the scope (plan 07's `stagecraft.lorebooks` allowlist), and it is the book
+  // lore-select may judge (v2.2 plan 04; nothing runs until the install opts in).
   if (op.kind === "createStoryLorebook") {
     ops.push({ kind: "setStagecraft", stagecraft: { lorebooks: merge(draft.stagecraft?.lorebooks, [op.name]) } });
+    ops.push({ kind: "setLoreSelect", loreSelect: { ...draft.lore_select, lorebooks: merge(draft.lore_select?.lorebooks, [op.name]) } });
   }
   if (op.kind === "createCharacterCard" && !draft.roster.some((member) => (member.name ?? member.id).trim().toLowerCase() === op.name.trim().toLowerCase())) {
     ops.push({ kind: "addRosterMember", member: { id: op.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "_"), name: op.name, ...(op.role ? { role: op.role } : {}) } });
@@ -122,6 +125,8 @@ export const applyOp = (draft: StoryV2, op: ProposalOp): StoryV2 => {
       return setStagecraft(draft, op.stagecraft);
     case "setSceneRead":
       return setSceneRead(draft, op.sceneRead);
+    case "setLoreSelect":
+      return setLoreSelect(draft, op.loreSelect);
     default:
       return draft;
   }
@@ -224,6 +229,8 @@ export const describeOp = (op: ProposalOp): OpDescription => {
       return { action: "update", entity: "story.requirements", label: `Require ${[...(op.requirements.personas ?? []), ...(op.requirements.members ?? []), ...(op.requirements.lorebooks ?? [])].join(", ") || "nothing"}` };
     case "setStagecraft":
       return { action: "update", entity: "story.stagecraft", label: op.stagecraft.lorebooks.length ? `Let the curator edit ${op.stagecraft.lorebooks.join(", ")}` : "Give the curator no lorebooks" };
+    case "setLoreSelect":
+      return { action: "update", entity: "story.lore_select", label: op.loreSelect.lorebooks.length ? `Lore-select may pick from ${op.loreSelect.lorebooks.join(", ")}` : "No lore-select books" };
     case "setSceneRead":
       return { action: "update", entity: "story.scene_read", label: op.sceneRead.locations?.length ? `Scene places: ${op.sceneRead.locations.join(", ")}` : "No scene places" };
     default:

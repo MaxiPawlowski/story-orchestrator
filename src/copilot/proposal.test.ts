@@ -133,14 +133,18 @@ describe("provisioning ops against the draft", () => {
     expect(provisioningFollowUpOps(draft, { kind: "createCharacterCard", name: "Arin", description: "A guide." })).toEqual([
       { kind: "setRequirements", requirements: { members: ["Arin"], lorebooks: ["Vault Lore"] } },
     ]);
-    // A created story lorebook is also the curator's write scope (plan 07 `stagecraft.lorebooks`).
+    // A created story lorebook is also the curator's write scope (plan 07 `stagecraft.lorebooks`) and
+    // lore-select's scope (v2.2 plan 04 `lore_select.lorebooks`).
     expect(provisioningFollowUpOps(draft, { kind: "createStoryLorebook", name: "Heist Lore" })).toEqual([
       { kind: "setRequirements", requirements: { members: ["Arin"], lorebooks: ["Vault Lore", "Heist Lore"] } },
       { kind: "setStagecraft", stagecraft: { lorebooks: ["Heist Lore"] } },
+      { kind: "setLoreSelect", loreSelect: { lorebooks: ["Heist Lore"] } },
     ]);
-    const scoped: StoryV2 = { ...draft, stagecraft: { lorebooks: ["Vault Lore"] } };
-    expect(provisioningFollowUpOps(scoped, { kind: "createStoryLorebook", name: "Heist Lore" })[1])
-      .toEqual({ kind: "setStagecraft", stagecraft: { lorebooks: ["Vault Lore", "Heist Lore"] } });
+    const scoped: StoryV2 = { ...draft, stagecraft: { lorebooks: ["Vault Lore"] }, lore_select: { lorebooks: ["Vault Lore"], top_k: 6 } };
+    expect(provisioningFollowUpOps(scoped, { kind: "createStoryLorebook", name: "Heist Lore" }).slice(1)).toEqual([
+      { kind: "setStagecraft", stagecraft: { lorebooks: ["Vault Lore", "Heist Lore"] } },
+      { kind: "setLoreSelect", loreSelect: { lorebooks: ["Vault Lore", "Heist Lore"], top_k: 6 } },
+    ]);
   });
 
   it("trims the created name it adds, since setRequirements and setStagecraft keep entries as typed", () => {

@@ -72,6 +72,8 @@ Vendored host-type ledger (post-acceptance hardening 2026-07-07; `src/services/s
 | `ScriptHostModule.isGenerating` | `public/script.js:604` |
 | `WorldInfoHostModule.getWorldInfoSettings/createNewWorldInfo/createWorldInfoEntry/saveWorldInfo` | `public/scripts/world-info.js:795,4448,4137,4177` |
 | `WorldInfoHostModule.METADATA_KEY/updateWorldInfoList/worldInfoCache` (2026-09-19 lorebook existence fix) | `public/scripts/world-info.js:94,2061,882` |
+| `WorldInfoHostModule.getSortedEntries` + `WORLDINFO_FORCE_ACTIVATE` (v2.2 plan 04 lore-select: the scan's own entry objects, forced into the next scan through a static map cleared by any `checkWorldInfo`; disabled entries are skipped before the force check; `getSortedEntries` emits `WORLDINFO_ENTRIES_LOADED`) | `public/scripts/world-info.js:4590,4603,1020-1029,203,4801,4886-4889` |
+| context `mainApi`, `chatCompletionSettings` (`send_if_empty`) and Generate()'s add-a-player-message condition (`willAddUserMessage`, v2.2 plan 04) | `public/scripts/st-context.js:200,227`; `public/script.js:4299,4399-4401,4448,4455`; `public/scripts/chats.js:348` |
 | `TextgenSettingsHostModule.*` (presets, names, setting_names, setSettingByName) | `public/scripts/textgen-settings.js:245-248,1199` |
 | `LogitBiasHostModule.BIAS_CACHE/displayLogitBias` | `public/scripts/logit-bias.js:5,13` |
 | `RossModsHostModule.getMessageTimeStamp` | `public/scripts/RossAscends-mods.js:192` |

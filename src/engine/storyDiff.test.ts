@@ -80,6 +80,12 @@ describe("storyDiff classification table", () => {
     expect(codes(result)).toContain("stagecraft-changed");
   });
 
+  it("keeps a lore_select scope edit compatible (v2.2 plan 04)", () => {
+    const result = run(edited((draft) => { draft.lore_select = { lorebooks: ["Diff Lore"], top_k: 3 }; }));
+    expect(result.classification).toBe("compatible");
+    expect(codes(result)).toContain("lore-select-changed");
+  });
+
   it("keeps a scene_read vocabulary edit compatible (v2.2 plan 03)", () => {
     const result = run(edited((draft) => { draft.scene_read = { locations: ["guild hall"], inject: false }; }));
     expect(result.classification).toBe("compatible");

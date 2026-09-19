@@ -87,6 +87,20 @@ export const CuratorAllowlist: Story = {
   },
 };
 
+// v2.2 plan 04: the books lore-select may judge; the per-turn count appears once a book is listed.
+export const LoreSelectScope: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.queryByLabelText("Entries forced per turn")).toBeNull();
+    await userEvent.click(canvas.getByRole("button", { name: "+ Lore-select lorebook" }));
+    await expect(useDraftStore.getState().draft.lore_select).toEqual({ lorebooks: ["Xentar Checkpoints"] });
+    await userEvent.type(canvas.getByLabelText("Entries forced per turn"), "6");
+    await expect(useDraftStore.getState().draft.lore_select).toEqual({ lorebooks: ["Xentar Checkpoints"], top_k: 6 });
+    await userEvent.click(canvas.getByRole("button", { name: "Remove Lore-select lorebook 1" }));
+    await expect(useDraftStore.getState().draft.lore_select).toBeUndefined();
+  },
+};
+
 // v2.2 plan 03: the places the scene tracker may pick from, typed by hand (spaces included).
 export const ScenePlaces: Story = {
   play: async ({ canvasElement }) => {

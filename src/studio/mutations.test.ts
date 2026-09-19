@@ -14,6 +14,7 @@ import {
   setStoryField,
   setTransitionGate,
   updateQuality,
+  setLoreSelect,
   setSceneRead,
 } from "./mutations";
 
@@ -132,6 +133,15 @@ describe("setSceneRead (v2.2 plan 03)", () => {
     expect(setSceneRead(draft, { locations: ["guild ", ""], times: [], inject: true }).scene_read).toEqual({ locations: ["guild ", ""] });
     expect(setSceneRead(draft, { inject: false }).scene_read).toEqual({ inject: false });
     expect(setSceneRead({ ...draft, scene_read: { locations: ["hall"] } }, { locations: [] })).not.toHaveProperty("scene_read");
+  });
+});
+
+describe("setLoreSelect (v2.2 plan 04)", () => {
+  it("keeps books as typed, keeps set numbers, and drops the block with no book", () => {
+    const draft = newStoryDraft();
+    expect(setLoreSelect(draft, { lorebooks: ["Story ", ""], top_k: 6 }).lore_select).toEqual({ lorebooks: ["Story ", ""], top_k: 6 });
+    expect(setLoreSelect(draft, { lorebooks: ["Story Lore"], top_k: undefined }).lore_select).toEqual({ lorebooks: ["Story Lore"] });
+    expect(setLoreSelect({ ...draft, lore_select: { lorebooks: ["Story Lore"] } }, { lorebooks: [] })).not.toHaveProperty("lore_select");
   });
 });
 

@@ -101,7 +101,7 @@ arrive. The operator records scores in the plan's Gate record.
 | J0 | runner-selftest | The runner itself: fresh-start, pass/blocked/skipped, cleanup | 3 | 1 | No LLM. Run it whenever the harness changes |
 | J1 | first-contact | Cleared install → install state → import example → configure → first real transition | 7 | 2 | Only journey that clears global config |
 | J2 | author-loop | Empty Studio → authored story → play → edit → continue, incl. an invalidating edit and its choice popup; author-view driver (Probe + Nudge) | 9 | 2 | Plan 05's gate journey |
-| J11 | judgment-backend | The judgment model (v2.2 plans 01–03): plugin reachable with a key, off by default, deciding speaker direction when opted in, timeout fallback, own call ring, no key leak; memory lines verified before storing, judged consolidation; scene read (trigger, tracker block, rollback, union with the regex) | 15 | 0 | Needs the server plugin and `enableServerPlugins: true`; without it J11.1 fails with the reason and the rest block |
+| J11 | judgment-backend | The judgment model (v2.2 plans 01–04): plugin reachable with a key, off by default, deciding speaker direction when opted in, timeout fallback, own call ring, no key leak; memory lines verified before storing, judged consolidation; scene read (trigger, tracker block, rollback, union with the regex); lore-select (force, seam, disabled entries, dry/quiet, off) | 19 | 0 | Needs the server plugin and `enableServerPlugins: true`; without it J11.1 fails with the reason and the rest block |
 | J3 | player-session | Real session on sun-ruins: transitions announced, memory recalled, spoiler sweep, journal | 8 | 5 | The human-eval workhorse |
 | J4 | return-and-adopt | Simulated multi-day gap → away recap on return; mid-chat adoption via memorize backlog | 4 | 2 | Uses the `reload` verb (real return path) |
 | J5 | group-direction | talk_control + npc_replies + cast_changes; per-speaker private injection in the payload | 6 | 1 | Restores the group roster in cleanup |
@@ -297,6 +297,10 @@ node scripts/debug/so-journey.mts run J8
 | J11.12 | auto | — | A scripted time skip the regex misses (held-out SH01) → the `scene:judge` P0 read runs and its window reaches the break; logs the no-trigger branch (the cadence read still confirms, as today) |
 | J11.13 | auto | — | The tracker block (`story_orchestrator_scene`, depth 1) is in every main prompt ST sends on the next generation (`GENERATE_AFTER_DATA`) and carries every over-floor field; with none over floor, no block is sent |
 | J11.14 | auto | — | Deleting the message a scene read belongs to clears the read and the block; the next boundary builds both again |
+| J11.16 | auto | — | Marked `SO-J11 Lore` (40 entries whose keys never appear in play), lore-select opted in: the player asks for the back-room password → the `Back room password` entry is activated in every scan of the turn, the first `lore` record has trigger `MESSAGE_SENT` and names it, later group members pick again at `GENERATION_STARTED` |
+| J11.17 | auto | — | The switched-off `Vault combination` entry (disabled as checkpoint gating does) is never picked, activated, or in the prompt, even when asked for directly |
+| J11.18 | auto | — | A dry run (`generate(…, dryRun)`) and a quiet `/gen` make no `lore` call |
+| J11.19 | auto | — | Lore-select off: no `lore` call, and the keywordless password entry is not activated (only a force could have done it). Cleanup removes the marked book (`removeCreatedAssets: SO-J11`) |
 | J11.15 | auto | — | Every scene usage off: zero `scene` calls, no stored read, no block. Then trigger on + a blackboard `location` change with no text cue: the heuristic's `scene:location` read still runs (union), logging whether the judge added any read |
 
 The story (`j11-judge.story.json`) gives every roster member a role and authors **no** director, so
@@ -347,6 +351,8 @@ that adds a player-visible element adds a row here.
 | Roster role lines and the "missing roles" hint (v2.2) | author | Studio Roster tab (`[data-so="roster-roles-hint"]`), wizard provisioning card |
 | Memory lines the judge declined to store ("Not stored", with its probability) and "Store anyway" (v2.2) | author | drawer Memory tab (author view, `[data-so="memory-not-stored"]`, `[data-so="memory-store-anyway"]`) |
 | Scene location as "At <place>." in the narrative (only when over floor) (v2.2) | player | narrative "now" section, `/story recap` |
+| Lore forced this turn (entry titles + p, the triggering event) (v2.2) | author | drawer Payload tab (`[data-so="lore-forced"]`) |
+| The Studio "Lore-select" books/count field and the `lore-select-inactive` diagnostic (v2.2) | author | Studio Story tab (`[data-so="lore-select-field"]`) |
 | Scene read panel: every scene probability, and "Heading toward" (future checkpoint names) (v2.2) | author | drawer Overview engine panel (`[data-so="scene-read"]`, `[data-so="scene-heading"]`) |
 | The Studio "Scene read" places/times field and the `scene-read-location-empty` diagnostic (v2.2) | author | Studio Story tab (`[data-so="scene-read-field"]`) |
 | `/cp` in full (`list`, `state`, `activate`, `set`, `converge`, debug `extract`/`expand`) | author | slash commands |

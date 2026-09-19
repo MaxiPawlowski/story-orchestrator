@@ -26,6 +26,12 @@ describe("parseProposal", () => {
     expect(issues.some((issue) => issue.includes("frobnicate"))).toBe(true);
   });
 
+  it("reads a lore_select op in either spelling (v2.2 plan 04)", () => {
+    const { proposal, issues } = parseProposal(JSON.stringify({ summary: "lore", ops: [{ kind: "setLoreSelect", loreSelect: { lorebooks: ["Vault Lore"], top_k: 5 } }, { kind: "setLoreSelect", lore_select: { lorebooks: ["Other"] } }] }));
+    expect(issues).toEqual([]);
+    expect(proposal.ops).toEqual([{ kind: "setLoreSelect", loreSelect: { lorebooks: ["Vault Lore"], top_k: 5 } }, { kind: "setLoreSelect", loreSelect: { lorebooks: ["Other"] } }]);
+  });
+
   it("reads a scene_read op in either spelling, keeping only an explicit inject: false (v2.2 plan 03)", () => {
     const { proposal, issues } = parseProposal(JSON.stringify({
       summary: "places",
