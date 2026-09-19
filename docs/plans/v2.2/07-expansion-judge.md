@@ -76,6 +76,21 @@ Floors:
 - the clean chain ranks first in ≥ 8/10 stubs by the composite below;
 - every contradicting chain is rejected at `contradicts ≥ 0.3`.
 
+**Measured 2026-09-19, judge half** (`run.mts --only variant-pick`; data
+`scripts/spike/typesafe/data/variants.json`: 10 stubs × 3 chains, two stubs in Spanish). Shape levels
+are scored 0–4 and normalized to 0–1.
+
+| Measure | Result | Floor |
+|---|---|---|
+| Clean chain ranked first by `chainScore` | **10/10** | ≥ 8/10 |
+| Contradicting chains rejected at `contradicts ≥ 0.3` | **10/10** (lowest 0.41, Spanish V08) | all |
+| Wandering chains with `advances < 0.5` | 10/10 | — |
+| `judgeVerdict` passes | 10/10 clean, 0/20 defective | — |
+
+Both floors pass. Caveat: these defects are hand-written and blatant. The first real Artemis chains
+(the live half of this plan's gate) are where subtler defects get measured. The Gate record reads
+their rows beside these.
+
 The `llm` pick mode is measured too, on the same stubs: the judge's top 2 go to Artemis, and the
 check is whether it picks the clean chain. This needs the shared backend, so ask the other
 sessions first. It is reported in the Gate record, next to the code pick's rate, so the author can

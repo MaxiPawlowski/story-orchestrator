@@ -1,0 +1,116 @@
+{
+  "labelledAt": "2026-09-19",
+  "note": "v2.2 plan 07 Phase A. Each stub has three hand-written chains whose labels are defect categories: clean, contradicts (a beat breaks an established fact), wanders (the beats do not move toward the target). The two noir stubs are in Spanish. Labels written before any judge answer was read.",
+  "stubs": [
+    {
+      "id": "V01", "lang": "en",
+      "facts": ["Luke joined the expedition.", "A sphinx guards the gate of the Sun Ruins.", "Arin carries a curved blade."],
+      "target": { "name": "Travel with Luke", "objective": "Reach the Sun Ruins with Luke and face the sphinx's riddle." },
+      "cast": ["Max", "Arin", "Luke", "Ponticius"], "trajectory": ["calm", "stirring", "tense"],
+      "chains": [
+        { "label": "clean", "beats": ["Leave town at dawn with Luke and Arin.", "Cross the dunes; Luke struggles in the heat and Arin shares her water.", "Arrive at the ruins, where the sphinx waits at the gate with its riddle."] },
+        { "label": "contradicts", "beats": ["Leave town at dawn while Luke stays home with their mother.", "Cross the dunes with Arin alone.", "Arrive at the ruins, where the sphinx waits at the gate."] },
+        { "label": "wanders", "beats": ["Stop at a desert market to trade trinkets.", "Spend three days gambling at a caravan camp.", "Ride back toward town to buy new boots."] }
+      ]
+    },
+    {
+      "id": "V02", "lang": "en",
+      "facts": ["The sphinx's riddle was answered wrong.", "The front gate of the ruins collapsed.", "Arin is wounded and bleeding."],
+      "target": { "name": "Find the Artifact", "objective": "Recover the Sun's Heart Artifact from the inner chamber." },
+      "cast": ["Max", "Arin", "Luke"], "trajectory": ["stirring", "tense", "peak"],
+      "chains": [
+        { "label": "clean", "beats": ["Crawl through a side tunnel while Arin presses a cloth to her wound.", "Dodge falling stones in the collapsing corridor.", "Reach the inner chamber and see the Sun's Heart on its altar."] },
+        { "label": "contradicts", "beats": ["The sphinx, pleased with their answer, opens the front gate for them.", "Walk down the grand hall past painted columns.", "Reach the inner chamber and see the Sun's Heart."] },
+        { "label": "wanders", "beats": ["Camp outside the ruins for a week while Arin heals.", "Hunt sand lizards for food.", "Decide to go back to the guild empty-handed."] }
+      ]
+    },
+    {
+      "id": "V03", "lang": "en",
+      "facts": ["Ponticius raised the reward to 500 crowns.", "Max holds the Sun's Heart."],
+      "target": { "name": "Return to the Guild", "objective": "Deliver the artifact to the Guild Master and claim your reward." },
+      "cast": ["Max", "Arin", "Luke", "Ponticius"], "trajectory": ["tense", "stirring", "calm"],
+      "chains": [
+        { "label": "clean", "beats": ["Cross the desert home with the Sun's Heart wrapped in a cloak.", "Enter the guild hall late at night.", "Set the artifact on Ponticius's counter and collect the 500 crowns."] },
+        { "label": "contradicts", "beats": ["Cross the desert home.", "Enter the guild hall.", "Accept the 250 crowns Ponticius first promised, since the reward never changed."] },
+        { "label": "wanders", "beats": ["Sell the Sun's Heart to a stranger at an oasis.", "Travel north to a different city.", "Open a tavern with the money."] }
+      ]
+    },
+    {
+      "id": "V04", "lang": "en",
+      "facts": ["Arin has distrusted Max since he lied about the map.", "The Sun Ruins contract is signed."],
+      "target": { "name": "Departure Preparations", "objective": "Decide whether to take Luke along before departing for the Sun Ruins." },
+      "cast": ["Max", "Arin", "Luke"], "trajectory": ["calm", "calm", "stirring"],
+      "chains": [
+        { "label": "clean", "beats": ["Pack supplies at home while Luke begs to come along.", "Arin argues coldly with Max, still sore about the map lie.", "Max decides whether Luke comes on the journey."] },
+        { "label": "contradicts", "beats": ["Pack supplies while Arin says she trusts Max completely and always has.", "Luke begs to come along.", "Max decides whether Luke comes on the journey."] },
+        { "label": "wanders", "beats": ["Spend the day fishing at the harbor.", "Visit an old friend in the next town over.", "Forget about the contract for a while."] }
+      ]
+    },
+    {
+      "id": "V05", "lang": "en",
+      "facts": ["The reactor was restored.", "The ship's long-range antenna was torn off.", "There are four escape pods on deck two."],
+      "target": { "name": "Reach Kepler Station", "objective": "Bring the damaged ship into Kepler Station's repair dock." },
+      "cast": ["Max", "Captain Okafor", "Pell", "HALO"], "trajectory": ["stirring", "tense", "calm"],
+      "chains": [
+        { "label": "clean", "beats": ["Okafor plots the course to Kepler Station.", "The ship slips through an asteroid field on short-range sensors.", "HALO hails Kepler on short range and they dock."] },
+        { "label": "contradicts", "beats": ["HALO calls Kepler Station on long-range comms from three days out.", "The ship crosses the asteroid field.", "They dock at Kepler."] },
+        { "label": "wanders", "beats": ["Stop to salvage a derelict freighter.", "Land to explore an uncharted moon.", "Turn around and head for Earth."] }
+      ]
+    },
+    {
+      "id": "V06", "lang": "en",
+      "facts": ["The reactor is failing.", "Pell is the ship's engineer."],
+      "target": { "name": "Restore Main Power", "objective": "Bring the reactor back online." },
+      "cast": ["Max", "Captain Okafor", "Pell", "HALO"], "trajectory": ["tense", "peak", "calm"],
+      "chains": [
+        { "label": "clean", "beats": ["Pell traces the fault to coolant loop two.", "Max holds the valve while Pell bypasses the loop as the heat climbs.", "The reactor settles and main power comes back."] },
+        { "label": "contradicts", "beats": ["The reactor has been running perfectly all week, so Pell naps.", "Max checks the logs.", "Main power comes back on."] },
+        { "label": "wanders", "beats": ["The crew throws a birthday party in the galley.", "Max plays cards with HALO.", "Everyone goes to sleep."] }
+      ]
+    },
+    {
+      "id": "V07", "lang": "es",
+      "facts": ["Brandt fue arrestado por Asuntos Internos.", "Doyle, el jefe del puerto, pagaba a la policía."],
+      "target": { "name": "Atrapar a Doyle", "objective": "Arrest the harbor master before he flees." },
+      "cast": ["Max", "Mae Hollis", "Maeve", "Lt. Brandt", "Doyle"], "trajectory": ["stirring", "tense", "peak"],
+      "chains": [
+        { "label": "clean", "beats": ["Max y Mae buscan a Doyle en la oficina del puerto.", "Descubren que huye hacia su lancha en el muelle doce.", "Lo alcanzan en el muelle y lo arrestan."] },
+        { "label": "contradicts", "beats": ["Brandt, todavía al mando de la policía del puerto, avisa a Doyle.", "Doyle escapa por la puerta de atrás.", "Max y Mae lo alcanzan en el muelle."] },
+        { "label": "wanders", "beats": ["Max y Mae van a cenar al Blue Anchor.", "Escuchan a Maeve cantar toda la noche.", "Se toman el fin de semana libre."] }
+      ]
+    },
+    {
+      "id": "V08", "lang": "es",
+      "facts": ["El libro de cuentas apareció en la lavandería de Pike Street.", "Maeve es la informante."],
+      "target": { "name": "Proteger a Maeve", "objective": "Get Maeve out of the city safely." },
+      "cast": ["Max", "Mae Hollis", "Maeve", "Doyle"], "trajectory": ["tense", "tense", "calm"],
+      "chains": [
+        { "label": "clean", "beats": ["Mae esconde a Maeve en su apartamento.", "Los hombres de Doyle vigilan la estación de tren.", "Suben a Maeve al tren de medianoche sin que la vean."] },
+        { "label": "contradicts", "beats": ["Siguen buscando el libro de cuentas, que nadie ha encontrado todavía.", "Mae esconde a Maeve.", "Suben a Maeve al tren."] },
+        { "label": "wanders", "beats": ["Max investiga un robo de joyas sin relación.", "Mae se toma unas vacaciones.", "Maeve vuelve a cantar en el club como si nada."] }
+      ]
+    },
+    {
+      "id": "V09", "lang": "en",
+      "facts": ["The portraits move because of a mechanism Graves works from behind the walls.", "Lady Ashworth is selling the house."],
+      "target": { "name": "Confront Graves", "objective": "Make Graves admit why he scared off the buyers." },
+      "cast": ["Max", "Lady Ashworth", "Graves"], "trajectory": ["calm", "stirring", "tense"],
+      "chains": [
+        { "label": "clean", "beats": ["Max finds the lever hidden behind the gallery wall.", "Max waits for Graves in the servants' corridor.", "Graves admits he wanted to keep the house in the family."] },
+        { "label": "contradicts", "beats": ["At midnight a real ghost moves the portraits while everyone watches.", "Max follows the ghost to the attic.", "Graves admits he knew about the ghost."] },
+        { "label": "wanders", "beats": ["Max tours the rose garden.", "Max reads botany books in the library.", "Max naps in the guest room."] }
+      ]
+    },
+    {
+      "id": "V10", "lang": "en",
+      "facts": ["The family records were found in the library.", "The estate carriage leaves at sunset."],
+      "target": { "name": "Leave the Manor", "objective": "Pack and leave Ashworth Hall before nightfall." },
+      "cast": ["Max", "Lady Ashworth", "Graves"], "trajectory": ["calm", "stirring", "calm"],
+      "chains": [
+        { "label": "clean", "beats": ["Max packs the family records into his bag.", "Lady Ashworth gives a cold farewell in the hall.", "Max boards the carriage at sunset."] },
+        { "label": "contradicts", "beats": ["Max searches the house for the family records, which have never been found.", "Lady Ashworth gives a cold farewell.", "Max boards the carriage at sunset."] },
+        { "label": "wanders", "beats": ["Max decides to stay another month.", "Max helps Graves repaint the gallery.", "Max misses the carriage on purpose."] }
+      ]
+    }
+  ]
+}

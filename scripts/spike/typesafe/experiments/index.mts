@@ -9,6 +9,7 @@ import { pairRecall } from './pairRecall.mts';
 import { sceneRead } from './sceneRead.mts';
 import { stallLeaves } from './stallLeaves.mts';
 import { curatorFilter } from './curatorFilter.mts';
+import { variantPick } from './variantPick.mts';
 import type { Experiment } from './types.mts';
 
-export const experiments: Experiment[] = [extraction, director, scenes, arcs, memoryPairs, memoryVerify, continuity, critic, wiRelevance, backgrounds, performance, pairRecall, sceneRead, stallLeaves, curatorFilter];
+export const experiments: Experiment[] = [extraction, director, scenes, arcs, memoryPairs, memoryVerify, continuity, critic, wiRelevance, backgrounds, performance, pairRecall, sceneRead, stallLeaves, curatorFilter, variantPick];
