@@ -9,7 +9,7 @@ import type { LoadedStory, PersistedStoryRuntime } from "./types";
 // persistence layer they read, and the manager keeps only the engine-facing half (`loadStory`).
 export interface StorySelectionDeps {
   loadStory: (loaded: LoadedStory, mode: "activate" | "hydrate", persisted?: PersistedStoryRuntime | null) => Promise<void>;
-  clearStory: (status: string) => void;
+  clearStory: (status: string) => Promise<void>;
   fail: (errors: ValidationError[], status: string) => void;
   setStatus: (status: string) => void;
   isLoaded: (id: string) => boolean;
@@ -19,7 +19,7 @@ export interface StorySelectionDeps {
 export async function loadSelectedStory(deps: StorySelectionDeps): Promise<boolean> {
   const id = getSelectedStoryId();
   if (!id) {
-    deps.clearStory("No story selected for this chat");
+    await deps.clearStory("No story selected for this chat");
     return false;
   }
   return selectStory(deps, id);

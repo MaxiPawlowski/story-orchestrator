@@ -8,12 +8,14 @@ import {
   enableWIEntry,
   executeSlashCommands,
   findTextGenPreset,
+  lorebookExists,
   setGroupMembersDisabled,
   getContext,
 } from "@services/STAPI";
 import { quoteSlashArg } from "@utils/string";
 import { renderBlackboardMemo } from "./blackboardMemo";
 import type { RuntimeExtras, RuntimeSnapshot } from "./types";
+import { releasePlan, worldInfoPlan, type WorldInfoBookPlan } from "./worldInfoGates";
 
 const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 const readStrings = (value: unknown): string[] => Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0) : typeof value === "string" && value.trim() ? [value] : [];
@@ -60,21 +62,12 @@ const applyPreset = (value: unknown, story: NormalizedStoryV2) => {
   if (preset) applyTextGenPresetRuntime(name, preset, name);
 };
 
-const applyWorldInfo = async (value: unknown) => {
-  if (!isRecord(value)) return;
-  const applyEntries = async (entries: unknown, enabled: boolean) => {
-    const list = Array.isArray(entries) ? entries : [entries];
-    for (const entry of list) {
-      if (!isRecord(entry)) continue;
-      const lorebook = typeof entry.lorebook === "string" ? entry.lorebook : typeof entry.book === "string" ? entry.book : "";
-      const comments = readStrings(entry.comments ?? entry.comment);
-      if (!lorebook || !comments.length) continue;
-      if (enabled) await enableWIEntry(lorebook, comments);
-      else await disableWIEntry(lorebook, comments);
-    }
-  };
-  await applyEntries(value.enable, true);
-  await applyEntries(value.disable, false);
+const applyWorldInfo = async (plans: WorldInfoBookPlan[]) => {
+  for (const plan of plans) {
+    if (!lorebookExists(plan.lorebook)) continue;
+    if (plan.disable.length) await disableWIEntry(plan.lorebook, plan.disable);
+    if (plan.enable.length) await enableWIEntry(plan.lorebook, plan.enable);
+  }
 };
 
 const applyCastChanges = async (value: unknown) => {
@@ -106,13 +99,14 @@ export class EffectsApplier {
     await executeSlashCommands(`/comment compact=true raw=false ${quoteSlashArg(raw.replace(/\s*\r?\n\s*/g, " ").trim())}`, { silent: true });
   }
 
-  async applyCheckpoint(story: NormalizedStoryV2, checkpoint: Checkpoint, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate") {
+  // `path` is every checkpoint the chat entered, ending at `checkpoint`: world_info is rebuilt from it
+  // each time, so a flag another chat left in a shared lorebook never survives into this one.
+  async applyCheckpoint(story: NormalizedStoryV2, checkpoint: Checkpoint, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate", path: string[]) {
     if (!extras.requirements.ready) return;
-    const effects = checkpoint.effects;
-    if (!effects) return;
+    await applyWorldInfo(worldInfoPlan(story, path));
+    const effects: CheckpointEffects = checkpoint.effects ?? {};
     if (effects.author_note !== undefined) await applyAuthorNote(effects.author_note, snapshot);
     if (effects.preset !== undefined) applyPreset(effects.preset, story);
-    if (effects.world_info !== undefined) await applyWorldInfo(effects.world_info);
     if (effects.cast_changes !== undefined) await applyCastChanges(effects.cast_changes);
     // Deterministic stagecraft: idempotent, so hydrating a chat and rolling back into this
     // checkpoint both restore its background without re-triggering anything.
@@ -120,6 +114,10 @@ export class EffectsApplier {
     if (mode === "activate") await this.fireNpcReplies(checkpoint, extras, "onEnter");
     extras.lastAppliedCheckpointId = checkpoint.id;
     extras.updatedAt = new Date().toISOString();
+  }
+
+  async releaseWorldInfo(owners: unknown[], keep: unknown | null) {
+    await applyWorldInfo(releasePlan(owners, keep));
   }
 
   async fireNpcReplies(checkpoint: Checkpoint, extras: RuntimeExtras, trigger: NpcReplyTrigger, occurrence?: number, speakerAliases: string[] = []) {

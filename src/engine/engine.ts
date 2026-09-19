@@ -17,6 +17,7 @@ export interface EngineState {
   blackboard: BlackboardSnapshot;
   activeCheckpointId: string;
   visitedAnchors: string[];
+  visitedPath?: string[];
   boundary: number;
   checkpointStartedBoundary: number;
   checkpointStartedAt: number;
@@ -48,12 +49,28 @@ export interface BoundaryLogEntry {
 
 const DEFAULT_HOST: EngineHost = { now: () => Date.now() };
 
+// State saved before the engine kept a full path knows only the anchors. The intermediates that
+// led to the active checkpoint are recovered wherever the graph leaves a single way in.
+function inferVisitedPath(story: NormalizedStoryV2, visitedAnchors: string[], activeCheckpointId: string): string[] {
+  if (visitedAnchors.at(-1) === activeCheckpointId) return [...visitedAnchors];
+  const transitions = Object.values(story.outgoingByCheckpoint).flat();
+  const sourcesOf = (id: string) => [...new Set(transitions.filter((transition) => transition.to === id).map((transition) => transition.from))];
+  const tail = [activeCheckpointId];
+  let sources = sourcesOf(activeCheckpointId);
+  while (sources.length === 1 && !tail.includes(sources[0]) && story.checkpointById[sources[0]]?.type === "intermediate") {
+    tail.unshift(sources[0]);
+    sources = sourcesOf(sources[0]);
+  }
+  return [...visitedAnchors, ...tail];
+}
+
 export class StoryEngine {
   private story: NormalizedStoryV2 | null = null;
   private blackboard: Blackboard | null = null;
   private queue = new ApplyQueue();
   private activeCheckpointId = "";
   private visitedAnchors: string[] = [];
+  private visitedPath: string[] = [];
   private boundary = 0;
   private checkpointStartedBoundary = 0;
   private checkpointStartedAt = 0;
@@ -72,6 +89,7 @@ export class StoryEngine {
     this.queue = new ApplyQueue();
     this.activeCheckpointId = normalized.startCheckpointId;
     this.visitedAnchors = normalized.checkpointById[this.activeCheckpointId]?.type === "anchor" ? [this.activeCheckpointId] : [];
+    this.visitedPath = [this.activeCheckpointId];
     this.boundary = 0;
     this.checkpointStartedBoundary = 0;
     this.checkpointStartedAt = this.host.now();
@@ -101,6 +119,7 @@ export class StoryEngine {
       blackboard: this.requireBlackboard().snapshot(),
       activeCheckpointId: this.activeCheckpointId,
       visitedAnchors: [...this.visitedAnchors],
+      visitedPath: [...this.visitedPath],
       boundary: this.boundary,
       checkpointStartedBoundary: this.checkpointStartedBoundary,
       checkpointStartedAt: this.checkpointStartedAt,
@@ -136,6 +155,7 @@ export class StoryEngine {
       this.checkpointStartedMessageId = normalizedContext.lastMessageId;
       const checkpoint = story.checkpointById[fired.to];
       if (checkpoint?.type === "anchor") this.visitedAnchors.push(fired.to);
+      this.visitedPath.push(fired.to);
       effects = checkpoint?.effects ?? null;
       this.advanceCallbacks.forEach((callback) => callback(fired));
     }
@@ -181,6 +201,7 @@ export class StoryEngine {
     this.checkpointStartedAt = this.host.now();
     this.checkpointStartedMessageId = normalizedContext.lastMessageId;
     if (checkpoint.type === "anchor") this.visitedAnchors.push(id);
+    this.visitedPath.push(id);
     this.boundary += 1;
     const after = this.serialize();
     this.boundaryLog.push({ at: this.host.now(), boundary: this.boundary, before, after, fired: null, source: "manual", context: normalizedContext, queue });
@@ -209,6 +230,11 @@ export class StoryEngine {
   get activeCheckpoint() {
     const story = this.requireStory();
     return story.checkpointById[this.activeCheckpointId];
+  }
+
+  // Every checkpoint this run entered, in order, ending at the active one.
+  get checkpointPath(): string[] {
+    return [...this.visitedPath];
   }
 
   get stateLog(): BoundaryLogEntry[] {
@@ -253,6 +279,7 @@ export class StoryEngine {
   private restoreStateFields(state: EngineState): void {
     this.activeCheckpointId = state.activeCheckpointId;
     this.visitedAnchors = [...state.visitedAnchors];
+    this.visitedPath = state.visitedPath?.length ? [...state.visitedPath] : inferVisitedPath(this.requireStory(), state.visitedAnchors, state.activeCheckpointId);
     this.boundary = state.boundary;
     this.checkpointStartedBoundary = state.checkpointStartedBoundary ?? state.boundary;
     this.checkpointStartedAt = state.checkpointStartedAt ?? this.host.now();

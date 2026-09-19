@@ -3,6 +3,11 @@ import { executeSlashCommands, getActiveGroup } from "@services/STAPI";
 import { RuntimeManager } from "./runtimeManager";
 
 const mockExtensionPrompts: Record<string, { value: string; depth: number }> = {};
+const mockLorebooks: Record<string, Record<string, boolean>> = {};
+const mockSwitchEntries = (lorebook: string, comments: string | string[], enabled: boolean) => {
+  [comments].flat().forEach((comment) => { if (mockLorebooks[lorebook] && comment in mockLorebooks[lorebook]) mockLorebooks[lorebook][comment] = enabled; });
+  return true;
+};
 const mockContext = {
   chat: [] as Array<{ mes: string }>,
   chatMetadata: {} as Record<string, unknown>,
@@ -31,8 +36,9 @@ jest.mock("@services/STAPI", () => {
     clearCharacterAN: jest.fn(async () => undefined),
     applyTextGenPresetRuntime: jest.fn(),
     findTextGenPreset: jest.fn(() => null),
-    disableWIEntry: jest.fn(async () => undefined),
-    enableWIEntry: jest.fn(async () => undefined),
+    disableWIEntry: jest.fn(async (lorebook: string, comments: string | string[]) => mockSwitchEntries(lorebook, comments, false)),
+    enableWIEntry: jest.fn(async (lorebook: string, comments: string | string[]) => mockSwitchEntries(lorebook, comments, true)),
+    lorebookExists: (name: string) => Boolean(mockLorebooks[name]),
     upsertWIEntry: jest.fn(async () => "created"),
     countTokens: jest.fn(async (text: string) => Math.ceil((text?.length ?? 0) / 4)),
     vectorInsert: jest.fn(async () => undefined),
@@ -84,8 +90,26 @@ const resetHost = () => {
   mockContext.chatMetadata = {};
   mockContext.extensionSettings = {};
   Object.keys(mockExtensionPrompts).forEach((key) => { delete mockExtensionPrompts[key]; });
+  Object.keys(mockLorebooks).forEach((key) => { delete mockLorebooks[key]; });
   (getActiveGroup as jest.Mock).mockReturnValue(null);
 };
+
+const gatedStory = (id: string, start: Record<string, unknown>, next?: Record<string, unknown>) => ({
+  format: 2,
+  id,
+  title: id,
+  description: "Checkpoint world info fixture.",
+  qualities: [{ key: "go", type: "bool", source: "extractor", rubric: "Did they set off?" }],
+  checkpoints: [
+    { id: "start", name: "Start", objective: "Start.", type: "anchor", start: true, effects: { world_info: start } },
+    ...(next ? [{ id: "next", name: "Next", objective: "Next.", type: "anchor", effects: { world_info: next } }] : []),
+  ],
+  transitions: next ? [{ from: "start", to: "next", gate: { q: "go", op: "==", v: true }, priority: 0 }] : [],
+  roster: [],
+});
+const storyA = gatedStory("wi-a", { enable: [{ lorebook: "Shared", comments: ["A start"] }] }, { enable: [{ lorebook: "Shared", comments: ["A next"] }], disable: [{ lorebook: "Shared", comments: ["A start"] }] });
+const storyB = gatedStory("wi-b", { enable: [{ lorebook: "Shared", comments: ["B start"] }] });
+const selectNothing = () => { (mockContext.chatMetadata.story_orchestrator as { selectedStoryId: string | null }).selectedStoryId = null; };
 
 describe("RuntimeManager pacing", () => {
   beforeEach(() => resetHost());
@@ -1101,5 +1125,49 @@ describe("RuntimeManager transition announcements and pending deltas", () => {
     delete metadata.stories[storyId].extras.ui;
     await manager.selectStory(storyId, "hydrate");
     expect(manager.getSnapshot().ui.authorView).toBe(false);
+  });
+});
+
+describe("RuntimeManager checkpoint world info", () => {
+  beforeEach(() => {
+    resetHost();
+    mockLorebooks.Shared = { "A start": false, "A next": true, "B start": true, "Always": true };
+  });
+
+  it("rebuilds the playing story's entries from its path and releases the story a chat leaves", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(storyA));
+    expect(mockLorebooks.Shared).toEqual({ "A start": true, "A next": false, "B start": true, "Always": true });
+    await manager.activateCheckpoint("next");
+    expect(mockLorebooks.Shared).toMatchObject({ "A start": false, "A next": true });
+
+    await manager.importStory(JSON.stringify(storyB));
+    expect(mockLorebooks.Shared).toEqual({ "A start": false, "A next": false, "B start": true, "Always": true });
+
+    selectNothing();
+    await manager.loadSelectedFromChat();
+    expect(mockLorebooks.Shared).toEqual({ "A start": false, "A next": false, "B start": false, "Always": true });
+  });
+
+  it("clears what a story left on when ST closed mid-story, before any chat plays it again", async () => {
+    await new RuntimeManager().importStory(JSON.stringify(storyA));
+    mockLorebooks.Shared["A next"] = true;
+    selectNothing();
+    await new RuntimeManager().loadSelectedFromChat();
+    expect(mockLorebooks.Shared).toEqual({ "A start": false, "A next": false, "B start": true, "Always": true });
+  });
+
+  it("restores the entries of the checkpoint a rollback returns to", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(storyA));
+    mockContext.chat = [{ mes: "one" }];
+    await manager.commitBoundary();
+    mockContext.chat = [{ mes: "one" }, { mes: "they set off" }];
+    await manager.setQuality("go", "true");
+    expect(manager.getSnapshot().activeCheckpointId).toBe("next");
+    expect(mockLorebooks.Shared).toMatchObject({ "A start": false, "A next": true });
+    await manager.rollbackFromMessage(1);
+    expect(manager.getSnapshot().activeCheckpointId).toBe("start");
+    expect(mockLorebooks.Shared).toMatchObject({ "A start": true, "A next": false });
   });
 });

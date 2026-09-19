@@ -1,5 +1,6 @@
 import * as linearStory from "../../test/fixtures/linear.story.json";
 import * as branchingStory from "../../test/fixtures/branching.story.json";
+import * as sunRuinsStory from "../../examples/sun-ruins/quest-for-the-sun-ruins.json";
 import { ApplyQueue } from "./applyQueue";
 import { Blackboard } from "./blackboard";
 import { progressQualityForAnchor } from "./convergence";
@@ -408,5 +409,45 @@ describe("replay harness", () => {
       { type: "boundary" },
       { type: "assert", activeCheckpointId: "exit", blackboard: { progress_toward_exit: 2 } },
     ]);
+  });
+});
+
+describe("StoryEngine checkpointPath", () => {
+  const load = () => {
+    const engine = new StoryEngine({ now: () => 0 });
+    engine.loadStory(parseStoryV2OrThrow(sunRuinsStory));
+    return engine;
+  };
+  const enter = (engine: StoryEngine, ids: string[]) => ids.forEach((id, index) => engine.activateCheckpoint(id, { lastMessageId: index, chatLength: index + 1 }));
+
+  it("records every checkpoint entered, intermediates included, while visitedAnchors keeps only anchors", () => {
+    const engine = load();
+    expect(engine.checkpointPath).toEqual(["cp1"]);
+    enter(engine, ["cp2", "cp3", "cp-4a", "cp-4a1"]);
+    expect(engine.checkpointPath).toEqual(["cp1", "cp2", "cp3", "cp-4a", "cp-4a1"]);
+    expect(engine.serialize().visitedAnchors).toEqual(["cp1", "cp2", "cp3"]);
+  });
+
+  it("rolls the path back with the rest of the state and round-trips through hydrate", () => {
+    const engine = load();
+    enter(engine, ["cp2", "cp3", "cp-4a", "cp-4a1"]);
+    const saved = engine.serialize();
+    expect(engine.rollbackTo(2)).toBe(true);
+    expect(engine.checkpointPath).toEqual(["cp1", "cp2", "cp3"]);
+    const restored = load();
+    restored.hydrate(saved);
+    expect(restored.checkpointPath).toEqual(saved.visitedPath);
+  });
+
+  it("infers the intermediates of a state saved before the path existed wherever only one way leads in", () => {
+    const engine = load();
+    enter(engine, ["cp2", "cp3", "cp-4a", "cp-4a1"]);
+    const { visitedPath: _dropped, ...legacy } = engine.serialize();
+    const hydrated = load();
+    hydrated.hydrate(legacy);
+    expect(hydrated.checkpointPath).toEqual(["cp1", "cp2", "cp3", "cp-4a", "cp-4a1"]);
+    const atAnchor = load();
+    atAnchor.hydrate({ ...legacy, activeCheckpointId: "cp3", visitedAnchors: ["cp1", "cp2", "cp3"] });
+    expect(atAnchor.checkpointPath).toEqual(["cp1", "cp2", "cp3"]);
   });
 });

@@ -27,6 +27,7 @@ import { SessionJournal, type JournalEvent } from "./journal";
 import { evaluateRequirements } from "./requirements";
 import { loadPersistedRuntime, savePersistedRuntime, setSelectedStoryId } from "./persistence";
 import { importStoryJson, loadSelectedStory, removeStory, restartStory, selectStory, type StorySelectionDeps } from "./storySelection";
+import { listStoryRecords } from "./storyLibrary";
 import { clearWizardSession, loadWizardSession, saveWizardSession } from "./wizardSessions";
 import type { CopilotRuntimeSettings, PersistedStoryRuntime, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, MemoryRuntimeSettings, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, StagecraftRuntimeState, StagecraftSettings, StoryLibraryRecord, TalkDecisionAudit, TalkRuntimeState, UiRuntimeSettings } from "./types";
 
@@ -187,7 +188,8 @@ export class RuntimeManager {
 
   private readonly selectionDeps: StorySelectionDeps = {
     loadStory: (loaded, mode, persisted) => this.loadStory(loaded, mode, persisted ?? null),
-    clearStory: (status) => {
+    clearStory: async (status) => {
+      const previous = this.loaded?.story ?? null;
       this.loaded = null;
       this.extras = createExtras();
       this.pacing.clearPending();
@@ -195,6 +197,7 @@ export class RuntimeManager {
       clearAllMemoryInjection();
       this.status = status;
       this.notify();
+      await this.releaseWorldInfo(previous, null);
     },
     fail: (errors, status) => { this.validationErrors = errors; this.status = status; this.notify(); },
     setStatus: (status) => { this.status = status; this.notify(); },
@@ -220,9 +223,9 @@ export class RuntimeManager {
     const result = this.engine.commitBoundary(this.getBoundaryContext());
     this.memory.markBridgesApplied(pendingBridges);
     if (result.effects) {
-      await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate");
+      await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate", this.engine.checkpointPath);
     } else if (this.extras.requirements.ready && this.extras.lastAppliedCheckpointId !== this.engine.activeCheckpoint.id) {
-      await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate");
+      await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate", this.engine.checkpointPath);
     }
     // Curator proposals the author (or auto mode) accepted are boundary-applied, exactly like the
     // checkpoint's own effects — never mid-turn (spec addendum §Stagecraft).
@@ -244,7 +247,7 @@ export class RuntimeManager {
     if (!this.loaded) return false;
     this.refreshRequirements();
     this.engine.activateCheckpoint(id, this.getBoundaryContext());
-    await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate");
+    await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate", this.engine.checkpointPath);
     this.pacing.updateSteering();
     this.memory.updateInjection();
     await this.persist();
@@ -299,7 +302,7 @@ export class RuntimeManager {
       this.extras.extraction.audits = this.extras.extraction.audits.filter((audit) => audit.window.to < messageId);
       this.pacing.replayCommitted();
       this.refreshRequirements();
-      await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate");
+      await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate", this.engine.checkpointPath);
       this.pacing.updateSteering();
       this.memory.updateInjection();
       await this.persist();
@@ -491,6 +494,7 @@ export class RuntimeManager {
   getPayloadCaptures(): PayloadCapture[] { return this.journal.getCaptures(); }
 
   private async loadStory(loaded: LoadedStory, mode: "activate" | "hydrate", knownPersisted: PersistedStoryRuntime | null = null) {
+    const previous = this.loaded?.story ?? null;
     this.validationErrors = [];
     this.pacing.clearPending();
     const persisted = mode === "hydrate" ? knownPersisted ?? loadPersistedRuntime(loaded.record.id) : null;
@@ -503,18 +507,27 @@ export class RuntimeManager {
     this.refreshRequirements();
     if (mode === "hydrate" && persisted?.engineState) {
       this.engine.hydrate(persisted.engineState);
-      await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate");
+      await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate", this.engine.checkpointPath);
       this.status = `Continuing ${loaded.story.title}`;
     } else {
-      await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate");
+      await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate", this.engine.checkpointPath);
       this.status = `Started ${loaded.story.title}`;
     }
+    await this.releaseWorldInfo(previous, loaded.story);
     this.pacing.updateSteering();
     this.memory.updateInjection();
     this.awayRecap.detect(priorSessionAt, this.getSnapshot().narrative);
     setSelectedStoryId(loaded.record.id);
     await this.persist();
     this.notify();
+  }
+
+  // Checkpoint entries live in global lorebooks, so any story this install plays (and the one this
+  // chat is leaving) may have left some on, after a chat switch or ST closing mid-story. Only the
+  // story now playing keeps its own; its path already decided those.
+  private async releaseWorldInfo(previous: NormalizedStoryV2 | null, keep: NormalizedStoryV2 | null) {
+    const owners = [...listStoryRecords().map((record) => record.raw), ...(previous ? [previous] : [])];
+    await this.effects.releaseWorldInfo(owners, keep).catch((error) => console.warn("[Story Orchestrator] could not release checkpoint world info", error));
   }
 
   getNarrativeStatus(): NarrativeStatus { return this.getSnapshot().narrative; }
@@ -542,12 +555,14 @@ export class RuntimeManager {
   getLastStoryUpdate(): StoryUpdateOutcome | null { return this.lastStoryUpdate; }
 
   private async swapStory(loaded: LoadedStory, state: EngineState | null, reanchored: boolean) {
+    const previous = this.loaded?.story ?? null;
     this.loaded = loaded;
     this.engine.loadStory(loaded.story);
     if (state) this.engine.hydrate(state);
     this.refreshRequirements();
     this.expansion.revalidateInserted();
-    await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), reanchored ? "activate" : "hydrate");
+    await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), reanchored ? "activate" : "hydrate", this.engine.checkpointPath);
+    await this.releaseWorldInfo(previous, loaded.story);
     this.pacing.replayCommitted();
     this.pacing.updateSteering();
     this.memory.updateInjection();

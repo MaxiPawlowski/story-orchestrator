@@ -254,6 +254,7 @@ export function pruneEngineState(state: EngineState, next: NormalizedStoryV2, di
     : diff.reanchorTo ?? next.startCheckpointId;
   const reanchored = activeCheckpointId !== state.activeCheckpointId;
   const visitedAnchors = state.visitedAnchors.filter((id) => next.checkpointById[id]?.type === "anchor");
+  const visitedPath = state.visitedPath?.filter((id) => next.checkpointById[id]);
   return {
     ...state,
     activeCheckpointId,
@@ -264,6 +265,7 @@ export function pruneEngineState(state: EngineState, next: NormalizedStoryV2, di
     visitedAnchors: reanchored && next.checkpointById[activeCheckpointId]?.type === "anchor" && !visitedAnchors.includes(activeCheckpointId)
       ? [...visitedAnchors, activeCheckpointId]
       : visitedAnchors,
+    visitedPath: visitedPath && visitedPath.at(-1) !== activeCheckpointId ? [...visitedPath, activeCheckpointId] : visitedPath,
     blackboard: { values: keep(state.blackboard.values), versions: keep(state.blackboard.versions), latched },
   };
 }
