@@ -125,7 +125,7 @@ them. Checked in ST source on 2026-09-19.
 | `judge.uses.memoryPairs` | Consolidation pair relation | 02 |
 | `judge.uses.sceneTrigger` | Scene-break trigger for the P0 read | 03 |
 | `judge.uses.sceneTracker` | Scene tracker block, macros, player "at <location>" | 03 |
-| `judge.uses.sceneOoc` | OOC annotation of the extraction window (only if Phase A passes) | 03 |
+| `judge.uses.sceneOoc` | OOC annotation of the extraction window — **not built**: Phase A measured 88% with 3/12 false positives, below its floor (plan 03) | 03 |
 | `judge.uses.lookahead` | "Heading toward" read model (author view) | 03 |
 | `judge.uses.loreSelect` | Force-activate relevant lore per generation | 04 |
 | `judge.uses.curatorFilter` | Narrow the WI curator's prompt (only if Phase A passes) | 04 |
