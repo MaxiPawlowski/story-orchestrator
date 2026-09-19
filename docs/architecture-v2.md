@@ -189,6 +189,12 @@ already skips unchanged content.
   `--runInBand`. Fixtures live in `test/fixtures/`, recorded goldens in `test/goldens/`.
 - Storybook stories (`*.stories.tsx`) cover studio and drawer components with play-function
   interaction + a11y checks (`npm run test-storybook:ci`).
+- **Judgment model (v2.2).** `server-plugin/story-orchestrator-judge` is an ST server plugin
+  (`npm run plugin:install`, `enableServerPlugins: true`, restart) and the only reader of the
+  TypeSafe key. Its own tests run with `npm run test:plugin` (`node:test`; `JUDGE_LIVE=1` adds one
+  real API call). Calibration has two halves: `scripts/spike/typesafe/calibrate-node.mts` (real
+  plugin handler + `src/judge`, no ST) and `so-judge.mts calibrate` (page → plugin → API). Fixtures
+  live in `test/fixtures/judge/`, goldens in `test/goldens/judge/`.
 - `scripts/debug/*.mts` drive a live SillyTavern over CDP for E2E validation; `so-scenario.mts`
   replays scenario JSON in `test/scenarios/`.
 - **Journeys** (v2.1 evaluation layer 5) are the composition gate above scenarios:

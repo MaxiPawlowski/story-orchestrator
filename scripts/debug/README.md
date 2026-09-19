@@ -51,6 +51,7 @@ Playwright MCP is configured via the repo `.mcp.json` (`npx @playwright/mcp@late
 | `so-assets.mts` | `list`, `remove`, `assert-clean` `[--marker <prefix>]` — the ST assets a wizard run created (marker + the `applied` ledger of test sessions only — marker-keyed, or recorded since a journey's baseline); a real author's sessions and assets are never touched |
 | `so-copilot.mts` | `context`, `suggest [--debug j]`, `report [--debug j]`, `nudge <text>`, `clear-nudge`, `probe [--debug d]`, `advance <id>`, `stage <stage> [--message m] [--debug j]` |
 | `so-library.mts` | library summary (id + version), `<id\|hash>` detail, `remove <id\|hash\|title>`, `wipe-chat-meta [--hash h]`, `--legacy` |
+| `so-judge.mts` | `status \| ask <request.json> \| calibrate [--use director] [--min 0.85] [--record] \| calls [--last 20]` — v2.2 judge: plugin status (key source, never the key), one request through the plugin, fixture calibration page → plugin → TypeSafe, the chat's judge call ring. Needs `npm run plugin:install` + `enableServerPlugins: true` |
 | `so-live-suite.mts` | `run [--min 0.9] [--filter <substr>] [--record]` — real-model delta accuracy over `test/fixtures/extractor*` triples; exact-match on `{q,v}` |
 | `st-search.mts` | ST host source search, `--context-exports`, `--event-types`, `--endpoints` |
 
