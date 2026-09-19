@@ -16,7 +16,7 @@ export interface WizardAnswer {
 // `applyOps` and never ride a bulk accept. They still travel as ProposalOps so the parser, the
 // proposal card and the audit path stay single-sourced.
 export type ProvisioningOp =
-  | { kind: "createCharacterCard"; name: string; description: string; personality?: string; scenario?: string; first_mes?: string; mes_example?: string; tags?: string[] }
+  | { kind: "createCharacterCard"; name: string; description: string; role?: string; personality?: string; scenario?: string; first_mes?: string; mes_example?: string; tags?: string[] }
   | { kind: "createStoryLorebook"; name: string }
   | { kind: "upsertLorebookEntry"; lorebook: string; comment: string; keys: string[]; content: string; constant?: boolean }
   | { kind: "createGroup"; name: string; members: string[] };

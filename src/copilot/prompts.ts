@@ -30,8 +30,8 @@ const OP_GRAMMAR = [
   '  { "kind": "updateTransition", "ref": { "from": string, "to": string }, "patch": Partial<Transition> }',
   '  { "kind": "removeTransition", "ref": { "from": string, "to": string } }',
   '  { "kind": "setTransitionGate", "ref": { "from": string, "to": string }, "gate": Gate }',
-  '  { "kind": "addRosterMember", "member": { "id": string, "name"?: string } }',
-  '  { "kind": "updateRosterMember", "id": string, "patch": { "name"?: string } }',
+  '  { "kind": "addRosterMember", "member": { "id": string, "name"?: string, "role"?: string } }',
+  '  { "kind": "updateRosterMember", "id": string, "patch": { "name"?: string, "role"?: string } }',
   '  { "kind": "removeRosterMember", "id": string }',
   `  { "kind": "setArcTemplate", "template": ${ARC_TEMPLATE_NAMES.map((name) => `"${name}"`).join("|")}|{ "points": [{ "at": 0-1, "tension": 0-1 }] }|null }`,
   '  { "kind": "setArcBridges", "bridges": [{ "arcMatch": string, "anchor": checkpoint_id, "amount": number }] }',
@@ -43,7 +43,7 @@ const OP_GRAMMAR = [
 
 const PROVISIONING_GRAMMAR = [
   "Provisioning ops create the SillyTavern assets this story needs. They never modify anything that already exists:",
-  '  { "kind": "createCharacterCard", "name": string, "description": string, "personality"?: string, "scenario"?: string, "first_mes"?: string, "mes_example"?: string, "tags"?: string[] }',
+  '  { "kind": "createCharacterCard", "name": string, "description": string, "role"?: string, "personality"?: string, "scenario"?: string, "first_mes"?: string, "mes_example"?: string, "tags"?: string[] }',
   '  { "kind": "createStoryLorebook", "name": string }',
   '  { "kind": "upsertLorebookEntry", "lorebook": string, "comment": string, "keys": string[], "content": string, "constant"?: boolean }',
   '  { "kind": "createGroup", "name": string, "members": string[] }',
@@ -66,8 +66,8 @@ const STAGE_INSTRUCTIONS: Record<CopilotStage, string> = {
   qualities: "Stage QUALITIES: propose the quality set that measures this story's dramatic state. Every quality needs a rubric question. Prefer extractor source unless the value is purely code-driven. Only emit setStoryField/addQuality/updateQuality/removeQuality ops.",
   checkpoints: "Stage CHECKPOINTS: propose anchor and intermediate checkpoints with objectives, tension targets, and state_snapshots for pivotal or latching qualities. Keep exactly one start checkpoint. Only emit addCheckpoint/updateCheckpoint/setStartCheckpoint/setCheckpointSnapshot ops.",
   transitions: "Stage TRANSITIONS: wire checkpoints toward their anchors with transitions, each carrying a gate over declared qualities and a progress effect toward the target anchor so the convergence threshold is reachable. Only emit addTransition/updateTransition/setTransitionGate ops.",
-  effects: "Stage EFFECTS/CAST: propose checkpoint effects (author_note, world_info, cast_changes, background — a background filename that suits the scene), the roster this story directs, what the chat must provide before it can run (requirements), which lorebooks the background curator may edit (stagecraft — the story's own books only), the dramatic shape, and any thread bridges. Only emit setCheckpointEffects/addRosterMember/updateRosterMember/removeRosterMember/setRequirements/setStagecraft/setArcTemplate/setArcBridges/setStoryField ops.",
-  provisioning: "Stage PROVISIONING: this story's requirements name people, lore and a group that may not exist on this install yet. Propose the create steps that close exactly that gap — one card per cast member the story directs, the story's own lorebook plus the entries the story leans on, and the group that plays it. Only emit createCharacterCard/createStoryLorebook/upsertLorebookEntry/createGroup ops. Propose nothing for assets the environment below already lists.",
+  effects: "Stage EFFECTS/CAST: propose checkpoint effects (author_note, world_info, cast_changes, background — a background filename that suits the scene), the roster this story directs (each member with a one-line role: what they do in this story), what the chat must provide before it can run (requirements), which lorebooks the background curator may edit (stagecraft — the story's own books only), the dramatic shape, and any thread bridges. Only emit setCheckpointEffects/addRosterMember/updateRosterMember/removeRosterMember/setRequirements/setStagecraft/setArcTemplate/setArcBridges/setStoryField ops.",
+  provisioning: "Stage PROVISIONING: this story's requirements name people, lore and a group that may not exist on this install yet. Propose the create steps that close exactly that gap — one card per cast member the story directs (each with a one-line \"role\": what they do in this story), the story's own lorebook plus the entries the story leans on, and the group that plays it. Only emit createCharacterCard/createStoryLorebook/upsertLorebookEntry/createGroup ops. Propose nothing for assets the environment below already lists.",
 };
 
 const renderEnvironment = (environment?: WizardEnvironmentView): string => {

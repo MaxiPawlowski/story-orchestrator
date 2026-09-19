@@ -16,6 +16,7 @@ type FieldSpec = { key: string; label: string; kind: "text" | "area" | "list" | 
 const FIELDS: Record<ProvisioningOp["kind"], FieldSpec[]> = {
   createCharacterCard: [
     { key: "name", label: "Name", kind: "text" },
+    { key: "role", label: "Role in this story (for speaker direction)", kind: "text" },
     { key: "description", label: "Description", kind: "area" },
     { key: "personality", label: "Personality", kind: "area" },
     { key: "scenario", label: "Scenario", kind: "area" },

@@ -63,7 +63,7 @@ export const provisioningFollowUpOps = (draft: StoryV2, op: ProvisioningOp): Pro
     ops.push({ kind: "setStagecraft", stagecraft: { lorebooks: merge(draft.stagecraft?.lorebooks, [op.name]) } });
   }
   if (op.kind === "createCharacterCard" && !draft.roster.some((member) => (member.name ?? member.id).trim().toLowerCase() === op.name.trim().toLowerCase())) {
-    ops.push({ kind: "addRosterMember", member: { id: op.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "_"), name: op.name } });
+    ops.push({ kind: "addRosterMember", member: { id: op.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "_"), name: op.name, ...(op.role ? { role: op.role } : {}) } });
   }
   return ops;
 };

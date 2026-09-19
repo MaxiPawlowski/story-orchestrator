@@ -252,7 +252,7 @@ const readRosterMember = (value: unknown, path: string, issues: string[]): Roste
     issues.push(`${path}.id: required`);
     return null;
   }
-  return { id: value.id, ...(typeof value.name === "string" ? { name: value.name } : {}) };
+  return { id: value.id, ...(typeof value.name === "string" ? { name: value.name } : {}), ...(typeof value.role === "string" && value.role.trim() ? { role: value.role.trim() } : {}) };
 };
 
 const readArcTemplate = (value: unknown, path: string, issues: string[]): ArcTemplate | null | undefined => {
@@ -388,6 +388,7 @@ const readOp = (value: unknown, path: string, issues: string[]): ProposalOp | nu
       if (!id) return null;
       const patch: Partial<RosterMember> = {};
       if (isRecord(value.patch) && typeof value.patch.name === "string") patch.name = value.patch.name;
+      if (isRecord(value.patch) && typeof value.patch.role === "string") patch.role = value.patch.role.trim() || undefined;
       return { kind: "updateRosterMember", id, patch };
     }
     case "removeRosterMember": {
@@ -420,6 +421,7 @@ const readOp = (value: unknown, path: string, issues: string[]): ProposalOp | nu
         kind: "createCharacterCard",
         name,
         description,
+        ...(typeof value.role === "string" && value.role.trim() ? { role: value.role.trim() } : {}),
         ...(typeof value.personality === "string" ? { personality: value.personality } : {}),
         ...(typeof value.scenario === "string" ? { scenario: value.scenario } : {}),
         ...(typeof value.first_mes === "string" ? { first_mes: value.first_mes } : {}),

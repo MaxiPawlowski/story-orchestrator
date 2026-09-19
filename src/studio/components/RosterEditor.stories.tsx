@@ -45,3 +45,26 @@ export const RemoveMember: Story = {
     await expect(useDraftStore.getState().draft.roster).toEqual([]);
   },
 };
+
+export const AuthorsARole: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.type(canvas.getByLabelText("Member 1 role"), "keeper of the ruin maps");
+    await expect(useDraftStore.getState().draft.roster[0]).toMatchObject({ id: "guide", role: "keeper of the ruin maps" });
+    await userEvent.clear(canvas.getByLabelText("Member 1 role"));
+    await expect(useDraftStore.getState().draft.roster[0].role).toBeUndefined();
+  },
+};
+
+export const RolesHintOnlyForDirectedStories: Story = {
+  beforeEach: () => {
+    const story = sampleStory();
+    seedDraft({ ...story, checkpoints: story.checkpoints.map((checkpoint, index) => (index === 0 ? { ...checkpoint, talk_control: { lead: "guide" } } : checkpoint)) });
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvasElement.querySelector("[data-so=roster-roles-hint]")?.textContent).toContain("Missing: The Guide");
+    await userEvent.type(canvas.getByLabelText("Member 1 role"), "keeper of the ruin maps");
+    await expect(canvasElement.querySelector("[data-so=roster-roles-hint]")).toBeNull();
+  },
+};

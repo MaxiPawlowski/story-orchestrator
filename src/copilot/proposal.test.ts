@@ -112,6 +112,11 @@ describe("provisioning ops against the draft", () => {
     expect(isProvisioningOp({ kind: "removeQuality", key: "has_key" })).toBe(false);
   });
 
+  it("carries the card's proposed role onto the roster member it adds (v2.2 plan 01)", () => {
+    const ops = provisioningFollowUpOps(baseDraft(), { kind: "createCharacterCard", name: "Arin", description: "A guide.", role: "Max's partner on the job" });
+    expect(ops[1]).toEqual({ kind: "addRosterMember", member: { id: "arin", name: "Arin", role: "Max's partner on the job" } });
+  });
+
   it("turns a created card into a requirement and a roster member", () => {
     const ops = provisioningFollowUpOps(baseDraft(), { kind: "createCharacterCard", name: "Arin", description: "A guide." });
     expect(ops).toEqual([

@@ -26,6 +26,25 @@ describe("parseProposal", () => {
     expect(issues.some((issue) => issue.includes("frobnicate"))).toBe(true);
   });
 
+  it("carries a trimmed roster role on add and update, and clears it with an empty one (v2.2 plan 01)", () => {
+    const { proposal, issues } = parseProposal(JSON.stringify({
+      summary: "cast",
+      ops: [
+        { kind: "addRosterMember", member: { id: "arin", name: "Arin", role: "  Max's partner  " } },
+        { kind: "addRosterMember", member: { id: "luke", name: "Luke", role: "   " } },
+        { kind: "updateRosterMember", id: "arin", patch: { role: "the guide" } },
+        { kind: "updateRosterMember", id: "luke", patch: { role: "" } },
+      ],
+    }));
+    expect(issues).toEqual([]);
+    expect(proposal.ops).toEqual([
+      { kind: "addRosterMember", member: { id: "arin", name: "Arin", role: "Max's partner" } },
+      { kind: "addRosterMember", member: { id: "luke", name: "Luke" } },
+      { kind: "updateRosterMember", id: "arin", patch: { role: "the guide" } },
+      { kind: "updateRosterMember", id: "luke", patch: { role: undefined } },
+    ]);
+  });
+
   it("reports invalid JSON as an issue without throwing", () => {
     const { proposal, issues } = parseProposal("not json at all");
     expect(proposal.ops).toEqual([]);

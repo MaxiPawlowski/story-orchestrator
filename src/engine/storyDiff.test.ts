@@ -203,6 +203,12 @@ describe("storyDiff classification table", () => {
     expect(codes(result)).toEqual(expect.arrayContaining(["transition-removed", "transition-added"]));
   });
 
+  it("sees a role edit as structurally identical: nothing to prune, and the changed hash still re-pins the chat (v2.2 plan 01)", () => {
+    const result = run(edited((draft) => { draft.roster = draft.roster.map((member) => (member.id === "her" ? { ...member, role: "the ferry keeper" } : member)); }));
+    expect(result.classification).toBe("identical");
+    expect(result.entries).toEqual([]);
+  });
+
   it("keeps cast removal compatible and says when a checkpoint still names the member", () => {
     const directed = run(edited((draft) => {
       draft.checkpoints[1].talk_control = { speakers: [{ member: "Ilse" }] };
