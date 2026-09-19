@@ -125,9 +125,9 @@ export function setGlobalSettings(patch: Partial<{ [K in keyof GlobalSettings]: 
   return sanitized;
 }
 
-export function setJudgeSettings(patch: { enabled?: boolean; uses?: Partial<JudgeUses> }): GlobalSettings {
+export function setJudgeSettings(patch: { enabled?: boolean; uses?: Partial<JudgeUses>; expansion?: Partial<JudgeSettings["expansion"]> }): GlobalSettings {
   const current = getGlobalSettings().judge;
-  return setGlobalSettings({ judge: { ...(patch.enabled !== undefined ? { enabled: patch.enabled } : {}), uses: { ...current.uses, ...(patch.uses ?? {}) } } });
+  return setGlobalSettings({ judge: { ...(patch.enabled !== undefined ? { enabled: patch.enabled } : {}), uses: { ...current.uses, ...(patch.uses ?? {}) }, expansion: { ...current.expansion, ...(patch.expansion ?? {}) } } });
 }
 
 // One-time lift of settings that used to live per chat: an old chat carries the user's real

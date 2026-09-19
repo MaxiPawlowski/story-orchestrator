@@ -68,9 +68,12 @@ export async function runCritic(
   input: PlannedExpansionInput,
   beats: GeneratedBeat[],
   client: ExtractionClientOptions,
+  judgeCritic?: (beats: GeneratedBeat[]) => Promise<CriticVerdict | null>,
 ): Promise<{ codeCheck: CodeCheckResult; verdict: CriticVerdict; needsReview: boolean }> {
   const codeCheck = runCodeChecks(story, input, beats);
   if (!codeCheck.ok) return { codeCheck, verdict: { pass: false, issues: codeCheck.issues, raw: "CODE_CHECK" }, needsReview: true };
+  const judged = judgeCritic ? await judgeCritic(beats).catch(() => null) : null;
+  if (judged) return { codeCheck, verdict: judged, needsReview: !judged.pass };
   const raw = await callExtractionModel(renderCriticPrompt(story, input, beats, codeCheck.issues), { ...client, maxTokens: 512 });
   const verdict = parseCriticVerdict(raw);
   return { codeCheck, verdict, needsReview: !verdict.pass };

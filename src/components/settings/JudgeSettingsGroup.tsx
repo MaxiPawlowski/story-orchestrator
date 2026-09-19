@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { BUILT_JUDGE_USES, JUDGE_USE_COPY, JUDGE_USE_DEPENDENCIES, type JudgeSelfTestReport, type JudgeSettings, type JudgeUseKey, type JudgeUses } from "@judge/index";
+import { AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, JUDGE_USE_COPY, JUDGE_USE_DEPENDENCIES, type JudgeSelfTestReport, type JudgeSettings, type JudgeUseKey, type JudgeUses } from "@judge/index";
 import type { JudgeStatus } from "@services/STAPI";
 import HelpTooltip from "@components/studio/HelpTooltip";
 
 export interface JudgeSettingsPatch {
   enabled?: boolean;
   uses?: Partial<JudgeUses>;
+  expansion?: Partial<JudgeSettings["expansion"]>;
 }
 
 export interface JudgeSettingsGroupProps {
@@ -13,6 +14,7 @@ export interface JudgeSettingsGroupProps {
   status: JudgeStatus | null | "checking" | "unchecked";
   selfTest: { running: boolean; report: JudgeSelfTestReport | null };
   builtUses?: readonly JudgeUseKey[];
+  authorView?: boolean;
   onChange(patch: JudgeSettingsPatch): void;
   onSaveKey(value: string): Promise<boolean>;
   onRefresh(): void;
@@ -29,7 +31,7 @@ const statusText = (status: JudgeSettingsGroupProps["status"]): string => {
   return `Ready · key from ${status.keySource === "st-secrets" ? "SillyTavern secrets" : status.keySource ?? "the server"} · ${status.model ?? "model unknown"}`;
 };
 
-export function JudgeSettingsGroup({ settings, status, selfTest, builtUses = BUILT_JUDGE_USES, onChange, onSaveKey, onRefresh, onRunSelfTest }: JudgeSettingsGroupProps) {
+export function JudgeSettingsGroup({ settings, status, selfTest, builtUses = BUILT_JUDGE_USES, authorView = false, onChange, onSaveKey, onRefresh, onRunSelfTest }: JudgeSettingsGroupProps) {
   const [key, setKey] = useState("");
   const [saved, setSaved] = useState<"idle" | "saved" | "failed">("idle");
   const ready = typeof status === "object" && status !== null && status.configured;
@@ -60,7 +62,7 @@ export function JudgeSettingsGroup({ settings, status, selfTest, builtUses = BUI
       </label>
       <div className="text-xs opacity-70">When a use is on, the text it lists is sent to TypeSafe. Nothing is sent while this is off.</div>
       <div className="flex flex-col gap-1 pl-4">
-        {builtUses.map((use) => {
+        {builtUses.filter((use) => authorView || !AUTHOR_JUDGE_USES.includes(use)).map((use) => {
           const copy = JUDGE_USE_COPY[use];
           const dependency = JUDGE_USE_DEPENDENCIES[use];
           const blocked = dependency && !settings.uses[dependency] ? `Needs "${JUDGE_USE_COPY[dependency].label}" first.` : null;
@@ -72,6 +74,17 @@ export function JudgeSettingsGroup({ settings, status, selfTest, builtUses = BUI
           );
         })}
       </div>
+      {authorView && <div className="flex flex-wrap items-center gap-2 pl-4 text-sm">
+        <span>Expansion variants <HelpTooltip title="Write this many outlines for each gap in the story and keep the best one, as the judgment model scores them. 1 writes one, as today. Each extra outline is another run of the story model." /></span>
+        <select id="so-judge-expansion-variants" aria-label="Expansion variants" className="text_pole w-16" value={settings.expansion.variants} disabled={!settings.enabled} onChange={(event) => onChange({ expansion: { variants: Number(event.target.value) as 1 | 2 | 3 } })}>
+          {[1, 2, 3].map((count) => <option key={count} value={count}>{count}</option>)}
+        </select>
+        <span>picked by</span>
+        <select id="so-judge-expansion-pick" aria-label="Variant picked by" className="text_pole w-36" value={settings.expansion.pick} disabled={!settings.enabled || settings.expansion.variants === 1} onChange={(event) => onChange({ expansion: { pick: event.target.value as "code" | "llm" } })}>
+          <option value="code">the judge's score</option>
+          <option value="llm">the story model</option>
+        </select>
+      </div>}
       <div className="flex items-center gap-2">
         <button id="so-judge-self-test" className="menu_button" disabled={!ready || selfTest.running} onClick={onRunSelfTest}>{selfTest.running ? "Testing…" : "Test judgment model"}</button>
         <button id="so-judge-refresh" className="menu_button" onClick={onRefresh}>Recheck</button>

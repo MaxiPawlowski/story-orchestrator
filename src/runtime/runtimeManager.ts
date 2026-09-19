@@ -72,6 +72,8 @@ export class RuntimeManager {
     getCanon: () => this.memory.getCanon(),
     getFactTexts: () => this.memory.getFacts().map((fact) => fact.text),
     replaceStory: (story) => this.replaceStory(story),
+    judge: () => this.judge,
+    getSceneRead: () => this.extras.judge.scene,
     setStatus: (status) => { this.status = status; },
     persist: () => this.persist(),
     notify: () => this.notify(),
@@ -411,12 +413,7 @@ export class RuntimeManager {
   recordReconciliation(descriptor: { checkpointId: string; boundary: number; targetedKeys: string[] }) { this.extraction.recordReconciliation(descriptor); }
   judgedExtraction(work: JudgedExtractionWork): boolean { return this.extraction.judged(work); }
 
-  setSchedulerSnapshot(snapshot: ExtractionRuntimeState["scheduler"]) {
-    this.extraction.setSchedulerSnapshot(snapshot);
-    this.expansion.setSchedulerSnapshot(snapshot);
-    void this.persist();
-    this.notify();
-  }
+  setSchedulerSnapshot(snapshot: ExtractionRuntimeState["scheduler"]) { this.extraction.setSchedulerSnapshot(snapshot); this.expansion.setSchedulerSnapshot(snapshot); void this.persist(); this.notify(); }
 
   pauseExtraction(message: string) {
     setGlobalSettings({ extraction: { enabled: false } });

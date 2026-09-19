@@ -50,6 +50,18 @@ export interface CriticVerdict {
   pass: boolean;
   issues: string[];
   raw: string;
+  judge?: { contradicts: number; advances: number; newCharacter: number; shape: number | null };
+}
+
+// v2.2 plan 07: what a variant expansion did, for the author card and the gate record.
+export interface VariantRecord {
+  generated: number;
+  survivors: number;
+  scores: Array<number | null>;
+  picked: number | null;
+  picker: "code" | "llm";
+  pickFallback?: "llm" | "judge";
+  timesMs: number[];
 }
 
 export interface ExpansionCacheEntry {
@@ -67,6 +79,9 @@ export interface ExpansionCacheEntry {
   insertedCheckpointIds: string[];
   lastError: string | null;
   attempts: number;
+  origin?: "active" | "lookahead";
+  headingP?: number;
+  variants?: VariantRecord;
   updatedAt: string;
 }
 

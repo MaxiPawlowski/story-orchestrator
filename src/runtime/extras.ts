@@ -181,7 +181,7 @@ export const sanitizeExpansion = (value: RuntimeExtras | undefined): ExpansionRu
   const existing = value?.expansion;
   if (!existing) return createExpansion();
   return {
-    entries: existing.entries && typeof existing.entries === "object" ? existing.entries : {},
+    entries: existing.entries && typeof existing.entries === "object" ? Object.fromEntries(Object.entries(existing.entries).map(([key, entry]) => [key, { ...entry, origin: entry.origin ?? "active" }])) : {},
     scheduler: existing.scheduler ?? { queueDepth: 0, inFlight: false, lastError: null },
   };
 };

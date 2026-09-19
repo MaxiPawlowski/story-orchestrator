@@ -33,6 +33,12 @@ export class JudgeRuntime {
     return judgeUseActive(this.deps.getSettings(), use);
   }
 
+  // v2.2 plan 07: variants are their own opt-in (count > 1), still behind the master switch.
+  expansionSettings(): JudgeSettings["expansion"] | null {
+    const settings = this.deps.getSettings();
+    return settings.enabled ? settings.expansion : null;
+  }
+
   invalidateStatus() {
     this.availability = null;
   }

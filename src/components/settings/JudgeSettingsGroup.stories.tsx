@@ -54,7 +54,7 @@ export const OnlyBuiltUsesAreListed: Story = {
 };
 
 export const DependencyBlocksAUse: Story = {
-  args: { settings: settings({ enabled: true }), builtUses: ["lookahead", "expansionLookahead"] },
+  args: { settings: settings({ enabled: true }), builtUses: ["lookahead", "expansionLookahead"], authorView: true },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvasElement.querySelector<HTMLInputElement>("#so-judge-use-expansion-lookahead")?.disabled).toBe(true);
@@ -96,5 +96,26 @@ export const SelfTestResult: Story = {
     const result = canvasElement.querySelector("#so-judge-self-test-result");
     await expect(result?.textContent).toContain("7/8 right");
     await expect(result?.textContent).toContain("p50 262 ms");
+  },
+};
+
+// v2.2 plan 07: expansion review, prepare-ahead and the variant controls are author-only.
+export const AuthorExpansionControls: Story = {
+  args: { settings: settings({ enabled: true }), authorView: true },
+  play: async ({ args, canvasElement }) => {
+    const ids = [...canvasElement.querySelectorAll<HTMLInputElement>("[id^=so-judge-use-]")].map((row) => row.id);
+    await expect(ids).toEqual(expect.arrayContaining(["so-judge-use-expansion-critic", "so-judge-use-expansion-lookahead"]));
+    const pick = canvasElement.querySelector<HTMLSelectElement>("#so-judge-expansion-pick");
+    await expect(pick?.disabled).toBe(true);
+    await userEvent.selectOptions(canvasElement.querySelector<HTMLSelectElement>("#so-judge-expansion-variants")!, "2");
+    await expect(args.onChange).toHaveBeenCalledWith({ expansion: { variants: 2 } });
+  },
+};
+
+export const PlayerSeesNoExpansionControls: Story = {
+  args: { settings: settings({ enabled: true }) },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-judge-use-expansion-critic")).toBeNull();
+    await expect(canvasElement.querySelector("#so-judge-expansion-variants")).toBeNull();
   },
 };

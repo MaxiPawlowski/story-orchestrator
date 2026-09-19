@@ -208,6 +208,42 @@ fix:
 With those fixes the spike's 10/10 verdict holds, and the per-check rates go from 9/10 and 8/10 to
 10/10.
 
+### As built: runtime (2026-09-19; live gate pending)
+
+- `ExtractionClientOptions.temperature`: 0.1 unless given, and every existing call site is unchanged
+  (tested).
+- `generation/generate.ts` factors out `generateChecked`, which runs generation plus the binding
+  code checks and their one repair pass. The existing generation tests pass unchanged.
+- **Judge critic.** `runCritic(…, judgeCritic)` uses the judge's verdict when it answers
+  (`raw: "JUDGE"`, with the three probabilities on `verdict.judge`). When it gives no answer or
+  throws, the LLM JSON critic runs as today.
+- **Variants.** Behind `judge.expansion.variants` > 1 and the master switch
+  (`JudgeRuntime.expansionSettings()`):
+  - N chains are written one at a time at the variant temperature, each with its repair pass;
+  - the survivors of the code checks are judged, and `pickChain` picks;
+  - in `llm` mode the judge's top two go to one more memory-LLM call, `PICK: A|B` parsed strictly,
+    and an unparseable answer keeps the code pick with `pickFallback: "llm"`;
+  - if the judge is down, the first survivor gets today's LLM critic (`pickFallback: "judge"`);
+  - no survivor is today's failure path.
+  `entry.variants` records the counts, the scores, the pick, the picker and each generation's time.
+- **Prepare-ahead** (`expansionLookahead`, which requires `lookahead`): `scheduleForActive` queues
+  the active candidate, then at most one stub one hop ahead with `headingTo` p ≥ 0.7
+  (`origin: "lookahead"`, `headingP`), and never while another look-ahead is in flight.
+  `queue()` re-queues a `lookahead` entry that is `stale` or `failed` when play arrives, capped at
+  2 attempts. The sanitizer defaults `origin` to `"active"`.
+- **Author surface.** The expansion card shows the judge line, variants and "prepared ahead" when
+  present. Expansion review, prepare-ahead and the variant and pick controls appear in the settings
+  panel **only in author view**, and the player sweep forbids them.
+- **Manager.** Two new coordinator deps (`judge`, `getSceneRead`) are paid for by folding
+  `setSchedulerSnapshot` onto one line: 646 → 643.
+- **Tests.** `generation/judgedExpansion.test.ts` covers temperature threading, the critic and its
+  fallback, variant pick (code, llm, llm fallback, judge down, no passing chain, no survivor).
+  `runtime/expansionLookahead.test.ts` covers queueing, the gates, one in flight, and the re-queue
+  cap. J11.25 is in the J11 journey (`j11-expand.story.json`).
+
+Not measured yet: the `llm` pick mode against Artemis (Phase A's live half), and the variant
+temperature's loop risk on Artemis. Both come from the first live run.
+
 ## Implementation notes
 
 - The judge never writes beats. It only accepts, rejects or ranks what the LLM wrote, and code

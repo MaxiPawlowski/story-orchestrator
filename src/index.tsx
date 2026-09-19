@@ -358,6 +358,7 @@ const SettingsPanel = () => {
             settings={judge}
             status={judgeState}
             selfTest={judgeTest}
+            authorView={snapshot.ui.authorView}
             onChange={changeJudge}
             onSaveKey={writeJudgeSecret}
             onRefresh={recheckJudge}

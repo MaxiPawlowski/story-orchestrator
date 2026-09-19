@@ -1,5 +1,9 @@
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
-import { collectExpansionGateSources, findStubExpansionCandidate, generateReviewedBeats, insertedCheckpointIds, mergeExpansions, planExpansion, revalidateExpansion, type ExpansionCacheEntry, type ExpansionRuntimeState, type StubExpansionCandidate } from "@generation/index";
+import { collectExpansionGateSources, findStubExpansionCandidate, generateReviewedBeats, insertedCheckpointIds, mergeExpansions, planExpansion, revalidateExpansion, type ExpansionCacheEntry, type ExpansionJudge, type ExpansionRuntimeState, type GeneratedBeat, type PlannedExpansionInput, type StubExpansionCandidate } from "@generation/index";
+import { buildChainRequest, CRITIC_TIMEOUT_MS, judgeVerdict, LOOKAHEAD_PREGEN_P, readChain, type SceneReadRecord } from "@judge/index";
+import { numericToLevel } from "@pacing/index";
+import { getPlayerName } from "@services/STAPI";
+import type { JudgeRuntime } from "../judge";
 import type { ExtraGateSource } from "@extraction/index";
 import type { ExtractionRuntimeSettings } from "../types";
 
@@ -14,6 +18,8 @@ export interface ExpansionCoordinatorDeps {
   getCanon: () => string;
   getFactTexts: () => string[];
   replaceStory: (story: NormalizedStoryV2) => void;
+  judge?: () => JudgeRuntime | null;
+  getSceneRead?: () => SceneReadRecord | null;
   setStatus: (status: string) => void;
   persist: () => Promise<void>;
   notify: () => void;
@@ -108,14 +114,57 @@ export class ExpansionCoordinator {
     const state = this.deps.getState();
     if (!story || !state) return false;
     const candidate = findStubExpansionCandidate(story, state.activeCheckpointId);
-    if (!candidate) return false;
+    const queued = candidate ? this.queue(candidate, "active", schedule) : false;
+    this.scheduleLookahead(story, schedule);
+    return queued;
+  }
+
+  // An entry blocks its key, except a look-ahead that went stale or failed: arrival re-queues it
+  // (capped by attempts), so a pre-generation can waste a generation but never block the real one.
+  private queue(candidate: StubExpansionCandidate, origin: "active" | "lookahead", schedule: (reason: string, run: () => Promise<void>) => void, headingP?: number) {
     const key = expansionKey(candidate);
-    if (this.entries[key]) return false;
-    this.entries[key] = this.emptyEntry(candidate, "queued");
+    const existing = this.entries[key];
+    if (existing && !(origin === "active" && existing.origin === "lookahead" && ["stale", "failed"].includes(existing.status) && existing.attempts < 2)) return false;
+    this.entries[key] = { ...this.emptyEntry(candidate, "queued"), origin, attempts: existing?.attempts ?? 0, ...(headingP !== undefined ? { headingP } : {}) };
     void this.deps.persist();
     this.deps.notify();
-    schedule(`expand:${candidate.stubId}`, () => this.generate(candidate));
+    schedule(`expand:${origin === "lookahead" ? "ahead:" : ""}${candidate.stubId}`, () => this.generate(candidate));
     return true;
+  }
+
+  // v2.2 plan 07: one stub one hop ahead of where play is heading (plan 03's look-ahead), one
+  // pre-generation in flight at most, never in place of the active candidate.
+  private scheduleLookahead(story: NormalizedStoryV2, schedule: (reason: string, run: () => Promise<void>) => void) {
+    const scene = this.deps.getSceneRead?.() ?? null;
+    if (!scene || !this.deps.judge?.()?.active("expansionLookahead")) return;
+    if (Object.values(this.entries).some((entry) => entry.origin === "lookahead" && (entry.status === "queued" || entry.status === "generating"))) return;
+    const ahead = (scene.headingTo ?? []).filter((heading) => heading.hops === 1 && heading.p >= LOOKAHEAD_PREGEN_P).sort((left, right) => right.p - left.p);
+    for (const heading of ahead) {
+      const candidate = findStubExpansionCandidate(story, heading.id);
+      if (candidate && !this.entries[expansionKey(candidate)]) {
+        this.queue(candidate, "lookahead", schedule, heading.p);
+        return;
+      }
+    }
+  }
+
+  // v2.2 plan 07: the judge as critic and ranker, each its own opt-in. The judge only checks or
+  // ranks what the LLM wrote; code checks stay first and binding.
+  private expansionJudge(story: NormalizedStoryV2, input: PlannedExpansionInput): ExpansionJudge {
+    const judge = this.deps.judge?.() ?? null;
+    const target = story.checkpointById[input.candidate.targetAnchorId];
+    if (!judge || !target) return {};
+    const cast = [...new Set([...story.roster.map((member) => member.name ?? member.id), getPlayerName()].filter(Boolean))];
+    const read = async (beats: GeneratedBeat[]) => {
+      const request = buildChainRequest({ facts: input.facts, target: { name: target.name, objective: target.objective }, cast, trajectory: input.tensionTrajectory.map(numericToLevel), beats: beats.map((beat) => ({ objective: beat.objective, guidance: beat.guidance })) });
+      const result = await judge.ask("critic", request, { timeoutMs: CRITIC_TIMEOUT_MS, summarize: (answers) => (answers ? Object.fromEntries(Object.entries(readChain(answers) ?? {}).map(([key, value]) => [key, value ?? "none"])) : {}) });
+      return result.answers ? readChain(result.answers) : null;
+    };
+    const variants = judge.expansionSettings();
+    return {
+      ...(judge.active("expansionCritic") ? { critic: async (beats: GeneratedBeat[]) => { const chain = await read(beats); return chain ? { ...judgeVerdict(chain), raw: "JUDGE", judge: chain } : null; } } : {}),
+      ...(variants && variants.variants > 1 ? { variants: { n: variants.variants, temperature: variants.temperature, pick: variants.pick, read } } : {}),
+    };
   }
 
   async runNow(debugResponse?: string) {
@@ -142,9 +191,9 @@ export class ExpansionCoordinator {
     try {
       const state = this.deps.getState()!;
       const input = planExpansion(story, state.blackboard, candidate, this.deps.getCanon(), this.deps.getFactTexts());
-      const generated = await generateReviewedBeats(story, input, { ...this.deps.getSettings(), debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugGenerationResponse ?? null });
+      const generated = await generateReviewedBeats(story, input, { ...this.deps.getSettings(), debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugGenerationResponse ?? null }, this.expansionJudge(story, input));
       if (generated.issues.length || !generated.codeCheck || !generated.codeCheck.ok) {
-        this.entries[key] = { ...this.entries[key], status: "failed", beats: generated.beats, codeCheck: generated.codeCheck, lastError: generated.issues.join("; ") || generated.codeCheck?.issues.join("; ") || "Generation failed", updatedAt: new Date().toISOString() };
+        this.entries[key] = { ...this.entries[key], status: "failed", beats: generated.beats, codeCheck: generated.codeCheck, lastError: generated.issues.join("; ") || generated.codeCheck?.issues.join("; ") || "Generation failed", ...(generated.variants ? { variants: generated.variants } : {}), updatedAt: new Date().toISOString() };
       } else {
         this.entries[key] = {
           ...this.entries[key],
@@ -156,6 +205,7 @@ export class ExpansionCoordinator {
           verdicts: [generated.verdict],
           codeCheck: generated.codeCheck,
           insertedCheckpointIds: insertedCheckpointIds({ ...this.entries[key], beats: generated.beats }),
+          ...(generated.variants ? { variants: generated.variants } : {}),
           lastError: null,
           updatedAt: new Date().toISOString(),
         };

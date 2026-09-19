@@ -438,7 +438,13 @@ const SchedulerTab = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manage
       {snapshot.expansion.scheduler.lastError && <div className="text-red-300">{snapshot.expansion.scheduler.lastError}</div>}
       {Object.values(snapshot.expansion.entries).map((entry) => (
         <div key={entry.key} className="border-t border-solid border-white/10 mt-1 pt-1">
-          <div>{entry.stubId} → {entry.targetAnchorId}: {entry.status}{entry.needsReview ? " review" : ""}</div>
+          <div>{entry.stubId} → {entry.targetAnchorId}: {entry.status}{entry.needsReview ? " review" : ""}{entry.origin === "lookahead" ? ` · prepared ahead (${Math.round((entry.headingP ?? 0) * 100)}%)` : ""}</div>
+          {(entry.verdicts.at(-1)?.judge || entry.variants) && (
+            <div data-so="expansion-judge" className="opacity-80">
+              {entry.verdicts.at(-1)?.judge ? `judge: contradicts ${Math.round(entry.verdicts.at(-1)!.judge!.contradicts * 100)}% · advances ${Math.round(entry.verdicts.at(-1)!.judge!.advances * 100)}% · new character ${Math.round(entry.verdicts.at(-1)!.judge!.newCharacter * 100)}%` : ""}
+              {entry.variants ? ` · ${entry.variants.generated} written, ${entry.variants.survivors} passed code checks, picked #${(entry.variants.picked ?? -1) + 1} by ${entry.variants.picker}${entry.variants.pickFallback ? ` (${entry.variants.pickFallback} fell back)` : ""}` : ""}
+            </div>
+          )}
           <div>{entry.beats.length} beats{entry.lastError ? ` — ${entry.lastError}` : ""}</div>
           {entry.beats.slice(0, 3).map((beat) => <div key={beat.objective}>- {beat.objective}</div>)}
         </div>

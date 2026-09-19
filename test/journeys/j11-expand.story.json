@@ -1,0 +1,124 @@
+{
+  "format": 2,
+  "id": "so-j11-expand",
+  "version": 1,
+  "title": "SO-J11 Expand",
+  "description": "v2.2 plan 07 fixture: the road leads to a watchtower, and a stub bridges the watchtower to the vault, so play heading for the tower can have the tower's stub prepared ahead.",
+  "arc_template": "rising",
+  "qualities": [
+    {
+      "key": "reached_tower",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the party reached the watchtower on the ridge?"
+    },
+    {
+      "key": "key_found",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Did the party find the vault key?"
+    },
+    {
+      "key": "approach",
+      "type": "enum",
+      "values": [
+        "unknown",
+        "safe",
+        "blocked"
+      ],
+      "source": "extractor",
+      "rubric": "Which approach to the vault is open?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "road",
+      "name": "The Road",
+      "objective": "Travel to the watchtower on the ridge.",
+      "type": "anchor",
+      "start": true,
+      "tension_target": "calm"
+    },
+    {
+      "id": "tower",
+      "name": "The Watchtower",
+      "objective": "Search the watchtower for the vault key.",
+      "type": "anchor",
+      "tension_target": "stirring"
+    },
+    {
+      "id": "tower_stub",
+      "name": "Tower Stub",
+      "objective": "Generated bridge placeholder.",
+      "type": "intermediate"
+    },
+    {
+      "id": "vault",
+      "name": "The Vault",
+      "objective": "Arrive ready at the vault.",
+      "type": "anchor",
+      "state_snapshot": {
+        "key_found": true,
+        "approach": "safe"
+      },
+      "tension_target": "critical",
+      "convergence_threshold": 1
+    }
+  ],
+  "transitions": [
+    {
+      "from": "road",
+      "to": "tower",
+      "priority": 1,
+      "gate": {
+        "q": "reached_tower",
+        "op": "==",
+        "v": true
+      }
+    },
+    {
+      "from": "tower",
+      "to": "tower_stub",
+      "priority": 1,
+      "gate": {
+        "q": "key_found",
+        "op": "==",
+        "v": true
+      }
+    },
+    {
+      "from": "tower_stub",
+      "to": "vault",
+      "priority": 1,
+      "gate": {
+        "q": "progress_toward_vault",
+        "op": ">=",
+        "v": 1
+      }
+    }
+  ],
+  "roster": [
+    {
+      "id": "dm",
+      "name": "DM Narrator",
+      "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+    },
+    {
+      "id": "companion",
+      "name": "Arin",
+      "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+    },
+    {
+      "id": "guild_master",
+      "name": "Ponticius",
+      "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+    },
+    {
+      "id": "little_brother",
+      "name": "Luke",
+      "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+    }
+  ]
+}

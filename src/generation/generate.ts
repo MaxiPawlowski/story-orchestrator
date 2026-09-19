@@ -1,9 +1,29 @@
-import { callExtractionModel, type ExtractionClientOptions } from "@extraction/index";
+import { callExtractionModel, stripReasoningBlocks, type ExtractionClientOptions } from "@extraction/index";
 import type { NormalizedStoryV2 } from "@engine/index";
+import { buildPickPrompt, chainScore, judgeVerdict, parsePick, pickChain, type ChainRead } from "@judge/index";
 import { runCodeChecks, runCritic } from "./critic";
 import { parseGeneratedBeats } from "./parse";
 import { renderGenerationPrompt } from "./prompts";
-import type { GeneratedBeat, PlannedExpansionInput } from "./types";
+import type { CodeCheckResult, CriticVerdict, GeneratedBeat, PlannedExpansionInput, VariantRecord } from "./types";
+
+export interface ExpansionJudge {
+  critic?: (beats: GeneratedBeat[]) => Promise<CriticVerdict | null>;
+  variants?: { n: number; temperature: number; pick: "code" | "llm"; read: (beats: GeneratedBeat[]) => Promise<ChainRead | null> };
+}
+
+export interface ReviewedBeats {
+  beats: GeneratedBeat[];
+  raw: string;
+  issues: string[];
+  codeCheck: CodeCheckResult | null;
+  verdict: CriticVerdict;
+  needsReview: boolean;
+  variants?: VariantRecord;
+}
+
+type Checked = { beats: GeneratedBeat[]; raw: string; issues: string[]; codeCheck: CodeCheckResult | null };
+
+const isDebug = (client: ExtractionClientOptions) => client.debugResponse !== undefined && client.debugResponse !== null;
 
 export async function generateBeats(story: NormalizedStoryV2, input: PlannedExpansionInput, client: ExtractionClientOptions): Promise<{ beats: GeneratedBeat[]; raw: string; issues: string[] }> {
   const prompt = renderGenerationPrompt(story, input);
@@ -15,26 +35,75 @@ export async function generateBeats(story: NormalizedStoryV2, input: PlannedExpa
   return { beats: repaired.beats, raw: repairRaw, issues: repaired.issues };
 }
 
-export async function generateReviewedBeats(story: NormalizedStoryV2, input: PlannedExpansionInput, client: ExtractionClientOptions) {
+// Generation, then the binding code checks with their one repair pass: everything before a critic.
+async function generateChecked(story: NormalizedStoryV2, input: PlannedExpansionInput, client: ExtractionClientOptions): Promise<Checked> {
   const generated = await generateBeats(story, input, client);
-  if (generated.issues.length) return { ...generated, codeCheck: null, verdict: { pass: false, issues: generated.issues, raw: generated.raw }, needsReview: true };
-  if (client.debugResponse !== undefined && client.debugResponse !== null) {
-    const codeCheck = runCodeChecks(story, input, generated.beats);
-    return { ...generated, codeCheck, verdict: { pass: codeCheck.ok, issues: codeCheck.issues, raw: "DEBUG" }, needsReview: !codeCheck.ok };
-  }
+  if (generated.issues.length) return { ...generated, codeCheck: null };
   const initialCheck = runCodeChecks(story, input, generated.beats);
-  if (!initialCheck.ok) {
-    const repairRaw = await callExtractionModel(`${renderGenerationPrompt(story, input)}\n\nPrevious JSON failed hard code checks: ${initialCheck.issues.join("; ")}\nReturn corrected exact JSON only.`, { ...client, maxTokens: 2048 });
-    const repaired = parseGeneratedBeats(repairRaw, story);
-    if (!repaired.issues.length) {
-      const repairedCheck = runCodeChecks(story, input, repaired.beats);
-      if (repairedCheck.ok) {
-        const reviewed = await runCritic(story, input, repaired.beats, client);
-        return { beats: repaired.beats, raw: repairRaw, issues: [], ...reviewed };
-      }
-      return { beats: repaired.beats, raw: repairRaw, issues: [], codeCheck: repairedCheck, verdict: { pass: false, issues: repairedCheck.issues, raw: "CODE_CHECK" }, needsReview: true };
+  if (initialCheck.ok || isDebug(client)) return { ...generated, codeCheck: initialCheck };
+  const repairRaw = await callExtractionModel(`${renderGenerationPrompt(story, input)}\n\nPrevious JSON failed hard code checks: ${initialCheck.issues.join("; ")}\nReturn corrected exact JSON only.`, { ...client, maxTokens: 2048 });
+  const repaired = parseGeneratedBeats(repairRaw, story);
+  if (repaired.issues.length) return { ...generated, codeCheck: initialCheck };
+  return { beats: repaired.beats, raw: repairRaw, issues: [], codeCheck: runCodeChecks(story, input, repaired.beats) };
+}
+
+const checkFailure = (checked: Checked): ReviewedBeats =>
+  checked.issues.length || !checked.codeCheck
+    ? { ...checked, codeCheck: null, verdict: { pass: false, issues: checked.issues, raw: checked.raw }, needsReview: true }
+    : { ...checked, verdict: { pass: false, issues: checked.codeCheck.issues, raw: "CODE_CHECK" }, needsReview: true };
+
+export async function generateReviewedBeats(story: NormalizedStoryV2, input: PlannedExpansionInput, client: ExtractionClientOptions, judge: ExpansionJudge = {}): Promise<ReviewedBeats> {
+  if (judge.variants && judge.variants.n > 1 && !isDebug(client)) return generateVariants(story, input, client, judge.variants);
+  const checked = await generateChecked(story, input, client);
+  if (checked.issues.length || !checked.codeCheck) return checkFailure(checked);
+  if (isDebug(client)) return { ...checked, verdict: { pass: checked.codeCheck.ok, issues: checked.codeCheck.issues, raw: "DEBUG" }, needsReview: !checked.codeCheck.ok };
+  if (!checked.codeCheck.ok) return checkFailure(checked);
+  return { ...checked, ...(await runCritic(story, input, checked.beats, client, judge.critic)) };
+}
+
+// v2.2 plan 07: N chains, one at a time on the P3 lane, each with today's repair pass; the judge
+// scores the survivors and code (or the LLM, from the judge's top two) picks. The judge never writes
+// beats: with no survivor it is today's failed / needs-review path.
+async function generateVariants(story: NormalizedStoryV2, input: PlannedExpansionInput, client: ExtractionClientOptions, variants: NonNullable<ExpansionJudge["variants"]>): Promise<ReviewedBeats> {
+  const runs: Array<{ checked: Checked; ms: number }> = [];
+  for (let index = 0; index < variants.n; index += 1) {
+    const started = Date.now();
+    runs.push({ checked: await generateChecked(story, input, { ...client, temperature: variants.temperature }), ms: Date.now() - started });
+  }
+  const survivors = runs.map((run, index) => ({ index, checked: run.checked })).filter((run) => !run.checked.issues.length && run.checked.codeCheck?.ok);
+  const record = (patch: Partial<VariantRecord>): VariantRecord => ({ generated: variants.n, survivors: survivors.length, scores: [], picked: null, picker: "code", timesMs: runs.map((run) => run.ms), ...patch });
+  if (!survivors.length) return { ...checkFailure((runs.find((run) => !run.checked.issues.length) ?? runs[0]).checked), variants: record({}) };
+
+  const reads = await Promise.all(survivors.map((run) => variants.read(run.checked.beats).catch(() => null)));
+  const scores = reads.map((read) => (read ? chainScore(read) : null));
+  if (reads.every((read) => read === null)) {
+    const first = survivors[0];
+    return { ...first.checked, ...(await runCritic(story, input, first.checked.beats, client)), variants: record({ scores, picked: first.index, pickFallback: "judge" }) };
+  }
+  const codePick = pickChain(reads);
+  if (codePick === null) {
+    const best = scores.reduce<number>((top, value, index) => ((value ?? -Infinity) > (scores[top] ?? -Infinity) ? index : top), 0);
+    const read = reads[best];
+    const verdict: CriticVerdict = read ? { ...judgeVerdict(read), raw: "JUDGE", judge: read } : { pass: false, issues: ["No variant was judged."], raw: "JUDGE" };
+    return { ...survivors[best].checked, verdict, needsReview: true, variants: record({ scores, picked: survivors[best].index }) };
+  }
+
+  let chosen = codePick;
+  let picker: VariantRecord["picker"] = "code";
+  let pickFallback: VariantRecord["pickFallback"];
+  const passing = reads.map((read, index) => ({ read, index })).filter((entry) => entry.read && judgeVerdict(entry.read).pass).sort((left, right) => chainScore(right.read!) - chainScore(left.read!) || left.index - right.index);
+  if (variants.pick === "llm" && passing.length >= 2) {
+    const target = story.checkpointById[input.candidate.targetAnchorId];
+    const pair: [number, number] = [passing[0].index, passing[1].index];
+    const raw = await callExtractionModel(buildPickPrompt({ name: target?.name ?? input.candidate.targetAnchorId, objective: target?.objective ?? "" }, [survivors[pair[0]].checked.beats, survivors[pair[1]].checked.beats]), { ...client, maxTokens: 64 }).catch(() => "");
+    const answer = parsePick(stripReasoningBlocks(raw));
+    if (answer === null) pickFallback = "llm";
+    else {
+      chosen = pair[answer];
+      picker = "llm";
     }
   }
-  const reviewed = await runCritic(story, input, generated.beats, client);
-  return { ...generated, ...reviewed };
+  const read = reads[chosen]!;
+  const verdict: CriticVerdict = { ...judgeVerdict(read), raw: "JUDGE", judge: read };
+  return { ...survivors[chosen].checked, verdict, needsReview: !verdict.pass, variants: record({ scores, picked: survivors[chosen].index, picker, ...(pickFallback ? { pickFallback } : {}) }) };
 }
