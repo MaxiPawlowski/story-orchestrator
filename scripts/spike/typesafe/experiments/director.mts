@@ -55,10 +55,10 @@ function directorQuestions(entry: DirectorCase, world: WorldDef, pool: Candidate
   };
 }
 
-function compositeQuestions(pool: Candidate[], world: WorldDef): Record<string, Question> {
+function compositeQuestions(pool: Candidate[], world: WorldDef, withRoles = true): Record<string, Question> {
   const questions: Record<string, Question> = {};
   for (const candidate of pool) {
-    const who = `${candidate.name} (${roleOf(world, candidate.name)})`;
+    const who = withRoles ? `${candidate.name} (${roleOf(world, candidate.name)})` : candidate.name;
     questions[`addr:${candidate.name}`] = { type: 'noul', instructions: `Is the latest message in \`transcript\` directed at ${who}, by name, title, role or context?` };
     questions[`reason:${candidate.name}`] = { type: 'noul', instructions: `Does ${who} have a strong reason to respond to the latest message in \`transcript\` right now?` };
   }
@@ -107,6 +107,12 @@ export const director: Experiment = {
       const maxAddr = Math.max(...scores.map((item) => item.addr));
       const composite = entry.allowSilence && nobody > 0.5 && maxAddr < 0.5 ? 'NONE' : ranked[0].name;
 
+      const namesRecord = await systemOne({ state, questions: compositeQuestions(candidates, world, false) }, { tag: `director-names:${entry.id}` });
+      const namesScores = candidates.map((candidate) => ({ name: candidate.name, addr: noulOf(namesRecord, `addr:${candidate.name}`), reason: noulOf(namesRecord, `reason:${candidate.name}`) }));
+      const namesRanked = namesScores.map((item) => ({ ...item, total: 2 * item.addr + item.reason + (entry.lead === item.name ? 0.25 : 0) })).sort((a, b) => b.total - a.total);
+      const namesComposite = entry.allowSilence && noulOf(namesRecord, 'nobody') > 0.5 && Math.max(...namesScores.map((item) => item.addr)) < 0.5 ? 'NONE' : namesRanked[0].name;
+      const namesHybrid = alonePlain.confidence >= 0.6 ? alonePlain.name : namesComposite;
+
       const baselineFor = async (pool: Candidate[], tag: string) => {
         const prompt = renderDirectorPrompt({ storyTitle: world.title, checkpointName: checkpoint.name, objective: checkpoint.objective, candidates: pool, allowSilence: entry.allowSilence === true, lead: pool.find((candidate) => candidate.name === entry.lead)?.name, instruction: entry.instruction, window: entry.window });
         const call = await tryBaseline(prompt, DIRECTOR_MAX_TOKENS, tag);
@@ -135,7 +141,8 @@ export const director: Experiment = {
         baseAlone, basePool,
         pipelineJevPlain: pipeline(poolPlain), pipelineJevStructured: pipeline(poolStructured), pipelineBase: baseAlone ? pipeline(basePool) : null,
         hybrid: aloneStructured.confidence >= 0.6 ? aloneStructured.name : composite,
-        correct: { hybrid: ok(aloneStructured.confidence >= 0.6 ? aloneStructured.name : composite), jevPlain: ok(alonePlain.name), jevStructured: ok(aloneStructured.name), composite: ok(composite), base: baseAlone ? ok(baseAlone.name) : null, baseParsed: baseAlone ? baseAlone.name !== null : null },
+        namesComposite, namesHybrid,
+        correct: { hybrid: ok(aloneStructured.confidence >= 0.6 ? aloneStructured.name : composite), jevPlain: ok(alonePlain.name), jevStructured: ok(aloneStructured.name), composite: ok(composite), namesComposite: ok(namesComposite), namesHybrid: ok(namesHybrid), base: baseAlone ? ok(baseAlone.name) : null, baseParsed: baseAlone ? baseAlone.name !== null : null },
       });
     }));
 
@@ -155,6 +162,8 @@ export const director: Experiment = {
       ['Jev choice, names + one-line roles', frac(count((row) => row.correct.jevStructured), n), 'role lines from the roster'],
       ['Jev composite (addressed + reason nouls, lead bonus in code)', frac(count((row) => row.correct.composite), n), '2 nouls per candidate + 1 silence noul'],
       ['Jev hybrid: role choice when confidence ≥ 0.6, else composite', frac(count((row) => row.correct.hybrid), n), 'same single request; the rule is code'],
+      ['Jev composite, names only (no roles)', frac(count((row) => row.correct.namesComposite), n), 'what a roster without roles gets'],
+      ['Jev hybrid, names only: names choice when confidence ≥ 0.6, else names composite', frac(count((row) => row.correct.namesHybrid), n), 'v2.2 plan 01 floor: ≥ 22/26 to run without roles'],
       ['pipeline: mention rule, then current director', hasBase ? `${fixed(sumOf((row) => row.pipelineBase ?? 0), 1)}/${n} (${pct(sumOf((row) => row.pipelineBase ?? 0) / n)})` : 'not run', 'what players get today'],
       ['pipeline: mention rule, then Jev (names only)', `${fixed(sumOf((row) => row.pipelineJevPlain), 1)}/${n} (${pct(sumOf((row) => row.pipelineJevPlain) / n)})`, ''],
       ['pipeline: mention rule, then Jev (roles)', `${fixed(sumOf((row) => row.pipelineJevStructured), 1)}/${n} (${pct(sumOf((row) => row.pipelineJevStructured) / n)})`, ''],
@@ -189,6 +198,7 @@ export const director: Experiment = {
       summary: [
         `${n} labelled group-chat moments. The mention rule fires on ${n - needDirector.length} and is wrong on ${mentionWrong.length} of those (${mentionWrong.map((row) => row.id).join(', ') || 'none'}); the director decides the other ${needDirector.length}.`,
         `Director alone: Jev names-only ${frac(count((row) => row.correct.jevPlain), n)}, Jev with roles ${frac(count((row) => row.correct.jevStructured), n)}, Jev composite ${frac(count((row) => row.correct.composite), n)}, Jev hybrid ${frac(count((row) => row.correct.hybrid), n)}${hasBase ? `, current director ${frac(count((row) => row.correct.base), n)}` : ''}.`,
+        `Without roles: Jev composite ${frac(count((row) => row.correct.namesComposite), n)}, Jev hybrid ${frac(count((row) => row.correct.namesHybrid), n)}.`,
         `End-to-end pipeline (mention rule first): director off ${pct(sumOf((row) => row.noDirector) / n)}, with Jev roles ${pct(sumOf((row) => row.pipelineJevStructured) / n)}${hasBase ? `, with current director ${pct(sumOf((row) => row.pipelineBase ?? 0) / n)}` : ''}.`,
         `Latency per decision: Jev p50 ${ms(percentile(jevLatency, 50))}, p90 ${ms(percentile(jevLatency, 90))}${baseLatency.length ? `; current director p50 ${ms(percentile(baseLatency, 50))}, p90 ${ms(percentile(baseLatency, 90))}` : ''}. Every Jev variant rides in one request per turn.`,
       ],

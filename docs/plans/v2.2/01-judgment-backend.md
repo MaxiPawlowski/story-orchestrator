@@ -151,6 +151,12 @@ and a composite with `who = name`. Record it in the Gate record.
 - Otherwise the judge director runs only when every candidate in the pool has a role, and stories
   without roles keep today's chain.
 
+**Measured 2026-09-19** (`run.mts --only director`, `jev-1.13.0`; the original requests replayed
+from cache, and the names-only composite was a new request): names-only composite **17/26**,
+names-only hybrid **21/26**. That is below the 22/26 floor and below the LLM director (22/26). So
+**the judge director requires a role on every candidate in the pool**; otherwise the turn takes
+today's chain, and the call ring records `fallback: "no-roles"`.
+
 ### Settings (`GlobalSettings.judge`)
 
 `{enabled: false, model: "jev-1.13.0", timeoutMs: 1500, uses: {…every flag in overview rule 4,

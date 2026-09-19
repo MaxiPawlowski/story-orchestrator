@@ -29,6 +29,7 @@ module.exports = {
       "@talk": path.resolve(__dirname, "src/talk"),
       "@wizard": path.resolve(__dirname, "src/wizard"),
       "@stagecraft": path.resolve(__dirname, "src/stagecraft"),
+      "@judge": path.resolve(__dirname, "src/judge"),
     },
     fallback: {
       fs: false,

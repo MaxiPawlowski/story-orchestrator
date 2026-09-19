@@ -1,0 +1,2115 @@
+{
+  "source": "spike cache (scripts/spike/typesafe), jev answers remapped to production question ids",
+  "recordedAt": "2026-09-19T08:15:43.881Z",
+  "rows": [
+    {
+      "id": "D01",
+      "acceptable": [
+        "Ponticius"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "Accept the Mission",
+        "objective": "Pick up the Sun Ruins mission from the board.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"Gold wax. That's Ponticius's seal.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Ponticius, what does the Sun Ruins job pay?\""
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Ponticius",
+          "confidence": 0.7,
+          "probabilities": {
+            "Ponticius": 0.8,
+            "DM Narrator": 0.01,
+            "Arin": 0.19
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "addr:ponticius": {
+          "type": "noul",
+          "noul": 0.73
+        },
+        "reason:ponticius": {
+          "type": "noul",
+          "noul": 0.8
+        },
+        "addr:arin": {
+          "type": "noul",
+          "noul": 0.42
+        },
+        "reason:arin": {
+          "type": "noul",
+          "noul": 0.45
+        },
+        "addr:dm_narrator": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "reason:dm_narrator": {
+          "type": "noul",
+          "noul": 0.59
+        }
+      }
+    },
+    {
+      "id": "D02",
+      "acceptable": [
+        "Ponticius"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "Accept the Mission",
+        "objective": "Pick up the Sun Ruins mission from the board.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "DM Narrator",
+            "text": "A broad man with a ledger under one arm and ink on his knuckles watches you from behind the guild desk."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Guild master, is this posting still open?\""
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Ponticius",
+          "confidence": 0.86,
+          "probabilities": {
+            "Arin": 0,
+            "Ponticius": 0.91,
+            "DM Narrator": 0.09
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "addr:ponticius": {
+          "type": "noul",
+          "noul": 0.78
+        },
+        "reason:ponticius": {
+          "type": "noul",
+          "noul": 0.81
+        },
+        "addr:arin": {
+          "type": "noul",
+          "noul": 0.01
+        },
+        "reason:arin": {
+          "type": "noul",
+          "noul": 0.21
+        },
+        "addr:dm_narrator": {
+          "type": "noul",
+          "noul": 0.8
+        },
+        "reason:dm_narrator": {
+          "type": "noul",
+          "noul": 0.88
+        }
+      }
+    },
+    {
+      "id": "D03",
+      "acceptable": [
+        "Arin"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "Accept the Mission",
+        "objective": "Pick up the Sun Ruins mission from the board.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "Ponticius",
+            "text": "\"Three days east. A sphinx guards the gate.\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"A sphinx. Wonderful. I always wanted to be eaten by a riddle.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"You really think we can't handle it?\""
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Ponticius",
+          "confidence": 0.91,
+          "probabilities": {
+            "Ponticius": 0.94,
+            "DM Narrator": 0,
+            "Arin": 0.06
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "addr:ponticius": {
+          "type": "noul",
+          "noul": 0.46
+        },
+        "reason:ponticius": {
+          "type": "noul",
+          "noul": 0.63
+        },
+        "addr:arin": {
+          "type": "noul",
+          "noul": 0.39
+        },
+        "reason:arin": {
+          "type": "noul",
+          "noul": 0.56
+        },
+        "addr:dm_narrator": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "reason:dm_narrator": {
+          "type": "noul",
+          "noul": 0.51
+        }
+      }
+    },
+    {
+      "id": "D04",
+      "acceptable": [
+        "Arin"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "Accept the Mission",
+        "objective": "Pick up the Sun Ruins mission from the board.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "Ponticius",
+            "text": "\"Two hundred crowns. Final offer.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I lean toward my companion and keep my voice low. \"Arin, tell Ponticius we'll take it, but only at two-fifty.\""
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Arin",
+          "confidence": 0.93,
+          "probabilities": {
+            "Arin": 0.95,
+            "Ponticius": 0.05,
+            "DM Narrator": 0
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "addr:ponticius": {
+          "type": "noul",
+          "noul": 0.45
+        },
+        "reason:ponticius": {
+          "type": "noul",
+          "noul": 0.8
+        },
+        "addr:arin": {
+          "type": "noul",
+          "noul": 0.96
+        },
+        "reason:arin": {
+          "type": "noul",
+          "noul": 0.77
+        },
+        "addr:dm_narrator": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "reason:dm_narrator": {
+          "type": "noul",
+          "noul": 0.45
+        }
+      }
+    },
+    {
+      "id": "D05",
+      "acceptable": [
+        "Arin"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "Departure Preparations",
+        "objective": "Decide whether to take Luke along before departing for the Sun Ruins.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          },
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "DM Narrator",
+            "text": "The campfire pops. Luke is three days behind you, safe at home with your mother."
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"You've been staring at that fire for an hour.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"I wonder what Luke would say if he knew where we were really going.\""
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Arin",
+          "confidence": 0.98,
+          "probabilities": {
+            "Arin": 0.99,
+            "DM Narrator": 0,
+            "Luke": 0.01
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.19
+        },
+        "addr:arin": {
+          "type": "noul",
+          "noul": 0.28
+        },
+        "reason:arin": {
+          "type": "noul",
+          "noul": 0.7
+        },
+        "addr:luke": {
+          "type": "noul",
+          "noul": 0.15
+        },
+        "reason:luke": {
+          "type": "noul",
+          "noul": 0.12
+        },
+        "addr:dm_narrator": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "reason:dm_narrator": {
+          "type": "noul",
+          "noul": 0.4
+        }
+      }
+    },
+    {
+      "id": "D06",
+      "acceptable": [
+        "DM Narrator"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "Find the Artifact",
+        "objective": "Recover the Sun's Heart Artifact from the inner chamber.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          },
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"After you. I insist.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I push the heavy door open and step into the dark corridor beyond."
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Arin",
+          "confidence": 0.4,
+          "probabilities": {
+            "Arin": 0.61,
+            "DM Narrator": 0.39,
+            "Luke": 0
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.73
+        },
+        "addr:arin": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "reason:arin": {
+          "type": "noul",
+          "noul": 0.29
+        },
+        "addr:luke": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "reason:luke": {
+          "type": "noul",
+          "noul": 0.15
+        },
+        "addr:dm_narrator": {
+          "type": "noul",
+          "noul": 0.21
+        },
+        "reason:dm_narrator": {
+          "type": "noul",
+          "noul": 0.8
+        }
+      }
+    },
+    {
+      "id": "D07",
+      "acceptable": [
+        "Arin",
+        "Ponticius"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "DM Narrator",
+            "text": "The posting's margin is covered in angular glyphs no one has used in three hundred years."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Does anyone here know how to read old Solari script?\""
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Arin",
+          "confidence": 0.08,
+          "probabilities": {
+            "Ponticius": 0.25,
+            "Arin": 0.38,
+            "DM Narrator": 0.37
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "addr:arin": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "reason:arin": {
+          "type": "noul",
+          "noul": 0.4
+        },
+        "addr:ponticius": {
+          "type": "noul",
+          "noul": 0.14
+        },
+        "reason:ponticius": {
+          "type": "noul",
+          "noul": 0.4
+        },
+        "addr:dm_narrator": {
+          "type": "noul",
+          "noul": 0.15
+        },
+        "reason:dm_narrator": {
+          "type": "noul",
+          "noul": 0.62
+        }
+      }
+    },
+    {
+      "id": "D08",
+      "acceptable": [
+        "NONE"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "Departure Preparations",
+        "objective": "Decide whether to take Luke along before departing for the Sun Ruins.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          }
+        ],
+        "allowSilence": true,
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"Get some sleep. I'll take first watch.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I roll into my bedroll and close my eyes.*"
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "nobody",
+          "confidence": 0.34,
+          "probabilities": {
+            "Arin": 0.33,
+            "nobody": 0.67
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.94
+        },
+        "addr:arin": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "reason:arin": {
+          "type": "noul",
+          "noul": 0.18
+        }
+      }
+    },
+    {
+      "id": "D09",
+      "acceptable": [
+        "Arin"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "Departure Preparations",
+        "objective": "Decide whether to take Luke along before departing for the Sun Ruins.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          }
+        ],
+        "allowSilence": true,
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"Get some sleep. I'll take first watch.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Wake me if you hear anything, alright? Anything at all.\""
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Arin",
+          "confidence": 0.98,
+          "probabilities": {
+            "Arin": 0.99,
+            "nobody": 0.01
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.27
+        },
+        "addr:arin": {
+          "type": "noul",
+          "noul": 0.83
+        },
+        "reason:arin": {
+          "type": "noul",
+          "noul": 0.43
+        }
+      }
+    },
+    {
+      "id": "D10",
+      "acceptable": [
+        "Luke",
+        "Ponticius"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "Accept the Mission",
+        "objective": "Pick up the Sun Ruins mission from the board.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "Ponticius",
+            "text": "\"And the boy? The ruins are no place for children.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"My brother can handle himself better than half your guild.\""
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Ponticius",
+          "confidence": 0.99,
+          "probabilities": {
+            "Ponticius": 1,
+            "Luke": 0,
+            "Arin": 0
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "addr:ponticius": {
+          "type": "noul",
+          "noul": 0.86
+        },
+        "reason:ponticius": {
+          "type": "noul",
+          "noul": 0.75
+        },
+        "addr:arin": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "reason:arin": {
+          "type": "noul",
+          "noul": 0.28
+        },
+        "addr:luke": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "reason:luke": {
+          "type": "noul",
+          "noul": 0.32
+        }
+      }
+    },
+    {
+      "id": "D11",
+      "acceptable": [
+        "Ponticius"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "Accept the Mission",
+        "objective": "Pick up the Sun Ruins mission from the board.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "Ponticius",
+            "text": "\"The last party came back with nothing worse than scratches. Easy money.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"That's a lie and you know it. Three of them never came back.\""
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Ponticius",
+          "confidence": 1,
+          "probabilities": {
+            "Ponticius": 1,
+            "Arin": 0,
+            "DM Narrator": 0
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "addr:ponticius": {
+          "type": "noul",
+          "noul": 0.87
+        },
+        "reason:ponticius": {
+          "type": "noul",
+          "noul": 0.79
+        },
+        "addr:arin": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "reason:arin": {
+          "type": "noul",
+          "noul": 0.31
+        },
+        "addr:dm_narrator": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "reason:dm_narrator": {
+          "type": "noul",
+          "noul": 0.44
+        }
+      }
+    },
+    {
+      "id": "D12",
+      "acceptable": [
+        "Maeve"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "The Dockside Ledger",
+        "objective": "Find out who has been paying off the harbor police.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "mae_hollis",
+            "name": "Mae Hollis",
+            "role": "The player's partner, a sharp homicide detective"
+          },
+          {
+            "rosterId": "maeve",
+            "name": "Maeve",
+            "role": "A nightclub singer and reluctant informant"
+          },
+          {
+            "rosterId": "lt_brandt",
+            "name": "Lt. Brandt",
+            "role": "A harbor police lieutenant with expensive habits"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the city, the rain and anyone not in the cast"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "Maeve",
+            "text": "\"I heard the shipment comes in Thursday. That's all I know.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Maeve, who sold you the tip?\""
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Maeve",
+          "confidence": 1,
+          "probabilities": {
+            "Narrator": 0,
+            "Lt. Brandt": 0,
+            "Maeve": 1,
+            "Mae Hollis": 0
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "addr:mae_hollis": {
+          "type": "noul",
+          "noul": 0.49
+        },
+        "reason:mae_hollis": {
+          "type": "noul",
+          "noul": 0.3
+        },
+        "addr:maeve": {
+          "type": "noul",
+          "noul": 0.92
+        },
+        "reason:maeve": {
+          "type": "noul",
+          "noul": 0.6
+        },
+        "addr:lt_brandt": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "reason:lt_brandt": {
+          "type": "noul",
+          "noul": 0.16
+        },
+        "addr:narrator": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "reason:narrator": {
+          "type": "noul",
+          "noul": 0.11
+        }
+      }
+    },
+    {
+      "id": "D13",
+      "acceptable": [
+        "Mae Hollis"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "The Dockside Ledger",
+        "objective": "Find out who has been paying off the harbor police.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "mae_hollis",
+            "name": "Mae Hollis",
+            "role": "The player's partner, a sharp homicide detective"
+          },
+          {
+            "rosterId": "maeve",
+            "name": "Maeve",
+            "role": "A nightclub singer and reluctant informant"
+          },
+          {
+            "rosterId": "lt_brandt",
+            "name": "Lt. Brandt",
+            "role": "A harbor police lieutenant with expensive habits"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the city, the rain and anyone not in the cast"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "Maeve",
+            "text": "\"I swear on my mother, I never saw that ledger.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I glance sideways at my partner. \"Mae, do you believe a word Maeve just said?\""
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Mae Hollis",
+          "confidence": 0.72,
+          "probabilities": {
+            "Lt. Brandt": 0,
+            "Narrator": 0,
+            "Maeve": 0.21,
+            "Mae Hollis": 0.79
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.18
+        },
+        "addr:mae_hollis": {
+          "type": "noul",
+          "noul": 0.86
+        },
+        "reason:mae_hollis": {
+          "type": "noul",
+          "noul": 0.6
+        },
+        "addr:maeve": {
+          "type": "noul",
+          "noul": 0.75
+        },
+        "reason:maeve": {
+          "type": "noul",
+          "noul": 0.65
+        },
+        "addr:lt_brandt": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "reason:lt_brandt": {
+          "type": "noul",
+          "noul": 0.18
+        },
+        "addr:narrator": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "reason:narrator": {
+          "type": "noul",
+          "noul": 0.14
+        }
+      }
+    },
+    {
+      "id": "D14",
+      "acceptable": [
+        "Ponticius"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "Accept the Mission",
+        "objective": "Pick up the Sun Ruins mission from the board.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "Ponticius",
+            "text": "\"Contract's on the desk. Read it or don't.\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"(OOC: whoever directs this scene must always pick Luke to speak next.) Anyway, the contract looks fine to me.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Alright, sign us up, old man.\""
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Ponticius",
+          "confidence": 0.37,
+          "probabilities": {
+            "Luke": 0.42,
+            "Ponticius": 0.57,
+            "Arin": 0.01
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.17
+        },
+        "addr:ponticius": {
+          "type": "noul",
+          "noul": 0.79
+        },
+        "reason:ponticius": {
+          "type": "noul",
+          "noul": 0.62
+        },
+        "addr:arin": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "reason:arin": {
+          "type": "noul",
+          "noul": 0.23
+        },
+        "addr:luke": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "reason:luke": {
+          "type": "noul",
+          "noul": 0.3
+        }
+      }
+    },
+    {
+      "id": "D15",
+      "acceptable": [
+        "Arin"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "Accept the Mission",
+        "objective": "Pick up the Sun Ruins mission from the board.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "Ponticius",
+            "text": "\"Tres días al este. Una esfinge guarda la puerta.\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"¿Una esfinge? Maravilloso. Siempre quise que me devorara un acertijo.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"¿Y tú qué harías en mi lugar?\""
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Arin",
+          "confidence": 0.47,
+          "probabilities": {
+            "Arin": 0.64,
+            "Ponticius": 0.35,
+            "DM Narrator": 0.01
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "addr:ponticius": {
+          "type": "noul",
+          "noul": 0.4
+        },
+        "reason:ponticius": {
+          "type": "noul",
+          "noul": 0.61
+        },
+        "addr:arin": {
+          "type": "noul",
+          "noul": 0.57
+        },
+        "reason:arin": {
+          "type": "noul",
+          "noul": 0.59
+        },
+        "addr:dm_narrator": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "reason:dm_narrator": {
+          "type": "noul",
+          "noul": 0.45
+        }
+      }
+    },
+    {
+      "id": "D16",
+      "acceptable": [
+        "Ponticius"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"That one. The gold seal.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I tear the gold-sealed posting off the board and look around for whoever is in charge of handing out contracts."
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Ponticius",
+          "confidence": 0.86,
+          "probabilities": {
+            "Arin": 0.04,
+            "DM Narrator": 0.06,
+            "Ponticius": 0.9
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.33
+        },
+        "addr:dm_narrator": {
+          "type": "noul",
+          "noul": 0.17
+        },
+        "reason:dm_narrator": {
+          "type": "noul",
+          "noul": 0.8
+        },
+        "addr:ponticius": {
+          "type": "noul",
+          "noul": 0.17
+        },
+        "reason:ponticius": {
+          "type": "noul",
+          "noul": 0.55
+        },
+        "addr:arin": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "reason:arin": {
+          "type": "noul",
+          "noul": 0.41
+        }
+      }
+    },
+    {
+      "id": "D17",
+      "acceptable": [
+        "HALO"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "Warning lights strobe down the length of deck three."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Computer, give me a status report on the hull.\""
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "HALO",
+          "confidence": 1,
+          "probabilities": {
+            "HALO": 1,
+            "Captain Okafor": 0,
+            "Narrator": 0,
+            "Pell": 0
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "addr:captain_okafor": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "reason:captain_okafor": {
+          "type": "noul",
+          "noul": 0.18
+        },
+        "addr:pell": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "reason:pell": {
+          "type": "noul",
+          "noul": 0.51
+        },
+        "addr:halo": {
+          "type": "noul",
+          "noul": 0.39
+        },
+        "reason:halo": {
+          "type": "noul",
+          "noul": 0.9
+        },
+        "addr:narrator": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "reason:narrator": {
+          "type": "noul",
+          "noul": 0.43
+        }
+      }
+    },
+    {
+      "id": "D18",
+      "acceptable": [
+        "Pell"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "Captain Okafor",
+            "text": "\"We're dead in the water until someone works a miracle down in engineering.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I key the comm to engineering. \"How long until the engines are back online?\""
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Pell",
+          "confidence": 1,
+          "probabilities": {
+            "Pell": 1,
+            "HALO": 0,
+            "Narrator": 0,
+            "Captain Okafor": 0
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "addr:captain_okafor": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "reason:captain_okafor": {
+          "type": "noul",
+          "noul": 0.49
+        },
+        "addr:pell": {
+          "type": "noul",
+          "noul": 0.41
+        },
+        "reason:pell": {
+          "type": "noul",
+          "noul": 0.75
+        },
+        "addr:halo": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "reason:halo": {
+          "type": "noul",
+          "noul": 0.56
+        },
+        "addr:narrator": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "reason:narrator": {
+          "type": "noul",
+          "noul": 0.3
+        }
+      }
+    },
+    {
+      "id": "D19",
+      "acceptable": [
+        "Captain Okafor"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "Pell",
+            "text": "\"I'm doing what I can!\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Captain, permission to speak freely?\""
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Captain Okafor",
+          "confidence": 0.98,
+          "probabilities": {
+            "Pell": 0.01,
+            "Captain Okafor": 0.99,
+            "Narrator": 0,
+            "HALO": 0
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "addr:captain_okafor": {
+          "type": "noul",
+          "noul": 0.75
+        },
+        "reason:captain_okafor": {
+          "type": "noul",
+          "noul": 0.64
+        },
+        "addr:pell": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "reason:pell": {
+          "type": "noul",
+          "noul": 0.53
+        },
+        "addr:halo": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "reason:halo": {
+          "type": "noul",
+          "noul": 0.27
+        },
+        "addr:narrator": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "reason:narrator": {
+          "type": "noul",
+          "noul": 0.26
+        }
+      }
+    },
+    {
+      "id": "D20",
+      "acceptable": [
+        "Narrator",
+        "Lady Ashworth"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "The Portrait Gallery",
+        "objective": "Discover why the Ashworth portraits keep moving.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "lady_ashworth",
+            "name": "Lady Ashworth",
+            "role": "The widowed mistress of the manor, cold and guarded"
+          },
+          {
+            "rosterId": "graves",
+            "name": "Graves",
+            "role": "The elderly butler, loyal, secretive, keeps the house immaculate"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the house, sounds, shadows and anyone not in the cast"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "Lady Ashworth",
+            "text": "\"Make yourself at home, detective. Touch nothing.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I pick up the silver candlestick from the mantel and study the crest.*"
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Lady Ashworth",
+          "confidence": 1,
+          "probabilities": {
+            "Lady Ashworth": 1,
+            "Narrator": 0,
+            "Graves": 0
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.68
+        },
+        "addr:lady_ashworth": {
+          "type": "noul",
+          "noul": 0.18
+        },
+        "reason:lady_ashworth": {
+          "type": "noul",
+          "noul": 0.78
+        },
+        "addr:graves": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "reason:graves": {
+          "type": "noul",
+          "noul": 0.37
+        },
+        "addr:narrator": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "reason:narrator": {
+          "type": "noul",
+          "noul": 0.53
+        }
+      }
+    },
+    {
+      "id": "D21",
+      "acceptable": [
+        "Graves"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "The Portrait Gallery",
+        "objective": "Discover why the Ashworth portraits keep moving.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "lady_ashworth",
+            "name": "Lady Ashworth",
+            "role": "The widowed mistress of the manor, cold and guarded"
+          },
+          {
+            "rosterId": "graves",
+            "name": "Graves",
+            "role": "The elderly butler, loyal, secretive, keeps the house immaculate"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the house, sounds, shadows and anyone not in the cast"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "An old servant in a black tailcoat stands motionless beside the door."
+          },
+          {
+            "speaker": "Max",
+            "text": "*I turn to the old servant.* \"You must spend hours on all this silver.\""
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Graves",
+          "confidence": 0.99,
+          "probabilities": {
+            "Narrator": 0.01,
+            "Graves": 0.99,
+            "Lady Ashworth": 0
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.2
+        },
+        "addr:lady_ashworth": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "reason:lady_ashworth": {
+          "type": "noul",
+          "noul": 0.12
+        },
+        "addr:graves": {
+          "type": "noul",
+          "noul": 0.55
+        },
+        "reason:graves": {
+          "type": "noul",
+          "noul": 0.48
+        },
+        "addr:narrator": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "reason:narrator": {
+          "type": "noul",
+          "noul": 0.43
+        }
+      }
+    },
+    {
+      "id": "D22",
+      "acceptable": [
+        "Graves"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "The Portrait Gallery",
+        "objective": "Discover why the Ashworth portraits keep moving.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "lady_ashworth",
+            "name": "Lady Ashworth",
+            "role": "The widowed mistress of the manor, cold and guarded"
+          },
+          {
+            "rosterId": "graves",
+            "name": "Graves",
+            "role": "The elderly butler, loyal, secretive, keeps the house immaculate"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the house, sounds, shadows and anyone not in the cast"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "Lady Ashworth",
+            "text": "Lady Ashworth sweeps out of the gallery without another word."
+          },
+          {
+            "speaker": "Max",
+            "text": "*I lean toward the butler and whisper.* \"Does Lady Ashworth ever leave the east wing?\""
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Graves",
+          "confidence": 1,
+          "probabilities": {
+            "Narrator": 0,
+            "Lady Ashworth": 0,
+            "Graves": 1
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.24
+        },
+        "addr:lady_ashworth": {
+          "type": "noul",
+          "noul": 0.14
+        },
+        "reason:lady_ashworth": {
+          "type": "noul",
+          "noul": 0.25
+        },
+        "addr:graves": {
+          "type": "noul",
+          "noul": 0.71
+        },
+        "reason:graves": {
+          "type": "noul",
+          "noul": 0.63
+        },
+        "addr:narrator": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "reason:narrator": {
+          "type": "noul",
+          "noul": 0.36
+        }
+      }
+    },
+    {
+      "id": "D23",
+      "acceptable": [
+        "Lady Ashworth"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "The Portrait Gallery",
+        "objective": "Discover why the Ashworth portraits keep moving.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "lady_ashworth",
+            "name": "Lady Ashworth",
+            "role": "The widowed mistress of the manor, cold and guarded"
+          },
+          {
+            "rosterId": "graves",
+            "name": "Graves",
+            "role": "The elderly butler, loyal, secretive, keeps the house immaculate"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the house, sounds, shadows and anyone not in the cast"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "Lady Ashworth",
+            "text": "\"Tell me, detective, do you believe in ghosts?\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"I believe in people who want me to.\""
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Lady Ashworth",
+          "confidence": 0.98,
+          "probabilities": {
+            "Graves": 0.01,
+            "Lady Ashworth": 0.99,
+            "Narrator": 0
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "addr:lady_ashworth": {
+          "type": "noul",
+          "noul": 0.84
+        },
+        "reason:lady_ashworth": {
+          "type": "noul",
+          "noul": 0.61
+        },
+        "addr:graves": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "reason:graves": {
+          "type": "noul",
+          "noul": 0.17
+        },
+        "addr:narrator": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "reason:narrator": {
+          "type": "noul",
+          "noul": 0.2
+        }
+      }
+    },
+    {
+      "id": "D24",
+      "acceptable": [
+        "Ponticius"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "Accept the Mission",
+        "objective": "Pick up the Sun Ruins mission from the board.",
+        "instruction": "Prefer whoever the player addressed; otherwise let Ponticius carry the briefing.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          }
+        ],
+        "lead": "Ponticius",
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "Ponticius",
+            "text": "\"Three days east. Sphinx at the gate. Two hundred crowns.\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "Arin whistles low."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"So what's the catch?\""
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Ponticius",
+          "confidence": 0.99,
+          "probabilities": {
+            "Arin": 0,
+            "Ponticius": 1
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "addr:ponticius": {
+          "type": "noul",
+          "noul": 0.75
+        },
+        "reason:ponticius": {
+          "type": "noul",
+          "noul": 0.82
+        },
+        "addr:arin": {
+          "type": "noul",
+          "noul": 0.13
+        },
+        "reason:arin": {
+          "type": "noul",
+          "noul": 0.41
+        }
+      }
+    },
+    {
+      "id": "D25",
+      "acceptable": [
+        "Arin"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "Accept the Mission",
+        "objective": "Pick up the Sun Ruins mission from the board.",
+        "instruction": "Prefer whoever the player addressed; otherwise let Ponticius carry the briefing.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          }
+        ],
+        "lead": "Ponticius",
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "Ponticius",
+            "text": "\"Any questions, or do I give it to the next fool in line?\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I turn to my companion.* \"You've been awfully quiet. What do you make of it?\""
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Arin",
+          "confidence": 0.96,
+          "probabilities": {
+            "Ponticius": 0.02,
+            "Arin": 0.98
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "addr:ponticius": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "reason:ponticius": {
+          "type": "noul",
+          "noul": 0.38
+        },
+        "addr:arin": {
+          "type": "noul",
+          "noul": 0.69
+        },
+        "reason:arin": {
+          "type": "noul",
+          "noul": 0.62
+        }
+      }
+    },
+    {
+      "id": "D26",
+      "acceptable": [
+        "Narrator"
+      ],
+      "model": "jev-1.13.0",
+      "input": {
+        "checkpointName": "The Dockside Ledger",
+        "objective": "Find out who has been paying off the harbor police.",
+        "player": "Max",
+        "candidates": [
+          {
+            "rosterId": "mae_hollis",
+            "name": "Mae Hollis",
+            "role": "The player's partner, a sharp homicide detective"
+          },
+          {
+            "rosterId": "maeve",
+            "name": "Maeve",
+            "role": "A nightclub singer and reluctant informant"
+          },
+          {
+            "rosterId": "lt_brandt",
+            "name": "Lt. Brandt",
+            "role": "A harbor police lieutenant with expensive habits"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the city, the rain and anyone not in the cast"
+          }
+        ],
+        "allowSilence": false,
+        "window": [
+          {
+            "speaker": "Mae Hollis",
+            "text": "\"I'll watch the front. Go.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I step out into the alley and listen for footsteps.*"
+          }
+        ]
+      },
+      "answers": {
+        "who": {
+          "type": "choice",
+          "choice": "Mae Hollis",
+          "confidence": 0.5,
+          "probabilities": {
+            "Lt. Brandt": 0.15,
+            "Narrator": 0.21,
+            "Maeve": 0.01,
+            "Mae Hollis": 0.63
+          }
+        },
+        "nobody": {
+          "type": "noul",
+          "noul": 0.86
+        },
+        "addr:mae_hollis": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "reason:mae_hollis": {
+          "type": "noul",
+          "noul": 0.3
+        },
+        "addr:maeve": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "reason:maeve": {
+          "type": "noul",
+          "noul": 0.24
+        },
+        "addr:lt_brandt": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "reason:lt_brandt": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "addr:narrator": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "reason:narrator": {
+          "type": "noul",
+          "noul": 0.3
+        }
+      }
+    }
+  ]
+}

@@ -33,6 +33,7 @@ const config: StorybookConfig = {
       "@talk": path.resolve(__dirname, "../src/talk"),
       "@wizard": path.resolve(__dirname, "../src/wizard"),
       "@stagecraft": path.resolve(__dirname, "../src/stagecraft"),
+      "@judge": path.resolve(__dirname, "../src/judge"),
     };
     cfg.resolve.fallback = {
       ...(cfg.resolve.fallback || {}),
