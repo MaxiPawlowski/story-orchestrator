@@ -138,21 +138,23 @@ export const setArcTemplate = (draft: StoryDraft, template: ArcTemplate | undefi
   return template ? { ...rest, arc_template: template } : rest;
 };
 
+// Entries stay as typed, like setSceneRead: the editor calls this on every keystroke, so trimming
+// here ate the space in "Max Power" and dropped a new blank row. Parse trims and drops blanks.
 // An empty list is an absent requirement, never a requirement for nothing.
 export const setRequirements = (draft: StoryDraft, requirements: StoryRequirements): StoryDraft => {
-  const cleaned: StoryRequirements = {};
+  const kept: StoryRequirements = {};
   (["personas", "members", "lorebooks"] as const).forEach((key) => {
-    const values = (requirements[key] ?? []).map((entry) => entry.trim()).filter(Boolean);
-    if (values.length) cleaned[key] = values;
+    const values = requirements[key] ?? [];
+    if (values.length) kept[key] = values;
   });
   const { requirements: _dropped, ...rest } = draft;
-  return Object.keys(cleaned).length ? { ...rest, requirements: cleaned } : rest;
+  return Object.keys(kept).length ? { ...rest, requirements: kept } : rest;
 };
 
-// The curator's write scope. An empty list drops the block entirely — the safe default is a story
-// that grants no background agent any lorebook.
+// The curator's write scope, kept as typed like setRequirements. An empty list drops the block
+// entirely — the safe default is a story that grants no background agent any lorebook.
 export const setStagecraft = (draft: StoryDraft, stagecraft: StoryStagecraft): StoryDraft => {
-  const lorebooks = (stagecraft.lorebooks ?? []).map((entry) => entry.trim()).filter(Boolean);
+  const lorebooks = stagecraft.lorebooks ?? [];
   const { stagecraft: _dropped, ...rest } = draft;
   return lorebooks.length ? { ...rest, stagecraft: { lorebooks } } : rest;
 };

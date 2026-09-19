@@ -102,7 +102,7 @@ export function startRuntime() {
   globalThis.talkControlInterceptor = (_chat, _contextSize, abort, type) => talkController?.intercept(abort, type);
   const privateInjectionEntries: HostSubscriptionEntry[] = [
     { eventName: "GROUP_MEMBER_DRAFTED", handler: (characterId) => runtimeManager.onMemberDrafted(characterId as number | [number]) },
-    { eventName: "GENERATION_STARTED", handler: (...args: unknown[]) => { runtimeManager.capturePayload(); talkController?.onGenerationStarted(args[1] as Record<string, unknown> | undefined); } },
+    { eventName: "GENERATION_STARTED", handler: (...args: unknown[]) => { runtimeManager.onGenerationStarted(args[0]); runtimeManager.capturePayload(); talkController?.onGenerationStarted(args[1] as Record<string, unknown> | undefined); } },
     { eventName: "GENERATION_ENDED", handler: () => { runtimeManager.clearPrivateInjection(); runtimeManager.clearCopilotNudge(); talkController?.onGenerationEnded(); } },
     { eventName: "GENERATION_STOPPED", handler: () => { runtimeManager.clearPrivateInjection(); runtimeManager.clearCopilotNudge(); talkController?.onGenerationEnded(); } },
     { eventName: "GROUP_WRAPPER_STARTED", handler: (payload) => talkController?.onWrapperStarted(payload as Record<string, unknown> | undefined) },

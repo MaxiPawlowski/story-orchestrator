@@ -2,7 +2,7 @@ import { parseStoryV2OrThrow } from "@engine/index";
 import { buildWiCuratorPrompt } from "./prompt";
 import { parseCuratorResponse } from "./parse";
 import { applyCuratorPatch, planCuratorProposal, previewCuratorOp, splitPatchAnchor } from "./proposal";
-import { curatorHasScope, curatorLorebooks, entriesForScope, isCuratorWritable } from "./scope";
+import { curatorHasScope, curatorLorebooks, entriesForScope, isCheckpointGated, isCuratorWritable } from "./scope";
 import type { CuratorEntryView } from "./types";
 
 const entries = (): CuratorEntryView[] => [
@@ -31,9 +31,20 @@ describe("curator scope", () => {
 
   it("never treats a book outside the allowlist as writable", () => {
     const scoped = story({ lorebooks: ["Story Lore"] });
-    expect(isCuratorWritable(scoped, "story lore")).toBe(true);
-    expect(isCuratorWritable(scoped, "The User's Own Book")).toBe(false);
-    expect(isCuratorWritable(story(), "Story Lore")).toBe(false);
+    expect(isCuratorWritable(scoped, "story lore", "The bridge")).toBe(true);
+    expect(isCuratorWritable(scoped, "The User's Own Book", "The bridge")).toBe(false);
+    expect(isCuratorWritable(story(), "Story Lore", "The bridge")).toBe(false);
+  });
+
+  it("never treats an entry a checkpoint switches as writable, even inside the allowlist", () => {
+    const gated = parseStoryV2OrThrow({
+      ...JSON.parse(JSON.stringify(story({ lorebooks: ["Story Lore"] }))),
+      checkpoints: [{ id: "cp1", name: "The bank", objective: "Cross", type: "anchor", start: true, effects: { world_info: { enable: [{ lorebook: "Story Lore", comments: ["The ferryman"] }] } } }],
+    });
+    expect(isCheckpointGated(gated, "story lore", "the ferryman")).toBe(true);
+    expect(isCuratorWritable(gated, "Story Lore", "The ferryman")).toBe(false);
+    expect(isCuratorWritable(gated, "Story Lore", "The bridge")).toBe(true);
+    expect(isCheckpointGated(gated, "Other Book", "The ferryman")).toBe(false);
   });
 
   it("reads host entries into the view the prompt and the planner share", () => {

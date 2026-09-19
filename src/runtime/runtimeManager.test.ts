@@ -582,6 +582,40 @@ describe("RuntimeManager memory injection and cast", () => {
     expect(mockExtensionPrompts.story_orchestrator_epistemic?.value ?? "").toBe("");
   });
 
+  it("leaves no private knowledge in a group's prompt between drafts, or for impersonate and quiet generations", async () => {
+    (getActiveGroup as jest.Mock).mockReturnValue({ members: ["mara.png", "kael.png"], disabled_members: [] });
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(castStory));
+    mockContext.chat = [{ name: "Kael", mes: "Nothing to see.", is_user: false }];
+    await manager.applyExtractionAudit(memoryAudit(), [], [], [], [{ tag: "hiding", subject: "Kael", hiddenFrom: "Mara", content: "the theft" }]);
+    expect(mockExtensionPrompts.story_orchestrator_epistemic?.value ?? "").toBe("");
+
+    manager.onMemberDrafted(1);
+    expect(mockExtensionPrompts.story_orchestrator_epistemic?.value ?? "").toContain("the theft");
+    manager.onGenerationStarted("normal");
+    expect(mockExtensionPrompts.story_orchestrator_epistemic?.value ?? "").toContain("the theft");
+    manager.clearPrivateInjection();
+    expect(mockExtensionPrompts.story_orchestrator_epistemic?.value ?? "").toBe("");
+
+    for (const type of ["impersonate", "quiet"]) {
+      manager.onMemberDrafted(1);
+      manager.onGenerationStarted(type);
+      expect(mockExtensionPrompts.story_orchestrator_epistemic?.value ?? "").toBe("");
+    }
+  });
+
+  it("keeps a solo character's private knowledge at rest, but not for impersonate", async () => {
+    (getActiveGroup as jest.Mock).mockReturnValue(null);
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(castStory));
+    mockContext.chat = [{ name: "Kael", mes: "Nothing to see.", is_user: false }];
+    await manager.applyExtractionAudit(memoryAudit(), [], [], [], [{ tag: "hiding", subject: "Kael", hiddenFrom: "Mara", content: "the theft" }]);
+    manager.clearPrivateInjection();
+    expect(mockExtensionPrompts.story_orchestrator_epistemic?.value ?? "").toContain("the theft");
+    manager.onGenerationStarted("impersonate");
+    expect(mockExtensionPrompts.story_orchestrator_epistemic?.value ?? "").toBe("");
+  });
+
   it("injects the state-ledger grounding block", async () => {
     (getActiveGroup as jest.Mock).mockReturnValue({ members: ["mara.png"], disabled_members: [] });
     const manager = new RuntimeManager();
@@ -855,6 +889,27 @@ describe("RuntimeManager arc bridge and canon", () => {
     expect(manager.getCanon()).toContain("granary mystery was solved");
     expect(await manager.regenerateCanon(true)).toBe(true);
     expect(manager.getCanon()).toBe("DIFFERENT CANON TEXT");
+  });
+
+  it("re-derives canon after the story moves on, and shows the player only its history", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(bridgeStory));
+    await manager.applyExtractionAudit(memoryAudit(), [], [], [{ kind: "open", text: "The identity of the granary arsonist is still unknown to all." }]);
+    await manager.applyExtractionAudit(memoryAudit(), [], [], [{ kind: "resolved", text: "The granary arsonist is now known to all." }]);
+    const resolved = manager.getArcs().find((arc) => arc.status === "resolved");
+    if (!resolved) throw new Error("expected a resolved arc");
+    globalThis.storyOrchestratorDebugArcSummaryResponse = "The steward was unmasked.";
+    globalThis.storyOrchestratorDebugCanonResponse = "WHAT HAS HAPPENED:\nThe steward was unmasked.\n\nCURRENT STATE:\nThe village waits for the reveal.";
+    await manager.runArcSummaryPass([resolved.id]);
+    expect(await manager.regenerateCanon()).toBe(false);
+
+    await manager.commitBoundary();
+    expect(manager.getEngineState()?.activeCheckpointId).toBe("reveal");
+    globalThis.storyOrchestratorDebugCanonResponse = "WHAT HAS HAPPENED:\nThe steward was unmasked and confessed.\n\nCURRENT STATE:\nThe reveal is under way.";
+    expect(await manager.regenerateCanon()).toBe(true);
+    expect(manager.getCanon()).toContain("The reveal is under way.");
+    const story = manager.getSnapshot().narrative.sections.find((section) => section.id === "story");
+    expect(story?.lines).toEqual(["The steward was unmasked and confessed."]);
   });
 
   it("clears derived canon on a rollback that changes the resolved-arc set", async () => {

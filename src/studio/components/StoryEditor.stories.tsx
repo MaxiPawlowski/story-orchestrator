@@ -48,6 +48,31 @@ export const AuthorRequirements: Story = {
   },
 };
 
+// Nothing to pick from, so the author types each name. Every keystroke goes through the mutation:
+// a trailing space and a blank row must survive it, and parse trims on the way out.
+export const TypedMultiWordNames: Story = {
+  args: { personaNames: [], lorebookNames: [] },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "+ Persona" }));
+    const persona = canvas.getByLabelText("Persona 1");
+    await expect(persona).toHaveValue("");
+    await expect(useDraftStore.getState().draft.requirements).toEqual({ personas: [""] });
+    await userEvent.type(persona, "Max ");
+    await expect(persona).toHaveValue("Max ");
+    await expect(useDraftStore.getState().draft.requirements).toEqual({ personas: ["Max "] });
+    await userEvent.type(persona, "Power");
+    await expect(persona).toHaveValue("Max Power");
+    await userEvent.click(canvas.getByRole("button", { name: "+ Curator lorebook" }));
+    await expect(canvas.getByLabelText("Curator lorebook 1")).toHaveValue("");
+    await userEvent.type(canvas.getByLabelText("Curator lorebook 1"), "Xentar Checkpoints");
+    await expect(canvas.getByLabelText("Curator lorebook 1")).toHaveValue("Xentar Checkpoints");
+    const draft = useDraftStore.getState().draft;
+    await expect(draft.requirements).toEqual({ personas: ["Max Power"] });
+    await expect(draft.stagecraft).toEqual({ lorebooks: ["Xentar Checkpoints"] });
+  },
+};
+
 // The curator's write scope is authored here and nowhere else (plan 07): an empty list means no
 // background agent may touch any lorebook.
 export const CuratorAllowlist: Story = {

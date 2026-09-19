@@ -1,4 +1,4 @@
-import type { NormalizedStoryV2 } from "@engine/index";
+import { gatedWorldInfo, type NormalizedStoryV2 } from "@engine/index";
 import type { CuratorEntryView } from "./types";
 
 // The whole write scope of every background curator, in one function: the story's own
@@ -9,11 +9,21 @@ export const curatorLorebooks = (story: NormalizedStoryV2 | null): string[] =>
 
 export const curatorHasScope = (story: NormalizedStoryV2 | null): boolean => curatorLorebooks(story).length > 0;
 
-// A write is legal only if the entry sits in an allowlisted book *and* was in the scope the curator
-// was shown. The parser already enforces the second half; this is the check at the write edge.
-export const isCuratorWritable = (story: NormalizedStoryV2 | null, lorebook: string): boolean => {
+// An entry some checkpoint switches belongs to the story's world_info effects, which rebuild its
+// flag from the chat's path at every checkpoint: a curator write there would be undone, or undo it.
+export const isCheckpointGated = (story: NormalizedStoryV2 | null, lorebook: string, comment: string): boolean => {
+  const book = lorebook.trim().toLowerCase();
+  const wanted = comment.trim().toLowerCase();
+  return [...gatedWorldInfo(story ? [story] : [])].some(([name, comments]) =>
+    name.toLowerCase() === book && [...comments].some((gated) => gated.toLowerCase() === wanted));
+};
+
+// A write is legal only if the entry sits in an allowlisted book, is not checkpoint-gated, *and* was
+// in the scope the curator was shown. The parser already enforces the last part; this is the check
+// at the write edge.
+export const isCuratorWritable = (story: NormalizedStoryV2 | null, lorebook: string, comment: string): boolean => {
   const wanted = lorebook.trim().toLowerCase();
-  return Boolean(wanted) && curatorLorebooks(story).some((name) => name.toLowerCase() === wanted);
+  return Boolean(wanted) && curatorLorebooks(story).some((name) => name.toLowerCase() === wanted) && !isCheckpointGated(story, lorebook, comment);
 };
 
 export const entriesForScope = (lorebook: string, entries: Array<{ comment?: string; content?: unknown; key?: unknown; disable?: unknown }>): CuratorEntryView[] =>

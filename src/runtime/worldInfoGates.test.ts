@@ -1,6 +1,6 @@
 import * as sunRuins from "../../examples/sun-ruins/quest-for-the-sun-ruins.json";
-import { parseStoryV2OrThrow } from "@engine/validate";
-import { gatedWorldInfo, readWorldInfoEffect, releasePlan, worldInfoPlan } from "./worldInfoGates";
+import { gatedWorldInfo, parseStoryV2OrThrow, readWorldInfoEffect } from "@engine/index";
+import { releasePlan, worldInfoPlan } from "./worldInfoGates";
 
 const story = (checkpoints: Array<{ id: string; type?: string; world_info?: unknown }>) => parseStoryV2OrThrow({
   format: 2,

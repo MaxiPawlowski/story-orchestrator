@@ -595,6 +595,7 @@ export class RuntimeManager {
   }
 
   onMemberDrafted(chId: number | [number]) { this.memory.onMemberDrafted(chId); }
+  onGenerationStarted(type: unknown) { if (type === "impersonate" || type === "quiet") this.memory.withholdPrivateKnowledge(); }
 
   clearPrivateInjection() {
     if (!this.loaded) return;

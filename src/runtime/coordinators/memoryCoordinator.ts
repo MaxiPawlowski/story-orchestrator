@@ -1,7 +1,7 @@
 import { progressQualityForAnchor, type BlackboardDelta, type EngineState, type NormalizedStoryV2, type NormalizedTransition } from "@engine/index";
 import { callExtractionModel, deriveScope, getCanonLite, runSharedRead, stripChannelNoise, type ExtraGateSource, type ParsedDelta, type ParsedFact, type SharedReadWindow } from "@extraction/index";
-import { activeEpistemic, addMemoryEntries, applyArcSignals, dropByMessageId, rollbackArcs, rollbackEpistemic, rollbackLedger,applyConsolidation, applyEpistemicInjection, applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildArcSummaryPrompt, buildBoundKeySet, buildCanonSummaryPrompt, buildJaccardMatchSets, buildLedgerView, buildMemoryInjectionBlocks, canonInputHash, capAllTiers, capEpistemic, capLedger, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, clearEpistemicInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, DEFAULT_DEDUP_THRESHOLDS, editEntryText, excludeEntry, expireScoped, markContradicted, matchArcBridges, memoryExtensionKey, openArcTexts, removeArc, removeEpistemic, removeLedger, renderLedgerBlock, renderPrivateEpistemicBlock, resolvedArcs, restoreEntry, setArcPinned, setArcSummary, setEpistemicPinned, setLedgerPinned, setPinned, type ArcEntry, type EpistemicEntry, type LedgerBinding, type LedgerView, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ScoreContext, type UncertainPair } from "@memory/index";
-import { bindChatLorebook, clearStoryExtensionPrompt, countTokens, DEFAULT_VECTOR_SOURCE, disableWIEntry, ensureLorebook, getCharacterNameById, getContext, loadLorebook, setStoryExtensionPrompt, upsertWIEntry, vectorInsert, vectorPurge, vectorQuery } from "@services/STAPI";
+import { activeEpistemic, addMemoryEntries, applyArcSignals, dropByMessageId, rollbackArcs, rollbackEpistemic, rollbackLedger,applyConsolidation, applyEpistemicInjection, applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildArcSummaryPrompt, buildBoundKeySet, buildCanonSummaryPrompt, buildJaccardMatchSets, buildLedgerView, buildMemoryInjectionBlocks, canonHistory, canonInputHash, capAllTiers, capEpistemic, capLedger, dropCommonKnowledge, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, clearEpistemicInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, DEFAULT_DEDUP_THRESHOLDS, editEntryText, excludeEntry, expireScoped, markContradicted, matchArcBridges, memoryExtensionKey, openArcTexts, removeArc, removeEpistemic, removeLedger, renderLedgerBlock, renderPrivateEpistemicBlock, resolvedArcs, restoreEntry, setArcPinned, setArcSummary, setEpistemicPinned, setLedgerPinned, setPinned, type ArcEntry, type EpistemicEntry, type LedgerBinding, type LedgerView, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ScoreContext, type UncertainPair } from "@memory/index";
+import { bindChatLorebook, clearStoryExtensionPrompt, countTokens, DEFAULT_VECTOR_SOURCE, disableWIEntry, ensureLorebook, getActiveGroup, getCharacterNameById, getContext, loadLorebook, setStoryExtensionPrompt, upsertWIEntry, vectorInsert, vectorPurge, vectorQuery } from "@services/STAPI";
 import { EPISTEMIC_INJECTION_DEPTH, LEDGER_INJECTION_DEPTH } from "@constants/defaults";
 import { emptyMirrorSummary, syncMemoryMirror, type MemoryMirrorSummary } from "../memoryMirror";
 import { activeSpeakerId, enabledCharacterIds, enabledCharacterNames, namesForRosterId, rosterIdForName, rosterMemberName } from "../roster";
@@ -284,7 +284,7 @@ export class MemoryCoordinator {
   // Canon-lite is prompt scaffolding ("Anchor cp1: …", "Gate a -> b"): fine for the memory model,
   // never for the player. Reader surfaces take the synthesized prose or nothing.
   getCanonProse(): string {
-    return this.state.canon?.text ?? "";
+    return canonHistory(this.state.canon?.text ?? "");
   }
 
   async regenerateCanon(force = false): Promise<boolean> {
@@ -293,12 +293,14 @@ export class MemoryCoordinator {
     const arcSummaries = resolvedArcs(this.state.arcs).map((arc) => arc.summary).filter((summary): summary is string => Boolean(summary));
     if (!arcSummaries.length) return false;
     const facts = this.highImportanceFacts(30).map((entry) => entry.text);
-    const inputHash = canonInputHash(arcSummaries, facts);
+    const active = story.checkpointById[this.deps.getState()?.activeCheckpointId ?? ""];
+    const checkpoint = active ? { id: active.id, name: active.name, objective: active.objective } : null;
+    const inputHash = canonInputHash(arcSummaries, facts, checkpoint);
     if (!force && this.state.canon?.inputHash === inputHash) return false;
     this.canonInFlight = true;
     try {
       const settings = this.deps.getExtractionSettings();
-      const text = await callExtractionModel(buildCanonSummaryPrompt(story.title, arcSummaries, facts), {
+      const text = await callExtractionModel(buildCanonSummaryPrompt(story.title, arcSummaries, facts, checkpoint), {
         profileId: settings.profileId,
         debugResponse: globalThis.storyOrchestratorDebugCanonResponse ?? null,
       });
@@ -315,7 +317,8 @@ export class MemoryCoordinator {
   // --- epistemic / ledger ------------------------------------------------
 
   applyEpistemic(signals: ParsedEpistemicSignal[], messageId: number, retireIds: string[] = []) {
-    const applied = applyEpistemicSignals(this.state.epistemic, signals, { boundary: this.boundaryStamp(), messageId }, retireIds);
+    const kept = dropCommonKnowledge(signals, enabledCharacterNames(this.deps.getStory()));
+    const applied = applyEpistemicSignals(this.state.epistemic, kept, { boundary: this.boundaryStamp(), messageId }, retireIds);
     this.patch({ epistemic: capEpistemic(applied.entries) });
   }
 
@@ -426,7 +429,9 @@ export class MemoryCoordinator {
         const epistemic = renderPrivateEpistemicBlock(this.state.epistemic, namesForRosterId(story, id));
         this.stagedPrivate.set(id, { facts, epistemic });
       }
-      const speakerBlock = speaker ? (this.stagedPrivate.get(speaker)?.epistemic ?? "") : renderPrivateEpistemicBlock(this.state.epistemic, enabledCharacterNames(story));
+      // A group has no speaker between drafts: whatever holds the prompt at rest (impersonate, quiet
+      // generations, other extensions) must not carry the last drafted member's private knowledge.
+      const speakerBlock = getActiveGroup() ? "" : speaker ? (this.stagedPrivate.get(speaker)?.epistemic ?? "") : renderPrivateEpistemicBlock(this.state.epistemic, enabledCharacterNames(story));
       applyEpistemicInjection(speakerBlock, EPISTEMIC_INJECTION_DEPTH);
     } else {
       clearEpistemicInjection();
@@ -438,6 +443,12 @@ export class MemoryCoordinator {
     const factsKey = memoryExtensionKey("facts");
     if (facts) setStoryExtensionPrompt(factsKey, facts, this.state.settings.injectionDepths.facts);
     else clearStoryExtensionPrompt(factsKey);
+  }
+
+  // Impersonate writes as the player and quiet generations serve other tools, even when ST drafted
+  // a member for them: neither may read a character's private knowledge.
+  withholdPrivateKnowledge() {
+    clearEpistemicInjection();
   }
 
   onMemberDrafted(chId: number | [number]) {

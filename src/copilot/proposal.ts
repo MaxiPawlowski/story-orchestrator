@@ -48,7 +48,7 @@ export const provisioningFollowUpOps = (draft: StoryV2, op: ProvisioningOp): Pro
   const current = draft.requirements ?? {};
   const merge = (existing: string[] | undefined, additions: string[]) => {
     const seen = new Set((existing ?? []).map((entry) => entry.trim().toLowerCase()));
-    return [...(existing ?? []), ...additions.filter((entry) => !seen.has(entry.trim().toLowerCase()))];
+    return [...(existing ?? []), ...additions.map((entry) => entry.trim()).filter((entry) => !seen.has(entry.toLowerCase()))];
   };
   const requirements = {
     ...current,

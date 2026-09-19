@@ -1,6 +1,7 @@
 import {
   applyEpistemicSignals,
   capEpistemic,
+  dropCommonKnowledge,
   epistemicForSubject,
   removeEpistemic,
   renderPrivateEpistemicBlock,
@@ -123,5 +124,46 @@ describe("epistemic maintenance ops", () => {
     for (let i = 0; i < 5; i += 1) entries = applyEpistemicSignals(entries, [sig("knows", `C${i}`, `fact number ${i}`)], ctx(i)).entries;
     expect(capEpistemic(entries, 3)).toHaveLength(3);
     expect(removeEpistemic(entries, entries[0].id)).toHaveLength(4);
+  });
+
+  it("keeps each subject's newest entries under the per-subject cap, and never trims a pinned one", () => {
+    let entries: EpistemicEntry[] = [];
+    for (let i = 0; i < 5; i += 1) entries = applyEpistemicSignals(entries, [sig("knows", "Belle", `detail number ${i}`), sig("knows", "Dalan", `other detail ${i}`)], ctx(i)).entries;
+    entries = setEpistemicPinned(entries, entries[0].id, true);
+    const capped = capEpistemic(entries, 80, 2);
+    expect(capped.filter((entry) => entry.subject === "Belle").map((entry) => entry.content)).toEqual(["detail number 0", "detail number 3", "detail number 4"]);
+    expect(capped.filter((entry) => entry.subject === "Dalan").map((entry) => entry.content)).toEqual(["other detail 3", "other detail 4"]);
+  });
+});
+
+describe("dropCommonKnowledge", () => {
+  const present = ["Belle", "Dalan", "Tobias"];
+
+  it("drops a [knows] fact three characters are all handed in one batch, whatever its punctuation", () => {
+    const kept = dropCommonKnowledge([
+      sig("knows", "Belle", "The mine collapsed on the miners."),
+      sig("knows", "Dalan", "the mine collapsed on the miners"),
+      sig("knows", "Max", "The mine collapsed, on the miners!"),
+      sig("knows", "Belle", "Ilsa hid the map in the chapel"),
+    ], present);
+    expect(kept).toEqual([sig("knows", "Belle", "Ilsa hid the map in the chapel")]);
+  });
+
+  it("drops a fact every character present knows, even when only two are present", () => {
+    expect(dropCommonKnowledge([sig("knows", "Belle", "The gate is open"), sig("knows", "Dalan", "The gate is open")], ["Belle", "Dalan"])).toEqual([]);
+    expect(dropCommonKnowledge([sig("knows", "Belle", "The gate is open"), sig("knows", "Dalan", "The gate is open")], present)).toHaveLength(2);
+  });
+
+  it("keeps shared knowledge that the batch marks someone as missing, and never touches other tags", () => {
+    const signals = [
+      sig("knows", "Belle", "The steward lied"),
+      sig("knows", "Dalan", "The steward lied"),
+      sig("knows", "Max", "The steward lied"),
+      sig("unaware", "Tobias", "the steward lied"),
+      sig("suspects", "Belle", "Dalan is hurt"),
+      sig("suspects", "Dalan", "Dalan is hurt"),
+      sig("suspects", "Tobias", "Dalan is hurt"),
+    ];
+    expect(dropCommonKnowledge(signals, present)).toEqual(signals);
   });
 });

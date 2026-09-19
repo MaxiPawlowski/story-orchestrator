@@ -35,6 +35,38 @@ describe("buildCandidates", () => {
     const control: TalkControl = { speakers: [{ member: "guard" }, { member: "Captain Mara", weight: 5 }] };
     expect(buildCandidates(control, roster, allEnabled)).toEqual([candidate("guard", "Captain Mara")]);
   });
+
+  it("adds a lead the speakers list leaves out, so the rules can still pick it", () => {
+    const control: TalkControl = { speakers: [{ member: "guard", weight: 2 }], lead: "Elder Finn" };
+    const candidates = buildCandidates(control, roster, allEnabled);
+    expect(candidates).toEqual([candidate("guard", "Captain Mara", 2), candidate("sage", "Elder Finn")]);
+    expect(chooseByRules(control, candidates, { lastSpeakerRosterId: "guard" })).toEqual(candidate("sage", "Elder Finn"));
+  });
+
+  it("alternates an added lead with the others under no_repeat instead of repeating it", () => {
+    const control: TalkControl = { speakers: [{ member: "guard" }], lead: "sage" };
+    const candidates = buildCandidates(control, roster, allEnabled);
+    const picks: string[] = [];
+    let last: string | null = null;
+    for (let turn = 0; turn < 4; turn += 1) {
+      last = chooseByRules(control, candidates, { lastSpeakerRosterId: last })?.rosterId ?? null;
+      picks.push(last ?? "none");
+    }
+    expect(picks).toEqual(["sage", "guard", "sage", "guard"]);
+  });
+
+  it("lets a lead that is the only enabled candidate speak every turn, since nobody else may", () => {
+    const control: TalkControl = { speakers: [{ member: "guard" }], lead: "sage" };
+    const candidates = buildCandidates(control, roster, ["sage"]);
+    expect(candidates).toEqual([candidate("sage", "Elder Finn")]);
+    expect(chooseByRules(control, candidates, { lastSpeakerRosterId: "sage" })).toEqual(candidate("sage", "Elder Finn"));
+  });
+
+  it("keeps a listed lead's weight and never adds a lead that is disabled or not in the roster", () => {
+    expect(buildCandidates({ speakers: [{ member: "sage", weight: 4 }], lead: "sage" }, roster, allEnabled)).toEqual([candidate("sage", "Elder Finn", 4)]);
+    expect(buildCandidates({ speakers: [{ member: "guard" }], lead: "sage" }, roster, ["guard"])).toEqual([candidate("guard", "Captain Mara")]);
+    expect(buildCandidates({ speakers: [{ member: "guard" }], lead: "Adolion Narrator" }, roster, allEnabled)).toEqual([candidate("guard", "Captain Mara")]);
+  });
 });
 
 describe("narrowByMention", () => {

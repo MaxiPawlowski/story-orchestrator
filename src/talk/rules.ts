@@ -27,7 +27,8 @@ export const buildCandidates = (control: TalkControl, roster: RosterMember[], en
     if (member.name) byKey.set(normalize(member.name), member);
   }
   const candidates: TalkCandidate[] = [];
-  for (const speaker of control.speakers) {
+  const refs = [...control.speakers, ...(control.lead ? [{ member: control.lead }] : [])];
+  for (const speaker of refs) {
     const member = byKey.get(normalize(speaker.member));
     if (!member || !enabled.has(member.id)) continue;
     if (candidates.some((candidate) => candidate.rosterId === member.id)) continue;

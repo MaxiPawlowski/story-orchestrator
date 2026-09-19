@@ -1,3 +1,4 @@
+import { isValidationErrorList, parseStoryV2 } from "@engine/index";
 import { newStoryDraft, type StoryDraft } from "./draft";
 import {
   addCheckpoint,
@@ -7,6 +8,8 @@ import {
   nextId,
   removeCheckpoint,
   removeQuality,
+  setRequirements,
+  setStagecraft,
   setStartCheckpoint,
   setStoryField,
   setTransitionGate,
@@ -96,5 +99,28 @@ describe("setStoryField", () => {
     const next = setStoryField(draft, "title", "Renamed");
     expect(next.title).toBe("Renamed");
     expect(draft.title).toBe("Untitled Story");
+  });
+});
+
+describe("setRequirements / setStagecraft keep entries as typed", () => {
+  it("keeps a trailing space mid-word and a blank new row", () => {
+    const draft = base();
+    expect(setRequirements(draft, { personas: ["Max "] }).requirements).toEqual({ personas: ["Max "] });
+    expect(setRequirements(draft, { personas: ["Max Power"], lorebooks: [""] }).requirements).toEqual({ personas: ["Max Power"], lorebooks: [""] });
+    expect(setStagecraft(draft, { lorebooks: ["Xentar "] }).stagecraft).toEqual({ lorebooks: ["Xentar "] });
+    expect(setStagecraft(draft, { lorebooks: [""] }).stagecraft).toEqual({ lorebooks: [""] });
+  });
+  it("drops an empty list, and the whole block when no list has an entry", () => {
+    const draft: StoryDraft = { ...base(), requirements: { members: ["Arin"] }, stagecraft: { lorebooks: ["Lore"] } };
+    expect(setRequirements(draft, { members: ["Arin"], personas: [] }).requirements).toEqual({ members: ["Arin"] });
+    expect(setRequirements(draft, { members: [] })).not.toHaveProperty("requirements");
+    expect(setStagecraft(draft, { lorebooks: [] })).not.toHaveProperty("stagecraft");
+  });
+  it("leaves the trimming to parse", () => {
+    const draft = setStagecraft(setRequirements(base(), { personas: ["Max Power ", ""], lorebooks: [" Xentar Checkpoints"] }), { lorebooks: ["", " "] });
+    const parsed = parseStoryV2(draft);
+    if (isValidationErrorList(parsed)) throw new Error(parsed[0]?.message);
+    expect(parsed.requirements).toEqual({ personas: ["Max Power"], lorebooks: ["Xentar Checkpoints"] });
+    expect(parsed.stagecraft).toBeUndefined();
   });
 });

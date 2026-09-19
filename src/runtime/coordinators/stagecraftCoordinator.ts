@@ -5,6 +5,7 @@ import {
   curatorHasScope,
   curatorLorebooks,
   entriesForScope,
+  isCheckpointGated,
   isCuratorWritable,
   parseCuratorResponse,
   planCuratorProposal,
@@ -73,14 +74,15 @@ export class StagecraftCoordinator {
     return this.curatorEnabled && !this.inFlight && boundary - this.state.lastRunBoundary >= CURATOR_BOUNDARY_GAP;
   }
 
-  // Only the authored allowlist is ever read, so the prompt cannot mention — and the parser cannot
-  // accept — an entry from a book the story does not own.
+  // Only the authored allowlist is ever read, minus the entries checkpoints switch, so the prompt
+  // cannot mention — and the parser cannot accept — an entry the curator may not write.
   async readScope(): Promise<CuratorEntryView[]> {
+    const story = this.deps.getStory();
     const views: CuratorEntryView[] = [];
-    for (const lorebook of curatorLorebooks(this.deps.getStory())) {
+    for (const lorebook of curatorLorebooks(story)) {
       const loaded = await loadLorebook(lorebook);
       if (!loaded?.entries) continue;
-      views.push(...entriesForScope(lorebook, Object.values(loaded.entries)));
+      views.push(...entriesForScope(lorebook, Object.values(loaded.entries)).filter((view) => !isCheckpointGated(story, view.lorebook, view.comment)));
     }
     return views;
   }
@@ -204,8 +206,11 @@ export class StagecraftCoordinator {
 
   private async writeOp(story: NormalizedStoryV2, entry: CuratorOpRecord, entries: CuratorEntryView[]): Promise<{ ok: boolean; record: CuratorOpRecord }> {
     const op = entry.op;
-    if (!isCuratorWritable(story, op.lorebook)) {
-      return { ok: false, record: { ...entry, status: "failed", message: `"${op.lorebook}" is not on this story's stagecraft allowlist` } };
+    if (!isCuratorWritable(story, op.lorebook, op.comment)) {
+      const message = isCheckpointGated(story, op.lorebook, op.comment)
+        ? `"${op.comment}" is switched by checkpoint effects, which alone decide it`
+        : `"${op.lorebook}" is not on this story's stagecraft allowlist`;
+      return { ok: false, record: { ...entry, status: "failed", message } };
     }
     const live = entries.find((candidate) => candidate.lorebook.toLowerCase() === op.lorebook.toLowerCase() && candidate.comment.toLowerCase() === op.comment.toLowerCase());
     const preview = previewCuratorOp(op, live);
@@ -236,7 +241,7 @@ export class StagecraftCoordinator {
     let reverted = 0;
     for (const record of affected) {
       for (const entry of [...record.ops].reverse()) {
-        if (entry.status !== "applied" || !entry.before || !isCuratorWritable(story, entry.op.lorebook)) continue;
+        if (entry.status !== "applied" || !entry.before || !isCuratorWritable(story, entry.op.lorebook, entry.op.comment)) continue;
         if (entry.op.kind === "rewrite" || entry.op.kind === "patch") await upsertWIEntry(entry.op.lorebook, entry.op.comment, entry.before.content);
         if (entry.before.disabled) await disableWIEntry(entry.op.lorebook, entry.op.comment);
         else await enableWIEntry(entry.op.lorebook, entry.op.comment);

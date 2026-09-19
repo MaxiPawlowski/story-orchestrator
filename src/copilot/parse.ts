@@ -285,7 +285,7 @@ const readRequirements = (value: unknown, path: string, issues: string[]): Story
     issues.push(`${path}: requirements must be an object`);
     return undefined;
   }
-  const list = (entry: unknown) => (Array.isArray(entry) ? entry.filter((item): item is string => typeof item === "string" && item.trim().length > 0) : []);
+  const list = (entry: unknown) => (Array.isArray(entry) ? entry.filter((item): item is string => typeof item === "string" && item.trim().length > 0).map((item) => item.trim()) : []);
   const requirements: StoryRequirements = {};
   const personas = list(value.personas);
   const members = list(value.members);

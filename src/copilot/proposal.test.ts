@@ -138,6 +138,13 @@ describe("provisioning ops against the draft", () => {
       .toEqual({ kind: "setStagecraft", stagecraft: { lorebooks: ["Vault Lore", "Heist Lore"] } });
   });
 
+  it("trims the created name it adds, since setRequirements and setStagecraft keep entries as typed", () => {
+    expect(provisioningFollowUpOps(baseDraft(), { kind: "createStoryLorebook", name: " Heist Lore " })).toEqual([
+      { kind: "setRequirements", requirements: { lorebooks: ["Heist Lore"] } },
+      { kind: "setStagecraft", stagecraft: { lorebooks: ["Heist Lore"] } },
+    ]);
+  });
+
   it("leaves the story alone for ops that create nothing it must require", () => {
     expect(provisioningFollowUpOps(baseDraft(), { kind: "upsertLorebookEntry", lorebook: "Vault Lore", comment: "x", keys: [], content: "y" })).toEqual([]);
     expect(provisioningFollowUpOps(baseDraft(), { kind: "createGroup", name: "Party", members: ["Arin"] })).toEqual([]);

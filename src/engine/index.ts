@@ -8,3 +8,4 @@ export * from "./schema";
 export * from "./storyDiff";
 export * from "./transitions";
 export * from "./validate";
+export * from "./worldInfoEffects";

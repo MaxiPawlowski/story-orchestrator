@@ -169,6 +169,21 @@ describe("TalkController intercept", () => {
     expect(calls.decisions[0]).toMatchObject({ chosenRosterId: "guard", source: "fallback" });
   });
 
+  it("offers a lead the speakers list leaves out to the director, as a candidate and as the scene lead", async () => {
+    const { host, calls } = makeHost({
+      getActiveTalkControl: () => ({ speakers: [{ member: "Mara" }], lead: "Finn", director: true }),
+      callDirector: async (prompt) => { calls.director.push(prompt); return "SPEAKER: Finn"; },
+      getDraftedRosterId: () => "sage",
+    });
+    const controller = new TalkController(host);
+    const { state, abort } = makeAbort();
+    await controller.intercept(abort, "normal");
+    expect(calls.director[0]).toContain("Candidates: Mara, Finn");
+    expect(calls.director[0]).toContain("Scene lead: Finn");
+    expect(state.aborted).toBe(false);
+    expect(calls.decisions[0]).toMatchObject({ chosenRosterId: "sage", source: "director" });
+  });
+
   it("passes through when no candidate resolves against the roster", async () => {
     const { host, calls } = makeHost({ getActiveTalkControl: () => ({ speakers: [{ member: "ghost" }] }) });
     const controller = new TalkController(host);

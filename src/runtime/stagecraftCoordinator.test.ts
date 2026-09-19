@@ -34,6 +34,11 @@ const story = (lorebooks: string[] = ["Story Lore"]): NormalizedStoryV2 => parse
   ...(lorebooks.length ? { stagecraft: { lorebooks } } : {}),
 });
 
+const gatedStory = (): NormalizedStoryV2 => parseStoryV2OrThrow({
+  ...JSON.parse(JSON.stringify(story())),
+  checkpoints: [{ id: "cp1", name: "The bank", objective: "Cross", type: "anchor", start: true, effects: { world_info: { enable: [{ lorebook: "Story Lore", comments: ["The ferryman"] }] } } }],
+});
+
 const engineState = (boundary = 10, lastMessageId = 20): EngineState => ({
   activeCheckpointId: "cp1",
   boundary,
@@ -178,6 +183,24 @@ describe("StagecraftCoordinator", () => {
     expect(upsertWIEntry).not.toHaveBeenCalled();
     expect(read().proposals[0].ops[0]).toMatchObject({ status: "failed" });
     expect(read().proposals[0].ops[0].message).toContain("not on this story's stagecraft allowlist");
+  });
+
+  it("never shows the curator an entry a checkpoint switches, so it cannot propose one", async () => {
+    const { coordinator } = harness({ story: gatedStory() });
+    expect((await coordinator.readScope()).map((view) => view.comment)).toEqual(["The bridge"]);
+    respond("[enable] The ferryman\n[why] The ferry runs again.");
+    const { record } = await coordinator.runCuratorPass();
+    expect(record?.ops ?? []).toHaveLength(0);
+  });
+
+  it("refuses to write a checkpoint-switched entry even if an accepted record names it", async () => {
+    const { coordinator, read } = harness({ story: gatedStory() });
+    respond("[rewrite] The bridge || The bridge is gone.");
+    const { record } = await coordinator.runCuratorPass();
+    await coordinator.setOpDecision(record!.id, 0, "accepted", { kind: "enable", lorebook: "Story Lore", comment: "The ferryman" });
+    expect(await coordinator.applyAccepted()).toBe(0);
+    expect(enableWIEntry).not.toHaveBeenCalled();
+    expect(read().proposals[0].ops[0].message).toContain("switched by checkpoint effects");
   });
 
   it("reverts an applied change when the story rolls back past it", async () => {

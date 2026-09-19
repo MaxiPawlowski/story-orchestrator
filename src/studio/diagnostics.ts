@@ -162,7 +162,7 @@ export const runDiagnostics = (draft: StoryV2): Diagnostic[] => {
           push("talk-member-unknown", "warning", `${path}.lead`, `lead '${control.lead}' is not a roster member`);
         } else if (control.speakers?.length) {
           const speakerIds = new Set(control.speakers.map((speaker) => resolveRosterRef(speaker.member)).filter(Boolean));
-          if (!speakerIds.has(leadId)) push("talk-lead-outside-speakers", "warning", `${path}.lead`, `lead '${control.lead}' is not in the speakers list`);
+          if (!speakerIds.has(leadId)) push("talk-lead-outside-speakers", "warning", `${path}.lead`, `lead '${control.lead}' is not in the speakers list; it still joins the candidates at weight 1, so list it to set its weight`);
         }
       }
       if (control.allow_silence && !directorEnabled(control)) {

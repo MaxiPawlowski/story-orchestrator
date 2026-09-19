@@ -43,7 +43,7 @@ describe("parseProposal", () => {
       ops: [
         { kind: "setArcTemplate", template: "rising" },
         { kind: "setArcBridges", bridges: [{ arcMatch: "the relic", anchor: "cache", amount: 1 }] },
-        { kind: "setRequirements", requirements: { members: ["Arin"], lorebooks: ["Xentar"], personas: [] } },
+        { kind: "setRequirements", requirements: { members: ["Arin "], lorebooks: ["Xentar"], personas: [" "] } },
       ],
     }));
     expect(issues).toEqual([]);

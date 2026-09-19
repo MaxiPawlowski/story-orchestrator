@@ -4,6 +4,7 @@ import { EPISTEMIC_TAGS, generateMemoryId, type EpistemicEntry, type EpistemicTa
 export const EPISTEMIC_MIN_LENGTH = 3;
 export const EPISTEMIC_DEDUP_THRESHOLD = 0.6;
 export const EPISTEMIC_CAP = 80;
+export const EPISTEMIC_SUBJECT_CAP = 12;
 
 const PRIVATE_TAGS: EpistemicTag[] = ["knows", "suspects", "believes", "hiding"];
 
@@ -109,10 +110,41 @@ export function rollbackEpistemic(entries: EpistemicEntry[], messageId: number):
   return entries.filter((entry) => entry.pinned || typeof entry.messageId !== "number" || entry.messageId < messageId);
 }
 
-export function capEpistemic(entries: EpistemicEntry[], cap: number = EPISTEMIC_CAP): EpistemicEntry[] {
-  const trimmable = entries.filter((entry) => !entry.pinned);
-  if (trimmable.length <= cap) return entries;
-  const keep = new Set(trimmable.slice(-cap).map((entry) => entry.id));
+// Each character keeps its newest entries, so one talkative subject cannot fill the private block
+// (or the whole store) with scene detail; pinned entries never count against either cap.
+const knowledgeKey = (content: string) => content.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+
+// Models ignore "asymmetry only" and hand every character present the same [knows] line about the
+// scene. Such a fact is the scene itself, not private knowledge: dropped when three or more
+// characters, or every character present, get it in one batch, unless another line in the batch
+// marks someone as unaware of it, suspecting, believing or hiding it.
+export function dropCommonKnowledge(signals: ParsedEpistemicSignal[], present: string[]): ParsedEpistemicSignal[] {
+  const everyone = new Set(present.map(normalize));
+  const knowers = new Map<string, Set<string>>();
+  const contested = new Set<string>();
+  for (const signal of signals) {
+    const key = knowledgeKey(signal.content);
+    if (signal.tag !== "knows") { contested.add(key); continue; }
+    const subjects = knowers.get(key) ?? new Set<string>();
+    subjects.add(normalize(signal.subject));
+    knowers.set(key, subjects);
+  }
+  const common = new Set([...knowers].filter(([key, subjects]) =>
+    !contested.has(key) && (subjects.size >= 3 || (everyone.size >= 2 && [...everyone].every((name) => subjects.has(name))))).map(([key]) => key));
+  return signals.filter((signal) => signal.tag !== "knows" || !common.has(knowledgeKey(signal.content)));
+}
+
+export function capEpistemic(entries: EpistemicEntry[], cap: number = EPISTEMIC_CAP, subjectCap: number = EPISTEMIC_SUBJECT_CAP): EpistemicEntry[] {
+  const perSubject = new Map<string, number>();
+  const keep = new Set<string>();
+  for (const entry of [...entries].reverse()) {
+    if (entry.pinned) continue;
+    const subject = normalize(entry.subject);
+    const count = perSubject.get(subject) ?? 0;
+    if (count >= subjectCap || keep.size >= cap) continue;
+    perSubject.set(subject, count + 1);
+    keep.add(entry.id);
+  }
   return entries.filter((entry) => entry.pinned || keep.has(entry.id));
 }
 

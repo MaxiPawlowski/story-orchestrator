@@ -57,6 +57,13 @@ describe("architecture guards", () => {
     }
   });
 
+  it("keeps the pure engine and stagecraft cores from importing the runtime layer that consumes them", () => {
+    for (const path of [...walk(join(SRC, "engine")), ...walk(join(SRC, "stagecraft"))]) {
+      const offenders = importsOf(path).filter((specifier) => specifier.startsWith("@runtime") || /\.\.\/runtime\//.test(specifier));
+      expect({ path, offenders }).toEqual({ path, offenders: [] });
+    }
+  });
+
   // The one stagecraft invariant that must never be re-argued: a curator proposes presentation and
   // nothing else. It cannot reach a memory tier or the apply queue, so it cannot write either.
   it("keeps the stagecraft coordinator away from the blackboard and the memory tiers", () => {
