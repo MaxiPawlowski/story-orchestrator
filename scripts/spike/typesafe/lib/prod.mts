@@ -1,0 +1,10 @@
+export { buildFixtureRun } from '@extraction/fixtureRun';
+export { parseSharedReadResponse, stripReasoningBlocks } from '@extraction/parse';
+export { renderDirectorPrompt } from '@talk/prompt';
+export { parseDirectorResponse } from '@talk/parse';
+export { narrowByMention, chooseByRules } from '@talk/rules';
+export { applyArcSignals, matchArcBridges, ARC_RESOLVE_THRESHOLD } from '@memory/arcs';
+export { buildJaccardMatchSets, consolidateTier, DEFAULT_DEDUP_THRESHOLDS } from '@memory/consolidate';
+export { jaccardSimilarity } from '@memory/similarity';
+export { detectSceneBreakHeuristic } from '@memory/sceneDetect';
+export { DIRECTOR_MAX_TOKENS, DIRECTOR_WINDOW_MESSAGES, DIRECTOR_TIMEOUT_MS } from '@runtime/talkControl';

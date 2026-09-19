@@ -1,0 +1,285 @@
+# Plan 03 — Scene read ("current scenario data")
+
+## Objective
+
+Every committed boundary, one cheap judge call reads the scene: did it just break, where is it,
+when is it, who is present, was the player's last message out of character, and which reachable
+checkpoints is play heading toward. Code turns that into:
+
+- an earlier and more precise **scene-break trigger** (the regex heuristic is right on 11 of 22
+  cases and catches 6 of the 12 real breaks);
+- a **scene tracker**: an injected block and macros that keep the roleplay model grounded (the ST
+  community's "tracker" pattern, which is free at Jev prices);
+- a **look-ahead** read model, which plan 07 uses to pre-generate the stub play is drifting toward.
+
+This plan answers the user's "compute the current scenario data" and "plan checkpoints a couple of
+steps ahead" (overview §Use-case review).
+
+## Context
+
+- Spike: README §Scene break. Jev scored 22/22 and the regex heuristic 11/22.
+  `experiments/narrative.mts` holds `SCENE_PLAIN` + `SCENE_STRUCTURED` and the break-type choice.
+- **How scene breaks work today.** `boundaryWork` `scene-detect` (order 50) runs
+  `detectSceneBreak()`. That call advances a location/cast cursor, and on a heuristic hit it
+  schedules a P0 shared read `scene:<reason>`.
+  - Every shared read, cadence or triggered, asks the LLM for `SCENE_BREAK at=… reason=…` or
+    `SCENE_NONE` (`memory/contract.ts:58`). The read is what confirms a break (`audit.sceneBreak` →
+    `emitSceneBreak`).
+  - So the current path's accuracy is the LLM's. What the heuristic costs is **latency** (a missed
+    break waits for the next cadence read, `cadence` = 3 boundaries) and **wasted reads** (every
+    false hit spends a P0 read on the GPU).
+  - Corrected after review. The spike write-up first framed this as "50% → 100%".
+- Not measured by the spike: presence, location, time of day, OOC detection, look-ahead. Overview
+  rule 2 applies, so Phase A measures them first. Any field family that misses its floor is left
+  out of Phase B, and the Gate record says so.
+- Reuse:
+  - `boundaryWork.ts` (registry).
+  - The plan-03 v2.1 coordinator pattern (constructor-injected deps, own extras slice, never import
+    another coordinator).
+  - `constants/injectionRegistry.ts` (depth 1 is free; `findInjectionRegistryProblems` must stay
+    empty).
+  - `runtime/macros.ts` `registerHostMacro`.
+  - `narrative.ts` (the player "now" section).
+  - The talk `getWindow()` shape.
+- Consumed: plan 01 (judge, roles), plan 02 (nothing directly). Regression floor: J3 (player
+  session), J5 (group direction), and J6 (rollback).
+
+## Scope
+
+In:
+- Phase A spike.
+- `SceneCoordinator` + `extras.scene`.
+- Scene-break trigger replacement.
+- Tracker block + macros + an optional player "now" line.
+- OOC flag → the extraction window annotation (only if Phase A passes).
+- Look-ahead read model + author view.
+- Format-2 `scene_read`.
+- Calibration fixtures, J11 scene checks.
+
+Non-goals:
+- Arc resolution and tension on the judge. The LLM stays the authority: the spike had arcs at
+  Artemis 22/22 vs Jev 21/22, and Jev's tension ran one level high on calm scenes, which would bias
+  pacing steering.
+- Confirming a scene break without the LLM read. The judge only triggers; the read still confirms.
+  Direct confirmation is a v2.3 seed once J11 has data.
+- Stall re-check (plan 06).
+- Expansion pre-generation (plan 07).
+
+## Deliverables
+
+### Phase A — spike (before any `src/` change)
+
+Add `scripts/spike/typesafe/experiments/sceneRead.mts` + `data/scene-read.json` to the harness
+(same runner, cache and report). Labels are written before any Jev answer is read. Each family
+includes a Spanish slice of ≥ 4.
+
+| Family | Question shape | Cases | Floor to build |
+|---|---|---|---|
+| Presence | noul per roster member: "Is <name> (<role>) physically present in the scene at the end of `transcript`?" | ≥ 20 windows × 3–5 members | ≥ 0.9 per-member accuracy at 0.5 |
+| Location | choice over the story's locations + `elsewhere` + `unclear` | ≥ 20 | ≥ 0.85 |
+| Time of day | choice over dawn/morning/midday/afternoon/evening/night + `unclear` | ≥ 20 | ≥ 0.8 exact, ≥ 0.95 within one bucket |
+| OOC | noul on the latest player message: "Is the latest message by `player` written out of character, speaking to the storyteller or system instead of acting in the story?" | ≥ 24 (half OOC, incl. `(OOC: …)`, bracketed meta, subtle "can you make X happen", in-character commands that only look meta) | ≥ 0.9, ≤ 1 false positive per 12 in-character |
+| Look-ahead | noul per reachable checkpoint: "Is the play in `transcript` moving toward: <name> — <objective>?" | ≥ 20 windows × 2–4 checkpoints | AUROC ≥ 0.8, p ≥ 0.7 right ≥ 0.85 |
+
+Record the numbers in this plan's Gate record, and state a threshold per family.
+
+### Pure core: `src/judge/scene.ts`
+
+- `buildSceneReadQuestions(input)` makes one fan-out call per boundary. It includes only the
+  families that passed Phase A, plus:
+  - `scene_break` (noul, `SCENE_PLAIN` + `SCENE_STRUCTURED` verbatim);
+  - `scene_break_type` (choice, verbatim).
+- The state is:
+
+```
+{ story: {title},
+  scene: {checkpoint, objective},
+  cast: [{name, role?}],
+  player: <persona name>,
+  locations?: [...],
+  times?: [...],
+  reachable?: [{id, name, objective}],
+  transcript: [{id, speaker, text}] }
+```
+
+  The transcript is the last `DIRECTOR_WINDOW_MESSAGES` (8).
+- The `scene_break` / `scene_break_type` state follows the spike's measured shape
+  (`narrative.mts`). The added fields are new state, so Phase A measures `scene_break` again
+  inside the full state, and the S01–S22 floor (22/22 at 0.5) must hold there before the trigger
+  ships.
+- `readScene(answers, input) → SceneRead`:
+
+```
+{ boundary, messageId, model,
+  sceneBreak: {p, type},
+  location?: {value, confidence},
+  time?: {value, confidence},
+  present?: Record<rosterId, p>,
+  ooc?: p,
+  headingTo?: Record<checkpointId, p> }
+```
+
+- `policy.ts` gains:
+
+| Constant | Value |
+|---|---|
+| `SCENE_TRIGGER` | 0.5 (spike: 22/22 at 0.5) |
+| `SCENE_FIELD_CONFIDENCE` | 0.6 (location/time) |
+| `PRESENT_P` | 0.7 |
+| `OOC_P` | from Phase A |
+| `HEADING_P` | from Phase A |
+
+### Format 2: `scene_read?`
+
+`scene_read?: { locations?: string[]; times?: string[]; inject?: boolean }`, added to schema,
+validate, the Studio **Story** tab, `storyDiff` (compatible) and copilot ops.
+
+- Locations default to the values of an `enum` quality keyed `location` when the story has one.
+  With neither, the location question is not asked: Jev can only select, and span-selection from
+  the text is unmeasured.
+- `times` defaults to the six buckets.
+- `inject` defaults to `true`.
+- Diagnostic `scene-read-location-empty` (info) fires when a story has a `location` quality of
+  type `string`. That type is useless to the judge; suggest `enum`.
+
+### Coordinator: `runtime/coordinators/sceneCoordinator.ts`
+
+It owns `extras.scene { last: SceneRead | null }`.
+
+- Deps:
+  - `getStory`, `getState`, `getWindow`, `getRoster` (with roles), `getPlayerName`;
+  - `judge` (injected transport from plan 01);
+  - `scheduleRead(reason)`, which is `scheduler.schedule({priority: 0, reason})`;
+  - `setInjection` / `clearInjection` (key `sceneTracker`);
+  - `recordCall` (plan 01's `extras.judge.calls` ring), `persist`, `notify`.
+- `runSceneRead()` is fire-and-forget from boundary work. It is **not** a scheduler job: a job
+  would queue behind LLM reads and lose the latency win.
+- Freshness: the result is dropped if `lastMessageId` changed while the call was in flight (the
+  skill's "check freshness before applying"). A mutation rollback clears `last` when its
+  `messageId` is past the rollback point.
+
+On a fresh result:
+1. If `sceneBreak.p ≥ SCENE_TRIGGER`, call `scheduleRead("scene:judge")`. The LLM read confirms, as
+   today.
+2. If `scene_read.inject`, rebuild the tracker block:
+   `[Scene: <location>, <time>. Present: <names>.]`. Include only fields over their floors, and
+   clear the block when none qualify. The block is injected through the registry key
+   `sceneTracker` (`story_orchestrator_scene`, depth 1, writer
+   `runtime/coordinators/sceneCoordinator`).
+3. Record the call in `extras.judge.calls` (`use: "scene"`, plan 01's ring) with the
+   probabilities the policy used.
+
+### Boundary work
+
+- New entry `scene-read`, order 45: `when: judge.uses.scene`.
+- `scene-detect` (order 50) keeps advancing the cursor on every boundary, because the probe is the
+  condition. While the scene read is active, it schedules a read only when the hit's `signals`
+  include a **deterministic** change: `cast` (the enabled members changed) or `location-quality`
+  (the blackboard `location` value changed; `sceneDetect.ts` reports that as reason `location`,
+  so the check reads `signals`, not `reason`).
+- Hits made only of text patterns (`divider`, `location-phrase`, `time_skip`) are ignored, and
+  the judge's `scene_break` replaces them.
+- With the flag off, both entries behave exactly as today.
+
+### Macros
+
+`story_scene_location`, `story_scene_time` and `story_scene_present`, returning `(unknown)` below
+floor. They let authors place scene data in their own Author's Note or card text.
+
+### Player surface
+
+`narrative.ts` "now" gains `at <location>` when the location is over floor. No probabilities, no
+look-ahead: future checkpoints are spoilers.
+
+### Author view
+
+The engine panel gains **Scene read**: every field with its probability, and **Heading toward**
+(checkpoint names with p). The spoiler checklist in `test-plan.md` gains "Heading toward" and the
+scene probabilities as author-only.
+
+### OOC consumer (only if Phase A passes)
+
+When `ooc ≥ OOC_P` for the latest user message, the next shared read's window marks that message
+`(out of character — not story events)`. This goes through `extraction/chatWindow.ts`, so an OOC
+"set trust to 10" cannot become a delta.
+
+- This changes the extraction prompt, so `so-live-suite --min 0.9` must stay green, and a new
+  fixture (`extractor23-ooc`) must prove the annotation holds.
+- The judge director (plan 01) receives the same flag as `scene.ooc: true` in its state.
+
+### Settings
+
+`judge.uses.scene` (default off), `#so-judge-use-scene`.
+
+### Fixtures
+
+- `test/fixtures/judge/scene.json` (the file name matches `--use scene`, per plan 01's layout):
+  promoted from Phase A, plus S01–S22 for `scene_break`.
+- `so-judge calibrate --use scene` checks every built family at its Phase A floor.
+
+### J11 scene checks
+
+| Check | What |
+|---|---|
+| J11.11 | Real play, judge scene on. One `scene` record per boundary in `extras.judge.calls`; `extras.scene.last.messageId` equals the newest message |
+| J11.12 | A scripted time-skip message (`/sendas`) that the regex misses (taken from S-cases the heuristic failed) → P0 read `scene:judge` is scheduled **on that boundary** |
+| J11.13 | The tracker block is present in the payload captured on the next generation (`GENERATE_AFTER_DATA`), with only over-floor fields |
+| J11.14 | Swipe/delete past the scene read → `last` cleared, block rebuilt at the next boundary |
+| J11.15 | Judge off → no `scene-read` work, the heuristic path unchanged, `judgeCalls = 0`. Judge on + a blackboard `location` change with no text cue → a P0 read is still scheduled (the deterministic trigger kept) |
+
+## Implementation notes
+
+- New coordinator ⇒ `architecture.test.ts` counts it against the coordinator budget automatically.
+  Add a guard: `sceneCoordinator` imports no `@memory`, `@generation` or `@pacing`, and calls no
+  `enqueue*`. It reads and injects; it never writes the spine.
+- The manager gains only the coordinator construction and one `sceneReadActive()` delegate. Pay for
+  it by moving the `detectSceneBreak` wiring into the coordinator deps if needed (v2.1 rule 3:
+  equal or lower line count).
+- Roles come from plan 01. Without roles, presence questions use names only. Phase A measures both,
+  and the Gate record says which ran.
+- The look-ahead only covers checkpoints the graph can actually reach in 1–2 hops
+  (`outgoingByCheckpoint`), capped at 6. Unreachable ones are never sent.
+
+## Leaves the machine
+
+| Question | Data sent |
+|---|---|
+| Scene read | Last 8 messages with speaker names; player persona **name**; cast names + roles; active checkpoint name + objective; **names and objectives of checkpoints 1–2 hops ahead** (spoilers for the player, sent to TypeSafe, never shown in player mode); location/time vocabularies |
+
+## Validation gate
+
+Harness:
+- `npm run typecheck && npm run lint && npm test && npm run build`.
+- Pure suites for `readScene` (field floors, freshness) and the tracker text.
+- Registry problems empty; the coordinator guard; Storybook for the author scene panel and the
+  Studio `scene_read` field.
+
+Live (fresh-start, headed, real):
+- J11.11–J11.15, run twice.
+- `so-judge calibrate --use scene`.
+- J3 and J5 with judge scene on and off.
+- J6.
+- `so-live-suite --min 0.9` (always; with the OOC fixture only if the OOC consumer is built).
+- J3.3 player sweep (location allowed, "Heading toward" forbidden).
+
+## Persona tags
+
+| Element | Tag |
+|---|---|
+| Player "now … at <location>" | `player` |
+| Scene read panel, Heading toward | `author` |
+| `scene_read` Studio field, diagnostic | `author` |
+| `#so-judge-use-scene` | `both` |
+
+## Delegated decisions
+
+- Tracker block wording and depth (1 proposed; must not collide).
+- Whether an unchanged tracker block is rewritten every boundary or only on change (only on change
+  is cheaper).
+
+## Unresolved questions
+
+- Look-ahead sends future checkpoint objectives off-machine. Acceptable under the privacy envelope
+  (story text, not user text)? Proposed yes, stated in the settings sentence.
+- Should `present` ever feed talk control (skip an absent candidate)? Not in v2.2. It needs its own
+  measurement against J5, because absent-but-addressed is a real RP move.

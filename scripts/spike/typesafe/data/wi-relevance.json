@@ -1,0 +1,23 @@
+{
+  "entries": {
+    "sun-ruins": [
+      { "title": "Guild hall", "content": "The adventurers' guild hall: a smoky common room, a hearth with the job board beside it, and Ponticius's desk at the back where contracts are signed." },
+      { "title": "Ponticius", "content": "Ponticius is the gruff guild master. He runs the job board, haggles hard over fees and pays rewards out of the guild vault." },
+      { "title": "The sphinx", "content": "A stone sphinx guards the gate of the Sun Ruins. It asks one riddle; the answer is the moon. A wrong answer wakes the sand beneath the gate." },
+      { "title": "Solari glyphs", "content": "Angular Solari glyphs cover the gates and walls of the Sun Ruins; few living scholars can read them." },
+      { "title": "Mother's farm", "content": "Max and Luke's mother keeps a small farm two days north of the city; she disapproves of the guild." }
+    ],
+    "noir": [
+      { "title": "The Blue Anchor", "content": "A dockside bar on Mercer Street with a back room used for deals; Maeve sings there most nights." },
+      { "title": "Brandt's habits", "content": "Lieutenant Brandt of the harbor police wears tailored suits and drives a black sedan on a lieutenant's salary." },
+      { "title": "Pier Street safehouse", "content": "A rented room above a fishmonger on Pier Street where the department hides witnesses." },
+      { "title": "Maeve's stage act", "content": "Maeve closes every set at the Blue Anchor with 'Harbor Lights'; regulars throw carnations." }
+    ]
+  },
+  "scenes": [
+    { "id": "W1", "world": "sun-ruins", "checkpoint": "cp1", "case": "H01", "on": ["Guild hall", "Ponticius"], "off": ["The sphinx", "Solari glyphs", "Mother's farm"] },
+    { "id": "W2", "world": "sun-ruins", "checkpoint": "cp-4a", "case": "H10", "on": ["The sphinx", "Solari glyphs"], "off": ["Guild hall", "Ponticius", "Mother's farm"] },
+    { "id": "W3", "world": "sun-ruins", "checkpoint": "cp3", "case": "H07", "on": ["Mother's farm"], "off": ["The sphinx", "Solari glyphs"] },
+    { "id": "W4", "world": "noir", "checkpoint": "ledger", "case": "L03", "on": ["The Blue Anchor", "Brandt's habits"], "off": ["Pier Street safehouse", "Maeve's stage act"] }
+  ]
+}

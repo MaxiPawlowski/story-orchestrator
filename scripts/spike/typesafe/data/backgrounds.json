@@ -1,0 +1,24 @@
+{
+  "installed": [
+    "bedroom clean.jpg", "bedroom cyberpunk.jpg", "bedroom red.jpg", "bedroom tatami.jpg",
+    "cityscape medieval market.jpg", "cityscape medieval night.jpg", "cityscape postapoc.jpg",
+    "forest treehouse fireworks air baloons (by kallmeflocc).jpg",
+    "japan classroom side.jpg", "japan classroom.jpg", "japan path cherry blossom.jpg", "japan university.jpg",
+    "landscape autumn great tree.jpg", "landscape beach day.png", "landscape beach night.jpg", "landscape mountain lake.jpg",
+    "landscape postapoc.jpg", "landscape winter lake house.jpg", "royal.jpg", "sun_ruins.jpg", "sun_ruins2.jpg", "tavern day.jpg"
+  ],
+  "cases": [
+    { "id": "B01", "scene": "The guild hall at midday: a crowded common room, a crackling hearth, and a job board covered in parchment.", "acceptable": ["tavern day.jpg"] },
+    { "id": "B02", "scene": "A stone sphinx guards a golden, half-buried gate in the desert; the party stands before the ancient ruins.", "acceptable": ["sun_ruins.jpg", "sun_ruins2.jpg"] },
+    { "id": "B03", "scene": "The party flees through a medieval market street at night, lanterns swinging above the shuttered stalls.", "acceptable": ["cityscape medieval night.jpg"] },
+    { "id": "B04", "scene": "Dawn over a still mountain lake; the party breaks camp on the shore.", "acceptable": ["landscape mountain lake.jpg"] },
+    { "id": "B05", "scene": "A moonlit beach; waves wash over the sand as two figures walk along the shoreline.", "acceptable": ["landscape beach night.jpg"] },
+    { "id": "B06", "scene": "An audience with the queen in her gilded throne room.", "acceptable": ["royal.jpg"] },
+    { "id": "B07", "scene": "A quiet room at the inn: a bed, a washstand, and a small window over the street.", "acceptable": ["bedroom clean.jpg", "bedroom red.jpg"] },
+    { "id": "B08", "scene": "The survivors pick through the ruins of a collapsed city, rusted cars and broken towers all around.", "acceptable": ["cityscape postapoc.jpg", "landscape postapoc.jpg"] },
+    { "id": "B09", "scene": "A cabin on a frozen lake in deep winter, smoke rising from the chimney.", "acceptable": ["landscape winter lake house.jpg"] },
+    { "id": "B10", "scene": "A cramped neon-lit apartment high above a rainy megacity, holograms flickering over the bed.", "acceptable": ["bedroom cyberpunk.jpg"] },
+    { "id": "B11", "scene": "The reactor room of a salvage spaceship: warning lights, coolant pipes, and a flickering containment field.", "acceptable": ["none"] },
+    { "id": "B12", "scene": "A 1940s police precinct at three in the morning: cold coffee, ringing phones, rain on the windows.", "acceptable": ["none"] }
+  ]
+}

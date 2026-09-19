@@ -1,0 +1,97 @@
+[
+  { "id": "A01", "world": "sun-ruins", "tags": ["direct"],
+    "openArcs": ["Rescue Tomas, the missing brother who vanished near the Sun Ruins", "Pay back the twenty crowns owed to Ponticius"],
+    "transcript": [
+      { "index": 1, "speaker": "DM Narrator", "text": "Behind the collapsed wall, chained and half-starved, is Tomas." },
+      { "index": 2, "speaker": "Max", "text": "I break the chain with the pommel of my sword and haul my brother to his feet." },
+      { "index": 3, "speaker": "Tomas", "text": "\"I knew you'd come.\"" }
+    ], "resolved": ["Rescue Tomas, the missing brother who vanished near the Sun Ruins"] },
+  { "id": "A02", "world": "sun-ruins", "tags": ["related-revelation"],
+    "openArcs": ["Rescue Tomas, the missing brother who vanished near the Sun Ruins", "Pay back the twenty crowns owed to Ponticius"],
+    "transcript": [
+      { "index": 1, "speaker": "DM Narrator", "text": "Pinned to the ruin wall is a scrap of cloth embroidered with Tomas's initials, and a note: 'Taken east. Alive.'" },
+      { "index": 2, "speaker": "Max", "text": "\"He's alive. He's really alive.\"" }
+    ], "resolved": [] },
+  { "id": "A03", "world": "sun-ruins", "tags": ["direct"],
+    "openArcs": ["Pay back the twenty crowns owed to Ponticius"],
+    "transcript": [
+      { "index": 1, "speaker": "Max", "text": "I drop twenty crowns on Ponticius's desk. \"We're square.\"" },
+      { "index": 2, "speaker": "Ponticius", "text": "He counts them twice and grunts. \"Square.\"" }
+    ], "resolved": ["Pay back the twenty crowns owed to Ponticius"] },
+  { "id": "A04", "world": "sun-ruins", "tags": ["promise-restated"],
+    "openArcs": ["Pay back the twenty crowns owed to Ponticius"],
+    "transcript": [
+      { "index": 1, "speaker": "Ponticius", "text": "\"You still owe me twenty crowns.\"" },
+      { "index": 2, "speaker": "Max", "text": "\"I'll have your money by the end of the week, I swear it.\"" }
+    ], "resolved": [] },
+  { "id": "A05", "world": "noir", "tags": ["mystery-answered"],
+    "openArcs": ["Discover who has been paying off the harbor police", "Keep Tommy Sayer alive until he can testify"],
+    "transcript": [
+      { "index": 1, "speaker": "Mae Hollis", "text": "\"Payroll stubs. Every payment to the harbor cops went through the dockmaster's office, signed with his initials.\"" },
+      { "index": 2, "speaker": "Max", "text": "\"So it's him.\"" },
+      { "index": 3, "speaker": "Mae Hollis", "text": "\"It's him. We've got enough for a warrant.\"" }
+    ], "resolved": ["Discover who has been paying off the harbor police"] },
+  { "id": "A06", "world": "noir", "tags": ["goal-met"],
+    "openArcs": ["Discover who has been paying off the harbor police", "Keep Tommy Sayer alive until he can testify"],
+    "transcript": [
+      { "index": 1, "speaker": "Narrator", "text": "Tommy Sayer steps down from the witness stand, pale but steady. The courtroom erupts." },
+      { "index": 2, "speaker": "Mae Hollis", "text": "\"He did it. He actually testified. And he's still breathing.\"" }
+    ], "resolved": ["Keep Tommy Sayer alive until he can testify"] },
+  { "id": "A07", "world": "noir", "tags": ["partial"],
+    "openArcs": ["Discover who has been paying off the harbor police"],
+    "transcript": [
+      { "index": 1, "speaker": "Mae Hollis", "text": "\"Brandt's car was parked at the docks both nights.\"" },
+      { "index": 2, "speaker": "Max", "text": "\"That doesn't prove anything yet.\"" },
+      { "index": 3, "speaker": "Mae Hollis", "text": "\"No. But it's a start.\"" }
+    ], "resolved": [] },
+  { "id": "A08", "world": "ship", "tags": ["one-of-two"],
+    "openArcs": ["Stabilize the reactor before it melts down", "Find out why HALO locked Pell in the reactor room"],
+    "transcript": [
+      { "index": 1, "speaker": "Pell", "text": "\"Containment's green and holding. She's stable for good this time, Captain.\"" },
+      { "index": 2, "speaker": "Captain Okafor", "text": "\"Good. Now I want to know why HALO locked you in there.\"" },
+      { "index": 3, "speaker": "HALO", "text": "\"I am still reviewing my logs, Captain.\"" }
+    ], "resolved": ["Stabilize the reactor before it melts down"] },
+  { "id": "A09", "world": "ship", "tags": ["mystery-answered"],
+    "openArcs": ["Stabilize the reactor before it melts down", "Find out why HALO locked Pell in the reactor room"],
+    "transcript": [
+      { "index": 1, "speaker": "HALO", "text": "\"The lock was a safety protocol written by the ship's previous owner. It triggered on the radiation spike. I have deleted it.\"" },
+      { "index": 2, "speaker": "Captain Okafor", "text": "\"Then that's the end of it.\"" }
+    ], "resolved": ["Find out why HALO locked Pell in the reactor room"] },
+  { "id": "A10", "world": "manor", "tags": ["mystery-answered"],
+    "openArcs": ["Learn why the Ashworth portraits keep moving"],
+    "transcript": [
+      { "index": 1, "speaker": "Graves", "text": "The old butler lowers his eyes. \"It was me, sir. I move them at night. Her ladyship wants buyers to believe the house is haunted, so no one will take it from her.\"" },
+      { "index": 2, "speaker": "Max", "text": "\"So there's no ghost.\"" },
+      { "index": 3, "speaker": "Graves", "text": "\"No ghost, sir. Only a frightened widow and a loyal fool.\"" }
+    ], "resolved": ["Learn why the Ashworth portraits keep moving"] },
+  { "id": "A11", "world": "manor", "tags": ["escalation"],
+    "openArcs": ["Learn why the Ashworth portraits keep moving"],
+    "transcript": [
+      { "index": 1, "speaker": "Narrator", "text": "As you watch, Lord Ashworth's painted eyes slide slowly toward the door." },
+      { "index": 2, "speaker": "Lady Ashworth", "text": "\"Now you see why I sent for you.\"" }
+    ], "resolved": [] },
+  { "id": "A12", "world": "sun-ruins", "tags": ["relationship"],
+    "openArcs": ["Win back Arin's trust after the lie about the map"],
+    "transcript": [
+      { "index": 1, "speaker": "Arin", "text": "Arin sits beside you on the bridge rail. \"I trust you again, you know. After what you did back there. Don't make me regret it.\"" },
+      { "index": 2, "speaker": "Max", "text": "\"I won't.\"" }
+    ], "resolved": ["Win back Arin's trust after the lie about the map"] },
+  { "id": "A13", "world": "sun-ruins", "tags": ["relationship"],
+    "openArcs": ["Win back Arin's trust after the lie about the map"],
+    "transcript": [
+      { "index": 1, "speaker": "Max", "text": "\"I said I was sorry about the map.\"" },
+      { "index": 2, "speaker": "Arin", "text": "\"Maps are easy to forge. So are apologies.\" She walks ahead without looking back." }
+    ], "resolved": [] },
+  { "id": "A14", "world": "sun-ruins", "tags": ["closed-by-failure"],
+    "openArcs": ["Recover the Sun's Heart from the inner chamber"],
+    "transcript": [
+      { "index": 1, "speaker": "DM Narrator", "text": "The Sun's Heart slips from Arin's grip and shatters on the flagstones. Its light gutters and dies." },
+      { "index": 2, "speaker": "Arin", "text": "\"No. No, no, no.\"" }
+    ], "resolved": ["Recover the Sun's Heart from the inner chamber"] },
+  { "id": "A15", "world": "sun-ruins", "tags": ["direct", "bridge"],
+    "openArcs": ["Bring the Sun's Heart back to the guild", "Pay back the twenty crowns owed to Ponticius"],
+    "transcript": [
+      { "index": 1, "speaker": "Arin", "text": "Arin sets the glowing stone on Ponticius's desk. \"The Sun's Heart. As promised.\"" },
+      { "index": 2, "speaker": "Ponticius", "text": "\"Well, I'll be damned.\" He locks it in the guild vault." }
+    ], "resolved": ["Bring the Sun's Heart back to the guild"] }
+]

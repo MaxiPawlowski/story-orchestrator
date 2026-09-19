@@ -1,0 +1,22 @@
+[
+  { "id": "M01", "label": "duplicate", "type": "detail", "a": "Arin carries a curved blade she took from a pirate captain.", "b": "Arin's sword is a curved blade taken from a pirate captain." },
+  { "id": "M02", "label": "update", "type": "development", "a": "Luke is staying home with their mother.", "b": "Luke joined the expedition after all." },
+  { "id": "M03", "label": "distinct", "type": "fact", "a": "Ponticius runs the guild's job board.", "b": "Ponticius once served in the royal navy." },
+  { "id": "M04", "label": "unrelated", "type": "detail", "a": "The sphinx asks a riddle about the moon.", "b": "Pell rerouted coolant loop one." },
+  { "id": "M05", "label": "duplicate", "type": "fact", "a": "The guild pays 250 crowns for the Sun's Heart.", "b": "The guild will pay two hundred and fifty crowns for the Sun's Heart." },
+  { "id": "M06", "label": "update", "type": "fact", "a": "The reactor is unstable.", "b": "The reactor is now stable after Pell's repairs." },
+  { "id": "M07", "label": "update", "type": "revelation", "a": "The payoffs to the harbor police come from Maeve.", "b": "The payoffs to the harbor police trace back to the dockmaster, not Maeve." },
+  { "id": "M08", "label": "distinct", "type": "detail", "a": "Tommy Sayer is hiding at the safehouse on Pier Street.", "b": "Tommy Sayer's brother is hiding at the safehouse on Pier Street." },
+  { "id": "M09", "label": "update", "type": "event", "a": "Luke is alive.", "b": "Luke was killed by the sphinx." },
+  { "id": "M10", "label": "duplicate", "type": "event", "a": "HALO sealed the emergency bulkheads on deck three.", "b": "The ship's AI closed the deck three emergency bulkheads." },
+  { "id": "M11", "label": "distinct", "type": "fact", "a": "Lady Ashworth wears black mourning clothes.", "b": "Lady Ashworth never leaves the east wing." },
+  { "id": "M12", "label": "update", "type": "relationship", "a": "Arin distrusts Max since the lie about the map.", "b": "Arin trusts Max again after the bridge." },
+  { "id": "M13", "label": "duplicate", "type": "event", "a": "The party accepted the Sun Ruins contract.", "b": "Max signed the contract for the Sun Ruins job." },
+  { "id": "M14", "label": "update", "type": "fact", "a": "Two crew members are injured.", "b": "Five crew members are injured." },
+  { "id": "M15", "label": "distinct", "type": "fact", "a": "Graves polishes the silver every morning.", "b": "Graves was born in Dunmore." },
+  { "id": "M16", "label": "duplicate", "type": "event", "a": "Brandt offered Max a bribe.", "b": "Brandt offered Max a five-hundred-dollar bribe in the back of the Blue Anchor." },
+  { "id": "M17", "label": "update", "type": "scene", "a": "The party is in the guild hall.", "b": "The party has reached the Sun Ruins." },
+  { "id": "M18", "label": "distinct", "type": "detail", "a": "The Sun's Heart glows gold.", "b": "The Sun's Heart is warm to the touch." },
+  { "id": "M19", "label": "update", "type": "revelation", "a": "The smuggler's ledger is missing.", "b": "Max found the smuggler's ledger under Maeve's racing forms." },
+  { "id": "M20", "label": "unrelated", "type": "event", "a": "Maeve sings at the Blue Anchor.", "b": "The north gate was opened quietly." }
+]

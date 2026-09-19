@@ -1,0 +1,52 @@
+[
+  { "case": "H03", "lines": [
+    { "text": "Max negotiated the Sun Ruins fee up from two hundred to two hundred and fifty crowns.", "supported": true, "kind": "paraphrase" },
+    { "text": "Ponticius agreed to pay 250 crowns for the artifact.", "supported": true, "kind": "paraphrase" },
+    { "text": "Ponticius paid half the fee in advance.", "supported": false, "kind": "fabricated" },
+    { "text": "Arin signed the Sun Ruins contract.", "supported": false, "kind": "wrong-actor" } ] },
+  { "case": "H13", "lines": [
+    { "text": "A falling stone slab nearly crushed Luke.", "supported": true, "kind": "paraphrase" },
+    { "text": "Luke jumped clear of the slab and survived.", "supported": true, "kind": "paraphrase" },
+    { "text": "Luke broke his arm under the rubble.", "supported": false, "kind": "embellished" },
+    { "text": "Max was knocked unconscious by the collapse.", "supported": false, "kind": "fabricated" } ] },
+  { "case": "H23", "lines": [
+    { "text": "The reactor's containment field keeps flickering.", "supported": true, "kind": "verbatim" },
+    { "text": "Two crew members are in the medbay with burns.", "supported": true, "kind": "verbatim" },
+    { "text": "HALO sealed the hull breach on deck three.", "supported": false, "kind": "contradicted" },
+    { "text": "Pell caused the reactor accident.", "supported": false, "kind": "invented-cause" } ] },
+  { "case": "H27", "lines": [
+    { "text": "Maeve claimed she had never heard of the ledger.", "supported": true, "kind": "paraphrase" },
+    { "text": "The ledger lies under a stack of racing forms behind Maeve.", "supported": true, "kind": "paraphrase" },
+    { "text": "Maeve admitted she was hiding the ledger.", "supported": false, "kind": "inverted" },
+    { "text": "Max took the ledger and put it in his coat.", "supported": false, "kind": "fabricated" } ] },
+  { "case": "L03", "lines": [
+    { "text": "Brandt offered Max five hundred for a short memory.", "supported": true, "kind": "paraphrase" },
+    { "text": "Max slipped Brandt's envelope into his inside pocket.", "supported": true, "kind": "paraphrase" },
+    { "text": "Max told Mae he never took money from Brandt.", "supported": true, "kind": "reported-claim" },
+    { "text": "Max never took any money from Brandt.", "supported": false, "kind": "lie-as-fact" } ] },
+  { "case": "H32", "lines": [
+    { "text": "Three candles burn along the gallery wall.", "supported": true, "kind": "paraphrase" },
+    { "text": "In the portrait, Lord Ashworth's hand now points at the door.", "supported": true, "kind": "paraphrase" },
+    { "text": "Graves moved the portrait himself.", "supported": false, "kind": "fabricated" },
+    { "text": "Graves says the master's portrait has always been restless.", "supported": true, "kind": "paraphrase" } ] },
+  { "case": "H09", "lines": [
+    { "text": "Max first agreed to take Luke, then changed his mind.", "supported": true, "kind": "summary" },
+    { "text": "Luke is staying behind.", "supported": true, "kind": "paraphrase" },
+    { "text": "Arin wanted Luke to come along.", "supported": false, "kind": "inverted" },
+    { "text": "Luke burst into tears when he was told.", "supported": false, "kind": "embellished" } ] },
+  { "case": "H24", "lines": [
+    { "text": "Pell got the reactor stable.", "supported": true, "kind": "paraphrase" },
+    { "text": "The captain ordered a mayday broadcast on all frequencies.", "supported": true, "kind": "paraphrase" },
+    { "text": "A nearby ship answered the mayday.", "supported": false, "kind": "fabricated" },
+    { "text": "HALO refused the captain's order.", "supported": false, "kind": "inverted" } ] },
+  { "case": "L02", "lines": [
+    { "text": "Pell sealed the hull breach on deck three.", "supported": true, "kind": "paraphrase" },
+    { "text": "Coolant loop two is running at about a third of its capacity.", "supported": true, "kind": "paraphrase" },
+    { "text": "The reactor is now stable.", "supported": false, "kind": "contradicted" },
+    { "text": "Okafor ordered loop one rerouted to cover loop two.", "supported": true, "kind": "paraphrase" } ] },
+  { "case": "H21", "lines": [
+    { "text": "Max aceptó el trabajo de las Ruinas del Sol.", "supported": true, "kind": "spanish" },
+    { "text": "The Sun Ruins job pays two hundred crowns.", "supported": true, "kind": "cross-language" },
+    { "text": "Ponticius raised the fee to three hundred crowns.", "supported": false, "kind": "fabricated" },
+    { "text": "Max signed the contract.", "supported": true, "kind": "cross-language" } ] }
+]

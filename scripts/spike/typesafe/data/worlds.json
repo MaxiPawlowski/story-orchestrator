@@ -1,0 +1,460 @@
+[
+  {
+    "id": "sun-ruins",
+    "title": "Quest for the Sun Ruins",
+    "player": "Max",
+    "roster": [
+      {
+        "name": "DM Narrator",
+        "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+      },
+      {
+        "name": "Arin",
+        "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+      },
+      {
+        "name": "Ponticius",
+        "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+      },
+      {
+        "name": "Luke",
+        "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+      }
+    ],
+    "checkpoints": {
+      "cp1": {
+        "name": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions."
+      },
+      "cp2": {
+        "name": "Accept the Mission",
+        "objective": "Pick up the Sun Ruins mission from the board."
+      },
+      "cp3": {
+        "name": "Departure Preparations",
+        "objective": "Decide whether to take Luke along before departing for the Sun Ruins."
+      },
+      "cp-4a": {
+        "name": "Travel with Luke",
+        "objective": "Reach the Sun Ruins with Luke and face the sphinx's riddle."
+      },
+      "cp-4a2": {
+        "name": "Riddle Failed",
+        "objective": "Enter the chamber and approach the artifact despite the loss."
+      },
+      "cp-5": {
+        "name": "Find the Artifact",
+        "objective": "Recover the Sun's Heart Artifact from the inner chamber."
+      },
+      "cp-6": {
+        "name": "Return to the Guild",
+        "objective": "Deliver the artifact to the Guild Master and claim your reward."
+      }
+    },
+    "qualities": {
+      "approached_board": {
+        "type": "bool",
+        "latching": true,
+        "rubric": "Did the player move close to or examine the guild job board?",
+        "structured": {
+          "criteria": {
+            "yes": {
+              "what": "The player walks up to, reads, or inspects the job board",
+              "not_for": "Another character suggesting the board, or the player only talking about going",
+              "examples": [
+                "I walk over to the board",
+                "I read the postings pinned there"
+              ]
+            },
+            "no": "The player stays away from the board or refuses to look at it",
+            "not shown": "The transcript does not say whether the player went to the board"
+          }
+        }
+      },
+      "mission_accepted": {
+        "type": "bool",
+        "latching": true,
+        "rubric": "Did the party accept the Sun Ruins mission from the board?",
+        "structured": {
+          "criteria": {
+            "yes": {
+              "what": "The party agrees to take the Sun Ruins job: signs the contract, shakes on it, or says they will do it",
+              "not_for": "Asking about the job, haggling, or saying 'if we took it'"
+            },
+            "no": "The party turns the job down or walks away from it",
+            "not shown": "The transcript does not settle whether the job was taken"
+          }
+        }
+      },
+      "luke_decision": {
+        "type": "enum",
+        "values": [
+          "undecided",
+          "accepted",
+          "declined"
+        ],
+        "rubric": "Has the player decided whether to bring Luke along? accepted if they agree, declined if they refuse, otherwise undecided.",
+        "structured": {
+          "instructions": "Has the player decided whether to bring Luke along? If the player changes their mind in the transcript, the latest decision counts.",
+          "criteria": {
+            "accepted": "The player agrees that Luke comes along, even with conditions attached",
+            "declined": {
+              "what": "The player refuses to bring Luke or tells him to stay behind",
+              "examples": [
+                "You're staying home",
+                "Someone has to look after Mother"
+              ]
+            },
+            "undecided": "The player explicitly puts the decision off",
+            "not shown": "Nobody addresses whether Luke comes along"
+          }
+        }
+      },
+      "riddle_answer": {
+        "type": "enum",
+        "values": [
+          "unanswered",
+          "moon",
+          "wrong"
+        ],
+        "rubric": "What answer was given to the sphinx's riddle? moon if the correct answer 'the moon' was spoken, wrong if an incorrect answer was given, otherwise unanswered.",
+        "structured": {
+          "criteria": {
+            "moon": {
+              "what": "The player answers the sphinx with \"the moon\"",
+              "not_for": "A companion suggesting the moon, or the player thinking aloud without answering"
+            },
+            "wrong": "The player gives the sphinx any answer other than the moon",
+            "unanswered": "No answer has been given to the sphinx yet, even if someone suggested one",
+            "not shown": "The riddle does not come up"
+          }
+        }
+      },
+      "luke_alive": {
+        "type": "bool",
+        "rubric": "Is Luke still alive?",
+        "structured": {
+          "criteria": {
+            "yes": {
+              "what": "Luke is alive",
+              "examples": [
+                "Luke survives a close call",
+                "Luke is hurt but breathing"
+              ]
+            },
+            "no": "Luke is shown to be dead",
+            "not shown": "Luke's condition does not come up"
+          }
+        }
+      },
+      "chamber_entered": {
+        "type": "bool",
+        "latching": true,
+        "rubric": "Has the party entered the inner chamber where the artifact rests?",
+        "structured": {
+          "criteria": {
+            "yes": {
+              "what": "A member of the party steps inside the inner chamber",
+              "not_for": "Doors opening without anyone going through"
+            },
+            "no": "The party is still outside the inner chamber",
+            "not shown": "The transcript does not say where the party is"
+          }
+        }
+      },
+      "artifact_secured": {
+        "type": "bool",
+        "latching": true,
+        "rubric": "Has the party secured the Sun's Heart Artifact?",
+        "structured": {
+          "criteria": {
+            "yes": "A member of the party takes hold of the Sun's Heart",
+            "no": "The Sun's Heart is still on its pedestal, lost, or in someone else's hands",
+            "not shown": "The artifact does not come up"
+          }
+        }
+      },
+      "reward_claimed": {
+        "type": "bool",
+        "latching": true,
+        "rubric": "Has the party returned to the guild and claimed their reward?",
+        "structured": {
+          "criteria": {
+            "yes": "The guild hands the party their payment for the artifact",
+            "no": "Payment is refused, delayed, or not yet handed over",
+            "not shown": "Payment does not come up"
+          }
+        }
+      },
+      "guardian_respect": {
+        "type": "int",
+        "jev": "score",
+        "min": 0,
+        "max": 5,
+        "rubric": "How much does the sphinx guardian respect the party, from 0 (contempt) to 5 (deep respect)?",
+        "structured": {
+          "levels": [
+            "The sphinx shows open contempt for the party",
+            "The sphinx is dismissive and unimpressed",
+            "The sphinx is neutral and treats them as ordinary visitors",
+            "The sphinx shows some grudging approval",
+            "The sphinx openly says it respects the party",
+            "The sphinx shows deep, admiring respect and honours the party"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "ship",
+    "title": "The Long Dark",
+    "player": "Max",
+    "roster": [
+      {
+        "name": "Captain Okafor",
+        "role": "Captain of the salvage ship; decisive, gives the orders"
+      },
+      {
+        "name": "Pell",
+        "role": "The ship's engineer; handles the reactor, engines and repairs"
+      },
+      {
+        "name": "HALO",
+        "role": "The ship's AI; controls doors, sensors, life support and communications"
+      },
+      {
+        "name": "Narrator",
+        "role": "The narrator: describes the ship, the void and anything not in the cast"
+      }
+    ],
+    "checkpoints": {
+      "reactor": {
+        "name": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air."
+      }
+    },
+    "qualities": {
+      "hull_breach_sealed": {
+        "type": "bool",
+        "latching": true,
+        "rubric": "Has the hull breach on deck three been sealed?",
+        "structured": {
+          "criteria": {
+            "yes": {
+              "what": "The breach itself is patched, welded or plugged shut",
+              "not_for": "Bulkheads closing off the section around it"
+            },
+            "no": "The breach is still open",
+            "not shown": "The breach does not come up"
+          }
+        }
+      },
+      "reactor_state": {
+        "type": "enum",
+        "values": [
+          "offline",
+          "unstable",
+          "stable"
+        ],
+        "rubric": "What state is the ship's reactor in?",
+        "structured": {
+          "criteria": {
+            "offline": "The reactor is shut down or producing no power",
+            "unstable": "The reactor runs but fluctuates: flickering containment, risk of failure",
+            "stable": "The reactor runs steadily; the engineer reports it holding",
+            "not shown": "The reactor does not come up"
+          }
+        }
+      },
+      "crew_injured": {
+        "type": "int",
+        "jev": "candidates",
+        "min": 0,
+        "rubric": "How many crew members are injured?"
+      },
+      "distress_sent": {
+        "type": "bool",
+        "rubric": "Has a distress signal been sent?",
+        "structured": {
+          "criteria": {
+            "yes": {
+              "what": "A distress call or mayday is actually transmitted",
+              "not_for": "An order to send one, or a broadcast still being prepared"
+            },
+            "no": "No distress call has gone out yet",
+            "not shown": "A distress call does not come up"
+          }
+        }
+      },
+      "trust_in_halo": {
+        "type": "int",
+        "jev": "score",
+        "min": 0,
+        "max": 5,
+        "rubric": "How much does the captain trust the ship AI HALO, from 0 (none) to 5 (complete)?",
+        "structured": {
+          "levels": [
+            "The captain says outright that they do not trust HALO",
+            "The captain is deeply suspicious of HALO",
+            "The captain is wary and double-checks HALO",
+            "The captain trusts HALO with routine matters",
+            "The captain relies on HALO readily",
+            "The captain trusts HALO completely"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "noir",
+    "title": "Rain on Mercer Street",
+    "player": "Max",
+    "roster": [
+      {
+        "name": "Mae Hollis",
+        "role": "The player's partner, a sharp homicide detective"
+      },
+      {
+        "name": "Maeve",
+        "role": "A nightclub singer and reluctant informant"
+      },
+      {
+        "name": "Lt. Brandt",
+        "role": "A harbor police lieutenant with expensive habits"
+      },
+      {
+        "name": "Narrator",
+        "role": "The narrator: describes the city, the rain and anyone not in the cast"
+      }
+    ],
+    "checkpoints": {
+      "ledger": {
+        "name": "The Dockside Ledger",
+        "objective": "Find out who has been paying off the harbor police."
+      }
+    },
+    "qualities": {
+      "ledger_found": {
+        "type": "bool",
+        "latching": true,
+        "rubric": "Has the detective found the smuggler's ledger?",
+        "structured": {
+          "criteria": {
+            "yes": "The player or their partner locates the ledger itself or lays eyes on it",
+            "no": {
+              "what": "The ledger's whereabouts are still unknown",
+              "not_for": "Someone denying they have it while it is shown to be there"
+            },
+            "not shown": "The ledger does not come up"
+          }
+        }
+      },
+      "suspect": {
+        "type": "enum",
+        "values": [
+          "unknown",
+          "brandt",
+          "maeve",
+          "dockmaster"
+        ],
+        "rubric": "Who does the evidence currently point to as the one paying off the harbor police?",
+        "structured": {
+          "criteria": {
+            "unknown": "No evidence points to anyone yet",
+            "brandt": "The evidence points to Lieutenant Brandt",
+            "maeve": "The evidence points to Maeve",
+            "dockmaster": "The evidence points to the dockmaster",
+            "not shown": "The payoffs do not come up"
+          }
+        }
+      },
+      "bribe_accepted": {
+        "type": "bool",
+        "rubric": "Did the player accept a bribe?",
+        "structured": {
+          "criteria": {
+            "yes": {
+              "what": "The player keeps money that was offered to make them look away",
+              "not_for": "Briefly picking up or weighing an envelope before handing it back"
+            },
+            "no": "The player refuses the money or hands it back",
+            "not shown": "No bribe comes up"
+          }
+        }
+      },
+      "witness_alive": {
+        "type": "bool",
+        "rubric": "Is the witness, Tommy Sayer, still alive?",
+        "structured": {
+          "criteria": {
+            "yes": "Tommy is alive",
+            "no": {
+              "what": "Tommy is shown to be dead",
+              "not_for": "Rumours or headlines that someone who has seen him alive contradicts"
+            },
+            "not shown": "Tommy's fate does not come up"
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "manor",
+    "title": "Ashworth Hall",
+    "player": "Max",
+    "roster": [
+      {
+        "name": "Lady Ashworth",
+        "role": "The widowed mistress of the manor, cold and guarded"
+      },
+      {
+        "name": "Graves",
+        "role": "The elderly butler, loyal, secretive, keeps the house immaculate"
+      },
+      {
+        "name": "Narrator",
+        "role": "The narrator: describes the house, sounds, shadows and anyone not in the cast"
+      }
+    ],
+    "checkpoints": {
+      "gallery": {
+        "name": "The Portrait Gallery",
+        "objective": "Discover why the Ashworth portraits keep moving."
+      }
+    },
+    "qualities": {
+      "portrait_moved": {
+        "type": "bool",
+        "rubric": "Has a portrait visibly moved on its own?",
+        "structured": {
+          "criteria": {
+            "yes": "A portrait is seen to change or move with nobody touching it",
+            "no": "The portraits stay as they were",
+            "not shown": "The portraits do not come up"
+          }
+        }
+      },
+      "ghost_seen": {
+        "type": "bool",
+        "latching": true,
+        "rubric": "Has the player seen the ghost?",
+        "structured": {
+          "criteria": {
+            "yes": {
+              "what": "The player sees the ghost while awake",
+              "not_for": "A dream, a rumour, or someone else's story"
+            },
+            "no": "The player has not seen the ghost",
+            "not shown": "The ghost does not come up"
+          }
+        }
+      },
+      "candles_lit": {
+        "type": "int",
+        "jev": "candidates",
+        "min": 0,
+        "rubric": "How many candles are burning in the gallery?"
+      }
+    }
+  }
+]
