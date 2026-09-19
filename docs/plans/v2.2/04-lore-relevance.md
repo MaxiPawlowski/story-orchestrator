@@ -178,6 +178,20 @@ rule before code is written.
   the next reply needs. Compare recall@budget of the static `scoreEntry` ranking against static +
   judge relevance (weight 2).
 - Build only if recall@budget improves by ≥ 10 points.
+- **Measured 2026-09-19** (`run.mts --only memory-rerank`; data
+  `scripts/spike/typesafe/data/memory-rerank.json`: 10 turns, 3 in Spanish, over four memory pools
+  of 18–20 notes, 23 needed notes, budget top-5). Recall@budget:
+
+| Ranking | Needed notes in the top 5 |
+|---|---|
+| Static `scoreEntry` | 15/23 |
+| Static + 2× judge | 17/23 |
+| Judge alone | 16/23 |
+
+- The gain is **9 points**, under the pre-registered 10. **Not built** in v2.2:
+  `judge.uses.memoryRerank` stays hidden.
+- The blend weight was fixed before the run and is not re-tuned after it, which would fit the test
+  set. It is a v2.3 seed with a larger labelled set.
 - If built: the judge relevance is precomputed at the boundary, off-path, for the facts and
   session tiers, and only when a tier is over its token budget. It enters `ScoreContext` as
   `judgeRelevance: Record<entryId, p>` with a new weight. `updateInjection` runs when it lands. The

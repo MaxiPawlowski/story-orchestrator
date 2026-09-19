@@ -8,3 +8,4 @@ export { buildJaccardMatchSets, consolidateTier, DEFAULT_DEDUP_THRESHOLDS } from
 export { jaccardSimilarity } from '@memory/similarity';
 export { detectSceneBreakHeuristic } from '@memory/sceneDetect';
 export { DIRECTOR_MAX_TOKENS, DIRECTOR_WINDOW_MESSAGES, DIRECTOR_TIMEOUT_MS } from '@runtime/talkControl';
+export { scoreEntry } from '@memory/score';

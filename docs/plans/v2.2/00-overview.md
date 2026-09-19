@@ -129,7 +129,7 @@ them. Checked in ST source on 2026-09-19.
 | `judge.uses.lookahead` | "Heading toward" read model (author view) | 03 |
 | `judge.uses.loreSelect` | Force-activate relevant lore per generation | 04 |
 | `judge.uses.curatorFilter` | Narrow the WI curator's prompt (only if Phase A passes) | 04 |
-| `judge.uses.memoryRerank` | Relevance re-rank of memory injection (only if Phase A wins) | 04 |
+| `judge.uses.memoryRerank` | Relevance re-rank of memory injection — **not built**: Phase A gained 9 points of recall@budget, under the 10-point bar (plan 04) | 04 |
 | `stagecraft.wardenEnabled` | Continuity warden (with its own accept mode) | 05 |
 | `stagecraft.sceneSetterEnabled` | Scene-setter background (with its own accept mode) | 05 |
 | `judge.uses.typedExtraction` | Judged typed read for `read_as` qualities | 06 |
