@@ -3,7 +3,7 @@ import { dirname, resolve as resolvePath } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const SRC = resolvePath(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..', 'src');
-const ALIASES = new Set(['components', 'services', 'utils', 'constants', 'engine', 'runtime', 'extraction', 'pacing', 'generation', 'memory', 'copilot', 'talk', 'wizard', 'stagecraft']);
+const ALIASES = new Set(['components', 'services', 'utils', 'constants', 'engine', 'runtime', 'extraction', 'pacing', 'generation', 'memory', 'copilot', 'talk', 'wizard', 'stagecraft', 'judge']);
 
 const isFile = (path: string) => {
   try {
