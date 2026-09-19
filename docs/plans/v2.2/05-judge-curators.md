@@ -232,8 +232,8 @@ utility files. The candidate filter drops all 3.
 
 By the rule that kept OOC out (88% vs 0.9), `sceneSetterEnabled` is not built. The pure code and
 the fixture stay, so a v2.3 attempt (author-written background descriptions instead of file names)
-starts from a measured baseline. **Question for the user:** ship it review-only anyway? Every change
-would need the author's accept.
+starts from a measured baseline. **User decision (2026-09-19): dropped for now**, not shipped even as
+review-only. J8.7/J8.8 stay unbuilt, and the v2.3 attempt above is where it resumes.
 
 **Warden runtime: pure core and calibration only so far.** `runWardenPass`, the `note` op kind, its
 one-turn injection and the J8 growth all live in `stagecraftCoordinator` / `stagecraft/types.ts`,

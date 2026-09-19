@@ -248,8 +248,9 @@ contradict my own labels (Inquisition for the cursed-doll manor, the Guild for t
 labels were not changed after reading answers.
 
 Latency: one 64-question call takes ~0.9–1.1 s off-page, under `LORE_TIMEOUT_MS` (1.5 s), but above
-the 800 ms p90 at which the implementation notes move lore-select to a boundary precompute. The live
-gate measures it through the page and decides.
+the 800 ms p90 at which the implementation notes move lore-select to a boundary precompute. **User
+decision (2026-09-19): ~1 s on the reply path is acceptable**, so the boundary-precompute fallback is
+not built. The live gate still records p50/p90 through the page; the 1.5 s timeout remains the bound.
 
 **Curator pre-filter** (Phase A data promoted, production code): recall **13/13** at
 `CURATOR_FILTER_P` 0.2, and 9 of the 11 fine switched-on entries dropped from the curator's prompt.
