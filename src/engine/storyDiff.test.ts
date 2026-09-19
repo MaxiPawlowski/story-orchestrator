@@ -80,6 +80,12 @@ describe("storyDiff classification table", () => {
     expect(codes(result)).toContain("stagecraft-changed");
   });
 
+  it("keeps a scene_read vocabulary edit compatible (v2.2 plan 03)", () => {
+    const result = run(edited((draft) => { draft.scene_read = { locations: ["guild hall"], inject: false }; }));
+    expect(result.classification).toBe("compatible");
+    expect(codes(result)).toContain("scene-read-changed");
+  });
+
   it("treats an added quality as compatible", () => {
     const result = run(edited((draft) => draft.qualities.push({ key: "coin", type: "int", source: "extractor", rubric: "How much coin?" })));
     expect(result).toMatchObject({ classification: "compatible" });

@@ -24,9 +24,10 @@ const seeded: StoryV2 = {
     { key: "alarm", type: "bool", source: "extractor", rubric: "r" },
     { key: "secret", type: "string", source: "extractor", rubric: "r", scope_hint: { until: "start" } },
     { key: "morale", type: "int", source: "extractor", latching: true, rubric: "r" },
+    { key: "location", type: "string", source: "extractor", rubric: "r" },
   ],
   checkpoints: [
-    { id: "start", name: "Start", objective: "", type: "intermediate", start: true, state_snapshot: { morale: 1 } },
+    { id: "start", name: "Start", objective: "", type: "intermediate", start: true, state_snapshot: { morale: 1, location: "hall" } },
     {
       id: "mid",
       name: "Mid",
@@ -96,4 +97,13 @@ describe("runDiagnostics", () => {
     };
     expect(runDiagnostics(story).filter((entry) => entry.code === "quality-never-in-scope")).toHaveLength(0);
   });
+
+  it("warns that a free-text location quality leaves the scene tracker placeless, unless places are listed (v2.2 plan 03)", () => {
+    const freeText: StoryV2 = { ...clean, qualities: [...clean.qualities, { key: "location", type: "string", source: "extractor", rubric: "Where?" }] };
+    expect(runDiagnostics(freeText).filter((entry) => entry.code === "scene-read-location-empty")).toEqual([expect.objectContaining({ severity: "warning", path: "qualities.1" })]);
+    expect(runDiagnostics({ ...freeText, scene_read: { locations: ["guild hall"] } }).some((entry) => entry.code === "scene-read-location-empty")).toBe(false);
+    const enumLocation: StoryV2 = { ...clean, qualities: [...clean.qualities, { key: "location", type: "enum", values: ["hall"], source: "extractor", rubric: "Where?" }] };
+    expect(runDiagnostics(enumLocation).some((entry) => entry.code === "scene-read-location-empty")).toBe(false);
+  });
 });
+

@@ -195,6 +195,14 @@ export interface StoryStagecraft {
   lorebooks: string[];
 }
 
+// v2.2 plan 03: the scene read's vocabulary. The judge can only select, so a location is asked only
+// when the story lists places (here, or as the values of an enum quality keyed `location`).
+export interface StorySceneRead {
+  locations?: string[];
+  times?: string[];
+  inject?: boolean;
+}
+
 export const STORY_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,63}$/;
 
 export interface StoryV2 {
@@ -211,6 +219,7 @@ export interface StoryV2 {
   arc_bridges?: ArcBridge[];
   requirements?: StoryRequirements;
   stagecraft?: StoryStagecraft;
+  scene_read?: StorySceneRead;
   scaffolding?: Record<string, Scaffolding>;
 }
 

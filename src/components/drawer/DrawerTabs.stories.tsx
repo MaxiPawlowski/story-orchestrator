@@ -23,6 +23,7 @@ const derive = (snapshot: RuntimeSnapshot): RuntimeSnapshot => {
       tensionLevel: snapshot.tension.level,
       pendingCount: snapshot.pendingDeltas.length,
       pipeline,
+      sceneLocation: snapshot.scene?.facts.location ?? null,
     }),
   };
 };
@@ -296,6 +297,57 @@ export const PlayerNeverSeesNotStored: Story = {
     await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
     await expect(canvas.queryByText(/Not stored/)).toBeNull();
     await expect(canvas.queryByText("Arin killed the sphinx.")).toBeNull();
+  },
+};
+
+const sceneRead = {
+  at: "2026-09-19T00:00:00.000Z",
+  boundary: 6,
+  messageId: 9,
+  model: "jev-1.13.0",
+  sceneBreak: { p: 0.82, type: "time_skip" as const, triggered: true },
+  location: { value: "desert road", confidence: 0.91 },
+  time: { value: "dawn", confidence: 0.55 },
+  present: [{ id: "arin", name: "Arin", p: 0.96 }, { id: "luke", name: "Luke", p: 0.12 }],
+  headingTo: [{ id: "cp3", name: "The Sphinx Gate", p: 0.84, hops: 1 }, { id: "cp4", name: "The Inner Chamber", p: 0.77, hops: 2 }],
+  facts: { location: "desert road", time: null, present: ["Arin"], headingTo: ["The Sphinx Gate", "The Inner Chamber"] },
+};
+
+const sceneSnapshot = (authorView: boolean): RuntimeSnapshot => {
+  const snapshot = memorySnapshot() as unknown as Record<string, unknown> & { ui: Record<string, unknown> };
+  snapshot.scene = sceneRead;
+  snapshot.ui = { ...snapshot.ui, authorView };
+  return derive(snapshot as unknown as RuntimeSnapshot);
+};
+
+export const AuthorSceneRead: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={sceneSnapshot(true)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const panel = await within(canvasElement).findByText("Scene read");
+    const scene = within(panel.closest("[data-so=\"scene-read\"]") as HTMLElement);
+    await expect(scene.getByText(/Scene change: 82% \(time_skip\) · read asked/)).toBeInTheDocument();
+    await expect(scene.getByText("Location: desert road (91%)")).toBeInTheDocument();
+    await expect(scene.getByText("Time: dawn (55%) · below floor")).toBeInTheDocument();
+    await expect(scene.getByText("Heading toward: The Sphinx Gate 84%")).toBeInTheDocument();
+    await expect(scene.queryByText(/Inner Chamber/)).toBeNull();
+  },
+};
+
+export const PlayerSeesLocationNeverHeading: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={sceneSnapshot(false)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByText("At desert road.")).toBeInTheDocument();
+    await expect(canvasElement.querySelector("[data-so=\"scene-read\"]")).toBeNull();
+    await expect(canvas.queryByText(/Sphinx Gate|Heading toward|82%/)).toBeNull();
   },
 };
 

@@ -87,6 +87,21 @@ export const CuratorAllowlist: Story = {
   },
 };
 
+// v2.2 plan 03: the places the scene tracker may pick from, typed by hand (spaces included).
+export const ScenePlaces: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(useDraftStore.getState().draft.scene_read).toBeUndefined();
+    await userEvent.click(canvas.getByRole("button", { name: "+ Place" }));
+    await userEvent.type(canvas.getByLabelText("Place 1"), "guild hall");
+    await expect(useDraftStore.getState().draft.scene_read).toEqual({ locations: ["guild hall"] });
+    await userEvent.click(canvas.getByLabelText(/Add the scene line to the prompt/));
+    await expect(useDraftStore.getState().draft.scene_read).toEqual({ locations: ["guild hall"], inject: false });
+    await userEvent.click(canvas.getByRole("button", { name: "Remove Place 1" }));
+    await expect(useDraftStore.getState().draft.scene_read).toEqual({ inject: false });
+  },
+};
+
 export const ArcShapeAndBridges: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

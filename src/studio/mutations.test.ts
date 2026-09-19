@@ -14,6 +14,7 @@ import {
   setStoryField,
   setTransitionGate,
   updateQuality,
+  setSceneRead,
 } from "./mutations";
 
 const base = (): StoryDraft => ({
@@ -124,3 +125,13 @@ describe("setRequirements / setStagecraft keep entries as typed", () => {
     expect(parsed.stagecraft).toBeUndefined();
   });
 });
+
+describe("setSceneRead (v2.2 plan 03)", () => {
+  it("keeps entries as typed, drops empty lists and the default inject, and removes an empty block", () => {
+    const draft = newStoryDraft();
+    expect(setSceneRead(draft, { locations: ["guild ", ""], times: [], inject: true }).scene_read).toEqual({ locations: ["guild ", ""] });
+    expect(setSceneRead(draft, { inject: false }).scene_read).toEqual({ inject: false });
+    expect(setSceneRead({ ...draft, scene_read: { locations: ["hall"] } }, { locations: [] })).not.toHaveProperty("scene_read");
+  });
+});
+

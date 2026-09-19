@@ -52,6 +52,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     tensionLevel: tension.level,
     pendingCount: pendingDeltas.length,
     pipeline,
+    sceneLocation: extras.judge.scene?.facts.location ?? null,
   });
 
   return {
@@ -91,6 +92,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     ui: extras.ui,
     talk: extras.talk,
     stagecraft: extras.stagecraft,
+    scene: extras.judge.scene,
     stagecraftScope: curatorLorebooks(story),
     pendingDeltas,
     convergence: buildConvergenceReadout(story, state),

@@ -35,7 +35,7 @@ export interface SceneReadInput {
   player: string;
   locations?: string[];
   times?: string[];
-  reachable?: Array<{ id: string; name: string; objective: string }>;
+  reachable?: Array<{ id: string; name: string; objective: string; hops?: number }>;
   window: Array<{ speaker: string; text: string }>;
   families: SceneFamilies;
 }
@@ -151,4 +151,31 @@ export function sceneTrackerText(facts: SceneFacts): string | null {
   const where = [facts.location, facts.time].filter(Boolean).join(", ");
   const parts = [where ? `Scene: ${where}.` : "", facts.present.length ? `Present: ${facts.present.join(", ")}.` : ""].filter(Boolean);
   return parts.length ? `[${parts.join(" ")}]` : null;
+}
+
+export interface SceneReadRecord {
+  at: string;
+  boundary: number;
+  messageId: number;
+  model: string | null;
+  sceneBreak?: { p: number; type: SceneBreakType | null; triggered: boolean };
+  location?: SceneField;
+  time?: SceneField;
+  present?: Array<{ id: string; name: string; p: number }>;
+  headingTo?: Array<{ id: string; name: string; p: number; hops: number }>;
+  facts: SceneFacts;
+}
+
+export function toSceneRecord(read: SceneAnswers, input: SceneReadInput, meta: { at: string; boundary: number; messageId: number; model: string | null }): SceneReadRecord {
+  const facts = sceneFacts(read, input.cast);
+  const reachable = input.reachable ?? [];
+  return {
+    ...meta,
+    ...(read.sceneBreak ? { sceneBreak: { ...read.sceneBreak, triggered: sceneBreakTriggered(read) } } : {}),
+    ...(read.location ? { location: read.location } : {}),
+    ...(read.time ? { time: read.time } : {}),
+    ...(read.present ? { present: input.cast.filter((member) => member.rosterId in read.present!).map((member) => ({ id: member.rosterId, name: member.name, p: read.present![member.rosterId] })) } : {}),
+    ...(read.headingTo ? { headingTo: reachable.filter((entry) => entry.id in read.headingTo!).map((entry) => ({ id: entry.id, name: entry.name, p: read.headingTo![entry.id], hops: entry.hops ?? 1 })) } : {}),
+    facts: { ...facts, headingTo: facts.headingTo.map((id) => reachable.find((entry) => entry.id === id)?.name ?? id) },
+  };
 }

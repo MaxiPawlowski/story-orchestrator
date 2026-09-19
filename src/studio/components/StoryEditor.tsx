@@ -2,7 +2,7 @@ import React from "react";
 import { ARC_TEMPLATE_NAMES, type ArcTemplateName, type StoryRequirements } from "@engine/index";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import { useDraftStore } from "../draft";
-import { addArcBridge, removeArcBridge, setArcTemplate, setRequirements, setStagecraft, setStoryField, setStoryId, slugifyStoryId, updateArcBridge } from "../mutations";
+import { addArcBridge, removeArcBridge, setArcTemplate, setRequirements, setSceneRead, setStagecraft, setStoryField, setStoryId, slugifyStoryId, updateArcBridge } from "../mutations";
 
 export interface StoryEditorProps {
   personaNames?: string[];
@@ -62,6 +62,7 @@ const StoryEditor: React.FC<StoryEditorProps> = ({ personaNames = [], memberName
   const bridges = draft.arc_bridges ?? [];
   const requirements: StoryRequirements = draft.requirements ?? {};
   const customTemplate = typeof draft.arc_template === "object";
+  const locationOptions = draft.qualities.find((quality) => quality.key === "location" && quality.type === "enum")?.values ?? [];
 
   const patchRequirements = (patch: StoryRequirements) => mutate((current) => setRequirements(current, { ...(current.requirements ?? {}), ...patch }));
 
@@ -128,6 +129,34 @@ const StoryEditor: React.FC<StoryEditorProps> = ({ personaNames = [], memberName
           listId="so-stagecraft-lorebooks"
           onChange={(lorebooks) => mutate((current) => setStagecraft(current, { lorebooks }))}
         />
+      </div>
+
+      <div data-so="scene-read-field" className="st-subpanel flex flex-col gap-3 p-3">
+        <div className="text-sm font-medium">Scene read <span className="st-muted font-normal">— places and times the scene tracker may pick from</span></div>
+        <RequirementList
+          label="Place"
+          hint="The judge can only pick a place from this list; it never invents one. Empty uses the values of an enum quality keyed 'location', and with neither the tracker never says where the scene is."
+          values={draft.scene_read?.locations ?? []}
+          options={locationOptions}
+          listId="so-scene-read-locations"
+          onChange={(locations) => mutate((current) => setSceneRead(current, { ...current.scene_read, locations }))}
+        />
+        <RequirementList
+          label="Time of day"
+          hint="Leave empty for dawn, morning, midday, afternoon, evening and night."
+          values={draft.scene_read?.times ?? []}
+          options={[]}
+          listId="so-scene-read-times"
+          onChange={(times) => mutate((current) => setSceneRead(current, { ...current.scene_read, times }))}
+        />
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={draft.scene_read?.inject !== false}
+            onChange={(event) => mutate((current) => setSceneRead(current, { ...current.scene_read, inject: event.target.checked }))}
+          />
+          Add the scene line to the prompt when the player's scene tracker is on
+        </label>
       </div>
 
       <div data-so="arc-bridges" className="st-subpanel flex flex-col gap-2 p-3">

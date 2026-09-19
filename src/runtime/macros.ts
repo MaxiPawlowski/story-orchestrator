@@ -37,6 +37,9 @@ export function registerRuntimeMacros(manager: RuntimeManager) {
   registerHostMacro("story_past_checkpoints", () => renderPastCheckpoints(manager), "Story Orchestrator v2 visited anchors");
   registerHostMacro("story_possible_transitions", () => manager.getPossibleTransitions().join("\n") || "(none)", "Story Orchestrator v2 outgoing transitions with gate text");
   registerHostMacro("story_tension", () => manager.getSnapshot().tension.level ?? "(unknown)", "Story Orchestrator v2 current tension level");
+  registerHostMacro("story_scene_location", () => manager.getSceneRead()?.facts.location ?? "(unknown)", "Story Orchestrator v2 scene location (judge scene tracker)");
+  registerHostMacro("story_scene_time", () => manager.getSceneRead()?.facts.time ?? "(unknown)", "Story Orchestrator v2 scene time of day (judge scene tracker)");
+  registerHostMacro("story_scene_present", () => manager.getSceneRead()?.facts.present.join(", ") || "(unknown)", "Story Orchestrator v2 characters present (judge scene tracker)");
   registerHostMacro("story_player_name", () => getPlayerName() || "(player)", "Story Orchestrator v2 player persona name");
   registerHostMacro("story_blackboard", () => renderBlackboardMemo(manager.getSnapshot()), "Story Orchestrator v2 blackboard");
   registerHostMacro("story_canon", () => manager.getCanon() || "(none)", "Story Orchestrator v2 derived canon");

@@ -54,3 +54,18 @@ describe("format-2 stagecraft fields", () => {
     expect(errors(story({ stagecraft: "Story Lore" as never }))).toEqual([{ path: "stagecraft", message: "stagecraft must be an object" }]);
   });
 });
+
+describe("format-2 scene_read (v2.2 plan 03)", () => {
+  it("keeps trimmed places and times, and only an explicit inject: false", () => {
+    const parsed = parseStoryV2OrThrow(story({ scene_read: { locations: [" guild hall ", "", "desert road"], times: ["day", "night"], inject: true } }));
+    expect(parsed.scene_read).toEqual({ locations: ["guild hall", "desert road"], times: ["day", "night"] });
+    expect(parseStoryV2OrThrow(story({ scene_read: { inject: false } })).scene_read).toEqual({ inject: false });
+    expect(parseStoryV2OrThrow(story({ scene_read: {} })).scene_read).toBeUndefined();
+  });
+
+  it("rejects a non-object block and a non-boolean inject", () => {
+    expect(errors(story({ scene_read: "guild hall" as never }))).toEqual([{ path: "scene_read", message: "scene_read must be an object" }]);
+    expect(errors(story({ scene_read: { inject: "yes" as never } }))).toEqual([{ path: "scene_read.inject", message: "scene_read.inject must be true or false" }]);
+  });
+});
+

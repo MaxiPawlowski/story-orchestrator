@@ -1,7 +1,9 @@
 import { callExtractionModel, getChatWindow, ExtractionScheduler, type SchedulerHost, type SchedulerSettings } from "@extraction/index";
-import { executeSlashCommands, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, judgeStatus, judgeTransport, subscribeToHostEvents, type HostSubscriptionEntry } from "@services/STAPI";
+import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
+import { clearStoryExtensionPrompt, executeSlashCommands, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, judgeStatus, judgeTransport, setStoryExtensionPrompt, subscribeToHostEvents, type HostSubscriptionEntry } from "@services/STAPI";
 import { quoteSlashArg } from "@utils/string";
 import { runBoundaryWork } from "./boundaryWork";
+import { SceneCoordinator } from "./coordinators/sceneCoordinator";
 import { JudgeRuntime } from "./judge";
 import { getGlobalSettings } from "./settingsStore";
 import { registerLiveSuite } from "./liveSuite";
@@ -17,6 +19,7 @@ let slashRegistered = false;
 let scheduler: ExtractionScheduler | null = null;
 let privateInjectionUnsub: (() => void) | null = null;
 let talkController: TalkController | null = null;
+let sceneCoordinator: SceneCoordinator | null = null;
 
 const registerSlashCommandsWhenReady = (attempt = 0) => {
   if (slashRegistered) return;
@@ -52,7 +55,7 @@ export function startRuntime() {
   };
   scheduler = new ExtractionScheduler(schedulerHost);
   runtimeManager.onBoundary((result) => {
-    if (scheduler) runBoundaryWork({ result, manager: runtimeManager, scheduler });
+    if (scheduler) runBoundaryWork({ result, manager: runtimeManager, scheduler, ...(sceneCoordinator ? { scene: sceneCoordinator } : {}) });
   });
   runtimeManager.onRollback((messageId, window) => {
     scheduler?.schedule({ priority: 0, reason: `rollback:${messageId}`, window });
@@ -85,6 +88,24 @@ export function startRuntime() {
   });
   globalThis.storyOrchestratorJudge = judgeRuntime;
   runtimeManager.attachJudge(judgeRuntime);
+  const recentWindow = () => {
+    const chat = Array.isArray(getContext().chat) ? getContext().chat : [];
+    return getChatWindow(Math.max(0, chat.length - DIRECTOR_WINDOW_MESSAGES)).messages.map((message) => ({ speaker: message.speaker, text: message.text }));
+  };
+  const tracker = INJECTION_REGISTRY.sceneTracker;
+  const scene = new SceneCoordinator({
+    judge: () => judgeRuntime,
+    getStory: () => runtimeManager.getStory(),
+    getState: () => runtimeManager.getEngineState(),
+    getWindow: recentWindow,
+    getPlayerName,
+    getLastMessageId: chatLastId,
+    getScene: () => runtimeManager.getSceneRead(),
+    setScene: (record) => runtimeManager.recordSceneRead(record),
+    inject: (text) => (text ? setStoryExtensionPrompt(tracker.key, text, tracker.depth) : clearStoryExtensionPrompt(tracker.key)),
+  });
+  sceneCoordinator = scene;
+  runtimeManager.subscribe(() => scene.sync());
   const talkHost: TalkControlHost = {
     isGroupChat: () => Boolean(getActiveGroup()),
     getChatId: () => getContext().chatId ?? null,
@@ -97,10 +118,7 @@ export function startRuntime() {
       return name ? runtimeManager.rosterIdForName(name) : null;
     },
     getLastMessageId: chatLastId,
-    getWindow: () => {
-      const chat = Array.isArray(getContext().chat) ? getContext().chat : [];
-      return getChatWindow(Math.max(0, chat.length - DIRECTOR_WINDOW_MESSAGES)).messages.map((message) => ({ speaker: message.speaker, text: message.text }));
-    },
+    getWindow: recentWindow,
     getCheckpointInfo: () => runtimeManager.getActiveCheckpointInfo(),
     callDirector: (prompt) => callExtractionModel(prompt, {
       profileId: runtimeManager.getExtractionSettings().profileId,
@@ -134,6 +152,7 @@ export function stopRuntime() {
   privateInjectionUnsub = null;
   scheduler = null;
   talkController = null;
+  sceneCoordinator = null;
   globalThis.talkControlInterceptor = () => undefined;
   started = false;
 }

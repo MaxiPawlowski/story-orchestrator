@@ -1,5 +1,6 @@
 import type { BoundaryResult } from "@engine/index";
 import { getChatWindow, maybeScheduleReconciliation, scheduleForcedCues, type ExtractionScheduler } from "@extraction/index";
+import type { SceneCoordinator } from "./coordinators/sceneCoordinator";
 import type { RuntimeManager } from "./runtimeManager";
 
 export const CONSOLIDATION_CADENCE = 10;
@@ -12,6 +13,8 @@ export interface BoundaryWorkContext {
   result: BoundaryResult;
   manager: RuntimeManager;
   scheduler: ExtractionScheduler;
+  scene?: SceneCoordinator;
+  sceneHeuristicFired?: boolean;
 }
 
 export const cueScanStart = (result: BoundaryResult): number =>
@@ -59,9 +62,25 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     // run exactly once per boundary.
     id: "scene-detect",
     order: 50,
-    run: ({ manager, scheduler }) => {
-      const hit = manager.detectSceneBreak();
-      if (hit?.hit) scheduler.schedule({ priority: 0, reason: `scene:${hit.reason}` });
+    run: (context) => {
+      const hit = context.manager.detectSceneBreak();
+      context.sceneHeuristicFired = Boolean(hit?.hit);
+      if (hit?.hit) context.scheduler.schedule({ priority: 0, reason: `scene:${hit.reason}` });
+    },
+  },
+  {
+    // v2.2 plan 03: fire-and-forget, never a scheduler job (it would queue behind LLM reads). It
+    // runs after scene-detect so a judged break only adds a read the heuristic did not schedule.
+    id: "scene-read",
+    order: 55,
+    when: ({ scene }) => Boolean(scene?.active()),
+    run: ({ result, scene, scheduler, sceneHeuristicFired }) => {
+      void scene?.run({
+        boundary: result.boundary,
+        messageId: result.context.lastMessageId,
+        heuristicFired: Boolean(sceneHeuristicFired),
+        scheduleRead: (reason) => scheduler.schedule({ priority: 0, reason }),
+      }).catch((error) => console.warn("[Story Orchestrator] scene read failed", error));
     },
   },
   {

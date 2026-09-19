@@ -8,6 +8,7 @@ import type {
   Quality,
   RosterMember,
   StoryRequirements,
+  StorySceneRead,
   StoryStagecraft,
   TalkControl,
   Transition,
@@ -157,6 +158,18 @@ export const setStagecraft = (draft: StoryDraft, stagecraft: StoryStagecraft): S
   const lorebooks = stagecraft.lorebooks ?? [];
   const { stagecraft: _dropped, ...rest } = draft;
   return lorebooks.length ? { ...rest, stagecraft: { lorebooks } } : rest;
+};
+
+// v2.2 plan 03: the scene tracker's vocabulary, kept as typed (the parser trims on load), so a new
+// empty row and a space typed mid-name survive the keystroke. An empty block drops out.
+export const setSceneRead = (draft: StoryDraft, sceneRead: StorySceneRead): StoryDraft => {
+  const next: StorySceneRead = {
+    ...(sceneRead.locations?.length ? { locations: sceneRead.locations } : {}),
+    ...(sceneRead.times?.length ? { times: sceneRead.times } : {}),
+    ...(sceneRead.inject === false ? { inject: false } : {}),
+  };
+  const { scene_read: _dropped, ...rest } = draft;
+  return Object.keys(next).length ? { ...rest, scene_read: next } : rest;
 };
 
 // The id is the story's identity: it is derived from the title until the author fixes it, and the

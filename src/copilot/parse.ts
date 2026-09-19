@@ -411,6 +411,10 @@ const readOp = (value: unknown, path: string, issues: string[]): ProposalOp | nu
       const source = isRecord(value.stagecraft) ? value.stagecraft.lorebooks : value.lorebooks;
       return { kind: "setStagecraft", stagecraft: { lorebooks: readStringList(source) } };
     }
+    case "setSceneRead": {
+      const source = isRecord(value.sceneRead) ? value.sceneRead : isRecord(value.scene_read) ? value.scene_read : value;
+      return { kind: "setSceneRead", sceneRead: { locations: readStringList(source.locations), times: readStringList(source.times), ...(source.inject === false ? { inject: false } : {}) } };
+    }
     // Provisioning ops (plan 06): parsed here so the wizard shares one grammar, but never applied to
     // the draft — the runtime creates the ST asset and validation enforces create-only.
     case "createCharacterCard": {

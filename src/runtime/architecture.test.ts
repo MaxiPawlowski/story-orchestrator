@@ -85,6 +85,13 @@ describe("architecture guards", () => {
     expect({ path, writes: [...source.matchAll(/enqueue\w*\(|applyEntries\(|setMemory\(/g)].map((match) => match[0]) }).toEqual({ path, writes: [] });
   });
 
+  it("keeps the scene coordinator a reader: no memory, generation or pacing, no spine writes (v2.2 plan 03)", () => {
+    const path = join(SRC, "runtime/coordinators/sceneCoordinator.ts");
+    const source = readFileSync(path, "utf8");
+    expect({ path, offenders: importsOf(path).filter((specifier) => /@memory|@generation|@pacing|@services/.test(specifier)) }).toEqual({ path, offenders: [] });
+    expect({ path, writes: [...source.matchAll(/enqueue\w*\(|applyEntries\(|setMemory\(|commitBoundary\(/g)].map((match) => match[0]) }).toEqual({ path, writes: [] });
+  });
+
   it("keeps coordinators from importing each other outside their typed deps", () => {
     for (const path of walk(join(SRC, "runtime/coordinators"))) {
       const source = readFileSync(path, "utf8");

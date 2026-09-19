@@ -1,6 +1,7 @@
 import type { BoundaryResult } from "@engine/index";
 import type { ExtractionScheduler } from "@extraction/index";
-import { cueScanStart, runBoundaryWork } from "./boundaryWork";
+import { BOUNDARY_WORK, cueScanStart, runBoundaryWork } from "./boundaryWork";
+import type { SceneCoordinator } from "./coordinators/sceneCoordinator";
 import type { RuntimeManager } from "./runtimeManager";
 
 const scheduleForcedCues = jest.fn();
@@ -52,3 +53,29 @@ describe("forced-cue scan window", () => {
     expect(scheduleForcedCues).toHaveBeenCalledWith(null, "start", scheduler, { from: 3, to: 4, messages: [] });
   });
 });
+
+describe("scene read (v2.2 plan 03)", () => {
+  const scene = (active: boolean) => {
+    const run = jest.fn(async () => null);
+    return { run, coordinator: { active: () => active, run } as unknown as SceneCoordinator };
+  };
+
+  it("runs after scene-detect, so the judge only adds a read the heuristic did not schedule", () => {
+    const ids = BOUNDARY_WORK.map((item) => item.id);
+    expect(ids.indexOf("scene-read")).toBe(ids.indexOf("scene-detect") + 1);
+  });
+
+  it("hands the heuristic's verdict to the scene read, and skips it while no usage is on", () => {
+    const hitManager = { ...manager, detectSceneBreak: () => ({ hit: true, reason: "location", signals: ["cast"] }) } as unknown as RuntimeManager;
+    const on = scene(true);
+    runBoundaryWork({ result: result(2, 4), manager: hitManager, scheduler, scene: on.coordinator });
+    expect(on.run).toHaveBeenCalledWith(expect.objectContaining({ boundary: 1, messageId: 4, heuristicFired: true }));
+    const quiet = scene(true);
+    runBoundaryWork({ result: result(4, 5), manager, scheduler, scene: quiet.coordinator });
+    expect(quiet.run).toHaveBeenCalledWith(expect.objectContaining({ messageId: 5, heuristicFired: false }));
+    const off = scene(false);
+    runBoundaryWork({ result: result(5, 6), manager, scheduler, scene: off.coordinator });
+    expect(off.run).not.toHaveBeenCalled();
+  });
+});
+

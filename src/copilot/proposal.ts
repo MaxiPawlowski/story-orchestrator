@@ -14,6 +14,7 @@ import {
   setCheckpointEffects,
   setCheckpointSnapshot,
   setRequirements,
+  setSceneRead,
   setStagecraft,
   setStartCheckpoint,
   setStoryField,
@@ -119,6 +120,8 @@ export const applyOp = (draft: StoryV2, op: ProposalOp): StoryV2 => {
       return setRequirements(draft, op.requirements);
     case "setStagecraft":
       return setStagecraft(draft, op.stagecraft);
+    case "setSceneRead":
+      return setSceneRead(draft, op.sceneRead);
     default:
       return draft;
   }
@@ -221,6 +224,8 @@ export const describeOp = (op: ProposalOp): OpDescription => {
       return { action: "update", entity: "story.requirements", label: `Require ${[...(op.requirements.personas ?? []), ...(op.requirements.members ?? []), ...(op.requirements.lorebooks ?? [])].join(", ") || "nothing"}` };
     case "setStagecraft":
       return { action: "update", entity: "story.stagecraft", label: op.stagecraft.lorebooks.length ? `Let the curator edit ${op.stagecraft.lorebooks.join(", ")}` : "Give the curator no lorebooks" };
+    case "setSceneRead":
+      return { action: "update", entity: "story.scene_read", label: op.sceneRead.locations?.length ? `Scene places: ${op.sceneRead.locations.join(", ")}` : "No scene places" };
     default:
       return { action: "update", entity: "unknown", label: "Unknown change" };
   }

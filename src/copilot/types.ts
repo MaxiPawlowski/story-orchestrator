@@ -8,6 +8,7 @@ import type {
   Quality,
   RosterMember,
   StoryRequirements,
+  StorySceneRead,
   StoryStagecraft,
   Transition,
   ValidationError,
@@ -46,6 +47,7 @@ export type ProposalOp =
   | { kind: "setArcBridges"; bridges: ArcBridge[] }
   | { kind: "setRequirements"; requirements: StoryRequirements }
   | { kind: "setStagecraft"; stagecraft: StoryStagecraft }
+  | { kind: "setSceneRead"; sceneRead: StorySceneRead }
   | ProvisioningOp;
 
 export type ProposalOpKind = ProposalOp["kind"];

@@ -290,6 +290,28 @@ the design (a miss is today's cost, a false trigger is one wasted GPU read), not
 The first union run is still the result that matters: recall 9/12 held-out is the honest number.
 Presence ran with roles; names-only presence was not measured.
 
+### As built (code, 2026-09-19; live gate pending)
+
+Deviations from the plan text, each with its reason:
+- **The read lives in `extras.judge.scene`, not a new `extras.scene` slice.** The manager already
+  owns and persists the judge slice, and `dropJudgeCallsAfter` now clears a read at or past the
+  rollback point, so rollback needed no new manager code. Two manager lines were added
+  (`getSceneRead`, `recordSceneRead`): 643 → 645, under the 646 baseline.
+- **The coordinator is built in `runtime/index.ts`**, next to `JudgeRuntime` and `TalkController`,
+  with constructor-injected deps. It is not a manager field. `runtime/index.ts` subscribes
+  `scene.sync()` to the manager's notify, so the block follows the stored read through a new read,
+  a rollback, a chat switch that hydrates another chat's read, or a flag switched off.
+- **`scene-read` is order 55, after `scene-detect` (50)**, not 45: in union mode it must know whether
+  the heuristic already scheduled a read on this boundary (`sceneHeuristicFired` on the context).
+- **`scene-detect` is unchanged** (union, see the calibration record).
+- The call record's use is `scene` (one fan-out call serves all three usages); `p.break` carries
+  the scene-break probability.
+- `setSceneRead` keeps typed values verbatim; the parser trims on load. The existing requirement
+  lists trim per keystroke and lose typed spaces. That bug predates v2.2 and is filed separately.
+- `scene_read.inject` is stored only when `false`.
+- The narrator is asked about presence like any member. Its answer only matters if it crosses
+  `PRESENT_P`, in which case it would be listed; calibration never saw that.
+
 ## Implementation notes
 
 - New coordinator ⇒ `architecture.test.ts` counts it against the coordinator budget automatically.

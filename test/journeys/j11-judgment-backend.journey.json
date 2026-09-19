@@ -280,6 +280,169 @@
           "log": true
         }
       ]
+    },
+    {
+      "id": "J11.11",
+      "mode": "auto",
+      "findings": [],
+      "goal": "sceneTrigger + sceneTracker opted in, real play: one `scene` record per boundary, and the stored read belongs to the newest message",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, memoryVerify: false, memoryPairs: false, sceneTrigger: true, sceneTracker: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; globalThis.__soJ11Scene = { calls: sceneCalls().length, boundary: rt.getEngineState().boundary }; return globalThis.__soJ11Scene;"
+        },
+        {
+          "send_generate": {
+            "text": "Arin, stay close. We head for the town gate at first light, and Luke stays in the guild hall.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; const read = await until(() => { const scene = rt.getSceneRead(); return scene && scene.messageId === lastId() ? scene : null; }, 20000); if (!read) throw new Error(`no scene read for message ${lastId()}: ${JSON.stringify(rt.getSceneRead())}`); const boundaries = rt.getEngineState().boundary - globalThis.__soJ11Scene.boundary; const calls = sceneCalls().slice(globalThis.__soJ11Scene.calls); if (calls.length !== boundaries) throw new Error(`${calls.length} scene records for ${boundaries} boundaries`); if (calls.every((event) => event.summary.includes('fell back'))) throw new Error(`every scene read fell back: ${calls[0]?.summary}`); return { boundaries, calls: calls.map((event) => event.summary), facts: read.facts, break: read.sceneBreak, location: read.location, time: read.time };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.12",
+      "mode": "auto",
+      "findings": [],
+      "goal": "a scripted time skip the regex misses (held-out SH01, judged 0.82-0.85 off-page) schedules the P0 `scene:judge` read on that boundary, and the LLM read runs",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; globalThis.__soJ11Audits = rt.getSnapshot().extraction.audits.length; return globalThis.__soJ11Audits;"
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"Three days of sand and wind later, the ruins finally rise out of the haze.\""
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; const read = await until(() => { const scene = rt.getSceneRead(); return scene && scene.messageId === lastId() ? scene : null; }, 20000); if (!read) throw new Error('no scene read for the time-skip message'); if (!read.sceneBreak?.triggered) return { branch: `the judge did not trigger this time (p=${read.sceneBreak?.p}); the cadence read still confirms, as today`, read: read.sceneBreak }; const audit = await until(() => rt.getSnapshot().extraction.audits.slice(globalThis.__soJ11Audits).find((entry) => entry.reason === 'scene:judge'), 240000); if (!audit) throw new Error(`triggered at p=${read.sceneBreak.p} but no scene:judge read ran: ${JSON.stringify(rt.getSnapshot().extraction.audits.slice(globalThis.__soJ11Audits).map((entry) => entry.reason))}`); if (audit.window.to < read.messageId) throw new Error(`the scene:judge read stopped at ${audit.window.to}, before the break at ${read.messageId}`); return { branch: 'judge triggered the read', p: read.sceneBreak.p, type: read.sceneBreak.type, sceneBreak: audit.sceneBreak ?? null };",
+          "log": true
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 300000
+          }
+        }
+      ]
+    },
+    {
+      "id": "J11.13",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the tracker block is in the prompt ST actually sends on the next generation, with only over-floor fields",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; const c = SillyTavern.getContext(); if (globalThis.__soJ11PromptHandler) c.eventSource.removeListener(c.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ11PromptHandler); globalThis.__soJ11Prompts = []; globalThis.__soJ11PromptHandler = (data, dryRun) => { if (!dryRun) globalThis.__soJ11Prompts.push(JSON.stringify(data ?? null)); }; c.eventSource.on(c.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ11PromptHandler); globalThis.__soJ11Block = block(); globalThis.__soJ11Facts = rt.getSceneRead()?.facts ?? null; return { block: globalThis.__soJ11Block, facts: globalThis.__soJ11Facts };"
+        },
+        {
+          "send_generate": {
+            "text": "I check the water skins and ask Arin how far the gate is.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; const c = SillyTavern.getContext(); c.eventSource.removeListener(c.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ11PromptHandler); delete globalThis.__soJ11PromptHandler; const prompts = globalThis.__soJ11Prompts ?? []; const expected = globalThis.__soJ11Block; const facts = globalThis.__soJ11Facts; if (!prompts.length) throw new Error('no main-generation prompt was captured'); if (!expected) { if (prompts.some((body) => body.includes('[Scene:') || body.includes('Present:'))) throw new Error('no over-floor field, yet a scene block reached the prompt'); return { branch: 'no over-floor field: no block, and none sent', facts }; } const probe = JSON.stringify(expected).slice(1, -1); const hits = prompts.filter((body) => body.includes(probe)).length; if (hits !== prompts.length) throw new Error(`the tracker block is missing from ${prompts.length - hits} of ${prompts.length} prompt(s): ${expected}`); const shown = [facts.location, facts.time, ...facts.present].filter(Boolean); const extra = shown.filter((value) => !expected.includes(value)); if (extra.length) throw new Error(`over-floor fields missing from the block: ${extra.join(', ')}`); return { block: expected, prompts: prompts.length };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.14",
+      "mode": "auto",
+      "findings": [],
+      "goal": "deleting the message a scene read belongs to clears the read and the block; the next boundary builds them again",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; const read = await until(() => { const scene = rt.getSceneRead(); return scene && scene.messageId === lastId() ? scene : null; }, 20000); if (!read) throw new Error('no fresh scene read to roll back'); globalThis.__soJ11Rolled = read.messageId; return { messageId: read.messageId, block: block() };"
+        },
+        {
+          "delete": {
+            "messageId": "last"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; const cleared = await until(() => rt.getSceneRead() === null && !block() ? true : null, 10000); if (!cleared) throw new Error(`rollback past message ${globalThis.__soJ11Rolled} left the scene read or block: ${JSON.stringify(rt.getSceneRead())} / ${block()}`); return { cleared: true };"
+        },
+        {
+          "send_generate": {
+            "text": "I shoulder my pack. Let's move.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; const read = await until(() => { const scene = rt.getSceneRead(); return scene && scene.messageId === lastId() ? scene : null; }, 20000); if (!read) throw new Error('no scene read after the rollback'); return { rebuilt: read.messageId, block: block() || null };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.15",
+      "mode": "auto",
+      "findings": [],
+      "goal": "every scene usage off: no scene read, no judge call; then trigger on + a blackboard `location` change with no text cue: the heuristic's deterministic read still runs, and the judge adds no second one",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, memoryVerify: false, memoryPairs: false, sceneTrigger: false, sceneTracker: false, lookahead: false } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; globalThis.__soJ11Off = sceneCalls().length; return globalThis.__soJ11Off;"
+        },
+        {
+          "send_generate": {
+            "text": "We rest a moment in the shade.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; const extra = sceneCalls().length - globalThis.__soJ11Off; if (extra) throw new Error(`${extra} scene calls with every scene usage off`); if (rt.getSceneRead()) throw new Error('a scene read is still stored with every usage off'); if (block()) throw new Error('the tracker block is still injected with every usage off'); return { sceneCalls: 0 };"
+        },
+        {
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, memoryVerify: false, memoryPairs: false, sceneTrigger: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; globalThis.__soJ11Audits = rt.getSnapshot().extraction.audits.length; await rt.setQuality('location', 'desert road'); return rt.getSnapshot().status;"
+        },
+        {
+          "send_generate": {
+            "text": "I nod and say nothing.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; const reasons = rt.getSnapshot().extraction.audits.slice(globalThis.__soJ11Audits).map((entry) => entry.reason); if (!reasons.some((reason) => reason === 'scene:location')) throw new Error(`the location-quality change scheduled no scene:location read: ${JSON.stringify(reasons)}`); const judged = reasons.filter((reason) => reason === 'scene:judge').length; return { reasons, judgeAddedReads: judged, note: judged ? 'the judge also triggered on a later boundary of this step' : 'union held: no second read' };",
+          "log": true
+        }
+      ]
     }
   ]
 }

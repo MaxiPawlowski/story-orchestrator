@@ -1,3 +1,4 @@
+import type { SceneReadRecord } from "./scene";
 import { JUDGE_CALL_RING_LIMIT, JUDGE_DEFAULT_MODEL, JUDGE_DEFAULT_TIMEOUT_MS } from "./policy";
 import type { JudgeCallRecord } from "./types";
 
@@ -42,6 +43,7 @@ export interface JudgeSettings {
 
 export interface JudgeRuntimeState {
   calls: JudgeCallRecord[];
+  scene: SceneReadRecord | null;
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -81,17 +83,21 @@ export function judgeUseActive(settings: JudgeSettings, key: JudgeUseKey): boole
   return dependency ? judgeUseActive(settings, dependency) : true;
 }
 
-export const createJudgeRuntime = (): JudgeRuntimeState => ({ calls: [] });
+export const createJudgeRuntime = (): JudgeRuntimeState => ({ calls: [], scene: null });
 
 export function sanitizeJudgeRuntime(value: unknown): JudgeRuntimeState {
   if (!isRecord(value) || !Array.isArray(value.calls)) return createJudgeRuntime();
   const calls = value.calls.filter((entry): entry is JudgeCallRecord => isRecord(entry) && typeof entry.use === "string" && typeof entry.at === "string" && typeof entry.messageId === "number");
-  return { calls: calls.slice(-JUDGE_CALL_RING_LIMIT) };
+  const scene = isRecord(value.scene) && typeof value.scene.messageId === "number" && isRecord(value.scene.facts) ? (value.scene as unknown as SceneReadRecord) : null;
+  return { calls: calls.slice(-JUDGE_CALL_RING_LIMIT), scene };
 }
 
-export const appendJudgeCall = (state: JudgeRuntimeState, record: JudgeCallRecord): JudgeRuntimeState => ({ calls: [...state.calls, record].slice(-JUDGE_CALL_RING_LIMIT) });
+export const appendJudgeCall = (state: JudgeRuntimeState, record: JudgeCallRecord): JudgeRuntimeState => ({ ...state, calls: [...state.calls, record].slice(-JUDGE_CALL_RING_LIMIT) });
 
-export const dropJudgeCallsAfter = (state: JudgeRuntimeState, messageId: number): JudgeRuntimeState => ({ calls: state.calls.filter((entry) => entry.messageId < messageId) });
+export const dropJudgeCallsAfter = (state: JudgeRuntimeState, messageId: number): JudgeRuntimeState => ({
+  calls: state.calls.filter((entry) => entry.messageId < messageId),
+  scene: state.scene && state.scene.messageId < messageId ? state.scene : null,
+});
 
 export interface JudgeUseCopy {
   label: string;
@@ -103,8 +109,8 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
   director: { label: "Speaker direction", description: "Picks who speaks next in a group chat when the checkpoint has talk control. Needs a one-line role for every character in the pool; otherwise the usual director decides.", sends: "the last 8 messages, character names and roles, the scene name and goal" },
   memoryVerify: { label: "Check memory before storing", description: "Drops notes the story never showed and down-weights doubtful ones.", sends: "the read's messages, the candidate notes, story title and cast names" },
   memoryPairs: { label: "Merge related notes", description: "Decides whether two similar notes are a duplicate, an update, or both true.", sends: "two memory notes per question" },
-  sceneTrigger: { label: "Notice scene changes", description: "Spots a scene change on the turn it happens.", sends: "the last 8 messages and the scene name" },
-  sceneTracker: { label: "Scene tracker", description: "Keeps location, time and who is present, and adds them to the prompt.", sends: "the last 8 messages, cast names and roles, the story's locations" },
+  sceneTrigger: { label: "Notice scene changes", description: "Asks for the scene read on the turn a scene changes, next to today's keyword check.", sends: "the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name" },
+  sceneTracker: { label: "Scene tracker", description: "Keeps location, time and who is present, and adds them to the prompt.", sends: "the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name, the story's locations" },
   sceneOoc: { label: "Out-of-character messages", description: "Keeps out-of-character requests from counting as story events.", sends: "the last 8 messages" },
   lookahead: { label: "Heading toward (author view)", description: "Shows which upcoming checkpoints play is moving toward.", sends: "the last 8 messages and the names and goals of the next checkpoints" },
   loreSelect: { label: "Lore selection", description: "Adds the lore entries that matter to the next reply, even without their keywords.", sends: "the last 8 messages and the story's lore entries" },
@@ -116,4 +122,4 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
   expansionLookahead: { label: "Prepare ahead", description: "Writes the next generated beats before the story gets there.", sends: "same as Heading toward, plus expansion review" },
 };
 
-export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = ["director", "memoryVerify", "memoryPairs"];
+export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = ["director", "memoryVerify", "memoryPairs", "sceneTrigger", "sceneTracker", "lookahead"];

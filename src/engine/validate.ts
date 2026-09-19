@@ -20,6 +20,7 @@ import {
   type Quality,
   type QualityType,
   type StoryRequirements,
+  type StorySceneRead,
   type StoryStagecraft,
   type StoryV2,
   type TalkControl,
@@ -455,6 +456,18 @@ const readStagecraft = (value: unknown, errors: ValidationError[]): StoryStagecr
   return lorebooks.length ? { lorebooks } : undefined;
 };
 
+const readSceneRead = (value: unknown, errors: ValidationError[]): StorySceneRead | undefined => {
+  if (!isRecord(value)) {
+    addError(errors, "scene_read", "scene_read must be an object");
+    return undefined;
+  }
+  if (value.inject !== undefined && typeof value.inject !== "boolean") addError(errors, "scene_read.inject", "scene_read.inject must be true or false");
+  const locations = readRequirementList(value.locations);
+  const times = readRequirementList(value.times);
+  const out: StorySceneRead = { ...(locations.length ? { locations } : {}), ...(times.length ? { times } : {}), ...(value.inject === false ? { inject: false } : {}) };
+  return Object.keys(out).length ? out : undefined;
+};
+
 const readArcTemplate = (value: unknown, errors: ValidationError[]): ArcTemplate | undefined => {
   if (isOneOf(value, ARC_TEMPLATE_NAMES)) return value;
   if (isRecord(value) && Array.isArray(value.points)) {
@@ -501,6 +514,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const arcTemplate = json.arc_template !== undefined ? readArcTemplate(json.arc_template, errors) : undefined;
   const requirements = json.requirements !== undefined ? readRequirements(json.requirements, errors) : undefined;
   const stagecraft = json.stagecraft !== undefined ? readStagecraft(json.stagecraft, errors) : undefined;
+  const sceneRead = json.scene_read !== undefined ? readSceneRead(json.scene_read, errors) : undefined;
   const roster = readRoster(json.roster as StoryV2["roster"], errors);
   const arcBridges = Array.isArray(json.arc_bridges) ? json.arc_bridges.map((entry, index) => {
     const bridgePath = `arc_bridges.${index}`;
@@ -587,6 +601,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     ...(arcBridges ? { arc_bridges: arcBridges } : {}),
     ...(requirements ? { requirements } : {}),
     ...(stagecraft ? { stagecraft } : {}),
+    ...(sceneRead ? { scene_read: sceneRead } : {}),
     startCheckpointId,
     checkpointById,
     outgoingByCheckpoint,

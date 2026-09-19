@@ -37,6 +37,7 @@ export interface NarrativeInput {
   tensionLevel: TensionLevel | null;
   pendingCount: number;
   pipeline: PipelineStatus;
+  sceneLocation?: string | null;
 }
 
 export interface NarrativeStatus {
@@ -66,6 +67,7 @@ export function buildNarrativeStatus(input: NarrativeInput): NarrativeStatus {
 
   const now: string[] = [];
   if (input.checkpointName) now.push(input.checkpointName);
+  if (input.sceneLocation) now.push(`At ${input.sceneLocation}.`);
   if (input.objective) now.push(input.objective);
   if (input.tensionLevel) now.push(TENSION_COPY[input.tensionLevel]);
   if (now.length) sections.push({ id: "now", label: "Where you are", lines: now });

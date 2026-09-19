@@ -26,6 +26,21 @@ describe("parseProposal", () => {
     expect(issues.some((issue) => issue.includes("frobnicate"))).toBe(true);
   });
 
+  it("reads a scene_read op in either spelling, keeping only an explicit inject: false (v2.2 plan 03)", () => {
+    const { proposal, issues } = parseProposal(JSON.stringify({
+      summary: "places",
+      ops: [
+        { kind: "setSceneRead", sceneRead: { locations: ["guild hall", "desert road"], inject: true } },
+        { kind: "setSceneRead", scene_read: { times: ["day", "night"], inject: false } },
+      ],
+    }));
+    expect(issues).toEqual([]);
+    expect(proposal.ops).toEqual([
+      { kind: "setSceneRead", sceneRead: { locations: ["guild hall", "desert road"], times: [] } },
+      { kind: "setSceneRead", sceneRead: { locations: [], times: ["day", "night"], inject: false } },
+    ]);
+  });
+
   it("carries a trimmed roster role on add and update, and clears it with an empty one (v2.2 plan 01)", () => {
     const { proposal, issues } = parseProposal(JSON.stringify({
       summary: "cast",

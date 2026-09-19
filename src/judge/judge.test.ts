@@ -225,7 +225,17 @@ describe("judge settings", () => {
     expect(state.calls).toHaveLength(JUDGE_CALL_RING_LIMIT);
     expect(dropJudgeCallsAfter(state, 100).calls.every((entry) => entry.messageId < 100)).toBe(true);
     expect(sanitizeJudgeRuntime({ calls: [{ nope: 1 }, state.calls[0]] }).calls).toEqual([state.calls[0]]);
-    expect(sanitizeJudgeRuntime(undefined)).toEqual({ calls: [] });
+    expect(sanitizeJudgeRuntime(undefined)).toEqual({ calls: [], scene: null });
+  });
+
+  it("keeps the scene read across appends, and drops it on a rollback at or before its message (v2.2 plan 03)", () => {
+    const scene = { at: "2026-09-19T00:00:00.000Z", boundary: 2, messageId: 7, model: "jev", facts: { location: "hall", time: null, present: [], headingTo: [] } };
+    const state = appendJudgeCall({ ...createJudgeRuntime(), scene }, { at: "2026-09-19T00:00:00.000Z", boundary: 2, messageId: 7, use: "scene", model: "jev", latencyMs: 1, stateChars: 1, questionCount: 1 });
+    expect(state.scene).toEqual(scene);
+    expect(dropJudgeCallsAfter(state, 8).scene).toEqual(scene);
+    expect(dropJudgeCallsAfter(state, 7).scene).toBeNull();
+    expect(sanitizeJudgeRuntime({ calls: [], scene }).scene).toEqual(scene);
+    expect(sanitizeJudgeRuntime({ calls: [], scene: { messageId: "x" } }).scene).toBeNull();
   });
 });
 

@@ -1,4 +1,4 @@
-import { appendJudgeCall, dropJudgeCallsAfter, type JudgeCallRecord } from "@judge/index";
+import { appendJudgeCall, dropJudgeCallsAfter, type JudgeCallRecord, type SceneReadRecord } from "@judge/index";
 import type { JudgeRuntime } from "./judge";
 import { StoryEngine, type ApplyQueueEntry, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type StoryV2, type TalkControl, type ValidationError } from "@engine/index";
 import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Suggestion } from "@copilot/index";
@@ -339,6 +339,8 @@ export class RuntimeManager {
   }
 
   recordJudgeCall(record: JudgeCallRecord) { this.extras.judge = appendJudgeCall(this.extras.judge, record); }
+  getSceneRead(): SceneReadRecord | null { return this.extras.judge.scene; }
+  recordSceneRead(read: SceneReadRecord | null) { this.extras.judge = { ...this.extras.judge, scene: read }; this.notify(); }
 
   recordTalkDecision(audit: TalkDecisionAudit) {
     this.extras.talk = { ...this.extras.talk, decisions: [...this.extras.talk.decisions, audit].slice(-TALK_DECISION_LIMIT) };

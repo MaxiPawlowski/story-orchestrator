@@ -16,6 +16,7 @@ export const INJECTION_REGISTRY = {
   epistemic: { key: "story_orchestrator_epistemic", depth: 4, writer: "memory/inject.applyEpistemicInjection" },
   ledger: { key: "story_orchestrator_ledger", depth: 3, writer: "memory/inject.applyLedgerInjection" },
   copilotNudge: { key: "story_copilot_nudge", depth: 4, writer: "runtime/runtimeManager.setCopilotNudge", dynamicDepth: true },
+  sceneTracker: { key: "story_orchestrator_scene", depth: 1, writer: "runtime/coordinators/sceneCoordinator" },
 } as const satisfies Record<string, InjectionSpec>;
 
 export const INJECTION_DEPTH_COLLISION_ALLOWLIST: ReadonlyArray<ReadonlySet<string>> = [

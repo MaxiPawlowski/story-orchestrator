@@ -21,6 +21,7 @@ export const DIAGNOSTIC_CODES = [
   "talk-member-unknown",
   "talk-lead-outside-speakers",
   "talk-silence-without-director",
+  "scene-read-location-empty",
 ] as const;
 
 const walkLeaves = (gate: GateNode, visit: (leaf: GateLeaf) => void) => {
@@ -181,6 +182,11 @@ export const runDiagnostics = (draft: StoryV2): Diagnostic[] => {
     const available = draft.transitions.reduce((sum, transition) => sum + (transition.effects?.progress?.anchor === checkpoint.id ? transition.effects.progress.amount ?? 0 : 0), 0);
     if (available < checkpoint.convergence_threshold) push("threshold-unsatisfiable", "warning", `checkpoints.${index}`, `anchor '${checkpoint.id}' threshold ${checkpoint.convergence_threshold} exceeds total available progress ${available}`);
   });
+
+  const locationIndex = draft.qualities.findIndex((quality) => quality.key === "location");
+  if (locationIndex >= 0 && draft.qualities[locationIndex].type === "string" && !draft.scene_read?.locations?.length) {
+    push("scene-read-location-empty", "warning", `qualities.${locationIndex}`, "'location' is free text, so the scene tracker can never say where the scene is: the judge only picks from a list. Make it an enum, or list places under Scene read");
+  }
 
   return diagnostics;
 };

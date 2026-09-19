@@ -5,6 +5,7 @@ import type { RuntimeManager } from "@runtime/index";
 import DriverPanel, { type DriverController } from "./DriverPanel";
 import PlayerOverview from "./PlayerOverview";
 import StagecraftPanel from "./StagecraftPanel";
+import ScenePanel from "./ScenePanel";
 
 export type DrawerTabId = "overview" | "blackboard" | "memory" | "scheduler" | "payload";
 
@@ -90,6 +91,7 @@ const AuthorOverview = ({ snapshot, onFixWithWizard }: { snapshot: RuntimeSnapsh
       </div>
     )}
     <AuthorRequirements snapshot={snapshot} onFixWithWizard={onFixWithWizard} />
+    <ScenePanel scene={snapshot.scene} />
     <div className="text-xs opacity-80">
       <div className="font-medium opacity-100">Tension</div>
       <div>Level: {snapshot.tension.level ?? "—"} {snapshot.tension.smoothed !== null && <span>({snapshot.tension.smoothed.toFixed(2)})</span>}</div>

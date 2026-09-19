@@ -10,7 +10,7 @@ const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
 
   status                              plugin reachability, key source (never the key), install settings
   ask <request.json>                  POST one System One request through the plugin from the page
-  calibrate [--use director|memory-verify|memory-pairs] [--fixture <name>] [--min 0.85] [--record]
+  calibrate [--use director|memory-verify|memory-pairs|scene] [--fixture <name>] [--min 0.85] [--record]
                                       run test/fixtures/judge/<fixture|use>.json page -> plugin -> TypeSafe;
                                       exit 1 below --min; --record writes test/goldens/judge/<use>.calibration.json
   calls [--last 20]                   the current chat's judge call ring (extras.judge.calls)
@@ -52,6 +52,16 @@ async function ask(page: any, file: string) {
   return { ok: result.http === 200 };
 }
 
+// Scene rows are `<case>.<family>[:<item>]`, each family scored against the fixture's own floor.
+function familyScores(rows: Array<{ id: string; right: boolean }>, floors: Record<string, number>) {
+  return Object.entries(floors).flatMap(([family, floor]) => {
+    const own = rows.filter((row) => row.id.slice(row.id.indexOf('.') + 1).split(':')[0] === family);
+    if (!own.length) return [];
+    const right = own.filter((row) => row.right).length;
+    return [{ family, right, total: own.length, floor, ok: right / own.length >= floor }];
+  });
+}
+
 async function calibrate(page: any, use: string, fixtureName: string, min: number, record: boolean) {
   const fixture = JSON.parse(await readFile(join(PROJECT_ROOT, 'test', 'fixtures', 'judge', `${fixtureName}.json`), 'utf-8'));
   const report = await evaluateInST(page, async ({ use, rows }: { use: string; rows: unknown[] }) => {
@@ -61,10 +71,13 @@ async function calibrate(page: any, use: string, fixtureName: string, min: numbe
   }, { use, rows: fixture.rows });
   const labelOf: Record<string, string> = Object.fromEntries(fixture.rows.filter((row: any) => row.label).map((row: any) => [row.id, row.label]));
   const tagOf = Object.fromEntries(fixture.rows.map((row: any) => [row.id, row.tags ?? (row.lang === 'es' ? ['spanish'] : [])]));
-  for (const row of report.rows) console.log(`${row.right ? 'ok  ' : 'MISS'} ${row.id.padEnd(5)} ${String(row.picked).padEnd(16)} ${String(row.latencyMs).padStart(5)} ms  ${tagOf[row.id].join(',')}${row.fallback ? `  fallback=${row.fallback}` : ''}${row.detail ? `  [${row.id in labelOf ? labelOf[row.id] : ''}] ${row.detail}` : ''}`);
+  const tagsOf = (id: string): string[] => tagOf[id] ?? tagOf[id.split('.')[0]] ?? [];
+  for (const row of report.rows) console.log(`${row.right ? 'ok  ' : 'MISS'} ${row.id.padEnd(5)} ${String(row.picked).padEnd(16)} ${String(row.latencyMs).padStart(5)} ms  ${tagsOf(row.id).join(',')}${row.fallback ? `  fallback=${row.fallback}` : ''}${row.detail ? `  [${row.id in labelOf ? labelOf[row.id] : ''}] ${row.detail}` : ''}`);
   const rate = report.total ? report.right / report.total : 0;
-  const spanish = report.rows.filter((row: any) => tagOf[row.id].includes('spanish'));
-  const summary = { use, fixture: fixtureName, right: report.right, total: report.total, rate: Number(rate.toFixed(4)), spanish: `${spanish.filter((row: any) => row.right).length}/${spanish.length}`, p50LatencyMs: report.p50LatencyMs, model: report.model, min, ok: rate >= min };
+  const spanish = report.rows.filter((row: any) => tagsOf(row.id).includes('spanish'));
+  const families = use === 'scene' ? familyScores(report.rows, fixture.floors ?? {}) : [];
+  families.forEach((row) => console.log(`${row.ok ? 'ok  ' : 'FAIL'} ${row.family.padEnd(9)} ${row.right}/${row.total} floor ${row.floor}`));
+  const summary = { use, fixture: fixtureName, right: report.right, total: report.total, rate: Number(rate.toFixed(4)), ...(families.length ? { families } : {}), spanish: `${spanish.filter((row: any) => row.right).length}/${spanish.length}`, p50LatencyMs: report.p50LatencyMs, model: report.model, min, ok: families.length ? families.every((row) => row.ok) : rate >= min };
   console.log(JSON.stringify(summary, null, 2));
   await writeJSON({ summary, report }, `so-judge-calibrate-${fixtureName}`);
   if (record) {

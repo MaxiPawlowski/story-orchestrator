@@ -67,4 +67,11 @@ describe("buildNarrativeStatus", () => {
     expect(story?.lines[0].length).toBeLessThanOrEqual(601);
     expect(story?.lines[0].endsWith("…")).toBe(true);
   });
+
+  it("says where the scene is, right after the checkpoint name, only when the tracker knows (v2.2 plan 03)", () => {
+    const now = (status: ReturnType<typeof buildNarrativeStatus>) => status.sections.find((section) => section.id === "now")?.lines;
+    expect(now(buildNarrativeStatus(input({ sceneLocation: "the desert road" })))?.slice(0, 2)).toEqual(["The Ruined Gate", "At the desert road."]);
+    expect(now(buildNarrativeStatus(input({ sceneLocation: null })))?.some((line) => line.startsWith("At "))).toBe(false);
+  });
 });
+
