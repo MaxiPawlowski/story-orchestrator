@@ -5,15 +5,17 @@ import { PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
-import { adoptNewSandboxChat, assertInSandbox, beginSandboxSession, deleteSandboxChats, openMostRecentGroupChat, readActiveChat, reopenSandboxChat } from './st-navigation.mts';
+import { adoptNewSandboxChat, assertInSandbox, beginSandboxSession, deleteSandboxChats, openGroup, openMostRecentGroupChat, readActiveChat, reopenSandboxChat } from './st-navigation.mts';
 import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, sendUserMessage, swipeMessage, waitForIdle } from './st-actions.mts';
 import { dumpCurrentChatState } from './so-state.mts';
 import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot } from './so-ui.mts';
 import { listMarkedAssets, removeMarkedAssets } from './so-assets.mts';
 
-const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep]
+const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep] [--group <id|name>]
 
---sandbox runs in a new chat of the most recent group and only ever stays on, or deletes, chats the run created.
+--sandbox runs in a new chat of the most recent group, or of --group when given, and only ever stays on,
+or deletes, chats the run created. Pin --group when the install has chats that are not yours: "most recent"
+is whichever group was last active, which may be another session's.
 Every step first checks the page is still on a sandbox chat and aborts ("sandbox escaped") if it is not.
 Sandbox cleanup deletes the run's chats, then each memory-mirror book named for one of them
 ("Story Orchestrator - <title> - <owned chat id>"), and clears every storyOrchestratorDebug* response (also cleared at start).
@@ -62,6 +64,11 @@ wait verbs:
 
 function readArgFlag(name) {
   return process.argv.includes(name);
+}
+
+function readArgValue(name) {
+  const index = process.argv.indexOf(name);
+  return index >= 0 ? process.argv[index + 1] ?? null : null;
 }
 
 async function readJSON(path) {
@@ -857,7 +864,7 @@ async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashe
   return result;
 }
 
-async function runScenario(page, file, { sandbox = false, keep = false } = {}) {
+async function runScenario(page, file, { sandbox = false, keep = false, group = null } = {}) {
   const scenarioPath = resolve(PROJECT_ROOT, file);
   const scenarioDir = dirname(scenarioPath);
   const scenario = await readJSON(scenarioPath);
@@ -869,7 +876,8 @@ async function runScenario(page, file, { sandbox = false, keep = false } = {}) {
 
   let libraryBefore = [];
   if (sandbox) {
-    await openMostRecentGroupChat(page);
+    if (group) await openGroup(page, group);
+    else await openMostRecentGroupChat(page);
     guard = (await beginSandboxSession(page)).guard;
     await clearDebugResponses(page);
     libraryBefore = await libraryHashes(page);
@@ -894,5 +902,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     console.log(USAGE);
     process.exit(hasHelpFlag() ? 0 : 1);
   }
-  runCli((page) => runScenario(page, process.argv[3], { sandbox: readArgFlag('--sandbox'), keep: readArgFlag('--keep') }));
+  runCli((page) => runScenario(page, process.argv[3], { sandbox: readArgFlag('--sandbox'), keep: readArgFlag('--keep'), group: readArgValue('--group') }));
 }
