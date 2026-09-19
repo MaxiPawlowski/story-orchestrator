@@ -68,6 +68,7 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
   const dirty = useDraftStore((state) => state.dirty);
   const errors = useDraftStore((state) => state.errors);
   const diagnostics = useDraftStore((state) => state.diagnostics);
+  const issueCount = diagnostics.filter((entry) => entry.severity !== "info").length;
   const mutate = useDraftStore((state) => state.mutate);
   const undo = useDraftStore((state) => state.undo);
   const redo = useDraftStore((state) => state.redo);
@@ -161,7 +162,7 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
           />
           {dirty ? <span className="st-pill px-2 py-0.5 text-[11px]" aria-label="Unsaved changes">Unsaved</span> : null}
           {errors.length > 0 ? <span className="st-alert-error rounded px-2 py-0.5 text-[11px]" aria-label={`${errors.length} validation ${errors.length === 1 ? "error" : "errors"}`}>{errors.length} {errors.length === 1 ? "error" : "errors"}</span> : null}
-          {diagnostics.length > 0 ? <span className="st-pill px-2 py-0.5 text-[11px]" aria-label={`${diagnostics.length} diagnostics`}>{diagnostics.length} {diagnostics.length === 1 ? "issue" : "issues"}</span> : null}
+          {issueCount > 0 ? <span className="st-pill px-2 py-0.5 text-[11px]" aria-label={`${issueCount} diagnostics`}>{issueCount} {issueCount === 1 ? "issue" : "issues"}</span> : null}
           <button type="button" className="st-button secondary" onClick={() => void requestClose()} aria-label="Close studio">Close</button>
         </div>
 

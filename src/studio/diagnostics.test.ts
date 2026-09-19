@@ -25,6 +25,8 @@ const seeded: StoryV2 = {
     { key: "secret", type: "string", source: "extractor", rubric: "r", scope_hint: { until: "start" } },
     { key: "morale", type: "int", source: "extractor", latching: true, rubric: "r" },
     { key: "location", type: "string", source: "extractor", rubric: "r" },
+    { key: "stance", type: "enum", values: ["friend", "foe"], source: "extractor", rubric: "r", read_as: "choice" },
+    { key: "mood", type: "enum", values: ["calm", "angry"], source: "extractor", rubric: "r", latching: true, read_as: "choice", criteria: { angry: { what: "Shouts or strikes", not_for: "Angry words said calmly" } } },
   ],
   checkpoints: [
     { id: "start", name: "Start", objective: "", type: "intermediate", start: true, state_snapshot: { morale: 1, location: "hall" } },
@@ -53,7 +55,7 @@ const seeded: StoryV2 = {
       gate: { all: [{ q: "alarm", op: ">=", v: 1 }, { q: "route", op: "==", v: "teleport" }, { q: "secret", op: "==", v: "x" }, { q: "morale", op: "==", v: 5 }] },
       effects: { progress: { anchor: "cache", amount: 1 } },
     },
-    { from: "mid", to: "stubby", priority: 0, gate: { all: [] } },
+    { from: "mid", to: "stubby", priority: 0, gate: { all: [{ q: "stance", op: "==", v: "friend" }, { q: "mood", op: "==", v: "calm" }] } },
   ],
   roster: [{ id: "guide", name: "The Guide" }, { id: "warden", name: "The Warden" }],
   lore_select: { lorebooks: ["Unlisted Lore"] },
@@ -111,4 +113,14 @@ describe("runDiagnostics", () => {
     const story: StoryV2 = { ...clean, requirements: { lorebooks: ["Vault Lore"] }, lore_select: { lorebooks: ["vault lore", "Other Lore"] } };
     expect(runDiagnostics(story).filter((entry) => entry.code === "lore-select-inactive").map((entry) => entry.path)).toEqual(["lore_select.lorebooks.1"]);
   });
+
+  it("notes judge hints: plain single-word options, the latching floor, and a 'not for' that names its own option (v2.2 plan 06)", () => {
+    const hinted = (quality: Record<string, unknown>) => runDiagnostics({ ...clean, qualities: [...clean.qualities, { key: "q", type: "enum", values: ["calm", "very angry"], source: "extractor", rubric: "r", ...quality } as never] }).map((entry) => [entry.code, entry.severity]);
+    expect(hinted({ read_as: "choice" })).toEqual(expect.not.arrayContaining([["quality-hint-no-criteria", "info"]]));
+    expect(runDiagnostics({ ...clean, qualities: [...clean.qualities, { key: "q", type: "enum", values: ["calm", "angry"], source: "extractor", rubric: "r", read_as: "choice" }] }).map((entry) => entry.code)).toContain("quality-hint-no-criteria");
+    expect(hinted({ read_as: "choice", latching: true, criteria: { calm: "Quiet" } })).toContainEqual(["quality-hint-latching-note", "info"]);
+    expect(hinted({ read_as: "choice", criteria: { "very angry": { what: "Rages", not_for: "Someone very angry but hiding it" } } })).toContainEqual(["quality-criteria-self-exclusion", "warning"]);
+    expect(hinted({ read_as: "choice", criteria: { calm: { what: "Quiet", not_for: "Sulking silence" } } }).some(([code]) => code === "quality-criteria-self-exclusion")).toBe(false);
+  });
 });
+

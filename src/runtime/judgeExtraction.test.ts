@@ -88,6 +88,7 @@ describe("judged typed read (v2.2 plan 06)", () => {
     expect(manager.getSnapshot().extraction.audits).toEqual([]);
     await manager.commitBoundary();
     expect(manager.getSnapshot().activeCheckpointId).toBe("vault");
+    expect(manager.getSnapshot().blackboardMeta.has_key).toMatchObject({ reader: "judge", confidence: 0.95 });
   });
 
   it("writes nothing under the floor, and takes no work with the usage off", async () => {

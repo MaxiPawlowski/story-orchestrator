@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from "react";
-import { QUALITY_SOURCES, QUALITY_TYPES, type Quality, type QualitySource, type QualityType } from "@engine/index";
+import { QUALITY_SOURCES, QUALITY_TYPES, READ_AS_TYPES, type Quality, type QualitySource, type QualityType } from "@engine/index";
 import { useDraftStore } from "../draft";
 import { addQuality, newQuality, nextId, removeQuality, updateQuality } from "../mutations";
 import { findQualityUsages, reservedQualityKeys } from "../qualityUsage";
+import QualityReadEditor from "./QualityReadEditor";
 
 const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
   <label className="flex flex-col gap-1 text-sm">
@@ -56,12 +57,20 @@ const QualityEditor: React.FC = () => {
     const change: Partial<Quality> = { type };
     if (type === "enum") change.values = selected?.values ?? [];
     else change.values = undefined;
+    if (selected?.read_as && !READ_AS_TYPES[selected.read_as].includes(type)) {
+      change.read_as = undefined;
+      change.criteria = undefined;
+    }
     patch(change);
   };
 
   const handleSourceChange = (source: QualitySource) => {
     const change: Partial<Quality> = { source };
-    if (source === "code") change.ledger_binding = undefined;
+    if (source === "code") {
+      change.ledger_binding = undefined;
+      change.read_as = undefined;
+      change.criteria = undefined;
+    }
     patch(change);
   };
 
@@ -189,6 +198,10 @@ const QualityEditor: React.FC = () => {
                   <input className="text_pole st-input" value={selected.ledger_binding?.field ?? ""} onChange={(event) => setLedgerBinding("field", event.target.value)} />
                 </Field>
               </div>
+            ) : null}
+
+            {selected.source === "extractor" && !isReserved ? (
+              <QualityReadEditor quality={selected} storyTitle={draft.title} checkpoint={draft.checkpoints.find((checkpoint) => checkpoint.start) ?? draft.checkpoints[0] ?? null} onChange={patch} />
             ) : null}
 
             <div className="flex items-center gap-2 border-t st-divider pt-3">

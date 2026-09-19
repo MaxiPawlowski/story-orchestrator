@@ -18,10 +18,24 @@ const DiagnosticsPanel: React.FC = () => {
   const errors = useDraftStore((state) => state.errors);
   const blocking = diagnostics.filter((entry: Diagnostic) => entry.severity === "blocking");
   const warnings = diagnostics.filter((entry: Diagnostic) => entry.severity === "warning");
-  const total = errors.length + diagnostics.length;
+  const notes = diagnostics.filter((entry: Diagnostic) => entry.severity === "info");
+  const issues = errors.length + blocking.length + warnings.length;
+  const notesSection = notes.length ? (
+    <section className="flex flex-col gap-1">
+      <h3 className="text-xs font-semibold st-muted">Notes ({notes.length})</h3>
+      <ul className="flex flex-col gap-1">
+        {notes.map((entry, index) => <DiagnosticRow key={index} label={entry.code} message={entry.message} path={entry.path} tone="muted" />)}
+      </ul>
+    </section>
+  ) : null;
 
-  if (total === 0) {
-    return <div className="st-alert-success rounded px-3 py-2 text-sm">No issues — this story is ready to save.</div>;
+  if (issues === 0) {
+    return (
+      <div className="flex flex-col gap-3" aria-label="Diagnostics">
+        <div className="st-alert-success rounded px-3 py-2 text-sm">No issues — this story is ready to save.</div>
+        {notesSection}
+      </div>
+    );
   }
 
   return (
@@ -50,6 +64,7 @@ const DiagnosticsPanel: React.FC = () => {
           </ul>
         </section>
       ) : null}
+      {notesSection}
     </div>
   );
 };

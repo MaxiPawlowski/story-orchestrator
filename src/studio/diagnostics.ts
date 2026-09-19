@@ -1,7 +1,7 @@
 import { progressQualityForAnchor, TENSION_CURRENT_KEY, type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type StoryV2, type ValidationError } from "@engine/index";
 import { directorEnabled } from "@talk/index";
 
-export type DiagnosticSeverity = "blocking" | "warning";
+export type DiagnosticSeverity = "blocking" | "warning" | "info";
 
 export interface Diagnostic extends ValidationError {
   code: string;
@@ -23,7 +23,16 @@ export const DIAGNOSTIC_CODES = [
   "talk-silence-without-director",
   "scene-read-location-empty",
   "lore-select-inactive",
+  "quality-hint-no-criteria",
+  "quality-hint-latching-note",
+  "quality-criteria-self-exclusion",
 ] as const;
+
+const namesOption = (text: string, option: string) => {
+  const words = text.toLowerCase().split(/[^\p{L}\p{N}_]+/u);
+  const needle = option.trim().toLowerCase();
+  return needle.includes(" ") ? text.toLowerCase().includes(needle) : words.includes(needle);
+};
 
 const walkLeaves = (gate: GateNode, visit: (leaf: GateLeaf) => void) => {
   if ("q" in gate) { visit(gate); return; }
@@ -182,6 +191,23 @@ export const runDiagnostics = (draft: StoryV2): Diagnostic[] => {
     if (checkpoint.type !== "anchor" || typeof checkpoint.convergence_threshold !== "number") return;
     const available = draft.transitions.reduce((sum, transition) => sum + (transition.effects?.progress?.anchor === checkpoint.id ? transition.effects.progress.amount ?? 0 : 0), 0);
     if (available < checkpoint.convergence_threshold) push("threshold-unsatisfiable", "warning", `checkpoints.${index}`, `anchor '${checkpoint.id}' threshold ${checkpoint.convergence_threshold} exceeds total available progress ${available}`);
+  });
+
+  // v2.2 plan 06: judge hints. The spike wrote 8 of 10 `not_for` clauses on the wrong option, which
+  // silently inverts them, so a clause that names its own option is flagged.
+  draft.qualities.forEach((quality, index) => {
+    if (!quality.read_as) return;
+    const criteria = quality.criteria && !("levels" in quality.criteria) ? (quality.criteria as Record<string, string | { what: string; not_for?: string }>) : null;
+    if (quality.read_as === "choice" && quality.type === "enum" && !criteria && (quality.values ?? []).every((value) => !/\s/.test(value.trim()))) {
+      push("quality-hint-no-criteria", "info", `qualities.${index}`, `'${quality.key}' is read by the judge from single-word options with no description; the plain form works, but a line per option ("means…") removes ambiguity`);
+    }
+    if (quality.latching) push("quality-hint-latching-note", "info", `qualities.${index}`, `'${quality.key}' latches, so the judge writes it only at confidence 0.9 or more (0.8 otherwise)`);
+    Object.entries(criteria ?? {}).forEach(([option, criterion]) => {
+      const notFor = typeof criterion === "string" ? "" : criterion.not_for ?? "";
+      if (quality.type === "enum" && notFor && namesOption(notFor, option)) {
+        push("quality-criteria-self-exclusion", "warning", `qualities.${index}.criteria.${option}`, `the "not for" on '${option}' names '${option}' itself; "not for" lists what should NOT count as this option, so it probably belongs on another option`);
+      }
+    });
   });
 
   const required = new Set((draft.requirements?.lorebooks ?? []).map((name) => name.trim().toLowerCase()));

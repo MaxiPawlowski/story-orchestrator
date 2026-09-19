@@ -26,6 +26,19 @@ describe("parseProposal", () => {
     expect(issues.some((issue) => issue.includes("frobnicate"))).toBe(true);
   });
 
+  it("carries a quality's read_as and its criteria, and drops criteria without a hint (v2.2 plan 06)", () => {
+    const { proposal } = parseProposal(JSON.stringify({ summary: "q", ops: [
+      { kind: "addQuality", quality: { key: "door", type: "bool", source: "extractor", rubric: "Is the door open?", read_as: "choice", criteria: { true: "It stands open" } } },
+      { kind: "addQuality", quality: { key: "coin", type: "int", source: "extractor", rubric: "Coins?", criteria: { a: "x" } } },
+      { kind: "updateQuality", key: "coin", patch: { read_as: "stated" } },
+    ] }));
+    expect(proposal.ops).toEqual([
+      { kind: "addQuality", quality: { key: "door", type: "bool", source: "extractor", rubric: "Is the door open?", read_as: "choice", criteria: { true: "It stands open" } } },
+      { kind: "addQuality", quality: { key: "coin", type: "int", source: "extractor", rubric: "Coins?" } },
+      { kind: "updateQuality", key: "coin", patch: { read_as: "stated" } },
+    ]);
+  });
+
   it("reads a lore_select op in either spelling (v2.2 plan 04)", () => {
     const { proposal, issues } = parseProposal(JSON.stringify({ summary: "lore", ops: [{ kind: "setLoreSelect", loreSelect: { lorebooks: ["Vault Lore"], top_k: 5 } }, { kind: "setLoreSelect", lore_select: { lorebooks: ["Other"] } }] }));
     expect(issues).toEqual([]);

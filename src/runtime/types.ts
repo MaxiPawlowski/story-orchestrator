@@ -245,7 +245,7 @@ export interface RuntimeSnapshot {
   activeObjective: string | null;
   boundary: number;
   blackboard: Record<string, PrimitiveValue>;
-  blackboardMeta: Record<string, { version: number; latched: boolean; source: string; evidence?: string }>;
+  blackboardMeta: Record<string, { version: number; latched: boolean; source: string; evidence?: string; reader?: "judge" | "llm"; confidence?: number }>;
   checkpoints: Array<{ id: string; name: string; objective: string; active: boolean; visited: boolean }>;
   requirements: RequirementsState;
   validationErrors: ValidationError[];

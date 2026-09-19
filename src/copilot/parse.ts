@@ -3,6 +3,7 @@ import {
   GATE_OPERATORS,
   NPC_REPLY_KINDS,
   NPC_REPLY_TRIGGERS,
+  QUALITY_READ_AS,
   QUALITY_SOURCES,
   QUALITY_TYPES,
   TENSION_LEVELS,
@@ -18,6 +19,8 @@ import {
   type NpcReplyTrigger,
   type PrimitiveValue,
   type Quality,
+  type QualityCriteria,
+  type QualityReadAs,
   type QualityLedgerBinding,
   type QualityScopeHint,
   type QualitySource,
@@ -107,6 +110,8 @@ const readQualityPatch = (value: Record<string, unknown>): Partial<Quality> => {
   if (scopeHint) patch.scope_hint = scopeHint;
   const ledgerBinding = readLedgerBinding(value.ledger_binding);
   if (ledgerBinding) patch.ledger_binding = ledgerBinding;
+  if (typeof value.read_as === "string" && (QUALITY_READ_AS as readonly string[]).includes(value.read_as)) patch.read_as = value.read_as as QualityReadAs;
+  if (isRecord(value.criteria)) patch.criteria = value.criteria as QualityCriteria;
   return patch;
 };
 
@@ -120,7 +125,7 @@ const readQuality = (value: unknown, path: string, issues: string[]): Quality | 
     return null;
   }
   const patch = readQualityPatch(value);
-  return { key: value.key, type: patch.type ?? "string", source: patch.source ?? "extractor", rubric: patch.rubric ?? "", ...(patch.values ? { values: patch.values } : {}), ...(patch.latching !== undefined ? { latching: patch.latching } : {}), ...(patch.monotonic !== undefined ? { monotonic: patch.monotonic } : {}), ...(patch.scope_hint ? { scope_hint: patch.scope_hint } : {}), ...(patch.ledger_binding ? { ledger_binding: patch.ledger_binding } : {}) };
+  return { key: value.key, type: patch.type ?? "string", source: patch.source ?? "extractor", rubric: patch.rubric ?? "", ...(patch.values ? { values: patch.values } : {}), ...(patch.latching !== undefined ? { latching: patch.latching } : {}), ...(patch.monotonic !== undefined ? { monotonic: patch.monotonic } : {}), ...(patch.scope_hint ? { scope_hint: patch.scope_hint } : {}), ...(patch.ledger_binding ? { ledger_binding: patch.ledger_binding } : {}), ...(patch.read_as ? { read_as: patch.read_as } : {}), ...(patch.read_as && patch.criteria ? { criteria: patch.criteria } : {}) };
 };
 
 const readNpcReplies = (value: unknown, path: string, issues: string[]): NpcReplyEffect[] | undefined => {

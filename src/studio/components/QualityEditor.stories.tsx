@@ -50,3 +50,25 @@ export const DeleteWithUsages: Story = {
     await expect(useDraftStore.getState().draft.qualities.map((quality) => quality.key)).not.toContain("trust");
   },
 };
+
+// v2.2 plan 06: how the judge reads a quality, and the exact request it would send.
+export const JudgeReading: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: /route/ }));
+    const reading = canvas.getByLabelText("Judge reading");
+    await expect([...(reading as HTMLSelectElement).options].map((option) => option.value)).toEqual(["", "choice"]);
+    await userEvent.selectOptions(reading, "choice");
+    await userEvent.type(canvas.getByLabelText("stealth means"), "Sneaking past unseen");
+    await userEvent.type(canvas.getByLabelText("stealth not for"), "Hiding after being spotted");
+    const route = () => useDraftStore.getState().draft.qualities.find((quality) => quality.key === "route");
+    await expect(route()?.read_as).toBe("choice");
+    await expect(route()?.criteria).toEqual({ stealth: { what: "Sneaking past unseen", not_for: "Hiding after being spotted" } });
+    await userEvent.click(canvas.getByRole("button", { name: "Preview request" }));
+    const preview = canvasElement.querySelector("[data-so=\"quality-read-preview\"]");
+    await expect(preview?.textContent).toContain("\"Sneaking past unseen\"");
+    await expect(preview?.textContent).toContain("\"not shown\"");
+    await userEvent.selectOptions(canvas.getByLabelText("Type"), "int");
+    await expect(route()?.read_as).toBeUndefined();
+  },
+};

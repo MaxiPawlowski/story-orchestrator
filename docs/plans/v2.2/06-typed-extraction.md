@@ -278,9 +278,27 @@ Built with it:
   manager to a fired transition, the floor, the freshness drop, and all three stall outcomes.
   `boundaryWork.test.ts` covers the routing.
 
-Not built yet: the Studio Extraction section with its rendered preview, the two diagnostics, the
-copilot `read_as` ops, the Blackboard source column, the sun-ruins hints, `so-live-suite --judge`,
-and J11.20–J11.24.
+### As built: authoring (2026-09-19)
+
+- **Studio.** `QualityReadEditor` sits under every extractor quality. It has a hint select that
+  offers only the hints that fit the type, a "means / not for" row per option, and a levels
+  editor for a rating. **Preview request** renders `buildTypedPlan(...).request` over a fixed
+  two-message sample, the same function the runtime calls. Values stay exactly as typed, since the
+  parser trims on load. Changing the type or making the quality code-sourced drops a hint that no
+  longer fits.
+- **Diagnostics** gained an `info` severity: notes, not counted as issues in the Studio header or
+  in the "ready to save" line.
+  - `quality-hint-no-criteria` (info) and `quality-hint-latching-note` (info).
+  - `quality-criteria-self-exclusion` (warning): a `not_for` that names its own enum option. It
+    lives in diagnostics rather than validate, which only has errors.
+- **Copilot.** `addQuality`/`updateQuality` carry `read_as` and `criteria` (criteria only with a
+  hint), and the QUALITIES stage may suggest a hint where the answer is plainly visible in the
+  text. Each op is still accepted per card.
+- **Blackboard tab.** Each quality shows its last reader (`judge` with its confidence, or `llm`),
+  taken from both the audits and the judged-read ring.
+
+Not built yet: the sun-ruins hints and version bump (they wait for the live suite's `--judge` run to
+say which qualities keep parity), `so-live-suite --judge`, and J11.20–J11.24.
 
 ## Implementation notes
 

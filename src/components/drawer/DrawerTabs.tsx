@@ -140,7 +140,7 @@ const BlackboardTab = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
             <tr key={key}>
               <td>{key}</td>
               <td>{String(value)}</td>
-              <td title={snapshot.blackboardMeta[key]?.evidence ?? ""}>{snapshot.blackboardMeta[key]?.source}{snapshot.blackboardMeta[key]?.latched ? " (locked)" : ""}</td>
+              <td title={snapshot.blackboardMeta[key]?.evidence ?? ""}>{snapshot.blackboardMeta[key]?.source}{snapshot.blackboardMeta[key]?.reader ? ` · ${snapshot.blackboardMeta[key]?.reader}${snapshot.blackboardMeta[key]?.confidence !== undefined ? ` ${Math.round((snapshot.blackboardMeta[key]?.confidence ?? 0) * 100)}%` : ""}` : ""}{snapshot.blackboardMeta[key]?.latched ? " (locked)" : ""}</td>
             </tr>
           ))}
         </tbody>

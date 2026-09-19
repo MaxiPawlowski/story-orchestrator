@@ -36,9 +36,18 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
   const active = state && story ? story.checkpointById[state.activeCheckpointId] : null;
   const blackboard = state?.blackboard.values ?? {};
   const evidenceByKey = new Map<string, string>();
+  const readerByKey = new Map<string, { reader: "judge" | "llm"; at: string; confidence?: number }>();
+  const noteReader = (key: string, reader: "judge" | "llm", at: string, confidence?: number) => {
+    const previous = readerByKey.get(key);
+    if (!previous || previous.at <= at) readerByKey.set(key, { reader, at, ...(confidence !== undefined ? { confidence } : {}) });
+  };
   extras.extraction.audits.forEach((audit) => {
-    audit.acceptedDeltas.forEach((entry) => evidenceByKey.set(entry.delta.q, entry.evidence));
+    audit.acceptedDeltas.forEach((entry) => {
+      evidenceByKey.set(entry.delta.q, entry.evidence);
+      noteReader(entry.delta.q, entry.judge !== undefined ? "judge" : "llm", audit.createdAt, entry.judge);
+    });
   });
+  (extras.extraction.judgedReads ?? []).forEach((read) => read.deltas.forEach((delta) => noteReader(delta.q, "judge", read.at, delta.confidence)));
   const pendingDeltas = buildPendingDeltas(sources.pendingWrites, state);
   const tension = buildTensionSnapshot(extras.tension.smoothed, sources.expectedTension);
   const pipeline = derivePipelineStatus(extras.extraction);
@@ -72,6 +81,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
       latched: state?.blackboard.latched[key] ?? false,
       source: story?.qualityByKey[key]?.source ?? "unknown",
       evidence: evidenceByKey.get(key),
+      ...(readerByKey.get(key) ? { reader: readerByKey.get(key)!.reader, ...(readerByKey.get(key)!.confidence !== undefined ? { confidence: readerByKey.get(key)!.confidence } : {}) } : {}),
     }])),
     checkpoints: story?.checkpoints.map((checkpoint) => ({
       id: checkpoint.id,
