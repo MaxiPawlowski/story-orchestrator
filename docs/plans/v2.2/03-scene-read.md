@@ -148,11 +148,11 @@ What the misses say:
 
 | Constant | Value |
 |---|---|
-| `SCENE_TRIGGER` | 0.5 (spike: 22/22 at 0.5) |
+| `SCENE_TRIGGER` | 0.4 (revised at calibration; see the calibration record) |
 | `SCENE_FIELD_CONFIDENCE` | 0.6 (location/time) |
 | `PRESENT_P` | 0.7 |
-| `OOC_P` | from Phase A |
-| `HEADING_P` | from Phase A |
+| `HEADING_P` | 0.7 (Phase A) |
+| `SCENE_TIMEOUT_MS` | 2500 (one fan-out call, off the reply path) |
 
 ### Format 2: `scene_read?`
 
@@ -204,8 +204,14 @@ On a fresh result:
   include a **deterministic** change: `cast` (the enabled members changed) or `location-quality`
   (the blackboard `location` value changed; `sceneDetect.ts` reports that as reason `location`,
   so the check reads `signals`, not `reason`).
-- Hits made only of text patterns (`divider`, `location-phrase`, `time_skip`) are ignored, and
-  the judge's `scene_break` replaces them.
+- ~~Hits made only of text patterns (`divider`, `location-phrase`, `time_skip`) are ignored, and
+  the judge's `scene_break` replaces them.~~ **Revised at calibration (2026-09-19): union, not
+  replace.** Text-pattern hits still schedule their read; the judge only **adds** a `scene:judge`
+  read when the heuristic did not fire. Replace mode needed 22/22, and the judge missed it twice:
+  S08 at p 0.49 on the tuning set, and 2–3 of 12 held-out breaks at p 0.28–0.39. Non-breaks never
+  went above 0.20. In union mode a judge miss costs exactly what it costs today (the cadence read
+  still confirms), and a judge hit makes the confirming read earlier. The "fewer wasted reads"
+  half of the objective is dropped; the latency half stays.
 - With the flag off, both entries behave exactly as today.
 
 ### Macros
@@ -260,6 +266,29 @@ Four independent opt-ins (overview rule 4), all off by default:
 | J11.13 | The tracker block is present in the payload captured on the next generation (`GENERATE_AFTER_DATA`), with only over-floor fields |
 | J11.14 | Swipe/delete past the scene read → `last` cleared, block rebuilt at the next boundary |
 | J11.15 | Judge off → no `scene-read` work, the heuristic path unchanged, `judgeCalls = 0`. Judge on + a blackboard `location` change with no text cue → a P0 read is still scheduled (the deterministic trigger kept) |
+
+### Calibration record (off-page, 2026-09-19)
+
+Production code (`src/judge/scene.ts` + `sceneCalibration.ts`) → the real plugin handler → the live
+API, `jev-1.13.0`: `scripts/spike/typesafe/calibrate-node.mts scene [--fixture scene-holdout] --record`.
+Fixtures are promoted from Phase A (`scripts/spike/typesafe/promote.mts scene|scene-holdout`). The
+full cast is sent and asked, the narrator included; only the labelled members are scored.
+
+| Family | Tuning set (R01–R21, S01–S22 ×2 shapes) | Held-out (SH01–SH12 ×2) | Floor | Policy |
+|---|---|---|---|---|
+| Presence | 48–49/53 (91–92%); every miss is a present member at p 0.47–0.69, so the tracker omits someone and never adds an absent one | — | ≥ 0.9 | `PRESENT_P` 0.7 |
+| Location | 19/21 (R03 at 0.43–0.46, not shown; R08 `elsewhere` 0.78, not shown) | — | ≥ 0.85 | `SCENE_FIELD_CONFIDENCE` 0.6 |
+| Time of day | 21/21 | — | ≥ 0.8 | 0.6 |
+| Look-ahead | 40–41/42 (R04 r1 at 0.88–0.89, the known "later checkpoint on the same path" miss) | — | ≥ 0.85 | `HEADING_P` 0.7 |
+| Scene break, replace mode (plan text) | 21/22 at 0.5 (S08 0.49, both shapes) | 21–22/24 at 0.4 | 22/22 | **failed** → union mode |
+| Scene break, union mode: recall | 24/24 at 0.4 | 9/12 at 0.4 (SH05 Spanish dawn 0.34–0.39, SH06 "Midnight. Fog…" 0.28–0.41) | > regex's 6/12 | `SCENE_TRIGGER` 0.4 |
+| Scene break, union mode: false triggers | 0/20 (max 0.20) | 0/12 (max 0.17) | 0 | — |
+
+Four full runs agreed on every verdict except the rows noted with a range. The held-out set was
+written after S08 missed and before 0.4 was scored on anything. The union-mode floors come from
+the design (a miss is today's cost, a false trigger is one wasted GPU read), not from the scores.
+The first union run is still the result that matters: recall 9/12 held-out is the honest number.
+Presence ran with roles; names-only presence was not measured.
 
 ## Implementation notes
 

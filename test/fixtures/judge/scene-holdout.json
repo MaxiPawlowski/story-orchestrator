@@ -1,0 +1,1449 @@
+{
+  "use": "scene",
+  "floors": {
+    "break": 0.5,
+    "nobreak": 1
+  },
+  "labelledAt": "2026-09-19",
+  "source": "Held out: scripts/spike/typesafe/data/scenes-holdout.json, written and labelled after S08 missed at 0.49 and before SCENE_TRIGGER 0.4 was scored on anything; each case full state and trigger-only (`<id>t`).",
+  "rows": [
+    {
+      "id": "SH01",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"We camp here.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I unroll my bedroll in the lee of a dune.*"
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "Three days of sand and wind later, the ruins finally rise out of the haze."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "SH01t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"We camp here.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I unroll my bedroll in the lee of a dune.*"
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "Three days of sand and wind later, the ruins finally rise out of the haze."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "SH02",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Luke",
+            "text": "\"Can I stay up with you?\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"No. Bed.\""
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "Morning comes grey and cold. Luke is already awake, poking at the embers."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "SH02t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Luke",
+            "text": "\"Can I stay up with you?\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"No. Bed.\""
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "Morning comes grey and cold. Luke is already awake, poking at the embers."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "SH03",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Ponticius",
+            "text": "\"Take the contract and go.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I pocket the contract.*"
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "The town gate creaks open onto the desert road, and the guild hall is far behind you."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "SH03t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Ponticius",
+            "text": "\"Take the contract and go.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I pocket the contract.*"
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "The town gate creaks open onto the desert road, and the guild hall is far behind you."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "SH04",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"Keep your voice down.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I nod.*"
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "* * *\n\nThe inner chamber is silent but for dripping water."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "SH04t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"Keep your voice down.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I nod.*"
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "* * *\n\nThe inner chamber is silent but for dripping water."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "SH05",
+      "kind": "break",
+      "lang": "es",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"Duerme, yo vigilo.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*Cierro los ojos.*"
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "Al amanecer, el campamento está cubierto de escarcha y Arin sigue despierta junto al fuego."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "SH05t",
+      "kind": "break",
+      "lang": "es",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"Duerme, yo vigilo.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*Cierro los ojos.*"
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "Al amanecer, el campamento está cubierto de escarcha y Arin sigue despierta junto al fuego."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "SH06",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "The Long Dark",
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "cast": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "bridge",
+          "engine room",
+          "cargo bay",
+          "crew quarters"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Mae Hollis",
+            "text": "\"Meet me at the docks at midnight.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I finish my drink and leave.*"
+          },
+          {
+            "speaker": "Narrator",
+            "text": "Midnight. Fog rolls off the water at the harbor docks, and Mae is already waiting by the crates."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "SH06t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "The Long Dark",
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "cast": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Mae Hollis",
+            "text": "\"Meet me at the docks at midnight.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I finish my drink and leave.*"
+          },
+          {
+            "speaker": "Narrator",
+            "text": "Midnight. Fog rolls off the water at the harbor docks, and Mae is already waiting by the crates."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "SH07",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"Where's the old man?\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I look around the hall.*"
+          },
+          {
+            "speaker": "Ponticius",
+            "text": "\"Right here, and I heard that.\" He shoulders through the crowd to the board."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "SH07t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"Where's the old man?\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I look around the hall.*"
+          },
+          {
+            "speaker": "Ponticius",
+            "text": "\"Right here, and I heard that.\" He shoulders through the crowd to the board."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "SH08",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Max",
+            "text": "\"What happened at the ruins last time?\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "*She stares into her cup.*"
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Three years ago we went in with six. Two came back. The sphinx took the rest at the gate.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "SH08t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Max",
+            "text": "\"What happened at the ruins last time?\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "*She stares into her cup.*"
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Three years ago we went in with six. Two came back. The sphinx took the rest at the gate.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "SH09",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Luke",
+            "text": "\"Look at this!\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I follow him.*"
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "Luke has crossed to the far side of the chamber, where a mural of the sun covers the wall."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "SH09t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Luke",
+            "text": "\"Look at this!\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I follow him.*"
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "Luke has crossed to the far side of the chamber, where a mural of the sun covers the wall."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "SH10",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"So?\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I think about it for a long moment.*"
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Take your time. Not like the sand's going anywhere.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "SH10t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"So?\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I think about it for a long moment.*"
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Take your time. Not like the sand's going anywhere.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "SH11",
+      "kind": "break",
+      "lang": "es",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Ponticius",
+            "text": "\"El pago, cuando vuelvas.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*Asiento.*"
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Mañana al amanecer salimos. Hoy compramos agua y cuerda.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "SH11t",
+      "kind": "break",
+      "lang": "es",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Ponticius",
+            "text": "\"El pago, cuando vuelvas.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*Asiento.*"
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Mañana al amanecer salimos. Hoy compramos agua y cuerda.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "SH12",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Rain on Mercer Street",
+        "checkpointName": "The Dockside Ledger",
+        "objective": "Find out who has been paying off the harbor police.",
+        "cast": [
+          {
+            "rosterId": "mae_hollis",
+            "name": "Mae Hollis",
+            "role": "The player's partner, a sharp homicide detective"
+          },
+          {
+            "rosterId": "maeve",
+            "name": "Maeve",
+            "role": "A nightclub singer and reluctant informant"
+          },
+          {
+            "rosterId": "lt_brandt",
+            "name": "Lt. Brandt",
+            "role": "A harbor police lieutenant with expensive habits"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the city, the rain and anyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "Blue Anchor nightclub",
+          "harbor docks",
+          "police station",
+          "Mercer Street"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Mae Hollis",
+            "text": "\"You remind me of someone.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I raise an eyebrow.*"
+          },
+          {
+            "speaker": "Mae Hollis",
+            "text": "\"A cop I knew, back in '38. He asked too many questions too.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "SH12t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Rain on Mercer Street",
+        "checkpointName": "The Dockside Ledger",
+        "objective": "Find out who has been paying off the harbor police.",
+        "cast": [
+          {
+            "rosterId": "mae_hollis",
+            "name": "Mae Hollis",
+            "role": "The player's partner, a sharp homicide detective"
+          },
+          {
+            "rosterId": "maeve",
+            "name": "Maeve",
+            "role": "A nightclub singer and reluctant informant"
+          },
+          {
+            "rosterId": "lt_brandt",
+            "name": "Lt. Brandt",
+            "role": "A harbor police lieutenant with expensive habits"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the city, the rain and anyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Mae Hollis",
+            "text": "\"You remind me of someone.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I raise an eyebrow.*"
+          },
+          {
+            "speaker": "Mae Hollis",
+            "text": "\"A cop I knew, back in '38. He asked too many questions too.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    }
+  ]
+}

@@ -16,3 +16,9 @@ export const PAIR_SAME_THING_BELOW = 0.5;
 export const PAIR_MAX_PER_PASS = 32;
 export const PAIR_CONCURRENCY = 8;
 export const PAIR_JACCARD_FLOOR = 0.2;
+
+export const SCENE_TRIGGER = 0.4;
+export const SCENE_FIELD_CONFIDENCE = 0.6;
+export const PRESENT_P = 0.7;
+export const HEADING_P = 0.7;
+export const SCENE_TIMEOUT_MS = 2500;

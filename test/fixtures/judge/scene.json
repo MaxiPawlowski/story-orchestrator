@@ -1,0 +1,4406 @@
+{
+  "use": "scene",
+  "floors": {
+    "present": 0.9,
+    "location": 0.85,
+    "time": 0.8,
+    "heading": 0.85,
+    "break": 0.5,
+    "nobreak": 1
+  },
+  "labelledAt": "2026-09-19",
+  "source": "Promoted from scripts/spike/typesafe/data/scene-read.json (windows R01-R21) and scenes.json (S01-S22, each twice: inside the full state, and trigger-only as `<id>t`). Labels were written before any answer was read. OOC is not included: it failed Phase A and is not built.",
+  "rows": [
+    {
+      "id": "R01",
+      "kind": "window",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Accept the Mission",
+            "objective": "Pick up the Sun Ruins mission from the board."
+          },
+          {
+            "id": "r2",
+            "name": "Return to the Guild",
+            "objective": "Deliver the artifact to the Guild Master and claim your reward."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "DM Narrator",
+            "text": "The guild hall is loud with evening drinkers; lanterns sway above the crowded job board."
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Pick something that pays, Max. My boots have holes in them.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I run a finger down the notices and stop at the one stamped with a sun. \"This one. The Sun Ruins.\" I tear it off the board."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "arin": true,
+          "ponticius": false,
+          "luke": false
+        },
+        "location": "guild hall",
+        "time": "evening",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R02",
+      "kind": "window",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Accept the Mission",
+        "objective": "Pick up the Sun Ruins mission from the board.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Departure Preparations",
+            "objective": "Decide whether to take Luke along before departing for the Sun Ruins."
+          },
+          {
+            "id": "r2",
+            "name": "Find the Artifact",
+            "objective": "Recover the Sun's Heart Artifact from the inner chamber."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "DM Narrator",
+            "text": "Morning light slants through the shutters onto Ponticius's counter."
+          },
+          {
+            "speaker": "Ponticius",
+            "text": "\"Sign here. You leave the day after tomorrow, and not a day later.\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Two days to pack. Generous.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I sign the contract. \"We'll get our gear together tonight and sort out who's coming.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "arin": true,
+          "ponticius": true,
+          "luke": false
+        },
+        "location": "guild hall",
+        "time": "morning",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R03",
+      "kind": "window",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Departure Preparations",
+        "objective": "Decide whether to take Luke along before departing for the Sun Ruins.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Travel with Luke",
+            "objective": "Reach the Sun Ruins with Luke and face the sphinx's riddle."
+          },
+          {
+            "id": "r2",
+            "name": "Return to the Guild",
+            "objective": "Deliver the artifact to the Guild Master and claim your reward."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "DM Narrator",
+            "text": "At dawn the town gate creaks open; the desert beyond is still blue with shadow."
+          },
+          {
+            "speaker": "Luke",
+            "text": "\"Please, Max. I can carry the water. I won't slow you down.\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"He'll follow us anyway. Better he walks where I can see him.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Fine. You come, Luke, but you stay behind Arin the whole way.\" We head out through the gate together."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "arin": true,
+          "ponticius": false,
+          "luke": true
+        },
+        "location": "town gate",
+        "time": "dawn",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R04",
+      "kind": "window",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Travel with Luke",
+        "objective": "Reach the Sun Ruins with Luke and face the sphinx's riddle.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Find the Artifact",
+            "objective": "Recover the Sun's Heart Artifact from the inner chamber."
+          },
+          {
+            "id": "r2",
+            "name": "Return to the Guild",
+            "objective": "Deliver the artifact to the Guild Master and claim your reward."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "DM Narrator",
+            "text": "The sun hangs straight overhead; the desert road shimmers and there is no shade anywhere."
+          },
+          {
+            "speaker": "Luke",
+            "text": "\"Is it always this hot? My water's nearly gone.\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Drink slower. Ponticius won't be sending a rescue.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I hand Luke my flask and we keep walking east."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "arin": true,
+          "ponticius": false,
+          "luke": true
+        },
+        "location": "desert road",
+        "time": "midday",
+        "heading": {
+          "r1": false,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R05",
+      "kind": "window",
+      "lang": "es",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Find the Artifact",
+        "objective": "Recover the Sun's Heart Artifact from the inner chamber.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Find the Artifact",
+            "objective": "Recover the Sun's Heart Artifact from the inner chamber."
+          },
+          {
+            "id": "r2",
+            "name": "Departure Preparations",
+            "objective": "Decide whether to take Luke along before departing for the Sun Ruins."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "DM Narrator",
+            "text": "Bajo tierra, la cámara interior está en silencio; solo la antorcha de Arin ilumina el altar."
+          },
+          {
+            "speaker": "Luke",
+            "text": "\"¡Mira, Max! ¡Brilla como el sol!\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"No toques nada todavía. Podría haber trampas.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Ahí está el Corazón del Sol, sobre el altar. Lo tomo con cuidado.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "arin": true,
+          "ponticius": false,
+          "luke": true
+        },
+        "location": "inner chamber",
+        "time": "unclear",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R06",
+      "kind": "window",
+      "lang": "es",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Return to the Guild",
+        "objective": "Deliver the artifact to the Guild Master and claim your reward.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Return to the Guild",
+            "objective": "Deliver the artifact to the Guild Master and claim your reward."
+          },
+          {
+            "id": "r2",
+            "name": "Travel with Luke",
+            "objective": "Reach the Sun Ruins with Luke and face the sphinx's riddle."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "DM Narrator",
+            "text": "Esa noche el salón del gremio está casi vacío. Ponticius cuenta monedas detrás del mostrador."
+          },
+          {
+            "speaker": "Luke",
+            "text": "Luke se ha quedado dormido en un banco junto al fuego."
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Hazlo rápido, Max. Quiero una cama.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "Pongo el Corazón del Sol sobre el mostrador. \"Aquí está tu artefacto, Ponticius. Ahora paga.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "arin": true,
+          "ponticius": true,
+          "luke": true
+        },
+        "location": "guild hall",
+        "time": "night",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R07",
+      "kind": "window",
+      "lang": "en",
+      "input": {
+        "storyTitle": "The Long Dark",
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "cast": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "bridge",
+          "engine room",
+          "cargo bay",
+          "crew quarters"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Restore Main Power",
+            "objective": "Bring the reactor back online."
+          },
+          {
+            "id": "r2",
+            "name": "Abandon Ship",
+            "objective": "Get everyone into the escape pods."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "The engine room is a cage of pipes and red warning light; the reactor hums unevenly."
+          },
+          {
+            "speaker": "Pell",
+            "text": "\"Coolant loop two is fried. I can bypass it if you hold this valve.\""
+          },
+          {
+            "speaker": "Captain Okafor",
+            "text": "Okafor's voice crackles over the comm from the bridge: \"How long, Pell?\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I grab the valve. \"Give me the wrench, Pell. Let's bring her back up.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "captain_okafor": false,
+          "pell": true
+        },
+        "location": "engine room",
+        "time": "unclear",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R08",
+      "kind": "window",
+      "lang": "en",
+      "input": {
+        "storyTitle": "The Long Dark",
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "cast": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "bridge",
+          "engine room",
+          "cargo bay",
+          "crew quarters"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Abandon Ship",
+            "objective": "Get everyone into the escape pods."
+          },
+          {
+            "id": "r2",
+            "name": "Restore Main Power",
+            "objective": "Bring the reactor back online."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "It is 0300 ship time. On the bridge, every console is flashing amber."
+          },
+          {
+            "speaker": "Captain Okafor",
+            "text": "\"The reactor's past saving. Everyone to the pods, now.\""
+          },
+          {
+            "speaker": "HALO",
+            "text": "\"Escape pods one through four are primed.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"You heard her. Pods.\" I follow Okafor off the bridge toward the pod bay."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "captain_okafor": true,
+          "pell": false
+        },
+        "location": "bridge",
+        "time": "night",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R09",
+      "kind": "window",
+      "lang": "en",
+      "input": {
+        "storyTitle": "The Long Dark",
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "cast": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "bridge",
+          "engine room",
+          "cargo bay",
+          "crew quarters"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Seal the Breach",
+            "objective": "Patch the hull breach on deck three."
+          },
+          {
+            "id": "r2",
+            "name": "Abandon Ship",
+            "objective": "Get everyone into the escape pods."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "The cargo bay is freezing; frost creeps along the crates."
+          },
+          {
+            "speaker": "Pell",
+            "text": "\"Hull patches are in crate six. We'll need at least three for the breach on deck three.\""
+          },
+          {
+            "speaker": "Captain Okafor",
+            "text": "Okafor pries open crate six. \"Take four. I'm not doing this twice.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I load the patches onto the cart and push it toward the lift to deck three."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "captain_okafor": true,
+          "pell": true
+        },
+        "location": "cargo bay",
+        "time": "unclear",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R10",
+      "kind": "window",
+      "lang": "en",
+      "input": {
+        "storyTitle": "The Long Dark",
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "cast": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "bridge",
+          "engine room",
+          "cargo bay",
+          "crew quarters"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Seal the Breach",
+            "objective": "Patch the hull breach on deck three."
+          },
+          {
+            "id": "r2",
+            "name": "Abandon Ship",
+            "objective": "Get everyone into the escape pods."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "The ship's night cycle has dimmed the crew-quarters corridor to a blue glow."
+          },
+          {
+            "speaker": "Pell",
+            "text": "Pell's voice comes over the intercom: \"Reactor's stable for now. Get some sleep.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I kick off my boots and lie down on my bunk, staring at the ceiling."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "captain_okafor": false,
+          "pell": false
+        },
+        "location": "crew quarters",
+        "time": "night",
+        "heading": {
+          "r1": false,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R11",
+      "kind": "window",
+      "lang": "es",
+      "input": {
+        "storyTitle": "The Long Dark",
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "cast": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "bridge",
+          "engine room",
+          "cargo bay",
+          "crew quarters"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Seal the Breach",
+            "objective": "Patch the hull breach on deck three."
+          },
+          {
+            "id": "r2",
+            "name": "Abandon Ship",
+            "objective": "Get everyone into the escape pods."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "En la sala de máquinas el aire huele a ozono y a metal caliente."
+          },
+          {
+            "speaker": "Captain Okafor",
+            "text": "Okafor entra y se planta junto al reactor. \"Estoy aquí. ¿Qué necesitas?\""
+          },
+          {
+            "speaker": "Pell",
+            "text": "\"La brecha de la cubierta tres nos está robando el aire.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Pell, capitana: sellemos esa brecha antes de que perdamos el aire. Yo llevo los parches.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "captain_okafor": true,
+          "pell": true
+        },
+        "location": "engine room",
+        "time": "unclear",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R12",
+      "kind": "window",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Rain on Mercer Street",
+        "checkpointName": "The Dockside Ledger",
+        "objective": "Find out who has been paying off the harbor police.",
+        "cast": [
+          {
+            "rosterId": "mae_hollis",
+            "name": "Mae Hollis",
+            "role": "The player's partner, a sharp homicide detective"
+          },
+          {
+            "rosterId": "maeve",
+            "name": "Maeve",
+            "role": "A nightclub singer and reluctant informant"
+          },
+          {
+            "rosterId": "lt_brandt",
+            "name": "Lt. Brandt",
+            "role": "A harbor police lieutenant with expensive habits"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the city, the rain and anyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "Blue Anchor nightclub",
+          "harbor docks",
+          "police station",
+          "Mercer Street"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Turn Maeve",
+            "objective": "Get Maeve to name who pays the harbor police."
+          },
+          {
+            "id": "r2",
+            "name": "Confront Brandt",
+            "objective": "Make the lieutenant admit who pays him."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "Midnight at the Blue Anchor: neon hums, smoke hangs under the ceiling, and Maeve is halfway through her last set."
+          },
+          {
+            "speaker": "Maeve",
+            "text": "Maeve sings with her eyes closed, one hand on the microphone."
+          },
+          {
+            "speaker": "Mae Hollis",
+            "text": "Mae leans in beside me. \"She's scared. Look at her hands.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"After her set, we talk to Maeve. Quietly.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "mae_hollis": true,
+          "maeve": true,
+          "lt_brandt": false
+        },
+        "location": "Blue Anchor nightclub",
+        "time": "night",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R13",
+      "kind": "window",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Rain on Mercer Street",
+        "checkpointName": "The Dockside Ledger",
+        "objective": "Find out who has been paying off the harbor police.",
+        "cast": [
+          {
+            "rosterId": "mae_hollis",
+            "name": "Mae Hollis",
+            "role": "The player's partner, a sharp homicide detective"
+          },
+          {
+            "rosterId": "maeve",
+            "name": "Maeve",
+            "role": "A nightclub singer and reluctant informant"
+          },
+          {
+            "rosterId": "lt_brandt",
+            "name": "Lt. Brandt",
+            "role": "A harbor police lieutenant with expensive habits"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the city, the rain and anyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "Blue Anchor nightclub",
+          "harbor docks",
+          "police station",
+          "Mercer Street"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Confront Brandt",
+            "objective": "Make the lieutenant admit who pays him."
+          },
+          {
+            "id": "r2",
+            "name": "Turn Maeve",
+            "objective": "Get Maeve to name who pays the harbor police."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "A gray dawn creeps over the harbor cranes. At the end of pier nine, Lt. Brandt takes a thick envelope from a man in a wet coat."
+          },
+          {
+            "speaker": "Mae Hollis",
+            "text": "Mae crouches next to me behind the fish crates. \"That's our proof.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Now, Mae. We step out and take him before he pockets it.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "mae_hollis": true,
+          "maeve": false,
+          "lt_brandt": true
+        },
+        "location": "harbor docks",
+        "time": "dawn",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R14",
+      "kind": "window",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Rain on Mercer Street",
+        "checkpointName": "The Dockside Ledger",
+        "objective": "Find out who has been paying off the harbor police.",
+        "cast": [
+          {
+            "rosterId": "mae_hollis",
+            "name": "Mae Hollis",
+            "role": "The player's partner, a sharp homicide detective"
+          },
+          {
+            "rosterId": "maeve",
+            "name": "Maeve",
+            "role": "A nightclub singer and reluctant informant"
+          },
+          {
+            "rosterId": "lt_brandt",
+            "name": "Lt. Brandt",
+            "role": "A harbor police lieutenant with expensive habits"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the city, the rain and anyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "Blue Anchor nightclub",
+          "harbor docks",
+          "police station",
+          "Mercer Street"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Confront Brandt",
+            "objective": "Make the lieutenant admit who pays him."
+          },
+          {
+            "id": "r2",
+            "name": "Find the Ledger",
+            "objective": "Recover the smuggler's ledger."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "Afternoon light cuts through the blinds of the police station's third floor."
+          },
+          {
+            "speaker": "Lt. Brandt",
+            "text": "Brandt looks up from his desk. \"Hollis. You're off your beat.\""
+          },
+          {
+            "speaker": "Mae Hollis",
+            "text": "\"So are you, Lieutenant. Pier nine, six a.m.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I drop the photos from the docks on Brandt's desk. \"Who pays you?\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "mae_hollis": true,
+          "maeve": false,
+          "lt_brandt": true
+        },
+        "location": "police station",
+        "time": "afternoon",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R15",
+      "kind": "window",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Rain on Mercer Street",
+        "checkpointName": "The Dockside Ledger",
+        "objective": "Find out who has been paying off the harbor police.",
+        "cast": [
+          {
+            "rosterId": "mae_hollis",
+            "name": "Mae Hollis",
+            "role": "The player's partner, a sharp homicide detective"
+          },
+          {
+            "rosterId": "maeve",
+            "name": "Maeve",
+            "role": "A nightclub singer and reluctant informant"
+          },
+          {
+            "rosterId": "lt_brandt",
+            "name": "Lt. Brandt",
+            "role": "A harbor police lieutenant with expensive habits"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the city, the rain and anyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "Blue Anchor nightclub",
+          "harbor docks",
+          "police station",
+          "Mercer Street"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Find the Ledger",
+            "objective": "Recover the smuggler's ledger."
+          },
+          {
+            "id": "r2",
+            "name": "Confront Brandt",
+            "objective": "Make the lieutenant admit who pays him."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "Rain hammers Mercer Street; the streetlights flicker in the dark."
+          },
+          {
+            "speaker": "Maeve",
+            "text": "Maeve walks between us under Mae's umbrella. \"The ledger's in the back room of the laundry on Pike. Under the floor.\""
+          },
+          {
+            "speaker": "Mae Hollis",
+            "text": "\"Then that's where we're going.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I turn up my collar and head for Pike Street."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "mae_hollis": true,
+          "maeve": true,
+          "lt_brandt": false
+        },
+        "location": "Mercer Street",
+        "time": "night",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R16",
+      "kind": "window",
+      "lang": "es",
+      "input": {
+        "storyTitle": "Rain on Mercer Street",
+        "checkpointName": "The Dockside Ledger",
+        "objective": "Find out who has been paying off the harbor police.",
+        "cast": [
+          {
+            "rosterId": "mae_hollis",
+            "name": "Mae Hollis",
+            "role": "The player's partner, a sharp homicide detective"
+          },
+          {
+            "rosterId": "maeve",
+            "name": "Maeve",
+            "role": "A nightclub singer and reluctant informant"
+          },
+          {
+            "rosterId": "lt_brandt",
+            "name": "Lt. Brandt",
+            "role": "A harbor police lieutenant with expensive habits"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the city, the rain and anyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "Blue Anchor nightclub",
+          "harbor docks",
+          "police station",
+          "Mercer Street"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Turn Maeve",
+            "objective": "Get Maeve to name who pays the harbor police."
+          },
+          {
+            "id": "r2",
+            "name": "Find the Ledger",
+            "objective": "Recover the smuggler's ledger."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "La luz del mediodía entra por las ventanas del Blue Anchor vacío; las sillas siguen sobre las mesas."
+          },
+          {
+            "speaker": "Maeve",
+            "text": "Maeve fuma junto al piano, sin mirarnos. \"Llegáis pronto. Aún no abrimos.\""
+          },
+          {
+            "speaker": "Mae Hollis",
+            "text": "Mae se sienta frente a ella. \"No venimos a escucharte cantar.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Maeve, dinos quién le paga a Brandt y te sacamos de esta ciudad.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "mae_hollis": true,
+          "maeve": true,
+          "lt_brandt": false
+        },
+        "location": "Blue Anchor nightclub",
+        "time": "midday",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R17",
+      "kind": "window",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Ashworth Hall",
+        "checkpointName": "The Portrait Gallery",
+        "objective": "Discover why the Ashworth portraits keep moving.",
+        "cast": [
+          {
+            "rosterId": "lady_ashworth",
+            "name": "Lady Ashworth",
+            "role": "The widowed mistress of the manor, cold and guarded"
+          },
+          {
+            "rosterId": "graves",
+            "name": "Graves",
+            "role": "The elderly butler, loyal, secretive, keeps the house immaculate"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the house, sounds, shadows and anyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "portrait gallery",
+          "library",
+          "kitchens",
+          "garden"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Search the Library",
+            "objective": "Find the family records in the library."
+          },
+          {
+            "id": "r2",
+            "name": "Confront Lady Ashworth",
+            "objective": "Make her explain why the portraits move."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "Night has fallen; a single candle lights the long portrait gallery."
+          },
+          {
+            "speaker": "Graves",
+            "text": "\"The family records are kept in the library, sir. If you wish, I shall take you.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Lead the way, Graves.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "lady_ashworth": false,
+          "graves": true
+        },
+        "location": "portrait gallery",
+        "time": "night",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R18",
+      "kind": "window",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Ashworth Hall",
+        "checkpointName": "The Portrait Gallery",
+        "objective": "Discover why the Ashworth portraits keep moving.",
+        "cast": [
+          {
+            "rosterId": "lady_ashworth",
+            "name": "Lady Ashworth",
+            "role": "The widowed mistress of the manor, cold and guarded"
+          },
+          {
+            "rosterId": "graves",
+            "name": "Graves",
+            "role": "The elderly butler, loyal, secretive, keeps the house immaculate"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the house, sounds, shadows and anyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "portrait gallery",
+          "library",
+          "kitchens",
+          "garden"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Confront Lady Ashworth",
+            "objective": "Make her explain why the portraits move."
+          },
+          {
+            "id": "r2",
+            "name": "Leave the Manor",
+            "objective": "Pack and leave Ashworth Hall before nightfall."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "In the library, late afternoon sun falls across the reading table where Lady Ashworth sits with a closed book."
+          },
+          {
+            "speaker": "Lady Ashworth",
+            "text": "\"You are persistent, Mr. Max. I will grant you that.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Lady Ashworth, why do the portraits move? I want the truth.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "lady_ashworth": true,
+          "graves": false
+        },
+        "location": "library",
+        "time": "afternoon",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R19",
+      "kind": "window",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Ashworth Hall",
+        "checkpointName": "The Portrait Gallery",
+        "objective": "Discover why the Ashworth portraits keep moving.",
+        "cast": [
+          {
+            "rosterId": "lady_ashworth",
+            "name": "Lady Ashworth",
+            "role": "The widowed mistress of the manor, cold and guarded"
+          },
+          {
+            "rosterId": "graves",
+            "name": "Graves",
+            "role": "The elderly butler, loyal, secretive, keeps the house immaculate"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the house, sounds, shadows and anyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "portrait gallery",
+          "library",
+          "kitchens",
+          "garden"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Confront Lady Ashworth",
+            "objective": "Make her explain why the portraits move."
+          },
+          {
+            "id": "r2",
+            "name": "Leave the Manor",
+            "objective": "Pack and leave Ashworth Hall before nightfall."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "First light in the kitchens: the ovens are cold and the copper pans still hang in rows."
+          },
+          {
+            "speaker": "Graves",
+            "text": "Graves polishes the silver without looking up. \"Breakfast is at eight, sir.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I pour myself some water and sit down on a stool to watch him work."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "lady_ashworth": false,
+          "graves": true
+        },
+        "location": "kitchens",
+        "time": "dawn",
+        "heading": {
+          "r1": false,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R20",
+      "kind": "window",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Ashworth Hall",
+        "checkpointName": "The Portrait Gallery",
+        "objective": "Discover why the Ashworth portraits keep moving.",
+        "cast": [
+          {
+            "rosterId": "lady_ashworth",
+            "name": "Lady Ashworth",
+            "role": "The widowed mistress of the manor, cold and guarded"
+          },
+          {
+            "rosterId": "graves",
+            "name": "Graves",
+            "role": "The elderly butler, loyal, secretive, keeps the house immaculate"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the house, sounds, shadows and anyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "portrait gallery",
+          "library",
+          "kitchens",
+          "garden"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Leave the Manor",
+            "objective": "Pack and leave Ashworth Hall before nightfall."
+          },
+          {
+            "id": "r2",
+            "name": "Search the Library",
+            "objective": "Find the family records in the library."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "Evening in the garden; the hedges throw long shadows across the gravel."
+          },
+          {
+            "speaker": "Lady Ashworth",
+            "text": "\"Your carriage is ready, Mr. Max. You will leave tonight.\""
+          },
+          {
+            "speaker": "Graves",
+            "text": "Graves stands behind her with my bag in his hand."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Then we go.\" I take the bag from Graves and walk toward the carriage."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "lady_ashworth": true,
+          "graves": true
+        },
+        "location": "garden",
+        "time": "evening",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R21",
+      "kind": "window",
+      "lang": "es",
+      "input": {
+        "storyTitle": "Ashworth Hall",
+        "checkpointName": "The Portrait Gallery",
+        "objective": "Discover why the Ashworth portraits keep moving.",
+        "cast": [
+          {
+            "rosterId": "lady_ashworth",
+            "name": "Lady Ashworth",
+            "role": "The widowed mistress of the manor, cold and guarded"
+          },
+          {
+            "rosterId": "graves",
+            "name": "Graves",
+            "role": "The elderly butler, loyal, secretive, keeps the house immaculate"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the house, sounds, shadows and anyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "portrait gallery",
+          "library",
+          "kitchens",
+          "garden"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Confront Lady Ashworth",
+            "objective": "Make her explain why the portraits move."
+          },
+          {
+            "id": "r2",
+            "name": "Leave the Manor",
+            "objective": "Pack and leave Ashworth Hall before nightfall."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "A mediodía, la galería de retratos está bañada de luz. Lady Ashworth y Graves esperan junto al cuadro del abuelo."
+          },
+          {
+            "speaker": "Graves",
+            "text": "\"La señora ha accedido a hablar con usted, señor.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Señora Ashworth, ¿por qué se mueven los retratos? Quiero la verdad.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "lady_ashworth": true,
+          "graves": true
+        },
+        "location": "portrait gallery",
+        "time": "midday",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "S01",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Ponticius",
+            "text": "\"Contract's signed. Don't die before you get there.\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Charming as ever.\""
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "The next morning, the party rides out through the east gate under a grey sky."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S01t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Ponticius",
+            "text": "\"Contract's signed. Don't die before you get there.\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Charming as ever.\""
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "The next morning, the party rides out through the east gate under a grey sky."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S02",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Max",
+            "text": "\"Where's Ponticius? I thought he'd be here.\""
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "A barmaid points toward a snoring heap by the hearth."
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"We'll talk to him later that day, once he's slept it off. Sit down, finish your ale.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "S02t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Max",
+            "text": "\"Where's Ponticius? I thought he'd be here.\""
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "A barmaid points toward a snoring heap by the hearth."
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"We'll talk to him later that day, once he's slept it off. Sit down, finish your ale.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "S03",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"Then it's settled. We ride at first light.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"At first light.\""
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "* * *\nThe ruins rise out of the desert like broken teeth, gold light bleeding from their cracks."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S03t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"Then it's settled. We ride at first light.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"At first light.\""
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "* * *\nThe ruins rise out of the desert like broken teeth, gold light bleeding from their cracks."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S04",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "The Long Dark",
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "cast": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "bridge",
+          "engine room",
+          "cargo bay",
+          "crew quarters"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Mae Hollis",
+            "text": "\"So we wait for Brandt to make a mistake.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"He already made one. He got greedy.\""
+          },
+          {
+            "speaker": "Narrator",
+            "text": "Max walked over to the window and looked down at the rain-slick street below the office."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "S04t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "The Long Dark",
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "cast": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Mae Hollis",
+            "text": "\"So we wait for Brandt to make a mistake.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"He already made one. He got greedy.\""
+          },
+          {
+            "speaker": "Narrator",
+            "text": "Max walked over to the window and looked down at the rain-slick street below the office."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "S05",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"Keep your hood up. The wind up here takes skin.\""
+          },
+          {
+            "speaker": "Luke",
+            "text": "\"I can't feel my nose.\""
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "By the time the caravan reached Hollow Pass, the snow had melted from the peaks and Luke had grown two inches."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S05t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"Keep your hood up. The wind up here takes skin.\""
+          },
+          {
+            "speaker": "Luke",
+            "text": "\"I can't feel my nose.\""
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "By the time the caravan reached Hollow Pass, the snow had melted from the peaks and Luke had grown two inches."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S06",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Ponticius",
+            "text": "\"The ferry leaves at noon. Be on it.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"We will.\""
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "Salt spray stings your face. Gulls wheel overhead as the ferry pulls away from the dock and the city shrinks behind you."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S06t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Ponticius",
+            "text": "\"The ferry leaves at noon. Be on it.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"We will.\""
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "Salt spray stings your face. Gulls wheel overhead as the ferry pulls away from the dock and the city shrinks behind you."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S07",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Max",
+            "text": "\"You fought a sphinx before?\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "Arin turns her cup slowly on the table."
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Years later, I still dream about that thing,\" she says, staring into her cup. \"Its eyes, mostly.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "S07t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Max",
+            "text": "\"You fought a sphinx before?\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "Arin turns her cup slowly on the table."
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Years later, I still dream about that thing,\" she says, staring into her cup. \"Its eyes, mostly.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "S08",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"Get some sleep. I'll take first watch.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I pull the blanket up to my chin.*"
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "You drift off to the crackle of the fire. You wake to birdsong and Arin kicking your boot."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S08t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"Get some sleep. I'll take first watch.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*I pull the blanket up to my chin.*"
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "You drift off to the crackle of the fire. You wake to birdsong and Arin kicking your boot."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S09",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"If he's late one more time, I'm taking the job myself.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Give him a minute.\""
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "The door bangs open and Ponticius strides in, shaking rain from his cloak."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "S09t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"If he's late one more time, I'm taking the job myself.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Give him a minute.\""
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "The door bangs open and Ponticius strides in, shaking rain from his cloak."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "S10",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "The Long Dark",
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "cast": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "bridge",
+          "engine room",
+          "cargo bay",
+          "crew quarters"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Mae Hollis",
+            "text": "\"Tommy's safe for tonight. Go home, get some sleep.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Sleep. Right.\""
+          },
+          {
+            "speaker": "Narrator",
+            "text": "Meanwhile, across town, Lieutenant Brandt counts a stack of bills in the back of a closed bakery."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S10t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "The Long Dark",
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "cast": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Mae Hollis",
+            "text": "\"Tommy's safe for tonight. Go home, get some sleep.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Sleep. Right.\""
+          },
+          {
+            "speaker": "Narrator",
+            "text": "Meanwhile, across town, Lieutenant Brandt counts a stack of bills in the back of a closed bakery."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S11",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "DM Narrator",
+            "text": "Two guards rush you from the gatehouse, blades drawn."
+          },
+          {
+            "speaker": "Max",
+            "text": "I duck the first swing and shoulder the man into the wall."
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "The second guard lunges; Arin parries and drives him back against the crates."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "S11t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "DM Narrator",
+            "text": "Two guards rush you from the gatehouse, blades drawn."
+          },
+          {
+            "speaker": "Max",
+            "text": "I duck the first swing and shoulder the man into the wall."
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "The second guard lunges; Arin parries and drives him back against the crates."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "S12",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "The Long Dark",
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "cast": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "bridge",
+          "engine room",
+          "cargo bay",
+          "crew quarters"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Captain Okafor",
+            "text": "\"You've seen this failure before, Pell?\""
+          },
+          {
+            "speaker": "HALO",
+            "text": "\"Pell's service record includes a similar incident.\""
+          },
+          {
+            "speaker": "Pell",
+            "text": "\"When we arrived at the station last year, the reactor was already cracked. Same flicker, same smell.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "S12t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "The Long Dark",
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "cast": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Captain Okafor",
+            "text": "\"You've seen this failure before, Pell?\""
+          },
+          {
+            "speaker": "HALO",
+            "text": "\"Pell's service record includes a similar incident.\""
+          },
+          {
+            "speaker": "Pell",
+            "text": "\"When we arrived at the station last year, the reactor was already cracked. Same flicker, same smell.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "S13",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Luke",
+            "text": "\"Are we there yet?\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Ask me that again and I'm leaving you on this mountain.\""
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "Hours of climbing later, the party arrives at the gates of the Sun Ruins."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S13t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Luke",
+            "text": "\"Are we there yet?\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Ask me that again and I'm leaving you on this mountain.\""
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "Hours of climbing later, the party arrives at the gates of the Sun Ruins."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S14",
+      "kind": "break",
+      "lang": "es",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"Duerme. Mañana será largo.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*Me acomodo junto al fuego.*"
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "A la mañana siguiente, el grupo parte hacia las ruinas bajo un cielo gris."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S14t",
+      "kind": "break",
+      "lang": "es",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"Duerme. Mañana será largo.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*Me acomodo junto al fuego.*"
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "A la mañana siguiente, el grupo parte hacia las ruinas bajo un cielo gris."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S15",
+      "kind": "break",
+      "lang": "es",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Max",
+            "text": "\"¿Y el pago?\""
+          },
+          {
+            "speaker": "Ponticius",
+            "text": "\"Cuando vuelvas con el artefacto.\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Mañana hablaremos con él otra vez. Ahora, a dormir.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "S15t",
+      "kind": "break",
+      "lang": "es",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Max",
+            "text": "\"¿Y el pago?\""
+          },
+          {
+            "speaker": "Ponticius",
+            "text": "\"Cuando vuelvas con el artefacto.\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Mañana hablaremos con él otra vez. Ahora, a dormir.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "S16",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"My brother used to talk like that. All plans, no fear.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"What happened to him?\""
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "As night fell around the campfire, Arin kept talking, her voice low, about the brother she lost at Kell's Ford."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "S16t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Quest for the Sun Ruins",
+        "checkpointName": "Investigate the Job Board",
+        "objective": "Get close to the guild's job board to see available missions.",
+        "cast": [
+          {
+            "rosterId": "dm_narrator",
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "arin",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "rosterId": "ponticius",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "rosterId": "luke",
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"My brother used to talk like that. All plans, no fear.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"What happened to him?\""
+          },
+          {
+            "speaker": "DM Narrator",
+            "text": "As night fell around the campfire, Arin kept talking, her voice low, about the brother she lost at Kell's Ford."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "S17",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "The Long Dark",
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "cast": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "bridge",
+          "engine room",
+          "cargo bay",
+          "crew quarters"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Pell",
+            "text": "\"Patch will hold. Probably.\""
+          },
+          {
+            "speaker": "Captain Okafor",
+            "text": "\"Set course for Ceres.\""
+          },
+          {
+            "speaker": "Narrator",
+            "text": "Two days later, the Long Dark limps into dock at Ceres Station, patched hull groaning."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S17t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "The Long Dark",
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "cast": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Pell",
+            "text": "\"Patch will hold. Probably.\""
+          },
+          {
+            "speaker": "Captain Okafor",
+            "text": "\"Set course for Ceres.\""
+          },
+          {
+            "speaker": "Narrator",
+            "text": "Two days later, the Long Dark limps into dock at Ceres Station, patched hull groaning."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S18",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Ashworth Hall",
+        "checkpointName": "The Portrait Gallery",
+        "objective": "Discover why the Ashworth portraits keep moving.",
+        "cast": [
+          {
+            "rosterId": "lady_ashworth",
+            "name": "Lady Ashworth",
+            "role": "The widowed mistress of the manor, cold and guarded"
+          },
+          {
+            "rosterId": "graves",
+            "name": "Graves",
+            "role": "The elderly butler, loyal, secretive, keeps the house immaculate"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the house, sounds, shadows and anyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "portrait gallery",
+          "library",
+          "kitchens",
+          "garden"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Graves",
+            "text": "\"The attic is closed to guests, sir.\""
+          },
+          {
+            "speaker": "Lady Ashworth",
+            "text": "\"Goodnight, detective.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "When the house is asleep, I leave my room and climb the servants' stairs to the attic, candle in hand."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S18t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Ashworth Hall",
+        "checkpointName": "The Portrait Gallery",
+        "objective": "Discover why the Ashworth portraits keep moving.",
+        "cast": [
+          {
+            "rosterId": "lady_ashworth",
+            "name": "Lady Ashworth",
+            "role": "The widowed mistress of the manor, cold and guarded"
+          },
+          {
+            "rosterId": "graves",
+            "name": "Graves",
+            "role": "The elderly butler, loyal, secretive, keeps the house immaculate"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the house, sounds, shadows and anyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Graves",
+            "text": "\"The attic is closed to guests, sir.\""
+          },
+          {
+            "speaker": "Lady Ashworth",
+            "text": "\"Goodnight, detective.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "When the house is asleep, I leave my room and climb the servants' stairs to the attic, candle in hand."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S19",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "The Long Dark",
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "cast": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "bridge",
+          "engine room",
+          "cargo bay",
+          "crew quarters"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Lady Ashworth",
+            "text": "\"My husband died in this room.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"I'm sorry.\""
+          },
+          {
+            "speaker": "Narrator",
+            "text": "A long silence stretches between you. Somewhere in the house, a clock ticks."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "S19t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "The Long Dark",
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "cast": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Lady Ashworth",
+            "text": "\"My husband died in this room.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"I'm sorry.\""
+          },
+          {
+            "speaker": "Narrator",
+            "text": "A long silence stretches between you. Somewhere in the house, a clock ticks."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "S20",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "The Long Dark",
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "cast": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "bridge",
+          "engine room",
+          "cargo bay",
+          "crew quarters"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Mae Hollis",
+            "text": "\"Get some rest. Tomorrow we pull the payroll records.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Tomorrow.\""
+          },
+          {
+            "speaker": "Narrator",
+            "text": "---\nThe precinct at three in the morning is all cold coffee and ringing phones."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S20t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "The Long Dark",
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "cast": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Mae Hollis",
+            "text": "\"Get some rest. Tomorrow we pull the payroll records.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Tomorrow.\""
+          },
+          {
+            "speaker": "Narrator",
+            "text": "---\nThe precinct at three in the morning is all cold coffee and ringing phones."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S21",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "The Long Dark",
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "cast": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "bridge",
+          "engine room",
+          "cargo bay",
+          "crew quarters"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Graves",
+            "text": "\"Everything is as you left it, sir.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Let's see.\""
+          },
+          {
+            "speaker": "Narrator",
+            "text": "The scene in the gallery is exactly as Graves described: three candles, one portrait, and the smell of smoke."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "S21t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "The Long Dark",
+        "checkpointName": "Reactor Crisis",
+        "objective": "Stabilize the reactor and seal the breach before the ship loses air.",
+        "cast": [
+          {
+            "rosterId": "captain_okafor",
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "rosterId": "pell",
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "rosterId": "halo",
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Graves",
+            "text": "\"Everything is as you left it, sir.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Let's see.\""
+          },
+          {
+            "speaker": "Narrator",
+            "text": "The scene in the gallery is exactly as Graves described: three candles, one portrait, and the smell of smoke."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": false
+      }
+    },
+    {
+      "id": "S22",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Rain on Mercer Street",
+        "checkpointName": "The Dockside Ledger",
+        "objective": "Find out who has been paying off the harbor police.",
+        "cast": [
+          {
+            "rosterId": "mae_hollis",
+            "name": "Mae Hollis",
+            "role": "The player's partner, a sharp homicide detective"
+          },
+          {
+            "rosterId": "maeve",
+            "name": "Maeve",
+            "role": "A nightclub singer and reluctant informant"
+          },
+          {
+            "rosterId": "lt_brandt",
+            "name": "Lt. Brandt",
+            "role": "A harbor police lieutenant with expensive habits"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the city, the rain and anyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "Blue Anchor nightclub",
+          "harbor docks",
+          "police station",
+          "Mercer Street"
+        ],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Mae Hollis",
+            "text": "\"Take a week. That's an order.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Fine.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*A week passes. My arm heals, the rain stops, and I finally go back to Mercer Street.*"
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    },
+    {
+      "id": "S22t",
+      "kind": "break",
+      "lang": "en",
+      "input": {
+        "storyTitle": "Rain on Mercer Street",
+        "checkpointName": "The Dockside Ledger",
+        "objective": "Find out who has been paying off the harbor police.",
+        "cast": [
+          {
+            "rosterId": "mae_hollis",
+            "name": "Mae Hollis",
+            "role": "The player's partner, a sharp homicide detective"
+          },
+          {
+            "rosterId": "maeve",
+            "name": "Maeve",
+            "role": "A nightclub singer and reluctant informant"
+          },
+          {
+            "rosterId": "lt_brandt",
+            "name": "Lt. Brandt",
+            "role": "A harbor police lieutenant with expensive habits"
+          },
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the city, the rain and anyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [],
+        "reachable": [],
+        "window": [
+          {
+            "speaker": "Mae Hollis",
+            "text": "\"Take a week. That's an order.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Fine.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "*A week passes. My arm heals, the rain stops, and I finally go back to Mercer Street.*"
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": false,
+          "lookahead": false
+        }
+      },
+      "labels": {
+        "sceneBreak": true
+      }
+    }
+  ]
+}

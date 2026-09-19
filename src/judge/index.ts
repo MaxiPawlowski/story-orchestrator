@@ -7,3 +7,5 @@ export * from "./memory";
 export * from "./settings";
 export * from "./selfTest";
 export * from "./selfTestCases";
+export * from "./scene";
+export * from "./sceneCalibration";

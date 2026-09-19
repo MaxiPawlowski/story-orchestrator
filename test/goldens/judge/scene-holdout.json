@@ -1,0 +1,3231 @@
+{
+  "source": "calibrate-node scene over test/fixtures/judge/scene-holdout.json: the production question shape, real answers, replayed by jest keyed on state + questions, so a wording change must re-record",
+  "recordedAt": "2026-09-19T14:08:35.014Z",
+  "model": "jev-1.13.0",
+  "right": 21,
+  "total": 24,
+  "calls": [
+    {
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins"
+        },
+        "scene": {
+          "checkpoint": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions."
+        },
+        "cast": [
+          {
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "times": [
+          "dawn",
+          "morning",
+          "midday",
+          "afternoon",
+          "evening",
+          "night"
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Arin",
+            "text": "\"Duerme, yo vigilo.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "*Cierro los ojos.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "DM Narrator",
+            "text": "Al amanecer, el campamento está cubierto de escarcha y Arin sigue despierta junto al fuego."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        },
+        "location": {
+          "type": "choice",
+          "instructions": "Where is the scene taking place at the end of `transcript`? Pick one of `locations`.",
+          "criteria": {
+            "guild hall": null,
+            "town gate": null,
+            "desert road": null,
+            "sun ruins entrance": null,
+            "inner chamber": null,
+            "elsewhere": "Somewhere not listed in `locations`",
+            "unclear": "The transcript does not make the place clear"
+          }
+        },
+        "time": {
+          "type": "choice",
+          "instructions": "What time of day is it in the scene at the end of `transcript`?",
+          "criteria": {
+            "dawn": null,
+            "morning": null,
+            "midday": null,
+            "afternoon": null,
+            "evening": null,
+            "night": null,
+            "unclear": "The transcript gives no cue for the time of day"
+          }
+        },
+        "present:dm_narrator": {
+          "type": "noul",
+          "instructions": "Is DM Narrator (The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast) physically present in the scene at the end of `transcript`?"
+        },
+        "present:arin": {
+          "type": "noul",
+          "instructions": "Is Arin (The player's companion, a sharp-tongued swordswoman who travels with the party) physically present in the scene at the end of `transcript`?"
+        },
+        "present:ponticius": {
+          "type": "noul",
+          "instructions": "Is Ponticius (The gruff guild master who runs the job board, hands out contracts and pays rewards) physically present in the scene at the end of `transcript`?"
+        },
+        "present:luke": {
+          "type": "noul",
+          "instructions": "Is Luke (The player's twelve-year-old little brother, desperate to join the adventure) physically present in the scene at the end of `transcript`?"
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.39
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "time_skip",
+          "confidence": 0.64,
+          "probabilities": {
+            "location": 0,
+            "time_skip": 0.73,
+            "divider": 0,
+            "none": 0.27
+          }
+        },
+        "location": {
+          "type": "choice",
+          "choice": "elsewhere",
+          "confidence": 0.52,
+          "probabilities": {
+            "elsewhere": 0.59,
+            "inner chamber": 0,
+            "desert road": 0.11,
+            "unclear": 0.28,
+            "sun ruins entrance": 0.01,
+            "guild hall": 0.01,
+            "town gate": 0
+          }
+        },
+        "time": {
+          "type": "choice",
+          "choice": "dawn",
+          "confidence": 0.99,
+          "probabilities": {
+            "afternoon": 0,
+            "evening": 0,
+            "unclear": 0,
+            "midday": 0,
+            "night": 0,
+            "morning": 0,
+            "dawn": 1
+          }
+        },
+        "present:dm_narrator": {
+          "type": "noul",
+          "noul": 0.18
+        },
+        "present:arin": {
+          "type": "noul",
+          "noul": 0.95
+        },
+        "present:ponticius": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "present:luke": {
+          "type": "noul",
+          "noul": 0.24
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins"
+        },
+        "scene": {
+          "checkpoint": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions."
+        },
+        "cast": [
+          {
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Arin",
+            "text": "\"We camp here.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "*I unroll my bedroll in the lee of a dune.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "DM Narrator",
+            "text": "Three days of sand and wind later, the ruins finally rise out of the haze."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.81
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "time_skip",
+          "confidence": 0.83,
+          "probabilities": {
+            "location": 0.08,
+            "time_skip": 0.87,
+            "none": 0.05,
+            "divider": 0
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins"
+        },
+        "scene": {
+          "checkpoint": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions."
+        },
+        "cast": [
+          {
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "times": [
+          "dawn",
+          "morning",
+          "midday",
+          "afternoon",
+          "evening",
+          "night"
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Arin",
+            "text": "\"We camp here.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "*I unroll my bedroll in the lee of a dune.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "DM Narrator",
+            "text": "Three days of sand and wind later, the ruins finally rise out of the haze."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        },
+        "location": {
+          "type": "choice",
+          "instructions": "Where is the scene taking place at the end of `transcript`? Pick one of `locations`.",
+          "criteria": {
+            "guild hall": null,
+            "town gate": null,
+            "desert road": null,
+            "sun ruins entrance": null,
+            "inner chamber": null,
+            "elsewhere": "Somewhere not listed in `locations`",
+            "unclear": "The transcript does not make the place clear"
+          }
+        },
+        "time": {
+          "type": "choice",
+          "instructions": "What time of day is it in the scene at the end of `transcript`?",
+          "criteria": {
+            "dawn": null,
+            "morning": null,
+            "midday": null,
+            "afternoon": null,
+            "evening": null,
+            "night": null,
+            "unclear": "The transcript gives no cue for the time of day"
+          }
+        },
+        "present:dm_narrator": {
+          "type": "noul",
+          "instructions": "Is DM Narrator (The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast) physically present in the scene at the end of `transcript`?"
+        },
+        "present:arin": {
+          "type": "noul",
+          "instructions": "Is Arin (The player's companion, a sharp-tongued swordswoman who travels with the party) physically present in the scene at the end of `transcript`?"
+        },
+        "present:ponticius": {
+          "type": "noul",
+          "instructions": "Is Ponticius (The gruff guild master who runs the job board, hands out contracts and pays rewards) physically present in the scene at the end of `transcript`?"
+        },
+        "present:luke": {
+          "type": "noul",
+          "instructions": "Is Luke (The player's twelve-year-old little brother, desperate to join the adventure) physically present in the scene at the end of `transcript`?"
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.83
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "time_skip",
+          "confidence": 0.77,
+          "probabilities": {
+            "divider": 0,
+            "none": 0.06,
+            "location": 0.11,
+            "time_skip": 0.83
+          }
+        },
+        "location": {
+          "type": "choice",
+          "choice": "sun ruins entrance",
+          "confidence": 0.9,
+          "probabilities": {
+            "town gate": 0,
+            "elsewhere": 0.01,
+            "desert road": 0.05,
+            "guild hall": 0.01,
+            "unclear": 0.01,
+            "inner chamber": 0,
+            "sun ruins entrance": 0.92
+          }
+        },
+        "time": {
+          "type": "choice",
+          "choice": "unclear",
+          "confidence": 0.91,
+          "probabilities": {
+            "night": 0,
+            "unclear": 0.93,
+            "evening": 0,
+            "midday": 0.03,
+            "morning": 0.01,
+            "afternoon": 0.01,
+            "dawn": 0.02
+          }
+        },
+        "present:dm_narrator": {
+          "type": "noul",
+          "noul": 0.16
+        },
+        "present:arin": {
+          "type": "noul",
+          "noul": 0.78
+        },
+        "present:ponticius": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "present:luke": {
+          "type": "noul",
+          "noul": 0.36
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "The Long Dark"
+        },
+        "scene": {
+          "checkpoint": "Reactor Crisis",
+          "objective": "Stabilize the reactor and seal the breach before the ship loses air."
+        },
+        "cast": [
+          {
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "bridge",
+          "engine room",
+          "cargo bay",
+          "crew quarters"
+        ],
+        "times": [
+          "dawn",
+          "morning",
+          "midday",
+          "afternoon",
+          "evening",
+          "night"
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Mae Hollis",
+            "text": "\"Meet me at the docks at midnight.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "*I finish my drink and leave.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Narrator",
+            "text": "Midnight. Fog rolls off the water at the harbor docks, and Mae is already waiting by the crates."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        },
+        "location": {
+          "type": "choice",
+          "instructions": "Where is the scene taking place at the end of `transcript`? Pick one of `locations`.",
+          "criteria": {
+            "bridge": null,
+            "engine room": null,
+            "cargo bay": null,
+            "crew quarters": null,
+            "elsewhere": "Somewhere not listed in `locations`",
+            "unclear": "The transcript does not make the place clear"
+          }
+        },
+        "time": {
+          "type": "choice",
+          "instructions": "What time of day is it in the scene at the end of `transcript`?",
+          "criteria": {
+            "dawn": null,
+            "morning": null,
+            "midday": null,
+            "afternoon": null,
+            "evening": null,
+            "night": null,
+            "unclear": "The transcript gives no cue for the time of day"
+          }
+        },
+        "present:captain_okafor": {
+          "type": "noul",
+          "instructions": "Is Captain Okafor (Captain of the salvage ship; decisive, gives the orders) physically present in the scene at the end of `transcript`?"
+        },
+        "present:pell": {
+          "type": "noul",
+          "instructions": "Is Pell (The ship's engineer; handles the reactor, engines and repairs) physically present in the scene at the end of `transcript`?"
+        },
+        "present:halo": {
+          "type": "noul",
+          "instructions": "Is HALO (The ship's AI; controls doors, sensors, life support and communications) physically present in the scene at the end of `transcript`?"
+        },
+        "present:narrator": {
+          "type": "noul",
+          "instructions": "Is Narrator (The narrator: describes the ship, the void and anything not in the cast) physically present in the scene at the end of `transcript`?"
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.37
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "location",
+          "confidence": 0.42,
+          "probabilities": {
+            "divider": 0.01,
+            "location": 0.56,
+            "time_skip": 0.23,
+            "none": 0.2
+          }
+        },
+        "location": {
+          "type": "choice",
+          "choice": "elsewhere",
+          "confidence": 0.81,
+          "probabilities": {
+            "unclear": 0.03,
+            "crew quarters": 0,
+            "engine room": 0,
+            "elsewhere": 0.85,
+            "bridge": 0,
+            "cargo bay": 0.12
+          }
+        },
+        "time": {
+          "type": "choice",
+          "choice": "night",
+          "confidence": 1,
+          "probabilities": {
+            "unclear": 0,
+            "afternoon": 0,
+            "morning": 0,
+            "evening": 0,
+            "dawn": 0,
+            "midday": 0,
+            "night": 1
+          }
+        },
+        "present:captain_okafor": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "present:pell": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "present:halo": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "present:narrator": {
+          "type": "noul",
+          "noul": 0.15
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "Rain on Mercer Street"
+        },
+        "scene": {
+          "checkpoint": "The Dockside Ledger",
+          "objective": "Find out who has been paying off the harbor police."
+        },
+        "cast": [
+          {
+            "name": "Mae Hollis",
+            "role": "The player's partner, a sharp homicide detective"
+          },
+          {
+            "name": "Maeve",
+            "role": "A nightclub singer and reluctant informant"
+          },
+          {
+            "name": "Lt. Brandt",
+            "role": "A harbor police lieutenant with expensive habits"
+          },
+          {
+            "name": "Narrator",
+            "role": "The narrator: describes the city, the rain and anyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Mae Hollis",
+            "text": "\"You remind me of someone.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "*I raise an eyebrow.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Mae Hollis",
+            "text": "\"A cop I knew, back in '38. He asked too many questions too.\""
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.93,
+          "probabilities": {
+            "none": 0.95,
+            "location": 0,
+            "divider": 0,
+            "time_skip": 0.05
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins"
+        },
+        "scene": {
+          "checkpoint": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions."
+        },
+        "cast": [
+          {
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Arin",
+            "text": "\"Where's the old man?\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "*I look around the hall.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Ponticius",
+            "text": "\"Right here, and I heard that.\" He shoulders through the crowd to the board."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.95,
+          "probabilities": {
+            "none": 0.96,
+            "time_skip": 0,
+            "divider": 0,
+            "location": 0.04
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins"
+        },
+        "scene": {
+          "checkpoint": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions."
+        },
+        "cast": [
+          {
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Luke",
+            "text": "\"Look at this!\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "*I follow him.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "DM Narrator",
+            "text": "Luke has crossed to the far side of the chamber, where a mural of the sun covers the wall."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.83,
+          "probabilities": {
+            "location": 0.13,
+            "time_skip": 0,
+            "divider": 0,
+            "none": 0.87
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins"
+        },
+        "scene": {
+          "checkpoint": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions."
+        },
+        "cast": [
+          {
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Arin",
+            "text": "\"Duerme, yo vigilo.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "*Cierro los ojos.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "DM Narrator",
+            "text": "Al amanecer, el campamento está cubierto de escarcha y Arin sigue despierta junto al fuego."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.52
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "time_skip",
+          "confidence": 0.78,
+          "probabilities": {
+            "none": 0.17,
+            "time_skip": 0.83,
+            "location": 0,
+            "divider": 0
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins"
+        },
+        "scene": {
+          "checkpoint": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions."
+        },
+        "cast": [
+          {
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "times": [
+          "dawn",
+          "morning",
+          "midday",
+          "afternoon",
+          "evening",
+          "night"
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Luke",
+            "text": "\"Can I stay up with you?\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Arin",
+            "text": "\"No. Bed.\""
+          },
+          {
+            "id": "msg_3",
+            "speaker": "DM Narrator",
+            "text": "Morning comes grey and cold. Luke is already awake, poking at the embers."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        },
+        "location": {
+          "type": "choice",
+          "instructions": "Where is the scene taking place at the end of `transcript`? Pick one of `locations`.",
+          "criteria": {
+            "guild hall": null,
+            "town gate": null,
+            "desert road": null,
+            "sun ruins entrance": null,
+            "inner chamber": null,
+            "elsewhere": "Somewhere not listed in `locations`",
+            "unclear": "The transcript does not make the place clear"
+          }
+        },
+        "time": {
+          "type": "choice",
+          "instructions": "What time of day is it in the scene at the end of `transcript`?",
+          "criteria": {
+            "dawn": null,
+            "morning": null,
+            "midday": null,
+            "afternoon": null,
+            "evening": null,
+            "night": null,
+            "unclear": "The transcript gives no cue for the time of day"
+          }
+        },
+        "present:dm_narrator": {
+          "type": "noul",
+          "instructions": "Is DM Narrator (The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast) physically present in the scene at the end of `transcript`?"
+        },
+        "present:arin": {
+          "type": "noul",
+          "instructions": "Is Arin (The player's companion, a sharp-tongued swordswoman who travels with the party) physically present in the scene at the end of `transcript`?"
+        },
+        "present:ponticius": {
+          "type": "noul",
+          "instructions": "Is Ponticius (The gruff guild master who runs the job board, hands out contracts and pays rewards) physically present in the scene at the end of `transcript`?"
+        },
+        "present:luke": {
+          "type": "noul",
+          "instructions": "Is Luke (The player's twelve-year-old little brother, desperate to join the adventure) physically present in the scene at the end of `transcript`?"
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.62
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "time_skip",
+          "confidence": 0.8,
+          "probabilities": {
+            "location": 0,
+            "divider": 0,
+            "time_skip": 0.86,
+            "none": 0.14
+          }
+        },
+        "location": {
+          "type": "choice",
+          "choice": "unclear",
+          "confidence": 0.37,
+          "probabilities": {
+            "sun ruins entrance": 0,
+            "unclear": 0.47000000000000003,
+            "elsewhere": 0.23,
+            "desert road": 0,
+            "inner chamber": 0,
+            "town gate": 0,
+            "guild hall": 0.3
+          }
+        },
+        "time": {
+          "type": "choice",
+          "choice": "morning",
+          "confidence": 0.99,
+          "probabilities": {
+            "afternoon": 0,
+            "night": 0,
+            "evening": 0,
+            "morning": 0.99,
+            "dawn": 0.01,
+            "midday": 0,
+            "unclear": 0
+          }
+        },
+        "present:dm_narrator": {
+          "type": "noul",
+          "noul": 0.16
+        },
+        "present:arin": {
+          "type": "noul",
+          "noul": 0.61
+        },
+        "present:ponticius": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "present:luke": {
+          "type": "noul",
+          "noul": 0.96
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins"
+        },
+        "scene": {
+          "checkpoint": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions."
+        },
+        "cast": [
+          {
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "times": [
+          "dawn",
+          "morning",
+          "midday",
+          "afternoon",
+          "evening",
+          "night"
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Arin",
+            "text": "\"Keep your voice down.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "*I nod.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "DM Narrator",
+            "text": "* * *\n\nThe inner chamber is silent but for dripping water."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        },
+        "location": {
+          "type": "choice",
+          "instructions": "Where is the scene taking place at the end of `transcript`? Pick one of `locations`.",
+          "criteria": {
+            "guild hall": null,
+            "town gate": null,
+            "desert road": null,
+            "sun ruins entrance": null,
+            "inner chamber": null,
+            "elsewhere": "Somewhere not listed in `locations`",
+            "unclear": "The transcript does not make the place clear"
+          }
+        },
+        "time": {
+          "type": "choice",
+          "instructions": "What time of day is it in the scene at the end of `transcript`?",
+          "criteria": {
+            "dawn": null,
+            "morning": null,
+            "midday": null,
+            "afternoon": null,
+            "evening": null,
+            "night": null,
+            "unclear": "The transcript gives no cue for the time of day"
+          }
+        },
+        "present:dm_narrator": {
+          "type": "noul",
+          "instructions": "Is DM Narrator (The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast) physically present in the scene at the end of `transcript`?"
+        },
+        "present:arin": {
+          "type": "noul",
+          "instructions": "Is Arin (The player's companion, a sharp-tongued swordswoman who travels with the party) physically present in the scene at the end of `transcript`?"
+        },
+        "present:ponticius": {
+          "type": "noul",
+          "instructions": "Is Ponticius (The gruff guild master who runs the job board, hands out contracts and pays rewards) physically present in the scene at the end of `transcript`?"
+        },
+        "present:luke": {
+          "type": "noul",
+          "instructions": "Is Luke (The player's twelve-year-old little brother, desperate to join the adventure) physically present in the scene at the end of `transcript`?"
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.83
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "divider",
+          "confidence": 0.97,
+          "probabilities": {
+            "divider": 0.98,
+            "time_skip": 0,
+            "none": 0.01,
+            "location": 0.01
+          }
+        },
+        "location": {
+          "type": "choice",
+          "choice": "inner chamber",
+          "confidence": 0.99,
+          "probabilities": {
+            "desert road": 0,
+            "town gate": 0,
+            "inner chamber": 0.99,
+            "unclear": 0,
+            "sun ruins entrance": 0,
+            "elsewhere": 0,
+            "guild hall": 0.01
+          }
+        },
+        "time": {
+          "type": "choice",
+          "choice": "unclear",
+          "confidence": 0.99,
+          "probabilities": {
+            "night": 0,
+            "morning": 0,
+            "afternoon": 0,
+            "unclear": 1,
+            "evening": 0,
+            "dawn": 0,
+            "midday": 0
+          }
+        },
+        "present:dm_narrator": {
+          "type": "noul",
+          "noul": 0.17
+        },
+        "present:arin": {
+          "type": "noul",
+          "noul": 0.66
+        },
+        "present:ponticius": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "present:luke": {
+          "type": "noul",
+          "noul": 0.32
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins"
+        },
+        "scene": {
+          "checkpoint": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions."
+        },
+        "cast": [
+          {
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Ponticius",
+            "text": "\"El pago, cuando vuelvas.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "*Asiento.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Arin",
+            "text": "\"Mañana al amanecer salimos. Hoy compramos agua y cuerda.\""
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.16
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.54,
+          "probabilities": {
+            "time_skip": 0.31,
+            "divider": 0,
+            "location": 0.03,
+            "none": 0.66
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins"
+        },
+        "scene": {
+          "checkpoint": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions."
+        },
+        "cast": [
+          {
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Luke",
+            "text": "\"Can I stay up with you?\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Arin",
+            "text": "\"No. Bed.\""
+          },
+          {
+            "id": "msg_3",
+            "speaker": "DM Narrator",
+            "text": "Morning comes grey and cold. Luke is already awake, poking at the embers."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.73
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "time_skip",
+          "confidence": 0.92,
+          "probabilities": {
+            "location": 0,
+            "none": 0.06,
+            "time_skip": 0.94,
+            "divider": 0
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins"
+        },
+        "scene": {
+          "checkpoint": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions."
+        },
+        "cast": [
+          {
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "times": [
+          "dawn",
+          "morning",
+          "midday",
+          "afternoon",
+          "evening",
+          "night"
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Luke",
+            "text": "\"Look at this!\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "*I follow him.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "DM Narrator",
+            "text": "Luke has crossed to the far side of the chamber, where a mural of the sun covers the wall."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        },
+        "location": {
+          "type": "choice",
+          "instructions": "Where is the scene taking place at the end of `transcript`? Pick one of `locations`.",
+          "criteria": {
+            "guild hall": null,
+            "town gate": null,
+            "desert road": null,
+            "sun ruins entrance": null,
+            "inner chamber": null,
+            "elsewhere": "Somewhere not listed in `locations`",
+            "unclear": "The transcript does not make the place clear"
+          }
+        },
+        "time": {
+          "type": "choice",
+          "instructions": "What time of day is it in the scene at the end of `transcript`?",
+          "criteria": {
+            "dawn": null,
+            "morning": null,
+            "midday": null,
+            "afternoon": null,
+            "evening": null,
+            "night": null,
+            "unclear": "The transcript gives no cue for the time of day"
+          }
+        },
+        "present:dm_narrator": {
+          "type": "noul",
+          "instructions": "Is DM Narrator (The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast) physically present in the scene at the end of `transcript`?"
+        },
+        "present:arin": {
+          "type": "noul",
+          "instructions": "Is Arin (The player's companion, a sharp-tongued swordswoman who travels with the party) physically present in the scene at the end of `transcript`?"
+        },
+        "present:ponticius": {
+          "type": "noul",
+          "instructions": "Is Ponticius (The gruff guild master who runs the job board, hands out contracts and pays rewards) physically present in the scene at the end of `transcript`?"
+        },
+        "present:luke": {
+          "type": "noul",
+          "instructions": "Is Luke (The player's twelve-year-old little brother, desperate to join the adventure) physically present in the scene at the end of `transcript`?"
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.83,
+          "probabilities": {
+            "location": 0.12,
+            "none": 0.88,
+            "divider": 0,
+            "time_skip": 0
+          }
+        },
+        "location": {
+          "type": "choice",
+          "choice": "guild hall",
+          "confidence": 0.44,
+          "probabilities": {
+            "guild hall": 0.52,
+            "inner chamber": 0.31,
+            "sun ruins entrance": 0.01,
+            "unclear": 0.14,
+            "town gate": 0,
+            "desert road": 0,
+            "elsewhere": 0.02
+          }
+        },
+        "time": {
+          "type": "choice",
+          "choice": "unclear",
+          "confidence": 0.99,
+          "probabilities": {
+            "morning": 0,
+            "night": 0,
+            "evening": 0,
+            "midday": 0,
+            "unclear": 1,
+            "dawn": 0,
+            "afternoon": 0
+          }
+        },
+        "present:dm_narrator": {
+          "type": "noul",
+          "noul": 0.15
+        },
+        "present:arin": {
+          "type": "noul",
+          "noul": 0.5
+        },
+        "present:ponticius": {
+          "type": "noul",
+          "noul": 0.16
+        },
+        "present:luke": {
+          "type": "noul",
+          "noul": 0.97
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins"
+        },
+        "scene": {
+          "checkpoint": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions."
+        },
+        "cast": [
+          {
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Max",
+            "text": "\"What happened at the ruins last time?\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Arin",
+            "text": "*She stares into her cup.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Arin",
+            "text": "\"Three years ago we went in with six. Two came back. The sphinx took the rest at the gate.\""
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.91,
+          "probabilities": {
+            "location": 0,
+            "none": 0.9400000000000001,
+            "divider": 0,
+            "time_skip": 0.06
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins"
+        },
+        "scene": {
+          "checkpoint": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions."
+        },
+        "cast": [
+          {
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Arin",
+            "text": "\"So?\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "*I think about it for a long moment.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Arin",
+            "text": "\"Take your time. Not like the sand's going anywhere.\""
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.98,
+          "probabilities": {
+            "time_skip": 0.01,
+            "divider": 0,
+            "none": 0.99,
+            "location": 0
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins"
+        },
+        "scene": {
+          "checkpoint": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions."
+        },
+        "cast": [
+          {
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "times": [
+          "dawn",
+          "morning",
+          "midday",
+          "afternoon",
+          "evening",
+          "night"
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Arin",
+            "text": "\"So?\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "*I think about it for a long moment.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Arin",
+            "text": "\"Take your time. Not like the sand's going anywhere.\""
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        },
+        "location": {
+          "type": "choice",
+          "instructions": "Where is the scene taking place at the end of `transcript`? Pick one of `locations`.",
+          "criteria": {
+            "guild hall": null,
+            "town gate": null,
+            "desert road": null,
+            "sun ruins entrance": null,
+            "inner chamber": null,
+            "elsewhere": "Somewhere not listed in `locations`",
+            "unclear": "The transcript does not make the place clear"
+          }
+        },
+        "time": {
+          "type": "choice",
+          "instructions": "What time of day is it in the scene at the end of `transcript`?",
+          "criteria": {
+            "dawn": null,
+            "morning": null,
+            "midday": null,
+            "afternoon": null,
+            "evening": null,
+            "night": null,
+            "unclear": "The transcript gives no cue for the time of day"
+          }
+        },
+        "present:dm_narrator": {
+          "type": "noul",
+          "instructions": "Is DM Narrator (The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast) physically present in the scene at the end of `transcript`?"
+        },
+        "present:arin": {
+          "type": "noul",
+          "instructions": "Is Arin (The player's companion, a sharp-tongued swordswoman who travels with the party) physically present in the scene at the end of `transcript`?"
+        },
+        "present:ponticius": {
+          "type": "noul",
+          "instructions": "Is Ponticius (The gruff guild master who runs the job board, hands out contracts and pays rewards) physically present in the scene at the end of `transcript`?"
+        },
+        "present:luke": {
+          "type": "noul",
+          "instructions": "Is Luke (The player's twelve-year-old little brother, desperate to join the adventure) physically present in the scene at the end of `transcript`?"
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.96,
+          "probabilities": {
+            "divider": 0.01,
+            "time_skip": 0.02,
+            "location": 0,
+            "none": 0.97
+          }
+        },
+        "location": {
+          "type": "choice",
+          "choice": "guild hall",
+          "confidence": 0.82,
+          "probabilities": {
+            "unclear": 0.13,
+            "desert road": 0.01,
+            "guild hall": 0.86,
+            "inner chamber": 0,
+            "town gate": 0,
+            "elsewhere": 0,
+            "sun ruins entrance": 0
+          }
+        },
+        "time": {
+          "type": "choice",
+          "choice": "unclear",
+          "confidence": 0.98,
+          "probabilities": {
+            "dawn": 0,
+            "afternoon": 0,
+            "morning": 0,
+            "night": 0,
+            "evening": 0,
+            "midday": 0.01,
+            "unclear": 0.99
+          }
+        },
+        "present:dm_narrator": {
+          "type": "noul",
+          "noul": 0.27
+        },
+        "present:arin": {
+          "type": "noul",
+          "noul": 0.95
+        },
+        "present:ponticius": {
+          "type": "noul",
+          "noul": 0.28
+        },
+        "present:luke": {
+          "type": "noul",
+          "noul": 0.43
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "Rain on Mercer Street"
+        },
+        "scene": {
+          "checkpoint": "The Dockside Ledger",
+          "objective": "Find out who has been paying off the harbor police."
+        },
+        "cast": [
+          {
+            "name": "Mae Hollis",
+            "role": "The player's partner, a sharp homicide detective"
+          },
+          {
+            "name": "Maeve",
+            "role": "A nightclub singer and reluctant informant"
+          },
+          {
+            "name": "Lt. Brandt",
+            "role": "A harbor police lieutenant with expensive habits"
+          },
+          {
+            "name": "Narrator",
+            "role": "The narrator: describes the city, the rain and anyone not in the cast"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "Blue Anchor nightclub",
+          "harbor docks",
+          "police station",
+          "Mercer Street"
+        ],
+        "times": [
+          "dawn",
+          "morning",
+          "midday",
+          "afternoon",
+          "evening",
+          "night"
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Mae Hollis",
+            "text": "\"You remind me of someone.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "*I raise an eyebrow.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Mae Hollis",
+            "text": "\"A cop I knew, back in '38. He asked too many questions too.\""
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        },
+        "location": {
+          "type": "choice",
+          "instructions": "Where is the scene taking place at the end of `transcript`? Pick one of `locations`.",
+          "criteria": {
+            "Blue Anchor nightclub": null,
+            "harbor docks": null,
+            "police station": null,
+            "Mercer Street": null,
+            "elsewhere": "Somewhere not listed in `locations`",
+            "unclear": "The transcript does not make the place clear"
+          }
+        },
+        "time": {
+          "type": "choice",
+          "instructions": "What time of day is it in the scene at the end of `transcript`?",
+          "criteria": {
+            "dawn": null,
+            "morning": null,
+            "midday": null,
+            "afternoon": null,
+            "evening": null,
+            "night": null,
+            "unclear": "The transcript gives no cue for the time of day"
+          }
+        },
+        "present:mae_hollis": {
+          "type": "noul",
+          "instructions": "Is Mae Hollis (The player's partner, a sharp homicide detective) physically present in the scene at the end of `transcript`?"
+        },
+        "present:maeve": {
+          "type": "noul",
+          "instructions": "Is Maeve (A nightclub singer and reluctant informant) physically present in the scene at the end of `transcript`?"
+        },
+        "present:lt_brandt": {
+          "type": "noul",
+          "instructions": "Is Lt. Brandt (A harbor police lieutenant with expensive habits) physically present in the scene at the end of `transcript`?"
+        },
+        "present:narrator": {
+          "type": "noul",
+          "instructions": "Is Narrator (The narrator: describes the city, the rain and anyone not in the cast) physically present in the scene at the end of `transcript`?"
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.97,
+          "probabilities": {
+            "time_skip": 0.01,
+            "divider": 0.01,
+            "location": 0.01,
+            "none": 0.97
+          }
+        },
+        "location": {
+          "type": "choice",
+          "choice": "unclear",
+          "confidence": 0.76,
+          "probabilities": {
+            "Mercer Street": 0.04,
+            "Blue Anchor nightclub": 0.02,
+            "police station": 0.09,
+            "elsewhere": 0.01,
+            "harbor docks": 0.04,
+            "unclear": 0.8
+          }
+        },
+        "time": {
+          "type": "choice",
+          "choice": "unclear",
+          "confidence": 0.99,
+          "probabilities": {
+            "afternoon": 0,
+            "dawn": 0,
+            "midday": 0,
+            "night": 0.01,
+            "evening": 0,
+            "morning": 0,
+            "unclear": 0.99
+          }
+        },
+        "present:mae_hollis": {
+          "type": "noul",
+          "noul": 0.91
+        },
+        "present:maeve": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "present:lt_brandt": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "present:narrator": {
+          "type": "noul",
+          "noul": 0.19
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins"
+        },
+        "scene": {
+          "checkpoint": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions."
+        },
+        "cast": [
+          {
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Arin",
+            "text": "\"Keep your voice down.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "*I nod.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "DM Narrator",
+            "text": "* * *\n\nThe inner chamber is silent but for dripping water."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.54
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "divider",
+          "confidence": 0.96,
+          "probabilities": {
+            "location": 0,
+            "none": 0.02,
+            "time_skip": 0,
+            "divider": 0.98
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins"
+        },
+        "scene": {
+          "checkpoint": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions."
+        },
+        "cast": [
+          {
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Ponticius",
+            "text": "\"Take the contract and go.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "*I pocket the contract.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "DM Narrator",
+            "text": "The town gate creaks open onto the desert road, and the guild hall is far behind you."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.87
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "location",
+          "confidence": 0.78,
+          "probabilities": {
+            "location": 0.84,
+            "divider": 0,
+            "none": 0.15,
+            "time_skip": 0.01
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins"
+        },
+        "scene": {
+          "checkpoint": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions."
+        },
+        "cast": [
+          {
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "times": [
+          "dawn",
+          "morning",
+          "midday",
+          "afternoon",
+          "evening",
+          "night"
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Max",
+            "text": "\"What happened at the ruins last time?\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Arin",
+            "text": "*She stares into her cup.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Arin",
+            "text": "\"Three years ago we went in with six. Two came back. The sphinx took the rest at the gate.\""
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        },
+        "location": {
+          "type": "choice",
+          "instructions": "Where is the scene taking place at the end of `transcript`? Pick one of `locations`.",
+          "criteria": {
+            "guild hall": null,
+            "town gate": null,
+            "desert road": null,
+            "sun ruins entrance": null,
+            "inner chamber": null,
+            "elsewhere": "Somewhere not listed in `locations`",
+            "unclear": "The transcript does not make the place clear"
+          }
+        },
+        "time": {
+          "type": "choice",
+          "instructions": "What time of day is it in the scene at the end of `transcript`?",
+          "criteria": {
+            "dawn": null,
+            "morning": null,
+            "midday": null,
+            "afternoon": null,
+            "evening": null,
+            "night": null,
+            "unclear": "The transcript gives no cue for the time of day"
+          }
+        },
+        "present:dm_narrator": {
+          "type": "noul",
+          "instructions": "Is DM Narrator (The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast) physically present in the scene at the end of `transcript`?"
+        },
+        "present:arin": {
+          "type": "noul",
+          "instructions": "Is Arin (The player's companion, a sharp-tongued swordswoman who travels with the party) physically present in the scene at the end of `transcript`?"
+        },
+        "present:ponticius": {
+          "type": "noul",
+          "instructions": "Is Ponticius (The gruff guild master who runs the job board, hands out contracts and pays rewards) physically present in the scene at the end of `transcript`?"
+        },
+        "present:luke": {
+          "type": "noul",
+          "instructions": "Is Luke (The player's twelve-year-old little brother, desperate to join the adventure) physically present in the scene at the end of `transcript`?"
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.81,
+          "probabilities": {
+            "divider": 0.01,
+            "none": 0.85,
+            "location": 0.01,
+            "time_skip": 0.13
+          }
+        },
+        "location": {
+          "type": "choice",
+          "choice": "guild hall",
+          "confidence": 0.83,
+          "probabilities": {
+            "town gate": 0,
+            "desert road": 0,
+            "unclear": 0.12,
+            "guild hall": 0.86,
+            "elsewhere": 0.01,
+            "inner chamber": 0,
+            "sun ruins entrance": 0.01
+          }
+        },
+        "time": {
+          "type": "choice",
+          "choice": "unclear",
+          "confidence": 0.98,
+          "probabilities": {
+            "unclear": 0.99,
+            "night": 0,
+            "evening": 0,
+            "midday": 0,
+            "morning": 0.01,
+            "afternoon": 0,
+            "dawn": 0
+          }
+        },
+        "present:dm_narrator": {
+          "type": "noul",
+          "noul": 0.27
+        },
+        "present:arin": {
+          "type": "noul",
+          "noul": 0.95
+        },
+        "present:ponticius": {
+          "type": "noul",
+          "noul": 0.25
+        },
+        "present:luke": {
+          "type": "noul",
+          "noul": 0.41
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins"
+        },
+        "scene": {
+          "checkpoint": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions."
+        },
+        "cast": [
+          {
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "times": [
+          "dawn",
+          "morning",
+          "midday",
+          "afternoon",
+          "evening",
+          "night"
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Ponticius",
+            "text": "\"Take the contract and go.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "*I pocket the contract.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "DM Narrator",
+            "text": "The town gate creaks open onto the desert road, and the guild hall is far behind you."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        },
+        "location": {
+          "type": "choice",
+          "instructions": "Where is the scene taking place at the end of `transcript`? Pick one of `locations`.",
+          "criteria": {
+            "guild hall": null,
+            "town gate": null,
+            "desert road": null,
+            "sun ruins entrance": null,
+            "inner chamber": null,
+            "elsewhere": "Somewhere not listed in `locations`",
+            "unclear": "The transcript does not make the place clear"
+          }
+        },
+        "time": {
+          "type": "choice",
+          "instructions": "What time of day is it in the scene at the end of `transcript`?",
+          "criteria": {
+            "dawn": null,
+            "morning": null,
+            "midday": null,
+            "afternoon": null,
+            "evening": null,
+            "night": null,
+            "unclear": "The transcript gives no cue for the time of day"
+          }
+        },
+        "present:dm_narrator": {
+          "type": "noul",
+          "instructions": "Is DM Narrator (The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast) physically present in the scene at the end of `transcript`?"
+        },
+        "present:arin": {
+          "type": "noul",
+          "instructions": "Is Arin (The player's companion, a sharp-tongued swordswoman who travels with the party) physically present in the scene at the end of `transcript`?"
+        },
+        "present:ponticius": {
+          "type": "noul",
+          "instructions": "Is Ponticius (The gruff guild master who runs the job board, hands out contracts and pays rewards) physically present in the scene at the end of `transcript`?"
+        },
+        "present:luke": {
+          "type": "noul",
+          "instructions": "Is Luke (The player's twelve-year-old little brother, desperate to join the adventure) physically present in the scene at the end of `transcript`?"
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.84
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "location",
+          "confidence": 0.81,
+          "probabilities": {
+            "divider": 0,
+            "location": 0.86,
+            "none": 0.14,
+            "time_skip": 0
+          }
+        },
+        "location": {
+          "type": "choice",
+          "choice": "desert road",
+          "confidence": 0.88,
+          "probabilities": {
+            "inner chamber": 0,
+            "desert road": 0.91,
+            "elsewhere": 0,
+            "town gate": 0.09,
+            "guild hall": 0,
+            "sun ruins entrance": 0,
+            "unclear": 0
+          }
+        },
+        "time": {
+          "type": "choice",
+          "choice": "unclear",
+          "confidence": 0.98,
+          "probabilities": {
+            "night": 0,
+            "evening": 0,
+            "unclear": 0.99,
+            "midday": 0,
+            "dawn": 0.01,
+            "morning": 0,
+            "afternoon": 0
+          }
+        },
+        "present:dm_narrator": {
+          "type": "noul",
+          "noul": 0.14
+        },
+        "present:arin": {
+          "type": "noul",
+          "noul": 0.56
+        },
+        "present:ponticius": {
+          "type": "noul",
+          "noul": 0.14
+        },
+        "present:luke": {
+          "type": "noul",
+          "noul": 0.35
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "The Long Dark"
+        },
+        "scene": {
+          "checkpoint": "Reactor Crisis",
+          "objective": "Stabilize the reactor and seal the breach before the ship loses air."
+        },
+        "cast": [
+          {
+            "name": "Captain Okafor",
+            "role": "Captain of the salvage ship; decisive, gives the orders"
+          },
+          {
+            "name": "Pell",
+            "role": "The ship's engineer; handles the reactor, engines and repairs"
+          },
+          {
+            "name": "HALO",
+            "role": "The ship's AI; controls doors, sensors, life support and communications"
+          },
+          {
+            "name": "Narrator",
+            "role": "The narrator: describes the ship, the void and anything not in the cast"
+          }
+        ],
+        "player": "Max",
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Mae Hollis",
+            "text": "\"Meet me at the docks at midnight.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "*I finish my drink and leave.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Narrator",
+            "text": "Midnight. Fog rolls off the water at the harbor docks, and Mae is already waiting by the crates."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.3
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "location",
+          "confidence": 0.24,
+          "probabilities": {
+            "none": 0.42,
+            "time_skip": 0.15,
+            "divider": 0.01,
+            "location": 0.42
+          }
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins"
+        },
+        "scene": {
+          "checkpoint": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions."
+        },
+        "cast": [
+          {
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "times": [
+          "dawn",
+          "morning",
+          "midday",
+          "afternoon",
+          "evening",
+          "night"
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Arin",
+            "text": "\"Where's the old man?\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "*I look around the hall.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Ponticius",
+            "text": "\"Right here, and I heard that.\" He shoulders through the crowd to the board."
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        },
+        "location": {
+          "type": "choice",
+          "instructions": "Where is the scene taking place at the end of `transcript`? Pick one of `locations`.",
+          "criteria": {
+            "guild hall": null,
+            "town gate": null,
+            "desert road": null,
+            "sun ruins entrance": null,
+            "inner chamber": null,
+            "elsewhere": "Somewhere not listed in `locations`",
+            "unclear": "The transcript does not make the place clear"
+          }
+        },
+        "time": {
+          "type": "choice",
+          "instructions": "What time of day is it in the scene at the end of `transcript`?",
+          "criteria": {
+            "dawn": null,
+            "morning": null,
+            "midday": null,
+            "afternoon": null,
+            "evening": null,
+            "night": null,
+            "unclear": "The transcript gives no cue for the time of day"
+          }
+        },
+        "present:dm_narrator": {
+          "type": "noul",
+          "instructions": "Is DM Narrator (The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast) physically present in the scene at the end of `transcript`?"
+        },
+        "present:arin": {
+          "type": "noul",
+          "instructions": "Is Arin (The player's companion, a sharp-tongued swordswoman who travels with the party) physically present in the scene at the end of `transcript`?"
+        },
+        "present:ponticius": {
+          "type": "noul",
+          "instructions": "Is Ponticius (The gruff guild master who runs the job board, hands out contracts and pays rewards) physically present in the scene at the end of `transcript`?"
+        },
+        "present:luke": {
+          "type": "noul",
+          "instructions": "Is Luke (The player's twelve-year-old little brother, desperate to join the adventure) physically present in the scene at the end of `transcript`?"
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.92,
+          "probabilities": {
+            "none": 0.94,
+            "divider": 0,
+            "location": 0.06,
+            "time_skip": 0
+          }
+        },
+        "location": {
+          "type": "choice",
+          "choice": "guild hall",
+          "confidence": 1,
+          "probabilities": {
+            "desert road": 0,
+            "guild hall": 1,
+            "unclear": 0,
+            "town gate": 0,
+            "inner chamber": 0,
+            "elsewhere": 0,
+            "sun ruins entrance": 0
+          }
+        },
+        "time": {
+          "type": "choice",
+          "choice": "unclear",
+          "confidence": 0.99,
+          "probabilities": {
+            "evening": 0,
+            "night": 0,
+            "morning": 0,
+            "midday": 0,
+            "unclear": 1,
+            "dawn": 0,
+            "afternoon": 0
+          }
+        },
+        "present:dm_narrator": {
+          "type": "noul",
+          "noul": 0.36
+        },
+        "present:arin": {
+          "type": "noul",
+          "noul": 0.93
+        },
+        "present:ponticius": {
+          "type": "noul",
+          "noul": 0.98
+        },
+        "present:luke": {
+          "type": "noul",
+          "noul": 0.34
+        }
+      }
+    },
+    {
+      "state": {
+        "story": {
+          "title": "Quest for the Sun Ruins"
+        },
+        "scene": {
+          "checkpoint": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions."
+        },
+        "cast": [
+          {
+            "name": "DM Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          },
+          {
+            "name": "Luke",
+            "role": "The player's twelve-year-old little brother, desperate to join the adventure"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "town gate",
+          "desert road",
+          "sun ruins entrance",
+          "inner chamber"
+        ],
+        "times": [
+          "dawn",
+          "morning",
+          "midday",
+          "afternoon",
+          "evening",
+          "night"
+        ],
+        "transcript": [
+          {
+            "id": "msg_1",
+            "speaker": "Ponticius",
+            "text": "\"El pago, cuando vuelvas.\""
+          },
+          {
+            "id": "msg_2",
+            "speaker": "Max",
+            "text": "*Asiento.*"
+          },
+          {
+            "id": "msg_3",
+            "speaker": "Arin",
+            "text": "\"Mañana al amanecer salimos. Hoy compramos agua y cuerda.\""
+          }
+        ]
+      },
+      "questions": {
+        "scene_break": {
+          "type": "noul",
+          "instructions": "Does the latest message in `transcript` start a new scene compared with the messages before it?",
+          "criteria": {
+            "true": "The story cuts forward in time, moves to a different place, or passes an explicit scene divider",
+            "false": "The same scene continues: someone arrives, characters move around the same place, talk about other times or places, or pause"
+          }
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "instructions": "If the latest message in `transcript` starts a new scene, what kind of break is it?",
+          "criteria": {
+            "time_skip": "A jump forward in time",
+            "location": "A move to a different place",
+            "divider": "An explicit divider such as * * * or ---",
+            "none": "No scene break"
+          }
+        },
+        "location": {
+          "type": "choice",
+          "instructions": "Where is the scene taking place at the end of `transcript`? Pick one of `locations`.",
+          "criteria": {
+            "guild hall": null,
+            "town gate": null,
+            "desert road": null,
+            "sun ruins entrance": null,
+            "inner chamber": null,
+            "elsewhere": "Somewhere not listed in `locations`",
+            "unclear": "The transcript does not make the place clear"
+          }
+        },
+        "time": {
+          "type": "choice",
+          "instructions": "What time of day is it in the scene at the end of `transcript`?",
+          "criteria": {
+            "dawn": null,
+            "morning": null,
+            "midday": null,
+            "afternoon": null,
+            "evening": null,
+            "night": null,
+            "unclear": "The transcript gives no cue for the time of day"
+          }
+        },
+        "present:dm_narrator": {
+          "type": "noul",
+          "instructions": "Is DM Narrator (The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast) physically present in the scene at the end of `transcript`?"
+        },
+        "present:arin": {
+          "type": "noul",
+          "instructions": "Is Arin (The player's companion, a sharp-tongued swordswoman who travels with the party) physically present in the scene at the end of `transcript`?"
+        },
+        "present:ponticius": {
+          "type": "noul",
+          "instructions": "Is Ponticius (The gruff guild master who runs the job board, hands out contracts and pays rewards) physically present in the scene at the end of `transcript`?"
+        },
+        "present:luke": {
+          "type": "noul",
+          "instructions": "Is Luke (The player's twelve-year-old little brother, desperate to join the adventure) physically present in the scene at the end of `transcript`?"
+        }
+      },
+      "answers": {
+        "scene_break": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "scene_break_type": {
+          "type": "choice",
+          "choice": "none",
+          "confidence": 0.65,
+          "probabilities": {
+            "location": 0.04,
+            "time_skip": 0.22,
+            "none": 0.74,
+            "divider": 0
+          }
+        },
+        "location": {
+          "type": "choice",
+          "choice": "guild hall",
+          "confidence": 0.93,
+          "probabilities": {
+            "inner chamber": 0,
+            "unclear": 0.04,
+            "town gate": 0.01,
+            "desert road": 0,
+            "guild hall": 0.94,
+            "elsewhere": 0.01,
+            "sun ruins entrance": 0
+          }
+        },
+        "time": {
+          "type": "choice",
+          "choice": "unclear",
+          "confidence": 0.57,
+          "probabilities": {
+            "unclear": 0.63,
+            "midday": 0.03,
+            "morning": 0.04,
+            "dawn": 0.03,
+            "afternoon": 0.2,
+            "night": 0.02,
+            "evening": 0.05
+          }
+        },
+        "present:dm_narrator": {
+          "type": "noul",
+          "noul": 0.22
+        },
+        "present:arin": {
+          "type": "noul",
+          "noul": 0.95
+        },
+        "present:ponticius": {
+          "type": "noul",
+          "noul": 0.64
+        },
+        "present:luke": {
+          "type": "noul",
+          "noul": 0.37
+        }
+      }
+    }
+  ]
+}
