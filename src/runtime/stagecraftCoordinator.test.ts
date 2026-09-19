@@ -314,6 +314,29 @@ describe("continuity warden (v2.2 plan 05)", () => {
     }
   });
 
+  it("stops injecting an accepted note once the author switches checking off", async () => {
+    const env = harness({ settings: wardenOn("auto"), warden: warden() });
+    await env.coordinator.runWardenPass(1);
+    env.read().settings.wardenAcceptMode = "off";
+    env.coordinator.onGenerationStarted("normal", false);
+    expect(setStoryExtensionPrompt).not.toHaveBeenCalled();
+  });
+
+  it("lapses an older note even when a pass is already in flight", async () => {
+    let release: (value: typeof note | null) => void = () => undefined;
+    const slow = { check: jest.fn(() => new Promise<typeof note | null>((resolve) => { release = resolve; })), facts: () => ["The bridge fell in the flood."], nudgeActive: () => false };
+    const env = harness({ settings: wardenOn("auto"), warden: slow });
+    env.read().proposals.push({ id: "warden-0-1", curator: "warden", at: "", boundary: 0, messageId: 1, checkpointId: "cp1", reason: "continuity", summary: "", mode: "auto", ops: [{ op: { kind: "note", text: note.text, facts: note.facts, replyMessageId: 1 }, status: "accepted" }], dropped: [] });
+    mockChat.push({ name: "Max", mes: "Then we cross.", is_user: true }, { name: "Mira", mes: "Follow me.", is_user: false });
+    const inFlight = env.coordinator.runWardenPass(3);
+    expect(await env.coordinator.runWardenPass(3)).toBe(false);
+    expect(env.read().proposals.find((record) => record.id === "warden-0-1")?.ops[0]).toMatchObject({ status: "rejected", message: "lapsed" });
+    env.coordinator.onGenerationStarted("normal", false);
+    expect(setStoryExtensionPrompt).not.toHaveBeenCalled();
+    release(null);
+    await inFlight;
+  });
+
   it("drops the note when the reply changed while the judge was reading", async () => {
     const env = harness({ settings: wardenOn("auto"), warden: warden({ onCheck: () => { mockChat[1] = { name: "Mira", mes: "The bridge is gone.", is_user: false }; } }) });
     expect(await env.coordinator.runWardenPass(1)).toBe(false);

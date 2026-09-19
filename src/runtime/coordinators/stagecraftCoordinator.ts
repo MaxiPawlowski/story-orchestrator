@@ -282,10 +282,16 @@ export class StagecraftCoordinator {
     const settings = this.state.settings;
     const state = this.deps.getState();
     const warden = this.deps.warden;
-    if (!warden || !state || !settings.wardenEnabled || settings.wardenAcceptMode === "off" || this.wardenInFlight) return false;
+    if (!warden || !state || !settings.wardenEnabled || settings.wardenAcceptMode === "off") return false;
     const reply = readReply(replyMessageId);
     if (!reply) return false;
+    // The lapse happens before the in-flight guard: a newer reply supersedes an older unapplied note
+    // whether or not this pass gets to ask, or a slow judge call leaves the stale note to inject.
     const lapsed = this.settleNotes((op, status) => op.replyMessageId < replyMessageId && status !== "applied", "lapsed");
+    if (this.wardenInFlight) {
+      if (lapsed) await this.save();
+      return false;
+    }
     this.wardenInFlight = true;
     try {
       const facts = warden.facts();
@@ -335,7 +341,8 @@ export class StagecraftCoordinator {
   // An accepted note rides exactly one loud generation: set here, cleared when it ends. The author's
   // own nudge wins a shared generation, and the note waits for the next one.
   onGenerationStarted(type: unknown, dryRun: unknown) {
-    if (dryRun === true || type === "quiet" || type === "impersonate" || !this.state.settings.wardenEnabled || this.deps.warden?.nudgeActive()) return;
+    const settings = this.state.settings;
+    if (dryRun === true || type === "quiet" || type === "impersonate" || !settings.wardenEnabled || settings.wardenAcceptMode === "off" || this.deps.warden?.nudgeActive()) return;
     const record = this.state.proposals.find((candidate) => candidate.curator === "warden" && candidate.ops.some((entry) => entry.status === "accepted"));
     const entry = record?.ops.find((candidate) => candidate.status === "accepted");
     if (!record || !entry || !isNoteOp(entry.op)) return;

@@ -102,7 +102,7 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     id: "continuity-warden",
     order: 57,
     run: ({ result, manager }) => {
-      void manager.runWardenPass(result.context.lastMessageId);
+      void manager.runWardenPass(result.context.lastMessageId).catch((error) => console.warn("[Story Orchestrator] continuity warden failed", error));
     },
   },
   {
