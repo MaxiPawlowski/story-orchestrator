@@ -1,4 +1,5 @@
 import { appendJudgeCall, dropJudgeCallsAfter, type JudgeCallRecord } from "@judge/index";
+import type { JudgeRuntime } from "./judge";
 import { StoryEngine, type ApplyQueueEntry, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type StoryV2, type TalkControl, type ValidationError } from "@engine/index";
 import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Suggestion } from "@copilot/index";
 import type { ProvisioningEnvironment, ProvisioningOp, ProvisioningResult, WizardSessionState } from "@wizard/index";
@@ -36,6 +37,7 @@ export class RuntimeManager {
   private engine = new StoryEngine();
   private loaded: LoadedStory | null = null;
   private extras: RuntimeExtras = createExtras();
+  private judge: JudgeRuntime | null = null;
   private validationErrors: ValidationError[] = [];
   private status = "No story loaded";
   private readonly effects = new EffectsApplier();
@@ -57,6 +59,7 @@ export class RuntimeManager {
     getExpansionGateSources: () => this.getExpansionGateSources(),
     enqueueExtractorDeltas: (accepted, window) => this.enqueueExtractorDeltas(accepted, window),
     enqueueMechanical: (deltas) => this.engine.enqueue({ source: "mechanical", blackboardVersionSum: 0, deltas }),
+    judge: () => this.judge,
     persist: () => this.persist(),
     notify: () => this.notify(),
   });
@@ -87,6 +90,7 @@ export class RuntimeManager {
     emitSceneBreak: (audit) => this.sceneBreakListeners.forEach((listener) => listener(audit)),
     emitArcsResolved: (arcs) => { if (this.loaded && arcs.length) this.arcResolvedListeners.forEach((listener) => listener(arcs.map((arc) => arc.id))); },
     setStatus: (status) => { this.status = status; },
+    judge: () => this.judge,
     persist: () => this.persist(),
     notify: () => this.notify(),
   });
@@ -120,10 +124,7 @@ export class RuntimeManager {
     getExtractionSettings: () => this.getExtractionSettings(),
     getCanon: () => this.memory.getCanon(),
     getOpenArcs: () => this.memory.getOpenArcs(),
-    journal: (summary, note) => {
-      this.journal.record("stagecraft", summary, this.journalContext(), note);
-      this.extras.journal = this.journal.getRecords();
-    },
+    journal: (summary, note) => { this.journal.record("stagecraft", summary, this.journalContext(), note); this.extras.journal = this.journal.getRecords(); },
     persist: () => this.persist(),
     notify: () => this.notify(),
   });
@@ -451,6 +452,8 @@ export class RuntimeManager {
   async excludeMemoryEntry(id: string) { await this.memory.excludeMemoryEntry(id); }
   async restoreMemoryEntry(entry: MemoryEntry) { await this.memory.restoreMemoryEntry(entry); }
   async editMemoryEntry(id: string, text: string) { await this.memory.editMemoryEntry(id, text); }
+  async storeDroppedMemory(id: string) { return this.memory.storeDroppedEntry(id); }
+  attachJudge(judge: JudgeRuntime) { this.judge = judge; }
   getArcs(): ArcEntry[] { return this.memory.getArcs(); }
   getOpenArcs(): string[] { return this.memory.getOpenArcs(); }
   getEpistemicLedgerCapable(): boolean { return this.memory.capable; }
@@ -582,17 +585,11 @@ export class RuntimeManager {
     this.engine.hydrate(state);
   }
 
-  getEnabledCharacterIds(): string[] {
-    return enabledCharacterIds(this.loaded?.story ?? null);
-  }
+  getEnabledCharacterIds(): string[] { return enabledCharacterIds(this.loaded?.story ?? null); }
 
-  getActiveSpeakerId(): string | null {
-    return activeSpeakerId(this.loaded?.story ?? null);
-  }
+  getActiveSpeakerId(): string | null { return activeSpeakerId(this.loaded?.story ?? null); }
 
-  rosterIdForName(name: string): string | null {
-    return rosterIdForName(this.loaded?.story ?? null, name);
-  }
+  rosterIdForName(name: string): string | null { return rosterIdForName(this.loaded?.story ?? null, name); }
 
   onMemberDrafted(chId: number | [number]) { this.memory.onMemberDrafted(chId); }
   onGenerationStarted(type: unknown) { if (type === "impersonate" || type === "quiet") this.memory.withholdPrivateKnowledge(); }

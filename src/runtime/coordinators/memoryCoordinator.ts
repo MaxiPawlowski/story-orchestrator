@@ -1,11 +1,14 @@
 import { progressQualityForAnchor, type BlackboardDelta, type EngineState, type NormalizedStoryV2, type NormalizedTransition } from "@engine/index";
 import { callExtractionModel, deriveScope, getCanonLite, runSharedRead, stripChannelNoise, type ExtraGateSource, type ParsedDelta, type ParsedFact, type SharedReadWindow } from "@extraction/index";
-import { activeEpistemic, addMemoryEntries, applyArcSignals, dropByMessageId, rollbackArcs, rollbackEpistemic, rollbackLedger,applyConsolidation, applyEpistemicInjection, applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildArcSummaryPrompt, buildBoundKeySet, buildCanonSummaryPrompt, buildJaccardMatchSets, buildLedgerView, buildMemoryInjectionBlocks, canonHistory, canonInputHash, capAllTiers, capEpistemic, capLedger, dropCommonKnowledge, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, clearEpistemicInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, DEFAULT_DEDUP_THRESHOLDS, editEntryText, excludeEntry, expireScoped, markContradicted, matchArcBridges, memoryExtensionKey, openArcTexts, removeArc, removeEpistemic, removeLedger, renderLedgerBlock, renderPrivateEpistemicBlock, resolvedArcs, restoreEntry, setArcPinned, setArcSummary, setEpistemicPinned, setLedgerPinned, setPinned, type ArcEntry, type EpistemicEntry, type LedgerBinding, type LedgerView, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ScoreContext, type UncertainPair } from "@memory/index";
+import { activeEpistemic, addMemoryEntries, applyArcSignals, dropByMessageId, rollbackArcs, rollbackEpistemic, rollbackLedger, applyConsolidation, applyEpistemicInjection, applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildArcSummaryPrompt, buildBoundKeySet, buildCanonSummaryPrompt, buildJaccardMatchSets, buildLedgerView, buildMemoryInjectionBlocks, canonHistory, canonInputHash, capAllTiers, capEpistemic, capLedger, dropCommonKnowledge, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, clearEpistemicInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, DEFAULT_DEDUP_THRESHOLDS, editEntryText, excludeEntry, expireScoped, markContradicted, matchArcBridges, memoryExtensionKey, openArcTexts, removeArc, removeEpistemic, removeLedger, renderLedgerBlock, renderPrivateEpistemicBlock, resolvedArcs, restoreEntry, setArcPinned, setArcSummary, setEpistemicPinned, setLedgerPinned, setPinned, type ArcEntry, type EpistemicEntry, type LedgerBinding, type LedgerView, type MatchSets, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ScoreContext, type UncertainPair, consolidateTierJudged, clearContradicted } from "@memory/index";
 import { bindChatLorebook, clearStoryExtensionPrompt, countTokens, DEFAULT_VECTOR_SOURCE, disableWIEntry, ensureLorebook, getActiveGroup, getCharacterNameById, getContext, loadLorebook, setStoryExtensionPrompt, upsertWIEntry, vectorInsert, vectorPurge, vectorQuery } from "@services/STAPI";
 import { EPISTEMIC_INJECTION_DEPTH, LEDGER_INJECTION_DEPTH } from "@constants/defaults";
 import { emptyMirrorSummary, syncMemoryMirror, type MemoryMirrorSummary } from "../memoryMirror";
+import { buildMatchSets, judgePairRelations } from "../consolidationMatches";
+import type { JudgeRuntime } from "../judge";
+import { PAIR_JACCARD_FLOOR } from "@judge/index";
 import { activeSpeakerId, enabledCharacterIds, enabledCharacterNames, namesForRosterId, rosterIdForName, rosterMemberName } from "../roster";
-import type { ExtractionRuntimeSettings, MemoryBackfillState, MemoryRuntimeState } from "../types";
+import { VERIFY_DROP_LIMIT, type ExtractionRuntimeSettings, type MemoryBackfillState, type MemoryRuntimeState, type VerifyDrop } from "../types";
 
 export interface MemoryCoordinatorDeps {
   getStory: () => NormalizedStoryV2 | null;
@@ -17,6 +20,7 @@ export interface MemoryCoordinatorDeps {
   getExpansionGateSources: () => ExtraGateSource[];
   enqueueExtractorDeltas: (accepted: ParsedDelta[], window: { from: number; to: number }) => void;
   enqueueMechanical: (deltas: BlackboardDelta[]) => void;
+  judge?: () => JudgeRuntime | null;
   persist: () => Promise<void>;
   notify: () => void;
 }
@@ -266,8 +270,25 @@ export class MemoryCoordinator {
       arcs,
       epistemic: rollbackEpistemic(this.state.epistemic, messageId),
       ledger: rollbackLedger(this.state.ledger, messageId),
+      verifyDrops: this.state.verifyDrops.filter((drop) => (drop.entry.messageId ?? -1) < messageId),
       ...(canonStale ? { canon: null } : {}),
     }, false);
+  }
+
+  recordVerifyDrops(drops: VerifyDrop[]) {
+    if (drops.length) this.patch({ verifyDrops: [...this.state.verifyDrops, ...drops].slice(-VERIFY_DROP_LIMIT) }, false);
+  }
+
+  async storeDroppedEntry(entryId: string) {
+    const drop = this.state.verifyDrops.find((item) => item.entry.id === entryId);
+    if (!drop) return false;
+    this.patch({ verifyDrops: this.state.verifyDrops.filter((item) => item !== drop) }, false);
+    const window = { from: drop.entry.messageId ?? 0, to: drop.entry.messageId ?? 0 };
+    const written = addMemoryEntries({ ...this.state, writeLog: [] }, [{ ...drop.entry, confidence: drop.p }], window);
+    this.patch({ entries: written.state.entries });
+    this.updateInjection();
+    await this.save();
+    return true;
   }
 
   // --- canon -------------------------------------------------------------
@@ -488,10 +509,15 @@ export class MemoryCoordinator {
         });
         return groups;
       };
+      const judge = this.deps.judge?.() ?? null;
+      const judged = judge?.active("memoryPairs") ? judge : null;
       for (const group of groupOf().values()) {
         if (group.length < CONSOLIDATION_MIN_GROUP) continue;
-        const matches = await this.buildMatchSets(group);
-        const result = consolidateTier(group, matches);
+        const matches = await buildMatchSets(group);
+        const wider = judged ? await buildMatchSets(group, { ...DEFAULT_DEDUP_THRESHOLDS, jaccardSameTopic: PAIR_JACCARD_FLOOR }) : matches;
+        const judgedResult = judged ? consolidateTierJudged(group, wider, await judgePairRelations(judged, group, wider, matches)) : null;
+        const result = judgedResult ?? consolidateTier(group, matches);
+        if (judgedResult?.clearedIds.length) this.patch(clearContradicted(this.state, judgedResult.clearedIds), false);
         summary.uncertain.push(...result.uncertain);
         result.supersededPairs.forEach((pair) => supersededWinnerIds.add(pair.winnerId));
         if (!result.droppedIds.length && !result.supersededPairs.length && !result.confirmedIds.length) continue;
@@ -545,44 +571,6 @@ export class MemoryCoordinator {
     this.deps.enqueueExtractorDeltas(result.audit.acceptedDeltas, result.audit.window);
     await this.save();
     return true;
-  }
-
-  private async buildMatchSets(group: MemoryEntry[]): Promise<MatchSets> {
-    const thresholds = DEFAULT_DEDUP_THRESHOLDS;
-    const collectionId = `so_consol_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
-    try {
-      await vectorInsert(collectionId, group.map((entry, index) => ({ hash: index, text: entry.text, index })), DEFAULT_VECTOR_SOURCE);
-      const queryAt = (text: string, threshold: number) => vectorQuery(collectionId, text, group.length, threshold, DEFAULT_VECTOR_SOURCE).then((matches) => new Set(matches.map((match) => match.index)));
-      const dup: Set<number>[] = [];
-      const sameTopic: Set<number>[] = [];
-      for (let i = 0; i < group.length; i += 1) {
-        const [dupSameIdx, dupCrossIdx, sameIdx] = await Promise.all([
-          queryAt(group[i].text, thresholds.cosineDup),
-          queryAt(group[i].text, thresholds.cosineCrossDup),
-          queryAt(group[i].text, thresholds.cosineSameTopic),
-        ]);
-        const dupSet = new Set<number>();
-        const sameSet = new Set<number>();
-        for (let j = 0; j < group.length; j += 1) {
-          if (j === i) continue;
-          const sameType = group[j].type === group[i].type;
-          if (sameType ? dupSameIdx.has(j) : dupCrossIdx.has(j)) dupSet.add(j);
-          else if (sameType && sameIdx.has(j)) sameSet.add(j);
-        }
-        dup.push(dupSet);
-        sameTopic.push(sameSet);
-      }
-      return { dup, sameTopic };
-    } catch (error) {
-      console.warn("[Story memory] vector consolidation unavailable, using keyword overlap", error);
-      return buildJaccardMatchSets(group, thresholds);
-    } finally {
-      try {
-        await vectorPurge(collectionId);
-      } catch {
-        /* best effort */
-      }
-    }
   }
 
   // --- world info --------------------------------------------------------

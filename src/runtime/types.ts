@@ -2,7 +2,7 @@ import type { ArcTemplate, EngineState, NormalizedStoryV2, PrimitiveValue, Tensi
 import type { JudgeRuntimeState } from "@judge/index";
 import type { ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
-import type { ArcEntry, EpistemicEntry, LedgerEntry, LedgerView, MemoryStoreState, MemoryTier, ScoreWeights } from "@memory/index";
+import type { ArcEntry, EpistemicEntry, LedgerEntry, LedgerView, MemoryEntry, MemoryStoreState, MemoryTier, ScoreWeights } from "@memory/index";
 import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
 import type { CuratorPassAudit, CuratorProposalRecord, StagecraftAcceptMode } from "@stagecraft/index";
@@ -132,6 +132,15 @@ export interface MemoryMirrorBook {
   chatId: string;
 }
 
+export const VERIFY_DROP_LIMIT = 20;
+
+export interface VerifyDrop {
+  entry: MemoryEntry;
+  p: number;
+  at: string;
+  model: string | null;
+}
+
 export interface MemoryRuntimeState extends MemoryStoreState {
   settings: MemoryRuntimeSettings;
   backfill: MemoryBackfillState | null;
@@ -143,6 +152,7 @@ export interface MemoryRuntimeState extends MemoryStoreState {
   epistemic: EpistemicEntry[];
   ledger: LedgerEntry[];
   canon: CanonState | null;
+  verifyDrops: VerifyDrop[];
   updatedAt: string;
 }
 

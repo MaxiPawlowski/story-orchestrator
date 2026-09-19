@@ -116,4 +116,4 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
   expansionLookahead: { label: "Prepare ahead", description: "Writes the next generated beats before the story gets there.", sends: "same as Heading toward, plus expansion review" },
 };
 
-export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = ["director"];
+export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = ["director", "memoryVerify", "memoryPairs"];

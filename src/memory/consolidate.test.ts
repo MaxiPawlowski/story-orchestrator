@@ -129,6 +129,15 @@ describe("consolidateTierJudged (v2.2 plan 02)", () => {
     expect(distinct).toMatchObject({ droppedIds: [], supersededPairs: [], uncertain: [], clearedIds: ["a"] });
   });
 
+  it("leaves a pair alone when the lookup says none (surfaced only by the judge's wider net)", () => {
+    const result = consolidateTierJudged(
+      [entry({ id: "a", text: "x", createdAt: 1, contradicted: true }), entry({ id: "b", text: "y", createdAt: 2 })],
+      { dup: [new Set(), new Set()], sameTopic: [new Set(), new Set([0])] },
+      () => "none",
+    );
+    expect(result).toMatchObject({ droppedIds: [], supersededPairs: [], uncertain: [], clearedIds: [] });
+  });
+
   it("never supersedes a pinned older entry, even when the judge says update", () => {
     const result = consolidateTierJudged(
       [entry({ id: "a", text: "x", createdAt: 1, pinned: true }), entry({ id: "b", text: "y", createdAt: 2 })],

@@ -5,7 +5,9 @@ import { getActiveGroup, getContext } from "@services/STAPI";
 import { SHORT_TERM_COMPACTION_MESSAGES } from "@constants/defaults";
 import { enabledCharacterNames } from "../roster";
 import type { MemoryCoordinator } from "./memoryCoordinator";
-import type { ExtractionRuntimeSettings, ExtractionRuntimeState } from "../types";
+import type { ExtractionRuntimeSettings, ExtractionRuntimeState, VerifyDrop } from "../types";
+import type { JudgeRuntime } from "../judge";
+import { buildVerifyRequest, readVerify, verifyVerdict, VERIFY_MAX_LINES_PER_CALL } from "@judge/index";
 
 export interface ExtractionCoordinatorDeps {
   getStory: () => NormalizedStoryV2 | null;
@@ -21,6 +23,7 @@ export interface ExtractionCoordinatorDeps {
   emitSceneBreak: (audit: SharedReadAudit) => void;
   emitArcsResolved: (arcs: ArcEntry[]) => void;
   setStatus: (status: string) => void;
+  judge?: () => JudgeRuntime | null;
   persist: () => Promise<void>;
   notify: () => void;
 }
@@ -90,7 +93,9 @@ export class ExtractionCoordinator {
       ...memoryLines.map((line) => this.newEntry({ tier: line.tier, text: line.text, type: line.type, importance: line.importance, expiration: line.expiration, entities: line.entities, evidence: line.evidence, characterId: line.characterId, messageId: audit.window.to })),
     ];
     const memoryEnabled = memory.enabled;
-    await memory.applyEntries(newMemoryEntries, audit.window);
+    const verified = await this.verifyEntries(newMemoryEntries, audit.window);
+    await memory.applyEntries(verified.kept, audit.window);
+    memory.recordVerifyDrops(verified.dropped);
     const resolvedArcs = memoryEnabled && arcSignals.length ? memory.applyArcSignals(arcSignals, audit.window.to) : [];
     if (memory.capable && epistemicSignals.length) memory.applyEpistemic(epistemicSignals, audit.window.to);
     if (memory.capable && ledgerSignals.length) memory.applyLedger(ledgerSignals, audit.window.to);
@@ -101,6 +106,31 @@ export class ExtractionCoordinator {
     if (resolvedArcs.length) this.deps.emitArcsResolved(resolvedArcs);
     await this.save();
     if (memoryEnabled && audit.sceneBreak) this.deps.emitSceneBreak(audit);
+  }
+
+  // v2.2 plan 02: check each new FACT/MEMORY line against the read's own window before it is stored.
+  // Deltas and arc/epistemic/ledger signals never wait on this; a judge failure stores every line.
+  private async verifyEntries(entries: MemoryEntry[], window: { from: number; to: number }): Promise<{ kept: MemoryEntry[]; dropped: VerifyDrop[] }> {
+    const judge = this.deps.judge?.() ?? null;
+    const story = this.deps.getStory();
+    if (!entries.length || !story || !judge?.active("memoryVerify")) return { kept: entries, dropped: [] };
+    const transcript = getChatWindow(window.from, window.to).messages.map((message) => ({ id: `msg_${message.index}`, speaker: message.speaker, text: message.text }));
+    const cast = story.roster.map((member) => member.name ?? member.id);
+    const kept: MemoryEntry[] = [];
+    const dropped: VerifyDrop[] = [];
+    for (let start = 0; start < entries.length; start += VERIFY_MAX_LINES_PER_CALL) {
+      const chunk = entries.slice(start, start + VERIFY_MAX_LINES_PER_CALL);
+      const result = await judge.ask("memoryVerify", buildVerifyRequest({ storyTitle: story.title, cast, transcript, lines: chunk.map((entry) => entry.text) }), {
+        summarize: (answers) => Object.fromEntries(readVerify(answers ?? {}, chunk.length).map((p, index) => [`line:${index}`, p ?? "none"])),
+      });
+      const scores = result.answers ? readVerify(result.answers, chunk.length) : chunk.map(() => null);
+      chunk.forEach((entry, index) => {
+        const verdict = verifyVerdict(scores[index]);
+        if (verdict.action === "drop") dropped.push({ entry, p: scores[index] ?? 0, at: new Date().toISOString(), model: result.model });
+        else kept.push(verdict.action === "downweight" ? { ...entry, confidence: verdict.confidence } : entry);
+      });
+    }
+    return { kept, dropped };
   }
 
   async runNow(debugResponse?: string, reason = "manual") {

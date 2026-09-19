@@ -84,6 +84,7 @@ export function startRuntime() {
     context: () => ({ boundary: runtimeManager.getEngineState()?.boundary ?? 0, messageId: chatLastId() }),
   });
   globalThis.storyOrchestratorJudge = judgeRuntime;
+  runtimeManager.attachJudge(judgeRuntime);
   const talkHost: TalkControlHost = {
     isGroupChat: () => Boolean(getActiveGroup()),
     getChatId: () => getContext().chatId ?? null,

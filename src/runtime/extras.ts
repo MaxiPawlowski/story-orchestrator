@@ -6,6 +6,7 @@ import { CURATOR_PROPOSAL_LIMIT } from "@stagecraft/index";
 import { createJudgeRuntime, sanitizeJudgeRuntime } from "@judge/index";
 import { sanitizeJournalRecords } from "./journal";
 import { defaultExtractionSettings, defaultMemorySettings, defaultStagecraftSettings, getGlobalSettings, type ChatOverrides } from "./settingsStore";
+import { VERIFY_DROP_LIMIT } from "./types";
 import type { CopilotRuntimeSettings, ExtractionRuntimeState, MemoryMirrorBook, MemoryRuntimeState, PacingSettings, RuntimeExtras, StagecraftRuntimeState, TalkRuntimeState, TensionRuntimeState, UiRuntimeSettings } from "./types";
 
 export const TALK_DECISION_LIMIT = 10;
@@ -42,6 +43,7 @@ export const createExpansion = (): ExpansionRuntimeState => ({
 
 export const createMemory = (): MemoryRuntimeState => ({
   ...createMemoryState(),
+  verifyDrops: [],
   settings: defaultMemorySettings(),
   backfill: null,
   sceneCount: 0,
@@ -93,6 +95,7 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
       epistemic: Array.isArray(existing.epistemic) ? existing.epistemic : [],
       ledger: Array.isArray(existing.ledger) ? existing.ledger : [],
       canon: existing.canon && typeof existing.canon === "object" ? { ...existing.canon, text: stripChannelNoise(existing.canon.text) } : null,
+      verifyDrops: Array.isArray(existing.verifyDrops) ? existing.verifyDrops.filter((drop) => drop && typeof drop === "object" && drop.entry && typeof drop.p === "number").slice(-VERIFY_DROP_LIMIT) : [],
       updatedAt: existing.updatedAt ?? new Date().toISOString(),
     };
   }
@@ -111,6 +114,7 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
     epistemic: [],
     ledger: [],
     canon: null,
+    verifyDrops: [],
     updatedAt: new Date().toISOString(),
   };
 };

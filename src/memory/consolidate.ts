@@ -123,15 +123,16 @@ export function applyConsolidation(state: MemoryStoreState, result: Consolidatio
 }
 
 export type PairRelation = "duplicate" | "update" | "distinct" | "unrelated";
-export type RelationLookup = (olderId: string, newerId: string) => PairRelation | null;
+export type RelationLookup = (olderId: string, newerId: string) => PairRelation | "none" | null;
 
 export interface JudgedConsolidationResult extends ConsolidationResult {
   clearedIds: string[];
 }
 
 // v2.2 plan 02: the same oldest-first walk as consolidateTier, but a judged relation decides each
-// candidate pair. A pair the lookup cannot answer (no call, low confidence) falls back to exactly
-// the heuristic decision consolidateTier would have made, so the judge only ever replaces a guess.
+// candidate pair. A pair the lookup cannot answer (null) falls back to exactly the heuristic decision
+// consolidateTier would have made; "none" means the pair is only a candidate because the judge's
+// wider net surfaced it, so without an answer it is left alone, as it is today.
 export function consolidateTierJudged(entries: MemoryEntry[], matches: MatchSets, relationOf: RelationLookup): JudgedConsolidationResult {
   const result: JudgedConsolidationResult = { droppedIds: [], supersededPairs: [], confirmedIds: [], uncertain: [], clearedIds: [] };
   const normalized = entries.map((entry) => normalize(entry.text));
@@ -155,6 +156,7 @@ export function consolidateTierJudged(entries: MemoryEntry[], matches: MatchSets
       const inSameTopic = matches.sameTopic[i].has(j);
       if (!inDup && !inSameTopic) continue;
       const relation = relationOf(entries[j].id, entry.id);
+      if (relation === "none") continue;
       if (relation === "duplicate") {
         isDuplicate = true;
         confirmedId = entries[j].id;
