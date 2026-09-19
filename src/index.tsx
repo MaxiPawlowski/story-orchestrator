@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import ReactDOM from "react-dom/client";
-import { bindNavbarDrawerToggle, listConnectionProfiles, showConfirmPopup, toggleNavbarDrawer } from "@services/STAPI";
+import { bindNavbarDrawerToggle, judgeStatus, listConnectionProfiles, showConfirmPopup, toggleNavbarDrawer, writeJudgeSecret } from "@services/STAPI";
+import { runJudgeDirectorSelfTest, type JudgeSelfTestReport } from "@judge/index";
+import { getGlobalSettings, setJudgeSettings } from "@runtime/settingsStore";
+import JudgeSettingsGroup, { type JudgeSettingsGroupProps, type JudgeSettingsPatch } from "./components/settings/JudgeSettingsGroup";
 import { runModelSelfTest, type SelfTestReport } from "@runtime/selfTest";
 import { isArcTemplateName } from "@pacing/index";
 import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
@@ -130,6 +133,33 @@ const SettingsPanel = () => {
   const selfTestCancelled = useRef(false);
   const profiles = listConnectionProfiles();
   const identity = snapshot.storyIdentity;
+  const [judge, setJudge] = useState(() => getGlobalSettings().judge);
+  const [judgeState, setJudgeState] = useState<JudgeSettingsGroupProps["status"]>("unchecked");
+  const [judgeTest, setJudgeTest] = useState<{ running: boolean; report: JudgeSelfTestReport | null }>({ running: false, report: null });
+
+  const recheckJudge = () => {
+    setJudgeState("checking");
+    globalThis.storyOrchestratorJudge?.invalidateStatus();
+    void judgeStatus().then(setJudgeState);
+  };
+
+  useEffect(() => {
+    if (getGlobalSettings().judge.enabled) recheckJudge();
+  }, []);
+
+  const changeJudge = (patch: JudgeSettingsPatch) => {
+    const next = setJudgeSettings(patch).judge;
+    setJudge(next);
+    if (patch.enabled) recheckJudge();
+  };
+
+  const testJudge = async () => {
+    const runtime = globalThis.storyOrchestratorJudge;
+    if (!runtime) return;
+    setJudgeTest({ running: true, report: null });
+    const report = await runJudgeDirectorSelfTest((request) => runtime.probe(request));
+    setJudgeTest({ running: false, report });
+  };
 
   const selectStory = async (id: string) => {
     if (!id) return;
@@ -324,6 +354,15 @@ const SettingsPanel = () => {
               <div id="so-curator-unscoped" className="text-xs opacity-70">This story lists no lorebook for the curator, so it stays idle. Add one on the Studio&apos;s Story tab.</div>
             )}
           </div>
+          <JudgeSettingsGroup
+            settings={judge}
+            status={judgeState}
+            selfTest={judgeTest}
+            onChange={changeJudge}
+            onSaveKey={writeJudgeSecret}
+            onRefresh={recheckJudge}
+            onRunSelfTest={() => void testJudge()}
+          />
           <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
             <div className="font-medium text-sm">Pacing</div>
             <label className="flex flex-col gap-1 text-sm">

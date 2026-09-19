@@ -1,9 +1,12 @@
 import type { StorybookConfig } from "@storybook/react-webpack5";
 import path from "path";
+import { existsSync } from "fs";
+
+const stWebfonts = process.env.ST_PUBLIC ? path.resolve(process.env.ST_PUBLIC, "webfonts") : path.resolve(__dirname, "../../../../../webfonts");
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.stories.@(ts|tsx)"],
-  staticDirs: [{ from: path.resolve(__dirname, "../../../../../webfonts"), to: "/st-public/webfonts" }],
+  staticDirs: existsSync(stWebfonts) ? [{ from: stWebfonts, to: "/st-public/webfonts" }] : [],
   addons: [
     "@storybook/addon-essentials",
     "@storybook/addon-a11y",

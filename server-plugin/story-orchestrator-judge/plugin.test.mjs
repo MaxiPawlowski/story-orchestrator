@@ -1,0 +1,122 @@
+import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { test } from 'node:test';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const pluginUrl = pathToFileURL(path.join(here, 'index.mjs')).href;
+const plugin = await import(pluginUrl);
+
+const fakeResponse = () => {
+    const out = { statusCode: 200, body: undefined, contentType: null };
+    const res = {
+        status(code) { out.statusCode = code; return res; },
+        type(value) { out.contentType = value; return res; },
+        json(value) { out.body = value; return res; },
+        send(value) { out.body = typeof value === 'string' ? JSON.parse(value) : value; return res; },
+    };
+    return { res, out };
+};
+
+const question = { state: { transcript: [{ speaker: 'Max', text: 'hello' }] }, questions: { greeting: { type: 'noul', instructions: 'Is `transcript` a greeting?' } } };
+
+test('validateRequest mirrors the API limits', () => {
+    assert.deepEqual(plugin.validateRequest(question), []);
+    assert.deepEqual(plugin.validateRequest(null), ['body must be a JSON object']);
+    assert.deepEqual(plugin.validateRequest({ state: {}, questions: {} }), ['questions must be a non-empty object']);
+    assert.deepEqual(plugin.validateRequest({ state: {}, questions: {
+        a: { type: 'choice', instructions: 'x', criteria: { only: null } },
+        b: { type: 'score', instructions: 'x', criteria: ['one'] },
+        c: { type: 'noul', instructions: 'x', criteria: { true: 'y', maybe: 'm' } },
+        d: { type: 'wat', instructions: 'x' },
+        e: { type: 'noul', instructions: ' ' },
+    } }), ['a: choice needs 2-255 options (has 1)', 'b: score needs 2-10 levels (has 1)', 'c: noul criteria only takes true/false (got maybe)', 'd: unknown type', 'e: missing instructions']);
+});
+
+test('info satisfies the ST loader contract', () => {
+    assert.match(plugin.info.id, /^[a-z0-9_-]+$/);
+    for (const field of ['id', 'name', 'description']) assert.equal(typeof plugin.info[field], 'string');
+    assert.equal(typeof plugin.init, 'function');
+    assert.equal(typeof plugin.default.init, 'function');
+});
+
+test('status reports the key source, never the key', async () => {
+    process.env.TYPESAFE_API_KEY = 'sk-test-status';
+    const { res, out } = fakeResponse();
+    await plugin.createHandlers().status({}, res);
+    assert.deepEqual(out.body, { configured: true, keySource: 'env', model: plugin.DEFAULT_MODEL, pluginVersion: plugin.PLUGIN_VERSION });
+    assert.ok(!JSON.stringify(out.body).includes('sk-test-status'));
+});
+
+test('systemone forwards with the bearer key and the default model, and passes the upstream status through', async () => {
+    process.env.TYPESAFE_API_KEY = 'sk-test-forward';
+    const seen = [];
+    const fetchImpl = async (url, init) => {
+        seen.push({ url, init });
+        return new Response(JSON.stringify({ model: 'jev-1.13.0', answers: { greeting: { type: 'noul', noul: 0.97 } } }), { status: 200 });
+    };
+    const { res, out } = fakeResponse();
+    await plugin.createHandlers({ fetchImpl }).systemone({ body: question }, res);
+    assert.equal(out.statusCode, 200);
+    assert.equal(out.body.answers.greeting.noul, 0.97);
+    assert.equal(seen.length, 1);
+    assert.match(seen[0].url, /\/v1\/systemone$/);
+    assert.equal(seen[0].init.headers.Authorization, 'Bearer sk-test-forward');
+    assert.equal(JSON.parse(seen[0].init.body).model, plugin.DEFAULT_MODEL);
+});
+
+test('systemone rejects an invalid body before touching the network', async () => {
+    let called = false;
+    const { res, out } = fakeResponse();
+    await plugin.createHandlers({ fetchImpl: async () => { called = true; } }).systemone({ body: { state: {}, questions: { q: { type: 'choice', instructions: 'x', criteria: { a: null } } } } }, res);
+    assert.equal(out.statusCode, 400);
+    assert.equal(called, false);
+});
+
+test('systemone retries once on 429/529 and reports a timeout as 504', async () => {
+    process.env.TYPESAFE_API_KEY = 'sk-test-retry';
+    let calls = 0;
+    const flaky = async () => {
+        calls += 1;
+        return calls === 1 ? new Response('{"error":"busy"}', { status: 429 }) : new Response('{"model":"jev","answers":{}}', { status: 200 });
+    };
+    const first = fakeResponse();
+    await plugin.createHandlers({ fetchImpl: flaky }).systemone({ body: question }, first.res);
+    assert.equal(calls, 2);
+    assert.equal(first.out.statusCode, 200);
+
+    const hang = async () => { throw Object.assign(new Error('aborted'), { name: 'AbortError' }); };
+    const second = fakeResponse();
+    await plugin.createHandlers({ fetchImpl: hang }).systemone({ body: question }, second.res);
+    assert.equal(second.out.statusCode, 504);
+});
+
+test('with no key anywhere, status says so and systemone answers 409', () => {
+    const empty = fs.mkdtempSync(path.join(os.tmpdir(), 'so-judge-nokey-'));
+    const script = `
+      const plugin = await import(${JSON.stringify(pluginUrl)});
+      const out = [];
+      const res = (sink) => { const r = { status(c) { sink.status = c; return r; }, type() { return r; }, json(v) { sink.body = v; return r; }, send(v) { sink.body = v; return r; } }; return r; };
+      const a = {}; await plugin.createHandlers().status({}, res(a));
+      const b = {}; await plugin.createHandlers({ fetchImpl: async () => { throw new Error('must not call'); } }).systemone({ body: ${JSON.stringify(question)} }, res(b));
+      console.log(JSON.stringify({ a, b }));`;
+    const env = { ...process.env, HOME: empty, USERPROFILE: empty, TYPESAFE_API_KEY: '' };
+    const child = spawnSync(process.execPath, ['--input-type=module', '-e', script], { env, encoding: 'utf-8' });
+    assert.equal(child.status, 0, child.stderr);
+    const { a, b } = JSON.parse(child.stdout.trim().split('\n').pop());
+    assert.equal(a.body.configured, false);
+    assert.equal(b.status, 409);
+});
+
+test('live: one real call through the handler (JUDGE_LIVE=1)', { skip: process.env.JUDGE_LIVE !== '1' }, async () => {
+    delete process.env.TYPESAFE_API_KEY;
+    const { res, out } = fakeResponse();
+    await plugin.createHandlers().systemone({ body: question }, res);
+    assert.equal(out.statusCode, 200, JSON.stringify(out.body));
+    assert.equal(out.body.answers.greeting.type, 'noul');
+    assert.ok(out.body.answers.greeting.noul > 0.5);
+    assert.match(out.body.model, /^jev-/);
+});

@@ -92,3 +92,28 @@ export function sanitizeJudgeRuntime(value: unknown): JudgeRuntimeState {
 export const appendJudgeCall = (state: JudgeRuntimeState, record: JudgeCallRecord): JudgeRuntimeState => ({ calls: [...state.calls, record].slice(-JUDGE_CALL_RING_LIMIT) });
 
 export const dropJudgeCallsAfter = (state: JudgeRuntimeState, messageId: number): JudgeRuntimeState => ({ calls: state.calls.filter((entry) => entry.messageId < messageId) });
+
+export interface JudgeUseCopy {
+  label: string;
+  description: string;
+  sends: string;
+}
+
+export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
+  director: { label: "Speaker direction", description: "Picks who speaks next in a group chat when the checkpoint has talk control. Needs a one-line role for every character in the pool; otherwise the usual director decides.", sends: "the last 8 messages, character names and roles, the scene name and goal" },
+  memoryVerify: { label: "Check memory before storing", description: "Drops notes the story never showed and down-weights doubtful ones.", sends: "the read's messages, the candidate notes, story title and cast names" },
+  memoryPairs: { label: "Merge related notes", description: "Decides whether two similar notes are a duplicate, an update, or both true.", sends: "two memory notes per question" },
+  sceneTrigger: { label: "Notice scene changes", description: "Spots a scene change on the turn it happens.", sends: "the last 8 messages and the scene name" },
+  sceneTracker: { label: "Scene tracker", description: "Keeps location, time and who is present, and adds them to the prompt.", sends: "the last 8 messages, cast names and roles, the story's locations" },
+  sceneOoc: { label: "Out-of-character messages", description: "Keeps out-of-character requests from counting as story events.", sends: "the last 8 messages" },
+  lookahead: { label: "Heading toward (author view)", description: "Shows which upcoming checkpoints play is moving toward.", sends: "the last 8 messages and the names and goals of the next checkpoints" },
+  loreSelect: { label: "Lore selection", description: "Adds the lore entries that matter to the next reply, even without their keywords.", sends: "the last 8 messages and the story's lore entries" },
+  curatorFilter: { label: "Curator focus", description: "Shows the World Info curator only the entries the story may have overtaken.", sends: "the story so far and the story's lore entries" },
+  memoryRerank: { label: "Memory relevance", description: "Ranks memory for the next reply when there is more than fits.", sends: "the last 8 messages and memory notes" },
+  typedExtraction: { label: "Every-turn story reads", description: "Reads qualities the author marked for it on every turn, so gates fire sooner.", sends: "the last messages and the marked qualities' descriptions" },
+  stallCheck: { label: "Stall check", description: "Checks a stalled gate before spending a full re-read.", sends: "the checkpoint's messages and the unmet conditions" },
+  expansionCritic: { label: "Expansion review", description: "Reviews generated story beats instead of a second model call.", sends: "established facts, the target checkpoint, cast names and the generated beats" },
+  expansionLookahead: { label: "Prepare ahead", description: "Writes the next generated beats before the story gets there.", sends: "same as Heading toward, plus expansion review" },
+};
+
+export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = ["director"];

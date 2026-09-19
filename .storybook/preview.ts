@@ -6,6 +6,7 @@ import "../src/styles.css";
 const mountRootFor = (title: string) => {
   if (title === "Drawer/HudStrip") return "so-hud-root";
   if (title.startsWith("Drawer/")) return "drawer-manager";
+  if (title.startsWith("Settings/")) return "story-orchestrator-settings";
   return "so-studio-root";
 };
 

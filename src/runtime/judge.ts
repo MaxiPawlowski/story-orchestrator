@@ -19,6 +19,7 @@ export interface JudgeAskOptions {
 }
 
 export const JUDGE_STATUS_TTL_MS = 60_000;
+export const JUDGE_PROBE_TIMEOUT_MS = 5000;
 
 // Owns nothing persisted: the call ring lives in extras.judge and is written through `record`.
 // Every call is recorded — a fallback included — so a threshold can be re-tuned from the ring.
@@ -45,6 +46,12 @@ export class JudgeRuntime {
     const ok = Boolean(status?.configured);
     this.availability = { key, at: now, ok };
     return ok;
+  }
+
+  // For the settings self-test: works before the judge is switched on, and records nothing in a chat.
+  probe(request: JudgeRequest): Promise<JudgeResult> {
+    const settings = this.deps.getSettings();
+    return askJudge(this.deps.transport, { ...request, model: settings.model }, { timeoutMs: Math.max(settings.timeoutMs, JUDGE_PROBE_TIMEOUT_MS) });
   }
 
   recordFallback(use: string, fallback: JudgeFallback, request?: JudgeRequest) {

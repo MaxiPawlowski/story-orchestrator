@@ -27,7 +27,9 @@
     "storybook:build": "storybook build --output-dir .sb-static --disable-telemetry",
     "serve-sb": "http-server .sb-static -p 6006 -s -c-1",
     "test-storybook": "test-storybook --url http://127.0.0.1:6006 --maxWorkers 1",
-    "test-storybook:ci": "npm run storybook:build && concurrently -k -s first -n SB,TEST \"npm run serve-sb\" \"wait-on -t 60000 http://127.0.0.1:6006 && npm run test-storybook\""
+    "test-storybook:ci": "npm run storybook:build && concurrently -k -s first -n SB,TEST \"npm run serve-sb\" \"wait-on -t 60000 http://127.0.0.1:6006 && npm run test-storybook\"",
+    "plugin:install": "node scripts/plugin-install.mjs",
+    "test:plugin": "node --test server-plugin/story-orchestrator-judge/plugin.test.mjs"
   },
   "eslintConfig": {
     "extends": [

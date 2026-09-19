@@ -1,0 +1,100 @@
+import type { Meta, StoryObj } from "@storybook/react";
+import { expect, fn, userEvent, within } from "@storybook/test";
+import { defaultJudgeSettings, JUDGE_USE_KEYS, type JudgeSettings } from "@judge/index";
+import { JudgeSettingsGroup } from "./JudgeSettingsGroup";
+
+const settings = (patch: Partial<JudgeSettings> = {}, uses: Partial<JudgeSettings["uses"]> = {}): JudgeSettings => {
+  const base = defaultJudgeSettings();
+  return { ...base, ...patch, uses: { ...base.uses, ...uses } };
+};
+
+const ready = { configured: true, keySource: "st-secrets", model: "jev-1.13.0", pluginVersion: "1.0.0" };
+
+const meta: Meta<typeof JudgeSettingsGroup> = {
+  title: "Settings/JudgeSettingsGroup",
+  component: JudgeSettingsGroup,
+  args: {
+    settings: settings(),
+    status: ready,
+    selfTest: { running: false, report: null },
+    onChange: fn(),
+    onSaveKey: fn(async () => true),
+    onRefresh: fn(),
+    onRunSelfTest: fn(),
+  },
+};
+
+export default meta;
+
+type Story = StoryObj<typeof JudgeSettingsGroup>;
+
+export const OffByDefault: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const master = canvasElement.querySelector<HTMLInputElement>("#so-judge-enabled");
+    await expect(master?.checked).toBe(false);
+    const director = canvasElement.querySelector<HTMLInputElement>("#so-judge-use-director");
+    await expect(director?.checked).toBe(false);
+    await expect(director?.disabled).toBe(true);
+    await expect(canvas.getByText(/Nothing is sent while this is off/)).toBeInTheDocument();
+    await userEvent.click(master as HTMLInputElement);
+    await expect(args.onChange).toHaveBeenCalledWith({ enabled: true });
+  },
+};
+
+export const OnlyBuiltUsesAreListed: Story = {
+  args: { settings: settings({ enabled: true }) },
+  play: async ({ args, canvasElement }) => {
+    const rows = canvasElement.querySelectorAll("[id^=so-judge-use-]");
+    await expect(rows.length).toBe(1);
+    await expect(JUDGE_USE_KEYS.length).toBeGreaterThan(1);
+    await userEvent.click(rows[0] as HTMLInputElement);
+    await expect(args.onChange).toHaveBeenCalledWith({ uses: { director: true } });
+  },
+};
+
+export const DependencyBlocksAUse: Story = {
+  args: { settings: settings({ enabled: true }), builtUses: ["lookahead", "expansionLookahead"] },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvasElement.querySelector<HTMLInputElement>("#so-judge-use-expansion-lookahead")?.disabled).toBe(true);
+    await expect(canvas.getByText(/Needs "Heading toward \(author view\)" first/)).toBeInTheDocument();
+  },
+};
+
+export const SavesTheKeyAndClearsTheField: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const field = canvasElement.querySelector<HTMLInputElement>("#so-judge-key") as HTMLInputElement;
+    await expect(field.type).toBe("password");
+    await userEvent.type(field, "sk-live-example");
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+    await expect(args.onSaveKey).toHaveBeenCalledWith("sk-live-example");
+    await expect(await canvas.findByText("Saved to SillyTavern secrets.")).toBeInTheDocument();
+    await expect(field.value).toBe("");
+    await expect(args.onRefresh).toHaveBeenCalled();
+  },
+};
+
+export const PluginMissing: Story = {
+  args: { status: null },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/Server plugin not found/)).toBeInTheDocument();
+    await expect(canvasElement.querySelector<HTMLButtonElement>("#so-judge-self-test")?.disabled).toBe(true);
+  },
+};
+
+export const SelfTestResult: Story = {
+  args: {
+    selfTest: {
+      running: false,
+      report: { ranAt: "2026-09-19T10:00:00.000Z", model: "jev-1.13.0", total: 8, right: 7, p50LatencyMs: 262, rows: [] },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const result = canvasElement.querySelector("#so-judge-self-test-result");
+    await expect(result?.textContent).toContain("7/8 right");
+    await expect(result?.textContent).toContain("p50 262 ms");
+  },
+};

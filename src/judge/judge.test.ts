@@ -4,6 +4,8 @@ import { askJudge, JUDGE_CACHE_LIMIT, JudgeTimeoutError } from "./client";
 import { buildDirectorRequest, decideDirector, directorJudgeEligible, directorRecordP, DIRECTOR_NOBODY, type JudgeDirectorInput } from "./director";
 import { choice, noul, score, validateJudgeRequest } from "./questions";
 import { JUDGE_CALL_RING_LIMIT } from "./policy";
+import { runJudgeDirectorSelfTest } from "./selfTest";
+import { JUDGE_SELF_TEST_CASES } from "./selfTestCases";
 import { appendJudgeCall, createJudgeRuntime, defaultJudgeSettings, dropJudgeCallsAfter, JUDGE_USE_KEYS, judgeUseActive, sanitizeJudgeRuntime, sanitizeJudgeSettings } from "./settings";
 import type { JudgeAnswer, JudgeRequest, JudgeResponse, JudgeTransport } from "./types";
 
@@ -223,5 +225,31 @@ describe("judge settings", () => {
     expect(dropJudgeCallsAfter(state, 100).calls.every((entry) => entry.messageId < 100)).toBe(true);
     expect(sanitizeJudgeRuntime({ calls: [{ nope: 1 }, state.calls[0]] }).calls).toEqual([state.calls[0]]);
     expect(sanitizeJudgeRuntime(undefined)).toEqual({ calls: [] });
+  });
+});
+
+describe("runJudgeDirectorSelfTest", () => {
+  it("scores the bundled cases against their labels, silence included, and reports p50 over real calls only", async () => {
+    const report = await runJudgeDirectorSelfTest(async (request) => {
+      const who = request.questions.who;
+      const names = who.type === "choice" ? Object.keys(who.criteria) : [];
+      const choiceName = names.includes(DIRECTOR_NOBODY) ? DIRECTOR_NOBODY : names[0];
+      return { answers: { who: { type: "choice", choice: choiceName, confidence: 0.9, probabilities: {} } }, model: "jev-1.13.0", latencyMs: 250, stateChars: 10, questionCount: 1, cached: false };
+    });
+    expect(report.total).toBe(JUDGE_SELF_TEST_CASES.length);
+    expect(report.model).toBe("jev-1.13.0");
+    expect(report.p50LatencyMs).toBe(250);
+    expect(report.rows.find((row) => row.id === "D08")).toMatchObject({ picked: DIRECTOR_NOBODY, right: true });
+  });
+
+  it("counts a fallback as wrong and leaves it out of the latency", async () => {
+    const report = await runJudgeDirectorSelfTest(async () => ({ answers: null, model: null, latencyMs: 0, stateChars: 0, questionCount: 0, fallback: "unavailable", cached: false }));
+    expect(report.right).toBe(0);
+    expect(report.p50LatencyMs).toBeNull();
+    expect(report.rows.every((row) => row.fallback === "unavailable")).toBe(true);
+  });
+
+  it("bundles eligible cases only", () => {
+    expect(JUDGE_SELF_TEST_CASES.every((entry) => directorJudgeEligible(entry.input.candidates, entry.input.allowSilence))).toBe(true);
   });
 });

@@ -2,7 +2,7 @@ import { getContext } from "@services/STAPI";
 import { DEFAULT_TENSION_EMA_ALPHA, MEMORY_TIER_INJECTION_DEPTHS } from "@constants/defaults";
 import { DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS } from "@memory/index";
 import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
-import { defaultJudgeSettings, sanitizeJudgeSettings, type JudgeSettings } from "@judge/index";
+import { defaultJudgeSettings, sanitizeJudgeSettings, type JudgeSettings, type JudgeUses } from "@judge/index";
 import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, RuntimeExtras, StagecraftSettings, UiRuntimeSettings } from "./types";
 
 const SETTINGS_KEY = "settings";
@@ -123,6 +123,11 @@ export function setGlobalSettings(patch: Partial<{ [K in keyof GlobalSettings]: 
   getRoot()[SETTINGS_KEY] = sanitized;
   getContext().saveSettingsDebounced();
   return sanitized;
+}
+
+export function setJudgeSettings(patch: { enabled?: boolean; uses?: Partial<JudgeUses> }): GlobalSettings {
+  const current = getGlobalSettings().judge;
+  return setGlobalSettings({ judge: { ...(patch.enabled !== undefined ? { enabled: patch.enabled } : {}), uses: { ...current.uses, ...(patch.uses ?? {}) } } });
 }
 
 // One-time lift of settings that used to live per chat: an old chat carries the user's real
