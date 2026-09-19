@@ -1,7 +1,9 @@
 import { callExtractionModel, getChatWindow, ExtractionScheduler, type SchedulerHost, type SchedulerSettings } from "@extraction/index";
-import { executeSlashCommands, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, subscribeToHostEvents, type HostSubscriptionEntry } from "@services/STAPI";
+import { executeSlashCommands, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, judgeStatus, judgeTransport, subscribeToHostEvents, type HostSubscriptionEntry } from "@services/STAPI";
 import { quoteSlashArg } from "@utils/string";
 import { runBoundaryWork } from "./boundaryWork";
+import { JudgeRuntime } from "./judge";
+import { getGlobalSettings } from "./settingsStore";
 import { registerLiveSuite } from "./liveSuite";
 import { registerRuntimeMacros } from "./macros";
 import { runtimeManager } from "./runtimeManager";
@@ -73,6 +75,15 @@ export function startRuntime() {
   window.setTimeout(() => registerSlashCommandsWhenReady(), 1000);
   bridge = new TurnBridge(runtimeManager);
   bridge.start();
+  const chatLastId = () => (Array.isArray(getContext().chat) ? getContext().chat.length - 1 : -1);
+  const judgeRuntime = new JudgeRuntime({
+    getSettings: () => getGlobalSettings().judge,
+    transport: judgeTransport,
+    status: judgeStatus,
+    record: (record) => runtimeManager.recordJudgeCall(record),
+    context: () => ({ boundary: runtimeManager.getEngineState()?.boundary ?? 0, messageId: chatLastId() }),
+  });
+  globalThis.storyOrchestratorJudge = judgeRuntime;
   const talkHost: TalkControlHost = {
     isGroupChat: () => Boolean(getActiveGroup()),
     getChatId: () => getContext().chatId ?? null,
@@ -84,7 +95,7 @@ export function startRuntime() {
       const name = getCharacterNameById(getActiveCharacterId());
       return name ? runtimeManager.rosterIdForName(name) : null;
     },
-    getLastMessageId: () => (Array.isArray(getContext().chat) ? getContext().chat.length - 1 : -1),
+    getLastMessageId: chatLastId,
     getWindow: () => {
       const chat = Array.isArray(getContext().chat) ? getContext().chat : [];
       return getChatWindow(Math.max(0, chat.length - DIRECTOR_WINDOW_MESSAGES)).messages.map((message) => ({ speaker: message.speaker, text: message.text }));
@@ -97,6 +108,8 @@ export function startRuntime() {
     }),
     triggerMember: async (name) => { await executeSlashCommands(`/trigger await=true ${quoteSlashArg(name)}`, { silent: false }); },
     recordDecision: (audit) => runtimeManager.recordTalkDecision(audit),
+    judgeDirector: (input) => judgeRuntime.director(input),
+    getPlayerName,
   };
   talkController = new TalkController(talkHost);
   globalThis.talkControlInterceptor = (_chat, _contextSize, abort, type) => talkController?.intercept(abort, type);

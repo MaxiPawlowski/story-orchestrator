@@ -1,3 +1,4 @@
+import { appendJudgeCall, dropJudgeCallsAfter, type JudgeCallRecord } from "@judge/index";
 import { StoryEngine, type ApplyQueueEntry, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type StoryV2, type TalkControl, type ValidationError } from "@engine/index";
 import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Suggestion } from "@copilot/index";
 import type { ProvisioningEnvironment, ProvisioningOp, ProvisioningResult, WizardSessionState } from "@wizard/index";
@@ -151,12 +152,8 @@ export class RuntimeManager {
   }
 
   getSessionJournal(): JournalEvent[] {
-    return this.journal.build({
-      boundaryLog: this.loaded ? this.engine.stateLog : [],
-      audits: this.extras.extraction.audits,
-      reconciliationEvents: this.extras.extraction.reconciliationEvents,
-      talkDecisions: this.extras.talk.decisions,
-    });
+    const { extraction, talk, judge } = this.extras;
+    return this.journal.build({ boundaryLog: this.loaded ? this.engine.stateLog : [], audits: extraction.audits, reconciliationEvents: extraction.reconciliationEvents, talkDecisions: talk.decisions, judgeCalls: judge.calls });
   }
 
   async flagMoment(note = "") {
@@ -299,6 +296,7 @@ export class RuntimeManager {
       const window = getChatWindow(restored.checkpointStartedMessageId, context.lastMessageId);
       this.memory.rollbackFromMessage(messageId, boundary);
       await this.stagecraft.revertAppliedSince(messageId);
+      this.extras.judge = dropJudgeCallsAfter(this.extras.judge, messageId);
       this.extras.extraction.audits = this.extras.extraction.audits.filter((audit) => audit.window.to < messageId);
       this.pacing.replayCommitted();
       this.refreshRequirements();
@@ -338,6 +336,8 @@ export class RuntimeManager {
     void this.persist();
     this.notify();
   }
+
+  recordJudgeCall(record: JudgeCallRecord) { this.extras.judge = appendJudgeCall(this.extras.judge, record); }
 
   recordTalkDecision(audit: TalkDecisionAudit) {
     this.extras.talk = { ...this.extras.talk, decisions: [...this.extras.talk.decisions, audit].slice(-TALK_DECISION_LIMIT) };

@@ -37,6 +37,16 @@ const isPrimitive = (value: unknown): value is PrimitiveValue => {
   return typeof value === "string" || typeof value === "number" || typeof value === "boolean";
 };
 
+const readRoster = (roster: StoryV2["roster"], errors: ValidationError[]): StoryV2["roster"] => roster.map((member, index) => {
+  if (!isRecord(member) || member.role === undefined) return member;
+  if (typeof member.role !== "string") {
+    addError(errors, `roster.${index}.role`, "roster role must be a string");
+    return member;
+  }
+  const { role, ...rest } = member;
+  return role.trim() ? { ...rest, role: role.trim() } : rest;
+});
+
 const addError = (errors: ValidationError[], path: string, message: string) => {
   errors.push({ path, message });
 };
@@ -491,6 +501,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const arcTemplate = json.arc_template !== undefined ? readArcTemplate(json.arc_template, errors) : undefined;
   const requirements = json.requirements !== undefined ? readRequirements(json.requirements, errors) : undefined;
   const stagecraft = json.stagecraft !== undefined ? readStagecraft(json.stagecraft, errors) : undefined;
+  const roster = readRoster(json.roster as StoryV2["roster"], errors);
   const arcBridges = Array.isArray(json.arc_bridges) ? json.arc_bridges.map((entry, index) => {
     const bridgePath = `arc_bridges.${index}`;
     if (!isRecord(entry)) {
@@ -571,7 +582,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     qualities,
     checkpoints,
     transitions,
-    roster: (json.roster as StoryV2["roster"]),
+    roster,
     ...(arcTemplate !== undefined ? { arc_template: arcTemplate } : {}),
     ...(arcBridges ? { arc_bridges: arcBridges } : {}),
     ...(requirements ? { requirements } : {}),

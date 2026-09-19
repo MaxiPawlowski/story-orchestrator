@@ -17,7 +17,7 @@ export const findCandidate = (candidates: TalkCandidate[], ref: string | undefin
 
 export const buildCandidates = (control: TalkControl, roster: RosterMember[], enabledRosterIds: string[]): TalkCandidate[] => {
   const enabled = new Set(enabledRosterIds);
-  const toCandidate = (member: RosterMember, weight: number): TalkCandidate => ({ rosterId: member.id, name: member.name ?? member.id, weight });
+  const toCandidate = (member: RosterMember, weight: number): TalkCandidate => ({ rosterId: member.id, name: member.name ?? member.id, weight, ...(member.role ? { role: member.role } : {}) });
   if (!control.speakers?.length) {
     return roster.filter((member) => enabled.has(member.id)).map((member) => toCandidate(member, 1));
   }

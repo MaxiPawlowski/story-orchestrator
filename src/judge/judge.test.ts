@@ -3,6 +3,8 @@ import { join } from "node:path";
 import { askJudge, JUDGE_CACHE_LIMIT, JudgeTimeoutError } from "./client";
 import { buildDirectorRequest, decideDirector, directorJudgeEligible, directorRecordP, DIRECTOR_NOBODY, type JudgeDirectorInput } from "./director";
 import { choice, noul, score, validateJudgeRequest } from "./questions";
+import { JUDGE_CALL_RING_LIMIT } from "./policy";
+import { appendJudgeCall, createJudgeRuntime, defaultJudgeSettings, dropJudgeCallsAfter, JUDGE_USE_KEYS, judgeUseActive, sanitizeJudgeRuntime, sanitizeJudgeSettings } from "./settings";
 import type { JudgeAnswer, JudgeRequest, JudgeResponse, JudgeTransport } from "./types";
 
 const request = (overrides: Partial<JudgeRequest> = {}): JudgeRequest => ({
@@ -180,5 +182,46 @@ describe("decideDirector", () => {
     expect(golden.rows).toHaveLength(26);
     expect(golden.rows.every((row) => directorJudgeEligible(row.input.candidates, row.input.allowSilence))).toBe(true);
     expect(verdicts.filter((verdict) => verdict.right)).toHaveLength(24);
+  });
+});
+
+describe("judge settings", () => {
+  it("defaults every usage off, whatever the master switch says", () => {
+    const defaults = defaultJudgeSettings();
+    expect(defaults.enabled).toBe(false);
+    expect(JUDGE_USE_KEYS.every((key) => defaults.uses[key] === false)).toBe(true);
+    expect(defaults.expansion).toEqual({ variants: 1, temperature: 0.7, pick: "code" });
+    expect(defaults.model).toBe("jev-1.13.0");
+  });
+
+  it("sanitizes stored values and ignores unknown keys", () => {
+    const sanitized = sanitizeJudgeSettings({ enabled: "yes", model: "  ", timeoutMs: 99_999, uses: { director: true, bogus: true, memoryVerify: "true" }, expansion: { variants: 5, temperature: 3, pick: "llm" } });
+    expect(sanitized.enabled).toBe(false);
+    expect(sanitized.model).toBe("jev-1.13.0");
+    expect(sanitized.timeoutMs).toBe(1500);
+    expect(sanitized.uses.director).toBe(true);
+    expect(sanitized.uses.memoryVerify).toBe(false);
+    expect(Object.keys(sanitized.uses)).toEqual([...JUDGE_USE_KEYS]);
+    expect(sanitized.expansion).toEqual({ variants: 1, temperature: 0.7, pick: "llm" });
+    expect(sanitizeJudgeSettings(null)).toEqual(defaultJudgeSettings());
+  });
+
+  it("needs the master switch, the usage and its dependency", () => {
+    const on = sanitizeJudgeSettings({ enabled: true, uses: { director: true, expansionLookahead: true } });
+    expect(judgeUseActive(on, "director")).toBe(true);
+    expect(judgeUseActive(on, "expansionLookahead")).toBe(false);
+    expect(judgeUseActive({ ...on, uses: { ...on.uses, lookahead: true } }, "expansionLookahead")).toBe(true);
+    expect(judgeUseActive({ ...on, enabled: false }, "director")).toBe(false);
+  });
+
+  it("keeps a bounded call ring and drops records past a rollback point", () => {
+    let state = createJudgeRuntime();
+    for (let index = 0; index < JUDGE_CALL_RING_LIMIT + 3; index += 1) {
+      state = appendJudgeCall(state, { at: "2026-09-19T00:00:00.000Z", boundary: index, messageId: index, use: "director", model: "jev", latencyMs: 1, stateChars: 1, questionCount: 1 });
+    }
+    expect(state.calls).toHaveLength(JUDGE_CALL_RING_LIMIT);
+    expect(dropJudgeCallsAfter(state, 100).calls.every((entry) => entry.messageId < 100)).toBe(true);
+    expect(sanitizeJudgeRuntime({ calls: [{ nope: 1 }, state.calls[0]] }).calls).toEqual([state.calls[0]]);
+    expect(sanitizeJudgeRuntime(undefined)).toEqual({ calls: [] });
   });
 });

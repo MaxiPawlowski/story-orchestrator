@@ -1,11 +1,12 @@
 import type { BoundaryLogEntry } from "@engine/index";
 import type { ReconciliationEvent, SharedReadAudit } from "@extraction/index";
+import type { JudgeCallRecord } from "@judge/index";
 import type { PayloadCapture, TalkDecisionAudit } from "./types";
 
 export const JOURNAL_LIMIT = 200;
 export const PAYLOAD_CAPTURE_LIMIT = 5;
 
-export type JournalEventKind = "status" | "flag" | "story" | "boundary" | "transition" | "extraction" | "delta" | "reconciliation" | "payload" | "talk" | "stagecraft";
+export type JournalEventKind = "status" | "flag" | "story" | "boundary" | "transition" | "extraction" | "delta" | "reconciliation" | "payload" | "talk" | "stagecraft" | "judge";
 
 // The persisted half of the journal: things nothing else records. Additive kinds read back fine
 // from older chats — `sanitizeJournalRecords` keeps any record that carries a kind and a summary.
@@ -41,9 +42,10 @@ export interface JournalSources {
   reconciliationEvents: ReconciliationEvent[];
   payloadCaptures: PayloadCapture[];
   talkDecisions: TalkDecisionAudit[];
+  judgeCalls?: JudgeCallRecord[];
 }
 
-const KIND_ORDER: JournalEventKind[] = ["flag", "story", "boundary", "transition", "extraction", "delta", "reconciliation", "talk", "stagecraft", "payload", "status"];
+const KIND_ORDER: JournalEventKind[] = ["flag", "story", "boundary", "transition", "extraction", "delta", "reconciliation", "talk", "judge", "stagecraft", "payload", "status"];
 
 const rank = (kind: JournalEventKind) => KIND_ORDER.indexOf(kind);
 
@@ -128,6 +130,14 @@ export function buildSessionJournal(sources: JournalSources): JournalEvent[] {
       kind: "talk" as const,
       summary: `${decision.chosenName ?? "silence"} speaks (${decision.source})`,
       detail: { checkpointId: decision.checkpointId, latencyMs: decision.latencyMs },
+    })),
+    ...(sources.judgeCalls ?? []).map((call) => ({
+      at: call.at,
+      boundary: call.boundary,
+      messageId: call.messageId,
+      kind: "judge" as const,
+      summary: `judge ${call.use}${call.fallback ? ` fell back (${call.fallback})` : ""} in ${call.latencyMs} ms`,
+      detail: { model: call.model, questions: call.questionCount, stateChars: call.stateChars, ...(call.p ? { p: call.p } : {}) },
     })),
   ];
   return events.sort((left, right) => timeOf(left.at) - timeOf(right.at) || rank(left.kind) - rank(right.kind));

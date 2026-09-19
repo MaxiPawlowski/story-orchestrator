@@ -1,0 +1,107 @@
+import { askJudge, buildDirectorRequest, decideDirector, directorJudgeEligible, directorRecordP, judgeUseActive, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord, type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeRequest, type JudgeResponse, type JudgeResult, type JudgeSettings, type JudgeTransport, type JudgeUseKey } from "@judge/index";
+
+export interface JudgeStatusLike {
+  configured: boolean;
+}
+
+export interface JudgeRuntimeDeps {
+  getSettings(): JudgeSettings;
+  transport: JudgeTransport;
+  status(): Promise<JudgeStatusLike | null>;
+  record(record: JudgeCallRecord): void;
+  context(): { boundary: number; messageId: number };
+  now?: () => number;
+}
+
+export interface JudgeAskOptions {
+  timeoutMs?: number;
+  summarize?: (answers: Record<string, JudgeAnswer> | null) => Record<string, number | string>;
+}
+
+export const JUDGE_STATUS_TTL_MS = 60_000;
+
+// Owns nothing persisted: the call ring lives in extras.judge and is written through `record`.
+// Every call is recorded — a fallback included — so a threshold can be re-tuned from the ring.
+export class JudgeRuntime {
+  private readonly cache = new Map<string, JudgeResponse>();
+  private availability: { key: string; at: number; ok: boolean } | null = null;
+
+  constructor(private readonly deps: JudgeRuntimeDeps) {}
+
+  active(use: JudgeUseKey): boolean {
+    return judgeUseActive(this.deps.getSettings(), use);
+  }
+
+  invalidateStatus() {
+    this.availability = null;
+  }
+
+  private async available(): Promise<boolean> {
+    const settings = this.deps.getSettings();
+    const key = `${settings.enabled}:${settings.model}`;
+    const now = (this.deps.now ?? Date.now)();
+    if (this.availability && this.availability.key === key && now - this.availability.at < JUDGE_STATUS_TTL_MS) return this.availability.ok;
+    const status = await this.deps.status();
+    const ok = Boolean(status?.configured);
+    this.availability = { key, at: now, ok };
+    return ok;
+  }
+
+  recordFallback(use: string, fallback: JudgeFallback, request?: JudgeRequest) {
+    const context = this.deps.context();
+    this.deps.record({
+      at: new Date((this.deps.now ?? Date.now)()).toISOString(),
+      boundary: context.boundary,
+      messageId: context.messageId,
+      use,
+      model: null,
+      latencyMs: 0,
+      stateChars: request ? JSON.stringify(request.state).length : 0,
+      questionCount: request ? Object.keys(request.questions).length : 0,
+      fallback,
+    });
+  }
+
+  async ask(use: string, request: JudgeRequest, options: JudgeAskOptions = {}): Promise<JudgeResult> {
+    const settings = this.deps.getSettings();
+    if (!(await this.available())) {
+      this.recordFallback(use, "unavailable", request);
+      return { answers: null, model: null, latencyMs: 0, stateChars: JSON.stringify(request.state).length, questionCount: Object.keys(request.questions).length, fallback: "unavailable", cached: false };
+    }
+    const result = await askJudge(this.deps.transport, { ...request, model: settings.model }, {
+      timeoutMs: options.timeoutMs ?? settings.timeoutMs,
+      cache: this.cache,
+      ...(this.deps.now ? { now: this.deps.now } : {}),
+    });
+    if (result.fallback === "error") this.invalidateStatus();
+    const context = this.deps.context();
+    this.deps.record({
+      at: new Date((this.deps.now ?? Date.now)()).toISOString(),
+      boundary: context.boundary,
+      messageId: context.messageId,
+      use,
+      model: result.model,
+      latencyMs: result.latencyMs,
+      stateChars: result.stateChars,
+      questionCount: result.questionCount,
+      ...(result.fallback ? { fallback: result.fallback } : {}),
+      ...(options.summarize ? { p: options.summarize(result.answers) } : {}),
+    });
+    return result;
+  }
+
+  // null means "take today's chain": the flag is off, the pool is not eligible, or the call failed.
+  async director(input: JudgeDirectorInput): Promise<JudgeDirectorDecision | null> {
+    if (!this.active("director")) return null;
+    if (input.candidates.length + (input.allowSilence ? 1 : 0) < 2) return null;
+    if (!directorJudgeEligible(input.candidates, input.allowSilence)) {
+      this.recordFallback("director", "no-roles");
+      return null;
+    }
+    const result = await this.ask("director", buildDirectorRequest(input), {
+      timeoutMs: Math.min(this.deps.getSettings().timeoutMs, DIRECTOR_TIMEOUT_MS),
+      summarize: (answers) => directorRecordP(answers, answers ? decideDirector(answers, input) : null),
+    });
+    return result.answers ? decideDirector(result.answers, input) : null;
+  }
+}

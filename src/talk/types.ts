@@ -2,9 +2,10 @@ export interface TalkCandidate {
   rosterId: string;
   name: string;
   weight: number;
+  role?: string;
 }
 
-export type TalkDecisionSource = "mention" | "director" | "rules" | "fallback";
+export type TalkDecisionSource = "judge" | "mention" | "director" | "rules" | "fallback";
 
 export interface TalkDecision {
   chosenRosterId: string | null;

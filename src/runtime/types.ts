@@ -1,4 +1,5 @@
 import type { ArcTemplate, EngineState, NormalizedStoryV2, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
+import type { JudgeRuntimeState } from "@judge/index";
 import type { ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
 import type { ArcEntry, EpistemicEntry, LedgerEntry, LedgerView, MemoryStoreState, MemoryTier, ScoreWeights } from "@memory/index";
@@ -44,6 +45,7 @@ export interface TalkDecisionAudit {
   chosenName: string | null;
   source: TalkDecisionSource;
   latencyMs: number;
+  judge?: { confidence: number; via: "choice" | "composite" };
 }
 
 export interface TalkRuntimeState {
@@ -81,6 +83,7 @@ export interface RuntimeExtras {
   ui: UiRuntimeSettings;
   talk: TalkRuntimeState;
   stagecraft: StagecraftRuntimeState;
+  judge: JudgeRuntimeState;
   journal: JournalRecord[];
   lastSessionAt: string | null;
   updatedAt: string;

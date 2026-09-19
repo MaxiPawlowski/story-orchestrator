@@ -1,4 +1,5 @@
 import type { RosterMember, TalkControl } from "@engine/index";
+import type { JudgeDirectorDecision, JudgeDirectorInput } from "@judge/index";
 import { buildCandidates, chooseByRules, directorEnabled, directorInstruction, findCandidate, narrowByMention, parseDirectorResponse, renderDirectorPrompt, type DirectorWindowMessage, type TalkCandidate, type TalkDecisionSource } from "@talk/index";
 import type { TalkDecisionAudit } from "./types";
 
@@ -28,14 +29,18 @@ export interface TalkControlHost {
   getWindow(): DirectorWindowMessage[];
   getCheckpointInfo(): TalkCheckpointInfo | null;
   callDirector(prompt: string): Promise<string>;
+  judgeDirector?(input: JudgeDirectorInput): Promise<JudgeDirectorDecision | null>;
+  getPlayerName?(): string;
   triggerMember(name: string): Promise<void>;
   recordDecision(audit: TalkDecisionAudit): void;
 }
 
+type JudgeNote = { confidence: number; via: "choice" | "composite" };
+
 type Decision =
   | { kind: "pass" }
-  | { kind: "silence"; source: TalkDecisionSource }
-  | { kind: "member"; rosterId: string; name: string; source: TalkDecisionSource };
+  | { kind: "silence"; source: TalkDecisionSource; judge?: JudgeNote }
+  | { kind: "member"; rosterId: string; name: string; source: TalkDecisionSource; judge?: JudgeNote };
 
 interface PassState {
   loud: boolean;
@@ -137,6 +142,7 @@ export class TalkController {
         chosenName: decision.kind === "member" ? decision.name : null,
         source: decision.source,
         latencyMs: Date.now() - startedAt,
+        ...(decision.judge ? { judge: decision.judge } : {}),
       });
     }
     return decision;
@@ -146,6 +152,8 @@ export class TalkController {
     const candidates = buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds());
     if (!candidates.length) return { kind: "pass" };
     const window = this.host.getWindow();
+    const judged = await this.runJudge(control, candidates, window);
+    if (judged) return judged;
     const lastText = window.length ? window[window.length - 1].text : "";
     const mentioned = narrowByMention(candidates, lastText);
     if (mentioned.length === 1) return { kind: "member", rosterId: mentioned[0].rosterId, name: mentioned[0].name, source: "mention" };
@@ -161,6 +169,32 @@ export class TalkController {
   private chooseFallback(control: TalkControl, pool: TalkCandidate[], source: TalkDecisionSource): Decision {
     const chosen = chooseByRules(control, pool, { lastSpeakerRosterId: this.host.getLastSpeakerRosterId() });
     return chosen ? { kind: "member", rosterId: chosen.rosterId, name: chosen.name, source } : { kind: "pass" };
+  }
+
+  private async runJudge(control: TalkControl, candidates: TalkCandidate[], window: DirectorWindowMessage[]): Promise<Decision | null> {
+    const info = this.host.getCheckpointInfo();
+    if (!this.host.judgeDirector || !info) return null;
+    const instruction = directorInstruction(control);
+    const lead = findCandidate(candidates, control.lead)?.name;
+    try {
+      const verdict = await this.host.judgeDirector({
+        checkpointName: info.name,
+        objective: info.objective,
+        ...(instruction ? { instruction } : {}),
+        player: this.host.getPlayerName?.() ?? "",
+        candidates: candidates.map((candidate) => ({ rosterId: candidate.rosterId, name: candidate.name, ...(candidate.role ? { role: candidate.role } : {}) })),
+        ...(lead ? { lead } : {}),
+        allowSilence: control.allow_silence === true,
+        window,
+      });
+      if (!verdict) return null;
+      const judge = { confidence: verdict.confidence, via: verdict.via };
+      if (verdict.kind === "silence") return { kind: "silence", source: "judge", judge };
+      const candidate = candidates.find((entry) => entry.rosterId === verdict.rosterId);
+      return candidate ? { kind: "member", rosterId: candidate.rosterId, name: candidate.name, source: "judge", judge } : null;
+    } catch {
+      return null;
+    }
   }
 
   private async runDirector(control: TalkControl, pool: TalkCandidate[], window: DirectorWindowMessage[]): Promise<Decision | null> {

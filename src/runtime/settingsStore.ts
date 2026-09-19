@@ -2,6 +2,7 @@ import { getContext } from "@services/STAPI";
 import { DEFAULT_TENSION_EMA_ALPHA, MEMORY_TIER_INJECTION_DEPTHS } from "@constants/defaults";
 import { DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS } from "@memory/index";
 import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
+import { defaultJudgeSettings, sanitizeJudgeSettings, type JudgeSettings } from "@judge/index";
 import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, RuntimeExtras, StagecraftSettings, UiRuntimeSettings } from "./types";
 
 const SETTINGS_KEY = "settings";
@@ -16,6 +17,7 @@ export interface GlobalSettings {
   memory: MemoryRuntimeSettings;
   talk: { enabled: boolean };
   stagecraft: StagecraftSettings;
+  judge: JudgeSettings;
   migratedFromChat?: string;
 }
 
@@ -46,6 +48,7 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   memory: defaultMemorySettings(),
   talk: { enabled: true },
   stagecraft: defaultStagecraftSettings(),
+  judge: defaultJudgeSettings(),
 });
 
 const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -80,6 +83,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
         ? (value.stagecraft.acceptMode as StagecraftAcceptMode)
         : defaults.stagecraft.acceptMode,
     },
+    judge: sanitizeJudgeSettings(value.judge),
     ...(typeof value.migratedFromChat === "string" ? { migratedFromChat: value.migratedFromChat } : {}),
   };
 };
@@ -113,6 +117,7 @@ export function setGlobalSettings(patch: Partial<{ [K in keyof GlobalSettings]: 
     memory: { ...current.memory, ...(patch.memory ?? {}) },
     talk: { ...current.talk, ...(patch.talk ?? {}) },
     stagecraft: { ...current.stagecraft, ...(patch.stagecraft ?? {}) },
+    judge: { ...current.judge, ...(patch.judge ?? {}), uses: { ...current.judge.uses, ...(patch.judge?.uses ?? {}) }, expansion: { ...current.judge.expansion, ...(patch.judge?.expansion ?? {}) } },
   };
   const sanitized = sanitizeGlobalSettings(next);
   getRoot()[SETTINGS_KEY] = sanitized;

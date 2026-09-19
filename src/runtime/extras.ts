@@ -3,6 +3,7 @@ import type { ExpansionRuntimeState } from "@generation/index";
 import { createMemoryState, generateMemoryId, type MemoryEntry } from "@memory/index";
 import { DEFAULT_TENSION_EMA_ALPHA } from "@constants/defaults";
 import { CURATOR_PROPOSAL_LIMIT } from "@stagecraft/index";
+import { createJudgeRuntime, sanitizeJudgeRuntime } from "@judge/index";
 import { sanitizeJournalRecords } from "./journal";
 import { defaultExtractionSettings, defaultMemorySettings, defaultStagecraftSettings, getGlobalSettings, type ChatOverrides } from "./settingsStore";
 import type { CopilotRuntimeSettings, ExtractionRuntimeState, MemoryMirrorBook, MemoryRuntimeState, PacingSettings, RuntimeExtras, StagecraftRuntimeState, TalkRuntimeState, TensionRuntimeState, UiRuntimeSettings } from "./types";
@@ -152,6 +153,7 @@ export const createExtras = (): RuntimeExtras => ({
   ui: createUi(),
   talk: createTalk(),
   stagecraft: createStagecraft(),
+  judge: createJudgeRuntime(),
   journal: [],
   lastSessionAt: null,
   updatedAt: new Date().toISOString(),
@@ -223,6 +225,7 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined): RuntimeExtr
   extras.ui = sanitizeUi(extras);
   extras.talk = sanitizeTalk(extras);
   extras.stagecraft = sanitizeStagecraft(extras);
+  extras.judge = sanitizeJudgeRuntime(extras.judge);
   extras.journal = sanitizeJournalRecords(extras.journal);
   extras.lastSelfInjectionMessageId = typeof extras.lastSelfInjectionMessageId === "number" ? extras.lastSelfInjectionMessageId : null;
   return applyGlobalSettings(extras, overrides);

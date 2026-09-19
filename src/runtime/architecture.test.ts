@@ -66,6 +66,18 @@ describe("architecture guards", () => {
 
   // The one stagecraft invariant that must never be re-argued: a curator proposes presentation and
   // nothing else. It cannot reach a memory tier or the apply queue, so it cannot write either.
+  // v2.2 rule 6: the judge core is pure (questions, parsing, policy); the transport is stHost/judge.ts.
+  it("keeps the judge core pure and out of the engine", () => {
+    for (const path of walk(join(SRC, "judge"))) {
+      const offenders = importsOf(path).filter((specifier) => specifier.includes("@services") || specifier.includes("STAPI") || specifier.includes("@runtime") || specifier.startsWith("../"));
+      expect({ path, offenders }).toEqual({ path, offenders: [] });
+    }
+    for (const path of walk(join(SRC, "engine"))) {
+      const offenders = importsOf(path).filter((specifier) => specifier.includes("@judge") || specifier.includes("/judge"));
+      expect({ path, offenders }).toEqual({ path, offenders: [] });
+    }
+  });
+
   it("keeps the stagecraft coordinator away from the blackboard and the memory tiers", () => {
     const path = join(SRC, "runtime/coordinators/stagecraftCoordinator.ts");
     const source = readFileSync(path, "utf8");

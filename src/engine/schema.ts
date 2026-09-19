@@ -141,6 +141,7 @@ export interface Transition {
 export interface RosterMember {
   id: string;
   name?: string;
+  role?: string;
 }
 
 export interface ScaffoldingBeat {

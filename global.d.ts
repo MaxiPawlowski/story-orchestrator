@@ -53,5 +53,6 @@ declare global {
   var storyOrchestratorDebugLedgerResponse: string | null | undefined;
   var storyOrchestratorDebugCopilotResponse: string | null | undefined;
   var storyOrchestratorDebugDirectorResponse: string | null | undefined;
+  var storyOrchestratorJudge: import("./src/runtime/judge").JudgeRuntime | undefined;
   var storyOrchestratorDebugCuratorResponse: string | null | undefined;
 }

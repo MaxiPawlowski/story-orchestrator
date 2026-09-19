@@ -194,6 +194,55 @@ describe("TalkController intercept", () => {
   });
 });
 
+describe("TalkController judge director", () => {
+  const judged = (decision: Awaited<ReturnType<NonNullable<TalkControlHost["judgeDirector"]>>>) => jest.fn(async () => decision);
+
+  it("takes the judge's pick before the mention rule and records it with its confidence", async () => {
+    const judgeDirector = judged({ kind: "member", rosterId: "sage", name: "Finn", confidence: 0.9, via: "choice" });
+    const { host, calls } = makeHost({
+      getRoster: () => [{ id: "guard", name: "Mara", role: "gate captain" }, { id: "sage", name: "Finn", role: "old scholar" }],
+      getWindow: () => [{ speaker: "User", text: "I tell Mara about the scroll, then look at the old man." }],
+      judgeDirector,
+      getPlayerName: () => "User",
+    });
+    const controller = new TalkController(host);
+    const { state, abort } = makeAbort();
+    await controller.intercept(abort, "normal");
+    expect(state.aborted).toBe(true);
+    expect(calls.director).toHaveLength(0);
+    expect(calls.decisions[0]).toMatchObject({ chosenRosterId: "sage", source: "judge", judge: { confidence: 0.9, via: "choice" } });
+    expect(judgeDirector).toHaveBeenCalledWith(expect.objectContaining({
+      checkpointName: "Gate",
+      objective: "Open it",
+      player: "User",
+      allowSilence: true,
+      candidates: [{ rosterId: "guard", name: "Mara", role: "gate captain" }, { rosterId: "sage", name: "Finn", role: "old scholar" }],
+    }));
+  });
+
+  it("honours a judged silence", async () => {
+    const { host, calls } = makeHost({ judgeDirector: judged({ kind: "silence", confidence: 0.8, via: "composite" }) });
+    const controller = new TalkController(host);
+    const { state, abort } = makeAbort();
+    await controller.intercept(abort, "normal");
+    expect(state.aborted).toBe(true);
+    expect(calls.decisions[0]).toMatchObject({ chosenRosterId: null, source: "judge" });
+  });
+
+  it("falls through to today's chain when the judge declines, throws, or names someone outside the pool", async () => {
+    const declines = makeHost({ judgeDirector: judged(null) });
+    const throws = makeHost({ judgeDirector: jest.fn(async () => { throw new Error("offline"); }) });
+    const stranger = makeHost({ judgeDirector: judged({ kind: "member", rosterId: "ghost", name: "Ghost", confidence: 0.9, via: "choice" }) });
+    for (const { host, calls } of [declines, throws, stranger]) {
+      const controller = new TalkController(host);
+      const { abort } = makeAbort();
+      await controller.intercept(abort, "normal");
+      expect(calls.director).toHaveLength(1);
+      expect(calls.decisions[0]).toMatchObject({ chosenRosterId: "guard", source: "director" });
+    }
+  });
+});
+
 describe("TalkController reconcile", () => {
   it("triggers the chosen member when a loud pass ends without them speaking", async () => {
     const { host, calls } = makeHost({ getDraftedRosterId: () => "sage" });

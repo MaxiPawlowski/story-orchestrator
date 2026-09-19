@@ -77,6 +77,23 @@ describe("buildSessionJournal", () => {
     expect(events[1].summary).toContain("resolved");
   });
 
+  it("derives judge events from the call ring, fallbacks included, without persisting them as records", () => {
+    const events = buildSessionJournal({
+      records: [],
+      boundaryLog: [],
+      audits: [],
+      reconciliationEvents: [],
+      payloadCaptures: [],
+      talkDecisions: [],
+      judgeCalls: [
+        { at: at(1), boundary: 1, messageId: 9, use: "director", model: "jev-1.13.0", latencyMs: 255, stateChars: 900, questionCount: 6, p: { who: "Arin", whoConfidence: 0.9 } },
+        { at: at(2), boundary: 2, messageId: 11, use: "director", model: null, latencyMs: 0, stateChars: 0, questionCount: 0, fallback: "no-roles" },
+      ],
+    });
+    expect(events.map((event) => event.summary)).toEqual(["judge director in 255 ms", "judge director fell back (no-roles) in 0 ms"]);
+    expect(events[0]).toMatchObject({ kind: "judge", messageId: 9, detail: { model: "jev-1.13.0", questions: 6, p: { who: "Arin", whoConfidence: 0.9 } } });
+  });
+
   it("carries the flag note", () => {
     expect(journal.find((event) => event.kind === "flag")?.detail?.note).toBe("felt railroaded");
   });
