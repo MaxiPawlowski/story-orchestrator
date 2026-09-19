@@ -6,7 +6,7 @@ import { PROJECT_ROOT } from './lib/client.mts';
 
 register('./lib/loader.mts', import.meta.url);
 
-const USAGE = `Usage: node --no-warnings --experimental-transform-types scripts/spike/typesafe/calibrate-node.mts director|memory-verify|memory-pairs|scene|lore|curator-filter [--min 0.85] [--fixture <name>] [--record]
+const USAGE = `Usage: node --no-warnings --experimental-transform-types scripts/spike/typesafe/calibrate-node.mts director|memory-verify|memory-pairs|scene|lore|curator-filter|continuity|backgrounds [--min 0.85] [--fixture <name>] [--record]
 
 Runs test/fixtures/judge/<use>.json through the production judge code (src/judge) and the real
 server plugin handler (server-plugin/story-orchestrator-judge), against the live TypeSafe API, with
@@ -18,7 +18,7 @@ const minIndex = rest.indexOf('--min');
 const min = minIndex >= 0 ? Number(rest[minIndex + 1]) : 0.85;
 const fixtureIndex = rest.indexOf('--fixture');
 const fixtureName = fixtureIndex >= 0 ? rest[fixtureIndex + 1] : use;
-if (!['director', 'memory-verify', 'memory-pairs', 'scene', 'lore', 'curator-filter'].includes(use)) {
+if (!['director', 'memory-verify', 'memory-pairs', 'scene', 'lore', 'curator-filter', 'continuity', 'backgrounds'].includes(use)) {
   console.log(USAGE);
   process.exit(use ? 1 : 0);
 }
@@ -47,14 +47,14 @@ const ask = async (request: any) => {
   if (result.answers) calls.push({ state: request.state, questions: request.questions, answers: result.answers });
   return result;
 };
-const report = use === 'director' ? await judge.runJudgeDirectorSelfTest(ask, fixture.rows) : use === 'memory-verify' ? await judge.runMemoryVerifyCalibration(ask, fixture.rows) : use === 'memory-pairs' ? await judge.runMemoryPairsCalibration(ask, fixture.rows) : use === 'scene' ? await judge.runSceneCalibration(ask, fixture.rows) : use === 'lore' ? await judge.runLoreCalibration(ask, judge.resolveLoreCases(fixture)) : await judge.runCuratorFilterCalibration(ask, fixture.rows);
+const report = use === 'director' ? await judge.runJudgeDirectorSelfTest(ask, fixture.rows) : use === 'memory-verify' ? await judge.runMemoryVerifyCalibration(ask, fixture.rows) : use === 'memory-pairs' ? await judge.runMemoryPairsCalibration(ask, fixture.rows) : use === 'scene' ? await judge.runSceneCalibration(ask, fixture.rows) : use === 'lore' ? await judge.runLoreCalibration(ask, judge.resolveLoreCases(fixture)) : use === 'curator-filter' ? await judge.runCuratorFilterCalibration(ask, fixture.rows) : use === 'continuity' ? await judge.runContinuityCalibration(ask, fixture.rows) : await judge.runBackgroundCalibration(ask, fixture.rows, fixture.installed);
 const labelOf = Object.fromEntries(fixture.rows.map((row: any) => [row.id, row.label]));
 const caseTags = Object.fromEntries(fixture.rows.map((row: any) => [row.id, (row.tags as string[] | undefined) ?? (row.lang === 'es' ? ['spanish'] : [])]));
 const tagOf = new Proxy(caseTags, { get: (target, id: string) => target[id] ?? target[id.split('.')[0]] });
 for (const row of report.rows) console.log(`${row.right ? 'ok  ' : 'MISS'} ${row.id.padEnd(4)} ${String(row.picked).padEnd(16)} ${String(row.latencyMs).padStart(5)} ms  ${(tagOf[row.id] ?? []).join(',')}${row.fallback ? `  fallback=${row.fallback}` : ''}${(row as any).detail ? `  [${labelOf[row.id]}] ${(row as any).detail}` : ''}`);
 const spanish = report.rows.filter((row: any) => tagOf[row.id]?.includes('spanish'));
 const harmful = use === 'memory-pairs' ? report.rows.filter((row: any) => ['duplicate', 'update'].includes(row.picked) && ['distinct', 'unrelated'].includes(labelOf[row.id])).length : 0;
-const families = ['scene', 'lore', 'curator-filter'].includes(use) ? judge.judgeFamilyScores(report, fixture.floors ?? {}) : [];
+const families = ['scene', 'lore', 'curator-filter', 'continuity', 'backgrounds'].includes(use) ? judge.judgeFamilyScores(report, fixture.floors ?? {}) : [];
 families.forEach((row: any) => console.log(`${row.ok ? 'ok  ' : 'FAIL'} ${row.family.padEnd(9)} ${row.right}/${row.total} (${((row.right / row.total) * 100).toFixed(0)}%) floor ${row.floor}`));
 const rate = families.length ? (families.every((row: any) => row.ok) ? 1 : 0) : report.right / report.total;
 console.log(`\n${use}: ${report.right}/${report.total} (${(rate * 100).toFixed(0)}%), spanish ${spanish.filter((row: any) => row.right).length}/${spanish.length}, p50 ${report.p50LatencyMs} ms, model ${report.model}, floor ${min}${use === 'memory-pairs' ? `, harmful ${harmful}` : ''}`);

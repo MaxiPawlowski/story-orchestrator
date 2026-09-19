@@ -8,7 +8,7 @@ import { loadData, loadHardCases, msgId, worlds, type WorldDef } from './lib/sto
 register('./lib/loader.mts', import.meta.url);
 const { worldForSpeakers } = await import('./lib/sharedRead.mts');
 
-const USAGE = `Usage: node --no-warnings --experimental-transform-types scripts/spike/typesafe/promote.mts scene|scene-holdout|lore|lore-holdout|curator-filter
+const USAGE = `Usage: node --no-warnings --experimental-transform-types scripts/spike/typesafe/promote.mts scene|scene-holdout|lore|lore-holdout|curator-filter|continuity|continuity-holdout|backgrounds
 
 Promotes Phase A spike data to a production calibration fixture in test/fixtures/judge/. The rows
 carry the production input (src/judge SceneReadInput) plus the labels written before any answer
@@ -151,10 +151,56 @@ function curatorFilter() {
   console.log(`${rows.length} curator-filter stories`);
 }
 
+function continuity() {
+  const spike = loadData<Array<{ id: string; tags: string[]; established: string[]; reply: { speaker: string; text: string }; contradicts: number[] }>>('continuity.json');
+  const extra = loadData<{ cases: Array<{ id: string; lang: string; established: string[]; reply: { speaker: string; text: string }; contradicts: number[] }> }>('continuity-extra.json').cases;
+  const rows = [
+    ...spike.map((entry) => ({ id: entry.id, lang: entry.tags.includes('spanish') ? 'es' : 'en', established: entry.established, reply: entry.reply, contradicts: entry.contradicts })),
+    ...extra,
+  ];
+  writeFileSync(join(PROJECT_ROOT, 'test', 'fixtures', 'judge', 'continuity.json'), `${JSON.stringify({
+    use: 'continuity',
+    floors: { reply: 0.9, broken: 0.85, consistent: 0.966 },
+    labelledAt: '2026-09-19',
+    source: 'Spike C01-C18 (scripts/spike/typesafe/data/continuity.json) plus CX01-CX10 (continuity-extra.json, 4 Spanish), labels written before any answer was read. consistent 0.966 = at most 1 false alarm per 30 consistent facts. Real-play Artemis replies are still owed at the live gate.',
+    rows,
+  }, null, 2)}
+`);
+  console.log(`${rows.length} continuity cases, ${rows.reduce((sum, row) => sum + row.established.length, 0)} facts`);
+}
+
+function backgrounds() {
+  const spike = loadData<{ installed: string[]; cases: Array<{ id: string; scene: string; acceptable: string[] }> }>('backgrounds.json');
+  const composed = loadData<{ cases: Array<{ id: string; lang: string; checkpointName: string; objective: string; location?: string; time?: string; messages: Array<{ speaker: string; text: string }>; acceptable: string[] }> }>('backgrounds-composed.json').cases;
+  const installed = [...spike.installed, '_black.jpg', '_white.jpg', '__transparent.png'];
+  const rows = [
+    ...spike.cases.map((entry) => ({ id: entry.id, lang: 'en', scene: entry.scene, acceptable: entry.acceptable })),
+    ...composed.map((entry) => ({ id: entry.id, lang: entry.lang, compose: { checkpointName: entry.checkpointName, objective: entry.objective, location: entry.location ?? null, time: entry.time ?? null, messages: entry.messages }, acceptable: entry.acceptable })),
+  ];
+  writeFileSync(join(PROJECT_ROOT, 'test', 'fixtures', 'judge', 'backgrounds.json'), `${JSON.stringify({
+    use: 'backgrounds',
+    floors: { pick: 0.85, none: 1 },
+    labelledAt: '2026-09-19',
+    source: 'Spike B01-B12 (hand-written scene text) plus BX01-BX10 (backgrounds-composed.json: scene text composed by src/judge/curators.ts sceneDescription). Installed = this install’s 22 backgrounds plus its three utility files, which the candidate filter must drop.',
+    installed,
+    rows,
+  }, null, 2)}
+`);
+  console.log(`${rows.length} background cases over ${installed.length} installed`);
+}
+
 const [command] = process.argv.slice(2);
 if (command === 'scene') scene();
 else if (command === 'scene-holdout') scene(true);
 else if (command === 'lore') lore();
 else if (command === 'lore-holdout') lore(true);
 else if (command === 'curator-filter') curatorFilter();
+else if (command === 'continuity') continuity();
+else if (command === 'continuity-holdout') {
+  const rows = loadData<{ cases: unknown[] }>('continuity-holdout.json').cases;
+  writeFileSync(join(PROJECT_ROOT, 'test', 'fixtures', 'judge', 'continuity-holdout.json'), `${JSON.stringify({ use: 'continuity', floors: { reply: 0.9, broken: 0.85, consistent: 0.966 }, labelledAt: '2026-09-19', source: 'Held out: scripts/spike/typesafe/data/continuity-holdout.json, written after the first run and before CONTINUITY_P 0.7 was scored.', rows }, null, 2)}
+`);
+  console.log(`${rows.length} held-out continuity cases`);
+}
+else if (command === 'backgrounds') backgrounds();
 else console.log(USAGE);

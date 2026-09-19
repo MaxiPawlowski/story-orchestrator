@@ -1,0 +1,14 @@
+{
+  "labelledAt": "2026-09-19",
+  "note": "Held out for v2.2 plan 05's continuity cut. Written after the first run (breaks at 0.76-0.78 under the planned 0.8) and before 0.7 was scored on anything. Different cast and facts from the tuning set; 3 in Spanish.",
+  "cases": [
+    { "id": "CH01", "lang": "en", "established": ["Captain Okafor lost her voice in the smoke and can only whisper.", "The escape pod is fueled.", "Pell is on the bridge."], "reply": { "speaker": "Captain Okafor", "text": "Okafor bellows across the deck, her voice booming off the bulkheads: \"Everyone to the pods, now!\"" }, "contradicts": [0] },
+    { "id": "CH02", "lang": "en", "established": ["Captain Okafor lost her voice in the smoke and can only whisper.", "The escape pod is fueled.", "Pell is on the bridge."], "reply": { "speaker": "Captain Okafor", "text": "Okafor leans close and rasps, barely audible, \"Pods. Go.\"" }, "contradicts": [] },
+    { "id": "CH03", "lang": "en", "established": ["Mae Hollis owes Maeve three hundred dollars.", "The Blue Anchor is closed on Mondays.", "It is Monday night."], "reply": { "speaker": "Narrator", "text": "The Blue Anchor is packed tonight, the band in full swing and every stool taken." }, "contradicts": [1, 2] },
+    { "id": "CH04", "lang": "en", "established": ["Mae Hollis owes Maeve three hundred dollars.", "Maeve suspects Mae is lying about the money."], "reply": { "speaker": "Maeve", "text": "\"Three hundred, Mae. Don't tell me the bank lost it again. I've heard that one.\"" }, "contradicts": [] },
+    { "id": "CH05", "lang": "en", "established": ["Graves has never left the manor grounds.", "Lady Ashworth keeps the library key on a chain around her neck."], "reply": { "speaker": "Graves", "text": "\"When I was in the city last spring, madam, the tailors had the finest silk.\"" }, "contradicts": [0] },
+    { "id": "CH06", "lang": "es", "established": ["La capitana Okafor perdió la voz y solo puede susurrar.", "La cápsula de escape tiene combustible."], "reply": { "speaker": "Captain Okafor", "text": "Okafor susurra algo que casi no se oye y señala la cápsula." }, "contradicts": [] },
+    { "id": "CH07", "lang": "es", "established": ["Graves nunca ha salido de la mansión.", "Lady Ashworth guarda la llave de la biblioteca en una cadena al cuello."], "reply": { "speaker": "Narrator", "text": "Lady Ashworth saca la llave de la biblioteca de un cajón del escritorio, donde siempre la deja." }, "contradicts": [1] },
+    { "id": "CH08", "lang": "es", "established": ["Mae Hollis le debe trescientos dólares a Maeve.", "Es lunes por la noche."], "reply": { "speaker": "Maeve", "text": "\"Esta noche no, Mae. Pero el viernes quiero mis trescientos.\"" }, "contradicts": [] }
+  ]
+}

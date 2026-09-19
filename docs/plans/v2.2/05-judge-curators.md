@@ -113,7 +113,7 @@ comment)` (`stagecraftCoordinator.ts:175–205`). It becomes a dispatch on `op.k
 
 | Constant | Value |
 |---|---|
-| `CONTINUITY_P` | 0.8 (spike at 0.5: 1 false alarm among 17 consistent facts; raise the cut) |
+| `CONTINUITY_P` | 0.7 (planned 0.8, revised at calibration; see the calibration record) |
 | `CONTINUITY_MAX_FACTS` | 40 |
 | `BACKGROUND_CONFIDENCE` | 0.6 |
 
@@ -200,6 +200,44 @@ with the scene-setter on.
 
 The seeded fact comes through the existing debug extraction path, with judge memory off (plan 02's
 seeding rule). The judge calls are real.
+
+### Calibration record (off-page, 2026-09-19)
+
+Production code (`src/judge/curators.ts` + `curatorCalibration.ts`) → the real plugin handler → the
+live API, `jev-1.13.0`: `calibrate-node.mts continuity|backgrounds [--fixture …] --record`, with
+fixtures from `promote.mts continuity|continuity-holdout|backgrounds`.
+
+**Continuity warden.** Tuning set: spike C01–C18 plus CX01–CX10 (hand-written over sun-ruins, 4 in
+Spanish). That is 28 replies and 57 facts, 42 of them consistent.
+
+| Cut | Replies right | Breaks caught | False alarms | Floors 0.9 / 0.85 / ≤ 1 per 30 |
+|---|---|---|---|---|
+| 0.8 (planned) | 25/28 | 12/15 (misses at 0.76, 0.77, 0.78) | 0/42 | **fail** |
+| 0.7 (revised) | 28/28 | 15/15 | 0/42 (highest consistent p 0.57) | pass |
+| 0.7 on held-out CH01–CH08 (3 Spanish), scored once | **8/8** | **5/5** | **0/14** | pass |
+
+0.8 had been chosen to clear the spike's single false alarm near 0.5. On this data the gap runs
+from 0.57 to 0.76. The held-out set was written after the 0.8 run and before 0.7 was scored.
+Real-play Artemis replies (plan: ≥ 10) are still owed and come from the live gate.
+
+**Scene-setter: fails its floor, not built in v2.2.** The data is spike B01–B12 plus BX01–BX10,
+whose scene text is composed by production code, over this install's 22 backgrounds plus 3
+utility files. The candidate filter drops all 3.
+- Every "nothing fits" case was right (4/4, floor 4/4).
+- Picks were **15/18 (83%)** against a floor of 0.85.
+- The misses are the file-name vocabulary: "a market street at night" chooses
+  `cityscape medieval market.jpg` over `…night.jpg` (0.82 hand-written; 0.46 vs 0.44 composed),
+  and "guild hall, evening" is only 0.50 for `tavern day.jpg`.
+- Only one of the 22 would have applied a wrong background.
+
+By the rule that kept OOC out (88% vs 0.9), `sceneSetterEnabled` is not built. The pure code and
+the fixture stay, so a v2.3 attempt (author-written background descriptions instead of file names)
+starts from a measured baseline. **Question for the user:** ship it review-only anyway? Every change
+would need the author's accept.
+
+**Warden runtime: pure core and calibration only so far.** `runWardenPass`, the `note` op kind, its
+one-turn injection and the J8 growth all live in `stagecraftCoordinator` / `stagecraft/types.ts`,
+which the peer session is still editing on master. They are built after that change lands.
 
 ## Implementation notes
 

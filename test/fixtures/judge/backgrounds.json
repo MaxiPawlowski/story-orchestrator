@@ -1,0 +1,370 @@
+{
+  "use": "backgrounds",
+  "floors": {
+    "pick": 0.85,
+    "none": 1
+  },
+  "labelledAt": "2026-09-19",
+  "source": "Spike B01-B12 (hand-written scene text) plus BX01-BX10 (backgrounds-composed.json: scene text composed by src/judge/curators.ts sceneDescription). Installed = this install’s 22 backgrounds plus its three utility files, which the candidate filter must drop.",
+  "installed": [
+    "bedroom clean.jpg",
+    "bedroom cyberpunk.jpg",
+    "bedroom red.jpg",
+    "bedroom tatami.jpg",
+    "cityscape medieval market.jpg",
+    "cityscape medieval night.jpg",
+    "cityscape postapoc.jpg",
+    "forest treehouse fireworks air baloons (by kallmeflocc).jpg",
+    "japan classroom side.jpg",
+    "japan classroom.jpg",
+    "japan path cherry blossom.jpg",
+    "japan university.jpg",
+    "landscape autumn great tree.jpg",
+    "landscape beach day.png",
+    "landscape beach night.jpg",
+    "landscape mountain lake.jpg",
+    "landscape postapoc.jpg",
+    "landscape winter lake house.jpg",
+    "royal.jpg",
+    "sun_ruins.jpg",
+    "sun_ruins2.jpg",
+    "tavern day.jpg",
+    "_black.jpg",
+    "_white.jpg",
+    "__transparent.png"
+  ],
+  "rows": [
+    {
+      "id": "B01",
+      "lang": "en",
+      "scene": "The guild hall at midday: a crowded common room, a crackling hearth, and a job board covered in parchment.",
+      "acceptable": [
+        "tavern day.jpg"
+      ]
+    },
+    {
+      "id": "B02",
+      "lang": "en",
+      "scene": "A stone sphinx guards a golden, half-buried gate in the desert; the party stands before the ancient ruins.",
+      "acceptable": [
+        "sun_ruins.jpg",
+        "sun_ruins2.jpg"
+      ]
+    },
+    {
+      "id": "B03",
+      "lang": "en",
+      "scene": "The party flees through a medieval market street at night, lanterns swinging above the shuttered stalls.",
+      "acceptable": [
+        "cityscape medieval night.jpg"
+      ]
+    },
+    {
+      "id": "B04",
+      "lang": "en",
+      "scene": "Dawn over a still mountain lake; the party breaks camp on the shore.",
+      "acceptable": [
+        "landscape mountain lake.jpg"
+      ]
+    },
+    {
+      "id": "B05",
+      "lang": "en",
+      "scene": "A moonlit beach; waves wash over the sand as two figures walk along the shoreline.",
+      "acceptable": [
+        "landscape beach night.jpg"
+      ]
+    },
+    {
+      "id": "B06",
+      "lang": "en",
+      "scene": "An audience with the queen in her gilded throne room.",
+      "acceptable": [
+        "royal.jpg"
+      ]
+    },
+    {
+      "id": "B07",
+      "lang": "en",
+      "scene": "A quiet room at the inn: a bed, a washstand, and a small window over the street.",
+      "acceptable": [
+        "bedroom clean.jpg",
+        "bedroom red.jpg"
+      ]
+    },
+    {
+      "id": "B08",
+      "lang": "en",
+      "scene": "The survivors pick through the ruins of a collapsed city, rusted cars and broken towers all around.",
+      "acceptable": [
+        "cityscape postapoc.jpg",
+        "landscape postapoc.jpg"
+      ]
+    },
+    {
+      "id": "B09",
+      "lang": "en",
+      "scene": "A cabin on a frozen lake in deep winter, smoke rising from the chimney.",
+      "acceptable": [
+        "landscape winter lake house.jpg"
+      ]
+    },
+    {
+      "id": "B10",
+      "lang": "en",
+      "scene": "A cramped neon-lit apartment high above a rainy megacity, holograms flickering over the bed.",
+      "acceptable": [
+        "bedroom cyberpunk.jpg"
+      ]
+    },
+    {
+      "id": "B11",
+      "lang": "en",
+      "scene": "The reactor room of a salvage spaceship: warning lights, coolant pipes, and a flickering containment field.",
+      "acceptable": [
+        "none"
+      ]
+    },
+    {
+      "id": "B12",
+      "lang": "en",
+      "scene": "A 1940s police precinct at three in the morning: cold coffee, ringing phones, rain on the windows.",
+      "acceptable": [
+        "none"
+      ]
+    },
+    {
+      "id": "BX01",
+      "lang": "en",
+      "compose": {
+        "checkpointName": "The Job Board",
+        "objective": "Pick up a contract at the guild.",
+        "location": "guild hall",
+        "time": "evening",
+        "messages": [
+          {
+            "speaker": "DM Narrator",
+            "text": "Drinkers crowd the long tables and the hearth roars."
+          },
+          {
+            "speaker": "Max",
+            "text": "I push through to the job board."
+          }
+        ]
+      },
+      "acceptable": [
+        "tavern day.jpg"
+      ]
+    },
+    {
+      "id": "BX02",
+      "lang": "en",
+      "compose": {
+        "checkpointName": "The Sphinx Gate",
+        "objective": "Answer the riddle and enter the ruins.",
+        "location": "sun ruins entrance",
+        "time": "midday",
+        "messages": [
+          {
+            "speaker": "DM Narrator",
+            "text": "A half-buried golden gate rises from the dunes, a stone sphinx crouched before it."
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Well. There it is.\""
+          }
+        ]
+      },
+      "acceptable": [
+        "sun_ruins.jpg",
+        "sun_ruins2.jpg"
+      ]
+    },
+    {
+      "id": "BX03",
+      "lang": "en",
+      "compose": {
+        "checkpointName": "Night Market",
+        "objective": "Find the fence before the watch does.",
+        "location": "market street",
+        "time": "night",
+        "messages": [
+          {
+            "speaker": "Narrator",
+            "text": "Lanterns sway over shuttered stalls on the old market street."
+          },
+          {
+            "speaker": "Max",
+            "text": "I keep to the shadows between the stalls."
+          }
+        ]
+      },
+      "acceptable": [
+        "cityscape medieval night.jpg"
+      ]
+    },
+    {
+      "id": "BX04",
+      "lang": "en",
+      "compose": {
+        "checkpointName": "Break Camp",
+        "objective": "Cross the pass before noon.",
+        "location": "lake shore",
+        "time": "dawn",
+        "messages": [
+          {
+            "speaker": "DM Narrator",
+            "text": "Mist lifts off a still mountain lake as the party rolls up their bedrolls."
+          },
+          {
+            "speaker": "Luke",
+            "text": "\"The water's freezing!\""
+          }
+        ]
+      },
+      "acceptable": [
+        "landscape mountain lake.jpg"
+      ]
+    },
+    {
+      "id": "BX05",
+      "lang": "en",
+      "compose": {
+        "checkpointName": "Audience",
+        "objective": "Convince the queen to lend her guard.",
+        "location": "throne room",
+        "time": "afternoon",
+        "messages": [
+          {
+            "speaker": "Narrator",
+            "text": "Gilded columns line the hall; the queen watches from her throne."
+          },
+          {
+            "speaker": "Max",
+            "text": "I bow low before the dais."
+          }
+        ]
+      },
+      "acceptable": [
+        "royal.jpg"
+      ]
+    },
+    {
+      "id": "BX06",
+      "lang": "en",
+      "compose": {
+        "checkpointName": "The Reactor",
+        "objective": "Stabilize containment before it breaches.",
+        "location": "engine room",
+        "time": "unclear",
+        "messages": [
+          {
+            "speaker": "HALO",
+            "text": "\"Coolant pressure falling. Containment at forty percent.\""
+          },
+          {
+            "speaker": "Pell",
+            "text": "Pell slams the manual override."
+          }
+        ]
+      },
+      "acceptable": [
+        "none"
+      ]
+    },
+    {
+      "id": "BX07",
+      "lang": "es",
+      "compose": {
+        "checkpointName": "La casa del lago",
+        "objective": "Pasar la noche a salvo de la tormenta de nieve.",
+        "location": "cabaña",
+        "time": "night",
+        "messages": [
+          {
+            "speaker": "Narrador",
+            "text": "Una cabaña solitaria sobre el lago helado; sale humo de la chimenea."
+          },
+          {
+            "speaker": "Max",
+            "text": "Llamo a la puerta con los guantes cubiertos de nieve."
+          }
+        ]
+      },
+      "acceptable": [
+        "landscape winter lake house.jpg"
+      ]
+    },
+    {
+      "id": "BX08",
+      "lang": "es",
+      "compose": {
+        "checkpointName": "Ruinas de la ciudad",
+        "objective": "Encontrar agua potable entre los escombros.",
+        "location": "ciudad en ruinas",
+        "time": "afternoon",
+        "messages": [
+          {
+            "speaker": "Narrador",
+            "text": "Coches oxidados y torres partidas por la mitad llenan la avenida muerta."
+          },
+          {
+            "speaker": "Max",
+            "text": "Reviso cada coche buscando botellas."
+          }
+        ]
+      },
+      "acceptable": [
+        "cityscape postapoc.jpg",
+        "landscape postapoc.jpg"
+      ]
+    },
+    {
+      "id": "BX09",
+      "lang": "es",
+      "compose": {
+        "checkpointName": "El precinto",
+        "objective": "Leer el expediente antes de que vuelva el teniente.",
+        "location": "comisaría",
+        "time": "night",
+        "messages": [
+          {
+            "speaker": "Narrador",
+            "text": "Tres de la mañana en la comisaría: café frío, teléfonos que suenan, lluvia contra el cristal."
+          },
+          {
+            "speaker": "Max",
+            "text": "Abro el cajón del archivador."
+          }
+        ]
+      },
+      "acceptable": [
+        "none"
+      ]
+    },
+    {
+      "id": "BX10",
+      "lang": "en",
+      "compose": {
+        "checkpointName": "First Day",
+        "objective": "Find your seat before the bell.",
+        "location": "classroom",
+        "time": "morning",
+        "messages": [
+          {
+            "speaker": "Narrator",
+            "text": "Sunlight slants across rows of desks; the teacher writes the date on the board."
+          },
+          {
+            "speaker": "Max",
+            "text": "I slide into the empty desk by the window."
+          }
+        ]
+      },
+      "acceptable": [
+        "japan classroom.jpg",
+        "japan classroom side.jpg"
+      ]
+    }
+  ]
+}

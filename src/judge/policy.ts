@@ -32,3 +32,9 @@ export const LORE_TIMEOUT_MS = 1500;
 
 export const CURATOR_FILTER_P = 0.2;
 export const CURATOR_FILTER_MIN_ENTRIES = 12;
+
+export const CONTINUITY_P = 0.7;
+export const CONTINUITY_MAX_FACTS = 40;
+export const CONTINUITY_MAX_NOTE_FACTS = 2;
+export const BACKGROUND_CONFIDENCE = 0.6;
+export const BACKGROUND_MAX_OPTIONS = 254;
