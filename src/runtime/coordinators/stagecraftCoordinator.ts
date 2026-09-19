@@ -32,6 +32,7 @@ export interface StagecraftCoordinatorDeps {
   getExtractionSettings: () => ExtractionRuntimeSettings;
   getCanon: () => string;
   getOpenArcs: () => string[];
+  filterEntries?: (entries: CuratorEntryView[], context: { checkpoint: { name: string; objective: string }; canon: string; openThreads: string[] }) => Promise<CuratorEntryView[]>;
   journal: (summary: string, note?: string) => void;
   persist: () => Promise<void>;
   notify: () => void;
@@ -98,24 +99,22 @@ export class StagecraftCoordinator {
       const entries = await this.readScope();
       if (!entries.length) return { ran: false, skipped: "empty-scope", record: null };
       const checkpoint = story.checkpointById[state.activeCheckpointId];
-      const prompt = buildWiCuratorPrompt({
-        storyTitle: story.title,
-        checkpointName: checkpoint?.name ?? state.activeCheckpointId,
-        objective: checkpoint?.objective ?? "",
-        canon: this.deps.getCanon(),
-        openArcs: this.deps.getOpenArcs(),
-        entries,
-      });
+      const checkpointName = checkpoint?.name ?? state.activeCheckpointId;
+      const objective = checkpoint?.objective ?? "";
+      const canon = this.deps.getCanon();
+      const openArcs = this.deps.getOpenArcs();
+      const shown = this.deps.filterEntries ? await this.deps.filterEntries(entries, { checkpoint: { name: checkpointName, objective }, canon, openThreads: openArcs }).catch(() => entries) : entries;
+      const prompt = buildWiCuratorPrompt({ storyTitle: story.title, checkpointName, objective, canon, openArcs, entries: shown });
       const response = await callExtractionModel(prompt, {
         profileId: this.deps.getExtractionSettings().profileId,
         debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugCuratorResponse ?? null,
       });
-      const proposal = parseCuratorResponse(response, entries);
-      const plan = planCuratorProposal(proposal, entries);
+      const proposal = parseCuratorResponse(response, shown);
+      const plan = planCuratorProposal(proposal, shown);
       this.patch({
         lastRunBoundary: state.boundary,
         lastError: null,
-        lastPass: { at: new Date().toISOString(), reason, prompt, rawResponse: response, proposed: plan.records.length, dropped: plan.dropped },
+        lastPass: { at: new Date().toISOString(), reason, prompt, rawResponse: response, proposed: plan.records.length, dropped: plan.dropped, ...(shown.length < entries.length ? { focus: { shown: shown.length, total: entries.length } } : {}) },
       });
       if (!plan.records.length && !plan.dropped.length) {
         await this.save();

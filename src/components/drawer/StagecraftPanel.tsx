@@ -75,7 +75,7 @@ export const StagecraftPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapsh
       {lastError && <div className="text-red-300">{lastError}</div>}
       {lastPass && (
         <div data-so="curator-last-pass" title={lastPass.rawResponse || "(empty response)"} className="opacity-60">
-          Last read {lastPass.reason}: {lastPass.proposed ? `${lastPass.proposed} change(s)` : "nothing to change"}{lastPass.dropped.length ? ` · ${lastPass.dropped.length} discarded` : ""}
+          Last read {lastPass.reason}: {lastPass.proposed ? `${lastPass.proposed} change(s)` : "nothing to change"}{lastPass.dropped.length ? ` · ${lastPass.dropped.length} discarded` : ""}{lastPass.focus ? ` · focused on ${lastPass.focus.shown} of ${lastPass.focus.total} entries` : ""}
         </div>
       )}
       {records.length === 0 ? (

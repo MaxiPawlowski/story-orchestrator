@@ -17,6 +17,7 @@ import { ExtractionCoordinator, type JudgedExtractionWork } from "./coordinators
 import { MemoryCoordinator } from "./coordinators/memoryCoordinator";
 import type { MemoryMirrorSummary } from "./memoryMirror";
 import { StagecraftCoordinator } from "./coordinators/stagecraftCoordinator";
+import { createCuratorFilter } from "./curatorFilter";
 import { activeSpeakerId, enabledCharacterIds, namesForRosterId, rosterIdForName } from "./roster";
 import { EffectsApplier } from "./effectsApplier";
 import { applyGlobalSettings, createExtras, hydrateExtras, stripGlobalSettings, TALK_DECISION_LIMIT } from "./extras";
@@ -126,6 +127,7 @@ export class RuntimeManager {
     getExtractionSettings: () => this.getExtractionSettings(),
     getCanon: () => this.memory.getCanon(),
     getOpenArcs: () => this.memory.getOpenArcs(),
+    filterEntries: createCuratorFilter(() => this.judge),
     journal: (summary, note) => { this.journal.record("stagecraft", summary, this.journalContext(), note); this.extras.journal = this.journal.getRecords(); },
     persist: () => this.persist(),
     notify: () => this.notify(),

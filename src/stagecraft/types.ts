@@ -73,6 +73,7 @@ export interface CuratorPassAudit {
   rawResponse: string;
   proposed: number;
   dropped: string[];
+  focus?: { shown: number; total: number };
 }
 
 export interface CuratorProposalRecord {

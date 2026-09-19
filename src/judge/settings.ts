@@ -122,7 +122,7 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
   expansionLookahead: { label: "Prepare ahead", description: "Writes the generated beats one checkpoint ahead, where play is heading, before the story gets there.", sends: "nothing beyond Heading toward and the expansion itself (reviewed by Expansion review when that is on)" },
 };
 
-export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = ["director", "memoryVerify", "memoryPairs", "sceneTrigger", "sceneTracker", "lookahead", "loreSelect", "typedExtraction", "stallCheck", "expansionCritic", "expansionLookahead"];
+export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = ["director", "memoryVerify", "memoryPairs", "sceneTrigger", "sceneTracker", "lookahead", "loreSelect", "typedExtraction", "stallCheck", "expansionCritic", "expansionLookahead", "curatorFilter"];
 
 // v2.2 plan 07: steering-grade usages, listed only in author view.
 export const AUTHOR_JUDGE_USES: readonly JudgeUseKey[] = ["expansionCritic", "expansionLookahead"];

@@ -283,10 +283,25 @@ It passes.
 - J11.16 runs in the J11 group chat, whose first member takes the `MESSAGE_SENT` path that a solo
   send takes. A separate solo-chat run is not scripted, so the gate record should say whether a
   solo chat was checked by hand.
-- **Curator pre-filter: pure half and calibration only.** Wiring it into
-  `stagecraftCoordinator.readScope` waits for the peer's uncommitted curator change (`isCheckpointGated`,
-  `stagecraft/scope.ts`, the coordinator). Building it on top of those files before they land would
-  guarantee a conflict. `curatorFilter` stays out of `BUILT_JUDGE_USES` until then.
+- **Curator pre-filter: wired 2026-09-19**, after the peer's curator change landed (f6b53ba).
+  - `runtime/curatorFilter.ts` (`createCuratorFilter`) closes over the judge.
+  - The stagecraft coordinator receives it as an optional dep, `filterEntries`, typed inline, so it
+    still imports nothing from `@judge`, `@memory`, `@generation` or `@pacing`.
+  - `runCuratorPass` narrows right after `readScope`, which has already dropped checkpoint-gated
+    entries. The prompt, `parseCuratorResponse` and `planCuratorProposal` all see only the kept
+    entries, so the curator cannot propose an entry it was not shown. The write edge still resolves
+    ops against the full scope.
+  - Nothing narrows with the usage off, a scope of ≤ 12 entries, the judge down, or a filter that
+    throws. Switched-off and unanswered entries always stay.
+  - `lastPass.focus {shown, total}` is recorded only when something was narrowed. The author-view
+    curator panel reads "focused on N of M entries".
+  - `curatorFilter` joins `BUILT_JUDGE_USES`, player-visible like the other curator settings
+    (`#so-judge-use-curator-filter`).
+  - Manager: one dep line, 645 → 646, the baseline.
+  - Tests: `runtime/curatorFilter.test.ts` (3) plus 2 coordinator cases (prompt narrowed, hidden
+    entry dropped; a failing filter shows everything).
+  - J11.26 runs a real curator pass over the 40-entry `SO-J11 Lore` book, with the filter off and
+    then on.
 
 ## Implementation notes
 

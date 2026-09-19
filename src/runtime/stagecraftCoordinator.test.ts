@@ -1,7 +1,7 @@
 import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { callExtractionModel } from "@extraction/client";
 import { disableWIEntry, enableWIEntry, loadLorebook, upsertWIEntry } from "@services/STAPI";
-import { StagecraftCoordinator } from "./coordinators/stagecraftCoordinator";
+import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./coordinators/stagecraftCoordinator";
 import { createStagecraft } from "./extras";
 import type { ExtractionRuntimeSettings, StagecraftRuntimeState } from "./types";
 
@@ -47,7 +47,7 @@ const engineState = (boundary = 10, lastMessageId = 20): EngineState => ({
   visitedAnchors: ["cp1"],
 } as unknown as EngineState);
 
-const harness = (options: { story?: NormalizedStoryV2 | null; state?: EngineState; settings?: Partial<StagecraftRuntimeState["settings"]> } = {}) => {
+const harness = (options: { story?: NormalizedStoryV2 | null; state?: EngineState; settings?: Partial<StagecraftRuntimeState["settings"]>; filterEntries?: StagecraftCoordinatorDeps["filterEntries"] } = {}) => {
   let state: StagecraftRuntimeState = { ...createStagecraft(), settings: { curatorEnabled: true, acceptMode: "review", ...options.settings } };
   const journal: string[] = [];
   const coordinator = new StagecraftCoordinator({
@@ -58,6 +58,7 @@ const harness = (options: { story?: NormalizedStoryV2 | null; state?: EngineStat
     getExtractionSettings: () => ({ profileId: "p" } as ExtractionRuntimeSettings),
     getCanon: () => "The flood took the bridge.",
     getOpenArcs: () => ["Who cut the ropes?"],
+    ...(options.filterEntries ? { filterEntries: options.filterEntries } : {}),
     journal: (summary) => journal.push(summary),
     persist: async () => undefined,
     notify: () => undefined,
@@ -213,6 +214,26 @@ describe("StagecraftCoordinator", () => {
     expect(upsertWIEntry).toHaveBeenCalledWith("Story Lore", "The bridge", "The bridge stands, its ropes new and taut.");
     expect(read().proposals).toEqual([]);
     expect(journal.some((entry) => entry.includes("rolled back"))).toBe(true);
+  });
+
+  it("builds the prompt from the entries the pre-filter kept, cannot propose a hidden one, and says it focused", async () => {
+    const seen: string[][] = [];
+    const env = harness({ filterEntries: async (entries, context) => { seen.push([context.checkpoint.name, context.canon, ...context.openThreads]); return entries.filter((entry) => entry.comment === "The ferryman"); } });
+    respond("[disable] The bridge");
+    const outcome = await env.coordinator.runCuratorPass("test");
+    expect(seen).toEqual([["The bank", "The flood took the bridge.", "Who cut the ropes?"]]);
+    expect(env.read().lastPass?.prompt).toContain("The ferryman");
+    expect(env.read().lastPass?.prompt).not.toContain("its ropes new and taut");
+    expect(outcome.record?.ops ?? []).toHaveLength(0);
+    expect(env.read().lastPass).toMatchObject({ proposed: 0, dropped: [expect.stringContaining("The bridge")], focus: { shown: 1, total: 2 } });
+  });
+
+  it("shows every entry when the pre-filter fails", async () => {
+    const env = harness({ filterEntries: async () => { throw new Error("down"); } });
+    respond("NONE");
+    await env.coordinator.runCuratorPass("test");
+    expect(env.read().lastPass?.prompt).toContain("its ropes new and taut");
+    expect(env.read().lastPass?.focus).toBeUndefined();
   });
 
   it("records a model failure without breaking play", async () => {
