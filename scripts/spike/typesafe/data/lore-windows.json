@@ -1,0 +1,49 @@
+{
+  "labelledAt": "2026-09-19",
+  "note": "v2.2 plan 04 lore-select calibration. Candidates are Adolion World entries uid 1-64 (uid 0 is the constant primer, excluded as lore-select excludes constants). Each window's text deliberately avoids the needed entries' keywords, which is the case lore-select exists for. `needed` was written before any answer was read.",
+  "book": "C:/dev/adolion-campaign/build/lorebooks/Adolion World.json",
+  "uids": { "from": 1, "to": 64 },
+  "scene": { "name": "Life as an adventurer", "goal": "Take jobs, climb the ranks and survive Adolion." },
+  "windows": [
+    { "id": "L01", "lang": "en", "needed": [18, 5, 3, 13], "transcript": [
+      { "speaker": "Narrator", "text": "The receptionist behind the long counter is an elven woman with green eyes; half the men at the tables are pretending not to stare at her." },
+      { "speaker": "Max", "text": "I step up to the counter. \"I want to sign up. What level does a new member start at, and what kind of jobs can I take on day one?\"" }
+    ] },
+    { "id": "L02", "lang": "en", "needed": [44, 43, 42, 41], "transcript": [
+      { "speaker": "Narrator", "text": "Night in the shanty streets of the capital, where the houses are built from scrap wood and thieves watch every stranger. A thin young man sells canvases from a blanket." },
+      { "speaker": "Max", "text": "I crouch by the paintings. The faces in them look exactly like the ones on the missing-person notices. \"Who signs these? And who buys something this gruesome?\"" }
+    ] },
+    { "id": "L03", "lang": "en", "needed": [10, 40, 17], "transcript": [
+      { "speaker": "Arin", "text": "\"You want to go south? Into the green hell that swallows a quarter of the continent? The things in there are twisted by whatever leaks out of that place.\"" },
+      { "speaker": "Max", "text": "\"And the gray-skinned warriors with the red eyes? I heard thousands of them live down there under a single chief.\"" }
+    ] },
+    { "id": "L04", "lang": "en", "needed": [12, 26, 25], "transcript": [
+      { "speaker": "The barbarian", "text": "She rests her huge stone axe on her shoulder. \"I was born up there, in the snow peaks where the wall between worlds is thin. My people still wander those passes.\"" },
+      { "speaker": "Max", "text": "\"Your people. The ones who think a woman's place is the cooking fire? No wonder you left.\"" }
+    ] },
+    { "id": "L05", "lang": "en", "needed": [29, 4, 9], "transcript": [
+      { "speaker": "Narrator", "text": "Three riders in red cloaks, holy symbols gleaming on their breastplates, block the road. Their leader says they hunt heresy wherever it hides." },
+      { "speaker": "Max", "text": "\"You think the baron isn't the baron anymore? That something from below is wearing his skin? Then how do you drive it out?\"" }
+    ] },
+    { "id": "L06", "lang": "es", "needed": [49, 48, 51, 14], "transcript": [
+      { "speaker": "Narrador", "text": "Más allá de la ciudad caída se alza un castillo gótico enorme. Dicen que sus pasillos cambian de sitio para atrapar a quien entra." },
+      { "speaker": "Max", "text": "\"¿Y su señor? He oído que es un no-muerto antiguo que ni siquiera teme al sol, y que acaba de despertar.\"" }
+    ] },
+    { "id": "L07", "lang": "es", "needed": [16, 52, 53], "transcript": [
+      { "speaker": "Aldeano", "text": "\"Anoche vinieron las pequeñas criaturas verdes, decenas de ellas. Con ellas venían brutos de más de dos metros con garrotes.\"" },
+      { "speaker": "Max", "text": "\"¿Y quién las dirigía? Algo tan organizado necesita un jefe fuerte que dé órdenes desde atrás.\"" }
+    ] },
+    { "id": "L08", "lang": "en", "needed": [57, 58, 59], "transcript": [
+      { "speaker": "Narrator", "text": "The alchemist unrolls a map and taps a dark mass of trees. \"The rarest ingredients grow there. So do the worst monsters in the land.\"" },
+      { "speaker": "Max", "text": "\"I heard a green wyrm rules those woods, with little lizard-folk serving him. Will they let us through if we pay?\"" }
+    ] },
+    { "id": "L09", "lang": "en", "needed": [63, 62, 61], "transcript": [
+      { "speaker": "Narrator", "text": "The abandoned mansion is all cobwebs and cracked windows. In a child's bedroom upstairs, a porcelain doll turns its head to follow you." },
+      { "speaker": "Max", "text": "\"The villagers said the family here was butchered by church hunters centuries ago. One daughter was never found.\"" }
+    ] },
+    { "id": "L10", "lang": "es", "needed": [27, 18], "transcript": [
+      { "speaker": "Narrador", "text": "En la barra, la camarera risueña te guiña un ojo y te sirve el mejor cóctel que has probado; dicen que también cocina de maravilla." },
+      { "speaker": "Max", "text": "\"¿Es verdad que eres la mejor amiga de la recepcionista elfa? Necesito que me presentes.\"" }
+    ] }
+  ]
+}

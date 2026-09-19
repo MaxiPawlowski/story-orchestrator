@@ -9,3 +9,6 @@ export * from "./selfTest";
 export * from "./selfTestCases";
 export * from "./scene";
 export * from "./sceneCalibration";
+export * from "./lore";
+export * from "./loreCalibration";
+export * from "./curatorFilter";

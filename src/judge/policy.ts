@@ -22,3 +22,13 @@ export const SCENE_FIELD_CONFIDENCE = 0.6;
 export const PRESENT_P = 0.7;
 export const HEADING_P = 0.7;
 export const SCENE_TIMEOUT_MS = 2500;
+
+export const LORE_MIN_P = 0.6;
+export const LORE_TOP_K = 4;
+export const LORE_MAX_TOP_K = 12;
+export const LORE_CHUNK = 64;
+export const LORE_CONTENT_CHARS = 600;
+export const LORE_TIMEOUT_MS = 1500;
+
+export const CURATOR_FILTER_P = 0.2;
+export const CURATOR_FILTER_MIN_ENTRIES = 12;

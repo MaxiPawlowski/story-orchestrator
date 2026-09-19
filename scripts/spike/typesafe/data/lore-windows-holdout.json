@@ -1,0 +1,33 @@
+{
+  "labelledAt": "2026-09-19",
+  "note": "Held out for v2.2 plan 04 lore-select. Written and labelled after the first calibration run missed its floors and before any rewording was scored. Candidates are Adolion World uid 65-128 plus the two generic world entries (uid 1 Adolion, uid 11 Sebela) that the first run over-rated, so the pool is 66 entries and takes two calls. Text avoids the needed entries' keywords.",
+  "book": "C:/dev/adolion-campaign/build/lorebooks/Adolion World.json",
+  "uids": { "from": 65, "to": 128, "extra": [1, 11] },
+  "scene": { "name": "Life as an adventurer", "goal": "Take jobs, climb the ranks and survive Adolion." },
+  "windows": [
+    { "id": "LH1", "lang": "en", "needed": [70, 69, 68, 83], "transcript": [
+      { "speaker": "Narrator", "text": "The wolves have camped outside the gothic fortress on the kingdom's edge for weeks, hundreds of them, howling at the walls every night." },
+      { "speaker": "Max", "text": "\"Their alpha, the bearded one, wants the lady of the castle dead. Why do they hate her so much if she fled her own father?\"" }
+    ] },
+    { "id": "LH2", "lang": "en", "needed": [86, 85, 87, 89], "transcript": [
+      { "speaker": "Narrator", "text": "The textile merchants' mansion is spotless and the bread on the table is still warm, though the whole family was buried a year ago." },
+      { "speaker": "Max", "text": "\"Something is calling to me from beneath the cellar floor. The father's body was never found, was it?\"" }
+    ] },
+    { "id": "LH3", "lang": "en", "needed": [73, 74], "transcript": [
+      { "speaker": "Narrator", "text": "In the great temple of the God of Life, the head priest blesses the crowd with an oily smile. The young blonde nun beside you shivers." },
+      { "speaker": "Max", "text": "\"Sister, you said the clergy started changing the day he arrived. What is he really?\"" }
+    ] },
+    { "id": "LH4", "lang": "es", "needed": [75, 76], "transcript": [
+      { "speaker": "Narrador", "text": "Una ladrona pelirroja con botas altas te arranca la bolsa del cinturón y corre hacia los callejones." },
+      { "speaker": "Max", "text": "\"¿Es de esa banda de rateros de la capital, la que apenas tiene diez miembros?\"" }
+    ] },
+    { "id": "LH5", "lang": "en", "needed": [123, 125, 126, 128], "transcript": [
+      { "speaker": "Narrator", "text": "The ship docks under cherry blossoms on the far eastern continent. Monks leap across the rooftops, powered by their inner energy." },
+      { "speaker": "Max", "text": "\"I want to enroll at the academy in the capital, the one that teaches you to absorb the strength of the foes you defeat.\"" }
+    ] },
+    { "id": "LH6", "lang": "es", "needed": [106, 107], "transcript": [
+      { "speaker": "Narrador", "text": "Bajáis a la ciudad de edificios púrpura bajo la tierra, donde las elfas de piel oscura gobiernan y los esclavos cargan piedras." },
+      { "speaker": "Max", "text": "\"¿A qué diosa rezan aquí? He oído que es la señora del engaño y la venganza.\"" }
+    ] }
+  ]
+}

@@ -1,0 +1,228 @@
+{
+  "use": "curator-filter",
+  "floors": {
+    "recall": 0.9,
+    "narrowed": 0
+  },
+  "labelledAt": "2026-09-19",
+  "source": "Promoted from scripts/spike/typesafe/data/curator-filter.json (Phase A, labels written before any answer was read; the noir set is Spanish). recall = an entry needing attention is still shown to the curator; narrowed = a fine switched-on entry was dropped from its prompt (reported, no floor).",
+  "rows": [
+    {
+      "id": "sun-ruins",
+      "lang": "en",
+      "input": {
+        "checkpoint": {
+          "name": "Find the Artifact",
+          "objective": "Recover the Sun's Heart Artifact from the inner chamber."
+        },
+        "canon": "Max accepted the Sun Ruins contract from Ponticius, who later raised the reward to 500 crowns. Luke joined the expedition after all. At the ruins the sphinx's riddle was answered wrong; the great front gate collapsed, and the party got in through a side tunnel. Arin was badly cut in the collapse and is bleeding.",
+        "openThreads": [
+          "Can Arin keep fighting with her wound?",
+          "Will Luke make it home safely?"
+        ],
+        "entries": [
+          {
+            "title": "Sun Ruins Gate",
+            "content": "The ruins' only entrance is a great stone gate guarded by the sphinx.",
+            "enabled": true
+          },
+          {
+            "title": "Guild Reward",
+            "content": "The guild pays 250 crowns for the Sun's Heart.",
+            "enabled": true
+          },
+          {
+            "title": "Luke",
+            "content": "Max's younger brother Luke stays home with their mother while Max is away.",
+            "enabled": true
+          },
+          {
+            "title": "Desert Weather",
+            "content": "Sandstorms rise in the afternoon and die down by dusk.",
+            "enabled": true
+          },
+          {
+            "title": "Arin's Blade",
+            "content": "Arin carries a curved blade she took from a pirate captain.",
+            "enabled": true
+          },
+          {
+            "title": "Bitterroot",
+            "content": "Bitterroot grows in the ruins' side tunnels; chewed and packed into a cut, it stops bleeding.",
+            "enabled": false
+          }
+        ]
+      },
+      "attention": [
+        true,
+        true,
+        true,
+        false,
+        false,
+        true
+      ]
+    },
+    {
+      "id": "ship",
+      "lang": "en",
+      "input": {
+        "checkpoint": {
+          "name": "Reach Kepler Station",
+          "objective": "Bring the damaged ship into Kepler Station's repair dock."
+        },
+        "canon": "Pell restored the reactor with a coolant bypass. The hull breach on deck three was sealed with four patches. A debris strike tore off HALO's long-range antenna, so the ship can no longer make long-range calls. Captain Okafor set a course for Kepler Station.",
+        "openThreads": [
+          "Can the crew call for help without the antenna?"
+        ],
+        "entries": [
+          {
+            "title": "Reactor Status",
+            "content": "The reactor is failing: coolant loop two is burned out and output is dropping.",
+            "enabled": true
+          },
+          {
+            "title": "HALO",
+            "content": "HALO, the ship's AI, handles all communications, including long-range calls to any station.",
+            "enabled": true
+          },
+          {
+            "title": "Pell",
+            "content": "Pell is the ship's engineer and hates being interrupted mid-repair.",
+            "enabled": true
+          },
+          {
+            "title": "Escape Pods",
+            "content": "The ship carries four escape pods on deck two.",
+            "enabled": true
+          },
+          {
+            "title": "Kepler Station",
+            "content": "Kepler Station is a mining outpost with a repair dock. It only answers short-range hails.",
+            "enabled": false
+          },
+          {
+            "title": "Captain's Log",
+            "content": "Captain Okafor keeps a paper log in her quarters and writes in it every night.",
+            "enabled": true
+          }
+        ]
+      },
+      "attention": [
+        true,
+        true,
+        false,
+        false,
+        true,
+        false
+      ]
+    },
+    {
+      "id": "noir",
+      "lang": "es",
+      "input": {
+        "checkpoint": {
+          "name": "Atrapar a Doyle",
+          "objective": "Arrest the harbor master before he flees."
+        },
+        "canon": "Asuntos Internos arrestó al teniente Brandt después de ver las fotos del muelle. Maeve declaró que quien pagaba a la policía del puerto era el jefe del puerto, Doyle. El libro de cuentas del contrabandista apareció bajo el suelo de la lavandería de Pike Street.",
+        "openThreads": [
+          "¿Dónde se esconde Doyle?"
+        ],
+        "entries": [
+          {
+            "title": "Teniente Brandt",
+            "content": "El teniente Brandt dirige la policía del puerto y cobra sobornos cada semana en el muelle nueve.",
+            "enabled": true
+          },
+          {
+            "title": "El libro de cuentas",
+            "content": "Nadie sabe dónde está el libro de cuentas del contrabandista.",
+            "enabled": true
+          },
+          {
+            "title": "Blue Anchor",
+            "content": "El Blue Anchor es un club nocturno junto al muelle nueve; Maeve canta allí casi todas las noches.",
+            "enabled": true
+          },
+          {
+            "title": "Doyle",
+            "content": "Doyle, el jefe del puerto, tiene una lancha amarrada en el muelle doce, lista para huir.",
+            "enabled": false
+          },
+          {
+            "title": "Mae Hollis",
+            "content": "Mae Hollis es detective de homicidios y la compañera de Max desde hace seis años.",
+            "enabled": true
+          },
+          {
+            "title": "Lluvia en Mercer Street",
+            "content": "En Mercer Street llueve casi todas las noches y las farolas parpadean.",
+            "enabled": true
+          }
+        ]
+      },
+      "attention": [
+        true,
+        true,
+        false,
+        true,
+        false,
+        false
+      ]
+    },
+    {
+      "id": "manor",
+      "lang": "en",
+      "input": {
+        "checkpoint": {
+          "name": "Leave the Manor",
+          "objective": "Pack and leave Ashworth Hall before nightfall."
+        },
+        "canon": "The moving portraits turned out to be a mechanism Graves works from behind the walls to scare off buyers. Lady Ashworth confessed she is selling the house to pay her late husband's debts. Max found the family records in the library.",
+        "openThreads": [
+          "Will Lady Ashworth forgive Graves?"
+        ],
+        "entries": [
+          {
+            "title": "The Portraits",
+            "content": "The portraits move on their own; the whole household believes the house is haunted.",
+            "enabled": true
+          },
+          {
+            "title": "Graves",
+            "content": "Graves is the elderly butler; he has served the Ashworths for forty years.",
+            "enabled": true
+          },
+          {
+            "title": "Family Records",
+            "content": "The Ashworth family records were lost years ago and no one knows where they went.",
+            "enabled": true
+          },
+          {
+            "title": "The Carriage",
+            "content": "The estate carriage leaves from the east gate at sunset; it is the only way back to town.",
+            "enabled": false
+          },
+          {
+            "title": "The Library",
+            "content": "The library holds three hundred volumes, most of them on botany.",
+            "enabled": true
+          },
+          {
+            "title": "The Sale",
+            "content": "Lady Ashworth is quietly selling Ashworth Hall to pay her late husband's debts.",
+            "enabled": true
+          }
+        ]
+      },
+      "attention": [
+        true,
+        false,
+        true,
+        true,
+        false,
+        false
+      ]
+    }
+  ]
+}

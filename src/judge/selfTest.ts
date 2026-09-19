@@ -102,3 +102,23 @@ export async function runMemoryPairsCalibration(ask: (request: JudgeRequest) => 
   }));
   return summarize(rows);
 }
+
+export interface JudgeFamilyScore {
+  family: string;
+  right: number;
+  total: number;
+  floor: number;
+  ok: boolean;
+}
+
+// Calibration rows named `<case>.<family>[:<item>]`, each family read against its own floor.
+export const judgeFamilyOf = (rowId: string): string => rowId.slice(rowId.indexOf(".") + 1).split(":")[0];
+
+export function judgeFamilyScores(report: JudgeSelfTestReport, floors: Record<string, number>): JudgeFamilyScore[] {
+  return Object.entries(floors).flatMap(([family, floor]) => {
+    const rows = report.rows.filter((row) => judgeFamilyOf(row.id) === family);
+    if (!rows.length) return [];
+    const right = rows.filter((row) => row.right).length;
+    return [{ family, right, total: rows.length, floor, ok: right / rows.length >= floor }];
+  });
+}

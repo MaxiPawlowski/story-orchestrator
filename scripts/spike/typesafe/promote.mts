@@ -2,12 +2,13 @@ import { register } from 'node:module';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { PROJECT_ROOT } from './lib/client.mts';
-import { loadData, worlds, type WorldDef } from './lib/story.mts';
+import { readFileSync } from 'node:fs';
+import { loadData, loadHardCases, msgId, worlds, type WorldDef } from './lib/story.mts';
 
 register('./lib/loader.mts', import.meta.url);
 const { worldForSpeakers } = await import('./lib/sharedRead.mts');
 
-const USAGE = `Usage: node --no-warnings --experimental-transform-types scripts/spike/typesafe/promote.mts scene|scene-holdout
+const USAGE = `Usage: node --no-warnings --experimental-transform-types scripts/spike/typesafe/promote.mts scene|scene-holdout|lore|lore-holdout|curator-filter
 
 Promotes Phase A spike data to a production calibration fixture in test/fixtures/judge/. The rows
 carry the production input (src/judge SceneReadInput) plus the labels written before any answer
@@ -81,7 +82,79 @@ function scene(holdout = false) {
   console.log(`${windows.length} windows, ${breaks.length} break rows`);
 }
 
+interface LoreWindows { book: string; uids: { from: number; to: number; extra?: number[] }; scene: { name: string; goal: string }; windows: Array<{ id: string; lang: string; needed: number[]; transcript: Line[] }> }
+interface WiFile { entries: Record<string, Array<{ title: string; content: string }>>; scenes: Array<{ id: string; world: string; checkpoint: string; case: string; on: string[]; off: string[] }> }
+
+function lore(holdout = false) {
+  const data = loadData<LoreWindows>(holdout ? 'lore-windows-holdout.json' : 'lore-windows.json');
+  const book = JSON.parse(readFileSync(data.book, 'utf-8')) as { entries: Record<string, { uid: number; comment?: string; content?: string; disable?: boolean; constant?: boolean }> };
+  const world = 'SO-J11 Adolion World';
+  const adolion = Object.values(book.entries)
+    .filter((entry) => (entry.uid >= data.uids.from && entry.uid <= data.uids.to) || (data.uids.extra ?? []).includes(entry.uid))
+    .sort((left, right) => left.uid - right.uid)
+    .map((entry) => ({ world, uid: entry.uid, comment: entry.comment ?? '', content: entry.content ?? '', ...(entry.disable ? { disable: true } : {}), ...(entry.constant ? { constant: true } : {}) }));
+  const wi = loadData<WiFile>('wi-relevance.json');
+  const known = worlds();
+  const hard = Object.fromEntries(loadHardCases().map((item) => [item.id, item]));
+  const pools: Record<string, unknown[]> = { adolion };
+  const spikeRows = wi.scenes.map((scene) => {
+    const checkpoint = known[scene.world].checkpoints[scene.checkpoint];
+    const entries = wi.entries[scene.world]
+      .map((entry, uid) => ({ world: `spike-${scene.world}`, uid, comment: entry.title, content: entry.content }))
+      .filter((entry) => scene.on.includes(entry.comment) || scene.off.includes(entry.comment));
+    pools[`spike-${scene.id}`] = entries;
+    return {
+      id: scene.id,
+      lang: 'en',
+      pool: `spike-${scene.id}`,
+      scene: { checkpointName: checkpoint.name, objective: checkpoint.objective, window: hard[scene.case].transcript.map((message) => ({ speaker: message.speaker, text: message.text })) },
+      needed: entries.filter((entry) => scene.on.includes(entry.comment)).map((entry) => `${entry.world}.${entry.uid}`),
+    };
+  });
+  if (holdout) {
+    Object.keys(pools).filter((key) => key !== 'adolion').forEach((key) => delete pools[key]);
+    spikeRows.length = 0;
+  }
+  const rows = [
+    ...data.windows.map((window) => ({ id: window.id, lang: window.lang, pool: 'adolion', scene: { checkpointName: data.scene.name, objective: data.scene.goal, window: window.transcript }, needed: window.needed.map((uid) => `${world}.${uid}`) })),
+    ...spikeRows,
+  ];
+  const out = join(PROJECT_ROOT, 'test', 'fixtures', 'judge');
+  writeFileSync(join(out, holdout ? 'lore-holdout.json' : 'lore.json'), `${JSON.stringify({
+    use: 'lore',
+    floors: { recall: 0.8, precision: 0.7 },
+    labelledAt: '2026-09-19',
+    source: 'Adolion World entries uid 1-64 (pool `adolion`, from the Adolion campaign build) against 10 hand-written windows whose text avoids the needed entries’ keywords (scripts/spike/typesafe/data/lore-windows.json), plus the spike’s WI-relevance scenes (on = needed). Labels were written before any answer was read.',
+    pools,
+    rows,
+  }, null, 2)}
+`);
+  console.log(`${rows.length} lore rows, pools ${Object.keys(pools).length} (adolion ${adolion.length} entries)`);
+}
+
+function curatorFilter() {
+  const stories = loadData<{ stories: Array<{ id: string; checkpoint: { name: string; objective: string }; canon: string; openThreads: string[]; entries: Array<{ title: string; on: boolean; content: string; attention: boolean }> }> }>('curator-filter.json').stories;
+  const rows = stories.map((story) => ({
+    id: story.id,
+    lang: story.id === 'noir' ? 'es' : 'en',
+    input: { checkpoint: story.checkpoint, canon: story.canon, openThreads: story.openThreads, entries: story.entries.map((entry) => ({ title: entry.title, content: entry.content, enabled: entry.on })) },
+    attention: story.entries.map((entry) => entry.attention),
+  }));
+  writeFileSync(join(PROJECT_ROOT, 'test', 'fixtures', 'judge', 'curator-filter.json'), `${JSON.stringify({
+    use: 'curator-filter',
+    floors: { recall: 0.9, narrowed: 0 },
+    labelledAt: '2026-09-19',
+    source: 'Promoted from scripts/spike/typesafe/data/curator-filter.json (Phase A, labels written before any answer was read; the noir set is Spanish). recall = an entry needing attention is still shown to the curator; narrowed = a fine switched-on entry was dropped from its prompt (reported, no floor).',
+    rows,
+  }, null, 2)}
+`);
+  console.log(`${rows.length} curator-filter stories`);
+}
+
 const [command] = process.argv.slice(2);
 if (command === 'scene') scene();
 else if (command === 'scene-holdout') scene(true);
+else if (command === 'lore') lore();
+else if (command === 'lore-holdout') lore(true);
+else if (command === 'curator-filter') curatorFilter();
 else console.log(USAGE);

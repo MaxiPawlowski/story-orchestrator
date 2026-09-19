@@ -223,6 +223,38 @@ Floor: recall@top_k ≥ 0.8, and precision of forced entries ≥ 0.7.
 | J11.19 | Judge lore off → the prompt is identical to ST's keyword scan (same activated set), and `judgeCalls = 0` |
 | Cleanup | Removes the marked book (`so-assets remove --marker SO-J11`) |
 
+### Calibration record (off-page, 2026-09-19)
+
+Production code (`src/judge/lore.ts`, `curatorFilter.ts`) → the real plugin handler → the live API,
+`jev-1.13.0`: `scripts/spike/typesafe/calibrate-node.mts lore|curator-filter [--fixture …] --record`.
+Fixtures come from `promote.mts lore|lore-holdout|curator-filter`.
+
+**Lore-select.** The large-book set is the Adolion World book (369 entries; the 64 entries uid 1–64
+are the pool, uid 0 is its constant primer). There are 10 hand-written windows, 3 in Spanish,
+whose text avoids every needed entry's keywords, which is the case lore-select exists for. The 4
+spike WI scenes are added (on = needed). The held-out set is 6 windows over uid 65–128, plus the two
+generic world entries the first run over-rated: 66 entries, so two calls per window.
+
+| Wording | Tuning recall / precision | Held-out recall / precision | Floor 0.8 / 0.7 |
+|---|---|---|---|
+| Spike ("Should this lore entry be active…") | 30/39 (77%) / 30/44 (68%) | 14/18 (78%) / 14/19 (74%) | **fail** |
+| Revised ("Does the next reply need the specific facts…", criteria exclude general world background) | 34/39 (87%) / 34/38 (89%) | **16/18 (89%) / 16/16 (100%)** | pass |
+
+Why the spike wording failed: the world overview entry (`Place - Adolion`) rated 0.65–0.84 in 13
+of 16 windows and took a top-4 slot every time. That was 8 of the 14 tuning precision misses and
+all 5 held-out ones. The held-out set was written after the first run and before the revision was
+scored, and it was scored once per wording. A few remaining tuning "false positives" arguably
+contradict my own labels (Inquisition for the cursed-doll manor, the Guild for the guild bar). The
+labels were not changed after reading answers.
+
+Latency: one 64-question call takes ~0.9–1.1 s off-page, under `LORE_TIMEOUT_MS` (1.5 s), but above
+the 800 ms p90 at which the implementation notes move lore-select to a boundary precompute. The live
+gate measures it through the page and decides.
+
+**Curator pre-filter** (Phase A data promoted, production code): recall **13/13** at
+`CURATOR_FILTER_P` 0.2, and 9 of the 11 fine switched-on entries dropped from the curator's prompt.
+It passes.
+
 ## Implementation notes
 
 - Force, don't write. The only host effect is the per-generation event, so rollback has nothing to

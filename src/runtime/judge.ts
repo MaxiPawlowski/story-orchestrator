@@ -1,4 +1,4 @@
-import { askJudge, buildDirectorRequest, runJudgeDirectorSelfTest, runMemoryPairsCalibration, runMemoryVerifyCalibration, runSceneCalibration, type SceneCalibrationCase, type MemoryPairCase, type MemoryVerifyCase, type JudgeSelfTestCase, type JudgeSelfTestReport, decideDirector, directorJudgeEligible, directorRecordP, judgeUseActive, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord, type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeRequest, type JudgeResponse, type JudgeResult, type JudgeSettings, type JudgeTransport, type JudgeUseKey } from "@judge/index";
+import { askJudge, buildDirectorRequest, runJudgeDirectorSelfTest, runMemoryPairsCalibration, runMemoryVerifyCalibration, runSceneCalibration, type SceneCalibrationCase, runLoreCalibration, type LoreCalibrationCase, runCuratorFilterCalibration, type CuratorFilterCase, type MemoryPairCase, type MemoryVerifyCase, type JudgeSelfTestCase, type JudgeSelfTestReport, decideDirector, directorJudgeEligible, directorRecordP, judgeUseActive, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord, type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeRequest, type JudgeResponse, type JudgeResult, type JudgeSettings, type JudgeTransport, type JudgeUseKey } from "@judge/index";
 
 export interface JudgeStatusLike {
   configured: boolean;
@@ -61,6 +61,8 @@ export class JudgeRuntime {
     if (use === "memory-verify") return runMemoryVerifyCalibration(ask, cases as MemoryVerifyCase[]);
     if (use === "memory-pairs") return runMemoryPairsCalibration(ask, cases as MemoryPairCase[]);
     if (use === "scene") return runSceneCalibration(ask, cases as SceneCalibrationCase[]);
+    if (use === "lore") return runLoreCalibration(ask, cases as LoreCalibrationCase[]);
+    if (use === "curator-filter") return runCuratorFilterCalibration(ask, cases as CuratorFilterCase[]);
     return Promise.reject(new Error(`no calibration for judge use '${use}' yet`));
   }
 

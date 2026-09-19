@@ -1,0 +1,555 @@
+{
+  "use": "lore",
+  "floors": {
+    "recall": 0.8,
+    "precision": 0.7
+  },
+  "labelledAt": "2026-09-19",
+  "source": "Adolion World entries uid 1-64 (pool `adolion`, from the Adolion campaign build) against 10 hand-written windows whose text avoids the needed entries’ keywords (scripts/spike/typesafe/data/lore-windows.json), plus the spike’s WI-relevance scenes (on = needed). Labels were written before any answer was read.",
+  "pools": {
+    "adolion": [
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 1,
+        "comment": "Place - Adolion",
+        "content": "Adolion is a large fantasy world. It is comprised of a large number of races such as elves, demons, humans, dwarves, goblins, and more. It has medieval technology, magic, and monsters.\nAppearance: Whole fantasy world, medieval walled kingdoms and stone castles, untamed forests, jungles and snowy mountains, ruins of old wars, magic-driven airships in the skies."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 11,
+        "comment": "Place - Sebela",
+        "content": "Sebela is the largest continent on Adolion. It features a variety of biomes. It's most notable areas are: Aegis City, the Vile Jungle, the Mountains of Shadow, and Gragow.\nAppearance: Largest continent of Adolion, varied biomes from dense jungle to snowy mountains and deep forests, walled kingdoms and villages, great capital Aegis City."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 65,
+        "comment": "NPC - Kayla",
+        "content": "Kayla Thornwood is a beautiful woman living in Thornwood Forest, secretly a witch. Lives in a cabin in the middle of a lake, has been killing people to keep her secret for decades.\nAppearance: adult woman, witch, tall, long straight black hair, pale blue eyes, black nails, raven hair ornament, skull earrings, choker, revealing black lace-up dress, black coat with red lining, thigh-high stockings."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 66,
+        "comment": "Lore - Witch",
+        "content": "A witch is a human woman that signed a deal with a devil to serve in hell after their death in exchange for magical powers. This supernaturally extends their lifespan. Witches are hunted by the Inquisition for heresy. Witches often form covens of multiple witches for safety."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 67,
+        "comment": "Place - Thornwood Forest",
+        "content": "Thornwood Forest is a large forest located outside of Aegis City, considered unlucky by people who live nearby. Aggressive Lost Souls who died violently wander Thornwood Forest until they are put to rest.\nAppearance: Large gloomy forest outside Aegis City, gnarled thorny trees, drifting mist, dim grey light, restless lost souls wandering, a lakeside cabin deep within."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 68,
+        "comment": "NPC - Alice",
+        "content": "Alice Malvoraux is an elder vampire and the daughter of Gabriel Malvoraux. Hates her father, fled his home after he refused to turn her mother into a vampire. Owner of Castle Frankat, leader of the Vampire Clan Halstadt. Her familiar is Batty the Bat. Has a blood-pact with the nearby town of Gainsville.\nAppearance: adult woman, elder vampire, long silver hair, red eyes, fangs, pale skin, black-and-red bat wings, frilly black-red gothic dress with white ruffles, black high-collared cloak, giant silver spork."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 69,
+        "comment": "Place - Castle Frankat",
+        "content": "Castle Frankat is a large gothic castle located on the outskirts of the Darran Kingdom. Ruled by Alice Malvoraux. Filled with vampires of the Halstadt Clan who owe their allegiance to Alice. Permanently nighttime while on castle grounds. Expensive decorations, golem sentries.\nAppearance: Large gothic castle on the Darran Kingdom's outskirts, eternal night over its grounds, lavish costly decor, golem sentries, werewolf siege camps beyond the walls."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 70,
+        "comment": "Lore - Nightwolf Werewolf Clan",
+        "content": "The Nightwolf Clan is a clan of werewolves at war with the Malvoraux vampires. Constantly sieging Castle Frankat. Pack is hundreds strong. Has a camp hidden in Astoria Forest."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 71,
+        "comment": "Lore - Vampire Blood-pact",
+        "content": "Towns that accept a vampire lords protection in exchange for providing villagers to give the vampires blood are known as having formed a blood-pact."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 72,
+        "comment": "Lore - Lich Wars",
+        "content": "The Great Lich Wars was a decades long conflict against the Lich Queen, who overran half the continent with undead monstrosities, keeping people alive in internment camps to produce more bodies for her hordes of undead."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 73,
+        "comment": "NPC - Donahue",
+        "content": "Father Donahue is the Head Priest of the Temple of Boher in Aegis City. Secretly the demon Malzo who has been corrupting the clergy in order to destroy the temple and weaken the faith. Clever, Manipulative, Gaslighter, Secretive."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 74,
+        "comment": "NPC - Alarise",
+        "content": "Alarise Starflower is a nun who worships Boher. Short blonde hair, wears a nuns habit, friends with Ellie, Fiana, and Arryn. Reserved, Dogmatic, Scrupulous, Gentle, Killjoy.\nAppearance: young woman, human, shoulder-length blonde hair, green eyes, white priestess robe with gold trim and lace high collar, gold sun pendant necklace, green clover gem choker."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 75,
+        "comment": "NPC - Dahlia",
+        "content": "Dahlia Blossom is a Female thief. She has short red hair, wears a black and red leotard, thigh-high boots.\nAppearance: young woman, slender, shoulder-length red hair, blue eyes, black hooded cloak, teal neck scarf, black leather corset, brown leather gloves, leather belt with pouch, curved dagger at hip."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 76,
+        "comment": "Lore - Sunlight Cats",
+        "content": "The Sunlight Cats is a gang in Aegis City comprised of petty thieves. Only about ten members. Led by Dallas Thornton."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 77,
+        "comment": "NPC - Talis",
+        "content": "Talis Dacaryn is a bubbly elf girl with long blue hair in a ponytail and a skimpy dress along with wizard robes. Spell caster. Prankster.\nAppearance: young woman, elf, long light blue ponytail, sky blue eyes, pointed ears, star earrings, open white-and-gold wizard robe, short blue dress, dark sash, dark thigh-highs, blue crystal-topped staff."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 78,
+        "comment": "NPC - Archmage Dacaryn",
+        "content": "Archmage Dacaryn is one of five powerful wizards in Aegis City to achieve the title of Archmage. Talis' mother."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 79,
+        "comment": "NPC - The Witch of Blackfeather Forest",
+        "content": "The Witch of Blackfeater Forest is known in nearby villages as surprisingly amicable, often helps out by providing cheap healing potions in exchange for food and other goods. Currently being staked out by the Inquisition."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 80,
+        "comment": "Creature - Grave worm",
+        "content": "Grave Worms are massive worms the size of a small building, animated by necromancy, undead, devours everything in sight.\nAppearance: Building-sized undead worm, rotting segmented gray flesh, gaping round maw ringed with teeth, clinging grave dirt, faint necromantic glow."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 81,
+        "comment": "NPC - Dalforth Novast",
+        "content": "Dalforth Novast is a gravedigger in Aegis City's cemetery. Old, necromancer, boils on skin. Angry, spellcaster, raises dead to fight for him."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 82,
+        "comment": "Lore - Wolf Pyre",
+        "content": "Wolf Pyre's are campfires that stoke the animalistic rage within werewolves, sending them into a killing frenzy."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 83,
+        "comment": "NPC - Lobo Beckst",
+        "content": "Lobo Beckst is the Alpha of the Nightwolf Clan. Short messy black hair, muscular, well-maintained beard."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 84,
+        "comment": "Lore - Halia",
+        "content": "The Goddess of the Moon, Halia only grants her power to those who offer appropriate sacrifices. She is seen as wild and untameable."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 85,
+        "comment": "Lore - De la Roche",
+        "content": "De la Roche is a noble family who earned their status through the export of textiles. Had a father, mother, daughter, and two sons."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 86,
+        "comment": "Place - De la Roche Mansion",
+        "content": "Unnaturally good condition, clean, food is fresh. Two floors and a basement. Extravagant furnishings. Haunted. Secret cave system beneath the basement that no one knows about which has the Beast of De la Roche inside of it.\nAppearance: Two-story haunted noble mansion, extravagant furnishings, unnaturally pristine and clean, fresh food laid out, deep basement, eerie silent stillness."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 87,
+        "comment": "Creature - Beast of De la Roche",
+        "content": "An eldritch creature hidden in the secret caves beneath the manor. Psychic capabilities. Wants to trick {{user}} into coming down to the secret caves so it can steal their body. A Brain Stealer. Used to be Gregory de la Roche\nAppearance: Ten-foot eldritch Brain Stealer, huge pulsating brain body, eight spider-like legs, three eyes, smaller brains in fleshy jars embedded in its body."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 88,
+        "comment": "Creature - Brain Stealer",
+        "content": "A Brain Stealer is a massive ten foot tall creature with eight spider-like legs. It's a massive pulsating brain that holds smaller brains in jars encased of its flesh. Three eyes. Psychic capabilities. Attacks by spearing enemies with its legs or psychically disabling opponents.\nAppearance: Ten-foot creature, huge pulsating brain for a body, eight spider-like legs, three eyes, smaller brains held in jars encased in its flesh."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 89,
+        "comment": "NPC - Gregory de la Roche",
+        "content": "Patriarch of the de la Roche family. Unknown to anyone became a Brain Stealer and killed his family after they tried to leave him."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 90,
+        "comment": "NPC - Sonya de la Roche",
+        "content": "Matriarch of the de la Roche family. Dead."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 91,
+        "comment": "NPC - Lily de la Roche",
+        "content": "Daughter of the de la Roche family. 13 years old. Dead."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 92,
+        "comment": "NPC - Jason de la Roche",
+        "content": "Eldest son of the de la Roche family. 16 years old. Dead."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 93,
+        "comment": "NPC - Robert de la Roche",
+        "content": "Youngest son of the de la Roche family. 7 years old. Dead."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 94,
+        "comment": "Place - Thornwick Mansion",
+        "content": "Thornwick Manor is a mansion previously owned by Chester Thornwick who was arrested for human trafficking. Located in Aegis City. Large, extravagant, clean. Courtyard, ballroom, three floors, basement. Secret passage in basement that leads to Darklands.\nAppearance: Large extravagant three-story Aegis City mansion, spotless halls, grand ballroom, open courtyard, deep basement, polished wood and gilt trim."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 95,
+        "comment": "NPC - Chester Thornwick",
+        "content": "Chester Thornwick is a high-ranking nobleman in the Darran Kingdom who abused his authority to coordinate with Dark Elves to kidnap people to work in his brothels."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 96,
+        "comment": "NPC - Reiner",
+        "content": "Reiner Dalmead is an Elf Butler, blue hair in a ponytail. Intersperses French words throughout his dialogue. Acquaintances with Karos.\nAppearance: adult man, elf, tall lithe build, long light-blue hair in high ponytail, blue eyes, white shirt, black ribbon tie, cream waistcoat, black tailcoat with pocket square, black trousers."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 97,
+        "comment": "Place - Glasnoa",
+        "content": "Glasnoa is a forest village. Primarily inhabited by elves. High Inquisition presence. Extremely far from Aegis City Closest Escape routes: Malert Mines, Scyldforst, Wyrdfang Peaks.\nAppearance: Remote elven forest village, wooden homes among tall trees, green-gold forest light, Inquisition patrols and checkpoints, tense watchful mood."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 98,
+        "comment": "Place - Malert Mines",
+        "content": "Malert Mines is an sprawling underground mine system that runs into the Darklands. Dwarvish, crumbling, high demonic presence, infested with demons, underground, lit by magic braziers, massive stone structures. Easy to hide in but easy to get lost. Leads to Darklands or near Aegis City.\nAppearance: Sprawling crumbling dwarven mine, massive carved stone halls and tunnels, magic braziers casting firelight, demon-infested depths descending toward the Darklands."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 99,
+        "comment": "Place - Scyldforst",
+        "content": "Scyldforst is a large forest with deadly creatures inside. Forest canopy, very little light, fae creatures, deadly animals, dinosaurs, aggressive plant life, druids, maze-like. Most dangerous route to Aegis City. Leads to the human town of Carrion Hill.\nAppearance: Vast maze-like forest, dense canopy blocking light, deep green darkness, aggressive grasping plants, fae lights, prowling dinosaurs and deadly beasts."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 100,
+        "comment": "Place - Wyrdfang Peaks",
+        "content": "Wyrdfang Peaks is a large snowy mountain range. Frost-covered mountains, extreme cold, yeti's, giantfolk, aggressive wolf-folk beastkin. Most direct route to Aegis City. Easy to die due to extreme temperature.\nAppearance: Large snowy mountain range, frost-covered jagged peaks, howling blizzards, extreme cold, icy passes, pale blue-white palette, yeti and giantfolk territory."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 101,
+        "comment": "Lore - Mysterious Benefactor",
+        "content": "A quest was posted by someone who wanted to rescue Selena. The pay is absurdly good and all that is required is to bring her to the Adventurer's Guild in Aegis City."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 102,
+        "comment": "Lore - Moonlight Blade Style",
+        "content": "The Moonlight Blade Style is a style of fighting that uses a longsword and incorporates the half-swording style along with a variety of kicks, punches, and bashes. Its ultimate technique is Farslash."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 103,
+        "comment": "Lore - Farslash",
+        "content": "Farslash is the final technique of the Moonlight Blade style. The attacker strikes from three angles with a single strike preventing the target from being able to dodge."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 104,
+        "comment": "Race - Demonborn",
+        "content": "A Demonborn is a mortal who consumed demon flesh and blood to inherit the traits and powers of demonkind. Most don't survive the changes. Reviled and hated by all civilized races.\nAppearance: Mortals transformed by eating demon flesh, demonic horns, red eyes, often long white hair, unnaturally pale skin."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 105,
+        "comment": "Creature - Terrorborn",
+        "content": "Terrorborn (or Terrorling) are creatures born from somewhere deep in the Darklands. Massive insectoid creatures with hardened exoskeletons. Known to drag people into hives to harvest them. Seek demon flesh for some unknown reason.\nAppearance: Massive insectoids from the deep Darklands, hardened chitinous exoskeletons, mandibles, many legs, wagon-sized hive drones or tiny choking swarms."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 106,
+        "comment": "Place - Kalzobarn",
+        "content": "Kalzobarn is the Drow capital, located in the Underdark, large purple buildings, inhabited by drow, humanoid slaves, matriarchal society, ruled by House Darnovan. Main worship is Morrilith.\nAppearance: Drow capital deep in the Underdark, large purple stone buildings, spider motifs, slave pens, dim violet cavern glow, shrines to Morrilith."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 107,
+        "comment": "Lore - Morrilith",
+        "content": "Morrilith the Honeyed Sting is the Drow goddess. Her domains are subterfuge, trickery, and vengeance. Her followers are mainly Drow and assassins, who believe no slight should go unpunished."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 108,
+        "comment": "NPC - Crown Prince Forre Davolan",
+        "content": "Prince Forre Davolan is the Crown Prince and eldest son of King Davolan. Will eventually become King of the Darran Kingdom when his father passes. A blademaster. He has been known to speak openly and critically of his father: the King."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 109,
+        "comment": "Place - Aegis Academy",
+        "content": "Aegis Academy is the premier educational institution in Aegis City for nobles. Nobles are often accompanied by servants. Has dorms where the students live. Knights train here to serve noble houses.\nAppearance: Prestigious noble academy in Aegis City's Noble District, grand stone halls and student dormitories, knight training yards, formal ballroom, house banners."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 110,
+        "comment": "NPC - Ashleigh Delarise",
+        "content": "Ashleigh Delarise is the Eldest Daughter of the Delarise house. She was engaged to the Prince but the Prince annulled the engagement. Long silver hair. Heterochromia (left eye: purple, right eye: hazel)."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 111,
+        "comment": "Lore - Airship",
+        "content": "Airships are flying ships propelled by magic and capable of being outfitted with a variety of weaponry. First developed by the Delarise family."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 112,
+        "comment": "NPC - Crown Princess Haley Davolan",
+        "content": "Princess Davolan is the Crown Princess and eldest daughter of King Davolan. Was set to be married to Ashton Delarise before she broke off the engagement. An expert fencer. Long silver hair. Emerald Green eyes. She is known to be arrogant and bratty."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 113,
+        "comment": "NPC - Ashton Delarise",
+        "content": "Ashton Delarise is the eldest Son of the Delarise house. Was engaged to Princess Davolan before she annulled it. Short silver hair. Heterochromia (left eye: blue, right eye: silver). He is the heir to the Delarise household."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 114,
+        "comment": "Race - Fleshwarp",
+        "content": "A fleshwarp are Humanoid people whose forms have been twisted and warped by magic. Due to their unnatural and often hideous appearances they struggle to fit in in society.\nAppearance: Humanoids twisted by magic, asymmetrical warped limbs, mottled scarred skin, odd growths or extra features, often hidden under hooded cloaks."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 115,
+        "comment": "NPC - Yuna",
+        "content": "Yuna is a Fleshwarp. She has: Heterochromia(Red and blue), Pointed Ears, Red Demonic Horns, sharp claws for hands, E-Cup breasts, wide hips, narrow waist, lions tail, long silver hair, white bird wings. Not much is known about Yuna.\nAppearance: adult fleshwarp woman, long silver hair, heterochromia red and blue eyes, pointed ears, red horns, clawed hands, white feathered wings, lion tail, black bustier, red jacket, red skirt, red earrings."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 116,
+        "comment": "NPC - Celeste",
+        "content": "Celeste is a Female Fleshwarp. Bloodsworn Knight. Wields a massive greatsword. Long purple hair. Battle dress. Purple eyes. She's frequently seen at the Aegis City Orphanage where she helps take care of the children.\nAppearance: young woman, fleshwarp knight, long purple hair, small black horns, purple eyes, pale skin, black battle dress with corset bodice and white frill trim, white sleeves, massive greatsword."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 117,
+        "comment": "Lore - Bloodsworn",
+        "content": "The Bloodsworn Order is an order of knights dedicated to vanquishing evil. Small in number. They undergo painful magical rituals to warp their bodies and give them extra strength."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 118,
+        "comment": "Place - Duskwallow Forest",
+        "content": "Duskwallow Forest is a forest that borders the Mountains of Shadow. Frequent Demon incursions. Houses the Evergreen Tribe.\nAppearance: Dense forest bordering the snowy Mountains of Shadow, dark evergreen pines, cold misty air, scorched scars from demon incursions, hidden elven ranger outposts."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 119,
+        "comment": "Lore - Evergreen Tribe",
+        "content": "Evergreen Tribe is a tribe of elves located in Duskwallow Forest. Xenophobic. Thinks humans do not respect nature. Soldiers are called Rangers who defend the forest from demons."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 120,
+        "comment": "NPC - Yrelra",
+        "content": "Yrelra is a woman who presents as an elf. Succubus, long blue hair, red eyes, claims to be an elf. An aura of magic is constantly around her since she is using illusion magic to hide her true identity.\nAppearance: young woman, succubus, long dark blue hair, red eyes, pointed ears, black bat wings, thin black tail, teardrop earrings, revealing black-and-red long-sleeved dress, black stockings, heeled boots."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 121,
+        "comment": "NPC - Camilla",
+        "content": "Camilla is a Female Vampire, daughter of Dracul. Presumed Dead. owner of Castle Dracul. Long black hair, red eyes. A feared Vampire who used to lead many vampire covens. Sister and rival to Cassius.\nAppearance: adult woman, vampire, very long straight black hair, red eyes, pointed ears, fangs, black-and-red bat wings, black lace corset top, red skirt, black ruffled choker with red gem."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 122,
+        "comment": "NPC - Cassius",
+        "content": "Cassius is a Male Vampire, son of Dracul. owner of Castle Dracul. Short black hair, red eyes. A feared vampire who used to lead several vampire covens. Brother and rival to Camilla.\nAppearance: adult man, lean vampire, short messy black hair, red eyes, fangs, white open-collared shirt, black-and-red coat with gold trim, black trousers, black belt."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 123,
+        "comment": "Place - Savalon",
+        "content": "Savalon is a large continent with a distinct Japanese and Chinese cultural aesthetic. Many cherry blossoms, ruled by the Third Kingdom.\nAppearance: Vast continent, forested hills and mountain ranges, pagoda shrines and timber villages, pink cherry blossom groves, soft misty light, Guao peaks piercing clouds."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 124,
+        "comment": "Lore - Third Kingdom",
+        "content": "The Third Kingdom is a dynasty ruled by Emperor Zhao who maintains a strict rule over the Third Kingdom. Maintains peaceful relations with Darran Kingdom. It's capital is Hianxo."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 125,
+        "comment": "Lore - Wuxia",
+        "content": "Wuxia is a unique form of martial arts prioritizing the use of Qi and Chi to empower ones body and allow them to perform impossible feats of strength and skill."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 126,
+        "comment": "Lore - Cultivation",
+        "content": "Cultivation is the art of drawing energy into ones body to empower yourself. Often done after defeating foes to absorb their energy. Known to drastically increase the powers of those who do it. Lack of energy resources lead to many Cultivators fighting amongst each other for energy."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 127,
+        "comment": "Lore - Cultivator",
+        "content": "A cultivator is a person who dedicates their time to cultivation, usually to become the strongest or ascend to godhood. Cultivators live an extremely long time if they become powerful."
+      },
+      {
+        "world": "SO-J11 Adolion World",
+        "uid": 128,
+        "comment": "Place - Hianxo",
+        "content": "Hianxo is the Capital of the Third Kingdom, home to the Jiansho Academy which is an academy for Cultivators. Far-eastern aesthetic like feudal Japan. Numerous teahouses.\nAppearance: Massive capital city, feudal Japanese-style pagodas and tiled-roof teahouses, timber and stone, pink cherry blossoms and red lacquer, warm lantern glow, Jiansho Academy."
+      }
+    ]
+  },
+  "rows": [
+    {
+      "id": "LH1",
+      "lang": "en",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "Life as an adventurer",
+        "objective": "Take jobs, climb the ranks and survive Adolion.",
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "The wolves have camped outside the gothic fortress on the kingdom's edge for weeks, hundreds of them, howling at the walls every night."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Their alpha, the bearded one, wants the lady of the castle dead. Why do they hate her so much if she fled her own father?\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.70",
+        "SO-J11 Adolion World.69",
+        "SO-J11 Adolion World.68",
+        "SO-J11 Adolion World.83"
+      ]
+    },
+    {
+      "id": "LH2",
+      "lang": "en",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "Life as an adventurer",
+        "objective": "Take jobs, climb the ranks and survive Adolion.",
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "The textile merchants' mansion is spotless and the bread on the table is still warm, though the whole family was buried a year ago."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Something is calling to me from beneath the cellar floor. The father's body was never found, was it?\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.86",
+        "SO-J11 Adolion World.85",
+        "SO-J11 Adolion World.87",
+        "SO-J11 Adolion World.89"
+      ]
+    },
+    {
+      "id": "LH3",
+      "lang": "en",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "Life as an adventurer",
+        "objective": "Take jobs, climb the ranks and survive Adolion.",
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "In the great temple of the God of Life, the head priest blesses the crowd with an oily smile. The young blonde nun beside you shivers."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Sister, you said the clergy started changing the day he arrived. What is he really?\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.73",
+        "SO-J11 Adolion World.74"
+      ]
+    },
+    {
+      "id": "LH4",
+      "lang": "es",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "Life as an adventurer",
+        "objective": "Take jobs, climb the ranks and survive Adolion.",
+        "window": [
+          {
+            "speaker": "Narrador",
+            "text": "Una ladrona pelirroja con botas altas te arranca la bolsa del cinturón y corre hacia los callejones."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"¿Es de esa banda de rateros de la capital, la que apenas tiene diez miembros?\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.75",
+        "SO-J11 Adolion World.76"
+      ]
+    },
+    {
+      "id": "LH5",
+      "lang": "en",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "Life as an adventurer",
+        "objective": "Take jobs, climb the ranks and survive Adolion.",
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "The ship docks under cherry blossoms on the far eastern continent. Monks leap across the rooftops, powered by their inner energy."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"I want to enroll at the academy in the capital, the one that teaches you to absorb the strength of the foes you defeat.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.123",
+        "SO-J11 Adolion World.125",
+        "SO-J11 Adolion World.126",
+        "SO-J11 Adolion World.128"
+      ]
+    },
+    {
+      "id": "LH6",
+      "lang": "es",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "Life as an adventurer",
+        "objective": "Take jobs, climb the ranks and survive Adolion.",
+        "window": [
+          {
+            "speaker": "Narrador",
+            "text": "Bajáis a la ciudad de edificios púrpura bajo la tierra, donde las elfas de piel oscura gobiernan y los esclavos cargan piedras."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"¿A qué diosa rezan aquí? He oído que es la señora del engaño y la venganza.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.106",
+        "SO-J11 Adolion World.107"
+      ]
+    }
+  ]
+}
