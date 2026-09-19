@@ -112,7 +112,7 @@ qualities where the spike showed parity, with a version bump.
   - Values are coerced exactly as `parseSharedReadResponse` does (the same coercion helpers), so
     the engine sees one shape.
 - `policy.ts` gains `EXTRACTION_CONFIDENCE = 0.8`, `EXTRACTION_LATCHING_BUMP = 0.1` and
-  `STALL_DIRECT_P = 0.9`. It also gets `STALL_GENUINE_P = 0.1`: when every judged leaf of an unmet
+  `STALL_DIRECT_P = 0.95` (measured, see Phase A below). It also gets `STALL_GENUINE_P = 0.1`: when every judged leaf of an unmet
   gate sits below it, the stall is taken as genuine.
 
 ### Judged read in the extraction pipeline
@@ -155,7 +155,7 @@ With `judge.uses.stallCheck` on, the `reconciliation` entry asks the judge first
 **extractor** leaf, phrased from the leaf and the quality rubric ("Does `transcript` show that
 <rubric> is <v>?") over the reconcile window.
 
-- A bool/enum leaf with op `==`, or `in` with one value, at p ≥ `STALL_DIRECT_P` → a direct delta
+- A bool/enum leaf with op `==`, or `in` with one value, at p ≥ `STALL_DIRECT_P` (0.95) → a direct delta
   `{q, v}` through `judge:reconcile`.
 - Every leaf below `STALL_GENUINE_P` → no LLM re-read.
   - The event stays **unresolved**, with its `evidence` gaining `judge: nothing shown (max p …)`.
@@ -166,6 +166,22 @@ With `judge.uses.stallCheck` on, the `reconciliation` entry asks the judge first
 
 The question shape differs from the spike's gate-leaf set (which phrased leaves directly), so
 Phase A re-measures it: ≥ 30 leaves from the fixture corpus, with floor AUROC ≥ 0.95.
+
+**Measured 2026-09-19** (`run.mts --only stall-leaves`). The question is `Does \`transcript\` show that
+the answer to "<rubric>" is <yes|no|"value">?`, asked over the hard set plus the live-suite
+fixtures: 122 leaves over 49 cases (59 shown, 63 contradicted or never shown).
+
+| Measure | Result |
+|---|---|
+| AUROC | **0.98** (floor 0.95, passes) |
+| Accuracy at 0.5 | 91% |
+| Shown leaves below 0.1, i.e. a real stall the pre-check would miss | **0** |
+| Direct deltas at p ≥ 0.90 | 36/37 right. The one miss is H12, a trap where "moon" is guessed and then corrected, at 0.93 |
+| Direct deltas at p ≥ **0.95** | **27/27** right, covering 27 of the 59 shown leaves; the rest take today's LLM re-read |
+
+So `STALL_DIRECT_P` is 0.95. Shown leaves whose value is `no`/`false` score low: the negated
+phrasing is weak, so they never write directly and fall through to the LLM re-read. That is the
+safe direction.
 
 ### Journal and author view
 
