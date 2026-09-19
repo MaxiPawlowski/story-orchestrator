@@ -151,6 +151,7 @@ describe("provisioning ops against the draft", () => {
     expect(provisioningFollowUpOps(baseDraft(), { kind: "createStoryLorebook", name: " Heist Lore " })).toEqual([
       { kind: "setRequirements", requirements: { lorebooks: ["Heist Lore"] } },
       { kind: "setStagecraft", stagecraft: { lorebooks: ["Heist Lore"] } },
+      { kind: "setLoreSelect", loreSelect: { lorebooks: ["Heist Lore"] } },
     ]);
   });
 
