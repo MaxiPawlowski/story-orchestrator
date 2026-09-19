@@ -82,6 +82,23 @@ Add `experiments/pairRecall.mts` to the harness:
   expectation (generator recall × judge accuracy) in the Gate record. That product, not 19/20, is
   the number this plan is held to.
 
+**Measured 2026-09-19, Jaccard half** (`run.mts --only pair-recall`, M01–M20, using the spike's
+described-label answers as the judge):
+
+| sameTopic floor | related pairs surfaced | end-to-end right action |
+|---|---|---|
+| 0.4 (today) | 5/18 | 10/20 |
+| 0.3 | 8/18 | 12/20 |
+| 0.25 | 11/18 | 15/20 |
+| **0.2** | **13/18** | **17/20** |
+| 0.1 | 17/18 | 18/20 |
+
+- No unrelated pair rode along at any floor, but this set has only two. Real tiers will surface
+  more, which is what `PAIR_MAX_PER_PASS` bounds.
+- Provisional `PAIR_JACCARD_FLOOR = 0.2`.
+- The vector half (ST's `/api/vector/*`, from the page) and the ≥ 20 real-chat pairs are still
+  open, and they decide the final floor.
+
 ### Pure questions and policy: `src/judge/memory.ts`
 
 - `buildVerifyQuestions(lines, {storyTitle, cast})`:
