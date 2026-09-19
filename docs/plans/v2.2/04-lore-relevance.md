@@ -148,6 +148,19 @@ rule before code is written.
   `experiments/curatorFilter.mts` + data: ≥ 20 entries against canon/threads, labelled
   `stale-or-newly-relevant` / `fine`. Floor: recall ≥ 0.9 at the chosen cut, because a missed
   stale entry silently loses the curator's only job.
+- **Measured 2026-09-19** (`run.mts --only curator-filter`; data
+  `scripts/spike/typesafe/data/curator-filter.json`: 24 entries over four stories, 13 needing
+  attention, the noir set in Spanish).
+  - AUROC 0.99.
+  - Cut 0.2: recall **13/13**, keeping 15/24, so the curator's prompt shrinks by ~40%.
+  - Cut 0.3–0.4: recall 12/13 (92%), keeping 13/24. The only miss is the Spanish "Teniente Brandt"
+    entry at 0.29.
+  - **Passes**, with `CURATOR_FILTER_P = 0.2`. Real lorebooks are bigger and mostly fine, so the
+    Gate record re-reads recall and reduction on the Adolion book.
+- Question: ``Look at `entries[i]`. Has the story so far (`canon`, `open_threads`, `checkpoint`)
+  made something in it out of date, or, if it is switched off, made it newly needed?`` It is asked
+  over one shared state per pass: `{checkpoint, canon, open_threads, entries: [{title,
+  switched_on, content}]}`.
 - Only if it passes: `stagecraftCoordinator.readScope`, when `judge.uses.curatorFilter` is on and
   the scope
   holds > 12 entries, keeps only the entries over the cut (plus every currently-disabled entry, so

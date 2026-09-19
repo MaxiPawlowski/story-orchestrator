@@ -1,0 +1,62 @@
+{
+  "labelledAt": "2026-09-19",
+  "note": "v2.2 plan 04 Phase A. attention = the story has overtaken the entry (stale) or made a switched-off entry newly relevant; fine = nothing to do. Labels written before any judge answer was read. The noir set is in Spanish.",
+  "stories": [
+    {
+      "id": "sun-ruins",
+      "checkpoint": { "name": "Find the Artifact", "objective": "Recover the Sun's Heart Artifact from the inner chamber." },
+      "canon": "Max accepted the Sun Ruins contract from Ponticius, who later raised the reward to 500 crowns. Luke joined the expedition after all. At the ruins the sphinx's riddle was answered wrong; the great front gate collapsed, and the party got in through a side tunnel. Arin was badly cut in the collapse and is bleeding.",
+      "openThreads": ["Can Arin keep fighting with her wound?", "Will Luke make it home safely?"],
+      "entries": [
+        { "id": "E01", "title": "Sun Ruins Gate", "on": true, "content": "The ruins' only entrance is a great stone gate guarded by the sphinx.", "attention": true, "why": "gate collapsed; they used a side tunnel" },
+        { "id": "E02", "title": "Guild Reward", "on": true, "content": "The guild pays 250 crowns for the Sun's Heart.", "attention": true, "why": "reward raised to 500" },
+        { "id": "E03", "title": "Luke", "on": true, "content": "Max's younger brother Luke stays home with their mother while Max is away.", "attention": true, "why": "Luke joined the expedition" },
+        { "id": "E04", "title": "Desert Weather", "on": true, "content": "Sandstorms rise in the afternoon and die down by dusk.", "attention": false },
+        { "id": "E05", "title": "Arin's Blade", "on": true, "content": "Arin carries a curved blade she took from a pirate captain.", "attention": false },
+        { "id": "E06", "title": "Bitterroot", "on": false, "content": "Bitterroot grows in the ruins' side tunnels; chewed and packed into a cut, it stops bleeding.", "attention": true, "why": "switched off, now needed: Arin is bleeding and they are in the side tunnels" }
+      ]
+    },
+    {
+      "id": "ship",
+      "checkpoint": { "name": "Reach Kepler Station", "objective": "Bring the damaged ship into Kepler Station's repair dock." },
+      "canon": "Pell restored the reactor with a coolant bypass. The hull breach on deck three was sealed with four patches. A debris strike tore off HALO's long-range antenna, so the ship can no longer make long-range calls. Captain Okafor set a course for Kepler Station.",
+      "openThreads": ["Can the crew call for help without the antenna?"],
+      "entries": [
+        { "id": "E07", "title": "Reactor Status", "on": true, "content": "The reactor is failing: coolant loop two is burned out and output is dropping.", "attention": true, "why": "reactor restored" },
+        { "id": "E08", "title": "HALO", "on": true, "content": "HALO, the ship's AI, handles all communications, including long-range calls to any station.", "attention": true, "why": "long-range antenna lost" },
+        { "id": "E09", "title": "Pell", "on": true, "content": "Pell is the ship's engineer and hates being interrupted mid-repair.", "attention": false },
+        { "id": "E10", "title": "Escape Pods", "on": true, "content": "The ship carries four escape pods on deck two.", "attention": false },
+        { "id": "E11", "title": "Kepler Station", "on": false, "content": "Kepler Station is a mining outpost with a repair dock. It only answers short-range hails.", "attention": true, "why": "switched off, now needed: it is the destination and only short-range hails work" },
+        { "id": "E12", "title": "Captain's Log", "on": true, "content": "Captain Okafor keeps a paper log in her quarters and writes in it every night.", "attention": false }
+      ]
+    },
+    {
+      "id": "noir",
+      "checkpoint": { "name": "Atrapar a Doyle", "objective": "Arrest the harbor master before he flees." },
+      "canon": "Asuntos Internos arrestó al teniente Brandt después de ver las fotos del muelle. Maeve declaró que quien pagaba a la policía del puerto era el jefe del puerto, Doyle. El libro de cuentas del contrabandista apareció bajo el suelo de la lavandería de Pike Street.",
+      "openThreads": ["¿Dónde se esconde Doyle?"],
+      "entries": [
+        { "id": "E13", "title": "Teniente Brandt", "on": true, "content": "El teniente Brandt dirige la policía del puerto y cobra sobornos cada semana en el muelle nueve.", "attention": true, "why": "Brandt fue arrestado" },
+        { "id": "E14", "title": "El libro de cuentas", "on": true, "content": "Nadie sabe dónde está el libro de cuentas del contrabandista.", "attention": true, "why": "el libro apareció" },
+        { "id": "E15", "title": "Blue Anchor", "on": true, "content": "El Blue Anchor es un club nocturno junto al muelle nueve; Maeve canta allí casi todas las noches.", "attention": false },
+        { "id": "E16", "title": "Doyle", "on": false, "content": "Doyle, el jefe del puerto, tiene una lancha amarrada en el muelle doce, lista para huir.", "attention": true, "why": "desactivada pero ahora necesaria: hay que atrapar a Doyle" },
+        { "id": "E17", "title": "Mae Hollis", "on": true, "content": "Mae Hollis es detective de homicidios y la compañera de Max desde hace seis años.", "attention": false },
+        { "id": "E18", "title": "Lluvia en Mercer Street", "on": true, "content": "En Mercer Street llueve casi todas las noches y las farolas parpadean.", "attention": false }
+      ]
+    },
+    {
+      "id": "manor",
+      "checkpoint": { "name": "Leave the Manor", "objective": "Pack and leave Ashworth Hall before nightfall." },
+      "canon": "The moving portraits turned out to be a mechanism Graves works from behind the walls to scare off buyers. Lady Ashworth confessed she is selling the house to pay her late husband's debts. Max found the family records in the library.",
+      "openThreads": ["Will Lady Ashworth forgive Graves?"],
+      "entries": [
+        { "id": "E19", "title": "The Portraits", "on": true, "content": "The portraits move on their own; the whole household believes the house is haunted.", "attention": true, "why": "revealed to be Graves's mechanism" },
+        { "id": "E20", "title": "Graves", "on": true, "content": "Graves is the elderly butler; he has served the Ashworths for forty years.", "attention": false },
+        { "id": "E21", "title": "Family Records", "on": true, "content": "The Ashworth family records were lost years ago and no one knows where they went.", "attention": true, "why": "found in the library" },
+        { "id": "E22", "title": "The Carriage", "on": false, "content": "The estate carriage leaves from the east gate at sunset; it is the only way back to town.", "attention": true, "why": "switched off, now needed: leaving before nightfall" },
+        { "id": "E23", "title": "The Library", "on": true, "content": "The library holds three hundred volumes, most of them on botany.", "attention": false },
+        { "id": "E24", "title": "The Sale", "on": true, "content": "Lady Ashworth is quietly selling Ashworth Hall to pay her late husband's debts.", "attention": false }
+      ]
+    }
+  ]
+}
