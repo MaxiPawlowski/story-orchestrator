@@ -11,6 +11,7 @@ const extraction = (overrides: Partial<ExtractionRuntimeState> = {}): Extraction
   reconciliationEvents: [],
   lastReadBoundary: 4,
   scheduler: { queueDepth: 0, inFlight: false, lastError: null },
+  judgedReads: [],
   ...overrides,
 });
 

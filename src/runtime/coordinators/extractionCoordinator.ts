@@ -1,13 +1,22 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
-import { callExtractionModel, deriveFullScope, getChatWindow, getLastMessageText, runSharedRead, stripChannelNoise, type ExtraGateSource, type ParsedDelta, type ParsedFact, type SharedReadAudit } from "@extraction/index";
+import { callExtractionModel, deriveFullScope, deriveScope, getChatWindow, getLastMessageText, runSharedRead, stripChannelNoise, type ExtraGateSource, type ParsedDelta, type ParsedFact, type ReconciliationPlan, type SharedReadAudit } from "@extraction/index";
 import { buildEpistemicPassPrompt, buildLedgerPassPrompt, buildSceneSummaryPrompt, buildShortTermSummaryPrompt, detectSceneBreakHeuristic, generateMemoryId, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, type ArcEntry, type MemoryEntry, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine } from "@memory/index";
 import { getActiveGroup, getContext } from "@services/STAPI";
 import { SHORT_TERM_COMPACTION_MESSAGES } from "@constants/defaults";
 import { enabledCharacterNames } from "../roster";
 import type { MemoryCoordinator } from "./memoryCoordinator";
-import type { ExtractionRuntimeSettings, ExtractionRuntimeState, VerifyDrop } from "../types";
+import { JUDGED_READ_LIMIT, type ExtractionRuntimeSettings, type ExtractionRuntimeState, type JudgedReadRecord, type VerifyDrop } from "../types";
+import { createTypedJudge } from "../typedRead";
 import type { JudgeRuntime } from "../judge";
-import { buildVerifyRequest, readVerify, verifyVerdict, VERIFY_MAX_LINES_PER_CALL } from "@judge/index";
+import { buildStallRequest, buildVerifyRequest, readVerify, stallVerdict, verifyVerdict, VERIFY_MAX_LINES_PER_CALL } from "@judge/index";
+
+export const TYPED_READ_WINDOW = 3;
+
+// v2.2 plan 06: judged extraction off the LLM lanes. `judged()` answers synchronously whether it took
+// the work; the judge call itself is fire-and-forget.
+export type JudgedExtractionWork =
+  | { kind: "typed"; boundary: number; messageId: number }
+  | { kind: "stall"; plan: ReconciliationPlan; reread: () => void };
 
 export interface ExtractionCoordinatorDeps {
   getStory: () => NormalizedStoryV2 | null;
@@ -64,15 +73,72 @@ export class ExtractionCoordinator {
   }
 
   private resolveReconciliation(audit: SharedReadAudit) {
-    const evidence = audit.acceptedDeltas.map((entry) => `${entry.delta.q}=${String(entry.delta.v)} (${entry.evidence})`);
+    this.markReconciliation(audit.acceptedDeltas.map((entry) => `${entry.delta.q}=${String(entry.delta.v)} (${entry.evidence})`), true);
+  }
+
+  private markReconciliation(evidence: string[], resolve: boolean) {
     const events = [...this.state.reconciliationEvents];
     for (let index = 0; index < events.length; index += 1) {
       if (events[index].resolvedAt === null) {
-        events[index] = { ...events[index], resolvedAt: new Date().toISOString(), evidence: [...events[index].evidence, ...evidence] };
+        events[index] = { ...events[index], ...(resolve ? { resolvedAt: new Date().toISOString() } : {}), evidence: [...events[index].evidence, ...evidence] };
         break;
       }
     }
     this.state.reconciliationEvents = events;
+  }
+
+  judged(work: JudgedExtractionWork): boolean {
+    const judge = this.deps.judge?.() ?? null;
+    if (work.kind === "typed") {
+      if (!judge?.active("typedExtraction")) return false;
+      void this.runTypedRead(work.boundary, work.messageId).catch((error) => console.warn("[Story Orchestrator] judged typed read failed", error));
+      return true;
+    }
+    if (!judge?.active("stallCheck") || !work.plan.leaves.length) return false;
+    void this.runStallPrecheck(work.plan).then((reread) => { if (reread) work.reread(); }).catch(() => work.reread());
+    return true;
+  }
+
+  private recordJudgedRead(record: JudgedReadRecord) {
+    this.state.judgedReads = [...this.state.judgedReads, record].slice(-JUDGED_READ_LIMIT);
+  }
+
+  // Every boundary, over the newest messages: only hinted qualities in the current scope, and only
+  // while the chat is still where it was when the read began.
+  private async runTypedRead(boundary: number, messageId: number) {
+    const story = this.deps.getStory();
+    const state = this.deps.getState();
+    if (!story || !state) return;
+    const hinted = deriveScope(story, state.activeCheckpointId, state.blackboard, this.deps.getExpansionGateSources()).filter((entry) => entry.quality.read_as && entry.quality.source === "extractor");
+    if (!hinted.length) return;
+    const window = getChatWindow(Math.max(0, messageId - TYPED_READ_WINDOW + 1), messageId);
+    const read = await createTypedJudge(() => this.deps.judge?.() ?? null)({ story, state, qualities: hinted.map((entry) => entry.quality), window });
+    if (!read || this.deps.getState()?.lastMessageId !== state.lastMessageId || (getContext().chat?.length ?? 0) - 1 !== messageId) return;
+    if (read.deltas.length) this.deps.enqueueExtractorDeltas(read.deltas, { from: window.from, to: window.to });
+    this.recordJudgedRead({ at: new Date().toISOString(), boundary, kind: "typed", window: { from: window.from, to: window.to }, answered: read.answered, deltas: read.deltas.map((entry) => ({ q: entry.delta.q, v: entry.delta.v, confidence: entry.judge ?? 0 })), model: read.model, ...(read.fallback ? { fallback: read.fallback } : {}) });
+    await this.save();
+  }
+
+  // Direct writes only at STALL_DIRECT_P; nothing shown keeps the stall (the event stays open, so the
+  // player's stall signal stays); anything else is today's LLM reconcile read. Returns "re-read".
+  private async runStallPrecheck(plan: ReconciliationPlan): Promise<boolean> {
+    const judge = this.deps.judge?.() ?? null;
+    if (!judge) return true;
+    const window = plan.window.messages.map((message) => ({ id: message.index, speaker: message.speaker, text: message.text }));
+    const result = await judge.ask("stall", buildStallRequest(plan.leaves, window), { summarize: (answers) => Object.fromEntries(plan.leaves.map((leaf, index) => [`${leaf.q}${leaf.op}${JSON.stringify(leaf.v)}`, (answers?.[`leaf:${index}`] as { noul?: number } | undefined)?.noul ?? "none"])) });
+    const verdict = stallVerdict(result.answers, plan.leaves);
+    const record = { at: new Date().toISOString(), boundary: plan.descriptor.boundary, kind: "stall" as const, window: { from: plan.window.from, to: plan.window.to }, answered: plan.leaves.map((leaf) => leaf.q), model: result.model, ...(result.fallback ? { fallback: result.fallback } : {}) };
+    if (verdict.kind === "direct") {
+      const deltas: ParsedDelta[] = verdict.deltas.map((entry) => ({ delta: { q: entry.q, v: entry.v, source: "extractor" }, evidence: `judge:reconcile p=${entry.p}`, judge: entry.p }));
+      this.deps.enqueueExtractorDeltas(deltas, { from: plan.window.from, to: plan.window.to });
+      this.markReconciliation(verdict.deltas.map((entry) => `${entry.q}=${String(entry.v)} (judge:reconcile p=${entry.p})`), true);
+      this.recordJudgedRead({ ...record, deltas: verdict.deltas.map((entry) => ({ q: entry.q, v: entry.v, confidence: entry.p })), note: "direct" });
+    } else {
+      this.recordJudgedRead({ ...record, deltas: [], note: verdict.kind === "genuine" ? `nothing shown (max p ${verdict.maxP})` : `re-read (max p ${verdict.maxP})` });
+      if (verdict.kind === "genuine") this.markReconciliation([`judge: nothing shown (max p ${verdict.maxP})`], false);
+    }
+    await this.save();
+    return verdict.kind === "reread";
   }
 
   setSchedulerSnapshot(snapshot: ExtractionRuntimeState["scheduler"]) {

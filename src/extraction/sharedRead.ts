@@ -6,7 +6,7 @@ import { getCanonLite } from "./canonLite";
 import { hashContract, renderSharedReadPrompt } from "./contract";
 import { parseSharedReadResponse } from "./parse";
 import { deriveScope } from "./scope";
-import type { ExtraGateSource, ParsedFact, ScopedQuality, SharedReadAudit, SharedReadResult, SharedReadWindow } from "./types";
+import type { ExtraGateSource, JudgedTypedRead, ParsedFact, ScopedQuality, SharedReadAudit, SharedReadResult, SharedReadWindow, TypedJudge } from "./types";
 
 export interface RunSharedReadOptions {
   story: NormalizedStoryV2;
@@ -22,6 +22,7 @@ export interface RunSharedReadOptions {
   openArcs?: string[];
   epistemicLedgerCapable?: boolean;
   entities?: string[];
+  judgeTyped?: TypedJudge | null;
   client: ExtractionClientOptions;
 }
 
@@ -39,10 +40,16 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
   const latestMessageId = options.state.lastMessageId - (options.priority === 1 ? Math.max(0, options.stabilityLag ?? 1) : 0);
   const window = options.window ?? getChatWindow(Math.max(0, latestMessageId - 7), latestMessageId);
   const scope = options.scope ?? deriveScope(options.story, options.state.activeCheckpointId, options.state.blackboard, options.extraGateSources ?? []);
+  const hinted = scope.filter((entry) => entry.quality.read_as && entry.quality.source === "extractor");
+  const judged: JudgedTypedRead | null = options.judgeTyped && hinted.length
+    ? await options.judgeTyped({ story: options.story, state: options.state, qualities: hinted.map((entry) => entry.quality), window }).catch(() => null)
+    : null;
+  const answered = new Set(judged?.answered ?? []);
+  const residual = scope.filter((entry) => !answered.has(entry.key));
   const contract = {
     storyTitle: options.story.title,
     activeCheckpointId: options.state.activeCheckpointId,
-    qualities: scope,
+    qualities: residual,
     window,
     canon: getCanonLite(options.story, options.state.visitedAnchors, options.firedTransitions ?? [], options.facts ?? []),
     openArcs: options.openArcs ?? [],
@@ -58,13 +65,14 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     priority: options.priority,
     reason: options.reason,
     contractHash: hashContract(contract),
-    scope: scope.map((entry) => entry.key),
+    scope: residual.map((entry) => entry.key),
     window: { from: window.from, to: window.to },
     prompt,
     rawResponse,
-    acceptedDeltas: parsed.deltas,
+    acceptedDeltas: [...(judged?.deltas ?? []), ...parsed.deltas.filter((entry) => !answered.has(entry.delta.q))],
     rejected: parsed.rejected,
     ...(parsed.sceneBreak ? { sceneBreak: parsed.sceneBreak } : {}),
+    ...(judged ? { judged: { keys: judged.answered, model: judged.model, confidences: judged.confidences, ...(judged.fallback ? { fallback: judged.fallback } : {}) } } : {}),
   };
   return { audit, facts: parsed.facts, memory: parsed.memory, arcs: parsed.arcs, epistemic: parsed.epistemic, ledger: parsed.ledger };
 }

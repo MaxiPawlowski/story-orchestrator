@@ -1,4 +1,4 @@
-import type { BlackboardDelta, GateNode, NormalizedStoryV2, PrimitiveValue, Quality, TensionLevel } from "@engine/index";
+import type { BlackboardDelta, EngineState, GateNode, NormalizedStoryV2, PrimitiveValue, Quality, TensionLevel } from "@engine/index";
 import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine, SceneBreakSignal } from "@memory/index";
 
 export interface ScopedQuality {
@@ -51,7 +51,20 @@ export interface ParsedDelta {
   delta: BlackboardDelta;
   evidence: string;
   rawLevel?: TensionLevel;
+  judge?: number;
 }
+
+// v2.2 plan 06: what the judged typed read hands back. `answered` are the hinted qualities it
+// settled over the floor (with or without a change); the LLM read never asks about those.
+export interface JudgedTypedRead {
+  deltas: ParsedDelta[];
+  answered: string[];
+  model: string | null;
+  confidences: Record<string, number>;
+  fallback?: string;
+}
+
+export type TypedJudge = (input: { story: NormalizedStoryV2; state: EngineState; qualities: Quality[]; window: SharedReadWindow }) => Promise<JudgedTypedRead | null>;
 
 export interface ParsedFact {
   text: string;
@@ -85,6 +98,7 @@ export interface SharedReadAudit {
   acceptedDeltas: ParsedDelta[];
   rejected: Array<{ line: string; reason: string }>;
   sceneBreak?: SceneBreakSignal;
+  judged?: { keys: string[]; model: string | null; confidences: Record<string, number>; fallback?: string };
 }
 
 export interface SharedReadResult {

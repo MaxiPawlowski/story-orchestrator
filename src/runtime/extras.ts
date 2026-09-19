@@ -6,7 +6,7 @@ import { CURATOR_PROPOSAL_LIMIT } from "@stagecraft/index";
 import { createJudgeRuntime, sanitizeJudgeRuntime } from "@judge/index";
 import { sanitizeJournalRecords } from "./journal";
 import { defaultExtractionSettings, defaultMemorySettings, defaultStagecraftSettings, getGlobalSettings, type ChatOverrides } from "./settingsStore";
-import { VERIFY_DROP_LIMIT } from "./types";
+import { JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
 import type { CopilotRuntimeSettings, ExtractionRuntimeState, MemoryMirrorBook, MemoryRuntimeState, PacingSettings, RuntimeExtras, StagecraftRuntimeState, TalkRuntimeState, TensionRuntimeState, UiRuntimeSettings } from "./types";
 
 export const TALK_DECISION_LIMIT = 10;
@@ -34,6 +34,7 @@ export const createExtraction = (): ExtractionRuntimeState => ({
   reconciliationEvents: [],
   lastReadBoundary: 0,
   scheduler: { queueDepth: 0, inFlight: false, lastError: null },
+  judgedReads: [],
 });
 
 export const createExpansion = (): ExpansionRuntimeState => ({
@@ -172,6 +173,7 @@ export const sanitizeExtraction = (value: RuntimeExtras | undefined): Extraction
     reconciliationEvents: Array.isArray(existing.reconciliationEvents) ? existing.reconciliationEvents.slice(-50) : [],
     lastReadBoundary: typeof existing.lastReadBoundary === "number" ? existing.lastReadBoundary : 0,
     scheduler: existing.scheduler ?? { queueDepth: 0, inFlight: false, lastError: null },
+    judgedReads: Array.isArray(existing.judgedReads) ? existing.judgedReads.slice(-JUDGED_READ_LIMIT) : [],
   };
 };
 
@@ -208,7 +210,7 @@ export const applyGlobalSettings = (extras: RuntimeExtras, overrides: ChatOverri
 // §Configuration homes) - install-wide settings are stripped on the way out.
 export const stripGlobalSettings = (extras: RuntimeExtras): RuntimeExtras => ({
   ...extras,
-  extraction: { audits: extras.extraction.audits, reconciliationEvents: extras.extraction.reconciliationEvents, lastReadBoundary: extras.extraction.lastReadBoundary, scheduler: extras.extraction.scheduler } as RuntimeExtras["extraction"],
+  extraction: { audits: extras.extraction.audits, reconciliationEvents: extras.extraction.reconciliationEvents, lastReadBoundary: extras.extraction.lastReadBoundary, scheduler: extras.extraction.scheduler, judgedReads: extras.extraction.judgedReads } as RuntimeExtras["extraction"],
   pacing: { shapeOverride: extras.pacing.shapeOverride } as RuntimeExtras["pacing"],
   copilot: {} as RuntimeExtras["copilot"],
   ui: { authorView: extras.ui.authorView } as RuntimeExtras["ui"],

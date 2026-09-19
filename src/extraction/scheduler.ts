@@ -1,6 +1,6 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
 import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine } from "@memory/index";
-import type { ExtraGateSource } from "./types";
+import type { ExtraGateSource, TypedJudge } from "./types";
 import { getChatWindow } from "./chatWindow";
 import { runSharedRead } from "./sharedRead";
 import type { ParsedFact, SharedReadAudit, SharedReadWindow } from "./types";
@@ -34,6 +34,7 @@ export interface SchedulerHost {
   getOpenArcs(): string[];
   getEpistemicLedgerCapable?(): boolean;
   getEntities?(): string[];
+  judgeTyped?(): TypedJudge | null;
   applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memory: ParsedMemoryLine[], arcs: ParsedArcSignal[], epistemic?: ParsedEpistemicSignal[], ledger?: ParsedLedgerSignal[]): Promise<void>;
   onSchedulerChange(): void;
   pauseExtraction(message: string): void;
@@ -46,6 +47,7 @@ export class ExtractionScheduler {
   private heavyInFlight = false;
   private lastError: string | null = null;
   private lastHeavyError: string | null = null;
+  private cadenceBoundary = -1;
 
   constructor(private readonly host: SchedulerHost) {}
 
@@ -82,12 +84,20 @@ export class ExtractionScheduler {
     void this.pump();
   }
 
+  // v2.2 plan 06: this boundary already queued a cadence read, which carries the judged step itself.
+  cadenceQueuedAt(boundary: number): boolean {
+    return this.cadenceBoundary === boundary;
+  }
+
   onBoundary(boundary: number, fired: boolean, lastMessageId: number) {
     const settings = this.host.getExtractionSettings();
     if (!settings.enabled || settings.cadence <= 0) return;
     if (!fired && boundary > 0 && boundary % settings.cadence === 0 && !this.underPressure()) {
       const stableTo = lastMessageId - Math.max(0, settings.stabilityLag ?? 1);
-      if (stableTo >= 0) this.schedule({ priority: 1, reason: "cadence", window: getChatWindow(Math.max(0, stableTo - settings.cadence + 1), stableTo) });
+      if (stableTo >= 0) {
+        this.cadenceBoundary = boundary;
+        this.schedule({ priority: 1, reason: "cadence", window: getChatWindow(Math.max(0, stableTo - settings.cadence + 1), stableTo) });
+      }
     }
     void this.pumpHeavy();
   }
@@ -114,7 +124,7 @@ export class ExtractionScheduler {
         await this.runWithRetries(job.run);
       } else {
         const priority = job.priority === 0 ? 0 : 1;
-        const result = await this.runWithRetries(() => runSharedRead({ story, state, priority, reason: job.reason, window: job.window, stabilityLag: settings.stabilityLag, firedTransitions: this.host.getFiredTransitions(), facts: this.host.getFacts(), extraGateSources: this.host.getExpansionGateSources(), openArcs: this.host.getOpenArcs(), epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false, entities: this.host.getEntities?.() ?? [], client: settings }));
+        const result = await this.runWithRetries(() => runSharedRead({ story, state, priority, reason: job.reason, window: job.window, stabilityLag: settings.stabilityLag, firedTransitions: this.host.getFiredTransitions(), facts: this.host.getFacts(), extraGateSources: this.host.getExpansionGateSources(), openArcs: this.host.getOpenArcs(), epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false, entities: this.host.getEntities?.() ?? [], judgeTyped: this.host.judgeTyped?.() ?? null, client: settings }));
         await this.host.applyExtractionAudit(result.audit, result.facts, result.memory, result.arcs, result.epistemic, result.ledger);
       }
       this.lastError = null;

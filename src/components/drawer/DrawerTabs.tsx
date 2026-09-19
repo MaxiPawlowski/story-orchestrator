@@ -420,6 +420,16 @@ const SchedulerTab = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manage
       {snapshot.extraction.scheduler.lastError && <div className="text-red-300">{snapshot.extraction.scheduler.lastError}</div>}
       {snapshot.extraction.audits[0] && <div>Last scope: {snapshot.extraction.audits[snapshot.extraction.audits.length - 1]?.scope.join(", ") || "none"}</div>}
       <div>Audits recorded {snapshot.extraction.audits.length}</div>
+      {(snapshot.extraction.judgedReads ?? []).length > 0 && (
+        <div data-so="judged-reads" className="mt-1">
+          <div className="opacity-100">Judged reads</div>
+          {[...(snapshot.extraction.judgedReads ?? [])].reverse().slice(0, 5).map((read) => (
+            <div key={`${read.at}-${read.kind}`}>
+              judge:{read.kind} · boundary {read.boundary} · {read.deltas.length ? read.deltas.map((delta) => `${delta.q}=${String(delta.v)} (${Math.round(delta.confidence * 100)}%)`).join(", ") : read.note ?? "no change"}{read.fallback ? ` · fell back (${read.fallback})` : ""}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
     <ReconciliationPanel snapshot={snapshot} />
     <div className="text-xs opacity-80">

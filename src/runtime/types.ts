@@ -181,6 +181,23 @@ export interface ExtractionRuntimeState {
   reconciliationEvents: ReconciliationEvent[];
   lastReadBoundary: number;
   scheduler: { queueDepth: number; inFlight: boolean; lastError: string | null };
+  judgedReads: JudgedReadRecord[];
+}
+
+// v2.2 plan 06: one row per judged read that is not part of an LLM read (every boundary, stall
+// pre-check). Its own ring, so twenty of them never push the LLM reads out of `audits`.
+export const JUDGED_READ_LIMIT = 20;
+
+export interface JudgedReadRecord {
+  at: string;
+  boundary: number;
+  kind: "typed" | "stall";
+  window: { from: number; to: number };
+  answered: string[];
+  deltas: Array<{ q: string; v: PrimitiveValue; confidence: number }>;
+  model: string | null;
+  note?: string;
+  fallback?: string;
 }
 
 export interface PersistedStoryRuntime {

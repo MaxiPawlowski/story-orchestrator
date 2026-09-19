@@ -5,10 +5,11 @@ import type { SceneCoordinator } from "./coordinators/sceneCoordinator";
 import type { RuntimeManager } from "./runtimeManager";
 
 const scheduleForcedCues = jest.fn();
+const planReconciliation = jest.fn((..._args: unknown[]): unknown => null);
 
 jest.mock("@extraction/index", () => ({
   getChatWindow: (from: number, to: number) => ({ from, to, messages: [] }),
-  maybeScheduleReconciliation: () => null,
+  planReconciliation: (...args: unknown[]) => planReconciliation(...args),
   scheduleForcedCues: (...args: unknown[]) => scheduleForcedCues(...args),
 }));
 
@@ -31,9 +32,11 @@ const manager = {
   detectSceneBreak: () => null,
   shouldCompactShortTerm: () => false,
   curatorDueForRun: () => false,
+  recordReconciliation: jest.fn(),
+  judgedExtraction: jest.fn(() => false),
 } as unknown as RuntimeManager;
 
-const scheduler = { onBoundary: jest.fn(), schedule: jest.fn() } as unknown as ExtractionScheduler;
+const scheduler = { onBoundary: jest.fn(), schedule: jest.fn(), cadenceQueuedAt: jest.fn(() => false) } as unknown as ExtractionScheduler;
 
 describe("forced-cue scan window", () => {
   it("covers the greeting and the player's first message on the story's first boundary", () => {
@@ -76,6 +79,34 @@ describe("scene read (v2.2 plan 03)", () => {
     const off = scene(false);
     runBoundaryWork({ result: result(5, 6), manager, scheduler, scene: off.coordinator });
     expect(off.run).not.toHaveBeenCalled();
+  });
+});
+
+describe("judged extraction (v2.2 plan 06)", () => {
+  const judged = manager.judgedExtraction as unknown as jest.Mock;
+  const cadence = scheduler.cadenceQueuedAt as unknown as jest.Mock;
+  const schedule = scheduler.schedule as unknown as jest.Mock;
+  beforeEach(() => { judged.mockReset(); judged.mockReturnValue(false); cadence.mockReset(); cadence.mockReturnValue(false); schedule.mockReset(); planReconciliation.mockReset(); planReconciliation.mockReturnValue(null); });
+
+  it("offers the typed read on a boundary without a cadence read, and skips it when one was queued", () => {
+    runBoundaryWork({ result: result(3, 5), manager, scheduler });
+    expect(judged).toHaveBeenCalledWith({ kind: "typed", boundary: 1, messageId: 5 });
+    judged.mockClear();
+    cadence.mockReturnValue(true);
+    runBoundaryWork({ result: result(5, 6), manager, scheduler });
+    expect(judged).not.toHaveBeenCalledWith(expect.objectContaining({ kind: "typed" }));
+  });
+
+  it("hands a stall to the judge pre-check first, and schedules today's re-read when it declines", () => {
+    const plan = { descriptor: { checkpointId: "start", boundary: 1, targetedKeys: ["door"] }, reason: "reconcile:door", window: { from: 0, to: 4, messages: [] }, leaves: [] };
+    planReconciliation.mockReturnValue(plan);
+    runBoundaryWork({ result: result(3, 4), manager, scheduler });
+    expect(judged).toHaveBeenCalledWith(expect.objectContaining({ kind: "stall", plan }));
+    expect(schedule).toHaveBeenCalledWith({ priority: 0, reason: "reconcile:door", window: plan.window });
+    schedule.mockClear();
+    judged.mockImplementation((work: { kind: string }) => work.kind === "stall");
+    runBoundaryWork({ result: result(4, 5), manager, scheduler });
+    expect(schedule).not.toHaveBeenCalledWith(expect.objectContaining({ reason: "reconcile:door" }));
   });
 });
 

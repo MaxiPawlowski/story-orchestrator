@@ -1,5 +1,5 @@
-import type { GateNode, NormalizedStoryV2, PrimitiveValue } from "@engine/index";
-import type { ReconciliationDescriptor } from "./types";
+import type { GateNode, NormalizedStoryV2, PrimitiveValue, Quality } from "@engine/index";
+import type { ReconciliationDescriptor, SharedReadWindow } from "./types";
 import { getChatWindow } from "./chatWindow";
 import type { ExtractionScheduler } from "./scheduler";
 
@@ -35,7 +35,27 @@ const gateMatches = (gate: GateNode, values: Record<string, unknown>): boolean =
   return !gateMatches(gate.not, values);
 };
 
-export function maybeScheduleReconciliation(story: NormalizedStoryV2 | null, state: { activeCheckpointId: string; boundary: number; checkpointStartedBoundary: number; checkpointStartedMessageId: number; lastMessageId: number; blackboard: { values: Record<string, unknown> } } | null, multiplier: number, scheduler: ExtractionScheduler): ReconciliationDescriptor | null {
+type ReconcileState = { activeCheckpointId: string; boundary: number; checkpointStartedBoundary: number; checkpointStartedMessageId: number; lastMessageId: number; blackboard: { values: Record<string, unknown> } };
+
+export interface ReconciliationPlan {
+  descriptor: ReconciliationDescriptor;
+  reason: string;
+  window: SharedReadWindow;
+  leaves: Array<{ q: string; rubric: string; type: Quality["type"]; op: string; v: PrimitiveValue | PrimitiveValue[] }>;
+}
+
+const collectUnmetLeaves = (gate: GateNode, story: NormalizedStoryV2, values: Record<string, unknown>, out: ReconciliationPlan["leaves"]) => {
+  if ("q" in gate) {
+    const quality = story.qualityByKey[gate.q];
+    if (quality?.source === "extractor" && !compareLeaf(gate, values[gate.q]) && !out.some((leaf) => leaf.q === gate.q && JSON.stringify(leaf.v) === JSON.stringify(gate.v) && leaf.op === gate.op)) out.push({ q: gate.q, rubric: quality.rubric, type: quality.type, op: gate.op, v: gate.v });
+    return;
+  }
+  if ("all" in gate) gate.all.forEach((entry) => collectUnmetLeaves(entry, story, values, out));
+  if ("any" in gate) gate.any.forEach((entry) => collectUnmetLeaves(entry, story, values, out));
+};
+
+// v2.2 plan 06: the stall, planned but not scheduled, so a judge pre-check can decide first.
+export function planReconciliation(story: NormalizedStoryV2 | null, state: ReconcileState | null, multiplier: number): ReconciliationPlan | null {
   if (!story || !state) return null;
   const checkpoint = story.checkpointById[state.activeCheckpointId];
   const target = Math.max(Math.ceil((checkpoint?.target_turn_length ?? 4) * multiplier), 6);
@@ -48,6 +68,21 @@ export function maybeScheduleReconciliation(story: NormalizedStoryV2 | null, sta
     }
   }
   if (!unmet.size) return null;
-  scheduler.schedule({ priority: 0, reason: `reconcile:${[...unmet].join(",")}`, window: getChatWindow(Math.max(0, state.checkpointStartedMessageId + 1), state.lastMessageId) });
-  return { checkpointId: state.activeCheckpointId, boundary: state.boundary, targetedKeys: [...unmet] };
+  const leaves: ReconciliationPlan["leaves"] = [];
+  for (const transition of story.outgoingByCheckpoint[state.activeCheckpointId] ?? []) {
+    if (!gateMatches(transition.gate, state.blackboard.values)) collectUnmetLeaves(transition.gate, story, state.blackboard.values, leaves);
+  }
+  return {
+    descriptor: { checkpointId: state.activeCheckpointId, boundary: state.boundary, targetedKeys: [...unmet] },
+    reason: `reconcile:${[...unmet].join(",")}`,
+    window: getChatWindow(Math.max(0, state.checkpointStartedMessageId + 1), state.lastMessageId),
+    leaves,
+  };
+}
+
+export function maybeScheduleReconciliation(story: NormalizedStoryV2 | null, state: ReconcileState | null, multiplier: number, scheduler: ExtractionScheduler): ReconciliationDescriptor | null {
+  const plan = planReconciliation(story, state, multiplier);
+  if (!plan) return null;
+  scheduler.schedule({ priority: 0, reason: plan.reason, window: plan.window });
+  return plan.descriptor;
 }

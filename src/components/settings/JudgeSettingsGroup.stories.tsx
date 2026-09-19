@@ -46,7 +46,7 @@ export const OnlyBuiltUsesAreListed: Story = {
   args: { settings: settings({ enabled: true }) },
   play: async ({ args, canvasElement }) => {
     const rows = [...canvasElement.querySelectorAll<HTMLInputElement>("[id^=so-judge-use-]")];
-    await expect(rows.map((row) => row.id)).toEqual(["so-judge-use-director", "so-judge-use-memory-verify", "so-judge-use-memory-pairs", "so-judge-use-scene-trigger", "so-judge-use-scene-tracker", "so-judge-use-lookahead", "so-judge-use-lore-select"]);
+    await expect(rows.map((row) => row.id)).toEqual(["so-judge-use-director", "so-judge-use-memory-verify", "so-judge-use-memory-pairs", "so-judge-use-scene-trigger", "so-judge-use-scene-tracker", "so-judge-use-lookahead", "so-judge-use-lore-select", "so-judge-use-typed-extraction", "so-judge-use-stall-check"]);
     await expect(JUDGE_USE_KEYS.length).toBeGreaterThan(rows.length);
     await userEvent.click(rows[1]);
     await expect(args.onChange).toHaveBeenCalledWith({ uses: { memoryVerify: true } });

@@ -1,5 +1,5 @@
 import type { BoundaryResult } from "@engine/index";
-import { getChatWindow, maybeScheduleReconciliation, scheduleForcedCues, type ExtractionScheduler } from "@extraction/index";
+import { getChatWindow, planReconciliation, scheduleForcedCues, type ExtractionScheduler } from "@extraction/index";
 import type { SceneCoordinator } from "./coordinators/sceneCoordinator";
 import type { RuntimeManager } from "./runtimeManager";
 
@@ -36,6 +36,16 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     },
   },
   {
+    // v2.2 plan 06: the judged typed read on every boundary, skipped when this boundary's cadence
+    // read already carries the judged step. Fire-and-forget; the manager says whether it ran.
+    id: "typed-read",
+    order: 15,
+    when: ({ result, scheduler }) => !scheduler.cadenceQueuedAt(result.boundary),
+    run: ({ result, manager }) => {
+      manager.judgedExtraction({ kind: "typed", boundary: result.boundary, messageId: result.context.lastMessageId });
+    },
+  },
+  {
     id: "forced-cues",
     order: 20,
     run: ({ result, manager, scheduler }) => {
@@ -46,8 +56,11 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     id: "reconciliation",
     order: 30,
     run: ({ manager, scheduler }) => {
-      const reconciliation = maybeScheduleReconciliation(manager.getStory(), manager.getEngineState(), manager.getExtractionSettings().reconciliationMultiplier, scheduler);
-      if (reconciliation) manager.recordReconciliation(reconciliation);
+      const plan = planReconciliation(manager.getStory(), manager.getEngineState(), manager.getExtractionSettings().reconciliationMultiplier);
+      if (!plan) return;
+      manager.recordReconciliation(plan.descriptor);
+      const reread = () => scheduler.schedule({ priority: 0, reason: plan.reason, window: plan.window });
+      if (!manager.judgedExtraction({ kind: "stall", plan, reread })) reread();
     },
   },
   {

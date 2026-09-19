@@ -248,10 +248,39 @@ Built with it:
   shared-read `DELTA` line.
 - When no evidence answer arrives, a stated value cites the message its candidate came from.
 
-The runtime is not built yet: the `typed-read` boundary entry, the residual scope in
-`runSharedRead`, the stall pre-check in `reconciliation`, the Studio Extraction section with its
-preview, `so-live-suite --judge`, and J11.20–J11.24. That is the next step, and none of it touches
-the peer's uncommitted files.
+### As built: runtime (2026-09-19; live gate pending)
+
+- **`runSharedRead` gains `judgeTyped`.** Hinted qualities in scope are judged first; those
+  answered over the floor leave the LLM prompt and the audit's `scope`, and `acceptedDeltas` is
+  judged ∪ LLM, dropping any LLM line for a judged quality (one writer per quality).
+  `audit.judged {keys, model, confidences}` records the split. The LLM is still called whenever
+  the original scope is non-empty, because the same read carries the memory, arc and fact lines.
+  The scheduler passes the judge through `SchedulerHost.judgeTyped`.
+- **`typed-read` boundary entry (order 15).** It runs unless `scheduler.cadenceQueuedAt(boundary)`.
+  The scheduler records the boundary it queued a cadence read on, which is exact where
+  re-evaluating `underPressure()` would not be, because the queue has already grown.
+  `ExtractionCoordinator.judged({kind: "typed"})` reads the last 3 messages, drops the result if
+  the chat moved on, queues the deltas for the next boundary and writes `extras.extraction.judgedReads`
+  (cap 20, its own ring).
+- **Stall pre-check.** `planReconciliation` now returns the stall without scheduling it:
+  descriptor, window, and every unmet extractor leaf with its rubric and value.
+  `maybeScheduleReconciliation` is a thin wrapper, kept for its tests. The `reconciliation` entry
+  records the event, then asks `judged({kind: "stall"})`:
+  - **direct**: the deltas are queued and the event is resolved with `judge:reconcile p=…` evidence;
+  - **genuine**: the event stays open with `judge: nothing shown (max p …)`, so the player's stall
+    signal stays;
+  - **re-read**: today's P0 `reconcile:` read. A judge error also goes this way.
+- The manager gained one delegate (`judgedExtraction`), 645 → 646 lines, which is the baseline.
+- Both usages are listed as built, with send copy that matches what leaves. The author Scheduler
+  tab shows the last five judged reads (`[data-so="judged-reads"]`, in the player-clean sweep).
+- Tests: `extraction/judgedRead.test.ts` covers residual scope, one writer, fallback, the scheduler
+  predicate and the leaf plan. `runtime/judgeExtraction.test.ts` covers the typed read through the
+  manager to a fired transition, the floor, the freshness drop, and all three stall outcomes.
+  `boundaryWork.test.ts` covers the routing.
+
+Not built yet: the Studio Extraction section with its rendered preview, the two diagnostics, the
+copilot `read_as` ops, the Blackboard source column, the sun-ruins hints, `so-live-suite --judge`,
+and J11.20–J11.24.
 
 ## Implementation notes
 

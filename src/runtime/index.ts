@@ -6,6 +6,7 @@ import { runBoundaryWork } from "./boundaryWork";
 import { SceneCoordinator } from "./coordinators/sceneCoordinator";
 import { JudgeRuntime } from "./judge";
 import { LoreSelector } from "./loreSelect";
+import { createTypedJudge } from "./typedRead";
 import { getGlobalSettings } from "./settingsStore";
 import { registerLiveSuite } from "./liveSuite";
 import { registerRuntimeMacros } from "./macros";
@@ -21,6 +22,7 @@ let scheduler: ExtractionScheduler | null = null;
 let privateInjectionUnsub: (() => void) | null = null;
 let talkController: TalkController | null = null;
 let sceneCoordinator: SceneCoordinator | null = null;
+let typedJudge: ReturnType<typeof createTypedJudge> | null = null;
 
 const registerSlashCommandsWhenReady = (attempt = 0) => {
   if (slashRegistered) return;
@@ -53,6 +55,7 @@ export function startRuntime() {
       if (scheduler) runtimeManager.setSchedulerSnapshot(scheduler.getSnapshot());
     },
     pauseExtraction: (message) => runtimeManager.pauseExtraction(message),
+    judgeTyped: () => typedJudge,
   };
   scheduler = new ExtractionScheduler(schedulerHost);
   runtimeManager.onBoundary((result) => {
@@ -88,6 +91,7 @@ export function startRuntime() {
     context: () => ({ boundary: runtimeManager.getEngineState()?.boundary ?? 0, messageId: chatLastId() }),
   });
   globalThis.storyOrchestratorJudge = judgeRuntime;
+  typedJudge = createTypedJudge(() => judgeRuntime);
   runtimeManager.attachJudge(judgeRuntime);
   const recentWindow = () => {
     const chat = Array.isArray(getContext().chat) ? getContext().chat : [];

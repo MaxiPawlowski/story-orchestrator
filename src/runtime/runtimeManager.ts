@@ -13,7 +13,7 @@ import { PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
 import { CopilotCoordinator } from "./coordinators/copilotCoordinator";
 import { PacingCoordinator } from "./coordinators/pacingCoordinator";
 import { ExpansionCoordinator } from "./coordinators/expansionCoordinator";
-import { ExtractionCoordinator } from "./coordinators/extractionCoordinator";
+import { ExtractionCoordinator, type JudgedExtractionWork } from "./coordinators/extractionCoordinator";
 import { MemoryCoordinator } from "./coordinators/memoryCoordinator";
 import type { MemoryMirrorSummary } from "./memoryMirror";
 import { StagecraftCoordinator } from "./coordinators/stagecraftCoordinator";
@@ -409,6 +409,7 @@ export class RuntimeManager {
   getFiredTransitions(): NormalizedTransition[] { return this.engine.stateLog.map((entry) => entry.fired).filter((transition): transition is NormalizedTransition => Boolean(transition)); }
   getExpansionGateSources(): ExtraGateSource[] { return this.expansion.getGateSources(); }
   recordReconciliation(descriptor: { checkpointId: string; boundary: number; targetedKeys: string[] }) { this.extraction.recordReconciliation(descriptor); }
+  judgedExtraction(work: JudgedExtractionWork): boolean { return this.extraction.judged(work); }
 
   setSchedulerSnapshot(snapshot: ExtractionRuntimeState["scheduler"]) {
     this.extraction.setSchedulerSnapshot(snapshot);

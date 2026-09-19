@@ -116,10 +116,10 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
   loreSelect: { label: "Lore selection", description: "Adds the lore entries that matter to the next reply, even without their keywords.", sends: "the last 8 messages, the checkpoint name and goal, and the title and text of each entry in the story's lore-select books" },
   curatorFilter: { label: "Curator focus", description: "Shows the World Info curator only the entries the story may have overtaken.", sends: "the story so far and the story's lore entries" },
   memoryRerank: { label: "Memory relevance", description: "Ranks memory for the next reply when there is more than fits.", sends: "the last 8 messages and memory notes" },
-  typedExtraction: { label: "Every-turn story reads", description: "Reads qualities the author marked for it on every turn, so gates fire sooner.", sends: "the last messages and the marked qualities' descriptions" },
-  stallCheck: { label: "Stall check", description: "Checks a stalled gate before spending a full re-read.", sends: "the checkpoint's messages and the unmet conditions" },
+  typedExtraction: { label: "Every-turn story reads", description: "Reads qualities the author marked for it on every turn, so gates fire sooner; the rest stay with the story model.", sends: "the last 3 messages (or the read's window), the story title and checkpoint, and each marked quality's description, values and numbers or names found in the messages" },
+  stallCheck: { label: "Stall check", description: "Checks a stalled gate before spending a full re-read; writes only what the messages clearly show.", sends: "the messages since the checkpoint began and the unmet conditions' descriptions and values" },
   expansionCritic: { label: "Expansion review", description: "Reviews generated story beats instead of a second model call.", sends: "established facts, the target checkpoint, cast names and the generated beats" },
   expansionLookahead: { label: "Prepare ahead", description: "Writes the next generated beats before the story gets there.", sends: "same as Heading toward, plus expansion review" },
 };
 
-export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = ["director", "memoryVerify", "memoryPairs", "sceneTrigger", "sceneTracker", "lookahead", "loreSelect"];
+export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = ["director", "memoryVerify", "memoryPairs", "sceneTrigger", "sceneTracker", "lookahead", "loreSelect", "typedExtraction", "stallCheck"];
