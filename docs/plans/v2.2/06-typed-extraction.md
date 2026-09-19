@@ -167,8 +167,8 @@ With `judge.uses.stallCheck` on, the `reconciliation` entry asks the judge first
 The question shape differs from the spike's gate-leaf set (which phrased leaves directly), so
 Phase A re-measures it: ≥ 30 leaves from the fixture corpus, with floor AUROC ≥ 0.95.
 
-**Measured 2026-09-19** (`run.mts --only stall-leaves`). The question is `Does \`transcript\` show that
-the answer to "<rubric>" is <yes|no|"value">?`, asked over the hard set plus the live-suite
+**Measured 2026-09-19** (`run.mts --only stall-leaves`). The question is ``Does `transcript` show that
+the answer to "<rubric>" is <yes|no|"value">?``, asked over the hard set plus the live-suite
 fixtures: 122 leaves over 49 cases (59 shown, 63 contradicted or never shown).
 
 | Measure | Result |
