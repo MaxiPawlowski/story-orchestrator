@@ -9,7 +9,9 @@ generative thing the runtime does, and it holds two decisions a judge can make b
   beats JSON, canon and facts, and a 512-token JSON verdict (`critic.ts:74`). In the spike the
   judge's verdict was right 10/10.
 - **Which of several chains is best?** The user's "many variations, then pick". Generate N chains
-  at a higher temperature, check each in code, score each with the judge, and let code pick.
+  at a higher temperature, check each in code, and score each with the judge. Then either code
+  picks or the LLM picks from the judge's shortlist, as the author configures (user decision
+  2026-09-19: every judge usage is opt-in config).
 
 It also answers "plan checkpoints a couple of steps ahead". The plan-03 look-ahead read says which
 reachable checkpoint play is drifting toward, so its stub can be expanded **before** the story gets
@@ -46,14 +48,13 @@ there, not only from the active checkpoint.
 
 In:
 - The judge critic.
-- N-variant generation + judge scoring + code pick (after Phase A).
+- N-variant generation + judge scoring + a configurable pick, `code` or `llm` (after Phase A).
 - Look-ahead pre-generation.
 - Fixtures, and a J11 expansion check.
 
 Non-goals:
 - Canon regeneration drafts (a v2.3 seed; the same pattern).
 - Changing `runCodeChecks`: the code checks stay first and stay binding.
-- Letting the LLM make the final pick. See unresolved questions.
 
 ## Deliverables
 
@@ -74,6 +75,11 @@ The labels are the defect categories, which are objective, not taste. Score each
 Floors:
 - the clean chain ranks first in ≥ 8/10 stubs by the composite below;
 - every contradicting chain is rejected at `contradicts ≥ 0.3`.
+
+The `llm` pick mode is measured too, on the same stubs: the judge's top 2 go to Artemis, and the
+check is whether it picks the clean chain. This needs the shared backend, so ask the other
+sessions first. It is reported in the Gate record, next to the code pick's rate, so the author can
+choose a mode on evidence. The `llm` mode ships regardless, because it is opt-in.
 
 ### Pure core: `src/judge/expansion.ts`
 
@@ -96,7 +102,7 @@ Floors:
 ### Critic
 
 `runCritic` gains an injected `judgeCritic?`:
-- With `judge.uses.expansion` on, the judge verdict replaces the LLM JSON critic.
+- With `judge.uses.expansionCritic` on, the judge verdict replaces the LLM JSON critic.
 - On judge failure, the LLM critic runs exactly as today.
 - `needsReview` semantics are unchanged.
 - The author view expansion card shows the three probabilities.
@@ -109,16 +115,25 @@ Floors:
   **sequentially** (the P3 lane; never more than one generation in flight from expansion), runs the
   one repair pass per chain as today, and filters by `runCodeChecks`.
   - Survivors are judged in one fan-out (a question set per chain over shared facts/target state).
-    Code picks.
+  - **Pick mode** `judge.expansion.pick`:
+    - `code` (the default whenever variants > 1): the highest `chainScore` wins.
+    - `llm`: the judge's top 2 go to one more memory-LLM call. It shows the target checkpoint and
+      both chains' beat objectives and asks for `PICK: A|B`, parsed strictly and routed through
+      `stripReasoningBlocks`.
+    - On a parse failure or timeout in `llm` mode, the code pick stands and the entry records
+      `pickFallback`.
+    - Either way, the entry records both scores, the picker, and the other candidate.
   - With no survivor, the result is today's failed / needs-review path, keeping the best
     code-check failure for the author.
-- Settings: `judge.expansionVariants` = 1 (off) | 2 | 3, default 1, and a temperature of 0.7. The
-  expansion entry records each variant's generation time, and the Gate record reports the GPU time
+- Settings, all opt-in: `judge.expansion.variants` = 1 (off, the default) | 2 | 3,
+  `judge.expansion.temperature` = 0.7, and `judge.expansion.pick` = `code` | `llm`. The pick mode
+  is inert while `variants` = 1. The expansion entry records each variant's generation time, and the Gate record reports the GPU time
   per expansion from those entries.
 
 ### Look-ahead pre-generation
 
-- The `expansion` boundary entry, with `judge.uses.expansion` on and a plan-03 scene read present:
+- The `expansion` boundary entry, with `judge.uses.expansionLookahead` on (which requires
+  `judge.uses.lookahead`, plan 03) and a scene read present:
   after the active candidate, it also considers **one** stub whose source checkpoint is one hop
   ahead and whose `headingTo` p ≥ `LOOKAHEAD_PREGEN_P` (0.7, from plan 03's calibration).
   - `findStubExpansionCandidate(story, aheadCheckpointId)` is reused unchanged.
@@ -190,7 +205,7 @@ Live (fresh-start, headed, real):
 | Element | Tag |
 |---|---|
 | Expansion card probabilities, variants setting | `author` |
-| `#so-judge-use-expansion` | `both` |
+| `#so-judge-use-expansion-critic`, `#so-judge-use-expansion-lookahead`, variants + pick mode | `author` |
 
 ## Delegated decisions
 
@@ -200,8 +215,5 @@ Live (fresh-start, headed, real):
 
 ## Unresolved questions
 
-- **"Many variations, then the LLM picks."** This plan has code pick from judge scores. If the
-  intent was for the LLM to choose from a judge-narrowed shortlist, that is one more generative
-  call per expansion; decide before building.
 - Is a variant temperature of 0.7 on Artemis (Q4, repetition-sensitive; see the Artemis RP config
   memory) safe from loops at 2048 tokens? Phase A can't answer it; the first live run measures it.

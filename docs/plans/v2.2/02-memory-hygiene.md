@@ -50,7 +50,7 @@ worth using. On the Jaccard path the ceiling is therefore about 15/20, whatever 
 The vector path's recall was never measured. This plan measures generator recall before it
 promises a number.
 
-**Consumed:** plan 01 (`askJudge`, `policy.ts`, journal kind, `so-judge`). Regression floor: J3
+**Consumed:** plan 01 (`askJudge`, `policy.ts`, the call ring, `so-judge`). Regression floor: J3
 (memory recalled), J4 (memorize backlog, which ingests through the same path), and J6 (a rollback
 drops memory by message id).
 
@@ -129,22 +129,22 @@ Add `experiments/pairRecall.mts` to the harness:
   That frees ~40 lines.
 - Add `judgePairRelations(group, matches, judge)`. It enumerates the candidate pairs exactly as
   the walk will visit them, prioritised by similarity band and capped at `PAIR_MAX_PER_PASS`. It
-  asks them with `PAIR_CONCURRENCY` and returns `relationOf` plus the journal records.
+  asks them with `PAIR_CONCURRENCY` and returns `relationOf` plus the call records.
 
 **Memory coordinator:**
 - Gains an injected `judgePairs?`.
-- `runConsolidation` switches to `consolidateTierJudged` when `judge.uses.memory` is on.
+- `runConsolidation` switches to `consolidateTierJudged` when `judge.uses.memoryPairs` is on.
 - The bridge still runs for superseded winners.
 - The file ends no longer than it was at plan start. This follows v2.1 rule 3's spirit applied to
   the coordinator: the move pays for the addition.
 
 **Verify rung:**
-- `extractionCoordinator.applyAudit` gains an injected `verifyLines?`. With `judge.uses.memory`
-  on, it runs over `newMemoryEntries` before `memory.applyEntries`:
+- `extractionCoordinator.applyAudit` gains an injected `verifyLines?`. With
+  `judge.uses.memoryVerify` on, it runs over `newMemoryEntries` before `memory.applyEntries`:
   - p < 0.2 → dropped. A record is kept, and the line is never stored.
   - 0.2 ≤ p < 0.5 → stored with `confidence = p`.
   - p ≥ 0.5 → stored unchanged.
-- On judge failure every line is stored exactly as today, and the journal row carries
+- On judge failure every line is stored exactly as today, and the call record carries
   `fallback`.
 - Deltas and arc/epistemic/ledger signals are untouched and never wait on the verify rung.
   `enqueueExtractorDeltas` runs first, as it does now.
@@ -156,9 +156,11 @@ Add `experiments/pairRecall.mts` to the harness:
 
 **Author view** (Memory tab): a collapsed **"Not stored (unsupported)"** list over `verifyDrops`,
 each row with p and a **Store anyway** action. That action runs `applyEntries` with `confidence = p`
-and journals the override. Player mode never renders it; add it to the spoiler checklist.
+and records the override in the call ring. Player mode never renders it; add it to the spoiler checklist.
 
-**Settings:** `judge.uses.memory` (default off), with its checkbox `#so-judge-use-memory`.
+**Settings:** two independent opt-ins (overview rule 4): `judge.uses.memoryVerify`
+(`#so-judge-use-memory-verify`) and `judge.uses.memoryPairs` (`#so-judge-use-memory-pairs`).
+Both default to off.
 
 **Call ring** (`extras.judge.calls`, plan 01): one record per verify call (`use:
 "memory-verify"`, with `p` per line) and one per consolidation pass (`use: "memory-pairs"`, with
@@ -182,7 +184,7 @@ the relation and confidence per pair asked, and fallbacks).
 - `so-scenario` step `judge_consolidate`: seeds memory entries from a fixture file, runs
   `runConsolidation()`, and returns the result.
   - Seeding uses **existing** handles only, so the manager does not grow (v2.1 rule 3). With
-    `judge.uses.memory` off, the step makes **one** `runExtractionNow(debugResponse)` call whose
+    `judge.uses.memoryVerify` off, the step makes **one** `runExtractionNow(debugResponse)` call whose
     response carries every `MEMORY` line of the fixture group (≥ `CONSOLIDATION_MIN_GROUP`, one
     tier). The call is made once because `addMemoryEntries` discards a tier group whose message
     range the write log already covers (`memory/stores.ts:38–43`): a repeated call over the same
@@ -193,10 +195,10 @@ the relation and confidence per pair asked, and fallbacks).
 
 | Check | What |
 |---|---|
-| J11.7 | Real play with judge memory on. At least one `memory-verify` record per read that produced lines. Stored entries carry `confidence` ≤ 1 per policy |
+| J11.7 | Real play with `memoryVerify` on. At least one `memory-verify` record per read that produced lines. Stored entries carry `confidence` ≤ 1 per policy |
 | J11.8 | A scripted `/sendas` reply that contradicts itself, plus a real read. If the model writes an unsupported line, it lands in `verifyDrops`. The check passes either way and logs which branch ran (the J8 nondeterminism rule) |
 | J11.9 | Seeded pairs → `judge_consolidate`. M01 dropped (spike: duplicate at 0.95). M07 superseded (update at 1.00). M08 **falls back**: Jev said update at 0.59, below `PAIR_MIN_CONFIDENCE`, so today's decision holds and the older note stays `contradicted`, which proves the floor. One of the new high-overlap distinct pairs has `contradicted` cleared, if Jev answers it over the floor; the check logs which branch ran |
-| J11.10 | Judge off → identical consolidation result to `consolidateTier` on the same seed |
+| J11.10 | `memoryPairs` off → identical consolidation result to `consolidateTier` on the same seed |
 
 ## Implementation notes
 
@@ -234,7 +236,7 @@ Live (fresh-start, headed, real LLM + real judge):
 | Element | Tag |
 |---|---|
 | "Not stored" list, Store anyway | `author` |
-| `#so-judge-use-memory` | `both` |
+| `#so-judge-use-memory-verify`, `#so-judge-use-memory-pairs` | `both` |
 
 ## Delegated decisions
 
@@ -245,4 +247,4 @@ Live (fresh-start, headed, real LLM + real judge):
 
 - Should a verify drop on a **fact** (the `facts` tier is permanent) need a lower cut than a
   session detail? The spike did not separate them. Proposed: one cut, then re-read the calibration
-  rows by tier before any default flips.
+  rows by tier before plan 08 recommends the usage.

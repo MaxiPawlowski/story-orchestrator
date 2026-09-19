@@ -64,7 +64,7 @@ over text.
 | Typed deltas via Jev (the shared-read split) | build, **opt-in per quality** | 06 | Only qualities with an authored `read_as` (`choice` / `stated` / `rating`). The win is firing gates on the turn they become true, not accuracy |
 | Gate-leaf stall re-check | build | 06 | A judge pre-check before the LLM reconcile read: direct delta at p ≥ 0.9 on simple leaves. Below 0.1 on every leaf, the LLM re-read is skipped and the stall stays visible |
 | Expansion critic | build | 07 | JSON verdict → three nouls; the code checks stay first and binding |
-| **"Many variations, then pick"** (user) | spike → build | 07 | N beat chains at a higher temperature → code checks → judge scores → **code picks** |
+| **"Many variations, then pick"** (user) | spike → build | 07 | N beat chains at a higher temperature → code checks → judge scores → the pick is a setting: **code** picks the top score, or the **LLM** picks from the judge's top 2 |
 | Arc resolution | no | — | The LLM is 22/22 vs the judge's 21/22, and the shared read already emits `[resolved]`. A second writer would buy nothing |
 | Tension | no | — | The judge runs one level high on calm scenes, and pacing steering is sensitive to a one-level bias |
 | Cast / npc tuning curator | no (v2.2) | — | Design doc §3; needs the talk decision ring to hold data first |
@@ -111,10 +111,39 @@ them. Checked in ST source on 2026-09-19.
    (`test/fixtures/judge/`) through the real plugin, and each use must hold its recorded floor
    (`--min`), like `so-live-suite`. A model-version change re-runs calibration before anything
    else.
-4. **One flag per use, default off.** `judge.enabled` is the master switch, then
-   `judge.uses.{director, memory, scene, lore, extraction, expansion}`; curators use their own
-   stagecraft flags. A use turns on by default only in plan 08, after its journeys ran green
-   **twice** with it on and off.
+4. **Every judge usage is an explicit opt-in, and stays one** (user decision, 2026-09-19).
+   - `judge.enabled` is the master switch.
+   - Each distinct usage has its own flag, all `false` by default, and **no plan ever flips a
+     default**. Plan 08 publishes a recommended configuration; turning a usage on is always the
+     user's act.
+   - The flag list is fixed here, and each plan implements its rows:
+
+| Flag | Usage | Plan |
+|---|---|---|
+| `judge.uses.director` | Speaker direction (hybrid) | 01 |
+| `judge.uses.memoryVerify` | Verify memory/fact lines before storing | 02 |
+| `judge.uses.memoryPairs` | Consolidation pair relation | 02 |
+| `judge.uses.sceneTrigger` | Scene-break trigger for the P0 read | 03 |
+| `judge.uses.sceneTracker` | Scene tracker block, macros, player "at <location>" | 03 |
+| `judge.uses.sceneOoc` | OOC annotation of the extraction window (only if Phase A passes) | 03 |
+| `judge.uses.lookahead` | "Heading toward" read model (author view) | 03 |
+| `judge.uses.loreSelect` | Force-activate relevant lore per generation | 04 |
+| `judge.uses.curatorFilter` | Narrow the WI curator's prompt (only if Phase A passes) | 04 |
+| `judge.uses.memoryRerank` | Relevance re-rank of memory injection (only if Phase A wins) | 04 |
+| `stagecraft.wardenEnabled` | Continuity warden (with its own accept mode) | 05 |
+| `stagecraft.sceneSetterEnabled` | Scene-setter background (with its own accept mode) | 05 |
+| `judge.uses.typedExtraction` | Judged typed read for `read_as` qualities | 06 |
+| `judge.uses.stallCheck` | Judge pre-check before a stall re-read | 06 |
+| `judge.uses.expansionCritic` | Judge verdict instead of the LLM critic | 07 |
+| `judge.uses.expansionLookahead` | Pre-generate the stub play is heading toward (needs `lookahead`) | 07 |
+| `judge.expansion.variants` / `.pick` | N chains (1 = off) and who picks: `code` or `llm` | 07 |
+
+   - Curator flags stay in the stagecraft group next to the WI curator's, which is the existing
+     home for a flag plus an accept mode.
+   - A usage that depends on another (`expansionLookahead` → `lookahead`) is disabled in the panel
+     until its dependency is on, and the runtime checks both.
+   - A judge call only asks the questions of enabled usages. The scene read, for example, sends no
+     presence questions unless `sceneTracker` is on.
 5. **What leaves the machine is written down.**
    - Every plan has a "Leaves the machine" table.
    - The settings panel states it in one sentence.
@@ -150,7 +179,7 @@ plan-doc template and Gate-record protocol as v2.1.
 | [05-judge-curators](05-judge-curators.md) | Continuity warden (one-turn note) + scene-setter (background) on the plan-07 contract; `stagecraft-design.md` amendments (one-turn injections, judge passes off the LLM lanes) | `note` / `background` curator ops, the `continuityNote` key |
 | [06-typed-extraction](06-typed-extraction.md) | Format-2 `read_as` + `criteria` with a Studio preview; judged typed read every boundary with residual LLM fallback; stall pre-check; `so-live-suite --judge` | `read_as` qualities, `judge:typed` audits |
 | [07-expansion-judge](07-expansion-judge.md) | Judge critic; N-variant generation + judge scoring + code pick (after spike); look-ahead pre-generation | `chainScore`, the variant temperature option |
-| [08-acceptance](08-acceptance.md) | Full matrix with the judge off and on, calibration, cost/latency report, human eval, default decisions, docs refresh | — |
+| [08-acceptance](08-acceptance.md) | Full matrix with the judge off and on, calibration, cost/latency report, human eval, recommended configuration (no default flips), docs refresh | — |
 
 Why this order:
 - 01 is the foundation, and the director is the one place the spike showed a *quality* win on the
@@ -202,16 +231,21 @@ Never: character cards, persona text, other chats, the API key (server-side only
 | Spike §Unresolved: floors, hint authored vs inferred | 06 (`read_as`, authored) |
 | v2.1 seed list: remaining curators | 05 (two of four); cast tuning and recap narrator stay seeds |
 
+## Resolved decisions (user, 2026-09-19)
+
+- **`enableServerPlugins: true`: approved.** It is ST-wide and needs an ST restart. Plan 01 flips
+  it when it installs the plugin, and it coordinates the restart with the other sessions sharing
+  the ST install. It is not flipped before then; the `plugins/` folder is empty until plan 01.
+- **Every judge usage is opt-in config** (rule 4). That covers the "many variations" question too.
+  Plan 07 ships both pick modes, `code` (the judge scores and code picks) and `llm` (the judge
+  shortlists and the LLM makes the final pick), as a setting. Neither runs unless variants are
+  turned on.
+- **Look-ahead privacy: accepted.** Future checkpoint objectives may go to TypeSafe. The player
+  never sees them, and the look-ahead has its own opt-in flag.
+
 ## Unresolved questions
 
-- **`enableServerPlugins: true`** in ST's `config.yaml` is ST-wide: it loads every directory under
-  `plugins/`. It is the user's call, and plan 01 cannot go green without it.
 - **Would TypeSafe allow-list `localhost` origins?** Even if it would, the skill says keys stay
   server-side, so the plugin ships regardless. Ask; don't wait.
-- **"Many variations, then the LLM picks"** is read here as: the LLM writes N variants, Jev scores
-  them, and **code** picks. If the intent was for the LLM to make the final pick from a
-  Jev-narrowed shortlist, that is one extra generative call in plan 07. Decide before 07.
-- **Look-ahead privacy**: future checkpoint objectives (spoilers) are sent to TypeSafe, though
-  never shown to the player. Acceptable, or should look-ahead be opt-in per story?
 - **Spanish coverage**: 7 of the spike's cases were Spanish. Every Phase A and every calibration set
-  carries a Spanish slice before any default flips on.
+  carries a Spanish slice before plan 08 recommends a usage.

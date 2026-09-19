@@ -153,16 +153,25 @@ and a composite with `who = name`. Record it in the Gate record.
 
 ### Settings (`GlobalSettings.judge`)
 
-`{enabled: false, model: "jev-1.13.0", timeoutMs: 1500, uses: {director: false}}`, sanitized. No
-per-chat overrides.
+`{enabled: false, model: "jev-1.13.0", timeoutMs: 1500, uses: {…every flag in overview rule 4,
+all false}}`, sanitized. No per-chat overrides.
+- This plan lands the **whole** `uses` map and its sanitizer, so later plans only wire a consumer to
+  an existing flag.
+- A flag whose consumer is not built yet is hidden in the panel, not shown disabled.
+- **Nothing ever defaults to `true`**, now or after acceptance (overview rule 4, user decision
+  2026-09-19). The sanitizer test asserts that `defaultGlobalSettings().judge` has every usage off.
 
 The panel group **"Judgment model"** in `src/index.tsx` holds:
 - A status line: plugin reachable / key set / model.
 - `#so-judge-key`, which writes through `writeJudgeSecret` and clears itself. The value is never
   displayed or stored client-side.
-- `#so-judge-enabled` and `#so-judge-use-director`.
-- `#so-judge-self-test` ("Test judgment model"): runs the director calibration set in the page and
-  shows accuracy + p50 latency.
+- `#so-judge-enabled` (master), then one checkbox per built usage, `#so-judge-use-<kebab-key>`.
+  This plan builds `#so-judge-use-director`.
+  - Each usage row carries a one-line description plus what that usage sends (from its plan's
+    "Leaves the machine" table).
+  - A usage whose dependency is off is disabled, with the reason inline.
+- `#so-judge-self-test` ("Test judgment model"): runs the calibration set of every **enabled**
+  usage in the page, and shows accuracy + p50 latency per usage.
 - One privacy sentence: what leaves the machine (overview §Cost and privacy envelope).
 
 When `enabled` but unavailable, `pipeline.detail` says so (author-grade); `pipeline.text` does not.
@@ -243,8 +252,10 @@ Exports: `askJudge` + the question helpers + `policy.ts`, the fallback disciplin
 - The plugin is plain Node ESM with no dependencies. Importing `src/endpoints/secrets.js` couples
   it to ST's internals. If a future ST moves that file, the env/`.env` rungs keep the plugin
   working; `/status` reports which rung supplied the key (`keySource`, never the key).
-- Flipping `enableServerPlugins` is ST-wide and the user's call. The Gate record states that it
-  was on.
+- `enableServerPlugins: true` was approved by the user on 2026-09-19. This plan flips it in ST's
+  `config.yaml` when it installs the plugin. Before the restart that makes it take effect, message
+  the other sessions sharing the ST install, because a restart drops their page and any running
+  journey. The Gate record states that it was on.
 
 ## Leaves the machine
 

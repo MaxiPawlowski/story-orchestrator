@@ -148,7 +148,8 @@ rule before code is written.
   `experiments/curatorFilter.mts` + data: ≥ 20 entries against canon/threads, labelled
   `stale-or-newly-relevant` / `fine`. Floor: recall ≥ 0.9 at the chosen cut, because a missed
   stale entry silently loses the curator's only job.
-- Only if it passes: `stagecraftCoordinator.readScope`, when `judge.uses.lore` is on and the scope
+- Only if it passes: `stagecraftCoordinator.readScope`, when `judge.uses.curatorFilter` is on and
+  the scope
   holds > 12 entries, keeps only the entries over the cut (plus every currently-disabled entry, so
   the curator can still enable). It then builds the prompt from those. The prompt shape is
   unchanged.
@@ -171,7 +172,10 @@ rule before code is written.
 
 ### Settings
 
-`judge.uses.lore` (default off), `#so-judge-use-lore`.
+Three independent opt-ins (overview rule 4), all off by default: `judge.uses.loreSelect`
+(`#so-judge-use-lore-select`), `judge.uses.curatorFilter` (`#so-judge-use-curator-filter`, only if
+its Phase A passes) and `judge.uses.memoryRerank` (`#so-judge-use-memory-rerank`, only if its
+Phase A wins).
 
 ### Fixtures
 
@@ -235,7 +239,7 @@ Live (fresh-start, headed, real):
 |---|---|
 | `lore_select` Studio field, diagnostic | `author` |
 | Payload tab "Lore forced this turn" | `author` |
-| `#so-judge-use-lore` | `both` |
+| The three lore checkboxes | `both` |
 
 ## Delegated decisions
 

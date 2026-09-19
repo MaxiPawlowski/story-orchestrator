@@ -138,7 +138,8 @@ validate, the Studio **Story** tab, `storyDiff` (compatible) and copilot ops.
   With neither, the location question is not asked: Jev can only select, and span-selection from
   the text is unmeasured.
 - `times` defaults to the six buckets.
-- `inject` defaults to `true`.
+- `inject` defaults to `true`, but nothing is injected unless the install opted in to
+  `sceneTracker`. The story field lets an author switch the block off for one story.
 - Diagnostic `scene-read-location-empty` (info) fires when a story has a `location` quality of
   type `string`. That type is useless to the judge; suggest `enum`.
 
@@ -171,7 +172,8 @@ On a fresh result:
 
 ### Boundary work
 
-- New entry `scene-read`, order 45: `when: judge.uses.scene`.
+- New entry `scene-read`, order 45. It runs when any of `sceneTrigger`, `sceneTracker`,
+  `sceneOoc` or `lookahead` is on, and it asks only the question families those usages need.
 - `scene-detect` (order 50) keeps advancing the cursor on every boundary, because the probe is the
   condition. While the scene read is active, it schedules a read only when the hit's `signals`
   include a **deterministic** change: `cast` (the enabled members changed) or `location-quality`
@@ -209,7 +211,14 @@ When `ooc ≥ OOC_P` for the latest user message, the next shared read's window 
 
 ### Settings
 
-`judge.uses.scene` (default off), `#so-judge-use-scene`.
+Four independent opt-ins (overview rule 4), all off by default:
+
+| Flag | Checkbox | Turns on |
+|---|---|---|
+| `judge.uses.sceneTrigger` | `#so-judge-use-scene-trigger` | `scene_break` questions + the trigger |
+| `judge.uses.sceneTracker` | `#so-judge-use-scene-tracker` | location / time / presence + the tracker block, macros, player line |
+| `judge.uses.sceneOoc` | `#so-judge-use-scene-ooc` | the OOC question + window annotation (only if Phase A passes) |
+| `judge.uses.lookahead` | `#so-judge-use-lookahead` | reachable-checkpoint questions + the author-view "Heading toward" |
 
 ### Fixtures
 
@@ -221,7 +230,7 @@ When `ooc ≥ OOC_P` for the latest user message, the next shared read's window 
 
 | Check | What |
 |---|---|
-| J11.11 | Real play, judge scene on. One `scene` record per boundary in `extras.judge.calls`; `extras.scene.last.messageId` equals the newest message |
+| J11.11 | Real play, `sceneTrigger` + `sceneTracker` on. One `scene` record per boundary in `extras.judge.calls`; `extras.scene.last.messageId` equals the newest message |
 | J11.12 | A scripted time-skip message (`/sendas`) that the regex misses (taken from S-cases the heuristic failed) → P0 read `scene:judge` is scheduled **on that boundary** |
 | J11.13 | The tracker block is present in the payload captured on the next generation (`GENERATE_AFTER_DATA`), with only over-floor fields |
 | J11.14 | Swipe/delete past the scene read → `last` cleared, block rebuilt at the next boundary |
@@ -257,7 +266,7 @@ Harness:
 Live (fresh-start, headed, real):
 - J11.11–J11.15, run twice.
 - `so-judge calibrate --use scene`.
-- J3 and J5 with judge scene on and off.
+- J3 and J5 with the scene usages on and off.
 - J6.
 - `so-live-suite --min 0.9` (always; with the OOC fixture only if the OOC consumer is built).
 - J3.3 player sweep (location allowed, "Heading toward" forbidden).
@@ -269,7 +278,7 @@ Live (fresh-start, headed, real):
 | Player "now … at <location>" | `player` |
 | Scene read panel, Heading toward | `author` |
 | `scene_read` Studio field, diagnostic | `author` |
-| `#so-judge-use-scene` | `both` |
+| The four scene checkboxes | `both` |
 
 ## Delegated decisions
 

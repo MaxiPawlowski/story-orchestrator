@@ -121,13 +121,14 @@ qualities where the spike showed parity, with a version bump.
   `sharedRead.ts` stays testable with a fake transport and the judge seam stays in `stHost/`.
   (`extraction/` as a whole is not host-free: `client.ts` and `chatWindow.ts` import `STAPI`, and
   only `scope*` is pure.)
-- On a **cadence or triggered read**:
+- On a **cadence or triggered read**, with `judge.uses.typedExtraction` on:
   1. The judge answers the hinted qualities in scope.
   2. Qualities answered over the floor are removed from the LLM scope.
   3. The LLM prompt covers the residual scope, so a below-floor quality is still read.
   4. `acceptedDeltas` = judged ∪ LLM.
   - The audit records each delta's source (`judge` | `llm`) and the judge's confidence.
-- **Every boundary**, with `judge.uses.extraction` on and at least one hinted quality in scope:
+- **Every boundary**, with `judge.uses.typedExtraction` on and at least one hinted quality in
+  scope:
   - New boundary work `typed-read` (order 15, after `scheduler-tick`). It is fire-and-forget, not a
     scheduler job.
   - It runs `judgeTyped` alone over the last 3 messages.
@@ -150,7 +151,7 @@ qualities where the spike showed parity, with a version bump.
 
 ### Stall pre-check
 
-With the flag on, the `reconciliation` entry asks the judge first. It sends one noul per unmet
+With `judge.uses.stallCheck` on, the `reconciliation` entry asks the judge first. It sends one noul per unmet
 **extractor** leaf, phrased from the leaf and the quality rubric ("Does `transcript` show that
 <rubric> is <v>?") over the reconcile window.
 
@@ -174,7 +175,9 @@ Phase A re-measures it: ≥ 30 leaves from the fixture corpus, with floor AUROC 
 
 ### Settings
 
-`judge.uses.extraction` (default off), `#so-judge-use-extraction`.
+Two independent opt-ins (overview rule 4), both off by default: `judge.uses.typedExtraction`
+(`#so-judge-use-typed-extraction`) and `judge.uses.stallCheck` (`#so-judge-use-stall-check`). A
+story's `read_as` hints do nothing on an install that hasn't opted in.
 
 ### Live suite
 
@@ -251,7 +254,7 @@ Live (fresh-start, headed, real):
 |---|---|
 | Extraction section, preview, diagnostics | `author` |
 | Blackboard source column, `judge:typed` rows | `author` |
-| `#so-judge-use-extraction` | `both` |
+| `#so-judge-use-typed-extraction`, `#so-judge-use-stall-check` | `both` |
 
 ## Delegated decisions
 

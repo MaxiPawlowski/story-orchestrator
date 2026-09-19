@@ -3,9 +3,11 @@
 ## Objective
 
 Accept v2.2 as a whole: every journey green with the judge **off** (nothing regressed for an
-install without it) and **on** (every use earning its place). Cost and latency are reported from
+install without it, which is every install by default) and **on** (every usage earning its
+place). Cost and latency are reported from
 the judge call ring, not estimated. The human-eval sessions score what automation can't. This plan also
-decides which `judge.uses.*` defaults flip on.
+publishes a **recommended configuration**. It never flips a default: every judge usage stays
+opt-in (overview rule 4, user decision 2026-09-19).
 
 ## Context
 
@@ -22,7 +24,7 @@ In:
 - Calibration re-run.
 - The cost/latency report.
 - The human-eval protocol.
-- Default decisions.
+- The recommended configuration (no default changes).
 - Findings register.
 - Docs/status refresh.
 - v2.3 seeds.
@@ -37,7 +39,8 @@ gate record here or is bounced to v2.3 (the v2.1 rule).
 - J0–J11, `--strict`, twice each, in two configurations:
   - **judge off**: `judge.enabled=false`, plugin installed. This is the regression proof, and it
     must match v2.1's archived matrix check for check.
-  - **judge on**: every use on, auto modes off (review), variants = 2.
+  - **judge on**: every usage opted in, curator accept modes on `review`, variants = 2. Run it
+    once with `pick: code` and J11.25 once more with `pick: llm`.
 - J7 runs once per configuration. It is expensive, and a v2.1-style two-run requirement does not
   apply to it.
 - Archive both matrices, logs and journal exports under `test/journeys/records/v2.2-acceptance/`.
@@ -46,7 +49,8 @@ gate record here or is bounced to v2.3 (the v2.1 rule).
 
 - `so-judge calibrate --use <every use> --record` on the model the settings pin.
 - A table per use: floor, measured value, and the change against its plan's Gate record.
-- Any use below its floor stays default-off, whatever else this plan decides.
+- A usage below its floor is marked **not recommended** in the configuration table, with the
+  reason.
 
 ### Cost and latency report
 
@@ -82,15 +86,17 @@ Two sessions, each exported with `so-journal.mts export`:
 
 Every flag is triaged: fixed / v2.3 / by-design, with a reason.
 
-### Defaults decision
+### Recommended configuration
 
-Recorded in the Gate record. A use turns on by default only if:
+`docs/plans/v2.2/recommended-config.md` is a table with one row per usage flag: recommended /
+not recommended / only for certain stories, plus the evidence and what the usage sends off the
+machine. A usage is recommended only if:
 - its calibration is at floor;
 - its journeys ran green twice with it on and off;
 - the human sessions raised no unresolved flag against it.
 
-`judge.enabled` stays off by default in any case. It needs a key and a server plugin, so it is
-never on by accident.
+The settings panel links to this page. No code default changes: `judge.enabled` and every usage
+stay `false` (plan 01's sanitizer test keeps it that way).
 
 ### Docs truth (v2.1 rule 5)
 
@@ -122,8 +128,8 @@ The same table shape as v2.1's `00-overview.md`: id, finding, fixed in, evidence
 
 ## Validation gate
 
-The two matrices green (`--strict`, twice), calibration at floor for every default-on use, the cost
-report written, and both human sessions scored and triaged. The status line updated. If the plugin
+The two matrices green (`--strict`, twice), calibration at floor for every recommended usage, the
+recommended configuration and the cost report written, and both human sessions scored and triaged. The status line updated. If the plugin
 can't run on the machine, the gate is not green.
 
 ## Persona tags
