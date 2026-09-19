@@ -19,7 +19,12 @@ export async function getGenerationState(page) {
     const sendButtonDisabled = Boolean(sendButton?.disabled || sendButton?.classList?.contains('disabled'));
     // ST swaps send for stop while generating (group replies included) — that swap is the most
     // reliable signal there is; the streaming processor is absent for non-streamed backends.
-    const buttonsSayGenerating = Boolean(stopButton && stopButton.offsetParent !== null) || Boolean(sendButton && sendButton.offsetParent === null);
+    // With no backend connected ST hides BOTH buttons, which is a disabled form, not a generation:
+    // reading it as one made every `wait: {idle}` time out while the backend was down (2026-09-19).
+    const stopVisible = Boolean(stopButton && stopButton.offsetParent !== null);
+    const stopHidden = Boolean(stopButton && stopButton.offsetParent === null);
+    const sendHidden = Boolean(sendButton && sendButton.offsetParent === null);
+    const buttonsSayGenerating = stopVisible || (sendHidden && !stopHidden);
     // A stopped stream leaves the processor behind with isFinished === false; treating that as
     // "generating" makes every later step time out. Generating means running AND not stopped.
     const isGenerating = buttonsSayGenerating || (sp
