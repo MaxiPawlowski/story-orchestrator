@@ -97,6 +97,15 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     },
   },
   {
+    // v2.2 plan 05: fire-and-forget on the judge, never a scheduler job; the warden itself checks
+    // that the newest message is a character reply and that it is switched on.
+    id: "continuity-warden",
+    order: 57,
+    run: ({ result, manager }) => {
+      void manager.runWardenPass(result.context.lastMessageId);
+    },
+  },
+  {
     id: "short-term-compaction",
     order: 60,
     when: ({ result, manager }) => manager.shouldCompactShortTerm(result.context.lastMessageId),

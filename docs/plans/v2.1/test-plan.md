@@ -109,7 +109,7 @@ arrive. The operator records scores in the plan's Gate record.
 | J7 | long-haul | Full sun-ruins play-through to the finale; success-criteria hooks | 8 | 2 | **Expensive** — plan 01 (baseline) and plans 07/08 (acceptance) only |
 | J10 | identity-and-settings | Story identity, pinning, settings homes, migration, Restart | 9 | 2 | Plan 02's gate journey; plan 08 added J10.11, the migration over a real captured blob |
 | J9 | wizard | Premise → interview → staged proposals → provisioned ST assets → playable story | 5 | 2 | Plan 06's gate journey. **Writes real ST assets** — every one is marked `SO-J9` and deleted in cleanup |
-| J8 | stagecraft | Background effect + the World Info curator: propose off-path, review, apply at a boundary, journal it, touch nothing else | 3 | 1 | Plan 07's gate journey. **Writes a real lorebook** — marked `SO-J8` and deleted in cleanup |
+| J8 | stagecraft | Background effect + the World Info curator: propose off-path, review, apply at a boundary, journal it, touch nothing else; continuity warden notes (auto, review lapse, off) (v2.2 plan 05) | 6 | 1 | Plan 07's gate journey. **Writes a real lorebook** — marked `SO-J8` and deleted in cleanup |
 
 ## Checks
 
@@ -260,6 +260,9 @@ node scripts/debug/so-assets.mts assert-clean --marker SO-J9
 | J8.2 | auto | D1 | The WI curator proposes off-path from real canon, the author reviews it on the drawer cards, the boundary writes it, and the result reaches the server file and the next generation's prompt, **whatever op kind the model chose** (`requires: wi-curator, curator-review-ring`). `curator-accept pick: text-first` edits the first text change when there is one (edited text must land in `/api/worldinfo/get` and every captured prompt). Otherwise it accepts the first switch as proposed (`disable` on the server file, entry gone from the prompt). A before-control proves the untouched entry was in the first prompt, so its later absence means something. Prompts come from `GENERATE_AFTER_DATA` (main generation only), not a fetch wrapper that also sees memory-model calls |
 | J8.3 | auto | D1 | Every curator action is journaled; the blackboard, memory tiers, arcs, epistemic map and ledger are untouched; a write outside `stagecraft.lorebooks` is refused at the write edge. The before-snapshot waits for `wait: {schedulerIdle}`: on a slow model J8.2's last turn is still being read (memory 8→9, 2026-09-19), and that is not the curator |
 | J8.4 | human | D1 | "Did the presentation (scene, background, cast) feel handled for you, without you asking?" |
+| J8.5 | auto | — | Warden `auto`, judge on, a fact seeded through `applyExtractionAudit` ("the old stone bridge … collapsed"). A scripted `/sendas` reply that contradicts it → one `curator: "warden"` note, `accepted`. The next loud generation's `GENERATE_AFTER_DATA` prompt carries the note text and the op turns `applied`. The generation after that carries it only if a newer reply was flagged in turn (logged as its own branch) |
+| J8.6 | auto | — | Warden `review`: the same contradiction → a `pending` note. A newer `/sendas` reply commits first → the note is `rejected` with `lapsed`, and no captured prompt contains `Continuity: established` |
+| J8.9 | auto | — | Warden and curator focus both off, judge master on: a contradicting reply plus a generation → no `judge warden` or `judge curatorFilter` call, no new proposal, no note in the prompt |
 
 **Curator rubric** (score the proposals J8.2 produced, alongside the J8.4 score):
 
@@ -348,6 +351,7 @@ that adds a player-visible element adds a row here.
 | Tension numbers, expected tension, steering hint | author | drawer Overview (author view) |
 | Convergence bars (they name a future anchor and its distance) | author | drawer Overview (author view) |
 | Blackboard / Scheduler / Payload tabs, stall re-check detail, talk decisions | author | drawer tabs (author view) |
+| Continuity warden cards (flagged facts, editable note, lapsed / withdrawn) and the warden settings rows (v2.2) | author | drawer Scheduler tab (`[data-curator="warden"]`, `[data-so="warden-fact"]`), settings panel in author view (`#so-warden-enabled`, `#so-warden-accept-mode`) |
 | World Info curator review ring — proposals, editable replacement text, accept / decline, dropped lines | author | drawer Scheduler tab (`#so-stagecraft`, `[data-so="curator-proposal"]`, `[data-so="curator-op"]`) |
 | Curator settings (on/off, accept mode) and the "no lorebook listed" notice | author | settings panel (`#so-curator-enabled`, `#so-curator-accept-mode`, `#so-curator-unscoped`) |
 | The curator's write scope (`stagecraft.lorebooks`) and a checkpoint's `background` file | author | Studio Story tab (`[data-so="stagecraft"]`) and Checkpoints → Effects |

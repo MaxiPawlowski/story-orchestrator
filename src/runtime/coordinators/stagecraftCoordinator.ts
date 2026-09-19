@@ -7,17 +7,21 @@ import {
   entriesForScope,
   isCheckpointGated,
   isCuratorWritable,
+  isNoteOp,
+  capProposalRing,
   parseCuratorResponse,
   planCuratorProposal,
   previewCuratorOp,
-  CURATOR_PROPOSAL_LIMIT,
   type CuratorEntryView,
   type CuratorPassOutcome,
   type CuratorOp,
   type CuratorOpRecord,
+  type CuratorOpStatus,
   type CuratorProposalRecord,
+  type WardenNoteOp,
 } from "@stagecraft/index";
-import { disableWIEntry, enableWIEntry, loadLorebook, upsertWIEntry } from "@services/STAPI";
+import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
+import { clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, getContext, loadLorebook, setStoryExtensionPrompt, upsertWIEntry } from "@services/STAPI";
 import type { ExtractionRuntimeSettings, StagecraftRuntimeState } from "../types";
 
 // One curator pass every few boundaries at most: the reply path never waits for it, and a story that
@@ -33,18 +37,30 @@ export interface StagecraftCoordinatorDeps {
   getCanon: () => string;
   getOpenArcs: () => string[];
   filterEntries?: (entries: CuratorEntryView[], context: { checkpoint: { name: string; objective: string }; canon: string; openThreads: string[] }) => Promise<CuratorEntryView[]>;
+  warden?: { check: (reply: { speaker: string; text: string }, facts: string[]) => Promise<{ facts: string[]; text: string } | null>; facts: () => string[]; nudgeActive: () => boolean };
   journal: (summary: string, note?: string) => void;
   persist: () => Promise<void>;
   notify: () => void;
 }
 
-const acceptedOps = (record: CuratorProposalRecord) => record.ops.filter((entry) => entry.status === "accepted");
+const acceptedOps = (record: CuratorProposalRecord) => record.ops.filter((entry) => entry.status === "accepted" && !isNoteOp(entry.op));
+
+// The reply the warden reads is the one at its own id, never "the last message": by the time the
+// judge answers, the player may already have written.
+const readReply = (messageId: number): { speaker: string; text: string } | null => {
+  const chat = getContext().chat;
+  const message = Array.isArray(chat) ? (chat[messageId] as { name?: unknown; mes?: unknown; is_user?: unknown; is_system?: unknown } | undefined) : undefined;
+  if (!message || message.is_user === true || message.is_system === true || typeof message.mes !== "string" || !message.mes.trim()) return null;
+  return { speaker: typeof message.name === "string" && message.name ? message.name : "Narrator", text: message.mes };
+};
 
 // Owns extras.stagecraft: the World Info curator's off-path pass, the review ring the author acts
 // on, and the boundary write. It holds no engine or memory dependency **by construction** — a
 // curator can never move the blackboard or a memory tier (spec addendum §Stagecraft).
 export class StagecraftCoordinator {
   private inFlight = false;
+  private wardenInFlight = false;
+  private noteActive = false;
 
   constructor(private readonly deps: StagecraftCoordinatorDeps) {}
 
@@ -123,6 +139,7 @@ export class StagecraftCoordinator {
       const mode = this.state.settings.acceptMode;
       const record: CuratorProposalRecord = {
         id: `wi-${state.boundary}-${state.lastMessageId}`,
+        curator: "wi",
         at: new Date().toISOString(),
         boundary: state.boundary,
         messageId: state.lastMessageId,
@@ -135,7 +152,7 @@ export class StagecraftCoordinator {
         ops: plan.records.map((entry) => (mode === "auto" ? { ...entry, status: "accepted" as const } : entry)),
         dropped: plan.dropped,
       };
-      this.patch({ proposals: [...this.state.proposals, record].slice(-CURATOR_PROPOSAL_LIMIT) });
+      this.patch({ proposals: capProposalRing([...this.state.proposals, record]) });
       this.deps.journal(`World Info curator proposed ${record.ops.length} change(s) at ${checkpoint?.name ?? state.activeCheckpointId}`, record.summary);
       await this.save();
       return { ran: true, record };
@@ -187,7 +204,7 @@ export class StagecraftCoordinator {
       }
       const ops: CuratorOpRecord[] = [];
       for (const entry of record.ops) {
-        if (entry.status !== "accepted") {
+        if (entry.status !== "accepted" || isNoteOp(entry.op)) {
           ops.push(entry);
           continue;
         }
@@ -205,6 +222,7 @@ export class StagecraftCoordinator {
 
   private async writeOp(story: NormalizedStoryV2, entry: CuratorOpRecord, entries: CuratorEntryView[]): Promise<{ ok: boolean; record: CuratorOpRecord }> {
     const op = entry.op;
+    if (isNoteOp(op)) return { ok: false, record: entry };
     if (!isCuratorWritable(story, op.lorebook, op.comment)) {
       const message = isCheckpointGated(story, op.lorebook, op.comment)
         ? `"${op.comment}" is switched by checkpoint effects, which alone decide it`
@@ -235,12 +253,16 @@ export class StagecraftCoordinator {
   // pre-write content is recorded on the op, so putting it back needs no history of its own.
   async revertAppliedSince(messageId: number): Promise<number> {
     const story = this.deps.getStory();
-    const affected = this.state.proposals.filter((record) => record.appliedAt && record.messageId >= messageId);
-    if (!story || !affected.length) return 0;
+    const withdrawn = this.settleNotes((op) => op.replyMessageId >= messageId, "reverted");
+    const affected = this.state.proposals.filter((record) => record.curator !== "warden" && record.appliedAt && record.messageId >= messageId);
+    if (!story || !affected.length) {
+      if (withdrawn) await this.save();
+      return 0;
+    }
     let reverted = 0;
     for (const record of affected) {
       for (const entry of [...record.ops].reverse()) {
-        if (entry.status !== "applied" || !entry.before || !isCuratorWritable(story, entry.op.lorebook, entry.op.comment)) continue;
+        if (isNoteOp(entry.op) || entry.status !== "applied" || !entry.before || !isCuratorWritable(story, entry.op.lorebook, entry.op.comment)) continue;
         if (entry.op.kind === "rewrite" || entry.op.kind === "patch") await upsertWIEntry(entry.op.lorebook, entry.op.comment, entry.before.content);
         if (entry.before.disabled) await disableWIEntry(entry.op.lorebook, entry.op.comment);
         else await enableWIEntry(entry.op.lorebook, entry.op.comment);
@@ -252,5 +274,81 @@ export class StagecraftCoordinator {
     if (reverted) this.deps.journal(`World Info curator changes rolled back (${reverted})`);
     await this.save();
     return reverted;
+  }
+
+  // v2.2 plan 05: fire-and-forget after a committed character reply, never a scheduler job. The judge
+  // decides which established facts the reply broke; the note itself is composed in code.
+  async runWardenPass(replyMessageId: number): Promise<boolean> {
+    const settings = this.state.settings;
+    const state = this.deps.getState();
+    const warden = this.deps.warden;
+    if (!warden || !state || !settings.wardenEnabled || settings.wardenAcceptMode === "off" || this.wardenInFlight) return false;
+    const reply = readReply(replyMessageId);
+    if (!reply) return false;
+    const lapsed = this.settleNotes((op, status) => op.replyMessageId < replyMessageId && status !== "applied", "lapsed");
+    this.wardenInFlight = true;
+    try {
+      const facts = warden.facts();
+      const note = facts.length ? await warden.check(reply, facts).catch(() => null) : null;
+      if (!note || readReply(replyMessageId)?.text !== reply.text) {
+        if (lapsed) await this.save();
+        return false;
+      }
+      const record: CuratorProposalRecord = {
+        id: `warden-${state.boundary}-${replyMessageId}`,
+        curator: "warden",
+        at: new Date().toISOString(),
+        boundary: state.boundary,
+        messageId: replyMessageId,
+        checkpointId: state.activeCheckpointId,
+        reason: "continuity",
+        summary: `${reply.speaker}'s reply contradicts ${note.facts.length === 1 ? "an established fact" : `${note.facts.length} established facts`}`,
+        mode: settings.wardenAcceptMode,
+        ops: [{ op: { kind: "note", text: note.text, facts: note.facts, replyMessageId }, status: settings.wardenAcceptMode === "auto" ? "accepted" : "pending" }],
+        dropped: [],
+      };
+      this.patch({ proposals: capProposalRing([...this.state.proposals, record]) });
+      this.deps.journal(`Continuity warden flagged ${reply.speaker}'s reply`, note.facts.join(" | "));
+      await this.save();
+      return true;
+    } finally {
+      this.wardenInFlight = false;
+    }
+  }
+
+  // A note is about one reply: a newer reply makes an unapplied one moot ("lapsed"), and a rollback
+  // past its reply withdraws it whatever its state ("reverted").
+  private settleNotes(match: (op: WardenNoteOp, status: CuratorOpStatus) => boolean, message: string): number {
+    let settled = 0;
+    const proposals = this.state.proposals.map((record) => (record.curator !== "warden" ? record : {
+      ...record,
+      ops: record.ops.map((entry) => {
+        if (!isNoteOp(entry.op) || entry.status === "rejected" || !match(entry.op, entry.status)) return entry;
+        settled += 1;
+        return { ...entry, status: "rejected" as const, message };
+      }),
+    }));
+    if (settled) this.patch({ proposals });
+    return settled;
+  }
+
+  // An accepted note rides exactly one loud generation: set here, cleared when it ends. The author's
+  // own nudge wins a shared generation, and the note waits for the next one.
+  onGenerationStarted(type: unknown, dryRun: unknown) {
+    if (dryRun === true || type === "quiet" || type === "impersonate" || !this.state.settings.wardenEnabled || this.deps.warden?.nudgeActive()) return;
+    const record = this.state.proposals.find((candidate) => candidate.curator === "warden" && candidate.ops.some((entry) => entry.status === "accepted"));
+    const entry = record?.ops.find((candidate) => candidate.status === "accepted");
+    if (!record || !entry || !isNoteOp(entry.op)) return;
+    setStoryExtensionPrompt(INJECTION_REGISTRY.continuityNote.key, entry.op.text, INJECTION_REGISTRY.continuityNote.depth);
+    this.noteActive = true;
+    this.updateOps(record.id, (current) => ({ ...current, appliedAt: new Date().toISOString(), ops: current.ops.map((candidate) => (candidate === entry ? { ...candidate, status: "applied" as const } : candidate)) }));
+    this.deps.journal("Continuity note added to this reply's prompt", entry.op.facts.join(" | "));
+    void this.save();
+  }
+
+  clearContinuityNote() {
+    if (!this.noteActive) return;
+    clearStoryExtensionPrompt(INJECTION_REGISTRY.continuityNote.key);
+    this.noteActive = false;
   }
 }

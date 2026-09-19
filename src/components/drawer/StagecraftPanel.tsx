@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { CuratorOp, CuratorOpRecord, CuratorProposalRecord } from "@stagecraft/index";
+import { isNoteOp, type CuratorOp, type CuratorOpRecord, type CuratorProposalRecord } from "@stagecraft/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
 
@@ -11,19 +11,37 @@ const STATUS_LABELS: Record<CuratorOpRecord["status"], string> = {
   failed: "could not be written",
 };
 
+const NOTE_LABELS: Record<CuratorOpRecord["status"], string> = {
+  pending: "waiting for you",
+  accepted: "goes into the next reply's prompt",
+  rejected: "not used",
+  applied: "added to a reply's prompt",
+  failed: "could not be added",
+};
+
+const statusLabel = (entry: CuratorOpRecord): string => {
+  if (!isNoteOp(entry.op)) return STATUS_LABELS[entry.status];
+  if (entry.message === "lapsed") return "lapsed: a newer reply came first";
+  if (entry.message === "reverted") return "withdrawn: the reply was rolled back";
+  return NOTE_LABELS[entry.status];
+};
+
 const editableText = (op: CuratorOp): string | null => {
+  if (op.kind === "note") return op.text;
   if (op.kind === "rewrite") return op.text;
   if (op.kind === "patch") return op.replace;
   return null;
 };
 
 const withText = (op: CuratorOp, text: string): CuratorOp => {
+  if (op.kind === "note") return { ...op, text };
   if (op.kind === "rewrite") return { ...op, text };
   if (op.kind === "patch") return { ...op, replace: text };
   return op;
 };
 
 const describe = (op: CuratorOp): string => {
+  if (op.kind === "note") return "continuity note";
   if (op.kind === "enable") return `switch on "${op.comment}"`;
   if (op.kind === "disable") return `switch off "${op.comment}"`;
   if (op.kind === "rewrite") return `rewrite "${op.comment}"`;
@@ -39,7 +57,8 @@ const OpCard = ({ record, index, entry, manager }: { record: CuratorProposalReco
   const decidable = entry.status === "pending";
   return (
     <div data-so="curator-op" className="border-t border-solid border-white/10 mt-1 pt-1">
-      <div className="opacity-100">{describe(entry.op)} <span className="opacity-60">· {STATUS_LABELS[entry.status]}</span></div>
+      <div className="opacity-100">{describe(entry.op)} <span className="opacity-60">· {statusLabel(entry)}</span></div>
+      {isNoteOp(entry.op) && entry.op.facts.map((fact) => <div key={fact} data-so="warden-fact" className="opacity-80">established: {fact}</div>)}
       {entry.status === "failed" && entry.message && <div className="text-red-300">{entry.message}</div>}
       {text !== null && (decidable ? (
         <textarea data-so="curator-text" aria-label={`Text for ${describe(entry.op)}`} className="text_pole w-full" rows={2} value={draft} onChange={(event) => setDraft(event.target.value)} />
@@ -72,6 +91,11 @@ export const StagecraftPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapsh
           Watching {scope.join(", ")} · {settings.acceptMode === "auto" ? "changes apply on their own" : settings.acceptMode === "off" ? "observing only, nothing is written" : "changes wait for you"}
         </div>
       )}
+      {settings.wardenEnabled && (
+        <div data-so="warden-status" className="opacity-70">
+          Continuity warden on · {settings.wardenAcceptMode === "auto" ? "notes go in on their own" : settings.wardenAcceptMode === "off" ? "not checking" : "notes wait for you"}
+        </div>
+      )}
       {lastError && <div className="text-red-300">{lastError}</div>}
       {lastPass && (
         <div data-so="curator-last-pass" title={lastPass.rawResponse || "(empty response)"} className="opacity-60">
@@ -82,8 +106,8 @@ export const StagecraftPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapsh
         <div className="opacity-70">No proposals yet. The curator reads the story lorebook at scene breaks and checkpoint changes.</div>
       ) : (
         records.map((record) => (
-          <div key={record.id} data-so="curator-proposal" className="border-t border-solid border-white/10 mt-1 pt-1">
-            <div className="opacity-100">{record.summary}</div>
+          <div key={record.id} data-so="curator-proposal" data-curator={record.curator} className="border-t border-solid border-white/10 mt-1 pt-1">
+            <div className="opacity-100">{record.curator === "warden" ? "Continuity warden: " : ""}{record.summary}</div>
             <div>{record.checkpointId} · {record.reason} · boundary {record.boundary}{record.appliedAt ? " · applied" : ""}</div>
             {record.ops.map((entry, index) => <OpCard key={`${record.id}-${index}`} record={record} index={index} entry={entry} manager={manager} />)}
             {record.dropped.map((line) => <div key={line} className="opacity-50">dropped — {line}</div>)}

@@ -1,4 +1,4 @@
-import { CURATOR_MAX_TEXT, type CuratorEntryView, type CuratorOp, type CuratorOpRecord, type CuratorProposal } from "./types";
+import { CURATOR_MAX_TEXT, type CuratorEntryView, type WiCuratorOp, type CuratorOpRecord, type CuratorProposal } from "./types";
 
 const normalize = (value: string) => value.replace(/\s+/g, " ").trim().toLowerCase();
 
@@ -42,11 +42,11 @@ export function applyCuratorPatch(content: string, anchor: string, replace: stri
   return { ok: true, content: `${content.slice(0, start.start)}${replace}${remainder}` };
 }
 
-export const opTargetKey = (op: CuratorOp): string => `${op.lorebook.toLowerCase()}::${op.comment.toLowerCase()}`;
+export const opTargetKey = (op: WiCuratorOp): string => `${op.lorebook.toLowerCase()}::${op.comment.toLowerCase()}`;
 
 // What an op would do to the entry it names, decided without touching the host: the review card
 // shows this, and the boundary applier writes exactly it.
-export function previewCuratorOp(op: CuratorOp, entry: CuratorEntryView | undefined): { ok: boolean; message: string; content?: string; disabled?: boolean } {
+export function previewCuratorOp(op: WiCuratorOp, entry: CuratorEntryView | undefined): { ok: boolean; message: string; content?: string; disabled?: boolean } {
   if (!entry) return { ok: false, message: `"${op.comment}" is not an entry in ${op.lorebook}` };
   if (op.kind === "enable") return entry.disabled ? { ok: true, message: `Switch "${entry.comment}" on`, disabled: false } : { ok: false, message: `"${entry.comment}" is already on` };
   if (op.kind === "disable") return entry.disabled ? { ok: false, message: `"${entry.comment}" is already off` } : { ok: true, message: `Switch "${entry.comment}" off`, disabled: true };
@@ -63,7 +63,7 @@ export function previewCuratorOp(op: CuratorOp, entry: CuratorEntryView | undefi
 
 // Rewrites and patches go first, then the on/off flips: `upsertWIEntry` re-enables whatever it
 // writes, so a disable that follows a rewrite is the one order where both survive.
-const ORDER: Record<CuratorOp["kind"], number> = { rewrite: 0, patch: 0, enable: 1, disable: 1 };
+const ORDER: Record<WiCuratorOp["kind"], number> = { rewrite: 0, patch: 0, enable: 1, disable: 1 };
 
 export function planCuratorProposal(proposal: CuratorProposal, entries: CuratorEntryView[]): { records: CuratorOpRecord[]; dropped: string[] } {
   const byKey = new Map(entries.map((entry) => [`${entry.lorebook.toLowerCase()}::${entry.comment.toLowerCase()}`, entry]));

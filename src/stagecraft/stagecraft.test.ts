@@ -1,3 +1,4 @@
+import { capProposalRing } from "./types";
 import { parseStoryV2OrThrow } from "@engine/index";
 import { buildWiCuratorPrompt } from "./prompt";
 import { parseCuratorResponse } from "./parse";
@@ -192,3 +193,12 @@ describe("planCuratorProposal", () => {
     expect(planCuratorProposal(proposal, [entries()[1]]).records).toEqual([]);
   });
 });
+
+describe("proposal ring (v2.2 plan 05)", () => {
+  const record = (id: string, curator: "wi" | "warden") => ({ id, curator, at: "", boundary: 0, messageId: 0, checkpointId: "cp", reason: "", summary: "", mode: "review" as const, ops: [], dropped: [] });
+  it("caps each curator on its own, so the warden never evicts a lorebook change", () => {
+    const ring = capProposalRing([record("wi-1", "wi"), ...Array.from({ length: 7 }, (_, index) => record(`w-${index}`, "warden"))]);
+    expect(ring.map((entry) => entry.id)).toEqual(["wi-1", "w-2", "w-3", "w-4", "w-5", "w-6"]);
+  });
+});
+

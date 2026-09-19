@@ -85,6 +85,11 @@ describe("architecture guards", () => {
     expect({ path, writes: [...source.matchAll(/enqueue\w*\(|applyEntries\(|setMemory\(/g)].map((match) => match[0]) }).toEqual({ path, writes: [] });
   });
 
+  it("lets only the stagecraft coordinator write the continuity note (v2.2 plan 05)", () => {
+    const writers = walk(SRC).filter((path) => /INJECTION_REGISTRY.continuityNote|story_orchestrator_continuity/.test(readFileSync(path, "utf8"))).map((path) => path.slice(SRC.length + 1).replace(/\\/g, "/"));
+    expect(writers.sort()).toEqual(["constants/injectionRegistry.ts", "runtime/coordinators/stagecraftCoordinator.ts"]);
+  });
+
   it("keeps the scene coordinator a reader: no memory, generation or pacing, no spine writes (v2.2 plan 03)", () => {
     const path = join(SRC, "runtime/coordinators/sceneCoordinator.ts");
     const source = readFileSync(path, "utf8");

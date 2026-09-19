@@ -353,6 +353,22 @@ const SettingsPanel = () => {
             {snapshot.stagecraft.settings.curatorEnabled && snapshot.ready && snapshot.stagecraftScope.length === 0 && (
               <div id="so-curator-unscoped" className="text-xs opacity-70">This story lists no lorebook for the curator, so it stays idle. Add one on the Studio&apos;s Story tab.</div>
             )}
+            {snapshot.ui.authorView && (
+              <>
+                <label className="flex items-center gap-2 text-sm">
+                  <input id="so-warden-enabled" type="checkbox" checked={snapshot.stagecraft.settings.wardenEnabled} onChange={(event) => manager.setStagecraftSettings({ wardenEnabled: event.target.checked })} />
+                  <span>Continuity warden <HelpTooltip title="After each character reply, the judgment model checks it against the story's established facts. When the reply breaks one, a note restating that fact goes into the next reply's prompt, once. Needs the judgment model switched on. Sends: the reply text, up to 40 established facts and the ledger's tracked values." /></span>
+                </label>
+                <label className="flex flex-col gap-1 text-sm">
+                  <span>Warden notes</span>
+                  <select id="so-warden-accept-mode" value={snapshot.stagecraft.settings.wardenAcceptMode} onChange={(event) => manager.setStagecraftSettings({ wardenAcceptMode: isAcceptMode(event.target.value) ? event.target.value : "review" })}>
+                    <option value="review">Ask me first</option>
+                    <option value="auto">Add them on their own</option>
+                    <option value="off">Don&apos;t check replies</option>
+                  </select>
+                </label>
+              </>
+            )}
           </div>
           <JudgeSettingsGroup
             settings={judge}

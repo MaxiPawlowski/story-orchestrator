@@ -38,7 +38,7 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
 });
 
 // Off by default: an agent that edits the author's lorebook has to be asked for (plan 07).
-export const defaultStagecraftSettings = (): StagecraftSettings => ({ curatorEnabled: false, acceptMode: "review" });
+export const defaultStagecraftSettings = (): StagecraftSettings => ({ curatorEnabled: false, acceptMode: "review", wardenEnabled: false, wardenAcceptMode: "review" });
 
 export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
@@ -82,6 +82,10 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       acceptMode: isRecord(value.stagecraft) && STAGECRAFT_ACCEPT_MODES.includes(value.stagecraft.acceptMode as StagecraftAcceptMode)
         ? (value.stagecraft.acceptMode as StagecraftAcceptMode)
         : defaults.stagecraft.acceptMode,
+      wardenEnabled: isRecord(value.stagecraft) && value.stagecraft.wardenEnabled === true,
+      wardenAcceptMode: isRecord(value.stagecraft) && STAGECRAFT_ACCEPT_MODES.includes(value.stagecraft.wardenAcceptMode as StagecraftAcceptMode)
+        ? (value.stagecraft.wardenAcceptMode as StagecraftAcceptMode)
+        : defaults.stagecraft.wardenAcceptMode,
     },
     judge: sanitizeJudgeSettings(value.judge),
     ...(typeof value.migratedFromChat === "string" ? { migratedFromChat: value.migratedFromChat } : {}),

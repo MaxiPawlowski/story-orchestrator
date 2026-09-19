@@ -29,6 +29,10 @@ export class JudgeRuntime {
 
   constructor(private readonly deps: JudgeRuntimeDeps) {}
 
+  enabled(): boolean {
+    return this.deps.getSettings().enabled;
+  }
+
   active(use: JudgeUseKey): boolean {
     return judgeUseActive(this.deps.getSettings(), use);
   }

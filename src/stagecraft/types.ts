@@ -9,7 +9,7 @@ export const PATCH_ANCHOR_SEPARATOR = "||";
 export const STAGECRAFT_ACCEPT_MODES = ["off", "review", "auto"] as const;
 export type StagecraftAcceptMode = (typeof STAGECRAFT_ACCEPT_MODES)[number];
 
-export type CuratorOp =
+export type WiCuratorOp =
   | { kind: "enable"; lorebook: string; comment: string }
   | { kind: "disable"; lorebook: string; comment: string }
   | { kind: "rewrite"; lorebook: string; comment: string; text: string }
@@ -17,7 +17,18 @@ export type CuratorOp =
   // span to replace ("first words || last words"), so the model never restates a whole entry.
   | { kind: "patch"; lorebook: string; comment: string; anchor: string; replace: string };
 
-export type CuratorOpKind = CuratorOp["kind"];
+// v2.2 plan 05: the continuity warden's one-turn note. It never reaches a lorebook: applyAccepted
+// skips it, and only the generation-start path injects it, for one loud generation.
+export type WardenNoteOp = { kind: "note"; text: string; facts: string[]; replyMessageId: number };
+
+export type CuratorOp = WiCuratorOp | WardenNoteOp;
+
+export const isNoteOp = (op: CuratorOp): op is WardenNoteOp => op.kind === "note";
+
+export const CURATOR_KINDS = ["wi", "warden"] as const;
+export type CuratorKind = (typeof CURATOR_KINDS)[number];
+
+export type CuratorOpKind = WiCuratorOp["kind"];
 
 export interface CuratorEntryView {
   lorebook: string;
@@ -38,7 +49,7 @@ export interface CuratorScope {
 
 export interface CuratorProposal {
   summary: string;
-  ops: CuratorOp[];
+  ops: WiCuratorOp[];
   dropped: string[];
 }
 
@@ -78,6 +89,7 @@ export interface CuratorPassAudit {
 
 export interface CuratorProposalRecord {
   id: string;
+  curator: CuratorKind;
   at: string;
   boundary: number;
   messageId: number;
@@ -88,4 +100,10 @@ export interface CuratorProposalRecord {
   ops: CuratorOpRecord[];
   dropped: string[];
   appliedAt?: string;
+}
+
+// Each curator keeps its own last few, so a chatty warden never evicts a lorebook change that is
+// still waiting for review.
+export function capProposalRing(records: CuratorProposalRecord[]): CuratorProposalRecord[] {
+  return records.filter((record, index) => records.slice(index + 1).filter((later) => later.curator === record.curator).length < CURATOR_PROPOSAL_LIMIT);
 }

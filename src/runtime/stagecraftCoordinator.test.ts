@@ -1,16 +1,20 @@
 import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { callExtractionModel } from "@extraction/client";
-import { disableWIEntry, enableWIEntry, loadLorebook, upsertWIEntry } from "@services/STAPI";
+import { clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, loadLorebook, setStoryExtensionPrompt, upsertWIEntry } from "@services/STAPI";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./coordinators/stagecraftCoordinator";
-import { createStagecraft } from "./extras";
-import type { ExtractionRuntimeSettings, StagecraftRuntimeState } from "./types";
+import { createStagecraft, sanitizeStagecraft } from "./extras";
+import type { ExtractionRuntimeSettings, RuntimeExtras, StagecraftRuntimeState } from "./types";
+
+const mockChat: Array<Record<string, unknown>> = [];
 
 jest.mock("@services/STAPI", () => ({
+  setStoryExtensionPrompt: jest.fn(),
+  clearStoryExtensionPrompt: jest.fn(),
   loadLorebook: jest.fn(),
   upsertWIEntry: jest.fn(async () => "updated"),
   enableWIEntry: jest.fn(async () => true),
   disableWIEntry: jest.fn(async () => true),
-  getContext: () => ({ extensionSettings: {}, saveSettingsDebounced: () => undefined }),
+  getContext: () => ({ extensionSettings: {}, saveSettingsDebounced: () => undefined, chat: mockChat }),
 }));
 
 jest.mock("@extraction/client", () => ({ callExtractionModel: jest.fn(async () => "NONE") }));
@@ -47,7 +51,7 @@ const engineState = (boundary = 10, lastMessageId = 20): EngineState => ({
   visitedAnchors: ["cp1"],
 } as unknown as EngineState);
 
-const harness = (options: { story?: NormalizedStoryV2 | null; state?: EngineState; settings?: Partial<StagecraftRuntimeState["settings"]>; filterEntries?: StagecraftCoordinatorDeps["filterEntries"] } = {}) => {
+const harness = (options: { story?: NormalizedStoryV2 | null; state?: EngineState; settings?: Partial<StagecraftRuntimeState["settings"]>; filterEntries?: StagecraftCoordinatorDeps["filterEntries"]; warden?: StagecraftCoordinatorDeps["warden"] } = {}) => {
   let state: StagecraftRuntimeState = { ...createStagecraft(), settings: { curatorEnabled: true, acceptMode: "review", ...options.settings } };
   const journal: string[] = [];
   const coordinator = new StagecraftCoordinator({
@@ -59,6 +63,7 @@ const harness = (options: { story?: NormalizedStoryV2 | null; state?: EngineStat
     getCanon: () => "The flood took the bridge.",
     getOpenArcs: () => ["Who cut the ropes?"],
     ...(options.filterEntries ? { filterEntries: options.filterEntries } : {}),
+    ...(options.warden ? { warden: options.warden } : {}),
     journal: (summary) => journal.push(summary),
     persist: async () => undefined,
     notify: () => undefined,
@@ -241,5 +246,98 @@ describe("StagecraftCoordinator", () => {
     (callExtractionModel as jest.Mock).mockRejectedValueOnce(new Error("profile is gone"));
     expect(await coordinator.runCuratorPass()).toEqual({ ran: true, record: null });
     expect(read().lastError).toBe("profile is gone");
+  });
+});
+
+describe("continuity warden (v2.2 plan 05)", () => {
+  const KEY = "story_orchestrator_continuity";
+  const note = { facts: ["The bridge fell in the flood."], text: "Continuity: established — The bridge fell in the flood. Keep the next reply consistent with it." };
+  const warden = (options: { note?: typeof note | null; nudge?: boolean; onCheck?: () => void } = {}) => {
+    const check = jest.fn(async () => { options.onCheck?.(); return options.note === undefined ? note : options.note; });
+    return { check, facts: () => ["The bridge fell in the flood."], nudgeActive: () => options.nudge === true };
+  };
+  const wardenOn = (mode: "auto" | "review" | "off" = "auto") => ({ curatorEnabled: false, acceptMode: "review" as const, wardenEnabled: true, wardenAcceptMode: mode });
+
+  beforeEach(() => {
+    mockChat.splice(0, mockChat.length, { name: "Max", mes: "We look for a way across.", is_user: true }, { name: "Mira", mes: "I walked over the bridge this morning.", is_user: false });
+    (setStoryExtensionPrompt as jest.Mock).mockClear();
+    (clearStoryExtensionPrompt as jest.Mock).mockClear();
+    (upsertWIEntry as jest.Mock).mockClear();
+    (enableWIEntry as jest.Mock).mockClear();
+    (disableWIEntry as jest.Mock).mockClear();
+  });
+
+  it("auto: a contradicting reply queues one note; the next loud generation carries it once and its end clears it", async () => {
+    const env = harness({ settings: wardenOn("auto"), warden: warden() });
+    expect(await env.coordinator.runWardenPass(1)).toBe(true);
+    const record = env.read().proposals.at(-1);
+    expect(record).toMatchObject({ curator: "warden", messageId: 1, ops: [{ status: "accepted", op: { kind: "note", replyMessageId: 1, facts: note.facts } }] });
+    env.coordinator.onGenerationStarted("normal", false);
+    expect(setStoryExtensionPrompt).toHaveBeenCalledWith(KEY, note.text, 0);
+    expect(env.read().proposals.at(-1)?.ops[0].status).toBe("applied");
+    env.coordinator.clearContinuityNote();
+    expect(clearStoryExtensionPrompt).toHaveBeenCalledWith(KEY);
+    env.coordinator.onGenerationStarted("normal", false);
+    expect(setStoryExtensionPrompt).toHaveBeenCalledTimes(1);
+  });
+
+  it("never injects on a dry run, a quiet or impersonate pass, or while the author's nudge is set", async () => {
+    for (const [type, dryRun, nudge] of [["normal", true, false], ["quiet", false, false], ["impersonate", false, false], ["normal", false, true]] as const) {
+      const env = harness({ settings: wardenOn("auto"), warden: warden({ nudge }) });
+      await env.coordinator.runWardenPass(1);
+      env.coordinator.onGenerationStarted(type, dryRun);
+      expect(env.read().proposals.at(-1)?.ops[0].status).toBe("accepted");
+    }
+    expect(setStoryExtensionPrompt).not.toHaveBeenCalled();
+  });
+
+  it("review: the note waits for the author, and a newer reply lapses it before it reaches any prompt", async () => {
+    const env = harness({ settings: wardenOn("review"), warden: warden() });
+    await env.coordinator.runWardenPass(1);
+    expect(env.read().proposals.at(-1)?.ops[0].status).toBe("pending");
+    mockChat.push({ name: "Max", mes: "Then we cross.", is_user: true }, { name: "Mira", mes: "Follow me.", is_user: false });
+    const quiet = harness({ settings: wardenOn("review"), warden: warden({ note: null }) });
+    expect(await quiet.coordinator.runWardenPass(3)).toBe(false);
+    await env.coordinator.runWardenPass(3);
+    const first = env.read().proposals.find((record) => record.messageId === 1);
+    expect(first?.ops[0]).toMatchObject({ status: "rejected", message: "lapsed" });
+    env.coordinator.onGenerationStarted("normal", false);
+    expect(setStoryExtensionPrompt).toHaveBeenCalledTimes(0);
+  });
+
+  it("reads nothing for the player's message, a switched-off warden or mode off", async () => {
+    for (const [settings, id] of [[wardenOn("auto"), 0], [{ ...wardenOn("auto"), wardenEnabled: false }, 1], [wardenOn("off"), 1]] as const) {
+      const check = warden();
+      const env = harness({ settings, warden: check });
+      expect(await env.coordinator.runWardenPass(id)).toBe(false);
+      expect(check.check).not.toHaveBeenCalled();
+    }
+  });
+
+  it("drops the note when the reply changed while the judge was reading", async () => {
+    const env = harness({ settings: wardenOn("auto"), warden: warden({ onCheck: () => { mockChat[1] = { name: "Mira", mes: "The bridge is gone.", is_user: false }; } }) });
+    expect(await env.coordinator.runWardenPass(1)).toBe(false);
+    expect(env.read().proposals).toHaveLength(0);
+  });
+
+  it("the boundary write never touches a note, and a rollback past its reply withdraws it", async () => {
+    const env = harness({ settings: wardenOn("auto"), warden: warden() });
+    await env.coordinator.runWardenPass(1);
+    expect(await env.coordinator.applyAccepted()).toBe(0);
+    expect(upsertWIEntry).not.toHaveBeenCalled();
+    expect(env.read().proposals.at(-1)?.ops[0].status).toBe("accepted");
+    await env.coordinator.revertAppliedSince(1);
+    expect(env.read().proposals.at(-1)?.ops[0]).toMatchObject({ status: "rejected", message: "reverted" });
+    env.coordinator.onGenerationStarted("normal", false);
+    expect(setStoryExtensionPrompt).not.toHaveBeenCalled();
+  });
+});
+
+
+describe("stagecraft hydrate (v2.2 plan 05)", () => {
+  it("tags records saved before the warden as the World Info curator's, and fills the warden settings", () => {
+    const hydrated = sanitizeStagecraft({ stagecraft: { settings: { curatorEnabled: true, acceptMode: "auto" }, proposals: [{ id: "wi-1", ops: [], dropped: [] }], lastPass: null, lastRunBoundary: 3, lastError: null } } as unknown as RuntimeExtras);
+    expect(hydrated.proposals[0].curator).toBe("wi");
+    expect(hydrated.settings).toEqual({ curatorEnabled: true, acceptMode: "auto", wardenEnabled: false, wardenAcceptMode: "review" });
   });
 });

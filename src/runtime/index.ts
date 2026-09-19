@@ -160,10 +160,10 @@ export function startRuntime() {
   globalThis.talkControlInterceptor = (_chat, _contextSize, abort, type) => talkController?.intercept(abort, type);
   const privateInjectionEntries: HostSubscriptionEntry[] = [
     { eventName: "GROUP_MEMBER_DRAFTED", handler: (characterId) => runtimeManager.onMemberDrafted(characterId as number | [number]) },
-    { eventName: "GENERATION_STARTED", handler: async (...args: unknown[]) => { runtimeManager.onGenerationStarted(args[0]); runtimeManager.capturePayload(); talkController?.onGenerationStarted(args[1] as Record<string, unknown> | undefined); await onLoreGenerationStarted(typeof args[0] === "string" ? args[0] : undefined, args[1] as Record<string, unknown> | undefined, args[2] === true); } },
+    { eventName: "GENERATION_STARTED", handler: async (...args: unknown[]) => { runtimeManager.onGenerationStarted(args[0], args[2]); runtimeManager.capturePayload(); talkController?.onGenerationStarted(args[1] as Record<string, unknown> | undefined); await onLoreGenerationStarted(typeof args[0] === "string" ? args[0] : undefined, args[1] as Record<string, unknown> | undefined, args[2] === true); } },
     { eventName: "MESSAGE_SENT", handler: async () => { if (!loreAwaitsMessage) return; loreAwaitsMessage = false; await selectLore("MESSAGE_SENT"); } },
-    { eventName: "GENERATION_ENDED", handler: () => { runtimeManager.clearPrivateInjection(); runtimeManager.clearCopilotNudge(); talkController?.onGenerationEnded(); } },
-    { eventName: "GENERATION_STOPPED", handler: () => { runtimeManager.clearPrivateInjection(); runtimeManager.clearCopilotNudge(); talkController?.onGenerationEnded(); } },
+    { eventName: "GENERATION_ENDED", handler: () => { runtimeManager.onGenerationEnded(); talkController?.onGenerationEnded(); } },
+    { eventName: "GENERATION_STOPPED", handler: () => { runtimeManager.onGenerationEnded(); talkController?.onGenerationEnded(); } },
     { eventName: "GROUP_WRAPPER_STARTED", handler: (payload) => talkController?.onWrapperStarted(payload as Record<string, unknown> | undefined) },
     { eventName: "GROUP_WRAPPER_FINISHED", handler: () => { void talkController?.onWrapperFinished(); } },
   ];

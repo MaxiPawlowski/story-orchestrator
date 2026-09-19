@@ -12,7 +12,10 @@ contract the first one exports.
 ## Invariants (spec addendum §Stagecraft — binding on every curator, forever)
 
 1. **Proposals only.** A curator returns typed data. Writes happen in the runtime, at a boundary,
-   through an existing effect path. No curator calls a host API itself.
+   through an existing effect path. No curator calls a host API itself. *(v2.2 plan 05)* A one-turn
+   injection is the one exception to "at a boundary". It is applied at the next loud generation's
+   start and cleared at that generation's end, never persists, and never touches an ST asset. Writes
+   to ST assets (World Info, background) stay boundary-applied.
 2. **Never the spine.** A curator can never write the blackboard, a memory tier, an arc, the
    epistemic map, the ledger, or fire a transition. `src/runtime/architecture.test.ts` enforces this
    for the WI curator by construction (no `@memory`/`@generation`/`@pacing` import, no `enqueue*`
@@ -22,7 +25,9 @@ contract the first one exports.
    `world_info` effects (user decision 2026-08-11). An absent or empty allowlist means the curator
    has nothing to write, full stop.
 4. **Off-path.** Curators run on the memory LLM through the P2–P4 scheduler lanes. The reply path
-   never waits for one. A pass that fails is a silent no-op plus a journal line.
+   never waits for one. A pass that fails is a silent no-op plus a journal line. *(v2.2 plan 05)* A
+   judge-backed pass is fire-and-forget off the reply path, not a scheduler job. Its own timeout and
+   coalescing bound it, and it never waits on or blocks the LLM lanes.
 5. **Journaled and reviewable.** Every proposal and every application lands in the session journal
    (`kind: "stagecraft"`), and the author can read, edit, accept or decline each change in the
    drawer's author view.
@@ -105,7 +110,7 @@ story's voice. **Deterministic-first test**: this one is closest to *not* being 
 composed narrative view is already correct and player-safe. It earns its place only if a human eval
 says the rendered version reads like the machine. Until then, no build.
 
-### 5. Continuity warden `[designed]`
+### 5. Continuity warden `[shipped v2.2, flag: stagecraft.wardenEnabled, default off]`
 
 **Why an agent.** Checking the latest reply against established facts is exactly the judgment the
 extractor already makes for deltas, applied to contradictions instead. Pattern adopted from
@@ -115,7 +120,12 @@ Smart-Memory `continuity.js` (pattern only, AGPL — no code vendored).
 - Outputs: **one** corrective note, injected for the *next* generation only and auto-cleared after
   it — the same one-turn shape as the copilot nudge (`COPILOT_NUDGE_KEY`), never a memory write and
   never a chat message.
-- Trigger / lane: P2, at cadence or on scene break; never blocking.
+- Trigger / lane: *(v2.2)* the judge, fire-and-forget, after each committed character reply
+  (`boundaryWork` entry `continuity-warden`). The inputs are the reply at its own message id, the
+  ledger's bound rows, and live facts (pinned first), capped at 40. The judge decides which facts
+  the reply broke (`CONTINUITY_P` 0.7, at most 2), and code composes the note verbatim. Modes
+  `review | auto | off` (default `review`). A pending note lapses when a newer character reply
+  commits.
 - Veto rules: one note in flight at a time; only an explicit contradiction of an established fact
   counts (a new fact is not a contradiction); silent when the reply is consistent, which is most of
   the time.
@@ -126,8 +136,11 @@ Smart-Memory `continuity.js` (pattern only, AGPL — no code vendored).
 - **Proposal → review → boundary-apply**: `runCuratorPass` records a typed proposal; the author (or
   `auto`) accepts per op; `applyAccepted()` runs inside `commitBoundary`. A v2.2 curator reuses the
   shape by adding its own op union and its own `applyOp` writer — the coordinator, the ring UI and
-  the journal wiring stay as they are.
-- **Review ring**: `extras.stagecraft.proposals` (cap 5) + `StagecraftPanel`. Per-op status
+  the journal wiring stay as they are. *(v2.2)* `applyAccepted()` dispatches by op kind. The WI
+  kinds go through `writeOp` with every allowlist and gated-entry check. A `note` is skipped
+  explicitly and reaches the prompt only through the generation-start path.
+- **Review ring**: `extras.stagecraft.proposals` (cap 5 **per curator**, `capProposalRing`; records
+  carry `curator: "wi" | "warden"`, and older ones hydrate as `"wi"`) + `StagecraftPanel`. Per-op status
   `pending | accepted | rejected | applied | failed`, each carrying the pre-write state that makes
   rollback possible.
 - **`stHost/backgrounds.ts`**: read the active background, list the installed ones, switch by name.

@@ -569,7 +569,7 @@ const PLAYER_FORBIDDEN_SELECTORS = [
   '[aria-label="Driver suggestions"]', '[aria-label="Driver report"]', '[aria-label="Active nudge"]',
   '[aria-label="Driver unavailable"]', '[aria-label="Talk decisions"]',
   '[data-so="memory-not-stored"]', '[data-so="memory-store-anyway"]', '[data-so="scene-read"]', '[data-so="scene-heading"]', '[data-so="lore-forced"]', '[data-so="judged-reads"]',
-  '#so-judge-use-expansion-critic', '#so-judge-use-expansion-lookahead', '#so-judge-expansion-variants', '#so-judge-expansion-pick', '[data-so="expansion-judge"]',
+  '#so-judge-use-expansion-critic', '#so-judge-use-expansion-lookahead', '#so-judge-expansion-variants', '#so-judge-expansion-pick', '[data-so="expansion-judge"]', '#so-warden-enabled', '#so-warden-accept-mode',
 ];
 
 // Surfaces a player can reach without turning anything on: the drawer (every tab it offers), the HUD

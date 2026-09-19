@@ -2,7 +2,7 @@ import { stripChannelNoise, type ParsedFact } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
 import { createMemoryState, generateMemoryId, type MemoryEntry } from "@memory/index";
 import { DEFAULT_TENSION_EMA_ALPHA } from "@constants/defaults";
-import { CURATOR_PROPOSAL_LIMIT } from "@stagecraft/index";
+import { capProposalRing } from "@stagecraft/index";
 import { createJudgeRuntime, sanitizeJudgeRuntime } from "@judge/index";
 import { sanitizeJournalRecords } from "./journal";
 import { defaultExtractionSettings, defaultMemorySettings, defaultStagecraftSettings, getGlobalSettings, type ChatOverrides } from "./settingsStore";
@@ -131,7 +131,7 @@ export const sanitizeStagecraft = (value: RuntimeExtras | undefined): Stagecraft
   if (!existing) return createStagecraft();
   return {
     settings: { ...defaultStagecraftSettings(), ...existing.settings },
-    proposals: Array.isArray(existing.proposals) ? existing.proposals.filter((entry) => Boolean(entry) && Array.isArray(entry.ops)).slice(-CURATOR_PROPOSAL_LIMIT) : [],
+    proposals: Array.isArray(existing.proposals) ? capProposalRing(existing.proposals.filter((entry) => Boolean(entry) && Array.isArray(entry.ops)).map((entry) => ({ ...entry, curator: entry.curator === "warden" ? "warden" : "wi" }))) : [],
     lastPass: existing.lastPass && typeof existing.lastPass === "object" ? existing.lastPass : null,
     lastRunBoundary: typeof existing.lastRunBoundary === "number" ? existing.lastRunBoundary : -1,
     lastError: typeof existing.lastError === "string" ? existing.lastError : null,

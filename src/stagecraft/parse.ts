@@ -1,5 +1,5 @@
 import { stripChannelNoise } from "@extraction/parse";
-import { CURATOR_MAX_OPS, CURATOR_MAX_TEXT, PATCH_ANCHOR_SEPARATOR, type CuratorEntryView, type CuratorOp, type CuratorOpKind, type CuratorProposal } from "./types";
+import { CURATOR_MAX_OPS, CURATOR_MAX_TEXT, PATCH_ANCHOR_SEPARATOR, type CuratorEntryView, type WiCuratorOp, type CuratorOpKind, type CuratorProposal } from "./types";
 
 const TAG_PATTERN = /^\[?(enable|disable|rewrite|patch|why)]?\s*:?\s*(.*)$/i;
 
@@ -19,7 +19,7 @@ const findEntry = (entries: CuratorEntryView[], title: string): CuratorEntryView
     ?? entries.find((entry) => entry.comment.trim().toLowerCase().startsWith(wanted) || wanted.startsWith(entry.comment.trim().toLowerCase()));
 };
 
-const readOp = (kind: CuratorOpKind, rest: string, entries: CuratorEntryView[]): { op?: CuratorOp; dropped?: string } => {
+const readOp = (kind: CuratorOpKind, rest: string, entries: CuratorEntryView[]): { op?: WiCuratorOp; dropped?: string } => {
   const parts = splitParts(rest);
   const entry = findEntry(entries, parts[0] ?? "");
   if (!entry) return { dropped: `${kind}: "${unquote(parts[0] ?? "").slice(0, 60)}" is not an entry this story owns` };
@@ -39,7 +39,7 @@ const readOp = (kind: CuratorOpKind, rest: string, entries: CuratorEntryView[]):
 
 // Strict about shape, tolerant about noise — the same bargain the extractor parser strikes.
 export function parseCuratorResponse(raw: string, entries: CuratorEntryView[]): CuratorProposal {
-  const ops: CuratorOp[] = [];
+  const ops: WiCuratorOp[] = [];
   const dropped: string[] = [];
   let summary = "";
   for (const line of stripChannelNoise(raw ?? "").split(/\r?\n/)) {

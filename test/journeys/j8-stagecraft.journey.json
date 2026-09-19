@@ -17,7 +17,8 @@
   "capabilities": {
     "background-effect": "typeof globalThis.storyOrchestratorRuntime?.getSnapshot === 'function' && Boolean(document.querySelector('.bg_example'))",
     "wi-curator": "typeof globalThis.storyOrchestratorRuntime?.runWiCuratorPass === 'function' && typeof globalThis.storyOrchestratorRuntime?.applyCuratorProposals === 'function'",
-    "curator-review-ring": "Boolean(document.querySelector('#so-curator-enabled'))"
+    "curator-review-ring": "Boolean(document.querySelector('#so-curator-enabled'))",
+    "continuity-warden": "typeof globalThis.storyOrchestratorRuntime?.runWardenPass === 'function' && typeof globalThis.storyOrchestratorJudge?.invalidateStatus === 'function'"
   },
   "checks": [
     {
@@ -274,6 +275,129 @@
       ],
       "prompt": "Did the presentation (scene, background, cast) feel handled for you, without you asking?",
       "anchors": "1 = nothing happened · 3 = noticed it once · 5 = the stage kept up with the story"
+    },
+    {
+      "id": "J8.5",
+      "mode": "auto",
+      "findings": [],
+      "requires": [
+        "continuity-warden"
+      ],
+      "goal": "warden auto: a scripted reply that contradicts a seeded fact produces one continuity note; the next loud generation's prompt carries it, the one after does not",
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const status = await fetch('/api/plugins/story-orchestrator-judge/status', { headers: ctx.getRequestHeaders() }).then((response) => (response.ok ? response.json() : null)).catch(() => null); if (!status?.configured) throw new Error(`judge plugin not reachable or not configured: ${JSON.stringify(status)}`); root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 20000, uses: Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, false])) }; globalThis.storyOrchestratorJudge.invalidateStatus(); rt.setStagecraftSettings({ curatorEnabled: false, wardenEnabled: true, wardenAcceptMode: 'auto' }); if (!rt.getSnapshot().memory.entries.some((entry) => entry.text === \"The old stone bridge over the river collapsed in the flood and is gone.\")) await rt.applyExtractionAudit({ id: 'j8-warden-seed', createdAt: new Date().toISOString(), priority: 0, reason: 'manual', contractHash: 'h', scope: [], window: { from: 0, to: 0 }, prompt: 'p', rawResponse: 'r', acceptedDeltas: [], rejected: [] }, [], [{ tier: 'facts', type: 'fact', importance: 3, expiration: 'permanent', entities: [], text: \"The old stone bridge over the river collapsed in the flood and is gone.\", evidence: 'the flood took the bridge' }]); if (!rt.getSnapshot().memory.entries.some((entry) => entry.text.includes('stone bridge'))) throw new Error('the seeded fact did not land in memory'); if (globalThis.__soJ8WardenHandler) ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8WardenHandler); globalThis.__soJ8WardenPrompts = []; globalThis.__soJ8WardenHandler = (data, dryRun) => { if (!dryRun) globalThis.__soJ8WardenPrompts.push(JSON.stringify(data ?? null)); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8WardenHandler); globalThis.__soJ8Warden = { records: wardenRecords().length, calls: wardenCalls().length, proposals: rt.getStagecraftState().proposals.length }; return { settings: rt.getStagecraftState().settings, ...globalThis.__soJ8Warden };",
+          "log": true
+        },
+        {
+          "slash": "/sendas name=\"Courier\" raw=false \"I crossed the old stone bridge over the river this morning. It held firm under my boots, same as ever.\""
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const before = globalThis.__soJ8Warden; const record = await until(() => wardenRecords().slice(before.records).find((candidate) => candidate.ops[0]?.status === 'accepted'), 60000); if (!record) throw new Error(`no accepted warden note; calls ${wardenCalls().length - before.calls}, last: ${JSON.stringify(wardenCalls().at(-1) ?? null)}`); globalThis.__soJ8Warden.note = { id: record.id, messageId: record.messageId, text: record.ops[0].op.text }; globalThis.__soJ8WardenPrompts.length = 0; return { record: record.id, facts: record.ops[0].op.facts };",
+          "log": true
+        },
+        {
+          "send_generate": {
+            "text": "Then we head back the same way. Lead on to the river crossing.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const note = globalThis.__soJ8Warden.note; const escape = (text) => JSON.stringify(String(text)).slice(1, -1); const prompts = globalThis.__soJ8WardenPrompts; if (!prompts.length) throw new Error('no main-generation prompt was captured'); if (!prompts[0].includes(escape(note.text))) throw new Error('the next loud generation did not carry the continuity note'); const op = rt.getStagecraftState().proposals.find((record) => record.id === note.id)?.ops[0]; if (op?.status !== 'applied') throw new Error(`the note was not marked applied: ${op?.status}`); globalThis.__soJ8WardenPrompts.length = 0; globalThis.__soJ8Warden.after = wardenRecords().length; return { carried: true, promptsSeen: prompts.length };",
+          "log": true
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 4000,
+            "timeoutMs": 120000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We walk on in silence for a while.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const note = globalThis.__soJ8Warden.note; const escape = (text) => JSON.stringify(String(text)).slice(1, -1); const prompts = globalThis.__soJ8WardenPrompts; if (!prompts.length) throw new Error('no main-generation prompt was captured'); const reflagged = wardenRecords().slice(globalThis.__soJ8Warden.after - 1).filter((record) => record.id !== note.id && record.ops[0]?.status === 'applied'); const carrying = prompts.filter((body) => body.includes(escape(note.text))).length; if (carrying && !reflagged.length) throw new Error('the note rode a second generation without a newer reply flagging it'); ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8WardenHandler); delete globalThis.__soJ8WardenHandler; rt.setStagecraftSettings({ wardenEnabled: false }); return { branch: carrying ? `re-flagged by a newer reply (${reflagged.map((record) => record.id)})` : 'gone after one generation', carrying };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J8.6",
+      "mode": "auto",
+      "findings": [],
+      "requires": [
+        "continuity-warden"
+      ],
+      "goal": "warden review: the note waits for the author; a newer reply commits first, the note lapses, and no note reaches any prompt",
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const status = await fetch('/api/plugins/story-orchestrator-judge/status', { headers: ctx.getRequestHeaders() }).then((response) => (response.ok ? response.json() : null)).catch(() => null); if (!status?.configured) throw new Error(`judge plugin not reachable or not configured: ${JSON.stringify(status)}`); root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 20000, uses: Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, false])) }; globalThis.storyOrchestratorJudge.invalidateStatus(); rt.setStagecraftSettings({ curatorEnabled: false, wardenEnabled: true, wardenAcceptMode: 'review' }); if (!rt.getSnapshot().memory.entries.some((entry) => entry.text === \"The old stone bridge over the river collapsed in the flood and is gone.\")) await rt.applyExtractionAudit({ id: 'j8-warden-seed', createdAt: new Date().toISOString(), priority: 0, reason: 'manual', contractHash: 'h', scope: [], window: { from: 0, to: 0 }, prompt: 'p', rawResponse: 'r', acceptedDeltas: [], rejected: [] }, [], [{ tier: 'facts', type: 'fact', importance: 3, expiration: 'permanent', entities: [], text: \"The old stone bridge over the river collapsed in the flood and is gone.\", evidence: 'the flood took the bridge' }]); if (!rt.getSnapshot().memory.entries.some((entry) => entry.text.includes('stone bridge'))) throw new Error('the seeded fact did not land in memory'); if (globalThis.__soJ8WardenHandler) ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8WardenHandler); globalThis.__soJ8WardenPrompts = []; globalThis.__soJ8WardenHandler = (data, dryRun) => { if (!dryRun) globalThis.__soJ8WardenPrompts.push(JSON.stringify(data ?? null)); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8WardenHandler); globalThis.__soJ8Warden = { records: wardenRecords().length, calls: wardenCalls().length, proposals: rt.getStagecraftState().proposals.length }; return { settings: rt.getStagecraftState().settings, ...globalThis.__soJ8Warden };",
+          "log": true
+        },
+        {
+          "slash": "/sendas name=\"Courier\" raw=false \"I crossed the old stone bridge over the river this morning. It held firm under my boots, same as ever.\""
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const before = globalThis.__soJ8Warden; const record = await until(() => wardenRecords().slice(before.records).find((candidate) => candidate.ops[0]?.status === 'pending'), 60000); if (!record) throw new Error(`no pending warden note; calls ${wardenCalls().length - before.calls}, last: ${JSON.stringify(wardenCalls().at(-1) ?? null)}`); globalThis.__soJ8Warden.note = { id: record.id, text: record.ops[0].op.text }; return { record: record.id };",
+          "log": true
+        },
+        {
+          "slash": "/sendas name=\"Courier\" raw=false \"Anyway. The tavern is just ahead; let's get out of the rain.\""
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const note = globalThis.__soJ8Warden.note; const lapsed = await until(() => { const op = rt.getStagecraftState().proposals.find((record) => record.id === note.id)?.ops[0]; return op?.status === 'rejected' ? op : null; }, 60000); if (!lapsed) throw new Error('the pending note did not lapse when a newer reply committed'); if (lapsed.message !== 'lapsed') throw new Error(`rejected for the wrong reason: ${lapsed.message}`); globalThis.__soJ8WardenPrompts.length = 0; return { lapsed: true };",
+          "log": true
+        },
+        {
+          "send_generate": {
+            "text": "We step inside and shake off the rain.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const prompts = globalThis.__soJ8WardenPrompts; if (!prompts.length) throw new Error('no main-generation prompt was captured'); const leaked = prompts.filter((body) => body.includes('Continuity: established')).length; ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8WardenHandler); delete globalThis.__soJ8WardenHandler; rt.setStagecraftSettings({ wardenEnabled: false, wardenAcceptMode: 'review' }); if (leaked) throw new Error(`a review-mode note reached ${leaked} prompt(s) without the author accepting it`); return { prompts: prompts.length, leaked };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J8.9",
+      "mode": "auto",
+      "findings": [],
+      "requires": [
+        "continuity-warden"
+      ],
+      "goal": "both judge curators off (warden off, curator focus off): a contradicting reply and a generation make no warden or curator-filter call, add no proposal and put no note in the prompt",
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const status = await fetch('/api/plugins/story-orchestrator-judge/status', { headers: ctx.getRequestHeaders() }).then((response) => (response.ok ? response.json() : null)).catch(() => null); if (!status?.configured) throw new Error(`judge plugin not reachable or not configured: ${JSON.stringify(status)}`); root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 20000, uses: Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, false])) }; globalThis.storyOrchestratorJudge.invalidateStatus(); rt.setStagecraftSettings({ curatorEnabled: false, wardenEnabled: false, wardenAcceptMode: 'review' }); if (!rt.getSnapshot().memory.entries.some((entry) => entry.text === \"The old stone bridge over the river collapsed in the flood and is gone.\")) await rt.applyExtractionAudit({ id: 'j8-warden-seed', createdAt: new Date().toISOString(), priority: 0, reason: 'manual', contractHash: 'h', scope: [], window: { from: 0, to: 0 }, prompt: 'p', rawResponse: 'r', acceptedDeltas: [], rejected: [] }, [], [{ tier: 'facts', type: 'fact', importance: 3, expiration: 'permanent', entities: [], text: \"The old stone bridge over the river collapsed in the flood and is gone.\", evidence: 'the flood took the bridge' }]); if (!rt.getSnapshot().memory.entries.some((entry) => entry.text.includes('stone bridge'))) throw new Error('the seeded fact did not land in memory'); if (globalThis.__soJ8WardenHandler) ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8WardenHandler); globalThis.__soJ8WardenPrompts = []; globalThis.__soJ8WardenHandler = (data, dryRun) => { if (!dryRun) globalThis.__soJ8WardenPrompts.push(JSON.stringify(data ?? null)); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8WardenHandler); globalThis.__soJ8Warden = { records: wardenRecords().length, calls: wardenCalls().length, proposals: rt.getStagecraftState().proposals.length }; return { settings: rt.getStagecraftState().settings, ...globalThis.__soJ8Warden };",
+          "log": true
+        },
+        {
+          "slash": "/sendas name=\"Courier\" raw=false \"I crossed the old stone bridge over the river this morning. It held firm under my boots, same as ever.\""
+        },
+        {
+          "send_generate": {
+            "text": "Let's keep moving.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 4000,
+            "timeoutMs": 120000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const before = globalThis.__soJ8Warden; const filterCalls = rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge curatorFilter')).length; const prompts = globalThis.__soJ8WardenPrompts; ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8WardenHandler); delete globalThis.__soJ8WardenHandler; if (wardenCalls().length !== before.calls) throw new Error(`the warden asked the judge while off (${wardenCalls().length - before.calls})`); if (filterCalls) throw new Error(`curator focus asked the judge while off (${filterCalls})`); if (rt.getStagecraftState().proposals.length !== before.proposals) throw new Error('a proposal appeared with both curators off'); if (prompts.some((body) => body.includes('Continuity: established'))) throw new Error('a continuity note reached the prompt with the warden off'); return { wardenCalls: 0, filterCalls, proposals: before.proposals, prompts: prompts.length };",
+          "log": true
+        }
+      ]
     }
   ]
 }

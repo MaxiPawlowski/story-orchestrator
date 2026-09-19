@@ -18,6 +18,7 @@ import { MemoryCoordinator } from "./coordinators/memoryCoordinator";
 import type { MemoryMirrorSummary } from "./memoryMirror";
 import { StagecraftCoordinator } from "./coordinators/stagecraftCoordinator";
 import { createCuratorFilter } from "./curatorFilter";
+import { createContinuityCheck, establishedFacts } from "./continuity";
 import { activeSpeakerId, enabledCharacterIds, namesForRosterId, rosterIdForName } from "./roster";
 import { EffectsApplier } from "./effectsApplier";
 import { applyGlobalSettings, createExtras, hydrateExtras, stripGlobalSettings, TALK_DECISION_LIMIT } from "./extras";
@@ -128,6 +129,7 @@ export class RuntimeManager {
     getCanon: () => this.memory.getCanon(),
     getOpenArcs: () => this.memory.getOpenArcs(),
     filterEntries: createCuratorFilter(() => this.judge),
+    warden: { check: createContinuityCheck(() => this.judge), facts: () => establishedFacts(this.extras.memory.entries, this.memory.getLedger()), nudgeActive: () => this.copilot.getActiveNudge() !== null },
     journal: (summary, note) => { this.journal.record("stagecraft", summary, this.journalContext(), note); this.extras.journal = this.journal.getRecords(); },
     persist: () => this.persist(),
     notify: () => this.notify(),
@@ -207,9 +209,7 @@ export class RuntimeManager {
     loadedFallback: () => (this.loaded ? { ...this.loaded } : null),
   };
 
-  async loadSelectedFromChat() {
-    if (await loadSelectedStory(this.selectionDeps)) void this.showAwayRecap();
-  }
+  async loadSelectedFromChat() { if (await loadSelectedStory(this.selectionDeps)) void this.showAwayRecap(); }
 
   async importStory(rawText: string) { return importStoryJson(this.selectionDeps, rawText); }
   async selectStory(idOrHash: string, _mode: "activate" | "hydrate" = "activate") { return selectStory(this.selectionDeps, idOrHash); }
@@ -594,12 +594,11 @@ export class RuntimeManager {
   rosterIdForName(name: string): string | null { return rosterIdForName(this.loaded?.story ?? null, name); }
 
   onMemberDrafted(chId: number | [number]) { this.memory.onMemberDrafted(chId); }
-  onGenerationStarted(type: unknown) { if (type === "impersonate" || type === "quiet") this.memory.withholdPrivateKnowledge(); }
+  onGenerationStarted(type: unknown, dryRun?: unknown) { if (type === "impersonate" || type === "quiet") this.memory.withholdPrivateKnowledge(); this.stagecraft.onGenerationStarted(type, dryRun); }
+  onGenerationEnded() { this.clearPrivateInjection(); this.clearCopilotNudge(); this.stagecraft.clearContinuityNote(); }
+  runWardenPass(replyMessageId: number) { return this.stagecraft.runWardenPass(replyMessageId); }
 
-  clearPrivateInjection() {
-    if (!this.loaded) return;
-    this.memory.updateInjection();
-  }
+  clearPrivateInjection() { if (!this.loaded) return; this.memory.updateInjection(); }
 
   getEpistemic(): EpistemicEntry[] { return this.memory.getEpistemic(); }
   getLedger(): LedgerView[] { return this.memory.getLedger(); }
@@ -620,9 +619,7 @@ export class RuntimeManager {
 
   async runSupersessionBridge(supersedingEntries: MemoryEntry[]): Promise<boolean> { return this.memory.runSupersessionBridge(supersedingEntries); }
 
-  async syncWorldInfo(): Promise<MemoryMirrorSummary> {
-    return this.memory.syncWorldInfo();
-  }
+  async syncWorldInfo(): Promise<MemoryMirrorSummary> { return this.memory.syncWorldInfo(); }
 
   getStagecraftState(): StagecraftRuntimeState { return this.stagecraft.getState(); }
   setStagecraftSettings(settings: Partial<StagecraftSettings>) { setGlobalSettings({ stagecraft: settings }); this.refreshSettingsView(); }

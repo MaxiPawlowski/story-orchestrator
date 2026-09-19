@@ -59,6 +59,8 @@ export interface TalkRuntimeState {
 export interface StagecraftSettings {
   curatorEnabled: boolean;
   acceptMode: StagecraftAcceptMode;
+  wardenEnabled: boolean;
+  wardenAcceptMode: StagecraftAcceptMode;
 }
 
 export interface StagecraftRuntimeState {

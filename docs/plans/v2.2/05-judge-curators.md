@@ -235,9 +235,68 @@ the fixture stay, so a v2.3 attempt (author-written background descriptions inst
 starts from a measured baseline. **User decision (2026-09-19): dropped for now**, not shipped even as
 review-only. J8.7/J8.8 stay unbuilt, and the v2.3 attempt above is where it resumes.
 
-**Warden runtime: pure core and calibration only so far.** `runWardenPass`, the `note` op kind, its
-one-turn injection and the J8 growth all live in `stagecraftCoordinator` / `stagecraft/types.ts`,
-which the peer session is still editing on master. They are built after that change lands.
+**Warden runtime: built 2026-09-19**, after the peer's curator change landed (f6b53ba). The live
+gate is pending.
+
+**Types and persistence.**
+- `CuratorOp = WiCuratorOp | WardenNoteOp`, with `isNoteOp`. The parser, planner, preview and
+  `opTargetKey` take `WiCuratorOp`, so nothing a WI curator model says can become a note.
+- Records carry `curator: "wi" | "warden"`, and older ones hydrate as `"wi"`.
+- The ring caps **per curator** (`capProposalRing`), so a chatty warden never evicts a lorebook
+  change still waiting for review.
+
+**Coordinator.** `stagecraftCoordinator` (355 lines):
+- `runWardenPass(replyMessageId)` is fire-and-forget from the `boundaryWork` entry
+  `continuity-warden` (order 57).
+- It reads the reply at its own id (`getContext().chat[id]`). The player's messages and system
+  messages are skipped.
+- A pending or accepted note for an older reply lapses (`rejected`, `lapsed`) first.
+- It asks through the injected `warden.check`, then drops the result if the reply changed while
+  the judge was reading, e.g. after a swipe.
+- It records a `curator: "warden"` proposal: `accepted` in `auto`, `pending` in `review`. In `off`
+  it never runs.
+
+**The note in the prompt.**
+- `onGenerationStarted(type, dryRun)` puts the first accepted note in registry key `continuityNote`
+  (`story_orchestrator_continuity`, depth 0) and marks it `applied`.
+- It skips dry runs, `quiet`, `impersonate`, a switched-off warden, and a generation the author's
+  nudge already owns.
+- `GENERATION_ENDED` / `STOPPED` clear the key, through the manager's new `onGenerationEnded`.
+- `applyAccepted` skips notes explicitly. `revertAppliedSince` withdraws every note at or past the
+  rolled-back message (`rejected`, `reverted`).
+
+**Runtime deps.**
+- `runtime/continuity.ts` holds `establishedFacts` (bound ledger rows first, then live facts with
+  pinned ones leading; superseded, folded and contradicted entries are skipped; capped at 40) and
+  `createContinuityCheck`.
+- The check calls `ask("warden")` and requires the judge's master switch
+  (`JudgeRuntime.enabled()`). `stagecraft.wardenEnabled` is the warden's own opt-in.
+- The coordinator still imports no `@judge` / `@memory`.
+
+**Settings.** `stagecraft.wardenEnabled` (default off) and `wardenAcceptMode` (default `review`),
+shown **only in author view** (`#so-warden-enabled`, `#so-warden-accept-mode`) and forbidden by the
+player sweep.
+
+**Panel.** Warden cards show "Continuity warden:", the established facts (`data-so="warden-fact"`),
+an editable note, and lapsed or withdrawn states.
+
+**Guard, budgets and stories.**
+- `architecture.test.ts`: only `stagecraftCoordinator` and the registry mention the key.
+- Manager 646 → 643: three one-line delegates, paid for by folding three short methods.
+- Storybook: `WardenNoteAwaitingReview` and `WardenNoteLapsed`.
+
+**Tests.**
+- `runtime/continuity.test.ts` (3).
+- 6 warden cases plus hydrate in `stagecraftCoordinator.test.ts`.
+- A ring cap case in `stagecraft.test.ts`.
+
+**Journeys.** J8.5, J8.6 and J8.9 are in `j8-stagecraft.journey.json`. J8.7 and J8.8 belong to the
+scene-setter, which was dropped (user decision above).
+
+**Delegated decisions, taken.**
+- A lapsed note stays in the ring, visibly lapsed, rather than being pruned.
+- A newer reply lapses an *accepted* but unapplied note too, not only a pending one. That is what
+  keeps "one note in flight" true when two scripted replies land before any generation.
 
 ## Implementation notes
 

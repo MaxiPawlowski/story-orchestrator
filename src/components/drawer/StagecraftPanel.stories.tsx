@@ -14,6 +14,7 @@ const patchOp = (status: CuratorOpRecord["status"] = "pending"): CuratorOpRecord
 
 const proposal = (ops: CuratorOpRecord[], mode: StagecraftAcceptMode = "review"): CuratorProposalRecord => ({
   id: "wi-4-6",
+  curator: "wi",
   at: "2026-08-13T10:00:00.000Z",
   boundary: 4,
   messageId: 6,
@@ -25,9 +26,9 @@ const proposal = (ops: CuratorOpRecord[], mode: StagecraftAcceptMode = "review")
   dropped: ['rewrite: "Sanctum floor" is not an entry this story owns'],
 });
 
-const snapshot = (options: { curatorEnabled?: boolean; acceptMode?: StagecraftAcceptMode; scope?: string[]; proposals?: CuratorProposalRecord[]; lastError?: string | null } = {}): RuntimeSnapshot => ({
+const snapshot = (options: { curatorEnabled?: boolean; acceptMode?: StagecraftAcceptMode; wardenEnabled?: boolean; scope?: string[]; proposals?: CuratorProposalRecord[]; lastError?: string | null } = {}): RuntimeSnapshot => ({
   stagecraft: {
-    settings: { curatorEnabled: options.curatorEnabled ?? true, acceptMode: options.acceptMode ?? "review" },
+    settings: { curatorEnabled: options.curatorEnabled ?? true, acceptMode: options.acceptMode ?? "review", wardenEnabled: options.wardenEnabled ?? false, wardenAcceptMode: "review" },
     proposals: options.proposals ?? [],
     lastRunBoundary: 4,
     lastError: options.lastError ?? null,
@@ -111,3 +112,42 @@ export const NoAllowlist: Story = {
     await expect(canvas.getByText(/lists no lorebook for the curator/)).toBeInTheDocument();
   },
 };
+
+const wardenNote = (status: CuratorOpRecord["status"], message?: string): CuratorProposalRecord => ({
+  id: "warden-5-7",
+  curator: "warden",
+  at: "2026-09-19T10:00:00.000Z",
+  boundary: 5,
+  messageId: 7,
+  checkpointId: "gate",
+  reason: "continuity",
+  summary: "Mira's reply contradicts an established fact",
+  mode: "review",
+  ops: [{ op: { kind: "note", text: "Continuity: established — The bridge fell in the flood. Keep the next reply consistent with it.", facts: ["The bridge fell in the flood."], replyMessageId: 7 }, status, ...(message ? { message } : {}) }],
+  dropped: [],
+});
+
+export const WardenNoteAwaitingReview: Story = {
+  args: { snapshot: snapshot({ wardenEnabled: true, proposals: [wardenNote("pending")] }), manager: fakeManager() },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/Continuity warden on · notes wait for you/)).toBeInTheDocument();
+    await expect(canvas.getByText(/Continuity warden: Mira's reply contradicts an established fact/)).toBeInTheDocument();
+    await expect(canvas.getByText("established: The bridge fell in the flood.")).toBeInTheDocument();
+    const text = canvas.getByLabelText("Text for continuity note");
+    await userEvent.clear(text);
+    await userEvent.type(text, "Continuity: the bridge is gone.");
+    await userEvent.click(canvas.getByRole("button", { name: "Accept" }));
+    await expect(args.manager.setCuratorOpDecision).toHaveBeenCalledWith("warden-5-7", 0, "accepted", expect.objectContaining({ kind: "note", text: "Continuity: the bridge is gone." }));
+  },
+};
+
+export const WardenNoteLapsed: Story = {
+  args: { snapshot: snapshot({ wardenEnabled: true, proposals: [wardenNote("rejected", "lapsed")] }), manager: fakeManager() },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/lapsed: a newer reply came first/)).toBeInTheDocument();
+    await expect(canvas.queryByRole("button", { name: "Accept" })).toBeNull();
+  },
+};
+
