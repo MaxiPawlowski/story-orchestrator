@@ -231,27 +231,47 @@ Never: character cards, persona text, other chats, the API key (server-side only
 | Spike §Unresolved: floors, hint authored vs inferred | 06 (`read_as`, authored) |
 | v2.1 seed list: remaining curators | 05 (two of four); cast tuning and recap narrator stay seeds |
 
-## Live gate status (2026-09-20, paused on hardware)
+## Live gate status (2026-09-20)
 
-The judgment model itself is fully exercised: **all 11 calibrations pass in-page** (page → plugin →
-live API, goldens in `test/goldens/judge/`), continuity 85/85 and stall 87/87 among them.
+**The automated side of v2.2 is done except one unattributed check. Human eval is outstanding and is
+the user's to score, so the gate is NOT green.** Full detail in `acceptance-report.md`.
 
-**J11: 24 of 26 verified live.** Green includes the whole scene slice, lore-select, typed extraction,
-the stall check, curator focus (J11.26) and prepare-ahead with variants (J11.25). Two are unverified
-because the pod died mid-session: J11.15 (fixed — it now seeds a location before changing it) and
-J11.21 (assertion rewritten around the residual-scope invariant). Both need a re-run, not a fix in
-anger.
+**Calibration: 11/11 uses at floor**, recorded in-page against the live API (goldens in
+`test/goldens/judge/`). No per-family floor missed. `scene`/`location` (0.857), `director` (0.879)
+and `lore`/`recall` (0.872) sit close enough to their floors to watch rather than trust.
 
-**J8: not yet run.** The warden's whole path *except* the story model was proven live anyway (see the
-plan 05 smoke). J8.5/J8.6/J8.9 were made self-contained offline.
+**Judge-off matrix: complete. All ten journeys J0–J10 match the v2.1 archived matrix, check for
+check.** This is the regression proof and it is the configuration every install actually runs,
+because every judge usage ships off. It was worth its cost: v2.2 edited far more shared code than
+`src/judge/` (`runtimeManager`, the coordinators, `extraction/*`, `studio/*`, `copilot/*`,
+`talk/rules`, `engine/*`), and J6 — the mutation-storm journey — is the only coverage of the
+`dropReadsAfter` path in that configuration.
 
-**Three product bugs the live gates found**, all fixed: the scene read surviving a deleted message
-(the engine declines that rollback), off-path uses inheriting the 1500 ms reply-path budget
-(stall failed by luck), and a fallback stall recording every leaf as answered.
+**Judge-on: J11 26/26 twice (second `--strict`), J8 6/6 twice.** Those are the journeys written for
+v2.2's features, so every usage is proven individually. At option-B scope (user decision) the
+ordinary journeys were also run judge-on: J3, J4 and J6 match their judge-off results; **J5.6 does
+not, and I could not attribute it** — recorded as F6 with both candidate explanations and the
+experiment that separates them. J5 is therefore not green judge-on, and that is the one v2.2 opt-in
+path unproven at composition level.
 
-**Backend note.** The RunPod pod exited by itself after ~1 h and its host has had no free GPU since,
-so live work is paused. A replacement pod on the same network volume in EU-RO-1 is the fallback, at
-the same price, and needs the user's go-ahead.
+**Cost and latency: measured on 20 captured calls.** Zero fallbacks, 2.5 calls per boundary where
+any fired, `scene` sitting exactly on its 2500 ms budget at p90. The **on-path 1500 ms budget is
+still unverified** — `director` logs no parseable duration and `lore` never fired in the journeys
+that ran. No dollar rate was extrapolated from a sample that small.
+
+### What the gates cost, and what that says
+
+Of the journeys that failed on first contact, **none was a product regression.** Every one was the
+harness: four fixed timeouts that encoded the old GPU's speed (the 15 s pre-send idle wait, the
+500 ms studio-save sleep, J7's 300 s transition windows, and J9.1's single-sample assertion), plus
+two ambient-state dependencies no journey established (the required lorebook, and the group — **not
+one of the twelve journeys pinned a group**, so runs followed whichever group another session last
+opened). Three real product bugs were found and fixed earlier by the same gates: the stale scene
+read after a delete, off-path uses inheriting the reply-path budget, and the stall fallback
+mislabelling its leaves.
+
+The pattern worth carrying into v2.3: the harness fails *silently and plausibly*. Each of those
+presented as a product fault, and two were reported as such before the evidence was in.
 
 ## Latency budgets (revised on live evidence, 2026-09-19)
 
