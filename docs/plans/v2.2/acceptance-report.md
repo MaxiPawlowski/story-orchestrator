@@ -248,6 +248,26 @@ middle of acceptance. v2.2 should measure and ship lore as it actually is. The h
 "did lore you asked about show up?" is the symptom to watch, because a weak ranking shows up there
 before it shows up in precision/recall.
 
+### F5 — the WI curator cannot create entries
+
+**Status: by-design, recorded so nobody designs around an op that is not coming.** A narrowed
+version is seeded for v2.3 (`08-acceptance.md`).
+
+`WiCuratorOp` is `enable | disable | rewrite | patch`, and the curator prompt tells it never to
+invent entries. A lorebook designed to be *filled* by the curator therefore returns NONE forever.
+Raised 2026-09-20 by the Adolion campaign session, which had designed exactly that book.
+
+This is the contract working, not a defect: the curator proposes changes inside the story's authored
+`stagecraft.lorebooks` allowlist and never invents. Unrestricted creation would give an author a book
+that grows by an entry a session with nothing pruning it.
+
+**J8 is not affected, and the reason is worth keeping.** J8.2 and J8.3 were rewritten op-agnostic
+after a 2026-09-19 finding: they drive the review ring with `pick: "text-first"` and assert
+`opsAtLeast` rather than naming an op kind. So a real model choosing `patch` or `disable` over
+`rewrite` is not a failure. Confirmed live during the J8 run of 2026-09-20, where the curator chose
+`disable` — a check that named `rewrite` would have failed there for the wrong reason. Do not
+reintroduce a hard-coded op kind into these checks.
+
 ## Recommended configuration
 
 **Pending the matrix and the cost report.** No default changes: every judge usage stays opt-in

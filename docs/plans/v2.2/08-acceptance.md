@@ -138,6 +138,24 @@ The same table shape as v2.1's `00-overview.md`: id, finding, fixed in, evidence
   graded-ranking guidance and its rerank cookbook), keeping a presence/eligibility Noul only if it
   still earns its place. Deliberately **not** done in v2.2: it invalidates the lore calibration and
   J11.16-J11.19, and lore is one of only two on-path uses, so it needs its own gate.
+- **A narrow `create` op for the WI curator, to give play-established entities a keyword trigger**
+  (raised 2026-09-20 by the Adolion campaign session, from real use). `WiCuratorOp` is
+  `enable | disable | rewrite | patch` and the prompt forbids inventing entries — by design, and the
+  design holds: seeding a book with the facts a campaign's arcs actually change, and making the
+  curator keep them true, is bounded and reviewable, and it cannot accrete an entry per session with
+  nobody pruning.
+  The gap it leaves is narrower and is a **retrieval-shape** problem, not a memory-content one. When
+  play introduces a named recurring entity — a guide the party adopts who matters again eleven
+  sessions later — the memory tiers do carry him, but they inject by recency and relevance. What an
+  author wants is that the next time anyone types his name, a **keyed** World Info entry fires, the
+  way it does for an authored NPC. No memory tier offers a keyword trigger. Today the only options
+  are pre-seeding an entry for someone who does not exist yet, or adding it by hand.
+  If built, the shape is deliberately constrained (the requesting session would leave it off without
+  the third and fourth): restricted to the story's `stagecraft.lorebooks` allowlist like every other
+  op; **review mode only, never auto**; only for an entity the memory tiers **already hold a fact
+  about**, so the model is promoting what play established rather than inventing; and a per-story
+  cap, which is what stops the accretion the current no-create rule is protecting against.
+  Not urgent. It is a new capability, so it needs its own calibration and its own J8 checks.
 - Anything bounced from this gate.
 
 ## Validation gate
