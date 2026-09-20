@@ -292,6 +292,25 @@ The same table shape as v2.1's `00-overview.md`: id, finding, fixed in, evidence
   Note for anyone re-reading old runs: any journey assertion about audit counts, or about how many
   boundaries a delta takes to land, was calibrated against whatever ambient cadence that run
   inherited. Those numbers are not comparable across runs until (a) lands.
+- **A journey's config restore deletes other sessions' STORIES, silently.** Distinct from the
+  cadence and lorebook residue above because this one destroys data rather than changing behaviour,
+  and nothing surfaces it. `writeGlobalConfig` does `ctx.extensionSettings["story-orchestrator"] =
+  snapshot`, a wholesale replacement of the whole root — and that root holds **`v2Stories`, the
+  story library**, alongside `settings` and `wizardSessions` (verified 2026-09-20: root keys are
+  exactly `v2Stories` and `settings`). So any story imported by anyone *after* a run's setup
+  snapshot is gone when that run cleans up.
+  Observed the same day: the Adolion session's `adolion-adventurer` record vanished while
+  `adolion-academy` survived, purely because the academy one was imported after the last restore.
+  **Every asset the lost story depended on stayed installed and green** — cards, lorebooks, group,
+  selection — so the requirements panel still read ready. The only symptom was `selectStory`
+  returning `false`, and the drawer saying "not configured", which reads to a player as a setup
+  problem rather than data loss. Nobody would think to look at the library.
+  The fix already proposed for cadence — restore what the install had before the run rather than a
+  snapshot a check has since mutated — covers this too, but it should be stated in terms of the
+  library as well, because a merge-on-restore that preserved `settings` while still clobbering
+  `v2Stories` would look correct and would not be. `restoreGlobalConfig`'s existing guard only
+  refuses an *empty* snapshot over a populated config; a populated-but-stale snapshot is the case
+  that bites.
 - Anything bounced from this gate.
 
 ## Validation gate

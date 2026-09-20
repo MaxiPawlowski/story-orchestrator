@@ -124,6 +124,27 @@ newly-installed Adolion lorebooks and a real wizard session, and none were touch
 
 J8.4 is the operator's to score and is skipped rather than faked green.
 
+### The automatic schedule, verified outside the matrix
+
+Worth recording because **the matrix does not cover it**: every journey that exercises extraction
+either pins its own cadence or pushes the pipeline itself and then asserts it moved. None of them
+proves the scheduler fires *unaided* at the shipped default — the configuration every real user runs.
+
+That gap was closed on 2026-09-20 by the Adolion campaign session, outside this matrix, at
+`cadence: 3` with no harness involved: three ordinary player turns, no `runExtractionNow()`, no
+`/cp`. Extraction ran on its own (3 audits), produced `DELTA path="wendhope"` from the player's own
+words, the blackboard took `path: "wendhope"`, the checkpoint moved `guild-hall` → `road-to-wendhope`
+at boundary 2, and the checkpoint's effects applied (`world_info` swapped the scene entry,
+`cast_changes` disabled a member).
+
+So the full unattended loop works at the default. It is evidence from another session's campaign
+rather than a journey result, and it is recorded as such — but it is the only evidence either of us
+has for that configuration, and a journey should exist for it (seeded).
+
+Their framing of why the matrix missed it is the useful part, and generalises past cadence:
+**a gate asserting the pipeline *acted* is not the same as one asserting it acted *on its own*.**
+Several checks in this suite push the thing they then verify.
+
 ### Remaining
 
 J0–J7, J9 and J10 in both configurations; J8 and J11 in the judge-off configuration; J7 once per
