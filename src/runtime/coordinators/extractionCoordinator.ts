@@ -127,7 +127,7 @@ export class ExtractionCoordinator {
     const window = plan.window.messages.map((message) => ({ id: message.index, speaker: message.speaker, text: message.text }));
     const result = await judge.ask("stall", buildStallRequest(plan.leaves, window), { timeoutMs: STALL_TIMEOUT_MS, summarize: (answers) => Object.fromEntries(plan.leaves.map((leaf, index) => [`${leaf.q}${leaf.op}${JSON.stringify(leaf.v)}`, (answers?.[`leaf:${index}`] as { noul?: number } | undefined)?.noul ?? "none"])) });
     const verdict = stallVerdict(result.answers, plan.leaves);
-    const record = { at: new Date().toISOString(), boundary: plan.descriptor.boundary, kind: "stall" as const, window: { from: plan.window.from, to: plan.window.to }, answered: plan.leaves.map((leaf) => leaf.q), model: result.model, ...(result.fallback ? { fallback: result.fallback } : {}) };
+    const record = { at: new Date().toISOString(), boundary: plan.descriptor.boundary, kind: "stall" as const, window: { from: plan.window.from, to: plan.window.to }, answered: result.answers ? plan.leaves.map((leaf) => leaf.q) : [], model: result.model, ...(result.fallback ? { fallback: result.fallback } : {}) };
     if (verdict.kind === "direct") {
       const deltas: ParsedDelta[] = verdict.deltas.map((entry) => ({ delta: { q: entry.q, v: entry.v, source: "extractor" }, evidence: `judge:reconcile p=${entry.p}`, judge: entry.p }));
       this.deps.enqueueExtractorDeltas(deltas, { from: plan.window.from, to: plan.window.to });

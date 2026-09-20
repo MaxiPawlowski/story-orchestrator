@@ -146,6 +146,15 @@ describe("judged stall pre-check (v2.2 plan 06)", () => {
     expect(reread).toHaveBeenCalledTimes(1);
   });
 
+  it("claims nothing was answered when the stall call falls back, and re-reads", async () => {
+    const down = await setup({ stallCheck: true }, () => { throw new Error("judge down"); });
+    const reread = jest.fn();
+    down.manager.judgedExtraction({ kind: "stall", plan: plan(), reread });
+    await flush();
+    expect(reread).toHaveBeenCalledTimes(1);
+    expect(down.manager.getSnapshot().extraction.judgedReads.at(-1)).toMatchObject({ kind: "stall", answered: [], deltas: [] });
+  });
+
   it("takes no stall with the usage off, so today's re-read runs", async () => {
     const { manager, transport } = await setup({}, leafAnswer(0.99));
     expect(manager.judgedExtraction({ kind: "stall", plan: plan(), reread: jest.fn() })).toBe(false);
