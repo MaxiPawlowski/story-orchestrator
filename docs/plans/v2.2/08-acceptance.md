@@ -156,6 +156,14 @@ The same table shape as v2.1's `00-overview.md`: id, finding, fixed in, evidence
   about**, so the model is promoting what play established rather than inventing; and a per-story
   cap, which is what stops the accretion the current no-create rule is protecting against.
   Not urgent. It is a new capability, so it needs its own calibration and its own J8 checks.
+- **Diagnostic: a latching enum that lists a placeholder value.** `{type: "enum", values:
+  ["undecided", …], latching: true}` is always a trap — the extractor answers the placeholder on
+  the first read, it latches, and the gate that wanted a real value can never open. Found live
+  2026-09-20 in the Adolion campaign, where it silently froze both hubs at their lobby; five
+  qualities across two stories had it, and `parseStoryV2`, `runDiagnostics` and the
+  extraction-scope check all passed the story clean. Statically detectable: warn when a
+  `latching` enum's `values` contains a placeholder-shaped member (`undecided`, `none`,
+  `pending`, `unset`, `tbd`) and say that the unset state should be the absence of a value.
 - Anything bounced from this gate.
 
 ## Validation gate
