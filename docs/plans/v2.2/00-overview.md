@@ -249,10 +249,10 @@ because every judge usage ships off. It was worth its cost: v2.2 edited far more
 
 **Judge-on: J11 26/26 twice (second `--strict`), J8 6/6 twice.** Those are the journeys written for
 v2.2's features, so every usage is proven individually. At option-B scope (user decision) the
-ordinary journeys were also run judge-on: J3, J4 and J6 match their judge-off results; **J5.6 does
-not, and I could not attribute it** — recorded as F6 with both candidate explanations and the
-experiment that separates them. J5 is therefore not green judge-on, and that is the one v2.2 opt-in
-path unproven at composition level.
+ordinary journeys were also run judge-on: J3, J4, J6 and J5 all match their judge-off results. J5.6
+first failed judge-on twice and looked like a regression; it was a check defect (F6) — it drafted a
+member `cast_changes` had disabled, which injects an empty private block by design. With the check
+requiring an enabled roster member, J5 judge-on passes 6/6, twice.
 
 **Cost and latency: measured on 20 captured calls.** Zero fallbacks, 2.5 calls per boundary where
 any fired, `scene` sitting exactly on its 2500 ms budget at p90. The **on-path 1500 ms budget is

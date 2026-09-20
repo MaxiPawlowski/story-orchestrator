@@ -321,36 +321,27 @@ after a 2026-09-19 finding: they drive the review ring with `pick: "text-first"`
 `disable` — a check that named `rewrite` would have failed there for the wrong reason. Do not
 reintroduce a hard-coded op kind into these checks.
 
-### F6 — J5.6 fails with the judge on, and I could not attribute it
+### F6 — J5.6 drafted a member `cast_changes` had disabled (resolved: check defect, not a regression)
 
-**Status: open, unattributed. Do not read this as a confirmed regression.**
+**Status: fixed and verified.** It presented as a judge-on regression and was not one.
 
-J5.6 asserts that a drafted group member is injected their own private epistemic block. It passes
-with the judge off and fails with it on, twice, with `block: ""` both times — but naming a
-*different* subject each run (Ponticius, then Arin) while the entries themselves existed.
+J5.6 asserts that a drafted group member is injected their own private epistemic block. It passed
+judge-off and failed judge-on twice, with `block: ""` both times but naming a *different* subject
+each run (Ponticius, then Arin) while the entries themselves existed.
 
-Two candidates, and the evidence does not separate them:
+Cause: `stagedPrivate` is populated only for `enabledCharacterIds(story)`, and `onMemberDrafted`
+injects an empty epistemic block **by design** for a member that is not among them. The check chose
+its two subjects from whichever epistemic entries happened to have character cards and never
+asserted those subjects were *enabled* — while J5.2, earlier in the same journey, runs
+`cast_changes`, which disables members. Any run whose epistemic pass named a disabled member failed
+this way, which is why the subject moved and the empty block did not.
 
-- **(a) A judge-on product regression.** Something in the judge-on path leaves the private block
-  unbuilt at draft time.
-- **(b) A latent check defect exposed by model variance.** `stagedPrivate` is populated only for
-  `enabledCharacterIds(story)`, and `onMemberDrafted` injects an empty epistemic block by design for
-  a member that is not among them. The check chooses its two subjects from whichever epistemic
-  entries happen to have character cards and never asserts those subjects are *enabled* — while
-  J5.2, earlier in the same journey, runs `cast_changes`, which disables members. A run whose
-  epistemic pass named a disabled member would then fail exactly this way.
+Fixed by making the check require an enabled roster member (`getEnabledCharacterIds` +
+`rosterIdForName`) before drafting it. **J5 judge-on then passed 6/6, twice.**
 
-(b) is the better fit: the subject varied between the two failures but the empty block did not, and
-the product's behaviour for a non-enabled member is correct by design. That is a reason to suspect,
-not a reason to conclude.
-
-**What would settle it**, and was not done because the sample cost more than the answer was worth at
-this point in the gate: assert in the check that each chosen subject is an enabled roster member and
-re-run; if it then passes with the judge on, it is (b). If it still fails, it is (a) and wants a
-proper investigation.
-
-Until then J5 is **not** green in the judge-on configuration, and this is the one place where a
-v2.2 opt-in path is unproven at composition level.
+Worth keeping as a caution: the failure named shared code and changed behaviour with a v2.2 feature
+switch, which is exactly the shape of a real regression. The thing that distinguished it was that
+the *subject* varied while the symptom did not — a real product fault would not have moved.
 
 ## Recommended configuration
 
