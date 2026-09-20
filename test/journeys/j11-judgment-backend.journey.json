@@ -164,7 +164,12 @@
       ],
       "steps": [
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const enabled = document.querySelector('#so-judge-enabled'); const director = document.querySelector('#so-judge-use-director'); if (!enabled || !director) throw new Error('the judge settings rows are not mounted'); const toggle = (box) => (box.closest('label') ?? box).click(); if (!enabled.checked) toggle(enabled); await new Promise((resolve) => setTimeout(resolve, 400)); if (!director.checked) toggle(director); await new Promise((resolve) => setTimeout(resolve, 400)); const now = rt.getGlobalSettings().judge; if (!now.enabled || !now.uses.director) throw new Error('the settings rows did not turn the judge on: ' + JSON.stringify(now)); ctx.saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); return { enabled: now.enabled, director: now.uses.director };",
+          "ui": {
+            "action": "open-settings"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const shown = () => Boolean(document.querySelector('#rm_extensions_block')?.offsetParent); if (!shown()) throw new Error('the extensions panel is not open'); const enabled = document.querySelector('#so-judge-enabled'); const director = document.querySelector('#so-judge-use-director'); if (!enabled || !director) throw new Error('the judge settings rows are not mounted'); const toggle = (box) => (box.closest('label') ?? box).click(); if (!enabled.checked) toggle(enabled); await new Promise((resolve) => setTimeout(resolve, 400)); if (!director.checked) toggle(director); await new Promise((resolve) => setTimeout(resolve, 400)); const now = rt.getGlobalSettings().judge; if (!now.enabled || !now.uses.director) throw new Error('the settings rows did not turn the judge on: ' + JSON.stringify(now)); ctx.saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); return { enabled: now.enabled, director: now.uses.director };",
           "log": true
         },
         {
