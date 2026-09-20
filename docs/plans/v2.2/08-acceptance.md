@@ -221,6 +221,60 @@ The same table shape as v2.1's `00-overview.md`: id, finding, fixed in, evidence
   (anchors reached, convergence honoured, gates fired) and pass on garbled prose. It does hit the
   human-eval player rubric, which asks whether the story reads well — score that on a story without
   the overlay, or after this is fixed.
+- **J9.1 is a false red waiting to happen: a single model sample asserted with no retry.** Four
+  consecutive J9 runs on one build (Artemis 31B, llama.cpp b11046 `60081bb2b`, pod `llm-pod-4500`,
+  2026-09-20): FAIL, FAIL, PASS, PASS, no code change between them. Both failures are the
+  post-interview proposal tripping the same validator, at a different quality index each time —
+  `qualities.2.criteria` then `qualities.0.criteria`, "a rating needs criteria.levels or a rubric
+  that reads \"from N (low) to M (high)\"". Records: `.debug/2026-09-20T06-43-05-081Z_journey-J9.json`
+  and `…06-48-45-952Z…` (fail) against the two from ~06:56 and ~07:00 (pass). Decide where the
+  defect is before patching the check: the validator may be stricter than the schema needs (accept
+  or normalize a plain rubric), or the contract may never show a rating quality's `criteria` shape.
+  Only if both are correct does the check get a bounded retry in the style of the curator's
+  `stagecraft: {expectOps, attempts}`. Tracked as `task_a81b7141`.
+- **The "run a journey twice" rule does not cover single-sample model assertions.** It was written
+  for state bugs that need a second run to appear (v2.1 plan 08). It does nothing for a check that
+  samples the model once: at the ~50% failure rate measured above, running twice still reds an
+  acceptance run about three times in four. Audit the journeys for checks that assert one model
+  output with no retry and give that class the retry verb, rather than raising the run count.
+- **Audit the debug tooling for "absence" read as "nothing" instead of "unknown".** Fixed in
+  `so-assets.mts` on 2026-09-20, but the shape is generic and the blast radius was real: a J11 run
+  whose baseline was captured while the settings root was cleared classified every *foreign* wizard
+  session's ledger as "recorded during this run", spared nothing for having existed before, rebuilt
+  `wizardSessions` from that emptiness, and reported `clean:true` while deleting another session's
+  character card (with its chats) and lorebook. `!recordedBefore.get(key)?.has(name)` is `!undefined`
+  → `true`, so the empty baseline did not merely fail to protect, it promoted foreign assets into
+  scope. Same question worth asking of `libraryBefore` in `so-journey.mts`, the sandbox guard's
+  recorded chat ids, and the config snapshot: each treats an empty capture as authoritative.
+- **A journey that dies before its restore leaves the config cleared, and that is self-perpetuating.**
+  The next run snapshots the emptiness and writes it back, and `extraction.profileId` stays `null`,
+  so a later real-LLM gate runs with no profile and nobody notices (observed 2026-09-20; the null
+  survived until it was set by hand). `restoreGlobalConfig` now refuses to write an empty snapshot
+  over a populated config, but nothing yet *heals* a config a crashed run cleared. Candidate: on
+  setup, if `.debug/so-journey-config-snapshot.json` is newer than the live root and the live root
+  is empty, offer or apply the recovery instead of leaving it to `restore-config` being remembered.
+- **Standalone `so-assets remove` still trusts a marker-keyed session's whole ledger.** Without a
+  baseline there is nothing to prove an asset predates the run, so a leftover test session whose
+  ledger names an asset a human later recreated under the same name would delete it. It is the
+  operator path for cleaning up after a crashed run, so it cannot simply drop the ledger; the fix is
+  to make the archived `.debug/so-journey-asset-baseline.json` usable from the CLI (`--baseline`) and
+  to prefer it when present.
+- **Test-asset cleanup has three known gaps.** `so-assets.mts` leaves the client `worldInfoCache`
+  stale after deleting a book, and never removes test regex scripts or QR sets. Pre-per-chat mirror
+  books (`Story Orchestrator - <title>`, no chat-id suffix) are deliberately out of scope of the
+  per-chat sweep and therefore accumulate — `Story Orchestrator - SO-J9 Courier Run` and
+  `… - SO-J8 Stagecraft` are still on this install. A wizard journey also leaves its own wizard
+  session behind whenever the draft it drove was not marker-named (`untitled-story`, 2026-09-20);
+  naming the journey's draft with the marker would make its session key deterministic and remove the
+  cleanup's reliance on the baseline delta to find it.
+- **ST's chat-integrity popup is dismissed as if it were routine.** `applySetup` clicks
+  `.popup-button-ok` on any open dialog, which for "Chat integrity check failed while saving the
+  file" is the safe branch (it reloads, and only the typed word OVERWRITE would overwrite) — but it
+  is also a signal that something else wrote that chat file, which on this shared install is the
+  collision that costs a run. It blocked a J9 setup on 2026-09-20 (`/newchat` timed out, the sandbox
+  guard then refused a chat it had not created). Recognise that popup by text, and fail the run with
+  it named rather than clicking through it.
+- Anything bounced from this gate.
 - Anything bounced from this gate.
 
 ## Validation gate

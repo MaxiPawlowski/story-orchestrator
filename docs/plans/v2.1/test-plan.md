@@ -243,10 +243,23 @@ model that drifted off the prescribed name. A test session is one keyed by the s
 (`so-j9-wizard`), or, via the baseline the runner takes before setup (`snapshotAssets`), any entry
 recorded during this run. A real author's wizard sessions are never read, their assets never
 deleted, their resume state never cleared; an asset that existed before the run is spared even when
-a test ledger names it (`protected` in the record), and only the test sessions are dropped.
+a test ledger names it (`protected` in the record), and only this run's own sessions are dropped —
+marker-keyed, or one whose ledger entry was actually deleted.
 `cleanup.removeCreatedAssets` runs in the runner's `finally`, so a failed check still cleans up,
 and it re-lists afterwards against the pre-removal ledger: anything left is reported as a leak and
 fails the run.
+
+**An empty baseline is "unknown", never "nothing"** (2026-09-20). A baseline captured while the
+settings root was cleared classified every *foreign* wizard session's ledger as "recorded during
+this run", spared nothing for having existed before, and rebuilt `wizardSessions` from that
+emptiness — a J11 run deleted another session's character card and lorebook and wiped its wizard
+session while reporting `clean:true`. `snapshotAssets` now returns `{trusted, untrusted[]}` and
+`baselineTrust` re-checks the inventory, so an untrusted (or empty-but-trusted-looking) baseline is
+ignored and cleanup falls back to marker-only scope, reporting `baselineUntrusted`. The baseline is
+archived at `.debug/so-journey-asset-baseline.json` so a bad cleanup is provable from the artifact.
+`restoreGlobalConfig` also refuses to write an empty snapshot over a populated config: that clear is
+self-perpetuating (every later run snapshots the emptiness) and it silently nulls
+`extraction.profileId`, which is what turns the next real-LLM gate into a no-profile run.
 
 ```bash
 node scripts/debug/so-assets.mts assert-clean --marker SO-J9

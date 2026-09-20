@@ -10,18 +10,45 @@ export const DEFAULT_MARKER = 'SO-J9';
 
 // What the install held before a run: the wizard sessions (with their ledgers) and every asset by
 // identity. It is what lets cleanup tell what this run created from what the user already had.
+//
+// An EMPTY baseline is not "the install had nothing", it is "we do not know", and the two are
+// indistinguishable downstream — which is how a J11 run deleted another session's character card and
+// lorebook and wiped its wizard session while reporting clean:true (2026-09-20). A baseline is
+// therefore trusted only when the settings root exists and ST has finished loading its lists; an
+// untrusted one is ignored entirely rather than believed, falling back to marker-only scope.
 export async function snapshotAssets(page) {
   return evaluateInST(page, () => {
     const ctx = SillyTavern.getContext();
-    const sessions = ctx.extensionSettings?.['story-orchestrator']?.wizardSessions;
+    const root = ctx.extensionSettings?.['story-orchestrator'];
+    const sessions = root?.wizardSessions;
+    const characters = (ctx.characters ?? []).map((entry) => entry?.avatar).filter((avatar) => typeof avatar === 'string');
+    const lorebooks = (ctx.getWorldInfoNames?.() ?? []) as string[];
+    const untrusted: string[] = [];
+    if (!root) untrusted.push('the story-orchestrator settings root is absent (cleared config?)');
+    if (!characters.length) untrusted.push('ST lists no characters yet (page still loading?)');
+    if (!lorebooks.length) untrusted.push('ST lists no lorebooks yet (page still loading?)');
     return {
       takenAt: new Date().toISOString(),
+      trusted: untrusted.length === 0,
+      untrusted,
       sessions: Array.isArray(sessions) ? JSON.parse(JSON.stringify(sessions)) : [],
-      characters: (ctx.characters ?? []).map((entry) => entry?.avatar).filter((avatar) => typeof avatar === 'string'),
+      characters,
       groups: (ctx.groups ?? []).map((entry) => entry?.id).filter((id) => id !== undefined && id !== null).map(String),
-      lorebooks: (ctx.getWorldInfoNames?.() ?? []) as string[],
+      lorebooks,
     };
   });
+}
+
+// A baseline we cannot trust is worse than none: every foreign session's ledger would read as
+// "recorded during this run" and nothing would be spared for having existed before. The flag alone
+// is not enough — a baseline read from an older file, or minted before this check existed, can claim
+// trust while carrying an empty inventory, so the contents are re-checked here too.
+function baselineTrust(baseline) {
+  if (!baseline) return { usable: null, reasons: [] };
+  const reasons = [...(baseline.trusted === false ? baseline.untrusted ?? ['baseline marked untrusted'] : [])];
+  if (!(Array.isArray(baseline.characters) && baseline.characters.length)) reasons.push('baseline lists no characters — an empty inventory is unknown, not empty');
+  if (!(Array.isArray(baseline.lorebooks) && baseline.lorebooks.length)) reasons.push('baseline lists no lorebooks — an empty inventory is unknown, not empty');
+  return { usable: reasons.length ? null : baseline, reasons };
 }
 
 function requireMarker(marker: string) {
@@ -36,7 +63,8 @@ function requireMarker(marker: string) {
 // never read, and with a baseline an asset that already existed is never in scope by ledger alone.
 // `ledger` pins the scope: the post-removal leak check must still see the names it just pruned.
 export async function listMarkedAssets(page, marker = DEFAULT_MARKER, { baseline = null, ledger = null } = {}) {
-  return evaluateInST(page, ({ marker, baseline, pinned }) => {
+  const { usable, reasons } = baselineTrust(baseline);
+  const found = await evaluateInST(page, ({ marker, baseline, pinned }) => {
     const lower = (value: unknown) => String(value).trim().toLowerCase();
     const needle = lower(marker);
     const sessionNeedle = needle.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -49,6 +77,9 @@ export async function listMarkedAssets(page, marker = DEFAULT_MARKER, { baseline
     const recordedBefore = new Map<string, Set<string>>((baseline?.sessions ?? []).map((session) => [session?.key, new Set(assetNames(session).map(lower))]));
     const scoped: { name: string; session: string; reason: string }[] = pinned ?? sessions.flatMap((session) => {
       if (testSession(session?.key)) return assetNames(session).map((name) => ({ name, session: session.key, reason: 'test-session' }));
+      // Reached only with a baseline we trust (an untrusted one is dropped before we get here): an
+      // entry counts when that session did not already record it, and `inScope` still spares any
+      // asset that existed before the run, so both halves must agree before anything is deleted.
       if (!baseline) return [];
       return assetNames(session)
         .filter((name) => !recordedBefore.get(session?.key)?.has(lower(name)))
@@ -84,10 +115,13 @@ export async function listMarkedAssets(page, marker = DEFAULT_MARKER, { baseline
       lorebooks: wi.filter((name) => inScope('lorebook', name, lower(name)) || lower(name).startsWith(`story orchestrator - ${needle}`)),
       protected: spared,
     };
-  }, { marker: requireMarker(marker), baseline, pinned: ledger });
+  }, { marker: requireMarker(marker), baseline: usable, pinned: ledger });
+  return baseline && !usable ? { ...found, baselineUntrusted: reasons } : found;
 }
 
 export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseline = null } = {}) {
+  const { usable, reasons } = baselineTrust(baseline);
+  if (baseline && !usable) console.log(`Asset baseline untrusted, falling back to marker-only scope: ${reasons.join('; ')}`);
   const found = await listMarkedAssets(page, marker, { baseline });
   const removed = await evaluateInST(page, async ({ targets, baseline }) => {
     const ctx = SillyTavern.getContext();
@@ -125,20 +159,24 @@ export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseli
         ctx.saveSettingsDebounced?.();
       }
     }
-    // Only test sessions go, so a real author keeps their resume state. With a baseline the sessions
-    // return to exactly what the run found (undoing anything the run touched) minus the marker's.
+    // Only this run's own sessions go, so a real author keeps their resume state — and so does a
+    // peer who started a wizard while the run was in flight. That is the marker's sessions, plus any
+    // session whose ledger entry we actually deleted (which is what makes it this run's). The live
+    // list is the source: rebuilding it from a baseline deletes every session the baseline missed.
     const root = ctx.extensionSettings?.['story-orchestrator'];
     if (root && Array.isArray(root.wizardSessions)) {
       const sessionNeedle = String(targets.marker).trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-      const source = baseline ? baseline.sessions : root.wizardSessions;
-      const kept = source.filter((session) => !(typeof session?.key === 'string' && session.key.startsWith(sessionNeedle)));
-      const keptKeys = kept.map((session) => session.key);
+      const deleted = new Set([...report.characters, ...report.groups, ...report.lorebooks].map((name) => String(name).trim().toLowerCase()));
+      const owned = new Set((targets.ledger ?? []).filter((entry) => deleted.has(String(entry?.name).trim().toLowerCase())).map((entry) => entry?.session));
+      const isTestKey = (key: unknown) => typeof key === 'string' && sessionNeedle !== '' && key.startsWith(sessionNeedle);
+      const kept = root.wizardSessions.filter((session) => !isTestKey(session?.key) && !owned.has(session?.key));
+      const keptKeys = kept.map((session) => session?.key);
       report.sessions = { kept: keptKeys, dropped: root.wizardSessions.map((session) => session?.key).filter((key) => !keptKeys.includes(key)) };
       root.wizardSessions = kept;
       ctx.saveSettingsDebounced?.();
     }
     return report;
-  }, { targets: found, baseline });
+  }, { targets: found, baseline: usable });
   const leaked = await listMarkedAssets(page, marker, { baseline, ledger: found.ledger });
   const leakCount = leaked.characters.length + leaked.groups.length + leaked.lorebooks.length;
   return { marker, found, removed, leaked, clean: leakCount === 0 };

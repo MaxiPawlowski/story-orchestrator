@@ -112,7 +112,9 @@ node scripts/debug/so-assets.mts remove --marker SO-J9        # delete + leak re
 node scripts/debug/so-assets.mts assert-clean --marker SO-J9
 ```
 
-The scope is marker-prefixed names, plus the created-asset ledger (`wizardSessions[].applied`) of **test** sessions only, i.e. keys starting with the slugged marker (`so-j9-wizard`). A real author's wizard sessions and their assets are never read, deleted or cleared. A journey (`cleanup.removeCreatedAssets`, `assets` steps) also passes the `snapshotAssets` baseline it took before setup. That counts ledger entries recorded during the run in any session, spares assets that existed before (`protected`), and restores the sessions to what the run found, minus the test ones. `list` output: `ledger` (name, session, `test-session`/`this-run`), `sessions`, `protected`. An empty `--marker` is refused.
+The scope is marker-prefixed names, plus the created-asset ledger (`wizardSessions[].applied`) of **test** sessions only, i.e. keys starting with the slugged marker (`so-j9-wizard`). A real author's wizard sessions and their assets are never read, deleted or cleared. A journey (`cleanup.removeCreatedAssets`, `assets` steps) also passes the `snapshotAssets` baseline it took before setup. That counts ledger entries recorded during the run in any session, spares assets that existed before (`protected`), and drops only this run's own sessions. `list` output: `ledger` (name, session, `test-session`/`this-run`), `sessions`, `protected`, plus `baselineUntrusted` when a baseline was refused. An empty `--marker` is refused.
+
+**An empty baseline is "unknown", not "nothing".** `snapshotAssets` marks one untrusted when the settings root is absent or ST has not listed characters/lorebooks yet, and cleanup then falls back to marker-only scope. Before that guard existed, an empty baseline classified every foreign wizard session's ledger as `this-run` and deleted real user assets while reporting `clean:true`. Each run writes its baseline to `.debug/so-journey-asset-baseline.json` — read it first when cleanup deleted something it should not have.
 
 ### Payloads
 
