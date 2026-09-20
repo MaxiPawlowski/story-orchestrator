@@ -146,7 +146,7 @@ async function configureExtraction(page, setup) {
 }
 
 async function applySetup(page, setup, { allowConfig }) {
-  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; libraryBefore?: string[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
+  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; judge?: unknown; libraryBefore?: string[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
   if (setup.clearGlobalConfig && allowConfig) {
     applied.configSnapshot = await snapshotGlobalConfig(page);
     await writeGlobalConfig(page, null);
@@ -169,6 +169,20 @@ async function applySetup(page, setup, { allowConfig }) {
   // A group chat already open is the group we want; going via the welcome screen only risks
   // getting stuck there when a previous run died mid-journey.
   else if (!active?.groupId) await openMostRecentGroupChat(page);
+  // The judgment model is install-wide, so a journey that asserts "off by default" has to put it
+  // back to the shipped defaults first — otherwise an earlier session's opt-in leaks into the run.
+  if (setup.resetJudge) {
+    applied.judge = await evaluateInST(page, () => {
+      const root = SillyTavern.getContext().extensionSettings['story-orchestrator'];
+      const judge = root?.settings?.judge;
+      if (!judge) return null;
+      const uses = Object.fromEntries(Object.keys(judge.uses ?? {}).map((key) => [key, false]));
+      root.settings.judge = { ...judge, enabled: false, timeoutMs: 1500, uses, expansion: { variants: 1, temperature: 0.7, pick: 'code' } };
+      globalThis.storyOrchestratorJudge?.invalidateStatus?.();
+      SillyTavern.getContext().saveSettingsDebounced();
+      return { enabled: false, uses: Object.keys(uses).length };
+    }).catch(() => null);
+  }
   if (setup.newChat !== false) {
     // A chat deleted by the previous run can leave ST mid-transition; one retry settles it.
     const session = await beginSandboxSession(page).catch(async (error) => {
@@ -276,7 +290,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
   const reserved = (journey.status ?? 'active') === 'reserved';
   const results = [];
   const importedHashes = [];
-  let setupApplied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; libraryBefore?: string[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
+  let setupApplied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; judge?: unknown; libraryBefore?: string[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
   let runnerError = null;
   let assetBaseline = null;
   const capabilities = capabilityProbe(page, journey.capabilities);

@@ -5,7 +5,8 @@
   "setup": {
     "newChat": true,
     "resetChatState": true,
-    "snapshotGlobalConfig": true
+    "snapshotGlobalConfig": true,
+    "resetJudge": true
   },
   "cleanup": {
     "restoreConfig": true,
@@ -818,7 +819,7 @@
       ],
       "steps": [
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; rt.setExtractionSettings({ enabled: true, cadence: 50, reconciliationMultiplier: 1.5 }); const root = ctx.extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, false])), lookahead: true, expansionLookahead: true, expansionCritic: true }, expansion: { variants: 2, temperature: 0.7, pick: 'code' } }; globalThis.storyOrchestratorJudge.invalidateStatus(); return root.settings.judge;"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; rt.setExtractionSettings({ enabled: true, cadence: 50, reconciliationMultiplier: 1.5 }); const root = ctx.extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, false])), sceneTrigger: true, sceneTracker: true, lookahead: true, expansionLookahead: true, expansionCritic: true }, expansion: { variants: 2, temperature: 0.7, pick: 'code' } }; globalThis.storyOrchestratorJudge.invalidateStatus(); return root.settings.judge;"
         },
         {
           "import_story": {
