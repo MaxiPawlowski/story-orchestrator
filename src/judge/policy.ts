@@ -12,6 +12,8 @@ export const VERIFY_DROP_BELOW = 0.2;
 export const VERIFY_DOWNWEIGHT_BELOW = 0.5;
 export const VERIFY_MAX_LINES_PER_CALL = 64;
 export const PAIR_MIN_CONFIDENCE = 0.6;
+export const PAIR_TIMEOUT_MS = 3000;
+export const VERIFY_TIMEOUT_MS = 3000;
 export const PAIR_SAME_THING_BELOW = 0.5;
 export const PAIR_MAX_PER_PASS = 32;
 export const PAIR_CONCURRENCY = 8;
@@ -30,6 +32,7 @@ export const LORE_CHUNK = 64;
 export const LORE_CONTENT_CHARS = 600;
 export const LORE_TIMEOUT_MS = 1500;
 
+export const CURATOR_FILTER_TIMEOUT_MS = 4000;
 export const CURATOR_FILTER_P = 0.2;
 export const CURATOR_FILTER_MIN_ENTRIES = 12;
 
@@ -42,6 +45,7 @@ export const BACKGROUND_MAX_OPTIONS = 254;
 
 export const EXTRACTION_CONFIDENCE = 0.8;
 export const EXTRACTION_LATCHING_BUMP = 0.1;
+export const STALL_TIMEOUT_MS = 4000;
 export const STALL_DIRECT_P = 0.95;
 export const STALL_GENUINE_P = 0.1;
 // Raised from 2500 on live evidence (2026-09-19): a real boundary read timed out and fell back,

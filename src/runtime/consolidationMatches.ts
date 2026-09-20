@@ -1,5 +1,5 @@
 import { buildJaccardMatchSets, candidatePairs, DEFAULT_DEDUP_THRESHOLDS, type DedupThresholds, type MatchSets, type MemoryEntry, type RelationLookup } from "@memory/index";
-import { buildPairRequest, pairDecision, PAIR_CONCURRENCY, PAIR_MAX_PER_PASS, readPair, type JudgePairRelation } from "@judge/index";
+import { buildPairRequest, pairDecision, PAIR_CONCURRENCY, PAIR_MAX_PER_PASS, PAIR_TIMEOUT_MS, readPair, type JudgePairRelation } from "@judge/index";
 import { DEFAULT_VECTOR_SOURCE, vectorInsert, vectorPurge, vectorQuery } from "@services/STAPI";
 import type { JudgeRuntime } from "./judge";
 
@@ -50,6 +50,7 @@ export async function judgePairRelations(judge: JudgeRuntime, group: MemoryEntry
   for (let start = 0; start < pairs.length; start += PAIR_CONCURRENCY) {
     await Promise.all(pairs.slice(start, start + PAIR_CONCURRENCY).map(async (pair) => {
       const result = await judge.ask("memoryPairs", buildPairRequest(pair.older.text, pair.newer.text), {
+        timeoutMs: PAIR_TIMEOUT_MS,
         summarize: (answers): Record<string, number | string> => {
           const read = answers ? readPair(answers) : null;
           return read ? { relation: read.relation, confidence: read.confidence } : {};

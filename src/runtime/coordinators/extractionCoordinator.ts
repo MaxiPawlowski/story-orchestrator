@@ -8,7 +8,7 @@ import type { MemoryCoordinator } from "./memoryCoordinator";
 import { JUDGED_READ_LIMIT, type ExtractionRuntimeSettings, type ExtractionRuntimeState, type JudgedReadRecord, type VerifyDrop } from "../types";
 import { createTypedJudge } from "../typedRead";
 import type { JudgeRuntime } from "../judge";
-import { buildStallRequest, buildVerifyRequest, readVerify, stallVerdict, verifyVerdict, VERIFY_MAX_LINES_PER_CALL } from "@judge/index";
+import { buildStallRequest, buildVerifyRequest, readVerify, stallVerdict, STALL_TIMEOUT_MS, verifyVerdict, VERIFY_MAX_LINES_PER_CALL, VERIFY_TIMEOUT_MS } from "@judge/index";
 
 export const TYPED_READ_WINDOW = 3;
 
@@ -125,7 +125,7 @@ export class ExtractionCoordinator {
     const judge = this.deps.judge?.() ?? null;
     if (!judge) return true;
     const window = plan.window.messages.map((message) => ({ id: message.index, speaker: message.speaker, text: message.text }));
-    const result = await judge.ask("stall", buildStallRequest(plan.leaves, window), { summarize: (answers) => Object.fromEntries(plan.leaves.map((leaf, index) => [`${leaf.q}${leaf.op}${JSON.stringify(leaf.v)}`, (answers?.[`leaf:${index}`] as { noul?: number } | undefined)?.noul ?? "none"])) });
+    const result = await judge.ask("stall", buildStallRequest(plan.leaves, window), { timeoutMs: STALL_TIMEOUT_MS, summarize: (answers) => Object.fromEntries(plan.leaves.map((leaf, index) => [`${leaf.q}${leaf.op}${JSON.stringify(leaf.v)}`, (answers?.[`leaf:${index}`] as { noul?: number } | undefined)?.noul ?? "none"])) });
     const verdict = stallVerdict(result.answers, plan.leaves);
     const record = { at: new Date().toISOString(), boundary: plan.descriptor.boundary, kind: "stall" as const, window: { from: plan.window.from, to: plan.window.to }, answered: plan.leaves.map((leaf) => leaf.q), model: result.model, ...(result.fallback ? { fallback: result.fallback } : {}) };
     if (verdict.kind === "direct") {
@@ -187,6 +187,7 @@ export class ExtractionCoordinator {
     for (let start = 0; start < entries.length; start += VERIFY_MAX_LINES_PER_CALL) {
       const chunk = entries.slice(start, start + VERIFY_MAX_LINES_PER_CALL);
       const result = await judge.ask("memoryVerify", buildVerifyRequest({ storyTitle: story.title, cast, transcript, lines: chunk.map((entry) => entry.text) }), {
+        timeoutMs: VERIFY_TIMEOUT_MS,
         summarize: (answers) => Object.fromEntries(readVerify(answers ?? {}, chunk.length).map((p, index) => [`line:${index}`, p ?? "none"])),
       });
       const scores = result.answers ? readVerify(result.answers, chunk.length) : chunk.map(() => null);

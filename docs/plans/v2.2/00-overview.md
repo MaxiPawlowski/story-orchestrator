@@ -231,6 +231,14 @@ Never: character cards, persona text, other chats, the API key (server-side only
 | Spike §Unresolved: floors, hint authored vs inferred | 06 (`read_as`, authored) |
 | v2.1 seed list: remaining curators | 05 (two of four); cast tuning and recap narrator stay seeds |
 
+## Latency budgets (revised on live evidence, 2026-09-19)
+
+The reply path keeps the tight default (1500 ms: director, lore-select) — a fallback there is the
+point. **Every off-path use now has its own budget**, because a timeout there costs a feature and
+buys no responsiveness: typed 5000, stall 4000, warden 4000, curator focus 4000, scene 2500,
+critic 2500, memory pairs 3000, memory verify 3000. Live runs produced real timeouts at 1500–2500
+(J11.20 typed, J11.23 stall) against calibration p50s of 1684 and 1263 ms.
+
 ## Resolved decisions (user, 2026-09-19)
 
 - **`enableServerPlugins: true`: approved.** It is ST-wide and needs an ST restart. Plan 01 flips

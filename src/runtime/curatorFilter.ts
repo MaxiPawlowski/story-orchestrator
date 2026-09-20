@@ -1,4 +1,4 @@
-import { buildCuratorFilterRequest, curatorFilterKeep, CURATOR_FILTER_MIN_ENTRIES, noulAnswer } from "@judge/index";
+import { buildCuratorFilterRequest, curatorFilterKeep, CURATOR_FILTER_MIN_ENTRIES, CURATOR_FILTER_TIMEOUT_MS, noulAnswer } from "@judge/index";
 import type { CuratorEntryView } from "@stagecraft/index";
 import type { JudgeRuntime } from "./judge";
 
@@ -18,6 +18,7 @@ export const createCuratorFilter = (judge: () => JudgeRuntime | null): CuratorEn
   const items = entries.map((entry) => ({ title: entry.comment, content: entry.content, enabled: !entry.disabled }));
   const request = buildCuratorFilterRequest({ ...context, entries: items });
   const result = await runtime.ask("curatorFilter", request, {
+    timeoutMs: CURATOR_FILTER_TIMEOUT_MS,
     summarize: (answers) => {
       const keep = curatorFilterKeep(answers, items);
       return { entries: items.length, kept: keep.filter(Boolean).length, answered: answers ? items.filter((_, index) => noulAnswer(answers, `entry:${index}`) !== null).length : 0 };
