@@ -143,10 +143,7 @@ export class RuntimeManager {
     notify: () => this.notify(),
   });
 
-  subscribe(listener: () => void) {
-    this.listeners.add(listener);
-    return () => { this.listeners.delete(listener); };
-  }
+  subscribe(listener: () => void) { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; }
 
   notify() {
     if (this.journal.observeStatus(this.status, this.journalContext())) this.extras.journal = this.journal.getRecords();
@@ -170,25 +167,16 @@ export class RuntimeManager {
     this.notify();
   }
 
-  onBoundary(listener: (result: BoundaryResult) => void) {
-    this.boundaryListeners.add(listener);
-    return () => { this.boundaryListeners.delete(listener); };
-  }
+  onBoundary(listener: (result: BoundaryResult) => void) { this.boundaryListeners.add(listener); return () => { this.boundaryListeners.delete(listener); }; }
 
   onRollback(listener: (messageId: number, window: SharedReadWindow) => void) {
     this.rollbackListeners.add(listener);
     return () => { this.rollbackListeners.delete(listener); };
   }
 
-  onSceneBreakConfirmed(listener: (audit: SharedReadAudit) => void) {
-    this.sceneBreakListeners.add(listener);
-    return () => { this.sceneBreakListeners.delete(listener); };
-  }
+  onSceneBreakConfirmed(listener: (audit: SharedReadAudit) => void) { this.sceneBreakListeners.add(listener); return () => { this.sceneBreakListeners.delete(listener); }; }
 
-  onArcsResolvedConfirmed(listener: (arcIds: string[]) => void) {
-    this.arcResolvedListeners.add(listener);
-    return () => { this.arcResolvedListeners.delete(listener); };
-  }
+  onArcsResolvedConfirmed(listener: (arcIds: string[]) => void) { this.arcResolvedListeners.add(listener); return () => { this.arcResolvedListeners.delete(listener); }; }
 
   private readonly selectionDeps: StorySelectionDeps = {
     loadStory: (loaded, mode, persisted) => this.loadStory(loaded, mode, persisted ?? null),
@@ -290,9 +278,17 @@ export class RuntimeManager {
     this.notify();
   }
 
+  // A read keyed to a message dies with that message even when the engine has nothing to roll back
+  // — a deleted reply no boundary fired on still leaves a scene read describing it (live gate 2026-09-19).
+  private async dropReadsAfter(messageId: number) {
+    const before = this.extras.judge.scene;
+    this.extras.judge = dropJudgeCallsAfter(this.extras.judge, messageId);
+    if (before !== this.extras.judge.scene) { await this.persist(); this.notify(); }
+  }
+
   async rollbackFromMessage(messageId: number) {
     if (!this.loaded) return;
-    if (!this.engine.shouldRollbackFromMessage(messageId)) return;
+    if (!this.engine.shouldRollbackFromMessage(messageId)) { await this.dropReadsAfter(messageId); return; }
     const boundary = this.engine.boundaryBeforeMessage(messageId);
     const changed = this.engine.rollbackTo(boundary);
     if (changed) {
