@@ -109,6 +109,80 @@ boundaries is the baseline to compare against.
 story), rubrics in `08-acceptance.md`. The carried-over v2.1 rubrics (J8.4, J9.6, J9.7) share these
 sessions.
 
+## Findings register
+
+Findings raised by the acceptance work, each with a disposition. A finding stays open until it is
+fixed, bounced to v2.3, or argued as by-design with a reason.
+
+### F1 — the wizard's rating rubric fails validation intermittently, and the single repair pass does not save it
+
+**Status: open, mine to fix (acceptance-found).** Found by the peer session's J9 runs on 2026-09-20,
+handed over rather than fixed there because it is out of scope for the cleanup-scoping work.
+
+J9.1 validates the wizard's post-interview proposal from **one** sample. The proposal failed twice
+with `qualities.N.criteria: a rating needs criteria.levels or a rubric that reads "from N (low) to
+M (high)"` (quality index 2, then 0), then passed twice on the same binary, pod and preset. So it is
+intermittent model output meeting a strict validator, not a regression.
+
+Two things make it worse than a flaky test:
+
+- `runAuthoringStage` (`src/copilot/authoring.ts`) allows exactly **one** repair pass. The failures
+  above are *post-repair*, so the model misses the required shape twice in a row. A real author
+  driving the wizard hits the same wall and just sees a failed proposal.
+- `ratingLevels` (`src/engine/qualityRead.ts`) accepts only `criteria.levels` (≥2) or a rubric
+  matching `/from\s+(-?\d+)\s*\(([^)]+)\)\s*to\s+(-?\d+)\s*\(([^)]+)\)/i`. That regex
+  requires the literal word "from" and parenthesised labels at both ends, so near-misses like
+  "1 (low) to 5 (high)" or "from 1 (lowest) through 5 (highest)" are rejected.
+
+The repair prompt names the requirement but never shows the shape to emit, which is the likely
+reason a second sample misses it the same way.
+
+Candidate fix, in preference order — none applied yet, because this is queued behind the J11/J8
+live gates:
+1. Put a literal example in the failure message the repair prompt carries
+   (`rubric: "from 1 (barely) to 5 (completely)"`). Cheapest, and it helps a human author too.
+2. A bounded retry in the journey's wizard step, mirroring the curator's `expectOps/attempts`, so
+   one bad sample is not a red.
+3. Only if 1 and 2 are not enough: widen `ratingLevels` to accept the common near-misses. Listed
+   last deliberately — loosening a validator to absorb model noise trades a visible failure for a
+   silent bad rating scale.
+
+This is not counted against the matrix until it is fixed: any acceptance run of J9 currently has a
+coin-flip chance of a false red on J9.1.
+
+### F2 — the runtime's in-memory settings view can disagree with stored settings
+
+**Status: open, unverified — do not act on this without reproducing it properly.**
+
+After a page reload on a chat with **no story loaded**, `getSnapshot().extraction.settings.profileId`
+reads `null` and `pipeline` reads `not-configured`, while both `getGlobalSettings()` and the raw
+`extensionSettings` hold the correct profile. Calling any setter (`setExtractionSettings`) heals it
+immediately (observed `null` → `c400ff9a…`, pipeline `not-configured` → `idle`).
+
+`getGlobalSettings()` also **writes its sanitized result back** into `extensionSettings`, so an early
+call can in principle stamp defaults over real settings before ST has loaded them
+(`src/runtime/settingsStore.ts`). ST emits `EXTENSION_SETTINGS_LOADED` (`public/script.js:8025`)
+right after `loadExtensionSettings`, which is the seam a fix would hang off.
+
+**Why this is not yet called a bug:** the only reproduction is on a storyless chat, where `extras` is
+initial state and nothing reads it. `hydrateExtras` re-applies global settings on `loadStory`, so a
+chat that actually plays a story may never be affected. One attempt to test that was inconclusive
+because the story import silently failed. It was originally mistaken for the cause of the J11.15 /
+J11.21 failures, which turned out to be the `--only` coupling below.
+
+### F3 — most J11 checks do not import their own story
+
+**Status: open, by-design for full runs, a trap for single-check debugging.**
+
+17 of 26 J11 checks have no `import_story` step and inherit the story from an earlier check. A full
+run is therefore fine, but `--only` gives each check a fresh chat, so a single-check run of one of
+those 17 seeds nothing and fails with an empty-scope symptom (`audits: 0`) that looks like a product
+fault. This cost real time on 2026-09-20 when J11.15 and J11.21 were tested with `--only`.
+
+The v2.1 J9 finding already warned about this class, and five J11 checks (J11.6/9/10/11/14) plus
+J8.5/6/9 were made self-contained for exactly this reason; the rest were not. Either finish the job
+or make the runner say plainly that a story-less check was run in isolation.
+
 ## Recommended configuration
 
 **Pending the matrix and the cost report.** No default changes: every judge usage stays opt-in
