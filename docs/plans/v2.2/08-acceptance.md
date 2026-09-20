@@ -124,6 +124,20 @@ The same table shape as v2.1's `00-overview.md`: id, finding, fixed in, evidence
 - Canon regeneration drafts.
 - Two-hop look-ahead.
 - Per-quality floors.
+- **Lore-select should rank with a Score, not a Noul** (raised 2026-09-20, data in
+  `acceptance-report.md` F4). `buildLoreRequests` asks one Noul per entry, then `pickLore` filters
+  at `LORE_MIN_P` 0.6 and **sorts by that probability** for the top-4. A Noul is calibrated as the
+  probability a condition holds, not as relevance magnitude, so it is the wrong key to order by.
+  The recorded calibration shows why: 72 of 77 probabilities sit inside 0.60-0.90, none reach 0.90,
+  and they pile onto repeated values (ten at 0.76, ten at 0.82, eight at 0.85). The floor therefore
+  barely discriminates, top-K does nearly all the work, and ties fall through to `entry.uid` -
+  insertion order, which means nothing. The comment at `lore.ts:31` records the same problem being
+  patched once already by rewording the binary criteria after a world-overview entry "took a top-k
+  slot each time".
+  Shape of the change: comparable per-item Scores over described relevance levels (TypeSafe's
+  graded-ranking guidance and its rerank cookbook), keeping a presence/eligibility Noul only if it
+  still earns its place. Deliberately **not** done in v2.2: it invalidates the lore calibration and
+  J11.16-J11.19, and lore is one of only two on-path uses, so it needs its own gate.
 - Anything bounced from this gate.
 
 ## Validation gate

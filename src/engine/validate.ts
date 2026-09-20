@@ -83,7 +83,7 @@ const readQualityRead = (value: Record<string, unknown>, type: Quality["type"], 
   if (source !== "extractor") addError(errors, `${path}.read_as`, "only extractor qualities can be read by the judge");
   if (!READ_AS_TYPES[readAs].includes(type)) addError(errors, `${path}.read_as`, `read_as ${readAs} does not fit a ${type} quality`);
   if (value.criteria === undefined) {
-    if (readAs === "rating" && !ratingLevels({ rubric })) addError(errors, `${path}.criteria`, "a rating needs criteria.levels or a rubric that reads \"from N (low) to M (high)\"");
+    if (readAs === "rating" && !ratingLevels({ rubric })) addError(errors, `${path}.criteria`, "a rating needs criteria.levels or a rubric that reads \"from N (low) to M (high)\", for example \"from 1 (barely) to 5 (completely)\"");
     return { read_as: readAs };
   }
   if (!isRecord(value.criteria)) {

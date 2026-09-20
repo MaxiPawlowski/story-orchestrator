@@ -77,25 +77,47 @@ verdict.
 
 ## Matrix
 
-**Not yet run.** Plan 08 requires J0–J11, `--strict`, twice each, in both configurations (judge off
-as the regression proof, judge on with every usage opted in), plus J7 once per configuration.
+**Partial.** Plan 08 requires J0–J11, `--strict`, twice each, in both configurations (judge off as
+the regression proof, judge on with every usage opted in), plus J7 once per configuration. One
+journey is done.
 
-What is measured so far, against the judge-on build:
+### J11 — judgment backend: GREEN
 
-- J11 (the judge journey) stands at **24 of 26 automated checks**, up from 19/26 at the first live
-  pass. J11.15 and J11.21 have been fixed but not yet re-run, so they are not counted as green.
-- J8 (stagecraft, including the continuity warden) has its three warden checks in place
-  (J8.5/J8.6/J8.9), each self-contained.
-- The warden is proven live end to end except the final prompt hop: judge flagged in 616 ms,
-  injection at depth 0, cleared at generation end, quiet and dry-run vetoes honoured.
+| run | strict | result |
+|---|---|---|
+| A | no | **26/26 pass** |
+| B | yes | **26/26 pass** |
 
-Three product bugs were found by the live gates and fixed, all committed:
+Two consecutive clean full runs, the second `--strict`, archived with logs under
+`test/journeys/records/v2.2-acceptance/`. J11 moved 19 → 21 → 22 → 24 → 26 across the session.
+
+Three defects in the checks themselves were fixed to get here (`053dd81`), and they are worth
+recording because two of them had been mistaken for product faults:
+
+- **J11.15 had never passed.** It seeded `location` with a value the story's enum does not declare,
+  so `setQuality` dropped it silently and the scene cursor was never seeded. A previous commit
+  claimed to fix this check and did not. It also inherited the previous check's cadence; at cadence
+  1 the cadence read masks the scene-triggered read entirely.
+- **J11.16** hit a hard-coded 15 s pre-send idle wait that the check's 300000 ms budget never
+  reached — invisible on the old 5090, fatal at ~33 tok/s on the replacement card.
+- **J11.23 / J11.25** failed once, then passed twice untouched: model-output variance. J11.23's
+  stall call answered at `max p 0.94` against a 0.95 floor. **No threshold was changed** — loosening
+  a calibrated floor to fit a single sample trades a real guard for a green tick.
+
+### Remaining
+
+J0–J10 in both configurations, J11 in the judge-off configuration, and J7 once per configuration.
+
+### Product bugs found by the live gates (all fixed and committed)
 
 1. A scene read keyed to a deleted message survived the delete when no boundary had fired on it
    (`dropReadsAfter`, `runtimeManager.ts`).
 2. Every off-path use inherited the 1500 ms reply-path budget and timed out; each now has its own
    (`judge/policy.ts`).
 3. A stall call that fell back recorded its leaves as answered when nothing had been.
+
+The warden is proven live end to end except the final prompt hop: judge flagged in 616 ms,
+injection at depth 0, cleared at generation end, quiet and dry-run vetoes honoured.
 
 ## Cost and latency
 
@@ -182,6 +204,49 @@ fault. This cost real time on 2026-09-20 when J11.15 and J11.21 were tested with
 The v2.1 J9 finding already warned about this class, and five J11 checks (J11.6/9/10/11/14) plus
 J8.5/6/9 were made self-contained for exactly this reason; the rest were not. Either finish the job
 or make the runner say plainly that a story-less check was run in isolation.
+
+### F4 — lore-select uses a Noul's probability as a ranking key
+
+**Status: bounced to v2.3** (seeded in `08-acceptance.md`). Raised 2026-09-20 while auditing whether
+each judge use asks the right primitive.
+
+All three primitives are in use — 16 Noul, 9 Choice, 2 Score — and most of the mapping is sound:
+a Score over authored levels paired with a separate `presence` Noul (`extraction.ts`), a Choice plus
+per-candidate Nouls composed in code (`director.ts`), a speculative "if it is a break, what kind"
+Choice asked alongside the break Noul (`scene.ts`), no-match outcomes on Choices (`SCENE_UNCLEAR`),
+and a pure keep/drop Noul where nothing is ordered (`curatorFilter.ts`).
+
+Lore-select is the exception. `buildLoreRequests` asks one Noul per entry; `pickLore` filters at
+`LORE_MIN_P` (0.6), **sorts by that probability**, and takes `LORE_TOP_K` (4). Ordering by a Noul
+treats "probability the condition holds" as if it were relevance magnitude.
+
+The recorded calibration (`test/goldens/judge/lore.calibration.json`, 77 rows) shows the cost:
+
+| band | rows |
+|---|--:|
+| p ≥ 0.90 | 0 |
+| 0.60 ≤ p < 0.90 | 72 |
+| p < 0.60 | 5 |
+
+Most common values: 0.76 (×10), 0.82 (×10), 0.85 (×8), 0.87 (×6).
+
+So the floor admits almost everything, top-K does nearly all the selection, and it selects on a
+compressed, heavily tied signal — ten entries tied at 0.82 are ordered by `entry.uid`, i.e. by
+insertion order. The model never expresses high confidence on this question at all, which suggests
+the binary framing ("does the next reply *need* these facts") forces uncertainty that a graded
+question would not.
+
+Corroboration in our own source: `lore.ts:31` records a world-overview entry rating "active" in
+every scene at 0.65–0.84 and taking a top-k slot each time, fixed by rewording the binary criteria —
+patching a ranking problem with better filter wording.
+
+Lore is also one of only two on-path uses and carries the weakest calibration pair in the table
+(recall 0.872, precision 0.895), so this is where the headroom is.
+
+**Why not now:** changing the primitive invalidates the lore calibration and J11.16–J11.19 in the
+middle of acceptance. v2.2 should measure and ship lore as it actually is. The human-eval rubric row
+"did lore you asked about show up?" is the symptom to watch, because a weak ranking shows up there
+before it shows up in precision/recall.
 
 ## Recommended configuration
 

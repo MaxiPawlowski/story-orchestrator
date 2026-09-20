@@ -99,7 +99,7 @@ describe("read_as validation (v2.2 plan 06)", () => {
     expect(errors({ type: "bool", read_as: "guess" })).toEqual(["qualities.0.read_as: read_as must be choice, stated or rating"]);
     expect(errors({ type: "bool", source: "code", read_as: "choice" })).toEqual(["qualities.0.read_as: only extractor qualities can be read by the judge"]);
     expect(errors({ type: "enum", values: ["a"], read_as: "choice", criteria: { b: "x" } })).toEqual(["qualities.0.criteria.b: 'b' is not one of the enum values"]);
-    expect(errors({ type: "int", read_as: "rating" })).toEqual(['qualities.0.criteria: a rating needs criteria.levels or a rubric that reads "from N (low) to M (high)"']);
+    expect(errors({ type: "int", read_as: "rating" })).toEqual(['qualities.0.criteria: a rating needs criteria.levels or a rubric that reads "from N (low) to M (high)", for example "from 1 (barely) to 5 (completely)"']);
     expect(errors({ type: "string", read_as: "stated", criteria: { a: "x" } })).toEqual(["qualities.0.criteria: a stated quality takes no criteria: its options are found in the text"]);
     expect(errors({ type: "bool", criteria: { true: "x" } })).toEqual(["qualities.0.criteria: criteria need a read_as hint"]);
   });
