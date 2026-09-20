@@ -109,7 +109,9 @@ export async function restoreGlobalConfig(page, file = CONFIG_SNAPSHOT) {
 
 // Capabilities answer "does this build have the feature at all?" and are probed lazily, right
 // before the first check that needs one: a check earlier in the journey may be what puts the
-// surface on screen. Missing capability => blocked, never a fake failure.
+// surface on screen. Missing capability => blocked, never a fake failure. A probe may be async
+// (a fetch), because a probe that reads a global set by an earlier check goes false the moment a
+// check reloads the page — which silently blocked five J11 checks (2026-09-19).
 function capabilityProbe(page, capabilities) {
   const cache = {};
   return {
@@ -117,9 +119,10 @@ function capabilityProbe(page, capabilities) {
     async has(id) {
       if (id in cache) return cache[id];
       const expression = (capabilities ?? {})[id];
-      cache[id] = expression === undefined ? false : await evaluateInST(page, (code) => {
+      cache[id] = expression === undefined ? false : await evaluateInST(page, async (code) => {
         try {
-          return Boolean(new Function(`return (${code});`)());
+          const value = new Function(`return (${code});`)();
+          return Boolean(value && typeof value.then === 'function' ? await value : value);
         } catch {
           return false;
         }
