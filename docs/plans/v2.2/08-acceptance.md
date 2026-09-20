@@ -179,6 +179,25 @@ The same table shape as v2.1's `00-overview.md`: id, finding, fixed in, evidence
   Shape of a fix: either scope the disable to the chat (mirror it in `chat_metadata` and re-apply on
   hydrate, leaving the group flag alone), or make it revertible the way the curator's writes are —
   record the pre-write state and restore it when the chat that set it is left or rolled back.
+- **The away-recap popup fires in a brand-new chat and describes the previous chat's state.**
+  Reproduced twice in two different groups (Adolion campaign, 2026-09-20): open a group whose last
+  chat is old and carries story state, `/newchat`, then send. The popup appears over the empty chat
+  announcing "away 18h" and a checkpoint name from the *previous* chat's story version, while the
+  open chat has zero messages and sits at a different checkpoint on a newer version.
+  `loadPersistedRuntime` reads `chat_metadata.story_orchestrator`, which is per-chat, so a new chat
+  should have none — the symptom therefore points at the blob being read before ST has swapped
+  `chat_metadata`, i.e. the same CHAT_CHANGED ordering family as the greetings bug fixed in v2.1
+  (`group-chats.js:300` vs `318`), not at the recap logic itself. If so, the wrong state is not
+  confined to the popup: the drawer would show the previous chat's checkpoint too, briefly.
+  Two things to fix, and they are separable: **(a)** refuse to hydrate a persisted blob that was not
+  written for the currently open chat — stamp it with its chat id and check it, which kills the whole
+  family rather than this symptom; **(b)** a new chat has no away-gap to report at all, so the recap
+  should not be reachable there whatever the hydrate does.
+  Also a test hazard, which is why it surfaced here: the popup renders as a `<dialog>` that
+  intercepts pointer events, so a scripted send retries against it and times out. Any journey whose
+  setup is "open group, newchat, send" is exposed, and the failure looks like a send timeout rather
+  than a popup. The runner now refuses to click through it by name (2026-09-20) instead of
+  dismissing it as routine.
 - Anything bounced from this gate.
 
 ## Validation gate

@@ -208,7 +208,7 @@ async function configureExtraction(page, setup) {
 }
 
 async function applySetup(page, setup, { allowConfig }) {
-  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; judge?: unknown; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[] }; libraryBefore?: string[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
+  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; judge?: unknown; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[] }; dialogs?: unknown; libraryBefore?: string[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
   if (setup.clearGlobalConfig && allowConfig) {
     applied.configSnapshot = await snapshotGlobalConfig(page);
     await writeGlobalConfig(page, null);
@@ -216,9 +216,24 @@ async function applySetup(page, setup, { allowConfig }) {
     applied.configSnapshot = await snapshotGlobalConfig(page);
   }
   await closeUnpinnedDrawers(page).catch(() => undefined);
-  // A modal left open by a previous run (e.g. the away recap) blocks every chat control.
-  await evaluateInST(page, () => {
+  // A modal left open by a previous run blocks every chat control — and, worse, it makes the
+  // navigation helpers fail SILENTLY: `open-group` times out and `openGroupById` returns without
+  // switching, reporting the old group with no error, so a run proceeds against the wrong group
+  // believing it moved (observed twice, 2026-09-20). Clicking through is not safe for every popup,
+  // so the ones that mean "something else wrote this chat" are named and refused instead.
+  applied.dialogs = await evaluateInST(page, () => {
+    const BLOCKING = [
+      { match: 'integrity check failed', why: 'ST refused a save because the chat file on disk disagrees with the page — another writer touched this chat. Clicking OK reloads (safe); typing OVERWRITE destroys whatever the file holds that the page does not.' },
+      { match: 'Welcome back', why: 'the away-recap popup. In a brand-new chat it describes the PREVIOUS chat\'s state and intercepts pointer events, so a scripted send retries against it and times out.' },
+    ];
     const dialogs = Array.from(document.querySelectorAll('dialog[open]'));
+    const text = (node: Element) => (node.textContent || '').replace(/\s+/g, ' ').trim();
+    const blocking = dialogs
+      .map((dialog) => ({ dialog, hit: BLOCKING.find((entry) => text(dialog).includes(entry.match)) }))
+      .filter((entry) => entry.hit);
+    if (blocking.length) {
+      return { refused: blocking.map((entry) => ({ why: entry.hit!.why, text: text(entry.dialog).slice(0, 200) })) };
+    }
     for (const dialog of dialogs) {
       const ok = dialog.querySelector('.popup-button-ok') as HTMLElement | null;
       if (ok) ok.click();
@@ -226,6 +241,10 @@ async function applySetup(page, setup, { allowConfig }) {
     }
     return { dismissed: dialogs.length };
   }).catch(() => undefined);
+  const refused = (applied.dialogs as { refused?: Array<{ why: string; text: string }> } | undefined)?.refused;
+  if (refused?.length) {
+    throw new Error(`a blocking dialog is open and setup will not click through it — ${refused.map((entry) => `${entry.why} [${entry.text}]`).join(' | ')}`);
+  }
   const active = await evaluateInST(page, () => ({ groupId: SillyTavern.getContext().groupId ?? null }));
   if (setup.group && setup.group !== 'recent') await openGroup(page, setup.group);
   // A group chat already open is the group we want; going via the welcome screen only risks
