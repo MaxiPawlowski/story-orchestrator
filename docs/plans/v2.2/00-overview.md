@@ -273,6 +273,25 @@ mislabelling its leaves.
 The pattern worth carrying into v2.3: the harness fails *silently and plausibly*. Each of those
 presented as a product fault, and two were reported as such before the evidence was in.
 
+### The harness assumes it is alone on the install
+
+Four further defects surfaced only because a real campaign was being played on this install *while*
+the journeys ran, by another session. All four were the harness reaching outside its own run:
+
+| carried across sessions | consequence |
+|---|---|
+| `so-assets` empty baseline | deleted another session's character card and lorebook, reported `clean: true` |
+| extraction `cadence` left at 50 | a real story stopped advancing; read to its author as "extraction hasn't fired yet" |
+| global lorebook selection | a journey passed or failed on whichever books another session had selected |
+| config restore replacing `v2Stories` | silently deleted another session's story record |
+
+The framing is the Adolion campaign session's, and it is better than calling these near-misses:
+a single-session pass would not have shipped these, because it would not have *had* them — no second
+writer, no ambient state to inherit. **The harness assumes it is alone on the install, and that
+assumption is invisible until it is false.** Every fix landed today (pinned groups, activated
+lorebooks, preserved story records, trusted baselines) is a special case of it; the general form is
+still open and is the strongest single seed for v2.3.
+
 ## Latency budgets (revised on live evidence, 2026-09-19)
 
 The reply path keeps the tight default (1500 ms: director, lore-select) — a fallback there is the

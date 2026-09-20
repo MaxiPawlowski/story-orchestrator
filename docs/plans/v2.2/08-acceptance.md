@@ -311,6 +311,15 @@ The same table shape as v2.1's `00-overview.md`: id, finding, fixed in, evidence
   `v2Stories` would look correct and would not be. `restoreGlobalConfig`'s existing guard only
   refuses an *empty* snapshot over a populated config; a populated-but-stale snapshot is the case
   that bites.
+  **Residual after the interim fix (`28bf27a`)**: the merge sits inside `if (next !== null)`, so the
+  `clearGlobalConfig` path still deletes the root outright. The snapshot on disk holds the pre-clear
+  value and the merge means a story imported during the clear window survives the restore, so the
+  only losing case is **a run that clears and then dies before restoring, with nobody re-running**.
+  That is the same shape as the orphaned sandbox chat: the evidence needed to recover is the thing
+  that got lost. It belongs with the crashed-run recovery path rather than as its own fix.
+  Not patched on the clear path deliberately: preserving `v2Stories` through the clear would make
+  J1.5 import the example story into a library that already holds it — an update rather than a fresh
+  add — which changes what that check exercises. Cheap-looking, not cheap.
 - Anything bounced from this gate.
 
 ## Validation gate
