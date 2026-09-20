@@ -1,4 +1,4 @@
-import { buildContinuityRequest, continuityNote, CONTINUITY_MAX_FACTS, type ContinuityNote } from "@judge/index";
+import { buildContinuityRequest, continuityNote, CONTINUITY_MAX_FACTS, CONTINUITY_TIMEOUT_MS, type ContinuityNote } from "@judge/index";
 import type { LedgerView, MemoryEntry } from "@memory/index";
 import type { JudgeRuntime } from "./judge";
 
@@ -21,6 +21,7 @@ export const createContinuityCheck = (judge: () => JudgeRuntime | null): Continu
   const runtime = judge();
   if (!runtime?.enabled() || !facts.length) return null;
   const result = await runtime.ask("warden", buildContinuityRequest(reply, facts), {
+    timeoutMs: CONTINUITY_TIMEOUT_MS,
     summarize: (answers) => ({ facts: Math.min(facts.length, CONTINUITY_MAX_FACTS), flagged: answers ? continuityNote(answers, facts)?.facts.length ?? 0 : 0 }),
   });
   return result.answers ? continuityNote(result.answers, facts) : null;

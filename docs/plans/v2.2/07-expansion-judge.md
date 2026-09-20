@@ -241,8 +241,18 @@ With those fixes the spike's 10/10 verdict holds, and the per-check rates go fro
   `runtime/expansionLookahead.test.ts` covers queueing, the gates, one in flight, and the re-queue
   cap. J11.25 is in the J11 journey (`j11-expand.story.json`).
 
-Not measured yet: the `llm` pick mode against Artemis (Phase A's live half), and the variant
-temperature's loop risk on Artemis. Both come from the first live run.
+**Live (2026-09-19, real model).** J11.25 green: at `road`, with the scene read putting play at the
+watchtower (`headingP` 0.94), the next boundary queued the tower's stub as `origin: lookahead`; two
+variants were written (7.0 s and 11.1 s), both survived the code checks, the judge scored them
+(1.588 vs 1.477), code picked the better one, and on arrival the prepared chain was used —
+`branch: "used the prepared chain"`, 2 critic calls.
+
+**One-boundary lag, by design.** The expansion scheduler is boundary work at order 40 and the scene
+read is order 55 and async, so a heading first seen on boundary *N* prepares ahead at *N+1*. In play
+that is invisible (a heading persists across turns); a journey has to play one more turn before
+asserting.
+
+Still not measured: the `llm` pick mode against Artemis, and the variant temperature's loop risk.
 
 ## Implementation notes
 

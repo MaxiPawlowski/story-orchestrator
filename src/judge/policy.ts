@@ -36,6 +36,7 @@ export const CURATOR_FILTER_MIN_ENTRIES = 12;
 export const CONTINUITY_P = 0.7;
 export const CONTINUITY_MAX_FACTS = 40;
 export const CONTINUITY_MAX_NOTE_FACTS = 2;
+export const CONTINUITY_TIMEOUT_MS = 4000;
 export const BACKGROUND_CONFIDENCE = 0.6;
 export const BACKGROUND_MAX_OPTIONS = 254;
 
@@ -43,7 +44,10 @@ export const EXTRACTION_CONFIDENCE = 0.8;
 export const EXTRACTION_LATCHING_BUMP = 0.1;
 export const STALL_DIRECT_P = 0.95;
 export const STALL_GENUINE_P = 0.1;
-export const TYPED_TIMEOUT_MS = 2500;
+// Raised from 2500 on live evidence (2026-09-19): a real boundary read timed out and fell back,
+// and calibration p50 is 1684 ms for a smaller request. Both this and the warden are off the reply
+// path, so a longer budget costs nothing a player can feel.
+export const TYPED_TIMEOUT_MS = 5000;
 
 export const CRITIC_CONTRADICTS_MAX = 0.3;
 export const CRITIC_ADVANCES_MIN = 0.5;

@@ -812,7 +812,7 @@
       "id": "J11.25",
       "mode": "auto",
       "findings": [],
-      "goal": "prepare-ahead with two variants: heading for the watchtower queues the tower's stub before the tower is reached; on arrival the prepared chain is used, or (stale / failed) re-queued and expanded anyway; the entry shows two generations and one pick",
+      "goal": "prepare-ahead with two variants: once the scene read says play is heading for the watchtower, the next boundary queues the tower's stub before the tower is reached; on arrival the prepared chain is used, or (stale / failed) re-queued and expanded anyway; the entry shows two generations and one pick",
       "requires": [
         "judge-runtime",
         "judge-plugin"
@@ -839,6 +839,19 @@
           }
         },
         {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 2500,
+            "timeoutMs": 180000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We keep to the ridge road, eyes on the tower.",
+            "timeoutMs": 300000
+          }
+        },
+        {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const aheadEntry = () => Object.values(rt.getSnapshot().expansion.entries).find((entry) => entry.stubId === 'tower_stub'); const queued = await until(() => aheadEntry(), 60000); const scene = rt.getSceneRead(); if (!queued) throw new Error(`nothing prepared ahead; heading: ${JSON.stringify(scene?.headingTo ?? null)}`); if (queued.origin !== 'lookahead') throw new Error(`the tower stub was queued as ${queued.origin}`); if (rt.getSnapshot().activeCheckpointId !== 'road') throw new Error('the tower was reached before the pre-generation was queued'); return { key: queued.key, status: queued.status, headingP: queued.headingP };",
           "log": true
         },
@@ -847,7 +860,7 @@
           "log": true
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; await rt.setQuality('reached_tower', true); return rt.getSnapshot().status;"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; await rt.setQuality('reached_tower', 'true'); return rt.getSnapshot().status;"
         },
         {
           "slash": "/sendas name=\"DM Narrator\" raw=false \"The party climbs the last switchback and steps into the watchtower's shadow.\""
