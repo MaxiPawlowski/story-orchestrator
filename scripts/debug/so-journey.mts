@@ -11,6 +11,7 @@ type SandboxGuard = Awaited<ReturnType<typeof beginSandboxSession>>['guard'];
 import { executeSlashCommand } from './st-actions.mts';
 import { deleteSandboxMirrorBooks, recordSandboxStory, runSteps } from './so-scenario.mts';
 import { selectMemoryProfile } from './so-ui.mts';
+import { readSessionJournal } from './so-journal.mts';
 import { removeMarkedAssets, snapshotAssets } from './so-assets.mts';
 import { wipeChatMeta } from './so-library.mts';
 
@@ -294,7 +295,16 @@ async function applySetup(page, setup, { allowConfig }) {
 async function runCleanup(page, journey, { importedHashes, libraryBefore, configSnapshot, guard, keep, allowConfig, assetBaseline, activatedLorebooks }) {
   const cleanup = journey.cleanup ?? {};
   const report: Record<string, unknown> = {};
-  if (keep) return { kept: true, sandboxChatId: guard?.sandboxChatId ?? null, owned: guard?.owned ?? [] };
+  // The judge call ring lives in the chat's own metadata, so it dies with the chat a few lines
+  // below. Plan 08's cost and latency report is built from these records, and the green J11 and J8
+  // runs were archived without them (2026-09-20). Captured before anything deletes anything.
+  report.judgeCalls = await readSessionJournal(page)
+    .then((journal) => {
+      const events = (journal?.events ?? []).filter((event: { kind?: string }) => event?.kind === 'judge');
+      return { count: events.length, events };
+    })
+    .catch((error) => ({ error: error.message }));
+  if (keep) return { kept: true, sandboxChatId: guard?.sandboxChatId ?? null, owned: guard?.owned ?? [], judgeCalls: report.judgeCalls };
   // Only what setup activated: a book the install already had selected is left exactly as found.
   if (activatedLorebooks?.length) report.lorebooks = await deactivateLorebooks(page, activatedLorebooks);
   // Assets go FIRST: the wizard's created-asset ledger lives in extension settings, and restoring
