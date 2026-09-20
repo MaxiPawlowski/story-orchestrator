@@ -442,14 +442,17 @@
       "id": "J11.15",
       "mode": "auto",
       "findings": [],
-      "goal": "every scene usage off: no scene read, no judge call; then trigger on + a blackboard `location` change with no text cue: the heuristic's deterministic read still runs, and the judge adds no second one",
+      "goal": "every scene usage off: no scene read, no judge call; then trigger on + a blackboard `location` change away from the location the previous boundary recorded with no text cue: the heuristic's deterministic read still runs, and the judge adds no second one",
       "requires": [
         "judge-runtime",
         "judge-plugin"
       ],
       "steps": [
         {
-          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, memoryVerify: false, memoryPairs: false, sceneTrigger: false, sceneTracker: false, lookahead: false } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; globalThis.__soJ11Off = sceneCalls().length; return globalThis.__soJ11Off;"
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, memoryVerify: false, memoryPairs: false, sceneTrigger: false, sceneTracker: false, lookahead: false } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; globalThis.__soJ11Off = sceneCalls().length; return globalThis.__soJ11Off"
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; await rt.setQuality('location', 'shaded hollow'); return { seeded: rt.getSnapshot().blackboard.location ?? null };"
         },
         {
           "send_generate": {
