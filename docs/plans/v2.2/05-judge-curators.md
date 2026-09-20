@@ -290,6 +290,13 @@ an editable note, and lapsed or withdrawn states.
 - 6 warden cases plus hydrate in `stagecraftCoordinator.test.ts`.
 - A ring cap case in `stagecraft.test.ts`.
 
+**Live smoke (2026-09-19, real judge, no story model).** With the Artemis pod down, everything in the
+warden except the model's own reply was driven live in a sandbox chat: a seeded fact, a scripted
+`/sendas` reply contradicting it, the boundary pass, the real judge call (**616 ms**, flagged the
+right fact), the auto-accepted record, `onGenerationStarted` injecting at depth 0 and marking the op
+applied, `onGenerationEnded` clearing it, and quiet and dry-run passes carrying nothing. What is
+still unproven is only the last link: that the note is in the prompt ST actually sends (J8.5).
+
 **Journeys.** J8.5, J8.6 and J8.9 are in `j8-stagecraft.journey.json`. J8.7 and J8.8 belong to the
 scene-setter, which was dropped (user decision above).
 
