@@ -52,25 +52,25 @@
         {
           "send_generate": {
             "text": "I push through the crowd and get close to the job board to read the postings.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
           }
         },
         {
           "wait": {
             "idle": true,
-            "timeoutMs": 180000
+            "timeoutMs": 900000
           }
         },
         {
           "send_generate": {
             "text": "I read the Sun Ruins notice aloud to Arin, tracing the seal with a finger.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
           }
         },
         {
           "send_generate": {
             "text": "\"This one — the Sun Ruins job.\" I stay at the board, pointing at the notice.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
           }
         },
         {
@@ -79,7 +79,7 @@
               "cp2",
               "cp3"
             ],
-            "timeoutMs": 300000
+            "timeoutMs": 900000
           }
         }
       ]
@@ -93,19 +93,19 @@
         {
           "send_generate": {
             "text": "\"We'll take it,\" I tell Ponticius, and I accept the Sun Ruins mission on the spot.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
           }
         },
         {
           "send_generate": {
             "text": "I take the Sun Ruins contract from Ponticius and sign it.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
           }
         },
         {
           "wait": {
             "checkpoint": "cp3",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
           }
         }
       ]
@@ -119,19 +119,19 @@
         {
           "send_generate": {
             "text": "Luke begs to come with us. I agree to bring Luke on the expedition.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
           }
         },
         {
           "send_generate": {
             "text": "\"Fine — Luke comes with us.\" I sling his pack over my shoulder and we set out.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
           }
         },
         {
           "wait": {
             "checkpoint": "cp-4a",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
           }
         }
       ]
@@ -145,19 +145,19 @@
         {
           "send_generate": {
             "text": "I face the sphinx and answer its riddle: \"The moon.\"",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
           }
         },
         {
           "send_generate": {
             "text": "\"My answer is the moon,\" I repeat to the sphinx, meeting its gaze.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
           }
         },
         {
           "wait": {
             "checkpoint": "cp-4a1",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
           }
         }
       ]
@@ -171,19 +171,19 @@
         {
           "send_generate": {
             "text": "We step past the archway and enter the chamber of ancient machinery.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
           }
         },
         {
           "send_generate": {
             "text": "We walk into the chamber and start examining the machinery inside.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
           }
         },
         {
           "wait": {
             "checkpoint": "cp-5",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
           }
         },
         {
@@ -207,31 +207,31 @@
         {
           "send_generate": {
             "text": "I lift the Sun's Heart from its pedestal and secure the artifact in my pack.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
           }
         },
         {
           "wait": {
             "idle": true,
-            "timeoutMs": 180000
+            "timeoutMs": 900000
           }
         },
         {
           "send_generate": {
             "text": "\"Back to Xentar.\" We head back to the guild with the artifact.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
           }
         },
         {
           "send_generate": {
             "text": "We carry the artifact back through the ruins and into the guild hall at Xentar.",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
           }
         },
         {
           "wait": {
             "checkpoint": "cp-6",
-            "timeoutMs": 300000
+            "timeoutMs": 900000
           }
         }
       ]
