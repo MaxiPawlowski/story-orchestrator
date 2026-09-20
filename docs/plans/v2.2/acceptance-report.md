@@ -143,9 +143,40 @@ injection at depth 0, cleared at generation end, quiet and dry-run vetoes honour
 
 ## Cost and latency
 
-**Not yet measured.** It is built from the judge-on runs' `extras.judge.calls` rings, exported per
-run with `so-journal.mts export` before cleanup deletes the chats. The spike's $0.08 per 1000
-boundaries is the baseline to compare against.
+**Measured, on a small sample.** 20 judge calls captured across the judge-on runs of J3, J5 and J4
+(scope option B, user decision 2026-09-20). The runner now captures the call ring into the run record
+before cleanup deletes the chat that holds it — the earlier green J11 and J8 runs proved the
+behaviour and lost the measurement, which is why they are not in this table.
+
+| use | calls | p50 | p90 | max | median questions | median state chars | fallbacks |
+|---|--:|--:|--:|--:|--:|--:|--:|
+| `scene` | 9 | 1797 ms | 2509 ms | 2510 ms | 9 | 2741 | 0 |
+| `memoryVerify` | 7 | 639 ms | 671 ms | 733 ms | 2 | 1673 | 0 |
+| `warden` | 2 | 255 ms | 2702 ms | 2702 ms | 1 | 1441 | 0 |
+| `director` | 2 | — | — | — | — | — | 0 |
+
+- **Zero fallbacks in 20 calls.** No timeout, no error, no ineligible result across every use that
+  fired. The revised off-path budgets (plan 00) hold on this hardware.
+- **2.5 calls per boundary**, counted over the 8 boundaries where any call fired at all. Most
+  boundaries make none.
+- `scene` is the expensive use and sits right on its 2500 ms budget at p90 (2509 ms). It did not
+  fall back, but it has no headroom: a slower judge or a larger scene would start timing out. Its
+  9-question shape and 2741-char state are the largest of any use.
+
+### What this does not answer
+
+- **The on-path 1500 ms budget is still unverified.** `director` fired twice but its summary format
+  carries no parseable duration, and `lore` never fired in these three journeys. Those are the only
+  two uses on the reply path and therefore the only two where a fallback costs responsiveness rather
+  than a feature. The calibration p50s (`director` 1208 ms, `lore` 559 ms) remain the only figures,
+  and calibration runs warm — see the caveat under Calibration.
+- **$ per 1000 boundaries is not computed.** The sample is 20 calls over 8 boundaries in three
+  journeys, none of them a full play-through; extrapolating a rate from it would be a guess dressed
+  as a measurement. The spike's $0.08 per 1000 boundaries stands unchallenged rather than confirmed.
+- **GPU time saved is not measured.** It needs the judge-off and judge-on runs of the *same* journey
+  compared call for call, which option B's scope did not produce.
+
+Closing these needs the full judge-on matrix (option C), and is the main thing v2.2 ships without.
 
 ## Human eval
 
@@ -289,6 +320,37 @@ after a 2026-09-19 finding: they drive the review ring with `pick: "text-first"`
 `rewrite` is not a failure. Confirmed live during the J8 run of 2026-09-20, where the curator chose
 `disable` — a check that named `rewrite` would have failed there for the wrong reason. Do not
 reintroduce a hard-coded op kind into these checks.
+
+### F6 — J5.6 fails with the judge on, and I could not attribute it
+
+**Status: open, unattributed. Do not read this as a confirmed regression.**
+
+J5.6 asserts that a drafted group member is injected their own private epistemic block. It passes
+with the judge off and fails with it on, twice, with `block: ""` both times — but naming a
+*different* subject each run (Ponticius, then Arin) while the entries themselves existed.
+
+Two candidates, and the evidence does not separate them:
+
+- **(a) A judge-on product regression.** Something in the judge-on path leaves the private block
+  unbuilt at draft time.
+- **(b) A latent check defect exposed by model variance.** `stagedPrivate` is populated only for
+  `enabledCharacterIds(story)`, and `onMemberDrafted` injects an empty epistemic block by design for
+  a member that is not among them. The check chooses its two subjects from whichever epistemic
+  entries happen to have character cards and never asserts those subjects are *enabled* — while
+  J5.2, earlier in the same journey, runs `cast_changes`, which disables members. A run whose
+  epistemic pass named a disabled member would then fail exactly this way.
+
+(b) is the better fit: the subject varied between the two failures but the empty block did not, and
+the product's behaviour for a non-enabled member is correct by design. That is a reason to suspect,
+not a reason to conclude.
+
+**What would settle it**, and was not done because the sample cost more than the answer was worth at
+this point in the gate: assert in the check that each chosen subject is an enabled roster member and
+re-run; if it then passes with the judge on, it is (b). If it still fails, it is (a) and wants a
+proper investigation.
+
+Until then J5 is **not** green in the judge-on configuration, and this is the one place where a
+v2.2 opt-in path is unproven at composition level.
 
 ## Recommended configuration
 
