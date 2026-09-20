@@ -5,7 +5,8 @@
   "setup": {
     "newChat": true,
     "resetChatState": true,
-    "snapshotGlobalConfig": true
+    "snapshotGlobalConfig": true,
+    "group": "1759606632088"
   },
   "cleanup": {
     "restoreConfig": true,

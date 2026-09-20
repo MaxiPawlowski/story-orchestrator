@@ -7,7 +7,8 @@
     "resetChatState": true,
     "snapshotGlobalConfig": true,
     "configureExtraction": true,
-    "cadence": 1
+    "cadence": 1,
+    "group": "1759606632088"
   },
   "cleanup": {
     "restoreConfig": true,
@@ -30,102 +31,299 @@
     {
       "id": "J9.1",
       "mode": "auto",
-      "findings": ["D3", "U6"],
+      "findings": [
+        "D3",
+        "U6"
+      ],
       "goal": "the wizard interviews before proposing, and 'You decide' always proceeds to a proposal",
-      "requires": ["wizard-interview", "wizard-entry-points"],
+      "requires": [
+        "wizard-interview",
+        "wizard-entry-points"
+      ],
       "steps": [
-        { "eval": "globalThis.storyOrchestratorRuntime.setCopilotSettings({ enabled: true }); return true;" },
-        { "ui": { "action": "new-story-wizard" } },
-        { "expect_ui": { "selector": "#so-wizard", "contains": ["Qualities", "Provisioning", "Run stage"] } },
-        { "ui": { "action": "wizard-run", "message": "A story about a courier crossing a flooded city. Before you propose anything, ask me two or three questions you need answered.", "timeoutMs": 180000 } },
-        { "eval": "const state = document.getElementById('so-wizard-questions'); if (!state) throw new Error('the wizard proposed without interviewing — no #so-wizard-questions'); const asked = state.querySelectorAll('label[for^=\"so-wizard-answer-\"]').length; if (asked < 1) throw new Error('question block rendered with no questions'); if (asked > 3) throw new Error(`interview exceeded the 3-question cap: ${asked}`); return { asked };" },
-        { "ui": { "action": "wizard-answer", "timeoutMs": 180000 } },
-        { "eval": "await new Promise((done) => setTimeout(done, 500)); const wizard = document.getElementById('so-wizard'); if (!wizard) throw new Error('wizard closed'); if (document.getElementById('so-wizard-questions')) throw new Error('still interviewing after You decide'); const proposal = wizard.querySelector('[aria-label=\"Copilot proposal\"]'); if (!proposal) throw new Error('You decide did not produce a proposal'); const invalid = proposal.textContent.includes('Invalid proposal'); if (invalid) throw new Error(`proposal was invalid: ${proposal.textContent.slice(0, 300)}`); return { proposal: proposal.textContent.slice(0, 200) };" },
-        { "ui": { "action": "close-studio" } }
+        {
+          "eval": "globalThis.storyOrchestratorRuntime.setCopilotSettings({ enabled: true }); return true;"
+        },
+        {
+          "ui": {
+            "action": "new-story-wizard"
+          }
+        },
+        {
+          "expect_ui": {
+            "selector": "#so-wizard",
+            "contains": [
+              "Qualities",
+              "Provisioning",
+              "Run stage"
+            ]
+          }
+        },
+        {
+          "ui": {
+            "action": "wizard-run",
+            "message": "A story about a courier crossing a flooded city. Before you propose anything, ask me two or three questions you need answered.",
+            "timeoutMs": 180000
+          }
+        },
+        {
+          "eval": "const state = document.getElementById('so-wizard-questions'); if (!state) throw new Error('the wizard proposed without interviewing — no #so-wizard-questions'); const asked = state.querySelectorAll('label[for^=\"so-wizard-answer-\"]').length; if (asked < 1) throw new Error('question block rendered with no questions'); if (asked > 3) throw new Error(`interview exceeded the 3-question cap: ${asked}`); return { asked };"
+        },
+        {
+          "ui": {
+            "action": "wizard-answer",
+            "timeoutMs": 180000
+          }
+        },
+        {
+          "eval": "await new Promise((done) => setTimeout(done, 500)); const wizard = document.getElementById('so-wizard'); if (!wizard) throw new Error('wizard closed'); if (document.getElementById('so-wizard-questions')) throw new Error('still interviewing after You decide'); const proposal = wizard.querySelector('[aria-label=\"Copilot proposal\"]'); if (!proposal) throw new Error('You decide did not produce a proposal'); const invalid = proposal.textContent.includes('Invalid proposal'); if (invalid) throw new Error(`proposal was invalid: ${proposal.textContent.slice(0, 300)}`); return { proposal: proposal.textContent.slice(0, 200) };"
+        },
+        {
+          "ui": {
+            "action": "close-studio"
+          }
+        }
       ]
     },
     {
       "id": "J9.2",
       "mode": "auto",
-      "findings": ["D3"],
+      "findings": [
+        "D3"
+      ],
       "goal": "create-only is enforced in op validation, not trusted to the prompt",
-      "requires": ["wizard-provisioning"],
+      "requires": [
+        "wizard-provisioning"
+      ],
       "steps": [
-        { "eval": "const env = globalThis.storyOrchestratorRuntime.getProvisioningEnvironment(); globalThis.__j9Existing = { character: env.characterNames[0] ?? null, lorebook: env.lorebookNames[0] ?? null, group: env.groupNames[0] ?? null }; if (!globalThis.__j9Existing.character) throw new Error('no existing character to test create-only against'); return globalThis.__j9Existing;" },
-        { "eval": "const rt = globalThis.storyOrchestratorRuntime; const name = globalThis.__j9Existing.character; const outcome = await rt.applyProvisioning({ kind: 'createCharacterCard', name, description: 'Overwrite attempt by journey J9.' }); if (outcome.ok) throw new Error(`create-only breached: the wizard created over the existing character \"${name}\"`); if (!outcome.message.includes('never edits yours')) throw new Error(`unexpected rejection message: ${outcome.message}`); return outcome;" },
-        { "eval": "const rt = globalThis.storyOrchestratorRuntime; const lorebook = globalThis.__j9Existing.lorebook; if (!lorebook) return { skipped: 'no global lorebook on this install' }; const outcome = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook, comment: 'SO-J9 intrusion', keys: ['j9'], content: 'This must never be written.' }); if (outcome.ok) throw new Error(`create-only breached: the wizard wrote into the non-story lorebook \"${lorebook}\"`); if (!outcome.message.includes(\"not this story's lorebook\")) throw new Error(`unexpected rejection message: ${outcome.message}`); return outcome;" },
-        { "eval": "const rt = globalThis.storyOrchestratorRuntime; const group = globalThis.__j9Existing.group; if (!group) return { skipped: 'no group on this install' }; const outcome = await rt.applyProvisioning({ kind: 'createGroup', name: group, members: [globalThis.__j9Existing.character] }); if (outcome.ok) throw new Error(`create-only breached: a second group named \"${group}\" was created`); return outcome;" },
-        { "eval": "const rt = globalThis.storyOrchestratorRuntime; const outcome = await rt.applyProvisioning({ kind: 'createGroup', name: 'SO-J9 Ghost Party', members: ['SO-J9 Nobody'] }); if (outcome.ok) throw new Error('a group was created for a cast member that does not exist'); if (!outcome.message.includes('do not exist yet')) throw new Error(`unexpected rejection message: ${outcome.message}`); return outcome;" },
-        { "assets": { "action": "assert-clean", "marker": "SO-J9" } }
+        {
+          "eval": "const env = globalThis.storyOrchestratorRuntime.getProvisioningEnvironment(); globalThis.__j9Existing = { character: env.characterNames[0] ?? null, lorebook: env.lorebookNames[0] ?? null, group: env.groupNames[0] ?? null }; if (!globalThis.__j9Existing.character) throw new Error('no existing character to test create-only against'); return globalThis.__j9Existing;"
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const name = globalThis.__j9Existing.character; const outcome = await rt.applyProvisioning({ kind: 'createCharacterCard', name, description: 'Overwrite attempt by journey J9.' }); if (outcome.ok) throw new Error(`create-only breached: the wizard created over the existing character \"${name}\"`); if (!outcome.message.includes('never edits yours')) throw new Error(`unexpected rejection message: ${outcome.message}`); return outcome;"
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lorebook = globalThis.__j9Existing.lorebook; if (!lorebook) return { skipped: 'no global lorebook on this install' }; const outcome = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook, comment: 'SO-J9 intrusion', keys: ['j9'], content: 'This must never be written.' }); if (outcome.ok) throw new Error(`create-only breached: the wizard wrote into the non-story lorebook \"${lorebook}\"`); if (!outcome.message.includes(\"not this story's lorebook\")) throw new Error(`unexpected rejection message: ${outcome.message}`); return outcome;"
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const group = globalThis.__j9Existing.group; if (!group) return { skipped: 'no group on this install' }; const outcome = await rt.applyProvisioning({ kind: 'createGroup', name: group, members: [globalThis.__j9Existing.character] }); if (outcome.ok) throw new Error(`create-only breached: a second group named \"${group}\" was created`); return outcome;"
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const outcome = await rt.applyProvisioning({ kind: 'createGroup', name: 'SO-J9 Ghost Party', members: ['SO-J9 Nobody'] }); if (outcome.ok) throw new Error('a group was created for a cast member that does not exist'); if (!outcome.message.includes('do not exist yet')) throw new Error(`unexpected rejection message: ${outcome.message}`); return outcome;"
+        },
+        {
+          "assets": {
+            "action": "assert-clean",
+            "marker": "SO-J9"
+          }
+        }
       ]
     },
     {
       "id": "J9.3",
       "mode": "auto",
-      "findings": ["D3"],
+      "findings": [
+        "D3"
+      ],
       "goal": "each provisioning step is reviewed and applied on its own, and is excluded from bulk accept",
-      "requires": ["wizard-provisioning", "wizard-entry-points"],
+      "requires": [
+        "wizard-provisioning",
+        "wizard-entry-points"
+      ],
       "steps": [
-        { "eval": "globalThis.storyOrchestratorStudioDraft.getState().newDraft(); return true;" },
-        { "import_story": { "file": "j9-wizard.story.json" } },
-        { "ui": { "action": "open-wizard" } },
-        { "ui": { "action": "wizard-run", "stage": "Provisioning", "message": "Create exactly three things and nothing else, using these exact names: the lorebook \"SO-J9 Lore\" with one entry titled \"The flooded city\" (keywords: flood, city), a character card named \"SO-J9 Ferryman\", and a group named \"SO-J9 Crossing\" whose only member is SO-J9 Ferryman.", "timeoutMs": 240000 } },
-        { "eval": "const cards = document.querySelectorAll('#so-wizard [data-so=\"provisioning-card\"]'); if (!cards.length) throw new Error('the provisioning stage produced no provisioning cards'); const acceptAll = Array.from(document.querySelectorAll('#so-wizard button')).find((b) => b.textContent.trim() === 'Accept all'); if (!acceptAll) throw new Error('proposal card missing'); if (!acceptAll.disabled) throw new Error('Accept all is enabled on a provisioning-only proposal — bulk accept must never reach provisioning'); return { cards: cards.length };" },
-        { "ui": { "action": "wizard-apply", "index": 0, "timeoutMs": 120000 } },
-        { "eval": "const state = document.querySelectorAll('#so-wizard [data-so=\"provisioning-card\"]')[0]; const apply = state.querySelector('[data-so=\"provisioning-apply\"]'); if (apply.textContent.trim() !== 'Created') throw new Error(`first step did not apply: ${state.querySelector('[role=\"status\"]')?.textContent ?? apply.textContent}`); const created = document.getElementById('so-wizard-created'); if (!created) throw new Error('no record of what was created'); return { created: created.textContent };" },
-        { "eval": "const total = document.querySelectorAll('#so-wizard [data-so=\"provisioning-card\"]').length; const pending = Array.from(document.querySelectorAll('#so-wizard [data-so=\"provisioning-apply\"]')).filter((b) => b.textContent.trim() !== 'Created'); if (pending.length !== total - 1) throw new Error(`applying one card applied ${total - pending.length} — provisioning must be per-op`); return { total, pending: pending.length };" },
-        { "ui": { "action": "wizard-apply", "index": "all", "timeoutMs": 180000 } },
-        { "assets": { "action": "expect", "marker": "SO-J9", "minCharacters": 1, "minGroups": 1, "minLorebooks": 1 } }
+        {
+          "eval": "globalThis.storyOrchestratorStudioDraft.getState().newDraft(); return true;"
+        },
+        {
+          "import_story": {
+            "file": "j9-wizard.story.json"
+          }
+        },
+        {
+          "ui": {
+            "action": "open-wizard"
+          }
+        },
+        {
+          "ui": {
+            "action": "wizard-run",
+            "stage": "Provisioning",
+            "message": "Create exactly three things and nothing else, using these exact names: the lorebook \"SO-J9 Lore\" with one entry titled \"The flooded city\" (keywords: flood, city), a character card named \"SO-J9 Ferryman\", and a group named \"SO-J9 Crossing\" whose only member is SO-J9 Ferryman.",
+            "timeoutMs": 240000
+          }
+        },
+        {
+          "eval": "const cards = document.querySelectorAll('#so-wizard [data-so=\"provisioning-card\"]'); if (!cards.length) throw new Error('the provisioning stage produced no provisioning cards'); const acceptAll = Array.from(document.querySelectorAll('#so-wizard button')).find((b) => b.textContent.trim() === 'Accept all'); if (!acceptAll) throw new Error('proposal card missing'); if (!acceptAll.disabled) throw new Error('Accept all is enabled on a provisioning-only proposal — bulk accept must never reach provisioning'); return { cards: cards.length };"
+        },
+        {
+          "ui": {
+            "action": "wizard-apply",
+            "index": 0,
+            "timeoutMs": 120000
+          }
+        },
+        {
+          "eval": "const state = document.querySelectorAll('#so-wizard [data-so=\"provisioning-card\"]')[0]; const apply = state.querySelector('[data-so=\"provisioning-apply\"]'); if (apply.textContent.trim() !== 'Created') throw new Error(`first step did not apply: ${state.querySelector('[role=\"status\"]')?.textContent ?? apply.textContent}`); const created = document.getElementById('so-wizard-created'); if (!created) throw new Error('no record of what was created'); return { created: created.textContent };"
+        },
+        {
+          "eval": "const total = document.querySelectorAll('#so-wizard [data-so=\"provisioning-card\"]').length; const pending = Array.from(document.querySelectorAll('#so-wizard [data-so=\"provisioning-apply\"]')).filter((b) => b.textContent.trim() !== 'Created'); if (pending.length !== total - 1) throw new Error(`applying one card applied ${total - pending.length} — provisioning must be per-op`); return { total, pending: pending.length };"
+        },
+        {
+          "ui": {
+            "action": "wizard-apply",
+            "index": "all",
+            "timeoutMs": 180000
+          }
+        },
+        {
+          "assets": {
+            "action": "expect",
+            "marker": "SO-J9",
+            "minCharacters": 1,
+            "minGroups": 1,
+            "minLorebooks": 1
+          }
+        }
       ]
     },
     {
       "id": "J9.4",
       "mode": "auto",
-      "findings": ["U6"],
+      "findings": [
+        "U6"
+      ],
       "goal": "'Fix with wizard' from the requirements panel opens the provisioning step pre-filled with what is missing",
-      "requires": ["wizard-entry-points"],
+      "requires": [
+        "wizard-entry-points"
+      ],
       "steps": [
-        { "ui": { "action": "close-studio" } },
-        { "eval": "globalThis.storyOrchestratorStudioDraft.getState().newDraft(); return true;" },
-        { "import_story": { "file": "j9-fixme.story.json" } },
-        { "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); const snapshot = rt.getSnapshot(); if (snapshot.storyId !== 'so-j9-fixme') throw new Error(`the fixture story is not selected: ${snapshot.storyId}`); if (snapshot.requirements.ready) throw new Error('the fixture story has nothing unmet — Fix with wizard has nothing to fix'); return { storyId: snapshot.storyId, requirements: snapshot.requirements };" },
-        { "ui": { "action": "open-drawer" } },
-        { "expect_ui": { "selector": "#drawer-manager", "contains": ["Fix with wizard"] } },
-        { "eval": "document.getElementById('so-fix-with-wizard').click(); return true;" },
-        { "eval": "await new Promise((done) => setTimeout(done, 800)); const ok = document.querySelector('dialog.popup[open] .popup-button-ok'); if (ok) ok.click(); await new Promise((done) => setTimeout(done, 800)); const wizard = document.getElementById('so-wizard'); if (!wizard) throw new Error('Fix with wizard did not open the wizard'); const stage = Array.from(wizard.querySelectorAll('[aria-pressed=\"true\"]')).map((b) => b.textContent.trim())[0]; if (stage !== 'Provisioning') throw new Error(`Fix with wizard opened on \"${stage}\", not the provisioning stage`); const seeded = document.getElementById('so-wizard-message').value; if (!seeded.includes('SO-J9 Missing Lore')) throw new Error(`the wizard was not pre-filled from the unmet list: ${seeded.slice(0, 200)}`); return { stage, seeded: seeded.slice(0, 200) };" }
+        {
+          "ui": {
+            "action": "close-studio"
+          }
+        },
+        {
+          "eval": "globalThis.storyOrchestratorStudioDraft.getState().newDraft(); return true;"
+        },
+        {
+          "import_story": {
+            "file": "j9-fixme.story.json"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); const snapshot = rt.getSnapshot(); if (snapshot.storyId !== 'so-j9-fixme') throw new Error(`the fixture story is not selected: ${snapshot.storyId}`); if (snapshot.requirements.ready) throw new Error('the fixture story has nothing unmet — Fix with wizard has nothing to fix'); return { storyId: snapshot.storyId, requirements: snapshot.requirements };"
+        },
+        {
+          "ui": {
+            "action": "open-drawer"
+          }
+        },
+        {
+          "expect_ui": {
+            "selector": "#drawer-manager",
+            "contains": [
+              "Fix with wizard"
+            ]
+          }
+        },
+        {
+          "eval": "document.getElementById('so-fix-with-wizard').click(); return true;"
+        },
+        {
+          "eval": "await new Promise((done) => setTimeout(done, 800)); const ok = document.querySelector('dialog.popup[open] .popup-button-ok'); if (ok) ok.click(); await new Promise((done) => setTimeout(done, 800)); const wizard = document.getElementById('so-wizard'); if (!wizard) throw new Error('Fix with wizard did not open the wizard'); const stage = Array.from(wizard.querySelectorAll('[aria-pressed=\"true\"]')).map((b) => b.textContent.trim())[0]; if (stage !== 'Provisioning') throw new Error(`Fix with wizard opened on \"${stage}\", not the provisioning stage`); const seeded = document.getElementById('so-wizard-message').value; if (!seeded.includes('SO-J9 Missing Lore')) throw new Error(`the wizard was not pre-filled from the unmet list: ${seeded.slice(0, 200)}`); return { stage, seeded: seeded.slice(0, 200) };"
+        }
       ]
     },
     {
       "id": "J9.5",
       "mode": "auto",
-      "findings": ["D3", "U6"],
+      "findings": [
+        "D3",
+        "U6"
+      ],
       "goal": "the provisioned story is playable: requirements go green and a real transition fires",
-      "requires": ["wizard-provisioning"],
+      "requires": [
+        "wizard-provisioning"
+      ],
       "steps": [
-        { "ui": { "action": "close-studio" } },
-        { "import_story": { "file": "j9-wizard.story.json" } },
-        { "expect": { "storyId": "so-j9-wizard" } },
-        { "eval": "const rt = globalThis.storyOrchestratorRuntime; const draft = rt.getPlayedStoryRaw(); const outcome = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-J9 Lore' }, draft); if (!outcome.ok && !outcome.message.includes('already exists')) throw new Error(`could not provision the story lorebook: ${outcome.message}`); const entry = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook: 'SO-J9 Lore', comment: 'The flooded city', keys: ['flood', 'city'], content: 'Half the city stands in water; the couriers know which roofs hold.' }, draft); if (!entry.ok) throw new Error(`could not write the story lorebook entry: ${entry.message}`); return { outcome, entry };" },
-        { "select_story": "so-j9-wizard" },
-        { "expect": { "requirementsReady": true } },
-        { "assets": { "action": "expect", "marker": "SO-J9", "lorebooks": ["SO-J9 Lore"] } },
-        { "send_generate": { "text": "The courier hauls herself onto the broken bridge, boots streaming, and looks back at the drowned wharf.", "timeoutMs": 180000 } },
-        { "extract": { "reason": "journey" } },
-        { "wait": { "checkpoint": "bridge", "timeoutMs": 60000 } },
-        { "expect": { "activeCheckpoint": "bridge", "blackboard": { "reached_bridge": true } } }
+        {
+          "ui": {
+            "action": "close-studio"
+          }
+        },
+        {
+          "import_story": {
+            "file": "j9-wizard.story.json"
+          }
+        },
+        {
+          "expect": {
+            "storyId": "so-j9-wizard"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const draft = rt.getPlayedStoryRaw(); const outcome = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-J9 Lore' }, draft); if (!outcome.ok && !outcome.message.includes('already exists')) throw new Error(`could not provision the story lorebook: ${outcome.message}`); const entry = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook: 'SO-J9 Lore', comment: 'The flooded city', keys: ['flood', 'city'], content: 'Half the city stands in water; the couriers know which roofs hold.' }, draft); if (!entry.ok) throw new Error(`could not write the story lorebook entry: ${entry.message}`); return { outcome, entry };"
+        },
+        {
+          "select_story": "so-j9-wizard"
+        },
+        {
+          "expect": {
+            "requirementsReady": true
+          }
+        },
+        {
+          "assets": {
+            "action": "expect",
+            "marker": "SO-J9",
+            "lorebooks": [
+              "SO-J9 Lore"
+            ]
+          }
+        },
+        {
+          "send_generate": {
+            "text": "The courier hauls herself onto the broken bridge, boots streaming, and looks back at the drowned wharf.",
+            "timeoutMs": 180000
+          }
+        },
+        {
+          "extract": {
+            "reason": "journey"
+          }
+        },
+        {
+          "wait": {
+            "checkpoint": "bridge",
+            "timeoutMs": 60000
+          }
+        },
+        {
+          "expect": {
+            "activeCheckpoint": "bridge",
+            "blackboard": {
+              "reached_bridge": true
+            }
+          }
+        }
       ]
     },
     {
       "id": "J9.6",
       "mode": "human",
-      "findings": ["D3"],
+      "findings": [
+        "D3"
+      ],
       "prompt": "Starting from a one-line premise, did the wizard get you to a story you actually wanted to play?",
       "anchors": "1 = fought it · 3 = usable after edits · 5 = better than what I would have written"
     },
     {
       "id": "J9.7",
       "mode": "human",
-      "findings": ["D3", "U6"],
+      "findings": [
+        "D3",
+        "U6"
+      ],
       "prompt": "When it offered to create characters, lore and a group in your SillyTavern, did you trust what it was about to do?",
       "anchors": "1 = no idea what it would touch · 3 = clear but I had to read carefully · 5 = obvious what was created and what was left alone"
     }

@@ -16,6 +16,7 @@ import { wipeChatMeta } from './so-library.mts';
 
 const JOURNEY_DIR = resolve(PROJECT_ROOT, 'test/journeys');
 const CONFIG_SNAPSHOT = resolve(DEBUG_DIR, 'so-journey-config-snapshot.json');
+const ASSET_BASELINE = resolve(DEBUG_DIR, 'so-journey-asset-baseline.json');
 const EXTENSION_KEY = 'story-orchestrator';
 
 const USAGE = `Usage: node scripts/debug/so-journey.mts <command> [args]
@@ -102,6 +103,17 @@ async function writeGlobalConfig(page, value) {
 
 export async function restoreGlobalConfig(page, file = CONFIG_SNAPSHOT) {
   const snapshot = await readJSON(file);
+  // A restore may never turn a populated config into an empty one. A run that snapshots an empty
+  // root (because an earlier run cleared it and died) would otherwise write that emptiness back
+  // every time, so the clear survives forever and takes extraction.profileId with it (2026-09-20).
+  const snapshotEmpty = !snapshot.present || !snapshot.value || Object.keys(snapshot.value).length === 0;
+  if (snapshotEmpty) {
+    const live = await evaluateInST(page, (key) => Object.keys(SillyTavern.getContext().extensionSettings?.[key] ?? {}), EXTENSION_KEY);
+    if (live.length) {
+      console.log(`Refusing to restore an empty config over a populated one (live keys: ${live.join(', ')}) — snapshot ${file} looks like the residue of a crashed run.`);
+      return { key: EXTENSION_KEY, skipped: 'empty snapshot over populated config', liveKeys: live };
+    }
+  }
   const result = await writeGlobalConfig(page, snapshot.present ? snapshot.value : null);
   console.log(`Restored global config from ${file}: ${JSON.stringify(result)}`);
   return result;
@@ -132,6 +144,56 @@ function capabilityProbe(page, capabilities) {
   };
 }
 
+// A story's `requirements.lorebooks` is satisfied only by the *globally selected* set, which is
+// install-wide and which no journey used to establish — so J1.5/J3/J7 passed on whatever happened to
+// be selected and failed the moment another session changed it (2026-09-20). The run activates what
+// the story needs and cleanup deactivates exactly what it turned on, leaving the install as found.
+async function activateLorebooks(page, names: string[]) {
+  const wanted = (names ?? []).filter((name) => typeof name === 'string' && name.trim());
+  if (!wanted.length) return { activated: [], alreadyActive: [], missing: [] };
+  // Refresh the server's list first: an empty or stale `world_names` right after a chat change is
+  // "unknown", not "the book does not exist", and skipping on it silently produced a J1.5 failure
+  // that looked like a product regression (2026-09-20).
+  const state = await evaluateInST(page, async ({ wanted }) => {
+    const mod = await import(/* webpackIgnore: true */ '/scripts/world-info.js' as string) as {
+      selected_world_info?: string[];
+      updateWorldInfoList?: () => Promise<void>;
+      world_names?: string[];
+    };
+    await mod.updateWorldInfoList?.();
+    const known: string[] = mod.world_names ?? (SillyTavern.getContext().getWorldInfoNames?.() ?? []) as string[];
+    const selected: string[] = mod.selected_world_info ?? [];
+    return {
+      known: known.length,
+      alreadyActive: wanted.filter((name: string) => selected.includes(name)),
+      missing: known.length ? wanted.filter((name: string) => !known.includes(name)) : [],
+      listUnavailable: known.length === 0,
+    };
+  }, { wanted });
+  if (state.listUnavailable) throw new Error('setup.activateLorebooks: ST listed no lorebooks at all, so the install state is unknown — refusing to guess');
+  if (state.missing.length) throw new Error(`setup.activateLorebooks: this install has no lorebook named ${state.missing.join(', ')}`);
+  const toActivate = wanted.filter((name) => !state.alreadyActive.includes(name));
+  for (const name of toActivate) await executeSlashCommand(page, `/world silent=true state=on ${JSON.stringify(name)}`);
+  // Verify rather than assume: `/world` is fire-and-forget and a stale save can lose the write.
+  const after = await evaluateInST(page, async ({ wanted }) => {
+    const mod = await import(/* webpackIgnore: true */ '/scripts/world-info.js' as string) as { selected_world_info?: string[] };
+    const selected: string[] = mod.selected_world_info ?? [];
+    return { notSelected: wanted.filter((name: string) => !selected.includes(name)) };
+  }, { wanted });
+  if (after.notSelected.length) throw new Error(`setup.activateLorebooks: ${after.notSelected.join(', ')} did not become active after /world state=on`);
+  return { activated: toActivate, alreadyActive: state.alreadyActive, missing: [] };
+}
+
+async function deactivateLorebooks(page, names: string[]) {
+  const report: Record<string, unknown> = {};
+  for (const name of names ?? []) {
+    report[name] = await executeSlashCommand(page, `/world silent=true state=off ${JSON.stringify(name)}`)
+      .then(() => ({ deactivated: true }))
+      .catch((error) => ({ error: error.message }));
+  }
+  return report;
+}
+
 async function configureExtraction(page, setup) {
   const selected = await selectMemoryProfile(page);
   if (setup.cadence) {
@@ -146,7 +208,7 @@ async function configureExtraction(page, setup) {
 }
 
 async function applySetup(page, setup, { allowConfig }) {
-  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; judge?: unknown; libraryBefore?: string[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
+  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; judge?: unknown; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[] }; libraryBefore?: string[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
   if (setup.clearGlobalConfig && allowConfig) {
     applied.configSnapshot = await snapshotGlobalConfig(page);
     await writeGlobalConfig(page, null);
@@ -201,6 +263,7 @@ async function applySetup(page, setup, { allowConfig }) {
     });
   }
   if (setup.configureExtraction) applied.extraction = await configureExtraction(page, setup);
+  if (Array.isArray(setup.activateLorebooks)) applied.lorebooks = await activateLorebooks(page, setup.activateLorebooks);
   // Remember what the library already held: cleanup may only remove records this run created.
   applied.libraryBefore = await evaluateInST(page, () => {
     const records = SillyTavern.getContext().extensionSettings?.['story-orchestrator']?.v2Stories;
@@ -209,10 +272,12 @@ async function applySetup(page, setup, { allowConfig }) {
   return applied;
 }
 
-async function runCleanup(page, journey, { importedHashes, libraryBefore, configSnapshot, guard, keep, allowConfig, assetBaseline }) {
+async function runCleanup(page, journey, { importedHashes, libraryBefore, configSnapshot, guard, keep, allowConfig, assetBaseline, activatedLorebooks }) {
   const cleanup = journey.cleanup ?? {};
   const report: Record<string, unknown> = {};
   if (keep) return { kept: true, sandboxChatId: guard?.sandboxChatId ?? null, owned: guard?.owned ?? [] };
+  // Only what setup activated: a book the install already had selected is left exactly as found.
+  if (activatedLorebooks?.length) report.lorebooks = await deactivateLorebooks(page, activatedLorebooks);
   // Assets go FIRST: the wizard's created-asset ledger lives in extension settings, and restoring
   // the config snapshot would wipe the very record cleanup uses to catch a renamed asset (plan 06).
   // The baseline scopes that ledger to this run: a real author's wizard sessions and the assets
@@ -302,8 +367,13 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
   } else {
     try {
       // Before setup can clear the config: what the install held when the run started is how asset
-      // cleanup tells this run's creations from the user's own.
+      // cleanup tells this run's creations from the user's own. Persisted next to the config
+      // snapshot, because a cleanup that deletes the wrong thing has to be provable afterwards, not
+      // reconstructed from what the record happens to imply (2026-09-20).
       assetBaseline = await snapshotAssets(page);
+      await mkdir(DEBUG_DIR, { recursive: true });
+      await writeFile(ASSET_BASELINE, JSON.stringify(assetBaseline, null, 2), 'utf-8');
+      if (!assetBaseline.trusted) console.log(`Asset baseline UNTRUSTED (${assetBaseline.untrusted.join('; ')}) — cleanup falls back to marker-only scope.`);
       setupApplied = await applySetup(page, journey.setup ?? {}, { allowConfig });
       for (const check of checks) {
         const summary = summarize(check);
@@ -337,6 +407,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
         keep,
         allowConfig,
         assetBaseline,
+        activatedLorebooks: (setupApplied as { lorebooks?: { activated?: string[] } }).lorebooks?.activated ?? [],
       }).catch((error) => ({ error: error.message }));
     }
   }

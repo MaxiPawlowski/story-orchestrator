@@ -6,7 +6,8 @@
     "newChat": true,
     "resetChatState": true,
     "snapshotGlobalConfig": true,
-    "resetJudge": true
+    "resetJudge": true,
+    "group": "1759606632088"
   },
   "cleanup": {
     "restoreConfig": true,

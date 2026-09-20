@@ -5,7 +5,11 @@
   "setup": {
     "clearGlobalConfig": true,
     "newChat": true,
-    "resetChatState": true
+    "resetChatState": true,
+    "activateLorebooks": [
+      "Xentar Checkpoints"
+    ],
+    "group": "1759606632088"
   },
   "cleanup": {
     "restoreConfig": true,
