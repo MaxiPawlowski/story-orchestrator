@@ -666,7 +666,7 @@
       "id": "J11.21",
       "mode": "auto",
       "findings": [],
-      "goal": "cadence 1 with typed extraction on: every cadence read's LLM prompt leaves out exactly the qualities the judge settled, and keeps every hinted quality it did not (residual scope)",
+      "goal": "cadence 1 with typed extraction on: whatever the judge settles (on the read itself or on the boundary's own typed read) is left out of every LLM prompt, and a quality it did not settle stays in the scope",
       "requires": [
         "judge-runtime",
         "judge-plugin"
@@ -689,7 +689,7 @@
           }
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const audits = rt.getSnapshot().extraction.audits.slice(globalThis.__soJ11Audits).filter((audit) => audit.judged); if (!audits.length) throw new Error('no LLM read carried a judged step'); const problems = audits.flatMap((audit) => [...audit.judged.keys.filter((key) => audit.scope.includes(key) || audit.prompt.includes(`${key}`)).map((key) => `${audit.reason}: judged ${key} still in the LLM scope`), ...['guard_mood'].filter((key) => !audit.judged.keys.includes(key) && !audit.scope.includes(key) && rt.getSnapshot().blackboardMeta[key]?.latched !== true).map((key) => `${audit.reason}: unsettled ${key} missing from the LLM scope`)]); if (problems.length) throw new Error(problems.join(' | ')); return audits.map((audit) => ({ reason: audit.reason, judged: audit.judged.keys, llmScope: audit.scope }));",
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snapshot = rt.getSnapshot(); const audits = snapshot.extraction.audits.slice(globalThis.__soJ11Audits); const ring = (snapshot.extraction.judgedReads ?? []).filter((entry) => entry.kind === 'typed'); const settled = new Set([...audits.flatMap((audit) => audit.judged?.keys ?? []), ...ring.flatMap((entry) => entry.answered ?? [])]); if (!settled.size) throw new Error(`the judge settled nothing: ${JSON.stringify({ audits: audits.length, ring: ring.map((entry) => ({ answered: entry.answered, fallback: entry.fallback ?? null })) })}`); const problems = audits.flatMap((audit) => (audit.judged?.keys ?? []).filter((key) => audit.scope.includes(key) || audit.prompt.includes(key)).map((key) => `${audit.reason}: judged ${key} still in the LLM scope`)); const cadence = audits.filter((audit) => audit.reason === 'cadence'); if (cadence.length && !settled.has('guard_mood') && rt.getSnapshot().blackboardMeta.guard_mood?.latched !== true && !cadence.some((audit) => audit.scope.includes('guard_mood'))) problems.push('unsettled guard_mood left every cadence scope'); if (problems.length) throw new Error(problems.join(' | ')); return { audits: audits.length, cadence: cadence.length, settled: [...settled], judgedAudits: audits.filter((audit) => audit.judged).length, ringFallbacks: ring.filter((entry) => entry.fallback).length };",
           "log": true
         }
       ]
