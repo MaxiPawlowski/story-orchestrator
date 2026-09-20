@@ -198,6 +198,29 @@ The same table shape as v2.1's `00-overview.md`: id, finding, fixed in, evidence
   setup is "open group, newchat, send" is exposed, and the failure looks like a send timeout rather
   than a popup. The runner now refuses to click through it by name (2026-09-20) instead of
   dismissing it as routine.
+- **The shipped example pins samplers tuned for a model nobody runs any more, and the output
+  degenerates.** Observed live during the J7 judge-off run, 2026-09-20: cast replies came back with
+  hyphens spliced through ordinary words — `his-eyes`, `he-spe-aks`, `eyes-a-look`,
+  `barely-above a-whisper`.
+  Cause is authored content, not engine code. `quest-for-the-sun-ruins.json` cp1 carries
+  `effects.preset {name: "Story: Sun Ruins", settings: {temp: 1.0, top_p: 1.0}}`, and that saved
+  preset has `rep_pen 1` (off), `top_k 0`, `top_p 1`, `temp 1` — so the only truncation left is
+  `min_p 0.05`, a very wide tail — together with DRY at `multiplier 0.8`, `allowed_length 2`,
+  `penalty_last_n 4096`. Deep into a play-through, ordinary English pairs like "his eyes" have
+  accumulated DRY penalty across the whole window, and with nothing truncating the tail the model
+  routes around them through punctuation. The preset exists exactly, so this is not the `/preset`
+  fuzzy-match trap — the settings really are these.
+  It was tuned when acceptance ran on gemma4-mtp and is applied on top of whatever the install has
+  selected, so on this install playing the example *overrides* the tuned `Artemis v1.1 RP` profile
+  with something worse. Any future model change re-opens it.
+  Recommended fix: drop the preset overlay from the shipped example and let it inherit the install's
+  connection profile. A first-contact example exists to make a good impression, and hard-coding
+  samplers is what broke it; if the story must carry an overlay, it should set only what is
+  genuinely story-specific, never a whole sampler stack.
+  Scope note: this does **not** invalidate J7 or the automated matrix, whose checks are structural
+  (anchors reached, convergence honoured, gates fired) and pass on garbled prose. It does hit the
+  human-eval player rubric, which asks whether the story reads well — score that on a story without
+  the overlay, or after this is fixed.
 - Anything bounced from this gate.
 
 ## Validation gate
