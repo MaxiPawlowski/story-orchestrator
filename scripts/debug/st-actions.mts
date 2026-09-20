@@ -74,12 +74,15 @@ export async function sendCompactMessage(page, text) {
   return executeSlashCommand(page, `/send compact=true ${text}`);
 }
 
-export async function sendUserMessage(page, text, { idleTimeoutMs = 300000 } = {}) {
+export async function sendUserMessage(page, text, { idleTimeoutMs = 300000, preSendIdleTimeoutMs = 60000 } = {}) {
   if (!text || typeof text !== 'string') {
     throw new Error('sendUserMessage requires a non-empty text string.');
   }
 
-  await waitForIdle(page, 15000);
+  // A prior turn must finish before we type, but this wait is not the caller's generation budget:
+  // hard-coded at 15s it blew up as soon as the pod moved to a slower card and ordinary turns ran
+  // past it, failing checks whose own timeoutMs was 300000 (2026-09-20).
+  await waitForIdle(page, preSendIdleTimeoutMs);
 
   const textarea = page.locator('#send_textarea');
   if (!(await textarea.count())) {
@@ -177,7 +180,7 @@ export async function executeSlashCommand(page, command) {
   }, command);
 
   try {
-    await waitForIdle(page, 15000);
+    await waitForIdle(page, 60000);
   } catch {
     // generation may not have been triggered - that's fine
   }
