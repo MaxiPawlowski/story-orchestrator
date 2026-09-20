@@ -78,8 +78,9 @@ verdict.
 ## Matrix
 
 **Partial.** Plan 08 requires J0–J11, `--strict`, twice each, in both configurations (judge off as
-the regression proof, judge on with every usage opted in), plus J7 once per configuration. One
-journey is done.
+the regression proof, judge on with every usage opted in), plus J7 once per configuration. The two
+journeys that carry the v2.2 features — J11 (the judge) and J8 (the curators and the warden) — are
+done and green in the judge-on configuration.
 
 ### J11 — judgment backend: GREEN
 
@@ -104,9 +105,30 @@ recording because two of them had been mistaken for product faults:
   stall call answered at `max p 0.94` against a 0.95 floor. **No threshold was changed** — loosening
   a calibrated floor to fit a single sample trades a real guard for a green tick.
 
+### J8 — stagecraft (WI curator + continuity warden): GREEN
+
+| run | strict | result |
+|---|---|---|
+| A | no | **6/6 automated pass** (J8.4 skipped: human check) |
+| B | yes | **6/6 automated pass** (J8.4 skipped: human check) |
+
+This is the whole warden slice proven live: J8.5 (auto mode produces exactly one note), J8.6 (review
+mode holds the note for the author, and a newer reply lapses it unapplied), J8.9 (both judge
+curators off — a contradicting reply produces nothing). The warden was the last v2.2 feature that
+had not been through a full journey.
+
+Cleanup was clean on both runs: `clean: true`, only the run's own `SO-J8 Lore` and its per-chat
+mirror book removed, `sessions.dropped: []`, no mirror-book leaks. That is the hardened
+`so-assets` scoping proven under live conditions — the same install was carrying nine
+newly-installed Adolion lorebooks and a real wizard session, and none were touched.
+
+J8.4 is the operator's to score and is skipped rather than faked green.
+
 ### Remaining
 
-J0–J10 in both configurations, J11 in the judge-off configuration, and J7 once per configuration.
+J0–J7, J9 and J10 in both configurations; J8 and J11 in the judge-off configuration; J7 once per
+configuration. Note J9 currently carries a known flake (F1) that gives any acceptance run of it a
+coin-flip chance of a false red until that is fixed.
 
 ### Product bugs found by the live gates (all fixed and committed)
 

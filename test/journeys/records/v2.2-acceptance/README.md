@@ -16,6 +16,28 @@ a journey is believed only after it has run twice).
 Backend for both runs: Artemis 31B (`TheDrummer_Artemis-31B-v1.1-Q4_K_M`) on llama.cpp `b11046`,
 RunPod pod `llm-pod-4500` (RTX PRO 4500). Judge model `jev-1.13.0` through the ST server plugin.
 
+## J8 — stagecraft: WI curator and continuity warden
+
+| run | file | log | strict | result |
+|---|---|---|---|---|
+| A | `journey-J8-run1.json` | `logs/j8-run-A2.log` | no | **6/6 automated pass** |
+| B | `journey-J8-run2.json` | `logs/j8-run-B.log` | yes | **6/6 automated pass** |
+
+J8.4 is a human check and is skipped by the runner, not scored automatically.
+
+Cleanup clean on both: only the run's own `SO-J8 Lore` and its per-chat mirror book removed,
+`sessions.dropped: []`, no leaks — with nine unrelated Adolion lorebooks and a real wizard session
+present on the same install.
+
+An earlier attempt at run A aborted mid-J8.3 on a **sandbox escape**: another session's
+`open-group` timed out, it ran `new-chat` anyway, and that created a chat in this group and moved
+the page. The guard stopped before writing anything. That aborted attempt is not counted as a
+result and is not archived here.
+
+**Do not reintroduce a hard-coded op kind into J8.2/J8.3.** They assert `opsAtLeast` with
+`pick: "text-first"` on purpose. In run A the curator chose `disable`; a check naming `rewrite`
+would have failed for the wrong reason. The curator has no `create` op at all (F5).
+
 ### Getting here
 
 J11 progressed 19 → 21 → 22 → 24 → 26 across the session. The last three fixes, all in
