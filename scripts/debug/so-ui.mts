@@ -169,6 +169,11 @@ export async function closeCheckpointStudio(page) {
 export async function saveStudioDraft(page, choice = null) {
   const modal = page.locator('#so-studio-modal');
   if (!(await modal.count())) throw new Error('Studio modal is not open.');
+  // What the save produces is recorded asynchronously by applyStoryUpdate, so the old fixed 500ms
+  // sleep read the PREVIOUS update on a slower box: J2.7 saw the compatible quality-added result
+  // from two steps earlier and reported "expected invalidating, got compatible" while the product
+  // had classified it correctly (2026-09-20).
+  const lastUpdateAt = await evaluateInST(page, () => globalThis.storyOrchestratorRuntime?.getLastStoryUpdate?.()?.at ?? null).catch(() => null);
   const save = modal.locator('button', { hasText: /^Save$/ });
   if (!(await save.count())) throw new Error('Studio Save button not found.');
   await save.first().click();
@@ -186,7 +191,19 @@ export async function saveStudioDraft(page, choice = null) {
       await confirm.first().click().catch(() => undefined);
     }
   }
-  await page.waitForTimeout(500);
+  // Wait for the update itself rather than for a duration. A save that produces no update at all
+  // (identical draft, or one this chat does not take) never changes it, so this is a bounded wait
+  // and not an assertion.
+  await page.waitForFunction(
+    (before) => {
+      const at = (globalThis as { storyOrchestratorRuntime?: { getLastStoryUpdate?: () => { at?: string } | null } })
+        .storyOrchestratorRuntime?.getLastStoryUpdate?.()?.at ?? null;
+      return at !== before;
+    },
+    lastUpdateAt,
+    { timeout: 15000 },
+  ).catch(() => undefined);
+  await page.waitForTimeout(250);
   return evaluateInST(page, () => {
     const container = document.getElementById('so-studio-modal');
     const feedback = container?.querySelector('.st-alert-success, .st-alert-error')?.textContent?.trim() ?? null;
