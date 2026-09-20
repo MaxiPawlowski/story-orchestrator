@@ -822,12 +822,13 @@ async function runStep(page, key, value, { scenarioDir = PROJECT_ROOT, importedH
 
 // Shared step engine: so-scenario (feature level) and so-journey (composition level) run the
 // exact same verbs. New verbs land here, never in a parallel runner.
-const STEP_MODIFIERS = new Set(['adoptsNewChat', 'log']);
+const STEP_MODIFIERS = new Set(['adoptsNewChat', 'log', 'attempts', 'retryBack']);
 
 // With a sandbox guard every step first proves the page is still on a chat the run created, so a
 // chat switched under the run (a shared debug browser) stops it before it writes anywhere else.
 async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashes = [], label = '', assetBaseline = null, guard = null } = {}) {
   const result = { steps: [], ok: true, error: null };
+  const attempts = new Map<number, number>();
   for (let index = 0; index < steps.length; index += 1) {
     const step = steps[index];
     const key = Object.keys(step).find((name) => !STEP_MODIFIERS.has(name));
@@ -846,9 +847,23 @@ async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashe
     } catch (err) {
       const entry = { index, key, ok: false, ms: Date.now() - startedAt, error: err.message || String(err), output };
       result.steps.push(entry);
+      // A check that asserts ONE model sample is a coin flip, and running the journey twice does not
+      // help: at a ~50% sample failure rate, two runs still red three times in four (2026-09-20).
+      // `attempts` re-samples instead, and `retryBack` rewinds to the step that made the call —
+      // retrying the assertion alone would re-check the same stored output forever. Opt-in per step,
+      // because a rewound span re-runs its side effects.
+      const allowed = Math.max(1, Number(step.attempts) || 1);
+      const used = (attempts.get(index) ?? 0) + 1;
+      attempts.set(index, used);
+      if (used < allowed) {
+        const back = Math.max(0, Number(step.retryBack) || 0);
+        console.log(`${label}${index + 1}/${steps.length} ${key} attempt ${used}/${allowed} failed, retrying from step ${index - back + 1}: ${entry.error}`);
+        index = index - back - 1;
+        continue;
+      }
       result.ok = false;
-      result.error = entry.error;
-      console.log(`${label}${index + 1}/${steps.length} ${key} FAIL ${entry.error}`);
+      result.error = allowed > 1 ? `${entry.error} (after ${allowed} attempts)` : entry.error;
+      console.log(`${label}${index + 1}/${steps.length} ${key} FAIL ${result.error}`);
       break;
     }
   }

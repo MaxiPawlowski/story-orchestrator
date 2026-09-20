@@ -73,10 +73,13 @@
           "ui": {
             "action": "wizard-answer",
             "timeoutMs": 180000
-          }
+          },
+          "attempts": 3
         },
         {
-          "eval": "await new Promise((done) => setTimeout(done, 500)); const wizard = document.getElementById('so-wizard'); if (!wizard) throw new Error('wizard closed'); if (document.getElementById('so-wizard-questions')) throw new Error('still interviewing after You decide'); const proposal = wizard.querySelector('[aria-label=\"Copilot proposal\"]'); if (!proposal) throw new Error('You decide did not produce a proposal'); const invalid = proposal.textContent.includes('Invalid proposal'); if (invalid) throw new Error(`proposal was invalid: ${proposal.textContent.slice(0, 300)}`); return { proposal: proposal.textContent.slice(0, 200) };"
+          "eval": "await new Promise((done) => setTimeout(done, 500)); const wizard = document.getElementById('so-wizard'); if (!wizard) throw new Error('wizard closed'); if (document.getElementById('so-wizard-questions')) throw new Error('still interviewing after You decide'); const proposal = wizard.querySelector('[aria-label=\"Copilot proposal\"]'); if (!proposal) throw new Error('You decide did not produce a proposal'); const invalid = proposal.textContent.includes('Invalid proposal'); if (invalid) throw new Error(`proposal was invalid: ${proposal.textContent.slice(0, 300)}`); return { proposal: proposal.textContent.slice(0, 200) };",
+          "attempts": 3,
+          "retryBack": 1
         },
         {
           "ui": {

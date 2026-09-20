@@ -164,6 +164,21 @@ The same table shape as v2.1's `00-overview.md`: id, finding, fixed in, evidence
   extraction-scope check all passed the story clean. Statically detectable: warn when a
   `latching` enum's `values` contains a placeholder-shaped member (`undecided`, `none`,
   `pending`, `unset`, `tbd`) and say that the unset state should be the absence of a value.
+- **A per-chat checkpoint effect writes install-wide group state, with nothing scoping or reverting
+  it.** `cast_changes` / `setGroupMembersDisabled` write the *group's* `disabled_members`, which is
+  shared by every chat in that group and outlives the chat that set it. Two symptoms that look
+  unrelated are the same defect: a stale flag leaking into fresh chats, and cleanup having to
+  re-enable members *after* `/delchat` because doing it inside the sandbox chat reports success and
+  is then undone when ST reloads the group.
+  Minimal reproduction (Adolion campaign, 2026-09-20 — no second story and no second session
+  needed): one story with two checkpoints disagreeing about one member. `road-to-wendhope` disables
+  Tobias, `guild-hall` enables him, and the group-level flag flips purely on whichever checkpoint a
+  chat last hydrated. A second chat in that group then opens with a cast the author never chose.
+  `/member-enable` does not help diagnose it either: it acts on whatever group is currently open, so
+  it reports ok while doing nothing to the group you meant.
+  Shape of a fix: either scope the disable to the chat (mirror it in `chat_metadata` and re-apply on
+  hydrate, leaving the group flag alone), or make it revertible the way the curator's writes are —
+  record the pre-write state and restore it when the chat that set it is left or rolled back.
 - Anything bounced from this gate.
 
 ## Validation gate
