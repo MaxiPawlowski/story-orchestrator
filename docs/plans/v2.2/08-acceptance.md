@@ -274,7 +274,24 @@ The same table shape as v2.1's `00-overview.md`: id, finding, fixed in, evidence
   collision that costs a run. It blocked a J9 setup on 2026-09-20 (`/newchat` timed out, the sandbox
   guard then refused a chat it had not created). Recognise that popup by text, and fail the run with
   it named rather than clicking through it.
-- Anything bounced from this gate.
+- **Journeys leave install-wide extraction settings behind, and a player pays for it.** Only 2 of
+  the 12 journeys pin `setup.cadence`; the rest inherit whatever the install holds. J11.20 and
+  J11.23 deliberately set `cadence: 50` ("reads off"), and because the config snapshot is taken at
+  setup and written back at cleanup, 50 survived the run and became the install's value.
+  Found from the other side on 2026-09-20: the Adolion campaign session had a story that would not
+  advance on its own — a gate quality stayed unset after the boundary until `runExtractionNow()` was
+  called by hand — and wrote it off as "extraction hasn't fired yet". At cadence 50 it was not going
+  to fire for another forty-odd messages. For a story whose gates are extraction-driven, that reads
+  to a player as the story simply not noticing what they did. The shipped default is 3, which is
+  roughly every other group turn.
+  Two fixes, both wanted: **(a)** every journey pins the extraction settings it needs, the way they
+  now pin the group and their story's lorebooks — a journey that turns reads off must not be able to
+  leave them off; **(b)** cleanup should restore install-wide settings to what the install had
+  *before* the run rather than to a snapshot a check has since mutated, or at minimum warn when it
+  writes back a value a check set.
+  Note for anyone re-reading old runs: any journey assertion about audit counts, or about how many
+  boundaries a delta takes to land, was calibrated against whatever ambient cadence that run
+  inherited. Those numbers are not comparable across runs until (a) lands.
 - Anything bounced from this gate.
 
 ## Validation gate
