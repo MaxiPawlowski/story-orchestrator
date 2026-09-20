@@ -94,11 +94,29 @@ async function snapshotGlobalConfig(page) {
 async function writeGlobalConfig(page, value) {
   return evaluateInST(page, async ({ key, next }) => {
     const ctx = SillyTavern.getContext();
+    // The story LIBRARY lives in this same root (`v2Stories`), so replacing the root wholesale
+    // deleted any story another session imported after our snapshot — silently, with every asset it
+    // depended on left installed and green, so the requirements panel still read ready and the only
+    // symptom was selectStory() returning false (2026-09-20, cost a peer session a story record).
+    // Narrow guard: a restore never removes a story id the install has and the snapshot does not.
+    // `settings` restore behaviour is deliberately untouched — the matrix depends on it.
+    const idOf = (record) => record?.id ?? record?.hash ?? null;
+    const liveStories = Array.isArray(ctx.extensionSettings?.[key]?.v2Stories) ? ctx.extensionSettings[key].v2Stories : [];
+    const preservedStories = [];
+    if (next !== null) {
+      const incoming = Array.isArray(next.v2Stories) ? next.v2Stories : [];
+      const known = new Set(incoming.map(idOf).filter(Boolean));
+      for (const record of liveStories) {
+        const id = idOf(record);
+        if (id && !known.has(id)) { incoming.push(record); preservedStories.push(id); }
+      }
+      if (incoming.length) next = { ...next, v2Stories: incoming };
+    }
     if (next === null) delete ctx.extensionSettings[key];
     else ctx.extensionSettings[key] = next;
     if (typeof ctx.saveSettings === 'function') await ctx.saveSettings();
     else { ctx.saveSettingsDebounced(); await new Promise((done) => setTimeout(done, 1500)); }
-    return { key, cleared: next === null, keys: next ? Object.keys(next) : [] };
+    return { key, cleared: next === null, keys: next ? Object.keys(next) : [], preservedStories };
   }, { key: EXTENSION_KEY, next: value });
 }
 
