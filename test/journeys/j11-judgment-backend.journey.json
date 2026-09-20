@@ -313,6 +313,11 @@
       ],
       "steps": [
         {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
+        {
           "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, memoryVerify: false, memoryPairs: false, sceneTrigger: true, sceneTracker: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; globalThis.__soJ11Scene = { calls: sceneCalls().length, boundary: rt.getEngineState().boundary }; return globalThis.__soJ11Scene;"
         },
         {
@@ -391,6 +396,20 @@
         "judge-plugin"
       ],
       "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
+        {
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, memoryVerify: false, memoryPairs: false, sceneTrigger: true, sceneTracker: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; globalThis.__soJ11Scene = { calls: sceneCalls().length, boundary: rt.getEngineState().boundary }; return globalThis.__soJ11Scene;"
+        },
+        {
+          "send_generate": {
+            "text": "Arin, stay close. We head for the town gate at first light, and Luke stays in the guild hall.",
+            "timeoutMs": 300000
+          }
+        },
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; const read = await until(() => { const scene = rt.getSceneRead(); return scene && scene.messageId === lastId() ? scene : null; }, 20000); if (!read) throw new Error('no fresh scene read to roll back'); globalThis.__soJ11Rolled = read.messageId; return { messageId: read.messageId, block: block() };"
         },
