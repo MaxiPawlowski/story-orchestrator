@@ -158,11 +158,15 @@
       "id": "J11.6",
       "mode": "auto",
       "findings": [],
-      "goal": "judge settings survive a reload, and the key appears nowhere in extension settings or chat metadata",
+      "goal": "judge settings set through the settings panel survive a reload, and the key appears nowhere in extension settings or chat metadata",
       "requires": [
         "judge-runtime"
       ],
       "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const enabled = document.querySelector('#so-judge-enabled'); const director = document.querySelector('#so-judge-use-director'); if (!enabled || !director) throw new Error('the judge settings rows are not mounted'); const toggle = (box) => (box.closest('label') ?? box).click(); if (!enabled.checked) toggle(enabled); await new Promise((resolve) => setTimeout(resolve, 400)); if (!director.checked) toggle(director); await new Promise((resolve) => setTimeout(resolve, 400)); const now = rt.getGlobalSettings().judge; if (!now.enabled || !now.uses.director) throw new Error('the settings rows did not turn the judge on: ' + JSON.stringify(now)); ctx.saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); return { enabled: now.enabled, director: now.uses.director };",
+          "log": true
+        },
         {
           "reload": {
             "timeoutMs": 90000
