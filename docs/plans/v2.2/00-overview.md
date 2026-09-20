@@ -231,6 +231,28 @@ Never: character cards, persona text, other chats, the API key (server-side only
 | Spike §Unresolved: floors, hint authored vs inferred | 06 (`read_as`, authored) |
 | v2.1 seed list: remaining curators | 05 (two of four); cast tuning and recap narrator stay seeds |
 
+## Live gate status (2026-09-20, paused on hardware)
+
+The judgment model itself is fully exercised: **all 11 calibrations pass in-page** (page → plugin →
+live API, goldens in `test/goldens/judge/`), continuity 85/85 and stall 87/87 among them.
+
+**J11: 24 of 26 verified live.** Green includes the whole scene slice, lore-select, typed extraction,
+the stall check, curator focus (J11.26) and prepare-ahead with variants (J11.25). Two are unverified
+because the pod died mid-session: J11.15 (fixed — it now seeds a location before changing it) and
+J11.21 (assertion rewritten around the residual-scope invariant). Both need a re-run, not a fix in
+anger.
+
+**J8: not yet run.** The warden's whole path *except* the story model was proven live anyway (see the
+plan 05 smoke). J8.5/J8.6/J8.9 were made self-contained offline.
+
+**Three product bugs the live gates found**, all fixed: the scene read surviving a deleted message
+(the engine declines that rollback), off-path uses inheriting the 1500 ms reply-path budget
+(stall failed by luck), and a fallback stall recording every leaf as answered.
+
+**Backend note.** The RunPod pod exited by itself after ~1 h and its host has had no free GPU since,
+so live work is paused. A replacement pod on the same network volume in EU-RO-1 is the fallback, at
+the same price, and needs the user's go-ahead.
+
 ## Latency budgets (revised on live evidence, 2026-09-19)
 
 The reply path keeps the tight default (1500 ms: director, lore-select) — a fallback there is the
