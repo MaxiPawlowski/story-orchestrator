@@ -1,4 +1,4 @@
-﻿# Story Orchestrator review — 2026-09-18
+# Story Orchestrator review — 2026-09-18
 
 **Assessment: the reviewed snapshot is not ready for a shareable release.** The deterministic engine and authoring surface have substantial test coverage, but asynchronous ownership, history reversal, extraction authority, and generated branching have reproducible correctness gaps. Improving these contracts is a better next step than replacing the checkpoint architecture.
 
@@ -14,7 +14,8 @@ This is a review deliverable, not a production patch. The review added tooling, 
 - [Memory and engine review](memory-engine-review.md): Sol's independent reproductions, reviewed by the lead reviewer; see the qualifications in findings.md.
 - [Test credibility](test-credibility.md): what strict journeys, fixtures, self-tests, and component checks actually establish.
 - [Current-source comparison](current-comparison.md): later concurrent changes assessed separately, when available.
-- [Live review](live-review.md): Sol's isolated host, model, journey, and feature-scenario results, when complete.
+- [Bounded current-source closeout](closeout-2026-09-20.md): later v2.2 source classification, fresh manifest, and explicit retest limits.
+- [Live review](live-review.md): isolated host/model outcomes, retained failed attempts, and remaining live gates.
 
 ## Reviewed version and reproducibility
 

@@ -1,10 +1,10 @@
-﻿# Coverage and verification ledger
+# Coverage and verification ledger
 
 Statuses: **implemented** means a code path exists; **partial** means part of the stated contract is absent or contradicted; **planned** is design only. Evidence strength is separate: **unit**, **reproduction**, **component browser**, **live**, or **source only**. A passing unit/component check does not imply a passing user journey.
 
 ## Capability traceability
 
-Source/test paths are relative to the preserved source archive. Live outcomes and their attempt numbers are in live-review.md. The [per-file ledger](evidence/file-coverage.csv) accounts for every inventoried file without claiming that all files received a line-by-line audit.
+Source/test paths are relative to the preserved source archive. Live outcomes and their attempt numbers are in the [live report](live-review.md). The [per-file ledger](evidence/file-coverage.csv) accounts for every inventoried file without claiming that all files received a line-by-line audit.
 
 | Promised capability / intent | Implementation and UI | Existing verification | This review / status |
 |---|---|---|---|
@@ -37,7 +37,7 @@ Source/test paths are relative to the preserved source archive. Live outcomes an
 | Migration of older metadata | persistenceMigration | migration tests | Unit paths pass; live pre-v2.1 fixture gated by journey results. |
 | Selection/restart/deletion | selection/persistence; settings and drawer | storyIdentity/runtime | Implemented current-state behavior; retention five, history limits disclosed as gap. |
 | Hot-swap invalidating edits | storyDiff/prune/update; choice popup | storyUpdate | Implemented choices; rollback after hydrate and unsafe HTML need correction. |
-| Studio graph and schema authoring | studio editors, mutations, draft, io | studio suites; Storybook | Broad format coverage implemented; real end-to-end author workflow separate. |
+| Studio graph and schema authoring | studio editors, mutations, draft, io | studio suites; Storybook | Automated format coverage is broad. Manual Storybook walkthrough is partial: two checkpoints and a `letter_found` gate were authored, then work stopped on the Story tab before save/reopen/play validation. |
 | Wizard interview/proposals | copilot + wizard; StudioCopilot/ProposalReview | authoring/proposal/provisioning; Storybook | Implemented staged model workflow; fixture questions do not establish model reliability. |
 | Provision cards/books/groups | stHost/provisioning + copilotCoordinator | provisioning | Partial create-only promise: R8 dependency/ownership conflation. |
 | Player/author separation | drawer/HUD/settings, snapshot/narrative | narrative; J3 selector/content audit | Implemented interface separation; authored text can still contain spoilers, needs editorial contract. |
@@ -83,12 +83,12 @@ The direct CLIs were `node node_modules/storybook/bin/index.cjs build --output-d
 
 ## Evidence boundaries and closure
 
-Strict live journeys/features, intentionally failing runner self-test, backend restart/autoload, concurrent model demand and any additional live failures are accounted for in live-review.md. A run blocked by a broken UI action remains blocked/failed; retries are separate attempts. Do not turn missing capability checks or skipped human judgments green.
+Strict live journeys/features, intentionally failing runner self-test, backend restart/autoload, concurrent model demand and any additional live failures are accounted for in the [live report](live-review.md). A run blocked by a broken UI action remains blocked/failed; retries are separate attempts. Do not turn missing capability checks or skipped human judgments green.
 
 This review identifies and substantiates release blockers even where later live gates are blocked. A full ship-readiness acceptance still requires all unexecuted/unclosed cells in the live report, fault-injected persistence/coexistence checks, multiple supported host versions, theme/real-browser zoom/assistive-tech coverage, independent long-form roleplay and unfamiliar-player/author validation. The review does not claim those passed.
 
 See [test-credibility.md](test-credibility.md) for the closed-schema assertion gap, false operation return handling, strict-mode skip/cleanup semantics, incomplete live-fixture scoring and permissive model self-test grading. These are separate from product correctness failures.
 
 
-Supplementary root harnesses: event deduplication 2 expected failures/2 controls (	urn-boundary.json); semantic model self-test grading 1 expected failure/2 controls (selftest-grading.json). The independent Two Ways Across fixture validates both authored routes and convergence (2 passing tests, independent-story.log); its real-model runs belong to the live report. These are separate from the 13-test current-source comparison.
+Supplementary root harnesses: event deduplication 2 expected failures/2 controls ([JSON](evidence/turn-boundary.json)); semantic model self-test grading 1 expected failure/2 controls ([JSON](evidence/selftest-grading.json)). The independent Two Ways Across fixture validates both authored routes and convergence (2 passing tests, [log](evidence/independent-story.log)); its real-model runs belong to the live report. These are separate from the 13-test current-source comparison.
 

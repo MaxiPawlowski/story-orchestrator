@@ -115,3 +115,8 @@ Redacted evidence:
 - The separate copy reused the baseline dependency installation. This controls dependency drift but does not test a fresh install of any changed package metadata; `package.json` was included in the manifest and had no installation performed.
 - The comparison did not run the whole Jest suite because the task was to compare the two bounded harnesses. Earlier focused controls remain documented in `memory-engine-review.md`.
 - No production file, contract, host setting, profile, chat, session, or active isolated source file was modified.
+
+
+## Later v2.2 closeout
+
+A bounded source-only follow-up on 2026-09-20 found 103 changed files and 127 additions in the comparable source/config/fixture scope. The later v2.2 tree was not subjected to the September 18 full deterministic or live review. See [the closeout](closeout-2026-09-20.md) for source classifications, the fresh manifest, archived live evidence, and remaining gates. Earlier harness results remain evidence for their immutable snapshots and are not claimed as executions against the September 20 tree.

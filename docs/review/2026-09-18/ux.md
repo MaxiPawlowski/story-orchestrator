@@ -1,4 +1,4 @@
-﻿# UI and experience assessment
+# UI and experience assessment
 
 These are agent observations. They do not substitute for the 21 outstanding historical human checks or for unfamiliar-player testing.
 
@@ -12,7 +12,9 @@ The separate interaction script focused Graph, pressed ArrowRight, and remained 
 
 A 45-step keyboard trace remained in the modal in the sampled fixture. The text-scaling probe sets the root font to 200%; it is **not browser zoom** and must not be called a zoom conformance check. Escape did not remove the fixture dialog because its `onClose` is a Storybook mock; the existing story asserts that callback invocation. This observation is not a production close-button defect. [Interaction details](evidence/ui/interaction.json) make these limitations explicit.
 
-The Storybook runner passed 107 interaction/axe tests. Its axe scope is normally `#storybook-root`; individual stories can configure or disable checks. Color-contrast checks are globally disabled in `.storybook/preview.ts`; no story-level disable was found in the preserved corpus. Browser snapshots rely partly on host CSS that is absent in Storybook: for example, the player-view buttons look washed out in the isolated screenshot. That alone is not evidence of a contrast defect in real SillyTavern. Real theme and host layering checks belong to live-review.md.
+The Storybook runner passed 107 interaction/axe tests. Its axe scope is normally `#storybook-root`; individual stories can configure or disable checks. Color-contrast checks are globally disabled in `.storybook/preview.ts`; no story-level disable was found in the preserved corpus. Browser snapshots rely partly on host CSS that is absent in Storybook: for example, the player-view buttons look washed out in the isolated screenshot. That alone is not evidence of a contrast defect in real SillyTavern. Real theme and host layering checks belong to the [live report](live-review.md).
+
+The manual Storybook authoring walkthrough is **partial**. It authored two checkpoints and a `letter_found` gate, then stopped on the Story tab. It did not complete save, reopen, export/import, or play validation, so it is not an end-to-end authoring pass.
 
 ## Reviewer assessments and concrete improvements
 
@@ -30,7 +32,7 @@ The Storybook runner passed 107 interaction/axe tests. Its axe scope is normally
 
 ## Outstanding experience validation
 
-Real-host agent-led play and authoring are recorded in the live report with exact failures. The root Storybook evidence is not a completed authoring journey. Remaining human evaluation should include a new player, a new author, and an experienced roleplayer on at least two themes and a small screen. Ask them to start a story, resume after a break, recover from a failed backend, make an invalidating edit, and explain what a pin means. Observe completion and misunderstanding before asking for subjective quality ratings.
+Real-host agent-led play and authoring are recorded in the [live report](live-review.md) with exact failures. The root Storybook evidence is not a completed authoring journey. Remaining human evaluation should include a new player, a new author, and an experienced roleplayer on at least two themes and a small screen. Ask them to start a story, resume after a break, recover from a failed backend, make an invalidating edit, and explain what a pin means. Observe completion and misunderstanding before asking for subjective quality ratings.
 
 Narrative quality should be judged on causal continuity, character knowledge, respect for player choices, repetition and recovery after surprises. A coherent short generated reply or a satisfied gate is not sufficient evidence of those qualities over a session.
 

@@ -1,4 +1,4 @@
-﻿# Prioritized findings
+# Prioritized findings
 
 All R tests below ran against the preserved snapshot. Source paths are relative to that archive. Reproduce by copying `scripts/review/reviewRegression.test.ts` to isolated `src/runtime/reviewRegression.test.ts` and running `node node_modules/jest/bin/jest.js --runInBand --runTestsByPath src/runtime/reviewRegression.test.ts`. Expected assertions express the documented/intended contract and deliberately fail on defects. [JSON](evidence/reproductions.json), [console](evidence/reproductions.log), and [source inventory](evidence/inventory.json) preserve the evidence. Earlier invalid harness fixtures were corrected before these results; their errors were not counted as product failures.
 
@@ -87,7 +87,7 @@ Recommended contract: pin protects retention; current truth and source validity 
 - **P2, keyboard:** Studio advertises tabs but arrow keys do not move focus; see UX evidence.
 - **P2, retention disclosure:** `runtime/persistence.ts:10,43–49` retains five story states per chat. Explain/archive before eviction if users are promised that selecting another story preserves their run.
 
-Live findings, including first-run drawer interaction failures and profile/model behavior, are tracked separately in live-review.md. Do not collapse fixture failures, harness failures, missing capabilities and product defects into one pass percentage.
+Live findings, including first-run drawer interaction failures and profile/model behavior, are tracked separately in the [live report](live-review.md). Do not collapse fixture failures, harness failures, missing capabilities and product defects into one pass percentage.
 
 ## R10/R11 — P2: reply deduplication uses elapsed time instead of message identity
 
