@@ -311,7 +311,7 @@ cited). Items needing the backend stay `done` with the live half listed under L-
 | 0 | V0 | repo | v2.3 is uncommitted on `master` (212 M / 163 ??) and `master` is 91 ahead of `origin`: branch + commit + push — **needs user approval**; backup tarball taken 2026-09-23 | blocked (user) |
 | 1 | V21 | 08 | Attestation `current` computed by `scripts/release/attest.mjs` (not hand-edited); test compares computed vs file; source hash includes `styles.css`; manifest records the extension commit || done 2026-09-23 |
 | 2 | V1 | 02 | R7 residual: `showConfirmPopup` string → DOM text nodes (`index.tsx:272` library title reaches innerHTML); drop `showTextPopup`'s `innerHTML` sink; guard test: no string reaches `callGenericPopup` || live 2026-09-23 (`records/v2.3-replan/V1/`) |
-| 3 | V2 | 03 | Extraction ownership across the shared read: mint the token in `ExtractionScheduler.pump` before `runSharedRead`, gate `enqueueExtractorDeltas` + apply on it; test moves the world during the read | todo |
+| 3 | V2 | 03 | Extraction ownership across the shared read: mint the token in `ExtractionScheduler.pump` before `runSharedRead`, gate `enqueueExtractorDeltas` + apply on it; test moves the world during the read | live 2026-09-23 (`records/v2.3-replan/V2/`) |
 | 4 | V7 | 05 | Quarantine exclusion completeness: `rollbackLedger` quarantines pinned rows; `mirroredEntries` filters `isLive`; stale canon kept out of steering consumers; consolidation `groupOf` live-only; scene conflicts excluded; one exclusion census test over every consumer | todo |
 | 5 | V12 | 07 | Contract drop strands a chat on a generated checkpoint: migrate legacy `inserted` chains on the path (single outcome → id `<beat>:0`), and hydrate guard for a missing active checkpoint (nearest path anchor + notice) | todo |
 | 6 | V9 | 04 | Ledger: no new version for an unchanged value; cap per key above the history floor, never cross-key eviction | todo |
@@ -322,7 +322,7 @@ cited). Items needing the backend stay `done` with the live half listed under L-
 | 11 | V16 | 06 | Save evidence: real server read-back (chat file fetch) or rename the claim; observation attributed per request; "retrying" backed by a bounded retry or the copy changed | todo |
 | 12 | V4 | 03 | TurnBridge: `continue`/`appendFinal` on the same message id commits a boundary (verify ST `script.js` continue path first); group round keeps one boundary per reply; null id not keyed "0" | todo |
 | 13 | V5 | 03 | `getMetadataBlob` never blanks a foreign blob on read; mismatch journaled | todo |
-| 14 | V6 | 03 | `RunOwner.lowestMutatedMessageId` scoped to since-mint, not the epoch | todo |
+| 14 | V6 | 03 | `RunOwner.lowestMutatedMessageId` scoped to since-mint, not the epoch | done 2026-09-23 (landed with V2; jest only) |
 | 15 | V3 | 03 | Remaining unowned writers: `JudgeRuntime.ask` fallback, `syncMemoryMirror` (check before each host write), `clearStory` mid-await, curator `inFlight` per chat; census covers arrow functions + property writes, or each blind spot gets rows; resolve the 11 `todo` / 9 `partial` rows | todo |
 | 16 | V11 | 04 | `runRollback` `history-unavailable` from a missing snapshot → notice + journal, never silent; `boundary === null`; E1 notice offers re-read AND Restart; E1 ledger test asserts manager behaviour, not a constructed object | todo |
 | 17 | V8 | 05 | M7: recompute tokens after edit; manual edit writes an override; ConflictQueue lists conflicted rows once; Discard goes through `commitDecision` | todo |

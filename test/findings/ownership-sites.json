@@ -26,8 +26,8 @@
       "note": "v2.3 plan 03: not yet checked"
     },
     "src/runtime/coordinators/extractionCoordinator.ts#ExtractionCoordinator.runNow": {
-      "status": "todo",
-      "note": "v2.3 plan 03: not yet checked"
+      "status": "checked",
+      "note": "v2.3 replan V2 (2026-09-23): the read is minted BEFORE runSharedRead over the exact window it reads; applyAudit refuses a lapsed read before any write, and the boundary commit is skipped when the read lapsed."
     },
     "src/runtime/coordinators/extractionCoordinator.ts#ExtractionCoordinator.runSceneBreakPass": {
       "status": "checked",

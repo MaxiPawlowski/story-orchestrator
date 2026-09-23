@@ -7,6 +7,7 @@ jest.mock("@services/STAPI", () => ({
   readBackBoundary: () => null, getContext: () => ({ chat: mockChat }) }));
 
 jest.mock("./sharedRead", () => ({
+  sharedReadWindow: jest.requireActual("./sharedRead").sharedReadWindow,
   runSharedRead: jest.fn(async () => ({
     audit: { id: "x", createdAt: "t", priority: 0, reason: "r", contractHash: "h", scope: [], window: { from: 0, to: 0 }, prompt: "p", rawResponse: "r", acceptedDeltas: [], rejected: [] },
     facts: [{ text: "a fact", evidence: "e", importance: 2 }],
@@ -14,6 +15,7 @@ jest.mock("./sharedRead", () => ({
     arcs: [{ kind: "open", text: "an unresolved thread from the read" }],
   })),
 }));
+
 
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import { ExtractionScheduler, type SchedulerHost, type SchedulerSettings } from "./scheduler";

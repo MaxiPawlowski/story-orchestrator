@@ -79,9 +79,13 @@ const createId = (parts: unknown) => {
   return (hash >>> 0).toString(16).padStart(8, "0");
 };
 
-export async function runSharedRead(options: RunSharedReadOptions): Promise<SharedReadResult> {
+export function sharedReadWindow(options: Pick<RunSharedReadOptions, "state" | "priority" | "window" | "stabilityLag">): SharedReadWindow {
   const latestMessageId = options.state.lastMessageId - (options.priority === 1 ? Math.max(0, options.stabilityLag ?? 1) : 0);
-  const window = options.window ?? getChatWindow(Math.max(0, latestMessageId - 7), latestMessageId);
+  return options.window ?? getChatWindow(Math.max(0, latestMessageId - 7), latestMessageId);
+}
+
+export async function runSharedRead(options: RunSharedReadOptions): Promise<SharedReadResult> {
+  const window = sharedReadWindow(options);
   const scope = options.scope ?? deriveScope(options.story, options.state.activeCheckpointId, options.state.blackboard, options.extraGateSources ?? []);
   const hinted = scope.filter((entry) => entry.quality.read_as && entry.quality.source === "extractor");
   const judged: JudgedTypedRead | null = options.judgeTyped && hinted.length

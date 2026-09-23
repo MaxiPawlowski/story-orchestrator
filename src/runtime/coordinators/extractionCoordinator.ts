@@ -1,5 +1,5 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
-import { callExtractionModel, deriveFullScope, deriveScope, getChatWindow, getLastMessageText, reconciliationKeySet, reconciliationTargets, runSharedRead, stripChannelNoise, type ExtraGateSource, type ParsedDelta, type ParsedFact, type ReconciliationPlan, type SharedReadAudit } from "@extraction/index";
+import { callExtractionModel, deriveFullScope, deriveScope, getChatWindow, getLastMessageText, reconciliationKeySet, reconciliationTargets, runSharedRead, sharedReadWindow, stripChannelNoise, type ExtraGateSource, type ParsedDelta, type ParsedFact, type ReadOwnership, type ReconciliationPlan, type SharedReadAudit } from "@extraction/index";
 import { buildEpistemicPassPrompt, buildLedgerPassPrompt, buildSceneSummaryPrompt, buildShortTermSummaryPrompt, detectSceneBreakHeuristic, generateMemoryId, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, provenance, type ArcEntry, type MemoryEntry, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine } from "@memory/index";
 import { getActiveGroup, getContext } from "@services/STAPI";
 import { SHORT_TERM_COMPACTION_MESSAGES } from "@constants/defaults";
@@ -167,8 +167,9 @@ export class ExtractionCoordinator {
     this.state.scheduler = { ...this.state.scheduler, lastError: message };
   }
 
-  async applyAudit(audit: SharedReadAudit, facts: ParsedFact[], memoryLines: ParsedMemoryLine[] = [], arcSignals: ParsedArcSignal[] = [], epistemicSignals: ParsedEpistemicSignal[] = [], ledgerSignals: ParsedLedgerSignal[] = []) {
+  async applyAudit(audit: SharedReadAudit, facts: ParsedFact[], memoryLines: ParsedMemoryLine[] = [], arcSignals: ParsedArcSignal[] = [], epistemicSignals: ParsedEpistemicSignal[] = [], ledgerSignals: ParsedLedgerSignal[] = [], read: ReadOwnership | null = null) {
     if (!this.deps.getStory()) return;
+    if (read && !read.stillOwns()) return;
     const boundary = this.deps.getState()?.boundary ?? 0;
     this.deps.enqueueExtractorDeltas(audit.acceptedDeltas, audit.window);
     const memory = this.deps.memory;
@@ -241,12 +242,14 @@ export class ExtractionCoordinator {
     const memory = this.deps.memory;
     const chatLength = Array.isArray(getContext().chat) ? getContext().chat.length : 0;
     const readState = chatLength - 1 > state.lastMessageId ? { ...state, lastMessageId: chatLength - 1, chatLength } : state;
+    const readWindow = sharedReadWindow({ state: readState, priority: 0, ...(window && window.from >= 0 ? { window: getChatWindow(window.from, window.to) } : {}) });
+    const read = beginRun(this.deps.ownership, { from: readWindow.from, to: readWindow.to });
     const result = await runSharedRead({
       story,
       state: readState,
       priority: 0,
       reason,
-      ...(window && window.from >= 0 ? { window: getChatWindow(window.from, window.to) } : {}),
+      window: readWindow,
       facts: memory.getFacts(),
       firedTransitions: this.deps.getFiredTransitions(),
       extraGateSources: this.deps.getExpansionGateSources(),
@@ -255,7 +258,8 @@ export class ExtractionCoordinator {
       entities: memory.getEntities(),
       client: { ...this.deps.getSettings(), debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugExtractionResponse ?? null },
     });
-    await this.applyAudit(result.audit, result.facts, result.memory, result.arcs, result.epistemic, result.ledger);
+    await this.applyAudit(result.audit, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, read);
+    if (!read.stillOwns()) return false;
     await this.deps.commitBoundary();
     return true;
   }

@@ -1,0 +1,41 @@
+{
+  "at": "2026-09-23T06:44:01.639Z",
+  "groupId": "1759606632088",
+  "storyPath": "examples/sun-ruins/quest-for-the-sun-ruins.json",
+  "chatA": {
+    "chatId": "2026-09-23@03h43m35s742ms",
+    "imported": true,
+    "storyId": "sun-ruins"
+  },
+  "chatB": {
+    "chatId": "2026-09-23@03h43m47s807ms",
+    "imported": true,
+    "storyId": "sun-ruins"
+  },
+  "control": {
+    "result": true,
+    "ms": 9470,
+    "auditsBefore": 0,
+    "auditsAfter": 1,
+    "chatId": "2026-09-23@03h43m35s742ms"
+  },
+  "race": {
+    "result": false,
+    "ms": 10638,
+    "switchedBeforeReadSettled": true,
+    "switchMs": 98,
+    "readMs": 9136,
+    "openChat": "2026-09-23@03h43m35s742ms",
+    "auditsBInitially": 0,
+    "auditsAOnArrival": 1,
+    "auditsAAfterRead": 1,
+    "factsA": 2
+  },
+  "bAfter": {
+    "chatId": "2026-09-23@03h43m47s807ms",
+    "audits": 0
+  },
+  "controlOk": true,
+  "raceOk": true,
+  "verdict": "PASS"
+}

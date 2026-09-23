@@ -19,6 +19,7 @@ export class RunOwner {
   private epoch = 0;
   private windowRevision = 0;
   private lowestMutatedMessageId: number | null = null;
+  private mutations: Array<{ revision: number; messageId: number }> = [];
   // The chat this run belongs to, claimed when the epoch is minted. Null until something claims
   // it, so the first save of a fresh session is never blocked by a claim nobody has made.
   private claimed: string | null = null;
@@ -33,6 +34,11 @@ export class RunOwner {
     sessionEpoch: this.epoch,
     windowRevision: this.windowRevision,
     lowestMutatedMessageId: this.lowestMutatedMessageId,
+    lowestMutatedSince: (revision: number) => {
+      if (revision < this.windowRevision && (this.mutations[0]?.revision ?? Infinity) > revision + 1) return 0;
+      const since = this.mutations.filter((mutation) => mutation.revision > revision).map((mutation) => mutation.messageId);
+      return since.length ? Math.min(...since) : null;
+    },
   });
 
   readonly ownership: RunOwnership = {
@@ -77,6 +83,7 @@ export class RunOwner {
     this.epoch += 1;
     this.windowRevision = 0;
     this.lowestMutatedMessageId = null;
+    this.mutations = [];
     // Every epoch belongs to exactly one chat: the one open when it was minted.
     this.claimed = this.deps.openChatId();
     // One bad listener must not strand the rest: a scheduler that never hears this keeps running
@@ -93,6 +100,7 @@ export class RunOwner {
   /** A swipe, edit or delete: the window a reader saw is no longer the window that exists. */
   noteMutation(messageId: number) {
     this.windowRevision += 1;
+    this.mutations = [...this.mutations, { revision: this.windowRevision, messageId }].slice(-200);
     this.lowestMutatedMessageId = this.lowestMutatedMessageId === null ? messageId : Math.min(this.lowestMutatedMessageId, messageId);
   }
 

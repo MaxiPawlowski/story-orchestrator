@@ -1,0 +1,7 @@
+V2/V6 mutations 2026-09-23
+
+1. runOwner.ts: lowestMutatedSince renamed away (tokenMatches falls back to the epoch-wide low-water mark).
+   npx jest src/runtime/runToken.test.ts -> Tests: 2 failed, 16 passed (V6 "before the read" and "log overflow" cases).
+2. extractionCoordinator.ts applyAudit: lapsed-read guard disabled (`&& false`).
+   npx jest src/runtime/coordinators/extractionReadOwnership.review.test.ts -> Tests: 1 failed, 1 passed (discard case fails, control passes).
+Both reverted; see the V2 gate run for the green suite.

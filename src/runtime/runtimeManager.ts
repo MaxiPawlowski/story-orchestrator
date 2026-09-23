@@ -3,7 +3,7 @@ import type { JudgeRuntime } from "./judge";
 import { StoryEngine, type RollbackOutcome, type ApplyQueueEntry, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type StoryV2, type TalkControl, type ValidationError } from "@engine/index";
 import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Suggestion } from "@copilot/index";
 import type { ProvisioningEnvironment, ProvisioningOp, ProvisioningResult, WizardSessionState } from "@wizard/index";
-import { type ExtraGateSource, type ParsedDelta, type ParsedFact, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
+import { type ExtraGateSource, type ParsedDelta, type ParsedFact, type ReadOwnership, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
 import { clearAllMemoryInjection, type ArcEntry, type EpistemicEntry, type LedgerView, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine, type UncertainPair } from "@memory/index";
 import type { CuratorOp, CuratorPassOutcome } from "@stagecraft/index";
 import { clearStoryExtensionPrompt, getContext, readInjectedPromptBlocks, showTextPopup, type WIEntrySnapshot } from "@services/STAPI";
@@ -471,7 +471,7 @@ export class RuntimeManager {
     this.engine.enqueue({ source: "extractor", blackboardVersionSum: Object.values(versions).reduce((sum, version) => sum + version, 0), turnRange: window, deltas: acceptedDeltas.map((entry) => entry.delta), ...(tensionLevels.length ? { tensionLevels } : {}) });
   }
 
-  async applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memoryLines: ParsedMemoryLine[] = [], arcSignals: ParsedArcSignal[] = [], epistemicSignals: ParsedEpistemicSignal[] = [], ledgerSignals: ParsedLedgerSignal[] = []) { await this.extraction.applyAudit(audit, facts, memoryLines, arcSignals, epistemicSignals, ledgerSignals); }
+  async applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memoryLines: ParsedMemoryLine[] = [], arcSignals: ParsedArcSignal[] = [], epistemicSignals: ParsedEpistemicSignal[] = [], ledgerSignals: ParsedLedgerSignal[] = [], read: ReadOwnership | null = null) { await this.extraction.applyAudit(audit, facts, memoryLines, arcSignals, epistemicSignals, ledgerSignals, read); }
 
   async runArcSummaryPass(arcIds: string[]): Promise<boolean> { return this.memory.runArcSummaryPass(arcIds); }
   detectSceneBreak() { return this.extraction.detectSceneBreak(); }

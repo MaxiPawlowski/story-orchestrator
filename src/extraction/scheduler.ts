@@ -2,7 +2,7 @@ import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engi
 import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine } from "@memory/index";
 import type { ExtraGateSource, TypedJudge } from "./types";
 import { getChatWindow } from "./chatWindow";
-import { runSharedRead } from "./sharedRead";
+import { runSharedRead, sharedReadWindow } from "./sharedRead";
 import type { ParsedFact, SharedReadAudit, SharedReadWindow } from "./types";
 
 export interface SchedulerSettings {
@@ -16,6 +16,11 @@ export interface SchedulerSettings {
 }
 
 export const PRESSURE_DEFAULT_THRESHOLD = 3;
+
+export interface ReadOwnership {
+  stillOwns(): boolean;
+  lapsedDetail(): string | null;
+}
 
 export interface SchedulerJob {
   priority: 0 | 1 | 2 | 3 | 4;
@@ -35,7 +40,8 @@ export interface SchedulerHost {
   getEpistemicLedgerCapable?(): boolean;
   getEntities?(): string[];
   judgeTyped?(): TypedJudge | null;
-  applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memory: ParsedMemoryLine[], arcs: ParsedArcSignal[], epistemic?: ParsedEpistemicSignal[], ledger?: ParsedLedgerSignal[]): Promise<void>;
+  applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memory: ParsedMemoryLine[], arcs: ParsedArcSignal[], epistemic?: ParsedEpistemicSignal[], ledger?: ParsedLedgerSignal[], read?: ReadOwnership | null): Promise<void>;
+  beginRead?(window: { from: number; to: number }): ReadOwnership;
   onSchedulerChange(): void;
   pauseExtraction(message: string): void;
   /**
@@ -154,8 +160,10 @@ export class ExtractionScheduler {
         await this.runWithRetries(job.run);
       } else {
         const priority = job.priority === 0 ? 0 : 1;
-        const result = await this.runWithRetries(() => runSharedRead({ story, state, priority, reason: job.reason, window: job.window, stabilityLag: settings.stabilityLag, firedTransitions: this.host.getFiredTransitions(), facts: this.host.getFacts(), extraGateSources: this.host.getExpansionGateSources(), openArcs: this.host.getOpenArcs(), epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false, entities: this.host.getEntities?.() ?? [], judgeTyped: this.host.judgeTyped?.() ?? null, client: settings }));
-        await this.host.applyExtractionAudit(result.audit, result.facts, result.memory, result.arcs, result.epistemic, result.ledger);
+        const window = sharedReadWindow({ state, priority, window: job.window, stabilityLag: settings.stabilityLag });
+        const read = this.host.beginRead?.({ from: window.from, to: window.to }) ?? null;
+        const result = await this.runWithRetries(() => runSharedRead({ story, state, priority, reason: job.reason, window, stabilityLag: settings.stabilityLag, firedTransitions: this.host.getFiredTransitions(), facts: this.host.getFacts(), extraGateSources: this.host.getExpansionGateSources(), openArcs: this.host.getOpenArcs(), epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false, entities: this.host.getEntities?.() ?? [], judgeTyped: this.host.judgeTyped?.() ?? null, client: settings }));
+        await this.host.applyExtractionAudit(result.audit, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, read);
       }
       this.lastError = null;
     } catch (error) {

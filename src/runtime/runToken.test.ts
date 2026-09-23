@@ -4,6 +4,7 @@
 // that accepts everything.
 
 import { describeMismatch, mintToken, tokenMatches, type RunContext } from "./runToken";
+import { RunOwner } from "./runOwner";
 
 const context = (overrides: Partial<RunContext> = {}): RunContext => ({
   chatId: "chat-a",
@@ -13,6 +14,36 @@ const context = (overrides: Partial<RunContext> = {}): RunContext => ({
   windowRevision: 0,
   lowestMutatedMessageId: null,
   ...overrides,
+});
+
+describe("V6: only mutations made after a token was minted can lapse it", () => {
+  const owner = () => {
+    const runOwner = new RunOwner({ openChatId: () => "chat-a", storyId: () => "s1", playedVersion: () => 1 });
+    runOwner.bump();
+    return runOwner;
+  };
+
+  it("an edit at message 2 made BEFORE the read started does not discard a later read of [0, 7]", () => {
+    const runOwner = owner();
+    runOwner.noteMutation(2);
+    const token = runOwner.ownership.mint({ from: 0, to: 7 });
+    runOwner.noteMutation(12);
+    expect(runOwner.ownership.check(token)).toEqual({ ok: true });
+  });
+
+  it("an edit inside the window made DURING the read discards it", () => {
+    const runOwner = owner();
+    const token = runOwner.ownership.mint({ from: 0, to: 7 });
+    runOwner.noteMutation(5);
+    expect(runOwner.ownership.check(token)).toMatchObject({ ok: false, reason: "window" });
+  });
+
+  it("a mutation log that no longer reaches back to the mint is read as 'inside the window'", () => {
+    const runOwner = owner();
+    const token = runOwner.ownership.mint({ from: 0, to: 7 });
+    for (let index = 0; index < 250; index += 1) runOwner.noteMutation(100 + index);
+    expect(runOwner.ownership.check(token)).toMatchObject({ ok: false, reason: "window" });
+  });
 });
 
 describe("a result may be written when the world it belongs to is still current", () => {

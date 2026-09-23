@@ -11,6 +11,7 @@ import { getGlobalSettings } from "./settingsStore";
 import { registerLiveSuite } from "./liveSuite";
 import { registerRuntimeMacros } from "./macros";
 import { runtimeManager } from "./runtimeManager";
+import { beginRun } from "./runToken";
 import { registerSlashCommands } from "./slashCommands";
 import { DIRECTOR_MAX_TOKENS, DIRECTOR_WINDOW_MESSAGES, TalkController, type TalkControlHost } from "./talkControl";
 import { TurnBridge } from "./turnBridge";
@@ -54,7 +55,8 @@ export function startRuntime() {
     getOpenArcs: () => runtimeManager.getOpenArcs(),
     getEpistemicLedgerCapable: () => runtimeManager.getEpistemicLedgerCapable(),
     getEntities: () => runtimeManager.getEntities(),
-    applyExtractionAudit: (audit, facts, memory, arcs, epistemic, ledger) => runtimeManager.applyExtractionAudit(audit, facts, memory, arcs, epistemic, ledger),
+    applyExtractionAudit: (audit, facts, memory, arcs, epistemic, ledger, read) => runtimeManager.applyExtractionAudit(audit, facts, memory, arcs, epistemic, ledger, read),
+    beginRead: (window) => beginRun(runtimeManager.getOwnership(), window),
     onSchedulerChange: () => {
       if (scheduler) runtimeManager.setSchedulerSnapshot(scheduler.getSnapshot());
     },

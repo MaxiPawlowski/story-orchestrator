@@ -43,6 +43,7 @@ export interface RunContext {
    * appended after the window is not a mutation and does not appear here.
    */
   lowestMutatedMessageId?: number | null;
+  lowestMutatedSince?: (windowRevision: number) => number | null;
 }
 
 export function mintToken(current: RunContext, window: MessageWindow | null = null): RunToken {
@@ -81,7 +82,7 @@ export function tokenMatches(current: RunContext, token: RunToken): TokenCheck {
     return { ok: false, reason: "version", detail: `the story moved from version ${String(token.playedVersion)} to ${String(current.playedVersion)} while this ran` };
   }
   if (current.windowRevision !== token.windowRevision && token.window) {
-    const lowest = current.lowestMutatedMessageId;
+    const lowest = current.lowestMutatedSince ? current.lowestMutatedSince(token.windowRevision) : current.lowestMutatedMessageId;
     // Unknown which message moved: the conservative reading is that it could have been inside the
     // window. "We did not record it" is not "it was outside".
     if (lowest === null || lowest === undefined) {
