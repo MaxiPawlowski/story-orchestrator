@@ -5,6 +5,7 @@ import { PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { STEP_MODIFIERS, validateFixture } from './lib/scenarioSchema.mts';
 import { payloadFailures } from './lib/payloadAssert.mts';
+import { removableStories, type LibraryCapture } from './lib/configRestore.mts';
 import { readExtractionSettings, restoreExtractionSettings } from './lib/extractionSettings.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
@@ -907,10 +908,13 @@ function uiFailures(selector, text, spec) {
   return failures;
 }
 
-async function libraryHashes(page) {
+// S6: an unreadable library is `trusted: false`, never an empty one.
+async function libraryHashes(page): Promise<LibraryCapture> {
   return evaluateInST(page, () => {
-    const records = SillyTavern.getContext().extensionSettings?.['story-orchestrator']?.v2Stories;
-    return Array.isArray(records) ? records.map((record) => record.hash) : [];
+    const settings = SillyTavern.getContext().extensionSettings;
+    if (!settings || typeof settings !== 'object') return { trusted: false, hashes: [] };
+    const records = settings['story-orchestrator']?.v2Stories;
+    return { trusted: true, hashes: Array.isArray(records) ? records.map((record) => record.hash).filter(Boolean) : [] };
   });
 }
 
@@ -971,10 +975,9 @@ async function deleteSandboxMirrorBooks(page, guard) {
 
 // Only stories this run introduced may be removed: a scenario story whose content matches a
 // record the user already had would otherwise delete the user's library entry.
-async function cleanupScenario(page, importedHashes, guard, keep, libraryBefore = []) {
+async function cleanupScenario(page, importedHashes, guard, keep, libraryBefore: LibraryCapture | null = null) {
   if (keep) return { kept: true, sandboxChatId: guard?.sandboxChatId ?? null, owned: guard?.owned ?? [] };
-  const preExisting = new Set(libraryBefore);
-  const removable = [...new Set(importedHashes)].filter((hash) => !preExisting.has(hash));
+  const { remove: removable, kept, untrusted } = removableStories(importedHashes, libraryBefore);
   const cleaned = await evaluateInST(page, async (hashes) => {
     const ctx = SillyTavern.getContext();
     const root = ctx.extensionSettings?.['story-orchestrator'];
@@ -984,7 +987,8 @@ async function cleanupScenario(page, importedHashes, guard, keep, libraryBefore 
     }
     return { removedStoryHashes: hashes };
   }, removable) as Record<string, unknown>;
-  if (removable.length !== new Set(importedHashes).size) cleaned.keptPreExistingStories = importedHashes.filter((hash) => preExisting.has(hash));
+  if (untrusted && importedHashes.length) cleaned.libraryUntrusted = 'the library before this run could not be read, so no imported story was removed';
+  else if (kept.length) cleaned.keptPreExistingStories = kept;
   if (guard) {
     cleaned.clearedDebugResponses = await clearDebugResponses(page).catch((err) => ({ error: err instanceof Error ? err.message : String(err) }));
     await recordSandboxStory(page, guard);
@@ -1136,7 +1140,7 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
   let guard = null;
   let result: Record<string, unknown> = { file, steps: [], ok: true, cleanup: null };
 
-  let libraryBefore = [];
+  let libraryBefore: LibraryCapture | null = null;
   let extractionBefore = null;
   if (sandbox) {
     if (group) await openGroup(page, group);

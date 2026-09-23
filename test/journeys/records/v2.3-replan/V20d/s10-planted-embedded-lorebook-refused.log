@@ -1,0 +1,17 @@
+
+=== J0 runner-selftest ===
+Prove the so-journey runner itself: fresh-start setup, pass/blocked/skipped outcomes, cleanup. No LLM calls.
+
+extraction before this run: {"enabled":true,"cadence":1,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"}
+Runner error: a blocking dialog is open and setup will not click through it — ST's embedded-lorebook import confirm (world-info.js:5708). Its OK imports a lorebook into the install, and it raises once per card, so a run that clicked through would write a book nobody asked for. [V20d probe: This character has an embedded World/Lorebook. Yes No]
+
+
+J0
+automated: 0 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped
+human:     0 scored, 0 unscored
+cleanup:   clean
+first try: 0 of 0 passing check(s) needed no retry
+NOT GREEN: runner error: a blocking dialog is open and setup will not click through it — ST's embedded-lorebook import confirm (world-info.js:5708). Its OK imports a lorebook into the install, and it raises once per card, so a run that clicked through would write a book nobody asked for. [V20d probe: This character has an embedded World/Lorebook. Yes No]
+
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T18-07-55-753Z_journey-J0.json
+Matrix: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\journey-J0.md

@@ -17,6 +17,7 @@ import { selectMemoryProfile } from './so-ui.mts';
 import { readSessionJournal } from './so-journal.mts';
 import { removeMarkedAssets, snapshotAssets } from './so-assets.mts';
 import { wipeChatMeta } from './so-library.mts';
+import { BLOCKING_DIALOGS, mergeRestore, removableStories, shouldRecoverConfig, type LibraryCapture } from './lib/configRestore.mts';
 
 const JOURNEY_DIR = resolve(PROJECT_ROOT, 'test/journeys');
 const CONFIG_SNAPSHOT = resolve(DEBUG_DIR, 'so-journey-config-snapshot.json');
@@ -105,7 +106,7 @@ async function snapshotGlobalConfig(page) {
   const data = await evaluateInST(page, (key) => {
     const ctx = SillyTavern.getContext();
     const root = ctx.extensionSettings?.[key] ?? null;
-    return { present: root !== null && root !== undefined, value: root ? JSON.parse(JSON.stringify(root)) : null };
+    return { trusted: Boolean(ctx.extensionSettings) && typeof ctx.extensionSettings === 'object', present: root !== null && root !== undefined, value: root ? JSON.parse(JSON.stringify(root)) : null };
   }, EXTENSION_KEY);
   await mkdir(DEBUG_DIR, { recursive: true });
   await writeFile(CONFIG_SNAPSHOT, JSON.stringify({ takenAt: new Date().toISOString(), key: EXTENSION_KEY, ...data }, null, 2), 'utf-8');
@@ -113,33 +114,24 @@ async function snapshotGlobalConfig(page) {
   return data;
 }
 
+// The story library (`v2Stories`) and the wizard's sessions live in this same root and are shared with
+// every other session, so a restore keeps whatever another session added after the snapshot (S12,
+// `mergeRestore`). Replacing the root wholesale cost a peer a story record on 2026-09-20.
 async function writeGlobalConfig(page, value) {
-  return evaluateInST(page, async ({ key, next }) => {
+  const live = await evaluateInST(page, (key) => {
+    const root = SillyTavern.getContext().extensionSettings?.[key];
+    return root ? JSON.parse(JSON.stringify(root)) : null;
+  }, EXTENSION_KEY);
+  const { next, preservedStories, preservedSessions } = mergeRestore(value, live);
+  const written = await evaluateInST(page, async ({ key, next }) => {
     const ctx = SillyTavern.getContext();
-    // The story LIBRARY lives in this same root (`v2Stories`), so replacing the root wholesale
-    // deleted any story another session imported after our snapshot — silently, with every asset it
-    // depended on left installed and green, so the requirements panel still read ready and the only
-    // symptom was selectStory() returning false (2026-09-20, cost a peer session a story record).
-    // Narrow guard: a restore never removes a story id the install has and the snapshot does not.
-    // `settings` restore behaviour is deliberately untouched — the matrix depends on it.
-    const idOf = (record) => record?.id ?? record?.hash ?? null;
-    const liveStories = Array.isArray(ctx.extensionSettings?.[key]?.v2Stories) ? ctx.extensionSettings[key].v2Stories : [];
-    const preservedStories = [];
-    if (next !== null) {
-      const incoming = Array.isArray(next.v2Stories) ? next.v2Stories : [];
-      const known = new Set(incoming.map(idOf).filter(Boolean));
-      for (const record of liveStories) {
-        const id = idOf(record);
-        if (id && !known.has(id)) { incoming.push(record); preservedStories.push(id); }
-      }
-      if (incoming.length) next = { ...next, v2Stories: incoming };
-    }
     if (next === null) delete ctx.extensionSettings[key];
     else ctx.extensionSettings[key] = next;
     if (typeof ctx.saveSettings === 'function') await ctx.saveSettings();
     else { ctx.saveSettingsDebounced(); await new Promise((done) => setTimeout(done, 1500)); }
-    return { key, cleared: next === null, keys: next ? Object.keys(next) : [], preservedStories };
-  }, { key: EXTENSION_KEY, next: value });
+    return { key, cleared: next === null, keys: next ? Object.keys(next) : [] };
+  }, { key: EXTENSION_KEY, next });
+  return { ...written, preservedStories, preservedSessions };
 }
 
 export async function restoreGlobalConfig(page, file = CONFIG_SNAPSHOT) {
@@ -156,8 +148,34 @@ export async function restoreGlobalConfig(page, file = CONFIG_SNAPSHOT) {
     }
   }
   const result = await writeGlobalConfig(page, snapshot.present ? snapshot.value : null);
+  await writeFile(file, JSON.stringify({ ...snapshot, restoredAt: new Date().toISOString() }, null, 2), 'utf-8');
   console.log(`Restored global config from ${file}: ${JSON.stringify(result)}`);
   return result;
+}
+
+// S7: a run that died between clearing the config and restoring it left an UNRESTORED snapshot on
+// disk and a root that reads cleared. The next setup puts the snapshot back before taking its own,
+// which would otherwise capture the emptiness and restore it forever.
+async function recoverCrashedConfig(page) {
+  const snapshot = await readJSON(CONFIG_SNAPSHOT).catch(() => null);
+  if (!snapshot) return null;
+  const liveKeys = await evaluateInST(page, (key) => Object.keys(SillyTavern.getContext().extensionSettings?.[key] ?? {}), EXTENSION_KEY);
+  if (!shouldRecoverConfig(liveKeys, snapshot)) return null;
+  const result = await restoreGlobalConfig(page, CONFIG_SNAPSHOT);
+  const recovered = { from: CONFIG_SNAPSHOT, takenAt: snapshot.takenAt ?? null, liveKeysBefore: liveKeys, result };
+  console.log(`RECOVERED a crashed run's cleared config from ${CONFIG_SNAPSHOT} (taken ${snapshot.takenAt}); the live root held only [${liveKeys.join(', ')}].`);
+  return recovered;
+}
+
+// S6: what the library held before this run. `trusted: false` when the settings could not be read at
+// all — then cleanup removes no story, instead of reading an unread library as an empty one.
+async function captureLibrary(page): Promise<LibraryCapture> {
+  return evaluateInST(page, () => {
+    const settings = SillyTavern.getContext().extensionSettings;
+    if (!settings || typeof settings !== 'object') return { trusted: false, hashes: [] };
+    const records = settings['story-orchestrator']?.v2Stories;
+    return { trusted: true, hashes: Array.isArray(records) ? records.map((record) => record.hash).filter(Boolean) : [] };
+  });
 }
 
 // Capabilities answer "does this build have the feature at all?" and are probed lazily, right
@@ -249,12 +267,17 @@ async function configureExtraction(page, setup) {
 }
 
 async function applySetup(page, setup, { allowConfig, group = null }) {
-  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; extractionBefore?: unknown; judge?: unknown; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[] }; dialogs?: unknown; libraryBefore?: string[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
+  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; extractionBefore?: unknown; judge?: unknown; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[] }; dialogs?: unknown; libraryBefore?: LibraryCapture; recoveredConfig?: unknown; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
   // Unconditional, and before anything else can write them (S11).
   applied.extractionBefore = await readExtractionSettings(page);
   console.log(`extraction before this run: ${JSON.stringify(applied.extractionBefore)}`);
+  if (allowConfig) applied.recoveredConfig = await recoverCrashedConfig(page);
+  // Captured BEFORE a clear: read after it, a story the install already had read as this run's import,
+  // and cleanup deleted it right after the restore had put it back.
+  applied.libraryBefore = await captureLibrary(page);
   if (setup.clearGlobalConfig && allowConfig) {
     applied.configSnapshot = await snapshotGlobalConfig(page);
+    if (!(applied.configSnapshot as { trusted?: boolean }).trusted) throw new Error('the extension settings could not be read, so a snapshot of them proves nothing; refusing to clear the config');
     await writeGlobalConfig(page, null);
   } else if (setup.snapshotGlobalConfig && allowConfig) {
     applied.configSnapshot = await snapshotGlobalConfig(page);
@@ -265,26 +288,27 @@ async function applySetup(page, setup, { allowConfig, group = null }) {
   // switching, reporting the old group with no error, so a run proceeds against the wrong group
   // believing it moved (observed twice, 2026-09-20). Clicking through is not safe for every popup,
   // so the ones that mean "something else wrote this chat" are named and refused instead.
-  applied.dialogs = await evaluateInST(page, () => {
-    const BLOCKING = [
-      { match: 'integrity check failed', why: 'ST refused a save because the chat file on disk disagrees with the page — another writer touched this chat. Clicking OK reloads (safe); typing OVERWRITE destroys whatever the file holds that the page does not.' },
-      { match: 'Welcome back', why: 'the away-recap popup. It is a host modal, so a scripted send retries against it and times out. The product closes it on every world change (S3, 2026-09-21); one still open here means the run is on a chat the recap outlived, or another session raised it.' },
-    ];
+  // S10: the list is `BLOCKING_DIALOGS`; anything else is CANCELLED, never OK'd, because an OK is how a
+  // host confirm writes. A probe that cannot read the page fails setup rather than reading as "no dialog".
+  applied.dialogs = await evaluateInST(page, (blockingList) => {
     const dialogs = Array.from(document.querySelectorAll('dialog[open]'));
     const text = (node: Element) => (node.textContent || '').replace(/\s+/g, ' ').trim();
+    const hitFor = (value: string) => blockingList.find((entry) => value.toLowerCase().includes(entry.match.toLowerCase()));
     const blocking = dialogs
-      .map((dialog) => ({ dialog, hit: BLOCKING.find((entry) => text(dialog).includes(entry.match)) }))
+      .map((dialog) => ({ dialog, hit: hitFor(text(dialog)) }))
       .filter((entry) => entry.hit);
     if (blocking.length) {
       return { refused: blocking.map((entry) => ({ why: entry.hit!.why, text: text(entry.dialog).slice(0, 200) })) };
     }
+    const dismissed: string[] = [];
     for (const dialog of dialogs) {
-      const ok = dialog.querySelector('.popup-button-ok') as HTMLElement | null;
-      if (ok) ok.click();
+      dismissed.push(text(dialog).slice(0, 120));
+      const cancel = dialog.querySelector('.popup-button-cancel, .popup-button-close') as HTMLElement | null;
+      if (cancel) cancel.click();
       else (dialog as HTMLDialogElement).close();
     }
-    return { dismissed: dialogs.length };
-  }).catch(() => undefined);
+    return { dismissed: dismissed.length, texts: dismissed };
+  }, BLOCKING_DIALOGS).catch((error) => { throw new Error(`setup could not read the page's open dialogs, so it cannot tell whether one blocks the run: ${error.message}`); });
   const refused = (applied.dialogs as { refused?: Array<{ why: string; text: string }> } | undefined)?.refused;
   if (refused?.length) {
     throw new Error(`a blocking dialog is open and setup will not click through it — ${refused.map((entry) => `${entry.why} [${entry.text}]`).join(' | ')}`);
@@ -330,11 +354,6 @@ async function applySetup(page, setup, { allowConfig, group = null }) {
   }
   if (setup.configureExtraction) applied.extraction = await configureExtraction(page, setup);
   if (Array.isArray(setup.activateLorebooks)) applied.lorebooks = await activateLorebooks(page, setup.activateLorebooks);
-  // Remember what the library already held: cleanup may only remove records this run created.
-  applied.libraryBefore = await evaluateInST(page, () => {
-    const records = SillyTavern.getContext().extensionSettings?.['story-orchestrator']?.v2Stories;
-    return Array.isArray(records) ? records.map((record) => record.hash) : [];
-  });
   return applied;
 }
 
@@ -366,8 +385,8 @@ async function runCleanup(page, journey, { importedHashes, libraryBefore, config
   if (configSnapshot && allowConfig && cleanup.restoreConfig !== false) {
     report.config = await restoreGlobalConfig(page).catch((error) => ({ error: error.message }));
   }
-  const preExisting = new Set(libraryBefore ?? []);
-  const removable = [...new Set(importedHashes)].filter((hash) => !preExisting.has(hash));
+  const { remove: removable, kept, untrusted } = removableStories(importedHashes, libraryBefore);
+  if (untrusted && importedHashes.length) report.libraryUntrusted = 'the library before this run could not be read, so no imported story was removed';
   if (cleanup.removeImportedStories !== false && removable.length) {
     report.stories = await evaluateInST(page, async (hashes) => {
       const ctx = SillyTavern.getContext();
@@ -379,7 +398,7 @@ async function runCleanup(page, journey, { importedHashes, libraryBefore, config
       return { removed: hashes.length };
     }, removable).catch((error) => ({ error: error.message }));
   }
-  if (removable.length !== importedHashes.length) report.keptPreExistingStories = importedHashes.filter((hash) => preExisting.has(hash));
+  if (kept.length && !untrusted) report.keptPreExistingStories = kept;
   if (guard && cleanup.deleteChat !== false) {
     await recordSandboxStory(page, guard);
     report.chat = await deleteSandboxChats(page, guard).catch((error) => ({ error: error.message }));
@@ -437,7 +456,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
   const reserved = (journey.status ?? 'active') === 'reserved';
   const results = [];
   const importedHashes = [];
-  let setupApplied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; judge?: unknown; libraryBefore?: string[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
+  let setupApplied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; judge?: unknown; libraryBefore?: LibraryCapture; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
   let runnerError = null;
   let releasedRoutes: unknown = null;
   let assetBaseline = null;
@@ -491,7 +510,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
       releasedRoutes = await releaseBlockedRoutes(page);
       setupApplied.cleanup = await runCleanup(page, journey, {
         importedHashes,
-        libraryBefore: (setupApplied as { libraryBefore?: string[] }).libraryBefore,
+        libraryBefore: (setupApplied as { libraryBefore?: LibraryCapture }).libraryBefore,
         configSnapshot: setupApplied.configSnapshot,
         guard: setupApplied.guard ?? null,
         keep,

@@ -359,16 +359,16 @@
       "title": "tooling never reads an absent capture as \"nothing\"",
       "owner": "01",
       "evidence": "node",
-      "status": "open",
-      "provenBy": "not yet: libraryBefore, the guard's chat ids and the config snapshot carry no trusted flag — V20d"
+      "status": "closed",
+      "provenBy": "scripts/debug/lib/configRestore.test.mts :: an untrusted or missing capture removes nothing, and keeps what it cannot account for (S6)"
     },
     {
       "id": "S7",
       "title": "a crashed journey's cleared config is recovered on the next setup",
       "owner": "01",
       "evidence": "node",
-      "status": "open",
-      "provenBy": "not yet: restoreGlobalConfig refuses an empty snapshot, but setup does not recover from a newer snapshot — V20d"
+      "status": "closed",
+      "provenBy": "scripts/debug/lib/configRestore.test.mts :: setup recovers a crashed run only from an unrestored snapshot over a cleared root (S7)"
     },
     {
       "id": "S8",
@@ -376,7 +376,7 @@
       "owner": "01",
       "evidence": "node",
       "status": "open",
-      "provenBy": "not yet: baselines are trusted/untrusted inside a journey, but there is no so-assets --baseline — V20d"
+      "provenBy": "not yet: no so-assets --baseline — V20d part 2"
     },
     {
       "id": "S9",
@@ -384,15 +384,15 @@
       "owner": "01",
       "evidence": "node",
       "status": "open",
-      "provenBy": "not yet: still (open) in gotchas.md — V20d"
+      "provenBy": "not yet: worldInfoCache eviction, regex/QR sets, --legacy-mirrors and the marker-named wizard draft — V20d part 2"
     },
     {
       "id": "S10",
       "title": "a blocking host dialog during setup fails the run naming it",
       "owner": "01",
       "evidence": "node",
-      "status": "open",
-      "provenBy": "not yet: only 'Chat integrity check failed' is refused; other dialogs are auto-OK'd and a probe failure is swallowed — V20d"
+      "status": "closed",
+      "provenBy": "scripts/debug/lib/configRestore.test.mts :: setup refuses the dialogs whose OK writes, and only those (S10)"
     },
     {
       "id": "S11",
@@ -407,8 +407,8 @@
       "title": "a config restore never removes a story from the library",
       "owner": "01",
       "evidence": "node",
-      "status": "open",
-      "provenBy": "not yet: writeGlobalConfig keeps live v2Stories but overwrites wizardSessions, and there is no jest/node test over the restore — V20d"
+      "status": "closed",
+      "provenBy": "scripts/debug/lib/configRestore.test.mts :: a restore keeps a story and a wizard session another session created after the snapshot (S12)"
     },
     {
       "id": "S13",

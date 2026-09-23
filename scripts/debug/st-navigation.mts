@@ -146,13 +146,31 @@ export async function readActiveChat(page) {
   return evaluateInST(page, () => {
     const ctx = SillyTavern.getContext();
     const group = (ctx.groups ?? []).find((entry) => entry.id === ctx.groupId);
-    return { groupId: ctx.groupId ?? null, chatId: ctx.chatId ?? null, groupChats: group ? [...group.chats] : [] };
+    return { groupId: ctx.groupId ?? null, chatId: ctx.chatId ?? null, groupChats: group ? [...group.chats] : [], groupChatsKnown: Boolean(group) };
   });
+}
+
+// S6: the guard's `preexisting` list decides which chats a run may adopt and delete. A group the page
+// has not resolved yet reads as NO chats, which would make every chat of the group look new — so the
+// list comes from the server instead, and a run that cannot read it does not start.
+async function readGroupChatsFromServer(page, groupId: string): Promise<string[] | null> {
+  return evaluateInST(page, async (id) => {
+    const ctx = SillyTavern.getContext();
+    const response = await fetch('/api/groups/all', { method: 'POST', headers: ctx.getRequestHeaders(), body: '{}' });
+    if (!response.ok) return null;
+    const group = (await response.json()).find((entry) => entry.id === id);
+    return Array.isArray(group?.chats) ? [...group.chats] : null;
+  }, groupId);
 }
 
 export async function beginSandboxSession(page) {
   const before = await readActiveChat(page);
   if (!before.groupId) throw new Error('No active group chat. Open a group chat before starting a sandbox.');
+  if (!before.groupChatsKnown) {
+    const chats = await readGroupChatsFromServer(page, before.groupId);
+    if (!chats) throw new Error(`Sandbox not created: the chats of group ${before.groupId} could not be read, so the run could not tell its own chat from one that already existed.`);
+    before.groupChats = chats;
+  }
   // What the page was sitting on, and how big it is. A sandbox run must not touch it: if this chat
   // loses messages while the run is live, the run caused it (2026-09-21: a corpus loop ran a chat of
   // the user's down from 4 messages to an empty file, seen only because a header diff read the

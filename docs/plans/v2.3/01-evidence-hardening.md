@@ -900,3 +900,41 @@ Queue ids from `00-overview.md` §Replan. Verified against the tree unless marke
 - **R12's live half (J0.6).** The self-test gained a planted-response seam, `storyOrchestratorDebugSelfTestResponses`, the project's usual debug-response global; a planted response returns before any model call, so J0 stays model-free. J0.6 plants the review's wrong-entity answer (a dragon on the moon, an interstellar chess tournament, a stranger in a purple costume), clicks the real `#so-self-test` in the settings panel, and requires **no tier to pass**. J0 `--strict` ran twice: **5 pass** (J0.3 blocked and J0.5 fail, each as declared), J0.6 showing 6 result rows and 0 PASS, cleanup clean, first try 5 of 5 (`records/v2.3-replan/V20b/j0-run{1,2}.log`). **Live mutation** (the memory tier grades presence): J0.6 FAILS, having certified "A dragon conquered the distant moon." (`live-mutation-memory-tier-grades-presence.log`). Run-header diff: build fields only.
 - Mutations: 3 jest + 1 live, all caught (`test/findings/mutations/V20b-ledger-register-and-r12-live.txt`).
 - Machine: typecheck 0, typecheck:test 0, lint 0, jest **168 / 2668** (`findings ledger: 12 open, 38 settled`), test:debug 136, debug:typecheck 0, build 0 (bundle `9ed768c54cc6`), test:release 10/10.
+
+### V20d part 1 gate (2026-09-23): a run leaves the install as it found it
+
+S6, S7, S10 and S12 are closed. S8, S9 and the `setup.extraction` requirement are part 2 and stay **open**.
+
+The decisions now live in one pure module, `scripts/debug/lib/configRestore.mts`, tested in `configRestore.test.mts` (6 cases):
+
+- **S12:** `mergeRestore` keeps live `v2Stories` **and** `wizardSessions` that are absent from the snapshot. Before this, the sessions were overwritten. `writeGlobalConfig` now reads the live root, merges in node, and writes. The result reports `preservedStories` and `preservedSessions`.
+- **S6: every capture carries `trusted`.**
+  - `libraryBefore` (journey) and `libraryHashes` (scenario) return `{trusted, hashes}`. `removableStories` removes **nothing** against an untrusted or missing capture and reports `libraryUntrusted`.
+  - The config snapshot carries `trusted`, and a clear over an untrusted snapshot is refused.
+  - The sandbox guard reads its `preexisting` chat list from `/api/groups/all` when the page has not resolved the group. It refuses to start when neither can say. Before this, an unresolved group read as "no chats", so every chat looked new.
+- **A real defect, found by reading the code for S6:** with `clearGlobalConfig` (J1), the library was captured **after** the clear. A story the install already had, imported again with the same hash, therefore read as this run's own. Cleanup then deleted it right after the restore had put it back. The capture now runs before the clear.
+- **S7: crash recovery.**
+  - `restoreGlobalConfig` stamps `restoredAt` on the snapshot file.
+  - Setup recovers only from an **unrestored** snapshot, and only over a root that holds nothing but `settings` (the runtime writes defaults back on read, so "empty" was too narrow).
+  - It prints `RECOVERED …`. Snapshots written before today carry no `restoredAt`, and none of them can fire over a live root holding `v2Stories`. This was checked on this install.
+- **S10: blocking dialogs.**
+  - `BLOCKING_DIALOGS` adds ST's embedded-lorebook import confirm (`world-info.js:5708`), because its OK imports a book into the install.
+  - Any other open dialog is now **cancelled**, never OK'd.
+  - A dialog probe that throws now fails setup. It used to be swallowed by `.catch(() => undefined)`.
+
+Live runs (no model needed, records in `records/v2.3-replan/V20d/`):
+
+- J0 `--strict` ran twice: 5/5 each time, first try, cleanup clean (`j0-run{1,2}.log`).
+- A planted embedded-lorebook confirm made setup refuse and name it, exit 1 (`s10-planted-embedded-lorebook-refused.log`).
+- A planted generic confirm was answered `0` (cancelled, where the old code answered OK) and the run passed (`s10-planted-generic-confirm-cancelled.log`).
+- **Live mutation** (the embedded entry removed): the same planted confirm no longer stopped the run, exit 0 (`live-mutation-s10-embedded-not-blocking.log`).
+- Run-header diff at the end: **0** differences.
+
+**Not proven live:**
+
+- **S12's live half was refused by the session's safety classifier.** The attempt was to restore a snapshot missing one live story and one live wizard session over the real install-wide root, then read both back. S12 therefore rests on the node test and its two killed mutants.
+- **S7 has no live run.** Reproducing it means clearing the real install config and killing a run mid-journey.
+
+Mutations: 6 node + 1 live, all caught (`test/findings/mutations/V20d-journey-install-safety.txt`).
+
+Machine: typecheck 0, typecheck:test 0, lint 0, jest **168 / 2668** (`findings ledger: 8 open, 42 settled`), test:debug **142**, debug:typecheck 0, build 0 (bundle `9ed768c54cc6`, unchanged because this is harness-only), test:release 10/10.
