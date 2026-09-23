@@ -1,0 +1,23 @@
+authority-enforcement exit=0 secs=31
+effects-author-note-role exit=0 secs=17
+effects-preset exit=1 secs=9
+effects-slash-quoting exit=0 secs=13
+plan02-runtime exit=0 secs=11
+plan03-extraction exit=0 secs=7
+plan03a-delete-rollback exit=0 secs=7
+plan03a-edit-rollback exit=0 secs=8
+plan03a-llm-npc-reply exit=0 secs=7
+plan04-pacing exit=1 secs=9
+plan05-background-generation exit=1 secs=7
+plan05-decision-write exit=0 secs=6
+plan05-pin-private-rollback exit=0 secs=11
+plan05-pin-quarantine exit=0 secs=10
+plan06-convergence exit=1 secs=9
+plan07-memory exit=0 secs=25
+plan08-hygiene exit=1 secs=10
+plan09-arcs exit=0 secs=6
+plan10-epistemic-ledger exit=0 secs=7
+plan12-copilot exit=0 secs=6
+plan13-surfacing exit=0 secs=7
+header-diff exit=0
+DONE

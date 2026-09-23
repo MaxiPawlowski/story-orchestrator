@@ -1,0 +1,55 @@
+1/12 eval ok 4ms
+2/12 import_story ok 358ms
+3/12 eval ok 6ms
+4/12 slash ok 2572ms
+5/12 wait ok 32ms
+6/12 eval ok 6ms
+7/12 eval ok 4ms
+8/12 slash ok 1770ms
+9/12 wait ok 33ms
+10/12 eval ok 6ms
+11/12 eval ok 311ms
+11/12 eval -> {"restored":true,"sampler":{"preset":"Artemis v1.1 RP","temp":1,"top_p":1}}
+12/12 eval ok 4ms
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T18-50-32-956Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 12,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-b4b0aa14"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@15h50m24s834ms",
+    "owned": [
+      "2026-09-23@15h50m24s834ms"
+    ],
+    "deleted": [
+      "2026-09-23@15h50m24s834ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@15h50m24s834ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

@@ -1,0 +1,92 @@
+1/32 import_story ok 359ms
+2/32 ui ok 1233ms
+3/32 eval ok 8ms
+4/32 send ok 1673ms
+5/32 wait ok 1538ms
+6/32 extract ok 480ms
+6/32 extract -> {"ok":true,"before":{"boundary":0,"lastMessageId":-1},"after":{"boundary":1,"lastMessageId":1},"snapshot":{"ready":true,"storyId":"authority-enforcement","storyHash":"v2-c58306d5","storyIdentity":{"id":"authority-enforcement","playedVersion":1,"libraryVersion":1,"pinned":true,"drifted":false},"storyTitle":"Authority Enforcement Gate Check","storyDescription":"Planted extractor responses that must be refused, and legal ones that must be taken.","activeCheckpointId":"start","activeCheckpointName":"Antechamber","activeObjective":"Get through the door.","boundary":1,"blackboard":{"message_count":2},"blackboardMeta":{"message_count":{"version":1,"latched":false,"source":"code"}},"checkpoints":[{"id":"start","name":"Antechamber","objective":"Get through the door.","active":true,"visited":true},{
+7/32 expect ok 36ms
+8/32 extract ok 465ms
+9/32 expect ok 34ms
+10/32 eval ok 5ms
+10/32 eval -> {"message_count":2}
+11/32 extract ok 490ms
+12/32 expect ok 28ms
+13/32 extract ok 473ms
+14/32 wait ok 41ms
+15/32 send ok 1680ms
+16/32 wait ok 1532ms
+17/32 expect ok 31ms
+18/32 send ok 1670ms
+19/32 wait ok 1525ms
+20/32 extract ok 586ms
+21/32 wait ok 32ms
+22/32 send ok 1665ms
+23/32 wait ok 1533ms
+24/32 slash ok 1868ms
+25/32 wait ok 1531ms
+26/32 wait ok 1532ms
+27/32 extract ok 473ms
+28/32 wait ok 36ms
+29/32 send ok 1677ms
+30/32 wait ok 1538ms
+31/32 expect ok 35ms
+32/32 eval ok 458ms
+32/32 eval -> {"reason":"oversized response","rejected":1,"accepted":0}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T18-45-01-072Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 32,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-c58306d5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@15h44m31s718ms",
+    "owned": [
+      "2026-09-23@15h44m31s718ms"
+    ],
+    "deleted": [
+      "2026-09-23@15h44m31s718ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@15h44m31s718ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": false,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

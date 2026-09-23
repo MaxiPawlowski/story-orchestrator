@@ -109,12 +109,18 @@
           }
         },
         "pacingPrompt": {
-          "value": "Pacing: hold the tension near stirring — sustain the mood without spiking or releasing it.",
+          "value": {
+            "contains": [
+              "Pacing: hold the tension near stirring — sustain the mood without spiking or releasing it.",
+              "Do not narrate the player's own words or decisions."
+            ]
+          },
           "position": 1,
           "depth": 2,
           "role": 0
         }
       }
     }
-  ]
+  ],
+  "_v24": "The pacing text now carries the agency clause (plan 07: DEFAULT_AGENCY applies when a checkpoint declares none). The check asserts both halves instead of the pre-plan-07 literal."
 }

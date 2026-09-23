@@ -279,3 +279,22 @@ Pod `gx6v1b8furtcia` (the old one could not restart, so it was replaced after th
 - After all three harness fixes (runs 6 and 7), J3.1–J3.6 and J3.8 passed in both runs, first try. **J3.7 passed in run 7 and failed in run 6.** In run 6, 7 audits ran, the last accepted `[]` and rejected `[]`, so the model emitted no FACT line. That is the model-dependent J3.7 recorded since plan 05, not a regression. **J3 is therefore NOT 8/8 twice on this build.** Run 7 is 8/8, run 6 is 7/8, and cleanup was clean in all seven runs.
 - Run-header diff against `header-before.json`: 0 differences.
 - Residue to state: `extraction.cadence` reads **1** install-wide both before and after, so nothing changed it during the run. It is still not the default of 3, and it was already 1 when V13's session began.
+
+### V24 gate (2026-09-23): the mocked scenario corpus, re-run and fixed by property
+
+The whole mocked corpus (22 non-`live-` scenarios) ran in one batch with a run header around it (`records/v2.3-replan/V24/summary.txt`, one log per scenario): **17 pass, 5 fail.**
+
+- **Three failures were outdated literals, fixed by property** with two new `compareSubset` matchers in `scripts/debug/so-scenario.mts`: `{"oneOf": [...]}` and `{"contains": "..." | [...]}`. Each has the same single-key shape as `approx`. An empty list or needle is refused, because it would pass anything (`scripts/debug/compareSubset.test.mts`, 3 cases, 4/4 mutants):
+  - `plan05-background-generation` and `plan06-convergence` asserted `status: "inserted"` right after `expand`. Since plan 07 a critic-passed chain is `validated` until boundary work order 42 promotes it. They now assert `oneOf ["validated", "inserted"]`, the settled success.
+  - `plan04-pacing` asserted the pre-plan-07 pacing literal. `DEFAULT_AGENCY` now appends "Do not narrate the player's own words or decisions." The check now requires **both** the steering sentence and the agency clause, which is stronger than before, not looser. This fixture had also been red since plan 02 for its EMA and is now green.
+- **`effects-preset` was a wrong fixture, and it damaged the install.**
+  - Its step 9 compared a checkpoint with no preset against the **pre-run** sampler. Preset restore is a v2.4 seed (06 record), so the probe preset legitimately stays after the checkpoint that applied it. The comparison was right only on a backend where the preset is refused.
+  - On this install (Text Completion) the run failed **and left the install's sampler on `Story: SO Preset Probe`, temp 0.42 / top_p 0.42**. The run-header diff around the batch read **0**, because the header records no preset (added to V22b). Found by reading the failure, not by the header.
+  - Restored by hand with `/preset Artemis v1.1 RP` and verified: temp 1, top_p 1, matching the baseline the scenario itself recorded. The probe preset exists only in the page's preset list, not as a file, so a reload clears it.
+  - The fixture now compares against the state after `preset_on`. A new final step puts the install's preset back and **fails if the sampler does not read the baseline**. Across both "after" runs the sampler read `Artemis v1.1 RP`, 1, 1 before and after.
+  - Caveat: a run that dies before that step still leaves the preset applied. That is the same class as the effect ledger's missing preset restore (v2.4 seed).
+- **Two still red, neither an outdated literal:**
+  - `plan06-convergence` now passes the `validated` step and stops at 10/24: six calm boundaries at `gen_bridge_a_1` converge the story to `midway` (`progress_toward_midway: 2`) instead of stalling, so the reconciliation evidence it waits for never appears. That is a convergence question, not a fixture typo → **V24b**.
+  - `plan08-hygiene` makes a real model call (`API request failed`), so it waits for the live queue.
+- After the fixes: `effects-preset`, `plan04-pacing` and `plan05-background-generation` are **green on two consecutive runs** each (`*-fixed-{1,2}.log`). Corpus on this tree: **20/22**, with the two exceptions named above.
+- Gates: test:debug **153**, debug:typecheck 0. The harness and fixtures changed, but no `src/` code, so no build.

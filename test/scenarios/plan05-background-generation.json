@@ -18,7 +18,12 @@
         "expansion": {
           "entries": {
             "start->bridge_stub->finish": {
-              "status": "inserted",
+              "status": {
+                "oneOf": [
+                  "validated",
+                  "inserted"
+                ]
+              },
               "targetAnchorId": "finish"
             }
           }
@@ -53,7 +58,12 @@
         "expansion": {
           "entries": {
             "start->bridge_stub->finish": {
-              "status": "inserted"
+              "status": {
+                "oneOf": [
+                  "validated",
+                  "inserted"
+                ]
+              }
             }
           }
         }
@@ -94,5 +104,6 @@
         }
       }
     }
-  ]
+  ],
+  "_v24": "A chain the critic passed is `validated` until the boundary that makes it part of the chat (boundary work order 42 promotes it to `inserted`); plan 07 added that state. A check right after `expand` asserts the settled success, not today's literal."
 }

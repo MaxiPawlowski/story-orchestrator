@@ -157,12 +157,26 @@ function compactState(state) {
   };
 }
 
-function compareSubset(actual, expected, path = '') {
+// V24: `oneOf` and `contains` let a fixture assert a property instead of today's literal — a new
+// intermediate state (`validated`) or an appended policy clause used to fail checks that were right.
+// An empty list or needle is refused: it would pass whatever the value.
+const matcher = (value, key) => Boolean(value) && typeof value === 'object' && !Array.isArray(value) && key in value && Object.keys(value).length === 1;
+
+export function compareSubset(actual, expected, path = '') {
   const failures = [];
   for (const [key, expectedValue] of Object.entries(expected ?? {})) {
     const actualValue = actual?.[key];
     const nextPath = path ? `${path}.${key}` : key;
-    if (expectedValue && typeof expectedValue === 'object' && !Array.isArray(expectedValue) && typeof expectedValue['approx'] === 'number') {
+    if (matcher(expectedValue, 'oneOf')) {
+      const options = (expectedValue as { oneOf: unknown }).oneOf;
+      if (!Array.isArray(options) || !options.length) failures.push(`${nextPath}: oneOf needs a non-empty list`);
+      else if (!options.includes(actualValue)) failures.push(`${nextPath}: expected one of ${JSON.stringify(options)}, got ${JSON.stringify(actualValue)}`);
+    } else if (matcher(expectedValue, 'contains')) {
+      const needles = [(expectedValue as { contains: unknown }).contains].flat();
+      if (!needles.length || needles.some((needle) => typeof needle !== 'string' || !needle)) failures.push(`${nextPath}: contains needs non-empty strings`);
+      else if (typeof actualValue !== 'string') failures.push(`${nextPath}: expected text containing ${JSON.stringify(needles)}, got ${JSON.stringify(actualValue)}`);
+      else for (const needle of needles as string[]) if (!actualValue.includes(needle)) failures.push(`${nextPath}: expected to contain ${JSON.stringify(needle)}, got ${JSON.stringify(actualValue)}`);
+    } else if (expectedValue && typeof expectedValue === 'object' && !Array.isArray(expectedValue) && typeof expectedValue['approx'] === 'number') {
       const approximate = expectedValue as { approx: number; tolerance?: number };
       const tolerance = typeof approximate.tolerance === 'number' ? approximate.tolerance : 0.000001;
       if (typeof actualValue !== 'number' || Math.abs(actualValue - approximate.approx) > tolerance) {

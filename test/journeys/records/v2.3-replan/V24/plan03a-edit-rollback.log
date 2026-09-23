@@ -1,0 +1,51 @@
+1/9 import_story ok 354ms
+2/9 send ok 1671ms
+3/9 extract ok 583ms
+4/9 wait ok 35ms
+5/9 edit ok 123ms
+6/9 wait ok 30ms
+7/9 expect ok 28ms
+8/9 extract ok 467ms
+9/9 expect ok 36ms
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T18-46-13-414Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 9,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-29799a93"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@15h46m07s014ms",
+    "owned": [
+      "2026-09-23@15h46m07s014ms"
+    ],
+    "deleted": [
+      "2026-09-23@15h46m07s014ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@15h46m07s014ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

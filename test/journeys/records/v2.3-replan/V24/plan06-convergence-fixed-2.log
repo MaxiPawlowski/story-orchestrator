@@ -1,0 +1,70 @@
+1/24 import_story ok 354ms
+2/24 send ok 1667ms
+3/24 send ok 1689ms
+4/24 eval ok 6ms
+5/24 expand ok 451ms
+6/24 expect ok 33ms
+7/24 slash ok 1904ms
+8/24 expect ok 32ms
+9/24 eval ok 5522ms
+10/24 wait FAIL Timed out waiting for {"reconciliationEvidence":true,"timeoutMs":15000}. Last state: {"chatId":"2026-09-23@15h52m02s189ms","activeCheckpoint":"midway","boundary":13,"blackboard":{"key_found":true,"mood":"calm","progress_toward_midway":2},"latched":{"key_found":true},"auditCount":4,"expansion":{"entries":{"start->bridge_a->midway":{"key":"start->bridge_a->midway","status":"inserted","contract":2,"sourceCheckpointId":"start","stubId":"bridge_a","targetAnchorId":"midway","basis":{},"blackboardVersionSum":0,"beats":[{"id":"0","objective":"Secure the safe approach","guidance":"Steer toward the safe route.","tension_target":"tense","outcomes":[{"id":"0:0","label":"safe route","gate":{"q":"mood","op":"==","v":"tense"},"deltas":[{"q":"approach","v":"safe"}],"progress":{"anchor":"midway","amount":2}}]},{"id":"1","objective":"Confirm the key","guidance":"Confirm key is found.","tension_target":"critical","outcomes":[{"id":"1:0","label":"key confirmed","gate":{"q":"key_found","op":"==","v":true},"deltas":[{"q":"key_found","v":true}]}]}],"needsReview":false,"verdicts":[{"pass":true,"issues":[],"raw":"DEBUG"}],"codeCheck":{"ok":true,"issues":[],"progressTotal":2},"insertedCheckpointIds":["gen_bridge_a_1","gen_bridge_a_2"],"lastError":null,"attempts":1,"updatedAt":"2026-09-23T18:52:06.910Z"},"midway->bridge_b->finale":{"key":"midway->bridge_b->finale","status":"failed","contract":2,"sourceCheckpointId":"midway","stubId":"bridge_b","targetAnchorId":"finale","basis":{"key_found":true,"mood":"calm","progress_toward_midway":2},"blackboardVersionSum":6,"beats":[],"needsReview":false,"verdicts":[],"codeCheck":null,"insertedCheckpointIds":[],"lastError":"API request failed","attempts":1,"updatedAt":"2026-09-23T18:52:10.357Z","origin":"active"}},"scheduler":{"queueDepth":0,"inFlight":false,"lastError":null}},"requirementsReady":true,"npcFired":{},"tension":{"level":null,"smoothed":null,"expected":0.5,"hint":null},"pacingPrompt":null,"lastAudit":{"accepted":[],"rejected":[{"q":"q=mood","reason":"outside requested scope"}]},"copilot":{"enabled":true,"activeNudge":null,"nudgeInjected":false}}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T18-52-29-079Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T18-52-32-006Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 10,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-a00dae0b"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-23@15h52m02s189ms",
+    "owned": [
+      "2026-09-23@15h52m02s189ms"
+    ],
+    "deleted": [
+      "2026-09-23@15h52m02s189ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@15h52m02s189ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 1,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

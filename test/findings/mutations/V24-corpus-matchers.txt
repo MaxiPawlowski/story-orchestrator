@@ -1,0 +1,9 @@
+M1 oneOf accepts anything  (node: KILLED)
+  not ok 1 - oneOf and contains assert a property, not a literal (V24)
+M2 an empty oneOf passes  (node: KILLED)
+  not ok 2 - a matcher that could never fail is refused
+M3 contains checks only the first needle  (node: KILLED)
+  not ok 1 - oneOf and contains assert a property, not a literal (V24)
+M4 an empty needle passes  (node: KILLED)
+  not ok 2 - a matcher that could never fail is refused
+Live before/after: the batch run (summary.txt) is the failing "before" for all four fixtures; *-fixed-{1,2}.log are the two consecutive "after" runs.

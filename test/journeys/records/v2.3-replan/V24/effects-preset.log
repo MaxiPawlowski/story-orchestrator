@@ -1,0 +1,58 @@
+1/10 eval ok 5ms
+2/10 import_story ok 363ms
+3/10 eval ok 5ms
+4/10 slash ok 2562ms
+5/10 wait ok 36ms
+6/10 eval ok 6ms
+7/10 slash ok 1775ms
+8/10 wait ok 34ms
+9/10 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: a preset-less checkpoint added a ledger row: 1 != 0; the sampler moved after a preset-less checkpoint: preset Artemis v1.1 RP -> Story: SO Preset Probe; the sampler moved after a preset-less checkpoint: temp 1 -> 0.42; the sampler moved after a preset-less checkpoint: top_p 1 -> 0.42 :: {"api":"textgenerationwebui","supported":true,"sampler":{"preset":"Story: SO Preset Probe","temp":0.42,"top_p":0.42},"rows":1,"row":{"status":"applied","reason":null,"before":{"name":"Artemis v1.1 RP","temperature":1,"top_p":1},"after":{"name":"Story: SO Preset Probe"},"target":{"kind":"preset","name":"Story: SO Preset Probe","api":"textgenerationwebui"}},"journal":[]}
+    at globalThis.__soPresetProbe (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:2512)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:41)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:164)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T18-45-24-799Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T18-45-27-704Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 9,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-b4b0aa14"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@15h45m19s815ms",
+    "owned": [
+      "2026-09-23@15h45m19s815ms"
+    ],
+    "deleted": [
+      "2026-09-23@15h45m19s815ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@15h45m19s815ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+ok   chat.chatLength  1 -> 0  (allowed by progress)
+{
+  "baseline": ".debug/run-header-v24-before.json",
+  "label": "diff-end",
+  "allow": [
+    "build"
+  ],
+  "differences": 1,
+  "progress": 1,
+  "blocking": 0,
+  "blockingPaths": [],
+  "warnings": [],
+  "wrote": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\.debug\\run-header-diff-end.json",
+  "ok": true
+}

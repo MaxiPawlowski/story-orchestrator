@@ -1,0 +1,71 @@
+1/11 import_story ok 369ms
+2/11 ui ok 2042ms
+3/11 eval ok 6ms
+4/11 eval ok 255ms
+5/11 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: API request failed
+    at ConnectionManagerRequestService.sendRequest (http://127.0.0.1:8000/scripts/extensions/shared.js:490:19)
+    at async u (http://127.0.0.1:8000/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:685554)
+    at async s (http://127.0.0.1:8000/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:167428)
+    at async j (http://127.0.0.1:8000/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:190534)
+    at async C.runSupersessionBridge (http://127.0.0.1:8000/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:480623)
+    at async C.runConsolidation (http://127.0.0.1:8000/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:479983)
+    at async eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:39)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T18-47-45-140Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T18-47-48-071Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 5,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-96c6fa52"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@15h47m39s563ms",
+    "owned": [
+      "2026-09-23@15h47m39s563ms"
+    ],
+    "deleted": [
+      "2026-09-23@15h47m39s563ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@15h47m39s563ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 6,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

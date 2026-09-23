@@ -1,0 +1,65 @@
+1/7 import_story ok 357ms
+2/7 send ok 1678ms
+3/7 extract ok 484ms
+4/7 expect ok 36ms
+5/7 send ok 1649ms
+6/7 extract ok 469ms
+7/7 expect FAIL pacingPrompt.value: expected "Pacing: hold the tension near stirring — sustain the mood without spiking or releasing it.", got "Pacing: hold the tension near stirring — sustain the mood without spiking or releasing it. Do not narrate the player's own words or decisions."
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T18-46-26-609Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T18-46-29-532Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 7,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-78d0894b"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@15h46m21s705ms",
+    "owned": [
+      "2026-09-23@15h46m21s705ms"
+    ],
+    "deleted": [
+      "2026-09-23@15h46m21s705ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@15h46m21s705ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": false,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}
