@@ -3,6 +3,7 @@ import {
   buildBoundKeySet,
   buildLedgerView,
   capLedger,
+  LEDGER_ROW_CAP,
   ledgerKey,
   removeLedger,
   renderLedgerBlock,
@@ -96,6 +97,9 @@ describe("buildLedgerView", () => {
 });
 
 describe("ledger rendering + maintenance", () => {
+  const sig = (entity: string, field: string, value: string, entityType = "character"): ParsedLedgerSignal => ({ entity, field, value, entityType });
+  const noBound = new Set<string>();
+
   it("renders grouped by entity and empty for no rows", () => {
     expect(renderLedgerBlock([])).toBe("");
     const block = renderLedgerBlock([
@@ -103,6 +107,30 @@ describe("ledger rendering + maintenance", () => {
       { entity: "Kael", field: "mood", value: "grim", bound: false, turn: 1 },
     ]);
     expect(block).toContain("Kael: location=dungeon | mood=grim");
+  });
+
+  it("V9: repeating an unchanged value adds no version", () => {
+    let entries = applyLedgerSignals([], [sig("Kael", "location", "dungeon")], noBound, ctx(1, 1));
+    for (let turn = 2; turn < 30; turn += 1) entries = applyLedgerSignals(entries, [sig("Kael", "location", "dungeon")], noBound, ctx(turn, turn));
+    expect(entries).toHaveLength(1);
+  });
+
+  it("V9: one noisy key never evicts another entity's only row", () => {
+    let entries = applyLedgerSignals([], [sig("Mira", "mood", "calm")], noBound, ctx(1, 1));
+    for (let turn = 2; turn < 400; turn += 1) entries = capLedger(applyLedgerSignals(entries, [sig("Kael", "hp", String(turn))], noBound, ctx(turn, turn)));
+    expect(buildLedgerView(entries, [], {}, {}).map((row) => `${row.entity}.${row.field}=${row.value}`)).toEqual(expect.arrayContaining(["Mira.mood=calm", "Kael.hp=399"]));
+    expect(entries.length).toBeLessThanOrEqual(LEDGER_ROW_CAP);
+  });
+
+  it("V9: past the key cap the least recently touched unpinned key goes, never a pinned one", () => {
+    let entries = applyLedgerSignals([], [sig("Old", "f", "v")], noBound, ctx(1, 1));
+    entries = setLedgerPinned(entries, entries[0].id, true);
+    entries = applyLedgerSignals(entries, [sig("Stale", "f", "v")], noBound, ctx(2, 2));
+    for (let index = 0; index < 5; index += 1) entries = applyLedgerSignals(entries, [sig(`E${index}`, "f", "v")], noBound, ctx(3 + index, 3 + index));
+    const kept = capLedger(entries, 4).map((entry) => entry.entity);
+    expect(kept).toContain("Old");
+    expect(kept).not.toContain("Stale");
+    expect(new Set(kept).size).toBe(4);
   });
 
   it("rolls back at/after a message id, keeps pinned, caps and removes", () => {

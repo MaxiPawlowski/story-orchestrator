@@ -440,3 +440,12 @@ is kept at `C:\dev\SillyTavern-MainBranch\.debug-restored-chat-safe-copy.jsonl`.
 - Engine history persists up to 200 full states per save — size unmeasured (*suspected*) → V11
   measures it.
 
+
+### V9 gate (2026-09-23)
+
+- `applyLedgerSignals` adds no version when the key's newest live value is unchanged.
+- `capLedger(entries, keyCap = 60, rowCap = 240)`: past `keyCap` distinct keys it drops the least recently touched UNPINNED key whole; past `rowCap` rows it trims superseded versions oldest-first, and never a key's newest version or a pinned row. Before, the newest 60 rows across ALL keys survived, so one noisy field evicted every other entity's only row.
+- Not done, stated: the plan's "compact only below `historyFrom`" alignment (older versions trimmed before the engine's history floor first) — the coordinator has no floor dependency and is at 619/620 lines. With 240 rows the average key keeps ~4 versions; a rollback past a trimmed version restores the oldest version still held, not the true prior value. Carried to V11 (the rollback-horizon item).
+- Tests: `ledger.test.ts` V9 block (unchanged repeats; 400 noisy passes leave the other entity's row and the newest value, rows ≤ 240; key cap spares the pinned key and drops the stalest). Mutations (`test/findings/mutations/V9-ledger-cap.txt`): skip removed → 1 fails; old global rule → 2 fail. (A first attempt at the second mutation silently did not apply — CRLF — and recorded a meaningless 14/14; it was redone and the record corrected.)
+- Machine: typecheck 0, lint 0, jest 155 / 2519, build 0 (bundle `57d6396a6797`), test:release 10/10.
+- Live (`test/scenarios/live-v9-ledger-cap.json`, sandbox, no model: 81 real ledger passes through the runtime + a page reload): Mira's row and Kael's newest value survive, 70 Kael versions (10 unchanged repeats skipped), same after reload. **4/4 twice** (`records/v2.3-replan/V9/run1.log`, `run2.log`).

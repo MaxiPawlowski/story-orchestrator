@@ -1,0 +1,16 @@
+{
+  "name": "live-v9-ledger-cap",
+  "objective": "v2.3 replan V9, live through the real persist/reload path: one entity's row survives seventy ledger passes that keep changing ANOTHER entity's field, and repeating an unchanged value adds no version. Before V9 the ledger kept the newest 60 rows across every key, so the noisy key evicted Mira's only row. The passes use debug responses on purpose: what is under test is the store's retention through the runtime and a reload, not the model's ledger lines.",
+  "steps": [
+    { "import_story": { "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json" } },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0 }); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; rt.setEpistemicLedgerCapable(true); globalThis.storyOrchestratorDebugEpistemicResponse = 'NONE'; globalThis.storyOrchestratorDebugSceneSummaryResponse = 'NONE'; const pass = async (line, n) => { globalThis.storyOrchestratorDebugLedgerResponse = line; await rt.runEpistemicLedgerPass({ id: `v9-${n}`, createdAt: new Date().toISOString(), priority: 0, reason: 'scene:location', contractHash: 'v9', scope: [], window: { from: 0, to: 0 }, prompt: '', rawResponse: '', acceptedDeltas: [], rejected: [], sceneBreak: { at: 0, reason: 'location' } }); }; await pass('[state:Mira:character] mood=calm', 0); for (let n = 1; n <= 70; n += 1) await pass(`[state:Kael:character] hp=${n}`, n); for (let n = 71; n <= 80; n += 1) await pass('[state:Kael:character] hp=70', n); const raw = rt.getSnapshot().memory.ledger; const view = rt.getLedger().map((row) => `${row.entity}.${row.field}=${row.value}`); if (!view.includes('Mira.mood=calm')) throw new Error(`Mira's only row was evicted by Kael's noise: ${JSON.stringify(view)}`); if (!view.includes('Kael.hp=70')) throw new Error(`the newest Kael value is missing: ${JSON.stringify(view)}`); const kaelRows = raw.filter((row) => row.entity === 'Kael').length; if (kaelRows !== 70) throw new Error(`expected 70 Kael versions (70 changes, 10 unchanged repeats skipped), got ${kaelRows}`); return { rows: raw.length, kaelRows, view };",
+      "log": true
+    },
+    { "reload": { "timeoutMs": 90000 } },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const view = rt.getLedger().map((row) => `${row.entity}.${row.field}=${row.value}`); if (!view.includes('Mira.mood=calm') || !view.includes('Kael.hp=70')) throw new Error(`after reload the ledger lost a row: ${JSON.stringify(view)}`); return { afterReload: view, rows: rt.getSnapshot().memory.ledger.length };",
+      "log": true
+    }
+  ]
+}

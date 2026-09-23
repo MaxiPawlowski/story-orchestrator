@@ -1,0 +1,56 @@
+1/4 import_story ok 366ms
+2/4 eval ok 18709ms
+2/4 eval -> {"rows":71,"kaelRows":70,"view":["Mira.mood=calm","Kael.hp=70"]}
+3/4 reload ok 5587ms
+4/4 eval ok 5ms
+4/4 eval -> {"afterReload":["Mira.mood=calm","Kael.hp=70"],"rows":71}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T07-20-42-763Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 4,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@04h20m17s581ms",
+    "owned": [
+      "2026-09-23@04h20m17s581ms"
+    ],
+    "deleted": [
+      "2026-09-23@04h20m17s581ms"
+    ],
+    "notDeleted": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@04h20m17s581ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@03h45m01s896ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "ok": true
+    }
+  }
+}

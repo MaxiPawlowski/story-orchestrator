@@ -2,6 +2,7 @@ import { isLive, provenance as provenanceOf, withValidity, type ProvenanceSource
 import { generateMemoryId, type LedgerEntry, type LedgerView, type ParsedLedgerSignal } from "./types";
 
 export const LEDGER_CAP = 60;
+export const LEDGER_ROW_CAP = 240;
 
 export type LedgerPrimitive = string | number | boolean;
 
@@ -42,6 +43,7 @@ export function applyLedgerSignals(
     // M3: a change is a NEW version, never an overwrite. An in-place edit destroys the value a
     // rollback has to restore, which is the whole reason `rollbackLedger` could only keep or drop.
     const previous = next.filter((entry) => ledgerKey(entry.entity, entry.field) === key).at(-1);
+    if (previous && isLive(previous) && previous.value === value) continue;
     next.push({
       id: generateMemoryId(),
       provenance: provenanceOf({
@@ -94,11 +96,29 @@ export function rollbackLedger(entries: LedgerEntry[], messageId: number): Ledge
   });
 }
 
-export function capLedger(entries: LedgerEntry[], cap: number = LEDGER_CAP): LedgerEntry[] {
-  const trimmable = entries.filter((entry) => !entry.pinned);
-  if (trimmable.length <= cap) return entries;
-  const keep = new Set(trimmable.slice(-cap).map((entry) => entry.id));
-  return entries.filter((entry) => entry.pinned || keep.has(entry.id));
+export function capLedger(entries: LedgerEntry[], keyCap: number = LEDGER_CAP, rowCap: number = LEDGER_ROW_CAP): LedgerEntry[] {
+  const keyOf = (entry: LedgerEntry) => ledgerKey(entry.entity, entry.field);
+  const lastTouch = new Map<string, number>();
+  entries.forEach((entry, index) => lastTouch.set(keyOf(entry), index));
+  const pinnedKeys = new Set(entries.filter((entry) => entry.pinned).map(keyOf));
+  const droppableKeys = [...lastTouch.entries()].filter(([key]) => !pinnedKeys.has(key)).sort((left, right) => left[1] - right[1]).map(([key]) => key);
+  const dropKeys = new Set(droppableKeys.slice(0, Math.max(0, lastTouch.size - keyCap)));
+  let kept = entries.filter((entry) => !dropKeys.has(keyOf(entry)));
+  const newest = new Set<string>();
+  const seen = new Set<string>();
+  for (let index = kept.length - 1; index >= 0; index -= 1) {
+    const key = keyOf(kept[index]);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    newest.add(kept[index].id);
+  }
+  const olderVersions = kept.filter((entry) => !newest.has(entry.id) && !entry.pinned);
+  const excess = kept.length - rowCap;
+  if (excess > 0) {
+    const drop = new Set(olderVersions.slice(0, excess).map((entry) => entry.id));
+    kept = kept.filter((entry) => !drop.has(entry.id));
+  }
+  return kept.length === entries.length ? entries : kept;
 }
 
 export function buildLedgerView(
