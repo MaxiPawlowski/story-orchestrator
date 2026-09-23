@@ -8,11 +8,11 @@ const SRC = join(__dirname, "..");
 
 // V22b: budgets are EFFECTIVE lines (every started 120 characters of a line counts as one), because
 // a raw line count was being met by packing: memoryCoordinator read 614/620 lines while holding 676
-// effective ones, the manager 679/700 while holding 766. Measured after unpacking the imports: manager
-// 775, memoryCoordinator 687. The budgets were RAISED to cover that (700 -> 780, 620 -> 700), a stated
-// decision rather than a side effect; splitting the two back under the old budgets is queued (V26).
+// effective ones, the manager 679/700 while holding 766. V22b raised both to cover the measured size;
+// V26 part 1 moved prompt injection into runtime/memoryInjector.ts (memoryCoordinator 687 -> 597), so
+// the coordinator budget is back at 620. The manager stays at 780 until V26 part 2 splits it.
 const MANAGER_LINE_BUDGET = 780;
-const COORDINATOR_LINE_BUDGET = 700;
+const COORDINATOR_LINE_BUDGET = 620;
 const EFFECTIVE_WIDTH = 120;
 
 const walk = (dir: string): string[] =>

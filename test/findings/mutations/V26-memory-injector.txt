@@ -1,0 +1,6 @@
+M1 per-member private blocks are not staged (memoryInjector.update)  (jest: KILLED)
+  RuntimeManager memory injection and cast > swaps in each drafted member's own private epistemic block, hiding others' knowledge
+  (+2 more cases in the same suite)
+M2 a drafted member gets the resting block, not its own (memoryInjector.onMemberDrafted)  (jest: KILLED)
+  RuntimeManager memory injection and cast > swaps in each drafted member's own private epistemic block, hiding others' knowledge
+Both mutants were placed in the MOVED code, so this also proves the existing tests still reach it through the coordinator's delegates.

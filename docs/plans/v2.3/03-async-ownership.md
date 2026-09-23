@@ -2744,3 +2744,19 @@ rows is not closed (overview rule 14).
 - Machine: typecheck 0, typecheck:test 0, lint 0, jest 162 / 2596, build 0 (bundle `b0644c8bb149`), test:release 10/10, debug:typecheck 0, test:debug 122/122.
 - **Live, real model** (pod `pmt6t0v9h5dvap`, Artemis 31B via SSH tunnel on 18080; profile re-selected; `scripts/debug/so-backlog-ownership-check.mts`, group `1759606632088`). Control: a real backlog in chat A completes (`true`, 0 → 2 audits, 2 entries, ~18 s). Race: a real backlog started in chat B and switched to A at ~0.9 s settles ~9.5 s later, `false`, with A unchanged (2/2) and B unchanged (0/0). **PASS twice** (`run1.json`, `run2.json`). **Live mutation** (the backlog's guard minted without ownership) → **FAIL**: `true`, and chat A's audits went 2 → 4, i.e. chat B's backlog wrote into chat A (`live-mutation-guard-always-owns.json`). Cleanup: the check's 6 chats deleted (it does not use the sandbox runner), no mirror books were created, and `sun-ruins` was removed from the library. Run-header diff: rebuild timestamps plus `host.onlineStatus` (the backend came up mid-session).
 - Not run live, stated: the judge fallback, mirror, curator hold, scheduler errors, World Info per-write checks, load/swap/activate/restart tails and the supersession bridge are jest + mutation only. The races need a switch landing inside a specific host await, which the live harness cannot place.
+
+### V26 part 1 gate (2026-09-23): the memory coordinator back under its budget, by a real split
+
+- **What moved:** prompt injection went to `src/runtime/memoryInjector.ts` (`MemoryInjector`), the same layer as `memoryMirror.ts`. That covers:
+  - the score context and injection options;
+  - `update` (the memory, ledger and epistemic slots);
+  - the staged per-member private blocks, `onMemberDrafted`, and withholding them from impersonate/quiet generations;
+  - the block readers.
+- **Why this cut and not another:** the coordinator owns the stores, and the injector renders them into SillyTavern's prompt. The injector writes one memory field (`pinnedOverflow`), through the coordinator. Everything it does is synchronous, so **no ownership-census row moves** (the census tracks writes after an await).
+- **Public API unchanged:** the coordinator keeps one-line delegates, so its callers (extraction coordinator, rollback, manager) and every existing test are untouched.
+- **Size:** `memoryCoordinator.ts` went from **687 to 597** effective lines, so `COORDINATOR_LINE_BUDGET` is **back at 620**. Every other coordinator is ≤ 526.
+- **Proof it is behaviour-preserving:**
+  - jest 169/2674 unchanged;
+  - both mutants placed **in the moved code** are caught by the existing injection suite (`test/findings/mutations/V26-memory-injector.txt`), so the tests still reach it through the delegates;
+  - the rebuilt bundle `d863e3de41c0` was served (the run header hashed it). `plan07-memory`, `plan10-epistemic-ledger`, `plan05-pin-private-rollback` (per-member private block after a draft) and `plan05-pin-quarantine` are **green on two consecutive runs**, model-free, and the header diff is 0 (`records/v2.3-replan/V26/`).
+- **Not done (part 2):** the manager is still 775 effective lines against 780. The plan: one shared accessor object for the six coordinators' dependencies, and the save plumbing (`persist`, `saveAndObserve`, `saveLanded`) in its own unit, with its census rows rekeyed.

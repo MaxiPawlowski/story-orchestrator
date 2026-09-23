@@ -1,0 +1,71 @@
+1/24 eval ok 4ms
+2/24 import_story ok 370ms
+3/24 slash ok 1806ms
+4/24 slash ok 1859ms
+5/24 eval ok 242ms
+6/24 expect ok 38ms
+7/24 expect ok 31ms
+8/24 slash ok 1772ms
+9/24 eval ok 935ms
+10/24 expect ok 33ms
+11/24 wait ok 1535ms
+12/24 eval ok 5ms
+13/24 eval ok 887ms
+14/24 expect ok 34ms
+15/24 wait ok 1529ms
+16/24 eval ok 4ms
+17/24 slash ok 2221ms
+18/24 expect ok 42ms
+19/24 eval ok 5ms
+20/24 slash ok 1866ms
+21/24 eval ok 2664ms
+22/24 wait ok 46ms
+23/24 expect ok 49ms
+24/24 slash ok 2404ms
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T19-21-22-418Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 24,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-c68e0cdf"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse",
+      "storyOrchestratorDebugSceneSummaryResponse"
+    ],
+    "sandboxChatId": "2026-09-23@16h20m59s031ms",
+    "owned": [
+      "2026-09-23@16h20m59s031ms"
+    ],
+    "deleted": [
+      "2026-09-23@16h20m59s031ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@16h20m59s031ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [
+        "Story Orchestrator - Memory Foundation Gate Check - 2026-09-23@16h20m59s031ms"
+      ],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

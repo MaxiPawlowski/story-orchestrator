@@ -6,42 +6,37 @@ import {
   type ParsedDelta, type ParsedFact, type SharedReadWindow,
 } from "@extraction/index";
 import {
-  activeEpistemic, addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicInjection,
-  applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT,
-  buildArcSummaryPrompt, buildBoundKeySet, buildCanonSummaryPrompt, buildLedgerView, buildMemoryInjectionBlocks,
-  canonHistory, canonInputHash, capAllTiers, capEpistemic, capLedger, highImportanceFacts, isLive, ledgerBindings,
+  activeEpistemic, addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicSignals, applyLedgerSignals, ARC_OPEN_INJECT_LIMIT,
+  buildArcSummaryPrompt, buildBoundKeySet, buildCanonSummaryPrompt, canonHistory, canonInputHash, capAllTiers, capEpistemic, capLedger, highImportanceFacts, isLive, ledgerBindings,
   ledgerEntityList, storyEntities, disappearingEntries, recordDerived, reverseMemoryState, dropCommonKnowledge,
-  capOpenArcs, capResolvedArcs, clearAllMemoryInjection, clearEpistemicInjection, CONSOLIDATION_MIN_GROUP,
+  capOpenArcs, capResolvedArcs, CONSOLIDATION_MIN_GROUP,
   consolidateTier, DEFAULT_DEDUP_THRESHOLDS, editEntryText, expireScoped, markContradicted, matchArcBridges,
-  memoryExtensionKey, openArcTexts, removeArc, removeEpistemic, removeLedger, renderLedgerBlock,
-  renderPrivateEpistemicBlock, resolvedArcs, restoreEntry, setArcPinned, setLocked, setArcSummary, setEpistemicPinned,
+  openArcTexts, removeArc, removeEpistemic, removeLedger, resolvedArcs, restoreEntry, setArcPinned, setLocked, setArcSummary, setEpistemicPinned,
   setLedgerPinned, setPinned, type ArcEntry, type ConflictPair, type DerivedRecord, type EpistemicEntry,
   type LedgerBinding, type LedgerView, type MemoryEntry, type MemoryTier, type ParsedArcSignal,
-  type ParsedEpistemicSignal, type ParsedLedgerSignal, type ScoreContext, type UncertainPair, consolidateTierJudged,
+  type ParsedEpistemicSignal, type ParsedLedgerSignal, type UncertainPair, consolidateTierJudged,
   clearContradicted,
 } from "@memory/index";
 import {
-  bindChatLorebook, clearStoryExtensionPrompt, disableWIEntry, ensureLorebook, getActiveGroup, getCharacterNameById,
-  getContext, loadLorebook, readInjectedPromptBlocks, setStoryExtensionPrompt, upsertWIEntry,
+  bindChatLorebook, disableWIEntry, ensureLorebook, getContext, loadLorebook, upsertWIEntry,
 } from "@services/STAPI";
-import { EPISTEMIC_INJECTION_DEPTH, EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_DEPTH } from "@constants/defaults";
 import type { SceneReadRecord } from "@judge/index";
 import type { Provenance } from "@memory/provenance";
 import { sceneConflictValues } from "@memory/conflicts";
 
 import { emptyMirrorSummary, syncMemoryMirror, type MemoryMirrorSummary } from "../memoryMirror";
+import { MemoryInjector } from "../memoryInjector";
 import { buildMatchSets, judgePairRelations } from "../consolidationMatches";
 import {
   boundProvenance, boundValuesFor, detectMemoryConflicts, discardMemoryRow, dismissMemoryConflict, getConflicts,
   reconfirmMemoryEntry, rereadConflictWindow, resolveMemoryConflict, storeDroppedEntry, type MemoryQueueDeps,
 } from "../memoryQueue";
-import { buildScoreContext } from "../scoreContext";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunOwnership } from "../runToken";
 import { computeEntryTokens, tokensFor } from "../entryTokens";
 import { PAIR_JACCARD_FLOOR } from "@judge/index";
 import {
-  activeSpeakerId, enabledCharacterIds, enabledCharacterNames, namesForRosterId, rosterIdForName, rosterMemberName,
+  enabledCharacterNames, rosterMemberName,
 } from "../roster";
 import {
   VERIFY_DROP_LIMIT, type CanonSource, type ExtractionRuntimeSettings, type MemoryBackfillState,
@@ -76,7 +71,15 @@ export interface MemoryCoordinatorDeps {
 // consolidation, World Info mirroring and prompt injection. The manager keeps the persist
 // boundary — this class only mutates the slice and asks for a save.
 export class MemoryCoordinator {
-  private stagedPrivate = new Map<string, { facts: string; epistemic: string }>();
+  private readonly injector = new MemoryInjector({
+    getStory: () => this.deps.getStory(),
+    getState: () => this.deps.getState(),
+    memory: () => this.state,
+    enabled: () => this.enabled,
+    capable: () => this.capable,
+    ledgerBindings: () => this.ledgerBindings(),
+    setPinnedOverflow: (count) => this.patch({ pinnedOverflow: count }),
+  });
   private consolidationInFlight = false;
   private canonInFlight = false;
 
@@ -422,25 +425,10 @@ export class MemoryCoordinator {
     return this.state.epistemic;
   }
 
-  getLedger(): LedgerView[] {
-    const state = this.deps.getState();
-    if (!state) return [];
-    return buildLedgerView(this.state.ledger, this.ledgerBindings(), state.blackboard.values, state.blackboard.versions);
-  }
-
-  getEpistemicBlock(): string {
-    const story = this.deps.getStory();
-    if (!story || !this.capable) return "";
-    const speaker = activeSpeakerId(story);
-    const names = speaker ? namesForRosterId(story, speaker) : enabledCharacterNames(story);
-    return renderPrivateEpistemicBlock(this.state.epistemic, names);
-  }
-
-  /** What ST's next prompt ACTUALLY holds, not a re-render for whoever speaks next (in a group the
-   *  applied block belongs to the DRAFTED member — see the 2026-09-22 note in the plan-05 record). */
-  getAppliedEpistemicBlock(): string { return readInjectedPromptBlocks().find((block) => block.key === EPISTEMIC_INJECTION_KEY)?.value ?? ""; }
-
-  getLedgerBlock(): string { return !this.deps.getStory() || !this.enabled ? "" : renderLedgerBlock(this.getLedger()); }
+  getLedger(): LedgerView[] { return this.injector.ledgerView(); }
+  getEpistemicBlock(): string { return this.injector.epistemicBlock(); }
+  getAppliedEpistemicBlock(): string { return this.injector.appliedEpistemicBlock(); }
+  getLedgerBlock(): string { return this.injector.ledgerBlock(); }
 
   async setEpistemicPinned(id: string, pinned: boolean) { await this.commit(() => ({ epistemic: setEpistemicPinned(this.state.epistemic, id, pinned) })); }
 
@@ -450,87 +438,12 @@ export class MemoryCoordinator {
 
   async removeLedgerEntry(id: string) { await this.commit(() => ({ ledger: removeLedger(this.state.ledger, id) })); }
 
-  // --- injection ---------------------------------------------------------
+  // --- injection (V26: rendered by MemoryInjector) --------------------------
 
-  private buildScoreContext(): ScoreContext {
-    return buildScoreContext({
-      boundary: this.boundaryStamp(),
-      rosterNames: this.deps.getStory()?.roster.map(rosterMemberName) ?? [],
-      openArcs: this.enabled ? openArcTexts(this.state.arcs, ARC_OPEN_INJECT_LIMIT) : [],
-      weights: this.state.settings.scoreWeights,
-    });
-  }
-
-  private injectionOptions() {
-    return { tokenBudgets: this.state.settings.tierTokenBudgets, scoreContext: this.buildScoreContext() };
-  }
-
-  updateInjection() {
-    const story = this.deps.getStory();
-    if (!story || !this.enabled) {
-      clearAllMemoryInjection();
-      this.stagedPrivate.clear();
-      if (this.state.pinnedOverflow) this.patch({ pinnedOverflow: 0 });
-      return;
-    }
-    const options = this.injectionOptions();
-    const speaker = activeSpeakerId(story);
-    const pinnedOverflow = applyMemoryInjection(this.state.entries, speaker, this.state.settings.injectionDepths, options);
-    if (pinnedOverflow !== this.state.pinnedOverflow) this.patch({ pinnedOverflow });
-
-    const state = this.deps.getState();
-    const values = state?.blackboard.values ?? {};
-    const versions = state?.blackboard.versions ?? {};
-    applyLedgerInjection(renderLedgerBlock(buildLedgerView(this.state.ledger, this.ledgerBindings(), values, versions)), LEDGER_INJECTION_DEPTH);
-
-    this.stagedPrivate.clear();
-    if (this.capable) {
-      for (const id of enabledCharacterIds(story)) {
-        const facts = buildMemoryInjectionBlocks(this.state.entries, id, options).facts;
-        const epistemic = renderPrivateEpistemicBlock(this.state.epistemic, namesForRosterId(story, id));
-        this.stagedPrivate.set(id, { facts, epistemic });
-      }
-      // A group has no speaker between drafts: whatever holds the prompt at rest (impersonate, quiet
-      // generations, other extensions) must not carry the last drafted member's private knowledge.
-      const speakerBlock = getActiveGroup() ? "" : speaker ? (this.stagedPrivate.get(speaker)?.epistemic ?? "") : renderPrivateEpistemicBlock(this.state.epistemic, enabledCharacterNames(story));
-      applyEpistemicInjection(speakerBlock, EPISTEMIC_INJECTION_DEPTH);
-    } else {
-      clearEpistemicInjection();
-    }
-  }
-
-  private setPrivateInjectionBlocks(facts: string, epistemic: string) {
-    applyEpistemicInjection(epistemic, EPISTEMIC_INJECTION_DEPTH);
-    const factsKey = memoryExtensionKey("facts");
-    if (facts) setStoryExtensionPrompt(factsKey, facts, this.state.settings.injectionDepths.facts);
-    else clearStoryExtensionPrompt(factsKey);
-  }
-
-  // Impersonate writes as the player and quiet generations serve other tools, even when ST drafted
-  // a member for them: neither may read a character's private knowledge.
-  withholdPrivateKnowledge() {
-    clearEpistemicInjection();
-  }
-
-  onMemberDrafted(chId: number | [number]) {
-    const story = this.deps.getStory();
-    if (!story || !this.capable) return;
-    const numericId = typeof chId === "number" ? chId : Array.isArray(chId) ? chId[0] : undefined;
-    const name = getCharacterNameById(numericId);
-    const rosterId = name ? rosterIdForName(story, name) : null;
-    const staged = rosterId ? this.stagedPrivate.get(rosterId) : undefined;
-    if (!staged) {
-      this.setPrivateInjectionBlocks(buildMemoryInjectionBlocks(this.state.entries, activeSpeakerId(story), this.injectionOptions()).facts, "");
-      return;
-    }
-    this.setPrivateInjectionBlocks(staged.facts, staged.epistemic);
-  }
-
-  getInjectionBlocks(): Record<MemoryTier, string> {
-    const story = this.deps.getStory();
-    const entries = story && this.enabled ? this.state.entries : [];
-    return buildMemoryInjectionBlocks(entries, activeSpeakerId(story), this.injectionOptions());
-  }
+  updateInjection() { this.injector.update(); }
+  withholdPrivateKnowledge() { this.injector.withholdPrivateKnowledge(); }
+  onMemberDrafted(chId: number | [number]) { this.injector.onMemberDrafted(chId); }
+  getInjectionBlocks(): Record<MemoryTier, string> { return this.injector.blocks(); }
 
   // --- consolidation -----------------------------------------------------
 

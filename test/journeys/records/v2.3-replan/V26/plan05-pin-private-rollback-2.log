@@ -1,0 +1,79 @@
+1/15 import_story ok 378ms
+2/15 ui ok 3165ms
+3/15 eval ok 8ms
+3/15 eval -> {"cadence":0,"capable":true}
+4/15 send ok 2118ms
+5/15 extract ok 491ms
+6/15 eval ok 6ms
+6/15 eval -> {"id":"d8c3fc6e-f4b8-4f53-8751-87616ddc219e","tag":"hiding","subject":"Arin","hiddenFrom":"Ponticius","messageId":1}
+7/15 eval ok 5ms
+7/15 eval -> {"chid":5,"staged":true}
+8/15 expect ok 38ms
+9/15 edit ok 126ms
+10/15 wait ok 1540ms
+11/15 eval ok 4ms
+11/15 eval -> {"validity":"source-removed","pinned":true,"blockChars":0}
+12/15 eval ok 4ms
+12/15 eval -> {"stagedLength":0,"excluded":true,"note":"the exclusion half, asserted where it is decidable: the row is still IN the store as source-removed (previous step) while the drafted member carries none of it. An expect.payloadAbsent cannot express this case and REFUSES to by design, because the quarantine leaves the member with no private knowledge at all, so the block is CLEARED rather than present-without-the-text -- and a missing block must never read as an absent needle"}
+13/15 eval ok 235ms
+13/15 eval -> {"provenance":{"source":"author","messageId":1,"boundary":0,"pass":"epistemic:hiding","validity":"live","override":{"by":"author","at":"2026-09-23T19:22:34.342Z","boundary":1,"from":"reconfirm"}},"back":true}
+14/15 expect ok 36ms
+15/15 eval ok 5ms
+15/15 eval -> {"note":"what this run does NOT prove","limits":["that a real model would have written this private fact (mocked here, live in the plan-05 recipe)","that the request the BACKEND received carried the block (the runtime block is what this asserts; the live recipe reads the HTTP capture with st-payload last --member Arin, which is also the only form that knows the capture was drafted for him)"]}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T19-22-37-479Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 15,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@16h22m26s332ms",
+    "owned": [
+      "2026-09-23@16h22m26s332ms"
+    ],
+    "deleted": [
+      "2026-09-23@16h22m26s332ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@16h22m26s332ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}
