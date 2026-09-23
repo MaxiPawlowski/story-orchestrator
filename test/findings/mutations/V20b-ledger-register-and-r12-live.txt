@@ -1,0 +1,7 @@
+M1 a register id with no row  (exit 1)
+  ● the findings ledger › every id in plan 01's register has a row
+M2 a closed node row cites a title its file does not have  (exit 1)
+  ● the findings ledger › a closed node row cites a harness test that is really in the file it names
+M3 the shipped example pins a preset again  (exit 1)
+  ● S4: the shipped example story pins no sampler preset
+M4 (live) the memory tier grades presence: J0.6 FAILS, certifying "A dragon conquered the distant moon." (test/journeys/records/v2.3-replan/V20b/live-mutation-memory-tier-grades-presence.log)

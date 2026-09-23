@@ -885,3 +885,18 @@ Queue ids from `00-overview.md` §Replan. Verified against the tree unless marke
 - Mutations: **4 of 4**, each caught by its own case (`test/findings/mutations/V20a-step-engine.txt`).
 - **Live**: J0, the runner self-test (no model), `--strict` twice on group `1759606632088`: 4 pass (J0.3 blocked and J0.5 fail, each as declared), cleanup clean, `first try: 4 of 4` both times (`records/v2.3-replan/V20a/j0-run{1,2}.log`). Run-header diff: 0.
 - Machine: test:debug 136, debug:typecheck 0. No product source changed.
+
+### V20b gate (2026-09-23) — the register has rows, and R12 is proven in the page
+
+- **The ledger now covers the whole register.** It was 31 rows with none of T1–T6 or S1–S13, and `findingsLedger.test.ts` checked only the rows that existed. It now also reads plan 01 §A's own list (`one row per finding id (R1–R12, … S1–S13)`, 49 ids with ranges expanded) and fails on any id without a row. **50 rows: 12 open, 38 settled.** Every new status was set from evidence in the tree:
+  - **Closed:** T1, T2, T3 (node tests); S1–S4 (jest reproductions); S5 (node); S11 (live).
+  - **Open, each naming the queue item that owns it:** T4 and T6 → V20c; T5 → V20e; S6–S10 and S12 → V20d; S13 → L2, because J12 has never run.
+- **`node` evidence.** Most of plan 01's findings are proven in the harness's node:test suite (`npm run test:debug`), which the ledger's `jest | live | human` types could not cite. A closed `node` row cites `<file> :: <test title>`, and the guard fails when the file or the quoted title is not there, the same rule the fault matrix uses.
+- **Four jest reproductions**, each exactly one `finding()`:
+  - S1: `storyImportWarnings.test.ts` renamed to `.review.test.ts`, because only review files are scanned for declarations.
+  - S2: `effectRestore.review.test.ts`, the leave-restores-the-group case.
+  - S3: `blobForeign.review.test.ts`, a foreign-stamped blob reads as no story.
+  - S4: new `exampleStory.review.test.ts`, the shipped Sun Ruins example pins no preset.
+- **R12's live half (J0.6).** The self-test gained a planted-response seam, `storyOrchestratorDebugSelfTestResponses`, the project's usual debug-response global; a planted response returns before any model call, so J0 stays model-free. J0.6 plants the review's wrong-entity answer (a dragon on the moon, an interstellar chess tournament, a stranger in a purple costume), clicks the real `#so-self-test` in the settings panel, and requires **no tier to pass**. J0 `--strict` ran twice: **5 pass** (J0.3 blocked and J0.5 fail, each as declared), J0.6 showing 6 result rows and 0 PASS, cleanup clean, first try 5 of 5 (`records/v2.3-replan/V20b/j0-run{1,2}.log`). **Live mutation** (the memory tier grades presence): J0.6 FAILS, having certified "A dragon conquered the distant moon." (`live-mutation-memory-tier-grades-presence.log`). Run-header diff: build fields only.
+- Mutations: 3 jest + 1 live, all caught (`test/findings/mutations/V20b-ledger-register-and-r12-live.txt`).
+- Machine: typecheck 0, typecheck:test 0, lint 0, jest **168 / 2668** (`findings ledger: 12 open, 38 settled`), test:debug 136, debug:typecheck 0, build 0 (bundle `9ed768c54cc6`), test:release 10/10.

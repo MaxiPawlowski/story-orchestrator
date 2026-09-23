@@ -32,6 +32,7 @@ import { EffectsApplier } from "./effectsApplier";
 import { reconcileLedger } from "./effectLedger";
 import { restoreEffectTarget } from "./effectHost";
 import type { EffectLedgerRow, RuntimeExtras } from "./types";
+import { finding } from "../../test/findings/ledger";
 
 const story = { title: "S", checkpointById: {}, checkpoints: [] } as never;
 const extrasFor = (ledger: EffectLedgerRow[] = [], cast: Array<{ member: string; disabled: boolean }> = []) => ({
@@ -81,7 +82,8 @@ beforeEach(() => {
 });
 
 describe("V15: a chat puts back what it changed in shared host state", () => {
-  it("leaving for ANOTHER chat restores the group but not the Author's Note (it is chat-scoped), and writes nothing into the new chat", async () => {
+  // S2: a checkpoint's cast change used to outlive the chat that made it, on a group every chat shares.
+  finding("S2", async () => {
     const h = harness();
     const extras = extrasFor([castRow("c1", "luke.png", false, true, 3), anRow("a1", 3)]);
     await h.applier.applyCheckpoint(story, { id: "cp" } as never, extras, {} as never, "hydrate", ["cp"]);

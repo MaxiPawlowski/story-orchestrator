@@ -123,6 +123,32 @@
           "eval": "throw new Error('J0.5 fails on purpose: this is the runner proving it reports a real failure as fail');"
         }
       ]
+    },
+    {
+      "id": "J0.6",
+      "mode": "auto",
+      "findings": [
+        "R12"
+      ],
+      "goal": "R12 live half: the memory-model self-test, clicked in the real settings panel over a planted answer that is well formed and about the wrong entities (a dragon on the moon, an interstellar chess tournament, a stranger in a purple costume), certifies no tier. The planted answer stands in for the model on purpose: the check is about the grader, and the jest reproduction proves the same grader in-process.",
+      "requires": [
+        "runtime-handle"
+      ],
+      "steps": [
+        {
+          "eval": "globalThis.storyOrchestratorDebugSelfTestResponses = [\"DELTA location value=\\\"tunnel\\\" evidence=\\\"tunnel\\\"\\nMEMORY type=event importance=2 expiration=session text=\\\"A dragon conquered the distant moon.\\\" evidence=\\\"invented\\\"\\n[arc] Win the interstellar chess tournament\", \"[knows] Stranger | the moon is made of cheese\\n[state:Stranger:character] costume=purple\"]; return { planted: true };"
+        },
+        {
+          "ui": {
+            "action": "open-settings"
+          }
+        },
+        {
+          "eval": "try { const button = document.querySelector('#so-self-test'); if (!button || button.disabled) throw new Error('the self-test button is not usable: no memory model profile is selected'); button.click(); let rows = []; for (let tick = 0; tick < 40; tick += 1) { await new Promise((resolve) => setTimeout(resolve, 250)); rows = [...document.querySelectorAll('#so-self-test-result > div.flex')].map((row) => row.textContent.trim()); if (rows.length >= 5) break; } const passed = rows.filter((row) => row.startsWith('PASS')); if (rows.length < 5) throw new Error(`the self-test showed ${rows.length} tier row(s), not 5: ${JSON.stringify(rows)}`); if (passed.length) throw new Error(`a well-formed answer about the wrong entities was certified in ${passed.length} tier(s): ${JSON.stringify(passed)}`); return { tiers: rows.length, passed: 0 }; } finally { delete globalThis.storyOrchestratorDebugSelfTestResponses; }",
+          "log": true
+        }
+      ],
+      "expect": "pass"
     }
   ]
 }

@@ -169,7 +169,8 @@ export async function runModelSelfTest(options: SelfTestOptions): Promise<SelfTe
     options.onProgress?.({ pass: index + 1, total: passes.length, label: pass.label });
     const { story, prompt } = buildFixtureRun(pass.spec);
     try {
-      const raw = await callExtractionModel(prompt, { profileId, maxTokens: 512, debugResponse: options.debugResponses?.[index] ?? null });
+      const planted = options.debugResponses ?? globalThis.storyOrchestratorDebugSelfTestResponses ?? null;
+      const raw = await callExtractionModel(prompt, { profileId, maxTokens: 512, debugResponse: planted?.[index] ?? null });
       if (options.cancelled?.()) return { ranAt, profileId, results, error: "Cancelled." };
       results.push(...pass.grade(parseSharedReadResponse(raw, story)));
     } catch (error) {

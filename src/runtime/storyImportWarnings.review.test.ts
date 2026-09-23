@@ -28,12 +28,13 @@ jest.mock("./storyLibrary", () => ({
 }));
 
 import { importStoryJson, type StorySelectionDeps } from "./storySelection";
+import { finding } from "../../test/findings/ledger";
 
 // V18 (S1): the placeholder warning lived only in the Studio's diagnostics, so a story imported as
 // JSON — the way every campaign story reached a chat — never showed it. The in-tree fixture carries
 // the five placeholder shapes and one non-latching control; no test read it until now.
 describe("V18: a latching enum with a placeholder warns outside the Studio", () => {
-  it("names each of the five placeholder shapes, and not the quality that does not latch", () => {
+  finding("S1", () => {
     if (isValidationErrorList(parsed)) throw new Error(JSON.stringify(parsed));
     const warnings = storyWarnings(parsed);
     expect(warnings.map((warning) => warning.path)).toEqual(["qualities.0.values", "qualities.1.values", "qualities.2.values", "qualities.3.values", "qualities.4.values"]);

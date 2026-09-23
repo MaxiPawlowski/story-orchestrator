@@ -1,0 +1,38 @@
+build manifest → dist\manifest.json (bundle 68f438c10879, source 788bc7996225, ST 1.19.0)
+
+=== J0 runner-selftest ===
+Prove the so-journey runner itself: fresh-start setup, pass/blocked/skipped outcomes, cleanup. No LLM calls.
+
+extraction before this run: {"enabled":true,"cadence":1,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"}
+--- J0.6 R12 live half: the memory-model self-test, clicked in the real settings panel over a planted answer that is well formed and about the wrong entities (a dragon on the moon, an interstellar chess tournament, a stranger in a purple costume), certifies no tier. The planted answer stands in for the model on purpose: the check is about the grader, and the jest reproduction proves the same grader in-process.
+J0.6 1/3 eval ok 5ms
+J0.6 2/3 ui ok 3121ms
+J0.6 3/3 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: a well-formed answer about the wrong entities was certified in 1 tier(s): ["PASSmemory — writes a memory line about THIS scene (it must mention the lantern and the tunnel) · got: facts: A dragon conquered the distant moon."]
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:690)
+    at async <anonymous>:316:30
+
+SKIP         J0.1     the runner starts on a virgin chat with no story selected — not selected by --only
+SKIP         J0.2     the drawer opens and the flag control writes a journal record — not selected by --only
+SKIP         J0.3     a check requiring a capability this build lacks reports blocked, not failed (its steps must never run) — not selected by --only
+SKIP         J0.4      — not selected by --only
+SKIP         J0.5     an UNGUARDED failing step reports fail — the runner distinguishes "could not run" from "ran and was wrong" — not selected by --only
+FAIL         J0.6     R12 live half: the memory-model self-test, clicked in the real settings panel over a planted answer that is well formed and about the wrong entities (a dragon on the moon, an interstellar chess tournament, a stranger in a purple costume), certifies no tier. The planted answer stands in for the model on purpose: the check is about the grader, and the jest reproduction proves the same grader in-process. — expected this check to report pass, got fail — Evaluation failed in SillyTavern page: page.evaluate: Error: a well-formed answer about the wrong entities was certified in 1 tier(s): ["PASSmemory — writes a memory line about THIS scene (it must mention the lantern and the tunnel) · got: facts: A dragon conquered the distant moon."]
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:690)
+    at async <anonymous>:316:30
+
+J0
+automated: 0 pass, 1 fail, 0 blocked, 0 not-runnable, 4 skipped
+human:     0 scored, 1 unscored
+cleanup:   clean
+first try: 0 of 0 passing check(s) needed no retry
+PARTIAL: --only ran a subset; this record cannot stand for a gate.
+NOT GREEN: 1 automated check(s) failed
+NOT GREEN: 4 skipped (strict): an acceptance run runs every check
+
+--- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+[J0.4] (—) Ignore — selftest placeholder proving human checks are emitted as a checklist and reported as skipped.
+      anchors: 1 = not emitted, 5 = emitted
+[free] What would make you stop using this?
+
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T17-47-44-680Z_journey-J0.json
+Matrix: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\journey-J0.md

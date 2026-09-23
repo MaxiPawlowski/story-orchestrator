@@ -13,7 +13,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-export type FindingEvidence = "jest" | "live" | "human";
+export type FindingEvidence = "jest" | "node" | "live" | "human";
 export type FindingStatus = "open" | "closed" | "by-design";
 
 export interface LedgerRow {
@@ -24,7 +24,7 @@ export interface LedgerRow {
   status: FindingStatus;
   /** A substring of the assertion message an open finding must fail with. */
   expectedFailure?: string;
-  /** Where a `live` or `human` row is proven instead. */
+  /** Where a `live` or `human` row is proven instead. A closed `node` row cites `<file> :: <test title>`. */
   provenBy?: string;
   note?: string;
 }

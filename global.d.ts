@@ -52,6 +52,7 @@ declare global {
   var storyOrchestratorDebugEpistemicResponse: string | null | undefined;
   var storyOrchestratorDebugLedgerResponse: string | null | undefined;
   var storyOrchestratorDebugCopilotResponse: string | null | undefined;
+  var storyOrchestratorDebugSelfTestResponses: string[] | null | undefined;
   var storyOrchestratorDebugDirectorResponse: string | null | undefined;
   var storyOrchestratorJudge: import("./src/runtime/judge").JudgeRuntime | undefined;
   var storyOrchestratorLore: { selector: import("./src/runtime/loreSelect").LoreSelector; willAddUserMessage: (type: string | undefined, params: Record<string, unknown> | undefined, dryRun: boolean | undefined) => boolean } | undefined;

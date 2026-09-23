@@ -10,6 +10,7 @@ jest.mock("./storyLibrary", () => ({ listStoryRecords: () => [], findStoryRecord
 
 import { adoptChatState, blobMismatch, dropPersistedRuntime, getMetadataBlob, loadPersistedRuntime, restampRenamedChat, savePersistedRuntime, setSelectedStoryId } from "./persistence";
 import { loadSelectedStory, selectStory, type StorySelectionDeps } from "./storySelection";
+import { finding } from "../../test/findings/ledger";
 
 declare global {
   // eslint-disable-next-line no-var
@@ -25,7 +26,8 @@ function open(chatId: string, blob: unknown) {
 const stored = () => globalThis.__foreignContext.chatMetadata.story_orchestrator as ReturnType<typeof chatA>;
 
 describe("V5: a blob stamped for another chat is left exactly as it was", () => {
-  it("a read answers 'no story' and does NOT write the empty blob back", () => {
+  // S3: the away recap fired in a brand-new chat because this blob was adopted as the new chat's.
+  finding("S3", () => {
     open("chat-b", chatA());
     expect(getMetadataBlob().selectedStoryId).toBeNull();
     expect(stored()).toEqual(chatA());

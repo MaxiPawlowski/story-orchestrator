@@ -263,6 +263,160 @@
       "evidence": "live",
       "status": "closed",
       "provenBy": "fixed in v2.2"
+    },
+    {
+      "id": "T1",
+      "title": "an unknown assertion key or verb in a fixture fails at load instead of asserting nothing",
+      "owner": "01",
+      "evidence": "node",
+      "status": "closed",
+      "provenBy": "scripts/debug/scenarioSchema.test.mts :: a typo in an expect key is rejected, and the key is named",
+      "note": "plan 01 §C: the vocabulary is closed (lib/scenarioSchema.mts) and both runners validate before running; every shipped fixture passes it."
+    },
+    {
+      "id": "T2",
+      "title": "a verb answering ok:false fails its step unless the step declares expectFail",
+      "owner": "01",
+      "evidence": "node",
+      "status": "closed",
+      "provenBy": "scripts/debug/so-scenario.runSteps.test.mts :: a verb that answers ok:false fails its step and names the verb (T2)",
+      "note": "V20a: the rule lived in runSteps with no execution test, and the runner's own modifier list lacked expectFail, so a step leading with it was dispatched as a verb. Both executed now."
+    },
+    {
+      "id": "T3",
+      "title": "a journey reports automated, human and cleanup gates apart, and cleanup failures fail the run without --strict",
+      "owner": "01",
+      "evidence": "node",
+      "status": "closed",
+      "provenBy": "scripts/debug/journeyTallies.test.mts :: automated, human and cleanup are counted separately"
+    },
+    {
+      "id": "T4",
+      "title": "an --only run cannot stand for a gate",
+      "owner": "01",
+      "evidence": "node",
+      "status": "open",
+      "provenBy": "not yet: so-journey writes `partial: true` (so-journey.mts, record) but no test pins it and no archive step refuses a partial record — V20c"
+    },
+    {
+      "id": "T5",
+      "title": "the live suite's per-tier floors bind by default, not only when passed",
+      "owner": "01",
+      "evidence": "node",
+      "status": "open",
+      "provenBy": "not yet: --min-tier binds when given (lib/liveSuiteScore) but there are no default floors — V20e"
+    },
+    {
+      "id": "T6",
+      "title": "J9.2 reports each collision subcase as its own outcome, never a silent skipped",
+      "owner": "01",
+      "evidence": "live",
+      "status": "open",
+      "provenBy": "not yet: J9.2 step 3 still returns { skipped } — V20c"
+    },
+    {
+      "id": "S1",
+      "title": "a latching enum that lists a placeholder value warns outside the Studio",
+      "owner": "02",
+      "evidence": "jest",
+      "status": "closed",
+      "note": "V18: storyWarnings() at import, journaled after the load (it was wiped by the load before, found live); the in-tree placeholder-enums fixture is the reproduction."
+    },
+    {
+      "id": "S2",
+      "title": "a checkpoint's cast change is put back when the chat that made it is left",
+      "owner": "06",
+      "evidence": "jest",
+      "status": "closed",
+      "note": "V15a: group disabled_members is per-group install state; the effect ledger restores it on leave, by the group the row recorded."
+    },
+    {
+      "id": "S3",
+      "title": "a blob stamped for another chat is read as no story, never adopted by a brand-new chat",
+      "owner": "03",
+      "evidence": "jest",
+      "status": "closed",
+      "note": "plan 03 chat-stamped blob, V5: the away recap fired in a brand-new chat because the blob was read before chat_metadata swapped."
+    },
+    {
+      "id": "S4",
+      "title": "the shipped example story pins no sampler preset",
+      "owner": "06",
+      "evidence": "jest",
+      "status": "closed",
+      "note": "plan 06: the Sun Ruins cp1 preset degenerated on Artemis and a preset cannot reach a chat-completion backend; the overlay was dropped and test/scenarios/effects-preset.* carries the preset effect instead."
+    },
+    {
+      "id": "S5",
+      "title": "a single-sample model assertion can be re-sampled, and the record says whether it passed first try",
+      "owner": "01",
+      "evidence": "node",
+      "status": "closed",
+      "provenBy": "scripts/debug/journeyTallies.test.mts :: a check that passed without retrying is counted apart from one that needed retries"
+    },
+    {
+      "id": "S6",
+      "title": "tooling never reads an absent capture as \"nothing\"",
+      "owner": "01",
+      "evidence": "node",
+      "status": "open",
+      "provenBy": "not yet: libraryBefore, the guard's chat ids and the config snapshot carry no trusted flag — V20d"
+    },
+    {
+      "id": "S7",
+      "title": "a crashed journey's cleared config is recovered on the next setup",
+      "owner": "01",
+      "evidence": "node",
+      "status": "open",
+      "provenBy": "not yet: restoreGlobalConfig refuses an empty snapshot, but setup does not recover from a newer snapshot — V20d"
+    },
+    {
+      "id": "S8",
+      "title": "so-assets remove takes an explicit baseline",
+      "owner": "01",
+      "evidence": "node",
+      "status": "open",
+      "provenBy": "not yet: baselines are trusted/untrusted inside a journey, but there is no so-assets --baseline — V20d"
+    },
+    {
+      "id": "S9",
+      "title": "cleanup covers worldInfoCache, regex/QR sets, legacy mirror books and the wizard draft",
+      "owner": "01",
+      "evidence": "node",
+      "status": "open",
+      "provenBy": "not yet: still (open) in gotchas.md — V20d"
+    },
+    {
+      "id": "S10",
+      "title": "a blocking host dialog during setup fails the run naming it",
+      "owner": "01",
+      "evidence": "node",
+      "status": "open",
+      "provenBy": "not yet: only 'Chat integrity check failed' is refused; other dialogs are auto-OK'd and a probe failure is swallowed — V20d"
+    },
+    {
+      "id": "S11",
+      "title": "a run leaves install-wide extraction settings as it found them",
+      "owner": "01",
+      "evidence": "live",
+      "status": "closed",
+      "provenBy": "every so-scenario/so-journey cleanup restores and READS BACK the extraction settings (cleanup.extraction.verified), e.g. test/journeys/records/v2.3-replan/V19/repair-run1.log, which cleared the memory model mid-run; run-header diffs of 0 around batches, e.g. test/journeys/records/v2.3-replan/V20a/header-diff-end.log"
+    },
+    {
+      "id": "S12",
+      "title": "a config restore never removes a story from the library",
+      "owner": "01",
+      "evidence": "node",
+      "status": "open",
+      "provenBy": "not yet: writeGlobalConfig keeps live v2Stories but overwrites wizardSessions, and there is no jest/node test over the restore — V20d"
+    },
+    {
+      "id": "S13",
+      "title": "the scheduler fires unaided at the shipped default cadence",
+      "owner": "01",
+      "evidence": "live",
+      "status": "open",
+      "provenBy": "J12 --strict twice — never run (L2)"
     }
   ]
 }
