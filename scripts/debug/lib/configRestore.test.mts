@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { blockingDialogFor, mergeRestore, removableStories, shouldRecoverConfig } from './configRestore.mts';
+import { blockingDialogFor, mergeRestore, removableStories, shouldRecoverConfig, validateJourneyExtraction } from './configRestore.mts';
 
 test('a restore keeps a story and a wizard session another session created after the snapshot (S12)', () => {
   const snapshot = { settings: { cadence: 3 }, v2Stories: [{ id: 'mine' }], wizardSessions: [{ key: 'mine' }] };
@@ -43,4 +43,16 @@ test('setup refuses the dialogs whose OK writes, and only those (S10)', () => {
   assert.ok(blockingDialogFor('Welcome back — here is what happened'));
   assert.match(blockingDialogFor('This character has an embedded World/Lorebook. Would you like to import it now?')?.why ?? '', /imports a lorebook/);
   assert.equal(blockingDialogFor('Are you sure you want to restart the story?'), null);
+});
+
+test('every journey declares the extraction it runs at, and nothing else (§E)', () => {
+  assert.deepEqual(validateJourneyExtraction({ extraction: { cadence: 1, stabilityLag: 0, profile: 'inherit' } }), []);
+  assert.match(validateJourneyExtraction({}).join(), /setup\.extraction is required/);
+  assert.match(validateJourneyExtraction({ cadence: 1, extraction: { cadence: 1, stabilityLag: 0, profile: 'inherit' } }).join(), /moved to setup\.extraction\.cadence/);
+  assert.deepEqual(validateJourneyExtraction({ extraction: { cadence: 0, stabilityLag: -1, profile: 'Artemis', enabled: false } }), [
+    'setup.extraction.enabled is not a declared setting',
+    'setup.extraction.cadence must be an integer >= 1',
+    'setup.extraction.stabilityLag must be an integer >= 0',
+    'setup.extraction.profile must be "inherit"',
+  ]);
 });

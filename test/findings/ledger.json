@@ -375,16 +375,16 @@
       "title": "so-assets remove takes an explicit baseline",
       "owner": "01",
       "evidence": "node",
-      "status": "open",
-      "provenBy": "not yet: no so-assets --baseline — V20d part 2"
+      "status": "closed",
+      "provenBy": "scripts/debug/lib/assetScope.test.mts :: so-assets takes an explicit --baseline, and has no default one (S8)"
     },
     {
       "id": "S9",
       "title": "cleanup covers worldInfoCache, regex/QR sets, legacy mirror books and the wizard draft",
       "owner": "01",
       "evidence": "node",
-      "status": "open",
-      "provenBy": "not yet: worldInfoCache eviction, regex/QR sets, --legacy-mirrors and the marker-named wizard draft — V20d part 2"
+      "status": "closed",
+      "provenBy": "scripts/debug/lib/assetScope.test.mts :: a legacy mirror is deleted only when named exactly, listed, and without a chat-id suffix (S9)"
     },
     {
       "id": "S10",

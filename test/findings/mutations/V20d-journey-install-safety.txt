@@ -11,3 +11,18 @@ M5 S7 recovery written over a populated root  (node: KILLED)
 M6 S10 the embedded-lorebook confirm not in the blocking list  (node: KILLED)
   not ok 6 - setup refuses the dialogs whose OK writes, and only those (S10)
 M7 (live) same mutant as M6, with a planted "has an embedded World/Lorebook" confirm open: J0 --strict exits 0 and never refuses (test/journeys/records/v2.3-replan/V20d/live-mutation-s10-embedded-not-blocking.log); unmutated it exits 1 naming the dialog (s10-planted-embedded-lorebook-refused.log)
+
+Part 2
+M8 S8 a default baseline is implied  (node: KILLED)
+  not ok 1 - so-assets takes an explicit --baseline, and has no default one (S8)
+M9 S9 a per-chat mirror accepted as legacy  (node: KILLED)
+  not ok 2 - a legacy mirror is deleted only when named exactly, listed, and without a chat-id suffix (S9)
+M10 S9 a case-folded name accepted  (node: KILLED)
+  not ok 2 - (same case)
+M11 S9 marker matched anywhere in the name  (node: KILLED)
+  not ok 3 - regex scripts and QR sets are in scope by marker prefix only (S9)
+M12 E an undeclared journey accepted  (node: KILLED)
+  not ok 7 - every journey declares the extraction it runs at, and nothing else
+M13 E a named profile accepted  (node: KILLED)
+  not ok 7 - (same case)
+M14 (live) worldInfoCache eviction disabled. First run: the deleted book stayed cached and remove still reported clean, so the tool could not see the failure. A cache read-back (staleCache) was added. Re-run: remove exits 1, staleCache ["SO-V20D mut book"], clean false (test/journeys/records/v2.3-replan/V20d/part2-live-mutation-eviction-disabled.log). Unmutated: evicted, staleCache [], clean true (part2-s9-readback-clean.log).

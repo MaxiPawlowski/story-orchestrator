@@ -8,6 +8,7 @@ import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { globalsReadButNeverWritten, validateSteps, validateFixture } from './lib/scenarioSchema.mts';
+import { validateJourneyExtraction } from './lib/configRestore.mts';
 
 const ROOT = join(import.meta.dirname, '..', '..');
 const corpus = (dir: string) => readdirSync(join(ROOT, dir))
@@ -152,4 +153,11 @@ test('a verb value of the wrong shape is refused at LOAD, not at step N', () => 
     'steps[0].send: expected a string, got an object ({"text": …} is the object form only where the runner documents it) — the verb hands this straight to the page',
     'steps[4].edit.text: expected a non-empty string, got nothing',
   ]);
+});
+
+test('every shipped journey declares the extraction it runs at (plan 01 §E)', () => {
+  const journeys = corpus('test/journeys').filter((file) => file.name.endsWith('.journey.json'));
+  assert.ok(journeys.length >= 13, `expected every journey, found ${journeys.length}`);
+  const broken = journeys.flatMap((file) => validateJourneyExtraction(file.doc.setup).map((problem) => `${file.name}: ${problem}`));
+  assert.deepEqual(broken, []);
 });

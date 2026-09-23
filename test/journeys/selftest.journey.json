@@ -5,7 +5,12 @@
   "setup": {
     "newChat": true,
     "resetChatState": true,
-    "group": "1759606632088"
+    "group": "1759606632088",
+    "extraction": {
+      "cadence": 1,
+      "stabilityLag": 0,
+      "profile": "inherit"
+    }
   },
   "cleanup": {
     "deleteChat": true

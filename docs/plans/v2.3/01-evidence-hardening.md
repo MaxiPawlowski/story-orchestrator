@@ -938,3 +938,41 @@ Live runs (no model needed, records in `records/v2.3-replan/V20d/`):
 Mutations: 6 node + 1 live, all caught (`test/findings/mutations/V20d-journey-install-safety.txt`).
 
 Machine: typecheck 0, typecheck:test 0, lint 0, jest **168 / 2668** (`findings ledger: 8 open, 42 settled`), test:debug **142**, debug:typecheck 0, build 0 (bundle `9ed768c54cc6`, unchanged because this is harness-only), test:release 10/10.
+
+### V20d part 2 gate (2026-09-23): S8, S9 and the declared extraction
+
+S8 and S9 are closed. Plan 01 §E is now complete: every journey declares its extraction settings.
+
+The pure half of `so-assets` lives in `scripts/debug/lib/assetScope.mts`, tested by `assetScope.test.mts` (3 cases). The page returns raw names, and these node-side functions decide the scope, so the tested code is the code that runs.
+
+- **S8: `--baseline <file>` is explicit, with deliberately no default.** This deviates from the plan's "default: the archived journey baseline". The journey's baseline file outlives its run. A stale one counts every ledger entry recorded since it was taken as this run's own, which widens scope to sessions a real author started in between. `--baseline` with no value exits 1.
+- **S9: cleanup gaps.**
+  - Deleted books are evicted from `worldInfoCache`, then the cache is read back: a book still cached fails `clean`.
+  - Marker-named global regex scripts (`extension_settings.regex`) and QR sets (`QuickReplySet`) are listed, removed and counted as leaks (`leakCount`).
+  - `--legacy-mirrors "<name>|<name>"` deletes a `Story Orchestrator - <title>` book only when all three hold: it is named exactly, ST lists it, and it has no chat-id suffix. Anything else is refused with a reason.
+  - J9's `new-story-wizard` names its draft `SO-J9 Wizard draft` (`openWizard({title})`). Before this, a fresh draft keyed its session `untitled-story`, which no marker matches, so the session outlived cleanup. **The live install holds an `untitled-story` session now.** It cannot be attributed to J9, so it is left alone.
+- **`setup.extraction {cadence, stabilityLag, profile: "inherit"}` is required.**
+  - `assertValidJourney` refuses a journey without it, or with the old `setup.cadence`.
+  - `applySetup` applies it after the pre-run capture and reads it back. Cleanup still restores the pre-run capture (S11).
+  - A corpus case in `scenarioSchema.test.mts` checks all 13 journeys.
+  - **Values: cadence 1, lag 0.** That is the condition in 24 of the 28 archived runs since plan 04 (the other 4 were cadence 2). **It is not the shipped default, which is cadence 3.** No journey measures the default, and that is now visible in every journey file instead of inherited silently. Measuring it is an L-queue item.
+
+Live runs (no model needed; records `records/v2.3-replan/V20d/part2-*`):
+
+- J0 `--strict` ran twice: 5/5 each, cleanup clean. The declared settings equalled the install's, so the apply was a no-op.
+- A J0 copy declaring **cadence 2**: applied, 5/5, and cleanup restored cadence 1 and **verified** it by reading back.
+- A J0 copy with no `setup.extraction` was refused at load, before touching the page.
+- S9: a planted marker regex script, QR set and cached lorebook were all removed, the book evicted, and `assert-clean` exits 0.
+- S9: two `--legacy-mirrors` requests were refused ("not listed by ST"; "a per-chat mirror"), and nothing was deleted.
+- S8: `list --baseline` read the journey baseline as trusted.
+- Run-header diff: **0** differences.
+
+**Live mutation, and the defect it found:** with eviction disabled, the deleted book stayed cached **and `remove` still reported clean**, so the tool could not see its own failure. The cache read-back (`staleCache`) was added. Re-run of the same mutant: `remove` exits 1 and names the book.
+
+**Refused by the session's safety classifier:** removing the leftover test session `so-j9-wizard` (ledger `SO-J9 Lore`, whose book is already gone) with `so-assets remove --marker SO-J9`. It is still on the install.
+
+Mutations: 6 node + 1 live, all caught (appended to `test/findings/mutations/V20d-journey-install-safety.txt`).
+
+Machine: typecheck 0, typecheck:test 0, lint 0, jest **168 / 2668** (`findings ledger: 6 open, 44 settled`), test:debug **147**, debug:typecheck 0, build 0 (bundle `9ed768c54cc6`), test:release 10/10.
+
+**Not run:** J9 live. It needs the model, and so does every journey whose declared cadence now applies explicitly. Those runs belong to the live queue (L1–L8).

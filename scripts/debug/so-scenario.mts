@@ -13,7 +13,7 @@ import { adoptNewSandboxChat, assertInSandbox, beginSandboxSession, deleteSandbo
 import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, sendUserMessage, swipeMessage, waitForIdle } from './st-actions.mts';
 import { dumpCurrentChatState } from './so-state.mts';
 import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, getMemoryQueueState, memoryQueueAction, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot, hitTest } from './so-ui.mts';
-import { listMarkedAssets, removeMarkedAssets } from './so-assets.mts';
+import { leakCount, listMarkedAssets, removeMarkedAssets } from './so-assets.mts';
 
 const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep] [--group <id|name>]
 
@@ -735,7 +735,7 @@ async function uiStep(page, spec) {
   if (action === 'studio-tab') return switchStudioTab(page, label);
   if (action === 'studio-save') return saveStudioDraft(page, (typeof spec === 'object' ? spec?.choice : null) ?? null);
   if (action === 'open-wizard') return openWizard(page);
-  if (action === 'new-story-wizard') return openWizard(page, { newStory: true });
+  if (action === 'new-story-wizard') return openWizard(page, { newStory: true, title: spec?.title ?? null });
   if (action === 'wizard-state') return getWizardState(page);
   if (action === 'wizard-run') return runWizardStage(page, { stage: spec?.stage ?? null, message: spec?.message ?? '', timeoutMs: spec?.timeoutMs });
   if (action === 'wizard-answer') return answerWizardQuestions(page, spec?.answers ?? null, { timeoutMs: spec?.timeoutMs });
@@ -855,7 +855,7 @@ async function assetsStep(page, spec, baseline = null) {
     return result;
   }
   const found = await listMarkedAssets(page, marker, { baseline });
-  if (action === 'assert-clean' && found.characters.length + found.groups.length + found.lorebooks.length > 0) {
+  if (action === 'assert-clean' && leakCount(found) > 0) {
     throw new Error(`assets leaked: ${JSON.stringify(found)}`);
   }
   if (action === 'expect' && typeof spec === 'object') {

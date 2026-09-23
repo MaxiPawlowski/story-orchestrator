@@ -1,4 +1,6 @@
+import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { legacyMirrorTargets, markerNamed, parseAssetsArgs } from './lib/assetScope.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag, stripCommonArgs } from './lib/cli.mts';
@@ -64,7 +66,7 @@ function requireMarker(marker: string) {
 // `ledger` pins the scope: the post-removal leak check must still see the names it just pruned.
 export async function listMarkedAssets(page, marker = DEFAULT_MARKER, { baseline = null, ledger = null } = {}) {
   const { usable, reasons } = baselineTrust(baseline);
-  const found = await evaluateInST(page, ({ marker, baseline, pinned }) => {
+  const found = await evaluateInST(page, async ({ marker, baseline, pinned }) => {
     const lower = (value: unknown) => String(value).trim().toLowerCase();
     const needle = lower(marker);
     const sessionNeedle = needle.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -104,7 +106,20 @@ export async function listMarkedAssets(page, marker = DEFAULT_MARKER, { baseline
       return true;
     };
     const wi = (ctx.getWorldInfoNames?.() ?? []) as string[];
+    const regex = Array.isArray(ctx.extensionSettings?.regex) ? ctx.extensionSettings.regex : [];
+    let qrNames: string[] = [];
+    let qrError: string | null = null;
+    try {
+      const { QuickReplySet } = await import(/* webpackIgnore: true */ '/scripts/extensions/quick-reply/src/QuickReplySet.js' as string) as { QuickReplySet: { list: Array<{ name?: string }> } };
+      qrNames = QuickReplySet.list.map((set) => set?.name).filter((name): name is string => typeof name === 'string');
+    } catch (error) {
+      qrError = error instanceof Error ? error.message : String(error);
+    }
     return {
+      allLorebooks: wi,
+      allRegex: regex.filter((script) => typeof script?.scriptName === 'string').map((script) => ({ id: script.id, name: script.scriptName })),
+      allQrSets: qrNames,
+      qrError,
       marker,
       baseline: baseline?.takenAt ?? null,
       ledger: scoped,
@@ -116,17 +131,28 @@ export async function listMarkedAssets(page, marker = DEFAULT_MARKER, { baseline
       protected: spared,
     };
   }, { marker: requireMarker(marker), baseline: usable, pinned: ledger });
-  return baseline && !usable ? { ...found, baselineUntrusted: reasons } : found;
+  // S9: regex scripts and QR sets carry no ledger, so the marker is their whole scope.
+  const regexNames = new Set(markerNamed(found.allRegex.map((script) => script.name), marker));
+  const scoped = {
+    ...found,
+    regexScripts: found.allRegex.filter((script) => regexNames.has(script.name)),
+    qrSets: markerNamed(found.allQrSets, marker),
+  };
+  return baseline && !usable ? { ...scoped, baselineUntrusted: reasons } : scoped;
 }
 
-export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseline = null } = {}) {
+export const leakCount = (found) => found.characters.length + found.groups.length + found.lorebooks.length + (found.regexScripts?.length ?? 0) + (found.qrSets?.length ?? 0);
+
+export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseline = null, legacyMirrors = [] as string[] } = {}) {
   const { usable, reasons } = baselineTrust(baseline);
   if (baseline && !usable) console.log(`Asset baseline untrusted, falling back to marker-only scope: ${reasons.join('; ')}`);
   const found = await listMarkedAssets(page, marker, { baseline });
+  const legacy = legacyMirrorTargets(found.allLorebooks, legacyMirrors);
+  const targets = { ...found, lorebooks: [...new Set([...found.lorebooks, ...legacy.targets])] };
   const removed = await evaluateInST(page, async ({ targets, baseline }) => {
     const ctx = SillyTavern.getContext();
     const headers = ctx.getRequestHeaders();
-    const report: { characters: string[]; groups: string[]; lorebooks: string[]; errors: string[]; deselected?: string[]; sessions?: { kept: string[]; dropped: string[] } } = { characters: [], groups: [], lorebooks: [], errors: [] };
+    const report: { characters: string[]; groups: string[]; lorebooks: string[]; regexScripts: string[]; qrSets: string[]; evicted: string[]; staleCache: string[]; errors: string[]; deselected?: string[]; sessions?: { kept: string[]; dropped: string[] } } = { characters: [], groups: [], lorebooks: [], regexScripts: [], qrSets: [], evicted: [], staleCache: [], errors: [] };
     const post = async (url: string, body: unknown, label: string) => {
       const response = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
       if (!response.ok) report.errors.push(`${label}: ${response.status}`);
@@ -144,6 +170,30 @@ export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseli
     }
     await ctx.getCharacters?.();
     if (typeof ctx.updateWorldInfoList === 'function') await ctx.updateWorldInfoList();
+    // S9: the page keeps a parsed copy of every book it has read, and deleting the file does not touch
+    // it — a later loadWorldInfo of the same name answered from the cache, as if the book still existed.
+    if (report.lorebooks.length) {
+      const wiModule = await import(/* webpackIgnore: true */ '/scripts/world-info.js' as string) as { worldInfoCache?: { delete: (name: string) => boolean; has: (name: string) => boolean } };
+      for (const name of report.lorebooks) if (wiModule.worldInfoCache?.delete(name)) report.evicted.push(name);
+      report.staleCache = report.lorebooks.filter((name) => wiModule.worldInfoCache?.has(name));
+    }
+    if (targets.regexScripts.length && Array.isArray(ctx.extensionSettings?.regex)) {
+      const ids = new Set(targets.regexScripts.map((script) => script.id));
+      const before = ctx.extensionSettings.regex;
+      ctx.extensionSettings.regex = before.filter((script) => !ids.has(script?.id));
+      report.regexScripts = before.filter((script) => ids.has(script?.id)).map((script) => script.scriptName);
+      ctx.saveSettingsDebounced?.();
+    }
+    if (targets.qrSets.length) {
+      const { QuickReplySet } = await import(/* webpackIgnore: true */ '/scripts/extensions/quick-reply/src/QuickReplySet.js' as string) as { QuickReplySet: { get: (name: string) => { delete: () => Promise<void>; isDeleted?: boolean } | undefined } };
+      for (const name of targets.qrSets) {
+        const set = QuickReplySet.get(name);
+        if (!set) { report.errors.push(`qr set ${name}: not found`); continue; }
+        await set.delete();
+        if (set.isDeleted) report.qrSets.push(name);
+        else report.errors.push(`qr set ${name}: delete refused`);
+      }
+    }
     // Deleting a lorebook leaves its name selected in the user's World Info settings (ST keeps
     // `selected_world_info` as-is), so a journey that activated a book must also deselect it —
     // otherwise it leaves a phantom active book behind (plan 07 live finding).
@@ -176,13 +226,13 @@ export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseli
       ctx.saveSettingsDebounced?.();
     }
     return report;
-  }, { targets: found, baseline: usable });
+  }, { targets, baseline: usable });
   const leaked = await listMarkedAssets(page, marker, { baseline, ledger: found.ledger });
-  const leakCount = leaked.characters.length + leaked.groups.length + leaked.lorebooks.length;
-  return { marker, found, removed, leaked, clean: leakCount === 0 };
+  const legacyLeft = legacy.targets.filter((name) => leaked.allLorebooks.includes(name));
+  return { marker, found, removed, leaked, legacyMirrors: { ...legacy, left: legacyLeft }, clean: leakCount(leaked) === 0 && legacyLeft.length === 0 && removed.staleCache.length === 0 };
 }
 
-const USAGE = `Usage: node scripts/debug/so-assets.mts <list|remove|assert-clean> [--marker <prefix>]
+const USAGE = `Usage: node scripts/debug/so-assets.mts <list|remove|assert-clean> [--marker <prefix>] [--baseline <file>] [--legacy-mirrors "<name>|<name>"]
 
 Marker-scoped view of the ST assets a wizard journey created (default marker "${DEFAULT_MARKER}").
 In scope: assets whose name starts with the marker, plus the names in the created-asset ledger of
@@ -191,8 +241,16 @@ A real author's wizard sessions, and the assets they created, are never touched.
 passes the baseline it took at start: that adds ledger entries recorded during the run, and spares
 any asset that already existed. Run "list" first: "ledger" says where each ledger name came from.
 
-  list          print in-scope characters / groups / lorebooks
-  remove        delete them, drop the test sessions, then re-check for leaks
+Marker-named global regex scripts and Quick Reply sets are in scope too (by name only; they have no
+ledger).
+
+  --baseline <file>        an asset baseline (so-journey writes .debug/so-journey-asset-baseline.json).
+                           Never implied: a stale one would count every ledger entry since it was taken.
+  --legacy-mirrors <names> '|'-separated "Story Orchestrator - <title>" books from before per-chat
+                           mirroring. Deleted only when named exactly, listed, and without a chat id.
+
+  list          print in-scope characters / groups / lorebooks / regex scripts / QR sets
+  remove        delete them, drop the test sessions, evict deleted books from the page cache, re-check
   assert-clean  exit 1 if any in-scope asset is still present`;
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
@@ -201,21 +259,20 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     console.log(USAGE);
     process.exit(hasHelpFlag() ? 0 : 1);
   }
-  const markerIndex = args.indexOf('--marker');
-  const marker = markerIndex >= 0 ? args[markerIndex + 1] ?? '' : DEFAULT_MARKER;
-  const command = args[0];
+  const { command, marker, baselineFile, legacyMirrors } = parseAssetsArgs(args, DEFAULT_MARKER);
   runCli(async (page) => {
+    const baseline = baselineFile ? JSON.parse(await readFile(baselineFile, 'utf-8')) : null;
     if (command === 'remove') {
-      const result = await removeMarkedAssets(page, marker);
+      const result = await removeMarkedAssets(page, marker, { baseline, legacyMirrors });
       console.log(JSON.stringify(result, null, 2));
       await writeJSON(result, 'so-assets-remove');
       if (!result.clean) throw new Error(`assets leaked: ${JSON.stringify(result.leaked)}`);
       return;
     }
-    const found = await listMarkedAssets(page, marker);
+    const found = await listMarkedAssets(page, marker, { baseline });
     console.log(JSON.stringify(found, null, 2));
     await writeJSON(found, 'so-assets-list');
-    if (command === 'assert-clean' && found.characters.length + found.groups.length + found.lorebooks.length > 0) {
+    if (command === 'assert-clean' && leakCount(found) > 0) {
       throw new Error(`assets leaked: ${JSON.stringify(found)}`);
     }
   });

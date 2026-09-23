@@ -1,0 +1,2 @@
+Error: This journey would not test what it says:
+  - setup.extraction is required ({cadence, stabilityLag, profile: "inherit"}): without it the run inherits whatever the last session left

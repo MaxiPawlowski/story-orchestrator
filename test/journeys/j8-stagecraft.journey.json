@@ -7,8 +7,12 @@
     "resetChatState": true,
     "snapshotGlobalConfig": true,
     "configureExtraction": true,
-    "cadence": 1,
-    "group": "1759606632088"
+    "group": "1759606632088",
+    "extraction": {
+      "cadence": 1,
+      "stabilityLag": 0,
+      "profile": "inherit"
+    }
   },
   "cleanup": {
     "restoreConfig": true,

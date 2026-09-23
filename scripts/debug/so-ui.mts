@@ -248,7 +248,10 @@ export async function saveStudioDraft(page, choice = null, options: { title?: st
 
 // The wizard, driven the way an author drives it: the Studio's Wizard tab, the question cards and
 // the per-op "Create it" buttons. Never the store — the review step is the feature.
-export async function openWizard(page, { newStory = false } = {}) {
+// S9: a fresh draft is titled "Untitled story", so its wizard session keys as `untitled-story`, which no
+// marker matches — a test run's session then outlives cleanup. `title` names the draft before the
+// wizard runs, so the session key is the slugged title and a marker scopes it.
+export async function openWizard(page, { newStory = false, title = null as string | null } = {}) {
   if (newStory) {
     await openExtensionSettings(page);
     const button = page.locator('#so-new-story-wizard');
@@ -256,6 +259,12 @@ export async function openWizard(page, { newStory = false } = {}) {
     await button.click();
     await answerStudioPopup(page, '.popup-button-ok');
     await page.locator('#so-studio-modal').waitFor({ state: 'visible', timeout: 10000 });
+    if (title) {
+      const field = page.locator('#so-studio-modal input[aria-label="Story title"]');
+      await field.fill(title);
+      const now = await field.inputValue();
+      if (now !== title) throw new Error(`the draft title did not take: asked "${title}", the field reads "${now}"`);
+    }
   } else {
     await openCheckpointStudio(page);
     await switchStudioTab(page, 'Wizard');

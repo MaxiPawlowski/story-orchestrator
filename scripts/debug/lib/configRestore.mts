@@ -86,3 +86,32 @@ export function blockingDialogFor(text: string): { match: string; why: string } 
   const lower = text.toLowerCase();
   return BLOCKING_DIALOGS.find((entry) => lower.includes(entry.match.toLowerCase())) ?? null;
 }
+
+export interface DeclaredExtraction {
+  cadence: number;
+  stabilityLag: number;
+  profile: 'inherit';
+}
+
+/**
+ * Plan 01 §E: extraction settings are install-wide, so a journey that does not declare them runs on
+ * whatever the last session left. Every journey states the cadence and lag it was measured at; the
+ * profile is inherited (a named profile is `configureExtraction`'s job, through the real panel).
+ */
+export function validateJourneyExtraction(setup: unknown): string[] {
+  const where = 'setup.extraction';
+  const record = setup && typeof setup === 'object' ? setup as Record<string, unknown> : {};
+  const problems: string[] = [];
+  if ('cadence' in record) problems.push('setup.cadence moved to setup.extraction.cadence');
+  const extraction = record.extraction;
+  if (!extraction || typeof extraction !== 'object' || Array.isArray(extraction)) {
+    problems.push(`${where} is required ({cadence, stabilityLag, profile: "inherit"}): without it the run inherits whatever the last session left`);
+    return problems;
+  }
+  const value = extraction as Record<string, unknown>;
+  for (const key of Object.keys(value)) if (!['cadence', 'stabilityLag', 'profile'].includes(key)) problems.push(`${where}.${key} is not a declared setting`);
+  if (!Number.isInteger(value.cadence) || (value.cadence as number) < 1) problems.push(`${where}.cadence must be an integer >= 1`);
+  if (!Number.isInteger(value.stabilityLag) || (value.stabilityLag as number) < 0) problems.push(`${where}.stabilityLag must be an integer >= 0`);
+  if (value.profile !== 'inherit') problems.push(`${where}.profile must be "inherit"`);
+  return problems;
+}

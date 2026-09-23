@@ -11,7 +11,12 @@
       "Adolion Adventurer Checkpoints",
       "Adolion Chronicle"
     ],
-    "group": "1789797226071"
+    "group": "1789797226071",
+    "extraction": {
+      "cadence": 1,
+      "stabilityLag": 0,
+      "profile": "inherit"
+    }
   },
   "cleanup": {
     "restoreConfig": true,

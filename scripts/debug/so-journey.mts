@@ -17,7 +17,7 @@ import { selectMemoryProfile } from './so-ui.mts';
 import { readSessionJournal } from './so-journal.mts';
 import { removeMarkedAssets, snapshotAssets } from './so-assets.mts';
 import { wipeChatMeta } from './so-library.mts';
-import { BLOCKING_DIALOGS, mergeRestore, removableStories, shouldRecoverConfig, type LibraryCapture } from './lib/configRestore.mts';
+import { BLOCKING_DIALOGS, mergeRestore, removableStories, shouldRecoverConfig, validateJourneyExtraction, type DeclaredExtraction, type LibraryCapture } from './lib/configRestore.mts';
 
 const JOURNEY_DIR = resolve(PROJECT_ROOT, 'test/journeys');
 const CONFIG_SNAPSHOT = resolve(DEBUG_DIR, 'so-journey-config-snapshot.json');
@@ -79,7 +79,7 @@ export async function listJourneys() {
 // check before the run starts (v2.3 plan 01 §C). A typo'd `expect` key inside a journey check was
 // exactly as silent as one inside a scenario.
 function assertValidJourney(journey, path) {
-  const problems = validateFixture(journey, basename(String(path)));
+  const problems = [...validateFixture(journey, basename(String(path))), ...validateJourneyExtraction(journey?.setup)];
   if (problems.length) throw new Error(`This journey would not test what it says:\n  - ${problems.join('\n  - ')}`);
   return journey;
 }
@@ -253,21 +253,30 @@ async function deactivateLorebooks(page, names: string[]) {
   return report;
 }
 
+// Plan 01 §E: the cadence and lag a journey was measured at, applied after the pre-run capture (which
+// cleanup restores) and read back, so a run never proceeds on settings it did not ask for.
+async function applyDeclaredExtraction(page, declared: DeclaredExtraction) {
+  await evaluateInST(page, ({ cadence, stabilityLag }) => {
+    globalThis.storyOrchestratorRuntime?.setExtractionSettings({ cadence, stabilityLag });
+    return true;
+  }, declared);
+  const now = await readExtractionSettings(page);
+  if (now?.cadence !== declared.cadence || now?.stabilityLag !== declared.stabilityLag) {
+    throw new Error(`setup.extraction did not take: declared cadence ${declared.cadence} / lag ${declared.stabilityLag}, the install reads ${JSON.stringify(now)}`);
+  }
+  console.log(`extraction declared by the journey: cadence ${declared.cadence}, stabilityLag ${declared.stabilityLag}, profile ${declared.profile}`);
+  return now;
+}
+
 async function configureExtraction(page, setup) {
   const selected = await selectMemoryProfile(page);
-  if (setup.cadence) {
-    await evaluateInST(page, (cadence) => {
-      globalThis.storyOrchestratorRuntime?.setExtractionSettings({ cadence });
-      return true;
-    }, setup.cadence);
-  }
   const settings = await evaluateInST(page, () => globalThis.storyOrchestratorRuntime?.getSnapshot()?.extraction?.settings ?? null);
   console.log(`extraction configured via the settings panel: profile="${selected.profile}" ${JSON.stringify(settings)}`);
   return { ...selected, settings };
 }
 
 async function applySetup(page, setup, { allowConfig, group = null }) {
-  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; extractionBefore?: unknown; judge?: unknown; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[] }; dialogs?: unknown; libraryBefore?: LibraryCapture; recoveredConfig?: unknown; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
+  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; extractionBefore?: unknown; extractionDeclared?: unknown; judge?: unknown; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[] }; dialogs?: unknown; libraryBefore?: LibraryCapture; recoveredConfig?: unknown; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
   // Unconditional, and before anything else can write them (S11).
   applied.extractionBefore = await readExtractionSettings(page);
   console.log(`extraction before this run: ${JSON.stringify(applied.extractionBefore)}`);
@@ -282,6 +291,7 @@ async function applySetup(page, setup, { allowConfig, group = null }) {
   } else if (setup.snapshotGlobalConfig && allowConfig) {
     applied.configSnapshot = await snapshotGlobalConfig(page);
   }
+  applied.extractionDeclared = await applyDeclaredExtraction(page, setup.extraction);
   await closeUnpinnedDrawers(page).catch(() => undefined);
   // A modal left open by a previous run blocks every chat control — and, worse, it makes the
   // navigation helpers fail SILENTLY: `open-group` times out and `openGroupById` returns without
