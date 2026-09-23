@@ -1,8 +1,29 @@
-import { progressQualityForAnchor, type BlackboardDelta, type EngineState, type NormalizedStoryV2, type NormalizedTransition } from "@engine/index";
-import { callExtractionModel, deriveScope, getCanonLite, runSharedRead, stripChannelNoise, type ExtraGateSource, type ParsedDelta, type ParsedFact, type SharedReadWindow } from "@extraction/index";
-import { activeEpistemic, addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicInjection, applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildArcSummaryPrompt, buildBoundKeySet, buildCanonSummaryPrompt, buildLedgerView, buildMemoryInjectionBlocks, canonHistory, canonInputHash, capAllTiers, capEpistemic, capLedger, highImportanceFacts, isLive, ledgerBindings, ledgerEntityList, storyEntities, disappearingEntries, recordDerived, reverseMemoryState,
- dropCommonKnowledge, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, clearEpistemicInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, DEFAULT_DEDUP_THRESHOLDS, editEntryText, expireScoped, markContradicted, matchArcBridges, memoryExtensionKey, openArcTexts, removeArc, removeEpistemic, removeLedger, renderLedgerBlock, renderPrivateEpistemicBlock, resolvedArcs, restoreEntry, setArcPinned, setLocked, setArcSummary, setEpistemicPinned, setLedgerPinned, setPinned, type ArcEntry, type ConflictPair, type DerivedRecord, type EpistemicEntry, type LedgerBinding, type LedgerView, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ScoreContext, type UncertainPair, consolidateTierJudged, clearContradicted } from "@memory/index";
-import { bindChatLorebook, clearStoryExtensionPrompt, disableWIEntry, ensureLorebook, getActiveGroup, getCharacterNameById, getContext, loadLorebook, readInjectedPromptBlocks, setStoryExtensionPrompt, upsertWIEntry, } from "@services/STAPI";
+import {
+  progressQualityForAnchor, type BlackboardDelta, type EngineState, type NormalizedStoryV2, type NormalizedTransition,
+} from "@engine/index";
+import {
+  callExtractionModel, deriveScope, getCanonLite, runSharedRead, stripChannelNoise, type ExtraGateSource,
+  type ParsedDelta, type ParsedFact, type SharedReadWindow,
+} from "@extraction/index";
+import {
+  activeEpistemic, addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicInjection,
+  applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT,
+  buildArcSummaryPrompt, buildBoundKeySet, buildCanonSummaryPrompt, buildLedgerView, buildMemoryInjectionBlocks,
+  canonHistory, canonInputHash, capAllTiers, capEpistemic, capLedger, highImportanceFacts, isLive, ledgerBindings,
+  ledgerEntityList, storyEntities, disappearingEntries, recordDerived, reverseMemoryState, dropCommonKnowledge,
+  capOpenArcs, capResolvedArcs, clearAllMemoryInjection, clearEpistemicInjection, CONSOLIDATION_MIN_GROUP,
+  consolidateTier, DEFAULT_DEDUP_THRESHOLDS, editEntryText, expireScoped, markContradicted, matchArcBridges,
+  memoryExtensionKey, openArcTexts, removeArc, removeEpistemic, removeLedger, renderLedgerBlock,
+  renderPrivateEpistemicBlock, resolvedArcs, restoreEntry, setArcPinned, setLocked, setArcSummary, setEpistemicPinned,
+  setLedgerPinned, setPinned, type ArcEntry, type ConflictPair, type DerivedRecord, type EpistemicEntry,
+  type LedgerBinding, type LedgerView, type MemoryEntry, type MemoryTier, type ParsedArcSignal,
+  type ParsedEpistemicSignal, type ParsedLedgerSignal, type ScoreContext, type UncertainPair, consolidateTierJudged,
+  clearContradicted,
+} from "@memory/index";
+import {
+  bindChatLorebook, clearStoryExtensionPrompt, disableWIEntry, ensureLorebook, getActiveGroup, getCharacterNameById,
+  getContext, loadLorebook, readInjectedPromptBlocks, setStoryExtensionPrompt, upsertWIEntry,
+} from "@services/STAPI";
 import { EPISTEMIC_INJECTION_DEPTH, EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_DEPTH } from "@constants/defaults";
 import type { SceneReadRecord } from "@judge/index";
 import type { Provenance } from "@memory/provenance";
@@ -10,14 +31,22 @@ import { sceneConflictValues } from "@memory/conflicts";
 
 import { emptyMirrorSummary, syncMemoryMirror, type MemoryMirrorSummary } from "../memoryMirror";
 import { buildMatchSets, judgePairRelations } from "../consolidationMatches";
-import { boundProvenance, boundValuesFor, detectMemoryConflicts, discardMemoryRow, dismissMemoryConflict, getConflicts, reconfirmMemoryEntry, rereadConflictWindow, resolveMemoryConflict, storeDroppedEntry, type MemoryQueueDeps } from "../memoryQueue";
+import {
+  boundProvenance, boundValuesFor, detectMemoryConflicts, discardMemoryRow, dismissMemoryConflict, getConflicts,
+  reconfirmMemoryEntry, rereadConflictWindow, resolveMemoryConflict, storeDroppedEntry, type MemoryQueueDeps,
+} from "../memoryQueue";
 import { buildScoreContext } from "../scoreContext";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunOwnership } from "../runToken";
 import { computeEntryTokens, tokensFor } from "../entryTokens";
 import { PAIR_JACCARD_FLOOR } from "@judge/index";
-import { activeSpeakerId, enabledCharacterIds, enabledCharacterNames, namesForRosterId, rosterIdForName, rosterMemberName } from "../roster";
-import { VERIFY_DROP_LIMIT, type CanonSource, type ExtractionRuntimeSettings, type MemoryBackfillState, type MemoryRuntimeState, type VerifyDrop } from "../types";
+import {
+  activeSpeakerId, enabledCharacterIds, enabledCharacterNames, namesForRosterId, rosterIdForName, rosterMemberName,
+} from "../roster";
+import {
+  VERIFY_DROP_LIMIT, type CanonSource, type ExtractionRuntimeSettings, type MemoryBackfillState,
+  type MemoryRuntimeState, type VerifyDrop,
+} from "../types";
 
 export interface MemoryCoordinatorDeps {
   getStory: () => NormalizedStoryV2 | null;

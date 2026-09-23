@@ -1,4 +1,7 @@
-import { TENSION_CURRENT_KEY, agencyForCheckpoint, type ArcTemplate, type BoundaryLogEntry, type BoundaryResult, type EngineState, type NormalizedStoryV2, type TensionLevel } from "@engine/index";
+import {
+  TENSION_CURRENT_KEY, agencyForCheckpoint, type ArcTemplate, type BoundaryLogEntry, type BoundaryResult,
+  type EngineState, type NormalizedStoryV2, type TensionLevel,
+} from "@engine/index";
 import type { ParsedDelta } from "@extraction/index";
 import { getSteeringHint, updateEma } from "@pacing/index";
 import { clearStoryExtensionPrompt, setStoryExtensionPrompt } from "@services/STAPI";

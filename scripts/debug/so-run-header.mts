@@ -170,7 +170,15 @@ export async function capturePage(page) {
     // pass (debug-scripts rule, 2026-09-19). A header that cannot see one cannot pin the run.
     if (debugGlobals.length) warnings.push(`debug response mocks are set: ${debugGlobals.join(', ')}`);
 
+    const oai = ctx.chatCompletionSettings ?? {};
+    const textgen = ctx.textCompletionSettings ?? {};
     return {
+      rawProfiles: (connectionManager.profiles ?? []).map((profile: any) => ({ name: profile?.name ?? null, api: profile?.api ?? null, url: profile?.['api-url'] ?? null })),
+      rawSampler: {
+        mainApi: ctx.mainApi ?? null,
+        textgen: { preset: textgen.preset ?? null, temp: textgen.temp ?? null, top_p: textgen.top_p ?? null },
+        oai: { preset: oai.preset_settings_openai ?? null, temp: oai.temp_openai ?? null, top_p: oai.top_p_openai ?? null },
+      },
       warnings,
       bundle: { served },
       host: {
@@ -254,12 +262,28 @@ export function bundleWarning(served: string | null, built: string | null | unde
   return null;
 }
 
+// V22b. Plan 11 claimed a profile restore was "proven by run-header diff" while the header recorded
+// profile names only, so a profile repointed at a pod and never put back diffed clean. And V24 found
+// the header blind to the sampler: a fixture left the whole install on its probe preset (temp 0.42)
+// and the batch's diff read 0. Both are shaped here, outside the page, so they are unit-tested.
+export function profileInventory(raw: Array<{ name: string | null; api: string | null; url: string | null }> | undefined): string[] {
+  return (raw ?? []).map((profile) => `${profile.name ?? '(unnamed)'} [${profile.api ?? '?'}] -> ${profile.url ?? '(no api-url)'}`).sort();
+}
+
+export function samplerState(raw: { mainApi: string | null; textgen: Record<string, unknown>; oai: Record<string, unknown> } | undefined) {
+  if (!raw) return { api: null, preset: null, temp: null, top_p: null };
+  const source = raw.mainApi === 'textgenerationwebui' ? raw.textgen : raw.mainApi === 'openai' ? raw.oai : null;
+  return { api: raw.mainApi, preset: (source?.preset as string | null) ?? null, temp: (source?.temp as number | null) ?? null, top_p: (source?.top_p as number | null) ?? null };
+}
+
 export async function captureHeader(page, label: string) {
-  const page_ = await capturePage(page);
+  const { rawProfiles, rawSampler, ...page_ } = await capturePage(page) as any;
   const build = readBuild();
-  const warning = bundleWarning((page_ as any).bundle?.served?.sha256 ?? null, build.manifest?.bundleSha256);
+  const warning = bundleWarning(page_.bundle?.served?.sha256 ?? null, build.manifest?.bundleSha256);
   if (warning) page_.warnings = [...page_.warnings, warning];
-  return { label, capturedAt: new Date().toISOString(), build, ...page_ };
+  const sampler = samplerState(rawSampler);
+  if (!sampler.preset) page_.warnings = [...page_.warnings, `the active sampler preset was not read (main API ${sampler.api ?? 'unknown'}): a preset left behind by a run cannot be diffed`];
+  return { label, capturedAt: new Date().toISOString(), build, ...page_, profiles: { ...page_.profiles, urls: profileInventory(rawProfiles) }, sampler };
 }
 
 // Flatten to dot-paths so a diff names the exact field. Arrays stay whole at their leaf, because

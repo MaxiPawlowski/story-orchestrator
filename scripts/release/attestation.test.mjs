@@ -56,12 +56,20 @@ test("the served hash is the attested hash, not a copy of it", { skip: skip() },
   assert.match(attestation.served.sha256, /^[0-9a-f]{64}$/, "no served hash: what the page ran is unknown, which is not an attestation");
 });
 
-test("every journey J0 through J11 is accounted for", { skip: skip() }, () => {
-  const journeys = read().journeys;
+// V22b: the catalog has J12, and a journey that never ran is accounted for by saying so, not by
+// leaving it out — the audit found J12 missing while the note called the matrix green.
+test("every journey J0 through J12 is accounted for, and one that never ran says so", { skip: skip() }, () => {
+  const attestation = read();
+  const journeys = attestation.journeys;
   const ids = Object.keys(journeys).filter((key) => /^J\d+$/.test(key));
-  assert.deepEqual(ids, ["J0", "J1", "J2", "J3", "J4", "J5", "J6", "J7", "J8", "J9", "J10", "J11"], "a journey is missing from the attestation");
+  assert.deepEqual(ids, ["J0", "J1", "J2", "J3", "J4", "J5", "J6", "J7", "J8", "J9", "J10", "J11", "J12"], "a journey is missing from the attestation");
   for (const id of ids) {
     const runs = journeys[id].runs;
+    if (typeof journeys[id].notRun === "string") {
+      assert.ok(journeys[id].notRun.length > 20 && (runs ?? []).length === 0, `${id} is notRun but carries runs, or no reason`);
+      assert.ok((attestation.notGreen ?? []).some((line) => line.includes(id)), `${id} never ran and notGreen does not name it`);
+      continue;
+    }
     assert.ok(Array.isArray(runs) && runs.length, `${id} claims no runs`);
     for (const run of runs) {
       assert.equal(typeof run.automated?.pass, "number", `${id} has a run with no automated tally`);
@@ -87,4 +95,24 @@ test("a PARTIAL attestation says what is not green, and a full one has nothing t
   } else {
     assert.deepEqual(attestation.notGreen ?? [], [], "an ACCEPTED attestation cannot carry outstanding items");
   }
+});
+
+// V22b (process rule 12): "twice" means two recorded, consecutive, all-pass runs. The note said the
+// matrix "ran green twice" while J0 ran once, J7 never went green and three journeys had one record.
+const allPass = (run) => run.automated.fail === 0 && run.automated.blocked === 0;
+const greenTwice = (journey) => (journey.runs ?? []).filter((run) => allPass(run) && run.recorded !== false).length >= 2;
+
+test("a journey that never ran all-green is named in notGreen", { skip: skip() }, () => {
+  const attestation = read();
+  const neverGreen = Object.entries(attestation.journeys).filter(([key, journey]) => /^J\d+$/.test(key) && (journey.runs ?? []).length && !journey.runs.some(allPass)).map(([key]) => key);
+  const unnamed = neverGreen.filter((id) => !(attestation.notGreen ?? []).some((line) => new RegExp(`\\b${id}\\b`).test(line)));
+  assert.deepEqual(unnamed, [], "a journey that never went green is missing from notGreen");
+});
+
+test("the status note claims 'twice' only when every journey has two recorded all-pass runs", { skip: skip() }, () => {
+  const attestation = read();
+  const claimsTwice = /\b(green|ran) twice\b/i.test((attestation.statusNote ?? "").replace(/did NOT run green twice/gi, ""));
+  if (!claimsTwice) return;
+  const short = Object.entries(attestation.journeys).filter(([key, journey]) => /^J\d+$/.test(key) && !greenTwice(journey)).map(([key]) => key);
+  assert.deepEqual(short, [], "the note says the matrix ran green twice, and these journeys did not");
 });

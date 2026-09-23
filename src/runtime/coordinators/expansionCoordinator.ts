@@ -1,6 +1,14 @@
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
-import { EXPANSION_CONTRACT, collectExpansionGateSources, findStubExpansionCandidate, generateReviewedBeats, insertedCheckpointIds, mergeExpansions, planExpansion, revalidateExpansion, type ExpansionCacheEntry, type ExpansionJudge, type ExpansionRuntimeState, type GeneratedBeat, type PlannedExpansionInput, type StubExpansionCandidate } from "@generation/index";
-import { buildChainRequest, CRITIC_TIMEOUT_MS, isSceneStale, judgeVerdict, LOOKAHEAD_PREGEN_P, readChain, type SceneReadRecord } from "@judge/index";
+import {
+  EXPANSION_CONTRACT, collectExpansionGateSources, findStubExpansionCandidate, generateReviewedBeats,
+  insertedCheckpointIds, mergeExpansions, planExpansion, revalidateExpansion, type ExpansionCacheEntry,
+  type ExpansionJudge, type ExpansionRuntimeState, type GeneratedBeat, type PlannedExpansionInput,
+  type StubExpansionCandidate,
+} from "@generation/index";
+import {
+  buildChainRequest, CRITIC_TIMEOUT_MS, isSceneStale, judgeVerdict, LOOKAHEAD_PREGEN_P, readChain,
+  type SceneReadRecord,
+} from "@judge/index";
 import { numericToLevel } from "@pacing/index";
 import { getPlayerName } from "@services/STAPI";
 import type { JudgeRuntime } from "../judge";

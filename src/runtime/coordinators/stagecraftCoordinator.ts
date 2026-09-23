@@ -22,7 +22,10 @@ import {
 } from "@stagecraft/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import type { RunOwnership, RunToken } from "../runToken";
-import { clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, getContext, loadLorebook, readWIEntry, setStoryExtensionPrompt, upsertWIEntry } from "@services/STAPI";
+import {
+  clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, getContext, loadLorebook, readWIEntry,
+  setStoryExtensionPrompt, upsertWIEntry,
+} from "@services/STAPI";
 import { lorebookFileId } from "@utils/string";
 import type { ExtractionRuntimeSettings, StagecraftRuntimeState } from "../types";
 import type { EstablishedFact } from "../continuity";

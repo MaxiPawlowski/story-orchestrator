@@ -6,7 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { diffHeaders, parseAllow, readBuild, bundleWarning } from './so-run-header.mts';
+import { diffHeaders, parseAllow, readBuild, bundleWarning, profileInventory, samplerState } from './so-run-header.mts';
 
 const header = (overrides: Record<string, any> = {}) => ({
   label: 'a',
@@ -218,4 +218,23 @@ test('a served bundle that differs from the built one is named', () => {
   assert.equal(bundleWarning('c'.repeat(64), 'c'.repeat(64)), null, 'the shipped shape is silent');
   assert.match(String(bundleWarning(null, 'c'.repeat(64))), /unknown/, 'unreadable is unknown, never a pass');
   assert.match(String(bundleWarning('c'.repeat(64), null)), /cannot be compared/);
+});
+
+test('a profile repointed and never put back is a difference the header can see (V22b)', () => {
+  const before = profileInventory([{ name: 'Artemis RunPod RP', api: 'textgenerationwebui', url: 'http://127.0.0.1:18080' }, { name: 'Memory', api: 'textgenerationwebui', url: null }]);
+  const after = profileInventory([{ name: 'Artemis RunPod RP', api: 'textgenerationwebui', url: 'https://pod-8080.proxy.runpod.net' }, { name: 'Memory', api: 'textgenerationwebui', url: null }]);
+  assert.deepEqual(before, ['Artemis RunPod RP [textgenerationwebui] -> http://127.0.0.1:18080', 'Memory [textgenerationwebui] -> (no api-url)']);
+  const result = diffHeaders({ profiles: { urls: before } } as any, { profiles: { urls: after } } as any);
+  assert.deepEqual(result.filter((entry) => !entry.allowed).map((entry) => entry.path), ['profiles.urls']);
+  assert.deepEqual(result[0].removed, ['Artemis RunPod RP [textgenerationwebui] -> http://127.0.0.1:18080']);
+});
+
+test('a sampler left on a probe preset is a difference the header can see (V22b, found by V24)', () => {
+  const raw = (preset: string, temp: number) => ({ mainApi: 'textgenerationwebui', textgen: { preset, temp, top_p: temp }, oai: { preset: 'Default', temp: 1, top_p: 1 } });
+  const before = samplerState(raw('Artemis v1.1 RP', 1));
+  const after = samplerState(raw('Story: SO Preset Probe', 0.42));
+  assert.deepEqual(before, { api: 'textgenerationwebui', preset: 'Artemis v1.1 RP', temp: 1, top_p: 1 });
+  assert.deepEqual(diffHeaders({ sampler: before } as any, { sampler: after } as any).filter((entry) => !entry.allowed).map((entry) => entry.path).sort(), ['sampler.preset', 'sampler.temp', 'sampler.top_p']);
+  assert.equal(samplerState({ mainApi: 'openai', textgen: { preset: 'x' }, oai: { preset: 'Chat', temp: 0.9, top_p: 1 } }).preset, 'Chat');
+  assert.equal(samplerState({ mainApi: 'kobold', textgen: { preset: 'x' }, oai: { preset: 'y' } }).preset, null);
 });

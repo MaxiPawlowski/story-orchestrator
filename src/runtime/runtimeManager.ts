@@ -1,12 +1,23 @@
 import { appendJudgeCall, dropJudgeCallsAfter, type JudgeCallRecord, type SceneReadRecord } from "@judge/index";
 import type { JudgeRuntime } from "./judge";
-import { StoryEngine, type RollbackOutcome, type ApplyQueueEntry, type BoundaryContext, type BoundaryResult, type EngineState, type NormalizedStoryV2, type NormalizedTransition, type StoryV2, type TalkControl, type ValidationError } from "@engine/index";
+import {
+  StoryEngine, type RollbackOutcome, type ApplyQueueEntry, type BoundaryContext, type BoundaryResult, type EngineState,
+  type NormalizedStoryV2, type NormalizedTransition, type StoryV2, type TalkControl, type ValidationError,
+} from "@engine/index";
 import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Suggestion } from "@copilot/index";
 import type { ProvisioningEnvironment, ProvisioningOp, ProvisioningResult, WizardSessionState } from "@wizard/index";
-import { type ExtraGateSource, type ParsedDelta, type ParsedFact, type ReadOwnership, type SharedReadAudit, type SharedReadWindow } from "@extraction/index";
-import { clearAllMemoryInjection, type ArcEntry, type EpistemicEntry, type LedgerView, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine, type UncertainPair } from "@memory/index";
+import {
+  type ExtraGateSource, type ParsedDelta, type ParsedFact, type ReadOwnership, type SharedReadAudit,
+  type SharedReadWindow,
+} from "@extraction/index";
+import {
+  clearAllMemoryInjection, type ArcEntry, type EpistemicEntry, type LedgerView, type MemoryEntry, type MemoryTier,
+  type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine, type UncertainPair,
+} from "@memory/index";
 import type { CuratorOp, CuratorPassOutcome } from "@stagecraft/index";
-import { clearStoryExtensionPrompt, getContext, readInjectedPromptBlocks, showTextPopup, type WIEntrySnapshot } from "@services/STAPI";
+import {
+  clearStoryExtensionPrompt, getContext, readInjectedPromptBlocks, showTextPopup, type WIEntrySnapshot,
+} from "@services/STAPI";
 import { AwayRecapController, type AwayRecap } from "./awayRecap";
 import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./narrative";
 import { PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
@@ -39,10 +50,17 @@ import { parseQualityValue } from "./values";
 import { SessionJournal, type JournalEvent } from "./journal";
 import { evaluateRequirements } from "./requirements";
 import { evictedStoryNotice, loadPersistedRuntime, savePersistedRuntime, setSelectedStoryId } from "./persistence";
-import { importStoryJson, loadSelectedStory, releaseGatedWorldInfo, removeStory, restartStory, selectStory, type StorySelectionDeps } from "./storySelection";
+import {
+  importStoryJson, loadSelectedStory, releaseGatedWorldInfo, removeStory, restartStory, selectStory,
+  type StorySelectionDeps,
+} from "./storySelection";
 import { listStoryRecords } from "./storyLibrary";
 import { clearWizardSession, loadWizardSession, saveWizardSession } from "./wizardSessions";
-import type { CopilotRuntimeSettings, PersistedStoryRuntime, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory, MemoryRuntimeSettings, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, StagecraftRuntimeState, StagecraftSettings, StoryLibraryRecord, TalkDecisionAudit, TalkRuntimeState, UiRuntimeSettings } from "./types";
+import type {
+  CopilotRuntimeSettings, PersistedStoryRuntime, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory,
+  MemoryRuntimeSettings, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, StagecraftRuntimeState,
+  StagecraftSettings, StoryLibraryRecord, TalkDecisionAudit, TalkRuntimeState, UiRuntimeSettings,
+} from "./types";
 
 export class RuntimeManager {
   private engine = new StoryEngine();

@@ -1,8 +1,20 @@
-import { Blackboard, evaluateGate, renderGateText, type EngineState, type NormalizedStoryV2, type StoryV2 } from "@engine/index";
-import { runAuthoringStage, runDriverReport, runDriverSuggest, type CopilotMessage, type CopilotStage, type DriverContext, type ProposalResult, type Suggestion } from "@copilot/index";
+import {
+  Blackboard, evaluateGate, renderGateText, type EngineState, type NormalizedStoryV2, type StoryV2,
+} from "@engine/index";
+import {
+  runAuthoringStage, runDriverReport, runDriverSuggest, type CopilotMessage, type CopilotStage, type DriverContext,
+  type ProposalResult, type Suggestion,
+} from "@copilot/index";
 import { getLastMessageText } from "@extraction/index";
-import { newWizardSession, recordGrant, validateProvisioningOp, wizardSessionKey, type ProvisioningEnvironment, type ProvisioningOp, type ProvisioningResult, type WizardSessionState } from "@wizard/index";
-import { activateGlobalLorebook, clearStoryExtensionPrompt, createCharacterCard, createGroup, createLorebook, getAllCharacterNames, listAllLorebooks, listGlobalLorebooks, listGroupNames, readWIEntry, setStoryExtensionPrompt, upsertWIEntry, type WIEntrySnapshot } from "@services/STAPI";
+import {
+  newWizardSession, recordGrant, validateProvisioningOp, wizardSessionKey, type ProvisioningEnvironment,
+  type ProvisioningOp, type ProvisioningResult, type WizardSessionState,
+} from "@wizard/index";
+import {
+  activateGlobalLorebook, clearStoryExtensionPrompt, createCharacterCard, createGroup, createLorebook,
+  getAllCharacterNames, listAllLorebooks, listGlobalLorebooks, listGroupNames, readWIEntry, setStoryExtensionPrompt,
+  upsertWIEntry, type WIEntrySnapshot,
+} from "@services/STAPI";
 import { lorebookFileId } from "@utils/string";
 import { COPILOT_NUDGE_KEY } from "@constants/defaults";
 import { buildConvergenceReadout } from "../snapshot";

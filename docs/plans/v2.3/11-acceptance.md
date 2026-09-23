@@ -882,3 +882,33 @@ judge-on matrix and the `player_summary` decision.
   - the attestation's `statusNote`/`notGreen` corrections;
   - the line-budget squeeze;
   - the run header gaining the profile api-url **and the active sampler preset**, which V24 showed it cannot see.
+
+### V22b gate (2026-09-23): the attestation says what ran, the header sees the sampler, the budget cannot be packed
+
+- **Attestation (`docs/release/2.3.0/attestation.json`), corrected per the audit.** Every change is also listed in its new `corrections` field.
+  - `statusNote` no longer says the matrix ran green twice. It names the six journeys with two recorded, consecutive, all-pass runs (J1, J3, J5, J6, J8, J9). It also states:
+    - J11's two archived 26/26 runs follow a failed run that was never archived;
+    - J2, J4 and J10 have one record each, J0 ran once, and J7 never went green;
+    - J12 never ran, and nothing ran `--strict`;
+    - the tree has changed since the matrix ran;
+    - `backgrounds` is below its floor.
+  - J12 is present as `notRun`. The second runs of J2, J4 and J10 carry `recorded: false`.
+  - `notGreen` gained J7, J12, `--strict`, the frozen-candidate re-run, the live fault-injection half and `backgrounds`. The recommended-config line now says what is actually missing (the human rows).
+  - `evidence.faultMatrix` is labelled **census only**.
+- **`scripts/release/attestation.test.mjs` gained three rules:**
+  - J0–J12 are all accounted for, and a `notRun` journey must be named in `notGreen`;
+  - a journey that never had an all-pass run must be named in `notGreen`;
+  - the note may claim "twice" only if every journey has two **recorded** all-pass runs (process rule 12).
+- The first version of that last rule excused any note that also contained "did NOT run green twice". Mutation M1 survived it and it was tightened. 4/4 mutants are now caught.
+- **Run header:**
+  - `profiles.urls` lists every Connection Manager profile as `name [api] -> api-url`, so a profile repointed at a pod and never put back is a list difference. Plan 11's "profile restore proven by run-header diff" could not have been true: the header recorded names only.
+  - `sampler {api, preset, temp, top_p}` records the active sampler. An unreadable preset lands in `warnings`, never as a silent null.
+  - The shaping is pure and tested (`profileInventory`, `samplerState`, 2 node cases).
+  - A live capture reads `Artemis v1.1 RP` 1/1 and all four RunPod profiles on `http://127.0.0.1:18080`. **The live preset-switch round trip was refused by the session's safety classifier** (install-wide change), so the sampler diff rests on the node cases.
+- **Line budgets.**
+  - `src/runtime/architecture.test.ts` now counts **effective lines**: each started 120 characters of a line counts as one. Packing no longer meets a budget.
+  - Measured honestly, both budgets were already exceeded: the manager was 766 effective lines against 700, and `memoryCoordinator` 676 against 620, including a 799-character import continuation.
+  - The imports were unpacked (`test/journeys/records/v2.3-replan/V22b/effective.py`, archived, wraps imports only; the live capture is `records/v2.3-replan/V22b/header-live-capture.json`). After that: manager 775, `memoryCoordinator` 687.
+  - The budgets were **raised** to 780/700, as a decision written into the test. **V26** splits the two files back under 700/620.
+  - The bundle hash is **unchanged** (`1d4d28d1a8f0`), so the source edit is formatting only.
+- Gates: typecheck, typecheck:test and lint 0; jest **169/2674**; test:debug **155**; debug:typecheck 0; build 0; test:release **16/16**. No live gate applies: the bundle is byte-identical, and the harness change is the header, whose live half is described above.

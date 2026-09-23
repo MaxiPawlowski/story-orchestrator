@@ -5,7 +5,10 @@
     "version": "2.3.0"
   },
   "status": "PARTIAL",
-  "statusNote": "The automated journey matrix ran green twice on a real model and the calibration matrix is at floor. The human sessions, the judge-on matrix, the cost/latency, privacy, concurrent-load and independent-story reports, the matched P0 replay and the player_summary decision are NOT run: the LLM pod reached its 8-hour cap mid-run and a restart was refused. Plan 11's gate is therefore NOT green, and this file is written PARTIAL rather than withheld, because the run it attests did happen and its evidence is archived.",
+  "statusNote": "Corrected 2026-09-23 (V22b, after the audit): the matrix did NOT run green twice. Two recorded, consecutive, all-pass runs exist for J1, J3, J5, J6, J8 and J9. J11 has two archived 26/26 runs, but a failed first run was not archived. J2, J4 and J10 have one recorded run each (the matrix of one run; the second run's record rotated out of .debug). J0 ran once. J7 was never green (7/8, 2/8, 7/8, 2/8). J12 was never run. No run was --strict, and the matrix ran on a tree that has changed since (the J5 fix and the effectLedger fix, 2026-09-23). Calibration measured every judge use live, and `backgrounds` is below its floor (pick 15/18, floor 0.85). The human sessions, the judge-on matrix, the cost/latency, privacy, concurrent-load and independent-story reports, the matched P0 replay and the player_summary decision are NOT run. Plan 11's gate is NOT green; this file is PARTIAL.",
+  "corrections": [
+    "2026-09-23 V22b: statusNote rewritten (the matrix did not run green twice), J12 added as notRun, second runs of J2/J4/J10 marked recorded:false, J11's unarchived failed run named, notGreen gained J7, J12, --strict, the frozen-candidate re-run, the live fault-injection half and backgrounds, and the fault-matrix evidence is labelled as the static census. Source: docs/plans/v2.3/11-acceptance.md §Audit 2026-09-23."
+  ],
   "writtenAt": "2026-09-22T20:46:00.000Z",
   "build": {
     "manifest": "dist/manifest.json",
@@ -74,7 +77,7 @@
   },
   "journeys": {
     "recordIntegrity": "J1, J3, J5, J6, J7, J8, J9 and J11 have JSON run records under test/journeys/records/v2.3-plan05-live/. J0, J2, J4 and J10 survive as the matrix written for their run (their JSON rotated out of .debug before it was archived); their counts below come from that matrix.",
-    "rule": "every run is real-model, headed and mock-free (no debugResponse), and every journey was run twice. `firstAttemptRetried` counts checks that needed a retry: 0 in every archived record, so no green here is 'passed eventually'.",
+    "rule": "every run is real-model, headed and mock-free (no debugResponse). A run marked recorded:false was reported but has no surviving record and does not count toward 'twice'. `firstAttemptRetried` counts checks that needed a retry: 0 in every archived record.",
     "J0": {
       "title": "runner-selftest",
       "runs": [
@@ -149,7 +152,9 @@
             "fail": 0,
             "blocked": 0
           },
-          "firstAttemptRetried": 0
+          "firstAttemptRetried": 0,
+          "recorded": false,
+          "note": "Reported at the time; no record of this run survives (only one run's matrix was archived). It does not count toward 'twice'."
         }
       ],
       "records": [
@@ -210,7 +215,9 @@
             "fail": 0,
             "blocked": 0
           },
-          "firstAttemptRetried": 0
+          "firstAttemptRetried": 0,
+          "recorded": false,
+          "note": "Reported at the time; no record of this run survives (only one run's matrix was archived). It does not count toward 'twice'."
         }
       ],
       "records": [
@@ -431,7 +438,9 @@
             "fail": 0,
             "blocked": 0
           },
-          "firstAttemptRetried": 0
+          "firstAttemptRetried": 0,
+          "recorded": false,
+          "note": "Reported at the time; no record of this run survives (only one run's matrix was archived). It does not count toward 'twice'."
         }
       ],
       "records": [
@@ -468,7 +477,14 @@
         "j11-run1.json",
         "j11-run2.json",
         "j11-run2-matrix.md"
-      ]
+      ],
+      "unarchived": "The audit (2026-09-23) found a failed first run that was not archived; both archived files read 26/26, so these two runs are not the whole series."
+    },
+    "J12": {
+      "title": "unaided-schedule",
+      "notRun": "Never run: it needs the model and an unaided human schedule. Owned by the live queue (L2).",
+      "runs": [],
+      "records": []
     }
   },
   "extractionAccuracy": {
@@ -507,21 +523,28 @@
     ]
   },
   "notGreen": [
+    "J7 was never green: 7/8, 2/8, 7/8, 2/8",
+    "J12 was never run",
+    "no journey ran --strict, and test/journeys/records/v2.3-acceptance/ does not exist",
+    "J2, J4 and J10 have one recorded run each; J0 ran once; J11's failed first run was not archived",
+    "the matrix ran on a tree that has since changed; it must re-run on a frozen candidate (L2)",
     "every human rubric (J1.8/J1.9, J3, J4.5, J5, J6, J8, J9.6/J9.7, J11) is unscored",
     "the judge-on matrix (the journeys above are all judge-off)",
-    "cost and latency report, privacy report, concurrent-load report from isolated sessions",
+    "the live fault-injection half of the fault matrix (only the static census exists)",
+    "cost and latency report, privacy report measurements, concurrent-load report from isolated sessions",
     "the three independent stories through both routes",
     "the matched P0 replay recorded against the final tree",
     "the player_summary decision (needs the player sessions)",
-    "the recommended-configuration rewrite (needs the calibration verdicts plus human rows)",
+    "the recommended configuration's human rows (the page exists; its human column is empty)",
+    "calibration: `backgrounds` is below its declared floor (pick 15/18, floor 0.85)",
     "the live per-tier extraction floors (measured below their declared values)"
   ],
   "evidence": {
     "journeys": "test/journeys/records/v2.3-plan05-live/",
     "runHeader": "docs/release/2.3.0/run-header-attestation.json",
-    "calibration": "docs/plans/v2.3/11-acceptance.md §Calibration — every judge use measured live on jev-1.13.0",
+    "calibration": "docs/plans/v2.3/11-acceptance.md §Calibration: every judge use measured live on jev-1.13.0; `backgrounds` is below its floor (pick 15/18 < 0.85) and is not recommended.",
     "recommendedConfig": "docs/plans/v2.3/recommended-config.md (rewritten from this round; supersedes the v2.2 page)",
-    "faultMatrix": "test/findings/faultMatrix.json (55 covered, 10 partial, 0 todo, 16 na)",
+    "faultMatrix": "CENSUS ONLY (static, machine-checked): test/findings/faultMatrix.json (55 covered, 10 partial, 0 todo, 16 na). The live injection half is not run.",
     "cleanHost": "docs/release/2.3.0/clean-host/, clean-host-older/",
     "seeds": "docs/plans/v2.3/v2.4-seeds.md"
   }

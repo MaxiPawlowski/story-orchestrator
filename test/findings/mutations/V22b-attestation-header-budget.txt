@@ -1,0 +1,11 @@
+M1 the old "ran green twice" note returns  (node: KILLED, after the exemption was tightened; the first version SURVIVED because any note that also said "did NOT run green twice" was excused wholesale)
+  not ok 8 - the status note claims 'twice' only when every journey has two recorded all-pass runs
+M2 J7 dropped from notGreen  (node: KILLED)
+  not ok 7 - a journey that never ran all-green is named in notGreen
+M3 J12 left out of the attestation  (node: KILLED)
+  not ok 4 - every journey J0 through J12 is accounted for, and one that never ran says so
+M4 J12 notRun but not named in notGreen  (node: KILLED)
+  not ok 4 - (same case)
+M5 the architecture budget counts raw lines again  (jest: KILLED)
+  architecture guards > counts a packed line as the lines it replaces, so packing cannot meet a budget
+Header (profileInventory/samplerState) is covered by two node cases in so-run-header.test.mts; the live preset-switch proof was refused by the session's safety classifier (install-wide change).

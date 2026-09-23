@@ -1,15 +1,30 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
-import { callExtractionModel, deriveFullScope, deriveScope, getChatWindow, getLastMessageText, reconciliationKeySet, reconciliationTargets, runSharedRead, sharedReadWindow, stripChannelNoise, type ExtraGateSource, type ParsedDelta, type ParsedFact, type ReadOwnership, type ReconciliationPlan, type SharedReadAudit } from "@extraction/index";
-import { buildEpistemicPassPrompt, buildLedgerPassPrompt, buildSceneSummaryPrompt, buildShortTermSummaryPrompt, detectSceneBreakHeuristic, generateMemoryId, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, provenance, type ArcEntry, type MemoryEntry, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine } from "@memory/index";
+import {
+  callExtractionModel, deriveFullScope, deriveScope, getChatWindow, getLastMessageText, reconciliationKeySet,
+  reconciliationTargets, runSharedRead, sharedReadWindow, stripChannelNoise, type ExtraGateSource, type ParsedDelta,
+  type ParsedFact, type ReadOwnership, type ReconciliationPlan, type SharedReadAudit,
+} from "@extraction/index";
+import {
+  buildEpistemicPassPrompt, buildLedgerPassPrompt, buildSceneSummaryPrompt, buildShortTermSummaryPrompt,
+  detectSceneBreakHeuristic, generateMemoryId, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, provenance,
+  type ArcEntry, type MemoryEntry, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal,
+  type ParsedMemoryLine,
+} from "@memory/index";
 import { getActiveGroup, getContext } from "@services/STAPI";
 import { SHORT_TERM_COMPACTION_MESSAGES } from "@constants/defaults";
 import { enabledCharacterNames } from "../roster";
 import type { MemoryCoordinator } from "./memoryCoordinator";
-import { JUDGED_READ_LIMIT, type ExtractionRuntimeSettings, type ExtractionRuntimeState, type JudgedReadRecord, type VerifyDrop } from "../types";
+import {
+  JUDGED_READ_LIMIT, type ExtractionRuntimeSettings, type ExtractionRuntimeState, type JudgedReadRecord,
+  type VerifyDrop,
+} from "../types";
 import { createTypedJudge } from "../typedRead";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunOwnership } from "../runToken";
-import { buildStallRequest, buildVerifyRequest, readVerify, stallVerdict, STALL_TIMEOUT_MS, verifyVerdict, VERIFY_MAX_LINES_PER_CALL, VERIFY_TIMEOUT_MS } from "@judge/index";
+import {
+  buildStallRequest, buildVerifyRequest, readVerify, stallVerdict, STALL_TIMEOUT_MS, verifyVerdict,
+  VERIFY_MAX_LINES_PER_CALL, VERIFY_TIMEOUT_MS,
+} from "@judge/index";
 
 export const TYPED_READ_WINDOW = 3;
 
