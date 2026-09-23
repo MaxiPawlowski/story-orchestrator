@@ -1,0 +1,69 @@
+build manifest → dist\manifest.json (bundle 8eb710b9cc18, source 602234dac650, ST 1.19.0)
+1/7 import_story ok 366ms
+2/7 ui ok 3666ms
+3/7 eval ok 333ms
+4/7 eval ok 465ms
+4/7 eval -> {"boundary":0,"audits":["v20e-older-mueg5k38","v20e-newer-mueg5k38"]}
+5/7 eval ok 6ms
+5/7 eval -> {"older":"v20e-older-mueg5k38","newer":"v20e-newer-mueg5k38","queued":["queued key_taken=true for the next boundary","queued lamp_lit=true for the next boundary"]}
+6/7 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the boundary does not link the applied write to its read v20e-newer-mueg5k38: {"at":"2026-09-23T18:39:00.299Z","boundary":1,"messageId":1,"kind":"boundary","summary":"applied lamp_lit=true; discarded key_taken=true (superseded)","detail":{"source":"gate","applied":[{"origin":"extractor","deltas":["lamp_lit=true"]}],"discarded":[{"origin":"extractor","deltas":["key_taken=true"],"reason":"superseded: a newer read covered the same turns"}]}}
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:429)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T18-39-00-616Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T18-39-03-526Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 6,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-e7b22e7f"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@15h38m55s339ms",
+    "owned": [
+      "2026-09-23@15h38m55s339ms"
+    ],
+    "deleted": [
+      "2026-09-23@15h38m55s339ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@15h38m55s339ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

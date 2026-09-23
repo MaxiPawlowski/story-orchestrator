@@ -5,7 +5,7 @@ import { PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
-import { parseTierFloors, scoreContains, scoreRejected, suiteVerdict, tierTotals } from './lib/liveSuiteScore.mts';
+import { DEFAULT_TIER_FLOORS, parseTierFloors, scoreContains, scoreRejected, suiteVerdict, tierTotals } from './lib/liveSuiteScore.mts';
 
 const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge]
 
@@ -19,7 +19,8 @@ memory profile selected in the extension settings.
   --min <n>       minimum accuracy for exit 0 (default 0.9)
   --filter <s>    only run fixtures whose name contains <s>
   --record        write each live raw response to test/goldens/live/<name>.response.txt
-  --min-tier <s>  per-tier floors, e.g. facts=0.85,rejected=0.9 (a tier below its floor fails)
+  --min-tier <s>  per-tier floors over the defaults facts=0.85,rejected=0.9,epistemic=0.8,ledger=0.8,arcs=0.8
+                  (a tier below its floor fails; tier=0 switches one off, and the report says so)
   --expect-count <n>  fail unless exactly n fixtures ran — a shrinking denominator cannot raise accuracy
   --judge         v2.2 plan 06: merge test/fixtures/<name>.hints.json (read_as + criteria per quality)
                   into the fixture's story, let the judge read the hinted qualities first and the LLM
@@ -79,7 +80,7 @@ async function discoverFixtures(filter) {
   return fixtures;
 }
 
-async function runSuite(page, { min, filter, record, judge = false, floors = {}, expectCount = null }) {
+async function runSuite(page, { min, filter, record, judge = false, floors = DEFAULT_TIER_FLOORS as Partial<Record<string, number>>, floorsGiven = [] as string[], expectCount = null }) {
   const fixtures = await discoverFixtures(filter);
   if (!fixtures.length) throw new Error(`No fixtures found in ${FIX_DIR}`);
   if (record) await mkdir(judge ? JUDGE_GOLDEN_DIR : LIVE_GOLDEN_DIR, { recursive: true });
@@ -132,6 +133,7 @@ async function runSuite(page, { min, filter, record, judge = false, floors = {},
     plotDeltaAccuracy: Number(accuracy.toFixed(4)),
     min,
     tiers: totals,
+    floors: Object.fromEntries(Object.entries(floors).map(([tier, floor]) => [tier, { floor, from: floorsGiven.includes(tier) ? 'given' : 'default' }])),
     expectCount: expectCount ?? null,
     incomplete,
     notGreen: verdict.reasons,
@@ -159,11 +161,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const min = Number(argValue('--min', '0.9'));
   const filter = argValue('--filter', '');
   const record = process.argv.includes('--record');
-  const { floors, errors } = parseTierFloors(argValue('--min-tier', ''));
+  const { floors, given, errors } = parseTierFloors(argValue('--min-tier', ''));
   if (errors.length) {
     for (const error of errors) console.error(`ERROR: ${error}`);
     process.exit(1);
   }
   const expectCountRaw = argValue('--expect-count', '');
-  runCli((page) => runSuite(page, { min, filter, record, judge: process.argv.includes('--judge'), floors, expectCount: expectCountRaw ? Number(expectCountRaw) : null }));
+  runCli((page) => runSuite(page, { min, filter, record, judge: process.argv.includes('--judge'), floors, floorsGiven: given, expectCount: expectCountRaw ? Number(expectCountRaw) : null }));
 }

@@ -27,7 +27,7 @@ export interface MemoryCoordinatorDeps {
   getExtractionSettings: () => ExtractionRuntimeSettings;
   getFiredTransitions: () => NormalizedTransition[];
   getExpansionGateSources: () => ExtraGateSource[];
-  enqueueExtractorDeltas: (accepted: ParsedDelta[], window: { from: number; to: number }) => void;
+  enqueueExtractorDeltas: (accepted: ParsedDelta[], window: { from: number; to: number }, origin: string) => void;
   enqueueMechanical: (deltas: BlackboardDelta[]) => void;
   judge?: () => JudgeRuntime | null;
   persist: () => Promise<void>;
@@ -592,7 +592,7 @@ export class MemoryCoordinator {
       client: { ...this.deps.getExtractionSettings(), debugResponse: globalThis.storyOrchestratorDebugSupersessionResponse ?? null },
     });
     if (!result.audit.acceptedDeltas.length || !run.stillOwns()) return false;
-    this.deps.enqueueExtractorDeltas(result.audit.acceptedDeltas, result.audit.window);
+    this.deps.enqueueExtractorDeltas(result.audit.acceptedDeltas, result.audit.window, result.audit.id);
     await this.save();
     return true;
   }

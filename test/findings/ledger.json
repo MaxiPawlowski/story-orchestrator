@@ -303,8 +303,8 @@
       "title": "the live suite's per-tier floors bind by default, not only when passed",
       "owner": "01",
       "evidence": "node",
-      "status": "open",
-      "provenBy": "not yet: --min-tier binds when given (lib/liveSuiteScore) but there are no default floors — V20e"
+      "status": "closed",
+      "provenBy": "scripts/debug/liveSuiteScore.test.mts :: the per-tier floors bind by default, and an override or an explicit off is visible (T5)"
     },
     {
       "id": "T6",

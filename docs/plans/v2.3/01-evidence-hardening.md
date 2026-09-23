@@ -976,3 +976,53 @@ Mutations: 6 node + 1 live, all caught (appended to `test/findings/mutations/V20
 Machine: typecheck 0, typecheck:test 0, lint 0, jest **168 / 2668** (`findings ledger: 6 open, 44 settled`), test:debug **147**, debug:typecheck 0, build 0 (bundle `9ed768c54cc6`), test:release 10/10.
 
 **Not run:** J9 live. It needs the model, and so does every journey whose declared cadence now applies explicitly. Those runs belong to the live queue (L1–L8).
+
+### V20e gate (2026-09-23): the journal contract, default floors, and saves with evidence
+
+**§A journal contract (product change).**
+
+- `ApplyQueueEntry.origin` carries the read that produced a write:
+  - the audit id for a shared read and for the supersession bridge;
+  - `judge:typed@<boundary>` or `judge:stall@<boundary>` for a judge read.
+- `enqueueExtractorDeltas` requires it at every call site.
+- The journal links read → queued → applied/discarded **by that id**:
+  - extraction and delta events carry `auditId`;
+  - a boundary row's `detail.applied` and `detail.discarded` are `{origin, deltas}`, and a discarded row also carries `reason: "superseded: a newer read covered the same turns"`, the only discard the queue makes;
+  - writes still in the queue appear as `queued …` delta events, placed at the read that produced them;
+  - **every boundary is journaled**, including one that applied nothing (`boundary N: nothing applied (gate)`).
+- The old case `journal.test.ts` "skips silent boundaries" encoded the contract this changes. It was rewritten to the new contract, not deleted.
+- The live audit ring is exposed by `getExtractionAudits()`, and `so-journal follow` reads it (`auditSource: live`) instead of the persisted blob.
+  - **Deviation from the plan's wording:** it is a manager method, not a snapshot field. The snapshot is what React subscribes to, and the ring carries every prompt and raw response.
+- Tests: `src/runtime/journalContract.review.test.ts` (5 cases: the queue keeps origin through the drain, the coordinator enqueues under the audit id, the read ↔ boundary link and the named discard, the silent boundary, queued writes).
+
+**T5 (closed).** `DEFAULT_TIER_FLOORS` (facts 0.85, rejected 0.9, epistemic, ledger and arcs 0.8) bind with no flags.
+
+- `--min-tier tier=x` overrides one floor, and `tier=0` turns one off.
+- The report records each floor's source as `default` or `given`.
+- **The 2026-09-22 live measurement (facts 16/22, rejected 14/21) now fails the suite by default.** A node case pins exactly that. The floors are the plan's declared ones, not calibrated. They were not lowered to meet the measurement, and calibrating them stays the v2.4 seed it already was.
+
+**Fixed sleeps, and a harness defect found removing them.** Every harness settings save was written as `if (typeof ctx.saveSettings === 'function') await ctx.saveSettings(); else ctx.saveSettingsDebounced()`. **`ctx.saveSettings` does not exist** (`st-context.js` exposes only `saveSettingsDebounced`), so the awaited branch never ran:
+
+- the config write slept a blind 1.5 s;
+- the extraction restore (S11), the journey and scenario story removal, `so-library remove`, and `so-assets`' session, regex and deselect writes all returned before anything was written;
+- `script.js`'s own `saveSettings` swallows its failure, so awaiting it would not have been evidence either.
+
+The fix is `lib/settingsSave.mts` `saveSettingsNow(page)`. It arms a wait for the `POST /api/settings/save` answer, calls `saveSettings`, and fails on no answer or a non-2xx. Every site now uses it and reports `saved: {status}`. A restore whose save is refused reports `ok: false`. The 3 s pause before the new-chat retry is now `waitForSettledChat` (open chat unchanged for 1 s, no generation). **No blind `setTimeout` or `waitForTimeout` sleep is left in `so-journey.mts`.**
+
+**Live runs** (model-free, records in `records/v2.3-replan/V20e/`):
+
+- `test/scenarios/live-v20e-journal-contract.json` (new) ran twice, **7/7 each**. It posts a message with `/send` (no generation) and hands two planted read results over one window to `applyExtractionAudit`, the entry point a shared read uses after its model call. The `extract` verb commits its own boundary, so it cannot hold two writes in the queue. Then:
+  - the journal shows both queued under their audit ids;
+  - `commitBoundary()` gives `applied lamp_lit=true; discarded key_taken=true (superseded)`, with the applied row's origin equal to the newer read's id and the discarded row naming the older;
+  - a second boundary is journaled as `nothing applied`.
+- J0 `--strict` ran twice: 5/5 each, cleanup clean.
+- The cadence-2 J0 copy: the restore reports **`saved: {status: 200}`** and reads cadence 1 back.
+- Run-header diff: 0 apart from `build`, which changed because this item rebuilt.
+
+**Live mutation:** with M2 built and served, the scenario fails at 6/7, naming the unlinked read (`origin: "extractor"`). The restored build passes a third run.
+
+Mutations: 6 jest + 2 node + 1 live, all caught (`test/findings/mutations/V20e-journal-contract-floors-saves.txt`).
+
+Machine: typecheck 0, typecheck:test 0, lint 0, jest **169 / 2673** (`findings ledger: 5 open, 45 settled`), test:debug **150**, debug:typecheck 0, build 0 (bundle `1d4d28d1a8f0`), test:release 10/10.
+
+**Not run:** `so-live-suite` itself, which needs the model. Its default floors are proven only by the node case.

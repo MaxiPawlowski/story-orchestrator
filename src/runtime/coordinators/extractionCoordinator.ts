@@ -27,7 +27,7 @@ export interface ExtractionCoordinatorDeps {
   memory: MemoryCoordinator;
   getFiredTransitions: () => NormalizedTransition[];
   getExpansionGateSources: () => ExtraGateSource[];
-  enqueueExtractorDeltas: (accepted: ParsedDelta[], window: { from: number; to: number }) => void;
+  enqueueExtractorDeltas: (accepted: ParsedDelta[], window: { from: number; to: number }, origin: string) => void;
   commitBoundary: () => Promise<unknown>;
   fireSceneBreakReplies: (occurrence: number) => Promise<void>;
   emitSceneBreak: (audit: SharedReadAudit) => void;
@@ -128,7 +128,7 @@ export class ExtractionCoordinator {
     const typedRun = beginRun(this.deps.ownership, { from: window.from, to: window.to });
     const read = await createTypedJudge(() => this.deps.judge?.() ?? null)({ story, state, qualities: hinted.map((entry) => entry.quality), window });
     if (!read || !typedRun.stillOwns() || this.deps.getState()?.lastMessageId !== state.lastMessageId || (getContext().chat?.length ?? 0) - 1 !== messageId) return;
-    if (read.deltas.length) this.deps.enqueueExtractorDeltas(read.deltas, { from: window.from, to: window.to });
+    if (read.deltas.length) this.deps.enqueueExtractorDeltas(read.deltas, { from: window.from, to: window.to }, `judge:typed@${boundary}`);
     this.recordJudgedRead({ at: new Date().toISOString(), boundary, kind: "typed", window: { from: window.from, to: window.to }, answered: read.answered, deltas: read.deltas.map((entry) => ({ q: entry.delta.q, v: entry.delta.v, confidence: entry.judge ?? 0 })), model: read.model, ...(read.fallback ? { fallback: read.fallback } : {}) });
     await this.save();
   }
@@ -148,7 +148,7 @@ export class ExtractionCoordinator {
     const record = { at: new Date().toISOString(), boundary: plan.descriptor.boundary, kind: "stall" as const, window: { from: plan.window.from, to: plan.window.to }, answered: result.answers ? plan.leaves.map((leaf) => leaf.q) : [], model: result.model, ...(result.fallback ? { fallback: result.fallback } : {}) };
     if (verdict.kind === "direct") {
       const deltas: ParsedDelta[] = verdict.deltas.map((entry) => ({ delta: { q: entry.q, v: entry.v, source: "extractor" }, evidence: `judge:reconcile p=${entry.p}`, judge: entry.p }));
-      this.deps.enqueueExtractorDeltas(deltas, { from: plan.window.from, to: plan.window.to });
+      this.deps.enqueueExtractorDeltas(deltas, { from: plan.window.from, to: plan.window.to }, `judge:stall@${plan.descriptor.boundary}`);
       this.markReconciliation(plan.descriptor.targetedKeys, verdict.deltas.map((entry) => `${entry.q}=${String(entry.v)} (judge:reconcile p=${entry.p})`), true);
       this.recordJudgedRead({ ...record, deltas: verdict.deltas.map((entry) => ({ q: entry.q, v: entry.v, confidence: entry.p })), note: "direct" });
     } else {
@@ -171,7 +171,7 @@ export class ExtractionCoordinator {
     if (!this.deps.getStory()) return;
     if (read && !read.stillOwns()) return;
     const boundary = this.deps.getState()?.boundary ?? 0;
-    this.deps.enqueueExtractorDeltas(audit.acceptedDeltas, audit.window);
+    this.deps.enqueueExtractorDeltas(audit.acceptedDeltas, audit.window, audit.id);
     const memory = this.deps.memory;
     const newMemoryEntries: MemoryEntry[] = [
       ...facts.map((fact) => this.newEntry({ provenance: this.provenanceFor(audit.window), tier: "facts", text: fact.text, type: "fact", importance: fact.importance, expiration: "permanent", entities: [], evidence: fact.evidence, messageId: audit.window.to })),

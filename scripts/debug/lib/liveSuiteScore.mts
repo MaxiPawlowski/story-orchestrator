@@ -113,9 +113,18 @@ export function tierTotals(scores: FixtureScore[], floors: Partial<Record<TierNa
   return totals;
 }
 
-/** `--min-tier facts=0.85,rejected=0.9` */
-export function parseTierFloors(value: string | null | undefined): { floors: Partial<Record<TierName, number>>; errors: string[] } {
-  const floors: Partial<Record<TierName, number>> = {};
+/**
+ * T5: the floors bind by default. They are plan 01 §F's declared floors and have NOT been calibrated
+ * against a live run; the one live measurement (2026-09-22) sits below two of them, and the suite
+ * says so rather than having its floors lowered to meet it. `--min-tier tier=x` overrides one, and
+ * `tier=0` switches one off in a way the report shows.
+ */
+export const DEFAULT_TIER_FLOORS: Readonly<Partial<Record<TierName, number>>> = { facts: 0.85, rejected: 0.9, epistemic: 0.8, ledger: 0.8, arcs: 0.8 };
+
+/** `--min-tier facts=0.85,rejected=0.9`, applied over `DEFAULT_TIER_FLOORS`. */
+export function parseTierFloors(value: string | null | undefined, defaults: Partial<Record<TierName, number>> = DEFAULT_TIER_FLOORS): { floors: Partial<Record<TierName, number>>; given: TierName[]; errors: string[] } {
+  const floors: Partial<Record<TierName, number>> = { ...defaults };
+  const given: TierName[] = [];
   const errors: string[] = [];
   for (const part of (value ?? '').split(',').map((entry) => entry.trim()).filter(Boolean)) {
     const [tier, raw] = part.split('=');
@@ -123,8 +132,9 @@ export function parseTierFloors(value: string | null | undefined): { floors: Par
     const floor = Number(raw);
     if (!Number.isFinite(floor) || floor < 0 || floor > 1) { errors.push(`--min-tier ${tier}: "${raw}" is not a fraction between 0 and 1`); continue; }
     floors[tier as TierName] = floor;
+    given.push(tier as TierName);
   }
-  return { floors, errors };
+  return { floors, given, errors };
 }
 
 export interface SuiteVerdict { ok: boolean; reasons: string[] }

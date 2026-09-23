@@ -79,7 +79,7 @@ export class RuntimeManager {
     getExtractionSettings: () => this.getExtractionSettings(),
     getFiredTransitions: () => this.getFiredTransitions(),
     getExpansionGateSources: () => this.getExpansionGateSources(),
-    enqueueExtractorDeltas: (accepted, window) => this.enqueueExtractorDeltas(accepted, window),
+    enqueueExtractorDeltas: (accepted, window, origin) => this.enqueueExtractorDeltas(accepted, window, origin),
     enqueueMechanical: (deltas) => this.engine.enqueue({ source: "mechanical", blackboardVersionSum: 0, deltas }),
     ownership: this.owner.ownership,
     judge: () => this.judge,
@@ -116,7 +116,7 @@ export class RuntimeManager {
     memory: this.memory,
     getFiredTransitions: () => this.getFiredTransitions(),
     getExpansionGateSources: () => this.getExpansionGateSources(),
-    enqueueExtractorDeltas: (accepted, window) => this.enqueueExtractorDeltas(accepted, window),
+    enqueueExtractorDeltas: (accepted, window, origin) => this.enqueueExtractorDeltas(accepted, window, origin),
     commitBoundary: () => this.commitBoundary(),
     fireSceneBreakReplies: (occurrence) => this.effects.fireNpcReplies(this.engine.activeCheckpoint, this.extras, "sceneBreak", occurrence),
     emitSceneBreak: (audit) => this.sceneBreakListeners.forEach((listener) => listener(audit)),
@@ -196,8 +196,9 @@ export class RuntimeManager {
 
   getSessionJournal(): JournalEvent[] {
     const { extraction, talk, judge } = this.extras;
-    return this.journal.build({ boundaryLog: this.loaded ? this.engine.stateLog : [], audits: extraction.audits, reconciliationEvents: extraction.reconciliationEvents, talkDecisions: talk.decisions, judgeCalls: judge.calls });
+    return this.journal.build({ boundaryLog: this.loaded ? this.engine.stateLog : [], audits: extraction.audits, reconciliationEvents: extraction.reconciliationEvents, talkDecisions: talk.decisions, judgeCalls: judge.calls, pending: this.loaded ? this.engine.pendingWrites : [] });
   }
+  getExtractionAudits() { return this.extras.extraction.audits; }
   async flagMoment(note = "") {
     this.journal.flag(note, this.journalContext());
     this.extras.journal = this.journal.getRecords();
@@ -439,11 +440,11 @@ export class RuntimeManager {
     this.notify();
   }
 
-  private enqueueExtractorDeltas(acceptedDeltas: ParsedDelta[], window: { from: number; to: number }) {
+  private enqueueExtractorDeltas(acceptedDeltas: ParsedDelta[], window: { from: number; to: number }, origin: string) {
     if (!acceptedDeltas.length) return;
     const tensionLevels = this.pacing.applyExtractorTension(acceptedDeltas);
     const versions = this.engine.serialize().blackboard.versions;
-    this.engine.enqueue({ source: "extractor", blackboardVersionSum: Object.values(versions).reduce((sum, version) => sum + version, 0), turnRange: window, deltas: acceptedDeltas.map((entry) => entry.delta), ...(tensionLevels.length ? { tensionLevels } : {}) });
+    this.engine.enqueue({ source: "extractor", origin, blackboardVersionSum: Object.values(versions).reduce((sum, version) => sum + version, 0), turnRange: window, deltas: acceptedDeltas.map((entry) => entry.delta), ...(tensionLevels.length ? { tensionLevels } : {}) });
   }
 
   async applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memoryLines: ParsedMemoryLine[] = [], arcSignals: ParsedArcSignal[] = [], epistemicSignals: ParsedEpistemicSignal[] = [], ledgerSignals: ParsedLedgerSignal[] = [], read: ReadOwnership | null = null) { await this.extraction.applyAudit(audit, facts, memoryLines, arcSignals, epistemicSignals, ledgerSignals, read); }

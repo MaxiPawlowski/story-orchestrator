@@ -1,0 +1,18 @@
+M1 a boundary that applied nothing is omitted again  (jest: KILLED)
+  buildSessionJournal > journals a silent boundary rather than omitting it (plan 01 §A)
+  V20e: the journal contract > journals a boundary that applied nothing instead of omitting it
+M2 a write loses the read that produced it (origin -> source)  (jest: KILLED)
+  V20e: the journal contract > links a read to the boundary that applied it, and names the one that was discarded
+M3 a discarded write is only counted  (jest: KILLED)
+  (same case)
+M4 queued writes are invisible  (jest: KILLED)
+  V20e: the journal contract > shows a write still in the queue as queued, at the read that produced it
+M5 a delta event does not name its audit  (jest: KILLED)
+  V20e: the journal contract > links a read to the boundary that applied it, and names the one that was discarded
+M6 the coordinator enqueues under the audit's reason, not its id  (jest: KILLED)
+  V20e: the journal contract > a shared read enqueues its deltas under its own audit id
+M7 T5 floors opt-in again (DEFAULT_TIER_FLOORS = {})  (node: KILLED)
+  not ok 12 - the per-tier floors bind by default, and an override or an explicit off is visible (T5)
+M8 a refused settings save reads as saved  (node: KILLED)
+  not ok 2 - a save is proven by the server answer, and a refused or missing answer fails (V20e)
+M9 (live) M2 built and served: test/scenarios/live-v20e-journal-contract.json fails at 6/7, the boundary row reads origin "extractor" for both writes (test/journeys/records/v2.3-replan/V20e/live-mutation-origin-dropped.log); restored build passes (journal-contract-run3-after-mutation-restore.log)

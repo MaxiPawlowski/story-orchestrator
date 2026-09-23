@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { legacyMirrorTargets, markerNamed, parseAssetsArgs } from './lib/assetScope.mts';
+import { saveSettingsNow } from './lib/settingsSave.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag, stripCommonArgs } from './lib/cli.mts';
@@ -182,7 +183,6 @@ export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseli
       const before = ctx.extensionSettings.regex;
       ctx.extensionSettings.regex = before.filter((script) => !ids.has(script?.id));
       report.regexScripts = before.filter((script) => ids.has(script?.id)).map((script) => script.scriptName);
-      ctx.saveSettingsDebounced?.();
     }
     if (targets.qrSets.length) {
       const { QuickReplySet } = await import(/* webpackIgnore: true */ '/scripts/extensions/quick-reply/src/QuickReplySet.js' as string) as { QuickReplySet: { get: (name: string) => { delete: () => Promise<void>; isDeleted?: boolean } | undefined } };
@@ -206,7 +206,6 @@ export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseli
           if (gone.has(String(selected[index]).toLowerCase())) selected.splice(index, 1);
         }
         report.deselected = report.lorebooks;
-        ctx.saveSettingsDebounced?.();
       }
     }
     // Only this run's own sessions go, so a real author keeps their resume state — and so does a
@@ -223,13 +222,13 @@ export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseli
       const keptKeys = kept.map((session) => session?.key);
       report.sessions = { kept: keptKeys, dropped: root.wizardSessions.map((session) => session?.key).filter((key) => !keptKeys.includes(key)) };
       root.wizardSessions = kept;
-      ctx.saveSettingsDebounced?.();
     }
     return report;
   }, { targets, baseline: usable });
+  const saved = await saveSettingsNow(page).catch((error) => ({ error: error.message }));
   const leaked = await listMarkedAssets(page, marker, { baseline, ledger: found.ledger });
   const legacyLeft = legacy.targets.filter((name) => leaked.allLorebooks.includes(name));
-  return { marker, found, removed, leaked, legacyMirrors: { ...legacy, left: legacyLeft }, clean: leakCount(leaked) === 0 && legacyLeft.length === 0 && removed.staleCache.length === 0 };
+  return { marker, found, removed, saved, leaked, legacyMirrors: { ...legacy, left: legacyLeft }, clean: leakCount(leaked) === 0 && legacyLeft.length === 0 && removed.staleCache.length === 0 && !('error' in saved) };
 }
 
 const USAGE = `Usage: node scripts/debug/so-assets.mts <list|remove|assert-clean> [--marker <prefix>] [--baseline <file>] [--legacy-mirrors "<name>|<name>"]

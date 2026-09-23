@@ -5,7 +5,7 @@ import { DEBUG_DIR, PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag, stripCommonArgs } from './lib/cli.mts';
-import { beginSandboxSession, closeUnpinnedDrawers, deleteSandboxChats, openGroup, openMostRecentGroupChat } from './st-navigation.mts';
+import { beginSandboxSession, closeUnpinnedDrawers, deleteSandboxChats, openGroup, openMostRecentGroupChat, waitForSettledChat } from './st-navigation.mts';
 
 type SandboxGuard = Awaited<ReturnType<typeof beginSandboxSession>>['guard'];
 import { executeSlashCommand } from './st-actions.mts';
@@ -17,6 +17,7 @@ import { selectMemoryProfile } from './so-ui.mts';
 import { readSessionJournal } from './so-journal.mts';
 import { removeMarkedAssets, snapshotAssets } from './so-assets.mts';
 import { wipeChatMeta } from './so-library.mts';
+import { saveSettingsNow } from './lib/settingsSave.mts';
 import { BLOCKING_DIALOGS, mergeRestore, removableStories, shouldRecoverConfig, validateJourneyExtraction, type DeclaredExtraction, type LibraryCapture } from './lib/configRestore.mts';
 
 const JOURNEY_DIR = resolve(PROJECT_ROOT, 'test/journeys');
@@ -127,11 +128,10 @@ async function writeGlobalConfig(page, value) {
     const ctx = SillyTavern.getContext();
     if (next === null) delete ctx.extensionSettings[key];
     else ctx.extensionSettings[key] = next;
-    if (typeof ctx.saveSettings === 'function') await ctx.saveSettings();
-    else { ctx.saveSettingsDebounced(); await new Promise((done) => setTimeout(done, 1500)); }
     return { key, cleared: next === null, keys: next ? Object.keys(next) : [] };
   }, { key: EXTENSION_KEY, next });
-  return { ...written, preservedStories, preservedSessions };
+  const saved = await saveSettingsNow(page);
+  return { ...written, saved, preservedStories, preservedSessions };
 }
 
 export async function restoreGlobalConfig(page, file = CONFIG_SNAPSHOT) {
@@ -341,15 +341,15 @@ async function applySetup(page, setup, { allowConfig, group = null }) {
       const uses = Object.fromEntries(Object.keys(judge.uses ?? {}).map((key) => [key, false]));
       root.settings.judge = { ...judge, enabled: false, timeoutMs: 1500, uses, expansion: { variants: 1, temperature: 0.7, pick: 'code' } };
       globalThis.storyOrchestratorJudge?.invalidateStatus?.();
-      SillyTavern.getContext().saveSettingsDebounced();
       return { enabled: false, uses: Object.keys(uses).length };
     }).catch(() => null);
+    if (applied.judge) await saveSettingsNow(page);
   }
   if (setup.newChat !== false) {
     // A chat deleted by the previous run can leave ST mid-transition; one retry settles it.
     const session = await beginSandboxSession(page).catch(async (error) => {
       console.log(`new chat retry after: ${error.message}`);
-      await page.waitForTimeout(3000);
+      await waitForSettledChat(page);
       await openMostRecentGroupChat(page);
       return beginSandboxSession(page);
     });
@@ -403,10 +403,8 @@ async function runCleanup(page, journey, { importedHashes, libraryBefore, config
       const root = ctx.extensionSettings?.['story-orchestrator'];
       if (!root || !Array.isArray(root.v2Stories)) return { removed: 0 };
       root.v2Stories = root.v2Stories.filter((record) => !hashes.includes(record.hash));
-      if (typeof ctx.saveSettings === 'function') await ctx.saveSettings();
-      else ctx.saveSettingsDebounced();
       return { removed: hashes.length };
-    }, removable).catch((error) => ({ error: error.message }));
+    }, removable).then(async (outcome) => ({ ...outcome, saved: await saveSettingsNow(page) })).catch((error) => ({ error: error.message }));
   }
   if (kept.length && !untrusted) report.keptPreExistingStories = kept;
   if (guard && cleanup.deleteChat !== false) {

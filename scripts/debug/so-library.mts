@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag, stripCommonArgs } from './lib/cli.mts';
+import { saveSettingsNow } from './lib/settingsSave.mts';
 
 export async function dumpStoryLibrary(page) {
   return evaluateInST(page, () => {
@@ -52,7 +53,7 @@ export async function dumpLegacyLibrary(page) {
 }
 
 export async function removeStory(page, hashOrTitle) {
-  return evaluateInST(page, async (needle) => {
+  const result = await evaluateInST(page, async (needle) => {
     const ctx = SillyTavern.getContext();
     const root = ctx.extensionSettings?.['story-orchestrator'];
     if (!root || !Array.isArray(root.v2Stories)) return { removed: [], remaining: [] };
@@ -60,13 +61,10 @@ export async function removeStory(page, hashOrTitle) {
     const removed = root.v2Stories
       .filter((record) => record.id === needle || record.hash === needle || (record.title ?? '').trim().toLowerCase() === search)
       .map((record) => ({ id: record.id ?? null, hash: record.hash, title: record.title }));
-    if (removed.length) {
-      root.v2Stories = root.v2Stories.filter((record) => !removed.some((gone) => gone.hash === record.hash));
-      if (typeof ctx.saveSettings === 'function') await ctx.saveSettings();
-      else { ctx.saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 1500)); }
-    }
+    if (removed.length) root.v2Stories = root.v2Stories.filter((record) => !removed.some((gone) => gone.hash === record.hash));
     return { removed, remaining: root.v2Stories.map((record) => record.title) };
   }, hashOrTitle);
+  return result.removed.length ? { ...result, saved: await saveSettingsNow(page) } : result;
 }
 
 // Per-chat state is keyed by story id (blob v3); `only` is an id, and a v2 chat's hash keys still

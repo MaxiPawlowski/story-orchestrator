@@ -12,6 +12,8 @@ export interface ApplyQueueEntry {
   turnRange?: TurnRange;
   deltas: BlackboardDelta[];
   tensionLevels?: TensionLevel[];
+  /** The read that produced this write (an audit id, or a named judge read), so the journal links read -> applied/discarded by identity. */
+  origin?: string;
 }
 
 export interface AppliedQueueEntry extends ApplyQueueEntry {

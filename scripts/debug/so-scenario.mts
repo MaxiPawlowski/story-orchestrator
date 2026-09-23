@@ -5,6 +5,7 @@ import { PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { STEP_MODIFIERS, validateFixture } from './lib/scenarioSchema.mts';
 import { payloadFailures } from './lib/payloadAssert.mts';
+import { saveSettingsNow } from './lib/settingsSave.mts';
 import { removableStories, type LibraryCapture } from './lib/configRestore.mts';
 import { readExtractionSettings, restoreExtractionSettings } from './lib/extractionSettings.mts';
 import { writeJSON } from './lib/output.mts';
@@ -983,10 +984,10 @@ async function cleanupScenario(page, importedHashes, guard, keep, libraryBefore:
     const root = ctx.extensionSettings?.['story-orchestrator'];
     if (root?.v2Stories && Array.isArray(root.v2Stories)) {
       root.v2Stories = root.v2Stories.filter((entry) => !hashes.includes(entry.hash));
-      ctx.saveSettingsDebounced?.();
     }
     return { removedStoryHashes: hashes };
   }, removable) as Record<string, unknown>;
+  if (removable.length) cleaned.saved = await saveSettingsNow(page).catch((error) => ({ error: error.message }));
   if (untrusted && importedHashes.length) cleaned.libraryUntrusted = 'the library before this run could not be read, so no imported story was removed';
   else if (kept.length) cleaned.keptPreExistingStories = kept;
   if (guard) {

@@ -163,6 +163,22 @@ async function readGroupChatsFromServer(page, groupId: string): Promise<string[]
   }, groupId);
 }
 
+// V20e: a condition, not a sleep. The page has settled when the open chat has not changed for
+// `quietMs` and no generation is running. Replaces a fixed 3 s pause before the new-chat retry.
+export async function waitForSettledChat(page, { quietMs = 1000, timeoutMs = 15000, pollMs = 250 } = {}) {
+  const started = Date.now();
+  let last: string | null | undefined;
+  let stableSince = Date.now();
+  while (Date.now() - started < timeoutMs) {
+    const now = await evaluateInST(page, () => ({ chatId: SillyTavern.getContext().chatId ?? null, generating: document.body.dataset.generating === 'true' }));
+    const key = `${now.chatId}|${now.generating}`;
+    if (key !== last) { last = key; stableSince = Date.now(); }
+    else if (!now.generating && Date.now() - stableSince >= quietMs) return { chatId: now.chatId, waitedMs: Date.now() - started };
+    await page.waitForTimeout(pollMs);
+  }
+  throw new Error(`the open chat did not settle within ${timeoutMs} ms (last seen: ${last})`);
+}
+
 export async function beginSandboxSession(page) {
   const before = await readActiveChat(page);
   if (!before.groupId) throw new Error('No active group chat. Open a group chat before starting a sandbox.');

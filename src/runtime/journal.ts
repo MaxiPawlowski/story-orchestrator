@@ -1,4 +1,4 @@
-import type { BoundaryLogEntry } from "@engine/index";
+import type { ApplyQueueEntry, BoundaryLogEntry } from "@engine/index";
 import type { ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { JudgeCallRecord } from "@judge/index";
 import type { PayloadCapture, TalkDecisionAudit } from "./types";
@@ -43,6 +43,7 @@ export interface JournalSources {
   payloadCaptures: PayloadCapture[];
   talkDecisions: TalkDecisionAudit[];
   judgeCalls?: JudgeCallRecord[];
+  pending?: ApplyQueueEntry[];
 }
 
 const KIND_ORDER: JournalEventKind[] = ["flag", "story", "boundary", "transition", "extraction", "delta", "reconciliation", "talk", "judge", "stagecraft", "payload", "status"];
@@ -61,14 +62,26 @@ export const sanitizeJournalRecords = (value: unknown): JournalRecord[] => {
     .slice(-JOURNAL_LIMIT);
 };
 
+export const DISCARD_REASON = "superseded: a newer read covered the same turns";
+
+const writeText = (entry: ApplyQueueEntry) => entry.deltas.map((delta) => `${delta.q}=${String(delta.v)}`);
+const queueRow = (entry: ApplyQueueEntry) => ({ origin: entry.origin ?? entry.source, deltas: writeText(entry) });
+
+// Plan 01 §A: every boundary is journaled, including one that applied nothing, and each write says
+// which read produced it (`origin` = the audit id) so read -> applied/discarded links by identity.
 const boundaryEvents = (log: BoundaryLogEntry[]): JournalEvent[] => log.flatMap((entry) => {
   const at = new Date(entry.at).toISOString();
   const base = { at, boundary: entry.boundary, messageId: entry.context.lastMessageId };
   const events: JournalEvent[] = [];
-  const applied = entry.queue.applied.flatMap((item) => item.deltas.map((delta) => `${delta.q}=${String(delta.v)}`));
-  if (applied.length || entry.source === "manual") {
-    events.push({ ...base, kind: "boundary", summary: applied.length ? `applied ${applied.join(", ")}` : `boundary ${entry.boundary} (${entry.source})`, detail: { source: entry.source, applied, discarded: entry.queue.discarded.length } });
-  }
+  const applied = entry.queue.applied.map(queueRow).filter((row) => row.deltas.length);
+  const discarded = entry.queue.discarded.map((item) => ({ ...queueRow(item), reason: DISCARD_REASON }));
+  const appliedText = applied.flatMap((row) => row.deltas);
+  const discardedText = discarded.flatMap((row) => row.deltas);
+  const summary = [
+    appliedText.length ? `applied ${appliedText.join(", ")}` : `boundary ${entry.boundary}: nothing applied (${entry.source})`,
+    ...(discardedText.length ? [`discarded ${discardedText.join(", ")} (superseded)`] : []),
+  ].join("; ");
+  events.push({ ...base, kind: "boundary", summary, detail: { source: entry.source, applied, discarded } });
   if (entry.fired) {
     events.push({ ...base, kind: "transition", summary: `${entry.before.activeCheckpointId} → ${entry.after.activeCheckpointId}`, detail: { gate: entry.fired.gate, source: entry.source } });
   }
@@ -83,15 +96,29 @@ const extractionEvents = (audits: SharedReadAudit[]): JournalEvent[] => audits.f
       ...base,
       kind: "extraction",
       summary: `read ${audit.reason} msgs ${audit.window.from}-${audit.window.to} → ${accepted.length} accepted, ${audit.rejected.length} rejected`,
-      detail: { scope: audit.scope, accepted, rejected: audit.rejected.map((item) => item.reason), sceneBreak: audit.sceneBreak?.reason ?? null },
+      detail: { auditId: audit.id, scope: audit.scope, accepted, rejected: audit.rejected.map((item) => item.reason), sceneBreak: audit.sceneBreak?.reason ?? null },
     },
     ...audit.acceptedDeltas.map((entry) => ({
       ...base,
       kind: "delta" as const,
       summary: `${entry.delta.q} = ${String(entry.delta.v)}`,
-      detail: { evidence: entry.evidence, reason: audit.reason },
+      detail: { auditId: audit.id, evidence: entry.evidence, reason: audit.reason },
     })),
   ];
+});
+
+// Writes waiting for the next boundary. They carry no timestamp of their own, so each is placed at
+// the read that produced it, or at build time when that read is no longer in the ring.
+const pendingEvents = (pending: ApplyQueueEntry[], audits: SharedReadAudit[], now: string): JournalEvent[] => pending.map((entry) => {
+  const read = audits.find((audit) => audit.id === entry.origin);
+  return {
+    at: read?.createdAt ?? now,
+    boundary: -1,
+    messageId: entry.turnRange?.to ?? -1,
+    kind: "delta" as const,
+    summary: `queued ${writeText(entry).join(", ")} for the next boundary`,
+    detail: { state: "queued", origin: entry.origin ?? entry.source },
+  };
 });
 
 const reconciliationEvents = (events: ReconciliationEvent[]): JournalEvent[] => events.flatMap((event) => {
@@ -114,6 +141,7 @@ export function buildSessionJournal(sources: JournalSources): JournalEvent[] {
     ...sources.records.map((record) => ({ at: record.at, boundary: record.boundary, messageId: record.messageId, kind: record.kind, summary: record.summary, ...(record.note ? { detail: { note: record.note } } : {}) })),
     ...boundaryEvents(sources.boundaryLog),
     ...extractionEvents(sources.audits),
+    ...pendingEvents(sources.pending ?? [], sources.audits, new Date().toISOString()),
     ...reconciliationEvents(sources.reconciliationEvents),
     ...sources.payloadCaptures.map((capture) => ({
       at: capture.at,

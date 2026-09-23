@@ -119,7 +119,9 @@ export async function readFollowFrame(page, wantAudits) {
       boundary: snapshot.boundary ?? 0,
       chatLength: Array.isArray(ctx.chat) ? ctx.chat.length : 0,
       events: runtime.getSessionJournal(),
-      audits: wantAudits ? (entry?.extras?.extraction?.audits ?? []) : [],
+      // Plan 01 §A: the live ring. The persisted blob lags the page and is capped separately.
+      audits: wantAudits ? (typeof runtime.getExtractionAudits === 'function' ? runtime.getExtractionAudits() : (entry?.extras?.extraction?.audits ?? [])) : [],
+      auditSource: typeof runtime.getExtractionAudits === 'function' ? 'live' : 'persisted',
     };
   }, wantAudits);
 }

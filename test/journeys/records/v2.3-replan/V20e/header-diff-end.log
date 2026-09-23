@@ -1,0 +1,16 @@
+ok   build.manifest.builtAt  "2026-09-23T18:34:30.758Z" -> "2026-09-23T18:39:17.643Z"  (allowed by build)
+ok   build.manifest.fileSha256  "58d2840a2ce63383" -> "9f28bb5d2dcda8b8"  (allowed by build)
+{
+  "baseline": ".debug/run-header-v20e-before.json",
+  "label": "diff-end",
+  "allow": [
+    "build"
+  ],
+  "differences": 2,
+  "progress": 0,
+  "blocking": 0,
+  "blockingPaths": [],
+  "warnings": [],
+  "wrote": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\.debug\\run-header-diff-end.json",
+  "ok": true
+}

@@ -98,7 +98,7 @@ describe("buildSessionJournal", () => {
     expect(journal.find((event) => event.kind === "flag")?.detail?.note).toBe("felt railroaded");
   });
 
-  it("skips silent boundaries", () => {
+  it("journals a silent boundary rather than omitting it (plan 01 §A)", () => {
     const quiet = buildSessionJournal({
       records: [],
       boundaryLog: [boundaryEntry({ fired: null, queue: { applied: [], discarded: [] } })],
@@ -107,7 +107,7 @@ describe("buildSessionJournal", () => {
       payloadCaptures: [],
       talkDecisions: [],
     });
-    expect(quiet).toEqual([]);
+    expect(quiet.map((event) => [event.kind, event.summary])).toEqual([["boundary", "boundary 1: nothing applied (gate)"]]);
   });
 });
 

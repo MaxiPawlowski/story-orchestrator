@@ -10,6 +10,7 @@
 // one reader below so the two ends cannot drift apart.
 
 import { evaluateInST } from './evaluate.mts';
+import { saveSettingsNow } from './settingsSave.mts';
 
 export interface ExtractionSettingsSnapshot {
   enabled: boolean;
@@ -34,13 +35,11 @@ export async function restoreExtractionSettings(page, before: ExtractionSettings
   if (after && JSON.stringify(after) === JSON.stringify(before)) return { restored: false, unchanged: true, settings: before };
   await evaluateInST(page, async (settings) => {
     globalThis.storyOrchestratorRuntime?.setExtractionSettings(settings);
-    const ctx = SillyTavern.getContext();
-    // Persist, or the restore lives only until the page reloads.
-    if (typeof ctx.saveSettings === 'function') await ctx.saveSettings();
-    else ctx.saveSettingsDebounced?.();
     return true;
   }, before);
+  // Persist, or the restore lives only until the page reloads.
+  const saved = await saveSettingsNow(page).catch((error) => ({ error: error.message }));
   const verified = await readExtractionSettings(page);
-  const ok = JSON.stringify(verified) === JSON.stringify(before);
-  return { restored: true, from: after, to: before, verified, ok, ...(ok ? {} : { error: 'extraction settings did not read back as restored' }) };
+  const ok = JSON.stringify(verified) === JSON.stringify(before) && !('error' in saved);
+  return { restored: true, from: after, to: before, verified, saved, ok, ...(ok ? {} : { error: 'error' in saved ? `extraction settings were not saved: ${saved.error}` : 'extraction settings did not read back as restored' }) };
 }

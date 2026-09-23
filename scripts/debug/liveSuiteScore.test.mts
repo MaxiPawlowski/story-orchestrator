@@ -3,7 +3,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseTierFloors, scoreContains, scoreRejected, suiteVerdict, tierTotals, type FixtureScore } from './lib/liveSuiteScore.mts';
+import { DEFAULT_TIER_FLOORS, parseTierFloors, scoreContains, scoreRejected, suiteVerdict, tierTotals, type FixtureScore } from './lib/liveSuiteScore.mts';
 
 test('a tier the fixture says nothing about is not scored, and never counted as passed', () => {
   const outcome = scoreContains('facts', undefined, []);
@@ -84,9 +84,25 @@ test('a fixture that could not complete is named and fails the run', () => {
 });
 
 test('--min-tier is parsed, and a bad entry is an error rather than a silent default', () => {
-  assert.deepEqual(parseTierFloors('facts=0.85,rejected=0.9').floors, { facts: 0.85, rejected: 0.9 });
+  assert.deepEqual(parseTierFloors('facts=0.85,rejected=0.9', {}).floors, { facts: 0.85, rejected: 0.9 });
   assert.match(parseTierFloors('nonsense=0.5').errors[0], /unknown tier "nonsense"/);
   assert.match(parseTierFloors('facts=high').errors[0], /is not a fraction between 0 and 1/);
   assert.match(parseTierFloors('facts=5').errors[0], /is not a fraction between 0 and 1/);
-  assert.deepEqual(parseTierFloors('').floors, {});
+  assert.deepEqual(parseTierFloors('', {}).floors, {});
+});
+
+test('the per-tier floors bind by default, and an override or an explicit off is visible (T5)', () => {
+  const none = parseTierFloors('');
+  assert.deepEqual(none.floors, DEFAULT_TIER_FLOORS);
+  assert.deepEqual(none.given, []);
+  const tuned = parseTierFloors('facts=0.7,arcs=0');
+  assert.equal(tuned.floors.facts, 0.7);
+  assert.equal(tuned.floors.arcs, 0);
+  assert.equal(tuned.floors.rejected, 0.9);
+  assert.deepEqual(tuned.given, ['facts', 'arcs']);
+  // The 2026-09-22 live measurement, scored with no flags at all, fails on its own two weak tiers.
+  const totals = tierTotals([
+    { name: 'a', pass: true, tiers: [...Array.from({ length: 22 }, (_, i) => ({ tier: 'facts' as const, scored: true, pass: i < 16, detail: '' })), ...Array.from({ length: 21 }, (_, i) => ({ tier: 'rejected' as const, scored: true, pass: i < 14, detail: '' }))] },
+  ], none.floors);
+  assert.deepEqual([totals.facts.ok, totals.rejected.ok], [false, false]);
 });

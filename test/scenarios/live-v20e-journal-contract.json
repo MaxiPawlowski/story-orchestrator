@@ -1,0 +1,109 @@
+{
+  "_note": "V20e, plan 01 §A journal contract, deterministic and model-free. Two planted read results over the same window, handed to applyExtractionAudit (the entry point a shared read uses after its model call; the `extract` verb commits its own boundary, so it cannot hold two writes in the queue): the older is superseded and discarded at the boundary, the newer applied. The journal must link each read to its fate by audit id (not by equal delta strings), name the discarded write with its reason, show the queued write before the boundary, and journal a boundary that applied nothing. What it does NOT prove: a real model's read (the planted response stands in for it).",
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "id": "v20e-journal-contract",
+        "title": "V20e journal contract",
+        "version": 1,
+        "description": "Two planted reads, one applied and one discarded.",
+        "qualities": [
+          {
+            "key": "key_taken",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player take the brass key?"
+          },
+          {
+            "key": "lamp_lit",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the lamp lit?"
+          },
+          {
+            "key": "door_open",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the vault door been crossed?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "Antechamber",
+            "objective": "Get through the door.",
+            "type": "anchor",
+            "start": true,
+            "state_snapshot": {
+              "key_taken": false,
+              "lamp_lit": false
+            }
+          },
+          {
+            "id": "vault",
+            "name": "Vault",
+            "objective": "Be inside the vault.",
+            "type": "anchor",
+            "state_snapshot": {
+              "door_open": true
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "from": "start",
+            "to": "vault",
+            "priority": 1,
+            "gate": {
+              "all": [
+                {
+                  "q": "door_open",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "key_taken",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "lamp_lit",
+                  "op": "==",
+                  "v": true
+                }
+              ]
+            },
+            "extractor_trigger": "vault door",
+            "extraction_hint": "Look for the key, the lamp and the door."
+          }
+        ],
+        "roster": []
+      }
+    },
+    {
+      "ui": {
+        "action": "select-profile"
+      }
+    },
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorRuntime.setExtractionSettings({ enabled: true, cadence: 50 }); await SillyTavern.getContext().executeSlashCommandsWithOptions('/send I take the brass key and light the lamp.'); return { chatLength: SillyTavern.getContext().chat.length };"
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const to = SillyTavern.getContext().chat.length - 1; const audit = (id, q, evidence) => ({ id, createdAt: new Date().toISOString(), priority: 1, reason: id, contractHash: 'v20e', scope: [q], window: { from: 0, to }, prompt: '', rawResponse: `DELTA ${q} value=true`, acceptedDeltas: [{ delta: { q, v: true, source: 'extractor' }, evidence }], rejected: [] }); const stamp = Date.now().toString(36); await rt.applyExtractionAudit(audit(`v20e-older-${stamp}`, 'key_taken', 'I take the brass key'), []); await new Promise((r) => setTimeout(r, 5)); await rt.applyExtractionAudit(audit(`v20e-newer-${stamp}`, 'lamp_lit', 'light the lamp'), []); return { boundary: rt.getSnapshot().boundary, audits: rt.getExtractionAudits().map((a) => a.id) };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const audits = rt.getExtractionAudits(); const older = audits.find((a) => a.reason.startsWith('v20e-older')); const newer = audits.find((a) => a.reason.startsWith('v20e-newer')); if (!older || !newer) throw new Error(`planted reads missing from the live audit ring: ${JSON.stringify(audits.map((a) => a.reason))}`); const queued = rt.getSessionJournal().filter((e) => e.detail?.state === 'queued'); const queuedOrigins = queued.map((e) => e.detail.origin); if (!queuedOrigins.includes(older.id) || !queuedOrigins.includes(newer.id)) throw new Error(`the queued writes are not linked to their reads: queued ${JSON.stringify(queuedOrigins)}, reads ${older.id} / ${newer.id}`); globalThis.__v20eReads = { older: older.id, newer: newer.id }; return { older: older.id, newer: newer.id, queued: queued.map((e) => e.summary) };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const reads = globalThis.__v20eReads; await rt.commitBoundary(); const journal = rt.getSessionJournal(); const row = journal.filter((e) => e.kind === 'boundary').at(-1); const applied = row?.detail?.applied ?? []; const discarded = row?.detail?.discarded ?? []; if (!applied.some((r) => r.origin === reads.newer && r.deltas.includes('lamp_lit=true'))) throw new Error(`the boundary does not link the applied write to its read ${reads.newer}: ${JSON.stringify(row)}`); const gone = discarded.find((r) => r.origin === reads.older); if (!gone || !gone.deltas.includes('key_taken=true') || !/superseded/.test(gone.reason ?? '')) throw new Error(`the discarded write is not named with its read and reason: ${JSON.stringify(discarded)}`); if (journal.some((e) => e.detail?.state === 'queued')) throw new Error('a write still reads as queued after the boundary drained it'); return { summary: row.summary, applied, discarded };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = rt.getSessionJournal().filter((e) => e.kind === 'boundary').length; await rt.commitBoundary(); const rows = rt.getSessionJournal().filter((e) => e.kind === 'boundary'); const last = rows.at(-1); if (rows.length !== before + 1 || !/nothing applied/.test(last?.summary ?? '')) throw new Error(`a boundary that applied nothing was not journaled: ${rows.length - before} new row(s), last ${JSON.stringify(last?.summary)}`); delete globalThis.__v20eReads; return { summary: last.summary };",
+      "log": true
+    }
+  ]
+}
