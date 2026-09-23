@@ -77,7 +77,7 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     id: "expansion-commit",
     order: 42,
     run: ({ manager }) => {
-      manager.expansions.commitValidated();
+      void manager.expansions.commitValidated();
     },
   },
   {

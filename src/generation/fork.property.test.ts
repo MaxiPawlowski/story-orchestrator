@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseStoryV2OrThrow, progressQualityForAnchor } from "@engine/index";
+import { evaluateGate, parseStoryV2OrThrow, progressQualityForAnchor } from "@engine/index";
 import { runCodeChecks } from "./critic";
 import { mergeExpansions } from "./merge";
 import { findStubExpansionCandidate, planExpansion } from "./planner";
@@ -113,7 +113,8 @@ describe("R9 property: no route through a generated chain starves the anchor", (
       const worst = Math.min(...all.map((route) => route.progress));
       const lastFrom = `gen_fork_stub_${beats.length}`;
       const gate = (merged.outgoingByCheckpoint[lastFrom] ?? []).find((transition) => transition.to === ANCHOR);
-      expect({ seed, threshold: JSON.stringify(gate?.gate) }).toEqual({ seed, threshold: JSON.stringify({ all: [{ q: "guard_aware", op: "==", v: false }, { q: PROGRESS, op: ">=", v: worst }] }) });
+      const outcomeGate = { q: "guard_aware", op: "==", v: false };
+      expect({ seed, threshold: JSON.stringify(gate?.gate) }).toEqual({ seed, threshold: JSON.stringify(worst > 0 ? { all: [outcomeGate, { q: PROGRESS, op: ">=", v: worst }] } : outcomeGate) });
       // And the property itself: every route reaches it.
       all.forEach((route) => {
         expect({ seed, route: route.taken, enough: route.progress >= worst }).toEqual({ seed, route: route.taken, enough: true });
@@ -122,7 +123,9 @@ describe("R9 property: no route through a generated chain starves the anchor", (
     expect(routeCount).toBeGreaterThan(1000);
   });
 
-  it("holds when an outcome declares no progress at all: the threshold drops to what that route carries", () => {
+  // V13: the worst route carries 0, and `progress >= 0` is not vacuous: an unset progress quality
+  // compares false, so that route used to stall at its final beat. The final gate is the outcome's own.
+  it("holds when an outcome declares no progress at all: the zero route enters on its outcome gate", () => {
     const beats: GeneratedBeat[] = [
       { id: "0", objective: "A", guidance: "a", tension_target: "tense", outcomes: [
         { id: "0:0", label: "loud", gate: { q: "guard_aware", op: "==", v: true }, deltas: [{ q: "key_found", v: true }], progress: { anchor: ANCHOR, amount: 3 } },
@@ -134,8 +137,11 @@ describe("R9 property: no route through a generated chain starves the anchor", (
     ];
     const merged = mergeExpansions(raw, { "start->fork_stub->finish": entry(beats) });
     const gate = (merged.outgoingByCheckpoint.gen_fork_stub_2 ?? []).find((transition) => transition.to === ANCHOR);
-    expect(JSON.stringify(gate?.gate)).toContain(`"v":0`);
+    expect(gate?.gate).toEqual({ q: "key_found", op: "==", v: true });
     expect(Math.min(...routes(beats).map((route) => route.progress))).toBe(0);
+    const unsetProgress = { get: (key: string) => (key === "key_found" ? true : undefined) } as unknown as Parameters<typeof evaluateGate>[1];
+    expect(evaluateGate(gate!.gate, unsetProgress)).toBe(true);
+    expect(evaluateGate({ all: [gate!.gate, { q: PROGRESS, op: ">=", v: 0 }] }, unsetProgress)).toBe(false);
   });
 
   it("refuses a chain whose anchor-entry transition also carries a progress increment, on ANY outcome", () => {

@@ -1,0 +1,38 @@
+M1 two unread quiet boundaries are a refusal again
+  × two quiet boundaries nobody has read are unknown, not a refusal (2 ms)
+  ● V13: a refusal is a read that classified nothing against an exit › two quiet boundaries nobody has read are unknown, not a refusal
+Tests:       1 failed, 8 passed, 9 total
+M2 a read that moved an exit is still a refusal
+  × a read that moved an exit's quality is progress, even when the gate is still shut (2 ms)
+  ● V13: a refusal is a read that classified nothing against an exit › a read that moved an exit's quality is progress, even when the gate is still shut
+Tests:       1 failed, 8 passed, 9 total
+M3 generate is offered on every checkpoint
+  × offers to generate the road ahead only where there is a stub to expand (1 ms)
+  ● V13: a refusal is a read that classified nothing against an exit › offers to generate the road ahead only where there is a stub to expand
+Tests:       1 failed, 8 passed, 9 total
+M4 the vacuous progress >= 0 leaf is back
+  × holds for every route of every chain, over 400 seeded chains (12 ms)
+  × holds when an outcome declares no progress at all: the zero route enters on its outcome gate (2 ms)
+  ● R9 property: no route through a generated chain starves the anchor › holds for every route of every chain, over 400 seeded chains
+  ● R9 property: no route through a generated chain starves the anchor › holds when an outcome declares no progress at all: the zero route enters on its outcome gate
+Tests:       2 failed, 1 passed, 3 total
+M5 the look-ahead ignores a refusal
+  × pre-generates nothing ahead while the player is refusing, and still queues the active stub (3 ms)
+  ● V13: the agency refusal outranks the look-ahead › pre-generates nothing ahead while the player is refusing, and still queues the active stub
+Tests:       1 failed, 7 passed, 8 total
+M6 commitValidated fires its persist unobserved
+  × promotes only validated entries, rebuilds the merged story, and awaits the persist (3 ms)
+  ● V13: the boundary promotes a validated chain › promotes only validated entries, rebuilds the merged story, and awaits the persist
+Tests:       1 failed, 7 passed, 8 total
+M7 commitValidated promotes every entry
+  × control: with nothing validated it changes nothing and writes nothing (10 ms)
+  × promotes only validated entries, rebuilds the merged story, and awaits the persist (7 ms)
+  ● V13: the boundary promotes a validated chain › control: with nothing validated it changes nothing and writes nothing
+  ● V13: the boundary promotes a validated chain › promotes only validated entries, rebuilds the merged story, and awaits the persist
+Tests:       2 failed, 6 passed, 8 total
+M8 the generate button shows on an authored exit
+  ● Drawer/DrawerTabs › RefusedRouteOnAnAuthoredExit › play-test
+[TEST] Tests:       1 failed, 184 passed, 185 total
+M9 the card claims what the code cannot know
+  ● Drawer/DrawerTabs › RefusedRouteOnAnAuthoredExit › play-test
+[TEST] Tests:       1 failed, 184 passed, 185 total

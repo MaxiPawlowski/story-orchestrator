@@ -29,6 +29,10 @@
       "status": "checked",
       "note": "v2.3 plan 03: checks ownership before every host write, including between lorebook activation and the entry upsert. Host writes already in flight remain non-atomic by plan design."
     },
+    "src/runtime/coordinators/expansionCoordinator.ts#ExpansionCoordinator.commitValidated": {
+      "status": "delegate",
+      "note": "v2.3 replan V13 (2026-09-23): awaits RuntimeManager.persist, which owns the check. Its promotion and merge rebuild run synchronously at the boundary before the first await, so a token minted here would compare against the world it was minted in; it used to fire the persist with `void` and nothing observed it."
+    },
     "src/runtime/coordinators/expansionCoordinator.ts#ExpansionCoordinator.generate": {
       "status": "checked",
       "note": "v2.3 plan 11 §Fault matrix: found by the census, not by a journey. The model call runs for minutes and every write below it resolved to whichever chat was open when it answered, so a chain generated for chat A was filed into chat B's cache and merged into chat B's story — the last async coordinator without a token. Checked after the generation and again in the catch and before the persist, because the failure path is a write too. RESIDUAL: the `generating` marker written before the await stays in chat A and blocks its key after a switch; recovery today is the author's Regenerate action (v2.4 seed)."

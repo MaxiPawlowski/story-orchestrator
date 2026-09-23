@@ -1,7 +1,7 @@
 import { TENSION_CURRENT_KEY, type BlackboardSnapshot, type GateNode, type NormalizedStoryV2, type Quality } from "@engine/index";
 import type { ExtraGateSource, ScopePull, ScopedQuality, ScopedQualityExplained } from "./types";
 
-const collectGateKeys = (gate: GateNode, keys: Set<string>) => {
+export const collectGateKeys = (gate: GateNode, keys: Set<string>) => {
   if ("q" in gate) {
     keys.add(gate.q);
     return;

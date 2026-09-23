@@ -21,6 +21,7 @@ export interface ExpansionCoordinatorDeps {
   replaceStory: (story: NormalizedStoryV2) => void;
   judge?: () => JudgeRuntime | null;
   getSceneRead?: () => SceneReadRecord | null;
+  refusing?: () => boolean;
   setStatus: (status: string) => void;
   persist: () => Promise<void>;
   notify: () => void;
@@ -142,6 +143,9 @@ export class ExpansionCoordinator {
     // C2: a tracker the judge can no longer confirm must not steer pre-generation either. Its
     // headingTo describes where play was going when it last answered, which may be minutes stale.
     if (!scene || isSceneStale(scene) || !this.deps.judge?.()?.active("expansionLookahead")) return;
+    // V13 (C4 precedence): the player is refusing this checkpoint's exits, and a heading toward one of
+    // them is the route they refused. Pre-generating it would narrate them arriving there.
+    if (this.deps.refusing?.()) return;
     if (Object.values(this.entries).some((entry) => entry.origin === "lookahead" && (entry.status === "queued" || entry.status === "generating"))) return;
     const ahead = (scene.headingTo ?? []).filter((heading) => heading.hops === 1 && heading.p >= LOOKAHEAD_PREGEN_P).sort((left, right) => right.p - left.p);
     for (const heading of ahead) {
@@ -176,7 +180,7 @@ export class ExpansionCoordinator {
   // part of what this chat is playing; `inserted` is that boundary having happened. The state exists
   // because "review states → inserted" hid the gap the review named, and because a chain staled
   // before its boundary can now be dropped without ever having claimed to be played.
-  commitValidated() {
+  async commitValidated() {
     let changed = false;
     Object.entries(this.entries).forEach(([key, entry]) => {
       if (entry.status !== "validated") return;
@@ -185,7 +189,7 @@ export class ExpansionCoordinator {
     });
     if (changed) {
       this.rebuildMergedStory();
-      void this.deps.persist();
+      await this.deps.persist();
     }
     return changed;
   }

@@ -551,12 +551,14 @@ const SchedulerTab = ({ snapshot, manager, onOpenFact }: { snapshot: RuntimeSnap
     {snapshot.agencyRecovery && (
       <div data-so="agency-recovery" className="text-xs opacity-80 border-t border-solid border-white/10 pt-1">
         <div className="font-medium opacity-100">Refused route</div>
-        <div>The player&apos;s last {snapshot.agencyRecovery.boundaries} turns matched no exit of {snapshot.agencyRecovery.checkpointName}. Nothing was narrated on their behalf.</div>
+        <div>The player&apos;s last {snapshot.agencyRecovery.boundaries} turns were read, and nothing in them moved an exit of {snapshot.agencyRecovery.checkpointName}.</div>
         <div className="flex flex-wrap items-center gap-2 pt-1">
           {snapshot.agencyRecovery.alternate && (
             <button className="menu_button text-xs" data-so="agency-take-alternate" onClick={() => void manager.activateCheckpoint(snapshot.agencyRecovery!.alternate!)}>Take {snapshot.agencyRecovery.alternateName}</button>
           )}
-          <button className="menu_button text-xs" data-so="agency-generate-road" onClick={() => void manager.runExpansionNow()}>Generate the road ahead</button>
+          {snapshot.agencyRecovery.canGenerate && (
+            <button className="menu_button text-xs" data-so="agency-generate-road" onClick={() => void manager.runExpansionNow()}>Generate the road ahead</button>
+          )}
         </div>
       </div>
     )}

@@ -38,6 +38,10 @@ export function mergeExpansions(rawStory: unknown, entries: Record<string, Expan
     // whatever the first outcome happened to carry.
     const worstPerBeat = entry.beats.slice(0, -1).map((beat) => Math.min(...beat.outcomes.map((outcome) => outcome.progress?.amount ?? 0)));
     const threshold = chainThresholdFor(target, worstPerBeat.reduce((sum, amount) => sum + amount, 0));
+    // V13: a worst route that carries no progress makes the threshold 0, and `progress >= 0` is NOT
+    // vacuous — an unset progress quality compares false (gates.ts), so that route stalled at its
+    // final beat for good. The critic already marks such a chain needs-review; merged anyway, its
+    // zero route enters on its own outcome gate.
     entry.beats.forEach((beat, index) => {
       const from = generatedId(entry, index);
       const isFinal = index === entry.beats.length - 1;
@@ -51,7 +55,7 @@ export function mergeExpansions(rawStory: unknown, entries: Record<string, Expan
           from,
           to: isFinal ? entry.targetAnchorId : generatedId(entry, index + 1),
           priority: declared - outcomeIndex,
-          gate: isFinal ? allGate(outcome.gate, { q: progressQualityForAnchor(entry.targetAnchorId), op: ">=", v: threshold }) : outcome.gate,
+          gate: isFinal && threshold > 0 ? allGate(outcome.gate, { q: progressQualityForAnchor(entry.targetAnchorId), op: ">=", v: threshold }) : outcome.gate,
         };
         if (!isFinal && outcome.progress) transition.effects = { progress: outcome.progress };
         transitions.push(transition);

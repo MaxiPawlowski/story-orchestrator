@@ -733,3 +733,46 @@ export const FlagMoment: Story = {
     await expect(canvas.getByLabelText("Flag this moment")).toBeInTheDocument();
   },
 };
+
+// V13: the refused-route card says only what the code knows — the turns were read and moved no exit
+// — and offers "Generate the road ahead" only where the checkpoint has a stub to expand.
+const refusalSnapshot = (canGenerate: boolean): RuntimeSnapshot => ({
+  ...sampleSnapshot(),
+  agencyRecovery: { checkpointId: "gate", checkpointName: "The Ruined Gate", boundaries: 2, alternate: "camp", alternateName: "Camp", canGenerate },
+});
+const refusalManager = () => ({ ...fakeManager(), runExpansionNow: fn(), activateCheckpoint: fn() }) as unknown as RuntimeManager & { runExpansionNow: ReturnType<typeof fn>; activateCheckpoint: ReturnType<typeof fn> };
+const authoredExitManager = refusalManager();
+const stubManager = refusalManager();
+
+export const RefusedRouteOnAnAuthoredExit: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={refusalSnapshot(false)} manager={authoredExitManager} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Scheduler" }));
+    const card = within((await canvas.findByText("Refused route")).closest("[data-so=\"agency-recovery\"]") as HTMLElement);
+    await expect(card.getByText(/turns were read, and nothing in them moved an exit of The Ruined Gate/)).toBeInTheDocument();
+    await expect(card.queryByText(/narrated on their behalf/)).toBeNull();
+    await expect(card.queryByRole("button", { name: "Generate the road ahead" })).toBeNull();
+    await userEvent.click(card.getByRole("button", { name: "Take Camp" }));
+    await expect(authoredExitManager.activateCheckpoint).toHaveBeenCalledWith("camp");
+  },
+};
+
+export const RefusedRouteWithARoadToGenerate: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={refusalSnapshot(true)} manager={stubManager} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Scheduler" }));
+    const card = within((await canvas.findByText("Refused route")).closest("[data-so=\"agency-recovery\"]") as HTMLElement);
+    await userEvent.click(card.getByRole("button", { name: "Generate the road ahead" }));
+    await expect(stubManager.runExpansionNow).toHaveBeenCalledTimes(1);
+  },
+};
