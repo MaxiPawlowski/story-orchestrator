@@ -44,6 +44,11 @@ export const rollbackCastMirror = (mirror: Array<{ member: string; disabled: boo
   return next;
 };
 
+// V15b: the targets a restore can put back. A preset's sampler stack belongs to the text-completion
+// module and restoring it is a v2.4 seed, so a preset row is left in place and said so, rather than
+// attempted and marked revert-failed on every leave.
+const RESTORABLE = new Set<EffectTarget["kind"]>(["cast", "an", "background"]);
+
 const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 const readStrings = (value: unknown): string[] => Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0) : typeof value === "string" && value.trim() ? [value] : [];
 
@@ -52,24 +57,20 @@ const readNpcReplies = (effects: CheckpointEffects | undefined): NpcReplyEffect[
   return Array.isArray(value) ? value : [];
 };
 
-const applyAuthorNote = async (value: unknown, snapshot: RuntimeSnapshot) => {
-  if (value === null) {
-    await clearCharacterAN();
-    return;
-  }
-  if (typeof value === "string") {
-    await applyCharacterAN(value);
-    return;
-  }
-  if (!isRecord(value)) return;
+// V15b: what the authored note resolves to, so the ledger can record it before the host is touched.
+const authorNoteText = (value: unknown, snapshot: RuntimeSnapshot): string | null => {
+  if (value === null) return "";
+  if (typeof value === "string") return value;
+  if (!isRecord(value)) return null;
   const text = typeof value.text === "string" ? value.text : "";
   const includeBlackboard = value.inject_blackboard === true || value.include_blackboard === true;
-  const rendered = includeBlackboard ? `${text}\n\n${renderBlackboardMemo(snapshot)}`.trim() : text;
-  if (!rendered) {
-    await clearCharacterAN();
-    return;
-  }
-  await applyCharacterAN(rendered, {
+  return includeBlackboard ? `${text}\n\n${renderBlackboardMemo(snapshot)}`.trim() : text;
+};
+
+const applyAuthorNote = async (value: unknown, rendered: string): Promise<WriteResult<{ text: string }>> => {
+  if (!rendered) return clearCharacterAN();
+  if (!isRecord(value)) return applyCharacterAN(rendered);
+  return applyCharacterAN(rendered, {
     position: value.position === "after" || value.position === "before" || value.position === "chat" ? value.position : undefined,
     depth: typeof value.depth === "number" ? value.depth : undefined,
     interval: typeof value.interval === "number" ? value.interval : undefined,
@@ -92,14 +93,20 @@ export function resolvePreset(value: unknown, story: NormalizedStoryV2): { name:
 
 // V3: each book is two host writes and the plan spans several books, so the world is asked before
 // every one of them, not once around the loop.
-const applyWorldInfo = async (plans: WorldInfoBookPlan[], run?: RunGuard) => {
+// V17: each toggle answers what the host did, and a refusal is returned so the caller can journal
+// it; before, both answers were discarded and a lost write read as an applied checkpoint.
+const applyWorldInfo = async (plans: WorldInfoBookPlan[], run?: RunGuard): Promise<string[]> => {
+  const refused: string[] = [];
   for (const plan of plans) {
     if (!lorebookExists(plan.lorebook)) continue;
-    if (run && !run.stillOwns()) return;
-    if (plan.disable.length) await disableWIEntry(plan.lorebook, plan.disable);
-    if (run && !run.stillOwns()) return;
-    if (plan.enable.length) await enableWIEntry(plan.lorebook, plan.enable);
+    if (run && !run.stillOwns()) return refused;
+    const off = plan.disable.length ? await disableWIEntry(plan.lorebook, plan.disable) : null;
+    if (off && !off.ok) refused.push(off.reason);
+    if (run && !run.stillOwns()) return refused;
+    const on = plan.enable.length ? await enableWIEntry(plan.lorebook, plan.enable) : null;
+    if (on && !on.ok) refused.push(on.reason);
   }
+  return refused;
 };
 
 // v2.3 plan 06 (S2). `disabled_members` lives on the GROUP, shared by every chat that opens it, so a
@@ -216,10 +223,12 @@ export class EffectsApplier {
     // completed wrong sequence leaves the other story's cast disabled on a shared group.
     const run = beginRun(this.ownership);
     const scope = { checkpointId: checkpoint.id, boundary: 0, messageId: lastMessageId() };
-    await applyWorldInfo(worldInfoPlan(story, path), run);
+    const worldInfoRefused = await applyWorldInfo(worldInfoPlan(story, path), run);
+    if (worldInfoRefused.length) this.deps.journal?.("world_info effect could not be applied", worldInfoRefused.join("; "));
     const effects: CheckpointEffects = checkpoint.effects ?? {};
     if (!run.stillOwns()) return;
-    if (effects.author_note !== undefined) await applyAuthorNote(effects.author_note, snapshot);
+    const note = effects.author_note === undefined ? null : authorNoteText(effects.author_note, snapshot);
+    if (note !== null) await this.withLedger(extras, { effect: "author_note", target: { kind: "an" }, before: this.reads().read({ kind: "an" }), after: { text: note }, ...scope }, () => applyAuthorNote(effects.author_note, note));
     // The check goes before EVERY host write, not once per group of them: the Author Note above is
     // itself a host write, so the preset below it is the second one since the last check.
     if (!run.stillOwns()) return;
@@ -241,7 +250,10 @@ export class EffectsApplier {
     // `applyCastChanges` awaits once per member, so this needs its own check: without it the
     // background is the one write in this sequence that can land in another chat (2026-09-22).
     if (!run.stillOwns()) return;
-    if (effects.background) await applyBackground(effects.background.name);
+    if (effects.background) {
+      const name = effects.background.name;
+      await this.withLedger(extras, { effect: "background", target: { kind: "background" }, before: this.reads().read({ kind: "background" }), after: { name }, ...scope }, () => applyBackground(name));
+    }
     if (!run.stillOwns()) return;
     if (mode === "activate") await this.fireNpcReplies(checkpoint, extras, "onEnter");
     if (!run.stillOwns()) return;
@@ -251,7 +263,8 @@ export class EffectsApplier {
   }
 
   async releaseWorldInfo(owners: unknown[], keep: unknown | null, run?: RunGuard) {
-    await applyWorldInfo(releasePlan(owners, keep), run);
+    const refused = await applyWorldInfo(releasePlan(owners, keep), run);
+    if (refused.length) this.deps.journal?.("world_info could not be released", refused.join("; "));
   }
 
   // Each member the effect names is one decision about a shared group, so each is its own row: a
@@ -306,7 +319,9 @@ export class EffectsApplier {
    */
   async restoreEffects(extras: RuntimeExtras, rows: EffectLedgerRow[] = extras.effects.ledger, persist = true): Promise<{ reverted: number; refused: number }> {
     if (!this.deps.restore) return { reverted: 0, refused: 0 };
-    const { steps, refused } = restorePlan(rows, this.reads());
+    const kept = rows.filter((row) => row.status === "applied" && !RESTORABLE.has(row.target.kind));
+    if (kept.length) this.deps.journal?.(`${kept.length} host change(s) this story cannot put back were left in place`, [...new Set(kept.map((row) => row.effect))].join(", "));
+    const { steps, refused } = restorePlan(rows.filter((row) => RESTORABLE.has(row.target.kind)), this.reads());
     for (const row of refused) extras.effects.ledger = setStatus(extras.effects.ledger, row.id, "externally-changed", { found: row.found });
     let reverted = 0;
     for (const step of steps) {

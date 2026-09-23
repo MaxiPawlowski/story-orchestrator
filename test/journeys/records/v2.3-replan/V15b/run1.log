@@ -1,0 +1,47 @@
+1/5 eval ok 11ms
+1/5 eval -> {"settingsName":"tavern day.jpg","locked":null,"note":"[Narrate succinctly. Gate solutions. Encourage exploration.]"}
+2/5 import_story ok 388ms
+3/5 eval ok 3111ms
+3/5 eval -> {"note":{"before":{"text":"[Narrate succinctly. Gate solutions. Encourage exploration.]"},"after":{"text":"SO-V15b note: speak in whispers."}},"background":{"before":{"name":"tavern day.jpg"},"after":{"name":"bedroom red.jpg"}},"field":"SO-V15b note: speak in whispers.","current":"bedroom red.jpg"}
+4/5 eval ok 2918ms
+4/5 eval -> {"statuses":[],"field":"[Narrate succinctly. Gate solutions. Encourage exploration.]","current":"tavern day.jpg","baseline":{"settingsName":"tavern day.jpg","locked":null,"note":"[Narrate succinctly. Gate solutions. Encourage exploration.]"}}
+5/5 eval ok 5ms
+5/5 eval -> {"restored":true}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T15-55-48-800Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 5,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-5512cc2b"
+    ],
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@12h55m41s881ms",
+    "owned": [
+      "2026-09-23@12h55m41s881ms"
+    ],
+    "deleted": [
+      "2026-09-23@12h55m41s881ms"
+    ],
+    "notDeleted": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@12h55m41s881ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-21@15h49m05s268ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

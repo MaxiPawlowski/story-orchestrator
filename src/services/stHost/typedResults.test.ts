@@ -1,5 +1,6 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import * as ts from "typescript";
 
 // v2.3 plan 06. R3 was a `false` read as success: a host call that answered "no" and a host call that
 // answered "yes" were the same value to its caller. Every host WRITE therefore answers with a result
@@ -36,63 +37,92 @@ const READS: Record<string, string> = {
   settingsAreLoaded: "a question about that gate",
   vectorInsert: "a THROWING seam: a failed write raises, and `buildMatchSets` catches it to fall back to keyword overlap. A result object would have to be checked at the throw site to keep that fallback",
   vectorPurge: "the same, and it is best-effort by contract: its caller already swallows the throw",
+  invalidateCapabilities: "clears OUR probe cache; nothing in ST changes",
+  hostMacrosAvailable: "a question about the install: is the macro module there to register into",
+  noteHostSettingsLoaded: "records that ST emitted its settings-loaded event, in our own flag",
+  installSaveWatcher: "installs OUR observer on the save route; it writes nothing ST keeps",
 };
 
-// The declaration, so a wrapped signature is read whole.
-const DECLARATION = /^export\s+(?:async\s+)?(?:function|const|let)\s+(\w+)/;
-const UNTYPED = /: *(boolean|void|Promise<boolean>|Promise<void>)\s*(?:=>|\{)/;
+// V17: the guard used to read the return type WRITTEN before `{` or `=>`, so an unannotated host write
+// (`applyCharacterAN`, `applyBackground`, `enableWIEntry`, …) inferred `void` or `boolean` and passed.
+// It now asks the checker for the INFERRED return type — awaited, and split into its union parts —
+// and a function whose every part is boolean, void or undefined answers nothing a caller can act on.
+const ROOT = join(DIR, "../../..");
+const BARE = ts.TypeFlags.Boolean | ts.TypeFlags.BooleanLiteral | ts.TypeFlags.Void | ts.TypeFlags.Undefined;
 
-const files = readdirSync(DIR).filter((name) => name.endsWith(".ts") && !name.endsWith(".test.ts"));
-
-interface Offender {
-  file: string;
-  name: string;
-  line: string;
-}
-
-/**
- * One declaration at a time, and only its OWN type text: every declaration ends at the `=` or the
- * opening brace that follows it, so a neighbouring `Promise<void>` cannot be read as this one's
- * answer. (Reading a fixed window of lines instead reported three neighbours of `settingsReady` as
- * offenders — the guard's own version of the mistake it exists to catch.)
- */
-const declarationType = (file: string, name: string): string | null => {
-  const source = readFileSync(join(DIR, file), "utf8").replace(/\r\n/g, "\n");
-  const start = source.search(new RegExp(`^export\\s+(?:async\\s+)?(?:function|const|let)\\s+${name}\\b`, "m"));
-  if (start === -1) return null;
-  const rest = source.slice(start);
-  const end = rest.search(/=>|\{|=\s*[^(]/);
-  return (end === -1 ? rest.slice(0, 200) : rest.slice(0, end)).replace(/\s+/g, " ");
+const compilerOptions = (): ts.CompilerOptions => {
+  const config = ts.readConfigFile(join(ROOT, "tsconfig.json"), ts.sys.readFile);
+  return { ...ts.parseJsonConfigFileContent(config.config, ts.sys, ROOT).options, noEmit: true };
 };
 
-function offenders(): Offender[] {
-  const found: Offender[] = [];
-  for (const file of files) {
-    const names = [...readFileSync(join(DIR, file), "utf8").matchAll(new RegExp(DECLARATION.source, "gm"))].map((match) => match[1]);
-    for (const name of names) {
-      if (READS[name] || NOT_FUNCTIONS.has(name)) continue;
-      const declaration = declarationType(file, name);
-      if (!declaration || !UNTYPED.test(declaration)) continue;
-      found.push({ file, name, line: declaration });
+const exportedFunctions = (source: ts.SourceFile): Array<{ name: string; node: ts.SignatureDeclaration }> => {
+  const exported = (node: ts.Node) => (ts.canHaveModifiers(node) ? ts.getModifiers(node) ?? [] : []).some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword);
+  const found: Array<{ name: string; node: ts.SignatureDeclaration }> = [];
+  for (const statement of source.statements) {
+    if (ts.isFunctionDeclaration(statement) && statement.name && exported(statement)) found.push({ name: statement.name.text, node: statement });
+    if (ts.isVariableStatement(statement) && exported(statement)) {
+      for (const declaration of statement.declarationList.declarations) {
+        const init = declaration.initializer;
+        if (ts.isIdentifier(declaration.name) && init && (ts.isArrowFunction(init) || ts.isFunctionExpression(init))) found.push({ name: declaration.name.text, node: init });
+      }
+    }
+  }
+  return found;
+};
+
+function bareFunctions(program: ts.Program, fileNames: string[]): Array<{ file: string; name: string; type: string }> {
+  const checker = program.getTypeChecker();
+  const found: Array<{ file: string; name: string; type: string }> = [];
+  for (const fileName of fileNames) {
+    const source = program.getSourceFile(fileName);
+    if (!source) throw new Error(`the checker did not load ${fileName}`);
+    for (const { name, node } of exportedFunctions(source)) {
+      const signature = checker.getSignatureFromDeclaration(node);
+      if (!signature) continue;
+      const returned = checker.getReturnTypeOfSignature(signature);
+      const awaited = checker.getAwaitedType(returned) ?? returned;
+      const parts = awaited.isUnion() ? awaited.types : [awaited];
+      if (parts.every((part) => (part.flags & BARE) !== 0)) found.push({ file: fileName.split(/[\\/]/).pop() ?? fileName, name, type: checker.typeToString(returned) });
     }
   }
   return found;
 }
 
-describe("host write results are typed (v2.3 plan 06)", () => {
-  it("no stHost write answers with a bare boolean or void", () => {
-    expect(offenders().map((entry) => `${entry.file}: ${entry.name} — ${entry.line.slice(0, 140)}`)).toEqual([]);
-  });
+const files = readdirSync(DIR).filter((name) => name.endsWith(".ts") && !name.endsWith(".test.ts"));
 
-  it("the guard recognises a bare write and passes a typed one", () => {
-    for (const text of ["export function doThing(): boolean {", "export const doThing = async (): Promise<void> => {", "export async function doThing(): Promise<boolean> {"]) {
-      expect(UNTYPED.test(text)).toBe(true);
-    }
-    for (const text of ["export function doThing(): WriteResult {", "export async function doThing(): Promise<WriteResult<{ from: string }>> {", "export async function doThing(): Promise<\"created\" | \"failed\"> {"]) {
-      expect(UNTYPED.test(text)).toBe(false);
-    }
-    expect(DECLARATION.exec("export const readThing = (): boolean => true")?.[1]).toBe("readThing");
-  });
+function offenders() {
+  const fileNames = files.map((name) => join(DIR, name));
+  return bareFunctions(ts.createProgram(fileNames, compilerOptions()), fileNames).filter((entry) => !READS[entry.name] && !NOT_FUNCTIONS.has(entry.name));
+}
+
+const FIXTURE = `
+export async function inferredVoid() { await Promise.resolve(); }
+export const inferredBool = () => Math.random() > 0.5;
+export const annotatedVoid = async (): Promise<void> => undefined;
+export async function typed(): Promise<{ ok: true } | { ok: false; reason: string }> { return { ok: true }; }
+export function named(): "created" | "failed" { return "created"; }
+export const inferredTyped = async () => ({ ok: true as const, text: "x" });
+`;
+
+function fixtureOffenders(): string[] {
+  const options = compilerOptions();
+  const host = ts.createCompilerHost(options);
+  const name = join(DIR, "__typed_results_fixture__.ts").split("\\").join("/");
+  const read = host.getSourceFile.bind(host);
+  host.getSourceFile = (fileName, language, onError, create) => (fileName === name ? ts.createSourceFile(fileName, FIXTURE, language) : read(fileName, language, onError, create));
+  const exists = host.fileExists.bind(host);
+  host.fileExists = (fileName) => fileName === name || exists(fileName);
+  return bareFunctions(ts.createProgram([name], options, host), [name]).map((entry) => entry.name);
+}
+
+describe("host write results are typed (v2.3 plan 06, inferred since V17)", () => {
+  it("no stHost write answers with a bare boolean or void, written or inferred", () => {
+    expect(offenders().map((entry) => `${entry.file}: ${entry.name} — ${entry.type}`)).toEqual([]);
+  }, 60000);
+
+  it("the guard catches an INFERRED bare write, and passes a typed one written or inferred", () => {
+    expect(fixtureOffenders()).toEqual(["inferredVoid", "inferredBool", "annotatedVoid"]);
+  }, 60000);
 
   it("every read on the allowlist is still a real export", () => {
     const missing = Object.keys(READS).filter((name) => !files.some((file) => new RegExp(`\\b${name}\\b`).test(readFileSync(join(DIR, file), "utf8"))));

@@ -25,7 +25,7 @@ jest.mock("@services/STAPI", () => ({
   ensureLorebook: async () => {},
   loadLorebook: async () => null,
   upsertWIEntry: async () => {},
-  disableWIEntry: async () => {},
+  disableWIEntry: async () => ({ ok: true, changed: true }),
   setStoryExtensionPrompt: jest.fn(),
   clearStoryExtensionPrompt: jest.fn(),
 }));

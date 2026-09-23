@@ -1,4 +1,5 @@
 import { quoteSlashArg } from "@utils/string";
+import type { WriteResult } from "@utils/writeResult";
 import { getContext } from "./context";
 import { backgroundsModule } from "./modules";
 import { executeSlashCommands } from "./slashCommands";
@@ -47,12 +48,13 @@ export const backgroundExists = (name: string): boolean => {
 
 // Idempotent by contract: an authored name that already matches the active background is a no-op,
 // and the resolved name is read back because `/bg` matches partial names.
-export async function applyBackground(name: string): Promise<{ changed: boolean; from: string; to: string }> {
+export async function applyBackground(name: string): Promise<WriteResult<{ changed: boolean; from: string; to: string }>> {
   const wanted = name.trim();
   const before = getCurrentBackground();
-  if (!wanted || before.name.toLowerCase() === wanted.toLowerCase()) return { changed: false, from: before.name, to: before.name };
+  if (!wanted) return { ok: false, reason: "no background was named" };
+  if (before.name.toLowerCase() === wanted.toLowerCase()) return { ok: true, changed: false, from: before.name, to: before.name };
   await executeSlashCommands(`/bg ${quoteSlashArg(wanted)}`);
   const after = getCurrentBackground();
-  if (after.name === before.name) console.warn("[Story stagecraft] background did not change", { wanted, current: before.name });
-  return { changed: after.name !== before.name, from: before.name, to: after.name };
+  if (after.name === before.name) return { ok: false, reason: `ST did not switch the background to "${wanted}"; it is still "${before.name}"` };
+  return { ok: true, changed: true, from: before.name, to: after.name };
 }

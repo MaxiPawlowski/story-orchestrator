@@ -25,6 +25,7 @@ const hostGate = { onWrite: null as ((name: string) => void) | null };
 function hostWrite(name: string) {
   hostWrites.push(name);
   hostGate.onWrite?.(name);
+  return { ok: true as const };
 }
 
 jest.mock("@services/STAPI", () => ({

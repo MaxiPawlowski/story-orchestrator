@@ -1,0 +1,7 @@
+build manifest → dist\manifest.json (bundle 7a8bd0a04982, source b7a62357d7a9, ST 1.19.0)
+Settings panel opened: {"alreadyOpen":true,"navWasOpen":false}
+{
+  "ok": true,
+  "value": "Story Orchestrator 2.3.0\nSillyTavern 1.19.0 (7c3994196)\nmacros: new engine\nmacros: absent — this build exposes no MacrosParser, so {{story_*}} macros never resolve in a prompt\nslashCommands: present — 2 commands\nbackgrounds: present — background is \"tavern day.jpg\"\nvectors: present — vectors API\njudge: present — plugin 1.0.0, jev-1.13.0"
+}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T15-58-46-349Z_st-eval.json

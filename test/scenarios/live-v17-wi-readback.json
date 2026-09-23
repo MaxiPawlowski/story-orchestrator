@@ -1,0 +1,79 @@
+{
+  "name": "live-v17-wi-readback",
+  "objective": "v2.3 replan V17 on a real SillyTavern (no model needed: the writes under test are lorebook toggles). ST's `_save` posts `/api/worldinfo/edit` and never reads the answer (world-info.js:4151), so a save the server refuses resolves like a kept one. A checkpoint's world_info toggle now reads the server's copy back. Entering The Quay with a 500 injected on that route in the page: the server still holds the entry OFF, the journal says the world_info effect could not be applied and names the entry, and the page's copy of the book is evicted so it agrees with the server. The next apply (back to The Gate; the gated set replays the whole path, so The Quay keeps the entry ON) writes it for real: the server holds it ON and nothing new is journaled. Cleanup: `so-assets.mts remove --marker SO-V17` deletes the book and deselects it.",
+  "steps": [
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const made = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-V17 Lore' }, { requirements: { lorebooks: [] } }); if (!made.ok && !made.message.includes('already exists')) throw new Error(`could not create the lorebook: ${made.message}`); const entry = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook: 'SO-V17 Lore', comment: 'The ferry', keys: ['ferry'], content: 'The ferry runs at dawn.', constant: false }, { requirements: { lorebooks: ['SO-V17 Lore'] } }); if (!entry.ok) throw new Error(`could not write the entry: ${entry.message}`); return { lorebook: made.message, entry: entry.message };",
+      "log": true
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v17-readback",
+        "version": 1,
+        "title": "SO-V17 Readback",
+        "description": "A second checkpoint that switches a lorebook entry on.",
+        "qualities": [
+          {
+            "key": "ready",
+            "type": "bool",
+            "source": "code",
+            "rubric": "Moved on."
+          }
+        ],
+        "roster": [],
+        "checkpoints": [
+          {
+            "id": "gate",
+            "name": "The Gate",
+            "objective": "Wait.",
+            "type": "anchor",
+            "start": true
+          },
+          {
+            "id": "quay",
+            "name": "The Quay",
+            "objective": "Board.",
+            "type": "anchor",
+            "effects": {
+              "world_info": {
+                "enable": [
+                  {
+                    "lorebook": "SO-V17 Lore",
+                    "comments": [
+                      "The ferry"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "from": "gate",
+            "to": "quay",
+            "priority": 1,
+            "gate": {
+              "q": "ready",
+              "op": "==",
+              "v": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); globalThis.__v17Flag = async () => { const response = await fetch('/api/worldinfo/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: 'SO-V17 Lore' }), cache: 'no-cache' }); const data = await response.json(); const hit = Object.values(data.entries ?? {}).find((row) => row.comment === 'The ferry'); if (!hit) throw new Error('the server copy has no \"The ferry\" entry'); return hit.disable; }; globalThis.__v17Refusals = () => JSON.stringify(globalThis.storyOrchestratorRuntime.getSessionJournal()).split('world_info effect could not be applied').length - 1; await new Promise((resolve) => setTimeout(resolve, 1000)); return { atGateDisabled: await globalThis.__v17Flag(), refusals: globalThis.__v17Refusals() };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = globalThis.__v17Refusals(); const original = globalThis.fetch; let refused = 0; globalThis.fetch = async (input, init) => { const url = typeof input === 'string' ? input : input?.url ?? ''; if (url.includes('/api/worldinfo/edit')) { refused += 1; return new Response('refused by the V17 check', { status: 500 }); } return original(input, init); }; try { await rt.activateCheckpoint('quay'); await new Promise((resolve) => setTimeout(resolve, 1500)); } finally { globalThis.fetch = original; } const disabled = await globalThis.__v17Flag(); const refusals = globalThis.__v17Refusals(); const journal = rt.getSessionJournal().filter((event) => JSON.stringify(event).includes('world_info effect could not be applied')); if (refused === 0) throw new Error('no lorebook save was attempted, so the refusal was never exercised'); if (disabled !== true) throw new Error(`the injected 500 should have left the server's flag OFF, and it reads disable=${disabled}`); if (refusals <= before) throw new Error(`the server refused the save (${refused} request(s) answered 500) and nothing was journaled`); if (!JSON.stringify(journal).includes('The ferry')) throw new Error(`the journal entry does not name the entry: ${JSON.stringify(journal)}`); const cached = Object.values((await SillyTavern.getContext().loadWorldInfo('SO-V17 Lore'))?.entries ?? {}).find((row) => row.comment === 'The ferry'); if (cached?.disable !== true) throw new Error(`the page's copy of the book disagrees with the server after the lost write: disable=${cached?.disable}`); globalThis.__v17AfterFault = refusals; return { refusedRequests: refused, serverDisable: disabled, pageDisable: cached.disable, journal: journal.slice(-1) };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = globalThis.__v17AfterFault; await rt.activateCheckpoint('gate'); await new Promise((resolve) => setTimeout(resolve, 1500)); const disabled = await globalThis.__v17Flag(); const refusals = globalThis.__v17Refusals(); if (disabled !== false) throw new Error(`the path still holds The Quay, so the next apply should switch the entry ON on the server, and it reads disable=${disabled}`); if (refusals !== before) throw new Error(`a kept write was journaled as refused (${before} -> ${refusals})`); return { disabled, refusals };",
+      "log": true
+    }
+  ]
+}

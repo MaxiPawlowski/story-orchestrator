@@ -21,6 +21,7 @@ const loadWorldInfo = jest.fn(async (name: string) => {
 });
 const saveWorldInfo = jest.fn(async (name: string, data: Book) => {
   st.cache.set(name, data);
+  if (server.lose) { server.lose = false; return; }
   st.disk.set(fileId(name), clone(data));
 });
 const updateWorldInfoList = jest.fn(async () => {
@@ -38,8 +39,18 @@ const executeSlashCommands = jest.fn(async (command: string) => {
   return true;
 });
 
+// The server's own copy, read back after a save: `lose` drops the next save on the floor (ST's `_save`
+// never reads the answer, so a refused save resolves like a kept one), `blind` makes the read fail.
+const server = { lose: false, blind: false };
+globalThis.fetch = jest.fn(async (_url: unknown, init?: { body?: string }) => {
+  if (server.blind) return { ok: false, status: 500, json: async () => null } as unknown as Response;
+  const { name } = JSON.parse(init?.body ?? "{}") as { name: string };
+  return { ok: true, status: 200, json: async () => clone(st.disk.get(fileId(name)) ?? { entries: {} }) } as unknown as Response;
+}) as unknown as typeof fetch;
+
 jest.mock("./context", () => ({
   getContext: () => ({
+    getRequestHeaders: () => ({}),
     loadWorldInfo: (name: string) => loadWorldInfo(name),
     saveWorldInfo: (name: string, data: Book) => saveWorldInfo(name, data),
     getWorldInfoNames: () => st.worldNames,
@@ -149,13 +160,58 @@ describe("writes resolve the listed name", () => {
   it("disables under the file id a differently cased name resolves to", async () => {
     putOnDisk("Lore", [entry(0, "The bridge")]);
     st.worldNames = ["Lore"];
-    expect(await disableWIEntry("LORE", "The bridge")).toBe(true);
+    expect(await disableWIEntry("LORE", "The bridge")).toEqual({ ok: true, changed: true, confirmed: true });
     expect(saveWorldInfo).toHaveBeenCalledWith("Lore", expect.anything());
     expect(st.disk.get("Lore")!.entries[0].disable).toBe(true);
   });
 
   it("reports a flip on a missing book as not found", async () => {
-    expect(await disableWIEntry("Missing", "The bridge")).toBe(false);
+    expect(await disableWIEntry("Missing", "The bridge")).toMatchObject({ ok: false });
+  });
+
+  // V17: the toggle answered `true` whether or not the lorebook save behind it went through.
+  it("a save the host refused is a refused flip", async () => {
+    putOnDisk("Lore", [entry(0, "The bridge")]);
+    st.worldNames = ["Lore"];
+    saveWorldInfo.mockRejectedValueOnce(new Error("disk full"));
+    expect(await disableWIEntry("Lore", "The bridge")).toMatchObject({ ok: false, reason: expect.stringContaining("disk full") });
+    // ST's worldInfoCache clones on get (world-info.js:882), so a refused save leaves no stale flip and the retry really saves.
+    expect(await disableWIEntry("Lore", "The bridge")).toEqual({ ok: true, changed: true, confirmed: true });
+    expect(st.disk.get("Lore")!.entries[0].disable).toBe(true);
+  });
+
+  it("a save that resolved but never reached the server is a refused flip that names the entry", async () => {
+    putOnDisk("Lore", [entry(0, "The bridge")]);
+    st.worldNames = ["Lore"];
+    server.lose = true;
+    expect(await disableWIEntry("Lore", "The bridge")).toMatchObject({ ok: false, reason: expect.stringContaining("The bridge") });
+    expect(st.disk.get("Lore")!.entries[0].disable).toBe(false);
+    expect((await loadLorebook("Lore"))!.entries[0].disable).toBe(false);
+  });
+
+  it("a read-back that cannot answer is an unconfirmed flip, not a refused one", async () => {
+    putOnDisk("Lore", [entry(0, "The bridge")]);
+    st.worldNames = ["Lore"];
+    server.blind = true;
+    try {
+      expect(await disableWIEntry("Lore", "The bridge")).toEqual({ ok: true, changed: true, confirmed: false });
+    } finally {
+      server.blind = false;
+    }
+  });
+
+  it("a flip to the state the entry already holds answers unchanged and saves nothing", async () => {
+    putOnDisk("Lore", [{ ...entry(0, "The bridge"), disable: true }]);
+    st.worldNames = ["Lore"];
+    saveWorldInfo.mockClear();
+    expect(await disableWIEntry("Lore", "The bridge")).toEqual({ ok: true, changed: false });
+    expect(saveWorldInfo).not.toHaveBeenCalled();
+  });
+
+  it("an entry the book does not hold is a refusal that names it", async () => {
+    putOnDisk("Lore", [entry(0, "The bridge")]);
+    st.worldNames = ["Lore"];
+    expect(await disableWIEntry("Lore", "The ferry")).toMatchObject({ ok: false, reason: expect.stringContaining("The ferry") });
   });
 });
 

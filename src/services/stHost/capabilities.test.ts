@@ -1,7 +1,8 @@
 const mockHost = { parser: true, commands: ["bg", "sendas"], judge: { configured: true } as { configured: boolean } | null, vectorStatus: 200, vectorThrows: false, fetches: 0, judgeCalls: 0, backgrounds: { background_settings: { name: "tavern.jpg" } } as unknown, hostVersion: null as { version: string; commit: string | null; branch: string | null } | null, macroEngine: "new" as "new" | "legacy" | "unknown" };
 
 jest.mock("./context", () => ({
-  getContext: () => ({ MacrosParser: mockHost.parser ? { registerMacro: () => undefined } : undefined, getRequestHeaders: () => ({ "X-CSRF-Token": "t" }) }),
+  getContext: () => ({ getRequestHeaders: () => ({ "X-CSRF-Token": "t" }) }),
+  hostMacrosAvailable: () => mockHost.parser,
 }));
 
 jest.mock("./judge", () => ({
@@ -68,6 +69,17 @@ describe("capability probes", () => {
     expect(report.state).toBe("absent");
     expect(report.detail).toContain("/sendas");
     expect(report.detail).not.toContain("/bg,");
+  });
+
+  // V17: a 500 was cached as `absent` for the page load, so one bad moment switched consolidation to
+  // keyword overlap until a reload.
+  it("reads a failing vectors route as an error it will retry, not as an absent feature", async () => {
+    globalThis.fetch = okFetch(500) as unknown as typeof fetch;
+    await expect(probeCapability("vectors")).resolves.toMatchObject({ state: "error", detail: expect.stringContaining("500") });
+    const before = mockHost.fetches;
+    globalThis.fetch = okFetch(200) as unknown as typeof fetch;
+    await expect(probeCapability("vectors")).resolves.toMatchObject({ state: "present" });
+    expect(mockHost.fetches).toBe(before + 1);
   });
 
   it("reads a missing vectors route as absent, and an answer as present", async () => {

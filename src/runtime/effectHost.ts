@@ -1,5 +1,4 @@
-import { applyBackground, getCurrentBackground, readAppliedPreset, setGroupMemberDisabled, readGroupMemberDisabled, executeSlashCommands } from "@services/STAPI";
-import { quoteSlashArg } from "@utils/string";
+import { applyBackground, applyCharacterAN, clearCharacterAN, getCurrentBackground, readAppliedPreset, setGroupMemberDisabled, readGroupMemberDisabled } from "@services/STAPI";
 import { reconcileLedger } from "./effectLedger";
 import type { EffectLedgerRow, EffectTarget } from "./types";
 
@@ -65,15 +64,13 @@ export async function restoreEffectTarget(row: EffectLedgerRow): Promise<boolean
     case "background": {
       const name = typeof row.before?.name === "string" ? row.before.name : "";
       if (!name) return false;
-      const result = await applyBackground(name);
-      return Boolean(result);
+      return (await applyBackground(name)).ok;
     }
     case "an": {
       const text = typeof row.before?.text === "string" ? row.before.text : "";
-      // `/note` with an empty argument is a no-op in ST (authors-note.js guards `if (text)`), so an
-      // empty before-image means "there was no note": switching the frequency off is how the AN seam
-      // clears one.
-      return text ? await executeSlashCommands(`/note raw=false ${quoteSlashArg(text)}`) : await executeSlashCommands("/note-frequency 0");
+      // An empty before-image means there was no note, and clearing goes through the AN seam's own
+      // path: `/note ""` is a no-op in ST (authors-note.js guards `if (text)`).
+      return (text ? await applyCharacterAN(text) : await clearCharacterAN()).ok;
     }
     // A preset is install state whose sampler values belong to the text-completion module. Restoring
     // it is a v2.4 seed: the ledger records it, and an unsupported backend refuses the WRITE, so

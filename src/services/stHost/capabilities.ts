@@ -1,4 +1,4 @@
-import { getContext } from "./context";
+import { getContext, hostMacrosAvailable } from "./context";
 import { judgeStatus, JUDGE_PLUGIN_BASE } from "./judge";
 import { backgroundsModule } from "./modules";
 import { listSlashCommands } from "./selectors";
@@ -32,10 +32,11 @@ type Probe = () => Promise<{ state: CapabilityState; detail: string }> | { state
 const present = (detail: string) => ({ state: "present" as const, detail });
 const absent = (detail: string) => ({ state: "absent" as const, detail });
 
-const macrosProbe: Probe = () => {
-  const parser = (getContext() as unknown as { MacrosParser?: { registerMacro?: unknown } }).MacrosParser;
-  return typeof parser?.registerMacro === "function" ? present("MacrosParser") : absent("this build exposes no MacrosParser, so {{story_*}} macros never resolve in a prompt");
-};
+// V17: the probe used to look for `getContext().MacrosParser`, which real ST never exposes (st-context.js
+// hands out `registerMacro`, bound), so it read `absent` on every working install. It now asks the
+// module `registerHostMacro` registers through.
+const macrosProbe: Probe = () =>
+  hostMacrosAvailable() ? present("MacrosParser") : absent("this build exposes no MacrosParser, so {{story_*}} macros never resolve in a prompt");
 
 const slashCommandsProbe: Probe = () => {
   const names = new Set(listSlashCommands().flatMap((command) => [command.name, ...command.aliases]).map((name) => name.toLowerCase()));
@@ -56,7 +57,10 @@ const vectorsProbe: Probe = async () => {
   const headers = (getContext() as unknown as { getRequestHeaders: () => Record<string, string> }).getRequestHeaders();
   const response = await fetch("/api/vector/list", { method: "POST", headers, body: JSON.stringify({ collectionId: "so-capability-probe", source: "transformers" }) });
   if (response.status === 404 || response.status === 405) return absent("this build has no /api/vector routes, so memory consolidation falls back to keyword overlap");
-  return response.ok ? present("vectors API") : absent(`the vectors API answered ${String(response.status)}`);
+  // V17: any other non-OK status is this attempt failing, not the install lacking the feature, so it
+  // throws: the caller reports `error` and does not cache it.
+  if (!response.ok) throw new Error(`the vectors API answered ${String(response.status)}`);
+  return present("vectors API");
 };
 
 const judgeProbe: Probe = async () => {

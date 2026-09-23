@@ -18,8 +18,8 @@ jest.mock("@services/STAPI", () => ({
   // The write edge reads the entry itself (R2); the fake book is the same source of truth.
   readWIEntry: jest.fn(),
   upsertWIEntry: jest.fn(async () => "updated"),
-  enableWIEntry: jest.fn(async () => true),
-  disableWIEntry: jest.fn(async () => true),
+  enableWIEntry: jest.fn(async () => ({ ok: true, changed: true })),
+  disableWIEntry: jest.fn(async () => ({ ok: true, changed: true })),
   getContext: () => ({ extensionSettings: {}, saveSettingsDebounced: () => undefined, chat: mockChat }),
 }));
 
@@ -96,8 +96,8 @@ describe("StagecraftCoordinator", () => {
       return entry ? { content: String(entry.content ?? ""), keys: entry.key ?? [], constant: Boolean(entry.constant), disabled: Boolean(entry.disable), uid: entry.uid } : null;
     });
     (upsertWIEntry as jest.Mock).mockImplementation(async (_lorebook: string, comment: string, text: string) => { const entry = entryOf(comment); if (!entry) return "failed"; entry.content = text; entry.disable = false; return "updated"; });
-    (enableWIEntry as jest.Mock).mockImplementation(async (_lorebook: string, comment: string) => { const entry = entryOf(comment); if (!entry) return false; entry.disable = false; return true; });
-    (disableWIEntry as jest.Mock).mockImplementation(async (_lorebook: string, comment: string) => { const entry = entryOf(comment); if (!entry) return false; entry.disable = true; return true; });
+    (enableWIEntry as jest.Mock).mockImplementation(async (lorebook: string, comment: string) => { const entry = entryOf(comment); if (!entry) return { ok: false, reason: `"${comment}" is not in "${lorebook}"` }; entry.disable = false; return { ok: true, changed: true }; });
+    (disableWIEntry as jest.Mock).mockImplementation(async (lorebook: string, comment: string) => { const entry = entryOf(comment); if (!entry) return { ok: false, reason: `"${comment}" is not in "${lorebook}"` }; entry.disable = true; return { ok: true, changed: true }; });
     (upsertWIEntry as jest.Mock).mockClear();
     (enableWIEntry as jest.Mock).mockClear();
     (disableWIEntry as jest.Mock).mockClear();
@@ -170,7 +170,7 @@ describe("StagecraftCoordinator", () => {
     const { coordinator, read } = harness({ settings: { acceptMode: "auto" } });
     respond("[disable] The bridge");
     await coordinator.runCuratorPass();
-    (disableWIEntry as jest.Mock).mockResolvedValueOnce(false);
+    (disableWIEntry as jest.Mock).mockResolvedValueOnce({ ok: false, reason: '"The bridge" is not in "Story Lore"' });
     expect(await coordinator.applyAccepted()).toBe(0);
     expect(read().proposals[0].ops[0]).toMatchObject({ status: "failed", message: "\"The bridge\" is not in \"Story Lore\"" });
   });
@@ -285,8 +285,8 @@ describe("continuity warden (v2.2 plan 05)", () => {
     (setStoryExtensionPrompt as jest.Mock).mockClear();
     (clearStoryExtensionPrompt as jest.Mock).mockClear();
     (upsertWIEntry as jest.Mock).mockImplementation(async (_lorebook: string, comment: string, text: string) => { const entry = entryOf(comment); if (!entry) return "failed"; entry.content = text; entry.disable = false; return "updated"; });
-    (enableWIEntry as jest.Mock).mockImplementation(async (_lorebook: string, comment: string) => { const entry = entryOf(comment); if (!entry) return false; entry.disable = false; return true; });
-    (disableWIEntry as jest.Mock).mockImplementation(async (_lorebook: string, comment: string) => { const entry = entryOf(comment); if (!entry) return false; entry.disable = true; return true; });
+    (enableWIEntry as jest.Mock).mockImplementation(async (lorebook: string, comment: string) => { const entry = entryOf(comment); if (!entry) return { ok: false, reason: `"${comment}" is not in "${lorebook}"` }; entry.disable = false; return { ok: true, changed: true }; });
+    (disableWIEntry as jest.Mock).mockImplementation(async (lorebook: string, comment: string) => { const entry = entryOf(comment); if (!entry) return { ok: false, reason: `"${comment}" is not in "${lorebook}"` }; entry.disable = true; return { ok: true, changed: true }; });
     (upsertWIEntry as jest.Mock).mockClear();
     (enableWIEntry as jest.Mock).mockClear();
     (disableWIEntry as jest.Mock).mockClear();

@@ -299,14 +299,15 @@ export class StagecraftCoordinator {
     await beforeHostWrite(pending);
     try {
       if (op.kind === "enable" || op.kind === "disable") {
-        const found = op.kind === "enable" ? await enableWIEntry(op.lorebook, op.comment) : await disableWIEntry(op.lorebook, op.comment);
-        if (!found) return { ok: false, record: { ...pending, status: "failed", message: `"${op.comment}" is not in "${op.lorebook}"`, writeAhead: undefined } };
+        const toggled = op.kind === "enable" ? await enableWIEntry(op.lorebook, op.comment) : await disableWIEntry(op.lorebook, op.comment);
+        if (!toggled.ok) return { ok: false, record: { ...pending, status: "failed", message: toggled.reason, writeAhead: undefined } };
         return { ok: true, record: { ...pending, status: "applied", message: preview.message, writeAhead: undefined } };
       }
       const result = await upsertWIEntry(op.lorebook, op.comment, preview.content ?? "", live?.keys ?? []);
       if (result === "failed") return { ok: false, record: { ...pending, status: "failed", message: `could not write "${op.comment}"`, writeAhead: undefined } };
       // upsertWIEntry always re-enables what it writes: keep an entry the author had switched off.
-      if (before.disabled) await disableWIEntry(op.lorebook, op.comment);
+      const kept = before.disabled ? await disableWIEntry(op.lorebook, op.comment) : null;
+      if (kept && !kept.ok) return { ok: false, record: { ...pending, status: "failed", message: `wrote "${op.comment}" but could not keep it switched off: ${kept.reason}`, writeAhead: undefined } };
       return { ok: true, record: { ...pending, status: "applied", message: preview.message, writeAhead: undefined } };
     } catch (error) {
       return { ok: false, record: { ...pending, status: "failed", message: error instanceof Error ? error.message : "write failed", writeAhead: undefined } };
@@ -370,7 +371,7 @@ export class StagecraftCoordinator {
       const written = await upsertWIEntry(op.lorebook, op.comment, before.content);
       if (written === "failed") return false;
       const toggled = before.disabled ? await disableWIEntry(op.lorebook, op.comment) : await enableWIEntry(op.lorebook, op.comment);
-      return toggled !== false;
+      return toggled.ok;
     } catch {
       return false;
     }

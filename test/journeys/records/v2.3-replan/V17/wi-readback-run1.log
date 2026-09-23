@@ -1,0 +1,47 @@
+1/5 eval ok 14ms
+1/5 eval -> {"lorebook":"The lorebook \"SO-V17 Lore\" already exists. Pick a new name, or write entries into it only if it is this story's own book.","entry":"Updated \"The ferry\" in \"SO-V17 Lore\"."}
+2/5 import_story ok 363ms
+3/5 eval ok 1045ms
+3/5 eval -> {"atGateDisabled":true,"refusals":0}
+4/5 eval ok 1737ms
+4/5 eval -> {"refusedRequests":1,"serverDisable":true,"pageDisable":true,"journal":[{"at":"2026-09-23T16:13:26.610Z","boundary":1,"messageId":0,"kind":"story","summary":"world_info effect could not be applied","detail":{"note":"\"SO-V17 Lore\" was saved, but the server still holds the old flag on \"The ferry\", so the write was lost"}}]}
+5/5 eval ok 1739ms
+5/5 eval -> {"disabled":false,"refusals":1}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T16-13-30-357Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 5,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-e2230197"
+    ],
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@13h13m25s054ms",
+    "owned": [
+      "2026-09-23@13h13m25s054ms"
+    ],
+    "deleted": [
+      "2026-09-23@13h13m25s054ms"
+    ],
+    "notDeleted": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@13h13m25s054ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-21@15h49m05s268ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

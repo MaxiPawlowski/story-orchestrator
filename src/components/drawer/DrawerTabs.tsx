@@ -352,7 +352,7 @@ const describeEffectTarget = (target: EffectTarget): string => {
   if (target.kind === "cast") return `cast: ${target.member}`;
   if (target.kind === "wi") return `lore: ${target.book} · ${target.entry}`;
   if (target.kind === "an") return "author's note";
-  if (target.kind === "background") return `background: ${target.name}`;
+  if (target.kind === "background") return "background";
   return `preset: ${target.name} (${target.api})`;
 };
 

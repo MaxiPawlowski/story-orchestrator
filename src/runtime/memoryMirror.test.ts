@@ -34,7 +34,7 @@ const fakeHost = (options: { chatId?: string | null; books?: Record<string, Fake
       const list = Array.isArray(comments) ? comments : [comments];
       calls.disabled.push(list);
       for (const entry of books.get(lorebook) ?? []) if (list.includes(entry.comment)) entry.disable = true;
-      return true;
+      return { ok: true as const, changed: true };
     }),
     bindChatLorebook: (name: string, replaceable: string[] = []): ChatLorebookBinding => {
       calls.binds.push({ name, replaceable });
@@ -112,6 +112,19 @@ describe("syncMemoryMirror", () => {
     expect(enabledComments(books.get(bookA))).toEqual([`so_${stays.id}`]);
     expect(Object.keys(second!.writes)).toEqual([`so_${stays.id}`]);
     expect(second!.summary.disabled).toBe(1);
+  });
+
+  // V17: a refused disable used to be forgotten anyway, leaving a superseded fact live in the book
+  // and untracked. It is kept, so the next sync tries again.
+  it("keeps a stale entry it could not switch off, so the next sync retries it", async () => {
+    const stays = memory();
+    const goes = memory();
+    const { host } = fakeHost({ books: { [bookA]: [] } });
+    const first = await syncMemoryMirror(input([stays, goes]), host);
+    host.disableWIEntry = jest.fn(async () => ({ ok: false as const, reason: "refused" }));
+    const second = await syncMemoryMirror(input([stays, { ...goes, supersededBy: stays.id }], { writes: first!.writes, book: first!.book }), host);
+    expect(Object.keys(second!.writes).sort()).toEqual([`so_${goes.id}`, `so_${stays.id}`].sort());
+    expect(second!.summary.disabled).toBe(0);
   });
 
   it("switches off an earlier playthrough's entries when a restarted chat adopts its book again", async () => {

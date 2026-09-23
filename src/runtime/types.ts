@@ -147,8 +147,8 @@ export type EffectLedgerStatus = "pending" | "applied" | "failed" | "reverted" |
 export type EffectTarget =
   | { kind: "cast"; group: string; member: string }
   | { kind: "wi"; book: string; uid: number | null; entry: string }
-  | { kind: "an"; slot: "chat" | "character" }
-  | { kind: "background"; name: string }
+  | { kind: "an" }
+  | { kind: "background" }
   | { kind: "preset"; name: string; api: string };
 
 export interface EffectLedgerRow {

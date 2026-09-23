@@ -46,6 +46,9 @@ export const settingsAreLoaded = (): boolean => settingsLoaded;
 
 export const noteHostSettingsLoaded = (): void => markLoaded();
 
+/** V17: the seam `registerHostMacro` actually registers through, so the capability probe asks it. */
+export const hostMacrosAvailable = (): boolean => typeof macrosHost?.MacrosParser?.registerMacro === "function";
+
 export const registerHostMacro = (key: string, value: HostMacroValue, description?: string): void =>
   macrosHost.MacrosParser.registerMacro(key, value, description);
 

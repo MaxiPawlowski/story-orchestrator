@@ -1,0 +1,48 @@
+build manifest → dist\manifest.json (bundle f8b5ab1a1fd4, source 7c5809f2c1f1, ST 1.19.0)
+1/5 eval ok 19ms
+1/5 eval -> {"lorebook":"The lorebook \"SO-V17 Lore\" already exists. Pick a new name, or write entries into it only if it is this story's own book.","entry":"Updated \"The ferry\" in \"SO-V17 Lore\"."}
+2/5 import_story ok 375ms
+3/5 eval ok 1028ms
+3/5 eval -> {"atGateDisabled":true,"refusals":0}
+4/5 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the server refused the save (1 request(s) answered 500) and nothing was journaled
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1072)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T16-15-02-985Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T16-15-03-251Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 4,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-e2230197"
+    ],
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@13h14m59s658ms",
+    "owned": [
+      "2026-09-23@13h14m59s658ms"
+    ],
+    "deleted": [
+      "2026-09-23@13h14m59s658ms"
+    ],
+    "notDeleted": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@13h14m59s658ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-21@15h49m05s268ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

@@ -36,7 +36,7 @@ function harness(withOwnership = true) {
     ensureLorebook: async (name) => ({ name, created: true }),
     loadLorebook: async () => ({ entries: {} }) as never,
     upsertWIEntry: async () => "created",
-    disableWIEntry: async () => true,
+    disableWIEntry: async () => ({ ok: true as const, changed: true }),
     bindChatLorebook: (name) => { bindings.push(name); return { bound: true } as never; },
     ...(withOwnership ? { ownership } : {}),
   };
@@ -131,7 +131,7 @@ describe("V3: the mirror asks before EACH host write, not once after all of them
     const h = harness();
     const disabled: string[][] = [];
     h.host.ensureLorebook = async (name) => { h.swapStory(); return { name, created: false }; };
-    h.host.disableWIEntry = async (_book, comments) => { disabled.push([comments].flat()); return true; };
+    h.host.disableWIEntry = async (_book, comments) => { disabled.push([comments].flat()); return { ok: true as const, changed: true }; };
     const book = { name: "Story Orchestrator - S - chat-a", chatId: "chat-a" };
     expect(await syncMemoryMirror({ title: "S", entries: twoEntries, writes: { so_old: "h" }, book }, h.host)).toBeNull();
     expect(disabled).toEqual([]);

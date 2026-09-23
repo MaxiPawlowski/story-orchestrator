@@ -50,6 +50,21 @@ export async function loadLorebook(name: string): Promise<Lorebook | null> {
   return (await loadExisting(name))?.data ?? null;
 }
 
+// V17: ST's `_save` posts `/api/worldinfo/edit` and never reads the answer (world-info.js:4151), so a
+// refused save resolves exactly like a kept one. The server's own copy is the evidence; `null` means
+// the read itself could not answer, which is not evidence of a lost write.
+async function readServerLorebook(name: string): Promise<Lorebook | null> {
+  try {
+    const headers = getContext().getRequestHeaders?.() ?? {};
+    const response = await fetch("/api/worldinfo/get", { method: "POST", headers, body: JSON.stringify({ name }), cache: "no-cache" });
+    if (!response.ok) return null;
+    const data = await response.json() as Lorebook | null;
+    return data?.entries ? data : null;
+  } catch {
+    return null;
+  }
+}
+
 async function saveLorebook(name: string, data: Lorebook): Promise<void> {
   const context = getContext() as unknown as { saveWorldInfo?: (name: string, data: unknown, immediately?: boolean) => Promise<unknown> };
   if (typeof context.saveWorldInfo === "function") {
@@ -70,15 +85,15 @@ function findMatchedLoreEntries(lorebook: Lorebook, comments: string[]) {
   return matched;
 }
 
-async function setWIEntryDisabledState(lorebook: string, comments: string | string[], disabled: boolean) {
-  if (!lorebook) return false;
+async function setWIEntryDisabledState(lorebook: string, comments: string | string[], disabled: boolean): Promise<WriteResult<{ changed: boolean; confirmed?: boolean }>> {
+  if (!lorebook) return couldNot("no lorebook was named");
   const commentList = trimStringList(Array.isArray(comments) ? comments : [comments]);
-  if (!commentList.length) return false;
+  if (!commentList.length) return couldNot("no entry was named");
 
   const book = await loadExisting(lorebook);
   if (!book) {
     console.warn("[Story WI] lorebook does not exist", { lorebook });
-    return false;
+    return couldNot(`there is no lorebook "${lorebook}"`);
   }
 
   const matched = findMatchedLoreEntries(book.data, commentList);
@@ -87,7 +102,7 @@ async function setWIEntryDisabledState(lorebook: string, comments: string | stri
       console.warn("[Story WI] no matching world info entry found", { lorebook, comment });
     }
   }
-  if (!matched.length) return false;
+  if (!matched.length) return couldNot(`"${commentList.join("\", \"")}" is not in "${lorebook}"`);
 
   let changed = false;
   for (const entry of matched) {
@@ -96,8 +111,20 @@ async function setWIEntryDisabledState(lorebook: string, comments: string | stri
     target.disable = disabled;
     changed = true;
   }
-  if (changed) await saveLorebook(book.name, book.data);
-  return true;
+  if (!changed) return wrote({ changed: false });
+  try {
+    await saveLorebook(book.name, book.data);
+  } catch (error) {
+    return couldNot(`"${lorebook}" could not be saved: ${error instanceof Error ? error.message : "the host refused the write"}`);
+  }
+  const onServer = await readServerLorebook(book.name);
+  if (!onServer) return wrote({ changed: true, confirmed: false });
+  const lost = matched.filter((entry) => onServer.entries[entry.uid] && onServer.entries[entry.uid].disable !== disabled);
+  if (lost.length) {
+    worldInfoModule.worldInfoCache.delete(book.name);
+    return couldNot(`"${lorebook}" was saved, but the server still holds the old flag on "${lost.map((entry) => entry.comment).join("\", \"")}", so the write was lost`);
+  }
+  return wrote({ changed: true, confirmed: true });
 }
 
 export async function enableWIEntry(lorebook: string, comments: string | string[]) {

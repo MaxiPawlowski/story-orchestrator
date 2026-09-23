@@ -2,6 +2,7 @@ import { hashMemoryText } from "@memory/stores";
 import { isLive } from "@memory/provenance";
 import type { MemoryEntry } from "@memory/types";
 import type { ChatLorebookBinding, Lorebook, WIUpsertResult } from "@services/STAPI";
+import type { WriteResult } from "@utils/writeResult";
 import type { MemoryMirrorBook } from "./types";
 import { beginRun, type RunOwnership } from "./runToken";
 
@@ -10,7 +11,7 @@ export interface MemoryMirrorHost {
   ensureLorebook: (name: string) => Promise<{ name: string; created: boolean } | null>;
   loadLorebook: (name: string) => Promise<Lorebook | null>;
   upsertWIEntry: (lorebook: string, comment: string, content: string, keys?: string[]) => Promise<WIUpsertResult>;
-  disableWIEntry: (lorebook: string, comments: string | string[]) => Promise<boolean>;
+  disableWIEntry: (lorebook: string, comments: string | string[]) => Promise<WriteResult<{ changed: boolean }>>;
   bindChatLorebook: (name: string, replaceable?: string[]) => ChatLorebookBinding;
   // v2.3 plan 03. Optional: without it the chat-id comparison below still runs, so behaviour is
   // unchanged for a caller that supplies none.
@@ -94,9 +95,13 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
     : Object.keys(writes).filter((comment) => !liveComments.has(comment));
   if (lapsed()) return null;
   if (stale.length) {
-    await host.disableWIEntry(ensured.name, stale);
-    for (const comment of stale) delete writes[comment];
-    summary.disabled = stale.length;
+    // V17: a stale entry is forgotten only once the host has switched it off, so a refused disable
+    // is retried on the next sync instead of leaving the entry live and untracked.
+    const disabled = await host.disableWIEntry(ensured.name, stale);
+    if (disabled.ok) {
+      for (const comment of stale) delete writes[comment];
+      summary.disabled = stale.length;
+    }
   }
 
   for (const entry of live) {

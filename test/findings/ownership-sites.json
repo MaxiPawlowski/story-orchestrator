@@ -249,10 +249,6 @@
       "status": "delegate",
       "note": "v2.3 plan 06: the write-ahead wrapper every recorded host effect goes through. It awaits RuntimeManager.persist, which owns the check; its other writes are the ledger row it appends and the status it sets, both THIS chat's own in-memory state, patched before the first await — so a token minted here would be compared against the world it was just minted from, which is the reason `MemoryCoordinator.commit` gives."
     },
-    "src/runtime/effectsApplier.ts#applyAuthorNote": {
-      "status": "partial",
-      "note": "v2.3 replan V3 (2026-09-23): COVERED: every path makes exactly ONE host write and returns (the census reads the branches in text order), and its only caller, applyCheckpoint, checks run.stillOwns() immediately before calling it. NOT COVERED: nothing inside, by design — there is no second write for a check to separate."
-    },
     "src/runtime/effectsApplier.ts#applyWorldInfo": {
       "status": "checked",
       "note": "v2.3 replan V3 (2026-09-23): the plan spans several books and each is two host writes; the caller's run is now asked before EVERY write (it used to be checked once, after the whole loop). Callers: applyCheckpoint and releaseWorldInfo pass their run."

@@ -75,15 +75,26 @@ describe("applyCharacterAN", () => {
 
   it("empties the note field when the new text cannot be written, so the previous note does not linger", async () => {
     executeSlashCommands.mockImplementation(async (command: string) => !command.startsWith("/note "));
-    await applyCharacterAN("Broken {{text");
+    await expect(applyCharacterAN("Broken {{text")).resolves.toMatchObject({ ok: false });
     expectFieldCleared();
     expect(commands().filter((command) => command.startsWith("/note "))).toEqual(['/note "Broken \\{\\{text"']);
   });
 });
 
+describe("V15b: the AN seam answers what the host did", () => {
+  it("a written note answers ok with its text", async () => {
+    await expect(applyCharacterAN("Whisper.")).resolves.toEqual({ ok: true, text: "Whisper." });
+  });
+
+  it("a missing field is a refused clear, not a silent one", async () => {
+    querySelector.mockReturnValueOnce(null);
+    await expect(clearCharacterAN()).resolves.toMatchObject({ ok: false });
+  });
+});
+
 describe("clearCharacterAN", () => {
   it("empties the note text through the field's input path, returns the role to system and disables the note", async () => {
-    await clearCharacterAN();
+    await expect(clearCharacterAN()).resolves.toEqual({ ok: true, text: "" });
     expectFieldCleared();
     expect(commands()).toEqual(["/note-role system", "/note-frequency 0"]);
   });

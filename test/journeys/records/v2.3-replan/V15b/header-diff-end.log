@@ -1,0 +1,27 @@
+DIFF build.manifest.builtAt  "2026-09-23T15:55:03.532Z" -> "2026-09-23T16:15:19.719Z"
+DIFF build.manifest.bundleBytes  1571499 -> 1572577
+DIFF build.manifest.bundleSha256  "aa28a5a11d312fe65364f9205af5e13433c9d9fe8c34768865f5afeaaef690b0" -> "cb0205520189b7794d45c35f355d789c8a7f524e3ac737698c50c7d2dd426444"
+DIFF build.manifest.fileSha256  "8c61c67c083554be" -> "0a76a4b71d18f868"
+DIFF build.manifest.sourceSha256  "843dfdc86e6be2b05e5c3481ebe4cfb9548b23fddb4c32747fe56b6d22571fba" -> "0acb88b505f3b044608f582618ffe78f49af3df1a61566dc63674c9a64ea9f81"
+DIFF bundle.served.bytes  1571499 -> 1572577
+DIFF bundle.served.sha256  "aa28a5a11d312fe65364f9205af5e13433c9d9fe8c34768865f5afeaaef690b0" -> "cb0205520189b7794d45c35f355d789c8a7f524e3ac737698c50c7d2dd426444"
+{
+  "baseline": "test/journeys/records/v2.3-replan/V15b/header-before.json",
+  "label": "diff-end",
+  "allow": [],
+  "differences": 7,
+  "progress": 0,
+  "blocking": 7,
+  "blockingPaths": [
+    "build.manifest.builtAt",
+    "build.manifest.bundleBytes",
+    "build.manifest.bundleSha256",
+    "build.manifest.fileSha256",
+    "build.manifest.sourceSha256",
+    "bundle.served.bytes",
+    "bundle.served.sha256"
+  ],
+  "warnings": [],
+  "wrote": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\.debug\\run-header-diff-end.json",
+  "ok": false
+}

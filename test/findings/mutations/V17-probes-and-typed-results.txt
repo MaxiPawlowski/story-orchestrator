@@ -1,0 +1,48 @@
+M1 the macro probe reads getContext().MacrosParser again
+  ● capability probes › probes every capability id and reports a healthy install as present
+Tests:       1 failed, 69 passed, 70 total
+M2 a vectors 500 is cached as absent
+  ● capability probes › reads a failing vectors route as an error it will retry, not as an absent feature
+Tests:       1 failed, 69 passed, 70 total
+M3 no setExtensionPrompt is a silent success
+  ● V17: the extension-prompt seam answers what the host did › a build that exposes no setExtensionPrompt is a refusal, not a silent return
+Tests:       1 failed, 69 passed, 70 total
+M4 a refused lorebook save reads as a flip
+  ● writes resolve the listed name › a save the host refused is a refused flip
+Tests:       1 failed, 69 passed, 70 total
+M6 the mirror forgets an entry it could not switch off
+  × keeps a stale entry it could not switch off, so the next sync retries it (4 ms)
+  ● syncMemoryMirror › keeps a stale entry it could not switch off, so the next sync retries it
+Tests:       1 failed, 11 passed, 12 total
+M7 the curator ignores a failed re-disable
+  ● StagecraftCoordinator › fails a rewrite whose entry could not be kept switched off, and says so
+Tests:       1 failed, 56 passed, 57 total
+M8 the guard reads only what is written
+  × the guard catches an INFERRED bare write, and passes a typed one written or inferred (422 ms)
+  ● host write results are typed (v2.3 plan 06, inferred since V17) › the guard catches an INFERRED bare write, and passes a typed one written or inferred
+Tests:       1 failed, 2 passed, 3 total
+M9 the curator reports a switch failure without the host's reason
+  ● StagecraftCoordinator › fails a switch whose entry or book is gone by the time the boundary writes it
+Tests:       2 failed, 81 passed, 83 total
+M10 a lost lorebook write reads as a flip
+  × a save that resolved but never reached the server is a refused flip that names the entry (4 ms)
+  ● writes resolve the listed name › a save that resolved but never reached the server is a refused flip that names the entry
+Tests:       1 failed, 23 passed, 24 total
+M11 a blind read-back reads as a lost write
+  × a read-back that cannot answer is an unconfirmed flip, not a refused one (4 ms)
+  ● writes resolve the listed name › a read-back that cannot answer is an unconfirmed flip, not a refused one
+Tests:       1 failed, 23 passed, 24 total
+M12 a refused checkpoint toggle is discarded again
+  × journals a release the host refused (1 ms)
+  × journals a toggle the host refused, carries on with the rest, and journals nothing when both land (5 ms)
+  ● world_info effect › journals a release the host refused
+  ● world_info effect › journals a toggle the host refused, carries on with the rest, and journals nothing when both land
+Tests:       2 failed, 19 passed, 21 total
+M13 a refused release goes unjournaled
+  × journals a release the host refused (3 ms)
+  ● world_info effect › journals a release the host refused
+Tests:       1 failed, 20 passed, 21 total
+M14 a lost write leaves the page's cache holding the flip
+  × a save that resolved but never reached the server is a refused flip that names the entry (2 ms)
+  ● writes resolve the listed name › a save that resolved but never reached the server is a refused flip that names the entry
+Tests:       1 failed, 23 passed, 24 total

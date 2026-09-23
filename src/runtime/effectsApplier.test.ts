@@ -14,14 +14,14 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => mockContext,
   executeSlashCommands: jest.fn(async () => undefined),
   setGroupMembersDisabled: jest.fn(async () => undefined),
-  applyCharacterAN: jest.fn(async () => undefined),
-  clearCharacterAN: jest.fn(async () => undefined),
+  applyCharacterAN: jest.fn(async (text: string) => ({ ok: true, text })),
+  clearCharacterAN: jest.fn(async () => ({ ok: true, text: "" })),
   applyTextGenPresetRuntime: jest.fn(),
   findTextGenPreset: jest.fn(() => null),
-  disableWIEntry: jest.fn(async () => true),
-  enableWIEntry: jest.fn(async () => true),
+  disableWIEntry: jest.fn(async () => ({ ok: true, changed: true })),
+  enableWIEntry: jest.fn(async () => ({ ok: true, changed: true })),
   lorebookExists: jest.fn((name: string) => name !== "Missing Book"),
-  applyBackground: jest.fn(async () => ({ changed: true, from: "old.jpg", to: "tavern day.jpg" })),
+  applyBackground: jest.fn(async () => ({ ok: true, changed: true, from: "old.jpg", to: "tavern day.jpg" })),
   getActiveGroup: jest.fn(() => ({ id: "g1", disabled_members: [] })),
   resolveGroupMemberId: jest.fn((name: string) => (name === "Mara" ? "mara-chid" : null)),
 }));
@@ -245,6 +245,26 @@ describe("world_info effect", () => {
     await new EffectsApplier().releaseWorldInfo([other, story], story);
     expect(calls(disableWIEntry)).toEqual([["Other", ["Theirs"]]]);
     expect(enableWIEntry).not.toHaveBeenCalled();
+  });
+
+  // V17: both toggles' answers were discarded, so a lost lorebook write read as an applied checkpoint.
+  it("journals a toggle the host refused, carries on with the rest, and journals nothing when both land", async () => {
+    const journalled: Array<[string, string | undefined]> = [];
+    const applier = new EffectsApplier(undefined, { journal: (summary, note) => { journalled.push([summary, note]); } });
+    (disableWIEntry as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "the server still holds the old flag" });
+    await applier.applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
+    expect(calls(enableWIEntry)).toEqual([["Checkpoints", ["Two"]]]);
+    expect(journalled).toEqual([["world_info effect could not be applied", "the server still holds the old flag"]]);
+    journalled.length = 0;
+    await applier.applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
+    expect(journalled).toEqual([]);
+  });
+
+  it("journals a release the host refused", async () => {
+    const journalled: string[] = [];
+    (disableWIEntry as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "refused" });
+    await new EffectsApplier(undefined, { journal: (summary) => { journalled.push(summary); } }).releaseWorldInfo([other, story], story);
+    expect(journalled).toEqual(["world_info could not be released"]);
   });
 });
 

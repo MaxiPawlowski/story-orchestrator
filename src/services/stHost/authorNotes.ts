@@ -7,6 +7,7 @@ import {
   AUTHOR_NOTE_LOG_SAMPLE_LIMIT,
 } from "@constants/defaults";
 import { quoteSlashArg } from "@utils/string";
+import type { WriteResult } from "@utils/writeResult";
 import { executeSlashCommands } from "./slashCommands";
 
 type ANPosition = "after" | "chat" | "before";
@@ -29,7 +30,7 @@ function clearNoteText(): boolean {
 export async function applyCharacterAN(
   text: string,
   opts?: { position?: ANPosition; depth?: number; interval?: number; role?: ANRole },
-) {
+): Promise<WriteResult<{ text: string }>> {
   const position = opts?.position ?? AUTHOR_NOTE_DEFAULT_POSITION;
   const depth = opts?.depth ?? AUTHOR_NOTE_DEFAULT_DEPTH;
   const interval = opts?.interval ?? AUTHOR_NOTE_DEFAULT_INTERVAL;
@@ -49,11 +50,14 @@ export async function applyCharacterAN(
   await executeSlashCommands(`/note-frequency ${interval}`);
 
   const ok = await executeSlashCommands(`/note ${quoteSlashArg(text ?? "")}`);
-  if (!ok) clearNoteText();
+  if (ok) return { ok: true, text };
+  clearNoteText();
+  return { ok: false, reason: "ST refused the /note command, so the note was cleared rather than left stale" };
 }
 
-export async function clearCharacterAN() {
-  clearNoteText();
+export async function clearCharacterAN(): Promise<WriteResult<{ text: string }>> {
+  const cleared = clearNoteText();
   await executeSlashCommands(`/note-role ${AUTHOR_NOTE_DEFAULT_ROLE}`);
   await executeSlashCommands(`/note-frequency ${AUTHOR_NOTE_DISABLED_FREQUENCY}`);
+  return cleared ? { ok: true, text: "" } : { ok: false, reason: "the Author's Note field is not on the page" };
 }

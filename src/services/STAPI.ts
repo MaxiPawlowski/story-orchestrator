@@ -18,7 +18,6 @@ export {
   setGenerationParamsFromPreset,
   getTextGenSettingNames,
   findTextGenPreset,
-  applyTextGenPresetRuntime,
   applyPreset,
   presetBackend,
   readAppliedPreset,

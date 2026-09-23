@@ -66,8 +66,8 @@ function harness() {
   (loadLorebook as jest.Mock).mockImplementation(async () => ({ entries: { 1: { uid: 1, comment: "Bridge", content, key: ["bridge"], disable: disabled } } }));
   (readWIEntry as jest.Mock).mockImplementation(async () => ({ content, keys: ["bridge"], constant: false, disabled, uid: 1 }));
   (upsertWIEntry as jest.Mock).mockImplementation(async (_book, _entry, text) => { content = text; return "updated"; });
-  (enableWIEntry as jest.Mock).mockImplementation(async () => { disabled = false; return true; });
-  (disableWIEntry as jest.Mock).mockImplementation(async () => { disabled = true; return true; });
+  (enableWIEntry as jest.Mock).mockImplementation(async () => { disabled = false; return { ok: true, changed: true }; });
+  (disableWIEntry as jest.Mock).mockImplementation(async () => { disabled = true; return { ok: true, changed: true }; });
   const coordinator = new StagecraftCoordinator({
     getStory: story,
     getState: () => ({ ...engine.serialize(), boundary: messageId, lastMessageId: messageId }),
@@ -138,7 +138,7 @@ finding("R2", async () => {
 
 finding("R3", async () => {
   const h = harness();
-  (disableWIEntry as jest.Mock).mockResolvedValue(false);
+  (disableWIEntry as jest.Mock).mockResolvedValue({ ok: false, reason: "refused" });
   (callExtractionModel as jest.Mock).mockResolvedValue("[disable] Bridge");
   await h.coordinator.runCuratorPass();
   const applied = await h.coordinator.applyAccepted();

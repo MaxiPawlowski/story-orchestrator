@@ -1,0 +1,25 @@
+M1 the Author's Note bypasses the ledger again
+  ● V15b: every checkpoint effect goes through the ledger › records the Author's Note and the background, with what they replaced, before touching the host
+Tests:       1 failed, 29 passed, 30 total
+M2 the background bypasses the ledger again
+  ● V15b: every checkpoint effect goes through the ledger › a background the host refused is recorded failed, not applied
+  ● V15b: every checkpoint effect goes through the ledger › records the Author's Note and the background, with what they replaced, before touching the host
+Tests:       2 failed, 28 passed, 30 total
+M3 background restore reports success whatever the host did
+  ● V15b: every checkpoint effect goes through the ledger › the restore seams answer what the host did: a refused background is not called restored
+Tests:       1 failed, 29 passed, 30 total
+M4 an unswitched background reads as applied
+  ● V15b: the background seam answers what the host did › a /bg that left the background where it was is refused, not called applied
+Tests:       1 failed, 61 passed, 62 total
+M5 a preset row is attempted and marked revert-failed
+  ● V15b: every checkpoint effect goes through the ledger › a preset row is left in place and said so, never attempted and marked revert-failed
+Tests:       1 failed, 29 passed, 30 total
+M6 an empty AN before-image is re-applied as empty text
+  ● V15b: every checkpoint effect goes through the ledger › an empty Author's Note before-image restores by clearing through the AN seam
+Tests:       1 failed, 29 passed, 30 total
+M7 a refused /note reads as applied
+  ● applyCharacterAN › empties the note field when the new text cannot be written, so the previous note does not linger
+Tests:       1 failed, 61 passed, 62 total
+M8 a missing AN field reads as a clear
+  ● V15b: the AN seam answers what the host did › a missing field is a refused clear, not a silent one
+Tests:       1 failed, 61 passed, 62 total

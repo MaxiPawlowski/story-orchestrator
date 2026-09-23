@@ -69,7 +69,7 @@ function ensureTextGenPresetOption(name: string) {
   select.appendChild(option);
 }
 
-export function applyTextGenPresetRuntime(name: string, presetObj: TextGenPreset, displayLabel?: string) {
+function applyTextGenPresetRuntime(name: string, presetObj: TextGenPreset, displayLabel?: string) {
   const { saveSettingsDebounced, textCompletionSettings, eventTypes, eventSource } = getContext();
   const settings = textCompletionSettings as MutableTextCompletionSettings;
   for (const key of TG_SETTING_NAMES) {

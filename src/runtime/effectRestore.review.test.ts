@@ -1,4 +1,4 @@
-const host = { chatId: "chat-a", group: { id: "g1", disabled_members: [] as string[] } };
+const host = { chatId: "chat-a", group: { id: "g1", disabled_members: [] as string[] }, backgroundOk: true, calls: [] as string[] };
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -6,15 +6,15 @@ jest.mock("@services/STAPI", () => ({
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
   getContext: () => ({ chat: [], chatId: host.chatId, extensionSettings: {}, chatMetadata: {}, characters: [] }),
-  applyBackground: async () => ({ changed: false, from: "", to: "" }),
-  applyCharacterAN: async () => undefined,
-  clearCharacterAN: async () => undefined,
+  applyBackground: async (name: string) => { host.calls.push(`bg:${name}`); return host.backgroundOk ? { ok: true, changed: true, from: "old.jpg", to: name } : { ok: false, reason: "ST did not switch" }; },
+  applyCharacterAN: async (text: string) => { host.calls.push(`an:${text}`); return { ok: true, text }; },
+  clearCharacterAN: async () => { host.calls.push("an:clear"); return { ok: true, text: "" }; },
   applyPreset: () => ({ ok: true, name: "P" }),
   presetBackend: () => "textgenerationwebui",
   readAppliedPreset: () => null,
   findTextGenPreset: () => null,
-  disableWIEntry: async () => true,
-  enableWIEntry: async () => true,
+  disableWIEntry: async () => ({ ok: true, changed: true }),
+  enableWIEntry: async () => ({ ok: true, changed: true }),
   lorebookExists: async () => true,
   executeSlashCommands: async () => ({ pipe: "" }),
   getActiveGroup: () => host.group,
@@ -30,6 +30,7 @@ jest.mock("@services/STAPI", () => ({
 
 import { EffectsApplier } from "./effectsApplier";
 import { reconcileLedger } from "./effectLedger";
+import { restoreEffectTarget } from "./effectHost";
 import type { EffectLedgerRow, RuntimeExtras } from "./types";
 
 const story = { title: "S", checkpointById: {}, checkpoints: [] } as never;
@@ -52,8 +53,10 @@ const anRow = (id: string, messageId: number): EffectLedgerRow => ({
 
 function harness() {
   const restored: EffectLedgerRow[] = [];
+  const notes: string[] = [];
   let persisted = 0;
   const applier = new EffectsApplier(undefined, {
+    journal: (summary) => { notes.push(summary); },
     reads: { read: (target) => (target.kind === "cast" ? { disabled: host.group.disabled_members.includes(target.member) } : target.kind === "an" ? { text: "story note" } : null) },
     restore: async (row) => {
       restored.push(row);
@@ -67,12 +70,14 @@ function harness() {
     },
     persist: async () => { persisted += 1; },
   });
-  return { applier, restored, persisted: () => persisted };
+  return { applier, restored, notes, persisted: () => persisted };
 }
 
 beforeEach(() => {
   host.chatId = "chat-a";
   host.group = { id: "g1", disabled_members: [] };
+  host.backgroundOk = true;
+  host.calls = [];
 });
 
 describe("V15: a chat puts back what it changed in shared host state", () => {
@@ -127,5 +132,56 @@ describe("V15: a chat puts back what it changed in shared host state", () => {
   it("hydrate marks a row the host already holds the before-image for as reverted, so the next leave does not call it externally changed", () => {
     const { rows } = reconcileLedger([castRow("c1", "luke.png", false, true, 3)], { read: () => ({ disabled: false }) });
     expect(rows[0].status).toBe("reverted");
+  });
+});
+
+// V15b: the Author's Note and the background were written straight to the host, so no row said what
+// they replaced and nothing could put them back; the background restore reported `Boolean({...})`,
+// always true; and a preset row was attempted and marked revert-failed on every leave.
+describe("V15b: every checkpoint effect goes through the ledger", () => {
+  const checkpoint = { id: "cp", effects: { author_note: "Whisper.", background: { name: "tavern.jpg" } } } as never;
+
+  it("records the Author's Note and the background, with what they replaced, before touching the host", async () => {
+    const h = harness();
+    const extras = extrasFor();
+    await h.applier.applyCheckpoint(story, checkpoint, extras, {} as never, "activate", ["cp"]);
+    const rows = extras.effects.ledger.map((row) => ({ effect: row.effect, kind: row.target.kind, before: row.before, after: row.after, status: row.status }));
+    expect(rows).toEqual([
+      { effect: "author_note", kind: "an", before: { text: "story note" }, after: { text: "Whisper." }, status: "applied" },
+      { effect: "background", kind: "background", before: null, after: { name: "tavern.jpg" }, status: "applied" },
+    ]);
+    expect(host.calls).toEqual(["an:Whisper.", "bg:tavern.jpg"]);
+  });
+
+  it("a background the host refused is recorded failed, not applied", async () => {
+    const h = harness();
+    const extras = extrasFor();
+    host.backgroundOk = false;
+    await h.applier.applyCheckpoint(story, checkpoint, extras, {} as never, "activate", ["cp"]);
+    expect(extras.effects.ledger.find((row) => row.effect === "background")).toMatchObject({ status: "failed", reason: "ST did not switch" });
+  });
+
+  it("a preset row is left in place and said so, never attempted and marked revert-failed", async () => {
+    const h = harness();
+    const preset = { id: "p1", effect: "preset", status: "applied", target: { kind: "preset", name: "Hot", api: "textgenerationwebui" }, before: { name: "Cold" }, after: { name: "Hot" }, checkpointId: "cp", boundary: 1, messageId: 3, at: "t" } as unknown as EffectLedgerRow;
+    const extras = extrasFor([preset]);
+    await h.applier.restoreFor(extras, "restart");
+    expect(h.restored).toEqual([]);
+    expect(extras.effects.ledger[0].status).toBe("applied");
+    expect(h.notes).toContain("1 host change(s) this story cannot put back were left in place");
+  });
+
+  it("the restore seams answer what the host did: a refused background is not called restored", async () => {
+    const background = { id: "b1", effect: "background", status: "applied", target: { kind: "background" }, before: { name: "old.jpg" }, after: { name: "tavern.jpg" }, checkpointId: "cp", boundary: 1, messageId: 3, at: "t" } as unknown as EffectLedgerRow;
+    host.backgroundOk = false;
+    await expect(restoreEffectTarget(background)).resolves.toBe(false);
+    host.backgroundOk = true;
+    await expect(restoreEffectTarget(background)).resolves.toBe(true);
+    expect(host.calls).toEqual(["bg:old.jpg", "bg:old.jpg"]);
+  });
+
+  it("an empty Author's Note before-image restores by clearing through the AN seam", async () => {
+    await expect(restoreEffectTarget(anRow("a1", 3))).resolves.toBe(true);
+    expect(host.calls).toEqual(["an:clear"]);
   });
 });
