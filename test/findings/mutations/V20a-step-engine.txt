@@ -1,0 +1,8 @@
+M1 the runner keeps its own modifier list without expectFail  (exit 1)
+  caught by: expectFail as the FIRST key is a modifier, not a verb
+M2 firstAttempt means no retry again  (exit 1)
+  caught by: firstAttempt is fail when the only attempt failed, and when a retry was needed
+M3 a verb answering ok:false passes its step (T2)  (exit 1)
+  caught by: a verb that answers ok:false fails its step and names the verb (T2)
+M4 an expected failure counts as retried  (exit 1)
+  caught by: a check that failed once BY DESIGN did not need a retry (found by running J0 live)

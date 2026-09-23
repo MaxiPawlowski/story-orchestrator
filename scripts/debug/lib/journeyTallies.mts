@@ -144,6 +144,16 @@ export interface CheckSummary { id: string; mode?: string; expect?: Outcome }
  * unguarded throw must report `fail`, and J0 is green only when the classifier agrees. Without it,
  * "J0 passes" meant only that its checks happened to pass, which says nothing about the runner.
  */
+/**
+ * V20a. Whether a check's FIRST attempt produced its reported outcome. With a declared expectation
+ * (`expect: "fail"`) a first attempt that failed without re-sampling did exactly what was declared,
+ * so it counts as first-try; whether it matched is `reconcileExpected`'s verdict, not this one's.
+ */
+export function firstAttemptOf(expect: Outcome | undefined, run: { ok: boolean; retries?: unknown[] }): 'pass' | 'fail' {
+  if ((run.retries ?? []).length) return 'fail';
+  return expect || run.ok ? 'pass' : 'fail';
+}
+
 export function reconcileExpected(summary: CheckSummary, outcome: Outcome, detail = ''): CheckResult & { observed?: Outcome } {
   const wanted = summary.expect;
   if (!wanted) return { ...summary, outcome, detail };

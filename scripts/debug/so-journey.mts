@@ -12,7 +12,7 @@ import { executeSlashCommand } from './st-actions.mts';
 import { deleteSandboxMirrorBooks, recordSandboxStory, releaseBlockedRoutes, runSteps } from './so-scenario.mts';
 import { validateFixture } from './lib/scenarioSchema.mts';
 import { readExtractionSettings, restoreExtractionSettings } from './lib/extractionSettings.mts';
-import { computeTallies, gateFailures, readScoredHumanIds, reconcileExpected, renderTallies } from './lib/journeyTallies.mts';
+import { computeTallies, firstAttemptOf, gateFailures, readScoredHumanIds, reconcileExpected, renderTallies } from './lib/journeyTallies.mts';
 import { selectMemoryProfile } from './so-ui.mts';
 import { readSessionJournal } from './so-journal.mts';
 import { removeMarkedAssets, snapshotAssets } from './so-assets.mts';
@@ -474,7 +474,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
         }
         console.log(`--- ${check.id} ${check.goal ?? ''}`);
         const outcome = await runSteps(page, check.steps ?? [], { scenarioDir: JOURNEY_DIR, importedHashes, label: `${check.id} `, assetBaseline, guard: setupApplied.guard ?? null });
-        record(summary, outcome.ok ? 'pass' : 'fail', outcome.error ?? '', { firstAttempt: outcome.firstAttempt ?? null, retries: outcome.retries ?? [] });
+        record(summary, outcome.ok ? 'pass' : 'fail', outcome.error ?? '', { firstAttempt: firstAttemptOf(check.expect, outcome), retries: outcome.retries ?? [] });
         if (setupApplied.guard?.escaped) {
           runnerError = outcome.error;
           console.error(`Journey stopped: ${runnerError}`);

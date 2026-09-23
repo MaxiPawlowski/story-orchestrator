@@ -3,7 +3,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { computeTallies, gateFailures, readCleanup, readScoredHumanIds, reconcileExpected, renderTallies } from './lib/journeyTallies.mts';
+import { computeTallies, firstAttemptOf, gateFailures, readCleanup, readScoredHumanIds, reconcileExpected, renderTallies } from './lib/journeyTallies.mts';
 
 const auto = (id: string, outcome: string) => ({ id, mode: 'auto', outcome } as never);
 const humanRow = (id: string) => ({ id, mode: 'human', outcome: 'skipped' } as never);
@@ -188,8 +188,16 @@ test('retries do not fail the run on their own — they are reported', () => {
 test('a check that failed once BY DESIGN did not need a retry (found by running J0 live)', () => {
   // J0.5 declares `expect: "fail"`: it throws once and never re-samples. Tying first-attempt to
   // "the steps succeeded" reported it as retried, which is the opposite of what happened.
-  const row = { ...reconcileExpected({ id: 'J0.5', mode: 'auto', expect: 'fail' }, 'fail'), firstAttempt: 'pass' } as never;
+  const row = { ...reconcileExpected({ id: 'J0.5', mode: 'auto', expect: 'fail' }, 'fail'), firstAttempt: firstAttemptOf('fail', { ok: false, retries: [] }) } as never;
   const tallies = computeTallies([row], {});
   assert.deepEqual(tallies.firstAttempt, { pass: 1, retried: 0, retriedIds: [] });
   assert.match(renderTallies(tallies), /first try: 1 of 1 passing check\(s\) needed no retry/);
+});
+
+// V20a: `firstAttempt` said `pass` for a check that failed with no retry, because it meant "no retry".
+test('a check that failed on its only attempt did not pass first try', () => {
+  assert.equal(firstAttemptOf(undefined, { ok: false, retries: [] }), 'fail');
+  assert.equal(firstAttemptOf(undefined, { ok: true, retries: [] }), 'pass');
+  assert.equal(firstAttemptOf(undefined, { ok: true, retries: [{}] }), 'fail');
+  assert.equal(firstAttemptOf('fail', { ok: false, retries: [{}] }), 'fail');
 });

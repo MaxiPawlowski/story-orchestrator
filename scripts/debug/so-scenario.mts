@@ -3,7 +3,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
-import { validateFixture } from './lib/scenarioSchema.mts';
+import { STEP_MODIFIERS, validateFixture } from './lib/scenarioSchema.mts';
 import { payloadFailures } from './lib/payloadAssert.mts';
 import { readExtractionSettings, restoreExtractionSettings } from './lib/extractionSettings.mts';
 import { writeJSON } from './lib/output.mts';
@@ -1047,8 +1047,9 @@ async function runStep(page, key, value, { scenarioDir = PROJECT_ROOT, importedH
 }
 
 // Shared step engine: so-scenario (feature level) and so-journey (composition level) run the
-// exact same verbs. New verbs land here, never in a parallel runner.
-const STEP_MODIFIERS = new Set(['adoptsNewChat', 'log', 'attempts', 'retryBack']);
+// exact same verbs. New verbs land here, never in a parallel runner. The modifier list is the
+// schema's (V20a): a second copy here lacked `expectFail`, so a step whose first key was
+// `expectFail` passed validation and was then dispatched AS a verb ("Unknown step key").
 
 // With a sandbox guard every step first proves the page is still on a chat the run created, so a
 // chat switched under the run (a shared debug browser) stops it before it writes anywhere else.
@@ -1108,12 +1109,6 @@ async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashe
       break;
     }
   }
-  // Passed without needing a single retry? That is the number F1 is actually about.
-  // Whether this check needed RE-SAMPLING, which is not the same as whether it succeeded. A check
-  // whose declared expectation is `fail` (J0.5) fails once by design and never retries; tying this
-  // to `result.ok` reported it as "retried", which is the opposite of true. Found by running J0
-  // live on 2026-09-20 — the unit tests all passed with the wrong rule.
-  result.firstAttempt = result.retries.length === 0 ? 'pass' : 'fail';
   if (guard && result.ok) {
     try {
       await assertInSandbox(page, guard, 'after the last step');
@@ -1123,6 +1118,11 @@ async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashe
       console.log(`${label}FAIL ${result.error}`);
     }
   }
+  // V20a: "the first attempt succeeded". It used to be "no retry happened", so a run that failed
+  // outright read `firstAttempt: pass` in its record. A check that declares an expected outcome
+  // (J0.5 fails by design) is judged by `firstAttemptOf` in the journey runner, which knows the
+  // expectation this engine does not.
+  result.firstAttempt = result.ok && result.retries.length === 0 ? 'pass' : 'fail';
   return result;
 }
 

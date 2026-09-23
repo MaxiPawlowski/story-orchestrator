@@ -876,3 +876,12 @@ Queue ids from `00-overview.md` §Replan. Verified against the tree unless marke
   swallowed → V20d.
 - No `records/v2.3-plan01/`; the review's 1,000-checkpoint measurement not promoted (low).
 
+
+### V20a gate (2026-09-23) — the step engine's rules, executed
+
+- **One modifier list.** `so-scenario.mts` kept its own `STEP_MODIFIERS` without `expectFail`, while the schema listed it. A step whose first key was `expectFail` validated and was then dispatched as a verb (`Unknown step key: expectFail`). The runner now imports the schema's set.
+- **`firstAttempt` means the first attempt succeeded.** It meant "no retry happened", so a run that failed outright recorded `firstAttempt: pass`. `runSteps` now answers `ok && no retries`, after the final sandbox check. A check that declares an expected outcome (J0.5 fails by design) is judged by `firstAttemptOf(expect, run)` in `lib/journeyTallies.mts`: with no re-sampling, its first attempt produced the declared outcome.
+- **T2 is executed, not just written.** `scripts/debug/so-scenario.runSteps.test.mts` drives the real `runSteps` with a fake page, so the `eval` verb is the real one. Four cases: `ok:false` fails its step and names the verb; `expectFail` passes on failure and fails on success; `expectFail` as the first key is a modifier; `firstAttempt` on pass, outright fail, and retried-then-passed. Plus a `firstAttemptOf` case in `journeyTallies.test.mts`.
+- Mutations: **4 of 4**, each caught by its own case (`test/findings/mutations/V20a-step-engine.txt`).
+- **Live**: J0, the runner self-test (no model), `--strict` twice on group `1759606632088`: 4 pass (J0.3 blocked and J0.5 fail, each as declared), cleanup clean, `first try: 4 of 4` both times (`records/v2.3-replan/V20a/j0-run{1,2}.log`). Run-header diff: 0.
+- Machine: test:debug 136, debug:typecheck 0. No product source changed.
