@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import { describeProvenance, originLabel, MEMORY_TIERS, type MemoryEntry, type MemoryTier } from "@memory/index";
 import type { EffectTarget, RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
+import { nextRepairStep } from "@runtime/repair";
 import DriverPanel, { type DriverController } from "./DriverPanel";
 import ConflictQueue from "./ConflictQueue";
 import PlayerOverview from "./PlayerOverview";
 import StagecraftPanel from "./StagecraftPanel";
 import ScenePanel from "./ScenePanel";
+
+type NextTurnOwnerTab = RuntimeSnapshot["nextTurn"][number]["ownerTab"];
 
 export type DrawerTabId = "overview" | "blackboard" | "memory" | "scheduler" | "payload";
 
@@ -40,6 +43,9 @@ export interface DrawerTabsProps {
   onOpenSettings?: () => void;
   onEditStory?: () => void;
   onFixWithWizard?: () => void;
+  /** V19: the settings panel's Repair step, revealed. */
+  onOpenRepair?: () => void;
+  onNewStory?: () => void;
 }
 
 const extractionReady = (snapshot: RuntimeSnapshot): boolean => snapshot.extraction.settings.enabled && Boolean(snapshot.extraction.settings.profileId);
@@ -602,7 +608,11 @@ const LoreForced = ({ record }: { record: RuntimeSnapshot["loreForced"] | undefi
 // v2.3 plan 09. What the NEXT reply will carry, in the order ST assembles it, with the one control
 // this surface owns per contributor. It is read from ST's own extension prompts rather than from the
 // last capture — a capture answers what the previous turn carried, which is a different question.
-const NextTurnPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: RuntimeManager }) => {
+// V19: "edited in: memory" named the owning editor without reaching it. Each contributor now opens it:
+// a drawer tab, or the settings panel for what the install configures.
+const OWNER_LABELS: Record<NextTurnOwnerTab, string> = { memory: "Open Memory", scheduler: "Open Scheduler", config: "Open settings", payload: "" };
+
+const NextTurnPanel = ({ snapshot, manager, onOpenOwner }: { snapshot: RuntimeSnapshot; manager: RuntimeManager; onOpenOwner: (tab: NextTurnOwnerTab) => void }) => {
   const rows = snapshot.nextTurn;
   return (
     <div id="so-next-turn" className="flex flex-col gap-1">
@@ -628,7 +638,11 @@ const NextTurnPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
             {row.key === "story_orchestrator_scene" && (
               <button data-so="next-turn-reread-scene" className="menu_button text-xs" onClick={() => void manager.previewActions.rerunScene()}>Re-read the scene</button>
             )}
-            <span className="opacity-60">edited in: {row.ownerTab}</span>
+            {row.ownerTab === "payload" ? (
+              <span className="opacity-60">edited here, in the driver</span>
+            ) : (
+              <button data-so="next-turn-open-owner" data-owner-tab={row.ownerTab} className="menu_button text-xs" onClick={() => onOpenOwner(row.ownerTab)}>{OWNER_LABELS[row.ownerTab]}</button>
+            )}
           </div>
         </div>
       ))}
@@ -636,12 +650,12 @@ const NextTurnPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
   );
 };
 
-const PayloadTab = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: RuntimeManager }) => {
+const PayloadTab = ({ snapshot, manager, onOpenOwner }: { snapshot: RuntimeSnapshot; manager: RuntimeManager; onOpenOwner: (tab: NextTurnOwnerTab) => void }) => {
   const captures = snapshot.payloadCaptures;
   return (
     <div className="text-xs opacity-80 flex flex-col gap-2">
       <LoreForced record={snapshot.loreForced} />
-      <NextTurnPanel snapshot={snapshot} manager={manager} />
+      <NextTurnPanel snapshot={snapshot} manager={manager} onOpenOwner={onOpenOwner} />
       <div className="font-medium opacity-100">Injected prompt payload</div>
       {captures.length === 0 ? (
         <div className="opacity-70">No captures yet. Blocks are recorded when a generation starts.</div>
@@ -697,8 +711,19 @@ const FlagControl = ({ manager }: { manager: RuntimeManager }) => {
 
 // Restart is the player's one destructive control (it asks first); "Edit story" is the author's
 // way into Studio from the chat they are playing — that is the chat the save can hot-swap into.
-const StoryControls = ({ snapshot, manager, onEditStory }: { snapshot: RuntimeSnapshot; manager: RuntimeManager; onEditStory?: () => void }) => (
-  <div className="flex flex-wrap items-center gap-2 border-t border-solid border-white/10 pt-2">
+// v2.3 plan 09 / V19: the drawer footer carries the same four tasks as the settings panel. Continue is
+// the drawer itself; Repair appears only while a step is missing and lands on the panel's own Repair
+// row, so there is still one control per task.
+const StoryControls = ({ snapshot, manager, onEditStory, onOpenRepair, onNewStory }: { snapshot: RuntimeSnapshot; manager: RuntimeManager; onEditStory?: () => void; onOpenRepair?: () => void; onNewStory?: () => void }) => {
+  const repair = nextRepairStep(snapshot);
+  return (
+  <div id="so-drawer-entry-points" className="flex flex-wrap items-center gap-2 border-t border-solid border-white/10 pt-2">
+    {repair && onOpenRepair && (
+      <button id="so-drawer-repair" className="menu_button" title={repair.detail} onClick={onOpenRepair}>Repair: {repair.consequence}</button>
+    )}
+    {onNewStory && (
+      <button id="so-drawer-new-story" className="menu_button opacity-80" title="Start a new story with the wizard." onClick={onNewStory}>New story</button>
+    )}
     {snapshot.ui.authorView && onEditStory && (
       <button id="so-edit-story" className="menu_button" title="Open this story in the Checkpoint Studio. Saving there offers to update this chat." onClick={onEditStory}>Edit story</button>
     )}
@@ -707,9 +732,10 @@ const StoryControls = ({ snapshot, manager, onEditStory }: { snapshot: RuntimeSn
       <button id="so-update-story" className="menu_button" title="Take the newer version from the library into this chat." onClick={() => void manager.applyStoryUpdate()}>Update to v{snapshot.storyIdentity.libraryVersion}</button>
     )}
   </div>
-);
+  );
+};
 
-export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditStory, onFixWithWizard }: DrawerTabsProps) => {
+export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditStory, onFixWithWizard, onOpenRepair, onNewStory }: DrawerTabsProps) => {
   const [active, setActive] = useState<DrawerTabId>("overview");
   // v2.3 plan 05: a warden card cites the message a fact was read from, so its button has to land on
   // that fact. A `bound:` id is the blackboard's, and the blackboard tab is where it lives; a memory
@@ -745,9 +771,9 @@ export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditSt
         {activeTab === "blackboard" && <BlackboardTab snapshot={snapshot} />}
         {activeTab === "memory" && <MemoryTab snapshot={snapshot} manager={manager} authorView={authorView} focusFact={focusFact} />}
         {activeTab === "scheduler" && <SchedulerTab snapshot={snapshot} manager={manager} onOpenFact={openFact} />}
-        {activeTab === "payload" && <PayloadTab snapshot={snapshot} manager={manager} />}
+        {activeTab === "payload" && <PayloadTab snapshot={snapshot} manager={manager} onOpenOwner={(tab) => (tab === "config" ? onOpenSettings?.() : setActive(tab))} />}
       </div>
-      {activeTab === "overview" && <StoryControls snapshot={snapshot} manager={manager} onEditStory={onEditStory} />}
+      {activeTab === "overview" && <StoryControls snapshot={snapshot} manager={manager} onEditStory={onEditStory} onOpenRepair={onOpenRepair} onNewStory={onNewStory} />}
       {/* The driver steers the story — Suggest/Probe/Advance/Nudge are author tools by D1, never
           part of the player surface, whatever the copilot setting says. */}
       {snapshot.copilot.enabled && authorView && (

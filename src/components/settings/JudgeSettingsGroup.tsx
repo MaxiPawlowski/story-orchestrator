@@ -98,7 +98,7 @@ export function JudgeSettingsGroup({ settings, status, selfTest, builtUses = BUI
         <div id="so-judge-readiness" className="flex flex-col gap-1 pl-4 text-xs">
           {concerns.map((row) => (
             <div key={row.key} className="text-yellow-300">
-              {JUDGE_USE_COPY[row.key].label}: {row.verdict === "blocked" ? `on, but "${JUDGE_USE_COPY[row.blockedBy!].label}" is off, so it does nothing` : "on, but nothing has measured it"}
+              {JUDGE_USE_COPY[row.key].label}: {row.verdict === "blocked" ? `on, but "${JUDGE_USE_COPY[row.blockedBy!].label}" is off, so it does nothing` : row.verdict === "not-built" ? "on in your saved settings, but this use is not built, so it does nothing" : "on, but nothing has measured it"}
               <span className="opacity-80"> — {row.recommendation}</span>
             </div>
           ))}

@@ -1,0 +1,19 @@
+M1 an unbuilt use reads as unproven again
+  ● judge readiness (v2.3 plan 09) › distinguishes measured from a use that is not built at all
+Tests:       1 failed, 6 passed, 7 total
+M2 an unbuilt use left on is not a concern
+  ● judge readiness (v2.3 plan 09) › distinguishes measured from a use that is not built at all
+Tests:       1 failed, 6 passed, 7 total
+M3 the focus walk passes without wrapping
+M4 the next-turn owner opens a tab for a settings-owned block
+  ● Drawer/DrawerTabs › NextTurn › play-test
+M5 the footer offers Repair with nothing to repair
+  ● Drawer/DrawerTabs › FooterWithoutARepairStep › play-test
+
+# re-run of M3-M5 naming the case that caught each (the first pass's filter read only jest output)
+M3 the focus walk passes without wrapping  (exit 1)
+  caught by: a walk that never comes back to where it started is not a trap
+M4 the next-turn owner opens a tab for a settings-owned block  (exit 1)
+  caught by: Drawer/DrawerTabs › NextTurn
+M5 the footer offers Repair with nothing to repair  (exit 1)
+  caught by: Drawer/DrawerTabs › FooterWithoutARepairStep

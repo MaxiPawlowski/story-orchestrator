@@ -4,6 +4,7 @@ import { legacyProvenance } from "@memory/provenance";
 import type { RuntimeManager } from "@runtime/index";
 import { buildNarrativeStatus } from "@runtime/narrative";
 import { derivePipelineStatus } from "@runtime/pipeline";
+import { createSaveHealth } from "@runtime/saveHealth";
 import type { ExtractionRuntimeState, RuntimeSnapshot } from "@runtime/types";
 import { DrawerTabs } from "./DrawerTabs";
 
@@ -13,6 +14,7 @@ const derive = (snapshot: RuntimeSnapshot): RuntimeSnapshot => {
   const pipeline = derivePipelineStatus(snapshot.extraction as ExtractionRuntimeState);
   return {
     ...snapshot,
+    saveHealth: snapshot.saveHealth ?? createSaveHealth(),
     pipeline,
     narrative: buildNarrativeStatus({
       storyTitle: snapshot.storyTitle,
@@ -128,10 +130,12 @@ const sampleSnapshot = (): RuntimeSnapshot => derive(({
       { key: "story_orchestrator_scene", label: "Scene so far", owner: "runtime/coordinators/sceneCoordinator", ownerTab: "scheduler", depth: 1, role: 0, characters: 44, target: null, oneShot: false, freshness: "stale", fallback: null, preview: "The inner sanctum, the wards failing at the threshold." },
       { key: "story_orchestrator_epistemic", label: "What the speaker knows", owner: "memory/inject.applyEpistemicInjection", ownerTab: "memory", depth: 4, role: 0, characters: 51, target: "Arin", oneShot: false, freshness: "live", fallback: "timeout", preview: "[hiding from Arin] the key is a forgery" },
       { key: "story_orchestrator_memory_facts", label: "Memory — established facts", owner: "memory/inject.applyMemoryInjection", ownerTab: "memory", depth: 4, role: 0, characters: 37, target: null, oneShot: false, freshness: "live", fallback: null, preview: "The sun-key opens the inner sanctum." },
+      { key: "story_orchestrator_pacing", label: "Pacing", owner: "runtime/runtimeManager.applyPacingSteering", ownerTab: "config", depth: 4, role: 0, characters: 36, target: null, oneShot: false, freshness: "live", fallback: null, preview: "Raise the stakes toward the sanctum." },
     ],
   }) as unknown as RuntimeSnapshot);
 
 const previewActions = { clearNote: fn(), rerunScene: fn() };
+const openSettings = fn();
 
 const fakeManager = (): RuntimeManager =>
   ({
@@ -230,7 +234,7 @@ const meta: Meta<typeof DrawerTabs> = {
   component: DrawerTabs,
   render: () => (
     <div style={{ maxWidth: 360 }}>
-      <DrawerTabs snapshot={sampleSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      <DrawerTabs snapshot={sampleSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} onOpenSettings={openSettings} />
     </div>
   ),
 };
@@ -324,8 +328,9 @@ export const NextTurn: Story = {
         "story_orchestrator_scene",
         "story_orchestrator_epistemic",
         "story_orchestrator_memory_facts",
+        "story_orchestrator_pacing",
       ]);
-      await expect(canvas.getByText("Next reply (4 contributors)")).toBeInTheDocument();
+      await expect(canvas.getByText("Next reply (5 contributors)")).toBeInTheDocument();
       await expect(canvas.getByText("memory/inject.applyMemoryInjection")).toBeInTheDocument();
       await expect(canvas.getByText(/depth 4 · 37 chars/)).toBeInTheDocument();
     });
@@ -338,13 +343,25 @@ export const NextTurn: Story = {
     await step("offers each control to the contributor that owns it", async () => {
       await expect(canvas.getByText("Clear the note")).toBeInTheDocument();
       await expect(canvas.getByText("Re-read the scene")).toBeInTheDocument();
-      await expect(canvas.getAllByText("edited in: scheduler")).toHaveLength(2);
       await userEvent.click(canvas.getByText("Clear the note"));
       await expect(previewActions.clearNote).toHaveBeenCalled();
       previewActions.clearNote.mockClear();
       await userEvent.click(canvas.getByText("Re-read the scene"));
       await expect(previewActions.rerunScene).toHaveBeenCalled();
       previewActions.rerunScene.mockClear();
+    });
+    // V19: the owner was named but not reachable.
+    await step("each contributor opens the editor that owns it", async () => {
+      await expect(canvas.getAllByRole("button", { name: "Open Scheduler" })).toHaveLength(2);
+      await expect(canvas.getAllByRole("button", { name: "Open Memory" })).toHaveLength(2);
+      await userEvent.click(canvas.getByRole("button", { name: "Open settings" }));
+      await expect(openSettings).toHaveBeenCalled();
+      openSettings.mockClear();
+      await userEvent.click(canvas.getAllByRole("button", { name: "Open Memory" })[0]);
+      await expect(canvas.getByRole("tab", { name: "Memory" })).toHaveAttribute("aria-selected", "true");
+      await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
+      await userEvent.click(canvas.getAllByRole("button", { name: "Open Scheduler" })[0]);
+      await expect(canvas.getByRole("tab", { name: "Scheduler" })).toHaveAttribute("aria-selected", "true");
     });
   },
 };
@@ -602,6 +619,44 @@ export const NotConfigured: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByText(/choose a memory model/)).toBeInTheDocument();
     await expect(canvas.getByRole("button", { name: "Open story settings" })).toBeInTheDocument();
+  },
+};
+
+// V19: the drawer footer carries the settings panel's tasks. Repair shows only while a step is missing,
+// says what the story loses, and lands on the panel's own Repair row.
+export const FooterEntryPoints: Story = {
+  render: () => {
+    const openRepair = fn();
+    const newStory = fn();
+    (globalThis as { __footer?: unknown }).__footer = { openRepair, newStory };
+    return (
+      <div style={{ maxWidth: 360 }}>
+        <DrawerTabs snapshot={notConfiguredSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} onOpenRepair={openRepair} onNewStory={newStory} />
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const calls = (globalThis as unknown as { __footer: { openRepair: ReturnType<typeof fn>; newStory: ReturnType<typeof fn> } }).__footer;
+    const repair = canvasElement.querySelector("#so-drawer-repair") as HTMLButtonElement;
+    await expect(repair).toBeInTheDocument();
+    await expect(repair.textContent).toMatch(/^Repair: /);
+    await userEvent.click(repair);
+    await expect(calls.openRepair).toHaveBeenCalled();
+    await userEvent.click(canvasElement.querySelector("#so-drawer-new-story") as HTMLButtonElement);
+    await expect(calls.newStory).toHaveBeenCalled();
+  },
+};
+
+export const FooterWithoutARepairStep: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={sampleSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} onOpenRepair={fn()} onNewStory={fn()} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-drawer-entry-points")).toBeInTheDocument();
+    await expect(canvasElement.querySelector("#so-drawer-new-story")).toBeInTheDocument();
+    await expect(canvasElement.querySelector("#so-drawer-repair")).toBeNull();
   },
 };
 

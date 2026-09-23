@@ -129,8 +129,8 @@ export const ReadinessNamesWhatIsNotWorking: Story = {
   },
   play: async ({ canvasElement }) => {
     const readiness = canvasElement.querySelector("#so-judge-readiness");
-    await expect(readiness?.textContent).toContain("nothing has measured it");
-    await expect(readiness?.textContent).toContain("Out-of-character messages");
+    await expect(readiness?.textContent).toContain("Out-of-character messages: on in your saved settings, but this use is not built");
+    await expect(canvasElement.querySelector("#so-judge-use-scene-ooc")).toBeNull();
     await expect(canvasElement.querySelector("#so-judge-readiness-summary")?.textContent).toContain("Stall check 100%");
   },
 };

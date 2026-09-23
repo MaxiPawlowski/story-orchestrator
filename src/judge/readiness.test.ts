@@ -1,5 +1,5 @@
 import { judgeReadiness, judgeReadinessConcerns, JUDGE_READINESS } from "./readiness";
-import { defaultJudgeSettings, JUDGE_USE_DEPENDENCIES, JUDGE_USE_KEYS, type JudgeSettings } from "./settings";
+import { BUILT_JUDGE_USES, defaultJudgeSettings, JUDGE_USE_COPY, JUDGE_USE_DEPENDENCIES, JUDGE_USE_KEYS, type JudgeSettings } from "./settings";
 
 const settings = (uses: Partial<Record<string, boolean>> = {}, patch: Partial<JudgeSettings> = {}): JudgeSettings => ({
   ...defaultJudgeSettings(),
@@ -36,11 +36,21 @@ describe("judge readiness (v2.3 plan 09)", () => {
     expect(judgeReadinessConcerns(rows)).toEqual([]);
   });
 
-  it("distinguishes measured from unproven, which is the whole point of the summary", () => {
-    const rows = judgeReadiness(settings({ stallCheck: true, sceneOoc: true }));
+  // V19: sceneOoc and memoryRerank are read by no code, so "unproven" (it would work once measured)
+  // was a promise. A saved `true` for either now reads as not built, and stays a concern.
+  it("distinguishes measured from a use that is not built at all", () => {
+    const rows = judgeReadiness(settings({ stallCheck: true, sceneOoc: true, memoryRerank: true }));
     expect(rows.find((row) => row.key === "stallCheck")).toMatchObject({ enabled: true, verdict: "measured", calibration: 1, live: "J11.23" });
-    expect(rows.find((row) => row.key === "sceneOoc")).toMatchObject({ enabled: true, verdict: "unproven", calibration: null });
-    expect(judgeReadinessConcerns(rows).map((row) => row.key)).toEqual(["sceneOoc"]);
+    expect(rows.find((row) => row.key === "sceneOoc")).toMatchObject({ enabled: true, verdict: "not-built", calibration: null });
+    expect(rows.find((row) => row.key === "memoryRerank")?.verdict).toBe("not-built");
+    expect(judgeReadinessConcerns(rows).map((row) => row.key)).toEqual(["sceneOoc", "memoryRerank"]);
+  });
+
+  it("names every use that is not built, and no built use is missing its evidence", () => {
+    const unbuilt = JUDGE_USE_KEYS.filter((key) => !BUILT_JUDGE_USES.includes(key));
+    expect(unbuilt).toEqual(["sceneOoc", "memoryRerank"]);
+    expect(unbuilt.every((key) => JUDGE_USE_COPY[key].description.startsWith("Not built"))).toBe(true);
+    expect(BUILT_JUDGE_USES.filter((key) => JUDGE_READINESS[key].calibration === null)).toEqual([]);
   });
 
   it("calls an enabled use with its dependency off blocked, not measured", () => {

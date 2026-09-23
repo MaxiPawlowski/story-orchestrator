@@ -511,6 +511,8 @@ const DrawerPanel = () => {
           onOpenSettings={openStorySettings}
           onEditStory={() => void openStudio()}
           onFixWithWizard={() => void openWizardForRequirements()}
+          onOpenRepair={openRepairStep}
+          onNewStory={() => void openWizard()}
         />
       )}
     </div>
@@ -547,9 +549,16 @@ const revealSetting = (id: string) => {
   window.setTimeout(() => element.classList.remove("so-revealed"), 2000);
 };
 
+// V19: the HUD's needs-setup chip and the drawer's Repair button land ON the Repair step, not just on the
+// panel: the panel opens first, then the row is revealed once it is laid out.
+const openRepairStep = () => {
+  openStorySettings();
+  window.setTimeout(() => revealSetting("so-entry-repair"), 250);
+};
+
 const HudMount = () => {
   const snapshot = useRuntimeSnapshot();
-  return <HudStrip snapshot={snapshot} onOpenDrawer={openSoDrawer} onOpenSettings={openStorySettings} />;
+  return <HudStrip snapshot={snapshot} onOpenDrawer={openSoDrawer} onOpenSettings={openRepairStep} />;
 };
 
 const mountTopBarDrawer = () => {

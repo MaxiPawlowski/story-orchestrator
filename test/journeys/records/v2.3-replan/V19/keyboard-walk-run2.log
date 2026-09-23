@@ -1,0 +1,70 @@
+{
+  "ok": true,
+  "missing": [],
+  "escapedAt": null,
+  "wrapped": true,
+  "required": [
+    "Save",
+    "Export JSON",
+    "Close studio"
+  ],
+  "walk": [
+    {
+      "label": "Story title",
+      "insideDialog": true
+    },
+    {
+      "label": "Close studio",
+      "insideDialog": true
+    },
+    {
+      "label": "Graph",
+      "insideDialog": true
+    },
+    {
+      "label": "Start with the wizard",
+      "insideDialog": true
+    },
+    {
+      "label": "+ Checkpoint",
+      "insideDialog": true
+    },
+    {
+      "label": "+ Transition",
+      "insideDialog": true
+    },
+    {
+      "label": "Re-layout",
+      "insideDialog": true
+    },
+    {
+      "label": "Graph layout",
+      "insideDialog": true
+    },
+    {
+      "label": "Mermaid export",
+      "insideDialog": true
+    },
+    {
+      "label": "Export JSON",
+      "insideDialog": true
+    },
+    {
+      "label": "Import JSON",
+      "insideDialog": true
+    },
+    {
+      "label": "Save",
+      "insideDialog": true
+    },
+    {
+      "label": "Save As",
+      "insideDialog": true
+    },
+    {
+      "label": "Story title",
+      "insideDialog": true
+    }
+  ]
+}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T17-33-34-120Z_so-studio-keyboard.json

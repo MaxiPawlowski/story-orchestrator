@@ -1,0 +1,60 @@
+build manifest → dist\manifest.json (bundle d5d1be44f4be, source 3b676c131cd3, ST 1.19.0)
+1/8 import_story ok 364ms
+2/8 eval ok 915ms
+2/8 eval -> {"pipeline":"not-configured","navOpen":false}
+3/8 ui ok 7ms
+4/8 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the HUD chip opened the panel but did not reveal the Repair row (visible=true, revealed=false)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:528)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T17-34-16-691Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T17-34-19-526Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 4,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-d94ff3be"
+    ],
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@14h34m14s613ms",
+    "owned": [
+      "2026-09-23@14h34m14s613ms"
+    ],
+    "deleted": [
+      "2026-09-23@14h34m14s613ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@14h34m14s613ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": null
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "ok": true
+    }
+  }
+}

@@ -1,0 +1,63 @@
+1/8 import_story ok 369ms
+2/8 eval ok 914ms
+2/8 eval -> {"pipeline":"not-configured","navOpen":false}
+3/8 ui ok 6ms
+4/8 eval ok 633ms
+4/8 eval -> {"navOpen":true,"revealed":true,"repair":"The story will not advance on its own until this is set.No memory model profile is selected.Show me the setting"}
+5/8 eval ok 2517ms
+5/8 eval -> {"navOpen":false,"stillRevealed":false}
+6/8 ui ok 1276ms
+7/8 ui ok 5ms
+8/8 eval ok 635ms
+8/8 eval -> {"label":"Repair: The story will not advance on its own until this is set.","revealed":true}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T17-33-04-526Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 8,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-d94ff3be"
+    ],
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@14h32m55s198ms",
+    "owned": [
+      "2026-09-23@14h32m55s198ms"
+    ],
+    "deleted": [
+      "2026-09-23@14h32m55s198ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@14h32m55s198ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": null
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "ok": true
+    }
+  }
+}

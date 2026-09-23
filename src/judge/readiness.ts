@@ -1,4 +1,4 @@
-import { JUDGE_USE_KEYS, type JudgeSettings, type JudgeUseKey } from "./settings";
+import { BUILT_JUDGE_USES, JUDGE_USE_KEYS, type JudgeSettings, type JudgeUseKey } from "./settings";
 
 // v2.3 plan 09, re-measured by plan 11. The recommended-configuration table as data the settings
 // panel can render — the numbers are RECORDED measurements, not a re-run, so the panel says where
@@ -35,11 +35,11 @@ export const JUDGE_READINESS: Record<JudgeUseKey, JudgeReadinessFact> = {
   sceneTracker: { calibration: 0.9503, latencyP50Ms: 1512, live: "J11.11–J11.15", recommendation: "As sceneTrigger: measured, and off the reply path." },
   director: { calibration: 0.9091, latencyP50Ms: 1129, live: "J11.3, J11.4", recommendation: "Only with an authored role on every candidate — without roles it reports no-roles and does nothing. Fits its 1500 ms reply-path budget at p50." },
   loreSelect: { calibration: 0.8974, latencyP50Ms: 509, live: "J11.16–J11.19", recommendation: "Known weakness: ranking by a compressed, heavily tied probability, so which entries win is weaker than the rate suggests. Fits its 1500 ms reply-path budget at p50." },
-  sceneOoc: { calibration: null, latencyP50Ms: null, live: null, recommendation: "No evidence — not exercised by any journey and not calibrated. Unproven, not recommended." },
-  memoryRerank: { calibration: null, latencyP50Ms: null, live: null, recommendation: "No evidence, as sceneOoc." },
+  sceneOoc: { calibration: null, latencyP50Ms: null, live: null, recommendation: "Not built: nothing reads this setting, so turning it on changes nothing." },
+  memoryRerank: { calibration: null, latencyP50Ms: null, live: null, recommendation: "Not built: nothing reads this setting, so turning it on changes nothing." },
 };
 
-export type JudgeReadinessVerdict = "off" | "unproven" | "measured" | "blocked";
+export type JudgeReadinessVerdict = "off" | "unproven" | "measured" | "blocked" | "not-built";
 
 export interface JudgeReadinessRow extends JudgeReadinessFact {
   key: JudgeUseKey;
@@ -63,9 +63,12 @@ export const judgeReadiness = (settings: JudgeSettings, dependencies: Partial<Re
     // reporting it as measured would be exactly the over-claim this summary exists to avoid.
     if (!settings.enabled) return { key, ...fact, enabled, verdict: "off" };
     if (!enabled) return { key, ...fact, enabled, verdict: "off" };
+    // V19: a use no code reads is not "unproven" (that promises it would work once measured). It is
+    // listed only while an old saved setting still has it on, and says it does nothing.
+    if (!BUILT_JUDGE_USES.includes(key)) return { key, ...fact, enabled, verdict: "not-built" };
     if (dependency && settings.uses[dependency] !== true) return { key, ...fact, enabled, verdict: "blocked", blockedBy: dependency };
     return { key, ...fact, enabled, verdict: fact.calibration === null ? "unproven" : "measured" };
   });
 
 /** Only what an author needs to look at: what is on, and what is on but not doing anything. */
-export const judgeReadinessConcerns = (rows: JudgeReadinessRow[]): JudgeReadinessRow[] => rows.filter((row) => row.verdict === "unproven" || row.verdict === "blocked");
+export const judgeReadinessConcerns = (rows: JudgeReadinessRow[]): JudgeReadinessRow[] => rows.filter((row) => row.verdict === "unproven" || row.verdict === "blocked" || row.verdict === "not-built");

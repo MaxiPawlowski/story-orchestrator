@@ -1,5 +1,6 @@
+import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { fn, within, userEvent, expect } from "@storybook/test";
+import { fn, within, userEvent, expect, waitFor } from "@storybook/test";
 import StudioModal from "./StudioModal";
 import { seedDraft, seedEmptyDraft, sampleStory } from "./stories/fixtures";
 
@@ -129,5 +130,78 @@ export const TabsWrapAndThePanelSaysWhichItIs: Story = {
     await expect(first).toHaveFocus();
     await userEvent.keyboard("{End}");
     await expect(last).toHaveFocus();
+  },
+};
+
+// V19 (plan 09 §keyboard-only authoring): open, rename, save, export, close and reopen without one
+// pointer event. Every step moves focus with Tab or acts with Enter/Escape, and each Tab walk is
+// bounded, so a control that focus cannot reach fails here instead of looping.
+const KeyboardHost = () => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div>
+      <button type="button" onClick={() => setOpen(true)}>Open studio</button>
+      {open && <StudioModal onClose={() => setOpen(false)} />}
+    </div>
+  );
+};
+
+const tabTo = async (doc: Document, matches: (element: Element | null) => boolean) => {
+  for (let step = 0; step < 80; step += 1) {
+    if (matches(doc.activeElement)) return;
+    await userEvent.tab();
+  }
+  throw new Error(`focus never reached the control; it stopped on ${doc.activeElement?.outerHTML.slice(0, 120)}`);
+};
+
+const isButton = (name: string) => (element: Element | null) => element instanceof HTMLButtonElement && element.textContent?.trim() === name;
+
+export const KeyboardOnlyAuthoring: Story = {
+  render: () => <KeyboardHost />,
+  play: async ({ canvasElement, step }) => {
+    const doc = canvasElement.ownerDocument;
+    const body = within(doc.body);
+    const created: string[] = [];
+    const original = URL.createObjectURL;
+    URL.createObjectURL = ((blob: Blob) => { void blob.text().then((text) => created.push(text)); return "blob:keyboard"; }) as typeof URL.createObjectURL;
+    try {
+      await step("open the Studio from the keyboard", async () => {
+        await tabTo(doc, isButton("Open studio"));
+        await userEvent.keyboard("{Enter}");
+        const title = await body.findByLabelText("Story title");
+        await expect(doc.activeElement).toBe(title);
+        await userEvent.keyboard("{Control>}a{/Control}Keyboard Heist");
+        await expect(title).toHaveValue("Keyboard Heist");
+      });
+      // The graph tab's canvas is walked with real key presses live (so-studio-keyboard.mts); user-event's
+      // simulated Tab does not walk it the way a browser does, so this pass moves to the Story tab the
+      // way the tablist is meant to be used (APG: one tab stop, arrows move).
+      await step("move to the Story tab with the arrow keys", async () => {
+        await tabTo(doc, (element) => element?.getAttribute("role") === "tab");
+        await userEvent.keyboard("{ArrowRight}");
+        await expect(await body.findByRole("tab", { name: "Story" })).toHaveAttribute("aria-selected", "true");
+        await expect(doc.activeElement?.textContent).toBe("Story");
+      });
+      await step("save with Enter on Save", async () => {
+        await tabTo(doc, isButton("Save"));
+        await userEvent.keyboard("{Enter}");
+        await expect(await body.findByText(/Saved .Keyboard Heist. v\d+ to the library\./)).toBeInTheDocument();
+      });
+      await step("export with Enter on Export JSON", async () => {
+        await tabTo(doc, isButton("Export JSON"));
+        await userEvent.keyboard("{Enter}");
+        await waitFor(() => expect(created).toHaveLength(1));
+        await expect(created[0]).toContain("Keyboard Heist");
+      });
+      await step("close with Escape and reopen with Enter; the draft is still there", async () => {
+        await userEvent.keyboard("{Escape}");
+        await waitFor(() => expect(body.queryByLabelText("Story title")).toBeNull());
+        await tabTo(doc, isButton("Open studio"));
+        await userEvent.keyboard("{Enter}");
+        await expect(await body.findByLabelText("Story title")).toHaveValue("Keyboard Heist");
+      });
+    } finally {
+      URL.createObjectURL = original;
+    }
   },
 };

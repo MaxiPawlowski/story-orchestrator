@@ -262,3 +262,9 @@ plugin* talking to TypeSafe, and the local model is irrelevant to it. Two traps 
 - Dead toggles `sceneOoc`, `memoryRerank` (`judge/settings.ts:11,15`, UI copy promises behaviour) → V19.
 - Cited `.debug/…so-judge-calibrate-lore-relevance.json` is gone; the golden stands → V22.
 
+
+### V19 gate (2026-09-23) — dead toggles, the tie-rate definition, the fixture note
+
+- **Dead toggles.** `sceneOoc` and `memoryRerank` were already absent from the settings list (`BUILT_JUDGE_USES`). But a saved `true` for either reported "on, but nothing has measured it", which promises a use that works once measured. No code reads either key. Readiness now has a `not-built` verdict, the panel says "on in your saved settings, but this use is not built, so it does nothing", and the copy for both says "Not built yet". A readiness test pins which uses are unbuilt and that every built use has evidence.
+- **Tie rate over the top 4: NOT changed here, handed to v2.4 carry-in T21.** The plan declared the floor over the top 4, and `loreRanking.ts` measures ties over the top 5. Recomputed from the golden's recorded answers over the top 4, the Score arm reads 0.92 (was 1.00) and Noul stays at 0.08, so the verdict is unchanged. The change was made and then reverted: the v2.4 carry-in (T21) already owns corrections to this exact metric, quoting recomputed values under the current definition and showing the 1.00 came from the Score arm's `Math.round`. Redefining it here would have silently changed the numbers that correction quotes. One owner per metric.
+- **Fixture note corrected.** `lore-relevance.json` said 24 windows and holds 25. Its `labellingRule` says labels were decided before any answer was read, but pooling from both arms' top 5 means they were set with the answers in view. That is now stated in the fixture as a limit of the refutation; nothing was re-labelled.
