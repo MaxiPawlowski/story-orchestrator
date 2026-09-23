@@ -1,4 +1,4 @@
-import { placeholderEnumValues, progressQualityForAnchor, ratingLevels, TENSION_CURRENT_KEY, type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type StoryV2, type ValidationError } from "@engine/index";
+import { progressQualityForAnchor, ratingLevels, storyWarnings, TENSION_CURRENT_KEY, type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type StoryV2, type ValidationError } from "@engine/index";
 import { directorEnabled } from "@talk/index";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
@@ -244,10 +244,7 @@ export const runDiagnostics = (draft: StoryV2): Diagnostic[] => {
   });
 
   // v2.3 plan 02 (S1): a latching enum that lists an unset-shaped member freezes on it.
-  draft.qualities.forEach((quality, index) => {
-    const placeholders = placeholderEnumValues(quality);
-    if (placeholders.length) push("latching-enum-placeholder", "warning", `qualities.${index}.values`, `'${quality.key}' latches, so the first read decides and will not change; ${placeholders.join(", ")} cannot mean "not set yet" — the unset state is the absence of a value`);
-  });
+  storyWarnings(draft).forEach((warning) => push("latching-enum-placeholder", "warning", warning.path, warning.message));
 
   // v2.2 plan 06: judge hints. The spike wrote 8 of 10 `not_for` clauses on the wrong option, which
   // silently inverts them, so a clause that names its own option is flagged.

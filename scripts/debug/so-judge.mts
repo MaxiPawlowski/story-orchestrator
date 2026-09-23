@@ -5,6 +5,7 @@ import { PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
+import { calibrationOk } from './lib/calibrationVerdict.mts';
 
 const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
 
@@ -13,7 +14,8 @@ const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
   calibrate [--use director|memory-verify|memory-pairs|scene|lore|lore-relevance|curator-filter|continuity|backgrounds|typed|stall|critic|variants] [--fixture <name>] [--model <id>] [--min 0.85] [--record]
                                       run test/fixtures/judge/<fixture|use>.json page -> plugin -> TypeSafe;
                                       --model asks that model without changing install settings; the report records the model that answered;
-                                      exit 1 below --min; --record writes test/goldens/judge/<use>.calibration.json
+                                      exit 1 below the fixture's family floors, or below --min when there are none;
+                                      an explicit --min also binds the overall rate; --record writes test/goldens/judge/<use>.calibration.json
   calls [--last 20]                   the current chat's judge call ring (extras.judge.calls)
 
 The plugin must be installed (npm run plugin:install) and ST started with enableServerPlugins: true.`;
@@ -125,7 +127,7 @@ async function calibrate(page: any, use: string, fixtureName: string, min: numbe
   const spanish = report.rows.filter((row: any) => tagsOf(row.id).includes('spanish'));
   const families = ['scene', 'lore', 'curator-filter', 'continuity', 'backgrounds', 'typed', 'stall', 'critic', 'variants'].includes(use) ? familyScores(report.rows, fixture.floors ?? {}) : [];
   families.forEach((row) => console.log(`${row.ok ? 'ok  ' : 'FAIL'} ${row.family.padEnd(9)} ${row.right}/${row.total} floor ${row.floor}`));
-  const summary = { use, fixture: fixtureName, right: report.right, total: report.total, rate: Number(rate.toFixed(4)), ...(families.length ? { families } : {}), spanish: `${spanish.filter((row: any) => row.right).length}/${spanish.length}`, p50LatencyMs: report.p50LatencyMs, requestedModel: requestedModel ?? null, model: report.model, modelMatched: requestedModel ? report.model === requestedModel : null, min, ok: (requestedModel ? report.model === requestedModel : true) && (families.length ? families.every((row) => row.ok) : rate >= min) };
+  const summary = { use, fixture: fixtureName, right: report.right, total: report.total, rate: Number(rate.toFixed(4)), ...(families.length ? { families } : {}), spanish: `${spanish.filter((row: any) => row.right).length}/${spanish.length}`, p50LatencyMs: report.p50LatencyMs, requestedModel: requestedModel ?? null, model: report.model, modelMatched: requestedModel ? report.model === requestedModel : null, min, minGiven: process.argv.includes('--min'), ok: calibrationOk({ rate, min, minGiven: process.argv.includes('--min'), families, modelMatched: requestedModel ? report.model === requestedModel : null }) };
   console.log(JSON.stringify(summary, null, 2));
   await writeJSON({ summary, report }, `so-judge-calibrate-${fixtureName}`);
   if (record) {

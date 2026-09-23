@@ -1,0 +1,83 @@
+import type { StoryV2 } from "@engine/index";
+import { createCharacterCard, createLorebook, upsertWIEntry } from "@services/STAPI";
+import type { ProvisioningOp, WizardSessionState } from "@wizard/index";
+import { CopilotCoordinator } from "./copilotCoordinator";
+
+jest.mock("@services/STAPI", () => ({
+  settingsAreLoaded: () => true,
+  settingsReady: async () => {},
+  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
+  readServerBoundary: async () => null,
+  activateGlobalLorebook: jest.fn(async () => ({ ok: true })),
+  clearStoryExtensionPrompt: jest.fn(),
+  createCharacterCard: jest.fn(),
+  createGroup: jest.fn(),
+  createLorebook: jest.fn(),
+  getAllCharacterNames: jest.fn(() => []),
+  listAllLorebooks: jest.fn(() => ["Tavern Lore", "Harbour"]),
+  listGlobalLorebooks: jest.fn(() => []),
+  listGroupNames: jest.fn(() => []),
+  setStoryExtensionPrompt: jest.fn(),
+  upsertWIEntry: jest.fn(async () => "created"),
+}));
+
+const draft = { format: 2, id: "owned", version: 1, title: "Owned", description: "Fixture", qualities: [], checkpoints: [], transitions: [], roster: [] } as unknown as StoryV2;
+
+const harness = (stored: WizardSessionState | null) => {
+  let session = stored;
+  const coordinator = new CopilotCoordinator({
+    getStory: () => null,
+    getState: () => null,
+    getSettings: () => ({}) as never,
+    getProfileId: () => null,
+    getCanon: () => "",
+    notify: () => {},
+    wizardSession: () => session,
+    saveWizardSession: (next: WizardSessionState) => { session = next; },
+  } as never);
+  return { coordinator, session: () => session };
+};
+
+const base = (patch: Partial<WizardSessionState>): WizardSessionState => ({ key: "owned", stage: "provisioning", history: [], questions: [], applied: [], seed: "", updatedAt: "", ...patch });
+const write = (lorebook: string): ProvisioningOp => ({ kind: "upsertLorebookEntry", lorebook, comment: "Entry", content: "Text", keys: [] });
+
+beforeEach(() => jest.clearAllMocks());
+
+// V18 (R8): `applied` holds names only, so a CARD the wizard created under the name of one of the
+// user's books read as the wizard owning that book, and the wizard would write into it.
+describe("V18: lorebook ownership is recorded by kind", () => {
+  it("a card named after the user's book grants no write into the book", async () => {
+    const h = harness(base({ applied: ["Tavern Lore"], createdLorebooks: [] }));
+    expect(h.coordinator.getProvisioningEnvironment(draft).ownedLorebooks).toEqual([]);
+    expect((await h.coordinator.applyProvisioning(write("Tavern Lore"), draft)).ok).toBe(false);
+    expect(upsertWIEntry).not.toHaveBeenCalled();
+  });
+
+  it("a book the wizard recorded creating is writable", async () => {
+    const h = harness(base({ applied: ["Harbour"], createdLorebooks: ["Harbour"] }));
+    expect((await h.coordinator.applyProvisioning(write("Harbour"), draft)).ok).toBe(true);
+    expect(upsertWIEntry).toHaveBeenCalledTimes(1);
+  });
+
+  it("a session saved before the kind was recorded keeps its whole ledger as the claim", () => {
+    const h = harness(base({ applied: ["Harbour"] }));
+    expect(h.coordinator.getProvisioningEnvironment(draft).ownedLorebooks).toEqual(["Harbour"]);
+  });
+
+  it("creating a card records no book, and creating a book records it as one", async () => {
+    (createCharacterCard as jest.Mock).mockResolvedValue({ name: "Tavern Lore" });
+    (createLorebook as jest.Mock).mockResolvedValue({ ok: true, name: "Harbour Two", created: true });
+    const h = harness(base({ createdLorebooks: [] }));
+    await h.coordinator.applyProvisioning({ kind: "createCharacterCard", name: "Tavern Lore", description: "A barkeep." } as ProvisioningOp, draft);
+    expect(h.session()).toMatchObject({ applied: ["Tavern Lore"], createdLorebooks: [] });
+    await h.coordinator.applyProvisioning({ kind: "createStoryLorebook", name: "Harbour Two" }, draft);
+    expect(h.session()).toMatchObject({ applied: ["Tavern Lore", "Harbour Two"], createdLorebooks: ["Harbour Two"] });
+  });
+
+  it("a legacy session that creates a book keeps what it already claimed", async () => {
+    (createLorebook as jest.Mock).mockResolvedValue({ ok: true, name: "Harbour Two", created: true });
+    const h = harness(base({ applied: ["Harbour"] }));
+    await h.coordinator.applyProvisioning({ kind: "createStoryLorebook", name: "Harbour Two" }, draft);
+    expect(h.session()?.createdLorebooks).toEqual(["Harbour", "Harbour Two"]);
+  });
+});

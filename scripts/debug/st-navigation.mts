@@ -278,11 +278,31 @@ export async function deleteSandboxChats(page, guard) {
       const data = await post('/api/chats/group/get', { id });
       if (!stillListed.includes(id) && !(Array.isArray(data) && data.length)) gone.push(id);
     }
+    // ST saves a group through a 1 s debounce that captures the group OBJECT (group-chats.js:140). A run
+    // that reloaded the groups (a card created mid-run calls getCharacters -> getGroups) leaves a pending
+    // save holding the old object, which lands after this verification: the deleted chat is listed
+    // again and `chat_id` points at it, so the next open of the group re-creates it with a greeting
+    // (2026-09-23, V18: six sandbox chats resurrected that the cleanup had reported deleted). So the
+    // debounce is waited out, the server read again, and a resurrection repaired on the live object.
+    const serverGroup = async () => (await post('/api/groups/all')).find((entry) => entry.id === groupId) ?? null;
+    await new Promise((resolve) => setTimeout(resolve, 2500));
+    const back = (group) => gone.filter((id) => (group?.chats ?? []).includes(id) || group?.chat_id === id);
+    const resurrected = back(await serverGroup());
+    if (resurrected.length) {
+      const live = (await import(/* webpackIgnore: true */ '/scripts/group-chats.js' as string) as { groups: Array<{ id: string; chats: string[]; chat_id?: string }> }).groups.find((entry) => entry.id === groupId);
+      if (live) {
+        live.chats = live.chats.filter((id) => !resurrected.includes(id));
+        if (live.chat_id && resurrected.includes(live.chat_id)) live.chat_id = SillyTavern.getContext().chatId ?? live.chats[live.chats.length - 1];
+        await editGroup(groupId, true, false);
+      }
+    }
+    const stillBack = back(await serverGroup());
     return {
       sandboxChatId: owned[0],
       owned,
-      deleted: gone,
-      notDeleted: deleted.filter((id) => !gone.includes(id)),
+      deleted: gone.filter((id) => !stillBack.includes(id)),
+      notDeleted: [...deleted.filter((id) => !gone.includes(id)), ...stillBack],
+      resurrected,
       skipped,
       currentChatAtCleanup,
       currentGroupAtCleanup,

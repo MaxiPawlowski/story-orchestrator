@@ -70,6 +70,9 @@ export interface WizardSessionState {
   history: Array<{ role: "author" | "copilot"; text: string }>;
   questions: WizardQuestion[];
   applied: string[];
+  /** V18: the subset of `applied` that is a LOREBOOK this wizard created. `applied` holds names only,
+   *  so a card and a book of the same name read the same there. Absent on sessions saved before it. */
+  createdLorebooks?: string[];
   /** Author-confirmed write authority over existing lorebooks; never authored story content. */
   grants?: WizardLorebookGrant[];
   seed: string;

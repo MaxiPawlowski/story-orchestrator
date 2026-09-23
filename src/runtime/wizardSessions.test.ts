@@ -37,6 +37,19 @@ describe("wizardSessions (R8)", () => {
     expect(loadWizardSession("sun-ruins")?.grants).toEqual([]);
   });
 
+  // V18: a session first stored now records which of its assets are books; a UI snapshot, which
+  // carries no such list, must not erase it; a session stored before it stays without one.
+  it("stores a new session with an empty book list, keeps the list through a UI snapshot, and leaves a legacy session without one", () => {
+    saveWizardSession(session());
+    expect(loadWizardSession("sun-ruins")?.createdLorebooks).toEqual([]);
+    saveWizardSession(session({ createdLorebooks: ["Harbour"] }));
+    saveWizardSession(session({ stage: "checkpoints" }));
+    expect(loadWizardSession("sun-ruins")?.createdLorebooks).toEqual(["Harbour"]);
+    settings["story-orchestrator"] = { wizardSessions: [session({ key: "legacy", applied: ["Harbour"] })] };
+    saveWizardSession(session({ key: "legacy", stage: "checkpoints", applied: ["Harbour"] }));
+    expect(loadWizardSession("legacy")?.createdLorebooks).toBeUndefined();
+  });
+
   it("keeps sessions of other keys untouched", () => {
     saveWizardSession(session({ key: "sun-ruins", grants: [{ storyId: "sun-ruins", lorebookFileId: "A", at: "x", confirmed: true }] }));
     saveWizardSession(session({ key: "heist", grants: [{ storyId: "heist", lorebookFileId: "B", at: "x", confirmed: true }] }));

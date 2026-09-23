@@ -1,0 +1,165 @@
+MISS H01.coverage:approached_board under floor        557 ms  
+ok   H01.coverage:mission_accepted not shown          557 ms  
+ok   H01.answered:mission_accepted null               557 ms    [] [false]
+MISS H02.coverage:approached_board under floor        547 ms  
+ok   H03.coverage:mission_accepted true@0.94          464 ms  
+ok   H03.answered:mission_accepted true               464 ms    [] [true]
+ok   H04.coverage:mission_accepted false@0.99         497 ms  
+ok   H04.answered:mission_accepted false              497 ms    [] [false]
+ok   H05.coverage:mission_accepted false@0.93         475 ms  
+ok   H05.answered:mission_accepted false              475 ms    [] [false]
+ok   H06.coverage:luke_decision "accepted"@0.99    606 ms  
+ok   H06.answered:luke_decision "accepted"         606 ms    [] ["accepted"]
+ok   H07.coverage:luke_decision "declined"@0.97    731 ms  
+ok   H07.answered:luke_decision "declined"         731 ms    [] ["declined"]
+ok   H08.coverage:luke_decision "undecided"@0.99   723 ms  
+ok   H08.answered:luke_decision "undecided"        723 ms    [] ["undecided"]
+ok   H09.coverage:luke_decision "declined"@1       815 ms  
+ok   H09.answered:luke_decision "declined"         815 ms    [] ["declined"]
+ok   H10.coverage:riddle_answer "moon"@1           862 ms  
+ok   H10.answered:riddle_answer "moon"             862 ms    [] ["moon"]
+MISS H10.coverage:chamber_entered under floor        862 ms  
+ok   H11.coverage:riddle_answer "wrong"@0.99       841 ms  
+ok   H11.answered:riddle_answer "wrong"            841 ms    [] ["wrong"]
+MISS H12.coverage:riddle_answer under floor        889 ms  
+ok   H13.coverage:luke_alive true@1             991 ms  
+ok   H13.answered:luke_alive true               991 ms    [] [true]
+ok   H14.coverage:luke_alive false@0.98        1006 ms  
+ok   H14.answered:luke_alive false             1006 ms    [] [false]
+ok   H15.coverage:chamber_entered true@0.99         1096 ms  
+ok   H15.answered:chamber_entered true              1096 ms    [] [true]
+MISS H15.coverage:artifact_secured under floor       1096 ms  
+MISS H16.coverage:artifact_secured under floor       1148 ms  
+MISS H17.coverage:reward_claimed under floor       1103 ms  
+MISS H18.coverage:reward_claimed under floor       1198 ms  
+MISS H19.coverage:guardian_respect under floor       1238 ms  
+ok   H20.coverage:riddle_answer "wrong"@0.98      1321 ms  
+ok   H20.answered:riddle_answer "wrong"           1321 ms    [] ["wrong"]
+MISS H20.coverage:artifact_secured under floor       1321 ms  
+ok   H21.coverage:mission_accepted true@1            1354 ms  spanish
+ok   H21.answered:mission_accepted true              1354 ms  spanish  [] [true]
+ok   H22.coverage:luke_decision "declined"@0.99   1349 ms  spanish
+ok   H22.answered:luke_decision "declined"        1349 ms  spanish  [] ["declined"]
+ok   H23.coverage:hull_breach_sealed false@1           1422 ms  
+ok   H23.answered:hull_breach_sealed false             1422 ms    [] [false]
+ok   H23.coverage:reactor_state "unstable"@1      1422 ms  
+ok   H23.answered:reactor_state "unstable"        1422 ms    [] ["unstable"]
+ok   H23.coverage:crew_injured 2@0.99            1422 ms  
+ok   H23.answered:crew_injured 2                 1422 ms    [] [2]
+ok   H23.coverage:distress_sent not shown         1422 ms  
+ok   H23.answered:distress_sent null              1422 ms    [] [false]
+ok   H24.coverage:reactor_state "stable"@1        1499 ms  
+ok   H24.answered:reactor_state "stable"          1499 ms    [] ["stable"]
+MISS H24.coverage:distress_sent under floor       1499 ms  
+MISS H25.coverage:trust_in_halo under floor       1462 ms  
+ok   H26.coverage:crew_injured 5@0.99            1558 ms  
+ok   H26.answered:crew_injured 5                 1558 ms    [] [5]
+MISS H27.coverage:ledger_found under floor       1616 ms  
+ok   H28.coverage:bribe_accepted false@1           1683 ms  
+ok   H28.answered:bribe_accepted false             1683 ms    [] [false]
+MISS H28.coverage:suspect under floor       1683 ms  
+MISS H29.coverage:suspect under floor       1697 ms  
+ok   H30.coverage:witness_alive true@0.99         1731 ms  
+ok   H30.answered:witness_alive true              1731 ms    [] [true]
+MISS H31.coverage:ghost_seen under floor       1775 ms  
+ok   H32.coverage:portrait_moved true@1            1830 ms  
+ok   H32.answered:portrait_moved true              1830 ms    [] [true]
+ok   H32.coverage:ghost_seen not shown         1830 ms  
+ok   H32.answered:ghost_seen null              1830 ms    [] [false]
+ok   H32.coverage:candles_lit 3@0.98            1830 ms  
+ok   H32.answered:candles_lit 3                 1830 ms    [] [3]
+ok   L01.coverage:luke_decision "accepted"@1      1914 ms  
+ok   L01.answered:luke_decision "accepted"        1914 ms    [] ["accepted"]
+ok   L02.coverage:hull_breach_sealed true@0.99         1940 ms  
+ok   L02.answered:hull_breach_sealed true              1940 ms    [] [true]
+MISS L02.coverage:reactor_state under floor       1940 ms  
+ok   L03.coverage:bribe_accepted true@0.97         1963 ms  
+ok   L03.answered:bribe_accepted true              1963 ms    [] [true]
+ok   extractor.coverage:player_has_key true@1            2000 ms  
+ok   extractor.answered:player_has_key true              2000 ms    [] [true]
+ok   extractor.coverage:mara_trust 3@0.99            2000 ms  
+ok   extractor.answered:mara_trust 3                 2000 ms    [] [3]
+MISS extractor.coverage:location under floor       2000 ms  
+MISS extractor2.coverage:district under floor       2029 ms  
+ok   extractor2.coverage:threat_level 2@0.95            2029 ms  
+ok   extractor2.answered:threat_level 2                 2029 ms    [] [2]
+ok   extractor3.coverage:torch_lit true@0.97         2100 ms  
+ok   extractor3.answered:torch_lit true              2100 ms    [] [true]
+ok   extractor3.coverage:rats_seen 3@0.91            2100 ms  
+ok   extractor3.answered:rats_seen 3                 2100 ms    [] [3]
+ok   extractor4.coverage:signal_strength 0.9@0.99          2186 ms  
+ok   extractor4.answered:signal_strength 0.9               2186 ms    [] [0.9]
+ok   extractor4.coverage:crew_morale not shown         2186 ms  
+MISS extractor4.answered:crew_morale null              2186 ms    [] [8]
+ok   extractor5.coverage:torch_lit true@1            2260 ms  
+ok   extractor5.answered:torch_lit true              2260 ms    [] [true]
+ok   extractor6.coverage:supplies 3@1               2360 ms  
+ok   extractor6.answered:supplies 3                 2360 ms    [] [3]
+ok   extractor7.coverage:hull_integrity 0.6@0.99          2278 ms  
+ok   extractor7.answered:hull_integrity 0.6               2278 ms    [] [0.6]
+ok   extractor8.coverage:weather "fog"@1           2332 ms  
+ok   extractor8.answered:weather "fog"             2332 ms    [] ["fog"]
+ok   extractor9.coverage:stance "wary"@0.91       2372 ms  
+ok   extractor9.answered:stance "wary"            2372 ms    [] ["wary"]
+ok   extractor10.coverage:door_open true@1            2458 ms  
+ok   extractor10.answered:door_open true              2458 ms    [] [true]
+ok   extractor10.coverage:alarm true@1            2458 ms  
+ok   extractor10.answered:alarm true              2458 ms    [] [true]
+ok   extractor10.coverage:guards 2@1               2458 ms  
+ok   extractor10.answered:guards 2                 2458 ms    [] [2]
+ok   extractor11.coverage:bridge_lowered true@1            2497 ms  
+ok   extractor11.answered:bridge_lowered true              2497 ms    [] [true]
+ok   extractor12.coverage:pact_sealed true@1            2588 ms  
+ok   extractor12.answered:pact_sealed true              2588 ms    [] [true]
+MISS extractor13.coverage:chest_found under floor       2673 ms  
+ok   extractor14.coverage:rope_cut true@1            2647 ms  
+ok   extractor14.answered:rope_cut true              2647 ms    [] [true]
+ok   extractor15.coverage:gate_breached true@1            2713 ms  
+ok   extractor15.answered:gate_breached true              2713 ms    [] [true]
+ok   extractor17.coverage:password "nightingale"@1   2732 ms  
+ok   extractor17.answered:password "nightingale"     2732 ms    [] ["nightingale"]
+MISS extractor18.coverage:ally_wounded under floor       2774 ms  
+ok   extractor19.coverage:bribe_taken true@1            2848 ms  
+ok   extractor19.answered:bribe_taken true              2848 ms    [] [true]
+ok   extractor20.coverage:location "cave"@0.98       2950 ms  
+ok   extractor20.answered:location "cave"            2950 ms    [] ["cave"]
+ok   extractor21.coverage:gate_opened true@0.99         2938 ms  
+ok   extractor21.answered:gate_opened true              2938 ms    [] [true]
+MISS extractor21.coverage:watch_alerted under floor       2938 ms  
+ok   extractor22.coverage:oath_sworn not shown         3010 ms  
+ok   extractor22.answered:oath_sworn null              3010 ms    [] [false]
+ok   extractor22.coverage:seal_broken true@0.92         3010 ms  
+ok   extractor22.answered:seal_broken true              3010 ms    [] [true]
+ok   answered  54/55 floor 0.95
+ok   coverage  55/77 floor 0
+{
+  "use": "typed",
+  "fixture": "typed",
+  "right": 109,
+  "total": 132,
+  "rate": 0.8258,
+  "families": [
+    {
+      "family": "answered",
+      "right": 54,
+      "total": 55,
+      "floor": 0.95,
+      "ok": true
+    },
+    {
+      "family": "coverage",
+      "right": 55,
+      "total": 77,
+      "floor": 0,
+      "ok": true
+    }
+  ],
+  "spanish": "4/4",
+  "p50LatencyMs": 1683,
+  "requestedModel": null,
+  "model": "jev-1.13.0",
+  "modelMatched": null,
+  "min": 0.85,
+  "ok": true
+}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T16-27-31-139Z_so-judge-calibrate-typed.json

@@ -63,11 +63,13 @@ export class CopilotCoordinator {
     return this.deps.wizardSession?.(this.sessionKeyFor(draft)) ?? null;
   }
 
-  // A name in the session ledger is only a claim that we made something by that name; it is a
-  // lorebook only if the install lists one. A card and a book would otherwise be indistinguishable.
+  // V18: ownership is the books this wizard recorded creating AS books. A name in `applied` alone
+  // is only a claim that something by that name was made: a card named after one of the user's
+  // listed books read as owning it. A session saved before the kind was recorded keeps the old read.
   private sessionOwnedLorebooks(lorebooks: string[], draft?: StoryV2): string[] {
     const listed = (name: string) => lorebooks.some((entry) => entry.trim().toLowerCase() === lorebookFileId(name).toLowerCase());
-    return (this.sessionFor(draft)?.applied ?? []).map(lorebookFileId).filter(listed);
+    const session = this.sessionFor(draft);
+    return (session?.createdLorebooks ?? session?.applied ?? []).map(lorebookFileId).filter(listed);
   }
 
   private grantedLorebooks(lorebooks: string[], draft?: StoryV2): string[] {
@@ -77,11 +79,14 @@ export class CopilotCoordinator {
 
   // The session's created-asset ledger, written where the asset is made. The UI keeps its own copy
   // for display; this is the one ownership is read back from.
-  private recordCreated(name: string, draft?: StoryV2): void {
+  private recordCreated(name: string, kind: "character" | "lorebook", draft?: StoryV2): void {
     const existing = this.sessionFor(draft);
     const session = existing ?? newWizardSession(this.sessionKeyFor(draft));
-    if (session.applied.includes(name)) return;
-    this.deps.saveWizardSession?.({ ...session, applied: [...session.applied, name] });
+    const books = session.createdLorebooks;
+    const applied = session.applied.includes(name) ? session.applied : [...session.applied, name];
+    const createdLorebooks = kind === "lorebook" && !books?.includes(name) ? [...new Set([...(books ?? session.applied), name])] : books;
+    if (applied === session.applied && createdLorebooks === books) return;
+    this.deps.saveWizardSession?.({ ...session, applied, createdLorebooks });
   }
 
   private sessionKeyFor(draft?: StoryV2): string {
@@ -111,7 +116,7 @@ export class CopilotCoordinator {
       if (op.kind === "createCharacterCard") {
         if (!run.stillOwns()) return lapsed();
         const created = await createCharacterCard(op);
-        this.recordCreated(created.name, draft);
+        this.recordCreated(created.name, "character", draft);
         return { ok: true, message: `Created the character card "${created.name}".`, created: created.name };
       }
       if (op.kind === "createStoryLorebook") {
@@ -121,7 +126,7 @@ export class CopilotCoordinator {
         // Ownership is recorded HERE, at the write edge, not only by the review card's UI: a book
         // created through the runtime path (a scenario, a scripted provision) then has to be
         // writable, or the create-only rule would forbid the wizard its own book (found live, J8).
-        this.recordCreated(op.name, draft);
+        this.recordCreated(op.name, "lorebook", draft);
         return { ok: true, message: `Created the lorebook "${op.name}" and switched it on.`, created: op.name };
       }
       if (op.kind === "grantLorebook") {

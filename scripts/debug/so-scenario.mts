@@ -1163,6 +1163,11 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
       const cleanup: Record<string, unknown> = await cleanupScenario(page, importedHashes, guard, keep, libraryBefore);
       cleanup.extraction = await restoreExtractionSettings(page, extractionBefore).catch((error) => ({ error: error.message }));
       result.cleanup = cleanup;
+      const leftChats = Array.isArray(cleanup.notDeleted) ? cleanup.notDeleted : [];
+      if (leftChats.length) {
+        result.ok = false;
+        result.error = `cleanup left sandbox chat(s) in the group: ${leftChats.join(', ')}`;
+      }
     }
   }
 

@@ -291,6 +291,17 @@ export const placeholderEnumValues = (quality: Pick<Quality, "type" | "latching"
     ? (quality.values ?? []).filter((value) => (PLACEHOLDER_ENUM_VALUES as readonly string[]).includes(value.trim().toLowerCase()))
     : [];
 
+// V18 (S1): what a story may play with but should not ship with. The parser answers a story or its
+// errors, so the warnings are their own read of the parsed story, shared by the Studio's diagnostic
+// and the import path.
+export const storyWarnings = (story: Pick<StoryV2, "qualities">): ValidationError[] =>
+  story.qualities.flatMap((quality, index) => {
+    const placeholders = placeholderEnumValues(quality);
+    return placeholders.length
+      ? [{ path: `qualities.${index}.values`, message: `'${quality.key}' latches, so the first read decides and will not change; ${placeholders.join(", ")} cannot mean "not set yet" — the unset state is the absence of a value` }]
+      : [];
+  });
+
 export const isValidationErrorList = (value: unknown): value is ValidationError[] => {
   return Array.isArray(value) && value.every((entry) => {
     return Boolean(entry) && typeof entry === "object" && typeof (entry as ValidationError).path === "string";

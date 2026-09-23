@@ -1,0 +1,30 @@
+M1 ownership reads the whole ledger again
+  ● V18: lorebook ownership is recorded by kind › a card named after the user's book grants no write into the book
+Tests:       1 failed, 4 passed, 5 total
+M2 a UI snapshot erases the book list
+  ● wizardSessions (R8) › stores a new session with an empty book list, keeps the list through a UI snapshot, and leaves a legacy session without one
+Tests:       1 failed, 3 passed, 4 total
+M3 a new session is stored untyped
+  ● wizardSessions (R8) › stores a new session with an empty book list, keeps the list through a UI snapshot, and leaves a legacy session without one
+Tests:       1 failed, 3 passed, 4 total
+M4 a created card is recorded as a book
+  ● V18: lorebook ownership is recorded by kind › creating a card records no book, and creating a book records it as one
+Tests:       1 failed, 4 passed, 5 total
+M5 a legacy session loses its claims when it types itself
+  ● V18: lorebook ownership is recorded by kind › a legacy session that creates a book keeps what it already claimed
+Tests:       1 failed, 4 passed, 5 total
+M6 the judge's error is dropped again
+  ● judged typed read inside the shared read (v2.2 plan 06) › leaves a quality the judge did not settle to the LLM read, and a failing judge changes nothing
+Tests:       1 failed, 3 passed, 4 total
+M7 an import does not warn
+  ● V18: a latching enum with a placeholder warns outside the Studio › an import hands the warnings to the host and still plays the story
+Tests:       1 failed, 1 passed, 2 total
+M8 the warning counts non-latching enums too
+  ● V18: a latching enum with a placeholder warns outside the Studio › an import hands the warnings to the host and still plays the story
+  ● V18: a latching enum with a placeholder warns outside the Studio › names each of the five placeholder shapes, and not the quality that does not latch
+  ● latching enums with a placeholder (S1) › says nothing when the enum does not latch
+Tests:       3 failed, 15 passed, 18 total
+M9 the warning is recorded before the load that wipes it
+  ● V18: a latching enum with a placeholder warns outside the Studio › an import hands the warnings to the host and still plays the story
+Tests:       1 failed, 1 passed, 2 total
+M10 an explicit --min is ignored when families exist

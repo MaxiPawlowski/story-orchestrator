@@ -1,0 +1,69 @@
+{
+  "marker": "SO-V18",
+  "found": {
+    "marker": "SO-V18",
+    "baseline": null,
+    "ledger": [
+      {
+        "name": "SO-V18 Harbour",
+        "session": "so-v18-owner",
+        "reason": "test-session"
+      }
+    ],
+    "sessions": [
+      "so-v18-owner"
+    ],
+    "characters": [
+      {
+        "name": "SO-V18 Harbour",
+        "avatar": "SO-V18 Harbour.png"
+      }
+    ],
+    "groups": [],
+    "lorebooks": [
+      "SO-V18 Harbour"
+    ],
+    "protected": []
+  },
+  "removed": {
+    "characters": [
+      "SO-V18 Harbour"
+    ],
+    "groups": [],
+    "lorebooks": [
+      "SO-V18 Harbour"
+    ],
+    "errors": [],
+    "deselected": [
+      "SO-V18 Harbour"
+    ],
+    "sessions": {
+      "kept": [
+        "untitled",
+        "so-j9-wizard",
+        "untitled-story"
+      ],
+      "dropped": [
+        "so-v18-owner"
+      ]
+    }
+  },
+  "leaked": {
+    "marker": "SO-V18",
+    "baseline": null,
+    "ledger": [
+      {
+        "name": "SO-V18 Harbour",
+        "session": "so-v18-owner",
+        "reason": "test-session"
+      }
+    ],
+    "sessions": [],
+    "characters": [],
+    "groups": [],
+    "lorebooks": [],
+    "protected": []
+  },
+  "clean": true
+}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T16-38-46-197Z_so-assets-remove.json

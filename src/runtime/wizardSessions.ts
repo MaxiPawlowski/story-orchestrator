@@ -31,9 +31,13 @@ export function saveWizardSession(session: WizardSessionState): void {
   // UI persistence writes ordinary conversation fields after provisioning returns. Grants are
   // written inside the coordinator first; an older UI snapshot must not erase them on its next save.
   // A caller that explicitly includes `grants` owns that field (including `[]` to revoke all).
+  // V18: a session first stored from now on records which of its assets are books; one stored
+  // before keeps no such list, and ownership then falls back to its whole ledger.
+  const createdLorebooks = session.createdLorebooks ?? previous?.createdLorebooks ?? (previous ? undefined : []);
   const merged = {
     ...session,
     ...(session.grants === undefined && previous?.grants ? { grants: previous.grants } : {}),
+    ...(createdLorebooks === undefined ? {} : { createdLorebooks }),
     updatedAt: new Date().toISOString(),
   };
   const others = sessions.filter((entry) => entry.key !== session.key);

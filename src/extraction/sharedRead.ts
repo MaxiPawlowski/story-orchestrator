@@ -88,8 +88,11 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
   const window = sharedReadWindow(options);
   const scope = options.scope ?? deriveScope(options.story, options.state.activeCheckpointId, options.state.blackboard, options.extraGateSources ?? []);
   const hinted = scope.filter((entry) => entry.quality.read_as && entry.quality.source === "extractor");
+  // V18: a judge that threw used to leave no trace, so its audit read exactly like one where the
+  // judge was never asked. The read still falls back to the LLM; the audit says why.
+  const failure: { message?: string } = {};
   const judged: JudgedTypedRead | null = options.judgeTyped && hinted.length
-    ? await options.judgeTyped({ story: options.story, state: options.state, qualities: hinted.map((entry) => entry.quality), window }).catch(() => null)
+    ? await options.judgeTyped({ story: options.story, state: options.state, qualities: hinted.map((entry) => entry.quality), window }).catch((error: unknown) => { failure.message = error instanceof Error ? error.message : String(error); return null; })
     : null;
   const answered = new Set(judged?.answered ?? []);
   const residual = scope.filter((entry) => !answered.has(entry.key));
@@ -127,6 +130,7 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     rejected: [...parsed.rejected, ...screened.rejected],
     ...(parsed.sceneBreak ? { sceneBreak: parsed.sceneBreak } : {}),
     ...(judged ? { judged: { keys: judged.answered, model: judged.model, confidences: judged.confidences, ...(judged.fallback ? { fallback: judged.fallback } : {}) } } : {}),
+    ...(failure.message !== undefined ? { judged: { keys: [], model: null, confidences: {}, fallback: "error", error: failure.message } } : {}),
   };
   // A refused response is refused whole: the lines that survived a truncation are not more
   // trustworthy than the ones that did not, and the fact/memory/arc lines have no bound of their own.

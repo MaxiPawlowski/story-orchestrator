@@ -47,7 +47,7 @@ export function readCleanup(report: unknown): Tallies['cleanup'] {
       const at = path ? `${path}.${key}` : key;
       if (key === 'error' && child) failed.push(`${at}: ${String(child)}`);
       else if (key === 'failed' && Array.isArray(child) && child.length) failed.push(`${at}: ${child.length} item(s)`);
-      else if ((key === 'leaked' || key === 'leakedAssets') && Array.isArray(child) && child.length) leaked.push(`${at}: ${child.join(', ')}`);
+      else if ((key === 'leaked' || key === 'leakedAssets' || key === 'notDeleted') && Array.isArray(child) && child.length) leaked.push(`${at}: ${child.join(', ')}`);
       else if (key === 'clean' && child === false) failed.push(`${at}: cleanup reported clean:false`);
       else walk(child, at);
     }

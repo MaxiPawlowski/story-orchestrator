@@ -37,7 +37,7 @@ describe("judged typed read inside the shared read (v2.2 plan 06)", () => {
     expect(residual.audit.acceptedDeltas.map((entry) => entry.delta.q)).toEqual(["player_has_key", "location"]);
     const broken: TypedJudge = async () => { throw new Error("down"); };
     const fallback = await runSharedRead({ story, state, priority: 1, reason: "cadence", window, judgeTyped: broken, client: { profileId: null, debugResponse: llm } });
-    expect(fallback.audit.judged).toBeUndefined();
+    expect(fallback.audit.judged).toEqual({ keys: [], model: null, confidences: {}, fallback: "error", error: "down" });
     expect(fallback.audit.scope).toContain("player_has_key");
   });
 });

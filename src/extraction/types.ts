@@ -100,7 +100,7 @@ export interface SharedReadAudit {
   acceptedDeltas: ParsedDelta[];
   rejected: Array<{ line: string; reason: string }>;
   sceneBreak?: SceneBreakSignal;
-  judged?: { keys: string[]; model: string | null; confidences: Record<string, number>; fallback?: string };
+  judged?: { keys: string[]; model: string | null; confidences: Record<string, number>; fallback?: string; error?: string };
 }
 
 export interface SharedReadResult {

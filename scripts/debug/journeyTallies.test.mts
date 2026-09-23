@@ -66,6 +66,14 @@ test('cleanup problems are found wherever they are nested', () => {
   assert.ok(cleanup.failed.some((entry) => entry.includes('config.error')));
 });
 
+// V18: a sandbox chat ST's debounced group save brought back was reported only in `notDeleted`, which
+// nothing read, so a run that left chats in the user's group read as clean.
+test('a sandbox chat the cleanup could not delete is a leak', () => {
+  const cleanup = readCleanup({ chat: { deleted: [], notDeleted: ['2026-09-23@13h31m04s963ms'], resurrected: ['2026-09-23@13h31m04s963ms'] } });
+  assert.equal(cleanup.ok, false);
+  assert.match(cleanup.leaked[0], /chat\.notDeleted: 2026-09-23@13h31m04s963ms/);
+});
+
 test('a cleanup step reporting clean:false is a failure', () => {
   assert.equal(readCleanup({ assets: { clean: false } }).ok, false);
 });

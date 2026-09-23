@@ -1,4 +1,4 @@
-import { isValidationErrorList, type NormalizedStoryV2, type ValidationError } from "@engine/index";
+import { isValidationErrorList, storyWarnings, type NormalizedStoryV2, type ValidationError } from "@engine/index";
 import { showConfirmPopup } from "@services/STAPI";
 import { adoptChatState, blobMismatch, dropPersistedRuntime, getSelectedStoryId, loadPersistedRuntime, setSelectedStoryId } from "./persistence";
 import { findStoryRecord, listStoryRecords, loadPinnedStory, loadStoryRecord, removeStoryRecord, saveStoryRecord } from "./storyLibrary";
@@ -14,6 +14,7 @@ export interface StorySelectionDeps {
   restoreEffects?: (scope: "leave" | "restart") => Promise<void>;
   beginRun?: () => RunGuard;
   fail: (errors: ValidationError[], status: string) => void;
+  warn?: (warnings: ValidationError[]) => void;
   setStatus: (status: string) => void;
   isLoaded: (id: string) => boolean;
   loadedFallback: () => LoadedStory | null;
@@ -61,7 +62,12 @@ export async function importStoryJson(deps: StorySelectionDeps, rawText: string)
     deps.fail(saved, "Story validation failed");
     return false;
   }
-  return selectStory(deps, saved.record.id);
+  // After the load: loading a story starts its journal, so a warning recorded before it was wiped
+  // (found live, V18).
+  const selected = await selectStory(deps, saved.record.id);
+  const warnings = storyWarnings(saved.story);
+  if (selected && warnings.length) deps.warn?.(warnings);
+  return selected;
 }
 
 // Selecting is never destructive: a chat that already played this story hydrates its pinned copy
