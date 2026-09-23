@@ -1,0 +1,7 @@
+{
+  "file": "src/runtime/coordinators/stagecraftCoordinator.ts",
+  "old": "  entry.target?.uid !== undefined ? { lorebookFileId: entry.target.lorebookFileId, uid: entry.target.uid } : null;",
+  "new": "  entry.target?.uid === -999 ? { lorebookFileId: entry.target.lorebookFileId, uid: entry.target.uid } : null;",
+  "scenario": "test/scenarios/live-v10b-uid-revert.json",
+  "log": "test/journeys/records/v2.3-replan/V10b/live-mutation-name-addressing.log"
+}

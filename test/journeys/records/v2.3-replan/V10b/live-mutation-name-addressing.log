@@ -1,0 +1,74 @@
+build manifest → dist\manifest.json (bundle cf801d597413, source 53eb6d8160a8, ST 1.19.0)
+1/8 import_story ok 357ms
+2/8 eval ok 168ms
+2/8 eval -> {"lorebook":true,"entry":true}
+3/8 eval ok 7ms
+3/8 eval -> {"curatorEnabled":true,"acceptMode":"auto","wardenEnabled":false,"wardenAcceptMode":"review"}
+4/8 stagecraft ok 339ms
+5/8 eval ok 796ms
+5/8 eval -> {"uid":0,"content":"The road has drained; the bare stones are walkable."}
+6/8 eval ok 18ms
+6/8 eval -> {"renamed":"The old road (renamed by the author)"}
+7/8 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the revert wrote a NEW entry under the old name instead of restoring the renamed one: [{"uid":1,"content":"The road to the tavern is flooded and impassable."}]
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:741)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T19-51-32-652Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T19-51-35-523Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 7,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-7826bc02"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugCuratorResponse"
+    ],
+    "sandboxChatId": "2026-09-23@16h51m30s332ms",
+    "owned": [
+      "2026-09-23@16h51m30s332ms"
+    ],
+    "deleted": [
+      "2026-09-23@16h51m30s332ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@16h51m30s332ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

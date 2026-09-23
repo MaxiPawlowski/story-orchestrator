@@ -1,0 +1,14 @@
+V10 part 2 (revert by recorded target uid): mutants in src/runtime/coordinators/stagecraftCoordinator.ts, `npx jest src/runtime/coordinators`
+(script: test/journeys/records/v2.3-replan/V10b/v10b-mut.py).
+M1 revert addresses by name, uid ignored (uidTarget never answers)  (jest: KILLED)
+  StagecraftCoordinator > reverts an applied change when the story rolls back past it (+ the ownership mid-revert case, + V10 gated-rename)
+M2 a renamed entry skips the write-scope re-check  (jest: KILLED)
+  V10: a revert addresses the entry by its recorded uid > an entry renamed into a checkpoint-gated one is left alone and kept
+M3 the uid restore's WriteResult is ignored  (jest: first run SURVIVED; KILLED after adding the case)
+  V10: a revert addresses the entry by its recorded uid > a uid restore the host refused is kept as revert-failed with its before-image
+LIVE mutation (M1 on a real ST, test/scenarios/live-v10b-uid-revert.json): FAILED at the rollback step with
+  "the revert wrote a NEW entry under the old name instead of restoring the renamed one: [{uid:1, content: original}]"
+  -- the name-addressed revert did not merely miss a renamed entry, it CREATED a duplicate under the old name
+  (upsertWIEntry creates what it cannot find) and left the renamed entry holding the curator's text.
+Not covered by any mutant: stHost/worldInfo.ts restoreWIEntryAt's own read-back branch (host module, not importable under
+jest); the live run exercises its success path only.

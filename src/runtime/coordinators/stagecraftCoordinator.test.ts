@@ -1,6 +1,6 @@
 import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { callExtractionModel } from "@extraction/client";
-import { clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, loadLorebook, readWIEntry, setStoryExtensionPrompt, upsertWIEntry } from "@services/STAPI";
+import { clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, loadLorebook, readWIEntry, readWIEntryAt, restoreWIEntryAt, setStoryExtensionPrompt, upsertWIEntry } from "@services/STAPI";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
 import { createStagecraft, sanitizeStagecraft } from "../extras";
 import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
@@ -18,6 +18,8 @@ jest.mock("@services/STAPI", () => ({
   loadLorebook: jest.fn(),
   // The write edge reads the entry itself (R2); the fake book is the same source of truth.
   readWIEntry: jest.fn(),
+  readWIEntryAt: jest.fn(),
+  restoreWIEntryAt: jest.fn(),
   upsertWIEntry: jest.fn(async () => "updated"),
   enableWIEntry: jest.fn(async () => ({ ok: true, changed: true })),
   disableWIEntry: jest.fn(async () => ({ ok: true, changed: true })),
@@ -108,6 +110,18 @@ describe("StagecraftCoordinator", () => {
     (disableWIEntry as jest.Mock).mockImplementation(async (_lorebook: string, comment: string) => { const entry = entryOf(comment); if (!entry) return { ok: false, reason: `"${comment}" is not in "${_lorebook}"` }; entry.disable = true; return { ok: true, changed: true }; });
     (upsertWIEntry as jest.Mock).mockClear();
     (enableWIEntry as jest.Mock).mockClear();
+    const byUid = (uid: number) => (book.current.entries as Record<number, FakeBook["entries"][1]>)[uid];
+    (readWIEntryAt as jest.Mock).mockImplementation(async ({ uid }: { uid: number }) => {
+      const entry = byUid(uid);
+      return entry ? { comment: entry.comment, content: entry.content, keys: entry.key, constant: false, disabled: entry.disable, uid } : null;
+    });
+    (restoreWIEntryAt as jest.Mock).mockImplementation(async ({ uid }: { uid: number }, image: { content: string; disabled: boolean }) => {
+      const entry = byUid(uid);
+      if (!entry) return { ok: false, reason: `entry ${uid} is gone` };
+      entry.content = image.content;
+      entry.disable = image.disabled;
+      return { ok: true, confirmed: true };
+    });
     (disableWIEntry as jest.Mock).mockClear();
     (callExtractionModel as jest.Mock).mockClear();
   });
@@ -276,7 +290,9 @@ describe("StagecraftCoordinator", () => {
     await coordinator.applyAccepted();
     (upsertWIEntry as jest.Mock).mockClear();
     expect(await coordinator.revertAppliedSince(15)).toBe(1);
-    expect(upsertWIEntry).toHaveBeenCalledWith("Story Lore", "The bridge", "The bridge stands, its ropes new and taut.");
+    expect(upsertWIEntry).not.toHaveBeenCalled();
+    expect(restoreWIEntryAt).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, expect.objectContaining({ content: "The bridge stands, its ropes new and taut.", disabled: false }));
+    expect(entryOf("The bridge")?.content).toBe("The bridge stands, its ropes new and taut.");
     expect(read().proposals).toEqual([]);
     expect(journal.some((entry) => entry.includes("rolled back"))).toBe(true);
   });
@@ -363,13 +379,11 @@ describe("ownership: a curator batch belongs to one chat", () => {
       // The chat moves after the FIRST inverse lands: the record behind it belongs to a world that
       // is gone, so its before-image must not be written back into the new one.
       let restores = 0;
-      (upsertWIEntry as jest.Mock).mockImplementation(async (_lorebook: string, comment: string, text: string) => {
-        const entry = entryOf(comment);
-        if (!entry) return "failed";
-        entry.content = text;
+      (restoreWIEntryAt as jest.Mock).mockImplementation(async ({ uid }: { uid: number }, image: { content: string }) => {
+        (book.current.entries as Record<number, { content: string }>)[uid].content = image.content;
         restores += 1;
         if (restores === 1) switchChat();
-        return "updated";
+        return { ok: true, confirmed: true };
       });
       expect(await coordinator.revertAppliedSince(0)).toBe(1);
       expect(restores).toBe(1);

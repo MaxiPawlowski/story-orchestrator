@@ -254,3 +254,36 @@ export async function readWIEntry(lorebook: string, comment: string): Promise<WI
   if (!entry) return null;
   return { content: String(entry.content ?? ""), keys: Array.isArray(entry.key) ? entry.key : [], constant: Boolean(entry.constant), disabled: Boolean(entry.disable), uid: typeof entry.uid === "number" ? entry.uid : undefined };
 }
+
+export interface WIEntryTarget { lorebookFileId: string; uid: number }
+
+// V10: a curator revert addresses the entry it wrote by the book's file id and the entry's uid, so an
+// entry the author renamed afterwards is still the one restored. `comment` rides along so the caller
+// can re-check the name against the story's write scope.
+export async function readWIEntryAt(target: WIEntryTarget): Promise<(WIEntrySnapshot & { comment: string }) | null> {
+  const entry = (await loadExisting(target.lorebookFileId))?.data.entries[target.uid];
+  if (!entry) return null;
+  return { comment: String(entry.comment ?? "").trim(), content: String(entry.content ?? ""), keys: Array.isArray(entry.key) ? entry.key : [], constant: Boolean(entry.constant), disabled: Boolean(entry.disable), uid: target.uid };
+}
+
+export async function restoreWIEntryAt(target: WIEntryTarget, image: { content: string; disabled: boolean }): Promise<WriteResult<{ confirmed: boolean }>> {
+  const book = await loadExisting(target.lorebookFileId);
+  if (!book) return couldNot(`there is no lorebook "${target.lorebookFileId}"`);
+  const entry = book.data.entries[target.uid];
+  if (!entry) return couldNot(`entry ${target.uid} is no longer in "${book.name}"`);
+  entry.content = image.content;
+  entry.disable = image.disabled;
+  try {
+    await saveLorebook(book.name, book.data);
+  } catch (error) {
+    return couldNot(`"${book.name}" could not be saved: ${error instanceof Error ? error.message : "the host refused the write"}`);
+  }
+  const onServer = await readServerLorebook(book.name);
+  if (!onServer) return wrote({ confirmed: false });
+  const kept = onServer.entries[target.uid];
+  if (!kept || String(kept.content ?? "") !== image.content || Boolean(kept.disable) !== image.disabled) {
+    worldInfoModule.worldInfoCache.delete(book.name);
+    return couldNot(`"${book.name}" was saved, but the server does not hold the restored entry ${target.uid}, so the write was lost`);
+  }
+  return wrote({ confirmed: true });
+}

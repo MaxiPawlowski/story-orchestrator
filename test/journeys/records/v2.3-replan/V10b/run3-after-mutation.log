@@ -1,0 +1,74 @@
+1/8 import_story ok 367ms
+2/8 eval ok 170ms
+2/8 eval -> {"lorebook":true,"entry":true}
+3/8 eval ok 7ms
+3/8 eval -> {"curatorEnabled":true,"acceptMode":"auto","wardenEnabled":false,"wardenAcceptMode":"review"}
+4/8 stagecraft ok 329ms
+5/8 eval ok 781ms
+5/8 eval -> {"uid":0,"content":"The road has drained; the bare stones are walkable."}
+6/8 eval ok 14ms
+6/8 eval -> {"renamed":"The old road (renamed by the author)"}
+7/8 eval ok 457ms
+7/8 eval -> {"outcome":{"ok":true,"result":"noop"},"uid":0,"content":"The road to the tavern is flooded and impassable.","comment":"The old road (renamed by the author)","entries":1}
+8/8 assets ok 259ms
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T19-52-14-240Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 8,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-7826bc02"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugCuratorResponse"
+    ],
+    "sandboxChatId": "2026-09-23@16h52m08s910ms",
+    "owned": [
+      "2026-09-23@16h52m08s910ms"
+    ],
+    "deleted": [
+      "2026-09-23@16h52m08s910ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [
+      "2026-09-23@16h52m08s910ms"
+    ],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@16h52m08s910ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

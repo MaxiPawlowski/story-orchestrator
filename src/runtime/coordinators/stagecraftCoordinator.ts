@@ -23,8 +23,8 @@ import {
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import type { RunOwnership, RunToken } from "../runToken";
 import {
-  clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, getContext, loadLorebook, readWIEntry,
-  setStoryExtensionPrompt, upsertWIEntry,
+  clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, getContext, loadLorebook, readWIEntry, readWIEntryAt,
+  restoreWIEntryAt, setStoryExtensionPrompt, upsertWIEntry, type WIEntryTarget,
 } from "@services/STAPI";
 import { lorebookFileId } from "@utils/string";
 import type { ExtractionRuntimeSettings, StagecraftRuntimeState } from "../types";
@@ -69,6 +69,11 @@ const readReply = (messageId: number): { speaker: string; text: string } | null 
 // on, and the boundary write. It holds no engine or memory dependency **by construction** — a
 // curator can never move the blackboard or a memory tier (spec addendum §Stagecraft).
 const RETAINED_OP_STATUSES = new Set(["applied", "revert-failed", "externally-edited"]);
+
+// V10: an op recorded with an entry uid is reverted by that uid, so a rename after the write does not
+// lose the entry. Records from before the uid was recorded keep the name + comment address.
+const uidTarget = (entry: CuratorOpRecord): WIEntryTarget | null =>
+  entry.target?.uid !== undefined ? { lorebookFileId: entry.target.lorebookFileId, uid: entry.target.uid } : null;
 
 interface PassHold {
   token: RunToken | undefined;
@@ -345,7 +350,12 @@ export class StagecraftCoordinator {
         }
         // Compare-and-set: the entry has to still hold what this op wrote. If it does not, someone
         // else edited the book after us and putting our before-image back would silently undo them.
-        const current = await readWIEntry(entry.op.lorebook, entry.op.comment);
+        const at = uidTarget(entry);
+        const current: { content: string; disabled: boolean; comment?: string } | null = at ? await readWIEntryAt(at) : await readWIEntry(entry.op.lorebook, entry.op.comment);
+        if (current?.comment !== undefined && current.comment !== entry.op.comment && !isCuratorWritable(story, entry.op.lorebook, current.comment)) {
+          ops.unshift({ ...entry, status: "externally-edited", message: `"${entry.op.comment}" is now "${current.comment}", which the curator may not write, so it was left alone` });
+          continue;
+        }
         if (current && entry.after && (current.content !== entry.after.content || current.disabled !== entry.after.disabled)) {
           ops.unshift({ ...entry, status: "externally-edited", message: `"${entry.op.comment}" changed after this write, so it was left alone` });
           continue;
@@ -370,7 +380,9 @@ export class StagecraftCoordinator {
   private async restoreBefore(entry: CuratorOpRecord): Promise<boolean> {
     const { op, before } = entry;
     if (!before || isNoteOp(op)) return false;
+    const at = uidTarget(entry);
     try {
+      if (at) return (await restoreWIEntryAt(at, before)).ok;
       const written = await upsertWIEntry(op.lorebook, op.comment, before.content);
       if (written === "failed") return false;
       const toggled = before.disabled ? await disableWIEntry(op.lorebook, op.comment) : await enableWIEntry(op.lorebook, op.comment);

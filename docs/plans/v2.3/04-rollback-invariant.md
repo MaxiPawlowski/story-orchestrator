@@ -453,10 +453,33 @@ is kept at `C:\dev\SillyTavern-MainBranch\.debug-restored-chat-safe-copy.jsonl`.
 ### V10 gate (2026-09-23)
 
 - `revertAppliedSince`: a record is removed only when none of its kept ops still needs it (`applied` — e.g. an ownership lapse mid-revert — `revert-failed` or `externally-edited`); before, ONE reverted or externally-edited op removed the whole record, deleting sibling `revert-failed` ops and the before-images a retry needs. The trailing `ops.reverse()` is gone: kept ops were `unshift`ed while walking the ops newest-first, which already restores declaration order, so the reverse flipped it.
-- Not done, stated: restore by the recorded target (book file id + entry uid). It still addresses entries by lorebook display name + comment, so a renamed entry is not found (the revert then fails and — now — is kept for a retry instead of being lost).
+- ~~Not done, stated: restore by the recorded target (book file id + entry uid).~~ Done in V10 part 2, below. The old consequence was worse than this line said: see that section.
 - Tests (`stagecraftCoordinator.review.test.ts` V10 block): a record whose other op reverted keeps its `revert-failed` op with its before-image; an externally edited op stays visible; kept ops keep declared order; control — a fully reverted record is removed. Mutations (`test/findings/mutations/V10-stagecraft-revert.txt`): old removal rule → 2 fail; old `reverse()` → 1 fails.
 - Machine: typecheck 0, lint 0, jest 155 / 2523, build 0 (bundle `21957b5f9ce6`), test:release 10/10.
 - Live regression, twice (`test/scenarios/live-rollback-stagecraft.json`, sandbox, group `1759606632088`): two curator rewrites of one real lorebook entry, a real generation, a real edit-driven rollback past both — the entry reads its ORIGINAL text both runs (`records/v2.3-replan/V10/run1.log`, `run2.log`), `SO-J8` assets removed, run-header diff 0 blocking. The curator's text is a debug response (the limitation the audit named); the real-curator + hash-equality variant stays in L2 (J8). The scenario's `"reverted":0` field is mislabelled — it counts ops still `applied` after the rollback, so 0 means every write was reverted; the audit read it as evidence of the deletion bug, which it is not.
+
+### V10 part 2 gate (2026-09-23) — the revert finds the entry it wrote, by uid
+
+- **The defect, measured live:** the revert addressed an entry by lorebook name + comment, and `upsertWIEntry` creates what it cannot find. So after the author renamed an entry the curator had rewritten, a rollback did not merely fail. It **wrote a second entry under the old name** holding the original text, and left the renamed entry holding the curator's text. The live mutation below reproduced exactly that (`[{uid:1, content: "…flooded and impassable."}]` beside the untouched renamed uid 0). The V10 line above said "is not found (the revert then fails)", which understated it.
+- **Fix:**
+  - `stHost/worldInfo.ts` gained `readWIEntryAt` / `restoreWIEntryAt`, addressed by `{lorebookFileId, uid}` (the target `applyAccepted` already records at the write edge). `restoreWIEntryAt` writes content and the disabled flag in one save, then reads the server copy back (same V17 rule as the WI toggles: a lost write evicts the page cache and answers `ok: false`).
+  - `revertAppliedSince` uses the uid address whenever the op recorded one, for both the compare-and-set read and the restore. Records written before the uid was recorded keep the name address (a control proves it).
+  - A renamed entry is re-checked against the write scope under its CURRENT name. An entry renamed into a checkpoint-gated one is left alone and kept as `externally-edited`, because the curator may never write a gated entry (`isCuratorWritable`).
+  - The author's rename survives the revert; only content and the disabled flag are restored.
+- **Repo hygiene found on the way:** the old src/runtime copy of the stagecraft coordinator test was a stale strict subset of `src/runtime/coordinators/stagecraftCoordinator.test.ts`: the same 26 cases with older imports, 145 fewer lines, and nothing citing it except a v2.1 historical doc. It was deleted rather than taught the new mocks.
+- **Tests:** `stagecraftCoordinator.review.test.ts` has a new V10 block with 5 cases: the uid is recorded; a renamed entry is reverted; a rename into a gated entry is kept `externally-edited`; a refused uid restore is kept `revert-failed` with its before-image; control, a uid-less record reverts by name. `stagecraftCoordinator.test.ts` asserts the host call is the uid restore.
+- **Mutations** (`test/findings/mutations/V10b-uid-revert.txt`): 3/3 killed, with M3 (ignoring the restore's result) SURVIVING until the refused-restore case was added. Not covered by any mutant: `restoreWIEntryAt`'s own read-back branch. It is a host module jest cannot import, and the live run exercises its success path only.
+- **Machine gates:**
+  - typecheck, typecheck:test and lint: 0;
+  - jest 169/2658 (the deleted duplicate took 26 cases; 5 were added);
+  - test:debug 155;
+  - test:release 16/16.
+- **Live, no model** (`test/scenarios/live-v10b-uid-revert.json`, sandbox group `1759606632088`, bundle `bf52b56b91d8`). The scenario runs: a real lorebook, a curator rewrite applied through `applyCuratorProposals`, a rename saved to the server, then `rollbackFromMessage` at the record's message id (the noop path V11 made revert).
+  - Result: the renamed uid reads its original text under its new name, no entry carries the old name, and no op is left.
+  - **Green twice** (`records/v2.3-replan/V10b/run1.log`, `run2.log`), and again on the rebuilt bundle after the live mutation (`run3-after-mutation.log`).
+  - Live mutation (name addressing) FAILS at the rollback step as described (`live-mutation-name-addressing.log`). Its leftover lorebook was removed with `so-assets.mts remove --marker SO-V10B` (`clean: true`).
+  - Header diff: build and served bundle only, 0 blocking.
+- The real-curator + hash-equality variant stays in L2 (J8).
 
 ### V11 gate (2026-09-23) — the rollback horizon is never silent
 

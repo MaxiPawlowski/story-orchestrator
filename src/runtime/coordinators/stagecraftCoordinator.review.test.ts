@@ -6,7 +6,7 @@ import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
 import { callExtractionModel } from "@extraction/client";
 import { StagecraftCoordinator } from "@runtime/coordinators/stagecraftCoordinator";
 import { createStagecraft } from "@runtime/extras";
-import { loadLorebook, upsertWIEntry, readWIEntry, enableWIEntry, disableWIEntry } from "@services/STAPI";
+import { loadLorebook, upsertWIEntry, readWIEntry, readWIEntryAt, restoreWIEntryAt, enableWIEntry, disableWIEntry } from "@services/STAPI";
 import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
 import { control, finding, must } from "../../../test/findings/ledger";
 
@@ -20,6 +20,8 @@ jest.mock("@services/STAPI", () => ({
   // The write edge reads the entry itself (R2). The fake book tracks one entry, so this is the same
   // state `upsertWIEntry` writes and the rollback restores.
   readWIEntry: jest.fn(),
+  readWIEntryAt: jest.fn(),
+  restoreWIEntryAt: jest.fn(),
   enableWIEntry: jest.fn(),
   disableWIEntry: jest.fn(),
   getContext: () => ({ chat: chatRef.current, extensionSettings: {} }),
@@ -41,7 +43,7 @@ const story = () => parseStoryV2OrThrow({
     { key: "locked", type: "bool", source: "code", rubric: "Code owns lock" },
   ],
   checkpoints: [
-    { id: "bank", name: "Bank", objective: "Cross", type: "anchor", start: true },
+    { id: "bank", name: "Bank", objective: "Cross", type: "anchor", start: true, effects: { world_info: { enable: [{ lorebook: "Review Lore", comments: ["Gated gate"] }] } } },
     { id: "island", name: "Island", objective: "Rest", type: "anchor" },
   ],
   transitions: [{ id: "cross", from: "bank", to: "island", priority: 0, gate: { q: "crossed", op: "==", v: true } }],
@@ -52,7 +54,7 @@ const story = () => parseStoryV2OrThrow({
 const wardenGate: { check: ((reply: { speaker: string; text: string }, facts: string[]) => Promise<{ facts: string[]; text: string } | null>) | null } = { check: null };
 const wardenFacts = { current: [] as string[] };
 
-function harness() {
+function harness(options: { uidKnown?: boolean } = {}) {
   const engine = new StoryEngine();
   engine.loadStory(story());
   let state = createStagecraft();
@@ -63,8 +65,18 @@ function harness() {
   let chatId = "chat-a";
   const context = (): RunContext => ({ chatId, storyId: "review-independent", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null });
   let disabled = false;
-  (loadLorebook as jest.Mock).mockImplementation(async () => ({ entries: { 1: { uid: 1, comment: "Bridge", content, key: ["bridge"], disable: disabled } } }));
-  (readWIEntry as jest.Mock).mockImplementation(async () => ({ content, keys: ["bridge"], constant: false, disabled, uid: 1 }));
+  // V10: the author can rename the entry after a curator write; the revert must still find it.
+  let comment = "Bridge";
+  const uid = options.uidKnown === false ? undefined : 1;
+  (loadLorebook as jest.Mock).mockImplementation(async () => ({ entries: { 1: { uid: 1, comment, content, key: ["bridge"], disable: disabled } } }));
+  (readWIEntry as jest.Mock).mockImplementation(async (_book: string, name: string) => (name === comment ? { content, keys: ["bridge"], constant: false, disabled, uid } : null));
+  (readWIEntryAt as jest.Mock).mockImplementation(async (target: { uid: number }) => (target.uid === 1 ? { comment, content, keys: ["bridge"], constant: false, disabled, uid: 1 } : null));
+  (restoreWIEntryAt as jest.Mock).mockImplementation(async (target: { uid: number }, image: { content: string; disabled: boolean }) => {
+    if (target.uid !== 1) return { ok: false, reason: "no such entry" };
+    content = image.content;
+    disabled = image.disabled;
+    return { ok: true, confirmed: true };
+  });
   (upsertWIEntry as jest.Mock).mockImplementation(async (_book, _entry, text) => { content = text; return "updated"; });
   (enableWIEntry as jest.Mock).mockImplementation(async () => { disabled = false; return { ok: true, changed: true }; });
   (disableWIEntry as jest.Mock).mockImplementation(async () => { disabled = true; return { ok: true, changed: true }; });
@@ -87,6 +99,7 @@ function harness() {
     get state() { return state; },
     get content() { return content; },
     next: () => { messageId += 1; },
+    rename: (name: string) => { comment = name; },
     switchChat: () => {
       chatId = "chat-b";
       state = createStagecraft();
@@ -300,6 +313,57 @@ describe("V10: a revert that could not finish keeps what it needs to retry", () 
     h.state.proposals = [{ ...acceptedRecord("p1", 10, "One"), appliedAt: new Date().toISOString(), ops: [applied("One", "Original")] }] as never;
     expect(await h.coordinator.revertAppliedSince(10)).toBe(1);
     expect(h.state.proposals.find((proposal) => proposal.id === "p1")).toBeUndefined();
+  });
+});
+
+describe("V10: a revert addresses the entry by its recorded uid", () => {
+  const writeOnce = async (h: ReturnType<typeof harness>) => {
+    (callExtractionModel as jest.Mock).mockResolvedValue("[rewrite] Bridge || First");
+    await h.coordinator.runCuratorPass();
+    await h.coordinator.applyAccepted();
+    expect(h.content).toBe("First");
+  };
+
+  it("records the entry uid at the write edge", async () => {
+    const h = harness();
+    await writeOnce(h);
+    expect(h.state.proposals[0].ops[0].target).toMatchObject({ uid: 1 });
+  });
+
+  it("an entry the author renamed after the write is still reverted", async () => {
+    const h = harness();
+    await writeOnce(h);
+    h.rename("The old bridge");
+    expect(await h.coordinator.revertAppliedSince(10)).toBe(1);
+    expect(h.content).toBe("Original");
+    expect(h.state.proposals).toEqual([]);
+  });
+
+  it("an entry renamed into a checkpoint-gated one is left alone and kept", async () => {
+    const h = harness();
+    await writeOnce(h);
+    h.rename("Gated gate");
+    expect(await h.coordinator.revertAppliedSince(10)).toBe(0);
+    expect(h.content).toBe("First");
+    expect(h.state.proposals[0].ops[0]).toMatchObject({ status: "externally-edited" });
+  });
+
+  it("a uid restore the host refused is kept as revert-failed with its before-image", async () => {
+    const h = harness();
+    await writeOnce(h);
+    (restoreWIEntryAt as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "the server does not hold the restored entry" });
+    expect(await h.coordinator.revertAppliedSince(10)).toBe(0);
+    expect(h.content).toBe("First");
+    expect(h.state.proposals[0].ops[0]).toMatchObject({ status: "revert-failed", before: { content: "Original" } });
+  });
+
+  it("control: a write recorded without a uid is still reverted by its name", async () => {
+    const h = harness({ uidKnown: false });
+    await writeOnce(h);
+    expect(h.state.proposals[0].ops[0].target?.uid).toBeUndefined();
+    expect(await h.coordinator.revertAppliedSince(10)).toBe(1);
+    expect(h.content).toBe("Original");
+    expect(restoreWIEntryAt).not.toHaveBeenCalled();
   });
 });
 

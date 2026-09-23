@@ -1,0 +1,44 @@
+{
+  "_note": "v2.3 replan V10 (target-uid addressing, live, no model). A curator write to a real lorebook entry, then the author renames the entry, then a rollback past the write: the entry is found by its recorded uid and gets its ORIGINAL text back under its NEW name. Before V10 the revert addressed the entry by name, so a renamed entry was not found and the name-based upsert created a second entry under the old name instead. The curator reply is a debug response on purpose: this proves addressing, which no prompt can.",
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v10b-uid-revert",
+        "title": "SO-V10B Uid Revert",
+        "version": 1,
+        "description": "One entry a curator rewrites and the author renames.",
+        "stagecraft": { "lorebooks": ["SO-V10B Lore"] },
+        "qualities": [{ "key": "road_drained", "type": "bool", "source": "extractor", "rubric": "Has the road drained?" }],
+        "checkpoints": [
+          { "id": "washed-road", "name": "The washed road", "objective": "Cross.", "type": "anchor", "start": true },
+          { "id": "tavern", "name": "The tavern", "objective": "Rest.", "type": "anchor" }
+        ],
+        "transitions": [{ "id": "to-tavern", "from": "washed-road", "to": "tavern", "priority": 0, "gate": { "q": "road_drained", "op": "==", "v": true } }],
+        "roster": []
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0 }); const lorebook = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-V10B Lore' }, { requirements: { lorebooks: [] } }); if (!lorebook.ok && !lorebook.message.includes('already exists')) throw new Error(`could not create the story lorebook: ${lorebook.message}`); const entry = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook: 'SO-V10B Lore', comment: 'The washed road', keys: ['road'], content: 'The road to the tavern is flooded and impassable.', constant: true }, { requirements: { lorebooks: ['SO-V10B Lore'] } }); if (!entry.ok) throw new Error(`could not write the entry: ${entry.message}`); return { lorebook: lorebook.ok, entry: entry.ok };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setStagecraftSettings({ curatorEnabled: true, acceptMode: 'auto' }); globalThis.storyOrchestratorDebugCuratorResponse = '[rewrite] The washed road || The road has drained; the bare stones are walkable.'; return rt.getStagecraftState().settings;",
+      "log": true
+    },
+    { "stagecraft": { "action": "curate", "reason": "v10b", "expectProposal": true, "expectOps": 1, "attempts": 2 } },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; await rt.applyCuratorProposals(); const op = rt.getStagecraftState().proposals.flatMap((record) => record.ops).find((entry) => entry.status === 'applied'); if (!op) throw new Error(`the curator write was not applied: ${JSON.stringify(rt.getStagecraftState().proposals)}`); if (typeof op.target?.uid !== 'number') throw new Error(`the applied op recorded no entry uid: ${JSON.stringify(op.target)}`); const book = await (await fetch('/api/worldinfo/get', { method: 'POST', headers: SillyTavern.getContext().getRequestHeaders(), body: JSON.stringify({ name: 'SO-V10B Lore' }), cache: 'no-cache' })).json(); const entry = book.entries[op.target.uid]; if (!String(entry?.content ?? '').includes('drained')) throw new Error(`the write did not reach the entry: ${JSON.stringify(entry)}`); globalThis.__v10bUid = op.target.uid; return { uid: op.target.uid, content: entry.content };",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const wi = await import('/scripts/world-info.js'); const uid = globalThis.__v10bUid; if (typeof uid !== 'number') throw new Error('the previous step recorded no uid'); const book = await ctx.loadWorldInfo('SO-V10B Lore'); const entry = book?.entries?.[uid]; if (!entry) throw new Error(`entry ${uid} is not in the book`); entry.comment = 'The old road (renamed by the author)'; await wi.saveWorldInfo('SO-V10B Lore', book, true); const server = await (await fetch('/api/worldinfo/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: 'SO-V10B Lore' }), cache: 'no-cache' })).json(); if (server.entries[uid]?.comment !== 'The old road (renamed by the author)') throw new Error(`the rename did not reach the server: ${JSON.stringify(server.entries[uid])}`); return { renamed: server.entries[uid].comment };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const record = rt.getStagecraftState().proposals.find((candidate) => candidate.appliedAt); if (!record) throw new Error('no applied record to roll back'); const outcome = await rt.rollbackFromMessage(record.messageId); const uid = globalThis.__v10bUid; const server = await (await fetch('/api/worldinfo/get', { method: 'POST', headers: SillyTavern.getContext().getRequestHeaders(), body: JSON.stringify({ name: 'SO-V10B Lore' }), cache: 'no-cache' })).json(); const entries = Object.values(server.entries ?? {}); const renamed = server.entries[uid]; const duplicates = entries.filter((candidate) => candidate.comment === 'The washed road'); if (duplicates.length) throw new Error(`the revert wrote a NEW entry under the old name instead of restoring the renamed one: ${JSON.stringify(duplicates.map((candidate) => ({ uid: candidate.uid, content: candidate.content })))}`); if (!String(renamed?.content ?? '').includes('flooded and impassable')) throw new Error(`the renamed entry was not restored to its original text: ${JSON.stringify(renamed)}`); if (renamed.comment !== 'The old road (renamed by the author)') throw new Error(`the revert undid the author's rename: ${renamed.comment}`); const left = rt.getStagecraftState().proposals.flatMap((candidate) => candidate.ops).filter((op) => op.status === 'applied' || op.status === 'revert-failed'); if (left.length) throw new Error(`ops were left behind: ${JSON.stringify(left)}`); return { outcome, uid, content: renamed.content, comment: renamed.comment, entries: entries.length };",
+      "log": true
+    },
+    { "assets": { "action": "remove", "marker": "SO-V10B" } }
+  ]
+}
