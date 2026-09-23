@@ -386,11 +386,15 @@ export class ExtractionCoordinator {
     if (!story || !memory.enabled || memory.backfill?.running) return false;
     const chat = Array.isArray(getContext().chat) ? getContext().chat : [];
     const total = Math.max(1, Math.ceil(chat.length / windowSize)) + 1;
+    // V3: the backlog reads the whole chat window by window for minutes; a chat switch in between
+    // used to read the NEXT chat's windows into memory this pass still believed was its own.
+    const read = beginRun(this.deps.ownership, { from: 0, to: Math.max(0, chat.length - 1) });
     memory.setBackfill({ running: true, processed: 0, total, lastError: null });
     await this.save();
     try {
       const client = { ...this.deps.getSettings(), debugResponse: globalThis.storyOrchestratorDebugExtractionResponse ?? null };
       for (let from = 0; from < chat.length; from += windowSize) {
+        if (!read.stillOwns()) return false;
         const to = Math.min(chat.length - 1, from + windowSize - 1);
         const state = this.deps.getState()!;
         const result = await runSharedRead({
@@ -407,12 +411,14 @@ export class ExtractionCoordinator {
           entities: memory.getEntities(),
           client,
         });
-        await this.applyAudit({ ...result.audit, acceptedDeltas: [] }, result.facts, result.memory, result.arcs, result.epistemic, result.ledger);
+        await this.applyAudit({ ...result.audit, acceptedDeltas: [] }, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, read);
+        if (!read.stillOwns()) return false;
         const progress = memory.backfill!;
         memory.setBackfill({ ...progress, processed: progress.processed + 1 });
         await this.save();
       }
 
+      if (!read.stillOwns()) return false;
       const finalState = this.deps.getState()!;
       const fullResult = await runSharedRead({
         story,
@@ -425,7 +431,8 @@ export class ExtractionCoordinator {
         facts: memory.getFacts(),
         client,
       });
-      await this.applyAudit(fullResult.audit, [], []);
+      await this.applyAudit(fullResult.audit, [], [], [], [], [], read);
+      if (!read.stillOwns()) return false;
       await this.deps.commitBoundary();
 
       memory.setBackfill({ running: false, processed: total, total, lastError: null });
@@ -433,6 +440,7 @@ export class ExtractionCoordinator {
       await this.save();
       return true;
     } catch (error) {
+      if (!read.stillOwns()) return false;
       memory.setBackfill({ ...memory.backfill!, running: false, lastError: error instanceof Error ? error.message : "Memorize backlog failed" });
       this.deps.setStatus("Memorize backlog failed");
       await this.save();

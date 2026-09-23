@@ -1,0 +1,83 @@
+M1 judge fallback recorded without its check
+  ● V3: the unavailable fallback belongs to the chat it was asked in › a fallback whose chat moved during the status check is recorded nowhere
+Tests:       1 failed, 6 passed, 7 total
+M2 mirror: no check before the stale sweep
+  ● V3: the mirror asks before EACH host write, not once after all of them › a story swap before the stale sweep disables nothing in the book the new story now shares
+Tests:       1 failed, 8 passed, 9 total
+M3 mirror: no check inside the upsert loop
+  ● V3: the mirror asks before EACH host write, not once after all of them › a story swap during the first entry's write stops before the second
+Tests:       1 failed, 8 passed, 9 total
+M4 scheduler: light error written in any world
+  ● V3: a job's error belongs to the world it ran in › a light job that fails after its world ended leaves the new world's panel clean
+Tests:       1 failed, 10 passed, 11 total
+M5 scheduler: heavy error written in any world
+  ● V3: a job's error belongs to the world it ran in › a heavy job that fails after its world ended leaves the new world's panel clean
+Tests:       1 failed, 10 passed, 11 total
+M6 applyWorldInfo: no check before a book's disable
+  ● V3: World Info is asked about before EVERY book, not once around the loop › a switch during a book's enable stops before the next book's disable
+Tests:       1 failed, 13 passed, 14 total
+M7 applyWorldInfo: no check before a book's enable
+  ● V3: World Info is asked about before EVERY book, not once around the loop › a switch during a book's disable stops before that book's enable
+Tests:       1 failed, 13 passed, 14 total
+M8 releaseWorldInfo drops the run
+  ● V3: World Info is asked about before EVERY book, not once around the loop › a release that a newer load overtook stops after the book it was writing
+Tests:       1 failed, 13 passed, 14 total
+M9 applyCheckpoint drops the run for World Info
+  ● V3: World Info is asked about before EVERY book, not once around the loop › a switch during a book's disable stops before that book's enable
+  ● V3: World Info is asked about before EVERY book, not once around the loop › a switch during a book's enable stops before the next book's disable
+Tests:       2 failed, 12 passed, 14 total
+M10 curator/warden hold ignores ownership
+  ● V3: a curator pass holds the coordinator only while its own chat is open › a slow pass started in another chat does not block this chat's pass
+  ● V3: a curator pass holds the coordinator only while its own chat is open › control: a second pass in the SAME chat still waits for the first
+  ● V3: a curator pass holds the coordinator only while its own chat is open › the old pass finishing does not release the NEW pass's hold
+  ● continuity warden (v2.2 plan 05) › V3: a warden pass held open in another chat does not block this chat's pass
+  ● continuity warden (v2.2 plan 05) › V3: an old warden pass finishing does not release the new pass's hold
+Tests:       5 failed, 51 passed, 56 total
+M11 an old curator pass releases the new pass's hold
+  ● V3: a curator pass holds the coordinator only while its own chat is open › the old pass finishing does not release the NEW pass's hold
+Tests:       1 failed, 21 passed, 22 total
+M12 an old warden pass releases the new pass's hold
+  ● continuity warden (v2.2 plan 05) › V3: an old warden pass finishing does not release the new pass's hold
+Tests:       1 failed, 55 passed, 56 total
+M13 clearStory: no check after the exit restore
+  ● V3: an exit that a newer load overtakes leaves the newer load alone › a story imported while the exit restore runs keeps its fresh state
+Tests:       1 failed, 88 passed, 89 total
+M14 activateCheckpoint: no check after staging
+  ● V3: a superseded load or activation stops before its tail › an activation overtaken mid-staging reports nothing and stamps nothing
+Tests:       1 failed, 88 passed, 89 total
+M15 loadStory: no check after the release
+  ● V3: a superseded load or activation stops before its tail › a load overtaken during its staging does not release the lore of the world that replaced it
+Tests:       1 failed, 88 passed, 89 total
+M16 releaseGatedWorldInfo drops the run
+  ● V3: a superseded load or activation stops before its tail › a load overtaken during its staging does not release the lore of the world that replaced it
+Tests:       1 failed, 88 passed, 89 total
+M17 swapStory: no check after the release
+  ● V3: a superseded load or activation stops before its tail › a hot swap overtaken during its staging does not go on to stamp the chat
+Tests:       1 failed, 88 passed, 89 total
+M18 restartStory: no check after the popup
+  ● V3: a restart confirmed after the chat moved restarts nothing › the player switches chats while the confirmation is open
+Tests:       1 failed, 2 passed, 3 total
+M19 restartStory: no check after the restore
+  ● V3: a restart confirmed after the chat moved restarts nothing › the chat moves during the restart's own restore
+Tests:       1 failed, 2 passed, 3 total
+M20 backlog: no check before each window
+  ● V3: the memorize backlog stops when its chat does › a switch during the progress save between windows starts no further read
+Tests:       1 failed, 4 passed, 5 total
+M21 backlog: applyAudit without the read
+  ● V3: the memorize backlog stops when its chat does › a switch between windows keeps what the owned window stored and reads nothing after
+  ● V3: the memorize backlog stops when its chat does › a switch during the first window stores nothing, reads no further window and commits nothing
+Tests:       2 failed, 3 passed, 5 total
+M22 backlog: no check before the commit
+  ● V3: the memorize backlog stops when its chat does › a switch during the final full read commits no boundary
+Tests:       1 failed, 4 passed, 5 total
+M23 supersession bridge: no check before enqueue
+  ● V3: a supersession bridge enqueues only into the story it read for › a story swap during the bridge's model call enqueues nothing
+Tests:       1 failed, 19 passed, 20 total
+M24 census: comments count as checks again
+  ● V3: the census sees what it used to miss › a check named only in a comment is not a check
+Tests:       1 failed, 10 passed, 11 total
+M25 census: property assignments invisible again
+  ● V3: the census sees what it used to miss › a property assignment after an await is a write
+  ● V3: the census sees what it used to miss › arrow functions are censused and named by where they live
+  ● write-edge ownership census › no row describes a site that no longer exists
+Tests:       3 failed, 8 passed, 11 total

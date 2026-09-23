@@ -1,5 +1,5 @@
 import type { SharedReadAudit } from "@extraction/index";
-import { executeSlashCommands, getActiveGroup } from "@services/STAPI";
+import { disableWIEntry, enableWIEntry, executeSlashCommands, getActiveGroup } from "@services/STAPI";
 import { RuntimeManager } from "./runtimeManager";
 import { control } from "../../test/findings/ledger";
 
@@ -1588,5 +1588,82 @@ describe("V5: opening a chat whose saved state is stamped for another chat", () 
     await manager.loadSelectedFromChat();
     expect(JSON.stringify(manager.getSessionJournal())).toContain("blob-chat-mismatch: stamped for chat-elsewhere");
     expect(mockContext.chatMetadata.story_orchestrator).toBe(foreign);
+  });
+});
+
+describe("V3: an exit that a newer load overtakes leaves the newer load alone", () => {
+  beforeEach(() => resetHost());
+
+  it("a story imported while the exit restore runs keeps its fresh state", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(story));
+    const internals = manager as unknown as { selectionDeps: { clearStory: (status: string) => Promise<void> }; extras: { lastAppliedCheckpointId: string | null } };
+    const clearing = internals.selectionDeps.clearStory("No story selected for this chat");
+    const importing = manager.importStory(JSON.stringify(story));
+    await Promise.all([clearing, importing]);
+    expect(manager.getSnapshot().storyId).not.toBeNull();
+    expect(manager.getSnapshot().status).not.toBe("No story selected for this chat");
+    expect(internals.extras.lastAppliedCheckpointId).not.toBeNull();
+  });
+
+  it("control: an exit nothing overtakes clears the story", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(story));
+    const internals = manager as unknown as { selectionDeps: { clearStory: (status: string) => Promise<void> } };
+    await internals.selectionDeps.clearStory("No story selected for this chat");
+    expect(manager.getSnapshot().storyId).toBeNull();
+    expect(manager.getSnapshot().status).toBe("No story selected for this chat");
+  });
+});
+
+describe("V3: a superseded load or activation stops before its tail", () => {
+  beforeEach(() => {
+    resetHost();
+    mockLorebooks.Shared = { "A start": false, "A next": true, "B start": false, "Always": true };
+  });
+
+  it("an activation overtaken mid-staging reports nothing and stamps nothing", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(storyA));
+    (disableWIEntry as jest.Mock).mockImplementationOnce(async (lorebook: string, comments: string | string[]) => {
+      (manager as unknown as { invalidateRuns: () => void }).invalidateRuns();
+      return mockSwitchEntries(lorebook, comments, false);
+    });
+    expect(await manager.activateCheckpoint("next")).toBe(false);
+    expect(manager.getSnapshot().status).not.toBe("Now at Next");
+  });
+
+  it("a load overtaken during its staging does not release the lore of the world that replaced it", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(storyA));
+    expect(mockLorebooks.Shared["A start"]).toBe(true);
+    (enableWIEntry as jest.Mock).mockImplementationOnce(async (lorebook: string, comments: string | string[]) => {
+      (manager as unknown as { invalidateRuns: () => void }).invalidateRuns();
+      return mockSwitchEntries(lorebook, comments, true);
+    });
+    await manager.importStory(JSON.stringify(storyB));
+    expect(mockLorebooks.Shared["A start"]).toBe(true);
+    expect(manager.getSnapshot().status).not.toBe("Started wi-b");
+  });
+
+  it("a hot swap overtaken during its staging does not go on to stamp the chat", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(storyA));
+    const internals = manager as unknown as { loaded: unknown; swapStory: (loaded: unknown, state: null, reanchored: boolean) => Promise<void>; invalidateRuns: () => void };
+    const before = manager.getSnapshot().status;
+    (disableWIEntry as jest.Mock).mockImplementationOnce(async (lorebook: string, comments: string | string[]) => {
+      internals.invalidateRuns();
+      return mockSwitchEntries(lorebook, comments, false);
+    });
+    await internals.swapStory(internals.loaded, null, false);
+    expect(manager.getSnapshot().status).toBe(before);
+  });
+
+  it("control: an unmoved load releases the story it left", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(storyA));
+    await manager.importStory(JSON.stringify(storyB));
+    expect(mockLorebooks.Shared["A start"]).toBe(false);
+    expect(manager.getSnapshot().status).toBe("Started wi-b");
   });
 });

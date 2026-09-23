@@ -73,7 +73,7 @@ describe("V5: a blob stamped for another chat is left exactly as it was", () => 
   });
 
   it("choosing a story in the open chat continues the run the adopted blob holds, rather than restarting it", async () => {
-    open("chat-b", { ...chatA(), stories: { s1: { ...story("s1"), pinnedStory: { title: "S" } } } });
+    open("chat-b", { ...chatA(), stories: { s1: { ...(story("s1") as object), pinnedStory: { title: "S" } } } });
     const loadStory = jest.fn(async () => undefined);
     expect(await selectStory({ loadStory } as unknown as StorySelectionDeps, "s1")).toBe(true);
     expect(loadStory).toHaveBeenCalledWith(expect.anything(), "hydrate", expect.objectContaining({ storyId: "s1" }));

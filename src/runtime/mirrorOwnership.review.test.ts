@@ -103,3 +103,45 @@ control("a host with no ownership behaves exactly as before", async () => {
   expect(await pending).not.toBeNull();
   expect(h.bindings).toHaveLength(1);
 });
+
+describe("V3: the mirror asks before EACH host write, not once after all of them", () => {
+  const twoEntries = [
+    { id: "m1", text: "Corin owes a debt", type: "relationship", tier: "facts", entities: ["Corin"] },
+    { id: "m2", text: "Mara distrusts the guild", type: "relationship", tier: "facts", entities: ["Mara"] },
+  ] as never;
+
+  it("a story swap while the book is being ensured writes no entry into it", async () => {
+    const h = harness();
+    const written: string[] = [];
+    h.host.ensureLorebook = async (name) => { h.swapStory(); return { name, created: true }; };
+    h.host.upsertWIEntry = async (_book, comment) => { written.push(comment); return "created"; };
+    expect(await syncMemoryMirror({ title: "S", entries: twoEntries, writes: {}, book: null }, h.host)).toBeNull();
+    expect(written).toEqual([]);
+  });
+
+  it("a story swap during the first entry's write stops before the second", async () => {
+    const h = harness();
+    const written: string[] = [];
+    h.host.upsertWIEntry = async (_book, comment) => { written.push(comment); h.swapStory(); return "created"; };
+    expect(await syncMemoryMirror({ title: "S", entries: twoEntries, writes: {}, book: null }, h.host)).toBeNull();
+    expect(written).toHaveLength(1);
+  });
+
+  it("a story swap before the stale sweep disables nothing in the book the new story now shares", async () => {
+    const h = harness();
+    const disabled: string[][] = [];
+    h.host.ensureLorebook = async (name) => { h.swapStory(); return { name, created: false }; };
+    h.host.disableWIEntry = async (_book, comments) => { disabled.push([comments].flat()); return true; };
+    const book = { name: "Story Orchestrator - S - chat-a", chatId: "chat-a" };
+    expect(await syncMemoryMirror({ title: "S", entries: twoEntries, writes: { so_old: "h" }, book }, h.host)).toBeNull();
+    expect(disabled).toEqual([]);
+  });
+
+  it("control: both entries are written when nothing moves", async () => {
+    const h = harness();
+    const written: string[] = [];
+    h.host.upsertWIEntry = async (_book, comment) => { written.push(comment); return "created"; };
+    expect(await syncMemoryMirror({ title: "S", entries: twoEntries, writes: {}, book: null }, h.host)).not.toBeNull();
+    expect(written).toHaveLength(2);
+  });
+});

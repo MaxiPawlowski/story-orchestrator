@@ -1,0 +1,59 @@
+build manifest → dist\manifest.json (bundle fcf60c6c3cc4, source 012e368bf5fe, ST 1.19.0)
+{
+  "at": "2026-09-23T09:08:49.720Z",
+  "groupId": "1759606632088",
+  "storyPath": "examples/sun-ruins/quest-for-the-sun-ruins.json",
+  "chatA": {
+    "chatId": "2026-09-23@06h08m03s969ms",
+    "messages": 1,
+    "storyId": "sun-ruins"
+  },
+  "chatB": {
+    "chatId": "2026-09-23@06h08m25s173ms",
+    "messages": 1,
+    "storyId": "sun-ruins"
+  },
+  "control": {
+    "result": true,
+    "ms": 18534,
+    "before": {
+      "audits": 0,
+      "entries": 0
+    },
+    "after": {
+      "audits": 2,
+      "entries": 2
+    },
+    "backfill": {
+      "running": false,
+      "processed": 2,
+      "total": 2,
+      "lastError": null
+    }
+  },
+  "race": {
+    "result": true,
+    "switchedBeforeSettled": true,
+    "switchMs": 900,
+    "settleMs": 19866,
+    "aOnArrival": {
+      "audits": 2,
+      "entries": 2
+    },
+    "aAfter": {
+      "audits": 4,
+      "entries": 2
+    },
+    "bBefore": {
+      "audits": 0,
+      "entries": 0
+    },
+    "bAfter": {
+      "audits": 0,
+      "entries": 0
+    }
+  },
+  "controlOk": true,
+  "raceOk": false,
+  "verdict": "FAIL"
+}

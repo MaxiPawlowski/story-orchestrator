@@ -456,6 +456,39 @@ describe("continuity warden (v2.2 plan 05)", () => {
     await inFlight;
   });
 
+  it("V3: a warden pass held open in another chat does not block this chat's pass", async () => {
+    const releases: Array<(value: typeof note | null) => void> = [];
+    const slow = { check: jest.fn(() => new Promise<typeof note | null>((resolve) => { releases.push(resolve); })), facts: () => ["The bridge fell in the flood."], nudgeActive: () => false };
+    const env = harness({ settings: wardenOn("auto"), warden: slow });
+    mockChat.push({ name: "Max", mes: "Then we cross.", is_user: true }, { name: "Mira", mes: "Follow me.", is_user: false });
+    const old = env.coordinator.runWardenPass(1);
+    await Promise.resolve();
+    env.switchChat();
+    const here = env.coordinator.runWardenPass(1);
+    await Promise.resolve();
+    expect(slow.check).toHaveBeenCalledTimes(2);
+    releases.forEach((release) => release(null));
+    await Promise.all([old, here]);
+  });
+
+  it("V3: an old warden pass finishing does not release the new pass's hold", async () => {
+    const releases: Array<(value: typeof note | null) => void> = [];
+    const slow = { check: jest.fn(() => new Promise<typeof note | null>((resolve) => { releases.push(resolve); })), facts: () => ["The bridge fell in the flood."], nudgeActive: () => false };
+    const env = harness({ settings: wardenOn("auto"), warden: slow });
+    mockChat.push({ name: "Max", mes: "Then we cross.", is_user: true }, { name: "Mira", mes: "Follow me.", is_user: false });
+    const old = env.coordinator.runWardenPass(1);
+    await Promise.resolve();
+    env.switchChat();
+    const current = env.coordinator.runWardenPass(1);
+    await Promise.resolve();
+    releases[0](null);
+    await old;
+    expect(await env.coordinator.runWardenPass(1)).toBe(false);
+    expect(slow.check).toHaveBeenCalledTimes(2);
+    releases[1](null);
+    await current;
+  });
+
   it("drops the note when the reply changed while the judge was reading", async () => {
     const env = harness({ settings: wardenOn("auto"), warden: warden({ onCheck: () => { mockChat[1] = { name: "Mira", mes: "The bridge is gone.", is_user: false }; } }) });
     expect(await env.coordinator.runWardenPass(1)).toBe(false);

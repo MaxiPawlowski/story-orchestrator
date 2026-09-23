@@ -360,3 +360,54 @@ control("a warden note in its own world is recorded", async () => {
   expect(recorded).toBe(true);
   expect(h.state.proposals).toHaveLength(1);
 });
+
+describe("V3: a curator pass holds the coordinator only while its own chat is open", () => {
+  it("a slow pass started in another chat does not block this chat's pass", async () => {
+    const h = harness();
+    let release!: (value: string) => void;
+    (callExtractionModel as jest.Mock).mockImplementationOnce(() => new Promise((resolve) => { release = resolve; }));
+    const slow = h.coordinator.runCuratorPass();
+    await Promise.resolve();
+    await Promise.resolve();
+    h.switchChat();
+    (callExtractionModel as jest.Mock).mockResolvedValueOnce("[rewrite] Bridge || New chat fact");
+    const here = await h.coordinator.runCuratorPass();
+    expect(here.skipped).toBeUndefined();
+    expect(here.ran).toBe(true);
+    release("[rewrite] Bridge || Old chat fact");
+    expect((await slow).discarded).toBeDefined();
+  });
+
+  it("control: a second pass in the SAME chat still waits for the first", async () => {
+    const h = harness();
+    let release!: (value: string) => void;
+    (callExtractionModel as jest.Mock).mockImplementationOnce(() => new Promise((resolve) => { release = resolve; }));
+    const slow = h.coordinator.runCuratorPass();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect((await h.coordinator.runCuratorPass()).skipped).toBe("in-flight");
+    expect(h.coordinator.dueForRun()).toBe(false);
+    release("[rewrite] Bridge || Same chat");
+    await slow;
+  });
+
+  it("the old pass finishing does not release the NEW pass's hold", async () => {
+    const h = harness();
+    let releaseOld!: (value: string) => void;
+    let releaseNew!: (value: string) => void;
+    (callExtractionModel as jest.Mock).mockImplementationOnce(() => new Promise((resolve) => { releaseOld = resolve; }));
+    const old = h.coordinator.runCuratorPass();
+    await Promise.resolve();
+    await Promise.resolve();
+    h.switchChat();
+    (callExtractionModel as jest.Mock).mockImplementationOnce(() => new Promise((resolve) => { releaseNew = resolve; }));
+    const current = h.coordinator.runCuratorPass();
+    await Promise.resolve();
+    await Promise.resolve();
+    releaseOld("[rewrite] Bridge || Old");
+    await old;
+    expect((await h.coordinator.runCuratorPass()).skipped).toBe("in-flight");
+    releaseNew("[rewrite] Bridge || New");
+    await current;
+  });
+});

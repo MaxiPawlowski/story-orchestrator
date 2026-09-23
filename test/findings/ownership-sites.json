@@ -1,9 +1,29 @@
 {
-  "$comment": "v2.3 plan 03. Every place in src/runtime and src/wizard that writes AFTER an await, and what has been done about it. Generated set, hand-classified status. The guard in src/runtime/ownership.guard.test.ts fails when this file and the code disagree, in EITHER direction: a new site nobody classified, a row whose site is gone, a \"checked\" row with no token check in its body, or a \"todo\" row that has quietly acquired one (flip it to checked). Statuses: checked (verifies a RunToken before writing) | delegate (awaits a censused site that owns the check) | local (writes nothing that outlives the call) | todo (owed work). WHAT \"checked\" MEANS, PRECISELY: the body contains a token check -- NOT that every write is preceded by one. The detector is a body-level scan, so it cannot see the interleaving, and a body that gains a fifth host step can escape the checks that guard the other four (found 2026-09-22 in EffectsApplier.applyCheckpoint: the preset sat below the Author Note await and the background below applyCastChanges per-member awaits). Per-write checking is proven by TESTS in the case files (effectsOwnership.review.test.ts pins each check with a case that reaches it), which is also the file-level rule: a check without a case is a check a mutation can delete.",
+  "$comment": "v2.3 plan 03. Every place in src/runtime, src/wizard, src/extraction and src/generation (V3) that writes AFTER an await — methods, function declarations, and since V3 arrow functions (named by where they live) and property assignments, and what has been done about it. Generated set, hand-classified status. The guard in src/runtime/ownership.guard.test.ts fails when this file and the code disagree, in EITHER direction: a new site nobody classified, a row whose site is gone, a \"checked\" row with no token check in its body, or a \"todo\" row that has quietly acquired one (flip it to checked). Statuses: checked (verifies a RunToken before writing) | delegate (awaits a censused site that owns the check) | local (writes nothing that outlives the call) | todo (owed work). WHAT \"checked\" MEANS, PRECISELY: the body contains a token check -- NOT that every write is preceded by one. The detector is a body-level scan, so it cannot see the interleaving, and a body that gains a fifth host step can escape the checks that guard the other four (found 2026-09-22 in EffectsApplier.applyCheckpoint: the preset sat below the Author Note await and the background below applyCastChanges per-member awaits). Per-write checking is proven by TESTS in the case files (effectsOwnership.review.test.ts pins each check with a case that reaches it), which is also the file-level rule: a check without a case is a check a mutation can delete.",
   "rows": {
+    "src/extraction/scheduler.ts#ExtractionScheduler.pump": {
+      "status": "partial",
+      "note": "v2.3 replan V3 (2026-09-23): COVERED: the read's guard is minted before runSharedRead and travels into applyExtractionAudit, which refuses a lapsed read before any write (V2); the install-wide pause and the panel's lastError are both written only when the epoch the job started in is still current (sameWorld). NOT COVERED: `inFlight` is one flag per scheduler, so a new world's queue waits for an old job to finish (serial by design: one endpoint), and `job.run` bodies are censused where they are defined, not here."
+    },
+    "src/extraction/scheduler.ts#ExtractionScheduler.pumpHeavy": {
+      "status": "partial",
+      "note": "v2.3 replan V3 (2026-09-23): COVERED: lastHeavyError is written only when the job's starting epoch is still current (it used to land in the next world's panel after clearForNewWorld emptied it). NOT COVERED: heavyInFlight serialises across worlds by design, and the job's own writes live in its run closure, censused at its definition."
+    },
+    "src/extraction/sharedRead.ts#runSharedRead": {
+      "status": "local",
+      "note": "v2.3 replan V3 (2026-09-23): createId only hashes the prompt/response into the audit's id; the function returns its result and writes nothing that outlives the call. The caller owns the write edge (applyAudit's read guard)."
+    },
+    "src/generation/generate.ts#generateVariants": {
+      "status": "local",
+      "note": "v2.3 replan V3 (2026-09-23): `record` is a local builder for the returned variants summary; nothing is written outside the return value. The expansion coordinator owns the write edge (ExpansionCoordinator.generate is checked)."
+    },
     "src/runtime/consolidationMatches.ts#buildMatchSets": {
       "status": "local",
       "note": "writes only function-local sets and a scratch vector collection named uniquely per call (so_consol_<time>_<rand>), so its purge can never reach another chat"
+    },
+    "src/runtime/consolidationMatches.ts#judgePairRelations>map": {
+      "status": "local",
+      "note": "v2.3 replan V3 (2026-09-23): writes only the pass-local `decisions` map; judge.ask records its own ring entry under its own check (JudgeRuntime.ask is checked)."
     },
     "src/runtime/coordinators/copilotCoordinator.ts#CopilotCoordinator.applyProvisioning": {
       "status": "checked",
@@ -11,7 +31,7 @@
     },
     "src/runtime/coordinators/expansionCoordinator.ts#ExpansionCoordinator.generate": {
       "status": "checked",
-      "note": "v2.3 plan 11 \u00a7Fault matrix: found by the census, not by a journey. The model call runs for minutes and every write below it resolved to whichever chat was open when it answered, so a chain generated for chat A was filed into chat B's cache and merged into chat B's story \u2014 the last async coordinator without a token. Checked after the generation and again in the catch and before the persist, because the failure path is a write too. RESIDUAL: the `generating` marker written before the await stays in chat A and blocks its key after a switch; recovery today is the author's Regenerate action (v2.4 seed)."
+      "note": "v2.3 plan 11 §Fault matrix: found by the census, not by a journey. The model call runs for minutes and every write below it resolved to whichever chat was open when it answered, so a chain generated for chat A was filed into chat B's cache and merged into chat B's story — the last async coordinator without a token. Checked after the generation and again in the catch and before the persist, because the failure path is a write too. RESIDUAL: the `generating` marker written before the await stays in chat A and blocks its key after a switch; recovery today is the author's Regenerate action (v2.4 seed)."
     },
     "src/runtime/coordinators/extractionCoordinator.ts#ExtractionCoordinator.applyAudit": {
       "status": "checked",
@@ -19,11 +39,11 @@
     },
     "src/runtime/coordinators/extractionCoordinator.ts#ExtractionCoordinator.runEpistemicLedgerPass": {
       "status": "checked",
-      "note": "v2.3 plan 03: TWO model calls with a store written in between, so the check sits after each call rather than once at the end \u2014 the epistemic signals are applied before the ledger prompt is even sent. Both stores and the injection update are refused when the world moved."
+      "note": "v2.3 plan 03: TWO model calls with a store written in between, so the check sits after each call rather than once at the end — the epistemic signals are applied before the ledger prompt is even sent. Both stores and the injection update are refused when the world moved."
     },
     "src/runtime/coordinators/extractionCoordinator.ts#ExtractionCoordinator.runMemorizeBacklog": {
-      "status": "todo",
-      "note": "v2.3 plan 03: not yet checked"
+      "status": "checked",
+      "note": "v2.3 replan V3 (2026-09-23): mints one read over the whole chat before the first await, asks it before every window, passes it into applyAudit (which refuses a lapsed read before any write), and asks again before the final read, the boundary commit and the error record. It used to read the NEXT chat's windows into memory after a switch."
     },
     "src/runtime/coordinators/extractionCoordinator.ts#ExtractionCoordinator.runNow": {
       "status": "checked",
@@ -61,6 +81,10 @@
       "status": "delegate",
       "note": "v2.3 plan 05: the one shape every small store edit now takes (patch, re-inject, save), so the census sees one write edge where it used to see ten. It awaits MemoryCoordinator.save, and save awaits RuntimeManager.persist, which is where the check lives. Not everything with an await owes a check of its own: the patch and the injection update both run before the first await, so minting here would compare a token against the world it was just minted from and prove nothing."
     },
+    "src/runtime/coordinators/memoryCoordinator.ts#MemoryCoordinator.computeEntryTokens": {
+      "status": "local",
+      "note": "v2.3 replan V3 (2026-09-23): writes token counts onto the caller's fresh, not-yet-stored rows; applyEntries checks run.stillOwns() before storing them, so a lapsed pass stores nothing."
+    },
     "src/runtime/coordinators/memoryCoordinator.ts#MemoryCoordinator.dismissLegacyPinPrompt": {
       "status": "delegate",
       "note": "v2.3 plan 05 (M5/M6): it records that this chat has been asked what its older pins mean, and awaits MemoryCoordinator.commit, and so RuntimeManager.persist through MemoryCoordinator.save, where the check lives."
@@ -79,7 +103,7 @@
     },
     "src/runtime/coordinators/memoryCoordinator.ts#MemoryCoordinator.regenerateCanon": {
       "status": "checked",
-      "note": "v2.3 plan 03: checked before the canon write. Its finally is deliberately UNGUARDED \u2014 canonInFlight is the run own bookkeeping, and leaving it set because the world moved would wedge canon regeneration for the session."
+      "note": "v2.3 plan 03: checked before the canon write. Its finally is deliberately UNGUARDED — canonInFlight is the run own bookkeeping, and leaving it set because the world moved would wedge canon regeneration for the session."
     },
     "src/runtime/coordinators/memoryCoordinator.ts#MemoryCoordinator.removeArc": {
       "status": "delegate",
@@ -107,11 +131,11 @@
     },
     "src/runtime/coordinators/memoryCoordinator.ts#MemoryCoordinator.runConsolidation": {
       "status": "checked",
-      "note": "v2.3 plan 03: the destructive pass \u2014 it DROPS and supersedes memory entries. Three awaits per tier group, so the check is inside the loop before each patch. Its finally is unguarded, like regenerateCanon."
+      "note": "v2.3 plan 03: the destructive pass — it DROPS and supersedes memory entries. Three awaits per tier group, so the check is inside the loop before each patch. Its finally is unguarded, like regenerateCanon."
     },
     "src/runtime/coordinators/memoryCoordinator.ts#MemoryCoordinator.runSupersessionBridge": {
-      "status": "todo",
-      "note": "v2.3 plan 03: not yet checked"
+      "status": "checked",
+      "note": "v2.3 replan V3 (2026-09-23): mints before the model call and refuses to enqueue the bridge's deltas when the world moved; they used to be enqueued into whichever story's engine was loaded when the read returned."
     },
     "src/runtime/coordinators/memoryCoordinator.ts#MemoryCoordinator.save": {
       "status": "delegate",
@@ -191,15 +215,19 @@
     },
     "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.writeOp": {
       "status": "partial",
-      "note": "PARTIAL, and deliberately so: its second host write (disableWIEntry) restores the author own switched-off flag after upsertWIEntry re-enabled the entry, so completing the pair is correct whichever world is current \u2014 abandoning it would leave the author entry enabled. Its caller checks before every call, so a lapse prevents the pair from starting. Any new caller must check the same way."
+      "note": "PARTIAL, and deliberately so: its second host write (disableWIEntry) restores the author own switched-off flag after upsertWIEntry re-enabled the entry, so completing the pair is correct whichever world is current — abandoning it would leave the author entry enabled. Its caller checks before every call, so a lapse prevents the pair from starting. Any new caller must check the same way."
     },
     "src/runtime/effectHost.ts#restoreEffectTarget": {
       "status": "partial",
-      "note": "PARTIAL: one inverse per effect target, and the GUARD IS THE CALLER. `EffectsApplier.restoreEffects` reads each target's current value and compares it with what this chat wrote before calling anything here, and refuses the ones that no longer hold it \u2014 so a restore that outlived its chat cannot overwrite an edit someone else made. The token would add the chat-switch case, which the leave/rollback/restart callers own; each branch here is a single stHost seam whose own result is returned as the answer."
+      "note": "PARTIAL: one inverse per effect target, and the GUARD IS THE CALLER. `EffectsApplier.restoreEffects` reads each target's current value and compares it with what this chat wrote before calling anything here, and refuses the ones that no longer hold it — so a restore that outlived its chat cannot overwrite an edit someone else made. The token would add the chat-switch case, which the leave/rollback/restart callers own; each branch here is a single stHost seam whose own result is returned as the answer."
     },
     "src/runtime/effectsApplier.ts#EffectsApplier.announceTransition": {
       "status": "partial",
       "note": "PARTIAL: guarded entirely from its CALLER. Its own body has no await before the write, so a guard inside would mint at the moment of the write and prove nothing; commitBoundary checks ownsOpenChat before calling it. Any new caller must do the same."
+    },
+    "src/runtime/effectsApplier.ts#EffectsApplier.applyCastChanges>withLedger": {
+      "status": "partial",
+      "note": "v2.3 replan V3 (2026-09-23): COVERED: the host write inside is preceded by the caller's per-member run.stillOwns() (applyCastChanges loop); the mirror write after it goes to the `extras` object this checkpoint was applied to, captured, never re-read, so a switch mid-call updates the departing chat's own mirror. NOT COVERED: none beyond withLedger's own row."
     },
     "src/runtime/effectsApplier.ts#EffectsApplier.applyCheckpoint": {
       "status": "checked",
@@ -207,43 +235,63 @@
     },
     "src/runtime/effectsApplier.ts#EffectsApplier.fireNpcReplies": {
       "status": "checked",
-      "note": "v2.3 plan 03: the only effect that SPEAKS \u2014 fireReply posts a message into whatever chat is open, so a late fire is visible in the transcript. One await per reply, so the check is inside the loop. Limit: beginRun mints at entry, so it detects the world moving DURING the sequence, not before; the caller owns that decision. Live-proven 2026-09-20: plan02-runtime scenario green twice against a group with the required cast, npcFired=1 \u2014 the guard does not suppress a real scripted reply. The trigger (generating) branch is still unproven live."
+      "note": "v2.3 plan 03: the only effect that SPEAKS — fireReply posts a message into whatever chat is open, so a late fire is visible in the transcript. One await per reply, so the check is inside the loop. Limit: beginRun mints at entry, so it detects the world moving DURING the sequence, not before; the caller owns that decision. Live-proven 2026-09-20: plan02-runtime scenario green twice against a group with the required cast, npcFired=1 — the guard does not suppress a real scripted reply. The trigger (generating) branch is still unproven live."
     },
     "src/runtime/effectsApplier.ts#EffectsApplier.releaseWorldInfo": {
-      "status": "todo",
-      "note": "v2.3 plan 03: not yet checked"
+      "status": "delegate",
+      "note": "v2.3 replan V3 (2026-09-23): awaits applyWorldInfo, handing it the caller's run; applyWorldInfo checks before each write."
     },
     "src/runtime/effectsApplier.ts#EffectsApplier.restoreEffects": {
       "status": "partial",
       "note": "PARTIAL: the COMPARE-AND-SET is the guard, and it is stronger than a token. Before anything is written back, the host's current value is read and compared with what this chat wrote; a target that no longer holds it is refused and marked externally-changed rather than overwritten. What the token would add is the chat-switch case, and the caller owns that decision: `restoreEffects` runs from the leave/restart/rollback path, which re-reads the world it is leaving, and every host write it performs is delegated to the injected `restore` (a stHost seam)."
     },
+    "src/runtime/effectsApplier.ts#EffectsApplier.restoreFor": {
+      "status": "partial",
+      "note": "v2.3 replan V3 (2026-09-23): restore runs BECAUSE the world moved (leave/exit/restart/rollback), so a token would refuse exactly the work it exists for. COVERED: host writes go through restoreEffects' compare-and-set; the mirror write targets the captured departing `extras`; appliedChat is reset only when this chat's effects are gone. NOT COVERED: two restores racing each other are ordered by the ledger status, not by a token."
+    },
     "src/runtime/effectsApplier.ts#EffectsApplier.withLedger": {
       "status": "delegate",
-      "note": "v2.3 plan 06: the write-ahead wrapper every recorded host effect goes through. It awaits RuntimeManager.persist, which owns the check; its other writes are the ledger row it appends and the status it sets, both THIS chat's own in-memory state, patched before the first await \u2014 so a token minted here would be compared against the world it was just minted from, which is the reason `MemoryCoordinator.commit` gives."
+      "note": "v2.3 plan 06: the write-ahead wrapper every recorded host effect goes through. It awaits RuntimeManager.persist, which owns the check; its other writes are the ledger row it appends and the status it sets, both THIS chat's own in-memory state, patched before the first await — so a token minted here would be compared against the world it was just minted from, which is the reason `MemoryCoordinator.commit` gives."
+    },
+    "src/runtime/effectsApplier.ts#applyAuthorNote": {
+      "status": "partial",
+      "note": "v2.3 replan V3 (2026-09-23): COVERED: every path makes exactly ONE host write and returns (the census reads the branches in text order), and its only caller, applyCheckpoint, checks run.stillOwns() immediately before calling it. NOT COVERED: nothing inside, by design — there is no second write for a check to separate."
+    },
+    "src/runtime/effectsApplier.ts#applyWorldInfo": {
+      "status": "checked",
+      "note": "v2.3 replan V3 (2026-09-23): the plan spans several books and each is two host writes; the caller's run is now asked before EVERY write (it used to be checked once, after the whole loop). Callers: applyCheckpoint and releaseWorldInfo pass their run."
     },
     "src/runtime/judge.ts#JudgeRuntime.ask": {
       "status": "checked",
       "note": "C1, closed 2026-09-20: mints before the await, stamps the asked boundary, refuses to record a call whose world moved"
     },
-    "src/runtime/loreSelect.ts#LoreSelector.select": {
-      "status": "delegate",
-      "note": "v2.3 plan 03 (C1, the lore surface). force() pushes entries into the NEXT generation, so a selection outliving its chat seeds another chat prompt with this story lore. Invisible to the census until 2026-09-20 because its write verb is force, which WRITE_NAME did not list \u2014 the plan text named it and the regex did not. v2.3 plan 11 moved the check one hop: select() mints the run and awaits LoreSelector.forced, which owns the check and sits where the write is."
+    "src/runtime/judge.ts#JudgeRuntime.available": {
+      "status": "local",
+      "note": "v2.3 replan V3 (2026-09-23): `availability` is an install-wide cache of the plugin's status keyed by the judge settings, not chat state; any chat may read it."
     },
     "src/runtime/loreSelect.ts#LoreSelector.forced": {
       "status": "checked",
-      "note": "v2.3 plan 11 \u00a7Fault matrix: split out of select() so a refused force is reported instead of discarded, and so the token check sits where the write is. Both callers (the fresh path and the cached re-force) minted the run and pass it in, so the cached path \u2014 which had NO token check at all before this \u2014 is covered too. The story swap that the cached path could not see is fixed in the CACHE KEY, not here: a token minted at the start of a call can never notice that a cache entry was built under a story the chat has since left."
+      "note": "v2.3 plan 11 §Fault matrix: split out of select() so a refused force is reported instead of discarded, and so the token check sits where the write is. Both callers (the fresh path and the cached re-force) minted the run and pass it in, so the cached path — which had NO token check at all before this — is covered too. The story swap that the cached path could not see is fixed in the CACHE KEY, not here: a token minted at the start of a call can never notice that a cache entry was built under a story the chat has since left."
+    },
+    "src/runtime/loreSelect.ts#LoreSelector.select": {
+      "status": "delegate",
+      "note": "v2.3 plan 03 (C1, the lore surface). force() pushes entries into the NEXT generation, so a selection outliving its chat seeds another chat prompt with this story lore. Invisible to the census until 2026-09-20 because its write verb is force, which WRITE_NAME did not list — the plan text named it and the regex did not. v2.3 plan 11 moved the check one hop: select() mints the run and awaits LoreSelector.forced, which owns the check and sits where the write is."
     },
     "src/runtime/memoryMirror.ts#syncMemoryMirror": {
       "status": "checked",
       "note": "v2.3 plan 03: it already had a hand-rolled chat comparison guarding the binding, which the census could not see and which only asked about the chat. A story swap inside the same chat passed it, and the mirror book is per-chat but shared across stories. The comparison is kept (it is the only guard an unwired host has) and the token check added beside it."
     },
+    "src/runtime/memoryQueue.ts#commitDecision": {
+      "status": "partial",
+      "note": "v2.3 plan 05. Owns the write for all four author decisions (resolve, dismiss, Store anyway, reconfirm), which is why their own rows are gone: each now returns a call to this one instead of writing below its own await. COVERED: the put-back runs only on evidence of a lost write (a request that never went out, a non-2xx, or a read-back showing an older boundary), it writes only this runtime own memory slice, and the one host-facing write awaits MemoryCoordinator.save, which awaits RuntimeManager.persist, where the chat check lives. NOT COVERED: no run token of its own -- and it cannot mint one, because the row it resolves is named by the AUTHOR rather than read from a window, so there is no span to mint against (the same reason the four decision rows were delegates) -- and the restore names arrays snapshotted BEFORE the save, so a memory write landing inside that window is clobbered. An id-keyed restore is recorded as a v2.4 seed rather than hidden here."
+    },
     "src/runtime/rollback.ts#runRollback": {
       "status": "partial",
-      "note": "v2.3 plan 04. The rollback composition, extracted from the manager for its line budget. Partial, not checked: it verifies no token of its own, because it does not start any work \u2014 it is the mutation's own consequence. `rollbackFromMessage` records the mutation position on the owner before calling it, the run it composes belongs to the chat the runtime is loaded for, and every host write it triggers (world-info re-apply, stagecraft revert) is one this census already covers at its own edge. Making it `checked` means minting a token inside work that the mutation just invalidated, which would refuse the rollback it exists to perform."
+      "note": "v2.3 plan 04. The rollback composition, extracted from the manager for its line budget. Partial, not checked: it verifies no token of its own, because it does not start any work — it is the mutation's own consequence. `rollbackFromMessage` records the mutation position on the owner before calling it, the run it composes belongs to the chat the runtime is loaded for, and every host write it triggers (world-info re-apply, stagecraft revert) is one this census already covers at its own edge. Making it `checked` means minting a token inside work that the mutation just invalidated, which would refuse the rollback it exists to perform."
     },
     "src/runtime/runtimeManager.ts#RuntimeManager.activateCheckpoint": {
-      "status": "todo",
-      "note": "v2.3 plan 03: not yet checked"
+      "status": "checked",
+      "note": "v2.3 replan V3 (2026-09-23): mints before the engine moves and stops after applyCheckpoint if the world moved, instead of stamping status, steering and injection onto whatever loaded meanwhile."
     },
     "src/runtime/runtimeManager.ts#RuntimeManager.applyExtractionAudit": {
       "status": "delegate",
@@ -254,20 +302,20 @@
       "note": "v2.3 plan 03: mints before boundary work and checks after checkpoint effects, accepted stagecraft, persistence and transition announcement before any later runtime write, observer or notification. The persistence chokepoint and child writers retain their own guards."
     },
     "src/runtime/runtimeManager.ts#RuntimeManager.dropReadsAfter": {
-      "status": "todo",
-      "note": "v2.3 plan 03: not yet checked"
+      "status": "local",
+      "note": "v2.3 replan V3 (2026-09-23): every write precedes its await (the judge ring is trimmed synchronously); after persist() only notify() runs, a UI refresh that holds no state."
     },
     "src/runtime/runtimeManager.ts#RuntimeManager.fireAfterSpeak": {
       "status": "checked",
       "note": "v2.3 plan 03: mints before NPC replies and checks after that await and after persistence before notifying. Deferred same-world and lapsed-world controls plus mutation testing cover both paths."
     },
     "src/runtime/runtimeManager.ts#RuntimeManager.flagMoment": {
-      "status": "todo",
-      "note": "v2.3 plan 03: not yet checked"
+      "status": "local",
+      "note": "v2.3 replan V3 (2026-09-23): the flag is recorded synchronously; after persist() (which refuses unless the run owns the open chat) only notify() runs."
     },
     "src/runtime/runtimeManager.ts#RuntimeManager.loadStory": {
-      "status": "partial",
-      "note": "v2.3 plan 03: partial. The away-recap detect is gated on this load still being current \u2014 a chat change landing inside the load's awaits used to leave a popup describing the world we had left (S3) \u2014 and this load's persistence is covered by the checked `persist` chokepoint. The engine load and checkpoint effects before that await are not token-gated."
+      "status": "checked",
+      "note": "v2.3 replan V3 (2026-09-23): promoted from partial: the tail after applyCheckpoint now stops when superseded (the release is checked per write, then asked again). A superseded load used to retitle the newer load, release ITS gated lore and select the old id; only the current load queues a recap (S3)."
     },
     "src/runtime/runtimeManager.ts#RuntimeManager.persist": {
       "status": "checked",
@@ -285,9 +333,21 @@
       "status": "delegate",
       "note": "awaits MemoryCoordinator.removeLedgerEntry, which owns the check"
     },
+    "src/runtime/runtimeManager.ts#RuntimeManager.rollbackDeps.dropReadsAfter": {
+      "status": "local",
+      "note": "v2.3 replan V3 (2026-09-23): forwards to RuntimeManager.dropReadsAfter and writes nothing itself after its await."
+    },
+    "src/runtime/runtimeManager.ts#RuntimeManager.rollbackDeps.reapplyCheckpoint": {
+      "status": "delegate",
+      "note": "v2.3 replan V3 (2026-09-23): awaits EffectsApplier.applyCheckpoint, which checks before each host write. Residual stated: applyCheckpoint mints AFTER restoreFor's await, so a switch during the restore is judged against the new world; a chat switch runs its own leave-restore and hydrate, which rebuild whatever this wrote."
+    },
     "src/runtime/runtimeManager.ts#RuntimeManager.saveAndObserve": {
       "status": "partial",
       "note": "v2.3 plan 06. Covered: this is reached only from persist(), which refuses first unless the run owns the open chat, so this site can never be the first writer to another chat's state. Not covered: the awaited ~8s observation holds no token of its own, so a chat change DURING it is not refused, only surfaced as a read-back mismatch."
+    },
+    "src/runtime/runtimeManager.ts#RuntimeManager.selectionDeps.clearStory": {
+      "status": "checked",
+      "note": "v2.3 replan V3 (2026-09-23): mints after invalidateRuns and stops if a newer load or clear overtook the exit restore — it used to wipe the new story's fresh extras and release ITS gated lore (keep=null). The release is checked per write and asked again after."
     },
     "src/runtime/runtimeManager.ts#RuntimeManager.setArcPinned": {
       "status": "delegate",
@@ -314,32 +374,40 @@
       "note": "awaits RuntimeManager.commitBoundary, which owns the check"
     },
     "src/runtime/runtimeManager.ts#RuntimeManager.swapStory": {
-      "status": "todo",
-      "note": "v2.3 plan 03: not yet checked"
+      "status": "checked",
+      "note": "v2.3 replan V3 (2026-09-23): mints after the swap names its world, and stops after the release if the world moved; it minted nothing before."
     },
     "src/runtime/saveEvidence.ts#recordSaveEvidence": {
       "status": "local",
-      "note": "v2.3 plan 06: it writes only the save HEALTH \u2014 this chat's own in-memory state, handed to the injected `onWrite`. `markSettled` cannot reach another chat's anything, and the persist that follows is the caller's: RuntimeManager.persist, which owns the checked chokepoint."
+      "note": "v2.3 plan 06: it writes only the save HEALTH — this chat's own in-memory state, handed to the injected `onWrite`. `markSettled` cannot reach another chat's anything, and the persist that follows is the caller's: RuntimeManager.persist, which owns the checked chokepoint."
     },
     "src/runtime/selfTest.ts#runModelSelfTest": {
       "status": "local",
       "note": "pushes into a function-local results array; the self-test writes no chat state by design"
+    },
+    "src/runtime/slashCommands.ts#registerSlashCommands.callback[cp]": {
+      "status": "delegate",
+      "note": "v2.3 replan V3 (2026-09-23): awaits RuntimeManager.activateCheckpoint (or setQuality -> commitBoundary); each branch is one awaited manager call and a return, which the census reads in text order."
+    },
+    "src/runtime/slashCommands.ts#registerSlashCommands.callback[so-mem]": {
+      "status": "partial",
+      "note": "v2.3 replan V3 (2026-09-23): COVERED: each branch awaits exactly one manager call and returns (the census reads the branches in text order); pin/exclude act on the open chat from the author's own command. NOT COVERED: the manager's memory setters are synchronous and take no token, so a command typed during a chat switch applies to the chat that is open."
     },
     "src/runtime/stateExport.ts#exportState": {
       "status": "local",
       "note": "v2.3 plan 05: the write is the clipboard, which no chat owns and which outlives nothing. The state it copies is read before the await and handed in, so a failure here cannot half-write chat state; the console fallback is the whole of its local effect."
     },
     "src/runtime/storySelection.ts#loadSelectedStory": {
-      "status": "todo",
-      "note": "v2.3 plan 03: not yet checked"
+      "status": "delegate",
+      "note": "v2.3 replan V3 (2026-09-23): awaits RuntimeManager.loadStory (through selectStory) or the checked selectionDeps.clearStory; its own first await is the leave restore, which runs because the world moved."
     },
     "src/runtime/storySelection.ts#removeStory": {
-      "status": "todo",
-      "note": "v2.3 plan 03: not yet checked"
+      "status": "partial",
+      "note": "v2.3 replan V3 (2026-09-23): COVERED: the library write is install-wide by nature, and the reload goes through loadSelectedStory, whose writes are checked. NOT COVERED: the closing status line is set after that await without a token, so a switch in between would show the removal notice in the chat that is open — a message about an install-wide action, not chat state."
     },
     "src/runtime/storySelection.ts#restartStory": {
-      "status": "todo",
-      "note": "v2.3 plan 03: not yet checked"
+      "status": "checked",
+      "note": "v2.3 replan V3 (2026-09-23): mints BEFORE the confirmation popup, whose wait is unbounded, and asks after it and after the restart restore; dropPersistedRuntime used to drop progress in whatever chat was open by then."
     },
     "src/runtime/storyUpdate.ts#applyStoryUpdate": {
       "status": "checked",
@@ -349,6 +417,14 @@
       "status": "checked",
       "note": "v2.3 plan 03: mints against the director window before the judge/director call, captures the origin checkpoint and message id, refuses to cache or record a decision whose world moved, and re-checks a cached or in-flight entry so a stale one cannot serve a world that replaced it. Exact pending identity keeps an old task from clearing its replacement. The returned guard also gates the two host effects the callers perform (abort, triggerMember) and the audit row now names the world the decision was computed from. No journal record on discard: the host has no journal seam here, and extras.talk.decisions renders every row as a chosen speaker or a silence, so a discard row would read as a silence."
     },
+    "src/runtime/talkControl.ts#TalkController.intercept": {
+      "status": "delegate",
+      "note": "v2.3 replan V3 (2026-09-23): awaits TalkController.ensureDecision, which checks and answers `pass` for a decision whose world moved; `pass.spoke` is state of the wrapper pass itself."
+    },
+    "src/runtime/talkControl.ts#TalkController.onWrapperFinished": {
+      "status": "delegate",
+      "note": "v2.3 replan V3 (2026-09-23): awaits TalkController.ensureDecision, which checks and answers `pass` for a decision whose world moved; reconciledKey is keyed by chat:checkpoint:message, so it cannot match another chat."
+    },
     "src/runtime/turnBridge.ts#TurnBridge.flushPending": {
       "status": "checked",
       "note": "v2.3 plan 03, V4 2026-09-23: the single pending slot is now a queue (a group round used to collapse into one boundary). Each entry keeps the guard captured when its reply was accepted; lapsed entries are dropped before polling, and each is re-checked immediately before its own commitBoundary. Only entries whose after-speak finished (ready) are committed, in order from the head, so an older reply never commits a newer one early. Controls in turnBridgeOwnership.review.test.ts + turnBridgeIdentity.review.test.ts."
@@ -356,10 +432,6 @@
     "src/runtime/turnBridge.ts#TurnBridge.onRenderedReply": {
       "status": "checked",
       "note": "v2.3 plan 03: captures ownership at event acceptance, queues its own pending entry (V4: no longer replaces a shared slot), and refuses a late afterSpeak continuation after its world lapses by removing its entry. The flush retains the same captured guard rather than minting in the landing world."
-    },
-    "src/runtime/memoryQueue.ts#commitDecision": {
-      "status": "partial",
-      "note": "v2.3 plan 05. Owns the write for all four author decisions (resolve, dismiss, Store anyway, reconfirm), which is why their own rows are gone: each now returns a call to this one instead of writing below its own await. COVERED: the put-back runs only on evidence of a lost write (a request that never went out, a non-2xx, or a read-back showing an older boundary), it writes only this runtime own memory slice, and the one host-facing write awaits MemoryCoordinator.save, which awaits RuntimeManager.persist, where the chat check lives. NOT COVERED: no run token of its own -- and it cannot mint one, because the row it resolves is named by the AUTHOR rather than read from a window, so there is no span to mint against (the same reason the four decision rows were delegates) -- and the restore names arrays snapshotted BEFORE the save, so a memory write landing inside that window is clobbered. An id-keyed restore is recorded as a v2.4 seed rather than hidden here."
     }
   }
 }

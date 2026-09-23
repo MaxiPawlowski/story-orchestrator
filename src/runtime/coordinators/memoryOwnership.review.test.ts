@@ -10,6 +10,7 @@
 // rest of the session.
 
 import { MemoryCoordinator } from "./memoryCoordinator";
+import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
 import { control } from "../../../test/findings/ledger";
 
@@ -22,6 +23,7 @@ jest.mock("@services/STAPI", () => ({
   getActiveGroup: () => null,
   getCharacterNameById: () => null,
   countTokens: () => tokenGate.next(),
+  sendConnectionProfileRequest: (_profile: string, prompt: string) => modelGate.next(prompt),
   bindChatLorebook: async () => {},
   ensureLorebook: async () => {},
   loadLorebook: async () => null,
@@ -58,15 +60,16 @@ const modelGate = {
   calls: 0,
   onCall: null as ((call: number) => void) | null,
   prompts: [] as string[],
+  answer: "a summary",
   async next(prompt: string): Promise<string> {
     this.calls += 1;
     this.prompts.push(prompt);
     this.onCall?.(this.calls);
-    return "a summary";
+    return this.answer;
   },
   /** Arc prompts carry the arc text; the canon prompt at the end of the pass does not. */
   arcCalls() { return this.prompts.filter((text) => text.includes("thread ")).length; },
-  reset() { this.calls = 0; this.prompts = []; this.onCall = null; },
+  reset() { this.calls = 0; this.prompts = []; this.onCall = null; this.answer = "a summary"; },
 };
 function harness(arcCount: number, presummarised = 0) {
   let current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
@@ -380,4 +383,54 @@ control("consolidation DOES write when the chat has not moved (anti-vacuity)", a
   matchGate.onBuild = null;
   await h.coordinator.runConsolidation();
   expect(h.patches.length).toBeGreaterThan(0);
+});
+
+describe("V3: a supersession bridge enqueues only into the story it read for", () => {
+  const bridgeStory = () => parseStoryV2OrThrow({
+    format: 2, id: "bridge", title: "Bridge", description: "",
+    qualities: [{ key: "crossed", type: "bool", source: "extractor", rubric: "Crossed?" }],
+    checkpoints: [{ id: "bank", name: "Bank", objective: "Cross", type: "anchor", start: true }, { id: "island", name: "Island", objective: "Rest", type: "anchor" }],
+    transitions: [{ id: "cross", from: "bank", to: "island", priority: 0, gate: { q: "crossed", op: "==", v: true } }],
+    roster: [],
+  });
+
+  function bridge() {
+    let current: RunContext = { chatId: "chat-a", storyId: "bridge", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+    const enqueued: unknown[] = [];
+    const story = bridgeStory();
+    const engine = new StoryEngine();
+    engine.loadStory(story);
+    const coordinator = new MemoryCoordinator({
+      getStory: () => story,
+      getState: () => engine.serialize(),
+      getMemory: () => ({ entries: [], settings: { enabled: true } }),
+      setMemory: () => {},
+      getExtractionSettings: () => ({ profileId: "p1", enabled: true }),
+      getFiredTransitions: () => [],
+      getExpansionGateSources: () => [],
+      enqueueExtractorDeltas: (deltas: unknown[]) => { enqueued.push(...deltas); },
+      enqueueMechanical: () => {},
+      ownership: { mint: (window = null) => mintToken(current, window), check: (token: RunToken) => tokenMatches(current, token) },
+      judge: () => null,
+      persist: async () => {},
+      notify: () => {},
+    } as never);
+    return { coordinator, enqueued, swapStory: () => { current = { ...current, storyId: "other", sessionEpoch: 2 }; } };
+  }
+  const superseding = [{ id: "m9", text: "Mira crossed the river at dawn.", messageId: 7 }] as never;
+
+  beforeEach(() => { modelGate.reset(); modelGate.answer = 'DELTA crossed value=true evidence="crossed the river"'; });
+
+  it("a story swap during the bridge's model call enqueues nothing", async () => {
+    const h = bridge();
+    modelGate.onCall = () => h.swapStory();
+    expect(await h.coordinator.runSupersessionBridge(superseding)).toBe(false);
+    expect(h.enqueued).toEqual([]);
+  });
+
+  it("control: an unmoved bridge enqueues the delta it read", async () => {
+    const h = bridge();
+    expect(await h.coordinator.runSupersessionBridge(superseding)).toBe(true);
+    expect(h.enqueued).toHaveLength(1);
+  });
 });

@@ -95,8 +95,7 @@ export class JudgeRuntime {
     return Promise.reject(new Error(`no calibration for judge use '${use}' yet`));
   }
 
-  recordFallback(use: string, fallback: JudgeFallback, request?: JudgeRequest) {
-    const context = this.deps.context();
+  recordFallback(use: string, fallback: JudgeFallback, request?: JudgeRequest, context = this.deps.context()) {
     this.deps.record({
       at: new Date((this.deps.now ?? Date.now)()).toISOString(),
       boundary: context.boundary,
@@ -119,7 +118,8 @@ export class JudgeRuntime {
     const asked = this.deps.context();
     const token = this.deps.ownership?.mint();
     if (!(await this.available())) {
-      this.recordFallback(use, "unavailable", request);
+      const owned = token ? this.deps.ownership?.check(token) : undefined;
+      if (!owned || owned.ok) this.recordFallback(use, "unavailable", request, asked);
       return { answers: null, model: null, latencyMs: 0, stateChars: JSON.stringify(request.state).length, questionCount: Object.keys(request.questions).length, fallback: "unavailable", cached: false };
     }
     const result = await askJudge(this.deps.transport, { ...request, model: settings.model }, {

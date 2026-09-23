@@ -10,7 +10,8 @@
 // switches off. It demands that nobody ADD a site without classifying it, that no row rot, and
 // that a row claiming a check actually has one.
 
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { censusSites } from "../../test/findings/ownershipCensus";
 
@@ -125,5 +126,39 @@ describe("write-edge ownership census", () => {
     // A heuristic that silently stops matching turns this guard into a green light over nothing.
     expect(sites.length).toBeGreaterThanOrEqual(60);
     expect(byKey.get("src/runtime/judge.ts#JudgeRuntime.ask")?.hasTokenCheck).toBe(true);
+  });
+});
+
+describe("V3: the census sees what it used to miss", () => {
+  const fixture = [
+    "class Host {",
+    "  private readonly deps = {",
+    "    clear: async () => { await work(); this.state = null; },",
+    "  };",
+    "  private handler = async () => { await work(); save(); };",
+    "  async onlyAssigns() { await work(); this.flag = true; }",
+    "  async commentOnly() { await work(); // run.stillOwns() would go here",
+    "    save(); }",
+    "  async realCheck() { await work(); if (!run.stillOwns()) return; save(); }",
+    "  async callbacks() { await Promise.all(items.map(async (item) => { await work(); record(item); })); }",
+    "}",
+    "function commands() { register({ name: \"cp\", callback: async () => { await work(); apply(); } }); }",
+  ].join("\n");
+  const dir = mkdtempSync(join(tmpdir(), "census-"));
+  writeFileSync(join(dir, "fixture.ts"), fixture);
+  const found = new Map(censusSites([dir.split("\\").join("/")]).map((site) => [site.name, site]));
+
+  test("arrow functions are censused and named by where they live", () => {
+    expect([...found.keys()].sort()).toEqual(["Host.callbacks>map", "Host.commentOnly", "Host.deps.clear", "Host.handler", "Host.onlyAssigns", "Host.realCheck", "commands.callback[cp]"]);
+  });
+
+  test("a property assignment after an await is a write", () => {
+    expect(found.get("Host.onlyAssigns")?.writes).toEqual(["=this.flag"]);
+    expect(found.get("Host.deps.clear")?.writes).toEqual(["=this.state"]);
+  });
+
+  test("a check named only in a comment is not a check", () => {
+    expect(found.get("Host.commentOnly")?.hasTokenCheck).toBe(false);
+    expect(found.get("Host.realCheck")?.hasTokenCheck).toBe(true);
   });
 });

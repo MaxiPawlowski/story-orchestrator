@@ -77,6 +77,7 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
   // and the mirror book is per-chat but shared across the stories played in that chat, so the
   // previous story's memory could be written and then recorded in the new story's extras.
   const run = beginRun(host.ownership);
+  const lapsed = () => host.getChatId() !== chatId || !run.stillOwns();
   const live = mirroredEntries(input.entries);
   const owned = input.book?.chatId === chatId ? input.book : null;
   if (!owned && !live.length) return idle;
@@ -91,6 +92,7 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
   const stale = adopting
     ? (ensured.created ? [] : await leftoverComments(host, ensured.name, liveComments))
     : Object.keys(writes).filter((comment) => !liveComments.has(comment));
+  if (lapsed()) return null;
   if (stale.length) {
     await host.disableWIEntry(ensured.name, stale);
     for (const comment of stale) delete writes[comment];
@@ -104,6 +106,7 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
       summary.unchanged += 1;
       continue;
     }
+    if (lapsed()) return null;
     const result = await host.upsertWIEntry(ensured.name, comment, entry.text, entry.entities);
     if (result === "failed") continue;
     writes[comment] = hash;
@@ -112,8 +115,10 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
     else summary.unchanged += 1;
   }
 
-  // Both halves: the original chat comparison, plus story, version and epoch via the token.
-  if (host.getChatId() !== chatId || !run.stillOwns()) return null;
+  // V3: checked before EACH host write above, not once after them — a story swap mid-sync used to
+  // let the departing story's rows land in the chat's shared book, and its stale sweep disable the
+  // new story's entries. Both halves: the chat comparison, plus story, version and epoch via the token.
+  if (lapsed()) return null;
   if (adopting) summary.binding = host.bindChatLorebook(ensured.name, input.book ? [input.book.name] : []);
   const changed = adopting || summary.created > 0 || summary.updated > 0 || summary.disabled > 0;
   return { summary, book: { name: ensured.name, chatId }, writes, changed };

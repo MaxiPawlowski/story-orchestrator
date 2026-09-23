@@ -138,3 +138,40 @@ control("a job that fails AFTER its world ended does not pause the world that re
   await new Promise((resolve) => setTimeout(resolve, 1200));
   expect(h.paused).toEqual([]);
 });
+
+describe("V3: a job's error belongs to the world it ran in", () => {
+  const failing = (h: ReturnType<typeof failingHarness>, priority: number, endWorld: boolean) => h.scheduler.schedule({
+    priority,
+    reason: "cadence:1",
+    run: async () => { if (endWorld) h.endTheWorld(); throw new Error("backend down"); },
+  } as never);
+  const settle = () => new Promise((resolve) => setTimeout(resolve, 1200));
+
+  it("a light job that fails after its world ended leaves the new world's panel clean", async () => {
+    const h = failingHarness();
+    failing(h, 0, true);
+    await settle();
+    expect(h.scheduler.getSnapshot().lastError).toBeNull();
+  });
+
+  it("control: a light job that fails in its own world shows its error", async () => {
+    const h = failingHarness();
+    failing(h, 0, false);
+    await settle();
+    expect(h.scheduler.getSnapshot().lastError).toBe("backend down");
+  });
+
+  it("a heavy job that fails after its world ended leaves the new world's panel clean", async () => {
+    const h = failingHarness();
+    failing(h, 3, true);
+    await settle();
+    expect(h.scheduler.getSnapshot().lastHeavyError).toBeNull();
+  });
+
+  it("control: a heavy job that fails in its own world shows its error", async () => {
+    const h = failingHarness();
+    failing(h, 3, false);
+    await settle();
+    expect(h.scheduler.getSnapshot().lastHeavyError).toBe("backend down");
+  });
+});

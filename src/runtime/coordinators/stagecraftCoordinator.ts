@@ -21,7 +21,7 @@ import {
   type WardenNoteOp,
 } from "@stagecraft/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
-import type { RunOwnership } from "../runToken";
+import type { RunOwnership, RunToken } from "../runToken";
 import { clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, getContext, loadLorebook, readWIEntry, setStoryExtensionPrompt, upsertWIEntry } from "@services/STAPI";
 import { lorebookFileId } from "@utils/string";
 import type { ExtractionRuntimeSettings, StagecraftRuntimeState } from "../types";
@@ -67,12 +67,22 @@ const readReply = (messageId: number): { speaker: string; text: string } | null 
 // curator can never move the blackboard or a memory tier (spec addendum §Stagecraft).
 const RETAINED_OP_STATUSES = new Set(["applied", "revert-failed", "externally-edited"]);
 
+interface PassHold {
+  token: RunToken | undefined;
+}
+
 export class StagecraftCoordinator {
-  private inFlight = false;
-  private wardenInFlight = false;
+  private curatorHold: PassHold | null = null;
+  private wardenHold: PassHold | null = null;
   private noteActive = false;
 
   constructor(private readonly deps: StagecraftCoordinatorDeps) {}
+
+  /** V3: a pass holds the coordinator only while its own world is still open — a slow pass started
+   *  in another chat used to block this chat's pass until its model call returned to be discarded. */
+  private busy(hold: PassHold | null): boolean {
+    return hold !== null && (!hold.token || this.deps.ownership?.check(hold.token).ok !== false);
+  }
 
   private get state(): StagecraftRuntimeState {
     return this.deps.getStagecraft();
@@ -98,7 +108,7 @@ export class StagecraftCoordinator {
   // Coalesced: nothing while a pass is in flight, and never twice inside the boundary gap.
   dueForRun(): boolean {
     const boundary = this.deps.getState()?.boundary ?? 0;
-    return this.curatorEnabled && !this.inFlight && boundary - this.state.lastRunBoundary >= CURATOR_BOUNDARY_GAP;
+    return this.curatorEnabled && !this.busy(this.curatorHold) && boundary - this.state.lastRunBoundary >= CURATOR_BOUNDARY_GAP;
   }
 
   // Only the authored allowlist is ever read, minus the entries checkpoints switch, so the prompt
@@ -119,10 +129,11 @@ export class StagecraftCoordinator {
     const state = this.deps.getState();
     if (!story || !state || !this.state.settings.curatorEnabled) return { ran: false, skipped: "disabled", record: null };
     if (!curatorHasScope(story)) return { ran: false, skipped: "no-scope", record: null };
-    if (this.inFlight) return { ran: false, skipped: "in-flight", record: null };
-    this.inFlight = true;
+    if (this.busy(this.curatorHold)) return { ran: false, skipped: "in-flight", record: null };
     // Minted before the first await, so it describes the world this pass was asked about.
     const token = this.deps.ownership?.mint();
+    const hold: PassHold = { token };
+    this.curatorHold = hold;
     try {
       const entries = await this.readScope();
       if (!entries.length) return { ran: false, skipped: "empty-scope", record: null };
@@ -186,7 +197,7 @@ export class StagecraftCoordinator {
       await this.save();
       return { ran: true, record: null };
     } finally {
-      this.inFlight = false;
+      if (this.curatorHold === hold) this.curatorHold = null;
     }
   }
 
@@ -377,12 +388,13 @@ export class StagecraftCoordinator {
     // The lapse happens before the in-flight guard: a newer reply supersedes an older unapplied note
     // whether or not this pass gets to ask, or a slow judge call leaves the stale note to inject.
     const lapsed = this.settleNotes((op, status) => op.replyMessageId < replyMessageId && status !== "applied", "lapsed");
-    if (this.wardenInFlight) {
+    if (this.busy(this.wardenHold)) {
       if (lapsed) await this.save();
       return false;
     }
-    this.wardenInFlight = true;
     const token = this.deps.ownership?.mint();
+    const hold: PassHold = { token };
+    this.wardenHold = hold;
     try {
       const established = warden.facts();
       const facts = established.map((fact) => fact.text);
@@ -419,7 +431,7 @@ export class StagecraftCoordinator {
       await this.save();
       return true;
     } finally {
-      this.wardenInFlight = false;
+      if (this.wardenHold === hold) this.wardenHold = null;
     }
   }
 

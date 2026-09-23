@@ -85,6 +85,10 @@ export class ExtractionScheduler {
     this.host.onSchedulerChange();
   }
 
+  private sameWorld(startedEpoch: number): boolean {
+    return (this.host.epoch?.() ?? 0) === startedEpoch;
+  }
+
   private underPressure(): boolean {
     const threshold = this.host.getExtractionSettings().pressureThreshold ?? PRESSURE_DEFAULT_THRESHOLD;
     return this.queue.length >= threshold;
@@ -165,13 +169,16 @@ export class ExtractionScheduler {
         const result = await this.runWithRetries(() => runSharedRead({ story, state, priority, reason: job.reason, window, stabilityLag: settings.stabilityLag, firedTransitions: this.host.getFiredTransitions(), facts: this.host.getFacts(), extraGateSources: this.host.getExpansionGateSources(), openArcs: this.host.getOpenArcs(), epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false, entities: this.host.getEntities?.() ?? [], judgeTyped: this.host.judgeTyped?.() ?? null, client: settings }));
         await this.host.applyExtractionAudit(result.audit, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, read);
       }
-      this.lastError = null;
+      if (this.sameWorld(startedEpoch)) this.lastError = null;
     } catch (error) {
-      this.lastError = error instanceof Error ? error.message : "Extraction failed";
       // Pausing is INSTALL-WIDE, so a job that failed after its world ended must not pause the
       // world that replaced it: switching chats would otherwise inherit the previous story's dead
-      // backend and silently stop extracting everywhere. The error is still recorded for the panel.
-      if ((this.host.epoch?.() ?? 0) === startedEpoch) this.host.pauseExtraction(this.lastError);
+      // backend and silently stop extracting everywhere. Nor may it put its error in the new
+      // world's panel, which `clearForNewWorld` had just emptied (V3).
+      if (this.sameWorld(startedEpoch)) {
+        this.lastError = error instanceof Error ? error.message : "Extraction failed";
+        this.host.pauseExtraction(this.lastError);
+      }
     } finally {
       this.inFlight = false;
       this.host.onSchedulerChange();
@@ -188,13 +195,14 @@ export class ExtractionScheduler {
     const job = this.heavyQueue.shift();
     if (!job) return;
     if (!job.run) return;
+    const startedEpoch = this.host.epoch?.() ?? 0;
     this.heavyInFlight = true;
     this.host.onSchedulerChange();
     try {
       await this.runWithRetries(job.run);
-      this.lastHeavyError = null;
+      if (this.sameWorld(startedEpoch)) this.lastHeavyError = null;
     } catch (error) {
-      this.lastHeavyError = error instanceof Error ? error.message : "Background generation failed";
+      if (this.sameWorld(startedEpoch)) this.lastHeavyError = error instanceof Error ? error.message : "Background generation failed";
     } finally {
       this.heavyInFlight = false;
       this.host.onSchedulerChange();

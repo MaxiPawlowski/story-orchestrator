@@ -22,6 +22,7 @@ import { createContinuityCheck, establishedFacts } from "./continuity";
 import { activeSpeakerId, enabledCharacterIds, namesForRosterId, rosterIdForName } from "./roster";
 import { EffectsApplier } from "./effectsApplier";
 import { applyGlobalSettings, createExtras, hydrateExtras, stripGlobalSettings, TALK_DECISION_LIMIT } from "./extras";
+import { SettingsControl } from "./settingsControl";
 import { beginRun, type RunContext, type RunOwnership } from "./runToken";
 import { RunOwner } from "./runOwner";
 import { runRollback, type RollbackDeps } from "./rollback";
@@ -59,8 +60,6 @@ export class RuntimeManager {
   onEpochChanged(listener: () => void) { return this.owner.onChanged(listener); }
   invalidateRuns() { this.awayRecap.dismissUnless(String(getContext().chatId ?? "")); this.owner.bump(); }
   private noteRecap(summary: string, detail: string) { this.journal.record("story", summary, this.journalContext(), detail); this.extras.journal = this.journal.getRecords(); }
-  // v2.3 plan 06: every host effect is recorded before it runs, so the chat knows what it changed in
-  // state it shares with other chats — and can put it back, or refuse to.
   private readonly effects: EffectsApplier;
   private readonly listeners = new Set<() => void>();
   private readonly boundaryListeners = new Set<(result: BoundaryResult) => void>();
@@ -159,8 +158,6 @@ export class RuntimeManager {
     filterEntries: createCuratorFilter(() => this.judge),
     warden: {
       check: createContinuityCheck(() => this.judge),
-      // v2.3 plan 05: the fact list travels as RECORDS, so a review card can cite the message a truth
-      // was read from rather than asserting a sentence with no owner.
       facts: () => establishedFacts(this.extras.memory.entries, this.memory.getLedger(), this.memory.boundProvenance(), this.extras.memory.conflicts),
       nudgeActive: () => this.copilot.getActiveNudge() !== null,
     },
@@ -213,19 +210,23 @@ export class RuntimeManager {
   private readonly selectionDeps: StorySelectionDeps = {
     loadStory: (loaded, mode, persisted) => this.loadStory(loaded, mode, persisted ?? null),
     restoreEffects: async (scope) => { await this.effects.restoreFor(this.extras, scope); },
+    beginRun: () => beginRun(this.owner.ownership),
     clearStory: async (status, note) => {
       if (note) this.journal.record("story", status, this.journalContext(), note);
       const previous = this.loaded?.story ?? null;
       this.loaded = null;
       this.invalidateRuns();
+      const run = beginRun(this.owner.ownership);
       await this.effects.restoreFor(this.extras, "exit");
+      if (!run.stillOwns()) return;
       this.extras = createExtras();
       this.pacing.clearPending();
       clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
       clearAllMemoryInjection();
       this.status = status;
       this.notify();
-      await releaseGatedWorldInfo(this.effects, previous, null);
+      await releaseGatedWorldInfo(this.effects, previous, null, run);
+      if (!run.stillOwns()) return;
     },
     fail: (errors, status) => { this.validationErrors = errors; this.status = status; this.notify(); },
     setStatus: (status) => { this.status = status; this.notify(); },
@@ -276,9 +277,11 @@ export class RuntimeManager {
 
   async activateCheckpoint(id: string) {
     if (!this.loaded) return false;
+    const run = beginRun(this.owner.ownership);
     this.refreshRequirements();
     this.engine.activateCheckpoint(id, this.getBoundaryContext());
     await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate", this.engine.checkpointPath);
+    if (!run.stillOwns()) return false;
     this.pacing.updateSteering();
     this.memory.updateInjection();
     await this.persist();
@@ -361,10 +364,12 @@ export class RuntimeManager {
     notes.forEach((note) => this.noteRecap(note, ""));
   }
 
-  setExtractionSettings(settings: Partial<ExtractionRuntimeSettings>) {
-    setGlobalSettings({ extraction: settings });
-    this.refreshSettingsView();
-  }
+  private readonly settingsControl = new SettingsControl({ extras: () => this.extras, updateSteering: () => this.pacing.updateSteering(), updateInjection: () => this.memory.updateInjection(), clearNudge: () => this.clearCopilotNudge(), persist: () => this.persist(), notify: () => this.notify() });
+  setExtractionSettings(settings: Partial<ExtractionRuntimeSettings>) { this.settingsControl.extraction(settings); }
+  setPacingSettings(settings: Partial<PacingSettings>) { this.settingsControl.pacing(settings); }
+  setMemorySettings(settings: Partial<MemoryRuntimeSettings>) { this.settingsControl.memory(settings); }
+  setCopilotSettings(settings: Partial<CopilotRuntimeSettings>) { this.settingsControl.copilot(settings); }
+  setUiSettings(settings: Partial<UiRuntimeSettings>) { this.settingsControl.ui(settings); }
 
   getActiveTalkControl(): TalkControl | null {
     if (!this.loaded || !this.extras.requirements.ready || !this.extras.talk.enabled) return null;
@@ -396,43 +401,9 @@ export class RuntimeManager {
     return checkpoint ? { id: checkpoint.id, name: checkpoint.name, objective: checkpoint.objective, storyTitle: this.loaded.story.title } : null;
   }
 
-  setPacingSettings(settings: Partial<PacingSettings>) {
-    const { shapeOverride, ...global } = settings;
-    if (Object.keys(global).length) setGlobalSettings({ pacing: global });
-    if ("shapeOverride" in settings) this.extras.pacing = { ...this.extras.pacing, shapeOverride: shapeOverride ?? null };
-    this.refreshSettingsView(() => this.pacing.updateSteering());
-  }
-
-  setMemorySettings(settings: Partial<MemoryRuntimeSettings>) {
-    setGlobalSettings({ memory: settings });
-    this.refreshSettingsView(() => this.memory.updateInjection());
-  }
-
   getCopilotSettings(): CopilotRuntimeSettings { return this.extras.copilot; }
-
-  setCopilotSettings(settings: Partial<CopilotRuntimeSettings>) {
-    setGlobalSettings({ copilot: settings });
-    this.refreshSettingsView(() => { if (!getGlobalSettings().copilot.enabled) this.clearCopilotNudge(); });
-  }
-
   getUiSettings(): UiRuntimeSettings { return this.extras.ui; }
-
-  setUiSettings(settings: Partial<UiRuntimeSettings>) {
-    const { authorView, ...display } = settings;
-    if (Object.keys(display).length) setGlobalSettings({ display });
-    if (authorView !== undefined) this.extras.ui = { ...this.extras.ui, authorView };
-    this.refreshSettingsView();
-  }
-
   getGlobalSettings() { return getGlobalSettings(); }
-
-  // Global settings changed: re-derive the in-memory view every reader uses, persist the per-chat part only.
-  private refreshSettingsView(after?: () => void) {
-    applyGlobalSettings(this.extras);
-    after?.();
-    void this.persist();
-    this.notify();
-  }
 
   async runCopilotStage(input: { draft: StoryV2; stage: CopilotStage; message: string; history: CopilotMessage[]; environment?: ProvisioningEnvironment }, debugResponse?: string): Promise<ProposalResult> { return this.copilot.runStage(input, debugResponse); }
   getProvisioningEnvironment(draft?: StoryV2): ProvisioningEnvironment { return this.copilot.getProvisioningEnvironment(draft); }
@@ -567,13 +538,14 @@ export class RuntimeManager {
     const saved = mode === "hydrate" ? persisted?.engineState ?? null : null;
     if (saved) this.engine.hydrate(saved, persisted?.engineHistory ?? null);
     await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), saved ? "hydrate" : "activate", this.engine.checkpointPath);
+    // A superseded load stops here: its tail used to retitle the newer load, release ITS gated lore and
+    // select the old id (V3), and only the current load may queue a recap (S3).
+    await releaseGatedWorldInfo(this.effects, previous, loaded.story, run);
+    if (!run.stillOwns()) return this.noteRecap("away recap skipped", `a later world change superseded this load: ${run.lapsedDetail() ?? "no detail"}`);
     this.status = `${saved ? "Continuing" : "Started"} ${loaded.story.title}${this.engine.hydrateRepair ? ` — ${this.engine.hydrateRepair}` : ""}`;
-    await releaseGatedWorldInfo(this.effects, previous, loaded.story);
     this.pacing.updateSteering();
     this.memory.updateInjection();
-    // Only the current load may queue a recap: it awaits, and S3 is the popup a superseded one left.
-    if (run.stillOwns()) this.awayRecap.detect(priorSessionAt, this.getSnapshot().narrative, String(getContext().chatId ?? ""));
-    else this.noteRecap("away recap skipped", `a later world change superseded this load: ${run.lapsedDetail() ?? "no detail"}`);
+    this.awayRecap.detect(priorSessionAt, this.getSnapshot().narrative, String(getContext().chatId ?? ""));
     setSelectedStoryId(loaded.record.id);
     await this.persist();
     this.notify();
@@ -623,12 +595,14 @@ export class RuntimeManager {
   private async swapStory(loaded: LoadedStory, state: EngineState | null, reanchored: boolean) {
     const previous = this.loaded?.story ?? null;
     this.loaded = loaded;
+    const run = beginRun(this.owner.ownership);
     this.engine.loadStory(loaded.story);
     if (state) this.engine.hydrate(state);
     this.refreshRequirements();
     this.expansion.revalidateInserted();
     await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), reanchored ? "activate" : "hydrate", this.engine.checkpointPath);
-    await releaseGatedWorldInfo(this.effects, previous, loaded.story);
+    await releaseGatedWorldInfo(this.effects, previous, loaded.story, run);
+    if (!run.stillOwns()) return;
     this.pacing.replayCommitted();
     this.pacing.updateSteering();
     this.memory.updateInjection();
@@ -682,7 +656,7 @@ export class RuntimeManager {
   async syncWorldInfo(): Promise<MemoryMirrorSummary> { return this.memory.syncWorldInfo(); }
 
   getStagecraftState(): StagecraftRuntimeState { return this.stagecraft.getState(); }
-  setStagecraftSettings(settings: Partial<StagecraftSettings>) { setGlobalSettings({ stagecraft: settings }); this.refreshSettingsView(); }
+  setStagecraftSettings(settings: Partial<StagecraftSettings>) { this.settingsControl.stagecraft(settings); }
   curatorDueForRun(): boolean { return this.stagecraft.dueForRun(); }
   async runWiCuratorPass(reason?: string, debugResponse?: string): Promise<CuratorPassOutcome> { return this.stagecraft.runCuratorPass(reason, debugResponse); }
   async setCuratorOpDecision(id: string, index: number, status: "accepted" | "rejected", op?: CuratorOp) { await this.stagecraft.setOpDecision(id, index, status, op); }

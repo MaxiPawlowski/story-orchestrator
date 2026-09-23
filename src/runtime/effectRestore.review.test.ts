@@ -48,7 +48,7 @@ const castRow = (id: string, member: string, before: boolean, after: boolean, me
 });
 const anRow = (id: string, messageId: number): EffectLedgerRow => ({
   id, effect: "author_note", status: "applied", target: { kind: "an" }, before: { text: "" }, after: { text: "story note" }, checkpointId: "cp", boundary: 1, messageId, at: "t",
-} as EffectLedgerRow);
+} as unknown as EffectLedgerRow);
 
 function harness() {
   const restored: EffectLedgerRow[] = [];

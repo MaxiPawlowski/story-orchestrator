@@ -1,0 +1,19 @@
+DIFF build.manifest.builtAt  "2026-09-23T09:03:58.792Z" -> "2026-09-23T09:09:14.506Z"
+DIFF build.manifest.fileSha256  "202ec00c768aa5c0" -> "ea8bc0089eed060e"
+DIFF host.onlineStatus  "no_connection" -> "/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf"
+{
+  "baseline": ".debug/run-header-v3-start.json",
+  "label": "diff-end",
+  "allow": [],
+  "differences": 3,
+  "progress": 0,
+  "blocking": 3,
+  "blockingPaths": [
+    "build.manifest.builtAt",
+    "build.manifest.fileSha256",
+    "host.onlineStatus"
+  ],
+  "warnings": [],
+  "wrote": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\.debug\\run-header-diff-end.json",
+  "ok": false
+}

@@ -16,7 +16,7 @@
 // the chat is gone.
 
 import { EffectsApplier } from "./effectsApplier";
-import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "./runToken";
+import { beginRun, mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "./runToken";
 import { control } from "../../test/findings/ledger";
 
 const hostWrites: string[] = [];
@@ -204,4 +204,54 @@ control("an applier with no ownership still applies everything", async () => {
   const unowned = new EffectsApplier();
   await unowned.applyCheckpoint(story, checkpoint, h.extras as never, snapshot, "activate", ["cp-1", "cp-2"]);
   expect(h.extras.lastAppliedCheckpointId).toBe("cp-2");
+});
+
+describe("V3: World Info is asked about before EVERY book, not once around the loop", () => {
+  const twoBooks = { id: "cp-2", effects: { world_info: { enable: [{ lorebook: "Book A", comments: ["a"] }, { lorebook: "Book B", comments: ["b"] }] } } };
+  const twoBookStory = { title: "S", checkpoints: [twoBooks], checkpointById: { "cp-2": twoBooks }, qualityByKey: {}, roster: [] } as never;
+  const books = () => hostWrites.filter((name) => name === "worldInfo").length;
+
+  function ownedRun() {
+    let current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+    const ownership: RunOwnership = { mint: (window = null) => mintToken(current, window), check: (token: RunToken) => tokenMatches(current, token) };
+    return { run: beginRun(ownership), applier: new EffectsApplier(ownership), switchChat: () => { current = { ...current, chatId: "chat-b", sessionEpoch: 2 }; } };
+  }
+
+  it("a release that a newer load overtook stops after the book it was writing", async () => {
+    const h = ownedRun();
+    hostGate.onWrite = (name) => { if (name === "worldInfo") h.switchChat(); };
+    await h.applier.releaseWorldInfo([twoBookStory], null, h.run);
+    expect(books()).toBe(1);
+  });
+
+  it("control: an unmoved release writes both books", async () => {
+    const h = ownedRun();
+    await h.applier.releaseWorldInfo([twoBookStory], null, h.run);
+    expect(books()).toBe(2);
+  });
+
+  // Each book both disables (an entry a checkpoint off the path gates) and enables, so every one of
+  // the four writes has its own check to be reached by: A.disable, A.enable, B.disable, B.enable.
+  const onPath = { id: "cp-1", effects: { world_info: { enable: [{ lorebook: "Book A", comments: ["a"] }, { lorebook: "Book B", comments: ["b"] }] } } };
+  const offPath = { id: "cp-9", effects: { world_info: { enable: [{ lorebook: "Book A", comments: ["a2"] }, { lorebook: "Book B", comments: ["b2"] }] } } };
+  const fourWrites = { title: "S", checkpoints: [onPath, offPath], checkpointById: { "cp-1": onPath, "cp-9": offPath }, qualityByKey: {}, roster: [] } as never;
+  const rebuildSwitchingAt = async (write: number) => {
+    const h = ownedRun();
+    let seen = 0;
+    hostGate.onWrite = (name) => { if (name === "worldInfo" && (seen += 1) === write) h.switchChat(); };
+    await h.applier.applyCheckpoint(fourWrites, onPath as never, { requirements: { ready: true }, effects: { ledger: [], cast: [] } } as never, snapshot, "hydrate", ["cp-1"]);
+    return books();
+  };
+
+  it("a switch during a book's disable stops before that book's enable", async () => {
+    expect(await rebuildSwitchingAt(1)).toBe(1);
+  });
+
+  it("a switch during a book's enable stops before the next book's disable", async () => {
+    expect(await rebuildSwitchingAt(2)).toBe(2);
+  });
+
+  it("control: an unmoved rebuild makes all four writes", async () => {
+    expect(await rebuildSwitchingAt(99)).toBe(4);
+  });
 });

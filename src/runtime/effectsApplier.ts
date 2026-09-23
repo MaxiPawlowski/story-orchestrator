@@ -90,10 +90,14 @@ export function resolvePreset(value: unknown, story: NormalizedStoryV2): { name:
   return obj ? { name, obj } : null;
 }
 
-const applyWorldInfo = async (plans: WorldInfoBookPlan[]) => {
+// V3: each book is two host writes and the plan spans several books, so the world is asked before
+// every one of them, not once around the loop.
+const applyWorldInfo = async (plans: WorldInfoBookPlan[], run?: RunGuard) => {
   for (const plan of plans) {
     if (!lorebookExists(plan.lorebook)) continue;
+    if (run && !run.stillOwns()) return;
     if (plan.disable.length) await disableWIEntry(plan.lorebook, plan.disable);
+    if (run && !run.stillOwns()) return;
     if (plan.enable.length) await enableWIEntry(plan.lorebook, plan.enable);
   }
 };
@@ -212,12 +216,10 @@ export class EffectsApplier {
     // completed wrong sequence leaves the other story's cast disabled on a shared group.
     const run = beginRun(this.ownership);
     const scope = { checkpointId: checkpoint.id, boundary: 0, messageId: lastMessageId() };
-    await applyWorldInfo(worldInfoPlan(story, path));
+    await applyWorldInfo(worldInfoPlan(story, path), run);
     const effects: CheckpointEffects = checkpoint.effects ?? {};
     if (!run.stillOwns()) return;
     if (effects.author_note !== undefined) await applyAuthorNote(effects.author_note, snapshot);
-    // The check goes before EVERY host write, not once per group of them: the Author Note above is
-    // itself a host write, so the preset below it is the second one since the last check.
     // The check goes before EVERY host write, not once per group of them: the Author Note above is
     // itself a host write, so the preset below it is the second one since the last check.
     if (!run.stillOwns()) return;
@@ -248,8 +250,8 @@ export class EffectsApplier {
     extras.updatedAt = new Date().toISOString();
   }
 
-  async releaseWorldInfo(owners: unknown[], keep: unknown | null) {
-    await applyWorldInfo(releasePlan(owners, keep));
+  async releaseWorldInfo(owners: unknown[], keep: unknown | null, run?: RunGuard) {
+    await applyWorldInfo(releasePlan(owners, keep), run);
   }
 
   // Each member the effect names is one decision about a shared group, so each is its own row: a

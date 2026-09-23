@@ -2,6 +2,7 @@ import { isValidationErrorList, type NormalizedStoryV2, type ValidationError } f
 import { showConfirmPopup } from "@services/STAPI";
 import { adoptChatState, blobMismatch, dropPersistedRuntime, getSelectedStoryId, loadPersistedRuntime, setSelectedStoryId } from "./persistence";
 import { findStoryRecord, listStoryRecords, loadPinnedStory, loadStoryRecord, removeStoryRecord, saveStoryRecord } from "./storyLibrary";
+import type { RunGuard } from "./runToken";
 import type { LoadedStory, PersistedStoryRuntime } from "./types";
 
 // Which story this chat plays and where that copy comes from (spec addendum §Story identity). Split
@@ -11,6 +12,7 @@ export interface StorySelectionDeps {
   loadStory: (loaded: LoadedStory, mode: "activate" | "hydrate", persisted?: PersistedStoryRuntime | null) => Promise<void>;
   clearStory: (status: string, note?: string) => Promise<void>;
   restoreEffects?: (scope: "leave" | "restart") => Promise<void>;
+  beginRun?: () => RunGuard;
   fail: (errors: ValidationError[], status: string) => void;
   setStatus: (status: string) => void;
   isLoaded: (id: string) => boolean;
@@ -19,14 +21,17 @@ export interface StorySelectionDeps {
 
 /** Checkpoint entries live in global lorebooks, so any story this install plays (and the one this
  * chat is leaving) may have left some on — after a chat switch, or ST closing mid-story. Only the
- * story now playing keeps its own; its path already decided those. */
+ * story now playing keeps its own; its path already decided those. V3: a release that a newer load
+ * overtook would disable the NEW story's entries (they are not `keep`), so it asks the caller's run
+ * before each write, and the caller asks it again before going on. */
 export async function releaseGatedWorldInfo(
-  effects: { releaseWorldInfo: (owners: unknown[], keep: unknown | null) => Promise<unknown> },
+  effects: { releaseWorldInfo: (owners: unknown[], keep: unknown | null, run?: RunGuard) => Promise<unknown> },
   previous: NormalizedStoryV2 | null,
   keep: NormalizedStoryV2 | null,
+  run?: RunGuard,
 ): Promise<void> {
   const owners = [...listStoryRecords().map((record) => record.raw), ...(previous ? [previous] : [])];
-  await effects.releaseWorldInfo(owners, keep).catch((error) => console.warn("[Story Orchestrator] could not release checkpoint world info", error));
+  await effects.releaseWorldInfo(owners, keep, run).catch((error) => console.warn("[Story Orchestrator] could not release checkpoint world info", error));
 }
 
 export async function loadSelectedStory(deps: StorySelectionDeps): Promise<boolean> {
@@ -92,10 +97,14 @@ export async function selectStory(deps: StorySelectionDeps, idOrHash: string, ch
 export async function restartStory(deps: StorySelectionDeps, currentId: string | null, alreadyConfirmed = false): Promise<boolean> {
   const id = currentId ?? getSelectedStoryId();
   if (!id) return false;
+  // V3: the confirmation waits as long as the player does, and dropping progress afterwards would drop
+  // it in whatever chat is open by then.
+  const run = deps.beginRun?.();
   const confirmed = alreadyConfirmed || await showConfirmPopup("Restart this story? The chat keeps its messages, but checkpoint progress, blackboard and story memory are cleared.", { okButton: "Restart story", cancelButton: "Keep playing" });
-  if (!confirmed) return false;
+  if (!confirmed || (run && !run.stillOwns())) return false;
   const fallback = deps.loadedFallback();
   await deps.restoreEffects?.("restart");
+  if (run && !run.stillOwns()) return false;
   dropPersistedRuntime(id);
   const record = findStoryRecord(id);
   const fromLibrary = record ? loadStoryRecord(record) : null;

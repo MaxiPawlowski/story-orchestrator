@@ -135,3 +135,45 @@ control("a call with no ownership supplied still records, so an old caller is un
   await pending;
   expect(h.rings["chat-b"]).toHaveLength(1);
 });
+
+describe("V3: the unavailable fallback belongs to the chat it was asked in", () => {
+  function unavailable() {
+    const rings: Record<string, JudgeCallRecord[]> = { "chat-a": [], "chat-b": [] };
+    let chatId = "chat-a";
+    let boundary = 4;
+    let epoch = 1;
+    let release!: () => void;
+    const held = new Promise<void>((resolve) => { release = resolve; });
+    const ctx = (): RunContext => ({ chatId, storyId: "s1", playedVersion: 1, sessionEpoch: epoch, windowRevision: 0, lowestMutatedMessageId: null });
+    const runtime = new JudgeRuntime({
+      getSettings: () => ({ enabled: true, model: "jev-1.13.0", timeoutMs: 5000, uses: { sceneTracker: true }, expansion: { variants: 1, temperature: 0.7, pick: "code" } }) as never,
+      transport: (async () => ({ model: "jev-1.13.0", answers: {} })) as never,
+      status: async () => { await held; return { configured: false, model: null }; },
+      record: (row: JudgeCallRecord) => { rings[chatId].push(row); },
+      context: () => ({ boundary, messageId: boundary * 2 }),
+      ownership: { mint: () => mintToken(ctx()), check: (token: RunToken) => tokenMatches(ctx(), token) },
+      now: () => 0,
+    } as never);
+    return { runtime, rings, release, switchChat: () => { chatId = "chat-b"; boundary = 40; epoch += 1; } };
+  }
+
+  it("a fallback whose chat moved during the status check is recorded nowhere", async () => {
+    const h = unavailable();
+    const pending = h.runtime.ask("sceneTracker", request);
+    await Promise.resolve();
+    h.switchChat();
+    h.release();
+    expect((await pending).fallback).toBe("unavailable");
+    expect(h.rings["chat-b"]).toHaveLength(0);
+    expect(h.rings["chat-a"]).toHaveLength(0);
+  });
+
+  it("control: a fallback in its own chat is recorded there, stamped with the boundary it was asked at", async () => {
+    const h = unavailable();
+    const pending = h.runtime.ask("sceneTracker", request);
+    h.release();
+    await pending;
+    expect(h.rings["chat-a"]).toHaveLength(1);
+    expect(h.rings["chat-a"][0]).toMatchObject({ fallback: "unavailable", boundary: 4 });
+  });
+});

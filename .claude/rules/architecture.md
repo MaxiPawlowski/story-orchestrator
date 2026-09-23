@@ -48,6 +48,7 @@ src/
     faultMatrix.guard.test.ts # v2.3 plan 11: the fault-matrix census guard (see Invariants)
     storyUpdate.ts           # v2.1 plan 05: library -> running chat (diff, choice popup, swap, re-pin, journal record)
     storySelection.ts        # v2.1 plan 07: which story this chat plays — import/select/restart/remove against the library + pinned copy
+    settingsControl.ts       # V3 (2026-09-23): the settings panel's writes — install-wide half to the store, per-chat overrides to extras, one refresh
     wizardSessions.ts        # v2.1 plan 06: wizard conversation + stage + created-asset ledger, persisted in extension settings
     memoryMirror.ts          # memory -> World Info mirror over injected host deps: one book per chat (`Story Orchestrator - <title> - <chatId>`, `extras.memory.wiBook`), created via ensureLorebook, bound to the chat lorebook slot
     values.ts                # v2.1 plan 05 (pure): typed text -> PrimitiveValue for /cp set and the driver

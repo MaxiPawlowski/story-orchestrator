@@ -577,7 +577,7 @@ export class MemoryCoordinator {
     if (!story || !state || !supersedingEntries.length) return false;
     const scope = deriveScope(story, state.activeCheckpointId, state.blackboard, this.deps.getExpansionGateSources());
     if (!scope.length) return false;
-    const settings = this.deps.getExtractionSettings();
+    const run = beginRun(this.deps.ownership);
     const messages = supersedingEntries.map((entry, index) => ({
       index,
       messageId: entry.messageId ?? state.boundary,
@@ -594,9 +594,9 @@ export class MemoryCoordinator {
       scope,
       firedTransitions: this.deps.getFiredTransitions(),
       facts: this.getFacts(),
-      client: { ...settings, debugResponse: globalThis.storyOrchestratorDebugSupersessionResponse ?? null },
+      client: { ...this.deps.getExtractionSettings(), debugResponse: globalThis.storyOrchestratorDebugSupersessionResponse ?? null },
     });
-    if (!result.audit.acceptedDeltas.length) return false;
+    if (!result.audit.acceptedDeltas.length || !run.stillOwns()) return false;
     this.deps.enqueueExtractorDeltas(result.audit.acceptedDeltas, result.audit.window);
     await this.save();
     return true;
