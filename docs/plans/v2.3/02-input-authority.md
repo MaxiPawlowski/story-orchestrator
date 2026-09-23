@@ -355,3 +355,10 @@ host-effect half of the cross-store rollback invariant is plan 06's, and it is a
 - F1 measured live (4/4 J9.1 first-attempt, archived) — stands; runs not `--strict`, 2/4 failed
   J9.5.
 
+
+### V1 gate (2026-09-23)
+
+- `showConfirmPopup`/`showChoicePopup`/`showTextPopup` all take `PopupContent` and hand the host an element built by `asContentNode` (a string becomes a text node); `showTextPopup`'s `innerHTML` sink is gone. The away recap renders through `renderNarrativeNode(status, doc)` (text nodes) instead of `renderNarrativeHtml` + `escapeHtml`, both deleted.
+- Tests: `src/services/stHost/popup.test.ts` (4: confirm/choice/text hand over an element whose text is the hostile string, no `img` created, no markup write; a source scan refuses `innerHTML=`/`outerHTML=`/`insertAdjacentHTML`/`dangerouslySetInnerHTML`/`document.write(`), `awayRecap.test.ts` + `narrative.test.ts` rewritten against `src/utils/fakeDocument.ts`. Mutation: reverting `showConfirmPopup` to pass the raw string fails 1 of 4 (`test/findings/mutations/V1-confirm-raw-string.txt`).
+- Machine: typecheck 0, lint 0, jest 2497/2497, build 0, test:release 10/10.
+- Live (no model needed): story titled `SO-V1 <img src=x onerror="window.__soXss=1">` imported into a fresh chat of group `1759606632088`, real click on `#so-delete-story` (hit-test clickable), popup content read from the DOM: 0 `img`, sentinel never set, title shown as text; Keep answered; run twice (`scripts/debug/so-popup-injection-check.mts`), both PASS. Records + run-header start/diff in `test/journeys/records/v2.3-replan/V1/` (diff: only the open chat differs; library/lorebooks/wizard sessions unchanged). Cleanup: story removed from the library, chat metadata wiped; the empty sandbox chat `2026-09-23@03h25m39s740ms` was NOT deleted (`/delchat` refused by the session's safety classifier) — delete it by hand.

@@ -1,0 +1,19 @@
+screenshot skipped
+{
+  "before": {
+    "xss": 0,
+    "chat": "2026-09-23@03h25m39s740ms",
+    "storyId": "so-v1-hostile"
+  },
+  "probe": {
+    "text": "Delete \"SO-V1 <img src=x onerror=\"window.__soXss=1\">\" from the library? Chats already playing it keep their own pinned copy and carry on; new chats can no longer pick it.",
+    "imgsInContent": 0,
+    "xss": 0,
+    "markup": "<div>Delete \"SO-V1 &lt;img src=x onerror=\"window.__soXss=1\"&gt;\" from the library? Chats already playing it keep their own pinned copy and carry on; new chats can no longer pick it.</div>"
+  },
+  "after": {
+    "xss": 0,
+    "stillInLibrary": true
+  },
+  "verdict": "PASS"
+}

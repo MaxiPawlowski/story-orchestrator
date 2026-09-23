@@ -1,6 +1,7 @@
 import { AWAY_RECAP_MIN_MS, AwayRecapController, buildAwayRecap, shouldShowAwayRecap } from "./awayRecap";
 import { buildNarrativeStatus } from "./narrative";
 import { derivePipelineStatus } from "./pipeline";
+import { fakeDocument } from "@utils/fakeDocument";
 
 const narrative = (overrides: Parameters<typeof buildNarrativeStatus>[0] extends infer T ? Partial<T> : never = {}) => buildNarrativeStatus({
   storyTitle: "Sun Ruins",
@@ -48,13 +49,16 @@ describe("buildAwayRecap", () => {
     expect(recap.title).toContain("1d");
     expect(recap.lines[0]).toContain("The Ruined Gate");
     expect(recap.lines.some((line) => line.includes("The missing sun-heart"))).toBe(true);
-    expect(recap.html).toContain("The story so far");
+    expect(recap.render(fakeDocument().doc).textContent).toContain("The story so far");
   });
 
-  it("escapes html in dynamic content", () => {
-    const recap = buildAwayRecap(narrative({ storyTitle: "<script>" }), AWAY_RECAP_MIN_MS);
-    expect(recap.html).not.toContain("<script>");
-    expect(recap.html).toContain("&lt;script&gt;");
+  it("renders dynamic content as text nodes, never as markup", () => {
+    const dom = fakeDocument();
+    const recap = buildAwayRecap(narrative({ storyTitle: "<img src=x onerror=alert(1)>" }), AWAY_RECAP_MIN_MS);
+    const rendered = recap.render(dom.doc);
+    expect(rendered.textContent).toContain("<img src=x onerror=alert(1)>");
+    expect(dom.created).not.toContain("img");
+    expect(dom.markupWrites).toEqual([]);
   });
 });
 
@@ -63,9 +67,9 @@ describe("AwayRecapController", () => {
   const recent = new Date().toISOString();
 
   const harness = () => {
-    const opened: Array<{ html: string; closed: number }> = [];
-    const controller = new AwayRecapController((html) => {
-      const handle = { html, closed: 0 };
+    const opened: Array<{ render: (doc: Document) => HTMLElement; closed: number }> = [];
+    const controller = new AwayRecapController((render) => {
+      const handle = { render, closed: 0 };
       opened.push(handle);
       return { close: () => { handle.closed += 1; } };
     });

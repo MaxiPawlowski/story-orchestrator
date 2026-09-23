@@ -92,9 +92,6 @@ const TENSION_COPY: Record<TensionLevel, string> = {
 export const excerpt = (value: string, max = CANON_EXCERPT_CHARS): string =>
   (value.length <= max ? value : `${value.slice(0, max).trimEnd()}…`);
 
-export const escapeHtml = (value: string): string =>
-  value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
 export function buildNarrativeStatus(input: NarrativeInput): NarrativeStatus {
   const sections: NarrativeSection[] = [];
 
@@ -140,9 +137,21 @@ export function buildNarrativeStatus(input: NarrativeInput): NarrativeStatus {
   return { title, sections, text };
 }
 
-export function renderNarrativeHtml(status: NarrativeStatus, heading = status.title): string {
-  const body = status.sections
-    .map((section) => `<div style="margin-bottom:0.6em"><b>${escapeHtml(section.label)}</b><div style="white-space:pre-wrap">${section.lines.map((line) => escapeHtml(line)).join("\n")}</div></div>`)
-    .join("");
-  return `<h3 style="margin-top:0">${escapeHtml(heading)}</h3><div style="text-align:left">${body}</div>`;
+export function renderNarrativeNode(status: NarrativeStatus, doc: Document, heading = status.title): HTMLElement {
+  const element = (tag: string, style: string | null, text: string | null) => {
+    const node = doc.createElement(tag);
+    if (style) node.setAttribute("style", style);
+    if (text !== null) node.append(doc.createTextNode(text));
+    return node;
+  };
+  const root = doc.createElement("div");
+  root.append(element("h3", "margin-top:0", heading));
+  const body = element("div", "text-align:left", null);
+  for (const section of status.sections) {
+    const block = element("div", "margin-bottom:0.6em", null);
+    block.append(element("b", null, section.label), element("div", "white-space:pre-wrap", section.lines.join("\n")));
+    body.append(block);
+  }
+  root.append(body);
+  return root;
 }

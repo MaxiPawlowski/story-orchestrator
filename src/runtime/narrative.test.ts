@@ -1,4 +1,5 @@
-import { buildNarrativeStatus, renderNarrativeHtml, type NarrativeInput } from "./narrative";
+import { buildNarrativeStatus, renderNarrativeNode, type NarrativeInput } from "./narrative";
+import { fakeDocument } from "@utils/fakeDocument";
 import { derivePipelineStatus } from "./pipeline";
 import type { ExtractionRuntimeState } from "./types";
 
@@ -54,11 +55,14 @@ describe("buildNarrativeStatus", () => {
     expect(status.text).toContain("memory model");
   });
 
-  it("escapes html when rendered into a popup", () => {
+  it("renders into a popup as text nodes, never as markup", () => {
+    const dom = fakeDocument();
     const status = buildNarrativeStatus(input({ storyTitle: "<script>", checkpointName: "<b>gate</b>" }));
-    const html = renderNarrativeHtml(status);
-    expect(html).not.toContain("<script>");
-    expect(html).toContain("&lt;b&gt;gate&lt;/b&gt;");
+    const node = renderNarrativeNode(status, dom.doc);
+    expect(node.textContent).toContain("<b>gate</b>");
+    expect(dom.created.filter((tag) => tag === "b")).toHaveLength(status.sections.length);
+    expect(dom.created).not.toContain("script");
+    expect(dom.markupWrites).toEqual([]);
   });
 
   it("excerpts a long canon", () => {

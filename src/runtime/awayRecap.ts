@@ -1,11 +1,11 @@
-import { renderNarrativeHtml, type NarrativeStatus } from "./narrative";
+import { renderNarrativeNode, type NarrativeStatus } from "./narrative";
 
 export const AWAY_RECAP_MIN_MS = 8 * 60 * 60 * 1000;
 
 export interface AwayRecap {
   title: string;
   lines: string[];
-  html: string;
+  render: (doc: Document) => HTMLElement;
 }
 
 const formatGap = (ms: number): string => {
@@ -26,7 +26,7 @@ export function shouldShowAwayRecap(lastSessionAt: string | null, now: number, m
 export function buildAwayRecap(narrative: NarrativeStatus, gapMs: number): AwayRecap {
   const title = `Welcome back — ${narrative.title} (away ${formatGap(gapMs)})`;
   const lines = narrative.sections.map((section) => `${section.label}\n${section.lines.join("\n")}`);
-  return { title, lines, html: renderNarrativeHtml(narrative, title) };
+  return { title, lines, render: (doc) => renderNarrativeNode(narrative, doc, title) };
 }
 
 export interface RecapPopupHandle {
@@ -45,7 +45,7 @@ export class AwayRecapController {
   private open: (ScopedRecap & { handle: RecapPopupHandle }) | null = null;
 
   constructor(
-    private readonly showPopup: (html: string) => RecapPopupHandle,
+    private readonly showPopup: (render: (doc: Document) => HTMLElement) => RecapPopupHandle,
     private readonly note: (summary: string, detail: string) => void = () => undefined,
   ) {}
 
@@ -64,7 +64,7 @@ export class AwayRecapController {
     if (!pending) return false;
     this.pending = null;
     this.closeOpen();
-    this.open = { ...pending, handle: this.showPopup(pending.recap.html) };
+    this.open = { ...pending, handle: this.showPopup(pending.recap.render) };
     this.note("away recap shown", `chat ${pending.chatId || "(unnamed)"}`);
     return true;
   }

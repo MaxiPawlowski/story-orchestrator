@@ -310,7 +310,7 @@ cited). Items needing the backend stay `done` with the live half listed under L-
 |---|---|---|---|---|
 | 0 | V0 | repo | v2.3 is uncommitted on `master` (212 M / 163 ??) and `master` is 91 ahead of `origin`: branch + commit + push — **needs user approval**; backup tarball taken 2026-09-23 | blocked (user) |
 | 1 | V21 | 08 | Attestation `current` computed by `scripts/release/attest.mjs` (not hand-edited); test compares computed vs file; source hash includes `styles.css`; manifest records the extension commit || done 2026-09-23 |
-| 2 | V1 | 02 | R7 residual: `showConfirmPopup` string → DOM text nodes (`index.tsx:272` library title reaches innerHTML); drop `showTextPopup`'s `innerHTML` sink; guard test: no string reaches `callGenericPopup` | todo |
+| 2 | V1 | 02 | R7 residual: `showConfirmPopup` string → DOM text nodes (`index.tsx:272` library title reaches innerHTML); drop `showTextPopup`'s `innerHTML` sink; guard test: no string reaches `callGenericPopup` || live 2026-09-23 (`records/v2.3-replan/V1/`) |
 | 3 | V2 | 03 | Extraction ownership across the shared read: mint the token in `ExtractionScheduler.pump` before `runSharedRead`, gate `enqueueExtractorDeltas` + apply on it; test moves the world during the read | todo |
 | 4 | V7 | 05 | Quarantine exclusion completeness: `rollbackLedger` quarantines pinned rows; `mirroredEntries` filters `isLive`; stale canon kept out of steering consumers; consolidation `groupOf` live-only; scene conflicts excluded; one exclusion census test over every consumer | todo |
 | 5 | V12 | 07 | Contract drop strands a chat on a generated checkpoint: migrate legacy `inserted` chains on the path (single outcome → id `<beat>:0`), and hydrate guard for a missing active checkpoint (nearest path anchor + notice) | todo |

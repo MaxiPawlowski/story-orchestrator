@@ -10,18 +10,18 @@ export interface ConfirmPopupOptions {
   cancelButton?: string;
 }
 
-export async function showConfirmPopup(content: string, options: ConfirmPopupOptions = {}): Promise<boolean> {
+export async function showConfirmPopup(content: PopupContent, options: ConfirmPopupOptions = {}): Promise<boolean> {
   const context = getContext() as unknown as {
     callGenericPopup?: (content: string | HTMLElement, type: number, inputValue?: string, popupOptions?: Record<string, unknown>) => Promise<unknown>;
     POPUP_TYPE?: { CONFIRM?: number };
     POPUP_RESULT?: { AFFIRMATIVE?: number };
   } | undefined;
   if (typeof context?.callGenericPopup !== "function") {
-    return window.confirm(content);
+    return window.confirm(plainText(content));
   }
   const type = context.POPUP_TYPE?.CONFIRM ?? 2;
   const affirmative = context.POPUP_RESULT?.AFFIRMATIVE ?? 1;
-  const result = await context.callGenericPopup(content, type, "", { okButton: options.okButton ?? "OK", cancelButton: options.cancelButton ?? "Cancel" });
+  const result = await context.callGenericPopup(asContentNode(content), type, "", { okButton: options.okButton ?? "OK", cancelButton: options.cancelButton ?? "Cancel" });
   return result === affirmative;
 }
 
@@ -37,13 +37,15 @@ export interface ChoicePopupOptions<T extends string> {
 // (popup.js:534) and the strings this popup shows include authored story titles.
 export type PopupContent = string | HTMLElement | ((doc: Document) => HTMLElement);
 
-const asContentNode = (content: PopupContent): string | HTMLElement => {
+export const asContentNode = (content: PopupContent): HTMLElement => {
   if (typeof content === "function") return content(document);
   if (typeof content !== "string") return content;
   const holder = document.createElement("div");
   holder.textContent = content;
   return holder;
 };
+
+const plainText = (content: PopupContent): string => (typeof content === "string" ? content : asContentNode(content).textContent ?? "");
 
 // Three-way decisions (plan 05's invalidation flow) need more than confirm/cancel. ST's popup
 // takes `customButtons` whose results start at 2 (popup.js:288-290) alongside the built-in
@@ -56,7 +58,7 @@ export async function showChoicePopup<T extends string>(content: PopupContent, o
   } | undefined;
   const choices = options.choices ?? [];
   if (typeof context?.callGenericPopup !== "function") {
-    return window.confirm(typeof content === "string" ? content : options.okButton.label) ? options.okButton.id : null;
+    return window.confirm(plainText(content) || options.okButton.label) ? options.okButton.id : null;
   }
   const affirmative = context.POPUP_RESULT?.AFFIRMATIVE ?? 1;
   const result = await context.callGenericPopup(asContentNode(content), context.POPUP_TYPE?.CONFIRM ?? 2, "", {
@@ -82,7 +84,7 @@ export interface TextPopupHandle {
  * host's `[data-result]` controls complete the popup when clicked (popup.js:546), and the ok
  * button carries result 1, so a click is the supported close path.
  */
-export function showTextPopup(content: string | HTMLElement, options: TextPopupOptions = {}): TextPopupHandle {
+export function showTextPopup(content: PopupContent, options: TextPopupOptions = {}): TextPopupHandle {
   const context = getContext() as unknown as {
     callGenericPopup?: (content: string | HTMLElement, type: number, inputValue?: string, popupOptions?: Record<string, unknown>) => Promise<unknown>;
     POPUP_TYPE?: { TEXT?: number };
@@ -94,8 +96,7 @@ export function showTextPopup(content: string | HTMLElement, options: TextPopupO
   const type = context.POPUP_TYPE?.TEXT ?? 1;
   const anchor = document.createElement("div");
   anchor.className = "so-popup-anchor";
-  if (typeof content === "string") anchor.innerHTML = content;
-  else anchor.append(content);
+  anchor.append(asContentNode(content));
   void context.callGenericPopup(anchor, type, "", { okButton: options.okButton ?? "OK", wide: options.wide ?? false, allowVerticalScrolling: true });
   return {
     close: () => {

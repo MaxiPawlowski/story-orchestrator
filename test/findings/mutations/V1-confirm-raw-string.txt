@@ -1,0 +1,5 @@
+V1 mutation 2026-09-23: src/services/stHost/popup.ts showConfirmPopup reverted to callGenericPopup(content, ...) (the pre-fix raw string).
+Command: npx jest src/services/stHost/popup.test.ts --runInBand
+Result with mutation:
+Tests:       1 failed, 3 passed, 4 total
+Result after revert: 4 passed (see the V1 gate run).

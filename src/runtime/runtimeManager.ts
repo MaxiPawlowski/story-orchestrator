@@ -67,7 +67,7 @@ export class RuntimeManager {
   private readonly rollbackListeners = new Set<(messageId: number, window: SharedReadWindow) => void>();
   private readonly sceneBreakListeners = new Set<(audit: SharedReadAudit) => void>();
   private readonly arcResolvedListeners = new Set<(arcIds: string[]) => void>();
-  private readonly awayRecap = new AwayRecapController((html) => showTextPopup(html, { okButton: "Continue" }), (summary, detail) => this.noteRecap(summary, detail));
+  private readonly awayRecap = new AwayRecapController((render) => showTextPopup(render, { okButton: "Continue" }), (summary, detail) => this.noteRecap(summary, detail));
   private readonly notices: { lastRollback: RollbackNotice | null; rollbackUnavailable: RollbackUnavailable | null } = { lastRollback: null, rollbackUnavailable: null };
   private readonly journal = new SessionJournal();
   private readonly memory: MemoryCoordinator = new MemoryCoordinator({
