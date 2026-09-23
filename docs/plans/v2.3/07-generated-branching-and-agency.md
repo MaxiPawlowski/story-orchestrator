@@ -298,3 +298,18 @@ The whole mocked corpus (22 non-`live-` scenarios) ran in one batch with a run h
   - `plan08-hygiene` makes a real model call (`API request failed`), so it waits for the live queue.
 - After the fixes: `effects-preset`, `plan04-pacing` and `plan05-background-generation` are **green on two consecutive runs** each (`*-fixed-{1,2}.log`). Corpus on this tree: **20/22**, with the two exceptions named above.
 - Gates: test:debug **153**, debug:typecheck 0. The harness and fixtures changed, but no `src/` code, so no build.
+
+### V24b gate (2026-09-23): `plan06-convergence`, the product was right
+
+- **What happened:** the chain is `gen_bridge_a_1` (gate `mood == tense`, +2 progress) → `gen_bridge_a_2` (gate `key_found`) → `midway`. The fixture plants a single extraction response, `mood = tense` with evidence "this tense scene mood", and expected the **regular cadence read to miss it**, so the checkpoint would stall and the stall re-read would find it.
+- **Why that was stale, twice over:**
+  - It depended on the pre-V25 cadence window, which never reached the player's line. Since V25 the cadence read sees that message and **correctly** accepts `mood = tense`, so the story converged without ever stalling.
+  - The stall re-read's window starts after the stuck checkpoint began (`planReconciliation`), and the only evidence was posted before it. So the intended path could not have produced reconciliation evidence even under the old windows, which is consistent with the plan-04 record calling it "red since plan 02".
+- **Rebuilt with the same purpose, a real stall recovered by the stall re-read:**
+  - cadence 50, so no regular read lands inside the stall (the mutant run confirms `auditCount: 0`);
+  - the evidence is posted with `/send` **inside** the stuck checkpoint's window;
+  - step 14 asserts `activeCheckpointIn [gen_bridge_a_2, midway]` with `progress_toward_midway: 2`, because the reconciled `mood` now carries the story on through `gen_bridge_a_2` (`key_found` is already true) during the stall loop's own boundaries;
+  - nothing downstream was relaxed, and the finale's convergence assertions are unchanged.
+- **Runs:** green on two consecutive runs, **25/25** each (`run1.log`, `run2.log`; `run0-before-step14-fix.log` shows the intermediate state).
+- **Live mutation:** with reconciliation switched off in `boundaryWork.ts`, the run stops at 11/25, parked at `gen_bridge_a_1` with no evidence (`live-mutation-reconciliation-off.log`). The restored build (bundle `1d4d28d1a8f0`) passes a third run.
+- **Mocked corpus on this tree: 21/22.** The one left is `plan08-hygiene`, which makes a real model call.

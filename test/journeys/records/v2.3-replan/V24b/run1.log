@@ -1,0 +1,85 @@
+1/25 import_story ok 359ms
+2/25 send ok 1654ms
+3/25 send ok 1651ms
+4/25 eval ok 7ms
+5/25 expand ok 348ms
+6/25 expect ok 38ms
+7/25 slash ok 1875ms
+8/25 expect ok 33ms
+9/25 eval ok 124ms
+9/25 eval -> {"chatLength":5,"checkpoint":"gen_bridge_a_1"}
+10/25 eval ok 4166ms
+11/25 wait ok 41ms
+12/25 expect ok 54ms
+13/25 slash ok 1771ms
+14/25 expect ok 38ms
+15/25 slash ok 1768ms
+16/25 expect ok 38ms
+17/25 expand ok 244ms
+18/25 expect ok 29ms
+19/25 slash ok 1914ms
+20/25 expect ok 30ms
+21/25 slash ok 1896ms
+22/25 expect ok 31ms
+23/25 slash ok 1904ms
+24/25 expect ok 31ms
+25/25 expect ok 32ms
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T19-10-59-108Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 25,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-a00dae0b"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-23@16h10m35s957ms",
+    "owned": [
+      "2026-09-23@16h10m35s957ms"
+    ],
+    "deleted": [
+      "2026-09-23@16h10m35s957ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@16h10m35s957ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 1,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

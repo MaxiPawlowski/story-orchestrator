@@ -1,0 +1,73 @@
+build manifest → dist\manifest.json (bundle 3bf156981d80, source 99e6f9a7f1c0, ST 1.19.0)
+1/25 import_story ok 362ms
+2/25 send ok 1648ms
+3/25 send ok 1672ms
+4/25 eval ok 8ms
+5/25 expand ok 458ms
+6/25 expect ok 34ms
+7/25 slash ok 1893ms
+8/25 expect ok 29ms
+9/25 eval ok 127ms
+9/25 eval -> {"chatLength":5,"checkpoint":"gen_bridge_a_1"}
+10/25 eval ok 3086ms
+11/25 wait FAIL Timed out waiting for {"reconciliationEvidence":true,"timeoutMs":15000}. Last state: {"chatId":"2026-09-23@16h13m06s530ms","activeCheckpoint":"gen_bridge_a_1","boundary":13,"blackboard":{"key_found":true,"mood":"calm"},"latched":{"key_found":true},"auditCount":0,"expansion":{"entries":{"start->bridge_a->midway":{"key":"start->bridge_a->midway","status":"inserted","contract":2,"sourceCheckpointId":"start","stubId":"bridge_a","targetAnchorId":"midway","basis":{},"blackboardVersionSum":0,"beats":[{"id":"0","objective":"Secure the safe approach","guidance":"Steer toward the safe route.","tension_target":"tense","outcomes":[{"id":"0:0","label":"safe route","gate":{"q":"mood","op":"==","v":"tense"},"deltas":[{"q":"approach","v":"safe"}],"progress":{"anchor":"midway","amount":2}}]},{"id":"1","objective":"Confirm the key","guidance":"Confirm key is found.","tension_target":"critical","outcomes":[{"id":"1:0","label":"key confirmed","gate":{"q":"key_found","op":"==","v":true},"deltas":[{"q":"key_found","v":true}]}]}],"needsReview":false,"verdicts":[{"pass":true,"issues":[],"raw":"DEBUG"}],"codeCheck":{"ok":true,"issues":[],"progressTotal":2},"insertedCheckpointIds":["gen_bridge_a_1","gen_bridge_a_2"],"lastError":null,"attempts":1,"updatedAt":"2026-09-23T19:13:11.178Z"}},"scheduler":{"queueDepth":0,"inFlight":false,"lastError":null}},"requirementsReady":true,"npcFired":{},"tension":{"level":null,"smoothed":null,"expected":0.5,"hint":null},"pacingPrompt":null,"lastAudit":null,"copilot":{"enabled":true,"activeNudge":null,"nudgeInjected":false}}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T19-13-31-246Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T19-13-34-080Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 11,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-a00dae0b"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-23@16h13m06s530ms",
+    "owned": [
+      "2026-09-23@16h13m06s530ms"
+    ],
+    "deleted": [
+      "2026-09-23@16h13m06s530ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@16h13m06s530ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 1,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

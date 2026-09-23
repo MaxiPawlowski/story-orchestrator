@@ -12,7 +12,7 @@
       "send": "The hall beyond stays silent for a while."
     },
     {
-      "eval": "globalThis.storyOrchestratorRuntime.setExtractionSettings({enabled:true, cadence:3, reconciliationMultiplier:1.5, stabilityLag:1}); globalThis.storyOrchestratorDebugExtractionResponse = 'DELTA q=mood value=\"tense\" evidence=\"this tense scene mood\"'; return globalThis.storyOrchestratorRuntime.getSnapshot().extraction.settings.enabled;"
+      "eval": "globalThis.storyOrchestratorRuntime.setExtractionSettings({enabled:true, cadence:50, reconciliationMultiplier:1.5, stabilityLag:1}); globalThis.storyOrchestratorDebugExtractionResponse = 'DELTA q=mood value=\"tense\" evidence=\"this tense scene mood\"'; return globalThis.storyOrchestratorRuntime.getSnapshot().extraction.settings.enabled;"
     },
     {
       "expand": {
@@ -45,6 +45,10 @@
       }
     },
     {
+      "eval": "await SillyTavern.getContext().executeSlashCommandsWithOptions('/send The corridor narrows and every shadow feels like this tense scene mood.'); return { chatLength: SillyTavern.getContext().chat.length, checkpoint: globalThis.storyOrchestratorRuntime.getSnapshot().activeCheckpointId };",
+      "log": true
+    },
+    {
       "eval": "for (let i=0;i<6;i++){ await globalThis.storyOrchestratorRuntime.setQuality('mood','calm'); await globalThis.storyOrchestratorRuntime.commitBoundary(); } return globalThis.storyOrchestratorRuntime.getSnapshot().boundary;"
     },
     {
@@ -63,7 +67,10 @@
     },
     {
       "expect": {
-        "activeCheckpoint": "gen_bridge_a_2",
+        "activeCheckpointIn": [
+          "gen_bridge_a_2",
+          "midway"
+        ],
         "blackboard": {
           "progress_toward_midway": 2
         }
@@ -141,5 +148,6 @@
       }
     }
   ],
-  "_v24": "A chain the critic passed is `validated` until the boundary that makes it part of the chat (boundary work order 42 promotes it to `inserted`); plan 07 added that state. A check right after `expand` asserts the settled success, not today's literal."
+  "_v24": "A chain the critic passed is `validated` until the boundary that makes it part of the chat (boundary work order 42 promotes it to `inserted`); plan 07 added that state. A check right after `expand` asserts the settled success, not today's literal.",
+  "_v24b": "Premise rebuilt 2026-09-23 (V24b). The fixture relied on the cadence read MISSING the planted 'tense' evidence so the checkpoint would stall and the stall re-read would find it. That was an artifact of the pre-V25 cadence window, which did not reach the player's line; once V25 fixed the window, the cadence read correctly accepted mood=tense and the story converged without stalling. The re-read window also starts after the stuck checkpoint began, and the only evidence was posted before it, so the intended path could not have produced reconciliation evidence even then (it had been red since plan 02). Now: cadence 50 keeps regular reads out of the stall, and the evidence is posted inside the stuck checkpoint's window, where the stall re-read looks. The reconciled mood=tense now carries the story through gen_bridge_a_2 (key_found is already true) during the stall loop's own boundaries, so step 14 asserts the property (a_2 or midway, with the +2 progress applied) instead of assuming the story is still parked."
 }
