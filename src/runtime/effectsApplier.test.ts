@@ -29,6 +29,7 @@ jest.mock("@services/STAPI", () => ({
 const makeExtras = (): RuntimeExtras => ({
   firedNpcReplies: {},
   lastSelfInjectionMessageId: null,
+  effects: { ledger: [], cast: [] },
 } as unknown as RuntimeExtras);
 
 const checkpointWith = (replies: unknown[]): Checkpoint => ({

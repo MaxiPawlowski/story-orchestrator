@@ -212,13 +212,12 @@ export class RuntimeManager {
 
   private readonly selectionDeps: StorySelectionDeps = {
     loadStory: (loaded, mode, persisted) => this.loadStory(loaded, mode, persisted ?? null),
+    restoreEffects: async (scope) => { await this.effects.restoreFor(this.extras, scope); },
     clearStory: async (status) => {
       const previous = this.loaded?.story ?? null;
       this.loaded = null;
       this.invalidateRuns();
-      // v2.3 plan 06: a chat that leaves puts back what it staged on the group, background and AN.
-      // Compare-and-set, so anything edited by hand in between is left alone.
-      await this.effects.restoreEffects(this.extras);
+      await this.effects.restoreFor(this.extras, "exit");
       this.extras = createExtras();
       this.pacing.clearPending();
       clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
@@ -331,7 +330,7 @@ export class RuntimeManager {
     revalidateExpansion: () => this.expansion.revalidateInserted(),
     extras: () => this.extras,
     refreshRequirements: () => this.refreshRequirements(),
-    reapplyCheckpoint: async () => { await this.effects.applyCheckpoint(this.loaded!.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate", this.engine.checkpointPath); },
+    reapplyCheckpoint: async (messageId) => { await this.effects.restoreFor(this.extras, { since: messageId }); await this.effects.applyCheckpoint(this.loaded!.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate", this.engine.checkpointPath); },
     dropReadsAfter: async (messageId) => { await this.dropReadsAfter(messageId); },
     persist: () => this.persist(),
     notify: () => this.notify(),

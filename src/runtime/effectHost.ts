@@ -18,7 +18,7 @@ const readAuthorNote = (): Record<string, unknown> | null => {
 export function readEffectTarget(target: EffectTarget): Record<string, unknown> | null {
   switch (target.kind) {
     case "cast": {
-      const disabled = readGroupMemberDisabled(target.member);
+      const disabled = readGroupMemberDisabled(target.member, target.group || undefined);
       return disabled === null ? null : { disabled };
     }
     case "background": {
@@ -59,7 +59,7 @@ export async function restoreEffectTarget(row: EffectLedgerRow): Promise<boolean
     case "cast": {
       const disabled = typeof row.before?.disabled === "boolean" ? row.before.disabled : null;
       if (disabled === null) return false;
-      const result = await setGroupMemberDisabled(row.target.member, disabled);
+      const result = await setGroupMemberDisabled(row.target.member, disabled, row.target.group || undefined);
       return result.ok;
     }
     case "background": {

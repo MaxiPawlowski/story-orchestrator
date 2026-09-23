@@ -10,6 +10,7 @@ import type { LoadedStory, PersistedStoryRuntime } from "./types";
 export interface StorySelectionDeps {
   loadStory: (loaded: LoadedStory, mode: "activate" | "hydrate", persisted?: PersistedStoryRuntime | null) => Promise<void>;
   clearStory: (status: string) => Promise<void>;
+  restoreEffects?: (scope: "leave" | "restart") => Promise<void>;
   fail: (errors: ValidationError[], status: string) => void;
   setStatus: (status: string) => void;
   isLoaded: (id: string) => boolean;
@@ -29,6 +30,7 @@ export async function releaseGatedWorldInfo(
 }
 
 export async function loadSelectedStory(deps: StorySelectionDeps): Promise<boolean> {
+  await deps.restoreEffects?.("leave");
   const id = getSelectedStoryId();
   if (!id) {
     await deps.clearStory("No story selected for this chat");
@@ -88,6 +90,7 @@ export async function restartStory(deps: StorySelectionDeps, currentId: string |
   const confirmed = alreadyConfirmed || await showConfirmPopup("Restart this story? The chat keeps its messages, but checkpoint progress, blackboard and story memory are cleared.", { okButton: "Restart story", cancelButton: "Keep playing" });
   if (!confirmed) return false;
   const fallback = deps.loadedFallback();
+  await deps.restoreEffects?.("restart");
   dropPersistedRuntime(id);
   const record = findStoryRecord(id);
   const fromLibrary = record ? loadStoryRecord(record) : null;

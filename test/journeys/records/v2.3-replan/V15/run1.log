@@ -1,0 +1,58 @@
+1/11 eval ok 4ms
+1/11 eval -> {"chatB":"2026-09-23@04h39m32s855ms","luke":"Luke.png","baseline":[]}
+2/11 import_story ok 369ms
+3/11 slash ok 1809ms
+4/11 eval ok 4ms
+4/11 eval -> {"chatA":"2026-09-23@04h39m33s492ms"}
+5/11 import_story ok 357ms
+6/11 send ok 1650ms
+7/11 slash ok 2191ms
+8/11 eval ok 6ms
+8/11 eval -> {"disabled":["Luke.png"],"row":{"status":"applied","group":"1759606632088"}}
+9/11 eval ok 1622ms
+9/11 eval -> {"chatB":"2026-09-23@04h39m32s855ms","story":"sun-ruins","disabled":[]}
+10/11 eval ok 1610ms
+10/11 eval -> {"back":"2026-09-23@04h39m33s492ms","active":"road","disabled":["Luke.png"]}
+11/11 eval ok 1863ms
+11/11 eval -> {"restarted":true,"disabled":[]}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T07-39-44-859Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 11,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1",
+      "v2-ab6bded4"
+    ],
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@04h39m32s855ms",
+    "owned": [
+      "2026-09-23@04h39m32s855ms",
+      "2026-09-23@04h39m33s492ms"
+    ],
+    "deleted": [
+      "2026-09-23@04h39m32s855ms",
+      "2026-09-23@04h39m33s492ms"
+    ],
+    "notDeleted": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@04h39m33s492ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@03h45m01s896ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

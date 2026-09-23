@@ -48,14 +48,26 @@ export async function setGroupMembersDisabled(enable: string[], disable: string[
   return wrote({ group: groupId });
 }
 
-/** Put ONE member's flag back, which is the granularity the effect ledger records at. */
-export async function setGroupMemberDisabled(member: string, disabled: boolean): Promise<WriteResult<{ member: string }>> {
-  const result = await setGroupMembersDisabled(disabled ? [] : [member], disabled ? [member] : []);
-  return result.ok ? wrote({ member }) : result;
+const groupById = (groupId: string) => getContext().groups.find((group) => trim(group.id) === trim(groupId)) ?? null;
+
+/** Put ONE member's flag back on the group the ledger RECORDED, which need not be the open one. */
+export async function setGroupMemberDisabled(member: string, disabled: boolean, groupId?: string): Promise<WriteResult<{ member: string }>> {
+  if (!groupId) {
+    const result = await setGroupMembersDisabled(disabled ? [] : [member], disabled ? [member] : []);
+    return result.ok ? wrote({ member }) : result;
+  }
+  const group = groupById(groupId);
+  if (!group) return couldNot(`group ${groupId} is not on this install`);
+  const flags = new Set(Array.isArray(group.disabled_members) ? group.disabled_members : []);
+  if (disabled) flags.add(member);
+  else flags.delete(member);
+  group.disabled_members = [...flags];
+  await groupChatsModule.editGroup(group.id, false, false);
+  return wrote({ member });
 }
 
-/** What the open group holds for one member, or null when there is no group to ask. */
-export function readGroupMemberDisabled(member: string): boolean | null {
-  const group = getActiveGroup();
+/** What the RECORDED group holds for one member (the open one when none is named), or null. */
+export function readGroupMemberDisabled(member: string, groupId?: string): boolean | null {
+  const group = groupId ? groupById(groupId) : getActiveGroup();
   return group ? (group.disabled_members ?? []).includes(member) : null;
 }

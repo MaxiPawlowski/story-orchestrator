@@ -1,0 +1,86 @@
+{
+  "format": 2,
+  "id": "so-v15-cast",
+  "version": 1,
+  "title": "SO-V15 Cast",
+  "description": "v2.3 replan V15 live check: road disables Luke in the test group, so leaving, returning and restarting each have a group flag to put back or re-apply.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Begin.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "road",
+      "name": "Road to Wendhope",
+      "objective": "Luke stays behind.",
+      "type": "intermediate",
+      "effects": {
+        "cast_changes": {
+          "disable": [
+            "Luke"
+          ]
+        }
+      }
+    },
+    {
+      "id": "hall",
+      "name": "Guild Hall",
+      "objective": "The whole party is here.",
+      "type": "anchor",
+      "effects": {
+        "cast_changes": {
+          "enable": [
+            "Luke"
+          ]
+        },
+        "preset": {
+          "name": "Story: SO Cast Probe",
+          "settings": {
+            "temp": 0.42,
+            "top_p": 0.42
+          }
+        }
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "road",
+      "priority": 1,
+      "gate": {
+        "q": "message_count",
+        "op": ">=",
+        "v": 1000
+      }
+    },
+    {
+      "from": "road",
+      "to": "hall",
+      "priority": 1,
+      "gate": {
+        "q": "message_count",
+        "op": ">=",
+        "v": 1000
+      }
+    }
+  ],
+  "roster": [
+    {
+      "id": "Luke",
+      "name": "Luke"
+    }
+  ]
+}

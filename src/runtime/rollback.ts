@@ -20,7 +20,7 @@ export interface RollbackDeps {
   revalidateExpansion: () => unknown;
   extras: () => RuntimeExtras;
   refreshRequirements: () => void;
-  reapplyCheckpoint: () => Promise<void>;
+  reapplyCheckpoint: (messageId: number) => Promise<void>;
   dropReadsAfter: (messageId: number) => Promise<void>;
   persist: () => Promise<void>;
   notify: () => void;
@@ -78,7 +78,7 @@ export async function runRollback(deps: RollbackDeps, messageId: number): Promis
   deps.pacing.replayCommitted();
   deps.revalidateExpansion();
   deps.refreshRequirements();
-  await deps.reapplyCheckpoint();
+  await deps.reapplyCheckpoint(messageId);
   deps.pacing.updateSteering();
   deps.memory.updateInjection();
   await deps.persist();

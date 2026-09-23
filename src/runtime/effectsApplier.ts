@@ -20,7 +20,7 @@ import {
 import { quoteSlashArg } from "@utils/string";
 import type { WriteResult } from "@utils/writeResult";
 import { renderBlackboardMemo } from "./blackboardMemo";
-import { appendRow, pendingRow, restorePlan, setStatus, type EffectWrite } from "./effectLedger";
+import { appendRow, pendingRow, restorePlan, rowsAfter, setStatus, type EffectWrite } from "./effectLedger";
 import type { EffectLedgerRow, EffectTarget, RuntimeExtras, RuntimeSnapshot } from "./types";
 import { releasePlan, worldInfoPlan, type WorldInfoBookPlan } from "./worldInfoGates";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
@@ -31,6 +31,18 @@ import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 export interface EffectHostReads {
   read: (target: EffectTarget) => Record<string, unknown> | null;
 }
+
+export const rollbackCastMirror = (mirror: Array<{ member: string; disabled: boolean }>, reverted: EffectLedgerRow[]) => {
+  let next = [...mirror];
+  for (const row of [...reverted].reverse()) {
+    if (row.target.kind !== "cast") continue;
+    const member = row.target.member;
+    const before = typeof row.before?.disabled === "boolean" ? row.before.disabled : null;
+    next = next.filter((entry) => entry.member !== member);
+    if (before !== null) next.push({ member, disabled: before });
+  }
+  return next;
+};
 
 const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 const readStrings = (value: unknown): string[] => Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0) : typeof value === "string" && value.trim() ? [value] : [];
@@ -137,11 +149,17 @@ export interface EffectApplierDeps {
 
 export const PENDING_NOT_SAVED = "the effect was not applied: its write-ahead record could not be saved";
 
+export type RestoreScope = "leave" | "exit" | "restart" | { since: number };
+
+const openChatId = () => String(getContext().chatId ?? "");
+
 export class EffectsApplier {
   // Optional so every existing construction (and every test written before this) keeps working:
   // an applier with no ownership never lapses and records nothing. The write-edge census tracks
   // real coverage.
   constructor(private readonly ownership?: RunOwnership, private readonly deps: EffectApplierDeps = {}) {}
+
+  private appliedChat: string | null = null;
 
   // The one thing a transition posts into the chat itself: a compact system note naming where the
   // story moved (opt-out in settings), kept to one line.
@@ -213,6 +231,8 @@ export class EffectsApplier {
       }
     }
     if (!run.stillOwns()) return;
+    if (mode === "hydrate") await this.applyCastMirror(extras, scope, run);
+    if (!run.stillOwns()) return;
     if (effects.cast_changes !== undefined) await this.applyCastChanges(effects.cast_changes, extras, scope, run);
     // Deterministic stagecraft: idempotent, so hydrating a chat and rolling back into this
     // checkpoint both restore its background without re-triggering anything.
@@ -223,6 +243,7 @@ export class EffectsApplier {
     if (!run.stillOwns()) return;
     if (mode === "activate") await this.fireNpcReplies(checkpoint, extras, "onEnter");
     if (!run.stillOwns()) return;
+    this.appliedChat = openChatId();
     extras.lastAppliedCheckpointId = checkpoint.id;
     extras.updatedAt = new Date().toISOString();
   }
@@ -253,14 +274,37 @@ export class EffectsApplier {
     }
   }
 
+  private async applyCastMirror(extras: RuntimeExtras, scope: { checkpointId: string | null; boundary: number; messageId: number }, run: RunGuard) {
+    const group = getActiveGroup();
+    if (!group) return;
+    for (const { member, disabled } of extras.effects.cast) {
+      if (!run.stillOwns()) return;
+      const before = castFlag(group, member);
+      if (before.disabled === disabled) continue;
+      await this.withLedger(extras, { ...scope, effect: "cast", target: { kind: "cast", group: String(group.id ?? ""), member }, before, after: { disabled } }, async () => setGroupMembersDisabled(disabled ? [] : [member], disabled ? [member] : []));
+    }
+  }
+
+  async restoreFor(extras: RuntimeExtras, scope: RestoreScope): Promise<{ reverted: number; refused: number }> {
+    const left = this.appliedChat !== null && this.appliedChat !== openChatId();
+    if (scope === "leave" && !left) return { reverted: 0, refused: 0 };
+    const chatScoped = (row: EffectLedgerRow) => row.target.kind === "an";
+    const since = typeof scope === "object" ? new Set(rowsAfter(extras.effects.ledger, scope.since).map((row) => row.id)) : null;
+    const rows = extras.effects.ledger.filter((row) => (since ? since.has(row.id) : true) && !(left && chatScoped(row)));
+    const outcome = await this.restoreEffects(extras, rows, !left);
+    if (since) extras.effects.cast = rollbackCastMirror(extras.effects.cast, extras.effects.ledger.filter((row) => since.has(row.id) && row.status === "reverted"));
+    if (left || scope === "exit" || scope === "restart") this.appliedChat = null;
+    return outcome;
+  }
+
   /**
    * v2.3 plan 06. Put back what this chat changed in shared host state. Compare-and-set: a row whose
    * target no longer holds what this chat wrote is REFUSED and marked `externally-changed`, so a
    * restore can never silently undo an edit someone else made in between.
    */
-  async restoreEffects(extras: RuntimeExtras): Promise<{ reverted: number; refused: number }> {
+  async restoreEffects(extras: RuntimeExtras, rows: EffectLedgerRow[] = extras.effects.ledger, persist = true): Promise<{ reverted: number; refused: number }> {
     if (!this.deps.restore) return { reverted: 0, refused: 0 };
-    const { steps, refused } = restorePlan(extras.effects.ledger, this.reads());
+    const { steps, refused } = restorePlan(rows, this.reads());
     for (const row of refused) extras.effects.ledger = setStatus(extras.effects.ledger, row.id, "externally-changed", { found: row.found });
     let reverted = 0;
     for (const step of steps) {
@@ -270,7 +314,7 @@ export class EffectsApplier {
     }
     if (refused.length) this.deps.journal?.(`${refused.length} host change(s) were edited outside this story and left alone`);
     if (reverted) this.deps.journal?.(`restored ${reverted} host change(s)`);
-    await this.deps.persist?.();
+    if (persist) await this.deps.persist?.();
     return { reverted, refused: refused.length };
   }
 

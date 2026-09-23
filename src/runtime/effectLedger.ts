@@ -52,9 +52,14 @@ export interface ReconcileReads {
  * - neither → someone else wrote in between (`externally-changed`), which the author decides about.
  * - unreadable → the question cannot be answered, so the row is left alone rather than guessed at.
  */
-export type ReconcileOutcome = "applied" | "dropped" | "externally-changed" | "unreadable";
+export type ReconcileOutcome = "applied" | "dropped" | "externally-changed" | "unreadable" | "reverted";
 
 export function reconcileRow(row: EffectLedgerRow, reads: ReconcileReads): ReconcileOutcome {
+  if (row.status === "applied") {
+    if (same(row.before, row.after)) return "applied";
+    const held = reads.read(row.target);
+    return held !== null && same(held, row.before) ? "reverted" : "applied";
+  }
   if (row.status !== "pending") return "applied";
   const current = reads.read(row.target);
   if (current === null) return "unreadable";
@@ -67,6 +72,12 @@ export function reconcileRow(row: EffectLedgerRow, reads: ReconcileReads): Recon
 export function reconcileLedger(rows: EffectLedgerRow[], reads: ReconcileReads): { rows: EffectLedgerRow[]; outcomes: Array<{ row: EffectLedgerRow; outcome: ReconcileOutcome }> } {
   const outcomes: Array<{ row: EffectLedgerRow; outcome: ReconcileOutcome }> = [];
   const next = rows.flatMap((row) => {
+    if (row.status === "applied") {
+      const settled = reconcileRow(row, reads);
+      if (settled !== "reverted") return [row];
+      outcomes.push({ row, outcome: settled });
+      return [{ ...row, status: "reverted" as const }];
+    }
     if (row.status !== "pending") return [row];
     const outcome = reconcileRow(row, reads);
     outcomes.push({ row, outcome });
@@ -119,9 +130,9 @@ export function restorePlan(rows: EffectLedgerRow[], reads: ReconcileReads): { s
 }
 
 /**
- * The rows a rollback past `messageId` withdraws: everything this chat applied after the point.
- * A row that could not be read is kept, not silently dropped — the author can still see it.
+ * The rows a rollback from `messageId` withdraws: everything this chat applied AT or after the edited
+ * message — an effect fired on that message's boundary was caused by text that no longer exists.
  */
 export function rowsAfter(rows: EffectLedgerRow[], messageId: number): EffectLedgerRow[] {
-  return rows.filter((row) => row.status === "applied" && row.messageId > messageId);
+  return rows.filter((row) => row.status === "applied" && row.messageId >= messageId);
 }

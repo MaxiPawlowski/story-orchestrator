@@ -1,0 +1,56 @@
+1/11 eval ok 4ms
+1/11 eval -> {"chatB":"2026-09-23@04h38m41s359ms","luke":"Luke.png","baseline":[]}
+2/11 import_story ok 372ms
+3/11 slash ok 1803ms
+4/11 eval ok 4ms
+4/11 eval -> {"chatA":"2026-09-23@04h38m42s024ms"}
+5/11 import_story ok 355ms
+6/11 send ok 1681ms
+7/11 slash ok 2246ms
+8/11 eval ok 5ms
+8/11 eval -> {"disabled":["Luke.png"],"row":{"status":"applied","group":"1759606632088"}}
+9/11 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: leaving for a chat that plays ANOTHER story left Luke disabled on the shared group
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:952)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T07-38-49-758Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T07-38-50-054Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 9,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1",
+      "v2-ab6bded4"
+    ],
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@04h38m41s359ms",
+    "owned": [
+      "2026-09-23@04h38m41s359ms",
+      "2026-09-23@04h38m42s024ms"
+    ],
+    "deleted": [
+      "2026-09-23@04h38m42s024ms",
+      "2026-09-23@04h38m41s359ms"
+    ],
+    "notDeleted": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@04h38m41s359ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@03h45m01s896ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}
