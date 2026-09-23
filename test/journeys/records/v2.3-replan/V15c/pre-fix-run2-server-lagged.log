@@ -1,0 +1,79 @@
+1/14 eval ok 6ms
+1/14 eval -> {"luke":"Luke.png","baseline":[]}
+2/14 import_story ok 365ms
+3/14 eval ok 7ms
+3/14 eval -> {"cadence":3,"checkpoint":"start"}
+4/14 send ok 1834ms
+5/14 eval ok 4ms
+5/14 eval -> {"evidenceId":1}
+6/14 slash ok 1865ms
+7/14 wait ok 1540ms
+8/14 extract ok 1024ms
+9/14 slash ok 1850ms
+10/14 wait ok 39ms
+11/14 eval ok 6ms
+11/14 eval -> {"disabled":["Luke.png"],"row":{"status":"applied","messageId":2}}
+12/14 eval ok 129ms
+12/14 eval -> {"edited":1}
+13/14 wait ok 30ms
+14/14 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the page restored Luke but the server copy of the group still has him disabled: ["Luke.png"]
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:966)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T20-05-02-464Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T20-05-05-318Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 14,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-a1c1001a"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@17h04m52s086ms",
+    "owned": [
+      "2026-09-23@17h04m52s086ms"
+    ],
+    "deleted": [
+      "2026-09-23@17h04m52s086ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@17h04m52s086ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": false,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

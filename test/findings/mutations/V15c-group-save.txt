@@ -1,0 +1,10 @@
+V15c (cast writes save now and read the server back). jest mutants in src/services/stHost/groups.ts
+(script test/journeys/records/v2.3-replan/V15c/v15c-mut.py, run over groups.test.ts + effectRestore*):
+M1 debounced save again (editGroup immediately=false)   KILLED  saves immediately instead of scheduling ST's debounced save
+M2 server copy never compared                          KILLED  a server still holding the old flags is a lost write, not a success
+M3 blind read-back read as a refusal                   KILLED  a read-back that cannot answer is unconfirmed, not a refusal
+LIVE mutation (test/scenarios/live-v15c-rollback-restore.json; debounced save + no read-back = the pre-V15c code):
+  attempt 1 SURVIVED (live-mutation-1-survived-late-read.log): the check read the server 1.5 s after the rollback, after the debounce had landed
+  attempt 2 SURVIVED (live-mutation-2-survived-poll.log): the edit event is awaited, so the whole rollback incl. its persist is over before any later step runs
+  attempt 3 KILLED (live-mutation-debounced-unread-save.log): the check records request ORDER after the edit; /api/groups/edit must land before the rollback's /api/chats/group/save
+Both surviving drafts are kept: they are why the final check measures order, not state.

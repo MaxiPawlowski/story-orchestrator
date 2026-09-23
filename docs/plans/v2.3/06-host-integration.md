@@ -553,7 +553,27 @@ separating it from the genuine timeout.
 - Tests: `src/runtime/effectRestore.review.test.ts` (6: leave restores cast not AN and persists nothing; same-chat leave is a no-op; restart restores all and persists; rollback window + mirror; mirror re-applied on hydrate; reconcile), `src/services/stHost/groups.test.ts` (3: recorded group, missing group refused, open-group control). Mutations (`test/findings/mutations/V15-host-restore.txt`, script `v15-muts.py`): each of the four guards removed → exactly one case fails.
 - Machine: typecheck 0, lint 0, jest 157 / 2532, build 0 (bundle `049fa2e5217c`), test:release 10/10.
 - **Live** (`test/scenarios/live-v15-host-restore.json`, sandbox, test group `1759606632088`, no model): chat B plays sun-ruins; chat A plays `so-v15-cast`, whose `road` checkpoint disables Luke (ledger records group `1759606632088`); opening B restores Luke; returning to A re-disables him from the mirror; restart enables him and the group matches its baseline. **11/11 twice** (`run1.log`, `run2.log`). **The first draft of this check could not fail**: it left A for a FRESH chat, which takes the storyless `clearStory` path that already restored before V15 — its live mutation (leave hook removed) passed. Reordered so B plays its story first, the same mutation FAILS at the leave step (`mutation-no-leave-restore.log`) — and left Luke disabled on the real group, which was put back by hand (group verified `[]` before the real runs). Run-header diff: rebuild timestamp only.
-- Not done, stated: a live rollback check (whether the engine lands before or after a `/cp activate` makes the assertion ambiguous; jest covers the `since` path); Author's Note / background through the ledger (V15b); preset restore (v2.4 seed).
+- Not done, stated: ~~a live rollback check~~ (done 2026-09-23, see the V15c rollback gate below, which also found a real defect); Author's Note / background through the ledger (V15b); preset restore (v2.4 seed).
+
+### V15c rollback gate (2026-09-23) — the cast restore is saved before it says so
+
+- **Live check written** (`test/scenarios/live-v15c-rollback-restore.json`, sandbox group `1759606632088`, no model). The rollback point is exact because no `/cp activate` is involved:
+  - a player message carries the evidence;
+  - a `/sendas` reply (type `command`) commits a real boundary;
+  - an extracted delta (debug response) fires `start -> road` at the next `/sendas` boundary, and `road` disables Luke through the ledger;
+  - editing the evidence message then rolls the story back to `start`.
+- **Its second run found a defect.** The page had Luke enabled, but the server's copy of the group still had him disabled. `setGroupMemberDisabled` / `setGroupMembersDisabled` called `editGroup(id, false, false)`, which only schedules ST's 1 s debounced save, and `_save` never reads `/api/groups/edit`'s answer (`group-chats.js:140,155`). So every cast write, the rollback restore included, answered `ok` before anything reached the server. The module's own comment promised the opposite ("the result has to say whether ST accepted the change"). The effect: a page closed or reloaded inside that second loses the restore, and the ledger row already reads `reverted`.
+- **Fix** (`stHost/groups.ts`): both writes save now (`editGroup(id, true, false)`) and read the group back from `/api/groups/all`. A server still holding the old flags is `ok: false` ("so the change was lost"). A read that cannot answer is `confirmed: false`, not a refusal: the plan-06 `unsaved`/`unconfirmed` split, as in V17's lorebook read-back.
+- **Residual, stated:** a debounced save ST itself scheduled BEFORE ours (from `saveGroupChat(…, shouldSaveGroup)`) can still land after our read-back. It carries the same live object, and so the same flags, unless `getGroups()` swapped the array in between: the V18 resurrection shape. Not reproduced here.
+- **The live check had to be redesigned twice before it could fail.** The edit event is awaited, so by the time any later step runs the rollback and its persist are long finished and the debounce has landed.
+  - Reading the group's state afterwards passed with the old code, twice. Both surviving mutation logs are kept.
+  - The final check records the ORDER of requests after the edit: the restore's `/api/groups/edit` (and its read-back) must land before the rollback's `/api/chats/group/save`. With the pre-fix code it FAILS: `["/api/groups/all","/api/chats/group/save",…]` with no edit at all (`live-mutation-debounced-unread-save.log`).
+- **Results:**
+  - Fixed bundle `2237f5f8e420`: **green twice** (`records/v2.3-replan/V15c/run{1,2}.log`). Order `/api/groups/edit`, `/api/groups/all`, then the chat saves; Luke enabled on the page and on the server; the row `reverted`; story on `start`. The pre-fix runs are kept as `pre-fix-run1-pass.log` / `pre-fix-run2-server-lagged.log`.
+  - Run-header diff: build and served bundle only, 0 blocking. The group is back at its baseline.
+- **Tests and mutations:** `stHost/groups.test.ts` has 3 new cases: the save is immediate; a stale server is a lost write; a blind read-back is unconfirmed. Mutations 3/3 killed (`test/findings/mutations/V15c-group-save.txt`).
+- **Machine gates:** typecheck, typecheck:test and lint 0; jest 169/2661; test:debug 159.
+- **Not done:** a solo-chat leave and a leave-to-a-story-chat variant of L5. The leave paths were live in V15a; the solo-chat destination was not.
 
 ### V16 gate (2026-09-23) — save evidence reads the server
 

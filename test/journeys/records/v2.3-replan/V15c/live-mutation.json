@@ -1,0 +1,7 @@
+{
+  "file": "src/services/stHost/groups.ts",
+  "old": "    await groupChatsModule.editGroup(group.id, true, false);\n  } catch (error) {\n    return couldNot(`group ${group.id} could not be saved: ${error instanceof Error ? error.message : \"the host refused the write\"}`);\n  }\n  const saved = await readServerGroup(group.id);\n",
+  "new": "    await groupChatsModule.editGroup(group.id, false, false);\n  } catch (error) {\n    return couldNot(`group ${group.id} could not be saved: ${error instanceof Error ? error.message : \"the host refused the write\"}`);\n  }\n  const saved = null as { disabled_members?: unknown } | null;\n",
+  "scenario": "test/scenarios/live-v15c-rollback-restore.json",
+  "log": "test/journeys/records/v2.3-replan/V15c/live-mutation-debounced-unread-save.log"
+}

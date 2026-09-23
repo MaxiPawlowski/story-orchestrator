@@ -1,0 +1,78 @@
+build manifest → dist\manifest.json (bundle d0627f62fa0c, source beb54e35a57f, ST 1.19.0)
+1/14 eval ok 5ms
+1/14 eval -> {"luke":"Luke.png","baseline":[]}
+2/14 import_story ok 374ms
+3/14 eval ok 7ms
+3/14 eval -> {"cadence":3,"checkpoint":"start"}
+4/14 send ok 1655ms
+5/14 eval ok 5ms
+5/14 eval -> {"evidenceId":1}
+6/14 slash ok 1859ms
+7/14 wait ok 1528ms
+8/14 extract ok 1061ms
+9/14 slash ok 1859ms
+10/14 wait ok 37ms
+11/14 eval ok 5ms
+11/14 eval -> {"disabled":["Luke.png"],"row":{"status":"applied","messageId":2}}
+12/14 eval ok 124ms
+12/14 eval -> {"edited":1}
+13/14 wait ok 30ms
+14/14 eval ok 535ms
+14/14 eval -> {"checkpoint":"start","disabled":[],"server":[],"rows":["reverted"],"notice":true}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T20-10-47-794Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 14,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-a1c1001a"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@17h10m35s711ms",
+    "owned": [
+      "2026-09-23@17h10m35s711ms"
+    ],
+    "deleted": [
+      "2026-09-23@17h10m35s711ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@17h10m35s711ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": false,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}
