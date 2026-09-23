@@ -100,8 +100,15 @@ export async function sendUserMessage(page, text, { idleTimeoutMs = 300000, preS
   if (!(await sendBtn.count())) {
     throw new Error('Send button (#send_but) not found.');
   }
-  await sendBtn.waitFor({ state: 'visible', timeout: 15000 });
-  await sendBtn.click();
+  // A hidden send button means ST is still generating (a group drafts members one after another), and
+  // a player cannot send then either. The wait used to be a fixed 15 s, which a slow member outlasted
+  // (J3.1, 2026-09-23); it now shares the pre-send idle budget.
+  await sendBtn.waitFor({ state: 'visible', timeout: preSendIdleTimeoutMs });
+  // `force` skips only Playwright's frame-to-frame stability check. A page Chrome treats as
+  // occluded runs requestAnimationFrame at about 1 fps, so that check timed out on a button that
+  // never moved (J3.1, twice in three runs, 2026-09-23). The visible wait above still holds, and
+  // the click is still a real pointer event at the button's centre.
+  await sendBtn.click({ force: true });
 
   await waitForIdle(page, idleTimeoutMs);
 

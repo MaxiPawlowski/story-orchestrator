@@ -1,0 +1,66 @@
+1/21 import_story ok 382ms
+2/21 ui ok 3210ms
+3/21 eval ok 23ms
+3/21 eval -> {"active":"challenge","agencyRecovery":null}
+4/21 send_generate ok 18392ms
+5/21 wait ok 29911ms
+6/21 eval ok 4ms
+6/21 eval -> {"boundary":1,"audits":[{"window":{"from":0,"to":2},"accepted":["duel_accepted=false","tension_current=0.5"]}]}
+7/21 send_generate ok 18593ms
+8/21 wait ok 16405ms
+9/21 eval ok 4ms
+9/21 eval -> {"agencyRecovery":{"checkpointId":"challenge","checkpointName":"The Challenge","turns":2,"alternate":"parley","alternateName":"The Parley","canGenerate":false},"audits":[{"window":{"from":0,"to":2},"accepted":["duel_accepted=false","tension_current=0.5"]},{"window":{"from":3,"to":4},"accepted":["duel_accepted=false","tension_current=0.5"]}],"lastMessageId":4}
+10/21 ui ok 1672ms
+11/21 ui ok 1998ms
+12/21 expect_ui ok 6ms
+13/21 ui ok 6ms
+14/21 send_generate ok 33888ms
+15/21 wait ok 44471ms
+16/21 send_generate ok 28784ms
+17/21 wait ok 5144ms
+18/21 eval ok 6ms
+18/21 eval -> {"active":"duel","pending":[],"audits":[{"window":{"from":0,"to":2},"accepted":["duel_accepted=false","tension_current=0.5"]},{"window":{"from":3,"to":4},"accepted":["duel_accepted=false","tension_current=0.5"]},{"window":{"from":5,"to":6},"accepted":["duel_accepted=true"]},{"window":{"from":7,"to":7},"accepted":[]}]}
+19/21 send_generate ok 32626ms
+20/21 wait ok 59ms
+21/21 eval ok 5ms
+21/21 eval -> {"active":"duel","agencyRecovery":null}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T12-23-02-528Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 21,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-3af77fd0"
+    ],
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@09h19m04s713ms",
+    "owned": [
+      "2026-09-23@09h19m04s713ms"
+    ],
+    "deleted": [],
+    "notDeleted": [
+      "2026-09-23@09h19m04s713ms"
+    ],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@09h19m04s713ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-21@15h49m05s268ms",
+    "mirrorBooks": {
+      "deleted": [
+        "Story Orchestrator - SO-V13 Refusal - 2026-09-23@09h19m04s713ms"
+      ],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

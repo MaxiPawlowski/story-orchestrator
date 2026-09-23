@@ -1,0 +1,41 @@
+{
+  "name": "send-stability-j31",
+  "objective": "Diagnostic (not a gate): J3.1 steps 1-8, then sample what moves #send_but for 30 s.",
+  "steps": [
+    {
+      "import_story": {
+        "file": "../examples/sun-ruins/quest-for-the-sun-ruins.json"
+      }
+    },
+    {
+      "ui": {
+        "action": "select-profile"
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setExtractionSettings({ cadence: 2 }); globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); delete globalThis.storyOrchestratorDebugExtractionResponse; return true;"
+    },
+    {
+      "send_generate": {
+        "text": "I shoulder past the morning drinkers and get close to the job board.",
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 180000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I read the brightest posting aloud: the Sun Ruins job. \"Arin, look at this one.\"",
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const frames = []; const started = performance.now(); await new Promise((resolve) => { const tick = () => { const r = document.querySelector('#send_but').getBoundingClientRect(); const f = document.querySelector('#send_form').getBoundingClientRect(); frames.push({ t: Math.round(performance.now() - started), x: r.x, y: r.y, w: r.width, h: r.height, fy: f.y, fh: f.height, anim: document.getAnimations().map((a) => (a.effect?.target?.id || a.effect?.target?.className || '?').toString().slice(0, 40) + ':' + (a.animationName || a.transitionProperty || a.constructor.name)).slice(0, 6) }); if (performance.now() - started < 15000) requestAnimationFrame(tick); else resolve(); }; requestAnimationFrame(tick); }); const moved = frames.filter((s, i) => i && (s.x !== frames[i-1].x || s.y !== frames[i-1].y || s.w !== frames[i-1].w || s.h !== frames[i-1].h)); const anims = [...new Set(frames.flatMap((s) => s.anim))]; return { frames: frames.length, moved: moved.length, first: frames[0], movedSample: moved.slice(0, 10), animations: anims.slice(0, 20) };",
+      "log": true
+    }
+  ]
+}

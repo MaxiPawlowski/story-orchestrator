@@ -265,3 +265,17 @@ Pod `gx6v1b8furtcia` (the old one could not restart, so it was replaced after th
 - Machine after the fixes: jest 164 / 2629, typecheck 0, typecheck:test 0, lint 0, test-storybook:ci 31 / 185, build 0 (bundle `51acb3aa1e82`). Run-header diff: build fields only.
 
 **V25, found here and queued rather than folded in**: the cadence read window counts messages while cadence counts boundaries (`scheduler.ts:137`: `getChatWindow(stableTo - cadence + 1, stableTo)`). At cadence 1 a read sees only the newest reply. In a group the player's own line is outside every window. In a solo chat at the default cadence 3, half the transcript is never read. It dates from July (plan 3a), and it changes what extraction sees in every chat, so it gets its own gate.
+
+### V25 gate record (2026-09-23)
+
+**Fix.** A cadence read now starts where the previous cadence read ended (`cadenceWindowFrom(cursor, stableTo)`, `scheduler.ts`). With no cursor (the first read, a new world, or a chat a rollback made shorter than the cursor) it reads `CADENCE_WINDOW_FALLBACK = 8` messages, the span the default shared read uses. No read spans more than `CADENCE_WINDOW_MAX = 24`, so a long pause cannot send the whole chat as one prompt. The cursor lives in memory and resets in `clearForNewWorld`. After a reload the first read takes the fallback span, which is the behaviour a reload already had.
+
+- Jest: a V25 block covers four cases: the player's line between replies is read; cadence 3 over three boundaries of two messages misses nothing; a long pause is capped; and a new world or a shortened chat falls back. The first-window expectations were updated to the fallback span. Mutations: 5 of 5 (`test/findings/mutations/V25-cadence-window.txt`).
+- **The V13 control, which V25 exists to fix, passed twice live** (`records/v2.3-replan/V25/v13-control-run{1,2}.log`, 21/21 each). The windows now hold the player's line: `{0,2}`, `{3,4}`, `{5,6}`, `{7,7}`. The accepting turn read `duel_accepted=true` in window `{5,6}`, and the story entered The Duel.
+- **J3 ran seven times (`j3-run1..7.log`), and the first five failures were the harness.** Two were in `sendUserMessage`, one in J3.2, and none in the product:
+  1. Stability starvation. Playwright's stability check waits for consecutive animation frames, and Chrome throttles `requestAnimationFrame` to about 1 fps on an occluded page. A per-frame probe counted 16 frames in 15 s and 0 moves (`raf-starvation-probe.*`). The send is now `click({force: true})` after the explicit visibility wait, and gotchas.md has the entry.
+  2. A fixed 15 s visibility wait that a slow group member outlasts. It now uses the pre-send idle budget.
+  3. J3.2 read `#chat` in the same tick the transition note is posted. It now has `timeoutMs: 15000`.
+- After all three harness fixes (runs 6 and 7), J3.1–J3.6 and J3.8 passed in both runs, first try. **J3.7 passed in run 7 and failed in run 6.** In run 6, 7 audits ran, the last accepted `[]` and rejected `[]`, so the model emitted no FACT line. That is the model-dependent J3.7 recorded since plan 05, not a regression. **J3 is therefore NOT 8/8 twice on this build.** Run 7 is 8/8, run 6 is 7/8, and cleanup was clean in all seven runs.
+- Run-header diff against `header-before.json`: 0 differences.
+- Residue to state: `extraction.cadence` reads **1** install-wide both before and after, so nothing changed it during the run. It is still not the default of 3, and it was already 1 when V13's session began.

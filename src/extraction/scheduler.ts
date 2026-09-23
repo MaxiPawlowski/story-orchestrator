@@ -51,6 +51,22 @@ export interface SchedulerHost {
   epoch?: () => number;
 }
 
+// V25 (found live by V13, 2026-09-23). Cadence counts BOUNDARIES, and the window used to count
+// MESSAGES: `cadence` of them ending at the stable end. At cadence 1 a read saw only the newest reply,
+// never the player's line before it; in a group, several replies per line pushed the player's own
+// words out of every window; in a solo chat at cadence 3, half the transcript was never read. A
+// cadence read now starts where the previous one ended. With no cursor (the first read, a new world,
+// or a chat a rollback made shorter than the cursor) it reads the same span the default shared read
+// does, and no read spans more than CADENCE_WINDOW_MAX messages, so a long pause cannot send the
+// whole chat as one prompt.
+export const CADENCE_WINDOW_FALLBACK = 8;
+export const CADENCE_WINDOW_MAX = 24;
+
+export const cadenceWindowFrom = (cursor: number | null, stableTo: number): number => {
+  const from = cursor !== null && cursor < stableTo ? cursor + 1 : stableTo - CADENCE_WINDOW_FALLBACK + 1;
+  return Math.max(0, from, stableTo - CADENCE_WINDOW_MAX + 1);
+};
+
 export class ExtractionScheduler {
   private readonly queue: SchedulerJob[] = [];
   private readonly heavyQueue: SchedulerJob[] = [];
@@ -59,6 +75,7 @@ export class ExtractionScheduler {
   private lastError: string | null = null;
   private lastHeavyError: string | null = null;
   private cadenceBoundary = -1;
+  private cadenceTo: number | null = null;
 
   constructor(private readonly host: SchedulerHost) {}
 
@@ -80,6 +97,7 @@ export class ExtractionScheduler {
     // Boundary numbers restart with a new story, so a carried-over cursor makes the new world look
     // as though its cadence read had already happened.
     this.cadenceBoundary = -1;
+    this.cadenceTo = null;
     this.lastError = null;
     this.lastHeavyError = null;
     this.host.onSchedulerChange();
@@ -134,7 +152,8 @@ export class ExtractionScheduler {
       const stableTo = lastMessageId - Math.max(0, settings.stabilityLag ?? 1);
       if (stableTo >= 0) {
         this.cadenceBoundary = boundary;
-        this.schedule({ priority: 1, reason: "cadence", window: getChatWindow(Math.max(0, stableTo - settings.cadence + 1), stableTo) });
+        this.schedule({ priority: 1, reason: "cadence", window: getChatWindow(cadenceWindowFrom(this.cadenceTo, stableTo), stableTo) });
+        this.cadenceTo = stableTo;
       }
     }
     void this.pumpHeavy();

@@ -1,0 +1,20 @@
+M1 the window counts messages again
+  ● ExtractionScheduler reply-path isolation › the first cadence window ends at lastMessageId with lag 0, lags behind otherwise, and spans the fallback
+  ● V25: cadence reads cover the chat without gaps › a long pause is capped, not sent whole
+  ● V25: cadence reads cover the chat without gaps › a new world, or a chat a rollback made shorter than the cursor, falls back to the default span
+  ● V25: cadence reads cover the chat without gaps › at cadence 3 in a solo chat, three boundaries of two messages are all read
+Tests:       5 failed, 19 passed, 24 total
+M2 the cursor never advances
+  ● V25: cadence reads cover the chat without gaps › a long pause is capped, not sent whole
+  ● V25: cadence reads cover the chat without gaps › at cadence 3 in a solo chat, three boundaries of two messages are all read
+  ● V25: cadence reads cover the chat without gaps › each read starts where the previous one ended, so the player's line between replies is read
+Tests:       3 failed, 21 passed, 24 total
+M3 no cap on a long pause
+  ● V25: cadence reads cover the chat without gaps › a long pause is capped, not sent whole
+Tests:       1 failed, 23 passed, 24 total
+M4 a new world keeps the old cursor
+  ● V25: cadence reads cover the chat without gaps › a new world, or a chat a rollback made shorter than the cursor, falls back to the default span
+Tests:       1 failed, 23 passed, 24 total
+M5 a cursor past the chat's end is trusted
+  ● V25: cadence reads cover the chat without gaps › a new world, or a chat a rollback made shorter than the cursor, falls back to the default span
+Tests:       1 failed, 23 passed, 24 total

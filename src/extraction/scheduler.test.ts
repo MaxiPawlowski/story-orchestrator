@@ -18,7 +18,7 @@ jest.mock("./sharedRead", () => ({
 
 
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
-import { ExtractionScheduler, type SchedulerHost, type SchedulerSettings } from "./scheduler";
+import { CADENCE_WINDOW_MAX, ExtractionScheduler, type SchedulerHost, type SchedulerSettings } from "./scheduler";
 import { runSharedRead } from "./sharedRead";
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 5));
@@ -58,7 +58,7 @@ describe("ExtractionScheduler reply-path isolation", () => {
     expect(scheduler.onBoundary(4, false, 10)).toBeUndefined();
   });
 
-  it("cadence window ends at lastMessageId with lag 0 and lags behind otherwise", async () => {
+  it("the first cadence window ends at lastMessageId with lag 0, lags behind otherwise, and spans the fallback", async () => {
     mockChat.length = 0;
     for (let index = 0; index < 12; index += 1) mockChat.push({ name: index % 2 ? "Arin" : "Max", mes: `m${index}` });
     const read = runSharedRead as jest.Mock;
@@ -66,12 +66,12 @@ describe("ExtractionScheduler reply-path isolation", () => {
     read.mockClear();
     new ExtractionScheduler(makeHost({ cadence: 1, stabilityLag: 0 })).onBoundary(3, false, 11);
     await flush();
-    expect(read.mock.calls[0][0].window).toMatchObject({ from: 11, to: 11 });
+    expect(read.mock.calls[0][0].window).toMatchObject({ from: 4, to: 11 });
 
     read.mockClear();
     new ExtractionScheduler(makeHost({ cadence: 1, stabilityLag: 2 })).onBoundary(3, false, 11);
     await flush();
-    expect(read.mock.calls[0][0].window).toMatchObject({ from: 9, to: 9 });
+    expect(read.mock.calls[0][0].window).toMatchObject({ from: 2, to: 9 });
     mockChat.length = 0;
   });
 
@@ -122,5 +122,47 @@ describe("ExtractionScheduler pressure rules", () => {
     releaseA();
     await flush();
     expect(p4ran).toBe(true);
+  });
+});
+
+// V25, found live by V13: cadence counts boundaries and the window counted messages, so at cadence 1
+// a read saw only the newest reply and the player's own line was never read.
+describe("V25: cadence reads cover the chat without gaps", () => {
+  const windows = async (scheduler: ExtractionScheduler, boundaries: Array<[number, number]>) => {
+    const read = runSharedRead as jest.Mock;
+    read.mockClear();
+    for (const [boundary, lastMessageId] of boundaries) {
+      scheduler.onBoundary(boundary, false, lastMessageId);
+      await flush();
+    }
+    return read.mock.calls.map((call) => ({ from: call[0].window.from, to: call[0].window.to }));
+  };
+  beforeEach(() => {
+    mockChat.length = 0;
+    for (let index = 0; index < 80; index += 1) mockChat.push({ name: index % 4 ? "Arin" : "Max", mes: `m${index}` });
+  });
+  afterEach(() => { mockChat.length = 0; });
+
+  it("each read starts where the previous one ended, so the player's line between replies is read", async () => {
+    const scheduler = new ExtractionScheduler(makeHost({ cadence: 1, stabilityLag: 0 }));
+    expect(await windows(scheduler, [[1, 11], [2, 13], [3, 14]])).toEqual([{ from: 4, to: 11 }, { from: 12, to: 13 }, { from: 14, to: 14 }]);
+  });
+
+  it("at cadence 3 in a solo chat, three boundaries of two messages are all read", async () => {
+    const scheduler = new ExtractionScheduler(makeHost({ cadence: 3, stabilityLag: 0 }));
+    expect(await windows(scheduler, [[3, 11], [4, 13], [5, 15], [6, 17]])).toEqual([{ from: 4, to: 11 }, { from: 12, to: 17 }]);
+  });
+
+  it("a long pause is capped, not sent whole", async () => {
+    const scheduler = new ExtractionScheduler(makeHost({ cadence: 1, stabilityLag: 0 }));
+    expect(await windows(scheduler, [[1, 11], [2, 70]])).toEqual([{ from: 4, to: 11 }, { from: 70 - CADENCE_WINDOW_MAX + 1, to: 70 }]);
+  });
+
+  it("a new world, or a chat a rollback made shorter than the cursor, falls back to the default span", async () => {
+    const scheduler = new ExtractionScheduler(makeHost({ cadence: 1, stabilityLag: 0 }));
+    await windows(scheduler, [[1, 30]]);
+    expect(await windows(scheduler, [[2, 20]])).toEqual([{ from: 13, to: 20 }]);
+    scheduler.clearForNewWorld();
+    expect(await windows(scheduler, [[1, 40]])).toEqual([{ from: 33, to: 40 }]);
   });
 });

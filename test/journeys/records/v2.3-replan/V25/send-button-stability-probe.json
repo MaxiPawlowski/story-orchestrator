@@ -1,0 +1,11 @@
+{
+  "name": "send-stability-probe",
+  "objective": "Diagnostic (not a gate): does #send_but move while an extraction read runs after a real reply?",
+  "steps": [
+    { "import_story": { "file": "../examples/sun-ruins/quest-for-the-sun-ruins.json" } },
+    { "ui": { "action": "select-profile" } },
+    { "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 1, stabilityLag: 0 }); delete globalThis.storyOrchestratorDebugExtractionResponse; return true;" },
+    { "send_generate": { "text": "I get close to the job board and read the postings.", "expectReply": true, "timeoutMs": 300000 } },
+    { "eval": "const samples = []; const started = Date.now(); while (Date.now() - started < 25000) { const box = document.querySelector('#send_but')?.getBoundingClientRect(); const hud = document.querySelector('#so-hud'); samples.push({ t: Date.now() - started, x: Math.round(box?.x ?? -1), y: Math.round(box?.y ?? -1), w: Math.round(box?.width ?? -1), hudH: Math.round(hud?.getBoundingClientRect().height ?? -1), chip: document.querySelector('#so-hud-pipeline')?.textContent ?? null, generating: document.body.dataset.generating ?? null }); await new Promise((resolve) => setTimeout(resolve, 100)); } const keys = new Set(samples.map((s) => `${s.x},${s.y},${s.w},${s.hudH}`)); const changes = samples.filter((s, i) => i && `${s.x},${s.y},${s.w},${s.hudH}` !== `${samples[i-1].x},${samples[i-1].y},${samples[i-1].w},${samples[i-1].hudH}`); return { distinct: keys.size, changes: changes.length, first: samples[0], sample: changes.slice(0, 12), chips: [...new Set(samples.map((s) => s.chip))] };", "log": true }
+  ]
+}

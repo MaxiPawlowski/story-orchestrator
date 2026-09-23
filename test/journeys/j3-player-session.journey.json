@@ -108,7 +108,8 @@
             "selector": "#chat",
             "contains": [
               "Accept the Mission"
-            ]
+            ],
+            "timeoutMs": 15000
           }
         }
       ]
