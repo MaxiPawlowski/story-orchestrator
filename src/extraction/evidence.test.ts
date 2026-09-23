@@ -44,6 +44,29 @@ describe("evidenceInWindow", () => {
 
   it("rejects an elision whose fragments are out of order", () => {
     expect(evidenceInWindow("the gate was open … We crossed at dawn", window)).toBe(false);
+    expect(evidenceInWindow("the gate … the gate", window)).toBe(false);
+  });
+
+  // V14: the span is made of whole words. A substring used to count, so a one-letter quote was found
+  // in almost any message.
+  it("rejects a quote that is only part of a word", () => {
+    expect(evidenceInWindow("e", ["Her eyes narrowed."])).toBe(false);
+    expect(evidenceInWindow("yes", ["Her eyes narrowed."])).toBe(false);
+    expect(evidenceInWindow("cross", window)).toBe(false);
+    expect(evidenceInWindow("ate was open", window)).toBe(false);
+    expect(evidenceInWindow("We crossed at da … the gate", window)).toBe(false);
+  });
+
+  it("control: the same words, whole, are found", () => {
+    expect(evidenceInWindow("eyes", ["Her eyes narrowed."])).toBe(true);
+    expect(evidenceInWindow("the gate was open", window)).toBe(true);
+    expect(evidenceInWindow("We crossed at dawn … the gate", window)).toBe(true);
+  });
+
+  it("treats dashes and brackets as word breaks on both sides", () => {
+    expect(evidenceInWindow("the road—washed out", ["The road (washed out) was closed."])).toBe(true);
+    expect(evidenceInWindow("north-west", ["They rode north-west."])).toBe(true);
+    expect(evidenceInWindow("north", ["They rode north-west."])).toBe(false);
   });
 
   it("rejects empty evidence", () => {

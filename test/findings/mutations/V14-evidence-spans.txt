@@ -1,0 +1,24 @@
+M1 a fragment may start inside a word
+  × rejects a quote that is only part of a word (3 ms)
+  ● evidenceInWindow › rejects a quote that is only part of a word
+Tests:       1 failed, 11 passed, 12 total
+M2 a fragment may end inside a word
+  × rejects a quote that is only part of a word (2 ms)
+  × treats dashes and brackets as word breaks on both sides
+  ● evidenceInWindow › rejects a quote that is only part of a word
+  ● evidenceInWindow › treats dashes and brackets as word breaks on both sides
+Tests:       2 failed, 10 passed, 12 total
+M3 the substring rule is back
+  × rejects a quote that is only part of a word (2 ms)
+  × treats dashes and brackets as word breaks on both sides (1 ms)
+  ● evidenceInWindow › rejects a quote that is only part of a word
+  ● evidenceInWindow › treats dashes and brackets as word breaks on both sides
+Tests:       2 failed, 10 passed, 12 total
+M4 dashes and brackets are not word breaks
+  × treats dashes and brackets as word breaks on both sides (2 ms)
+  ● evidenceInWindow › treats dashes and brackets as word breaks on both sides
+Tests:       1 failed, 11 passed, 12 total
+M5 elided fragments may overlap
+  × rejects an elision whose fragments are out of order (2 ms)
+  ● evidenceInWindow › rejects an elision whose fragments are out of order
+Tests:       1 failed, 11 passed, 12 total
