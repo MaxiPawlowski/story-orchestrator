@@ -305,7 +305,7 @@ export class MemoryCoordinator {
 
   getCanon(): string {
     const canon = this.state.canon;
-    if (canon?.text) return canon.text;
+    if (canon?.text && !canon.stale) return canon.text;
     const story = this.deps.getStory();
     const state = this.deps.getState();
     if (!story || !state) return "";
@@ -518,7 +518,7 @@ export class MemoryCoordinator {
     try {
       const supersededWinnerIds = new Set<string>();
       const groupOf = () => {
-        const active = this.state.entries.filter((entry) => !entry.supersededBy && !entry.foldedInto);
+        const active = this.state.entries.filter((entry) => !entry.supersededBy && !entry.foldedInto && isLive(entry));
         const groups = new Map<string, MemoryEntry[]>();
         active.forEach((entry) => {
           const key = `${entry.tier}:${entry.characterId ?? "shared"}`;

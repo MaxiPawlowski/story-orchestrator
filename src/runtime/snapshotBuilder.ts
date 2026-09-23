@@ -1,6 +1,6 @@
 import { agencyFor, type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type ValidationError } from "@engine/index";
 import type { DriverContext } from "@copilot/index";
-import type { LedgerView } from "@memory/index";
+import { sceneFieldsInConflict, type LedgerView } from "@memory/index";
 import { curatorLorebooks } from "@stagecraft/index";
 import { confirmedSceneFacts, isSceneStale } from "@judge/index";
 import { buildConvergenceReadout, buildLastTransition, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot } from "./snapshot";
@@ -81,7 +81,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     tensionLevel: tension.level,
     pendingCount: pendingDeltas.length,
     pipeline,
-    sceneLocation: confirmedSceneFacts(extras.judge.scene)?.location ?? null,
+    sceneLocation: confirmedSceneFacts(extras.judge.scene, sceneFieldsInConflict(extras.memory.conflicts))?.location ?? null,
     // Only when a place WAS known: a tracker that has never answered has nothing to be unsure of.
     sceneUnconfirmed: isSceneStale(extras.judge.scene) && Boolean(extras.judge.scene?.facts.location),
     // v2.3 plan 06: a write this chat believes it made and the server has not confirmed. Player

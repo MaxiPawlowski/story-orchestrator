@@ -108,7 +108,10 @@ describe("ledger rendering + maintenance", () => {
   it("rolls back at/after a message id, keeps pinned, caps and removes", () => {
     const entries = applyLedgerSignals([], [{ entity: "Kael", field: "location", value: "dungeon", entityType: "character" }], new Set(), ctx(1, 10));
     expect(rollbackLedger(entries, 10)).toHaveLength(0);
-    expect(rollbackLedger(setLedgerPinned(entries, entries[0].id, true), 10)).toHaveLength(1);
+    const pinnedRolled = rollbackLedger(setLedgerPinned(entries, entries[0].id, true), 10);
+    expect(pinnedRolled).toHaveLength(1);
+    expect(pinnedRolled[0].provenance?.validity).toBe("source-removed");
+    expect(buildLedgerView(pinnedRolled, [], {}, {})).toEqual([]);
     expect(removeLedger(entries, entries[0].id)).toHaveLength(0);
     expect(ledgerKey("Kael", "Location")).toBe("kael|location");
     const many: LedgerEntry[] = Array.from({ length: 5 }, (_, i) => ({ id: `x${i}`, entity: `E${i}`, entityType: "character", field: "f", value: "v", createdAt: i }));

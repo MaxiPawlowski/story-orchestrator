@@ -933,8 +933,8 @@ describe("RuntimeManager arc bridge and canon", () => {
     expect(prose()).toEqual(["The steward was unmasked."]);
     manager.getSnapshot().memory.canon!.stale = true;
     expect(prose()).toEqual([]);
-    // The author can still read it; only its READERS stop treating it as current.
-    expect(manager.getCanon()).toContain("steward was unmasked");
+    expect(manager.getSnapshot().memory.canon?.text).toContain("steward was unmasked");
+    expect(manager.getCanon()).not.toContain("steward was unmasked");
   });
 
   it("re-derives canon after the story moves on, and shows the player only its history", async () => {

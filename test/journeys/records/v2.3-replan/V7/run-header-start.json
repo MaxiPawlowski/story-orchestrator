@@ -1,0 +1,130 @@
+{
+  "label": "v7-live-start",
+  "capturedAt": "2026-09-23T07:01:57.760Z",
+  "build": {
+    "head": "9f53d7f0a19413678f63d4e328c20d31d65bf983",
+    "dirty": true,
+    "manifest": {
+      "version": "2.3.0",
+      "commit": null,
+      "sourceSha256": "cce1af53a60e11d76a3e1c08bc3f41f34e6c55af98b0f57c2720537a6170d9b6",
+      "sourceFiles": 260,
+      "bundleSha256": "0ed36ab0eb66a1456d79cfd754dcde37e636d33e33306942de4401805599a954",
+      "bundleBytes": 1555365,
+      "hostVersion": "1.19.0",
+      "builtAt": "2026-09-23T06:57:33.543Z",
+      "fileSha256": "588fd25e2f3587c8"
+    }
+  },
+  "warnings": [],
+  "bundle": {
+    "served": {
+      "http": 200,
+      "sha256": "0ed36ab0eb66a1456d79cfd754dcde37e636d33e33306942de4401805599a954",
+      "bytes": 1555365
+    }
+  },
+  "host": {
+    "stVersion": "1.19.0 (7c3994196)",
+    "mainApi": "textgenerationwebui",
+    "onlineStatus": "/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "macroEngine": "experimental"
+  },
+  "profiles": {
+    "selected": "Artemis RunPod RP [llamacpp]",
+    "extraction": "Story Orchestrator Memory RunPod [llamacpp]"
+  },
+  "judge": {
+    "pluginHttp": null,
+    "pluginConfigured": null,
+    "enabled": false,
+    "model": "jev-1.13.0",
+    "timeoutMs": 1500,
+    "uses": {
+      "director": false,
+      "memoryVerify": false,
+      "memoryPairs": false,
+      "sceneTrigger": false,
+      "sceneTracker": false,
+      "sceneOoc": false,
+      "lookahead": false,
+      "loreSelect": false,
+      "curatorFilter": false,
+      "memoryRerank": false,
+      "typedExtraction": false,
+      "stallCheck": false,
+      "expansionCritic": false,
+      "expansionLookahead": false
+    },
+    "expansion": {
+      "variants": 1,
+      "temperature": 0.7,
+      "pick": "code"
+    }
+  },
+  "stagecraft": {
+    "curatorEnabled": true,
+    "acceptMode": "auto",
+    "wardenEnabled": false,
+    "wardenAcceptMode": "review"
+  },
+  "extraction": {
+    "enabled": true,
+    "cadence": 1,
+    "stabilityLag": 0,
+    "reconciliationMultiplier": 1.5,
+    "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+  },
+  "display": {
+    "announceTransitions": true,
+    "hudEnabled": true,
+    "talkEnabled": true
+  },
+  "chat": {
+    "groupId": "1759606632088",
+    "chatId": "2026-09-23@03h45m01s896ms",
+    "chatLength": 1,
+    "authorView": false
+  },
+  "story": {
+    "id": null,
+    "title": null,
+    "playedVersion": null,
+    "contentHash": null,
+    "activeCheckpointId": null,
+    "boundary": null
+  },
+  "group": {
+    "name": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin.png",
+      "DM Narrator.png",
+      "Luke.png",
+      "Ponticius.png"
+    ],
+    "disabledMembers": []
+  },
+  "inventory": {
+    "v2Stories": [
+      "adolion-academy@11",
+      "adolion-adventurer@9",
+      "so-j9-fixme@1",
+      "so-j9-wizard@1"
+    ],
+    "wizardSessions": [
+      "0",
+      "1",
+      "2"
+    ],
+    "debugGlobals": [],
+    "lorebooksSelected": [
+      "Adolion - Aegis City Noble Life",
+      "Adolion Academy Checkpoints",
+      "Adolion Adventurer Checkpoints",
+      "Adolion Chronicle",
+      "Adolion World"
+    ],
+    "lorebookCount": 38,
+    "characterCount": 25
+  }
+}

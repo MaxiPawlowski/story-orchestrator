@@ -210,5 +210,8 @@ export async function reconfirmMemoryEntry(deps: MemoryQueueDeps, id: string, at
   if (state.epistemic.some((entry) => entry.id === id)) {
     return commitDecision(deps, { epistemic: state.epistemic.map((entry) => (entry.id === id ? { ...entry, ...withOverride(entry, "reconfirm", at, boundary) } : entry)) }, { epistemic: state.epistemic });
   }
+  if (state.ledger.some((entry) => entry.id === id)) {
+    return commitDecision(deps, { ledger: state.ledger.map((entry) => (entry.id === id ? { ...entry, ...withOverride(entry, "reconfirm", at, boundary) } : entry)) }, { ledger: state.ledger });
+  }
   return false;
 }

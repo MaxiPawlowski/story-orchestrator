@@ -1,0 +1,48 @@
+{
+  "name": "live-v7-quarantine-exclusion",
+  "objective": "v2.3 replan V7, live: a PINNED ledger row and a PINNED relationship memory (the tier the World Info mirror carries) are planted over a real reply, a real generation proves both reach the request ST sends, the source reply is edited, and the next real generation proves neither reaches the request while both rows are still stored (pin = retention) and the mirror entry is disabled; reconfirming the ledger row brings it back. The planting uses debug responses on purpose — what is under test is exclusion from the real request, and the sentinels V7SENTLEDGER / V7SENTREL appear nowhere in the transcript, so a whole-request absence cannot be a transcript false positive.",
+  "steps": [
+    { "import_story": { "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json" } },
+    { "ui": { "action": "select-profile" } },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); rt.setExtractionSettings({ cadence: 0 }); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; rt.setEpistemicLedgerCapable(true); globalThis.__v7Captures = []; if (!globalThis.__v7Listener) { globalThis.__v7Listener = (data) => { try { globalThis.__v7Captures.push(JSON.stringify(data)); } catch { globalThis.__v7Captures.push(String(data)); } }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__v7Listener); } return { capable: true, chat: ctx.chatId, group: ctx.groupId };",
+      "log": true
+    },
+    { "send_generate": { "text": "We push into the market square and I ask Luke about the old debt he still owes the guild.", "expectReply": true, "timeoutMs": 300000 } },
+    { "wait": { "idle": true, "timeoutMs": 120000 } },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const last = ctx.chat.length - 1; if (ctx.chat[last].is_user) throw new Error('the last message is the player\\'s: no reply to plant over'); globalThis.__v7Source = last; globalThis.storyOrchestratorDebugEpistemicResponse = 'NONE'; globalThis.storyOrchestratorDebugLedgerResponse = '[state:Arin:character] condition=V7SENTLEDGER'; globalThis.storyOrchestratorDebugSceneSummaryResponse = 'NONE'; const wrote = await rt.runEpistemicLedgerPass({ id: 'v7-plant', createdAt: new Date().toISOString(), priority: 0, reason: 'scene:location', contractHash: 'v7', scope: [], window: { from: 0, to: last }, prompt: '', rawResponse: '', acceptedDeltas: [], rejected: [], sceneBreak: { at: last, reason: 'location' } }); const row = rt.getSnapshot().memory.ledger.find((entry) => entry.value === 'V7SENTLEDGER'); if (!row) throw new Error(`the ledger row never landed (wrote=${wrote}): ${JSON.stringify(rt.getSnapshot().memory.ledger)}`); if (row.messageId !== last) throw new Error(`ledger row source ${row.messageId} is not the reply ${last}`); await rt.setLedgerPinned(row.id, true); globalThis.__v7Ledger = row.id; return { last, ledgerId: row.id, validity: row.provenance?.validity };",
+      "log": true
+    },
+    { "extract": { "debugResponse": "MEMORY type=relationship importance=3 expiration=permanent text=\"V7SENTREL Arin keeps Luke's guild debt a secret\" evidence=\"the old debt he still owes the guild\"", "reason": "cadence" } },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const row = rt.getSnapshot().memory.entries.find((entry) => entry.text.includes('V7SENTREL')); if (!row) throw new Error(`the relationship never landed: ${JSON.stringify(rt.getSnapshot().memory.entries.map((e) => [e.tier, e.type, e.text]))}`); if (row.messageId !== globalThis.__v7Source) throw new Error(`relationship source ${row.messageId} is not the reply ${globalThis.__v7Source}`); rt.setMemoryPinned(row.id, true); globalThis.__v7Rel = row.id; const summary = await rt.syncWorldInfo(); const book = rt.getSnapshot().memory.wiBook?.name ?? rt.getSnapshot().memory.wiBook; const wi = await import('/scripts/world-info.js'); const data = await wi.loadWorldInfo(String(book)); const mirrored = Object.values(data?.entries ?? {}).find((entry) => entry.comment === `so_${row.id}`); if (!mirrored || mirrored.disable) throw new Error(`the relationship is not mirrored live before the edit: book=${book} summary=${JSON.stringify(summary)} entry=${JSON.stringify(mirrored ?? null)}`); globalThis.__v7Book = String(book); return { relId: row.id, tier: row.tier, book, mirrored: true };",
+      "log": true
+    },
+    { "send_generate": { "text": "Luke shrugs and changes the subject. I let it drop for now and look around the square.", "expectReply": true, "timeoutMs": 300000 } },
+    { "wait": { "idle": true, "timeoutMs": 120000 } },
+    {
+      "eval": "const caps = globalThis.__v7Captures; if (!caps.length) throw new Error('no generation request was captured — GENERATE_AFTER_DATA never fired'); const body = caps[caps.length - 1]; const ledger = body.includes('V7SENTLEDGER'); const rel = body.includes('V7SENTREL'); if (!ledger || !rel) throw new Error(`positive control failed — before the edit the real request must carry both planted rows: ledger=${ledger} relationship=${rel} (captures=${caps.length})`); globalThis.__v7CapsBefore = caps.length; return { captures: caps.length, ledger, rel, chars: body.length };",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const id = globalThis.__v7Source; const message = ctx.chat[id]; const text = 'The square is quiet; nobody mentions any debt.'; message.mes = text; if (Array.isArray(message.swipes) && Number.isInteger(message.swipe_id)) message.swipes[message.swipe_id] = text; await ctx.updateMessageBlock?.(id, message); await ctx.saveChat?.(); await ctx.eventSource.emit(ctx.eventTypes.MESSAGE_EDITED, id); return { edited: id };",
+      "log": true
+    },
+    { "wait": { "idle": true, "timeoutMs": 120000 } },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const memory = rt.getSnapshot().memory; const ledger = memory.ledger.find((entry) => entry.id === globalThis.__v7Ledger); const rel = memory.entries.find((entry) => entry.id === globalThis.__v7Rel); if (!ledger || !rel) throw new Error(`a pinned row was DELETED instead of quarantined: ledger=${Boolean(ledger)} rel=${Boolean(rel)}`); if (ledger.provenance?.validity !== 'source-removed' || !ledger.pinned) throw new Error(`the ledger row was not quarantined: ${JSON.stringify(ledger)}`); if (rel.provenance?.validity !== 'source-removed' || !rel.pinned) throw new Error(`the relationship was not quarantined: ${JSON.stringify(rel.provenance)}`); if (rt.getLedger().some((row) => row.value === 'V7SENTLEDGER')) throw new Error('the quarantined ledger row is still in the ledger view'); await rt.syncWorldInfo(); const wi = await import('/scripts/world-info.js'); const data = await wi.loadWorldInfo(globalThis.__v7Book); const mirrored = Object.values(data?.entries ?? {}).find((entry) => entry.comment === `so_${rel.id}`); if (mirrored && !mirrored.disable) throw new Error(`the World Info mirror still carries the quarantined relationship live: ${JSON.stringify(mirrored)}`); return { ledger: ledger.provenance.validity, rel: rel.provenance.validity, mirror: mirrored ? 'disabled' : 'absent' };",
+      "log": true
+    },
+    { "send_generate": { "text": "I buy two apples and toss one to Arin.", "expectReply": true, "timeoutMs": 300000 } },
+    { "wait": { "idle": true, "timeoutMs": 120000 } },
+    {
+      "eval": "const caps = globalThis.__v7Captures; if (caps.length <= globalThis.__v7CapsBefore) throw new Error('no new request was captured after the edit: absence below would be vacuous'); const body = caps[caps.length - 1]; const ledger = body.includes('V7SENTLEDGER'); const rel = body.includes('V7SENTREL'); if (ledger || rel) throw new Error(`a quarantined row reached the real request: ledger=${ledger} relationship=${rel}`); return { captures: caps.length, ledger, rel, chars: body.length };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ok = await rt.memoryActions.reconfirmMemoryEntry(globalThis.__v7Ledger); const row = rt.getSnapshot().memory.ledger.find((entry) => entry.id === globalThis.__v7Ledger); if (!ok || row?.provenance?.validity !== 'live' || row?.provenance?.source !== 'author') throw new Error(`reconfirm did not bring the ledger row back: ok=${ok} ${JSON.stringify(row?.provenance)}`); if (!rt.getLedger().some((view) => view.value === 'V7SENTLEDGER')) throw new Error('reconfirmed, but the ledger view still lacks the row'); const ctx = SillyTavern.getContext(); ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__v7Listener); delete globalThis.__v7Listener; return { reconfirmed: true, provenance: row.provenance };",
+      "log": true
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+1/18 import_story ok 378ms
+2/18 ui ok 3292ms
+3/18 eval ok 12ms
+3/18 eval -> {"capable":true,"chat":"2026-09-23@04h01m58s746ms","group":"1759606632088"}
+4/18 send_generate ok 21401ms
+5/18 wait ok 1525ms
+6/18 eval ok 456ms
+6/18 eval -> {"last":2,"ledgerId":"14970eef-b212-4877-a70c-3d3ec9713301","validity":"live"}
+7/18 extract ok 628ms
+8/18 eval ok 427ms
+8/18 eval -> {"relId":"70178713-2d05-4329-81f0-7529c0c4fa82","tier":"facts","book":"Story Orchestrator - Quest for the Sun Ruins - 2026-09-23@04h01m58s746ms","mirrored":true}
+9/18 send_generate ok 41015ms
+10/18 wait ok 1531ms
+11/18 eval ok 6ms
+11/18 eval -> {"captures":3,"ledger":true,"rel":true,"chars":10481}
+12/18 eval ok 1013ms
+12/18 eval -> {"edited":2}
+13/18 wait ok 1544ms
+14/18 eval ok 246ms
+14/18 eval -> {"ledger":"source-removed","rel":"source-removed","mirror":"disabled"}
+15/18 send_generate ok 45245ms
+16/18 wait ok 1520ms
+17/18 eval ok 4ms
+17/18 eval -> {"captures":5,"ledger":false,"rel":false,"chars":10106}
+18/18 eval ok 1212ms
+18/18 eval -> {"reconfirmed":true,"provenance":{"source":"author","messageId":2,"boundary":1,"pass":"shared-read","validity":"live","override":{"by":"author","at":"2026-09-23T07:03:59.236Z","boundary":4,"from":"reconfirm"}}}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T07-04-00-860Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 18,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse",
+      "storyOrchestratorDebugEpistemicResponse",
+      "storyOrchestratorDebugLedgerResponse",
+      "storyOrchestratorDebugSceneSummaryResponse"
+    ],
+    "sandboxChatId": "2026-09-23@04h01m58s746ms",
+    "owned": [
+      "2026-09-23@04h01m58s746ms"
+    ],
+    "deleted": [
+      "2026-09-23@04h01m58s746ms"
+    ],
+    "notDeleted": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@04h01m58s746ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@03h45m01s896ms",
+    "mirrorBooks": {
+      "deleted": [
+        "Story Orchestrator - Quest for the Sun Ruins - 2026-09-23@04h01m58s746ms"
+      ],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "ok": true
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { describeProvenance, isQuarantined, originLabel, type ConflictPair, type EpistemicEntry, type MemoryEntry, type Provenance } from "@memory/index";
+import { describeProvenance, isQuarantined, originLabel, type ConflictPair, type EpistemicEntry, type LedgerEntry, type MemoryEntry, type Provenance } from "@memory/index";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import type { RuntimeSnapshot } from "@runtime/types";
 
@@ -28,9 +28,11 @@ const ConflictQueue = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
   const [refused, setRefused] = useState<string | null>(null);
   const act = async (key: string, run: () => Promise<boolean>) => { setRefused((await run()) ? null : key); };
   const conflicts = [...(snapshot.memory.conflicts ?? [])].sort(byNewest);
-  const quarantined: MemoryEntry[] = snapshot.memory.entries.filter((entry) => entry.provenance && entry.provenance.validity !== "live");
+  const paired = new Set(conflicts.flatMap((pair) => pair.sides.map((side) => side.id)));
+  const quarantined: MemoryEntry[] = snapshot.memory.entries.filter((entry) => isQuarantined(entry) && !paired.has(entry.id));
   const quarantinedEpistemic: EpistemicEntry[] = (snapshot.memory.epistemic ?? []).filter((entry) => isQuarantined(entry));
-  if (!conflicts.length && !quarantined.length && !quarantinedEpistemic.length) return null;
+  const quarantinedLedger: LedgerEntry[] = (snapshot.memory.ledger ?? []).filter((entry) => isQuarantined(entry) && !paired.has(entry.id));
+  if (!conflicts.length && !quarantined.length && !quarantinedEpistemic.length && !quarantinedLedger.length) return null;
   return (
     <div data-so="reconciliation" className="border-t border-solid border-white/10 mt-1 pt-1">
       <div className="font-medium opacity-100">Needs your decision ({conflicts.length})</div>
@@ -74,6 +76,16 @@ const ConflictQueue = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
           <div className="flex gap-2">
             <button className="menu_button" data-so="reconfirm" onClick={() => void act(entry.id, () => manager.memoryActions.reconfirmMemoryEntry(entry.id))}>Reconfirm — keep it as mine</button>
             <button className="menu_button" data-so="discard-quarantined" onClick={() => void manager.removeEpistemicEntry(entry.id)}>Discard</button>
+          </div>
+        </div>
+      ))}
+      {quarantinedLedger.map((entry) => (
+        <div key={entry.id} data-so="quarantined" data-so-kind="ledger" className="mt-1">
+          <span className="opacity-60">{entry.provenance?.validity === "conflicted" ? "Conflicted" : "Source removed"}: {entry.entity} {entry.field} = {entry.value}</span>
+          <div className="opacity-50" title={describeProvenance(entry)}>{originText(entry.provenance, entry.provenance?.messageId === -1 ? undefined : entry.provenance?.messageId, undefined)}</div>
+          <div className="flex gap-2">
+            <button className="menu_button" data-so="reconfirm" onClick={() => void act(entry.id, () => manager.memoryActions.reconfirmMemoryEntry(entry.id))}>Reconfirm — keep it as mine</button>
+            <button className="menu_button" data-so="discard-quarantined" onClick={() => void manager.removeLedgerEntry(entry.id)}>Discard</button>
           </div>
         </div>
       ))}

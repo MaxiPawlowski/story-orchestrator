@@ -1,5 +1,5 @@
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
-import { buildSceneReadRequest, readScene, SCENE_MAX_REACHABLE, SCENE_TIMEOUT_MS, isSceneStale, sceneTrackerText, toSceneRecord, type SceneFamilies, type SceneReadInput, type SceneReadRecord } from "@judge/index";
+import { buildSceneReadRequest, confirmedSceneFacts, readScene, SCENE_MAX_REACHABLE, SCENE_TIMEOUT_MS, isSceneStale, sceneTrackerText, toSceneRecord, type SceneFamilies, type SceneReadInput, type SceneReadRecord } from "@judge/index";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunOwnership } from "../runToken";
 
@@ -13,6 +13,7 @@ export interface SceneCoordinatorDeps {
   getScene: () => SceneReadRecord | null;
   setScene: (record: SceneReadRecord | null) => void;
   inject: (text: string | null) => void;
+  withheldFields?: () => ReadonlySet<string>;
   // v2.3 plan 03 (C1, the "scene" surface). Optional: an unwired caller never lapses.
   ownership?: RunOwnership;
   now?: () => number;
@@ -154,7 +155,8 @@ export class SceneCoordinator {
     // A scene nothing has confirmed for SCENE_STALE_AFTER reads is withheld rather than injected:
     // naming a place the story may have left is worse than naming none.
     const stale = SceneCoordinator.isStale(record);
-    const text = record && !stale && story && this.families().tracker && story.scene_read?.inject !== false ? sceneTrackerText(record.facts) : null;
+    const facts = stale ? null : confirmedSceneFacts(record, this.deps.withheldFields?.());
+    const text = facts && story && this.families().tracker && story.scene_read?.inject !== false ? sceneTrackerText(facts) : null;
     if (text === this.injected) return;
     this.injected = text;
     this.deps.inject(text);

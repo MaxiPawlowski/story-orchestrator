@@ -1,5 +1,6 @@
 import { callExtractionModel, getChatWindow, ExtractionScheduler, type SchedulerHost, type SchedulerSettings } from "@extraction/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
+import { sceneFieldsInConflict } from "@memory/index";
 import { clearStoryExtensionPrompt, executeSlashCommands, forceActivateEntries, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, getScannableEntries, judgeStatus, judgeTransport, noteHostSettingsLoaded, setStoryExtensionPrompt, settingsReady, subscribeToHostEvents, willAddUserMessage, EXTENSION_SETTINGS_LOADED_EVENT, type HostSubscriptionEntry } from "@services/STAPI";
 import { quoteSlashArg } from "@utils/string";
 import { runBoundaryWork } from "./boundaryWork";
@@ -128,6 +129,7 @@ export function startRuntime() {
     ownership: runtimeManager.getOwnership(),
     setScene: (record) => runtimeManager.recordSceneRead(record),
     inject: (text) => (text ? setStoryExtensionPrompt(tracker.key, text, tracker.depth) : clearStoryExtensionPrompt(tracker.key)),
+    withheldFields: () => sceneFieldsInConflict(runtimeManager.getSnapshot().memory.conflicts),
   });
   sceneCoordinator = scene;
   runtimeManager.attachScene(scene);

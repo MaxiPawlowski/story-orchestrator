@@ -59,6 +59,9 @@ export const memoryConflictKey = (entry: MemoryEntry) => `memory:${entry.id}`;
 export const ledgerConflictKey = (entry: LedgerEntry) => `ledger:${ledgerKey(entry.entity, entry.field)}`;
 export const sceneConflictKey = (field: string) => `scene:${field.trim().toLowerCase()}`;
 
+export const sceneFieldsInConflict = (conflicts: ReadonlyArray<{ sides: ReadonlyArray<{ store: string; id: string }> }> | undefined): Set<string> =>
+  new Set((conflicts ?? []).flatMap((pair) => pair.sides).filter((side) => side.store === "scene").map((side) => side.id.replace(/^scene:/, "")));
+
 const sideOf = (record: { id: string; messageId?: number; confidence?: number; provenance?: Provenance }, store: ConflictSide["store"], label: string): ConflictSide => ({
   store,
   id: record.id,

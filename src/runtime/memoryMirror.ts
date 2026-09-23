@@ -1,4 +1,5 @@
 import { hashMemoryText } from "@memory/stores";
+import { isLive } from "@memory/provenance";
 import type { MemoryEntry } from "@memory/types";
 import type { ChatLorebookBinding, Lorebook, WIUpsertResult } from "@services/STAPI";
 import type { MemoryMirrorBook } from "./types";
@@ -49,7 +50,7 @@ export const mirrorComment = (entry: MemoryEntry) => `${COMMENT_PREFIX}${entry.i
 export const mirrorLorebookName = (title: string, chatId: string) => `Story Orchestrator - ${title} - ${chatId}`;
 
 export const mirroredEntries = (entries: MemoryEntry[]) => entries.filter((entry) =>
-  !entry.supersededBy && !entry.foldedInto && (entry.type === "relationship" || (entry.tier === "scene_history" && entry.type === "scene")));
+  !entry.supersededBy && !entry.foldedInto && isLive(entry) && (entry.type === "relationship" || (entry.tier === "scene_history" && entry.type === "scene")));
 
 export const emptyMirrorSummary = (): MemoryMirrorSummary => ({ created: 0, updated: 0, unchanged: 0, disabled: 0, lorebook: null, binding: null });
 

@@ -1,4 +1,4 @@
-import { isLive, provenance as provenanceOf, type ProvenanceSource } from "./provenance";
+import { isLive, provenance as provenanceOf, withValidity, type ProvenanceSource } from "./provenance";
 import { generateMemoryId, type LedgerEntry, type LedgerView, type ParsedLedgerSignal } from "./types";
 
 export const LEDGER_CAP = 60;
@@ -86,7 +86,12 @@ export function ledgerVersions(entries: LedgerEntry[], entity: string, field: st
 }
 
 export function rollbackLedger(entries: LedgerEntry[], messageId: number): LedgerEntry[] {
-  return entries.filter((entry) => entry.pinned || typeof entry.messageId !== "number" || entry.messageId < messageId);
+  return entries.flatMap((entry): LedgerEntry[] => {
+    const sourced = typeof entry.messageId === "number" && entry.messageId >= messageId;
+    if (!sourced) return [entry];
+    if (!entry.pinned) return [];
+    return [{ ...entry, ...withValidity(entry, "source-removed") }];
+  });
 }
 
 export function capLedger(entries: LedgerEntry[], cap: number = LEDGER_CAP): LedgerEntry[] {

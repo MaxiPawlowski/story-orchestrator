@@ -23,11 +23,12 @@ const memoryEntry = (overrides: Partial<MemoryEntry>): MemoryEntry => ({
   ...overrides,
 });
 
-const snapshot = (options: { conflicts?: RuntimeSnapshot["memory"]["conflicts"]; entries?: MemoryEntry[]; epistemic?: RuntimeSnapshot["memory"]["epistemic"] } = {}): RuntimeSnapshot => ({
+const snapshot = (options: { conflicts?: RuntimeSnapshot["memory"]["conflicts"]; entries?: MemoryEntry[]; epistemic?: RuntimeSnapshot["memory"]["epistemic"]; ledger?: RuntimeSnapshot["memory"]["ledger"] } = {}): RuntimeSnapshot => ({
   memory: {
     conflicts: options.conflicts ?? [],
     entries: options.entries ?? [],
     epistemic: options.epistemic ?? [],
+    ledger: options.ledger ?? [],
   },
 }) as unknown as RuntimeSnapshot;
 
@@ -41,7 +42,7 @@ const pair: ConflictPair = {
   ],
 };
 
-const fakeManager = (actions: Record<string, unknown> = {}) => ({ memoryActions: { resolveMemoryConflict: fn(async () => true), lockAsCanon: fn(async () => true), dismissMemoryConflict: fn(async () => true), setMemoryLocked: fn(async () => {}), reconfirmMemoryEntry: fn(async () => true), rereadConflictWindow: fn(async () => true), ...actions }, excludeMemoryEntry: fn(), removeEpistemicEntry: fn() }) as unknown as RuntimeManager;
+const fakeManager = (actions: Record<string, unknown> = {}) => ({ memoryActions: { resolveMemoryConflict: fn(async () => true), lockAsCanon: fn(async () => true), dismissMemoryConflict: fn(async () => true), setMemoryLocked: fn(async () => {}), reconfirmMemoryEntry: fn(async () => true), rereadConflictWindow: fn(async () => true), ...actions }, excludeMemoryEntry: fn(), removeEpistemicEntry: fn(), removeLedgerEntry: fn() }) as unknown as RuntimeManager;
 
 const meta: Meta<typeof ConflictQueue> = {
   title: "Drawer/ConflictQueue",
@@ -206,6 +207,19 @@ export const APrivateQuarantinedRowIsTheSameDecision: Story = {
     await expect((args.manager as unknown as { memoryActions: { reconfirmMemoryEntry: ReturnType<typeof fn> } }).memoryActions.reconfirmMemoryEntry).toHaveBeenCalledWith("e1");
     await userEvent.click(canvas.getByRole("button", { name: /Discard/ }));
     await expect((args.manager as unknown as { removeEpistemicEntry: ReturnType<typeof fn> }).removeEpistemicEntry).toHaveBeenCalledWith("e1");
+  },
+};
+
+export const APinnedLedgerRowQuarantinedByRollbackIsOffered: Story = {
+  args: { snapshot: snapshot({ entries: [], ledger: [{ id: "l1", entity: "Kael", entityType: "character", field: "location", value: "the crypt", createdAt: 2, messageId: 4, pinned: true, provenance: { ...provenance({ source: "extractor", messageId: 4, boundary: 1, pass: "ledger" }), validity: "source-removed" as const } }] }) },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const row = canvasElement.querySelector('[data-so="quarantined"][data-so-kind="ledger"]');
+    await expect(row?.textContent).toContain("Kael location = the crypt");
+    await userEvent.click(canvas.getByRole("button", { name: /Reconfirm/ }));
+    await expect((args.manager as unknown as { memoryActions: { reconfirmMemoryEntry: ReturnType<typeof fn> } }).memoryActions.reconfirmMemoryEntry).toHaveBeenCalledWith("l1");
+    await userEvent.click(canvas.getByRole("button", { name: /Discard/ }));
+    await expect((args.manager as unknown as { removeLedgerEntry: ReturnType<typeof fn> }).removeLedgerEntry).toHaveBeenCalledWith("l1");
   },
 };
 

@@ -345,6 +345,14 @@ describe("the author's other memory decisions", () => {
     expect(activeEpistemic(h.read().epistemic)).toHaveLength(1);
   });
 
+  it("V7: reconfirms a quarantined pinned LEDGER row, which a rollback now quarantines instead of keeping live", async () => {
+    const row: LedgerEntry = { id: "l1", entity: "Kael", entityType: "character", field: "location", value: "the crypt", createdAt: 2, messageId: 4, pinned: true,
+      provenance: { ...provenance({ source: "extractor", messageId: 4, boundary: 1, pass: "ledger" }), validity: "source-removed" as const } };
+    const h = harness({ memory: state({ ledger: [row] }) });
+    expect(await reconfirmMemoryEntry(h.deps, "l1", "2026-09-23T00:00:00.000Z")).toBe(true);
+    expect(h.read().ledger[0].provenance).toMatchObject({ source: "author", validity: "live", override: { from: "reconfirm" } });
+  });
+
   it("writes nothing for an id neither store holds", async () => {
     const h = harness({ memory: state({ entries: [entry()] }) });
     await reconfirmMemoryEntry(h.deps, "ghost", "t");

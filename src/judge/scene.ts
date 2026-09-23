@@ -209,8 +209,11 @@ export const isSceneStale = (record: SceneReadRecord | null | undefined): boolea
   (record?.freshness?.failures ?? 0) >= SCENE_STALE_AFTER;
 
 /** The facts, or null once they can no longer be asserted. The one accessor every reader uses. */
-export const confirmedSceneFacts = (record: SceneReadRecord | null | undefined): SceneFacts | null =>
-  !record || isSceneStale(record) ? null : record.facts;
+export const confirmedSceneFacts = (record: SceneReadRecord | null | undefined, withheld: ReadonlySet<string> = new Set()): SceneFacts | null => {
+  if (!record || isSceneStale(record)) return null;
+  if (!withheld.size) return record.facts;
+  return { ...record.facts, location: withheld.has("location") ? null : record.facts.location, time: withheld.has("time") ? null : record.facts.time };
+};
 
 export function toSceneRecord(read: SceneAnswers, input: SceneReadInput, meta: { at: string; boundary: number; messageId: number; model: string | null }): SceneReadRecord {
   const facts = sceneFacts(read, input.cast);
