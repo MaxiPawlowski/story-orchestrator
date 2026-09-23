@@ -1555,3 +1555,25 @@ describe("RuntimeManager async boundary ownership", () => {
     expect(h.notify).not.toHaveBeenCalled();
   });
 });
+
+describe("V4: a boundary committed for an earlier reply", () => {
+  beforeEach(() => resetHost());
+
+  it("is pinned to that reply's message, not to the end of the chat", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(story));
+    mockContext.chat = [{ mes: "a" }, { mes: "b" }, { mes: "c" }, { mes: "d" }];
+    await manager.commitBoundary(1);
+    expect(manager.getEngineState()?.lastMessageId).toBe(1);
+    await manager.commitBoundary(9);
+    expect(manager.getEngineState()?.lastMessageId).toBe(3);
+  });
+
+  it("control: without a message it reads the end of the chat", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(story));
+    mockContext.chat = [{ mes: "a" }, { mes: "b" }, { mes: "c" }];
+    await manager.commitBoundary();
+    expect(manager.getEngineState()?.lastMessageId).toBe(2);
+  });
+});

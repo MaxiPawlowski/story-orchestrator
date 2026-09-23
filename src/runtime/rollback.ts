@@ -33,6 +33,7 @@ const historyNote = (messageId: number, oldest: { boundary: number }): string =>
   `message ${messageId} is older than what this chat can reconstruct (oldest boundary ${oldest.boundary}); the messages the edit invalidated were dropped and the story was not stepped back`;
 
 export async function runRollback(deps: RollbackDeps, messageId: number): Promise<RollbackOutcome> {
+  if (!Number.isFinite(messageId)) return { ok: true, result: "noop" };
   const { engine } = deps;
   const extras = deps.extras();
   // The rows a rollback would have dropped still go, whatever the engine can restore: they are

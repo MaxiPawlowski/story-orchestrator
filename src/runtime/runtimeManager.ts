@@ -239,14 +239,14 @@ export class RuntimeManager {
   async restartStory(alreadyConfirmed = false): Promise<boolean> { return restartStory(this.selectionDeps, this.loaded?.record.id ?? null, alreadyConfirmed); }
   async removeStory(idOrHash: string): Promise<boolean> { return removeStory(this.selectionDeps, idOrHash); }
 
-  async commitBoundary() {
+  async commitBoundary(at?: number) {
     if (!this.loaded) return null;
     const run = beginRun(this.owner.ownership);
     this.notices.lastRollback = null;
     this.refreshRequirements();
     this.expansion.revalidateInserted();
     const pendingBridges = this.memory.enqueueArcBridges();
-    const result = this.engine.commitBoundary(this.getBoundaryContext());
+    const result = this.engine.commitBoundary(this.getBoundaryContext(at));
     this.memory.markBridgesApplied(pendingBridges);
     if (result.effects) {
       await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate", this.engine.checkpointPath);
@@ -688,7 +688,7 @@ export class RuntimeManager {
   async decideCuratorProposal(id: string, status: "accepted" | "rejected") { await this.stagecraft.decideProposal(id, status); }
   async applyCuratorProposals(): Promise<number> { return this.stagecraft.applyAccepted(); }
 
-  private getBoundaryContext(): BoundaryContext { const chat = Array.isArray(getContext().chat) ? getContext().chat : []; return { lastMessageId: chat.length - 1, chatLength: chat.length }; }
+  private getBoundaryContext(at?: number): BoundaryContext { const chat = Array.isArray(getContext().chat) ? getContext().chat : []; const last = at === undefined ? chat.length - 1 : Math.min(at, chat.length - 1); return { lastMessageId: last, chatLength: last + 1 }; }
 
   private refreshRequirements() {
     this.extras.requirements = evaluateRequirements(this.loaded?.story ?? null);

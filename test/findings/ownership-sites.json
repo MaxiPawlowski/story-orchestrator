@@ -349,13 +349,13 @@
       "status": "checked",
       "note": "v2.3 plan 03: mints against the director window before the judge/director call, captures the origin checkpoint and message id, refuses to cache or record a decision whose world moved, and re-checks a cached or in-flight entry so a stale one cannot serve a world that replaced it. Exact pending identity keeps an old task from clearing its replacement. The returned guard also gates the two host effects the callers perform (abort, triggerMember) and the audit row now names the world the decision was computed from. No journal record on discard: the host has no journal seam here, and extras.talk.decisions renders every row as a chosen speaker or a silence, so a discard row would read as a silence."
     },
-    "src/runtime/turnBridge.ts#TurnBridge.flushPendingBoundary": {
+    "src/runtime/turnBridge.ts#TurnBridge.flushPending": {
       "status": "checked",
-      "note": "v2.3 plan 03: reuses the guard captured when the rendered reply was accepted, requires exact pending-slot identity, and checks ownership before polling or committing. Deferred overlap and stale-poll controls are mutation-tested."
+      "note": "v2.3 plan 03, V4 2026-09-23: the single pending slot is now a queue (a group round used to collapse into one boundary). Each entry keeps the guard captured when its reply was accepted; lapsed entries are dropped before polling, and each is re-checked immediately before its own commitBoundary. Only entries whose after-speak finished (ready) are committed, in order from the head, so an older reply never commits a newer one early. Controls in turnBridgeOwnership.review.test.ts + turnBridgeIdentity.review.test.ts."
     },
     "src/runtime/turnBridge.ts#TurnBridge.onRenderedReply": {
       "status": "checked",
-      "note": "v2.3 plan 03: captures ownership at event acceptance, replaces the pending slot by identity, and refuses a late afterSpeak continuation after its world lapses. The flush retains the same captured guard rather than minting in the landing world."
+      "note": "v2.3 plan 03: captures ownership at event acceptance, queues its own pending entry (V4: no longer replaces a shared slot), and refuses a late afterSpeak continuation after its world lapses by removing its entry. The flush retains the same captured guard rather than minting in the landing world."
     },
     "src/runtime/memoryQueue.ts#commitDecision": {
       "status": "partial",

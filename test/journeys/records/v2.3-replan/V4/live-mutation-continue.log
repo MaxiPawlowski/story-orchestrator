@@ -1,0 +1,56 @@
+build manifest → dist\manifest.json (bundle 025827f17728, source dcd2ccb3ef0e, ST 1.19.0)
+1/3 import_story ok 389ms
+2/3 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: a continue on the same message committed no boundary: {"id":0,"b0":0,"bNormal":1,"bAgain":1,"bCont":1,"bFinal":1}
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1239)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T08-04-45-506Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T08-04-45-780Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 2,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@05h04m42s509ms",
+    "owned": [
+      "2026-09-23@05h04m42s509ms"
+    ],
+    "deleted": [
+      "2026-09-23@05h04m42s509ms"
+    ],
+    "notDeleted": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@05h04m42s509ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@03h45m01s896ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": false,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "ok": true
+    }
+  }
+}

@@ -85,3 +85,15 @@ describe("cross-store rollback without an engine transition", () => {
     expect(h.rollbackFromMessage).toHaveBeenCalledWith(0, 7);
   });
 });
+
+describe("V4: a mutation with no message id", () => {
+  it("rewinds nothing, even where the engine would read the id as 'from the start'", async () => {
+    const h = harness();
+    const rollbackTo = jest.fn();
+    Object.assign(h.deps.engine, { shouldRollbackFromMessage: () => true, rollbackTo });
+    await expect(runRollback(h.deps, Number.NaN)).resolves.toEqual({ ok: true, result: "noop" });
+    expect(rollbackTo).not.toHaveBeenCalled();
+    expect(h.rollbackFromMessage).not.toHaveBeenCalled();
+    expect(h.extras.extraction.audits).toHaveLength(2);
+  });
+});

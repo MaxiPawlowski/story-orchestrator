@@ -11,6 +11,7 @@ jest.mock("@services/STAPI", () => ({
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
+  getContext: () => ({ chat: [] }),
   isHostGenerating: () => hostGenerating,
   subscribeToHostEvents: (entries: Array<{ eventName: string; handler: (...args: unknown[]) => unknown }>) => {
     for (const entry of entries) handlers.set(entry.eventName, entry.handler);
@@ -45,7 +46,7 @@ function harness() {
   };
   const committed: Array<string | null> = [];
   const manager = {
-    commitBoundary: jest.fn(async () => { committed.push(current.chatId); }),
+    commitBoundary: jest.fn(async (_at?: number) => { committed.push(current.chatId); }),
     fireAfterSpeak: jest.fn(async () => undefined),
     rollbackFromMessage: jest.fn(async () => undefined),
     loadSelectedFromChat: jest.fn(async () => undefined),
@@ -109,7 +110,7 @@ control("an old rendered reply cannot consume the new chat's pending boundary", 
   expect(h.committed).toEqual(["chat-b"]);
 });
 
-control("an older same-world reply cannot consume a newer pending boundary", async () => {
+control("an older same-world reply commits itself, never the newer reply whose after-speak is still running (V4)", async () => {
   const h = harness();
   const first = deferred();
   const second = deferred();
@@ -121,11 +122,11 @@ control("an older same-world reply cannot consume a newer pending boundary", asy
   handlers.get("CHARACTER_MESSAGE_RENDERED")?.(8, "normal");
   first.resolve();
   await settle();
-  expect(h.committed).toEqual([]);
+  expect(h.manager.commitBoundary.mock.calls).toEqual([[7]]);
 
   second.resolve();
   await settle();
-  expect(h.committed).toEqual(["chat-a"]);
+  expect(h.manager.commitBoundary.mock.calls).toEqual([[7], [8]]);
 });
 
 control("a poll keeps the ownership of the reply that scheduled it", async () => {

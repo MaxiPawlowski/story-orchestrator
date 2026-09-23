@@ -1,0 +1,22 @@
+M1 continue keyed by id alone
+  ● V4: what one turn is › a 'appendFinal' on the message that already committed commits its own boundary, once per continuation
+  ● V4: what one turn is › a 'continue' on the message that already committed commits its own boundary, once per continuation
+Tests:       2 failed, 4 passed, 6 total
+M2 single pending slot (group round collapses)
+  ● V4: what one turn is › a group round commits one boundary per reply, each at its own message, in order
+Tests:       1 failed, 5 passed, 6 total
+M3 null id read as message 0
+  ● V4: what one turn is › a null or empty id is not message 0
+Tests:       1 failed, 5 passed, 6 total
+M4 drain ignores ready (older reply commits a newer one early)
+  ● control: an older same-world reply commits itself, never the newer reply whose after-speak is still running (V4)
+Tests:       1 failed, 4 passed, 5 total
+M5 manager ignores the reply's message id
+  ● V4: a boundary committed for an earlier reply › is pinned to that reply's message, not to the end of the chat
+Tests:       1 failed, 81 passed, 82 total
+M6 bridge still rolls back on a mutation with no id
+  ● V4: what one turn is › a null or empty id is not message 0
+Tests:       1 failed, 5 passed, 6 total
+M7 runRollback accepts a non-finite id
+  ● V4: a mutation with no message id › rewinds nothing, even where the engine would read the id as 'from the start'
+Tests:       1 failed, 2 passed, 3 total
