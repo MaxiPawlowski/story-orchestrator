@@ -1,0 +1,25 @@
+{
+  "name": "live-v16-save-readback",
+  "objective": "v2.3 replan V16, live (no model): a save the server never receives is evidence of a lost write; the save that follows is CONFIRMED against the server's own stored chat file (a real `/api/chats/group/get` round trip, counted here), not against the page's in-memory metadata that the extension itself just wrote; and a healthy save after that is trusted without a round trip.",
+  "steps": [
+    { "import_story": { "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json" } },
+    {
+      "eval": "const original = globalThis.fetch; globalThis.__v16Reads = 0; globalThis.__v16Original = original; globalThis.fetch = async (input, init) => { const url = typeof input === 'string' ? input : input?.url ?? String(input); if (url.includes('/api/chats/group/get') || url.includes('/api/chats/get')) globalThis.__v16Reads += 1; return original(input, init); }; const rt = globalThis.storyOrchestratorRuntime; await rt.persist(); return { outcome: rt.getSnapshot().saveHealth.lastOutcome };",
+      "log": true
+    },
+    { "block_route": { "pattern": "**/api/chats/group/save" } },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; await rt.persist(); const health = rt.getSnapshot().saveHealth; if (health.lastOutcome !== 'unsaved') throw new Error(`a save that never reached the server was not evidence of a lost write: ${JSON.stringify(health)}`); return { outcome: health.lastOutcome, reason: health.lastReason };",
+      "log": true
+    },
+    { "unblock_route": {} },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = globalThis.__v16Reads; await rt.persist(); const health = rt.getSnapshot().saveHealth; const reads = globalThis.__v16Reads - before; if (health.lastOutcome !== 'applied') throw new Error(`recovery not confirmed: ${JSON.stringify(health)}`); if (reads < 1) throw new Error('the recovery was confirmed without reading the server copy of the chat'); return { outcome: health.lastOutcome, serverReads: reads };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = globalThis.__v16Reads; await rt.persist(); const reads = globalThis.__v16Reads - before; const health = rt.getSnapshot().saveHealth; globalThis.fetch = globalThis.__v16Original; if (health.lastOutcome !== 'applied') throw new Error(`a healthy save was not applied: ${JSON.stringify(health)}`); if (reads !== 0) throw new Error(`a healthy save after a healthy save paid a round trip (${reads})`); return { outcome: health.lastOutcome, serverReads: reads };",
+      "log": true
+    }
+  ]
+}

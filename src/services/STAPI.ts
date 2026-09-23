@@ -37,7 +37,7 @@ export {
   getMessageTimeStamp,
 } from "@services/stHost/characters";
 export { executeSlashCommands } from "@services/stHost/slashCommands";
-export { observeNextSave, installSaveWatcher, readBackMetadata, readBackBoundary, SAVE_OBSERVE_MS, type SaveObservation } from "@services/stHost/persistence";
+export { observeNextSave, installSaveWatcher, readServerBoundary, boundaryInBlob, SAVE_OBSERVE_MS, type SaveObservation } from "@services/stHost/persistence";
 export { applyCharacterAN, clearCharacterAN } from "@services/stHost/authorNotes";
 export { setStoryExtensionPrompt, clearStoryExtensionPrompt } from "@services/stHost/extensionPrompts";
 export { getWorldInfoSettings, enableWIEntry, disableWIEntry, upsertWIEntry, readWIEntry, createLorebook, ensureLorebook, bindChatLorebook, activateGlobalLorebook, loadLorebook, lorebookExists, listAllLorebooks, lorebookFileId } from "@services/stHost/worldInfo";

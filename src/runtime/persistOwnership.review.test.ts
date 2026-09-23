@@ -22,7 +22,7 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readBackBoundary: () => null, getContext: () => globalThis.__persistTestContext }));
+  readServerBoundary: async () => null, getContext: () => globalThis.__persistTestContext }));
 
 import { RuntimeManager } from "./runtimeManager";
 import type { RunOwner } from "./runOwner";

@@ -204,12 +204,12 @@ export const SaveNotConfirmed: Story = {
         tensionLevel: "tense",
         pendingCount: 0,
         pipeline: derivePipelineStatus(extraction()),
-        saveNotice: "changes not saved, retrying",
+        saveNotice: "changes not saved yet — they go with the next save",
       }),
     } as RuntimeSnapshot,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText("changes not saved, retrying")).toBeInTheDocument();
+    await expect(canvas.getByText("changes not saved yet — they go with the next save")).toBeInTheDocument();
   },
 };

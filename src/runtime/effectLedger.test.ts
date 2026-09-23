@@ -3,7 +3,7 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readBackBoundary: () => null, setStoryExtensionPrompt: jest.fn(), clearStoryExtensionPrompt: jest.fn(), MEMORY_INJECTION_KEY_PREFIX: "so-memory-" }));
+  readServerBoundary: async () => null, setStoryExtensionPrompt: jest.fn(), clearStoryExtensionPrompt: jest.fn(), MEMORY_INJECTION_KEY_PREFIX: "so-memory-" }));
 
 import { appendRow, pendingRow, reconcileLedger, restorePlan, rowsAfter, setStatus, type EffectWrite } from "./effectLedger";
 import type { EffectLedgerRow, EffectTarget } from "./types";

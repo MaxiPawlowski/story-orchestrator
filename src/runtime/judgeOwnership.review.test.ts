@@ -18,7 +18,7 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readBackBoundary: () => null, getContext: () => ({ chat: [], extensionSettings: {} }) }));
+  readServerBoundary: async () => null, getContext: () => ({ chat: [], extensionSettings: {} }) }));
 
 // A real request: validateJudgeRequest rejects a hand-rolled shape, and a rejected request never
 // reaches the transport, so the reproduction would be testing nothing.

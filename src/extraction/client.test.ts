@@ -6,7 +6,7 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readBackBoundary: () => null, sendConnectionProfileRequest: jest.fn() }));
+  readServerBoundary: async () => null, sendConnectionProfileRequest: jest.fn() }));
 
 const story = { qualityByKey: { door_open: { key: "door_open", type: "bool" as const, source: "extractor" as const } } } as unknown as Parameters<typeof parseSharedReadResponse>[1];
 

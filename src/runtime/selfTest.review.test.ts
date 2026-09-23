@@ -10,7 +10,7 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readBackBoundary: () => null, getContext: () => ({ chat: [] }), sendConnectionProfileRequest: jest.fn() }));
+  readServerBoundary: async () => null, getContext: () => ({ chat: [] }), sendConnectionProfileRequest: jest.fn() }));
 jest.mock("@extraction/client", () => ({
   callExtractionModel: jest.fn(async (_prompt: string, options: { debugResponse?: string }) => options.debugResponse ?? ""),
 }));

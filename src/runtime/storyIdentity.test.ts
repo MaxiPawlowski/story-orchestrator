@@ -19,7 +19,7 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readBackBoundary: () => null,
+  readServerBoundary: async () => null,
   getContext: () => mockContext,
   setStoryExtensionPrompt: (key: string, text: string, depth: number) => { mockExtensionPrompts[key] = { value: text, depth }; },
   clearStoryExtensionPrompt: (key: string) => { delete mockExtensionPrompts[key]; },

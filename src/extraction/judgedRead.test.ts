@@ -10,7 +10,7 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readBackBoundary: () => null, getContext: () => ({ chat: [] }) }));
+  readServerBoundary: async () => null, getContext: () => ({ chat: [] }) }));
 
 const raw = JSON.parse(fs.readFileSync(path.join(process.cwd(), "test/fixtures/extractor.story.json"), "utf8")) as { qualities: Array<Record<string, unknown>> };
 const story = parseStoryV2OrThrow({ ...raw, qualities: raw.qualities.map((quality) => (quality.key === "player_has_key" ? { ...quality, read_as: "choice" } : quality)) });

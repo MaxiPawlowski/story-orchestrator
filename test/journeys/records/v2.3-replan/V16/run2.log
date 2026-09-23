@@ -1,0 +1,49 @@
+1/7 import_story ok 378ms
+2/7 eval ok 636ms
+2/7 eval -> {"outcome":"applied"}
+3/7 block_route ok 25ms
+4/7 eval ok 216ms
+4/7 eval -> {"outcome":"unsaved","reason":"the save request failed before the server answered"}
+5/7 unblock_route ok 6ms
+6/7 eval ok 219ms
+6/7 eval -> {"outcome":"applied","serverReads":1}
+7/7 eval ok 226ms
+7/7 eval -> {"outcome":"applied","serverReads":0}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T07-46-54-772Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 7,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@04h46m52s232ms",
+    "owned": [
+      "2026-09-23@04h46m52s232ms"
+    ],
+    "deleted": [
+      "2026-09-23@04h46m52s232ms"
+    ],
+    "notDeleted": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@04h46m52s232ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@03h45m01s896ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

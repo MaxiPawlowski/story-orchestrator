@@ -1,0 +1,49 @@
+1/7 import_story ok 389ms
+2/7 eval ok 224ms
+2/7 eval -> {"outcome":"applied"}
+3/7 block_route ok 6ms
+4/7 eval ok 218ms
+4/7 eval -> {"outcome":"unsaved","reason":"the save request failed before the server answered"}
+5/7 unblock_route ok 5ms
+6/7 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the recovery was confirmed without reading the server copy of the chat
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:348)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T07-48-45-886Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T07-48-46-170Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 6,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@04h48m44s184ms",
+    "owned": [
+      "2026-09-23@04h48m44s184ms"
+    ],
+    "deleted": [
+      "2026-09-23@04h48m44s184ms"
+    ],
+    "notDeleted": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@04h48m44s184ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@03h45m01s896ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

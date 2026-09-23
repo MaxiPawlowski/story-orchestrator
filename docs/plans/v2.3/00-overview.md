@@ -319,7 +319,7 @@ cited). Items needing the backend stay `done` with the live half listed under L-
 | 8 | V15a | 06 | Host-effect restore on every leave (story→story too), against the RECORDED group; restore status persisted before `loaded = null` | live 2026-09-23 (`records/v2.3-replan/V15/`; persistence replaced by hydrate reconcile, see plan 06) |
 | 9 | V15b | 06 | Author's Note + background through `withLedger`; ~~cast mirror READ on hydrate~~ (done with V15a, live); dead `effectHost` branches fixed or removed | todo |
 | 10 | V15c | 06/04 | Restart and rollback restore host effects (closes plan 04's host-effect half) | done 2026-09-23 (restart live; rollback jest only) |
-| 11 | V16 | 06 | Save evidence: real server read-back (chat file fetch) or rename the claim; observation attributed per request; "retrying" backed by a bounded retry or the copy changed | todo |
+| 11 | V16 | 06 | Save evidence: real server read-back (chat file fetch) or rename the claim; observation attributed per request; "retrying" backed by a bounded retry or the copy changed | live 2026-09-23 (`records/v2.3-replan/V16/`, ×2 + live mutation; copy changed, no retry loop) |
 | 12 | V4 | 03 | TurnBridge: `continue`/`appendFinal` on the same message id commits a boundary (verify ST `script.js` continue path first); group round keeps one boundary per reply; null id not keyed "0" | todo |
 | 13 | V5 | 03 | `getMetadataBlob` never blanks a foreign blob on read; mismatch journaled | todo |
 | 14 | V6 | 03 | `RunOwner.lowestMutatedMessageId` scoped to since-mint, not the epoch | done 2026-09-23 (landed with V2; jest only) |

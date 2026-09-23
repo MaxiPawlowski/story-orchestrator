@@ -9,7 +9,7 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readBackBoundary: () => null,}));
+  readServerBoundary: async () => null,}));
 
 const story = (loreSelect: Record<string, unknown> | undefined) => parseStoryV2OrThrow({
   format: 2,

@@ -15,7 +15,7 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readBackBoundary: () => null, getContext: () => ({ chat: [], extensionSettings: {} }) }));
+  readServerBoundary: async () => null, getContext: () => ({ chat: [], extensionSettings: {} }) }));
 jest.mock("@extraction/client", () => ({ callExtractionModel: jest.fn() }));
 
 const story = () => parseStoryV2OrThrow({

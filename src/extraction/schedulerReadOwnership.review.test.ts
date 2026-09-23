@@ -2,7 +2,7 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readBackBoundary: () => null, getContext: () => ({ chat: [], chatId: "chat-a", extensionSettings: {} }), sendConnectionProfileRequest: jest.fn() }));
+  readServerBoundary: async () => null, getContext: () => ({ chat: [], chatId: "chat-a", extensionSettings: {} }), sendConnectionProfileRequest: jest.fn() }));
 
 const gate: { release: () => void; promise: Promise<unknown>; order: string[] } = { release: () => {}, promise: Promise.resolve(), order: [] };
 const result = { audit: { reason: "cadence", window: { from: 2, to: 9 }, acceptedDeltas: [] }, facts: [], memory: [], arcs: [], epistemic: [], ledger: [] };

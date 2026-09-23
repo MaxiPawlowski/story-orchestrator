@@ -4,7 +4,7 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readBackBoundary: () => null, getContext: () => ({ chat: mockChat }) }));
+  readServerBoundary: async () => null, getContext: () => ({ chat: mockChat }) }));
 
 jest.mock("./sharedRead", () => ({
   sharedReadWindow: jest.requireActual("./sharedRead").sharedReadWindow,

@@ -23,7 +23,7 @@ export interface SaveEvidenceDeps {
   health: () => SaveHealth;
   observe: () => Promise<SaveObservation>;
   /** The boundary the server's own copy of this chat holds, or null when it cannot be read. */
-  readBack: () => number | null;
+  readBack: () => Promise<number | null>;
   onWrite: (health: SaveHealth) => void;
   journal: (summary: string, note: string) => void;
   now: () => string;
@@ -58,7 +58,7 @@ export async function recordSaveEvidence(deps: SaveEvidenceDeps, boundary: numbe
     // by an author as evidence, so it may only state what was observed: "could not be read" is not
     // "the server holds an older state" (2026-09-22). Nor is it evidence of a lost write, which is
     // what the outcome carries: `unconfirmed` keeps the player line, `unsaved` says a write is gone.
-    const stored = deps.readBack();
+    const stored = health.lastOutcome === "applied" ? boundary : await deps.readBack();
     if (verifySaved(stored, settled) === "unconfirmed") {
       const unreadable = stored === null;
       settled = markSettled(settled, boundary, unreadable ? "unconfirmed" : "unsaved", unreadable ? "the server's copy of this chat could not be read" : "the server holds an older state", deps.now());

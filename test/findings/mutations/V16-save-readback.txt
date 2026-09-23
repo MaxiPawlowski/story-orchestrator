@@ -1,0 +1,7 @@
+M1 saveEvidence: always read back (no trust after applied)
+  ● V16: the server copy is read only where it can change the answer › after a save that landed, a 2xx is trusted without a round trip to the chat file
+Tests:       1 failed, 10 passed, 11 total
+M2 persistence: settle every watcher, even one armed after the fetch started
+  ● V16: save evidence is attributed and read back from the server › a save request that started BEFORE the observation was armed does not settle it
+Tests:       1 failed, 1 passed, 2 total
+M3 LIVE (bundle 5ce7dd381c23): readBack = page's in-memory chatMetadata -> step 6 FAIL 'the recovery was confirmed without reading the server copy of the chat' (records V16/live-mutation.log)

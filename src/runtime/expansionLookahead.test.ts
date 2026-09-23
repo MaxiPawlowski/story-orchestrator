@@ -8,7 +8,7 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readBackBoundary: () => null, getPlayerName: () => "Max", sendConnectionProfileRequest: jest.fn() }));
+  readServerBoundary: async () => null, getPlayerName: () => "Max", sendConnectionProfileRequest: jest.fn() }));
 
 const gate = { q: "done", op: "==", v: true };
 const story = parseStoryV2OrThrow({

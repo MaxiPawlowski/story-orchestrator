@@ -14,7 +14,7 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readBackBoundary: () => null, getContext: () => ({ chat: [], extensionSettings: {} }) }));
+  readServerBoundary: async () => null, getContext: () => ({ chat: [], extensionSettings: {} }) }));
 
 const root = join(__dirname, "../..");
 const rawStory = () => JSON.parse(readFileSync(join(root, "test/fixtures/background-generation.story.json"), "utf8"));

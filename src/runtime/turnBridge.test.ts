@@ -8,7 +8,7 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readBackBoundary: () => null,
+  readServerBoundary: async () => null,
   isHostGenerating: () => hostGenerating,
   subscribeToHostEvents: (entries: Array<{ eventName: string; handler: (...args: unknown[]) => unknown }>) => {
     for (const entry of entries) handlers.set(entry.eventName, entry.handler);

@@ -20,7 +20,7 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readBackBoundary: () => null, getContext: () => globalThis.__blobContext }));
+  readServerBoundary: async () => null, getContext: () => globalThis.__blobContext }));
 jest.mock("./storyLibrary", () => ({ listStoryRecords: () => [] }));
 
 import { getMetadataBlob, loadPersistedRuntime, savePersistedRuntime } from "./persistence";

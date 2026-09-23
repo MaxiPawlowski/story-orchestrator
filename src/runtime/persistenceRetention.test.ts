@@ -10,7 +10,7 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readBackBoundary: () => null,
+  readServerBoundary: async () => null,
   getContext: () => ({ chatId: "chat-a", chatMetadata: metadata, saveMetadata: async () => {} }),
 }));
 

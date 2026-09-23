@@ -5,7 +5,7 @@
 
 import type { SaveHealth, SaveOutcome } from "./types";
 
-export const SAVE_PLAYER_TEXT = "changes not saved, retrying";
+export const SAVE_PLAYER_TEXT = "changes not saved yet — they go with the next save";
 
 export type { SaveHealth, SaveOutcome };
 

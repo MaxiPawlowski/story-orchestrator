@@ -9,7 +9,7 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readBackBoundary: () => null, showChoicePopup: (...args: unknown[]) => choiceProxy(...args) }));
+  readServerBoundary: async () => null, showChoicePopup: (...args: unknown[]) => choiceProxy(...args) }));
 const choiceProxy = (...args: unknown[]) => choice(...(args as []));
 
 const library = new Map<string, StoryLibraryRecord>();

@@ -24,6 +24,30 @@ const harness = (options: { ok: boolean; status?: number | null; timedOut?: bool
   return { deps, writes, journaled, health: () => health };
 };
 
+describe("V16: the server copy is read only where it can change the answer", () => {
+  it("after a save that landed, a 2xx is trusted without a round trip to the chat file", async () => {
+    const h = harness({ ok: true, serverHolds: 3, start: { ...createSaveHealth(), lastOutcome: "applied", lastAppliedBoundary: 11 } });
+    let reads = 0;
+    const deps = { ...h.deps, readBack: async () => { reads += 1; return 3; } };
+    const result = await recordSaveEvidence(deps, 12);
+    expect(reads).toBe(0);
+    expect(result.unsaved).toBe(false);
+  });
+
+  it("after a save that did not land, the recovery is confirmed against the server's copy", async () => {
+    const h = harness({ ok: true, serverHolds: 12, start: { ...createSaveHealth(), lastOutcome: "unsaved", pendingBoundary: 11, consecutiveFailures: 1 } });
+    let reads = 0;
+    const deps = { ...h.deps, readBack: async () => { reads += 1; return 12; } };
+    const result = await recordSaveEvidence(deps, 12);
+    expect(reads).toBe(1);
+    expect(result.unsaved).toBe(false);
+  });
+
+  it("the player line does not promise a retry nothing performs", () => {
+    expect(SAVE_PLAYER_TEXT).not.toMatch(/retry/i);
+  });
+});
+
 describe("the save's own evidence (v2.3 plan 06)", () => {
   it("reports nothing when the request succeeded and the server's copy agrees", async () => {
     const h = harness({ ok: true, serverHolds: 12 });
@@ -100,7 +124,7 @@ describe("the save's own evidence (v2.3 plan 06)", () => {
     expect(SAVE_PLAYER_TEXT).toMatch(/changes not saved/i);
   });
 
-  // v2.3 plan 05 (C3). The pipeline's reading is deliberately STICKY — "changes not saved, retrying"
+  // v2.3 plan 05 (C3). The pipeline's reading is deliberately STICKY — "changes not saved yet — they go with the next save"
   // stays until something verifies — which is right for a status line and wrong for an author's
   // decision: refusing the decision because the read-back was blind refuses work that in fact landed.
   // So the outcome carries the distinction, and the two readings must not collapse into one.
