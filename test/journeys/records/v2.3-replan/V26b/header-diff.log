@@ -1,0 +1,23 @@
+ok   build.manifest.builtAt  "2026-09-23T19:25:20.584Z" -> "2026-09-23T19:36:42.441Z"  (allowed by build)
+ok   build.manifest.bundleBytes  1577082 -> 1576746  (allowed by build)
+ok   build.manifest.bundleSha256  "d863e3de41c051837d5e3ac9f36b0c0068f6e7f1c008b2df586f199c51721923" -> "3eb24a6a5c0d072c772ef718a20f516347119ac07bcee68edde579767e60fe0d"  (allowed by build)
+ok   build.manifest.fileSha256  "781b2589cffcf419" -> "13b14730e9bcde3b"  (allowed by build)
+ok   build.manifest.sourceFiles  263 -> 264  (allowed by build)
+ok   build.manifest.sourceSha256  "8c8587e8f14f7c98172f46789b8ea350b57f17ad826c5c2f89848f9c311cf3bb" -> "62a2ddc0f68fbe4ba17429a4fc96fa4f37e3c552e0204b65526b85d01319d735"  (allowed by build)
+ok   bundle.served.bytes  1577082 -> 1576746  (allowed by bundle)
+ok   bundle.served.sha256  "d863e3de41c051837d5e3ac9f36b0c0068f6e7f1c008b2df586f199c51721923" -> "3eb24a6a5c0d072c772ef718a20f516347119ac07bcee68edde579767e60fe0d"  (allowed by bundle)
+{
+  "baseline": ".debug/run-header-V26b-before.json",
+  "label": "diff-end",
+  "allow": [
+    "build",
+    "bundle"
+  ],
+  "differences": 8,
+  "progress": 0,
+  "blocking": 0,
+  "blockingPaths": [],
+  "warnings": [],
+  "wrote": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\.debug\\run-header-diff-end.json",
+  "ok": true
+}

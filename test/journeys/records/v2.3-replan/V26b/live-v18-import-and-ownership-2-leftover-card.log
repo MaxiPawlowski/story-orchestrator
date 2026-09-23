@@ -1,0 +1,49 @@
+1/4 import_story ok 356ms
+2/4 eval ok 5ms
+2/4 eval -> {"summary":"story imported with 5 warning(s)","named":["verdict","allegiance","oath","wound","pay"],"storyId":"placeholder-enums"}
+3/4 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the card was not created: A character called "SO-V18 Harbour" already exists. The wizard only creates cards, it never edits yours — rename this one or drop the step.
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:705)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T19-37-43-097Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T19-37-45-972Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 3,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-7c2bd4c5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@16h37m42s447ms",
+    "owned": [
+      "2026-09-23@16h37m42s447ms"
+    ],
+    "deleted": [
+      "2026-09-23@16h37m42s447ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@16h37m42s447ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

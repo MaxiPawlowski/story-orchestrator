@@ -1,0 +1,10 @@
+V26 part 2: mutants in src/runtime/chatSave.ts (the save chokepoint moved out of RuntimeManager), run with `npx jest src/runtime`.
+M1 persist writes for another chat (ownership check replaced by `loaded() === undefined`)  (jest: KILLED)
+  ChatSave > a run hydrated for another chat writes nothing and says so in the persisted journal
+  write-edge ownership census > a row claiming a token check has one
+M2 landed ignores a lost save (saveWasLost compared with itself)  (jest: KILLED)
+  ChatSave > a save the server refused has not landed
+M3 save is not observed (recordSaveEvidence replaced by a resolved promise)  (jest: KILLED)
+  ChatSave > a save in the run's own chat writes, is observed, and has landed (+2 more)
+First run (before chatSave.test.ts existed): M1 KILLED by the census only, M2 and M3 SURVIVED -- saveLanded and the
+observation had no direct test while they sat in the manager either. chatSave.test.ts was written to close that, then re-run.

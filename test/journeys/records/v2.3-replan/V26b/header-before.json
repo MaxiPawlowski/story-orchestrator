@@ -1,0 +1,143 @@
+{
+  "label": "V26b-before",
+  "capturedAt": "2026-09-23T19:36:24.918Z",
+  "build": {
+    "head": "53d42f06da6e59de4def081c56a748e3015d10af",
+    "dirty": true,
+    "manifest": {
+      "version": "2.3.0",
+      "commit": null,
+      "sourceSha256": "8c8587e8f14f7c98172f46789b8ea350b57f17ad826c5c2f89848f9c311cf3bb",
+      "sourceFiles": 263,
+      "bundleSha256": "d863e3de41c051837d5e3ac9f36b0c0068f6e7f1c008b2df586f199c51721923",
+      "bundleBytes": 1577082,
+      "hostVersion": "1.19.0",
+      "builtAt": "2026-09-23T19:25:20.584Z",
+      "fileSha256": "781b2589cffcf419"
+    }
+  },
+  "warnings": [],
+  "bundle": {
+    "served": {
+      "http": 200,
+      "sha256": "d863e3de41c051837d5e3ac9f36b0c0068f6e7f1c008b2df586f199c51721923",
+      "bytes": 1577082
+    }
+  },
+  "host": {
+    "stVersion": "1.19.0 (7c3994196)",
+    "mainApi": "textgenerationwebui",
+    "onlineStatus": "no_connection",
+    "macroEngine": "experimental"
+  },
+  "profiles": {
+    "selected": "Artemis RunPod RP [llamacpp]",
+    "extraction": "Story Orchestrator Memory RunPod [llamacpp]",
+    "urls": [
+      "Artemis RunPod RP [llamacpp] -> http://127.0.0.1:18080",
+      "Artemis RunPod [llamacpp] -> http://127.0.0.1:18080",
+      "Image Director [llamacpp] -> http://127.0.0.1:18080",
+      "Story Orchestrator Memory Local [generic] -> http://127.0.0.1:1235",
+      "Story Orchestrator Memory RunPod [llamacpp] -> http://127.0.0.1:18080"
+    ]
+  },
+  "judge": {
+    "pluginHttp": null,
+    "pluginConfigured": null,
+    "enabled": false,
+    "model": "jev-1.13.0",
+    "timeoutMs": 1500,
+    "uses": {
+      "director": false,
+      "memoryVerify": false,
+      "memoryPairs": false,
+      "sceneTrigger": false,
+      "sceneTracker": false,
+      "sceneOoc": false,
+      "lookahead": false,
+      "loreSelect": false,
+      "curatorFilter": false,
+      "memoryRerank": false,
+      "typedExtraction": false,
+      "stallCheck": false,
+      "expansionCritic": false,
+      "expansionLookahead": false
+    },
+    "expansion": {
+      "variants": 1,
+      "temperature": 0.7,
+      "pick": "code"
+    }
+  },
+  "stagecraft": {
+    "curatorEnabled": true,
+    "acceptMode": "auto",
+    "wardenEnabled": false,
+    "wardenAcceptMode": "review"
+  },
+  "extraction": {
+    "enabled": true,
+    "cadence": 1,
+    "stabilityLag": 0,
+    "reconciliationMultiplier": 1.5,
+    "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+  },
+  "display": {
+    "announceTransitions": true,
+    "hudEnabled": true,
+    "talkEnabled": true
+  },
+  "chat": {
+    "groupId": "1759606632088",
+    "chatId": "2026-09-23@13h35m48s456ms",
+    "chatLength": 0,
+    "authorView": false
+  },
+  "story": {
+    "id": null,
+    "title": null,
+    "playedVersion": null,
+    "contentHash": null,
+    "activeCheckpointId": null,
+    "boundary": null
+  },
+  "group": {
+    "name": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin.png",
+      "DM Narrator.png",
+      "Luke.png",
+      "Ponticius.png"
+    ],
+    "disabledMembers": []
+  },
+  "inventory": {
+    "v2Stories": [
+      "adolion-academy@11",
+      "adolion-adventurer@9",
+      "so-j9-fixme@1",
+      "so-j9-wizard@1"
+    ],
+    "wizardSessions": [
+      "0",
+      "1",
+      "2"
+    ],
+    "debugGlobals": [],
+    "lorebooksSelected": [
+      "Adolion - Aegis City Noble Life",
+      "Adolion Academy Checkpoints",
+      "Adolion Adventurer Checkpoints",
+      "Adolion Chronicle",
+      "Adolion World"
+    ],
+    "lorebookCount": 38,
+    "characterCount": 25
+  },
+  "sampler": {
+    "api": "textgenerationwebui",
+    "preset": "Artemis v1.1 RP",
+    "temp": 1,
+    "top_p": 1
+  }
+}

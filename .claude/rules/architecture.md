@@ -43,6 +43,8 @@ src/
     repair.ts                # v2.3 plan 09 (pure): the ONE missing step (memory model -> cast -> lore -> persona -> save), consequence before detail
     saveHealth.ts            # v2.3 plan 06 (pure): SaveHealth + hasUnsavedChanges (the pending-boundary reading)
     stateExport.ts           # v2.3 plan 05: the author's copy of a chat's story state — clipboard, or the console and a toast when it refuses
+    chatSave.ts              # v2.3 V26: the save chokepoint (persist refuses another chat's write, observes the save, `landed()`); the manager delegates to it
+    memoryInjector.ts        # v2.3 V26: memory stores -> ST prompt slots + the staged per-member private blocks (MemoryCoordinator delegates)
     memoryQueue.ts           # v2.3 plan 05: the reconciliation queue (source-window re-read, dismiss, atomic Lock as canon)
     effectLedger.ts          # v2.3 plan 06 (pure): the owned-effect ledger — write-ahead pending row, reconcile on hydrate, compare-and-set restore
     faultMatrix.guard.test.ts # v2.3 plan 11: the fault-matrix census guard (see Invariants)

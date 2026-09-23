@@ -32,7 +32,7 @@ import { createCuratorFilter } from "./curatorFilter";
 import { createContinuityCheck, establishedFacts } from "./continuity";
 import { activeSpeakerId, enabledCharacterIds, namesForRosterId, rosterIdForName } from "./roster";
 import { EffectsApplier } from "./effectsApplier";
-import { applyGlobalSettings, createExtras, hydrateExtras, stripGlobalSettings, TALK_DECISION_LIMIT } from "./extras";
+import { applyGlobalSettings, createExtras, hydrateExtras, TALK_DECISION_LIMIT } from "./extras";
 import { SettingsControl } from "./settingsControl";
 import { beginRun, type RunContext, type RunOwnership } from "./runToken";
 import { RunOwner } from "./runOwner";
@@ -40,8 +40,8 @@ import { runRollback, type RollbackDeps } from "./rollback";
 import { memoryActions, memoryDelegates } from "./memoryActions";
 import { agencyRecovery, playerTurnIds } from "./agencyRecovery";
 import { readEffectTarget, reconcileEffectLedger, restoreEffectTarget } from "./effectHost";
-import { recordSaveEvidence, saveEvidenceDeps } from "./saveEvidenceHost";
-import { hasUnsavedChanges, saveWasLost } from "./saveHealth";
+import { ChatSave } from "./chatSave";
+import { hasUnsavedChanges } from "./saveHealth";
 import { getGlobalSettings, liftLegacyChatSettings, setGlobalSettings } from "./settingsStore";
 import { buildPossibleTransitions } from "./snapshot";
 import { buildRuntimeSnapshot } from "./snapshotBuilder";
@@ -49,12 +49,11 @@ import { applyStoryUpdate, type StoryUpdateDeps, type StoryUpdateOutcome } from 
 import { parseQualityValue } from "./values";
 import { SessionJournal, type JournalEvent } from "./journal";
 import { evaluateRequirements } from "./requirements";
-import { evictedStoryNotice, loadPersistedRuntime, savePersistedRuntime, setSelectedStoryId } from "./persistence";
+import { loadPersistedRuntime, setSelectedStoryId } from "./persistence";
 import {
   importStoryJson, loadSelectedStory, releaseGatedWorldInfo, removeStory, restartStory, selectStory,
   type StorySelectionDeps,
 } from "./storySelection";
-import { listStoryRecords } from "./storyLibrary";
 import { clearWizardSession, loadWizardSession, saveWizardSession } from "./wizardSessions";
 import type {
   CopilotRuntimeSettings, PersistedStoryRuntime, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory,
@@ -88,9 +87,19 @@ export class RuntimeManager {
   private readonly awayRecap = new AwayRecapController((render) => showTextPopup(render, { okButton: "Continue" }), (summary, detail) => this.noteRecap(summary, detail));
   private readonly notices: { lastRollback: RollbackNotice | null; rollbackUnavailable: RollbackUnavailable | null } = { lastRollback: null, rollbackUnavailable: null };
   private readonly journal = new SessionJournal();
+  private readonly chatSave = new ChatSave({
+    loaded: () => this.loaded,
+    engine: () => ({ state: this.engine.serialize(), history: this.engine.serializeHistory() }),
+    extras: () => this.extras,
+    owner: this.owner,
+    journal: (summary, note, persistNow) => (persistNow ? this.noteRecap(summary, note) : this.journal.record("story", summary, this.journalContext(), note)),
+    recap: (summary, detail) => this.noteRecap(summary, detail),
+  });
+  // V26: what every coordinator reads the loaded story and engine through, and how each one saves.
+  private readonly view = { getStory: () => this.loaded?.story ?? null, getState: () => (this.loaded ? this.engine.serialize() : null) };
+  private readonly lifecycle = { persist: () => this.persist(), notify: () => this.notify(), ownership: this.owner.ownership };
   private readonly memory: MemoryCoordinator = new MemoryCoordinator({
-    getStory: () => this.loaded?.story ?? null,
-    getState: () => (this.loaded ? this.engine.serialize() : null),
+    ...this.view,
     historyFloor: () => (this.loaded ? this.engine.historyFrom().messageId : null),
     getMemory: () => this.extras.memory,
     setMemory: (next) => { this.extras.memory = next; },
@@ -99,20 +108,17 @@ export class RuntimeManager {
     getExpansionGateSources: () => this.getExpansionGateSources(),
     enqueueExtractorDeltas: (accepted, window, origin) => this.enqueueExtractorDeltas(accepted, window, origin),
     enqueueMechanical: (deltas) => this.engine.enqueue({ source: "mechanical", blackboardVersionSum: 0, deltas }),
-    ownership: this.owner.ownership,
+    ...this.lifecycle,
     judge: () => this.judge,
     getScene: () => this.extras.judge.scene,
     rereadWindow: (window, reason) => this.extraction.runNow(undefined, reason, window),
-    unsaved: () => !this.saveLanded(),
-    persist: () => this.persist(),
-    notify: () => this.notify(),
+    unsaved: () => !this.chatSave.landed(),
   });
   /** v2.3 plan 05: the author's memory decisions, in one object (see memoryActions.ts). */
   readonly memoryActions = memoryActions(memoryDelegates(this.memory));
   private readonly expansion: ExpansionCoordinator = new ExpansionCoordinator({
-    getStory: () => this.loaded?.story ?? null,
+    ...this.view,
     getStoryRaw: () => this.loaded?.record.raw,
-    getState: () => (this.loaded ? this.engine.serialize() : null),
     getExpansion: () => this.extras.expansion,
     getSettings: () => this.getExtractionSettings(),
     getCanon: () => this.memory.getCanon(),
@@ -122,13 +128,10 @@ export class RuntimeManager {
     getSceneRead: () => this.extras.judge.scene,
     refusing: () => agencyRecovery(this.loaded?.story ?? null, this.loaded ? this.engine.serialize() : null, this.loaded ? this.engine.stateLog : [], this.extras.extraction.audits, playerTurnIds(getContext().chat ?? [])) !== null,
     setStatus: (status) => { this.status = status; },
-    persist: () => this.persist(),
-    notify: () => this.notify(),
-    ownership: this.owner.ownership,
+    ...this.lifecycle,
   });
   private readonly extraction: ExtractionCoordinator = new ExtractionCoordinator({
-    getStory: () => this.loaded?.story ?? null,
-    getState: () => (this.loaded ? this.engine.serialize() : null),
+    ...this.view,
     getExtraction: () => this.extras.extraction,
     getSettings: () => this.getExtractionSettings(),
     memory: this.memory,
@@ -141,13 +144,10 @@ export class RuntimeManager {
     emitArcsResolved: (arcs) => { if (this.loaded && arcs.length) this.arcResolvedListeners.forEach((listener) => listener(arcs.map((arc) => arc.id))); },
     setStatus: (status) => { this.status = status; },
     judge: () => this.judge,
-    persist: () => this.persist(),
-    notify: () => this.notify(),
-    ownership: this.owner.ownership,
+    ...this.lifecycle,
   });
   private readonly pacing: PacingCoordinator = new PacingCoordinator({
-    getStory: () => this.loaded?.story ?? null,
-    getState: () => (this.loaded ? this.engine.serialize() : null),
+    ...this.view,
     getStateLog: () => this.engine.stateLog,
     getTensionTarget: () => this.engine.activeCheckpoint?.tension_target,
     getTension: () => this.extras.tension,
@@ -169,8 +169,7 @@ export class RuntimeManager {
     },
   };
   private readonly stagecraft: StagecraftCoordinator = new StagecraftCoordinator({
-    getStory: () => this.loaded?.story ?? null,
-    getState: () => (this.loaded ? this.engine.serialize() : null),
+    ...this.view,
     getStagecraft: () => this.extras.stagecraft,
     setStagecraft: (next) => { this.extras.stagecraft = next; },
     getExtractionSettings: () => this.getExtractionSettings(),
@@ -183,13 +182,10 @@ export class RuntimeManager {
       nudgeActive: () => this.copilot.getActiveNudge() !== null,
     },
     journal: (summary, note) => { this.journal.record("stagecraft", summary, this.journalContext(), note); this.extras.journal = this.journal.getRecords(); },
-    persist: () => this.persist(),
-    notify: () => this.notify(),
-    ownership: this.owner.ownership,
+    ...this.lifecycle,
   });
   private readonly copilot: CopilotCoordinator = new CopilotCoordinator({
-    getStory: () => this.loaded?.story ?? null,
-    getState: () => (this.loaded ? this.engine.serialize() : null),
+    ...this.view,
     getSettings: () => this.extras.copilot,
     getProfileId: () => this.getExtractionSettings().profileId,
     getCanon: () => this.memory.getCanon(),
@@ -579,37 +575,7 @@ export class RuntimeManager {
   getAwayRecap(): AwayRecap | null { return this.awayRecap.get(); }
   async showAwayRecap(): Promise<boolean> { return this.awayRecap.show(); }
 
-  private async persist() {
-    if (!this.loaded) return;
-    // v2.3 plan 03. The chokepoint: every coordinator save() ends here, and `saveMetadata` writes into
-    // whichever chat ST has open at this instant, so a runtime hydrated for another chat declines
-    // rather than guessing. v2.1 plan 08 is the recorded case: a new group chat inherited the run.
-    if (!this.owner.ownsOpenChat()) {
-      this.journal.record("story", "save skipped: this run belongs to another chat", this.journalContext(), `claimed ${this.owner.claimedChat()}, open chat is ${String(getContext().chatId ?? "")}`);
-      this.extras.journal = this.journal.getRecords();
-      return;
-    }
-    this.extras.lastSessionAt = new Date().toISOString();
-    const loaded = this.loaded;
-    // v2.3 plan 05. Losing a story's state is a fact about this chat, not a later surprise.
-    const evicted = savePersistedRuntime({ storyId: loaded.record.id, storyTitle: loaded.story.title, pinnedStory: loaded.record.raw, playedVersion: loaded.record.version, contentHashAtLoad: loaded.record.hash, engineState: this.engine.serialize(), engineHistory: this.engine.serializeHistory(), extras: stripGlobalSettings(this.extras) });
-    const notice = evictedStoryNotice(evicted, (id) => listStoryRecords().find((record) => record.id === id)?.title ?? null);
-    if (notice) this.noteRecap(notice.summary, notice.detail);
-    await this.saveAndObserve();
-  }
-
-  // v2.3 plan 06: `saveMetadata` swallows its own errors, so the write is OBSERVED (saveEvidence).
-  private async saveAndObserve() {
-    const deps = saveEvidenceDeps(() => this.extras.saveHealth, (health) => { this.extras.saveHealth = health; }, (summary, note) => this.journal.record("story", summary, this.journalContext(), note));
-    // Armed first, write second: the watcher has to be listening before the request goes out.
-    const observed = recordSaveEvidence(deps, this.engine.serialize().boundary);
-    await Promise.all([Promise.resolve(getContext().saveMetadata?.()), observed]);
-  }
-
-  /** v2.3 plan 05. "Did the write reach the chat's stored state": `persist` cannot answer it, because
-   *  `saveMetadata` catches its own errors and it returns early rather than throwing — and a save that
-   *  never went out (no story, another chat's runtime) is not a landed one either (memoryQueue). */
-  private saveLanded(): boolean { return Boolean(this.loaded) && this.owner.ownsOpenChat() && !saveWasLost(this.extras.saveHealth); }
+  private persist() { return this.chatSave.persist(); }
 
   // The author edited this story from this chat: take the saved version without losing the run.
   // Every other chat keeps its pinned copy (spec addendum §Story identity).
