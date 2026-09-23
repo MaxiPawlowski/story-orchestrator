@@ -1,0 +1,10 @@
+M1 an unlisted missing citation passes (entry dropped from citations-known.json)  (node: KILLED)
+  not ok 1 - every cited repo path exists, or is a listed absence with a reason (rule 11)
+M2 a listed absence that now exists passes  (node: KILLED)
+  not ok 2 - a listed absence that now exists, or that no document cites, fails, so the list cannot rot
+M3 a listed absence nobody cites passes  (node: KILLED)
+  not ok 2 - (same case)
+M4 records/ shorthand not expanded  (node: KILLED)
+  not ok 1, 2, 4
+M5 .debug citations inside replan gate records ignored  (node: KILLED)
+  not ok 4 - the citation reader: records/ shorthand, line suffixes, braces, anchors, and non-paths

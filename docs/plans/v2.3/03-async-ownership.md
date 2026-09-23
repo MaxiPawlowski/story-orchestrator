@@ -2645,7 +2645,7 @@ by a manual probe makes `so-journey` refuse the next run's setup — correctly, 
 | Run | Automated | Cleanup | First try | Artifacts |
 |---|---|---|---|---|
 | 1 | 5 pass, 0 fail, 0 blocked, 0 not-runnable | clean | 5 of 5 needed no retry | `test/journeys/records/v2.3-plan03/run1.{json,log}` |
-| 2 | 5 pass, 0 fail, 0 blocked, 0 not-runnable | clean | 5 of 5 needed no retry | `test/journeys/records/v2.3-plan03/run2.{json,log,matrix}` |
+| 2 | 5 pass, 0 fail, 0 blocked, 0 not-runnable | clean | 5 of 5 needed no retry | `test/journeys/records/v2.3-plan03/run2.{json,log}` + `run2-matrix.md` |
 
 `J4.1` play-through, `J4.2` recap after a 30 h gap (journal: `not due` → `queued` → `shown`,
 `dialog[open]` present), `J4.3` names the checkpoint and dismisses, `J4.4` mid-chat adoption from

@@ -96,8 +96,8 @@ node scripts/debug/so-library.mts                       # adventurer v9 present?
 node scripts/debug/st-navigation.mts open-group 1789797226071
 node scripts/debug/st-navigation.mts new-chat
 node scripts/debug/so-run-header.mts capture --label p0-start
-node scripts/debug/so-journal.mts follow --out docs/plans/v2.3/records/p0-adventurer/follow.jsonl   # NEW (plan 01 §A0)
-node scripts/debug/st-payload.mts arm --persist --out docs/plans/v2.3/records/p0-adventurer/payloads.jsonl   # every generation's request, in the archive (plan 01 §A0)
+node scripts/debug/so-journal.mts follow --out test/journeys/records/p0-adventurer/follow.jsonl   # NEW (plan 01 §A0)
+node scripts/debug/st-payload.mts arm --persist --out test/journeys/records/p0-adventurer/payloads.jsonl   # every generation's request, in the archive (plan 01 §A0)
 ```
 
 Two roles, two screens. The **player** plays in the browser and sees nothing below. The
@@ -130,7 +130,7 @@ Recorded, beyond the header and the journal export (Astra Q6):
 
 Score the v2.1 player rubric (the judge-off rows). Flag moments with the drawer ⚑ as you go.
 Close with `so-run-header capture --label p0-end` and archive under
-`docs/plans/v2.3/records/p0-adventurer/`. Expected header differences start→end: chat id
+`test/journeys/records/p0-adventurer/`. Expected header differences start→end: chat id
 (same), `disabled_members` (Tobias off at the end if the story left him so; recorded, then
 restored), nothing else.
 

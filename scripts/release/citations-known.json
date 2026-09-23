@@ -1,0 +1,17 @@
+{
+  "$comment": "V22 (v2.3 process rule 11). Every backticked repo path in docs/plans/v2.3/*.md and .claude/CLAUDE.md must exist, or be listed here with the kind of absence and a reason. citations.test.mjs fails on an unlisted missing path AND on a listed path that now exists, so this file cannot rot into a blanket allowlist. Kinds: planned (a record the replan queue will write), prescribed (a plan's spec text naming something that was not built under that name), removed (deleted on purpose after promotion), host (a SillyTavern file, not this repo), external (outside this repo), history (names output of a defect that was cleaned up), audit (an audit line stating the path is absent).",
+  "known": [
+    { "path": "test/journeys/records/p0-adventurer/", "kind": "planned", "reason": "P0' adventurer playthrough records; owned by L1, needs the model." },
+    { "path": "test/journeys/records/v2.3-acceptance/", "kind": "planned", "reason": "--strict acceptance archive (process rule 13); owned by L2." },
+    { "path": "docs/plans/v2.3/records/", "kind": "audit", "reason": "01 audit line recording that P0 was never recorded; the records home is now test/journeys/records/p0-adventurer/." },
+    { "path": "test/journeys/records/v2.3-plan01/", "kind": "audit", "reason": "01 audit line recording that plan 01 archived no records of its own." },
+    { "path": "test/scenarios/live-switch-mid-read.json", "kind": "prescribed", "reason": "Plan 03 specified it; its own gate record (03 §The held-response race) states it and its verbs were never built and how the race was driven instead." },
+    { "path": "test/fixtures/legacy-v3-chat-blob.json", "kind": "prescribed", "reason": "Plan 04 specified a captured v3 blob; built as the synthesized test/fixtures/v3-chat-blob.json, which the 04 audit reopened." },
+    { "path": "scripts/review/reviewRegression.test.ts", "kind": "removed", "reason": "Review harness copied, promoted into the finding ledger and deleted (01 §A); the dossier keeps the evidence copies." },
+    { "path": "scripts/review/memory-engine.test.ts", "kind": "removed", "reason": "As above." },
+    { "path": "src/endpoints/vectors.js", "kind": "host", "reason": "SillyTavern server source, C:/dev/SillyTavern-MainBranch/src/endpoints/vectors.js." },
+    { "path": "src/plugin-loader.js", "kind": "host", "reason": "SillyTavern server source." },
+    { "path": "scripts/install_st.py", "kind": "external", "reason": "The install helper outside this repo that plan 08 and the playbook discuss." },
+    { "path": "docs/release/unknown/", "kind": "history", "reason": "Where a clean-host defect wrote a run (08 record); the defect was fixed and the directory removed." }
+  ]
+}

@@ -858,3 +858,27 @@ judge-on matrix and the `player_summary` decision.
 - Missing citations: `records/p0-adventurer/`, `records/v2.3-acceptance/`,
   `.debug/toastr-repro.mjs`, `p05-*.json`, `run-header-J12-start.json`, `check-fixture.mts`,
   `probe-j95.json`, `chronicle-before.txt`, `so-settings-backup.json` → V22 citation check.
+
+### V22a gate (2026-09-23): status out of prose, and citations that resolve
+
+- **`.claude/CLAUDE.md` status** (process rule 15): the ten status paragraphs (lines 11-20, about 54 KB) moved **verbatim** to `docs/plans/v2.3/status-history.md`, under a header saying they are history and that the v2.3 paragraph was found overstated. CLAUDE.md now carries a four-row table, one line per version with its record, and a pointer to the v2.3 per-plan table. It went from about 63 KB to 9 KB.
+- **The citation check** (process rule 11), `scripts/release/citations.{mjs,test.mjs}` in `npm run test:release`:
+  - it reads every backticked repo path in `docs/plans/v2.3/*.md` and `.claude/CLAUDE.md` (handling `records/` shorthand, `:line` suffixes, `{a,b}` braces and anchors) and requires the path to exist;
+  - an absence is allowed only if `scripts/release/citations-known.json` lists it with a kind (planned / prescribed / removed / host / external / history / audit) and a reason;
+  - a listed path that now exists, or that no document cites, fails, so the list cannot turn into a blanket allowlist;
+  - it refuses a `.debug/` citation in any gate record written since the replan (`### V… gate` sections).
+- **What it found on its first run:** 18 missing paths. Of those:
+  - **4 were broken citations, now fixed:**
+    - V21's overview row said the attestation's current half is computed by scripts/release/attest.mjs (plain text on purpose: the file does not exist). **That file was never written**: V21 put the computation in `attestation.test.mjs` instead. The row now names what was built.
+    - run2.{json,log,matrix} cited a file that is really `run2-matrix.md`.
+    - Plan 04 cited src/runtime/rollback.test.ts for evidence that lives in `rollback.review.test.ts`.
+    - A clean-host run was cited as a directory, but it is a pair of files.
+  - **1 was a parse artifact** of a line-range suffix (`presets.ts:4–17,:67`); the reader was fixed.
+  - **12 are legitimate absences,** now listed with reasons: planned records (L1/L2), two prescribed-not-built names, two review harnesses deleted after promotion, three SillyTavern or external paths, one cleaned-up defect output, and two audit lines stating a path's absence.
+  - The P0′ records had **two homes**: docs/plans/v2.3/records/… in the overview and playbook, test/journeys/records/… in plan 11. They are unified on `test/journeys/records/p0-adventurer/` (rule 13).
+- Mutations: 5/5 caught (`test/findings/mutations/V22a-citations.txt`).
+- Gates: `test:release` **14/14** (was 10). This is docs and release tooling only: no `src/` change, so no build or live gate applies.
+- **Not done here (V22b):**
+  - the attestation's `statusNote`/`notGreen` corrections;
+  - the line-budget squeeze;
+  - the run header gaining the profile api-url **and the active sampler preset**, which V24 showed it cannot see.

@@ -313,7 +313,7 @@ Local gates on this tree: `typecheck`, `typecheck:test`, `lint`, `test` (**128 s
 | **E1** | live | `J6.9` ×2: 205 scripted commits, then an edit to message 0 — `rollbackUnavailable` with the checkpoint name, `#so-rollback-unavailable` and `#so-reread-checkpoint` on the player surface |
 | **R4** | live | `J6.6` ×2: two turns to `cp2`, a **reload**, then an edit to message 0 — the notice fires and the run steps back to `cp1` |
 | **R2** | live | `test/scenarios/live-rollback-stagecraft.json`: two curator rewrites of ONE entry, applied at two boundaries (the book holds each in turn), then an edit to message 0 rolls the run back past both — the entry ends at its ORIGINAL text, never the intermediate one the older record held |
-| expansion cache on rollback | jest | `runRollback` now revalidates the expansion cache (`revalidateExpansion`): the basis is the blackboard the rollback just restored, so a generated checkpoint whose basis no longer holds goes `stale` rather than staying `inserted`. `src/runtime/rollback.test.ts` |
+| expansion cache on rollback | jest | `runRollback` now revalidates the expansion cache (`revalidateExpansion`): the basis is the blackboard the rollback just restored, so a generated checkpoint whose basis no longer holds goes `stale` rather than staying `inserted`. `src/runtime/rollback.review.test.ts` |
 
 **J6 ×2 on the final tree**: both runs `automated: 8 pass, 0 fail, 0 blocked, first try: 8 of 8 needed no retry`,
 `cleanup: clean`; archived under `test/journeys/records/plan-04/` with the two scenario logs.
