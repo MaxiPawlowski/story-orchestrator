@@ -1,0 +1,67 @@
+1/6 import_story ok 360ms
+2/6 ui ok 3402ms
+3/6 eval ok 8ms
+4/6 expand ok 46503ms
+5/6 eval ok 7ms
+5/6 eval -> {"status":"needs_review","tries":[{"attempt":1,"status":"needs_review","outcomes":[2,2],"codeCheck":[],"verdicts":"[{\"pass\":false,\"issues\":[\"Beat 1 guidance narrates the player's own act: 'If they spotted a safe route, the approach remains safe but tension rises as they get closer. If they spotted a blocked route, the guards may become aware.' This describes the world reacting to the player's previous choice rat"}],"forks":[{"index":0,"outcomes":2},{"index":1,"outcomes":2}],"beats":[{"objective":"Find a route toward the vault.","outcomes":[{"label":"Spot a clear path","gate":{"q":"approach","op":"==","v":"unknown"},"progress":{"anchor":"finish","amount":1}},{"label":"Notice a guarded corridor","gate":{"q":"approach","op":"==","v":"unknown"},"progress":{"anchor":"finish","amount":1}}]},{"objective":"Proceed toward the vault.","outcomes":[{"label":"Advance cautiously","gate":{"q":"approach","op":"==","v":"safe"},"progress":null},{"label":"Attempt to slip past","gate":{"q":"approach","op":"==","v":"blocked"},"progress":null}]}]}
+6/6 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the route did not move out of start: [{"from":"start","to":"start","firedPriority":null,"atFork":false,"wantedPriority":1.001}]
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:2431)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T22-45-54-091Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T22-45-56-996Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 6,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-cd407f83"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@19h45m03s033ms",
+    "owned": [
+      "2026-09-23@19h45m03s033ms"
+    ],
+    "deleted": [
+      "2026-09-23@19h45m03s033ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@19h45m03s033ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

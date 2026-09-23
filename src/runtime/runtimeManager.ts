@@ -606,10 +606,8 @@ export class RuntimeManager {
   // serialized state so boundary counters and the blackboard survive the swap.
   private replaceStory(story: NormalizedStoryV2) {
     if (!this.loaded) return;
-    const state = this.engine.serialize();
     this.loaded = { ...this.loaded, story };
-    this.engine.loadStory(story);
-    this.engine.hydrate(state);
+    this.engine.replaceGraph(story);
   }
 
   getEnabledCharacterIds(): string[] { return enabledCharacterIds(this.loaded?.story ?? null); }

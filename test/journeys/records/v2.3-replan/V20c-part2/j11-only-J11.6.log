@@ -1,0 +1,52 @@
+
+=== J11 judgment-backend ===
+The judgment model behind the ST server plugin: reachable with a key, off by default, deciding speaker direction when opted in, falling back to today's chain on a timeout, recorded in its own ring, and never leaking the key.
+
+extraction before this run: {"enabled":true,"cadence":1,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"}
+Global config snapshot: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\so-journey-config-snapshot.json
+extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+--- J11.6 judge settings set through the settings panel survive a reload, and the key appears nowhere in extension settings or chat metadata
+J11.6 1/5 import_story ok 357ms
+J11.6 2/5 ui ok 3816ms
+J11.6 3/5 eval ok 2575ms
+J11.6 3/5 eval -> {"enabled":true,"director":true}
+J11.6 4/5 reload ok 8161ms
+J11.6 5/5 eval ok 7ms
+Restored global config from C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions"],"saved":{"status":200},"preservedStories":["journey-j11-judge"],"preservedSessions":[]}
+
+SKIP         J11.1    the server plugin answers /status with a configured key, and reports where the key came from without the key itself — not selected by --only
+SKIP         J11.2    judge off (the default): a real group turn is decided by today's chain and nothing reaches the plugin — not selected by --only
+SKIP         J11.3    judge on with speaker direction opted in: the judge decides the turn inside its budget, records the answering model in its own ring, and adds nothing to the persisted journal — not selected by --only
+SKIP         J11.4    a 1 ms judge budget falls back to today's chain, records the fallback, and the turn still gets a reply — not selected by --only
+SKIP         J11.5    player mode shows nothing judge-internal: no probabilities, no judge sources, no steering controls — not selected by --only
+PASS         J11.6    judge settings set through the settings panel survive a reload, and the key appears nowhere in extension settings or chat metadata
+SKIP         J11.7    memoryVerify on (opt-in): a real read's memory lines are judged against the transcript before they are stored; every read with lines leaves a memoryVerify record, stored confidences follow policy — not selected by --only
+SKIP         J11.8    a scripted reply that contradicts itself, then a real read: an unsupported line lands in verifyDrops (author-visible, restorable), or the model wrote only supported lines; the check logs which branch ran — not selected by --only
+SKIP         J11.9    memoryPairs on (opt-in): seeded labelled pairs are consolidated by the judge; a duplicate is dropped, an update supersedes, and a pair about two different things (same owner or place) is never superseded or dropped — not selected by --only
+SKIP         J11.10   memoryPairs off: the same seed consolidates by today's heuristic alone, with no memoryPairs call — not selected by --only
+SKIP         J11.11   sceneTrigger + sceneTracker opted in, real play: one `scene` record per boundary, and the stored read belongs to the newest message — not selected by --only
+SKIP         J11.12   a scripted time skip the regex misses (held-out SH01, judged 0.82-0.85 off-page) schedules the P0 `scene:judge` read on that boundary, and the LLM read runs — not selected by --only
+SKIP         J11.13   the tracker block is in the prompt ST actually sends on the next generation, with only over-floor fields — not selected by --only
+SKIP         J11.14   deleting the message a scene read belongs to clears the read and the block; the next boundary builds them again — not selected by --only
+SKIP         J11.15   with cadence pinned high so no cadence read can mask it, every scene usage off: no scene read, no judge call; then trigger on + a blackboard `location` change away from the location the previous boundary recorded with no text cue: the heuristic's deterministic read still runs, and the judge adds no second one — not selected by --only
+SKIP         J11.16   lore-select opted in: a player question whose answer lives in an entry whose keys never appear gets that entry forced into every generation of the turn; the first pick is made at MESSAGE_SENT, later group members pick again at GENERATION_STARTED — not selected by --only
+SKIP         J11.17   an entry switched off in its book (as checkpoint gating does) is never asked about or forced, whatever the question — not selected by --only
+SKIP         J11.18   a dry run (prompt itemization) and a quiet generation make no lore judge call — not selected by --only
+SKIP         J11.19   lore-select off: nothing is forced, so the keywordless password entry stays out of the scan, and no lore call is made — not selected by --only
+SKIP         J11.20   typed extraction opted in, cadence 50 (no LLM read for fifty boundaries): the player takes the key, the judge reads the hinted gate quality on that boundary, and the transition fires at the next boundary, long before any cadence read — not selected by --only
+SKIP         J11.21   cadence 1 with typed extraction on: whatever the judge settles (on the read itself or on the boundary's own typed read) is left out of every LLM prompt, and a quality it did not settle stays in the scope — not selected by --only
+SKIP         J11.22   a latching hinted quality is written by the judge only at confidence 0.9 or more (0.8 + 0.1) — not selected by --only
+SKIP         J11.23   stall check opted in, reads off (cadence 50): a lever pulled six turns ago is written straight from the stall check with no LLM re-read; then a door nobody opens stays a genuine stall with the player's stall signal still showing — not selected by --only
+SKIP         J11.24   typed extraction and the stall check off: reads carry no judged step and no judge-sourced delta, and nothing lands in the judged-read ring — not selected by --only
+SKIP         J11.25   prepare-ahead with two variants: once the scene read says play is heading for the watchtower, the next boundary queues the tower's stub before the tower is reached; on arrival the prepared chain is used, or (stale / failed) re-queued and expanded anyway; the entry shows two generations and one pick — not selected by --only
+SKIP         J11.26   curator focus: with 40 entries in the curator's scope, the pre-filter asks once and the curator's prompt holds only what it kept (plus switched-off entries); with it off the prompt holds all 40 and no filter call is made — not selected by --only
+
+J11
+automated: 1 pass, 0 fail, 0 blocked, 0 not-runnable, 25 skipped
+human:     0 scored, 0 unscored
+cleanup:   clean
+first try: 1 of 1 passing check(s) needed no retry
+PARTIAL: --only ran a subset; this record cannot stand for a gate.
+
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T22-06-28-043Z_journey-J11.json
+Matrix: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\journey-J11.md

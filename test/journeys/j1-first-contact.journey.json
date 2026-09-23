@@ -139,7 +139,7 @@
       "findings": [
         "U6"
       ],
-      "goal": "the wizard entry point is reachable by a real pointer, not only by a scripted click",
+      "goal": "the wizard entry point is reachable by a real pointer, not only by a scripted click: both controls are hit-tested AND clicked with real pointer input at their centre, and each opens what it names",
       "requires": [
         "first-run-path"
       ],
@@ -160,6 +160,36 @@
           "ui": {
             "action": "hit-test",
             "selector": "#so-open-studio"
+          }
+        },
+        {
+          "ui": {
+            "action": "pointer-click",
+            "selector": "#so-open-studio",
+            "expectVisible": "#so-studio-modal[open]"
+          }
+        },
+        {
+          "ui": {
+            "action": "close-studio"
+          }
+        },
+        {
+          "ui": {
+            "action": "open-settings"
+          }
+        },
+        {
+          "ui": {
+            "action": "pointer-click",
+            "selector": "#so-new-story-wizard",
+            "expectVisible": "#so-wizard",
+            "answerPopup": true
+          }
+        },
+        {
+          "ui": {
+            "action": "close-studio"
           }
         }
       ]

@@ -12,6 +12,13 @@ const collectAndLeaves = (gate: GateNode, out: GateLeaf[]) => {
   if ("all" in gate) gate.all.forEach((entry) => collectAndLeaves(entry, out));
 };
 
+const gateKey = (gate: GateNode): string => {
+  if ("q" in gate) return JSON.stringify([gate.q, gate.op, gate.v]);
+  if ("all" in gate) return `all(${gate.all.map(gateKey).sort().join(",")})`;
+  if ("any" in gate) return `any(${gate.any.map(gateKey).sort().join(",")})`;
+  return `not(${gateKey(gate.not)})`;
+};
+
 const leafSatisfiedBy = (leaf: GateLeaf, value: PrimitiveValue): boolean => {
   if (leaf.op === "==") return value === leaf.v;
   if (leaf.op === "!=") return value !== leaf.v;
@@ -27,7 +34,11 @@ const leafSatisfiedBy = (leaf: GateLeaf, value: PrimitiveValue): boolean => {
 export function runCodeChecks(story: NormalizedStoryV2, input: PlannedExpansionInput, beats: GeneratedBeat[]): CodeCheckResult {
   const issues: string[] = [];
   const target = story.checkpointById[input.candidate.targetAnchorId];
-  const start = Object.fromEntries(input.deltas.map((delta) => [delta.q, delta.current]).filter((entry): entry is [string, PrimitiveValue] => entry[1] !== undefined));
+  // A snapshot key the plan left out already holds its target on entry (planExpansion only lists what
+  // differs), so the simulation starts it there; the chain breaks it only by writing another value.
+  const planned = new Set(input.deltas.map((delta) => delta.q));
+  const satisfied = Object.entries(target.state_snapshot ?? {}).filter(([key]) => !planned.has(key) && story.qualityByKey[key]);
+  const start = { ...Object.fromEntries(satisfied), ...Object.fromEntries(input.deltas.map((delta) => [delta.q, delta.current]).filter((entry): entry is [string, PrimitiveValue] => entry[1] !== undefined)) };
   let progressTotal = 0;
   beats.forEach((beat, index) => {
     const isFinal = index === beats.length - 1;
@@ -44,6 +55,19 @@ export function runCodeChecks(story: NormalizedStoryV2, input: PlannedExpansionI
   const threshold = thresholdFor(target);
   if (progressTotal < threshold) issues.push(`${progressQualityForAnchor(target.id)} increments ${progressTotal} < threshold ${threshold}`);
   if (beats.length < 2) issues.push("generated chain needs at least two beats so progress can apply before anchor entry");
+
+  // L4 (2026-09-23): the engine fires the first declared outcome whose gate holds, so an outcome gated
+  // exactly like an earlier one of the same beat can never fire. Two of two real route-1 walks met a
+  // beat whose outcomes both gated on `approach == unknown`: a fork on paper, one route in play.
+  beats.forEach((beat, index) => {
+    const seen = new Map<string, string>();
+    beat.outcomes.forEach((outcome) => {
+      const key = gateKey(outcome.gate);
+      const earlier = seen.get(key);
+      if (earlier !== undefined) issues.push(`beat ${index + 1} outcome '${outcome.label}' can never fire: its gate is the same as '${earlier}'`);
+      else seen.set(key, outcome.label);
+    });
+  });
 
   const latched = input.latched ?? {};
   beats.forEach((beat, index) => {

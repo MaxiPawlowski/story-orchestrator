@@ -13,7 +13,7 @@
     ],
     "group": "1789797226071",
     "extraction": {
-      "cadence": 1,
+      "cadence": 3,
       "stabilityLag": 0,
       "profile": "inherit"
     }

@@ -29,7 +29,9 @@
     "wizard-stage": "(globalThis.storyOrchestratorRuntime?.getSnapshot?.() ? true : false) && typeof globalThis.storyOrchestratorRuntime.applyProvisioning === 'function'",
     "wizard-interview": "typeof globalThis.storyOrchestratorRuntime?.runCopilotStage === 'function' && Array.isArray(globalThis.storyOrchestratorStudioTabs)",
     "wizard-provisioning": "typeof globalThis.storyOrchestratorRuntime?.getProvisioningEnvironment === 'function'",
-    "wizard-entry-points": "Boolean(document.querySelector('#so-new-story-wizard'))"
+    "wizard-entry-points": "Boolean(document.querySelector('#so-new-story-wizard'))",
+    "install-has-lorebook": "(globalThis.storyOrchestratorRuntime?.getProvisioningEnvironment?.()?.lorebookNames?.length ?? 0) > 0",
+    "install-has-group": "(globalThis.storyOrchestratorRuntime?.getProvisioningEnvironment?.()?.groupNames?.length ?? 0) > 0"
   },
   "checks": [
     {
@@ -102,7 +104,7 @@
       "findings": [
         "D3"
       ],
-      "goal": "create-only is enforced in op validation, not trusted to the prompt",
+      "goal": "create-only is enforced in op validation, not trusted to the prompt: an existing character is refused (T6: each collision subcase is its own check, J9.2b-d)",
       "requires": [
         "wizard-provisioning"
       ],
@@ -114,10 +116,81 @@
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const name = globalThis.__j9Existing.character; const outcome = await rt.applyProvisioning({ kind: 'createCharacterCard', name, description: 'Overwrite attempt by journey J9.' }); if (outcome.ok) throw new Error(`create-only breached: the wizard created over the existing character \"${name}\"`); if (!outcome.message.includes('never edits yours')) throw new Error(`unexpected rejection message: ${outcome.message}`); return { refused: true, message: outcome.message };"
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lorebook = globalThis.__j9Existing.lorebook; if (!lorebook) return { skipped: 'no global lorebook on this install' }; const outcome = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook, comment: 'SO-J9 intrusion', keys: ['j9'], content: 'This must never be written.' }); if (outcome.ok) throw new Error(`create-only breached: the wizard wrote into the non-story lorebook \"${lorebook}\"`); if (!outcome.message.includes(\"will not write into it\")) throw new Error(`unexpected rejection message: ${outcome.message}`); return { refused: true, message: outcome.message };"
+          "assets": {
+            "action": "assert-clean",
+            "marker": "SO-J9"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J9.2b",
+      "mode": "auto",
+      "findings": [
+        "D3",
+        "T6"
+      ],
+      "goal": "create-only: a lorebook the story does not own is never written into (blocked, not skipped, on an install with no lorebook)",
+      "requires": [
+        "wizard-provisioning",
+        "install-has-lorebook"
+      ],
+      "steps": [
+        {
+          "eval": "const env = globalThis.storyOrchestratorRuntime.getProvisioningEnvironment(); globalThis.__j9Existing = { character: env.characterNames[0] ?? null, lorebook: env.lorebookNames[0] ?? null, group: env.groupNames[0] ?? null }; if (!globalThis.__j9Existing.character) throw new Error('no existing character to test create-only against'); return globalThis.__j9Existing;"
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const group = globalThis.__j9Existing.group; if (!group) return { skipped: 'no group on this install' }; const outcome = await rt.applyProvisioning({ kind: 'createGroup', name: group, members: [globalThis.__j9Existing.character] }); if (outcome.ok) throw new Error(`create-only breached: a second group named \"${group}\" was created`); return { refused: true, message: outcome.message };"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lorebook = globalThis.__j9Existing.lorebook; const outcome = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook, comment: 'SO-J9 intrusion', keys: ['j9'], content: 'This must never be written.' }); if (outcome.ok) throw new Error(`create-only breached: the wizard wrote into the non-story lorebook \"${lorebook}\"`); if (!outcome.message.includes(\"will not write into it\")) throw new Error(`unexpected rejection message: ${outcome.message}`); return { refused: true, message: outcome.message };"
+        },
+        {
+          "assets": {
+            "action": "assert-clean",
+            "marker": "SO-J9"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J9.2c",
+      "mode": "auto",
+      "findings": [
+        "D3",
+        "T6"
+      ],
+      "goal": "create-only: a second group with an existing group's name is refused (blocked, not skipped, on an install with no group)",
+      "requires": [
+        "wizard-provisioning",
+        "install-has-group"
+      ],
+      "steps": [
+        {
+          "eval": "const env = globalThis.storyOrchestratorRuntime.getProvisioningEnvironment(); globalThis.__j9Existing = { character: env.characterNames[0] ?? null, lorebook: env.lorebookNames[0] ?? null, group: env.groupNames[0] ?? null }; if (!globalThis.__j9Existing.character) throw new Error('no existing character to test create-only against'); return globalThis.__j9Existing;"
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const group = globalThis.__j9Existing.group; const outcome = await rt.applyProvisioning({ kind: 'createGroup', name: group, members: [globalThis.__j9Existing.character] }); if (outcome.ok) throw new Error(`create-only breached: a second group named \"${group}\" was created`); return { refused: true, message: outcome.message };"
+        },
+        {
+          "assets": {
+            "action": "assert-clean",
+            "marker": "SO-J9"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J9.2d",
+      "mode": "auto",
+      "findings": [
+        "D3",
+        "T6"
+      ],
+      "goal": "create-only: a group whose cast does not exist yet is refused and nothing is created",
+      "requires": [
+        "wizard-provisioning"
+      ],
+      "steps": [
+        {
+          "eval": "const env = globalThis.storyOrchestratorRuntime.getProvisioningEnvironment(); globalThis.__j9Existing = { character: env.characterNames[0] ?? null, lorebook: env.lorebookNames[0] ?? null, group: env.groupNames[0] ?? null }; if (!globalThis.__j9Existing.character) throw new Error('no existing character to test create-only against'); return globalThis.__j9Existing;"
         },
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const outcome = await rt.applyProvisioning({ kind: 'createGroup', name: 'SO-J9 Ghost Party', members: ['SO-J9 Nobody'] }); if (outcome.ok) throw new Error('a group was created for a cast member that does not exist'); if (!outcome.message.includes('do not exist yet')) throw new Error(`unexpected rejection message: ${outcome.message}`); return { refused: true, message: outcome.message };"

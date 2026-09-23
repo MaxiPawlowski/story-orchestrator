@@ -2786,3 +2786,15 @@ rows is not closed (overview rule 14).
   Neither had a direct test while it sat in the manager. `src/runtime/chatSave.test.ts` (5 cases: own chat, another chat, a refused save, a blind read-back that is not a lost write, nothing loaded) now kills all three (`test/findings/mutations/V26b-chat-save.txt`, script archived as `records/v2.3-replan/V26b/v26b-mut.py`).
 - **Gates:** typecheck, typecheck:test, lint and debug:typecheck clean; jest 170/2679; test:debug 155; test:release 16/16.
 - **Live, model-free, sandbox group `1759606632088`:** bundle `3eb24a6a5c0d` served (the header hashed it). `live-v16-save-readback`, `live-v5-foreign-blob`, `plan02-runtime`, `live-v20e-journal-contract` and `live-v18-import-and-ownership` are **green on two consecutive runs** (`records/v2.3-replan/V26b/`). The first second-run of V18 failed on the card its first run had created, `A character called "SO-V18 Harbour" already exists`. That is the fixture's stated cleanup, not a regression: its objective says `so-assets.mts remove --marker SO-V18` deletes the card. The failed log is kept as `live-v18-import-and-ownership-2-leftover-card.log`, and runs 2 and 3 each follow a `remove` that reported `clean: true`. Header diff: only the build and the served bundle (`--allow build,bundle`, 0 blocking).
+
+### L6 gate (2026-09-23): V4's turn types through real generation
+
+`test/scenarios/live-v4-turn-types-real.json` runs the real model (Artemis, RunPod) in sandbox group `1759606632088`, with no talk control. Records are in `records/v2.3-replan/L6/`.
+
+- **Group round:** the player addresses two members by name. ST's natural-order activation drafted **three** members in every run, and exactly **3 boundaries** were committed (one per reply, V4's queue).
+- **Streaming continue** (`/continue`, the same message id): it rendered as `continue` on that id and committed exactly **1** boundary.
+- **Non-streaming continue:** streaming is switched off in memory for one step and restored in the same step (the header diff shows it stayed restored). It rendered as `appendFinal` and committed exactly **1** boundary.
+- **Runs 1–2 failed on the fixture, not the product.** They asserted that the continue added text. Artemis continued a finished reply with **nothing** in every run (`grew: 0`), and ST still renders that as a `continue`. The step now asserts the rendered event type and id and reports growth. Runs 3 and 4 are **green on two consecutive runs** on bundle `bcf2bb2726a6`.
+- **Honest limit:** no run produced a continue that added text. This proves the render-type → boundary mapping on real generation, not the content of a continued reply.
+- **Live mutation:** `continue` and `appendFinal` added to `NON_TURN_MESSAGE_TYPES`. The run failed at step 7 on `a streaming continue committed 0 boundaries, expected exactly 1` (`live-mutation-continue-not-a-turn.log`).
+- **Run header diff:** 2 differences, `builtAt` and the manifest file hash from the post-mutation rebuild. The bundle hash is the same (`header-diff.txt`).

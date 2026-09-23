@@ -1043,6 +1043,21 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 // `element.click()`, which fires whatever is on top of it or not — a scripted click succeeds even
 // when a real pointer would land on something else. This asks the browser the question a user's
 // finger asks: at this element's own centre, which element is actually on top?
+// V20c (J1.10): a hit-test says a pointer WOULD land on the control; this lands one. The click is real
+// pointer input at the control's own centre (CDP mouse events, not `element.click()`), so an overlay or a
+// handler bound to a covered element fails here, and `expectVisible` names what the click must open.
+export async function pointerClick(page, selector: string, { expectVisible = null as string | null, answerPopup = false, timeoutMs = 10000 } = {}) {
+  const hit = await hitTest(page, selector);
+  if (!hit.clickable || !hit.at) throw new Error(`${selector} is not clickable by a pointer: ${hit.reason ?? hit.blocked}`);
+  await page.mouse.click(hit.at.x, hit.at.y);
+  if (answerPopup) await answerStudioPopup(page, '.popup-button-ok');
+  if (expectVisible) {
+    const opened = await page.locator(expectVisible).first().waitFor({ state: 'visible', timeout: timeoutMs }).then(() => true, () => false);
+    if (!opened) throw new Error(`a pointer click on ${selector} did not open ${expectVisible} within ${timeoutMs} ms`);
+  }
+  return { ...hit, clicked: true, opened: expectVisible };
+}
+
 export async function hitTest(page, selector: string) {
   return evaluateInST(page, (selector: string) => {
     const describe = (node: HTMLElement | null) => (node ? `${node.tagName.toLowerCase()}${node.id ? `#${node.id}` : ''}${node.className && typeof node.className === 'string' ? `.${node.className.trim().split(/\s+/).slice(0, 3).join('.')}` : ''}` : 'nothing');

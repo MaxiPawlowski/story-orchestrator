@@ -1045,3 +1045,18 @@ Machine: typecheck 0, typecheck:test 0, lint 0, jest **169 / 2673** (`findings l
   - **J1.10:** clicks, not only hit-tests.
 
   All three wait for the pod (L1).
+
+### V20c part 2 gate (2026-09-23): F3 closed, J1.10 clicks; T6 split but not yet run live
+
+- **F3, fixture half: closed.** Every J11 check now imports its own story (15 checks gained an `import_story` step).
+  - Each check was run alone with `--only` against the real model and the judge (`records/v2.3-replan/V20c-part2/j11-only-*.log`, `j11-only-summary.txt`). 11 of 15 pass alone.
+  - The 4 that failed (J11.3, J11.4, J11.8, J11.12) were missing STATE, not the story. They need what an earlier check leaves behind: judge settings, talk direction, a count of decisions. Importing a story cannot fix that.
+  - They now declare `dependsOn` (J11.3 → J11.2; J11.4 → J11.2, J11.3; J11.8 → J11.7; J11.12 → J11.11). Under `--only`, a check whose dependency was not selected reports **blocked**, naming the dependency, instead of failing five steps later on a symptom (`lib/journeyArchive.mts` `unselectedDependencies`).
+  - Live: J11.8 alone is BLOCKED. J11.7+J11.8, J11.2–J11.4 and J11.11+J11.12 all PASS with cleanup clean (`j11-deps-summary.txt`).
+  - `dependencyProblems` refuses a `dependsOn` that names a missing or later check. A node test runs it over every shipped journey. test:debug went from 159 to 162.
+- **J1.10 now clicks.** A new `ui: {action: "pointer-click"}` (`so-ui.mts` `pointerClick`) hit-tests the control, clicks its centre with real pointer input (`page.mouse.click`), and waits for what the control opens. J1.10 drives `#so-open-studio` → `#so-studio-modal[open]`, then `#so-new-story-wizard` → `#so-wizard`.
+  - Green on two consecutive runs (`j1-only-J1.10-run{1,2}.log`).
+  - Live mutation: with the click aimed off the control, the check fails on `a pointer click on #so-open-studio did not open #so-studio-modal[open]` (`j1-10-mutation-click-misses.log`).
+- **T6: built, NOT proven.** J9.2 is split into J9.2 / J9.2b / J9.2c / J9.2d, one per collision subcase. Each has its own capability (`install-has-lorebook`, `install-has-group`), and every `{ skipped }` return is gone. The ledger row stays open until a live J9 run reports each subcase.
+- **J12 setup contradicted its own guard.** `setup.extraction.cadence` was 1 while J12.1 refuses to run unless the cadence is the shipped default, 3, so the journey could never pass. Setup now declares 3. It has not been run since the change (it belongs to L2).
+- **Leak found:** the J11.18 `--only` run left sandbox chat `2026-09-23@19h10m48s375ms` behind (`cleanup.notDeleted`). The run correctly reported NOT GREEN. The chat is on the leftovers list.

@@ -236,9 +236,9 @@
       "title": "every J11 check imports its own story",
       "owner": "01",
       "evidence": "live",
-      "status": "open",
-      "provenBy": "--only on every J11 check",
-      "note": "V20c part 1 (2026-09-23): the runner half is built and live — under --only a send/send_generate/extract/expand step with no story loaded fails naming F3 (J11 --only J11.3 did, records/v2.3-replan/V20c/). Still open: the 16 J11 checks that import no story, whose fix can only be proven by a real-model --only run of each."
+      "status": "closed",
+      "provenBy": "records/v2.3-replan/V20c-part2/: J11 --only per check against the real model and judge — 11 of 15 pass alone; the 4 that failed need STATE an earlier check leaves (settings, talk direction, a decision count), declared as dependsOn, reported blocked alone and PASS with their dependencies (j11-deps-summary.txt)",
+      "note": "V20c part 1 (2026-09-23): runner half — under --only a story-bound step with no story loaded fails naming F3. Part 2 (2026-09-23): every J11 check imports its own story; dependsOn + unselectedDependencies make a check that needs an earlier check's state report blocked under --only instead of failing on a symptom; journeyArchive.test.mts checks every shipped journey's dependsOn."
     },
     {
       "id": "F4",

@@ -1,5 +1,6 @@
 import type { NormalizedStoryV2, PrimitiveValue } from "@engine/index";
-import { applyDeltas, outcomePaths } from "./paths";
+import { insertedCheckpointIds } from "./merge";
+import { applyOutcome, gatePins, outcomePaths } from "./paths";
 import type { ExpansionCacheEntry, GeneratedBeat, RevalidationResult } from "./types";
 
 const matches = (current: PrimitiveValue | undefined, target: PrimitiveValue, tolerance: number) => {
@@ -17,7 +18,7 @@ const routes = (blackboard: Record<string, PrimitiveValue>, beats: GeneratedBeat
     const next: Route[] = [];
     for (const route of open) {
       beat.outcomes.forEach((outcome, outcomeIndex) => {
-        next.push({ values: applyDeltas(route.values, outcome.deltas), outcomes: [...route.outcomes, outcomeIndex], bridged: true });
+        next.push({ values: applyOutcome(route.values, outcome), outcomes: [...route.outcomes, outcomeIndex], bridged: true });
       });
     }
     const seen = new Map<string, Route>();
@@ -45,10 +46,16 @@ export function revalidateExpansion(
   // v2.3 plan 07 (R9). A route that no longer bridges is not a route: it is a player who takes the
   // outcome the merge used to discard and never enters the anchor. Every route is checked, and the
   // beat whose outcome fails is named.
-  if (!outcomePaths({ ...blackboard }, entry.beats).length) {
+  // L4 (2026-09-23): the chain is entered only through its entry transition, so what that gate pins holds
+  // on entry, as the planner and the code check already assume. Revalidating from the bare blackboard
+  // staled a chain before the player could enter it, at the boundary that would have entered it.
+  const first = insertedCheckpointIds(entry)[0];
+  const entryGate = story.transitions.find((transition) => transition.from === entry.sourceCheckpointId && (transition.to === entry.stubId || transition.to === first))?.gate;
+  const start = { ...blackboard, ...gatePins(entryGate) };
+  if (!outcomePaths(start, entry.beats).length) {
     return { status: "partial", validBeatCount: 0, issues: ["too many outcome routes to revalidate"] };
   }
-  const all = routes(blackboard, entry.beats);
+  const all = routes(start, entry.beats);
   const failing = Object.entries(target.state_snapshot ?? {});
   const bridged = (route: Route) => failing.every(([key, value]) => matches(route.values[key], value, tolerance));
   const good = all.filter(bridged);

@@ -52,7 +52,7 @@ export const WAIT_KEYS = new Set([
 
 export const UI_ACTIONS = new Set([
   'open-drawer', 'drawer-tab', 'open-settings', 'select-profile', 'open-studio', 'close-studio',
-  'studio-tab', 'studio-save', 'flag', 'screenshot', 'pipeline', 'assert-player-clean', 'hit-test',
+  'studio-tab', 'studio-save', 'flag', 'screenshot', 'pipeline', 'assert-player-clean', 'hit-test', 'pointer-click',
   'open-wizard', 'new-story-wizard', 'wizard-run', 'wizard-answer', 'wizard-apply', 'wizard-state',
   'stagecraft', 'curator-accept', 'curator-reject', 'memory-queue',
 ]);

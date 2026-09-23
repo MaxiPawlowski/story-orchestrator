@@ -1,0 +1,65 @@
+1/6 import_story ok 367ms
+2/6 ui ok 3240ms
+3/6 eval ok 6ms
+4/6 expand ok 16257ms
+5/6 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: positive activation not met: the merged chain has no beat with two outcomes: [{"attempt":1,"status":"needs_review","outcomes":[1,1],"codeCheck":[],"verdicts":"[{\"pass\":false,\"issues\":[\"Beat 0 guidance narrates the player acting ('The player explores the area to locate a path forward') instead of setting up the situation.\",\"Beat 1 guidance narrates the player acting ('The player moves along the discovered path') instead of setting up the situation.\"],\"raw\""}]
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1407)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T22-59-58-235Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T23-00-01-111Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 5,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-cd407f83"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@19h59m38s027ms",
+    "owned": [
+      "2026-09-23@19h59m38s027ms"
+    ],
+    "deleted": [
+      "2026-09-23@19h59m38s027ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@19h59m38s027ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

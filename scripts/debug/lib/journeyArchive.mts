@@ -58,3 +58,24 @@ export async function archiveJourneyRecord(recordPath: string, gateDir: string):
   }
   return { ok: true, wrote };
 }
+
+// F3, the rest of it (2026-09-23): running every J11 check alone found four that need STATE an earlier
+// check leaves — a judge usage switched on, speaker direction enabled, a decision count — not only its
+// story. They are scenarios in sequence, and are honest about it by declaring `dependsOn`: under
+// --only, a check whose dependency was not selected is `blocked` naming it, never a misleading fail.
+export const unselectedDependencies = (check: { id?: string; dependsOn?: unknown }, only: string[] | null): string[] =>
+  only && Array.isArray(check.dependsOn) ? check.dependsOn.map(String).filter((id) => !only.includes(id)) : [];
+
+export function dependencyProblems(checks: Array<{ id: string; dependsOn?: unknown }>): string[] {
+  const problems: string[] = [];
+  checks.forEach((check, index) => {
+    if (check.dependsOn === undefined) return;
+    if (!Array.isArray(check.dependsOn) || !check.dependsOn.length) { problems.push(`${check.id}: dependsOn must be a non-empty list of check ids`); return; }
+    for (const id of check.dependsOn.map(String)) {
+      const at = checks.findIndex((candidate) => candidate.id === id);
+      if (at < 0) problems.push(`${check.id}: dependsOn names ${id}, which is not a check in this journey`);
+      else if (at >= index) problems.push(`${check.id}: dependsOn names ${id}, which runs after it`);
+    }
+  });
+  return problems;
+}

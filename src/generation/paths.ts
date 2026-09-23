@@ -1,5 +1,5 @@
-import type { PrimitiveValue, ScaffoldingDelta } from "@engine/index";
-import type { GeneratedBeat } from "./types";
+import type { GateNode, PrimitiveValue, ScaffoldingDelta } from "@engine/index";
+import type { GeneratedBeat, GeneratedOutcome } from "./types";
 
 // v2.3 plan 07 (R9). A generated beat with several outcomes is several routes, and both the code
 // checks and the staleness revalidation have to reason about all of them: `outcomes[0]` described one
@@ -9,11 +9,29 @@ import type { GeneratedBeat } from "./types";
 
 export const MAX_OUTCOME_PATHS = 256;
 
+// L4 (2026-09-23). A transition fires only while its gate holds, so every value an `==` leaf (or a
+// one-value `in`) of the gate pins is a FACT at that point of the route. Simulating deltas alone judged
+// the real model's chains as if a route could leave `approach == safe` with approach still unknown, and
+// failed every chain whose outcomes steered by gate rather than by delta (6 of 6 real generations).
+export function gatePins(gate: GateNode | undefined): Record<string, PrimitiveValue> {
+  if (!gate) return {};
+  if ("q" in gate) {
+    if (gate.op === "==") return { [gate.q]: gate.v as PrimitiveValue };
+    if (gate.op === "in" && Array.isArray(gate.v) && gate.v.length === 1) return { [gate.q]: gate.v[0] as PrimitiveValue };
+    return {};
+  }
+  return "all" in gate ? Object.assign({}, ...gate.all.map(gatePins)) : {};
+}
+
 export const applyDeltas = (values: Record<string, PrimitiveValue>, deltas: ScaffoldingDelta[] | undefined): Record<string, PrimitiveValue> => {
   const next = { ...values };
   deltas?.forEach((delta) => { next[delta.q] = delta.v; });
   return next;
 };
+
+/** The values a route holds after taking this outcome: what its gate pinned, then what it wrote. */
+export const applyOutcome = (values: Record<string, PrimitiveValue>, outcome: Pick<GeneratedOutcome, "gate" | "deltas">): Record<string, PrimitiveValue> =>
+  applyDeltas({ ...values, ...gatePins(outcome.gate) }, outcome.deltas);
 
 const pathKey = (path: Record<string, PrimitiveValue>) => JSON.stringify(Object.keys(path).sort().map((name) => [name, path[name]]));
 
@@ -22,7 +40,7 @@ export const outcomePaths = (start: Record<string, PrimitiveValue>, beats: Gener
   let paths = [start];
   for (const beat of beats) {
     const next: Record<string, PrimitiveValue>[] = [];
-    for (const path of paths) for (const outcome of beat.outcomes) next.push(applyDeltas(path, outcome.deltas));
+    for (const path of paths) for (const outcome of beat.outcomes) next.push(applyOutcome(path, outcome));
     const seen = new Map<string, Record<string, PrimitiveValue>>();
     for (const path of next) {
       const key = pathKey(path);

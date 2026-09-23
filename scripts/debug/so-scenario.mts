@@ -14,7 +14,7 @@ import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { adoptNewSandboxChat, assertInSandbox, beginSandboxSession, deleteSandboxChats, openGroup, openMostRecentGroupChat, readActiveChat, readChatOnDisk, reopenSandboxChat } from './st-navigation.mts';
 import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, sendUserMessage, swipeMessage, waitForIdle } from './st-actions.mts';
 import { dumpCurrentChatState } from './so-state.mts';
-import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, getMemoryQueueState, memoryQueueAction, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot, hitTest } from './so-ui.mts';
+import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, getMemoryQueueState, memoryQueueAction, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot, hitTest, pointerClick } from './so-ui.mts';
 import { leakCount, listMarkedAssets, removeMarkedAssets } from './so-assets.mts';
 
 const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep] [--group <id|name>]
@@ -769,6 +769,7 @@ async function uiStep(page, spec) {
     if (!result.clickable) throw new Error(`${result.selector} is not clickable by a pointer: ${result.reason}`);
     return result;
   }
+  if (action === 'pointer-click') return pointerClick(page, spec?.selector ?? label, { expectVisible: spec?.expectVisible ?? null, answerPopup: Boolean(spec?.answerPopup), timeoutMs: spec?.timeoutMs ?? 10000 });
   if (action === 'assert-player-clean') {
     const result = await assertPlayerClean(page);
     if (!result.ok) throw new Error(`player surface leaks: ${result.findings.map((finding) => `${finding.tab}:${finding.needle}`).join(', ')}`);

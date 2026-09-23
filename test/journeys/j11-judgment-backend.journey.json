@@ -87,7 +87,15 @@
         "judge-runtime",
         "judge-plugin"
       ],
+      "dependsOn": [
+        "J11.2"
+      ],
       "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
         {
           "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, director: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); globalThis.__soJ11JournalBefore = SillyTavern.getContext().chatMetadata.story_orchestrator?.stories?.[SillyTavern.getContext().chatMetadata.story_orchestrator.selectedStoryId]?.extras?.journal?.length ?? 0; return globalThis.storyOrchestratorRuntime.getGlobalSettings().judge;"
         },
@@ -117,7 +125,16 @@
         "judge-runtime",
         "judge-plugin"
       ],
+      "dependsOn": [
+        "J11.2",
+        "J11.3"
+      ],
       "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
         {
           "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, timeoutMs: 1 }; globalThis.__soJ11ChatBefore = SillyTavern.getContext().chat.length; return root.settings.judge.timeoutMs;"
         },
@@ -150,6 +167,11 @@
       ],
       "steps": [
         {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
+        {
           "ui": {
             "action": "open-drawer"
           }
@@ -170,6 +192,11 @@
         "judge-runtime"
       ],
       "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
         {
           "ui": {
             "action": "open-settings"
@@ -199,6 +226,11 @@
         "judge-plugin"
       ],
       "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
         {
           "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, memoryVerify: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); globalThis.__soJ11Mem = { judgeCalls: rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge memoryVerify')).length, entryIds: snap.memory.entries.map((entry) => entry.id), drops: snap.memory.verifyDrops.length }; return globalThis.__soJ11Mem.entryIds.length;"
         },
@@ -242,7 +274,15 @@
         "judge-runtime",
         "judge-plugin"
       ],
+      "dependsOn": [
+        "J11.7"
+      ],
       "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); globalThis.__soJ11Mem = { judgeCalls: rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge memoryVerify')).length, entryIds: snap.memory.entries.map((entry) => entry.id), drops: snap.memory.verifyDrops.length }; return globalThis.__soJ11Mem.entryIds.length;"
         },
@@ -352,7 +392,15 @@
         "judge-runtime",
         "judge-plugin"
       ],
+      "dependsOn": [
+        "J11.11"
+      ],
       "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; globalThis.__soJ11Audits = rt.getSnapshot().extraction.audits.length; return globalThis.__soJ11Audits;"
         },
@@ -382,6 +430,11 @@
         "judge-plugin"
       ],
       "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; const c = SillyTavern.getContext(); if (globalThis.__soJ11PromptHandler) c.eventSource.removeListener(c.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ11PromptHandler); globalThis.__soJ11Prompts = []; globalThis.__soJ11PromptHandler = (data, dryRun) => { if (!dryRun) globalThis.__soJ11Prompts.push(JSON.stringify(data ?? null)); }; c.eventSource.on(c.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ11PromptHandler); globalThis.__soJ11Block = block(); globalThis.__soJ11Facts = rt.getSceneRead()?.facts ?? null; return { block: globalThis.__soJ11Block, facts: globalThis.__soJ11Facts };"
         },
@@ -454,6 +507,11 @@
         "judge-plugin"
       ],
       "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
         {
           "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, memoryVerify: false, memoryPairs: false, sceneTrigger: false, sceneTracker: false, lookahead: false } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ enabled: true, cadence: 50, reconciliationMultiplier: 1.5 }); /* pin cadence: at cadence 1 every boundary already reads, so the scene-triggered read is folded into it and this check can never see scene:location (2026-09-20) */ const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; globalThis.__soJ11Off = sceneCalls().length; return globalThis.__soJ11Off"
         },
@@ -554,6 +612,11 @@
       ],
       "steps": [
         {
+          "import_story": {
+            "file": "./j11-lore.story.json"
+          }
+        },
+        {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const loreCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge lore')); if (globalThis.__soJ11Lore?.off) globalThis.__soJ11Lore.off(); const prompts = []; const activated = []; const onPrompt = (data, dryRun) => { if (!dryRun) prompts.push(JSON.stringify(data ?? null)); }; const onActivated = (entries) => { activated.push((entries ?? []).map((entry) => entry.comment)); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, onPrompt); ctx.eventSource.on(ctx.eventTypes.WORLD_INFO_ACTIVATED, onActivated); globalThis.__soJ11Lore = { prompts, activated, calls: loreCalls().length, off: () => { ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, onPrompt); ctx.eventSource.removeListener(ctx.eventTypes.WORLD_INFO_ACTIVATED, onActivated); } }; return { armed: true };"
         },
         {
@@ -585,6 +648,11 @@
       ],
       "steps": [
         {
+          "import_story": {
+            "file": "./j11-lore.story.json"
+          }
+        },
+        {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const loreCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge lore')); const before = loreCalls().length; await ctx.generate('normal', {}, true); await ctx.executeSlashCommandsWithOptions('/gen Say only the word ready.', { handleParserErrors: false }); const extra = loreCalls().length - before; if (extra) throw new Error(`${extra} lore calls for a dry run and a quiet generation`); return { loreCalls: 0 };"
         }
       ]
@@ -598,6 +666,11 @@
         "judge-runtime"
       ],
       "steps": [
+        {
+          "import_story": {
+            "file": "./j11-lore.story.json"
+          }
+        },
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const loreCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge lore')); const root = ctx.extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, sceneTrigger: false, sceneTracker: false, lookahead: false, loreSelect: false } }; globalThis.storyOrchestratorJudge.invalidateStatus(); if (globalThis.__soJ11Lore?.off) globalThis.__soJ11Lore.off(); const prompts = []; const activated = []; const onPrompt = (data, dryRun) => { if (!dryRun) prompts.push(JSON.stringify(data ?? null)); }; const onActivated = (entries) => { activated.push((entries ?? []).map((entry) => entry.comment)); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, onPrompt); ctx.eventSource.on(ctx.eventTypes.WORLD_INFO_ACTIVATED, onActivated); globalThis.__soJ11Lore = { prompts, activated, calls: loreCalls().length, off: () => { ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, onPrompt); ctx.eventSource.removeListener(ctx.eventTypes.WORLD_INFO_ACTIVATED, onActivated); } }; return { armed: true };"
         },
@@ -679,6 +752,11 @@
       ],
       "steps": [
         {
+          "import_story": {
+            "file": "./j11-typed.story.json"
+          }
+        },
+        {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const root = ctx.extensionSettings['story-orchestrator']; rt.setExtractionSettings({ enabled: true, cadence: 1, reconciliationMultiplier: 1.5 }); root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, false])), typedExtraction: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); globalThis.__soJ11Audits = rt.getSnapshot().extraction.audits.length; return root.settings.extraction.cadence;"
         },
         {
@@ -710,6 +788,11 @@
         "judge-plugin"
       ],
       "steps": [
+        {
+          "import_story": {
+            "file": "./j11-typed.story.json"
+          }
+        },
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const snap = rt.getSnapshot(); const judged = [...snap.extraction.judgedReads.flatMap((read) => read.deltas), ...snap.extraction.audits.flatMap((audit) => audit.acceptedDeltas.filter((entry) => entry.judge !== undefined).map((entry) => ({ q: entry.delta.q, v: entry.delta.v, confidence: entry.judge })))].filter((delta) => delta.q === 'guard_mood'); const low = judged.filter((delta) => delta.confidence < 0.9); if (low.length) throw new Error(`latching guard_mood written under 0.9: ${JSON.stringify(low)}`); return { branch: judged.length ? `${judged.length} judged guard_mood writes, all >= 0.9` : 'the judge never settled guard_mood (the LLM read covered it)', judged };",
           "log": true
@@ -819,6 +902,11 @@
         "judge-runtime"
       ],
       "steps": [
+        {
+          "import_story": {
+            "file": "./j11-stall.story.json"
+          }
+        },
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const root = ctx.extensionSettings['story-orchestrator']; rt.setExtractionSettings({ enabled: true, cadence: 1, reconciliationMultiplier: 1.5 }); root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, false])), director: false } }; globalThis.storyOrchestratorJudge.invalidateStatus(); globalThis.__soJ11Off = { audits: rt.getSnapshot().extraction.audits.length, reads: rt.getSnapshot().extraction.judgedReads.length }; return root.settings.judge.uses;"
         },

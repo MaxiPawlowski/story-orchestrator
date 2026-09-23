@@ -5,7 +5,9 @@ import { runCodeChecks } from "./critic";
 import { mergeExpansions } from "./merge";
 import { parseGeneratedBeats } from "./parse";
 import { findStubExpansionCandidate, planExpansion } from "./planner";
-import { outcomePaths } from "./paths";
+import { gatePins, outcomePaths } from "./paths";
+import { renderGenerationPrompt } from "./prompts";
+import { revalidateExpansion } from "./revalidate";
 import type { ExpansionCacheEntry } from "./types";
 
 jest.mock("@services/STAPI", () => ({
@@ -109,10 +111,105 @@ describe("R9: a generated beat's outcomes are routes", () => {
     expect({ ok: check.ok, issues: check.issues }).toEqual({ ok: true, issues: [] });
     // Every route must bridge: a chain where one route cannot reach the anchor is a stall waiting
     // for the player who takes it, and the check names the key rather than passing on route 0.
-    const broken = beats.map((beat, index) => index === 0 ? { ...beat, outcomes: [beat.outcomes[0], { ...beat.outcomes[1], deltas: [] }] } : beat);
+    // The route that loses `approach: safe` on the last beat is a real break. (This case used to drop
+    // `key_found` instead, which the entry transition already pins, so it was the false positive L4 found.)
+    const broken = beats.map((beat, index) => index === 1 ? { ...beat, outcomes: [beat.outcomes[0], { ...beat.outcomes[1], deltas: [] }, beat.outcomes[2]] } : beat);
     const failed = runCodeChecks(story, input(), broken);
     expect(failed.ok).toBe(false);
     expect(failed.issues.some((issue) => issue.includes("does not bridge"))).toBe(true);
+  });
+
+  it("L4: a value the entry transition pins is not demanded of the chain", () => {
+    const beats = beatsOf("3").map((beat) => ({ ...beat, outcomes: beat.outcomes.map((outcome) => ({ ...outcome, deltas: (outcome.deltas ?? []).filter((delta) => delta.q !== "key_found") })) }));
+    expect(input().deltas.map((delta) => delta.q)).toEqual(["approach"]);
+    const check = runCodeChecks(story, input(), beats);
+    expect(check.issues.filter((issue) => issue.includes("does not bridge"))).toEqual([]);
+  });
+
+  it("L4 control: a chain that writes a pinned value away from the target still does not bridge", () => {
+    const beats = beatsOf("3").map((beat, index) => index === 0 ? { ...beat, outcomes: beat.outcomes.map((outcome) => ({ ...outcome, deltas: [{ q: "key_found", v: false }] })) } : beat);
+    const check = runCodeChecks(story, input(), beats);
+    expect(check.issues).toContain("key_found does not bridge to target snapshot");
+  });
+
+  it("L4: the generation prompt states the route rules the code check enforces", () => {
+    // R9 made every outcome a route and the threshold the minimum over routes, while the prompt still
+    // described one route: 8 real generations wrote forks that broke a rule nobody had told the model.
+    const prompt = renderGenerationPrompt(story, input());
+    expect(prompt).toContain("EVERY route must work on its own");
+    expect(prompt).toContain("each quality in the state delta must reach its target");
+    expect(prompt).toContain("SMALLEST amount among a beat's outcomes");
+  });
+
+  it("L4: only a pinning leaf counts as a gate pin", () => {
+    expect(gatePins({ q: "key_found", op: "==", v: true })).toEqual({ key_found: true });
+    expect(gatePins({ all: [{ q: "a", op: "==", v: 1 }, { q: "b", op: "in", v: ["x"] }] })).toEqual({ a: 1, b: "x" });
+    expect(gatePins({ q: "key_found", op: "!=", v: false })).toEqual({});
+    expect(gatePins({ any: [{ q: "a", op: "==", v: 1 }] })).toEqual({});
+    expect(gatePins({ q: "b", op: "in", v: ["x", "y"] })).toEqual({});
+  });
+
+  it("L4: an outcome that steers by gate holds its pinned value on that route", () => {
+    // The real model's shape (2026-09-23): outcomes gate on approach and write nothing to it.
+    const bySteering = [
+      { id: "0", objective: "Find a route", guidance: "g", tension_target: "stirring", outcomes: [
+        { id: "0:0", label: "safe", gate: { q: "approach", op: "==", v: "safe" }, deltas: [], progress: { anchor: "finish", amount: 1 } },
+        { id: "0:1", label: "quiet", gate: { q: "guard_aware", op: "==", v: false }, deltas: [{ q: "approach", v: "safe" }], progress: { anchor: "finish", amount: 1 } },
+      ] },
+      { id: "1", objective: "Reach the vault", guidance: "g", tension_target: "tense", outcomes: [
+        { id: "1:0", label: "arrive", gate: { q: "approach", op: "==", v: "safe" }, deltas: [] },
+      ] },
+    ] as never;
+    const check = runCodeChecks(story, input(), bySteering);
+    expect(check.issues.filter((issue) => issue.includes("does not bridge"))).toEqual([]);
+  });
+
+  it("L4 control: a route that leaves on another value still does not bridge", () => {
+    const broken = [
+      { id: "0", objective: "Find a route", guidance: "g", tension_target: "stirring", outcomes: [
+        { id: "0:0", label: "blocked", gate: { q: "approach", op: "==", v: "blocked" }, deltas: [], progress: { anchor: "finish", amount: 1 } },
+      ] },
+      { id: "1", objective: "Reach the vault", guidance: "g", tension_target: "tense", outcomes: [
+        { id: "1:0", label: "alarm", gate: { q: "guard_aware", op: "==", v: true }, deltas: [] },
+      ] },
+    ] as never;
+    expect(runCodeChecks(story, input(), broken).issues).toContain("approach does not bridge to target snapshot");
+  });
+
+  it("L4: revalidation before entry assumes what the entry transition pins, merged or not", () => {
+    const pinned = { ...entry("3"), beats: entry("3").beats.map((beat) => ({ ...beat, outcomes: beat.outcomes.map((outcome) => ({ ...outcome, deltas: (outcome.deltas ?? []).filter((delta) => delta.q !== "key_found") })) })) };
+    const merged = mergeExpansions(raw, { [pinned.key]: pinned });
+    expect(revalidateExpansion(merged, pinned, pinned.basis).status).toBe("pass");
+    expect(revalidateExpansion(story, pinned, pinned.basis).status).toBe("pass");
+  });
+
+  it("L4 control: without the entry transition the same chain does not bridge", () => {
+    const pinned = { ...entry("3"), beats: entry("3").beats.map((beat) => ({ ...beat, outcomes: beat.outcomes.map((outcome) => ({ ...outcome, deltas: (outcome.deltas ?? []).filter((delta) => delta.q !== "key_found") })) })) };
+    const orphan = parseStoryV2OrThrow({ ...raw, transitions: raw.transitions.filter((transition: { from: string }) => transition.from !== "start"), checkpoints: raw.checkpoints });
+    expect(revalidateExpansion(orphan, pinned, pinned.basis).status).toBe("fail");
+  });
+
+  it("L4: an outcome gated exactly like an earlier one of its beat can never fire", () => {
+    const twins = [
+      { id: "0", objective: "Find a route", guidance: "g", tension_target: "stirring", outcomes: [
+        { id: "0:0", label: "clear path", gate: { q: "approach", op: "==", v: "unknown" }, deltas: [{ q: "approach", v: "safe" }], progress: { anchor: "finish", amount: 1 } },
+        { id: "0:1", label: "blocked path", gate: { q: "approach", op: "==", v: "unknown" }, deltas: [{ q: "approach", v: "blocked" }], progress: { anchor: "finish", amount: 1 } },
+      ] },
+      { id: "1", objective: "Reach the vault", guidance: "g", tension_target: "tense", outcomes: [
+        { id: "1:0", label: "arrive", gate: { all: [{ q: "guard_aware", op: "==", v: false }, { q: "approach", op: "==", v: "safe" }] }, deltas: [] },
+        { id: "1:1", label: "arrive late", gate: { all: [{ q: "approach", op: "==", v: "safe" }, { q: "guard_aware", op: "==", v: false }] }, deltas: [] },
+      ] },
+    ] as never;
+    const issues = runCodeChecks(story, input(), twins).issues.filter((issue) => issue.includes("can never fire"));
+    expect(issues).toEqual([
+      "beat 1 outcome 'blocked path' can never fire: its gate is the same as 'clear path'",
+      "beat 2 outcome 'arrive late' can never fire: its gate is the same as 'arrive'",
+    ]);
+    expect(renderGenerationPrompt(story, input())).toContain("Two outcomes with the same gate are one route");
+  });
+
+  it("L4 control: outcomes whose gates differ are all reachable", () => {
+    expect(runCodeChecks(story, input(), beatsOf("3")).issues.filter((issue) => issue.includes("can never fire"))).toEqual([]);
   });
 
   it("lets an authored convergence_threshold win over the chain sum", () => {

@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import type { SharedReadAudit } from "@extraction/index";
 import { disableWIEntry, enableWIEntry, executeSlashCommands, getActiveGroup } from "@services/STAPI";
 import { RuntimeManager } from "./runtimeManager";
@@ -1665,5 +1667,26 @@ describe("V3: a superseded load or activation stops before its tail", () => {
     await manager.importStory(JSON.stringify(storyB));
     expect(mockLorebooks.Shared["A start"]).toBe(false);
     expect(manager.getSnapshot().status).toBe("Started wi-b");
+  });
+});
+
+describe("RuntimeManager: an expansion merged between boundaries (L4)", () => {
+  beforeEach(() => resetHost());
+
+  const forkStory = () => readFileSync(join(__dirname, "..", "..", "test", "fixtures", "generated-fork.story.json"), "utf-8");
+  const forkGolden = () => readFileSync(join(__dirname, "..", "..", "test", "goldens", "generation", "generated-fork.3.response.txt"), "utf-8");
+  const keyAudit = (): SharedReadAudit => ({ ...tensionAudit("stirring", 0), id: "audit-key", scope: ["key_found"], acceptedDeltas: [{ delta: { q: "key_found", v: true, source: "extractor" }, evidence: "the key" }] });
+
+  it("keeps the extraction delta the next boundary was going to commit", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(forkStory());
+    await manager.applyExtractionAudit(keyAudit(), []);
+    expect(await manager.runExpansionNow(forkGolden())).toBe(true);
+    expect(manager.getEngineState()?.activeCheckpointId).toBe("start");
+    mockContext.chat = [{ mes: "found it" }];
+    const result = await manager.commitBoundary();
+    expect(result?.queue.applied).toHaveLength(1);
+    expect(manager.getEngineState()?.blackboard.values.key_found).toBe(true);
+    expect(manager.getEngineState()?.activeCheckpointId).toBe("gen_fork_stub_1");
   });
 });

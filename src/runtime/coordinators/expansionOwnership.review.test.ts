@@ -44,7 +44,7 @@ const story = parseStoryV2OrThrow({
   roster: [],
 });
 
-const candidate = { sourceCheckpointId: "a", stubId: "s0", targetAnchorId: "b" };
+const candidate = { sourceCheckpointId: "a", stubId: "s0", targetAnchorId: "b", transition: story.outgoingByCheckpoint.a[0] };
 
 function harness(options: { switchDuringGeneration: boolean; ownership?: boolean }) {
   // One store per chat, so a write that lands after the switch lands somewhere visible.

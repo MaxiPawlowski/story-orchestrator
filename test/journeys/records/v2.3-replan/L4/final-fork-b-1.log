@@ -1,0 +1,65 @@
+1/6 import_story ok 369ms
+2/6 ui ok 3580ms
+3/6 eval ok 8ms
+4/6 expand ok 22078ms
+5/6 eval ok 6ms
+5/6 eval -> {"status":"needs_review","tries":[{"attempt":1,"status":"needs_review","outcomes":[2,2],"codeCheck":[],"verdicts":"[{\"pass\":false,\"issues\":[\"Beat 0 guidance narrates the player acting ('The player explores the area to locate a path forward') instead of setting up the situation for the player.\",\"Beat 1 guidance narrates the player acting ('The player attempts to proceed based on the path status') instead of setti"}],"forks":[{"index":0,"outcomes":2},{"index":1,"outcomes":2}],"beats":[{"objective":"Find a route toward the vault.","outcomes":[{"label":"discover safe path","gate":{"q":"approach","op":"==","v":"unknown"},"progress":{"anchor":"finish","amount":1}},{"label":"encounter obstacle","gate":{"q":"approach","op":"==","v":"safe"},"progress":{"anchor":"finish","amount":1}}]},{"objective":"Navigate toward the vault.","outcomes":[{"label":"reach vault entrance","gate":{"q":"approach","op":"==","v":"safe"},"progress":null},{"label":"path becomes blocked","gate":{"q":"approach","op":"==","v":"blocked"},"progress":null}]}]}
+6/6 eval ok 1055ms
+6/6 eval -> {"route":1,"path":[{"from":"start","to":"gen_fork_stub_1","firedPriority":1.001,"atFork":false,"wantedPriority":1.001},{"from":"gen_fork_stub_1","to":"gen_fork_stub_2","firedPriority":1,"atFork":true,"wantedPriority":1},{"from":"gen_fork_stub_2","to":"finish","firedPriority":2,"atFork":false,"wantedPriority":2}]}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T22-59-05-352Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 6,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-cd407f83"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@19h58m35s120ms",
+    "owned": [
+      "2026-09-23@19h58m35s120ms"
+    ],
+    "deleted": [
+      "2026-09-23@19h58m35s120ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@19h58m35s120ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

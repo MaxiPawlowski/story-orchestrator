@@ -184,6 +184,18 @@ export class StoryEngine {
     return oldest ? { boundary: oldest.boundary, messageId: oldest.after.lastMessageId } : { boundary: this.boundary, messageId: this.lastMessageId };
   }
 
+  // L4 (2026-09-23): a merged or staled expansion changes the graph under a live run. Reloading and
+  // hydrating dropped the pending writes (a staled chain at the start of a boundary threw away the
+  // write that boundary was committing) and the boundary history rollback needs.
+  replaceGraph(normalized: NormalizedStoryV2): void {
+    const state = this.serialize();
+    const history = this.serializeHistory();
+    const pending = this.queue.flush();
+    this.loadStory(normalized);
+    this.hydrate(state, history);
+    pending.forEach((write) => this.queue.enqueue(write));
+  }
+
   getBoundary(): number {
     return this.boundary;
   }

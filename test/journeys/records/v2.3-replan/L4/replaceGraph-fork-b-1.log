@@ -1,0 +1,67 @@
+1/6 import_story ok 367ms
+2/6 ui ok 4046ms
+3/6 eval ok 7ms
+4/6 expand ok 49058ms
+5/6 eval ok 6ms
+5/6 eval -> {"status":"needs_review","tries":[{"attempt":1,"status":"needs_review","outcomes":[2,2],"codeCheck":[],"verdicts":"[{\"pass\":false,\"issues\":[\"Beat 0 guidance narrates the player's action: 'The player explores the area, looking for a path forward.'\",\"Beat 1 guidance narrates the player's action: 'The player attempts to proceed based on the path discovered.'\"],\"raw\":\"```json\\n{\\\"pass\\\":false,\\\"issues\\\":[\\\"Beat 0 gu"}],"forks":[{"index":0,"outcomes":2},{"index":1,"outcomes":2}],"beats":[{"objective":"Find a route toward the vault.","outcomes":[{"label":"discover safe passage","gate":{"q":"approach","op":"==","v":"unknown"},"progress":{"anchor":"finish","amount":1}},{"label":"encounter obstacle","gate":{"q":"approach","op":"==","v":"unknown"},"progress":{"anchor":"finish","amount":1}}]},{"objective":"Navigate toward the vault.","outcomes":[{"label":"proceed safely","gate":{"q":"approach","op":"==","v":"safe"},"progress":null},{"label":"force through blockage","gate":{"q":"approach","op":"==","v":"blocked"},"progress":null}]}]}
+6/6 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: route 1 was asked for at the fork but another outcome fired: {"from":"gen_fork_stub_1","to":"gen_fork_stub_2","firedPriority":2,"atFork":true,"wantedPriority":1}
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:2719)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T22-56-03-138Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T22-56-06-023Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 6,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-cd407f83"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@19h55m08s249ms",
+    "owned": [
+      "2026-09-23@19h55m08s249ms"
+    ],
+    "deleted": [
+      "2026-09-23@19h55m08s249ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@19h55m08s249ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

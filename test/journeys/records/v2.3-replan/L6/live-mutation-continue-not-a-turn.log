@@ -1,0 +1,70 @@
+build manifest → dist\manifest.json (bundle 0b7d29295028, source aa7c5fadd37b, ST 1.19.0)
+1/8 import_story ok 370ms
+2/8 ui ok 3489ms
+3/8 eval ok 8ms
+3/8 eval -> {"boundary":0,"length":1}
+4/8 send_generate ok 34969ms
+5/8 wait ok 1537ms
+6/8 eval ok 3014ms
+6/8 eval -> {"replies":["Luke","Arin","DM Narrator"],"boundaries":3}
+7/8 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: a streaming continue committed 0 boundaries, expected exactly 1: {"seen":[{"id":4,"type":"continue"}],"lastId":4,"grew":0,"boundaries":0}
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1432)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T23-13-26-601Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T23-13-29-520Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 7,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-4393066a"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@20h12m34s079ms",
+    "owned": [
+      "2026-09-23@20h12m34s079ms"
+    ],
+    "deleted": [
+      "2026-09-23@20h12m34s079ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@20h12m34s079ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

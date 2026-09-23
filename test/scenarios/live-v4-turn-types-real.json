@@ -1,0 +1,90 @@
+{
+  "_note": "v2.3 V4 / L6, the real-generation half (real model, sandbox group 1759606632088, members replying in natural order). V4 was proven on ST's event bus only; this drives the same turn types through real generation: (1) a GROUP ROUND in which the player addresses two members by name, so natural-order activation drafts both in one round, must commit one boundary PER reply (V4 replaced a single pending boundary with a queue); (2) a streaming `/continue` of the last reply (same message id, type `continue`) commits exactly one more boundary (asserted on the rendered event type and id, not on growth: a real model may legitimately continue with nothing, which ST still renders as a continue, and growth is reported); (3) a non-streaming `/continue` (type `appendFinal`) commits exactly one more. Streaming is switched off in memory for step 3 only and put back in the same step; the run header diff after the batch proves nothing stayed changed.",
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v4-turn-types-real",
+        "title": "SO-V4 Turn Types Real",
+        "version": 1,
+        "description": "Throwaway story: no talk control, so ST's own group activation picks the speakers.",
+        "qualities": [
+          {
+            "key": "gate_seen",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Did anyone say the word zephyrine aloud?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "The camp",
+            "objective": "Talk.",
+            "type": "anchor",
+            "start": true
+          },
+          {
+            "id": "after",
+            "name": "After",
+            "objective": "Keep talking.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "id": "seen",
+            "from": "start",
+            "to": "after",
+            "priority": 1,
+            "gate": {
+              "q": "gate_seen",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": []
+      }
+    },
+    {
+      "ui": {
+        "action": "select-profile"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ enabled: true, cadence: 50 }); const ctx = SillyTavern.getContext(); globalThis.__v4real = { boundary: rt.getEngineState().boundary, length: ctx.chat.length }; return globalThis.__v4real;",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "Luke, Arin — both of you, one at a time: what did you see on the ridge last night?",
+        "expectReply": true,
+        "timeoutMs": 300000
+      },
+      "attempts": 2,
+      "retryBack": 0
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "await new Promise((resolve) => setTimeout(resolve, 3000)); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const since = ctx.chat.slice(globalThis.__v4real.length); const replies = since.filter((message) => !message.is_user && !message.is_system); const boundaries = rt.getEngineState().boundary - globalThis.__v4real.boundary; const result = { replies: replies.map((message) => message.name), boundaries }; if (replies.length < 2) throw new Error(`the group round drafted ${replies.length} member(s), so the round half is not exercised: ${JSON.stringify(result)}`); if (boundaries !== replies.length) throw new Error(`a group round of ${replies.length} replies committed ${boundaries} boundaries: ${JSON.stringify(result)}`); globalThis.__v4real.afterRound = { boundary: rt.getEngineState().boundary, lastId: ctx.chat.length - 1, text: ctx.chat.at(-1).mes }; return result;",
+      "log": true,
+      "attempts": 2,
+      "retryBack": 3
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const settings = ctx.textCompletionSettings; if (!settings || settings.streaming !== true) throw new Error(`expected streaming on for the streaming continue: ${JSON.stringify(settings?.streaming)}`); const rt = globalThis.storyOrchestratorRuntime; const before = globalThis.__v4real.afterRound; const seen = []; const onRendered = (id, type) => seen.push({ id, type }); ctx.eventSource.on(ctx.eventTypes.CHARACTER_MESSAGE_RENDERED, onRendered); try { await ctx.executeSlashCommandsWithOptions('/continue await=true'); const end = Date.now() + 300000; while (Date.now() < end && !seen.length) await new Promise((resolve) => setTimeout(resolve, 500)); await new Promise((resolve) => setTimeout(resolve, 3000)); } finally { ctx.eventSource.removeListener(ctx.eventTypes.CHARACTER_MESSAGE_RENDERED, onRendered); } const result = { seen, lastId: ctx.chat.length - 1, grew: ctx.chat.at(-1).mes.length - before.text.length, boundaries: rt.getEngineState().boundary - before.boundary }; if (result.lastId !== before.lastId) throw new Error(`the continue posted a new message instead of extending the last: ${JSON.stringify(result)}`); if (!seen.some((event) => event.type === 'continue' && event.id === before.lastId)) throw new Error(`the streaming continue did not render as continue on message ${before.lastId}: ${JSON.stringify(result)}`); if (result.boundaries !== 1) throw new Error(`a streaming continue committed ${result.boundaries} boundaries, expected exactly 1: ${JSON.stringify(result)}`); globalThis.__v4real.afterContinue = { boundary: rt.getEngineState().boundary, text: ctx.chat.at(-1).mes }; return result;",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const settings = ctx.textCompletionSettings; if (!settings || settings.streaming !== true) throw new Error(`expected streaming on before switching it off: ${JSON.stringify(settings?.streaming)}`); const rt = globalThis.storyOrchestratorRuntime; const before = globalThis.__v4real.afterContinue; const seen = []; const onRendered = (id, type) => seen.push(type); ctx.eventSource.on(ctx.eventTypes.CHARACTER_MESSAGE_RENDERED, onRendered); settings.streaming = false; try { await ctx.executeSlashCommandsWithOptions('/continue await=true'); const end = Date.now() + 300000; while (Date.now() < end && !seen.length) await new Promise((resolve) => setTimeout(resolve, 500)); await new Promise((resolve) => setTimeout(resolve, 3000)); } finally { settings.streaming = true; ctx.eventSource.removeListener(ctx.eventTypes.CHARACTER_MESSAGE_RENDERED, onRendered); } const result = { types: seen, grew: ctx.chat.at(-1).mes.length - before.text.length, boundaries: rt.getEngineState().boundary - before.boundary, streamingRestored: settings.streaming }; if (!seen.includes('appendFinal')) throw new Error(`the non-streaming continue did not render as appendFinal: ${JSON.stringify(result)}`); if (result.boundaries !== 1) throw new Error(`an appendFinal continue committed ${result.boundaries} boundaries, expected exactly 1: ${JSON.stringify(result)}`); return result;",
+      "log": true
+    }
+  ]
+}

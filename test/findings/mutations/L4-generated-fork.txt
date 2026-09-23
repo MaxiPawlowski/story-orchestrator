@@ -1,0 +1,11 @@
+L4 mutations 2026-09-23 (script: test/journeys/records/v2.3-replan/L4/l4-mut.py; each mutant applied alone, jest scope named per row)
+- planner ignores the entry transition's pins (src/generation): KILLED (fork.review "a value the entry transition pins is not demanded of the chain")
+- code check does not seed satisfied snapshot keys (src/generation): KILLED (same case + "an outcome that steers by gate")
+- a != leaf counts as a pin (src/generation): KILLED ("only a pinning leaf counts as a gate pin")
+- an outcome's gate pins are ignored on its route (src/generation): KILLED ("an outcome that steers by gate holds its pinned value on that route")
+- revalidation ignores the entry transition's pins (src/generation): KILLED ("revalidation before entry assumes what the entry transition pins, merged or not")
+- duplicate outcome gates are not flagged (src/generation): KILLED ("an outcome gated exactly like an earlier one of its beat can never fire")
+- engine.replaceGraph drops the pending writes (src/engine + runtimeManager.test): KILLED (replaceGraph "keeps the write the boundary is about to commit" + RuntimeManager "keeps the extraction delta the next boundary was going to commit")
+- engine.replaceGraph drops the history (src/engine + runtimeManager.test): KILLED (replaceGraph "keeps the history a later edit rolls back through")
+- manager swaps the graph by reload + hydrate, the pre-fix path (runtimeManager.test): KILLED (RuntimeManager "keeps the extraction delta ...")
+9/9 killed. Live: the pre-fix build is itself the live negative — diag-queue-dropped-at-boundary.log shows setQuality answering ok, boundary 0 -> 1, queue {applied:[],discarded:[]}, blackboard {} (the write vanished).

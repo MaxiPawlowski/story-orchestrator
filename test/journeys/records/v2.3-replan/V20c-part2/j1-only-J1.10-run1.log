@@ -1,0 +1,45 @@
+
+=== J1 first-contact ===
+A new user with a cleared install: install state → import the example → configure → first real transition fires.
+
+extraction before this run: {"enabled":true,"cadence":1,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"}
+Global config snapshot: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\so-journey-config-snapshot.json
+extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+--- J1.10 the wizard entry point is reachable by a real pointer, not only by a scripted click: both controls are hit-tested AND clicked with real pointer input at their centre, and each opens what it names
+J1.10 1/8 ui ok 3474ms
+J1.10 2/8 ui ok 6ms
+J1.10 3/8 ui ok 5ms
+J1.10 4/8 ui ok 62ms
+J1.10 5/8 ui ok 37ms
+J1.10 6/8 ui ok 1891ms
+J1.10 7/8 ui ok 68ms
+J1.10 8/8 ui ok 34ms
+Restored global config from C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions"],"saved":{"status":200},"preservedStories":[],"preservedSessions":[]}
+
+SKIP         J1.1     with nothing installed, the drawer says what to do next — not selected by --only
+SKIP         J1.2     a brand-new chat has extraction enabled by default — not selected by --only
+SKIP         J1.3     the memory profile is an install-level setting, so it is not stored per chat — not selected by --only
+SKIP         J1.4     there is a first-run path that walks an empty install to playable — not selected by --only
+PASS         J1.10    the wizard entry point is reachable by a real pointer, not only by a scripted click: both controls are hit-tested AND clicked with real pointer input at their centre, and each opens what it names — reported pass as expected
+SKIP         J1.5     importing the shipped example story from the settings panel makes it playable — not selected by --only
+SKIP         J1.6     after configuring the memory model in the settings panel, the first real transition fires — not selected by --only
+SKIP         J1.7     the transition is announced to the player in chat — not selected by --only
+SKIP         J1.8      — not selected by --only
+SKIP         J1.9      — not selected by --only
+
+J1
+automated: 1 pass, 0 fail, 0 blocked, 0 not-runnable, 7 skipped
+human:     0 scored, 2 unscored
+cleanup:   clean
+first try: 1 of 1 passing check(s) needed no retry
+PARTIAL: --only ran a subset; this record cannot stand for a gate.
+
+--- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+[J1.8] (U6) From opening SillyTavern with the extension installed, could you tell what to do to get a story running?
+      anchors: 1 = no idea where to start · 3 = worked it out by poking around · 5 = the next step was obvious at every point
+[J1.9] (U1, U6) Once you were playing, was it clear that the story was actually running (and would advance on its own)?
+      anchors: 1 = no signal at all · 3 = guessed from the drawer · 5 = unmistakable
+[free] What would make you stop using this?
+
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T21-56-07-057Z_journey-J1.json
+Matrix: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\journey-J1.md

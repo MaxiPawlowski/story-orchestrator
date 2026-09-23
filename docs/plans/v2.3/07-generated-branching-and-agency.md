@@ -313,3 +313,30 @@ The whole mocked corpus (22 non-`live-` scenarios) ran in one batch with a run h
 - **Runs:** green on two consecutive runs, **25/25** each (`run1.log`, `run2.log`; `run0-before-step14-fix.log` shows the intermediate state).
 - **Live mutation:** with reconciliation switched off in `boundaryWork.ts`, the run stops at 11/25, parked at `gen_bridge_a_1` with no evidence (`live-mutation-reconciliation-off.log`). The restored build (bundle `1d4d28d1a8f0`) passes a third run.
 - **Mocked corpus on this tree: 21/22.** The one left is `plan08-hygiene`, which makes a real model call.
+
+
+### L4 gate (2026-09-23): R9 live, and three defects the real model found
+
+`test/scenarios/live-generated-fork-{a,b}.json` (generator: `.debug/gen-fork.py`, written into the fixtures). The REAL model writes the expansion of `generated-fork`. The run regenerates `failed`/`stale` chains the way the author's Regenerate button does, up to 3 attempts, all reported. It requires a beat with 2 or more outcomes (positive activation), then drives route 0 (a) or route 1 (b) at the first fork with author quality writes. It asserts that exactly that outcome's transition fired and that the route reaches `finish`.
+
+- **Defect 1: two false-positive classes in the code check.** Of 8 real generations, 6 failed `does not bridge`. The failures were false:
+  - The entry transition's gate (`key_found == true`) pins that value on entry, but the planner, the code check and revalidation all started from the bare blackboard.
+  - An outcome's own `==` gate pins its value on its route. The real model steers by gate rather than by delta.
+  - Fix: `paths.ts` `gatePins` (only `==` and one-value `in` leaves, recursing `all`) plus `applyOutcome`. The planner seeds entry pins, and the code check seeds snapshot keys the plan did not list. The prompt now states the route rules R9 enforces, which it never did.
+- **Defect 2: a graph swap dropped pending writes and the boundary history.** This is a real product bug, found when the first real-chain walk could not leave `start`.
+  - `setQuality` answered ok and the boundary advanced, but the queue was `{applied:[], discarded:[]}` and the blackboard stayed `{}` (`diag-queue-dropped-at-boundary.log`).
+  - Cause: `commitBoundary` revalidates before draining. Revalidation staled the chain, and `replaceStory` reloaded the engine (`loadStory` builds a new `ApplyQueue`) and hydrated **without history**.
+  - Any merge landing between an extraction read and its boundary lost that read's accepted deltas the same way. Every expansion merge also erased the rollback history.
+  - Fix: `engine.replaceGraph` keeps the queue and the history, and the manager's `replaceStory` calls it. Revalidation also takes the entry pins, so the chain is no longer staled before it can be entered.
+- **Defect 3: a fork on paper, one route in play.** Route 1 failed twice: the real model gave beat 0 two outcomes with the **same** gate (`approach == unknown`). The engine fires the first match, so outcome 1 can never fire.
+  - Fix: the code check flags `beat N outcome 'X' can never fire: its gate is the same as 'Y'` (a canonical gate key, order-insensitive under `all`/`any`). A flagged chain gets the repair pass and then `failed`, so it is regenerated.
+  - The prompt now says gates must tell outcomes apart. Live, `final-fork-a-2.log` shows the check firing on a real chain (attempt 1 `failed` with that issue); the regeneration then passed.
+- **Runs on the final build** (bundle `bcf2bb2726a6`):
+  - fork-b green on two consecutive runs (`final-fork-b-{1,2}.log`).
+  - fork-a: run 1 **failed positive activation**. The model wrote a linear chain (1 and 1 outcomes), so there was no fork to walk; that is model variance, not a product failure, and the scenario says so. Runs 2 and 3 are green (`final-fork-a-{2,3}.log`), so fork-a has two consecutive greens after that miss, not two out of two.
+  - The replaceGraph build before defect 3 (bundle `74a660ee274f`): fork-a green ×2, fork-b failed ×2 on defect 3 (`replaceGraph-fork-*.log`).
+- **Every merged chain was `needs_review`, never `validated`.** Every run's critic flagged the guidance for narrating the player's act ("The player explores the area…"). Such chains are merged and played, as designed (there is no author accept path). The prompt/critic mismatch on agency wording is a real quality gap, and is owed to v2.4, not fixed here.
+- **Tests:** `src/engine/replaceGraph.test.ts` (3 cases, control = the old reload+hydrate path loses both). A RuntimeManager case covers the extraction delta surviving a merge made between boundaries. fork.review gained 8 L4 cases. jest **2675**.
+- **Mutations:** 9/9 killed (`test/findings/mutations/L4-generated-fork.txt`, script `records/v2.3-replan/L4/l4-mut.py`). The pre-fix build is itself the live negative for defect 2.
+- **Run header:** the diff around the batch shows only the 7 build/bundle fields of the deliberate rebuild (`records/v2.3-replan/L4/header-diff.txt`).
+- **Still owed:** the refusal fixture is V13's live gate, already recorded above. The J11.25 variant sweep stays with L7.

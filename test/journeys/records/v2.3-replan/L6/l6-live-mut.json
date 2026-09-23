@@ -1,0 +1,7 @@
+{
+  "file": "src/runtime/turnBridge.ts",
+  "old": "new Set([\"first_message\", \"extension\"]);",
+  "new": "new Set([\"first_message\", \"extension\", \"continue\", \"appendFinal\"]);",
+  "scenario": "test/scenarios/live-v4-turn-types-real.json",
+  "log": "test/journeys/records/v2.3-replan/L6/live-mutation-continue-not-a-turn.log"
+}

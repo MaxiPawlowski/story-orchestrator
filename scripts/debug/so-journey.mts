@@ -18,7 +18,7 @@ import { readSessionJournal } from './so-journal.mts';
 import { removeMarkedAssets, snapshotAssets } from './so-assets.mts';
 import { wipeChatMeta } from './so-library.mts';
 import { saveSettingsNow } from './lib/settingsSave.mts';
-import { archiveJourneyRecord } from './lib/journeyArchive.mts';
+import { archiveJourneyRecord, unselectedDependencies } from './lib/journeyArchive.mts';
 import { BLOCKING_DIALOGS, mergeRestore, removableStories, shouldRecoverConfig, validateJourneyExtraction, type DeclaredExtraction, type LibraryCapture } from './lib/configRestore.mts';
 
 const JOURNEY_DIR = resolve(PROJECT_ROOT, 'test/journeys');
@@ -494,6 +494,12 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
         const summary = summarize(check);
         if (only && !only.includes(check.id)) { results.push({ ...summary, outcome: 'skipped', detail: 'not selected by --only' }); continue; }
         if (check.mode === 'human') { results.push({ ...summary, outcome: 'skipped', detail: 'human check — operator scores it' }); continue; }
+        const unmet = unselectedDependencies(check, only);
+        if (unmet.length) {
+          record(summary, 'blocked', `depends on ${unmet.join(', ')} (state it leaves), which --only did not select`);
+          console.log(`${check.id} BLOCKED (depends on ${unmet.join(', ')})`);
+          continue;
+        }
         const missing = [];
         for (const id of check.requires ?? []) if (!(await capabilities.has(id))) missing.push(id);
         if (missing.length) {

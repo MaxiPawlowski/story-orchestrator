@@ -1,0 +1,17 @@
+DIFF build.manifest.builtAt  "2026-09-23T23:07:26.097Z" -> "2026-09-23T23:13:49.561Z"
+DIFF build.manifest.fileSha256  "8cda7e14f1fcafeb" -> "790e66aae1001903"
+{
+  "baseline": ".debug/run-header-l6-before.json",
+  "label": "diff-end",
+  "allow": [],
+  "differences": 2,
+  "progress": 0,
+  "blocking": 2,
+  "blockingPaths": [
+    "build.manifest.builtAt",
+    "build.manifest.fileSha256"
+  ],
+  "warnings": [],
+  "wrote": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\.debug\\run-header-diff-end.json",
+  "ok": false
+}

@@ -146,9 +146,10 @@ describe("background generation", () => {
   it("R9: a chain with one bridging route and one that stalls is partial, and names the route", () => {
     const entry = cacheEntry();
     const [first, second] = entry.beats;
-    // A second beat whose outcome never sets `key_found`: the route through it cannot reach the
-    // anchor's snapshot, while the original route still can.
-    entry.beats = [first, { ...second, outcomes: [second.outcomes[0], { ...second.outcomes[0], id: "1:1", label: "Stalls", deltas: [] }] }];
+    // A second outcome that neither writes `approach` nor gates on it: the route through it can enter the
+    // anchor with approach still unknown, while the original route cannot. (It used to copy the original
+    // outcome's `approach == safe` gate, which PINS the value on that route — L4 made gates count.)
+    entry.beats = [first, { ...second, outcomes: [second.outcomes[0], { ...second.outcomes[0], id: "1:1", label: "Stalls", gate: { q: "key_found", op: "==", v: true }, deltas: [] }] }];
     const mixed = revalidateExpansion(story, entry, { key_found: false, approach: "unknown" });
     expect(mixed.status).toBe("partial");
     expect(mixed.issues.some((issue) => issue.startsWith("route "))).toBe(true);

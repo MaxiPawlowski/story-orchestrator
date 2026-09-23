@@ -1,6 +1,7 @@
 import { getGenerationBias, getTensionTrajectory } from "@pacing/index";
 import type { NormalizedStoryV2, PrimitiveValue } from "@engine/index";
 import { computeStateDelta } from "./delta";
+import { gatePins } from "./paths";
 import type { PlannedExpansionInput, StubExpansionCandidate } from "./types";
 
 const tensionToNumeric: Record<string, number> = { calm: 0, stirring: 0.25, tense: 0.5, critical: 0.75, peak: 1 };
@@ -40,7 +41,10 @@ export function planExpansion(
   facts: string[],
 ): PlannedExpansionInput {
   const target = story.checkpointById[candidate.targetAnchorId];
-  const deltas = computeStateDelta({ values: blackboard.values, versions: {}, latched: {} }, target.state_snapshot, story);
+  // L4 (2026-09-23): a chain is entered only through the transition into its stub, so what that gate pins
+  // holds on entry. Planning from the blackboard alone asked the model to re-set it, and the code check
+  // then failed chains that did not (`key_found does not bridge`, four of six real generations).
+  const deltas = computeStateDelta({ values: { ...blackboard.values, ...gatePins(candidate.transition.gate) }, versions: {}, latched: {} }, target.state_snapshot, story);
   const latched: Record<string, PrimitiveValue> = {};
   Object.keys(blackboard.latched ?? {}).forEach((key) => {
     if (blackboard.latched?.[key] && blackboard.values[key] !== undefined) latched[key] = blackboard.values[key];

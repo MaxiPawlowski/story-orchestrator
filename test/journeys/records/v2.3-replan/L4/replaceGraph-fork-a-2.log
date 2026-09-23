@@ -1,0 +1,65 @@
+1/6 import_story ok 358ms
+2/6 ui ok 3189ms
+3/6 eval ok 6ms
+4/6 expand ok 47204ms
+5/6 eval ok 7ms
+5/6 eval -> {"status":"needs_review","tries":[{"attempt":1,"status":"needs_review","outcomes":[2,2],"codeCheck":[],"verdicts":"[{\"pass\":false,\"issues\":[\"Beat 0 guidance narrates the player acting ('The player explores the area to locate a path forward') instead of setting up the situation.\",\"Beat 1 guidance narrates the player acting ('The player must ensure the path is clear', 'they must be dealt with or avoided') instead "}],"forks":[{"index":0,"outcomes":2},{"index":1,"outcomes":2}],"beats":[{"objective":"Find a route toward the vault.","outcomes":[{"label":"discover safe passage","gate":{"q":"approach","op":"==","v":"unknown"},"progress":{"anchor":"finish","amount":1}},{"label":"encounter guard","gate":{"q":"approach","op":"==","v":"unknown"},"progress":{"anchor":"finish","amount":1}}]},{"objective":"Secure the route to the vault.","outcomes":[{"label":"proceed safely","gate":{"q":"approach","op":"==","v":"safe"},"progress":null},{"label":"neutralize guard","gate":{"all":[{"q":"approach","op":"==","v":"blocked"},{"q":"guard_aware","op":"==","v":true}]},"progress":null}]}]}
+6/6 eval ok 1067ms
+6/6 eval -> {"route":0,"path":[{"from":"start","to":"gen_fork_stub_1","firedPriority":1.001,"atFork":false,"wantedPriority":1.001},{"from":"gen_fork_stub_1","to":"gen_fork_stub_2","firedPriority":2,"atFork":true,"wantedPriority":2},{"from":"gen_fork_stub_2","to":"finish","firedPriority":2,"atFork":false,"wantedPriority":2}]}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T22-55-03-355Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 6,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-cd407f83"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@19h54m08s363ms",
+    "owned": [
+      "2026-09-23@19h54m08s363ms"
+    ],
+    "deleted": [
+      "2026-09-23@19h54m08s363ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@19h54m08s363ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

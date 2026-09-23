@@ -1,0 +1,71 @@
+1/10 import_story ok 368ms
+2/10 ui ok 4070ms
+3/10 eval ok 39ms
+3/10 eval -> {"boundary":0,"length":1}
+4/10 send_generate ok 32428ms
+5/10 wait ok 1541ms
+6/10 eval ok 3011ms
+6/10 eval -> {"replies":["Luke","Arin","DM Narrator"],"boundaries":3}
+7/10 slash ok 7763ms
+8/10 wait ok 1523ms
+9/10 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the continue added no text: {"lastId":4,"grew":0,"boundaries":1}
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:554)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T23-09-33-129Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T23-09-36-021Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 9,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-4393066a"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@20h08m40s058ms",
+    "owned": [
+      "2026-09-23@20h08m40s058ms"
+    ],
+    "deleted": [
+      "2026-09-23@20h08m40s058ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@20h08m40s058ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}
