@@ -27,7 +27,7 @@ import { beginRun, type RunContext, type RunOwnership } from "./runToken";
 import { RunOwner } from "./runOwner";
 import { runRollback, type RollbackDeps } from "./rollback";
 import { memoryActions, memoryDelegates } from "./memoryActions";
-import { agencyRecovery } from "./agencyRecovery";
+import { agencyRecovery, playerTurnIds } from "./agencyRecovery";
 import { readEffectTarget, reconcileEffectLedger, restoreEffectTarget } from "./effectHost";
 import { recordSaveEvidence, saveEvidenceDeps } from "./saveEvidenceHost";
 import { hasUnsavedChanges, saveWasLost } from "./saveHealth";
@@ -102,7 +102,7 @@ export class RuntimeManager {
     replaceStory: (story) => this.replaceStory(story),
     judge: () => this.judge,
     getSceneRead: () => this.extras.judge.scene,
-    refusing: () => agencyRecovery(this.loaded?.story ?? null, this.loaded ? this.engine.serialize() : null, this.loaded ? this.engine.stateLog : [], this.extras.extraction.audits) !== null,
+    refusing: () => agencyRecovery(this.loaded?.story ?? null, this.loaded ? this.engine.serialize() : null, this.loaded ? this.engine.stateLog : [], this.extras.extraction.audits, playerTurnIds(getContext().chat ?? [])) !== null,
     setStatus: (status) => { this.status = status; },
     persist: () => this.persist(),
     notify: () => this.notify(),
@@ -510,6 +510,7 @@ export class RuntimeManager {
     // A live in-memory read of ST's own extension prompts: cheap, and the only honest answer to
     // "what will the next reply carry" (a capture answers what the LAST one carried).
     injectedBlocks: readInjectedPromptBlocks(),
+    playerTurns: playerTurnIds(getContext().chat ?? []),
     });
   }
 

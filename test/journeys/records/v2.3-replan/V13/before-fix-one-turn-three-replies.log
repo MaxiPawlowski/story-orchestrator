@@ -1,0 +1,51 @@
+1/18 import_story ok 352ms
+2/18 ui ok 3128ms
+3/18 eval ok 9ms
+3/18 eval -> {"active":"challenge","agencyRecovery":null}
+4/18 send_generate ok 37944ms
+5/18 wait ok 29982ms
+6/18 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the card appeared after ONE player turn; the signal needs two: {"boundary":3,"chat":["0:Arin","1:USER","2:Ponticius","3:DM Narrator","4:Arin"],"audits":[{"window":{"from":2,"to":2},"accepted":["duel_accepted=false","tension_current=0.5"]},{"window":{"from":3,"to":4},"accepted":["tension_current=0.5"]}]}
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:505)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:805)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T11-39-09-301Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T11-39-09-642Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 6,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-3af77fd0"
+    ],
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@08h37m57s578ms",
+    "owned": [
+      "2026-09-23@08h37m57s578ms"
+    ],
+    "deleted": [
+      "2026-09-23@08h37m57s578ms"
+    ],
+    "notDeleted": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@08h37m57s578ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-21@15h49m05s268ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

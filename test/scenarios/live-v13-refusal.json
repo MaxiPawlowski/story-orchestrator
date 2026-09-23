@@ -1,0 +1,197 @@
+{
+  "name": "live-v13-refusal",
+  "objective": "v2.3 replan V13 (and plan 07's missing refusal fixture, L4), with the real model reading every turn: the prepared route asks the player to accept a duel, the player refuses twice and negotiates. The refused-route card must appear only after real reads covered both turns and moved no exit; it must state only what the code knows, offer the authored alternate, and offer no 'Generate the road ahead' on an authored exit. Control: a turn that accepts the duel moves the exit, the story transitions, and the card is gone.",
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v13-refusal",
+        "version": 1,
+        "title": "SO-V13 Refusal",
+        "description": "A knight demands a duel; the only prepared exit is accepting it.",
+        "qualities": [
+          {
+            "key": "duel_accepted",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the player clearly agreed to fight Ser Kael in a duel? true only if they accept the challenge; false if they refuse or avoid it."
+          },
+          {
+            "key": "mood",
+            "type": "enum",
+            "values": [
+              "calm",
+              "tense",
+              "hostile"
+            ],
+            "source": "extractor",
+            "rubric": "The mood between the player and Ser Kael right now."
+          }
+        ],
+        "roster": [],
+        "checkpoints": [
+          {
+            "id": "challenge",
+            "name": "The Challenge",
+            "objective": "Ser Kael has thrown down his gauntlet and demands a duel in the square.",
+            "type": "anchor",
+            "start": true,
+            "agency": {
+              "alternate": "parley"
+            }
+          },
+          {
+            "id": "duel",
+            "name": "The Duel",
+            "objective": "The duel with Ser Kael is fought.",
+            "type": "anchor"
+          },
+          {
+            "id": "parley",
+            "name": "The Parley",
+            "objective": "Words instead of steel.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "challenge",
+            "to": "duel",
+            "priority": 1,
+            "gate": {
+              "q": "duel_accepted",
+              "op": "==",
+              "v": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "ui": {
+        "action": "select-profile"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 1, stabilityLag: 0 }); rt.setUiSettings({ authorView: true }); delete globalThis.storyOrchestratorDebugExtractionResponse; return { active: rt.getSnapshot().activeCheckpointId, agencyRecovery: rt.getSnapshot().agencyRecovery };",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "Ser Kael throws his gauntlet at my feet and demands a duel. I leave it lying there. \"No. I will not fight you, Kael. Tell me what you actually want.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const snapshot = rt.getSnapshot(); const chat = SillyTavern.getContext().chat.map((message, index) => `${index}:${message.is_user ? 'USER' : message.name}`); const detail = JSON.stringify({ boundary: snapshot.boundary, chat, audits: snapshot.extraction.audits.map((audit) => ({ window: audit.window, accepted: audit.acceptedDeltas.map((entry) => `${entry.delta.q}=${String(entry.delta.v)}`) })) }); if (snapshot.agencyRecovery) throw new Error(`the card appeared after ONE player turn; the signal needs two: ${detail}`); return { boundary: snapshot.boundary, audits: snapshot.extraction.audits.map((audit) => ({ window: audit.window, accepted: audit.acceptedDeltas.map((entry) => `${entry.delta.q}=${String(entry.delta.v)}`) })) };",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I keep my hands away from my sword. \"I still refuse. I did not come here to bleed for your pride. Sit with me and talk, or walk away.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const snapshot = rt.getSnapshot(); const log = rt.getEngineState ? rt.getEngineState() : null; const audits = snapshot.extraction.audits.map((audit) => ({ window: audit.window, accepted: audit.acceptedDeltas.map((entry) => `${entry.delta.q}=${String(entry.delta.v)}`) })); if (snapshot.activeCheckpointId !== 'challenge') throw new Error(`the story left the challenge on two refusals: ${snapshot.activeCheckpointId} (reads: ${JSON.stringify(audits)})`); if (!snapshot.agencyRecovery) throw new Error(`two real refusals were read and no card appeared: ${JSON.stringify(audits)}`); if (snapshot.agencyRecovery.canGenerate) throw new Error('an authored exit offers to generate the road ahead'); if (snapshot.agencyRecovery.alternate !== 'parley') throw new Error(`the authored alternate is not offered: ${JSON.stringify(snapshot.agencyRecovery)}`); return { agencyRecovery: snapshot.agencyRecovery, agencyNotice: snapshot.agencyNotice, audits, lastMessageId: log?.lastMessageId ?? null };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "ui": {
+        "action": "drawer-tab",
+        "label": "Scheduler"
+      }
+    },
+    {
+      "expect_ui": {
+        "selector": "[data-so=\"agency-recovery\"]",
+        "contains": [
+          "were read, and nothing in them moved an exit of The Challenge",
+          "Take The Parley"
+        ],
+        "notContains": [
+          "narrated on their behalf",
+          "Generate the road ahead"
+        ]
+      }
+    },
+    {
+      "ui": {
+        "action": "hit-test",
+        "selector": "[data-so=\"agency-take-alternate\"]"
+      }
+    },
+    {
+      "send_generate": {
+        "text": "Kael's jaw tightens and I finally nod. \"Fine. I accept your challenge. Draw your blade, and we duel here and now.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I raise my sword and step into the circle to face him.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const snapshot = rt.getSnapshot(); const audits = snapshot.extraction.audits.map((audit) => ({ window: audit.window, accepted: audit.acceptedDeltas.map((entry) => `${entry.delta.q}=${String(entry.delta.v)}`) })); const accepted = audits.some((audit) => audit.accepted.includes('duel_accepted=true')); if (!accepted) throw new Error(`the model never read the acceptance: ${JSON.stringify(audits)}`); if (snapshot.agencyRecovery) throw new Error(`a read moved the exit and the card is still up: ${JSON.stringify(snapshot.agencyRecovery)}`); return { active: snapshot.activeCheckpointId, pending: snapshot.pendingDeltas, audits };",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "Steel rings as our blades meet.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "checkpointIn": [
+          "duel"
+        ],
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const snapshot = rt.getSnapshot(); if (snapshot.agencyRecovery) throw new Error(`the card outlived the accepted duel: ${JSON.stringify(snapshot.agencyRecovery)}`); return { active: snapshot.activeCheckpointId, agencyRecovery: null };",
+      "log": true
+    }
+  ]
+}

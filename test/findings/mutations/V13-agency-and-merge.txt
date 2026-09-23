@@ -1,15 +1,17 @@
 M1 two unread quiet boundaries are a refusal again
   × two quiet boundaries nobody has read are unknown, not a refusal (2 ms)
   ● V13: a refusal is a read that classified nothing against an exit › two quiet boundaries nobody has read are unknown, not a refusal
-Tests:       1 failed, 8 passed, 9 total
+Tests:       1 failed, 14 passed, 15 total
 M2 a read that moved an exit is still a refusal
+  × a numeric step toward an exit's threshold is progress, even far below it (1 ms)
   × a read that moved an exit's quality is progress, even when the gate is still shut (2 ms)
-  ● V13: a refusal is a read that classified nothing against an exit › a read that moved an exit's quality is progress, even when the gate is still shut
-Tests:       1 failed, 8 passed, 9 total
+  × the streak restarts after the last read that moved an exit (3 ms)
+  ● V13: a refusal is a read that classified nothing against an exit › a numeric step toward an exit's threshold is progress, even far below it
+Tests:       3 failed, 12 passed, 15 total
 M3 generate is offered on every checkpoint
-  × offers to generate the road ahead only where there is a stub to expand (1 ms)
+  × offers to generate the road ahead only where there is a stub to expand (2 ms)
   ● V13: a refusal is a read that classified nothing against an exit › offers to generate the road ahead only where there is a stub to expand
-Tests:       1 failed, 8 passed, 9 total
+Tests:       1 failed, 14 passed, 15 total
 M4 the vacuous progress >= 0 leaf is back
   × holds for every route of every chain, over 400 seeded chains (12 ms)
   × holds when an outcome declares no progress at all: the zero route enters on its outcome gate (2 ms)
@@ -25,8 +27,8 @@ M6 commitValidated fires its persist unobserved
   ● V13: the boundary promotes a validated chain › promotes only validated entries, rebuilds the merged story, and awaits the persist
 Tests:       1 failed, 7 passed, 8 total
 M7 commitValidated promotes every entry
-  × control: with nothing validated it changes nothing and writes nothing (10 ms)
-  × promotes only validated entries, rebuilds the merged story, and awaits the persist (7 ms)
+  × control: with nothing validated it changes nothing and writes nothing (15 ms)
+  × promotes only validated entries, rebuilds the merged story, and awaits the persist (14 ms)
   ● V13: the boundary promotes a validated chain › control: with nothing validated it changes nothing and writes nothing
   ● V13: the boundary promotes a validated chain › promotes only validated entries, rebuilds the merged story, and awaits the persist
 Tests:       2 failed, 6 passed, 8 total
@@ -36,3 +38,21 @@ M8 the generate button shows on an authored exit
 M9 the card claims what the code cannot know
   ● Drawer/DrawerTabs › RefusedRouteOnAnAuthoredExit › play-test
 [TEST] Tests:       1 failed, 184 passed, 185 total
+M10 any value on an exit quality counts as moving it
+  × a read that set the exit's quality to a value no exit accepts is a refusal: it classified the action and moved nothing (1 ms)
+  ● V13: a refusal is a read that classified nothing against an exit › a read that set the exit's quality to a value no exit accepts is a refusal: it classified the action and moved nothing
+Tests:       1 failed, 14 passed, 15 total
+M11 a numeric step below the threshold counts as a refusal
+  × a numeric step toward an exit's threshold is progress, even far below it (2 ms)
+  ● V13: a refusal is a read that classified nothing against an exit › a numeric step toward an exit's threshold is progress, even far below it
+Tests:       1 failed, 14 passed, 15 total
+M12 one player line answered by three members counts as three turns
+  × control: a second line refused and read makes it two turns (3 ms)
+  × one player line answered by three members is one turn, not a refusal (2 ms)
+  ● V13: a refusal is counted in player turns, not replies › control: a second line refused and read makes it two turns
+  ● V13: a refusal is counted in player turns, not replies › one player line answered by three members is one turn, not a refusal
+Tests:       2 failed, 13 passed, 15 total
+M14 a system note counts as a player turn
+  × reads the player's lines out of the chat, never a system note (3 ms)
+  ● V13: a refusal is counted in player turns, not replies › reads the player's lines out of the chat, never a system note
+Tests:       1 failed, 14 passed, 15 total

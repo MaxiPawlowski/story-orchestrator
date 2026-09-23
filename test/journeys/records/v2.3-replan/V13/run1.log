@@ -1,0 +1,64 @@
+1/21 import_story ok 417ms
+2/21 ui ok 3949ms
+3/21 eval ok 24ms
+3/21 eval -> {"active":"challenge","agencyRecovery":null}
+4/21 send_generate ok 15203ms
+5/21 wait ok 14826ms
+6/21 eval ok 4ms
+6/21 eval -> {"boundary":1,"audits":[{"window":{"from":2,"to":2},"accepted":[]}]}
+7/21 send_generate ok 35701ms
+8/21 wait ok 18652ms
+9/21 eval ok 6ms
+9/21 eval -> {"agencyRecovery":{"checkpointId":"challenge","checkpointName":"The Challenge","turns":2,"alternate":"parley","alternateName":"The Parley","canGenerate":false},"audits":[{"window":{"from":2,"to":2},"accepted":[]},{"window":{"from":4,"to":4},"accepted":["tension_current=0.5"]},{"window":{"from":5,"to":6},"accepted":["duel_accepted=false"]}],"lastMessageId":6}
+10/21 ui ok 1637ms
+11/21 ui ok 2020ms
+12/21 expect_ui ok 5ms
+13/21 ui ok 6ms
+14/21 send_generate ok 15287ms
+15/21 wait ok 13690ms
+16/21 send_generate ok 25608ms
+17/21 wait ok 39345ms
+18/21 eval ok 7ms
+18/21 eval -> {"active":"challenge","pending":[{"quality":"duel_accepted","value":true,"source":"extractor"},{"quality":"tension_current","value":0.575,"source":"extractor"}],"audits":[{"window":{"from":2,"to":2},"accepted":[]},{"window":{"from":4,"to":4},"accepted":["tension_current=0.5"]},{"window":{"from":5,"to":6},"accepted":["duel_accepted=false"]},{"window":{"from":8,"to":8},"accepted":[]},{"window":{"from":10,"to":10},"accepted":[]},{"window":{"from":0,"to":10},"accepted":["duel_accepted=true","tension_current=0.575"]}]}
+19/21 send_generate ok 38242ms
+20/21 wait ok 65ms
+21/21 eval ok 6ms
+21/21 eval -> {"active":"duel","agencyRecovery":null}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T11-57-28-601Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 21,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-3af77fd0"
+    ],
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@08h53m43s183ms",
+    "owned": [
+      "2026-09-23@08h53m43s183ms"
+    ],
+    "deleted": [
+      "2026-09-23@08h53m43s183ms"
+    ],
+    "notDeleted": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@08h53m43s183ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-21@15h49m05s268ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

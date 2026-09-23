@@ -738,7 +738,7 @@ export const FlagMoment: Story = {
 // — and offers "Generate the road ahead" only where the checkpoint has a stub to expand.
 const refusalSnapshot = (canGenerate: boolean): RuntimeSnapshot => ({
   ...sampleSnapshot(),
-  agencyRecovery: { checkpointId: "gate", checkpointName: "The Ruined Gate", boundaries: 2, alternate: "camp", alternateName: "Camp", canGenerate },
+  agencyRecovery: { checkpointId: "gate", checkpointName: "The Ruined Gate", turns: 2, alternate: "camp", alternateName: "Camp", canGenerate },
 });
 const refusalManager = () => ({ ...fakeManager(), runExpansionNow: fn(), activateCheckpoint: fn() }) as unknown as RuntimeManager & { runExpansionNow: ReturnType<typeof fn>; activateCheckpoint: ReturnType<typeof fn> };
 const authoredExitManager = refusalManager();
