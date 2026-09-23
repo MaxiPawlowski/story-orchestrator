@@ -1,0 +1,78 @@
+1/19 import_story ok 363ms
+2/19 ui ok 3289ms
+3/19 eval ok 211ms
+3/19 eval -> {"lorebook":true,"entry":true}
+4/19 eval ok 9ms
+4/19 eval -> {"curatorEnabled":true,"acceptMode":"auto","wardenEnabled":false,"wardenAcceptMode":"review"}
+5/19 eval ok 4ms
+5/19 eval -> {"armed":true}
+6/19 stagecraft ok 244ms
+7/19 extract ok 12351ms
+8/19 eval ok 5ms
+8/19 eval -> {"text":"The road has drained; the bare stones are walkable.","applied":1}
+9/19 eval ok 6ms
+9/19 eval -> {"armed":true}
+10/19 stagecraft ok 226ms
+11/19 extract ok 6944ms
+12/19 eval ok 5ms
+12/19 eval -> {"text":"The road is mud now, but passable if you keep to the stones.","applied":2,"done":{"text":"The road has drained; the bare stones are walkable.","applied":1}}
+13/19 send_generate ok 36333ms
+14/19 extract ok 2425ms
+15/19 wait ok 41ms
+16/19 edit ok 129ms
+17/19 wait ok 1532ms
+18/19 eval ok 5ms
+18/19 eval -> {"text":"The road to the tavern is flooded and impassable.","notice":{"checkpointName":"The washed road","at":"2026-09-23T07:25:28.236Z"},"reverted":0}
+19/19 assets ok 267ms
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T07-25-29-927Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 19,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-37ee5ccc"
+    ],
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugCuratorResponse"
+    ],
+    "sandboxChatId": "2026-09-23@04h24m24s933ms",
+    "owned": [
+      "2026-09-23@04h24m24s933ms"
+    ],
+    "deleted": [
+      "2026-09-23@04h24m24s933ms"
+    ],
+    "notDeleted": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@04h24m24s933ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@03h45m01s896ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "ok": true
+    }
+  }
+}

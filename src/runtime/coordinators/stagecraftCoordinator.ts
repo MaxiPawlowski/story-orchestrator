@@ -65,6 +65,8 @@ const readReply = (messageId: number): { speaker: string; text: string } | null 
 // Owns extras.stagecraft: the World Info curator's off-path pass, the review ring the author acts
 // on, and the boundary write. It holds no engine or memory dependency **by construction** — a
 // curator can never move the blackboard or a memory tier (spec addendum §Stagecraft).
+const RETAINED_OP_STATUSES = new Set(["applied", "revert-failed", "externally-edited"]);
+
 export class StagecraftCoordinator {
   private inFlight = false;
   private wardenInFlight = false;
@@ -331,14 +333,14 @@ export class StagecraftCoordinator {
         const current = await readWIEntry(entry.op.lorebook, entry.op.comment);
         if (current && entry.after && (current.content !== entry.after.content || current.disabled !== entry.after.disabled)) {
           ops.unshift({ ...entry, status: "externally-edited", message: `"${entry.op.comment}" changed after this write, so it was left alone` });
-          settled.add(record.id);
           continue;
         }
         const restored = await this.restoreBefore(entry);
-        if (restored) { reverted += 1; settled.add(record.id); }
+        if (restored) reverted += 1;
         else ops.unshift({ ...entry, status: "revert-failed", message: `could not restore "${entry.op.comment}"; the entry it would restore is kept for a retry` });
       }
-      updates.push({ id: record.id, ops: ops.reverse() });
+      if (!ops.some((kept) => RETAINED_OP_STATUSES.has(kept.status))) settled.add(record.id);
+      updates.push({ id: record.id, ops });
     }
     const byId = new Map(updates.map((update) => [update.id, update.ops]));
     this.patch({ proposals: this.state.proposals.filter((record) => !settled.has(record.id)).map((record) => (byId.has(record.id) ? { ...record, ops: byId.get(record.id)! } : record)) });

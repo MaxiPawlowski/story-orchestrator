@@ -263,6 +263,46 @@ control("a rollback in its own world restores every applied write", async () => 
   expect(reverted).toBe(2);
 });
 
+describe("V10: a revert that could not finish keeps what it needs to retry", () => {
+  const applied = (content: string, before: string) => ({ ...acceptedRecord("x", 10, content).ops[0], status: "applied" as const, before: { content: before, disabled: false } });
+
+  it("a record whose other op reverted keeps its revert-failed op and that op's before-image", async () => {
+    const h = harness();
+    (upsertWIEntry as jest.Mock).mockImplementation(async (_book: string, _entry: string, text: string) => (text === "Unwritable" ? "failed" : "updated"));
+    h.state.proposals = [{ ...acceptedRecord("p1", 10, "Two"), appliedAt: new Date().toISOString(), ops: [applied("One", "Unwritable"), applied("Two", "Original")] }] as never;
+    const reverted = await h.coordinator.revertAppliedSince(10);
+    expect(reverted).toBe(1);
+    const record = h.state.proposals.find((proposal) => proposal.id === "p1");
+    expect(record).toBeDefined();
+    expect(record!.ops).toHaveLength(1);
+    expect(record!.ops[0]).toMatchObject({ status: "revert-failed", before: { content: "Unwritable" } });
+  });
+
+  it("an externally edited op stays visible instead of vanishing with its record", async () => {
+    const h = harness();
+    h.state.proposals = [{ ...acceptedRecord("p1", 10, "Mine"), appliedAt: new Date().toISOString(), ops: [{ ...applied("Mine", "Original"), after: { content: "Mine", disabled: false } }] }] as never;
+    await h.coordinator.revertAppliedSince(10);
+    expect(h.state.proposals.find((proposal) => proposal.id === "p1")?.ops[0]).toMatchObject({ status: "externally-edited" });
+  });
+
+  it("kept ops keep their declared order", async () => {
+    const h = harness();
+    const lapsed = (content: string) => ({ ...acceptedRecord("x", 10, content).ops[0], status: "rejected" as const });
+    h.state.proposals = [{ ...acceptedRecord("p1", 10, "c"), appliedAt: new Date().toISOString(), ops: [lapsed("a"), lapsed("b"), applied("c", "Original"), { ...applied("d", "Unwritable") }] }] as never;
+    (upsertWIEntry as jest.Mock).mockImplementation(async (_book: string, _entry: string, text: string) => (text === "Unwritable" ? "failed" : "updated"));
+    await h.coordinator.revertAppliedSince(10);
+    const ops = h.state.proposals.find((proposal) => proposal.id === "p1")!.ops.map((entry) => (entry.op as { text: string }).text);
+    expect(ops).toEqual(["a", "b", "d"]);
+  });
+
+  it("control: a record whose every write reverted is removed", async () => {
+    const h = harness();
+    h.state.proposals = [{ ...acceptedRecord("p1", 10, "One"), appliedAt: new Date().toISOString(), ops: [applied("One", "Original")] }] as never;
+    expect(await h.coordinator.revertAppliedSince(10)).toBe(1);
+    expect(h.state.proposals.find((proposal) => proposal.id === "p1")).toBeUndefined();
+  });
+});
+
 control("a rollback that outlives its world stops restoring pre-write content", async () => {
   const h = harness();
   h.state.proposals = [
