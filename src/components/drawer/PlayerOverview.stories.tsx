@@ -106,11 +106,12 @@ export const SteppedBack: Story = {
   },
 };
 
-// E1: an edit the run cannot rewind to. The notice must say the story did NOT move, and the one
-// action this surface owns must be reachable by name.
+// E1: an edit the run cannot rewind to. The notice must say the story did NOT move, and both ways
+// out the sentence names must be reachable by name, right there (V11).
 export const EditTooFarBack: Story = {
   args: {
     onReread: fn(),
+    onRestart: fn(),
     snapshot: {
       ...snapshot(),
       rollbackUnavailable: { messageId: 2, checkpointName: "Investigate the Job Board", oldest: { boundary: 4, messageId: 1 }, at: "2026-08-12T10:00:00.000Z" },
@@ -121,6 +122,8 @@ export const EditTooFarBack: Story = {
     await expect(canvas.getByText(/has not moved: you are still at Investigate the Job Board/)).toBeInTheDocument();
     await userEvent.click(canvas.getByRole("button", { name: "Re-read from Investigate the Job Board" }));
     await expect(args.onReread).toHaveBeenCalledTimes(1);
+    await userEvent.click(canvas.getByRole("button", { name: "Restart story" }));
+    await expect(args.onRestart).toHaveBeenCalledTimes(1);
   },
 };
 

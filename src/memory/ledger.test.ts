@@ -146,3 +146,18 @@ describe("ledger rendering + maintenance", () => {
     expect(capLedger(many, 3)).toHaveLength(3);
   });
 });
+
+describe("V11: trimming prefers what a rollback can no longer reach", () => {
+  const row = (id: string, entity: string, value: string, messageId: number): LedgerEntry => ({ id, entity, entityType: "character", field: "location", value, messageId, boundary: messageId, createdAt: messageId } as unknown as LedgerEntry);
+  // A@1 is A's value AT the floor (its only version below it), so a rollback to the floor restores
+  // it; B@2 is older than B's at-floor version B@3, so nothing can ever restore it.
+  const entries = [row("a1", "A", "gate", 1), row("b2", "B", "road", 2), row("b3", "B", "inn", 3), row("a8", "A", "hall", 8), row("b9", "B", "keep", 9)];
+
+  it("with a floor, the unreachable version goes and the at-floor version stays", () => {
+    expect(capLedger(entries, 60, 4, 5).map((entry) => entry.id)).toEqual(["a1", "b3", "a8", "b9"]);
+  });
+
+  it("control: without a floor the oldest version goes, as before", () => {
+    expect(capLedger(entries, 60, 4).map((entry) => entry.id)).toEqual(["b2", "b3", "a8", "b9"]);
+  });
+});

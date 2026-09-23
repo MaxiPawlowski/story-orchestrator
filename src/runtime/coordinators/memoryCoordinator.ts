@@ -34,8 +34,8 @@ export interface MemoryCoordinatorDeps {
    *  decision reads it because `persist` cannot answer the question itself (see `memoryQueue`). */
   unsaved?: () => boolean;
   notify: () => void;
-  // v2.3 plan 03. Optional: an unwired caller never lapses; the census tracks real coverage.
   ownership?: RunOwnership;
+  historyFloor?: () => number | null;
   /** v2.3 plan 05: the stored scene read, whose claims the ledger and the blackboard can contradict. */
   getScene?: () => SceneReadRecord | null;
   /** v2.3 plan 05: read a named span again, rather than whatever the transcript now ends with. */
@@ -387,7 +387,7 @@ export class MemoryCoordinator {
 
   applyLedger(signals: ParsedLedgerSignal[], messageId: number) {
     const applied = applyLedgerSignals(this.state.ledger, signals, buildBoundKeySet(this.ledgerBindings()), { boundary: this.boundaryStamp(), messageId });
-    this.patch({ ledger: capLedger(applied) }); this.updateInjection();
+    this.patch({ ledger: capLedger(applied, undefined, undefined, this.deps.historyFloor?.() ?? null) }); this.updateInjection();
   }
 
   activeEpistemic(): EpistemicEntry[] {

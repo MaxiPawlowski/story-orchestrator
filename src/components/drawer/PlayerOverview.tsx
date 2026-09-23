@@ -6,6 +6,7 @@ export interface PlayerOverviewProps {
   snapshot: RuntimeSnapshot;
   onOpenSettings?: () => void;
   onReread?: () => void;
+  onRestart?: () => void;
 }
 
 // The default (player) surface: the narrative composition the runtime already builds, plus the
@@ -43,7 +44,7 @@ const NowSection = ({ lines }: { lines: string[] }) => (
   </div>
 );
 
-export const PlayerOverview = ({ snapshot, onOpenSettings, onReread }: PlayerOverviewProps) => {
+export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart }: PlayerOverviewProps) => {
   const { narrative, pipeline } = snapshot;
   const pipelineAction = pipelineActionText(pipeline);
   const sections = narrative.sections.filter((section) => section.id !== "status");
@@ -63,15 +64,19 @@ export const PlayerOverview = ({ snapshot, onOpenSettings, onReread }: PlayerOve
       {snapshot.lastRollback && (
         <div id="so-rollback-notice" className="text-xs opacity-90">{rollbackNoticeText(snapshot.lastRollback)}</div>
       )}
-      {/* E1: an edit the run cannot rewind to. The player is told plainly, and offered the one
-          action this surface owns — rebuilding from the current checkpoint. Restart story sits in
-          the footer right below. */}
+      {/* E1: an edit the run cannot rewind to. The player is told plainly and offered both ways out
+          the sentence names, right where it names them: rebuild from here, or start over. */}
       {snapshot.rollbackUnavailable && (
         <div id="so-rollback-unavailable" className="flex flex-col gap-1 text-xs opacity-90" role="status">
           <span>{rollbackUnavailableText(snapshot.rollbackUnavailable)}</span>
           {onReread && (
             <button id="so-reread-checkpoint" type="button" className="menu_button self-start" onClick={onReread}>
               Re-read from {snapshot.rollbackUnavailable.checkpointName}
+            </button>
+          )}
+          {onRestart && (
+            <button id="so-rollback-restart" type="button" className="menu_button self-start" onClick={onRestart}>
+              Restart story
             </button>
           )}
         </div>

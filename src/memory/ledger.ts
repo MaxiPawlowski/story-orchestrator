@@ -96,7 +96,17 @@ export function rollbackLedger(entries: LedgerEntry[], messageId: number): Ledge
   });
 }
 
-export function capLedger(entries: LedgerEntry[], keyCap: number = LEDGER_CAP, rowCap: number = LEDGER_ROW_CAP): LedgerEntry[] {
+/** V11 (carried from V9): below the engine's history floor a rollback only ever restores a key's
+ *  newest version, so the older ones there are unreachable and go first. */
+function trimOrder(kept: LedgerEntry[], older: LedgerEntry[], floor: number | null): LedgerEntry[] {
+  if (floor === null) return older;
+  const atFloor = new Map<string, string>();
+  for (const entry of kept) if ((entry.messageId ?? -1) < floor) atFloor.set(ledgerKey(entry.entity, entry.field), entry.id);
+  const unreachable = older.filter((entry) => (entry.messageId ?? -1) < floor && atFloor.get(ledgerKey(entry.entity, entry.field)) !== entry.id);
+  return [...unreachable, ...older.filter((entry) => !unreachable.includes(entry))];
+}
+
+export function capLedger(entries: LedgerEntry[], keyCap: number = LEDGER_CAP, rowCap: number = LEDGER_ROW_CAP, floorMessageId: number | null = null): LedgerEntry[] {
   const keyOf = (entry: LedgerEntry) => ledgerKey(entry.entity, entry.field);
   const lastTouch = new Map<string, number>();
   entries.forEach((entry, index) => lastTouch.set(keyOf(entry), index));
@@ -115,7 +125,7 @@ export function capLedger(entries: LedgerEntry[], keyCap: number = LEDGER_CAP, r
   const olderVersions = kept.filter((entry) => !newest.has(entry.id) && !entry.pinned);
   const excess = kept.length - rowCap;
   if (excess > 0) {
-    const drop = new Set(olderVersions.slice(0, excess).map((entry) => entry.id));
+    const drop = new Set(trimOrder(kept, olderVersions, floorMessageId).slice(0, excess).map((entry) => entry.id));
     kept = kept.filter((entry) => !drop.has(entry.id));
   }
   return kept.length === entries.length ? entries : kept;

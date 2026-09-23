@@ -121,9 +121,9 @@ const AuthorOverview = ({ snapshot, onFixWithWizard }: { snapshot: RuntimeSnapsh
   </div>
 );
 
-const OverviewTab = ({ snapshot, authorView, onOpenSettings, onFixWithWizard, onReread }: { snapshot: RuntimeSnapshot; authorView: boolean; onOpenSettings?: () => void; onFixWithWizard?: () => void; onReread?: () => void }) => (
+const OverviewTab = ({ snapshot, authorView, onOpenSettings, onFixWithWizard, onReread, onRestart }: { snapshot: RuntimeSnapshot; authorView: boolean; onOpenSettings?: () => void; onFixWithWizard?: () => void; onReread?: () => void; onRestart?: () => void }) => (
   <div className="flex flex-col gap-3">
-    <PlayerOverview snapshot={snapshot} onOpenSettings={onOpenSettings} onReread={onReread} />
+    <PlayerOverview snapshot={snapshot} onOpenSettings={onOpenSettings} onReread={onReread} onRestart={onRestart} />
     {authorView && <AuthorOverview snapshot={snapshot} onFixWithWizard={onFixWithWizard} />}
   </div>
 );
@@ -739,7 +739,7 @@ export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditSt
         <FlagControl manager={manager} />
       </div>
       <div role="tabpanel">
-        {activeTab === "overview" && <OverviewTab snapshot={snapshot} authorView={authorView} onOpenSettings={onOpenSettings} onFixWithWizard={onFixWithWizard} onReread={() => void manager.runExtractionNow(undefined, "recovery")} />}
+        {activeTab === "overview" && <OverviewTab snapshot={snapshot} authorView={authorView} onOpenSettings={onOpenSettings} onFixWithWizard={onFixWithWizard} onReread={() => void manager.runExtractionNow(undefined, "recovery")} onRestart={() => void manager.restartStory()} />}
         {activeTab === "blackboard" && <BlackboardTab snapshot={snapshot} />}
         {activeTab === "memory" && <MemoryTab snapshot={snapshot} manager={manager} authorView={authorView} focusFact={focusFact} />}
         {activeTab === "scheduler" && <SchedulerTab snapshot={snapshot} manager={manager} onOpenFact={openFact} />}

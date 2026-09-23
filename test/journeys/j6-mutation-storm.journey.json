@@ -394,8 +394,16 @@
       "findings": [
         "E1"
       ],
-      "goal": "an edit older than the retained history says so and offers the one action it owns",
+      "goal": "an edit older than the retained history says so and offers both ways out it names: re-read from here, or restart the story (V11)",
       "steps": [
+        {
+          "import_story": {
+            "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
+          }
+        },
+        {
+          "send": "I stand at the tavern door and look around."
+        },
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = rt.getEngineState().boundary; for (let index = 0; index < 205; index += 1) await rt.commitBoundary(); const after = rt.getEngineState().boundary; if (after - before < 205) throw new Error(\"only \" + (after - before) + \" of 205 boundaries committed\"); return { before, after };",
           "log": true
@@ -441,6 +449,20 @@
             "contains": [
               "Re-read from"
             ]
+          }
+        },
+        {
+          "expect_ui": {
+            "selector": "#so-rollback-restart",
+            "contains": [
+              "Restart story"
+            ]
+          }
+        },
+        {
+          "ui": {
+            "action": "hit-test",
+            "selector": "#so-rollback-restart"
           }
         }
       ]

@@ -434,3 +434,30 @@ describe("V3: a supersession bridge enqueues only into the story it read for", (
     expect(h.enqueued).toHaveLength(1);
   });
 });
+
+describe("V11: the ledger cap is told where the history floor is", () => {
+  it("a pass at the row cap trims a version no rollback can reach, not the one at the floor", () => {
+    const at = (id: string, entity: string, messageId: number) => ({ id, entity, entityType: "character", field: "location", value: `${entity}${messageId}`, messageId, boundary: messageId, createdAt: messageId, provenance: { source: "extractor", messageId, boundary: messageId, pass: "ledger", validity: "live" } });
+    const filler = Array.from({ length: 236 }, (_, index) => at(`f${index}`, "F", 100 + index));
+    let memory = { entries: [], arcs: [], epistemic: [], conflicts: [], resolvedConflicts: [], excluded: [], derived: [], writeLog: [], verifyDrops: [], canon: null, settings: { enabled: true, tierTokenBudgets: { facts: 400, session: 400, short_term: 400, scene_history: 400 } }, ledger: [at("a1", "A", 1), at("b2", "B", 2), at("b3", "B", 3), at("a8", "A", 8), ...filler] } as never as { ledger: Array<{ id: string }> };
+    const coordinator = new MemoryCoordinator({
+      getStory: () => ({ title: "S", checkpointById: {}, qualityByKey: {}, roster: [], ledger_bindings: [] }),
+      getState: () => ({ activeCheckpointId: "cp1", boundary: 400, lastMessageId: 400, blackboard: { values: {}, versions: {}, latched: {} } }),
+      historyFloor: () => 5,
+      getMemory: () => memory,
+      setMemory: (next: typeof memory) => { memory = next; },
+      getExtractionSettings: () => ({ profileId: "p1", enabled: true }),
+      getFiredTransitions: () => [],
+      getExpansionGateSources: () => [],
+      enqueueExtractorDeltas: () => {},
+      enqueueMechanical: () => {},
+      judge: () => null,
+      persist: async () => {},
+      notify: () => {},
+    } as never);
+    coordinator.applyLedger([{ entity: "B", entityType: "character", field: "location", value: "keep" }], 400);
+    const ids = memory.ledger.map((row) => row.id);
+    expect(ids).toContain("a1");
+    expect(ids).not.toContain("b2");
+  });
+});

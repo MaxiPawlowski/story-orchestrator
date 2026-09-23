@@ -43,6 +43,19 @@ export async function runRollback(deps: RollbackDeps, messageId: number): Promis
     extras.judge = dropJudgeCallsAfter(extras.judge, messageId);
     extras.extraction.audits = extras.extraction.audits.filter((audit) => audit.window.to < messageId);
   };
+  // E1, one path for both ways the history can be gone: nothing retained precedes the message, or
+  // the boundary it names has no snapshot left. Either way the player is told, the journal says why,
+  // and what the edit invalidated is dropped (V11: the second route used to return in silence).
+  const unavailable = async (oldest: { boundary: number; messageId: number }): Promise<RollbackOutcome> => {
+    quarantine();
+    await deps.stagecraft.revertAppliedSince(messageId);
+    deps.notices.rollbackUnavailable = { messageId, checkpointName: engine.activeCheckpoint?.name ?? "this point", oldest, at: new Date().toISOString() };
+    deps.journal.record("story", "edit past the retained history", deps.context().journal, historyNote(messageId, oldest));
+    deps.memory.updateInjection();
+    await deps.persist();
+    deps.notify();
+    return { ok: false, reason: "history-unavailable", oldest };
+  };
   const boundary = engine.boundaryBeforeMessage(messageId);
   // A memory pass may have reacted to this message even when no blackboard write made a transition.
   // The ENGINE then has nothing to restore while every other store still does, and treating the whole
@@ -50,19 +63,13 @@ export async function runRollback(deps: RollbackDeps, messageId: number): Promis
   // retired belief while their pure helpers were green. The horizon is checked FIRST: an edit that
   // reaches past what the chat can reconstruct is the one case where "the engine did not act on it"
   // is not a reason to stay quiet (E1).
-  if (boundary === null) {
-    // E1. The history that would reach this edit is gone. Say so, drop what the edit invalidates,
-    // and offer the two ways out — never the silence the review found.
-    quarantine();
-    const oldest = engine.historyFrom();
-    deps.notices.rollbackUnavailable = { messageId, checkpointName: engine.activeCheckpoint?.name ?? "this point", oldest, at: new Date().toISOString() };
-    deps.journal.record("story", "edit past the retained history", deps.context().journal, historyNote(messageId, oldest));
-    await deps.persist();
-    deps.notify();
-    return { ok: false, reason: "history-unavailable", oldest };
-  }
+  if (boundary === null) return unavailable(engine.historyFrom());
   if (!engine.shouldRollbackFromMessage(messageId)) {
     quarantine();
+    // A curator write applied at a boundary that consumed the edited message was proposed from the
+    // old text, whether or not the engine moved (V11). The blackboard did not move, so the expansion
+    // basis stands and is deliberately not revalidated.
+    await deps.stagecraft.revertAppliedSince(messageId);
     deps.memory.updateInjection();
     await deps.persist();
     await deps.dropReadsAfter(messageId);
@@ -70,7 +77,8 @@ export async function runRollback(deps: RollbackDeps, messageId: number): Promis
     return { ok: true, result: "noop" };
   }
   const outcome = engine.rollbackTo(boundary);
-  if (!outcome.ok || outcome.result !== "applied") return outcome;
+  if (!outcome.ok) return unavailable(outcome.oldest);
+  if (outcome.result !== "applied") return outcome;
   deps.notices.rollbackUnavailable = null;
   const current = deps.context();
   const window = getChatWindow(engine.serialize().checkpointStartedMessageId, current.lastMessageId);

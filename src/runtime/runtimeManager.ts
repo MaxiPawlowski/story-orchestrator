@@ -72,6 +72,7 @@ export class RuntimeManager {
   private readonly memory: MemoryCoordinator = new MemoryCoordinator({
     getStory: () => this.loaded?.story ?? null,
     getState: () => (this.loaded ? this.engine.serialize() : null),
+    historyFloor: () => (this.loaded ? this.engine.historyFrom().messageId : null),
     getMemory: () => this.extras.memory,
     setMemory: (next) => { this.extras.memory = next; },
     getExtractionSettings: () => this.getExtractionSettings(),

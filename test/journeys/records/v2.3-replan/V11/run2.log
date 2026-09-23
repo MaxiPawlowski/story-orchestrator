@@ -1,0 +1,48 @@
+
+=== J6 mutation-storm ===
+Edit and delete messages around a committed boundary; the engine rolls back correctly and the player can tell what happened.
+
+extraction before this run: {"enabled":true,"cadence":1,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"}
+Global config snapshot: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\so-journey-config-snapshot.json
+--- J6.9 an edit older than the retained history says so and offers both ways out it names: re-read from here, or restart the story (V11)
+J6.9 1/12 import_story ok 1283ms
+J6.9 2/12 send ok 1675ms
+J6.9 3/12 eval ok 79361ms
+J6.9 3/12 eval -> {"before":0,"after":205}
+J6.9 4/12 edit ok 150ms
+J6.9 5/12 wait ok 1535ms
+J6.9 6/12 eval ok 4ms
+J6.9 6/12 eval -> {"messageId":0,"checkpointName":"Investigate the Job Board","oldest":{"boundary":6,"messageId":1},"at":"2026-09-23T09:27:41.771Z"}
+J6.9 7/12 ui ok 1120ms
+J6.9 8/12 ui ok 2000ms
+J6.9 9/12 expect_ui ok 5ms
+J6.9 10/12 expect_ui ok 4ms
+J6.9 11/12 expect_ui ok 3ms
+J6.9 12/12 ui ok 5ms
+Restored global config from C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions"],"preservedStories":["sun-ruins"]}
+
+SKIP         J6.1     a boundary is committed and a gate latches from a scripted turn — not selected by --only
+SKIP         J6.2     editing the message that carried the delta rolls the story back — not selected by --only
+SKIP         J6.3     deleting the last message leaves engine state consistent, not orphaned — not selected by --only
+SKIP         J6.4     the player is told the story stepped back after a mutation — not selected by --only
+SKIP         J6.5      — not selected by --only
+SKIP         J6.6     a reloaded chat still recognises an edit to a message its run has passed — not selected by --only
+SKIP         J6.7     a ledger update is undone by an edit to the message its boundary acted on — not selected by --only
+SKIP         J6.8     a belief a reveal retired comes back when the reveal's message is edited — not selected by --only
+PASS         J6.9     an edit older than the retained history says so and offers both ways out it names: re-read from here, or restart the story (V11)
+
+J6
+automated: 1 pass, 0 fail, 0 blocked, 0 not-runnable, 7 skipped
+human:     0 scored, 1 unscored
+cleanup:   clean
+first try: 1 of 1 passing check(s) needed no retry
+PARTIAL: --only ran a subset; this record cannot stand for a gate.
+NOT GREEN: 7 skipped (strict): an acceptance run runs every check
+
+--- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+[J6.5] (U5) After you edited and deleted messages, was it clear what the story did in response?
+      anchors: 1 = no idea, felt broken · 3 = worked it out from the drawer · 5 = the system said what it did
+[free] What would make you stop using this?
+
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T09-27-56-063Z_journey-J6.json
+Matrix: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\journey-J6.md

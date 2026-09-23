@@ -1,0 +1,35 @@
+M1 a missing snapshot answers in silence again
+  × a boundary whose snapshot is gone gets the E1 notice, a journal line, the quarantine and the stagecraft revert (2 ms)
+  ● V11: an engine that cannot restore is never answered with silence › a boundary whose snapshot is gone gets the E1 notice, a journal line, the quarantine and the stagecraft revert
+Tests:       1 failed, 5 passed, 6 total
+M2 the noop path skips the stagecraft revert
+  × an edit the engine had nothing to roll back for still reverts the curator writes made from it (1 ms)
+  ● V11: an engine that cannot restore is never answered with silence › an edit the engine had nothing to roll back for still reverts the curator writes made from it
+Tests:       1 failed, 5 passed, 6 total
+M3 the unavailable path writes no journal line
+  × E1: a mutation past the retained history horizon reports an explicit outcome, never a silent no-op (4 ms)
+  × a boundary whose snapshot is gone gets the E1 notice, a journal line, the quarantine and the stagecraft revert (2 ms)
+  ● E1, asserted on the runtime and not on an object the test built › E1: a mutation past the retained history horizon reports an explicit outcome, never a silent no-op
+  ● V11: an engine that cannot restore is never answered with silence › a boundary whose snapshot is gone gets the E1 notice, a journal line, the quarantine and the stagecraft revert
+Tests:       2 failed, 4 passed, 6 total
+M4 the unavailable path sets no notice
+  × E1: a mutation past the retained history horizon reports an explicit outcome, never a silent no-op (4 ms)
+  × a boundary whose snapshot is gone gets the E1 notice, a journal line, the quarantine and the stagecraft revert (1 ms)
+  × reports an edit past the retained history even when the engine never acted on it (2 ms)
+  ● E1, asserted on the runtime and not on an object the test built › E1: a mutation past the retained history horizon reports an explicit outcome, never a silent no-op
+Tests:       3 failed, 3 passed, 6 total
+M5 the unavailable path skips the stagecraft revert
+  × a boundary whose snapshot is gone gets the E1 notice, a journal line, the quarantine and the stagecraft revert (2 ms)
+  ● V11: an engine that cannot restore is never answered with silence › a boundary whose snapshot is gone gets the E1 notice, a journal line, the quarantine and the stagecraft revert
+Tests:       1 failed, 5 passed, 6 total
+M6 capLedger ignores the floor
+  × with a floor, the unreachable version goes and the at-floor version stays (4 ms)
+  ● V11: trimming prefers what a rollback can no longer reach › with a floor, the unreachable version goes and the at-floor version stays
+Tests:       1 failed, 15 passed, 16 total
+M7 the coordinator does not pass the floor
+  × a pass at the row cap trims a version no rollback can reach, not the one at the floor (5 ms)
+  ● V11: the ledger cap is told where the history floor is › a pass at the row cap trims a version no rollback can reach, not the one at the floor
+Tests:       1 failed, 20 passed, 21 total
+M8 the E1 notice offers only the re-read
+  ● Drawer/PlayerOverview › EditTooFarBack › play-test
+[TEST] Tests:       1 failed, 181 passed, 182 total

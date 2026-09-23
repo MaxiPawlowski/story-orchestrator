@@ -90,19 +90,14 @@ describe("review: engine long-history behaviour", () => {
     expect(engine.rollbackTo(engine.boundaryBeforeMessage(204) ?? 0)).toEqual({ ok: true, result: "applied" });
   });
 
-  finding("E1", () => {
+  // E1's engine half. The finding itself is asserted on the runtime (rollback.review.test.ts): this test
+  // used to BUILD the history-unavailable object when the engine answered null, and then assert the
+  // object it had built (V11). What the engine owes is only the two signals the runtime reads.
+  control("past the retained horizon the engine answers null, and a boundary it cannot reach is refused", () => {
     const engine = longHistoryEngine();
-    must(engine.shouldRollbackFromMessage(0), "the engine no longer asks to roll back the oldest message, so this fixture stopped reproducing");
-    // `boundaryBeforeMessage` answers `null` when nothing retained precedes the message, and
-    // `rollbackTo` answers `history-unavailable` when asked for a boundary it cannot reach. Either
-    // route owes the caller the same explicit outcome; neither may be silence.
-    const boundary = engine.boundaryBeforeMessage(0);
-    const outcome = (boundary === null ? { ok: false, reason: "history-unavailable" } : engine.rollbackTo(boundary)) as unknown;
-    const explicit = typeof outcome === "object" && outcome !== null && (outcome as { ok?: boolean }).ok === false && (outcome as { reason?: string }).reason === "history-unavailable";
-    must(
-      explicit,
-      `a rollback past the retained history horizon returned ${JSON.stringify(outcome)} instead of an explicit history-unavailable outcome, so the caller cannot tell "nothing to undo" from "the history is gone" and the player is told nothing`,
-    );
+    expect(engine.shouldRollbackFromMessage(0)).toBe(true);
+    expect(engine.boundaryBeforeMessage(0)).toBeNull();
+    expect(engine.rollbackTo(0)).toMatchObject({ ok: false, reason: "history-unavailable" });
   });
 });
 

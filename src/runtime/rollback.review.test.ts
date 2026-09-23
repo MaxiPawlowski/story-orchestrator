@@ -1,5 +1,7 @@
 import type { RuntimeExtras } from "./types";
 import { runRollback, type RollbackDeps } from "./rollback";
+import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { finding, must } from "../../test/findings/ledger";
 
 // `@judge` reaches the host module graph through its client, which is a top-level-await import jest
 // cannot parse. This path only needs the ring-trimming helper.
@@ -95,5 +97,65 @@ describe("V4: a mutation with no message id", () => {
     expect(rollbackTo).not.toHaveBeenCalled();
     expect(h.rollbackFromMessage).not.toHaveBeenCalled();
     expect(h.extras.extraction.audits).toHaveLength(2);
+  });
+});
+
+describe("V11: an engine that cannot restore is never answered with silence", () => {
+  it("a boundary whose snapshot is gone gets the E1 notice, a journal line, the quarantine and the stagecraft revert", async () => {
+    const h = harness();
+    const record = jest.fn();
+    const revertAppliedSince = jest.fn();
+    Object.assign(h.deps.engine, { boundaryBeforeMessage: () => 3, shouldRollbackFromMessage: () => true, rollbackTo: () => ({ ok: false, reason: "history-unavailable", oldest: { boundary: 5, messageId: 9 } }), activeCheckpoint: { name: "The Gate" } });
+    Object.assign(h.deps.journal, { record });
+    Object.assign(h.deps.stagecraft, { revertAppliedSince });
+    await expect(runRollback(h.deps, 3)).resolves.toEqual({ ok: false, reason: "history-unavailable", oldest: { boundary: 5, messageId: 9 } });
+    expect(h.deps.notices.rollbackUnavailable).toMatchObject({ messageId: 3, checkpointName: "The Gate", oldest: { boundary: 5, messageId: 9 } });
+    expect(record).toHaveBeenCalledWith("story", "edit past the retained history", expect.anything(), expect.stringContaining("message 3"));
+    expect(h.rollbackFromMessage).toHaveBeenCalledWith(3, 7);
+    expect(revertAppliedSince).toHaveBeenCalledWith(3);
+    expect(h.persist).toHaveBeenCalledTimes(1);
+    expect(h.notify).toHaveBeenCalledTimes(1);
+  });
+
+  it("an edit the engine had nothing to roll back for still reverts the curator writes made from it", async () => {
+    const h = harness();
+    const revertAppliedSince = jest.fn();
+    Object.assign(h.deps.stagecraft, { revertAppliedSince });
+    await runRollback(h.deps, 3);
+    expect(revertAppliedSince).toHaveBeenCalledWith(3);
+    expect(h.revalidateExpansion).not.toHaveBeenCalled();
+  });
+});
+
+describe("E1, asserted on the runtime and not on an object the test built", () => {
+  const stationary = () => parseStoryV2OrThrow({
+    format: 2, id: "history-review", title: "History review", description: "Long-running rollback fixture",
+    qualities: [{ key: "counter", type: "int", source: "extractor", rubric: "Latest counter?" }],
+    checkpoints: [{ id: "start", name: "Start", objective: "Wait", type: "anchor", start: true }],
+    transitions: [], roster: [],
+  });
+  const longHistory = () => {
+    const engine = new StoryEngine({ now: () => 0 });
+    engine.loadStory(stationary());
+    for (let i = 0; i < 205; i += 1) {
+      engine.enqueue({ source: "extractor", blackboardVersionSum: i, turnRange: { from: i, to: i }, deltas: [{ q: "counter", v: i, source: "extractor" }] });
+      engine.commitBoundary({ lastMessageId: i, chatLength: i + 1 });
+    }
+    return engine;
+  };
+
+  finding("E1", async () => {
+    const h = harness();
+    const record = jest.fn();
+    Object.assign(h.deps, { engine: longHistory() });
+    Object.assign(h.deps.journal, { record });
+    const outcome = await runRollback(h.deps, 0);
+    must(
+      !outcome.ok && outcome.reason === "history-unavailable",
+      `an edit past the retained history returned ${JSON.stringify(outcome)} instead of an explicit history-unavailable outcome, so the caller cannot tell "nothing to undo" from "the history is gone" and the player is told nothing`,
+    );
+    must(h.deps.notices.rollbackUnavailable?.messageId === 0, "the rollback reported history-unavailable but set no notice, so the player is told nothing");
+    must(record.mock.calls.some((call) => call[1] === "edit past the retained history"), "the unavailable rollback left no journal line, so the author cannot see why the story did not move");
+    must(h.rollbackFromMessage.mock.calls.length === 1, "what the edit invalidated was kept in memory");
   });
 });

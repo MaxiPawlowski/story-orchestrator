@@ -1,0 +1,219 @@
+{
+  "id": "J6",
+  "title": "mutation-storm",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j6-mutation-storm.journey.json",
+  "ranAt": "2026-09-23T09:26:16.101Z",
+  "strict": true,
+  "partial": true,
+  "only": [
+    "J6.9"
+  ],
+  "tally": {
+    "skipped": 8,
+    "pass": 1
+  },
+  "tallies": {
+    "automated": {
+      "pass": 1,
+      "fail": 0,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 7
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 1
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 1,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [
+    "7 skipped (strict): an acceptance run runs every check"
+  ],
+  "humanRecord": null,
+  "runnerError": null,
+  "releasedRoutes": null,
+  "capabilities": {},
+  "results": [
+    {
+      "id": "J6.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "a boundary is committed and a gate latches from a scripted turn",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J6.2",
+      "mode": "auto",
+      "findings": [],
+      "goal": "editing the message that carried the delta rolls the story back",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J6.3",
+      "mode": "auto",
+      "findings": [],
+      "goal": "deleting the last message leaves engine state consistent, not orphaned",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J6.4",
+      "mode": "auto",
+      "findings": [
+        "U5"
+      ],
+      "goal": "the player is told the story stepped back after a mutation",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J6.5",
+      "mode": "human",
+      "findings": [
+        "U5"
+      ],
+      "goal": "",
+      "prompt": "After you edited and deleted messages, was it clear what the story did in response?",
+      "anchors": "1 = no idea, felt broken · 3 = worked it out from the drawer · 5 = the system said what it did",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J6.6",
+      "mode": "auto",
+      "findings": [
+        "R4"
+      ],
+      "goal": "a reloaded chat still recognises an edit to a message its run has passed",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J6.7",
+      "mode": "auto",
+      "findings": [
+        "M3"
+      ],
+      "goal": "a ledger update is undone by an edit to the message its boundary acted on",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J6.8",
+      "mode": "auto",
+      "findings": [
+        "M4"
+      ],
+      "goal": "a belief a reveal retired comes back when the reveal's message is edited",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J6.9",
+      "mode": "auto",
+      "findings": [
+        "E1"
+      ],
+      "goal": "an edit older than the retained history says so and offers both ways out it names: re-read from here, or restart the story (V11)",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    }
+  ],
+  "cleanup": {
+    "judgeCalls": {
+      "count": 0,
+      "events": []
+    },
+    "lorebooks": {
+      "Xentar Checkpoints": {
+        "deactivated": true
+      }
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions"
+      ],
+      "preservedStories": [
+        "sun-ruins"
+      ]
+    },
+    "stories": {
+      "removed": 1
+    },
+    "chat": {
+      "sandboxChatId": "2026-09-23@06h24m37s493ms",
+      "owned": [
+        "2026-09-23@06h24m37s493ms"
+      ],
+      "deleted": [
+        "2026-09-23@06h24m37s493ms"
+      ],
+      "notDeleted": [],
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-23@06h24m37s493ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-21@15h49m05s268ms"
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "member:DM Narrator": {
+      "enabled": true
+    },
+    "member:Arin": {
+      "enabled": true
+    },
+    "member:Ponticius": {
+      "enabled": true
+    },
+    "member:Luke": {
+      "enabled": true
+    },
+    "disabledMembers": []
+  }
+}
