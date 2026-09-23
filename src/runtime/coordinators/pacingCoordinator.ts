@@ -1,4 +1,4 @@
-import { TENSION_CURRENT_KEY, type ArcTemplate, type BoundaryLogEntry, type BoundaryResult, type EngineState, type NormalizedStoryV2, type TensionLevel } from "@engine/index";
+import { TENSION_CURRENT_KEY, agencyForCheckpoint, type ArcTemplate, type BoundaryLogEntry, type BoundaryResult, type EngineState, type NormalizedStoryV2, type TensionLevel } from "@engine/index";
 import type { ParsedDelta } from "@extraction/index";
 import { getSteeringHint, updateEma } from "@pacing/index";
 import { clearStoryExtensionPrompt, setStoryExtensionPrompt } from "@services/STAPI";
@@ -95,7 +95,8 @@ export class PacingCoordinator {
       clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
       return;
     }
-    const hint = getSteeringHint(this.deps.getTension().smoothed, this.expectedTension());
+    const story = this.deps.getStory();
+    const hint = getSteeringHint(this.deps.getTension().smoothed, this.expectedTension(), undefined, agencyForCheckpoint(story, this.deps.getState()?.activeCheckpointId ?? null));
     if (this.deps.getPacing().hintEnabled && hint) setStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY, hint.text, PACING_HINT_DEPTH);
     else clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
   }

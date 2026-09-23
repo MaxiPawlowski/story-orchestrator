@@ -6,7 +6,11 @@ import { ExtractionScheduler, type SchedulerHost } from "./scheduler";
 import { runSharedRead } from "./sharedRead";
 import type { TypedJudge } from "./types";
 
-jest.mock("@services/STAPI", () => ({ getContext: () => ({ chat: [] }) }));
+jest.mock("@services/STAPI", () => ({
+  settingsAreLoaded: () => true,
+  settingsReady: async () => {},
+  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
+  readBackBoundary: () => null, getContext: () => ({ chat: [] }) }));
 
 const raw = JSON.parse(fs.readFileSync(path.join(process.cwd(), "test/fixtures/extractor.story.json"), "utf8")) as { qualities: Array<Record<string, unknown>> };
 const story = parseStoryV2OrThrow({ ...raw, qualities: raw.qualities.map((quality) => (quality.key === "player_has_key" ? { ...quality, read_as: "choice" } : quality)) });
@@ -14,7 +18,8 @@ const state = { activeCheckpointId: "start", boundary: 3, lastMessageId: 2, blac
 const window = { from: 0, to: 2, messages: [{ index: 0, messageId: 0, speaker: "Mara", text: "The key is under the mat." }, { index: 1, messageId: 1, speaker: "Max", text: "I pick up the brass key." }, { index: 2, messageId: 2, speaker: "Mara", text: "Now the vault." }] };
 
 describe("judged typed read inside the shared read (v2.2 plan 06)", () => {
-  const llm = 'DELTA player_has_key value=false evidence="none"\nDELTA location value="vault" evidence="Now the vault."';
+  // The evidence has to be a span of the window (plan 02's R6 screening), so both lines quote it.
+  const llm = 'DELTA player_has_key value=false evidence="The key is under the mat."\nDELTA location value="vault" evidence="Now the vault."';
 
   it("takes the judged qualities out of the LLM scope, keeps one writer per quality, and records the split", async () => {
     const judge: TypedJudge = async ({ qualities }) => ({ deltas: [{ delta: { q: "player_has_key", v: true, source: "extractor" }, evidence: "I pick up the brass key.", judge: 0.97 }], answered: qualities.map((quality) => quality.key), model: "jev-1.13.0", confidences: { player_has_key: 0.97 } });

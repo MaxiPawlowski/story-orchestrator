@@ -2,6 +2,10 @@ export const QUALITY_TYPES = ["int", "float", "bool", "enum", "string"] as const
 export const QUALITY_SOURCES = ["code", "extractor"] as const;
 export const GATE_OPERATORS = ["==", "!=", ">=", "<=", ">", "<", "in"] as const;
 export const TENSION_LEVELS = ["calm", "stirring", "tense", "critical", "peak"] as const;
+// v2.3 plan 02 (S1). A latching enum freezes on the first read, so a value meaning "not set yet"
+// freezes the quality on it forever. The unset state is the absence of a value; listing one of these
+// as an option makes the first read a decision nobody made.
+export const PLACEHOLDER_ENUM_VALUES = ["undecided", "none", "pending", "unset", "tbd"] as const;
 export const ARC_TEMPLATE_NAMES = ["rising", "fall_recovery", "three_act"] as const;
 export const TENSION_CURRENT_KEY = "tension_current";
 export const NPC_REPLY_TRIGGERS = ["onEnter", "afterSpeak", "sceneBreak"] as const;
@@ -124,6 +128,19 @@ export interface TalkControl {
   director?: boolean | TalkControlDirector;
 }
 
+// v2.3 plan 07 (C4). Which objectives are the world pressing on the player and which need the
+// player's own act, and whether narration may write the player's decisions. Optional per checkpoint;
+// the DEFAULTS are the policy, not "absent = today's phrasing" (spec addendum §Agency).
+export type ObjectiveKind = "world_pressure" | "player_action";
+
+export interface AgencyPolicy {
+  protect_player_choice: boolean;
+  never_narrate_player_action: boolean;
+  objective_kind: ObjectiveKind;
+  /** Optional: the checkpoint to fall back to when the player refuses the prepared route. */
+  alternate?: string;
+}
+
 export interface Checkpoint {
   id: string;
   name: string;
@@ -135,6 +152,7 @@ export interface Checkpoint {
   target_turn_length?: number;
   effects?: CheckpointEffects;
   talk_control?: TalkControl;
+  agency?: Partial<AgencyPolicy>;
   guidance?: string;
   convergence_threshold?: number;
 }
@@ -267,6 +285,11 @@ export interface ValidationError {
   path: string;
   message: string;
 }
+
+export const placeholderEnumValues = (quality: Pick<Quality, "type" | "latching" | "values">): string[] =>
+  quality.type === "enum" && quality.latching === true
+    ? (quality.values ?? []).filter((value) => (PLACEHOLDER_ENUM_VALUES as readonly string[]).includes(value.trim().toLowerCase()))
+    : [];
 
 export const isValidationErrorList = (value: unknown): value is ValidationError[] => {
   return Array.isArray(value) && value.every((entry) => {

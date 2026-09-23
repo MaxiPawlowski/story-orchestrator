@@ -1,4 +1,4 @@
-import { effectiveThresholdFor, progressQualityForAnchor, renderGateText, type ApplyQueueEntry, type ArcTemplate, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { DEFAULT_AGENCY, effectiveThresholdFor, progressQualityForAnchor, renderGateText, type AgencyPolicy, type ApplyQueueEntry, type ArcTemplate, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { expectedTension, getSteeringHint, levelToNumeric, numericToLevel } from "@pacing/index";
 import type { NarrativeInput } from "./narrative";
 import type { ConvergenceReadout, PendingDeltaReadout, RuntimeSnapshot, StoryIdentity, StoryLibraryRecord } from "./types";
@@ -74,9 +74,9 @@ export const computeExpectedTension = (story: NormalizedStoryV2 | null, state: E
   return expectedTension(shape, state.visitedAnchors.length / totalAnchors);
 };
 
-export const buildTensionSnapshot = (smoothed: number | null, expected: number | null): RuntimeSnapshot["tension"] => ({
+export const buildTensionSnapshot = (smoothed: number | null, expected: number | null, policy: AgencyPolicy = DEFAULT_AGENCY): RuntimeSnapshot["tension"] => ({
   level: smoothed === null ? null : numericToLevel(smoothed),
   smoothed,
   expected,
-  hint: getSteeringHint(smoothed, expected),
+  hint: getSteeringHint(smoothed, expected, undefined, policy),
 });

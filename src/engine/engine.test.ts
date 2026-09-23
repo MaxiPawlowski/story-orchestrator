@@ -282,9 +282,9 @@ describe("story engine", () => {
     engine.enqueue(entry("door_open", true, 2, 2));
     engine.commitBoundary();
     expect(engine.serialize().activeCheckpointId).toBe("end");
-    expect(engine.rollbackTo(1)).toBe(true);
+    expect(engine.rollbackTo(1)).toEqual({ ok: true, result: "applied" });
     expect(engine.serialize().activeCheckpointId).toBe("door");
-    expect(engine.rollbackTo(5)).toBe(false);
+    expect(engine.rollbackTo(5)).toEqual({ ok: true, result: "noop" });
   });
 
   it("maps mutations by message id and ignores untouched swipes", () => {
@@ -304,7 +304,7 @@ describe("story engine", () => {
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(story);
     expect(engine.shouldRollbackFromMessage(0)).toBe(false);
-    expect(engine.rollbackTo(engine.boundaryBeforeMessage(0))).toBe(false);
+    expect(engine.rollbackTo(engine.boundaryBeforeMessage(0) ?? 0)).toEqual({ ok: true, result: "noop" });
   });
 
   it("reports where the previous boundary ended, following rollback and hydrate", () => {
@@ -314,7 +314,7 @@ describe("story engine", () => {
     expect(engine.commitBoundary({ lastMessageId: 2, chatLength: 3 }).previousLastMessageId).toBe(-1);
     expect(engine.commitBoundary({ lastMessageId: 4, chatLength: 5 }).previousLastMessageId).toBe(2);
     expect(engine.commitBoundary({ lastMessageId: 4, chatLength: 5 }).previousLastMessageId).toBe(4);
-    expect(engine.rollbackTo(1)).toBe(true);
+    expect(engine.rollbackTo(1)).toEqual({ ok: true, result: "applied" });
     expect(engine.commitBoundary({ lastMessageId: 4, chatLength: 5 }).previousLastMessageId).toBe(2);
 
     const rehydrated = new StoryEngine({ now: () => 0 });
@@ -331,7 +331,7 @@ describe("story engine", () => {
     engine.enqueue(entry("has_key", true, 0, 0));
     engine.commitBoundary({ lastMessageId: 0, chatLength: 1 });
     engine.enqueue(entry("door_open", true, 1, 1));
-    expect(engine.rollbackTo(0)).toBe(true);
+    expect(engine.rollbackTo(0)).toEqual({ ok: true, result: "applied" });
     engine.commitBoundary({ lastMessageId: 0, chatLength: 1 });
     expect(engine.serialize().blackboard.values.door_open).toBeUndefined();
     expect(engine.stateLog).toHaveLength(1);
@@ -432,7 +432,7 @@ describe("StoryEngine checkpointPath", () => {
     const engine = load();
     enter(engine, ["cp2", "cp3", "cp-4a", "cp-4a1"]);
     const saved = engine.serialize();
-    expect(engine.rollbackTo(2)).toBe(true);
+    expect(engine.rollbackTo(2)).toEqual({ ok: true, result: "applied" });
     expect(engine.checkpointPath).toEqual(["cp1", "cp2", "cp3"]);
     const restored = load();
     restored.hydrate(saved);

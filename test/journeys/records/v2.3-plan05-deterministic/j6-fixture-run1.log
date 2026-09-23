@@ -1,0 +1,77 @@
+1/16 import_story ok 385ms
+2/16 ui ok 551ms
+3/16 eval ok 13ms
+3/16 eval -> {"cadence":0}
+4/16 send ok 2175ms
+5/16 extract ok 988ms
+6/16 eval ok 14ms
+6/16 eval -> {"id":"ae13f329-b197-454d-9f47-14a0605b6aa0","sourceMessageId":1,"provenance":{"source":"extractor","messageId":1,"boundary":0,"pass":"shared-read","validity":"live"},"characterId":null,"members":["dm","companion","guild_master","little_brother"],"speaker":"companion"}
+7/16 expect ok 40ms
+8/16 eval ok 6ms
+8/16 eval -> {"present":true,"chars":60}
+9/16 edit ok 139ms
+10/16 wait ok 1525ms
+11/16 eval ok 5ms
+11/16 eval -> {"validity":"source-removed","pinned":true,"stillInjected":false,"liveFacts":0}
+12/16 eval ok 3ms
+12/16 eval -> {"excluded":true,"note":"the exclusion half, asserted where it is decidable. This was an expect.payloadAbsent and could not be: quarantining the chat one fact leaves the tier with NOTHING live, so the block is CLEARED rather than present-without-the-text -- and the harness deliberately refuses to read a missing block as an absent needle (an empty ring or a missing block must never pass as \"the text is absent\"). The previous step supplies the non-vacuity: it asserts there are ZERO live facts, so the empty block is explained by the quarantine rather than by an unrelated emptiness"}
+13/16 eval ok 4ms
+13/16 eval -> {"conflicts":0,"note":"a source-removed row is listed as a quarantined row the author decides on, not as a two-sided conflict"}
+14/16 eval ok 241ms
+14/16 eval -> {"provenance":{"source":"author","messageId":1,"boundary":0,"pass":"shared-read","validity":"live","override":{"by":"author","at":"2026-09-22T23:41:37.278Z","boundary":1,"from":"reconfirm"}},"back":true}
+15/16 expect ok 36ms
+16/16 eval ok 6ms
+16/16 eval -> {"note":"what this run does NOT prove","limits":["that the model would have written this fact in the first place (mocked here, live in the plan-05 recipe)","that the request the BACKEND received carried the block (the runtime ring is what this asserts; the live recipe reads the HTTP capture with st-payload last --member)"]}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-22T23-41-37-912Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 16,
+  "cleanup": {
+    "removedStoryHashes": [],
+    "keptPreExistingStories": [
+      "v2-ea8a94f1"
+    ],
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-22@20h41m31s135ms",
+    "owned": [
+      "2026-09-22@20h41m31s135ms"
+    ],
+    "deleted": [
+      "2026-09-22@20h41m31s135ms"
+    ],
+    "notDeleted": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-22@20h41m31s135ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-22@20h29m07s175ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "ok": true
+    }
+  }
+}

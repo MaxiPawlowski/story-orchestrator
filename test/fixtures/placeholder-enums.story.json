@@ -1,0 +1,20 @@
+{
+  "format": 2,
+  "id": "placeholder-enums",
+  "title": "Placeholder enums",
+  "description": "v2.3 plan 02 (S1): five latching enum qualities, one per placeholder shape a latching list must not carry.",
+  "qualities": [
+    { "key": "verdict", "type": "enum", "source": "extractor", "latching": true, "values": ["guilty", "innocent", "undecided"], "rubric": "What did the jury decide?" },
+    { "key": "allegiance", "type": "enum", "source": "extractor", "latching": true, "values": ["none", "guild", "crown"], "rubric": "Which side is he on?" },
+    { "key": "oath", "type": "enum", "source": "extractor", "latching": true, "values": ["sworn", "pending"], "rubric": "Has he sworn the oath?" },
+    { "key": "wound", "type": "enum", "source": "extractor", "latching": true, "values": ["unset", "bandaged", "open"], "rubric": "What state is the wound in?" },
+    { "key": "pay", "type": "enum", "source": "extractor", "latching": true, "values": ["paid", "tbd"], "rubric": "Has the guild paid?" },
+    { "key": "route", "type": "enum", "source": "extractor", "values": ["none", "stealth"], "rubric": "Not latching, so a placeholder cannot freeze it." }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "Start", "objective": "Begin.", "type": "anchor", "start": true },
+    { "id": "end", "name": "End", "objective": "Finish.", "type": "anchor" }
+  ],
+  "transitions": [{ "id": "go", "from": "start", "to": "end", "priority": 0, "gate": { "q": "route", "op": "!=", "v": "none" } }],
+  "roster": []
+}

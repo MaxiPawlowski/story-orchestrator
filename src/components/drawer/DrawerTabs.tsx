@@ -1,8 +1,9 @@
-import { useState } from "react";
-import { MEMORY_TIERS, type MemoryTier } from "@memory/index";
-import type { RuntimeSnapshot } from "@runtime/types";
+import { useEffect, useState } from "react";
+import { describeProvenance, originLabel, MEMORY_TIERS, type MemoryEntry, type MemoryTier } from "@memory/index";
+import type { EffectTarget, RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
 import DriverPanel, { type DriverController } from "./DriverPanel";
+import ConflictQueue from "./ConflictQueue";
 import PlayerOverview from "./PlayerOverview";
 import StagecraftPanel from "./StagecraftPanel";
 import ScenePanel from "./ScenePanel";
@@ -120,9 +121,9 @@ const AuthorOverview = ({ snapshot, onFixWithWizard }: { snapshot: RuntimeSnapsh
   </div>
 );
 
-const OverviewTab = ({ snapshot, authorView, onOpenSettings, onFixWithWizard }: { snapshot: RuntimeSnapshot; authorView: boolean; onOpenSettings?: () => void; onFixWithWizard?: () => void }) => (
+const OverviewTab = ({ snapshot, authorView, onOpenSettings, onFixWithWizard, onReread }: { snapshot: RuntimeSnapshot; authorView: boolean; onOpenSettings?: () => void; onFixWithWizard?: () => void; onReread?: () => void }) => (
   <div className="flex flex-col gap-3">
-    <PlayerOverview snapshot={snapshot} onOpenSettings={onOpenSettings} />
+    <PlayerOverview snapshot={snapshot} onOpenSettings={onOpenSettings} onReread={onReread} />
     {authorView && <AuthorOverview snapshot={snapshot} onFixWithWizard={onFixWithWizard} />}
   </div>
 );
@@ -149,8 +150,23 @@ const BlackboardTab = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
   </div>
 );
 
-const MemoryTab = ({ snapshot, manager, authorView }: { snapshot: RuntimeSnapshot; manager: RuntimeManager; authorView: boolean }) => {
+// v2.3 plan 05: an envelope that came from before this build says so as an UNKNOWN, never as a
+// source it does not have — the rule lives in @memory/provenance, so this panel and the conflict
+// queue cannot drift apart on it. The title carries the long form, and its message when it has one.
+const originTitle = (entry: MemoryEntry): string => !entry.provenance
+  ? "this row came from before envelopes were recorded"
+  : entry.provenance.source === "legacy"
+    ? "this chat was saved before envelopes were recorded, so where this row came from is not known"
+    : describeProvenance(entry);
+
+// v2.3 plan 09: past this many rows a list stops being readable and starts being scrolled. Below it
+// the controls would be chrome, so they appear with the volume that needs them.
+const MEMORY_SEARCH_FROM = 50;
+
+const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapshot: RuntimeSnapshot; manager: RuntimeManager; authorView: boolean; focusFact?: string | null }) => {
   const [characterFilter, setCharacterFilter] = useState("");
+  const [query, setQuery] = useState("");
+  const [hiddenTiers, setHiddenTiers] = useState<MemoryTier[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftText, setDraftText] = useState("");
 
@@ -158,7 +174,29 @@ const MemoryTab = ({ snapshot, manager, authorView }: { snapshot: RuntimeSnapsho
   const filtered = characterFilter ? snapshot.memory.entries.filter((entry) => entry.characterId === characterFilter) : snapshot.memory.entries;
   // Superseded and folded entries are bookkeeping: the player curates established facts only.
   const visible = authorView ? filtered : filtered.filter((entry) => !entry.supersededBy && !entry.foldedInto);
+  const searchable = snapshot.memory.entries.length > MEMORY_SEARCH_FROM;
+  const needle = query.trim().toLowerCase();
+  const shown = visible
+    .filter((entry) => !hiddenTiers.includes(entry.tier))
+    .filter((entry) => !needle || entry.text.toLowerCase().includes(needle) || (entry.characterId ?? "").toLowerCase().includes(needle));
+  const toggleTier = (tier: MemoryTier) => setHiddenTiers((current) => (current.includes(tier) ? current.filter((candidate) => candidate !== tier) : [...current, tier]));
   const lastAudit = snapshot.extraction.audits[snapshot.extraction.audits.length - 1];
+  // v2.3 plan 05 (M5/M6): a row an older chat pinned has only a LEGACY envelope — the sanitizer
+  // stamps every hydrated row so "no envelope" never means "not live" — so the question is asked of
+  // the source, not of the envelope's absence.
+  const legacyPins = snapshot.memory.entries.filter((entry) => entry.pinned && entry.provenance?.source === "legacy");
+
+  // v2.3 plan 05: the warden's card cites the fact a reply broke, so the author can be taken to it.
+  // The highlight is transient on purpose — it says "this one", not "this one is special".
+  useEffect(() => {
+    if (!focusFact || focusFact.startsWith("bound:")) return;
+    const row = document.querySelector(`#drawer-manager [data-so="memory-row"][data-id="${focusFact}"]`);
+    if (!row) return;
+    row.scrollIntoView({ block: "center", behavior: "smooth" });
+    row.classList.add("so-revealed");
+    const timer = window.setTimeout(() => row.classList.remove("so-revealed"), 2000);
+    return () => { window.clearTimeout(timer); row.classList.remove("so-revealed"); };
+  }, [focusFact]);
 
   const startEdit = (id: string, text: string) => {
     setEditingId(id);
@@ -183,6 +221,23 @@ const MemoryTab = ({ snapshot, manager, authorView }: { snapshot: RuntimeSnapsho
   return (
     <div className="text-xs opacity-80">
       <div className="font-medium opacity-100">What the story remembers</div>
+      {(snapshot.memory.pinnedOverflow ?? 0) > 0 && (
+        <div id="so-pinned-overflow" className="text-amber-300">
+          {snapshot.memory.pinnedOverflow} pinned {snapshot.memory.pinnedOverflow === 1 ? "entry" : "entries"} did not fit this tier's budget — unpin or trim them, or raise the budget.
+        </div>
+      )}
+      {legacyPins.length > 0 && !snapshot.memory.legacyPinPromptSeen && (
+        <div id="so-legacy-pins" data-so="legacy-pins" className="border border-solid border-white/20 mt-1 p-1">
+          <div>{legacyPins.length} {legacyPins.length === 1 ? "fact was" : "facts were"} pinned in an earlier chat, before pins were told apart from locks. A pin only protects a fact from being trimmed; a lock also stops a later pass retiring it.</div>
+          <div className="flex gap-2 mt-1">
+            <button className="menu_button" data-so="legacy-keep-pins" onClick={() => void manager.memoryActions.dismissLegacyPinPrompt()}>Keep them as pins</button>
+            {legacyPins.slice(0, 3).map((entry) => (
+              <button key={entry.id} className="menu_button" data-so="legacy-lock" title={entry.text} onClick={() => void manager.memoryActions.setMemoryLocked(entry.id, true)}>Lock “{entry.text.slice(0, 24)}”</button>
+            ))}
+          </div>
+        </div>
+      )}
+      {authorView && <ConflictQueue snapshot={snapshot} manager={manager} />}
       {authorView && (
         <>
           <label className="flex items-center gap-2">
@@ -213,14 +268,29 @@ const MemoryTab = ({ snapshot, manager, authorView }: { snapshot: RuntimeSnapsho
           </select>
         </label>
       )}
+      {searchable && (
+        <div id="so-memory-filter" className="flex flex-col gap-1 mt-1 border-t border-solid border-white/10 pt-1">
+          <label className="flex items-center gap-2">
+            <span>Find</span>
+            <input id="so-memory-search" className="text_pole" type="search" value={query} placeholder="text or character" onChange={(event) => setQuery(event.target.value)} />
+            {query && <button className="menu_button" data-so="memory-search-clear" onClick={() => setQuery("")}>Clear</button>}
+          </label>
+          <div className="flex flex-wrap items-center gap-1">
+            {MEMORY_TIERS.map((tier) => (
+              <button key={tier} data-so="memory-tier-filter" data-tier={tier} aria-pressed={!hiddenTiers.includes(tier)} className={`st-pill px-1 text-[10px] ${hiddenTiers.includes(tier) ? "opacity-50" : ""}`} onClick={() => toggleTier(tier)}>{MEMORY_TIER_LABELS[tier]}</button>
+            ))}
+            <span id="so-memory-count" className="opacity-60">{`Showing ${shown.length} of ${visible.length}`}</span>
+          </div>
+        </div>
+      )}
       {MEMORY_TIERS.map((tier) => {
-        const entries = visible.filter((entry) => entry.tier === tier);
+        const entries = shown.filter((entry) => entry.tier === tier);
         if (!entries.length) return null;
         return (
           <div key={tier} className="border-t border-solid border-white/10 mt-1 pt-1">
             <div className="opacity-100">{MEMORY_TIER_LABELS[tier]} ({entries.length})</div>
             {entries.map((entry) => (
-              <div key={entry.id} className="mt-1">
+              <div key={entry.id} data-so="memory-row" data-id={entry.id} className="mt-1">
                 {editingId === entry.id ? (
                   <div className="flex flex-col gap-1">
                     <textarea className="text_pole" rows={2} value={draftText} onChange={(event) => setDraftText(event.target.value)} />
@@ -233,12 +303,19 @@ const MemoryTab = ({ snapshot, manager, authorView }: { snapshot: RuntimeSnapsho
                   <>
                     <div title={entry.evidence} className={entry.supersededBy || entry.foldedInto ? "opacity-40 line-through" : ""}>{entry.text}{entry.pinned ? " 📌" : ""}{entry.characterId ? ` (${entry.characterId})` : ""}</div>
                     <div className="flex gap-2 opacity-80 flex-wrap">
+                      {entry.provenance?.override && <span data-so="kept-by-you" title={describeProvenance(entry)}>kept by you</span>}
+                      {entry.provenance && entry.provenance.validity !== "live" && <span data-so="quarantine-badge" className="text-amber-300" title={describeProvenance(entry)}>{entry.provenance.validity === "source-removed" ? "source removed" : entry.provenance.validity}</span>}
+                      {authorView && entry.locked && <span data-so="locked" title="No extraction or consolidation may retire this row">🔒 locked</span>}
                       {authorView && <span>importance {entry.importance} · {entry.expiration}</span>}
                       {authorView && entry.supersededBy && <span title={`superseded by ${entry.supersededBy}`}>⤳ superseded</span>}
                       {authorView && entry.foldedInto && <span title={`folded into ${entry.foldedInto}`}>🗜 folded</span>}
                       {authorView && entry.contradicted && !entry.supersededBy && <span>⚠ contradicted</span>}
                       {authorView && entry.recallCount > 0 && <span>recall {entry.recallCount}</span>}
+                      {/* v2.3 plan 05: a legacy envelope is a STATED unknown, not a read — showing "legacy"
+                          would dress it as an extractor source the row never had. */}
+                      {authorView && <span data-so="memory-origin" title={originTitle(entry)}>{originLabel(entry.provenance)}</span>}
                       <button className="menu_button" onClick={() => void manager.setMemoryPinned(entry.id, !entry.pinned)}>{entry.pinned ? "Unpin" : "Pin"}</button>
+                      {authorView && <button className="menu_button" data-so="memory-lock" title="Lock: freeze this as the story's truth. No extraction or consolidation may retire it, and a contradicting claim goes to the queue you decide." onClick={() => void manager.memoryActions.setMemoryLocked(entry.id, !entry.locked)}>{entry.locked ? "Unlock" : "Lock"}</button>}
                       <button className="menu_button" onClick={() => startEdit(entry.id, entry.text)}>Edit</button>
                       <button className="menu_button" onClick={() => void excludeWithUndo(entry.id)}>Exclude</button>
                     </div>
@@ -255,9 +332,47 @@ const MemoryTab = ({ snapshot, manager, authorView }: { snapshot: RuntimeSnapsho
           <ArcCanonPanel snapshot={snapshot} manager={manager} />
           <EpistemicPanel snapshot={snapshot} manager={manager} />
           <LedgerPanel snapshot={snapshot} manager={manager} />
+          <EffectLedgerPanel snapshot={snapshot} />
         </>
       )}
     </div>
+  );
+};
+
+const EFFECT_STATUS_COPY: Record<string, string> = {
+  pending: "was being written when this chat last saved",
+  applied: "applied",
+  failed: "could not be applied",
+  reverted: "put back",
+  "revert-failed": "could not be put back — try again",
+  "externally-changed": "someone else changed it after this story did, so it was left alone",
+};
+
+const describeEffectTarget = (target: EffectTarget): string => {
+  if (target.kind === "cast") return `cast: ${target.member}`;
+  if (target.kind === "wi") return `lore: ${target.book} · ${target.entry}`;
+  if (target.kind === "an") return "author's note";
+  if (target.kind === "background") return `background: ${target.name}`;
+  return `preset: ${target.name} (${target.api})`;
+};
+
+// v2.3 plan 06. What this chat changed in state it SHARES with other chats — a group's cast, a
+// lorebook, the Author's Note — and whether it could be put back. Author-only: it is the machinery a
+// player never needs to know about, and it names entries and upcoming staging.
+const EffectLedgerPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
+  const rows = [...(snapshot.effects?.ledger ?? [])].reverse();
+  if (!rows.length) return null;
+  return (
+    <details data-so="effect-ledger" className="border-t border-solid border-white/10 mt-1 pt-1">
+      <summary className="opacity-100 cursor-pointer">Host changes this chat made ({rows.length})</summary>
+      {rows.map((row) => (
+        <div key={row.id} data-so="effect-row" data-status={row.status} className="opacity-80 mt-1">
+          <div>{describeEffectTarget(row.target)} <span className="opacity-60">· {row.effect} · {EFFECT_STATUS_COPY[row.status] ?? row.status}</span></div>
+          {row.reason && <div className="text-amber-300">{row.reason}</div>}
+          <div className="opacity-50">boundary {row.boundary} · message {row.messageId}</div>
+        </div>
+      ))}
+    </details>
   );
 };
 
@@ -308,7 +423,8 @@ const LedgerPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager
   const rows = snapshot.ledger;
   if (!rows.length) return null;
   const entities = Array.from(new Set(rows.map((row) => row.entity)));
-  const idFor = (entity: string, field: string) => stored.find((entry) => entry.entity.toLowerCase() === entity.toLowerCase() && entry.field.toLowerCase() === field.toLowerCase())?.id;
+  // Rows are version lists (M3): the row shows the newest version, so Remove addresses that one.
+  const idFor = (entity: string, field: string) => stored.filter((entry) => entry.entity.toLowerCase() === entity.toLowerCase() && entry.field.toLowerCase() === field.toLowerCase()).at(-1)?.id;
   return (
     <div className="border-t border-solid border-white/10 mt-1 pt-1">
       <div className="opacity-100">State ledger ({rows.length})</div>
@@ -409,9 +525,9 @@ const ReconciliationPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
   );
 };
 
-const SchedulerTab = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: RuntimeManager }) => (
+const SchedulerTab = ({ snapshot, manager, onOpenFact }: { snapshot: RuntimeSnapshot; manager: RuntimeManager; onOpenFact?: (id: string) => void }) => (
   <div className="flex flex-col gap-3">
-    <StagecraftPanel snapshot={snapshot} manager={manager} />
+    <StagecraftPanel snapshot={snapshot} manager={manager} onOpenFact={onOpenFact} />
     <TalkDecisionsPanel snapshot={snapshot} />
     <div className="text-xs opacity-80">
       <div className="font-medium opacity-100">Extraction</div>
@@ -432,6 +548,18 @@ const SchedulerTab = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manage
       )}
     </div>
     <ReconciliationPanel snapshot={snapshot} />
+    {snapshot.agencyRecovery && (
+      <div data-so="agency-recovery" className="text-xs opacity-80 border-t border-solid border-white/10 pt-1">
+        <div className="font-medium opacity-100">Refused route</div>
+        <div>The player&apos;s last {snapshot.agencyRecovery.boundaries} turns matched no exit of {snapshot.agencyRecovery.checkpointName}. Nothing was narrated on their behalf.</div>
+        <div className="flex flex-wrap items-center gap-2 pt-1">
+          {snapshot.agencyRecovery.alternate && (
+            <button className="menu_button text-xs" data-so="agency-take-alternate" onClick={() => void manager.activateCheckpoint(snapshot.agencyRecovery!.alternate!)}>Take {snapshot.agencyRecovery.alternateName}</button>
+          )}
+          <button className="menu_button text-xs" data-so="agency-generate-road" onClick={() => void manager.runExpansionNow()}>Generate the road ahead</button>
+        </div>
+      </div>
+    )}
     <div className="text-xs opacity-80">
       <div className="font-medium opacity-100">Expansion</div>
       <div>Queue {snapshot.expansion.scheduler.queueDepth}, in flight {snapshot.expansion.scheduler.inFlight ? "yes" : "no"}</div>
@@ -446,6 +574,9 @@ const SchedulerTab = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manage
             </div>
           )}
           <div>{entry.beats.length} beats{entry.lastError ? ` — ${entry.lastError}` : ""}</div>
+          {(entry.status === "stale" || entry.status === "failed") && (
+            <button data-so="expansion-regenerate" className="menu_button text-xs" onClick={() => { void manager.expansions.regenerate(entry.key); }}>Regenerate</button>
+          )}
           {entry.beats.slice(0, 3).map((beat) => <div key={beat.objective}>- {beat.objective}</div>)}
         </div>
       ))}
@@ -466,11 +597,49 @@ const LoreForced = ({ record }: { record: RuntimeSnapshot["loreForced"] | undefi
   );
 };
 
-const PayloadTab = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
+// v2.3 plan 09. What the NEXT reply will carry, in the order ST assembles it, with the one control
+// this surface owns per contributor. It is read from ST's own extension prompts rather than from the
+// last capture — a capture answers what the previous turn carried, which is a different question.
+const NextTurnPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: RuntimeManager }) => {
+  const rows = snapshot.nextTurn;
+  return (
+    <div id="so-next-turn" className="flex flex-col gap-1">
+      <div className="font-medium opacity-100">Next reply ({rows.length} contributor{rows.length === 1 ? "" : "s"})</div>
+      {rows.length === 0 ? (
+        <div className="opacity-70">Nothing is injected into the next reply.</div>
+      ) : rows.map((row) => (
+        <div key={row.key} data-so="next-turn-row" data-key={row.key} className="border-t border-solid border-white/10 pt-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="opacity-100">{row.label}</span>
+            <span className="opacity-60">depth {row.depth} · {row.characters} chars</span>
+            {row.target && <span className="st-pill px-1 text-[10px]" title="Injected only for the member ST drafts">private → {row.target}</span>}
+            {row.oneShot && <span className="st-pill px-1 text-[10px]">one turn</span>}
+            {row.freshness !== "live" && <span className="text-yellow-300">{row.freshness}</span>}
+            {row.fallback && <span className="text-yellow-300">fell back ({row.fallback})</span>}
+          </div>
+          <div className="opacity-60">{row.owner}</div>
+          <div className="whitespace-pre-wrap opacity-80">{row.preview}</div>
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            {row.oneShot && (
+              <button data-so="next-turn-clear" className="menu_button text-xs" onClick={() => manager.previewActions.clearNote()}>Clear the note</button>
+            )}
+            {row.key === "story_orchestrator_scene" && (
+              <button data-so="next-turn-reread-scene" className="menu_button text-xs" onClick={() => void manager.previewActions.rerunScene()}>Re-read the scene</button>
+            )}
+            <span className="opacity-60">edited in: {row.ownerTab}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const PayloadTab = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: RuntimeManager }) => {
   const captures = snapshot.payloadCaptures;
   return (
     <div className="text-xs opacity-80 flex flex-col gap-2">
       <LoreForced record={snapshot.loreForced} />
+      <NextTurnPanel snapshot={snapshot} manager={manager} />
       <div className="font-medium opacity-100">Injected prompt payload</div>
       {captures.length === 0 ? (
         <div className="opacity-70">No captures yet. Blocks are recorded when a generation starts.</div>
@@ -540,6 +709,14 @@ const StoryControls = ({ snapshot, manager, onEditStory }: { snapshot: RuntimeSn
 
 export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditStory, onFixWithWizard }: DrawerTabsProps) => {
   const [active, setActive] = useState<DrawerTabId>("overview");
+  // v2.3 plan 05: a warden card cites the message a fact was read from, so its button has to land on
+  // that fact. A `bound:` id is the blackboard's, and the blackboard tab is where it lives; a memory
+  // row is focused in the Memory tab instead.
+  const [focusFact, setFocusFact] = useState<string | null>(null);
+  const openFact = (id: string) => {
+    setFocusFact(id);
+    setActive(id.startsWith("bound:") ? "blackboard" : "memory");
+  };
   const authorView = snapshot.ui.authorView;
   const tabs = TABS.filter((tab) => authorView || !tab.authorOnly);
   const activeTab = tabs.some((tab) => tab.id === active) ? active : "overview";
@@ -562,18 +739,18 @@ export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditSt
         <FlagControl manager={manager} />
       </div>
       <div role="tabpanel">
-        {activeTab === "overview" && <OverviewTab snapshot={snapshot} authorView={authorView} onOpenSettings={onOpenSettings} onFixWithWizard={onFixWithWizard} />}
+        {activeTab === "overview" && <OverviewTab snapshot={snapshot} authorView={authorView} onOpenSettings={onOpenSettings} onFixWithWizard={onFixWithWizard} onReread={() => void manager.runExtractionNow(undefined, "recovery")} />}
         {activeTab === "blackboard" && <BlackboardTab snapshot={snapshot} />}
-        {activeTab === "memory" && <MemoryTab snapshot={snapshot} manager={manager} authorView={authorView} />}
-        {activeTab === "scheduler" && <SchedulerTab snapshot={snapshot} manager={manager} />}
-        {activeTab === "payload" && <PayloadTab snapshot={snapshot} />}
+        {activeTab === "memory" && <MemoryTab snapshot={snapshot} manager={manager} authorView={authorView} focusFact={focusFact} />}
+        {activeTab === "scheduler" && <SchedulerTab snapshot={snapshot} manager={manager} onOpenFact={openFact} />}
+        {activeTab === "payload" && <PayloadTab snapshot={snapshot} manager={manager} />}
       </div>
       {activeTab === "overview" && <StoryControls snapshot={snapshot} manager={manager} onEditStory={onEditStory} />}
       {/* The driver steers the story — Suggest/Probe/Advance/Nudge are author tools by D1, never
           part of the player surface, whatever the copilot setting says. */}
       {snapshot.copilot.enabled && authorView && (
         <div className="border-t border-solid border-white/10 pt-2">
-          <DriverPanel context={driver.context} checkpoints={snapshot.checkpoints} activeNudge={driver.activeNudge} controller={driver.controller} authorView={authorView} />
+          <DriverPanel context={driver.context} checkpoints={snapshot.checkpoints} activeNudge={driver.activeNudge} controller={driver.controller} authorView={authorView} agency={snapshot.agency} />
         </div>
       )}
     </div>

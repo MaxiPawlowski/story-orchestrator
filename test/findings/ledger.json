@@ -1,0 +1,268 @@
+{
+  "$comment": "v2.3 plan 01 §A. The executable half of the findings register in docs/plans/v2.3/00-overview.md. A row closes when its evidence is green, never by prose. 'jest' rows are asserted by test/findings/ledger.ts through finding(); 'live' and 'human' rows name where they are proven instead. testPending marks a jest row whose reproduction the owning plan still has to write — the reporter prints these so they cannot be forgotten.",
+  "findings": [
+    {
+      "id": "R1",
+      "title": "a late curator result must not be written into a different chat",
+      "owner": "03",
+      "evidence": "jest",
+      "status": "closed",
+      "note": "fixed 2026-09-20 in plan 03: the curator pass mints a RunToken before its first await and checks it at both write edges (the proposal and the catch path). A result whose chat, story, version or epoch moved is journaled and discarded, naming which."
+    },
+    {
+      "id": "R2",
+      "title": "rolling back two writes to one entry must restore the oldest before-image",
+      "owner": "04",
+      "evidence": "jest",
+      "status": "closed",
+      "expectedFailure": "restored the intermediate text, not the original before-image",
+      "note": "v2.3 plan 04: closed. Reverts walk the chain newest-record-first and newest-op-first, so two writes to one entry land back on the original text rather than the intermediate one; the before-image is read AT THE WRITE EDGE; each inverse host call's result is checked, and a failure leaves the record `revert-failed` with its before-image intact instead of reporting a restore that did not happen; and a compare-and-set against the op's `after` refuses to overwrite an entry someone else edited, flagging it `externally-edited`. The op records its target by book file id and entry uid, never the display name."
+    },
+    {
+      "id": "R3",
+      "title": "a false host result must not be reported as applied",
+      "owner": "—",
+      "evidence": "jest",
+      "status": "closed",
+      "note": "fixed 2026-09-18; kept as a regression test 2026-09-20 re-audit: the curator has TWO host write paths (disable and upsert) and this reproduction covered only the disable. A mutation treating an upsert failure as success survived — the code was correct but unpinned. A control now covers the upsert path."
+    },
+    {
+      "id": "R4",
+      "title": "a hydrated engine must still recognise an edit to persisted transition evidence",
+      "owner": "04",
+      "evidence": "jest",
+      "status": "closed",
+      "expectedFailure": "hydrate discards the boundary log and snapshots",
+      "note": "v2.3 plan 04: closed. `EngineState` gains `engineHistory` (the bounded boundary log plus its floor) and `hydrate(state, history)` restores both, so a reload still recognises an edit to the message a committed transition relied on. The log carries a complete state per boundary, so restoring one is exact rather than replayed."
+    },
+    {
+      "id": "E1",
+      "title": "a mutation past the retained history horizon reports an explicit outcome, never a silent no-op",
+      "owner": "04",
+      "evidence": "jest",
+      "status": "closed",
+      "expectedFailure": "instead of an explicit history-unavailable outcome",
+      "note": "v2.3 plan 04: closed. `rollbackFromMessage` now returns `{ok:true, result:\"applied\"|\"noop\"}` or `{ok:false, reason:\"history-unavailable\", oldest}`; the manager quarantines the rows the edit invalidates, records the outcome in the journal and sets `rollbackUnavailable` on the snapshot, which the player surface renders with the two ways out. Never a silent no-op."
+    },
+    {
+      "id": "R5",
+      "title": "extraction must not claim authority over a code-owned quality",
+      "owner": "02",
+      "evidence": "jest",
+      "status": "closed",
+      "expectedFailure": "the extractor was allowed to write a code-owned quality",
+      "note": "v2.3 plan 02: parseSharedReadResponse stamps source:\"extractor\" on every delta and rejects a delta for a quality whose declared source is not extractor, with reason \"code-owned quality\" kept in the audit. The blackboard source check is unchanged; it is now reachable from the extractor path."
+    },
+    {
+      "id": "R6",
+      "title": "a shared read must reject a quality outside the requested scope while accepting short legitimate evidence",
+      "owner": "02",
+      "evidence": "jest",
+      "status": "closed",
+      "expectedFailure": "a delta for a quality outside the requested scope was accepted",
+      "note": "rewritten: the review's version asserts only that nothing was accepted, which an evidence-length rule would satisfy for the wrong reason. Its own evidence string is 7 characters, so the contract test pins both halves. v2.3 plan 02: closed. runSharedRead screens parsed deltas against the residual it asked about and the window it read — a delta outside the requested scope is rejected with reason \"outside requested scope\", and evidence must be a span of one message in that window (reason \"evidence not in window\"). Reconciliation resolves the request whose targeted keys match the read, not the first unresolved event."
+    },
+    {
+      "id": "R7",
+      "title": "an imported story title must reach the update popup as text, never as markup",
+      "owner": "02",
+      "evidence": "jest",
+      "status": "closed",
+      "expectedFailure": "reached the update popup as live markup",
+      "note": "rewritten: asserts the structured description and text-node rendering the remedy returns, not the escaped string the old string API produced v2.3 plan 02: closed. describeStoryUpdate returns {title, from, to, invalidating[], keptCount}; renderStoryUpdate builds the markup from the document it is handed and puts every authored value in a text node; showChoicePopup takes a builder, and a plain string is escaped through a text node because the host assigns string content to innerHTML."
+    },
+    {
+      "id": "R8",
+      "title": "declaring a lorebook as a requirement must not grant the wizard write ownership",
+      "owner": "02",
+      "evidence": "jest",
+      "status": "closed",
+      "expectedFailure": "was granted write authority over it",
+      "note": " v2.3 plan 02: closed. ProvisioningEnvironment splits what the story requires (storyLorebooks) from what the wizard may write (ownedLorebooks): books this wizard created for this story, read out of the session ledger against what the install lists, plus the author grants. upsertLorebookEntry requires ownership and applyProvisioning re-reads the host at the write edge; a grant is recorded on the session through a grantLorebook step."
+    },
+    {
+      "id": "R9",
+      "title": "every validated outcome of a generated beat must become its own outgoing transition",
+      "owner": "07",
+      "evidence": "jest",
+      "status": "closed",
+      "expectedFailure": "merge reads outcomes[0] only",
+      "note": "Closed 2026-09-22 by v2.3 plan 07: mergeExpansions emits one transition per outcome (priority = declaration order), the chain threshold is the MINIMUM over routes so no route starves the anchor, and critique/revalidation check every route (src/generation/paths.ts). Proven by src/generation/merge.review.test.ts and the generation suite."
+    },
+    {
+      "id": "R10",
+      "title": "two distinct replies within the dedupe window must commit two boundaries",
+      "owner": "03",
+      "evidence": "jest",
+      "status": "closed",
+      "note": "fixed 2026-09-20 in plan 03: a rendered reply is keyed by message id plus a revision the bridge bumps on every mutation, so identity decides what one turn is. The 250 ms rule survives only for emitters that send no message id."
+    },
+    {
+      "id": "R11",
+      "title": "a delayed second event for one reply must not add a boundary",
+      "owner": "03",
+      "evidence": "jest",
+      "status": "closed",
+      "note": "fixed 2026-09-20 in plan 03: a rendered reply is keyed by message id plus a revision the bridge bumps on every mutation, so identity decides what one turn is. The 250 ms rule survives only for emitters that send no message id."
+    },
+    {
+      "id": "R12",
+      "title": "well-formed tier content about the wrong entities must not certify capability",
+      "owner": "01",
+      "evidence": "jest",
+      "status": "closed",
+      "note": "fixed 2026-09-20 in plan 01 §B: every tier now grades the answer against the fixture (both deltas; memory mentioning lantern and tunnel; the arc naming the debt and Bel; epistemic hiding/Corin/Bel; ledger Corin + arm + wound). Kept as a regression test."
+    },
+    {
+      "id": "M1",
+      "title": "rolling back a superseding fact reactivates its predecessor",
+      "owner": "04",
+      "evidence": "jest",
+      "status": "closed",
+      "expectedFailure": "left its predecessor retired by a winner that no longer exists",
+      "note": "v2.3 plan 04: closed. A supersession records `supersededAt` (the message the newer entry arrived at), so `dropByMessageId` can clear the links MADE at or after the point and leave the ones it does not touch. The predecessor is active again instead of being retired by a winner that no longer exists."
+    },
+    {
+      "id": "M2",
+      "title": "rollback clears completed-read coverage so a forced re-read can repopulate memory",
+      "owner": "04",
+      "evidence": "jest",
+      "status": "closed",
+      "expectedFailure": "the forced re-read of the corrected window was discarded as already covered",
+      "note": "v2.3 plan 04: closed. `dropByMessageId` drops the read-coverage entries whose window the mutation reached, so the forced re-read of the corrected text is accepted instead of being discarded as already covered."
+    },
+    {
+      "id": "M3",
+      "title": "rolling back a ledger update restores the prior value instead of dropping the row",
+      "owner": "04",
+      "evidence": "jest",
+      "status": "closed",
+      "expectedFailure": "dropped the row instead of restoring the prior value",
+      "note": "v2.3 plan 04: closed. Ledger rows are append-only versions joined by `supersedes`; `buildLedgerView` collapses a key to its newest version, so the edit is still newest-wins where the ledger is read, while `rollbackLedger` drops the versions at or after the point and the prior value reappears. Pinning applies to the KEY, and Remove drops the whole chain."
+    },
+    {
+      "id": "M4",
+      "title": "rolling back a reveal un-retires the belief it retired",
+      "owner": "04",
+      "evidence": "jest",
+      "status": "closed",
+      "expectedFailure": "left the belief it retired still retired",
+      "note": "v2.3 plan 04: closed. A retirement records `retiredAt` (the message and boundary that performed it) next to the display-only `supersededBy` marker, and `rollbackEpistemic` clears the retirements made at or after the point as well as the rows those messages introduced. A reveal rolled back un-retires the belief it retired."
+    },
+    {
+      "id": "M5",
+      "title": "a pinned fact may be superseded by a newer contradicting one",
+      "owner": "05",
+      "evidence": "jest",
+      "status": "closed",
+      "note": "v2.3 plan 05: closed. Pin is retention and nothing else: `capTier`/`expireScoped` still spare a pinned row, while a newer contradicting fact supersedes it like any other. What freezes the story's truth is the new `locked` flag — a locked row is never linked by extraction or consolidation, and its candidate is reported `uncertain` so the conflict surfaces in the reconciliation queue instead of being silently dropped. Both consolidation walks (heuristic and judged) and `applyConsolidation` follow that split."
+    },
+    {
+      "id": "M6",
+      "title": "a pinned fact whose only source was rolled back is withheld from injection until reconfirmed",
+      "owner": "05",
+      "evidence": "jest",
+      "status": "closed",
+      "note": "v2.3 plan 05: closed. `rollbackEpistemic` no longer drops a pinned row whose source message was rolled back and no longer keeps it injected: it keeps the RECORD and quarantines it (`validity: \"source-removed\"`), and `activeEpistemic` — which every epistemic reader, the private block included — goes through — filters anything that is not live. The row stays visible in the author view so it can be reconfirmed (`withOverride`), which converts it to `source: \"author\"` with the reason and boundary recorded. 2026-09-22: the note described the reconfirm as available while only the PURE function existed — `reconfirmMemoryEntry` mapped the memory tiers and `ConflictQueue` read them, so a quarantined PRIVATE row could not be reconfirmed by anyone and this title's \"until reconfirmed\" clause had nothing to pass against. Both stores are now handled by that one decision and the contract test asserts the second clause too (mutation-checked: removing the override fails the case and nothing else)."
+    },
+    {
+      "id": "M7",
+      "title": "an edited entry is re-costed before it is budgeted",
+      "owner": "05",
+      "evidence": "jest",
+      "status": "closed",
+      "note": "v2.3 plan 05: closed. `editEntryText` clears `tokens`, so the estimator applies immediately and the exact count refreshes asynchronously (`computeEntryTokens`). An 80-character edit no longer inherits the one-token cost of the text it replaced."
+    },
+    {
+      "id": "C1",
+      "title": "a v2.2 late result (lore, scene, typed, judge ring) carries chat and session identity",
+      "owner": "03",
+      "evidence": "jest",
+      "status": "closed",
+      "note": "fixed 2026-09-20 in plan 03: JudgeRuntime.ask captures the asking context and mints a token BEFORE the await, stamps the call ring row with the boundary it was asked at, and refuses to record a call whose chat, story or session moved. The answer is still returned to the caller, which has its own check at its own write edge. 2026-09-20 RE-AUDIT: this row was closed on the judge ring alone, while its own title names four surfaces. lore, scene and typed were all still todo in the write-edge census. Now all four are checked, with a control per surface in c1Surfaces.review.test.ts. The lore surface had been INVISIBLE to the census because LoreSelector.select writes through force(), a verb WRITE_NAME did not list although the plan text named it — an enumeration is only as complete as its vocabulary."
+    },
+    {
+      "id": "C2",
+      "title": "a failed scene read ages the stored scene instead of leaving it live",
+      "owner": "03",
+      "evidence": "jest",
+      "status": "closed",
+      "note": "fixed 2026-09-20 in plan 03: a scene read that does not answer records a miss on the stored record (failures, staleSince, confirmedBoundary) instead of returning silently, and sync() withholds the tracker once SCENE_STALE_AFTER consecutive reads have failed. The facts are kept, not forgotten. 2026-09-20 follow-up: this row was closed on the injected block alone, while the player line, the look-ahead headingTo and the three scene macros all still read the stale record. Staleness now lives in @judge/scene (isSceneStale/confirmedSceneFacts) so all four consumers ask one question, and the player line reads \"Somewhere the story has not settled yet.\" A value withheld from one consumer and read by three others is not withheld."
+    },
+    {
+      "id": "C3",
+      "title": "a conflicted or source-removed record is excluded from injection, not merely ranked lower",
+      "owner": "05",
+      "evidence": "jest",
+      "status": "closed",
+      "note": "v2.3 plan 05: closed. A quarantined record (validity source-removed or conflicted) is EXCLUDED from every injection, canon and the warden fact list - not merely ranked lower. Entry level: `selectTierEntries` filters `isLive` before scoring, so a strength-3 conflicted fact cannot outweigh a strength-1 live one (pinned by the contract test). Ledger level: `buildLedgerView` and `liveLedgerRows` skip a quarantined version and fall back to the newest version still standing, so a quarantined update neither speaks for the key nor hides the value it replaced. The queue that SETS `conflicted` is `src/memory/conflicts.ts` (pure detection over ledger/blackboard/facts plus `markConflicted` and `resolveConflict`); its author surface is slice 2 of this plan. 2026-09-22: the title says \"conflicted OR source-removed\" and the contract test only built a conflicted row; it now asserts the source-removed case as well."
+    },
+    {
+      "id": "C4",
+      "title": "a refused prepared route is an honest stall with a recovery, not narrated compliance",
+      "owner": "07",
+      "evidence": "human",
+      "status": "open",
+      "provenBy": "plan 11 railroading rubric, plus the refusal fixtures and precedence tests in plan 07"
+    },
+    {
+      "id": "R7-live",
+      "title": "the hostile-title popup actually opens and returns its choice",
+      "owner": "02",
+      "evidence": "live",
+      "status": "closed",
+      "provenBy": "J2 twice with a studio_save variant carrying an invalidating change (a title-only edit is compatible and never opens the popup)",
+      "note": "v2.3 plan 02: closed. J2.12 carries the variant (a hostile title AND an orphaned quality in one save, because a title-only edit is compatible and never opens the popup). Two consecutive runs, 10/10 each, cleanup clean, no check needed a retry: test/journeys/records/v2.3-plan02/j2-run{1,2}.{json,log}. The popup renders the title as an escaped text node inside .popup-content (the assertion is scoped there: ST every popup ships its own hidden crop <img>, which a dialog-wide query reads as an injection), the payload never executes, and all three buttons are present."
+    },
+    {
+      "id": "F1",
+      "title": "the wizard rating rubric passes on its first attempt",
+      "owner": "02",
+      "evidence": "live",
+      "status": "closed",
+      "provenBy": "J9.1 first-attempt pass in at least 3 of 4 consecutive runs, without retry",
+      "note": "v2.3 plan 02: closed. J9.1 outcome=pass, firstAttempt=pass, retries=0 in FOUR consecutive J9 runs on the built tree (criterion was >= 3 of 4): test/journeys/records/v2.3-plan02/f1-j9-run{1,2,3,4}.json. The repair prompt carries the literal shape (quality-rating-no-scale is blocking and its message quotes the rubric form with its 1-to-5 example). Separately, J9.5's transition half is model-dependent (a real read omits the delta about half the time) and now retries once, REPORTED in the record, because eventual passes with retries are not evidence of first-attempt behaviour."
+    },
+    {
+      "id": "F2",
+      "title": "the in-memory settings view agrees with stored settings after a reload",
+      "owner": "06",
+      "evidence": "jest",
+      "status": "closed",
+      "note": "v2.3 plan 06: closed. Reproduced live 2026-09-20 during J1 (a storyless chat reported profileId null while the install held one). The gate was built then — `getGlobalSettings()` writes back only once `settingsAreLoaded()` — but the storyless paths never called it: `createExtras()` filled settings from the defaults, and both that path (the manager's field initialiser) and `clearStory` build their extras there, so only `hydrateExtras` folded the install in. `createExtras()` now applies the install-wide settings itself, with explicit NO_CHAT_OVERRIDES rather than `readChatOverrides` on its own fresh talk state (`createTalk()` sets `enabled: true`, which would have read as a per-chat override and masked an install-wide `talk.enabled: false`). Proven by the contract test flipping green plus the untouched control that `hydrateExtras` still sees the install settings."
+    },
+    {
+      "id": "F3",
+      "title": "every J11 check imports its own story",
+      "owner": "01",
+      "evidence": "live",
+      "status": "open",
+      "provenBy": "--only on every J11 check"
+    },
+    {
+      "id": "F4",
+      "title": "lore ranking orders by a graded score, not a tie-prone probability",
+      "owner": "10",
+      "evidence": "live",
+      "status": "by-design",
+      "provenBy": "plan 10's spike measured both arms live on 2026-09-22: the graded Score arm ordered WORSE (nDCG@4 0.886 vs Noul 0.927) and tied far more (tie rate 1.00 vs 0.08), so pickLore is unchanged, by measurement rather than by omission — the golden test/goldens/judge/lore-relevance.json replays it in jest",
+      "note": "Corrected from `open` during plan 11's register audit (2026-09-22). `open` said this was pending work; the work was done and the change was REFUSED on evidence, which is `by-design`. A future agent sent to build the Score ranking by this row would have rebuilt something already measured as worse."
+    },
+    {
+      "id": "F5",
+      "title": "the curator has no create op",
+      "owner": "10",
+      "evidence": "human",
+      "status": "by-design",
+      "provenBy": "a narrow, spike-gated create op is an enhancement in plan 10; the absence is not a defect"
+    },
+    {
+      "id": "F6",
+      "title": "J5.6 drafted a disabled member",
+      "owner": "—",
+      "evidence": "live",
+      "status": "closed",
+      "provenBy": "fixed in v2.2"
+    }
+  ]
+}

@@ -75,14 +75,20 @@ export function consolidateTier(entries: MemoryEntry[], matches: MatchSets): Con
       const sameType = entries[j].type === entry.type;
       const identical = normalized[i] === normalized[j];
 
-      if (inDup && sameType && !identical && !entries[j].pinned) {
+      // v2.3 plan 05 (M5): pin is retention, not truth. A pinned predecessor is superseded like any
+      // other; only a lock freezes it, and a locked row sends its candidate to the queue instead.
+      if (entries[j].locked) {
+        uncertainIdx = uncertainIdx === -1 ? j : uncertainIdx;
+        continue;
+      }
+      if (inDup && sameType && !identical && !entries[j].supersededBy) {
         if (hasMarker) supersededIdx = supersededIdx === -1 ? j : supersededIdx;
         else uncertainIdx = uncertainIdx === -1 ? j : uncertainIdx;
       } else if (inDup) {
         isDuplicate = true;
         confirmedId = entries[j].id;
         break;
-      } else if (inSameTopic && sameType && !entries[j].pinned) {
+      } else if (inSameTopic && sameType) {
         if (hasMarker) supersededIdx = supersededIdx === -1 ? j : supersededIdx;
         else uncertainIdx = uncertainIdx === -1 ? j : uncertainIdx;
       }
@@ -106,7 +112,7 @@ export function consolidateTier(entries: MemoryEntry[], matches: MatchSets): Con
   return result;
 }
 
-export function applyConsolidation(state: MemoryStoreState, result: ConsolidationResult): MemoryStoreState {
+export function applyConsolidation(state: MemoryStoreState, result: ConsolidationResult, at: { messageId: number; boundary?: number }): MemoryStoreState {
   const dropped = new Set(result.droppedIds);
   const superseded = new Map(result.supersededPairs.map((pair) => [pair.loserId, pair.winnerId]));
   const confirmed = new Set(result.confirmedIds);
@@ -115,8 +121,11 @@ export function applyConsolidation(state: MemoryStoreState, result: Consolidatio
     .map((entry) => {
       let next = entry;
       const winner = superseded.get(entry.id);
-      if (winner && !entry.pinned) next = { ...next, supersededBy: winner };
-      if (confirmed.has(entry.id)) next = { ...next, recallCount: next.recallCount + 1, contradicted: false };
+      // First link wins (v2.3 plan 04). Re-retiring an already-retired entry would overwrite the
+      // provenance of the link that is already there, and a rollback could then never restore the
+      // state the cut saw: the property test in `rollbackReplay.property.test.ts` found exactly that.
+      if (winner && !entry.locked && !entry.supersededBy) next = { ...next, supersededBy: winner, supersededAt: at };
+      if (confirmed.has(entry.id)) next = { ...next, recallCount: next.recallCount + 1, contradicted: false, confirmedAt: [...(next.confirmedAt ?? []), at] };
       return next;
     });
   return { ...state, entries };
@@ -163,7 +172,10 @@ export function consolidateTierJudged(entries: MemoryEntry[], matches: MatchSets
         break;
       }
       if (relation === "update") {
-        if (!entries[j].pinned && supersededIdx === -1) supersededIdx = j;
+        // A locked row cannot be superseded, so its candidate becomes a SURFACED conflict instead of
+        // a silent loss (v2.3 plan 05: the reconciliation queue is where an author decides).
+        if (entries[j].locked) { if (uncertainIdx === -1) uncertainIdx = j; }
+        else if (supersededIdx === -1) supersededIdx = j;
         continue;
       }
       if (relation === "distinct" || relation === "unrelated") {
@@ -172,14 +184,20 @@ export function consolidateTierJudged(entries: MemoryEntry[], matches: MatchSets
       }
       const sameType = entries[j].type === entry.type;
       const identical = normalized[i] === normalized[j];
-      if (inDup && sameType && !identical && !entries[j].pinned) {
+      // v2.3 plan 05 (M5): pin is retention, not truth. A pinned predecessor is superseded like any
+      // other; only a lock freezes it, and a locked row sends its candidate to the queue instead.
+      if (entries[j].locked) {
+        uncertainIdx = uncertainIdx === -1 ? j : uncertainIdx;
+        continue;
+      }
+      if (inDup && sameType && !identical && !entries[j].supersededBy) {
         if (hasMarker) supersededIdx = supersededIdx === -1 ? j : supersededIdx;
         else uncertainIdx = uncertainIdx === -1 ? j : uncertainIdx;
       } else if (inDup) {
         isDuplicate = true;
         confirmedId = entries[j].id;
         break;
-      } else if (inSameTopic && sameType && !entries[j].pinned) {
+      } else if (inSameTopic && sameType) {
         if (hasMarker) supersededIdx = supersededIdx === -1 ? j : supersededIdx;
         else uncertainIdx = uncertainIdx === -1 ? j : uncertainIdx;
       }

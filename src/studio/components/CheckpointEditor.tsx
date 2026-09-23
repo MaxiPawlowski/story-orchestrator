@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { TENSION_LEVELS, type ArcBridge, type Checkpoint, type CheckpointEffects, type PrimitiveValue, type TalkControl, type TensionLevel } from "@engine/index";
 import { useDraftStore } from "../draft";
 import { addCheckpoint, clearStartCheckpoint, removeCheckpoint, setArcBridges, setStartCheckpoint, updateCheckpoint } from "../mutations";
+import AgencyEditor from "./AgencyEditor";
 import SnapshotEditor from "./SnapshotEditor";
 import EffectsEditor from "./EffectsEditor";
 import ScopePreview from "./ScopePreview";
@@ -197,6 +198,15 @@ const CheckpointEditor: React.FC<{ backgroundNames?: string[] }> = ({ background
                   control={selected.talk_control}
                   roster={draft.roster}
                   onChange={(next: TalkControl | undefined) => patch({ talk_control: next })}
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <span className="text-xs st-muted">Agency</span>
+                <AgencyEditor
+                  policy={selected.agency}
+                  checkpoints={draft.checkpoints.filter((checkpoint) => checkpoint.id !== selected.id)}
+                  onChange={(next) => patch({ agency: next })}
                 />
               </div>
 

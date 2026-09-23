@@ -10,6 +10,10 @@ import { revalidateExpansion } from "./revalidate";
 import type { ExpansionCacheEntry } from "./types";
 
 jest.mock("@services/STAPI", () => ({
+  settingsAreLoaded: () => true,
+  settingsReady: async () => {},
+  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
+  readBackBoundary: () => null,
   sendConnectionProfileRequest: jest.fn(async () => "{}"),
 }));
 
@@ -129,10 +133,25 @@ describe("background generation", () => {
     const pass = revalidateExpansion(story, cacheEntry(), { key_found: false, approach: "unknown" });
     expect(pass.status).toBe("pass");
 
+    // A cache that no longer holds enough beats cannot carry the player to the anchor, and under
+    // v2.3 plan 07 that is `fail`, not `partial`: `partial` now means a chain whose ROUTES disagree
+    // (some reach the anchor, some do not), which is a real distinction the old single-route read
+    // could not make. Before the change this returned `partial` only because a beat had been applied.
     const entry = cacheEntry();
     entry.beats = [entry.beats[0]];
-    const partial = revalidateExpansion(story, entry, { key_found: false, approach: "unknown" });
-    expect(partial.status).toBe("partial");
+    const truncated = revalidateExpansion(story, entry, { key_found: false, approach: "unknown" });
+    expect(truncated.status).toBe("fail");
+  });
+
+  it("R9: a chain with one bridging route and one that stalls is partial, and names the route", () => {
+    const entry = cacheEntry();
+    const [first, second] = entry.beats;
+    // A second beat whose outcome never sets `key_found`: the route through it cannot reach the
+    // anchor's snapshot, while the original route still can.
+    entry.beats = [first, { ...second, outcomes: [second.outcomes[0], { ...second.outcomes[0], id: "1:1", label: "Stalls", deltas: [] }] }];
+    const mixed = revalidateExpansion(story, entry, { key_found: false, approach: "unknown" });
+    expect(mixed.status).toBe("partial");
+    expect(mixed.issues.some((issue) => issue.startsWith("route "))).toBe(true);
   });
 
   it("does not treat values missing from the basis as drift when beats still bridge to target", () => {

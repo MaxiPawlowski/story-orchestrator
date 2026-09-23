@@ -1,0 +1,45 @@
+import type { ConflictPair } from "@memory/index";
+import type { MemoryCoordinator } from "./coordinators/memoryCoordinator";
+
+// v2.3 plan 05. The memory actions the author view drives: the reconciliation queue, locks,
+// reconfirmation and the legacy-pin prompt. They stay in one object because they are one conversation
+// — "is this true?" — and because the manager, which is the façade everything else calls, is held to
+// a line budget a dozen one-line delegates would spend for nothing.
+export interface MemoryActionDeps {
+  getConflicts: () => ConflictPair[];
+  resolveMemoryConflict: (key: string, keepId: string, lock: boolean) => Promise<boolean>;
+  dismissMemoryConflict: (key: string) => Promise<boolean>;
+  setMemoryLocked: (id: string, locked: boolean) => Promise<void>;
+  reconfirmMemoryEntry: (id: string) => Promise<boolean>;
+  dismissLegacyPinPrompt: () => Promise<void>;
+  rereadConflictWindow: (key: string) => Promise<boolean>;
+}
+
+/** The manager's side of the conversation: every action is the coordinator's, one to one. */
+export function memoryDelegates(memory: MemoryCoordinator): MemoryActionDeps {
+  return {
+    getConflicts: () => memory.getConflicts(),
+    resolveMemoryConflict: (key, keepId, lock) => memory.resolveMemoryConflict(key, keepId, lock),
+    dismissMemoryConflict: (key) => memory.dismissMemoryConflict(key),
+    setMemoryLocked: (id, locked) => memory.setMemoryLocked(id, locked),
+    reconfirmMemoryEntry: (id) => memory.reconfirmMemoryEntry(id),
+    dismissLegacyPinPrompt: () => memory.dismissLegacyPinPrompt(),
+    rereadConflictWindow: (key) => memory.rereadConflictWindow(key),
+  };
+}
+
+export function memoryActions(deps: MemoryActionDeps) {
+  return {
+    getConflicts: () => deps.getConflicts(),
+    resolveMemoryConflict: (key: string, keepId: string) => deps.resolveMemoryConflict(key, keepId, false),
+    /** Keep this side AND freeze it: one decision, applied in one write (see memoryQueue). */
+    lockAsCanon: (key: string, keepId: string) => deps.resolveMemoryConflict(key, keepId, true),
+    dismissMemoryConflict: (key: string) => deps.dismissMemoryConflict(key),
+    setMemoryLocked: (id: string, locked: boolean) => deps.setMemoryLocked(id, locked),
+    reconfirmMemoryEntry: (id: string) => deps.reconfirmMemoryEntry(id),
+    dismissLegacyPinPrompt: () => deps.dismissLegacyPinPrompt(),
+    rereadConflictWindow: (key: string) => deps.rereadConflictWindow(key),
+  };
+}
+
+export type MemoryActions = ReturnType<typeof memoryActions>;

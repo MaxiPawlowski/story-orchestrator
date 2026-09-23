@@ -1,0 +1,77 @@
+{
+  "format": 2,
+  "id": "so-preset-probe",
+  "version": 1,
+  "title": "SO Preset Probe",
+  "description": "Live check: an authored preset effect either reaches the backend's sampler stack or is refused with a reason, and never silently claims success.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Begin.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "preset_on",
+      "name": "Preset On",
+      "objective": "Ask for a sampler stack that is not what the backend is running.",
+      "type": "intermediate",
+      "effects": {
+        "preset": {
+          "name": "Story: SO Preset Probe",
+          "settings": {
+            "temp": 0.42,
+            "top_p": 0.42
+          }
+        }
+      }
+    },
+    {
+      "id": "preset_off",
+      "name": "Preset Off",
+      "objective": "No preset this checkpoint.",
+      "type": "anchor",
+      "effects": {
+        "preset": null
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "preset_on",
+      "priority": 1,
+      "gate": {
+        "q": "message_count",
+        "op": ">=",
+        "v": 1000
+      }
+    },
+    {
+      "from": "preset_on",
+      "to": "preset_off",
+      "priority": 1,
+      "gate": {
+        "q": "message_count",
+        "op": ">=",
+        "v": 1000
+      }
+    }
+  ],
+  "roster": [
+    {
+      "id": "DM Narrator",
+      "name": "DM Narrator"
+    }
+  ]
+}

@@ -1,11 +1,11 @@
 {
-  "recordedAt": "2026-09-19T22:49:10.160Z",
+  "recordedAt": "2026-09-22T11:20:27.988Z",
   "summary": {
     "use": "critic",
     "fixture": "critic",
-    "right": 157,
+    "right": 156,
     "total": 160,
-    "rate": 0.9812,
+    "rate": 0.975,
     "families": [
       {
         "family": "verdict",
@@ -16,7 +16,7 @@
       },
       {
         "family": "contradicts",
-        "right": 38,
+        "right": 37,
         "total": 40,
         "floor": 0.9,
         "ok": true
@@ -37,8 +37,10 @@
       }
     ],
     "spanish": "24/24",
-    "p50LatencyMs": 1106,
+    "p50LatencyMs": 999,
+    "requestedModel": "jev-1.13.0",
     "model": "jev-1.13.0",
+    "modelMatched": true,
     "min": 0.85,
     "ok": true
   },
@@ -46,962 +48,962 @@
     {
       "id": "K01.verdict",
       "right": true,
-      "latencyMs": 246,
+      "latencyMs": 235,
       "picked": "c=0.1 a=0.97 n=0.06"
     },
     {
       "id": "K01.contradicts",
       "right": true,
-      "latencyMs": 246,
+      "latencyMs": 235,
       "picked": "c=0.1 a=0.97 n=0.06"
     },
     {
       "id": "K01.advances",
       "right": true,
-      "latencyMs": 246,
+      "latencyMs": 235,
       "picked": "c=0.1 a=0.97 n=0.06"
     },
     {
       "id": "K01.newCharacter",
       "right": true,
-      "latencyMs": 246,
+      "latencyMs": 235,
       "picked": "c=0.1 a=0.97 n=0.06"
     },
     {
       "id": "K02.verdict",
       "right": true,
-      "latencyMs": 285,
-      "picked": "c=0.96 a=0.26 n=0.07"
+      "latencyMs": 233,
+      "picked": "c=0.95 a=0.25 n=0.06"
     },
     {
       "id": "K02.contradicts",
       "right": true,
-      "latencyMs": 285,
-      "picked": "c=0.96 a=0.26 n=0.07"
+      "latencyMs": 233,
+      "picked": "c=0.95 a=0.25 n=0.06"
     },
     {
       "id": "K02.advances",
       "right": true,
-      "latencyMs": 285,
-      "picked": "c=0.96 a=0.26 n=0.07"
+      "latencyMs": 233,
+      "picked": "c=0.95 a=0.25 n=0.06"
     },
     {
       "id": "K02.newCharacter",
       "right": true,
-      "latencyMs": 285,
-      "picked": "c=0.96 a=0.26 n=0.07"
+      "latencyMs": 233,
+      "picked": "c=0.95 a=0.25 n=0.06"
     },
     {
       "id": "K03.verdict",
       "right": true,
-      "latencyMs": 268,
+      "latencyMs": 219,
       "picked": "c=0.05 a=0.94 n=0.98"
     },
     {
       "id": "K03.contradicts",
       "right": true,
-      "latencyMs": 268,
+      "latencyMs": 219,
       "picked": "c=0.05 a=0.94 n=0.98"
     },
     {
       "id": "K03.advances",
       "right": true,
-      "latencyMs": 268,
+      "latencyMs": 219,
       "picked": "c=0.05 a=0.94 n=0.98"
     },
     {
       "id": "K03.newCharacter",
       "right": true,
-      "latencyMs": 268,
+      "latencyMs": 219,
       "picked": "c=0.05 a=0.94 n=0.98"
     },
     {
       "id": "K04.verdict",
       "right": true,
-      "latencyMs": 237,
-      "picked": "c=0.11 a=0.08 n=0.06"
+      "latencyMs": 240,
+      "picked": "c=0.11 a=0.08 n=0.08"
     },
     {
       "id": "K04.contradicts",
       "right": true,
-      "latencyMs": 237,
-      "picked": "c=0.11 a=0.08 n=0.06"
+      "latencyMs": 240,
+      "picked": "c=0.11 a=0.08 n=0.08"
     },
     {
       "id": "K04.advances",
       "right": true,
-      "latencyMs": 237,
-      "picked": "c=0.11 a=0.08 n=0.06"
+      "latencyMs": 240,
+      "picked": "c=0.11 a=0.08 n=0.08"
     },
     {
       "id": "K04.newCharacter",
       "right": true,
-      "latencyMs": 237,
-      "picked": "c=0.11 a=0.08 n=0.06"
+      "latencyMs": 240,
+      "picked": "c=0.11 a=0.08 n=0.08"
     },
     {
       "id": "K05.verdict",
       "right": true,
-      "latencyMs": 252,
-      "picked": "c=0.05 a=0.89 n=0.14"
+      "latencyMs": 249,
+      "picked": "c=0.05 a=0.89 n=0.15"
     },
     {
       "id": "K05.contradicts",
       "right": true,
-      "latencyMs": 252,
-      "picked": "c=0.05 a=0.89 n=0.14"
+      "latencyMs": 249,
+      "picked": "c=0.05 a=0.89 n=0.15"
     },
     {
       "id": "K05.advances",
       "right": true,
-      "latencyMs": 252,
-      "picked": "c=0.05 a=0.89 n=0.14"
+      "latencyMs": 249,
+      "picked": "c=0.05 a=0.89 n=0.15"
     },
     {
       "id": "K05.newCharacter",
       "right": true,
-      "latencyMs": 252,
-      "picked": "c=0.05 a=0.89 n=0.14"
+      "latencyMs": 249,
+      "picked": "c=0.05 a=0.89 n=0.15"
     },
     {
       "id": "K06.verdict",
       "right": true,
-      "latencyMs": 277,
-      "picked": "c=0.83 a=0.89 n=0.75"
+      "latencyMs": 258,
+      "picked": "c=0.83 a=0.89 n=0.65"
     },
     {
       "id": "K06.contradicts",
       "right": true,
-      "latencyMs": 277,
-      "picked": "c=0.83 a=0.89 n=0.75"
+      "latencyMs": 258,
+      "picked": "c=0.83 a=0.89 n=0.65"
     },
     {
       "id": "K06.advances",
       "right": true,
-      "latencyMs": 277,
-      "picked": "c=0.83 a=0.89 n=0.75"
+      "latencyMs": 258,
+      "picked": "c=0.83 a=0.89 n=0.65"
     },
     {
       "id": "K06.newCharacter",
       "right": true,
-      "latencyMs": 277,
-      "picked": "c=0.83 a=0.89 n=0.75"
+      "latencyMs": 258,
+      "picked": "c=0.83 a=0.89 n=0.65"
     },
     {
       "id": "K07.verdict",
       "right": true,
-      "latencyMs": 491,
-      "picked": "c=0.1 a=0.96 n=0.11"
+      "latencyMs": 433,
+      "picked": "c=0.09 a=0.96 n=0.1"
     },
     {
       "id": "K07.contradicts",
       "right": true,
-      "latencyMs": 491,
-      "picked": "c=0.1 a=0.96 n=0.11"
+      "latencyMs": 433,
+      "picked": "c=0.09 a=0.96 n=0.1"
     },
     {
       "id": "K07.advances",
       "right": true,
-      "latencyMs": 491,
-      "picked": "c=0.1 a=0.96 n=0.11"
+      "latencyMs": 433,
+      "picked": "c=0.09 a=0.96 n=0.1"
     },
     {
       "id": "K07.newCharacter",
       "right": true,
-      "latencyMs": 491,
-      "picked": "c=0.1 a=0.96 n=0.11"
+      "latencyMs": 433,
+      "picked": "c=0.09 a=0.96 n=0.1"
     },
     {
       "id": "K08.verdict",
       "right": true,
-      "latencyMs": 507,
-      "picked": "c=0.94 a=0.76 n=0.05"
+      "latencyMs": 523,
+      "picked": "c=0.95 a=0.81 n=0.04"
     },
     {
       "id": "K08.contradicts",
       "right": true,
-      "latencyMs": 507,
-      "picked": "c=0.94 a=0.76 n=0.05"
+      "latencyMs": 523,
+      "picked": "c=0.95 a=0.81 n=0.04"
     },
     {
       "id": "K08.advances",
       "right": true,
-      "latencyMs": 507,
-      "picked": "c=0.94 a=0.76 n=0.05"
+      "latencyMs": 523,
+      "picked": "c=0.95 a=0.81 n=0.04"
     },
     {
       "id": "K08.newCharacter",
       "right": true,
-      "latencyMs": 507,
-      "picked": "c=0.94 a=0.76 n=0.05"
+      "latencyMs": 523,
+      "picked": "c=0.95 a=0.81 n=0.04"
     },
     {
       "id": "K09.verdict",
       "right": true,
-      "latencyMs": 535,
-      "picked": "c=0.05 a=0.07 n=0.07"
+      "latencyMs": 446,
+      "picked": "c=0.06 a=0.07 n=0.06"
     },
     {
       "id": "K09.contradicts",
       "right": true,
-      "latencyMs": 535,
-      "picked": "c=0.05 a=0.07 n=0.07"
+      "latencyMs": 446,
+      "picked": "c=0.06 a=0.07 n=0.06"
     },
     {
       "id": "K09.advances",
       "right": true,
-      "latencyMs": 535,
-      "picked": "c=0.05 a=0.07 n=0.07"
+      "latencyMs": 446,
+      "picked": "c=0.06 a=0.07 n=0.06"
     },
     {
       "id": "K09.newCharacter",
       "right": true,
-      "latencyMs": 535,
-      "picked": "c=0.05 a=0.07 n=0.07"
+      "latencyMs": 446,
+      "picked": "c=0.06 a=0.07 n=0.06"
     },
     {
       "id": "K10.verdict",
       "right": true,
-      "latencyMs": 532,
-      "picked": "c=0.07 a=0.88 n=0.98"
+      "latencyMs": 583,
+      "picked": "c=0.07 a=0.89 n=0.98"
     },
     {
       "id": "K10.contradicts",
       "right": true,
-      "latencyMs": 532,
-      "picked": "c=0.07 a=0.88 n=0.98"
+      "latencyMs": 583,
+      "picked": "c=0.07 a=0.89 n=0.98"
     },
     {
       "id": "K10.advances",
       "right": true,
-      "latencyMs": 532,
-      "picked": "c=0.07 a=0.88 n=0.98"
+      "latencyMs": 583,
+      "picked": "c=0.07 a=0.89 n=0.98"
     },
     {
       "id": "K10.newCharacter",
       "right": true,
-      "latencyMs": 532,
-      "picked": "c=0.07 a=0.88 n=0.98"
+      "latencyMs": 583,
+      "picked": "c=0.07 a=0.89 n=0.98"
     },
     {
       "id": "V01-clean.verdict",
       "right": true,
-      "latencyMs": 498,
-      "picked": "c=0.06 a=0.97 n=0.05 s=0.795"
+      "latencyMs": 553,
+      "picked": "c=0.06 a=0.97 n=0.05 s=0.8225"
     },
     {
       "id": "V01-clean.contradicts",
       "right": true,
-      "latencyMs": 498,
-      "picked": "c=0.06 a=0.97 n=0.05 s=0.795"
+      "latencyMs": 553,
+      "picked": "c=0.06 a=0.97 n=0.05 s=0.8225"
     },
     {
       "id": "V01-clean.advances",
       "right": true,
-      "latencyMs": 498,
-      "picked": "c=0.06 a=0.97 n=0.05 s=0.795"
+      "latencyMs": 553,
+      "picked": "c=0.06 a=0.97 n=0.05 s=0.8225"
     },
     {
       "id": "V01-clean.newCharacter",
       "right": true,
-      "latencyMs": 498,
-      "picked": "c=0.06 a=0.97 n=0.05 s=0.795"
+      "latencyMs": 553,
+      "picked": "c=0.06 a=0.97 n=0.05 s=0.8225"
     },
     {
       "id": "V01-contradicts.verdict",
       "right": true,
-      "latencyMs": 543,
-      "picked": "c=0.89 a=0.29 n=0.11 s=0.625"
+      "latencyMs": 505,
+      "picked": "c=0.89 a=0.33 n=0.1 s=0.6675"
     },
     {
       "id": "V01-contradicts.contradicts",
       "right": true,
-      "latencyMs": 543,
-      "picked": "c=0.89 a=0.29 n=0.11 s=0.625"
+      "latencyMs": 505,
+      "picked": "c=0.89 a=0.33 n=0.1 s=0.6675"
     },
     {
       "id": "V01-contradicts.advances",
       "right": false,
-      "latencyMs": 543,
-      "picked": "c=0.89 a=0.29 n=0.11 s=0.625"
+      "latencyMs": 505,
+      "picked": "c=0.89 a=0.33 n=0.1 s=0.6675"
     },
     {
       "id": "V01-contradicts.newCharacter",
       "right": true,
-      "latencyMs": 543,
-      "picked": "c=0.89 a=0.29 n=0.11 s=0.625"
+      "latencyMs": 505,
+      "picked": "c=0.89 a=0.33 n=0.1 s=0.6675"
     },
     {
       "id": "V01-wanders.verdict",
       "right": true,
-      "latencyMs": 734,
-      "picked": "c=0.17 a=0.07 n=0.05 s=0.12"
+      "latencyMs": 702,
+      "picked": "c=0.17 a=0.07 n=0.05 s=0.135"
     },
     {
       "id": "V01-wanders.contradicts",
       "right": true,
-      "latencyMs": 734,
-      "picked": "c=0.17 a=0.07 n=0.05 s=0.12"
+      "latencyMs": 702,
+      "picked": "c=0.17 a=0.07 n=0.05 s=0.135"
     },
     {
       "id": "V01-wanders.advances",
       "right": true,
-      "latencyMs": 734,
-      "picked": "c=0.17 a=0.07 n=0.05 s=0.12"
+      "latencyMs": 702,
+      "picked": "c=0.17 a=0.07 n=0.05 s=0.135"
     },
     {
       "id": "V01-wanders.newCharacter",
       "right": true,
-      "latencyMs": 734,
-      "picked": "c=0.17 a=0.07 n=0.05 s=0.12"
+      "latencyMs": 702,
+      "picked": "c=0.17 a=0.07 n=0.05 s=0.135"
     },
     {
       "id": "V02-clean.verdict",
       "right": true,
-      "latencyMs": 782,
-      "picked": "c=0.09 a=0.96 n=0.06 s=0.68"
+      "latencyMs": 675,
+      "picked": "c=0.09 a=0.97 n=0.07 s=0.725"
     },
     {
       "id": "V02-clean.contradicts",
       "right": true,
-      "latencyMs": 782,
-      "picked": "c=0.09 a=0.96 n=0.06 s=0.68"
+      "latencyMs": 675,
+      "picked": "c=0.09 a=0.97 n=0.07 s=0.725"
     },
     {
       "id": "V02-clean.advances",
       "right": true,
-      "latencyMs": 782,
-      "picked": "c=0.09 a=0.96 n=0.06 s=0.68"
+      "latencyMs": 675,
+      "picked": "c=0.09 a=0.97 n=0.07 s=0.725"
     },
     {
       "id": "V02-clean.newCharacter",
       "right": true,
-      "latencyMs": 782,
-      "picked": "c=0.09 a=0.96 n=0.06 s=0.68"
+      "latencyMs": 675,
+      "picked": "c=0.09 a=0.97 n=0.07 s=0.725"
     },
     {
       "id": "V02-contradicts.verdict",
       "right": true,
-      "latencyMs": 891,
-      "picked": "c=0.93 a=0.86 n=0.3 s=0.2175"
+      "latencyMs": 756,
+      "picked": "c=0.92 a=0.88 n=0.26 s=0.195"
     },
     {
       "id": "V02-contradicts.contradicts",
       "right": true,
-      "latencyMs": 891,
-      "picked": "c=0.93 a=0.86 n=0.3 s=0.2175"
+      "latencyMs": 756,
+      "picked": "c=0.92 a=0.88 n=0.26 s=0.195"
     },
     {
       "id": "V02-contradicts.advances",
       "right": true,
-      "latencyMs": 891,
-      "picked": "c=0.93 a=0.86 n=0.3 s=0.2175"
+      "latencyMs": 756,
+      "picked": "c=0.92 a=0.88 n=0.26 s=0.195"
     },
     {
       "id": "V02-contradicts.newCharacter",
       "right": true,
-      "latencyMs": 891,
-      "picked": "c=0.93 a=0.86 n=0.3 s=0.2175"
+      "latencyMs": 756,
+      "picked": "c=0.92 a=0.88 n=0.26 s=0.195"
     },
     {
       "id": "V02-wanders.verdict",
       "right": true,
-      "latencyMs": 883,
-      "picked": "c=0.13 a=0.06 n=0.04 s=0.0425"
+      "latencyMs": 776,
+      "picked": "c=0.12 a=0.06 n=0.06 s=0.05"
     },
     {
       "id": "V02-wanders.contradicts",
       "right": true,
-      "latencyMs": 883,
-      "picked": "c=0.13 a=0.06 n=0.04 s=0.0425"
+      "latencyMs": 776,
+      "picked": "c=0.12 a=0.06 n=0.06 s=0.05"
     },
     {
       "id": "V02-wanders.advances",
       "right": true,
-      "latencyMs": 883,
-      "picked": "c=0.13 a=0.06 n=0.04 s=0.0425"
+      "latencyMs": 776,
+      "picked": "c=0.12 a=0.06 n=0.06 s=0.05"
     },
     {
       "id": "V02-wanders.newCharacter",
       "right": true,
-      "latencyMs": 883,
-      "picked": "c=0.13 a=0.06 n=0.04 s=0.0425"
+      "latencyMs": 776,
+      "picked": "c=0.12 a=0.06 n=0.06 s=0.05"
     },
     {
       "id": "V03-clean.verdict",
       "right": true,
-      "latencyMs": 792,
-      "picked": "c=0.07 a=0.96 n=0.07 s=0.6225"
+      "latencyMs": 838,
+      "picked": "c=0.07 a=0.96 n=0.06 s=0.655"
     },
     {
       "id": "V03-clean.contradicts",
       "right": true,
-      "latencyMs": 792,
-      "picked": "c=0.07 a=0.96 n=0.07 s=0.6225"
+      "latencyMs": 838,
+      "picked": "c=0.07 a=0.96 n=0.06 s=0.655"
     },
     {
       "id": "V03-clean.advances",
       "right": true,
-      "latencyMs": 792,
-      "picked": "c=0.07 a=0.96 n=0.07 s=0.6225"
+      "latencyMs": 838,
+      "picked": "c=0.07 a=0.96 n=0.06 s=0.655"
     },
     {
       "id": "V03-clean.newCharacter",
       "right": true,
-      "latencyMs": 792,
-      "picked": "c=0.07 a=0.96 n=0.07 s=0.6225"
+      "latencyMs": 838,
+      "picked": "c=0.07 a=0.96 n=0.06 s=0.655"
     },
     {
       "id": "V03-contradicts.verdict",
       "right": true,
-      "latencyMs": 787,
-      "picked": "c=0.91 a=0.78 n=0.06 s=0.57"
+      "latencyMs": 821,
+      "picked": "c=0.92 a=0.78 n=0.07 s=0.5525"
     },
     {
       "id": "V03-contradicts.contradicts",
       "right": true,
-      "latencyMs": 787,
-      "picked": "c=0.91 a=0.78 n=0.06 s=0.57"
+      "latencyMs": 821,
+      "picked": "c=0.92 a=0.78 n=0.07 s=0.5525"
     },
     {
       "id": "V03-contradicts.advances",
       "right": true,
-      "latencyMs": 787,
-      "picked": "c=0.91 a=0.78 n=0.06 s=0.57"
+      "latencyMs": 821,
+      "picked": "c=0.92 a=0.78 n=0.07 s=0.5525"
     },
     {
       "id": "V03-contradicts.newCharacter",
       "right": true,
-      "latencyMs": 787,
-      "picked": "c=0.91 a=0.78 n=0.06 s=0.57"
+      "latencyMs": 821,
+      "picked": "c=0.92 a=0.78 n=0.07 s=0.5525"
     },
     {
       "id": "V03-wanders.verdict",
       "right": true,
-      "latencyMs": 1038,
-      "picked": "c=0.39 a=0.06 n=0.07 s=0.4625"
+      "latencyMs": 1053,
+      "picked": "c=0.39 a=0.06 n=0.07 s=0.45"
     },
     {
       "id": "V03-wanders.contradicts",
       "right": false,
-      "latencyMs": 1038,
-      "picked": "c=0.39 a=0.06 n=0.07 s=0.4625"
+      "latencyMs": 1053,
+      "picked": "c=0.39 a=0.06 n=0.07 s=0.45"
     },
     {
       "id": "V03-wanders.advances",
       "right": true,
-      "latencyMs": 1038,
-      "picked": "c=0.39 a=0.06 n=0.07 s=0.4625"
+      "latencyMs": 1053,
+      "picked": "c=0.39 a=0.06 n=0.07 s=0.45"
     },
     {
       "id": "V03-wanders.newCharacter",
       "right": true,
-      "latencyMs": 1038,
-      "picked": "c=0.39 a=0.06 n=0.07 s=0.4625"
+      "latencyMs": 1053,
+      "picked": "c=0.39 a=0.06 n=0.07 s=0.45"
     },
     {
       "id": "V04-clean.verdict",
       "right": true,
-      "latencyMs": 1111,
-      "picked": "c=0.08 a=0.89 n=0.06 s=0.565"
+      "latencyMs": 924,
+      "picked": "c=0.07 a=0.89 n=0.06 s=0.555"
     },
     {
       "id": "V04-clean.contradicts",
       "right": true,
-      "latencyMs": 1111,
-      "picked": "c=0.08 a=0.89 n=0.06 s=0.565"
+      "latencyMs": 924,
+      "picked": "c=0.07 a=0.89 n=0.06 s=0.555"
     },
     {
       "id": "V04-clean.advances",
       "right": true,
-      "latencyMs": 1111,
-      "picked": "c=0.08 a=0.89 n=0.06 s=0.565"
+      "latencyMs": 924,
+      "picked": "c=0.07 a=0.89 n=0.06 s=0.555"
     },
     {
       "id": "V04-clean.newCharacter",
       "right": true,
-      "latencyMs": 1111,
-      "picked": "c=0.08 a=0.89 n=0.06 s=0.565"
+      "latencyMs": 924,
+      "picked": "c=0.07 a=0.89 n=0.06 s=0.555"
     },
     {
       "id": "V04-contradicts.verdict",
       "right": true,
-      "latencyMs": 1106,
-      "picked": "c=0.95 a=0.79 n=0.06 s=0.345"
+      "latencyMs": 1003,
+      "picked": "c=0.95 a=0.79 n=0.06 s=0.335"
     },
     {
       "id": "V04-contradicts.contradicts",
       "right": true,
-      "latencyMs": 1106,
-      "picked": "c=0.95 a=0.79 n=0.06 s=0.345"
+      "latencyMs": 1003,
+      "picked": "c=0.95 a=0.79 n=0.06 s=0.335"
     },
     {
       "id": "V04-contradicts.advances",
       "right": true,
-      "latencyMs": 1106,
-      "picked": "c=0.95 a=0.79 n=0.06 s=0.345"
+      "latencyMs": 1003,
+      "picked": "c=0.95 a=0.79 n=0.06 s=0.335"
     },
     {
       "id": "V04-contradicts.newCharacter",
       "right": true,
-      "latencyMs": 1106,
-      "picked": "c=0.95 a=0.79 n=0.06 s=0.345"
+      "latencyMs": 1003,
+      "picked": "c=0.95 a=0.79 n=0.06 s=0.335"
     },
     {
       "id": "V04-wanders.verdict",
       "right": true,
-      "latencyMs": 1157,
-      "picked": "c=0.17 a=0.11 n=0.08 s=0.0975"
+      "latencyMs": 999,
+      "picked": "c=0.17 a=0.11 n=0.08 s=0.0725"
     },
     {
       "id": "V04-wanders.contradicts",
       "right": true,
-      "latencyMs": 1157,
-      "picked": "c=0.17 a=0.11 n=0.08 s=0.0975"
+      "latencyMs": 999,
+      "picked": "c=0.17 a=0.11 n=0.08 s=0.0725"
     },
     {
       "id": "V04-wanders.advances",
       "right": true,
-      "latencyMs": 1157,
-      "picked": "c=0.17 a=0.11 n=0.08 s=0.0975"
+      "latencyMs": 999,
+      "picked": "c=0.17 a=0.11 n=0.08 s=0.0725"
     },
     {
       "id": "V04-wanders.newCharacter",
       "right": true,
-      "latencyMs": 1157,
-      "picked": "c=0.17 a=0.11 n=0.08 s=0.0975"
+      "latencyMs": 999,
+      "picked": "c=0.17 a=0.11 n=0.08 s=0.0725"
     },
     {
       "id": "V05-clean.verdict",
       "right": true,
-      "latencyMs": 1116,
-      "picked": "c=0.13 a=0.96 n=0.1 s=0.555"
+      "latencyMs": 1154,
+      "picked": "c=0.16 a=0.96 n=0.09 s=0.595"
     },
     {
       "id": "V05-clean.contradicts",
       "right": true,
-      "latencyMs": 1116,
-      "picked": "c=0.13 a=0.96 n=0.1 s=0.555"
+      "latencyMs": 1154,
+      "picked": "c=0.16 a=0.96 n=0.09 s=0.595"
     },
     {
       "id": "V05-clean.advances",
       "right": true,
-      "latencyMs": 1116,
-      "picked": "c=0.13 a=0.96 n=0.1 s=0.555"
+      "latencyMs": 1154,
+      "picked": "c=0.16 a=0.96 n=0.09 s=0.595"
     },
     {
       "id": "V05-clean.newCharacter",
       "right": true,
-      "latencyMs": 1116,
-      "picked": "c=0.13 a=0.96 n=0.1 s=0.555"
+      "latencyMs": 1154,
+      "picked": "c=0.16 a=0.96 n=0.09 s=0.595"
     },
     {
       "id": "V05-contradicts.verdict",
       "right": true,
-      "latencyMs": 1179,
-      "picked": "c=0.84 a=0.94 n=0.07 s=0.4825"
+      "latencyMs": 1076,
+      "picked": "c=0.85 a=0.93 n=0.07 s=0.5675"
     },
     {
       "id": "V05-contradicts.contradicts",
       "right": true,
-      "latencyMs": 1179,
-      "picked": "c=0.84 a=0.94 n=0.07 s=0.4825"
+      "latencyMs": 1076,
+      "picked": "c=0.85 a=0.93 n=0.07 s=0.5675"
     },
     {
       "id": "V05-contradicts.advances",
       "right": true,
-      "latencyMs": 1179,
-      "picked": "c=0.84 a=0.94 n=0.07 s=0.4825"
+      "latencyMs": 1076,
+      "picked": "c=0.85 a=0.93 n=0.07 s=0.5675"
     },
     {
       "id": "V05-contradicts.newCharacter",
       "right": true,
-      "latencyMs": 1179,
-      "picked": "c=0.84 a=0.94 n=0.07 s=0.4825"
+      "latencyMs": 1076,
+      "picked": "c=0.85 a=0.93 n=0.07 s=0.5675"
     },
     {
       "id": "V05-wanders.verdict",
       "right": true,
-      "latencyMs": 1311,
-      "picked": "c=0.14 a=0.08 n=0.05 s=0.2275"
+      "latencyMs": 1210,
+      "picked": "c=0.16 a=0.09 n=0.05 s=0.2225"
     },
     {
       "id": "V05-wanders.contradicts",
       "right": true,
-      "latencyMs": 1311,
-      "picked": "c=0.14 a=0.08 n=0.05 s=0.2275"
+      "latencyMs": 1210,
+      "picked": "c=0.16 a=0.09 n=0.05 s=0.2225"
     },
     {
       "id": "V05-wanders.advances",
       "right": true,
-      "latencyMs": 1311,
-      "picked": "c=0.14 a=0.08 n=0.05 s=0.2275"
+      "latencyMs": 1210,
+      "picked": "c=0.16 a=0.09 n=0.05 s=0.2225"
     },
     {
       "id": "V05-wanders.newCharacter",
       "right": true,
-      "latencyMs": 1311,
-      "picked": "c=0.14 a=0.08 n=0.05 s=0.2275"
+      "latencyMs": 1210,
+      "picked": "c=0.16 a=0.09 n=0.05 s=0.2225"
     },
     {
       "id": "V06-clean.verdict",
       "right": true,
-      "latencyMs": 1363,
-      "picked": "c=0.05 a=0.98 n=0.04 s=0.7325"
+      "latencyMs": 1295,
+      "picked": "c=0.06 a=0.98 n=0.05 s=0.7475"
     },
     {
       "id": "V06-clean.contradicts",
       "right": true,
-      "latencyMs": 1363,
-      "picked": "c=0.05 a=0.98 n=0.04 s=0.7325"
+      "latencyMs": 1295,
+      "picked": "c=0.06 a=0.98 n=0.05 s=0.7475"
     },
     {
       "id": "V06-clean.advances",
       "right": true,
-      "latencyMs": 1363,
-      "picked": "c=0.05 a=0.98 n=0.04 s=0.7325"
+      "latencyMs": 1295,
+      "picked": "c=0.06 a=0.98 n=0.05 s=0.7475"
     },
     {
       "id": "V06-clean.newCharacter",
       "right": true,
-      "latencyMs": 1363,
-      "picked": "c=0.05 a=0.98 n=0.04 s=0.7325"
+      "latencyMs": 1295,
+      "picked": "c=0.06 a=0.98 n=0.05 s=0.7475"
     },
     {
       "id": "V06-contradicts.verdict",
       "right": true,
-      "latencyMs": 1377,
-      "picked": "c=0.74 a=0.72 n=0.09 s=0.105"
+      "latencyMs": 1233,
+      "picked": "c=0.8 a=0.76 n=0.09 s=0.105"
     },
     {
       "id": "V06-contradicts.contradicts",
       "right": true,
-      "latencyMs": 1377,
-      "picked": "c=0.74 a=0.72 n=0.09 s=0.105"
+      "latencyMs": 1233,
+      "picked": "c=0.8 a=0.76 n=0.09 s=0.105"
     },
     {
       "id": "V06-contradicts.advances",
       "right": true,
-      "latencyMs": 1377,
-      "picked": "c=0.74 a=0.72 n=0.09 s=0.105"
+      "latencyMs": 1233,
+      "picked": "c=0.8 a=0.76 n=0.09 s=0.105"
     },
     {
       "id": "V06-contradicts.newCharacter",
       "right": true,
-      "latencyMs": 1377,
-      "picked": "c=0.74 a=0.72 n=0.09 s=0.105"
+      "latencyMs": 1233,
+      "picked": "c=0.8 a=0.76 n=0.09 s=0.105"
     },
     {
       "id": "V06-wanders.verdict",
       "right": true,
-      "latencyMs": 1388,
-      "picked": "c=0.27 a=0.03 n=0.07 s=0.0675"
+      "latencyMs": 1297,
+      "picked": "c=0.31 a=0.03 n=0.07 s=0.065"
     },
     {
       "id": "V06-wanders.contradicts",
-      "right": true,
-      "latencyMs": 1388,
-      "picked": "c=0.27 a=0.03 n=0.07 s=0.0675"
+      "right": false,
+      "latencyMs": 1297,
+      "picked": "c=0.31 a=0.03 n=0.07 s=0.065"
     },
     {
       "id": "V06-wanders.advances",
       "right": true,
-      "latencyMs": 1388,
-      "picked": "c=0.27 a=0.03 n=0.07 s=0.0675"
+      "latencyMs": 1297,
+      "picked": "c=0.31 a=0.03 n=0.07 s=0.065"
     },
     {
       "id": "V06-wanders.newCharacter",
       "right": true,
-      "latencyMs": 1388,
-      "picked": "c=0.27 a=0.03 n=0.07 s=0.0675"
+      "latencyMs": 1297,
+      "picked": "c=0.31 a=0.03 n=0.07 s=0.065"
     },
     {
       "id": "V07-clean.verdict",
       "right": true,
-      "latencyMs": 1401,
-      "picked": "c=0.09 a=0.97 n=0.09 s=0.81"
+      "latencyMs": 1386,
+      "picked": "c=0.09 a=0.97 n=0.1 s=0.775"
     },
     {
       "id": "V07-clean.contradicts",
       "right": true,
-      "latencyMs": 1401,
-      "picked": "c=0.09 a=0.97 n=0.09 s=0.81"
+      "latencyMs": 1386,
+      "picked": "c=0.09 a=0.97 n=0.1 s=0.775"
     },
     {
       "id": "V07-clean.advances",
       "right": true,
-      "latencyMs": 1401,
-      "picked": "c=0.09 a=0.97 n=0.09 s=0.81"
+      "latencyMs": 1386,
+      "picked": "c=0.09 a=0.97 n=0.1 s=0.775"
     },
     {
       "id": "V07-clean.newCharacter",
       "right": true,
-      "latencyMs": 1401,
-      "picked": "c=0.09 a=0.97 n=0.09 s=0.81"
+      "latencyMs": 1386,
+      "picked": "c=0.09 a=0.97 n=0.1 s=0.775"
     },
     {
       "id": "V07-contradicts.verdict",
       "right": true,
-      "latencyMs": 1441,
-      "picked": "c=0.84 a=0.8 n=0.08 s=0.7675"
+      "latencyMs": 1407,
+      "picked": "c=0.83 a=0.81 n=0.11 s=0.7925"
     },
     {
       "id": "V07-contradicts.contradicts",
       "right": true,
-      "latencyMs": 1441,
-      "picked": "c=0.84 a=0.8 n=0.08 s=0.7675"
+      "latencyMs": 1407,
+      "picked": "c=0.83 a=0.81 n=0.11 s=0.7925"
     },
     {
       "id": "V07-contradicts.advances",
       "right": true,
-      "latencyMs": 1441,
-      "picked": "c=0.84 a=0.8 n=0.08 s=0.7675"
+      "latencyMs": 1407,
+      "picked": "c=0.83 a=0.81 n=0.11 s=0.7925"
     },
     {
       "id": "V07-contradicts.newCharacter",
       "right": true,
-      "latencyMs": 1441,
-      "picked": "c=0.84 a=0.8 n=0.08 s=0.7675"
+      "latencyMs": 1407,
+      "picked": "c=0.83 a=0.81 n=0.11 s=0.7925"
     },
     {
       "id": "V07-wanders.verdict",
       "right": true,
-      "latencyMs": 1594,
-      "picked": "c=0.14 a=0.04 n=0.16 s=0.0075"
+      "latencyMs": 1458,
+      "picked": "c=0.14 a=0.04 n=0.16 s=0.01"
     },
     {
       "id": "V07-wanders.contradicts",
       "right": true,
-      "latencyMs": 1594,
-      "picked": "c=0.14 a=0.04 n=0.16 s=0.0075"
+      "latencyMs": 1458,
+      "picked": "c=0.14 a=0.04 n=0.16 s=0.01"
     },
     {
       "id": "V07-wanders.advances",
       "right": true,
-      "latencyMs": 1594,
-      "picked": "c=0.14 a=0.04 n=0.16 s=0.0075"
+      "latencyMs": 1458,
+      "picked": "c=0.14 a=0.04 n=0.16 s=0.01"
     },
     {
       "id": "V07-wanders.newCharacter",
       "right": true,
-      "latencyMs": 1594,
-      "picked": "c=0.14 a=0.04 n=0.16 s=0.0075"
+      "latencyMs": 1458,
+      "picked": "c=0.14 a=0.04 n=0.16 s=0.01"
     },
     {
       "id": "V08-clean.verdict",
       "right": true,
-      "latencyMs": 1666,
-      "picked": "c=0.07 a=0.93 n=0.23 s=0.535"
+      "latencyMs": 1506,
+      "picked": "c=0.07 a=0.93 n=0.18 s=0.5375"
     },
     {
       "id": "V08-clean.contradicts",
       "right": true,
-      "latencyMs": 1666,
-      "picked": "c=0.07 a=0.93 n=0.23 s=0.535"
+      "latencyMs": 1506,
+      "picked": "c=0.07 a=0.93 n=0.18 s=0.5375"
     },
     {
       "id": "V08-clean.advances",
       "right": true,
-      "latencyMs": 1666,
-      "picked": "c=0.07 a=0.93 n=0.23 s=0.535"
+      "latencyMs": 1506,
+      "picked": "c=0.07 a=0.93 n=0.18 s=0.5375"
     },
     {
       "id": "V08-clean.newCharacter",
       "right": true,
-      "latencyMs": 1666,
-      "picked": "c=0.07 a=0.93 n=0.23 s=0.535"
+      "latencyMs": 1506,
+      "picked": "c=0.07 a=0.93 n=0.18 s=0.5375"
     },
     {
       "id": "V08-contradicts.verdict",
       "right": true,
-      "latencyMs": 1647,
-      "picked": "c=0.34 a=0.9 n=0.13 s=0.6625"
+      "latencyMs": 1559,
+      "picked": "c=0.3 a=0.89 n=0.13 s=0.6375"
     },
     {
       "id": "V08-contradicts.contradicts",
       "right": true,
-      "latencyMs": 1647,
-      "picked": "c=0.34 a=0.9 n=0.13 s=0.6625"
+      "latencyMs": 1559,
+      "picked": "c=0.3 a=0.89 n=0.13 s=0.6375"
     },
     {
       "id": "V08-contradicts.advances",
       "right": true,
-      "latencyMs": 1647,
-      "picked": "c=0.34 a=0.9 n=0.13 s=0.6625"
+      "latencyMs": 1559,
+      "picked": "c=0.3 a=0.89 n=0.13 s=0.6375"
     },
     {
       "id": "V08-contradicts.newCharacter",
       "right": true,
-      "latencyMs": 1647,
-      "picked": "c=0.34 a=0.9 n=0.13 s=0.6625"
+      "latencyMs": 1559,
+      "picked": "c=0.3 a=0.89 n=0.13 s=0.6375"
     },
     {
       "id": "V08-wanders.verdict",
       "right": true,
-      "latencyMs": 1698,
-      "picked": "c=0.2 a=0.1 n=0.16 s=0.235"
+      "latencyMs": 1944,
+      "picked": "c=0.17 a=0.08 n=0.2 s=0.2175"
     },
     {
       "id": "V08-wanders.contradicts",
       "right": true,
-      "latencyMs": 1698,
-      "picked": "c=0.2 a=0.1 n=0.16 s=0.235"
+      "latencyMs": 1944,
+      "picked": "c=0.17 a=0.08 n=0.2 s=0.2175"
     },
     {
       "id": "V08-wanders.advances",
       "right": true,
-      "latencyMs": 1698,
-      "picked": "c=0.2 a=0.1 n=0.16 s=0.235"
+      "latencyMs": 1944,
+      "picked": "c=0.17 a=0.08 n=0.2 s=0.2175"
     },
     {
       "id": "V08-wanders.newCharacter",
       "right": true,
-      "latencyMs": 1698,
-      "picked": "c=0.2 a=0.1 n=0.16 s=0.235"
+      "latencyMs": 1944,
+      "picked": "c=0.17 a=0.08 n=0.2 s=0.2175"
     },
     {
       "id": "V09-clean.verdict",
       "right": true,
-      "latencyMs": 1668,
-      "picked": "c=0.07 a=0.94 n=0.05 s=0.6575"
+      "latencyMs": 1634,
+      "picked": "c=0.08 a=0.94 n=0.05 s=0.5725"
     },
     {
       "id": "V09-clean.contradicts",
       "right": true,
-      "latencyMs": 1668,
-      "picked": "c=0.07 a=0.94 n=0.05 s=0.6575"
+      "latencyMs": 1634,
+      "picked": "c=0.08 a=0.94 n=0.05 s=0.5725"
     },
     {
       "id": "V09-clean.advances",
       "right": true,
-      "latencyMs": 1668,
-      "picked": "c=0.07 a=0.94 n=0.05 s=0.6575"
+      "latencyMs": 1634,
+      "picked": "c=0.08 a=0.94 n=0.05 s=0.5725"
     },
     {
       "id": "V09-clean.newCharacter",
       "right": true,
-      "latencyMs": 1668,
-      "picked": "c=0.07 a=0.94 n=0.05 s=0.6575"
+      "latencyMs": 1634,
+      "picked": "c=0.08 a=0.94 n=0.05 s=0.5725"
     },
     {
       "id": "V09-contradicts.verdict",
       "right": true,
-      "latencyMs": 1705,
-      "picked": "c=0.58 a=0.76 n=0.08 s=0.48"
+      "latencyMs": 1634,
+      "picked": "c=0.59 a=0.78 n=0.09 s=0.5"
     },
     {
       "id": "V09-contradicts.contradicts",
       "right": true,
-      "latencyMs": 1705,
-      "picked": "c=0.58 a=0.76 n=0.08 s=0.48"
+      "latencyMs": 1634,
+      "picked": "c=0.59 a=0.78 n=0.09 s=0.5"
     },
     {
       "id": "V09-contradicts.advances",
       "right": true,
-      "latencyMs": 1705,
-      "picked": "c=0.58 a=0.76 n=0.08 s=0.48"
+      "latencyMs": 1634,
+      "picked": "c=0.59 a=0.78 n=0.09 s=0.5"
     },
     {
       "id": "V09-contradicts.newCharacter",
       "right": true,
-      "latencyMs": 1705,
-      "picked": "c=0.58 a=0.76 n=0.08 s=0.48"
+      "latencyMs": 1634,
+      "picked": "c=0.59 a=0.78 n=0.09 s=0.5"
     },
     {
       "id": "V09-wanders.verdict",
       "right": true,
-      "latencyMs": 1836,
-      "picked": "c=0.07 a=0.07 n=0.06 s=0.0275"
+      "latencyMs": 1749,
+      "picked": "c=0.07 a=0.07 n=0.06 s=0.0175"
     },
     {
       "id": "V09-wanders.contradicts",
       "right": true,
-      "latencyMs": 1836,
-      "picked": "c=0.07 a=0.07 n=0.06 s=0.0275"
+      "latencyMs": 1749,
+      "picked": "c=0.07 a=0.07 n=0.06 s=0.0175"
     },
     {
       "id": "V09-wanders.advances",
       "right": true,
-      "latencyMs": 1836,
-      "picked": "c=0.07 a=0.07 n=0.06 s=0.0275"
+      "latencyMs": 1749,
+      "picked": "c=0.07 a=0.07 n=0.06 s=0.0175"
     },
     {
       "id": "V09-wanders.newCharacter",
       "right": true,
-      "latencyMs": 1836,
-      "picked": "c=0.07 a=0.07 n=0.06 s=0.0275"
+      "latencyMs": 1749,
+      "picked": "c=0.07 a=0.07 n=0.06 s=0.0175"
     },
     {
       "id": "V10-clean.verdict",
       "right": true,
-      "latencyMs": 1925,
-      "picked": "c=0.11 a=0.95 n=0.04 s=0.4775"
+      "latencyMs": 1715,
+      "picked": "c=0.1 a=0.95 n=0.04 s=0.4375"
     },
     {
       "id": "V10-clean.contradicts",
       "right": true,
-      "latencyMs": 1925,
-      "picked": "c=0.11 a=0.95 n=0.04 s=0.4775"
+      "latencyMs": 1715,
+      "picked": "c=0.1 a=0.95 n=0.04 s=0.4375"
     },
     {
       "id": "V10-clean.advances",
       "right": true,
-      "latencyMs": 1925,
-      "picked": "c=0.11 a=0.95 n=0.04 s=0.4775"
+      "latencyMs": 1715,
+      "picked": "c=0.1 a=0.95 n=0.04 s=0.4375"
     },
     {
       "id": "V10-clean.newCharacter",
       "right": true,
-      "latencyMs": 1925,
-      "picked": "c=0.11 a=0.95 n=0.04 s=0.4775"
+      "latencyMs": 1715,
+      "picked": "c=0.1 a=0.95 n=0.04 s=0.4375"
     },
     {
       "id": "V10-contradicts.verdict",
       "right": true,
-      "latencyMs": 1943,
-      "picked": "c=0.45 a=0.91 n=0.05 s=0.37"
+      "latencyMs": 1790,
+      "picked": "c=0.48 a=0.9 n=0.05 s=0.4175"
     },
     {
       "id": "V10-contradicts.contradicts",
       "right": true,
-      "latencyMs": 1943,
-      "picked": "c=0.45 a=0.91 n=0.05 s=0.37"
+      "latencyMs": 1790,
+      "picked": "c=0.48 a=0.9 n=0.05 s=0.4175"
     },
     {
       "id": "V10-contradicts.advances",
       "right": true,
-      "latencyMs": 1943,
-      "picked": "c=0.45 a=0.91 n=0.05 s=0.37"
+      "latencyMs": 1790,
+      "picked": "c=0.48 a=0.9 n=0.05 s=0.4175"
     },
     {
       "id": "V10-contradicts.newCharacter",
       "right": true,
-      "latencyMs": 1943,
-      "picked": "c=0.45 a=0.91 n=0.05 s=0.37"
+      "latencyMs": 1790,
+      "picked": "c=0.48 a=0.9 n=0.05 s=0.4175"
     },
     {
       "id": "V10-wanders.verdict",
       "right": true,
-      "latencyMs": 1892,
-      "picked": "c=0.34 a=0.08 n=0.07 s=0.385"
+      "latencyMs": 1889,
+      "picked": "c=0.34 a=0.07 n=0.06 s=0.3225"
     },
     {
       "id": "V10-wanders.contradicts",
       "right": false,
-      "latencyMs": 1892,
-      "picked": "c=0.34 a=0.08 n=0.07 s=0.385"
+      "latencyMs": 1889,
+      "picked": "c=0.34 a=0.07 n=0.06 s=0.3225"
     },
     {
       "id": "V10-wanders.advances",
       "right": true,
-      "latencyMs": 1892,
-      "picked": "c=0.34 a=0.08 n=0.07 s=0.385"
+      "latencyMs": 1889,
+      "picked": "c=0.34 a=0.07 n=0.06 s=0.3225"
     },
     {
       "id": "V10-wanders.newCharacter",
       "right": true,
-      "latencyMs": 1892,
-      "picked": "c=0.34 a=0.08 n=0.07 s=0.385"
+      "latencyMs": 1889,
+      "picked": "c=0.34 a=0.07 n=0.06 s=0.3225"
     }
   ]
 }

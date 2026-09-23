@@ -1,6 +1,10 @@
 const mockChat: Array<{ name: string; mes: string }> = [];
 
-jest.mock("@services/STAPI", () => ({ getContext: () => ({ chat: mockChat }) }));
+jest.mock("@services/STAPI", () => ({
+  settingsAreLoaded: () => true,
+  settingsReady: async () => {},
+  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
+  readBackBoundary: () => null, getContext: () => ({ chat: mockChat }) }));
 
 jest.mock("./sharedRead", () => ({
   runSharedRead: jest.fn(async () => ({

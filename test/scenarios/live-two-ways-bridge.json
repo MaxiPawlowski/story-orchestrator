@@ -1,0 +1,164 @@
+{
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "id": "review-river-crossing",
+        "title": "Two Ways Across",
+        "description": "Independent review story: the player's explicit choice determines the route; both routes converge on the far shore.",
+        "qualities": [
+          {
+            "key": "route",
+            "type": "enum",
+            "values": [
+              "undecided",
+              "bridge",
+              "ferry"
+            ],
+            "source": "extractor",
+            "rubric": "Which route has the player explicitly chosen? Merely seeing a route does not count. Use bridge or ferry only for an explicit choice."
+          },
+          {
+            "key": "arrived",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Has the traveler explicitly reached the far shore? Intending or beginning to cross is not arrival."
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "bank",
+            "name": "The Near Bank",
+            "objective": "Choose a crossing.",
+            "type": "anchor",
+            "start": true,
+            "guidance": "Offer the bridge and ferry without choosing for the player.",
+            "effects": {
+              "author_note": "This is a standalone riverside story. The traveler chooses between a wooden bridge and a ferry. Do not choose their actions or complete their crossing for them. Keep the response brief and leave their next action open."
+            }
+          },
+          {
+            "id": "bridge",
+            "name": "The Wooden Bridge",
+            "objective": "Cross by the chosen bridge.",
+            "type": "intermediate",
+            "guidance": "Respect the player's choice of the bridge. Let them decide when to complete the crossing."
+          },
+          {
+            "id": "ferry",
+            "name": "The Ferry",
+            "objective": "Cross by the chosen ferry.",
+            "type": "intermediate",
+            "guidance": "Respect the player's choice of the ferry. Let them decide when to complete the crossing."
+          },
+          {
+            "id": "shore",
+            "name": "The Far Shore",
+            "objective": "Choose what to explore next.",
+            "type": "anchor",
+            "guidance": "The crossing is complete. Offer open possibilities without forcing a next destination."
+          }
+        ],
+        "transitions": [
+          {
+            "id": "choose_bridge",
+            "from": "bank",
+            "to": "bridge",
+            "priority": 1,
+            "gate": {
+              "q": "route",
+              "op": "==",
+              "v": "bridge"
+            }
+          },
+          {
+            "id": "choose_ferry",
+            "from": "bank",
+            "to": "ferry",
+            "priority": 1,
+            "gate": {
+              "q": "route",
+              "op": "==",
+              "v": "ferry"
+            }
+          },
+          {
+            "id": "bridge_arrival",
+            "from": "bridge",
+            "to": "shore",
+            "priority": 1,
+            "gate": {
+              "q": "arrived",
+              "op": "==",
+              "v": true
+            }
+          },
+          {
+            "id": "ferry_arrival",
+            "from": "ferry",
+            "to": "shore",
+            "priority": 1,
+            "gate": {
+              "q": "arrived",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": []
+      }
+    },
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter(k=>k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const r=globalThis.storyOrchestratorRuntime; r.setExtractionSettings({enabled:true,cadence:3}); if(r.getSnapshot().activeCheckpointId!=='bank') throw Error('Independent story did not load'); return r.getExtractionSettings();"
+    },
+    {
+      "send_generate": "At the river, I explicitly choose the bridge. I am still on the near bank and have not crossed yet. Describe only the immediate surroundings and wait for my next action."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 180000
+      }
+    },
+    {
+      "extract": {
+        "reason": "review-independent-bridge-choice"
+      }
+    },
+    {
+      "expect": {
+        "activeCheckpoint": "bridge",
+        "blackboard": {
+          "route": "bridge"
+        }
+      }
+    },
+    {
+      "send_generate": "I complete my crossing using the bridge and step onto the far shore. I have arrived. Leave my next destination undecided."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 180000
+      }
+    },
+    {
+      "extract": {
+        "reason": "review-independent-bridge-arrival"
+      }
+    },
+    {
+      "expect": {
+        "activeCheckpoint": "shore",
+        "blackboard": {
+          "route": "bridge",
+          "arrived": true
+        },
+        "latched": [
+          "arrived"
+        ]
+      }
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { AWAY_RECAP_MIN_MS, buildAwayRecap, shouldShowAwayRecap } from "./awayRecap";
+import { AWAY_RECAP_MIN_MS, AwayRecapController, buildAwayRecap, shouldShowAwayRecap } from "./awayRecap";
 import { buildNarrativeStatus } from "./narrative";
 import { derivePipelineStatus } from "./pipeline";
 
@@ -55,5 +55,89 @@ describe("buildAwayRecap", () => {
     const recap = buildAwayRecap(narrative({ storyTitle: "<script>" }), AWAY_RECAP_MIN_MS);
     expect(recap.html).not.toContain("<script>");
     expect(recap.html).toContain("&lt;script&gt;");
+  });
+});
+
+describe("AwayRecapController", () => {
+  const away = new Date(Date.now() - 30 * 60 * 60 * 1000).toISOString();
+  const recent = new Date().toISOString();
+
+  const harness = () => {
+    const opened: Array<{ html: string; closed: number }> = [];
+    const controller = new AwayRecapController((html) => {
+      const handle = { html, closed: 0 };
+      opened.push(handle);
+      return { close: () => { handle.closed += 1; } };
+    });
+    return { controller, opened };
+  };
+
+  it("shows a detected recap once and then has nothing pending", () => {
+    const { controller, opened } = harness();
+    controller.detect(away, narrative(), "chat-a");
+    expect(controller.show()).toBe(true);
+    expect(opened).toHaveLength(1);
+    expect(controller.get()).toBeNull();
+    expect(controller.show()).toBe(false);
+    expect(opened).toHaveLength(1);
+  });
+
+  it("shows nothing without a gap", () => {
+    const { controller, opened } = harness();
+    controller.detect(recent, narrative(), "chat-a");
+    expect(controller.show()).toBe(false);
+    expect(opened).toHaveLength(0);
+  });
+
+  it("leaves an open recap up while the same chat reloads", () => {
+    const { controller, opened } = harness();
+    controller.detect(away, narrative(), "chat-a");
+    controller.show();
+    controller.detect(recent, narrative(), "chat-a");
+    controller.dismissUnless("chat-a");
+    expect(opened[0].closed).toBe(0);
+    expect(opened).toHaveLength(1);
+  });
+
+  it("closes an open recap and drops a queued one when another chat is open", () => {
+    const { controller, opened } = harness();
+    controller.detect(away, narrative(), "chat-a");
+    controller.show();
+    controller.detect(away, narrative(), "chat-a");
+    controller.dismissUnless("chat-b");
+    expect(opened[0].closed).toBe(1);
+    expect(controller.get()).toBeNull();
+    expect(controller.show()).toBe(false);
+    expect(opened).toHaveLength(1);
+  });
+
+  it("never leaves two recaps on screen", () => {
+    const { controller, opened } = harness();
+    controller.detect(away, narrative(), "chat-a");
+    controller.show();
+    controller.detect(away, narrative(), "chat-a");
+    controller.show();
+    expect(opened).toHaveLength(2);
+    expect(opened[0].closed).toBe(1);
+    expect(opened[1].closed).toBe(0);
+  });
+
+  it("dismisses harmlessly when nothing is open", () => {
+    const { controller, opened } = harness();
+    controller.dismissUnless("chat-b");
+    expect(opened).toHaveLength(0);
+  });
+});
+
+describe("AwayRecapController with an unnamed chat", () => {
+  it("keeps the recap when the host has not said which chat is open", () => {
+    const opened: Array<{ closed: number }> = [];
+    const controller = new AwayRecapController(() => { const handle = { closed: 0 }; opened.push(handle); return { close: () => { handle.closed += 1; } }; });
+    controller.detect(new Date(Date.now() - 30 * 60 * 60 * 1000).toISOString(), narrative(), "chat-a");
+    controller.show();
+    controller.dismissUnless("");
+    expect(opened[0].closed).toBe(0);
+    controller.dismissUnless("chat-b");
+    expect(opened[0].closed).toBe(1);
   });
 });

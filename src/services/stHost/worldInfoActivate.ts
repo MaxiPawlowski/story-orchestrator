@@ -1,6 +1,7 @@
 import { getContext } from "./context";
 import type { HostScannableEntry } from "./hostTypes";
 import { worldInfoModule } from "./modules";
+import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 
 export type { HostScannableEntry } from "./hostTypes";
 
@@ -14,10 +15,11 @@ export async function getScannableEntries(): Promise<HostScannableEntry[]> {
 
 // Queues entries for the next scan only: the map is static and cleared at the end of any
 // checkWorldInfo, dry runs included (world-info.js:203, :1020-1029, :5275). Nothing is written.
-export async function forceActivateEntries(entries: HostScannableEntry[]): Promise<boolean> {
+export async function forceActivateEntries(entries: HostScannableEntry[]): Promise<WriteResult<{ entries: number }>> {
   const context = getContext();
   const eventName = context.eventTypes?.WORLDINFO_FORCE_ACTIVATE;
-  if (!eventName || !entries.length) return false;
+  if (!eventName) return couldNot("this SillyTavern has no force-activate event");
+  if (!entries.length) return wrote({ entries: 0 });
   await context.eventSource.emit(eventName, entries);
-  return true;
+  return wrote({ entries: entries.length });
 }

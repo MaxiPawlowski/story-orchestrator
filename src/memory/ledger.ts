@@ -1,3 +1,4 @@
+import { isLive, provenance as provenanceOf, type ProvenanceSource } from "./provenance";
 import { generateMemoryId, type LedgerEntry, type LedgerView, type ParsedLedgerSignal } from "./types";
 
 export const LEDGER_CAP = 60;
@@ -13,6 +14,9 @@ export interface LedgerBinding {
 export interface LedgerSignalContext {
   boundary: number;
   messageId?: number;
+  /** Which pass wrote it (v2.3 plan 05). */
+  pass?: string;
+  source?: ProvenanceSource;
 }
 
 export function ledgerKey(entity: string, field: string): string {
@@ -35,33 +39,50 @@ export function applyLedgerSignals(
     if (!signal.entity.trim() || !signal.field.trim() || !value) continue;
     const key = ledgerKey(signal.entity, signal.field);
     if (boundKeys.has(key)) continue;
-    const existing = next.find((entry) => ledgerKey(entry.entity, entry.field) === key);
-    if (existing) {
-      existing.value = value;
-      if (signal.entityType.trim()) existing.entityType = signal.entityType.trim();
-      existing.createdAt = ctx.boundary;
-      if (typeof ctx.messageId === "number") existing.messageId = ctx.messageId;
-    } else {
-      next.push({
-        id: generateMemoryId(),
-        entity: signal.entity.trim(),
-        entityType: signal.entityType.trim() || "entity",
-        field: signal.field.trim(),
-        value,
-        createdAt: ctx.boundary,
-        ...(typeof ctx.messageId === "number" ? { messageId: ctx.messageId } : {}),
-      });
-    }
+    // M3: a change is a NEW version, never an overwrite. An in-place edit destroys the value a
+    // rollback has to restore, which is the whole reason `rollbackLedger` could only keep or drop.
+    const previous = next.filter((entry) => ledgerKey(entry.entity, entry.field) === key).at(-1);
+    next.push({
+      id: generateMemoryId(),
+      provenance: provenanceOf({
+        source: ctx.source ?? "extractor",
+        messageId: ctx.messageId ?? -1,
+        boundary: ctx.boundary,
+        pass: ctx.pass ?? "shared-read",
+      }),
+      entity: signal.entity.trim(),
+      entityType: signal.entityType.trim() || previous?.entityType || "entity",
+      field: signal.field.trim(),
+      value,
+      createdAt: ctx.boundary,
+      ...(previous ? { supersedes: previous.id } : {}),
+      ...(previous?.pinned ? { pinned: true } : {}),
+      ...(typeof ctx.messageId === "number" ? { messageId: ctx.messageId } : {}),
+    });
   }
   return next;
 }
 
+// A pin belongs to the KEY, not to one version of it: the author is saying "keep this fact", and a
+// later version of the same fact is the same fact.
 export function setLedgerPinned(entries: LedgerEntry[], id: string, pinned: boolean): LedgerEntry[] {
-  return entries.map((entry) => (entry.id === id ? { ...entry, pinned } : entry));
+  const target = entries.find((entry) => entry.id === id);
+  if (!target) return entries;
+  const key = ledgerKey(target.entity, target.field);
+  return entries.map((entry) => (ledgerKey(entry.entity, entry.field) === key ? { ...entry, pinned } : entry));
 }
 
 export function removeLedger(entries: LedgerEntry[], id: string): LedgerEntry[] {
-  return entries.filter((entry) => entry.id !== id);
+  const target = entries.find((entry) => entry.id === id);
+  if (!target) return entries;
+  const key = ledgerKey(target.entity, target.field);
+  return entries.filter((entry) => ledgerKey(entry.entity, entry.field) !== key);
+}
+
+/** The whole chain for one key, oldest first — what `buildLedgerView` collapses to one row. */
+export function ledgerVersions(entries: LedgerEntry[], entity: string, field: string): LedgerEntry[] {
+  const key = ledgerKey(entity, field);
+  return entries.filter((entry) => ledgerKey(entry.entity, entry.field) === key);
 }
 
 export function rollbackLedger(entries: LedgerEntry[], messageId: number): LedgerEntry[] {
@@ -88,8 +109,18 @@ export function buildLedgerView(
     if (value === undefined || value === null) continue;
     rows.push({ entity: binding.entity, field: binding.field, value: String(value), bound: true, turn: versions[binding.qualityKey] ?? 0 });
   }
+  // One row per key: the newest LIVE version is the fact, the older ones are what a rollback
+  // restores. A quarantined version (v2.3 plan 05) neither speaks for the key nor hides the version
+  // it replaced, so the row falls back to the newest version still standing.
+  const newest = new Map<string, LedgerEntry>();
   for (const entry of entries) {
-    if (boundKeys.has(ledgerKey(entry.entity, entry.field))) continue;
+    const key = ledgerKey(entry.entity, entry.field);
+    if (boundKeys.has(key)) continue;
+    if (!isLive(entry)) continue;
+    const held = newest.get(key);
+    if (!held || (entry.messageId ?? -1) >= (held.messageId ?? -1)) newest.set(key, entry);
+  }
+  for (const entry of newest.values()) {
     rows.push({ entity: entry.entity, field: entry.field, value: entry.value, bound: false, turn: entry.createdAt });
   }
   return rows;

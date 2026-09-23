@@ -9,6 +9,8 @@ const STATUS_LABELS: Record<CuratorOpRecord["status"], string> = {
   rejected: "declined",
   applied: "written",
   failed: "could not be written",
+  "revert-failed": "a rollback could not restore it — try again",
+  "externally-edited": "changed outside this story after the write, so the rollback left it alone",
 };
 
 const NOTE_LABELS: Record<CuratorOpRecord["status"], string> = {
@@ -17,6 +19,8 @@ const NOTE_LABELS: Record<CuratorOpRecord["status"], string> = {
   rejected: "not used",
   applied: "added to a reply's prompt",
   failed: "could not be added",
+  "revert-failed": "a rollback could not withdraw it",
+  "externally-edited": "changed outside this story after the write",
 };
 
 const statusLabel = (entry: CuratorOpRecord): string => {
@@ -48,17 +52,44 @@ const describe = (op: CuratorOp): string => {
   return `patch "${op.comment}" at “${op.anchor}”`;
 };
 
+// v2.3 plan 05. Which pass read this truth, from which message, how sure it was, and whether another
+// store disagrees. A fact with no origin is a row from before envelopes were recorded, and says so
+// rather than implying an extractor read it — and a legacy envelope is a STATED unknown, not a read.
+const originText = (provenance: { source: string; pass: string; messageId: number; confidence?: number } | undefined, conflictingValue?: string): string => [
+  provenance && provenance.source !== "legacy" ? `${provenance.source} · ${provenance.pass}` : "origin unknown",
+  provenance && provenance.messageId >= 0 ? `message ${provenance.messageId}` : "",
+  provenance?.confidence !== undefined ? `${Math.round(provenance.confidence * 100)}% sure` : "",
+  conflictingValue ? `another store says ${conflictingValue}` : "",
+].filter(Boolean).join(" · ");
+
 // The plan-06 review pattern applied to a curator: one card per change, editable before it runs,
 // accepted or declined on its own. It lives in the drawer rather than the Studio because the author
 // is reviewing mid-play, and the plan-03 import boundary forbids drawer → studio.
-const OpCard = ({ record, index, entry, manager }: { record: CuratorProposalRecord; index: number; entry: CuratorOpRecord; manager: RuntimeManager }) => {
+const OpCard = ({ record, index, entry, manager, onOpenFact }: { record: CuratorProposalRecord; index: number; entry: CuratorOpRecord; manager: RuntimeManager; onOpenFact?: (id: string) => void }) => {
   const text = editableText(entry.op);
   const [draft, setDraft] = useState(text ?? "");
   const decidable = entry.status === "pending";
   return (
     <div data-so="curator-op" className="border-t border-solid border-white/10 mt-1 pt-1">
       <div className="opacity-100">{describe(entry.op)} <span className="opacity-60">· {statusLabel(entry)}</span></div>
-      {isNoteOp(entry.op) && entry.op.facts.map((fact) => <div key={fact} data-so="warden-fact" className="opacity-80">established: {fact}</div>)}
+      {isNoteOp(entry.op) && (entry.op.sources?.length
+        ? entry.op.sources.map((source) => (
+          <div key={source.id} data-so="warden-fact" data-fact={source.id} className="opacity-80">
+            <div>established: {source.text}</div>
+            <div data-so="warden-fact-origin" className="opacity-60">
+              {originText(source.provenance, source.conflictingValue)}
+            </div>
+            {/* v2.3 plan 05: the card cites the message a truth was read from, so it has to be able to
+                take the author there. Without this the citation is decoration the author must hunt
+                through the drawer to use. */}
+            {onOpenFact && (
+              <button data-so="warden-fact-open" className="menu_button text-[10px]" title="Show this fact where it is edited" onClick={() => onOpenFact(source.id)}>
+                {source.id.startsWith("bound:") ? "Show the blackboard" : "Show the fact"}
+              </button>
+            )}
+          </div>
+        ))
+        : entry.op.facts.map((fact) => <div key={fact} data-so="warden-fact" className="opacity-80">established: {fact}</div>))}
       {entry.status === "failed" && entry.message && <div className="text-red-300">{entry.message}</div>}
       {text !== null && (decidable ? (
         <textarea data-so="curator-text" aria-label={`Text for ${describe(entry.op)}`} className="text_pole w-full" rows={2} value={draft} onChange={(event) => setDraft(event.target.value)} />
@@ -77,7 +108,7 @@ const OpCard = ({ record, index, entry, manager }: { record: CuratorProposalReco
 
 // Author-only: a curator is system machinery, and what it proposes names lorebook entries and future
 // scenes — squarely on the author side of the spoiler checklist.
-export const StagecraftPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: RuntimeManager }) => {
+export const StagecraftPanel = ({ snapshot, manager, onOpenFact }: { snapshot: RuntimeSnapshot; manager: RuntimeManager; onOpenFact?: (id: string) => void }) => {
   const { settings, proposals, lastPass, lastError } = snapshot.stagecraft;
   const scope = snapshot.stagecraftScope ?? [];
   const records = [...proposals].reverse();
@@ -109,7 +140,7 @@ export const StagecraftPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapsh
           <div key={record.id} data-so="curator-proposal" data-curator={record.curator} className="border-t border-solid border-white/10 mt-1 pt-1">
             <div className="opacity-100">{record.curator === "warden" ? "Continuity warden: " : ""}{record.summary}</div>
             <div>{record.checkpointId} · {record.reason} · boundary {record.boundary}{record.appliedAt ? " · applied" : ""}</div>
-            {record.ops.map((entry, index) => <OpCard key={`${record.id}-${index}`} record={record} index={index} entry={entry} manager={manager} />)}
+            {record.ops.map((entry, index) => <OpCard key={`${record.id}-${index}`} record={record} index={index} entry={entry} manager={manager} onOpenFact={onOpenFact} />)}
             {record.dropped.map((line) => <div key={line} className="opacity-50">dropped — {line}</div>)}
           </div>
         ))

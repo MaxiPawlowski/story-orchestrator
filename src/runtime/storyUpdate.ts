@@ -2,6 +2,7 @@ import { diffStories, isValidationErrorList, pruneEngineState, type EngineState,
 import { showChoicePopup } from "@services/STAPI";
 import { findStoryRecord, loadStoryRecord } from "./storyLibrary";
 import type { LoadedStory, StoryLibraryRecord } from "./types";
+import { beginRun, type RunOwnership } from "./runToken";
 
 export type StoryUpdateChoice = "keep" | "restart" | "cancel";
 
@@ -26,22 +27,50 @@ export interface StoryUpdateDeps {
   swapStory: (loaded: LoadedStory, state: EngineState | null, reanchored: boolean) => Promise<void>;
   restart: () => Promise<boolean>;
   journal: (outcome: StoryUpdateOutcome) => void;
+  ownership?: RunOwnership;
 }
 
 const versionLabel = (from: number | null, to: number | null) => (from !== null && to !== null && from !== to ? ` (v${from} → v${to})` : "");
 
+export interface StoryUpdateDescription {
+  title: string;
+  from: number | null;
+  to: number | null;
+  invalidating: string[];
+  keptCount: number;
+}
+
 // Author-facing, not player-facing: this popup only ever appears because the author just saved an
-// edit from this chat.
-export const describeStoryUpdate = (title: string, diff: StoryDiffResult, from: number | null, to: number | null): string => {
-  const consequences = diff.entries.filter((entry) => entry.kind === "invalidating").map((entry) => `<li>${entry.message}</li>`).join("");
-  const kept = diff.entries.filter((entry) => entry.kind === "compatible").length;
-  return [
-    `<h3>“${title}” changed under this chat${versionLabel(from, to)}</h3>`,
-    "<p>Some of what changed cannot be carried over as it stands:</p>",
-    `<ul>${consequences}</ul>`,
-    kept ? `<p class="opacity-70">${kept} other change${kept === 1 ? " carries" : "s carry"} over untouched.</p>` : "",
-    "<p><b>Keep playing</b> drops only what no longer fits and continues this chat. <b>Restart story</b> clears this chat's progress and starts the new version clean. <b>Cancel</b> leaves the chat on the version it is playing — the library keeps your edit either way.</p>",
-  ].filter(Boolean).join("");
+// edit from this chat. v2.3 plan 02 (R7): it returns a description, not markup — the title of an
+// imported story and a diff message are both text somebody else wrote, and the host assigns popup
+// content to innerHTML (popup.js:534).
+export const describeStoryUpdate = (title: string, diff: StoryDiffResult, from: number | null, to: number | null): StoryUpdateDescription => ({
+  title,
+  from,
+  to,
+  invalidating: diff.entries.filter((entry) => entry.kind === "invalidating").map((entry) => entry.message),
+  keptCount: diff.entries.filter((entry) => entry.kind === "compatible").length,
+});
+
+/** The popup's markup is authored here; every value that came from a story becomes a text node. */
+export const renderStoryUpdate = (description: StoryUpdateDescription, doc: Document): HTMLElement => {
+  const root = doc.createElement("div");
+  const para = (text: string) => { const node = doc.createElement("p"); node.append(doc.createTextNode(text)); root.append(node); };
+  const heading = doc.createElement("h3");
+  heading.append(doc.createTextNode(`“${description.title}” changed under this chat${versionLabel(description.from, description.to)}`));
+  root.append(heading);
+  // v2.3 plan 09: one save vocabulary. "Saved to the library" and "applied to this chat" are two
+  // different events with different owners, and this popup is where they are most easily confused.
+  para("Your edit is already saved to the library. What is left to decide is whether this chat takes it:");
+  const list = doc.createElement("ul");
+  description.invalidating.forEach((message) => { const item = doc.createElement("li"); item.append(doc.createTextNode(message)); list.append(item); });
+  root.append(list);
+  para("The lines above cannot be applied to this chat as they stand.");
+  if (description.keptCount) para(description.keptCount === 1
+    ? "1 other change is applied to this chat as it stands."
+    : `${description.keptCount} other changes are applied to this chat as they stand.`);
+  para("Keep playing applies the edit and drops only what no longer fits. Restart story applies it and clears this chat's progress. Cancel applies nothing — this chat keeps playing the version it started with. Either way the library keeps your edit.");
+  return root;
 };
 
 export const emptyOutcome = (reason: string): StoryUpdateOutcome => ({
@@ -90,11 +119,14 @@ export async function applyStoryUpdate(deps: StoryUpdateDeps, target?: StoryLibr
 
   let choice: StoryUpdateChoice = "keep";
   if (diff.classification === "invalidating") {
-    choice = (await showChoicePopup<StoryUpdateChoice>(describeStoryUpdate(record.title, diff, loaded.record.version, record.version), {
+    const run = beginRun(deps.ownership);
+    const description = describeStoryUpdate(record.title, diff, loaded.record.version, record.version);
+    choice = (await showChoicePopup<StoryUpdateChoice>((doc) => renderStoryUpdate(description, doc), {
       okButton: { id: "keep", label: "Keep playing" },
       choices: [{ id: "restart", label: "Restart story" }],
       cancelButton: "Cancel",
     })) ?? "cancel";
+    if (!run.stillOwns()) return { ...base, reason: `story update discarded: ${run.lapsedDetail()}` };
   }
 
   if (choice === "cancel") {

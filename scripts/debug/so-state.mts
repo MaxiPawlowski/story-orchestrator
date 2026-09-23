@@ -115,13 +115,55 @@ export async function dumpCurrentChatState(page) {
       try { return { name: decodeURIComponent(file), locked: Boolean(locked) }; } catch { return { name: file, locked: Boolean(locked) }; }
     })();
     const pacingPrompt = ctx.extensionPrompts?.story_orchestrator_pacing ?? null;
+    // v2.3 plan 05: two sources for "what did the request carry". The runtime's own capture ring is
+    // ALWAYS on and per-block, so a scenario (which cannot arm the HTTP recorder itself) can assert
+    // inside a named injected block; the `st-payload` ring is per-member raw bodies and needs arming,
+    // so it is included when it is there. Same shape either way — see lib/payloadAssert.mts.
+    // Four sources, each labelled, because "the payload carries X" means different things and a
+    // mislabelled source is how a plumbing check gets read as a proof about a request that was sent:
+    //   `current` — the blocks the NEXT prompt would carry (what readInjectedPromptBlocks sees now).
+    //               On by default, so a mocked scenario can assert the injection without generating.
+    //   `capture` — a real generation's captured blocks (the runtime ring, last 5).
+    //   `http`    — a raw request body from the `st-payload` ring, with the member it was drafted for.
+    const toBlocks = (list: any[]) => list.map((block: any) => ({ key: String(block?.key ?? ''), value: String(block?.value ?? '') }));
+    const currentBlocks = Object.entries(ctx.extensionPrompts ?? {})
+      .filter(([key, entry]: [string, any]) => key.startsWith('story_') && typeof entry?.value === 'string' && entry.value.trim().length)
+      .map(([key, entry]: [string, any]) => ({ key, value: String(entry.value) }));
+    const runtimeCaptures = globalThis.storyOrchestratorRuntime?.getPayloadCaptures?.() ?? [];
+    const payloadEntries = [
+      { source: 'current', member: null, capturedAt: null, blocks: toBlocks(currentBlocks), body: null },
+      ...runtimeCaptures.map((capture: any) => ({ source: 'capture', member: null, capturedAt: capture?.at ?? null, blocks: toBlocks(capture?.blocks ?? []), body: null })),
+      ...(globalThis.__soDebugPayloads?.entries ?? []).slice(-20).map((payload: any) => ({
+        source: 'http',
+        member: payload?.draftMember ?? null,
+        capturedAt: payload?.capturedAt ?? null,
+        blocks: null,
+        body: typeof payload?.body === 'string' ? payload.body : null,
+      })),
+    ];
     const memoryPrompts = ['facts', 'session_details', 'short_term', 'scene_history'].reduce((acc, tier) => {
       acc[tier] = ctx.extensionPrompts?.[`story_orchestrator_memory_${tier}`] ?? null;
       return acc;
     }, {});
+    // v2.3 plan 06: the effect ledger owes an account of the state it changed that belongs to no chat,
+    // and `disabled_members` is the one that outlives the chat that wrote it. Read it from the GROUP,
+    // not from our own mirror: the mirror is what this chat MEANT to write.
+    const group = (() => {
+      const groups = ctx.groups ?? [];
+      const open = groups.find((entry) => String(entry?.id ?? '') === String(ctx.groupId ?? '')) ?? null;
+      if (!open) return null;
+      const characters = ctx.characters ?? [];
+      return {
+        id: open.id ?? null,
+        name: open.name ?? null,
+        disabledMembers: Array.isArray(open.disabled_members) ? open.disabled_members : [],
+        members: (open.members ?? []).map((avatar) => ({ avatar, name: characters.find((card) => card?.avatar === avatar)?.name ?? null })),
+      };
+    })();
     return {
       chatId: ctx.chatId,
       groupId: ctx.groupId ?? null,
+      group,
       selectedStoryId: selected,
       globalSettings: ctx.extensionSettings?.['story-orchestrator']?.settings ?? null,
       libraryIds: (ctx.extensionSettings?.['story-orchestrator']?.v2Stories ?? []).map((record) => ({ id: record.id ?? null, version: record.version ?? null, hash: record.hash, title: record.title })),
@@ -135,6 +177,7 @@ export async function dumpCurrentChatState(page) {
       copilotNudgePrompt,
       pacingPrompt,
       memoryPrompts,
+      payloadEntries,
       background,
     };
   });
@@ -142,6 +185,7 @@ export async function dumpCurrentChatState(page) {
   return {
     chatId: data?.chatId ?? null,
     groupId: data?.groupId ?? null,
+    group: data?.group ?? null,
     version: data?.version ?? null,
     selectedStoryId: data?.selectedStoryId ?? null,
     globalSettings: data?.globalSettings ?? null,
@@ -155,6 +199,7 @@ export async function dumpCurrentChatState(page) {
     copilotNudgePrompt: data?.copilotNudgePrompt ?? null,
     pacingPrompt: data?.pacingPrompt ?? null,
     memoryPrompts: data?.memoryPrompts ?? null,
+    payloadEntries: data?.payloadEntries ?? [],
     background: data?.background ?? null,
     _note: 'State is from chatMetadata.story_orchestrator for the current chat.',
   };
@@ -200,6 +245,19 @@ function compactCurrent(data) {
       activeNudge: data?.activeNudge ?? null,
       nudgeInjected: Boolean((data?.copilotNudgePrompt as { value?: unknown } | null)?.value),
     },
+    // v2.3 plan 06: what this chat's effects did to shared host state. `unsupported` names the rows a
+    // BACKEND refused (the preset on a chat-completion connection), which is a diagnosis, not a bug.
+    effects: (() => {
+      const effects = data?.liveSnapshot?.effects ?? null;
+      if (!effects) return null;
+      const ledger = effects.ledger ?? [];
+      return {
+        ledger: ledger.map((row) => ({ effect: row.effect, target: row.target, status: row.status, before: row.before ?? null, after: row.after ?? null, reason: row.reason ?? null, boundary: row.boundary ?? null })),
+        cast: effects.cast ?? [],
+        unsupported: ledger.filter((row) => row.status === 'failed' && /Text Completion|not supported|unsupported/i.test(String(row.reason ?? ''))).length,
+      };
+    })(),
+    group: data?.group ?? null,
   };
 }
 
@@ -235,7 +293,28 @@ function checkExpectations(data, args) {
   return failures;
 }
 
-const USAGE = `Usage: node scripts/debug/so-state.mts [current|all] [--full] [--expect path=value]
+// The other half of "nothing else changed": `--expect x=null` cannot tell a null value from a
+// missing key, and "the extractor never wrote this" is an absence, not a value (v2.3 plan 02 §R6).
+function checkAbsences(data, args) {
+  const failures = [];
+  for (let index = 0; index < args.length; index += 1) {
+    if (args[index] !== '--expect-absent') continue;
+    const path = args[index + 1] ?? '';
+    const parts = path.split('.').filter(Boolean);
+    if (parts.length < 2) {
+      failures.push(`Invalid absence (needs a parent and a key, e.g. bb.entered_mines): ${path}`);
+      continue;
+    }
+    const parent = getPath(data, parts.slice(0, -1).join('.'));
+    const key = parts[parts.length - 1];
+    if (parent && Object.prototype.hasOwnProperty.call(parent, key)) {
+      failures.push(`${path}: expected absent, got ${JSON.stringify(parent[key])}`);
+    }
+  }
+  return failures;
+}
+
+const USAGE = `Usage: node scripts/debug/so-state.mts [current|all] [--full] [--expect path=value] [--expect-absent path.key]
 
 Examples:
   node scripts/debug/so-state.mts
@@ -255,7 +334,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       const data = await dumpCurrentChatState(page);
       const output = full ? data : compactCurrent(data);
       console.log(JSON.stringify(output, null, 2));
-      const failures = checkExpectations(output, args);
+      const failures = [...checkExpectations(output, args), ...checkAbsences(output, args)];
       if (failures.length) {
         console.error(`Expectation failed: ${failures.join('; ')}`);
         process.exitCode = 1;

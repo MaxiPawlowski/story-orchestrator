@@ -1,0 +1,434 @@
+{
+  "surfaces": {
+    "settings": [
+      {
+        "width": 213,
+        "height": 379,
+        "label": "phone-320",
+        "scale": 1.5,
+        "viewportWidth": 213,
+        "documentOverflow": 81,
+        "overflow": [
+          {
+            "selector": "#story-orchestrator-settings",
+            "slack": 31
+          }
+        ],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": false
+      },
+      {
+        "width": 229,
+        "height": 588,
+        "label": "phone-344",
+        "scale": 1.5,
+        "viewportWidth": 229,
+        "documentOverflow": 73,
+        "overflow": [
+          {
+            "selector": "#story-orchestrator-settings",
+            "slack": 15
+          }
+        ],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": false
+      },
+      {
+        "width": 240,
+        "height": 427,
+        "label": "phone-360",
+        "scale": 1.5,
+        "viewportWidth": 240,
+        "documentOverflow": 68,
+        "overflow": [
+          {
+            "selector": "#story-orchestrator-settings",
+            "slack": 4
+          }
+        ],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": false
+      },
+      {
+        "width": 250,
+        "height": 445,
+        "label": "phone-375",
+        "scale": 1.5,
+        "viewportWidth": 250,
+        "documentOverflow": 63,
+        "overflow": [],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": true
+      },
+      {
+        "width": 250,
+        "height": 541,
+        "label": "phone-375-tall",
+        "scale": 1.5,
+        "viewportWidth": 250,
+        "documentOverflow": 63,
+        "overflow": [],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": true
+      },
+      {
+        "width": 260,
+        "height": 563,
+        "label": "phone-390",
+        "scale": 1.5,
+        "viewportWidth": 260,
+        "documentOverflow": 58,
+        "overflow": [],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": true
+      },
+      {
+        "width": 275,
+        "height": 610,
+        "label": "phone-412",
+        "scale": 1.5,
+        "viewportWidth": 275,
+        "documentOverflow": 50,
+        "overflow": [],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": true
+      },
+      {
+        "width": 276,
+        "height": 597,
+        "label": "phone-414",
+        "scale": 1.5,
+        "viewportWidth": 276,
+        "documentOverflow": 50,
+        "overflow": [],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": true
+      },
+      {
+        "width": 285,
+        "height": 617,
+        "label": "phone-428",
+        "scale": 1.5,
+        "viewportWidth": 285,
+        "documentOverflow": 45,
+        "overflow": [],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": true
+      },
+      {
+        "width": 320,
+        "height": 533,
+        "label": "phablet-480",
+        "scale": 1.5,
+        "viewportWidth": 320,
+        "documentOverflow": 28,
+        "overflow": [],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": true
+      },
+      {
+        "width": 400,
+        "height": 640,
+        "label": "phablet-600",
+        "scale": 1.5,
+        "viewportWidth": 400,
+        "documentOverflow": 0,
+        "overflow": [],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": true
+      },
+      {
+        "width": 512,
+        "height": 683,
+        "label": "tablet-768",
+        "scale": 1.5,
+        "viewportWidth": 512,
+        "documentOverflow": 0,
+        "overflow": [],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": true
+      },
+      {
+        "width": 547,
+        "height": 787,
+        "label": "tablet-820",
+        "scale": 1.5,
+        "viewportWidth": 547,
+        "documentOverflow": 0,
+        "overflow": [],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": true
+      },
+      {
+        "width": 683,
+        "height": 512,
+        "label": "laptop-1024",
+        "scale": 1.5,
+        "viewportWidth": 683,
+        "documentOverflow": 0,
+        "overflow": [],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": true
+      },
+      {
+        "width": 683,
+        "height": 911,
+        "label": "tablet-1024-tall",
+        "scale": 1.5,
+        "viewportWidth": 683,
+        "documentOverflow": 0,
+        "overflow": [],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": true
+      },
+      {
+        "width": 787,
+        "height": 547,
+        "label": "laptop-1180",
+        "scale": 1.5,
+        "viewportWidth": 787,
+        "documentOverflow": 0,
+        "overflow": [],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": true
+      },
+      {
+        "width": 853,
+        "height": 480,
+        "label": "laptop-1280",
+        "scale": 1.5,
+        "viewportWidth": 853,
+        "documentOverflow": 0,
+        "overflow": [],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": true
+      },
+      {
+        "width": 853,
+        "height": 533,
+        "label": "laptop-1280-tall",
+        "scale": 1.5,
+        "viewportWidth": 853,
+        "documentOverflow": 0,
+        "overflow": [],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": true
+      },
+      {
+        "width": 911,
+        "height": 512,
+        "label": "laptop-1366",
+        "scale": 1.5,
+        "viewportWidth": 911,
+        "documentOverflow": 0,
+        "overflow": [],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": true
+      },
+      {
+        "width": 960,
+        "height": 600,
+        "label": "desktop-1440",
+        "scale": 1.5,
+        "viewportWidth": 960,
+        "documentOverflow": 0,
+        "overflow": [],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": true
+      },
+      {
+        "width": 1024,
+        "height": 576,
+        "label": "desktop-1536",
+        "scale": 1.5,
+        "viewportWidth": 1024,
+        "documentOverflow": 0,
+        "overflow": [],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": true
+      },
+      {
+        "width": 1067,
+        "height": 600,
+        "label": "desktop-1600",
+        "scale": 1.5,
+        "viewportWidth": 1067,
+        "documentOverflow": 0,
+        "overflow": [],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": true
+      },
+      {
+        "width": 1280,
+        "height": 720,
+        "label": "desktop-1920",
+        "scale": 1.5,
+        "viewportWidth": 1280,
+        "documentOverflow": 0,
+        "overflow": [],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": true
+      },
+      {
+        "width": 1707,
+        "height": 960,
+        "label": "desktop-2560",
+        "scale": 1.5,
+        "viewportWidth": 1707,
+        "documentOverflow": 0,
+        "overflow": [],
+        "offscreen": [],
+        "rootsPresent": [
+          "#drawer-manager",
+          "#story-orchestrator-settings",
+          "#so-hud-root",
+          "#so-studio-root"
+        ],
+        "ok": true
+      }
+    ]
+  },
+  "at": "2026-09-22T22:05:11.120Z",
+  "viewports": 24,
+  "zoomRequested": 150,
+  "zoomApplied": 100,
+  "mode": "zoom-equivalent-css-width"
+}

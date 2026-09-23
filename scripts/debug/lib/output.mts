@@ -28,11 +28,17 @@ async function rotateDir(dir: string): Promise<void> {
     try {
       const info = await stat(path);
       // Keep the fixed-name artifacts gates depend on: the session, the journey matrices, the
-      // journal exports and the config snapshot a crashed run needs to restore from.
+      // journal exports, the config snapshot a crashed run needs to restore from, and the v2.3
+      // run evidence — run headers, the asset baseline and any session tail (`.jsonl`). Rotation
+      // used to delete a run header as soon as any other script wrote its 41st artifact, which
+      // silently destroyed the baseline a gate was about to diff against.
       const protectedArtifact = entry === 'session.json'
         || entry === 'so-journey-config-snapshot.json'
+        || entry === 'so-journey-asset-baseline.json'
         || entry.startsWith('journey-')
-        || entry.startsWith('journal-');
+        || entry.startsWith('journal-')
+        || entry.startsWith('run-header-')
+        || entry.endsWith('.jsonl');
       if (info.isFile() && !protectedArtifact) files.push({ path, mtime: info.mtimeMs });
     } catch {}
   }

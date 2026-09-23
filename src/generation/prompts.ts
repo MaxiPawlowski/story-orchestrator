@@ -1,4 +1,4 @@
-import { thresholdFor, type NormalizedStoryV2 } from "@engine/index";
+import { agencyClauses, agencyForCheckpoint, renderAgencyPolicy, thresholdFor, type NormalizedStoryV2 } from "@engine/index";
 import type { GeneratedBeat, PlannedExpansionInput } from "./types";
 
 export function renderGenerationPrompt(story: NormalizedStoryV2, input: PlannedExpansionInput): string {
@@ -23,6 +23,7 @@ export function renderGenerationPrompt(story: NormalizedStoryV2, input: PlannedE
     `Facts:\n${input.facts.join("\n") || "(none)"}`,
     `Gate grammar is mandatory. A gate leaf is exactly {"q":"quality_key","op":"==|!=|>=|<=|>|<|in","v":literal}. Combinators are exactly {"all":[gate,...]}, {"any":[gate,...]}, or {"not":gate}. Do not use condition, logic, type, threshold, check, expression, or prose gate fields.`,
     `Valid gate examples: {"q":"key_found","op":"==","v":true}; {"q":"approach","op":"==","v":"safe"}; {"all":[{"q":"key_found","op":"==","v":true},{"q":"approach","op":"==","v":"safe"}]}.`,
+    `Agency policy for the beats you write:\n${renderAgencyPolicy(agencyForCheckpoint(story, input.candidate.targetAnchorId))}`,
     `Progress threshold for ${input.candidate.targetAnchorId}: ${threshold}. Progress increments may appear before the final anchor-entry beat only. The final beat outcome must not include progress. Earlier progress amounts must sum to at least ${threshold}. If there are 2 beats, the first beat progress amount must be ${threshold} and the second beat must omit progress.`,
     `Return exact JSON only: {"beats":[{"objective":"...","guidance":"...","tension_target":"calm|stirring|tense|critical|peak","outcomes":[{"label":"success","gate":{"q":"key_found","op":"==","v":true},"deltas":[{"q":"key_found","v":true}],"progress":{"anchor":"${input.candidate.targetAnchorId}","amount":1}}]}]}`,
   ].join("\n");
@@ -38,6 +39,8 @@ export function renderCriticPrompt(story: NormalizedStoryV2, input: PlannedExpan
     `Canon-lite:\n${input.canon || "(none)"}`,
     `Facts:\n${input.facts.join("\n") || "(none)"}`,
     `Beats JSON:\n${JSON.stringify({ beats })}`,
+    `Review the beats against this policy:\n${agencyClauses(agencyForCheckpoint(story, input.candidate.targetAnchorId)).map((clause) => `- ${clause}`).join("\n")}`,
+    `Fail a beat whose guidance narrates the player's own act — accepting, agreeing, refusing, or going somewhere — instead of setting the situation up for the player.`,
     `Return exact JSON: {"pass":true|false,"issues":["..."]}`,
   ].join("\n");
 }

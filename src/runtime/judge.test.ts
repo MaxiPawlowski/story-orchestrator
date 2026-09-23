@@ -44,6 +44,17 @@ const setup = (options: { settings?: JudgeSettings; transport?: JudgeTransport; 
   return { runtime, records, transport, status, clock };
 };
 
+describe("JudgeRuntime calibration model override", () => {
+  it("asks the named model without mutating install settings, and reports the model that answered", async () => {
+    const current = settings({ model: "jev-1.13.0" });
+    const { runtime, transport } = setup({ settings: current, transport: async (request) => ({ ...pickMara, model: request.model ?? "missing" }) });
+    const result = await runtime.probe({ state: { text: "The gate is shut." }, questions: { q: { type: "noul", instructions: "Is the gate shut?" } } }, "jev-latest");
+    expect(transport.mock.calls[0][0].model).toBe("jev-latest");
+    expect(result.model).toBe("jev-latest");
+    expect(current.model).toBe("jev-1.13.0");
+  });
+});
+
 describe("JudgeRuntime.director", () => {
   it("does nothing, and records nothing, unless both the master switch and the usage are on", async () => {
     for (const current of [settings({ enabled: false }), settings({}, { director: false })]) {

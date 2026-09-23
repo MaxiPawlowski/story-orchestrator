@@ -16,6 +16,9 @@ In a sandbox chat of --group (default "AdolionGroup", whose members all greet) w
   c-origin    the chat that was open keeps its boundary
   d-reopen    reopening a greeting-only solo chat that plays the story commits nothing
   d-swipe     swiping that chat's greeting to an alternate greeting commits and rolls back nothing
+  e-*         turn IDENTITY (R10/R11): duplicate events for one id are one turn; a late repeat of
+              that id is still one turn; a swipe of the same id makes the re-render a new turn; two
+              different ids inside the old 250ms window are two turns. Event-level, so no backend.
 --image auto (default) uses a real /sd and falls back to a synthetic post shaped like sd's sendMessage.
 Solo checks pick a character with alternate greetings, no embedded lorebook and a story-free last chat.
 Every chat the run creates is deleted by id afterwards; a story it imported is removed from the library.`;
@@ -271,7 +274,8 @@ async function deleteSoloChat(page, solo) {
 export async function runTurnTypesCheck(page, { group = 'AdolionGroup', character = null, image = 'auto', skipReply = false, skipImage = false, skipSolo = false, keep = false } = {}) {
   const checks = [];
   const record = (id, ok, detail) => { checks.push({ id, ok: Boolean(ok), detail }); };
-  const result: Record<string, unknown> = { ok: false, checks };
+  const skipped: Array<{ id: string; why: string }> = [];
+  const result: Record<string, unknown> = { ok: false, checks, skipped };
   let guard = null;
   let solo = null;
   let importedStory = false;
@@ -332,6 +336,73 @@ export async function runTurnTypesCheck(page, { group = 'AdolionGroup', characte
     await assertInSandbox(page, guard, 'back in the original chat');
     const reopened = await waitForState(page, (current) => current.storyId === STORY.id, 15000);
     record('c-origin', reopened.storyId === STORY.id && reopened.boundary === originState.boundary && reopened.persisted.boundaries[STORY.id] === originState.boundary, { boundaryBefore: originState.boundary, state: reopened });
+
+    // --- e-*: turn IDENTITY (R10/R11, v2.3 plan 03). Event-level on purpose: these are about
+    // which events the bridge treats as one turn, not about what a model says, so they need no
+    // backend and they stay meaningful when one is unavailable.
+    const emitRendered = async (id) => evaluateInST(page, async (messageId) => {
+      const context = SillyTavern.getContext();
+      await context.eventSource.emit(context.eventTypes.CHARACTER_MESSAGE_RENDERED, messageId, 'normal');
+    }, id);
+    const emitReceived = async (id) => evaluateInST(page, async (messageId) => {
+      const context = SillyTavern.getContext();
+      await context.eventSource.emit(context.eventTypes.MESSAGE_RECEIVED, messageId, 'normal');
+    }, id);
+    const emitSwiped = async (id) => evaluateInST(page, async (messageId) => {
+      const context = SillyTavern.getContext();
+      await context.eventSource.emit(context.eventTypes.MESSAGE_SWIPED, messageId);
+    }, id);
+
+    const lastId = await evaluateInST(page, () => (SillyTavern.getContext().chat?.length ?? 1) - 1);
+
+    const dupFrom = await mark(page);
+    await emitReceived(lastId);
+    await emitRendered(lastId);
+    await settle(page, 1200);
+    const dup = await since(page, dupFrom);
+    record('e-duplicate', dup.afterSpeak.length === 1, { note: 'two events for one message id are one accepted turn', afterSpeak: dup.afterSpeak, commits: dup.commits, messageId: lastId });
+
+    const slowFrom = await mark(page);
+    await emitRendered(lastId);
+    await settle(page, 1200);
+    const slow = await since(page, slowFrom);
+    record('e-slow-listener', slow.afterSpeak.length === 0, { note: 'a repeat of the same id is one turn however late it arrives — identity, not elapsed time', commits: slow.commits, messageId: lastId });
+
+    const swipeIdFrom = await mark(page);
+    await emitSwiped(lastId);
+    await emitRendered(lastId);
+    await settle(page, 1200);
+    const reswipe = await since(page, swipeIdFrom);
+    record('e-swipe-same-id', reswipe.afterSpeak.length === 1, { note: 'a swipe gives the same id new content, so the re-render is a new turn', commits: reswipe.commits, messageId: lastId });
+
+    // Needs TWO REAL message ids that this run has not already accepted. The first version emitted
+    // lastId+101/+102, which name no message: the engine saw the same lastMessageId both times and
+    // committed once, so the check failed for a reason that had nothing to do with turn identity.
+    // The second version emitted lastId-1 and lastId — and by this point lastId has already been
+    // accepted by e-duplicate and re-admitted by e-swipe-same-id, so the second emit is a duplicate
+    // of a committed turn under an identity-keyed bridge (and under the old elapsed-time rule it
+    // fell inside the 250 ms window and was dropped). Both readings give one accepted turn, and
+    // neither says anything about distinct ids. Two freshly appended messages are what the check
+    // means by "two turns" (2026-09-21).
+    const appendQuiet = async (text) => evaluateInST(page, async (body) => {
+      const context = SillyTavern.getContext();
+      context.chat.push({ name: 'System', is_user: false, is_system: false, send_date: new Date().toISOString(), mes: body, extra: {} });
+      await context.saveChat();
+      return context.chat.length - 1;
+    }, text);
+
+    const rapidFirst = await appendQuiet('rapid one');
+    const rapidSecond = await appendQuiet('rapid two');
+    const rapidFrom = await mark(page);
+    await emitRendered(rapidFirst);
+    await emitRendered(rapidSecond);
+    await settle(page, 1200);
+    const rapid = await since(page, rapidFrom);
+    // Measured on afterSpeak, not on commits. TurnBridge calls fireAfterSpeak once per turn it
+    // ACCEPTS, which is the decision R10 is about; the boundary underneath is then collapsed by
+    // the engine when the chat has not actually advanced, so counting commits here reported one
+    // and said nothing about identity (2026-09-20).
+    record('e-distinct-rapid', rapid.afterSpeak.length === 2, { note: 'two different ids inside the old 250ms window are two accepted turns', afterSpeak: rapid.afterSpeak, commits: rapid.commits, ids: [rapidFirst, rapidSecond] });
 
     if (!skipSolo) {
       await openChat(page, adopted.adopted);

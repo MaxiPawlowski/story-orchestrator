@@ -1,9 +1,13 @@
 jest.mock("@services/STAPI", () => ({
+  settingsAreLoaded: () => true,
+  settingsReady: async () => {},
+  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
+  readBackBoundary: () => null,
   setStoryExtensionPrompt: jest.fn(),
   clearStoryExtensionPrompt: jest.fn(),
 }));
 
-import { buildMemoryInjectionBlocks, memoryExtensionKey, type InjectionOptions } from "./inject";
+import { buildMemoryInjection, buildMemoryInjectionBlocks, memoryExtensionKey, type InjectionOptions } from "./inject";
 import type { MemoryEntry, MemoryTier } from "./types";
 
 const entry = (overrides: Partial<MemoryEntry>): MemoryEntry => ({
@@ -86,12 +90,24 @@ describe("buildMemoryInjectionBlocks", () => {
       entry({ id: "p", text: "pppp", tokens: 10, importance: 1, pinned: true, createdAt: 3 }),
     ];
     const blocks = buildMemoryInjectionBlocks(entries, null, {
-      tokenBudgets: { ...bigBudget, facts: 20 },
+      tokenBudgets: { ...bigBudget, facts: 24 },
       scoreContext: { boundary: 5, turnText: "", turnEntities: [] },
     });
     expect(blocks.facts).toContain("pppp");
     expect(blocks.facts).toContain("bbbb");
     expect(blocks.facts).not.toContain("aaaa");
+  });
+
+  // v2.3 plan 05 (M7). The block's own formatting counts, so the budget is spent on what the model
+  // actually reads, and a pinned row that cannot fit is counted rather than dropped in silence.
+  it("reports pinned entries the budget could not fit", () => {
+    const entries = [entry({ id: "p1", text: "pppp", tokens: 10, pinned: true, createdAt: 1 }), entry({ id: "p2", text: "qqqq", tokens: 10, pinned: true, createdAt: 2 })];
+    const { blocks, pinnedOverflow } = buildMemoryInjection(entries, null, {
+      tokenBudgets: { ...bigBudget, facts: 12 },
+      scoreContext: { boundary: 5, turnText: "", turnEntities: [] },
+    });
+    expect(pinnedOverflow).toBe(1);
+    expect(blocks.facts).toBe("pppp");
   });
 });
 

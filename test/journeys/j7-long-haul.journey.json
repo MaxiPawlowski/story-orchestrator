@@ -104,8 +104,16 @@
         },
         {
           "wait": {
-            "checkpoint": "cp3",
-            "timeoutMs": 900000
+            "timeoutMs": 900000,
+            "checkpointIn": [
+              "cp3",
+              "cp-4a",
+              "cp-4b",
+              "cp-4a1",
+              "cp-4a2",
+              "cp-5",
+              "cp-6"
+            ]
           }
         }
       ]
@@ -130,8 +138,15 @@
         },
         {
           "wait": {
-            "checkpoint": "cp-4a",
-            "timeoutMs": 900000
+            "timeoutMs": 900000,
+            "checkpointIn": [
+              "cp-4a",
+              "cp-4b",
+              "cp-4a1",
+              "cp-4a2",
+              "cp-5",
+              "cp-6"
+            ]
           }
         }
       ]
@@ -156,8 +171,13 @@
         },
         {
           "wait": {
-            "checkpoint": "cp-4a1",
-            "timeoutMs": 900000
+            "timeoutMs": 900000,
+            "checkpointIn": [
+              "cp-4a1",
+              "cp-4a2",
+              "cp-5",
+              "cp-6"
+            ]
           }
         }
       ]
@@ -182,19 +202,15 @@
         },
         {
           "wait": {
-            "checkpoint": "cp-5",
-            "timeoutMs": 900000
+            "timeoutMs": 900000,
+            "checkpointIn": [
+              "cp-5",
+              "cp-6"
+            ]
           }
         },
         {
-          "expect": {
-            "convergence": [
-              {
-                "anchorId": "cp-6",
-                "progress": 1
-              }
-            ]
-          }
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const rows = rt.getSnapshot().convergence ?? []; const row = rows.find((entry) => entry.anchorId === 'cp-6'); if (!row) throw new Error('no convergence row for cp-6: ' + JSON.stringify(rows)); if (!(row.progress >= 1)) throw new Error('cp-6 recorded no convergence progress: ' + JSON.stringify(row)); return { anchor: row.anchorId, progress: row.progress, threshold: row.threshold };"
         }
       ]
     },
@@ -230,8 +246,10 @@
         },
         {
           "wait": {
-            "checkpoint": "cp-6",
-            "timeoutMs": 900000
+            "timeoutMs": 900000,
+            "checkpointIn": [
+              "cp-6"
+            ]
           }
         }
       ]

@@ -10,6 +10,7 @@ import {
   TENSION_LEVELS,
   type ArcTemplate,
   type BackgroundEffect,
+  type AgencyPolicy,
   type Checkpoint,
   type CheckpointEffects,
   type GateLeaf,
@@ -221,6 +222,33 @@ const readCheckpointEffects = (value: unknown, path: string, errors: ValidationE
   return effects;
 };
 
+// v2.3 plan 07 (C4). Authored aliases normalize the same way requirements' do, and an unknown
+// objective_kind is an error rather than a silent default: the whole point of the field is that the
+// author said which objective this is.
+const readAgency = (value: unknown, path: string, errors: ValidationError[]): Partial<AgencyPolicy> | null => {
+  if (!isRecord(value)) {
+    addError(errors, path, "agency must be an object");
+    return null;
+  }
+  const agency: Partial<AgencyPolicy> = {};
+  if (value.protect_player_choice !== undefined) {
+    if (typeof value.protect_player_choice !== "boolean") addError(errors, `${path}.protect_player_choice`, "must be a boolean");
+    else agency.protect_player_choice = value.protect_player_choice;
+  }
+  if (value.never_narrate_player_action !== undefined) {
+    if (typeof value.never_narrate_player_action !== "boolean") addError(errors, `${path}.never_narrate_player_action`, "must be a boolean");
+    else agency.never_narrate_player_action = value.never_narrate_player_action;
+  }
+  const kind = asString(value.objective_kind);
+  if (value.objective_kind !== undefined) {
+    if (kind !== "world_pressure" && kind !== "player_action") addError(errors, `${path}.objective_kind`, "must be world_pressure or player_action");
+    else agency.objective_kind = kind;
+  }
+  const alternate = asString(value.alternate ?? value.fallback);
+  if (alternate) agency.alternate = alternate;
+  return agency;
+};
+
 const readTalkControl = (value: unknown, path: string, errors: ValidationError[]): TalkControl | null => {
   if (!isRecord(value)) {
     addError(errors, path, "talk_control must be an object");
@@ -309,6 +337,10 @@ const readCheckpoint = (value: unknown, path: string, errors: ValidationError[])
   }
   if (isRecord(value.effects)) checkpoint.effects = readCheckpointEffects(value.effects, `${path}.effects`, errors) ?? undefined;
   if (value.talk_control !== undefined) checkpoint.talk_control = readTalkControl(value.talk_control, `${path}.talk_control`, errors) ?? undefined;
+  if (value.agency !== undefined) {
+    const agency = readAgency(value.agency, `${path}.agency`, errors);
+    if (agency) checkpoint.agency = agency;
+  }
   if (typeof value.guidance === "string") checkpoint.guidance = value.guidance;
   if (typeof value.convergence_threshold === "number" && Number.isFinite(value.convergence_threshold)) {
     checkpoint.convergence_threshold = value.convergence_threshold;

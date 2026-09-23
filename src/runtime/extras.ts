@@ -1,13 +1,14 @@
 import { stripChannelNoise, type ParsedFact } from "@extraction/index";
-import type { ExpansionRuntimeState } from "@generation/index";
-import { createMemoryState, generateMemoryId, type MemoryEntry } from "@memory/index";
+import { EXPANSION_CONTRACT, type ExpansionRuntimeState } from "@generation/index";
+import { CONFLICT_LIMIT, createMemoryState, DERIVED_LIMIT, generateMemoryId, legacyProvenance, type MemoryEntry } from "@memory/index";
 import { DEFAULT_TENSION_EMA_ALPHA } from "@constants/defaults";
 import { capProposalRing } from "@stagecraft/index";
 import { createJudgeRuntime, sanitizeJudgeRuntime } from "@judge/index";
 import { sanitizeJournalRecords } from "./journal";
 import { defaultExtractionSettings, defaultMemorySettings, defaultStagecraftSettings, getGlobalSettings, type ChatOverrides } from "./settingsStore";
-import { JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
-import type { CopilotRuntimeSettings, ExtractionRuntimeState, MemoryMirrorBook, MemoryRuntimeState, PacingSettings, RuntimeExtras, StagecraftRuntimeState, TalkRuntimeState, TensionRuntimeState, UiRuntimeSettings } from "./types";
+import { EFFECT_LEDGER_LIMIT, JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
+import { createSaveHealth } from "./saveHealth";
+import type { CopilotRuntimeSettings, EffectLedgerRow, EffectsRuntimeState, ExtractionRuntimeState, MemoryMirrorBook, MemoryRuntimeState, PacingSettings, RuntimeExtras, SaveHealth, StagecraftRuntimeState, TalkRuntimeState, TensionRuntimeState, UiRuntimeSettings } from "./types";
 
 export const TALK_DECISION_LIMIT = 10;
 
@@ -45,6 +46,11 @@ export const createExpansion = (): ExpansionRuntimeState => ({
 export const createMemory = (): MemoryRuntimeState => ({
   ...createMemoryState(),
   verifyDrops: [],
+  derived: [],
+  conflicts: [],
+  resolvedConflicts: [],
+  pinnedOverflow: 0,
+  legacyPinPromptSeen: false,
   settings: defaultMemorySettings(),
   backfill: null,
   sceneCount: 0,
@@ -83,7 +89,8 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
   const existing = value?.memory;
   if (existing && Array.isArray(existing.entries)) {
     return {
-      entries: existing.entries.map((entry) => ({ ...entry, text: stripChannelNoise(entry.text) })),
+      entries: existing.entries.map((entry) => ({ ...entry, text: stripChannelNoise(entry.text), provenance: entry.provenance ?? legacyProvenance() })),
+      // A row with no envelope is a stated unknown, not a silent one (v2.3 plan 05).
       excluded: Array.isArray(existing.excluded) ? existing.excluded : [],
       writeLog: Array.isArray(existing.writeLog) ? existing.writeLog.slice(-100) : [],
       settings: { ...defaultMemorySettings(), ...existing.settings },
@@ -93,10 +100,15 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
       wiWrites: existing.wiWrites && typeof existing.wiWrites === "object" ? existing.wiWrites : {},
       wiBook: sanitizeMirrorBook(existing.wiBook),
       arcs: Array.isArray(existing.arcs) ? existing.arcs.map((arc) => ({ ...arc, text: stripChannelNoise(arc.text), ...(arc.summary ? { summary: stripChannelNoise(arc.summary) } : {}) })) : [],
-      epistemic: Array.isArray(existing.epistemic) ? existing.epistemic : [],
-      ledger: Array.isArray(existing.ledger) ? existing.ledger : [],
+      epistemic: Array.isArray(existing.epistemic) ? existing.epistemic.map((row) => ({ ...row, provenance: row.provenance ?? legacyProvenance() })) : [],
+      ledger: Array.isArray(existing.ledger) ? existing.ledger.map((row) => ({ ...row, provenance: row.provenance ?? legacyProvenance() })) : [],
       canon: existing.canon && typeof existing.canon === "object" ? { ...existing.canon, text: stripChannelNoise(existing.canon.text) } : null,
       verifyDrops: Array.isArray(existing.verifyDrops) ? existing.verifyDrops.filter((drop) => drop && typeof drop === "object" && drop.entry && typeof drop.p === "number").slice(-VERIFY_DROP_LIMIT) : [],
+      derived: Array.isArray(existing.derived) ? existing.derived.filter((record) => record && typeof record === "object" && typeof record.id === "string" && Array.isArray(record.inputs) && typeof record.messageId === "number").slice(-DERIVED_LIMIT) : [],
+      conflicts: Array.isArray(existing.conflicts) ? existing.conflicts.filter((pair) => Boolean(pair) && typeof pair.key === "string" && Array.isArray(pair.sides)).slice(-CONFLICT_LIMIT) : [],
+      resolvedConflicts: Array.isArray(existing.resolvedConflicts) ? existing.resolvedConflicts.filter((key) => typeof key === "string").slice(-CONFLICT_LIMIT) : [],
+      pinnedOverflow: typeof existing.pinnedOverflow === "number" ? existing.pinnedOverflow : 0,
+      legacyPinPromptSeen: existing.legacyPinPromptSeen === true,
       updatedAt: existing.updatedAt ?? new Date().toISOString(),
     };
   }
@@ -116,6 +128,11 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
     ledger: [],
     canon: null,
     verifyDrops: [],
+    derived: [],
+    conflicts: [],
+    resolvedConflicts: [],
+    pinnedOverflow: 0,
+    legacyPinPromptSeen: false,
     updatedAt: new Date().toISOString(),
   };
 };
@@ -138,13 +155,68 @@ export const sanitizeStagecraft = (value: RuntimeExtras | undefined): Stagecraft
   };
 };
 
+// v2.3 plan 06. What this chat's effects did to shared host state. The ledger travels with the chat
+// so a reloaded chat still knows what it changed and can reconcile a write that never reported back.
+export const createEffects = (): EffectsRuntimeState => ({ ledger: [], cast: [] });
+
+export const sanitizeSaveHealth = (value: RuntimeExtras | undefined): SaveHealth => {
+  const health = value?.saveHealth;
+  if (!health) return createSaveHealth();
+  return {
+    lastAppliedBoundary: typeof health.lastAppliedBoundary === "number" ? health.lastAppliedBoundary : null,
+    // A pending write does NOT survive a reload as pending: the chat that comes back has a fresh
+    // chance to save, and the read-back on load is what decides whether the last one landed.
+    pendingBoundary: null,
+    // Nor does the last save's verdict: a reload is not the page that observed it, and a stale
+    // "unsaved" would refuse an author's decision on the strength of a write from a previous session.
+    lastOutcome: null,
+    consecutiveFailures: typeof health.consecutiveFailures === "number" ? health.consecutiveFailures : 0,
+    lastReason: typeof health.lastReason === "string" ? health.lastReason : null,
+    lastFailureAt: typeof health.lastFailureAt === "string" ? health.lastFailureAt : null,
+  };
+};
+
+export const sanitizeEffects = (value: RuntimeExtras | undefined): EffectsRuntimeState => {
+  const existing = value?.effects;
+  if (!existing) return createEffects();
+  return {
+    ledger: Array.isArray(existing.ledger)
+      ? existing.ledger.filter((row): row is EffectLedgerRow => Boolean(row) && typeof row.id === "string" && typeof row.effect === "string" && Boolean(row.target)).slice(-EFFECT_LEDGER_LIMIT)
+      : [],
+    cast: Array.isArray(existing.cast) ? existing.cast.filter((entry) => entry && typeof entry.member === "string").map((entry) => ({ member: entry.member, disabled: entry.disabled === true })) : [],
+  };
+};
+
 export const createTalk = (): TalkRuntimeState => ({ enabled: true, decisions: [] });
 export const sanitizeTalk = (value: RuntimeExtras | undefined): TalkRuntimeState => ({
   enabled: value?.talk?.enabled ?? true,
   decisions: Array.isArray(value?.talk?.decisions) ? value.talk.decisions.slice(-TALK_DECISION_LIMIT) : [],
 });
 
-export const createExtras = (): RuntimeExtras => ({
+// A chat with no story yet has no per-chat overrides, and `createTalk()`'s `enabled: true` would read
+// as one if the fresh extras were passed through `readChatOverrides` — masking an install-wide
+// `talk.enabled: false`. Both storyless paths (the manager's field initialiser and `clearStory`) build
+// their extras here, so leaving the install-wide settings out of this one made the snapshot report
+// defaults as though they were settings: `profileId: null` on a chat the install had configured, which
+// the panel cannot tell from "not loaded yet" (F2).
+const NO_CHAT_OVERRIDES: ChatOverrides = { authorView: false, shapeOverride: null, talkEnabled: null };
+
+// `createExtras()` runs while the RuntimeManager singleton is being constructed, which happens when
+// this module graph is imported — before a test has finished setting up its host mock, and before ST
+// has necessarily finished wiring `getContext()`. A host that cannot answer yet leaves the defaults
+// standing (the pre-F2 behaviour, and what the store's own `settingsAreLoaded` gate exists for); a
+// host that can answer has already been read by then, so the fallback covers only the window where
+// reading is impossible.
+const withGlobalSettings = (extras: RuntimeExtras): RuntimeExtras => {
+  try {
+    return applyGlobalSettings(extras, NO_CHAT_OVERRIDES);
+  } catch (error) {
+    console.warn("[Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults", error);
+    return extras;
+  }
+};
+
+export const createExtras = (): RuntimeExtras => withGlobalSettings({
   firedNpcReplies: {},
   requirements: emptyRequirements,
   lastAppliedCheckpointId: null,
@@ -158,6 +230,8 @@ export const createExtras = (): RuntimeExtras => ({
   ui: createUi(),
   talk: createTalk(),
   stagecraft: createStagecraft(),
+  effects: createEffects(),
+  saveHealth: createSaveHealth(),
   judge: createJudgeRuntime(),
   journal: [],
   lastSessionAt: null,
@@ -180,10 +254,16 @@ export const sanitizeExtraction = (value: RuntimeExtras | undefined): Extraction
 export const sanitizeExpansion = (value: RuntimeExtras | undefined): ExpansionRuntimeState => {
   const existing = value?.expansion;
   if (!existing) return createExpansion();
-  return {
-    entries: existing.entries && typeof existing.entries === "object" ? Object.fromEntries(Object.entries(existing.entries).map(([key, entry]) => [key, { ...entry, origin: entry.origin ?? "active" }])) : {},
-    scheduler: existing.scheduler ?? { queueDepth: 0, inFlight: false, lastError: null },
-  };
+  const entries = existing.entries && typeof existing.entries === "object"
+    // v2.3 plan 07. A chain generated under an older contract was read with `outcomes[0]` and its
+    // beats carry no outcome ids, so playing it would keep the single-route behaviour R9 removed.
+    // A cache does not survive the contract that produced it: the entry is dropped, and the stub is
+    // re-generated on arrival like any other missing chain.
+    ? Object.entries(existing.entries)
+      .filter(([, entry]) => entry.contract === EXPANSION_CONTRACT)
+      .map(([key, entry]) => [key, { ...entry, contract: EXPANSION_CONTRACT, origin: entry.origin ?? "active" }] as const)
+    : [];
+  return { entries: Object.fromEntries(entries), scheduler: existing.scheduler ?? { queueDepth: 0, inFlight: false, lastError: null } };
 };
 
 export const readChatOverrides = (extras: RuntimeExtras | undefined): ChatOverrides => ({
@@ -231,6 +311,8 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined): RuntimeExtr
   extras.ui = sanitizeUi(extras);
   extras.talk = sanitizeTalk(extras);
   extras.stagecraft = sanitizeStagecraft(extras);
+  extras.effects = sanitizeEffects(extras);
+  extras.saveHealth = sanitizeSaveHealth(extras);
   extras.judge = sanitizeJudgeRuntime(extras.judge);
   extras.journal = sanitizeJournalRecords(extras.journal);
   extras.lastSelfInjectionMessageId = typeof extras.lastSelfInjectionMessageId === "number" ? extras.lastSelfInjectionMessageId : null;

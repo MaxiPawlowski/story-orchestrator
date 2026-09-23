@@ -47,6 +47,28 @@ export interface BoundaryLogEntry {
   queue: QueueDrainResult;
 }
 
+// The oldest point a rollback can reach, and everything that gets there. Persisted with the state:
+// without it a reload cannot honour an edit to a message the run has already passed (R4), and
+// without a floor a rollback past the retained window would silently do nothing (E1).
+//
+// `base` is the state AT `from` — the floor itself, restorable. The log alone is not enough: its
+// oldest entry describes a transition FROM a state nothing retains, so after a reload an edit to
+// the chat's own first message had nothing to roll back to and reported the history as gone while
+// the run was one boundary old (found live, J6.6).
+export interface EngineHistory {
+  from: { boundary: number; messageId: number };
+  base: EngineState;
+  log: BoundaryLogEntry[];
+}
+
+// E1's contract: a caller can tell "nothing to undo" from "the history is gone", and the second
+// carries the floor so a recovery notice can name it.
+export type RollbackOutcome =
+  | { ok: true; result: "applied" | "noop" }
+  | { ok: false; reason: "history-unavailable"; oldest: { boundary: number; messageId: number } };
+
+export const ROLLBACK_HORIZON = 200;
+
 const DEFAULT_HOST: EngineHost = { now: () => Date.now() };
 
 // State saved before the engine kept a full path knows only the anchors. The intermediates that
@@ -101,13 +123,48 @@ export class StoryEngine {
     this.recordSnapshot();
   }
 
-  hydrate(state: EngineState): void {
+  hydrate(state: EngineState, history: EngineHistory | null = null): void {
     this.blackboard = new Blackboard(this.requireStory(), state.blackboard);
     this.queue = new ApplyQueue();
     this.restoreStateFields(state);
-    this.snapshots.clear();
+    this.hydrateHistory(history);
+  }
+
+  // R4: what a reload needs to still recognise an edit to a message the run has already passed. The
+  // log carries a complete state per boundary, so restoring one is exact rather than replayed, and
+  // the base is the state the oldest of them started from.
+  serializeHistory(): EngineHistory {
+    const oldest = this.boundaryLog[0];
+    const base = oldest ? oldest.before : this.serialize();
+    return { from: { boundary: base.boundary, messageId: base.lastMessageId }, base, log: this.boundaryLog.map((entry) => ({ ...entry })) };
+  }
+
+  hydrateHistory(history: EngineHistory | null): void {
     this.boundaryLog.length = 0;
+    this.snapshots.clear();
+    if (!history) {
+      // A blob written before the engine kept a history: this chat can only roll back from now on,
+      // which is a permanent floor until Restart, not "until the next boundary".
+      this.recordSnapshot();
+      return;
+    }
+    // A blob written before the base was kept still restores its log; its floor is then the oldest
+    // boundary it holds, which is one boundary newer than a history that carries the base.
+    if (history.base) this.snapshots.set(history.base.boundary, history.base);
+    history.log.forEach((entry) => this.boundaryLog.push({ ...entry }));
+    this.boundaryLog.forEach((entry) => this.snapshots.set(entry.boundary, entry.after));
     this.recordSnapshot();
+  }
+
+  historyFrom(): { boundary: number; messageId: number } {
+    // The floor is the oldest snapshot the log does not itself describe — the base. Everything the
+    // log covers IS reachable, so naming the base is naming the oldest state a rollback can restore.
+    const logged = new Set(this.boundaryLog.map((entry) => entry.boundary));
+    const baseBoundary = [...this.snapshots.keys()].filter((key) => !logged.has(key)).sort((left, right) => left - right)[0];
+    const base = baseBoundary === undefined ? undefined : this.snapshots.get(baseBoundary);
+    if (base) return { boundary: base.boundary, messageId: base.lastMessageId };
+    const oldest = this.boundaryLog[0];
+    return oldest ? { boundary: oldest.boundary, messageId: oldest.after.lastMessageId } : { boundary: this.boundary, messageId: this.lastMessageId };
   }
 
   getBoundary(): number {
@@ -169,12 +226,15 @@ export class StoryEngine {
     return { boundary: this.boundary, queue, fired, effects, activeCheckpointId: this.activeCheckpointId, context: normalizedContext, previousLastMessageId: before.lastMessageId };
   }
 
-  rollbackTo(boundary: number): boolean {
-    if (boundary >= this.boundary) return false;
+  // E1: three outcomes, and a caller can tell them apart. `noop` means the run is already at or
+  // before that point; `unavailable` means the history that would get there is gone, which the
+  // caller must report rather than treat as "nothing changed".
+  rollbackTo(boundary: number): RollbackOutcome {
+    if (boundary >= this.boundary) return { ok: true, result: "noop" };
     const snapshotBoundary = [...this.snapshots.keys()].filter((candidate) => candidate <= boundary).sort((a, b) => b - a)[0];
-    if (snapshotBoundary === undefined) return false;
+    if (snapshotBoundary === undefined) return { ok: false, reason: "history-unavailable", oldest: this.historyFrom() };
     const snapshot = this.snapshots.get(snapshotBoundary);
-    if (!snapshot) return false;
+    if (!snapshot) return { ok: false, reason: "history-unavailable", oldest: this.historyFrom() };
     this.blackboard = new Blackboard(this.requireStory(), snapshot.blackboard);
     this.queue.flush();
     this.restoreStateFields(snapshot);
@@ -184,7 +244,7 @@ export class StoryEngine {
     for (let index = this.boundaryLog.length - 1; index >= 0; index -= 1) {
       if (this.boundaryLog[index].boundary > snapshotBoundary) this.boundaryLog.splice(index, 1);
     }
-    return true;
+    return { ok: true, result: "applied" };
   }
 
   activateCheckpoint(id: string, context: BoundaryContext = this.currentContext()): BoundaryResult {
@@ -210,12 +270,21 @@ export class StoryEngine {
     return { boundary: this.boundary, queue, fired: null, effects: checkpoint.effects ?? null, activeCheckpointId: this.activeCheckpointId, context: normalizedContext, previousLastMessageId: before.lastMessageId };
   }
 
-  boundaryBeforeMessage(messageId: number): number {
+  // `null` is not "boundary 0": it is "the state before this message is no longer retained", which
+  // only the caller can turn into the honest outcome.
+  boundaryBeforeMessage(messageId: number): number | null {
     const normalized = Math.max(0, Math.floor(messageId));
     const candidate = [...this.snapshots.values()]
       .filter((snapshot) => snapshot.lastMessageId < normalized)
       .sort((left, right) => right.boundary - left.boundary)[0];
-    return candidate?.boundary ?? 0;
+    if (candidate) return candidate.boundary;
+    return this.oldestRetainedBoundary() > 0 ? null : 0;
+  }
+
+  private oldestRetainedBoundary(): number {
+    const oldestSnapshot = [...this.snapshots.keys()].sort((left, right) => left - right)[0];
+    const oldestLogged = this.boundaryLog[0]?.boundary;
+    return Math.min(oldestSnapshot ?? Number.POSITIVE_INFINITY, oldestLogged ?? Number.POSITIVE_INFINITY);
   }
 
   shouldRollbackFromMessage(messageId: number): boolean {

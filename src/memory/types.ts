@@ -1,3 +1,5 @@
+import type { Provenance } from "./provenance";
+
 export const MEMORY_TIERS = ["facts", "session_details", "short_term", "scene_history"] as const;
 export type MemoryTier = typeof MEMORY_TIERS[number];
 
@@ -67,7 +69,14 @@ export interface EpistemicEntry {
   createdAt: number;
   messageId?: number;
   pinned?: boolean;
+  /** v2.3 plan 05: never retired by extraction unless the author unlocks it. */
+  locked?: boolean;
+  /** v2.3 plan 05. Where this belief came from and whether it is still valid. */
+  provenance?: Provenance;
   supersededBy?: string;
+  /** v2.3 plan 04 (M4). When a reveal retired this belief. The `supersededBy` marker is display
+   *  only; this is what a rollback keys on. */
+  retiredAt?: { messageId: number; boundary?: number };
 }
 
 export interface ParsedLedgerSignal {
@@ -79,6 +88,8 @@ export interface ParsedLedgerSignal {
 
 export interface LedgerEntry {
   id: string;
+  /** v2.3 plan 04 (M3): the id of the version this one replaced, if any. Rows are append-only. */
+  supersedes?: string;
   entity: string;
   entityType: string;
   field: string;
@@ -86,6 +97,8 @@ export interface LedgerEntry {
   createdAt: number;
   messageId?: number;
   pinned?: boolean;
+  /** v2.3 plan 05. Where this version came from and whether it is still valid. */
+  provenance?: Provenance;
 }
 
 export interface LedgerView {
@@ -124,13 +137,29 @@ export interface MemoryEntry {
   activationTriggers: string[];
   evidence: string;
   supersededBy?: string;
+  /**
+   * v2.3 plan 04 (M1). When a consolidation retired this entry. Without it a rollback of the
+   * superseding fact leaves the predecessor retired by a winner that no longer exists.
+   */
+  supersededAt?: { messageId: number; boundary?: number };
+  /** v2.3 plan 04. Every consolidation that confirmed this row as the surviving duplicate. A
+   *  scalar loses the older confirmation when the same fact is confirmed twice, so rollback could
+   *  only subtract the newest increment and `rollback ≡ replay` would diverge. */
+  confirmedAt?: Array<{ messageId: number; boundary?: number }>;
   foldedInto?: string;
   contradicted?: boolean;
   characterId?: string;
   createdAt: number;
   messageId?: number;
   recallCount: number;
+  /** v2.3 plan 05. Retention only: a pinned row survives trimming and expiry, and may still be
+   *  superseded by a newer contradicting fact. */
   pinned?: boolean;
+  /** v2.3 plan 05. A lock freezes the story's truth: extraction and consolidation never supersede
+   *  it, and a later contradicting candidate goes to the reconciliation queue instead. */
+  locked?: boolean;
+  /** v2.3 plan 05. Where this claim came from and whether it is still valid. */
+  provenance?: Provenance;
   tokens?: number;
 }
 

@@ -123,7 +123,22 @@ const wardenNote = (status: CuratorOpRecord["status"], message?: string): Curato
   reason: "continuity",
   summary: "Mira's reply contradicts an established fact",
   mode: "review",
-  ops: [{ op: { kind: "note", text: "Continuity: established — The bridge fell in the flood. Keep the next reply consistent with it.", facts: ["The bridge fell in the flood."], replyMessageId: 7 }, status, ...(message ? { message } : {}) }],
+  ops: [{
+    op: {
+      kind: "note",
+      text: "Continuity: established — The bridge fell in the flood. Keep the next reply consistent with it.",
+      facts: ["The bridge fell in the flood."],
+      replyMessageId: 7,
+      // v2.3 plan 05: the fact list travels as records, so the card can cite the message a truth was
+      // read from and hand the author the control that takes them there.
+      sources: [
+        { id: "m4", text: "The bridge fell in the flood.", provenance: { source: "judge", messageId: 4, boundary: 2, pass: "shared-read", confidence: 0.9, validity: "live" }, conflictingValue: "The bridge is intact (ledger)" },
+        { id: "bound:Mira:hp", text: "Mira hp = 5", provenance: { source: "blackboard", messageId: -1, boundary: 0, pass: "blackboard", validity: "live" } },
+      ],
+    },
+    status,
+    ...(message ? { message } : {}),
+  }],
   dropped: [],
 });
 
@@ -139,6 +154,23 @@ export const WardenNoteAwaitingReview: Story = {
     await userEvent.type(text, "Continuity: the bridge is gone.");
     await userEvent.click(canvas.getByRole("button", { name: "Accept" }));
     await expect(args.manager.setCuratorOpDecision).toHaveBeenCalledWith("warden-5-7", 0, "accepted", expect.objectContaining({ kind: "note", text: "Continuity: the bridge is gone." }));
+  },
+};
+
+// v2.3 plan 05: the card cites the record, not just the sentence — pass, message, confidence, the
+// store that disagrees, and a control that lands on the fact itself.
+export const WardenNoteCitesItsSource: Story = {
+  args: { snapshot: snapshot({ wardenEnabled: true, proposals: [wardenNote("pending")] }), manager: fakeManager(), onOpenFact: fn() },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const origins = [...canvasElement.querySelectorAll('[data-so="warden-fact-origin"]')].map((node) => node.textContent?.trim());
+    await expect(origins[0]).toBe("judge · shared-read · message 4 · 90% sure · another store says The bridge is intact (ledger)");
+    // A bound field is the blackboard's, and says so rather than offering a memory row that does not exist.
+    await expect(origins[1]).toBe("blackboard · blackboard");
+    const buttons = canvas.getAllByRole("button", { name: /Show the (fact|blackboard)/ });
+    await expect(buttons.map((button) => button.textContent)).toEqual(["Show the fact", "Show the blackboard"]);
+    await userEvent.click(buttons[1]);
+    await expect(args.onOpenFact).toHaveBeenCalledWith("bound:Mira:hp");
   },
 };
 

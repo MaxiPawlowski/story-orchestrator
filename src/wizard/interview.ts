@@ -1,4 +1,5 @@
-import { WIZARD_QUESTION_LIMIT, type WizardAnswer, type WizardQuestion, type WizardSessionState } from "./types";
+import { WIZARD_QUESTION_LIMIT, type WizardAnswer, type WizardLorebookGrant, type WizardQuestion, type WizardSessionState } from "./types";
+import { lorebookFileId } from "@utils/string";
 
 export const YOU_DECIDE = "You decide — pick sensible defaults and say which ones you picked.";
 
@@ -50,3 +51,16 @@ export const recordApplied = (session: WizardSessionState, target: string): Wiza
   applied: session.applied.includes(target) ? session.applied : [...session.applied, target],
   updatedAt: new Date().toISOString(),
 });
+
+// v2.3 plan 02 (R8). A grant is the author's own decision, so it is theirs to make and to take
+// back; it lives with the session, never in the story record. File id, not display name: that is
+// what `world_names` and every WI host call actually address.
+export const recordGrant = (session: WizardSessionState, storyId: string, book: string, granted = true, at = new Date().toISOString()): WizardSessionState => {
+  const fileId = lorebookFileId(book);
+  const grants = session.grants ?? [];
+  const same = (entry: WizardLorebookGrant) => entry.storyId === storyId && entry.lorebookFileId === fileId;
+  const wanted = granted
+    ? [...grants.filter((entry) => !same(entry)), { storyId, lorebookFileId: fileId, at, confirmed: true as const }]
+    : grants.filter((entry) => !same(entry));
+  return { ...session, grants: wanted, updatedAt: at };
+};

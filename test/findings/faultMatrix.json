@@ -1,0 +1,394 @@
+{
+  "$comment": "v2.3 plan 11 §Fault matrix. Nine stateful packages against nine fault shapes, one row per cell, each either citing the test that demonstrates it or saying what is not yet demonstrated. Generated set, hand-classified status. The guard in src/runtime/faultMatrix.guard.test.ts fails when this file and the code disagree: a missing pair, a row for a pair the matrix does not have, a citation whose test is not in the file it names, or an unproven cell that still cites something. Statuses: covered (a test asserts the designed behaviour for this package under this fault) | partial (a test covers part of it, and the note says which part) | todo (nothing covers it) | na (the shape cannot apply, and the note says why).",
+  "cells": {
+    "extraction|delayedSuccess": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/extractionOwnership.review.test.ts#a scene summary that arrives in its own chat is written",
+      "note": "A gated model answer released after the awaits still lands in its own chat."
+    },
+    "extraction|delayedError": {
+      "status": "covered",
+      "evidence": "src/extraction/scheduler.test.ts#onBoundary returns synchronously and never rejects",
+      "note": "A job's failure is not allowed to surface at the boundary however late it arrives; the scheduler owns the error."
+    },
+    "extraction|malformedResponse": {
+      "status": "covered",
+      "evidence": "src/extraction/extraction.test.ts#rejects unknown qualities, bad enum values, and missing evidence",
+      "note": "Junk deltas are rejected line by line and nothing is accepted from them."
+    },
+    "extraction|duplicateCompletion": {
+      "status": "partial",
+      "evidence": "src/extraction/scheduler.test.ts#coalesces pending P2 scene passes to the latest under pressure",
+      "note": "Queued duplicate scene passes coalesce under pressure; no test delivers one completion twice."
+    },
+    "extraction|backendUnavailable": {
+      "status": "partial",
+      "evidence": "src/runtime/repair.test.ts#names the enabled-but-unprofiled case differently from the switched-off one",
+      "note": "The surface names an enabled-but-unprofiled extraction; no test drives the scheduler itself with no reachable profile."
+    },
+    "extraction|beforeHostWrite": {
+      "status": "na",
+      "note": "Extraction writes the memory tiers and its audit ring (runtime state). It performs no host write of its own, so there is nothing to fail before."
+    },
+    "extraction|afterHostWrite": {
+      "status": "na",
+      "note": "Same: the one host-visible effect of a scene break (the reply) is fired by the effects applier, not here."
+    },
+    "extraction|persistFailure": {
+      "status": "na",
+      "note": "The coordinator performs no persist of its own: it writes its extras slice and asks the manager to save (the architecture guard enforces this). A failing save is the persistence package, whose row covers it, and a save that never happened only costs a repeated read."
+    },
+    "extraction|worldSwitched": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/extractionOwnership.review.test.ts#an audit whose chat changed during verification writes nothing",
+      "note": "An audit whose world moves during the verify await deposits nothing."
+    },
+    "memory|delayedSuccess": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/memoryOwnership.review.test.ts#entries land in their own chat's tiers",
+      "note": "A tier write that resolves after the token-count await still lands in its own chat."
+    },
+    "memory|delayedError": {
+      "status": "covered",
+      "evidence": "src/runtime/runtimeManager.test.ts#records a backfill error without leaving it stuck running",
+      "note": "A pass that errors late is recorded and its running flag is cleared."
+    },
+    "memory|malformedResponse": {
+      "status": "covered",
+      "evidence": "src/memory/parse.test.ts#rejects an unknown type",
+      "note": "Malformed memory lines are rejected line by line rather than stored."
+    },
+    "memory|duplicateCompletion": {
+      "status": "covered",
+      "evidence": "src/memory/stores.test.ts#drops a write fully covered by a newer completed write for the same tier+character",
+      "note": "A repeated write over the same range is dropped as already covered."
+    },
+    "memory|backendUnavailable": {
+      "status": "na",
+      "note": "The memory stores are pure and take no model call; the model that feeds them is the extraction package, whose own row covers it."
+    },
+    "memory|beforeHostWrite": {
+      "status": "covered",
+      "evidence": "src/runtime/memoryMirror.test.ts#writes nothing when the book cannot be created",
+      "note": "When the mirror's host write cannot happen at all, nothing is written."
+    },
+    "memory|afterHostWrite": {
+      "status": "partial",
+      "evidence": "src/runtime/memoryMirror.test.ts#abandons the sync when the chat changes underneath it, leaving the next chat's slot alone",
+      "note": "Stops after partial host writes and leaves the other chat's slot alone; the injected fault is a chat change, not a write error."
+    },
+    "memory|persistFailure": {
+      "status": "covered",
+      "evidence": "src/runtime/memoryQueue.test.ts#puts the decision back when the save fails, and says so",
+      "note": "A resolution whose save fails is reversed in the stores and reported."
+    },
+    "memory|worldSwitched": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/memoryOwnership.review.test.ts#an entry whose token count lands after a chat switch is not written",
+      "note": "The token-count await is the far side of the check; the entry is dropped."
+    },
+    "scene|delayedSuccess": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/sceneFreshness.review.test.ts#a scene read that answers replaces the stored record",
+      "note": "A read that answers late replaces the record, carrying its own message id."
+    },
+    "scene|delayedError": {
+      "status": "covered",
+      "evidence": "src/runtime/c1Surfaces.review.test.ts#C1/scene: a FAILED read in its own chat still ages the tracker",
+      "note": "A read that fails late in its own chat records a freshness miss rather than a stale success."
+    },
+    "scene|malformedResponse": {
+      "status": "partial",
+      "evidence": "src/judge/scene.test.ts#reads answers for the asked families only, and turns them into over-floor facts",
+      "note": "Answers for families nobody asked about are ignored; no wrong-typed or out-of-vocabulary answer is fed in."
+    },
+    "scene|duplicateCompletion": {
+      "status": "partial",
+      "evidence": "src/runtime/sceneCoordinator.test.ts#tracker: stores over-floor facts, injects the block once, and uses the enum quality as places",
+      "note": "Repeated syncs inject the block once; no test re-delivers a read completion."
+    },
+    "scene|backendUnavailable": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/sceneFreshness.review.test.ts#one failed read does not withhold the tracker",
+      "note": "No answer is what a timeout, an error and an unreachable plugin all look like, and the tracker survives one."
+    },
+    "scene|beforeHostWrite": {
+      "status": "partial",
+      "evidence": "src/runtime/sceneCoordinator.test.ts#a story that switches the block off keeps the read but injects nothing",
+      "note": "Covers the injection never reaching the prompt; no failure is injected at that write."
+    },
+    "scene|afterHostWrite": {
+      "status": "na",
+      "note": "The scene block is composed into the prompt from state at each generation (sync() -> inject()), not written anywhere; there is no post-write state left behind to fail."
+    },
+    "scene|persistFailure": {
+      "status": "na",
+      "note": "The coordinator performs no persist of its own: it writes its extras slice and asks the manager to save (the architecture guard enforces this). A failing save is the persistence package, whose row covers it, and a save that never happened only costs a repeated read."
+    },
+    "scene|worldSwitched": {
+      "status": "covered",
+      "evidence": "src/runtime/c1Surfaces.review.test.ts#C1/scene: a read that lands after a chat switch is not stored",
+      "note": "Same message index, different chat: the read is not stored."
+    },
+    "lore|delayedSuccess": {
+      "status": "covered",
+      "evidence": "src/runtime/loreSelect.test.ts#asks only about scoped, enabled, non-constant entries, and forces the scan's own objects over the floor",
+      "note": "The judge's async answer becomes picks, and the scan's own objects are forced."
+    },
+    "lore|delayedError": {
+      "status": "covered",
+      "evidence": "src/runtime/loreSelect.test.ts#forces nothing when the judge fails, and honours an authored top_k",
+      "note": "A judge that fails late forces nothing and the call is still recorded."
+    },
+    "lore|malformedResponse": {
+      "status": "partial",
+      "evidence": "src/judge/lore.test.ts#keeps an entry the judge did not answer",
+      "note": "An absent answer for one entry leaves it untouched; no wholly unparseable lore answer is fed in."
+    },
+    "lore|duplicateCompletion": {
+      "status": "covered",
+      "evidence": "src/runtime/loreSelect.test.ts#re-forces the same picks without asking again at the same message, and asks again at the next",
+      "note": "A repeat at the same message is served from the cache and not re-asked."
+    },
+    "lore|backendUnavailable": {
+      "status": "covered",
+      "evidence": "src/runtime/loreSelect.test.ts#forces nothing when the judge fails, and honours an authored top_k",
+      "note": "active() is settings-only, so a missing or unkeyed plugin and a dead transport reach the same place: the runtime falls back to no answers and nothing is forced. The plugin-missing case itself is covered by src/runtime/judge.test.ts."
+    },
+    "lore|beforeHostWrite": {
+      "status": "covered",
+      "evidence": "src/runtime/loreSelect.test.ts#reports no selection when the host refuses the force, and does not claim it applied",
+      "note": "FOUND BY THIS CENSUS: force()'s WriteResult was discarded, so a refused force produced a selection the caller treated as applied. Fixed here. The same reading found the cached re-force, which had no token check and a key naming the chat, the message and the scope but NOT the story, so a chat that swapped to a story with the same lore scope re-forced the departed story's picks. Also fixed; the key now carries id+version."
+    },
+    "lore|afterHostWrite": {
+      "status": "na",
+      "note": "Force, never write: the only host effect is a one-shot WORLDINFO_FORCE_ACTIVATE that ST consumes at its next scan, and the class holds no post-write state of its own to fail. A failure is the force's own, which is the beforeHostWrite row."
+    },
+    "lore|persistFailure": {
+      "status": "na",
+      "note": "The coordinator performs no persist of its own: it writes its extras slice and asks the manager to save (the architecture guard enforces this). A failing save is the persistence package, whose row covers it, and a save that never happened only costs a repeated read."
+    },
+    "lore|worldSwitched": {
+      "status": "covered",
+      "evidence": "src/runtime/c1Surfaces.review.test.ts#C1/lore: a selection that outlives its chat does not force entries into the next prompt",
+      "note": "The world moves during the host read and the selection forces nothing."
+    },
+    "stagecraft|delayedSuccess": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/stagecraftCoordinator.review.test.ts#a normal same-session curator write applies",
+      "note": "A pass and its accepted op land in the same session."
+    },
+    "stagecraft|delayedError": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/stagecraftCoordinator.test.ts#records a model failure without breaking play",
+      "note": "A curator call that fails is recorded and play continues."
+    },
+    "stagecraft|malformedResponse": {
+      "status": "covered",
+      "evidence": "src/stagecraft/stagecraft.test.ts#returns nothing for NONE and tolerates channel noise, bullets and bare tags",
+      "note": "NONE and noisy output yield no ops rather than junk writes."
+    },
+    "stagecraft|duplicateCompletion": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/stagecraftCoordinator.test.ts#coalesces: one pass per boundary gap, and never while one is in flight",
+      "note": "A second pass in the same gap is not started."
+    },
+    "stagecraft|backendUnavailable": {
+      "status": "covered",
+      "evidence": "src/runtime/curatorFilter.test.ts#shows the curator everything when the judge is down",
+      "note": "With the judge unavailable the pre-filter narrows nothing."
+    },
+    "stagecraft|beforeHostWrite": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/stagecraftCoordinator.review.test.ts#R3, the OTHER host path: a failed upsert is not counted as applied either",
+      "note": "A host write answering failure is not counted as applied."
+    },
+    "stagecraft|afterHostWrite": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/stagecraftCoordinator.review.test.ts#a world lost during the LAST accepted write does not file the result here",
+      "note": "The write landed but the record is not filed into the chat that replaced it."
+    },
+    "stagecraft|persistFailure": {
+      "status": "na",
+      "note": "The coordinator performs no persist of its own: it writes its extras slice and asks the manager to save (the architecture guard enforces this). A failing save is the persistence package, whose row covers it, and a save that never happened only costs a repeated read. The before-image that would have to survive is held in extras and written by the same save."
+    },
+    "stagecraft|worldSwitched": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/stagecraftCoordinator.review.test.ts#a world lost during an accepted write stops the ops behind it",
+      "note": "A world lost mid-batch stops the ops behind it at one host write."
+    },
+    "expansion|delayedSuccess": {
+      "status": "covered",
+      "evidence": "src/generation/judgedExpansion.test.ts#generates N chains one at a time at the variant temperature, and code picks the best passing one",
+      "note": "Variants generate in sequence and the best passing one is picked."
+    },
+    "expansion|delayedError": {
+      "status": "covered",
+      "evidence": "src/generation/judgedExpansion.test.ts#falls back to today's LLM critic when the judge gives no answer",
+      "note": "A critic that answers nothing falls back to the LLM critic."
+    },
+    "expansion|malformedResponse": {
+      "status": "covered",
+      "evidence": "src/generation/judgedExpansion.test.ts#asks the LLM between the judge's top two in llm mode, and keeps the code pick when it cannot parse",
+      "note": "An unparseable pick answer keeps the code's choice."
+    },
+    "expansion|duplicateCompletion": {
+      "status": "partial",
+      "evidence": "src/runtime/expansionLookahead.test.ts#keeps one pre-generation in flight at most",
+      "note": "A second concurrent generation of a stub is refused; no test re-delivers one completion."
+    },
+    "expansion|backendUnavailable": {
+      "status": "covered",
+      "evidence": "src/generation/judgedExpansion.test.ts#needs review when no chain passes the judge, and runs today's LLM critic when the judge is down",
+      "note": "With the judge down it needs review and falls back to the LLM critic."
+    },
+    "expansion|beforeHostWrite": {
+      "status": "na",
+      "note": "Expansion merges beats into the runtime-only story graph and the persisted blob; the coordinator performs no host write."
+    },
+    "expansion|afterHostWrite": {
+      "status": "na",
+      "note": "Same: its writes are runtime state and the blob, not host state."
+    },
+    "expansion|persistFailure": {
+      "status": "na",
+      "note": "The coordinator performs no persist of its own: it writes its extras slice and asks the manager to save (the architecture guard enforces this). A failing save is the persistence package, whose row covers it, and a save that never happened only costs a repeated read."
+    },
+    "expansion|worldSwitched": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/expansionOwnership.review.test.ts#writes nothing into the chat that replaced it, and persists nothing for it",
+      "note": "FOUND BY THIS CENSUS: the coordinator took no ownership token, so a chain generated for chat A was filed into chat B and merged into chat B's story. Fixed here, with the unowned run kept as a negative control."
+    },
+    "judgeRing|delayedSuccess": {
+      "status": "covered",
+      "evidence": "src/runtime/judgeOwnership.review.test.ts#a call is stamped with the boundary it was ASKED at, not the one it landed at",
+      "note": "A late answer is recorded with the boundary and message id it was asked at."
+    },
+    "judgeRing|delayedError": {
+      "status": "covered",
+      "evidence": "src/judge/cancelled.review.test.ts#a call the model is simply slow to answer is recorded as a timeout",
+      "note": "A slow call is recorded as a timeout, distinct from a cancellation."
+    },
+    "judgeRing|malformedResponse": {
+      "status": "covered",
+      "evidence": "src/judge/judge.test.ts#falls back on timeout, transport errors and malformed responses",
+      "note": "A malformed response falls back exactly as a timeout or a transport error does."
+    },
+    "judgeRing|duplicateCompletion": {
+      "status": "covered",
+      "evidence": "src/runtime/judge.test.ts#serves an identical request from the session cache",
+      "note": "A repeated identical request is served from cache and the transport is called once."
+    },
+    "judgeRing|backendUnavailable": {
+      "status": "covered",
+      "evidence": "src/runtime/judge.test.ts#falls back when the plugin is missing or has no key, and caches that status for a while",
+      "note": "A missing or unkeyed plugin falls back and the status is cached."
+    },
+    "judgeRing|beforeHostWrite": {
+      "status": "na",
+      "note": "The ring records calls into extras and the persisted blob; it performs no host write."
+    },
+    "judgeRing|afterHostWrite": {
+      "status": "na",
+      "note": "Same: there is no host write in this package to fail before or after."
+    },
+    "judgeRing|persistFailure": {
+      "status": "na",
+      "note": "judge.ts owns nothing persisted — the ring lives in extras.judge and is written through record(); the save is the manager, whose row covers it."
+    },
+    "judgeRing|worldSwitched": {
+      "status": "covered",
+      "evidence": "src/runtime/judgeOwnership.review.test.ts#C1",
+      "note": "A late call is not written into the ring of the chat that replaced it."
+    },
+    "persistence|delayedSuccess": {
+      "status": "covered",
+      "evidence": "src/runtime/saveHealth.test.ts#clears the pending boundary when a save is observed to land",
+      "note": "A save observed to land clears the pending boundary and records it applied."
+    },
+    "persistence|delayedError": {
+      "status": "covered",
+      "evidence": "src/runtime/saveHealth.test.ts#keeps the pending boundary and counts the failure when a save does not land",
+      "note": "A save that does not land keeps saying unsaved and counts the failure."
+    },
+    "persistence|malformedResponse": {
+      "status": "covered",
+      "evidence": "src/runtime/persistenceMigration.test.ts#ignores anything that is not a v2 blob",
+      "note": "An unrecognized stored blob is ignored rather than half-adopted."
+    },
+    "persistence|duplicateCompletion": {
+      "status": "covered",
+      "evidence": "src/runtime/storyUpdate.test.ts#does nothing when the chat already plays the saved version",
+      "note": "Re-applying the version the chat already plays is a no-op."
+    },
+    "persistence|backendUnavailable": {
+      "status": "covered",
+      "evidence": "src/runtime/saveHealth.test.ts#says unconfirmed when the server holds nothing for this chat",
+      "note": "With nothing held for the chat the read-back says unconfirmed."
+    },
+    "persistence|beforeHostWrite": {
+      "status": "covered",
+      "evidence": "src/runtime/stateExport.test.ts#falls back to the console when the clipboard refuses, and says that instead",
+      "note": "The write fails before landing and the author still gets the state, and is told."
+    },
+    "persistence|afterHostWrite": {
+      "status": "partial",
+      "evidence": "src/runtime/runtimeManager.test.ts#a boundary that lapses during persistence stops before announcement",
+      "note": "Covers a world lapse at the persist step stopping the announce tail; no case where the save itself fails."
+    },
+    "persistence|persistFailure": {
+      "status": "covered",
+      "evidence": "src/runtime/saveHealth.test.ts#says unconfirmed when the server holds a boundary BEHIND what we believe we wrote",
+      "note": "The call returned and the server holds an older boundary: unconfirmed, not success."
+    },
+    "persistence|worldSwitched": {
+      "status": "covered",
+      "evidence": "src/runtime/persistOwnership.review.test.ts#persist declines to write a runtime hydrated for another chat",
+      "note": "A runtime hydrated for chat A declines to write while chat B is open."
+    },
+    "effects|delayedSuccess": {
+      "status": "covered",
+      "evidence": "src/runtime/effectsOwnership.review.test.ts#a checkpoint applied in its own chat stages everything and marks itself applied",
+      "note": "Every staged step lands and the applied marker is set."
+    },
+    "effects|delayedError": {
+      "status": "partial",
+      "evidence": "src/runtime/effectLedger.test.ts#is left alone when the host cannot be read at all",
+      "note": "An unreadable host leaves the row pending rather than guessing; no test for a host write that errors."
+    },
+    "effects|malformedResponse": {
+      "status": "na",
+      "note": "Effects consume no model response; the only answer they read is the host's own write result, which the host-write cells cover."
+    },
+    "effects|duplicateCompletion": {
+      "status": "covered",
+      "evidence": "src/runtime/effectsApplier.test.ts#fires a one-shot reply once when the same checkpoint is applied twice, and twice when it is asked to",
+      "note": "The same checkpoint applied twice fires the one-shot reply once; the counter key names the checkpoint, trigger, member and reply index."
+    },
+    "effects|backendUnavailable": {
+      "status": "covered",
+      "evidence": "src/services/stHost/capabilities.test.ts#names the commands an effects path needs and this build does not have",
+      "note": "The effects path's backend is the host command surface: a missing one is probed and named, not discovered at use."
+    },
+    "effects|beforeHostWrite": {
+      "status": "covered",
+      "evidence": "src/runtime/effectLedger.test.ts#never landed when the host still holds the old value",
+      "note": "A recorded write that never landed is reconciled as dropped."
+    },
+    "effects|afterHostWrite": {
+      "status": "covered",
+      "evidence": "src/runtime/effectLedger.test.ts#was applied when the host holds the new value",
+      "note": "The write landed with no answer recorded; the reconciler confirms it applied."
+    },
+    "effects|persistFailure": {
+      "status": "covered",
+      "evidence": "src/runtime/effectsApplier.test.ts#refuses it, and says why, when the pending row is still unsaved",
+      "note": "FOUND BY THIS CENSUS and FIXED: the applier persisted the write-ahead pending row and then ran the host write regardless, and persist() cannot say whether the row reached disk (saveMetadata swallows its own errors). It now reads the save-evidence seam (`unsaved`, i.e. hasUnsavedChanges) after the write-ahead persist and REFUSES the effect, marking the row failed with PENDING_NOT_SAVED — no effect without a durable record. The sibling case (the row is saved, the effect runs) is the same describe block."
+    },
+    "effects|worldSwitched": {
+      "status": "covered",
+      "evidence": "src/runtime/effectsOwnership.review.test.ts#a chat switch stops the sequence before the cast change reaches the shared group",
+      "note": "The sequence stops before the write that outlives the chat."
+    }
+  }
+}

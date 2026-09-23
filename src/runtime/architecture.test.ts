@@ -1,5 +1,6 @@
 import { readFileSync, readdirSync } from "fs";
 import { join } from "path";
+import { INJECTION_REGISTRY } from "../constants/injectionRegistry";
 
 // Structural rules the harness enforces so nobody has to remember them (v2.1 rule 9). Each budget
 // here is a measured post-plan-03 fact: raising one is a decision, not a side effect.
@@ -85,9 +86,18 @@ describe("architecture guards", () => {
     expect({ path, writes: [...source.matchAll(/enqueue\w*\(|applyEntries\(|setMemory\(/g)].map((match) => match[0]) }).toEqual({ path, writes: [] });
   });
 
-  it("lets only the stagecraft coordinator write the continuity note (v2.2 plan 05)", () => {
-    const writers = walk(SRC).filter((path) => /INJECTION_REGISTRY.continuityNote|story_orchestrator_continuity/.test(readFileSync(path, "utf8"))).map((path) => path.slice(SRC.length + 1).replace(/\\/g, "/"));
-    expect(writers.sort()).toEqual(["constants/injectionRegistry.ts", "runtime/coordinators/stagecraftCoordinator.ts"]);
+  it("lets only the declared writer write the continuity note (v2.2 plan 05)", () => {
+    const spec = INJECTION_REGISTRY.continuityNote;
+    const declared = `${spec.writer}.ts`;
+    const WRITE_SEAM = /setStoryExtensionPrompt\(|clearStoryExtensionPrompt\(/;
+    const relative = (path: string) => path.slice(SRC.length + 1).replace(/\\/g, "/");
+    // A reader is fine — the next-turn preview labels the row from the same registry entry.
+    const writers = walk(SRC)
+      .filter((path) => new RegExp(`INJECTION_REGISTRY\\.continuityNote|${spec.key}`).test(readFileSync(path, "utf8")))
+      .filter((path) => WRITE_SEAM.test(readFileSync(path, "utf8")))
+      .map(relative)
+      .sort();
+    expect({ writers, declared }).toEqual({ writers: [declared], declared });
   });
 
   it("keeps the scene coordinator a reader: no memory, generation or pacing, no spine writes (v2.2 plan 03)", () => {

@@ -26,8 +26,18 @@ export function loadWizardSession(key: string): WizardSessionState | null {
 }
 
 export function saveWizardSession(session: WizardSessionState): void {
-  const others = listSessions().filter((entry) => entry.key !== session.key);
-  const next = [...others, { ...session, updatedAt: new Date().toISOString() }]
+  const sessions = listSessions();
+  const previous = sessions.find((entry) => entry.key === session.key);
+  // UI persistence writes ordinary conversation fields after provisioning returns. Grants are
+  // written inside the coordinator first; an older UI snapshot must not erase them on its next save.
+  // A caller that explicitly includes `grants` owns that field (including `[]` to revoke all).
+  const merged = {
+    ...session,
+    ...(session.grants === undefined && previous?.grants ? { grants: previous.grants } : {}),
+    updatedAt: new Date().toISOString(),
+  };
+  const others = sessions.filter((entry) => entry.key !== session.key);
+  const next = [...others, merged]
     .sort((left, right) => Date.parse(right.updatedAt) - Date.parse(left.updatedAt))
     .slice(0, SESSION_LIMIT);
   getRoot()[SETTINGS_KEY] = next;

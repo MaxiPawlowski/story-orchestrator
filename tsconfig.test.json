@@ -1,0 +1,16 @@
+{
+  "$comment": "v2.3 plan 01 §A. The production typecheck excludes src/**/*.test.ts, so an obsolete API call in a promoted reproduction would go unnoticed until it 'failed as expected' for the wrong reason (Astra review, 2026-09-20). Scoped to the evidence surface — the promoted reproductions, the ledger and the independent fixture — because the pre-existing test corpus has 18 type errors in 10 files that predate this plan; widening the include is follow-up work, not a silent debt. Module/moduleResolution are inherited on purpose: overriding them to CommonJS/Node loses the Bundler resolution the source relies on.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["jest", "node"],
+    "noEmit": true
+  },
+  "include": [
+    "src/**/*.review.test.ts",
+    "src/runtime/findingsLedger.test.ts",
+    "src/engine/independentStory.test.ts",
+    "test/findings/**/*.ts",
+    "global.d.ts"
+  ],
+  "exclude": []
+}

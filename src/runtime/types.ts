@@ -1,13 +1,16 @@
-import type { ArcTemplate, EngineState, NormalizedStoryV2, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
+import type { AgencyPolicy, ArcTemplate, EngineState, NormalizedStoryV2, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
 import type { JudgeCallRecord, JudgeRuntimeState, SceneReadRecord } from "@judge/index";
 import type { ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
-import type { ArcEntry, EpistemicEntry, LedgerEntry, LedgerView, MemoryEntry, MemoryStoreState, MemoryTier, ScoreWeights } from "@memory/index";
+import type { ConflictPair, ArcEntry, DerivedRecord, EpistemicEntry, LedgerEntry, LedgerView, MemoryEntry, MemoryStoreState, MemoryTier, Provenance, ScoreWeights } from "@memory/index";
 import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
 import type { CuratorPassAudit, CuratorProposalRecord, StagecraftAcceptMode } from "@stagecraft/index";
 import type { JournalRecord } from "./journal";
-import type { NarrativeStatus, RollbackNotice } from "./narrative";
+import type { EngineHistory } from "@engine/index";
+import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./narrative";
+import type { AgencyRecovery } from "./agencyRecovery";
+import type { NextTurnContributor } from "./nextTurn";
 import type { PipelineStatus } from "./pipeline";
 import type { InjectedPromptBlock } from "@services/STAPI";
 import type { TalkDecisionSource } from "@talk/index";
@@ -85,6 +88,9 @@ export interface RuntimeExtras {
   ui: UiRuntimeSettings;
   talk: TalkRuntimeState;
   stagecraft: StagecraftRuntimeState;
+  /** v2.3 plan 06: what this chat's effects did to shared host state, and how to put it back. */
+  effects: EffectsRuntimeState;
+  saveHealth: SaveHealth;
   judge: JudgeRuntimeState;
   journal: JournalRecord[];
   lastSessionAt: string | null;
@@ -123,10 +129,78 @@ export interface MemoryBackfillState {
   lastError: string | null;
 }
 
+export interface CanonSource {
+  store: "memory" | "ledger" | "epistemic" | "scene" | "blackboard";
+  id: string;
+  provenance?: Provenance;
+}
+
+// v2.3 plan 06. A host effect, and what it did to a shared resource.
+//
+// `target` is a STABLE identity, never a display name: a group member is its chid, a World Info
+// entry is its book's file id and uid, the Author's Note is a slot, a background is the file ST
+// actually selected, a preset is its name plus the backend it was applied to.
+export const EFFECT_LEDGER_LIMIT = 200;
+
+export type EffectLedgerStatus = "pending" | "applied" | "failed" | "reverted" | "revert-failed" | "externally-changed";
+
+export type EffectTarget =
+  | { kind: "cast"; group: string; member: string }
+  | { kind: "wi"; book: string; uid: number | null; entry: string }
+  | { kind: "an"; slot: "chat" | "character" }
+  | { kind: "background"; name: string }
+  | { kind: "preset"; name: string; api: string };
+
+export interface EffectLedgerRow {
+  id: string;
+  effect: string;
+  target: EffectTarget;
+  before: Record<string, unknown> | null;
+  after: Record<string, unknown> | null;
+  checkpointId: string | null;
+  boundary: number;
+  messageId: number;
+  at: string;
+  status: EffectLedgerStatus;
+  /** Why it failed, or what the host said instead of what we wrote. */
+  reason?: string;
+  /** v2.3 plan 04's compare-and-set, applied here: what a revert found instead of `after`. */
+  found?: Record<string, unknown> | null;
+}
+
+export interface EffectsRuntimeState {
+  ledger: EffectLedgerRow[];
+  /** v2.3 plan 06 (S2): this chat's own cast, mirrored per chat. The group is never the truth. */
+  cast: Array<{ member: string; disabled: boolean }>;
+}
+
+// v2.3 plan 06 (save evidence). Whether the chat's own state actually reached the server, which
+// `saveMetadata` cannot say: it catches its own errors and returns normally.
+export type SaveOutcome = "applied" | "unconfirmed" | "unsaved";
+
+export interface SaveHealth {
+  lastAppliedBoundary: number | null;
+  pendingBoundary: number | null;
+  /** The verdict of the LAST save. `unsaved` is the one that is evidence of a lost write — a read-back
+   *  that could not say anything is `unconfirmed`, which is a different finding and must not refuse a
+   *  caller's work (v2.3 plan 05 reads this to decide whether an author's decision was written). */
+  lastOutcome: SaveOutcome | null;
+  consecutiveFailures: number;
+  lastReason: string | null;
+  lastFailureAt: string | null;
+}
+
 export interface CanonState {
   text: string;
   inputHash: string;
   updatedAt: string;
+  /** v2.3 plan 05: a decided conflict or a rollback changed what this text was built from, so it is
+   *  held out of play until the next pass re-derives it. */
+  stale?: boolean;
+  /** v2.3 plan 05. What the text was built from, with each input's envelope AT THE TIME it was read.
+   *  The canon is prose, so its sentences cannot carry envelopes of their own; this is what a reader
+   *  can check against, and what says the text is derived rather than read. */
+  sources?: CanonSource[];
 }
 
 export interface MemoryMirrorBook {
@@ -155,6 +229,21 @@ export interface MemoryRuntimeState extends MemoryStoreState {
   ledger: LedgerEntry[];
   canon: CanonState | null;
   verifyDrops: VerifyDrop[];
+  /** v2.3 plan 04. Every artifact a pass derived here, with the rows it was built from and the rows
+   *  it took away, so a rollback past its input can drop it and restore what it removed. */
+  derived: DerivedRecord[];
+  /** v2.3 plan 05. Disagreements between two stores, waiting for the author. Both sides are marked
+   *  `conflicted` while they sit here, so neither steers a reply. */
+  conflicts: ConflictPair[];
+  /** Conflict keys the author already decided, so a resolved pair does not re-queue on the next
+   *  pass. */
+  resolvedConflicts: string[];
+  /** v2.3 plan 05 (M7). Pinned rows the injection budget could not fit, so the author is told
+   *  instead of losing them quietly. */
+  pinnedOverflow: number;
+  /** v2.3 plan 05 (M5/M6). Rows an older chat pinned carry no envelope, so the author is asked once
+   *  per chat whether those pins stay pins or become locks. */
+  legacyPinPromptSeen: boolean;
   updatedAt: string;
 }
 
@@ -209,11 +298,23 @@ export interface PersistedStoryRuntime {
   playedVersion: number;
   contentHashAtLoad: string;
   engineState: EngineState;
+  // v2.3 plan 04: the bounded boundary log and the floor it reaches. A blob written before this
+  // existed has no history, and its chat can only roll back from the point it was saved.
+  engineHistory?: EngineHistory;
   extras: RuntimeExtras;
 }
 
 export interface StoryOrchestratorMetadataBlob {
-  version: 3;
+  version: 4;
+  /**
+   * v2.3 plan 03. The chat this blob belongs to.
+   *
+   * `chat_metadata` is handed to us by SillyTavern, and the host swaps it when the chat changes.
+   * Without a stamp there is no way to tell a blob that belongs here from one the host has just
+   * swapped in or out from under a read. It is nullable because a blob written before this field
+   * existed is still perfectly readable — it is stamped on the first save instead.
+   */
+  chatId: string | null;
   selectedStoryId: string | null;
   stories: Record<string, PersistedStoryRuntime>;
 }
@@ -261,6 +362,8 @@ export interface RuntimeSnapshot {
   ui: UiRuntimeSettings;
   talk: TalkRuntimeState;
   stagecraft: StagecraftRuntimeState;
+  effects: EffectsRuntimeState;
+  saveHealth: SaveHealth;
   scene: SceneReadRecord | null;
   loreForced: JudgeCallRecord | null;
   // The story's authored curator allowlist, so the review panel can say what is in scope without
@@ -274,13 +377,22 @@ export interface RuntimeSnapshot {
     expected: number | null;
     hint: SteeringHint | null;
   };
+  /** v2.3 plan 07 (C4): the agency policy in effect for the active checkpoint, defaults included, so
+   *  the drawer's author view can show what steering is being told to respect. */
+  agency: AgencyPolicy;
+  /** v2.3 plan 07 (C4): the player has refused the prepared route twice over, and the author is owed
+   *  a move. Null when play is moving normally. */
+  agencyRecovery: AgencyRecovery | null;
   pipeline: PipelineStatus;
   narrative: NarrativeStatus;
   lastRollback: RollbackNotice | null;
+  rollbackUnavailable: RollbackUnavailable | null;
   ledger: LedgerView[];
   driver: DriverContext | null;
   activeNudge: string | null;
   payloadCaptures: PayloadCapture[];
+  /** v2.3 plan 09 (author view): what the next reply will receive, one row per injected block. */
+  nextTurn: NextTurnContributor[];
 }
 
 export interface LoadedStory {

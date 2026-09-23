@@ -129,6 +129,37 @@
       ]
     },
     {
+      "id": "J1.10",
+      "mode": "auto",
+      "findings": [
+        "U6"
+      ],
+      "goal": "the wizard entry point is reachable by a real pointer, not only by a scripted click",
+      "requires": [
+        "first-run-path"
+      ],
+      "expect": "pass",
+      "steps": [
+        {
+          "ui": {
+            "action": "open-settings"
+          }
+        },
+        {
+          "ui": {
+            "action": "hit-test",
+            "selector": "#so-new-story-wizard"
+          }
+        },
+        {
+          "ui": {
+            "action": "hit-test",
+            "selector": "#so-open-studio"
+          }
+        }
+      ]
+    },
+    {
       "id": "J1.5",
       "mode": "auto",
       "findings": [

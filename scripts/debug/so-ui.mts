@@ -2,6 +2,13 @@ import { fileURLToPath } from 'node:url';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON, writeScreenshot } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
+
+export const MEMORY_QUEUE_ACTIONS = ['keep', 'lock', 'reread', 'dismiss', 'reconfirm', 'discard'];
+
+const argValue = (args: string[], name: string): string | null => {
+  const index = args.indexOf(name);
+  return index >= 0 && args[index + 1] && !args[index + 1].startsWith('--') ? args[index + 1] : null;
+};
 import { closeUnpinnedDrawers } from './st-navigation.mts';
 
 // ST nests our panel two drawers deep: #extensions-settings-button (nav drawer) then our own
@@ -14,6 +21,11 @@ export async function openExtensionSettings(page) {
       'Extension may not be loaded.',
     );
   }
+
+  // A Studio left open by an earlier run is a top-layer dialog, so it intercepts the click on the
+  // Extensions drawer and this step fails with a timeout that says nothing about its cause
+  // (2026-09-21: it made the next run look like a regression in the thing under test).
+  if (await page.locator('#so-studio-modal[open]').count()) await closeCheckpointStudio(page);
 
   const navToggle = page.locator('#extensions-settings-button .drawer-toggle');
   const navContent = page.locator('#rm_extensions_block');
@@ -166,9 +178,26 @@ export async function closeCheckpointStudio(page) {
 
 // Save the Studio draft the way an author does — the button, not the store. A save from the chat
 // that is playing this story may pop the plan-05 invalidation choice; `choice` answers it.
-export async function saveStudioDraft(page, choice = null) {
+// `title`/`removeQuality` edit the draft first, so a fixture can build the R7 case (a hostile title
+// **and** an invalidating change: a title-only edit is compatible and never opens the popup).
+export async function saveStudioDraft(page, choice = null, options: { title?: string; removeQuality?: string } = {}) {
   const modal = page.locator('#so-studio-modal');
   if (!(await modal.count())) throw new Error('Studio modal is not open.');
+  if (options.title !== undefined || options.removeQuality !== undefined) {
+    await evaluateInST(page, (edit: { title?: string; removeQuality?: string }) => {
+      const store = globalThis.storyOrchestratorStudioDraft;
+      if (!store) throw new Error('studio draft store is not exposed');
+      store.getState().mutate((draft) => ({
+        ...draft,
+        ...(edit.title !== undefined ? { title: edit.title } : {}),
+        ...(edit.removeQuality !== undefined ? { qualities: draft.qualities.filter((q) => q.key !== edit.removeQuality) } : {}),
+      }));
+      const after = store.getState().draft;
+      if (edit.title !== undefined && after.title !== edit.title) throw new Error(`title edit did not land: ${after.title}`);
+      if (edit.removeQuality !== undefined && after.qualities.some((q) => q.key === edit.removeQuality)) throw new Error(`quality ${edit.removeQuality} is still in the draft`);
+      return { title: after.title, qualities: after.qualities.map((q) => q.key) };
+    }, { title: options.title, removeQuality: options.removeQuality });
+  }
   // What the save produces is recorded asynchronously by applyStoryUpdate, so the old fixed 500ms
   // sleep read the PREVIOUS update on a slower box: J2.7 saw the compatible quality-added result
   // from two steps earlier and reported "expected invalidating, got compatible" while the product
@@ -242,12 +271,14 @@ export async function getWizardState(page) {
     const questions = Array.from(root.querySelectorAll('#so-wizard-questions label[for^="so-wizard-answer-"]')).map((label) => (label as HTMLElement).innerText.trim());
     const provisioning = Array.from(root.querySelectorAll('[data-so="provisioning-card"]')).map((card) => ({
       label: card.getAttribute('aria-label') ?? '',
-      applied: (card.querySelector('[data-so="provisioning-apply"]') as HTMLButtonElement | null)?.textContent?.trim() === 'Created',
+      applied: ['Created', 'Confirmed'].includes((card.querySelector('[data-so="provisioning-apply"]') as HTMLButtonElement | null)?.textContent?.trim() ?? ''),
       blocked: Boolean((card.querySelector('[data-so="provisioning-apply"]') as HTMLButtonElement | null)?.disabled),
       error: card.querySelector('[role="alert"]')?.textContent?.trim() ?? null,
       status: card.querySelector('[role="status"]')?.textContent?.trim() ?? null,
     }));
-    const stage = Array.from(root.querySelectorAll('[aria-pressed="true"]')).map((button) => button.textContent?.trim())[0] ?? null;
+    // The technical stage chips are the only thing that reports the stage (plan 09 put them behind a
+    // details disclosure and added step buttons above them, which are a different question).
+    const stage = Array.from(root.querySelectorAll('[data-so="wizard-stage"][aria-pressed="true"]')).map((button) => button.textContent?.trim())[0] ?? null;
     return {
       open: true,
       stage,
@@ -269,7 +300,12 @@ async function waitForWizardIdle(page, timeoutMs) {
 }
 
 export async function runWizardStage(page, { stage = null, message = '', timeoutMs = 120000 } = {}) {
-  if (stage) await page.locator('#so-wizard button', { hasText: stage }).first().click();
+  // A stage name asks to drive a stage directly, so open the disclosure that holds the chips rather
+  // than making the caller name the step that owns it.
+  if (stage) {
+    await page.evaluate(() => { document.querySelectorAll<HTMLDetailsElement>('#so-wizard details').forEach((node) => { node.open = true; }); });
+    await page.locator('#so-wizard button', { hasText: stage }).first().click();
+  }
   if (message) await page.locator('#so-wizard-message').fill(message);
   await page.locator('#so-wizard-run').click();
   await waitForWizardIdle(page, timeoutMs);
@@ -316,23 +352,37 @@ export async function applyWizardProvisioning(page, index: number | 'all' = 0, {
     const state = await getWizardState(page);
     throw new Error(`Provisioning step ${index} is blocked: ${state.provisioning?.[index]?.error ?? 'unknown reason'}`);
   }
+  const cardsBefore = await cards.count();
+  const labelBefore = (await getWizardState(page)).provisioning?.[index]?.label ?? null;
   await button.click();
-  await page.waitForFunction((target) => {
-    const card = document.querySelectorAll('#so-wizard [data-so="provisioning-card"]')[target];
-    const apply = card?.querySelector('[data-so="provisioning-apply"]') as HTMLButtonElement | null;
-    return apply?.textContent?.trim() === 'Creating…';
-  }, index, { timeout: 5000 }).catch(() => undefined);
-  await page.waitForFunction((target) => {
-    const card = document.querySelectorAll('#so-wizard [data-so="provisioning-card"]')[target];
-    const apply = card?.querySelector('[data-so="provisioning-apply"]') as HTMLButtonElement | null;
-    return apply?.textContent?.trim() !== 'Creating…';
-  }, index, { timeout: timeoutMs });
+  // One wait, for a settled outcome: a status line, a Created/Confirmed label, or the card
+  // disappearing (a derived R8 card is offered only while the decision is outstanding, so taking it
+  // removes the card and its status with it). No wait on the busy state: a grant is a local write
+  // with nothing to await, so its busy window is microseconds and unobservable — requiring it made
+  // a completed step look like a dead button (2026-09-21).
+  await page.waitForFunction(({ target, before, label }) => {
+    const cards = Array.from(document.querySelectorAll('#so-wizard [data-so="provisioning-card"]'));
+    if (cards.length < before) return true;
+    // The clicked card is identified by its label: a derived card is replaced by the opposite
+    // decision's card, so a position that still exists is not necessarily the same card.
+    if (label && !cards.some((entry) => entry.getAttribute('aria-label') === label)) return true;
+    const card = cards[target];
+    if (!card) return true;
+    const apply = card.querySelector('[data-so="provisioning-apply"]') as HTMLButtonElement | null;
+    const buttonLabel = apply?.textContent?.trim() ?? '';
+    return buttonLabel === 'Created' || buttonLabel === 'Confirmed' || Boolean(card.querySelector('[role="status"]'));
+  }, { target: index, before: cardsBefore, label: labelBefore }, { timeout: timeoutMs }).catch(() => undefined);
   const state = await getWizardState(page);
-  const card = state.provisioning?.[index];
-  // A provisioning step that came back with an error is a failed step, not a completed one: the
-  // verb says so rather than leaving the caller to notice the wording on a button.
+  // Followed by LABEL, not by position: confirming a derived card (an R8 grant) removes it and the
+  // card that takes its slot is the opposite decision — revoking the permission just given. Counting
+  // cards therefore can't tell "this step worked" from "this step failed", and reading index 0 after
+  // a grant reported the brand-new revoke card as an unapplied grant (2026-09-21).
+  const card = (state.provisioning ?? []).find((entry) => entry.label === labelBefore);
+  // A provisioning step that came back with an error is a failed step, not a completed one: the verb
+  // says so rather than leaving the caller to notice the wording on a button. A card that is gone
+  // took its decision with it, and the caller's next assertion is the state it produced.
   if (card && !card.applied) throw new Error(`Provisioning step ${index} did not apply: ${card.status ?? card.error ?? 'no result reported'}`);
-  return state;
+  return { ...state, applied: card?.applied ?? true, vanished: !card };
 }
 
 async function showStagecraftRing(page) {
@@ -343,6 +393,101 @@ async function showStagecraftRing(page) {
   } catch (error) {
     return error instanceof Error ? error.message : String(error);
   }
+}
+
+// v2.3 plan 05 (C3): the reconciliation queue, driven the way the author drives it. Author-only and
+// in the Memory tab, so this turns author view on first — the panel is part of what plan 05 built and
+// a journey that asserted on the store instead would not exercise the decision the author makes.
+async function showMemoryQueue(page) {
+  await evaluateInST(page, () => {
+    globalThis.storyOrchestratorRuntime?.setUiSettings?.({ authorView: true });
+    return true;
+  });
+  await openStoryDrawer(page);
+  try {
+    await switchDrawerTab(page, 'Memory');
+    return null;
+  } catch (error) {
+    return error instanceof Error ? error.message : String(error);
+  }
+}
+
+// What the author sees in the queue: each pair with both sides' rendered origin (`source · pass ·
+// message · confidence`), which actions that side offers, and the quarantined rows below. The
+// snapshot's own queue rides along, so a panel that renders nothing while the store holds a conflict
+// is visible as exactly that.
+export async function getMemoryQueueState(page, { timeoutMs = 15000 } = {}) {
+  const tabError = await showMemoryQueue(page);
+  const deadline = Date.now() + timeoutMs;
+  let state = null;
+  do {
+    state = await evaluateInST(page, () => {
+      const root = document.querySelector('[data-so="reconciliation"]');
+      const snapshot = globalThis.storyOrchestratorRuntime?.getSnapshot?.() ?? null;
+      const pairs = Array.from(root?.querySelectorAll('[data-so="conflict-pair"]') ?? []).map((pair) => ({
+        key: pair.getAttribute('data-key'),
+        sides: Array.from(pair.querySelectorAll('[data-so="conflict-origin"]')).map((origin) => origin.textContent?.trim() ?? ''),
+        labels: Array.from(pair.querySelectorAll('.flex-1 > div:first-child')).map((label) => label.textContent?.trim() ?? ''),
+        canLock: pair.querySelectorAll('[data-so="conflict-lock"]').length,
+        actions: ['conflict-keep', 'conflict-reread', 'conflict-dismiss'].filter((attribute) => pair.querySelector(`[data-so="${attribute}"]`)),
+      }));
+      const quarantined = Array.from(root?.querySelectorAll('[data-so="quarantined"]') ?? []).map((row, index) => ({
+        index,
+        text: row.textContent?.trim().slice(0, 120) ?? '',
+        canReconfirm: Boolean(row.querySelector('[data-so="reconfirm"]')),
+        canDiscard: Boolean(row.querySelector('[data-so="discard-quarantined"]')),
+      }));
+      return {
+        panelPresent: Boolean(root),
+        header: root?.querySelector('.opacity-100')?.textContent?.trim() ?? null,
+        pairs,
+        quarantined,
+        storeConflicts: (snapshot?.memory?.conflicts ?? []).length,
+        storeQuarantined: (snapshot?.memory?.entries ?? []).filter((entry: any) => entry.provenance && entry.provenance.validity !== 'live').length,
+      };
+    });
+    const wanted = (state as any)?.pairs?.length || (state as any)?.quarantined?.length;
+    if (wanted || Date.now() > deadline) break;
+    await page.waitForTimeout(250);
+  } while (true);
+  return tabError ? { ...(state as object), tabError } : state;
+}
+
+// Pure, so the half of this verb that can be checked without a browser is checked (so-ui.test.mts):
+// an action that silently addressed the wrong control would look like a working verb until someone
+// read the panel by hand during a live gate.
+export function memoryQueueSelector({ action, key = null, side = 0, index = 0 }: { action: string; key?: string | null; side?: number; index?: number }): string {
+  // The action is validated first: "nuke" is a typo and should be told it is one, not told it needs a
+  // key (which is what a key-first order did).
+  if (!MEMORY_QUEUE_ACTIONS.includes(action)) throw new Error(`unknown memory-queue action "${action}" — one of ${MEMORY_QUEUE_ACTIONS.join('|')}`);
+  // `nth=` is Playwright's engine, and it is the only one of the two that works here: CSS
+  // `:nth-of-type` counts among SIBLINGS OF THE SAME TAG, and the panel's quarantined rows are divs
+  // alongside the header and the conflict rows — so `:nth-of-type(1)` selected the panel's own first
+  // div, matched nothing inside it, and failed exactly like an empty queue (found 2026-09-22, the
+  // first time the click path was driven against the live DOM; the unit test pinned the string, and
+  // a string is not a DOM).
+  if (action === 'reconfirm') return `[data-so="quarantined"] >> nth=${index} >> [data-so="reconfirm"]`;
+  if (action === 'discard') return `[data-so="quarantined"] >> nth=${index} >> [data-so="discard-quarantined"]`;
+  if (!key) throw new Error(`memory-queue ${action} needs a conflict key (see the state output's pairs[].key)`);
+  const scoped = `[data-so="conflict-pair"][data-key="${key}"]`;
+  if (action === 'reread') return `${scoped} [data-so="conflict-reread"]`;
+  if (action === 'dismiss') return `${scoped} [data-so="conflict-dismiss"]`;
+  return `${scoped} [data-so="conflict-${action}"] >> nth=${side}`;
+}
+
+// Actions mirror the panel's own controls. `side` is the 0-based side row inside the pair (a memory
+// fact and a scene row can disagree), defaulting to the first.
+export async function memoryQueueAction(page, { action = null, key = null, side = 0, index = 0 } = {}) {
+  if (!action) throw new Error('memory-queue needs an action: keep|lock|reread|dismiss|reconfirm|discard');
+  const tabError = await showMemoryQueue(page);
+  const selector = memoryQueueSelector({ action, key, side, index });
+  const target = page.locator(selector).first();
+  const count = await page.locator(selector).count();
+  if (!count) throw new Error(`nothing matched ${selector} — read the state first (memory-queue) and use one of its keys`);
+  await target.click();
+  await page.waitForTimeout(150);
+  const after = await getMemoryQueueState(page);
+  return tabError ? { ...(after as object), tabError } : { action, selector, before: count, after };
 }
 
 async function readStagecraftCounts(page) {
@@ -448,6 +593,24 @@ export async function getStudioState(page) {
     const errorsBadge = Array.from(container.querySelectorAll('span')).find((s) => /\d+ errors/.test(s.textContent ?? ''))?.textContent?.trim() ?? null;
     const issuesBadge = Array.from(container.querySelectorAll('span')).find((s) => /\d+ issues/.test(s.textContent ?? ''))?.textContent?.trim() ?? null;
     return { open: true, title, activeTab, footer: footer.trim().slice(0, 120), errorsBadge, issuesBadge };
+  });
+}
+
+// The rendered diagnostic rows, not the store's copy: the plan's S1 proof is that an author is
+// *told* about a placeholder latching enum, so the assertion reads what the panel shows.
+export async function getStudioDiagnostics(page) {
+  const modal = page.locator('#so-studio-modal');
+  if (!(await modal.count())) throw new Error('Studio modal is not open.');
+  await switchStudioTab(page, 'Diagnostics');
+  return await evaluateInST(page, () => {
+    const rows = Array.from(document.querySelectorAll('#so-studio-modal [data-so="diagnostic"]')).map((row) => ({
+      severity: row.getAttribute('data-severity'),
+      code: row.querySelector('.st-pill')?.textContent?.trim() ?? null,
+      message: row.querySelector('span + span')?.textContent?.trim() ?? null,
+      path: row.querySelector('.st-muted')?.textContent?.trim() ?? null,
+    }));
+    const clean = document.querySelector('#so-studio-modal .st-alert-success')?.textContent?.trim() ?? null;
+    return { rows, clean, codes: rows.map((row) => row.code) };
   });
 }
 
@@ -585,8 +748,12 @@ const PLAYER_FORBIDDEN_SELECTORS = [
   '[aria-label="In-play driver"]', '[aria-label="Advance target"]', '[aria-label="Nudge text"]',
   '[aria-label="Driver suggestions"]', '[aria-label="Driver report"]', '[aria-label="Active nudge"]',
   '[aria-label="Driver unavailable"]', '[aria-label="Talk decisions"]',
+  '[data-so="agency-recovery"]', '[data-so="agency-take-alternate"]', '[data-so="agency-generate-road"]', '[data-so="agency-policy"]',
   '[data-so="memory-not-stored"]', '[data-so="memory-store-anyway"]', '[data-so="scene-read"]', '[data-so="scene-heading"]', '[data-so="lore-forced"]', '[data-so="judged-reads"]',
   '#so-judge-use-expansion-critic', '#so-judge-use-expansion-lookahead', '#so-judge-expansion-variants', '#so-judge-expansion-pick', '[data-so="expansion-judge"]', '#so-warden-enabled', '#so-warden-accept-mode',
+  // v2.3 plan 09: the next-turn preview is author-grade by construction — it names the injection keys
+  // and the members ST will draft for.
+  '[data-so="next-turn-row"]', '[data-so="next-turn-clear"]', '[data-so="next-turn-reread-scene"]',
 ];
 
 // Surfaces a player can reach without turning anything on: the drawer (every tab it offers), the HUD
@@ -662,7 +829,7 @@ export async function openStoryDrawer(page) {
   return { alreadyOpen: false };
 }
 
-const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|stagecraft|curator-accept|curator-reject|screenshot> [label]
+const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|stagecraft|curator-accept|curator-reject|memory-queue|hit-test|screenshot> [label]
 
 all: print settings + drawer state.
 settings: print settings panel state.
@@ -686,6 +853,11 @@ stagecraft: print the World Info curator review ring from the drawer (author vie
 curator-accept [index|text-first] [text]: accept one proposed change, optionally replacing its text first. text-first picks the
   newest proposal's first pending text change (text applied) or, with none, its first pending switch.
 curator-reject [index|text-first]: decline one proposed change.
+memory-queue [action] [--key <conflictKey>] [--side <n>] [--index <n>]: the reconciliation queue (v2.3 plan 05, author view, Memory tab).
+  No action reads it: each pair, both sides' rendered origin, which actions that side offers, and the quarantined rows below.
+  Actions: keep|lock (--key, --side), reread|dismiss (--key), reconfirm|discard (--index into the quarantined list).
+  It clicks the panel's own control, then re-reads, so the result shows what the author would see after the click.
+hit-test <selector>: ask which element is topmost at the target's own centre. Exits 1 when a real pointer would not land on it.
 screenshot [label]: take an annotated screenshot.`;
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
@@ -745,9 +917,19 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     }
 
     if (subcommand === 'studio-save') {
-      const result = await saveStudioDraft(page, process.argv[3] ?? null);
+      const value = (name) => {
+        const index = process.argv.indexOf(name);
+        return index >= 0 ? process.argv[index + 1] ?? undefined : undefined;
+      };
+      const result = await saveStudioDraft(page, process.argv[3] ?? null, { title: value('--title'), removeQuality: value('--remove-quality') });
       console.log(JSON.stringify(result, null, 2));
       await writeJSON(result, 'so-ui-studio-save');
+    }
+
+    if (subcommand === 'studio-diagnostics') {
+      const diagnostics = await getStudioDiagnostics(page);
+      console.log(JSON.stringify(diagnostics, null, 2));
+      await writeJSON(diagnostics, 'so-ui-studio-diagnostics');
     }
 
     if (subcommand === 'drawer-tab') {
@@ -806,6 +988,20 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       await writeJSON(state, 'so-ui-stagecraft');
     }
 
+    if (subcommand === 'memory-queue') {
+      const action = process.argv[3] ?? null;
+      const result = action
+        ? await memoryQueueAction(page, {
+          action,
+          key: argValue(process.argv, '--key'),
+          side: Number(argValue(process.argv, '--side') ?? 0),
+          index: Number(argValue(process.argv, '--index') ?? 0),
+        })
+        : await getMemoryQueueState(page);
+      console.log(JSON.stringify(result, null, 2));
+      await writeJSON(result, 'so-ui-memory-queue');
+    }
+
     if (subcommand === 'curator-accept' || subcommand === 'curator-reject') {
       const which = process.argv[3] ?? '0';
       const state = await decideCuratorOp(page, subcommand === 'curator-accept' ? 'accept' : 'reject', {
@@ -817,9 +1013,69 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       await writeJSON(state, `so-ui-${subcommand}`);
     }
 
+    if (subcommand === 'hit-test') {
+      const selector = process.argv[3];
+      if (!selector) throw new Error('hit-test needs a selector');
+      const result = await hitTest(page, selector);
+      console.log(JSON.stringify(result, null, 2));
+      await writeJSON(result, 'so-ui-hit-test');
+      if (!result.clickable) process.exitCode = 1;
+    }
+
     if (subcommand === 'screenshot') {
       const result = await takeAnnotatedScreenshot(page, 'so-ui-state');
       console.log(`Screenshot: ${result.path} (drawer visible: ${result.drawerVisible})`);
     }
   });
+}
+
+// v2.3 plan 01 §H. The review reported the wizard button being intercepted by the chat overlay on
+// an isolated host; v2.2's J1 did not reproduce it. Both can be true, because J1 clicks through
+// `element.click()`, which fires whatever is on top of it or not — a scripted click succeeds even
+// when a real pointer would land on something else. This asks the browser the question a user's
+// finger asks: at this element's own centre, which element is actually on top?
+export async function hitTest(page, selector: string) {
+  return evaluateInST(page, (selector: string) => {
+    const describe = (node: HTMLElement | null) => (node ? `${node.tagName.toLowerCase()}${node.id ? `#${node.id}` : ''}${node.className && typeof node.className === 'string' ? `.${node.className.trim().split(/\s+/).slice(0, 3).join('.')}` : ''}` : 'nothing');
+    const target = document.querySelector(selector) as HTMLElement | null;
+    if (!target) return { selector, found: false, clickable: false, blocked: 'missing', reason: 'no element matches this selector' };
+
+    const rect = target.getBoundingClientRect();
+    if (!rect.width || !rect.height) return { selector, found: true, clickable: false, blocked: 'no-box', reason: `element has no box (${rect.width}x${rect.height})` };
+
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    if (x < 0 || y < 0 || x > window.innerWidth || y > window.innerHeight) {
+      return { selector, found: true, clickable: false, blocked: 'offscreen', reason: `centre (${Math.round(x)},${Math.round(y)}) is outside the viewport`, at: { x: Math.round(x), y: Math.round(y) } };
+    }
+
+    // A DISABLED control is `pointer-events: none`, so elementFromPoint returns whatever is behind
+    // it — usually its own flex ancestor. That is correct behaviour, not an overlay covering it,
+    // and conflating the two would fail a journey for a control the product meant to disable.
+    // Measured on `#so-self-test` (disabled, opacity 0.5) on 2026-09-20.
+    const style = getComputedStyle(target);
+    const disabled = (target as HTMLButtonElement).disabled === true
+      || target.getAttribute('aria-disabled') === 'true'
+      || style.pointerEvents === 'none';
+    if (disabled) {
+      return { selector, found: true, clickable: false, blocked: 'disabled', reason: 'the control is disabled, so a pointer passes through it', target: describe(target) };
+    }
+
+    const top = document.elementFromPoint(x, y) as HTMLElement | null;
+    // The element itself, or something inside it (an icon, a span), both mean the user hits it.
+    const clickable = Boolean(top && (top === target || target.contains(top)));
+    // An ANCESTOR on top means the point is inside the parent's box but not over the child, which
+    // is a layout problem; an unrelated element on top is something covering it. Both are failures,
+    // and naming which one is the difference between a five-minute fix and an afternoon.
+    const covering = top && top.contains(target) ? 'ancestor' : 'overlay';
+    return {
+      selector,
+      found: true,
+      clickable,
+      at: { x: Math.round(x), y: Math.round(y) },
+      topmost: describe(top),
+      target: describe(target),
+      ...(clickable ? {} : { blocked: covering, reason: `a pointer at this element's centre would hit ${describe(top)} instead (${covering})` }),
+    };
+  }, selector);
 }

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn, within, userEvent, expect } from "@storybook/test";
+import { legacyProvenance } from "@memory/provenance";
 import type { RuntimeManager } from "@runtime/index";
 import { buildNarrativeStatus } from "@runtime/narrative";
 import { derivePipelineStatus } from "@runtime/pipeline";
@@ -122,7 +123,15 @@ const sampleSnapshot = (): RuntimeSnapshot => derive(({
         { key: "story_orchestrator_pacing", depth: 2, role: 0, value: "Raise the stakes toward the sanctum." },
       ] },
     ],
+    nextTurn: [
+      { key: "story_orchestrator_continuity", label: "Continuity note", owner: "runtime/coordinators/stagecraftCoordinator", ownerTab: "scheduler", depth: 0, role: 0, characters: 62, target: null, oneShot: true, freshness: "live", fallback: null, preview: "The wards are broken, and the sanctum is unsealed." },
+      { key: "story_orchestrator_scene", label: "Scene so far", owner: "runtime/coordinators/sceneCoordinator", ownerTab: "scheduler", depth: 1, role: 0, characters: 44, target: null, oneShot: false, freshness: "stale", fallback: null, preview: "The inner sanctum, the wards failing at the threshold." },
+      { key: "story_orchestrator_epistemic", label: "What the speaker knows", owner: "memory/inject.applyEpistemicInjection", ownerTab: "memory", depth: 4, role: 0, characters: 51, target: "Arin", oneShot: false, freshness: "live", fallback: "timeout", preview: "[hiding from Arin] the key is a forgery" },
+      { key: "story_orchestrator_memory_facts", label: "Memory — established facts", owner: "memory/inject.applyMemoryInjection", ownerTab: "memory", depth: 4, role: 0, characters: 37, target: null, oneShot: false, freshness: "live", fallback: null, preview: "The sun-key opens the inner sanctum." },
+    ],
   }) as unknown as RuntimeSnapshot);
+
+const previewActions = { clearNote: fn(), rerunScene: fn() };
 
 const fakeManager = (): RuntimeManager =>
   ({
@@ -141,6 +150,7 @@ const fakeManager = (): RuntimeManager =>
     restartStory: fn(),
     applyStoryUpdate: fn(),
     setCuratorOpDecision: fn(),
+    previewActions,
   }) as unknown as RuntimeManager;
 
 const memorySnapshot = (): RuntimeSnapshot => {
@@ -172,11 +182,44 @@ const memorySnapshot = (): RuntimeSnapshot => {
   return derive(snapshot as unknown as RuntimeSnapshot);
 };
 
+// v2.3 plan 09: past a few dozen rows a list stops being readable, so the tab grows find/tier
+// controls — with more rows than a person scrolls, and one of them carrying a name long enough to
+// break the layout if the row does not wrap.
+const crowdedSnapshot = (): RuntimeSnapshot => {
+  const snapshot = memorySnapshot() as unknown as { memory: { entries: Array<Record<string, unknown>> }; ui: Record<string, unknown> };
+  // Player view on purpose: find and filter are player affordances, and the count they report is
+  // over what a player is actually shown, not over the bookkeeping rows author view adds back.
+  snapshot.ui = { ...snapshot.ui, authorView: false };
+  const tiers = ["facts", "session_details", "short_term", "scene_history"];
+  snapshot.memory.entries = [
+    ...snapshot.memory.entries,
+    ...Array.from({ length: 60 }, (_, index) => ({
+      id: `x${index}`,
+      tier: tiers[index % tiers.length],
+      text: index === 3
+        ? "The Ponticius family's heraldry — a sun bisected by a spear, quartered with the dunes of the eastern reach — is copied on the inner lintel of every waystation between Wendhope and the sanctum."
+        : `Established fact ${index} about the sun-key and the wardens.`,
+      type: "fact",
+      importance: index % 5,
+      expiration: "permanent",
+      entities: [],
+      confidence: 1,
+      activationTriggers: [],
+      evidence: "e",
+      createdAt: index + 10,
+      recallCount: 0,
+      characterId: index % 2 === 0 ? "Arin" : "Luke",
+    })),
+  ];
+  return derive(snapshot as unknown as RuntimeSnapshot);
+};
+
 const emptySnapshot = (): RuntimeSnapshot => {
-  const snapshot = sampleSnapshot() as unknown as { blackboard: Record<string, unknown>; blackboardMeta: Record<string, unknown>; payloadCaptures: unknown[]; convergence: unknown[]; extraction: { audits: unknown[] } };
+  const snapshot = sampleSnapshot() as unknown as { blackboard: Record<string, unknown>; blackboardMeta: Record<string, unknown>; payloadCaptures: unknown[]; nextTurn: unknown[]; convergence: unknown[]; extraction: { audits: unknown[] } };
   snapshot.blackboard = {};
   snapshot.blackboardMeta = {};
   snapshot.payloadCaptures = [];
+  snapshot.nextTurn = [];
   snapshot.convergence = [];
   snapshot.extraction = { ...snapshot.extraction, audits: [] };
   return derive(snapshot as unknown as RuntimeSnapshot);
@@ -225,12 +268,98 @@ export const Scheduler: Story = {
   },
 };
 
+// v2.3 plan 09 fixtures: 64 rows, one of them long enough to need wrapping, all four tiers populated.
+export const CrowdedMemory: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={crowdedSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await step("the find controls appear with the volume that needs them", async () => {
+      await expect(canvasElement.querySelector("#so-memory-search")).toBeInTheDocument();
+      await expect(canvas.getByText(/Showing 63 of 63/)).toBeInTheDocument();
+    });
+    await step("a needle narrows the list and says how far", async () => {
+      await userEvent.type(canvasElement.querySelector("#so-memory-search") as HTMLInputElement, "heraldry");
+      await expect(canvas.getByText(/Showing 1 of 63/)).toBeInTheDocument();
+      await expect(canvas.getByText(/a sun bisected by a spear/)).toBeInTheDocument();
+      await expect(canvas.queryByText("Established fact 1 about the sun-key and the wardens.")).toBeNull();
+      await userEvent.click(canvas.getByRole("button", { name: "Clear" }));
+      await expect(canvas.getByText(/Showing 63 of 63/)).toBeInTheDocument();
+    });
+    await step("a tier pill drops that tier and can put it back", async () => {
+      const facts = canvasElement.querySelector('[data-so="memory-tier-filter"][data-tier="facts"]') as HTMLElement;
+      await userEvent.click(facts);
+      await expect(facts).toHaveAttribute("aria-pressed", "false");
+      await expect(canvas.queryByText(/^Facts \(/)).toBeNull();
+      await userEvent.click(facts);
+      await expect(canvas.getByText(/^Facts \(/)).toBeInTheDocument();
+    });
+  },
+};
+
 export const Payload: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
     await expect(canvas.getByText("story_orchestrator_memory_facts")).toBeInTheDocument();
     await expect(canvas.getByText(/@depth 4/)).toBeInTheDocument();
+  },
+};
+
+// v2.3 plan 09: the next-turn preview is a different question from the capture above it — the capture
+// is what the last reply carried, this is what the next one will.
+export const NextTurn: Story = {
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
+    await step("lists every contributor in ST's assembly order with its owner", async () => {
+      const panel = canvasElement.querySelector("#so-next-turn") as HTMLElement;
+      const rows = [...panel.querySelectorAll('[data-so="next-turn-row"]')];
+      await expect(rows.map((row) => row.getAttribute("data-key"))).toEqual([
+        "story_orchestrator_continuity",
+        "story_orchestrator_scene",
+        "story_orchestrator_epistemic",
+        "story_orchestrator_memory_facts",
+      ]);
+      await expect(canvas.getByText("Next reply (4 contributors)")).toBeInTheDocument();
+      await expect(canvas.getByText("memory/inject.applyMemoryInjection")).toBeInTheDocument();
+      await expect(canvas.getByText(/depth 4 · 37 chars/)).toBeInTheDocument();
+    });
+    await step("marks a private, a one-turn, a stale and a fallen-back contributor", async () => {
+      await expect(canvas.getByText("private → Arin")).toBeInTheDocument();
+      await expect(canvas.getByText("one turn")).toBeInTheDocument();
+      await expect(canvas.getByText("stale")).toBeInTheDocument();
+      await expect(canvas.getByText("fell back (timeout)")).toBeInTheDocument();
+    });
+    await step("offers each control to the contributor that owns it", async () => {
+      await expect(canvas.getByText("Clear the note")).toBeInTheDocument();
+      await expect(canvas.getByText("Re-read the scene")).toBeInTheDocument();
+      await expect(canvas.getAllByText("edited in: scheduler")).toHaveLength(2);
+      await userEvent.click(canvas.getByText("Clear the note"));
+      await expect(previewActions.clearNote).toHaveBeenCalled();
+      previewActions.clearNote.mockClear();
+      await userEvent.click(canvas.getByText("Re-read the scene"));
+      await expect(previewActions.rerunScene).toHaveBeenCalled();
+      previewActions.rerunScene.mockClear();
+    });
+  },
+};
+
+export const NextTurnEmpty: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={emptySnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
+    await expect(canvas.getByText("Nothing is injected into the next reply.")).toBeInTheDocument();
+    await expect(canvasElement.querySelector('[data-so="next-turn-reread-scene"]')).toBeNull();
   },
 };
 
@@ -254,6 +383,36 @@ export const Memory: Story = {
     await expect(canvas.getByText(/State ledger \(2\)/)).toBeInTheDocument();
     await expect(canvas.getByText(/respect=2/)).toBeInTheDocument();
     await expect(canvas.getByText("blackboard")).toBeInTheDocument();
+  },
+};
+
+// v2.3 plan 05: a row an OLDER CHAT saved has no envelope of its own, and the sanitizer stamps it
+// `legacy`. The author view has to say "unknown origin" rather than dress that as a source, and the
+// pin question has to be asked of the source — not of the envelope's absence, which hydration erased.
+const legacySnapshot = (): RuntimeSnapshot => {
+  const snapshot = memorySnapshot() as unknown as { memory: Record<string, unknown> };
+  snapshot.memory = {
+    ...snapshot.memory,
+    legacyPinPromptSeen: false,
+    entries: [
+      { id: "legacy-1", tier: "facts", text: "The ferryman owes the player a crossing.", type: "fact", importance: 2, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [], evidence: "e", createdAt: 1, recallCount: 0, pinned: true, provenance: legacyProvenance() },
+    ],
+  };
+  return derive(snapshot as unknown as RuntimeSnapshot);
+};
+
+export const MemoryLegacyRowsAreAStatedUnknown: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={legacySnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await expect(canvas.getByText("origin unknown")).toBeInTheDocument();
+    await expect(canvas.queryByText(/legacy · hydrate/)).toBeNull();
+    await expect(canvas.getByText(/pinned in an earlier chat/)).toBeInTheDocument();
   },
 };
 

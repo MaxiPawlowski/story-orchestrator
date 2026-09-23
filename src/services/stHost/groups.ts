@@ -1,3 +1,4 @@
+import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { getContext } from "./context";
 import { groupChatsModule } from "./modules";
 
@@ -24,10 +25,12 @@ export function resolveGroupMemberId(identifier: string): string | null {
   return found ?? null;
 }
 
-export async function setGroupMembersDisabled(enable: string[], disable: string[]) {
+// v2.3 plan 06. The group is SHARED: `disabled_members` outlives the chat that wrote it, so the
+// result has to say whether ST accepted the change rather than whether we meant it.
+export async function setGroupMembersDisabled(enable: string[], disable: string[]): Promise<WriteResult<{ group: string }>> {
   const { groupId } = getContext();
   const group = getActiveGroup();
-  if (!group || typeof groupId !== "string") return false;
+  if (!group || typeof groupId !== "string") return couldNot("no group is open");
   group.disabled_members = Array.isArray(group.disabled_members) ? group.disabled_members : [];
   const disabled = new Set(group.disabled_members);
 
@@ -42,5 +45,17 @@ export async function setGroupMembersDisabled(enable: string[], disable: string[
 
   group.disabled_members = [...disabled];
   await groupChatsModule.editGroup(groupId, false, false);
-  return true;
+  return wrote({ group: groupId });
+}
+
+/** Put ONE member's flag back, which is the granularity the effect ledger records at. */
+export async function setGroupMemberDisabled(member: string, disabled: boolean): Promise<WriteResult<{ member: string }>> {
+  const result = await setGroupMembersDisabled(disabled ? [] : [member], disabled ? [member] : []);
+  return result.ok ? wrote({ member }) : result;
+}
+
+/** What the open group holds for one member, or null when there is no group to ask. */
+export function readGroupMemberDisabled(member: string): boolean | null {
+  const group = getActiveGroup();
+  return group ? (group.disabled_members ?? []).includes(member) : null;
 }

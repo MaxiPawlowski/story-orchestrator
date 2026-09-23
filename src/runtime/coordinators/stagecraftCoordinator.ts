@@ -21,8 +21,11 @@ import {
   type WardenNoteOp,
 } from "@stagecraft/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
-import { clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, getContext, loadLorebook, setStoryExtensionPrompt, upsertWIEntry } from "@services/STAPI";
+import type { RunOwnership } from "../runToken";
+import { clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, getContext, loadLorebook, readWIEntry, setStoryExtensionPrompt, upsertWIEntry } from "@services/STAPI";
+import { lorebookFileId } from "@utils/string";
 import type { ExtractionRuntimeSettings, StagecraftRuntimeState } from "../types";
+import type { EstablishedFact } from "../continuity";
 
 // One curator pass every few boundaries at most: the reply path never waits for it, and a story that
 // moves fast should not fund a model call per turn.
@@ -37,10 +40,15 @@ export interface StagecraftCoordinatorDeps {
   getCanon: () => string;
   getOpenArcs: () => string[];
   filterEntries?: (entries: CuratorEntryView[], context: { checkpoint: { name: string; objective: string }; canon: string; openThreads: string[] }) => Promise<CuratorEntryView[]>;
-  warden?: { check: (reply: { speaker: string; text: string }, facts: string[]) => Promise<{ facts: string[]; text: string } | null>; facts: () => string[]; nudgeActive: () => boolean };
+  warden?: { check: (reply: { speaker: string; text: string }, facts: string[]) => Promise<{ facts: string[]; text: string } | null>; facts: () => EstablishedFact[]; nudgeActive: () => boolean };
   journal: (summary: string, note?: string) => void;
   persist: () => Promise<void>;
   notify: () => void;
+  // v2.3 plan 03 (R1). A curator pass reads the world, awaits a model for seconds, then writes
+  // through `setStagecraft` — which resolves to whatever chat is current when the promise lands,
+  // not the one the work belongs to. The token is minted before the awaits and checked at the
+  // write edge. Optional so an existing caller keeps today's behaviour until it supplies one.
+  ownership?: RunOwnership;
 }
 
 const acceptedOps = (record: CuratorProposalRecord) => record.ops.filter((entry) => entry.status === "accepted" && !isNoteOp(entry.op));
@@ -111,6 +119,8 @@ export class StagecraftCoordinator {
     if (!curatorHasScope(story)) return { ran: false, skipped: "no-scope", record: null };
     if (this.inFlight) return { ran: false, skipped: "in-flight", record: null };
     this.inFlight = true;
+    // Minted before the first await, so it describes the world this pass was asked about.
+    const token = this.deps.ownership?.mint();
     try {
       const entries = await this.readScope();
       if (!entries.length) return { ran: false, skipped: "empty-scope", record: null };
@@ -125,6 +135,14 @@ export class StagecraftCoordinator {
         profileId: this.deps.getExtractionSettings().profileId,
         debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugCuratorResponse ?? null,
       });
+      // The write edge. Everything above was read from, or computed for, the world the token
+      // names; if that world moved while the model was thinking, this result belongs to it and
+      // not to whatever is open now.
+      const owned = token ? this.deps.ownership?.check(token) : undefined;
+      if (owned && owned.ok === false) {
+        this.deps.journal(`World Info curator result discarded (${owned.reason})`, owned.detail);
+        return { ran: true, record: null, discarded: owned.reason };
+      }
       const proposal = parseCuratorResponse(response, shown);
       const plan = planCuratorProposal(proposal, shown);
       this.patch({
@@ -151,12 +169,17 @@ export class StagecraftCoordinator {
         // "off" never leaves the ring at all.
         ops: plan.records.map((entry) => (mode === "auto" ? { ...entry, status: "accepted" as const } : entry)),
         dropped: plan.dropped,
+        provenance: { source: "curator", messageId: state.lastMessageId, boundary: state.boundary, pass: `wi-curator:${reason}`, inputs: shown.map((entry) => ({ store: "memory" as const, id: `${entry.lorebook}#${entry.comment}` })), validity: "live" },
       };
       this.patch({ proposals: capProposalRing([...this.state.proposals, record]) });
       this.deps.journal(`World Info curator proposed ${record.ops.length} change(s) at ${checkpoint?.name ?? state.activeCheckpointId}`, record.summary);
       await this.save();
       return { ran: true, record };
     } catch (error) {
+      // A failure belongs to its own chat too: writing `lastError` after a switch marks the wrong
+      // chat's panel with an error it never had.
+      const owned = token ? this.deps.ownership?.check(token) : undefined;
+      if (owned && owned.ok === false) return { ran: true, record: null, discarded: owned.reason };
       this.patch({ lastError: error instanceof Error ? error.message : "Curator pass failed" });
       await this.save();
       return { ran: true, record: null };
@@ -188,39 +211,55 @@ export class StagecraftCoordinator {
     await this.save();
   }
 
+  // The record is a tiny WAL. Persist it before a host write, then the applied row after: a crash in
+  // between leaves a pending row with before/after, not an unrecorded file mutation.
+  private async markWriteAhead(proposalId: string, index: number, entry: CuratorOpRecord) {
+    this.updateOps(proposalId, (record) => ({ ...record, ops: record.ops.map((item, at) => at === index ? entry : item) }));
+    await this.save();
+  }
+
   // Boundary-applied, like every other effect: an accepted change reaches World Info here and
   // nowhere else, and the allowlist is re-checked at the write edge.
   async applyAccepted(): Promise<number> {
     const story = this.deps.getStory();
     if (!story || !this.state.proposals.some((record) => acceptedOps(record).length)) return 0;
+    // These ops reach a real lorebook FILE, shared by every chat that uses the book, so a boundary
+    // commit that outlives its chat does not merely record something in the wrong place — it edits
+    // a file another story is reading. The token is checked inside the loop, before each write.
+    const token = this.deps.ownership?.mint();
     const messageId = this.deps.getState()?.lastMessageId ?? -1;
     const entries = await this.readScope();
     let applied = 0;
     const proposals: CuratorProposalRecord[] = [];
-    for (const record of this.state.proposals) {
+    for (const record of [...this.state.proposals]) {
       if (!acceptedOps(record).length) {
         proposals.push(record);
         continue;
       }
       const ops: CuratorOpRecord[] = [];
-      for (const entry of record.ops) {
+      for (let index = 0; index < record.ops.length; index += 1) {
+        const entry = record.ops[index];
         if (entry.status !== "accepted" || isNoteOp(entry.op)) {
           ops.push(entry);
           continue;
         }
-        const result = await this.writeOp(story, entry, entries);
+        const beforeWrite = token ? this.deps.ownership?.check(token) : undefined;
+        if (beforeWrite && beforeWrite.ok === false) return applied;
+        const result = await this.writeOp(story, entry, entries, async (pending) => this.markWriteAhead(record.id, index, pending));
         if (result.ok) applied += 1;
         ops.push(result.record);
       }
       proposals.push({ ...record, ops, appliedAt: new Date().toISOString(), messageId });
     }
+    const owned = token ? this.deps.ownership?.check(token) : undefined;
+    if (owned && owned.ok === false) return applied;
     this.patch({ proposals });
     if (applied) this.deps.journal(`World Info curator applied ${applied} change(s)`, proposals[proposals.length - 1]?.summary);
     await this.save();
     return applied;
   }
 
-  private async writeOp(story: NormalizedStoryV2, entry: CuratorOpRecord, entries: CuratorEntryView[]): Promise<{ ok: boolean; record: CuratorOpRecord }> {
+  private async writeOp(story: NormalizedStoryV2, entry: CuratorOpRecord, entries: CuratorEntryView[], beforeHostWrite: (pending: CuratorOpRecord) => Promise<void>): Promise<{ ok: boolean; record: CuratorOpRecord }> {
     const op = entry.op;
     if (isNoteOp(op)) return { ok: false, record: entry };
     if (!isCuratorWritable(story, op.lorebook, op.comment)) {
@@ -229,23 +268,35 @@ export class StagecraftCoordinator {
         : `"${op.lorebook}" is not on this story's stagecraft allowlist`;
       return { ok: false, record: { ...entry, status: "failed", message } };
     }
-    const live = entries.find((candidate) => candidate.lorebook.toLowerCase() === op.lorebook.toLowerCase() && candidate.comment.toLowerCase() === op.comment.toLowerCase());
+    // v2.3 plan 04 (R2). The before-image comes from the WRITE EDGE, not from a batch read taken
+    // before the loop: two ops in one batch can address the same entry, and the second one's
+    // before-image is the first one's after-image, not what the book held when the batch started.
+    const liveRead = await readWIEntry(op.lorebook, op.comment);
+    const live = liveRead
+      ? { ...(entries.find((candidate) => candidate.lorebook.toLowerCase() === op.lorebook.toLowerCase() && candidate.comment.toLowerCase() === op.comment.toLowerCase()) ?? { lorebook: op.lorebook, comment: op.comment, keys: [] }), content: liveRead.content, disabled: liveRead.disabled }
+      : entries.find((candidate) => candidate.lorebook.toLowerCase() === op.lorebook.toLowerCase() && candidate.comment.toLowerCase() === op.comment.toLowerCase());
     const preview = previewCuratorOp(op, live);
     if (!preview.ok) return { ok: false, record: { ...entry, status: "failed", message: preview.message } };
-    const before = { content: live?.content ?? "", disabled: live?.disabled === true };
+    const before = { content: liveRead?.content ?? live?.content ?? "", disabled: liveRead?.disabled ?? live?.disabled === true, ...(liveRead?.uid !== undefined ? { uid: liveRead.uid } : {}) };
+    const target = { lorebookFileId: lorebookFileId(op.lorebook), ...(liveRead?.uid !== undefined ? { uid: liveRead.uid } : {}) };
+    const after = op.kind === "enable" || op.kind === "disable"
+      ? { content: before.content, disabled: op.kind === "disable" }
+      : { content: preview.content ?? "", disabled: before.disabled };
+    const pending: CuratorOpRecord = { ...entry, before, after, target, writeAhead: { status: "pending", at: new Date().toISOString() } };
+    await beforeHostWrite(pending);
     try {
       if (op.kind === "enable" || op.kind === "disable") {
         const found = op.kind === "enable" ? await enableWIEntry(op.lorebook, op.comment) : await disableWIEntry(op.lorebook, op.comment);
-        if (!found) return { ok: false, record: { ...entry, status: "failed", message: `"${op.comment}" is not in "${op.lorebook}"` } };
-      } else {
-        const result = await upsertWIEntry(op.lorebook, op.comment, preview.content ?? "", live?.keys ?? []);
-        if (result === "failed") return { ok: false, record: { ...entry, status: "failed", message: `could not write "${op.comment}"` } };
-        // upsertWIEntry always re-enables what it writes: keep an entry the author had switched off.
-        if (before.disabled) await disableWIEntry(op.lorebook, op.comment);
+        if (!found) return { ok: false, record: { ...pending, status: "failed", message: `"${op.comment}" is not in "${op.lorebook}"`, writeAhead: undefined } };
+        return { ok: true, record: { ...pending, status: "applied", message: preview.message, writeAhead: undefined } };
       }
-      return { ok: true, record: { ...entry, status: "applied", message: preview.message, before } };
+      const result = await upsertWIEntry(op.lorebook, op.comment, preview.content ?? "", live?.keys ?? []);
+      if (result === "failed") return { ok: false, record: { ...pending, status: "failed", message: `could not write "${op.comment}"`, writeAhead: undefined } };
+      // upsertWIEntry always re-enables what it writes: keep an entry the author had switched off.
+      if (before.disabled) await disableWIEntry(op.lorebook, op.comment);
+      return { ok: true, record: { ...pending, status: "applied", message: preview.message, writeAhead: undefined } };
     } catch (error) {
-      return { ok: false, record: { ...entry, status: "failed", message: error instanceof Error ? error.message : "write failed" } };
+      return { ok: false, record: { ...pending, status: "failed", message: error instanceof Error ? error.message : "write failed", writeAhead: undefined } };
     }
   }
 
@@ -253,27 +304,63 @@ export class StagecraftCoordinator {
   // pre-write content is recorded on the op, so putting it back needs no history of its own.
   async revertAppliedSince(messageId: number): Promise<number> {
     const story = this.deps.getStory();
+    const token = this.deps.ownership?.mint();
     const withdrawn = this.settleNotes((op) => op.replyMessageId >= messageId, "reverted");
-    const affected = this.state.proposals.filter((record) => record.curator !== "warden" && record.appliedAt && record.messageId >= messageId);
+    // v2.3 plan 04 (R2). NEWEST RECORD FIRST, and within a record newest op first, so two writes to
+    // one entry walk back through their own chain: Original -> First -> Second reverts to Original,
+    // not to the intermediate text the older record happens to hold.
+    const affected = this.state.proposals.filter((record) => record.curator !== "warden" && record.appliedAt && record.messageId >= messageId).reverse();
     if (!story || !affected.length) {
       if (withdrawn) await this.save();
       return 0;
     }
     let reverted = 0;
+    const settled = new Set<string>();
+    const updates: Array<{ id: string; ops: CuratorOpRecord[] }> = [];
     for (const record of affected) {
+      const ops: CuratorOpRecord[] = [];
       for (const entry of [...record.ops].reverse()) {
-        if (isNoteOp(entry.op) || entry.status !== "applied" || !entry.before || !isCuratorWritable(story, entry.op.lorebook, entry.op.comment)) continue;
-        if (entry.op.kind === "rewrite" || entry.op.kind === "patch") await upsertWIEntry(entry.op.lorebook, entry.op.comment, entry.before.content);
-        if (entry.before.disabled) await disableWIEntry(entry.op.lorebook, entry.op.comment);
-        else await enableWIEntry(entry.op.lorebook, entry.op.comment);
-        reverted += 1;
+        const owned = token ? this.deps.ownership?.check(token) : undefined;
+        if (owned && owned.ok === false) { ops.unshift(entry); continue; }
+        if (isNoteOp(entry.op) || entry.status !== "applied" || !entry.before || !isCuratorWritable(story, entry.op.lorebook, entry.op.comment)) {
+          ops.unshift(entry);
+          continue;
+        }
+        // Compare-and-set: the entry has to still hold what this op wrote. If it does not, someone
+        // else edited the book after us and putting our before-image back would silently undo them.
+        const current = await readWIEntry(entry.op.lorebook, entry.op.comment);
+        if (current && entry.after && (current.content !== entry.after.content || current.disabled !== entry.after.disabled)) {
+          ops.unshift({ ...entry, status: "externally-edited", message: `"${entry.op.comment}" changed after this write, so it was left alone` });
+          settled.add(record.id);
+          continue;
+        }
+        const restored = await this.restoreBefore(entry);
+        if (restored) { reverted += 1; settled.add(record.id); }
+        else ops.unshift({ ...entry, status: "revert-failed", message: `could not restore "${entry.op.comment}"; the entry it would restore is kept for a retry` });
       }
+      updates.push({ id: record.id, ops: ops.reverse() });
     }
-    const rolledBack = new Set(affected.map((record) => record.id));
-    this.patch({ proposals: this.state.proposals.filter((record) => !rolledBack.has(record.id)) });
+    const byId = new Map(updates.map((update) => [update.id, update.ops]));
+    this.patch({ proposals: this.state.proposals.filter((record) => !settled.has(record.id)).map((record) => (byId.has(record.id) ? { ...record, ops: byId.get(record.id)! } : record)) });
     if (reverted) this.deps.journal(`World Info curator changes rolled back (${reverted})`);
     await this.save();
     return reverted;
+  }
+
+  // One inverse host call, checked. `false` means the host refused or could not find the entry;
+  // the caller keeps the record and its before-image rather than reporting a revert that did not
+  // happen.
+  private async restoreBefore(entry: CuratorOpRecord): Promise<boolean> {
+    const { op, before } = entry;
+    if (!before || isNoteOp(op)) return false;
+    try {
+      const written = await upsertWIEntry(op.lorebook, op.comment, before.content);
+      if (written === "failed") return false;
+      const toggled = before.disabled ? await disableWIEntry(op.lorebook, op.comment) : await enableWIEntry(op.lorebook, op.comment);
+      return toggled !== false;
+    } catch {
+      return false;
+    }
   }
 
   // v2.2 plan 05: fire-and-forget after a committed character reply, never a scheduler job. The judge
@@ -293,9 +380,15 @@ export class StagecraftCoordinator {
       return false;
     }
     this.wardenInFlight = true;
+    const token = this.deps.ownership?.mint();
     try {
-      const facts = warden.facts();
+      const established = warden.facts();
+      const facts = established.map((fact) => fact.text);
       const note = facts.length ? await warden.check(reply, facts).catch(() => null) : null;
+      // The reply-text comparison below catches an edit. It does not catch a chat switch landing on
+      // a message with the same index and the same text, which is what the token is for.
+      const owned = token ? this.deps.ownership?.check(token) : undefined;
+      if (owned && owned.ok === false) return false;
       if (!note || readReply(replyMessageId)?.text !== reply.text) {
         if (lapsed) await this.save();
         return false;
@@ -310,8 +403,14 @@ export class StagecraftCoordinator {
         reason: "continuity",
         summary: `${reply.speaker}'s reply contradicts ${note.facts.length === 1 ? "an established fact" : `${note.facts.length} established facts`}`,
         mode: settings.wardenAcceptMode,
-        ops: [{ op: { kind: "note", text: note.text, facts: note.facts, replyMessageId }, status: settings.wardenAcceptMode === "auto" ? "accepted" : "pending" }],
+        ops: [{
+          op: { kind: "note", text: note.text, facts: note.facts, replyMessageId, sources: established.filter((fact) => note.facts.includes(fact.text)) },
+          status: settings.wardenAcceptMode === "auto" ? "accepted" : "pending",
+        }],
         dropped: [],
+        // The warden read a reply against the fact list it was handed, so both travel as inputs and
+        // the card can send the author back to the fact that was broken.
+        provenance: { source: "curator", messageId: replyMessageId, boundary: state.boundary, pass: "continuity-warden", inputs: [{ store: "memory" as const, id: `reply:${replyMessageId}` }], validity: "live" },
       };
       this.patch({ proposals: capProposalRing([...this.state.proposals, record]) });
       this.deps.journal(`Continuity warden flagged ${reply.speaker}'s reply`, note.facts.join(" | "));

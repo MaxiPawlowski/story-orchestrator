@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { DriverContext, Suggestion } from "@copilot/index";
+import type { AgencyPolicy } from "@engine/index";
 
 export interface DriverController {
   suggest: () => Promise<Suggestion[]>;
@@ -16,9 +17,11 @@ type Props = {
   activeNudge: string | null;
   controller: DriverController;
   authorView?: boolean;
+  /** v2.3 plan 07 (C4): the policy in effect, so the author can see what steering must respect. */
+  agency?: AgencyPolicy | null;
 };
 
-const DriverPanel: React.FC<Props> = ({ context, checkpoints, activeNudge, controller, authorView = true }) => {
+const DriverPanel: React.FC<Props> = ({ context, checkpoints, activeNudge, controller, authorView = true, agency = null }) => {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [report, setReport] = useState<string>("");
   const [busy, setBusy] = useState<string | null>(null);
@@ -73,6 +76,12 @@ const DriverPanel: React.FC<Props> = ({ context, checkpoints, activeNudge, contr
     <div className="flex flex-col gap-2 text-xs" aria-label="In-play driver">
       <div className="font-medium opacity-100">Driver</div>
       <div className="opacity-80">Active: {context.activeCheckpointId ?? "—"} — {context.activeObjective || "(no objective)"}</div>
+      {authorView && agency && (
+        <div data-so="agency-policy" className="opacity-80">
+          <div className="font-medium opacity-100">Agency</div>
+          <div>{agency.objective_kind === "player_action" ? "Needs the player's own act" : "World pressure"}{agency.protect_player_choice ? " · choices protected" : " · choices not protected"}{agency.never_narrate_player_action ? " · never narrates the player" : ""}{agency.alternate ? ` · alternate: ${agency.alternate}` : ""}</div>
+        </div>
+      )}
       {authorView && context.unmetGates.length > 0 && (
         <div className="opacity-80">
           <div className="font-medium opacity-100">Unmet gates</div>

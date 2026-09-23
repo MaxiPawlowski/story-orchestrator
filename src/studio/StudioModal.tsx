@@ -76,6 +76,7 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
   const canRedo = useDraftStore((state) => state.future.length > 0);
 
   const panelRef = useRef<HTMLDivElement | null>(null);
+  const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const titleRef = useRef<HTMLInputElement | null>(null);
   const dialogRef = useRef<HTMLDialogElement | null>(null);
 
@@ -88,6 +89,24 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
   const requestClose = async () => {
     if (useDraftStore.getState().dirty && !(await showConfirmPopup("Discard unsaved Studio changes?", { okButton: "Discard", cancelButton: "Keep editing" }))) return;
     onClose();
+  };
+
+  // v2.3 plan 09 (the review's keyboard trace: ArrowRight on the tablist stayed on the tab it was
+  // already on, and nothing linked a tab to its panel). APG tabs pattern: one tab stop for the list,
+  // arrows move focus AND selection with wrapping, Home/End jump to the ends, and the panel says which
+  // tab it belongs to. ST's `a11y.js` rewrites `role="button"` onto `.menu_button` in the live DOM, so
+  // anything driving this must select by the tablist, never by the role.
+  const TAB_KEYS: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1 };
+
+  const onTablistKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const step = TAB_KEYS[event.key] ?? (event.key === "Home" ? -Infinity : event.key === "End" ? Infinity : null);
+    if (step === null) return;
+    event.preventDefault();
+    const last = tabs.length - 1;
+    const current = tabs.findIndex((entry) => entry.id === activeTab);
+    const next = step === -Infinity ? 0 : step === Infinity ? last : (current + step + tabs.length) % tabs.length;
+    setTab(tabs[next].id);
+    tabRefs.current[next]?.focus();
   };
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
@@ -166,13 +185,17 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
           <button type="button" className="st-button secondary" onClick={() => void requestClose()} aria-label="Close studio">Close</button>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 px-3 py-2" role="tablist" aria-label="Studio sections">
-          {tabs.map((entry) => (
+        <div className="flex flex-wrap items-center gap-2 px-3 py-2" role="tablist" aria-label="Studio sections" onKeyDown={onTablistKeyDown}>
+          {tabs.map((entry, index) => (
             <button
               key={entry.id}
+              ref={(node) => { tabRefs.current[index] = node; }}
+              id={`so-studio-tab-${entry.id}`}
               type="button"
               role="tab"
               aria-selected={activeTab === entry.id}
+              aria-controls="so-studio-tabpanel"
+              tabIndex={activeTab === entry.id ? 0 : -1}
               className={`st-tab rounded px-3 py-1 text-sm ${activeTab === entry.id ? "st-tab-active" : ""}`}
               onClick={() => setTab(entry.id)}
             >
@@ -181,7 +204,7 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
           ))}
         </div>
 
-        <div className="flex-1 overflow-auto p-3" role="tabpanel" aria-label={activeTab}>
+        <div id="so-studio-tabpanel" className="flex-1 overflow-auto p-3" role="tabpanel" tabIndex={-1} aria-labelledby={`so-studio-tab-${activeTab}`}>
           {renderTab()}
         </div>
 

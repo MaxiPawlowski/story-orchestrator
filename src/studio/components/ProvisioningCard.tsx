@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { describeProvisioningOp, validateProvisioningOp, type ProvisioningEnvironment, type ProvisioningOp } from "@wizard/index";
+import { describeProvisioningOp, validateProvisioningOp, type ExistingEntry, type ProvisioningEnvironment, type ProvisioningOp } from "@wizard/index";
 
 export interface ProvisioningCardProps {
   op: ProvisioningOp;
@@ -8,6 +8,9 @@ export interface ProvisioningCardProps {
   result?: string | null;
   failed?: boolean;
   busy?: boolean;
+  // Undefined until the runtime has read the entry: "not asked yet" and "nothing there" are
+  // different answers and only one of them is safe to show as "new entry".
+  existing?: ExistingEntry | null;
   onApply: (op: ProvisioningOp) => void;
 }
 
@@ -36,6 +39,10 @@ const FIELDS: Record<ProvisioningOp["kind"], FieldSpec[]> = {
     { key: "name", label: "Group name", kind: "text" },
     { key: "members", label: "Members", kind: "list" },
   ],
+  grantLorebook: [
+    { key: "lorebook", label: "Lorebook this story may write into", kind: "text" },
+    { key: "revoke", label: "Revoke this story's write permission", kind: "bool" },
+  ],
 };
 
 const KIND_LABELS: Record<ProvisioningOp["kind"], string> = {
@@ -43,6 +50,7 @@ const KIND_LABELS: Record<ProvisioningOp["kind"], string> = {
   createStoryLorebook: "new lorebook",
   upsertLorebookEntry: "lorebook entry",
   createGroup: "new group",
+  grantLorebook: "write permission",
 };
 
 const asText = (value: unknown, kind: FieldSpec["kind"]): string => {
@@ -52,7 +60,7 @@ const asText = (value: unknown, kind: FieldSpec["kind"]): string => {
 
 // Every provisioning step is editable before it runs (ST-Copilot's edit-before-apply pattern): the
 // model drafts, the author corrects, and only then does anything touch the install.
-const ProvisioningCard: React.FC<ProvisioningCardProps> = ({ op, environment, applied = false, result = null, failed = false, busy = false, onApply }) => {
+const ProvisioningCard: React.FC<ProvisioningCardProps> = ({ op, environment, applied = false, result = null, failed = false, busy = false, existing, onApply }) => {
   const [draft, setDraft] = useState<ProvisioningOp>(op);
   const fields = FIELDS[draft.kind];
   const record = draft as unknown as Record<string, unknown>;
@@ -83,7 +91,29 @@ const ProvisioningCard: React.FC<ProvisioningCardProps> = ({ op, environment, ap
           )}
         </label>
       ))}
+      {draft.kind === "grantLorebook" ? (
+        <div className="st-alert-warning rounded px-2 py-1 text-[11px]">
+          This is an existing lorebook. Confirming lets this story’s wizard update entries in it. The permission is saved only in this wizard session and can be revoked here.
+        </div>
+      ) : null}
       {!validation.ok && !applied ? <div className="st-alert-error rounded px-2 py-1 text-[11px]" role="alert">{validation.message}</div> : null}
+      {/* R8: replacing an entry is a visible decision. Nothing exists under this title yet is a
+          different claim from this overwrites what is there, and only the host can say which. */}
+      {draft.kind === "upsertLorebookEntry" && existing !== undefined ? (
+        <div data-so="entry-preview" className="flex flex-col gap-1 text-[11px]" aria-label="Entry preview">
+          <span className="st-muted">{existing ? `Replaces the existing entry "${draft.comment}".` : `Nothing is filed under "${draft.comment}" yet — this adds it.`}</span>
+          {existing ? (
+            <div className="st-subpanel rounded px-2 py-1" aria-label="Current content">
+              <span className="st-muted">Before</span>
+              <p className="whitespace-pre-wrap">{existing.content}</p>
+            </div>
+          ) : null}
+          <div className="st-subpanel rounded px-2 py-1" aria-label="New content">
+            <span className="st-muted">{existing ? "After" : "Content"}</span>
+            <p className="whitespace-pre-wrap">{draft.content}</p>
+          </div>
+        </div>
+      ) : null}
       {result ? <div className={`${failed ? "st-alert-error" : "st-alert-success"} rounded px-2 py-1 text-[11px]`} role="status">{result}</div> : null}
       <div className="flex items-center gap-2">
         <button
@@ -93,9 +123,9 @@ const ProvisioningCard: React.FC<ProvisioningCardProps> = ({ op, environment, ap
           disabled={applied || busy || !validation.ok}
           onClick={() => onApply(draft)}
         >
-          {applied ? "Created" : busy ? "Creating…" : "Create it"}
+          {applied ? draft.kind === "grantLorebook" ? "Confirmed" : "Created" : busy ? "Working…" : draft.kind === "grantLorebook" ? draft.revoke ? "Revoke permission" : "Confirm permission" : "Create it"}
         </button>
-        <span className="text-[11px] st-muted">Creates this in SillyTavern. Nothing existing is changed.</span>
+        <span className="text-[11px] st-muted">{draft.kind === "grantLorebook" ? "Changes permission, not the lorebook itself." : "Creates this in SillyTavern. Nothing existing is changed."}</span>
       </div>
     </section>
   );

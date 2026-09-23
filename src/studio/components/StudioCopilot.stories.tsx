@@ -42,6 +42,26 @@ export const ProposeAndAcceptAll: Story = {
   },
 };
 
+// v2.3 plan 09 fixtures: the two states an author hits before anything is wrong with their story —
+// a model call that takes a while, and the wizard being unavailable at all.
+export const WorkingWhileTheModelRuns: Story = {
+  args: { enabled: true, runStage: () => new Promise(() => undefined) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "Run stage" }));
+    await expect(canvas.getByRole("button", { name: "Working…" })).toBeDisabled();
+  },
+};
+
+export const UnavailableWithoutAProfile: Story = {
+  args: { enabled: false, runStage: stageRunner(VALID_RESPONSE) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByLabelText("Copilot unavailable")).toBeInTheDocument();
+    await expect(canvas.queryByRole("button", { name: "Run stage" })).toBeNull();
+  },
+};
+
 export const InvalidProposal: Story = {
   args: { enabled: true, runStage: stageRunner(INVALID_RESPONSE) },
   play: async ({ canvasElement }) => {
@@ -95,13 +115,30 @@ const PROVISIONING_RESPONSE = JSON.stringify({
   ops: [{ kind: "createCharacterCard", name: "Arin", description: "A guide who knows the ruins." }],
 });
 
+// v2.3 plan 09: five stages, four things an author is doing. The steps are the control; the stage
+// names are the machine's and sit behind Details.
+export const StepsHideTheStageNames: Story = {
+  args: { enabled: true, runStage: stageRunner(VALID_RESPONSE) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const steps = [...canvasElement.querySelectorAll('[data-so="wizard-step"]')];
+    await expect(steps.map((step) => step.getAttribute("data-step"))).toEqual(["premise", "turningPoints", "characters", "setup"]);
+    await expect(canvas.getByText("What the story is about, and what it measures as it goes.")).toBeInTheDocument();
+    await expect(canvasElement.querySelector('[data-so="wizard-stage-details"]')).not.toHaveAttribute("open");
+    await userEvent.click(canvas.getByText("Turning points"));
+    await expect(canvas.getByText("The beats, and what has to be true to move between them.")).toBeInTheDocument();
+    // The step names what the wizard will propose in the author's words, not the stage's.
+    await expect(canvas.getByPlaceholderText("Turning points: tell the wizard what you want, or ask a question.")).toBeInTheDocument();
+  },
+};
+
 export const ProvisioningCreatesAndRequires: Story = {
   args: {
     enabled: true,
     initialStage: "provisioning",
     runStage: stageRunner(PROVISIONING_RESPONSE),
     host: {
-      environment: () => ({ characterNames: [], lorebookNames: [], groupNames: [], storyLorebooks: [] }),
+      environment: () => ({ characterNames: [], lorebookNames: [], groupNames: [], storyLorebooks: [], ownedLorebooks: [], grantedLorebooks: [] }),
       applyProvisioning: async () => ({ ok: true, message: 'Created the character card "Arin".', created: "Arin" }),
     },
   },

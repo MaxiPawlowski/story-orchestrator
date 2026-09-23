@@ -3,6 +3,10 @@ import { runCodeChecks } from "./critic";
 import type { GeneratedBeat, PlannedExpansionInput } from "./types";
 
 jest.mock("@services/STAPI", () => ({
+  settingsAreLoaded: () => true,
+  settingsReady: async () => {},
+  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
+  readBackBoundary: () => null,
   sendConnectionProfileRequest: jest.fn(async () => "{}"),
 }));
 

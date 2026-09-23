@@ -1,4 +1,4 @@
-import { getContext } from "@services/STAPI";
+import { getContext, settingsAreLoaded } from "@services/STAPI";
 import { DEFAULT_TENSION_EMA_ALPHA, MEMORY_TIER_INJECTION_DEPTHS } from "@constants/defaults";
 import { DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS } from "@memory/index";
 import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
@@ -98,10 +98,17 @@ const getRoot = (): Record<string, unknown> => {
   return settings["story-orchestrator"] as Record<string, unknown>;
 };
 
+/**
+ * v2.3 plan 06 (F2). The read is ALSO a write: it replaces the stored value with its sanitized form.
+ * Before ST has loaded the extension settings that write is destructive — `getRoot()` would create
+ * our key, the sanitized defaults would be stamped in its place, and the author's settings would be
+ * gone the moment anything saved. So the write-back waits for the load, and until then a caller gets
+ * sanitized defaults WITHOUT them being stored.
+ */
 export function getGlobalSettings(): GlobalSettings {
   const root = getRoot();
   const sanitized = sanitizeGlobalSettings(root[SETTINGS_KEY]);
-  root[SETTINGS_KEY] = sanitized;
+  if (settingsAreLoaded?.()) root[SETTINGS_KEY] = sanitized;
   return sanitized;
 }
 

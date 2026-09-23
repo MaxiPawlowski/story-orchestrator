@@ -72,47 +72,81 @@ const CAPABILITY_FIXTURE: ExtractionFixtureSpec = {
   entities: ["Bel", "Corin"],
 };
 
-const contains = (values: string[], needle: string) => values.some((value) => value.toLowerCase().includes(needle));
+// R12: the grader used to check that a tier produced ANY line, so a model that answered fluently
+// about entirely the wrong things — a dragon on the moon, an interstellar chess tournament — was
+// certified capable, and the settings panel then recommended enabling the tiers it had just
+// mis-graded. Each tier now checks that the answer is about the fixture, whose right answer is
+// unambiguous by construction.
+
+const has = (haystack: string, needle: string) => haystack.toLowerCase().includes(needle.toLowerCase());
+const someHas = (values: string[], needle: string) => values.some((value) => has(value, needle));
 
 const gradeCore = (parsed: ParsedSharedRead): SelfTestTierResult[] => {
   const deltas = parsed.deltas.map((entry) => `${entry.delta.q}=${String(entry.delta.v)}`);
   const memory = parsed.memory.map((entry) => `${entry.tier}: ${entry.text}`);
   const arcs = parsed.arcs.map((entry) => `${entry.kind}: ${entry.text}`);
+
+  // Both, not either: the transcript states plainly that the lantern is picked up AND that the
+  // party goes into the tunnel, so a model that reads one and misses the other is not reading the
+  // scene — it is guessing from the checkpoint names.
+  const readLocation = someHas(deltas, "location=tunnel");
+  const readLantern = someHas(deltas, "has_lantern=true");
+
+  // Across all lines, not per line: a model may reasonably split the scene into two memories.
+  const memoryText = memory.join(" — ");
+  const memoryOnTopic = has(memoryText, "lantern") && has(memoryText, "tunnel");
+
+  const arcText = arcs.join(" — ");
+  const arcOnTopic = has(arcText, "debt") && has(arcText, "bel");
+
   return [
     {
       tier: "deltas",
-      status: contains(deltas, "location=tunnel") || contains(deltas, "has_lantern=true") ? "pass" : "fail",
-      detail: "reads gated qualities out of the scene (expects location=tunnel and/or has_lantern=true)",
+      status: readLocation && readLantern ? "pass" : "fail",
+      detail: "reads both gated qualities out of the scene (location=tunnel and has_lantern=true)",
       got: deltas,
     },
     {
       tier: "memory",
-      status: parsed.memory.length > 0 ? "pass" : "fail",
-      detail: "writes at least one memory line for a scene worth remembering",
+      status: memoryOnTopic ? "pass" : "fail",
+      detail: "writes a memory line about THIS scene (it must mention the lantern and the tunnel)",
       got: memory,
     },
     {
       tier: "arcs",
-      status: parsed.arcs.length > 0 ? "pass" : "fail",
-      detail: "notices an open or resolved thread (the debt owed to Bel)",
+      status: arcOnTopic ? "pass" : "fail",
+      detail: "notices the thread this scene opens (the debt owed to Bel)",
       got: arcs,
     },
   ];
 };
 
 const gradeCapability = (parsed: ParsedSharedRead): SelfTestTierResult[] => {
-  const epistemic = parsed.epistemic.map((entry) => `[${entry.tag}] ${entry.subject}: ${entry.content}`);
+  const epistemic = parsed.epistemic.map((entry) => `[${entry.tag}] ${entry.subject}${entry.hiddenFrom ? ` from ${entry.hiddenFrom}` : ""}: ${entry.content}`);
   const ledger = parsed.ledger.map((entry) => `${entry.entity}.${entry.field}=${entry.value}`);
+
+  // Corin hides the letter from Bel. The subject and the tag both have to be right — "Bel knows
+  // about the letter" is the opposite claim and must not pass.
+  const tracksSecret = parsed.epistemic.some((entry) => entry.tag === "hiding"
+    && has(entry.subject, "corin")
+    && (has(entry.hiddenFrom ?? "", "bel") || has(entry.content, "bel")));
+
+  // Corin's left arm is wounded. Which side of the pair carries which word is the model's choice
+  // (`wound=left arm` and `arm=wounded` are both fine), so the pair is checked as one string.
+  const tracksWound = parsed.ledger.some((entry) => has(entry.entity, "corin")
+    && has(`${entry.field}=${entry.value}`, "arm")
+    && has(`${entry.field}=${entry.value}`, "wound"));
+
   return [
     {
       tier: "epistemic",
-      status: parsed.epistemic.length > 0 ? "pass" : "fail",
+      status: tracksSecret ? "pass" : "fail",
       detail: "tracks who knows what (Corin is hiding the letter from Bel)",
       got: epistemic,
     },
     {
       tier: "ledger",
-      status: parsed.ledger.length > 0 ? "pass" : "fail",
+      status: tracksWound ? "pass" : "fail",
       detail: "tracks entity state (Corin's arm is wounded)",
       got: ledger,
     },
@@ -143,6 +177,11 @@ export async function runModelSelfTest(options: SelfTestOptions): Promise<SelfTe
     }
   }
 
+  // A capability suggestion recommends turning a feature OFF, so it may only come from a complete,
+  // semantically graded run. Every incomplete path — no profile, cancelled, a transport failure in
+  // either pass — returns above with `error` set and no suggestion, so reaching this line means
+  // both passes were graded. (A `results.length === SELF_TEST_TIERS.length` guard here would be
+  // unreachable: no mutation of it changes any test, which is the definition of dead code.)
   const capabilityFailed = results.some((result) => (result.tier === "epistemic" || result.tier === "ledger") && result.status === "fail");
   return {
     ranAt,

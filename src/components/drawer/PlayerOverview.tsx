@@ -1,9 +1,11 @@
-import { rollbackNoticeText } from "@runtime/narrative";
+import { rollbackNoticeText, rollbackUnavailableText } from "@runtime/narrative";
+import { pipelineAction as pipelineActionText } from "@runtime/pipeline";
 import type { RuntimeSnapshot } from "@runtime/types";
 
 export interface PlayerOverviewProps {
   snapshot: RuntimeSnapshot;
   onOpenSettings?: () => void;
+  onReread?: () => void;
 }
 
 // The default (player) surface: the narrative composition the runtime already builds, plus the
@@ -41,9 +43,11 @@ const NowSection = ({ lines }: { lines: string[] }) => (
   </div>
 );
 
-export const PlayerOverview = ({ snapshot, onOpenSettings }: PlayerOverviewProps) => {
+export const PlayerOverview = ({ snapshot, onOpenSettings, onReread }: PlayerOverviewProps) => {
   const { narrative, pipeline } = snapshot;
+  const pipelineAction = pipelineActionText(pipeline);
   const sections = narrative.sections.filter((section) => section.id !== "status");
+  const statusNotes = (narrative.sections.find((section) => section.id === "status")?.lines ?? []).filter((line) => line !== pipeline.text);
   return (
     <div id="so-player-overview" className="flex flex-col gap-3">
       {sections.map((section) => (
@@ -59,6 +63,19 @@ export const PlayerOverview = ({ snapshot, onOpenSettings }: PlayerOverviewProps
       {snapshot.lastRollback && (
         <div id="so-rollback-notice" className="text-xs opacity-90">{rollbackNoticeText(snapshot.lastRollback)}</div>
       )}
+      {/* E1: an edit the run cannot rewind to. The player is told plainly, and offered the one
+          action this surface owns — rebuilding from the current checkpoint. Restart story sits in
+          the footer right below. */}
+      {snapshot.rollbackUnavailable && (
+        <div id="so-rollback-unavailable" className="flex flex-col gap-1 text-xs opacity-90" role="status">
+          <span>{rollbackUnavailableText(snapshot.rollbackUnavailable)}</span>
+          {onReread && (
+            <button id="so-reread-checkpoint" type="button" className="menu_button self-start" onClick={onReread}>
+              Re-read from {snapshot.rollbackUnavailable.checkpointName}
+            </button>
+          )}
+        </div>
+      )}
       <MissingRequirements snapshot={snapshot} />
       <div id="so-pipeline-status" className={`text-xs flex items-center gap-2 flex-wrap ${pipeline.state === "idle" ? "opacity-60" : "opacity-90"}`}>
         {ATTENTION_STATES.has(pipeline.state)
@@ -67,6 +84,14 @@ export const PlayerOverview = ({ snapshot, onOpenSettings }: PlayerOverviewProps
         {pipeline.needsSetup && onOpenSettings && (
           <button id="so-open-story-settings" type="button" className="menu_button" onClick={onOpenSettings}>Open story settings</button>
         )}
+        {/* v2.3 plan 07. The rest of the composition's status section: the pipeline line above is this
+            surface's own, and everything else the narrative put there (a save this chat could not
+            confirm, a route the world has not answered yet) is one sentence about the story that the
+            player must not have to open a popup to read. */}
+        {/* v2.3 plan 09: the state sentence says what the machine is doing, this says whether the
+            player is being asked for something. Same line, no author vocabulary. */}
+        {pipelineAction && <span id="so-pipeline-action" className="opacity-80">{pipelineAction}</span>}
+        {statusNotes.map((line) => <span key={line} data-so="status-note">{line}</span>)}
       </div>
     </div>
   );

@@ -1,0 +1,62 @@
+{
+  "_note": "v2.3 plan 04 (R2, live). Two curator writes to ONE entry, applied at two boundaries, then a rollback past both: the entry has to come back to its ORIGINAL text, not to the intermediate one the older record still holds. The curator is driven with debug responses on purpose — this proves the write order and the before-image chain, which no prompt can.",
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-p04-stagecraft",
+        "title": "SO-P04 Stagecraft Rollback",
+        "version": 1,
+        "description": "An entry two curator writes touch, then a rollback past both.",
+        "stagecraft": { "lorebooks": ["SO-J8 Lore"] },
+        "requirements": { "lorebooks": ["SO-J8 Lore"] },
+        "qualities": [{ "key": "road_drained", "type": "bool", "source": "extractor", "rubric": "Has the road drained?" }],
+        "checkpoints": [
+          { "id": "washed-road", "name": "The washed road", "objective": "Cross.", "type": "anchor", "start": true },
+          { "id": "tavern", "name": "The tavern", "objective": "Rest.", "type": "anchor" }
+        ],
+        "transitions": [{ "id": "to-tavern", "from": "washed-road", "to": "tavern", "priority": 0, "gate": { "q": "road_drained", "op": "==", "v": true } }],
+        "roster": []
+      }
+    },
+    { "ui": { "action": "select-profile" } },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const lorebook = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-J8 Lore' }, { requirements: { lorebooks: [] } }); if (!lorebook.ok && !lorebook.message.includes('already exists')) throw new Error(`could not create the story lorebook: ${lorebook.message}`); const entry = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook: 'SO-J8 Lore', comment: 'The washed road', keys: ['road', 'flood'], content: 'The road to the tavern is flooded and impassable.', constant: true }, { requirements: { lorebooks: ['SO-J8 Lore'] } }); if (!entry.ok) throw new Error(`could not write the entry: ${entry.message}`); rt.setExtractionSettings({ cadence: 0 }); return { lorebook: lorebook.ok, entry: entry.ok };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setStagecraftSettings({ curatorEnabled: true, acceptMode: 'auto' }); const state = rt.getStagecraftState(); if (!state.settings.curatorEnabled || state.settings.acceptMode !== 'auto') throw new Error(`the curator settings did not stick: ${JSON.stringify(state.settings)}`); return state.settings;",
+      "log": true
+    },
+    {
+      "eval": "globalThis.storyOrchestratorDebugCuratorResponse = '[rewrite] The washed road || The road has drained; the bare stones are walkable.'; return { armed: true };",
+      "log": true
+    },
+    { "stagecraft": { "action": "curate", "reason": "journey-first", "expectProposal": true, "expectOps": 1, "attempts": 2 } },
+    { "extract": { "reason": "journey-first-boundary" } },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const book = await ctx.loadWorldInfo('SO-J8 Lore'); const entry = Object.values(book?.entries ?? {}).find((candidate) => candidate.comment === 'The washed road'); if (!entry) throw new Error('the entry is gone from the lorebook'); globalThis.__soFirst = { text: String(entry.content), applied: rt.getStagecraftState().proposals.flatMap((record) => record.ops).filter((op) => op.status === 'applied').length }; return globalThis.__soFirst;",
+      "log": true
+    },
+    {
+      "eval": "globalThis.storyOrchestratorDebugCuratorResponse = '[rewrite] The washed road || The road is mud now, but passable if you keep to the stones.'; return { armed: true };",
+      "log": true
+    },
+    { "stagecraft": { "action": "curate", "reason": "journey-second", "expectProposal": true, "expectOps": 1, "attempts": 2 } },
+    { "extract": { "reason": "journey-second-boundary" } },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const book = await ctx.loadWorldInfo('SO-J8 Lore'); const entry = Object.values(book?.entries ?? {}).find((candidate) => candidate.comment === 'The washed road'); const applied = rt.getStagecraftState().proposals.flatMap((record) => record.ops).filter((op) => op.status === 'applied'); if (applied.length < 2) throw new Error(`two writes were expected, the ring has ${applied.length}: ${JSON.stringify(rt.getStagecraftState().proposals)}`); if (!String(entry?.content ?? '').includes('mud')) throw new Error(`the second write never reached the book: ${JSON.stringify(entry?.content)}`); return { text: String(entry?.content ?? ''), applied: applied.length, done: globalThis.__soFirst };",
+      "log": true
+    },
+    { "send_generate": { "text": "I look at the road and decide how to cross it.", "expectReply": true, "timeoutMs": 300000 } },
+    { "extract": { "debugResponse": "DELTA q=road_drained value=true evidence=\"I look at the road\"" } },
+    { "wait": { "checkpoint": "tavern", "timeoutMs": 300000 } },
+    { "edit": { "messageId": 0, "text": "I never left the tavern and never looked at the road." } },
+    { "wait": { "idle": true, "timeoutMs": 60000 } },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const book = await ctx.loadWorldInfo('SO-J8 Lore'); const entry = Object.values(book?.entries ?? {}).find((candidate) => candidate.comment === 'The washed road'); const text = String(entry?.content ?? ''); const notice = rt.getSnapshot().lastRollback; if (!notice) throw new Error(`the edit did not roll the story back: ${JSON.stringify({ unavailable: rt.getSnapshot().rollbackUnavailable, checkpoint: rt.getSnapshot().activeCheckpointId })}`); if (text.includes('mud')) throw new Error(`the rollback restored the intermediate text, not the original before-image: ${text}`); if (text.includes('drained')) throw new Error(`the rollback restored the first rewrite, not the original before-image: ${text}`); if (!text.includes('flooded and impassable')) throw new Error(`the entry is not its original text after rolling back past both writes: ${text}`); return { text, notice, reverted: rt.getStagecraftState().proposals.flatMap((record) => record.ops).filter((op) => op.status === 'applied').length };",
+      "log": true
+    },
+    { "assets": { "action": "remove", "marker": "SO-J8" } }
+  ]
+}

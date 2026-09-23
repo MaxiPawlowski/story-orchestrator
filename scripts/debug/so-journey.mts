@@ -9,7 +9,10 @@ import { beginSandboxSession, closeUnpinnedDrawers, deleteSandboxChats, openGrou
 
 type SandboxGuard = Awaited<ReturnType<typeof beginSandboxSession>>['guard'];
 import { executeSlashCommand } from './st-actions.mts';
-import { deleteSandboxMirrorBooks, recordSandboxStory, runSteps } from './so-scenario.mts';
+import { deleteSandboxMirrorBooks, recordSandboxStory, releaseBlockedRoutes, runSteps } from './so-scenario.mts';
+import { validateFixture } from './lib/scenarioSchema.mts';
+import { readExtractionSettings, restoreExtractionSettings } from './lib/extractionSettings.mts';
+import { computeTallies, gateFailures, readScoredHumanIds, reconcileExpected, renderTallies } from './lib/journeyTallies.mts';
 import { selectMemoryProfile } from './so-ui.mts';
 import { readSessionJournal } from './so-journal.mts';
 import { removeMarkedAssets, snapshotAssets } from './so-assets.mts';
@@ -32,10 +35,15 @@ run options:
   --keep          skip cleanup (leave the sandbox chat and imported stories in place)
   --only <ids>    comma-separated check ids to run; the rest report "skipped"
   --no-config     never touch global extension settings, whatever the journey's setup says
+  --group <id>    pin the group for this run, overriding the journey's setup.group
+  --require-human-record <file>  fail when a human check has no scored row in that file
 
 Check outcomes: pass | fail | blocked | not-runnable | skipped.
-Exit code 1 when any check fails (or, with --strict, is blocked). A journey whose steps
-cannot even execute is a runner failure and also exits 1.`;
+
+Three gates are counted and reported separately: automated, human and cleanup. Exit code 1
+when an automated check fails, when cleanup failed or leaked (always, not only under --strict),
+when the runner itself errored, or — with --strict — when anything is blocked, not-runnable or
+skipped. --only marks the record "partial", so a subset run cannot stand for a gate.`;
 
 const OUTCOME_ICON = { pass: 'PASS', fail: 'FAIL', blocked: 'BLOCKED', 'not-runnable': 'N/A', skipped: 'SKIP' };
 
@@ -66,13 +74,27 @@ export async function listJourneys() {
   return journeys;
 }
 
+// A journey's checks carry the same steps a scenario does, so they get the same closed-vocabulary
+// check before the run starts (v2.3 plan 01 §C). A typo'd `expect` key inside a journey check was
+// exactly as silent as one inside a scenario.
+function assertValidJourney(journey, path) {
+  const problems = validateFixture(journey, basename(String(path)));
+  if (problems.length) throw new Error(`This journey would not test what it says:\n  - ${problems.join('\n  - ')}`);
+  return journey;
+}
+
 async function resolveJourney(idOrFile) {
-  if (idOrFile.endsWith('.json')) return { path: resolve(PROJECT_ROOT, idOrFile), journey: await readJSON(resolve(PROJECT_ROOT, idOrFile)) };
+  if (idOrFile.endsWith('.json')) {
+    const path = resolve(PROJECT_ROOT, idOrFile);
+    return { path, journey: assertValidJourney(await readJSON(path), path) };
+  }
   const files = (await readdir(JOURNEY_DIR)).filter((file) => file.endsWith('.journey.json'));
   for (const file of files) {
     const path = resolve(JOURNEY_DIR, file);
     const journey = await readJSON(path);
-    if (String(journey.id).toLowerCase() === idOrFile.toLowerCase() || basename(file, '.journey.json') === idOrFile) return { path, journey };
+    if (String(journey.id).toLowerCase() === idOrFile.toLowerCase() || basename(file, '.journey.json') === idOrFile) {
+      return { path, journey: assertValidJourney(journey, path) };
+    }
   }
   throw new Error(`Journey "${idOrFile}" not found in test/journeys/.`);
 }
@@ -226,8 +248,11 @@ async function configureExtraction(page, setup) {
   return { ...selected, settings };
 }
 
-async function applySetup(page, setup, { allowConfig }) {
-  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; judge?: unknown; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[] }; dialogs?: unknown; libraryBefore?: string[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
+async function applySetup(page, setup, { allowConfig, group = null }) {
+  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; extractionBefore?: unknown; judge?: unknown; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[] }; dialogs?: unknown; libraryBefore?: string[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
+  // Unconditional, and before anything else can write them (S11).
+  applied.extractionBefore = await readExtractionSettings(page);
+  console.log(`extraction before this run: ${JSON.stringify(applied.extractionBefore)}`);
   if (setup.clearGlobalConfig && allowConfig) {
     applied.configSnapshot = await snapshotGlobalConfig(page);
     await writeGlobalConfig(page, null);
@@ -243,7 +268,7 @@ async function applySetup(page, setup, { allowConfig }) {
   applied.dialogs = await evaluateInST(page, () => {
     const BLOCKING = [
       { match: 'integrity check failed', why: 'ST refused a save because the chat file on disk disagrees with the page — another writer touched this chat. Clicking OK reloads (safe); typing OVERWRITE destroys whatever the file holds that the page does not.' },
-      { match: 'Welcome back', why: 'the away-recap popup. In a brand-new chat it describes the PREVIOUS chat\'s state and intercepts pointer events, so a scripted send retries against it and times out.' },
+      { match: 'Welcome back', why: 'the away-recap popup. It is a host modal, so a scripted send retries against it and times out. The product closes it on every world change (S3, 2026-09-21); one still open here means the run is on a chat the recap outlived, or another session raised it.' },
     ];
     const dialogs = Array.from(document.querySelectorAll('dialog[open]'));
     const text = (node: Element) => (node.textContent || '').replace(/\s+/g, ' ').trim();
@@ -265,7 +290,10 @@ async function applySetup(page, setup, { allowConfig }) {
     throw new Error(`a blocking dialog is open and setup will not click through it — ${refused.map((entry) => `${entry.why} [${entry.text}]`).join(' | ')}`);
   }
   const active = await evaluateInST(page, () => ({ groupId: SillyTavern.getContext().groupId ?? null }));
-  if (setup.group && setup.group !== 'recent') await openGroup(page, setup.group);
+  // --group pins the group from the command line, the way so-scenario --sandbox --group does:
+  // on a shared install the journey file's own default may not be the group this run should touch.
+  const targetGroup = group ?? setup.group;
+  if (targetGroup && targetGroup !== 'recent') await openGroup(page, targetGroup);
   // A group chat already open is the group we want; going via the welcome screen only risks
   // getting stuck there when a previous run died mid-journey.
   else if (!active?.groupId) await openMostRecentGroupChat(page);
@@ -310,7 +338,7 @@ async function applySetup(page, setup, { allowConfig }) {
   return applied;
 }
 
-async function runCleanup(page, journey, { importedHashes, libraryBefore, configSnapshot, guard, keep, allowConfig, assetBaseline, activatedLorebooks }) {
+async function runCleanup(page, journey, { importedHashes, libraryBefore, configSnapshot, guard, keep, allowConfig, assetBaseline, activatedLorebooks, extractionBefore = null }) {
   const cleanup = journey.cleanup ?? {};
   const report: Record<string, unknown> = {};
   // The judge call ring lives in the chat's own metadata, so it dies with the chat a few lines
@@ -325,6 +353,8 @@ async function runCleanup(page, journey, { importedHashes, libraryBefore, config
   if (keep) return { kept: true, sandboxChatId: guard?.sandboxChatId ?? null, owned: guard?.owned ?? [], judgeCalls: report.judgeCalls };
   // Only what setup activated: a book the install already had selected is left exactly as found.
   if (activatedLorebooks?.length) report.lorebooks = await deactivateLorebooks(page, activatedLorebooks);
+  // S11: put install-wide extraction settings back to the pre-run capture, always.
+  report.extraction = await restoreExtractionSettings(page, extractionBefore).catch((error) => ({ error: error.message }));
   // Assets go FIRST: the wizard's created-asset ledger lives in extension settings, and restoring
   // the config snapshot would wipe the very record cleanup uses to catch a renamed asset (plan 06).
   // The baseline scopes that ledger to this run: a real author's wizard sessions and the assets
@@ -396,14 +426,20 @@ function renderChecklist(results) {
   ].join('\n');
 }
 
-export async function runJourney(page, idOrFile, { strict = false, keep = false, only = null, allowConfig = true } = {}) {
+export async function runJourney(page, idOrFile, { strict = false, keep = false, only = null, allowConfig = true, group = null, humanRecordFile = null } = {}) {
   const { journey, path } = await resolveJourney(idOrFile);
+  // A human check is scored in a file, not by the runner. Without --require-human-record the
+  // count is still printed, so an acceptance run cannot read as complete with rubric rows open.
+  const scoredHumanIds = humanRecordFile
+    ? readScoredHumanIds(await readJSON(resolve(PROJECT_ROOT, humanRecordFile)))
+    : [];
   const checks = journey.checks ?? [];
   const reserved = (journey.status ?? 'active') === 'reserved';
   const results = [];
   const importedHashes = [];
   let setupApplied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; judge?: unknown; libraryBefore?: string[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
   let runnerError = null;
+  let releasedRoutes: unknown = null;
   let assetBaseline = null;
   const capabilities = capabilityProbe(page, journey.capabilities);
 
@@ -421,7 +457,10 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
       await mkdir(DEBUG_DIR, { recursive: true });
       await writeFile(ASSET_BASELINE, JSON.stringify(assetBaseline, null, 2), 'utf-8');
       if (!assetBaseline.trusted) console.log(`Asset baseline UNTRUSTED (${assetBaseline.untrusted.join('; ')}) — cleanup falls back to marker-only scope.`);
-      setupApplied = await applySetup(page, journey.setup ?? {}, { allowConfig });
+      setupApplied = await applySetup(page, journey.setup ?? {}, { allowConfig, group });
+      // `reconcileExpected` lives in lib/journeyTallies.mts so it is unit-tested without a browser.
+      const record = (summary, outcome, detail, extra = {}) => results.push({ ...reconcileExpected(summary, outcome, detail ?? ''), ...extra });
+
       for (const check of checks) {
         const summary = summarize(check);
         if (only && !only.includes(check.id)) { results.push({ ...summary, outcome: 'skipped', detail: 'not selected by --only' }); continue; }
@@ -429,13 +468,13 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
         const missing = [];
         for (const id of check.requires ?? []) if (!(await capabilities.has(id))) missing.push(id);
         if (missing.length) {
-          results.push({ ...summary, outcome: 'blocked', detail: `missing capability: ${missing.join(', ')}` });
+          record(summary, 'blocked', `missing capability: ${missing.join(', ')}`);
           console.log(`${check.id} BLOCKED (${missing.join(', ')})`);
           continue;
         }
         console.log(`--- ${check.id} ${check.goal ?? ''}`);
         const outcome = await runSteps(page, check.steps ?? [], { scenarioDir: JOURNEY_DIR, importedHashes, label: `${check.id} `, assetBaseline, guard: setupApplied.guard ?? null });
-        results.push({ ...summary, outcome: outcome.ok ? 'pass' : 'fail', detail: outcome.error ?? '' });
+        record(summary, outcome.ok ? 'pass' : 'fail', outcome.error ?? '', { firstAttempt: outcome.firstAttempt ?? null, retries: outcome.retries ?? [] });
         if (setupApplied.guard?.escaped) {
           runnerError = outcome.error;
           console.error(`Journey stopped: ${runnerError}`);
@@ -446,6 +485,10 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
       runnerError = error instanceof Error ? error.message : String(error);
       console.error(`Runner error: ${runnerError}`);
     } finally {
+      // A journey check can block a route (plan 06's blocked-save recovery). Released here for the same
+      // reason the scenario runner releases it: a save endpoint left blocked fails every later run's
+      // persistence in silence.
+      releasedRoutes = await releaseBlockedRoutes(page);
       setupApplied.cleanup = await runCleanup(page, journey, {
         importedHashes,
         libraryBefore: (setupApplied as { libraryBefore?: string[] }).libraryBefore,
@@ -455,19 +498,47 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
         allowConfig,
         assetBaseline,
         activatedLorebooks: (setupApplied as { lorebooks?: { activated?: string[] } }).lorebooks?.activated ?? [],
+        extractionBefore: (setupApplied as { extractionBefore?: unknown }).extractionBefore ?? null,
       }).catch((error) => ({ error: error.message }));
     }
   }
 
   const tally = results.reduce((acc, row) => ({ ...acc, [row.outcome]: (acc[row.outcome] ?? 0) + 1 }), {});
-  const failed = (tally.fail ?? 0) > 0 || Boolean(runnerError) || (strict && (tally.blocked ?? 0) > 0);
+  // Three gates, counted apart (v2.3 plan 01 §D). One flat tally hid three different kinds of
+  // "not proven": a human row reported `skipped` like a deselected one, a missing capability was
+  // only caught by --strict, and cleanup failures were in the record but in nothing that decided
+  // the exit code.
+  const tallies = computeTallies(results, setupApplied.cleanup ?? null, scoredHumanIds);
+  const reasons = gateFailures(tallies, { strict, requireHumanRecord: Boolean(humanRecordFile), runnerError });
+  const failed = reasons.length > 0;
 
   console.log('');
   for (const row of results) console.log(`${(OUTCOME_ICON[row.outcome] ?? row.outcome).padEnd(12)} ${row.id.padEnd(8)} ${row.goal ?? row.prompt ?? ''}${row.detail ? ` — ${row.detail}` : ''}`);
-  console.log(`\n${journey.id}: ${JSON.stringify(tally)}${runnerError ? ` runnerError=${runnerError}` : ''}`);
+  console.log(`\n${journey.id}\n${renderTallies(tallies)}`);
+  if (only) console.log('PARTIAL: --only ran a subset; this record cannot stand for a gate.');
+  for (const reason of reasons) console.log(`NOT GREEN: ${reason}`);
   console.log(renderChecklist(results));
 
-  const record = { id: journey.id, title: journey.title, file: path, ranAt: new Date().toISOString(), strict, tally, runnerError, capabilities: capabilities.cache, results, cleanup: setupApplied.cleanup ?? null };
+  const record = {
+    id: journey.id,
+    title: journey.title,
+    file: path,
+    ranAt: new Date().toISOString(),
+    strict,
+    // A subset run is marked in the record itself, so an archived matrix cannot be mistaken for a
+    // full one later (T4: `--only` exited green over a handful of checks).
+    partial: Boolean(only),
+    only: only ?? null,
+    tally,
+    tallies,
+    notGreen: reasons,
+    humanRecord: humanRecordFile ?? null,
+    runnerError,
+    releasedRoutes,
+    capabilities: capabilities.cache,
+    results,
+    cleanup: setupApplied.cleanup ?? null,
+  };
   await mkdir(DEBUG_DIR, { recursive: true });
   await writeFile(resolve(DEBUG_DIR, `journey-${journey.id}.md`), `${renderMatrix(journey, results)}${renderChecklist(results)}`, 'utf-8');
   await writeJSON(record, `journey-${journey.id}`);
@@ -476,7 +547,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
 }
 
 function summarize(check) {
-  return { id: check.id, mode: check.mode ?? 'auto', findings: check.findings ?? [], goal: check.goal ?? '', prompt: check.prompt ?? '', anchors: check.anchors ?? '' };
+  return { id: check.id, mode: check.mode ?? 'auto', findings: check.findings ?? [], goal: check.goal ?? '', prompt: check.prompt ?? '', anchors: check.anchors ?? '', ...(check.expect ? { expect: check.expect } : {}) };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
@@ -506,6 +577,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         keep: args.includes('--keep'),
         only: only ? only.split(',').map((id) => id.trim()) : null,
         allowConfig: !args.includes('--no-config'),
+        group: argValue(args, '--group') ?? null,
+        humanRecordFile: argValue(args, '--require-human-record') ?? null,
       });
       return { ok };
     });

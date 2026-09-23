@@ -1,7 +1,7 @@
-import { isValidationErrorList, type ValidationError } from "@engine/index";
+import { isValidationErrorList, type NormalizedStoryV2, type ValidationError } from "@engine/index";
 import { showConfirmPopup } from "@services/STAPI";
 import { dropPersistedRuntime, getSelectedStoryId, loadPersistedRuntime, setSelectedStoryId } from "./persistence";
-import { findStoryRecord, loadPinnedStory, loadStoryRecord, removeStoryRecord, saveStoryRecord } from "./storyLibrary";
+import { findStoryRecord, listStoryRecords, loadPinnedStory, loadStoryRecord, removeStoryRecord, saveStoryRecord } from "./storyLibrary";
 import type { LoadedStory, PersistedStoryRuntime } from "./types";
 
 // Which story this chat plays and where that copy comes from (spec addendum §Story identity). Split
@@ -14,6 +14,18 @@ export interface StorySelectionDeps {
   setStatus: (status: string) => void;
   isLoaded: (id: string) => boolean;
   loadedFallback: () => LoadedStory | null;
+}
+
+/** Checkpoint entries live in global lorebooks, so any story this install plays (and the one this
+ * chat is leaving) may have left some on — after a chat switch, or ST closing mid-story. Only the
+ * story now playing keeps its own; its path already decided those. */
+export async function releaseGatedWorldInfo(
+  effects: { releaseWorldInfo: (owners: unknown[], keep: unknown | null) => Promise<unknown> },
+  previous: NormalizedStoryV2 | null,
+  keep: NormalizedStoryV2 | null,
+): Promise<void> {
+  const owners = [...listStoryRecords().map((record) => record.raw), ...(previous ? [previous] : [])];
+  await effects.releaseWorldInfo(owners, keep).catch((error) => console.warn("[Story Orchestrator] could not release checkpoint world info", error));
 }
 
 export async function loadSelectedStory(deps: StorySelectionDeps): Promise<boolean> {

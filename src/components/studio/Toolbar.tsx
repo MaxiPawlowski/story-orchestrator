@@ -58,6 +58,9 @@ const Toolbar: React.FC<Props> = ({
       >
         Save As
       </button>
+      {/* v2.3 plan 09: the draft's state is stated, not implied by a disabled button — an author
+          who does not know the draft is unsaved is the author who loses it. */}
+      {hasChanges && <span id="so-draft-unsaved" className="st-pill px-1 text-[10px]" role="status">unsaved draft</span>}
       <button
         type="button"
         className="st-button secondary"

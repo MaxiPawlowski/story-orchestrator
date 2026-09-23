@@ -1,0 +1,81 @@
+1/28 eval ok 6ms
+1/28 eval -> {"groupId":"1789797226071","groupName":"Adolion - The Adventurer's Road","member":"Tobias.png","groupMembers":["Adolion Narrator.png","Tobias.png","Belle.png","Dalan.png"],"disabled":[],"api":"textgenerationwebui","sampler":{"preset":"Artemis v1.1 RP","temp":1,"top_p":1}}
+2/28 import_story ok 359ms
+3/28 slash ok 2212ms
+4/28 eval ok 5ms
+4/28 eval -> {"effect":"cast","status":"applied","target":{"kind":"cast","group":"1789797226071","member":"Tobias.png"},"before":{"disabled":false},"after":{"disabled":true}}
+5/28 expect ok 37ms
+6/28 slash ok 2900ms
+7/28 eval ok 4ms
+7/28 eval -> {"api":"textgenerationwebui","expected":"applied","presetStatus":"applied","reason":null,"cast":{"before":{"disabled":true},"after":{"disabled":false}}}
+8/28 expect ok 33ms
+9/28 slash ok 2219ms
+10/28 eval ok 5ms
+10/28 eval -> {"castRows":3,"shape":["road:false->true","hall:true->false","road:false->true"]}
+11/28 expect ok 34ms
+12/28 block_route ok 5ms
+13/28 block_route ok 3ms
+14/28 eval ok 225ms
+14/28 eval -> {"lastOutcome":"unsaved","reason":"the save request failed before the server answered","pending":3,"status":["Following along.","changes not saved, retrying"]}
+15/28 unblock_route ok 4ms
+16/28 eval ok 222ms
+16/28 eval -> {"lastOutcome":"applied","appliedBoundary":3,"boundary":3,"status":["Following along."]}
+17/28 slash ok 1652ms
+18/28 eval ok 4ms
+18/28 eval -> {"chatId":"2026-09-22@21h58m49s273ms","groupRestoredOnLeave":[],"ledgerRows":0}
+19/28 import_story ok 352ms
+20/28 slash ok 2228ms
+21/28 eval ok 4ms
+21/28 eval -> {"castRows":1,"checkpointId":"road","before":{"disabled":false},"after":{"disabled":true}}
+22/28 expect ok 27ms
+23/28 slash ok 2657ms
+24/28 expect ok 38ms
+25/28 slash ok 1676ms
+26/28 eval ok 5ms
+26/28 eval -> {"groupAfterSecondLeave":[],"chatId":"2026-09-22@21h58m56s239ms"}
+27/28 eval ok 4ms
+27/28 eval -> {"restored":{"preset":"Artemis v1.1 RP","temp":1,"top_p":1}}
+28/28 eval ok 4ms
+28/28 eval -> {"note":"what this run does NOT prove","limits":["that a real model would have ANY of this: no generation, extraction, expansion or judge call is made, because the state under test is the group, the ledger and the save seam","that a PRESET effect can be put back on leave: restoreEffectTarget refuses a preset row (the sampler belongs to the text-completion module and the ledger only records it), so the fixture restores the sampler itself and says so","that the ledger reconciles a row left `pending` by a crash, or that a hand-edit made between the write and the leave is refused: jest owns both, in effectLedger.test.ts","that the drawer renders these rows: the EffectLedgerPanel story covers the component and this run proves the store it reads"],"disabled":[],"member":"Tobias.png"}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T00-58-58-192Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 28,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-1cdb7a26"
+    ],
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-22@21h58m40s876ms",
+    "owned": [
+      "2026-09-22@21h58m40s876ms",
+      "2026-09-22@21h58m49s273ms",
+      "2026-09-22@21h58m56s239ms"
+    ],
+    "deleted": [
+      "2026-09-22@21h58m40s876ms",
+      "2026-09-22@21h58m49s273ms",
+      "2026-09-22@21h58m56s239ms"
+    ],
+    "notDeleted": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-22@21h58m56s239ms",
+    "currentGroupAtCleanup": "1789797226071",
+    "chatAfterCleanup": "2026-09-20@09h17m25s990ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

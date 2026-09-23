@@ -61,7 +61,7 @@ function buildCorpus(): { entries: MemoryEntry[]; bases: Array<{ name: string; t
 function consolidate(state: MemoryStoreState): MemoryStoreState {
   const active = state.entries.filter((entry) => !entry.supersededBy && !entry.foldedInto);
   const result = consolidateTier(active, buildJaccardMatchSets(active));
-  return markContradicted(applyConsolidation(state, result), result.uncertain);
+  return markContradicted(applyConsolidation(state, result, { messageId: 1 }), result.uncertain);
 }
 
 describe("long-fixture memory hygiene replay", () => {

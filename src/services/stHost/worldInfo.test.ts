@@ -161,15 +161,26 @@ describe("writes resolve the listed name", () => {
 
 describe("createLorebook (wizard)", () => {
   it("creates and switches the book on globally", async () => {
-    expect(await createLorebook("SO-J9 Lore")).toEqual({ created: true, activated: true });
+    expect(await createLorebook("SO-J9 Lore")).toEqual({ ok: true, name: "SO-J9 Lore", created: true });
     expect(st.selected).toEqual(["SO-J9 Lore"]);
   });
 
   it("never re-creates a book that exists", async () => {
     putOnDisk("SO-J9 Lore", [entry(0, "Kept")]);
     st.worldNames = ["SO-J9 Lore"];
-    expect(await createLorebook("SO-J9 Lore")).toEqual({ created: false, activated: true });
+    expect(await createLorebook("SO-J9 Lore")).toEqual({ ok: true, name: "SO-J9 Lore", created: false });
     expect(st.disk.get("SO-J9 Lore")!.entries[0].comment).toBe("Kept");
+  });
+
+  // v2.3 plan 06: a book that exists but will not stay selected is a FAILURE for the caller, because
+  // a story's `requirements.lorebooks` is satisfied only by the globally selected books — so a
+  // wizard that reported success here would leave a requirement green over a book the story cannot
+  // read (this is the shape a real failure had before the typed result).
+  it("reports a failure when the book will not stay switched on", async () => {
+    const original = st.selected.push.bind(st.selected);
+    st.selected.push = () => 0;
+    expect(await createLorebook("SO-J9 Lore")).toEqual({ ok: false, reason: "\"SO-J9 Lore\" did not stay selected" });
+    st.selected.push = original;
   });
 });
 

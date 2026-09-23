@@ -1,16 +1,11 @@
-import { progressQualityForAnchor, thresholdFor, type GateLeaf, type GateNode, type NormalizedStoryV2, type PrimitiveValue, type ScaffoldingDelta } from "@engine/index";
+import { progressQualityForAnchor, thresholdFor, type GateLeaf, type GateNode, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
 import { callExtractionModel, type ExtractionClientOptions } from "@extraction/index";
 import { renderCriticPrompt } from "./prompts";
 import { parseCriticVerdict } from "./parse";
+import { outcomePaths } from "./paths";
 import type { CodeCheckResult, CriticVerdict, GeneratedBeat, PlannedExpansionInput } from "./types";
 
 const valuesEqual = (left: PrimitiveValue | undefined, right: PrimitiveValue) => left === right;
-
-const applyDeltas = (values: Record<string, PrimitiveValue>, deltas: ScaffoldingDelta[] | undefined) => {
-  const next = { ...values };
-  deltas?.forEach((delta) => { next[delta.q] = delta.v; });
-  return next;
-};
 
 const collectAndLeaves = (gate: GateNode, out: GateLeaf[]) => {
   if ("q" in gate) { out.push(gate); return; }
@@ -32,17 +27,20 @@ const leafSatisfiedBy = (leaf: GateLeaf, value: PrimitiveValue): boolean => {
 export function runCodeChecks(story: NormalizedStoryV2, input: PlannedExpansionInput, beats: GeneratedBeat[]): CodeCheckResult {
   const issues: string[] = [];
   const target = story.checkpointById[input.candidate.targetAnchorId];
-  let values = Object.fromEntries(input.deltas.map((delta) => [delta.q, delta.current]).filter((entry): entry is [string, PrimitiveValue] => entry[1] !== undefined));
+  const start = Object.fromEntries(input.deltas.map((delta) => [delta.q, delta.current]).filter((entry): entry is [string, PrimitiveValue] => entry[1] !== undefined));
   let progressTotal = 0;
   beats.forEach((beat, index) => {
-    const outcome = beat.outcomes[0];
-    values = applyDeltas(values, outcome?.deltas);
-    if (index < beats.length - 1) progressTotal += outcome?.progress?.amount ?? 0;
-    if (index === beats.length - 1 && outcome?.progress) issues.push("final anchor-entry transition must not carry progress increment");
+    const isFinal = index === beats.length - 1;
+    beat.outcomes.forEach((outcome) => {
+      if (isFinal && outcome.progress) issues.push("final anchor-entry transition must not carry progress increment");
+    });
+    if (!isFinal) progressTotal += Math.min(...beat.outcomes.map((outcome) => outcome.progress?.amount ?? 0));
   });
-  Object.entries(target.state_snapshot ?? {}).forEach(([key, targetValue]) => {
-    if (!valuesEqual(values[key], targetValue)) issues.push(`${key} does not bridge to target snapshot`);
-  });
+  const paths = outcomePaths(start, beats);
+  if (!paths.length) issues.push(`${beats.length} beats with this many outcomes have too many routes to check`);
+  const bridged = (path: Record<string, PrimitiveValue>) => Object.entries(target.state_snapshot ?? {}).filter(([key, targetValue]) => !valuesEqual(path[key], targetValue)).map(([key]) => key);
+  const brokenKeys = [...new Set(paths.flatMap(bridged))];
+  brokenKeys.forEach((key) => issues.push(`${key} does not bridge to target snapshot`));
   const threshold = thresholdFor(target);
   if (progressTotal < threshold) issues.push(`${progressQualityForAnchor(target.id)} increments ${progressTotal} < threshold ${threshold}`);
   if (beats.length < 2) issues.push("generated chain needs at least two beats so progress can apply before anchor entry");

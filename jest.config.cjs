@@ -22,5 +22,6 @@ module.exports = {
     "^@stagecraft/(.*)$": "<rootDir>/src/stagecraft/$1",
     "^@judge/(.*)$": "<rootDir>/src/judge/$1",
   },
+  reporters: ["default", "<rootDir>/scripts/jest-findings-reporter.cjs"],
   clearMocks: true,
 };

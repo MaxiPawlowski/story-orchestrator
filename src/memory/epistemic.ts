@@ -1,4 +1,5 @@
 import { jaccardSimilarity } from "./similarity";
+import { isLive, provenance as provenanceOf, withValidity, type ProvenanceSource } from "./provenance";
 import { EPISTEMIC_TAGS, generateMemoryId, type EpistemicEntry, type EpistemicTag, type ParsedEpistemicSignal } from "./types";
 
 export const EPISTEMIC_MIN_LENGTH = 3;
@@ -10,9 +11,26 @@ const PRIVATE_TAGS: EpistemicTag[] = ["knows", "suspects", "believes", "hiding"]
 
 const normalize = (value: string): string => value.trim().toLowerCase();
 
+// v2.3 plan 05: every row a pass writes says where it came from, so a consumer can tell a live
+// claim from one whose source message was rolled back.
+function withProvenance(ctx: EpistemicSignalContext, pass: string) {
+  return {
+    provenance: provenanceOf({
+      source: ctx.source ?? "extractor",
+      messageId: ctx.messageId ?? -1,
+      boundary: ctx.boundary,
+      pass: ctx.pass ?? pass,
+    }),
+  };
+}
+
 export interface EpistemicSignalContext {
   boundary: number;
   messageId?: number;
+  /** Which pass wrote it, e.g. "epistemic-pass" or "shared-read" (v2.3 plan 05). */
+  pass?: string;
+  /** Where the claim came from. Everything the extraction pipeline writes is extractor-sourced. */
+  source?: ProvenanceSource;
 }
 
 export interface ApplyEpistemicSignalsResult {
@@ -40,7 +58,7 @@ export function applyEpistemicSignals(
   const retired: EpistemicEntry[] = [];
   const next = entries.map((entry) => {
     if (retireSet.has(entry.id) && !entry.supersededBy) {
-      const superseded = { ...entry, supersededBy: marker };
+      const superseded = { ...entry, supersededBy: marker, retiredAt: { messageId: ctx.messageId ?? entry.messageId ?? 0, boundary: ctx.boundary } };
       retired.push(superseded);
       return superseded;
     }
@@ -56,6 +74,7 @@ export function applyEpistemicSignals(
     if ([...next, ...added].some((entry) => isDuplicate(entry, signal))) continue;
     added.push({
       id: generateMemoryId(),
+      ...withProvenance(ctx, `epistemic:${signal.tag}`),
       subject,
       tag: signal.tag,
       content,
@@ -68,8 +87,11 @@ export function applyEpistemicSignals(
   return { entries: [...next, ...added], added, retired };
 }
 
+// v2.3 plan 05: a quarantined row (its source message was rolled back, or a conflict it is part of
+// is unresolved) is not knowledge any more. It stays in the store so the author can see and
+// reconfirm it, and it reaches no prompt until then.
 export function activeEpistemic(entries: EpistemicEntry[]): EpistemicEntry[] {
-  return entries.filter((entry) => !entry.supersededBy);
+  return entries.filter((entry) => !entry.supersededBy && isLive(entry));
 }
 
 export function epistemicForSubject(entries: EpistemicEntry[], names: string[]): EpistemicEntry[] {
@@ -106,8 +128,26 @@ export function removeEpistemic(entries: EpistemicEntry[], id: string): Epistemi
   return entries.filter((entry) => entry.id !== id);
 }
 
+// v2.3 plan 04 (M4). Two things go: the beliefs the removed messages introduced, and the
+// retirements those messages performed — a reveal rolled back must un-retire what it retired.
+//
+// v2.3 plan 05 (M6): a pinned row is KEPT as a record but its source is gone, so it is quarantined
+// (`validity: "source-removed"`) and every consumer filters it out until the author reconfirms it.
+// Keeping it injected instead — the old behaviour — put a private fact whose evidence had been
+// edited away in front of the character it was meant to conceal from.
 export function rollbackEpistemic(entries: EpistemicEntry[], messageId: number): EpistemicEntry[] {
-  return entries.filter((entry) => entry.pinned || typeof entry.messageId !== "number" || entry.messageId < messageId);
+  return entries
+    .flatMap((entry): EpistemicEntry[] => {
+      const sourced = typeof entry.messageId === "number" && entry.messageId >= messageId;
+      if (!sourced) return [entry];
+      if (!entry.pinned) return [];
+      return [{ ...entry, ...withValidity(entry, "source-removed") }];
+    })
+    .map((entry) => {
+      if (!entry.retiredAt || entry.retiredAt.messageId < messageId) return entry;
+      const { supersededBy: _by, retiredAt: _at, ...rest } = entry;
+      return rest;
+    });
 }
 
 // Each character keeps its newest entries, so one talkative subject cannot fill the private block

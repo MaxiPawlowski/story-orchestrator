@@ -1,0 +1,89 @@
+{
+  "name": "plan05-pin-quarantine",
+  "objective": "v2.3 plan 05, the deterministic half of the J6 variant: a fact planted from a real message, PINNED, then its source message EDITED. The pin does not protect it from a source that no longer says it — the row goes `source-removed`, it leaves the injected facts block (excluded, not ranked lower), and the author's reconfirmation brings it back as `source: author`. Extraction is mocked on purpose here (the parser has its own live suites); the mechanism under test is the queue, the quarantine and the injection, none of which need a model. The real-LLM variant of this check is plan 05's live recipe — this file is plumbing, and it must never stand in for that gate.",
+  "steps": [
+    {
+      "import_story": {
+        "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
+      }
+    },
+    {
+      "ui": {
+        "action": "select-profile"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0 }); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { cadence: 0 };",
+      "log": true
+    },
+    {
+      "send": "I shoulder past the drinkers and read the postings on the board."
+    },
+    {
+      "extract": {
+        "debugResponse": "FACT importance=2 text=\"The Sun Ruins posting promises a sealed door under the sand.\" evidence=\"I shoulder past the drinkers and read the postings on the board.\"",
+        "reason": "cadence"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const facts = rt.getSnapshot().memory.entries.filter((entry) => entry.tier === 'facts' && entry.text.includes('sealed door')); if (facts.length !== 1) throw new Error(`the planted fact did not land once: ${JSON.stringify(rt.getSnapshot().memory.entries.filter((e) => e.tier === 'facts').map((e) => e.text))}`); const fact = facts[0]; if (fact.messageId === undefined || fact.provenance?.validity !== 'live') throw new Error(`the fact has no live envelope or no source message: ${JSON.stringify(fact.provenance)}`); const engineLast = rt.getEngineState().lastMessageId; if (fact.messageId !== engineLast) throw new Error(`the fact's source message is ${fact.messageId} but the engine's last consumed message is ${engineLast}: the edit step below must name the message that actually carries this fact, so this check refuses rather than editing the wrong one`); rt.setMemoryPinned(fact.id, true); const pinned = rt.getSnapshot().memory.entries.find((entry) => entry.id === fact.id); if (!pinned?.pinned) throw new Error(`the pin did not stick: ${JSON.stringify(pinned)}`); globalThis.__p05Fact = fact.id; return { id: fact.id, sourceMessageId: fact.messageId, provenance: fact.provenance, characterId: fact.characterId ?? null, members: rt.getEnabledCharacterIds?.() ?? [], speaker: rt.getActiveSpeakerId?.() ?? null };",
+      "log": true
+    },
+    {
+      "expect": {
+        "payloadContains": [
+          {
+            "key": "story_orchestrator_memory_facts",
+            "text": "sealed door under the sand"
+          }
+        ]
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const value = String(rt.getMemoryInjectionBlocks().facts ?? ''); if (!value.includes('sealed door')) throw new Error(`the pinned fact is not in the injected facts block (the payload expectation above should have caught this): ${value.slice(0, 400)}`); return { present: true, chars: value.length };",
+      "log": true
+    },
+    {
+      "edit": {
+        "messageId": "engine",
+        "text": "I read only the shipping notices and leave the postings alone."
+      }
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const row = rt.getSnapshot().memory.entries.find((entry) => entry.id === globalThis.__p05Fact); if (!row) throw new Error('the pinned fact was deleted by the rollback instead of being quarantined — a pin is retention, and the row should still exist'); if (row.provenance?.validity !== 'source-removed') throw new Error(`the edit did not quarantine the fact: ${JSON.stringify(row.provenance)}`); if (!row.pinned) throw new Error(`the pin was lost: ${JSON.stringify(row)}`); const value = String(rt.getMemoryInjectionBlocks().facts ?? ''); if (value.includes('sealed door')) throw new Error(`a quarantined row is still steering replies — it must be EXCLUDED, not ranked lower: ${value.slice(0, 400)}`); const liveFacts = rt.getSnapshot().memory.entries.filter((entry) => entry.tier === 'facts' && (!entry.provenance || entry.provenance.validity === 'live') && !entry.supersededBy && !entry.foldedInto); if (liveFacts.length) throw new Error(`the block is empty for a reason OTHER than the quarantine: ${liveFacts.length} live fact(s) exist and none is injected — an empty block is not by itself evidence of exclusion`); return { validity: row.provenance.validity, pinned: row.pinned, stillInjected: false, liveFacts: 0 };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const row = rt.getSnapshot().memory.entries.find((entry) => entry.id === globalThis.__p05Fact); if (!row || row.provenance?.validity !== 'source-removed' || !row.pinned) throw new Error(`the quarantined record must still be in the store, source-removed, with its pin: ${JSON.stringify(row?.provenance)}`); const value = String(rt.getMemoryInjectionBlocks().facts ?? ''); if (value) throw new Error(`the quarantined record left a facts block behind: ${value.slice(0, 200)}`); return { excluded: true, note: 'the exclusion half, asserted where it is decidable. This was an expect.payloadAbsent and could not be: quarantining the chat one fact leaves the tier with NOTHING live, so the block is CLEARED rather than present-without-the-text -- and the harness deliberately refuses to read a missing block as an absent needle (an empty ring or a missing block must never pass as \"the text is absent\"). The previous step supplies the non-vacuity: it asserts there are ZERO live facts, so the empty block is explained by the quarantine rather than by an unrelated emptiness' };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const queue = rt.getSnapshot().memory.conflicts ?? []; return { conflicts: queue.length, note: 'a source-removed row is listed as a quarantined row the author decides on, not as a two-sided conflict' };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; await rt.memoryActions.reconfirmMemoryEntry(globalThis.__p05Fact); const row = rt.getSnapshot().memory.entries.find((entry) => entry.id === globalThis.__p05Fact); if (!row) throw new Error('the reconfirmed row vanished'); if (row.provenance?.validity !== 'live') throw new Error(`reconfirmation did not make the row live again: ${JSON.stringify(row.provenance)}`); if (row.provenance?.source !== 'author') throw new Error(`the reconfirmed row must be the AUTHOR's claim, not the extractor's: ${JSON.stringify(row.provenance)}`); if (!row.provenance?.override) throw new Error(`the override that records who decided is missing: ${JSON.stringify(row.provenance)}`); const value = String(rt.getMemoryInjectionBlocks().facts ?? ''); if (!value.includes('sealed door')) throw new Error(`the reconfirmed fact is not back in the injected block: ${value.slice(0, 400)}`); return { provenance: row.provenance, back: true };",
+      "log": true
+    },
+    {
+      "expect": {
+        "payloadContains": [
+          {
+            "key": "story_orchestrator_memory_facts",
+            "text": "sealed door under the sand"
+          }
+        ]
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; return { note: 'what this run does NOT prove', limits: ['that the model would have written this fact in the first place (mocked here, live in the plan-05 recipe)', 'that the request the BACKEND received carried the block (the runtime ring is what this asserts; the live recipe reads the HTTP capture with st-payload last --member)'] };",
+      "log": true
+    }
+  ]
+}

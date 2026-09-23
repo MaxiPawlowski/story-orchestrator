@@ -1,0 +1,29 @@
+DIFF build.manifest.builtAt  "2026-09-23T00:44:01.116Z" -> "2026-09-23T00:58:08.262Z"
+DIFF build.manifest.bundleBytes  1552215 -> 1552329
+DIFF build.manifest.bundleSha256  "3d24386d51380485ca33a6f46ae64f56c9d814c8b954896c4aca6f64d846db71" -> "e1b26be43d48f8d37dbefb7403be89e920c7d0f09ced39d50feddc8eb5a7a328"
+DIFF build.manifest.fileSha256  "b8aaa910d7862273" -> "411c8244ed542128"
+DIFF build.manifest.sourceSha256  "c1b643e80a569e618816cdd91998537a9ba2b7c954e5f44a33ca16ae803c221c" -> "ac0e7dedc48520b81e69a2aaae3cbca212dc4303463d446aa1942fa88672b768"
+DIFF bundle.served.bytes  1552215 -> 1552329
+DIFF bundle.served.sha256  "3d24386d51380485ca33a6f46ae64f56c9d814c8b954896c4aca6f64d846db71" -> "e1b26be43d48f8d37dbefb7403be89e920c7d0f09ced39d50feddc8eb5a7a328"
+DIFF group.disabledMembers  -Tobias.png
+{
+  "baseline": ".debug/run-header-plan06-baseline.json",
+  "label": "diff-end",
+  "allow": [],
+  "differences": 8,
+  "progress": 0,
+  "blocking": 8,
+  "blockingPaths": [
+    "build.manifest.builtAt",
+    "build.manifest.bundleBytes",
+    "build.manifest.bundleSha256",
+    "build.manifest.fileSha256",
+    "build.manifest.sourceSha256",
+    "bundle.served.bytes",
+    "bundle.served.sha256",
+    "group.disabledMembers"
+  ],
+  "warnings": [],
+  "wrote": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\.debug\\run-header-diff-end.json",
+  "ok": false
+}

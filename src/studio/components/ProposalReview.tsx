@@ -1,6 +1,6 @@
 import React from "react";
 import { diffProposal, type ProposalResult } from "@copilot/index";
-import { emptyEnvironment, type ProvisioningEnvironment, type ProvisioningOp } from "@wizard/index";
+import { emptyEnvironment, entryKey, type ExistingEntry, type ProvisioningEnvironment, type ProvisioningOp } from "@wizard/index";
 import ProvisioningCard from "./ProvisioningCard";
 
 interface Props {
@@ -10,14 +10,16 @@ interface Props {
   onAcceptAll: () => void;
   onDismiss: () => void;
   environment?: ProvisioningEnvironment;
-  provisioningBusy?: number | null;
-  provisioningResults?: Record<number, { ok: boolean; message: string }>;
-  onProvision?: (index: number, op: ProvisioningOp) => void;
+  provisioningBusy?: string | number | null;
+  provisioningResults?: Record<string | number, { ok: boolean; message: string }>;
+  // Keyed by `entryKey(lorebook, comment)`. A missing key reads as "not resolved yet".
+  entryPreviews?: Record<string, ExistingEntry | null>;
+  onProvision?: (index: string | number, op: ProvisioningOp) => void;
 }
 
 const ACTION_LABEL: Record<string, string> = { add: "add", update: "change", remove: "remove" };
 
-const ProposalReview: React.FC<Props> = ({ result, acceptedIndices, onAccept, onAcceptAll, onDismiss, environment, provisioningBusy = null, provisioningResults = {}, onProvision }) => {
+const ProposalReview: React.FC<Props> = ({ result, acceptedIndices, onAccept, onAcceptAll, onDismiss, environment, provisioningBusy = null, provisioningResults = {}, entryPreviews = {}, onProvision }) => {
   if (result.status === "failed") {
     return (
       <section className="st-subpanel flex flex-col gap-2 p-2" aria-label="Copilot proposal">
@@ -63,24 +65,33 @@ const ProposalReview: React.FC<Props> = ({ result, acceptedIndices, onAccept, on
       {diff.provisioning.length > 0 && (
         <div className="flex flex-col gap-2" data-so="provisioning" aria-label="Provisioning steps">
           <span className="text-[11px] st-muted">These create things in SillyTavern. Review each one — they are not part of Accept all.</span>
-          {diff.provisioning.map((item) => (
-            <ProvisioningCard
-              key={item.index}
-              op={item.op as ProvisioningOp}
-              environment={environment ?? emptyEnvironment()}
-              applied={provisioningResults[item.index]?.ok === true}
-              result={provisioningResults[item.index]?.message ?? null}
-              failed={provisioningResults[item.index]?.ok === false}
-              busy={provisioningBusy === item.index}
-              onApply={(op) => onProvision?.(item.index, op)}
-            />
-          ))}
+          {diff.provisioning.map((item) => {
+            const op = item.op as ProvisioningOp;
+            return (
+              <ProvisioningCard
+                key={item.index}
+                op={op}
+                environment={environment ?? emptyEnvironment()}
+                applied={provisioningResults[item.index]?.ok === true}
+                result={provisioningResults[item.index]?.message ?? null}
+                failed={provisioningResults[item.index]?.ok === false}
+                busy={provisioningBusy === item.index}
+                existing={op.kind === "upsertLorebookEntry" ? entryPreviews[entryKey(op.lorebook, op.comment)] : undefined}
+                onApply={(next) => onProvision?.(item.index, next)}
+              />
+            );
+          })}
         </div>
       )}
       {warnings.length ? (
         <div className="flex flex-col gap-0.5" aria-label="Proposal warnings">
           <span className="text-[11px] st-muted">Warnings ({warnings.length})</span>
-          {warnings.map((entry, index) => <span key={index} className="text-[11px] st-muted">{entry.message}</span>)}
+          {warnings.map((entry, index) => (
+            <span key={index} className="text-[11px] st-muted">
+              <span data-so="diagnostic-consequence" className="opacity-100">{entry.consequence ?? entry.message}</span>
+              {entry.consequence ? ` — ${entry.message}` : ""}
+            </span>
+          ))}
         </div>
       ) : null}
     </section>

@@ -22,8 +22,14 @@ describe("typed read core (v2.2 plan 06)", () => {
       q({ key: "code", type: "bool", source: "code", read_as: "choice" }),
     ], window, story);
     expect(plan).not.toBeNull();
-    expect(Object.keys(plan!.request.questions)).toEqual(["q:riddle", "evidence:riddle", "q:passed", "evidence:passed", "q:fee", "evidence:fee", "presence:respect", "q:respect", "evidence:respect"]);
-    expect((plan!.request.questions["q:riddle"] as { criteria: Record<string, unknown> }).criteria).toEqual({ moon: { what: "The player answers the moon", not_for: "A companion suggesting it" }, wrong: null, "not shown": "The transcript does not settle this" });
+    expect(Object.keys(plan!.request.questions)).toEqual(["q:riddle", "q:passed", "q:fee", "presence:respect", "q:respect", "evidence:respect"]);
+    expect((plan!.request.questions["q:riddle"] as { criteria: Record<string, unknown> }).criteria).toEqual({
+      "moon in msg_4": { what: "The player answers the moon", not_for: "A companion suggesting it" },
+      "moon in msg_5": { what: "The player answers the moon", not_for: "A companion suggesting it" },
+      "wrong in msg_4": null,
+      "wrong in msg_5": null,
+      "not shown": "The transcript does not settle this",
+    });
     expect(Object.keys((plan!.request.questions["q:fee"] as { criteria: Record<string, unknown> }).criteria)).toEqual(['"250" in msg_4', "none"]);
     expect(plan!.request.state).toMatchObject({ story: { title: "Sun Ruins", current_scene: "The Gate", scene_goal: "Enter." } });
     expect(validateJudgeRequest(plan!.request)).toEqual([]);
@@ -34,9 +40,8 @@ describe("typed read core (v2.2 plan 06)", () => {
     const qualities = [q({ key: "riddle", type: "enum", values: ["moon", "wrong"], read_as: "choice" }), q({ key: "passed", type: "bool", read_as: "choice", latching: true }), q({ key: "fee", type: "int", read_as: "stated" })];
     const plan = buildTypedPlan(qualities, window, story)!;
     const answers: Record<string, JudgeAnswer> = {
-      "q:riddle": { type: "choice", choice: "moon", confidence: 0.85, probabilities: {} },
-      "evidence:riddle": { type: "choice", choice: "msg_4", confidence: 0.9, probabilities: {} },
-      "q:passed": { type: "choice", choice: "yes", confidence: 0.85, probabilities: {} },
+      "q:riddle": { type: "choice", choice: "moon in msg_4", confidence: 0.85, probabilities: {} },
+      "q:passed": { type: "choice", choice: "yes in msg_5", confidence: 0.85, probabilities: {} },
       "q:fee": { type: "choice", choice: '"250" in msg_4', confidence: 0.97, probabilities: {} },
     };
     const read = readTypedDeltas(answers, plan, qualities, window);
@@ -53,6 +58,16 @@ describe("typed read core (v2.2 plan 06)", () => {
     const plan = buildTypedPlan(qualities, window.slice(0, 1), story)!;
     const read = readTypedDeltas({ "q:passed": { type: "choice", choice: "not shown", confidence: 0.99, probabilities: {} } }, plan, qualities, window.slice(0, 1));
     expect(read).toEqual({ deltas: [], answered: ["passed"] });
+  });
+
+  it("a choice cannot pair one value with another message's evidence", () => {
+    const qualities = [q({ key: "passed", type: "bool", read_as: "choice" })];
+    const plan = buildTypedPlan(qualities, window, story)!;
+    const criteria = (plan.request.questions["q:passed"] as { criteria: Record<string, unknown> }).criteria;
+    expect(Object.keys(criteria)).toEqual(["yes in msg_4", "yes in msg_5", "no in msg_4", "no in msg_5", "not shown"]);
+    expect(plan.request.questions["evidence:passed"]).toBeUndefined();
+    const read = readTypedDeltas({ "q:passed": { type: "choice", choice: "yes in msg_5", confidence: 0.95, probabilities: {} } }, plan, qualities, window);
+    expect(read.deltas).toEqual([{ q: "passed", v: true, confidence: 0.95, evidence: window[1].text, messageId: 5 }]);
   });
 });
 

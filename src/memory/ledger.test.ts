@@ -46,11 +46,26 @@ describe("applyLedgerSignals", () => {
     expect(result[0]).toMatchObject({ entity: "Kael", field: "location", value: "dungeon", messageId: 5 });
   });
 
-  it("merges same entity+field newest-wins", () => {
+  // v2.3 plan 04 (M3): same entity+field is append-only — the change is a new VERSION, and the
+  // newest one wins where the ledger is READ. An in-place overwrite destroys the value a rollback
+  // has to restore, which is exactly what M3 recorded.
+  it("keeps a version per change and reads the newest", () => {
     const first = applyLedgerSignals([], [sig("Kael", "location", "dungeon")], noBound, ctx(1));
     const second = applyLedgerSignals(first, [sig("kael", "location", "courtyard")], noBound, ctx(2));
-    expect(second).toHaveLength(1);
-    expect(second[0].value).toBe("courtyard");
+    const versions = second.filter((entry) => entry.field === "location");
+    expect(versions).toHaveLength(2);
+    expect(versions.at(-1)).toMatchObject({ value: "courtyard", supersedes: first[0].id });
+    expect(versions[0].value).toBe("dungeon");
+    expect(buildLedgerView(second, [], {}, {}).map((row) => row.value)).toEqual(["courtyard"]);
+  });
+
+  it("a rollback restores the prior value instead of dropping the row", () => {
+    const first = applyLedgerSignals([], [sig("Kael", "location", "dungeon")], noBound, ctx(1, 1));
+    const second = applyLedgerSignals(first, [sig("kael", "location", "courtyard")], noBound, ctx(2, 2));
+    const rolled = rollbackLedger(second, 2);
+    expect(rolled).toHaveLength(1);
+    expect(rolled[0].value).toBe("dungeon");
+    expect(buildLedgerView(rolled, [], {}, {}).map((row) => row.value)).toEqual(["dungeon"]);
   });
 
   it("drops signals for bound entity|field (single writer)", () => {

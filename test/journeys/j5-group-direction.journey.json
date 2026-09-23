@@ -99,7 +99,7 @@
       "steps": [
         {
           "send_generate": {
-            "text": "Ponticius, what exactly are we being paid to bring back?",
+            "text": "What exactly are we being paid to bring back?",
             "timeoutMs": 300000
           }
         },
@@ -110,7 +110,10 @@
           }
         },
         {
-          "eval": "const decisions = globalThis.storyOrchestratorRuntime.getTalkState().decisions; if (!decisions.length) throw new Error('no talk decision recorded for a talk-control group turn'); return decisions[decisions.length - 1];"
+          "eval": "const decisions = globalThis.storyOrchestratorRuntime.getTalkState().decisions; if (!decisions.length) throw new Error('no talk decision recorded for a talk-control group turn'); const decision = decisions[decisions.length - 1]; if (decision.source !== 'director') throw new Error(`the neutral turn did not exercise the LLM director: ${JSON.stringify(decision)}`); if (!(decision.latencyMs > 0)) throw new Error(`the director decision recorded no latency: ${JSON.stringify(decision)}`); return decision;",
+          "log": true,
+          "attempts": 3,
+          "retryBack": 2
         }
       ]
     },
@@ -150,6 +153,40 @@
         },
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const entries = rt.getEpistemic().filter((e) => !e.supersededBy); const enabledIds = new Set(rt.getEnabledCharacterIds?.() ?? []); const rosterId = (name) => rt.rosterIdForName?.(name) ?? null; const isEnabled = (name) => { const id = rosterId(name); return Boolean(id) && enabledIds.has(id); }; const carded = entries.filter((e) => (ctx.characters ?? []).some((c) => c.name === e.subject)); /* private blocks are staged only for ENABLED roster members, and J5.2's cast_changes disables some: drafting a disabled member injects an empty block BY DESIGN, so choosing subjects without this filter made the check fail on whichever member the epistemic pass happened to name (F6, 2026-09-20) */ const named = carded.filter((e) => isEnabled(e.subject)); const subjects = [...new Set(named.map((e) => e.subject))]; if (subjects.length < 2) throw new Error(`fewer than two epistemic subjects are enabled roster members with cards: ${JSON.stringify({ all: [...new Set(entries.map((e) => e.subject))], carded: [...new Set(carded.map((e) => e.subject))], enabled: [...enabledIds] })}`); const read = () => ctx.extensionPrompts?.story_orchestrator_epistemic?.value ?? ''; const blocks = {}; for (const subject of subjects.slice(0, 2)) { const chId = (ctx.characters ?? []).findIndex((c) => c.name === subject); rt.onMemberDrafted(chId); const block = read(); const own = named.filter((e) => e.subject === subject); if (!own.some((e) => block.includes(e.content))) throw new Error(`${subject} was drafted but their own private block was not injected: ${JSON.stringify({ block, own: own.map((e) => e.content) })}`); const lines = block.split('\\n').filter((line) => line.startsWith('- ')); const foreign = lines.filter((line) => !own.some((e) => line.includes(e.content))); if (foreign.length) throw new Error(`${subject}'s private block carries lines that are not theirs: ${JSON.stringify({ foreign, own: own.map((e) => e.tag + ': ' + e.content) })}`); blocks[subject] = block; } rt.clearPrivateInjection(); const [a, b] = Object.keys(blocks); if (blocks[a] === blocks[b]) throw new Error(`both members were injected the same private block, so it is not per-speaker: ${blocks[a]}`); return { subjects: [a, b], lengths: { [a]: blocks[a].length, [b]: blocks[b].length } };"
+        }
+      ]
+    },
+    {
+      "id": "J5.8",
+      "mode": "auto",
+      "findings": [
+        "U3"
+      ],
+      "goal": "final-payload privacy: with the party's private knowledge established first, the request ST actually sends for an enabled member's draft carries the knowledge that member held BEFORE the draft inside its private block, and never another member's",
+      "requires": [
+        "epistemic-ledger"
+      ],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; rt.setEpistemicLedgerCapable(true); rt.setMemorySettings({ enabled: true }); return rt.getSnapshot().memory.settings.epistemicLedgerCapable;"
+        },
+        {
+          "slash": "/send compact=true Ponticius quietly pocketed the sealed client letter and told nobody in the hall that the job comes from the Duke's steward; he means to keep that from Arin. Arin, meanwhile, saw the north road wash out on her way in and has said nothing about it to Ponticius."
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const chat = SillyTavern.getContext().chat; const subjects = () => new Set(rt.getEpistemic().filter((e) => !e.supersededBy).map((e) => e.subject)); for (let attempt = 0; attempt < 2 && subjects().size < 2; attempt += 1) { const to = chat.length - 1; const from = Math.max(0, to - 3); await rt.runEpistemicLedgerPass({ id: `j5-epistemic-${attempt}`, createdAt: new Date().toISOString(), priority: 0, reason: 'manual', contractHash: 'j5', scope: [], window: { from, to }, prompt: 'j5', rawResponse: 'j5', acceptedDeltas: [], rejected: [], sceneBreak: { at: to, reason: 'divider' } }); } const entries = rt.getEpistemic().filter((e) => !e.supersededBy); const found = [...subjects()]; if (found.length < 2) throw new Error(`the real epistemic pass produced fewer than two subjects: ${JSON.stringify(entries.map((e) => e.tag + ':' + e.subject))}`); return { subjects: found, tags: entries.map((e) => e.tag + ':' + e.subject) };"
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); rt.clearPrivateInjection(); const PRIVATE = ['knows','suspects','believes','hiding']; const enabledIds = new Set(rt.getEnabledCharacterIds?.() ?? []); const eligible = rt.getEpistemic().filter((e) => !e.supersededBy && PRIVATE.includes(e.tag) && enabledIds.has(rt.rosterIdForName?.(e.subject))).map((e) => e.subject); const state = globalThis.__soPrivateProbe = { installed: true, requests: [], drafted: null, eligible: [...new Set(eligible)], before: rt.getEpistemic().filter((e) => !e.supersededBy).map((e) => ({ subject: e.subject, tag: e.tag, content: e.content })) }; const original = globalThis.fetch; globalThis.fetch = async function (input, init = {}) { const url = typeof input === 'string' ? input : (input && input.url); if (String(url).includes('/api/backends/')) state.requests.push({ url: String(url), member: state.drafted, block: rt.getAppliedEpistemicBlock(), body: typeof init.body === 'string' ? init.body : JSON.stringify(init.body ?? null) }); return original.apply(this, arguments); }; ctx.eventSource.on(ctx.eventTypes.GROUP_MEMBER_DRAFTED, (member) => { state.drafted = member; }); ctx.eventSource.on(ctx.eventTypes.GENERATION_ENDED, () => { state.drafted = null; }); return { eligible: state.eligible };"
+        },
+        {
+          "slash": "/trigger await=true Ponticius"
+        },
+        {
+          "slash": "/trigger await=true Arin"
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const state = globalThis.__soPrivateProbe; if (!state) throw new Error('the recorder was never installed'); const PRIVATE = ['knows','suspects','believes','hiding']; const named = (member) => { const id = Array.isArray(member) ? member[0] : member; return (ctx.characters ?? [])[id]?.name ?? null; }; const HEADER = 'Your private knowledge'; const NL = String.fromCharCode(10); const BSLASH = String.fromCharCode(92); const flatten = (body) => String(body ?? '').split(BSLASH + 'n').join(NL); const blockOf = (body) => { const flat = flatten(body); const at = flat.indexOf(HEADER); if (at < 0) return null; const lines = flat.slice(at).split(NL); const taken = []; for (const line of lines) { if (taken.length && !line.startsWith('- ')) break; taken.push(line); } return taken.join(NL); }; const staged = state.before.filter((e) => PRIVATE.includes(e.tag) && e.content); const contentFor = (subject) => staged.filter((e) => e.subject === subject).map((e) => e.content); const eligible = new Set(state.eligible); const checked = []; const excluded = []; for (const request of state.requests) { const member = named(request.member); if (!member) continue; const own = contentFor(member); if (!own.length) { excluded.push({ member, why: 'no private knowledge was staged before the draft' }); continue; } if (!eligible.has(member)) { excluded.push({ member, why: 'not an enabled roster member, and a disabled one is injected an empty block by design (J5.6)' }); continue; } const foreign = staged.filter((e) => e.subject !== member).map((e) => ({ subject: e.subject, content: e.content })); const block = blockOf(request.body); if (!block) throw new Error(member + ': it is an enabled member holding pre-existing private knowledge and the request ST sent for its draft carries no private block at all :: ' + JSON.stringify({ member, own, eligible: [...eligible] })); const missing = own.filter((text) => !block.includes(text)); if (missing.length) throw new Error(member + ': the private block in the request ST sent for its own draft is missing knowledge it held BEFORE the draft :: ' + JSON.stringify({ member, missing })); const leaked = foreign.filter((other) => block.includes(other.content)); if (leaked.length) throw new Error(member + ': the private block in the request ST sent carries another member\\'s private knowledge :: ' + JSON.stringify({ member, leaked, block })); checked.push({ member, own: own.length, foreign: foreign.length }); } if (!checked.length) throw new Error('no captured request came from an enabled member holding pre-existing private knowledge, so nothing about the final payload was tested :: ' + JSON.stringify({ eligible: [...eligible], staged: staged.map((e) => e.subject + ':' + e.tag), excluded })); return { checked, excluded };"
         }
       ]
     },

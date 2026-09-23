@@ -14,8 +14,8 @@ describe("continuity warden core (v2.2 plan 05)", () => {
     const facts = Array.from({ length: CONTINUITY_MAX_FACTS + 5 }, (_, index) => `Fact ${index}.`);
     const request = buildContinuityRequest({ speaker: "Arin", text: "Hi." }, facts);
     expect(Object.keys(request.questions)).toHaveLength(CONTINUITY_MAX_FACTS);
-    expect(request.state).toEqual({ established_facts: facts.slice(0, CONTINUITY_MAX_FACTS), reply: { speaker: "Arin", text: "Hi." } });
-    expect(request.questions["fact:0"].instructions).toBe('Does `reply` contradict this established fact: "Fact 0."?');
+    expect(request.state).toEqual({ established_facts: Object.fromEntries(facts.slice(0, CONTINUITY_MAX_FACTS).map((fact, index) => [`fact_${index}`, fact])), reply: { speaker: "Arin", text: "Hi." } });
+    expect(request.questions["fact:0"].instructions).toBe("Does `reply` contradict `established_facts.fact_0`?");
     expect(validateJudgeRequest(request)).toEqual([]);
   });
 

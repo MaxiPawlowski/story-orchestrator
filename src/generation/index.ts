@@ -3,6 +3,7 @@ export * from "./delta";
 export * from "./generate";
 export * from "./merge";
 export * from "./parse";
+export * from "./paths";
 export * from "./planner";
 export * from "./prompts";
 export * from "./revalidate";

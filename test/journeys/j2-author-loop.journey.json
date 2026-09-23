@@ -13,7 +13,7 @@
     "deleteChat": true
   },
   "capabilities": {
-    "studio-open": "Boolean(document.querySelector('#so-studio-modal'))",
+    "studio-open": "typeof globalThis.storyOrchestratorStudioDraft?.getState === \"function\" || Boolean(document.querySelector(\"#so-studio-modal\"))",
     "studio-roster-editor": "(globalThis.storyOrchestratorStudioTabs ?? []).includes('roster')",
     "studio-requirements-editor": "(globalThis.storyOrchestratorStudioTabs ?? []).includes('story')",
     "story-identity": "'storyId' in (globalThis.storyOrchestratorRuntime?.getSnapshot() ?? {})",
@@ -437,6 +437,88 @@
       ],
       "prompt": "After you edited the story mid-play, did the running chat behave the way you expected — including when it asked you to choose?",
       "anchors": "1 = lost my progress · 3 = confusing but recoverable · 5 = exactly as expected"
+    },
+    {
+      "id": "J2.12",
+      "mode": "auto",
+      "findings": [
+        "R7",
+        "R7-live"
+      ],
+      "goal": "a hostile title in an invalidating update renders as text (scoped to our .popup-content: ST every popup ships its own hidden crop <img>) and the popup still returns its choice",
+      "requires": [
+        "studio-open",
+        "hot-swap"
+      ],
+      "steps": [
+        {
+          "ui": {
+            "action": "open-studio"
+          }
+        },
+        {
+          "eval": "globalThis.storyOrchestratorStudioDraft.getState().mutate((d) => ({ ...d, title: \"Sun Ruins <img src=x onerror=\\\"globalThis.__j2Xss=(globalThis.__j2Xss||0)+1\\\"> — \\\\\\\"quoted\\\\\\\" finale\", qualities: [...d.qualities, { key: \"j2_hostile\", type: \"string\", source: \"extractor\", rubric: \"Journey J2 hostile-title probe.\" }] })); return { title: globalThis.storyOrchestratorStudioDraft.getState().draft.title };",
+          "log": true
+        },
+        {
+          "studio_save": "keep"
+        },
+        {
+          "ui": {
+            "action": "close-studio"
+          }
+        },
+        {
+          "slash": "/cp set j2_hostile carried"
+        },
+        {
+          "eval": "const snapshot = globalThis.storyOrchestratorRuntime.getSnapshot(); if (snapshot.blackboard.j2_hostile !== \"carried\") throw new Error(`hostile probe did not land: ${JSON.stringify(snapshot.blackboard.j2_hostile)}`); return { j2_hostile: snapshot.blackboard.j2_hostile };"
+        },
+        {
+          "ui": {
+            "action": "open-studio"
+          }
+        },
+        {
+          "eval": "globalThis.storyOrchestratorStudioDraft.getState().mutate((d) => ({ ...d, qualities: d.qualities.filter((q) => q.key !== \"j2_hostile\") })); return { removed: \"j2_hostile\" };"
+        },
+        {
+          "ui": {
+            "action": "studio-save"
+          },
+          "log": true
+        },
+        {
+          "expect_ui": {
+            "selector": "dialog[open]:not(#so-studio-modal)",
+            "contains": [
+              "<img src=x onerror=",
+              "Sun Ruins",
+              "quoted"
+            ],
+            "timeoutMs": 20000
+          }
+        },
+        {
+          "eval": "const dialog = document.querySelector(\"dialog[open]:not(#so-studio-modal)\"); if (!dialog) throw new Error(\"the invalidation popup never opened\"); const content = dialog.querySelector(\".popup-content\") ?? dialog; const injected = content.querySelector(\"img, script, iframe, object, embed\"); if (injected) throw new Error(`the hostile title was parsed as markup: <${injected.tagName.toLowerCase()}>`); if (globalThis.__j2Xss !== undefined) throw new Error(\"the hostile payload executed\"); const buttons = [\".popup-button-ok\", \".popup-button-custom\", \".popup-button-cancel\"].filter((selector) => dialog.querySelector(selector)); return { text: content.textContent.slice(0, 200), escaped: content.innerHTML.includes(\"&lt;img\"), buttons };",
+          "log": true
+        },
+        {
+          "eval": "const dialog = document.querySelector(\"dialog[open]:not(#so-studio-modal)\"); if (!dialog) throw new Error(\"the popup closed before a choice was made\"); const before = globalThis.storyOrchestratorRuntime.getLastStoryUpdate()?.at ?? null; dialog.querySelector(\".popup-button-ok\").click(); const deadline = Date.now() + 15000; while (Date.now() < deadline) { const at = globalThis.storyOrchestratorRuntime.getLastStoryUpdate()?.at ?? null; if (at !== before) break; await new Promise((done) => setTimeout(done, 150)); } const update = globalThis.storyOrchestratorRuntime.getLastStoryUpdate(); if (update?.choice !== \"keep\") throw new Error(`the popup choice did not reach the runtime: ${JSON.stringify(update)}`); if (update?.classification !== \"invalidating\") throw new Error(`expected an invalidating update, got ${update?.classification}`); if (!(update?.dropped ?? []).includes(\"j2_hostile\")) throw new Error(`the orphaned value survived: ${JSON.stringify(update?.dropped)}`); const snapshot = globalThis.storyOrchestratorRuntime.getSnapshot(); if (\"j2_hostile\" in snapshot.blackboard) throw new Error(\"orphaned value still on the blackboard\"); return { choice: update.choice, classification: update.classification, dropped: update.dropped, title: snapshot.storyTitle ?? null };",
+          "log": true
+        },
+        {
+          "eval": "globalThis.storyOrchestratorStudioDraft.getState().mutate((d) => ({ ...d, title: \"Quest for the Sun Ruins\" })); return { restored: \"Quest for the Sun Ruins\" };"
+        },
+        {
+          "studio_save": "keep"
+        },
+        {
+          "ui": {
+            "action": "close-studio"
+          }
+        }
+      ]
     }
   ]
 }

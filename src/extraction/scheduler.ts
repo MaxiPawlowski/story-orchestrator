@@ -38,6 +38,11 @@ export interface SchedulerHost {
   applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memory: ParsedMemoryLine[], arcs: ParsedArcSignal[], epistemic?: ParsedEpistemicSignal[], ledger?: ParsedLedgerSignal[]): Promise<void>;
   onSchedulerChange(): void;
   pauseExtraction(message: string): void;
+  /**
+   * v2.3 plan 03 §Abort and cleanup: which world this work belongs to. A job that fails after its
+   * world ended must not pause extraction for the world that replaced it — pausing is install-wide.
+   */
+  epoch?: () => number;
 }
 
 export class ExtractionScheduler {
@@ -50,6 +55,29 @@ export class ExtractionScheduler {
   private cadenceBoundary = -1;
 
   constructor(private readonly host: SchedulerHost) {}
+
+  /**
+   * v2.3 plan 03: everything queued belonged to a world that no longer exists — a story load,
+   * select, restart, clear, or a chat change.
+   *
+   * The ownership tokens already stop these jobs *writing* anything. This stops them *running*:
+   * otherwise each one still builds a prompt from the new chat's window and spends a model call to
+   * produce a result that is then discarded.
+   *
+   * It does not touch `inFlight`. A job that is already awaiting the model cannot be recalled by
+   * setting a flag, and clearing the flag would let a second job start beside it; the in-flight one
+   * finishes and its result is refused at the write edge, which is what the tokens are for.
+   */
+  clearForNewWorld() {
+    this.queue.length = 0;
+    this.heavyQueue.length = 0;
+    // Boundary numbers restart with a new story, so a carried-over cursor makes the new world look
+    // as though its cadence read had already happened.
+    this.cadenceBoundary = -1;
+    this.lastError = null;
+    this.lastHeavyError = null;
+    this.host.onSchedulerChange();
+  }
 
   private underPressure(): boolean {
     const threshold = this.host.getExtractionSettings().pressureThreshold ?? PRESSURE_DEFAULT_THRESHOLD;
@@ -110,6 +138,8 @@ export class ExtractionScheduler {
     if (this.inFlight) return;
     const job = this.queue.shift();
     if (!job) return;
+    // The world this job belongs to, read before it runs (v2.3 plan 03 §Abort and cleanup).
+    const startedEpoch = this.host.epoch?.() ?? 0;
     const story = this.host.getStory();
     const state = this.host.getEngineState();
     const settings = this.host.getExtractionSettings();
@@ -130,7 +160,10 @@ export class ExtractionScheduler {
       this.lastError = null;
     } catch (error) {
       this.lastError = error instanceof Error ? error.message : "Extraction failed";
-      this.host.pauseExtraction(this.lastError);
+      // Pausing is INSTALL-WIDE, so a job that failed after its world ended must not pause the
+      // world that replaced it: switching chats would otherwise inherit the previous story's dead
+      // backend and silently stop extracting everywhere. The error is still recorded for the panel.
+      if ((this.host.epoch?.() ?? 0) === startedEpoch) this.host.pauseExtraction(this.lastError);
     } finally {
       this.inFlight = false;
       this.host.onSchedulerChange();

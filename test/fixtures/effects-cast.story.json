@@ -1,0 +1,86 @@
+{
+  "format": 2,
+  "id": "so-cast-probe",
+  "version": 1,
+  "title": "SO Cast Probe",
+  "description": "v2.3 plan 06's live check. Two checkpoints that disagree about one GROUP member (road disables Tobias, hall enables him), so switching between them writes a `cast` effect whose `before` is the previous state — the ledger's account of a write into state no chat owns.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Begin.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "road",
+      "name": "Road to Wendhope",
+      "objective": "Tobias stays behind.",
+      "type": "intermediate",
+      "effects": {
+        "cast_changes": {
+          "disable": [
+            "Tobias"
+          ]
+        }
+      }
+    },
+    {
+      "id": "hall",
+      "name": "Guild Hall",
+      "objective": "The whole party is here.",
+      "type": "anchor",
+      "effects": {
+        "cast_changes": {
+          "enable": [
+            "Tobias"
+          ]
+        },
+        "preset": {
+          "name": "Story: SO Cast Probe",
+          "settings": {
+            "temp": 0.42,
+            "top_p": 0.42
+          }
+        }
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "road",
+      "priority": 1,
+      "gate": {
+        "q": "message_count",
+        "op": ">=",
+        "v": 1000
+      }
+    },
+    {
+      "from": "road",
+      "to": "hall",
+      "priority": 1,
+      "gate": {
+        "q": "message_count",
+        "op": ">=",
+        "v": 1000
+      }
+    }
+  ],
+  "roster": [
+    {
+      "id": "Tobias",
+      "name": "Tobias"
+    }
+  ]
+}

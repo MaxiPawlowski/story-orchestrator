@@ -29,26 +29,79 @@ export function buildAwayRecap(narrative: NarrativeStatus, gapMs: number): AwayR
   return { title, lines, html: renderNarrativeHtml(narrative, title) };
 }
 
+export interface RecapPopupHandle {
+  close: () => void;
+}
+
+interface ScopedRecap {
+  recap: AwayRecap;
+  chatId: string;
+}
+
 // Detected when a story is loaded, shown once when the chat is actually on screen — the runtime
 // only tells it when the session was last seen and what the narrative says now.
 export class AwayRecapController {
-  private pending: AwayRecap | null = null;
+  private pending: ScopedRecap | null = null;
+  private open: (ScopedRecap & { handle: RecapPopupHandle }) | null = null;
 
-  constructor(private readonly showPopup: (html: string) => Promise<void>) {}
+  constructor(
+    private readonly showPopup: (html: string) => RecapPopupHandle,
+    private readonly note: (summary: string, detail: string) => void = () => undefined,
+  ) {}
 
-  detect(priorSessionAt: string | null, narrative: NarrativeStatus, now = Date.now()) {
-    this.pending = shouldShowAwayRecap(priorSessionAt, now)
-      ? buildAwayRecap(narrative, now - Date.parse(priorSessionAt as string))
-      : null;
+  detect(priorSessionAt: string | null, narrative: NarrativeStatus, chatId: string, now = Date.now()) {
+    const show = shouldShowAwayRecap(priorSessionAt, now);
+    this.pending = show ? { recap: buildAwayRecap(narrative, now - Date.parse(priorSessionAt as string)), chatId } : null;
+    // The journal records the decision, not just the outcome: "no recap" and "a recap nobody saw"
+    // are different answers, and only the machine can tell them apart (v2.3 plan 03, S3).
+    this.note(`away recap ${show ? "queued" : "not due"}`, `chat ${chatId || "(unnamed)"}, last seen ${priorSessionAt ?? "never"}, gap ${priorSessionAt ? `${Math.round((now - Date.parse(priorSessionAt)) / 3600000)}h` : "n/a"}`);
   }
 
-  get(): AwayRecap | null { return this.pending; }
+  get(): AwayRecap | null { return this.pending?.recap ?? null; }
 
-  async show(): Promise<boolean> {
-    const recap = this.pending;
-    if (!recap) return false;
+  show(): boolean {
+    const pending = this.pending;
+    if (!pending) return false;
     this.pending = null;
-    await this.showPopup(recap.html);
+    this.closeOpen();
+    this.open = { ...pending, handle: this.showPopup(pending.recap.html) };
+    this.note("away recap shown", `chat ${pending.chatId || "(unnamed)"}`);
     return true;
+  }
+
+  /**
+   * Take the recap down when the chat it was computed for is no longer the one on screen.
+   *
+   * The popup is a host modal, so while it is up the whole document is inert to a pointer. It
+   * describes one chat, so once another chat is open it is not merely stale copy — it blocks that
+   * chat outright. Measured 2026-09-21: a recap raised for a House Nightriver chat survived
+   * `/newchat`, a group switch and a story switch, and `#send_but` hit-tested as `blocked: overlay`
+   * behind it in an Adventurer's Road chat with zero messages.
+   *
+   * Scoped rather than unconditional on purpose. A page reload loads the same chat twice (the
+   * bootstrap and the host's CHAT_CHANGED), and the first load's save stamps `lastSessionAt`, so the
+   * second can never re-detect the gap — dismissing on every load would take the recap down and
+   * never put it back.
+   */
+  dismissUnless(chatId: string) {
+    // A chat the host has not named yet is not evidence of a mismatch. A page load passes through
+    // states where `chatId` is empty while the real chat is already being opened, and closing on
+    // those would take the recap down exactly when it is meant to appear.
+    if (!chatId) return;
+    const open = this.open;
+    if (open?.chatId && open.chatId !== chatId) {
+      this.closeOpen();
+      this.note("away recap taken down", `it described chat ${open.chatId}, the open chat is ${chatId}`);
+    }
+    const pending = this.pending;
+    if (pending?.chatId && pending.chatId !== chatId) {
+      this.pending = null;
+      this.note("away recap dropped", `it was computed for chat ${pending.chatId}, the open chat is ${chatId}`);
+    }
+  }
+
+  private closeOpen() {
+    this.open?.handle.close();
+    this.open = null;
   }
 }

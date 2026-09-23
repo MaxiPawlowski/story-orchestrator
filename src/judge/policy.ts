@@ -24,6 +24,9 @@ export const SCENE_FIELD_CONFIDENCE = 0.6;
 export const PRESENT_P = 0.7;
 export const HEADING_P = 0.7;
 export const SCENE_TIMEOUT_MS = 2500;
+// C2: how many consecutive failed reads before the tracker is withheld rather than presented as
+// current. One miss is a blip on a busy backend; two in a row means nothing is confirming it.
+export const SCENE_STALE_AFTER = 2;
 
 export const LORE_MIN_P = 0.6;
 export const LORE_TOP_K = 4;

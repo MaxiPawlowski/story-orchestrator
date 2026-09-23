@@ -1,0 +1,273 @@
+{
+  "_note": "v2.3 plan 02 §R5/§R6, deterministic: the parser origin stamp and the consumer scope/evidence checks, proved by planted responses rather than by hoping a model misbehaves. No backend needed. What this fixture does NOT assert: that an accepted delta reaches the blackboard — see the plan 02 Gate record, open question 1.",
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "id": "authority-enforcement",
+        "title": "Authority Enforcement Gate Check",
+        "version": 1,
+        "description": "Planted extractor responses that must be refused, and legal ones that must be taken.",
+        "qualities": [
+          {
+            "key": "message_count",
+            "type": "int",
+            "source": "code",
+            "monotonic": true,
+            "rubric": "Rendered boundary count."
+          },
+          {
+            "key": "key_taken",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Did the player take the brass key?"
+          },
+          {
+            "key": "door_open",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the vault door been crossed?"
+          },
+          {
+            "key": "agreed",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player say yes?"
+          },
+          {
+            "key": "entered_mines",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player enter the mines? Referenced by nothing, so a read is never asked about it."
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "Antechamber",
+            "objective": "Get through the door.",
+            "type": "anchor",
+            "start": true,
+            "state_snapshot": {
+              "key_taken": false,
+              "agreed": false
+            }
+          },
+          {
+            "id": "vault",
+            "name": "Vault",
+            "objective": "Be inside the vault.",
+            "type": "anchor",
+            "state_snapshot": {
+              "door_open": true,
+              "agreed": false
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "from": "start",
+            "to": "vault",
+            "priority": 1,
+            "gate": {
+              "q": "door_open",
+              "op": "==",
+              "v": true
+            },
+            "extractor_trigger": "vault door",
+            "extraction_hint": "Look for the player crossing the vault door."
+          }
+        ],
+        "roster": []
+      }
+    },
+    {
+      "ui": {
+        "action": "select-profile"
+      }
+    },
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorRuntime.setExtractionSettings({ enabled: true, cadence: 0 }); return globalThis.storyOrchestratorRuntime.getExtractionSettings();"
+    },
+    {
+      "send": "I take the brass key from the hook and slip it into my pocket."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "extract": {
+        "reason": "planted-out-of-scope",
+        "debugResponse": "DELTA entered_mines value=true evidence=\"I take the brass key\""
+      },
+      "log": true
+    },
+    {
+      "expect": {
+        "rejected": [
+          {
+            "q": "entered_mines",
+            "reason": "outside requested scope"
+          }
+        ],
+        "auditRawContains": [
+          "DELTA entered_mines"
+        ],
+        "blackboardMissing": [
+          "entered_mines"
+        ]
+      }
+    },
+    {
+      "extract": {
+        "reason": "planted-code-owned",
+        "debugResponse": "DELTA message_count value=7 evidence=\"I take the brass key\""
+      }
+    },
+    {
+      "expect": {
+        "rejected": [
+          {
+            "q": "message_count",
+            "reason": "code-owned quality"
+          }
+        ]
+      }
+    },
+    {
+      "eval": "const bb = globalThis.storyOrchestratorRuntime.getSnapshot().blackboard; if (bb.message_count === 7) throw new Error('the forged code-owned delta landed: the engine must own this quality'); if (typeof bb.message_count !== 'number' || bb.message_count < 1) throw new Error(`the engine's own counter is missing: ${JSON.stringify(bb.message_count)}`); return { message_count: bb.message_count };",
+      "log": true
+    },
+    {
+      "extract": {
+        "reason": "planted-foreign-evidence",
+        "debugResponse": "DELTA key_taken value=true evidence=\"The brass key was already in my pocket when I reached Zanzibar\""
+      }
+    },
+    {
+      "expect": {
+        "rejected": [
+          {
+            "q": "key_taken",
+            "reason": "evidence not in window"
+          }
+        ],
+        "blackboardMissing": [
+          "key_taken"
+        ]
+      }
+    },
+    {
+      "extract": {
+        "reason": "planted-short-evidence",
+        "debugResponse": "DELTA key_taken value=true evidence=\"brass key\""
+      }
+    },
+    {
+      "wait": {
+        "acceptedDelta": "key_taken",
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "send": "I hold the key up to the light."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "expect": {
+        "blackboard": {
+          "key_taken": true
+        },
+        "latched": [
+          "key_taken"
+        ]
+      }
+    },
+    {
+      "send": "I stepped through the vault door and stopped."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "extract": {
+        "reason": "planted-short-span",
+        "debugResponse": "DELTA door_open value=true evidence=\"through the vault door\""
+      }
+    },
+    {
+      "wait": {
+        "acceptedDelta": "door_open",
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "send": "The vault is cold and very quiet."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "slash": "/sendas Player yes"
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "extract": {
+        "reason": "planted-bare-word",
+        "debugResponse": "DELTA agreed value=true evidence=\"yes\""
+      }
+    },
+    {
+      "wait": {
+        "acceptedDelta": "agreed",
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "send": "I fold the terms and put them away."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "expect": {
+        "blackboard": {
+          "agreed": true
+        }
+      }
+    },
+    {
+      "eval": "const lines = Array.from({ length: 30 }, (_, index) => `DELTA key_taken value=${index % 2 === 0} evidence=\"Yes, I agree to the terms.\"`).join('\\n'); await globalThis.storyOrchestratorRuntime.runExtractionNow(lines, 'planted-oversized'); const audit = globalThis.storyOrchestratorRuntime.getSnapshot().extraction.audits.at(-1); if (!audit) throw new Error('the oversized read left no audit'); if (audit.acceptedDeltas.length) throw new Error(`an oversized response was partly accepted: ${JSON.stringify(audit.acceptedDeltas.map((entry) => entry.delta.q))}`); return { reason: audit.rejected[0]?.reason ?? null, rejected: audit.rejected.length, accepted: audit.acceptedDeltas.length };",
+      "log": true
+    }
+  ]
+}

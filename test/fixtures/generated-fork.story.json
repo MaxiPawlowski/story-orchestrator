@@ -1,0 +1,23 @@
+{
+  "format": 2,
+  "id": "generated-fork-probe",
+  "version": 1,
+  "title": "Generated Fork",
+  "description": "A stub whose generated chain is expected to branch: the same beat is written with more than one outcome, so the merge has an outcomes[1] to lose (R9).",
+  "arc_template": "rising",
+  "qualities": [
+    { "key": "key_found", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player find the key?" },
+    { "key": "approach", "type": "enum", "values": ["unknown", "safe", "blocked"], "source": "extractor", "rubric": "Which approach is available?" },
+    { "key": "guard_aware", "type": "bool", "source": "extractor", "latching": true, "rubric": "Does the guard know the crew is coming?" }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "Start", "objective": "Find a route toward the vault.", "type": "anchor", "start": true, "tension_target": "stirring" },
+    { "id": "fork_stub", "name": "Fork Stub", "objective": "Generated fork placeholder.", "type": "intermediate" },
+    { "id": "finish", "name": "Finish", "objective": "Arrive ready at the vault.", "type": "anchor", "state_snapshot": { "key_found": true, "approach": "safe" }, "tension_target": "critical" }
+  ],
+  "transitions": [
+    { "from": "start", "to": "fork_stub", "priority": 1, "gate": { "q": "key_found", "op": "==", "v": true } },
+    { "from": "fork_stub", "to": "finish", "priority": 1, "gate": { "q": "progress_toward_finish", "op": ">=", "v": 1 } }
+  ],
+  "roster": []
+}

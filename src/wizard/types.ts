@@ -19,18 +19,26 @@ export type ProvisioningOp =
   | { kind: "createCharacterCard"; name: string; description: string; role?: string; personality?: string; scenario?: string; first_mes?: string; mes_example?: string; tags?: string[] }
   | { kind: "createStoryLorebook"; name: string }
   | { kind: "upsertLorebookEntry"; lorebook: string; comment: string; keys: string[]; content: string; constant?: boolean }
-  | { kind: "createGroup"; name: string; members: string[] };
+  | { kind: "createGroup"; name: string; members: string[] }
+  | { kind: "grantLorebook"; lorebook: string; revoke?: boolean };
 
 export type ProvisioningOpKind = ProvisioningOp["kind"];
 
-export const PROVISIONING_OP_KINDS: readonly ProvisioningOpKind[] = ["createCharacterCard", "createStoryLorebook", "upsertLorebookEntry", "createGroup"];
+export const PROVISIONING_OP_KINDS: readonly ProvisioningOpKind[] = ["createCharacterCard", "createStoryLorebook", "upsertLorebookEntry", "createGroup", "grantLorebook"];
 
 // What already exists on this install. Everything the create-only rule needs, and nothing else.
+// v2.3 plan 02 (R8): `storyLorebooks` is what the story *requires*, which is a claim about what the
+// story depends on and not a licence to write. `ownedLorebooks` is the write authority — books this
+// wizard created for this story, plus the ones the author explicitly granted.
 export interface ProvisioningEnvironment {
   characterNames: string[];
   lorebookNames: string[];
   groupNames: string[];
   storyLorebooks: string[];
+  ownedLorebooks: string[];
+  // R8: the subset of `ownedLorebooks` the author allowed rather than the wizard created. A created
+  // book has no business being revocable from here; a granted one is the author's to take back.
+  grantedLorebooks: string[];
 }
 
 export interface ProvisioningResult {
@@ -39,12 +47,31 @@ export interface ProvisioningResult {
   created?: string;
 }
 
+// What an entry holds right now, so a write can show a before/after instead of asking the author to
+// trust the replacement (v2.3 plan 02 §R8). `null` means there is nothing under that title yet.
+export interface ExistingEntry {
+  content: string;
+  keys: string[];
+  constant: boolean;
+}
+
+export const entryKey = (lorebook: string, comment: string): string => `${lorebook}\u0000${comment}`;
+
+export interface WizardLorebookGrant {
+  storyId: string;
+  lorebookFileId: string;
+  at: string;
+  confirmed: true;
+}
+
 export interface WizardSessionState {
   key: string;
   stage: string;
   history: Array<{ role: "author" | "copilot"; text: string }>;
   questions: WizardQuestion[];
   applied: string[];
+  /** Author-confirmed write authority over existing lorebooks; never authored story content. */
+  grants?: WizardLorebookGrant[];
   seed: string;
   updatedAt: string;
 }

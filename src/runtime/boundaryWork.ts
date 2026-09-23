@@ -71,6 +71,16 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     },
   },
   {
+    // v2.3 plan 07: a chain the critic passed is `validated`, and THIS is the boundary that makes it
+    // part of what the chat is playing (`inserted`). Ordered before `scene-detect` so the checkpoint
+    // ids the scene pass reads are the ones already in the graph.
+    id: "expansion-commit",
+    order: 42,
+    run: ({ manager }) => {
+      manager.expansions.commitValidated();
+    },
+  },
+  {
     // The probe is the condition: detectSceneBreak advances the location/cast cursor, so it must
     // run exactly once per boundary.
     id: "scene-detect",

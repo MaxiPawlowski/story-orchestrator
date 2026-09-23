@@ -1,0 +1,189 @@
+{
+  "id": "J12",
+  "title": "unaided-schedule",
+  "objective": "The configuration every real install runs and no journey covered: the shipped default cadence, three real player turns, no runExtractionNow and no /cp — an extraction read must fire on its own, its deltas must carry evidence quoting what the player wrote, and the checkpoint it opens must apply its effects.",
+  "setup": {
+    "newChat": true,
+    "resetChatState": true,
+    "snapshotGlobalConfig": true,
+    "activateLorebooks": [
+      "Adolion World",
+      "Adolion Adventurer Checkpoints",
+      "Adolion Chronicle"
+    ],
+    "group": "1789797226071"
+  },
+  "cleanup": {
+    "restoreConfig": true,
+    "deleteChat": true,
+    "enableMembers": [
+      "Adolion Narrator",
+      "Tobias",
+      "Belle",
+      "Dalan"
+    ]
+  },
+  "capabilities": {
+    "audit-ring": "Array.isArray(globalThis.storyOrchestratorRuntime?.getSnapshot?.().extraction?.audits)",
+    "effect-ledger": "Array.isArray(globalThis.storyOrchestratorRuntime?.getSnapshot?.().effects?.ledger)"
+  },
+  "checks": [
+    {
+      "id": "J12.1",
+      "mode": "auto",
+      "findings": [
+        "S13"
+      ],
+      "goal": "the SHIPPED default cadence is in effect (3), extraction is on, a profile is set, and nothing has read yet — so the read J12.3 observes cannot be a leftover from an earlier check or an earlier run",
+      "steps": [
+        {
+          "log": true,
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); const s = snap.extraction.settings; const audits = snap.extraction.audits ?? []; if (!s.enabled) throw new Error('extraction is off install-wide: this journey measures the shipped default, so it cannot run'); if (!s.profileId) throw new Error('no extraction profile is selected: run `so-ui.mts select-profile` or set one in the panel first'); if (s.cadence !== 3) throw new Error(`cadence is ${s.cadence}, not the shipped default 3. This journey cannot run at another cadence without losing its point, so it refuses rather than redefining itself. The value cannot be attributed from here: this install measured 3 on 2026-09-20 and 2026-09-21 10:17 and 1 from 2026-09-21 22:27 on (run headers in .debug/), so it is either the author's own choice or residue from a harness run that pre-dates the S11 capture/restore fix. Set it to 3 in the settings panel if that is what you want, which is also the shipped default.`); if (audits.length) throw new Error(`the audit ring already holds ${audits.length} entry/entries before this journey read anything: the audited read below could not be attributed to it`); return { cadence: s.cadence, enabled: s.enabled, profileId: s.profileId, audits: audits.length };"
+        }
+      ]
+    },
+    {
+      "id": "J12.2",
+      "mode": "auto",
+      "findings": [
+        "S13"
+      ],
+      "goal": "the story is selected and its requirements are GREEN — the guard v2.3 plan 04 added, because a journey that never established its lorebooks gets silent no-op latches instead of a failure, and the symptom then surfaces 300 s later as a checkpoint that never arrives",
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const library = (globalThis.SillyTavern.getContext().extensionSettings?.['story-orchestrator']?.v2Stories ?? []).map((r) => r.id); if (!library.includes('adolion-adventurer')) throw new Error(`the story this journey needs is not in the library (has: ${library.join(', ')}) — install it from the campaign's own assets before running J12`); return { library };"
+        },
+        {
+          "select_story": "adolion-adventurer"
+        },
+        {
+          "wait": {
+            "idle": true,
+            "timeoutMs": 60000
+          }
+        },
+        {
+          "log": true,
+          "eval": "const snap = globalThis.storyOrchestratorRuntime.getSnapshot(); const req = snap.requirements ?? {}; if (!req.ready) throw new Error(`requirements are not met: missing lorebooks ${JSON.stringify(req.missingLorebooks ?? [])}, missing members ${JSON.stringify(req.missingMembers ?? [])}, missing personas ${JSON.stringify(req.missingPersonas ?? [])}`); return { ready: req.ready, checkpoint: snap.engine?.activeCheckpointId ?? snap.activeCheckpointId ?? null };"
+        },
+        {
+          "expect": {
+            "requirementsReady": true,
+            "activeCheckpoint": "guild-hall"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J12.3",
+      "mode": "auto",
+      "findings": [
+        "S13"
+      ],
+      "goal": "three real turns at the shipped cadence produce an extraction read with NO help — reason `cadence`, not `manual`/`trigger`/`runNow` — and the read's window reaches the player's own latest message",
+      "steps": [
+        {
+          "send_generate": {
+            "text": "I cross the guild hall to the quest counter and put both hands flat on the wood. \"Tobias. The Wendhope posting. Tell me what it actually pays and who has already turned it down.\"",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "wait": {
+            "idle": true,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I listen him out without interrupting, then look at the two sitting near the board. \"You two heard the same thing I did. Are you in?\"",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "wait": {
+            "idle": true,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I sign the posting. \"We take the Wendhope job. We leave at first light.\"",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "wait": {
+            "idle": true,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "auditCount": 1,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "log": true,
+          "eval": "const ctx = globalThis.SillyTavern.getContext(); const snap = globalThis.storyOrchestratorRuntime.getSnapshot(); const audits = snap.extraction.audits ?? []; if (!audits.length) throw new Error('no extraction audit after three turns at the shipped cadence: the scheduler did not fire unaided'); const latest = audits[audits.length - 1]; const players = (ctx.chat ?? []).map((m, i) => ({ i, isUser: m.is_user === true, text: String(m.mes ?? '') })).filter((m) => m.isUser); const lastPlayer = players.length ? players[players.length - 1].i : -1; return { reason: latest.reason, window: latest.window, boundary: latest.boundary ?? null, lastPlayerIndex: lastPlayer, accepted: (latest.acceptedDeltas ?? []).length, rejected: (latest.rejected ?? []).length };"
+        },
+        {
+          "log": true,
+          "eval": "const snap = globalThis.storyOrchestratorRuntime.getSnapshot(); const audits = snap.extraction.audits ?? []; const ctx = globalThis.SillyTavern.getContext(); const players = (ctx.chat ?? []).map((m, i) => ({ i, isUser: m.is_user === true, text: String(m.mes ?? '') })).filter((m) => m.isUser); const lastPlayer = players.length ? players[players.length - 1].i : -1; const cadenceRead = audits.find((a) => a.reason === 'cadence'); if (!cadenceRead) throw new Error(`no audit with reason \\`cadence\\` — the reads this session produced were: ${JSON.stringify(audits.map((a) => a.reason))}`); if (cadenceRead.window.to < lastPlayer) throw new Error(`the unaided read stopped at message ${cadenceRead.window.to}, before the player's last message ${lastPlayer}: it did not read the turn it was scheduled for`); if (!(cadenceRead.acceptedDeltas ?? []).length) throw new Error('the unaided read accepted no deltas — it read but took nothing, which is not the schedule firing'); return { reason: cadenceRead.reason, window: cadenceRead.window, accepted: cadenceRead.acceptedDeltas.length };"
+        },
+        {
+          "expect": {
+            "auditCount>=": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "J12.4",
+      "mode": "auto",
+      "findings": [
+        "S13"
+      ],
+      "goal": "an accepted delta's EVIDENCE quotes the player's own words from inside the read's window — the property the contract promises, asserted as a property (some distinctive token shared) and with the evidence reported, because asserting a fixed string would be asserting what the model chose",
+      "steps": [
+        {
+          "log": true,
+          "eval": "const ctx = globalThis.SillyTavern.getContext(); const snap = globalThis.storyOrchestratorRuntime.getSnapshot(); const audits = snap.extraction.audits ?? []; const read = audits.filter((a) => a.reason === 'cadence').pop() ?? audits[audits.length - 1]; if (!read) throw new Error('no audit to measure: J12.3 did not get one'); const window = read.window ?? { from: 0, to: -1 }; const chat = ctx.chat ?? []; const mine = chat.slice(Math.max(0, window.from), window.to + 1).filter((m) => m.is_user === true).map((m) => String(m.mes ?? '')); const tokens = new Set(mine.join(' ').toLowerCase().match(/[a-z][a-z'-]{5,}/g) ?? []); const stop = new Set(['should', 'actually', 'already', 'interrupting', 'without', 'because', 'through', 'around', 'first', 'light', 'hands', 'guild', 'cross', 'counter', 'posting', 'wendhope']); const distinctive = [...tokens].filter((t) => !stop.has(t)); const evidence = (read.acceptedDeltas ?? []).map((d) => ({ q: d.delta?.q ?? null, v: d.delta?.v ?? null, evidence: String(d.evidence ?? '') })); const quoted = evidence.filter((e) => distinctive.some((t) => e.evidence.toLowerCase().includes(t))); if (!mine.length) throw new Error(`the read's window ${JSON.stringify(window)} holds none of the player's messages: it was not a read of this turn`); if (!evidence.length) throw new Error('the read accepted nothing, so there is no evidence to measure'); if (!quoted.length) throw new Error(`no accepted delta's evidence quotes the player's own words; player tokens were ${JSON.stringify(distinctive.slice(0, 12))}, evidence was ${JSON.stringify(evidence)}`); return { quoted, evidence, distinctive: distinctive.slice(0, 12) };"
+        }
+      ]
+    },
+    {
+      "id": "J12.5",
+      "mode": "auto",
+      "findings": [
+        "S13"
+      ],
+      "goal": "the checkpoint the read opened applied its effects — an owned ledger row per effect, `applied` — and the boundary log names the transition that fired. This is the leg the MODEL decides, so it is its own check: a model that will not commit costs this check, not the journey's point (J12.3/J12.4)",
+      "steps": [
+        {
+          "log": true,
+          "eval": "const snap = globalThis.storyOrchestratorRuntime.getSnapshot(); const ledger = snap.effects?.ledger ?? []; const applied = ledger.filter((row) => row.status === 'applied'); const byCheckpoint = {}; for (const row of applied) byCheckpoint[row.checkpointId ?? '(none)'] = [...(byCheckpoint[row.checkpointId ?? '(none)'] ?? []), row.effect]; return { rows: ledger.length, applied: applied.length, byCheckpoint, statuses: ledger.map((row) => `${row.effect}:${row.status}`) };"
+        },
+        {
+          "eval": "const snap = globalThis.storyOrchestratorRuntime.getSnapshot(); const ledger = snap.effects?.ledger ?? []; const failed = ledger.filter((row) => row.status === 'failed' || row.status === 'externally-changed'); if (failed.length) throw new Error(`effect(s) did not apply cleanly: ${JSON.stringify(failed.map((row) => ({ effect: row.effect, status: row.status, reason: row.reason ?? null })))}`); const guild = ledger.filter((row) => row.status === 'applied' && row.checkpointId === 'guild-hall').map((row) => row.effect); if (!guild.length) throw new Error(`no applied effect is attributed to guild-hall (applied rows: ${JSON.stringify(ledger.filter((r) => r.status === 'applied').map((r) => `${r.checkpointId}:${r.effect}`))}) — the checkpoint's effects were not applied through the owned ledger`); if (!guild.includes('author_note')) throw new Error(`guild-hall declares an author_note effect and no applied row names it (got ${JSON.stringify(guild)})`); return { guildHallEffects: guild };"
+        },
+        {
+          "log": true,
+          "eval": "const ctx = globalThis.SillyTavern.getContext(); const note = String(ctx.chatMetadata?.note_prompt ?? ''); const snap = globalThis.storyOrchestratorRuntime.getSnapshot(); const active = snap.engine?.activeCheckpointId ?? snap.activeCheckpointId ?? null; const log = snap.engine?.boundaryLog ?? []; const last = Array.isArray(log) && log.length ? log[log.length - 1] : null; if (active === 'guild-hall') throw new Error(`the story is still at guild-hall after three turns: the model did not set \\`path\\` (its own gate), so there is no transition to attribute effects to. This check is the one the model decides; J12.3/J12.4 remain the schedule's evidence. lastPlayerTurn=${ctx.chat?.filter((m) => m.is_user).length ?? 0}`); return { active, fired: last?.fired ?? null, noteHasGuildHallScene: /Guild hall in Aegis City/.test(note), note: note.slice(0, 120) };"
+        },
+        {
+          "expect_ui": {
+            "selector": "#chat",
+            "contains": [
+              "The Road North"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

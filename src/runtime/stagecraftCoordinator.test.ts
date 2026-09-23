@@ -1,6 +1,6 @@
 import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { callExtractionModel } from "@extraction/client";
-import { clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, loadLorebook, setStoryExtensionPrompt, upsertWIEntry } from "@services/STAPI";
+import { clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, loadLorebook, readWIEntry, setStoryExtensionPrompt, upsertWIEntry } from "@services/STAPI";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./coordinators/stagecraftCoordinator";
 import { createStagecraft, sanitizeStagecraft } from "./extras";
 import type { ExtractionRuntimeSettings, RuntimeExtras, StagecraftRuntimeState } from "./types";
@@ -8,9 +8,15 @@ import type { ExtractionRuntimeSettings, RuntimeExtras, StagecraftRuntimeState }
 const mockChat: Array<Record<string, unknown>> = [];
 
 jest.mock("@services/STAPI", () => ({
+  settingsAreLoaded: () => true,
+  settingsReady: async () => {},
+  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
+  readBackBoundary: () => null,
   setStoryExtensionPrompt: jest.fn(),
   clearStoryExtensionPrompt: jest.fn(),
   loadLorebook: jest.fn(),
+  // The write edge reads the entry itself (R2); the fake book is the same source of truth.
+  readWIEntry: jest.fn(),
   upsertWIEntry: jest.fn(async () => "updated"),
   enableWIEntry: jest.fn(async () => true),
   disableWIEntry: jest.fn(async () => true),
@@ -25,6 +31,13 @@ const lorebook = (content = "The bridge stands, its ropes new and taut.") => ({
     2: { uid: 2, comment: "The ferryman", content: "Nobody has seen the ferryman.", key: ["ferryman"], disable: true },
   },
 });
+
+// The fake book is a real one-entry store: `upsertWIEntry` writes into it and the switch commands
+// flip `disable`. Without that, a write edge that reads the entry (R2) would see a book that never
+// changed and the compare-and-set would read every revert as an external edit.
+type FakeBook = ReturnType<typeof lorebook>;
+const book: { current: FakeBook } = { current: lorebook() };
+const entryOf = (name: string) => Object.values(book.current.entries).find((entry) => entry.comment === name);
 
 const story = (lorebooks: string[] = ["Story Lore"]): NormalizedStoryV2 => parseStoryV2OrThrow({
   format: 2,
@@ -75,7 +88,16 @@ const respond = (text: string) => (callExtractionModel as jest.Mock).mockResolve
 
 describe("StagecraftCoordinator", () => {
   beforeEach(() => {
-    (loadLorebook as jest.Mock).mockResolvedValue(lorebook());
+    book.current = lorebook();
+    (loadLorebook as jest.Mock).mockImplementation(async () => book.current);
+    (readWIEntry as jest.Mock).mockImplementation(async (_book: string, comment: string) => {
+      const data = await (loadLorebook as jest.Mock)();
+      const entry = Object.values(data?.entries ?? {}).find((candidate) => (candidate as { comment?: string }).comment === comment) as { content?: string; key?: string[]; constant?: boolean; disable?: boolean; uid?: number } | undefined;
+      return entry ? { content: String(entry.content ?? ""), keys: entry.key ?? [], constant: Boolean(entry.constant), disabled: Boolean(entry.disable), uid: entry.uid } : null;
+    });
+    (upsertWIEntry as jest.Mock).mockImplementation(async (_lorebook: string, comment: string, text: string) => { const entry = entryOf(comment); if (!entry) return "failed"; entry.content = text; entry.disable = false; return "updated"; });
+    (enableWIEntry as jest.Mock).mockImplementation(async (_lorebook: string, comment: string) => { const entry = entryOf(comment); if (!entry) return false; entry.disable = false; return true; });
+    (disableWIEntry as jest.Mock).mockImplementation(async (_lorebook: string, comment: string) => { const entry = entryOf(comment); if (!entry) return false; entry.disable = true; return true; });
     (upsertWIEntry as jest.Mock).mockClear();
     (enableWIEntry as jest.Mock).mockClear();
     (disableWIEntry as jest.Mock).mockClear();
@@ -262,6 +284,9 @@ describe("continuity warden (v2.2 plan 05)", () => {
     mockChat.splice(0, mockChat.length, { name: "Max", mes: "We look for a way across.", is_user: true }, { name: "Mira", mes: "I walked over the bridge this morning.", is_user: false });
     (setStoryExtensionPrompt as jest.Mock).mockClear();
     (clearStoryExtensionPrompt as jest.Mock).mockClear();
+    (upsertWIEntry as jest.Mock).mockImplementation(async (_lorebook: string, comment: string, text: string) => { const entry = entryOf(comment); if (!entry) return "failed"; entry.content = text; entry.disable = false; return "updated"; });
+    (enableWIEntry as jest.Mock).mockImplementation(async (_lorebook: string, comment: string) => { const entry = entryOf(comment); if (!entry) return false; entry.disable = false; return true; });
+    (disableWIEntry as jest.Mock).mockImplementation(async (_lorebook: string, comment: string) => { const entry = entryOf(comment); if (!entry) return false; entry.disable = true; return true; });
     (upsertWIEntry as jest.Mock).mockClear();
     (enableWIEntry as jest.Mock).mockClear();
     (disableWIEntry as jest.Mock).mockClear();

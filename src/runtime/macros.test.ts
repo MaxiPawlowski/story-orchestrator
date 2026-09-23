@@ -1,6 +1,10 @@
 const mockRegistry = new Map<string, () => unknown>();
 
 jest.mock("@services/STAPI", () => ({
+  settingsAreLoaded: () => true,
+  settingsReady: async () => {},
+  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
+  readBackBoundary: () => null,
   registerHostMacro: (key: string, value: () => unknown) => mockRegistry.set(key, value),
   unregisterHostMacro: (key: string) => mockRegistry.delete(key),
   getPlayerName: () => "Max",

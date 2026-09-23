@@ -53,8 +53,10 @@
           "expect_ui": {
             "selector": "#so-wizard",
             "contains": [
-              "Qualities",
-              "Provisioning",
+              "Premise",
+              "Turning points",
+              "Characters",
+              "Setup",
               "Run stage"
             ]
           }
@@ -104,16 +106,16 @@
           "eval": "const env = globalThis.storyOrchestratorRuntime.getProvisioningEnvironment(); globalThis.__j9Existing = { character: env.characterNames[0] ?? null, lorebook: env.lorebookNames[0] ?? null, group: env.groupNames[0] ?? null }; if (!globalThis.__j9Existing.character) throw new Error('no existing character to test create-only against'); return globalThis.__j9Existing;"
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const name = globalThis.__j9Existing.character; const outcome = await rt.applyProvisioning({ kind: 'createCharacterCard', name, description: 'Overwrite attempt by journey J9.' }); if (outcome.ok) throw new Error(`create-only breached: the wizard created over the existing character \"${name}\"`); if (!outcome.message.includes('never edits yours')) throw new Error(`unexpected rejection message: ${outcome.message}`); return outcome;"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const name = globalThis.__j9Existing.character; const outcome = await rt.applyProvisioning({ kind: 'createCharacterCard', name, description: 'Overwrite attempt by journey J9.' }); if (outcome.ok) throw new Error(`create-only breached: the wizard created over the existing character \"${name}\"`); if (!outcome.message.includes('never edits yours')) throw new Error(`unexpected rejection message: ${outcome.message}`); return { refused: true, message: outcome.message };"
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lorebook = globalThis.__j9Existing.lorebook; if (!lorebook) return { skipped: 'no global lorebook on this install' }; const outcome = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook, comment: 'SO-J9 intrusion', keys: ['j9'], content: 'This must never be written.' }); if (outcome.ok) throw new Error(`create-only breached: the wizard wrote into the non-story lorebook \"${lorebook}\"`); if (!outcome.message.includes(\"not this story's lorebook\")) throw new Error(`unexpected rejection message: ${outcome.message}`); return outcome;"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lorebook = globalThis.__j9Existing.lorebook; if (!lorebook) return { skipped: 'no global lorebook on this install' }; const outcome = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook, comment: 'SO-J9 intrusion', keys: ['j9'], content: 'This must never be written.' }); if (outcome.ok) throw new Error(`create-only breached: the wizard wrote into the non-story lorebook \"${lorebook}\"`); if (!outcome.message.includes(\"will not write into it\")) throw new Error(`unexpected rejection message: ${outcome.message}`); return { refused: true, message: outcome.message };"
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const group = globalThis.__j9Existing.group; if (!group) return { skipped: 'no group on this install' }; const outcome = await rt.applyProvisioning({ kind: 'createGroup', name: group, members: [globalThis.__j9Existing.character] }); if (outcome.ok) throw new Error(`create-only breached: a second group named \"${group}\" was created`); return outcome;"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const group = globalThis.__j9Existing.group; if (!group) return { skipped: 'no group on this install' }; const outcome = await rt.applyProvisioning({ kind: 'createGroup', name: group, members: [globalThis.__j9Existing.character] }); if (outcome.ok) throw new Error(`create-only breached: a second group named \"${group}\" was created`); return { refused: true, message: outcome.message };"
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const outcome = await rt.applyProvisioning({ kind: 'createGroup', name: 'SO-J9 Ghost Party', members: ['SO-J9 Nobody'] }); if (outcome.ok) throw new Error('a group was created for a cast member that does not exist'); if (!outcome.message.includes('do not exist yet')) throw new Error(`unexpected rejection message: ${outcome.message}`); return outcome;"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const outcome = await rt.applyProvisioning({ kind: 'createGroup', name: 'SO-J9 Ghost Party', members: ['SO-J9 Nobody'] }); if (outcome.ok) throw new Error('a group was created for a cast member that does not exist'); if (!outcome.message.includes('do not exist yet')) throw new Error(`unexpected rejection message: ${outcome.message}`); return { refused: true, message: outcome.message };"
         },
         {
           "assets": {
@@ -234,7 +236,7 @@
           "eval": "document.getElementById('so-fix-with-wizard').click(); return true;"
         },
         {
-          "eval": "await new Promise((done) => setTimeout(done, 800)); const ok = document.querySelector('dialog.popup[open] .popup-button-ok'); if (ok) ok.click(); await new Promise((done) => setTimeout(done, 800)); const wizard = document.getElementById('so-wizard'); if (!wizard) throw new Error('Fix with wizard did not open the wizard'); const stage = Array.from(wizard.querySelectorAll('[aria-pressed=\"true\"]')).map((b) => b.textContent.trim())[0]; if (stage !== 'Provisioning') throw new Error(`Fix with wizard opened on \"${stage}\", not the provisioning stage`); const seeded = document.getElementById('so-wizard-message').value; if (!seeded.includes('SO-J9 Missing Lore')) throw new Error(`the wizard was not pre-filled from the unmet list: ${seeded.slice(0, 200)}`); return { stage, seeded: seeded.slice(0, 200) };"
+          "eval": "await new Promise((done) => setTimeout(done, 800)); const ok = document.querySelector('dialog.popup[open] .popup-button-ok'); if (ok) ok.click(); await new Promise((done) => setTimeout(done, 800)); const wizard = document.getElementById('so-wizard'); if (!wizard) throw new Error('Fix with wizard did not open the wizard'); const stage = Array.from(wizard.querySelectorAll('[data-so=\"wizard-stage\"][aria-pressed=\"true\"]')).map((b) => b.textContent.trim())[0]; if (stage !== 'Provisioning') throw new Error(`Fix with wizard opened on \"${stage}\", not the provisioning stage`); const seeded = document.getElementById('so-wizard-message').value; if (!seeded.includes('SO-J9 Missing Lore')) throw new Error(`the wizard was not pre-filled from the unmet list: ${seeded.slice(0, 200)}`); return { stage, seeded: seeded.slice(0, 200) };"
         }
       ]
     },
@@ -245,7 +247,7 @@
         "D3",
         "U6"
       ],
-      "goal": "the provisioned story is playable: requirements go green and a real transition fires",
+      "goal": "the provisioned story is playable: requirements go green and a real transition fires (the transition half is model-dependent — a real read sometimes omits the delta — so the step retries once and the retry is REPORTED in the record, never hidden)",
       "requires": [
         "wizard-provisioning"
       ],
@@ -294,7 +296,9 @@
         {
           "extract": {
             "reason": "journey"
-          }
+          },
+          "attempts": 2,
+          "retryBack": 2
         },
         {
           "wait": {

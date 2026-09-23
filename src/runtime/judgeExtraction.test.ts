@@ -14,6 +14,10 @@ const mockContext = {
 };
 
 jest.mock("@services/STAPI", () => ({
+  settingsAreLoaded: () => true,
+  settingsReady: async () => {},
+  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
+  readBackBoundary: () => null,
   getContext: () => mockContext,
   setStoryExtensionPrompt: jest.fn(),
   clearStoryExtensionPrompt: jest.fn(),
@@ -73,7 +77,7 @@ const setup = async (uses: Partial<JudgeSettings["uses"]>, answer: (request: Jud
 
 const typedAnswer = (confidence: number) => (request: JudgeRequest): JudgeResponse => ({
   model: "jev-1.13.0",
-  answers: Object.fromEntries(Object.keys(request.questions).map((id) => [id, id.startsWith("evidence:") ? { type: "choice" as const, choice: "msg_2", confidence: 0.9, probabilities: {} } : { type: "choice" as const, choice: "yes", confidence, probabilities: {} }])),
+  answers: Object.fromEntries(Object.keys(request.questions).map((id) => [id, { type: "choice" as const, choice: id === "q:has_key" ? "yes in msg_2" : "msg_2", confidence, probabilities: {} }])),
 });
 
 describe("judged typed read (v2.2 plan 06)", () => {
@@ -81,7 +85,7 @@ describe("judged typed read (v2.2 plan 06)", () => {
     const { manager, transport, records } = await setup({ typedExtraction: true }, typedAnswer(0.95));
     expect(manager.judgedExtraction({ kind: "typed", boundary: 0, messageId: 2 })).toBe(true);
     await flush();
-    expect(Object.keys(transport.mock.calls[0][0].questions)).toEqual(["q:has_key", "evidence:has_key"]);
+    expect(Object.keys(transport.mock.calls[0][0].questions)).toEqual(["q:has_key"]);
     expect(records).toEqual(["typed"]);
     const reads = manager.getSnapshot().extraction.judgedReads;
     expect(reads).toEqual([expect.objectContaining({ kind: "typed", answered: ["has_key"], deltas: [{ q: "has_key", v: true, confidence: 0.95 }], model: "jev-1.13.0" })]);

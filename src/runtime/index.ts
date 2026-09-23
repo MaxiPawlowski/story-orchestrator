@@ -1,6 +1,6 @@
 import { callExtractionModel, getChatWindow, ExtractionScheduler, type SchedulerHost, type SchedulerSettings } from "@extraction/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
-import { clearStoryExtensionPrompt, executeSlashCommands, forceActivateEntries, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, getScannableEntries, judgeStatus, judgeTransport, setStoryExtensionPrompt, subscribeToHostEvents, willAddUserMessage, type HostSubscriptionEntry } from "@services/STAPI";
+import { clearStoryExtensionPrompt, executeSlashCommands, forceActivateEntries, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, getScannableEntries, judgeStatus, judgeTransport, noteHostSettingsLoaded, setStoryExtensionPrompt, settingsReady, subscribeToHostEvents, willAddUserMessage, EXTENSION_SETTINGS_LOADED_EVENT, type HostSubscriptionEntry } from "@services/STAPI";
 import { quoteSlashArg } from "@utils/string";
 import { runBoundaryWork } from "./boundaryWork";
 import { SceneCoordinator } from "./coordinators/sceneCoordinator";
@@ -23,6 +23,10 @@ let privateInjectionUnsub: (() => void) | null = null;
 let talkController: TalkController | null = null;
 let sceneCoordinator: SceneCoordinator | null = null;
 let typedJudge: ReturnType<typeof createTypedJudge> | null = null;
+// v2.3 plan 03: every subscription startRuntime makes, so stopRuntime can undo it. Without this a
+// stop/start cycle left the previous run listening, and each boundary dispatched twice — once into
+// live wiring and once into a scheduler and scene coordinator that had already been torn down.
+const runtimeDisposers: Array<() => void> = [];
 
 const registerSlashCommandsWhenReady = (attempt = 0) => {
   if (slashRegistered) return;
@@ -55,16 +59,17 @@ export function startRuntime() {
       if (scheduler) runtimeManager.setSchedulerSnapshot(scheduler.getSnapshot());
     },
     pauseExtraction: (message) => runtimeManager.pauseExtraction(message),
+    epoch: () => runtimeManager.getRunContext().sessionEpoch,
     judgeTyped: () => typedJudge,
   };
   scheduler = new ExtractionScheduler(schedulerHost);
-  runtimeManager.onBoundary((result) => {
+  runtimeDisposers.push(runtimeManager.onBoundary((result) => {
     if (scheduler) runBoundaryWork({ result, manager: runtimeManager, scheduler, ...(sceneCoordinator ? { scene: sceneCoordinator } : {}) });
-  });
-  runtimeManager.onRollback((messageId, window) => {
+  }));
+  runtimeDisposers.push(runtimeManager.onRollback((messageId, window) => {
     scheduler?.schedule({ priority: 0, reason: `rollback:${messageId}`, window });
-  });
-  runtimeManager.onSceneBreakConfirmed((audit) => {
+  }));
+  runtimeDisposers.push(runtimeManager.onSceneBreakConfirmed((audit) => {
     scheduler?.schedule({ priority: 2, reason: `scene-break:${audit.sceneBreak?.reason}`, run: () => runtimeManager.runSceneBreakPass(audit) });
     if (runtimeManager.getEpistemicLedgerCapable()) {
       scheduler?.schedule({ priority: 2, reason: `epistemic-ledger:${audit.sceneBreak?.reason}`, run: async () => { await runtimeManager.runEpistemicLedgerPass(audit); } });
@@ -72,11 +77,21 @@ export function startRuntime() {
     if (runtimeManager.curatorDueForRun()) {
       scheduler?.schedule({ priority: 4, reason: `wi-curator:scene-${audit.sceneBreak?.reason}`, run: async () => { await runtimeManager.runWiCuratorPass("scene-break"); } });
     }
-  });
-  runtimeManager.onArcsResolvedConfirmed((arcIds) => {
+  }));
+  runtimeDisposers.push(runtimeManager.onArcsResolvedConfirmed((arcIds) => {
     scheduler?.schedule({ priority: 4, reason: `arc-summary:${arcIds.length}`, run: async () => { await runtimeManager.runArcSummaryPass(arcIds); } });
-  });
-  registerRuntimeMacros(runtimeManager);
+  }));
+  // A story load, select, restart, clear or chat change drops whatever was queued for the world
+  // that just ended (v2.3 plan 03 §Abort and cleanup).
+  runtimeDisposers.push(runtimeManager.onEpochChanged(() => scheduler?.clearForNewWorld()));
+  // v2.3 plan 06. A build with no MacrosParser throws on the first registration, and this call sits
+  // in the middle of startRuntime: unguarded, a missing macro engine would take the bridge, the judge,
+  // lore selection and speaker direction down with it. The capability report is where it is shown.
+  try {
+    runtimeDisposers.push(registerRuntimeMacros(runtimeManager));
+  } catch (error) {
+    console.warn("[Story Orchestrator] host macros unavailable; {{story_*}} will not resolve", error);
+  }
   registerLiveSuite(runtimeManager);
   window.setTimeout(() => registerSlashCommandsWhenReady(), 0);
   window.setTimeout(() => registerSlashCommandsWhenReady(), 1000);
@@ -89,6 +104,8 @@ export function startRuntime() {
     status: judgeStatus,
     record: (record) => runtimeManager.recordJudgeCall(record),
     context: () => ({ boundary: runtimeManager.getEngineState()?.boundary ?? 0, messageId: chatLastId() }),
+    // C1: a call started in one chat must not be recorded in another chat's ring.
+    ownership: runtimeManager.getOwnership(),
   });
   globalThis.storyOrchestratorJudge = judgeRuntime;
   typedJudge = createTypedJudge(() => judgeRuntime);
@@ -106,11 +123,14 @@ export function startRuntime() {
     getPlayerName,
     getLastMessageId: chatLastId,
     getScene: () => runtimeManager.getSceneRead(),
+    ownership: runtimeManager.getOwnership(),
     setScene: (record) => runtimeManager.recordSceneRead(record),
     inject: (text) => (text ? setStoryExtensionPrompt(tracker.key, text, tracker.depth) : clearStoryExtensionPrompt(tracker.key)),
   });
   sceneCoordinator = scene;
-  runtimeManager.subscribe(() => scene.sync());
+  runtimeManager.attachScene(scene);
+  runtimeDisposers.push(() => runtimeManager.attachScene(null));
+  runtimeDisposers.push(runtimeManager.subscribe(() => scene.sync()));
   const lore = new LoreSelector({
     judge: () => judgeRuntime,
     getStory: () => runtimeManager.getStory(),
@@ -120,6 +140,7 @@ export function startRuntime() {
     getLastMessageId: chatLastId,
     getEntries: getScannableEntries,
     force: forceActivateEntries,
+    ownership: runtimeManager.getOwnership(),
   });
   // v2.2 plan 04 seam: force at the last awaited event before a scan whose chat already holds the
   // message that triggered it. A generation about to add the player's message waits for MESSAGE_SENT.
@@ -155,6 +176,7 @@ export function startRuntime() {
     recordDecision: (audit) => runtimeManager.recordTalkDecision(audit),
     judgeDirector: (input) => judgeRuntime.director(input),
     getPlayerName,
+    ownership: runtimeManager.getOwnership(),
   };
   talkController = new TalkController(talkHost);
   globalThis.talkControlInterceptor = (_chat, _contextSize, abort, type) => talkController?.intercept(abort, type);
@@ -166,17 +188,40 @@ export function startRuntime() {
     { eventName: "GENERATION_STOPPED", handler: () => { runtimeManager.onGenerationEnded(); talkController?.onGenerationEnded(); } },
     { eventName: "GROUP_WRAPPER_STARTED", handler: (payload) => talkController?.onWrapperStarted(payload as Record<string, unknown> | undefined) },
     { eventName: "GROUP_WRAPPER_FINISHED", handler: () => { void talkController?.onWrapperFinished(); } },
+    // v2.3 plan 06 (F2): ST writes the third-party settings and THEN emits this, so it is the one
+    // proof that `extension_settings` holds real values. The chat that was waiting on the gate loads
+    // here, once, and never twice.
+    { eventName: EXTENSION_SETTINGS_LOADED_EVENT, handler: () => { noteHostSettingsLoaded(); void runtimeManager.loadSelectedFromChat(); } },
   ];
   privateInjectionUnsub = subscribeToHostEvents(privateInjectionEntries);
-  void runtimeManager.loadSelectedFromChat();
+  // v2.3 plan 06 (F2). Versioned settings (loaded synchronously from a cache) are already in place,
+  // so the gate opens now and the chat loads now; a page still fetching them opens it on the event.
+  // Either way the load happens exactly once, because the gate resolves once.
+  void settingsReady().then(() => {
+    if (runtimeManager.getSnapshot().ready) return;
+    // `?.` on purpose: a host seam that is absent (a partial stub, or a build without it) must not
+    // turn the load into an unhandled rejection — the load is the point, the gate is bookkeeping.
+    noteHostSettingsLoaded?.();
+    void runtimeManager.loadSelectedFromChat();
+  });
   return runtimeManager;
 }
 
 export function stopRuntime() {
   bridge?.stop();
   bridge = null;
+  runtimeManager.invalidateRuns();
   privateInjectionUnsub?.();
   privateInjectionUnsub = null;
+  // Each one try/caught: a listener that throws on disposal must not strand the ones after it
+  // still registered, which would leave exactly the double-dispatch this is here to prevent.
+  for (const dispose of runtimeDisposers.splice(0)) {
+    try {
+      dispose();
+    } catch (error) {
+      console.warn("[Story Orchestrator] a runtime subscription failed to dispose", error);
+    }
+  }
   scheduler = null;
   talkController = null;
   sceneCoordinator = null;

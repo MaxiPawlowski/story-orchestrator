@@ -1,13 +1,18 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import ReactDOM from "react-dom/client";
-import { bindNavbarDrawerToggle, judgeStatus, listConnectionProfiles, showConfirmPopup, toggleNavbarDrawer, writeJudgeSecret } from "@services/STAPI";
+import { bindNavbarDrawerToggle, capabilityReport, hostFacts, judgeStatus, listConnectionProfiles, showConfirmPopup, toggleNavbarDrawer, writeJudgeSecret, type CapabilityReport, type HostFacts } from "@services/STAPI";
+import packageJson from "../package.json";
 import { runJudgeDirectorSelfTest, type JudgeSelfTestReport } from "@judge/index";
 import { getGlobalSettings, setJudgeSettings } from "@runtime/settingsStore";
+import CapabilitiesGroup from "./components/settings/CapabilitiesGroup";
+import EntryPoints from "./components/settings/EntryPoints";
 import JudgeSettingsGroup, { type JudgeSettingsGroupProps, type JudgeSettingsPatch } from "./components/settings/JudgeSettingsGroup";
 import { runModelSelfTest, type SelfTestReport } from "@runtime/selfTest";
 import { isArcTemplateName } from "@pacing/index";
 import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
 import { startRuntime } from "@runtime/index";
+import { STORY_STATE_RETENTION } from "@runtime/persistence";
+import { exportState } from "@runtime/stateExport";
 import type { RuntimeSnapshot, StoryLibraryRecord } from "@runtime/types";
 import StudioModal, { STUDIO_TAB_IDS, type StudioOpenIntent } from "./studio/StudioModal";
 import type { WizardHost } from "./studio/components/StudioCopilot";
@@ -17,6 +22,9 @@ import HudStrip from "./components/drawer/HudStrip";
 import HelpTooltip from "./components/studio/HelpTooltip";
 import { useDraftStore, type StoryDraft } from "./studio/draft";
 import "./styles.css";
+
+// v2.3 plan 08: the version the settings panel reports is the one this bundle was built from.
+const EXTENSION_VERSION = String(packageJson.version ?? "unknown");
 
 const manager = startRuntime();
 
@@ -72,19 +80,22 @@ const openWizardForRequirements = async () => {
 };
 
 const wizardHost: WizardHost = {
-  environment: () => manager.getProvisioningEnvironment(),
+  environment: (draft) => manager.getProvisioningEnvironment(draft),
   applyProvisioning: (op, draft) => manager.applyProvisioning(op, draft),
+  readEntry: (lorebook, comment) => manager.readProvisioningEntry(lorebook, comment),
   loadSession: (key) => manager.getWizardSession(key),
   saveSession: (session) => manager.saveWizardSession(session),
 };
 
 // Saving from the chat that is playing this story is the one automatic library→chat path
 // (spec addendum §Story identity); every other chat keeps its pinned copy.
+// v2.3 plan 09: the chat half of one save vocabulary. The library half is the Studio's; this returns
+// only what happened HERE, so the two events never read as one sentence.
 const applySavedStory = async (record: StoryLibraryRecord): Promise<string | null> => {
   if (manager.getSnapshot().storyId !== record.id) return null;
   const outcome = await manager.applyStoryUpdate(record);
-  if (outcome.applied) return outcome.choice === "restart" ? "This chat restarted on it." : "This chat is playing it now.";
-  return outcome.reason ? `This chat kept its version — ${outcome.reason}.` : null;
+  if (outcome.applied) return outcome.choice === "restart" ? "this chat restarted on the new version" : "this chat is playing the new version now";
+  return outcome.reason ? `this chat kept its version — ${outcome.reason}` : null;
 };
 
 const StudioHost = () => {
@@ -124,8 +135,27 @@ const useRuntimeSnapshot = () => {
   return snapshot;
 };
 
+const SCOPE_COPY = {
+  install: { label: "this install", note: "Changes here affect every chat." },
+  chat: { label: "this chat", note: null },
+  story: { label: "this story", note: null },
+} as const;
+
+// v2.3 plan 09. The three lifetimes are a real part of this extension's model (spec addendum
+// §Configuration homes) and were explained in six different asides. One header, one vocabulary, and an
+// install-wide group says out loud that it is not local.
+const GroupHeader = ({ title, scope, id }: { title: string; scope: keyof typeof SCOPE_COPY; id?: string }) => (
+  <div className="flex flex-col gap-1">
+    <div id={id} className="font-medium text-sm">
+      {title} <span className="opacity-60 font-normal">— {SCOPE_COPY[scope].label}</span>
+    </div>
+    {SCOPE_COPY[scope].note && <div className="text-xs opacity-60">{SCOPE_COPY[scope].note}</div>}
+  </div>
+);
+
 const SettingsPanel = () => {
   const snapshot = useRuntimeSnapshot();
+  const [importOpen, setImportOpen] = useState(false);
   const [importText, setImportText] = useState("");
   const [busy, setBusy] = useState(false);
   const [selfTest, setSelfTest] = useState<SelfTestReport | null>(null);
@@ -143,8 +173,22 @@ const SettingsPanel = () => {
     void judgeStatus().then(setJudgeState);
   };
 
+  // v2.3 plan 06. Probed once per panel mount, not per render: a probe that answers is cached for the
+  // page load, so this costs one request each and the Recheck button is the only way to re-ask.
+  const [capabilities, setCapabilities] = useState<CapabilityReport[] | "checking">("checking");
+  const [hostFactSheet, setHostFactSheet] = useState<HostFacts | null>(null);
+  const probeHost = (refresh: boolean) => {
+    setCapabilities("checking");
+    void Promise.all([capabilityReport(refresh ? { refresh: true } : {}), hostFacts()]).then(([reports, facts]) => {
+      setCapabilities(reports);
+      setHostFactSheet(facts);
+    });
+  };
+  const recheckCapabilities = () => probeHost(true);
+
   useEffect(() => {
     if (getGlobalSettings().judge.enabled) recheckJudge();
+    probeHost(false);
   }, []);
 
   const changeJudge = (patch: JudgeSettingsPatch) => {
@@ -211,6 +255,16 @@ const SettingsPanel = () => {
     setBusy(false);
   };
 
+  // v2.3 plan 05. The chat's saved state can be dropped by retention, so the author gets a copy of it
+  // before that: what `so-state current` shows is what this writes to the clipboard.
+  const copyState = async () => {
+    await exportState({
+      writeClipboard: (text) => navigator.clipboard.writeText(text),
+      toast: window.toastr ?? {},
+      log: (text) => console.info(text),
+    });
+  };
+
   const deleteStory = async () => {
     const current = manager.getSnapshot();
     const active = current.library.find((story) => story.id === current.storyId);
@@ -229,6 +283,16 @@ const SettingsPanel = () => {
           <b>Story Orchestrator</b>
         </div>
         <div className="inline-drawer-content px-3 py-2 !flex flex-col gap-3">
+          <EntryPoints
+            snapshot={snapshot}
+            busy={busy}
+            importOpen={importOpen}
+            onToggleImport={() => setImportOpen((open) => !open)}
+            onNewStory={() => void openWizard()}
+            onOpenStudio={() => void openStudio()}
+            onRevealSetting={revealSetting}
+            onFixWithWizard={() => void openWizardForRequirements()}
+          />
           <label className="flex flex-col gap-1 text-sm">
             <span>Story</span>
             <div className="flex items-center gap-2">
@@ -245,17 +309,19 @@ const SettingsPanel = () => {
                 {identity.drifted && identity.libraryVersion ? ` The library has a newer version (v${identity.libraryVersion}); this chat keeps playing what it started with.` : ""}
               </div>
             )}
+            <div id="so-retention-note" className="text-xs opacity-70 flex items-center gap-2">
+              <span>This chat keeps its progress for the {STORY_STATE_RETENTION} most recent stories; switching to a sixth drops the oldest.</span>
+              <button id="so-export-state" className="menu_button" title="Copy this chat's saved story state to the clipboard, before anything can drop it." onClick={() => void copyState()}>Export state</button>
+            </div>
           </label>
-          <label className="flex flex-col gap-1 text-sm">
-            <span>Import story (JSON)</span>
-            <textarea className="text_pole" rows={6} value={importText} onChange={(event) => setImportText(event.target.value)} placeholder="Paste story JSON, or pick a file below" />
-            <input type="file" accept=".json,application/json" disabled={busy} onChange={(event) => { void importFile(event.target.files?.[0]); event.target.value = ""; }} />
-          </label>
-          <div className="flex items-center gap-2">
-            <button className="menu_button" disabled={busy || !importText.trim()} onClick={() => void importStory()}>Import and Load</button>
-            <button id="so-open-studio" className="menu_button" onClick={() => void openStudio()}>Open Studio</button>
-            <button id="so-new-story-wizard" className="menu_button" title="Start a new story from a premise: the wizard interviews you, proposes the graph, and creates the cards, lore and group it needs." onClick={() => void openWizard()}>New story (wizard)</button>
-          </div>
+          {importOpen && (
+            <label id="so-entry-import" className="flex flex-col gap-1 text-sm">
+              <span>Import story (JSON)</span>
+              <textarea className="text_pole" rows={6} value={importText} onChange={(event) => setImportText(event.target.value)} placeholder="Paste story JSON, or pick a file below" />
+              <input type="file" accept=".json,application/json" disabled={busy} onChange={(event) => { void importFile(event.target.files?.[0]); event.target.value = ""; }} />
+              <button className="menu_button self-start" disabled={busy || !importText.trim()} onClick={() => void importStory()}>Import and Load</button>
+            </label>
+          )}
           {snapshot.validationErrors.length > 0 && (
             <div className="text-xs text-red-400">
               {snapshot.validationErrors.map((error) => <div key={`${error.path}:${error.message}`}>{error.path}: {error.message}</div>)}
@@ -266,7 +332,7 @@ const SettingsPanel = () => {
             <span>Enable story copilot (authoring tab + in-play driver)</span>
           </label>
           <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
-            <div className="font-medium text-sm">Memory model <span className="opacity-60 font-normal">— install-wide, used by every chat</span></div>
+            <GroupHeader title="Memory model" scope="install" id="so-memory-model-header" />
             <label className="flex items-center gap-2 text-sm">
               <input id="so-extraction-enabled" type="checkbox" checked={snapshot.extraction.settings.enabled} onChange={(event) => manager.setExtractionSettings({ enabled: event.target.checked })} />
               <span>Let the story advance on its own (shared read extraction)</span>
@@ -280,7 +346,7 @@ const SettingsPanel = () => {
             </label>
             <details className="text-sm">
               <summary className="cursor-pointer opacity-80">Advanced</summary>
-              <div className="grid grid-cols-2 gap-2 pt-2">
+              <div className="grid grid-cols-1 gap-2 pt-2 sm:grid-cols-2">
                 <label className="flex flex-col gap-1">
                   <span>Cadence <HelpTooltip title="Run an extraction read every N chat messages. Lower = story reacts faster but calls the memory model more often." /></span>
                   <input type="number" min={1} value={snapshot.extraction.settings.cadence} onChange={(event) => manager.setExtractionSettings({ cadence: Math.max(1, Number(event.target.value) || 1) })} />
@@ -296,9 +362,9 @@ const SettingsPanel = () => {
               </div>
             </details>
             {snapshot.extraction.settings.enabled && !snapshot.extraction.settings.profileId && <div id="so-not-configured" className="text-xs text-yellow-300">Not configured: pick a memory model profile above and every chat, including this one, starts advancing on its own.</div>}
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button id="so-self-test" className="menu_button" disabled={!snapshot.extraction.settings.profileId} onClick={() => void runSelfTest()}>{selfTestRunning ? "Cancel test" : "Test memory model"}</button>
-              <span className="text-xs opacity-70">Runs fixed scenes through the real pipeline and reports what this model can actually do.</span>
+              <span className="min-w-0 text-xs opacity-70">Runs fixed scenes through the real pipeline and reports what this model can actually do.</span>
             </div>
             {selfTest && (
               <div id="so-self-test-result" className="text-xs flex flex-col gap-1">
@@ -319,7 +385,7 @@ const SettingsPanel = () => {
             )}
           </div>
           <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
-            <div className="font-medium text-sm">Display <span className="opacity-60 font-normal">— install-wide</span></div>
+            <GroupHeader title="Display" scope="install" id="so-display-header" />
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={snapshot.ui.announceTransitions} onChange={(event) => manager.setUiSettings({ announceTransitions: event.target.checked })} />
               <span>Announce checkpoint changes in chat</span>
@@ -330,14 +396,14 @@ const SettingsPanel = () => {
             </label>
           </div>
           <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
-            <div className="font-medium text-sm">Group chat <span className="opacity-60 font-normal">— this chat only</span></div>
+            <GroupHeader title="Group chat" scope="chat" id="so-group-chat-header" />
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={snapshot.talk.enabled} onChange={(event) => manager.setTalkDirectionEnabled(event.target.checked)} />
               <span>Speaker direction <HelpTooltip title="Let checkpoints with talk control decide who speaks next in group chats: name mentions win, then the LLM director, then weighted rules. Swipes, quiet passes, and explicit /trigger are never affected." /></span>
             </label>
           </div>
           <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
-            <div className="font-medium text-sm">Stagecraft <span className="opacity-60 font-normal">— install-wide</span></div>
+            <GroupHeader title="Stagecraft" scope="install" id="so-stagecraft-header" />
             <label className="flex items-center gap-2 text-sm">
               <input id="so-curator-enabled" type="checkbox" checked={snapshot.stagecraft.settings.curatorEnabled} onChange={(event) => manager.setStagecraftSettings({ curatorEnabled: event.target.checked })} />
               <span>World Info curator <HelpTooltip title="A background agent that reads what has happened and proposes changes to the story's own lorebook — switching entries on or off, correcting text the story has overtaken. It only ever touches the lorebooks the story lists for it, it proposes rather than writes, and it can never change story progress or memory." /></span>
@@ -380,8 +446,9 @@ const SettingsPanel = () => {
             onRefresh={recheckJudge}
             onRunSelfTest={() => void testJudge()}
           />
+          <CapabilitiesGroup reports={capabilities} facts={hostFactSheet} extensionVersion={EXTENSION_VERSION} onRefresh={recheckCapabilities} />
           <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
-            <div className="font-medium text-sm">Pacing</div>
+            <GroupHeader title="Pacing" scope="install" id="so-pacing-header" />
             <label className="flex flex-col gap-1 text-sm">
               <span>Dramatic shape <span className="opacity-60">— this chat only</span></span>
               <select value={typeof snapshot.pacing.shapeOverride === "string" ? snapshot.pacing.shapeOverride : ""} onChange={(event) => manager.setPacingSettings({ shapeOverride: isArcTemplateName(event.target.value) ? event.target.value : null })}>
@@ -391,14 +458,14 @@ const SettingsPanel = () => {
                 <option value="three_act">Three act</option>
               </select>
             </label>
-            <div className="grid grid-cols-2 gap-2 text-sm">
+            <div className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
               <label className="flex flex-col gap-1">
                 <span>Smoothing α <span className="opacity-60">(install-wide)</span> <HelpTooltip title="How quickly the measured tension follows the latest scene. Higher = jumpier, lower = smoother." /></span>
                 <input type="number" min={0} max={1} step={0.05} value={snapshot.pacing.alpha} onChange={(event) => manager.setPacingSettings({ alpha: Math.min(1, Math.max(0, Number(event.target.value) || 0)) })} />
               </label>
-              <label className="flex items-center gap-2 mt-5">
+              <label className="flex flex-wrap items-center gap-2 mt-5">
                 <input type="checkbox" checked={snapshot.pacing.hintEnabled} onChange={(event) => manager.setPacingSettings({ hintEnabled: event.target.checked })} />
-                <span>Steering hint <HelpTooltip title="Quietly nudge the main model toward the story's intended tension (escalate or cool down) via an injected note." /></span>
+                <span className="min-w-0">Steering hint <HelpTooltip title="Quietly nudge the main model toward the story's intended tension (escalate or cool down) via an injected note." /></span>
               </label>
             </div>
           </div>
@@ -468,6 +535,16 @@ const openStorySettings = () => {
   const inlineContent = panel?.querySelector<HTMLElement>(".inline-drawer-content");
   if (inlineToggle && inlineContent && inlineContent.offsetParent === null) inlineToggle.click();
   window.setTimeout(() => panel?.scrollIntoView({ block: "start", behavior: "smooth" }), 100);
+};
+
+// Repair names a step; this is how it lands on it. A control that is already in the panel is pointed
+// at, never duplicated — two controls that do the same thing is how one of them goes stale.
+const revealSetting = (id: string) => {
+  const element = document.getElementById(id);
+  if (!element) return;
+  element.scrollIntoView({ block: "center", behavior: "smooth" });
+  element.classList.add("so-revealed");
+  window.setTimeout(() => element.classList.remove("so-revealed"), 2000);
 };
 
 const HudMount = () => {

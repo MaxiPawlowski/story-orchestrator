@@ -1,9 +1,12 @@
 import { trimStringList } from "@utils/dataHelpers";
-import { quoteSlashArg } from "@utils/string";
+import { lorebookFileId, quoteSlashArg } from "@utils/string";
 import { getContext } from "./context";
 import type { HostWorldInfoSettings } from "./hostTypes";
 import { worldInfoModule } from "./modules";
 import { executeSlashCommands } from "./slashCommands";
+import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
+
+export { lorebookFileId };
 
 export interface Lorebook {
   entries: Record<number, LoreEntry>;
@@ -24,16 +27,6 @@ export function listAllLorebooks(): string[] {
     .map((name) => (typeof name === "string" ? name.trim() : ""))
     .filter((name) => name.length > 0);
 }
-
-// `world_names` holds file ids, and the server files a book under `sanitize(name + ".json")`
-// (src/endpoints/worldinfo.js:151, sanitize-filename): a title with `:` or `?` is listed under a
-// different name than the one it was saved with. None of our names hit the reserved-name rules.
-const ILLEGAL_FILE_CHARS = new Set([..."/?<>\\:*|\""]);
-const isControlChar = (char: string) => {
-  const code = char.charCodeAt(0);
-  return code <= 0x1f || (code >= 0x80 && code <= 0x9f);
-};
-export const lorebookFileId = (name: string): string => [...name.trim()].filter((char) => !ILLEGAL_FILE_CHARS.has(char) && !isControlChar(char)).join("");
 
 export function findLorebook(name: string): string | null {
   const wanted = lorebookFileId(name).toLowerCase();
@@ -140,10 +133,13 @@ export async function ensureLorebook(name: string): Promise<{ name: string; crea
 // `createNewWorldInfo` refreshes the picker but does NOT activate the book (world-info.js:4448 — no
 // `globalSelect` write), while a story's `requirements.lorebooks` is satisfied only by the *globally
 // selected* books; `/world state=on` is ST's own activation path and is what makes it count.
-export async function createLorebook(name: string): Promise<{ created: boolean; activated: boolean }> {
+export async function createLorebook(name: string): Promise<WriteResult<{ name: string; created: boolean }>> {
   const ensured = await ensureLorebook(name);
-  if (!ensured) return { created: false, activated: false };
-  return { created: ensured.created, activated: await activateGlobalLorebook(ensured.name) };
+  if (!ensured) return couldNot(`could not create "${name}"`);
+  // A book that exists but will not stay selected is a FAILURE for the caller: a story's requirement
+  // is satisfied only by globally selected books, so "created, not active" is not a happy ending.
+  const activated = await activateGlobalLorebook(ensured.name);
+  return activated.ok ? wrote({ name: ensured.name, created: ensured.created }) : couldNot(activated.reason);
 }
 
 export type ChatLorebookBinding = "bound" | "already-bound" | "occupied" | "no-chat";
@@ -166,12 +162,12 @@ export function bindChatLorebook(name: string, replaceable: string[] = []): Chat
   return "bound";
 }
 
-export async function activateGlobalLorebook(name: string): Promise<boolean> {
+export async function activateGlobalLorebook(name: string): Promise<WriteResult<{ name: string }>> {
   const lorebook = findLorebook(name) ?? name.trim();
-  if (!lorebook) return false;
-  if (isGloballySelected(lorebook)) return true;
+  if (!lorebook) return couldNot("no lorebook by that name");
+  if (isGloballySelected(lorebook)) return wrote({ name: lorebook });
   await executeSlashCommands(`/world silent=true state=on ${quoteSlashArg(lorebook)}`);
-  return isGloballySelected(lorebook);
+  return isGloballySelected(lorebook) ? wrote({ name: lorebook }) : couldNot(`"${lorebook}" did not stay selected`);
 }
 
 const isGloballySelected = (lorebook: string) => listSelectedLorebooks().some((entry) => entry.toLowerCase() === lorebook.toLowerCase());
@@ -210,4 +206,24 @@ export async function upsertWIEntry(lorebook: string, comment: string, content: 
   target.disable = false;
   await saveLorebook(name, data);
   return existing ? "updated" : "created";
+}
+
+export interface WIEntrySnapshot {
+  content: string;
+  keys: string[];
+  constant: boolean;
+  disabled: boolean;
+  uid?: number;
+}
+
+// What an entry holds right now, so a write can show a before/after instead of asking the author to
+// trust the replacement. `null` covers both "no such book" and "no such entry": both mean there is
+// nothing to overwrite, and the review card says which by also knowing whether the book is listed.
+export async function readWIEntry(lorebook: string, comment: string): Promise<WIEntrySnapshot | null> {
+  if (!comment) return null;
+  const book = await loadExisting(lorebook);
+  if (!book) return null;
+  const entry = Object.values(book.data.entries).find((candidate) => candidate.comment?.trim() === comment);
+  if (!entry) return null;
+  return { content: String(entry.content ?? ""), keys: Array.isArray(entry.key) ? entry.key : [], constant: Boolean(entry.constant), disabled: Boolean(entry.disable), uid: typeof entry.uid === "number" ? entry.uid : undefined };
 }

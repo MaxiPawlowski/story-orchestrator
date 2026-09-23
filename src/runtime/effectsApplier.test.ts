@@ -1,12 +1,16 @@
 import type { Checkpoint, NormalizedStoryV2 } from "@engine/index";
 import { parseStoryV2OrThrow } from "@engine/validate";
-import { applyBackground, applyCharacterAN, clearCharacterAN, disableWIEntry, enableWIEntry, executeSlashCommands } from "@services/STAPI";
-import { EffectsApplier } from "./effectsApplier";
+import { applyBackground, applyCharacterAN, clearCharacterAN, disableWIEntry, enableWIEntry, executeSlashCommands, setGroupMembersDisabled } from "@services/STAPI";
+import { EffectsApplier, PENDING_NOT_SAVED } from "./effectsApplier";
 import type { RuntimeExtras, RuntimeSnapshot } from "./types";
 
 const mockContext = { chat: [{ mes: "one" }, { mes: "two" }] };
 
 jest.mock("@services/STAPI", () => ({
+  settingsAreLoaded: () => true,
+  settingsReady: async () => {},
+  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
+  readBackBoundary: () => null,
   getContext: () => mockContext,
   executeSlashCommands: jest.fn(async () => undefined),
   setGroupMembersDisabled: jest.fn(async () => undefined),
@@ -18,6 +22,8 @@ jest.mock("@services/STAPI", () => ({
   enableWIEntry: jest.fn(async () => true),
   lorebookExists: jest.fn((name: string) => name !== "Missing Book"),
   applyBackground: jest.fn(async () => ({ changed: true, from: "old.jpg", to: "tavern day.jpg" })),
+  getActiveGroup: jest.fn(() => ({ id: "g1", disabled_members: [] })),
+  resolveGroupMemberId: jest.fn((name: string) => (name === "Mara" ? "mara-chid" : null)),
 }));
 
 const makeExtras = (): RuntimeExtras => ({
@@ -89,6 +95,31 @@ describe("fireNpcReplies v1 parity", () => {
     mockContext.chat = [...mockContext.chat, { mes: "three" }];
     await applier.fireNpcReplies(checkpoint, extras, "afterSpeak", undefined, ["Mara"]);
     expect(executeSlashCommands).toHaveBeenCalledTimes(1);
+  });
+
+  // plan 11 §Fault matrix (effects | duplicateCompletion). The same checkpoint can be applied twice
+  // — a duplicate completion at one boundary, or a hydrate immediately after an activate — and the
+  // one effect that SPEAKS must not speak twice. `maxTriggers` (default 1) is what makes that true,
+  // and its key names the checkpoint, the trigger, the member and the reply's index, so a second
+  // apply of the same checkpoint addresses the counter the first one incremented.
+  it("fires a one-shot reply once when the same checkpoint is applied twice, and twice when it is asked to", async () => {
+    const once = new EffectsApplier();
+    const extras = makeExtras();
+    const checkpoint = checkpointWith([{ trigger: "onEnter", member: "Mara", kind: "scripted", text: "Halt!" }]);
+    await once.fireNpcReplies(checkpoint, extras, "onEnter");
+    await once.fireNpcReplies(checkpoint, extras, "onEnter");
+    expect(executeSlashCommands).toHaveBeenCalledTimes(1);
+    expect(extras.firedNpcReplies).toEqual({ "cp:onEnter:Mara:0": 1 });
+
+    // The counter is what stops it, not a coincidence: asking for two lets exactly two through.
+    (executeSlashCommands as jest.Mock).mockClear();
+    const twice = new EffectsApplier();
+    const allowed = makeExtras();
+    const repeated = checkpointWith([{ trigger: "onEnter", member: "Mara", kind: "scripted", text: "Halt!", maxTriggers: 2 }]);
+    await twice.fireNpcReplies(repeated, allowed, "onEnter");
+    await twice.fireNpcReplies(repeated, allowed, "onEnter");
+    await twice.fireNpcReplies(repeated, allowed, "onEnter");
+    expect(executeSlashCommands).toHaveBeenCalledTimes(2);
   });
 });
 
@@ -213,5 +244,40 @@ describe("world_info effect", () => {
     await new EffectsApplier().releaseWorldInfo([other, story], story);
     expect(calls(disableWIEntry)).toEqual([["Other", ["Theirs"]]]);
     expect(enableWIEntry).not.toHaveBeenCalled();
+  });
+});
+
+// v2.3 plan 11 §Fault matrix (effects | persistFailure) — the one cell that was still unproven.
+// `withLedger` records a `pending` row BEFORE the host call so a write that landed can still be
+// known to have landed after a crash. `persist()` cannot tell us the row got there: it resolves
+// either way, because `saveMetadata` swallows its own errors. So the applier asks the save-evidence
+// reading instead, and a row that exists only in memory refuses the host write rather than producing
+// an effect with no durable record. `setGroupMembersDisabled` is the host write here.
+describe("the write-ahead record gates the effect (plan 11)", () => {
+  const story = { title: "Fixture" } as unknown as NormalizedStoryV2;
+  const snapshot = {} as unknown as RuntimeSnapshot;
+  const castCheckpoint = (): Checkpoint => ({ id: "cp", name: "CP", objective: "", type: "anchor", effects: { cast_changes: { disable: ["Mara"] } } }) as unknown as Checkpoint;
+  const castExtras = () => ({ ...makeExtras(), requirements: { ready: true }, effects: { ledger: [], cast: [] } } as unknown as RuntimeExtras);
+
+  beforeEach(() => {
+    (setGroupMembersDisabled as jest.Mock).mockClear();
+    (setGroupMembersDisabled as jest.Mock).mockResolvedValue({ ok: true });
+  });
+
+  it("applies the cast change when the pending row is saved", async () => {
+    const extras = castExtras();
+    await new EffectsApplier(undefined, { persist: async () => undefined, unsaved: () => false }).applyCheckpoint(story, castCheckpoint(), extras, snapshot, "activate", []);
+    expect(setGroupMembersDisabled).toHaveBeenCalledTimes(1);
+    expect(extras.effects.ledger.map((row) => row.status)).toEqual(["applied"]);
+  });
+
+  it("refuses it, and says why, when the pending row is still unsaved", async () => {
+    const extras = castExtras();
+    const journalled: string[] = [];
+    await new EffectsApplier(undefined, { persist: async () => undefined, unsaved: () => true, journal: (summary) => { journalled.push(summary); } }).applyCheckpoint(story, castCheckpoint(), extras, snapshot, "activate", []);
+    expect(setGroupMembersDisabled).not.toHaveBeenCalled();
+    expect(extras.effects.ledger.map((row) => row.status)).toEqual(["failed"]);
+    expect(extras.effects.ledger[0].reason).toBe(PENDING_NOT_SAVED);
+    expect(journalled).toEqual(["cast effect was not applied"]);
   });
 });

@@ -1,4 +1,4 @@
-import { HEADING_P, PRESENT_P, SCENE_FIELD_CONFIDENCE, SCENE_TRIGGER } from "./policy";
+import { HEADING_P, PRESENT_P, SCENE_FIELD_CONFIDENCE, SCENE_STALE_AFTER, SCENE_TRIGGER } from "./policy";
 import { choice, choiceAnswer, noul, noulAnswer } from "./questions";
 import type { JudgeAnswer, JudgeOption, JudgeRequest } from "./types";
 
@@ -153,11 +153,42 @@ export function sceneTrackerText(facts: SceneFacts): string | null {
   return parts.length ? `[${parts.join(" ")}]` : null;
 }
 
+/**
+ * C2 (v2.3 plan 03): how far the stored read can still be trusted. A read that does not answer —
+ * a timeout, an error, an unreachable plugin — used to leave the previous record untouched, so a
+ * tracker that had not worked for ten minutes looked exactly like one that answered a second ago.
+ * `failures` counts consecutive misses; past `SCENE_STALE_AFTER` the tracker is withheld rather
+ * than presented as current.
+ */
+export interface SceneFreshness {
+  failures: number;
+  /** ISO time of the first failure in the current run of them. */
+  staleSince: string | null;
+  /** The boundary the record was last confirmed at. */
+  confirmedBoundary: number;
+}
+
 export interface SceneReadRecord {
   at: string;
   boundary: number;
   messageId: number;
   model: string | null;
+  freshness?: SceneFreshness;
+  /**
+   * v2.3 plan 05. Where this read came from. It is the same envelope every derived record carries
+   * (`@memory/provenance`), declared structurally here because the judge core is pure and may not
+   * import the memory layer.
+   */
+  provenance?: {
+    source: "extractor" | "judge" | "author" | "code" | "curator" | "blackboard" | "legacy";
+    messageId: number;
+    boundary: number;
+    pass: string;
+    sourceRevision?: number;
+    inputs?: Array<{ store: "memory" | "ledger" | "epistemic" | "scene" | "blackboard"; id: string }>;
+    confidence?: number;
+    validity: "live" | "superseded" | "source-removed" | "conflicted" | "quarantined";
+  };
   sceneBreak?: { p: number; type: SceneBreakType | null; triggered: boolean };
   location?: SceneField;
   time?: SceneField;
@@ -166,11 +197,39 @@ export interface SceneReadRecord {
   facts: SceneFacts;
 }
 
+/**
+ * C2 (v2.3 plan 03): has the judge failed to confirm this scene often enough to stop asserting it?
+ *
+ * It lives here, in the pure module, rather than on the coordinator, because four consumers have
+ * to agree about it — the injected tracker block, the player's "where you are" line, the
+ * look-ahead that reads `headingTo`, and the scene macros. Each deciding for itself is how a
+ * withheld tracker ends up still being shown somewhere.
+ */
+export const isSceneStale = (record: SceneReadRecord | null | undefined): boolean =>
+  (record?.freshness?.failures ?? 0) >= SCENE_STALE_AFTER;
+
+/** The facts, or null once they can no longer be asserted. The one accessor every reader uses. */
+export const confirmedSceneFacts = (record: SceneReadRecord | null | undefined): SceneFacts | null =>
+  !record || isSceneStale(record) ? null : record.facts;
+
 export function toSceneRecord(read: SceneAnswers, input: SceneReadInput, meta: { at: string; boundary: number; messageId: number; model: string | null }): SceneReadRecord {
   const facts = sceneFacts(read, input.cast);
   const reachable = input.reachable ?? [];
+  const families = Object.entries(input.families).filter(([, on]) => on).map(([name]) => name);
+  // The read describes the messages it was handed, so its inputs name that span: an edit inside it
+  // invalidates the facts derived from it, and the confidence is the weakest answer it rested on.
+  const confidences = [read.location?.confidence, read.time?.confidence].filter((value): value is number => typeof value === "number");
   return {
     ...meta,
+    provenance: {
+      source: "judge",
+      messageId: meta.messageId,
+      boundary: meta.boundary,
+      pass: `scene:${families.join("+")}`,
+      inputs: [{ store: "scene", id: `window:${meta.messageId}` }],
+      ...(confidences.length ? { confidence: Math.min(...confidences) } : {}),
+      validity: "live",
+    },
     ...(read.sceneBreak ? { sceneBreak: { ...read.sceneBreak, triggered: sceneBreakTriggered(read) } } : {}),
     ...(read.location ? { location: read.location } : {}),
     ...(read.time ? { time: read.time } : {}),

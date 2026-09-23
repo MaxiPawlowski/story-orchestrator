@@ -58,6 +58,23 @@ const choiceCriteria = (quality: Quality): Record<string, JudgeOption> => {
   };
 };
 
+const boundChoiceCriteria = (quality: Quality, window: TypedWindowMessage[]) => {
+  const values = choiceCriteria(quality);
+  const options = new Map<string, { value: PrimitiveValue | undefined; messageKey?: string }>();
+  const criteria: Record<string, JudgeOption> = {};
+  for (const [value, criterion] of Object.entries(values)) {
+    if (value === TYPED_NOT_SHOWN) continue;
+    for (const message of window) {
+      const label = `${value} in ${msgKey(message)}`;
+      options.set(label, { value: quality.type === "bool" ? value === "yes" : value, messageKey: msgKey(message) });
+      criteria[label] = criterion;
+    }
+  }
+  options.set(TYPED_NOT_SHOWN, { value: undefined });
+  criteria[TYPED_NOT_SHOWN] = values[TYPED_NOT_SHOWN];
+  return { criteria, options };
+};
+
 // The spike's strategies (experiments/extraction.mts planCase), one request for every hinted quality
 // in scope plus one evidence choice each. Only qualities with a `read_as` hint are ever asked.
 export function buildTypedPlan(qualities: Quality[], window: TypedWindowMessage[], story: TypedStoryContext): TypedPlan | null {
@@ -67,12 +84,14 @@ export function buildTypedPlan(qualities: Quality[], window: TypedWindowMessage[
     if (!quality.read_as || quality.source !== "extractor") continue;
     const id = `q:${quality.key}`;
     if (quality.read_as === "choice") {
-      plan.request.questions[id] = choice(`${quality.rubric}\n${JUDGE_FROM_TRANSCRIPT}`, choiceCriteria(quality));
+      const bound = boundChoiceCriteria(quality, window);
+      plan.request.questions[id] = choice(`${quality.rubric}\nChoose the value and the message in \`transcript\` that shows it.`, bound.criteria);
       plan.decoders.push({ key: quality.key, decode: (answers) => {
         const answer = choiceAnswer(answers, id);
         if (!answer) return null;
-        const value = answer.choice === TYPED_NOT_SHOWN ? undefined : quality.type === "bool" ? answer.choice === "yes" : answer.choice;
-        return { value, confidence: answer.confidence };
+        const picked = bound.options.get(answer.choice);
+        if (!picked) return null;
+        return { value: picked.value, confidence: answer.confidence, ...(picked.messageKey ? { messageKey: picked.messageKey } : {}) };
       } });
     } else if (quality.read_as === "rating") {
       const levels = ratingLevels(quality);
@@ -110,7 +129,9 @@ export function buildTypedPlan(qualities: Quality[], window: TypedWindowMessage[
         return { value: option?.value, confidence: answer.confidence, ...(option ? { messageKey: option.messageKey } : {}) };
       } });
     }
-    if (window.length >= 2) {
+    // A choice or stated candidate already carries its message key. Only a rating still needs a
+    // separate evidence choice because its value comes from a score rather than from a Choice.
+    if (window.length >= 2 && quality.read_as === "rating") {
       const evidenceId = `evidence:${quality.key}`;
       plan.request.questions[evidenceId] = choice(`Which message in \`transcript\` shows the answer to this question: ${quality.rubric}`, Object.fromEntries(window.map((message) => [msgKey(message), null])));
       plan.decoders[plan.decoders.length - 1].evidenceId = evidenceId;

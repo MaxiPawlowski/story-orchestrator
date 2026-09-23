@@ -52,6 +52,8 @@ export interface ParsedDelta {
   evidence: string;
   rawLevel?: TensionLevel;
   judge?: number;
+  /** The line the model wrote, when a parser read it. The audit shows this back. */
+  line?: string;
 }
 
 // v2.2 plan 06: what the judged typed read hands back. `answered` are the hinted qualities it

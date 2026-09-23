@@ -5,6 +5,7 @@ import { PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
+import { parseTierFloors, scoreContains, scoreRejected, suiteVerdict, tierTotals } from './lib/liveSuiteScore.mts';
 
 const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge]
 
@@ -18,6 +19,8 @@ memory profile selected in the extension settings.
   --min <n>       minimum accuracy for exit 0 (default 0.9)
   --filter <s>    only run fixtures whose name contains <s>
   --record        write each live raw response to test/goldens/live/<name>.response.txt
+  --min-tier <s>  per-tier floors, e.g. facts=0.85,rejected=0.9 (a tier below its floor fails)
+  --expect-count <n>  fail unless exactly n fixtures ran — a shrinking denominator cannot raise accuracy
   --judge         v2.2 plan 06: merge test/fixtures/<name>.hints.json (read_as + criteria per quality)
                   into the fixture's story, let the judge read the hinted qualities first and the LLM
                   the rest (the cadence read's split). Needs the judge plugin; recordings go to
@@ -76,7 +79,7 @@ async function discoverFixtures(filter) {
   return fixtures;
 }
 
-async function runSuite(page, { min, filter, record, judge = false }) {
+async function runSuite(page, { min, filter, record, judge = false, floors = {}, expectCount = null }) {
   const fixtures = await discoverFixtures(filter);
   if (!fixtures.length) throw new Error(`No fixtures found in ${FIX_DIR}`);
   if (record) await mkdir(judge ? JUDGE_GOLDEN_DIR : LIVE_GOLDEN_DIR, { recursive: true });
@@ -92,8 +95,21 @@ async function runSuite(page, { min, filter, record, judge = false }) {
       }, { story: fixture.story, transcript: fixture.transcript, overrides: fixture.expected?.spec ?? {}, judge, hints: fixture.hints });
 
       const { pass, expectedNorm, liveNorm } = scoreFixture(fixture.expected.deltas ?? [], live.deltas ?? []);
+      // §F: score every tier the fixture states, not only the plot deltas. `facts` and `rejected`
+      // expectations have been in these files all along with nothing reading them.
+      const tiers = [
+        { tier: 'deltas' as const, scored: true, pass, detail: `expected=[${expectedNorm.join(', ')}] live=[${liveNorm.join(', ')}]` },
+        scoreContains('facts', fixture.expected.facts, live.facts ?? []),
+        scoreRejected(fixture.expected.rejected, live.rejected ?? []),
+        scoreContains('memory', fixture.expected.memory, live.memory ?? []),
+        scoreContains('arcs', fixture.expected.arcs, live.arcs ?? []),
+        scoreContains('epistemic', fixture.expected.epistemic, live.epistemic ?? []),
+        scoreContains('ledger', fixture.expected.ledger, live.ledger ?? []),
+      ].filter((row) => row.scored);
+      const tierFailures = tiers.filter((row) => !row.pass);
       const sources = (live.deltas ?? []).map((d) => `${d.q}:${d.judge === undefined ? 'llm' : `judge@${d.judge}`}`);
-      results.push({ name: fixture.name, pass, expected: expectedNorm, live: liveNorm, ...(judge ? { sources, judged: live.judged?.answered ?? [] } : {}), ms: Date.now() - startedAt });
+      results.push({ name: fixture.name, pass, tiers, expected: expectedNorm, live: liveNorm, ...(judge ? { sources, judged: live.judged?.answered ?? [] } : {}), ms: Date.now() - startedAt });
+      for (const row of tierFailures) console.log(`  ${row.tier}: ${row.detail}`);
       if (record && judge) await writeFile(join(JUDGE_GOLDEN_DIR, `${fixture.name}.json`), `${JSON.stringify({ rawResponse: live.rawResponse, judged: live.judged ?? null }, null, 2)}\n`);
       else if (record) await writeFile(join(LIVE_GOLDEN_DIR, `${fixture.name}.response.txt`), `${live.rawResponse}\n`);
       console.log(`${pass ? 'PASS' : 'FAIL'} ${fixture.name} expected=[${expectedNorm.join(', ')}] live=[${liveNorm.join(', ')}]${judge ? ` sources=[${sources.join(', ')}]` : ''}`);
@@ -105,9 +121,31 @@ async function runSuite(page, { min, filter, record, judge = false }) {
 
   const passed = results.filter((entry) => entry.pass).length;
   const accuracy = passed / results.length;
-  const report = { total: results.length, passed, accuracy: Number(accuracy.toFixed(4)), min, ok: accuracy >= min, recorded: record, judge, results };
+  const totals = tierTotals(results.map((entry) => ({ name: entry.name, pass: entry.pass, tiers: entry.tiers ?? [] })), floors);
+  const incomplete = results.filter((entry) => entry.error).map((entry) => entry.name);
+  // The headline has always meant plot deltas; it is labelled that way now, and every other tier
+  // carries its own floor so a strong tier cannot carry a weak one.
+  const verdict = suiteVerdict({ plotAccuracy: accuracy, min, totals, ran: results.length, expectCount, incomplete });
+  const report = {
+    total: results.length,
+    passed,
+    plotDeltaAccuracy: Number(accuracy.toFixed(4)),
+    min,
+    tiers: totals,
+    expectCount: expectCount ?? null,
+    incomplete,
+    notGreen: verdict.reasons,
+    ok: verdict.ok,
+    recorded: record,
+    judge,
+    results,
+  };
   await writeJSON(report, judge ? 'so-live-suite-judge-report' : 'so-live-suite-report');
-  console.log(JSON.stringify({ total: report.total, passed, accuracy: report.accuracy, min, ok: report.ok }, null, 2));
+  for (const [tier, total] of Object.entries(totals)) {
+    console.log(`${total.ok ? 'ok  ' : 'FAIL'} ${tier.padEnd(10)} ${total.passed}/${total.scored}${total.floor === undefined ? '' : ` floor ${total.floor}`}${total.vacuous.length ? `  [vacuous expectations: ${total.vacuous.join(', ')}]` : ''}`);
+  }
+  for (const reason of verdict.reasons) console.log(`NOT GREEN: ${reason}`);
+  console.log(JSON.stringify({ total: report.total, passed, plotDeltaAccuracy: report.plotDeltaAccuracy, min, tiers: totals, ok: report.ok }, null, 2));
   return { ok: report.ok };
 }
 
@@ -121,5 +159,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const min = Number(argValue('--min', '0.9'));
   const filter = argValue('--filter', '');
   const record = process.argv.includes('--record');
-  runCli((page) => runSuite(page, { min, filter, record, judge: process.argv.includes('--judge') }));
+  const { floors, errors } = parseTierFloors(argValue('--min-tier', ''));
+  if (errors.length) {
+    for (const error of errors) console.error(`ERROR: ${error}`);
+    process.exit(1);
+  }
+  const expectCountRaw = argValue('--expect-count', '');
+  runCli((page) => runSuite(page, { min, filter, record, judge: process.argv.includes('--judge'), floors, expectCount: expectCountRaw ? Number(expectCountRaw) : null }));
 }

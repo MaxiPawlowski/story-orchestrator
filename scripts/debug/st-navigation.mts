@@ -153,6 +153,11 @@ export async function readActiveChat(page) {
 export async function beginSandboxSession(page) {
   const before = await readActiveChat(page);
   if (!before.groupId) throw new Error('No active group chat. Open a group chat before starting a sandbox.');
+  // What the page was sitting on, and how big it is. A sandbox run must not touch it: if this chat
+  // loses messages while the run is live, the run caused it (2026-09-21: a corpus loop ran a chat of
+  // the user's down from 4 messages to an empty file, seen only because a header diff read the
+  // chat's story as null afterwards).
+  const onDisk = before.chatId ? await readChatOnDisk(page, before.chatId) : null;
   const session = await startNewGroupSession(page);
   const { groupId, chatId } = session.after;
   if (groupId !== before.groupId || !chatId || before.groupChats.includes(chatId)) {
@@ -163,12 +168,25 @@ export async function beginSandboxSession(page) {
     sandboxChatId: chatId,
     owned: [chatId],
     preexisting: before.groupChats,
+    preexistingOpen: onDisk ? { chatId: before.chatId, messages: onDisk.messages } : null,
     current: chatId,
     escaped: null,
     storyTitles: [] as string[],
     mirrorBooks: [] as Array<{ name: string; chatId: string }>,
   };
   return { ...session, guard };
+}
+
+// A chat file's message count and size, read from the server rather than the page: the page cannot
+// be trusted to still be on that chat, and the file is what the user would lose.
+export async function readChatOnDisk(page, chatId: string) {
+  return evaluateInST(page, async (id) => {
+    const ctx = SillyTavern.getContext();
+    const response = await fetch('/api/chats/group/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ id }) });
+    const data = await response.json().catch(() => null);
+    const chat = Array.isArray(data) ? data[0] : data;
+    return { messages: Array.isArray(chat) ? chat.length : null, keys: chat && typeof chat === 'object' ? Object.keys(chat).length : 0 };
+  }, chatId);
 }
 
 export async function assertInSandbox(page, guard, where) {

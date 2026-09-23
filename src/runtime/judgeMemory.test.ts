@@ -14,6 +14,10 @@ const mockContext = {
 };
 
 jest.mock("@services/STAPI", () => ({
+  settingsAreLoaded: () => true,
+  settingsReady: async () => {},
+  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
+  readBackBoundary: () => null,
   getContext: () => mockContext,
   setStoryExtensionPrompt: jest.fn(),
   clearStoryExtensionPrompt: jest.fn(),
@@ -30,6 +34,10 @@ jest.mock("@services/STAPI", () => ({
   bindChatLorebook: jest.fn(() => "no-chat"),
   countTokens: jest.fn(async (text: string) => Math.ceil((text?.length ?? 0) / 4)),
   vectorInsert: jest.fn(async () => { throw new Error("no vectors in jest"); }),
+  // v2.3 plan 06: the capability probe is asked BEFORE the vectors path, so a mock that omits it
+  // takes the test down at the seam rather than through it. "present" keeps this suite on the same
+  // path it was written against: try the vectors API, fall back when it throws.
+  capabilityState: jest.fn(async () => "present"),
   vectorQuery: jest.fn(async () => []),
   vectorPurge: jest.fn(async () => undefined),
   DEFAULT_VECTOR_SOURCE: "transformers",

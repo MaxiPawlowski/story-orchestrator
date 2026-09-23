@@ -2,20 +2,35 @@ import type { Checkpoint, CheckpointEffects, NormalizedStoryV2, NpcReplyEffect, 
 import {
   applyBackground,
   applyCharacterAN,
-  applyTextGenPresetRuntime,
+  applyPreset,
   clearCharacterAN,
   disableWIEntry,
   enableWIEntry,
   executeSlashCommands,
   findTextGenPreset,
   lorebookExists,
+  presetBackend,
+  readAppliedPreset,
+  resolveGroupMemberId,
   setGroupMembersDisabled,
+  getActiveGroup,
   getContext,
+  type TextGenPreset,
 } from "@services/STAPI";
 import { quoteSlashArg } from "@utils/string";
+import type { WriteResult } from "@utils/writeResult";
 import { renderBlackboardMemo } from "./blackboardMemo";
-import type { RuntimeExtras, RuntimeSnapshot } from "./types";
+import { appendRow, pendingRow, restorePlan, setStatus, type EffectWrite } from "./effectLedger";
+import type { EffectLedgerRow, EffectTarget, RuntimeExtras, RuntimeSnapshot } from "./types";
 import { releasePlan, worldInfoPlan, type WorldInfoBookPlan } from "./worldInfoGates";
+import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
+
+// v2.3 plan 06. What a host effect changed, read back from the host as it is NOW. Every reader is a
+// QUESTION with an honest "cannot tell", so a reconcile never guesses: a target whose value cannot be
+// read leaves its row `pending` rather than inventing an answer.
+export interface EffectHostReads {
+  read: (target: EffectTarget) => Record<string, unknown> | null;
+}
 
 const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 const readStrings = (value: unknown): string[] => Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0) : typeof value === "string" && value.trim() ? [value] : [];
@@ -50,17 +65,18 @@ const applyAuthorNote = async (value: unknown, snapshot: RuntimeSnapshot) => {
   });
 };
 
-const applyPreset = (value: unknown, story: NormalizedStoryV2) => {
+// The authored preset effect, resolved to the name and sampler stack it would apply. A string names
+// an installed preset; an object may carry the stack inline.
+export function resolvePreset(value: unknown, story: NormalizedStoryV2): { name: string; obj: TextGenPreset } | null {
   if (typeof value === "string") {
-    const preset = findTextGenPreset(value);
-    if (preset) applyTextGenPresetRuntime(`Story:${story.title}`, preset, `Story:${story.title}`);
-    return;
+    const obj = findTextGenPreset(value);
+    return obj ? { name: value, obj } : null;
   }
-  if (!isRecord(value)) return;
+  if (!isRecord(value)) return null;
   const name = typeof value.name === "string" ? value.name : `Story:${story.title}`;
-  const preset = isRecord(value.settings) ? value.settings : isRecord(value.preset) ? value.preset : null;
-  if (preset) applyTextGenPresetRuntime(name, preset, name);
-};
+  const obj = isRecord(value.settings) ? value.settings : isRecord(value.preset) ? value.preset : null;
+  return obj ? { name, obj } : null;
+}
 
 const applyWorldInfo = async (plans: WorldInfoBookPlan[]) => {
   for (const plan of plans) {
@@ -70,10 +86,12 @@ const applyWorldInfo = async (plans: WorldInfoBookPlan[]) => {
   }
 };
 
-const applyCastChanges = async (value: unknown) => {
-  if (!isRecord(value)) return;
-  await setGroupMembersDisabled(readStrings(value.enable), readStrings(value.disable));
-};
+// v2.3 plan 06 (S2). `disabled_members` lives on the GROUP, shared by every chat that opens it, so a
+// checkpoint's cast change outlives the chat that made it: one story's staging would otherwise decide
+// another story's cast. Each member an effect names is its own ledger row, carrying the flag the
+// group held BEFORE, and the chat keeps its own `extras.effects.cast` mirror — what this chat plays
+// is never read back from the group.
+const castFlag = (group: { disabled_members?: string[] }, member: string) => ({ disabled: (group.disabled_members ?? []).includes(member) });
 
 const fireReply = async (reply: NpcReplyEffect) => {
   if (reply.kind === "scripted") {
@@ -90,7 +108,41 @@ const lastMessageId = () => {
   return chat.length - 1;
 };
 
+export interface EffectApplierDeps {
+  /** The host as it is now, for the ledger's questions. */
+  reads?: EffectHostReads;
+  /** Puts a recorded value back. Returns whether the host agreed. */
+  restore?: (row: EffectLedgerRow) => Promise<boolean>;
+  /** Persist what has been recorded so far: a pending row must survive a crash to be reconciled. */
+  persist?: () => Promise<void>;
+  /**
+   * v2.3 plan 11 §Fault matrix. Whether the last save is still unwritten (`hasUnsavedChanges`).
+   * `persist()` cannot answer this: it resolves even when nothing landed, because the call it wraps
+   * swallows its own errors. Read AFTER the write-ahead persist, this is the evidence that the
+   * `pending` row exists anywhere but memory — and a host effect whose record is memory-only is the
+   * one thing the write-ahead row exists to prevent.
+   *
+   * This reading is deliberately the STICKY one, and it is deliberately NOT the reading the
+   * reconciliation queue uses (`saveWasLost`, `memoryQueue.commitDecision`). The two ask different
+   * questions with different tolerances for not knowing. The applier asks "may I touch the HOST with a
+   * write I cannot record?" — so an unverifiable save refuses, because a checkpoint's world info
+   * switching on an unrecorded write is the failure the row exists to prevent. The queue asks "may I
+   * tell the AUTHOR their decision is settled?" — and refusing THAT on a read-back that merely could
+   * not speak would block the only actor who can make the decision, for a write that in fact landed.
+   * Unifying them would move one of the two failures to the other's side of the line (2026-09-22).
+   */
+  unsaved?: () => boolean;
+  journal?: (summary: string, note?: string) => void;
+}
+
+export const PENDING_NOT_SAVED = "the effect was not applied: its write-ahead record could not be saved";
+
 export class EffectsApplier {
+  // Optional so every existing construction (and every test written before this) keeps working:
+  // an applier with no ownership never lapses and records nothing. The write-edge census tracks
+  // real coverage.
+  constructor(private readonly ownership?: RunOwnership, private readonly deps: EffectApplierDeps = {}) {}
+
   // The one thing a transition posts into the chat itself: a compact system note naming where the
   // story moved (opt-out in settings), kept to one line.
   async announceTransition(checkpoint: Checkpoint | undefined, extras: RuntimeExtras) {
@@ -99,19 +151,78 @@ export class EffectsApplier {
     await executeSlashCommands(`/comment compact=true raw=false ${quoteSlashArg(raw.replace(/\s*\r?\n\s*/g, " ").trim())}`, { silent: true });
   }
 
+  // v2.3 plan 06. The write-ahead rule for one effect: RECORD what is about to change (and what it
+  // holds now) BEFORE the host is touched, then record what the host said. A crash in between leaves
+  // a `pending` row that hydrate reconciles against the host's own value, so a write that landed
+  // without being recorded is still known to have landed — and one that never landed is known to
+  // have nothing to restore.
+  private async withLedger<T extends object>(extras: RuntimeExtras, write: Omit<EffectWrite, "at">, apply: () => Promise<WriteResult<T>>): Promise<WriteResult<T>> {
+    const row = pendingRow({ ...write, at: new Date().toISOString() });
+    extras.effects.ledger = appendRow(extras.effects.ledger, row);
+    await this.deps.persist?.();
+    if (this.deps.unsaved?.()) {
+      extras.effects.ledger = setStatus(extras.effects.ledger, row.id, "failed", { reason: PENDING_NOT_SAVED });
+      this.deps.journal?.(`${write.effect} effect was not applied`, PENDING_NOT_SAVED);
+      return { ok: false, reason: PENDING_NOT_SAVED };
+    }
+    let result: WriteResult<T>;
+    try {
+      result = await apply();
+    } catch (error) {
+      result = { ok: false, reason: error instanceof Error ? error.message : "the host refused the write" };
+    }
+    extras.effects.ledger = setStatus(extras.effects.ledger, row.id, result.ok ? "applied" : "failed", result.ok ? {} : { reason: result.reason });
+    await this.deps.persist?.();
+    if (!result.ok) this.deps.journal?.(`${write.effect} effect could not be applied`, result.reason);
+    return result;
+  }
+
   // `path` is every checkpoint the chat entered, ending at `checkpoint`: world_info is rebuilt from it
   // each time, so a flag another chat left in a shared lorebook never survives into this one.
   async applyCheckpoint(story: NormalizedStoryV2, checkpoint: Checkpoint, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate", path: string[]) {
     if (!extras.requirements.ready) return;
+    // v2.3 plan 03. This is the write edge with the widest blast radius in the extension: unlike
+    // a memory pass, almost nothing here is per-chat. World Info flags live in shared lorebook
+    // FILES, the Author's Note and preset are install state, and `cast_changes` mutates the
+    // GROUP's disabled_members, which outlives the chat entirely. Five awaits run in sequence,
+    // two of which go out to the host (a slash command, the group API), so the world can move
+    // between any two steps and the rest of the sequence would then apply one story's staging to
+    // another story's chat.
+    //
+    // It stops rather than completing. Whatever moved the world — a chat change, a story swap —
+    // runs its own applyCheckpoint, so a partial sequence is corrected immediately, while a
+    // completed wrong sequence leaves the other story's cast disabled on a shared group.
+    const run = beginRun(this.ownership);
+    const scope = { checkpointId: checkpoint.id, boundary: 0, messageId: lastMessageId() };
     await applyWorldInfo(worldInfoPlan(story, path));
     const effects: CheckpointEffects = checkpoint.effects ?? {};
+    if (!run.stillOwns()) return;
     if (effects.author_note !== undefined) await applyAuthorNote(effects.author_note, snapshot);
-    if (effects.preset !== undefined) applyPreset(effects.preset, story);
-    if (effects.cast_changes !== undefined) await applyCastChanges(effects.cast_changes);
+    // The check goes before EVERY host write, not once per group of them: the Author Note above is
+    // itself a host write, so the preset below it is the second one since the last check.
+    // The check goes before EVERY host write, not once per group of them: the Author Note above is
+    // itself a host write, so the preset below it is the second one since the last check.
+    if (!run.stillOwns()) return;
+    if (effects.preset !== undefined) {
+      // v2.3 plan 06: a preset cannot reach a chat-completion backend at all, and saying it did was
+      // the defect. The refusal is recorded and shown; the checkpoint carries on with its other
+      // effects, because one unsupported effect is not a reason to abandon the rest.
+      const preset = resolvePreset(effects.preset, story);
+      if (preset) {
+        await this.withLedger(extras, { effect: "preset", target: { kind: "preset", name: preset.name, api: presetBackend() }, before: readAppliedPreset(), after: { name: preset.name }, ...scope }, async () => applyPreset(preset.name, preset.obj, preset.name));
+      }
+    }
+    if (!run.stillOwns()) return;
+    if (effects.cast_changes !== undefined) await this.applyCastChanges(effects.cast_changes, extras, scope, run);
     // Deterministic stagecraft: idempotent, so hydrating a chat and rolling back into this
     // checkpoint both restore its background without re-triggering anything.
+    // `applyCastChanges` awaits once per member, so this needs its own check: without it the
+    // background is the one write in this sequence that can land in another chat (2026-09-22).
+    if (!run.stillOwns()) return;
     if (effects.background) await applyBackground(effects.background.name);
+    if (!run.stillOwns()) return;
     if (mode === "activate") await this.fireNpcReplies(checkpoint, extras, "onEnter");
+    if (!run.stillOwns()) return;
     extras.lastAppliedCheckpointId = checkpoint.id;
     extras.updatedAt = new Date().toISOString();
   }
@@ -120,11 +231,64 @@ export class EffectsApplier {
     await applyWorldInfo(releasePlan(owners, keep));
   }
 
+  // Each member the effect names is one decision about a shared group, so each is its own row: a
+  // two-member change that fails on the second leaves the first recorded and restorable.
+  private async applyCastChanges(value: unknown, extras: RuntimeExtras, scope: { checkpointId: string | null; boundary: number; messageId: number }, run: RunGuard) {
+    if (!isRecord(value)) return;
+    const group = getActiveGroup();
+    const changes: Array<[string, boolean]> = [...readStrings(value.disable).map((name): [string, boolean] => [name, true]), ...readStrings(value.enable).map((name): [string, boolean] => [name, false])];
+    for (const [identifier, disabled] of changes) {
+      // Inside the loop, like `fireNpcReplies`: one member is one await, and a two-member change
+      // that stops half-way must not disable the second member on another chat's group.
+      if (!run.stillOwns()) return;
+      const member = resolveGroupMemberId(identifier);
+      if (!member) continue;
+      const before = group ? castFlag(group, member) : null;
+      if (before?.disabled === disabled) continue;
+      await this.withLedger(extras, { ...scope, effect: "cast", target: { kind: "cast", group: String(group?.id ?? ""), member }, before, after: { disabled } }, async () => {
+        const result = await setGroupMembersDisabled(disabled ? [] : [identifier], disabled ? [identifier] : []);
+        if (result.ok) extras.effects.cast = [...extras.effects.cast.filter((entry) => entry.member !== member), { member, disabled }];
+        return result;
+      });
+    }
+  }
+
+  /**
+   * v2.3 plan 06. Put back what this chat changed in shared host state. Compare-and-set: a row whose
+   * target no longer holds what this chat wrote is REFUSED and marked `externally-changed`, so a
+   * restore can never silently undo an edit someone else made in between.
+   */
+  async restoreEffects(extras: RuntimeExtras): Promise<{ reverted: number; refused: number }> {
+    if (!this.deps.restore) return { reverted: 0, refused: 0 };
+    const { steps, refused } = restorePlan(extras.effects.ledger, this.reads());
+    for (const row of refused) extras.effects.ledger = setStatus(extras.effects.ledger, row.id, "externally-changed", { found: row.found });
+    let reverted = 0;
+    for (const step of steps) {
+      const restored = await this.deps.restore(step.row).catch(() => false);
+      extras.effects.ledger = setStatus(extras.effects.ledger, step.row.id, restored ? "reverted" : "revert-failed", restored ? {} : { reason: `could not restore ${step.row.effect}` });
+      if (restored) reverted += 1;
+    }
+    if (refused.length) this.deps.journal?.(`${refused.length} host change(s) were edited outside this story and left alone`);
+    if (reverted) this.deps.journal?.(`restored ${reverted} host change(s)`);
+    await this.deps.persist?.();
+    return { reverted, refused: refused.length };
+  }
+
+  private reads(): EffectHostReads {
+    return this.deps.reads ?? { read: () => null };
+  }
+
   async fireNpcReplies(checkpoint: Checkpoint, extras: RuntimeExtras, trigger: NpcReplyTrigger, occurrence?: number, speakerAliases: string[] = []) {
     if (trigger === "afterSpeak" && extras.lastSelfInjectionMessageId === lastMessageId()) return;
     const aliases = speakerAliases.map((alias) => alias.trim().toLowerCase());
     const replies = readNpcReplies(checkpoint.effects).filter((reply) => reply.trigger === trigger);
+    // v2.3 plan 03. This is the only effect that SPEAKS: `fireReply` posts a message into whatever
+    // chat is open. One await per reply, so a multi-reply checkpoint that outlives its chat puts
+    // the rest of this story's characters into somebody else's conversation, visibly, in the
+    // transcript. The check is inside the loop because each reply is its own write.
+    const run = beginRun(this.ownership);
     for (let index = 0; index < replies.length; index += 1) {
+      if (!run.stillOwns()) return;
       const reply = replies[index];
       if (reply.enabled === false) continue;
       if (trigger === "afterSpeak" && reply.after_member && !aliases.includes(reply.after_member.trim().toLowerCase())) continue;

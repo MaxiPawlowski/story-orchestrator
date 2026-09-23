@@ -74,7 +74,7 @@ export async function sendCompactMessage(page, text) {
   return executeSlashCommand(page, `/send compact=true ${text}`);
 }
 
-export async function sendUserMessage(page, text, { idleTimeoutMs = 300000, preSendIdleTimeoutMs = 60000 } = {}) {
+export async function sendUserMessage(page, text, { idleTimeoutMs = 300000, preSendIdleTimeoutMs = 60000, expectReply = false } = {}) {
   if (!text || typeof text !== 'string') {
     throw new Error('sendUserMessage requires a non-empty text string.');
   }
@@ -105,15 +105,37 @@ export async function sendUserMessage(page, text, { idleTimeoutMs = 300000, preS
 
   await waitForIdle(page, idleTimeoutMs);
 
-  const chatLenAfter = await evaluateInST(page, () => {
-    return SillyTavern.getContext().chat?.length ?? 0;
+  // Going idle is not the same as having replied. With the backend unreachable, ST adds the user's
+  // message, the generation ends immediately and the send reported `ok` — three of them in a row
+  // inside J1.6, which then failed 300 s later on a checkpoint that could never move (2026-09-20).
+  // A step that says "send and generate" should be able to say whether anything answered.
+  const after = await evaluateInST(page, () => {
+    const chat = SillyTavern.getContext().chat ?? [];
+    const last = chat[chat.length - 1] ?? null;
+    return {
+      length: chat.length,
+      lastIsUser: Boolean(last?.is_user),
+      lastText: typeof last?.mes === 'string' ? last.mes.trim() : '',
+      lastName: last?.name ?? null,
+    };
   });
+
+  // A reply is a non-user message with text in it. Silence is legitimate in a group whose talk
+  // control allows it, so this is REPORTED by default and only fatal when the caller asks.
+  const replied = !after.lastIsUser && after.lastText.length > 0;
+  if (!replied) {
+    console.warn(`WARNING: send produced no reply (last message ${after.lastIsUser ? 'is the user\'s own' : `is "${after.lastName}" with ${after.lastText.length} characters`}). Silence is valid under talk control; an unreachable backend looks identical here.`);
+  }
 
   return {
     sent: text,
     messagesBefore: chatLenBefore,
-    messagesAfter: chatLenAfter,
-    newMessages: chatLenAfter - chatLenBefore,
+    messagesAfter: after.length,
+    newMessages: after.length - chatLenBefore,
+    replied,
+    lastSpeaker: after.lastName,
+    lastLength: after.lastText.length,
+    ...(expectReply && !replied ? { ok: false } : {}),
   };
 }
 
@@ -242,11 +264,17 @@ export async function swipeMessage(page, messageId, targetSwipeId = null) {
   }, { messageId, targetSwipeId });
 }
 
+// `last` is the newest message; `engine` is the message the run's last boundary sat on, which is
+// what a mutation check must edit — the two differ whenever a reply landed after the commit. Both
+// verbs resolve it INSIDE the page function below: `evaluateInST` ships the body across, so a
+// module-level helper would not exist there.
 export async function editMessage(page, messageId, text) {
   if (!text || typeof text !== 'string') throw new Error('edit requires non-empty text.');
   return evaluateInST(page, async ({ messageId: rawId, text }) => {
     const ctx = SillyTavern.getContext();
-    const id = rawId === 'last' ? (ctx.chat?.length ?? 0) - 1 : Number(rawId);
+    const id = rawId === 'last' ? (ctx.chat?.length ?? 0) - 1
+      : rawId === 'engine' ? (globalThis.storyOrchestratorRuntime?.getEngineState?.()?.lastMessageId ?? -1)
+      : Number(rawId);
     const message = ctx.chat?.[id];
     if (!Number.isInteger(id) || !message) throw new Error(`Message ${rawId} not found.`);
     const before = message.mes;
@@ -264,7 +292,9 @@ export async function editMessage(page, messageId, text) {
 export async function deleteMessage(page, messageId) {
   return evaluateInST(page, async (rawId) => {
     const ctx = SillyTavern.getContext();
-    const id = rawId === 'last' ? (ctx.chat?.length ?? 0) - 1 : Number(rawId);
+    const id = rawId === 'last' ? (ctx.chat?.length ?? 0) - 1
+      : rawId === 'engine' ? (globalThis.storyOrchestratorRuntime?.getEngineState?.()?.lastMessageId ?? -1)
+      : Number(rawId);
     if (!Number.isInteger(id) || id < 0 || id >= (ctx.chat?.length ?? 0)) throw new Error(`Message ${rawId} not found.`);
     const beforeLength = ctx.chat.length;
     const removed = ctx.chat.slice(id).map((message) => ({ name: message.name, mes: String(message.mes ?? '').slice(0, 120) }));

@@ -4,7 +4,11 @@ import { defaultJudgeSettings, type JudgeSettings, type SceneReadRecord } from "
 import { ExpansionCoordinator } from "./coordinators/expansionCoordinator";
 import { JudgeRuntime } from "./judge";
 
-jest.mock("@services/STAPI", () => ({ getPlayerName: () => "Max", sendConnectionProfileRequest: jest.fn() }));
+jest.mock("@services/STAPI", () => ({
+  settingsAreLoaded: () => true,
+  settingsReady: async () => {},
+  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
+  readBackBoundary: () => null, getPlayerName: () => "Max", sendConnectionProfileRequest: jest.fn() }));
 
 const gate = { q: "done", op: "==", v: true };
 const story = parseStoryV2OrThrow({

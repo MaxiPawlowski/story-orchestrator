@@ -29,6 +29,8 @@ Do not use unbounded terminal processes for gates. Debug scripts have hard conne
 
 Scripts run via `node scripts/debug/<tool>.mts`, attach to the shared session first, otherwise launch a short-lived headless Chromium. Artifacts go to `.debug/` (gitignored; screenshots in `.debug/screenshots/`).
 
+**Two isolated sessions at once** (v2.3 plan 11's concurrent-load recipe) = `ST_DEBUG_CDP_PORT=<port>` **and** `SO_DEBUG_DIR=<dir>` per process. The port alone is not enough: two processes sharing one `.debug/` also share `session.json` (the second `st-session start` overwrites the first's record), the journey config snapshot and the asset baseline, so the second run's cleanup reads the first's state. `SO_DEBUG_DIR` (unset = `.debug/`) is resolved against the project root unless it is absolute; a custom directory is **not** gitignored, so keep it under `.debug*` or clean it yourself. Guarded by `scripts/debug/lib/connection.test.mts`.
+
 ## Real-LLM validation (default gate)
 
 Handover sign-off for LLM-consuming paths requires the real model, not `debugResponse` mocks. Mocks (`storyOrchestratorDebug*Response` globals, scenario `extract`/`expand` step values) stay valid for unit determinism and scenario plumbing — never for sign-off.
@@ -157,6 +159,7 @@ Standard test loop: `open-group` → `new-chat` → seed via `st-eval` → `send
 node scripts/debug/so-runtime-check.mts      # plan 02: imports inline test story, sets quality, activates checkpoint, checks effects
 node scripts/debug/so-extraction-check.mts   # plan 03: imports story, /send compact, runs deterministic extraction via debugResponse
 node scripts/debug/so-turn-types-check.mts   # TurnBridge types: /sd image + new-group greetings + solo greeting reopen/swipe commit nothing, a real reply commits exactly one
+node scripts/debug/so-responsive.mts --surface all   # 24 viewports (320x568 → 2560x1440): our panels' horizontal overflow + any control outside the viewport. NEEDS NO BACKEND
 ```
 
 Both use the in-page debug handle `globalThis.storyOrchestratorRuntime` (`importStory(json)`, `runExtractionNow(response, cueId)`) — also usable directly from `browser_evaluate` or `evaluateInST` for ad-hoc runtime poking.
@@ -205,6 +208,8 @@ Then MCP `browser_console_messages` + `browser_network_requests` for the explora
 |---|---|
 | `Executable doesn't exist` | `npx playwright install chromium` |
 | `ERR_CONNECTION_REFUSED` | SillyTavern not running |
+| **`Unexpected token '<', "<!DOCTYPE "` from `executeSlashCommandsWithOptions`** | **The page's session is stale, not your slash command.** ST answers 200 on `/` while every `/api/*` call returns **403 + `text/html`** — its CSRF cookie is gone from the page's jar. Almost every script's first navigation (`/newchat`, `/go`) runs a slash command, so this surfaces as a confusing parse error in a helper you did not touch. Diagnose in one call, then reload (2026-09-21): swap `window.fetch` for a wrapper that records any response whose `content-type` is not JSON, call the command, restore. A single `location.reload()`, a ~12 s wait, and `/api/settings/get` returning 200 confirms the fix. The reload lands on the welcome screen with `groupId: null` — reopen your group before continuing. |
+| MCP browser tools see a different page than the scripts (`about:blank`, marker round-trip fails) | The MCP server launched its own Chromium. Verify with the `globalThis.__x` marker round-trip above and fall back to scripts only; do not trust MCP state for anything. |
 | `SillyTavern not loaded` | ST not ready yet — retry |
 | `Settings panel not mounted` / `Drawer not mounted` | Extension not loaded / element not created |
 | MCP browser tools connect but see different state than scripts (chat/group/runtime mismatch) | MCP launched its own Chromium (server missing `--cdp-endpoint`). Run `st-session start`, restart the Claude session so `.mcp.json` takes effect, verify with the `globalThis.__x` marker round-trip |

@@ -1,4 +1,4 @@
-import { progressQualityForAnchor, TENSION_CURRENT_KEY, type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type StoryV2, type ValidationError } from "@engine/index";
+import { placeholderEnumValues, progressQualityForAnchor, ratingLevels, TENSION_CURRENT_KEY, type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type StoryV2, type ValidationError } from "@engine/index";
 import { directorEnabled } from "@talk/index";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
@@ -6,6 +6,8 @@ export type DiagnosticSeverity = "blocking" | "warning" | "info";
 export interface Diagnostic extends ValidationError {
   code: string;
   severity: DiagnosticSeverity;
+  /** v2.3 plan 09: what it costs the story, in plain words. The technical line stays in `message`. */
+  consequence?: string;
 }
 
 export const DIAGNOSTIC_CODES = [
@@ -21,12 +23,43 @@ export const DIAGNOSTIC_CODES = [
   "talk-member-unknown",
   "talk-lead-outside-speakers",
   "talk-silence-without-director",
+  "agency-alternate-unknown",
+  "agency-alternate-is-self",
   "scene-read-location-empty",
   "lore-select-inactive",
   "quality-hint-no-criteria",
   "quality-hint-latching-note",
   "quality-criteria-self-exclusion",
+  "latching-enum-placeholder",
+  "quality-rating-no-scale",
 ] as const;
+
+// v2.3 plan 09. Every code says what it costs the story before it says what is technically wrong: the
+// consequence is what an author can act on, and the message is how they find it. One line each, and
+// the panel renders the consequence first.
+export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], string> = {
+  "undeclared-quality": "This gate can never open as written.",
+  "op-type-mismatch": "This gate cannot be evaluated, so it never opens.",
+  "enum-value-invalid": "This gate can never open, because the story never offers that value.",
+  "anchor-unreachable": "The story can never get here.",
+  "quality-out-of-scope": "The gate needs this reading, but at that point nothing is asked for it.",
+  "quality-never-in-scope": "Nothing can react to this, because the story is never asked about it.",
+  "snapshot-latching-conflict": "The value is copied once, so a later gate on a different value never passes.",
+  "stub-no-anchor": "This part of the story leads nowhere it can finish.",
+  "threshold-unsatisfiable": "Progress can never reach this threshold, so the story cannot converge here.",
+  "talk-member-unknown": "The story asks for a speaker nobody can be, so who speaks falls back to SillyTavern.",
+  "talk-lead-outside-speakers": "This character still gets picked, just not at the weight you set.",
+  "talk-silence-without-director": "Silence never happens, because nothing is choosing who speaks.",
+  "agency-alternate-unknown": "If the player refuses the route, there is nowhere prepared to go.",
+  "agency-alternate-is-self": "If the player refuses the route, the recovery sends them back into it.",
+  "scene-read-location-empty": "The story can never say where the scene is, so nothing can key off a place.",
+  "lore-select-inactive": "This lore may never be active, so the story cannot rely on it being in play.",
+  "quality-hint-no-criteria": "The model reads this from a bare list, so it may read it loosely.",
+  "quality-hint-latching-note": "This value is written once and then holds, so the first confident read decides.",
+  "quality-criteria-self-exclusion": "One option says it is not itself, which tells the model nothing.",
+  "latching-enum-placeholder": "Once the first read lands this can never change, and the unset state is not one of its values.",
+  "quality-rating-no-scale": "This quality is never read, because there is no scale to score it against.",
+};
 
 const namesOption = (text: string, option: string) => {
   const words = text.toLowerCase().split(/[^\p{L}\p{N}_]+/u);
@@ -79,7 +112,7 @@ const hintApplies = (quality: Quality, at: string, reachableFrom: (start: string
 
 export const runDiagnostics = (draft: StoryV2): Diagnostic[] => {
   const diagnostics: Diagnostic[] = [];
-  const push = (code: (typeof DIAGNOSTIC_CODES)[number], severity: DiagnosticSeverity, path: string, message: string) => diagnostics.push({ code, severity, path, message });
+  const push = (code: (typeof DIAGNOSTIC_CODES)[number], severity: DiagnosticSeverity, path: string, message: string) => diagnostics.push({ code, severity, path, message, consequence: DIAGNOSTIC_CONSEQUENCES[code] });
 
   const qualityByKey = buildQualityMap(draft);
   const checkpointById = new Map(draft.checkpoints.map((checkpoint) => [checkpoint.id, checkpoint]));
@@ -185,12 +218,35 @@ export const runDiagnostics = (draft: StoryV2): Diagnostic[] => {
         push("talk-member-unknown", "warning", `checkpoints.${index}.effects.npc_replies.${replyIndex}.after_member`, `after_member '${reply.after_member}' is not a roster member`);
       }
     });
+    // v2.3 plan 07 (C4). A refusal fallback that names nothing is worse than none: the author sees a
+    // recovery offered and the button takes them nowhere, which is why the runtime treats an unknown
+    // alternate as absent. Say so here, where the author can fix it.
+    const alternate = checkpoint.agency?.alternate;
+    if (alternate) {
+      if (!draft.checkpoints.some((entry) => entry.id === alternate)) push("agency-alternate-unknown", "warning", `checkpoints.${index}.agency.alternate`, `alternate '${alternate}' is not a checkpoint of this story`);
+      else if (alternate === checkpoint.id) push("agency-alternate-is-self", "warning", `checkpoints.${index}.agency.alternate`, `alternate '${alternate}' is this checkpoint, so the recovery would re-enter the route the player refused`);
+    }
   });
 
   draft.checkpoints.forEach((checkpoint, index) => {
     if (checkpoint.type !== "anchor" || typeof checkpoint.convergence_threshold !== "number") return;
     const available = draft.transitions.reduce((sum, transition) => sum + (transition.effects?.progress?.anchor === checkpoint.id ? transition.effects.progress.amount ?? 0 : 0), 0);
     if (available < checkpoint.convergence_threshold) push("threshold-unsatisfiable", "warning", `checkpoints.${index}`, `anchor '${checkpoint.id}' threshold ${checkpoint.convergence_threshold} exceeds total available progress ${available}`);
+  });
+
+  // v2.3 plan 02 (F1). A rating the judge cannot score is skipped without a word (judge/extraction.ts
+  // `if (!levels) continue`), so the author sees a quality that simply never fires. Blocking, and the
+  // message carries the shape the repair pass has to produce — the model is asked to correct itself
+  // from this text alone.
+  draft.qualities.forEach((quality, index) => {
+    if (quality.read_as !== "rating" || ratingLevels(quality)) return;
+    push("quality-rating-no-scale", "blocking", `qualities.${index}`, `'${quality.key}' is read as a rating, so its scale has to be readable: either criteria.levels, or a rubric of the form rubric: "from 1 (barely) to 5 (completely)". As written the judge has no levels to score against and the quality is never read.`);
+  });
+
+  // v2.3 plan 02 (S1): a latching enum that lists an unset-shaped member freezes on it.
+  draft.qualities.forEach((quality, index) => {
+    const placeholders = placeholderEnumValues(quality);
+    if (placeholders.length) push("latching-enum-placeholder", "warning", `qualities.${index}.values`, `'${quality.key}' latches, so the first read decides and will not change; ${placeholders.join(", ")} cannot mean "not set yet" — the unset state is the absence of a value`);
   });
 
   // v2.2 plan 06: judge hints. The spike wrote 8 of 10 `not_for` clauses on the wrong option, which

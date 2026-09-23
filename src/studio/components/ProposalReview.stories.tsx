@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { within, userEvent, expect, fn } from "@storybook/test";
 import { parseProposal, type ProposalResult } from "@copilot/index";
 import ProposalReview from "./ProposalReview";
+import { DIAGNOSTIC_CONSEQUENCES } from "../diagnostics";
 
 const okProposal = parseProposal(JSON.stringify({
   summary: "Add a morale quality and make the cache convergent.",
@@ -14,7 +15,7 @@ const okProposal = parseProposal(JSON.stringify({
 const okResult: ProposalResult = {
   stage: "qualities",
   proposal: okProposal,
-  preview: { errors: [], diagnostics: [{ code: "threshold-unsatisfiable", severity: "warning", path: "checkpoints.2", message: "cache threshold 2 exceeds available progress 0" }] },
+  preview: { errors: [], diagnostics: [{ code: "threshold-unsatisfiable", severity: "warning", path: "checkpoints.2", message: "cache threshold 2 exceeds available progress 0", consequence: DIAGNOSTIC_CONSEQUENCES["threshold-unsatisfiable"] }] },
   status: "ok",
   issues: [],
   questions: [],
@@ -71,6 +72,39 @@ export const Accepting: Story = {
   },
 };
 
+// v2.3 plan 09 fixture: a real model's stage can propose a great many changes at once, and the card
+// that has to stay legible is the one with thirty rows in it.
+export const ManyOps: Story = {
+  args: {
+    result: {
+      ...okResult,
+      proposal: parseProposal(JSON.stringify({
+        summary: "Thirty changes at once.",
+        ops: Array.from({ length: 30 }, (_, index) => ({ kind: "addQuality", quality: { key: `beat_${index}`, type: "int", source: "extractor", rubric: `How far has beat ${index} moved?` } })),
+      })).proposal,
+    },
+    acceptedIndices: new Set<number>(),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getAllByRole("button", { name: "Accept" })).toHaveLength(30);
+    await expect(canvas.getByRole("button", { name: "Accept all" })).toBeEnabled();
+    await expect(canvas.getByText(/Add quality "beat_29"/)).toBeInTheDocument();
+  },
+};
+
+// The consequence is what an author decides on, so it comes before the schema's own words.
+export const WarningStatesTheConsequenceFirst: Story = {
+  args: { result: okResult, acceptedIndices: new Set<number>() },
+  play: async ({ canvasElement }) => {
+    const consequence = canvasElement.querySelector('[data-so="diagnostic-consequence"]') as HTMLElement;
+    await expect(consequence).toHaveTextContent("Progress can never reach this threshold, so the story cannot converge here.");
+    const line = consequence.parentElement?.textContent ?? "";
+    await expect(line).toContain("cache threshold 2 exceeds available progress 0");
+    await expect(line.indexOf("Progress can never reach")).toBeLessThan(line.indexOf("cache threshold 2"));
+  },
+};
+
 export const Failed: Story = {
   args: { result: failedResult, acceptedIndices: new Set<number>() },
   play: async ({ canvasElement }) => {
@@ -84,7 +118,7 @@ export const ProvisioningIsReviewedPerStep: Story = {
   args: {
     result: provisioningResult,
     acceptedIndices: new Set<number>(),
-    environment: { characterNames: ["Ponticius"], lorebookNames: [], groupNames: [], storyLorebooks: [] },
+    environment: { characterNames: ["Ponticius"], lorebookNames: [], groupNames: [], storyLorebooks: [], ownedLorebooks: [], grantedLorebooks: [] },
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
@@ -101,7 +135,7 @@ export const ProvisioningRefusesAnExistingAsset: Story = {
   args: {
     result: provisioningResult,
     acceptedIndices: new Set<number>(),
-    environment: { characterNames: ["Arin"], lorebookNames: [], groupNames: [], storyLorebooks: [] },
+    environment: { characterNames: ["Arin"], lorebookNames: [], groupNames: [], storyLorebooks: [], ownedLorebooks: [], grantedLorebooks: [] },
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

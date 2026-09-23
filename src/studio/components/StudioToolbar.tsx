@@ -28,6 +28,9 @@ const download = (filename: string, text: string) => {
   }
 };
 
+/** The library half of the one save vocabulary, so the two sentences below cannot drift apart. */
+const savedTo = (record: StoryLibraryRecord) => `Saved “${record.title}” v${record.version} to the library.`;
+
 const StudioToolbar: React.FC<{ onSaved?: StudioSaveHandler }> = ({ onSaved }) => {
   const draft = useDraftStore((state) => state.draft);
   const dirty = useDraftStore((state) => state.dirty);
@@ -53,10 +56,13 @@ const StudioToolbar: React.FC<{ onSaved?: StudioSaveHandler }> = ({ onSaved }) =
     // The save itself already succeeded; a failing hand-off must not leave the toolbar stuck on
     // "Saving..." with the author unsure whether the library took the edit.
     try {
-      const applied = await onSaved?.(result.record);
-      setFeedback({ type: "success", message: `Saved “${result.record.title}” v${result.record.version} to library.${applied ? ` ${applied}` : ""}` });
+      // Two events, two sentences (plan 09 §One save vocabulary). No handler at all means no chat is
+      // watching this save, which is not the same as a chat declining it.
+      const applied = onSaved ? await onSaved(result.record) : null;
+      const chatHalf = !onSaved ? "" : applied ? ` Applied to this chat: ${applied}.` : " Not applied to this chat: it is playing a different story.";
+      setFeedback({ type: "success", message: `${savedTo(result.record)}${chatHalf}` });
     } catch (error) {
-      setFeedback({ type: "error", message: `Saved “${result.record.title}” v${result.record.version} to library, but this chat could not take it: ${error instanceof Error ? error.message : String(error)}` });
+      setFeedback({ type: "error", message: `${savedTo(result.record)} Not applied to this chat: ${error instanceof Error ? error.message : String(error)}` });
     } finally {
       setPending(false);
     }

@@ -1,5 +1,9 @@
 let mockChat: Array<{ mes: string; name: string; is_user: boolean }> = [];
 jest.mock("@services/STAPI", () => ({
+  settingsAreLoaded: () => true,
+  settingsReady: async () => {},
+  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
+  readBackBoundary: () => null,
   getContext: () => ({ chat: mockChat }),
   sendConnectionProfileRequest: jest.fn(),
 }));
@@ -14,8 +18,10 @@ import { runSharedRead } from "./sharedRead";
 const readGolden = (name: string): string => fs.readFileSync(path.join(process.cwd(), "test/goldens", name), "utf8");
 const storyFixture = JSON.parse(fs.readFileSync(path.join(process.cwd(), "test/fixtures/extractor.story.json"), "utf8"));
 
-const pushMessage = () => {
-  mockChat.push({ mes: `Turn ${mockChat.length}`, name: "Max", is_user: true });
+// The brass key is in the transcript because the targeted golden quotes it: plan 02's R6 screening
+// accepts a delta only when its evidence is a span of the window the read was given.
+const pushMessage = (mes?: string) => {
+  mockChat.push({ mes: mes ?? `Turn ${mockChat.length}`, name: "Max", is_user: true });
   return mockChat.length - 1;
 };
 
@@ -30,7 +36,7 @@ describe("reconciliation recovery", () => {
     engine.loadStory(story);
 
     for (let turn = 0; turn < 6; turn += 1) {
-      const messageId = pushMessage();
+      const messageId = pushMessage(turn === 1 ? "Max found the brass key wedged behind the shelf." : undefined);
       engine.commitBoundary({ lastMessageId: messageId, chatLength: mockChat.length });
     }
     let state = engine.serialize();

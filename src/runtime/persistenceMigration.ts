@@ -47,9 +47,22 @@ export function migrateMetadataBlob(existing: unknown, library: StoryLibraryReco
   }
 
   const selectedHash = legacy.selectedStoryHash ?? null;
-  return {
-    version: 3,
+  // Emits the v3 shape, then hands it to migrateV3ToV4. Keeping the steps separate means the v2
+  // path keeps its own tests and the v4 stamp has exactly one place it is applied.
+  return migrateV3ToV4({
     selectedStoryId: selectedHash ? idForHash.get(selectedHash) ?? `legacy-${selectedHash}` : null,
     stories,
-  };
+  });
+}
+
+/**
+ * v2.3 plan 03: stamp the blob with the chat it belongs to.
+ *
+ * A v3 blob carries no chat id and there is no way to recover which chat it came from, so it is
+ * stamped **null** rather than guessed. An unstamped blob is readable by design — it predates the
+ * field — and takes the open chat's id on its first save. Guessing here would manufacture exactly
+ * the false provenance the stamp exists to prevent.
+ */
+export function migrateV3ToV4(blob: { selectedStoryId: string | null; stories: Record<string, PersistedStoryRuntime> }): StoryOrchestratorMetadataBlob {
+  return { version: 4, chatId: null, selectedStoryId: blob.selectedStoryId, stories: blob.stories };
 }

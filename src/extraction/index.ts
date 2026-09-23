@@ -2,6 +2,7 @@ export * from "./canonLite";
 export * from "./chatWindow";
 export * from "./client";
 export * from "./contract";
+export * from "./evidence";
 export * from "./cues";
 export * from "./fixtureRun";
 export * from "./parse";

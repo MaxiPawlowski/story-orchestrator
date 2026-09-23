@@ -95,6 +95,14 @@
     border-radius: 999px;
   }
 
+  /* v2.3 plan 09: Repair points at a control instead of describing it, so the control it lands on
+     says so for a moment. Outline only — no layout change, so nothing shifts under the pointer. */
+  .so-revealed {
+    outline: 2px solid var(--st-info);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
   .st-tab {
     border: 1px solid var(--st-border);
     background: color-mix(in srgb, var(--st-bg-tint) 45%, transparent);

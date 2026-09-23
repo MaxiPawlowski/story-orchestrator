@@ -84,7 +84,7 @@ describe("applyConsolidation", () => {
 
   it("clears a contradiction flag when the entry is re-confirmed", () => {
     const state = { ...createMemoryState(), entries: [entry({ id: "a", contradicted: true })] };
-    const next = applyConsolidation(state, { droppedIds: [], supersededPairs: [], confirmedIds: ["a"], uncertain: [] });
+    const next = applyConsolidation(state, { droppedIds: [], supersededPairs: [], confirmedIds: ["a"], uncertain: [] }, { messageId: 1 });
     expect(next.entries.find((e) => e.id === "a")?.contradicted).toBe(false);
   });
 });
@@ -138,13 +138,25 @@ describe("consolidateTierJudged (v2.2 plan 02)", () => {
     expect(result).toMatchObject({ droppedIds: [], supersededPairs: [], uncertain: [], clearedIds: [] });
   });
 
-  it("never supersedes a pinned older entry, even when the judge says update", () => {
+  it("supersedes a pinned older entry when the judge says update", () => {
+    // v2.3 plan 05 (M5): pin is retention, not truth. A pin protects a row from trimming and
+    // expiry; it does not freeze what the story says, which is what a lock is for.
     const result = consolidateTierJudged(
       [entry({ id: "a", text: "x", createdAt: 1, pinned: true }), entry({ id: "b", text: "y", createdAt: 2 })],
       { dup: [new Set(), new Set()], sameTopic: [new Set(), new Set([0])] },
       () => "update",
     );
+    expect(result.supersededPairs).toEqual([{ loserId: "a", winnerId: "b" }]);
+  });
+
+  it("never supersedes a LOCKED older entry, even when the judge says update", () => {
+    const result = consolidateTierJudged(
+      [entry({ id: "a", text: "x", createdAt: 1, locked: true }), entry({ id: "b", text: "y", createdAt: 2 })],
+      { dup: [new Set(), new Set()], sameTopic: [new Set(), new Set([0])] },
+      () => "update",
+    );
     expect(result.supersededPairs).toEqual([]);
+    expect(result.uncertain).toEqual([{ candidateId: "b", existingId: "a" }]);
   });
 
   it("lists candidate pairs oldest-first, flagging dup-band pairs", () => {

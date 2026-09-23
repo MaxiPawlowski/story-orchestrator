@@ -2,6 +2,7 @@ import { hashMemoryText } from "@memory/stores";
 import type { MemoryEntry } from "@memory/types";
 import type { ChatLorebookBinding, Lorebook, WIUpsertResult } from "@services/STAPI";
 import type { MemoryMirrorBook } from "./types";
+import { beginRun, type RunOwnership } from "./runToken";
 
 export interface MemoryMirrorHost {
   getChatId: () => string | null;
@@ -10,6 +11,9 @@ export interface MemoryMirrorHost {
   upsertWIEntry: (lorebook: string, comment: string, content: string, keys?: string[]) => Promise<WIUpsertResult>;
   disableWIEntry: (lorebook: string, comments: string | string[]) => Promise<boolean>;
   bindChatLorebook: (name: string, replaceable?: string[]) => ChatLorebookBinding;
+  // v2.3 plan 03. Optional: without it the chat-id comparison below still runs, so behaviour is
+  // unchanged for a caller that supplies none.
+  ownership?: RunOwnership;
 }
 
 export interface MemoryMirrorSummary {
@@ -66,6 +70,12 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
   const idle: MemoryMirrorResult = { summary, book: input.book, writes: input.writes, changed: false };
   const chatId = host.getChatId();
   if (!chatId) return idle;
+  // v2.3 plan 03. This function already had an ownership check — the `host.getChatId() !== chatId`
+  // comparison before the binding below — but it was hand-rolled, so the write-edge census could
+  // not see it and it only ever asked about the chat. A STORY SWAP inside the same chat passed it,
+  // and the mirror book is per-chat but shared across the stories played in that chat, so the
+  // previous story's memory could be written and then recorded in the new story's extras.
+  const run = beginRun(host.ownership);
   const live = mirroredEntries(input.entries);
   const owned = input.book?.chatId === chatId ? input.book : null;
   if (!owned && !live.length) return idle;
@@ -101,7 +111,8 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
     else summary.unchanged += 1;
   }
 
-  if (host.getChatId() !== chatId) return null;
+  // Both halves: the original chat comparison, plus story, version and epoch via the token.
+  if (host.getChatId() !== chatId || !run.stillOwns()) return null;
   if (adopting) summary.binding = host.bindChatLorebook(ensured.name, input.book ? [input.book.name] : []);
   const changed = adopting || summary.created > 0 || summary.updated > 0 || summary.disabled > 0;
   return { summary, book: { name: ensured.name, chatId }, writes, changed };

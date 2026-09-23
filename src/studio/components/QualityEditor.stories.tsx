@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { within, userEvent, expect } from "@storybook/test";
 import QualityEditor from "./QualityEditor";
 import { useDraftStore } from "../draft";
-import { sampleStory, seedDraft, seedEmptyDraft } from "../stories/fixtures";
+import { longNameStory, sampleStory, seedDraft, seedEmptyDraft } from "../stories/fixtures";
 
 const meta: Meta<typeof QualityEditor> = {
   title: "Studio/QualityEditor",
@@ -52,6 +52,20 @@ export const DeleteWithUsages: Story = {
 };
 
 // v2.2 plan 06: how the judge reads a quality, and the exact request it would send.
+// v2.3 plan 09 fixture: a key that is a sentence, a rubric that is a paragraph and twelve options.
+export const LongNames: Story = {
+  beforeEach: () => {
+    seedDraft(longNameStory());
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("button", { name: /how_completely_the_party_has_earned_the_trust/ })).toBeInTheDocument();
+    await userEvent.click(canvas.getByRole("button", { name: /the_road_the_party_took_through_the_flooded/ }));
+    await expect(canvas.getByLabelText("Enum value 12")).toHaveValue("the ferry");
+    await expect((canvas.getByLabelText("Rubric") as HTMLTextAreaElement).value).toContain("Which of the twelve ways through the flooded quarter the party actually used.");
+  },
+};
+
 export const JudgeReading: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

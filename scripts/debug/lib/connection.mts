@@ -4,7 +4,18 @@ import { fileURLToPath } from 'node:url';
 import { resolve, dirname } from 'node:path';
 
 const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
-const DEBUG_DIR = resolve(PROJECT_ROOT, '.debug');
+
+// v2.3 plan 11's concurrent-load ingredient: two isolated browser sessions, each with its own CDP
+// port AND its own artifact directory, because two processes sharing one `.debug/` also share
+// `session.json` (the second `st-session start` overwrites the first's record), the journey config
+// snapshot and the asset baseline — so the second run's cleanup can read the first's state. Unset
+// means the historical `.debug/`, so every existing recipe and path is unchanged.
+export function debugDirFor(env: NodeJS.ProcessEnv, root: string = PROJECT_ROOT): string {
+  const configured = String(env.SO_DEBUG_DIR ?? "").trim();
+  return configured ? resolve(root, configured) : resolve(root, ".debug");
+}
+
+const DEBUG_DIR = debugDirFor(process.env);
 const SESSION_PATH = resolve(DEBUG_DIR, 'session.json');
 const DEFAULT_ST_URL = process.env.ST_URL || 'http://127.0.0.1:8000/';
 const DEFAULT_CDP_PORT = Number(process.env.ST_DEBUG_CDP_PORT || 9222);

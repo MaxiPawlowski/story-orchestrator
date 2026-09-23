@@ -102,13 +102,6 @@
           "interval": 3,
           "role": "system"
         },
-        "preset": {
-          "name": "Story: Sun Ruins",
-          "settings": {
-            "temp": 1.0,
-            "top_p": 1.0
-          }
-        },
         "world_info": {
           "enable": [
             {

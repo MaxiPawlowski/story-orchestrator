@@ -2,7 +2,11 @@
 
 Story Orchestrator runs a format-2 story as a deterministic checkpoint graph over a live
 SillyTavern chat. This is the current source-of-truth layout; the design rationale and per-plan
-build history live in [`plans/v2/`](plans/v2/).
+build history live in [`plans/v2/`](plans/v2/), [`plans/v2.1/`](plans/v2.1/),
+[`plans/v2.2/`](plans/v2.2/) and [`plans/v2.3/`](plans/v2.3/).
+
+Current through **v2.3** (2026-09-22). The normative rules live in `.claude/rules/architecture.md`
+and `.claude/rules/gotchas.md`; this document describes the shape, not every rule.
 
 ## Source layout
 
@@ -22,7 +26,10 @@ src/
   pacing/                    # tension smoothing, dramatic shapes, steering
   memory/                    # tiers, scene detection, supersession, consolidation, arcs,
                              # canon, epistemic, ledger, injection (pure except inject.ts)
+                             #   v2.3 plan 04 adds derived.ts (what an artifact was built from and
+                             #   what it removed) and reverse.ts (the whole memory-side reversal)
   generation/               # background beat expansion + critic
+    paths.ts                 # v2.3 plan 07 (pure): every route through a generated chain
   copilot/                  # authoring + in-play driver over the studio mutation API
                             #   stages: qualities, checkpoints, transitions, effects, provisioning;
                             #   a stage may answer with `questions` instead of ops (the interview)
@@ -31,6 +38,10 @@ src/
   stagecraft/               # pure curator core: op types + accept modes, the curation prompt,
                             #   the strict line parser, "first || last" patch application,
                             #   and the stagecraft.lorebooks allowlist
+  talk/                     # plan 14 (pure): speaker-direction rules, the director prompt + parser
+  judge/                    # v2.2 (pure): the judge read model (questions, client, policy),
+                            #   director + self-test; v2.3 plan 10 adds the MEASUREMENT files
+                            #   (loreScore/loreRanking/loreRelevanceCalibration — pickLore unchanged)
   studio/                   # Checkpoint Studio v2 (zustand draft, typed mutations, diagnostics)
                             #   tabs: Graph, Story, Qualities, Checkpoints, Transitions, Roster,
                             #   Diagnostics, Wizard (interview + staged proposals + provisioning cards)
@@ -44,6 +55,7 @@ src/
       copilotCoordinator.ts     # authoring stages, wizard provisioning + environment, driver read-model, nudge
       pacingCoordinator.ts      # tension EMA (pending + committed), steering hint
       stagecraftCoordinator.ts  # extras.stagecraft: the WI curator pass, the review ring, the boundary write, rollback revert
+      sceneCoordinator.ts       # v2.3 plan 09: the scene read + its injection; rerun() serves the next-turn preview
     boundaryWork.ts         # declarative registry of everything a committed boundary schedules
     snapshotBuilder.ts      # composes the one RuntimeSnapshot the UI subscribes to
     roster.ts               # roster <-> ST group/chat resolution
@@ -51,7 +63,7 @@ src/
     effectsApplier.ts persistence.ts storyLibrary.ts
     extras.ts               # RuntimeExtras factories/sanitizers, hydrateExtras, applyGlobalSettings/stripGlobalSettings
     settingsStore.ts        # install-wide settings home; liftLegacyChatSettings migration
-    persistenceMigration.ts # v2 hash-keyed blob -> v3 id-keyed blob with a pinned story copy
+    persistenceMigration.ts # v2 hash-keyed blob -> v3 id-keyed -> v4 (plan 05 provenance)
     selfTest.ts snapshot.ts # model self-test over fixtures; pure snapshot readouts
     journal.ts              # SessionJournal: status/flag records, payload ring, buildSessionJournal()
     narrative.ts            # the one composed player "where am I" view (drawer, away popup, /story)
@@ -60,6 +72,16 @@ src/
     storySelection.ts       # which story this chat plays: import, select, restart, remove
     values.ts               # typed text -> PrimitiveValue (author input paths)
     wizardSessions.ts       # wizard conversation/stage/created-asset ledger, install-wide
+    memoryQueue.ts          # v2.3 plan 05: the reconciliation queue (re-read, dismiss, Lock as canon)
+    memoryMirror.ts         # memory -> World Info, one book per chat
+    effectLedger.ts         # v2.3 plan 06 (pure): write-ahead pending row, hydrate reconcile, CAS restore
+    saveHealth.ts           # v2.3 plan 06 (pure): the pending-boundary reading a refused effect reads
+    stateExport.ts          # v2.3 plan 05: the author's copy of a chat's story state
+    agencyRecovery.ts       # v2.3 plan 07 (pure): the refusal a boundary log shows
+    nextTurn.ts             # v2.3 plan 09 (pure): the author's next-turn preview in ST's assembly order
+    repair.ts               # v2.3 plan 09 (pure): the ONE missing step, worst-first
+    faultMatrix.guard.test.ts # v2.3 plan 11: the fault-matrix census guard
+    runToken.ts             # v2.3 plan 03: RunOwnership / RunToken / beginRun
     macros.ts slashCommands.ts awayRecap.ts liveSuite.ts
   components/
     studio/                 # 6 reused presentational primitives
@@ -132,6 +154,59 @@ src/
 - Boundary counters are not ST message indexes; snapshots/logs record `{lastMessageId,
   chatLength}`.
 - Pending queue writes are not persisted; a reload drops them and reconciliation recovers.
+
+## v2.3 invariants (added 2026-09-22)
+
+These are stated in full in `.claude/rules/architecture.md`; this is the shape.
+
+- **Every asynchronous writer takes a `RunOwnership`** (`runtime/runToken.ts`): a `RunToken` minted at
+  the top of the unit and re-checked immediately before each write, because comparing the last message
+  index cannot tell two chats apart at the same index. `ownership.guard.test.ts` +
+  `test/findings/ownership-sites.json` census every write-after-await in `runtime/` and `wizard/`.
+- **Provenance and pins** (plan 05): one `Provenance` envelope (`source/messageId/boundary/pass/
+  validity`, `override`, `inputs`, `confidence`) rides memory entries, epistemic rows, ledger versions,
+  scene reads, curator proposals and the canon's inputs. **Pin = retention, lock = truth.** A
+  quarantined (`source-removed`/`conflicted`) row is *excluded* from every injection, canon and warden
+  fact list — not ranked lower. The **reconciliation queue** (`runtime/memoryQueue.ts`, author-only
+  drawer panel) covers facts, ledger, blackboard and scene conflicts with source-window re-read, and
+  `Lock as canon` is atomic. The warden's fact list is records (id + envelope + conflicting value), so
+  its card cites the message a truth was read from.
+- **Every derived artifact records its inputs and its removals** (plan 04): `memory/derived.ts` keeps
+  what a compaction, scene summary, arc summary, canon, exclusion or dedup was built from and what it
+  took away verbatim; `memory/reverse.ts` composes the whole memory-side reversal, so
+  `rollbackFromMessage` is one line. `rollback ≡ replay` is a property test, not a claim.
+- **Host effects are owned and observable** (plan 06): every `stHost` write answers
+  `{ok:true,…} | {ok:false,reason}` (`stHost/typedResults.test.ts` fails the build on a new one
+  answering `boolean`/`void`); effects go through `EffectsApplier.withLedger`, which persists a
+  `pending` row **before** the host call, reconciles it on hydrate by reading the host, and refuses the
+  effect when that write-ahead row did not reach disk (the save-evidence seam in `saveHealth.ts`, since
+  `persist()` cannot answer the question). Restore on leave is compare-and-set. A missing host feature
+  **blocks** rather than fails (`stHost/capabilities.ts`); preset effects are refused with a reason on
+  any non-textgen backend.
+- **Every generated outcome is a route** (plan 07, R9): `mergeExpansions` emits one transition per
+  outcome, priority = declaration order descending (the engine sorts by priority desc and fires the
+  first match); the anchor-entry threshold is the **minimum over routes** unless the anchor authors one;
+  the code checks and revalidation enumerate every route (`generation/paths.ts`). A cache does not
+  survive its contract (`EXPANSION_CONTRACT`). **`Checkpoint.agency` is optional and `DEFAULT_AGENCY`
+  applies when it is absent** — steering, both generation prompts, the critic, the away recap and the
+  driver panel all read it, and narrating the player's compliance is the defect it prevents.
+- **The four tasks are named once, and Repair is derived** (plan 09): Start/Continue/Repair/Author in
+  `components/settings/EntryPoints.tsx`; the one missing step comes from `runtime/repair.ts`
+  (worst-first, consequence before detail) and **reveals** the control it names rather than
+  duplicating it. The next-turn preview (`runtime/nextTurn.ts`) is composed from `INJECTION_REGISTRY`
+  and the blocks ST actually holds, in ST's own assembly order.
+- **One save vocabulary**: `Saved "X" vN to the library.` and `Applied to this chat: …` /
+  `Not applied to this chat: …` — two events, two owners. Every diagnostic code declares its
+  consequence (`DIAGNOSTIC_CONSEQUENCES`), enforced by a jest case.
+- **A fault matrix cell is checked, not asserted in prose** (plan 11): `test/findings/faultMatrix.json`
+  + `faultMatrix.guard.test.ts` declare nine packages × nine shapes, require a citation that really
+  exists for `covered`/`partial`, refuse one on `todo`/`na`, and print the counts.
+- **Release reproducibility** (plan 08): `npm run build` writes `dist/manifest.json` (bundle sha256,
+  source sha256 over the tree, ST version, the hash of every host file the extension imports, the
+  capability list read from the code), checked by `npm run test:release`. `dist/` is untracked. The
+  **acceptance attestation** (`docs/release/<version>/attestation.json`) is the second file: which
+  bundle was served and verified, on which host commit, browser, model, judge model and which journeys
+  ran green — and it must declare drift when the tree has moved past the attested build.
 
 ## Turn flow
 

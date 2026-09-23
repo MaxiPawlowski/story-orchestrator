@@ -1,0 +1,175 @@
+{
+  "provenance": {
+    "derivedFrom": "test/fixtures/legacy-v2-chat-blob.json",
+    "originChat": "2026-03-26@12h08m16s199ms.jsonl",
+    "capturedAt": "2026-09-20",
+    "note": "A real v3 blob, produced by running the shipped v2 to v3 migration over the verbatim v2 metadata of a real pre-v2.1 chat. Not hand-written: every field is whatever the migration actually emits, which is the point — the v3 to v4 migration has to run over bytes this build never wrote."
+  },
+  "blob": {
+    "version": 3,
+    "selectedStoryId": "legacy-v2-8373d2be",
+    "stories": {
+      "legacy-v2-8373d2be": {
+        "storyId": "legacy-v2-8373d2be",
+        "storyTitle": "Runtime Gate Check",
+        "pinnedStory": null,
+        "playedVersion": 1,
+        "contentHashAtLoad": "v2-8373d2be",
+        "engineState": {
+          "blackboard": {
+            "values": {
+              "found_key": true,
+              "message_count": 2,
+              "messages_in_checkpoint": 1,
+              "elapsed": 0
+            },
+            "versions": {
+              "found_key": 1,
+              "message_count": 2,
+              "messages_in_checkpoint": 2,
+              "elapsed": 2
+            },
+            "latched": {
+              "found_key": true
+            }
+          },
+          "activeCheckpointId": "end",
+          "visitedAnchors": [
+            "start",
+            "door",
+            "end",
+            "door",
+            "end"
+          ],
+          "boundary": 5,
+          "checkpointStartedBoundary": 5,
+          "checkpointStartedAt": 1783248572634,
+          "checkpointStartedMessageId": 4,
+          "lastMessageId": 4,
+          "chatLength": 5
+        },
+        "extras": {
+          "firedNpcReplies": {
+            "door:onEnter:DM Narrator:0": 1
+          },
+          "requirements": {
+            "ready": true,
+            "missingPersonas": [],
+            "missingMembers": [],
+            "missingLorebooks": []
+          },
+          "lastAppliedCheckpointId": "door",
+          "extraction": {
+            "settings": {
+              "enabled": false,
+              "profileId": null,
+              "cadence": 3,
+              "reconciliationMultiplier": 1.5,
+              "stabilityLag": 1
+            },
+            "facts": [],
+            "audits": [],
+            "lastReadBoundary": 0,
+            "scheduler": {
+              "queueDepth": 0,
+              "inFlight": false,
+              "lastError": null
+            }
+          },
+          "updatedAt": "2026-07-05T11:38:20.568Z"
+        }
+      },
+      "legacy-v2-d294c0f4": {
+        "storyId": "legacy-v2-d294c0f4",
+        "storyTitle": "Extraction Gate Check",
+        "pinnedStory": null,
+        "playedVersion": 1,
+        "contentHashAtLoad": "v2-d294c0f4",
+        "engineState": {
+          "blackboard": {
+            "values": {
+              "player_has_key": true,
+              "message_count": 1
+            },
+            "versions": {
+              "player_has_key": 1,
+              "message_count": 1
+            },
+            "latched": {
+              "player_has_key": true
+            }
+          },
+          "activeCheckpointId": "door",
+          "visitedAnchors": [
+            "start",
+            "door"
+          ],
+          "boundary": 1,
+          "checkpointStartedBoundary": 1,
+          "checkpointStartedAt": 1783182421033
+        },
+        "extras": {
+          "firedNpcReplies": {},
+          "requirements": {
+            "ready": true,
+            "missingPersonas": [],
+            "missingMembers": [],
+            "missingLorebooks": []
+          },
+          "lastAppliedCheckpointId": null,
+          "extraction": {
+            "settings": {
+              "enabled": false,
+              "profileId": null,
+              "cadence": 3,
+              "reconciliationMultiplier": 1.5
+            },
+            "facts": [
+              {
+                "importance": 2,
+                "text": "Max took the brass key.",
+                "evidence": "I take the brass key"
+              }
+            ],
+            "audits": [
+              {
+                "id": "09813c45",
+                "createdAt": "2026-07-04T16:27:00.808Z",
+                "priority": 0,
+                "reason": "cue:start->door",
+                "contractHash": "6824f015",
+                "scope": [
+                  "player_has_key"
+                ],
+                "window": {
+                  "from": 0,
+                  "to": 4
+                },
+                "prompt": "Story: Extraction Gate Check\nActive checkpoint: start\nCanon-lite:\nAnchor start: Find the brass key.\n\nRead only the transcript below. Propose only changes directly supported by quoted evidence.\nClosed vocabulary: you may only write listed quality keys and allowed values.\nOutput zero or more lines in exactly these formats:\nDELTA q=<quality_key> value=<json_literal> evidence=\"exact quote from transcript\"\nFACT importance=<1|2|3> text=\"fact text\" evidence=\"exact quote from transcript\"\nIf nothing changed, output NO_DELTA.\n\nQuality questions:\n- player_has_key: type=bool; Did the player explicitly take the brass key? Hints: Look for the player taking possession of the brass key.\n\nTranscript:\n[0] Arin: Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”\n[1] DM Narrator: \"The vault door waits for proof.\"\n[2] DM Narrator: \"The vault door waits for proof.\"\n[3] Max: I take the brass key from the hook.\n[4] Max: I take the brass key from the hook.",
+                "rawResponse": "DELTA q=player_has_key value=true evidence=\"I take the brass key\"\nFACT importance=2 text=\"Max took the brass key.\" evidence=\"I take the brass key\"",
+                "acceptedDeltas": [
+                  {
+                    "delta": {
+                      "q": "player_has_key",
+                      "v": true,
+                      "source": "extractor"
+                    },
+                    "evidence": "I take the brass key"
+                  }
+                ],
+                "rejected": []
+              }
+            ],
+            "lastReadBoundary": 0,
+            "scheduler": {
+              "queueDepth": 0,
+              "inFlight": false,
+              "lastError": null
+            }
+          },
+          "updatedAt": "2026-07-05T10:35:47.524Z"
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-09-19T22:48:42.650Z",
+  "recordedAt": "2026-09-22T11:20:03.578Z",
   "summary": {
     "use": "memory-verify",
     "fixture": "memory-verify",
@@ -7,8 +7,10 @@
     "total": 48,
     "rate": 0.9792,
     "spanish": "8/8",
-    "p50LatencyMs": 330,
+    "p50LatencyMs": 275,
+    "requestedModel": "jev-1.13.0",
     "model": "jev-1.13.0",
+    "modelMatched": true,
     "min": 0.85,
     "ok": true
   },
@@ -17,174 +19,174 @@
       "id": "H03.0",
       "right": true,
       "picked": "p=0.96",
-      "latencyMs": 278
+      "latencyMs": 235
     },
     {
       "id": "H03.1",
       "right": true,
-      "picked": "p=0.7",
-      "latencyMs": 278
+      "picked": "p=0.77",
+      "latencyMs": 235
     },
     {
       "id": "H03.2",
       "right": true,
       "picked": "p=0.02",
-      "latencyMs": 278
+      "latencyMs": 235
     },
     {
       "id": "H03.3",
       "right": true,
       "picked": "p=0.02",
-      "latencyMs": 278
+      "latencyMs": 235
     },
     {
       "id": "H13.0",
       "right": true,
       "picked": "p=0.96",
-      "latencyMs": 259
+      "latencyMs": 215
     },
     {
       "id": "H13.1",
       "right": true,
-      "picked": "p=0.82",
-      "latencyMs": 259
+      "picked": "p=0.8",
+      "latencyMs": 215
     },
     {
       "id": "H13.2",
       "right": true,
       "picked": "p=0.02",
-      "latencyMs": 259
+      "latencyMs": 215
     },
     {
       "id": "H13.3",
       "right": true,
       "picked": "p=0.01",
-      "latencyMs": 259
+      "latencyMs": 215
     },
     {
       "id": "H23.0",
       "right": true,
-      "picked": "p=0.98",
-      "latencyMs": 255
+      "picked": "p=0.97",
+      "latencyMs": 275
     },
     {
       "id": "H23.1",
       "right": true,
-      "picked": "p=0.98",
-      "latencyMs": 255
+      "picked": "p=0.97",
+      "latencyMs": 275
     },
     {
       "id": "H23.2",
       "right": true,
-      "picked": "p=0.04",
-      "latencyMs": 255
+      "picked": "p=0.03",
+      "latencyMs": 275
     },
     {
       "id": "H23.3",
       "right": true,
       "picked": "p=0.03",
-      "latencyMs": 255
+      "latencyMs": 275
     },
     {
       "id": "H27.0",
       "right": true,
-      "picked": "p=0.94",
-      "latencyMs": 317
+      "picked": "p=0.95",
+      "latencyMs": 258
     },
     {
       "id": "H27.1",
       "right": true,
-      "picked": "p=0.9",
-      "latencyMs": 317
+      "picked": "p=0.93",
+      "latencyMs": 258
     },
     {
       "id": "H27.2",
       "right": true,
-      "picked": "p=0.06",
-      "latencyMs": 317
+      "picked": "p=0.05",
+      "latencyMs": 258
     },
     {
       "id": "H27.3",
       "right": true,
       "picked": "p=0.02",
-      "latencyMs": 317
+      "latencyMs": 258
     },
     {
       "id": "L03.0",
       "right": true,
-      "picked": "p=0.92",
-      "latencyMs": 233
+      "picked": "p=0.93",
+      "latencyMs": 238
     },
     {
       "id": "L03.1",
       "right": true,
       "picked": "p=0.94",
-      "latencyMs": 233
+      "latencyMs": 238
     },
     {
       "id": "L03.2",
       "right": true,
       "picked": "p=0.96",
-      "latencyMs": 233
+      "latencyMs": 238
     },
     {
       "id": "L03.3",
       "right": true,
-      "picked": "p=0.17",
-      "latencyMs": 233
+      "picked": "p=0.15",
+      "latencyMs": 238
     },
     {
       "id": "H32.0",
       "right": false,
       "picked": "p=0.19",
-      "latencyMs": 330
+      "latencyMs": 234
     },
     {
       "id": "H32.1",
       "right": true,
-      "picked": "p=0.97",
-      "latencyMs": 330
+      "picked": "p=0.96",
+      "latencyMs": 234
     },
     {
       "id": "H32.2",
       "right": true,
       "picked": "p=0.02",
-      "latencyMs": 330
+      "latencyMs": 234
     },
     {
       "id": "H32.3",
       "right": true,
       "picked": "p=0.92",
-      "latencyMs": 330
+      "latencyMs": 234
     },
     {
       "id": "H09.0",
       "right": true,
-      "picked": "p=0.96",
-      "latencyMs": 466
+      "picked": "p=0.97",
+      "latencyMs": 483
     },
     {
       "id": "H09.1",
       "right": true,
       "picked": "p=0.97",
-      "latencyMs": 466
+      "latencyMs": 483
     },
     {
       "id": "H09.2",
       "right": true,
       "picked": "p=0.02",
-      "latencyMs": 466
+      "latencyMs": 483
     },
     {
       "id": "H09.3",
       "right": true,
-      "picked": "p=0.04",
-      "latencyMs": 466
+      "picked": "p=0.05",
+      "latencyMs": 483
     },
     {
       "id": "H24.0",
       "right": true,
-      "picked": "p=0.49",
+      "picked": "p=0.46",
       "latencyMs": 520
     },
     {
@@ -209,97 +211,97 @@
       "id": "L02.0",
       "right": true,
       "picked": "p=0.97",
-      "latencyMs": 560
+      "latencyMs": 538
     },
     {
       "id": "L02.1",
       "right": true,
       "picked": "p=0.96",
-      "latencyMs": 560
+      "latencyMs": 538
     },
     {
       "id": "L02.2",
       "right": true,
       "picked": "p=0.02",
-      "latencyMs": 560
+      "latencyMs": 538
     },
     {
       "id": "L02.3",
       "right": true,
       "picked": "p=0.96",
-      "latencyMs": 560
+      "latencyMs": 538
     },
     {
       "id": "H21.0",
       "right": true,
       "picked": "p=0.86",
-      "latencyMs": 503
+      "latencyMs": 473
     },
     {
       "id": "H21.1",
       "right": true,
       "picked": "p=0.97",
-      "latencyMs": 503
+      "latencyMs": 473
     },
     {
       "id": "H21.2",
       "right": true,
       "picked": "p=0.01",
-      "latencyMs": 503
+      "latencyMs": 473
     },
     {
       "id": "H21.3",
       "right": true,
-      "picked": "p=0.9",
-      "latencyMs": 503
+      "picked": "p=0.91",
+      "latencyMs": 473
     },
     {
       "id": "ES.0",
       "right": true,
-      "picked": "p=0.88",
-      "latencyMs": 668
+      "picked": "p=0.92",
+      "latencyMs": 475
     },
     {
       "id": "ES.1",
       "right": true,
-      "picked": "p=0.96",
-      "latencyMs": 668
+      "picked": "p=0.97",
+      "latencyMs": 475
     },
     {
       "id": "ES.2",
       "right": true,
       "picked": "p=0.01",
-      "latencyMs": 668
+      "latencyMs": 475
     },
     {
       "id": "ES.3",
       "right": true,
       "picked": "p=0.03",
-      "latencyMs": 668
+      "latencyMs": 475
     },
     {
       "id": "ES.4",
       "right": true,
-      "picked": "p=0.64",
-      "latencyMs": 614
+      "picked": "p=0.55",
+      "latencyMs": 520
     },
     {
       "id": "ES.5",
       "right": true,
-      "picked": "p=0.9",
-      "latencyMs": 614
+      "picked": "p=0.89",
+      "latencyMs": 520
     },
     {
       "id": "ES.6",
       "right": true,
       "picked": "p=0.02",
-      "latencyMs": 614
+      "latencyMs": 520
     },
     {
       "id": "ES.7",
       "right": true,
-      "picked": "p=0.02",
-      "latencyMs": 614
+      "picked": "p=0.03",
+      "latencyMs": 520
     }
   ]
 }

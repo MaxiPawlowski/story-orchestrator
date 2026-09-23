@@ -20,19 +20,30 @@ export const SaveToLibrary: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole("button", { name: "Save" }));
-    await expect(await canvas.findByText(/Saved .* v1 to library/)).toBeInTheDocument();
+    await expect(await canvas.findByText(/Saved .* v1 to the library\./)).toBeInTheDocument();
     // A story saved without an authored id gets one derived from its title, so the next save
     // updates the same record instead of forking a new one (finding U2).
     await expect(useDraftStore.getState().draft.id).toMatch(/^the-ruins-heist/);
   },
 };
 
-export const SaveOffersTheUpdateToTheChat: Story = {
-  args: { onSaved: fn(async () => "This chat is playing it now.") },
+// v2.3 plan 09: two events, two sentences. The library half is the Studio's; the chat half is the
+// runtime's, and a save can succeed without the chat taking it.
+export const SaveAppliedToThisChat: Story = {
+  args: { onSaved: fn(async () => "this chat is playing the new version now") },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole("button", { name: "Save" }));
     await waitFor(() => expect(args.onSaved).toHaveBeenCalledWith(expect.objectContaining({ id: expect.stringMatching(/^the-ruins-heist/), version: expect.any(Number) })));
-    await expect(await canvas.findByText(/This chat is playing it now\./)).toBeInTheDocument();
+    await expect(await canvas.findByText(/Saved .* v1 to the library\. Applied to this chat: this chat is playing the new version now\./)).toBeInTheDocument();
+  },
+};
+
+export const SaveNotTakenByTheChat: Story = {
+  args: { onSaved: fn(async () => null) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+    await expect(await canvas.findByText(/Saved .* v1 to the library\. Not applied to this chat: it is playing a different story\./)).toBeInTheDocument();
   },
 };

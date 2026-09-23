@@ -1,6 +1,6 @@
 import type { BlackboardSnapshot, GateNode, NormalizedTransition, PrimitiveValue, ScaffoldingBeat, ScaffoldingDelta, ScaffoldingOutcome, TensionLevel } from "@engine/index";
 
-export type ExpansionStatus = "idle" | "queued" | "generating" | "cached" | "stale" | "needs_review" | "failed" | "inserted";
+export type ExpansionStatus = "idle" | "queued" | "generating" | "cached" | "stale" | "needs_review" | "failed" | "validated" | "inserted";
 
 export interface QualityDeltaPlan {
   q: string;
@@ -28,6 +28,8 @@ export interface PlannedExpansionInput {
 }
 
 export interface GeneratedBeat extends ScaffoldingBeat {
+  /** v2.3 plan 07: the beat's index in the response it was parsed from. Never renumbered. */
+  id: string;
   objective: string;
   guidance: string;
   tension_target: TensionLevel;
@@ -35,6 +37,9 @@ export interface GeneratedBeat extends ScaffoldingBeat {
 }
 
 export interface GeneratedOutcome extends ScaffoldingOutcome {
+  /** v2.3 plan 07 (R9): stable `<beatId>:<outcomeIndex>` at parse, preserved through the cache, so a
+   *  transition and its gate can be attributed back to the outcome that produced them. */
+  id: string;
   label: string;
   gate: GateNode;
   deltas?: ScaffoldingDelta[];
@@ -64,9 +69,19 @@ export interface VariantRecord {
   timesMs: number[];
 }
 
+/**
+ * v2.3 plan 07: the contract a cached chain was built under. Bumped when the shape of a beat or the
+ * meaning of its outcomes changes, because a cache does not survive that change — `mergeExpansions`
+ * read `outcomes[0]` before this revision, so a chain from that era has no outcome ids and would keep
+ * the single-route behaviour R9 removed.
+ */
+export const EXPANSION_CONTRACT = 2;
+
 export interface ExpansionCacheEntry {
   key: string;
   status: ExpansionStatus;
+  /** The contract this chain was generated under; anything else is discarded on hydrate. */
+  contract?: number;
   sourceCheckpointId: string;
   stubId: string;
   targetAnchorId: string;

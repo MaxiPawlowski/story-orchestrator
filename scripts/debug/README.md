@@ -44,11 +44,12 @@ Playwright MCP is configured via the repo `.mcp.json` (`npx @playwright/mcp@late
 | `so-turn-types-check.mts` | `[--group <name>] [--character <name>] [--image sd\|synthetic\|auto] [--skip-reply] [--skip-image] [--skip-solo] [--keep]` |
 | `so-state.mts` | `current [--full] [--expect path=value]`, `all` |
 | `st-actions.mts` | `send`, `send-compact`, `trigger <member>`, `slash`, `checkpoint`, `swipe`, `edit`, `delete`, `wi-status`, `wait-idle` |
-| `st-payload.mts` | `arm`, `last [n]`, `watch [n]` |
+| `st-payload.mts` | `arm`, `last [n] [--member <name>]`, `watch [n]` |
 | `st-navigation.mts` | `recent-group`, `new-group-session`, `recent-group-new`, `list-entities`, `open-group <id\|name>`, `open-character <name>`, `list-chats`, `open-chat <chatId>`, `new-chat` |
 | `st-eval.mts` | `"<js>"` or `--file <path>` — run an async snippet in the ST page with `ctx` (getContext()) and `rt` (runtime handle) in scope, JSON result |
-| `so-ui.mts` | `all`, `settings`, `drawer`, `open-settings`, `open-studio`, `studio`, `studio-tab <label>`, `studio-save [keep\|restart\|cancel]`, `drawer-tab <Overview\|Blackboard\|Memory\|Scheduler\|Payload>`, `pipeline`, `assert-player-clean`, `wizard`, `open-wizard`, `new-story-wizard`, `wizard-run [stage] [message]`, `wizard-answer [a1\|a2\|a3]`, `wizard-apply [index]`, `stagecraft`, `curator-accept [index\|text-first] [text]`, `curator-reject [index]`, `screenshot` |
+| `so-ui.mts` | `all`, `settings`, `drawer`, `open-settings`, `open-studio`, `studio`, `studio-tab <label>`, `studio-save [keep\|restart\|cancel]`, `drawer-tab <Overview\|Blackboard\|Memory\|Scheduler\|Payload>`, `pipeline`, `assert-player-clean`, `wizard`, `open-wizard`, `new-story-wizard`, `wizard-run [stage] [message]`, `wizard-answer [a1\|a2\|a3]`, `wizard-apply [index]`, `stagecraft`, `curator-accept [index\|text-first] [text]`, `curator-reject [index]`, `memory-queue [keep\|lock\|reread\|dismiss\|reconfirm\|discard] [--key <conflictKey>] [--side <n>] [--index <n>]`, `screenshot` |
 | `so-assets.mts` | `list`, `remove`, `assert-clean` `[--marker <prefix>]` — the ST assets a wizard run created (marker + the `applied` ledger of test sessions only — marker-keyed, or recorded since a journey's baseline); a real author's sessions and assets are never touched |
+| `so-responsive.mts` | `[--surface drawer\|settings\|studio\|all]` — 24 viewports from 320×568 to 2560×1440 against the live page; reports our roots' horizontal overflow and any `[data-so]` control outside the viewport; **needs no backend**, exits 1 on a finding, restores the original viewport |
 | `so-copilot.mts` | `context`, `suggest [--debug j]`, `report [--debug j]`, `nudge <text>`, `clear-nudge`, `probe [--debug d]`, `advance <id>`, `stage <stage> [--message m] [--debug j]` |
 | `so-library.mts` | library summary (id + version), `<id\|hash>` detail, `remove <id\|hash\|title>`, `wipe-chat-meta [--hash h]`, `--legacy` |
 | `so-judge.mts` | `status \| ask <request.json> \| calibrate [--use director] [--min 0.85] [--record] \| calls [--last 20]` — v2.2 judge: plugin status (key source, never the key), one request through the plugin, fixture calibration page → plugin → TypeSafe, the chat's judge call ring. Needs `npm run plugin:install` + `enableServerPlugins: true` |
@@ -133,10 +134,13 @@ In a sandbox chat of `AdolionGroup` (every member greets) with a throwaway story
 node scripts/debug/st-payload.mts arm
 node scripts/debug/st-actions.mts send "Trigger a generation"
 node scripts/debug/st-payload.mts last
+node scripts/debug/st-payload.mts last --member Belle      # only captures taken while Belle was drafted
 node scripts/debug/st-payload.mts watch 3 --timeout-ms 60000
 ```
 
 Payload capture hooks fetch/XHR inside the shared page and records recent generation requests. Group generation attribution uses `GROUP_MEMBER_DRAFTED` when available.
+
+`--member` filters **before** slicing: the newest capture belongs to whoever spoke last, so filtering a `last n` window would otherwise push the member's own capture out of it. Scenarios and journeys assert on the same thing without arming anything, via `expect: {payloadContains|payloadAbsent: [{key|within, member?, text}]}` — scoped to an injected **block key** (what the extension installs) or to a **region** of a raw body, with an empty needle, an empty ring, a missing block and a missing marker all failing rather than searching everything. The failure text names which sources were searched (`current` = the next prompt's blocks, `capture` = a real generation's, `http` = raw bodies), because only the last two are evidence about a request that was actually sent.
 
 ## Swipe Recipe
 

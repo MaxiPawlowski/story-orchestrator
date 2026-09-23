@@ -82,6 +82,9 @@
       }
     },
     {
+      "send": "From somewhere past the torches a scream echoes from the dark."
+    },
+    {
       "extract": {
         "debugResponse": "DELTA q=tension_current value=\"critical\" evidence=\"a scream echoes from the dark\"",
         "reason": "cadence"

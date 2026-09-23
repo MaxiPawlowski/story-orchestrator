@@ -1,0 +1,73 @@
+1/13 import_story ok 372ms
+2/13 ui ok 186ms
+3/13 eval ok 11ms
+3/13 eval -> {"capable":true}
+4/13 send_generate ok 28306ms
+5/13 extract ok 1591ms
+6/13 wait ok 44ms
+7/13 eval ok 6ms
+7/13 eval -> {"last":4,"chat":6,"checkpoint":"cp2","boundary":2}
+8/13 eval ok 236ms
+8/13 eval -> {"wrote":true,"to":3,"belief":"5a893edd-5f1b-45a0-aa5d-3e64cfbe0d77","messageId":3}
+9/13 eval ok 233ms
+9/13 eval -> {"wrote":true,"to":4,"retiredAt":{"messageId":4,"boundary":2},"view":[{"entity":"Arin","field":"condition","value":"wounded","bound":false,"turn":2}]}
+10/13 edit ok 135ms
+11/13 wait ok 1545ms
+12/13 expect ok 33ms
+13/13 eval ok 5ms
+13/13 eval -> {"view":[{"entity":"Arin","field":"condition","value":"healthy","bound":false,"turn":2}],"belief":"5a893edd-5f1b-45a0-aa5d-3e64cfbe0d77","notice":{"checkpointName":"Investigate the Job Board","at":"2026-09-21T21:16:50.284Z"}}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-21T21-16-52-073Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 13,
+  "cleanup": {
+    "removedStoryHashes": [],
+    "keptPreExistingStories": [
+      "v2-55d21daa"
+    ],
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugEpistemicResponse",
+      "storyOrchestratorDebugLedgerResponse",
+      "storyOrchestratorDebugSceneSummaryResponse"
+    ],
+    "sandboxChatId": "2026-09-21@18h16m18s696ms",
+    "owned": [
+      "2026-09-21@18h16m18s696ms"
+    ],
+    "deleted": [
+      "2026-09-21@18h16m18s696ms"
+    ],
+    "notDeleted": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-21@18h16m18s696ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-21@15h49m05s268ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "ok": true
+    }
+  }
+}

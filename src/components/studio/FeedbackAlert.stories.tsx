@@ -12,7 +12,7 @@ export default meta;
 type Story = StoryObj<typeof FeedbackAlert>;
 
 export const Success: Story = {
-  args: { feedback: { type: "success", message: "Saved “The Ruins Heist” to library." } },
+  args: { feedback: { type: "success", message: "Saved “The Ruins Heist” to the library." } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText(/Saved/)).toBeInTheDocument();

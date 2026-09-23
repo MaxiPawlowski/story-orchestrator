@@ -73,7 +73,7 @@ const readDeltas = (value: unknown, story: NormalizedStoryV2, path: string, issu
   }).filter((entry): entry is ScaffoldingDelta => Boolean(entry));
 };
 
-const readOutcome = (value: unknown, story: NormalizedStoryV2, path: string, issues: string[]): GeneratedOutcome | null => {
+const readOutcome = (value: unknown, story: NormalizedStoryV2, path: string, issues: string[], id: string): GeneratedOutcome | null => {
   if (!isRecord(value)) {
     issues.push(`${path}: outcome must be an object`);
     return null;
@@ -88,7 +88,7 @@ const readOutcome = (value: unknown, story: NormalizedStoryV2, path: string, iss
     : undefined;
   if (progress && !story.checkpointById[progress.anchor]) issues.push(`${path}.progress.anchor: unknown anchor`);
   if (!gate || typeof value.label !== "string") return null;
-  return { label: value.label, gate, ...(deltas ? { deltas } : {}), ...(progress ? { progress } : {}) };
+  return { id, label: value.label, gate, ...(deltas ? { deltas } : {}), ...(progress ? { progress } : {}) };
 };
 
 export function parseGeneratedBeats(raw: string, story: NormalizedStoryV2): { beats: GeneratedBeat[]; issues: string[] } {
@@ -114,9 +114,10 @@ export function parseGeneratedBeats(raw: string, story: NormalizedStoryV2): { be
     if (!guidance.trim()) issues.push(`${path}.guidance: required`);
     if (!tension) issues.push(`${path}.tension_target: invalid`);
     if (!Array.isArray(entry.outcomes) || !entry.outcomes.length) issues.push(`${path}.outcomes: required`);
-    const outcomes = Array.isArray(entry.outcomes) ? entry.outcomes.map((outcome, outcomeIndex) => readOutcome(outcome, story, `${path}.outcomes.${outcomeIndex}`, issues)).filter((outcome): outcome is GeneratedOutcome => Boolean(outcome)) : [];
+    const beatId = String(index);
+    const outcomes = Array.isArray(entry.outcomes) ? entry.outcomes.map((outcome, outcomeIndex) => readOutcome(outcome, story, `${path}.outcomes.${outcomeIndex}`, issues, `${beatId}:${outcomeIndex}`)).filter((outcome): outcome is GeneratedOutcome => Boolean(outcome)) : [];
     if (!objective || !guidance || !tension || !outcomes.length) return null;
-    return { objective, guidance, tension_target: tension, outcomes };
+    return { id: beatId, objective, guidance, tension_target: tension, outcomes };
   }).filter((entry): entry is GeneratedBeat => Boolean(entry));
   return { beats, issues };
 }

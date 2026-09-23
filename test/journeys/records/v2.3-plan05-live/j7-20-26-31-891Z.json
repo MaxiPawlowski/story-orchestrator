@@ -1,0 +1,241 @@
+{
+  "id": "J7",
+  "title": "long-haul",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j7-long-haul.journey.json",
+  "ranAt": "2026-09-22T20:26:31.859Z",
+  "strict": false,
+  "partial": false,
+  "only": null,
+  "tally": {
+    "pass": 2,
+    "fail": 6,
+    "skipped": 2
+  },
+  "tallies": {
+    "automated": {
+      "pass": 2,
+      "fail": 6,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 2
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 2,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [
+    "6 automated check(s) failed"
+  ],
+  "humanRecord": null,
+  "runnerError": null,
+  "capabilities": {},
+  "results": [
+    {
+      "id": "J7.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp1 → cp2: the player approaches the job board",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.2",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp2 → cp3: the party accepts the Sun Ruins mission",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.3",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp3 → cp-4a: the player agrees to bring Luke along",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Timed out waiting for {\"timeoutMs\":900000,\"checkpointIn\":[\"cp-4a\",\"cp-4b\",\"cp-4a1\",\"cp-4a2\",\"cp-5\",\"cp-6\"]}. Last state: {\"chatId\":\"2026-09-22@16h15m48s288ms\",\"activeCheckpoint\":\"cp3\",\"boundary\":7,\"blackboard\":{\"approached_board\":true,\"tension_current\":0.1275,\"mission_accepted\":true,\"luke_decision\":\"undecided\"},\"latched\":{\"approached_board\":true,\"mission_accepted\":true},\"auditCount\":8,\"expansion\":{\"entries\":{},\"scheduler\":{\"queueDepth\":0,\"inFlight\":false,\"lastError\":null}},\"requirementsReady\":true,\"npcFired\":{\"cp2:onEnter:DM Narrator:0\":1,\"cp2:afterSpeak:Ponticius:0\":1,\"cp3:onEnter:Luke:0\":1},\"tension\":{\"level\":\"stirring\",\"smoothed\":0.1275,\"expected\":0.25,\"hint\":{\"direction\":\"hold\",\"text\":\"Pacing: hold the tension near stirring — sustain the mood without spiking or releasing it. Do not narrate the player's own words or decisions.\"}},\"pacingPrompt\":{\"value\":\"Pacing: hold the tension near stirring — sustain the mood without spiking or releasing it. Do not narrate the player's own words or decisions.\",\"position\":1,\"depth\":2,\"scan\":false,\"role\":0,\"filter\":null},\"lastAudit\":{\"accepted\":[\"luke_decision\"],\"rejected\":[{\"q\":\"tension_current='tense'\",\"reason\":\"invalid value\"}]},\"copilot\":{\"enabled\":true,\"activeNudge\":null,\"nudgeInjected\":false}}",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.4",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp-4a → cp-4a1: the sphinx riddle is answered correctly",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Timed out waiting for {\"timeoutMs\":900000,\"checkpointIn\":[\"cp-4a1\",\"cp-4a2\",\"cp-5\",\"cp-6\"]}. Last state: {\"chatId\":\"2026-09-22@16h15m48s288ms\",\"activeCheckpoint\":\"cp3\",\"boundary\":9,\"blackboard\":{\"approached_board\":true,\"tension_current\":0.1275,\"mission_accepted\":true,\"luke_decision\":\"undecided\",\"chamber_entered\":true},\"latched\":{\"approached_board\":true,\"mission_accepted\":true,\"chamber_entered\":true},\"auditCount\":9,\"expansion\":{\"entries\":{},\"scheduler\":{\"queueDepth\":0,\"inFlight\":false,\"lastError\":null}},\"requirementsReady\":true,\"npcFired\":{\"cp2:onEnter:DM Narrator:0\":1,\"cp2:afterSpeak:Ponticius:0\":1,\"cp3:onEnter:Luke:0\":1},\"tension\":{\"level\":\"stirring\",\"smoothed\":0.1275,\"expected\":0.25,\"hint\":{\"direction\":\"hold\",\"text\":\"Pacing: hold the tension near stirring — sustain the mood without spiking or releasing it. Do not narrate the player's own words or decisions.\"}},\"pacingPrompt\":{\"value\":\"Pacing: hold the tension near stirring — sustain the mood without spiking or releasing it. Do not narrate the player's own words or decisions.\",\"position\":1,\"depth\":2,\"scan\":false,\"role\":0,\"filter\":null},\"lastAudit\":{\"accepted\":[\"chamber_entered\"],\"rejected\":[{\"q\":\"tension_current='calm'\",\"reason\":\"invalid value\"},{\"q\":\"riddle_answer=moon\",\"reason\":\"evidence not in window\"}]},\"copilot\":{\"enabled\":true,\"activeNudge\":null,\"nudgeInjected\":false}}",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.5",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp-4a1 → cp-5: the party enters the inner chamber, and convergence progress is recorded",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Timed out waiting for {\"timeoutMs\":900000,\"checkpointIn\":[\"cp-5\",\"cp-6\"]}. Last state: {\"chatId\":\"2026-09-22@16h15m48s288ms\",\"activeCheckpoint\":\"cp3\",\"boundary\":11,\"blackboard\":{\"approached_board\":true,\"tension_current\":0.23925,\"mission_accepted\":true,\"luke_decision\":\"undecided\",\"chamber_entered\":true},\"latched\":{\"approached_board\":true,\"mission_accepted\":true,\"chamber_entered\":true},\"auditCount\":11,\"expansion\":{\"entries\":{},\"scheduler\":{\"queueDepth\":0,\"inFlight\":false,\"lastError\":null}},\"requirementsReady\":true,\"npcFired\":{\"cp2:onEnter:DM Narrator:0\":1,\"cp2:afterSpeak:Ponticius:0\":1,\"cp3:onEnter:Luke:0\":1},\"tension\":{\"level\":\"stirring\",\"smoothed\":0.23925,\"expected\":0.25,\"hint\":{\"direction\":\"hold\",\"text\":\"Pacing: hold the tension near stirring — sustain the mood without spiking or releasing it. Do not narrate the player's own words or decisions.\"}},\"pacingPrompt\":{\"value\":\"Pacing: hold the tension near stirring — sustain the mood without spiking or releasing it. Do not narrate the player's own words or decisions.\",\"position\":1,\"depth\":2,\"scan\":false,\"role\":0,\"filter\":null},\"lastAudit\":{\"accepted\":[],\"rejected\":[{\"q\":\"tension_current='tense'\",\"reason\":\"invalid value\"},{\"q\":\"luke_decision=accepted\",\"reason\":\"oversized response\"}]},\"copilot\":{\"enabled\":true,\"activeNudge\":null,\"nudgeInjected\":false}}",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.6",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp-5 → cp-6: the artifact is secured and the party returns to the guild",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Timed out waiting for {\"timeoutMs\":900000,\"checkpointIn\":[\"cp-6\"]}. Last state: {\"chatId\":\"2026-09-22@16h15m48s288ms\",\"activeCheckpoint\":\"cp3\",\"boundary\":14,\"blackboard\":{\"approached_board\":true,\"tension_current\":0.23925,\"mission_accepted\":true,\"luke_decision\":\"undecided\",\"chamber_entered\":true,\"artifact_secured\":true,\"progress_toward_cp-6\":1},\"latched\":{\"approached_board\":true,\"mission_accepted\":true,\"chamber_entered\":true,\"artifact_secured\":true},\"auditCount\":14,\"expansion\":{\"entries\":{},\"scheduler\":{\"queueDepth\":0,\"inFlight\":false,\"lastError\":null}},\"requirementsReady\":true,\"npcFired\":{\"cp2:onEnter:DM Narrator:0\":1,\"cp2:afterSpeak:Ponticius:0\":1,\"cp3:onEnter:Luke:0\":1},\"tension\":{\"level\":\"stirring\",\"smoothed\":0.23925,\"expected\":0.25,\"hint\":{\"direction\":\"hold\",\"text\":\"Pacing: hold the tension near stirring — sustain the mood without spiking or releasing it. Do not narrate the player's own words or decisions.\"}},\"pacingPrompt\":{\"value\":\"Pacing: hold the tension near stirring — sustain the mood without spiking or releasing it. Do not narrate the player's own words or decisions.\",\"position\":1,\"depth\":2,\"scan\":false,\"role\":0,\"filter\":null},\"lastAudit\":{\"accepted\":[],\"rejected\":[{\"q\":\"luke_decision=accepted\",\"reason\":\"oversized response\"}]},\"copilot\":{\"enabled\":true,\"activeNudge\":null,\"nudgeInjected\":false}}",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.7",
+      "mode": "auto",
+      "findings": [],
+      "goal": "every anchor was visited and none was skipped",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Evaluation failed in SillyTavern page: page.evaluate: Error: anchors skipped: cp-5, cp-6 (visited cp1, cp2, cp3)\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:246)\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:349)\n    at eval (eval at evaluate (:290:30), <anonymous>:3:12)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.8",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the long session left a coherent journal and memory behind",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Evaluation failed in SillyTavern page: page.evaluate: Error: expected 5+ transition events, got 2\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:261)\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:533)\n    at eval (eval at evaluate (:290:30), <anonymous>:3:12)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.9",
+      "mode": "human",
+      "findings": [],
+      "goal": "",
+      "prompt": "Over the whole play-through, did the story feel authored — arriving where it was meant to — or did it feel like it was dragging you along rails?",
+      "anchors": "1 = pure rails · 3 = authored but visible machinery · 5 = felt like a GM running my choices",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    },
+    {
+      "id": "J7.10",
+      "mode": "human",
+      "findings": [],
+      "goal": "",
+      "prompt": "Did the finale land, given what actually happened in your run?",
+      "anchors": "1 = disconnected from my choices · 3 = generic ending · 5 = paid off my run specifically",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    }
+  ],
+  "cleanup": {
+    "judgeCalls": {
+      "count": 0,
+      "events": []
+    },
+    "lorebooks": {
+      "Xentar Checkpoints": {
+        "deactivated": true
+      }
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 2,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "ok": true
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions"
+      ],
+      "preservedStories": []
+    },
+    "stories": {
+      "removed": 1
+    },
+    "chat": {
+      "sandboxChatId": "2026-09-22@16h15m48s288ms",
+      "owned": [
+        "2026-09-22@16h15m48s288ms"
+      ],
+      "deleted": [
+        "2026-09-22@16h15m48s288ms"
+      ],
+      "notDeleted": [],
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-22@16h15m48s288ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-21@15h49m05s268ms"
+    },
+    "mirrorBooks": {
+      "deleted": [
+        "Story Orchestrator - Quest for the Sun Ruins - 2026-09-22@16h15m48s288ms"
+      ],
+      "failed": [],
+      "leaked": []
+    },
+    "member:DM Narrator": {
+      "enabled": true
+    },
+    "member:Arin": {
+      "enabled": true
+    },
+    "member:Ponticius": {
+      "enabled": true
+    },
+    "member:Luke": {
+      "enabled": true
+    },
+    "disabledMembers": []
+  }
+}

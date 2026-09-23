@@ -1,0 +1,130 @@
+{
+  "name": "live-effects-owned-restore",
+  "objective": "v2.3 plan 06's live check (it needs a real SillyTavern, a real group, and NO model): a checkpoint effect writes into state the chat does not own — the GROUP's `disabled_members` — and the effect ledger has to show which member it flipped, from what, and keep the two chats in that group from overwriting each other's account. Then a save that the server never receives: the ledger is not the only thing that can go quiet, so the chat-save route is failed at the transport and the save EVIDENCE has to say a write was lost, the player line has to appear, and the recovery has to be proved by reading the server's own copy back. Run it with `--sandbox --group 1789797226071` (Adolion - The Adventurer's Road, whose members include Tobias); it refuses at its first step when the group or the member is wrong rather than asserting a vacuous truth.",
+  "steps": [
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const group = (ctx.groups ?? []).find((entry) => String(entry.id) === String(ctx.groupId ?? '')); if (!group) throw new Error('no group is open: this check needs a real group, because the state under test is the GROUP\\u2019s disabled_members'); const characters = ctx.characters ?? []; const member = (group.members ?? []).find((avatar) => String(characters.find((card) => card?.avatar === avatar)?.name ?? '').toLowerCase() === 'tobias'); if (!member) throw new Error(`Tobias is not a member of ${group.name}: ${JSON.stringify((group.members ?? []).map((avatar) => characters.find((card) => card?.avatar === avatar)?.name ?? avatar))}`); if ((group.disabled_members ?? []).includes(member)) throw new Error(`Tobias is ALREADY disabled in ${group.name}, so the first switch would write nothing and the whole check would pass over an empty ledger`); const settings = ctx.textCompletionSettings ?? {}; globalThis.__so06Baseline = { groupId: String(group.id), groupName: group.name ?? null, member, groupMembers: [...(group.members ?? [])], disabled: [...(group.disabled_members ?? [])], api: String(ctx.mainApi ?? ''), sampler: { preset: settings.preset ?? null, temp: settings.temp ?? null, top_p: settings.top_p ?? null } }; return globalThis.__so06Baseline;",
+      "log": true
+    },
+    {
+      "import_story": { "file": "../fixtures/effects-cast.story.json" }
+    },
+    {
+      "slash": "/cp activate road"
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ledger = rt.getSnapshot().effects.ledger; const row = ledger[ledger.length - 1]; const me = globalThis.__so06Baseline.member; if (row?.effect !== 'cast') throw new Error(`the last ledger row is not the cast write: ${JSON.stringify(row)}`); if (row.status !== 'applied') throw new Error(`the cast write is not recorded as applied: ${JSON.stringify(row)}`); if (row.target?.kind !== 'cast' || row.target?.member !== me) throw new Error(`the row does not name the member it wrote: ${JSON.stringify(row.target)}`); if (row.target?.group !== globalThis.__so06Baseline.groupId) throw new Error(`the row does not name the group it wrote: ${JSON.stringify(row.target)}`); if (row.before?.disabled !== false || row.after?.disabled !== true) throw new Error(`the row does not record the flag it REPLACED: ${JSON.stringify({ before: row.before, after: row.after })}`); return { effect: row.effect, status: row.status, target: row.target, before: row.before, after: row.after };",
+      "log": true
+    },
+    {
+      "expect": {
+        "effectsLedger": {
+          "has": [
+            {
+              "effect": "cast",
+              "status": "applied",
+              "targetKind": "cast",
+              "targetContains": "Tobias",
+              "before": { "disabled": false },
+              "after": { "disabled": true }
+            }
+          ]
+        },
+        "groupDisabled": { "disabled": ["Tobias"] }
+      }
+    },
+    {
+      "slash": "/cp activate hall"
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ledger = rt.getSnapshot().effects.ledger; const cast = ledger[ledger.length - 1]; const preset = ledger[ledger.length - 2]; if (cast?.effect !== 'cast' || cast.before?.disabled !== true || cast.after?.disabled !== false) throw new Error(`the second switch must record the flag it replaced too: ${JSON.stringify(cast)}`); if (preset?.effect !== 'preset') throw new Error(`the preset effect wrote no ledger row: ${JSON.stringify(ledger.map((row) => row.effect))}`); const api = String(SillyTavern.getContext().mainApi ?? ''); const expected = api === 'textgenerationwebui' ? 'applied' : 'failed'; if (preset.status !== expected) throw new Error(`a preset effect on ${api} must be ${expected}; the ledger says ${preset.status} (${preset.reason ?? 'no reason recorded'})`); if (expected === 'failed' && !/Text Completion/i.test(String(preset.reason ?? ''))) throw new Error(`the refusal must name what it was refused for: ${JSON.stringify(preset.reason)}`); if (expected === 'applied') { const settings = SillyTavern.getContext().textCompletionSettings ?? {}; if (settings.temp !== 0.42 || settings.top_p !== 0.42) throw new Error(`the preset is recorded as applied but the backend is not running it: ${JSON.stringify({ temp: settings.temp, top_p: settings.top_p })}`); } return { api, expected, presetStatus: preset.status, reason: preset.reason ?? null, cast: { before: cast.before, after: cast.after } };",
+      "log": true
+    },
+    {
+      "expect": {
+        "effectsLedger": {
+          "has": [
+            {
+              "effect": "cast",
+              "status": "applied",
+              "targetContains": "Tobias",
+              "before": { "disabled": true },
+              "after": { "disabled": false }
+            }
+          ]
+        },
+        "groupDisabled": { "enabled": ["Tobias"] }
+      }
+    },
+    {
+      "slash": "/cp activate road"
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const rows = rt.getSnapshot().effects.ledger.filter((row) => row.effect === 'cast'); const shape = rows.map((row) => `${row.checkpointId}:${row.before?.disabled}->${row.after?.disabled}`); const wanted = ['road:false->true', 'hall:true->false', 'road:false->true']; if (JSON.stringify(shape) !== JSON.stringify(wanted)) throw new Error(`every switch is its own decision, recorded from the state it found: wanted ${JSON.stringify(wanted)}, got ${JSON.stringify(shape)}`); if (new Set(rows.map((row) => row.id)).size !== rows.length) throw new Error(`two rows share an id: ${JSON.stringify(rows.map((row) => row.id))}`); return { castRows: rows.length, shape };",
+      "log": true
+    },
+    {
+      "expect": { "groupDisabled": { "disabled": ["Tobias"] } }
+    },
+    {
+      "block_route": { "pattern": "**/api/chats/group/save" }
+    },
+    {
+      "block_route": { "pattern": "**/api/chats/save" }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; await rt.persist(); const snapshot = rt.getSnapshot(); const health = snapshot.saveHealth; if (health.lastOutcome !== 'unsaved') throw new Error(`a save that never reached the server is evidence of a lost write; the evidence says ${JSON.stringify(health)}`); if (!/failed before the server answered/.test(String(health.lastReason ?? ''))) throw new Error(`the reason must state what was observed \\u2014 the request left and nothing answered \\u2014 not that no request was made: ${JSON.stringify(health.lastReason)}`); if (health.pendingBoundary === null) throw new Error(`a lost write must stay outstanding until something confirms it: ${JSON.stringify(health)}`); const status = (snapshot.narrative?.sections ?? []).find((section) => section.id === 'status')?.lines ?? []; if (!status.some((line) => /changes not saved/i.test(line))) throw new Error(`the player is not told that the changes are unsaved; the status section reads ${JSON.stringify(status)}`); return { lastOutcome: health.lastOutcome, reason: health.lastReason, pending: health.pendingBoundary, status };",
+      "log": true
+    },
+    {
+      "unblock_route": {}
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; await rt.persist(); const snapshot = rt.getSnapshot(); const health = snapshot.saveHealth; if (health.lastOutcome !== 'applied') throw new Error(`the write after the block did not land: ${JSON.stringify(health)}`); if (health.pendingBoundary !== null) throw new Error(`the outstanding write was not cleared: ${JSON.stringify(health)}`); const status = (snapshot.narrative?.sections ?? []).find((section) => section.id === 'status')?.lines ?? []; if (status.some((line) => /changes not saved/i.test(line))) throw new Error(`the player is still told the changes are unsaved: ${JSON.stringify(status)}`); if (health.lastAppliedBoundary !== snapshot.boundary) throw new Error(`the READ-BACK disagrees with what this chat wrote: the server's copy holds boundary ${JSON.stringify(health.lastAppliedBoundary)}, this chat believes it wrote ${snapshot.boundary}`); return { lastOutcome: health.lastOutcome, appliedBoundary: health.lastAppliedBoundary, boundary: snapshot.boundary, status };",
+      "log": true
+    },
+    {
+      "slash": "/newchat",
+      "adoptsNewChat": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const group = (ctx.groups ?? []).find((entry) => String(entry.id) === String(globalThis.__so06Baseline.groupId)); if (!group) throw new Error('the group went away with the chat change'); const member = globalThis.__so06Baseline.member; const disabled = [...(group.disabled_members ?? [])]; const baseline = globalThis.__so06Baseline.disabled; if (JSON.stringify([...disabled].sort()) !== JSON.stringify([...baseline].sort())) throw new Error(`the chat that was LEFT must put back what it staged on the shared group; it holds ${JSON.stringify(disabled)} and the run started from ${JSON.stringify(baseline)}`); const rows = rt.getSnapshot().effects.ledger ?? []; if (rows.length) throw new Error(`a new chat must not inherit another chat's effect ledger: ${JSON.stringify(rows)}`); return { chatId: ctx.chatId, groupRestoredOnLeave: disabled, ledgerRows: rows.length };",
+      "log": true
+    },
+    {
+      "import_story": { "file": "../fixtures/effects-cast.story.json" }
+    },
+    {
+      "slash": "/cp activate road"
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const rows = rt.getSnapshot().effects.ledger.filter((row) => row.effect === 'cast'); if (rows.length !== 1) throw new Error(`this chat's ledger must hold its own decisions and no others: ${JSON.stringify(rows.map((row) => ({ checkpointId: row.checkpointId, before: row.before, after: row.after })))}`); const row = rows[0]; if (row.status !== 'applied' || row.before?.disabled !== false || row.after?.disabled !== true) throw new Error(`the second chat's own switch is not recorded from the state it found: ${JSON.stringify(row)}`); return { castRows: 1, checkpointId: row.checkpointId, before: row.before, after: row.after };",
+      "log": true
+    },
+    {
+      "expect": { "groupDisabled": { "disabled": ["Tobias"] } }
+    },
+    {
+      "slash": "/cp activate hall"
+    },
+    {
+      "expect": { "groupDisabled": { "enabled": ["Tobias"] } }
+    },
+    {
+      "slash": "/newchat",
+      "adoptsNewChat": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const group = (ctx.groups ?? []).find((entry) => String(entry.id) === String(globalThis.__so06Baseline.groupId)); const disabled = [...(group?.disabled_members ?? [])]; const baseline = globalThis.__so06Baseline.disabled; if (JSON.stringify([...disabled].sort()) !== JSON.stringify([...baseline].sort())) throw new Error(`leaving a chat that flipped this member TWICE must land back where it started, not at the other end: the group holds ${JSON.stringify(disabled)} and the run started from ${JSON.stringify(baseline)}`); return { groupAfterSecondLeave: disabled, chatId: ctx.chatId };",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const settings = ctx.textCompletionSettings ?? {}; const baseline = globalThis.__so06Baseline.sampler; settings.preset = baseline.preset; settings.temp = baseline.temp; settings.top_p = baseline.top_p; ctx.saveSettingsDebounced?.(); if (settings.temp !== baseline.temp || settings.top_p !== baseline.top_p) throw new Error(`the sampler was not put back: ${JSON.stringify({ now: { temp: settings.temp, top_p: settings.top_p }, baseline })}`); return { restored: { preset: settings.preset, temp: settings.temp, top_p: settings.top_p } };",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const group = (ctx.groups ?? []).find((entry) => String(entry.id) === String(globalThis.__so06Baseline.groupId)); const now = [...(group?.disabled_members ?? [])]; const baseline = globalThis.__so06Baseline.disabled; const sorted = (list) => [...list].sort(); if (JSON.stringify(sorted(now)) !== JSON.stringify(sorted(baseline))) throw new Error(`the group's disabled_members must be exactly what this run found: ${JSON.stringify({ now, baseline })}`); return { note: 'what this run does NOT prove', limits: ['that a real model would have ANY of this: no generation, extraction, expansion or judge call is made, because the state under test is the group, the ledger and the save seam', 'that a PRESET effect can be put back on leave: restoreEffectTarget refuses a preset row (the sampler belongs to the text-completion module and the ledger only records it), so the fixture restores the sampler itself and says so', 'that the ledger reconciles a row left `pending` by a crash, or that a hand-edit made between the write and the leave is refused: jest owns both, in effectLedger.test.ts', 'that the drawer renders these rows: the EffectLedgerPanel story covers the component and this run proves the store it reads'], disabled: now, member: globalThis.__so06Baseline.member };",
+      "log": true
+    }
+  ]
+}

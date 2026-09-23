@@ -1,14 +1,16 @@
 {
-  "recordedAt": "2026-09-19T22:48:40.923Z",
+  "recordedAt": "2026-09-22T11:20:01.932Z",
   "summary": {
     "use": "director",
     "fixture": "director",
-    "right": 29,
+    "right": 30,
     "total": 33,
-    "rate": 0.8788,
+    "rate": 0.9091,
     "spanish": "7/8",
-    "p50LatencyMs": 1208,
+    "p50LatencyMs": 1129,
+    "requestedModel": "jev-1.13.0",
     "model": "jev-1.13.0",
+    "modelMatched": true,
     "min": 0.85,
     "ok": true
   },
@@ -17,199 +19,199 @@
       "id": "D01",
       "right": true,
       "picked": "Ponticius",
-      "latencyMs": 684
+      "latencyMs": 666
     },
     {
       "id": "D02",
       "right": true,
       "picked": "Ponticius",
-      "latencyMs": 630
+      "latencyMs": 574
     },
     {
       "id": "D03",
       "right": false,
       "picked": "Ponticius",
-      "latencyMs": 608
+      "latencyMs": 601
     },
     {
       "id": "D04",
       "right": true,
       "picked": "Arin",
-      "latencyMs": 593
+      "latencyMs": 568
     },
     {
       "id": "D05",
       "right": true,
       "picked": "Arin",
-      "latencyMs": 572
+      "latencyMs": 593
     },
     {
       "id": "D06",
       "right": true,
       "picked": "DM Narrator",
-      "latencyMs": 642
+      "latencyMs": 582
     },
     {
       "id": "D07",
       "right": false,
       "picked": "DM Narrator",
-      "latencyMs": 840
+      "latencyMs": 817
     },
     {
       "id": "D08",
       "right": true,
       "picked": "nobody",
-      "latencyMs": 917
+      "latencyMs": 832
     },
     {
       "id": "D09",
       "right": true,
       "picked": "Arin",
-      "latencyMs": 862
+      "latencyMs": 829
     },
     {
       "id": "D10",
       "right": true,
       "picked": "Ponticius",
-      "latencyMs": 942
+      "latencyMs": 848
     },
     {
       "id": "D11",
       "right": true,
       "picked": "Ponticius",
-      "latencyMs": 954
+      "latencyMs": 823
     },
     {
       "id": "D12",
       "right": true,
       "picked": "Maeve",
-      "latencyMs": 945
+      "latencyMs": 954
     },
     {
       "id": "D13",
       "right": true,
       "picked": "Mae Hollis",
-      "latencyMs": 1103
+      "latencyMs": 1054
     },
     {
       "id": "D14",
       "right": true,
       "picked": "Ponticius",
-      "latencyMs": 1149
+      "latencyMs": 1129
     },
     {
       "id": "D15",
       "right": true,
       "picked": "Arin",
-      "latencyMs": 1208
+      "latencyMs": 1065
     },
     {
       "id": "D16",
       "right": true,
       "picked": "Ponticius",
-      "latencyMs": 1236
+      "latencyMs": 1062
     },
     {
       "id": "D17",
       "right": true,
       "picked": "HALO",
-      "latencyMs": 1206
+      "latencyMs": 1077
     },
     {
       "id": "D18",
       "right": true,
       "picked": "Pell",
-      "latencyMs": 1190
+      "latencyMs": 1207
     },
     {
       "id": "D19",
       "right": true,
       "picked": "Captain Okafor",
-      "latencyMs": 1420
+      "latencyMs": 1299
     },
     {
       "id": "D20",
       "right": true,
       "picked": "Lady Ashworth",
-      "latencyMs": 1439
+      "latencyMs": 1306
     },
     {
       "id": "D21",
       "right": true,
       "picked": "Graves",
-      "latencyMs": 1414
+      "latencyMs": 1293
     },
     {
       "id": "D22",
       "right": true,
       "picked": "Graves",
-      "latencyMs": 1484
+      "latencyMs": 1310
     },
     {
       "id": "D23",
       "right": true,
       "picked": "Lady Ashworth",
-      "latencyMs": 1585
+      "latencyMs": 1359
     },
     {
       "id": "D24",
       "right": true,
       "picked": "Ponticius",
-      "latencyMs": 1503
+      "latencyMs": 1430
     },
     {
       "id": "D25",
       "right": true,
       "picked": "Arin",
-      "latencyMs": 1770
+      "latencyMs": 1507
     },
     {
       "id": "D26",
-      "right": false,
-      "picked": "Mae Hollis",
-      "latencyMs": 1713
+      "right": true,
+      "picked": "Narrator",
+      "latencyMs": 1512
     },
     {
       "id": "D27",
       "right": true,
       "picked": "Ponticius",
-      "latencyMs": 1702
+      "latencyMs": 1517
     },
     {
       "id": "D28",
       "right": true,
       "picked": "HALO",
-      "latencyMs": 1769
+      "latencyMs": 1567
     },
     {
       "id": "D29",
       "right": true,
       "picked": "Mae Hollis",
-      "latencyMs": 1779
+      "latencyMs": 1659
     },
     {
       "id": "D30",
       "right": false,
       "picked": "Graves",
-      "latencyMs": 1890
+      "latencyMs": 1715
     },
     {
       "id": "D31",
       "right": true,
       "picked": "Luke",
-      "latencyMs": 1953
+      "latencyMs": 1742
     },
     {
       "id": "D32",
       "right": true,
       "picked": "Graves",
-      "latencyMs": 2000
+      "latencyMs": 1825
     },
     {
       "id": "D33",
       "right": true,
       "picked": "nobody",
-      "latencyMs": 2161
+      "latencyMs": 1736
     }
   ]
 }

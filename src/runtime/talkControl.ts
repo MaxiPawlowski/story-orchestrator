@@ -1,6 +1,7 @@
 import type { RosterMember, TalkControl } from "@engine/index";
 import type { JudgeDirectorDecision, JudgeDirectorInput } from "@judge/index";
 import { buildCandidates, chooseByRules, directorEnabled, directorInstruction, findCandidate, narrowByMention, parseDirectorResponse, renderDirectorPrompt, type DirectorWindowMessage, type TalkCandidate, type TalkDecisionSource } from "@talk/index";
+import { beginRun, type MessageWindow, type RunGuard, type RunOwnership } from "./runToken";
 import type { TalkDecisionAudit } from "./types";
 
 export const DIRECTOR_TIMEOUT_MS = 20000;
@@ -33,6 +34,7 @@ export interface TalkControlHost {
   getPlayerName?(): string;
   triggerMember(name: string): Promise<void>;
   recordDecision(audit: TalkDecisionAudit): void;
+  ownership?: RunOwnership;
 }
 
 type JudgeNote = { confidence: number; via: "choice" | "composite" };
@@ -49,6 +51,22 @@ interface PassState {
   key: string | null;
 }
 
+const PASS: Decision = { kind: "pass" };
+
+interface CachedDecision {
+  key: string;
+  decision: Decision;
+  run: RunGuard;
+  messageId: number;
+  checkpointId: string;
+}
+
+interface PendingDecision {
+  key: string;
+  promise: Promise<Decision>;
+  run: RunGuard;
+}
+
 const withTimeout = <T,>(promise: Promise<T>, ms: number): Promise<T> => new Promise((resolve, reject) => {
   const timer = setTimeout(() => reject(new Error("director timeout")), ms);
   promise.then(
@@ -58,8 +76,8 @@ const withTimeout = <T,>(promise: Promise<T>, ms: number): Promise<T> => new Pro
 });
 
 export class TalkController {
-  private cached: { key: string; decision: Decision } | null = null;
-  private pending: { key: string; promise: Promise<Decision> } | null = null;
+  private cached: CachedDecision | null = null;
+  private pending: PendingDecision | null = null;
   private forcedChid: number | null = null;
   private pass: PassState | null = null;
   private reconciledKey: string | null = null;
@@ -124,20 +142,40 @@ export class TalkController {
     return this.pass.key;
   }
 
+  private window(): MessageWindow | null {
+    const messages = this.host.getWindow();
+    const to = this.host.getLastMessageId();
+    if (!messages.length || to < 0) return null;
+    return { from: Math.max(0, to - messages.length + 1), to };
+  }
+
   private async ensureDecision(control: TalkControl, key: string): Promise<Decision> {
-    if (this.cached?.key === key) return this.cached.decision;
-    if (this.pending?.key === key) return this.pending.promise;
+    const cached = this.cached;
+    if (cached?.key === key && cached.run.stillOwns()) return cached.decision;
+    this.cached = null;
+
+    const existing = this.pending;
+    if (existing?.key === key && existing.run.stillOwns()) {
+      const joined = await existing.promise;
+      return existing.run.stillOwns() ? joined : PASS;
+    }
+
+    const run = beginRun(this.host.ownership, this.window());
+    const messageId = this.host.getLastMessageId();
+    const checkpointId = this.host.getCheckpointInfo()?.id ?? "";
     const startedAt = Date.now();
-    const promise = this.computeDecision(control);
-    this.pending = { key, promise };
-    const decision = await promise;
-    if (this.pending?.key === key) this.pending = null;
-    this.cached = { key, decision };
+    const mine: PendingDecision = { key, promise: this.computeDecision(control), run };
+    this.pending = mine;
+    const decision = await mine.promise;
+    if (this.pending === mine) this.pending = null;
+    if (!run.stillOwns()) return PASS;
+
+    this.cached = { key, decision, run, messageId, checkpointId };
     if (decision.kind !== "pass") {
       this.host.recordDecision({
         at: new Date().toISOString(),
-        messageId: this.host.getLastMessageId(),
-        checkpointId: this.host.getCheckpointInfo()?.id ?? "",
+        messageId,
+        checkpointId,
         chosenRosterId: decision.kind === "member" ? decision.rosterId : null,
         chosenName: decision.kind === "member" ? decision.name : null,
         source: decision.source,

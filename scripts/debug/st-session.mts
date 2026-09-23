@@ -6,12 +6,15 @@ import { chromium } from 'playwright';
 import { clearSession, DEBUG_DIR, DEFAULT_CDP_PORT, DEFAULT_ST_URL, DEFAULT_TIMEOUT_MS, getSessionStatus, SESSION_PATH, writeSession } from './lib/connection.mts';
 import { ensureSTReady } from './lib/st-ready.mts';
 
-const USAGE = `Usage: node scripts/debug/st-session.mts <start|stop|status> [--headed]
+const USAGE = `Usage: node scripts/debug/st-session.mts <start|stop|status|reload> [--headed]
 
 Commands:
   start      Launch shared Chromium with a CDP endpoint
   stop       Stop the shared Chromium process and remove .debug/session.json
-  status     Print session status`;
+  status     Print session status
+  reload     Reload the shared page with the HTTP cache off, wait for the extension, and report it.
+             Run this after \`npm run build\`: a plain reload can serve the previous bundle, and a
+             page that is running the old code looks exactly like a page that is running none.`;
 
 function argValue(name, fallback) {
   const index = process.argv.indexOf(name);
@@ -206,6 +209,29 @@ async function stopSession() {
   return { stopped: Boolean(status.session), sessionPath: SESSION_PATH };
 }
 
+// Every live gate that follows a build needs this, and until now it was done by hand: ST serves the
+// extension bundle with an ETag, so a plain reload can re-execute the cached copy and the run then
+// measures the previous build. The CDP cache disable is what makes "rebuilt" mean "running".
+async function reloadPage() {
+  const browser = await chromium.connectOverCDP((await getSessionStatus()).session?.cdpEndpoint ?? `http://127.0.0.1:${DEFAULT_CDP_PORT}`, { timeout: DEFAULT_TIMEOUT_MS });
+  try {
+    const context = browser.contexts()[0];
+    const page = context?.pages()[0];
+    if (!page) throw new Error('no page in the shared browser; run st-session.mts start first');
+    const before = await page.evaluate(() => (globalThis as any).SillyTavern?.getContext?.()?.chatId ?? null).catch(() => null);
+    const client = await context.newCDPSession(page);
+    await client.send('Network.setCacheDisabled' as never, { cacheDisabled: true } as never);
+    await page.reload({ waitUntil: 'domcontentloaded', timeout: DEFAULT_TIMEOUT_MS });
+    await page.waitForFunction(() => Boolean((globalThis as any).storyOrchestratorRuntime), null, { timeout: DEFAULT_TIMEOUT_MS });
+    await page.waitForTimeout(1500);
+    const after = await page.evaluate(() => ({ chatId: (globalThis as any).SillyTavern?.getContext?.()?.chatId ?? null, uptimeMs: Math.round(performance.now()) }));
+    await client.detach().catch(() => undefined);
+    return { reloaded: true, chatBefore: before, chatAfter: after.chatId, uptimeMs: after.uptimeMs };
+  } finally {
+    await browser.close().catch(() => undefined);
+  }
+}
+
 if (process.argv[2] === '__starter') {
   runStarter()
     .then(() => process.exit(0))
@@ -227,6 +253,8 @@ if (process.argv[2] === '__starter') {
         console.log(JSON.stringify(await stopSession(), null, 2));
       } else if (command === 'status') {
         console.log(JSON.stringify(await getSessionStatus(), null, 2));
+      } else if (command === 'reload') {
+        console.log(JSON.stringify(await reloadPage(), null, 2));
       } else {
         console.error(`Unknown command: ${command}`);
         console.log(USAGE);

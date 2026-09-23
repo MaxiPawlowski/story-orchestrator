@@ -1,0 +1,115 @@
+{
+  "_note": "v2.3 plan 02 §R8, live: a story REQUIRES a book the author already owns, and the wizard must ask before it may write there. The grant is confirmed through the review card, the permission is durable, and it can be taken back. Cleanup is marker-scoped: the session key is `so-p02-ownership`, so `assets remove --marker so-p02` drops it. Nothing is written into the user's book.",
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-p02-ownership",
+        "title": "SO-P02 Ownership Probe",
+        "version": 1,
+        "description": "A story that depends on the author's own world lorebook without owning it.",
+        "requirements": {
+          "lorebooks": [
+            "Adolion World"
+          ]
+        },
+        "qualities": [
+          {
+            "key": "arrived",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the traveller arrived?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "road",
+            "name": "The Road",
+            "objective": "Arrive.",
+            "type": "anchor",
+            "start": true,
+            "state_snapshot": {
+              "arrived": false
+            }
+          }
+        ],
+        "transitions": [],
+        "roster": []
+      }
+    },
+    {
+      "ui": {
+        "action": "select-profile"
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.clearWizardSession(\"so-p02-ownership\"); const env=globalThis.storyOrchestratorRuntime.getProvisioningEnvironment(); if (env.ownedLorebooks.length || env.grantedLorebooks.length) throw new Error(`this run must start with no permission of its own: ${JSON.stringify(env.ownedLorebooks)}`); return { cleared: true, storyLorebooks: env.storyLorebooks };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-wizard"
+      }
+    },
+    {
+      "eval": "const rt=globalThis.storyOrchestratorRuntime; const env=rt.getProvisioningEnvironment(); const root=document.getElementById(\"so-wizard\"); return { storyId: rt.getSnapshot().storyId, storyLorebooks: env.storyLorebooks, owned: env.ownedLorebooks, cards: root ? root.querySelectorAll(\"[data-so=provisioning-card]\").length : null, wizardText: (root?.textContent ?? \"\").slice(0,200) };",
+      "log": true
+    },
+    {
+      "eval": "const env = globalThis.storyOrchestratorRuntime.getProvisioningEnvironment(); if (!env.storyLorebooks.includes('Adolion World')) throw new Error(`the story does not require the book: ${JSON.stringify(env.storyLorebooks)}`); const listed = env.lorebookNames.some((name) => name.toLowerCase() === 'adolion world'); const owned = env.ownedLorebooks.some((name) => name.toLowerCase() === 'adolion world'); if (listed && owned) throw new Error('the story already owns a book it never created: requirements are not write authority'); return { storyLorebooks: env.storyLorebooks, listed, owned, granted: env.grantedLorebooks };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "wizard-state"
+      },
+      "log": true
+    },
+    {
+      "eval": "const root = document.getElementById('so-wizard'); const cards = Array.from(root.querySelectorAll('[data-so=\"provisioning-card\"]')).map((card) => card.getAttribute('aria-label') ?? ''); const grant = cards.find((label) => /existing lorebook \"Adolion World\"/.test(label)); if (!grant) throw new Error(`no grant card is offered for a required book the story does not own: ${JSON.stringify(cards)}`); return { cards };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "wizard-apply",
+        "index": 0
+      },
+      "log": true
+    },
+    {
+      "eval": "const env = globalThis.storyOrchestratorRuntime.getProvisioningEnvironment(); const owned = env.ownedLorebooks.some((name) => name.toLowerCase() === 'adolion world'); const granted = env.grantedLorebooks.some((name) => name.toLowerCase() === 'adolion world'); if (!owned || !granted) throw new Error(`the confirmed grant did not reach the environment: ${JSON.stringify(env)}`); return { owned: env.ownedLorebooks, granted: env.grantedLorebooks };",
+      "log": true
+    },
+    {
+      "eval": "const session = globalThis.storyOrchestratorRuntime.getWizardSession('so-p02-ownership'); const grant = (session?.grants ?? []).find((entry) => entry.lorebookFileId.toLowerCase() === 'adolion world'); if (!grant) throw new Error(`the grant was not recorded durably: ${JSON.stringify(session?.grants ?? null)}`); if (grant.storyId !== 'so-p02-ownership' || grant.confirmed !== true || !grant.at) throw new Error(`the grant record is not scoped to this story and its confirmation: ${JSON.stringify(grant)}`); return { grants: session.grants };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "wizard-state"
+      },
+      "log": true
+    },
+    {
+      "eval": "const root = document.getElementById('so-wizard'); const cards = Array.from(root.querySelectorAll('[data-so=\"provisioning-card\"]')).map((card) => card.getAttribute('aria-label') ?? ''); if (cards.some((label) => /Allow this story to write/.test(label))) throw new Error(`the grant is still offered after it was confirmed: ${JSON.stringify(cards)}`); if (!cards.some((label) => /Revoke this story's permission to write into the existing lorebook \"Adolion World\"/.test(label))) throw new Error(`a granted book offers no way back: ${JSON.stringify(cards)}`); return { cards };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "wizard-apply",
+        "index": 0
+      },
+      "log": true
+    },
+    {
+      "eval": "const env = globalThis.storyOrchestratorRuntime.getProvisioningEnvironment(); const owned = env.ownedLorebooks.some((name) => name.toLowerCase() === 'adolion world'); if (owned) throw new Error(`the revoke did not take the permission back: ${JSON.stringify(env.ownedLorebooks)}`); const session = globalThis.storyOrchestratorRuntime.getWizardSession('so-p02-ownership'); if ((session?.grants ?? []).length) throw new Error(`the revoked grant is still recorded: ${JSON.stringify(session.grants)}`); return { owned: env.ownedLorebooks, grants: session?.grants ?? [] };",
+      "log": true
+    },
+    {
+      "assets": {
+        "action": "remove",
+        "marker": "so-p02"
+      }
+    }
+  ]
+}

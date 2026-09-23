@@ -1,0 +1,85 @@
+{
+  "name": "plan05-pin-private-rollback",
+  "objective": "v2.3 plan 05, the deterministic half of the J5.6 variant: a PINNED private `[hiding]` fact, planted from a real message, is in the drafted member's private block — and after that message is EDITED it is gone from the block (quarantined, excluded, not ranked lower), and the author's reconfirmation brings it back. The assertion is scoped to the private block itself, because a whole-prompt search passes on the shared transcript — the J5.8 false positive, measured on 2026-09-22. Extraction is mocked (the parser has its own live suites); the mechanism under test is the quarantine, the per-member staging and the injection. The real-LLM variant of this check is plan 05's live recipe, and this file must never stand in for it.",
+  "steps": [
+    {
+      "import_story": {
+        "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
+      }
+    },
+    {
+      "ui": {
+        "action": "select-profile"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; rt.setExtractionSettings({ cadence: 0 }); rt.setEpistemicLedgerCapable(true); if (!rt.getSnapshot().memory.settings.epistemicLedgerCapable) throw new Error('the epistemic/ledger capability did not stick'); return { cadence: 0, capable: true };",
+      "log": true
+    },
+    {
+      "send": "I count the guild's takings while Ponticius is looking at the board."
+    },
+    {
+      "extract": {
+        "debugResponse": "SCENE_NONE\n[hiding] Arin from Ponticius | Arin palmed the guild's petty cash while nobody was counting.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const rows = rt.getEpistemic().filter((entry) => entry.hiddenFrom === 'Ponticius' && !entry.supersededBy); if (rows.length !== 1) throw new Error(`the private fact did not land exactly once: ${JSON.stringify(rt.getEpistemic().map((e) => [e.tag, e.subject, e.hiddenFrom, e.content]))}`); const row = rows[0]; if (row.provenance?.validity !== 'live') throw new Error(`the planted private row is not live: ${JSON.stringify(row.provenance)}`); rt.setEpistemicPinned(row.id, true); const pinned = rt.getEpistemic().find((entry) => entry.id === row.id); if (!pinned?.pinned) throw new Error(`the pin did not stick: ${JSON.stringify(pinned)}`); const engineLast = rt.getEngineState().lastMessageId; if (row.messageId !== engineLast) throw new Error(`the private row's source message is ${row.messageId} but the engine's last consumed message is ${engineLast}: the edit below must name the message that carries it, so this refuses rather than editing the wrong one`); return { id: row.id, tag: row.tag, subject: row.subject, hiddenFrom: row.hiddenFrom, messageId: row.messageId };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const chid = (ctx.characters ?? []).findIndex((card) => card?.name === 'Arin'); if (chid < 0) throw new Error(`Arin is not in this chat as a character, so no draft can be staged for him: ${JSON.stringify((ctx.characters ?? []).map((c) => c?.name))}`); rt.onMemberDrafted(chid); const block = rt.getAppliedEpistemicBlock(); if (!String(block).includes('petty cash')) throw new Error(`drafting Arin did not stage his private block: ${JSON.stringify(String(block).slice(0, 400))}`); return { chid, staged: true };",
+      "log": true
+    },
+    {
+      "expect": {
+        "payloadContains": [
+          {
+            "key": "story_orchestrator_epistemic",
+            "text": "petty cash"
+          }
+        ]
+      }
+    },
+    {
+      "edit": {
+        "messageId": "engine",
+        "text": "I keep my hands off the guild's takings and say nothing."
+      }
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const row = rt.getEpistemic().find((entry) => entry.hiddenFrom === 'Ponticius' && !entry.supersededBy); if (!row) throw new Error('the private row was DROPPED by the rollback instead of being quarantined — the store has to keep it so the author can decide'); if (row.provenance?.validity !== 'source-removed') throw new Error(`the edit did not quarantine the private row: ${JSON.stringify(row.provenance)}`); if (!row.pinned) throw new Error(`the pin was lost: ${JSON.stringify(row)}`); const ctx = SillyTavern.getContext(); const chid = (ctx.characters ?? []).findIndex((card) => card?.name === 'Arin'); rt.onMemberDrafted(chid); const block = String(rt.getAppliedEpistemicBlock()); if (block.includes('petty cash')) throw new Error(`a quarantined private row is still reaching the prompt — it must be EXCLUDED, not down-weighted: ${JSON.stringify(block.slice(0, 400))}`); return { validity: row.provenance.validity, pinned: row.pinned, blockChars: block.length };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const chid = (ctx.characters ?? []).findIndex((card) => card?.name === 'Arin'); rt.onMemberDrafted(chid); const staged = String(rt.getAppliedEpistemicBlock() ?? ''); if (staged.includes('petty cash')) throw new Error(`the quarantined private row is still staged for the drafted member: ${staged.slice(0, 200)}`); return { stagedLength: staged.length, excluded: true, note: 'the exclusion half, asserted where it is decidable: the row is still IN the store as source-removed (previous step) while the drafted member carries none of it. An expect.payloadAbsent cannot express this case and REFUSES to by design, because the quarantine leaves the member with no private knowledge at all, so the block is CLEARED rather than present-without-the-text -- and a missing block must never read as an absent needle' };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = rt.getEpistemic().find((entry) => entry.hiddenFrom === 'Ponticius' && !entry.supersededBy); if (!before) throw new Error('the quarantined row vanished before the author could decide'); await rt.memoryActions.reconfirmMemoryEntry(before.id); const row = rt.getEpistemic().find((entry) => entry.id === before.id); if (!row) throw new Error('the reconfirmed private row vanished'); if (row.provenance?.validity !== 'live') throw new Error(`reconfirmation did not make the private row live again: ${JSON.stringify(row.provenance)}`); if (row.provenance?.source !== 'author') throw new Error(`the reconfirmed row must be the AUTHOR's claim, not the extractor's: ${JSON.stringify(row.provenance)}`); if (!row.provenance?.override) throw new Error(`the override that records who decided is missing: ${JSON.stringify(row.provenance)}`); const ctx = SillyTavern.getContext(); const chid = (ctx.characters ?? []).findIndex((card) => card?.name === 'Arin'); rt.onMemberDrafted(chid); const block = String(rt.getAppliedEpistemicBlock()); if (!block.includes('petty cash')) throw new Error(`the reconfirmed private row is not back in the block: ${JSON.stringify(block.slice(0, 400))}`); return { provenance: row.provenance, back: true };",
+      "log": true
+    },
+    {
+      "expect": {
+        "payloadContains": [
+          {
+            "key": "story_orchestrator_epistemic",
+            "text": "petty cash"
+          }
+        ]
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.clearPrivateInjection(); return { note: 'what this run does NOT prove', limits: ['that a real model would have written this private fact (mocked here, live in the plan-05 recipe)', 'that the request the BACKEND received carried the block (the runtime block is what this asserts; the live recipe reads the HTTP capture with st-payload last --member Arin, which is also the only form that knows the capture was drafted for him)'] };",
+      "log": true
+    }
+  ]
+}

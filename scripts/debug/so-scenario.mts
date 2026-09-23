@@ -3,12 +3,15 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
+import { validateFixture } from './lib/scenarioSchema.mts';
+import { payloadFailures } from './lib/payloadAssert.mts';
+import { readExtractionSettings, restoreExtractionSettings } from './lib/extractionSettings.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
-import { adoptNewSandboxChat, assertInSandbox, beginSandboxSession, deleteSandboxChats, openGroup, openMostRecentGroupChat, readActiveChat, reopenSandboxChat } from './st-navigation.mts';
+import { adoptNewSandboxChat, assertInSandbox, beginSandboxSession, deleteSandboxChats, openGroup, openMostRecentGroupChat, readActiveChat, readChatOnDisk, reopenSandboxChat } from './st-navigation.mts';
 import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, sendUserMessage, swipeMessage, waitForIdle } from './st-actions.mts';
 import { dumpCurrentChatState } from './so-state.mts';
-import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot } from './so-ui.mts';
+import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot, hitTest } from './so-ui.mts';
 import { listMarkedAssets, removeMarkedAssets } from './so-assets.mts';
 
 const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep] [--group <id|name>]
@@ -24,7 +27,8 @@ A step that deliberately opens a new chat carries "adoptsNewChat": true next to 
 nondeterministic step actually got (e.g. which op kind the real curator proposed).
 
 Step keys:
-  import_story, seed_metadata, select_story, restart_story, studio_save, send, send_generate, slash, extract, expand, eval, copilot, ui, stagecraft, assets, reload, swipe, edit, delete, wait, expect, expect_ui
+  import_story, seed_metadata, select_story, restart_story, studio_save, send, send_generate, slash, extract, expand, eval, copilot, ui, stagecraft, assets, reload, swipe, edit, delete, wait, expect, expect_ui,
+  block_route ({pattern, status?} — fails the URL at the transport, so the page's fetch throws; a positive status answers instead), unblock_route ({pattern?} — every block when no pattern)
 
 ui actions ({ui: {action, label?, note?}}):
   open-drawer, drawer-tab, open-settings, select-profile, open-studio, close-studio, studio-tab, studio-save, flag, screenshot,
@@ -57,6 +61,8 @@ expect verbs:
   epistemic ({count, contains:[{subject,tag,contains,hiddenFrom?}]}), ledger ({count, contains:[{entity,field,value}]}), capability (bool),
   copilot ({enabled, activeNudge, nudgeInjected}),
   background ("<file>" or {name, locked}),
+  effectsLedger ({count, countAtLeast, unsupported, has:[{effect,status?,targetKind?,targetContains?,before?,after?,reasonContains?}], absent:[{effect,status?}]}),
+  groupDisabled ({disabled:[name], enabled:[name], exact:[name]} — read from the OPEN GROUP, not our mirror),
   stagecraft ({proposals, proposalsAtLeast, applied, appliedAtLeast, opStatus:[...], scope:[...], dropped:[...], curatorEnabled, acceptMode, noError})
 
 wait verbs:
@@ -73,6 +79,19 @@ function readArgValue(name) {
 
 async function readJSON(path) {
   return JSON.parse(await readFile(path, 'utf-8'));
+}
+
+// T1: an unknown assertion key used to be ignored, so a typo asserted nothing and the step still
+// reported ok. A fixture is checked against the closed vocabulary BEFORE it runs, so a typo is a
+// load error naming the key instead of a check that quietly never fired.
+export async function loadFixture(path) {
+  const doc = await readJSON(path);
+  const name = String(path).split(/[\\/]/).pop();
+  const problems = validateFixture(doc, name);
+  if (problems.length) {
+    throw new Error(`This fixture would not test what it says:\n  - ${problems.join('\n  - ')}`);
+  }
+  return doc;
 }
 
 async function resolveStory(value, scenarioDir) {
@@ -97,8 +116,19 @@ async function seedMetadata(page, spec, scenarioDir) {
   }, blob);
 }
 
+// The key a rejected DELTA line names. A rejection is asserted by quality, not by raw text, so a
+// fixture says "entered_mines was refused for this reason" without pinning the model's formatting.
+const deltaKey = (line) => (typeof line === 'string' ? /^\s*DELTA\s+(\S+)/.exec(line)?.[1] ?? null : null);
+
+// The audit ring lives on the per-chat runtime record (`state.state.extraction` in the dump); the
+// top-level `extraction` key is the compact view and carries counts only.
+function lastAuditOf(state) {
+  return state?.state?.extraction?.lastAudit ?? state?.extraction?.lastAudit ?? null;
+}
+
 function compactState(state) {
   const runtime = state?.state ?? null;
+  const audit = lastAuditOf(state);
   return {
     chatId: state?.chatId ?? null,
     activeCheckpoint: runtime?.activeCheckpointId ?? null,
@@ -111,6 +141,12 @@ function compactState(state) {
     npcFired: runtime?.firedNpcReplies ?? {},
     tension: state?.liveSnapshot?.tension ?? runtime?.tension ?? null,
     pacingPrompt: state?.pacingPrompt ?? null,
+    lastAudit: audit
+      ? {
+        accepted: audit.acceptedDeltas.map((entry) => entry.delta.q),
+        rejected: audit.rejected.map((entry) => ({ q: deltaKey(entry.line), reason: entry.reason })),
+      }
+      : null,
     copilot: {
       enabled: state?.liveSnapshot?.copilot?.enabled ?? null,
       activeNudge: state?.activeNudge ?? null,
@@ -142,6 +178,11 @@ function compareSubset(actual, expected, path = '') {
 function evaluateExpect(state, expected) {
   const actual = compactState(state);
   const failures = [];
+  // v2.3 plan 05: what a request that was actually sent contains, scoped to a region when the check
+  // names one (a whole-body search passes on the shared transcript — the J5.8 false positive).
+  if (expected.payloadContains || expected.payloadAbsent) {
+    failures.push(...payloadFailures(state?.payloadEntries ?? [], { payloadContains: expected.payloadContains, payloadAbsent: expected.payloadAbsent }));
+  }
   if (expected.storyIdentity) failures.push(...compareSubset(state?.liveSnapshot?.storyIdentity ?? {}, expected.storyIdentity, 'storyIdentity'));
   if (expected.storyId !== undefined && (state?.liveSnapshot?.storyId ?? null) !== expected.storyId) {
     failures.push(`storyId: expected ${expected.storyId}, got ${state?.liveSnapshot?.storyId ?? null}`);
@@ -176,6 +217,38 @@ function evaluateExpect(state, expected) {
     }
     if (spec.boundaryAtLeast !== undefined && (actual.boundary ?? 0) < spec.boundaryAtLeast) {
       failures.push(`hotSwap.boundaryAtLeast: expected the run to survive to boundary >= ${spec.boundaryAtLeast}, got ${actual.boundary}`);
+    }
+  }
+  // R6's positive activation: the audit must show the candidate in what the model actually returned,
+  // and the enforcement must be visible as a named rejection.
+  if (Array.isArray(expected.auditRawContains)) {
+    const audit = lastAuditOf(state);
+    const raw = String(audit?.rawResponse ?? audit?.raw ?? '');
+    if (!audit) failures.push('auditRawContains: no audit recorded in this chat');
+    else {
+      for (const needle of expected.auditRawContains) {
+        if (!raw.includes(needle)) failures.push(`auditRawContains: "${needle}" is not in the audit's raw response (${raw.slice(0, 160)})`);
+      }
+    }
+  }
+  if (Array.isArray(expected.rejected)) {
+    const audit = lastAuditOf(state);
+    if (!audit) failures.push('rejected: no audit recorded in this chat');
+    else {
+      for (const want of expected.rejected) {
+        const hit = (actual.lastAudit?.rejected ?? []).find((entry) => entry.q === want.q);
+        if (!hit) failures.push(`rejected.${want.q}: not rejected — the audit refused ${JSON.stringify((actual.lastAudit?.rejected ?? []).map((entry) => entry.q))}`);
+        else if (want.reason !== undefined && !String(hit.reason).includes(want.reason)) failures.push(`rejected.${want.q}: expected reason containing "${want.reason}", got "${hit.reason}"`);
+      }
+    }
+  }
+  if (Array.isArray(expected.accepted)) {
+    const audit = lastAuditOf(state);
+    if (!audit) failures.push('accepted: no audit recorded in this chat');
+    else {
+      for (const q of expected.accepted) {
+        if (!(actual.lastAudit?.accepted ?? []).includes(q)) failures.push(`accepted.${q}: not accepted — the audit took ${JSON.stringify(actual.lastAudit?.accepted ?? [])}`);
+      }
     }
   }
   if (expected.blackboard) failures.push(...compareSubset(actual.blackboard, expected.blackboard, 'blackboard'));
@@ -215,13 +288,30 @@ function evaluateExpect(state, expected) {
   }
   if (expected.memory) {
     const entries = state?.liveSnapshot?.memory?.entries ?? [];
-    for (const [tier, spec] of Object.entries(expected.memory) as Array<[string, { count?: number; contains?: string[] }]>) {
+    for (const [tier, spec] of Object.entries(expected.memory) as Array<[string, { count?: number; contains?: string[]; validity?: string; source?: string }]>) {
       const tierEntries = entries.filter((entry: any) => entry?.tier === tier);
       if (spec.count !== undefined && tierEntries.length !== spec.count) failures.push(`memory.${tier}.count: expected ${spec.count}, got ${tierEntries.length}`);
       if (Array.isArray(spec.contains)) {
         for (const substring of spec.contains) {
           if (!tierEntries.some((entry: any) => typeof entry?.text === 'string' && entry.text.includes(substring))) {
             failures.push(`memory.${tier}.contains: expected an entry containing "${substring}"`);
+          }
+        }
+      }
+      // v2.3 plan 05: the ENVELOPE, not just the text. Quarantine does not delete a row — it changes
+      // what the row's origin says and takes it out of every injection — so a check that only counts
+      // or matches text can pass while the row is quarantined, and a check on text alone cannot tell
+      // an extractor's claim from the author's. `validity`/`source` apply to the entries `contains`
+      // selected, or to the whole tier when it named none.
+      const scoped = Array.isArray(spec.contains) && spec.contains.length
+        ? tierEntries.filter((entry: any) => spec.contains!.some((substring) => String(entry?.text ?? '').includes(substring)))
+        : tierEntries;
+      for (const [field, want] of [['validity', spec.validity], ['source', spec.source]] as Array<[string, string | undefined]>) {
+        if (want === undefined) continue;
+        for (const entry of scoped) {
+          const actual = (entry as any)?.provenance?.[field] ?? null;
+          if (actual !== want) {
+            failures.push(`memory.${tier}.${field}: expected "${want}" for "${String((entry as any)?.text ?? '').slice(0, 60)}", got ${actual === null ? 'no envelope' : `"${actual}"`}`);
           }
         }
       }
@@ -320,6 +410,79 @@ function evaluateExpect(state, expected) {
     if (spec.curatorEnabled !== undefined && Boolean(live?.settings?.curatorEnabled) !== spec.curatorEnabled) failures.push(`stagecraft.curatorEnabled: expected ${spec.curatorEnabled}, got ${Boolean(live?.settings?.curatorEnabled)}`);
     if (spec.acceptMode !== undefined && live?.settings?.acceptMode !== spec.acceptMode) failures.push(`stagecraft.acceptMode: expected ${spec.acceptMode}, got ${live?.settings?.acceptMode}`);
     if (spec.noError && live?.lastError) failures.push(`stagecraft.lastError: ${live.lastError}`);
+  }
+  // v2.3 plan 06: what this chat's effects did to host state it does not own. A `cast` switch is only
+  // evidence of an owned effect if the row carries the value it REPLACED, so `before` is matched as a
+  // subset rather than merely counted.
+  if (expected.effectsLedger) {
+    const effects = state?.liveSnapshot?.effects ?? null;
+    const ledger = effects?.ledger ?? [];
+    const spec = expected.effectsLedger as {
+      count?: number; countAtLeast?: number; unsupported?: number;
+      has?: Array<{ effect: string; status?: string; targetKind?: string; targetContains?: string; before?: Record<string, unknown>; after?: Record<string, unknown>; reasonContains?: string }>;
+      absent?: Array<{ effect: string; status?: string }>;
+    };
+    if (!effects) failures.push('effectsLedger: no effects slice in the snapshot');
+    if (spec.count !== undefined && ledger.length !== spec.count) failures.push(`effectsLedger.count: expected ${spec.count}, got ${ledger.length}`);
+    if (spec.countAtLeast !== undefined && ledger.length < spec.countAtLeast) failures.push(`effectsLedger.count: expected >= ${spec.countAtLeast}, got ${ledger.length}`);
+    const targetText = (row: any) => Object.values(row?.target ?? {}).filter((value) => typeof value === 'string').join(' ');
+    for (const want of spec.has ?? []) {
+      const matches = ledger.filter((row: any) => row?.effect === want.effect
+        && (want.status === undefined || row?.status === want.status)
+        && (want.targetKind === undefined || row?.target?.kind === want.targetKind)
+        && (want.targetContains === undefined || targetText(row).includes(want.targetContains))
+        && (want.reasonContains === undefined || String(row?.reason ?? '').includes(want.reasonContains)));
+      if (!matches.length) {
+        failures.push(`effectsLedger.has: no ${want.effect}${want.status ? ` (${want.status})` : ''}${want.targetContains ? ` for ${want.targetContains}` : ''} row — the ledger holds ${JSON.stringify(ledger.map((row: any) => [row?.effect, row?.status, targetText(row)]))}`);
+        continue;
+      }
+      if (want.before !== undefined) {
+        const withBefore = matches.filter((row: any) => compareSubset(row?.before ?? {}, want.before, 'before').length === 0);
+        if (!withBefore.length) {
+          failures.push(`effectsLedger.has: the ${want.effect} row does not record before=${JSON.stringify(want.before)} — it holds ${JSON.stringify(matches.map((row: any) => row?.before ?? null))}`);
+        }
+      }
+      if (want.after !== undefined && !matches.some((row: any) => compareSubset(row?.after ?? {}, want.after, 'after').length === 0)) {
+        failures.push(`effectsLedger.has: the ${want.effect} row does not record after=${JSON.stringify(want.after)} — it holds ${JSON.stringify(matches.map((row: any) => row?.after ?? null))}`);
+      }
+    }
+    for (const want of spec.absent ?? []) {
+      const hit = ledger.find((row: any) => row?.effect === want.effect && (want.status === undefined || row?.status === want.status));
+      if (hit) failures.push(`effectsLedger.absent: expected no ${want.effect}${want.status ? ` (${want.status})` : ''} row, found ${JSON.stringify(hit)}`);
+    }
+    if (spec.unsupported !== undefined) {
+      const unsupported = ledger.filter((row: any) => row?.status === 'failed' && /Text Completion|not supported|unsupported/i.test(String(row?.reason ?? ''))).length;
+      if (unsupported !== spec.unsupported) failures.push(`effectsLedger.unsupported: expected ${spec.unsupported}, got ${unsupported}`);
+    }
+  }
+  // v2.3 plan 06: the group's own `disabled_members`, which outlives the chat that wrote it. Named by
+  // MEMBER, because that is how an author and a roster name one; a name the group does not hold is a
+  // fixture error, not a pass (the resolution a `cast_changes` effect performs has to work too).
+  if (expected.groupDisabled) {
+    const group = state?.group ?? null;
+    const spec = expected.groupDisabled as { disabled?: string[]; enabled?: string[]; exact?: string[] };
+    if (!group) failures.push('groupDisabled: no group is open, so there is no disabled_members to read');
+    else {
+      const disabled: string[] = group.disabledMembers ?? [];
+      const avatarFor = (name: string): string | null => {
+        const wanted = name.trim().toLowerCase();
+        const hit = (group.members ?? []).find((member: any) => String(member?.name ?? '').toLowerCase() === wanted || String(member?.avatar ?? '').toLowerCase() === wanted || String(member?.avatar ?? '').replace(/\.[a-z0-9]+$/i, '').toLowerCase() === wanted);
+        return hit?.avatar ?? null;
+      };
+      for (const [names, want] of [[spec.disabled ?? [], true], [spec.enabled ?? [], false]] as Array<[string[], boolean]>) {
+        for (const name of names) {
+          const avatar = avatarFor(name);
+          if (!avatar) { failures.push(`groupDisabled: "${name}" is not a member of ${group.name ?? group.id} — ${JSON.stringify((group.members ?? []).map((member: any) => member?.name ?? member?.avatar))}`); continue; }
+          if (disabled.includes(avatar) !== want) failures.push(`groupDisabled.${name}: expected ${want ? 'disabled' : 'enabled'}, got ${!want ? 'disabled' : 'enabled'} (disabled_members: ${JSON.stringify(disabled)})`);
+        }
+      }
+      if (Array.isArray(spec.exact)) {
+        const wanted = new Set(spec.exact.map((name) => avatarFor(name)).filter((avatar): avatar is string => Boolean(avatar)));
+        const extra = disabled.filter((avatar) => !wanted.has(avatar));
+        const missing = [...wanted].filter((avatar) => !disabled.includes(avatar));
+        if (extra.length || missing.length) failures.push(`groupDisabled.exact: expected exactly ${JSON.stringify([...wanted])}, got ${JSON.stringify(disabled)} (extra: ${JSON.stringify(extra)}, missing: ${JSON.stringify(missing)})`);
+      }
+    }
   }
   if (expected.copilot) {
     const spec = expected.copilot as { enabled?: boolean; activeNudge?: string | null; nudgeInjected?: boolean };
@@ -450,8 +613,11 @@ async function extract(page, spec) {
   const debugResponse = typeof spec === 'string' ? spec : spec?.debugResponse;
   const reason = typeof spec === 'object' && spec?.reason ? spec.reason : 'scenario';
   return evaluateInST(page, async ({ debugResponse, reason }) => {
-    const ok = await globalThis.storyOrchestratorRuntime.runExtractionNow(debugResponse, reason);
-    return { ok, snapshot: globalThis.storyOrchestratorRuntime.getSnapshot() };
+    const runtime = globalThis.storyOrchestratorRuntime;
+    const before = runtime.getEngineState?.() ?? null;
+    const ok = await runtime.runExtractionNow(debugResponse, reason);
+    const after = runtime.getEngineState?.() ?? null;
+    return { ok, before: before ? { boundary: before.boundary, lastMessageId: before.lastMessageId } : null, after: after ? { boundary: after.boundary, lastMessageId: after.lastMessageId } : null, snapshot: runtime.getSnapshot() };
   }, { debugResponse, reason });
 }
 
@@ -468,6 +634,44 @@ async function evalStep(page, code) {
     const fn = new Function(`return (async () => { ${code} })();`);
     return fn();
   }, code);
+}
+
+// v2.3 plan 06's blocked-save check. The block lives at the TRANSPORT (Playwright's route handler is
+// applied below every wrapper in the page), because a page-side patch would sit either above or below
+// the save watcher depending on which installed first — and above it, the watcher never sees the
+// failure and reports a save that was never attempted (measured on the CDP-attached page, 2026-09-22).
+const blockedRoutes = new Map<string, string>();
+
+async function blockRoute(page, spec) {
+  const pattern = typeof spec === 'string' ? spec : spec?.pattern;
+  if (typeof pattern !== 'string' || !pattern.trim()) throw new Error('block_route needs a URL pattern (a glob, e.g. "**/api/chats/save")');
+  const status = typeof spec === 'object' && typeof spec?.status === 'number' && spec.status > 0 ? spec.status : null;
+  if (blockedRoutes.has(pattern)) await page.unroute(pattern).catch(() => undefined);
+  await page.route(pattern, async (route) => {
+    if (status) await route.fulfill({ status, contentType: 'application/json', body: JSON.stringify({ error: { message: `blocked by the harness (${pattern})` } }) });
+    else await route.abort('failed');
+  });
+  const mode = status ? `answers ${status}` : 'aborted';
+  blockedRoutes.set(pattern, mode);
+  return { pattern, mode, blocked: [...blockedRoutes.keys()] };
+}
+
+async function unblockRoute(page, spec) {
+  const pattern = typeof spec === 'string' ? spec : spec?.pattern ?? null;
+  const patterns = pattern ? [pattern] : [...blockedRoutes.keys()];
+  if (!patterns.length) throw new Error('unblock_route: nothing is blocked, so this would prove nothing');
+  for (const entry of patterns) {
+    await page.unroute(entry).catch(() => undefined);
+    blockedRoutes.delete(entry);
+  }
+  return { unblocked: patterns, stillBlocked: [...blockedRoutes.keys()] };
+}
+
+/** Release every block, whatever the run did. A blocked save endpoint left behind would fail every
+ *  later run's persistence in silence, so both runners call this in their `finally`. */
+export async function releaseBlockedRoutes(page) {
+  if (!blockedRoutes.size) return null;
+  return await unblockRoute(page, null).catch((error) => ({ error: error instanceof Error ? error.message : String(error) }));
 }
 
 async function copilotStep(page, spec) {
@@ -540,6 +744,13 @@ async function uiStep(page, spec) {
   if (action === 'curator-reject') return decideCuratorOp(page, 'reject', { index: spec?.index ?? 0, pick: spec?.pick ?? null, timeoutMs: spec?.timeoutMs });
   if (action === 'screenshot') return takeAnnotatedScreenshot(page, label ?? 'so-scenario');
   if (action === 'pipeline') return getPipelineState(page);
+  // §H: a scripted `.click()` fires whether or not the element is on top, so a control can be
+  // unreachable to a real pointer while every journey that drives it passes.
+  if (action === 'hit-test') {
+    const result = await hitTest(page, spec?.selector ?? label);
+    if (!result.clickable) throw new Error(`${result.selector} is not clickable by a pointer: ${result.reason}`);
+    return result;
+  }
   if (action === 'assert-player-clean') {
     const result = await assertPlayerClean(page);
     if (!result.ok) throw new Error(`player surface leaks: ${result.findings.map((finding) => `${finding.tab}:${finding.needle}`).join(', ')}`);
@@ -778,6 +989,18 @@ async function cleanupScenario(page, importedHashes, guard, keep, libraryBefore 
     await recordSandboxStory(page, guard);
     try { Object.assign(cleaned, await deleteSandboxChats(page, guard)); } catch (err) { cleaned.chatCleanupError = err instanceof Error ? err.message : String(err); }
     try { cleaned.mirrorBooks = await deleteSandboxMirrorBooks(page, guard); } catch (err) { cleaned.mirrorBookCleanupError = err instanceof Error ? err.message : String(err); }
+    // The chat the page was on before this run is none of the run's business. Read it back from the
+    // server and say so loudly if it shrank: a silent loss here is the user's story, and nothing else
+    // in the harness can see it (2026-09-21).
+    const openBefore = guard.preexistingOpen;
+    if (openBefore?.chatId && typeof openBefore.messages === 'number') {
+      const after = await readChatOnDisk(page, openBefore.chatId).catch(() => null);
+      if (after && typeof after.messages === 'number' && after.messages < openBefore.messages) {
+        cleaned.preexistingChatDamaged = { chatId: openBefore.chatId, before: openBefore.messages, after: after.messages };
+      } else if (after) {
+        cleaned.preexistingChat = { chatId: openBefore.chatId, messages: after.messages };
+      }
+    }
   }
   return cleaned;
 }
@@ -793,11 +1016,13 @@ async function runStep(page, key, value, { scenarioDir = PROJECT_ROOT, importedH
   if (key === 'restart_story') return restartStory(page, value);
   if (key === 'studio_save') return saveStudioDraft(page, typeof value === 'string' ? value : value?.choice ?? null);
   if (key === 'send') return sendCompactMessage(page, value);
-  if (key === 'send_generate') return typeof value === 'string' ? sendUserMessage(page, value) : sendUserMessage(page, value.text, { idleTimeoutMs: value.timeoutMs });
+  if (key === 'send_generate') return typeof value === 'string' ? sendUserMessage(page, value) : sendUserMessage(page, value.text, { idleTimeoutMs: value.timeoutMs, expectReply: value.expectReply === true });
   if (key === 'slash') return executeSlashCommand(page, value);
   if (key === 'extract') return extract(page, value);
   if (key === 'expand') return expand(page, value);
   if (key === 'eval') return evalStep(page, value);
+  if (key === 'block_route') return blockRoute(page, value);
+  if (key === 'unblock_route') return unblockRoute(page, value);
   if (key === 'copilot') return copilotStep(page, value);
   if (key === 'ui') return uiStep(page, value);
   if (key === 'stagecraft') return stagecraftStep(page, value);
@@ -827,7 +1052,7 @@ const STEP_MODIFIERS = new Set(['adoptsNewChat', 'log', 'attempts', 'retryBack']
 // With a sandbox guard every step first proves the page is still on a chat the run created, so a
 // chat switched under the run (a shared debug browser) stops it before it writes anywhere else.
 async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashes = [], label = '', assetBaseline = null, guard = null } = {}) {
-  const result = { steps: [], ok: true, error: null };
+  const result: { steps: unknown[]; ok: boolean; error: string | null; retries: Array<{ index: number; key: string; attempt: number; of: number; error: string }>; firstAttempt?: 'pass' | 'fail' } = { steps: [], ok: true, error: null, retries: [] };
   const attempts = new Map<number, number>();
   for (let index = 0; index < steps.length; index += 1) {
     const step = steps[index];
@@ -838,6 +1063,17 @@ async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashe
       if (guard) await assertInSandbox(page, guard, `before step ${index + 1} (${key})`);
       const chatsBeforeStep = guard && step.adoptsNewChat ? (await readActiveChat(page)).groupChats : null;
       output = await runStep(page, key, step[key], { scenarioDir, importedHashes, assetBaseline, guard });
+      // T2: a verb that answered `{ok:false}` used to be logged as a passing step, so an import
+      // that never landed or a restart that never happened read as green and every later
+      // assertion measured the wrong world. A step that is SUPPOSED to fail says so with
+      // `expectFail: true`, and then succeeding is the error.
+      const reportedOk = output && typeof output === 'object' && 'ok' in output ? (output as { ok: unknown }).ok : undefined;
+      if (step.expectFail) {
+        if (reportedOk !== false) throw new Error(`${key}: expected this step to fail (expectFail), but it reported ok=${JSON.stringify(reportedOk)}`);
+      } else if (reportedOk === false) {
+        const detail = (output as { failures?: unknown[]; error?: unknown }).failures ?? (output as { error?: unknown }).error;
+        throw new Error(`${key}: reported ok:false${detail ? ` — ${JSON.stringify(detail).slice(0, 300)}` : ''}`);
+      }
       if (chatsBeforeStep) await adoptNewSandboxChat(page, guard, chatsBeforeStep);
       if (guard) await recordSandboxStory(page, guard);
       const entry = { index, key, ok: true, ms: Date.now() - startedAt };
@@ -857,6 +1093,10 @@ async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashe
       attempts.set(index, used);
       if (used < allowed) {
         const back = Math.max(0, Number(step.retryBack) || 0);
+        // S5/F1: a retry is what makes a coin-flip check reportable, but "passed eventually" and
+        // "passed first time" are different claims and only the second says the product improved.
+        // Every retry is recorded so a Gate record can state the first-attempt rate.
+        result.retries.push({ index, key, attempt: used, of: allowed, error: entry.error });
         console.log(`${label}${index + 1}/${steps.length} ${key} attempt ${used}/${allowed} failed, retrying from step ${index - back + 1}: ${entry.error}`);
         index = index - back - 1;
         continue;
@@ -867,6 +1107,12 @@ async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashe
       break;
     }
   }
+  // Passed without needing a single retry? That is the number F1 is actually about.
+  // Whether this check needed RE-SAMPLING, which is not the same as whether it succeeded. A check
+  // whose declared expectation is `fail` (J0.5) fails once by design and never retries; tying this
+  // to `result.ok` reported it as "retried", which is the opposite of true. Found by running J0
+  // live on 2026-09-20 — the unit tests all passed with the wrong rule.
+  result.firstAttempt = result.retries.length === 0 ? 'pass' : 'fail';
   if (guard && result.ok) {
     try {
       await assertInSandbox(page, guard, 'after the last step');
@@ -882,31 +1128,45 @@ async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashe
 async function runScenario(page, file, { sandbox = false, keep = false, group = null } = {}) {
   const scenarioPath = resolve(PROJECT_ROOT, file);
   const scenarioDir = dirname(scenarioPath);
-  const scenario = await readJSON(scenarioPath);
+  const scenario = await loadFixture(scenarioPath);
   const steps = Array.isArray(scenario) ? scenario : scenario.steps;
   if (!Array.isArray(steps)) throw new Error('Scenario must be an array or { steps: [] }.');
   const importedHashes = [];
   let guard = null;
-  let result = { file, steps: [], ok: true, cleanup: null };
+  let result: Record<string, unknown> = { file, steps: [], ok: true, cleanup: null };
 
   let libraryBefore = [];
+  let extractionBefore = null;
   if (sandbox) {
     if (group) await openGroup(page, group);
     else await openMostRecentGroupChat(page);
     guard = (await beginSandboxSession(page)).guard;
     await clearDebugResponses(page);
     libraryBefore = await libraryHashes(page);
+    // Extraction settings are INSTALL-WIDE. Scenarios write them (plan06-convergence sets
+    // stabilityLag 1) and a failed read pauses extraction for the whole install — so running the
+    // mocked corpus left extraction DISABLED and stabilityLag 1 behind, which a real player would
+    // then inherit in silence. Measured 2026-09-20 with `so-run-header diff`. The journey runner
+    // already captured and restored these; a scenario did not.
+    extractionBefore = await readExtractionSettings(page);
   }
 
   try {
     result = { file, ...(await runSteps(page, steps, { scenarioDir, importedHashes, guard })), cleanup: null };
     if (!result.ok) await writeJSON({ result, state: await dumpCurrentChatState(page).catch(() => null) }, 'so-scenario-failure');
   } finally {
-    if (sandbox) result.cleanup = await cleanupScenario(page, importedHashes, guard, keep, libraryBefore);
+    // A route block is a change to the SHARED page's network, so it is released even when the run
+    // failed midway: a save endpoint left blocked would fail every later run's persistence in silence.
+    result.releasedRoutes = await releaseBlockedRoutes(page);
+    if (sandbox) {
+      const cleanup: Record<string, unknown> = await cleanupScenario(page, importedHashes, guard, keep, libraryBefore);
+      cleanup.extraction = await restoreExtractionSettings(page, extractionBefore).catch((error) => ({ error: error.message }));
+      result.cleanup = cleanup;
+    }
   }
 
   await writeJSON(result, 'so-scenario-result');
-  console.log(JSON.stringify({ ok: result.ok, steps: result.steps.length, cleanup: result.cleanup }, null, 2));
+  console.log(JSON.stringify({ ok: result.ok, steps: (result.steps as unknown[]).length, cleanup: result.cleanup }, null, 2));
   return result;
 }
 

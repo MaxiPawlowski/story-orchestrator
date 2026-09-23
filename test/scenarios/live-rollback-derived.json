@@ -1,0 +1,34 @@
+{
+  "name": "live-rollback-derived",
+  "objective": "v2.3 plan 04 (M3/M4, real turn): the boundary a gate fires on, carrying a delta an earlier message supplied, rolls the engine AND the memory stores back together when that message is edited — the ledger version that turn replaced comes back and the belief a reveal retired is un-retired, with the player told. The epistemic and ledger passes run with debug responses on purpose: the store reversal is what this proves, the parser has its own live suites.",
+  "steps": [
+    { "import_story": { "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json" } },
+    { "ui": { "action": "select-profile" } },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0 }); rt.setEpistemicLedgerCapable(true); if (!rt.getSnapshot().memory.settings.epistemicLedgerCapable) throw new Error(`the epistemic/ledger capability did not stick`); return { capable: true };",
+      "log": true
+    },
+    { "send_generate": { "text": "I get close to the job board and read the postings.", "expectReply": true, "timeoutMs": 300000 } },
+    { "extract": { "debugResponse": "DELTA q=approached_board value=true evidence=\"I get close to the job board\"" } },
+    { "wait": { "checkpoint": "cp2", "timeoutMs": 300000 } },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const last = rt.getEngineState().lastMessageId; const chat = SillyTavern.getContext().chat.length; if (last < 2) throw new Error(`this check dates two passes by message: last=${last} of ${chat}`); return { last, chat, checkpoint: rt.getSnapshot().activeCheckpointId, boundary: rt.getEngineState().boundary };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const to = rt.getEngineState().lastMessageId - 1; globalThis.storyOrchestratorDebugEpistemicResponse = `[knows] Arin | the ferryman takes no coin after dark`; globalThis.storyOrchestratorDebugLedgerResponse = `[state:Arin:character] condition=healthy`; globalThis.storyOrchestratorDebugSceneSummaryResponse = `NONE`; const wrote = await rt.runEpistemicLedgerPass({ id: `derived-1`, createdAt: new Date().toISOString(), priority: 0, reason: `scene:location`, contractHash: `derived`, scope: [], window: { from: 0, to }, prompt: ``, rawResponse: ``, acceptedDeltas: [], rejected: [], sceneBreak: { at: to, reason: `location` } }); const belief = rt.getEpistemic().filter((entry) => entry.subject === `Arin` && !entry.supersededBy); const view = rt.getLedger().filter((row) => row.entity === `Arin`); if (!belief.length) throw new Error(`the reveal never landed (wrote=${wrote}): ${JSON.stringify(rt.getSnapshot().memory.epistemic)}`); if (!view.some((row) => row.field === `condition` && row.value === `healthy`)) throw new Error(`the ledger never took the first value (wrote=${wrote}): ${JSON.stringify(rt.getSnapshot().memory.ledger)}`); globalThis.__derivedBelief = belief[0].id; return { wrote, to, belief: belief[0].id, messageId: belief[0].messageId };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const active = rt.getEpistemic().filter((entry) => !entry.supersededBy); const index = active.findIndex((entry) => entry.id === globalThis.__derivedBelief) + 1; if (index < 1) throw new Error(`the belief is not in the pass's own numbered list: ${JSON.stringify(active.map((entry) => entry.id))}`); globalThis.storyOrchestratorDebugEpistemicResponse = `[retire] ${index}`; globalThis.storyOrchestratorDebugLedgerResponse = `[state:Arin:character] condition=wounded`; const to = rt.getEngineState().lastMessageId; const wrote = await rt.runEpistemicLedgerPass({ id: `derived-2`, createdAt: new Date().toISOString(), priority: 0, reason: `scene:location`, contractHash: `derived`, scope: [], window: { from: 0, to }, prompt: ``, rawResponse: ``, acceptedDeltas: [], rejected: [], sceneBreak: { at: to, reason: `location` } }); const after = rt.getEpistemic().find((entry) => entry.id === globalThis.__derivedBelief); const view = rt.getLedger().filter((row) => row.entity === `Arin` && row.field === `condition`); if (!after?.supersededBy) throw new Error(`the reveal never retired the belief (wrote=${wrote}): ${JSON.stringify(after)}`); if (!view.some((row) => row.value === `wounded`)) throw new Error(`the ledger never took the update (wrote=${wrote}): ${JSON.stringify(rt.getSnapshot().memory.ledger)}`); return { wrote, to, retiredAt: after.retiredAt, view };",
+      "log": true
+    },
+    { "edit": { "messageId": "engine", "text": "I stay by the door and leave the posting unread." } },
+    { "wait": { "idle": true, "timeoutMs": 60000 } },
+    { "expect": { "activeCheckpoint": "cp1" } },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const view = rt.getLedger().filter((row) => row.entity === `Arin` && row.field === `condition`); const belief = rt.getEpistemic().find((entry) => entry.id === globalThis.__derivedBelief); const notice = rt.getSnapshot().lastRollback; if (!notice) throw new Error(`the edit did not roll the story back: ${JSON.stringify({ unavailable: rt.getSnapshot().rollbackUnavailable, checkpoint: rt.getSnapshot().activeCheckpointId })}`); if (view.some((row) => row.value === `wounded`)) throw new Error(`the rolled-back update is still in the ledger: ${JSON.stringify(view)}`); if (!view.some((row) => row.value === `healthy`)) throw new Error(`the prior value did not return: ${JSON.stringify(view)}`); if (!belief) throw new Error(`the belief was dropped by the rollback instead of being un-retired: ${JSON.stringify(rt.getSnapshot().memory.epistemic)}`); if (belief.supersededBy) throw new Error(`the retirement survived the rollback: ${JSON.stringify(belief)}`); return { view, belief: belief.id, notice };",
+      "log": true
+    }
+  ]
+}

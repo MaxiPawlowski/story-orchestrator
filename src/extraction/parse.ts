@@ -104,6 +104,13 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
         result.rejected.push({ line, reason: "unknown quality" });
         continue;
       }
+      // v2.3 plan 02 (R5). The delta's origin is the parser's to state, never the story's to lend:
+      // copying the declared source onto a model line made a code-owned quality look extractor-written
+      // and walked past the blackboard's own source check.
+      if (quality.source !== "extractor") {
+        result.rejected.push({ line, reason: "code-owned quality" });
+        continue;
+      }
       if (!delta[3].trim()) {
         result.rejected.push({ line, reason: "missing evidence" });
         continue;
@@ -115,14 +122,14 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
           result.rejected.push({ line, reason: "invalid value" });
           continue;
         }
-        result.deltas.push({ delta: { q, v: levelToNumeric(value), source: quality.source }, evidence: delta[3], rawLevel: value });
+        result.deltas.push({ delta: { q, v: levelToNumeric(value), source: "extractor" }, evidence: delta[3], rawLevel: value, line });
         continue;
       }
       if (value === undefined || !qualityAccepts(quality, value)) {
         result.rejected.push({ line, reason: "invalid value" });
         continue;
       }
-      result.deltas.push({ delta: { q, v: value, source: quality.source }, evidence: delta[3] });
+      result.deltas.push({ delta: { q, v: value, source: "extractor" }, evidence: delta[3], line });
       continue;
     }
 

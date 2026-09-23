@@ -18,7 +18,7 @@ const meta: Meta<typeof JudgeSettingsGroup> = {
     status: ready,
     selfTest: { running: false, report: null },
     onChange: fn(),
-    onSaveKey: fn(async () => true),
+    onSaveKey: fn(async () => ({ ok: true as const })),
     onRefresh: fn(),
     onRunSelfTest: fn(),
   },
@@ -117,5 +117,29 @@ export const PlayerSeesNoExpansionControls: Story = {
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelector("#so-judge-use-expansion-critic")).toBeNull();
     await expect(canvasElement.querySelector("#so-judge-expansion-variants")).toBeNull();
+  },
+};
+
+// v2.3 plan 09. "Enabled" is not "working": a use that is on with nothing behind it says so, in the
+// same place the author turned it on.
+export const ReadinessNamesWhatIsNotWorking: Story = {
+  args: {
+    settings: settings({ enabled: true }, { stallCheck: true, sceneOoc: true, expansionLookahead: true }),
+    status: ready,
+  },
+  play: async ({ canvasElement }) => {
+    const readiness = canvasElement.querySelector("#so-judge-readiness");
+    await expect(readiness?.textContent).toContain("nothing has measured it");
+    await expect(readiness?.textContent).toContain("Out-of-character messages");
+    await expect(canvasElement.querySelector("#so-judge-readiness-summary")?.textContent).toContain("Stall check 100%");
+  },
+};
+
+export const ReadinessSilentWhenEverythingIsMeasured: Story = {
+  args: { settings: settings({ enabled: true }, { stallCheck: true, memoryVerify: true }), status: ready },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-judge-readiness")).toBeNull();
+    await expect(canvasElement.querySelector("#so-judge-readiness-summary")?.textContent).toContain("Check memory before storing 98%");
+    await expect(canvasElement.querySelector("#so-judge-recommended-config")).toBeInTheDocument();
   },
 };

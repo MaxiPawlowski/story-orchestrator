@@ -1,0 +1,780 @@
+{
+  "use": "lore-relevance",
+  "poolsFrom": "lore.json",
+  "floor": {
+    "precisionAt4": 0.85,
+    "tieRate": 0.05
+  },
+  "note": "v2.3 plan 10 (A): 24 new windows over the same Adolion pool, 8 of them Spanish, written to compare Noul-sort against Score-sort on ORDER rather than on whether the right entries came back at all (the v2.2 pair, lore.json, already covers that). The windows were written before any answer was read, and their text avoids the needed entries' own keywords so keyword activation is not what decides.",
+  "labellingRule": "An entry's level is decided by the window alone, before any answer is read: `needed` when the next reply cannot be written correctly without it, `useful` when it would ground the reply, `background` for general world information with nothing specific to the scene, `irrelevant` otherwise. Every entry the two arms rank in their top 5 is labelled, because those are the entries a ranking decision is made between; an entry neither arm retrieved keeps the v2.2 `needed` list as its only label.",
+  "pools": {},
+  "rows": [
+    {
+      "id": "R01",
+      "lang": "en",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "Below the mountains",
+        "objective": "Get the party through the caverns alive.",
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "The tunnel opens into a grotto lit only by pale glowing caps on the rock, and further down the dark there are voices."
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"The pale ones below. They keep slaves, and they think everything that walks in the sun is cattle. We go quietly or not at all.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.22",
+        "SO-J11 Adolion World.23"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.12": "irrelevant",
+        "SO-J11 Adolion World.22": "needed",
+        "SO-J11 Adolion World.23": "needed",
+        "SO-J11 Adolion World.24": "irrelevant",
+        "SO-J11 Adolion World.30": "irrelevant",
+        "SO-J11 Adolion World.36": "irrelevant"
+      }
+    },
+    {
+      "id": "R02",
+      "lang": "en",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "The broken pass",
+        "objective": "Survive what is guarding the road.",
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "Something steps out of the rocks into the road: seven feet of muscle, a bull's head on a man's shoulders, dragging a huge axe."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Nobody move. It hasn't seen us yet.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.33"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.12": "irrelevant",
+        "SO-J11 Adolion World.17": "irrelevant",
+        "SO-J11 Adolion World.28": "irrelevant",
+        "SO-J11 Adolion World.30": "background",
+        "SO-J11 Adolion World.33": "needed",
+        "SO-J11 Adolion World.53": "irrelevant"
+      }
+    },
+    {
+      "id": "R03",
+      "lang": "en",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "The dry riverbed",
+        "objective": "Find out what has been killing the shepherds.",
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "A carcass the size of a cart lies half-eaten in the sand, and the tracks around it are lion-wide and clawed like a lizard's."
+          },
+          {
+            "speaker": "Belle",
+            "text": "\"Venom in the tail marks, fire around the muzzle. That's not a beast, that's a border dispute.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.31"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.9": "irrelevant",
+        "SO-J11 Adolion World.25": "background",
+        "SO-J11 Adolion World.26": "irrelevant",
+        "SO-J11 Adolion World.30": "irrelevant",
+        "SO-J11 Adolion World.31": "needed",
+        "SO-J11 Adolion World.57": "irrelevant"
+      }
+    },
+    {
+      "id": "R04",
+      "lang": "en",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "The house at the crossroads",
+        "objective": "Put the family to rest.",
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "The woman who died here died badly, and the cold in the room has not lifted since. Something is still standing in the corner."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"We need a rite, not a sword. Cutting it does nothing while its business is unfinished.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.32"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.9": "irrelevant",
+        "SO-J11 Adolion World.32": "needed",
+        "SO-J11 Adolion World.35": "irrelevant",
+        "SO-J11 Adolion World.61": "irrelevant",
+        "SO-J11 Adolion World.62": "irrelevant"
+      }
+    },
+    {
+      "id": "R05",
+      "lang": "en",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "The tomb under the chapel",
+        "objective": "Learn what is keeping the dead standing.",
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "The vault is full of them: some still wearing flesh, most down to bare yellow bones, all of them holding rusted weapons and all of them facing the door."
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Something in here is still giving the orders.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.34",
+        "SO-J11 Adolion World.35"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.30": "irrelevant",
+        "SO-J11 Adolion World.32": "useful",
+        "SO-J11 Adolion World.34": "needed",
+        "SO-J11 Adolion World.35": "needed",
+        "SO-J11 Adolion World.38": "irrelevant"
+      }
+    },
+    {
+      "id": "R06",
+      "lang": "en",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "The burned library",
+        "objective": "Work out who is buying the old books.",
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "Half the shelves are gone. The only volumes anyone still wants are the ones about her - the one who almost emptied the world once, and the rites for bringing her back."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Whoever is collecting these isn't a scholar. They're a congregation.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.38",
+        "SO-J11 Adolion World.39"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.29": "irrelevant",
+        "SO-J11 Adolion World.37": "background",
+        "SO-J11 Adolion World.38": "needed",
+        "SO-J11 Adolion World.39": "needed",
+        "SO-J11 Adolion World.60": "irrelevant",
+        "SO-J11 Adolion World.62": "irrelevant",
+        "SO-J11 Adolion World.63": "irrelevant"
+      }
+    },
+    {
+      "id": "R07",
+      "lang": "en",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "The sunlit courtyard",
+        "objective": "Say nothing you will regret.",
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "The man across the table has no shadow worth the name, walks out at noon into the light without flinching, and is not afraid of the cross on the wall."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"You're older than the church says anything can be. And you're not the only one awake, are you? They still haven't found her.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.51",
+        "SO-J11 Adolion World.37"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.4": "useful",
+        "SO-J11 Adolion World.29": "background",
+        "SO-J11 Adolion World.36": "background",
+        "SO-J11 Adolion World.37": "needed",
+        "SO-J11 Adolion World.48": "background",
+        "SO-J11 Adolion World.51": "needed",
+        "SO-J11 Adolion World.62": "irrelevant"
+      }
+    },
+    {
+      "id": "R08",
+      "lang": "en",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "The caravan road",
+        "objective": "Get the wagon to the next town.",
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "The driver has pointed ears under a wide hat, a tail coiled on the seat, and a nose that twitches every time the horses do."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"You can hear them before we can, so you're on watch tonight.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.28"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.1": "irrelevant",
+        "SO-J11 Adolion World.6": "useful",
+        "SO-J11 Adolion World.16": "irrelevant",
+        "SO-J11 Adolion World.19": "irrelevant",
+        "SO-J11 Adolion World.28": "needed",
+        "SO-J11 Adolion World.52": "irrelevant"
+      }
+    },
+    {
+      "id": "R09",
+      "lang": "en",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "The masquerade",
+        "objective": "Find out who invited you.",
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "The host's smile never reaches the eyes, every guest agrees with everything, and the wine has been poured by the same hand all evening without tiring."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"They aren't feeding on the food. Watch who keeps finding excuses to touch someone.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.45"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.9": "useful",
+        "SO-J11 Adolion World.36": "background",
+        "SO-J11 Adolion World.44": "irrelevant",
+        "SO-J11 Adolion World.45": "needed",
+        "SO-J11 Adolion World.48": "background",
+        "SO-J11 Adolion World.61": "background"
+      }
+    },
+    {
+      "id": "R10",
+      "lang": "en",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "The sealed village",
+        "objective": "Get in without being burned out.",
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "The riders wear red over their armour and carry brands as well as swords. They have already decided what everyone in the village is, and they are working through the houses one at a time."
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Whatever they're hunting, they don't need proof of it.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.29",
+        "SO-J11 Adolion World.4"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.4": "needed",
+        "SO-J11 Adolion World.9": "useful",
+        "SO-J11 Adolion World.24": "irrelevant",
+        "SO-J11 Adolion World.29": "needed",
+        "SO-J11 Adolion World.30": "irrelevant"
+      }
+    },
+    {
+      "id": "R11",
+      "lang": "en",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "The root hall",
+        "objective": "Ask the small shaman for passage.",
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "The speaker is waist-high with a snout and scales, wearing more jewellery than the baron, and the rest of the little folk go quiet when it raises a claw."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"You didn't get this patch of forest by being liked. What did it cost you to be allowed to speak for him?\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.60",
+        "SO-J11 Adolion World.59"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.1": "irrelevant",
+        "SO-J11 Adolion World.28": "irrelevant",
+        "SO-J11 Adolion World.57": "useful",
+        "SO-J11 Adolion World.58": "useful",
+        "SO-J11 Adolion World.59": "needed",
+        "SO-J11 Adolion World.60": "needed"
+      }
+    },
+    {
+      "id": "R12",
+      "lang": "en",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "The long table",
+        "objective": "Decide whether to hire him.",
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "He pours the tea without being asked, knows where every door in the house leads, and offers his terms like a man who has been waiting a long time for the right offer."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"You fight with your hands, and you've never lost. What are you actually asking for?\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.56"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.7": "irrelevant",
+        "SO-J11 Adolion World.33": "irrelevant",
+        "SO-J11 Adolion World.48": "background",
+        "SO-J11 Adolion World.51": "background",
+        "SO-J11 Adolion World.56": "needed",
+        "SO-J11 Adolion World.57": "irrelevant"
+      }
+    },
+    {
+      "id": "R13",
+      "lang": "en",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "The thorn clearing",
+        "objective": "Kill it before it charges.",
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "The clearing stinks of scorched hair. It is the size of a man, its tusks are longer than a forearm, and embers leak from its snout when it breathes."
+          },
+          {
+            "speaker": "Belle",
+            "text": "\"Not the chest. The neck, before it turns.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.19"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.9": "irrelevant",
+        "SO-J11 Adolion World.19": "needed",
+        "SO-J11 Adolion World.25": "background",
+        "SO-J11 Adolion World.26": "irrelevant",
+        "SO-J11 Adolion World.30": "background",
+        "SO-J11 Adolion World.31": "irrelevant"
+      }
+    },
+    {
+      "id": "R14",
+      "lang": "en",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "The war camp",
+        "objective": "Count them, then leave.",
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "The camp fills the whole valley floor: thousands of cookfires, one banner, one chief, and no quarrelling between tents."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"No tribe holds together at this size without someone who can hold it. Which one is his?\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.40"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.1": "background",
+        "SO-J11 Adolion World.7": "irrelevant",
+        "SO-J11 Adolion World.17": "useful",
+        "SO-J11 Adolion World.25": "irrelevant",
+        "SO-J11 Adolion World.40": "needed",
+        "SO-J11 Adolion World.52": "background",
+        "SO-J11 Adolion World.60": "irrelevant"
+      }
+    },
+    {
+      "id": "R15",
+      "lang": "en",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "The city gates",
+        "objective": "Learn the layout of the capital before dark.",
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "The streets are wide with stalls on both sides, then a wall, then the part where the doors are gilded and the guards count you as you pass, and past that the bells of the sacred quarter."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Markets, mansions, temples. If she's a hostage she's in the second, and if she's an offering she's in the third.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.55",
+        "SO-J11 Adolion World.47",
+        "SO-J11 Adolion World.46"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.2": "useful",
+        "SO-J11 Adolion World.4": "background",
+        "SO-J11 Adolion World.21": "irrelevant",
+        "SO-J11 Adolion World.46": "needed",
+        "SO-J11 Adolion World.47": "needed",
+        "SO-J11 Adolion World.55": "needed"
+      }
+    },
+    {
+      "id": "R16",
+      "lang": "en",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "The archery butts",
+        "objective": "Win a wager without making an enemy.",
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "The small archer in the green cloak puts four shafts inside a palm's width at sixty paces and glares at anyone who smiles."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"I'm not going to say it. I want to keep my fingers.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.54"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.1": "irrelevant",
+        "SO-J11 Adolion World.5": "irrelevant",
+        "SO-J11 Adolion World.6": "background",
+        "SO-J11 Adolion World.7": "irrelevant",
+        "SO-J11 Adolion World.16": "irrelevant",
+        "SO-J11 Adolion World.24": "background",
+        "SO-J11 Adolion World.54": "needed"
+      }
+    },
+    {
+      "id": "R17",
+      "lang": "es",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "El mostrador del gremio",
+        "objective": "Averiguar quién paga las misiones del este.",
+        "window": [
+          {
+            "speaker": "Narrador",
+            "text": "La chica del pelo corto en dos moños lleva el registro de todo el mundo y no mira a nadie dos veces; el resto de la sala sí."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"¿Y tú qué ganas con saberlo todo? A mí me sirve cualquiera que recuerde las caras.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.18"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.1": "irrelevant",
+        "SO-J11 Adolion World.3": "useful",
+        "SO-J11 Adolion World.13": "background",
+        "SO-J11 Adolion World.18": "needed",
+        "SO-J11 Adolion World.21": "background",
+        "SO-J11 Adolion World.27": "background"
+      }
+    },
+    {
+      "id": "R18",
+      "lang": "es",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "El tablón de contratos",
+        "objective": "Elegir a quién se le puede preguntar sin llamar la atención.",
+        "window": [
+          {
+            "speaker": "Arin",
+            "text": "\"No preguntes al primero que veas. Hay un herrero que lo sabe todo de esta comarca y una mujer noble que paga por enterarse la primera.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"¿Nombres? Necesito nombres de gente que hable.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.21"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.1": "irrelevant",
+        "SO-J11 Adolion World.2": "irrelevant",
+        "SO-J11 Adolion World.3": "useful",
+        "SO-J11 Adolion World.7": "background",
+        "SO-J11 Adolion World.21": "needed",
+        "SO-J11 Adolion World.24": "background",
+        "SO-J11 Adolion World.27": "irrelevant",
+        "SO-J11 Adolion World.47": "background"
+      }
+    },
+    {
+      "id": "R19",
+      "lang": "es",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "El puesto de avanzada",
+        "objective": "Decidir si cruzar.",
+        "window": [
+          {
+            "speaker": "Narrador",
+            "text": "El guardia señala el mapa con dos dedos. \"Ahí no. El gremio lo cerró hace años y a quien vuelve no se le paga nada.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"¿Y qué hay dentro que dé tanto miedo como para prohibirlo en vez de limpiarlo?\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.15"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.3": "useful",
+        "SO-J11 Adolion World.10": "background",
+        "SO-J11 Adolion World.14": "useful",
+        "SO-J11 Adolion World.15": "needed",
+        "SO-J11 Adolion World.19": "irrelevant",
+        "SO-J11 Adolion World.31": "irrelevant",
+        "SO-J11 Adolion World.32": "irrelevant"
+      }
+    },
+    {
+      "id": "R20",
+      "lang": "es",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "La audiencia",
+        "objective": "Conseguir el permiso de paso.",
+        "window": [
+          {
+            "speaker": "Narrador",
+            "text": "El trono está al este de todo, en la parte del continente que está en paz con los que no deberían ser sus aliados."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"¿Su majestad sabe que su pacto con ellos se leería mal en las parroquias?\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.50"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.2": "background",
+        "SO-J11 Adolion World.4": "useful",
+        "SO-J11 Adolion World.9": "irrelevant",
+        "SO-J11 Adolion World.29": "background",
+        "SO-J11 Adolion World.50": "needed"
+      }
+    },
+    {
+      "id": "R21",
+      "lang": "es",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "La subasta de encargos",
+        "objective": "Salir con algo que pagar.",
+        "window": [
+          {
+            "speaker": "Narrador",
+            "text": "Cuelgan las tareas por letras. Las de la parte baja del alfabeto no las quiere nadie; las de arriba llevan sello de cera y nadie se ofrece."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Empecemos por abajo. Todo el mundo sube la escalera desde el primer escalón.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.5",
+        "SO-J11 Adolion World.13"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.1": "background",
+        "SO-J11 Adolion World.3": "useful",
+        "SO-J11 Adolion World.5": "needed",
+        "SO-J11 Adolion World.8": "irrelevant",
+        "SO-J11 Adolion World.13": "needed",
+        "SO-J11 Adolion World.21": "background",
+        "SO-J11 Adolion World.44": "irrelevant"
+      }
+    },
+    {
+      "id": "R22",
+      "lang": "es",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "El círculo de sal",
+        "objective": "Aguantar hasta que amanezca.",
+        "window": [
+          {
+            "speaker": "Narrador",
+            "text": "Lo que empuja desde fuera no tiene una forma fija: a veces manos, a veces alas, siempre con demasiados ojos."
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"No vienen de este mundo. La sal los aguanta, pero no los hiere.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.9"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.9": "needed",
+        "SO-J11 Adolion World.12": "useful",
+        "SO-J11 Adolion World.14": "background",
+        "SO-J11 Adolion World.23": "background",
+        "SO-J11 Adolion World.24": "irrelevant",
+        "SO-J11 Adolion World.32": "background"
+      }
+    },
+    {
+      "id": "R23",
+      "lang": "es",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "El camino del norte",
+        "objective": "Encontrar a la mujer que cura por un precio raro.",
+        "window": [
+          {
+            "speaker": "Narrador",
+            "text": "En las aldea de los alrededores la llaman de todo: bruja, santa, estafadora. Todas las versiones coinciden en que cobra distinto a cada uno."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Y en que a nadie le ha ido peor después. Eso ya es más de lo que puede decir el templo.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.64"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.1": "irrelevant",
+        "SO-J11 Adolion World.4": "useful",
+        "SO-J11 Adolion World.8": "irrelevant",
+        "SO-J11 Adolion World.21": "background",
+        "SO-J11 Adolion World.46": "background",
+        "SO-J11 Adolion World.62": "irrelevant",
+        "SO-J11 Adolion World.64": "needed"
+      }
+    },
+    {
+      "id": "R24",
+      "lang": "en",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "The raided farm",
+        "objective": "Work out how many are out there and who is leading them.",
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "The big one left a club's worth of damage and a trail you could follow blind. The little ones did the searching, and they did it in order, room by room."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"The brute is the muscle. Somebody smaller and smarter is running this.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.53",
+        "SO-J11 Adolion World.52"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.16": "useful",
+        "SO-J11 Adolion World.17": "background",
+        "SO-J11 Adolion World.19": "background",
+        "SO-J11 Adolion World.33": "background",
+        "SO-J11 Adolion World.52": "needed",
+        "SO-J11 Adolion World.53": "needed"
+      }
+    },
+    {
+      "id": "R25",
+      "lang": "es",
+      "pool": "adolion",
+      "scene": {
+        "checkpointName": "El taller del pintor",
+        "objective": "Averiguar de dónde salen los modelos.",
+        "window": [
+          {
+            "speaker": "Narrador",
+            "text": "Los cuadros cuelgan en fila y todos son el mismo instante: alguien a punto de dejar de estar. Los compradores ricos pagan por mirarlos."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Los rostros no están inventados. Son personas que existieron, y ninguna figura en las listas de vecinos.\""
+          }
+        ]
+      },
+      "needed": [
+        "SO-J11 Adolion World.42",
+        "SO-J11 Adolion World.43"
+      ],
+      "labels": {
+        "SO-J11 Adolion World.41": "background",
+        "SO-J11 Adolion World.42": "needed",
+        "SO-J11 Adolion World.43": "needed",
+        "SO-J11 Adolion World.63": "irrelevant",
+        "SO-J11 Adolion World.44": "irrelevant",
+        "SO-J11 Adolion World.8": "irrelevant"
+      }
+    }
+  ],
+  "labelledAt": "2026-09-22"
+}

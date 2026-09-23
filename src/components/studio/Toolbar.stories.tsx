@@ -35,6 +35,8 @@ export const Default: Story = {
     await expect(args.onSave).toHaveBeenCalledTimes(1);
     await userEvent.click(canvas.getByRole("button", { name: "Export JSON" }));
     await expect(args.onExport).toHaveBeenCalledTimes(1);
+    // v2.3 plan 09: an author who does not know the draft is unsaved is the one who loses it.
+    await expect(canvas.getByRole("status")).toHaveTextContent("unsaved draft");
   },
 };
 
@@ -52,5 +54,6 @@ export const NothingToSave: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole("button", { name: "Save" })).toBeDisabled();
     await expect(canvas.getByRole("button", { name: "Reset Draft" })).toBeDisabled();
+    await expect(canvas.queryByRole("status")).toBeNull();
   },
 };

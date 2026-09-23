@@ -1,7 +1,10 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "lib": ["ES2020", "DOM"],
+    // Explicit, because `types: []` below removes the automatic @types inclusion that silently
+    // widened the lib set (an @types package referencing a newer lib was doing it). The code uses
+    // `.at()` and iterates NodeLists, so the lib has to say so itself.
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "jsx": "react-jsx",
@@ -10,6 +13,12 @@
     "noEmit": true,
     "baseUrl": "./src",
     "resolveJsonModule": true,
+    // v2.3 plan 08. No automatic @types inclusion: TypeScript otherwise pulls in every package it
+    // finds in a node_modules/@types above this one, with no include entry and no way to see it in
+    // the project file. A host with @types/toastr installed merged its `Window.toastr` into ours and
+    // broke two assignments in stHost/slashCommands.ts (measured: .debug/toastr-repro.mjs). Our own
+    // global.d.ts declares everything we rely on, so nothing is lost by owning the list explicitly.
+    "types": [],
     "allowJs": true,
     "paths": {
       "@components/*": ["components/*"],

@@ -1,6 +1,7 @@
 import type { SharedReadAudit } from "@extraction/index";
 import { executeSlashCommands, getActiveGroup } from "@services/STAPI";
 import { RuntimeManager } from "./runtimeManager";
+import { control } from "../../test/findings/ledger";
 
 const mockExtensionPrompts: Record<string, { value: string; depth: number }> = {};
 const mockLorebooks: Record<string, Record<string, boolean>> = {};
@@ -8,8 +9,10 @@ const mockSwitchEntries = (lorebook: string, comments: string | string[], enable
   [comments].flat().forEach((comment) => { if (mockLorebooks[lorebook] && comment in mockLorebooks[lorebook]) mockLorebooks[lorebook][comment] = enabled; });
   return true;
 };
+const mockPopupCloses = { count: 0 };
 const mockContext = {
   chat: [] as Array<{ mes: string }>,
+  chatId: "chat-a" as string | undefined,
   chatMetadata: {} as Record<string, unknown>,
   extensionSettings: {} as Record<string, Record<string, unknown>>,
   saveMetadata: jest.fn(async () => undefined),
@@ -40,20 +43,33 @@ jest.mock("@services/STAPI", () => {
     enableWIEntry: jest.fn(async (lorebook: string, comments: string | string[]) => mockSwitchEntries(lorebook, comments, true)),
     lorebookExists: (name: string) => Boolean(mockLorebooks[name]),
     upsertWIEntry: jest.fn(async () => "created"),
+    ensureLorebook: jest.fn(async (name: string) => ({ name, created: false })),
+    loadLorebook: jest.fn(async () => ({ name: "mirror", entries: {} })),
+    bindChatLorebook: jest.fn(() => ({ bound: false, previous: null })),
     countTokens: jest.fn(async (text: string) => Math.ceil((text?.length ?? 0) / 4)),
     vectorInsert: jest.fn(async () => undefined),
     vectorQuery: jest.fn(async () => []),
     vectorPurge: jest.fn(async () => undefined),
     DEFAULT_VECTOR_SOURCE: "transformers",
     executeSlashCommands: jest.fn(async () => undefined),
-    setGroupMembersDisabled: jest.fn(async () => undefined),
+    setGroupMembersDisabled: jest.fn(async () => ({ ok: true, group: "g1" })),
+    // v2.3 plan 06: the settings gate and the save evidence. The observation answers "a save went out
+    // and was accepted" unless a test says otherwise, because that is the ordinary case every test
+    // written before the seam existed assumed.
+    settingsAreLoaded: () => true,
+    settingsReady: async () => {},
+    observeNextSave: jest.fn(async () => ({ requested: true, status: 200, ok: true, timedOut: false })),
+    readBackBoundary: () => null,
+    applyPreset: jest.fn(() => ({ ok: true, name: "P" })),
+    presetBackend: () => "textgenerationwebui",
+    readAppliedPreset: () => null,
     getActiveGroup: getActiveGroupMock,
     resolveGroupMemberId: resolveGroupMemberIdMock,
     getCharacterNameById: (id: number) => (id === 0 ? "Mara" : id === 1 ? "Kael" : id === 2 ? "Narrator" : undefined),
     readInjectedPromptBlocks: () => Object.entries(mockExtensionPrompts)
       .filter(([key, entry]) => key.startsWith("story_") && entry.value.trim())
       .map(([key, entry]) => ({ key, depth: entry.depth, role: 0, value: entry.value })),
-    showTextPopup: jest.fn(async () => undefined),
+    showTextPopup: jest.fn(() => ({ close: () => { mockPopupCloses.count += 1; } })),
   };
 });
 
@@ -89,6 +105,8 @@ const resetHost = () => {
   mockContext.chat = [];
   mockContext.chatMetadata = {};
   mockContext.extensionSettings = {};
+  // A chat is open in these tests: an unnamed chat is a state the runtime must not write to.
+  mockContext.chatId = "chat-a";
   Object.keys(mockExtensionPrompts).forEach((key) => { delete mockExtensionPrompts[key]; });
   Object.keys(mockLorebooks).forEach((key) => { delete mockLorebooks[key]; });
   (getActiveGroup as jest.Mock).mockReturnValue(null);
@@ -722,7 +740,9 @@ describe("RuntimeManager memorize backlog", () => {
   it("backfills memory tiers across windowed reads and applies the final full-scope blackboard read", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(backlogStory));
-    mockContext.chat = Array.from({ length: 10 }, (_, index) => ({ mes: `Message ${index}.` }));
+    // The read's evidence has to be a span of the window it was given (plan 02's R6 screening), so
+    // the phrase the mocked response quotes is in the transcript.
+    mockContext.chat = Array.from({ length: 10 }, (_, index) => ({ mes: index === 4 ? "Max took the key from the table." : `Message ${index}.` }));
     globalThis.storyOrchestratorDebugExtractionResponse = [
       "DELTA q=player_has_key value=true evidence=\"took the key\"",
       "MEMORY type=fact importance=2 expiration=permanent text=\"The player found a brass key.\" evidence=\"took the key\"",
@@ -889,6 +909,32 @@ describe("RuntimeManager arc bridge and canon", () => {
     expect(manager.getCanon()).toContain("granary mystery was solved");
     expect(await manager.regenerateCanon(true)).toBe(true);
     expect(manager.getCanon()).toBe("DIFFERENT CANON TEXT");
+  });
+
+  // v2.3 plan 05: the canon is prose, so its sentences cannot carry envelopes of their own. What a
+  // reader can check is what it was BUILT from — recorded as it stood at the moment of synthesis —
+  // and a decided conflict or a rollback marks the whole text stale rather than leaving it in play.
+  it("records what the canon was built from, and holds a stale canon out of play", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(bridgeStory));
+    await manager.applyExtractionAudit(memoryAudit(), [], [], [{ kind: "open", text: "The identity of the granary arsonist is still unknown to all." }]);
+    await manager.applyExtractionAudit(memoryAudit(), [], [], [{ kind: "resolved", text: "The granary arsonist is now known to all." }]);
+    const resolved = manager.getArcs().find((arc) => arc.status === "resolved");
+    if (!resolved) throw new Error("expected a resolved arc");
+    globalThis.storyOrchestratorDebugArcSummaryResponse = "The steward was unmasked.";
+    globalThis.storyOrchestratorDebugCanonResponse = "WHAT HAS HAPPENED:\nThe steward was unmasked.";
+    await manager.runArcSummaryPass([resolved.id]);
+
+    const canon = manager.getSnapshot().memory.canon;
+    expect(canon?.sources?.map((source) => source.id)).toContain(resolved.id);
+    expect(canon?.stale).toBe(false);
+
+    const prose = () => manager.getSnapshot().narrative.sections.find((section) => section.id === "story")?.lines ?? [];
+    expect(prose()).toEqual(["The steward was unmasked."]);
+    manager.getSnapshot().memory.canon!.stale = true;
+    expect(prose()).toEqual([]);
+    // The author can still read it; only its READERS stop treating it as current.
+    expect(manager.getCanon()).toContain("steward was unmasked");
   });
 
   it("re-derives canon after the story moves on, and shows the player only its history", async () => {
@@ -1080,6 +1126,49 @@ describe("RuntimeManager plan-13 surfacing", () => {
     expect(await manager.showAwayRecap()).toBe(false);
   });
 
+  // S3 (v2.3 plan 03): the recap is a host modal, so an open one makes the whole document inert to
+  // a pointer. It described the chat it was computed for and outlived it, blocking the next chat.
+  const openRecap = async (manager: RuntimeManager) => {
+    mockContext.chatId = "chat-a";
+    await manager.importStory(JSON.stringify(gatedStory));
+    const metadata = mockContext.chatMetadata.story_orchestrator as { selectedStoryId: string | null; stories: Record<string, { extras: { lastSessionAt: string | null } }> };
+    const storyId = Object.keys(metadata.stories)[0];
+    metadata.stories[storyId].extras.lastSessionAt = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    await manager.selectStory(storyId, "hydrate");
+    await manager.showAwayRecap();
+    return metadata;
+  };
+
+  it("takes an open recap down when another chat loads a story", async () => {
+    const manager = new RuntimeManager();
+    const metadata = await openRecap(manager);
+    const before = mockPopupCloses.count;
+    mockContext.chatId = "chat-b";
+    await manager.selectStory(Object.keys(metadata.stories)[0], "hydrate");
+    expect(mockPopupCloses.count).toBe(before + 1);
+  });
+
+  it("takes an open recap down when another chat has no story to load", async () => {
+    const manager = new RuntimeManager();
+    const metadata = await openRecap(manager);
+    const before = mockPopupCloses.count;
+    mockContext.chatId = "chat-b";
+    metadata.selectedStoryId = null;
+    await manager.loadSelectedFromChat();
+    expect(mockPopupCloses.count).toBe(before + 1);
+  });
+
+  // J4 caught this the other way round: dismissing on every load took the recap down on a page
+  // reload and nothing put it back, because the first load's save stamps lastSessionAt.
+  it("leaves an open recap up when the same chat reloads", async () => {
+    const manager = new RuntimeManager();
+    const metadata = await openRecap(manager);
+    const before = mockPopupCloses.count;
+    metadata.stories[Object.keys(metadata.stories)[0]].extras.lastSessionAt = new Date().toISOString();
+    await manager.selectStory(Object.keys(metadata.stories)[0], "hydrate");
+    expect(mockPopupCloses.count).toBe(before);
+  });
+
   it("strips channel noise from persisted memory prose on hydrate", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(gatedStory));
@@ -1224,5 +1313,245 @@ describe("RuntimeManager checkpoint world info", () => {
     await manager.rollbackFromMessage(1);
     expect(manager.getSnapshot().activeCheckpointId).toBe("start");
     expect(mockLorebooks.Shared).toMatchObject({ "A start": true, "A next": false });
+  });
+});
+
+// v2.3 plan 03: the manager is what supplies ownership to every coordinator, so the identity it
+// reports has to move when the world moves. The coordinator-level contract (R1) proves the check;
+// these prove the manager feeds it the truth.
+describe("RuntimeManager run ownership", () => {
+  beforeEach(() => resetHost());
+
+  it("reports the chat and story in-flight work belongs to", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(story));
+    (mockContext as { chatId?: string }).chatId = 'chat-a';
+    const context = manager.getRunContext();
+    expect(context.chatId).toBe('chat-a');
+    // The identity in-flight work is checked against must be the story this chat actually plays,
+    // so it has to agree with the snapshot the UI reads.
+    expect(context.storyId).toBe(manager.getSnapshot().storyId);
+    expect(context.storyId).not.toBeNull();
+
+    // Opening another chat changes what in-flight work is checked against, which is the whole
+    // point: two chats at the same message index used to compare equal.
+    (mockContext as { chatId?: string }).chatId = 'chat-b';
+    expect(manager.getRunContext().chatId).toBe('chat-b');
+  });
+
+  it("bumps the epoch when the story is cleared, so work from before it is stale", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(story));
+    const before = manager.getRunContext().sessionEpoch;
+    selectNothing();
+    await manager.loadSelectedFromChat();
+    expect(manager.getRunContext().sessionEpoch).toBeGreaterThan(before);
+    expect(manager.getRunContext().storyId).toBeNull();
+  });
+
+  it("bumps the epoch on a story load", async () => {
+    const manager = new RuntimeManager();
+    const before = manager.getRunContext().sessionEpoch;
+    await manager.importStory(JSON.stringify(story));
+    expect(manager.getRunContext().sessionEpoch).toBeGreaterThan(before);
+  });
+
+  it("records WHERE the transcript was edited, not just that it was", async () => {
+    // A read over [0, 7] must survive a reply appended at 9 and die on an edit at 5, so the
+    // position is what matters — a bare counter cannot tell those apart.
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(story));
+    expect(manager.getRunContext().lowestMutatedMessageId).toBeNull();
+
+    await manager.rollbackFromMessage(9);
+    expect(manager.getRunContext().lowestMutatedMessageId).toBe(9);
+    const afterFirst = manager.getRunContext().windowRevision;
+
+    await manager.rollbackFromMessage(5);
+    expect(manager.getRunContext().lowestMutatedMessageId).toBe(5);
+    expect(manager.getRunContext().windowRevision).toBeGreaterThan(afterFirst);
+
+    // A later edit does not raise the low-water mark: the earliest damage is what bounds validity.
+    await manager.rollbackFromMessage(8);
+    expect(manager.getRunContext().lowestMutatedMessageId).toBe(5);
+  });
+
+  it("clears the mutation low-water mark when the epoch moves", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(story));
+    await manager.rollbackFromMessage(3);
+    expect(manager.getRunContext().lowestMutatedMessageId).toBe(3);
+    selectNothing();
+    await manager.loadSelectedFromChat();
+    expect(manager.getRunContext().lowestMutatedMessageId).toBeNull();
+    expect(manager.getRunContext().windowRevision).toBe(0);
+  });
+});
+
+type AsyncBoundaryProbe = {
+  effects: {
+    applyCheckpoint: jest.Mock<Promise<undefined>>;
+    announceTransition: jest.Mock<Promise<undefined>>;
+    fireNpcReplies: jest.Mock<Promise<undefined>>;
+  };
+  stagecraft: { applyAccepted: jest.Mock<Promise<undefined>> };
+  pacing: {
+    applyCommitted: jest.Mock<void>;
+    clearPending: jest.Mock<void>;
+    updateSteering: jest.Mock<void>;
+  };
+  expansion: { revalidateInserted: jest.Mock<void> };
+  memory: {
+    enqueueArcBridges: jest.Mock<unknown[]>;
+    markBridgesApplied: jest.Mock<void>;
+    updateInjection: jest.Mock<void>;
+  };
+  engine: { commitBoundary: jest.Mock };
+  persist: jest.Mock<Promise<undefined>>;
+};
+
+function asyncGate() {
+  let finish!: (value: undefined) => void;
+  const promise = new Promise<undefined>((done) => { finish = done; });
+  return { promise, resolve: () => finish(undefined) };
+}
+
+async function settleAsync() {
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+}
+
+async function boundaryHarness() {
+  const manager = new RuntimeManager();
+  await manager.importStory(JSON.stringify(story));
+  const probe = manager as unknown as AsyncBoundaryProbe;
+  const result = { fired: true, activeCheckpointId: "start", effects: {} };
+  probe.effects.applyCheckpoint = jest.fn(async () => undefined);
+  probe.effects.announceTransition = jest.fn(async () => undefined);
+  probe.effects.fireNpcReplies = jest.fn(async () => undefined);
+  probe.stagecraft.applyAccepted = jest.fn(async () => undefined);
+  probe.pacing.applyCommitted = jest.fn();
+  probe.pacing.clearPending = jest.fn();
+  probe.pacing.updateSteering = jest.fn();
+  probe.expansion.revalidateInserted = jest.fn();
+  probe.memory.enqueueArcBridges = jest.fn(() => []);
+  probe.memory.markBridgesApplied = jest.fn();
+  probe.memory.updateInjection = jest.fn();
+  probe.engine.commitBoundary = jest.fn(() => result);
+  probe.persist = jest.fn(async () => undefined);
+  const notify = jest.spyOn(manager, "notify").mockImplementation(() => undefined);
+  const boundary = jest.fn();
+  manager.onBoundary(boundary);
+  return { manager, probe, result, notify, boundary };
+}
+
+describe("RuntimeManager async boundary ownership", () => {
+  beforeEach(() => resetHost());
+
+  control("afterSpeak persists and notifies when its world stays current", async () => {
+    const h = await boundaryHarness();
+    const gate = asyncGate();
+    h.probe.effects.fireNpcReplies.mockImplementationOnce(() => gate.promise);
+
+    const pending = h.manager.fireAfterSpeak();
+    gate.resolve();
+    await pending;
+
+    expect(h.probe.persist).toHaveBeenCalledTimes(1);
+    expect(h.notify).toHaveBeenCalledTimes(1);
+  });
+
+  control("afterSpeak writes nothing after its world lapses", async () => {
+    const h = await boundaryHarness();
+    const gate = asyncGate();
+    h.probe.effects.fireNpcReplies.mockImplementationOnce(() => gate.promise);
+
+    const pending = h.manager.fireAfterSpeak();
+    h.manager.invalidateRuns();
+    gate.resolve();
+    await pending;
+
+    expect(h.probe.persist).not.toHaveBeenCalled();
+    expect(h.notify).not.toHaveBeenCalled();
+  });
+
+  control("a same-world boundary reaches every post-await write", async () => {
+    const h = await boundaryHarness();
+
+    expect(await h.manager.commitBoundary()).toBe(h.result);
+    expect(h.probe.effects.applyCheckpoint).toHaveBeenCalledTimes(1);
+    expect(h.probe.stagecraft.applyAccepted).toHaveBeenCalledTimes(1);
+    expect(h.probe.pacing.applyCommitted).toHaveBeenCalledTimes(1);
+    expect(h.probe.memory.updateInjection).toHaveBeenCalledTimes(1);
+    expect(h.probe.persist).toHaveBeenCalledTimes(1);
+    expect(h.probe.effects.announceTransition).toHaveBeenCalledTimes(1);
+    expect(h.boundary).toHaveBeenCalledTimes(1);
+    expect(h.notify).toHaveBeenCalledTimes(1);
+  });
+
+  control("a boundary that lapses during checkpoint effects stops before stagecraft", async () => {
+    const h = await boundaryHarness();
+    const gate = asyncGate();
+    h.probe.effects.applyCheckpoint.mockImplementationOnce(() => gate.promise);
+
+    const pending = h.manager.commitBoundary();
+    h.manager.invalidateRuns();
+    gate.resolve();
+    expect(await pending).toBeNull();
+
+    expect(h.probe.stagecraft.applyAccepted).not.toHaveBeenCalled();
+    expect(h.probe.persist).not.toHaveBeenCalled();
+    expect(h.notify).not.toHaveBeenCalled();
+  });
+
+  control("a boundary that lapses during stagecraft stops before runtime state writes", async () => {
+    const h = await boundaryHarness();
+    const gate = asyncGate();
+    h.probe.stagecraft.applyAccepted.mockImplementationOnce(() => gate.promise);
+
+    const pending = h.manager.commitBoundary();
+    await settleAsync();
+    expect(h.probe.stagecraft.applyAccepted).toHaveBeenCalledTimes(1);
+    h.manager.invalidateRuns();
+    gate.resolve();
+    expect(await pending).toBeNull();
+
+    expect(h.probe.pacing.applyCommitted).not.toHaveBeenCalled();
+    expect(h.probe.persist).not.toHaveBeenCalled();
+    expect(h.notify).not.toHaveBeenCalled();
+  });
+
+  control("a boundary that lapses during persistence stops before announcement", async () => {
+    const h = await boundaryHarness();
+    const gate = asyncGate();
+    h.probe.persist.mockImplementationOnce(() => gate.promise);
+
+    const pending = h.manager.commitBoundary();
+    await settleAsync();
+    expect(h.probe.persist).toHaveBeenCalledTimes(1);
+    h.manager.invalidateRuns();
+    gate.resolve();
+    expect(await pending).toBeNull();
+
+    expect(h.probe.effects.announceTransition).not.toHaveBeenCalled();
+    expect(h.boundary).not.toHaveBeenCalled();
+    expect(h.notify).not.toHaveBeenCalled();
+  });
+
+  control("a boundary that lapses during announcement stops before observers", async () => {
+    const h = await boundaryHarness();
+    const gate = asyncGate();
+    h.probe.effects.announceTransition.mockImplementationOnce(() => gate.promise);
+
+    const pending = h.manager.commitBoundary();
+    await settleAsync();
+    expect(h.probe.effects.announceTransition).toHaveBeenCalledTimes(1);
+    h.manager.invalidateRuns();
+    gate.resolve();
+    expect(await pending).toBeNull();
+
+    expect(h.boundary).not.toHaveBeenCalled();
+    expect(h.notify).not.toHaveBeenCalled();
   });
 });

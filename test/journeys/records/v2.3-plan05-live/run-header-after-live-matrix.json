@@ -1,0 +1,120 @@
+{
+  "label": "after-live-matrix",
+  "capturedAt": "2026-09-22T20:31:14.682Z",
+  "build": {
+    "head": "9561bac74d084e1b7db665f454d459f3f1e6af20",
+    "dirty": true,
+    "manifest": {
+      "version": null,
+      "commit": null,
+      "sourceSha256": null,
+      "bundleSha256": null,
+      "fileSha256": "0396a4b5069889bc"
+    }
+  },
+  "warnings": [],
+  "host": {
+    "stVersion": "1.19.0 (7c3994196)",
+    "mainApi": "textgenerationwebui",
+    "onlineStatus": "/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "macroEngine": "experimental"
+  },
+  "profiles": {
+    "selected": "Artemis RunPod RP [llamacpp]",
+    "extraction": "Story Orchestrator Memory RunPod [llamacpp]"
+  },
+  "judge": {
+    "pluginHttp": null,
+    "pluginConfigured": null,
+    "enabled": false,
+    "model": "jev-1.13.0",
+    "timeoutMs": 1500,
+    "uses": {
+      "director": false,
+      "memoryVerify": false,
+      "memoryPairs": false,
+      "sceneTrigger": false,
+      "sceneTracker": false,
+      "sceneOoc": false,
+      "lookahead": false,
+      "loreSelect": false,
+      "curatorFilter": false,
+      "memoryRerank": false,
+      "typedExtraction": false,
+      "stallCheck": false,
+      "expansionCritic": false,
+      "expansionLookahead": false
+    },
+    "expansion": {
+      "variants": 1,
+      "temperature": 0.7,
+      "pick": "code"
+    }
+  },
+  "stagecraft": {
+    "curatorEnabled": true,
+    "acceptMode": "auto",
+    "wardenEnabled": false,
+    "wardenAcceptMode": "review"
+  },
+  "extraction": {
+    "enabled": true,
+    "cadence": 1,
+    "stabilityLag": 0,
+    "reconciliationMultiplier": 1.5,
+    "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+  },
+  "display": {
+    "announceTransitions": true,
+    "hudEnabled": true,
+    "talkEnabled": true
+  },
+  "chat": {
+    "groupId": "1759606632088",
+    "chatId": "2026-09-21@15h49m05s268ms",
+    "chatLength": 0,
+    "authorView": false
+  },
+  "story": {
+    "id": null,
+    "title": null,
+    "playedVersion": null,
+    "contentHash": null,
+    "activeCheckpointId": null,
+    "boundary": null
+  },
+  "group": {
+    "name": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin.png",
+      "DM Narrator.png",
+      "Luke.png",
+      "Ponticius.png"
+    ],
+    "disabledMembers": []
+  },
+  "inventory": {
+    "v2Stories": [
+      "adolion-academy@11",
+      "adolion-adventurer@9",
+      "so-j9-fixme@1",
+      "so-j9-wizard@1",
+      "sun-ruins@2"
+    ],
+    "wizardSessions": [
+      "0",
+      "1",
+      "2"
+    ],
+    "debugGlobals": [],
+    "lorebooksSelected": [
+      "Adolion - Aegis City Noble Life",
+      "Adolion Academy Checkpoints",
+      "Adolion Adventurer Checkpoints",
+      "Adolion Chronicle",
+      "Adolion World"
+    ],
+    "lorebookCount": 38,
+    "characterCount": 25
+  }
+}

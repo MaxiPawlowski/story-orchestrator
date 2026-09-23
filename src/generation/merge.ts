@@ -12,7 +12,7 @@ export function mergeExpansions(rawStory: unknown, entries: Record<string, Expan
   const raw = clone(rawStory) as StoryV2;
   const checkpoints = [...raw.checkpoints];
   const transitions = [...raw.transitions];
-  Object.values(entries).filter((entry) => ["cached", "needs_review", "inserted"].includes(entry.status) && entry.beats.length).forEach((entry) => {
+  Object.values(entries).filter((entry) => ["cached", "needs_review", "validated", "inserted"].includes(entry.status) && entry.beats.length).forEach((entry) => {
     const sourceTransition = transitions.find((transition) => transition.from === entry.sourceCheckpointId && transition.to === entry.stubId);
     if (!sourceTransition) return;
     const target = raw.checkpoints.find((checkpoint) => checkpoint.id === entry.targetAnchorId);
@@ -32,21 +32,30 @@ export function mergeExpansions(rawStory: unknown, entries: Record<string, Expan
       });
     });
     transitions.push({ ...sourceTransition, to: generatedId(entry, 0), priority: sourceTransition.priority + 0.001 });
-    const chainSum = entry.beats.reduce((sum, beat, index) => index < entry.beats.length - 1 ? sum + (beat.outcomes[0]?.progress?.amount ?? 0) : sum, 0);
-    const threshold = chainThresholdFor(target, chainSum);
+    // v2.3 plan 07 (R9). The threshold is what the WORST route through this chain can accumulate: a
+    // player who takes an outcome carrying less progress must still be able to enter the anchor, or
+    // the omitted route stalls, which is the defect. Taking outcome[0]'s amount made the threshold
+    // whatever the first outcome happened to carry.
+    const worstPerBeat = entry.beats.slice(0, -1).map((beat) => Math.min(...beat.outcomes.map((outcome) => outcome.progress?.amount ?? 0)));
+    const threshold = chainThresholdFor(target, worstPerBeat.reduce((sum, amount) => sum + amount, 0));
     entry.beats.forEach((beat, index) => {
-      const outcome = beat.outcomes[0];
-      if (!outcome) return;
       const from = generatedId(entry, index);
       const isFinal = index === entry.beats.length - 1;
-      const transition: Transition = {
-        from,
-        to: isFinal ? entry.targetAnchorId : generatedId(entry, index + 1),
-        priority: 1,
-        gate: isFinal ? allGate(outcome.gate, { q: progressQualityForAnchor(entry.targetAnchorId), op: ">=", v: threshold }) : outcome.gate,
-      };
-      if (!isFinal && outcome.progress) transition.effects = { progress: outcome.progress };
-      transitions.push(transition);
+      // One transition per outcome, priority = declaration order. The engine sorts outgoing
+      // transitions by priority DESCENDING and takes the first whose gate holds, so the FIRST
+      // declared outcome has to carry the HIGHEST number or declaration order would be reversed.
+      // The deterministic tie rule is declaration order and then the outcome id, which is the index.
+      const declared = beat.outcomes.length;
+      beat.outcomes.forEach((outcome, outcomeIndex) => {
+        const transition: Transition = {
+          from,
+          to: isFinal ? entry.targetAnchorId : generatedId(entry, index + 1),
+          priority: declared - outcomeIndex,
+          gate: isFinal ? allGate(outcome.gate, { q: progressQualityForAnchor(entry.targetAnchorId), op: ">=", v: threshold }) : outcome.gate,
+        };
+        if (!isFinal && outcome.progress) transition.effects = { progress: outcome.progress };
+        transitions.push(transition);
+      });
     });
   });
   const parsed = parseStoryV2({ ...raw, checkpoints, transitions });
@@ -61,6 +70,8 @@ export function insertedCheckpointIds(entry: ExpansionCacheEntry): string[] {
 export function collectExpansionGateSources(entries: Record<string, ExpansionCacheEntry>): ExtraGateSource[] {
   const sources: ExtraGateSource[] = [];
   Object.values(entries).forEach((entry) => {
+    // `validated` is merged (above) exactly like `inserted`, so its gates are already in the played
+    // graph and are not extra sources. The list matches the pre-plan-07 one.
     if (!["cached", "needs_review"].includes(entry.status)) return;
     entry.beats.forEach((beat) => {
       beat.outcomes.forEach((outcome) => {

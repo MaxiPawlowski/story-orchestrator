@@ -98,7 +98,7 @@ arrive. The operator records scores in the plan's Gate record.
 
 | Id | Title | Objective | Auto | Human | Notes |
 |---|---|---|---|---|---|
-| J0 | runner-selftest | The runner itself: fresh-start, pass/blocked/skipped, cleanup | 3 | 1 | No LLM. Run it whenever the harness changes |
+| J0 | runner-selftest | The runner itself: fresh-start, pass/blocked/skipped, cleanup | 4 | 1 | No LLM. Run it whenever the harness changes. J0.3 must report `blocked` (a capability this build lacks — its steps never run) and J0.5 `fail` (a step that fails on purpose), which is how "could not run" and "ran and was wrong" are shown to be distinct; J0.4 is a placeholder human row proving the checklist emits and reports `skipped` |
 | J1 | first-contact | Cleared install → install state → import example → configure → first real transition | 7 | 2 | Only journey that clears global config |
 | J2 | author-loop | Empty Studio → authored story → play → edit → continue, incl. an invalidating edit and its choice popup; author-view driver (Probe + Nudge) | 9 | 2 | Plan 05's gate journey |
 | J11 | judgment-backend | The judgment model (v2.2 plans 01–04, 06–07): plugin reachable with a key, off by default, deciding speaker direction when opted in, timeout fallback, own call ring, no key leak; memory lines verified before storing, judged consolidation; scene read (trigger, tracker block, rollback, union with the regex); lore-select (force, seam, disabled entries, dry/quiet, off); typed extraction and the stall check; expansion review, variants and prepare-ahead; curator focus | 26 | 0 | Needs the server plugin and `enableServerPlugins: true`; without it J11.1 fails with the reason and the rest block |
@@ -110,6 +110,7 @@ arrive. The operator records scores in the plan's Gate record.
 | J10 | identity-and-settings | Story identity, pinning, settings homes, migration, Restart | 9 | 2 | Plan 02's gate journey; plan 08 added J10.11, the migration over a real captured blob |
 | J9 | wizard | Premise → interview → staged proposals → provisioned ST assets → playable story | 5 | 2 | Plan 06's gate journey. **Writes real ST assets** — every one is marked `SO-J9` and deleted in cleanup |
 | J8 | stagecraft | Background effect + the World Info curator: propose off-path, review, apply at a boundary, journal it, touch nothing else; continuity warden notes (auto, review lapse, off) (v2.2 plan 05) | 6 | 1 | Plan 07's gate journey. **Writes a real lorebook** — marked `SO-J8` and deleted in cleanup |
+| J12 | unaided-schedule | The configuration every real install runs and no journey covered: the shipped default cadence, three real player turns, **no `runExtractionNow` and no `/cp`** — a read fires on its own with reason `cadence`, an accepted delta's evidence quotes the player's own words, and the checkpoint it opens applies its effects through the owned ledger (v2.3 plan 01 §G, the S13 seed; written 2026-09-22) | 5 | 0 | Runs on the **adventurer** story at cadence **3**. J12.1 refuses to run at any other cadence rather than redefining itself — this install currently reads 1, so J12 fails its own precondition here until that is set back to 3 |
 
 ## Checks
 
@@ -334,6 +335,30 @@ the install-wide flag is the only opt-in. The calibration half of the gate is se
 
 ```bash
 node scripts/debug/so-journey.mts run J11 --strict
+```
+
+### J12 unaided-schedule (v2.3 plan 01 §G, the S13 seed)
+
+Written 2026-09-22, because this was the configuration **every real install runs and no journey
+covered**: everything else either sets a cadence or reads on demand. The story is the **adventurer**
+one (`adolion-adventurer` v9, group `1789797226071`) at the **shipped default cadence 3**, and the
+journey never calls `runExtractionNow`, never issues `/cp` and never plants a debug response.
+
+| Id | Mode | Goal |
+|---|---|---|
+| J12.1 | auto | the shipped default cadence (3) is in effect, extraction is on, a profile is set, and the audit ring is **empty** — so the read J12.3 observes cannot be a leftover |
+| J12.2 | auto | the story is selected and its requirements are green; the failure names the missing lorebooks/members (the v2.3 plan 04 guard: an unestablished lorebook makes gated latches silent no-ops and surfaces 300 s later as a checkpoint that never arrives) |
+| J12.3 | auto | three real turns produce a read with **no help** — reason `cadence` — and its window reaches the player's latest message, with ≥1 delta accepted |
+| J12.4 | auto | an accepted delta's **evidence quotes the player's own words** from inside the read's window: asserted as the property (some distinctive token shared) with the evidence reported, never as a fixed string |
+| J12.5 | auto | the checkpoint the read opened applied its effects — an owned ledger row per effect with status `applied`, the guild-hall `author_note` among them — and the transition fires. **This is the leg the model decides**, so it is its own check: J12.3/J12.4 remain the schedule's evidence |
+
+J12.1 refuses to run at any other cadence rather than redefining itself. This install reads cadence
+**1** (measured 3 on 09-20 and 09-21 10:17, 1 from 09-21 22:27 on, from the run headers in `.debug/`),
+so J12 currently fails its own precondition here — set it to 3 in the panel, which is also the
+shipped default.
+
+```bash
+node scripts/debug/so-journey.mts run J12 --strict
 ```
 
 ## Spoiler checklist (player mode) — v2 (plan 04)

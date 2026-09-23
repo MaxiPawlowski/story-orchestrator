@@ -1,0 +1,305 @@
+{
+  "id": "J9",
+  "title": "wizard",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j9-wizard.journey.json",
+  "ranAt": "2026-09-21T19:08:09.092Z",
+  "strict": false,
+  "partial": false,
+  "only": null,
+  "tally": {
+    "pass": 4,
+    "fail": 1,
+    "skipped": 2
+  },
+  "tallies": {
+    "automated": {
+      "pass": 4,
+      "fail": 1,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 2
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 4,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [
+    "1 automated check(s) failed"
+  ],
+  "humanRecord": null,
+  "runnerError": null,
+  "capabilities": {
+    "wizard-interview": true,
+    "wizard-entry-points": true,
+    "wizard-provisioning": true
+  },
+  "results": [
+    {
+      "id": "J9.1",
+      "mode": "auto",
+      "findings": [
+        "D3",
+        "U6"
+      ],
+      "goal": "the wizard interviews before proposing, and 'You decide' always proceeds to a proposal",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J9.2",
+      "mode": "auto",
+      "findings": [
+        "D3"
+      ],
+      "goal": "create-only is enforced in op validation, not trusted to the prompt",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J9.3",
+      "mode": "auto",
+      "findings": [
+        "D3"
+      ],
+      "goal": "each provisioning step is reviewed and applied on its own, and is excluded from bulk accept",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J9.4",
+      "mode": "auto",
+      "findings": [
+        "U6"
+      ],
+      "goal": "'Fix with wizard' from the requirements panel opens the provisioning step pre-filled with what is missing",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J9.5",
+      "mode": "auto",
+      "findings": [
+        "D3",
+        "U6"
+      ],
+      "goal": "the provisioned story is playable: requirements go green and a real transition fires",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Timed out waiting for {\"checkpoint\":\"bridge\",\"timeoutMs\":60000}. Last state: {\"chatId\":\"2026-09-21@16h05m11s183ms\",\"activeCheckpoint\":\"wharf\",\"boundary\":2,\"blackboard\":{\"reached_bridge\":false,\"tension_current\":0.25},\"latched\":{},\"auditCount\":3,\"expansion\":{\"entries\":{},\"scheduler\":{\"queueDepth\":0,\"inFlight\":false,\"lastError\":null}},\"requirementsReady\":true,\"npcFired\":{},\"tension\":{\"level\":\"stirring\",\"smoothed\":0.25,\"expected\":0,\"hint\":{\"direction\":\"hold\",\"text\":\"Pacing: hold the tension near calm — sustain the mood without spiking or releasing it.\"}},\"pacingPrompt\":{\"value\":\"Pacing: hold the tension near calm — sustain the mood without spiking or releasing it.\",\"position\":1,\"depth\":2,\"scan\":false,\"role\":0,\"filter\":null},\"lastAudit\":{\"accepted\":[\"reached_bridge\",\"tension_current\"],\"rejected\":[]},\"copilot\":{\"enabled\":true,\"activeNudge\":null,\"nudgeInjected\":false}}",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J9.6",
+      "mode": "human",
+      "findings": [
+        "D3"
+      ],
+      "goal": "",
+      "prompt": "Starting from a one-line premise, did the wizard get you to a story you actually wanted to play?",
+      "anchors": "1 = fought it · 3 = usable after edits · 5 = better than what I would have written",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    },
+    {
+      "id": "J9.7",
+      "mode": "human",
+      "findings": [
+        "D3",
+        "U6"
+      ],
+      "goal": "",
+      "prompt": "When it offered to create characters, lore and a group in your SillyTavern, did you trust what it was about to do?",
+      "anchors": "1 = no idea what it would touch · 3 = clear but I had to read carefully · 5 = obvious what was created and what was left alone",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    }
+  ],
+  "cleanup": {
+    "judgeCalls": {
+      "count": 0,
+      "events": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    },
+    "assets": {
+      "marker": "SO-J9",
+      "found": {
+        "marker": "SO-J9",
+        "baseline": "2026-09-21T19:05:11.116Z",
+        "ledger": [
+          {
+            "name": "SO-J9 Lore",
+            "session": "so-j9-wizard",
+            "reason": "test-session"
+          },
+          {
+            "name": "SO-J9 Ferryman",
+            "session": "so-j9-wizard",
+            "reason": "test-session"
+          },
+          {
+            "name": "SO-J9 Crossing",
+            "session": "so-j9-wizard",
+            "reason": "test-session"
+          }
+        ],
+        "sessions": [
+          "so-j9-wizard"
+        ],
+        "characters": [
+          {
+            "name": "SO-J9 Ferryman",
+            "avatar": "SO-J9 Ferryman.png"
+          }
+        ],
+        "groups": [
+          {
+            "id": "1790017584343",
+            "name": "SO-J9 Crossing"
+          }
+        ],
+        "lorebooks": [
+          "SO-J9 Lore",
+          "Story Orchestrator - SO-J9 Courier Run - 2026-09-21@16h05m11s183ms"
+        ],
+        "protected": []
+      },
+      "removed": {
+        "characters": [
+          "SO-J9 Ferryman"
+        ],
+        "groups": [
+          "SO-J9 Crossing"
+        ],
+        "lorebooks": [
+          "SO-J9 Lore",
+          "Story Orchestrator - SO-J9 Courier Run - 2026-09-21@16h05m11s183ms"
+        ],
+        "errors": [],
+        "deselected": [
+          "SO-J9 Lore",
+          "Story Orchestrator - SO-J9 Courier Run - 2026-09-21@16h05m11s183ms"
+        ],
+        "sessions": {
+          "kept": [
+            "untitled-story"
+          ],
+          "dropped": [
+            "so-j9-wizard"
+          ]
+        }
+      },
+      "leaked": {
+        "marker": "SO-J9",
+        "baseline": "2026-09-21T19:05:11.116Z",
+        "ledger": [
+          {
+            "name": "SO-J9 Lore",
+            "session": "so-j9-wizard",
+            "reason": "test-session"
+          },
+          {
+            "name": "SO-J9 Ferryman",
+            "session": "so-j9-wizard",
+            "reason": "test-session"
+          },
+          {
+            "name": "SO-J9 Crossing",
+            "session": "so-j9-wizard",
+            "reason": "test-session"
+          }
+        ],
+        "sessions": [],
+        "characters": [],
+        "groups": [],
+        "lorebooks": [],
+        "protected": []
+      },
+      "clean": true
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions"
+      ],
+      "preservedStories": []
+    },
+    "keptPreExistingStories": [
+      "v2-053e9295",
+      "v2-8e85086b",
+      "v2-053e9295"
+    ],
+    "chat": {
+      "sandboxChatId": "2026-09-21@16h05m11s183ms",
+      "owned": [
+        "2026-09-21@16h05m11s183ms"
+      ],
+      "deleted": [
+        "2026-09-21@16h05m11s183ms"
+      ],
+      "notDeleted": [],
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-21@16h05m11s183ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-21@15h49m05s268ms"
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "member:DM Narrator": {
+      "enabled": true
+    },
+    "member:Arin": {
+      "enabled": true
+    },
+    "member:Ponticius": {
+      "enabled": true
+    },
+    "member:Luke": {
+      "enabled": true
+    },
+    "disabledMembers": []
+  }
+}

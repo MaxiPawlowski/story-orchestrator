@@ -13,7 +13,11 @@ const fakeContext = {
 
 const sendSystemChatMessage = jest.fn(() => true);
 
-jest.mock("@services/STAPI", () => ({ getContext: () => fakeContext, sendSystemChatMessage: (text: string) => sendSystemChatMessage(text) }));
+jest.mock("@services/STAPI", () => ({
+  settingsAreLoaded: () => true,
+  settingsReady: async () => {},
+  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
+  readBackBoundary: () => null, getContext: () => fakeContext, sendSystemChatMessage: (text: string) => sendSystemChatMessage(text) }));
 
 import { registerSlashCommands } from "./slashCommands";
 import type { RuntimeManager } from "./runtimeManager";

@@ -7,7 +7,11 @@ import { callExtractionModel } from "@extraction/index";
 import { generateReviewedBeats } from "./generate";
 import { findStubExpansionCandidate, planExpansion } from "./planner";
 
-jest.mock("@services/STAPI", () => ({ sendConnectionProfileRequest: jest.fn() }));
+jest.mock("@services/STAPI", () => ({
+  settingsAreLoaded: () => true,
+  settingsReady: async () => {},
+  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
+  readBackBoundary: () => null, sendConnectionProfileRequest: jest.fn() }));
 
 const send = sendConnectionProfileRequest as unknown as jest.Mock;
 const root = join(__dirname, "..", "..");

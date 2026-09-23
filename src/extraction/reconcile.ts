@@ -86,3 +86,12 @@ export function maybeScheduleReconciliation(story: NormalizedStoryV2 | null, sta
   scheduler.schedule({ priority: 0, reason: plan.reason, window: plan.window });
   return plan.descriptor;
 }
+
+// v2.3 plan 02 (R6). A read scheduled for a reconciliation carries the keys it was created for in
+// its reason, so the log can resolve the request the answer actually belongs to: the first
+// *unresolved* event is a different set of keys as soon as two stalls overlap.
+export const reconciliationTargets = (reason: string): string[] =>
+  reason.startsWith("reconcile:") ? reason.slice("reconcile:".length).split(",").filter(Boolean) : [];
+
+/** `planReconciliation` lists the same leaves in the same order, but identity here is the set. */
+export const reconciliationKeySet = (keys: string[]): string => [...keys].sort().join("\u0000");

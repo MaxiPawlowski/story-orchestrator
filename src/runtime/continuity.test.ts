@@ -1,5 +1,15 @@
+jest.mock("@services/STAPI", () => ({
+  settingsAreLoaded: () => true,
+  settingsReady: async () => {},
+  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
+  readBackBoundary: () => null,
+  setStoryExtensionPrompt: () => {},
+  clearStoryExtensionPrompt: () => {},
+}));
+
 import { defaultJudgeSettings, type JudgeRequest, type JudgeSettings } from "@judge/index";
-import type { LedgerView, MemoryEntry } from "@memory/index";
+import type { ConflictPair, LedgerView, MemoryEntry } from "@memory/index";
+import { provenance } from "@memory/provenance";
 import { createContinuityCheck, establishedFacts } from "./continuity";
 import { JudgeRuntime } from "./judge";
 
@@ -18,7 +28,20 @@ describe("established facts (v2.2 plan 05)", () => {
       fact("f", "The rain stopped.", { tier: "short_term" }),
     ];
     const ledger = [{ entity: "Mira", field: "hp", value: "3", bound: true, turn: 1 }, { entity: "Arin", field: "mood", value: "grim", bound: false, turn: 1 }] as LedgerView[];
-    expect(establishedFacts(entries, ledger)).toEqual(["Mira hp = 3", "Arin swore an oath.", "Mira holds the key.", "The bridge fell."]);
+    expect(establishedFacts(entries, ledger).map((row) => row.text)).toEqual(["Mira hp = 3", "Arin swore an oath.", "Mira holds the key.", "The bridge fell."]);
+  });
+
+  // v2.3 plan 05: the warden's fact list travels as RECORDS, so the card the author reviews can say
+  // where a claim came from instead of asserting a sentence with no owner.
+  it("carries each fact's own id and provenance, and names a store that disagrees", () => {
+    const entries = [fact("b", "Mira holds the key.", { importance: 3, messageId: 4, provenance: provenance({ source: "extractor", messageId: 4, boundary: 2, pass: "shared-read" }) })];
+    const bound = { "Mira|hp": provenance({ source: "blackboard", messageId: -1, boundary: 0, pass: "blackboard", inputs: [{ store: "blackboard", id: "miraHp" }] }) };
+    const conflicts = [{ key: "bound:mira|hp", detectedAt: "t", window: null, sides: [{ store: "ledger", id: "bound:Mira:hp", label: "Mira hp = 5 (blackboard)" }, { store: "memory", id: "b", label: "Mira holds the key." }] }] as ConflictPair[];
+    const facts = establishedFacts(entries, [{ entity: "Mira", field: "hp", value: "3", bound: true, turn: 1 }] as LedgerView[], bound, conflicts);
+    expect(facts.map((row) => row.id)).toEqual(["bound:Mira:hp", "b"]);
+    expect(facts[0].provenance?.source).toBe("blackboard");
+    expect(facts[1].provenance).toMatchObject({ source: "extractor", messageId: 4, pass: "shared-read" });
+    expect(facts[1].conflictingValue).toBe("Mira hp = 5 (blackboard)");
   });
 });
 

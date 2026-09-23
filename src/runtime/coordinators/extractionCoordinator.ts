@@ -1,6 +1,6 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
-import { callExtractionModel, deriveFullScope, deriveScope, getChatWindow, getLastMessageText, runSharedRead, stripChannelNoise, type ExtraGateSource, type ParsedDelta, type ParsedFact, type ReconciliationPlan, type SharedReadAudit } from "@extraction/index";
-import { buildEpistemicPassPrompt, buildLedgerPassPrompt, buildSceneSummaryPrompt, buildShortTermSummaryPrompt, detectSceneBreakHeuristic, generateMemoryId, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, type ArcEntry, type MemoryEntry, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine } from "@memory/index";
+import { callExtractionModel, deriveFullScope, deriveScope, getChatWindow, getLastMessageText, reconciliationKeySet, reconciliationTargets, runSharedRead, stripChannelNoise, type ExtraGateSource, type ParsedDelta, type ParsedFact, type ReconciliationPlan, type SharedReadAudit } from "@extraction/index";
+import { buildEpistemicPassPrompt, buildLedgerPassPrompt, buildSceneSummaryPrompt, buildShortTermSummaryPrompt, detectSceneBreakHeuristic, generateMemoryId, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, provenance, type ArcEntry, type MemoryEntry, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine } from "@memory/index";
 import { getActiveGroup, getContext } from "@services/STAPI";
 import { SHORT_TERM_COMPACTION_MESSAGES } from "@constants/defaults";
 import { enabledCharacterNames } from "../roster";
@@ -8,6 +8,7 @@ import type { MemoryCoordinator } from "./memoryCoordinator";
 import { JUDGED_READ_LIMIT, type ExtractionRuntimeSettings, type ExtractionRuntimeState, type JudgedReadRecord, type VerifyDrop } from "../types";
 import { createTypedJudge } from "../typedRead";
 import type { JudgeRuntime } from "../judge";
+import { beginRun, type RunOwnership } from "../runToken";
 import { buildStallRequest, buildVerifyRequest, readVerify, stallVerdict, STALL_TIMEOUT_MS, verifyVerdict, VERIFY_MAX_LINES_PER_CALL, VERIFY_TIMEOUT_MS } from "@judge/index";
 
 export const TYPED_READ_WINDOW = 3;
@@ -35,6 +36,9 @@ export interface ExtractionCoordinatorDeps {
   judge?: () => JudgeRuntime | null;
   persist: () => Promise<void>;
   notify: () => void;
+  // v2.3 plan 03. Optional so the conversion can land one coordinator at a time: an unwired
+  // caller never lapses, and the write-edge census is what tracks real coverage.
+  ownership?: RunOwnership;
 }
 
 // Owns extras.extraction and every off-path read: the shared-read audit pipeline, the
@@ -52,6 +56,12 @@ export class ExtractionCoordinator {
   private async save() {
     await this.deps.persist();
     this.deps.notify();
+  }
+
+  // v2.3 plan 05: every row this pass writes says where it came from, so a consumer can tell a
+  // live claim from one whose source message has since been edited away.
+  private provenanceFor(window: { to: number }, pass = "shared-read") {
+    return provenance({ source: "extractor", messageId: window.to, boundary: this.deps.getState()?.boundary ?? 0, pass });
   }
 
   private newEntry(fields: Pick<MemoryEntry, "tier" | "text" | "type" | "importance" | "expiration" | "entities" | "evidence"> & Partial<MemoryEntry>): MemoryEntry {
@@ -73,17 +83,19 @@ export class ExtractionCoordinator {
   }
 
   private resolveReconciliation(audit: SharedReadAudit) {
-    this.markReconciliation(audit.acceptedDeltas.map((entry) => `${entry.delta.q}=${String(entry.delta.v)} (${entry.evidence})`), true);
+    this.markReconciliation(reconciliationTargets(audit.reason), audit.acceptedDeltas.map((entry) => `${entry.delta.q}=${String(entry.delta.v)} (${entry.evidence})`), true);
   }
 
-  private markReconciliation(evidence: string[], resolve: boolean) {
+  // v2.3 plan 02 (R6). A read resolves the request it was scheduled for, matched on its targeted
+  // keys. Resolving the first *unresolved* event let an ordinary cadence read close a stall it was
+  // never about — and left the request that did produce the answer open, which is the stall signal
+  // the player sees. No match means no resolution.
+  private markReconciliation(targetedKeys: string[], evidence: string[], resolve: boolean) {
     const events = [...this.state.reconciliationEvents];
-    for (let index = 0; index < events.length; index += 1) {
-      if (events[index].resolvedAt === null) {
-        events[index] = { ...events[index], ...(resolve ? { resolvedAt: new Date().toISOString() } : {}), evidence: [...events[index].evidence, ...evidence] };
-        break;
-      }
-    }
+    const wanted = reconciliationKeySet(targetedKeys);
+    const index = events.findIndex((event) => event.resolvedAt === null && reconciliationKeySet(event.targetedKeys) === wanted);
+    if (index < 0) return;
+    events[index] = { ...events[index], ...(resolve ? { resolvedAt: new Date().toISOString() } : {}), evidence: [...events[index].evidence, ...evidence] };
     this.state.reconciliationEvents = events;
   }
 
@@ -112,8 +124,10 @@ export class ExtractionCoordinator {
     const hinted = deriveScope(story, state.activeCheckpointId, state.blackboard, this.deps.getExpansionGateSources()).filter((entry) => entry.quality.read_as && entry.quality.source === "extractor");
     if (!hinted.length) return;
     const window = getChatWindow(Math.max(0, messageId - TYPED_READ_WINDOW + 1), messageId);
+    // C1, the "typed" surface: a judged read whose deltas go into the blackboard apply queue.
+    const typedRun = beginRun(this.deps.ownership, { from: window.from, to: window.to });
     const read = await createTypedJudge(() => this.deps.judge?.() ?? null)({ story, state, qualities: hinted.map((entry) => entry.quality), window });
-    if (!read || this.deps.getState()?.lastMessageId !== state.lastMessageId || (getContext().chat?.length ?? 0) - 1 !== messageId) return;
+    if (!read || !typedRun.stillOwns() || this.deps.getState()?.lastMessageId !== state.lastMessageId || (getContext().chat?.length ?? 0) - 1 !== messageId) return;
     if (read.deltas.length) this.deps.enqueueExtractorDeltas(read.deltas, { from: window.from, to: window.to });
     this.recordJudgedRead({ at: new Date().toISOString(), boundary, kind: "typed", window: { from: window.from, to: window.to }, answered: read.answered, deltas: read.deltas.map((entry) => ({ q: entry.delta.q, v: entry.delta.v, confidence: entry.judge ?? 0 })), model: read.model, ...(read.fallback ? { fallback: read.fallback } : {}) });
     await this.save();
@@ -124,18 +138,22 @@ export class ExtractionCoordinator {
   private async runStallPrecheck(plan: ReconciliationPlan): Promise<boolean> {
     const judge = this.deps.judge?.() ?? null;
     if (!judge) return true;
+    // A stall verdict is a claim about the messages the plan was built from, and everything below
+    // it — the apply queue, the reconciliation log, the judged-read ring — belongs to that chat.
+    const run = beginRun(this.deps.ownership, { from: plan.window.from, to: plan.window.to });
     const window = plan.window.messages.map((message) => ({ id: message.index, speaker: message.speaker, text: message.text }));
     const result = await judge.ask("stall", buildStallRequest(plan.leaves, window), { timeoutMs: STALL_TIMEOUT_MS, summarize: (answers) => Object.fromEntries(plan.leaves.map((leaf, index) => [`${leaf.q}${leaf.op}${JSON.stringify(leaf.v)}`, (answers?.[`leaf:${index}`] as { noul?: number } | undefined)?.noul ?? "none"])) });
+    if (!run.stillOwns()) return false;
     const verdict = stallVerdict(result.answers, plan.leaves);
     const record = { at: new Date().toISOString(), boundary: plan.descriptor.boundary, kind: "stall" as const, window: { from: plan.window.from, to: plan.window.to }, answered: result.answers ? plan.leaves.map((leaf) => leaf.q) : [], model: result.model, ...(result.fallback ? { fallback: result.fallback } : {}) };
     if (verdict.kind === "direct") {
       const deltas: ParsedDelta[] = verdict.deltas.map((entry) => ({ delta: { q: entry.q, v: entry.v, source: "extractor" }, evidence: `judge:reconcile p=${entry.p}`, judge: entry.p }));
       this.deps.enqueueExtractorDeltas(deltas, { from: plan.window.from, to: plan.window.to });
-      this.markReconciliation(verdict.deltas.map((entry) => `${entry.q}=${String(entry.v)} (judge:reconcile p=${entry.p})`), true);
+      this.markReconciliation(plan.descriptor.targetedKeys, verdict.deltas.map((entry) => `${entry.q}=${String(entry.v)} (judge:reconcile p=${entry.p})`), true);
       this.recordJudgedRead({ ...record, deltas: verdict.deltas.map((entry) => ({ q: entry.q, v: entry.v, confidence: entry.p })), note: "direct" });
     } else {
       this.recordJudgedRead({ ...record, deltas: [], note: verdict.kind === "genuine" ? `nothing shown (max p ${verdict.maxP})` : `re-read (max p ${verdict.maxP})` });
-      if (verdict.kind === "genuine") this.markReconciliation([`judge: nothing shown (max p ${verdict.maxP})`], false);
+      if (verdict.kind === "genuine") this.markReconciliation(plan.descriptor.targetedKeys, [`judge: nothing shown (max p ${verdict.maxP})`], false);
     }
     await this.save();
     return verdict.kind === "reread";
@@ -155,12 +173,23 @@ export class ExtractionCoordinator {
     this.deps.enqueueExtractorDeltas(audit.acceptedDeltas, audit.window);
     const memory = this.deps.memory;
     const newMemoryEntries: MemoryEntry[] = [
-      ...facts.map((fact) => this.newEntry({ tier: "facts", text: fact.text, type: "fact", importance: fact.importance, expiration: "permanent", entities: [], evidence: fact.evidence, messageId: audit.window.to })),
-      ...memoryLines.map((line) => this.newEntry({ tier: line.tier, text: line.text, type: line.type, importance: line.importance, expiration: line.expiration, entities: line.entities, evidence: line.evidence, characterId: line.characterId, messageId: audit.window.to })),
+      ...facts.map((fact) => this.newEntry({ provenance: this.provenanceFor(audit.window), tier: "facts", text: fact.text, type: "fact", importance: fact.importance, expiration: "permanent", entities: [], evidence: fact.evidence, messageId: audit.window.to })),
+      ...memoryLines.map((line) => this.newEntry({ provenance: this.provenanceFor(audit.window), tier: line.tier, text: line.text, type: line.type, importance: line.importance, expiration: line.expiration, entities: line.entities, evidence: line.evidence, characterId: line.characterId, messageId: audit.window.to })),
     ];
     const memoryEnabled = memory.enabled;
+    // The main extraction write path. `verifyEntries` is a judge pass, so it can be slow, and
+    // everything after it writes the read's conclusions into the memory tiers, the epistemic and
+    // ledger stores and the audit ring. A read of one chat's window landing in another chat would
+    // deposit the whole result there.
+    //
+    // The window matters as much as the chat: these entries are claims ABOUT the messages that
+    // were read, so an edit inside that span invalidates them, while a reply merely appended after
+    // it does not.
+    const run = beginRun(this.deps.ownership, { from: audit.window.from, to: audit.window.to });
     const verified = await this.verifyEntries(newMemoryEntries, audit.window);
+    if (!run.stillOwns()) return;
     await memory.applyEntries(verified.kept, audit.window);
+    if (!run.stillOwns()) return;
     memory.recordVerifyDrops(verified.dropped);
     const resolvedArcs = memoryEnabled && arcSignals.length ? memory.applyArcSignals(arcSignals, audit.window.to) : [];
     if (memory.capable && epistemicSignals.length) memory.applyEpistemic(epistemicSignals, audit.window.to);
@@ -200,16 +229,24 @@ export class ExtractionCoordinator {
     return { kept, dropped };
   }
 
-  async runNow(debugResponse?: string, reason = "manual") {
+  // `window` names a span the caller has a REASON to read again — the messages two conflicting claims
+  // came from. Without one a manual read means "read the transcript as it is now": the engine's state
+  // lags the chat by design (the boundary for a just-posted message lands on the next flush), and a
+  // read taken from that state had an EMPTY window, so the evidence rule rejected every delta it
+  // produced (found live 2026-09-21: three corpus scenarios read nothing and failed five steps later).
+  async runNow(debugResponse?: string, reason = "manual", window?: { from: number; to: number }) {
     const story = this.deps.getStory();
     const state = this.deps.getState();
     if (!story || !state) return false;
     const memory = this.deps.memory;
+    const chatLength = Array.isArray(getContext().chat) ? getContext().chat.length : 0;
+    const readState = chatLength - 1 > state.lastMessageId ? { ...state, lastMessageId: chatLength - 1, chatLength } : state;
     const result = await runSharedRead({
       story,
-      state,
+      state: readState,
       priority: 0,
       reason,
+      ...(window && window.from >= 0 ? { window: getChatWindow(window.from, window.to) } : {}),
       facts: memory.getFacts(),
       firedTransitions: this.deps.getFiredTransitions(),
       extraGateSources: this.deps.getExpansionGateSources(),
@@ -247,13 +284,18 @@ export class ExtractionCoordinator {
     const memory = this.deps.memory;
     if (!this.deps.getStory() || !audit.sceneBreak || !memory.enabled) return;
     const window = getChatWindow(audit.window.from, audit.window.to);
+    // The summary describes exactly this window, so an edit inside it makes the summary a
+    // description of messages that no longer exist. A reply appended after it is fine.
+    const run = beginRun(this.deps.ownership, { from: audit.window.from, to: audit.window.to });
     const sceneText = window.messages.map((message) => `${message.speaker}: ${message.text}`).join("\n") || "(empty)";
     const summary = await callExtractionModel(buildSceneSummaryPrompt(sceneText), {
       profileId: this.deps.getSettings().profileId,
       debugResponse: globalThis.storyOrchestratorDebugSceneSummaryResponse ?? null,
     });
-    const entry = this.newEntry({ tier: "scene_history", text: stripChannelNoise(summary), type: "scene", importance: 2, expiration: "permanent", entities: [], evidence: sceneText, messageId: audit.window.to });
+    if (!run.stillOwns()) return;
+    const entry = this.newEntry({ provenance: this.provenanceFor(audit.window), tier: "scene_history", text: stripChannelNoise(summary), type: "scene", importance: 2, expiration: "permanent", entities: [], evidence: sceneText, messageId: audit.window.to });
     const sceneOccurrence = await memory.addSceneSummary(entry, audit.window);
+    if (sceneOccurrence === null) return;
     memory.updateInjection();
     await this.deps.fireSceneBreakReplies(sceneOccurrence);
     await this.save();
@@ -275,13 +317,16 @@ export class ExtractionCoordinator {
     if (!recentText) return;
     const previous = memory.shortTermEntry();
     if (previous?.pinned) return;
+    // This one REPLACES the rolling short-term entry, so a stale result does not merely add noise
+    // — it overwrites the live summary with one describing another chat or an edited window.
+    const run = beginRun(this.deps.ownership, { from: window.from, to: window.to });
     const summary = stripChannelNoise(await callExtractionModel(buildShortTermSummaryPrompt(previous?.text ?? null, recentText), {
       profileId: this.deps.getSettings().profileId,
       debugResponse: globalThis.storyOrchestratorDebugShortTermResponse ?? null,
     }));
-    if (!summary) return;
-    const entry = this.newEntry({ tier: "short_term", text: summary, type: "scene", importance: 2, expiration: "session", entities: [], evidence: recentText, messageId: window.to });
-    await memory.replaceShortTerm(entry, window.to);
+    if (!summary || !run.stillOwns()) return;
+    const entry = this.newEntry({ provenance: this.provenanceFor(window, "short-term-compaction"), tier: "short_term", text: summary, type: "scene", importance: 2, expiration: "session", entities: [], evidence: recentText, messageId: window.to });
+    await memory.replaceShortTerm(entry, window);
     memory.updateInjection();
     await this.save();
   }
@@ -294,11 +339,16 @@ export class ExtractionCoordinator {
     const window = getChatWindow(audit.window.from, audit.window.to);
     const sceneText = window.messages.map((message) => `${message.speaker}: ${message.text}`).join("\n") || "(empty)";
 
+    // Two model calls and two stores, with a write in between: the epistemic signals are applied
+    // before the ledger prompt is even sent, so one check at the end would leave the first store
+    // written in a chat that had already been replaced.
+    const run = beginRun(this.deps.ownership, { from: audit.window.from, to: audit.window.to });
     const existing = memory.activeEpistemic();
     const epistemicResponse = await callExtractionModel(buildEpistemicPassPrompt(sceneText, enabledCharacterNames(story), existing.map((entry) => ({ tag: entry.tag, subject: entry.subject, content: entry.content, hiddenFrom: entry.hiddenFrom }))), {
       profileId: settings.profileId,
       debugResponse: globalThis.storyOrchestratorDebugEpistemicResponse ?? null,
     });
+    if (!run.stillOwns()) return false;
     const epistemicSignals: ParsedEpistemicSignal[] = [];
     const retireIndices = new Set<number>();
     for (const line of stripChannelNoise(epistemicResponse).split(/\r?\n/)) {
@@ -315,6 +365,7 @@ export class ExtractionCoordinator {
       profileId: settings.profileId,
       debugResponse: globalThis.storyOrchestratorDebugLedgerResponse ?? null,
     });
+    if (!run.stillOwns()) return false;
     const ledgerSignals: ParsedLedgerSignal[] = [];
     for (const line of stripChannelNoise(ledgerResponse).split(/\r?\n/)) ledgerSignals.push(...parseLedgerLine(line.trim()));
     memory.applyLedger(ledgerSignals, audit.window.to);

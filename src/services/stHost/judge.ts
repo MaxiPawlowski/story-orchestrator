@@ -1,6 +1,7 @@
 import type { JudgeRequest, JudgeResponse, JudgeTransport } from "@judge/index";
 import { getContext } from "./context";
 import { importSTModule } from "./modules";
+import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 
 export const JUDGE_PLUGIN_ID = "story-orchestrator-judge";
 export const JUDGE_PLUGIN_BASE = `/api/plugins/${JUDGE_PLUGIN_ID}`;
@@ -43,6 +44,11 @@ export async function judgeStatus(): Promise<JudgeStatus | null> {
 export const judgeTransport: JudgeTransport = async (request: JudgeRequest, options) => {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), options.timeoutMs);
+  // v2.3 plan 03: the caller's epoch signal aborts the same controller, so a story load, restart or
+  // chat change cancels the request in flight instead of paying for an answer nobody will use.
+  const onEpochAbort = () => controller.abort();
+  options.signal?.addEventListener("abort", onEpochAbort);
+  if (options.signal?.aborted) controller.abort();
   try {
     const response = await fetch(`${JUDGE_PLUGIN_BASE}/systemone`, {
       method: "POST",
@@ -54,12 +60,13 @@ export const judgeTransport: JudgeTransport = async (request: JudgeRequest, opti
     return await response.json() as JudgeResponse;
   } finally {
     clearTimeout(timer);
+    options.signal?.removeEventListener("abort", onEpochAbort);
   }
 };
 
-export async function writeJudgeSecret(value: string): Promise<boolean> {
+export async function writeJudgeSecret(value: string): Promise<WriteResult> {
   const trimmed = value.trim();
-  if (!trimmed) return false;
+  if (!trimmed) return couldNot("the key is empty");
   const secrets = await importSTModule<SecretsHostModule>("/scripts/secrets.js");
-  return Boolean(await secrets.writeSecret(JUDGE_SECRET_KEY, trimmed, "Story Orchestrator judge"));
+  return await secrets.writeSecret(JUDGE_SECRET_KEY, trimmed, "Story Orchestrator judge") ? wrote() : couldNot("SillyTavern refused to store the key");
 }

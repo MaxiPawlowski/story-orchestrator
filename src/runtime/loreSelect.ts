@@ -1,6 +1,8 @@
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { buildLoreRequests, loreCandidates, LORE_TIMEOUT_MS, pickLore, readLore, type LoreEntry, type LorePick } from "@judge/index";
 import type { HostScannableEntry } from "@services/STAPI";
+import type { WriteResult } from "@utils/writeResult";
 import type { JudgeRuntime } from "./judge";
 
 export type LoreTrigger = "MESSAGE_SENT" | "GENERATION_STARTED";
@@ -13,7 +15,9 @@ export interface LoreSelectDeps {
   getChatId: () => string | null;
   getLastMessageId: () => number;
   getEntries: () => Promise<HostScannableEntry[]>;
-  force: (entries: HostScannableEntry[]) => Promise<boolean>;
+  force: (entries: HostScannableEntry[]) => Promise<WriteResult<{ entries: number }>>;
+  // v2.3 plan 03 (C1, the "lore" surface). Optional: an unwired caller never lapses.
+  ownership?: RunOwnership;
 }
 
 export interface LoreSelection {
@@ -41,10 +45,18 @@ export class LoreSelector {
     const state = this.deps.getState();
     const scope = story?.lore_select;
     const checkpoint = story && state ? story.checkpointById[state.activeCheckpointId] : null;
-    if (!judge || !scope?.lorebooks.length || !checkpoint || !this.active()) return null;
-    const key = `${this.deps.getChatId() ?? ""}:${this.deps.getLastMessageId()}:${JSON.stringify(scope)}`;
+    if (!judge || !story || !scope?.lorebooks.length || !checkpoint || !this.active()) return null;
+    // The story is part of the key, not only the chat, the message and the scope: the cached entry
+    // holds ENTRIES PICKED for one story's checkpoint and window, and a chat that swapped to another
+    // story with the same lore scope used to match the departed story's cache and force its picks
+    // into the new story's next generation (v2.3 plan 11 §Fault matrix).
+    const key = `${this.deps.getChatId() ?? ""}:${story.id ?? ""}:${story.version}:${this.deps.getLastMessageId()}:${JSON.stringify(scope)}`;
+    // C1 names four surfaces and this is one of them. force() pushes entries into the NEXT
+    // generation, so a selection that outlives its chat seeds another chat prompt with this story
+    // lore. Minted before the cache check, because the cached path forces too.
+    const run = beginRun(this.deps.ownership);
     if (this.cache?.key === key) {
-      await this.deps.force(this.cache.entries);
+      if (!(await this.forced(this.cache.entries, run))) return null;
       return { trigger, cached: true, picks: this.cache.picks };
     }
     const scannable = await this.deps.getEntries();
@@ -65,7 +77,18 @@ export class LoreSelector {
     const entries = picked.flatMap((pick) => byKey.get(`${pick.entry.world}.${pick.entry.uid}`) ?? []);
     const picks = picked.map((pick) => ({ world: pick.entry.world, uid: pick.entry.uid, comment: pick.entry.comment, p: pick.p }));
     this.cache = { key, entries, picks };
-    if (entries.length) await this.deps.force(entries);
+    if (!(await this.forced(entries, run))) return null;
     return { trigger, cached: false, picks };
+  }
+
+  // v2.3 plan 11 §Fault matrix. The force is the only write on this path and its result used to be
+  // discarded, so a host that refused it still produced a selection the caller treated as applied —
+  // the prompt then carried ST's ordinary keyword scan and nothing said why. Nothing to force is
+  // not a failure; a refused force is, and this says so. The token check lives here rather than at
+  // the call sites because this is where the write is.
+  private async forced(entries: HostScannableEntry[], run: RunGuard): Promise<boolean> {
+    if (!run.stillOwns()) return false;
+    if (!entries.length) return true;
+    return (await this.deps.force(entries)).ok;
   }
 }

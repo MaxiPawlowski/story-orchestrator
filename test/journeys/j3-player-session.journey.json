@@ -265,6 +265,13 @@
           }
         },
         {
+          "wait": {
+            "memoryEntries": 1,
+            "memoryTier": "facts",
+            "timeoutMs": 180000
+          }
+        },
+        {
           "expect": {
             "memoryInjection": {
               "facts": true

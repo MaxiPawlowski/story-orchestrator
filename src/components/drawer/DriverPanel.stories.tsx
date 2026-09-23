@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { within, userEvent, expect, fn } from "@storybook/test";
 import type { DriverContext } from "@copilot/index";
+import { DEFAULT_AGENCY } from "@engine/index";
 import DriverPanel, { type DriverController } from "./DriverPanel";
 
 const context: DriverContext = {
@@ -77,5 +78,27 @@ export const NoStory: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByLabelText("Driver unavailable")).toBeInTheDocument();
+  },
+};
+
+// v2.3 plan 07 (C4): the policy in effect, shown where the author is standing. A player never sees
+// this panel, so the policy reads as plain prose here rather than through a gate.
+export const AgencyPolicyInEffect: Story = {
+  args: { controller: makeController(), agency: { ...DEFAULT_AGENCY, objective_kind: "player_action", alternate: "vault" } },
+  play: async ({ canvasElement }) => {
+    const policy = canvasElement.querySelector('[data-so="agency-policy"]');
+    await expect(policy?.textContent).toContain("Needs the player's own act");
+    await expect(policy?.textContent).toContain("never narrates the player");
+    await expect(policy?.textContent).toContain("alternate: vault");
+  },
+};
+
+export const AgencyPolicyAuthorOptedOut: Story = {
+  args: { controller: makeController(), agency: { protect_player_choice: false, never_narrate_player_action: false, objective_kind: "world_pressure" } },
+  play: async ({ canvasElement }) => {
+    const policy = canvasElement.querySelector('[data-so="agency-policy"]');
+    await expect(policy?.textContent).toContain("World pressure");
+    await expect(policy?.textContent).toContain("choices not protected");
+    await expect(policy?.textContent).not.toContain("never narrates the player");
   },
 };

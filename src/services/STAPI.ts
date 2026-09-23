@@ -19,7 +19,15 @@ export {
   getTextGenSettingNames,
   findTextGenPreset,
   applyTextGenPresetRuntime,
+  applyPreset,
+  presetBackend,
+  readAppliedPreset,
+  PRESET_UNSUPPORTED_REASON,
+  type PresetBackend,
+  type TextGenPreset,
 } from "@services/stHost/presets";
+export type { WriteResult } from "@utils/writeResult";
+export { settingsReady, settingsAreLoaded, noteHostSettingsLoaded, EXTENSION_SETTINGS_LOADED_EVENT } from "@services/stHost/context";
 export {
   getActiveCharacterId,
   getCharacterNameById,
@@ -29,10 +37,11 @@ export {
   getMessageTimeStamp,
 } from "@services/stHost/characters";
 export { executeSlashCommands } from "@services/stHost/slashCommands";
+export { observeNextSave, installSaveWatcher, readBackMetadata, readBackBoundary, SAVE_OBSERVE_MS, type SaveObservation } from "@services/stHost/persistence";
 export { applyCharacterAN, clearCharacterAN } from "@services/stHost/authorNotes";
 export { setStoryExtensionPrompt, clearStoryExtensionPrompt } from "@services/stHost/extensionPrompts";
-export { getWorldInfoSettings, enableWIEntry, disableWIEntry, upsertWIEntry, createLorebook, ensureLorebook, bindChatLorebook, activateGlobalLorebook, loadLorebook, lorebookExists, listAllLorebooks } from "@services/stHost/worldInfo";
-export type { ChatLorebookBinding, Lorebook, LoreEntry, WIUpsertResult } from "@services/stHost/worldInfo";
+export { getWorldInfoSettings, enableWIEntry, disableWIEntry, upsertWIEntry, readWIEntry, createLorebook, ensureLorebook, bindChatLorebook, activateGlobalLorebook, loadLorebook, lorebookExists, listAllLorebooks, lorebookFileId } from "@services/stHost/worldInfo";
+export type { ChatLorebookBinding, Lorebook, LoreEntry, WIUpsertResult, WIEntrySnapshot } from "@services/stHost/worldInfo";
 export { applyBackground, backgroundExists, getCurrentBackground, listBackgrounds } from "@services/stHost/backgrounds";
 export type { CurrentBackground } from "@services/stHost/backgrounds";
 export { createCharacterCard, createGroup, listGroupNames } from "@services/stHost/provisioning";
@@ -46,7 +55,7 @@ export {
   listSlashCommands,
 } from "@services/stHost/selectors";
 export type { HostSlashCommandMeta } from "@services/stHost/selectors";
-export { getActiveGroup, resolveGroupMemberId, setGroupMembersDisabled } from "@services/stHost/groups";
+export { getActiveGroup, resolveGroupMemberId, setGroupMembersDisabled, setGroupMemberDisabled, readGroupMemberDisabled } from "@services/stHost/groups";
 export { isHostGenerating, willAddUserMessage } from "@services/stHost/generation";
 export { forceActivateEntries, getScannableEntries, type HostScannableEntry } from "@services/stHost/worldInfoActivate";
 export { getSelectedConnectionProfileId, listConnectionProfiles, sendConnectionProfileRequest } from "@services/stHost/connectionProfiles";
@@ -55,4 +64,8 @@ export { countTokens, countTokensBatch } from "@services/stHost/tokenizer";
 export { vectorInsert, vectorQuery, vectorPurge, DEFAULT_VECTOR_SOURCE } from "@services/stHost/vectors";
 export { judgeStatus, judgeTransport, writeJudgeSecret, JUDGE_PLUGIN_BASE, JUDGE_PLUGIN_ID, JUDGE_SECRET_KEY, type JudgeStatus } from "@services/stHost/judge";
 export type { VectorItem, VectorMatch } from "@services/stHost/vectors";
+export { probeCapability, capabilityReport, capabilityState, invalidateCapabilities, hostFacts, renderCapabilityReport, CAPABILITY_IDS } from "@services/stHost/capabilities";
+export type { CapabilityId, CapabilityReport, CapabilityState, HostFacts } from "@services/stHost/capabilities";
+export { getHostVersion, macroEngineInUse } from "@services/stHost/version";
+export type { HostVersion } from "@services/stHost/version";
 

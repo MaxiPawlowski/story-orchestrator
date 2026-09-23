@@ -68,12 +68,17 @@
           "eval": "globalThis.storyOrchestratorRuntime.setExtractionSettings({ enabled: false }); await new Promise((done) => setTimeout(done, 1500)); return globalThis.storyOrchestratorRuntime.getSnapshot().extraction.settings;"
         },
         {
-          "eval": "const ctx = SillyTavern.getContext(); const blob = ctx.chatMetadata.story_orchestrator; const id = blob.selectedStoryId; if (!id) throw new Error('no story selected in chat metadata: ' + JSON.stringify(Object.keys(blob))); const away = new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString(); blob.stories[id].extras.lastSessionAt = away; await ctx.saveMetadata(); const stored = ctx.chatMetadata.story_orchestrator.stories[id].extras.lastSessionAt; if (stored !== away) throw new Error(`lastSessionAt overwritten before reload: ${stored}`); return { id, stored };"
+          "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const id = rt.getSnapshot().storyId; const record = ctx.chatMetadata?.story_orchestrator?.stories?.[id]; if (!record?.extras) throw new Error(`no persisted record for ${id} to back-date: ${JSON.stringify(Object.keys(ctx.chatMetadata?.story_orchestrator?.stories ?? {}))}`); const seeded = new Date(Date.now() - 30 * 3600 * 1000).toISOString(); record.extras.lastSessionAt = seeded; await ctx.saveMetadata?.(); const response = await fetch(\"/api/chats/group/get\", { method: \"POST\", headers: ctx.getRequestHeaders(), body: JSON.stringify({ id: ctx.chatId }) }); const data = await response.json().catch(() => []); const onDisk = (Array.isArray(data) ? data[0] : null)?.chat_metadata?.story_orchestrator?.stories?.[id]?.extras?.lastSessionAt ?? null; if (onDisk !== seeded) throw new Error(`the gap never reached the chat file, so the recap cannot fire: memory ${seeded}, file ${onDisk}`); return { id, seeded, onDisk };",
+          "log": true
         },
         {
           "reload": {
             "timeoutMs": 90000
           }
+        },
+        {
+          "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const blob = ctx.chatMetadata?.story_orchestrator; const journal = (rt.getSessionJournal?.() ?? []).filter((e) => /recap|world/i.test(e.summary ?? '')).map((e) => e.summary + ' | ' + JSON.stringify(e.detail ?? {})); return { chat: ctx.chatId ?? null, chatLen: ctx.chat?.length ?? null, story: rt.getSnapshot().storyId, pending: !!rt.getAwayRecap(), dialogs: document.querySelectorAll('dialog[open]').length, stories: blob ? Object.fromEntries(Object.entries(blob.stories).map(([k, v]) => [k, v.extras?.lastSessionAt ?? null])) : null, journal };",
+          "log": true
         },
         {
           "expect_ui": {
@@ -143,6 +148,49 @@
       "findings": [],
       "prompt": "Adopting an already-running chat: was it clear that the extension had caught up on what happened before?",
       "anchors": "1 = no idea whether it worked · 3 = saw it finish · 5 = obvious, and the story used what it learned"
+    },
+    {
+      "id": "J4.7",
+      "mode": "auto",
+      "findings": [
+        "S3"
+      ],
+      "goal": "the recap never outlives the chat it describes: a brand-new chat is not blocked by it",
+      "requires": [
+        "away-recap"
+      ],
+      "steps": [
+        {
+          "eval": "const ctx = SillyTavern.getContext(); const blob = ctx.chatMetadata.story_orchestrator; const id = blob.selectedStoryId; if (!id) throw new Error('no story selected in chat metadata: ' + JSON.stringify(Object.keys(blob))); blob.stories[id].extras.lastSessionAt = new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString(); await ctx.saveMetadata(); return { id };"
+        },
+        {
+          "reload": {
+            "timeoutMs": 90000
+          }
+        },
+        {
+          "expect_ui": {
+            "selector": "dialog[open]",
+            "contains": [
+              "Welcome back"
+            ],
+            "timeoutMs": 60000
+          }
+        },
+        {
+          "slash": "/newchat",
+          "adoptsNewChat": true
+        },
+        {
+          "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const open = Array.from(document.querySelectorAll('dialog[open]')).map((d) => (d.textContent || '').replace(/\\s+/g, ' ').trim().slice(0, 120)); if (open.length) throw new Error(`the away recap outlived its chat: ${JSON.stringify(open)}`); if (rt.getAwayRecap()) throw new Error('a recap is still queued for a chat that is gone'); const blob = ctx.chatMetadata.story_orchestrator; return { chatId: ctx.chatId, chatLength: ctx.chat.length, story: rt.getSnapshot().storyId, blobChatId: blob?.chatId ?? null, blobSelected: blob?.selectedStoryId ?? null };"
+        },
+        {
+          "ui": {
+            "action": "hit-test",
+            "selector": "#send_but"
+          }
+        }
+      ]
     }
   ]
 }

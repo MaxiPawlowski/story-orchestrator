@@ -1,4 +1,5 @@
-import { askJudge, buildDirectorRequest, runJudgeDirectorSelfTest, runMemoryPairsCalibration, runMemoryVerifyCalibration, runSceneCalibration, type SceneCalibrationCase, runLoreCalibration, type LoreCalibrationCase, runCuratorFilterCalibration, type CuratorFilterCase, runContinuityCalibration, type ContinuityCase, runBackgroundCalibration, type BackgroundCase, runTypedCalibration, type TypedCase, runStallCalibration, type StallCase, runCriticCalibration, type CriticCase, runVariantCalibration, type VariantStub, type MemoryPairCase, type MemoryVerifyCase, type JudgeSelfTestCase, type JudgeSelfTestReport, decideDirector, directorJudgeEligible, directorRecordP, judgeUseActive, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord, type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeRequest, type JudgeResponse, type JudgeResult, type JudgeSettings, type JudgeTransport, type JudgeUseKey } from "@judge/index";
+import { askJudge, buildDirectorRequest, runJudgeDirectorSelfTest, runMemoryPairsCalibration, runMemoryVerifyCalibration, runSceneCalibration, type SceneCalibrationCase, runLoreCalibration, type LoreCalibrationCase, runLoreRelevanceCalibration, type LoreRelevanceReport, runCuratorFilterCalibration, type CuratorFilterCase, runContinuityCalibration, type ContinuityCase, runBackgroundCalibration, type BackgroundCase, runTypedCalibration, type TypedCase, runStallCalibration, type StallCase, runCriticCalibration, type CriticCase, runVariantCalibration, type VariantStub, type MemoryPairCase, type MemoryVerifyCase, type JudgeSelfTestCase, type JudgeSelfTestReport, decideDirector, directorJudgeEligible, directorRecordP, judgeUseActive, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord, type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeRequest, type JudgeResponse, type JudgeResult, type JudgeSettings, type JudgeTransport, type JudgeUseKey } from "@judge/index";
+import type { RunOwnership } from "./runToken";
 
 export interface JudgeStatusLike {
   configured: boolean;
@@ -10,6 +11,8 @@ export interface JudgeRuntimeDeps {
   status(): Promise<JudgeStatusLike | null>;
   record(record: JudgeCallRecord): void;
   context(): { boundary: number; messageId: number };
+  // v2.3 plan 03 (C1). Optional: a caller that supplies none keeps today behaviour.
+  ownership?: RunOwnership;
   now?: () => number;
 }
 
@@ -59,14 +62,24 @@ export class JudgeRuntime {
   }
 
   // For the settings self-test: works before the judge is switched on, and records nothing in a chat.
-  probe(request: JudgeRequest): Promise<JudgeResult> {
+  // Calibration may name a model without mutating install settings — the exact run says which model
+  // it asked for, and JudgeResult says which model actually answered.
+  probe(request: JudgeRequest, model = this.deps.getSettings().model): Promise<JudgeResult> {
     const settings = this.deps.getSettings();
-    return askJudge(this.deps.transport, { ...request, model: settings.model }, { timeoutMs: Math.max(settings.timeoutMs, JUDGE_PROBE_TIMEOUT_MS) });
+    return askJudge(this.deps.transport, { ...request, model }, { timeoutMs: Math.max(settings.timeoutMs, JUDGE_PROBE_TIMEOUT_MS) });
+  }
+
+  /**
+   * v2.3 plan 10 (A): the two-arm lore comparison. Its own report shape, because there are two
+   * metric sets and a verdict per arm rather than one pass/fail.
+   */
+  calibrateLoreRelevance(cases: unknown[], model?: string): Promise<LoreRelevanceReport> {
+    return runLoreRelevanceCalibration((request) => this.probe(request, model), cases as never);
   }
 
   // so-judge calibrate: the page → plugin → API path over a fixture set, recorded nowhere.
-  calibrate(use: string, cases: unknown[]): Promise<JudgeSelfTestReport> {
-    const ask = (request: JudgeRequest) => this.probe(request);
+  calibrate(use: string, cases: unknown[], model?: string): Promise<JudgeSelfTestReport> {
+    const ask = (request: JudgeRequest) => this.probe(request, model);
     if (use === "director") return runJudgeDirectorSelfTest(ask, cases as JudgeSelfTestCase[]);
     if (use === "memory-verify") return runMemoryVerifyCalibration(ask, cases as MemoryVerifyCase[]);
     if (use === "memory-pairs") return runMemoryPairsCalibration(ask, cases as MemoryPairCase[]);
@@ -99,6 +112,12 @@ export class JudgeRuntime {
 
   async ask(use: string, request: JudgeRequest, options: JudgeAskOptions = {}): Promise<JudgeResult> {
     const settings = this.deps.getSettings();
+    // C1: the call belongs to the world it was ASKED in. Both the numbers it is stamped with and
+    // the ring it lands in used to be read after the await, so a call started in one chat could be
+    // recorded, with the other chat's boundary, in the other chat's ring — and plan 11 builds its
+    // cost and latency report out of these rings.
+    const asked = this.deps.context();
+    const token = this.deps.ownership?.mint();
     if (!(await this.available())) {
       this.recordFallback(use, "unavailable", request);
       return { answers: null, model: null, latencyMs: 0, stateChars: JSON.stringify(request.state).length, questionCount: Object.keys(request.questions).length, fallback: "unavailable", cached: false };
@@ -106,14 +125,21 @@ export class JudgeRuntime {
     const result = await askJudge(this.deps.transport, { ...request, model: settings.model }, {
       timeoutMs: options.timeoutMs ?? settings.timeoutMs,
       cache: this.cache,
+      // v2.3 plan 03: a story load, restart or chat change cancels this request in flight rather
+      // than paying for an answer the token check below will refuse anyway.
+      ...(this.deps.ownership?.signal ? { signal: this.deps.ownership.signal() } : {}),
       ...(this.deps.now ? { now: this.deps.now } : {}),
     });
     if (result.fallback === "error") this.invalidateStatus();
-    const context = this.deps.context();
+    // A call whose chat, story or session moved while it ran is not this chat's to record. The
+    // answer is still returned — the caller has its own ownership check at ITS write edge, and
+    // silently returning null here would look like a judge failure rather than a switch.
+    const owned = token ? this.deps.ownership?.check(token) : undefined;
+    if (owned && owned.ok === false) return { ...result, discarded: owned.reason };
     this.deps.record({
       at: new Date((this.deps.now ?? Date.now)()).toISOString(),
-      boundary: context.boundary,
-      messageId: context.messageId,
+      boundary: asked.boundary,
+      messageId: asked.messageId,
       use,
       model: result.model,
       latencyMs: result.latencyMs,

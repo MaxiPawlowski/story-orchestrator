@@ -11,8 +11,8 @@ export const CONTINUITY_CRITERIA = {
 export function buildContinuityRequest(reply: { speaker: string; text: string }, facts: string[]): JudgeRequest {
   const kept = facts.slice(0, CONTINUITY_MAX_FACTS);
   return {
-    state: { established_facts: kept, reply },
-    questions: Object.fromEntries(kept.map((fact, index) => [`fact:${index}`, noul(`Does \`reply\` contradict this established fact: "${fact}"?`, { ...CONTINUITY_CRITERIA })])),
+    state: { established_facts: Object.fromEntries(kept.map((fact, index) => [`fact_${index}`, fact])), reply },
+    questions: Object.fromEntries(kept.map((_, index) => [`fact:${index}`, noul(`Does \`reply\` contradict \`established_facts.fact_${index}\`?`, { ...CONTINUITY_CRITERIA })])),
   };
 }
 

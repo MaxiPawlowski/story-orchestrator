@@ -1,6 +1,6 @@
 {
   "name": "story-orchestrator",
-  "version": "2.0.0",
+  "version": "2.3.0",
   "private": true,
   "dependencies": {
     "cytoscape": "^3.28.1",
@@ -11,7 +11,7 @@
     "zustand": "^5.0.8"
   },
   "scripts": {
-    "build": "webpack --mode production",
+    "build": "webpack --mode production && node scripts/release/manifest.mjs",
     "start": "npm run dev",
     "dev": "cross-env NODE_ENV=development concurrently \"webpack --mode development --watch\" \"tsc --noEmit --watch\"",
     "test": "jest --runInBand",
@@ -24,12 +24,16 @@
     "debug:scenario": "node scripts/debug/so-scenario.mts run",
     "debug:typecheck": "tsc -p scripts/debug/tsconfig.json",
     "storybook": "storybook dev -p 6006",
-    "storybook:build": "storybook build --output-dir .sb-static --disable-telemetry",
+    "storybook:build": "node node_modules/storybook/bin/index.cjs build --output-dir .sb-static --disable-telemetry",
     "serve-sb": "http-server .sb-static -p 6006 -s -c-1",
-    "test-storybook": "test-storybook --url http://127.0.0.1:6006 --maxWorkers 1",
+    "test-storybook": "node node_modules/@storybook/test-runner/dist/test-storybook.js --url http://127.0.0.1:6006 --maxWorkers 1",
     "test-storybook:ci": "npm run storybook:build && concurrently -k -s first -n SB,TEST \"npm run serve-sb\" \"wait-on -t 60000 http://127.0.0.1:6006 && npm run test-storybook\"",
     "plugin:install": "node scripts/plugin-install.mjs",
-    "test:plugin": "node --test server-plugin/story-orchestrator-judge/plugin.test.mjs"
+    "test:plugin": "node --test server-plugin/story-orchestrator-judge/plugin.test.mjs",
+    "test:debug": "node --test \"scripts/debug/**/*.test.mts\"",
+    "typecheck:test": "tsc -p tsconfig.test.json",
+    "mutate": "node scripts/mutate.mjs",
+    "test:release": "node --test \"scripts/release/*.test.mjs\""
   },
   "eslintConfig": {
     "extends": [

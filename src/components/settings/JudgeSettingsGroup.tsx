@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, JUDGE_USE_COPY, JUDGE_USE_DEPENDENCIES, type JudgeSelfTestReport, type JudgeSettings, type JudgeUseKey, type JudgeUses } from "@judge/index";
+import { AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, JUDGE_USE_COPY, JUDGE_USE_DEPENDENCIES, judgeReadiness, judgeReadinessConcerns, type JudgeSelfTestReport, type JudgeSettings, type JudgeUseKey, type JudgeUses } from "@judge/index";
 import type { JudgeStatus } from "@services/STAPI";
+import type { WriteResult } from "@utils/writeResult";
 import HelpTooltip from "@components/studio/HelpTooltip";
 
 export interface JudgeSettingsPatch {
@@ -16,7 +17,7 @@ export interface JudgeSettingsGroupProps {
   builtUses?: readonly JudgeUseKey[];
   authorView?: boolean;
   onChange(patch: JudgeSettingsPatch): void;
-  onSaveKey(value: string): Promise<boolean>;
+  onSaveKey(value: string): Promise<WriteResult>;
   onRefresh(): void;
   onRunSelfTest(): void;
 }
@@ -35,11 +36,17 @@ export function JudgeSettingsGroup({ settings, status, selfTest, builtUses = BUI
   const [key, setKey] = useState("");
   const [saved, setSaved] = useState<"idle" | "saved" | "failed">("idle");
   const ready = typeof status === "object" && status !== null && status.configured;
+  const readiness = judgeReadiness(settings, JUDGE_USE_DEPENDENCIES);
+  const concerns = judgeReadinessConcerns(readiness);
+  const enabledMeasured = readiness.filter((row) => row.verdict === "measured");
+
+  const [keyError, setKeyError] = useState<string | null>(null);
 
   const saveKey = async () => {
-    const ok = await onSaveKey(key);
+    const result = await onSaveKey(key);
     setKey("");
-    setSaved(ok ? "saved" : "failed");
+    setSaved(result.ok ? "saved" : "failed");
+    setKeyError(result.ok ? null : result.reason);
     onRefresh();
   };
 
@@ -54,7 +61,7 @@ export function JudgeSettingsGroup({ settings, status, selfTest, builtUses = BUI
           <button id="so-judge-key-save" className="menu_button" disabled={!key.trim()} onClick={() => void saveKey()}>Save</button>
         </div>
         {saved === "saved" && <span className="text-xs opacity-70">Saved to SillyTavern secrets.</span>}
-        {saved === "failed" && <span className="text-xs text-yellow-300">SillyTavern refused the key. Check the server console.</span>}
+        {saved === "failed" && <span id="so-judge-key-error" className="text-xs text-yellow-300">Could not save the key: {keyError ?? "SillyTavern refused it."}</span>}
       </label>
       <label className="flex items-center gap-2 text-sm">
         <input id="so-judge-enabled" type="checkbox" checked={settings.enabled} onChange={(event) => onChange({ enabled: event.target.checked })} />
@@ -85,10 +92,30 @@ export function JudgeSettingsGroup({ settings, status, selfTest, builtUses = BUI
           <option value="llm">the story model</option>
         </select>
       </div>}
-      <div className="flex items-center gap-2">
+      {/* v2.3 plan 09: "enabled" is not "working". What is on and doing nothing says so here rather
+          than sitting in the same list as the measured uses. */}
+      {concerns.length > 0 && (
+        <div id="so-judge-readiness" className="flex flex-col gap-1 pl-4 text-xs">
+          {concerns.map((row) => (
+            <div key={row.key} className="text-yellow-300">
+              {JUDGE_USE_COPY[row.key].label}: {row.verdict === "blocked" ? `on, but "${JUDGE_USE_COPY[row.blockedBy!].label}" is off, so it does nothing` : "on, but nothing has measured it"}
+              <span className="opacity-80"> — {row.recommendation}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="flex flex-wrap items-center gap-2">
         <button id="so-judge-self-test" className="menu_button" disabled={!ready || selfTest.running} onClick={onRunSelfTest}>{selfTest.running ? "Testing…" : "Test judgment model"}</button>
         <button id="so-judge-refresh" className="menu_button" onClick={onRefresh}>Recheck</button>
+        <a id="so-judge-recommended-config" className="text-xs opacity-70 underline" href="scripts/extensions/third-party/story-orchestrator/docs/plans/v2.3/recommended-config.md" target="_blank" rel="noreferrer">
+          What each use is measured at
+        </a>
       </div>
+      {enabledMeasured.length > 0 && (
+        <div id="so-judge-readiness-summary" className="text-xs opacity-80">
+          On and measured: {enabledMeasured.map((row) => `${JUDGE_USE_COPY[row.key].label} ${row.calibration !== null ? Math.round(row.calibration * 100) + "%" : "—"}${row.latencyP50Ms !== null ? ` (p50 ${row.latencyP50Ms} ms)` : ""}`).join(" · ")}
+        </div>
+      )}
       {selfTest.report && (
         <div id="so-judge-self-test-result" className="text-xs">
           Speaker direction: {selfTest.report.right}/{selfTest.report.total} right

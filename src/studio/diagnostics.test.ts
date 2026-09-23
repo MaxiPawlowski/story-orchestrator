@@ -1,5 +1,18 @@
 import type { StoryV2 } from "@engine/index";
-import { DIAGNOSTIC_CODES, runDiagnostics } from "./diagnostics";
+import { DIAGNOSTIC_CODES, DIAGNOSTIC_CONSEQUENCES, runDiagnostics } from "./diagnostics";
+
+describe("diagnostic consequences (v2.3 plan 09)", () => {
+  it("gives every code a plain consequence, so a new one cannot ship without one", () => {
+    const missing = DIAGNOSTIC_CODES.filter((code) => !DIAGNOSTIC_CONSEQUENCES[code]?.trim());
+    expect(missing).toEqual([]);
+  });
+
+  it("states the consequence in the story's terms, not the schema's", () => {
+    expect(DIAGNOSTIC_CONSEQUENCES["quality-never-in-scope"]).toBe("Nothing can react to this, because the story is never asked about it.");
+    // No code names leak into the consequence an author reads.
+    expect(Object.values(DIAGNOSTIC_CONSEQUENCES).filter((line) => /_|snapshot|state_snapshot/.test(line))).toEqual([]);
+  });
+});
 
 const clean: StoryV2 = {
   format: 2,
@@ -27,6 +40,8 @@ const seeded: StoryV2 = {
     { key: "location", type: "string", source: "extractor", rubric: "r" },
     { key: "stance", type: "enum", values: ["friend", "foe"], source: "extractor", rubric: "r", read_as: "choice" },
     { key: "mood", type: "enum", values: ["calm", "angry"], source: "extractor", rubric: "r", latching: true, read_as: "choice", criteria: { angry: { what: "Shouts or strikes", not_for: "Angry words said calmly" } } },
+    { key: "verdict", type: "enum", values: ["guilty", "undecided"], source: "extractor", rubric: "r", latching: true },
+    { key: "dread", type: "int", source: "extractor", rubric: "How afraid is she?", read_as: "rating" },
   ],
   checkpoints: [
     { id: "start", name: "Start", objective: "", type: "intermediate", start: true, state_snapshot: { morale: 1, location: "hall" } },
@@ -40,10 +55,11 @@ const seeded: StoryV2 = {
         lead: "warden",
         allow_silence: true,
       },
+      agency: { alternate: "nowhere" },
     },
     { id: "cache", name: "Cache", objective: "", type: "anchor", convergence_threshold: 5 },
     { id: "lost", name: "Lost", objective: "", type: "anchor" },
-    { id: "stubby", name: "Stubby", objective: "", type: "intermediate" },
+    { id: "stubby", name: "Stubby", objective: "", type: "intermediate", agency: { alternate: "stubby" } },
   ],
   scaffolding: { stubby: { beats: [], basis: {} } },
   transitions: [
@@ -55,7 +71,7 @@ const seeded: StoryV2 = {
       gate: { all: [{ q: "alarm", op: ">=", v: 1 }, { q: "route", op: "==", v: "teleport" }, { q: "secret", op: "==", v: "x" }, { q: "morale", op: "==", v: 5 }] },
       effects: { progress: { anchor: "cache", amount: 1 } },
     },
-    { from: "mid", to: "stubby", priority: 0, gate: { all: [{ q: "stance", op: "==", v: "friend" }, { q: "mood", op: "==", v: "calm" }] } },
+    { from: "mid", to: "stubby", priority: 0, gate: { all: [{ q: "stance", op: "==", v: "friend" }, { q: "mood", op: "==", v: "calm" }, { q: "verdict", op: "==", v: "guilty" }, { q: "dread", op: ">=", v: 1 }] } },
   ],
   roster: [{ id: "guide", name: "The Guide" }, { id: "warden", name: "The Warden" }],
   lore_select: { lorebooks: ["Unlisted Lore"] },
@@ -124,3 +140,53 @@ describe("runDiagnostics", () => {
   });
 });
 
+
+describe("latching enums with a placeholder (S1)", () => {
+  const withEnums = (values: string[], latching: boolean | undefined): StoryV2 => ({
+    ...clean,
+    qualities: [{ key: "mood", type: "enum", values, source: "extractor", rubric: "r", ...(latching === undefined ? {} : { latching }) }],
+  });
+
+  it("flags each placeholder shape in a latching enum", () => {
+    for (const placeholder of ["undecided", "none", "pending", "unset", "tbd"]) {
+      const found = runDiagnostics(withEnums(["calm", placeholder], true)).filter((entry) => entry.code === "latching-enum-placeholder");
+      expect(found.map((entry) => entry.message)).toHaveLength(1);
+      expect(found[0]?.message).toContain(placeholder);
+      expect(found[0]?.message).toContain("the unset state is the absence of a value");
+    }
+  });
+
+  it("says nothing when the enum does not latch", () => {
+    expect(runDiagnostics(withEnums(["calm", "none"], false)).filter((entry) => entry.code === "latching-enum-placeholder")).toEqual([]);
+  });
+
+  it("says nothing for a latching enum with no placeholder", () => {
+    expect(runDiagnostics(withEnums(["calm", "angry"], true)).filter((entry) => entry.code === "latching-enum-placeholder")).toEqual([]);
+  });
+
+  it("keeps the diagnostic code list in step with what it emits", () => {
+    expect(DIAGNOSTIC_CODES).toContain("latching-enum-placeholder");
+  });
+});
+
+describe("a rating with no readable scale (F1)", () => {
+  const withRating = (quality: Partial<StoryV2["qualities"][number]>): StoryV2 => ({
+    ...clean,
+    qualities: [{ key: "dread", type: "int", source: "extractor", rubric: "How afraid is she?", read_as: "rating", ...quality } as StoryV2["qualities"][number]],
+  });
+
+  it("blocks, and carries the shape the repair pass has to produce", () => {
+    const found = runDiagnostics(withRating({})).filter((entry) => entry.code === "quality-rating-no-scale");
+    expect(found).toHaveLength(1);
+    expect(found[0].severity).toBe("blocking");
+    expect(found[0].message).toContain('from 1 (barely) to 5 (completely)');
+  });
+
+  it("says nothing once the rubric states the scale", () => {
+    expect(runDiagnostics(withRating({ rubric: "How afraid is she? from 1 (barely) to 5 (completely)" })).filter((entry) => entry.code === "quality-rating-no-scale")).toEqual([]);
+  });
+
+  it("says nothing for a rating whose levels are authored", () => {
+    expect(runDiagnostics(withRating({ criteria: { levels: [{ value: 1, label: "1: calm" }, { value: 2, label: "2: terrified" }] } })).filter((entry) => entry.code === "quality-rating-no-scale")).toEqual([]);
+  });
+});

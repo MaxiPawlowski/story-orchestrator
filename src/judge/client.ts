@@ -12,6 +12,8 @@ export class JudgeTimeoutError extends Error {
 
 export interface AskJudgeOptions {
   timeoutMs: number;
+  /** v2.3 plan 03: aborted when the epoch this call was made in is replaced. */
+  signal?: AbortSignal;
   now?: () => number;
   cache?: Map<string, JudgeResponse>;
 }
@@ -46,13 +48,18 @@ export async function askJudge(transport: JudgeTransport, request: JudgeRequest,
   if (hit) return { ...base, answers: hit.answers, model: hit.model, latencyMs: 0, cached: true };
   const startedAt = now();
   try {
-    const response = await raceTimeout(transport(request, { timeoutMs: options.timeoutMs }), options.timeoutMs);
+    const response = await raceTimeout(transport(request, { timeoutMs: options.timeoutMs, ...(options.signal ? { signal: options.signal } : {}) }), options.timeoutMs);
     if (!response || typeof response.answers !== "object" || response.answers === null) {
       return { ...base, answers: null, model: null, latencyMs: now() - startedAt, fallback: "error", cached: false };
     }
     if (options.cache) remember(options.cache, key, response);
     return { ...base, answers: response.answers, model: typeof response.model === "string" ? response.model : null, latencyMs: now() - startedAt, cached: false };
   } catch (error) {
-    return { ...base, answers: null, model: null, latencyMs: now() - startedAt, fallback: isTimeout(error) ? "timeout" : "error", cached: false };
+    // The caller signal aborting is OUR cancellation, not the model being slow. Checked first
+    // because judgeTransport wires both the timeout and the epoch signal to one controller, so
+    // they are indistinguishable by the error alone.
+    const cancelled = options.signal?.aborted === true;
+    const fallback = cancelled ? "cancelled" : isTimeout(error) ? "timeout" : "error";
+    return { ...base, answers: null, model: null, latencyMs: now() - startedAt, fallback, cached: false };
   }
 }

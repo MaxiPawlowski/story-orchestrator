@@ -3,8 +3,13 @@ import { defaultJudgeSettings, type JudgeRequest, type JudgeSettings } from "@ju
 import type { HostScannableEntry } from "@services/STAPI";
 import { JudgeRuntime } from "./judge";
 import { LoreSelector } from "./loreSelect";
+import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "./runToken";
 
-jest.mock("@services/STAPI", () => ({}));
+jest.mock("@services/STAPI", () => ({
+  settingsAreLoaded: () => true,
+  settingsReady: async () => {},
+  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
+  readBackBoundary: () => null,}));
 
 const story = (loreSelect: Record<string, unknown> | undefined) => parseStoryV2OrThrow({
   format: 2,
@@ -22,7 +27,7 @@ const entry = (world: string, uid: number, patch: Partial<HostScannableEntry> = 
 const scannable = [entry("Story Lore", 1), entry("Story Lore", 2), entry("Story Lore", 3, { disable: true }), entry("Story Lore", 4, { constant: true }), entry("Other Lore", 5), entry("story lore", 6)];
 const P: Record<string, number> = { "Story Lore 1": 0.9, "Story Lore 2": 0.4, "Story Lore 3": 0.99, "story lore 6": 0.8 };
 
-const setup = (options: { uses?: Partial<JudgeSettings["uses"]>; loreSelect?: Record<string, unknown>; fail?: boolean } = {}) => {
+const setup = (options: { uses?: Partial<JudgeSettings["uses"]>; loreSelect?: Record<string, unknown>; fail?: boolean; forceFails?: boolean } = {}) => {
   const settings: JudgeSettings = { ...defaultJudgeSettings(), enabled: true, uses: { ...defaultJudgeSettings().uses, loreSelect: true, ...options.uses } };
   let lastMessageId = 4;
   const requests: JudgeRequest[] = [];
@@ -39,17 +44,27 @@ const setup = (options: { uses?: Partial<JudgeSettings["uses"]>; loreSelect?: Re
     context: () => ({ boundary: 1, messageId: 4 }),
   });
   const forced: HostScannableEntry[][] = [];
+  // One mutable identity, used by BOTH the story the deps hand out and the ownership context, the
+  // way the runtime keeps them in step (RunOwner reads the loaded record).
+  let storyId = "lore-fixture";
+  const context: RunContext = { chatId: "chat-1", storyId, playedVersion: 1, sessionEpoch: 1, windowRevision: 0 };
+  const ownership: RunOwnership = { mint: (window) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
   const selector = new LoreSelector({
     judge: () => judge,
-    getStory: () => story("loreSelect" in options ? options.loreSelect : { lorebooks: ["Story Lore"] }),
+    getStory: () => ({ ...story("loreSelect" in options ? options.loreSelect : { lorebooks: ["Story Lore"] }), id: storyId }),
     getState: () => ({ activeCheckpointId: "guild" }) as unknown as EngineState,
     getWindow: () => [{ speaker: "Max", text: `Who runs this place? (${lastMessageId})` }],
     getChatId: () => "chat-1",
     getLastMessageId: () => lastMessageId,
     getEntries: async () => scannable,
-    force: async (entries) => { forced.push(entries); return true; },
+    force: async (entries) => { forced.push(entries); return options.forceFails ? { ok: false as const, reason: "the scan was refused" } : { ok: true as const, entries: entries.length }; },
+    ownership,
   });
-  return { selector, requests, records, forced, setLastMessageId: (id: number) => { lastMessageId = id; } };
+  return {
+    selector, requests, records, forced, context,
+    setLastMessageId: (id: number) => { lastMessageId = id; },
+    setStoryId: (id: string) => { storyId = id; context.storyId = id; context.sessionEpoch += 1; },
+  };
 };
 
 describe("LoreSelector (v2.2 plan 04)", () => {
@@ -90,5 +105,37 @@ describe("LoreSelector (v2.2 plan 04)", () => {
     expect(failed.records[0]).toMatchObject({ use: "lore" });
     const one = setup({ loreSelect: { lorebooks: ["Story Lore"], top_k: 1 } });
     expect((await one.selector.select("MESSAGE_SENT"))?.picks.map((pick) => pick.uid)).toEqual([1]);
+  });
+
+  // v2.3 plan 11 §Fault matrix. A force the host refused used to be reported exactly like one that
+  // landed: the selection came back with its picks and the caller had no way to tell that the next
+  // generation would scan on ST's ordinary keywords instead.
+  it("reports no selection when the host refuses the force, and does not claim it applied", async () => {
+    const env = setup({ forceFails: true });
+    expect(await env.selector.select("MESSAGE_SENT")).toBeNull();
+    expect(env.forced).toEqual([[scannable[0], scannable[5]]]);
+    const again = await env.selector.select("MESSAGE_SENT");
+    expect(again).toBeNull();
+    expect(env.requests).toHaveLength(1);
+  });
+
+  // The hole the first reading of this file could not see, and the reason the fix is in the key
+  // rather than in a token: the token is minted at the START of a call, so by construction it
+  // cannot tell that a cache entry was built under a story the chat has since left. The key names
+  // the chat, the message and the scope — so a swap to a story with the SAME lore scope matched the
+  // departed story's cache and forced ITS picks into the new story's next generation. A token
+  // check would have returned true here.
+  it("does not reuse a cached selection after the chat swaps stories under the same lore scope", async () => {
+    const env = setup();
+    await env.selector.select("MESSAGE_SENT");
+    expect(env.forced).toHaveLength(1);
+    env.setStoryId("a-story-that-replaced-it");
+    const after = await env.selector.select("MESSAGE_SENT");
+    expect(after?.cached).toBe(false);
+    expect(env.forced).toHaveLength(2);
+    // The transport count does NOT move: the question is byte-identical, so the judge's own session
+    // cache answers it. `cached: false` and the second force are what say the LORE cache was not
+    // reused — the two caches are separate and only one of them was scoped to a story.
+    expect(env.requests).toHaveLength(1);
   });
 });

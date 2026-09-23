@@ -95,7 +95,7 @@ describe("shared read parser", () => {
       "DELTA q=tension_current value=\"frantic\" evidence=\"panic sets in\"",
     ].join("\n"), story);
     expect(parsed.deltas).toEqual([
-      { delta: { q: "tension_current", v: 0.75, source: "extractor" }, evidence: "the walls begin to shake", rawLevel: "critical" },
+      { delta: { q: "tension_current", v: 0.75, source: "extractor" }, evidence: "the walls begin to shake", rawLevel: "critical", line: "DELTA q=tension_current value=\"critical\" evidence=\"the walls begin to shake\"" },
     ]);
     expect(parsed.rejected.map((entry) => entry.reason)).toEqual(["invalid value"]);
   });

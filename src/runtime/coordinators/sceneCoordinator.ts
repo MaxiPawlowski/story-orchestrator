@@ -1,6 +1,7 @@
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
-import { buildSceneReadRequest, readScene, SCENE_MAX_REACHABLE, SCENE_TIMEOUT_MS, sceneTrackerText, toSceneRecord, type SceneFamilies, type SceneReadInput, type SceneReadRecord } from "@judge/index";
+import { buildSceneReadRequest, readScene, SCENE_MAX_REACHABLE, SCENE_TIMEOUT_MS, isSceneStale, sceneTrackerText, toSceneRecord, type SceneFamilies, type SceneReadInput, type SceneReadRecord } from "@judge/index";
 import type { JudgeRuntime } from "../judge";
+import { beginRun, type RunOwnership } from "../runToken";
 
 export interface SceneCoordinatorDeps {
   judge: () => JudgeRuntime | null;
@@ -12,6 +13,8 @@ export interface SceneCoordinatorDeps {
   getScene: () => SceneReadRecord | null;
   setScene: (record: SceneReadRecord | null) => void;
   inject: (text: string | null) => void;
+  // v2.3 plan 03 (C1, the "scene" surface). Optional: an unwired caller never lapses.
+  ownership?: RunOwnership;
   now?: () => number;
 }
 
@@ -62,12 +65,30 @@ export class SceneCoordinator {
     };
   }
 
+  /** v2.3 plan 09: the author asked for a fresh read from the next-turn preview. Same path as a
+   *  boundary, with the reason recorded so the call ring shows who asked for it. */
+  async rerun() {
+    const state = this.deps.getState();
+    return this.run({
+      boundary: state?.boundary ?? 0,
+      messageId: this.deps.getLastMessageId(),
+      heuristicFired: false,
+      // The manual path never schedules a read: the author is looking at the result.
+      scheduleRead: () => undefined,
+    });
+  }
+
   async run(context: SceneReadRun): Promise<SceneReadRecord | null> {
     const judge = this.deps.judge();
     const families = this.families();
     const input = judge && this.active() ? this.input(families) : null;
     if (!judge || !input || !input.window.length) return null;
     const request = buildSceneReadRequest(input);
+    // C1, the "scene" surface. The existing `getLastMessageId() !== context.messageId` check below
+    // only asks whether the chat moved ON; it passes unchanged across a chat switch or a story
+    // swap that happens to land on the same message index — which is the v2.1 plan 08 shape, and
+    // it was reachable here.
+    const run = beginRun(this.deps.ownership, { from: input.window.length ? context.messageId - input.window.length + 1 : context.messageId, to: context.messageId });
     const result = await judge.ask("scene", request, {
       timeoutMs: SCENE_TIMEOUT_MS,
       summarize: (answers): Record<string, number> => {
@@ -75,13 +96,50 @@ export class SceneCoordinator {
         return p === undefined ? {} : { break: p };
       },
     });
-    if (!result.answers || this.deps.getLastMessageId() !== context.messageId) return null;
+    // C2: a read that does not answer used to return here silently, leaving the previous record
+    // live and injected. A miss is recorded on the record itself, so the tracker can say it is no
+    // longer confirmed instead of presenting a stale place as current.
+    if (!result.answers) {
+      // v2.3 plan 03 §Abort and cleanup: the FAILURE path is a write too, and it was running
+      // unguarded. A read that started in chat A and came back empty after the world moved aged
+      // whichever scene record is current now — so a dead backend in one chat marked another
+      // chat's tracker unconfirmed, and two such misses withheld a scene that was never asked
+      // about. Cleanup belongs to the epoch that owns it.
+      if (run.stillOwns()) this.ageStoredScene();
+      return null;
+    }
+    if (!run.stillOwns()) return null;
+    // A read that answered about a window the chat has already moved past is not a failure of the
+    // judge, so it does not age the record — it is simply late, and the next read supersedes it.
+    if (this.deps.getLastMessageId() !== context.messageId) return null;
     const at = new Date((this.deps.now ?? Date.now)()).toISOString();
     const record = toSceneRecord(readScene(result.answers, input), input, { at, boundary: context.boundary, messageId: context.messageId, model: result.model });
     if (families.sceneBreak && record.sceneBreak?.triggered && !context.heuristicFired) context.scheduleRead(SCENE_JUDGE_READ_REASON);
     this.deps.setScene(record);
     this.sync();
     return record;
+  }
+
+  /** Record one failed read against the stored scene. Keeps the facts; marks them unconfirmed. */
+  private ageStoredScene() {
+    const record = this.deps.getScene();
+    if (!record) return;
+    const at = new Date((this.deps.now ?? Date.now)()).toISOString();
+    const previous = record.freshness;
+    this.deps.setScene({
+      ...record,
+      freshness: {
+        failures: (previous?.failures ?? 0) + 1,
+        staleSince: previous?.staleSince ?? at,
+        confirmedBoundary: previous?.confirmedBoundary ?? record.boundary,
+      },
+    });
+    this.sync();
+  }
+
+  /** True once the judge has failed to confirm this scene often enough to stop asserting it. */
+  static isStale(record: SceneReadRecord | null): boolean {
+    return isSceneStale(record);
   }
 
   // The block follows the stored read: a new read, a rollback that dropped it, a chat switch that
@@ -93,7 +151,10 @@ export class SceneCoordinator {
       return;
     }
     const story = this.deps.getStory();
-    const text = record && story && this.families().tracker && story.scene_read?.inject !== false ? sceneTrackerText(record.facts) : null;
+    // A scene nothing has confirmed for SCENE_STALE_AFTER reads is withheld rather than injected:
+    // naming a place the story may have left is worse than naming none.
+    const stale = SceneCoordinator.isStale(record);
+    const text = record && !stale && story && this.families().tracker && story.scene_read?.inject !== false ? sceneTrackerText(record.facts) : null;
     if (text === this.injected) return;
     this.injected = text;
     this.deps.inject(text);

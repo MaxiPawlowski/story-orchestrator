@@ -28,7 +28,8 @@
         {
           "eval": "const s = globalThis.storyOrchestratorRuntime.getSnapshot(); if (s.storyHash) throw new Error(`expected no story on a fresh chat, got ${s.storyHash}`); return { ready: s.ready };"
         }
-      ]
+      ],
+      "expect": "pass"
     },
     {
       "id": "J0.2",
@@ -84,13 +85,14 @@
         {
           "eval": "const events = globalThis.storyOrchestratorRuntime.getSessionJournal(); const flags = events.filter((e) => e.kind === 'flag'); if (!flags.some((e) => e.detail?.note === 'selftest flag')) throw new Error(`flag not in journal: ${JSON.stringify(events.slice(-5))}`); return { events: events.length };"
         }
-      ]
+      ],
+      "expect": "pass"
     },
     {
       "id": "J0.3",
       "mode": "auto",
       "findings": [],
-      "goal": "a check requiring a capability this build lacks reports blocked, not failed",
+      "goal": "a check requiring a capability this build lacks reports blocked, not failed (its steps must never run)",
       "requires": [
         "feature-from-the-future"
       ],
@@ -98,7 +100,8 @@
         {
           "eval": "throw new Error('these steps must never run');"
         }
-      ]
+      ],
+      "expect": "blocked"
     },
     {
       "id": "J0.4",
@@ -106,6 +109,20 @@
       "findings": [],
       "prompt": "Ignore — selftest placeholder proving human checks are emitted as a checklist and reported as skipped.",
       "anchors": "1 = not emitted, 5 = emitted"
+    },
+    {
+      "id": "J0.5",
+      "mode": "auto",
+      "findings": [
+        "T3"
+      ],
+      "goal": "an UNGUARDED failing step reports fail — the runner distinguishes \"could not run\" from \"ran and was wrong\"",
+      "expect": "fail",
+      "steps": [
+        {
+          "eval": "throw new Error('J0.5 fails on purpose: this is the runner proving it reports a real failure as fail');"
+        }
+      ]
     }
   ]
 }

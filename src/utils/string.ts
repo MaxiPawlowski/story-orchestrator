@@ -19,3 +19,14 @@ export function quoteSlashArg(s: string): string {
     .replace(/(\\+)$/, "$1$1");
   return `"${escaped}"`;
 }
+
+// The host's `world_names` lists lorebooks by file id, and the server files a book under
+// `sanitize(name + ".json")` (src/endpoints/worldinfo.js:151): a title with `:` or `?` is listed
+// under a different name than the one it was saved with. This mirrors that sanitisation so code can
+// map a display name to the id every WI call and `world_names` entry actually addresses.
+const ILLEGAL_FILE_CHARS = new Set([..."/?<>\\:*|\""]);
+const isControlChar = (char: string) => {
+  const code = char.charCodeAt(0);
+  return code <= 0x1f || (code >= 0x80 && code <= 0x9f);
+};
+export const lorebookFileId = (name: string): string => [...name.trim()].filter((char) => !ILLEGAL_FILE_CHARS.has(char) && !isControlChar(char)).join("");

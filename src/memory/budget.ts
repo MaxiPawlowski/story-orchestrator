@@ -17,6 +17,16 @@ export function tierTokenCost(entries: MemoryEntry[]): number {
 export interface BudgetSelection {
   kept: Set<string>;
   dropped: MemoryEntry[];
+  /** Pinned rows the budget could not fit (v2.3 plan 05, M7). Reported, never silently dropped. */
+  pinnedOverflow: number;
+}
+
+/** What one entry costs as part of the injected block, which is the block's own formatting (the
+ *  tier label line and the separator) and not only its text (v2.3 plan 05, M7). */
+export const BLOCK_OVERHEAD_TOKENS = 2;
+
+export function blockTokens(entry: MemoryEntry): number {
+  return entryTokens(entry) + BLOCK_OVERHEAD_TOKENS;
 }
 
 export function selectWithinBudget(
@@ -27,11 +37,17 @@ export function selectWithinBudget(
 ): BudgetSelection {
   const kept = new Set<string>();
   let used = 0;
+  let pinnedOverflow = 0;
 
   for (const entry of entries) {
     if (!entry.pinned) continue;
+    const cost = blockTokens(entry);
+    if (used + cost > tokenBudget) {
+      pinnedOverflow += 1;
+      continue;
+    }
     kept.add(entry.id);
-    used += entryTokens(entry);
+    used += cost;
   }
 
   const scores = new Map<string, number>();
@@ -41,7 +57,7 @@ export function selectWithinBudget(
 
   const tryKeep = (entry: MemoryEntry): boolean => {
     if (kept.has(entry.id)) return false;
-    const cost = entryTokens(entry);
+    const cost = blockTokens(entry);
     if (used + cost > tokenBudget) return false;
     kept.add(entry.id);
     used += cost;
@@ -59,6 +75,6 @@ export function selectWithinBudget(
 
   for (const entry of ranked) tryKeep(entry);
 
-  const dropped = candidates.filter((entry) => !kept.has(entry.id));
-  return { kept, dropped };
+  const dropped = [...entries.filter((entry) => entry.pinned && !kept.has(entry.id)), ...candidates.filter((entry) => !kept.has(entry.id))];
+  return { kept, dropped, pinnedOverflow };
 }

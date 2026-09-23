@@ -1,10 +1,15 @@
 import { parseStoryV2OrThrow, StoryEngine, type EngineState, type NormalizedStoryV2, type StoryV2 } from "@engine/index";
-import { applyStoryUpdate, describeStoryUpdate, type StoryUpdateDeps, type StoryUpdateOutcome } from "./storyUpdate";
+import { applyStoryUpdate, describeStoryUpdate, renderStoryUpdate, type StoryUpdateDeps, type StoryUpdateOutcome } from "./storyUpdate";
 import { diffStories } from "@engine/storyDiff";
 import type { LoadedStory, StoryLibraryRecord } from "./types";
+import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "./runToken";
 
 const choice = jest.fn(async () => "keep" as string | null);
-jest.mock("@services/STAPI", () => ({ showChoicePopup: (...args: unknown[]) => choiceProxy(...args) }));
+jest.mock("@services/STAPI", () => ({
+  settingsAreLoaded: () => true,
+  settingsReady: async () => {},
+  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
+  readBackBoundary: () => null, showChoicePopup: (...args: unknown[]) => choiceProxy(...args) }));
 const choiceProxy = (...args: unknown[]) => choice(...(args as []));
 
 const library = new Map<string, StoryLibraryRecord>();
@@ -53,6 +58,18 @@ const playedState = (story: NormalizedStoryV2): EngineState => {
 
 const harness = (next: StoryV2, nextVersion = 2) => {
   const base = parseStoryV2OrThrow(storyV1());
+  let current: RunContext = {
+    chatId: "chat-a",
+    storyId: "hot-swap",
+    playedVersion: 1,
+    sessionEpoch: 1,
+    windowRevision: 0,
+    lowestMutatedMessageId: null,
+  };
+  const ownership: RunOwnership = {
+    mint: (window = null) => mintToken(current, window),
+    check: (token: RunToken) => tokenMatches(current, token),
+  };
   const loaded: LoadedStory = { record: record(storyV1(), 1, "hash-1"), story: base };
   const state = playedState(base);
   library.clear();
@@ -67,8 +84,45 @@ const harness = (next: StoryV2, nextVersion = 2) => {
     swapStory: async (nextLoaded, nextState, reanchored) => { swapped.push({ loaded: nextLoaded, state: nextState, reanchored }); },
     restart,
     journal: (outcome) => journalled.push(outcome),
+    ownership,
   };
-  return { deps, swapped, journalled, restart, state, base };
+  return {
+    deps,
+    swapped,
+    journalled,
+    restart,
+    state,
+    base,
+    switchWorld: () => { current = { ...current, chatId: "chat-b", sessionEpoch: 2 }; },
+  };
+};
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((done) => { resolve = done; });
+  return { promise, resolve };
+}
+
+// jest runs with `testEnvironment: "node"`, so the renderer is handed the document it builds into
+// rather than reaching for a global one. This records what it was asked for.
+const fakeDoc = () => {
+  const created: string[] = [];
+  const texts: string[] = [];
+  const leaf = (text: string) => ({ text, get textContent(): string { return this.text; } });
+  const doc = {
+    createTextNode: (value: string) => { texts.push(value); return leaf(value); },
+    createElement: (tag: string) => {
+      created.push(tag);
+      const children: Array<{ textContent?: string }> = [];
+      return {
+        children,
+        text: "",
+        append(...kids: Array<{ textContent?: string }>) { kids.forEach((kid) => children.push(kid)); },
+        get textContent(): string { return this.text + children.map((child) => child.textContent ?? "").join(""); },
+      };
+    },
+  };
+  return { doc: doc as unknown as Document, created, texts };
 };
 
 beforeEach(() => {
@@ -104,6 +158,62 @@ describe("applyStoryUpdate", () => {
     expect(outcome).toMatchObject({ applied: true, classification: "invalidating", choice: "keep", dropped: ["mood"] });
     expect(swapped[0].state?.blackboard.values.mood).toBeUndefined();
     expect(swapped[0].state?.blackboard.values.trust).toBe(3);
+  });
+
+  it("applies a delayed keep decision while the same world remains current", async () => {
+    const next = storyV1();
+    next.qualities = next.qualities.filter((quality) => quality.key !== "mood");
+    const h = harness(next);
+    const pending = deferred<string | null>();
+    choice.mockImplementationOnce(() => pending.promise);
+
+    const running = applyStoryUpdate(h.deps);
+    expect(choice).toHaveBeenCalledTimes(1);
+    pending.resolve("keep");
+    const outcome = await running;
+
+    expect(outcome).toMatchObject({ applied: true, choice: "keep" });
+    expect(h.swapped).toHaveLength(1);
+    expect(h.journalled).toHaveLength(1);
+  });
+
+  it("discards a delayed keep decision after the world changes", async () => {
+    const next = storyV1();
+    next.qualities = next.qualities.filter((quality) => quality.key !== "mood");
+    const h = harness(next);
+    const pending = deferred<string | null>();
+    choice.mockImplementationOnce(() => pending.promise);
+
+    const running = applyStoryUpdate(h.deps);
+    expect(choice).toHaveBeenCalledTimes(1);
+    h.switchWorld();
+    pending.resolve("keep");
+    const outcome = await running;
+
+    expect(outcome).toMatchObject({ applied: false, choice: null });
+    expect(outcome.reason).toContain("story update discarded: epoch:");
+    expect(h.swapped).toHaveLength(0);
+    expect(h.restart).not.toHaveBeenCalled();
+    expect(h.journalled).toHaveLength(0);
+  });
+
+  it("discards a delayed restart decision after the world changes", async () => {
+    const next = storyV1();
+    next.qualities = next.qualities.filter((quality) => quality.key !== "mood");
+    const h = harness(next);
+    const pending = deferred<string | null>();
+    choice.mockImplementationOnce(() => pending.promise);
+
+    const running = applyStoryUpdate(h.deps);
+    expect(choice).toHaveBeenCalledTimes(1);
+    h.switchWorld();
+    pending.resolve("restart");
+    const outcome = await running;
+
+    expect(outcome).toMatchObject({ applied: false, choice: null });
+    expect(h.restart).not.toHaveBeenCalled();
+    expect(h.swapped).toHaveLength(0);
+    expect(h.journalled).toHaveLength(0);
   });
 
   it("restarts when the author picks restart, and leaves the chat alone on cancel", async () => {
@@ -165,9 +275,25 @@ describe("describeStoryUpdate", () => {
     next.qualities = next.qualities.filter((quality) => quality.key !== "mood");
     next.description = "Edited.";
     const diff = diffStories(before, parseStoryV2OrThrow(next), playedState(before));
-    const html = describeStoryUpdate("Hot swap", diff, 1, 2);
-    expect(html).toContain("(v1 → v2)");
-    expect(html).toContain("“mood”");
-    expect(html).toContain("1 other change carries over untouched.");
+    const description = describeStoryUpdate("Hot swap", diff, 1, 2);
+    const text = renderStoryUpdate(description, fakeDoc().doc).textContent ?? "";
+    expect(text).toContain("(v1 → v2)");
+    expect(text).toContain("“mood”");
+    // v2.3 plan 09: one save vocabulary — the library half is already done when this pops up.
+    expect(text).toContain("Your edit is already saved to the library.");
+    expect(text).toContain("1 other change is applied to this chat as it stands.");
+    expect(text).toContain("Cancel applies nothing — this chat keeps playing the version it started with.");
+  });
+
+  // R7. The title comes from an imported story and the message from a diff over it, so neither is
+  // markup — the renderer only ever puts them in text nodes.
+  it("renders an authored title as text, never as live markup", () => {
+    const marker = '<img src=x onerror="globalThis.reviewMarker=1">';
+    const hostile = { classification: "invalidating", entries: [{ kind: "invalidating", message: marker }], droppedQualityKeys: [] } as never;
+    const { doc, created, texts } = fakeDoc();
+    const rendered = renderStoryUpdate(describeStoryUpdate(marker, hostile, 1, 2), doc);
+    expect(texts).toContain(marker);
+    expect(rendered.textContent).toContain(marker);
+    expect(created.every((tag) => /^[a-z][a-z0-9]*$/.test(tag))).toBe(true);
   });
 });

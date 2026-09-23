@@ -2,6 +2,7 @@ import * as pacingStory from "../../test/fixtures/pacing.story.json";
 import { runReplay, type ReplayStep } from "@engine/replay";
 import { expectedTension } from "./shapes";
 import { getSteeringHint, getTensionTrajectory } from "./steering";
+import { DEFAULT_AGENCY, type AgencyPolicy } from "@engine/index";
 import { levelToNumeric, numericToLevel, updateEma } from "./tension";
 
 describe("tension transforms", () => {
@@ -81,6 +82,32 @@ describe("steering", () => {
     expect(getSteeringHint(0.25, 0.75)?.text).toContain("raise the tension toward critical");
     expect(getSteeringHint(0.9, 0.2)?.text).toContain("wind down decisively");
     expect(getSteeringHint(0.7, 0.3)?.text).toContain("ease the tension toward");
+  });
+
+  // v2.3 plan 07 (C4). Precedence: the checkpoint's agency policy decides how escalation is phrased,
+  // and the default (never narrate the player's acts) adds its clause to every hint — for every story
+  // that never asked for the policy, which is the deliberate behaviour change in the addendum.
+  describe("agency policy phrasing", () => {
+    const policy = (patch: Partial<AgencyPolicy> = {}): AgencyPolicy => ({ ...DEFAULT_AGENCY, ...patch });
+
+    it("defaults to world pressure that presses without requiring compliance", () => {
+      const text = getSteeringHint(0.1, 0.9, undefined, policy())!.text;
+      expect(text).toContain("the world presses hard");
+      expect(text).not.toContain("the player's next move");
+      expect(text).toContain("Do not narrate the player's own words or decisions.");
+    });
+
+    it("hands the move to the player when the objective needs the player's own act", () => {
+      const escalate = getSteeringHint(0.1, 0.9, undefined, policy({ objective_kind: "player_action" }))!.text;
+      expect(escalate).toContain("put a hard choice in front of the player");
+      const ease = getSteeringHint(0.7, 0.3, undefined, policy({ objective_kind: "player_action" }))!.text;
+      expect(ease).toContain("room to decide what comes next");
+    });
+
+    it("drops the player clause only when the author turned it off", () => {
+      expect(getSteeringHint(0.1, 0.9, undefined, policy({ never_narrate_player_action: false }))!.text).not.toContain("Do not narrate");
+      expect(getSteeringHint(0.5, 0.5, undefined, policy({ protect_player_choice: false }))!.text).toContain("hold the tension");
+    });
   });
 
   it("interpolates a tension trajectory", () => {

@@ -40,9 +40,42 @@ state — all without an AI in the steady-state response path.
 
 1. Copy this folder into `SillyTavern/public/scripts/extensions/third-party/story-orchestrator`
    (or install via the extension URL if you host it).
-2. From the extension folder: `npm ci && npm run build` (produces the gitignored `dist/index.js`
-   that `manifest.json` loads).
+2. From the extension folder: `npm ci && npm run build`. `dist/` is **not** in the repository — the
+   bundle is a build artifact attached to a release — so this step is not optional. It writes
+   `dist/index.js` (what `manifest.json` loads) and `dist/manifest.json` (the build manifest: the
+   bundle's sha256, the source sha256 it was built from, the SillyTavern version and the hashes of
+   every host file this extension imports).
 3. Reload SillyTavern. The panel appears in **Extensions → Story Orchestrator**.
+
+Two host-side settings, both optional and both for features that stay off without them:
+
+| For | SillyTavern setting | Without it |
+|---|---|---|
+| Memory model (extraction, memory, arcs, canon) | A **Connection Manager** profile, selected in the panel's **Memory LLM profile** | The story does not advance on its own; the drawer says so |
+| The judge (critic, director, scene tracker) | `enableServerPlugins: true` in `config.yaml` + `npm run plugin:install` | Every judge use stays on its existing path — nothing blocks |
+
+## Tested on
+
+The extension is exercised against one host at a time, and this is the one it was last exercised on.
+Nothing here claims other versions work — see the line under the table.
+
+| | |
+|---|---|
+| SillyTavern (live play) | 1.19.0, commit `7c399419636c4df3d6d035fcddf9ccbb8248b432` — the install every live journey ran on (`host.commit` in `dist/manifest.json`) |
+| SillyTavern (clean install) | 1.19.0, commit `06bde939fb1e9c4c8d8641d810f0a916b5bce127` (`release`, cloned clean): machine gates only, no live play |
+| Declared older host | 1.18.0, commit `51ad27fb86d39a3daca3adaa970375c9670c12df` — the release before it, carried so the compatibility line below means something (`typecheck`, `lint`, `test`, `build` and `test:release` green there; not played through) |
+| Host files | the ten `importSTModule` seams, hashed in `dist/manifest.json` → `host.files` |
+| Browser | Chromium via Playwright, headed (desktop and `ST_DEBUG_VIEWPORT=390x844`) |
+| Main model | TheDrummer Artemis 31B v1.1 Q4_K_M (llama.cpp on a RunPod RTX PRO 4500), Connection Manager profile |
+| Memory model | the same profile; **instruct template required** — an untemplated prompt degenerates into token loops |
+| Probed capabilities | `macros`, `slashCommands`, `backgrounds`, `vectors`, `judge` — `judge` is only needed when a judge usage is switched on, and every usage ships off (the settings panel's **Host capabilities** block reports each as present/absent/error, and **Copy for a bug report** pastes the whole picture) |
+| Bundle | the sha256 in that build's `dist/manifest.json` → `bundle.sha256` |
+
+**Not tested on other SillyTavern versions.** The extension imports host modules by path
+(`/script.js`, `/scripts/world-info.js`, …) and hashes them at build time, so a version whose files
+differ is a version nobody has run this against. The **Host capabilities** block and the build
+manifest are what make the difference visible instead of mysterious: if a host seam moved, the probe
+says which.
 
 ## Quick start
 
@@ -102,7 +135,16 @@ beats land without waiting for cadence — give your decisive transitions a cue.
 ## Development
 
 - `npm run typecheck && npm run lint && npm test` — pure/harness gate.
-- `npm run build` — production bundle. `npm run storybook` / `npm run test-storybook:ci` — UI.
+- `npm run build` — production bundle + `dist/manifest.json`. `npm run test:release` checks the
+  manifest against the bytes it describes (bundle hash, stable source hash, capability list).
+- `npm run storybook` / `npm run test-storybook:ci` — UI, with the runner invoked by path so it
+  works on Windows shells and in CI.
+- `npm run test:debug` / `npm run test:plugin` / `npm run test:release` — the harness, the judge
+  plugin and the release tooling, each on `node --test`.
+- `scripts/release/clean-host.sh` (and `.ps1` on Windows) — the reproducible answer to "does this
+  build on a machine that is not mine": clone SillyTavern at a pinned revision into a temp dir, copy
+  this extension in without `node_modules`/`dist`, `npm ci` with an isolated cache, run the gates, and
+  write a host record under `docs/release/clean-host/`.
 - `scripts/debug/*.mts` — live SillyTavern debugging (see `scripts/debug/README.md`).
 - Architecture: [`docs/architecture-v2.md`](docs/architecture-v2.md). Design spec and per-plan
   gate records: [`docs/plans/v2/`](docs/plans/v2/).

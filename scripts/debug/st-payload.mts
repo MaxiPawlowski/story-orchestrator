@@ -1,14 +1,21 @@
+import { appendFile, mkdir } from 'node:fs/promises';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 
-const USAGE = `Usage: node scripts/debug/st-payload.mts <arm|last|watch> [n] [--timeout-ms ms]
+const USAGE = `Usage: node scripts/debug/st-payload.mts <arm|last|watch> [n] [options]
 
 Commands:
-  arm        Install page-side fetch/XHR payload capture
-  last [n]   Print the last n captured generation payloads (default 1)
-  watch [n]  Print captures until n are seen or timeout (default 60s)`;
+  arm             Install page-side fetch/XHR payload capture
+  arm --persist   Arm, then append every capture of the session to JSONL until Ctrl-C
+                  [--out <file.jsonl>] [--interval-ms 1000]. Survives reloads by re-arming;
+                  reports any capture the in-page ring dropped. (v2.3 plan 01 §A0)
+  last [n]        Print the last n captured generation payloads (default 1)
+                  [--member <name>] only captures taken while that member was drafted (v2.3 plan 05:
+                  the private block is per drafted member, so a member's payload is its own capture)
+  watch [n]       Print captures until n are seen or timeout (default 60s) [--timeout-ms ms]`;
 
 function argValue(name, fallback) {
   const index = process.argv.indexOf(name);
@@ -18,13 +25,18 @@ function argValue(name, fallback) {
 export async function armPayloadCapture(page) {
   return evaluateInST(page, () => {
     const key = '__soDebugPayloads';
-    const state = globalThis[key] ||= { armed: false, entries: [], currentDraftMember: null };
-    if (state.armed) return { armed: true, alreadyArmed: true, count: state.entries.length };
+    const state = globalThis[key] ||= { armed: false, entries: [], currentDraftMember: null, nextIndex: 0, epoch: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}` };
+    if (state.armed) return { armed: true, alreadyArmed: true, count: state.entries.length, epoch: state.epoch, nextIndex: state.nextIndex };
     const ctx = SillyTavern.getContext();
     const push = (entry) => {
+      // `index` must be monotonic across the whole session, not the position in the ring: the ring
+      // keeps the last 100, so deriving the index from `entries.length` made every capture past the
+      // 100th collide on index 100 — `watch` then stopped printing and a persisted record would
+      // silently lose every later turn. Verified on 2026-09-20 (v2.3 plan 01 §A0).
       state.entries.push({
         ...entry,
-        index: state.entries.length,
+        index: state.nextIndex++,
+        epoch: state.epoch,
         draftMember: state.currentDraftMember,
         capturedAt: new Date().toISOString(),
       });
@@ -66,36 +78,162 @@ export async function armPayloadCapture(page) {
       state.currentDraftMember = null;
     });
     state.armed = true;
-    return { armed: true, alreadyArmed: false, count: state.entries.length };
+    return { armed: true, alreadyArmed: false, count: state.entries.length, epoch: state.epoch, nextIndex: state.nextIndex };
   });
 }
 
-export async function getPayloads(page, count = 1) {
-  return evaluateInST(page, (count) => {
+// Everything captured since `sinceIndex`, plus the arming epoch so a caller can tell a fresh page
+// (reload → new epoch, index restarts at 0) from more captures in the same one.
+export async function drainPayloads(page, sinceIndex = 0) {
+  return evaluateInST(page, (since) => {
     const state = globalThis.__soDebugPayloads;
-    const entries = state?.entries ?? [];
-    return entries.slice(-count).map((entry) => {
-      let parsedBody = null;
-      if (typeof entry.body === 'string') {
-        try { parsedBody = JSON.parse(entry.body); } catch {}
-      }
-      return { ...entry, parsedBody };
-    });
-  }, count);
+    if (!state?.armed) return { armed: false, epoch: null, entries: [], nextIndex: 0, dropped: 0 };
+    const entries = (state.entries ?? []).filter((entry) => entry.index >= since);
+    const oldest = state.entries?.length ? state.entries[0].index : since;
+    return {
+      armed: true,
+      epoch: state.epoch,
+      nextIndex: state.nextIndex,
+      // The ring keeps 100. If the caller fell further behind than that, say how many are gone
+      // rather than writing a record with a silent hole in it.
+      dropped: Math.max(0, oldest - since),
+      entries: entries.map((entry) => {
+        let parsedBody = null;
+        if (typeof entry.body === 'string') {
+          try { parsedBody = JSON.parse(entry.body); } catch {}
+        }
+        return { ...entry, parsedBody };
+      }),
+    };
+  }, sinceIndex);
 }
 
-async function watchPayloads(page, limit, timeoutMs = 60000) {
-  await armPayloadCapture(page);
-  let printed = 0;
-  const deadline = Date.now() + timeoutMs;
-  while ((!limit || printed < limit) && Date.now() < deadline) {
-    const payloads = await getPayloads(page, 100);
-    const next = payloads.filter((entry) => entry.index >= printed);
-    for (const entry of next) {
-      console.log(JSON.stringify(entry));
-      printed = entry.index + 1;
-      if (limit && printed >= limit) return;
+export async function getPayloads(page, count = 1, member = null) {
+  return evaluateInST(page, ({ count: wanted, member: who }: { count: number; member: string | null }) => {
+    const state = globalThis.__soDebugPayloads;
+    const all = state?.entries ?? [];
+    // v2.3 plan 05: the private block is swapped per drafted member, so "the member's payload" is the
+    // capture taken while that member was drafted. Filter BEFORE slicing, or the newest capture (for
+    // whoever spoke last) pushes the member's own out of the window.
+    const matching = who
+      ? all.filter((entry) => String(entry.draftMember ?? '').toLowerCase() === who.toLowerCase())
+      : all;
+    return {
+      member: who,
+      matched: matching.length,
+      total: all.length,
+      entries: matching.slice(-wanted).map((entry) => {
+        let parsedBody = null;
+        if (typeof entry.body === 'string') {
+          try { parsedBody = JSON.parse(entry.body); } catch {}
+        }
+        return { ...entry, parsedBody };
+      }),
+    };
+  }, { count, member });
+}
+
+// v2.3 plan 01 §A0: keep every generation request of a played session on disk. The in-page ring
+// holds the last 100 and a reload wipes it, so the P0 record needs a drain loop, not a ring read.
+export async function persistPayloads(page, { out, intervalMs = 1000, onEntry = null, shouldStop = null } = {} as any) {
+  let epoch: string | null = null;
+  let since = 0;
+  let written = 0;
+  let dropped = 0;
+  let rearmed = 0;
+  let stopped = false;
+  const stop = () => { stopped = true; };
+  process.on('SIGINT', stop);
+  process.on('SIGTERM', stop);
+
+  if (out) await mkdir(dirname(out), { recursive: true });
+  // Same rule as the journal tail: the file is the record, the console is a convenience. A closed
+  // stdout must never truncate a session capture (EPIPE cut a live journal run on 2026-09-20).
+  process.stdout.on('error', () => {});
+
+  // A reload (or a re-arm by someone else) takes the page's capture state with it. Anything it
+  // captured after our last drain is gone AND uncountable — the counter that would have said how
+  // many died with the page. So a restart is recorded as an UNKNOWN gap, never as zero: "we did
+  // not see a loss" and "there was no loss" are different claims, and only the second is a clean
+  // record (Astra review, 2026-09-20).
+  let unknownGaps = 0;
+  let writeErrors = 0;
+
+  const poll = async () => {
+    let frame = await drainPayloads(page, since);
+    if (!frame.armed || (epoch && frame.epoch !== epoch)) {
+      if (epoch) {
+        rearmed += 1;
+        unknownGaps += 1;
+      }
+      await armPayloadCapture(page);
+      frame = await drainPayloads(page, 0);
+      since = 0;
     }
+    epoch = frame.epoch;
+    dropped += frame.dropped ?? 0;
+    for (const entry of frame.entries) {
+      if (out) {
+        // Acknowledge per row: a failed append must not advance the cursor past a capture that
+        // never reached disk, and it must not silently look like a complete record either.
+        try {
+          await appendFile(out, `${JSON.stringify(entry)}\n`, 'utf-8');
+        } catch (err) {
+          writeErrors += 1;
+          throw err;
+        }
+      }
+      written += 1;
+      if (onEntry) onEntry(entry);
+      else {
+        try {
+          console.log(`${entry.capturedAt} #${entry.index} ${entry.method} ${entry.url}${entry.draftMember ? ` (${entry.draftMember})` : ''}`);
+        } catch {}
+      }
+      since = entry.index + 1;
+    }
+    since = Math.max(since, frame.nextIndex ?? since);
+  };
+
+  while (!stopped) {
+    try {
+      await poll();
+    } catch (err) {
+      // A reload mid-read destroys the execution context and is ordinary; a disk failure is not.
+      if (writeErrors) break;
+    }
+    if (shouldStop?.()) break;
+    await new Promise((done) => setTimeout(done, intervalMs));
+  }
+
+  // One last drain, so a Ctrl-C does not throw away whatever arrived since the final poll.
+  try {
+    await poll();
+  } catch {}
+
+  process.off('SIGINT', stop);
+  process.off('SIGTERM', stop);
+  const ok = writeErrors === 0 && dropped === 0 && unknownGaps === 0;
+  return { written, dropped, rearmed, unknownGaps, writeErrors, epoch, ok };
+}
+
+export async function watchPayloads(page, limit, timeoutMs = 60000) {
+  const armed = await armPayloadCapture(page);
+  // Watch only what happens from now on, and count ROWS PRINTED — never the capture index. The
+  // index is a monotonic session counter, so `printed = entry.index + 1` made `watch 2` return
+  // after a single row on any page that had already generated twice (2026-09-20).
+  let cursor = armed.nextIndex ?? 0;
+  let shown = 0;
+  const deadline = Date.now() + timeoutMs;
+  while ((!limit || shown < limit) && Date.now() < deadline) {
+    const frame = await drainPayloads(page, cursor);
+    if (frame.dropped) console.error(`WARNING: ${frame.dropped} captures were evicted before this watch drained them.`);
+    for (const entry of frame.entries) {
+      console.log(JSON.stringify(entry));
+      shown += 1;
+      if (limit && shown >= limit) return;
+    }
+    cursor = frame.nextIndex ?? cursor;
     await page.waitForTimeout(500);
   }
 }
@@ -106,13 +244,27 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     console.log(USAGE);
     process.exit(0);
   }
-  runCli(async (page) => {
+  if (command === 'arm' && process.argv.includes('--persist')) {
+    const out = resolve(process.cwd(), argValue('--out', '.debug/st-payload-session.jsonl'));
+    const intervalMs = Number(argValue('--interval-ms', 1000));
+    runCli(async (page) => {
+      await armPayloadCapture(page);
+      console.log(`Persisting every capture → ${out} every ${intervalMs} ms. Ctrl-C to stop.`);
+      const result = await persistPayloads(page, { out, intervalMs });
+      console.log(`\n${JSON.stringify(result)}`);
+      if (result.dropped) console.error(`WARNING: ${result.dropped} captures were evicted from the page ring before they were drained — lower --interval-ms.`);
+      if (result.unknownGaps) console.error(`WARNING: the page restarted ${result.unknownGaps} time(s); captures between the last drain and each restart are UNKNOWN, not zero.`);
+      if (result.writeErrors) console.error(`ERROR: ${result.writeErrors} rows could not be written; this record is incomplete.`);
+      return { ok: result.ok };
+    }, { keepOpen: true });
+  } else runCli(async (page) => {
     if (command === 'arm') {
       const result = await armPayloadCapture(page);
       console.log(JSON.stringify(result, null, 2));
       await writeJSON(result, 'st-payload-arm');
     } else if (command === 'last') {
-      const result = await getPayloads(page, Number(process.argv[3] || 1));
+      const count = process.argv[3] && !process.argv[3].startsWith('--') ? Number(process.argv[3]) : 1;
+      const result = await getPayloads(page, count, argValue('--member', null));
       console.log(JSON.stringify(result, null, 2));
       await writeJSON(result, 'st-payload-last');
     } else if (command === 'watch') {

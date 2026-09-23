@@ -7,7 +7,7 @@ const meta: Meta<typeof ProvisioningCard> = {
   component: ProvisioningCard,
   args: {
     onApply: fn(),
-    environment: { characterNames: ["Ponticius"], lorebookNames: ["Xentar Checkpoints"], groupNames: ["Xentar"], storyLorebooks: [] },
+    environment: { characterNames: ["Ponticius"], lorebookNames: ["Xentar Checkpoints"], groupNames: ["Xentar"], storyLorebooks: [], ownedLorebooks: [], grantedLorebooks: [] },
     op: { kind: "createCharacterCard", name: "Arin", description: "A guide who knows the ruins." },
   },
 };
@@ -43,8 +43,38 @@ export const OnlyWritesIntoTheStorysOwnLorebook: Story = {
   args: { op: { kind: "upsertLorebookEntry", lorebook: "Xentar Checkpoints", comment: "The ruins", keys: ["ruins"], content: "Sunken halls." } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(await canvas.findByText(/is not this story's lorebook/)).toBeInTheDocument();
+    await expect(await canvas.findByText(/will not write into it/)).toBeInTheDocument();
     await expect(canvas.getByRole("button", { name: "Create it" })).toBeDisabled();
+  },
+};
+
+// R8: the write shows what it replaces. A required-but-unowned book is refused; a granted one is
+// editable, and then the author sees the existing content beside the replacement before applying.
+export const ShowsTheEntryItWouldReplace: Story = {
+  args: {
+    environment: { characterNames: [], lorebookNames: ["Xentar Checkpoints"], groupNames: [], storyLorebooks: ["Xentar Checkpoints"], ownedLorebooks: ["Xentar Checkpoints"], grantedLorebooks: [] },
+    op: { kind: "upsertLorebookEntry", lorebook: "Xentar Checkpoints", comment: "The ruins", keys: ["ruins"], content: "Sunken halls, three days east." },
+    existing: { content: "Sunken halls.", keys: ["ruins"], constant: false },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByText(/Replaces the existing entry/)).toBeInTheDocument();
+    await expect(canvas.getByLabelText("Current content")).toHaveTextContent("Sunken halls.");
+    await expect(canvas.getByLabelText("New content")).toHaveTextContent("Sunken halls, three days east.");
+    await expect(canvas.getByRole("button", { name: "Create it" })).toBeEnabled();
+  },
+};
+
+export const SaysWhenNothingIsThereYet: Story = {
+  args: {
+    environment: { characterNames: [], lorebookNames: ["Xentar Checkpoints"], groupNames: [], storyLorebooks: ["Xentar Checkpoints"], ownedLorebooks: ["Xentar Checkpoints"], grantedLorebooks: [] },
+    op: { kind: "upsertLorebookEntry", lorebook: "Xentar Checkpoints", comment: "The ruins", keys: ["ruins"], content: "Sunken halls." },
+    existing: null,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByText(/Nothing is filed under "The ruins" yet/)).toBeInTheDocument();
+    await expect(canvas.queryByLabelText("Current content")).not.toBeInTheDocument();
   },
 };
 
