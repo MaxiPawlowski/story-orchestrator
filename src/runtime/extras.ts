@@ -1,5 +1,5 @@
 import { stripChannelNoise, type ParsedFact } from "@extraction/index";
-import { EXPANSION_CONTRACT, type ExpansionRuntimeState } from "@generation/index";
+import { EXPANSION_CONTRACT, type ExpansionCacheEntry, type ExpansionRuntimeState } from "@generation/index";
 import { CONFLICT_LIMIT, createMemoryState, DERIVED_LIMIT, generateMemoryId, legacyProvenance, type MemoryEntry } from "@memory/index";
 import { DEFAULT_TENSION_EMA_ALPHA } from "@constants/defaults";
 import { capProposalRing } from "@stagecraft/index";
@@ -251,6 +251,17 @@ export const sanitizeExtraction = (value: RuntimeExtras | undefined): Extraction
   };
 };
 
+const PLAYED_EXPANSION = new Set(["inserted", "validated"]);
+
+export const upgradeLegacyExpansion = (entry: ExpansionCacheEntry): ExpansionCacheEntry => ({
+  ...entry,
+  contract: EXPANSION_CONTRACT,
+  beats: entry.beats.map((beat, beatIndex) => {
+    const beatId = beat.id ?? String(beatIndex);
+    return { ...beat, id: beatId, outcomes: beat.outcomes.map((outcome, outcomeIndex) => ({ ...outcome, id: outcome.id ?? `${beatId}:${outcomeIndex}` })) };
+  }),
+});
+
 export const sanitizeExpansion = (value: RuntimeExtras | undefined): ExpansionRuntimeState => {
   const existing = value?.expansion;
   if (!existing) return createExpansion();
@@ -260,8 +271,8 @@ export const sanitizeExpansion = (value: RuntimeExtras | undefined): ExpansionRu
     // A cache does not survive the contract that produced it: the entry is dropped, and the stub is
     // re-generated on arrival like any other missing chain.
     ? Object.entries(existing.entries)
-      .filter(([, entry]) => entry.contract === EXPANSION_CONTRACT)
-      .map(([key, entry]) => [key, { ...entry, contract: EXPANSION_CONTRACT, origin: entry.origin ?? "active" }] as const)
+      .filter(([, entry]) => entry.contract === EXPANSION_CONTRACT || (entry.contract === undefined && PLAYED_EXPANSION.has(entry.status)))
+      .map(([key, entry]) => [key, { ...(entry.contract === EXPANSION_CONTRACT ? entry : upgradeLegacyExpansion(entry)), origin: entry.origin ?? "active" }] as const)
     : [];
   return { entries: Object.fromEntries(entries), scheduler: existing.scheduler ?? { queueDepth: 0, inFlight: false, lastError: null } };
 };

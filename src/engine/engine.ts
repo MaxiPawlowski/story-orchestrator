@@ -73,6 +73,17 @@ const DEFAULT_HOST: EngineHost = { now: () => Date.now() };
 
 // State saved before the engine kept a full path knows only the anchors. The intermediates that
 // led to the active checkpoint are recovered wherever the graph leaves a single way in.
+export function repairActiveCheckpoint(state: EngineState, story: NormalizedStoryV2): { state: EngineState; detail: string | null } {
+  if (story.checkpointById[state.activeCheckpointId]) return { state, detail: null };
+  const trail = [...[...(state.visitedPath ?? [])].reverse(), ...[...state.visitedAnchors].reverse()];
+  const fallback = trail.find((id) => story.checkpointById[id]) ?? story.startCheckpointId;
+  const keep = (ids: string[] | undefined) => ids?.filter((id) => story.checkpointById[id]);
+  return {
+    state: { ...state, activeCheckpointId: fallback, visitedAnchors: keep(state.visitedAnchors) ?? [], ...(state.visitedPath ? { visitedPath: keep(state.visitedPath) } : {}) },
+    detail: `the saved checkpoint ${state.activeCheckpointId} is not in this story's graph (a generated chain that did not survive the upgrade); resumed at ${fallback}`,
+  };
+}
+
 function inferVisitedPath(story: NormalizedStoryV2, visitedAnchors: string[], activeCheckpointId: string): string[] {
   if (visitedAnchors.at(-1) === activeCheckpointId) return [...visitedAnchors];
   const transitions = Object.values(story.outgoingByCheckpoint).flat();
@@ -105,8 +116,11 @@ export class StoryEngine {
 
   constructor(private readonly host: EngineHost = DEFAULT_HOST) {}
 
+  hydrateRepair: string | null = null;
+
   loadStory(normalized: NormalizedStoryV2): void {
     this.story = normalized;
+    this.hydrateRepair = null;
     this.blackboard = new Blackboard(normalized);
     this.queue = new ApplyQueue();
     this.activeCheckpointId = normalized.startCheckpointId;
@@ -123,7 +137,10 @@ export class StoryEngine {
     this.recordSnapshot();
   }
 
-  hydrate(state: EngineState, history: EngineHistory | null = null): void {
+  hydrate(saved: EngineState, history: EngineHistory | null = null): void {
+    const repaired = repairActiveCheckpoint(saved, this.requireStory());
+    const state = repaired.state;
+    this.hydrateRepair = repaired.detail;
     this.blackboard = new Blackboard(this.requireStory(), state.blackboard);
     this.queue = new ApplyQueue();
     this.restoreStateFields(state);

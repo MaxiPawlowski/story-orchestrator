@@ -567,7 +567,7 @@ export class RuntimeManager {
     const saved = mode === "hydrate" ? persisted?.engineState ?? null : null;
     if (saved) this.engine.hydrate(saved, persisted?.engineHistory ?? null);
     await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), saved ? "hydrate" : "activate", this.engine.checkpointPath);
-    this.status = `${saved ? "Continuing" : "Started"} ${loaded.story.title}`;
+    this.status = `${saved ? "Continuing" : "Started"} ${loaded.story.title}${this.engine.hydrateRepair ? ` — ${this.engine.hydrateRepair}` : ""}`;
     await releaseGatedWorldInfo(this.effects, previous, loaded.story);
     this.pacing.updateSteering();
     this.memory.updateInjection();

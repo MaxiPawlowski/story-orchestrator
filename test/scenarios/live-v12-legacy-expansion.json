@@ -1,0 +1,24 @@
+{
+  "name": "live-v12-legacy-expansion",
+  "objective": "v2.3 replan V12, live through the real save/reload/hydrate path: a chat standing on a GENERATED checkpoint whose cache entry was written before the v2.3 contract (no `contract`, no outcome ids) must come back on that checkpoint after a page reload, with the chain upgraded in place — not stranded on a checkpoint the merged graph no longer has (the pre-fix behaviour: the entry was dropped, the active id vanished from the graph, and the story could never advance). The pre-v2.3 blob is produced by stripping the two fields from a real saved blob, since no chat saved by an older build is on hand.",
+  "steps": [
+    { "import_story": { "file": "../fixtures/background-generation.story.json" } },
+    { "slash": "/cp set approach unknown" },
+    { "expand": { "debugResponse": "{\"beats\":[{\"objective\":\"Secure the key route\",\"guidance\":\"Let the player confirm the key matters and keep pressure rising.\",\"tension_target\":\"tense\",\"outcomes\":[{\"label\":\"key secured\",\"gate\":{\"q\":\"key_found\",\"op\":\"==\",\"v\":true},\"deltas\":[{\"q\":\"key_found\",\"v\":true}],\"progress\":{\"anchor\":\"finish\",\"amount\":1}}]},{\"objective\":\"Choose the safe approach\",\"guidance\":\"Frame a clear safe route toward the vault without resolving the anchor early.\",\"tension_target\":\"critical\",\"outcomes\":[{\"label\":\"safe route\",\"gate\":{\"q\":\"approach\",\"op\":\"==\",\"v\":\"safe\"},\"deltas\":[{\"q\":\"approach\",\"v\":\"safe\"}]}]}]}" } },
+    { "eval": "const entry = globalThis.storyOrchestratorRuntime.getSnapshot().expansion?.entries?.['start->bridge_stub->finish']; if (!entry || !['validated', 'inserted'].includes(entry.status)) throw new Error(`no playable chain: ${JSON.stringify(entry && entry.status)}`); return { status: entry.status };", "log": true },
+    { "slash": "/cp activate gen_bridge_stub_1" },
+    { "expect": { "activeCheckpoint": "gen_bridge_stub_1" } },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const blob = ctx.chatMetadata?.story_orchestrator; const story = blob?.stories?.[blob.selectedStoryId]; const entries = story?.extras?.expansion?.entries; if (!entries || !entries['start->bridge_stub->finish']) throw new Error(`no saved expansion entry to age: ${JSON.stringify(Object.keys(story ?? {}))}`); if (story.engineState?.activeCheckpointId !== 'gen_bridge_stub_1') throw new Error(`the saved state is not on the generated checkpoint: ${story.engineState?.activeCheckpointId}`); for (const entry of Object.values(entries)) { delete entry.contract; for (const beat of entry.beats ?? []) { delete beat.id; for (const outcome of beat.outcomes ?? []) delete outcome.id; } } await ctx.saveMetadata(); return { aged: Object.keys(entries), active: story.engineState.activeCheckpointId };",
+      "log": true
+    },
+    { "reload": { "timeoutMs": 90000 } },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const state = rt.getEngineState(); const entry = rt.getSnapshot().expansion?.entries?.['start->bridge_stub->finish'] ?? null; const graph = rt.getStory(); const exits = graph?.outgoingByCheckpoint?.[state.activeCheckpointId]?.length ?? 0; if (state.activeCheckpointId !== 'gen_bridge_stub_1') throw new Error(`after reload the chat is on ${state.activeCheckpointId}, not the generated checkpoint it was saved on (entry=${entry ? entry.status : 'dropped'})`); if (!entry || entry.contract !== 2) throw new Error(`the legacy chain was not upgraded in place: ${JSON.stringify(entry && { status: entry.status, contract: entry.contract })}`); if (!exits) throw new Error('the generated checkpoint has no exits in the merged graph — the chat would be frozen'); const ids = entry.beats.flatMap((beat) => beat.outcomes.map((outcome) => outcome.id)); if (ids.some((id) => !id)) throw new Error(`an outcome has no id after the upgrade: ${JSON.stringify(ids)}`); return { active: state.activeCheckpointId, status: entry.status, contract: entry.contract, exits, outcomeIds: ids, status_line: rt.getSnapshot().status ?? null };",
+      "log": true
+    },
+    { "slash": "/cp set key_found true" },
+    { "slash": "/cp activate gen_bridge_stub_2" },
+    { "expect": { "activeCheckpoint": "gen_bridge_stub_2" } }
+  ]
+}

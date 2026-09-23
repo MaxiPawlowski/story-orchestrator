@@ -11,6 +11,7 @@ jest.mock("@services/STAPI", () => ({
 import { isLive } from "@memory/index";
 import { EXPANSION_CONTRACT } from "@generation/index";
 import { sanitizeExpansion, sanitizeMemory } from "./extras";
+import { repairActiveCheckpoint, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import type { RuntimeExtras } from "./types";
 
 // v2.3 plan 05. A chat saved before envelopes existed hydrates and plays unchanged (v2.1 rule 6), and
@@ -59,7 +60,32 @@ describe("expansion cache contract", () => {
     expect(Object.keys(kept.entries)).toEqual(["a->b->c"]);
     expect(kept.entries["a->b->c"].contract).toBe(EXPANSION_CONTRACT);
 
-    const dropped = sanitizeExpansion({ expansion: { entries: { "a->b->c": entry() }, scheduler: { queueDepth: 0, inFlight: false, lastError: null } } } as unknown as RuntimeExtras);
+    const dropped = sanitizeExpansion({ expansion: { entries: { "a->b->c": { ...entry(), status: "cached" } }, scheduler: { queueDepth: 0, inFlight: false, lastError: null } } } as unknown as RuntimeExtras);
     expect(dropped.entries).toEqual({});
+  });
+
+  it("V12: a pre-R9 chain the chat is PLAYING is upgraded in place, not dropped — its checkpoints are where the player stands", () => {
+    const legacy = { ...entry(), status: "inserted", beats: [{ objective: "o", guidance: "g", tension_target: "calm", outcomes: [{ label: "a", gate: { q: "x", op: "==", v: true } }, { label: "b", gate: { q: "y", op: "==", v: true } }] }] };
+    const kept = sanitizeExpansion({ expansion: { entries: { "a->b->c": legacy }, scheduler: { queueDepth: 0, inFlight: false, lastError: null } } } as unknown as RuntimeExtras);
+    const upgraded = kept.entries["a->b->c"];
+    expect(upgraded.contract).toBe(EXPANSION_CONTRACT);
+    expect(upgraded.beats[0].id).toBe("0");
+    expect(upgraded.beats[0].outcomes.map((outcome) => outcome.id)).toEqual(["0:0", "0:1"]);
+  });
+});
+
+describe("V12: a saved checkpoint the merged graph no longer has", () => {
+  const story = { startCheckpointId: "cp1", checkpointById: { cp1: {}, cp2: {} } } as unknown as NormalizedStoryV2;
+  const saved = (activeCheckpointId: string, visitedPath: string[]) => ({ activeCheckpointId, visitedPath, visitedAnchors: ["cp1"] }) as unknown as EngineState;
+
+  it("resumes at the newest visited checkpoint that still exists, and says why", () => {
+    const fixed = repairActiveCheckpoint(saved("gen_stub_2", ["cp1", "cp2", "gen_stub_1", "gen_stub_2"]), story);
+    expect(fixed.state.activeCheckpointId).toBe("cp2");
+    expect(fixed.detail).toContain("gen_stub_2");
+  });
+
+  it("control: a checkpoint that exists is left alone", () => {
+    const state = saved("cp2", ["cp1", "cp2"]);
+    expect(repairActiveCheckpoint(state, story)).toEqual({ state, detail: null });
   });
 });

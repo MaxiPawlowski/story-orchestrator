@@ -324,6 +324,19 @@ describe("story engine", () => {
     expect(rehydrated.activateCheckpoint("door", { lastMessageId: 8, chatLength: 9 }).previousLastMessageId).toBe(6);
   });
 
+  it("V12: hydrating onto a checkpoint the graph no longer has resumes at the newest one that still exists, and says so", () => {
+    const story = parseStoryV2OrThrow(linearStory);
+    const engine = new StoryEngine({ now: () => 0 });
+    engine.loadStory(story);
+    const saved = { ...engine.serialize(), activeCheckpointId: "gen_gone_2", visitedPath: [story.startCheckpointId, "gen_gone_1", "gen_gone_2"] };
+    engine.hydrate(saved);
+    expect(engine.serialize().activeCheckpointId).toBe(story.startCheckpointId);
+    expect(engine.checkpointPath).not.toContain("gen_gone_1");
+    expect(engine.hydrateRepair).toContain("gen_gone_2");
+    engine.hydrate(engine.serialize());
+    expect(engine.hydrateRepair).toBeNull();
+  });
+
   it("flushes pending writes and truncates logs on rollback", () => {
     const story = parseStoryV2OrThrow(linearStory);
     const engine = new StoryEngine({ now: () => 0 });

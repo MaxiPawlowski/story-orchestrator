@@ -313,7 +313,7 @@ cited). Items needing the backend stay `done` with the live half listed under L-
 | 2 | V1 | 02 | R7 residual: `showConfirmPopup` string → DOM text nodes (`index.tsx:272` library title reaches innerHTML); drop `showTextPopup`'s `innerHTML` sink; guard test: no string reaches `callGenericPopup` || live 2026-09-23 (`records/v2.3-replan/V1/`) |
 | 3 | V2 | 03 | Extraction ownership across the shared read: mint the token in `ExtractionScheduler.pump` before `runSharedRead`, gate `enqueueExtractorDeltas` + apply on it; test moves the world during the read | live 2026-09-23 (`records/v2.3-replan/V2/`) |
 | 4 | V7 | 05 | Quarantine exclusion completeness: `rollbackLedger` quarantines pinned rows; `mirroredEntries` filters `isLive`; stale canon kept out of steering consumers; consolidation `groupOf` live-only; scene conflicts excluded; one exclusion census test over every consumer | live 2026-09-23 (`records/v2.3-replan/V7/`) |
-| 5 | V12 | 07 | Contract drop strands a chat on a generated checkpoint: migrate legacy `inserted` chains on the path (single outcome → id `<beat>:0`), and hydrate guard for a missing active checkpoint (nearest path anchor + notice) | todo |
+| 5 | V12 | 07 | Contract drop strands a chat on a generated checkpoint: migrate legacy `inserted` chains on the path (single outcome → id `<beat>:0`), and hydrate guard for a missing active checkpoint (nearest path anchor + notice) | live 2026-09-23 (`records/v2.3-replan/V12/`) |
 | 6 | V9 | 04 | Ledger: no new version for an unchanged value; cap per key above the history floor, never cross-key eviction | todo |
 | 7 | V10 | 04 | Stagecraft revert: keep records holding `revert-failed` ops; preserve op order; address entries by recorded target uid; tests for `revert-failed`/`externally-edited` | todo |
 | 8 | V15a | 06 | Host-effect restore on every leave (story→story too), against the RECORDED group; restore status persisted before `loaded = null` | todo |
@@ -336,6 +336,7 @@ cited). Items needing the backend stay `done` with the live half listed under L-
 | 25 | V20c | 01 | F3: J11 checks import their story + `--only` guard; T6: J9.2 per-subcase outcomes; J1.10 clicks | todo |
 | 26 | V20d | 01 | S6–S9, S12: `libraryBefore` trusted flag, empty-root recovery, `so-assets --baseline`, cleanup gaps (worldInfoCache, regex/QR, legacy mirrors), `setup.extraction` required, `writeGlobalConfig` merges `wizardSessions`; restore jest test | todo |
 | 27 | V20e | 01 | §A journal contract: audit id through the queue, zero-apply boundaries recorded, discarded writes listed; live-suite default floors; remove fixed sleeps | todo |
+| 27b | V24 | 01/07 | Scenario corpus stale since plan 07: `plan05-background-generation.json` expects `status: "inserted"` right after `expand`, but a fresh chain now sits in `validated` until the next boundary (found live 2026-09-23 while writing the V12 scenario). Re-run the whole mocked corpus and fix every stale expectation by property, not literal | todo |
 | 28 | V22 | docs | `.claude/CLAUDE.md` status → pointer + table (history moved to `docs/plans/v2.3/status-history.md`); attestation `statusNote`/`notGreen` corrected; citation check test; line-budget squeeze undone (long single-line imports reformatted, budget raised or code split honestly) | todo |
 
 ### Live queue (needs ST + a reachable backend; none is up on 2026-09-23)
