@@ -42,7 +42,7 @@ const pair: ConflictPair = {
   ],
 };
 
-const fakeManager = (actions: Record<string, unknown> = {}) => ({ memoryActions: { resolveMemoryConflict: fn(async () => true), lockAsCanon: fn(async () => true), dismissMemoryConflict: fn(async () => true), setMemoryLocked: fn(async () => {}), reconfirmMemoryEntry: fn(async () => true), rereadConflictWindow: fn(async () => true), ...actions }, excludeMemoryEntry: fn(), removeEpistemicEntry: fn(), removeLedgerEntry: fn() }) as unknown as RuntimeManager;
+const fakeManager = (actions: Record<string, unknown> = {}) => ({ memoryActions: { resolveMemoryConflict: fn(async () => true), lockAsCanon: fn(async () => true), dismissMemoryConflict: fn(async () => true), setMemoryLocked: fn(async () => {}), reconfirmMemoryEntry: fn(async () => true), rereadConflictWindow: fn(async () => true), discardQuarantined: fn(async () => true), ...actions } }) as unknown as RuntimeManager;
 
 const meta: Meta<typeof ConflictQueue> = {
   title: "Drawer/ConflictQueue",
@@ -178,6 +178,21 @@ export const ADecisionThatWasNotWrittenSaysSo: Story = {
   },
 };
 
+// V8: Discard is a decision too. It used to call the stores directly, so a discard whose save was
+// lost vanished from the panel and came back on reload with nothing said.
+export const ADiscardThatWasNotWrittenSaysSo: Story = {
+  args: {
+    manager: fakeManager({ discardQuarantined: fn(async () => false) }),
+    snapshot: snapshot({ entries: [memoryEntry({ id: "q1", text: "the ferryman owes the player a crossing", provenance: { ...provenance({ source: "extractor", messageId: 4, boundary: 4, pass: "shared-read" }), validity: "source-removed" } })] }),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByRole("button", { name: /Discard/ }));
+    await expect(args.manager.memoryActions.discardQuarantined).toHaveBeenCalledWith("q1");
+    await expect(await canvas.findByText(/Nothing changed: the decision was not written to this chat/)).toBeInTheDocument();
+  },
+};
+
 export const NothingToDecideRendersNothing: Story = {
   args: { snapshot: snapshot({ entries: [memoryEntry({})] }) },
   play: async ({ canvasElement }) => {
@@ -206,7 +221,7 @@ export const APrivateQuarantinedRowIsTheSameDecision: Story = {
     await userEvent.click(canvas.getByRole("button", { name: /Reconfirm/ }));
     await expect((args.manager as unknown as { memoryActions: { reconfirmMemoryEntry: ReturnType<typeof fn> } }).memoryActions.reconfirmMemoryEntry).toHaveBeenCalledWith("e1");
     await userEvent.click(canvas.getByRole("button", { name: /Discard/ }));
-    await expect((args.manager as unknown as { removeEpistemicEntry: ReturnType<typeof fn> }).removeEpistemicEntry).toHaveBeenCalledWith("e1");
+    await expect((args.manager as unknown as { memoryActions: { discardQuarantined: ReturnType<typeof fn> } }).memoryActions.discardQuarantined).toHaveBeenCalledWith("e1");
   },
 };
 
@@ -219,7 +234,7 @@ export const APinnedLedgerRowQuarantinedByRollbackIsOffered: Story = {
     await userEvent.click(canvas.getByRole("button", { name: /Reconfirm/ }));
     await expect((args.manager as unknown as { memoryActions: { reconfirmMemoryEntry: ReturnType<typeof fn> } }).memoryActions.reconfirmMemoryEntry).toHaveBeenCalledWith("l1");
     await userEvent.click(canvas.getByRole("button", { name: /Discard/ }));
-    await expect((args.manager as unknown as { removeLedgerEntry: ReturnType<typeof fn> }).removeLedgerEntry).toHaveBeenCalledWith("l1");
+    await expect((args.manager as unknown as { memoryActions: { discardQuarantined: ReturnType<typeof fn> } }).memoryActions.discardQuarantined).toHaveBeenCalledWith("l1");
   },
 };
 

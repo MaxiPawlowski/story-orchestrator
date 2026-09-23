@@ -171,7 +171,7 @@
       "owner": "05",
       "evidence": "jest",
       "status": "closed",
-      "note": "v2.3 plan 05: closed. `editEntryText` clears `tokens`, so the estimator applies immediately and the exact count refreshes asynchronously (`computeEntryTokens`). An 80-character edit no longer inherits the one-token cost of the text it replaced."
+      "note": "v2.3 plan 05: closed. `editEntryText` clears `tokens`, so the estimator applies immediately and the exact count refreshes asynchronously (`computeEntryTokens`). An 80-character edit no longer inherits the one-token cost of the text it replaced. Replan V8 (2026-09-23): the promised asynchronous refresh did not exist — nothing called `computeEntryTokens` after an edit, so an edited row was costed by the estimator forever. `MemoryCoordinator.editMemoryEntry` now awaits the exact count and stores it (token-checked, and only on a row that still holds the edited text); live: 29 stored = 29 from ST's tokenizer."
     },
     {
       "id": "C1",

@@ -1,0 +1,72 @@
+1/13 import_story ok 374ms
+2/13 ui ok 3167ms
+3/13 eval ok 6ms
+3/13 eval -> {"cadence":0}
+4/13 send ok 1672ms
+5/13 extract ok 818ms
+6/13 eval ok 456ms
+6/13 eval -> {"discard":"80431fa2-18ca-4f09-ae17-3311d8d13f10","keep":"4e12a8fc-67ba-412d-8ca7-889f578c13ee","sourceMessageId":1}
+7/13 edit ok 120ms
+8/13 wait ok 1515ms
+9/13 eval ok 14ms
+9/13 eval -> ["source-removed","source-removed"]
+10/13 ui ok 3416ms
+10/13 ui -> {"panelPresent":true,"header":"Needs your decision (0)","pairs":[],"quarantined":[{"index":0,"text":"Source removed: A ferryman at the board offers a crossing for a debt.extractor · shared-read · message 1Reconfirm — keep","canReconfirm":true,"canDiscard":true},{"index":1,"text":"Source removed: The Sun Ruins posting promises a sealed door under the sand.extractor · shared-read · message 1Reconfirm","canReconfirm":true,"canDiscard":true}],"storeConflicts":0,"storeQuarantined":2}
+11/13 ui ok 6022ms
+11/13 ui -> {"action":"discard","selector":"[data-so=\"quarantined\"] >> nth=0 >> [data-so=\"discard-quarantined\"]","before":1,"after":{"panelPresent":true,"header":"Needs your decision (0)","pairs":[],"quarantined":[{"index":0,"text":"Source removed: The Sun Ruins posting promises a sealed door under the sand.extractor · shared-read · message 1Reconfirm","canReconfirm":true,"canDiscard":true}],"storeConflicts":0,"storeQuarantined":1}}
+12/13 eval ok 1515ms
+12/13 eval -> {"gone":true,"savedWithout":true,"exclusion":"e1d1325f-9586-4e97-a8cd-47ede548c750","saveHealth":{"lastAppliedBoundary":1,"pendingBoundary":null,"lastOutcome":"applied","consecutiveFailures":0,"lastReason":null,"lastFailureAt":null}}
+13/13 eval ok 356ms
+13/13 eval -> {"tokens":29,"expected":29,"provenance":{"source":"author","messageId":1,"boundary":0,"pass":"shared-read","validity":"live","override":{"by":"author","at":"2026-09-23T09:47:38.218Z","boundary":1,"from":"edit"}}}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T09-47-38-906Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 13,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-23@06h47m18s857ms",
+    "owned": [
+      "2026-09-23@06h47m18s857ms"
+    ],
+    "deleted": [
+      "2026-09-23@06h47m18s857ms"
+    ],
+    "notDeleted": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@06h47m18s857ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-21@15h49m05s268ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "ok": true
+    }
+  }
+}

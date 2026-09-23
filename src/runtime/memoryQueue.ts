@@ -1,4 +1,4 @@
-import { addMemoryEntries, CONFLICT_LIMIT, conflictWindowOf, detectConflicts, markConflicted, provenance, resolveConflict, withOverride, type ConflictPair, type ConflictWindow, type LedgerBinding, type SceneConflictValue } from "@memory/index";
+import { addMemoryEntries, CONFLICT_LIMIT, conflictWindowOf, detectConflicts, excludeEntry, hashMemoryText, markConflicted, provenance, recordDerived, removeEpistemic, removeLedger, resolveConflict, withOverride, type ConflictPair, type ConflictWindow, type LedgerBinding, type SceneConflictValue } from "@memory/index";
 import type { Provenance, Provenanced } from "@memory/provenance";
 import type { MemoryRuntimeState } from "./types";
 
@@ -14,6 +14,7 @@ export interface MemoryQueueDeps {
   /** The stored scene read's claims, which the ledger or the blackboard can contradict. */
   sceneValues?: () => SceneConflictValue[];
   boundaryStamp: () => number;
+  lastMessageId?: () => number;
   updateInjection: () => void;
   /** A disagreement changes what a later canon synthesis would have been built from, so resolving
    *  one marks the canon stale rather than leaving text derived from a losing claim in play. */
@@ -213,5 +214,22 @@ export async function reconfirmMemoryEntry(deps: MemoryQueueDeps, id: string, at
   if (state.ledger.some((entry) => entry.id === id)) {
     return commitDecision(deps, { ledger: state.ledger.map((entry) => (entry.id === id ? { ...entry, ...withOverride(entry, "reconfirm", at, boundary) } : entry)) }, { ledger: state.ledger });
   }
+  return false;
+}
+
+/** V8. Discard is an author decision like the other four, so it is written or it is put back. It
+ *  used to call the stores directly: a lost save left the row gone on screen and back after a reload,
+ *  and the panel said nothing. A discarded fact is an exclusion — its text stays out of later reads,
+ *  and a rollback past the point it was discarded restores it. */
+export async function discardMemoryRow(deps: MemoryQueueDeps, id: string): Promise<boolean> {
+  const state = deps.getMemory();
+  const entry = state.entries.find((candidate) => candidate.id === id);
+  if (entry) {
+    const excluded = excludeEntry(state, id);
+    const derived = recordDerived(state.derived, { boundary: deps.boundaryStamp(), messageId: deps.lastMessageId?.() ?? -1, kind: "exclusion", inputs: [id], removed: [entry], hash: hashMemoryText(entry.text) });
+    return commitDecision(deps, { entries: excluded.entries, excluded: excluded.excluded, derived }, { entries: state.entries, excluded: state.excluded, derived: state.derived });
+  }
+  if (state.epistemic.some((row) => row.id === id)) return commitDecision(deps, { epistemic: removeEpistemic(state.epistemic, id) }, { epistemic: state.epistemic });
+  if (state.ledger.some((row) => row.id === id)) return commitDecision(deps, { ledger: removeLedger(state.ledger, id) }, { ledger: state.ledger });
   return false;
 }

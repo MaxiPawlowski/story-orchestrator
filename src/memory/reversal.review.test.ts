@@ -162,7 +162,7 @@ describe("review: token budgets survive manual edits", () => {
 
   finding("M7", () => {
     const state: MemoryStoreState = { ...createMemoryState(), entries: [memory({ id: "edited", text: "tiny", tokens: 1 })] };
-    const edited = editEntryText(state, "edited", "x".repeat(80)).entries[0];
+    const edited = editEntryText(state, "edited", "x".repeat(80), "t", 0).entries[0];
     must(
       !selectWithinBudget([edited], 4, () => 1).kept.has("edited"),
       "an edited entry kept the token count of the text it replaced, so an 80-character entry fitted a four-token budget",

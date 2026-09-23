@@ -62,7 +62,7 @@ const ConflictQueue = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
           <div className="opacity-50" title={describeProvenance(entry)}>{originText(entry.provenance, entry.provenance?.messageId === -1 ? undefined : entry.provenance?.messageId, undefined)}</div>
           <div className="flex gap-2">
             <button className="menu_button" data-so="reconfirm" onClick={() => void act(entry.id, () => manager.memoryActions.reconfirmMemoryEntry(entry.id))}>Reconfirm — keep it as mine</button>
-            <button className="menu_button" data-so="discard-quarantined" onClick={() => void manager.excludeMemoryEntry(entry.id)}>Discard</button>
+            <button className="menu_button" data-so="discard-quarantined" onClick={() => void act(entry.id, () => manager.memoryActions.discardQuarantined(entry.id))}>Discard</button>
           </div>
         </div>
       ))}
@@ -75,7 +75,7 @@ const ConflictQueue = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
           <div className="opacity-50" title={describeProvenance(entry)}>{originText(entry.provenance, entry.provenance?.messageId === -1 ? undefined : entry.provenance?.messageId, undefined)}</div>
           <div className="flex gap-2">
             <button className="menu_button" data-so="reconfirm" onClick={() => void act(entry.id, () => manager.memoryActions.reconfirmMemoryEntry(entry.id))}>Reconfirm — keep it as mine</button>
-            <button className="menu_button" data-so="discard-quarantined" onClick={() => void manager.removeEpistemicEntry(entry.id)}>Discard</button>
+            <button className="menu_button" data-so="discard-quarantined" onClick={() => void act(entry.id, () => manager.memoryActions.discardQuarantined(entry.id))}>Discard</button>
           </div>
         </div>
       ))}
@@ -85,7 +85,7 @@ const ConflictQueue = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
           <div className="opacity-50" title={describeProvenance(entry)}>{originText(entry.provenance, entry.provenance?.messageId === -1 ? undefined : entry.provenance?.messageId, undefined)}</div>
           <div className="flex gap-2">
             <button className="menu_button" data-so="reconfirm" onClick={() => void act(entry.id, () => manager.memoryActions.reconfirmMemoryEntry(entry.id))}>Reconfirm — keep it as mine</button>
-            <button className="menu_button" data-so="discard-quarantined" onClick={() => void manager.removeLedgerEntry(entry.id)}>Discard</button>
+            <button className="menu_button" data-so="discard-quarantined" onClick={() => void act(entry.id, () => manager.memoryActions.discardQuarantined(entry.id))}>Discard</button>
           </div>
         </div>
       ))}

@@ -11,7 +11,7 @@ jest.mock("@services/STAPI", () => ({
 
 import { activeEpistemic, createMemoryState, dropByMessageId, provenance, sceneConflictValues, type LedgerEntry, type MemoryEntry } from "@memory/index";
 import type { SceneReadRecord } from "@judge/index";
-import { boundValuesFor, detectMemoryConflicts, dismissMemoryConflict, getConflicts, reconfirmMemoryEntry, rereadConflictWindow, resolveMemoryConflict, storeDroppedEntry, type MemoryQueueDeps } from "./memoryQueue";
+import { boundValuesFor, detectMemoryConflicts, discardMemoryRow, dismissMemoryConflict, getConflicts, reconfirmMemoryEntry, rereadConflictWindow, resolveMemoryConflict, storeDroppedEntry, type MemoryQueueDeps } from "./memoryQueue";
 import type { MemoryRuntimeState } from "./types";
 
 // v2.3 plan 05 (C3). The reconciliation queue's side of the author conversation: what a decision does
@@ -375,5 +375,44 @@ describe("the scene read joins the queue (v2.3 plan 05)", () => {
   it("leaves a scene that agrees alone", () => {
     const h = harness({ memory: state({ ledger: [ledgerRow("location", "the desert road")] }), scene: scene() });
     expect(detectMemoryConflicts(h.deps)).toEqual([]);
+  });
+});
+
+describe("V8: Discard is written or it is put back", () => {
+  const removed = { validity: "source-removed" as const };
+  const fact = () => ({ ...entry(), provenance: { ...entry().provenance!, ...removed } });
+  const hidden = () => ({ id: "e1", tag: "hiding" as const, subject: "Arin", hiddenFrom: "Ponticius", content: "cash", createdAt: 2, messageId: 4, entities: ["Arin"], confidence: 1, provenance: { ...provenance({ source: "extractor", messageId: 4, boundary: 1, pass: "epistemic" }), ...removed } });
+  const ledgerRow = () => ({ id: "l1", entity: "Mara", entityType: "character", field: "condition", value: "injured", createdAt: 2, messageId: 7, provenance: { ...provenance({ source: "extractor", messageId: 7, boundary: 2, pass: "ledger" }), ...removed } }) as unknown as LedgerEntry;
+  const full = () => state({ entries: [fact()], epistemic: [hidden()], ledger: [ledgerRow()] });
+
+  it("puts a discarded fact, private row or ledger row back when the save did not land", async () => {
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => undefined);
+    for (const id of ["m1", "e1", "l1"]) {
+      const h = harness({ memory: full(), unsaved: () => true });
+      expect(await discardMemoryRow(h.deps, id)).toBe(false);
+      expect([h.read().entries.length, h.read().epistemic.length, h.read().ledger.length]).toEqual([1, 1, 1]);
+      expect(h.read().excluded).toEqual([]);
+      expect(h.read().derived).toEqual([]);
+    }
+    warn.mockRestore();
+  });
+
+  it("control: a landed discard removes the row, and a discarded fact is an exclusion a rollback can undo", async () => {
+    const h = harness({ memory: full(), unsaved: () => false });
+    h.deps.lastMessageId = () => 9;
+    expect(await discardMemoryRow(h.deps, "m1")).toBe(true);
+    expect(h.read().entries).toEqual([]);
+    expect(h.read().excluded).toHaveLength(1);
+    expect(h.read().derived).toEqual([expect.objectContaining({ kind: "exclusion", inputs: ["m1"], boundary: 12, messageId: 9, removed: [expect.objectContaining({ id: "m1" })] })]);
+    expect(await discardMemoryRow(h.deps, "e1")).toBe(true);
+    expect(await discardMemoryRow(h.deps, "l1")).toBe(true);
+    expect([h.read().epistemic, h.read().ledger]).toEqual([[], []]);
+  });
+
+  it("answers false for an id no store holds, and writes nothing", async () => {
+    const save = jest.fn(async () => {});
+    const h = harness({ memory: full(), save });
+    expect(await discardMemoryRow(h.deps, "gone")).toBe(false);
+    expect(save).not.toHaveBeenCalled();
   });
 });

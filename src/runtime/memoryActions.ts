@@ -13,6 +13,7 @@ export interface MemoryActionDeps {
   reconfirmMemoryEntry: (id: string) => Promise<boolean>;
   dismissLegacyPinPrompt: () => Promise<void>;
   rereadConflictWindow: (key: string) => Promise<boolean>;
+  discardQuarantined: (id: string) => Promise<boolean>;
 }
 
 /** The manager's side of the conversation: every action is the coordinator's, one to one. */
@@ -25,6 +26,7 @@ export function memoryDelegates(memory: MemoryCoordinator): MemoryActionDeps {
     reconfirmMemoryEntry: (id) => memory.reconfirmMemoryEntry(id),
     dismissLegacyPinPrompt: () => memory.dismissLegacyPinPrompt(),
     rereadConflictWindow: (key) => memory.rereadConflictWindow(key),
+    discardQuarantined: (id) => memory.excludeMemoryEntry(id),
   };
 }
 
@@ -39,6 +41,8 @@ export function memoryActions(deps: MemoryActionDeps) {
     reconfirmMemoryEntry: (id: string) => deps.reconfirmMemoryEntry(id),
     dismissLegacyPinPrompt: () => deps.dismissLegacyPinPrompt(),
     rereadConflictWindow: (key: string) => deps.rereadConflictWindow(key),
+    /** V8: through the same write-or-put-back as every other decision in this panel. */
+    discardQuarantined: (id: string) => deps.discardQuarantined(id),
   };
 }
 

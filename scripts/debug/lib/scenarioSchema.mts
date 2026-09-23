@@ -54,7 +54,7 @@ export const UI_ACTIONS = new Set([
   'open-drawer', 'drawer-tab', 'open-settings', 'select-profile', 'open-studio', 'close-studio',
   'studio-tab', 'studio-save', 'flag', 'screenshot', 'pipeline', 'assert-player-clean', 'hit-test',
   'open-wizard', 'new-story-wizard', 'wizard-run', 'wizard-answer', 'wizard-apply', 'wizard-state',
-  'stagecraft', 'curator-accept', 'curator-reject',
+  'stagecraft', 'curator-accept', 'curator-reject', 'memory-queue',
 ]);
 
 export const STAGECRAFT_ACTIONS = new Set(['curate', 'accept', 'reject', 'accept-op', 'reject-op', 'apply', 'state']);

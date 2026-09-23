@@ -153,9 +153,10 @@ export function restoreEntry(state: MemoryStoreState, entry: MemoryEntry): Memor
 
 // v2.3 plan 05 (M7): the cached token count belonged to the text that was replaced, so an edited
 // entry kept a cost it no longer had and could fit a budget it had outgrown. Clearing it makes the
-// estimator apply immediately; the exact count refreshes asynchronously (computeEntryTokens).
-export function editEntryText(state: MemoryStoreState, id: string, text: string): MemoryStoreState {
-  return { ...state, entries: state.entries.map((entry) => (entry.id === id ? { ...entry, text, tokens: undefined } : entry)) };
+// estimator apply immediately; `MemoryCoordinator.editMemoryEntry` then stores the exact count.
+// The new text is the author's claim, not a read of a message, so it carries an override (V8).
+export function editEntryText(state: MemoryStoreState, id: string, text: string, at: string, boundary: number): MemoryStoreState {
+  return { ...state, entries: state.entries.map((entry) => (entry.id === id ? { ...entry, text, tokens: undefined, ...withOverride(entry, "edit", at, boundary) } : entry)) };
 }
 
 export function capTier(state: MemoryStoreState, tier: MemoryTier, cap: number): MemoryStoreState {

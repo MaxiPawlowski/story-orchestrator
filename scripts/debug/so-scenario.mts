@@ -11,7 +11,7 @@ import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { adoptNewSandboxChat, assertInSandbox, beginSandboxSession, deleteSandboxChats, openGroup, openMostRecentGroupChat, readActiveChat, readChatOnDisk, reopenSandboxChat } from './st-navigation.mts';
 import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, sendUserMessage, swipeMessage, waitForIdle } from './st-actions.mts';
 import { dumpCurrentChatState } from './so-state.mts';
-import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot, hitTest } from './so-ui.mts';
+import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, getMemoryQueueState, memoryQueueAction, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot, hitTest } from './so-ui.mts';
 import { listMarkedAssets, removeMarkedAssets } from './so-assets.mts';
 
 const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep] [--group <id|name>]
@@ -742,6 +742,7 @@ async function uiStep(page, spec) {
   if (action === 'stagecraft') return getStagecraftState(page, { minOps: spec?.minOps ?? 0, timeoutMs: spec?.timeoutMs });
   if (action === 'curator-accept') return decideCuratorOp(page, 'accept', { index: spec?.index ?? 0, text: spec?.text ?? null, pick: spec?.pick ?? null, timeoutMs: spec?.timeoutMs });
   if (action === 'curator-reject') return decideCuratorOp(page, 'reject', { index: spec?.index ?? 0, pick: spec?.pick ?? null, timeoutMs: spec?.timeoutMs });
+  if (action === 'memory-queue') return spec?.op ? memoryQueueAction(page, { action: spec.op, key: spec.key ?? null, side: spec.side ?? 0, index: spec.index ?? 0 }) : getMemoryQueueState(page);
   if (action === 'screenshot') return takeAnnotatedScreenshot(page, label ?? 'so-scenario');
   if (action === 'pipeline') return getPipelineState(page);
   // §H: a scripted `.click()` fires whether or not the element is on top, so a control can be

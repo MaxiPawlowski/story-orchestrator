@@ -178,7 +178,7 @@ describe("conflict detection and resolution", () => {
 describe("an edit re-costs the row", () => {
   it("clears the cached token count so the estimator applies", () => {
     const state = { ...createMemoryState(), entries: [entry({ id: "edited", text: "tiny", tokens: 1 })] };
-    expect(editEntryText(state, "edited", "x".repeat(200)).entries[0].tokens).toBeUndefined();
+    expect(editEntryText(state, "edited", "x".repeat(200), "t", 0).entries[0].tokens).toBeUndefined();
   });
 });
 

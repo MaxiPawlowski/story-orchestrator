@@ -1,8 +1,8 @@
 import { progressQualityForAnchor, type BlackboardDelta, type EngineState, type NormalizedStoryV2, type NormalizedTransition } from "@engine/index";
 import { callExtractionModel, deriveScope, getCanonLite, runSharedRead, stripChannelNoise, type ExtraGateSource, type ParsedDelta, type ParsedFact, type SharedReadWindow } from "@extraction/index";
-import { activeEpistemic, addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicInjection, applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildArcSummaryPrompt, buildBoundKeySet, buildCanonSummaryPrompt, buildLedgerView, buildMemoryInjectionBlocks, canonHistory, canonInputHash, capAllTiers, capEpistemic, capLedger, hashMemoryText, highImportanceFacts, isLive, ledgerBindings, ledgerEntityList, storyEntities, disappearingEntries, recordDerived, reverseMemoryState,
- dropCommonKnowledge, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, clearEpistemicInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, DEFAULT_DEDUP_THRESHOLDS, editEntryText, excludeEntry, expireScoped, markContradicted, matchArcBridges, memoryExtensionKey, openArcTexts, removeArc, removeEpistemic, removeLedger, renderLedgerBlock, renderPrivateEpistemicBlock, resolvedArcs, restoreEntry, setArcPinned, setLocked, setArcSummary, setEpistemicPinned, setLedgerPinned, setPinned, type ArcEntry, type ConflictPair, type DerivedRecord, type EpistemicEntry, type LedgerBinding, type LedgerView, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ScoreContext, type UncertainPair, consolidateTierJudged, clearContradicted } from "@memory/index";
-import { bindChatLorebook, clearStoryExtensionPrompt, countTokens, disableWIEntry, ensureLorebook, getActiveGroup, getCharacterNameById, getContext, loadLorebook, readInjectedPromptBlocks, setStoryExtensionPrompt, upsertWIEntry, } from "@services/STAPI";
+import { activeEpistemic, addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicInjection, applyEpistemicSignals, applyLedgerInjection, applyLedgerSignals, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildArcSummaryPrompt, buildBoundKeySet, buildCanonSummaryPrompt, buildLedgerView, buildMemoryInjectionBlocks, canonHistory, canonInputHash, capAllTiers, capEpistemic, capLedger, highImportanceFacts, isLive, ledgerBindings, ledgerEntityList, storyEntities, disappearingEntries, recordDerived, reverseMemoryState,
+ dropCommonKnowledge, capOpenArcs, capResolvedArcs, clearAllMemoryInjection, clearEpistemicInjection, CONSOLIDATION_MIN_GROUP, consolidateTier, DEFAULT_DEDUP_THRESHOLDS, editEntryText, expireScoped, markContradicted, matchArcBridges, memoryExtensionKey, openArcTexts, removeArc, removeEpistemic, removeLedger, renderLedgerBlock, renderPrivateEpistemicBlock, resolvedArcs, restoreEntry, setArcPinned, setLocked, setArcSummary, setEpistemicPinned, setLedgerPinned, setPinned, type ArcEntry, type ConflictPair, type DerivedRecord, type EpistemicEntry, type LedgerBinding, type LedgerView, type MemoryEntry, type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ScoreContext, type UncertainPair, consolidateTierJudged, clearContradicted } from "@memory/index";
+import { bindChatLorebook, clearStoryExtensionPrompt, disableWIEntry, ensureLorebook, getActiveGroup, getCharacterNameById, getContext, loadLorebook, readInjectedPromptBlocks, setStoryExtensionPrompt, upsertWIEntry, } from "@services/STAPI";
 import { EPISTEMIC_INJECTION_DEPTH, EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_DEPTH } from "@constants/defaults";
 import type { SceneReadRecord } from "@judge/index";
 import type { Provenance } from "@memory/provenance";
@@ -10,10 +10,11 @@ import { sceneConflictValues } from "@memory/conflicts";
 
 import { emptyMirrorSummary, syncMemoryMirror, type MemoryMirrorSummary } from "../memoryMirror";
 import { buildMatchSets, judgePairRelations } from "../consolidationMatches";
-import { boundProvenance, boundValuesFor, detectMemoryConflicts, dismissMemoryConflict, getConflicts, reconfirmMemoryEntry, rereadConflictWindow, resolveMemoryConflict, storeDroppedEntry, type MemoryQueueDeps } from "../memoryQueue";
+import { boundProvenance, boundValuesFor, detectMemoryConflicts, discardMemoryRow, dismissMemoryConflict, getConflicts, reconfirmMemoryEntry, rereadConflictWindow, resolveMemoryConflict, storeDroppedEntry, type MemoryQueueDeps } from "../memoryQueue";
 import { buildScoreContext } from "../scoreContext";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunOwnership } from "../runToken";
+import { computeEntryTokens, tokensFor } from "../entryTokens";
 import { PAIR_JACCARD_FLOOR } from "@judge/index";
 import { activeSpeakerId, enabledCharacterIds, enabledCharacterNames, namesForRosterId, rosterIdForName, rosterMemberName } from "../roster";
 import { VERIFY_DROP_LIMIT, type CanonSource, type ExtractionRuntimeSettings, type MemoryBackfillState, type MemoryRuntimeState, type VerifyDrop } from "../types";
@@ -105,23 +106,13 @@ export class MemoryCoordinator {
     return highImportanceFacts(this.state.entries, limit);
   }
 
-  async computeEntryTokens(entries: MemoryEntry[]) {
-    for (const entry of entries) {
-      try {
-        entry.tokens = await countTokens(entry.text);
-      } catch {
-        entry.tokens = undefined;
-      }
-    }
-  }
-
   // --- tiers -------------------------------------------------------------
 
   async applyEntries(entries: MemoryEntry[], window: { from: number; to: number }) {
     if (!this.enabled || !entries.length) return;
     // The token count is a host call, so this write is an await past the caller's own check.
     const run = beginRun(this.deps.ownership, window);
-    await this.computeEntryTokens(entries);
+    await computeEntryTokens(entries);
     if (!run.stillOwns()) return;
     const written = addMemoryEntries(this.state, entries, window);
     this.patch(capAllTiers(written.state, this.state.settings.tierBudgets));
@@ -129,7 +120,7 @@ export class MemoryCoordinator {
 
   async addSceneSummary(entry: MemoryEntry, window: { from: number; to: number }): Promise<number | null> {
     const run = beginRun(this.deps.ownership, window);
-    await this.computeEntryTokens([entry]);
+    await computeEntryTokens([entry]);
     if (!run.stillOwns()) return null;
     const written = addMemoryEntries(this.state, entry.text ? [entry] : [], window);
     const capped = capAllTiers(expireScoped(written.state, "scene"), this.state.settings.tierBudgets);
@@ -141,7 +132,7 @@ export class MemoryCoordinator {
 
   async replaceShortTerm(entry: MemoryEntry, window: { from: number; to: number }) {
     const run = beginRun(this.deps.ownership, window);
-    await this.computeEntryTokens([entry]);
+    await computeEntryTokens([entry]);
     if (!run.stillOwns()) return;
     const entries = [...this.state.entries.filter((candidate) => candidate.tier !== "short_term"), entry];
     const replaced = this.state.entries.filter((candidate) => candidate.tier === "short_term");
@@ -170,15 +161,18 @@ export class MemoryCoordinator {
   /** M6. Lock freezes the story's truth: no pass may retire it, and a contradiction is queued. */
   async setMemoryLocked(id: string, locked: boolean) { await this.commit(() => setLocked(this.state, id, locked, new Date().toISOString(), this.boundaryStamp())); }
 
-  async excludeMemoryEntry(id: string) {
-    const entry = this.state.entries.find((candidate) => candidate.id === id);
-    if (entry) this.record({ kind: "exclusion", inputs: [id], removed: [entry], hash: hashMemoryText(entry.text) });
-    await this.commit(() => excludeEntry(this.state, id));
-  }
+  excludeMemoryEntry(id: string): Promise<boolean> { return discardMemoryRow(this.queueDeps(), id); }
 
   async restoreMemoryEntry(entry: MemoryEntry) { await this.commit(() => restoreEntry(this.state, entry)); }
 
-  async editMemoryEntry(id: string, text: string) { await this.commit(() => editEntryText(this.state, id, text)); }
+  async editMemoryEntry(id: string, text: string) {
+    const run = beginRun(this.deps.ownership);
+    await this.commit(() => editEntryText(this.state, id, text, new Date().toISOString(), this.boundaryStamp()));
+    const tokens = await tokensFor(text);
+    if (tokens === undefined || !run.stillOwns()) return;
+    this.patch({ entries: this.state.entries.map((entry) => (entry.id === id && entry.text === text ? { ...entry, tokens } : entry)) }, false);
+    this.updateInjection();
+  }
 
   // --- arcs --------------------------------------------------------------
 
@@ -268,6 +262,7 @@ export class MemoryCoordinator {
       boundValues: () => boundValuesFor(this.ledgerBindings(), this.deps.getState()?.blackboard?.values ?? {}, this.deps.getState()?.blackboard?.versions ?? {}),
       sceneValues: () => sceneConflictValues(this.deps.getScene?.()),
       boundaryStamp: () => this.boundaryStamp(),
+      lastMessageId: () => this.deps.getState()?.lastMessageId ?? -1,
       updateInjection: () => this.updateInjection(),
       // A decided disagreement changes what a canon synthesis would have been built from, so the text
       // derived from the losing claim stops being read until the next pass replaces it.

@@ -38,13 +38,14 @@ jest.mock("@services/STAPI", () => ({
 // puts the switch at an exact point rather than at a guessable one.
 const tokenGate = {
   calls: 0,
+  value: 4,
   onCall: null as (() => void) | null,
   async next(): Promise<number> {
     this.calls += 1;
     this.onCall?.();
-    return 4;
+    return this.value;
   },
-  reset() { this.calls = 0; this.onCall = null; },
+  reset() { this.calls = 0; this.onCall = null; this.value = 4; },
 };
 
 jest.mock("@extraction/index", () => ({
@@ -103,7 +104,7 @@ function harness(arcCount: number, presummarised = 0) {
 
   const coordinator = new MemoryCoordinator({
     getStory: () => ({ title: "S", checkpointById: {}, qualityByKey: {}, roster: [], arc_bridges: [] }),
-    getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5 }),
+    getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5, blackboard: { values: {}, versions: {}, latched: {} } }),
     getMemory: () => memoryState,
     setMemory: (next: typeof memoryState) => { memoryState = next; },
     getExtractionSettings: () => ({ profileId: "p1", enabled: true }),
@@ -129,6 +130,8 @@ function harness(arcCount: number, presummarised = 0) {
     entries: () => (memoryState.entries as Array<{ text: string }>).map((entry) => entry.text),
     shortTerm: () => (memoryState.entries as Array<{ tier: string; text: string }>).find((entry) => entry.tier === "short_term")?.text,
     shortTermEnd: () => memoryState.shortTermSummaryEnd,
+    seed: (rows: unknown[]) => { memoryState = { ...memoryState, entries: rows as never, settings: { ...memoryState.settings, injectionDepths: { facts: 4, session_details: 3, short_term: 2, scene_history: 6 } } as never }; },
+    rows: () => memoryState.entries as Array<{ id: string; text: string; tokens?: number; provenance?: { source: string; override?: { from: string; boundary: number } } }>,
   };
 }
 
@@ -459,5 +462,36 @@ describe("V11: the ledger cap is told where the history floor is", () => {
     const ids = memory.ledger.map((row) => row.id);
     expect(ids).toContain("a1");
     expect(ids).not.toContain("b2");
+  });
+});
+
+describe("V8 (M7): an edited entry is re-costed, and the new text is the author's claim", () => {
+  const row = (text: string) => ({ id: "f1", tier: "facts", type: "fact", text, tokens: 1, importance: 2, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [], evidence: "", createdAt: 1, messageId: 2, recallCount: 0, provenance: { source: "extractor", messageId: 2, boundary: 1, pass: "shared-read", validity: "live" } });
+
+  it("stores the exact count of the new text and records the edit as an override", async () => {
+    const h = harness(0);
+    h.seed([row("Old.")]);
+    tokenGate.value = 17;
+    await h.coordinator.editMemoryEntry("f1", "A much longer corrected text about the ferryman.");
+    expect(h.rows()[0]).toMatchObject({ text: "A much longer corrected text about the ferryman.", tokens: 17, provenance: { source: "author", override: { from: "edit", boundary: 3 } } });
+  });
+
+  it("a count that lands after a chat switch is not stored", async () => {
+    const h = harness(0);
+    h.seed([row("Old.")]);
+    tokenGate.value = 17;
+    tokenGate.onCall = () => h.switchChat();
+    await h.coordinator.editMemoryEntry("f1", "Corrected.");
+    expect(h.rows()[0].tokens).toBeUndefined();
+  });
+
+  it("a count for text the row no longer holds is not stored on it", async () => {
+    const h = harness(0);
+    h.seed([row("Old.")]);
+    tokenGate.value = 17;
+    tokenGate.onCall = () => h.seed([{ ...row("Edited again."), tokens: undefined }]);
+    await h.coordinator.editMemoryEntry("f1", "Corrected.");
+    expect(h.rows()[0]).toMatchObject({ text: "Edited again." });
+    expect(h.rows()[0].tokens).toBeUndefined();
   });
 });

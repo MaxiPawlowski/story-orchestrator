@@ -99,7 +99,7 @@ describe("memory stores", () => {
   it("edits an entry's text in place", () => {
     let state = createMemoryState();
     state = addMemoryEntries(state, [entry({ id: "a", text: "old text" })], { from: 0, to: 5 }).state;
-    state = editEntryText(state, "a", "new text");
+    state = editEntryText(state, "a", "new text", "t", 0);
     expect(state.entries[0].text).toBe("new text");
   });
 

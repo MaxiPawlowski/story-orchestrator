@@ -1,0 +1,31 @@
+M1 an edit writes no override
+  × stores the exact count of the new text and records the edit as an override (5 ms)
+  ● V8 (M7): an edited entry is re-costed, and the new text is the author's claim › stores the exact count of the new text and records the edit as an override
+Tests:       1 failed, 23 passed, 24 total
+M2 the exact count is never stored
+  × stores the exact count of the new text and records the edit as an override (6 ms)
+  ● V8 (M7): an edited entry is re-costed, and the new text is the author's claim › stores the exact count of the new text and records the edit as an override
+Tests:       1 failed, 23 passed, 24 total
+M3 the count is stored after a switch
+  × a count that lands after a chat switch is not stored (1 ms)
+  ● V8 (M7): an edited entry is re-costed, and the new text is the author's claim › a count that lands after a chat switch is not stored
+Tests:       1 failed, 23 passed, 24 total
+M4 the count lands on a row whose text moved on
+  × a count for text the row no longer holds is not stored on it (1 ms)
+  ● V8 (M7): an edited entry is re-costed, and the new text is the author's claim › a count for text the row no longer holds is not stored on it
+Tests:       1 failed, 23 passed, 24 total
+M5 a discarded fact is never put back
+  × puts a discarded fact, private row or ledger row back when the save did not land (2 ms)
+  ● V8: Discard is written or it is put back › puts a discarded fact, private row or ledger row back when the save did not land
+Tests:       1 failed, 28 passed, 29 total
+M6 a discarded fact records no exclusion
+  × control: a landed discard removes the row, and a discarded fact is an exclusion a rollback can undo (4 ms)
+  ● V8: Discard is written or it is put back › control: a landed discard removes the row, and a discarded fact is an exclusion a rollback can undo
+Tests:       1 failed, 28 passed, 29 total
+M7 a private row is never discarded
+  × control: a landed discard removes the row, and a discarded fact is an exclusion a rollback can undo (3 ms)
+  ● V8: Discard is written or it is put back › control: a landed discard removes the row, and a discarded fact is an exclusion a rollback can undo
+Tests:       1 failed, 28 passed, 29 total
+M8 the panel ignores a refused discard
+  ● Drawer/ConflictQueue › ADiscardThatWasNotWrittenSaysSo › play-test
+[TEST] Tests:       1 failed, 182 passed, 183 total
