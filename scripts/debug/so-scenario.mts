@@ -7,6 +7,7 @@ import { STEP_MODIFIERS, validateFixture } from './lib/scenarioSchema.mts';
 import { payloadFailures } from './lib/payloadAssert.mts';
 import { saveSettingsNow } from './lib/settingsSave.mts';
 import { removableStories, type LibraryCapture } from './lib/configRestore.mts';
+import { STORY_BOUND_VERBS, storylessStepError } from './lib/journeyArchive.mts';
 import { readExtractionSettings, restoreExtractionSettings } from './lib/extractionSettings.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
@@ -1072,7 +1073,7 @@ async function runStep(page, key, value, { scenarioDir = PROJECT_ROOT, importedH
 
 // With a sandbox guard every step first proves the page is still on a chat the run created, so a
 // chat switched under the run (a shared debug browser) stops it before it writes anywhere else.
-async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashes = [], label = '', assetBaseline = null, guard = null } = {}) {
+async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashes = [], label = '', assetBaseline = null, guard = null, requireStory = false } = {}) {
   const result: { steps: unknown[]; ok: boolean; error: string | null; retries: Array<{ index: number; key: string; attempt: number; of: number; error: string }>; firstAttempt?: 'pass' | 'fail' } = { steps: [], ok: true, error: null, retries: [] };
   const attempts = new Map<number, number>();
   for (let index = 0; index < steps.length; index += 1) {
@@ -1082,6 +1083,7 @@ async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashe
     let output;
     try {
       if (guard) await assertInSandbox(page, guard, `before step ${index + 1} (${key})`);
+      if (requireStory && STORY_BOUND_VERBS.has(key) && !(await evaluateInST(page, () => Boolean(globalThis.storyOrchestratorRuntime?.getSnapshot?.()?.storyId)))) throw new Error(storylessStepError(key));
       const chatsBeforeStep = guard && step.adoptsNewChat ? (await readActiveChat(page)).groupChats : null;
       output = await runStep(page, key, step[key], { scenarioDir, importedHashes, assetBaseline, guard });
       // T2: a verb that answered `{ok:false}` used to be logged as a passing step, so an import

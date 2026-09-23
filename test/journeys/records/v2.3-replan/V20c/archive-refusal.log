@@ -1,0 +1,4 @@
+{
+  "ok": false,
+  "reason": "J11 ran with --only (J11.3): a partial record cannot stand for a gate"
+}

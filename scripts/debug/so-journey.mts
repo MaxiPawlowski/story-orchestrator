@@ -18,6 +18,7 @@ import { readSessionJournal } from './so-journal.mts';
 import { removeMarkedAssets, snapshotAssets } from './so-assets.mts';
 import { wipeChatMeta } from './so-library.mts';
 import { saveSettingsNow } from './lib/settingsSave.mts';
+import { archiveJourneyRecord } from './lib/journeyArchive.mts';
 import { BLOCKING_DIALOGS, mergeRestore, removableStories, shouldRecoverConfig, validateJourneyExtraction, type DeclaredExtraction, type LibraryCapture } from './lib/configRestore.mts';
 
 const JOURNEY_DIR = resolve(PROJECT_ROOT, 'test/journeys');
@@ -31,6 +32,7 @@ Commands:
   --list                       List the journey catalog (id, title, status, check counts)
   run <id|file> [options]      Run one journey end to end
   restore-config [--file p]    Re-apply the global-settings snapshot left by a dead run
+  archive <record.json> <dir>  Copy a run's record + matrix into test/journeys/records/<dir>; refuses a partial (--only) or runner-errored record
 
 run options:
   --strict        treat "blocked" as failure (acceptance mode; baseline runs without it)
@@ -500,7 +502,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
           continue;
         }
         console.log(`--- ${check.id} ${check.goal ?? ''}`);
-        const outcome = await runSteps(page, check.steps ?? [], { scenarioDir: JOURNEY_DIR, importedHashes, label: `${check.id} `, assetBaseline, guard: setupApplied.guard ?? null });
+        const outcome = await runSteps(page, check.steps ?? [], { scenarioDir: JOURNEY_DIR, importedHashes, label: `${check.id} `, assetBaseline, guard: setupApplied.guard ?? null, requireStory: Boolean(only) });
         record(summary, outcome.ok ? 'pass' : 'fail', outcome.error ?? '', { firstAttempt: firstAttemptOf(check.expect, outcome), retries: outcome.retries ?? [] });
         if (setupApplied.guard?.escaped) {
           runnerError = outcome.error;
@@ -589,6 +591,16 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.exit(0);
   }
   const command = args[0];
+  if (command === 'archive') {
+    const [recordPath, gate] = [args[1], args[2]];
+    if (!recordPath || !gate) {
+      console.log(USAGE);
+      process.exit(1);
+    }
+    const outcome = await archiveJourneyRecord(resolve(recordPath), resolve(PROJECT_ROOT, 'test/journeys/records', gate));
+    console.log(JSON.stringify(outcome, null, 2));
+    process.exit(outcome.ok ? 0 : 1);
+  }
   if (command === 'restore-config') {
     runCli(async (page) => { await restoreGlobalConfig(page, argValue(args, '--file') ?? CONFIG_SNAPSHOT); });
   } else if (command === 'run') {

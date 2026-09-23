@@ -1026,3 +1026,22 @@ Mutations: 6 jest + 2 node + 1 live, all caught (`test/findings/mutations/V20e-j
 Machine: typecheck 0, typecheck:test 0, lint 0, jest **169 / 2673** (`findings ledger: 5 open, 45 settled`), test:debug **150**, debug:typecheck 0, build 0 (bundle `1d4d28d1a8f0`), test:release 10/10.
 
 **Not run:** `so-live-suite` itself, which needs the model. Its default floors are proven only by the node case.
+
+### V20c part 1 gate (2026-09-23): a subset run cannot stand for a gate, and --only refuses a storyless check
+
+- **T4 closed.** `so-journey` wrote `partial: true` for an `--only` run, and nothing read it.
+  - `scripts/debug/lib/journeyArchive.mts` `archiveRefusal` is now the one reader: it refuses a partial or runner-errored record, or anything without an id and results.
+  - The archive step the plan named now exists: `so-journey.mts archive <record.json> <dir>` copies the record and its matrix into `test/journeys/records/<dir>/`, and writes nothing when it refuses.
+  - The release suite gained `no cited journey record is a partial (--only) run`. All 16 journey records the attestation cites are full runs.
+- **F3, runner half.** `runSteps` takes `requireStory`, which `so-journey` sets under `--only`. A `send`, `send_generate`, `extract` or `expand` step with no story loaded then fails with `F3: --only reached "<verb>" with no story loaded …` instead of running over nothing.
+  - Live: `so-journey.mts run J11 --only J11.3` failed exactly there, after its first `eval` ran.
+  - Archiving that record was then refused with `J11 ran with --only (J11.3): a partial record cannot stand for a gate`.
+  - Cleanup was clean and the run-header diff was 0 differences (`records/v2.3-replan/V20c/`).
+- **Tests:** `scripts/debug/lib/journeyArchive.test.mts`, 4 cases. They cover the refusal, the copy (a refused record creates no directory), and the guard through the real `runSteps` plus its control (off without `--only`, and a loaded story passes). Mutations: 5/5 killed (`test/findings/mutations/V20c-archive-and-only-guard.txt`).
+- **Machine gates:** test:debug 159, test:release 17/17, debug:typecheck 0, lint 0. Jest's findings ledger passes with T4 closed. No product code changed, so the bundle is unchanged.
+- **Still open, and why:**
+  - **F3's fixture half:** 16 J11 checks import no story. Adding the imports is only proven by an `--only` run of each against the real model and judge.
+  - **T6:** J9.2 per-subcase outcomes. The wizard needs the model.
+  - **J1.10:** clicks, not only hit-tests.
+
+  All three wait for the pod (L1).

@@ -237,7 +237,8 @@
       "owner": "01",
       "evidence": "live",
       "status": "open",
-      "provenBy": "--only on every J11 check"
+      "provenBy": "--only on every J11 check",
+      "note": "V20c part 1 (2026-09-23): the runner half is built and live — under --only a send/send_generate/extract/expand step with no story loaded fails naming F3 (J11 --only J11.3 did, records/v2.3-replan/V20c/). Still open: the 16 J11 checks that import no story, whose fix can only be proven by a real-model --only run of each."
     },
     {
       "id": "F4",
@@ -295,8 +296,9 @@
       "title": "an --only run cannot stand for a gate",
       "owner": "01",
       "evidence": "node",
-      "status": "open",
-      "provenBy": "not yet: so-journey writes `partial: true` (so-journey.mts, record) but no test pins it and no archive step refuses a partial record — V20c"
+      "status": "closed",
+      "provenBy": "scripts/debug/lib/journeyArchive.test.mts :: a full record may be archived; a partial, runner-errored or foreign one may not (T4)",
+      "note": "V20c: `so-journey.mts archive <record> <dir>` is the archive step and refuses a partial or runner-errored record (live: the J11 --only J11.3 record was refused, records/v2.3-replan/V20c/archive-refusal.log); the release suite fails when the attestation cites a partial record. 5/5 mutants killed."
     },
     {
       "id": "T5",

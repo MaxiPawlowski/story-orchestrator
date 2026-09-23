@@ -116,3 +116,15 @@ test("the status note claims 'twice' only when every journey has two recorded al
   const short = Object.entries(attestation.journeys).filter(([key, journey]) => /^J\d+$/.test(key) && !greenTwice(journey)).map(([key]) => key);
   assert.deepEqual(short, [], "the note says the matrix ran green twice, and these journeys did not");
 });
+
+// V20c (T4): an `--only` run writes `partial: true` into its record, and nothing used to read it — a
+// subset run could be cited here as a journey's gate. Every cited journey record must be a full run.
+test("no cited journey record is a partial (--only) run", { skip: skip() }, () => {
+  const journeys = read().journeys;
+  const cited = Object.entries(journeys).filter(([key]) => /^J\d+$/.test(key)).flatMap(([, journey]) => journey.records ?? []);
+  const partial = cited.filter((name) => name.endsWith(".json") && existsSync(join(recordsDir, name))).filter((name) => {
+    const record = JSON.parse(readFileSync(join(recordsDir, name), "utf8"));
+    return Array.isArray(record.results) && record.partial === true;
+  });
+  assert.deepEqual(partial, [], `cited records from --only runs, which cannot stand for a gate: ${partial.join(", ")}`);
+});

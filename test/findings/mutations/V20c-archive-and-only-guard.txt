@@ -1,0 +1,6 @@
+V20c part 1 (T4 archive refusal, F3 --only guard). Script: test/journeys/records/v2.3-replan/V20c/v20c-mut.py
+M1 archive accepts a partial record                 (node: KILLED) journeyArchive.test.mts tests 1, 2
+M2 archive accepts a runner-errored record          (node: KILLED) journeyArchive.test.mts test 1
+M3 --only story guard removed                       (node: KILLED) under --only a story-bound step with no story loaded fails and names F3
+M4 guard always on, ignoring --only                 (node: KILLED) control: the guard is off without --only, and a loaded story passes it
+M5 a cited attestation record (j1-run1.json) planted partial:true  (release: KILLED) no cited journey record is a partial (--only) run
