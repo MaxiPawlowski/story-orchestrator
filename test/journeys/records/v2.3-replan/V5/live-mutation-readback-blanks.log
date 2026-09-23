@@ -1,0 +1,44 @@
+build manifest → dist\manifest.json (bundle 8ba9488eb895, source e8604208a3bf, ST 1.19.0)
+1/3 import_story ok 372ms
+2/3 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the foreign blob was changed by reading it: {"storyId":"sun-ruins","foreignStory":null,"untouched":false,"journaled":true,"back":null}
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1087)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T08-15-17-142Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T08-15-17-443Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 2,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@05h15m15s555ms",
+    "owned": [
+      "2026-09-23@05h15m15s555ms"
+    ],
+    "deleted": [
+      "2026-09-23@05h15m15s555ms"
+    ],
+    "notDeleted": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@05h15m15s555ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@03h45m01s896ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

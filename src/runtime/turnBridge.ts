@@ -1,5 +1,6 @@
 import { getContext, isHostGenerating, subscribeToHostEvents, type HostSubscriptionEntry } from "@services/STAPI";
 import type { RuntimeManager } from "./runtimeManager";
+import { restampRenamedChat } from "./persistence";
 import { beginRun, type RunGuard } from "./runToken";
 
 const FLUSH_POLL_MS = 300;
@@ -55,6 +56,7 @@ export class TurnBridge {
       { eventName: "MESSAGE_DELETED", handler: (messageId) => void this.onMutation(messageId, "delete") },
       { eventName: "MESSAGE_UPDATED", handler: (messageId) => void this.onMutation(messageId, "update") },
       { eventName: "CHAT_CHANGED", handler: () => void this.onChatChanged() },
+      { eventName: "CHAT_RENAMED", handler: (payload) => void this.onChatRenamed(payload) },
       { eventName: "WORLDINFO_SETTINGS_UPDATED", handler: () => this.manager.notify() },
       { eventName: "GROUP_UPDATED", handler: () => this.manager.notify() },
     ];
@@ -147,6 +149,11 @@ export class TurnBridge {
   private async onChatChanged() {
     this.reset();
     await this.manager.loadSelectedFromChat();
+  }
+
+  private async onChatRenamed(payload: unknown) {
+    const renamed = payload as { oldFileName?: unknown; newFileName?: unknown } | undefined;
+    if (restampRenamedChat(renamed?.oldFileName, renamed?.newFileName)) await this.manager.loadSelectedFromChat();
   }
 
   private async onMutation(value: unknown, kind: "swipe" | "edit" | "delete" | "update") {

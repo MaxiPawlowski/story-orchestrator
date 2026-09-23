@@ -213,7 +213,8 @@ export class RuntimeManager {
   private readonly selectionDeps: StorySelectionDeps = {
     loadStory: (loaded, mode, persisted) => this.loadStory(loaded, mode, persisted ?? null),
     restoreEffects: async (scope) => { await this.effects.restoreFor(this.extras, scope); },
-    clearStory: async (status) => {
+    clearStory: async (status, note) => {
+      if (note) this.journal.record("story", status, this.journalContext(), note);
       const previous = this.loaded?.story ?? null;
       this.loaded = null;
       this.invalidateRuns();

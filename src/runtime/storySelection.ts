@@ -1,6 +1,6 @@
 import { isValidationErrorList, type NormalizedStoryV2, type ValidationError } from "@engine/index";
 import { showConfirmPopup } from "@services/STAPI";
-import { dropPersistedRuntime, getSelectedStoryId, loadPersistedRuntime, setSelectedStoryId } from "./persistence";
+import { adoptChatState, blobMismatch, dropPersistedRuntime, getSelectedStoryId, loadPersistedRuntime, setSelectedStoryId } from "./persistence";
 import { findStoryRecord, listStoryRecords, loadPinnedStory, loadStoryRecord, removeStoryRecord, saveStoryRecord } from "./storyLibrary";
 import type { LoadedStory, PersistedStoryRuntime } from "./types";
 
@@ -9,7 +9,7 @@ import type { LoadedStory, PersistedStoryRuntime } from "./types";
 // persistence layer they read, and the manager keeps only the engine-facing half (`loadStory`).
 export interface StorySelectionDeps {
   loadStory: (loaded: LoadedStory, mode: "activate" | "hydrate", persisted?: PersistedStoryRuntime | null) => Promise<void>;
-  clearStory: (status: string) => Promise<void>;
+  clearStory: (status: string, note?: string) => Promise<void>;
   restoreEffects?: (scope: "leave" | "restart") => Promise<void>;
   fail: (errors: ValidationError[], status: string) => void;
   setStatus: (status: string) => void;
@@ -33,10 +33,14 @@ export async function loadSelectedStory(deps: StorySelectionDeps): Promise<boole
   await deps.restoreEffects?.("leave");
   const id = getSelectedStoryId();
   if (!id) {
-    await deps.clearStory("No story selected for this chat");
+    const foreign = blobMismatch();
+    await deps.clearStory(
+      foreign ? "No story selected: this chat's saved story state is stamped for another chat" : "No story selected for this chat",
+      foreign ? `blob-chat-mismatch: stamped for ${foreign.stampedFor}, open chat is ${String(foreign.openChat)}; the stored state was left untouched` : undefined,
+    );
     return false;
   }
-  return selectStory(deps, id);
+  return selectStory(deps, id, false);
 }
 
 export async function importStoryJson(deps: StorySelectionDeps, rawText: string): Promise<boolean> {
@@ -58,7 +62,8 @@ export async function importStoryJson(deps: StorySelectionDeps, rawText: string)
 // Selecting is never destructive: a chat that already played this story hydrates its pinned copy
 // (library edits, and even deletion, cannot reach it); a story new to this chat pins the version the
 // library holds right now. Reset lives only in restartStory().
-export async function selectStory(deps: StorySelectionDeps, idOrHash: string): Promise<boolean> {
+export async function selectStory(deps: StorySelectionDeps, idOrHash: string, chosen = true): Promise<boolean> {
+  if (chosen) adoptChatState();
   const record = findStoryRecord(idOrHash);
   const persisted = loadPersistedRuntime(idOrHash) ?? (record ? loadPersistedRuntime(record.id) : null);
   if (persisted?.pinnedStory) {

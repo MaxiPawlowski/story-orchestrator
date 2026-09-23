@@ -2,14 +2,15 @@ import { hostMessageId, TurnBridge } from "./turnBridge";
 import type { RuntimeManager } from "./runtimeManager";
 
 const handlers = new Map<string, (...args: unknown[]) => unknown>();
-const host = { generating: false, chat: [] as Array<{ mes: string; gen_finished?: unknown }> };
+const host = { generating: false, chat: [] as Array<{ mes: string; gen_finished?: unknown }>, chatId: "renamed", chatMetadata: {} as Record<string, unknown> };
 
+jest.mock("./storyLibrary", () => ({ listStoryRecords: () => [] }));
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
-  getContext: () => ({ chat: host.chat }),
+  getContext: () => ({ chat: host.chat, chatId: host.chatId, chatMetadata: host.chatMetadata, saveMetadata: () => undefined }),
   isHostGenerating: () => host.generating,
   subscribeToHostEvents: (entries: Array<{ eventName: string; handler: (...args: unknown[]) => unknown }>) => {
     for (const entry of entries) handlers.set(entry.eventName, entry.handler);
@@ -131,5 +132,22 @@ describe("V4: what one turn is", () => {
 
     await emit("MESSAGE_DELETED", 1);
     expect(manager.rollbackFromMessage).toHaveBeenCalledWith(1);
+  });
+});
+
+describe("V5: a renamed chat keeps its story", () => {
+  it("CHAT_RENAMED re-stamps the blob and reloads the story", async () => {
+    const manager = harness();
+    host.chatMetadata = { story_orchestrator: { version: 4, chatId: "original", selectedStoryId: "s1", stories: {} } };
+    await emit("CHAT_RENAMED", { oldFileName: "original.jsonl", newFileName: "renamed.jsonl" });
+    expect((host.chatMetadata.story_orchestrator as { chatId: string }).chatId).toBe("renamed");
+    expect(manager.loadSelectedFromChat).toHaveBeenCalledTimes(1);
+  });
+
+  it("control: a rename that is not this chat's reloads nothing", async () => {
+    const manager = harness();
+    host.chatMetadata = { story_orchestrator: { version: 4, chatId: "original", selectedStoryId: "s1", stories: {} } };
+    await emit("CHAT_RENAMED", { oldFileName: "other.jsonl", newFileName: "renamed.jsonl" });
+    expect(manager.loadSelectedFromChat).not.toHaveBeenCalled();
   });
 });

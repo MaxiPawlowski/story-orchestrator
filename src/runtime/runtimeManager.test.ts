@@ -1577,3 +1577,16 @@ describe("V4: a boundary committed for an earlier reply", () => {
     expect(manager.getEngineState()?.lastMessageId).toBe(2);
   });
 });
+
+describe("V5: opening a chat whose saved state is stamped for another chat", () => {
+  beforeEach(() => resetHost());
+
+  it("journals the mismatch and leaves the stored state untouched", async () => {
+    const foreign = { version: 4, chatId: "chat-elsewhere", selectedStoryId: "s1", stories: {} };
+    mockContext.chatMetadata = { story_orchestrator: foreign };
+    const manager = new RuntimeManager();
+    await manager.loadSelectedFromChat();
+    expect(JSON.stringify(manager.getSessionJournal())).toContain("blob-chat-mismatch: stamped for chat-elsewhere");
+    expect(mockContext.chatMetadata.story_orchestrator).toBe(foreign);
+  });
+});

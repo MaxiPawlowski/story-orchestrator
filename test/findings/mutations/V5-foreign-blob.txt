@@ -1,0 +1,24 @@
+M1 a foreign read writes the empty blob back (the pre-V5 read)
+  ● V5: a blob stamped for another chat is left exactly as it was › a read answers 'no story' and does NOT write the empty blob back
+  ● V5: a blob stamped for another chat is left exactly as it was › automatic writes into it are refused
+  ● V5: a blob stamped for another chat is left exactly as it was › loading the chat journals the mismatch instead of only warning
+Tests:       3 failed, 5 passed, 8 total
+M2 writes into a foreign blob are not refused
+  ● V5: a blob stamped for another chat is left exactly as it was › automatic writes into it are refused
+Tests:       1 failed, 7 passed, 8 total
+M3 adoption does not re-stamp
+  ● V5: a blob stamped for another chat is left exactly as it was › an explicit choice in the open chat adopts it, stories and all
+  ● V5: a blob stamped for another chat is left exactly as it was › choosing a story in the open chat continues the run the adopted blob holds, rather than restarting it
+Tests:       2 failed, 6 passed, 8 total
+M4 rename re-stamps whatever chat is open
+  ● V5: a blob stamped for another chat is left exactly as it was › control: a rename of some OTHER chat, or from a name the blob does not carry, re-stamps nothing
+Tests:       1 failed, 7 passed, 8 total
+M5 an explicit selection does not adopt
+  ● V5: a blob stamped for another chat is left exactly as it was › choosing a story in the open chat continues the run the adopted blob holds, rather than restarting it
+Tests:       1 failed, 7 passed, 8 total
+M6 the manager drops the mismatch note
+  ● V5: opening a chat whose saved state is stamped for another chat › journals the mismatch and leaves the stored state untouched
+Tests:       1 failed, 82 passed, 83 total
+M7 CHAT_RENAMED not subscribed
+  ● V5: a renamed chat keeps its story › CHAT_RENAMED re-stamps the blob and reloads the story
+Tests:       1 failed, 7 passed, 8 total

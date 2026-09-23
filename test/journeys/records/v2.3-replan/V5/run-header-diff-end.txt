@@ -1,0 +1,29 @@
+DIFF build.manifest.builtAt  "2026-09-23T08:13:25.233Z" -> "2026-09-23T08:16:33.608Z"
+DIFF build.manifest.fileSha256  "bd734aaab3745aa9" -> "2e5904144b81aa25"
+DIFF chat.chatId  "2026-09-23@03h45m01s896ms" -> "so-v5-renamed-1790151341124"
+ok   story.activeCheckpointId  null -> "cp1"  (allowed by progress)
+ok   story.boundary  null -> 0  (allowed by progress)
+DIFF story.contentHash  null -> "v2-ea8a94f1"
+DIFF story.id  null -> "sun-ruins"
+DIFF story.playedVersion  null -> 2
+DIFF story.title  null -> "Quest for the Sun Ruins"
+{
+  "baseline": ".debug/run-header-v5-start.json",
+  "label": "diff-end",
+  "allow": [],
+  "differences": 9,
+  "progress": 2,
+  "blocking": 7,
+  "blockingPaths": [
+    "build.manifest.builtAt",
+    "build.manifest.fileSha256",
+    "chat.chatId",
+    "story.contentHash",
+    "story.id",
+    "story.playedVersion",
+    "story.title"
+  ],
+  "warnings": [],
+  "wrote": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\.debug\\run-header-diff-end.json",
+  "ok": false
+}

@@ -5,6 +5,7 @@ export type { EventHandler } from "@utils/event-source";
 
 export interface HostEventPayloads {
   CHAT_CHANGED: [];
+  CHAT_RENAMED: [payload: { avatarId?: string; groupId?: string | null; oldFileName: string; newFileName: string }];
   CHAT_CREATED: [];
   GROUP_CHAT_CREATED: [];
   CHAT_DELETED: [];

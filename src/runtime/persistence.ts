@@ -25,13 +25,24 @@ const createBlob = (): StoryOrchestratorMetadataBlob => ({ version: 4, chatId: o
  * swap used to be indistinguishable from an ordinary read, and the result is the defect v2.1
  * plan 08 recorded from the other side: one chat's run appearing in another chat.
  *
- * It is replaced rather than repaired. Adopting another chat's stories would be the same mistake
- * in the opposite direction, so the chat starts empty — which reads to the player as "no story
- * selected", the honest answer when the state on hand belongs to somebody else.
+ * It is neither read nor destroyed (V5, 2026-09-23). The read answers an empty, DETACHED blob — "no
+ * story selected", the honest answer when the state on hand belongs to somebody else — and leaves the
+ * stored one exactly as it was: the first version wrote the empty blob back, so the next save of
+ * whatever metadata object was open erased the other chat's run. Automatic writes into a foreign
+ * blob are refused; an explicit selection adopts it (`adoptChatState`, from `selectStory`), and a rename re-stamps it.
  */
 const belongsHere = (blob: StoryOrchestratorMetadataBlob): boolean => blob.chatId === null || blob.chatId === openChatId();
 
-export function getMetadataBlob(): StoryOrchestratorMetadataBlob {
+export interface BlobMismatch {
+  stampedFor: string;
+  openChat: string | null;
+}
+
+let mismatch: BlobMismatch | null = null;
+
+export const blobMismatch = (): BlobMismatch | null => mismatch;
+
+const storedBlob = (): StoryOrchestratorMetadataBlob | null => {
   const context = getContext();
   const metadata = context.chatMetadata as Record<string, unknown>;
   const existing = metadata[METADATA_KEY];
@@ -42,16 +53,58 @@ export function getMetadataBlob(): StoryOrchestratorMetadataBlob {
     : isRecord(existing) && existing.version === 3 && isRecord(existing.stories)
       ? migrateV3ToV4(existing as unknown as { selectedStoryId: string | null; stories: StoryOrchestratorMetadataBlob["stories"] })
       : isRecord(existing) ? migrateMetadataBlob(existing, listStoryRecords()) : null;
+  if (current && belongsHere(current)) metadata[METADATA_KEY] = current;
+  return current;
+};
+
+export function getMetadataBlob(): StoryOrchestratorMetadataBlob {
+  const current = storedBlob();
   if (current && belongsHere(current)) {
-    metadata[METADATA_KEY] = current;
+    mismatch = null;
     return current;
   }
   if (current) {
-    console.warn(`[Story Orchestrator] blob-chat-mismatch: chat_metadata holds state stamped for chat ${String(current.chatId)} while ${String(openChatId())} is open; treating this chat as having no story selected`);
+    const next = { stampedFor: String(current.chatId), openChat: openChatId() };
+    if (mismatch?.stampedFor !== next.stampedFor || mismatch.openChat !== next.openChat) console.warn(`[Story Orchestrator] blob-chat-mismatch: chat_metadata holds state stamped for chat ${next.stampedFor} while ${String(next.openChat)} is open; left untouched, read as no story selected`);
+    mismatch = next;
+    return createBlob();
   }
+  mismatch = null;
   const blob = createBlob();
-  metadata[METADATA_KEY] = blob;
+  (getContext().chatMetadata as Record<string, unknown>)[METADATA_KEY] = blob;
   return blob;
+}
+
+const ownBlob = (write: string): StoryOrchestratorMetadataBlob | null => {
+  const blob = getMetadataBlob();
+  if (!mismatch) return blob;
+  console.warn(`[Story Orchestrator] ${write} refused: this chat's metadata holds state stamped for chat ${mismatch.stampedFor}`);
+  return null;
+};
+
+/** An explicit choice made in the open chat adopts a foreign-stamped blob (an imported chat file
+ *  carries its original id). The swap race cannot reach here: nobody clicks inside it. */
+export const adoptChatState = () => {
+  const current = storedBlob();
+  if (!current || belongsHere(current)) return;
+  current.chatId = openChatId();
+  (getContext().chatMetadata as Record<string, unknown>)[METADATA_KEY] = current;
+  mismatch = null;
+};
+
+/** ST keeps a chat's metadata across a rename but the chat id is its file name, so the stamp has to
+ *  follow it — or every renamed chat reads as someone else's and loses its story. */
+export function restampRenamedChat(oldFileName: unknown, newFileName: unknown): boolean {
+  const bare = (name: unknown) => (typeof name === "string" ? name.replace(/\.jsonl$/, "") : null);
+  const from = bare(oldFileName);
+  const to = bare(newFileName);
+  const current = storedBlob();
+  if (!from || !to || !current || current.chatId !== from || openChatId() !== to) return false;
+  current.chatId = to;
+  (getContext().chatMetadata as Record<string, unknown>)[METADATA_KEY] = current;
+  mismatch = null;
+  void getContext().saveMetadata?.();
+  return true;
 }
 
 export function getSelectedStoryId(): string | null {
@@ -59,7 +112,8 @@ export function getSelectedStoryId(): string | null {
 }
 
 export function setSelectedStoryId(id: string | null) {
-  const blob = getMetadataBlob();
+  const blob = ownBlob("selecting a story");
+  if (!blob) return;
   blob.selectedStoryId = id;
   void getContext().saveMetadata?.();
 }
@@ -94,7 +148,8 @@ export function evictedStoryNotice(evictedIds: string[], titleOf: (id: string) =
 }
 
 export function savePersistedRuntime(record: PersistedStoryRuntime): string[] {
-  const blob = getMetadataBlob();
+  const blob = ownBlob("saving story state");
+  if (!blob) return [];
   // An unstamped blob (written before v4, or migrated from v3 where the chat could not be
   // recovered) takes the open chat's id the first time this chat writes to it.
   if (blob.chatId === null) blob.chatId = openChatId();
@@ -106,7 +161,8 @@ export function savePersistedRuntime(record: PersistedStoryRuntime): string[] {
 }
 
 export function dropPersistedRuntime(id: string) {
-  const blob = getMetadataBlob();
+  const blob = ownBlob("dropping story state");
+  if (!blob) return;
   delete blob.stories[id];
   void getContext().saveMetadata?.();
 }
