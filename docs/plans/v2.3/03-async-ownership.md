@@ -2717,7 +2717,18 @@ rows is not closed (overview rule 14).
 - Machine: typecheck 0, lint 0, jest 160 / 2557, build 0 (bundle `88b1a708a5d8`), test:release 10/10. RuntimeManager 699 lines (the budget's last line).
 - **Live, no model** (`test/scenarios/live-v5-foreign-blob.json`, sandbox group `1759606632088`): the real chat's blob is restamped for another chat. It reads as no story, is unchanged, is journaled, and comes back when the stamp is put back. Then a real `ctx.renameChat` keeps `sun-ruins` under the new id, and renaming back carries it home. **3/3 twice**, both sandbox chats deleted by cleanup. **Live mutations**: the pre-V5 read → "the foreign blob was changed by reading it", `back: null`, i.e. the chat could not recover its own story (`live-mutation-readback-blanks.log`); `CHAT_RENAMED` unsubscribed → "the blob still carries the old chat id", `storyAfter: null` (`live-mutation-no-rename.log`).
 - **Leftovers, stated**: the first run left its renamed chat (the harness's sandbox guard reads a rename as an escape, and cleanup looks chats up by their old id). It was deleted through the harness's own `deleteGroupChat` path, and the step now renames back. The rename-mutation run left **`so-v5-renamed-1790151341124`** in group `1759606632088`; deleting it was refused by the session's safety check, so it needs deleting by hand. It is why the run-header diff shows `chat.chatId`/`story.*`: `open-group` lands on the group's most recent chat, which is that one.
-- Not done, stated: an imported-chat live check (adoption is jest-only).
+- ~~Not done, stated:~~ done 2026-09-23, see the V5 imported-chat gate below: an imported-chat live check (adoption is jest-only).
+
+### V5 imported-chat gate (2026-09-23) — an imported chat is adopted only by an explicit choice
+
+- **Live, no model** (`test/scenarios/live-v5b-adopt-imported.json`, sandbox group `1759606632088`, sun-ruins):
+  - Setup: the chat's state is marked with a player flag, and its blob is restamped with another chat id (`so-v5b-imported-from-elsewhere`), which is what a chat file imported from another install carries.
+  - Opening it reads no story and leaves the blob byte-for-byte alone.
+  - The author's explicit `selectStory` then adopts it: the story loads, and **the server's copy of the chat** (`/api/chats/group/get`) is restamped for this chat and still holds the marker. So the state was kept, not restarted.
+  - Green twice (`records/v2.3-replan/V5b/run{1,2}.log`), and again on the rebuilt bundle after the mutation (`run3-after-mutation.log`).
+- **Live mutation** (the select no longer adopts): FAILS at the server read with `the server copy still carries the foreign stamp` (`live-mutation-select-does-not-adopt.log`). Under the mutant the page still SHOWED the story while every save into the foreign blob was refused: a chat that looks adopted and never writes. The page alone cannot show that, which is why the check reads the server.
+- No product code changed (bundle `2237f5f8e420`). Run-header diff: build and served bundle only, 0 blocking.
+- Not covered: a real imported FILE (`/api/chats/import`). The check restamps the metadata in the page, which is the shape an import produces, but not the import path itself.
 
 ### V3 gate (2026-09-23) — the census sees arrows and assignments, and its todo list is empty
 

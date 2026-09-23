@@ -1,0 +1,5 @@
+V5 imported-chat half (live, no model). LIVE mutation only: the code is covered in jest by blobForeign.review.test.ts (V5).
+M1 the explicit select no longer adopts (src/runtime/storySelection.ts `if (chosen) adoptChatState();` made unreachable)
+   live-v5b-adopt-imported.json: KILLED at step 4 — "the server copy still carries the foreign stamp, so the chat was not adopted"
+   (records/v2.3-replan/V5b/live-mutation-select-does-not-adopt.log). Under the mutant the page still showed the story while every
+   save into the foreign blob was refused: a chat that looks adopted and never writes, which is the failure this check exists to name.

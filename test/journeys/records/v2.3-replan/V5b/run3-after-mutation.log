@@ -1,0 +1,49 @@
+1/4 import_story ok 378ms
+2/4 eval ok 228ms
+2/4 eval -> {"storyId":"sun-ruins","own":"2026-09-23@17h19m09s641ms"}
+3/4 eval ok 524ms
+3/4 eval -> {"read":null,"untouched":true}
+4/4 eval ok 1068ms
+4/4 eval -> {"ok":true,"story":"sun-ruins","pageStamp":"2026-09-23@17h19m09s641ms","serverStamp":"2026-09-23@17h19m09s641ms","chatId":"2026-09-23@17h19m09s641ms","kept":true}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T20-19-14-776Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 4,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@17h19m09s641ms",
+    "owned": [
+      "2026-09-23@17h19m09s641ms"
+    ],
+    "deleted": [
+      "2026-09-23@17h19m09s641ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@17h19m09s641ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

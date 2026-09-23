@@ -1,0 +1,7 @@
+{
+  "file": "src/runtime/storySelection.ts",
+  "old": "  if (chosen) adoptChatState();",
+  "new": "  if (chosen === (idOrHash === \"\u0000\")) adoptChatState();",
+  "scenario": "test/scenarios/live-v5b-adopt-imported.json",
+  "log": "test/journeys/records/v2.3-replan/V5b/live-mutation-select-does-not-adopt.log"
+}

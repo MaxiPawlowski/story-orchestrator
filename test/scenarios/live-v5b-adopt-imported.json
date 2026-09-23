@@ -1,0 +1,18 @@
+{
+  "_note": "v2.3 replan V5 (the imported-chat half, live, no model). A chat file imported from another install carries its metadata stamped with the ORIGINAL chat id. Opening it must read no story and leave the blob alone (the V5 guard); the author's explicit select must then ADOPT it: restamp the blob for this chat and keep its state, not restart it. The state is marked with a player flag before the stamp is changed, and adoption is proven on the server's copy of the chat, not in the page.",
+  "steps": [
+    { "import_story": { "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json" } },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; await rt.flagMoment('V5B adopt marker'); const ctx = SillyTavern.getContext(); const blob = ctx.chatMetadata.story_orchestrator; const storyId = rt.getSnapshot().storyId; const marked = JSON.stringify(blob?.stories?.[storyId]?.extras?.journal ?? []).includes('V5B adopt marker'); if (!marked) throw new Error('setup: the marker flag is not in the persisted blob'); globalThis.__v5b = { storyId, own: String(ctx.chatId) }; return globalThis.__v5b;",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const blob = ctx.chatMetadata.story_orchestrator; blob.chatId = 'so-v5b-imported-from-elsewhere'; const before = JSON.stringify(blob); await rt.loadSelectedFromChat(); await new Promise((resolve) => setTimeout(resolve, 500)); const read = rt.getSnapshot().storyId; const untouched = JSON.stringify(ctx.chatMetadata.story_orchestrator) === before; if (read !== null) throw new Error(`the imported chat's foreign blob was read as this chat's story: ${read}`); if (!untouched) throw new Error('opening the imported chat changed its foreign blob'); return { read, untouched };",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const ok = await rt.selectStory(globalThis.__v5b.storyId); for (let i = 0; i < 40 && rt.getSnapshot().storyId !== globalThis.__v5b.storyId; i += 1) await new Promise((resolve) => setTimeout(resolve, 250)); await ctx.saveMetadata(); await new Promise((resolve) => setTimeout(resolve, 500)); const chatId = String(ctx.chatId); const response = await fetch('/api/chats/group/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ id: chatId }), cache: 'no-cache' }); const lines = await response.json(); const stored = Array.isArray(lines) ? lines[0]?.chat_metadata?.story_orchestrator : null; const kept = JSON.stringify(stored?.stories?.[globalThis.__v5b.storyId]?.extras?.journal ?? []).includes('V5B adopt marker'); const result = { ok, story: rt.getSnapshot().storyId, pageStamp: ctx.chatMetadata.story_orchestrator?.chatId ?? null, serverStamp: stored?.chatId ?? null, chatId, kept }; if (!ok || result.story !== globalThis.__v5b.storyId) throw new Error(`the explicit select did not load the story: ${JSON.stringify(result)}`); if (result.serverStamp !== chatId) throw new Error(`the server copy still carries the foreign stamp, so the chat was not adopted: ${JSON.stringify(result)}`); if (!kept) throw new Error(`adoption lost the chat's state (the marker flag is gone): ${JSON.stringify(result)}`); return result;",
+      "log": true
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+build manifest → dist\manifest.json (bundle 0dea46d8dfd8, source 775685701317, ST 1.19.0)
+1/4 import_story ok 384ms
+2/4 eval ok 238ms
+2/4 eval -> {"storyId":"sun-ruins","own":"2026-09-23@17h18m31s984ms"}
+3/4 eval ok 521ms
+3/4 eval -> {"read":null,"untouched":true}
+4/4 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the server copy still carries the foreign stamp, so the chat was not adopted: {"ok":true,"story":"sun-ruins","pageStamp":"so-v5b-imported-from-elsewhere","serverStamp":"so-v5b-imported-from-elsewhere","chatId":"2026-09-23@17h18m31s984ms","kept":true}
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1208)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T20-18-34-229Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T20-18-37-054Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 4,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-23@17h18m31s984ms",
+    "owned": [
+      "2026-09-23@17h18m31s984ms"
+    ],
+    "deleted": [
+      "2026-09-23@17h18m31s984ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-23@17h18m31s984ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}
