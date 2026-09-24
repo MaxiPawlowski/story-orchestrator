@@ -113,6 +113,7 @@ async function runStarter() {
     '--no-default-browser-check',
     '--disable-background-networking',
     '--disable-dev-shm-usage',
+    '--window-size=1920,1080',
   ];
   if (!headed) chromeArgs.push('--headless=new');
   chromeArgs.push('about:blank');

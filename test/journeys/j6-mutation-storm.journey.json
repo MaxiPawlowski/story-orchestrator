@@ -267,7 +267,7 @@
           }
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const notice = rt.getSnapshot().lastRollback; if (!notice) throw new Error(\"the edit rolled the story back but no rollback was reported\"); return notice;",
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const notice = rt.getSnapshot().lastRollback; if (!notice) { const engine = rt.getEngineState(); const ctx = SillyTavern.getContext(); const journal = (rt.getSessionJournal?.() ?? []).slice(-8).map((event) => [event.kind, event.summary ?? \"\"].join(\": \")); throw new Error(\"the edit rolled the story back but no rollback was reported: \" + JSON.stringify({ checkpoint: rt.getSnapshot().activeCheckpointId, boundary: engine.boundary, lastMessageId: engine.lastMessageId, chatLength: ctx.chat.length, chatId: ctx.chatId, journal })); } return notice;",
           "log": true
         }
       ]
