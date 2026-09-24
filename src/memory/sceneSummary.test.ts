@@ -86,6 +86,19 @@ describe("v2.4 plan 03 D5: where a scene starts", () => {
   it("never starts after the message that ended the scene", () => {
     expect(sceneRangeFrom([record(60)], 44)).toBe(44);
   });
+
+  it("starts at the story's start when no scene was summarized yet", () => {
+    expect(sceneRangeFrom([record(50, "short_term")], 320, 298)).toBe(298);
+  });
+
+  it("takes the later of the previous summary's end and the story's start", () => {
+    expect(sceneRangeFrom([record(310)], 330, 298)).toBe(311);
+    expect(sceneRangeFrom([record(100)], 330, 298)).toBe(298);
+  });
+
+  it("never starts after the message that ended the scene, even with a later story start", () => {
+    expect(sceneRangeFrom([], 44, 60)).toBe(44);
+  });
 });
 
 describe("v2.4 plan 03 D5: short-term compaction is tail-fit", () => {

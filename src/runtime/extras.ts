@@ -109,6 +109,7 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
       resolvedConflicts: Array.isArray(existing.resolvedConflicts) ? existing.resolvedConflicts.filter((key) => typeof key === "string").slice(-CONFLICT_LIMIT) : [],
       pinnedOverflow: typeof existing.pinnedOverflow === "number" ? existing.pinnedOverflow : 0,
       legacyPinPromptSeen: existing.legacyPinPromptSeen === true,
+      ...(typeof existing.storyStart === "number" ? { storyStart: existing.storyStart } : {}),
       updatedAt: existing.updatedAt ?? new Date().toISOString(),
     };
   }

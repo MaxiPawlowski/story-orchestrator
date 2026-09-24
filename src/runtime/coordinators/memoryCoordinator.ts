@@ -33,6 +33,7 @@ import {
 } from "../memoryQueue";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunOwnership } from "../runToken";
+import { playerTurnIds } from "../agencyRecovery";
 import { computeEntryTokens, tokensFor } from "../entryTokens";
 import { PAIR_JACCARD_FLOOR } from "@judge/index";
 import {
@@ -178,7 +179,9 @@ export class MemoryCoordinator {
     return this.state.entries.find((entry) => entry.tier === "short_term");
   }
 
-  sceneStart(to: number): number { return sceneRangeFrom(this.state.derived, to); }
+  sceneStart(to: number): number { return sceneRangeFrom(this.state.derived, to, this.state.storyStart); }
+
+  markStoryStart() { this.patch({ storyStart: playerTurnIds(getContext().chat ?? []).at(-1) ?? 0 }, false); }
 
   get shortTermSummaryEnd(): number {
     return this.state.shortTermSummaryEnd;
