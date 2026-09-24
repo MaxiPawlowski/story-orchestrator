@@ -1,0 +1,53 @@
+1/14 eval ok 5ms
+2/14 import_story ok 367ms
+3/14 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: cp1 guidance is not injected on load: null
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:513)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:807)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T08-16-47-706Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T08-16-51-242Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 3,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-24@05h16m47s078ms",
+    "owned": [
+      "2026-09-24@05h16m47s078ms"
+    ],
+    "deleted": [
+      "2026-09-24@05h16m47s078ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@05h16m47s078ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

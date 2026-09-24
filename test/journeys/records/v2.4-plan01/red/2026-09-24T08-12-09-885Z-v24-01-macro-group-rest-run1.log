@@ -1,0 +1,79 @@
+1/12 eval ok 4ms
+2/12 import_story ok 390ms
+3/12 eval ok 8ms
+3/12 eval -> {"groupId":"1759606632088","enabled":["dm","companion","guild_master","little_brother"]}
+4/12 slash ok 1793ms
+5/12 wait ok 1527ms
+6/12 eval ok 4ms
+6/12 eval -> {"speaker":"little_brother"}
+7/12 eval ok 429ms
+7/12 eval -> {"rows":[["Luke","Luke pocketed the sun-ruins map"],["Arin","Arin owes the guild forty crowns"]]}
+8/12 slash ok 1640ms
+9/12 wait ok 1526ms
+10/12 emit_generation ok 7ms
+11/12 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: story_epistemic at rest in a group carries private knowledge (sun-ruins map, forty crowns): block="Your private knowledge (stay in character — never narrate what you conceal or do not know):\n- You are concealing from Arin: Luke pocketed the sun-ruins map\n- You are concealing from Luke: Arin owes the guild forty crowns" macro="Your private knowledge (stay in character — never narrate what you conceal or do not know):\n- You are concealing from Arin: Luke pocketed the sun-ruins map\n- You are concealing from Luke: Arin owes the guild forty crowns"
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:349)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:687)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T08-12-56-618Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T08-12-59-473Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 11,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-24@05h12m49s012ms",
+    "owned": [
+      "2026-09-24@05h12m49s012ms"
+    ],
+    "deleted": [
+      "2026-09-24@05h12m49s012ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@05h12m49s012ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "lanes": [
+    1
+  ],
+  "items": [
+    "test/scenarios/v24-01-transition-note-speaker.json",
+    "test/scenarios/v24-01-sd-post-speaker.json",
+    "test/scenarios/v24-01-narrator-speaker.json",
+    "test/scenarios/v24-01-macro-group-rest.json"
+  ],
+  "repeat": 2,
+  "strict": false,
+  "results": [
+    {
+      "item": "test/scenarios/v24-01-transition-note-speaker.json",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T08-15-00-285Z-v24-01-transition-note-speaker-run1.log",
+      "ms": 11627,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v24-01-transition-note-speaker.json",
+      "lane": 1,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T08-15-00-285Z-v24-01-transition-note-speaker-run2.log",
+      "ms": 11536,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v24-01-sd-post-speaker.json",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T08-15-00-285Z-v24-01-sd-post-speaker-run1.log",
+      "ms": 11440,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v24-01-sd-post-speaker.json",
+      "lane": 1,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T08-15-00-285Z-v24-01-sd-post-speaker-run2.log",
+      "ms": 11149,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v24-01-narrator-speaker.json",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T08-15-00-285Z-v24-01-narrator-speaker-run1.log",
+      "ms": 14500,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v24-01-narrator-speaker.json",
+      "lane": 1,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T08-15-00-285Z-v24-01-narrator-speaker-run2.log",
+      "ms": 14165,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v24-01-macro-group-rest.json",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T08-15-00-285Z-v24-01-macro-group-rest-run1.log",
+      "ms": 11730,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v24-01-macro-group-rest.json",
+      "lane": 1,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T08-15-00-285Z-v24-01-macro-group-rest-run2.log",
+      "ms": 11699,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}
