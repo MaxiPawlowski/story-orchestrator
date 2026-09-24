@@ -972,3 +972,97 @@ Branch `v24-02-t3chain`, built on `cfad851` (`v24-plan02`: harness + T11 + seed 
 - H19: a no-op `MESSAGE_UPDATED` from another extension is now silent for consumed rows.
 - Is it acceptable that the integrity guard (`81e25e4`) also blocks empty saves that carry no integrity from ST or other extensions?
 - Should the fault matrix get a 10th package for host deletes?
+
+### Follow-ups E2–E5 (worktree build, 2026-09-24)
+
+Built on `1edad07` (master) in an agent worktree, branch `worktree-agent-a58ed751ae72562a9`. Spec: `00-overview.md` §Decisions rows E2–E5. Machine gates only: no browser and no backend, so **no live gate ran and none is claimed green**.
+
+**E2 as built** (solo attributed epistemic block)
+- `memory/epistemic.ts`, next to `renderPrivateEpistemicBlock`:
+  - `renderAttributedEpistemicBlock(entries, names)`: one line per active row, grouped by roster name in roster order, tags in the order knows / suspects / believes / unaware / hiding. The lines read `- Arin knows: …`, `- Arin suspects …`, `- Arin believes …`, `- Arin is unaware that …` and `- Arin is concealing from Ponticius: …`. The subject is written in the roster's spelling.
+  - The header: "What each character privately knows (voice each character accordingly — a character acts only on what they know, and never reveal what one of them conceals):".
+  - `renderSoloEpistemicBlock(entries, names)` picks the renderer. With more than one distinct name (compared case-insensitively) it attributes. With one name it returns `renderPrivateEpistemicBlock` unchanged, byte for byte.
+- `runtime/memoryInjector.ts`: both solo render sites use it: the injected block in `update()` and the `story_epistemic` macro in `epistemicBlock()`. Those are the only two solo sites; `grep renderPrivateEpistemicBlock` finds no third. The group path is untouched: the staged per-member blocks and `onMemberDrafted` stay in the second person.
+- The attributed block includes `unaware` rows, which the second-person block leaves out. "You are unaware that X" tells the reader X. "Arin is unaware that X" is what a narrator who voices Arin needs.
+
+**E3 as built** (save evidence for chat writes outside persist, and for `wizardSessions`)
+- `stHost/persistence.ts`: `saveOpenChat()` now answers `{ok, chatId, observed}`. `observed` is the watch it already armed for the open chat (`dd73915`), where it used to be `void`.
+- `runtime/persistence.ts`: the four chat writes that go through `saveOpenChat` hand `{kind, chatId, observed}` to the one registered `onChatWrite` listener:
+  - `select`: `setSelectedStoryId` (import, select, removal);
+  - `drop`: `dropPersistedRuntime` (restart);
+  - `replace`: `replaceUnreadableBlob`;
+  - `restamp`: a rename restamp.
+
+  A write that `ownBlob` refused, or a save that could not start, hands nothing on.
+- `ChatSave.recordWrite(write)` runs `recordSaveEvidence` over the write's own observation, at the engine's boundary. It does nothing unless a story is loaded, this run owns the open chat, and `write.chatId` is the claimed chat.
+  - The health goes to the extras object captured when the write was recorded, so a world change cannot write it into the next story's extras.
+  - The journal goes through a `RunGuard` minted at the same moment. The note is prefixed with the write ("story selection: the server answered 500").
+- `wizardSessions.ts`: `saveWizardSession` and `clearWizardSession` return the evidence. It reads T8's `observeNextSettingsSave`, then `readServerExtensionSettings`.
+  - A save is confirmed when the server holds the session key with an `updatedAt` ≥ ours. A clear is confirmed when the server no longer holds the key.
+  - The reasons are distinct: could not be read back, does not hold this session, holds it as saved `<at>`, still holds it.
+  - Each write is also handed to the one `onWizardSessionSave` listener.
+- `librarySave.ts`: the T8 core is generalised as `createSettingsWriteEvidence(deps, missing)` and `journalSettingsWrite(summary, label, …)`. `createLibrarySaveEvidence` and `journalLibrarySave` are now one-line uses of them, and every T8 test passes unchanged.
+- `runtime/index.ts` registers both listeners, each through `runtimeDisposers`. Chat writes go to `runtimeManager.chatSave.recordWrite`. Wizard writes go to `journalSettingsWrite`, with a `RunGuard` minted at write time, into `manager.noteRecap`. Manager: **0 lines**.
+- Migration: the blob migration in `storedBlob` writes nothing itself. The migrated blob reaches disk with the next `ChatSave.persist`, which already records evidence, so no new path was needed.
+
+**E4 as built** (pre-T14 mirror books adopt the marker)
+- `memoryMirror.ts` `syncMemoryMirror`, on a sync that does **not** adopt, writes the `so-owner` marker when all of these hold:
+  - the owner seam names this chat;
+  - `unmarkedOwnBook` finds that the synced book's file id is exactly `lorebookFileId(mirrorLorebookName(title, chatId))`;
+  - the book holds no `so-owner` entry at all.
+
+  The write path is the T14 one: upsert, then a lapse check, then disable.
+- "wiBook names it" holds by construction. The non-adopting path only runs for `owned = input.book` of this chat, and the book it reads is `ensureLorebook(owned.name)`.
+- A marker that names another chat is left as it is. The lapse check runs after the book read and before the marker write.
+- Cost: one `loadLorebook` per non-adopting sync whose book name matches. It is not cached, because a session cache would need either a module-level set or a new `wiBook` field, and `extras.ts` sanitize is out of bounds here.
+
+**E5 as built** (the first page load unbinds an unadopted branch)
+- `chatIdentity.ts` `loadAtStartup({load, ownership})` awaits the load, then runs `unbindBranchMirror(beginRun(ownership()))`. That is the bridge's classification and unbind, with the run minted after the load for the bridge's reason: the load bumps the epoch (mutant E5-2).
+- `runtime/index.ts`: both startup loads now go through it: the `settingsReady()` gate and the `EXTENSION_SETTINGS_LOADED` handler.
+- If ST's auto-load also reaches the bridge, the second unbind finds the slot empty and refuses. It is harmless.
+
+**Tests** (+41 tests, +2 suites)
+
+| File | Added | Covers |
+|---|---|---|
+| `memory/epistemic.test.ts` | 7 | byte-identical one name, attributed lines and order, no `You`, case-insensitive names, roster spelling and non-roster subjects left out, empty, retired row |
+| `coordinators/epistemicMacro.review.test.ts` | 3 | solo macro equals the injected block and is attributed; single-member solo byte-identical in both; group drafted block stays second person |
+| `memoryMirror.test.ts` | 8 | marks an owned pre-T14 book; marks once. Controls: another chat's suffix, another title, the exact name not in wiBook, a foreign marker kept, owner seam for another chat. Lapse during the read |
+| `chatSave.test.ts` | 5 | 500 → unsaved with a labelled journal; lost; 2xx applied; another chat / no story / foreign run record nothing; world moved → neither health nor journal reach the new world |
+| `chatWrites.test.ts` (new) | 4 | the four kinds; refused write; save that could not start; disposed listener |
+| `stHost/saveWatcher.test.ts` | +1, 1 changed | `observed` settles on the open chat's save; the lost case |
+| `wizardSessions.test.ts` | 6 | confirmed; 500; older and absent copies; clear; unreadable; listener |
+| `branchContinue.review.test.ts` | 3 | startup unbind on an unadopted branch. Controls: parent reloaded, adopted branch reloaded |
+| `startupWiring.review.test.ts` (new) | 4 | the real `startRuntime`: startup unbind, with an own-chat control; chat writes routed and disposed; wizard saves journaled and disposed |
+
+**Mutants**: `test/findings/mutations/v24-02-followups.txt`, **34/34 killed** (E2 10, E3 15, E4 6, E5 3). One redundant clause in E4 was removed rather than kept as an equivalent mutant; the record says why.
+
+**Census and matrix**: no row changes were demanded.
+- `ownership.guard` passes. `recordWrite` has no await in its body. `loadAtStartup` and `journalSettingsWrite` are not detected as write-after-await sites, the same as `journalLibrarySave` before them. The marker branch sits in `syncMemoryMirror`, already `checked`, and it lapse-checks around the new read.
+- Fault matrix: 55 covered / 10 partial / 16 na / 0 todo (of 81), unchanged.
+- Architecture budgets are green, with manager 0 lines and coordinators unchanged.
+
+**Gates** (worktree root, `node_modules` symlinked to the main checkout's)
+
+| Command | Result |
+|---|---|
+| `npm run typecheck` | exit 0 |
+| `npm run typecheck:test` | exit 0 |
+| `npm run lint` | exit 0 |
+| `npm run debug:typecheck` | exit 0 |
+| `npm test` | 195/195 suites, 2987/2987 tests; findings ledger 2 open / 48 settled |
+| `npm run build` (worktree only) | compiled, 2 webpack warnings (the existing size warnings); manifest `ST unknown` (worktree path) |
+| `npm run test:debug` (not required) | 219 tests: 218 pass, 0 fail, 1 skip (`eventNames` without an ST checkout at the relative path) |
+
+**Deviations**
+- E2 uses no colon after `suspects`, `believes` and `is unaware that`, as the build instruction wrote them (the decision row shows only the `knows` and `concealing` forms). `knows` and `is concealing …` keep theirs. A concealing row with no `hiddenFrom` reads `- Arin is concealing: …`.
+- E3 "import / removal / migration" was taken as the chat half, per the build instruction. The library half of the same operations still calls an unverified `saveSettingsDebounced()`: `saveStoryRecord` on import, `removeStoryRecord`, and the `listStoryRecords` migration. So does `settingsStore`. The generic `createSettingsWriteEvidence` is there for them.
+- E3 records nothing for a chat write made while no story is loaded, because there is no chat-scoped save health to hold it. In practice that means removing the story a chat plays when that chat has no pinned copy, and `unbindChatLorebook` on an unadopted branch. The observation is still armed, so the switch guard holds.
+- E3 chat-write evidence reads the write's own observation, while `ChatSave.persist` observes the next save. When a selection is followed straight away by a persist (`loadStory`, `swapStory`), the two can settle on the same request. The health is then written twice with the same outcome, and a failure is journaled twice: once labelled, once not.
+- E5 does not set the bridge's `loadedChat` at startup. The first same-chat reload after a page load is still a switch, which is safe and unchanged.
+
+**NOT done (need a browser, a backend, and a build on the ST tree)**
+- E2 live: a solo chat with a multi-member roster and epistemic rows for at least two members. Capture the prompt ST sends (`st-payload.mts arm` or `GENERATE_AFTER_DATA`) and assert the attributed header and lines inside the epistemic block, not across the whole body (J5.8 rule). Also `{{story_epistemic}}` equals that block, and a single-member solo story's block is unchanged.
+- E3 live: a selection or restart while `/api/chats/*/save` is failed by a fetch stub. `extras.saveHealth.lastOutcome = unsaved`, a labelled journal row, and the pipeline's save notice. For the wizard, `/api/settings/save` answering 500 during a wizard step gives the journal row "wizard session save not confirmed".
+- E4 live: a chat whose mirror book predates T14 (no `so-owner`). After one consolidation or `syncWorldInfo`, the book holds a disabled keyless marker naming the chat. Deleting the chat then offers the reap instead of a "no-marker" Repair row.
+- E5 live: `/branch-create` on a played chat, `st-session.mts reload` with the page landing on the branch (auto-load chat), then assert `chat_metadata.world_info` is gone, the branch notice shows, and the blob is untouched. Controls: reload onto the parent and onto an adopted branch keep their slots.

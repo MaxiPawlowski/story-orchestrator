@@ -1,4 +1,4 @@
-import { getContext, saveOpenChat } from "@services/STAPI";
+import { getContext, saveOpenChat, type SaveObservation } from "@services/STAPI";
 import { migrateMetadataBlob, migrateV3ToV4 } from "./persistenceMigration";
 import { listStoryRecords } from "./storyLibrary";
 import type { PersistedStoryRuntime, StoryOrchestratorMetadataBlob } from "./types";
@@ -14,6 +14,27 @@ const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(v
 const openChatId = (): string | null => {
   const id = getContext().chatId;
   return id === undefined || id === null ? null : String(id);
+};
+
+export type ChatWriteKind = "select" | "drop" | "replace" | "restamp";
+
+export interface ChatWrite {
+  kind: ChatWriteKind;
+  chatId: string;
+  observed: Promise<SaveObservation>;
+}
+
+let chatWriteListener: ((write: ChatWrite) => void) | null = null;
+
+export function onChatWrite(listener: (write: ChatWrite) => void): () => void {
+  chatWriteListener = listener;
+  return () => { if (chatWriteListener === listener) chatWriteListener = null; };
+}
+
+const saveChatWrite = (kind: ChatWriteKind) => {
+  void saveOpenChat().then((result) => {
+    if (result.ok && result.observed) chatWriteListener?.({ kind, chatId: result.chatId, observed: result.observed });
+  });
 };
 
 const createBlob = (): StoryOrchestratorMetadataBlob => ({ version: 4, chatId: openChatId(), selectedStoryId: null, stories: {} });
@@ -149,7 +170,7 @@ export function replaceUnreadableBlob(): boolean {
   if (!unrecognized(storedValue())) return false;
   mismatch = null;
   (getContext().chatMetadata as Record<string, unknown>)[METADATA_KEY] = createBlob();
-  void saveOpenChat();
+  saveChatWrite("replace");
   return true;
 }
 
@@ -164,7 +185,7 @@ export function restampRenamedChat(oldFileName: unknown, newFileName: unknown): 
   current.chatId = to;
   (getContext().chatMetadata as Record<string, unknown>)[METADATA_KEY] = current;
   mismatch = null;
-  void saveOpenChat();
+  saveChatWrite("restamp");
   return true;
 }
 
@@ -176,7 +197,7 @@ export function setSelectedStoryId(id: string | null) {
   const blob = ownBlob("selecting a story");
   if (!blob) return;
   blob.selectedStoryId = id;
-  void saveOpenChat();
+  saveChatWrite("select");
 }
 
 export function loadPersistedRuntime(id: string): PersistedStoryRuntime | null {
@@ -235,7 +256,7 @@ export function dropPersistedRuntime(id: string) {
   const blob = ownBlob("dropping story state");
   if (!blob) return;
   delete blob.stories[id];
-  void saveOpenChat();
+  saveChatWrite("drop");
 }
 
 export function dumpPersistedRuntime() {

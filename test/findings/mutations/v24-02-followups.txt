@@ -1,0 +1,107 @@
+v2.4 plan 02 follow-ups E2-E5 (00-overview §Decisions 2026-09-24), mutations 2026-09-24 (worktree build on 1edad07; script .debug/mutate.py .debug/mut-followups.json, each mutant applied alone as an exact single-match text replacement, the file restored byte-for-byte after its run and the restore read back)
+Suites per mutant are named on its row. Baseline before the run: every listed suite green; after: full `npm test` 195/195 suites, 2987/2987 tests.
+
+E2 solo attributed epistemic block (src/memory/epistemic.ts, src/runtime/memoryInjector.ts; suites memory/epistemic, coordinators/epistemicMacro.review)
+- E2-1 solo never attributed (`distinct.size > 99`): KILLED, 4 of 31
+    "names each line's subject when the narrator voices several characters"
+    "never tells the one narrator 'You' about a merged roster"
+    "uses the roster's spelling for the subject and leaves out non-roster subjects"
+    "names the subject of every line, in the macro and in the injected block alike"
+- E2-2 one name attributed too (`distinct.size >= 1`): KILLED, 3 of 31
+    "keeps one name's block byte-identical to the second-person block"
+    "counts names case-insensitively, so one member's two spellings stay second person"
+    "keeps a single-member solo block byte-identical to the second-person block"
+- E2-3 names counted case-sensitively (no `normalize`): KILLED, 1 of 31
+    "counts names case-insensitively, so one member's two spellings stay second person"
+- E2-4 the injected solo block (update()) still the merged second-person block: KILLED, 1 of 6
+    "names the subject of every line, in the macro and in the injected block alike"
+- E2-5 the story_epistemic macro (epistemicBlock()) still the merged second-person block: KILLED, 1 of 6
+    "names the subject of every line, in the macro and in the injected block alike"
+- E2-6 the concealing line drops whom it is hidden from: KILLED, 2 of 31
+    "names each line's subject when the narrator voices several characters"
+    "names the subject of every line, in the macro and in the injected block alike"
+- E2-7 unaware rows left out of the attributed block: KILLED, 1 of 25
+    "names each line's subject when the narrator voices several characters"
+- E2-8 subject written as extracted, not in the roster's spelling: KILLED, 1 of 25
+    "uses the roster's spelling for the subject and leaves out non-roster subjects"
+- E2-9 every subject's rows under every name (no subject filter): KILLED, 3 of 31
+    "names each line's subject when the narrator voices several characters"
+    "uses the roster's spelling for the subject and leaves out non-roster subjects"
+    "returns empty when no roster member holds active knowledge"
+- E2-10 retired rows rendered (`const active = entries`): KILLED, 1 of 25
+    "leaves out a retired row, as the second-person block does"
+
+E3 save evidence for chat writes outside persist + wizardSessions (stHost/persistence.ts, runtime/persistence.ts, runtime/chatSave.ts, runtime/wizardSessions.ts, runtime/librarySave.ts, runtime/index.ts)
+- E3-1 saveOpenChat hands back an observation that is not the one it armed: KILLED, 2 of 15 (stHost/saveWatcher)
+    "saveOpenChat names the open chat, so an empty save that lands in another chat is held back"
+    "(E3) hands back the observation it armed, settled by the open chat's save"
+- E3-2 the selection write hands nothing on (`void saveOpenChat()`): KILLED, 2 of 8 (chatWrites, startupWiring.review)
+    "a selection, a dropped state, a replaced blob and a rename restamp each name what they wrote"
+    "hands chat writes to the chat save, and stops at stopRuntime"
+- E3-3 the dropped-state write hands nothing on: KILLED, 1 of 4 (chatWrites)
+    "a selection, a dropped state, a replaced blob and a rename restamp each name what they wrote"
+- E3-4 a save that could not start is handed on anyway (`if (result)`): KILLED, 1 of 4 (chatWrites)
+    "control: a save that could not start (no chat open) hands nothing on"
+- E3-5 recordWrite ignores which chat the write was for: KILLED, 1 of 10 (chatSave)
+    "records nothing for a write made in another chat, or with no story loaded"
+- E3-6 recordWrite journals without the run check: KILLED, 1 of 10 (chatSave)
+    "a world that moved during the observation gets neither the health nor the journal"
+- E3-7 recordWrite writes the health into whatever extras are live when the save settles: KILLED, 1 of 10 (chatSave)
+    "a world that moved during the observation gets neither the health nor the journal"
+- E3-8 recordWrite observes the next save instead of the write's own: KILLED, 3 of 10 (chatSave)
+    "a write whose save answered 500 is unsaved, and the journal names the write"
+    "a write held back as lost is unsaved with the watcher's own reason"
+    "a world that moved during the observation gets neither the health nor the journal"
+- E3-9 startRuntime does not route chat writes: KILLED, 1 of 4 (startupWiring.review)
+    "hands chat writes to the chat save, and stops at stopRuntime"
+- E3-10 the chat-write route outlives stopRuntime (disposer dropped): KILLED, 1 of 4 (startupWiring.review)
+    "hands chat writes to the chat save, and stops at stopRuntime"
+- E3-11 a wizard session write is never handed on: KILLED, 2 of 14 (wizardSessions, startupWiring.review)
+    "hands every write to the listener, named by its session, until it is disposed"
+    "journals an unconfirmed wizard session save into the open chat, and stops at stopRuntime"
+- E3-12 an older server copy of the session counts as held: KILLED, 1 of 10 (wizardSessions)
+    "is not confirmed when the server holds an older copy of the session, or none"
+- E3-13 a clear is confirmed while the server still holds the session: KILLED, 1 of 10 (wizardSessions)
+    "confirms a clear only once the server no longer holds the session"
+- E3-14 the shared settings-write journal without the run check: KILLED, 1 of 8 (librarySave; the T8-10 case, now through journalSettingsWrite)
+    "journals an unconfirmed save in the chat it was made from, and nowhere else"
+- E3-15 the wizard route outlives stopRuntime (disposer dropped): KILLED, 1 of 4 (startupWiring.review)
+    "journals an unconfirmed wizard session save into the open chat, and stops at stopRuntime"
+
+E4 pre-T14 mirror books adopt the so-owner marker (src/runtime/memoryMirror.ts; suite memoryMirror)
+- E4-1 a pre-T14 book is never marked (`(adopting)`): KILLED, 3 of 28
+    "marks the book this chat's wiBook names when its name is exactly the mirror name for this chat"
+    "marks it once: a book that already carries a marker is neither rewritten nor re-read into a second one"
+    "stops when the chat changes while the book is read, writing no marker"
+- E4-2 no name check: KILLED, 3 of 28
+    "control: a book whose suffix names another chat stays unmarked, though wiBook names it"
+    "control: a book with this chat's suffix under another title stays unmarked"
+    "control: a book with this chat's exact mirror name that wiBook does not name stays unmarked"
+- E4-3 suffix-only name check (title ignored): KILLED, 1 of 28
+    "control: a book with this chat's suffix under another title stays unmarked"
+- E4-4 an existing marker is not looked for: KILLED, 3 of 28
+    "keeps the marker out of the tracked writes, so no later sync switches it off as stale or rewrites it"
+    "marks it once: a book that already carries a marker is neither rewritten nor re-read into a second one"
+    "control: a marker naming another chat is left as it is"
+- E4-5 no lapse check after the book read: KILLED, 1 of 28
+    "stops when the chat changes while the book is read, writing no marker"
+- E4-6 the owner is used whether or not ownership was proved: KILLED, 6 of 28
+    "keeps the marker out of the tracked writes, so no later sync switches it off as stale or rewrites it"
+    "marks it once: a book that already carries a marker is neither rewritten nor re-read into a second one"
+    "control: a book whose suffix names another chat stays unmarked, though wiBook names it"
+    "control: a book with this chat's suffix under another title stays unmarked"
+    "control: a book with this chat's exact mirror name that wiBook does not name stays unmarked"
+    "control: a marker naming another chat is left as it is"
+
+E5 the first page load unbinds an unadopted branch's inherited lorebook (src/runtime/chatIdentity.ts, src/runtime/index.ts; suites branchContinue.review, startupWiring.review)
+- E5-1 no unbind after the startup load: KILLED, 2 of 23
+    "unbinds the parent's mirror from an unadopted branch it opens on"
+    "loses the parent's mirror binding, exactly as a switch onto it does"
+- E5-2 the run minted before the load (the load bumps the epoch, so the unbind sees a lapsed run): KILLED, 2 of 23
+    "unbinds the parent's mirror from an unadopted branch it opens on"
+    "loses the parent's mirror binding, exactly as a switch onto it does"
+- E5-3 startRuntime loads without loadAtStartup: KILLED, 1 of 4 (startupWiring.review)
+    "unbinds the parent's mirror from an unadopted branch it opens on"
+
+34/34 killed, none survived a first run.
+Not mutated, with the reason: E4's "wiBook names it" clause is not a separate check. The marker path for a non-adopting sync only runs on `owned = input.book` for this chat, and the book it reads is `ensureLorebook(owned.name)`. A first version tested both `input.book.name` and the ensured name against the expected mirror name; the two could not disagree, so a mutant deleting either would survive as an equivalent mutant. The clause was reduced to one name check and the ownership is stated in the function's comment.

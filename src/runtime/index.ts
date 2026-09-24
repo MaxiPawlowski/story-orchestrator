@@ -19,6 +19,10 @@ import { DIRECTOR_MAX_TOKENS, DIRECTOR_WINDOW_MESSAGES, TalkController, type Tal
 import { GenerationLifecycle, type GenerationIntent } from "./generationLifecycle";
 import { isTurnMessageType, TurnBridge } from "./turnBridge";
 import { RequirementsWatch } from "./requirementsWatch";
+import { loadAtStartup } from "./chatIdentity";
+import { journalSettingsWrite } from "./librarySave";
+import { onChatWrite } from "./persistence";
+import { onWizardSessionSave } from "./wizardSessions";
 
 let started = false;
 let bridge: TurnBridge | null = null;
@@ -32,6 +36,8 @@ let typedJudge: ReturnType<typeof createTypedJudge> | null = null;
 // stop/start cycle left the previous run listening, and each boundary dispatched twice — once into
 // live wiring and once into a scheduler and scene coordinator that had already been torn down.
 const runtimeDisposers: Array<() => void> = [];
+
+const startupLoad = () => loadAtStartup({ load: () => runtimeManager.loadSelectedFromChat(), ownership: () => runtimeManager.getOwnership() });
 
 const registerSlashCommandsWhenReady = (attempt = 0) => {
   if (slashRegistered) return;
@@ -108,6 +114,9 @@ export function startRuntime() {
   requirementsWatch.start();
   runtimeDisposers.push(() => requirementsWatch.stop());
   runtimeDisposers.push(startMirrorReaper(() => runtimeManager.notify()));
+  // v2.4 E3: chat writes outside persist, and wizard-session writes, read the save they asked for.
+  runtimeDisposers.push(onChatWrite((write) => void runtimeManager.chatSave.recordWrite(write)));
+  runtimeDisposers.push(onWizardSessionSave((save) => void journalSettingsWrite(save.summary, save.label, save.evidence, beginRun(runtimeManager.getOwnership()), (summary, note) => runtimeManager.noteRecap(summary, note))));
   const chatLastId = () => (Array.isArray(getContext().chat) ? getContext().chat.length - 1 : -1);
   globalThis.storyOrchestratorScheduler = { nextReadWindow: () => scheduler?.nextReadWindow(chatLastId()) ?? null };
   const judgeRuntime = new JudgeRuntime({
@@ -233,7 +242,7 @@ export function startRuntime() {
     // v2.3 plan 06 (F2): ST writes the third-party settings and THEN emits this, so it is the one
     // proof that `extension_settings` holds real values. The chat that was waiting on the gate loads
     // here, once, and never twice.
-    { eventName: EXTENSION_SETTINGS_LOADED_EVENT, handler: () => { noteHostSettingsLoaded(); void runtimeManager.loadSelectedFromChat(); } },
+    { eventName: EXTENSION_SETTINGS_LOADED_EVENT, handler: () => { noteHostSettingsLoaded(); void startupLoad(); } },
   ];
   privateInjectionUnsub = subscribeToHostEvents(privateInjectionEntries);
   // v2.3 plan 06 (F2). Versioned settings (loaded synchronously from a cache) are already in place,
@@ -244,7 +253,7 @@ export function startRuntime() {
     // `?.` on purpose: a host seam that is absent (a partial stub, or a build without it) must not
     // turn the load into an unhandled rejection — the load is the point, the gate is bookkeeping.
     noteHostSettingsLoaded?.();
-    void runtimeManager.loadSelectedFromChat();
+    void startupLoad();
   });
   return runtimeManager;
 }

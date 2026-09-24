@@ -1,7 +1,7 @@
 import { executeSlashCommands, getContext, unbindChatLorebook } from "@services/STAPI";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { adoptChatState, openChatIntegrity, storedBoundaryFor } from "./persistence";
-import type { RunContext, RunGuard } from "./runToken";
+import { beginRun, type RunContext, type RunGuard, type RunOwnership } from "./runToken";
 
 // v2.4 plan 02 §3. ST re-reads a chat it already has open (`reloadCurrentChat`: `/persona-sync`, a
 // persona change on an untainted group) and emits CHAT_CHANGED with the SAME id (H8, H9). Treated as a
@@ -129,6 +129,13 @@ export async function unbindBranchMirror(run: RunGuard): Promise<WriteResult<{ n
   const book = identity?.snapshot.kind === "branch" ? identity.parentBook : null;
   if (!book || !run.stillOwns()) return null;
   return unbindChatLorebook(book);
+}
+
+/** v2.4 E5: the page's first load is no CHAT_CHANGED, so it never reached the bridge's unbind. It runs the
+ *  same one, with the run minted after the load for the same reason: the load itself bumps the epoch. */
+export async function loadAtStartup(host: { load: () => Promise<unknown>; ownership: () => RunOwnership }): Promise<WriteResult<{ name: string }> | null> {
+  await host.load();
+  return unbindBranchMirror(beginRun(host.ownership()));
 }
 
 export interface ContinueBranchDeps {

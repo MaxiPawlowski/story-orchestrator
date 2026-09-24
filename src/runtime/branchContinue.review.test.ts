@@ -1,6 +1,6 @@
 import { RuntimeManager } from "./runtimeManager";
 import { TurnBridge } from "./turnBridge";
-import { branchFromOldest, classifyStoredIdentity, continueFromBranch, unbindBranchMirror, type StoredIdentityInput } from "./chatIdentity";
+import { branchFromOldest, classifyStoredIdentity, continueFromBranch, loadAtStartup, unbindBranchMirror, type StoredIdentityInput } from "./chatIdentity";
 import { beginRun } from "./runToken";
 import { executeSlashCommands, unbindChatLorebook } from "@services/STAPI";
 import type { StoryOrchestratorMetadataBlob } from "./types";
@@ -203,6 +203,56 @@ describe("v2.4 plan 02 §5: an unadopted branch", () => {
     expect(manager.getSnapshot().chatIdentity).toEqual({ kind: "foreign", stampedFor: "chat-a" });
     expect(unbindChatLorebook).not.toHaveBeenCalled();
     expect(mockContext.chatMetadata.world_info).toBe(PARENT_BOOK);
+  });
+});
+
+// v2.4 E5: the page's first load is not a CHAT_CHANGED, so it never reached the bridge's unbind. A branch
+// opened by reloading the page kept the parent's chat lorebook bound; the same branch opened by a switch
+// did not. The startup load now runs the same classification and unbind.
+describe("v2.4 E5: an unadopted branch opened by the first page load", () => {
+  const reloadPage = () => {
+    mockHandlers.clear();
+    (unbindChatLorebook as jest.Mock).mockClear();
+    return new RuntimeManager();
+  };
+  const startupLoad = (manager: RuntimeManager) => loadAtStartup({ load: () => manager.loadSelectedFromChat(), ownership: () => manager.getOwnership() });
+  const landOnBranch = (at = 1, id = "branch-1") => {
+    const metadata = JSON.parse(JSON.stringify(mockContext.chatMetadata)) as Record<string, unknown>;
+    mockContext.chatId = id;
+    mockContext.chatMetadata = { ...metadata, main_chat: "chat-a", integrity: `i-${id}` };
+    mockContext.chat = JSON.parse(JSON.stringify(mockContext.chat.slice(0, at + 1))) as Row[];
+  };
+
+  it("loses the parent's mirror binding, exactly as a switch onto it does", async () => {
+    await playedParent();
+    landOnBranch();
+    const reloaded = reloadPage();
+    await expect(startupLoad(reloaded)).resolves.toEqual({ ok: true, name: PARENT_BOOK });
+    expect(unbindChatLorebook).toHaveBeenCalledWith(PARENT_BOOK);
+    expect(mockContext.chatMetadata.world_info).toBeUndefined();
+    expect(reloaded.getSnapshot().chatIdentity).toEqual({ kind: "branch", parentChat: "chat-a", checkpointName: "The Road" });
+    expect(blob().chatId).toBe("chat-a");
+  });
+
+  it("control: the parent chat reloaded keeps its binding", async () => {
+    await playedParent();
+    const reloaded = reloadPage();
+    await expect(startupLoad(reloaded)).resolves.toBeNull();
+    expect(unbindChatLorebook).not.toHaveBeenCalled();
+    expect(mockContext.chatMetadata.world_info).toBe(PARENT_BOOK);
+    expect(reloaded.getSnapshot().ready).toBe(true);
+  });
+
+  it("control: an adopted branch reloaded keeps its binding", async () => {
+    const manager = await playedParent();
+    await openBranch(1);
+    await continueFromBranch({ selectStory: (id) => manager.selectStory(id), note: jest.fn() });
+    const own = "Story Orchestrator - Branch story - branch-1";
+    mockContext.chatMetadata.world_info = own;
+    const reloaded = reloadPage();
+    await expect(startupLoad(reloaded)).resolves.toBeNull();
+    expect(unbindChatLorebook).not.toHaveBeenCalled();
+    expect(mockContext.chatMetadata.world_info).toBe(own);
   });
 });
 

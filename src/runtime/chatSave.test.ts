@@ -9,6 +9,8 @@ jest.mock("@services/STAPI", () => ({
 import { ChatSave } from "./chatSave";
 import { createExtras } from "./extras";
 import type { RunOwner } from "./runOwner";
+import type { RunOwnership, RunToken } from "./runToken";
+import type { SaveObservation } from "./saveEvidence";
 import type { LoadedStory, RuntimeExtras } from "./types";
 
 declare global {
@@ -25,22 +27,28 @@ const LOADED = { record: { id: "s1", version: 1, hash: "h", raw: { format: 2, id
 function harness(options: { loaded?: LoadedStory | null; owns?: boolean } = {}) {
   let saves = 0;
   const journal: Array<{ summary: string; persistNow: boolean }> = [];
+  const notes: string[] = [];
   globalThis.__chatSaveTest = {
     observation: { requested: true, status: 200, ok: true, timedOut: false },
     stored: 1,
     context: { chatId: "chat-a", saveMetadata: () => { saves += 1; }, chat: [], chatMetadata: {}, extensionSettings: {} },
   };
   const extras: RuntimeExtras = createExtras();
-  const owner = { ownsOpenChat: () => options.owns ?? true, claimedChat: () => "chat-a" } as unknown as RunOwner;
+  const world = { epoch: 1, extras };
+  const ownership: RunOwnership = {
+    mint: () => ({ chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: world.epoch, windowRevision: 0, lowestMutatedMessageId: null }) as unknown as RunToken,
+    check: (token: RunToken) => ((token as unknown as { sessionEpoch: number }).sessionEpoch === world.epoch ? { ok: true } : { ok: false, reason: "sessionEpoch", detail: "moved" }) as never,
+  };
+  const owner = { ownsOpenChat: () => options.owns ?? true, claimedChat: () => "chat-a", ownership } as unknown as RunOwner;
   const save = new ChatSave({
     loaded: () => (options.loaded === undefined ? LOADED : options.loaded),
     engine: () => ({ state: { boundary: 1, blackboard: {}, visitedAnchors: [], visitedPath: [] } as never, history: { from: { boundary: 1, messageId: -1 }, log: [] } as never }),
-    extras: () => extras,
+    extras: () => world.extras,
     owner,
-    journal: (summary, _note, persistNow) => journal.push({ summary, persistNow }),
+    journal: (summary, note, persistNow) => { journal.push({ summary, persistNow }); notes.push(note); },
     recap: () => {},
   });
-  return { save, extras, journal, saves: () => saves };
+  return { save, extras, journal, notes, world, saves: () => saves };
 }
 
 describe("ChatSave", () => {
@@ -84,5 +92,60 @@ describe("ChatSave", () => {
     await save.persist();
     expect(saves()).toBe(0);
     expect(save.landed()).toBe(false);
+  });
+});
+
+// v2.4 E3: a chat write made outside persist (a selection, a dropped state, a replaced blob, a rename
+// restamp) goes through `saveOpenChat`, which armed an observation; that observation is now read.
+describe("ChatSave.recordWrite (E3)", () => {
+  const answered = (status: number): SaveObservation => ({ requested: true, status, ok: status >= 200 && status < 300, timedOut: false, failed: false });
+  const write = (observation: SaveObservation | Promise<SaveObservation>, chatId = "chat-a") => ({ kind: "select" as const, chatId, observed: Promise.resolve(observation) });
+
+  test("a write whose save answered 500 is unsaved, and the journal names the write", async () => {
+    const { save, extras, journal, notes } = harness();
+    await save.recordWrite(write(answered(500)));
+    expect(extras.saveHealth).toMatchObject({ lastOutcome: "unsaved", lastReason: "the server answered 500", pendingBoundary: 1 });
+    expect(journal.map((entry) => entry.summary)).toEqual(["save not confirmed"]);
+    expect(notes[0]).toBe("story selection: the server answered 500");
+    expect(save.landed()).toBe(false);
+  });
+
+  test("a write held back as lost is unsaved with the watcher's own reason", async () => {
+    const { save, extras } = harness();
+    await save.recordWrite(write({ requested: false, status: null, ok: false, timedOut: false, failed: false, lost: "the open chat changed before the save ran" }));
+    expect(extras.saveHealth).toMatchObject({ lastOutcome: "unsaved", lastReason: "the open chat changed before the save ran" });
+  });
+
+  test("control: a write answered 2xx is applied and journals nothing", async () => {
+    const { save, extras, journal } = harness();
+    await save.recordWrite(write(answered(200)));
+    expect(extras.saveHealth).toMatchObject({ lastOutcome: "applied", pendingBoundary: null });
+    expect(journal).toEqual([]);
+  });
+
+  test("records nothing for a write made in another chat, or with no story loaded", async () => {
+    const other = harness();
+    await other.save.recordWrite(write(answered(500), "chat-b"));
+    expect(other.extras.saveHealth.lastOutcome).toBeNull();
+    const none = harness({ loaded: null });
+    await none.save.recordWrite(write(answered(500)));
+    expect(none.extras.saveHealth.lastOutcome).toBeNull();
+    const foreign = harness({ owns: false });
+    await foreign.save.recordWrite(write(answered(500)));
+    expect(foreign.extras.saveHealth.lastOutcome).toBeNull();
+  });
+
+  test("a world that moved during the observation gets neither the health nor the journal", async () => {
+    const { save, extras, journal, world } = harness();
+    let answer: (observation: SaveObservation) => void = () => {};
+    const pending = save.recordWrite({ kind: "drop", chatId: "chat-a", observed: new Promise<SaveObservation>((resolve) => { answer = resolve; }) });
+    const next = createExtras();
+    world.epoch = 2;
+    world.extras = next;
+    answer(answered(500));
+    await pending;
+    expect(next.saveHealth.lastOutcome).toBeNull();
+    expect(extras.saveHealth.lastOutcome).toBe("unsaved");
+    expect(journal).toEqual([]);
   });
 });

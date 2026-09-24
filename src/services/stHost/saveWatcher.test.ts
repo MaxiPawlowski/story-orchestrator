@@ -167,7 +167,8 @@ describe("v2.4 plan 02 (J10.14): a save that runs after the open chat changed", 
 
 describe("v2.4 plan 02: every chat save of ours arms the guard", () => {
   it("saveOpenChat names the open chat, so an empty save that lands in another chat is held back", async () => {
-    expect(await saveOpenChat()).toEqual({ ok: true, chatId: "chat-1" });
+    const opened = await saveOpenChat();
+    expect(opened).toMatchObject({ ok: true, chatId: "chat-1" });
     const before = pending.length;
     const refused = saveWatcherStats().refused;
     await fetch("/api/chats/group/save", { method: "POST", body: JSON.stringify({ id: "chat-9", chat: [{ chat_metadata: { integrity: "i-9" } }] }) });
@@ -177,5 +178,15 @@ describe("v2.4 plan 02: every chat save of ours arms the guard", () => {
     await settle();
     answer(200);
     await save;
+    expect(opened.ok && await opened.observed).toMatchObject({ ok: false, lost: expect.stringContaining("chat-9") });
+  });
+
+  it("(E3) hands back the observation it armed, settled by the open chat's save", async () => {
+    const opened = await saveOpenChat();
+    const save = fetch("/api/chats/group/save", { method: "POST", body: JSON.stringify({ id: "chat-1", chat: [{ chat_metadata: { integrity: "i-1" } }, { mes: "hi" }] }) });
+    await settle();
+    answer(500);
+    await save;
+    expect(opened.ok && await opened.observed).toMatchObject({ requested: true, status: 500, ok: false });
   });
 });

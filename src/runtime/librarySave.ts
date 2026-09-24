@@ -39,19 +39,31 @@ export function missingFromServer(stored: unknown[] | null, record: Pick<StoryLi
   return `the server holds v${version} saved ${String(held.updatedAt ?? "at an unknown time")}`;
 }
 
-export function createLibrarySaveEvidence(deps: LibrarySaveDeps): (record: StoryLibraryRecord) => Promise<LibrarySaveEvidence> {
+/** v2.4 E3: the same evidence for any install-wide write: the observed settings save, then what the
+ *  server's copy holds, read once per burst. `missing` answers null when the server holds the write. */
+export function createSettingsWriteEvidence<T>(deps: LibrarySaveDeps, missing: (stored: unknown[] | null, write: T) => string | null): (write: T) => Promise<LibrarySaveEvidence> {
   let lastBurst: { burst: number; read: Promise<unknown[] | null> } | null = null;
   const readOnce = (burst: number | undefined) => {
     if (burst === undefined) return deps.readBack();
     if (lastBurst?.burst !== burst) lastBurst = { burst, read: deps.readBack() };
     return lastBurst.read;
   };
-  return async (record) => {
+  return async (write) => {
     const observation = await deps.observe();
     if (!observation.ok) return { confirmed: false, reason: observedReason(observation) };
-    const missing = missingFromServer(await readOnce(observation.burst), record);
-    return missing ? { confirmed: false, reason: missing } : { confirmed: true };
+    const reason = missing(await readOnce(observation.burst), write);
+    return reason ? { confirmed: false, reason } : { confirmed: true };
   };
+}
+
+export const createLibrarySaveEvidence = (deps: LibrarySaveDeps): (record: StoryLibraryRecord) => Promise<LibrarySaveEvidence> => createSettingsWriteEvidence(deps, missingFromServer);
+
+/** The reason goes to the journal of the chat the write was made from, and only while that chat is still open. */
+export async function journalSettingsWrite(summary: string, label: string, evidence: Promise<LibrarySaveEvidence>, run: RunGuard, journal: (summary: string, note: string) => void): Promise<LibrarySaveEvidence> {
+  const outcome = await evidence;
+  if (outcome.confirmed || !run.stillOwns()) return outcome;
+  journal(summary, `${label}: ${outcome.reason}`);
+  return outcome;
 }
 
 export const librarySaveSentence = (record: Pick<StoryLibraryRecord, "title" | "version">, evidence: LibrarySaveEvidence) => evidence.confirmed
@@ -59,9 +71,5 @@ export const librarySaveSentence = (record: Pick<StoryLibraryRecord, "title" | "
   : `Saving “${record.title}” v${record.version}… not confirmed: ${evidence.reason}.`;
 
 /** The reason goes to the journal of the chat the save was made from, and only while that chat is still open. */
-export async function journalLibrarySave(record: Pick<StoryLibraryRecord, "title" | "version">, evidence: Promise<LibrarySaveEvidence>, run: RunGuard, journal: (summary: string, note: string) => void): Promise<LibrarySaveEvidence> {
-  const outcome = await evidence;
-  if (outcome.confirmed || !run.stillOwns()) return outcome;
-  journal("library save not confirmed", `“${record.title}” v${record.version}: ${outcome.reason}`);
-  return outcome;
-}
+export const journalLibrarySave = (record: Pick<StoryLibraryRecord, "title" | "version">, evidence: Promise<LibrarySaveEvidence>, run: RunGuard, journal: (summary: string, note: string) => void): Promise<LibrarySaveEvidence> =>
+  journalSettingsWrite("library save not confirmed", `“${record.title}” v${record.version}`, evidence, run, journal);

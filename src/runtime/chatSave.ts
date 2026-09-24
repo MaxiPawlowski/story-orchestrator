@@ -4,9 +4,10 @@ import { getContext } from "@services/STAPI";
 import { stripGlobalSettings } from "./extras";
 import { FingerprintKeeper } from "./fingerprints";
 import type { DecodeJournal } from "./messageIdentity";
-import { evictedStoryNotice, savePersistedRuntime } from "./persistence";
+import { evictedStoryNotice, savePersistedRuntime, type ChatWrite, type ChatWriteKind } from "./persistence";
 import type { RunOwner } from "./runOwner";
-import type { RunGuard } from "./runToken";
+import { beginRun, type RunGuard } from "./runToken";
+import type { SaveEvidenceResult } from "./saveEvidence";
 import { recordSaveEvidence, saveEvidenceDeps } from "./saveEvidenceHost";
 import { saveWasLost } from "./saveHealth";
 import { listStoryRecords } from "./storyLibrary";
@@ -23,6 +24,13 @@ export interface ChatSaveDeps {
   /** v2.4 plan 02 T3: a message that changed with no event goes through the ordinary rollback. */
   rollback: (messageId: number, journal: DecodeJournal) => Promise<unknown>;
 }
+
+const CHAT_WRITE_LABEL: Record<ChatWriteKind, string> = {
+  select: "story selection",
+  drop: "dropped story state",
+  replace: "replaced unreadable story state",
+  restamp: "chat rename restamp",
+};
 
 const chatNow = (): unknown[] => (Array.isArray(getContext().chat) ? getContext().chat : []);
 
@@ -66,6 +74,17 @@ export class ChatSave {
     // Armed first, write second: the watcher has to be listening before the request goes out.
     const observed = recordSaveEvidence(deps, this.deps.engine().state.boundary);
     await Promise.all([Promise.resolve(getContext().saveMetadata?.()), observed]);
+  }
+
+  /** v2.4 E3: a chat write made outside persist (select, drop, replace, restamp) reads the observation
+   *  `saveOpenChat` armed. The health goes to the extras the write was made for; the journal only while
+   *  the world it was made in is still the current one. */
+  recordWrite(write: ChatWrite): Promise<SaveEvidenceResult> | null {
+    if (!this.deps.loaded() || !this.deps.owner.ownsOpenChat() || write.chatId !== this.deps.owner.claimedChat()) return null;
+    const run = beginRun(this.deps.owner.ownership);
+    const extras = this.deps.extras();
+    const deps = saveEvidenceDeps(() => extras.saveHealth, (health) => { extras.saveHealth = health; }, (summary, note) => { if (run.stillOwns()) this.deps.journal(summary, `${CHAT_WRITE_LABEL[write.kind]}: ${note}`, false); });
+    return recordSaveEvidence({ ...deps, observe: () => write.observed }, this.deps.engine().state.boundary);
   }
 
   /** v2.3 plan 05. "Did the write reach the chat's stored state": `persist` cannot answer it, because

@@ -167,13 +167,13 @@ function watch(kind: SaveKind, timeoutMs: number, chatId: string | null = null):
  * the open chat changed, an empty write into the next chat is held back (see `switchRefusal`). Every
  * chat save of ours goes through here or through `observeNextSave`; a bare `saveMetadata` would not.
  */
-export async function saveOpenChat(): Promise<WriteResult<{ chatId: string }>> {
+export async function saveOpenChat(): Promise<WriteResult<{ chatId: string; observed: Promise<SaveObservation> }>> {
   const context = getContext();
   const chatId = typeof context.chatId === "string" && context.chatId ? context.chatId : null;
   if (!chatId || typeof context.saveMetadata !== "function") return couldNot("no chat is open");
-  void watch("chat", SAVE_OBSERVE_MS, chatId);
+  const observed = watch("chat", SAVE_OBSERVE_MS, chatId);
   await context.saveMetadata();
-  return wrote({ chatId });
+  return wrote({ chatId, observed });
 }
 
 /**
