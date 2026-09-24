@@ -8,8 +8,8 @@ export interface HostEventPayloads {
   CHAT_RENAMED: [payload: { avatarId?: string; groupId?: string | null; oldFileName: string; newFileName: string }];
   CHAT_CREATED: [];
   GROUP_CHAT_CREATED: [];
-  CHAT_DELETED: [];
-  GROUP_CHAT_DELETED: [];
+  CHAT_DELETED: [name: string];
+  GROUP_CHAT_DELETED: [chatId: string];
   MESSAGE_SENT: [payload: Record<string, unknown> | undefined];
   MESSAGE_RECEIVED: [messageId: number, messageType?: string];
   MESSAGE_SWIPED: [messageId: number];
@@ -28,7 +28,7 @@ export interface HostEventPayloads {
   ];
   GENERATION_STOPPED: [];
   GENERATION_ENDED: [];
-  WORLDINFO_UPDATED: [];
+  WORLDINFO_UPDATED: [name: string, data: unknown];
   WORLDINFO_SETTINGS_UPDATED: [];
   WORLDINFO_ENTRIES_LOADED: [];
   GROUP_UPDATED: [];

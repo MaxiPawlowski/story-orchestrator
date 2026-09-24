@@ -1,0 +1,79 @@
+scope: npx jest src/runtime/mirrorReaper.review.test.ts src/runtime/memoryMirror.test.ts src/services/stHost/worldInfo.test.ts src/services/stHost/chatFiles.test.ts src/runtime/repair.test.ts; each mutant applied alone, then restored (2026-09-24)
+baseline (no mutant)
+Tests:       92 passed, 92 total
+T14-1 reap without the absence check (plan mutation 10): a chat still present is reaped
+  ● v2.4 T14: MirrorReaper › refuses an announce-without-delete (02-H11): the chat still exists, so nothing is offered
+Tests:       1 failed, 91 passed, 92 total
+T14-2 an unknown presence reads as absent
+  ● v2.4 T14: MirrorReaper › turns a deletion it cannot confirm into a Repair row, never a delete
+Tests:       1 failed, 91 passed, 92 total
+T14-3 reap without the marker's chat check (plan mutation 11): a marker naming another chat is reaped
+  ● v2.4 T14: MirrorReaper › never reaps a book whose marker names another chat, even when the name matches
+Tests:       1 failed, 91 passed, 92 total
+T14-4 the marker parser accepts any owner
+  ● v2.4 T14: MirrorReaper › never reaps a book whose so-owner entry was written by someone else
+  ● v2.4 T14: the so-owner marker › refuses another owner, a missing chat id and non-JSON
+Tests:       2 failed, 90 passed, 92 total
+T14-5 reap without the player's confirm
+  ● v2.4 T14: MirrorReaper › clears a book's Repair row once a later reap deletes it
+  ● v2.4 T14: MirrorReaper › requires the player's yes: a declined reap keeps the book and leaves a Repair row
+Tests:       2 failed, 90 passed, 92 total
+T14-6 reap without the token check before the delete
+  ● v2.4 T14: MirrorReaper › deletes nothing once the runtime stopped while the confirm was open
+Tests:       1 failed, 91 passed, 92 total
+T14-7 candidate by substring instead of the exact ` - <chatId>` suffix
+  ● v2.4 T14: reapCandidates › matches the chat id as an exact suffix, so chat -12 never nominates chat -123's book
+Tests:       1 failed, 91 passed, 92 total
+T14-8 candidate without the mirror-book prefix
+  ● v2.4 T14: reapCandidates › nominates only mirror books, never a user book that happens to end the same way
+Tests:       1 failed, 91 passed, 92 total
+T14-9 reap events not serialised
+  ● v2.4 T14: MirrorReaper › asks one question at a time when a group delete announces several chats
+Tests:       1 failed, 91 passed, 92 total
+T14-10 the marker is left enabled after the write
+  ● v2.4 T14: the mirror marks the book it adopts › re-stamps an existing marker when a restarted chat adopts its book again, and the stale sweep leaves it alone
+  ● v2.4 T14: the mirror marks the book it adopts › writes a keyless, disabled so-owner marker naming the chat when it adopts a book
+Tests:       2 failed, 90 passed, 92 total
+T14-11 the marker is written for whatever owner the host reports
+  ● v2.4 T14: the mirror marks the book it adopts › writes no marker without an owner seam, or for an owner that is not the chat being synced
+Tests:       1 failed, 91 passed, 92 total
+T14-12 no ownership check between the marker write and its disable
+  ● v2.4 T14: the mirror marks the book it adopts › stops at a chat change between the marker and its disable, leaving the next chat's slot alone
+Tests:       1 failed, 91 passed, 92 total
+T14-13 scene rows mirrored again (X18)
+  ● v2.4 T14 (X18): scene rows are no longer mirrored › mirrors a relationship and not a scene row
+  ● v2.4 T14 (X18): scene rows are no longer mirrored › switches off a scene entry an earlier build wrote, on the next sync
+Tests:       2 failed, 90 passed, 92 total
+T14-14 deleteLorebook resolves a case-insensitive name instead of the exact listed one
+  ● deleteLorebook (v2.4 T14) › refuses a name that is not listed exactly, without asking the host
+Tests:       1 failed, 91 passed, 92 total
+T14-15 deleteLorebook trusts the host's true without reading the list back
+  ● deleteLorebook (v2.4 T14) › does not trust a true answer while the book is still listed
+Tests:       1 failed, 91 passed, 92 total
+T14-16 deleteLorebook does not evict the cache
+  ● deleteLorebook (v2.4 T14) › reports a refused delete and still evicts what the cache held
+Tests:       1 failed, 91 passed, 92 total
+T14-17 group probe without the client list (02-H11)
+  ● v2.4 T14: probeChatFile, group chats › reads a chat the group still lists as present without asking the server (02-H11)
+Tests:       1 failed, 91 passed, 92 total
+T14-18 group probe reads any answer without a file_name as absent
+  ● v2.4 T14: probeChatFile, group chats › cannot tell on a failed or unexpected answer
+Tests:       1 failed, 91 passed, 92 total
+T14-19 solo probe reads {error: true} as absent
+  ● v2.4 T14: probeChatFile, solo chats › cannot tell from {error: true}, which is also how a missing directory answers
+Tests:       1 failed, 91 passed, 92 total
+T14-20 the orphan Repair row is not shown without a story
+  ● nextRepairStep › v2.4 T14: an orphaned story-memory lorebook › shows in a chat with no story, because the chat it belonged to is gone
+Tests:       1 failed, 91 passed, 92 total
+T14-21 no re-read of the book list after the confirm: a book deleted meanwhile is reported orphaned
+  ● v2.4 T14: MirrorReaper › leaves no row and attempts no delete when the book was deleted elsewhere while the confirm was open
+Tests:       1 failed, 91 passed, 92 total
+T14-22 no re-read of the book list after the marker read: a book deleted meanwhile reads as unmarked
+  ● v2.4 T14: MirrorReaper › reads a book deleted before its marker could be read as gone, not as an unmarked orphan
+Tests:       1 failed, 91 passed, 92 total
+restored
+Tests:       92 passed, 92 total
+
+22/22 killed, none survived.
+Plan mutation checks (Tests and gates): 10 "reap without the absence check" = T14-1 (and T14-17, the probe's own client-list half); 11 "reap without the marker check" = T14-3 (the marker names another chat) and T14-4 (an so-owner entry someone else wrote).
+Not a mutant: dropping the `!marker` branch alone makes `marker.chatId` throw, so the reap rejects instead of deleting; "never reaps a book without a marker" fails on the rejection, which is a crash, not a guard, so it is not counted.

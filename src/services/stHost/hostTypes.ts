@@ -8,6 +8,9 @@ export interface HostGroup {
   id: string;
   members: string[];
   disabled_members: string[];
+  // The group's chat file ids (group-chats.js:2248/2286). `deleteGroupChat` splices the id out BEFORE
+  // its request, so absence here is not proof the file is gone (v2.4 02-H11).
+  chats?: string[];
   [key: string]: unknown;
 }
 
@@ -107,6 +110,9 @@ export interface WorldInfoHostModule {
   createNewWorldInfo: (worldName: string, options?: { interactive?: boolean }) => Promise<boolean>;
   createWorldInfoEntry: (name: string, data: unknown) => unknown;
   saveWorldInfo: (name: string, data: unknown, immediately?: boolean) => Promise<unknown>;
+  // world-info.js:4346-4393: false for an unlisted name or a refused request; on success it evicts the
+  // cache, unselects the book and refreshes `world_names` (v2.4 02-H13).
+  deleteWorldInfo: (name: string) => Promise<boolean>;
   // v2.2 plan 04: every entry of every active source (global, character, chat, persona), stamped
   // with `world`, decorators parsed and hashed, structured-cloned (world-info.js:4590). It emits
   // WORLDINFO_ENTRIES_LOADED on the way (:4603).

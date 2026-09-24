@@ -589,3 +589,78 @@ Built on `9cb054a` in an agent worktree. Machine gates only: no `npm run build`,
 - `StorySelectionDeps.setStatus` gained a `note` parameter to journal without a manager line. The alternative, a `journal` dep, costs a line.
 - The put-back re-appends a removed row at the end of its array, not at its old index. Order in these stores is not semantic: conflicts are sorted at render, and `resolvedConflicts` only matters to its cap.
 - Not built: J10.13 (the live counterpart), the `plan02-downgrade-guard` scenario name (the fixture is `v24-02-unrecognized-blob.json`), and the live gate. All need a browser and a build.
+
+### T14 (worktree build, 2026-09-24)
+
+Built on `cfad851` (`v24-plan02`) in an agent worktree, branch `v24-02-t14`. Machine gates only: no browser, no backend, so **no live gate ran and none is claimed green**. `v24-02-chat-delete-reap.json` was not run.
+
+**§6 as built**
+- **Typing** (`stHost/events.ts`): `CHAT_DELETED: [name]`, `GROUP_CHAT_DELETED: [chatId]`, `WORLDINFO_UPDATED: [name, data]`. `WORLDINFO_UPDATED` is typed only; nothing here subscribes to it.
+- **Marker** (`memoryMirror.ts`). When the mirror adopts a book, it writes `so-owner` after the live rows and before the binding:
+  - content `{"owner":"story-orchestrator","chatId","integrity","groupId","avatar","createdAt"}`;
+  - no keys (inert, H14 re-read at `world-info.js:4892-4907`);
+  - `disableWIEntry` right after the upsert, because `upsertWIEntry` re-enables what it writes.
+
+  The run's `lapsed()` is checked before the upsert, between the upsert and the disable, and before the bind. The marker is never put in `wiWrites`, so no stale sweep touches it, and the `so_` sweep skips the hyphen. The owner comes from the new optional `MemoryMirrorHost.owner`. `MemoryCoordinator.syncWorldInfo` passes `currentChatOwner`, which costs 0 net lines (coordinator 605/620 effective). A failed marker write leaves the book unreapable, never wrongly reapable.
+- **Scene rows** (`mirroredEntries`): relationship rows only. The existing stale sweep disables scene entries written earlier, on the next sync (tested).
+- **Host seams**:
+  - `stHost/worldInfo.ts` `deleteLorebook(name): WriteResult<{name}>` works on the exact listed name only. It goes over `worldInfoModule.deleteWorldInfo` (vendored in `hostTypes.ts`), always evicts `worldInfoCache`, and reads `world_names` back: a `true` while the book is still listed is a failure.
+  - New `stHost/chatFiles.ts`:
+    - `currentChatOwner()` returns chat id, `chat_metadata.integrity`, group id, and the solo avatar;
+    - `probeChatFile(owner)` answers `present | absent | unknown`;
+    - group: listed in `group.chats` means present (H11); otherwise `/api/chats/group/info` gives `file_name` → present, `{match:false}` → absent, anything else → unknown;
+    - solo: `/api/characters/chats {simple}` gives an array → present or absent; `{error:true}` → unknown.
+  - `HostGroup.chats?` is vendored.
+- **Reaper** (`runtime/mirrorReaper.ts`, host-free; wiring in `runtime/mirrorReaperHost.ts`, started from `runtime/index.ts`; manager **0 lines**, 736/740):
+  1. Candidates are listed books that start with `Story Orchestrator - ` and end with exactly ` - <lorebookFileId(chatId)>`.
+  2. The marker must parse with `owner:"story-orchestrator"` and name that chat.
+  3. `probeChatFile` must read `absent`.
+  4. The player confirms.
+  5. `run.stillOwns()` is checked, then `deleteLorebook`.
+
+  Outcomes:
+  - no marker, unverifiable, declined, lapsed, or delete refused → a session row in `OrphanRegistry`;
+  - a marker naming another chat, or the chat still present → nothing.
+
+  The book list is re-read after the marker read and after the confirm. A book deleted meanwhile (by hand, or by a harness cleanup) is `gone`: no row, no delete. Reaps are serialised (one question at a time), and the event handler is fire-and-forget, because `emit` awaits every listener (new 02-H20) and `deleteGroup` would otherwise wait on the popup before its own `response.ok` check.
+- **Repair row**: `RuntimeSnapshot.orphanedLorebooks?` (from the registry; a row whose book is no longer listed is hidden). `nextRepairStep` puts it **last** (after save), area `lore`, with consequence "A deleted chat left its story memory behind in a lorebook." and detail "Orphaned story-memory lorebook: <name> (<why>)". It is not provisionable, and it shows in a chat with no story too.
+- **Never automatic**: every delete needs the confirm; there is no timer and no bulk path.
+- **Harness**: `identityVerbs.mts` `settleReapPrompts(page, owned)` declines every open reap question naming a chat the run owned, and reports `{dismissed, leaked}`; a leak fails `readCleanup` and `so-scenario`. It is called after chat and mirror-book cleanup in `so-scenario`, `so-journey`, `so-turn-types-check` and `so-mutation-check`. Without it, every sandbox cleanup that deletes a marked chat would leave a modal open. Rule bullet added to `.claude/rules/debug-scripts.md`.
+- **Census**: `src/runtime/mirrorReaper.ts#MirrorReaper.reap` is `checked`. The marker write sits in `syncMemoryMirror`, which is already `checked`. `faultMatrix.json` is unchanged (see deviations).
+
+**Tests**
+- `mirrorReaper.review.test.ts` (23): exact suffix (`-12` ≠ `-123`), prefix, file-id sanitising; marker round trip and refusals; delete on yes; no marker; a forged owner; a marker naming another chat; H11 announce-without-delete; the probe gets the marker's group/avatar; unverifiable; declined; gone after the confirm and after the read; lapsed (stop during the confirm); refused delete; a row cleared by a later delete; serialisation; recovery after a throw; the registry filter; `lifetimeOwnership`.
+- `memoryMirror.test.ts` (+8): disabled keyless marker on adopt; kept out of writes and sweeps; re-stamped on re-adopt; none without an owner seam or for another chat; no disable after a failed write; a chat change between marker and disable; scene not mirrored; an old scene entry switched off.
+- `stHost/worldInfo.test.ts` (+4) `deleteLorebook`. `stHost/chatFiles.test.ts` (11). `repair.test.ts` (+3).
+- node:test `identityVerbs.test.mts` (+3) `settleReapPrompts`, including the control where a stuck question is reported leaked and fails the tally.
+
+**Mutants**: `test/findings/mutations/v24-02-T14.txt`, **22/22 killed**. Plan mutation 10 (reap without the absence check) = T14-1, plus T14-17 for the probe's client-list half. Plan 11 (reap without the marker check) = T14-3 plus T14-4.
+
+**Gates** (worktree; `node_modules` junction to the main checkout)
+
+| Command | Result |
+|---|---|
+| `npm run typecheck` | 0 errors |
+| `npm run typecheck:test` | 0 errors |
+| `npm run lint` | clean |
+| `npx jest` | 182/182 suites, 2817/2817 tests; fault matrix 55 covered / 10 partial / 16 na / 0 todo (of 81) |
+| `npm run debug:typecheck` | 0 errors |
+| `npm run build` (worktree only, for `dist/`) | compiled, 2 webpack warnings (pre-existing size warnings); manifest `ST unknown` |
+| `npm run test:debug` | 217 tests: 216 pass, 0 fail, 1 skip |
+| `ST_ROOT=C:/dev/SillyTavern-MainBranch node --test scripts/debug/eventNames.test.mts` | 2/2 pass (the skipped case, run against the real `events.js`: `CHAT_DELETED`/`GROUP_CHAT_DELETED` resolve) |
+| `npm run test:release` (not required) | 21 tests: 20 pass, **1 fail** "the host section names the SillyTavern it was built against". Worktree artefact: the build cannot see the ST tree from `.claude/worktrees/…`, so the manifest says `ST unknown` |
+
+**Deviations**
+- The marker carries `groupId` and `avatar` beyond §6's `{owner, chatId, integrity, createdAt}`. `CHAT_DELETED` names only the file, and a solo chat's existence can only be asked of its character's directory, so without the avatar every solo reap would be unverifiable.
+- The absence check is stricter than §6 for groups: `group.chats` listing the id means present, and an unlisted id still needs the server's `/api/chats/group/info` to say absent. `deleteGroupChat` splices the client list before its request (H11 corrected), so the client list alone would call a failed delete gone.
+- A candidate must also carry the `Story Orchestrator - ` prefix, not only the suffix.
+- `gone` (the book was deleted while a read or the confirm was open) is a result §6 does not name. Without it, the harness's own mirror cleanup would turn every sandbox reap into an orphan row.
+- The Repair row reaches the player drawer's existing Repair button (`nextRepairStep` is shared). That is new player-visible text beyond the D3 notice. It is plan-mandated ("session Repair row"), and it names a lorebook, not a spoiler.
+- `faultMatrix.json` is unchanged: its nine packages have no cell for a destructive host delete driven by an event. Adding a tenth package is a matrix decision, not a T14 one.
+- Harness scripts changed (`settleReapPrompts` in four runners). Not a fixture change; `v24-02-chat-delete-reap.json` is untouched and still asserts what §6 builds.
+
+**Not done**
+- Live check 5 (a story chat deleted: the reap is offered, and the book is gone after confirm) and `v24-02-chat-delete-reap.json` ×2 (red → green). Both need a browser, a build and ST.
+- The solo `CHAT_DELETED` path is unit-tested only; no fixture drives it (the sandbox is group-only).
+- 1.18.0 was not checked for 02-H20..H25 (`host-facts.md`); an unexpected answer reads `unknown`, so the failure mode is a Repair row.
+- Books adopted before this build carry no marker. They get one only when a chat re-adopts (restart, branch, or the book deleted under it), so an existing chat's book stays unreapable. It becomes a "no-marker" Repair row when its chat is deleted.

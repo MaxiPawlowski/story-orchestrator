@@ -1,7 +1,8 @@
 import { hashMemoryText } from "@memory/stores";
 import type { MemoryEntry } from "@memory/types";
-import type { ChatLorebookBinding, Lorebook } from "@services/STAPI";
-import { mirrorLorebookName, syncMemoryMirror, type MemoryMirrorHost, type MemoryMirrorInput } from "./memoryMirror";
+import type { ChatLorebookBinding, ChatOwner, Lorebook } from "@services/STAPI";
+import { mirroredEntries, mirrorLorebookName, syncMemoryMirror, type MemoryMirrorHost, type MemoryMirrorInput } from "./memoryMirror";
+import { OWNER_COMMENT, ownerMarkerContent, parseOwnerMarker } from "./mirrorReaper";
 
 type FakeEntry = { uid: number; comment: string; content: string; key: string[]; disable: boolean };
 
@@ -192,5 +193,97 @@ describe("syncMemoryMirror", () => {
     const { host } = fakeHost({ chatId: null });
     expect((await syncMemoryMirror(input([memory()]), host))!.changed).toBe(false);
     expect(host.ensureLorebook).not.toHaveBeenCalled();
+  });
+});
+
+describe("v2.4 T14: the mirror marks the book it adopts", () => {
+  const ownerOf = (chatId: string): ChatOwner => ({ chatId, integrity: "i-1", groupId: "grp-1", avatar: null });
+  const markerOf = (entries: FakeEntry[] = []) => entries.find((entry) => entry.comment === OWNER_COMMENT);
+
+  it("writes a keyless, disabled so-owner marker naming the chat when it adopts a book", async () => {
+    const { host, books } = fakeHost();
+    host.owner = () => ownerOf("chat-a");
+    await syncMemoryMirror(input([memory()]), host);
+    const marker = markerOf(books.get(bookA));
+    expect(marker).toMatchObject({ key: [], disable: true });
+    expect(parseOwnerMarker(marker!.content)).toMatchObject({ chatId: "chat-a", integrity: "i-1", groupId: "grp-1" });
+  });
+
+  it("keeps the marker out of the tracked writes, so no later sync switches it off as stale or rewrites it", async () => {
+    const { host, books, calls } = fakeHost();
+    host.owner = () => ownerOf("chat-a");
+    const first = await syncMemoryMirror(input([memory()]), host);
+    expect(Object.keys(first!.writes).every((comment) => comment.startsWith("so_"))).toBe(true);
+    calls.upserts.length = 0;
+    calls.disabled.length = 0;
+    await syncMemoryMirror(input([memory()], { writes: first!.writes, book: first!.book }), host);
+    expect(calls.upserts).not.toContain(OWNER_COMMENT);
+    expect(calls.disabled.flat()).not.toContain(OWNER_COMMENT);
+    expect(markerOf(books.get(bookA))).toBeDefined();
+  });
+
+  it("re-stamps an existing marker when a restarted chat adopts its book again, and the stale sweep leaves it alone", async () => {
+    const earlier: FakeEntry = { uid: 0, comment: OWNER_COMMENT, content: ownerMarkerContent(ownerOf("chat-a"), "2026-01-01T00:00:00.000Z"), key: [], disable: true };
+    const { host, books } = fakeHost({ books: { [bookA]: [earlier, { uid: 1, comment: "so_old", content: "x", key: ["Arin"], disable: false }] } });
+    host.owner = () => ({ ...ownerOf("chat-a"), integrity: "i-2" });
+    await syncMemoryMirror(input([memory()]), host);
+    const marker = markerOf(books.get(bookA))!;
+    expect(books.get(bookA)!.filter((entry) => entry.comment === OWNER_COMMENT)).toHaveLength(1);
+    expect(marker.disable).toBe(true);
+    expect(parseOwnerMarker(marker.content)?.integrity).toBe("i-2");
+  });
+
+  it("writes no marker without an owner seam, or for an owner that is not the chat being synced", async () => {
+    const unwired = fakeHost();
+    await syncMemoryMirror(input([memory()]), unwired.host);
+    expect(markerOf(unwired.books.get(bookA))).toBeUndefined();
+    const elsewhere = fakeHost();
+    elsewhere.host.owner = () => ownerOf("chat-z");
+    await syncMemoryMirror(input([memory()]), elsewhere.host);
+    expect(markerOf(elsewhere.books.get(bookA))).toBeUndefined();
+  });
+
+  it("does not disable the marker when writing it failed", async () => {
+    const { host, calls } = fakeHost();
+    host.owner = () => ownerOf("chat-a");
+    const upsert = host.upsertWIEntry as jest.Mock;
+    upsert.mockImplementation(async (_lorebook: string, comment: string) => (comment === OWNER_COMMENT ? "failed" : "created"));
+    await syncMemoryMirror(input([memory()]), host);
+    expect(calls.disabled.flat()).not.toContain(OWNER_COMMENT);
+  });
+
+  it("stops at a chat change between the marker and its disable, leaving the next chat's slot alone", async () => {
+    const { host, state, calls } = fakeHost();
+    host.owner = () => ownerOf("chat-a");
+    const upsert = host.upsertWIEntry as jest.Mock;
+    const original = upsert.getMockImplementation()!;
+    upsert.mockImplementation(async (...args: [string, string, string, string[]]) => {
+      const result = await original(...args);
+      if (args[1] === OWNER_COMMENT) state.chatId = "chat-z";
+      return result;
+    });
+    expect(await syncMemoryMirror(input([memory()]), host)).toBeNull();
+    expect(calls.disabled.flat()).not.toContain(OWNER_COMMENT);
+    expect(calls.binds).toEqual([]);
+  });
+});
+
+describe("v2.4 T14 (X18): scene rows are no longer mirrored", () => {
+  const scene = () => memory({ tier: "scene_history", type: "scene", entities: [], text: "The hall burned." });
+
+  it("mirrors a relationship and not a scene row", () => {
+    const relationship = memory();
+    expect(mirroredEntries([relationship, scene()]).map((entry) => entry.id)).toEqual([relationship.id]);
+  });
+
+  it("switches off a scene entry an earlier build wrote, on the next sync", async () => {
+    const kept = memory();
+    const old = scene();
+    const { host, books } = fakeHost({ books: { [bookA]: [{ uid: 0, comment: `so_${old.id}`, content: old.text, key: [], disable: false }] } });
+    const writes = { [`so_${old.id}`]: hashMemoryText(old.text) };
+    const result = await syncMemoryMirror(input([kept, old], { writes, book: { name: bookA, chatId: "chat-a" } }), host);
+    expect(enabledComments(books.get(bookA))).toEqual([`so_${kept.id}`]);
+    expect(result!.writes).toEqual({ [`so_${kept.id}`]: hashMemoryText(kept.text) });
+    expect(result!.summary.disabled).toBe(1);
   });
 });

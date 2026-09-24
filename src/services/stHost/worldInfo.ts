@@ -169,6 +169,23 @@ export async function createLorebook(name: string): Promise<WriteResult<{ name: 
   return activated.ok ? wrote({ name: ensured.name, created: ensured.created }) : couldNot(activated.reason);
 }
 
+// v2.4 plan 02 T14. Exact listed name only: `deleteWorldInfo` (world-info.js:4346) answers false for an
+// unlisted name and refreshes `world_names` itself on success, so the list is the evidence. The cache
+// is evicted here too, because a failed delete leaves whatever `loadWorldInfo` fetched.
+export async function deleteLorebook(name: string): Promise<WriteResult<{ name: string }>> {
+  if (!name || !listAllLorebooks().includes(name)) return couldNot(`there is no lorebook "${name}"`);
+  let deleted: boolean;
+  try {
+    deleted = await worldInfoModule.deleteWorldInfo(name);
+  } catch (error) {
+    deleted = false;
+    console.warn("[Story WI] lorebook delete failed", { name, error });
+  }
+  worldInfoModule.worldInfoCache.delete(name);
+  if (!deleted) return couldNot(`"${name}" could not be deleted`);
+  return listAllLorebooks().includes(name) ? couldNot(`"${name}" is still listed after the delete`) : wrote({ name });
+}
+
 export type ChatLorebookBinding = "bound" | "already-bound" | "occupied" | "no-chat";
 
 // The chat's own lorebook slot, scanned for this chat only (world-info.js:4544). A binding to a book

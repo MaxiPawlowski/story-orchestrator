@@ -12,6 +12,7 @@ import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./nar
 import type { AgencyRecovery } from "./agencyRecovery";
 import type { NextTurnContributor } from "./nextTurn";
 import type { PipelineStatus } from "./pipeline";
+import type { OrphanedLorebook } from "./mirrorReaper";
 import type { InjectedPromptBlock } from "@services/STAPI";
 import type { TalkDecisionSource } from "@talk/index";
 
@@ -342,6 +343,8 @@ export interface RuntimeSnapshot {
   storyHash: string | null;
   storyIdentity: StoryIdentity;
   blobUnreadable?: { foundVersion: number | string | null; notice: string } | null;
+  /** v2.4 plan 02 T14: mirror books of deleted chats this session did not delete (session-scoped). */
+  orphanedLorebooks?: OrphanedLorebook[];
   storyTitle: string | null;
   storyDescription: string | null;
   activeCheckpointId: string | null;

@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   adoptBranchChat, branchChatReport, branchCommand, branchCreate, branchSpec, cleanupBranchChats, expectNextReadWindow, expectRollbackOutcome,
-  nextReadWindowFailures, nextReadWindowSpec, rollbackOutcomeFailures, rollbackOutcomeSpec, type RollbackRecord,
+  nextReadWindowFailures, nextReadWindowSpec, rollbackOutcomeFailures, rollbackOutcomeSpec, settleReapPrompts, type RollbackRecord,
 } from './identityVerbs.mts';
 import { recordState } from './interopVerbs.mts';
 import { validateSteps } from './scenarioSchema.mts';
@@ -225,4 +225,62 @@ test('runSteps dispatches the new verbs: branch_create without a sandbox and an 
   } finally {
     console.log = log;
   }
+});
+
+// v2.4 T14: ST popups as the product raises them, one at a time; `cancel` closes the dialog and lets the
+// product ask its next question, the way the serialised reaper does.
+const fakeDialogs = (texts: string[], { stuck = false } = {}) => {
+  const open: Array<Record<string, unknown>> = [];
+  const clicked: string[] = [];
+  const raise = (text: string) => {
+    const dialog: Record<string, unknown> = {};
+    dialog.querySelector = (selector: string) => (selector === '.popup-content'
+      ? { textContent: text }
+      : { click: () => {
+        clicked.push(text);
+        if (stuck) return;
+        open.splice(open.indexOf(dialog), 1);
+        const next = queue.shift();
+        if (next) raise(next);
+      } });
+    open.push(dialog);
+  };
+  const queue = [...texts];
+  raise(queue.shift() as string);
+  g.document = { querySelectorAll: (selector: string) => (selector === 'dialog[open]' ? [...open] : []) };
+  return { open, clicked };
+};
+
+test('reap prompts: every question naming an owned chat is declined in turn, and a foreign popup is left alone', async () => {
+  const world = fakeDialogs([
+    'The chat "sb-1" was deleted, but its story-memory lorebook "Story Orchestrator - X - sb-1" is still there.',
+    'The chat "sb-2" was deleted, but its story-memory lorebook "Story Orchestrator - X - sb-2" is still there.',
+  ]);
+  world.open.push({ querySelector: (selector: string) => (selector === '.popup-content' ? { textContent: 'The chat "users-own" was deleted, but …' } : { click: () => assert.fail('a foreign question was answered') }) });
+  try {
+    const report = await settleReapPrompts(page as never, ['sb-1', 'sb-2'], { quietMs: 60, timeoutMs: 2000, pollMs: 5 });
+    assert.equal(report.dismissed.length, 2);
+    assert.deepEqual(report.leaked, []);
+    assert.equal(world.open.length, 1, 'the foreign popup stays open');
+  } finally {
+    delete g.document;
+  }
+});
+
+test('control: a reap question that will not close is reported leaked, which fails the cleanup tally', async () => {
+  fakeDialogs(['The chat "sb-1" was deleted, but its story-memory lorebook "Story Orchestrator - X - sb-1" is still there.'], { stuck: true });
+  try {
+    const report = await settleReapPrompts(page as never, ['sb-1'], { quietMs: 60, timeoutMs: 300, pollMs: 5 });
+    assert.equal(report.dismissed.length, 1, 'answered once, not once per poll');
+    assert.equal(report.leaked.length, 1);
+    const { readCleanup } = await import('./journeyTallies.mts');
+    assert.equal(readCleanup({ reapPrompts: report }).ok, false);
+  } finally {
+    delete g.document;
+  }
+});
+
+test('reap prompts: nothing owned means nothing is read', async () => {
+  const touched = { evaluate: async () => assert.fail('the page was read') };
+  assert.deepEqual(await settleReapPrompts(touched as never, []), { dismissed: [], leaked: [] });
 });

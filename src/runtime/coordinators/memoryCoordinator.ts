@@ -18,7 +18,7 @@ import {
   clearContradicted,
 } from "@memory/index";
 import {
-  bindChatLorebook, disableWIEntry, ensureLorebook, getContext, loadLorebook, upsertWIEntry,
+  bindChatLorebook, currentChatOwner, disableWIEntry, ensureLorebook, getContext, loadLorebook, upsertWIEntry,
 } from "@services/STAPI";
 import type { SceneReadRecord } from "@judge/index";
 import type { Provenance } from "@memory/provenance";
@@ -551,7 +551,7 @@ export class MemoryCoordinator {
   async syncWorldInfo(): Promise<MemoryMirrorSummary> {
     const story = this.deps.getStory();
     if (!story || !this.enabled) return emptyMirrorSummary();
-    const host = { getChatId: () => getContext().chatId ?? null, ensureLorebook, loadLorebook, upsertWIEntry, disableWIEntry, bindChatLorebook, ownership: this.deps.ownership };
+    const host = { getChatId: () => getContext().chatId ?? null, ensureLorebook, loadLorebook, upsertWIEntry, disableWIEntry, bindChatLorebook, owner: currentChatOwner, ownership: this.deps.ownership };
     const result = await syncMemoryMirror({ title: story.title, entries: this.state.entries, writes: this.state.wiWrites, book: this.state.wiBook }, host);
     if (!result) return emptyMirrorSummary();
     if (result.changed) {
