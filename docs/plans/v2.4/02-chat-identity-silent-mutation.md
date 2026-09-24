@@ -589,3 +589,153 @@ Built on `9cb054a` in an agent worktree. Machine gates only: no `npm run build`,
 - `StorySelectionDeps.setStatus` gained a `note` parameter to journal without a manager line. The alternative, a `journal` dep, costs a line.
 - The put-back re-appends a removed row at the end of its array, not at its old index. Order in these stores is not semantic: conflicts are sorted at render, and `resolvedConflicts` only matters to its cap.
 - Not built: J10.13 (the live counterpart), the `plan02-downgrade-guard` scenario name (the fixture is `v24-02-unrecognized-blob.json`), and the live gate. All need a browser and a build.
+
+### T3 + same-chat reload + T2 (worktree build, 2026-09-24)
+
+Branch `v24-02-t3chain`, built on `cfad851` (`v24-plan02`: harness + T11 + seed D) in an agent worktree. Machine gates only: **no browser, no live gate, no fixture run**. `npm run build` ran inside the worktree only, for `test:debug`'s manifest case. Nothing here is live-green.
+
+**§2 T3 as built**
+- `runtime/fingerprints.ts` (pure):
+  - `fingerprintOf` is FNV-1a/32 (`hash.ts`) over `stableStringify({mes, is_user, name: is_user ? null : name})`. No `swipe_id`, no `is_system`, no user `name`. A per-object `WeakMap` cache keyed on those three fields means a reconcile re-hashes only changed rows.
+  - `captureFingerprints`, `diffFingerprints`, `truncateFingerprints`, `sanitizeFingerprints`, and `FingerprintKeeper` (the in-memory holder).
+- Types: `PersistedStoryRuntime.fingerprints?: {v:1, from, hashes}` and `StoryOrchestratorMetadataBlob.integrity?`. Both are optional v4 fields, with no version bump.
+- **Capture** (`ChatSave.persist`, the commit's own write): the record carries `capture(chat, history.from.messageId, lastMessageId)`. It covers ids in `(floor, last]` only.
+  - A known hash is kept.
+  - An unknown one is taken from the chat as it is now.
+  - A message the chat no longer holds stays `null`.
+- **Forgetting**:
+  - `RuntimeManager.rollbackFromMessage` forgets from the rolled-back message on (`forgetFrom(m)`, on the `noteMutation` line). This covers the no-op engine path too: without it, every later boundary would re-quarantine the same edit (mutant M9).
+  - A continue/appendFinal render forgets its own row in `TurnBridge.onRenderedReply` before its boundary reconciles (M4).
+- **Reconcile** (`ChatSave.reconcile(run)`) runs in three places:
+  - at the boundary, after `lastRollback` is cleared and before `engine.commitBoundary` (the commit stops if the run lapsed);
+  - at hydrate, after `loadStory`'s final persist;
+  - on a same-chat reload (§3).
+
+  A changed known hash, or a chat shorter than `lastMessageId + 1` (checked with or without fingerprints), goes through `rollbackFromMessage(m, {summary: "eventless change at message m", note})`, so E1 and the journal apply.
+- **Mutation events** (`TurnBridge.onMutation`, edit/update):
+  - an unchanged known hash returns before anything runs: no rollback, no `noteMutation`, turnKeys kept (H19);
+  - a changed one rolls back from `min(named id, first drift)`, so an editor move that names only the later row (H6) steps back from the earlier one. It is journaled as an eventless change at that row.
+  - Swipe and delete are unchanged.
+- **Integrity**: `savePersistedRuntime` stamps `chat_metadata.integrity` into the blob at every own save. A different non-empty stamp on a blob that belongs here is restamped and journaled `integrity-restamped` (never foreign).
+- Manager: **736 → 730 effective lines** of 740. The additions are the `chatSave` rollback dep, the boundary reconcile line, and same-line appends on the load and rollback lines. They are paid for by deleting `RuntimeManager.dropReadsAfter` and its `RollbackDeps` entry. That trim was redundant: `rollback.ts` `quarantine()` already runs `dropJudgeCallsAfter` on the same extras, and the second call read `this.extras` after two awaits, which could be another chat's. Two census rows were removed, and `rollback.review.test.ts` lost the `dropReadsAfter` expectation. `chatSave` is now `readonly` public, so the bridge and `index.tsx` can reach it with no new manager line.
+
+**§4 D5**: pinned by tests only:
+- `fingerprintOf` and T1's `messageKey` ignore `is_system`;
+- a hidden consumed row is not a drift and is out of `getChatWindow`;
+- the manager-level control changes nothing on a hide.
+
+**§3 same-chat reload as built** (`runtime/chatIdentity.ts`)
+- `classifyChatChange` returns `same-chat` only when three things agree:
+  - the open chat is `RunContext.claimedChat` (new optional field, from `RunOwner`);
+  - `chat_metadata.integrity` equals the integrity the bridge recorded after its own last full load;
+  - `persistence.storedBoundaryFor(storyId)` (a read-only look at the reloaded v4 copy: this chat's stamp, the same selected story) equals the engine's boundary.
+- In `TurnBridge.onChatChanged`, a `same-chat` result means: no reset, no load, no bump; refresh the T1 identity snapshot, reconcile, notify.
+- `diverged` is today's full reload plus `reload-diverged` in the journal. It is journaled only while that chat is open and claimed.
+- Anything else is today's switch.
+- Census: `TurnBridge.onChatChanged` is `local`, and the note says why.
+
+**§5 T2 as built**
+- `classifyStoredIdentity` (pure):
+  - **branch** = a v4 blob stamped for another chat, with `main_chat` naming that stamp, blob integrity absent or not this chat's, and a selected story with a record;
+  - anything else foreign is `{kind: "foreign", stampedFor}`.
+  - One hop only. Convert-to-group is foreign.
+- `snapshot.chatIdentity` is set only while no story is loaded: `{kind: "branch", parentChat, checkpointName}` or `foreign`.
+- UI:
+  - **`BranchNotice`** (`#so-branch-notice`, `#so-branch-continue`, story file with two plays) renders in the drawer panel, because `DrawerTabs` is not mounted without a story.
+  - **`#so-hud-branch`** is a chip that opens the drawer. `HudStrip.stories` has the branch and foreign cases.
+  - Copy is `narrative.ts` `branchNoticeText`: the checkpoint name only, no chat names.
+- **Unbind while unadopted**:
+  - `stHost/worldInfo.ts` `unbindChatLorebook(name): Promise<WriteResult<{name}>>` does ST's own unbind (`world-info.js:5980-5983`). It matches exactly, saves the metadata, and has 3 tests.
+  - `chatIdentity.unbindBranchMirror(run)` checks the run right before it (plan mutation 9 = B3). It runs from the bridge after every full load.
+  - The foreign blob is untouched.
+- **Continue from here** (`continueFromBranch`, wired in `index.tsx`):
+  1. `adoptChatState()` now stamps the chat id **and** integrity. Without the integrity stamp, the first save journals a false `integrity-restamped` (B4).
+  2. `manager.selectStory` hydrates.
+  3. The T3 hydrate reconcile steps back to the branch tail. A shorter chat steps back at its length; a swipe-branch at the first changed row.
+  4. It is journaled `branch continued`.
+- **Out of horizon (author view only)**:
+  - `AuthorOverview` has a `HistoryFloor` (`#so-history-floor`, `#so-branch-from-oldest`) when `rollbackUnavailable` is set. It runs `branchFromOldest(oldest.messageId)` = `/branch-create N`, and refuses `N < 0`.
+  - A test proves that the branch's Continue restores the floor's base exactly (boundary, last message, active checkpoint, blackboard).
+  - `so-ui` `PLAYER_FORBIDDEN_SELECTORS` gained both ids.
+  - `DrawerTabs.stories` has the author and player cases.
+
+**Tests added** (jest +61 over the branch start, 2768 → 2829):
+
+| File | Tests | Covers |
+|---|---|---|
+| `fingerprints.test.ts` | 17 | hash fields, D5, capture/diff/truncate, the continue re-hash, the cache, truncation ≡ replay (4 seeds) |
+| `fingerprintReconcile.review.test.ts` | 13 | the real manager and bridge: boundary drift, the control, forget-on-rollback, hydrate length/hash/control, no-op edit, real edit, H6 move, continue, integrity restamp |
+| `chatIdentity.review.test.ts` | 12 | the classifier; same-chat, reconcile, diverged, switch controls on the real bridge |
+| `branchContinue.review.test.ts` | 16 | the classifier (branch, legacy integrity, one hop, convert-to-group, own integrity, no story, controls), unadopted notice + unbind, a user's slot kept, mutation 9, foreign control, Continue, swipe-branch, the foreign never continued, floor branch, `N < 0` |
+| `worldInfo.test.ts` | +3 | `unbindChatLorebook` |
+
+**Mutants** (each alone, file restored; full text in the records): **26/26 killed**.
+- `test/findings/mutations/v24-02-T3.txt`: M1–M13. Plan mutations 2–7 are M1–M6. The rest:
+  - M7: no boundary reconcile
+  - M8: no hydrate reconcile
+  - M9: no forget on rollback
+  - M10: no reach-back to an earlier drift
+  - M11: capture overwrites a known hash
+  - M12: no integrity restamp
+  - M13: the cache ignores the text
+- `test/findings/mutations/v24-02-same-chat-reload.txt`: R1–R6. R1 is plan mutation 8, no boundary equality. The rest:
+  - R2: always switch
+  - R3: no integrity comparison
+  - R4: no claimed-chat comparison
+  - R5: no reconcile on the same-chat path
+  - R6: no `reload-diverged` journal
+- `test/findings/mutations/v24-02-T2.txt`: B1–B7. B3 is plan mutation 9, unbind without the token check. The rest:
+  - B1: no `main_chat` clause
+  - B2: no integrity clause
+  - B4: adopt stamps the chat id only
+  - B5: no unbind after load
+  - B6: case-insensitive unbind
+  - B7: branch at `N < 0`
+
+**Gates** (worktree root, `node_modules` junctioned to the main checkout's)
+
+| Command | Result |
+|---|---|
+| `npm run typecheck` | exit 0 |
+| `npm run typecheck:test` | exit 0 |
+| `npm run lint` | exit 0 |
+| `npx jest` | 184/184 suites, 2829/2829 tests |
+| `npm run debug:typecheck` | exit 0 |
+| `npm run test:debug` | 214 tests: 213 pass, 0 fail, 1 skip |
+| `npm run test:release` (not required) | 21 tests: 20 pass, **1 fail** |
+
+- The `test:debug` skip is `eventNames.test.mts`: there is no ST checkout at the relative `ST_ROOT` from a worktree.
+- The `test:release` fail is `manifest.test.mjs` "the host section names the SillyTavern it was built against". The worktree build reads `ST unknown` because the worktree is not at the extension's path in the ST tree. It is environmental and not this work's.
+- The architecture budgets hold: manager 730/740, coordinators unchanged.
+
+**Red fixtures** (none edited; each re-read against this build, none run)
+
+| Fixture | Expected on this build | Why |
+|---|---|---|
+| `v24-02-noop-edit.json` | green | the unchanged-hash short-circuit |
+| `v24-02-message-move.json` | green | `MESSAGE_UPDATED(2)` reaches back to the first drift, 1 |
+| `v24-02-persona-sync.json`, `v24-02-same-chat-reload.json` | green | same-chat path. **Provided** that ST has minted `chat_metadata.integrity` for the sandbox chat (it does on group load, `group-chats.js:276-278`) and the bridge saw the sandbox chat's own CHAT_CHANGED |
+| `v24-02-branch-continue.json`, `v24-02-checkpoint-continue.json` | green | unbind, notice, Continue, applied rollback from 2, restamp, fresh book |
+| `v24-02-hide-consumed.json`, `v24-02-swipe-delete-below.json` | stay green | — |
+
+**Deviations**
+- Capture happens inside `ChatSave.persist` with "fill unknown ids", rather than "hash `(previousLastMessageId, lastMessageId]` at `commitBoundary`". Both land in the commit's own write. The fill is what lets a no-op engine rollback (which forgets from `m` but keeps `lastMessageId`) re-baseline instead of re-quarantining at every later boundary.
+- The history floor is exclusive: hashes are kept for ids `> history.from.messageId`, the ones a rollback can reach.
+- The edit/update reach-back to the first drift is new. The plan only has the boundary reconcile, which would catch H6 one boundary later, after a first rollback from the wrong row.
+- D5's "a re-read over a hidden source reports `hidden`": no such report exists in `src/`. D5 is pinned by behaviour only (not hashed, out of the window, no rollback, no quarantine). The report itself is not built.
+- Same-chat needs the bridge's own record of the last load. The startup load in `runtime/index.ts` does not go through the bridge, so the first reload after a page load is a switch (safe).
+- Integrity is stamped only when `chat_metadata.integrity` is a non-empty string, so test hosts without one see no new field.
+- The unbind's run is minted after the load, because the load itself bumps the epoch. The check guards the function's contract (B3), and it cannot lapse inside today's single call path.
+- Records are named `v24-02-<item>.txt`, as the build instruction asked, not `P02-*.txt`.
+
+**Not done**
+- All live gates. The fixtures' red and green runs are still owed, ×2 each, archived under `test/journeys/records/v2.4-plan02/`.
+- J6.10–12 and J10.12/14.
+- `persistenceDowngrade.test.ts`, which needs a captured real v2.3 blob (`test/fixtures/v4-chat-blob.json`) and a frozen v2.3.0 read/persist path.
+- The Storybook test runner, which was not run: `BranchNotice`, `HudStrip` and `DrawerTabs` plays are type-checked only.
+- `faultMatrix.json` is unchanged, because no cell names an eventless mutation.
+- Not in scope for this build: T14, T8, the requirements refresh.
+
+**Open questions**
+- Should an unadopted branch opened by the page's first load (not a CHAT_CHANGED) also be unbound? Today it is only unbound on the bridge's path.
+- A no-op `MESSAGE_UPDATED` that another extension emits as a refresh is now silent for consumed rows. That is intended by H19, but it is a behaviour change for third parties.
