@@ -1,0 +1,76 @@
+1/12 import_story ok 394ms
+2/12 ui ok 3343ms
+3/12 eval ok 52ms
+3/12 eval -> {"arin":5,"capable":true}
+4/12 send ok 1685ms
+5/12 extract ok 608ms
+6/12 eval ok 6ms
+6/12 eval -> {"fact":"35e589d7-9fff-4787-bfb6-b59121946a3b","secret":"863190db-47db-4d59-a976-c5dea8cca639","source":1}
+7/12 eval ok 8271ms
+7/12 eval -> {"publicFact":true,"privateFact":true,"privateBlockLines":2}
+8/12 eval ok 134ms
+8/12 eval -> {"edited":1}
+9/12 wait ok 1545ms
+10/12 eval ok 7013ms
+10/12 eval -> {"publicFact":false,"privateFact":false,"privateBlockLines":1}
+11/12 eval ok 7077ms
+11/12 eval -> {"publicFact":true,"privateFact":true,"privateBlockLines":2}
+12/12 eval ok 6ms
+12/12 eval -> {"captures":{"before":{"publicFact":true,"privateFact":true,"privateBlockLines":2},"after":{"publicFact":false,"privateFact":false,"privateBlockLines":1},"reconfirmed":{"publicFact":true,"privateFact":true,"privateBlockLines":2}},"requests":3}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-24T07-04-08-880Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 12,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@04h03m35s546ms",
+    "owned": [
+      "2026-09-24@04h03m35s546ms"
+    ],
+    "deleted": [
+      "2026-09-24@04h03m35s546ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@04h03m35s546ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

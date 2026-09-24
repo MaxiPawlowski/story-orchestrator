@@ -1056,3 +1056,20 @@ The user's own chat `2026-09-21@15h49m05s268ms` was verified intact (chatLength 
 - **Live** (`test/scenarios/live-v8-memory-decisions.json`, sandbox, group `1759606632088`, twice, both exit 0). Two pinned facts are planted from one real message, and editing that message quarantines both. **Discard is clicked in the real panel.** The row leaves the store and the saved `stories[id].extras.memory.entries`, and the other row stays; save evidence reads `applied`. `editMemoryEntry` then stores **29 tokens = ST's `getTokenCountAsync`**, with `override.from: "edit"`, `validity: live`, carried into the saved row. **Live mutation** (count never stored) → **FAIL** at step 13 (`tokens=undefined`). Cleanup: no leaked mirror books. Run-header diff: rebuild fields only.
 - My own assertion was wrong on the first run: it looked for the discarded text anywhere in the saved blob. The exclusion record keeps the removed row verbatim for rollback, and the audit ring keeps the raw response, so the text is supposed to be there. The check now reads the saved `memory.entries`.
 - Not live, stated: the put-back itself (a lost save) cannot be produced on a healthy host, so it is jest + M5/M8 only. No model is consumed by either decision, so the facts are planted (a mocked extraction response), not read by the real model.
+
+### L3 gate (2026-09-24): the plan-05 recipe, live, green ×2 — with stated deviations
+
+- **L3a** (`test/scenarios/live-l3a-pin-payloads.json`, records `records/v2.3-replan/L3/l3a-run{1,2}.log`): green on two consecutive runs, 12/12 steps each.
+  - A pinned PUBLIC fact and a pinned PRIVATE `[hiding]` fact, and the request ST actually sent (`GENERATE_AFTER_DATA`, dry runs skipped) for three real `/trigger` drafts of Arin:
+    - **before** the source edit: both present, the secret inside his private block;
+    - **after** it: both absent, both rows kept `source-removed` and pinned;
+    - **after reconfirmation**: both present again, `source: author`.
+- **L3b** (`live-l3b-warden-quarantine.json`, `l3b-run{1,2}.log`): green on two consecutive runs, 14/14 steps each. Real judge.
+  - A courier contradicted the QUARANTINED tower fact. A warden call ran and no warden note cited that fact.
+  - In the same session the courier contradicted the LIVE bridge fact, and an accepted warden note cited it. This is the positive control, so "never flagged" cannot mean "never ran".
+  - The judge and stagecraft settings are restored in the last step. The header diff around the batch shows only the commit made mid-run, plus the batch-1 `sun-ruins@10` residue leaving the library (`L3/header-diff.txt`).
+- **Deviations from the playbook, stated:**
+  - The sun-ruins group (Arin) instead of the adventurer (Belle).
+  - The two facts are planted by one scripted read whose evidence is the player's own line. The recipe's claim is what the BACKEND receives, and that is real.
+  - memoryVerify is off in L3a.
+  - Still unrun from the recipe: the 80-word-edit token re-estimate and "a newer contradicting fact supersedes a pinned one", both covered by jest only.

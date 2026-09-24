@@ -1,0 +1,78 @@
+1/14 import_story ok 369ms
+2/14 ui ok 4096ms
+3/14 eval ok 17ms
+3/14 eval -> {"saved":{"curatorEnabled":true,"acceptMode":"auto","wardenEnabled":false,"wardenAcceptMode":"review"},"now":{"curatorEnabled":false,"acceptMode":"auto","wardenEnabled":true,"wardenAcceptMode":"auto"}}
+4/14 send ok 2088ms
+5/14 extract ok 611ms
+6/14 eval ok 6ms
+6/14 eval -> {"id":"06769567-ae1e-43a5-a973-90e63896565f","source":1}
+7/14 eval ok 329ms
+7/14 eval -> {"edited":1}
+8/14 wait ok 1539ms
+9/14 eval ok 367ms
+9/14 eval -> {"quarantined":"source-removed","pinned":true,"live":"25fe4fb5-7ad3-4a46-9144-aad602668cd7","records":0,"calls":0}
+10/14 slash ok 1870ms
+11/14 eval ok 3017ms
+11/14 eval -> {"warden":"judge warden in 673 ms","notes":[]}
+12/14 slash ok 1880ms
+13/14 eval ok 5ms
+13/14 eval -> {"note":"Continuity: established — The old stone bridge over the river collapsed in the flood and is gone. Keep the next reply consistent with it.","facts":["The old stone bridge over the river collapsed in the flood and is gone."]}
+14/14 eval ok 6ms
+14/14 eval -> {"restored":{"curatorEnabled":true,"acceptMode":"auto","wardenEnabled":false,"wardenAcceptMode":"review"},"judgeEnabled":false}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-24T07-05-06-235Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 14,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-fff69068"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@04h04m46s864ms",
+    "owned": [
+      "2026-09-24@04h04m46s864ms"
+    ],
+    "deleted": [
+      "2026-09-24@04h04m46s864ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@04h04m46s864ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-23@13h35m48s456ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

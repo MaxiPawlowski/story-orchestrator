@@ -1,0 +1,53 @@
+1/8 eval ok 5ms
+1/8 eval -> {"chatA":"2026-09-24@04h03m04s599ms","luke":"Luke.png","solo":8,"baseline":[]}
+2/8 import_story ok 373ms
+3/8 send ok 1691ms
+4/8 slash ok 2230ms
+5/8 eval ok 6ms
+5/8 eval -> {"disabled":["Luke.png"]}
+6/8 eval ok 3310ms
+6/8 eval -> {"soloChat":"2026-09-21@15h49m05s268ms","story":null,"serverDisabled":[]}
+7/8 eval FAIL sandbox escaped before step 7 (eval): now on 2026-09-21@15h49m05s268ms, sandbox is 2026-09-24@04h03m04s599ms; aborting before anything else writes to that chat
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-24T07-03-12-542Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-24T07-03-15-325Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 7,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ab6bded4"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@04h03m04s599ms",
+    "owned": [
+      "2026-09-24@04h03m04s599ms"
+    ],
+    "deleted": [
+      "2026-09-24@04h03m04s599ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-21@15h49m05s268ms",
+    "currentGroupAtCleanup": null,
+    "chatAfterCleanup": "2026-09-21@15h49m05s268ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

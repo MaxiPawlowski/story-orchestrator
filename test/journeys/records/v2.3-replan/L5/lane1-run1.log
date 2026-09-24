@@ -1,0 +1,53 @@
+1/7 eval ok 6ms
+1/7 eval -> {"chatA":"2026-09-24@04h20m10s742ms","luke":"Luke.png","solo":8,"baseline":[]}
+2/7 import_story ok 364ms
+3/7 send ok 1697ms
+4/7 slash ok 2246ms
+5/7 eval ok 5ms
+5/7 eval -> {"disabled":["Luke.png"]}
+6/7 eval ok 5442ms
+6/7 eval -> {"away":{"soloChat":"2026-09-21@15h49m05s268ms","story":null,"serverDisabled":[]},"back":{"checkpoint":"road","disabled":["Luke.png"]}}
+7/7 eval ok 2378ms
+7/7 eval -> {"disabled":[]}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T07-20-26-139Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 7,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ab6bded4"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@04h20m10s742ms",
+    "owned": [
+      "2026-09-24@04h20m10s742ms"
+    ],
+    "deleted": [
+      "2026-09-24@04h20m10s742ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@04h20m10s742ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

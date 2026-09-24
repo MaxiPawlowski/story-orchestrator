@@ -607,3 +607,14 @@ separating it from the genuine timeout.
   - Capabilities on the real install (via `#so-copy-diagnostics`): `macros: present — MacrosParser`, `slashCommands: present`, `backgrounds: present`, `vectors: present`, `judge: present`. **Live mutation** (probe reads `getContext().MacrosParser` again): `macros: absent — this build exposes no MacrosParser` (`live-mutation-macros-probe-reads-context.log`). That is the defect as every install saw it.
   - `test/scenarios/live-v17-wi-readback.json`: entering The Quay with a 500 injected on `/api/worldinfo/edit` in the page. One save was refused, the server still holds the entry OFF, and the journal reads `"SO-V17 Lore" was saved, but the server still holds the old flag on "The ferry", so the write was lost`. The page's copy agrees with the server. The next apply writes it for real (server ON, no new refusal). **5/5 twice** (`records/v2.3-replan/V17/wi-readback-run{1,2}.log`). **Live mutation** (lost-write check disabled): FAILS with `the server refused the save (1 request(s) answered 500) and nothing was journaled` (`live-mutation-lost-write-unchecked.log`). The first attempt at this mutation (`&& false`) did not compile, so it was replaced with `> 999`; the non-compiling attempt was not counted. The first draft of the scenario could not exercise the refusal: it faulted a return to The Gate, and the gated set replays the whole path, so nothing needed writing. It was reordered so the fault lands on the first real flip. Cleanup: `so-assets.mts remove --marker SO-V17` → `clean: true`. Run-header diff: build fields only.
 - Machine (V15b + V17 tree): typecheck 0, typecheck:test 0, lint 0, jest **165 / 2656**, build 0 (bundle `cb0205520189`), test:release 10/10, debug:typecheck 0, Storybook 31 / 185.
+
+### L5 gate (2026-09-24): leaving a story chat for a SOLO chat — green ×2, on a parallel lane
+
+`test/scenarios/live-l5-leave-to-solo.json`, run on lane 1 (`st-lanes.mts`, its own ST server and data root, same bundle), records `records/v2.3-replan/L5/lane1-run{1,2}.log`. Green on two consecutive runs, 16 s each:
+
+1. `road` disables Luke on the group.
+2. Leaving for the Assistant solo chat: the solo chat reads no story, and the **server's** copy of the group has Luke re-enabled.
+3. Returning: the story chat hydrates at `road` and Luke is disabled again.
+4. Restart: the group is left exactly as found.
+
+The first two runs, on the shared install (`guard-abort-run{1,2}.log`), passed the leave half and were stopped by the sandbox guard before the return step. The guard checks the page before every step, so the excursion is now ONE step. The return then needed `openGroupById` before `openGroupChat`, which returns silently when called from a solo chat. With V15a (story → story), V15c (restart, rollback) and this run, all four L5 variants are live.

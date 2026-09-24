@@ -1,0 +1,17 @@
+DIFF build.head  "3a464239ddb8a539191507aaa298054814d5c360" -> "79a94ff69acb3e2916b7903247b2cf4d6812b6c1"
+DIFF inventory.v2Stories  -sun-ruins@10
+{
+  "baseline": ".debug/run-header-l3-before.json",
+  "label": "diff-end",
+  "allow": [],
+  "differences": 2,
+  "progress": 0,
+  "blocking": 2,
+  "blockingPaths": [
+    "build.head",
+    "inventory.v2Stories"
+  ],
+  "warnings": [],
+  "wrote": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\.debug\\run-header-diff-end.json",
+  "ok": false
+}

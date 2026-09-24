@@ -22,6 +22,12 @@ export async function ensureSTReady(page: Page, { timeout = 15_000 }: { timeout?
     // firstLoadInit, but the server session can rotate underneath a shared browser kept open for hours.
     // GET /csrf-token answers the server's current token without mutating it. Compare, never replace:
     // replacing the header inside a run would hide that the next ordinary ST action still cannot save.
+    // A freshly loaded page has no token for about a second: ST fetches it in firstLoadInit, after the
+    // context exists. Comparing then read a cold browser as "stale" every time (parallel lanes, 2026-09-24).
+    await page.waitForFunction(() => {
+      const ctx = (globalThis as any).SillyTavern.getContext();
+      return typeof ctx?.getRequestHeaders !== 'function' || Boolean(ctx.getRequestHeaders()?.['X-CSRF-Token']);
+    }, { timeout }).catch(() => undefined);
     const csrf = await page.evaluate(async () => {
       const ctx = (globalThis as any).SillyTavern.getContext();
       if (typeof ctx?.getRequestHeaders !== 'function') return { ok: true };
@@ -30,6 +36,7 @@ export async function ensureSTReady(page: Page, { timeout = 15_000 }: { timeout?
       const current = response.ok ? String((await response.json())?.token ?? '') : '';
       return { ok: Boolean(pageToken && current && pageToken === current), pageToken: Boolean(pageToken), currentToken: Boolean(current) };
     });
+    if (!csrf.ok && !csrf.pageToken) throw new Error(`SillyTavern never received a CSRF token within ${timeout} ms; the page did not finish loading`);
     if (!csrf.ok) throw new Error('SillyTavern CSRF token is stale; reload the shared page before running a write or live gate');
   } catch (err) {
     if (err instanceof Error && err.name === 'TimeoutError') {
