@@ -1690,6 +1690,11 @@ no reason to re-derive the host signature.
 This is the honest shape of the clause: the judge half is done, the extraction half is impossible
 without a change in SillyTavern, and neither is in doubt.
 
+**Corrected in v2.4 plan 01:** wrong. `sendRequest` destructures `custom.signal` and passes it to both
+services (`shared.js:424,463,483`, documented at `:415`; 1.18.0 `:420,458,478`). Extraction *is*
+abortable at the host; it is not wired. (Re-read 2026-09-24 on the live tree, ST 1.19.0, and on the
+1.18.0 tag. The plan-01 table cited `:464,484`; the live lines are `:463,483`.)
+
 ### Commands and results (exit codes)
 
 | Command | Result |
@@ -1786,7 +1791,7 @@ lapsed — and is caught after adding one.
 | `stopRuntime` disposes every subscription; start/stop/start dispatches once | done |
 | Scheduler clears both queues and its cursors on epoch bump | done |
 | `askJudge` takes an `AbortSignal`; an epoch bump aborts it | done |
-| `callExtractionModel` takes one | **impossible** — `ConnectionManagerRequestService.sendRequest` has no signal parameter (shared.js:423) |
+| `callExtractionModel` takes one | **not built** (the host takes `custom.signal`, shared.js:424; corrected in v2.4 plan 01) — was: ~~`ConnectionManagerRequestService.sendRequest` has no signal parameter (shared.js:423)~~ |
 | Cleanup keyed by epoch | done |
 
 **Live real-LLM gate: NOT green.** All five profiles fail in 9–40 ms. The install-wide pause is
@@ -2712,7 +2717,7 @@ rows is not closed (overview rule 14).
 
 - **Defect**: `getMetadataBlob` wrote an empty blob over a foreign-stamped one, so the next save of that metadata object erased the other chat's run. The mismatch was only a `console.warn`.
 - **Fix** (`runtime/persistence.ts`): a foreign-stamped blob reads as a DETACHED empty blob, and the stored one is left byte-for-byte. `blobMismatch()` reports it, and `loadSelectedStory` journals it through `clearStory(status, note)` (`blob-chat-mismatch: stamped for X, open chat is Y; the stored state was left untouched`). Automatic writes (`savePersistedRuntime`, `setSelectedStoryId`, `dropPersistedRuntime`) into a foreign blob are refused. An explicit choice adopts it: `selectStory(…, chosen = true)` calls `adoptChatState()`, which restamps and keeps the stories, so an imported chat file continues its run instead of restarting it. The automatic path (`loadSelectedStory`) passes `chosen = false`, and the swap race cannot reach an explicit click.
-- **Found while verifying ST first, and fixed**: a rename keeps the file's metadata under a new chat id (`renameGroupOrCharacterChat`, `script.js:10658–10717`; a branch does NOT copy our blob, `bookmarks.js:201`). So every renamed chat read as someone else's, and under the old read its story was then erased. `CHAT_RENAMED` (emitted after the reload) now restamps a blob carrying the old file name, but only when the open chat is the renamed one, then reloads the story (`restampRenamedChat`, `TurnBridge.onChatRenamed`).
+- **Found while verifying ST first, and fixed**: a rename keeps the file's metadata under a new chat id (`renameGroupOrCharacterChat`, `script.js:10658–10717`; a branch or checkpoint **does** copy our blob and the chat lorebook slot (`bookmarks.js:201,284` build `{main_chat, integrity}`, merged over `chat_metadata` at `script.js:7406`, and for a group at `group-chats.js:2370`); it reads as foreign because its chat id differs — corrected in v2.4 plan 01). So every renamed chat read as someone else's, and under the old read its story was then erased. `CHAT_RENAMED` (emitted after the reload) now restamps a blob carrying the old file name, but only when the open chat is the renamed one, then reloads the story (`restampRenamedChat`, `TurnBridge.onChatRenamed`).
 - Tests: `src/runtime/blobForeign.review.test.ts` (8), a V5 block in `turnBridgeIdentity.review.test.ts` (2) and `runtimeManager.test.ts` (1). The existing S3 controls still pass. Mutations (`test/findings/mutations/V5-foreign-blob.txt`): 7 of 7 caught.
 - Machine: typecheck 0, lint 0, jest 160 / 2557, build 0 (bundle `88b1a708a5d8`), test:release 10/10. RuntimeManager 699 lines (the budget's last line).
 - **Live, no model** (`test/scenarios/live-v5-foreign-blob.json`, sandbox group `1759606632088`): the real chat's blob is restamped for another chat. It reads as no story, is unchanged, is journaled, and comes back when the stamp is put back. Then a real `ctx.renameChat` keeps `sun-ruins` under the new id, and renaming back carries it home. **3/3 twice**, both sandbox chats deleted by cleanup. **Live mutations**: the pre-V5 read → "the foreign blob was changed by reading it", `back: null`, i.e. the chat could not recover its own story (`live-mutation-readback-blanks.log`); `CHAT_RENAMED` unsubscribed → "the blob still carries the old chat id", `storyAfter: null` (`live-mutation-no-rename.log`).

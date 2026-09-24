@@ -5,10 +5,10 @@
 // story load, restart or chat change cancels the call in flight instead of paying for an answer
 // that will then be refused.
 //
-// It only reaches the judge. SillyTavern's `ConnectionManagerRequestService.sendRequest`
-// (shared.js:423) takes `(profileId, prompt, maxTokens, custom, overridePayload)` and no signal, so
-// an extraction call cannot be cancelled at the host at all. That is recorded here rather than
-// papered over, because "extraction is abortable" would be a false claim in the plan.
+// It only reaches the judge today. SillyTavern's `ConnectionManagerRequestService.sendRequest`
+// (shared.js:423) takes `(profileId, prompt, maxTokens, custom, overridePayload)` and DOES honour
+// `custom.signal` (shared.js:424, pass-through :463/:483; 1.18.0 :420), so extraction is abortable
+// at the host; it is not wired for extraction yet (v2.4 plan 03). Corrected in v2.4 plan 01.
 
 import { RunOwner } from "./runOwner";
 import { control } from "../../test/findings/ledger";

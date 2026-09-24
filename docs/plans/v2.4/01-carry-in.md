@@ -703,3 +703,22 @@ run, the file is restored; control 50/50):
 The `test:debug` failure is `so-run-header.test.mts` "the build half reads plan 08s nested manifest",
 which reads `dist/manifest.json`. That file does not exist in a fresh worktree, and the brief ruled out a
 build. It is environmental and does not touch T6.
+
+### Corrections (applied 2026-09-24)
+
+Every §Corrections row applied, each carrying "corrected in v2.4 plan 01" (file:line after the edit):
+
+- `10-judge-seeds.md:155` arm relabelled "Score, rounded (as measured)"; `:156` raw row added; `:158-161` "rounded … Read raw …" sentence; `:171-172` nDCG/tie caveat; `:173-179` rounding bullet (the old six-level/finer-scale bullet replaced).
+- `.claude/CLAUDE.md` no longer holds the plan-10 prose (status is a table now). The three `.claude/CLAUDE.md:20` rows went to `docs/plans/v2.3/status-history.md:22-30` as an appended, dated correction note; the history paragraph at `:20` is left verbatim.
+- `.claude/rules/architecture.md:99` (was `:97`); `docs/plans/v2.3/v2.4-seeds.md:23`, `:24` (seed retired); `docs/plans/v2.3/11-acceptance.md:808-809`; `docs/plans/v2.3/recommended-config.md:38`; `test/findings/ledger.json:249` F4 `provenBy` (was `:248`).
+- `src/judge/loreRelevance.test.ts:50` title only (assertion `:54` kept); `src/judge/loreScore.ts:56` comment.
+- `src/runtime/runOwner.ts:60-62`, `src/judge/types.ts:66-69`, `src/runtime/epochAbort.review.test.ts:8-11` comments only.
+- `docs/plans/v2.3/03-async-ownership.md:1693-1696` (appended after `:1677-1691`), `:1794` (was `:1789`), `:2720` (was `:2715`).
+- `docs/plans/v2.3/live-gate-playbook.md:32-37` correction paragraph under the §0 table; steps 4-6 (`:24-26`) marked superseded.
+
+Verified, and where it differed from the table:
+- Raw Score recomputed by replaying `test/goldens/judge/lore-relevance.json` through `runLoreRelevanceCalibration` (throwaway jest case, deleted): nDCG@4 **0.9197**, tie **0.04**, boundary **0.00** — matches. Not in the table: raw precision@4 is **0.48** (rounded 0.49), disagreements 20 (rounded 25). The rounded replay reproduces the golden exactly (0.886 / 1.00 / 0.64).
+- `shared.js` on the live tree (ST 1.19.0): `@param custom.signal` `:415`, `sendRequest` `:423`, destructure `:424`, pass-through **`:463`, `:483`** (the table said `:464/:484`; written as measured). 1.18.0 tag (raw GitHub): `:411`, `:419-420`, `:458`, `:478` — matches the table.
+- Bookmarks: `bookmarks.js:201` (branch) and `:284` (checkpoint) build `{main_chat, integrity}`; solo `saveChat` merges it over `chat_metadata` at `script.js:7406`; group `saveGroupBookmarkChat` at `group-chats.js:2370` (added). The chat lorebook slot is `chat_metadata.world_info` (`world-info.js:94`), so it is copied with the rest.
+- Not re-verified here: the gotchas 2026-09-23 RunPod proxy observation (no pod was started); the playbook text restates it.
+- Left alone (history, not in the table): `10-judge-seeds.md:263` ("boundary tie rate 0.64 still fails") and `:274` (top-4 recompute 0.92), both about the rounded arm.

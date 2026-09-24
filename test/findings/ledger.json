@@ -246,7 +246,7 @@
       "owner": "10",
       "evidence": "live",
       "status": "by-design",
-      "provenBy": "plan 10's spike measured both arms live on 2026-09-22: the graded Score arm ordered WORSE (nDCG@4 0.886 vs Noul 0.927) and tied far more (tie rate 1.00 vs 0.08), so pickLore is unchanged, by measurement rather than by omission — the golden test/goldens/judge/lore-relevance.json replays it in jest",
+      "provenBy": "plan 10's spike measured both arms live on 2026-09-22: the proposed Score arm ordered worse (nDCG@4 0.886 rounded, 0.920 raw, vs 0.927). Its tie rate of 1.00 came from rounding (raw 0.04), so the refusal rests on nDCG alone (corrected in v2.4 plan 01; raw recomputed from the golden, loreScore.ts:45 rounds). pickLore is unchanged, by measurement rather than by omission — the golden test/goldens/judge/lore-relevance.json replays it in jest",
       "note": "Corrected from `open` during plan 11's register audit (2026-09-22). `open` said this was pending work; the work was done and the change was REFUSED on evidence, which is `by-design`. A future agent sent to build the Score ranking by this row would have rebuilt something already measured as worse."
     },
     {

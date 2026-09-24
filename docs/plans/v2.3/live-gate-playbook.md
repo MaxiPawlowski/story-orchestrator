@@ -21,13 +21,20 @@ five steps later with its own unrelated symptom.
 | 1 | `list-pods` (RunPod MCP) | the pod's `status`. All four pods on this account were `EXITED` at the end of 2026-09-22 |
 | 2 | `pod-action start 8g1vdb619mk21u` — **$0.72/hr**, `IDLE_MINUTES=30`, `MAX_UPTIME_HOURS=8` | `RUNNING`. **This may be refused by the session's safety classifier** (it was, twice, on 2026-09-22); then only the user can start it, and the live gate stays NOT green |
 | 3 | if it will not start, create an **equivalent** pod in the same DC (`EU-RO-1`) on the same volume (`x9gi6f1rig` → `/workspace`), stating the price first | a fresh equivalent pod came up first try when the old one's host had no free GPU. An EXITED pod can hold the GPU *and* the volume; a new one in the same DC still claims them |
-| 4 | publish `8080/http` (`update-pod … ports: ["22/tcp","8080/http"]`) | the RunPod HTTPS proxy then reaches the container's loopback `llama-server`. **An `update-pod` restarts the container**, so the model reloads (~3 min for the 19 GB GGUF). No SSH tunnel is needed, and no `--host 0.0.0.0` either |
-| 5 | verify with a REAL completion, not a status field: `curl -s -o /dev/null -w '%{http_code}' https://<podId>-8080.proxy.runpod.net/v1/models` | `200`. A **404** means the pod is down (the proxy has no target) — that is how the 2026-09-22 outage was confirmed, after `curl` to the old `127.0.0.1:18080` route was unavailable |
-| 6 | point the CM profiles at `https://<podId>-8080.proxy.runpod.net` and **write down the previous `api-url`** (`Artemis RunPod RP` and `Story Orchestrator Memory RunPod` both point at `http://127.0.0.1:18080` in the shipped state) | the settings panel shows the profile as selected and the model name |
+| 4 (superseded, see correction below) | publish `8080/http` (`update-pod … ports: ["22/tcp","8080/http"]`) | the RunPod HTTPS proxy then reaches the container's loopback `llama-server`. **An `update-pod` restarts the container**, so the model reloads (~3 min for the 19 GB GGUF). No SSH tunnel is needed, and no `--host 0.0.0.0` either |
+| 5 (superseded) | verify with a REAL completion, not a status field: `curl -s -o /dev/null -w '%{http_code}' https://<podId>-8080.proxy.runpod.net/v1/models` | `200`. A **404** means the pod is down (the proxy has no target) — that is how the 2026-09-22 outage was confirmed, after `curl` to the old `127.0.0.1:18080` route was unavailable |
+| 6 (superseded) | point the CM profiles at `https://<podId>-8080.proxy.runpod.net` and **write down the previous `api-url`** (`Artemis RunPod RP` and `Story Orchestrator Memory RunPod` both point at `http://127.0.0.1:18080` in the shipped state) | the settings panel shows the profile as selected and the model name |
 | 7 | **re-select the profile**: `MSYS_NO_PATHCONV=1 node scripts/debug/st-actions.mts slash "/profile <name>"` | `ctx.onlineStatus` reads the model name and `#send_but` is no longer `displayNone`. A page loaded while the backend was dead keeps the button hidden and **`st-session.mts reload` does NOT clear it** — it re-probes at load and fails again |
 | 8 | `node scripts/debug/st-session.mts reload` after every `npm run build` | the served bundle hash in `so-run-header` changes with the build; a plain reload can re-execute the cached bundle (plan 08's ETag trap) |
 | 9 | `node scripts/debug/so-run-header.mts capture --label <name>-start` before the first run and `diff` after | only the declared differences. **After 2026-09-22 the header also records `bundle.served`** (the hash of what the page is running) and warns when it differs from `dist/manifest.json` |
 | 10 | restore the profiles to `http://127.0.0.1:18080` when the session ends | repointing a CM profile is an install-wide change |
+
+**Corrected in v2.4 plan 01** (steps 4–6; gotchas 2026-09-23): the RunPod HTTPS proxy reaches
+`llama-server` only when it binds `0.0.0.0` (`--host 0.0.0.0` in `LLM_EXTRA_ARGS`); with the default
+loopback bind it returns 502. The working route: `get-pod` → `runtime.ssh.direct` (present only while
+RUNNING), then `ssh -i ~/.ssh/id_ed25519_runpod -N -L 18080:127.0.0.1:8080 -p <port> root@<ip>` in the
+background. Verify with `curl -s http://127.0.0.1:18080/v1/models`. The profiles stay at
+`http://127.0.0.1:18080`, so steps 6 and 10 are no-ops.
 
 ## Reference stories
 

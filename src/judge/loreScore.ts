@@ -53,7 +53,7 @@ export const scaleToLevel = (value: number): LoreRelevance => {
 
 export interface LoreScored {
   entry: LoreEntry;
-  /** The raw scale value, 0..5. Higher is more relevant. */
+  /** The scale value rounded to 0..5 (Math.round); the raw answer is not kept here. */
   level: number;
   label: LoreRelevance;
 }

@@ -57,9 +57,9 @@ export class RunOwner {
    * v2.3 plan 03. One controller per epoch, aborted when that epoch is replaced. Work started in
    * the old world is cancelled rather than left to finish and be discarded at the write edge.
    *
-   * Only the judge path can honour it: SillyTavern ConnectionManagerRequestService.sendRequest
-   * takes no signal (shared.js:423), so an extraction call cannot be cancelled at the host. For
-   * those the token check is still the whole defence.
+   * Extraction calls can honour it too: `ConnectionManagerRequestService.sendRequest` takes
+   * `custom.signal` (shared.js:423-424, pass-through :463/:483; 1.18.0 :420). Not wired yet (v2.4
+   * plan 03); until then the token check is the whole defence. Corrected in v2.4 plan 01.
    */
   private aborter = new AbortController();
 

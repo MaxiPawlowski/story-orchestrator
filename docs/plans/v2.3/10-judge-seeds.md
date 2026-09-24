@@ -152,10 +152,13 @@ same turn from the same state, ordering only, no `min_p`.
 | arm | precision@4 | nDCG@4 | tie rate | boundary tie rate | mean state chars |
 |---|---|---|---|---|---|
 | **Noul (shipped)** | 0.49 | **0.9272** | **0.08** | **0.00** | 812.6 |
-| **Score (proposed)** | 0.49 | 0.8860 | 1.00 | 0.64 | 812.6 |
+| **Score, rounded (as measured)** | 0.49 | 0.8860 | 1.00 | 0.64 | 812.6 |
+| raw Score (recomputed from the golden, corrected in v2.4 plan 01) | 0.48 | 0.9197 | 0.04 | 0.00 | 812.6 |
 
-Floor: precision@4 ≥ 0.85 **and** tie ≤ 5%. **Neither arm clears it, and the Score arm is worse on
-both metrics that can decide between them.** The recorded run is
+Floor: precision@4 ≥ 0.85 **and** tie ≤ 5%. **Neither arm clears it, and the rounded Score arm is worse
+on both metrics that can decide between them.** Read raw, Score still orders worse (nDCG@4 0.9197 <
+0.9272) but ties less (0.04 < 0.08); Noul stays on nDCG. Corrected in v2.4 plan 01 (SUMMARY T21). The
+recorded run is
 `.debug/2026-09-22T11-10-00-622Z_so-judge-calibrate-lore-relevance.json`, and the answers are kept as
 `test/goldens/judge/lore-relevance.json` (356 KB; score answers are stripped to the fields the readers
 read) so `src/judge/loreRelevance.test.ts` replays the whole comparison in jest with no judge.
@@ -165,13 +168,15 @@ Two honest caveats, both recorded rather than smoothed over:
 - **The precision@4 floor is unreachable by construction on these rows.** A window with one `needed`
   entry caps precision@4 at 0.5 unless the arm also surfaces `useful` entries, and the fixtures mostly
   have one to three. The floor as written was never attainable on this fixture, so it cannot be the
-  discriminator; nDCG@4 and the tie rate are directly comparable and both favour the shipped arm.
-- **A coarse Score scale ties more than a probability, not less.** A six-level answer over 64
-  candidates repeats a level in almost every top 5 (tie rate 1.00) while the Noul arm's probabilities
-  spread (0.08). The hypothesis was that the Noul arm's pile-up at repeated values (ten rows at 0.76,
-  ten at 0.82 in the v2.2 calibration) made insertion order decide; measured on this model the Noul
-  arm spreads far more than a six-level scale does. A finer scale is the untested variant and is
-  recorded as a v2.4 seed, not as a reason to retune the floor.
+  discriminator; nDCG@4 favours the shipped arm; the tie rate favours it only against the rounded
+  arm (corrected in v2.4 plan 01).
+- **The tie rate of 1.00 was produced by our rounding, not by the scale.** The arm was sorted on
+  `Math.round(score)` (`loreScore.ts:45,65`; `loreRelevanceCalibration.ts:106` sorts on that
+  `level`), which the Build line (`:59-61`, 'level then score') did not declare. Raw Score ties 0.04;
+  the verdict stands on nDCG; there is no 'finer scale' seed. Corrected in v2.4 plan 01 (raw numbers
+  recomputed 2026-09-24 by replaying `test/goldens/judge/lore-relevance.json` through
+  `runLoreRelevanceCalibration` with the Score arm sorted on the unrounded `answer.score`; the same
+  replay with rounding reproduces the golden's 0.8860 / 1.00 / 0.64 exactly).
 
 **Not built, therefore:** no change to `pickLore`, no re-recorded `lore.calibration.json`, no J11
 re-run. `LoreSelector` still calls the Noul arm.

@@ -47,7 +47,7 @@ describe("lore relevance comparison (v2.3 plan 10 A)", () => {
     expect(report.disagreements).toBe(record.summary.disagreements);
   });
 
-  it("records a comparison in which the Noul arm orders better and ties less", async () => {
+  it("records a comparison in which the Noul arm orders better and ties less than the rounded Score arm", async () => {
     const record = golden();
     const measured = Object.fromEntries(record.summary.arms.map((arm) => [arm.arm, arm]));
     expect(measured.noul.ndcgAt4).toBeGreaterThan(measured.score.ndcgAt4);

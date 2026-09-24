@@ -805,8 +805,8 @@ say so, including that a custom directory is not gitignored.
 ### The findings ledger had a row that sent the next agent to build a refusal
 
 `F4` ("lore ranking orders by a graded score, not a tie-prone probability") was `open`, which reads as
-pending work. Plan 10 **did** the work and the measurement **refused** it (Score arm nDCG@4 0.886 vs
-Noul 0.927, tie rate 1.00 vs 0.08), so the row is now `by-design`, with the measurement, the golden
+pending work. Plan 10 **did** the work and the measurement **refused** it (**rounded** Score arm nDCG@4 0.886 vs
+Noul 0.927; raw 0.920; the tie rate 1.00 was the rounding — corrected in v2.4 plan 01), so the row is now `by-design`, with the measurement, the golden
 that replays it and a note explaining the correction. A future agent sent to "close F4" by building
 the Score ranking would have rebuilt something already measured as worse. Ledger after the register
 audit: **2 open, 29 settled, 1 by-design** — the open pair are `C4` (human rubrics) and `F3`

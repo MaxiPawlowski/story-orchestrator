@@ -64,8 +64,9 @@ export interface JudgeResponse {
 
 /**
  * v2.3 plan 03: `signal` lets an epoch bump abort a call that is still in flight. It is optional
- * because only the judge path can honour it — SillyTavern ConnectionManagerRequestService.sendRequest
- * takes no signal (shared.js:423), so extraction calls cannot be cancelled at the host at all.
+ * because extraction does not pass one yet — `ConnectionManagerRequestService.sendRequest` does take
+ * `custom.signal` (shared.js:423-424, pass-through :463/:483; 1.18.0 :420), so extraction is
+ * abortable at the host but not wired (v2.4 plan 03). Corrected in v2.4 plan 01.
  */
 export type JudgeTransport = (request: JudgeRequest, options: { timeoutMs: number; signal?: AbortSignal }) => Promise<JudgeResponse>;
 
