@@ -7,7 +7,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
-import { debugDirFor } from './connection.mts';
+import { debugDirFor, settleDialogs } from './connection.mts';
 
 const ROOT = resolve('C:/dev/SillyTavern-MainBranch/public/scripts/extensions/third-party/story-orchestrator');
 
@@ -25,4 +25,33 @@ test('a relative SO_DEBUG_DIR resolves under the project root', () => {
 test('an absolute SO_DEBUG_DIR is used as given, not joined onto the root', () => {
   const absolute = resolve(ROOT, '..', 'so-debug-b');
   assert.equal(debugDirFor({ SO_DEBUG_DIR: absolute }, ROOT), absolute);
+});
+
+const fakeDialogPage = () => {
+  const handlers: Array<(dialog: unknown) => void> = [];
+  return { handlers, page: { on: (event: string, handler: (dialog: unknown) => void) => { if (event === 'dialog') handlers.push(handler); } } };
+};
+
+test('a dialog another client already settled does not crash the process', async () => {
+  const { handlers, page } = fakeDialogPage();
+  settleDialogs(page as never);
+  settleDialogs(page as never);
+  assert.equal(handlers.length, 1, 'registered once per page');
+  let unhandled = 0;
+  const onUnhandled = () => { unhandled += 1; };
+  process.on('unhandledRejection', onUnhandled);
+  handlers[0]({ type: () => 'beforeunload', accept: () => Promise.reject(new Error('Protocol error (Page.handleJavaScriptDialog): No dialog is showing')), dismiss: () => Promise.resolve() });
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  process.off('unhandledRejection', onUnhandled);
+  assert.equal(unhandled, 0);
+});
+
+test("control: Playwright's own defaults are kept (beforeunload accepted, anything else dismissed)", () => {
+  const { handlers, page } = fakeDialogPage();
+  settleDialogs(page as never);
+  const calls: string[] = [];
+  const dialog = (type: string) => ({ type: () => type, accept: async () => { calls.push(`accept:${type}`); }, dismiss: async () => { calls.push(`dismiss:${type}`); } });
+  handlers[0](dialog('beforeunload'));
+  handlers[0](dialog('confirm'));
+  assert.deepEqual(calls, ['accept:beforeunload', 'dismiss:confirm']);
 });

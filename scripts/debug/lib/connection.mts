@@ -114,6 +114,20 @@ async function measuredViewport(page: Page): Promise<{ width: number; height: nu
   }
 }
 
+// 2026-09-24: J6.6 crashed the runner twice on lane 0 with "Page.handleJavaScriptDialog: No dialog is
+// showing" at its reload. With no listener, Playwright closes every dialog itself (a beforeunload is
+// accepted, the rest dismissed) from an internal promise nobody awaits, so when another client on the
+// shared CDP browser settles the dialog first the rejection is uncaught and kills the process. The same
+// defaults, settled here with the race swallowed.
+const settled = new WeakSet<Page>();
+export function settleDialogs(page: Pick<Page, 'on'>) {
+  if (settled.has(page as Page)) return;
+  settled.add(page as Page);
+  page.on('dialog', (dialog) => {
+    void (dialog.type() === 'beforeunload' ? dialog.accept() : dialog.dismiss()).catch(() => undefined);
+  });
+}
+
 async function pickPage(browser: Browser, stUrl: string): Promise<Page> {
   const contexts = browser.contexts();
   const context = contexts[0] || await browser.newContext({ viewport: { width: 1920, height: 1080 } });
@@ -129,6 +143,7 @@ async function pickPage(browser: Browser, stUrl: string): Promise<Page> {
   } else if (!viewport || viewport.width < 1280) {
     await page.setViewportSize({ width: 1920, height: 1080 });
   }
+  settleDialogs(page);
   if (page.url() === 'about:blank') {
     await page.goto(stUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
   }
@@ -170,6 +185,7 @@ export async function connectToST({
   ]);
   const context = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
   const page = await context.newPage();
+  settleDialogs(page);
 
   await page.goto(normalizedStUrl, { waitUntil: 'domcontentloaded', timeout });
 
