@@ -19,10 +19,16 @@ interface HashedMessage {
   name?: unknown;
 }
 
+const cache = new WeakMap<object, HashedMessage & { hash: string }>();
+
 export function fingerprintOf(message: unknown): string {
   const shaped = (message && typeof message === "object" ? message : {}) as HashedMessage;
+  const cached = message && typeof message === "object" ? cache.get(message) : undefined;
+  if (cached && cached.mes === shaped.mes && cached.is_user === shaped.is_user && cached.name === shaped.name) return cached.hash;
   const user = shaped.is_user === true;
-  return fnv1a(stableStringify({ mes: shaped.mes ?? null, is_user: user, name: user ? null : shaped.name ?? null }));
+  const hash = fnv1a(stableStringify({ mes: shaped.mes ?? null, is_user: user, name: user ? null : shaped.name ?? null }));
+  if (message && typeof message === "object") cache.set(message, { mes: shaped.mes, is_user: shaped.is_user, name: shaped.name, hash });
+  return hash;
 }
 
 export function sanitizeFingerprints(value: unknown): MessageFingerprints | null {

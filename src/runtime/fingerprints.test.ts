@@ -27,6 +27,18 @@ describe("v2.4 plan 02 T3: what a fingerprint hashes", () => {
   });
 });
 
+describe("v2.4 plan 02 T3: the per-message hash cache", () => {
+  it("answers a message mutated in place by its new content, never by what it cached", () => {
+    const message = row(1);
+    const before = fingerprintOf(message);
+    message.mes = "changed in place";
+    expect(fingerprintOf(message)).not.toBe(before);
+    expect(fingerprintOf(message)).toBe(fingerprintOf({ ...message }));
+    message.name = "Mara";
+    expect(fingerprintOf(message)).toBe(fingerprintOf({ ...message }));
+  });
+});
+
 describe("v2.4 plan 02 D5: hidden is not deleted", () => {
   it("T1's message key has no is_system either, so a hide never misaligns a delete (X3)", () => {
     const message = row(3);
