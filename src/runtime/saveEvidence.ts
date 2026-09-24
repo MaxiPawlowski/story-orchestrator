@@ -16,6 +16,8 @@ export interface SaveObservation {
    *  not share a reason: a save reported as "never sent" sends an author looking for a scheduler that
    *  did fire (2026-09-22). */
   failed: boolean;
+  /** Why the save does not count for the chat it was asked for (v2.4 plan 02: the open chat changed first). */
+  lost?: string;
 }
 
 export interface SaveEvidenceDeps {
@@ -46,6 +48,7 @@ export async function recordSaveEvidence(deps: SaveEvidenceDeps, boundary: numbe
   deps.onWrite(markPending(health, boundary));
   const observation = await deps.observe();
   const reason = observation.ok ? null
+    : observation.lost ? observation.lost
     : observation.timedOut ? "no save request went out"
       : observation.failed ? "the save request failed before the server answered"
         : `the server answered ${String(observation.status)}`;

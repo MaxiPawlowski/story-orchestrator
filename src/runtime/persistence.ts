@@ -228,9 +228,7 @@ export function savePersistedRuntime(record: PersistedStoryRuntime, onRestamp?: 
   }
   blob.stories[record.storyId] = record;
   blob.selectedStoryId = record.storyId;
-  const evicted = gcStories(blob);
-  void getContext().saveMetadata?.();
-  return evicted;
+  return gcStories(blob);
 }
 
 export function dropPersistedRuntime(id: string) {

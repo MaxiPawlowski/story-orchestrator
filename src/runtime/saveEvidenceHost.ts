@@ -1,4 +1,4 @@
-import { observeNextSave, readServerBoundary } from "@services/STAPI";
+import { getContext, observeNextSave, readServerBoundary } from "@services/STAPI";
 import type { SaveEvidenceDeps } from "./saveEvidence";
 import type { SaveHealth } from "./saveHealth";
 
@@ -13,4 +13,4 @@ export const saveEvidenceDeps = (
   set: (health: SaveHealth) => void,
   journal: (summary: string, note: string) => void,
   now: () => string = () => new Date().toISOString(),
-): SaveEvidenceDeps => ({ health: get, observe: () => observeNextSave(), readBack: () => readServerBoundary(), onWrite: set, journal, now });
+): SaveEvidenceDeps => ({ health: get, observe: () => observeNextSave(undefined, getContext().chatId ?? null), readBack: () => readServerBoundary(), onWrite: set, journal, now });

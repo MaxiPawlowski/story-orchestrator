@@ -13,3 +13,24 @@ restored: 22 passed
    leak that cleanupBranchChats then deleted anyway. Both runners now pass withoutBranchChats(guard) to
    deleteSandboxChats; the branch cleanup owns branches. Covered by the unit case
    "withoutBranchChats: the sandbox delete skips recorded branches and leaves the guard itself untouched".
+
+3. PRODUCT (found by the J10.14 flake, 2026-09-24): a save asked for in one chat can write an EMPTY chat into the
+   next one. saveChatConditional polls at least 100 ms before it reads which chat is open (utils.js:1934),
+   and openGroupChat clears the chat and repoints chat_id before loading (group-chats.js:2203-2209). An
+   in-page recorder on lane 2 caught it: saveGroupBookmarkChat wrote the branch with 2 messages (t=41396),
+   editGroup switched to it (41429), and a saveChatConditional whose saveMetadata was called on the parent
+   (41207, from persist) wrote the branch back with 0 messages (41435) before getGroupChat loaded it (41436).
+   Every persist also issued TWO saveMetadata calls (an un-awaited one in savePersistedRuntime, then
+   saveAndObserve), doubling the queue.
+   Fix: savePersistedRuntime no longer saves (persist's saveAndObserve does); saveAndObserve arms the watcher
+   with the chat it was asked for; the watcher holds back a chat save that carries no messages for a chat
+   other than the armed one (answers ST 200 without sending) and counts a save that landed in another chat
+   as lost, with the reason, in the save evidence.
+scope: npx jest src/services/stHost/saveWatcher.test.ts src/runtime/saveEvidence.test.ts
+baseline: 23 passed
+M-S1 never refuses                               -> 4 failed (the refusal case, then its pending request shifts later answers)
+M-S2 refuses whatever the message count          -> 1 failed (control: a save of another chat that carries messages)
+M-S3 refuses an empty save of our own chat too   -> 1 failed (control: an empty save of the chat our save was asked for)
+M-S4 a save of another chat counts as ours       -> 1 failed (control: ... does not count as ours)
+M-S5 evidence ignores the lost reason            -> 1 failed (names why a save did not land in this chat)
+restored: 23 passed; full jest 2913

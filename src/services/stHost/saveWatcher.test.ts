@@ -106,3 +106,44 @@ describe("v2.4 plan 02 §7 (T8): the save watcher heals and reports each request
     expect(await readServerExtensionSettings("story-orchestrator")).toBeNull();
   });
 });
+
+describe("v2.4 plan 02 (J10.14): a save that runs after the open chat changed", () => {
+  beforeAll(() => installSaveWatcher());
+  const groupSave = (id: string, messages: number) => fetch("/api/chats/group/save", { method: "POST", body: JSON.stringify({ id, chat: [{ chat_metadata: {} }, ...Array.from({ length: messages }, (_, index) => ({ mes: `m${index}` }))] }) });
+
+  it("holds back an empty save of another chat while our save is armed, and says why it did not count", async () => {
+    const watched = observeNextSave(2000, "chat-1");
+    const before = pending.length;
+    const response = await groupSave("chat-1 - Branch #1", 0);
+    expect(response.ok).toBe(true);
+    expect(pending.length).toBe(before);
+    expect(await watched).toMatchObject({ ok: false, requested: false, lost: expect.stringContaining('"chat-1 - Branch #1"') });
+  });
+
+  it("control: an empty save of the chat our save was asked for is sent", async () => {
+    const watched = observeNextSave(2000, "chat-1");
+    const save = groupSave("chat-1", 0);
+    await settle();
+    answer(200);
+    await save;
+    expect(await watched).toMatchObject({ ok: true, requested: true, status: 200 });
+  });
+
+  it("control: a save of another chat that carries messages is sent, and does not count as ours", async () => {
+    const watched = observeNextSave(2000, "chat-1");
+    const save = groupSave("chat-2", 2);
+    await settle();
+    answer(200);
+    expect((await save).ok).toBe(true);
+    expect(await watched).toMatchObject({ ok: false, status: 200, lost: expect.stringContaining('wrote "chat-2", not "chat-1"') });
+  });
+
+  it("control: with no chat named, an empty save of any chat is sent", async () => {
+    const watched = observeNextSave(2000);
+    const save = groupSave("chat-2", 0);
+    await settle();
+    answer(200);
+    await save;
+    expect(await watched).toMatchObject({ ok: true });
+  });
+});

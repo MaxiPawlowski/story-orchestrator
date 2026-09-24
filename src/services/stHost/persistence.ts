@@ -22,16 +22,18 @@ export interface SaveObservation {
   failed: boolean;
   /** v2.4 plan 02 §7: which request settled this, so every observation one request settled shares one read-back. */
   burst?: number;
+  /** Why this save does not count for the chat it was asked for: held back, or written into another chat. */
+  lost?: string;
 }
 
 const unconfirmed = (): SaveObservation => ({ requested: false, status: null, ok: false, timedOut: true, failed: false });
 
-interface Watch { kind: SaveKind; armedAt: number; sawRequest: boolean; settle: (observation: SaveObservation) => void }
+interface Watch { kind: SaveKind; armedAt: number; sawRequest: boolean; chatId: string | null; settle: (observation: SaveObservation) => void }
 
 let watching: Watch[] = [];
 let ours: typeof fetch | null = null;
 let clock = 0;
-const stats = { wraps: 0, reports: 0 };
+const stats = { wraps: 0, reports: 0, refused: 0 };
 // v2.4 plan 02 §7: the init objects our outermost wrapper minted. A wrapper of ours that meets one is
 // an older wrapper still in the chain (a peer wrapped on top of us and we re-wrapped on top of it),
 // and the request is already being reported.
@@ -49,12 +51,41 @@ const takeArmedBefore = (kind: SaveKind, startedAt: number) => {
   return due;
 };
 
-function report(kind: SaveKind, startedAt: number, observation: Omit<SaveObservation, "burst">) {
+function report(kind: SaveKind, startedAt: number, observation: Omit<SaveObservation, "burst">, target: { chatId: string } | null = null) {
   stats.reports += 1;
-  takeArmedBefore(kind, startedAt).forEach((entry) => entry.settle({ ...observation, burst: startedAt }));
+  takeArmedBefore(kind, startedAt).forEach((entry) => entry.settle(target && entry.chatId !== null && target.chatId !== entry.chatId
+    ? { ...observation, ok: false, lost: observation.lost ?? `the save ran after the open chat changed: it wrote "${target.chatId}", not "${entry.chatId}"`, burst: startedAt }
+    : { ...observation, burst: startedAt }));
 }
 
 const answered = (status: number) => ({ requested: true, status, ok: status >= 200 && status < 300, timedOut: false, failed: false });
+
+// v2.4 plan 02 (2026-09-24, J10.14). `saveChatConditional` waits at least one 100 ms poll before it
+// reads which chat is open (`utils.js:1934`), and `openGroupChat` clears the chat and repoints
+// `chat_id` before loading the next one (`group-chats.js:2203-2209`). A save asked for in one chat can
+// therefore run inside the switch and write an EMPTY chat under the next chat's name: a new branch lost
+// every message that way. The one shape refused is exactly that: a chat save carrying no messages, for
+// a chat other than the one an armed save of ours was asked for.
+export const chatSaveTarget = (input: unknown, init: RequestInit | undefined): { chatId: string; messages: number } | null => {
+  if (saveKindOf(input) !== "chat" || typeof init?.body !== "string") return null;
+  try {
+    const body = JSON.parse(init.body) as { id?: unknown; file_name?: unknown; chat?: unknown };
+    const chatId = typeof body.id === "string" ? body.id : typeof body.file_name === "string" ? body.file_name : null;
+    if (!chatId || !Array.isArray(body.chat)) return null;
+    const header = body.chat.length > 0 && Boolean(body.chat[0]) && typeof body.chat[0] === "object" && "chat_metadata" in (body.chat[0] as object);
+    return { chatId, messages: body.chat.length - (header ? 1 : 0) };
+  } catch {
+    return null;
+  }
+};
+
+const switchRefusal = (target: { chatId: string; messages: number } | null, startedAt: number) => {
+  if (!target || target.messages > 0) return null;
+  const armed = watching.find((entry) => entry.kind === "chat" && entry.chatId !== null && entry.armedAt < startedAt);
+  return armed && armed.chatId !== target.chatId ? `the open chat changed before the save ran: an empty save of "${target.chatId}" was held back (asked for "${armed.chatId}")` : null;
+};
+
+const refusedAnswer = () => new Response("{}", { status: 200, headers: { "Content-Type": "application/json" } });
 
 /**
  * The request left and threw before any answer. `await original(...)` used to reject straight past the
@@ -67,13 +98,20 @@ const threw = () => ({ requested: true, status: null, ok: false, timedOut: false
 async function observed(original: typeof fetch, input: RequestInfo | URL, init: RequestInit) {
   const startedAt = ++clock;
   const kind = saveKindOf(input);
+  const target = kind === "chat" ? chatSaveTarget(input, init) : null;
+  const refusal = switchRefusal(target, startedAt);
+  if (refusal) {
+    stats.refused += 1;
+    report("chat", startedAt, { requested: false, status: null, ok: false, timedOut: false, failed: false, lost: refusal });
+    return refusedAnswer();
+  }
   if (kind) watching.forEach((entry) => { if (entry.kind === kind && entry.armedAt < startedAt) entry.sawRequest = true; });
   try {
     const response = await original(input, init);
-    if (kind && watching.length) report(kind, startedAt, answered(response.status));
+    if (kind && watching.length) report(kind, startedAt, answered(response.status), target);
     return response;
   } catch (error) {
-    if (kind && watching.length) report(kind, startedAt, threw());
+    if (kind && watching.length) report(kind, startedAt, threw(), target);
     throw error;
   }
 }
@@ -102,7 +140,7 @@ export function installSaveWatcher() {
 /** How many times the watcher wrapped `fetch`, and how many save requests it reported. */
 export const saveWatcherStats = () => ({ ...stats });
 
-function watch(kind: SaveKind, timeoutMs: number): Promise<SaveObservation> {
+function watch(kind: SaveKind, timeoutMs: number, chatId: string | null = null): Promise<SaveObservation> {
   installSaveWatcher();
   return new Promise<SaveObservation>((resolve) => {
     let settled = false;
@@ -114,7 +152,7 @@ function watch(kind: SaveKind, timeoutMs: number): Promise<SaveObservation> {
       resolve(observation);
     };
     const timer = setTimeout(() => settle(unconfirmed()), timeoutMs);
-    watching.push({ kind, armedAt: clock, sawRequest: false, settle });
+    watching.push({ kind, armedAt: clock, sawRequest: false, chatId, settle });
   });
 }
 
@@ -122,8 +160,8 @@ function watch(kind: SaveKind, timeoutMs: number): Promise<SaveObservation> {
  * Watch the chat-save endpoints for one write, resolving with the first save request that follows —
  * or with a timeout, which is a real answer: nothing was sent.
  */
-export async function observeNextSave(timeoutMs = SAVE_OBSERVE_MS): Promise<SaveObservation> {
-  return await watch("chat", timeoutMs);
+export async function observeNextSave(timeoutMs = SAVE_OBSERVE_MS, chatId: string | null = null): Promise<SaveObservation> {
+  return await watch("chat", timeoutMs, chatId);
 }
 
 /**

@@ -9,13 +9,13 @@ import { createSaveHealth, hasUnsavedChanges, SAVE_PLAYER_TEXT, saveWasLost, typ
 
 const at = "2026-09-22T00:00:00.000Z";
 
-const harness = (options: { ok: boolean; status?: number | null; timedOut?: boolean; failed?: boolean; serverHolds: number | null; start?: SaveHealth }) => {
+const harness = (options: { ok: boolean; status?: number | null; timedOut?: boolean; failed?: boolean; lost?: string; serverHolds: number | null; start?: SaveHealth }) => {
   const writes: SaveHealth[] = [];
   const journaled: Array<{ summary: string; note: string }> = [];
   let health: SaveHealth = options.start ?? createSaveHealth();
   const deps: SaveEvidenceDeps = {
     health: () => health,
-    observe: async () => ({ requested: !options.timedOut, status: options.status ?? (options.ok ? 200 : 500), ok: options.ok, timedOut: options.timedOut ?? false, failed: options.failed ?? false }),
+    observe: async () => ({ requested: !options.timedOut, status: options.status ?? (options.ok ? 200 : 500), ok: options.ok, timedOut: options.timedOut ?? false, failed: options.failed ?? false, ...(options.lost ? { lost: options.lost } : {}) }),
     readBack: () => options.serverHolds,
     onWrite: (next) => { writes.push(next); health = next; },
     journal: (summary, note) => journaled.push({ summary, note }),
@@ -74,6 +74,13 @@ describe("the save's own evidence (v2.3 plan 06)", () => {
     const result = await recordSaveEvidence(h.deps, 12);
     expect(result).toMatchObject({ unsaved: true, journalSummary: "save not confirmed" });
     expect(h.health()).toMatchObject({ pendingBoundary: 12, consecutiveFailures: 1, lastReason: "the server answered 500" });
+  });
+
+  it("names why a save did not land in this chat (v2.4 plan 02: the open chat changed first)", async () => {
+    const h = harness({ ok: false, status: 200, lost: "the save ran after the open chat changed: it wrote \"b\", not \"a\"", serverHolds: 12 });
+    const result = await recordSaveEvidence(h.deps, 12);
+    expect(result.unsaved).toBe(true);
+    expect(h.health().lastReason).toMatch(/the open chat changed/);
   });
 
   it("says so when no save request went out at all (a timeout is not a refusal)", async () => {
