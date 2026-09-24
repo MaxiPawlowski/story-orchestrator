@@ -1,0 +1,70 @@
+1/15 import_story ok 293ms
+2/15 eval ok 5ms
+3/15 slash ok 1683ms
+4/15 wait ok 38ms
+5/15 send_generate ok 41687ms
+6/15 wait ok 75607ms
+7/15 eval ok 4ms
+7/15 eval -> {"control":"*Luke fidgets with the strap of his oversized chainmail, the metal plates clinking softly as he shifts his weight. His brown hair falls across his eyes as he lo"}
+8/15 slash ok 1668ms
+9/15 wait ok 43ms
+10/15 send_generate ok 21140ms
+11/15 wait ok 28291ms
+12/15 expect ok 10ms
+12/15 expect -> {"overSteer":{"ok":true,"failures":[],"block":{"key":"story_orchestrator_guidance","source":"capture","chars":126},"restate":{"ok":true,"span":1,"maxSpan":6,"metaHits":[]},"swing":{"words":261,"controlWords":221,"lengthRatio":1.181,"sharedWithControl":3}}}
+13/15 slash ok 27482ms
+14/15 wait ok 1536ms
+15/15 eval ok 8ms
+15/15 eval -> {"guided":["cp-4a"],"bare":["cp2","cp2","cp2"],"impersonate":["cp-4a"],"drafted":"*Max's voice is steady, his expression focused as he eyes the ruined doorway, hi"}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-24T16-59-33-569Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 15,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@13h56m09s417ms",
+    "owned": [
+      "2026-09-24@13h56m09s417ms"
+    ],
+    "deleted": [
+      "2026-09-24@13h56m09s417ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@13h56m09s417ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

@@ -1,0 +1,94 @@
+1/19 eval ok 12ms
+1/19 eval -> {"greetingsCleared":1}
+2/19 eval ok 5ms
+3/19 import_story ok 271ms
+4/19 eval ok 13ms
+5/19 send ok 1763ms
+6/19 extract ok 422ms
+7/19 record_state ok 13ms
+7/19 record_state -> {"as":"before-cut","boundary":1,"active":"start","rows":{"memory":1,"epistemic":0,"ledger":0}}
+8/19 send ok 1653ms
+9/19 extract ok 415ms
+10/19 send ok 1660ms
+11/19 extract ok 433ms
+12/19 send ok 1664ms
+13/19 extract ok 431ms
+14/19 eval ok 4ms
+14/19 eval -> {"values":{"took_key":true,"lit_lamp":true,"found_map":true,"opened_chest":true},"active":"start","boundary":4}
+15/19 cut ok 1855ms
+15/19 cut -> {"command":"/cut 1-2","ok":true,"pipe":"I light the oil lamp by the door.\nI unroll the map on the table.\n","messagesBefore":4,"messagesAfter":2,"newMessages":-2}
+16/19 wait ok 1522ms
+17/19 eval ok 5ms
+17/19 eval -> {"lines":["I take the brass key from the hook.","I open the iron chest with the key."]}
+18/19 expect ok 5ms
+19/19 eval ok 4ms
+19/19 eval -> {"lastMessageId":0,"values":{"took_key":true}}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T16-59-42-456Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 19,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-24@13h59m25s532ms",
+    "owned": [
+      "2026-09-24@13h59m25s532ms"
+    ],
+    "deleted": [
+      "2026-09-24@13h59m25s532ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@13h59m25s532ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

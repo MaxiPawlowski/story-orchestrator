@@ -1,0 +1,85 @@
+1/13 import_story ok 378ms
+2/13 ui ok 182ms
+3/13 eval ok 14ms
+3/13 eval -> {"cadence":0,"capable":true}
+4/13 send ok 1769ms
+5/13 wait ok 1546ms
+6/13 extract ok 484ms
+7/13 eval ok 5ms
+7/13 eval -> {"chid":5,"planted":"t6-probe-note","scope":"warden switched on in the in-memory settings view only; nothing install-wide is written"}
+8/13 inject_script ok 5ms
+9/13 emit_generation ok 12ms
+10/13 eval ok 10ms
+10/13 eval -> {"drafted":5,"staged":true}
+11/13 eval ok 5ms
+11/13 eval -> {"emitted":["GENERATION_STARTED","GENERATION_ENDED"],"answered":false}
+12/13 emit_generation ok 6ms
+13/13 eval ok 5ms
+13/13 eval -> {"block":"kept","note":"kept"}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T12-58-56-066Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 13,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@09h58m47s126ms",
+    "owned": [
+      "2026-09-24@09h58m47s126ms"
+    ],
+    "deleted": [
+      "2026-09-24@09h58m47s126ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@09h58m47s126ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

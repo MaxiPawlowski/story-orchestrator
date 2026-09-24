@@ -1,0 +1,125 @@
+1/48 import_story ok 267ms
+2/48 eval ok 8ms
+2/48 eval -> {"cadence":1,"greeting":1}
+3/48 send_generate ok 25367ms
+4/48 wait ok 48463ms
+5/48 record_state ok 6ms
+5/48 record_state -> {"as":"before-middle","boundary":1,"active":"hall","rows":{"memory":3,"epistemic":0,"ledger":0}}
+6/48 eval ok 5ms
+6/48 eval -> {"kept":{"memory":3,"epistemic":0,"ledger":0}}
+7/48 eval ok 5ms
+8/48 send_generate ok 45800ms
+9/48 wait ok 61691ms
+10/48 send_generate ok 36942ms
+11/48 wait ok 27603ms
+12/48 eval ok 4ms
+12/48 eval -> {"memory":8,"epistemic":0,"ledger":0}
+13/48 eval ok 11ms
+13/48 eval -> {"deleted":3,"after":6}
+14/48 wait ok 1535ms
+15/48 wait ok 42691ms
+16/48 eval ok 5ms
+16/48 eval -> {"boundary":1,"lastMessageId":2,"chat":6,"journal":["payload: 1 story blocks injected (generation)","talk: Arin speaks (rules)","payload: 1 story blocks injected (generation)","talk: Ponticius speaks (rules)","status: Stepped back to The Hall","extraction: read rollback:3 msgs 0-5 → 0 accepted, 1 rejected"],"calls":[{"call":"rollback","from":3,"journal":null,"chat":6,"last":6},{"event":"deleted","n":6,"chat":6}]}
+17/48 expect ok 6ms
+17/48 expect -> {"as":"before-middle","equal":true,"scope":["active","path"]}
+18/48 eval ok 4ms
+18/48 eval -> {"target":3,"rollbacks":[3],"applied":0,"pending":[]}
+19/48 eval ok 6ms
+19/48 eval -> {"journal":["read rollback:3 msgs 0-5 → 0 accepted, 1 rejected"],"reread":{"memory":3,"epistemic":0,"ledger":0}}
+20/48 record_state ok 6ms
+20/48 record_state -> {"as":"before-cut","boundary":1,"active":"hall","rows":{"memory":6,"epistemic":0,"ledger":0}}
+21/48 eval ok 4ms
+21/48 eval -> {"kept":{"memory":6,"epistemic":0,"ledger":0}}
+22/48 eval ok 3ms
+23/48 send_generate ok 40671ms
+24/48 wait ok 52386ms
+25/48 send_generate ok 44014ms
+26/48 wait ok 8180ms
+27/48 eval ok 5ms
+27/48 eval -> {"memory":8,"epistemic":0,"ledger":0}
+28/48 eval ok 339ms
+28/48 eval -> {"cut":"6-7","after":9,"isError":false}
+29/48 wait ok 1536ms
+30/48 wait ok 71808ms
+31/48 eval ok 4ms
+31/48 eval -> {"boundary":1,"lastMessageId":2,"chat":9,"journal":["status: Moved into The Yard","status: Stepped back to The Hall","extraction: read rollback:6 msgs 0-8 → 2 accepted, 0 rejected","delta: tension_current = 0","delta: go = true","delta: queued tension_current=0, go=true for the next boundary"],"calls":[{"call":"rollback","from":6,"journal":null,"chat":10,"last":9},{"event":"deleted","n":10,"chat":10},{"call":"rollback","from":6,"journal":null,"chat":9,"last":2},{"event":"deleted","n":9,"chat":9}]}
+32/48 expect ok 6ms
+32/48 expect -> {"as":"before-cut","equal":true,"scope":["active","path"]}
+33/48 eval ok 4ms
+33/48 eval -> {"target":6,"rollbacks":[6,6],"applied":0,"pending":[{"to":8,"from":0,"reason":"rollback:6","after":true,"deltas":["tension_current=0","go=true"]}]}
+34/48 eval ok 5ms
+34/48 eval -> {"journal":["read rollback:3 msgs 0-5 → 0 accepted, 1 rejected","read rollback:6 msgs 0-8 → 2 accepted, 0 rejected"],"reread":{"memory":3,"epistemic":2,"ledger":2}}
+35/48 record_state ok 5ms
+35/48 record_state -> {"as":"before-tail","boundary":1,"active":"hall","rows":{"memory":9,"epistemic":2,"ledger":2}}
+36/48 eval ok 4ms
+36/48 eval -> {"kept":{"memory":9,"epistemic":2,"ledger":2}}
+37/48 eval ok 4ms
+38/48 send_generate ok 70894ms
+39/48 wait ok 8204ms
+40/48 eval ok 5ms
+40/48 eval -> {"memory":9,"epistemic":2,"ledger":2}
+41/48 eval ok 21ms
+41/48 eval -> {"deletedFrom":9,"after":9}
+42/48 wait ok 1552ms
+43/48 wait ok 31351ms
+44/48 eval ok 5ms
+44/48 eval -> {"boundary":1,"lastMessageId":2,"chat":9,"journal":["status: Moved into The Yard","status: Stepped back to The Hall","extraction: read rollback:10 msgs 0-8 → 2 accepted, 0 rejected","delta: tension_current = 0.25","delta: go = true","delta: queued tension_current=0.25, go=true for the next boundary"],"calls":[{"call":"rollback","from":11,"journal":null,"chat":11,"last":10},{"event":"deleted","n":11,"chat":11},{"call":"rollback","from":10,"journal":null,"chat":10,"last":10},{"event":"deleted","n":10,"chat":10},{"call":"rollback","from":9,"journal":null,"chat":9,"last":2},{"event":"deleted","n":9,"chat":9}]}
+45/48 expect ok 6ms
+45/48 expect -> {"as":"before-tail","equal":true,"scope":["active","path"]}
+46/48 eval ok 5ms
+46/48 eval -> {"target":9,"rollbacks":[11,10,9],"applied":0,"pending":[{"to":8,"from":0,"reason":"rollback:10","after":true,"deltas":["tension_current=0.25","go=true"]}]}
+47/48 eval ok 5ms
+47/48 eval -> {"journal":["read rollback:3 msgs 0-5 → 0 accepted, 1 rejected","read rollback:6 msgs 0-8 → 2 accepted, 0 rejected","read rollback:10 msgs 0-8 → 2 accepted, 0 rejected"],"reread":{"memory":1,"epistemic":0,"ledger":0}}
+48/48 eval ok 4ms
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-24T16-47-04-478Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 48,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ed9ddba5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@13h36m38s344ms",
+    "owned": [
+      "2026-09-24@13h36m38s344ms"
+    ],
+    "deleted": [
+      "2026-09-24@13h36m38s344ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@13h36m38s344ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

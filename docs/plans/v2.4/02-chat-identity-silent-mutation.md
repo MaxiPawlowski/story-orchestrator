@@ -924,3 +924,51 @@ Branch `v24-02-t3chain`, built on `cfad851` (`v24-plan02`: harness + T11 + seed 
 **Open questions**
 - Should an unadopted branch opened by the page's first load (not a CHAT_CHANGED) also be unbound? Today it is only unbound on the bridge's path.
 - A no-op `MESSAGE_UPDATED` that another extension emits as a refresh is now silent for consumed rows. That is intended by H19, but it is a behaviour change for third parties.
+
+### Integration and live gate (2026-09-24, final build `14402df10a0e`)
+
+**Status: live fixtures and journeys green ×2. Not accepted:**
+- The downgrade leg is not built: `persistenceDowngrade.test.ts`, the captured v2.3 blob, J10.12, and the clean-host leg.
+- The fault matrix is unchanged.
+
+**Integrated:** `v24-02-int` merged to master in `34227e5`.
+
+**Red first:** `test/journeys/records/v2.4-plan02/red/` (`b2f6267`), 13 fixtures on the harness-only build `d492e51`. 11 were red at their named assertion; the 2 controls were green.
+
+**Green:**
+- 26/26 fixture runs (13 ×2) on `57979823c099`: `green-57979823c099/`.
+- 26/26 again on `9c3e16387164`: `green-9c3e16387164/`.
+- On the final build, the lanes 1+2 batch in `v2.4-final-14402df10a0e/lanes12/`:
+  - every `v24-02-*` fixture ×2;
+  - J6 `--strict` ×2 (11/11, with J6.10 no-op edit, J6.11 `/hide` consumed and J6.12 message move from `13b9ac2`);
+  - J10 `--strict` ×2 (11/11, with J10.13 unrecognized blob and J10.14 branch Continue from `592ac00`).
+
+**Product defects the live runs found, each with a test and a killed mutant** (`test/findings/mutations/v24-02-harness.txt`, `v24-02-T8.txt`):
+
+| Commit | Defect |
+|---|---|
+| `3a7ef37` | A save asked for in one chat could write an EMPTY chat into the next. `saveChatConditional` waits ≥100 ms before it binds to the open chat, and `openGroupChat` clears the chat and metadata first. A new branch lost every message (J10.14), which is the likely cause of the 2026-09-21 emptied user chat. Our armed saves now refuse an empty write to a chat other than the one they were asked for, and a save that landed elsewhere reports `lost`. |
+| `dd73915` | Five saves of ours bypassed the armed path. They all go through `saveOpenChat()` now. |
+| `81e25e4` | The empty write recurred from a save outside ours (ST, or another extension with a cached context). An empty save carrying no `integrity` is held back, whoever makes it. The server checks integrity only when the header has one (`src/endpoints/chats.js:536`). **Behaviour change for third parties; user decision below.** |
+| `2c311f2` | A boundary stuck in the chat that was left held every later boundary back in the next chat. A transition's NPC replies are a real `/trigger` call. The drain now yields when its run no longer owns the chat. |
+| `4870534` | A library-save handler that threw wedged the Studio toolbar on "Saving…". |
+
+**Harness fixes:**
+- `branch_create` waits for the branch's messages.
+- Branch chats are left out of the sandbox `notDeleted` check (they were a false leak).
+- J6.6/J6.9 now write distinct edit texts. J6.6 had re-written the text J6.2 left, which is a true no-op edit that T3 correctly ignores.
+
+**Not done:**
+- `persistenceDowngrade.test.ts` and the v2.3 blob capture.
+- J10.12.
+- The clean-host downgrade leg.
+- The fault matrix's 10th package (host deletes).
+- An in-flight NPC `/trigger` that outlives its chat still lands in the next chat. This is plan 03 T4 (abort scope).
+
+**Decisions for the user:**
+- Should T8 save evidence extend to import, removal, migration and `wizardSessions` writes?
+- Should pre-T14 mirror books get the owner marker on their next sync?
+- Should an unadopted branch opened by the first page load be unbound too?
+- H19: a no-op `MESSAGE_UPDATED` from another extension is now silent for consumed rows.
+- Is it acceptable that the integrity guard (`81e25e4`) also blocks empty saves that carry no integrity from ST or other extensions?
+- Should the fault matrix get a 10th package for host deletes?

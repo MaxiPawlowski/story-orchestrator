@@ -1,0 +1,93 @@
+1/19 eval ok 5ms
+1/19 eval -> {"greetingsCleared":1}
+2/19 eval ok 3ms
+3/19 import_story ok 374ms
+4/19 eval ok 7ms
+5/19 send ok 1864ms
+6/19 extract ok 488ms
+7/19 send ok 1688ms
+8/19 extract ok 483ms
+9/19 send ok 1668ms
+10/19 extract ok 490ms
+11/19 eval ok 4ms
+11/19 eval -> {"values":{"took_key":true,"lit_lamp":true,"found_map":true},"boundary":3}
+12/19 record_state ok 7ms
+12/19 record_state -> {"as":"before-edit","boundary":3,"active":"start","rows":{"memory":3,"epistemic":0,"ledger":0}}
+13/19 eval ok 640ms
+13/19 eval -> {"unchanged":true,"events":[["MESSAGE_EDITED",1],["MESSAGE_UPDATED",1]]}
+14/19 wait ok 1525ms
+15/19 expect ok 4ms
+16/19 expect ok 17ms
+17/19 edit ok 131ms
+18/19 wait ok 1524ms
+19/19 expect ok 4ms
+19/19 expect -> {"rollbackOutcome":{"rollbackOutcome":{"result":"applied","fromMessage":2,"since":"before-edit"},"last":{"seq":1,"result":"applied","fromMessage":2,"at":"2026-09-24T13:13:52.643Z"},"sinceSeq":0}}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T13-13-58-093Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 19,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-24@10h13m42s701ms",
+    "owned": [
+      "2026-09-24@10h13m42s701ms"
+    ],
+    "deleted": [
+      "2026-09-24@10h13m42s701ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@10h13m42s701ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

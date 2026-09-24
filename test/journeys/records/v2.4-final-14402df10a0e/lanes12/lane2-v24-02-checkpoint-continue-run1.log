@@ -1,0 +1,107 @@
+1/20 eval ok 12ms
+1/20 eval -> {"greetingsCleared":1}
+2/20 eval ok 5ms
+3/20 import_story ok 266ms
+4/20 eval ok 14ms
+5/20 send ok 1691ms
+6/20 extract ok 792ms
+7/20 send ok 1675ms
+8/20 extract ok 594ms
+9/20 record_state ok 8ms
+9/20 record_state -> {"as":"after-line-1","boundary":2,"active":"start","rows":{"memory":3,"epistemic":0,"ledger":0}}
+10/20 send ok 1672ms
+11/20 extract ok 646ms
+12/20 eval ok 318ms
+12/20 eval -> {"chatId":"2026-09-24@13h55m39s039ms","integrity":"be782ce0-2a7a-4949-b111-f863722bf654","book":"Story Orchestrator - v24-01 Delete Decode - 2026-09-24@13h55m39s039ms","boundary":3}
+13/20 branch_create ok 626ms
+13/20 branch_create -> {"command":"/checkpoint-create mesId=1","name":"2026-09-24@13h55m39s039ms - Checkpoint #1","kind":"checkpoint","opened":true,"branchChats":["2026-09-24@13h55m39s039ms - Checkpoint #1"]}
+14/20 eval ok 5ms
+14/20 eval -> {"checkpoint":"2026-09-24@13h55m39s039ms - Checkpoint #1","main_chat":"2026-09-24@13h55m39s039ms","integrity":"e8218545-eda6-4775-9761-7ac83a1446a7","blobStampedFor":"2026-09-24@13h55m39s039ms","slot":null,"storyLoaded":null}
+15/20 eval ok 4ms
+15/20 eval -> {"slot":null,"chatIdentity":{"kind":"branch","parentChat":"2026-09-24@13h55m39s039ms","checkpointName":"Start"}}
+16/20 ui ok 66ms
+16/20 ui -> {"selector":"#so-branch-continue","found":true,"clickable":true,"at":{"x":517,"y":136},"topmost":"button#so-branch-continue.menu_button.self-start.interactable","target":"button#so-branch-continue.menu_button.self-start.interactable","clicked":true,"noticeGone":true}
+17/20 wait ok 1533ms
+18/20 expect ok 4ms
+18/20 expect -> {"rollbackOutcome":{"rollbackOutcome":{"result":"applied","fromMessage":2,"since":"after-line-1"},"last":{"seq":13,"result":"applied","fromMessage":2,"at":"2026-09-24T16:55:48.225Z"},"sinceSeq":12}}
+19/20 expect ok 17ms
+20/20 eval ok 322ms
+20/20 eval -> {"checkpointBook":"Story Orchestrator - v24-01 Delete Decode - 2026-09-24@13h55m39s039ms - Checkpoint #1","parentBlob":"2026-09-24@13h55m39s039ms"}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T16-55-56-836Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 20,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-24@13h55m39s039ms",
+    "owned": [
+      "2026-09-24@13h55m39s039ms"
+    ],
+    "deleted": [
+      "2026-09-24@13h55m39s039ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@13h55m39s039ms - Checkpoint #1",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@13h55m39s039ms - Checkpoint #1",
+    "branchChats": {
+      "recorded": [
+        "2026-09-24@13h55m39s039ms - Checkpoint #1"
+      ],
+      "deleted": [
+        "2026-09-24@13h55m39s039ms - Checkpoint #1"
+      ],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [
+        "Story Orchestrator - v24-01 Delete Decode - 2026-09-24@13h55m39s039ms - Checkpoint #1",
+        "Story Orchestrator - v24-01 Delete Decode - 2026-09-24@13h55m39s039ms"
+      ],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [
+        "The chat \"2026-09-24@13h55m39s039ms\" was deleted, but its story-memory lorebook \"Story Orchestrator - v24-01 Delete Decode - 2026-09-24@13h55m39s039ms\" is still there. Delete the lorebook too? This ca"
+      ],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

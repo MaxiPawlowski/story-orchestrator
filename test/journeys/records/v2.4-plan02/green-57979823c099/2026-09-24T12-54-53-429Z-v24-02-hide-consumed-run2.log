@@ -1,0 +1,99 @@
+1/24 eval ok 7ms
+1/24 eval -> {"greetingsCleared":1}
+2/24 eval ok 4ms
+3/24 import_story ok 361ms
+4/24 eval ok 6ms
+5/24 send ok 1671ms
+6/24 extract ok 469ms
+7/24 send ok 1655ms
+8/24 extract ok 471ms
+9/24 send ok 1669ms
+10/24 extract ok 479ms
+11/24 eval ok 5ms
+11/24 eval -> {"values":{"took_key":true,"lit_lamp":true,"found_map":true},"lampFact":"a23cdb31-eac1-42ea-9f0f-63e3a353e505","boundary":3}
+12/24 expect ok 5ms
+13/24 record_state ok 6ms
+13/24 record_state -> {"as":"before-hide","boundary":3,"active":"start","rows":{"memory":3,"epistemic":0,"ledger":0}}
+14/24 slash ok 1652ms
+15/24 eval ok 5ms
+15/24 eval -> {"hidden":1,"mes":"I light the oil lamp by the door."}
+16/24 wait ok 1533ms
+17/24 expect ok 4ms
+18/24 expect ok 17ms
+19/24 expect ok 4ms
+19/24 expect -> {"nextReadWindow":{"nextReadWindow":{"includes":[0,2],"excludes":[1]},"source":"cadence","from":0,"to":2,"reads":[0,2]}}
+20/24 slash ok 1664ms
+21/24 eval ok 4ms
+22/24 expect ok 3ms
+23/24 expect ok 5ms
+24/24 expect ok 3ms
+24/24 expect -> {"nextReadWindow":{"nextReadWindow":{"includes":[0,1,2]},"source":"cadence","from":0,"to":2,"reads":[0,1,2]}}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T12-56-21-558Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 24,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-24@09h56m05s411ms",
+    "owned": [
+      "2026-09-24@09h56m05s411ms"
+    ],
+    "deleted": [
+      "2026-09-24@09h56m05s411ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@09h56m05s411ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

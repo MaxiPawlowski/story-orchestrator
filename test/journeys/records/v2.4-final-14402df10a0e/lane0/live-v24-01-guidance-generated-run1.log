@@ -1,0 +1,85 @@
+1/14 import_story ok 263ms
+2/14 ui ok 242ms
+3/14 eval ok 13ms
+4/14 expand ok 27111ms
+5/14 eval ok 6ms
+5/14 eval -> {"status":"needs_review","tries":[{"attempt":1,"status":"needs_review"}],"guidance":["The player explores the area to locate a path forward. The environment should pr","The world escalates as the player attempts to reach the vault. The approach must"]}
+6/14 send_generate ok 25090ms
+7/14 wait ok 5252ms
+8/14 eval ok 4ms
+8/14 eval -> {"merged":true,"guidance":"The player explores the area to locate a path forward. The environment should present obstacles or choices that lead tow"}
+9/14 slash ok 1718ms
+10/14 wait ok 38ms
+11/14 eval ok 7ms
+11/14 eval -> {"block":"Scene direction: The player explores the area to locate a path forward. The environment should present obstacles or choices that lead toward the vault."}
+12/14 send_generate ok 29789ms
+13/14 wait ok 1544ms
+14/14 eval ok 4ms
+14/14 eval -> {"requests":2,"carried":true}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-24T17-01-10-808Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 14,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-cd407f83"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@13h59m34s911ms",
+    "owned": [
+      "2026-09-24@13h59m34s911ms"
+    ],
+    "deleted": [
+      "2026-09-24@13h59m34s911ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@13h59m34s911ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

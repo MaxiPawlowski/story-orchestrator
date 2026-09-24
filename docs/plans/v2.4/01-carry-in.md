@@ -786,3 +786,41 @@ Earlier builds' records (`integrated-340b139845cf/`, `final-0c17ca368b75/`, `fin
 **Decisions for the user:**
 - Solo `story_epistemic` still merges every member's private block. The plan said "solo unchanged".
 - Raise the pod's `LLM_PARALLEL` from 2 to 4?
+
+### Final build `14402df10a0e` (2026-09-24, supersedes the section above)
+
+**Status: plan 01 live items all green ×2.** The two items owed above are closed:
+- `so-turn-types-check` is ×2 `ok` on lane 0.
+- The run-header diff around the lane-0 batch reports `differences: 0`.
+
+Built from master `81e25e4` (plan 02 integrated), plus fixture-only commits `b900b7c`..`d91e160`. Records are in `test/journeys/records/v2.4-final-14402df10a0e/`.
+
+| Gate | Result | Record |
+|---|---|---|
+| lanes 1+2 batch, 41 items ×2 (J5/J6/J8/J10 `--strict`, every `v24-01-*`/`v24-02-*`/`plan03a-*` fixture, turn-identity) | 81/82 | `lanes12/` |
+| `live-v24-01-t1` after the fixture key fix (`2f00d80`) | ×2 per lane, 4/4 | `reruns/*t1*` |
+| `live-v4-turn-identity` after `d91e160` | ×3 per lane, 6/6 | `reruns/*turn-identity*` |
+| lane 0: `so-turn-types-check` ×2, J4 `--strict` ×2 (5/5), `live-v24-01-{t10,guidance,guidance-generated,t6,foreign}` ×2 | green | `lane0/` |
+| lane 0 `live-v24-01-t1` | run 1 red, run 2 green | `lane0/` |
+| lane 0 run-header diff | 0 differences | `lane0/header-diff.log` |
+
+**Every red on this build was the harness's, not the product's.**
+- The one red in the batch was turn-identity, lane 2 run 2. The previous run's cp2 NPC `/trigger` reply finished after that run's sandbox chat was deleted and landed in the next chat. The fixture now waits for 3 s of host idle before its cleanup (`d91e160`). The product side of this is plan 03 T4: an in-flight generation is not aborted on a chat switch.
+- Lane 0 T1 run 1 failed because the fixture keyed ledger rows `entity:field`. A row the rollback's re-read rebuilt from surviving text then read as "survived". It is now keyed `entity:field@turn` (`2f00d80`). The reruns on lanes 1 and 2 used the fixed key; lane 0 was not re-run.
+
+**Machine gates on the final build:**
+- typecheck, typecheck:test, lint, debug:typecheck: clean.
+- jest: 2919/2919.
+- test:debug: 219/219.
+- test:release: 21/21.
+- test-storybook:ci: 197/197.
+
+**Still open:**
+- The J6.4 missing-notice miss (earlier build, not reproduced in 8 J6 runs since).
+- The J6.7 race (not recurred).
+- J5.8 (a drafted member's request without its private block, 1 of about 6 on earlier builds). Its lifecycle timeline is recorded (`b900b7c`) but has not fired since.
+- J8.5 (the continuity note missing once). Its diagnostic is in place (`ef6253b`).
+
+**Decisions for the user (unchanged):**
+- Solo `story_epistemic` still merges every member's private block.
+- `LLM_PARALLEL` 2→4.

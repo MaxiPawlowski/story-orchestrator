@@ -1,0 +1,56 @@
+1/4 import_story ok 265ms
+2/4 slash ok 37302ms
+3/4 wait ok 55ms
+4/4 expect ok 45ms
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T17-03-40-098Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 4,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-20a0ede8"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@14h02m57s298ms",
+    "owned": [
+      "2026-09-24@14h02m57s298ms"
+    ],
+    "deleted": [
+      "2026-09-24@14h02m57s298ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@14h02m57s298ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

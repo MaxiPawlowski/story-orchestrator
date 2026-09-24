@@ -1,0 +1,55 @@
+1/3 import_story ok 283ms
+2/3 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: a rendered reply did not commit: {"id":0,"b0":0,"bNormal":0,"bAgain":0,"bCont":0,"bFinal":3}
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1346)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T17-03-21-777Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T17-03-26-113Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 2,
+  "cleanup": {
+    "removedStoryHashes": [],
+    "keptPreExistingStories": [
+      "v2-ea8a94f1"
+    ],
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@14h02m56s148ms",
+    "owned": [
+      "2026-09-24@14h02m56s148ms"
+    ],
+    "deleted": [
+      "2026-09-24@14h02m56s148ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@14h02m56s148ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

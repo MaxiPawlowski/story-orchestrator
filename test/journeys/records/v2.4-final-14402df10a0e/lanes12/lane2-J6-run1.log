@@ -1,0 +1,207 @@
+
+=== J6 mutation-storm ===
+Edit and delete messages around a committed boundary; the engine rolls back correctly and the player can tell what happened.
+
+extraction before this run: {"enabled":true,"cadence":1,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"}
+Global config snapshot: C:\dev\so-lanes\2\debug\so-journey-config-snapshot.json
+extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+--- J6.1 a boundary is committed and a gate latches from a scripted turn
+J6.1 1/8 import_story ok 1128ms
+J6.1 2/8 ui ok 223ms
+J6.1 3/8 eval ok 20ms
+J6.1 4/8 send_generate ok 16976ms
+J6.1 5/8 extract ok 54253ms
+J6.1 6/8 send_generate ok 127442ms
+J6.1 7/8 wait ok 53ms
+J6.1 8/8 expect ok 50ms
+--- J6.2 editing the message that carried the delta rolls the story back The check first waits for the group round J6.1 started to finish: a send returns before every member has replied, and an edit made mid-round is rolled back and then followed by the remaining replies' boundaries, which is a different scenario (L2 2026-09-23: J6.2 timed out on a still-generating round and J6.4 lost its notice to those boundaries).
+J6.2 1/6 wait ok 1529ms
+J6.2 2/6 wait ok 21593ms
+J6.2 3/6 eval ok 5ms
+J6.2 4/6 edit ok 139ms
+J6.2 5/6 wait ok 1547ms
+J6.2 6/6 expect ok 43ms
+--- J6.3 deleting the last message leaves engine state consistent, not orphaned
+J6.3 1/3 delete ok 120ms
+J6.3 2/3 wait ok 1548ms
+J6.3 3/3 eval ok 4ms
+--- J6.4 the player is told the story stepped back after a mutation
+J6.4 1/4 eval ok 5ms
+J6.4 1/4 eval -> {"notice":{"checkpointName":"Investigate the Job Board","at":"2026-09-24T16:30:24.020Z"},"waitedMs":1}
+J6.4 2/4 ui ok 58ms
+J6.4 3/4 ui ok 68ms
+J6.4 4/4 expect_ui ok 5ms
+--- J6.6 a reloaded chat still recognises an edit to a message its run has passed
+J6.6 1/11 eval ok 4ms
+J6.6 1/11 eval -> {"checkpoint":"cp1","boundary":0}
+J6.6 2/11 send_generate ok 49280ms
+J6.6 3/11 extract ok 1732ms
+J6.6 4/11 send_generate ok 34856ms
+J6.6 5/11 wait ok 45ms
+J6.6 6/11 eval ok 6ms
+J6.6 6/11 eval -> {"checkpoint":"cp2","lastMessageId":6}
+J6.6 7/11 reload ok 5993ms
+J6.6 8/11 eval ok 5ms
+J6.6 8/11 eval -> {"checkpoint":"cp2","lastMessageId":6}
+J6.6 9/11 edit ok 131ms
+J6.6 10/11 wait ok 1527ms
+J6.6 11/11 eval ok 6ms
+J6.6 11/11 eval -> {"notice":{"checkpointName":"Investigate the Job Board","at":"2026-09-24T16:31:59.191Z"},"waitedMs":0}
+--- J6.7 a ledger update is undone by an edit to the message its boundary acted on
+J6.7 1/10 eval ok 8ms
+J6.7 1/10 eval -> {"capable":true}
+J6.7 2/10 send_generate ok 31223ms
+J6.7 3/10 extract ok 1228ms
+J6.7 4/10 wait ok 56ms
+J6.7 5/10 eval ok 4ms
+J6.7 5/10 eval -> {"last":8,"chat":10,"checkpoint":"cp2"}
+J6.7 6/10 eval ok 143ms
+J6.7 6/10 eval -> {"wrote":true,"to":7,"belief":"9a4717d4-863e-4745-ab3e-4b3a4c421163","messageId":7}
+J6.7 7/10 eval ok 160ms
+J6.7 7/10 eval -> {"wrote":true,"to":8,"retiredAt":{"messageId":8,"boundary":2},"view":[{"entity":"Arin","field":"condition","value":"wounded","bound":false,"turn":2}]}
+J6.7 8/10 edit ok 138ms
+J6.7 9/10 wait ok 1535ms
+J6.7 10/10 eval ok 5ms
+J6.7 10/10 eval -> {"view":[{"entity":"Arin","field":"condition","value":"healthy","bound":false,"turn":2}],"belief":"9a4717d4-863e-4745-ab3e-4b3a4c421163","run":{"chatId":"2026-09-24@13h26m37s353ms","storyId":"sun-ruins","playedVersion":2,"sessionEpoch":3,"claimedChat":"2026-09-24@13h26m37s353ms","windowRevision":2,"lowestMutatedMessageId":0},"notice":{"checkpointName":"Investigate the Job Board","at":"2026-09-24T16:32:33.416Z"}}
+--- J6.8 a belief a reveal retired comes back when the reveal's message is edited The player line carries the evidence the scripted read cites: the evidence rule only accepts a quote from the read's window, and the old line relied on the model's reply happening to echo it (L2 2026-09-23: rejected once, story stayed at cp1).
+J6.8 1/9 send_generate ok 84341ms
+J6.8 2/9 extract ok 979ms
+J6.8 3/9 wait ok 49ms
+J6.8 4/9 eval ok 7ms
+J6.8 4/9 eval -> {"last":12,"chat":14,"checkpoint":"cp2"}
+J6.8 5/9 eval ok 144ms
+J6.8 5/9 eval -> {"wrote":true,"to":11,"belief":"9a4717d4-863e-4745-ab3e-4b3a4c421163","messageId":7}
+J6.8 6/9 eval ok 146ms
+J6.8 6/9 eval -> {"wrote":true,"to":12,"retiredAt":{"messageId":12,"boundary":3},"view":[{"entity":"Arin","field":"condition","value":"wounded","bound":false,"turn":3}]}
+J6.8 7/9 edit ok 125ms
+J6.8 8/9 wait ok 1550ms
+J6.8 9/9 eval ok 7ms
+J6.8 9/9 eval -> {"view":[{"entity":"Arin","field":"condition","value":"healthy","bound":false,"turn":2}],"belief":"9a4717d4-863e-4745-ab3e-4b3a4c421163","run":{"chatId":"2026-09-24@13h26m37s353ms","storyId":"sun-ruins","playedVersion":2,"sessionEpoch":3,"claimedChat":"2026-09-24@13h26m37s353ms","windowRevision":3,"lowestMutatedMessageId":0},"notice":{"checkpointName":"Investigate the Job Board","at":"2026-09-24T16:34:00.710Z"}}
+--- J6.9 an edit older than the retained history says so and offers both ways out it names: re-read from here, or restart the story (V11)
+J6.9 1/12 import_story ok 633ms
+J6.9 2/12 send ok 1691ms
+J6.9 3/12 eval ok 63513ms
+J6.9 3/12 eval -> {"before":1,"after":206}
+J6.9 4/12 edit ok 250ms
+J6.9 5/12 wait ok 1536ms
+J6.9 6/12 eval ok 5ms
+J6.9 6/12 eval -> {"messageId":0,"checkpointName":"Accept the Mission","oldest":{"boundary":7,"messageId":14},"at":"2026-09-24T16:35:07.763Z"}
+J6.9 7/12 ui ok 65ms
+J6.9 8/12 ui ok 58ms
+J6.9 9/12 expect_ui ok 4ms
+J6.9 10/12 expect_ui ok 4ms
+J6.9 11/12 expect_ui ok 3ms
+J6.9 12/12 ui ok 5ms
+--- J6.10 an edit that leaves a consumed reply's text unchanged rewinds nothing and keeps the run (v2.4 plan 02 §2)
+J6.10 1/20 eval ok 2790ms
+J6.10 2/20 eval ok 12ms
+J6.10 2/20 eval -> {"greetingsCleared":1}
+J6.10 3/20 eval ok 5ms
+J6.10 4/20 import_story ok 250ms
+J6.10 5/20 eval ok 23ms
+J6.10 6/20 send ok 1683ms
+J6.10 7/20 extract ok 396ms
+J6.10 8/20 send ok 1664ms
+J6.10 9/20 extract ok 413ms
+J6.10 10/20 send ok 1674ms
+J6.10 11/20 extract ok 418ms
+J6.10 12/20 eval ok 5ms
+J6.10 12/20 eval -> {"values":{"took_key":true,"lit_lamp":true,"found_map":true},"boundary":3}
+J6.10 13/20 record_state ok 6ms
+J6.10 13/20 record_state -> {"as":"before-edit","boundary":3,"active":"start","rows":{"memory":3,"epistemic":0,"ledger":0}}
+J6.10 14/20 eval ok 644ms
+J6.10 14/20 eval -> {"unchanged":true,"events":[["MESSAGE_EDITED",1],["MESSAGE_UPDATED",1]]}
+J6.10 15/20 wait ok 1535ms
+J6.10 16/20 expect ok 5ms
+J6.10 17/20 expect ok 16ms
+J6.10 18/20 edit ok 133ms
+J6.10 19/20 wait ok 1535ms
+J6.10 20/20 expect ok 4ms
+J6.10 20/20 expect -> {"rollbackOutcome":{"rollbackOutcome":{"result":"applied","fromMessage":2,"since":"before-edit"},"last":{"seq":5,"result":"applied","fromMessage":2,"at":"2026-09-24T16:35:21.356Z"},"sinceSeq":4}}
+--- J6.11 hiding a consumed message is not a mutation: its facts stay live and the next read leaves it out (v2.4 plan 02 §4)
+J6.11 1/25 eval ok 2771ms
+J6.11 2/25 eval ok 12ms
+J6.11 2/25 eval -> {"greetingsCleared":1}
+J6.11 3/25 eval ok 5ms
+J6.11 4/25 import_story ok 249ms
+J6.11 5/25 eval ok 15ms
+J6.11 6/25 send ok 1686ms
+J6.11 7/25 extract ok 627ms
+J6.11 8/25 send ok 1697ms
+J6.11 9/25 extract ok 615ms
+J6.11 10/25 send ok 1675ms
+J6.11 11/25 extract ok 618ms
+J6.11 12/25 eval ok 12ms
+J6.11 12/25 eval -> {"values":{"took_key":true,"lit_lamp":true,"found_map":true},"lampFact":"cea776b6-0a26-4831-a451-3d8a30d39342","boundary":3}
+J6.11 13/25 expect ok 5ms
+J6.11 14/25 record_state ok 5ms
+J6.11 14/25 record_state -> {"as":"before-hide","boundary":3,"active":"start","rows":{"memory":3,"epistemic":0,"ledger":0}}
+J6.11 15/25 slash ok 1646ms
+J6.11 16/25 eval ok 3ms
+J6.11 16/25 eval -> {"hidden":1,"mes":"I light the oil lamp by the door."}
+J6.11 17/25 wait ok 1538ms
+J6.11 18/25 expect ok 4ms
+J6.11 19/25 expect ok 5ms
+J6.11 20/25 expect ok 3ms
+J6.11 20/25 expect -> {"nextReadWindow":{"nextReadWindow":{"includes":[0,2],"excludes":[1]},"source":"cadence","from":0,"to":2,"reads":[0,2]}}
+J6.11 21/25 slash ok 1645ms
+J6.11 22/25 eval ok 5ms
+J6.11 23/25 expect ok 4ms
+J6.11 24/25 expect ok 6ms
+J6.11 25/25 expect ok 4ms
+J6.11 25/25 expect -> {"nextReadWindow":{"nextReadWindow":{"includes":[0,1,2]},"source":"cadence","from":0,"to":2,"reads":[0,1,2]}}
+--- J6.12 moving a message is read as a change from the earliest moved row, so the story steps back from there at once (v2.4 plan 02 §2, H6)
+J6.12 1/20 eval ok 2754ms
+J6.12 2/20 eval ok 14ms
+J6.12 2/20 eval -> {"greetingsCleared":1}
+J6.12 3/20 eval ok 5ms
+J6.12 4/20 import_story ok 263ms
+J6.12 5/20 eval ok 15ms
+J6.12 6/20 send ok 1689ms
+J6.12 7/20 extract ok 398ms
+J6.12 8/20 record_state ok 15ms
+J6.12 8/20 record_state -> {"as":"before-line-1","boundary":1,"active":"start","rows":{"memory":1,"epistemic":0,"ledger":0}}
+J6.12 9/20 send ok 1689ms
+J6.12 10/20 extract ok 425ms
+J6.12 11/20 send ok 1668ms
+J6.12 12/20 extract ok 421ms
+J6.12 13/20 eval ok 13ms
+J6.12 13/20 eval -> {"values":{"took_key":true,"lit_lamp":true,"found_map":true},"boundary":3}
+J6.12 14/20 record_state ok 6ms
+J6.12 14/20 record_state -> {"as":"before-move","boundary":3,"active":"start","rows":{"memory":3,"epistemic":0,"ledger":0}}
+J6.12 15/20 eval ok 563ms
+J6.12 15/20 eval -> {"order":["I take the brass key from the hook.","I unroll the map on the table.","I light the oil lamp by the door."],"updatedEvents":[2]}
+J6.12 16/20 wait ok 1535ms
+J6.12 17/20 extract ok 273ms
+J6.12 18/20 wait ok 1529ms
+J6.12 19/20 expect ok 4ms
+J6.12 19/20 expect -> {"rollbackOutcome":{"rollbackOutcome":{"result":"applied","fromMessage":1,"since":"before-move"},"last":{"seq":6,"result":"applied","fromMessage":1,"at":"2026-09-24T16:35:47.296Z"},"sinceSeq":5}}
+J6.12 20/20 expect ok 5ms
+Restored global config from C:\dev\so-lanes\2\debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions"],"saved":{"status":200},"preservedStories":["legacy-v2-de4f955d"],"preservedSessions":[]}
+
+PASS         J6.1     a boundary is committed and a gate latches from a scripted turn
+PASS         J6.2     editing the message that carried the delta rolls the story back The check first waits for the group round J6.1 started to finish: a send returns before every member has replied, and an edit made mid-round is rolled back and then followed by the remaining replies' boundaries, which is a different scenario (L2 2026-09-23: J6.2 timed out on a still-generating round and J6.4 lost its notice to those boundaries).
+PASS         J6.3     deleting the last message leaves engine state consistent, not orphaned
+PASS         J6.4     the player is told the story stepped back after a mutation
+SKIP         J6.5      — human check — operator scores it
+PASS         J6.6     a reloaded chat still recognises an edit to a message its run has passed
+PASS         J6.7     a ledger update is undone by an edit to the message its boundary acted on
+PASS         J6.8     a belief a reveal retired comes back when the reveal's message is edited The player line carries the evidence the scripted read cites: the evidence rule only accepts a quote from the read's window, and the old line relied on the model's reply happening to echo it (L2 2026-09-23: rejected once, story stayed at cp1).
+PASS         J6.9     an edit older than the retained history says so and offers both ways out it names: re-read from here, or restart the story (V11)
+PASS         J6.10    an edit that leaves a consumed reply's text unchanged rewinds nothing and keeps the run (v2.4 plan 02 §2)
+PASS         J6.11    hiding a consumed message is not a mutation: its facts stay live and the next read leaves it out (v2.4 plan 02 §4)
+PASS         J6.12    moving a message is read as a change from the earliest moved row, so the story steps back from there at once (v2.4 plan 02 §2, H6)
+
+J6
+automated: 11 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped
+human:     0 scored, 1 unscored
+cleanup:   clean
+first try: 11 of 11 passing check(s) needed no retry
+
+--- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+[J6.5] (U5) After you edited and deleted messages, was it clear what the story did in response?
+      anchors: 1 = no idea, felt broken · 3 = worked it out from the drawer · 5 = the system said what it did
+[free] What would make you stop using this?
+
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T16-36-03-075Z_journey-J6.json
+Matrix: C:\dev\so-lanes\2\debug\journey-J6.md

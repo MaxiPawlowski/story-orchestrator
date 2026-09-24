@@ -1,0 +1,61 @@
+1/7 eval ok 5ms
+2/7 send ok 1678ms
+3/7 eval ok 239ms
+3/7 eval -> {"originalAvatar":"user-default.png","originalName":"Max","targetAvatar":"1730029080534-Pedropicapiedra.png","targetName":"Pedro picapiedra","storyId":"v24-02-persona-change","readyAfter":null,"restored":false,"removed":false}
+4/7 eval ok 27ms
+4/7 eval -> {"requirements":{"ready":false,"missingPersonas":["Pedro picapiedra"],"missingMembers":[],"missingLorebooks":[]}}
+5/7 eval ok 377ms
+5/7 eval -> {"personaChanged":["1730029080534-Pedropicapiedra.png"],"name1":"Pedro picapiedra","requirements":{"ready":true,"missingPersonas":[],"missingMembers":[],"missingLorebooks":[]},"boundaryBefore":0,"boundaryAfter":0}
+6/7 eval ok 2536ms
+6/7 eval -> {"restored":true,"removed":true}
+7/7 eval ok 4ms
+7/7 eval -> {"ready":true}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T16-58-03-921Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 7,
+  "cleanup": {
+    "removedStoryHashes": [],
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-24@13h57m54s436ms",
+    "owned": [
+      "2026-09-24@13h57m54s436ms"
+    ],
+    "deleted": [
+      "2026-09-24@13h57m54s436ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@13h57m54s436ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

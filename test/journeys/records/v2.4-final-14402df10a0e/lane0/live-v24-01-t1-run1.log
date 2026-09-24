@@ -1,0 +1,85 @@
+1/48 import_story ok 269ms
+2/48 eval ok 7ms
+2/48 eval -> {"cadence":1,"greeting":1}
+3/48 send_generate ok 24816ms
+4/48 wait ok 67500ms
+5/48 record_state ok 7ms
+5/48 record_state -> {"as":"before-middle","boundary":1,"active":"hall","rows":{"memory":4,"epistemic":0,"ledger":10}}
+6/48 eval ok 6ms
+6/48 eval -> {"kept":{"memory":4,"epistemic":0,"ledger":10}}
+7/48 eval ok 4ms
+8/48 send_generate ok 21807ms
+9/48 wait ok 28193ms
+10/48 send_generate ok 22270ms
+11/48 wait ok 56420ms
+12/48 eval ok 6ms
+12/48 eval -> {"memory":8,"epistemic":0,"ledger":11}
+13/48 eval ok 14ms
+13/48 eval -> {"deleted":3,"after":6}
+14/48 wait ok 1540ms
+15/48 wait ok 23196ms
+16/48 eval ok 5ms
+16/48 eval -> {"boundary":1,"lastMessageId":2,"chat":6,"journal":["payload: 4 story blocks injected (generation)","talk: Ponticius speaks (rules)","status: Stepped back to The Hall","extraction: read rollback:3 msgs 0-5 → 1 accepted, 0 rejected","delta: tension_current = 0","delta: queued tension_current=0 for the next boundary"],"calls":[{"call":"rollback","from":3,"journal":null,"chat":6,"last":6},{"event":"deleted","n":6,"chat":6}]}
+17/48 expect ok 8ms
+17/48 expect -> {"as":"before-middle","equal":true,"scope":["active","path"]}
+18/48 eval ok 6ms
+18/48 eval -> {"target":3,"rollbacks":[3],"applied":0,"pending":[{"to":5,"from":0,"reason":"rollback:3","after":true,"deltas":["tension_current=0"]}]}
+19/48 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: ledger: rows built after the target survived the rollback: ["Ponticius activity managing quest postings"] || journal ["read rollback:3 msgs 0-5 → 1 accepted, 0 rejected"]
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:2352)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:2618)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-24T16-36-32-488Z_so-scenario-failure.json
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-24T16-36-36-886Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 19,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ed9ddba5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@13h32m26s058ms",
+    "owned": [
+      "2026-09-24@13h32m26s058ms"
+    ],
+    "deleted": [
+      "2026-09-24@13h32m26s058ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@13h32m26s058ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

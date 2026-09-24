@@ -1,0 +1,84 @@
+1/12 import_story ok 384ms
+2/12 ui ok 188ms
+3/12 eval ok 9ms
+3/12 eval -> {"cadence":0,"capable":true}
+4/12 send ok 2459ms
+5/12 wait ok 1534ms
+6/12 extract ok 505ms
+7/12 eval ok 5ms
+7/12 eval -> {"chid":5,"planted":"t6-probe-note","scope":"warden switched on in the in-memory settings view only; nothing install-wide is written"}
+8/12 emit_generation ok 12ms
+9/12 eval ok 10ms
+9/12 eval -> {"drafted":5,"staged":true}
+10/12 eval ok 5ms
+10/12 eval -> {"nestedQuiet":true,"forceChid":5}
+11/12 emit_generation ok 4ms
+12/12 eval ok 5ms
+12/12 eval -> {"block":"kept","note":"still injected, still accepted"}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T13-00-03-589Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 12,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@09h59m53s924ms",
+    "owned": [
+      "2026-09-24@09h59m53s924ms"
+    ],
+    "deleted": [
+      "2026-09-24@09h59m53s924ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@09h59m53s924ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

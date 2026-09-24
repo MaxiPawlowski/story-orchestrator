@@ -1,0 +1,82 @@
+1/10 eval ok 12ms
+2/10 import_story ok 379ms
+3/10 eval ok 13ms
+3/10 eval -> {"groupId":"1759606632088","enabled":["dm","companion","guild_master","little_brother"]}
+4/10 slash ok 1750ms
+5/10 wait ok 1525ms
+6/10 eval ok 4ms
+6/10 eval -> {"speaker":"little_brother"}
+7/10 slash ok 1652ms
+8/10 wait ok 1537ms
+9/10 emit_generation ok 5ms
+10/10 eval ok 4ms
+10/10 eval -> {"speaker":"little_brother","last":{"name":"Note","is_system":true,"type":"comment"}}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T13-01-09-407Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 10,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-24@10h00m58s005ms",
+    "owned": [
+      "2026-09-24@10h00m58s005ms"
+    ],
+    "deleted": [
+      "2026-09-24@10h00m58s005ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@10h00m58s005ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}
