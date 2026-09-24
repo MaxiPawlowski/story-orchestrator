@@ -95,3 +95,20 @@ has to do. "Δ" marks a correction of the plan's citation.
 | 03-H17 | With `extractData:false` the TC service **skips** its reply clean-up: per-line trailing whitespace, a partial stop string at the end, truncation at the instruct `stop_sequence`/`input_sequence`, removal of `output_sequence`/`last_output_sequence` lines. The seam re-applies that from the profile's instruct preset (`getPresetManager('instruct')`) | `custom-request.js:332-381`, raw return `:384`; instruct lookup `:293-296` | `:339-381`, `:384` ✔ |
 | 03-H18 | TC `llamacpp` is sent to llama-server's **native** `/completion`, not `/v1/completions`, and the reply is passed through unchanged: it carries `stop_type`/`stopped_limit`, not `choices[0].finish_reason` (Δ H6's expectation). `readFinish` reads `choices[0].finish_reason`, Claude `stop_reason`, Gemini `finishReason`, Ollama `done_reason` and llama.cpp `stop_type`/`stopped_limit`/`stopped_eos`/`stopped_word`; anything else is `unknown` | `text-completions.js:315-316`, reply sent as-is `:420` | `:316` ✔. **The llama.cpp field names are upstream shape, not read from source here — confirm live** |
 | 03-H19 | An upstream non-OK answer reaches the client as HTTP 200 `{error:true, status, response}`; `json.error.message` is undefined, so the client throws `Response not OK` and the provider text is lost | `text-completions.js:422-427` → `custom-request.js:129-130` | `:424` ✔ |
+
+## Plan 07 (judge accounting, 2026-09-24)
+
+Not ST facts: the judge's host is TypeSafe, reached only through our server plugin. The "source" column is
+the live documentation (read 2026-09-24 as Markdown: `docs.typesafe.ai/models.md`, `/api.md`) or our
+plugin (`server-plugin/story-orchestrator-judge/index.mjs` on `4151bc8`). A vendor statement is a source,
+not a measurement (rule 1); the rows that need a measurement say so.
+
+| # | Fact | Source | Measured? |
+|---|---|---|---|
+| 07-H1 | `jev-1.13.0` context: **64k tokens per request; 32k for `state` plus the longest question** | `models.md` §Current models, "Context length" row and bullet | **No.** What happens past it (refusal, silent truncation, an answer) is not documented; `so-judge limit-probe --send` measures it (not run in part 1) |
+| 07-H2 | Aliases `jev-latest` and `jev-preview` both point to `jev-1.13.0`; "the response's `model` field reports the versioned ID that answered" | `models.md` §Aliases | Partly: v2.3 plan 10 §B saw `--model jev-latest` answered by `jev-1.13.0` (`10-judge-seeds.md` §B). `jev-preview` is new to our map (the plan named only `jev-latest`) |
+| 07-H3 | `usage` is `{input_tokens, output_tokens}` (integers, required); **no cost field** | `api.md` §Response, `usage` ResponseField + four examples | Yes, by the v2.3 spike (334,328 input tokens metered, `docs/spikes/2026-09-19-typesafe-jev/report.md:8-9`) |
+| 07-H4 | Price: charged per **input** token, `$0.042` per million; output free | `models.md` §Current models, "Price" | Consistent with the spike: 334,328 tokens → $0.01404 = $0.042/Mtok |
+| 07-H5 | A malformed request is `422 Unprocessable Entity` upstream; rate limit `429`, overload `529` | `api.md` §Errors | The plugin refuses first with its own `400` (`index.mjs:135-136`) and retries 429/529 once (`:12-13`, `:116`) |
+| 07-H6 | The plugin's `/status` reports its constant `DEFAULT_MODEL`, not the install's configured model | `index.mjs:132` (`:8`) | Code fact; the page-side mismatch uses the ring's last answered model instead (plan 07 §2) |
+| 07-H7 | The plugin passes the upstream body back verbatim, so `usage` reaches the page | `index.mjs:141` | Code fact; jest covers the page side (`accounting.review.test.ts`) |

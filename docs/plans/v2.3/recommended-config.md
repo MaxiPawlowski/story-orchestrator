@@ -21,6 +21,12 @@ who opts in, not a plan to flip anything.
   adjusted for how a usage *felt* to a person, and no row below should be read as if it were.
 - **Cost is not measured either.** §Cost and latency's `$/1000 boundaries` and GPU-time figures need
   a metered session; they are not claimed. The latency column is a per-call median, not a turn cost.
+  Corrected in v2.4 plan 07: a spike measurement exists (334,328 input tokens for $0.01404,
+  `docs/spikes/2026-09-19-typesafe-jev/report.md:8-9`); what was missing is a runtime one. v2.4 T24 adds
+  it: every call row records its tokens, and a per-chat meter that rollback does not cut
+  (`so-judge.mts cost`) is what a cost report reads.
+- **Every rate here was measured on `jev-1.13.0`** (v2.4 plan 07: `measuredOn` on each readiness
+  row). On any other configured or answering model the panel reads the use as unproven.
 
 ## The table
 
@@ -37,9 +43,9 @@ who opts in, not a plan to flip anything.
 | `memoryPairs` | **0.9063** (29/32) | 750 ms | 3000 ms | — | J11.9, J11.10 | **Recommended.** |
 | `loreSelect` | **0.8974** (70/78) | 509 ms | **1500 ms** | recall 35/39 (floor 0.8), precision 35/39 (floor 0.7) | J11.16–J11.19 | **Recommended with a known weakness.** Both families clear their floors and it fits its reply-path budget at p50, so the *rate* is the strongest it has been. What it does is still rank by a compressed probability (F4; the shipped **Noul** arm's tie rate is **0.08**, boundary 0.00; 1.00 was the rounded Score arm — corrected in v2.4 plan 01), so *which* entries win the top-K slots is weaker than the rate suggests — and plan 10's rebuild was refused on that measurement, not on this number. |
 | `typedExtraction` | **0.8433** (113/134) | 1290 ms | 5000 ms | answered 56/57 (floor 0.95), coverage 57/77 (floor 0) | J11.20, J11.21 | **Recommended, with the drop explained.** Both families pass — the `coverage` family's floor is 0 by design: it records how often the judge answers *at all*, and an answer under the confidence floor is recorded rather than counted wrong. v2.2 printed 0.908 for this use; the difference is the family split, not a regression. Needs authored `read_as` hints to do anything. |
-| `sceneOoc` | — | — | — | — | — | **No evidence, and no consumer.** Not exercised by any journey, not calibrated, and — checked this round — **nothing in the build reads the flag**: its only occurrences are the settings declaration, this readiness table and a Storybook story. Flipping it on does nothing. |
-| `memoryRerank` | — | — | — | — | — | **No evidence and no consumer**, as `sceneOoc` (verified the same way: no call site outside the settings declaration and this table). |
-| `backgrounds` | 0.8636 (19/22) | 565 ms | — | **pick 15/18 FAILS its 0.85 floor**, none 4/4 | — | **Not recommended, and it is worse than that: nothing calls it.** It is a calibration family with no runtime consumer in this build — its only call site is the calibration dispatcher (`runtime/judge.ts`), and `backgrounds` is not a `JudgeUseKey`, so no setting turns it on. It stays in the calibration set as a measurement; there is nothing to recommend or withhold. |
+| `sceneOoc` | — | — | — | — | — | **Removed in v2.4** (plan 07, X22). It had a consumer-less toggle and a v2.2 Phase A that **failed its predeclared floors**: 88% on 24 cases with 3 of 12 false positives, against ≥ 0.9 and ≤ 1 per 12 (`docs/plans/v2.2/03-scene-read.md:95,106-108`). A stored `true` is dropped on read; nothing read it, so no install changes behaviour. A later OOC use comes back under a new key only past a new Phase A (the addressee list v2.2 asked for, ≥ 40 rows, the v2.2 floors). |
+| `memoryRerank` | — | — | — | — | — | **Removed in v2.4** (plan 07, X22). Its v2.2 Phase A measured **+9 points recall@budget against a floor of ≥ +10** (`docs/plans/v2.2/04-lore-relevance.md:181-192`, `scripts/spike/typesafe/experiments/memoryRerank.mts`, kept as history). A later rerank use needs ≥ +10 points over ≥ 30 windows under a new key. |
+| `backgrounds` | 0.8636 (19/22) | 565 ms | — | **pick 15/18 FAILS its 0.85 floor**, none 4/4 | — | **Not recommended, and it is worse than that: nothing calls it.** It is a calibration family with no runtime consumer in this build — its only call site is the calibration dispatcher (`runtime/judge.ts`), and `backgrounds` is not a `JudgeUseKey`, so no setting turns it on. It stays in the calibration set as a measurement; there is nothing to recommend or withhold. **Measured on `jev-1.13.0`** (v2.4 plan 07, X22): kept out of the recommended set, and not re-calibrated unless the shipping model changes — which the readiness mismatch verdict now surfaces. |
 
 ## Combination advice
 
@@ -49,9 +55,10 @@ who opts in, not a plan to flip anything.
   into a turn before either falls back.
 - Everything else is off-path; every calibration row below the confidence floor was recorded as such
   rather than as a disagreement, so turning several on costs boundary work, not turn time.
-- `sceneOoc` and `memoryRerank` have neither evidence nor a consumer. Two toggles an author can flip
-  that nothing reads is worse than an unproven use, because the panel currently presents them beside
-  the measured ones; wiring them or removing the toggles is a v2.4 seed.
+- `sceneOoc` and `memoryRerank` had neither a consumer nor a passing measurement. v2.3 V19 had
+  already hidden their toggles (the panel listed them only as "not built" when a stored `true`
+  survived); v2.4 plan 07 removed both keys. Corrected in v2.4 plan 07: "presents them beside the
+  measured ones" overstated the v2.3 panel, and "never calibrated" was wrong — both failed a v2.2 floor.
 - **No row here is human-reviewed.** If the sessions are ever run, a usage with a poor human row
   drops out of this table whatever its calibration says — that is the rule this page was written to
   honour, and it is the one column it cannot fill.
