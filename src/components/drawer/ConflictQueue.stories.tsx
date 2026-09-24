@@ -178,6 +178,18 @@ export const ADecisionThatWasNotWrittenSaysSo: Story = {
   },
 };
 
+// v2.4 plan 02 (seed D): the put-back is per row and compare-and-set, so a row another writer changed
+// during the save is left as it is — and the refusal names it rather than implying a clean undo.
+export const ARefusalNamesRowsChangedElsewhere: Story = {
+  args: { manager: fakeManager({ lockAsCanon: fn(async () => false), lastRefusal: () => ({ putBack: ["fact:m1:mara|condition"], externallyChanged: ["m1"], lapsed: null }) }) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByText(/Lock as canon/));
+    await expect(await canvas.findByText(/changed elsewhere while it was saving and were left as they are: m1/)).toBeInTheDocument();
+    await expect(canvasElement.querySelector('[data-so="decision-refused"]')?.getAttribute("data-so-outcome")).toBe("externally-changed");
+  },
+};
+
 // V8: Discard is a decision too. It used to call the stores directly, so a discard whose save was
 // lost vanished from the panel and came back on reload with nothing said.
 export const ADiscardThatWasNotWrittenSaysSo: Story = {

@@ -4,6 +4,7 @@ import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { assertInSandbox, beginSandboxSession, deleteSandboxChats, openMostRecentGroupChat } from './st-navigation.mts';
 import { deleteMessage, editMessage, sendCompactMessage, swipeMessage } from './st-actions.mts';
+import { settleReapPrompts } from './lib/identityVerbs.mts';
 
 const USAGE = `Usage: node scripts/debug/so-mutation-check.mts [--keep]
 
@@ -86,6 +87,7 @@ export async function runMutationCheck(page, { keep = false } = {}) {
     if (!keep) {
       try { result.cleanup = await deleteSandboxChats(page, guard); }
       catch (err) { result.cleanup = { ok: false, error: err instanceof Error ? err.message : String(err) }; }
+      result.reapPrompts = await settleReapPrompts(page, [...guard.owned]).catch((error) => ({ error: error.message }));
     }
   }
   return result;

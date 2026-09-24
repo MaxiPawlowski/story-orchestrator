@@ -831,3 +831,39 @@ export const RefusedRouteWithARoadToGenerate: Story = {
     await expect(stubManager.runExpansionNow).toHaveBeenCalledTimes(1);
   },
 };
+
+const floorSnapshot = (authorView: boolean): RuntimeSnapshot => {
+  const snapshot = sampleSnapshot() as unknown as { ui: Record<string, unknown>; rollbackUnavailable: unknown };
+  snapshot.ui = { authorView, announceTransitions: true, hudEnabled: true };
+  snapshot.rollbackUnavailable = { messageId: 2, checkpointName: "The Ruined Gate", oldest: { boundary: 4, messageId: 7 }, at: "2026-09-24T10:00:00.000Z" };
+  return derive(snapshot as unknown as RuntimeSnapshot);
+};
+const branchFromOldest = fn();
+
+export const AuthorBranchesFromTheOldestRestorablePoint: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={floorSnapshot(true)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} onBranchFromOldest={branchFromOldest} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/Oldest restorable point: boundary 4, message 7/)).toBeInTheDocument();
+    await userEvent.click(canvas.getByRole("button", { name: "Branch from the oldest restorable point" }));
+    await expect(branchFromOldest).toHaveBeenCalledWith(7);
+  },
+};
+
+export const PlayerNeverSeesTheHistoryFloor: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={floorSnapshot(false)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} onBranchFromOldest={branchFromOldest} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/further than this chat can rewind/)).toBeInTheDocument();
+    await expect(canvas.queryByRole("button", { name: "Branch from the oldest restorable point" })).toBeNull();
+    await expect(canvasElement.querySelector("#so-history-floor")).toBeNull();
+  },
+};

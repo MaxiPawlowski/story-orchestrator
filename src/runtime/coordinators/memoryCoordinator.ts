@@ -18,7 +18,7 @@ import {
   clearContradicted,
 } from "@memory/index";
 import {
-  bindChatLorebook, disableWIEntry, ensureLorebook, getContext, loadLorebook, upsertWIEntry,
+  bindChatLorebook, currentChatOwner, disableWIEntry, ensureLorebook, getContext, loadLorebook, upsertWIEntry,
 } from "@services/STAPI";
 import type { SceneReadRecord } from "@judge/index";
 import type { Provenance } from "@memory/provenance";
@@ -29,7 +29,7 @@ import { MemoryInjector } from "../memoryInjector";
 import { buildMatchSets, judgePairRelations } from "../consolidationMatches";
 import {
   boundProvenance, boundValuesFor, detectMemoryConflicts, discardMemoryRow, dismissMemoryConflict, getConflicts,
-  reconfirmMemoryEntry, rereadConflictWindow, resolveMemoryConflict, storeDroppedEntry, type MemoryQueueDeps,
+  reconfirmMemoryEntry, rereadConflictWindow, resolveMemoryConflict, storeDroppedEntry, type DecisionRefusal, type MemoryQueueDeps,
 } from "../memoryQueue";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunOwnership } from "../runToken";
@@ -82,6 +82,7 @@ export class MemoryCoordinator {
   });
   private consolidationInFlight = false;
   private canonInFlight = false;
+  private decisionRefusal: DecisionRefusal | null = null;
 
   constructor(private readonly deps: MemoryCoordinatorDeps) {}
 
@@ -303,8 +304,12 @@ export class MemoryCoordinator {
       ...(this.deps.rereadWindow ? { reread: (window: { from: number; to: number }, reason: string) => this.deps.rereadWindow!(window, reason) } : {}),
       unsaved: () => this.deps.unsaved?.() ?? false,
       save: () => this.save(),
+      run: () => beginRun(this.deps.ownership),
+      refused: (refusal) => { this.decisionRefusal = refusal; },
     };
   }
+
+  lastDecisionRefusal(): DecisionRefusal | null { return this.decisionRefusal; }
 
   detectMemoryConflicts(): ConflictPair[] { return detectMemoryConflicts(this.queueDeps()); }
   getConflicts(): ConflictPair[] { return getConflicts(this.queueDeps()); }
@@ -546,7 +551,7 @@ export class MemoryCoordinator {
   async syncWorldInfo(): Promise<MemoryMirrorSummary> {
     const story = this.deps.getStory();
     if (!story || !this.enabled) return emptyMirrorSummary();
-    const host = { getChatId: () => getContext().chatId ?? null, ensureLorebook, loadLorebook, upsertWIEntry, disableWIEntry, bindChatLorebook, ownership: this.deps.ownership };
+    const host = { getChatId: () => getContext().chatId ?? null, ensureLorebook, loadLorebook, upsertWIEntry, disableWIEntry, bindChatLorebook, owner: currentChatOwner, ownership: this.deps.ownership };
     const result = await syncMemoryMirror({ title: story.title, entries: this.state.entries, writes: this.state.wiWrites, book: this.state.wiBook }, host);
     if (!result) return emptyMirrorSummary();
     if (result.changed) {

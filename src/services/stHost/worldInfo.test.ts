@@ -9,8 +9,10 @@ const st = {
   worldNames: [] as string[],
   cache: new Map<string, Book>(),
   selected: [] as string[],
+  mirror: [] as string[],
   chatMetadata: {} as Record<string, unknown>,
   chatId: "chat-1" as string | null,
+  saves: 0,
 };
 const fileId = (name: string) => name.replace(/[/?<>\\:*|"]/g, "");
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
@@ -31,6 +33,16 @@ const createNewWorldInfo = jest.fn(async (name: string) => {
   if (st.worldNames.some((known) => known.toLowerCase() === fileId(name).toLowerCase())) return false;
   await saveWorldInfo(name, { entries: {} });
   await updateWorldInfoList();
+  return true;
+});
+// world-info.js:4346-4393: false for an unlisted name or a refused request; on success the book leaves
+// the disk, the cache and `world_names`.
+const hostDelete = { refuse: false, keepListed: false };
+const deleteWorldInfo = jest.fn(async (name: string) => {
+  if (!st.worldNames.includes(name) || hostDelete.refuse) return false;
+  st.disk.delete(fileId(name));
+  st.cache.delete(name);
+  if (!hostDelete.keepListed) await updateWorldInfoList();
   return true;
 });
 const executeSlashCommands = jest.fn(async (command: string) => {
@@ -56,6 +68,7 @@ jest.mock("./context", () => ({
     getWorldInfoNames: () => st.worldNames,
     chatMetadata: st.chatMetadata,
     chatId: st.chatId,
+    saveMetadata: async () => { st.saves += 1; },
   }),
 }));
 
@@ -63,9 +76,10 @@ jest.mock("./modules", () => ({
   worldInfoModule: {
     METADATA_KEY: "world_info",
     get selected_world_info() { return st.selected; },
-    getWorldInfoSettings: () => ({}),
+    getWorldInfoSettings: () => ({ world_info: { globalSelect: st.mirror } }),
     updateWorldInfoList: () => updateWorldInfoList(),
     createNewWorldInfo: (name: string) => createNewWorldInfo(name),
+    deleteWorldInfo: (name: string) => deleteWorldInfo(name),
     saveWorldInfo: (name: string, data: Book) => saveWorldInfo(name, data),
     createWorldInfoEntry: (_name: string, data: Book) => {
       const uid = Object.keys(data.entries).length;
@@ -80,7 +94,7 @@ jest.mock("./slashCommands", () => ({
   executeSlashCommands: (command: string) => executeSlashCommands(command),
 }));
 
-import { bindChatLorebook, createLorebook, disableWIEntry, ensureLorebook, loadLorebook, lorebookExists, upsertWIEntry } from "./worldInfo";
+import { bindChatLorebook, createLorebook, deleteLorebook, disableWIEntry, ensureLorebook, listSelectedLorebooks, loadLorebook, lorebookExists, unbindChatLorebook, upsertWIEntry } from "./worldInfo";
 
 const putOnDisk = (name: string, entries: Entry[] = []) => st.disk.set(name, { entries: Object.fromEntries(entries.map((entry) => [entry.uid, entry])) });
 const entry = (uid: number, comment: string, content = "text"): Entry => ({ uid, comment, content, key: [], disable: false });
@@ -90,9 +104,21 @@ beforeEach(() => {
   st.cache.clear();
   st.worldNames = [];
   st.selected.length = 0;
+  st.mirror = [];
   for (const key of Object.keys(st.chatMetadata)) delete st.chatMetadata[key];
   st.chatId = "chat-1";
   jest.spyOn(console, "warn").mockImplementation(() => undefined);
+});
+
+// v2.4 plan 02 §8: requirements re-read on WORLDINFO_SETTINGS_UPDATED must see the selection that event
+// announces. `world_info.globalSelect` is assigned inside a debounced save (world-info.js:83-85), so
+// right after a toggle it still names the previous selection.
+describe("lorebook selection", () => {
+  it("reads the live selected_world_info, not the debounced globalSelect mirror", () => {
+    st.selected.push("Fresh Lore");
+    st.mirror = ["Stale Lore"];
+    expect(listSelectedLorebooks()).toEqual(["Fresh Lore"]);
+  });
 });
 
 describe("lorebook existence", () => {
@@ -279,5 +305,75 @@ describe("bindChatLorebook", () => {
     st.chatId = null;
     expect(bindChatLorebook("Mirror")).toBe("no-chat");
     expect(st.chatMetadata.world_info).toBeUndefined();
+  });
+});
+
+describe("deleteLorebook (v2.4 T14)", () => {
+  beforeEach(() => {
+    deleteWorldInfo.mockClear();
+    hostDelete.refuse = false;
+    hostDelete.keepListed = false;
+  });
+
+  it("deletes a listed book and reports it gone from the list and the cache", async () => {
+    putOnDisk("Mirror");
+    st.worldNames = ["Mirror"];
+    await loadLorebook("Mirror");
+    expect(await deleteLorebook("Mirror")).toEqual({ ok: true, name: "Mirror" });
+    expect(st.worldNames).toEqual([]);
+    expect(st.cache.has("Mirror")).toBe(false);
+  });
+
+  it("refuses a name that is not listed exactly, without asking the host", async () => {
+    putOnDisk("Mirror");
+    st.worldNames = ["Mirror"];
+    expect((await deleteLorebook("mirror")).ok).toBe(false);
+    expect((await deleteLorebook("Missing")).ok).toBe(false);
+    expect(deleteWorldInfo).not.toHaveBeenCalled();
+    expect(st.disk.has("Mirror")).toBe(true);
+  });
+
+  it("reports a refused delete and still evicts what the cache held", async () => {
+    putOnDisk("Mirror");
+    st.worldNames = ["Mirror"];
+    await loadLorebook("Mirror");
+    hostDelete.refuse = true;
+    expect(await deleteLorebook("Mirror")).toEqual({ ok: false, reason: "\"Mirror\" could not be deleted" });
+    expect(st.cache.has("Mirror")).toBe(false);
+    expect(st.worldNames).toEqual(["Mirror"]);
+  });
+
+  it("does not trust a true answer while the book is still listed", async () => {
+    putOnDisk("Mirror");
+    st.worldNames = ["Mirror"];
+    hostDelete.keepListed = true;
+    expect((await deleteLorebook("Mirror")).ok).toBe(false);
+  });
+});
+
+describe("unbindChatLorebook (v2.4 plan 02 §5)", () => {
+  beforeEach(() => { st.saves = 0; });
+
+  it("clears a slot that names exactly the book, and saves", async () => {
+    st.chatMetadata.world_info = "Story Orchestrator - Tale - parent";
+    await expect(unbindChatLorebook("Story Orchestrator - Tale - parent")).resolves.toEqual({ ok: true, name: "Story Orchestrator - Tale - parent" });
+    expect("world_info" in st.chatMetadata).toBe(false);
+    expect(st.saves).toBe(1);
+  });
+
+  it("refuses, with a reason, a slot that names another book or differs only in case", async () => {
+    st.chatMetadata.world_info = "User Chat Book";
+    await expect(unbindChatLorebook("Mirror")).resolves.toMatchObject({ ok: false });
+    st.chatMetadata.world_info = "mirror";
+    await expect(unbindChatLorebook("Mirror")).resolves.toMatchObject({ ok: false });
+    expect(st.chatMetadata.world_info).toBe("mirror");
+    expect(st.saves).toBe(0);
+  });
+
+  it("refuses without an open chat", async () => {
+    st.chatId = null;
+    st.chatMetadata.world_info = "Mirror";
+    await expect(unbindChatLorebook("Mirror")).resolves.toMatchObject({ ok: false });
+    expect(st.chatMetadata.world_info).toBe("Mirror");
   });
 });

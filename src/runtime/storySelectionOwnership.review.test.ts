@@ -6,7 +6,8 @@ jest.mock("@services/STAPI", () => ({
   showConfirmPopup: () => popup.answer!(),
 }));
 jest.mock("./persistence", () => ({
-  adoptChatState: jest.fn(),
+  adoptChatState: jest.fn(() => true),
+  unreadableStored: () => null,
   blobMismatch: () => null,
   dropPersistedRuntime: jest.fn(),
   getSelectedStoryId: () => "s1",

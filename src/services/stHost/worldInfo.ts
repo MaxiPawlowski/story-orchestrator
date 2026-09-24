@@ -169,6 +169,23 @@ export async function createLorebook(name: string): Promise<WriteResult<{ name: 
   return activated.ok ? wrote({ name: ensured.name, created: ensured.created }) : couldNot(activated.reason);
 }
 
+// v2.4 plan 02 T14. Exact listed name only: `deleteWorldInfo` (world-info.js:4346) answers false for an
+// unlisted name and refreshes `world_names` itself on success, so the list is the evidence. The cache
+// is evicted here too, because a failed delete leaves whatever `loadWorldInfo` fetched.
+export async function deleteLorebook(name: string): Promise<WriteResult<{ name: string }>> {
+  if (!name || !listAllLorebooks().includes(name)) return couldNot(`there is no lorebook "${name}"`);
+  let deleted: boolean;
+  try {
+    deleted = await worldInfoModule.deleteWorldInfo(name);
+  } catch (error) {
+    deleted = false;
+    console.warn("[Story WI] lorebook delete failed", { name, error });
+  }
+  worldInfoModule.worldInfoCache.delete(name);
+  if (!deleted) return couldNot(`"${name}" could not be deleted`);
+  return listAllLorebooks().includes(name) ? couldNot(`"${name}" is still listed after the delete`) : wrote({ name });
+}
+
 export type ChatLorebookBinding = "bound" | "already-bound" | "occupied" | "no-chat";
 
 // The chat's own lorebook slot, scanned for this chat only (world-info.js:4544). A binding to a book
@@ -187,6 +204,21 @@ export function bindChatLorebook(name: string, replaceable: string[] = []): Chat
   context.chatMetadata[key] = name;
   globalThis.document?.querySelectorAll(".chat_lorebook_button").forEach((button) => button.classList.add("world_set"));
   return "bound";
+}
+
+// v2.4 plan 02 §5: a branch carries its parent's chat lorebook slot (H1), so an unadopted branch would
+// fire the parent's story memory. ST's own unbind (world-info.js:5980-5983) deletes the key, clears the
+// button state and saves; this does the same, and only when the slot names exactly `name`.
+export async function unbindChatLorebook(name: string): Promise<WriteResult<{ name: string }>> {
+  const context = getContext();
+  if (!context.chatId) return couldNot("no chat is open");
+  const key = worldInfoModule.METADATA_KEY;
+  const slot = context.chatMetadata[key];
+  if (typeof slot !== "string" || slot !== name) return couldNot(`the chat lorebook slot does not name "${name}"`);
+  delete context.chatMetadata[key];
+  globalThis.document?.querySelectorAll(".chat_lorebook_button").forEach((button) => button.classList.remove("world_set"));
+  await context.saveMetadata?.();
+  return wrote({ name });
 }
 
 export async function activateGlobalLorebook(name: string): Promise<WriteResult<{ name: string }>> {

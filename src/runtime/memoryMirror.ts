@@ -1,9 +1,10 @@
 import { hashMemoryText } from "@memory/stores";
 import { isLive } from "@memory/provenance";
 import type { MemoryEntry } from "@memory/types";
-import type { ChatLorebookBinding, Lorebook, WIUpsertResult } from "@services/STAPI";
+import type { ChatLorebookBinding, ChatOwner, Lorebook, WIUpsertResult } from "@services/STAPI";
 import type { WriteResult } from "@utils/writeResult";
 import type { MemoryMirrorBook } from "./types";
+import { MIRROR_BOOK_PREFIX, OWNER_COMMENT, ownerMarkerContent } from "./mirrorReaper";
 import { beginRun, type RunOwnership } from "./runToken";
 
 export interface MemoryMirrorHost {
@@ -16,6 +17,9 @@ export interface MemoryMirrorHost {
   // v2.3 plan 03. Optional: without it the chat-id comparison below still runs, so behaviour is
   // unchanged for a caller that supplies none.
   ownership?: RunOwnership;
+  // v2.4 plan 02 T14: who the adopted book is for, written into it as the `so-owner` marker the reaper
+  // requires. Optional like `ownership`: without it no marker is written, and such a book is never reaped.
+  owner?: () => ChatOwner | null;
 }
 
 export interface MemoryMirrorSummary {
@@ -48,10 +52,13 @@ export const mirrorComment = (entry: MemoryEntry) => `${COMMENT_PREFIX}${entry.i
 // One book per chat, bound to that chat's own lorebook slot: its entries are this chat's memory and
 // nothing else, so another chat of the same story cannot fire them. The name is fixed when the chat
 // adopts the book and then travels with the memory state, so renaming the chat keeps the book.
-export const mirrorLorebookName = (title: string, chatId: string) => `Story Orchestrator - ${title} - ${chatId}`;
+export const mirrorLorebookName = (title: string, chatId: string) => `${MIRROR_BOOK_PREFIX}${title} - ${chatId}`;
 
+// v2.4 plan 02 T14 (X18): scene rows are no longer mirrored. They were keyless, so inert in the book, and
+// scene history already reaches the prompt through `memorySceneHistory`; the stale sweep below switches
+// off the ones earlier syncs wrote.
 export const mirroredEntries = (entries: MemoryEntry[]) => entries.filter((entry) =>
-  !entry.supersededBy && !entry.foldedInto && isLive(entry) && (entry.type === "relationship" || (entry.tier === "scene_history" && entry.type === "scene")));
+  !entry.supersededBy && !entry.foldedInto && isLive(entry) && entry.type === "relationship");
 
 export const emptyMirrorSummary = (): MemoryMirrorSummary => ({ created: 0, updated: 0, unchanged: 0, disabled: 0, lorebook: null, binding: null });
 
@@ -120,6 +127,16 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
     else summary.unchanged += 1;
   }
 
+  // v2.4 plan 02 T14: the adopted book's `so-owner` marker. Keyless, so inert (world-info.js:4892-4907,
+  // 02-H14), and switched off after the write because `upsertWIEntry` re-enables what it writes; the
+  // hyphen keeps it out of the `so_` stale sweep. A marker that could not be written leaves the book
+  // unreapable, never wrongly reapable.
+  if (lapsed()) return null;
+  const owner = adopting ? host.owner?.() : null;
+  if (owner?.chatId === chatId && await host.upsertWIEntry(ensured.name, OWNER_COMMENT, ownerMarkerContent(owner, new Date().toISOString())) !== "failed") {
+    if (lapsed()) return null;
+    await host.disableWIEntry(ensured.name, OWNER_COMMENT);
+  }
   // V3: checked before EACH host write above, not once after them — a story swap mid-sync used to
   // let the departing story's rows land in the chat's shared book, and its stale sweep disable the
   // new story's entries. Both halves: the chat comparison, plus story, version and epoch via the token.

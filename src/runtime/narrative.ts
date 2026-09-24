@@ -40,6 +40,11 @@ export interface RollbackUnavailable {
 export const rollbackUnavailableText = (notice: RollbackUnavailable): string =>
   `That edit reaches back further than this chat can rewind, so the story has not moved: you are still at ${notice.checkpointName}. What was learned from the changed messages has been dropped. Re-read from ${notice.checkpointName} to rebuild it, or restart the story to play the new text from the beginning.`;
 
+// v2.4 plan 02 §5 (D3): a branch holds the story state it was cut from, and nothing adopts it on its own.
+// Checkpoint names only, one sentence, one way forward.
+export const branchNoticeText = (checkpointName: string | null): string =>
+  `This chat branched from a story in progress${checkpointName ? `, last at ${checkpointName}` : ""}. Continue from here to pick the story up where this branch ends.`;
+
 export interface NarrativeInput {
   storyTitle: string | null;
   checkpointName: string | null;

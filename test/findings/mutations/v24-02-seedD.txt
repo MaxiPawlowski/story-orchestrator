@@ -1,0 +1,23 @@
+v2.4 plan 02 §9 seed D, commitDecision id-keyed compare-and-set restore, mutations 2026-09-24 (worktree build on 9cb054a; script .debug/mutate_p02.py seedD, each mutant applied alone to src/runtime/memoryQueue.ts, the file restored byte-for-byte after its run)
+Suites run for every mutant: memoryQueue, judgeMemory, quarantineExclusion.review, ownership.guard (57 tests; baseline 57/57 green, restored 57/57 green).
+
+- S1 (plan mutation 12) whole-array restore: put the pre-save snapshot back instead of comparing each touched row against the CURRENT one (`const current = written`): KILLED, 2 of 57 failed, the plan's two memoryQueue rows
+    "D1: a row another writer added during the save survives the put-back"
+    "D2: a row another writer changed during the save is left as that writer left it, and reported externally-changed"
+- S2 drop the compare: every touched id goes back unconditionally: KILLED, 1 of 57 failed
+    "D2: ... left as that writer left it, and reported externally-changed"
+- S3 drop the externally-changed report: KILLED, 1 of 57 failed
+    "D2: ... left as that writer left it, and reported externally-changed"
+- S4 drop the run-token check before the put-back: KILLED, 1 of 57 failed
+    "D3: a decision whose chat was left during the save puts nothing into the chat now open"
+- S5 a row the decision REMOVED is not re-added on put-back: KILLED, 6 of 57 failed -- the pre-existing put-back cases, which are the ones that remove a row (conflict pair, verify drop, discarded fact/private/ledger row) and D1 (whose resolution removes the conflict pair)
+    "the reconciliation queue puts the decision back when the save fails, and says so"
+    "a decision the chat never stored ... puts a resolution back, and answers false, when the save resolved but did not land"
+    "a decision the chat never stored ... puts a dismissal back, so both sides stay out of play and the pair is still asked about"
+    "a decision the chat never stored ... puts Store anyway back, so a dropped row is not written as a claim the chat will forget"
+    "V8: Discard is written or it is put back puts a discarded fact, private row or ledger row back when the save did not land"
+    "D1: a row another writer added during the save survives the put-back"
+
+5/5 killed. S1 fails two cases by design: a whole-array restore both drops the added row and clobbers the changed one, and D1/D2 are the plan's two rows for it. S2 and S3 share D2 because "left alone" and "reported" are one outcome of one compare; D2 asserts both.
+The first S5 mutant was malformed (`[].filter(...) && x` evaluates to x, so nothing changed) and SURVIVED; rewritten as `([] as unknown[]) || x`, it is killed as above. Recorded because a surviving mutant is only evidence once the mutant is known to mutate.
+Census: src/runtime/memoryQueue.ts#commitDecision moved partial -> checked; ownership.guard "a row claiming a token check has one" passes (the body now calls run.stillOwns()).

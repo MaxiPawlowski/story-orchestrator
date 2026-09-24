@@ -1,15 +1,17 @@
 import { parseStoryV2, isValidationErrorList, type NormalizedStoryV2 } from "@engine/index";
-import { getContext } from "@services/STAPI";
+import { getContext, observeNextSettingsSave, readServerExtensionSettings } from "@services/STAPI";
 import { hashStory } from "./hash";
+import { createLibrarySaveEvidence } from "./librarySave";
 import type { LoadedStory, StoryLibraryRecord, RuntimeSnapshot } from "./types";
 
 const SETTINGS_KEY = "v2Stories";
+const ROOT_KEY = "story-orchestrator";
 
 const getRoot = () => {
   const context = getContext();
   const settings = context.extensionSettings;
-  settings["story-orchestrator"] = settings["story-orchestrator"] ?? {};
-  return settings["story-orchestrator"] as Record<string, unknown>;
+  settings[ROOT_KEY] = settings[ROOT_KEY] ?? {};
+  return settings[ROOT_KEY] as Record<string, unknown>;
 };
 
 const isStoryRecord = (value: unknown): value is StoryLibraryRecord => {
@@ -110,6 +112,15 @@ export function saveStoryRecord(raw: unknown): LoadedStory | RuntimeSnapshot["va
   getContext().saveSettingsDebounced();
   return { record, story: { ...parsed, id, version } };
 }
+
+/** v2.4 plan 02 §7: arm right after `saveStoryRecord`; answers whether the server holds what it wrote. */
+export const confirmLibrarySave = createLibrarySaveEvidence({
+  observe: () => observeNextSettingsSave(),
+  readBack: async () => {
+    const root = await readServerExtensionSettings(ROOT_KEY);
+    return root === null ? null : Array.isArray(root[SETTINGS_KEY]) ? (root[SETTINGS_KEY] as unknown[]) : [];
+  },
+});
 
 export function removeStoryRecord(idOrHash: string): boolean {
   const records = listStoryRecords();

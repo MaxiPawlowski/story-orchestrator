@@ -12,13 +12,18 @@ import { isArcTemplateName } from "@pacing/index";
 import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
 import { startRuntime } from "@runtime/index";
 import { STORY_STATE_RETENTION } from "@runtime/persistence";
+import { branchFromOldest, continueFromBranch } from "@runtime/chatIdentity";
 import { exportState } from "@runtime/stateExport";
+import { journalLibrarySave } from "@runtime/librarySave";
+import { beginRun } from "@runtime/runToken";
 import type { RuntimeSnapshot, StoryLibraryRecord } from "@runtime/types";
 import StudioModal, { STUDIO_TAB_IDS, type StudioOpenIntent } from "./studio/StudioModal";
+import type { LibrarySaveHandler } from "./studio/components/StudioToolbar";
 import type { WizardHost } from "./studio/components/StudioCopilot";
 import { type DriverController } from "@components/drawer/DriverPanel";
 import DrawerTabs from "./components/drawer/DrawerTabs";
 import HudStrip from "./components/drawer/HudStrip";
+import BranchNotice from "./components/drawer/BranchNotice";
 import HelpTooltip from "./components/studio/HelpTooltip";
 import { useDraftStore, type StoryDraft } from "./studio/draft";
 import "./styles.css";
@@ -98,6 +103,8 @@ const applySavedStory = async (record: StoryLibraryRecord): Promise<string | nul
   return outcome.reason ? `this chat kept its version — ${outcome.reason}` : null;
 };
 
+const journalSavedStory: LibrarySaveHandler = (record, evidence) => void journalLibrarySave(record, evidence, beginRun(manager.getOwnership()), (summary, note) => manager.noteRecap(summary, note));
+
 const StudioHost = () => {
   const open = useSyncExternalStore(
     (listener) => { studioListeners.add(listener); return () => { studioListeners.delete(listener); }; },
@@ -111,6 +118,7 @@ const StudioHost = () => {
       copilotEnabled={snapshot.copilot.enabled}
       runCopilotStage={(input) => manager.runCopilotStage(input)}
       onSaved={applySavedStory}
+      onLibrarySave={journalSavedStory}
       wizardHost={wizardHost}
       intent={studioIntent}
     />
@@ -300,7 +308,7 @@ const SettingsPanel = () => {
                 <option value="">Select a story</option>
                 {snapshot.library.map((story) => <option key={story.id} value={story.id}>{story.title}</option>)}
               </select>
-              <button id="so-restart-story" className="menu_button fa-solid fa-rotate-left" title="Restart this story in this chat (clears progress and memory for it)" disabled={busy || !snapshot.storyId} onClick={() => void restartStory()} />
+              <button id="so-restart-story" className="menu_button fa-solid fa-rotate-left" title="Restart this story in this chat (clears progress and memory for it)" disabled={busy || (!snapshot.storyId && !snapshot.blobUnreadable)} onClick={() => void restartStory()} />
               <button id="so-delete-story" className="menu_button fa-solid fa-trash-can" title="Delete the selected story from the library" disabled={busy || !snapshot.storyId} onClick={() => void deleteStory()} />
             </div>
             {snapshot.storyId && (
@@ -309,6 +317,7 @@ const SettingsPanel = () => {
                 {identity.drifted && identity.libraryVersion ? ` The library has a newer version (v${identity.libraryVersion}); this chat keeps playing what it started with.` : ""}
               </div>
             )}
+            {snapshot.blobUnreadable && <div id="so-blob-unreadable" className="text-xs opacity-90">This chat's saved story state was {snapshot.blobUnreadable.notice}.</div>}
             <div id="so-retention-note" className="text-xs opacity-70 flex items-center gap-2">
               <span>This chat keeps its progress for the {STORY_STATE_RETENTION} most recent stories; switching to a sixth drops the oldest.</span>
               <button id="so-export-state" className="menu_button" title="Copy this chat's saved story state to the clipboard, before anything can drop it." onClick={() => void copyState()}>Export state</button>
@@ -487,8 +496,16 @@ const toggleAuthorView = async (next: boolean) => {
   manager.setUiSettings({ authorView: next });
 };
 
+// v2.4 plan 02 §5: the player's Continue from here, and the author's branch cut at the history floor.
+const continueBranch = () => continueFromBranch({ selectStory: (storyId) => manager.selectStory(storyId), note: (summary, detail) => manager.chatSave.note(summary, detail) });
+const branchAtFloor = async (messageId: number) => {
+  const result = await branchFromOldest(messageId);
+  if (!result.ok) window.toastr?.info?.(result.reason, "Story Orchestrator");
+};
+
 const DrawerPanel = () => {
   const snapshot = useRuntimeSnapshot();
+  const branch = snapshot.chatIdentity?.kind === "branch" ? snapshot.chatIdentity : null;
   return (
     <div className="p-2 text-sm flex flex-col gap-3 text-left">
       <div className="flex items-start justify-between gap-2">
@@ -503,6 +520,7 @@ const DrawerPanel = () => {
           </label>
         )}
       </div>
+      {!snapshot.ready && branch && <BranchNotice identity={branch} onContinue={continueBranch} />}
       {snapshot.ready && (
         <DrawerTabs
           snapshot={snapshot}
@@ -513,6 +531,7 @@ const DrawerPanel = () => {
           onFixWithWizard={() => void openWizardForRequirements()}
           onOpenRepair={openRepairStep}
           onNewStory={() => void openWizard()}
+          onBranchFromOldest={(messageId) => void branchAtFloor(messageId)}
         />
       )}
     </div>

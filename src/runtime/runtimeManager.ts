@@ -1,4 +1,4 @@
-import { appendJudgeCall, dropJudgeCallsAfter, type JudgeCallRecord, type SceneReadRecord } from "@judge/index";
+import { appendJudgeCall, type JudgeCallRecord, type SceneReadRecord } from "@judge/index";
 import type { JudgeRuntime } from "./judge";
 import {
   StoryEngine, type RollbackOutcome, type ApplyQueueEntry, type BoundaryContext, type BoundaryResult, type EngineState,
@@ -48,6 +48,7 @@ import { applyStoryUpdate, type StoryUpdateDeps, type StoryUpdateOutcome } from 
 import { parseQualityValue } from "./values";
 import { SessionJournal, type JournalEvent } from "./journal";
 import { evaluateRequirements } from "./requirements";
+import type { RequirementsHost } from "./requirementsWatch";
 import { loadPersistedRuntime, setSelectedStoryId } from "./persistence";
 import {
   importStoryJson, loadSelectedStory, releaseGatedWorldInfo, removeStory, restartStory, selectStory,
@@ -76,7 +77,7 @@ export class RuntimeManager {
   /** v2.3 plan 03: dropped queued work belongs to the world that just ended. See RunOwner. */
   onEpochChanged(listener: () => void) { return this.owner.onChanged(listener); }
   invalidateRuns() { this.awayRecap.dismissUnless(String(getContext().chatId ?? "")); this.owner.bump(); }
-  private noteRecap(summary: string, detail: string) { this.journal.record("story", summary, this.journalContext(), detail); this.extras.journal = this.journal.getRecords(); }
+  noteRecap(summary: string, detail: string) { this.journal.record("story", summary, this.journalContext(), detail); this.extras.journal = this.journal.getRecords(); }
   private readonly effects: EffectsApplier;
   private readonly listeners = new Set<() => void>();
   private readonly boundaryListeners = new Set<(result: BoundaryResult) => void>();
@@ -86,13 +87,14 @@ export class RuntimeManager {
   private readonly awayRecap = new AwayRecapController((render) => showTextPopup(render, { okButton: "Continue" }), (summary, detail) => this.noteRecap(summary, detail));
   private readonly notices: { lastRollback: RollbackNotice | null; rollbackUnavailable: RollbackUnavailable | null } = { lastRollback: null, rollbackUnavailable: null };
   private readonly journal = new SessionJournal();
-  private readonly chatSave = new ChatSave({
+  readonly chatSave = new ChatSave({
     loaded: () => this.loaded,
     engine: () => ({ state: this.engine.serialize(), history: this.engine.serializeHistory() }),
     extras: () => this.extras,
     owner: this.owner,
     journal: (summary, note, persistNow) => (persistNow ? this.noteRecap(summary, note) : this.journal.record("story", summary, this.journalContext(), note)),
     recap: (summary, detail) => this.noteRecap(summary, detail),
+    rollback: (messageId, journal) => this.rollbackFromMessage(messageId, journal),
   });
   // V26: what every coordinator reads the loaded story and engine through, and how each one saves.
   private readonly view = { getStory: () => this.loaded?.story ?? null, getState: () => (this.loaded ? this.engine.serialize() : null) };
@@ -188,8 +190,7 @@ export class RuntimeManager {
     getSettings: () => this.extras.copilot,
     getProfileId: () => this.getExtractionSettings().profileId,
     getCanon: () => this.memory.getCanon(),
-    notify: () => this.notify(),
-    ownership: this.owner.ownership,
+    ...this.lifecycle,
     wizardSession: (key) => loadWizardSession(key),
     saveWizardSession: (session) => saveWizardSession(session),
   });
@@ -247,7 +248,7 @@ export class RuntimeManager {
     },
     fail: (errors, status) => { this.validationErrors = errors; this.status = status; this.notify(); },
     warn: (warnings) => this.noteRecap(`story imported with ${warnings.length} warning(s)`, warnings.map((warning) => `${warning.path}: ${warning.message}`).join("\n")),
-    setStatus: (status) => { this.status = status; this.notify(); },
+    setStatus: (status, note) => { if (note) this.noteRecap(status, note); this.status = status; this.notify(); },
     isLoaded: (id) => this.loaded?.record.id === id,
     loadedFallback: () => (this.loaded ? { ...this.loaded } : null),
   };
@@ -263,16 +264,14 @@ export class RuntimeManager {
     if (!this.loaded) return null;
     const run = beginRun(this.owner.ownership);
     this.notices.lastRollback = null;
+    if (!(await this.chatSave.reconcile(run))) return null;
     this.refreshRequirements();
     this.expansion.revalidateInserted();
     const pendingBridges = this.memory.enqueueArcBridges();
     const result = this.engine.commitBoundary(this.getBoundaryContext(at));
     this.memory.markBridgesApplied(pendingBridges);
-    if (result.effects) {
-      await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate", this.engine.checkpointPath);
-    } else if (this.extras.requirements.ready && this.extras.lastAppliedCheckpointId !== this.engine.activeCheckpoint.id) {
-      await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate", this.engine.checkpointPath);
-    }
+    if (result.effects) await this.applyActive("activate");
+    else if (this.extras.requirements.ready && this.extras.lastAppliedCheckpointId !== this.engine.activeCheckpoint.id) await this.applyActive("hydrate");
     if (!run.stillOwns()) return null;
     await this.stagecraft.applyAccepted();
     if (!run.stillOwns()) return null;
@@ -298,7 +297,7 @@ export class RuntimeManager {
     const run = beginRun(this.owner.ownership);
     this.refreshRequirements();
     this.engine.activateCheckpoint(id, this.getBoundaryContext());
-    await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate", this.engine.checkpointPath);
+    await this.applyActive("activate");
     if (!run.stillOwns()) return false;
     this.pacing.updateSteering();
     this.memory.updateInjection();
@@ -335,13 +334,6 @@ export class RuntimeManager {
     this.notify();
   }
 
-  // A read keyed to a message dies with it, even when the engine has nothing to roll back (2026-09-19).
-  private async dropReadsAfter(messageId: number) {
-    const before = this.extras.judge.scene;
-    this.extras.judge = dropJudgeCallsAfter(this.extras.judge, messageId);
-    if (before !== this.extras.judge.scene) { await this.persist(); this.notify(); }
-  }
-
   private readonly rollbackDeps: RollbackDeps = {
     engine: this.engine,
     journal: this.journal,
@@ -352,10 +344,8 @@ export class RuntimeManager {
     revalidateExpansion: () => this.expansion.revalidateInserted(),
     extras: () => this.extras,
     refreshRequirements: () => this.refreshRequirements(),
-    reapplyCheckpoint: async (messageId) => { await this.effects.restoreFor(this.extras, { since: messageId }); await this.effects.applyCheckpoint(this.loaded!.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate", this.engine.checkpointPath); },
-    dropReadsAfter: async (messageId) => { await this.dropReadsAfter(messageId); },
-    persist: () => this.persist(),
-    notify: () => this.notify(),
+    reapplyCheckpoint: async (messageId) => { await this.effects.restoreFor(this.extras, { since: messageId }); await this.applyActive("hydrate"); },
+    ...this.lifecycle,
     notices: this.notices,
     setStatus: (status) => { this.status = status; },
     onApplied: (messageId, window) => this.rollbackListeners.forEach((listener) => listener(messageId, window)),
@@ -364,7 +354,7 @@ export class RuntimeManager {
   async rollbackFromMessage(messageId: number, decoded?: DecodeJournal): Promise<RollbackOutcome> {
     // A mutation's POSITION is recorded: an in-flight read whose window reaches it is invalidated,
     // a reply merely appended later is not. See `tokenMatches`.
-    this.owner.noteMutation(messageId);
+    this.owner.noteMutation(messageId); this.chatSave.fingerprints.forgetFrom(messageId);
     if (!this.loaded) return { ok: true, result: "noop" };
     return runRollback(this.rollbackDeps, messageId, decoded);
   }
@@ -382,7 +372,7 @@ export class RuntimeManager {
     notes.forEach((note) => this.noteRecap(note, ""));
   }
 
-  private readonly settingsControl = new SettingsControl({ extras: () => this.extras, updateSteering: () => this.pacing.updateSteering(), updateInjection: () => this.memory.updateInjection(), clearNudge: () => this.clearCopilotNudge(), persist: () => this.persist(), notify: () => this.notify() });
+  private readonly settingsControl = new SettingsControl({ extras: () => this.extras, updateSteering: () => this.pacing.updateSteering(), updateInjection: () => this.memory.updateInjection(), clearNudge: () => this.clearCopilotNudge(), ...this.lifecycle });
   setExtractionSettings(settings: Partial<ExtractionRuntimeSettings>) { this.settingsControl.extraction(settings); }
   setPacingSettings(settings: Partial<PacingSettings>) { this.settingsControl.pacing(settings); }
   setMemorySettings(settings: Partial<MemoryRuntimeSettings>) { this.settingsControl.memory(settings); }
@@ -545,7 +535,7 @@ export class RuntimeManager {
     const priorSessionAt = persisted?.extras?.lastSessionAt ?? null;
     liftLegacyChatSettings(persisted?.extras, String(getContext().chatId ?? "an earlier chat"));
     this.invalidateRuns();
-    this.extras = hydrateExtras(persisted?.extras);
+    this.extras = hydrateExtras(persisted?.extras); this.chatSave.fingerprints.load(persisted?.fingerprints);
     this.journal.hydrate(this.extras.journal);
     this.reconcileEffectLedger();
     this.loaded = { record: loaded.record, story: this.expansion.mergedStoryOrBase(loaded.record.raw, loaded.story) };
@@ -566,7 +556,7 @@ export class RuntimeManager {
     this.memory.updateInjection();
     this.awayRecap.detect(priorSessionAt, this.getSnapshot().narrative, String(getContext().chatId ?? ""));
     setSelectedStoryId(loaded.record.id);
-    await this.persist();
+    await this.persist(); if (saved) await this.chatSave.reconcile(run);
     this.notify();
   }
 
@@ -589,7 +579,7 @@ export class RuntimeManager {
     if (state) this.engine.hydrate(state);
     this.refreshRequirements();
     this.expansion.revalidateInserted();
-    await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), reanchored ? "activate" : "hydrate", this.engine.checkpointPath);
+    await this.applyActive(reanchored ? "activate" : "hydrate");
     await releaseGatedWorldInfo(this.effects, previous, loaded.story, run);
     if (!run.stillOwns()) return;
     this.pacing.replayCommitted();
@@ -653,9 +643,15 @@ export class RuntimeManager {
 
   private getBoundaryContext(at?: number): BoundaryContext { const chat = Array.isArray(getContext().chat) ? getContext().chat : []; const last = at === undefined ? chat.length - 1 : Math.min(at, chat.length - 1); return { lastMessageId: last, chatLength: last + 1 }; }
 
+  private applyActive(mode: "activate" | "hydrate") { return this.effects.applyCheckpoint(this.loaded!.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), mode, this.engine.checkpointPath); }
   private refreshRequirements() {
     this.extras.requirements = evaluateRequirements(this.loaded?.story ?? null);
     this.extras.updatedAt = new Date().toISOString();
   }
+  readonly requirementsHost: RequirementsHost = { ...this.lifecycle, hydrate: () => this.applyActive("hydrate"), refresh: () => {
+    const before = this.extras.requirements.ready;
+    this.refreshRequirements();
+    return this.loaded ? { before, after: this.extras.requirements.ready, behind: this.extras.lastAppliedCheckpointId !== this.engine.activeCheckpoint.id } : null;
+  } };
 }
 export const runtimeManager = new RuntimeManager();

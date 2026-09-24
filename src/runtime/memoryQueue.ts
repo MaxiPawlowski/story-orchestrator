@@ -1,5 +1,6 @@
 import { addMemoryEntries, CONFLICT_LIMIT, conflictWindowOf, detectConflicts, excludeEntry, hashMemoryText, markConflicted, provenance, recordDerived, removeEpistemic, removeLedger, resolveConflict, withOverride, type ConflictPair, type ConflictWindow, type LedgerBinding, type SceneConflictValue } from "@memory/index";
 import type { Provenance, Provenanced } from "@memory/provenance";
+import type { RunGuard } from "./runToken";
 import type { MemoryRuntimeState } from "./types";
 
 // v2.3 plan 05 (C3). The reconciliation queue: what two stores disagree about, held until the author
@@ -27,6 +28,8 @@ export interface MemoryQueueDeps {
    *  `saveMetadata` catches its own errors (script.js:9412) and `persist` returns rather than throws. */
   unsaved?: () => boolean;
   save: () => Promise<void>;
+  run?: () => RunGuard;
+  refused?: (refusal: DecisionRefusal | null) => void;
 }
 
 export function getConflicts(deps: MemoryQueueDeps): ConflictPair[] {
@@ -96,12 +99,18 @@ function unmark<T extends Provenanced>(rows: T[], ids: Set<string>, idOf: (row: 
  * a session that has retired a claim it will not remember retiring, a drawer that shows the pair
  * settled, and a next pass that rebuilds the pair from the stored state and asks again.
  *
- * `restore` names exactly the keys this decision patched — including the canon when the caller's
- * `before` invalidates it — so putting one back cannot undo an unrelated write.
+ * `stores` names exactly the stores this decision patched — including the canon when the caller's
+ * `before` invalidates it. The put-back is per row and compare-and-set (v2.4 plan 02, seed D): a row
+ * goes back only while it still IS the row this decision wrote, so a row another writer added or
+ * changed during the save is kept and reported rather than clobbered by a snapshot.
  */
-async function commitDecision(deps: MemoryQueueDeps, next: Partial<MemoryRuntimeState>, restore: Partial<MemoryRuntimeState>, before?: () => void): Promise<boolean> {
+async function commitDecision(deps: MemoryQueueDeps, next: Partial<MemoryRuntimeState>, stores: DecisionStore[], before?: () => void): Promise<boolean> {
+  const run = deps.run?.();
+  const prior = deps.getMemory();
   deps.patch(next, false);
   before?.();
+  const written = deps.getMemory();
+  const restores = stores.map((store) => diffStore(store, prior, written));
   deps.updateInjection();
   let failure: unknown = null;
   let landed = true;
@@ -112,11 +121,96 @@ async function commitDecision(deps: MemoryQueueDeps, next: Partial<MemoryRuntime
     landed = false;
   }
   if (landed && deps.unsaved?.()) landed = false;
-  if (landed) return true;
+  if (landed) {
+    deps.refused?.(null);
+    return true;
+  }
+  if (run && !run.stillOwns()) {
+    deps.refused?.({ putBack: [], externallyChanged: [], lapsed: run.lapsedDetail() });
+    return false;
+  }
   console.warn("[Story Orchestrator] the author's decision did not reach the chat's stored state; putting it back", failure ?? "");
-  deps.patch(restore, false);
+  const current = deps.getMemory();
+  const results = restores.map((restore) => putBack(restore, current));
+  const patch = Object.fromEntries(results.flatMap((result) => (result.patch ? [result.patch] : []))) as Partial<MemoryRuntimeState>;
+  if (Object.keys(patch).length) deps.patch(patch, false);
   deps.updateInjection();
+  deps.refused?.({ putBack: results.flatMap((result) => result.putBack), externallyChanged: results.flatMap((result) => result.externallyChanged), lapsed: null });
   return false;
+}
+
+export type DecisionStore = "entries" | "ledger" | "epistemic" | "derived" | "conflicts" | "resolvedConflicts" | "excluded" | "verifyDrops" | "canon";
+
+export interface DecisionRestore {
+  store: DecisionStore;
+  before: Map<string, unknown>;
+  wrote: Map<string, unknown>;
+}
+
+export interface DecisionRefusal {
+  putBack: string[];
+  externallyChanged: string[];
+  lapsed: string | null;
+}
+
+export const ABSENT: unique symbol = Symbol("absent");
+
+const byId = (row: unknown) => (row as { id: string }).id;
+const asKey = (row: unknown) => row as string;
+
+const ROW_ID: Record<Exclude<DecisionStore, "canon">, (row: unknown) => string> = {
+  entries: byId,
+  ledger: byId,
+  epistemic: byId,
+  derived: byId,
+  conflicts: (row) => (row as ConflictPair).key,
+  resolvedConflicts: asKey,
+  excluded: asKey,
+  verifyDrops: (row) => (row as { entry: { id: string } }).entry.id,
+};
+
+const listOf = (state: MemoryRuntimeState, store: DecisionStore): unknown[] => (store === "canon" ? (state.canon ? [state.canon] : []) : state[store] as unknown[]);
+
+const idOf = (store: DecisionStore, row: unknown) => (store === "canon" ? "canon" : ROW_ID[store](row));
+
+const rowsOf = (state: MemoryRuntimeState, store: DecisionStore): Map<string, unknown> => new Map(listOf(state, store).map((row) => [idOf(store, row), row]));
+
+const sameRow = (left: unknown, right: unknown) => left === right || (left !== ABSENT && right !== ABSENT && JSON.stringify(left) === JSON.stringify(right));
+
+const slot = (rows: Map<string, unknown>, id: string) => (rows.has(id) ? rows.get(id) : ABSENT);
+
+export function diffStore(store: DecisionStore, prior: MemoryRuntimeState, written: MemoryRuntimeState): DecisionRestore {
+  const beforeRows = rowsOf(prior, store);
+  const afterRows = rowsOf(written, store);
+  const restore: DecisionRestore = { store, before: new Map(), wrote: new Map() };
+  for (const id of new Set([...beforeRows.keys(), ...afterRows.keys()])) {
+    const was = slot(beforeRows, id);
+    const now = slot(afterRows, id);
+    if (sameRow(was, now)) continue;
+    restore.before.set(id, was);
+    restore.wrote.set(id, now);
+  }
+  return restore;
+}
+
+export function putBack(restore: DecisionRestore, current: MemoryRuntimeState): { patch: [DecisionStore, unknown] | null; putBack: string[]; externallyChanged: string[] } {
+  const rows = rowsOf(current, restore.store);
+  const decided = new Map<string, unknown>();
+  const externallyChanged: string[] = [];
+  for (const [id, wrote] of restore.wrote) {
+    const now = slot(rows, id);
+    if (sameRow(now, wrote)) decided.set(id, restore.before.get(id));
+    else if (!sameRow(now, restore.before.get(id))) externallyChanged.push(id);
+  }
+  if (!decided.size) return { patch: null, putBack: [], externallyChanged };
+  const kept = listOf(current, restore.store).flatMap((row) => {
+    const id = idOf(restore.store, row);
+    if (!decided.has(id)) return [row];
+    return decided.get(id) === ABSENT ? [] : [decided.get(id)];
+  });
+  const returned = [...decided].flatMap(([id, row]) => (row !== ABSENT && !rows.has(id) ? [row] : []));
+  const next = [...kept, ...returned];
+  return { patch: [restore.store, restore.store === "canon" ? next[0] ?? null : next], putBack: [...decided.keys()], externallyChanged };
 }
 
 /** The author leaves the disagreement standing but stops being asked about it. This is the one
@@ -132,7 +226,7 @@ export async function dismissMemoryConflict(deps: MemoryQueueDeps, key: string):
     ledger: unmark(state.ledger, ids, (row) => row.id),
     conflicts: state.conflicts.filter((candidate) => candidate.key !== key),
     resolvedConflicts: [...state.resolvedConflicts, key].slice(-CONFLICT_LIMIT),
-  }, { entries: state.entries, ledger: state.ledger, conflicts: state.conflicts, resolvedConflicts: state.resolvedConflicts });
+  }, ["entries", "ledger", "conflicts", "resolvedConflicts"]);
 }
 
 /** The author keeps one side. The key is remembered as decided so the next pass does not re-queue
@@ -157,7 +251,7 @@ export async function resolveMemoryConflict(deps: MemoryQueueDeps, key: string, 
     ledger: state.ledger.map((row) => (dropped && row.id === dropped.id ? { ...row, ...withOverride(row, "reconciled", at, boundary) } : row)),
     conflicts: state.conflicts.filter((candidate) => candidate.key !== key),
     resolvedConflicts: [...state.resolvedConflicts, key].slice(-CONFLICT_LIMIT),
-  }, { entries: state.entries, ledger: state.ledger, conflicts: state.conflicts, resolvedConflicts: state.resolvedConflicts, canon: state.canon }, () => deps.invalidateCanon?.());
+  }, ["entries", "ledger", "conflicts", "resolvedConflicts", "canon"], () => deps.invalidateCanon?.());
 }
 
 // The author's decision, applied to the memory store when the side they kept is a FACT. Keeping the
@@ -194,7 +288,7 @@ export async function storeDroppedEntry(deps: MemoryQueueDeps, entryId: string, 
   if (!drop) return false;
   const kept = { ...drop.entry, confidence: drop.p, ...withOverride(drop.entry, "verify-drop", at, deps.boundaryStamp()) };
   const written = addMemoryEntries({ ...state, writeLog: [] }, [kept], { from: drop.entry.messageId ?? 0, to: drop.entry.messageId ?? 0 });
-  return commitDecision(deps, { verifyDrops: state.verifyDrops.filter((item) => item !== drop), entries: written.state.entries }, { verifyDrops: state.verifyDrops, entries: state.entries });
+  return commitDecision(deps, { verifyDrops: state.verifyDrops.filter((item) => item !== drop), entries: written.state.entries }, ["verifyDrops", "entries"]);
 }
 
 /** A quarantined row the author restates: their claim now, not a read of a message that is gone.
@@ -206,13 +300,13 @@ export async function reconfirmMemoryEntry(deps: MemoryQueueDeps, id: string, at
   const state = deps.getMemory();
   const boundary = deps.boundaryStamp();
   if (state.entries.some((entry) => entry.id === id)) {
-    return commitDecision(deps, { entries: state.entries.map((entry) => (entry.id === id ? { ...entry, ...withOverride(entry, "reconfirm", at, boundary) } : entry)) }, { entries: state.entries });
+    return commitDecision(deps, { entries: state.entries.map((entry) => (entry.id === id ? { ...entry, ...withOverride(entry, "reconfirm", at, boundary) } : entry)) }, ["entries"]);
   }
   if (state.epistemic.some((entry) => entry.id === id)) {
-    return commitDecision(deps, { epistemic: state.epistemic.map((entry) => (entry.id === id ? { ...entry, ...withOverride(entry, "reconfirm", at, boundary) } : entry)) }, { epistemic: state.epistemic });
+    return commitDecision(deps, { epistemic: state.epistemic.map((entry) => (entry.id === id ? { ...entry, ...withOverride(entry, "reconfirm", at, boundary) } : entry)) }, ["epistemic"]);
   }
   if (state.ledger.some((entry) => entry.id === id)) {
-    return commitDecision(deps, { ledger: state.ledger.map((entry) => (entry.id === id ? { ...entry, ...withOverride(entry, "reconfirm", at, boundary) } : entry)) }, { ledger: state.ledger });
+    return commitDecision(deps, { ledger: state.ledger.map((entry) => (entry.id === id ? { ...entry, ...withOverride(entry, "reconfirm", at, boundary) } : entry)) }, ["ledger"]);
   }
   return false;
 }
@@ -227,9 +321,9 @@ export async function discardMemoryRow(deps: MemoryQueueDeps, id: string): Promi
   if (entry) {
     const excluded = excludeEntry(state, id);
     const derived = recordDerived(state.derived, { boundary: deps.boundaryStamp(), messageId: deps.lastMessageId?.() ?? -1, kind: "exclusion", inputs: [id], removed: [entry], hash: hashMemoryText(entry.text) });
-    return commitDecision(deps, { entries: excluded.entries, excluded: excluded.excluded, derived }, { entries: state.entries, excluded: state.excluded, derived: state.derived });
+    return commitDecision(deps, { entries: excluded.entries, excluded: excluded.excluded, derived }, ["entries", "excluded", "derived"]);
   }
-  if (state.epistemic.some((row) => row.id === id)) return commitDecision(deps, { epistemic: removeEpistemic(state.epistemic, id) }, { epistemic: state.epistemic });
-  if (state.ledger.some((row) => row.id === id)) return commitDecision(deps, { ledger: removeLedger(state.ledger, id) }, { ledger: state.ledger });
+  if (state.epistemic.some((row) => row.id === id)) return commitDecision(deps, { epistemic: removeEpistemic(state.epistemic, id) }, ["epistemic"]);
+  if (state.ledger.some((row) => row.id === id)) return commitDecision(deps, { ledger: removeLedger(state.ledger, id) }, ["ledger"]);
   return false;
 }

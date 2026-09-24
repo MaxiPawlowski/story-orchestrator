@@ -31,7 +31,7 @@ describe("V5: a blob stamped for another chat is left exactly as it was", () => 
     open("chat-b", chatA());
     expect(getMetadataBlob().selectedStoryId).toBeNull();
     expect(stored()).toEqual(chatA());
-    expect(blobMismatch()).toEqual({ stampedFor: "chat-a", openChat: "chat-b" });
+    expect(blobMismatch()).toEqual({ kind: "foreign", stampedFor: "chat-a", openChat: "chat-b" });
   });
 
   it("automatic writes into it are refused", () => {

@@ -12,7 +12,7 @@ import RosterEditor from "./components/RosterEditor";
 import StoryEditor from "./components/StoryEditor";
 import StudioGraph from "./components/StudioGraph";
 import StudioCopilot, { type WizardHost } from "./components/StudioCopilot";
-import StudioToolbar, { type StudioSaveHandler } from "./components/StudioToolbar";
+import StudioToolbar, { type LibrarySaveHandler, type StudioSaveHandler } from "./components/StudioToolbar";
 
 export type StudioTab = "graph" | "story" | "qualities" | "checkpoints" | "transitions" | "roster" | "diagnostics" | "copilot";
 
@@ -53,12 +53,13 @@ type Props = {
   copilotEnabled?: boolean;
   runCopilotStage?: (input: AuthoringStageInput) => Promise<ProposalResult>;
   onSaved?: StudioSaveHandler;
+  onLibrarySave?: LibrarySaveHandler;
   hostOptions?: StudioHostOptions;
   wizardHost?: WizardHost;
   intent?: StudioOpenIntent;
 };
 
-const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopilotStage, onSaved, hostOptions, wizardHost, intent }) => {
+const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopilotStage, onSaved, onLibrarySave, hostOptions, wizardHost, intent }) => {
   const [tab, setTab] = useState<StudioTab>(intent?.tab ?? "graph");
   const options = useMemo(() => hostOptions ?? readHostOptions(), [hostOptions]);
   const idLocked = useDraftStore((state) => state.sourceHash !== null);
@@ -211,7 +212,7 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
         <div className="st-panel-header flex flex-wrap items-center gap-2 border-t px-3 py-2">
           <button type="button" className="st-button secondary" onClick={undo} disabled={!canUndo}>Undo</button>
           <button type="button" className="st-button secondary" onClick={redo} disabled={!canRedo}>Redo</button>
-          <StudioToolbar onSaved={onSaved} />
+          <StudioToolbar onSaved={onSaved} onLibrarySave={onLibrarySave} />
         </div>
       </div>
     </dialog>,

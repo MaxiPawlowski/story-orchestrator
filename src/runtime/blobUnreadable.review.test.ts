@@ -1,0 +1,123 @@
+const popup = { answer: true };
+
+jest.mock("@services/STAPI", () => ({
+  settingsAreLoaded: () => true,
+  settingsReady: async () => {},
+  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
+  readServerBoundary: async () => null,
+  getContext: () => globalThis.__unreadableContext,
+  showConfirmPopup: jest.fn(async () => popup.answer),
+}));
+jest.mock("./storyLibrary", () => ({
+  listStoryRecords: () => [],
+  findStoryRecord: (id: string) => (id === "s1" ? { id: "s1", raw: {} } : null),
+  loadPinnedStory: (id: string) => ({ record: { id } }),
+  loadStoryRecord: (record: { id: string }) => ({ record: { id: record.id }, story: {} }),
+}));
+
+import { adoptChatState, blobMismatch, dropPersistedRuntime, getMetadataBlob, restampRenamedChat, savePersistedRuntime, setSelectedStoryId } from "./persistence";
+import { loadSelectedStory, restartStory, selectStory, type StorySelectionDeps } from "./storySelection";
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __unreadableContext: { chatId: string; chatMetadata: Record<string, unknown>; saveMetadata: jest.Mock };
+}
+
+const record = (id: string) => ({ storyId: id, storyTitle: "S", pinnedStory: null, playedVersion: 1, contentHashAtLoad: "h", engineState: null, extras: {} }) as never;
+
+const SHAPES: Array<[string, () => unknown, number | string | null]> = [
+  ["a v5 blob from a newer build", () => ({ version: 5, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: { storyId: "s1", journal: ["kept"] } }, fingerprints: { v: 1 } }), 5],
+  ["a string version \"4\"", () => ({ version: "4", chatId: "chat-a", selectedStoryId: "s1", stories: { s1: {} } }), "4"],
+  ["a blob with no version", () => ({ chatId: "chat-a", selectedStoryId: "s1", stories: { s1: {} } }), null],
+  ["a v4 blob whose stories is not a record", () => ({ version: 4, chatId: "chat-a", selectedStoryId: "s1", stories: ["s1"] }), 4],
+];
+
+function open(blob: unknown, chatId = "chat-a") {
+  globalThis.__unreadableContext = { chatId, chatMetadata: { story_orchestrator: blob, integrity: "i-1" }, saveMetadata: jest.fn() };
+}
+const bytes = () => JSON.stringify(globalThis.__unreadableContext.chatMetadata);
+const stored = () => globalThis.__unreadableContext.chatMetadata.story_orchestrator as Record<string, unknown>;
+
+function deps() {
+  return {
+    loadStory: jest.fn(async () => undefined),
+    clearStory: jest.fn(async () => undefined),
+    setStatus: jest.fn(),
+    fail: jest.fn(),
+    loadedFallback: () => null,
+  };
+}
+
+beforeEach(() => {
+  popup.answer = true;
+  jest.spyOn(console, "warn").mockImplementation(() => undefined);
+});
+afterEach(() => jest.restoreAllMocks());
+
+describe("T11: a blob this build cannot read is read detached and never overwritten", () => {
+  it.each(SHAPES)("%s: every read and every automatic write leaves chat_metadata byte-identical, and the load journals blob-unreadable", async (_label, shape, foundVersion) => {
+    open(shape());
+    const before = bytes();
+    expect(getMetadataBlob()).toEqual({ version: 4, chatId: "chat-a", selectedStoryId: null, stories: {} });
+    expect(blobMismatch()).toEqual({ kind: "unreadable", foundVersion, openChat: "chat-a" });
+    expect(savePersistedRuntime(record("s2"))).toEqual([]);
+    setSelectedStoryId("s2");
+    dropPersistedRuntime("s1");
+    expect(restampRenamedChat("chat-a.jsonl", "chat-a.jsonl")).toBe(false);
+    const d = deps();
+    expect(await loadSelectedStory(d as unknown as StorySelectionDeps)).toBe(false);
+    expect(d.clearStory).toHaveBeenCalledWith(expect.stringContaining("Restart to replace it"), expect.stringMatching(/^blob-unreadable: /));
+    expect(bytes()).toBe(before);
+    expect(globalThis.__unreadableContext.saveMetadata).not.toHaveBeenCalled();
+  });
+
+  it("an explicit selection is refused, names the newer build, adopts nothing, and is the story a confirmed Restart then starts", async () => {
+    open(SHAPES[1][1]());
+    const other = deps();
+    expect(await selectStory(other as unknown as StorySelectionDeps, "s1")).toBe(false);
+    expect(other.setStatus).toHaveBeenCalledWith(expect.stringContaining('version "4"'), expect.anything());
+    open(SHAPES[0][1]());
+    const before = bytes();
+    expect(adoptChatState()).toBe(false);
+    const d = deps();
+    expect(await selectStory(d as unknown as StorySelectionDeps, "s1")).toBe(false);
+    expect(d.loadStory).not.toHaveBeenCalled();
+    expect(d.setStatus).toHaveBeenCalledWith(expect.stringContaining("saved by a newer Story Orchestrator (v5): update, or Restart to replace it"), expect.stringMatching(/^blob-unreadable: selecting 's1' refused/));
+    expect(bytes()).toBe(before);
+    expect(await restartStory(d as unknown as StorySelectionDeps, null)).toBe(true);
+    expect(d.loadStory).toHaveBeenCalledWith(expect.objectContaining({ record: { id: "s1" } }), "activate");
+    expect(d.setStatus).toHaveBeenLastCalledWith("Story restarted", expect.stringMatching(/^blob-unreadable: replaced on a confirmed Restart/));
+  });
+
+  it("Restart overwrites nothing until it is confirmed", async () => {
+    open(SHAPES[0][1]());
+    const before = bytes();
+    popup.answer = false;
+    expect(await restartStory(deps() as unknown as StorySelectionDeps, null)).toBe(false);
+    expect(bytes()).toBe(before);
+    expect(globalThis.__unreadableContext.saveMetadata).not.toHaveBeenCalled();
+  });
+
+  it("a confirmed Restart replaces it with a fresh blob and journals it", async () => {
+    open(SHAPES[0][1]());
+    const d = deps();
+    expect(await restartStory(d as unknown as StorySelectionDeps, null)).toBe(true);
+    expect(stored()).toEqual({ version: 4, chatId: "chat-a", selectedStoryId: null, stories: {} });
+    expect(globalThis.__unreadableContext.chatMetadata.integrity).toBe("i-1");
+    expect(globalThis.__unreadableContext.saveMetadata).toHaveBeenCalled();
+    expect(d.setStatus).toHaveBeenLastCalledWith("Unreadable story state replaced", expect.stringMatching(/^blob-unreadable: replaced on a confirmed Restart/));
+    getMetadataBlob();
+    expect(blobMismatch()).toBeNull();
+  });
+
+  it.each([
+    ["v2", { version: 2, selectedStoryHash: null, stories: {} }],
+    ["v3", { version: 3, selectedStoryId: "s1", stories: { s1: record("s1") } }],
+    ["v4", { version: 4, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: record("s1") } }],
+  ])("control: a well-shaped %s blob is read, not refused", (_label, blob) => {
+    open(blob);
+    getMetadataBlob();
+    expect(blobMismatch()).toBeNull();
+    expect(adoptChatState()).toBe(true);
+  });
+});

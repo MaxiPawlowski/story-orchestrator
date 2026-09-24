@@ -46,6 +46,8 @@ export interface DrawerTabsProps {
   /** V19: the settings panel's Repair step, revealed. */
   onOpenRepair?: () => void;
   onNewStory?: () => void;
+  /** v2.4 plan 02 §5 (author view, E1): cut a branch at the oldest point this run can still restore. */
+  onBranchFromOldest?: (messageId: number) => void;
 }
 
 const extractionReady = (snapshot: RuntimeSnapshot): boolean => snapshot.extraction.settings.enabled && Boolean(snapshot.extraction.settings.profileId);
@@ -84,8 +86,24 @@ const AuthorRequirements = ({ snapshot, onFixWithWizard }: { snapshot: RuntimeSn
 // Author-only machine view of the same checkpoint: ids, counters, gate progress and the raw
 // pending queue. Convergence is a spoiler by construction (it names a future anchor), so it never
 // appears without author view.
-const AuthorOverview = ({ snapshot, onFixWithWizard }: { snapshot: RuntimeSnapshot; onFixWithWizard?: () => void }) => (
+// v2.4 plan 02 §5 (seed D out of horizon, X25): an edit past the retained history cannot be rewound here,
+// but a branch cut at the floor starts exactly there, and its Continue from here restores it. Author view
+// only until a player session has looked at it (rule 7).
+const HistoryFloor = ({ snapshot, onBranchFromOldest }: { snapshot: RuntimeSnapshot; onBranchFromOldest?: (messageId: number) => void }) => {
+  const oldest = snapshot.rollbackUnavailable?.oldest;
+  if (!oldest || !onBranchFromOldest) return null;
+  return (
+    <div id="so-history-floor" className="text-xs opacity-80">
+      <div className="font-medium opacity-100">History floor</div>
+      <div>Oldest restorable point: boundary {oldest.boundary}, message {oldest.messageId}</div>
+      <button id="so-branch-from-oldest" type="button" className="menu_button" disabled={oldest.messageId < 0} onClick={() => onBranchFromOldest(oldest.messageId)}>Branch from the oldest restorable point</button>
+    </div>
+  );
+};
+
+const AuthorOverview = ({ snapshot, onFixWithWizard, onBranchFromOldest }: { snapshot: RuntimeSnapshot; onFixWithWizard?: () => void; onBranchFromOldest?: (messageId: number) => void }) => (
   <div className="flex flex-col gap-3 border-t border-solid border-white/10 pt-2">
+    <HistoryFloor snapshot={snapshot} onBranchFromOldest={onBranchFromOldest} />
     <div className="text-xs opacity-80">
       <div className="font-medium opacity-100">Engine</div>
       <div>{snapshot.activeCheckpointId} · boundary {snapshot.boundary}</div>
@@ -127,10 +145,10 @@ const AuthorOverview = ({ snapshot, onFixWithWizard }: { snapshot: RuntimeSnapsh
   </div>
 );
 
-const OverviewTab = ({ snapshot, authorView, onOpenSettings, onFixWithWizard, onReread, onRestart }: { snapshot: RuntimeSnapshot; authorView: boolean; onOpenSettings?: () => void; onFixWithWizard?: () => void; onReread?: () => void; onRestart?: () => void }) => (
+const OverviewTab = ({ snapshot, authorView, onOpenSettings, onFixWithWizard, onReread, onRestart, onBranchFromOldest }: { snapshot: RuntimeSnapshot; authorView: boolean; onOpenSettings?: () => void; onFixWithWizard?: () => void; onReread?: () => void; onRestart?: () => void; onBranchFromOldest?: (messageId: number) => void }) => (
   <div className="flex flex-col gap-3">
     <PlayerOverview snapshot={snapshot} onOpenSettings={onOpenSettings} onReread={onReread} onRestart={onRestart} />
-    {authorView && <AuthorOverview snapshot={snapshot} onFixWithWizard={onFixWithWizard} />}
+    {authorView && <AuthorOverview snapshot={snapshot} onFixWithWizard={onFixWithWizard} onBranchFromOldest={onBranchFromOldest} />}
   </div>
 );
 
@@ -735,7 +753,7 @@ const StoryControls = ({ snapshot, manager, onEditStory, onOpenRepair, onNewStor
   );
 };
 
-export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditStory, onFixWithWizard, onOpenRepair, onNewStory }: DrawerTabsProps) => {
+export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditStory, onFixWithWizard, onOpenRepair, onNewStory, onBranchFromOldest }: DrawerTabsProps) => {
   const [active, setActive] = useState<DrawerTabId>("overview");
   // v2.3 plan 05: a warden card cites the message a fact was read from, so its button has to land on
   // that fact. A `bound:` id is the blackboard's, and the blackboard tab is where it lives; a memory
@@ -767,7 +785,7 @@ export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditSt
         <FlagControl manager={manager} />
       </div>
       <div role="tabpanel">
-        {activeTab === "overview" && <OverviewTab snapshot={snapshot} authorView={authorView} onOpenSettings={onOpenSettings} onFixWithWizard={onFixWithWizard} onReread={() => void manager.runExtractionNow(undefined, "recovery")} onRestart={() => void manager.restartStory()} />}
+        {activeTab === "overview" && <OverviewTab snapshot={snapshot} authorView={authorView} onOpenSettings={onOpenSettings} onFixWithWizard={onFixWithWizard} onReread={() => void manager.runExtractionNow(undefined, "recovery")} onRestart={() => void manager.restartStory()} onBranchFromOldest={onBranchFromOldest} />}
         {activeTab === "blackboard" && <BlackboardTab snapshot={snapshot} />}
         {activeTab === "memory" && <MemoryTab snapshot={snapshot} manager={manager} authorView={authorView} focusFact={focusFact} />}
         {activeTab === "scheduler" && <SchedulerTab snapshot={snapshot} manager={manager} onOpenFact={openFact} />}

@@ -4,6 +4,7 @@ import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag, stripCommonArgs } from './lib/cli.mts';
 import { adoptNewSandboxChat, assertInSandbox, beginSandboxSession, deleteSandboxChats, openChat, openCharacter, openGroup, readActiveChat, startNewChat, startNewGroupSession } from './st-navigation.mts';
 import { sendUserMessage, swipeMessage, waitForIdle } from './st-actions.mts';
+import { settleReapPrompts } from './lib/identityVerbs.mts';
 
 const USAGE = `Usage: node scripts/debug/so-turn-types-check.mts [--group <name>] [--character <name>] [--image sd|synthetic|auto] [--skip-reply] [--skip-image] [--skip-solo] [--keep]
 
@@ -452,6 +453,7 @@ export async function runTurnTypesCheck(page, { group = 'AdolionGroup', characte
           if (solo) cleanup.solo = await deleteSoloChat(page, solo);
           cleanup.sandbox = await deleteSandboxChats(page, guard);
           cleanup.mirrorBooks = await deleteMirrorBooks(page, [...guard.owned, ...(solo ? [solo.chatId] : [])]);
+          cleanup.reapPrompts = await settleReapPrompts(page, [...guard.owned, ...(solo ? [solo.chatId] : [])]);
         } catch (error) {
           cleanup.error = error instanceof Error ? error.message : String(error);
         }

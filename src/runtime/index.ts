@@ -11,12 +11,14 @@ import { createTypedJudge } from "./typedRead";
 import { getGlobalSettings } from "./settingsStore";
 import { registerLiveSuite } from "./liveSuite";
 import { registerRuntimeMacros } from "./macros";
+import { startMirrorReaper } from "./mirrorReaperHost";
 import { runtimeManager } from "./runtimeManager";
 import { beginRun } from "./runToken";
 import { registerSlashCommands } from "./slashCommands";
 import { DIRECTOR_MAX_TOKENS, DIRECTOR_WINDOW_MESSAGES, TalkController, type TalkControlHost } from "./talkControl";
 import { GenerationLifecycle, type GenerationIntent } from "./generationLifecycle";
 import { isTurnMessageType, TurnBridge } from "./turnBridge";
+import { RequirementsWatch } from "./requirementsWatch";
 
 let started = false;
 let bridge: TurnBridge | null = null;
@@ -99,8 +101,13 @@ export function startRuntime() {
   registerLiveSuite(runtimeManager);
   window.setTimeout(() => registerSlashCommandsWhenReady(), 0);
   window.setTimeout(() => registerSlashCommandsWhenReady(), 1000);
-  bridge = new TurnBridge(runtimeManager);
+  bridge = new TurnBridge(runtimeManager, runtimeManager.chatSave);
   bridge.start();
+  // v2.4 plan 02 §8: persona, group and lorebook-selection changes re-read the requirements between turns.
+  const requirementsWatch = new RequirementsWatch(runtimeManager.requirementsHost, subscribeToHostEvents);
+  requirementsWatch.start();
+  runtimeDisposers.push(() => requirementsWatch.stop());
+  runtimeDisposers.push(startMirrorReaper(() => runtimeManager.notify()));
   const chatLastId = () => (Array.isArray(getContext().chat) ? getContext().chat.length - 1 : -1);
   globalThis.storyOrchestratorScheduler = { nextReadWindow: () => scheduler?.nextReadWindow(chatLastId()) ?? null };
   const judgeRuntime = new JudgeRuntime({

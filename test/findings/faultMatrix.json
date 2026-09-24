@@ -313,8 +313,8 @@
     },
     "persistence|malformedResponse": {
       "status": "covered",
-      "evidence": "src/runtime/persistenceMigration.test.ts#ignores anything that is not a v2 blob",
-      "note": "An unrecognized stored blob is ignored rather than half-adopted."
+      "evidence": "src/runtime/blobUnreadable.review.test.ts#an explicit selection is refused, names the newer build, adopts nothing, and is the story a confirmed Restart then starts",
+      "note": "v2.4 plan 02 T11. An unrecognized stored blob (v5+, a non-numeric or missing version, broken stories) is read detached and never written: every automatic write refuses it (the it.each byte-identical rows in the same file), an explicit selection is refused, and only a confirmed Restart replaces it. Before T11 the old evidence (persistenceMigration 'ignores anything that is not a v2 blob') was true of the migration only: getMetadataBlob then wrote createBlob() over the blob, so 'ignored' meant destroyed on the next save."
     },
     "persistence|duplicateCompletion": {
       "status": "covered",

@@ -1,5 +1,6 @@
 import type { ConflictPair } from "@memory/index";
 import type { MemoryCoordinator } from "./coordinators/memoryCoordinator";
+import type { DecisionRefusal } from "./memoryQueue";
 
 // v2.3 plan 05. The memory actions the author view drives: the reconciliation queue, locks,
 // reconfirmation and the legacy-pin prompt. They stay in one object because they are one conversation
@@ -14,6 +15,7 @@ export interface MemoryActionDeps {
   dismissLegacyPinPrompt: () => Promise<void>;
   rereadConflictWindow: (key: string) => Promise<boolean>;
   discardQuarantined: (id: string) => Promise<boolean>;
+  lastRefusal: () => DecisionRefusal | null;
 }
 
 /** The manager's side of the conversation: every action is the coordinator's, one to one. */
@@ -27,6 +29,7 @@ export function memoryDelegates(memory: MemoryCoordinator): MemoryActionDeps {
     dismissLegacyPinPrompt: () => memory.dismissLegacyPinPrompt(),
     rereadConflictWindow: (key) => memory.rereadConflictWindow(key),
     discardQuarantined: (id) => memory.excludeMemoryEntry(id),
+    lastRefusal: () => memory.lastDecisionRefusal(),
   };
 }
 
@@ -43,6 +46,7 @@ export function memoryActions(deps: MemoryActionDeps) {
     rereadConflictWindow: (key: string) => deps.rereadConflictWindow(key),
     /** V8: through the same write-or-put-back as every other decision in this panel. */
     discardQuarantined: (id: string) => deps.discardQuarantined(id),
+    lastRefusal: () => deps.lastRefusal(),
   };
 }
 

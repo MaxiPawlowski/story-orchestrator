@@ -24,7 +24,6 @@ export interface RollbackDeps {
   extras: () => RuntimeExtras;
   refreshRequirements: () => void;
   reapplyCheckpoint: (messageId: number) => Promise<void>;
-  dropReadsAfter: (messageId: number) => Promise<void>;
   persist: () => Promise<void>;
   notify: () => void;
   notices: { lastRollback: RollbackNotice | null; rollbackUnavailable: RollbackUnavailable | null; lastOutcome?: RollbackRecord | null };
@@ -101,7 +100,6 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
     await deps.stagecraft.revertAppliedSince(messageId);
     deps.memory.updateInjection();
     await deps.persist();
-    await deps.dropReadsAfter(messageId);
     deps.notify();
     return { ok: true, result: "noop" };
   }
