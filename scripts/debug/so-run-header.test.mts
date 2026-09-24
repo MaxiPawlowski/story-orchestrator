@@ -6,7 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { diffHeaders, parseAllow, readBuild, bundleWarning, profileInventory, samplerState } from './so-run-header.mts';
+import { diffHeaders, parseAllow, readBuild, bundleWarning, profileInventory, samplerState, thirdPartyState } from './so-run-header.mts';
 
 const header = (overrides: Record<string, any> = {}) => ({
   label: 'a',
@@ -237,4 +237,17 @@ test('a sampler left on a probe preset is a difference the header can see (V22b,
   assert.deepEqual(diffHeaders({ sampler: before } as any, { sampler: after } as any).filter((entry) => !entry.allowed).map((entry) => entry.path).sort(), ['sampler.preset', 'sampler.temp', 'sampler.top_p']);
   assert.equal(samplerState({ mainApi: 'openai', textgen: { preset: 'x' }, oai: { preset: 'Chat', temp: 0.9, top_p: 1 } }).preset, 'Chat');
   assert.equal(samplerState({ mainApi: 'kobold', textgen: { preset: 'x' }, oai: { preset: 'y' } }).preset, null);
+});
+
+test('thirdParty: a watched extension setting is read, and a flip of it is a diff', () => {
+  const before = thirdPartyState({ disabled: ['b', 'a'], installed: ['third-party/x'], settings: { 'st-stepped-thinking': { is_enabled: false, mode: 'embedded', is_shutdown: false, other: 1 } } });
+  assert.deepEqual(before, { disabledExtensions: ['a', 'b'], installed: ['third-party/x'], watched: { 'st-stepped-thinking': { is_enabled: false, mode: 'embedded', is_shutdown: false } } });
+  const after = thirdPartyState({ disabled: ['a', 'b'], installed: ['third-party/x'], settings: { 'st-stepped-thinking': { is_enabled: true, mode: 'embedded', is_shutdown: false } } });
+  assert.notDeepEqual(after.watched, before.watched);
+});
+
+test('control: an extension that is not installed reads null, not an empty object that would diff as equal', () => {
+  const state = thirdPartyState({ disabled: [], installed: null, settings: {} });
+  assert.equal(state.watched['st-stepped-thinking'], null);
+  assert.equal(state.installed, null);
 });

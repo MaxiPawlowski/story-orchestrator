@@ -20,6 +20,9 @@ export const STEP_VERBS = new Set([
   // v2.3 plan 06: fail a route at the transport, which is how a save that the server refused is
   // produced without a backend fault (killing the model does not fail metadata persistence).
   'block_route', 'unblock_route',
+  // v2.4 plan 01 (X4, X10): the real host delete, /cut, event-level generation sequences, another
+  // extension's setting (restored in the runner's finally) and the replay-equality recording.
+  'host_delete', 'cut', 'emit_generation', 'ext_setting', 'record_state', 'inject_script',
 ]);
 
 export const EXPECT_KEYS = new Set([
@@ -35,6 +38,8 @@ export const EXPECT_KEYS = new Set([
   // v2.3 plan 05: what a request that was actually sent contains, optionally scoped to a member and
   // to a region inside it (`payloadContains`/`payloadAbsent`, see lib/payloadAssert.mts).
   'payloadContains', 'payloadAbsent',
+  // v2.4 plan 01: replay equality against a record_state recording, and the over-steer probe.
+  'stateEquals', 'overSteer',
   'stagecraft', 'storyId', 'storyIdentity', 'storyVersion', 'tension',
   // Comparison-suffixed keys the runner reads by bracket access; they are honoured, so they are
   // part of the vocabulary, not typos.

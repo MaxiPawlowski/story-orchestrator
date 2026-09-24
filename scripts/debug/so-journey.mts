@@ -19,6 +19,7 @@ import { removeMarkedAssets, snapshotAssets } from './so-assets.mts';
 import { wipeChatMeta } from './so-library.mts';
 import { saveSettingsNow } from './lib/settingsSave.mts';
 import { archiveJourneyRecord, unselectedDependencies } from './lib/journeyArchive.mts';
+import { applyExtSetting, restoreExtSettings } from './lib/interopVerbs.mts';
 import { BLOCKING_DIALOGS, mergeRestore, removableStories, shouldRecoverConfig, validateJourneyExtraction, type DeclaredExtraction, type LibraryCapture } from './lib/configRestore.mts';
 
 const JOURNEY_DIR = resolve(PROJECT_ROOT, 'test/journeys');
@@ -278,7 +279,7 @@ async function configureExtraction(page, setup) {
 }
 
 async function applySetup(page, setup, { allowConfig, group = null }) {
-  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; extractionBefore?: unknown; extractionDeclared?: unknown; judge?: unknown; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[] }; dialogs?: unknown; libraryBefore?: LibraryCapture; recoveredConfig?: unknown; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
+  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; extractionBefore?: unknown; extractionDeclared?: unknown; judge?: unknown; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[] }; dialogs?: unknown; libraryBefore?: LibraryCapture; recoveredConfig?: unknown; extensionSettings?: unknown[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
   // Unconditional, and before anything else can write them (S11).
   applied.extractionBefore = await readExtractionSettings(page);
   console.log(`extraction before this run: ${JSON.stringify(applied.extractionBefore)}`);
@@ -366,6 +367,10 @@ async function applySetup(page, setup, { allowConfig, group = null }) {
   }
   if (setup.configureExtraction) applied.extraction = await configureExtraction(page, setup);
   if (Array.isArray(setup.activateLorebooks)) applied.lorebooks = await activateLorebooks(page, setup.activateLorebooks);
+  if (Array.isArray(setup.extensionSettings)) {
+    applied.extensionSettings = [];
+    for (const spec of setup.extensionSettings) applied.extensionSettings.push(await applyExtSetting(page, spec));
+  }
   return applied;
 }
 
@@ -386,6 +391,7 @@ async function runCleanup(page, journey, { importedHashes, libraryBefore, config
   if (activatedLorebooks?.length) report.lorebooks = await deactivateLorebooks(page, activatedLorebooks);
   // S11: put install-wide extraction settings back to the pre-run capture, always.
   report.extraction = await restoreExtractionSettings(page, extractionBefore).catch((error) => ({ error: error.message }));
+  report.extensionSettings = await restoreExtSettings(page).catch((error) => ({ error: error.message }));
   // Assets go FIRST: the wizard's created-asset ledger lives in extension settings, and restoring
   // the config snapshot would wipe the very record cleanup uses to catch a renamed asset (plan 06).
   // The baseline scopes that ledger to this run: a real author's wizard sessions and the assets

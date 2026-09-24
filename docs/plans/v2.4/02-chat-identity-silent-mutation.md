@@ -1,0 +1,376 @@
+# Plan 02 — Chat identity and silent mutation
+
+**Status: DRAFT 2026-09-23, reconciled with `00-overview.md` §Reconciliation (X1, X2, X11, X18, X25). Depends on plan 01**: the T20 interop corpus the fixtures here join, the T1 identity snapshot this plan shares, and `docs/plans/v2.4/host-facts.md` (X9). Not started.
+
+Written against HEAD `fcc33cc` plus uncommitted v2.3 edits (`memoryMirror.ts`, `effectsApplier.ts`, `stHost/*`, … are modified). Re-verify every cited line before building (rule 1).
+
+## Goal
+
+A chat's story state follows the chat as ST really mutates it:
+- a blob this build cannot read is never overwritten;
+- a message that changed without an event rewinds the story, and one that did not change never does;
+- hiding is not deleting;
+- a reload of the same chat is not a chat switch;
+- a branch offers to continue, and never adopts on its own;
+- a deleted chat's mirror book can be cleaned up;
+- install-wide saves are read from evidence;
+- requirements follow persona, group and lorebook changes as they happen.
+
+**No blob version bump** (X1, rule 3). Every new field is an optional v4 field.
+
+## Scope / out of scope
+
+**In scope:**
+- T11 downgrade guard + `minimum_client_version`
+- T3 content fingerprints, with the X2 hash
+- same-chat reload
+- hidden ≠ deleted (D5)
+- T2 branches (D3)
+- T14: payload typing, the reaper with the in-book ownership marker, and stopping scene-row mirroring (X18)
+- T8 install-wide save evidence + a self-healing watcher
+- requirements refresh on persona, group and lorebook changes (X25)
+- seed D: `commitDecision` id-keyed restore
+- seed D out-of-horizon, as "branch from the oldest restorable point", **author view only** (X25)
+- the X11 harness:
+  - `expect.rollbackOutcome`;
+  - a next-read-window assertion;
+  - a branch-adopt UI verb;
+  - cleanup that owns branch chats;
+  - the generalised `attestation.test.mjs`
+
+**Out of scope:**
+- T1's decode itself (plan 01).
+- Mirror key hygiene (roster/persona names in keys): **plan 05**, measured first (X18).
+- "Swipe back to the consumed swipe is a no-op" and the swipe-back cache: v2.5 (X25). Fingerprints cannot deliver it, because swiping away already rolled back.
+- Re-commit after a third-party rewrite (v2.5).
+- Schema stamps on the library and wizardSessions (T11 follow-up; they carry no version, `storyLibrary.ts:30-47`).
+- Persona Repair actions.
+- Any player-surface change beyond the D3 branch notice.
+
+## Verified current state (working tree, 2026-09-23)
+
+| Claim | Seen at | Drift vs SUMMARY |
+|---|---|---|
+| Blob is v4 `{version:4, chatId, selectedStoryId, stories}` | `types.ts:307-320`, `persistence.ts:19` | — |
+| Migration chain: v2 → `migrateMetadataBlob` → `migrateV3ToV4`; v3 → `migrateV3ToV4` | `persistenceMigration.ts:20-56,66-68`; `persistence.ts:49-55` | — |
+| **An unknown version is destroyed.** Any other version, a missing `version`, or v4 with non-record `stories` goes to `migrateMetadataBlob` → null. `getMetadataBlob` then writes `createBlob()` into `chat_metadata`, and the next ST save persists it. This is why X1 forbids a bump | `persistence.ts:55,72-75`; `persistenceMigration.ts:23` | SUMMARY `:44-56`/`:69-72` → `:45-58`/`:72-75` |
+| **v2.3 keeps a v4 blob object as-is.** `metadata[KEY] = current` is the stored object. Unknown top-level fields therefore survive its writes, which only replace `stories[id]` | `persistence.ts:49,56,156` | — |
+| **v2.3 rebuilds the played story's record** on every persist from a fixed field list. An unknown per-record field is dropped (the X1 "worst a downgrade can do") | `runtimeManager.ts:575` | — |
+| V5 foreign stamp: `belongsHere`, detached `createBlob()` with no write, `blobMismatch()`, `ownBlob` refusal, `adoptChatState` (restamps `chatId` only), `restampRenamedChat` | `persistence.ts:34,41-43,60-71,78-93,97-108`; `storySelection.ts:36-47,71` | SUMMARY `:57-67,75-80` → `:60-71,78-83` |
+| Engine keeps ids only: `BoundaryContext {lastMessageId, chatLength}` | `engine.ts:11-14` | — |
+| Hydrate has **no chat-length reconcile** | `runtimeManager.ts:525-556` (hydrate `:543`) | SUMMARY `:524-543` → `:525-556` |
+| Every edit/swipe/update id rolls back, unchanged text included | `turnBridge.ts:159-170` | — |
+| Continue stamp keyed by `gen_finished`/length | `turnBridge.ts:24-29,85` | — |
+| Same-chat CHAT_CHANGED = full switch: `reset()` drops pending, then `loadStory` → `invalidateRuns` → `owner.bump()` | `turnBridge.ts:149-152`; `runtimeManager.ts:62,532`; `runOwner.ts:80-98` | — |
+| **Hidden messages are already out of read windows**: `is_system === true` returns null, `/hide` emits nothing, and `source-removed` is set only by rollback | `chatWindow.ts:8`; `stores.ts:109-115`; `epistemic.ts:144`; `ledger.ts:95` | D5 holds in behaviour, untested |
+| Branch reads as foreign (V5). `grep main_chat\|integrity src` = 0 | `storySelection.ts:36-47` | — |
+| Mirror: the adopting path ensures a fresh book, sweeps `so_`-prefixed leftovers and binds the slot. Scene rows are mirrored and keyless (inert) | `memoryMirror.ts:53-54,58-64,83-89,93-105,115,127`; `extractionCoordinator.ts:300` | SUMMARY `:82-88,110,122` → `:83-89,115,127` |
+| `bindChatLorebook` answers a string union, not a `WriteResult`. No unbind and no book delete in `src/` | `stHost/worldInfo.ts:153-172` | — |
+| `CHAT_DELETED`/`GROUP_CHAT_DELETED`/`WORLDINFO_UPDATED` typed `[]` and unsubscribed | `stHost/events.ts:11-12,30` | — |
+| Install-wide saves: unverified `saveSettingsDebounced()` | `storyLibrary.ts:69,110,119`; `settingsStore.ts:135,161`; `wizardSessions.ts:44,49` | — |
+| Save watcher wraps `fetch` once and never re-checks. A lost wrap reads as "no save request went out", which is sticky, and `withLedger` then refuses every effect | `stHost/persistence.ts:24-25,57-73`; `saveEvidence.ts:44-51`; `saveHealth.ts:18-31`; `effectsApplier.ts:181-189` | SUMMARY `:185` → `:181-189` |
+| `GROUP_UPDATED`/`WORLDINFO_SETTINGS_UPDATED` only `notify()`. Requirements refresh only at commit, activate, load and rollback. `PERSONA_CHANGED` is unsubscribed. not-ready → ready effects apply only at the next boundary | `turnBridge.ts:60-61`; `runtimeManager.ts:251,258-260,672-675`; `requirements.ts:7-28` | — |
+| `commitDecision` puts back **whole arrays** captured before the save. Census row `partial` | `memoryQueue.ts:102-121` (callers `:130-232`); `test/findings/ownership-sites.json:276` | — |
+| E1 notice offers Restart only | `rollback.ts:48-58` | — |
+| `attestation.test.mjs` hard-codes the records dir `v2.3-plan05-live` (`:16`) and the journey list J0–J11 (`:62`). `j12-unaided-schedule.journey.json` exists and is not checked | `scripts/release/attestation.test.mjs:16,59-62` | X11 |
+| Manager **677/700** lines, so new logic goes in new modules | `runtimeManager.ts` | SUMMARY 676 |
+| `manifest.json`: no `minimum_client_version`, version `2.3.0`. README declares 1.18.0 as the older host and already lists 1.19.0 | `manifest.json`; `README.md:57-66` | — |
+
+## Host facts (ST 1.19.0; rows land in `docs/plans/v2.4/host-facts.md`, X9)
+
+| # | Fact | Where |
+|---|---|---|
+| H1 | A branch saves `{...chat_metadata, main_chat: sessionName, integrity: uuidv4()}`, so our blob and the chat lorebook slot travel | `bookmarks.js:199-201,231-233`; `script.js:7406`; `group-chats.js:2370` |
+| H2 | A checkpoint does the same (`main_chat` = group `chat_id` or `characters[this_chid].chat`) | `bookmarks.js:282-290` |
+| H3 | `main_chat` equals our stamp: `sessionName` and `ctx.chatId` are the same value. It holds one hop only. Legacy bookmarks set `main_chat` lazily | `script.js:8538`; `st-context.js:125-127`; `bookmarks.js:115-123` |
+| H4 | `integrity` is minted on load if missing. Convert-to-group copies metadata and deletes `main_chat` | `script.js:7665-7667`; `group-chats.js:276-278`; `bookmarks.js:357-358` |
+| H5 | `hideChatMessageRange` flips `is_system`, saves, emits nothing (`/hide`, `/unhide`) | `chats.js:147-169`; `slash-commands.js:1836,1859` |
+| H6 | `messageEditMove` swaps adjacent entries, saves, emits nothing | `script.js:8353-8395` |
+| H7 | Deleting a swipe below the current one decrements `swipe_id` with `mes` unchanged | `script.js:9368-9388` |
+| H8 | `/persona-sync` renames every matching user row, saves, then `reloadCurrentChat` | `personas.js:1842-1869` |
+| H9 | `reloadCurrentChat` re-reads the file (`chat_metadata` replaced by the server copy), then emits `CHAT_CHANGED` with the same id. Callers include a persona change on an untainted group | `script.js:1702-1727,7655-7700`; `group-chats.js:268-318`; `personas.js:1876-1881` |
+| H10 | `CHAT_DELETED(name)`, name without `.jsonl` | `script.js:1349-1354,1401,10882-10884` |
+| H11 | `GROUP_CHAT_DELETED(chatId)`. `deleteGroup` emits it **before** checking `response.ok` | `group-chats.js:1328-1337,2269,2308` |
+| H12 | `WORLDINFO_UPDATED(name, data)` | `world-info.js:4160` |
+| H13 | `deleteWorldInfo(name)` → boolean: deletes, evicts the cache, unselects, refreshes the list | `world-info.js:4346-4385` |
+| H14 | Keyless non-constant WI entries never activate (unless sticky) | `world-info.js:4898-4907` (SUMMARY; re-verify) |
+| H15 | `saveSettings` never rejects. It defers silently while not ready, toasts on error, and emits `SETTINGS_UPDATED` only after 2xx | `script.js:8051-8114` |
+| H16 | `/api/settings/get` returns `settings` as a JSON string and reads every preset directory per call | `src/endpoints/settings.js:219-268`; client `script.js:7913-7931` |
+| H17 | `minimum_client_version` is checked via `versionCompare`. A failing extension is not loaded | `extensions.js:580-590,658-660` |
+| H18 | `PERSONA_CHANGED(avatar)`. ST restores the chat persona in its own `CHAT_CHANGED` listener | `personas.js:154-167,1543,3004` |
+
+## Design
+
+### 0. Schema: optional v4 fields, no bump (X1)
+
+```ts
+interface StoryOrchestratorMetadataBlob {       // still version: 4
+  version: 4;
+  chatId: string | null;
+  integrity?: string | null;                    // NEW, optional: chat_metadata.integrity at the last own save
+  selectedStoryId: string | null;
+  stories: Record<string, PersistedStoryRuntime>;
+}
+interface PersistedStoryRuntime {
+  …existing fields…;
+  fingerprints?: MessageFingerprints;           // NEW, optional; absent = unknown, never a mismatch
+}
+interface MessageFingerprints { v: 1; from: number; hashes: Array<string | null> } // hashes[i] ↔ messageId from+i
+```
+
+- **Upgrade (v2.3 blob read by v2.4):** nothing to migrate.
+  - A missing `integrity` means unknown. It is stamped at the next own save, like `chatId` (`persistence.ts:153-155`).
+  - A missing `fingerprints` means unknown. The length check (§2) still runs.
+- **Downgrade (v2.4 blob read and written by v2.3):**
+  - v2.3 keeps the blob object (`persistence.ts:49,56`), so `integrity` survives.
+  - Its first persist rebuilds the played record (`runtimeManager.ts:575`) and drops that record's `fingerprints`. That is harmless, because on re-upgrade the record reads as unknown.
+  - Other stories' records are untouched. Their fingerprints stay valid, because v2.3 changes only the loaded story's state.
+- **Stale `integrity` after a downgrade:** v2.3's `adoptChatState` restamps `chatId` only (`persistence.ts:90`). So a blob whose `chatId` matches but whose `integrity` differs was adopted explicitly. It is restamped at the next own save and journaled `integrity-restamped`, never treated as foreign. `integrity` is **advisory**: it only classifies an already-foreign blob (§5) and a same-chat reload (§3).
+- Invariants: 13 (no version change, because nothing changes shape), 12, 17.
+
+### 1. T11 guard + host minimum (for future bumps)
+- An **unrecognized** blob is read **detached**, on the V5 foreign-stamp path. "Unrecognized" means any value under the key other than v2/v3/v4 with the right shape: v5+, a non-numeric version, a missing version, or broken `stories`.
+  - `blobMismatch()` gains `kind: "foreign" | "unreadable"` plus `foundVersion`.
+  - `getMetadataBlob` returns `createBlob()` and writes nothing.
+  - `ownBlob` and `restampRenamedChat` refuse.
+  - `adoptChatState` refuses for `unreadable`, and `selectStory` reports "saved by a newer Story Orchestrator (vN): update, or Restart to replace it".
+  - A confirmed Restart is the only overwrite. The event is journaled `blob-unreadable`.
+- `manifest.json` gets `"minimum_client_version": "1.18.0"`. `scripts/release/manifest.test.mjs` asserts it equals README's "Declared older host" row (`README.md:66`).
+- Lives in `persistence.ts` (~20 lines); `persistenceMigration.ts` stays pure. Invariants: 13, 2 (H17).
+
+### 2. T3 content fingerprints (`runtime/fingerprints.ts`, pure; hashing in the runtime, inv 1)
+- **Hash (X2)** = FNV-1a/32 (the `hash.ts` scheme) over `stable({mes, is_user, name: is_user ? null : name})`.
+  - No `swipe_id`: H7.
+  - No `is_system`: D5.
+  - No user-row `name`: H8.
+- **Capture** at `commitBoundary`, before `persist`, of the ids in `(previousLastMessageId, lastMessageId]`.
+  - A continue/appendFinal boundary **re-hashes** `lastMessageId`. `turnBridge.ts:24-29` already classifies it and passes `{continued}` through.
+  - The list is truncated at the history floor (`engineHistory.from.messageId`), so its size follows the rollback horizon (≈11 B/message).
+  - It is written in the commit's own persist, not as a `boundaryWork` entry, because it must land in the same write as its boundary (inv 22 untouched).
+- **Reconcile** `diffFingerprints(stored, chat) → {firstMismatch | null}` runs at the boundary (before `engine.commitBoundary`), at hydrate (after `engine.hydrate`) and on a same-chat reload.
+  - A `null` or absent hash is unknown, never a mismatch.
+  - A chat **shorter** than `lastMessageId+1` is a mismatch at `chat.length`. This check also runs for records without fingerprints: it catches a branch tail or a truncation made while SO was off.
+  - A mismatch at `m` goes through `runRollback(m)`, E1 included, and is journaled `eventless change at message m`.
+- **Mutation events:** an `edit`/`update` whose hash is unchanged is a **no-op**: no rollback, no `noteMutation`, turnKeys kept. A swipe changes `mes`, so it falls through. `delete` is plan 01's T1.
+- **Rollback ≡ replay (inv 11):** after restoring boundary B, fingerprints are truncated to `B.lastMessageId`, which is what replay to B holds.
+- Invariants: 1, 3, 10 (reconcile holds a `RunToken` across its awaits), 11, 13.
+
+### 3. Same-chat reload (`runtime/chatIdentity.ts`)
+- `TurnBridge.onChatChanged` calls `classifyChatChange()`.
+- **same-chat** requires all three: `openChatId === owner.claimedChat()`, the loaded `chat_metadata.integrity` equals the integrity recorded at load, and the server copy's selected `engineState.boundary` equals the engine's.
+  - Keep pending boundaries, turnKeys, the epoch and runs (no `bump`, no `reset`).
+  - Reconcile fingerprints against the reloaded `chat[]`. Nothing is re-hydrated: the next persist writes through `getMetadataBlob` into the new metadata object.
+- If the boundaries differ (another tab, or a lost save), today's full reload runs and is journaled `reload-diverged`.
+- Anything else is today's switch.
+- Invariants: 10 (tokens stay valid because the world did not change, and the classification is the evidence), 17.
+
+### 4. Hidden ≠ deleted (D5)
+No new behaviour. D5 is pinned by tests so that nothing later in v2.4 can break it:
+- T3 does not hash `is_system`.
+- Plan 01 T1's key has no `is_system` (X3).
+- A re-read over a hidden source (`rereadConflictWindow`, reconcile reads) reports `hidden`. It never reports "evidence gone" and never quarantines.
+
+Facts from hidden messages stay `live`, and unhide returns the message to future windows.
+- Invariants: 4 (hidden text is out of the window, so it cannot be evidence), 11 (hide is not a mutation).
+
+### 5. T2 branches (D3; `chatIdentity.ts` + drawer/HUD)
+- **Detect** on load: the blob reads foreign, and `chat_metadata.main_chat === mismatch.stampedFor`, and `blob.integrity` is absent or differs from `chat_metadata.integrity`. The result is `snapshot.chatIdentity = {kind: "branch", parentChat, checkpointName}`. Anything else stays `kind: "foreign"`, including convert-to-group (H4).
+- **Notice:** non-blocking `#so-branch-notice` in the drawer Overview plus a HUD chip, with **Continue from here** (`#so-branch-continue`). No popup and no auto-adopt (V5, D3). Checkpoint names only (inv 9).
+- **Continue from here:**
+  1. `adoptChatState()` restamps `chatId` + `integrity`.
+  2. `selectStory` hydrates.
+  3. The §2 reconcile rolls back to the branch tail: a shorter chat rolls back at `chat.length`; a swipe-branch at the first changed id. Past the horizon, the E1 notice applies.
+- **While unadopted:** if the chat slot names the parent's mirror book, `unbindChatLorebook(name): WriteResult` clears the slot (new in `stHost/worldInfo.ts`, exact match only) and saves. Our foreign blob stays byte-identical. The unbind runs behind a `RunToken` (inv 10) and returns a typed result (inv 16). On adopt, the existing path binds a fresh per-branch book (`memoryMirror.ts:83-89,127`).
+- **Out-of-horizon (seed D, X25), author view only:** the E1 panel gains **Branch from the oldest restorable point** = `/branch-create` at `engineHistory.from.messageId`. In that branch, Continue from here restores `base` exactly. Offering it to players waits for a player session (rule 7).
+- Invariants: 12, 9, 10, 16, 14 (the gated WI replay runs on adopt through the existing hydrate).
+
+### 6. T14 mirror lifecycle (`runtime/mirrorReaper.ts`; X18, X25)
+- **Typing** in `events.ts`: `CHAT_DELETED: [name: string]`, `GROUP_CHAT_DELETED: [chatId: string]`, `WORLDINFO_UPDATED: [name: string, data: unknown]`.
+- **In-book ownership marker.** When the mirror adopts a book, it writes one entry:
+  - comment `so-owner`, hyphenated so the `so_` stale sweep never touches it (`memoryMirror.ts:58-64`);
+  - no keys, so it is inert (H14), and disabled after the write, because `upsertWIEntry` re-enables what it writes;
+  - content `{"owner":"story-orchestrator","chatId":…,"integrity":…,"createdAt":…}`.
+
+  A missing marker means "not provably ours", and such a book is never reaped. Books from before the marker are handled by the Repair row only, never automatically.
+- **Reap:**
+  1. On a delete event, candidates are listed books whose name ends in ` - <lorebookFileId(chatId)>` (exact) **and** whose `so-owner` marker names that `chatId`.
+  2. The reaper **confirms the chat is really gone** (H11): for a group, the id is not in `group.chats`; for a solo chat, it is not in `/api/characters/chats`.
+  3. The player is asked to confirm.
+  4. Deletion goes through the new `deleteLorebook(name): WriteResult` over `deleteWorldInfo` (H13).
+  5. A declined or unverifiable reap becomes a session Repair row, "orphaned story-memory lorebook" (area `lore`).
+
+  Never automatic (inv 16, destructive).
+- **Stop mirroring scene rows:** `mirroredEntries` drops `scene`. The existing stale sweep disables already-written scene entries on the next sync (`memoryMirror.ts:93-105`). Scene history stays injected through `memorySceneHistory`.
+- Key hygiene is **not** here (plan 05, X18).
+- Invariants: 16, 15, 2.
+
+### 7. T8 install-wide save evidence (`stHost/persistence.ts` + stores)
+- **Watcher self-heal:**
+  - keep a reference to our wrapper, and re-wrap in `observeNextSave` whenever `globalThis.fetch !== ours`;
+  - report each request once, keyed by a `WeakSet` of `init` objects, so a chained old wrapper plus a re-wrap cannot double-report.
+- **Settings saves:**
+  - also observe `/api/settings/save`, through `observeNextSettingsSave()` plus `SETTINGS_UPDATED` (H15);
+  - library saves are read back through `/api/settings/get`, comparing `v2Stories[id].{version, updatedAt}`, at most once per save burst (H16);
+  - `Saved "X" vN to the library.` is shown only on evidence; otherwise `Saving "X" vN… not confirmed`, with the reason journaled.
+- Chat-save predicates stay as they are (seed E asymmetry kept).
+- Invariants: 17, 2, 18.
+
+### 8. Requirements refresh (`runtime/requirementsWatch.ts`; X25)
+- Subscribe `PERSONA_CHANGED`, `GROUP_UPDATED` and `WORLDINFO_SETTINGS_UPDATED`; the last two replace the bare `notify()` at `turnBridge.ts:60-61`.
+- After a 250 ms debounce, refresh requirements.
+- On not-ready → ready with `lastAppliedCheckpointId !== active`, apply the checkpoint in `hydrate` mode under a `RunToken`. This is the call `commitBoundary:258-260` already makes, moved earlier.
+- ready → not-ready changes nothing destructive.
+- Lorebook selection is read from `selected_world_info`, not the debounced mirror (`worldInfo.ts:184-193`).
+- Invariants: 10, 14, 13.
+
+### 9. Seed D: `commitDecision` id-keyed restore (`memoryQueue.ts`)
+- `restore` becomes `{store, before: Map<id, row | ABSENT>, wrote: Map<id, row>}`.
+- On a lost save, each touched id is put back only if the current row **is** the one written (compare-and-set, the `effectLedger.ts:52-68` shape).
+  - Rows added meanwhile are kept.
+  - Rows changed by someone else are left alone and reported `externally-changed` on `[data-so="decision-refused"]`.
+- The census row moves from `partial` to `checked`.
+- Invariants: 10, 11, 17.
+
+### 10. Harness this plan builds (X11)
+- **`expect.rollbackOutcome`**: `{result: "applied"|"noop"|"history-unavailable", fromMessage?, reason?}`. It reads the last `runRollback` outcome, recorded in-memory on the manager's notices. It is added to `scenarioSchema.mts`.
+- **Next-read-window assertion**: `expect.nextReadWindow: {includes?: number[], excludes?: number[]}`. It asks `getChatWindow` for the window the scheduler would read next. An empty window, or a window outside the chat, fails rather than passing vacuously.
+- **Branch-adopt UI verb**: `so-ui.mts branch-continue` and scenario `ui: {action: "branch-continue"}`. It clicks `#so-branch-continue` after a `hit-test`.
+- **Cleanup that owns branch chats**: `branch_create` records each created chat name in the run ledger. `so-journey`/`so-scenario --sandbox` cleanup deletes only recorded names, after the pinned group is re-opened (the gotchas' `/delchat` rule). The cleanup record reports `cleanup.branchChats {deleted, failed, leaked}`, and a leak fails the run.
+- **Generalised `scripts/release/attestation.test.mjs`**:
+  - the records root is read from the attestation (not `:16`'s literal);
+  - the journey set is read from `test/journeys/*.journey.json` (not `:62`'s J0–J11, which misses J12);
+  - every run is reported, not only the first two;
+  - the served-bundle check (`served.sha256` vs `build.attested.bundle.sha256`) is kept.
+- `npm run test:debug` covers every new verb against a fake page. `npm run test:release` covers the attestation.
+
+## Order of work (failing fixture first, T11 before T3)
+
+1. **Harness first** (§10). Every later fixture asserts through it.
+2. **Fixtures red**, in the plan-01 corpus, each with its H#:
+   - unrecognized blob (v5 shape)
+   - `/hide` consumed (H5)
+   - `messageEditMove` (H6)
+   - swipe delete below current (H7)
+   - `/persona-sync` (H8)
+   - same-chat reload (H9)
+   - no-op edit
+   - branch and checkpoint (H1-H3)
+   - chat delete and a failed group delete (H10-H11)
+   - swallowed settings save (H15)
+   - `fetch` restored by a peer
+   - persona change (H18)
+3. **T11** guard + manifest minimum.
+4. **Seed D `commitDecision`**.
+5. **T3** fingerprints (optional v4 fields), plus the D5 tests.
+6. **Same-chat reload**.
+7. **T2**, then the out-of-horizon author option.
+8. **T14**, **T8**, **requirements refresh**.
+9. Live gates.
+
+## Tests and gates
+
+**Jest:**
+- `persistenceDowngrade.test.ts`, **both directions**:
+  - over a captured real v2.3 blob (`test/fixtures/v4-chat-blob.json`, new, provenance in file) and seeded generated ones, v2.4 reads it with every field deep-equal;
+  - a v2.4-written blob run through a **frozen copy of v2.3.0's read and persist path** (`storedBlob` + `savePersistedRuntime` + the `:575` record build, inlined in the test with the source commit and hash cited) keeps `selectedStoryId`, every record's `engineState`/`engineHistory`/`extras` and the blob's `integrity`;
+  - only the played record's `fingerprints` are lost, and v2.4 then reads that record as unknown with the story intact.
+- `blobUnreadable.review.test.ts`:
+  - for v5, `"4"`, no version and broken `stories`, `JSON.stringify(chat_metadata)` is byte-identical after `getMetadataBlob` and after every automatic write;
+  - explicit select is refused;
+  - Restart overwrites only after confirm.
+- `fingerprints.test.ts`:
+  - the hash ignores `swipe_id`, `is_system` and the user `name`, and reacts to `mes`, `is_user` and the character `name`;
+  - absent means unknown;
+  - a shorter chat is a mismatch at `chat.length`;
+  - the continue re-hash;
+  - truncation ≡ replay (seeded, the `rollbackReplay.property` pattern);
+  - a stale `integrity` with a matching `chatId` is restamped, not read as foreign.
+- `turnBridge.review.test.ts`: a no-op edit gives no rollback and no `noteMutation`.
+- `chatIdentity.review.test.ts`:
+  - same-chat vs diverged vs switch;
+  - branch vs foreign;
+  - the one-hop limit;
+  - convert-to-group is foreign.
+- `mirrorReaper.review.test.ts`:
+  - exact suffix (`-12` ≠ `-123`);
+  - no marker means no reap;
+  - a marker naming another chat means no reap;
+  - H11 announce-without-delete is refused;
+  - confirm is required.
+- `stHost/persistence.test.ts`: re-wrap after a peer restore; one report per request.
+- `memoryQueue`:
+  - a row added during the save survives the put-back;
+  - a changed row is reported `externally-changed`.
+- Census rows for every new write-after-await (unbind, marker write, reap, requirements apply, reconcile rollback). `typedResults.test.ts` covers `unbindChatLorebook`/`deleteLorebook`. `faultMatrix.json` gets updated rows. `architecture.test.ts` budgets hold (manager ≤700, target ≤690).
+
+**Mutation checks** (`test/findings/mutations/P02-*.txt`). Remove one guard at a time; each must fail exactly its own case:
+1. drop the unrecognized-blob branch
+2. hash `swipe_id`
+3. hash `is_system`
+4. hash the user `name`
+5. drop the continue re-hash
+6. drop the no-op-edit short-circuit
+7. drop the length reconcile
+8. same-chat without boundary equality
+9. unbind without the token check
+10. reap without the absence check
+11. reap without the marker check
+12. whole-array restore in `commitDecision`
+13. watcher without the `WeakSet` dedupe
+14. attestation with a literal J-list
+
+**Scenarios** (`test/scenarios/plan02-*.json`):
+- `downgrade-guard` (`seed_metadata` a v5-shaped blob, save, read the server file back)
+- `noop-edit` (`expect.rollbackOutcome` none)
+- `message-move`
+- `hide-consumed` (`expect.nextReadWindow.excludes`)
+- `swipe-delete-below`
+- `persona-sync`
+- `same-chat-reload`
+- `branch-continue` (`ui: branch-continue`, `expect.rollbackOutcome.applied`)
+- `checkpoint-continue`
+- `chat-delete-reap`
+- `requirements-refresh`
+
+**Journeys** (`--strict`, twice consecutively, archived; X25 adds J4):
+- **J6 ×2**, plus J6.10 no-op edit, J6.11 `/hide` consumed, J6.12 message move.
+- **J10 ×2**, plus J10.12 the downgrade round trip over the captured blob, J10.13 unrecognized blob detached, J10.14 branch Continue from here.
+- **J4 ×2** (return-and-adopt, touched by adopt).
+
+**Gate commands** (CLAUDE.md tier "runtime / UI / ST-facing"):
+- `npm run typecheck && npm run typecheck:test && npm run lint && npm test && npm run build && npm run test:release && npm run test:debug`
+- `node scripts/debug/st-session.mts reload`
+
+**Live checks** (real LLM, headed, profile selected, no `debugResponse`; `so-run-header capture`/`diff` around the batch):
+1. Branch mid-story: notice, then Continue, then the next real reply commits from the tail.
+2. No-op edit on a consumed reply: no rewind.
+3. `/hide` of a consumed message: the next real read's window excludes it, and its facts stay live.
+4. Same-chat reload mid-read (persona switch on an untainted group, H9): the read lands and the pending boundary is kept.
+5. Deleting a story chat: the reap is offered, and the book is gone after confirm.
+6. Persona switch: requirements go green without a turn.
+7. **Clean-host downgrade leg** (X25, `scripts/release/clean-host.sh`):
+   - play two turns on v2.4, check out the 2.3.0 tag and play one turn, return to v2.4;
+   - the story continues from v2.3's boundary;
+   - the played record reads its fingerprints as unknown;
+   - `integrity` is intact.
+
+Records go under `test/journeys/records/v2.4-plan02/`.
+
+## Risks
+
+- **Fingerprint false positives.** Any writer of a consumed `mes` rewinds the story; that is intended, and noisy for a rewriting extension. A host-side whitespace normalisation would rewind every chat once. Mitigations: the journal names the message, and there is at most one rollback per reconcile.
+- **Downgrade loses fingerprints** for the played story. Until the next boundary re-captures them, only the length check guards that record. This is accepted (X1).
+- **Same-chat misclassified.** Toward "diverged", it falls back to today's path, which is safe. Toward "same", it would keep a stale run, hence the boundary equality read from the copy ST just loaded.
+- **The branch notice is new player copy** without a player session. D3 allows it; keep it to checkpoint names and one button.
+- **The reaper is destructive and driven by an event ST emits even on failure** (H11). The absence check and the marker check are the guards, so their mutation checks are mandatory.
+- **Books mirrored before the marker existed are never reaped** automatically. The Repair row is the only path.
+- **`/api/settings/get` is heavy** (H16). It is rate-limited to one read-back per save burst.
+- **Manager budget** (677/700): every item lands as a module plus a delegation line.
+
+## Unresolved questions
+
+None open. Q1 (blob bump) was answered by X1, Q2 (the hash) by X2, and Q3 (key hygiene) moved to plan 05 by X18.
+
+## Gate record
+
+_Placeholder: date, commands and results, mutation tallies, live checks with record paths under `test/journeys/records/v2.4-plan02/`, deviations._

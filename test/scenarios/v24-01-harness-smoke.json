@@ -1,0 +1,17 @@
+{
+  "_note": "v2.4 plan 01 harness smoke (no backend): every new verb once against a real ST. The foreign emitter is injected and run; Stepped Thinking's is_enabled is flipped (the runner restores it in finally, reported as extensionSettings); record_state then host_delete of a message the engine never consumed must leave the recorded state equal.",
+  "steps": [
+    { "import_story": { "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json" } },
+    { "inject_script": "../fixtures/interop/foreign-emitter.js" },
+    { "eval": "return await globalThis.__soForeignEmitter.run({ stopped: false });", "log": true },
+    { "emit_generation": [{ "event": "GENERATION_STARTED", "args": [{ "source": "guided-generations" }] }, { "event": "GENERATION_STOPPED", "args": [{ "source": "guided-generations" }] }] },
+    { "ext_setting": { "extension": "st-stepped-thinking", "key": "is_enabled", "value": true } },
+    { "eval": "const value = SillyTavern.getContext().extensionSettings['st-stepped-thinking']?.is_enabled; if (value !== true) throw new Error(`ext_setting did not land: ${value}`); return { is_enabled: value };", "log": true },
+    { "send": "A line nobody reads." },
+    { "record_state": { "as": "before-delete" } },
+    { "eval": "return { chat: SillyTavern.getContext().chat.length, last: rtLast() }; function rtLast() { return globalThis.storyOrchestratorRuntime.getEngineState().lastMessageId; }", "log": true },
+    { "host_delete": "last" },
+    { "wait": { "idle": true, "timeoutMs": 30000 } },
+    { "expect": { "stateEquals": { "as": "before-delete", "scope": ["values", "active", "path", "memory", "epistemic", "ledger"] } } }
+  ]
+}

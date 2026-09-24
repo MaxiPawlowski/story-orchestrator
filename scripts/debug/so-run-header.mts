@@ -276,6 +276,29 @@ export function samplerState(raw: { mainApi: string | null; textgen: Record<stri
   return { api: raw.mainApi, preset: (source?.preset as string | null) ?? null, temp: (source?.temp as number | null) ?? null, top_p: (source?.top_p as number | null) ?? null };
 }
 
+// v2.4 plan 01 (X10): another extension's setting a run flipped and never put back is residue the
+// header could not see. `watched` names the settings a fixture is known to flip (Stepped Thinking's
+// is_enabled for the T6 live row); the installed list and the disabled list catch the rest.
+export const WATCHED_EXTENSION_SETTINGS: Record<string, string[]> = { 'st-stepped-thinking': ['is_enabled', 'mode', 'is_shutdown'] };
+
+export function thirdPartyState(raw: { disabled?: unknown; installed?: unknown; settings?: Record<string, Record<string, unknown> | undefined> } | undefined) {
+  const list = (value: unknown) => (Array.isArray(value) ? value.map(String).sort() : null);
+  const watched = Object.fromEntries(Object.entries(WATCHED_EXTENSION_SETTINGS).map(([extension, keys]) => {
+    const holder = raw?.settings?.[extension];
+    return [extension, holder ? Object.fromEntries(keys.map((key) => [key, holder[key] ?? null])) : null];
+  }));
+  return { disabledExtensions: list(raw?.disabled), installed: list(raw?.installed), watched };
+}
+
+export async function captureThirdParty(page) {
+  return evaluateInST(page, async (watchedNames: string[]) => {
+    const ctx = (globalThis as any).SillyTavern.getContext();
+    const settings = ctx.extensionSettings ?? {};
+    const installed = await fetch('/api/extensions/discover', { headers: ctx.getRequestHeaders() }).then((response) => (response.ok ? response.json() : null)).then((list) => (Array.isArray(list) ? list.filter((entry: any) => entry.type !== 'system').map((entry: any) => entry.name) : null)).catch(() => null);
+    return { disabled: settings.disabledExtensions ?? null, installed, settings: Object.fromEntries(watchedNames.map((name) => [name, settings[name] ?? null])) };
+  }, Object.keys(WATCHED_EXTENSION_SETTINGS));
+}
+
 export async function captureHeader(page, label: string) {
   const { rawProfiles, rawSampler, ...page_ } = await capturePage(page) as any;
   const build = readBuild();
@@ -283,7 +306,9 @@ export async function captureHeader(page, label: string) {
   if (warning) page_.warnings = [...page_.warnings, warning];
   const sampler = samplerState(rawSampler);
   if (!sampler.preset) page_.warnings = [...page_.warnings, `the active sampler preset was not read (main API ${sampler.api ?? 'unknown'}): a preset left behind by a run cannot be diffed`];
-  return { label, capturedAt: new Date().toISOString(), build, ...page_, profiles: { ...page_.profiles, urls: profileInventory(rawProfiles) }, sampler };
+  const thirdParty = thirdPartyState(await captureThirdParty(page).catch(() => undefined));
+  if (thirdParty.installed === null) page_.warnings = [...page_.warnings, 'the installed extension list was not read (/api/extensions/discover): an extension installed or removed by a run cannot be diffed'];
+  return { label, capturedAt: new Date().toISOString(), build, ...page_, profiles: { ...page_.profiles, urls: profileInventory(rawProfiles) }, sampler, thirdParty };
 }
 
 // Flatten to dot-paths so a diff names the exact field. Arrays stay whole at their leaf, because

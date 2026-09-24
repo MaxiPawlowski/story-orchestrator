@@ -1,0 +1,387 @@
+# Plan 01 — Carry-in
+
+**Status: NOT STARTED.** This plan depends on the frozen v2.3 candidate (00-overview D1): v2.3's queue is
+closed or signed off, and L1 is recorded. Nothing here is built early. The doc is reconciled with 00-overview
+§Reconciliation X3–X10 (2026-09-23), and where they differ, the reconciliation wins.
+
+The current-state lines were re-verified 2026-09-23 on HEAD `fcc33cc`. The working tree also carries
+uncommitted edits from another session, which is still changing `stagecraftCoordinator.ts`, `st-actions.mts`,
+`worldInfo.ts` and other files. **Re-verify every cited line on the frozen candidate before the first commit.**
+The ST working tree is `7c39941` (1.19.0). The pinned older host `51ad27f` (1.18.0) was read with `git show`
+in the ST repo, without network access.
+
+## Goal
+
+Four things that v2.3 certifies, or that spec v2 promises, do not hold on the host as it really is:
+1. **T1:** a middle delete rolls back the wrong range. This breaks plan 04's `rollback ≡ replay` end to end.
+2. **T10:** after our own transition note in a group, the active speaker reads null. This breaks plan 05's
+   per-member blocks, leaks every member's private knowledge through the `story_epistemic` macro, and
+   switches off talk `no_repeat`.
+3. **T6:** a nested, quiet or foreign generation clears the drafted member's private block and spends the
+   warden note. Plan 05's claims hold only when nothing else generates inside the turn.
+4. **Guidance (D7):** checkpoint `guidance` is never injected (spec v2 §75/§225), so a generated checkpoint
+   gets no steering at all.
+
+Plan 01 proceeds in order:
+- it writes the failing interop fixtures first, plus the harness they need (X4, X10);
+- it fixes the four defects;
+- it builds the over-steer probe (X8) and the v2.4 host-facts table (X9);
+- it corrects the v2.3 docs and comments that state the opposite (T21, T4, T2, and the playbook §0).
+
+## Scope / out of scope
+
+**In:**
+- T20 no-backend rows for the plan-01 shapes, plus the event-name guard;
+- the X4 and X10 harness;
+- T1, T10 (with the macro leak and `no_repeat`), T6 and guidance injection;
+- the over-steer probe;
+- `host-facts.md`;
+- the corrections table.
+
+**Out:**
+- T20 rows owned by plan 02: silent edit, `/hide`, `messageEditMove`, same-chat reload and branch;
+- tool-call policy and post-processor rewrites (plan 04 and v2.5);
+- T3 fingerprints (plan 02, X1/X2);
+- the T4 abort wiring (plan 03). Plan 01 only corrects the comments;
+- the objective line (T16, plan 06) and the `player_attempts_only` clause (plan 04, X13). Both are added
+  later to plan 01's guidance block;
+- ~~the P0′ replay converter~~: **in scope**. X10 now lists it (added 2026-09-23 at reconciliation); build it
+  beside the replay-equality check, since plan 09 row R1 replays P0′ through it.
+
+**No blob or schema change.** The T1 snapshot lives in memory, and `guidance` already exists in the schema.
+
+## Verified current state
+
+| Item | Code now (path:line) | Drift vs SUMMARY |
+|---|---|---|
+| T1 subscribe | `src/runtime/turnBridge.ts:56` passes `MESSAGE_DELETED`'s payload on as a message id | matches |
+| T1 decode | `turnBridge.ts:159-170`: `hostMessageId(value)` → `turnKeys` purge with `keyed >= messageId` (`:167`) → `rollbackFromMessage` (`:169`) → `runtimeManager.ts:349-355` (`owner.noteMutation`, then `runRollback`, `rollback.ts:35`) | matches. **New:** `src/services/stHost/events.ts:17` types the payload as `[messageId: number]`, which is wrong |
+| T1 harness | `scripts/debug/st-actions.mts:299-317` `deleteMessage` sets `chat.length = id`, then emits `MESSAGE_DELETED(id)`. That is a tail cut, and `id` equals the post-delete length. `plan03a-delete-rollback.json:71` (`delete: 0`), `plan03a-edit-rollback.json` and J6 all use it | **New (X4):** v2.3's delete coverage only ever exercised the shape that already decodes correctly. Nothing calls ST's `deleteMessage` (`ctx.deleteMessage`, `st-context.js:142`) or `/cut`. The file also carries uncommitted edits |
+| T10 speaker | `src/runtime/roster.ts:30-42` skips only `is_user`. It returns null at the first named non-user row that is not an enabled roster member | matches |
+| T10 impact | `memoryCoordinator.ts:448` → `inject.ts:27`: a null speaker **drops** per-member facts. Also `:494` (`onMemberDrafted` fallback), `:405-406` (`getEpistemicBlock`), `:503` | lines match. **New (X5):** with a null speaker in a group, `getEpistemicBlock` renders `enabledCharacterNames(story)`, i.e. **every member's private knowledge merged**, into `story_epistemic` (`macros.ts:55`). That is an inv-15 breach. Talk `no_repeat` reads the same function (`runtime/index.ts:166` → `talkControl.ts:208` → `talk/rules.ts:60`) |
+| T10 timing | `updateInjection` runs at `runtimeManager.ts:268`, **then** `announceTransition` at `:273` (`effectsApplier.ts:171-175`, `/comment compact=true`). The next `updateInjection` sees the Note as the last row; `onGenerationEnded` → `clearPrivateInjection` (`:637`, `:640`) is one such call | new detail. The live probe must run after an ENDED or a memory commit |
+| T6 wiring | `runtime/index.ts:189` runs `onGenerationStarted`, `capturePayload` and `talk.onGenerationStarted` on every STARTED. `:191-192` runs `onGenerationEnded` on every ENDED or STOPPED, foreign `{source}` ones included. Only lore skips dry and quiet runs (`:156`) | matches |
+| T6 manager | `runtimeManager.ts:636`: a quiet or impersonate STARTED → `withholdPrivateKnowledge` (`memoryCoordinator.ts:482-484`). `:637`: every ENDED → `clearPrivateInjection`, `clearCopilotNudge` and `clearContinuityNote` | the SUMMARY T6 row cites `:635-636`; it is **636-637** |
+| T6 warden | `stagecraftCoordinator.ts:457-468`, at STARTED: skips dry, quiet and impersonate runs, but not a non-string `{source}` type. Otherwise it sets the note, marks it `applied` and saves. `clearContinuityNote` is `:470-474` | +1 line vs `456-466`; the file has uncommitted edits |
+| T6 talk | `talkControl.ts:87-90`: any STARTED with a numeric `force_chid` sets `pass.forced`. `:92-94`: any ENDED nulls `forcedChid` | matches |
+| T4 comments | `runOwner.ts:56-63` (the claim is `:60-62`); `judge/types.ts:65-69`; `epochAbort.review.test.ts:8-11`. Plan-03 statement: `03-async-ownership.md:1676-1684` and table row `:1789` | the first two have drifted +1 |
+| T21 | see §Corrections | the claim sits at `10-judge-seeds.md:155,157-158,168,169-174` (not `:160-161`) and at `11-acceptance.md:808-809`. `.claude/CLAUDE.md:20` states it ×3. **New:** `test/findings/ledger.json:248` |
+| T2 | `03-async-ownership.md:2715` | matches |
+| Guidance | Authored: `engine/schema.ts:156`, parsed at `engine/validate.ts:344`. Generated: `schema.ts:188`, required at `generation/parse.ts:111-120`, merged at `generation/merge.ts:29`. **No injection reads it.** `expansionCoordinator.ts:168` passes beat guidance only to the judge's expansion check. `constants/injectionRegistry.ts:12-23` has no key for it. Depth 4 already holds `{memoryFacts, epistemic}` as an allowlist pair (`:26`), plus the dynamic nudge. Every block is written at system role (`stHost/extensionPrompts.ts:25`) | D7 holds for injection. Sun-ruins has guidance on 3 of 9 checkpoints and an author note on 9 of 9 |
+| Budgets | manager 677/700; `memoryCoordinator` 614/620; `pacingCoordinator` 103; `stagecraftCoordinator` 475 | SUMMARY says 676. `memoryCoordinator` has 6 spare lines |
+
+## Host facts
+
+Plan 01 creates **`docs/plans/v2.4/host-facts.md`** (X9) with these rows, labelled `01-H1`…`01-H13`.
+Columns: fact, 1.19.0 file:line, 1.18.0 file:line, verified date, plan. Every later plan appends its own
+rows there, and rule 2 cites the file.
+
+The 1.19.0 lines are from `public/`, verified 2026-09-23. The 1.18.0 lines are from `51ad27f`.
+
+| # | Fact | 1.19.0 | 1.18.0 |
+|---|---|---|---|
+| H1 | `MESSAGE_DELETED` payload = the **post-delete `chat.length`** | `script.js:1611` (`deleteLastMessage`), `:1699` (`deleteMessage`), `:4411` (regenerate/swipe tail pop), `:11734` (delete-mode truncate) | `:1609`, `:1672`, `:4352`, `:11672` |
+| H2 | Tail paths therefore decode **correctly** today; only a non-tail `deleteMessage` or `/cut` is wrong | splice-from-end `:1683-1690` | same |
+| H3 | One event can remove **several** messages (a tool-call run before the reply) | `getMessageDeletionStartId` `:1614-1630`; param `:1639` | **no**: `deleteMessage(id, swipe, ask)` `:1618` splices one message. The row is `blocked` on 1.18.0 (X4) |
+| H4 | `/cut a-b` = one `MESSAGE_DELETED` per message, each after its own splice | `power-user.js:2820-2857` | `:2848` |
+| H5 | `GENERATION_ENDED` comes from `hideStopButton`, only while `#mes_stop` is visible; its payload is `chat.length`. **ENDED is not paired with STARTED** | `script.js:3532-3537` | `:3473-3477` |
+| H6 | A nested quiet run's `unblockGeneration` → `activateSendButtons` clears `is_send_press` and `dataset.generating` mid-turn. `isGenerating()` = `is_send_press \|\| is_group_generating`, so in solo `isHostGenerating()` reads **false** inside the outer generation | `:5693-5704`, `:7075-7080`, `:604` | `:7016` |
+| H7 | `GENERATION_STARTED(type, {automatic_trigger, force_name2, quiet_prompt, quietToLoud, skipWIAN, force_chid, signal, quietImage}, dryRun)`; `AFTER_COMMANDS` takes the same arguments | `:4299`, `:4321` | `:4240` |
+| H8 | `generateQuietPrompt` → `Generate('quiet', {… force_chid: forceChId ?? null})`; positional calls are accepted with a trace | `:3084-3108` | `:3025` |
+| H9 | `/comment`: `name 'Note'` (`slash-commands.js:3772`), `is_system:true`, `extra.type:'comment'`. It emits `MESSAGE_SENT` and `USER_MESSAGE_RENDERED`, never `CHARACTER_MESSAGE_RENDERED` | `slash-commands.js:6113-6152` | `:6112-6117` |
+| H10 | `/sys`: `name` = `narrator_name` or `'System'`, `is_system` only for a bias-only message, `extra.type:'narrator'` | `slash-commands.js:6020-6036`, `:3770-3771` | re-check |
+| H11 | Group `/sd` post: `name = systemUserName` (`'SillyTavern System'`, `script.js:405`, **not on the context**), `is_system: !visible`, media in `extra.media[]` (not `extra.image`) | `stable-diffusion/index.js:4966-4991` | `extra.media` too |
+| H12 | `sendRequest` honours `custom.signal` | `shared.js:395`, `:415`, `:423-424`, `:464`, `:484`; wrapped at `:487-489` | `:391`, `:411`, `:420`, `:458`, `:478` |
+| H13 | Author's Note defaults: depth 4, system role | `authors-note.js:272,275` | re-check |
+
+Third-party facts go in the same file, marked "not ST":
+- **Stepped Thinking** (`b79df5e`):
+  - listeners `thinking/engine.js:50-61`, with `AFTER_COMMANDS` at `:56`;
+  - the thought is a positional `generateQuietPrompt(…, characterId)` at `:443-451`, i.e. **a quiet run with
+    `force_chid`**;
+  - its regenerate path calls `Generate(null, {force_chid})` at `:293` (a **null type**);
+  - `settings` is a live reference to `extension_settings['st-stepped-thinking']` (`settings/settings.js:53-56`),
+    and `is_enabled` is read at `engine.js:490`, so an in-place flip takes effect immediately. This install:
+    enabled, `is_enabled:false`, `mode:'embedded'`.
+- **Guided Generations** (research clone `64456d4`; not installed here): `emitGenerationEvent` at
+  `scripts/utils/llmClient.js:565-572` emits **single-argument `{source}` payloads** for `GENERATION_STARTED`
+  (`:899`, `:912`), `GENERATION_ENDED` (`:908`, `:914`) and `GENERATION_STOPPED` (`:917`).
+
+Re-check on 1.18.0 during the live gate: H10 and H13, and that H3 really is absent.
+
+## Design
+
+### Harness (X4, X10; inv 20)
+
+**Scenario verbs.** New verbs go into `scripts/debug/lib/scenarioSchema.mts` (the closed vocabulary) and
+`so-scenario.mts`:
+- `host_delete: <id>` → the real `ctx.deleteMessage(id, undefined, false)`;
+- `cut: "a-b"` → `/cut` through the slash seam;
+- `emit_generation: [{event, args}]` → event-level lifecycle sequences, for the no-backend rows;
+- `ext_setting: {extension, key, value}` and journey `setup.extensionSettings`. These snapshot the value,
+  write `extension_settings[ext][key]` in place, save, and restore in the runner's `finally`. The read-back
+  is reported as `cleanup.extensionSettings`. The first user is Stepped Thinking `is_enabled`;
+- `record_state: {as}` plus `expect: {stateEquals: {as, scope}}`, the **replay-equality check**. It records
+  engine state (blackboard values and versions, active checkpoint, path, boundary) and the ids of memory,
+  epistemic and ledger rows at the boundary before the target message. After the mutation, the state must
+  equal that recording. Rows derived from the removed message count as absent (inv 11, live);
+- `expect: {overSteer: {…}}` (see below).
+
+The existing `delete` verb keeps its behaviour, and its docs rename it the **tail-truncate** shape.
+
+**Run header.** It gains `thirdParty: {disabledExtensions, installed, watched: {"st-stepped-thinking":
+{is_enabled, mode, is_shutdown}}}`, so a flip that was not restored shows up as a blocking diff.
+
+**Foreign-emitter fixture (test-only).** `test/fixtures/interop/foreign-emitter.js` is injected in-page by
+the harness and never installed. It reproduces Guided Generations' shape:
+- `STARTED({source})`, an optional real `sendRequest` (live row), then `ENDED({source})`;
+- a `STOPPED({source})` variant;
+- an unpaired ST-shaped `STARTED` with `dryRun:true`.
+
+**Event-name guard.** `scripts/debug/eventNames.test.mts` (node:test) checks that every name `src/` passes to
+`subscribeToHostEvents` is a key **or** value of ST's `event_types` (`public/scripts/events.js`). It accepts
+`extension_settings_loaded` (`runtime/index.ts:198`). Outside the ST tree it reports `blocked`.
+
+### T1: decode the delete (X3; inv 11, 10, 2; arch "Boundary counters ≠ ST message indexes")
+- **Pure `src/runtime/messageIdentity.ts`.** One key per message: `send_date|name|is_user|len(mes)|fnv(mes)`.
+  - **No `is_system`** (X3/D5): hiding must never misalign a delete.
+  - **No `swipe_id`:** deleting a lower swipe decrements it with `mes` unchanged (X2's host fact), and a real
+    swipe already changes `mes`.
+- **`decodeDelete(before, afterChat, postLength)`** → `{start, count, basis}`:
+  - `count = before.length - postLength`;
+  - `start` = the common-prefix length `p`, verified by suffix alignment `before[p+count..] == after[p..]`;
+  - `exact` when that alignment is unique;
+  - **`ambiguous`** (repeated keys allow several starts) → the **earliest** candidate start, which is a
+    superset rollback and never a later one;
+  - **`stale`** (no snapshot, `before.length <= postLength`, or no alignment) → the only case that uses
+    today's value (`postLength`).
+  - Both non-exact results are journaled.
+- **Refresh points, keyed by chatId:** `CHAT_CHANGED`, `MESSAGE_SENT`, a rendered reply,
+  `MESSAGE_EDITED`/`SWIPED`/`UPDATED`/`SWIPE_DELETED`, and after each handled delete (so a `/cut` range
+  re-diffs event by event).
+- **`onMutation("delete")`** decodes **before any await**. The `turnKeys` purge and `noteMutation` both use
+  `start`.
+- Fix the `events.ts:17` type to `chatLength`. Cost: one manager delegate for the journal line (677 → 678).
+
+### T10: the speaker skips non-turn rows (X5; inv 15, 16)
+- **`activeSpeakerId`** (`roster.ts:30`) `continue`s past (D9 shape rules):
+  - `is_system === true`;
+  - `extra.type` set to anything other than `'narrator'`;
+  - `name === systemUserName`, read through a new `stHost/generation.ts` export from the script module that
+    file already imports (inv 2);
+  - a `/sys` narrator row (`extra.type === 'narrator'`) whose name is not an enabled roster member. It
+    stays a speaker for the reply's text, but is not a *character*; a narrator row whose name **is** a
+    roster member counts as that member.
+- **Macro (X7, inv 15):** in a group, `getEpistemicBlock` returns the **applied** block
+  (`getAppliedEpistemicBlock`). That is empty at rest and the drafted member's own block while drafted; the
+  all-names merge is gone. Solo is unchanged. Net zero lines in `memoryCoordinator`.
+- Talk `no_repeat` inherits the fix with no talk-side change.
+
+### T6: the outermost loud generation (X6; inv 16, 15, 5, 6, plus arch "warden note is the one output not boundary-applied")
+- **Pure `src/runtime/generationLifecycle.ts`**, a reducer over `started(args)`, `ended(args)`,
+  `stopped(args)`, `rendered(id, type)`, `drafted(chid)` and `chatChanged()` that emits intents.
+- **Shape rules (D9):**
+  - STARTED is ST-shaped iff `args[0]` is a string, `null` (Stepped Thinking's `Generate(null, …)`) or
+    `undefined`; `args[1]` is an object or `undefined`; and `args[2]` is a boolean or `undefined`;
+  - ENDED and STOPPED are ST-shaped iff `args[0]` is a number or `undefined`;
+  - a `{source}` object on any of the three is **foreign** and ignored;
+  - `dryRun === true` is ignored.
+- **States:**
+  - **Outermost** = the first ST-shaped, non-dry STARTED while none is open. The reducer records its type
+    and `chat.length`.
+  - **Nested** = an ST-shaped STARTED while an outermost is open (`nestedOpen++`).
+  - **Withholding:** any quiet or impersonate run, outermost or nested, withholds the private block and the
+    guidance block while it is open (X7).
+  - **ENDED with `nestedOpen > 0`** closes the nested run and **re-applies** the drafted member's staged block
+    by replaying `onMemberDrafted(lastDraftedChid)` (0 new coordinator lines).
+  - **The outermost closes** on its own render (a turn-type `MESSAGE_RECEIVED`/`CHARACTER_MESSAGE_RENDERED` with
+    id ≥ its start length), on STOPPED, on `CHAT_CHANGED`, or on an ST-shaped ENDED with nothing nested. It
+    never relies on `isHostGenerating()` (H6).
+- **Wiring** lives in `runtime/index.ts:187-194`, not in the manager:
+  - `onGenerationStarted`, `capturePayload` and `talk.onGenerationStarted` fire for the **outermost only**;
+  - `clearPrivateInjection`, `clearCopilotNudge`, `clearContinuityNote` and `talk.onGenerationEnded` fire at the
+    **outermost close only**;
+  - a nested `force_chid` no longer sets `pass.forced`.
+- **Warden note (X6):** it is set at the outermost STARTED and marked `applied` **only when the outermost
+  closes with a render**. A STOPPED or reply-less close leaves it `accepted`, so it rides the next loud run.
+  This needs a `commitNote(rendered)` split of `stagecraftCoordinator.ts:465-467`. Manager: ≤ +2 lines.
+
+### Guidance injection (D7, X7; inv 16, 9, 12, 18, plus arch "next-turn preview is composed")
+- **Registry entry:** `checkpointGuidance: {key: "story_orchestrator_guidance", depth: 4, writer:
+  "runtime/coordinators/pacingCoordinator", label: "Checkpoint guidance"}`.
+  - Depth 4 and system role match the Author's Note default (H13); the role is fixed at
+    `extensionPrompts.ts:25`.
+  - The depth-4 allowlist set becomes `{memoryFacts, epistemic, checkpointGuidance}`.
+  - `OWNER_TABS` (`nextTurn.ts:54-62`) gets a `config` row.
+- **Writer:** `PacingCoordinator.updateSteering()` (`pacingCoordinator.ts:93-102`) composes the block with a
+  pure `composeGuidanceBlock(checkpoint, policy)`, so that plan 04's `player_attempts_only` clause (X13) and
+  plan 06's objective line add to one writer.
+  - The source is the **played, merged** story: the pinned copy plus merged expansions, so generated
+    checkpoints are covered.
+  - Refresh comes free from the existing call sites (inv 16): boundary `runtimeManager.ts:267`, activate
+    `:288`, load `:550`, swap `:611`, rollback `rollback.ts:91`, settings `:370`.
+  - No story, or empty guidance, clears the block.
+- **Dropped** while a quiet or impersonate run is open (the T6 reducer) and restored at its close (X7).
+- Player-invisible (inv 9). No schema or blob change. A guidance edit hot-swaps through `swapStory`
+  (`runtimeManager.ts:611`).
+
+### Over-steer probe (X8; rule 5; reused by plans 06 and 07)
+- **Pure `scripts/debug/lib/overSteer.mts`** plus the `expect: {overSteer: {block, family, controlRun?}}` key.
+  It reads reply N+1 after the block was carried.
+- **Restate check (gates):** the longest shared word span between the block text and N+1 must be < 6
+  normalised words, and N+1 must contain none of the family's meta tokens.
+- **Swing check (recorded):** N+1's length and family inputs are compared against a **control arm** (the same
+  scripted turns on a fixture copy of the story with that field removed; no product toggle).
+- **Family inputs** are parameters. Plan 01 ships the guidance family (meta tokens `guidance`,
+  `Scene direction`, `[Story`). Plan 07 supplies agency and house-rule inputs, and plan 06 supplies the
+  objective line.
+- A human rubric row is recorded, not gated.
+
+## Order of work (rule 2: fixture red first)
+
+1. **Harness:** the verbs, run-header `thirdParty`, the foreign-emitter fixture, the event guard and the
+   over-steer lib, each with node:test. Create `host-facts.md` with H1–H13.
+2. **Red fixtures** under `test/scenarios/`:
+   - `v24-01-middle-delete.json`, `-cut-range.json`, `-toolcall-run.json` (1.19.0 only),
+     `-tail-delete-control.json`;
+   - `-transition-note-speaker.json`, `-sd-post-speaker.json`, `-narrator-speaker.json`,
+     `-macro-group-rest.json`;
+   - `-nested-quiet.json`, `-foreign-source.json`, `-dry-unpaired.json`, `-stopped.json`;
+   - `-guidance.json`.
+
+   Run each and archive the RED output (`records/v2.4-plan01/red/`). The tail control must be green before
+   any fix.
+3. T1: the pure module and jest, then the wiring.
+4. T10 plus the macro fix.
+5. T6: the reducer and jest, the wiring, then the warden `commitNote`.
+6. Guidance.
+7. Corrections, made after the last code commit so their line numbers are final.
+8. Machine gates, then live gates, then the Gate record.
+
+## Tests and gates
+
+**Jest.** Each guard carries a **mutation check** (`test/findings/mutations/v24-01-*.txt`): revert the guard,
+and only its own case fails.
+- `messageIdentity.test.ts`:
+  - exact middle, tail, multi-count, `/cut` sequence;
+  - ambiguous → earliest candidate;
+  - stale → `postLength`;
+  - a hidden row between refreshes still decodes exactly.
+
+  Mutations: always return `postLength`; drop the suffix check; add `is_system` to the key.
+- `turnBridge` review: decode before the await, `noteMutation(start)`, purge keyed by `start`. Mutation:
+  purge by `postLength`.
+- `rollbackReplay` addition: a middle delete **through the decoder** equals a replay without the removed
+  message.
+- `roster.test.ts`:
+  - skipped: Note, hidden row, visible group `/sd`, tool row, non-roster `/sys` narrator;
+  - kept: a roster-named narrator;
+  - control: a non-roster member still returns null.
+
+  Mutation: remove the `is_system` skip.
+- `memoryCoordinator` review: group at rest → `story_epistemic` is `""`; drafted → that member's block only.
+  Mutation: restore the all-names fallback.
+- `talk/rules`: `no_repeat` after a Note excludes the last member.
+- `generationLifecycle.test.ts`:
+  - loud → nested quiet with `force_chid` → ENDED → render;
+  - foreign STARTED/ENDED/STOPPED `{source}`;
+  - dry unpaired;
+  - STOPPED;
+  - `Generate(null, …)`;
+  - a two-member group sequence;
+  - impersonate withholds guidance and the private block.
+
+  Mutations: clear on every ENDED; accept object payloads; skip the drafted re-apply.
+- `stagecraftCoordinator` review: a reply-less close keeps the note `accepted`; a render marks it `applied`.
+- Guidance:
+  - set on activate, cleared with no story, swapped on rollback to a guidance-less checkpoint;
+  - a merged generated checkpoint;
+  - `findInjectionRegistryProblems() === []`.
+
+  Mutation: drop the clear.
+- `loreRelevance.test.ts`: the rename (see §Corrections), plus an optional raw-Score replay case from the
+  golden (0.9197 / 0.04; reference `.debug/lore-raw-rerank.ts`). Nothing is deleted.
+
+**node:test.** The harness pieces above, plus `overSteer` against synthetic replies: a restating reply fails,
+and the control passes.
+
+**Scenarios** (no backend; `so-scenario --sandbox --group <id>`; ×2 consecutive):
+- the step-2 rows;
+- `plan03a-*`, `live-v4-turn-identity` and `so-turn-types-check.mts` stay green.
+
+**Machine:** `npm run typecheck && npm run lint && npm run typecheck:test && npm test && npm run build && npm run
+test:debug`, then `node scripts/debug/st-session.mts reload`. The architecture, ownership-census and
+fault-matrix guards must stay green; the census rows for `TurnBridge.onMutation` and the warden split change.
+
+**Live** (runtime/ST-facing tier; real LLM, profile selected, no `debugResponse`). Bring the backend up per the
+corrected playbook §0, and capture and diff a run header around the batch.
+- **T1 (plan 09 I1):** in a played group chat with ≥3 boundaries, `record_state`, then `host_delete` a
+  consumed middle message, then `stateEquals`. Repeat with `cut`, then the tail control.
+- **T10:** a real group turn crosses a transition and the Note posts, then ENDED. Assert `activeSpeakerId`, the
+  public facts block (capability profile off), `story_epistemic` at rest = `""`, and `no_repeat` on the next
+  real turn.
+- **T6 (I2):** `ext_setting` Stepped Thinking `is_enabled: true`. Run a real group turn with an accepted
+  warden note and a pinned private row.
+  - The drafted member's captured `GENERATE_AFTER_DATA` request carries both (`payloadContains` scoped by
+    block).
+  - The note is `applied` once, after the render.
+  - The restore is proven by the header diff. Control: the same turn with thinking off.
+- **Foreign emitter (I3):** the fixture's `{source}` sequence around a real `sendRequest`. The private, nudge
+  and note blocks are all unchanged.
+- **Guidance:**
+  - the block is inside a real captured request on an authored checkpoint (sun-ruins, a checkpoint with
+    guidance) and on a generated checkpoint (real expansion);
+  - it is absent on a guidance-less checkpoint and during impersonate;
+  - the **over-steer probe** runs with its control arm.
+- **Journeys:** J5, J6 and J8, `--strict`, ×2 consecutive.
+- **Records:** `test/journeys/records/v2.4-plan01/`, holding the red outputs, mutation logs, run headers and
+  matrices.
+
+## Corrections (each edit says "corrected in v2.4 plan 01" and cites the evidence)
+
+These mirror 00-overview §Carry-in corrections.
+
+| Location (verified 2026-09-23) | Replacement wording |
+|---|---|
+| `docs/plans/v2.3/10-judge-seeds.md:155` | Arm label → "**Score, rounded (as measured)**". Add a row: "raw Score (recomputed from the golden, corrected in v2.4 plan 01): nDCG@4 0.9197, tie 0.04, boundary 0.00" |
+| same `:157-158` | "…the **rounded** Score arm is worse on both. Read raw, Score still orders worse (nDCG@4 0.9197 < 0.9272) but ties less (0.04 < 0.08); Noul stays on nDCG. Corrected in v2.4 plan 01 (SUMMARY T21)." |
+| same `:168` | "…nDCG@4 favours the shipped arm; the tie rate favours it only against the rounded arm (corrected in v2.4 plan 01)." |
+| same `:169-174` | "**The tie rate of 1.00 was produced by our rounding, not by the scale.** The arm was sorted on `Math.round(score)` (`loreScore.ts:45,65`), which the Build line (`:59-61`, 'level then score') did not declare. Raw Score ties 0.04; the verdict stands on nDCG; there is no 'finer scale' seed. Corrected in v2.4 plan 01." |
+| `.claude/CLAUDE.md:20`, plan-10 results ("Noul tie rate 0.08 vs Score **1.00** (boundary 0.00 vs 0.64)") | "Noul nDCG@4 0.9272 vs Score 0.8860 **rounded** (raw 0.9197); tie 0.08 vs 1.00 rounded / 0.04 raw (boundary 0.00 either way raw) — the 1.00 was an artifact of `Math.round`; 'Noul stays' holds on nDCG (corrected in v2.4 plan 01)" |
+| `.claude/CLAUDE.md:20`, plan-10 caveat ("a six-level Score ties MORE than a probability does, not less — a finer scale is a v2.4 seed") | "the Score tie rate was produced by rounding (raw 0.04); no 'finer scale' seed (corrected in v2.4 plan 01)" |
+| `.claude/CLAUDE.md:20`, F4 sentence ("Score arm nDCG@4 0.886 vs Noul 0.927, tie rate 1.00 vs 0.08") | "(rounded Score arm nDCG@4 0.886 vs 0.927; the tie rate 1.00 was the rounding, raw 0.04 — corrected in v2.4 plan 01)" |
+| `.claude/rules/architecture.md:97` | "…the proposed Score arm ordered worse (nDCG@4 0.886 rounded, 0.920 raw, vs 0.927). Its tie rate of 1.00 came from rounding (raw 0.04), so the refusal rests on nDCG alone (corrected in v2.4 plan 01)." |
+| `docs/plans/v2.3/v2.4-seeds.md:23` | same as `architecture.md:97` |
+| `docs/plans/v2.3/v2.4-seeds.md:24` | "…a six-level scale ties more" → "the tie claim was a rounding artifact; **seed retired** (v2.4 D11, corrected in v2.4 plan 01)" |
+| `docs/plans/v2.3/11-acceptance.md:808-809` | "(**rounded** Score arm nDCG@4 0.886 vs Noul 0.927; raw 0.920; the tie rate 1.00 was the rounding — corrected in v2.4 plan 01)" |
+| `docs/plans/v2.3/recommended-config.md:38` | "…rank by a compressed probability (F4; the shipped **Noul** arm's tie rate is **0.08**, boundary 0.00; 1.00 was the rounded Score arm — corrected in v2.4 plan 01)…" |
+| `test/findings/ledger.json:248` (F4 `provenBy`) | same wording as `architecture.md:97`; the ledger guard stays green |
+| `src/judge/loreRelevance.test.ts:50` (title), `:54` | Title → "records a comparison in which the Noul arm orders better and ties less than the **rounded** Score arm". The assertion is kept |
+| `src/judge/loreScore.ts:56` | `/** The scale value rounded to 0..5 (Math.round); the raw answer is not kept here. */` |
+| `src/runtime/runOwner.ts:56-63` (claim `:60-62`) | "Extraction calls can honour it too: `ConnectionManagerRequestService.sendRequest` takes `custom.signal` (shared.js:423-424, pass-through :464/:484; 1.18.0 :420). Not wired yet (v2.4 plan 03); until then the token check is the whole defence. Corrected in v2.4 plan 01." |
+| `src/judge/types.ts:65-69` | same fact; "optional because extraction does not pass one **yet**" |
+| `src/runtime/epochAbort.review.test.ts:8-11` | same fact; "not wired for extraction yet (v2.4 plan 03)" |
+| `docs/plans/v2.3/03-async-ownership.md:1676-1684` | Append: "**Corrected in v2.4 plan 01:** wrong. `sendRequest` destructures `custom.signal` and passes it to both services (`shared.js:424,464,484`; 1.18.0 `:420,458,478`). Extraction *is* abortable at the host; it is not wired." |
+| same `:1789` | "**impossible**" → "**not built** (the host takes `custom.signal`; corrected in v2.4 plan 01)" |
+| `docs/plans/v2.3/03-async-ownership.md:2715` | "a branch does NOT copy our blob, `bookmarks.js:201`" → "a branch or checkpoint **does** copy our blob and the chat lorebook slot (`bookmarks.js:201,284` build `{main_chat, integrity}`, merged over `chat_metadata` at `script.js:7406`); it reads as foreign because its chat id differs — corrected in v2.4 plan 01" |
+| `docs/plans/v2.3/live-gate-playbook.md:24-26` (§0 steps 4–6) | "**Corrected in v2.4 plan 01** (gotchas 2026-09-23): the RunPod HTTPS proxy reaches `llama-server` only when it binds `0.0.0.0` (`--host 0.0.0.0` in `LLM_EXTRA_ARGS`); with the default loopback bind it returns 502. The working route: `get-pod` → `runtime.ssh.direct` (present only while RUNNING), then `ssh -i ~/.ssh/id_ed25519_runpod -N -L 18080:127.0.0.1:8080 -p <port> root@<ip>` in the background. Verify with `curl -s http://127.0.0.1:18080/v1/models`. The profiles stay at `http://127.0.0.1:18080`, so steps 6 and 10 are no-ops." |
+
+## Risks
+
+- **Stale lines.** The other session is editing four of the cited files. Re-verify on the frozen tree
+  (rule 1).
+- **A lookalike emitter.** An extension that emits an ST-shaped STARTED and never renders holds the
+  outermost open until STOPPED or a chat change. Mitigation: the next ST-shaped outermost STARTED while the
+  send button is idle closes it, journaled.
+- **Snapshot cost and gaps.** The T1 snapshot costs hashing on long chats, and that cost gets measured. An
+  eventless mutation between refreshes makes a delete `stale`, which falls back to today's value until
+  plan 02's T3.
+- **The harness blind spot may hide more.** Re-run J6 with `host_delete`.
+- **Guidance double-steer.** Guidance at depth 4 next to an authored note that restates the objective. The
+  over-steer probe measures it; plan 06's `auto` rule governs the objective line.
+- **Install-wide flip.** `ext_setting` changes an install-wide setting. The restore runs in `finally`, and
+  the header diff blocks the run if the value was not restored.
+
+## Gate record
+
+Not started.

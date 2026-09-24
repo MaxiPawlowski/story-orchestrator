@@ -16,6 +16,7 @@ import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, se
 import { dumpCurrentChatState } from './so-state.mts';
 import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, getMemoryQueueState, memoryQueueAction, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot, hitTest, pointerClick } from './so-ui.mts';
 import { leakCount, listMarkedAssets, removeMarkedAssets } from './so-assets.mts';
+import { applyExtSetting, cutCommand, emitGeneration, expectStateEquals, hostDelete, injectScript, recordState, restoreExtSettings } from './lib/interopVerbs.mts';
 
 const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep] [--group <id|name>]
 
@@ -1053,11 +1054,20 @@ async function runStep(page, key, value, { scenarioDir = PROJECT_ROOT, importedH
   if (key === 'swipe') return swipeMessage(page, value.messageId, value.swipeId ?? null);
   if (key === 'edit') return editMessage(page, value.messageId, value.text);
   if (key === 'delete') return deleteMessage(page, value.messageId ?? value);
+  if (key === 'host_delete') return hostDelete(page, value);
+  if (key === 'cut') return executeSlashCommand(page, cutCommand(value));
+  if (key === 'emit_generation') return emitGeneration(page, value);
+  if (key === 'ext_setting') return applyExtSetting(page, value);
+  if (key === 'record_state') return recordState(page, value);
+  if (key === 'inject_script') return injectScript(page, value, scenarioDir);
   if (key === 'wait') return waitForCondition(page, value);
   if (key === 'expect') {
-    const assertion = evaluateExpect(await dumpCurrentChatState(page), value);
+    const { stateEquals, ...rest } = value ?? {};
+    const equal = stateEquals ? await expectStateEquals(page, stateEquals) : null;
+    if (!Object.keys(rest).length) return equal;
+    const assertion = evaluateExpect(await dumpCurrentChatState(page), rest);
     if (!assertion.ok) throw new Error(assertion.failures.join('; '));
-    return assertion.actual;
+    return equal ? { ...assertion.actual, stateEquals: equal } : assertion.actual;
   }
   if (key === 'expect_ui') {
     const assertion = await evaluateExpectUi(page, value);
@@ -1181,6 +1191,7 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
     // A route block is a change to the SHARED page's network, so it is released even when the run
     // failed midway: a save endpoint left blocked would fail every later run's persistence in silence.
     result.releasedRoutes = await releaseBlockedRoutes(page);
+    result.extensionSettings = await restoreExtSettings(page).catch((error) => ({ error: error.message }));
     if (sandbox) {
       const cleanup: Record<string, unknown> = await cleanupScenario(page, importedHashes, guard, keep, libraryBefore);
       cleanup.extraction = await restoreExtractionSettings(page, extractionBefore).catch((error) => ({ error: error.message }));
