@@ -166,6 +166,10 @@
       ],
       "steps": [
         {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const began = Date.now(); let notice = rt.getSnapshot().lastRollback; while (!notice && Date.now() - began < 30000) { await new Promise((resolve) => setTimeout(resolve, 250)); notice = rt.getSnapshot().lastRollback; } if (!notice) { const engine = rt.getEngineState(); const ctx = SillyTavern.getContext(); const journal = (rt.getSessionJournal?.() ?? []).slice(-10).map((event) => [event.kind, event.summary ?? \"\"].join(\": \")); const tail = ctx.chat.slice(-4).map((message, index) => ({ id: ctx.chat.length - 4 + index, name: message.name, user: Boolean(message.is_user), system: Boolean(message.is_system), at: message.send_date })); throw new Error(\"no rollback notice to show: \" + JSON.stringify({ checkpoint: rt.getSnapshot().activeCheckpointId, boundary: engine.boundary, lastMessageId: engine.lastMessageId, chatLength: ctx.chat.length, journal, tail })); } return { notice, waitedMs: Date.now() - began };",
+          "log": true
+        },
+        {
           "ui": {
             "action": "open-drawer"
           }
