@@ -8,11 +8,9 @@ export const JUDGE_USE_KEYS = [
   "memoryPairs",
   "sceneTrigger",
   "sceneTracker",
-  "sceneOoc",
   "lookahead",
   "loreSelect",
   "curatorFilter",
-  "memoryRerank",
   "typedExtraction",
   "stallCheck",
   "expansionCritic",
@@ -41,9 +39,19 @@ export interface JudgeSettings {
   expansion: JudgeExpansionSettings;
 }
 
+/** v2.4 plan 07 (X23): monotonic spend per chat, exempt from rollback — a rolled-back call was still paid for. */
+export interface JudgeMeter {
+  calls: number;
+  cachedCalls: number;
+  inputTokens: number;
+  outputTokens: number;
+  cost: number;
+}
+
 export interface JudgeRuntimeState {
   calls: JudgeCallRecord[];
   scene: SceneReadRecord | null;
+  meter: JudgeMeter;
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -83,20 +91,58 @@ export function judgeUseActive(settings: JudgeSettings, key: JudgeUseKey): boole
   return dependency ? judgeUseActive(settings, dependency) : true;
 }
 
-export const createJudgeRuntime = (): JudgeRuntimeState => ({ calls: [], scene: null });
+export const emptyJudgeMeter = (): JudgeMeter => ({ calls: 0, cachedCalls: 0, inputTokens: 0, outputTokens: 0, cost: 0 });
+
+export const createJudgeRuntime = (): JudgeRuntimeState => ({ calls: [], scene: null, meter: emptyJudgeMeter() });
+
+const count = (value: unknown): number => (typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : 0);
+
+const sanitizeJudgeMeter = (value: unknown): JudgeMeter => {
+  const meter = isRecord(value) ? value : {};
+  return { calls: count(meter.calls), cachedCalls: count(meter.cachedCalls), inputTokens: count(meter.inputTokens), outputTokens: count(meter.outputTokens), cost: count(meter.cost) };
+};
 
 export function sanitizeJudgeRuntime(value: unknown): JudgeRuntimeState {
   if (!isRecord(value) || !Array.isArray(value.calls)) return createJudgeRuntime();
   const calls = value.calls.filter((entry): entry is JudgeCallRecord => isRecord(entry) && typeof entry.use === "string" && typeof entry.at === "string" && typeof entry.messageId === "number");
   const scene = isRecord(value.scene) && typeof value.scene.messageId === "number" && isRecord(value.scene.facts) ? (value.scene as unknown as SceneReadRecord) : null;
-  return { calls: calls.slice(-JUDGE_CALL_RING_LIMIT), scene };
+  return { calls: calls.slice(-JUDGE_CALL_RING_LIMIT), scene, meter: sanitizeJudgeMeter(value.meter) };
 }
 
-export const appendJudgeCall = (state: JudgeRuntimeState, record: JudgeCallRecord): JudgeRuntimeState => ({ ...state, calls: [...state.calls, record].slice(-JUDGE_CALL_RING_LIMIT) });
+const NEVER_SENT: ReadonlySet<string> = new Set(["unavailable", "invalid", "disabled", "no-roles", "no-seam"]);
+
+export function meterJudgeCall(meter: JudgeMeter, record: JudgeCallRecord): JudgeMeter {
+  if (record.cached) return { ...meter, cachedCalls: meter.cachedCalls + 1 };
+  if (record.fallback && NEVER_SENT.has(record.fallback)) return meter;
+  return {
+    calls: meter.calls + 1,
+    cachedCalls: meter.cachedCalls,
+    inputTokens: meter.inputTokens + count(record.inputTokens),
+    outputTokens: meter.outputTokens + count(record.outputTokens),
+    cost: meter.cost + count(record.cost),
+  };
+}
+
+export function appendJudgeCall(state: JudgeRuntimeState, record: JudgeCallRecord): JudgeRuntimeState {
+  const meter = meterJudgeCall(state.meter ?? emptyJudgeMeter(), record);
+  if (record.discarded) return { ...state, meter };
+  return { ...state, calls: [...state.calls, record].slice(-JUDGE_CALL_RING_LIMIT), meter };
+}
+
+export interface JudgeMeterView extends JudgeMeter {
+  /** The versioned model the newest answered call named: what readiness is compared against. */
+  lastAnsweredModel: string | null;
+}
+
+export const judgeMeterView = (state: JudgeRuntimeState): JudgeMeterView => ({
+  ...(state.meter ?? emptyJudgeMeter()),
+  lastAnsweredModel: [...state.calls].reverse().find((call) => call.model)?.model ?? null,
+});
 
 export const dropJudgeCallsAfter = (state: JudgeRuntimeState, messageId: number): JudgeRuntimeState => ({
   calls: state.calls.filter((entry) => entry.messageId < messageId),
   scene: state.scene && state.scene.messageId < messageId ? state.scene : null,
+  meter: state.meter,
 });
 
 export interface JudgeUseCopy {
@@ -111,11 +157,9 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
   memoryPairs: { label: "Merge related notes", description: "Decides whether two similar notes are a duplicate, an update, or both true.", sends: "two memory notes per question" },
   sceneTrigger: { label: "Notice scene changes", description: "Asks for the scene read on the turn a scene changes, next to today's keyword check.", sends: "the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name" },
   sceneTracker: { label: "Scene tracker", description: "Keeps location, time and who is present, and adds them to the prompt.", sends: "the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name, the story's locations" },
-  sceneOoc: { label: "Out-of-character messages", description: "Not built yet: nothing reads this setting.", sends: "nothing" },
   lookahead: { label: "Heading toward (author view)", description: "Shows which upcoming checkpoints play is moving toward.", sends: "the last 8 messages and the names and goals of the next checkpoints" },
   loreSelect: { label: "Lore selection", description: "Adds the lore entries that matter to the next reply, even without their keywords.", sends: "the last 8 messages, the checkpoint name and goal, and the title and text of each entry in the story's lore-select books" },
   curatorFilter: { label: "Curator focus", description: "Shows the World Info curator only the entries the story may have overtaken.", sends: "the story so far and the story's lore entries" },
-  memoryRerank: { label: "Memory relevance", description: "Not built yet: nothing reads this setting.", sends: "nothing" },
   typedExtraction: { label: "Every-turn story reads", description: "Reads qualities the author marked for it on every turn, so gates fire sooner; the rest stay with the story model.", sends: "the last 3 messages (or the read's window), the story title and checkpoint, and each marked quality's description, values and numbers or names found in the messages" },
   stallCheck: { label: "Stall check", description: "Checks a stalled gate before spending a full re-read; writes only what the messages clearly show.", sends: "the messages since the checkpoint began and the unmet conditions' descriptions and values" },
   expansionCritic: { label: "Expansion review", description: "Reviews generated story beats instead of a second model call; the code checks still run first.", sends: "up to 40 established facts, the target checkpoint's name and goal, cast names with your persona, the tension trajectory and the generated beats" },

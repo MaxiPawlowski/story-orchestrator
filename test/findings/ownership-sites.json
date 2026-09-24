@@ -271,7 +271,7 @@
     },
     "src/runtime/judge.ts#JudgeRuntime.ask": {
       "status": "checked",
-      "note": "C1, closed 2026-09-20: mints before the await, stamps the asked boundary, refuses to record a call whose world moved"
+      "note": "C1, closed 2026-09-20: mints before the await, stamps the asked boundary, refuses to record a call whose world moved. v2.4 plan 07 (T24/X23): a discarded call is still METERED, never ringed: charge() writes a {discarded} record (meter only) through deps.record when the chat that asked is still the open one (story/version/epoch discards), and otherwise parks it in the in-memory unbilled map keyed by the asking chat, settled on that chat's next recorded call (settleUnbilled, called only after the token check passed). Both are synchronous and write after the same check; cases: judgeMeter.review.test.ts. A reload before the asking chat's next call loses a parked charge (recorded deviation)."
     },
     "src/runtime/judge.ts#JudgeRuntime.available": {
       "status": "local",

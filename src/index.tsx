@@ -450,6 +450,8 @@ const SettingsPanel = () => {
             status={judgeState}
             selfTest={judgeTest}
             authorView={snapshot.ui.authorView}
+            meter={snapshot.judgeMeter}
+            wardenEnabled={snapshot.stagecraft.settings.wardenEnabled && snapshot.stagecraft.settings.wardenAcceptMode !== "off"}
             onChange={changeJudge}
             onSaveKey={writeJudgeSecret}
             onRefresh={recheckJudge}

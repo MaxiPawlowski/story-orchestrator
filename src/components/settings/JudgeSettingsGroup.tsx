@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, JUDGE_USE_COPY, JUDGE_USE_DEPENDENCIES, judgeReadiness, judgeReadinessConcerns, type JudgeSelfTestReport, type JudgeSettings, type JudgeUseKey, type JudgeUses } from "@judge/index";
+import { AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, JUDGE_USE_COPY, JUDGE_USE_DEPENDENCIES, judgeReadiness, judgeReadinessConcerns, type JudgeMeterView, type JudgeReadinessKey, type JudgeReadinessRow, type JudgeSelfTestReport, type JudgeSettings, type JudgeUseKey, type JudgeUses } from "@judge/index";
 import type { JudgeStatus } from "@services/STAPI";
 import type { WriteResult } from "@utils/writeResult";
 import HelpTooltip from "@components/studio/HelpTooltip";
@@ -16,6 +16,9 @@ export interface JudgeSettingsGroupProps {
   selfTest: { running: boolean; report: JudgeSelfTestReport | null };
   builtUses?: readonly JudgeUseKey[];
   authorView?: boolean;
+  /** v2.4 plan 07 T24: this chat's judge spend and the model that last answered. */
+  meter?: JudgeMeterView | null;
+  wardenEnabled?: boolean;
   onChange(patch: JudgeSettingsPatch): void;
   onSaveKey(value: string): Promise<WriteResult>;
   onRefresh(): void;
@@ -24,7 +27,18 @@ export interface JudgeSettingsGroupProps {
 
 const kebab = (key: string) => key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
 
-const statusText = (status: JudgeSettingsGroupProps["status"]): string => {
+const labelOf = (key: JudgeReadinessKey): string => (key === "warden" ? "Continuity warden" : JUDGE_USE_COPY[key].label);
+
+const concernText = (row: JudgeReadinessRow): string => {
+  if (row.verdict === "blocked") return `on, but "${JUDGE_USE_COPY[row.blockedBy!].label}" is off, so it does nothing`;
+  if (row.modelMismatch) return `on, but not measured on ${row.modelMismatch.answered ?? row.modelMismatch.configured} (measured on ${row.modelMismatch.measuredOn})`;
+  return "on, but nothing has measured it";
+};
+
+const meterText = (meter: JudgeMeterView): string =>
+  `This chat: ${meter.calls} ${meter.calls === 1 ? "call" : "calls"} (${meter.cachedCalls} from cache) · ${meter.inputTokens.toLocaleString("en-US")} input / ${meter.outputTokens.toLocaleString("en-US")} output tokens${meter.cost > 0 ? ` · cost ${meter.cost}` : ""}`;
+
+const statusText =(status: JudgeSettingsGroupProps["status"]): string => {
   if (status === "unchecked") return "Off. Turn it on, or press Recheck, to look for the server plugin.";
   if (status === "checking") return "Checking the judge plugin…";
   if (status === null) return "Server plugin not found. Install it with npm run plugin:install, set enableServerPlugins: true in SillyTavern's config.yaml, then restart SillyTavern.";
@@ -32,11 +46,11 @@ const statusText = (status: JudgeSettingsGroupProps["status"]): string => {
   return `Ready · key from ${status.keySource === "st-secrets" ? "SillyTavern secrets" : status.keySource ?? "the server"} · ${status.model ?? "model unknown"}`;
 };
 
-export function JudgeSettingsGroup({ settings, status, selfTest, builtUses = BUILT_JUDGE_USES, authorView = false, onChange, onSaveKey, onRefresh, onRunSelfTest }: JudgeSettingsGroupProps) {
+export function JudgeSettingsGroup({ settings, status, selfTest, builtUses = BUILT_JUDGE_USES, authorView = false, meter = null, wardenEnabled = false, onChange, onSaveKey, onRefresh, onRunSelfTest }: JudgeSettingsGroupProps) {
   const [key, setKey] = useState("");
   const [saved, setSaved] = useState<"idle" | "saved" | "failed">("idle");
   const ready = typeof status === "object" && status !== null && status.configured;
-  const readiness = judgeReadiness(settings, JUDGE_USE_DEPENDENCIES);
+  const readiness = judgeReadiness(settings, JUDGE_USE_DEPENDENCIES, meter?.lastAnsweredModel ?? null, { warden: wardenEnabled });
   const concerns = judgeReadinessConcerns(readiness);
   const enabledMeasured = readiness.filter((row) => row.verdict === "measured");
 
@@ -98,7 +112,7 @@ export function JudgeSettingsGroup({ settings, status, selfTest, builtUses = BUI
         <div id="so-judge-readiness" className="flex flex-col gap-1 pl-4 text-xs">
           {concerns.map((row) => (
             <div key={row.key} className="text-yellow-300">
-              {JUDGE_USE_COPY[row.key].label}: {row.verdict === "blocked" ? `on, but "${JUDGE_USE_COPY[row.blockedBy!].label}" is off, so it does nothing` : row.verdict === "not-built" ? "on in your saved settings, but this use is not built, so it does nothing" : "on, but nothing has measured it"}
+              {labelOf(row.key)}: {concernText(row)}
               <span className="opacity-80"> — {row.recommendation}</span>
             </div>
           ))}
@@ -113,9 +127,10 @@ export function JudgeSettingsGroup({ settings, status, selfTest, builtUses = BUI
       </div>
       {enabledMeasured.length > 0 && (
         <div id="so-judge-readiness-summary" className="text-xs opacity-80">
-          On and measured: {enabledMeasured.map((row) => `${JUDGE_USE_COPY[row.key].label} ${row.calibration !== null ? Math.round(row.calibration * 100) + "%" : "—"}${row.latencyP50Ms !== null ? ` (p50 ${row.latencyP50Ms} ms)` : ""}`).join(" · ")}
+          On and measured: {enabledMeasured.map((row) => `${labelOf(row.key)} ${row.calibration !== null ? Math.round(row.calibration * 100) + "%" : "—"}${row.latencyP50Ms !== null ? ` (p50 ${row.latencyP50Ms} ms)` : ""}`).join(" · ")} — measured on {[...new Set(enabledMeasured.map((row) => row.measuredOn))].join(", ")}
         </div>
       )}
+      {authorView && meter && <div id="so-judge-meter" className="text-xs opacity-80">{meterText(meter)}</div>}
       {selfTest.report && (
         <div id="so-judge-self-test-result" className="text-xs">
           Speaker direction: {selfTest.report.right}/{selfTest.report.total} right

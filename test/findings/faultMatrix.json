@@ -335,7 +335,8 @@
     "judgeRing|worldSwitched": {
       "status": "covered",
       "evidence": "src/runtime/judgeOwnership.review.test.ts#C1",
-      "note": "A late call is not written into the ring of the chat that replaced it."
+      "alsoEvidence": ["src/runtime/judgeMeter.review.test.ts#a call that outlived its chat is charged to the chat that asked, never to the chat that is open"],
+      "note": "A late call is not written into the ring of the chat that replaced it. v2.4 plan 07 (X23): it is still metered — charged to the chat that asked it (now if that chat is still open, otherwise on its next recorded call in this page session), never to the chat that replaced it."
     },
     "judgeRing|aborted": {
       "status": "covered",

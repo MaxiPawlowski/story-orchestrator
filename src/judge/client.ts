@@ -1,5 +1,5 @@
 import { validateJudgeRequest } from "./questions";
-import type { JudgeRequest, JudgeResponse, JudgeResult, JudgeTransport } from "./types";
+import type { JudgeRequest, JudgeResponse, JudgeResult, JudgeTransport, JudgeUsage } from "./types";
 
 export const JUDGE_CACHE_LIMIT = 100;
 
@@ -35,6 +35,18 @@ const remember = (cache: Map<string, JudgeResponse>, key: string, response: Judg
   }
 };
 
+const USAGE_FIELDS = ["input_tokens", "output_tokens", "cost"] as const;
+
+export function readUsage(response: { usage?: unknown } | null | undefined): JudgeUsage | undefined {
+  const usage = response?.usage;
+  if (!usage || typeof usage !== "object") return undefined;
+  const kept = USAGE_FIELDS.filter((field) => {
+    const value = (usage as Record<string, unknown>)[field];
+    return typeof value === "number" && Number.isFinite(value) && value >= 0;
+  });
+  return kept.length ? Object.fromEntries(kept.map((field) => [field, (usage as Record<string, number>)[field]])) as JudgeUsage : undefined;
+}
+
 const isTimeout = (error: unknown) => error instanceof JudgeTimeoutError || (error instanceof Error && (error.name === "AbortError" || error.name === "TimeoutError"));
 
 export async function askJudge(transport: JudgeTransport, request: JudgeRequest, options: AskJudgeOptions): Promise<JudgeResult> {
@@ -49,11 +61,13 @@ export async function askJudge(transport: JudgeTransport, request: JudgeRequest,
   const startedAt = now();
   try {
     const response = await raceTimeout(transport(request, { timeoutMs: options.timeoutMs, ...(options.signal ? { signal: options.signal } : {}) }), options.timeoutMs);
+    const usage = readUsage(response);
+    const paid = usage ? { usage } : {};
     if (!response || typeof response.answers !== "object" || response.answers === null) {
-      return { ...base, answers: null, model: null, latencyMs: now() - startedAt, fallback: "error", cached: false };
+      return { ...base, ...paid, answers: null, model: null, latencyMs: now() - startedAt, fallback: "error", cached: false };
     }
     if (options.cache) remember(options.cache, key, response);
-    return { ...base, answers: response.answers, model: typeof response.model === "string" ? response.model : null, latencyMs: now() - startedAt, cached: false };
+    return { ...base, ...paid, answers: response.answers, model: typeof response.model === "string" ? response.model : null, latencyMs: now() - startedAt, cached: false };
   } catch (error) {
     // The caller signal aborting is OUR cancellation, not the model being slow. Checked first
     // because judgeTransport wires both the timeout and the epoch signal to one controller, so

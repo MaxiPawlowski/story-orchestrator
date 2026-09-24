@@ -51,7 +51,7 @@ const words = (index: number) => `m${index}: ${"the river runs past the old mill
 const seedChat = (length: number) => { host.chat = Array.from({ length }, (_, index) => ({ name: index % 2 ? "Mira" : "Max", mes: words(index), is_user: index % 2 === 0 })); };
 const settle = async () => { for (let i = 0; i < 20; i += 1) await Promise.resolve(); };
 
-function harness(options: { lastSceneEnd?: number; shortTermEnd?: number; limit?: number; countAsync?: (text: string) => Promise<number> } = {}) {
+function harness(options: { lastSceneEnd?: number; shortTermEnd?: number; limit?: number; countAsync?: (text: string) => Promise<number>; judgeUses?: string[] } = {}) {
   let current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   type Audit = { reason: string; window: { from: number; to: number }; prompt: string; trimmedFrom?: number; budget?: { inputBudget: number; tokens: number } };
   const scenes: Array<{ text: string; window: { from: number; to: number } }> = [];
@@ -94,7 +94,7 @@ function harness(options: { lastSceneEnd?: number; shortTermEnd?: number; limit?
     emitSceneBreak: () => {},
     emitArcsResolved: () => {},
     setStatus: () => {},
-    judge: () => null,
+    judge: () => (options.judgeUses ? ({ active: (use: string) => options.judgeUses!.includes(use) } as never) : null),
     persist: async () => {},
     notify: () => {},
     ownership: { mint: (window = null) => mintToken(current, window), check: (token: RunToken) => tokenMatches(current, token) },
@@ -179,6 +179,19 @@ describe("memorize backlog: token-bounded windows and a bounded full pass", () =
     const asked: Array<{ requests: number; tokens: number }> = [];
     expect(await h.coordinator.runMemorizeBacklog(undefined, async (preflight) => { asked.push(preflight); return true; })).toBe(true);
     expect(host.calls).toHaveLength(asked[0].requests);
+  });
+
+  it("the confirm names the judge calls a run adds when Check memory before storing is on (v2.4 plan 07)", async () => {
+    const asked: Array<{ requests: number; judgeCalls?: number }> = [];
+    expect(await harness({ judgeUses: ["memoryVerify"] }).coordinator.runMemorizeBacklog(undefined, async (preflight) => { asked.push(preflight); return false; })).toBe(false);
+    expect(asked[0].judgeCalls).toBe(asked[0].requests);
+  });
+
+  it("control: with memory checking off, or another judge use on, the confirm names no judge calls", async () => {
+    const asked: Array<{ judgeCalls?: number }> = [];
+    await harness({ judgeUses: ["stallCheck"] }).coordinator.runMemorizeBacklog(undefined, async (preflight) => { asked.push(preflight); return false; });
+    await harness().coordinator.runMemorizeBacklog(undefined, async (preflight) => { asked.push(preflight); return false; });
+    expect(asked.map((preflight) => preflight.judgeCalls)).toEqual([undefined, undefined]);
   });
 
   it("control: a run under both thresholds does not ask", async () => {

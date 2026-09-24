@@ -225,7 +225,7 @@ describe("judge settings", () => {
     expect(state.calls).toHaveLength(JUDGE_CALL_RING_LIMIT);
     expect(dropJudgeCallsAfter(state, 100).calls.every((entry) => entry.messageId < 100)).toBe(true);
     expect(sanitizeJudgeRuntime({ calls: [{ nope: 1 }, state.calls[0]] }).calls).toEqual([state.calls[0]]);
-    expect(sanitizeJudgeRuntime(undefined)).toEqual({ calls: [], scene: null });
+    expect(sanitizeJudgeRuntime(undefined)).toEqual({ calls: [], scene: null, meter: { calls: 0, cachedCalls: 0, inputTokens: 0, outputTokens: 0, cost: 0 } });
   });
 
   it("keeps the scene read across appends, and drops it on a rollback at or before its message (v2.2 plan 03)", () => {

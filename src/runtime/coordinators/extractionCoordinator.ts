@@ -1,7 +1,7 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
 import {
   callExtractionModel, createTokenMeter, defaultContextLimit, deriveFullScope, deriveScope, getChatWindow, getLastMessageText, isLapse,
-  maxTokensFor, maxTokensForInput, planBacklog, preflightNeeded, reconciliationKeySet, reconciliationTargets, runSharedRead,
+  maxTokensFor, maxTokensForInput, planBacklog, preflightNeeded, reconciliationKeySet, reconciliationTargets, runSharedRead, withJudgeCalls,
   sharedReadOverhead, sharedReadWindow, stripChannelNoise, type ExtraGateSource, type ExtractionClientOptions, type ParsedDelta,
   type ParsedFact, type PreflightConfirm, type ReadOwnership, type ReconciliationPlan, type RequestBudget, type RunSharedReadOptions,
   type SchedulerJob, type SharedReadAudit, type SharedReadWindow,
@@ -439,7 +439,8 @@ export class ExtractionCoordinator {
       const messages = getChatWindow(0, length - 1).messages;
       const overhead = sharedReadOverhead(this.backlogRead(story, "memorize:window", { from: 0, to: -1, messages: [] }, { profileId: null }));
       const estimate = confirm ? await planBacklog(messages, overhead, { contextLimit: budget.contextLimit, meter: createTokenMeter() }, windowSize) : null;
-      if (!read.stillOwns() || (confirm && estimate && preflightNeeded(estimate.preflight, budget.contextLimit) && !(await confirm(estimate.preflight)))) return false;
+      const preflight = estimate ? withJudgeCalls(estimate.preflight, this.deps.judge?.()?.active("memoryVerify") === true) : null;
+      if (!read.stillOwns() || (confirm && preflight && preflightNeeded(preflight, budget.contextLimit) && !(await confirm(preflight)))) return false;
       windows = [];
       memory.setBackfill({ running: true, processed: 0, total: (estimate?.windows.length ?? 0) + 1, lastError: null, preparing: true });
       await this.save();

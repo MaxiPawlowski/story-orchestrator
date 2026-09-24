@@ -124,14 +124,46 @@ export const PlayerSeesNoExpansionControls: Story = {
 // same place the author turned it on.
 export const ReadinessNamesWhatIsNotWorking: Story = {
   args: {
-    settings: settings({ enabled: true }, { stallCheck: true, sceneOoc: true, expansionLookahead: true }),
+    settings: settings({ enabled: true }, { stallCheck: true, expansionLookahead: true }),
     status: ready,
   },
   play: async ({ canvasElement }) => {
     const readiness = canvasElement.querySelector("#so-judge-readiness");
-    await expect(readiness?.textContent).toContain("Out-of-character messages: on in your saved settings, but this use is not built");
+    await expect(readiness?.textContent).toContain(`Prepare ahead: on, but "Heading toward (author view)" is off`);
     await expect(canvasElement.querySelector("#so-judge-use-scene-ooc")).toBeNull();
+    await expect(canvasElement.querySelector("#so-judge-use-memory-rerank")).toBeNull();
     await expect(canvasElement.querySelector("#so-judge-readiness-summary")?.textContent).toContain("Stall check 100%");
+  },
+};
+
+const meter = { calls: 12, cachedCalls: 3, inputTokens: 14230, outputTokens: 240, cost: 0, lastAnsweredModel: "jev-1.13.0" };
+
+// v2.4 plan 07 T24: a rate measured on one model says nothing about another.
+export const ReadinessNamesTheModelItWasNotMeasuredOn: Story = {
+  args: {
+    settings: settings({ enabled: true }, { stallCheck: true }),
+    meter: { ...meter, lastAnsweredModel: "jev-1.14.0" },
+    wardenEnabled: true,
+  },
+  play: async ({ canvasElement }) => {
+    const readiness = canvasElement.querySelector("#so-judge-readiness");
+    await expect(readiness?.textContent).toContain("Stall check: on, but not measured on jev-1.14.0 (measured on jev-1.13.0)");
+    await expect(readiness?.textContent).toContain("Continuity warden: on, but not measured on jev-1.14.0");
+    await expect(canvasElement.querySelector("#so-judge-readiness-summary")).toBeNull();
+  },
+};
+
+export const AuthorSeesThisChatsSpend: Story = {
+  args: { settings: settings({ enabled: true }), authorView: true, meter },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-judge-meter")?.textContent).toBe("This chat: 12 calls (3 from cache) · 14,230 input / 240 output tokens");
+  },
+};
+
+export const PlayerSeesNoSpendLine: Story = {
+  args: { settings: settings({ enabled: true }), meter },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-judge-meter")).toBeNull();
   },
 };
 
@@ -140,6 +172,7 @@ export const ReadinessSilentWhenEverythingIsMeasured: Story = {
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelector("#so-judge-readiness")).toBeNull();
     await expect(canvasElement.querySelector("#so-judge-readiness-summary")?.textContent).toContain("Check memory before storing 98%");
+    await expect(canvasElement.querySelector("#so-judge-readiness-summary")?.textContent).toContain("measured on jev-1.13.0");
     await expect(canvasElement.querySelector("#so-judge-recommended-config")).toBeInTheDocument();
   },
 };
