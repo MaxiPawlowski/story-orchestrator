@@ -159,3 +159,67 @@ control("a same-world poll commits after generation ends", async () => {
 
   expect(h.committed).toEqual(["chat-a"]);
 });
+
+control("a commit stuck in the chat that was left does not hold the next chat's boundaries back", async () => {
+  const h = harness();
+  const stuck = deferred();
+  h.manager.commitBoundary.mockImplementationOnce(async () => { h.committed.push("chat-a"); await stuck.promise; });
+
+  handlers.get("CHARACTER_MESSAGE_RENDERED")?.(7, "normal");
+  await settle();
+  expect(h.committed).toEqual(["chat-a"]);
+
+  h.switchWorld();
+  handlers.get("CHAT_CHANGED")?.();
+  handlers.get("CHARACTER_MESSAGE_RENDERED")?.(3, "normal");
+  await settle();
+  expect(h.committed).toEqual(["chat-a", "chat-b"]);
+
+  handlers.get("CHARACTER_MESSAGE_RENDERED")?.(4, "normal");
+  stuck.resolve();
+  await settle();
+  expect(h.manager.commitBoundary.mock.calls).toEqual([[7], [3], [4]]);
+});
+
+control("control: a commit still running in the open chat keeps the next boundary waiting its turn", async () => {
+  const h = harness();
+  const running = deferred();
+  h.manager.commitBoundary.mockImplementationOnce(async () => { h.committed.push("chat-a"); await running.promise; });
+
+  handlers.get("CHARACTER_MESSAGE_RENDERED")?.(7, "normal");
+  await settle();
+  handlers.get("CHARACTER_MESSAGE_RENDERED")?.(8, "normal");
+  await settle();
+  expect(h.manager.commitBoundary.mock.calls).toEqual([[7]]);
+
+  running.resolve();
+  await settle();
+  expect(h.manager.commitBoundary.mock.calls).toEqual([[7], [8]]);
+});
+
+control("the stale drain stops when it resumes, so it never takes a boundary the new chat's drain is holding", async () => {
+  const h = harness();
+  const stuck = deferred();
+  const slowB = deferred();
+  h.manager.commitBoundary
+    .mockImplementationOnce(async () => { await stuck.promise; })
+    .mockImplementationOnce(async () => { await slowB.promise; });
+
+  handlers.get("CHARACTER_MESSAGE_RENDERED")?.(7, "normal");
+  await settle();
+  h.switchWorld();
+  handlers.get("CHAT_CHANGED")?.();
+  handlers.get("CHARACTER_MESSAGE_RENDERED")?.(3, "normal");
+  await settle();
+  handlers.get("CHARACTER_MESSAGE_RENDERED")?.(4, "normal");
+  await settle();
+  expect(h.manager.commitBoundary.mock.calls).toEqual([[7], [3]]);
+
+  stuck.resolve();
+  await settle();
+  expect(h.manager.commitBoundary.mock.calls).toEqual([[7], [3]]);
+
+  slowB.resolve();
+  await settle();
+  expect(h.manager.commitBoundary.mock.calls).toEqual([[7], [3], [4]]);
+});

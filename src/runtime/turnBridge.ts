@@ -44,7 +44,7 @@ const movedJournal = (from: number, named: number): DecodeJournal => ({
 
 export class TurnBridge {
   private pending: PendingBoundary[] = [];
-  private draining = false;
+  private draining: { run: RunGuard | null } | null = null;
   private lastRenderedAt = 0;
   private readonly turnKeys = new Set<string>();
   private readonly identity = new ChatIdentity();
@@ -122,7 +122,10 @@ export class TurnBridge {
 
   private async flushPending() {
     this.pending = this.pending.filter((entry) => entry.run.stillOwns());
-    if (this.draining || !this.pending[0]?.ready) {
+    // A drain still awaiting a commit for a chat that is no longer open (a transition's NPC replies are a
+    // real model call) must not hold this chat's boundaries back: they would wait for it and then land
+    // together. The stale loop stops at its next await, so only one loop drains the queue.
+    if ((this.draining && this.draining.run?.stillOwns() !== false) || !this.pending[0]?.ready) {
       if (this.pending.length === 0) this.cancelFlushPoll();
       return;
     }
@@ -131,15 +134,17 @@ export class TurnBridge {
       return;
     }
     this.cancelFlushPoll();
-    this.draining = true;
+    const drain: { run: RunGuard | null } = { run: null };
+    this.draining = drain;
     try {
-      while (this.pending[0]?.ready) {
+      while (this.draining === drain && this.pending[0]?.ready) {
         const next = this.pending.shift()!;
         if (!next.run.stillOwns()) continue;
+        drain.run = next.run;
         await this.manager.commitBoundary(next.messageId ?? undefined);
       }
     } finally {
-      this.draining = false;
+      if (this.draining === drain) this.draining = null;
     }
   }
 

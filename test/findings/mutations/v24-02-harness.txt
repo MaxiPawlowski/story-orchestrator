@@ -43,3 +43,14 @@ scope: npx jest src/services/stHost/saveWatcher.test.ts
 baseline: 12 passed
 M-S6 saveOpenChat does not arm -> 1 failed (saveOpenChat names the open chat, so an empty save that lands in another chat is held back)
 restored: 12 passed
+
+5. PRODUCT (found by live-v4-turn-identity failing 5/15 while the real backend was busy, 15/15 idle): TurnBridge
+   drains commits one at a time across chats. A boundary that activated a checkpoint awaits its onEnter NPC
+   replies (a real model call) inside commitBoundary, and `draining` held every later boundary back, in the next
+   chat too, until it finished; then they landed together (observed boundary 0 -> 4 in one step). A drain whose
+   run no longer owns the open chat no longer blocks, and the stale loop stops when it resumes.
+scope: npx jest src/runtime/turnBridgeOwnership.review.test.ts
+baseline: 8 passed
+M-D1 block on any running drain (ownership ignored) -> 1 failed (a commit stuck in the chat that was left does not hold the next chat's boundaries back)
+M-D2 the stale loop keeps draining after it resumes  -> 1 failed (the stale drain stops when it resumes, so it never takes a boundary the new chat's drain is holding)
+restored: 8 passed; full jest 2917
