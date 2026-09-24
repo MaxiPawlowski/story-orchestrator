@@ -1,0 +1,61 @@
+1/14 eval ok 4ms
+2/14 import_story ok 382ms
+3/14 eval ok 6ms
+3/14 eval -> {"active":"cp1","block":"Scene direction: A relaxed guild-hall opening. Let the player wander toward the job board at their own pace."}
+4/14 slash ok 1742ms
+5/14 wait ok 37ms
+6/14 eval ok 8ms
+6/14 eval -> {"block":"Scene direction: The sphinx blocks the only way in. It can be passed by answering its riddle — or by earning its deep respect.","row":{"label":"Checkpoint guidance","ownerTab":"config","depth":4}}
+7/14 expect ok 37ms
+8/14 emit_generation ok 8ms
+9/14 eval ok 5ms
+10/14 emit_generation ok 6ms
+11/14 eval ok 4ms
+12/14 slash ok 1749ms
+13/14 wait ok 35ms
+14/14 eval ok 5ms
+14/14 eval -> {"cleared":true}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T08-35-16-749Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 14,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-24@05h35m09s709ms",
+    "owned": [
+      "2026-09-24@05h35m09s709ms"
+    ],
+    "deleted": [
+      "2026-09-24@05h35m09s709ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@05h35m09s709ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

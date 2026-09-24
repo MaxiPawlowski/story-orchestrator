@@ -1,0 +1,75 @@
+1/13 import_story ok 380ms
+2/13 ui ok 213ms
+3/13 eval ok 14ms
+3/13 eval -> {"cadence":0,"capable":true}
+4/13 send ok 1653ms
+5/13 wait ok 1541ms
+6/13 extract ok 478ms
+7/13 eval ok 4ms
+7/13 eval -> {"chid":5,"planted":"t6-probe-note","scope":"warden switched on in the in-memory settings view only; nothing install-wide is written"}
+8/13 inject_script ok 4ms
+9/13 emit_generation ok 12ms
+10/13 eval ok 11ms
+10/13 eval -> {"drafted":5,"staged":true}
+11/13 eval ok 5ms
+11/13 eval -> {"emitted":["GENERATION_STARTED","GENERATION_ENDED"],"answered":false}
+12/13 emit_generation ok 6ms
+13/13 eval ok 5ms
+13/13 eval -> {"block":"kept","note":"kept"}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T08-35-09-454Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 13,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@05h35m01s995ms",
+    "owned": [
+      "2026-09-24@05h35m01s995ms"
+    ],
+    "deleted": [
+      "2026-09-24@05h35m01s995ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@05h35m01s995ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}
