@@ -396,6 +396,23 @@ row.
 
 Still the user's, not decided here: the **player sessions** that rule 7 and D6 wait on.
 
+## Decisions (2026-09-24, the open questions of plans 01–02, decided on evidence at the user's request)
+
+Each one is reversible, and the user can overturn any row.
+
+| # | Question | Decision | Evidence |
+|---|---|---|---|
+| E1 | Pod `LLM_PARALLEL` 2 → 4 | **Yes, at the next pod start**, with `--kv-unified` kept so the total context stays 196 608 shared across slots. Revert if a single request's decode rate drops below 20 tok/s (the plan 03 timeout floor) | Two lanes plus a lane-0 run already queue at the model; the kv-unified cache means four slots do not quarter each slot's context. Measured on the next live batch, recorded in plan 03's gate record |
+| E2 | Solo `story_epistemic` merges every roster member's private block | **Not kept as is: attributed.** In solo with more than one name, each line names its subject (`- Arin knows: …`, `- Arin is concealing from Ponticius: …`) under a header telling the one narrator to voice each character accordingly. A single name keeps today's second-person block | `renderPrivateEpistemicBlock` (`memory/epistemic.ts:110`) writes every line as `You know` / `You are concealing`, so a merged solo block tells one narrator it both conceals a fact and is unaware of it. A solo narrator voices every NPC, so dropping the others' knowledge would lose it; attributing it is the only reading that is both complete and true |
+| E3 | Extend T8 save evidence to import / removal / migration / `wizardSessions` | **Yes.** Chat-metadata writes (import, removal, migration) already go through `saveOpenChat` (armed, `dd73915`); they now also record save evidence. `wizardSessions` is an extension-settings write and records the `/api/settings/save` observation T8 already makes | A save nobody verifies is indistinguishable from success (plan 11 rule). The watcher exists; this only reads it |
+| E4 | Pre-T14 mirror books get the `so-owner` marker on next sync | **Yes, only on proof of ownership**: the book's name is exactly `Story Orchestrator - <title> - <chatId>` for THIS chat's id AND this chat's `extras.memory.wiBook` names it. Anything else stays unmarked | Unmarked books are never reaped (T14), so every chat mirrored before T14 leaks its book forever. Both conditions together are the ownership the reaper already requires |
+| E5 | Unbind an unadopted branch's inherited lorebook on the first page load too | **Yes**, through the same classification the bridge uses; the startup load already reads identity | A branch opened by reloading the page kept the parent's chat lorebook bound, while the same branch opened by a switch did not. Same state, two behaviours |
+| E6 | H19: another extension's no-op `MESSAGE_UPDATED` is silent for consumed rows | **Keep** | A no-op edit changes no hashed field; rolling back on it rewinds a story for nothing (`turnBridge.ts:203` returns before any rollback). It is not journaled; a refresh that moved nothing leaves nothing to show |
+| E7 | The integrity guard (`81e25e4`) also holds back empty no-integrity saves from ST and other extensions | **Keep** | ST stamps `integrity` on every chat it loads (`script.js:7665-7666`, `group-chats.js:276-278`), so an empty save with no integrity only exists in the switch window where metadata is `{}`. It never blocks a save of a loaded chat, including one whose every message was deleted (that one carries integrity) |
+| E8 | Fault matrix 10th package for host deletes | **Yes**, added in plan 03's fault-matrix edit alongside the `aborted` column, so the count moves once, deliberately | Plan 02's reaper and chat-delete handling have tests but no census row; an uncensused package cannot be `todo` |
+
+Built by plan 02 follow-ups (E2–E5) and plan 03 (E1, E8); each lands in its plan's gate record.
+
 ## Reconciliation (2026-09-23, after writing the plan docs)
 
 Writing the nine plan docs re-verified every item against the working tree (`fcc33cc` plus the
