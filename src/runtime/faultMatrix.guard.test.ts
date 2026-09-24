@@ -26,17 +26,19 @@ describe("plan-11 fault matrix census", () => {
     const broken: string[] = [];
     for (const [key, cell] of Object.entries(cells)) {
       if (cell.status !== "covered" && cell.status !== "partial") continue;
-      const source = cell.evidence?.split("#")[0] ?? "";
-      const title = cell.evidence?.split("#").slice(1).join("#") ?? "";
-      if (!source || !title) {
-        broken.push(`${key}: ${cell.status} without an evidence citation`);
-        continue;
-      }
-      const text = readTestFile(source);
-      if (text === null) {
-        broken.push(`${key}: ${source} does not exist`);
-      } else if (!citationMatches(text, title)) {
-        broken.push(`${key}: "${title}" is not in ${source}`);
+      for (const citation of [cell.evidence, ...(cell.alsoEvidence ?? [])]) {
+        const source = citation?.split("#")[0] ?? "";
+        const title = citation?.split("#").slice(1).join("#") ?? "";
+        if (!source || !title) {
+          broken.push(`${key}: ${cell.status} without an evidence citation`);
+          continue;
+        }
+        const text = readTestFile(source);
+        if (text === null) {
+          broken.push(`${key}: ${source} does not exist`);
+        } else if (!citationMatches(text, title)) {
+          broken.push(`${key}: "${title}" is not in ${source}`);
+        }
       }
     }
     expect(broken.sort()).toEqual([]);
@@ -45,8 +47,8 @@ describe("plan-11 fault matrix census", () => {
   test("an unproven cell says something, and does not pretend to cite", () => {
     const bad = Object.entries(cells)
       .filter(([, cell]) => cell.status === "todo" || cell.status === "na")
-      .filter(([, cell]) => cell.evidence !== undefined || !cell.note.trim())
-      .map(([key, cell]) => `${key}: ${cell.evidence ? "cites a test while unproven" : "says nothing"}`);
+      .filter(([, cell]) => cell.evidence !== undefined || cell.alsoEvidence !== undefined || !cell.note.trim())
+      .map(([key, cell]) => `${key}: ${cell.evidence || cell.alsoEvidence ? "cites a test while unproven" : "says nothing"}`);
     expect(bad).toEqual([]);
   });
 

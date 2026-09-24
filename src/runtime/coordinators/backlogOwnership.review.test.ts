@@ -63,7 +63,11 @@ function harness() {
     notify: () => {},
     ownership: { mint: (window = null) => mintToken(current, window), check: (token: RunToken) => tokenMatches(current, token) },
   } as never);
-  return { coordinator, stored, saves, commits: () => commits, backfill: () => backfill, switchChat: () => { current = { ...current, chatId: "chat-b", sessionEpoch: 2 }; } };
+  return {
+    coordinator, stored, saves, commits: () => commits, backfill: () => backfill,
+    switchChat: () => { current = { ...current, chatId: "chat-b", sessionEpoch: 2 }; },
+    editMessage: (messageId: number) => { current = { ...current, windowRevision: current.windowRevision + 1, lowestMutatedMessageId: messageId }; },
+  };
 }
 
 beforeEach(() => { reads.length = 0; });
@@ -130,5 +134,60 @@ describe("V3: the memorize backlog stops when its chat does", () => {
     expect(reads.map((read) => read.reason)).toEqual(["memorize:window", "memorize:window", "memorize:window", "memorize:full"]);
     expect(h.commits()).toBe(1);
     expect(h.backfill()?.running).toBe(false);
+  });
+});
+
+describe("v2.4 plan 03 D4: the memorize backlog always leaves running when it owns the chat", () => {
+  it("a same-chat lapse clears running", async () => {
+    const h = harness();
+    const pending = h.coordinator.runMemorizeBacklog(4);
+    await settle();
+    h.editMessage(2);
+    reads[0].release();
+    expect(await pending).toBe(false);
+    expect(h.stored).toEqual([]);
+    expect(reads).toHaveLength(1);
+    expect(h.commits()).toBe(0);
+    expect(h.backfill()).toMatchObject({ running: false, lastError: "Stopped: the chat changed while memorizing" });
+  });
+
+  it("a switch leaves the departed chat's backfill as it was", async () => {
+    const h = harness();
+    const pending = h.coordinator.runMemorizeBacklog(4);
+    await settle();
+    h.switchChat();
+    reads[0].release();
+    expect(await pending).toBe(false);
+    expect(h.backfill()).toMatchObject({ running: true, lastError: null });
+  });
+
+  it("Stop keeps applied windows", async () => {
+    const h = harness();
+    expect(h.coordinator.cancelMemorizeBacklog()).toBe(false);
+    const pending = h.coordinator.runMemorizeBacklog(4);
+    await settle();
+    reads[0].release();
+    await settle();
+    expect(h.coordinator.cancelMemorizeBacklog()).toBe(true);
+    reads[1].release();
+    expect(await pending).toBe(false);
+    expect(h.stored).toEqual(["fact 1"]);
+    expect(reads.map((read) => read.reason)).toEqual(["memorize:window", "memorize:window"]);
+    expect(h.commits()).toBe(0);
+    expect(h.backfill()).toMatchObject({ running: false, processed: 1, total: 4 });
+    expect(h.backfill()?.lastError).toMatch(/whole-chat pass/);
+    expect(h.coordinator.cancelMemorizeBacklog()).toBe(false);
+  });
+
+  it("control: Stop after the run finished changes nothing", async () => {
+    const h = harness();
+    const pending = h.coordinator.runMemorizeBacklog(4);
+    for (let index = 0; index < 4; index += 1) {
+      await settle();
+      reads[index].release();
+    }
+    expect(await pending).toBe(true);
+    expect(h.coordinator.cancelMemorizeBacklog()).toBe(false);
+    expect(h.backfill()).toMatchObject({ running: false, processed: 4, total: 4, lastError: null });
   });
 });

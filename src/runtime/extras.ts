@@ -238,6 +238,8 @@ export const createExtras = (): RuntimeExtras => withGlobalSettings({
   updatedAt: new Date().toISOString(),
 });
 
+const idleScheduler = () => ({ queueDepth: 0, inFlight: false, lastError: null });
+
 export const sanitizeExtraction = (value: RuntimeExtras | undefined): ExtractionRuntimeState => {
   const existing = value?.extraction;
   if (!existing) return createExtraction();
@@ -246,12 +248,13 @@ export const sanitizeExtraction = (value: RuntimeExtras | undefined): Extraction
     audits: Array.isArray(existing.audits) ? existing.audits.slice(-20) : [],
     reconciliationEvents: Array.isArray(existing.reconciliationEvents) ? existing.reconciliationEvents.slice(-50) : [],
     lastReadBoundary: typeof existing.lastReadBoundary === "number" ? existing.lastReadBoundary : 0,
-    scheduler: existing.scheduler ?? { queueDepth: 0, inFlight: false, lastError: null },
+    scheduler: idleScheduler(),
     judgedReads: Array.isArray(existing.judgedReads) ? existing.judgedReads.slice(-JUDGED_READ_LIMIT) : [],
   };
 };
 
 const PLAYED_EXPANSION = new Set(["inserted", "validated"]);
+const UNFINISHED_EXPANSION = new Set(["queued", "generating"]);
 
 export const upgradeLegacyExpansion = (entry: ExpansionCacheEntry): ExpansionCacheEntry => ({
   ...entry,
@@ -273,8 +276,10 @@ export const sanitizeExpansion = (value: RuntimeExtras | undefined): ExpansionRu
     ? Object.entries(existing.entries)
       .filter(([, entry]) => entry.contract === EXPANSION_CONTRACT || (entry.contract === undefined && PLAYED_EXPANSION.has(entry.status)))
       .map(([key, entry]) => [key, { ...(entry.contract === EXPANSION_CONTRACT ? entry : upgradeLegacyExpansion(entry)), origin: entry.origin ?? "active" }] as const)
+      .filter(([, entry]) => !(UNFINISHED_EXPANSION.has(entry.status) && entry.origin === "active"))
+      .map(([key, entry]) => [key, UNFINISHED_EXPANSION.has(entry.status) ? { ...entry, status: "stale" as const, lastError: "Interrupted before it finished" } : entry] as const)
     : [];
-  return { entries: Object.fromEntries(entries), scheduler: existing.scheduler ?? { queueDepth: 0, inFlight: false, lastError: null } };
+  return { entries: Object.fromEntries(entries), scheduler: idleScheduler() };
 };
 
 export const readChatOverrides = (extras: RuntimeExtras | undefined): ChatOverrides => ({

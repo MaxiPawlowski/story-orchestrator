@@ -10,7 +10,7 @@ jest.mock("@services/STAPI", () => ({
 
 import { isLive } from "@memory/index";
 import { EXPANSION_CONTRACT } from "@generation/index";
-import { sanitizeExpansion, sanitizeMemory } from "./extras";
+import { sanitizeExpansion, sanitizeExtraction, sanitizeMemory } from "./extras";
 import { repairActiveCheckpoint, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import type { RuntimeExtras } from "./types";
 
@@ -71,6 +71,20 @@ describe("expansion cache contract", () => {
     expect(upgraded.contract).toBe(EXPANSION_CONTRACT);
     expect(upgraded.beats[0].id).toBe("0");
     expect(upgraded.beats[0].outcomes.map((outcome) => outcome.id)).toEqual(["0:0", "0:1"]);
+  });
+});
+
+describe("v2.4 plan 03 D3: the scheduler snapshot is a display cache, not state", () => {
+  const saved = (scheduler: unknown) => ({ extraction: { audits: [], reconciliationEvents: [], lastReadBoundary: 4, scheduler, judgedReads: [] } }) as unknown as RuntimeExtras;
+
+  it("hydrate resets the persisted scheduler snapshot", () => {
+    expect(sanitizeExtraction(saved({ queueDepth: 3, inFlight: true, lastError: "API request failed" })).scheduler).toEqual({ queueDepth: 0, inFlight: false, lastError: null });
+  });
+
+  it("control: hydrate keeps the rest of the extraction slice", () => {
+    const hydrated = sanitizeExtraction(saved({ queueDepth: 0, inFlight: false, lastError: null }));
+    expect(hydrated.lastReadBoundary).toBe(4);
+    expect(hydrated.scheduler).toEqual({ queueDepth: 0, inFlight: false, lastError: null });
   });
 });
 

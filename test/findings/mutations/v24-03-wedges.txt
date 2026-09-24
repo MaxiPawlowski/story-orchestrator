@@ -1,0 +1,38 @@
+v2.4 plan 03 D4 (memorize backlog exit + Stop, expansion generating wedge) + D3 persisted scheduler snapshot, mutations 2026-09-24 (worktree build on d7bd4ed; script .debug/mutate-wedges.py, each mutant applied alone to one file, the file restored byte-for-byte after its run)
+Suites run for every mutant: coordinators/backlogOwnership.review, coordinators/expansionOwnership.review, coordinators/extractionOwnership.review, extrasLegacy, expansionLookahead, faultMatrix.guard (57 tests; baseline 57/57 green, restored 57/57 green).
+
+- W1 owned same-chat lapse writes nothing (endBacklog `if (lapse) return false`): KILLED, 1 of 57
+    "a same-chat lapse clears running"
+- W2 a foreign lapse is written too (endBacklog `if (false) return false`): KILLED, 1 of 57
+    "a switch leaves the departed chat's backfill as it was"
+- W3 Stop not checked between windows (the handed-on read is the chat token only): KILLED, 1 of 57
+    "Stop keeps applied windows"
+- W4 cancelMemorizeBacklog does not abort: KILLED, 1 of 57
+    "Stop keeps applied windows"
+- E1 queue() never re-queues an orphaned queued/generating entry (`const orphaned = false`): KILLED, 2 of 57
+    "a switched-away chain is re-queueable on return"
+    "a stub queued before a switch, whose job the switch dropped, is re-queued on return"
+- E2 queue() registers no live key: KILLED, 1 of 57
+    "control: a stub whose job is still queued is not queued twice"
+- E3 generate registers no live key: KILLED, 1 of 57
+    "control: a stub whose generation is in flight is not queued beside it"
+- E4 generate never releases its live key (the `finally` removed): SURVIVED, 0 of 57 -- EQUIVALENT by construction. Liveness is `RunGuard.stillOwns()`, not map presence, and an entry is queued/generating only while queue() or generate() has just replaced the key's guard; after a generate that still owns its world the entry is always settled (failed/validated/needs_review), so a retained guard is never consulted for it. The `finally` only keeps the map from holding one guard per stub for the session. Recorded rather than hidden: a surviving mutant is evidence only once it is known to mutate, and this one mutates nothing observable.
+- E5 liveness by map presence alone, never asking the guard (`return this.liveJobs.has(key)`): KILLED, 1 of 57
+    "a stub queued before a switch, whose job the switch dropped, is re-queued on return"
+- H1 hydrate keeps an unfinished active entry: KILLED, 1 of 57
+    "a persisted generating entry is re-queueable on hydrate"
+- H2 hydrate keeps an unfinished look-ahead's status (no demotion to stale): KILLED, 1 of 57
+    "a persisted generating entry is re-queueable on hydrate"
+- S1 hydrate keeps the persisted extraction scheduler snapshot: KILLED, 1 of 57
+    "hydrate resets the persisted scheduler snapshot"
+- S2 hydrate keeps the persisted expansion scheduler snapshot: KILLED, 1 of 57
+    "a persisted generating entry is re-queueable on hydrate"
+- F1 the second fault-matrix citation (alsoEvidence) names a test that is not there: KILLED, 1 of 57
+    "every cited cell names a test that is really there, in the file it names"
+
+13/14 killed; E4 equivalent (above). E5 SURVIVED on the first pass: no case exercised a queued job the scheduler dropped without its generate ever running, so map presence and guard liveness could not be told apart. Added "a stub queued before a switch, whose job the switch dropped, is re-queued on return"; rerun: killed.
+
+Storybook (scope: npm run storybook:build + test-runner --index-json against the served .sb-static; plain test-storybook:ci finds 0 stories in a worktree whose node_modules is a junction to the main checkout)
+baseline: 199 passed
+M-SB1 Stop button never rendered (`{false && snapshot.memory.backfill?.running && <button id="so-memorize-stop"`) -> 1 failed (Drawer/DrawerTabs > Player Stops Memorizing)
+restored: 199 passed
