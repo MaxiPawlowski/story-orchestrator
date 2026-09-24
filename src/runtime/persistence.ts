@@ -196,12 +196,24 @@ export function evictedStoryNotice(evictedIds: string[], titleOf: (id: string) =
   };
 }
 
-export function savePersistedRuntime(record: PersistedStoryRuntime): string[] {
+export const openChatIntegrity = (): string | null => {
+  const integrity = (getContext().chatMetadata as Record<string, unknown>).integrity;
+  return typeof integrity === "string" && integrity ? integrity : null;
+};
+
+export function savePersistedRuntime(record: PersistedStoryRuntime, onRestamp?: (from: string, to: string) => void): string[] {
   const blob = ownBlob("saving story state");
   if (!blob) return [];
   // An unstamped blob (written before v4, or migrated from v3 where the chat could not be
   // recovered) takes the open chat's id the first time this chat writes to it.
   if (blob.chatId === null) blob.chatId = openChatId();
+  // v2.4 plan 02: a blob that belongs here but carries another integrity was adopted by a build that
+  // restamps the chat id only. It is this chat's, so it is restamped, never read as foreign.
+  const integrity = openChatIntegrity();
+  if (integrity !== null && blob.integrity !== integrity) {
+    if (typeof blob.integrity === "string" && blob.integrity) onRestamp?.(blob.integrity, integrity);
+    blob.integrity = integrity;
+  }
   blob.stories[record.storyId] = record;
   blob.selectedStoryId = record.storyId;
   const evicted = gcStories(blob);

@@ -99,7 +99,7 @@ export function startRuntime() {
   registerLiveSuite(runtimeManager);
   window.setTimeout(() => registerSlashCommandsWhenReady(), 0);
   window.setTimeout(() => registerSlashCommandsWhenReady(), 1000);
-  bridge = new TurnBridge(runtimeManager);
+  bridge = new TurnBridge(runtimeManager, runtimeManager.chatSave);
   bridge.start();
   const chatLastId = () => (Array.isArray(getContext().chat) ? getContext().chat.length - 1 : -1);
   globalThis.storyOrchestratorScheduler = { nextReadWindow: () => scheduler?.nextReadWindow(chatLastId()) ?? null };
