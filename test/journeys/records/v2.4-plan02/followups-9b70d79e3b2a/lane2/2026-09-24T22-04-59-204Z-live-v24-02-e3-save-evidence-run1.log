@@ -1,0 +1,103 @@
+1/30 eval ok 6ms
+1/30 eval -> {"curatorBefore":true,"mark":"2026-09-24T22:05:00.835Z"}
+2/30 block_route ok 7ms
+3/30 import_story ok 278ms
+4/30 eval ok 16ms
+5/30 eval ok 19088ms
+5/30 eval -> {"green":false,"problem":"expected exactly one journal row \"library save not confirmed\", got []","rows":[],"diagnosis":{"ownershipAcrossImport":{"ok":false,"reason":"epoch","detail":"the runtime restarted (epoch 50 → 51)"},"journaledSinceMark":["story: away recap not due","status: Started SO-E3 Save Evidence"]}}
+6/30 eval ok 21ms
+7/30 eval ok 5067ms
+7/30 eval -> {"green":true,"problem":null,"rows":[{"at":"2026-09-24T22:05:21.287Z","summary":"library removal not confirmed","note":"“SO-E3 Save Evidence”: the settings save answered 500"}],"diagnosis":null}
+8/30 ui ok 118ms
+9/30 eval ok 56ms
+9/30 eval -> {"curator":false}
+10/30 eval ok 5041ms
+10/30 eval -> {"green":true,"problem":null,"rows":[{"at":"2026-09-24T22:05:26.489Z","summary":"settings save not confirmed","note":"stagecraft: the settings save answered 500"}],"diagnosis":null}
+11/30 unblock_route ok 9ms
+12/30 eval ok 7ms
+13/30 import_story ok 398ms
+14/30 eval ok 3017ms
+15/30 ui ok 285ms
+16/30 eval ok 16ms
+17/30 studio_save ok 15383ms
+18/30 eval ok 5005ms
+18/30 eval -> {"green":true,"problem":null,"sentence":"Saved “SO-E3 Save Evidence” v1 to the library."}
+19/30 ui ok 77ms
+20/30 eval ok 46ms
+20/30 eval -> {"removed":[["legacy-v2-a81a1750",true],["so-e3-save-evidence",true]]}
+21/30 ui ok 209ms
+22/30 eval ok 10196ms
+22/30 eval -> {"control":{"green":true,"problem":null,"rows":[]},"curator":true,"serverCurator":true}
+23/30 slash ok 1847ms
+24/30 eval ok 13ms
+25/30 eval ok 5ms
+26/30 block_route ok 4ms
+27/30 import_story ok 260ms
+28/30 eval ok 4033ms
+28/30 eval -> {"green":true,"problem":null,"rows":[{"at":"2026-09-24T22:06:07.167Z","summary":"save not confirmed","note":"story selection: the server answered 500"}],"health":{"lastAppliedBoundary":null,"pendingBoundary":0,"lastOutcome":"unsaved","consecutiveFailures":1,"lastReason":"the server answered 500","lastFailureAt":"2026-09-24T22:06:07.167Z"}}
+29/30 unblock_route ok 5ms
+30/30 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: E3 legs not green: {"missing":[],"failed":["import: expected exactly one journal row \"library save not confirmed\", got []"]}
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:352)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:500)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T22-06-11-408Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T22-06-15-890Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 30,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-a81a1750"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-24@19h05m00s524ms",
+    "owned": [
+      "2026-09-24@19h05m00s524ms",
+      "2026-09-24@19h06m05s215ms"
+    ],
+    "deleted": [
+      "2026-09-24@19h05m00s524ms",
+      "2026-09-24@19h06m05s215ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@19h06m05s215ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

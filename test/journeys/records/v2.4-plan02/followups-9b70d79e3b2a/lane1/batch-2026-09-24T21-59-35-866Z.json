@@ -1,0 +1,61 @@
+{
+  "lanes": [
+    1
+  ],
+  "items": [
+    "test/scenarios/live-v24-02-e2-solo-epistemic.json",
+    "test/scenarios/live-v24-02-e5-startup-unbind.json"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/scenarios/live-v24-02-e2-solo-epistemic.json",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T21-59-35-866Z-live-v24-02-e2-solo-epistemic-run1.log",
+      "ms": 32261,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-02-e2-solo-epistemic.json",
+      "lane": 1,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T21-59-35-866Z-live-v24-02-e2-solo-epistemic-run2.log",
+      "ms": 32004,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-02-e5-startup-unbind.json",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T21-59-35-866Z-live-v24-02-e5-startup-unbind-run1.log",
+      "ms": 51688,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-02-e5-startup-unbind.json",
+      "lane": 1,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T21-59-35-866Z-live-v24-02-e5-startup-unbind-run2.log",
+      "ms": 53064,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

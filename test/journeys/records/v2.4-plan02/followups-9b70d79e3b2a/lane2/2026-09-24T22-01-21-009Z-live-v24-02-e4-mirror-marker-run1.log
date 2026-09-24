@@ -1,0 +1,101 @@
+1/13 eval ok 5ms
+1/13 eval -> {"chatA":"2026-09-24@19h03m55s908ms"}
+2/13 slash ok 1770ms
+3/13 eval ok 16ms
+3/13 eval -> {"greetingsCleared":1,"chatId":"2026-09-24@19h03m56s177ms"}
+4/13 eval ok 5ms
+5/13 import_story ok 274ms
+6/13 eval ok 28ms
+7/13 send ok 1678ms
+8/13 extract ok 955ms
+9/13 eval ok 900ms
+9/13 eval -> {"book":"Story Orchestrator - v24-01 Delete Decode - 2026-09-24@19h03m56s177ms","entriesAfterStrip":1,"controls":["Story Orchestrator - v24-01 Delete Decode - 2026-09-24@19h03m55s908ms","Story Orchestrator - SO-E4 Other Title - 2026-09-24@19h03m56s177ms"]}
+10/13 eval ok 75ms
+10/13 eval -> {"summary":{"created":0,"updated":0,"unchanged":1,"disabled":0,"lorebook":"Story Orchestrator - v24-01 Delete Decode - 2026-09-24@19h03m56s177ms","binding":null},"marker":{"owner":"story-orchestrator","chatId":"2026-09-24@19h03m56s177ms","integrity":"d2b43504-7619-4c5f-89a5-b842aba3b508","groupId":"1759606632088","avatar":null,"createdAt":"2026-09-24T22:04:01.806Z"},"controls":[{"name":"Story Orchestrator - v24-01 Delete Decode - 2026-09-24@19h03m55s908ms","markers":0},{"name":"Story Orchestrator - SO-E4 Other Title - 2026-09-24@19h03m56s177ms","markers":0}]}
+11/13 eval ok 1244ms
+11/13 eval -> {"on":"2026-09-24@19h03m55s908ms"}
+12/13 eval ok 988ms
+12/13 eval -> {"offered":"The chat \"2026-09-24@19h03m56s177ms\" was deleted, but its story-memory lorebook \"Story Orchestrator - v24-01 Delete Decode - 2026-09-24@19h03m56s177ms\" is still there. Delete the lorebook too? This cannot be undone.","declined":true,"kept":true}
+13/13 eval ok 276ms
+13/13 eval -> {"deleted":["Story Orchestrator - v24-01 Delete Decode - 2026-09-24@19h03m55s908ms","Story Orchestrator - SO-E4 Other Title - 2026-09-24@19h03m56s177ms"]}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T22-04-08-822Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 13,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-24@19h03m55s908ms",
+    "owned": [
+      "2026-09-24@19h03m55s908ms",
+      "2026-09-24@19h03m56s177ms"
+    ],
+    "deleted": [
+      "2026-09-24@19h03m55s908ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [
+      {
+        "id": "2026-09-24@19h03m56s177ms",
+        "reason": "not listed in the group"
+      }
+    ],
+    "currentChatAtCleanup": "2026-09-24@19h03m55s908ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [
+        "Story Orchestrator - v24-01 Delete Decode - 2026-09-24@19h03m56s177ms"
+      ],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

@@ -1152,3 +1152,71 @@ The existing E5 cases (`branchContinue.review` startup unbind and both controls,
   - Control: with the stub removed, nothing is journaled, and the Studio toolbar still says `Saved “X” vN to the library.`
 - Dedupe live: import a story while `/api/chats/*/save` answers 500. One `save not confirmed` row labelled `story selection: …`, and `extras.saveHealth.consecutiveFailures` rises by one, not two.
 - E5 live: open a played chat, `st-session.mts reload`, then `/persona-sync` (a `reloadCurrentChat`, H9). The session epoch is unchanged and nothing reloaded (the run header's chat unchanged, no `reload-diverged`). Control: switching to another chat after the reload still reloads.
+
+### Follow-ups live (2026-09-24, bundle 9b70d79e3b2a)
+
+Live gates for the E2–E5 follow-ups and their completion, on master `f26b60a` with the served bundle `9b70d79e3b2a…` (the `dist/manifest.json` sha, read back from each lane page before and after). Lanes 1 and 2 only, group `1759606632088`, model Artemis 31B through the `Artemis RunPod RP` profile. Each fixture ran twice back to back on one lane (`st-lanes.mts batch --repeat 2 --strict`). A run header was captured before each lane batch and diffed after it: 0 differences, 0 blocking, on every diff.
+
+Records: `test/journeys/records/v2.4-plan02/followups-9b70d79e3b2a/` (`lane1/`, `lane2/`, `diagnosis/`).
+
+| Check | Fixture | Lane | Result | Record |
+|---|---|---|---|---|
+| E2 solo attributed block, real generation | `live-v24-02-e2-solo-epistemic.json` | 1 | **green ×2** | `lane1/…-e2-solo-epistemic-run{1,2}.log` |
+| E3 install writes + Studio + dedupe | `live-v24-02-e3-save-evidence.json` | 2 | **red ×2**: import leg (product defect below). The other five legs are green ×2 | `lane2/2026-09-24T22-04-59-204Z-…-e3-save-evidence-run{1,2}.log` |
+| E4 pre-T14 book adopts the marker, then the reap | `live-v24-02-e4-mirror-marker.json` | 2 | **green ×2** | `lane2/…-e4-mirror-marker-run{1,2}.log` |
+| E5 reload onto an unadopted branch, controls, same-chat after reload | `live-v24-02-e5-startup-unbind.json` | 1 | **green ×2** | `lane1/…-e5-startup-unbind-run{1,2}.log` |
+
+Batch summaries: `lane1/batch-2026-09-24T21-59-35-866Z.json`, `lane2/batch-2026-09-24T22-01-21-009Z.json` (E4; its two E3 entries ran an earlier revision of the E3 fixture and are superseded), and `lane2/batch-2026-09-24T22-04-59-204Z.json` (E3 as committed). Run headers and diffs are in each lane directory.
+
+**E2 (green ×2).** Each half runs in a new solo chat of `DM Narrator` (see the harness note below).
+- Multi-member roster (Arin, Ponticius): five rows seeded. The injected block, `{{story_epistemic}}` and the block cut out of the request ST sent (`GENERATE_AFTER_DATA`) are byte-identical to the attributed block:
+  - header `What each character privately knows (…)`;
+  - `- Arin knows: …`, `- Arin suspects …`, `- Arin is concealing from Ponticius: …`, `- Ponticius believes …`, `- Ponticius is unaware that …`;
+  - no `- You` line.
+- Control, a single-member roster (Arin): the request carries the second-person `renderPrivateEpistemicBlock` output byte for byte (three lines, with no unaware row and no Ponticius row). The attributed header is absent.
+- A real reply came back both times (`replied: true`, speaker `DM Narrator`).
+- The Artemis profile is text completion, so the instruct suffix `<turn|>` follows the block on its last line. The check matches the expected block exactly, then requires that no further `- ` line follows.
+
+**E3 (red ×2, one leg).** `/api/settings/save` answered 500 through `block_route`, and rows were read from `rt.getSessionJournal()`.
+
+Legs green ×2:
+- Removal: exactly one `library removal not confirmed` row, `“SO-E3 Save Evidence”: the settings save answered 500`.
+- Settings-panel curator toggle (`#so-curator-enabled`, clicked through its label): exactly one `settings save not confirmed` row, `stagecraft: the settings save answered 500`.
+- Control, with the stub removed: import, a Studio save, removal and the toggle put back journal nothing. The toolbar reads `Saved “SO-E3 Save Evidence” v1 to the library.`
+- Dedupe: `/api/chats/group/save` answered 500 during an import in a fresh chat. Exactly one `save not confirmed` row, `story selection: the server answered 500`, and `consecutiveFailures: 1`.
+
+**Defect (import leg, both runs):** importing a story while the settings save fails journals nothing, not one `library save not confirmed` row.
+- Where: `importStoryJson` (`storySelection.ts:66-73`) saves the record, which arms the evidence through `recordSettingsWrite` (`storyLibrary.ts:126`). `runtime/index.ts:128` hands it to `journalSettingsWrite` with a `RunGuard` minted at write time. Then `selectStory` loads the story, and the load bumps the owner epoch (`runtimeManager.ts:537` `invalidateRuns`).
+- Effect: when the 500 settles, `journalSettingsWrite` (`librarySave.ts:113`) finds `!run.stillOwns()` and drops the row. The fixture records it: a token minted before the import answers `{ok:false, reason:"epoch", detail:"the runtime restarted (epoch 50 → 51)"}` after it, and the only journal events since the mark are `away recap not due` and `Started SO-E3 Save Evidence`.
+- `diagnosis/probe-e3-import.json` + `probe-e3-import-diagnosis.log` repeat this with an in-page fetch stub: the import sent one settings save, it answered 500, and no row was recorded. Removal and the toggle, which load nothing, journal through the same channel under the same stub.
+- The E3 completion unit tests arm the evidence without a load in between, so they cannot see it.
+- Not fixed here, because the fix changes what the write-time guard means (chat-scoped rather than run-scoped). This is the same class as the plan-05 note on "journaled to the chat the write was made from".
+
+**E4 (green ×2).**
+- Setup: in chat B the mirror creates and marks (T14) B's book. The fixture strips the `so-owner` entry on the server, so the book is exactly pre-T14 while `wiBook` still names it.
+- One `syncWorldInfo` (summary `unchanged: 1`) writes exactly one `so-owner` entry. It is disabled, keyless, and its content names chat B (`{"owner":"story-orchestrator","chatId":<B>,…}`).
+- Controls stay unmarked: the story's mirror name with chat A's id, and another title with chat B's id.
+- Deleting B from chat A offers the reap ("The chat "<B>" was deleted, but its story-memory lorebook … Delete the lorebook too?"). Declined, the book is kept.
+
+**E5 (green ×2).**
+- How the page lands on a chat by loading: the fixture turns on `power_user.auto_load_chat` and sets `active_group` for the run, puts both back at the end, and the reload step waits for ST to open the chat itself.
+- Before the reload: the switch onto the branch unbinds the slot. The fixture then writes the parent book back into the branch's slot on disk, which is what ST's `createBranch` writes.
+- Reload onto the unadopted branch: the slot is unbound in memory and on disk, the branch notice shows, and the branch blob on disk is byte-identical across the reload.
+- Controls: after Continue from here, the adopted branch keeps its own book across a reload. The parent keeps its book across a reload.
+- Parent after the reload: `/persona-sync` keeps the session epoch (3 → 3), `rollbackOutcome none`, and `stateEquals` holds. A switch to the branch afterwards bumps the epoch (3 → 4).
+- Caveat on which path ran:
+  - ST emits `EXTENSION_SETTINGS_LOADED` inside `getSettings` (`script.js:752`, `:8025`) before `initRossMods` auto-loads the chat (`:769`), and the bridge is subscribed from module load.
+  - So the auto-loaded chat most likely reached the unbind through the bridge's `CHAT_CHANGED` path, not through `loadAtStartup`.
+  - The check proves what the user sees across a real page reload. It does not isolate the `loadAtStartup` branch, which only runs when a chat is open before the settings gate resolves.
+  - The same applies to `noteLoaded`: the bridge sets `loadedChat` on that `CHAT_CHANGED` too.
+
+**Harness (scripts/debug only, no `src/` change).**
+- New verb `solo_chat` (`lib/soloSandbox.mts`, schema, runner):
+  - `{character}` opens a new solo chat, owned by the run; `{leave: true}` returns to the group chat.
+  - `assertInSandbox` accepts an owned solo chat.
+  - Cleanup returns to the group first, deletes each solo chat, and fails the run on a leak (`cleanup.soloChats`).
+- New option `reload.awaitChatMs`.
+- Unit tests: `lib/soloSandbox.test.mts`, 4 tests.
+- Side effect: opening a solo chat through `/go` moves ST's `active_character` on that install. It is not in the run header and not restored.
+
+**Gates:** `npm run debug:typecheck` exit 0; `npm run test:debug` 225/225. Every fixture was validated against `scenarioSchema` (evals compiled). `globalsReadButNeverWritten`: none.

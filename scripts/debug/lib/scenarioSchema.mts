@@ -9,6 +9,7 @@
 // so a typo is a loud load error rather than a check that quietly never fired.
 
 import { branchSpec, nextReadWindowSpec, rollbackOutcomeSpec } from './identityVerbs.mts';
+import { soloSpec } from './soloSandbox.mts';
 
 export const STEP_MODIFIERS = new Set(['adoptsNewChat', 'log', 'attempts', 'retryBack', 'expectFail']);
 
@@ -27,6 +28,8 @@ export const STEP_VERBS = new Set([
   'host_delete', 'cut', 'emit_generation', 'ext_setting', 'record_state', 'inject_script',
   // v2.4 plan 02 §10 (X11): a branch or checkpoint chat, owned by the run and deleted by its cleanup.
   'branch_create',
+  // v2.4 plan 02 follow-ups (E2): a solo chat owned by a group sandbox run, deleted by its cleanup.
+  'solo_chat',
 ]);
 
 export const EXPECT_KEYS = new Set([
@@ -180,6 +183,7 @@ export function validateSteps(steps: unknown, where = 'steps'): string[] {
     if (verb === 'edit') problems.push(...textProblems(isRecord(value) ? value.text : undefined, `${at}.edit.text`));
     if (verb === 'eval') problems.push(...evalSyntaxProblems(value, `${at}.eval`));
     if (verb === 'branch_create') problems.push(...shapeProblems(() => branchSpec(value), `${at}.branch_create`));
+    if (verb === 'solo_chat') problems.push(...shapeProblems(() => soloSpec(value), `${at}.solo_chat`));
     if (verb === 'expect' && isRecord(value) && 'rollbackOutcome' in value) problems.push(...shapeProblems(() => rollbackOutcomeSpec(value.rollbackOutcome), `${at}.expect.rollbackOutcome`));
     if (verb === 'expect' && isRecord(value) && 'nextReadWindow' in value) problems.push(...shapeProblems(() => nextReadWindowSpec(value.nextReadWindow), `${at}.expect.nextReadWindow`));
     if (verb === 'expect') checkObject(value, EXPECT_KEYS, `${at}.expect`, problems);

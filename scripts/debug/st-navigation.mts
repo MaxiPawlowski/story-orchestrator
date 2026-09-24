@@ -226,7 +226,8 @@ export async function readChatOnDisk(page, chatId: string) {
 
 export async function assertInSandbox(page, guard, where) {
   const now = await readActiveChat(page);
-  if (now.groupId === guard.groupId && guard.owned.includes(now.chatId)) {
+  const solo = !now.groupId && Boolean(now.chatId) && (guard.soloChats ?? []).some((entry) => entry.chatId === now.chatId);
+  if ((now.groupId === guard.groupId && guard.owned.includes(now.chatId)) || solo) {
     guard.current = now.chatId;
     return now;
   }

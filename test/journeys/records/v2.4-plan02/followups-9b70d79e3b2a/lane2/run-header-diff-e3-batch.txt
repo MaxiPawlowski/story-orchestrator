@@ -1,0 +1,12 @@
+{
+  "baseline": "C:/dev/so-lanes/2/debug/run-header-followups-lane2-e3-before.json",
+  "label": "diff-end",
+  "allow": [],
+  "differences": 0,
+  "progress": 0,
+  "blocking": 0,
+  "blockingPaths": [],
+  "warnings": [],
+  "wrote": "C:\\dev\\so-lanes\\2\\debug\\run-header-diff-end.json",
+  "ok": true
+}

@@ -16,6 +16,7 @@ import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, se
 import { dumpCurrentChatState } from './so-state.mts';
 import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, branchContinue, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, getMemoryQueueState, memoryQueueAction, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot, hitTest, pointerClick } from './so-ui.mts';
 import { leakCount, listMarkedAssets, removeMarkedAssets } from './so-assets.mts';
+import { cleanupSoloChats, soloChat, withoutSoloChats } from './lib/soloSandbox.mts';
 import { applyExtSetting, cutCommand, emitGeneration, expectOverSteer, expectStateEquals, hostDelete, injectScript, recordState, restoreExtSettings } from './lib/interopVerbs.mts';
 import { branchCreate, cleanupBranchChats, expectNextReadWindow, expectRollbackOutcome, settleReapPrompts, withoutBranchChats } from './lib/identityVerbs.mts';
 
@@ -36,6 +37,9 @@ Step keys:
   block_route ({pattern, status?} — fails the URL at the transport, so the page's fetch throws; a positive status answers instead), unblock_route ({pattern?} — every block when no pattern),
   branch_create ({mesId?: id|"last", kind?: "branch"|"checkpoint", name?, open?} — /branch-create or /checkpoint-create; --sandbox only. The chat is recorded in the run's
     ledger, adopted into the sandbox, and deleted by cleanup, which reports cleanup.branchChats {deleted, failed, leaked}; a leak fails the run)
+  solo_chat ({character} — a NEW solo chat for that character, owned by the run; {leave: true} — back to the group chat it left; --sandbox only. Cleanup returns to
+    the group, deletes each solo chat and reports cleanup.soloChats {deleted, leaked}; a leak fails the run),
+  reload ({reopenChat?, awaitChatMs?} — awaitChatMs waits that long for ST to open a chat on its own, e.g. auto_load_chat, before reopening the sandbox chat)
 
 ui actions ({ui: {action, label?, note?}}):
   open-drawer, drawer-tab, open-settings, select-profile, open-studio, close-studio, studio-tab, studio-save, flag, screenshot,
@@ -736,6 +740,7 @@ async function reloadStep(page, spec, guard = null) {
   await page.waitForFunction(() => Boolean(globalThis.storyOrchestratorRuntime), null, { timeout });
   await page.waitForTimeout(1500);
   // ST comes back on the welcome screen, so reopening the chat is part of "returning to it".
+  if (typeof spec === 'object' && spec?.awaitChatMs) await page.waitForFunction(() => Boolean(SillyTavern.getContext().chatId), null, { timeout: spec.awaitChatMs }).catch(() => undefined);
   const reopen = spec?.reopenChat !== false;
   const chatId = await evaluateInST(page, () => SillyTavern.getContext().chatId ?? null);
   if (!chatId && reopen) {
@@ -1017,7 +1022,8 @@ async function cleanupScenario(page, importedHashes, guard, keep, libraryBefore:
   if (guard) {
     cleaned.clearedDebugResponses = await clearDebugResponses(page).catch((err) => ({ error: err instanceof Error ? err.message : String(err) }));
     await recordSandboxStory(page, guard);
-    try { Object.assign(cleaned, await deleteSandboxChats(page, withoutBranchChats(guard))); } catch (err) { cleaned.chatCleanupError = err instanceof Error ? err.message : String(err); }
+    try { cleaned.soloChats = await cleanupSoloChats(page, guard); } catch (err) { cleaned.soloChats = { error: err instanceof Error ? err.message : String(err), leaked: (guard.soloChats ?? []).map((entry) => entry.chatId) }; }
+    try { Object.assign(cleaned, await deleteSandboxChats(page, withoutSoloChats(withoutBranchChats(guard)))); } catch (err) { cleaned.chatCleanupError = err instanceof Error ? err.message : String(err); }
     try { cleaned.branchChats = await cleanupBranchChats(page, guard); } catch (err) { cleaned.branchChats = { error: err instanceof Error ? err.message : String(err), leaked: [...(guard.branchChats ?? [])] }; }
     try { cleaned.mirrorBooks = await deleteSandboxMirrorBooks(page, guard); } catch (err) { cleaned.mirrorBookCleanupError = err instanceof Error ? err.message : String(err); }
     try { cleaned.reapPrompts = await settleReapPrompts(page, [...guard.owned, ...(guard.branchChats ?? [])]); } catch (err) { cleaned.reapPrompts = { error: err instanceof Error ? err.message : String(err) }; }
@@ -1070,6 +1076,7 @@ async function runStep(page, key, value, { scenarioDir = PROJECT_ROOT, importedH
   if (key === 'record_state') return recordState(page, value);
   if (key === 'inject_script') return injectScript(page, value, scenarioDir);
   if (key === 'branch_create') return branchCreate(page, value, guard);
+  if (key === 'solo_chat') return soloChat(page, value, guard);
   if (key === 'wait') return waitForCondition(page, value);
   if (key === 'expect') {
     const { stateEquals, overSteer, rollbackOutcome, nextReadWindow, ...rest } = value ?? {};
@@ -1219,6 +1226,11 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
       if (branches.error || branches.leaked?.length || branches.failed?.length) {
         result.ok = false;
         result.error = [result.error, `cleanup left branch chat(s): leaked ${JSON.stringify(branches.leaked ?? [])}, failed ${JSON.stringify(branches.failed ?? [])}${branches.error ? `, ${branches.error}` : ''}`].filter(Boolean).join('; ');
+      }
+      const solos = (cleanup.soloChats ?? {}) as { leaked?: string[]; error?: string };
+      if (solos.error || solos.leaked?.length) {
+        result.ok = false;
+        result.error = [result.error, `cleanup left solo chat(s): ${solos.error ?? JSON.stringify(solos.leaked)}`].filter(Boolean).join('; ');
       }
       const prompts = (cleanup.reapPrompts ?? {}) as { leaked?: string[]; error?: string };
       if (prompts.error || prompts.leaked?.length) {

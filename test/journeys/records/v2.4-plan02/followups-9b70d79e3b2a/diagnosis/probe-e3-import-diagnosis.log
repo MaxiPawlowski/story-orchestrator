@@ -1,0 +1,60 @@
+1/5 eval ok 5ms
+2/5 eval ok 10234ms
+2/5 eval -> {"imported":true,"check":{"ok":false,"reason":"epoch","detail":"the runtime restarted (epoch 62 → 63)"},"before":{"chatId":"2026-09-24@19h07m44s906ms","storyId":null,"playedVersion":null,"sessionEpoch":62,"claimedChat":"2026-09-24@19h07m44s906ms","windowRevision":0,"lowestMutatedMessageId":null},"after":{"chatId":"2026-09-24@19h07m44s906ms","storyId":"legacy-v2-5c04768e","playedVersion":1,"sessionEpoch":63,"claimedChat":"2026-09-24@19h07m44s906ms","windowRevision":0,"lowestMutatedMessageId":null},"recaps":[{"summary":"away recap not due","detail":"chat 2026-09-24@19h07m44s906ms, last seen never, gap n/a","at":"2026-09-24T22:07:45.151Z"}],"saves":1}
+3/5 eval ok 10021ms
+3/5 eval -> {"removed":true,"check":{"ok":true},"recaps":[{"summary":"library removal not confirmed","detail":"“SO-E3 Probe”: the settings save answered 500","at":"2026-09-24T22:07:56.400Z"}],"saves":2,"storyId":"legacy-v2-5c04768e"}
+4/5 eval ok 10018ms
+4/5 eval -> {"recaps":[{"summary":"settings save not confirmed","detail":"stagecraft: the settings save answered 500","at":"2026-09-24T22:08:06.426Z"}],"saves":3}
+5/5 eval ok 4016ms
+5/5 eval -> {"restored":true,"own":false}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T22-08-23-803Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 5,
+  "cleanup": {
+    "removedStoryHashes": [],
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-24@19h07m44s906ms",
+    "owned": [
+      "2026-09-24@19h07m44s906ms"
+    ],
+    "deleted": [
+      "2026-09-24@19h07m44s906ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@19h07m44s906ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

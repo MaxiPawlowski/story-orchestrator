@@ -1,0 +1,61 @@
+{
+  "lanes": [
+    2
+  ],
+  "items": [
+    "test/scenarios/live-v24-02-e3-save-evidence.json",
+    "test/scenarios/live-v24-02-e4-mirror-marker.json"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/scenarios/live-v24-02-e3-save-evidence.json",
+      "lane": 2,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-24T22-01-21-009Z-live-v24-02-e3-save-evidence-run1.log",
+      "ms": 77553,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-02-e3-save-evidence.json",
+      "lane": 2,
+      "run": 2,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-24T22-01-21-009Z-live-v24-02-e3-save-evidence-run2.log",
+      "ms": 76349,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-02-e4-mirror-marker.json",
+      "lane": 2,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-24T22-01-21-009Z-live-v24-02-e4-mirror-marker-run1.log",
+      "ms": 13931,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-02-e4-mirror-marker.json",
+      "lane": 2,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-24T22-01-21-009Z-live-v24-02-e4-mirror-marker-run2.log",
+      "ms": 14195,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}
