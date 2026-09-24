@@ -1,0 +1,74 @@
+
+=== J12 unaided-schedule ===
+The configuration every real install runs and no journey covered: the shipped default cadence, three real player turns, no runExtractionNow and no /cp — an extraction read must fire on its own, its deltas must carry evidence quoting what the player wrote, and the checkpoint it opens must apply its effects.
+
+extraction before this run: {"enabled":true,"cadence":1,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"}
+Global config snapshot: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\so-journey-config-snapshot.json
+extraction declared by the journey: cadence 3, stabilityLag 0, profile inherit
+--- J12.1 the SHIPPED default cadence is in effect (3), extraction is on, a profile is set, and nothing has read yet — so the read J12.3 observes cannot be a leftover from an earlier check or an earlier run
+J12.1 1/1 eval ok 5ms
+J12.1 1/1 eval -> {"cadence":3,"enabled":true,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","audits":0}
+--- J12.2 the story is selected and its requirements are GREEN — the guard v2.3 plan 04 added, because a journey that never established its lorebooks gets silent no-op latches instead of a failure, and the symptom then surfaces 300 s later as a checkpoint that never arrives
+J12.2 1/5 eval ok 4ms
+J12.2 2/5 select_story ok 838ms
+J12.2 3/5 wait ok 1539ms
+J12.2 4/5 eval ok 4ms
+J12.2 4/5 eval -> {"ready":true,"checkpoint":"guild-hall"}
+J12.2 5/5 expect ok 39ms
+--- J12.3 three real turns at the shipped cadence produce an extraction read with NO help — reason `cadence`, not `manual`/`trigger`/`runNow` — and the read's window reaches the player's own latest message
+J12.3 1/10 send_generate ok 11943ms
+J12.3 2/10 wait ok 1543ms
+J12.3 3/10 send_generate ok 12323ms
+J12.3 4/10 wait ok 1524ms
+J12.3 5/10 send_generate ok 18410ms
+J12.3 6/10 wait ok 1540ms
+J12.3 7/10 wait ok 42ms
+J12.3 8/10 eval ok 6ms
+J12.3 8/10 eval -> {"reason":"cue:road-to-wendhope->at-the-walls","window":{"from":0,"to":3},"boundary":null,"lastPlayerIndex":5,"accepted":2,"rejected":0}
+J12.3 9/10 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: no audit with reason `cadence` — the reads this session produced were: ["scene:cast","cue:road-to-wendhope->at-the-walls"]
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:477)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1106)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+--- J12.4 an accepted delta's EVIDENCE quotes the player's own words from inside the read's window — the property the contract promises, asserted as a property (some distinctive token shared) and with the evidence reported, because asserting a fixed string would be asserting what the model chose
+J12.4 1/1 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: no accepted delta's evidence quotes the player's own words; player tokens were ["tobias","turned","listen","sitting"], evidence was [{"q":"reached_walls","v":false,"evidence":"I cross the guild hall to the quest counter"},{"q":"tension_current","v":0,"evidence":"I cross the guild hall to the quest counter and put both hands flat on the wood"}]
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1431)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1680)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+--- J12.5 the checkpoint the read opened applied its effects — an owned ledger row per effect, `applied` — and the boundary log names the transition that fired. This is the leg the MODEL decides, so it is its own check: a model that will not commit costs this check, not the journey's point (J12.3/J12.4)
+J12.5 1/4 eval ok 4ms
+J12.5 1/4 eval -> {"rows":3,"applied":3,"byCheckpoint":{"guild-hall":["author_note"],"road-to-wendhope":["author_note","cast"]},"statuses":["author_note:applied","author_note:applied","cast:applied"]}
+J12.5 2/4 eval ok 5ms
+J12.5 3/4 eval ok 5ms
+J12.5 3/4 eval -> {"active":"road-to-wendhope","fired":null,"noteHasGuildHallScene":false,"note":"[The party travels north to Wendhope. Let the companions talk on the road, and build unease from what is missing rather "}
+J12.5 4/4 expect_ui ok 4ms
+Restored global config from C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions"],"saved":{"status":200},"preservedStories":[],"preservedSessions":[]}
+
+PASS         J12.1    the SHIPPED default cadence is in effect (3), extraction is on, a profile is set, and nothing has read yet — so the read J12.3 observes cannot be a leftover from an earlier check or an earlier run
+PASS         J12.2    the story is selected and its requirements are GREEN — the guard v2.3 plan 04 added, because a journey that never established its lorebooks gets silent no-op latches instead of a failure, and the symptom then surfaces 300 s later as a checkpoint that never arrives
+FAIL         J12.3    three real turns at the shipped cadence produce an extraction read with NO help — reason `cadence`, not `manual`/`trigger`/`runNow` — and the read's window reaches the player's own latest message — Evaluation failed in SillyTavern page: page.evaluate: Error: no audit with reason `cadence` — the reads this session produced were: ["scene:cast","cue:road-to-wendhope->at-the-walls"]
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:477)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1106)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+FAIL         J12.4    an accepted delta's EVIDENCE quotes the player's own words from inside the read's window — the property the contract promises, asserted as a property (some distinctive token shared) and with the evidence reported, because asserting a fixed string would be asserting what the model chose — Evaluation failed in SillyTavern page: page.evaluate: Error: no accepted delta's evidence quotes the player's own words; player tokens were ["tobias","turned","listen","sitting"], evidence was [{"q":"reached_walls","v":false,"evidence":"I cross the guild hall to the quest counter"},{"q":"tension_current","v":0,"evidence":"I cross the guild hall to the quest counter and put both hands flat on the wood"}]
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1431)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1680)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+PASS         J12.5    the checkpoint the read opened applied its effects — an owned ledger row per effect, `applied` — and the boundary log names the transition that fired. This is the leg the MODEL decides, so it is its own check: a model that will not commit costs this check, not the journey's point (J12.3/J12.4)
+
+J12
+automated: 3 pass, 2 fail, 0 blocked, 0 not-runnable, 0 skipped
+human:     0 scored, 0 unscored
+cleanup:   clean
+first try: 3 of 3 passing check(s) needed no retry
+NOT GREEN: 2 automated check(s) failed
+
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-24T02-41-15-217Z_journey-J12.json
+Matrix: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\journey-J12.md

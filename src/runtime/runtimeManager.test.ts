@@ -341,6 +341,7 @@ describe("RuntimeManager scene detection", () => {
     expect(snapshot.memory.entries.some((entry) => entry.tier === "scene_history" && entry.text === globalThis.storyOrchestratorDebugSceneSummaryResponse)).toBe(true);
     expect(snapshot.memory.sceneCount).toBe(1);
     expect(executeSlashCommands).toHaveBeenCalledWith(expect.stringContaining("The scene shifts."), expect.anything());
+    expect(snapshot.memory.entries.find((entry) => entry.tier === "scene_history")?.provenance?.pass).toBe("scene-summary");
   });
 
   it("stores the answer, not the reasoning, and writes no summary when the model only reasoned", async () => {
@@ -1492,6 +1493,15 @@ describe("RuntimeManager async boundary ownership", () => {
     expect(h.notify).toHaveBeenCalledTimes(1);
   });
 
+  it("hands the announcement whether this boundary's chat is the open one, so an unposted note is journaled (L2 J1.7)", async () => {
+    const h = await boundaryHarness();
+    await h.manager.commitBoundary();
+    expect(h.probe.effects.announceTransition).toHaveBeenLastCalledWith(expect.anything(), expect.anything(), true);
+    (h.manager as unknown as { owner: { ownsOpenChat: () => boolean } }).owner.ownsOpenChat = () => false;
+    await h.manager.commitBoundary();
+    expect(h.probe.effects.announceTransition).toHaveBeenLastCalledWith(expect.anything(), expect.anything(), false);
+  });
+
   control("a boundary that lapses during checkpoint effects stops before stagecraft", async () => {
     const h = await boundaryHarness();
     const gate = asyncGate();
@@ -1688,5 +1698,20 @@ describe("RuntimeManager: an expansion merged between boundaries (L4)", () => {
     expect(result?.queue.applied).toHaveLength(1);
     expect(manager.getEngineState()?.blackboard.values.key_found).toBe(true);
     expect(manager.getEngineState()?.activeCheckpointId).toBe("gen_fork_stub_1");
+  });
+});
+
+describe("RuntimeManager: a tail delete with nothing to undo (L2 J6.3)", () => {
+  beforeEach(() => resetHost());
+
+  it("leaves the engine inside the chat, not past it", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(story));
+    mockContext.chat = Array.from({ length: 8 }, (_, index) => ({ mes: `m${index}` }));
+    await manager.commitBoundary();
+    expect(manager.getEngineState()?.lastMessageId).toBe(7);
+    mockContext.chat = [{ mes: "m0" }];
+    await manager.rollbackFromMessage(1);
+    expect(manager.getEngineState()).toMatchObject({ lastMessageId: 0, chatLength: 1 });
   });
 });

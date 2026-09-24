@@ -205,3 +205,13 @@ running.
 - `manifest.mjs`: source hash covers `src/**/*.css` and excludes `*.stories.tsx` (not bundled) — 259 files; records `extension.revision {commit, dirty}` and falls back to the ST checkout's own `git rev-parse` for `host.commit` (now `7c3994196…`). `manifest.test.mjs` pins the revision inside a git checkout.
 - README "Tested on" names the live-play host `7c3994196` separately from the clean-install `06bde939`; `judge` marked optional.
 - Gates: `npm run build` 0 (bundle `e1b26be43d48` — byte-identical to the pre-change build, so the bundle is reproducible), `test:release` 10/10, typecheck 0, lint 0, jest 2493/2493. No live gate applies (release tooling). Clean-host re-run (L8) still owed on a frozen candidate.
+
+### L8 gate (2026-09-23): clean-host on the current tree — green, one real failure first
+
+- **First attempt** (commit `2f83251`), three runs: `npm ci`, typecheck, lint, test, build and storybook were OK on every host. **`test:release` failed on all three**, for one real reason: `scripts/release/citations-known.json` listed `test/journeys/records/v2.3-acceptance/` as a planned absence, and the J9 archive had just made it real. The rot guard fired as designed.
+  - The entry was removed (`c59153e`). The failed runs are kept in `docs/release/2.3.0/clean-host-failed/`.
+  - The local suite had passed only because it ran before the archive.
+- **Second attempt**, on `c59153e` plus the J1.7/J6.3/J5.8 working-tree changes. The script copies the working tree, and the jest count in each log shows which tree a run saw.
+  - Pinned `06bde939` (`release`), gates typecheck, lint, test, build, release and storybook: `20260923T234145Z` green on `c59153e` (jest 2675). `20260923T234904Z` and `20260924T000118Z` green on the tree with the fixes (jest 2678).
+  - Older host 1.18.0 `51ad27fb`: `clean-host-older/20260923T235618Z` green (jest 2678, no storybook).
+- **Result:** pinned green ×2 on one tree plus once on its parent, and the older host green once. That tree gained the scene-summary provenance fix and three more tests afterwards (jest 2682), so **the frozen candidate still owes one clean-host pass**.

@@ -312,7 +312,7 @@ export class ExtractionCoordinator {
       debugResponse: globalThis.storyOrchestratorDebugSceneSummaryResponse ?? null,
     });
     if (!run.stillOwns()) return;
-    const entry = this.newEntry({ provenance: this.provenanceFor(audit.window), tier: "scene_history", text: stripChannelNoise(summary), type: "scene", importance: 2, expiration: "permanent", entities: [], evidence: sceneText, messageId: audit.window.to });
+    const entry = this.newEntry({ provenance: this.provenanceFor(audit.window, "scene-summary"), tier: "scene_history", text: stripChannelNoise(summary), type: "scene", importance: 2, expiration: "permanent", entities: [], evidence: sceneText, messageId: audit.window.to });
     const sceneOccurrence = await memory.addSceneSummary(entry, audit.window);
     if (sceneOccurrence === null) return;
     memory.updateInjection();

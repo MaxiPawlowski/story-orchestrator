@@ -174,10 +174,15 @@ export class EffectsApplier {
 
   // The one thing a transition posts into the chat itself: a compact system note naming where the
   // story moved (opt-out in settings), kept to one line.
-  async announceTransition(checkpoint: Checkpoint | undefined, extras: RuntimeExtras) {
+  // A transition the player was never told about leaves a trace: both ways out of this used to be silent.
+  async announceTransition(checkpoint: Checkpoint | undefined, extras: RuntimeExtras, ownsOpenChat = true) {
     if (!extras.ui.announceTransitions || !checkpoint) return;
+    const unannounced = `transition to "${checkpoint.name}" was not announced`;
+    if (!ownsOpenChat) return this.deps.journal?.(unannounced, "the open chat is not the chat this boundary belongs to");
     const raw = checkpoint.objective ? `◈ ${checkpoint.name} — ${checkpoint.objective}` : `◈ ${checkpoint.name}`;
-    await executeSlashCommands(`/comment compact=true raw=false ${quoteSlashArg(raw.replace(/\s*\r?\n\s*/g, " ").trim())}`, { silent: true });
+    if (!(await executeSlashCommands(`/comment compact=true raw=false ${quoteSlashArg(raw.replace(/\s*\r?\n\s*/g, " ").trim())}`, { silent: true }))) {
+      this.deps.journal?.(unannounced, "the /comment that posts the note was refused");
+    }
   }
 
   // v2.3 plan 06. The write-ahead rule for one effect: RECORD what is about to change (and what it

@@ -1,0 +1,31 @@
+DIFF build.head  "d2ca1f1b2f6c76d5093a50db678daf45e42b291a" -> "c59153ea3c5062f7f1e312e5bb1467236de22042"
+DIFF build.manifest.builtAt  "2026-09-23T23:13:49.561Z" -> "2026-09-24T00:13:43.398Z"
+DIFF build.manifest.fileSha256  "790e66aae1001903" -> "0e3bb2716d99e222"
+DIFF build.manifest.sourceSha256  "8d94cb5ef453f97e68e7b44c69651d675528d68c4c6137a8d87beb04112c3d18" -> "54e03fea9d89b011346d8f568960c90edc1924e848cc46637a9996bc67faaceb"
+DIFF chat.chatId  "2026-09-23@13h35m48s456ms" -> "2026-09-20@09h17m25s990ms"
+DIFF chat.groupId  "1759606632088" -> "1789797226071"
+DIFF group.members  +Adolion Narrator.png +Belle.png +Dalan.png +Tobias.png -Arin.png -DM Narrator.png -Luke.png -Ponticius.png
+DIFF group.name  "Group: Arin, DM Narrator" -> "Adolion - The Adventurer's Road"
+DIFF inventory.v2Stories  +sun-ruins@10
+{
+  "baseline": ".debug/run-header-l2-before.json",
+  "label": "diff-end",
+  "allow": [],
+  "differences": 9,
+  "progress": 0,
+  "blocking": 9,
+  "blockingPaths": [
+    "build.head",
+    "build.manifest.builtAt",
+    "build.manifest.fileSha256",
+    "build.manifest.sourceSha256",
+    "chat.chatId",
+    "chat.groupId",
+    "group.members",
+    "group.name",
+    "inventory.v2Stories"
+  ],
+  "warnings": [],
+  "wrote": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\.debug\\run-header-diff-end.json",
+  "ok": false
+}

@@ -285,8 +285,8 @@ export class RuntimeManager {
     await this.persist();
     if (!run.stillOwns()) return null;
     this.status = result.fired ? `Moved into ${this.engine.activeCheckpoint?.name ?? result.activeCheckpointId}` : `Following ${this.engine.activeCheckpoint?.name ?? "the story"}`;
-    if (result.fired && this.owner.ownsOpenChat()) {
-      await this.effects.announceTransition(this.engine.activeCheckpoint, this.extras);
+    if (result.fired) {
+      await this.effects.announceTransition(this.engine.activeCheckpoint, this.extras, this.owner.ownsOpenChat());
       if (!run.stillOwns()) return null;
     }
     this.boundaryListeners.forEach((listener) => listener(result));

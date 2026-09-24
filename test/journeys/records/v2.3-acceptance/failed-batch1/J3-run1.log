@@ -1,0 +1,83 @@
+
+=== J3 player-session ===
+A real play session on the shipped example: transitions announced, memory recalled, nothing the player should not see, and the session journal correlates it all.
+
+extraction before this run: {"enabled":true,"cadence":1,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"}
+Global config snapshot: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\so-journey-config-snapshot.json
+extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+--- J3.1 the story loads and the first real transition fires from play alone
+J3.1 1/11 import_story ok 1900ms
+J3.1 2/11 ui ok 3708ms
+J3.1 3/11 eval ok 7ms
+J3.1 4/11 eval ok 8ms
+J3.1 5/11 expect ok 44ms
+J3.1 6/11 send_generate ok 14527ms
+J3.1 7/11 wait ok 1534ms
+J3.1 8/11 send_generate ok 20607ms
+J3.1 9/11 send_generate ok 40145ms
+J3.1 10/11 wait ok 48ms
+J3.1 11/11 expect ok 46ms
+--- J3.2 the checkpoint change is announced in the chat itself
+J3.2 1/1 expect_ui ok 4ms
+--- J3.3 in player mode the drawer shows no author-only internals
+J3.3 1/4 ui ok 1196ms
+J3.3 2/4 ui ok 10130ms
+J3.3 3/4 ui ok 1970ms
+J3.3 4/4 expect_ui ok 7ms
+--- J3.4 player surfaces speak the story's language, not the implementation's
+J3.4 1/3 ui ok 2115ms
+J3.4 2/3 expect_ui ok 10ms
+J3.4 3/3 expect_ui ok 125ms
+--- J3.5 one composed narrative 'where am I' surface exists
+J3.5 1/2 eval ok 15ms
+J3.5 2/2 expect_ui ok 36ms
+--- J3.6 a stalled pipeline is visibly distinct from a slow one, and the signal clears when the re-check lands
+J3.6 1/5 ui ok 1633ms
+J3.6 2/5 eval ok 6ms
+J3.6 3/5 expect_ui ok 517ms
+J3.6 4/5 eval ok 22957ms
+J3.6 5/5 eval ok 5ms
+--- J3.7 the session produced memory and injected it into the next generation
+J3.7 1/3 wait ok 51ms
+J3.7 2/3 wait FAIL Timed out waiting for {"memoryEntries":1,"memoryTier":"facts","timeoutMs":180000}. Last state: {"chatId":"2026-09-23@20h35m19s459ms","activeCheckpoint":"cp2","boundary":6,"blackboard":{"approached_board":true,"tension_current":0.1275},"latched":{"approached_board":true},"auditCount":5,"expansion":{"entries":{},"scheduler":{"queueDepth":0,"inFlight":false,"lastError":null}},"requirementsReady":true,"npcFired":{"cp2:onEnter:DM Narrator:0":1,"cp2:afterSpeak:Ponticius:0":1},"tension":{"level":"stirring","smoothed":0.1275,"expected":0.25,"hint":{"direction":"hold","text":"Pacing: hold the tension near stirring — sustain the mood without spiking or releasing it. Do not narrate the player's own words or decisions."}},"pacingPrompt":{"value":"Pacing: hold the tension near stirring — sustain the mood without spiking or releasing it. Do not narrate the player's own words or decisions.","position":1,"depth":2,"scan":false,"role":0,"filter":null},"lastAudit":{"accepted":[],"rejected":[{"q":"artifact_secured=false","reason":"oversized response"}]},"copilot":{"enabled":true,"activeNudge":null,"nudgeInjected":false}}
+--- J3.8 the session journal correlates extraction, transition, payload and flag on one timeline
+J3.8 1/2 ui ok 3042ms
+J3.8 2/2 eval ok 3ms
+Restored global config from C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions"],"saved":{"status":200},"preservedStories":[],"preservedSessions":[]}
+
+PASS         J3.1     the story loads and the first real transition fires from play alone
+PASS         J3.2     the checkpoint change is announced in the chat itself
+PASS         J3.3     in player mode the drawer shows no author-only internals
+PASS         J3.4     player surfaces speak the story's language, not the implementation's
+PASS         J3.5     one composed narrative 'where am I' surface exists
+PASS         J3.6     a stalled pipeline is visibly distinct from a slow one, and the signal clears when the re-check lands
+FAIL         J3.7     the session produced memory and injected it into the next generation — Timed out waiting for {"memoryEntries":1,"memoryTier":"facts","timeoutMs":180000}. Last state: {"chatId":"2026-09-23@20h35m19s459ms","activeCheckpoint":"cp2","boundary":6,"blackboard":{"approached_board":true,"tension_current":0.1275},"latched":{"approached_board":true},"auditCount":5,"expansion":{"entries":{},"scheduler":{"queueDepth":0,"inFlight":false,"lastError":null}},"requirementsReady":true,"npcFired":{"cp2:onEnter:DM Narrator:0":1,"cp2:afterSpeak:Ponticius:0":1},"tension":{"level":"stirring","smoothed":0.1275,"expected":0.25,"hint":{"direction":"hold","text":"Pacing: hold the tension near stirring — sustain the mood without spiking or releasing it. Do not narrate the player's own words or decisions."}},"pacingPrompt":{"value":"Pacing: hold the tension near stirring — sustain the mood without spiking or releasing it. Do not narrate the player's own words or decisions.","position":1,"depth":2,"scan":false,"role":0,"filter":null},"lastAudit":{"accepted":[],"rejected":[{"q":"artifact_secured=false","reason":"oversized response"}]},"copilot":{"enabled":true,"activeNudge":null,"nudgeInjected":false}}
+PASS         J3.8     the session journal correlates extraction, transition, payload and flag on one timeline
+SKIP         J3.9      — human check — operator scores it
+SKIP         J3.10     — human check — operator scores it
+SKIP         J3.11     — human check — operator scores it
+SKIP         J3.12     — human check — operator scores it
+SKIP         J3.13     — human check — operator scores it
+
+J3
+automated: 7 pass, 1 fail, 0 blocked, 0 not-runnable, 0 skipped
+human:     0 scored, 5 unscored
+cleanup:   clean
+first try: 7 of 7 passing check(s) needed no retry
+NOT GREEN: 1 automated check(s) failed
+
+--- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+[J3.9] (U4) During the session, did you always know where the story was and what it wanted from you?
+      anchors: 1 = lost most of the time · 3 = had to open the drawer to be sure · 5 = always obvious from play
+[J3.10] (U3) Did anything you saw spoil what was coming, or reveal what a character was supposed to be hiding?
+      anchors: 1 = major spoilers · 3 = one small leak · 5 = nothing leaked
+[J3.11] (U8) Did the on-screen wording sound like the game, or like the machine running it?
+      anchors: 1 = debug output · 3 = mixed · 5 = all in-world
+[J3.12] (U5) When the story did not move on a turn, could you tell whether it was stuck, thinking, or waiting for you?
+      anchors: 1 = indistinguishable · 3 = guessed right eventually · 5 = always clear
+[J3.13] (—) Pacing: did the story push when it should have pushed and breathe when it should have breathed?
+      anchors: 1 = fought me constantly · 3 = acceptable · 5 = felt directed
+[free] What would make you stop using this?
+
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-23T23-40-38-804Z_journey-J3.json
+Matrix: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\journey-J3.md

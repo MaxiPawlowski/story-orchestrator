@@ -42,6 +42,7 @@ export async function runRollback(deps: RollbackDeps, messageId: number): Promis
     deps.memory.rollbackFromMessage(messageId, engine.serialize().boundary);
     extras.judge = dropJudgeCallsAfter(extras.judge, messageId);
     extras.extraction.audits = extras.extraction.audits.filter((audit) => audit.window.to < messageId);
+    engine.clampToChat(deps.context().chatLength);
   };
   // E1, one path for both ways the history can be gone: nothing retained precedes the message, or
   // the boundary it names has no snapshot left. Either way the player is told, the journal says why,

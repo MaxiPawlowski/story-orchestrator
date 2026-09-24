@@ -1,0 +1,236 @@
+
+=== J11 judgment-backend ===
+The judgment model behind the ST server plugin: reachable with a key, off by default, deciding speaker direction when opted in, falling back to today's chain on a timeout, recorded in its own ring, and never leaking the key.
+
+extraction before this run: {"enabled":true,"cadence":1,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"}
+Global config snapshot: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\so-journey-config-snapshot.json
+extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+--- J11.1 the server plugin answers /status with a configured key, and reports where the key came from without the key itself
+J11.1 1/1 eval ok 10ms
+--- J11.2 judge off (the default): a real group turn is decided by today's chain and nothing reaches the plugin
+J11.2 1/6 import_story ok 361ms
+J11.2 2/6 ui ok 188ms
+J11.2 3/6 eval ok 13ms
+J11.2 4/6 send_generate ok 9742ms
+J11.2 5/6 wait ok 35ms
+J11.2 6/6 eval ok 4ms
+--- J11.3 judge on with speaker direction opted in: the judge decides the turn inside its budget, records the answering model in its own ring, and adds nothing to the persisted journal
+J11.3 1/5 import_story ok 559ms
+J11.3 2/5 eval ok 5ms
+J11.3 3/5 send_generate ok 12267ms
+J11.3 4/5 wait ok 34ms
+J11.3 5/5 eval ok 5ms
+--- J11.4 a 1 ms judge budget falls back to today's chain, records the fallback, and the turn still gets a reply
+J11.4 1/5 import_story ok 563ms
+J11.4 2/5 eval ok 5ms
+J11.4 3/5 send_generate ok 16792ms
+J11.4 4/5 wait ok 35ms
+J11.4 5/5 eval ok 5ms
+--- J11.5 player mode shows nothing judge-internal: no probabilities, no judge sources, no steering controls
+J11.5 1/3 import_story ok 556ms
+J11.5 2/3 ui ok 53ms
+J11.5 3/3 ui ok 275ms
+--- J11.6 judge settings set through the settings panel survive a reload, and the key appears nowhere in extension settings or chat metadata
+J11.6 1/5 import_story ok 557ms
+J11.6 2/5 ui ok 108ms
+J11.6 3/5 eval ok 2508ms
+J11.6 3/5 eval -> {"enabled":true,"director":true}
+J11.6 4/5 reload ok 6215ms
+J11.6 5/5 eval ok 6ms
+--- J11.7 memoryVerify on (opt-in): a real read's memory lines are judged against the transcript before they are stored; every read with lines leaves a memoryVerify record, stored confidences follow policy Only entries a SHARED READ produced are counted: scene summaries and short-term compaction are their own passes, which memoryVerify does not cover by design (L2 2026-09-23: a scene summary, then mis-stamped as shared-read, failed this check).
+J11.7 1/7 import_story ok 564ms
+J11.7 2/7 eval ok 5ms
+J11.7 3/7 send_generate ok 22934ms
+J11.7 4/7 wait ok 24611ms
+J11.7 5/7 extract ok 21403ms
+J11.7 6/7 wait ok 40988ms
+J11.7 7/7 eval ok 6ms
+J11.7 7/7 eval -> {"branch":"every line supported","stored":[["The Sun Ruins job pays 3,000 gold pieces: 200 up front and 2,800 upon completion.",1],["The Sun Ruins job involves facing undead and retrieving an artifact for the merchant guild.",1],["Max accepted the Sun Ruins job, paying a 250 crown deposit with his silver signet ring and agreeing that Luke would stay behind.",1],["Arin believes sphinxes are old myths from before the Lich Queen's time and unlikely to exist.",1],["Ponticius has a dry, rattling laugh.",1],["Ponticius warns that the Sun Ruins contain undead that 'don't play fair' and requires a solid, prepared party.",1],["Arin is skeptical of sphinxes, considering them old myths from before the Lich Queen's time.",1]],"drops":[],"calls":["judge memoryVerify in 581 ms","judge memoryVerify in 55
+--- J11.8 a scripted reply that contradicts itself, then a real read: an unsupported line lands in verifyDrops (author-visible, restorable), or the model wrote only supported lines; the check logs which branch ran Only entries a SHARED READ produced are counted: scene summaries and short-term compaction are their own passes, which memoryVerify does not cover by design (L2 2026-09-23: a scene summary, then mis-stamped as shared-read, failed this check).
+J11.8 1/6 import_story ok 565ms
+J11.8 2/6 eval ok 7ms
+J11.8 3/6 slash ok 12995ms
+J11.8 4/6 extract ok 24497ms
+J11.8 5/6 wait ok 26593ms
+J11.8 6/6 eval ok 6ms
+J11.8 6/6 eval -> {"branch":"model wrote only supported lines","stored":[["The Sun Ruins job pays 3,000 gold pieces: 200 up front and 2,800 upon completion.",1],["The Sun Ruins job involves facing undead and retrieving an artifact for the merchant guild.",1],["Max accepted the Sun Ruins job, paying a 250 crown deposit with his silver signet ring and agreeing that Luke would stay behind.",1],["Ponticius is an old man who works at the guild job board, has a dry rattling laugh, and uses a ledger and quill.",1],["Arin is skeptical of sphinxes, considering them old myths from before the Lich Queen.",1],["The receptionist has sharp eyes and wears a silver badge on her cloak.",1],["Max has a silver signet ring worth more than a hundred crowns.",1],["Arin is skeptical of sphinxes, considering them old myths from be
+--- J11.9 memoryPairs on (opt-in): seeded labelled pairs are consolidated by the judge; a duplicate is dropped, an update supersedes, and a pair about two different things (same owner or place) is never superseded or dropped
+J11.9 1/3 import_story ok 573ms
+J11.9 2/3 ui ok 244ms
+J11.9 3/3 eval ok 15658ms
+J11.9 3/3 eval -> {"pairs":{"M01":["kept","gone"],"M07":["superseded","kept"],"M08":["kept","kept"],"P21":["kept","kept"],"P31":["contradicted","kept"]},"p31":"P31 under the floor: the heuristic flag held","summary":{"dropped":1,"superseded":1,"confirmed":1,"uncertain":[{"candidateId":"3e21fea3-5621-4e50-987a-8b60a9d7d9a1","existingId":"e65dc530-704e-4018-a09a-9dc1046ebf60"}]},"pairCalls":5}
+--- J11.10 memoryPairs off: the same seed consolidates by today's heuristic alone, with no memoryPairs call
+J11.10 1/2 import_story ok 580ms
+J11.10 2/2 eval ok 5658ms
+J11.10 2/2 eval -> {"pairs":{"M01":["contradicted","kept"],"M07":["contradicted","kept"],"M08":["contradicted","kept"],"P21":["contradicted","kept"],"P31":["contradicted","kept"]},"summary":{"dropped":0,"superseded":0,"confirmed":0,"uncertain":[{"candidateId":"9b58d59d-be82-46d3-9105-747084c76ce9","existingId":"dd48f40d-8389-4eee-bd4b-3f3a6b9f8c1a"},{"candidateId":"dfefbcee-006c-40e2-9190-6be46836e423","existingId":"ad64e571-5ef0-410f-a6c9-8f9eb44bb688"},{"candidateId":"3e21fea3-5621-4e50-987a-8b60a9d7d9a1","existingId":"e65dc530-704e-4018-a09a-9dc1046ebf60"},{"candidateId":"d1eeaa5b-66b0-4c4d-9c84-600921c94b83","existingId":"54b9fcf6-ad5b-4bf0-878b-6807337b3cb0"},{"candidateId":"be0bd6e0-09a1-4359-ba93-8709f36cbd14","existingId":"de334ff5-7bbe-4bab-8122-425f7ed6368b"},{"candidateId":"b6d19814-24f6-4da9-96ab
+--- J11.11 sceneTrigger + sceneTracker opted in, real play: one `scene` record per boundary, and the stored read belongs to the newest message
+J11.11 1/4 import_story ok 577ms
+J11.11 2/4 eval ok 6ms
+J11.11 3/4 send_generate ok 16322ms
+J11.11 4/4 eval ok 5ms
+J11.11 4/4 eval -> {"boundaries":1,"calls":["judge scene in 591 ms"],"facts":{"location":"guild hall","time":null,"present":["Arin"],"headingTo":[]},"break":{"p":0.12,"type":"none","triggered":false},"location":{"value":"guild hall","confidence":0.97},"time":{"value":"unclear","confidence":0.32}}
+--- J11.12 a scripted time skip the regex misses (held-out SH01, judged 0.82-0.85 off-page) schedules the P0 `scene:judge` read on that boundary, and the LLM read runs
+J11.12 1/5 import_story ok 585ms
+J11.12 2/5 eval ok 4ms
+J11.12 3/5 slash ok 1856ms
+J11.12 4/5 eval ok 21873ms
+J11.12 4/5 eval -> {"branch":"judge triggered the read","p":0.92,"type":"time_skip","sceneBreak":{"at":12,"reason":"time_skip"}}
+J11.12 5/5 wait ok 42105ms
+--- J11.13 the tracker block is in the prompt ST actually sends on the next generation, with only over-floor fields
+J11.13 1/4 import_story ok 588ms
+J11.13 2/4 eval ok 5ms
+J11.13 3/4 send_generate ok 16902ms
+J11.13 4/4 eval ok 4ms
+J11.13 4/4 eval -> {"branch":"no over-floor field: no block, and none sent","facts":{"location":null,"time":null,"present":[],"headingTo":[]}}
+--- J11.14 deleting the message a scene read belongs to clears the read and the block; the next boundary builds them again
+J11.14 1/8 import_story ok 1076ms
+J11.14 2/8 eval ok 6ms
+J11.14 3/8 send_generate ok 18495ms
+J11.14 4/8 eval ok 6ms
+J11.14 5/8 delete ok 137ms
+J11.14 6/8 eval ok 268ms
+J11.14 7/8 send_generate ok 15443ms
+J11.14 8/8 eval ok 5ms
+J11.14 8/8 eval -> {"rebuilt":17,"block":"[Present: Arin.]"}
+--- J11.15 with cadence pinned high so no cadence read can mask it, every scene usage off: no scene read, no judge call; then trigger on + a blackboard `location` change away from the location the previous boundary recorded with no text cue: the heuristic's deterministic read still runs, and the judge adds no second one
+J11.15 1/10 import_story ok 599ms
+J11.15 2/10 eval ok 17ms
+J11.15 3/10 eval ok 254ms
+J11.15 4/10 send_generate ok 30696ms
+J11.15 5/10 wait ok 5115ms
+J11.15 6/10 eval ok 6ms
+J11.15 7/10 eval ok 460ms
+J11.15 8/10 send_generate ok 16876ms
+J11.15 9/10 wait ok 16177ms
+J11.15 10/10 eval ok 6ms
+J11.15 10/10 eval -> {"reasons":["scene:location"],"judgeAddedReads":0,"note":"union held: no second read"}
+--- J11.16 lore-select opted in: a player question whose answer lives in an entry whose keys never appear gets that entry forced into every generation of the turn; the first pick is made at MESSAGE_SENT, later group members pick again at GENERATION_STARTED
+J11.16 1/7 eval ok 550ms
+J11.16 2/7 import_story ok 582ms
+J11.16 3/7 expect ok 53ms
+J11.16 4/7 eval ok 4ms
+J11.16 5/7 send_generate ok 16334ms
+J11.16 6/7 wait ok 1528ms
+J11.16 7/7 eval ok 4ms
+J11.16 7/7 eval -> {"prompts":1,"scans":1,"picks":[{"trigger":"MESSAGE_SENT","Back room password":0.84},{"trigger":"GENERATION_STARTED","Back room password":0.82}],"withPassword":1}
+--- J11.17 an entry switched off in its book (as checkpoint gating does) is never asked about or forced, whatever the question
+J11.17 1/5 import_story ok 569ms
+J11.17 2/5 eval ok 5ms
+J11.17 3/5 send_generate ok 19392ms
+J11.17 4/5 wait ok 1515ms
+J11.17 5/5 eval ok 4ms
+J11.17 5/5 eval -> {"calls":1,"scans":1}
+--- J11.18 a dry run (prompt itemization) and a quiet generation make no lore judge call
+J11.18 1/2 import_story ok 566ms
+J11.18 2/2 eval ok 5384ms
+--- J11.19 lore-select off: nothing is forced, so the keywordless password entry stays out of the scan, and no lore call is made
+J11.19 1/5 import_story ok 571ms
+J11.19 2/5 eval ok 5ms
+J11.19 3/5 send_generate ok 19362ms
+J11.19 4/5 wait ok 1515ms
+J11.19 5/5 eval ok 5ms
+J11.19 5/5 eval -> {"scans":1,"loreCalls":0}
+--- J11.20 typed extraction opted in, cadence 50 (no LLM read for fifty boundaries): the player takes the key, the judge reads the hinted gate quality on that boundary, and the transition fires at the next boundary, long before any cadence read
+J11.20 1/8 eval ok 16ms
+J11.20 2/8 import_story ok 580ms
+J11.20 3/8 expect ok 36ms
+J11.20 4/8 eval ok 7ms
+J11.20 5/8 send_generate ok 47311ms
+J11.20 6/8 eval ok 6ms
+J11.20 6/8 eval -> {"at":"2026-09-24T02:30:15.328Z","boundary":2,"kind":"typed","window":{"from":28,"to":30},"answered":["guard_mood","has_key"],"deltas":[{"q":"guard_mood","v":"suspicious","confidence":0.95},{"q":"has_key","v":true,"confidence":0.99}],"model":"jev-1.13.0"}
+J11.20 7/8 send_generate ok 52984ms
+J11.20 8/8 eval ok 5ms
+J11.20 8/8 eval -> {"transitionedAt":5,"judgedAt":2,"confidence":0.99}
+--- J11.21 cadence 1 with typed extraction on: whatever the judge settles (on the read itself or on the boundary's own typed read) is left out of every LLM prompt, and a quality it did not settle stays in the scope
+J11.21 1/5 import_story ok 3106ms
+J11.21 2/5 eval ok 21ms
+J11.21 3/5 send_generate ok 44199ms
+J11.21 4/5 wait ok 64563ms
+J11.21 5/5 eval ok 5ms
+J11.21 5/5 eval -> {"audits":2,"cadence":2,"settled":["has_key","guard_mood"],"judgedAudits":2,"ringFallbacks":0}
+--- J11.22 a latching hinted quality is written by the judge only at confidence 0.9 or more (0.8 + 0.1)
+J11.22 1/2 import_story ok 599ms
+J11.22 2/2 eval ok 5ms
+J11.22 2/2 eval -> {"branch":"1 judged guard_mood writes, all >= 0.9","judged":[{"q":"guard_mood","v":"suspicious","confidence":0.95}]}
+--- J11.23 stall check opted in, reads off (cadence 50): a lever pulled six turns ago is written straight from the stall check with no LLM re-read; then a door nobody opens stays a genuine stall with the player's stall signal still showing
+J11.23 1/24 eval ok 19ms
+J11.23 2/24 import_story ok 599ms
+J11.23 3/24 expect ok 36ms
+J11.23 4/24 eval ok 5ms
+J11.23 5/24 slash ok 16577ms
+J11.23 6/24 slash ok 1887ms
+J11.23 7/24 slash ok 1896ms
+J11.23 8/24 slash ok 1889ms
+J11.23 9/24 slash ok 1896ms
+J11.23 10/24 slash ok 1901ms
+J11.23 11/24 slash ok 1900ms
+J11.23 12/24 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: no direct stall write: [{"at":"2026-09-24T02:33:27.619Z","boundary":6,"kind":"stall","window":{"from":0,"to":44},"answered":["lever_pulled"],"model":"jev-1.13.0","deltas":[],"note":"re-read (max p 0.94)"}]
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:528)
+    at async <anonymous>:316:30
+--- J11.24 typed extraction and the stall check off: reads carry no judged step and no judge-sourced delta, and nothing lands in the judged-read ring
+J11.24 1/5 import_story ok 588ms
+J11.24 2/5 eval ok 21ms
+J11.24 3/5 send_generate ok 62491ms
+J11.24 4/5 wait ok 69514ms
+J11.24 5/5 eval ok 6ms
+J11.24 5/5 eval -> {"reads":["cadence","reconcile:lever_pulled","cadence"]}
+--- J11.25 prepare-ahead with two variants: once the scene read says play is heading for the watchtower, the next boundary queues the tower's stub before the tower is reached; on arrival the prepared chain is used, or (stale / failed) re-queued and expanded anyway; the entry shows two generations and one pick
+J11.25 1/11 eval ok 32ms
+J11.25 2/11 import_story ok 595ms
+J11.25 3/11 expect ok 48ms
+J11.25 4/11 send_generate ok 51450ms
+J11.25 5/11 wait ok 10796ms
+J11.25 6/11 send_generate ok 104203ms
+J11.25 7/11 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: nothing prepared ahead; heading: [{"id":"tower","name":"The Watchtower","p":0.97,"hops":1},{"id":"tower_stub","name":"Tower Stub","p":0.16,"hops":2}]
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:556)
+    at async <anonymous>:316:30
+--- J11.26 curator focus: with 40 entries in the curator's scope, the pre-filter asks once and the curator's prompt holds only what it kept (plus switched-off entries); with it off the prompt holds all 40 and no filter call is made
+J11.26 1/5 eval ok 36ms
+J11.26 2/5 import_story ok 609ms
+J11.26 3/5 expect ok 55ms
+J11.26 4/5 eval ok 4471ms
+J11.26 4/5 eval -> {"shownOff":38,"proposed":0}
+J11.26 5/5 eval ok 5142ms
+J11.26 5/5 eval -> {"branch":"narrowed","focus":{"shown":1,"total":40},"shownOn":0,"shownOff":38,"ops":[]}
+Restored global config from C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions"],"saved":{"status":200},"preservedStories":["journey-j11-judge","so-j11-expand","so-j11-stall","so-j11-typed","so-j11-lore"],"preservedSessions":[]}
+
+PASS         J11.1    the server plugin answers /status with a configured key, and reports where the key came from without the key itself
+PASS         J11.2    judge off (the default): a real group turn is decided by today's chain and nothing reaches the plugin
+PASS         J11.3    judge on with speaker direction opted in: the judge decides the turn inside its budget, records the answering model in its own ring, and adds nothing to the persisted journal
+PASS         J11.4    a 1 ms judge budget falls back to today's chain, records the fallback, and the turn still gets a reply
+PASS         J11.5    player mode shows nothing judge-internal: no probabilities, no judge sources, no steering controls
+PASS         J11.6    judge settings set through the settings panel survive a reload, and the key appears nowhere in extension settings or chat metadata
+PASS         J11.7    memoryVerify on (opt-in): a real read's memory lines are judged against the transcript before they are stored; every read with lines leaves a memoryVerify record, stored confidences follow policy Only entries a SHARED READ produced are counted: scene summaries and short-term compaction are their own passes, which memoryVerify does not cover by design (L2 2026-09-23: a scene summary, then mis-stamped as shared-read, failed this check).
+PASS         J11.8    a scripted reply that contradicts itself, then a real read: an unsupported line lands in verifyDrops (author-visible, restorable), or the model wrote only supported lines; the check logs which branch ran Only entries a SHARED READ produced are counted: scene summaries and short-term compaction are their own passes, which memoryVerify does not cover by design (L2 2026-09-23: a scene summary, then mis-stamped as shared-read, failed this check).
+PASS         J11.9    memoryPairs on (opt-in): seeded labelled pairs are consolidated by the judge; a duplicate is dropped, an update supersedes, and a pair about two different things (same owner or place) is never superseded or dropped
+PASS         J11.10   memoryPairs off: the same seed consolidates by today's heuristic alone, with no memoryPairs call
+PASS         J11.11   sceneTrigger + sceneTracker opted in, real play: one `scene` record per boundary, and the stored read belongs to the newest message
+PASS         J11.12   a scripted time skip the regex misses (held-out SH01, judged 0.82-0.85 off-page) schedules the P0 `scene:judge` read on that boundary, and the LLM read runs
+PASS         J11.13   the tracker block is in the prompt ST actually sends on the next generation, with only over-floor fields
+PASS         J11.14   deleting the message a scene read belongs to clears the read and the block; the next boundary builds them again
+PASS         J11.15   with cadence pinned high so no cadence read can mask it, every scene usage off: no scene read, no judge call; then trigger on + a blackboard `location` change away from the location the previous boundary recorded with no text cue: the heuristic's deterministic read still runs, and the judge adds no second one
+PASS         J11.16   lore-select opted in: a player question whose answer lives in an entry whose keys never appear gets that entry forced into every generation of the turn; the first pick is made at MESSAGE_SENT, later group members pick again at GENERATION_STARTED
+PASS         J11.17   an entry switched off in its book (as checkpoint gating does) is never asked about or forced, whatever the question
+PASS         J11.18   a dry run (prompt itemization) and a quiet generation make no lore judge call
+PASS         J11.19   lore-select off: nothing is forced, so the keywordless password entry stays out of the scan, and no lore call is made
+PASS         J11.20   typed extraction opted in, cadence 50 (no LLM read for fifty boundaries): the player takes the key, the judge reads the hinted gate quality on that boundary, and the transition fires at the next boundary, long before any cadence read
+PASS         J11.21   cadence 1 with typed extraction on: whatever the judge settles (on the read itself or on the boundary's own typed read) is left out of every LLM prompt, and a quality it did not settle stays in the scope
+PASS         J11.22   a latching hinted quality is written by the judge only at confidence 0.9 or more (0.8 + 0.1)
+FAIL         J11.23   stall check opted in, reads off (cadence 50): a lever pulled six turns ago is written straight from the stall check with no LLM re-read; then a door nobody opens stays a genuine stall with the player's stall signal still showing — Evaluation failed in SillyTavern page: page.evaluate: Error: no direct stall write: [{"at":"2026-09-24T02:33:27.619Z","boundary":6,"kind":"stall","window":{"from":0,"to":44},"answered":["lever_pulled"],"model":"jev-1.13.0","deltas":[],"note":"re-read (max p 0.94)"}]
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:528)
+    at async <anonymous>:316:30
+PASS         J11.24   typed extraction and the stall check off: reads carry no judged step and no judge-sourced delta, and nothing lands in the judged-read ring
+FAIL         J11.25   prepare-ahead with two variants: once the scene read says play is heading for the watchtower, the next boundary queues the tower's stub before the tower is reached; on arrival the prepared chain is used, or (stale / failed) re-queued and expanded anyway; the entry shows two generations and one pick — Evaluation failed in SillyTavern page: page.evaluate: Error: nothing prepared ahead; heading: [{"id":"tower","name":"The Watchtower","p":0.97,"hops":1},{"id":"tower_stub","name":"Tower Stub","p":0.16,"hops":2}]
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:556)
+    at async <anonymous>:316:30
+PASS         J11.26   curator focus: with 40 entries in the curator's scope, the pre-filter asks once and the curator's prompt holds only what it kept (plus switched-off entries); with it off the prompt holds all 40 and no filter call is made
+
+J11
+automated: 24 pass, 2 fail, 0 blocked, 0 not-runnable, 0 skipped
+human:     0 scored, 0 unscored
+cleanup:   clean
+first try: 24 of 24 passing check(s) needed no retry
+NOT GREEN: 2 automated check(s) failed
+
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-24T02-40-13-999Z_journey-J11.json
+Matrix: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\journey-J11.md

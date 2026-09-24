@@ -302,3 +302,32 @@ describe("the write-ahead record gates the effect (plan 11)", () => {
     expect(journalled).toEqual(["cast effect was not applied"]);
   });
 });
+
+describe("transition announcement leaves a trace when it is not posted (L2 J1.7)", () => {
+  const checkpoint = { id: "cp2", name: "Accept the Mission", objective: "Take it.", type: "anchor" } as unknown as Checkpoint;
+  const announcing = () => ({ ...makeExtras(), ui: { announceTransitions: true } } as unknown as RuntimeExtras);
+
+  beforeEach(() => (executeSlashCommands as jest.Mock).mockReset());
+
+  it("journals a refused /comment", async () => {
+    (executeSlashCommands as jest.Mock).mockResolvedValueOnce(false);
+    const journal = jest.fn();
+    await new EffectsApplier(undefined, { journal }).announceTransition(checkpoint, announcing());
+    expect(journal).toHaveBeenCalledWith('transition to "Accept the Mission" was not announced', "the /comment that posts the note was refused");
+  });
+
+  it("journals a transition it did not post because another chat is open", async () => {
+    const journal = jest.fn();
+    await new EffectsApplier(undefined, { journal }).announceTransition(checkpoint, announcing(), false);
+    expect(executeSlashCommands).not.toHaveBeenCalled();
+    expect(journal).toHaveBeenCalledWith('transition to "Accept the Mission" was not announced', "the open chat is not the chat this boundary belongs to");
+  });
+
+  it("control: a posted announcement journals nothing", async () => {
+    (executeSlashCommands as jest.Mock).mockResolvedValueOnce(true);
+    const journal = jest.fn();
+    await new EffectsApplier(undefined, { journal }).announceTransition(checkpoint, announcing());
+    expect(executeSlashCommands).toHaveBeenCalledWith(expect.stringContaining("Accept the Mission"), { silent: true });
+    expect(journal).not.toHaveBeenCalled();
+  });
+});

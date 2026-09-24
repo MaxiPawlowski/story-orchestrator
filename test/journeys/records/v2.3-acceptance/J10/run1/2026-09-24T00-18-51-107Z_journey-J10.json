@@ -1,0 +1,270 @@
+{
+  "id": "J10",
+  "title": "identity-and-settings",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j10-identity-and-settings.journey.json",
+  "ranAt": "2026-09-24T00:18:51.076Z",
+  "strict": true,
+  "partial": false,
+  "only": null,
+  "tally": {
+    "pass": 9,
+    "skipped": 2
+  },
+  "tallies": {
+    "automated": {
+      "pass": 9,
+      "fail": 0,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 2
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 9,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [],
+  "humanRecord": null,
+  "runnerError": null,
+  "releasedRoutes": null,
+  "capabilities": {
+    "story-identity": true,
+    "global-settings": true,
+    "restart-story": true
+  },
+  "results": [
+    {
+      "id": "J10.1",
+      "mode": "auto",
+      "findings": [
+        "U2"
+      ],
+      "goal": "the example story carries an authored id, and the chat keys its state by it",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J10.2",
+      "mode": "auto",
+      "findings": [
+        "U1",
+        "I3"
+      ],
+      "goal": "the memory profile is stored install-wide, never in the chat",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J10.3",
+      "mode": "auto",
+      "findings": [
+        "U2"
+      ],
+      "goal": "re-selecting the same story hydrates progress instead of wiping it",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J10.4",
+      "mode": "auto",
+      "findings": [
+        "U2"
+      ],
+      "goal": "a library edit does not reach a chat that already pinned the story",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J10.5",
+      "mode": "auto",
+      "findings": [
+        "U2"
+      ],
+      "goal": "deleting the library record leaves the running chat playable from its pinned copy",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J10.6",
+      "mode": "auto",
+      "findings": [
+        "U1",
+        "I3"
+      ],
+      "goal": "a brand-new chat on a configured install plays immediately, with no per-chat setup",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J10.7",
+      "mode": "auto",
+      "findings": [
+        "U2"
+      ],
+      "goal": "Restart is the only reset, and it re-pins the latest library version",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J10.8",
+      "mode": "auto",
+      "findings": [
+        "I3"
+      ],
+      "goal": "a pre-v2.1 chat blob migrates to id-keyed state with the story pinned",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J10.11",
+      "mode": "auto",
+      "findings": [
+        "I3"
+      ],
+      "goal": "a chat blob captured from a real pre-v2.1 chat migrates without losing a single value",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J10.9",
+      "mode": "human",
+      "findings": [
+        "U6"
+      ],
+      "goal": "",
+      "prompt": "Reading the settings panel, was it clear which settings apply to every chat and which only to this one?",
+      "anchors": "1 = no idea · 3 = worked it out · 5 = obvious at a glance",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    },
+    {
+      "id": "J10.10",
+      "mode": "human",
+      "findings": [
+        "U6"
+      ],
+      "goal": "",
+      "prompt": "The memory-model self-test: did its result tell you something you could act on?",
+      "anchors": "1 = meaningless · 3 = confirmed it works · 5 = told me exactly what this model can and cannot do",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    }
+  ],
+  "cleanup": {
+    "judgeCalls": {
+      "count": 0,
+      "events": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [],
+      "preservedSessions": []
+    },
+    "stories": {
+      "removed": 1,
+      "saved": {
+        "status": 200
+      }
+    },
+    "chat": {
+      "sandboxChatId": "2026-09-23@21h18m26s176ms",
+      "owned": [
+        "2026-09-23@21h18m26s176ms",
+        "2026-09-23@21h18m33s433ms"
+      ],
+      "deleted": [
+        "2026-09-23@21h18m26s176ms",
+        "2026-09-23@21h18m33s433ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-23@21h18m33s433ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-23@13h35m48s456ms"
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "member:DM Narrator": {
+      "enabled": true
+    },
+    "member:Arin": {
+      "enabled": true
+    },
+    "member:Ponticius": {
+      "enabled": true
+    },
+    "member:Luke": {
+      "enabled": true
+    },
+    "disabledMembers": []
+  }
+}

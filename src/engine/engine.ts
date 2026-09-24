@@ -316,6 +316,18 @@ export class StoryEngine {
     return Math.min(oldestSnapshot ?? Number.POSITIVE_INFINITY, oldestLogged ?? Number.POSITIVE_INFINITY);
   }
 
+  // L2 (2026-09-23): a delete with nothing to undo still takes the chat's end from under the cursor.
+  // Left at the old end, the next boundary scanned from past the new messages and every window
+  // started after them (J6.3: lastMessageId 7 over a chat of 1).
+  clampToChat(chatLength: number): boolean {
+    const last = Math.max(-1, Math.floor(chatLength) - 1);
+    if (!Number.isFinite(last) || this.lastMessageId <= last) return false;
+    this.lastMessageId = last;
+    this.chatLength = last + 1;
+    this.checkpointStartedMessageId = Math.min(this.checkpointStartedMessageId, last);
+    return true;
+  }
+
   shouldRollbackFromMessage(messageId: number): boolean {
     const normalized = Math.max(0, Math.floor(messageId));
     return this.boundaryLog.some((entry) => {

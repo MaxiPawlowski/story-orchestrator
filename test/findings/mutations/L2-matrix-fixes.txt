@@ -1,0 +1,8 @@
+L2 matrix fixes, mutations 2026-09-23 (script: C:/dev/backups/so-tools/l2-mut.py, copied to test/journeys/records/v2.3-acceptance/l2-mut.py; each mutant alone)
+- rollback no longer clamps the cursor (rollback.ts): KILLED (RuntimeManager "a tail delete with nothing to undo (L2 J6.3) › leaves the engine inside the chat, not past it")
+- clamp leaves chatLength (engine.ts): KILLED (clampToChat "clamps the cursor and the checkpoint start to the new end" + the RuntimeManager case)
+- refused announcement not journaled (effectsApplier.ts): KILLED ("journals a refused /comment")
+- unowned announcement not journaled (effectsApplier.ts): KILLED ("journals a transition it did not post because another chat is open")
+- manager passes ownership as always-true (runtimeManager.ts): SURVIVED the first suite -> added "hands the announcement whether this boundary's chat is the open one" -> KILLED
+5/5 killed after the added case. The scene-summary provenance label is covered by the RuntimeManager scene-detection case (asserts pass "scene-summary"); not mutation-run.
+Live: J6 green x2 on bundle 1e5c36951d65 after the clamp (records/v2.3-acceptance/J6/), was red x2 before (failed-batch1/J6-run*.log: "engine points past the chat: lastMessageId=7 chatLength=1").

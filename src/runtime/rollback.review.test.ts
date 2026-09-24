@@ -39,6 +39,7 @@ function harness() {
       shouldRollbackFromMessage: () => false,
       boundaryBeforeMessage: () => 0,
       serialize: () => ({ boundary: 7 }),
+      clampToChat: () => false,
     },
     journal: {},
     context: () => context,

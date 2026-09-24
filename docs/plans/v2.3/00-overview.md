@@ -347,10 +347,10 @@ cited). Items needing the backend stay `done` with the live half listed under L-
 | Id | What | Replaces the claim |
 |---|---|---|
 | L1 | P0′ adventurer playthrough on the first frozen candidate | P0 (never recorded) |
-| L2 | J0–J12 `--strict` ×2 consecutive, archived under `records/v2.3-acceptance/` | plan 11 "matrix ran green twice" |
+| L2 | J0–J12 `--strict` ×2 consecutive, archived under `records/v2.3-acceptance/` | plan 11 "matrix ran green twice". **In progress 2026-09-23** (11 L2 record): J0–J6, J8–J10 green ×2 archived; J11 NOT green (J11.9/J11.23 judge-dependent, J11.25 order-dependent); J12 rewritten, not re-run; J7 not run. Found J6.3 cursor defect + J1.7 silent announcement |
 | L3 | Plan-05 recipe on the adventurer: J3 provenance check, J8.5/J8.6 with a planted conflict + positive control, three per-member payload captures | plan 05 "live gate green" |
 | L4 | `live-generated-fork-a/b` written and run ×2; refusal fixture | R9 closed on jest alone. **Done 2026-09-23** (07 L4 record, `records/v2.3-replan/L4/`): real-model forks walked on both routes; found + fixed a graph swap dropping pending writes and history, gate-pin false positives, and duplicate-gate dead outcomes |
 | L5 | Host restore: leave to a story chat, to a solo chat, restart, rollback | plan 06 "live check green" |
 | L6 | Turn types: continue, appendFinal, group round | plan 03 unarchived turn-types gate. **Done 2026-09-23** (03 L6 record, `records/v2.3-replan/L6/`): real group round 3 replies = 3 boundaries, streaming continue and appendFinal 1 each, ×2 + live mutation; no run's continue added text |
 | L7 | Plan 09 live rows; plan 11 judge-on matrix, cost/latency, live fault injection, privacy capture, load, independent stories, human eval | plan 09/11 |
-| L8 | Clean-host ×2 on the frozen candidate | plan 08 records from an older tree. 2026-09-23: a current-tree clean-host run (both pinned ST revisions) was blocked by this session's auto-mode safety check before it started — not retried; run it outside auto mode |
+| L8 | Clean-host ×2 on the frozen candidate | plan 08 records from an older tree. 2026-09-23: a current-tree clean-host run (both pinned ST revisions) was blocked by this session's auto-mode safety check before it started — not retried; run it outside auto mode. **Run 2026-09-23** (08 L8 record): first attempt caught a real citations rot (fixed), then pinned green ×2 + 1.18.0 green on the J1.7/J6.3 tree; the frozen candidate still owes one pass |

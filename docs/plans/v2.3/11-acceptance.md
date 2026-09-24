@@ -912,3 +912,52 @@ judge-on matrix and the `player_summary` decision.
   - The budgets were **raised** to 780/700, as a decision written into the test. **V26** splits the two files back under 700/620.
   - The bundle hash is **unchanged** (`1d4d28d1a8f0`), so the source edit is formatting only.
 - Gates: typecheck, typecheck:test and lint 0; jest **169/2674**; test:debug **155**; debug:typecheck 0; build 0; test:release **16/16**. No live gate applies: the bundle is byte-identical, and the harness change is the header, whose live half is described above.
+
+
+### L2 gate (2026-09-23): J0–J12 `--strict` ×2 — IN PROGRESS, NOT green
+
+Archive: `test/journeys/records/v2.3-acceptance/<J>/run{1,2}/`. The failed runs are in `failed-batch1/` and `failed-batch3/`, and the batch summaries and header diffs are next to them. Real model: Artemis on RunPod, through the SSH tunnel. Judge: TypeSafe Jev.
+
+The bundle changed between batches because the matrix found defects, so each pair names the bundle it ran on.
+
+| Journey | Result | Bundle |
+|---|---|---|
+| J0 runner self-test | green ×2 | `bcf2bb2726a6` |
+| J2 author loop | green ×2 | `bcf2bb2726a6` |
+| J4 return and adopt | green ×2 | `bcf2bb2726a6` |
+| J8 stagecraft | green ×2 | `bcf2bb2726a6` |
+| J9 wizard | green ×2 | `bcf2bb2726a6` |
+| J10 identity and settings | green ×2 | `bcf2bb2726a6` |
+| J1 first contact | green ×2 (batch 1 run 2 failed J1.7) | `9c22ee50b273` |
+| J3 player session | green ×2 (batch 1 run 1 failed J3.7, the known model-dependent memory miss) | `9c22ee50b273` |
+| J5 group direction | green ×2 (failed J5.8 twice on the old recorder) | `9c22ee50b273` |
+| J6 mutation storm | green ×2 (failed twice, then J6.8 once) | `1e5c36951d65` |
+| J11 judgment backend | **NOT green**: 23/26 and 24/26 | `1e5c36951d65` |
+| J12 unaided schedule | **NOT green**: 2/5 ×2, then 3/5 | `1e5c36951d65` |
+| J7 long haul | **not run** | — |
+
+**What the matrix found:**
+
+- **Product defect — J6.3.** A tail delete with nothing to undo (no fired transition, no delta from the removed span) skipped the rollback, and left the engine's message cursor past the end of the chat: `lastMessageId=7` over a chat of 1. The next boundary's cue scan starts at `previousLastMessageId + 1`, so it would have skipped the new messages.
+  - Fix: `engine.clampToChat(chatLength)`, called from `runRollback`'s quarantine on every rollback outcome.
+- **Product observability gap — J1.7.** A transition announcement can go unposted in two ways, and both were silent: `announceTransition` threw away the `executeSlashCommands` result, and the manager skipped it when the open chat was not the boundary's.
+  - Both now write a journal line (`transition to "<name>" was not announced`, with the reason).
+  - The J1.7 miss itself did not recur in 4 later runs, so its cause is still unknown. The trace is there for the next time.
+- **Product label defect — J11.7/J11.8.** Scene-summary entries were stamped `pass: "shared-read"`, so they claimed to come from the read that memoryVerify covers. They are now `scene-summary`.
+- **Harness fixes**, each with a note in the check's goal:
+  - J5.8 recorded every `/api/backends/` fetch made while a member was drafted, which included our own memory-model calls (no private block). It now records `GENERATE_AFTER_DATA`, dry runs skipped. A foreign entry whose text is the member's own is set aside and recorded.
+  - J6.2 edited a message while J6.1's group round was still generating. It now waits for idle and a quiet scheduler first.
+  - J6.8's mocked read cited evidence missing from its own window. The player line now carries it, and all four mocked extracts in J6 were checked.
+  - J11.7/J11.8 count only shared-read entries, and report the passes they set aside.
+  - J11.25 reports position before origin, and on a miss it reports the scene read, the entries and the recent journal.
+  - J12.3/J12.4 were rewritten from the audit tail (`failed-batch3/J12-follow.jsonl`):
+    - The schedule did fire unaided every time, as `scene:cast` and `cue:*` reads, each of which resets the cadence counter. The check demanded the label `cadence`.
+    - The evidence was a verbatim quote of the player's line ("I cross the guild hall to the quest counter"). J12.4's stop list excluded exactly those words.
+    - J12.3 now asserts an unaided read that accepts deltas from a window holding the player's lines. J12.4 asserts a verbatim quote of a player line inside the window, which is the stronger claim.
+  - Neither rewrite has run yet.
+- **Judge-dependent and NOT fixed** (the floors are predeclared and not retuned):
+  - J11.9: memoryPairs left an update pair "kept, kept", in 2 of 4 runs.
+  - J11.23: the stall check answered `lever_pulled` at p 0.94 against `STALL_DIRECT_P = 0.95`, twice on bundle `1e5c36951d65`. It had passed twice on `bcf2bb2726a6`.
+- **J11.25 passes alone** (`failed-batch1/J11.25-only-pass.log`: queued ahead, two variants, the prepared chain used on arrival), and failed in 3 of 4 full runs. Some state an earlier J11 check leaves blocks the look-ahead. The diagnostics above are there to name it.
+- **Install residue:** batch 1 left `sun-ruins@10` in the story library (run-header diff). It goes on the leftovers list.
+- **Side finding:** `npm run test:release` rewrites `dist/manifest.json`, which moves the header's build fields mid-batch. The served bundle hash did not change (gotcha added).
