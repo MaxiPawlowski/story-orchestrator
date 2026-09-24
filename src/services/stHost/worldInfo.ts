@@ -1,6 +1,7 @@
 import { trimStringList } from "@utils/dataHelpers";
 import { lorebookFileId, quoteSlashArg } from "@utils/string";
 import { getContext } from "./context";
+import { saveOpenChat } from "./persistence";
 import type { HostWorldInfoSettings } from "./hostTypes";
 import { worldInfoModule } from "./modules";
 import { executeSlashCommands } from "./slashCommands";
@@ -217,7 +218,7 @@ export async function unbindChatLorebook(name: string): Promise<WriteResult<{ na
   if (typeof slot !== "string" || slot !== name) return couldNot(`the chat lorebook slot does not name "${name}"`);
   delete context.chatMetadata[key];
   globalThis.document?.querySelectorAll(".chat_lorebook_button").forEach((button) => button.classList.remove("world_set"));
-  await context.saveMetadata?.();
+  await saveOpenChat();
   return wrote({ name });
 }
 

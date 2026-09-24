@@ -34,3 +34,12 @@ M-S3 refuses an empty save of our own chat too   -> 1 failed (control: an empty 
 M-S4 a save of another chat counts as ours       -> 1 failed (control: ... does not count as ours)
 M-S5 evidence ignores the lost reason            -> 1 failed (names why a save did not land in this chat)
 restored: 23 passed; full jest 2913
+
+4. PRODUCT follow-up (2026-09-24): the empty-branch write recurred 2 in 66 after fix 3. Five chat saves of ours still
+   called saveMetadata without arming the watcher (setSelectedStoryId, replaceUnreadableBlob, restampRenamedChat,
+   dropPersistedRuntime, unbindChatLorebook), so the guard could not see them. All now go through stHost
+   saveOpenChat(), which arms the watcher with the open chat and returns a WriteResult.
+scope: npx jest src/services/stHost/saveWatcher.test.ts
+baseline: 12 passed
+M-S6 saveOpenChat does not arm -> 1 failed (saveOpenChat names the open chat, so an empty save that lands in another chat is held back)
+restored: 12 passed

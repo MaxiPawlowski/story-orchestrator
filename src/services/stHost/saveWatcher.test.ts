@@ -6,7 +6,7 @@ const eventSource = {
 const emit = (name: string) => [...(handlers.get(name) ?? [])].forEach((handler) => handler());
 
 jest.mock("./context", () => ({
-  getContext: () => ({ chatId: "chat-1", groupId: "g1", eventSource, eventTypes: { SETTINGS_UPDATED: "settings_updated" }, getRequestHeaders: () => ({ "Content-Type": "application/json" }) }),
+  getContext: () => ({ chatId: "chat-1", groupId: "g1", saveMetadata: async () => undefined, eventSource, eventTypes: { SETTINGS_UPDATED: "settings_updated" }, getRequestHeaders: () => ({ "Content-Type": "application/json" }) }),
 }));
 
 type Answer = { ok: boolean; status: number; json: () => Promise<unknown> };
@@ -19,7 +19,7 @@ const base = ((url: string) => {
 }) as unknown as typeof fetch;
 globalThis.fetch = base;
 
-import { installSaveWatcher, observeNextSave, observeNextSettingsSave, readServerExtensionSettings, saveWatcherStats } from "./persistence";
+import { installSaveWatcher, observeNextSave, observeNextSettingsSave, readServerExtensionSettings, saveOpenChat, saveWatcherStats } from "./persistence";
 
 const answer = (status: number) => pending.shift()!.resolve({ ok: status < 300, status, json: async () => ({}) });
 const settle = async () => { for (let i = 0; i < 5; i += 1) await Promise.resolve(); };
@@ -145,5 +145,20 @@ describe("v2.4 plan 02 (J10.14): a save that runs after the open chat changed", 
     answer(200);
     await save;
     expect(await watched).toMatchObject({ ok: true });
+  });
+});
+
+describe("v2.4 plan 02: every chat save of ours arms the guard", () => {
+  it("saveOpenChat names the open chat, so an empty save that lands in another chat is held back", async () => {
+    expect(await saveOpenChat()).toEqual({ ok: true, chatId: "chat-1" });
+    const before = pending.length;
+    const refused = saveWatcherStats().refused;
+    await fetch("/api/chats/group/save", { method: "POST", body: JSON.stringify({ id: "chat-9", chat: [{ chat_metadata: {} }] }) });
+    expect(pending.length).toBe(before);
+    expect(saveWatcherStats().refused).toBe(refused + 1);
+    const save = fetch("/api/chats/group/save", { method: "POST", body: JSON.stringify({ id: "chat-1", chat: [{ chat_metadata: {} }] }) });
+    await settle();
+    answer(200);
+    await save;
   });
 });

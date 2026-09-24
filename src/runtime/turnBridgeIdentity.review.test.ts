@@ -11,6 +11,7 @@ jest.mock("@services/STAPI", () => ({
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
   getContext: () => ({ chat: host.chat, chatId: host.chatId, chatMetadata: host.chatMetadata, saveMetadata: () => undefined }),
+  saveOpenChat: async () => { await (({ chat: host.chat, chatId: host.chatId, chatMetadata: host.chatMetadata, saveMetadata: () => undefined })).saveMetadata?.(); return { ok: true as const, chatId: "" }; },
   isHostGenerating: () => host.generating,
   subscribeToHostEvents: (entries: Array<{ eventName: string; handler: (...args: unknown[]) => unknown }>) => {
     for (const entry of entries) handlers.set(entry.eventName, entry.handler);

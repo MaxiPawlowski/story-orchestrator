@@ -6,6 +6,7 @@ jest.mock("@services/STAPI", () => ({
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
   getContext: () => globalThis.__unreadableContext,
+  saveOpenChat: async () => { await (globalThis.__unreadableContext).saveMetadata?.(); return { ok: true as const, chatId: "" }; },
   showConfirmPopup: jest.fn(async () => popup.answer),
 }));
 jest.mock("./storyLibrary", () => ({

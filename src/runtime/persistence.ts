@@ -1,4 +1,4 @@
-import { getContext } from "@services/STAPI";
+import { getContext, saveOpenChat } from "@services/STAPI";
 import { migrateMetadataBlob, migrateV3ToV4 } from "./persistenceMigration";
 import { listStoryRecords } from "./storyLibrary";
 import type { PersistedStoryRuntime, StoryOrchestratorMetadataBlob } from "./types";
@@ -149,7 +149,7 @@ export function replaceUnreadableBlob(): boolean {
   if (!unrecognized(storedValue())) return false;
   mismatch = null;
   (getContext().chatMetadata as Record<string, unknown>)[METADATA_KEY] = createBlob();
-  void getContext().saveMetadata?.();
+  void saveOpenChat();
   return true;
 }
 
@@ -164,7 +164,7 @@ export function restampRenamedChat(oldFileName: unknown, newFileName: unknown): 
   current.chatId = to;
   (getContext().chatMetadata as Record<string, unknown>)[METADATA_KEY] = current;
   mismatch = null;
-  void getContext().saveMetadata?.();
+  void saveOpenChat();
   return true;
 }
 
@@ -176,7 +176,7 @@ export function setSelectedStoryId(id: string | null) {
   const blob = ownBlob("selecting a story");
   if (!blob) return;
   blob.selectedStoryId = id;
-  void getContext().saveMetadata?.();
+  void saveOpenChat();
 }
 
 export function loadPersistedRuntime(id: string): PersistedStoryRuntime | null {
@@ -235,7 +235,7 @@ export function dropPersistedRuntime(id: string) {
   const blob = ownBlob("dropping story state");
   if (!blob) return;
   delete blob.stories[id];
-  void getContext().saveMetadata?.();
+  void saveOpenChat();
 }
 
 export function dumpPersistedRuntime() {

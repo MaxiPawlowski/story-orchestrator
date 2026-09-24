@@ -1,3 +1,4 @@
+import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { getContext } from "./context";
 import { subscribeToHostEvent } from "./events";
 
@@ -154,6 +155,20 @@ function watch(kind: SaveKind, timeoutMs: number, chatId: string | null = null):
     const timer = setTimeout(() => settle(unconfirmed()), timeoutMs);
     watching.push({ kind, armedAt: clock, sawRequest: false, chatId, settle });
   });
+}
+
+/**
+ * A save of the open chat that arms the watcher with that chat first, so that if ST only runs it after
+ * the open chat changed, an empty write into the next chat is held back (see `switchRefusal`). Every
+ * chat save of ours goes through here or through `observeNextSave`; a bare `saveMetadata` would not.
+ */
+export async function saveOpenChat(): Promise<WriteResult<{ chatId: string }>> {
+  const context = getContext();
+  const chatId = typeof context.chatId === "string" && context.chatId ? context.chatId : null;
+  if (!chatId || typeof context.saveMetadata !== "function") return couldNot("no chat is open");
+  void watch("chat", SAVE_OBSERVE_MS, chatId);
+  await context.saveMetadata();
+  return wrote({ chatId });
 }
 
 /**

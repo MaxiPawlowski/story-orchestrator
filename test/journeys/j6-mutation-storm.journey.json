@@ -246,7 +246,7 @@
           }
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; return { checkpoint: rt.getSnapshot().activeCheckpointId, lastMessageId: rt.getEngineState().lastMessageId };",
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; sessionStorage.setItem(\"so-j66-before\", String(rt.getSnapshot().activeCheckpointId)); return { checkpoint: rt.getSnapshot().activeCheckpointId, lastMessageId: rt.getEngineState().lastMessageId };",
           "log": true
         },
         {
@@ -255,7 +255,7 @@
           }
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; if (!rt || typeof rt.getSnapshot !== \"function\") throw new Error(\"the runtime did not come back after the reload\"); const snapshot = rt.getSnapshot(); if (snapshot.activeCheckpointId !== \"cp2\") throw new Error(\"the reload lost the run: \" + snapshot.activeCheckpointId); if (rt.getEngineState().lastMessageId < 0) throw new Error(\"the reload lost the engine's position in the chat\"); return { checkpoint: snapshot.activeCheckpointId, lastMessageId: rt.getEngineState().lastMessageId };",
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; if (!rt || typeof rt.getSnapshot !== \"function\") throw new Error(\"the runtime did not come back after the reload\"); const snapshot = rt.getSnapshot(); const before = sessionStorage.getItem(\"so-j66-before\"); if (!before) throw new Error(\"the pre-reload checkpoint was not recorded\"); if (snapshot.activeCheckpointId !== before) throw new Error(\"the reload lost the run: \" + snapshot.activeCheckpointId + \" (before the reload: \" + before + \")\"); if (rt.getEngineState().lastMessageId < 0) throw new Error(\"the reload lost the engine's position in the chat\"); return { checkpoint: snapshot.activeCheckpointId, lastMessageId: rt.getEngineState().lastMessageId };",
           "log": true
         },
         {
