@@ -1,0 +1,30 @@
+v2.4 plan 02 §8 requirements refresh (runtime/requirementsWatch.ts + the manager's requirementsHost + live lorebook selection), mutations 2026-09-24 (worktree build on 681bb7c; script .debug/mutate.py .debug/mut-req.json, each mutant applied alone to src/runtime/requirementsWatch.ts, src/runtime/runtimeManager.ts or src/services/stHost/worldInfo.ts, the file restored byte-for-byte after its run)
+Suites run for every mutant: runtime/requirementsWatch, runtime/requirementsRefresh.review, stHost/worldInfo (39 tests; baseline 39/39 green, restored 39/39 green).
+
+- R1 hydrate on any ready reading, not only not-ready -> ready (drop `!reading.before &&`): KILLED, 1 of 39
+    "a chat that was already ready is not re-applied by a host event; the boundary owns that catch-up"
+- R2 hydrate while still not-ready (drop `reading.after &&`): KILLED, 1 of 39
+    "a chat that stays not-ready is not applied"
+- R3 re-apply a checkpoint already applied (drop `&& reading.behind`): KILLED, 2 of 39
+    "control: not-ready -> ready with the checkpoint already applied only refreshes"
+    "control: a checkpoint already applied in this chat is not applied again"
+- R4 persist without the run-token check after the hydrate apply: KILLED, 1 of 39
+    "a chat left while the checkpoint was applied is not saved into"
+- R5 token minted when the debounce fires, not when the host event arrived: KILLED, 1 of 39
+    "a chat left inside the debounce refreshes nothing for it"
+- R6 no debounce (`this.fire()` at once): KILLED, 3 of 39
+    "refreshes once, 250 ms after the last event of a burst"
+    "a chat left inside the debounce refreshes nothing for it"
+    "stop unsubscribes and drops a pending refresh"
+- R7 stop leaves the pending refresh armed: KILLED, 1 of 39
+    "stop unsubscribes and drops a pending refresh"
+- R8 the manager reads `before` after refreshing, so no reading is ever not-ready -> ready: KILLED, 3 of 39
+    "switching to the required persona reads not-ready -> ready and applies the owed checkpoint in hydrate mode"
+    "control: a checkpoint already applied in this chat is not applied again"
+    "switching away from the required persona restores nothing and saves nothing"
+- R9 the manager reports every checkpoint as behind: KILLED, 1 of 39
+    "control: a checkpoint already applied in this chat is not applied again"
+- R10 lorebook selection read from the debounced globalSelect mirror first: KILLED, 1 of 39
+    "reads the live selected_world_info, not the debounced globalSelect mirror"
+
+10/10 killed. R8's two extra failures are the outcome label: with before == after the refresh answers "unchanged" where the case expects "refreshed". R6 fails the ownership case too, because without a debounce the chat switch lands after the refresh ran.

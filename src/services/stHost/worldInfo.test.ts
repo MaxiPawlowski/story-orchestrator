@@ -9,6 +9,7 @@ const st = {
   worldNames: [] as string[],
   cache: new Map<string, Book>(),
   selected: [] as string[],
+  mirror: [] as string[],
   chatMetadata: {} as Record<string, unknown>,
   chatId: "chat-1" as string | null,
 };
@@ -63,7 +64,7 @@ jest.mock("./modules", () => ({
   worldInfoModule: {
     METADATA_KEY: "world_info",
     get selected_world_info() { return st.selected; },
-    getWorldInfoSettings: () => ({}),
+    getWorldInfoSettings: () => ({ world_info: { globalSelect: st.mirror } }),
     updateWorldInfoList: () => updateWorldInfoList(),
     createNewWorldInfo: (name: string) => createNewWorldInfo(name),
     saveWorldInfo: (name: string, data: Book) => saveWorldInfo(name, data),
@@ -80,7 +81,7 @@ jest.mock("./slashCommands", () => ({
   executeSlashCommands: (command: string) => executeSlashCommands(command),
 }));
 
-import { bindChatLorebook, createLorebook, disableWIEntry, ensureLorebook, loadLorebook, lorebookExists, upsertWIEntry } from "./worldInfo";
+import { bindChatLorebook, createLorebook, disableWIEntry, ensureLorebook, listSelectedLorebooks, loadLorebook, lorebookExists, upsertWIEntry } from "./worldInfo";
 
 const putOnDisk = (name: string, entries: Entry[] = []) => st.disk.set(name, { entries: Object.fromEntries(entries.map((entry) => [entry.uid, entry])) });
 const entry = (uid: number, comment: string, content = "text"): Entry => ({ uid, comment, content, key: [], disable: false });
@@ -90,9 +91,21 @@ beforeEach(() => {
   st.cache.clear();
   st.worldNames = [];
   st.selected.length = 0;
+  st.mirror = [];
   for (const key of Object.keys(st.chatMetadata)) delete st.chatMetadata[key];
   st.chatId = "chat-1";
   jest.spyOn(console, "warn").mockImplementation(() => undefined);
+});
+
+// v2.4 plan 02 §8: requirements re-read on WORLDINFO_SETTINGS_UPDATED must see the selection that event
+// announces. `world_info.globalSelect` is assigned inside a debounced save (world-info.js:83-85), so
+// right after a toggle it still names the previous selection.
+describe("lorebook selection", () => {
+  it("reads the live selected_world_info, not the debounced globalSelect mirror", () => {
+    st.selected.push("Fresh Lore");
+    st.mirror = ["Stale Lore"];
+    expect(listSelectedLorebooks()).toEqual(["Fresh Lore"]);
+  });
 });
 
 describe("lorebook existence", () => {

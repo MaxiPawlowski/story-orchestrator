@@ -17,6 +17,7 @@ import { registerSlashCommands } from "./slashCommands";
 import { DIRECTOR_MAX_TOKENS, DIRECTOR_WINDOW_MESSAGES, TalkController, type TalkControlHost } from "./talkControl";
 import { GenerationLifecycle, type GenerationIntent } from "./generationLifecycle";
 import { isTurnMessageType, TurnBridge } from "./turnBridge";
+import { RequirementsWatch } from "./requirementsWatch";
 
 let started = false;
 let bridge: TurnBridge | null = null;
@@ -101,6 +102,10 @@ export function startRuntime() {
   window.setTimeout(() => registerSlashCommandsWhenReady(), 1000);
   bridge = new TurnBridge(runtimeManager);
   bridge.start();
+  // v2.4 plan 02 §8: persona, group and lorebook-selection changes re-read the requirements between turns.
+  const requirementsWatch = new RequirementsWatch(runtimeManager.requirementsHost, subscribeToHostEvents);
+  requirementsWatch.start();
+  runtimeDisposers.push(() => requirementsWatch.stop());
   const chatLastId = () => (Array.isArray(getContext().chat) ? getContext().chat.length - 1 : -1);
   globalThis.storyOrchestratorScheduler = { nextReadWindow: () => scheduler?.nextReadWindow(chatLastId()) ?? null };
   const judgeRuntime = new JudgeRuntime({

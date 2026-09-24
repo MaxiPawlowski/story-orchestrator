@@ -48,6 +48,7 @@ import { applyStoryUpdate, type StoryUpdateDeps, type StoryUpdateOutcome } from 
 import { parseQualityValue } from "./values";
 import { SessionJournal, type JournalEvent } from "./journal";
 import { evaluateRequirements } from "./requirements";
+import type { RequirementsHost } from "./requirementsWatch";
 import { loadPersistedRuntime, setSelectedStoryId } from "./persistence";
 import {
   importStoryJson, loadSelectedStory, releaseGatedWorldInfo, removeStory, restartStory, selectStory,
@@ -188,8 +189,7 @@ export class RuntimeManager {
     getSettings: () => this.extras.copilot,
     getProfileId: () => this.getExtractionSettings().profileId,
     getCanon: () => this.memory.getCanon(),
-    notify: () => this.notify(),
-    ownership: this.owner.ownership,
+    ...this.lifecycle,
     wizardSession: (key) => loadWizardSession(key),
     saveWizardSession: (session) => saveWizardSession(session),
   });
@@ -268,11 +268,8 @@ export class RuntimeManager {
     const pendingBridges = this.memory.enqueueArcBridges();
     const result = this.engine.commitBoundary(this.getBoundaryContext(at));
     this.memory.markBridgesApplied(pendingBridges);
-    if (result.effects) {
-      await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate", this.engine.checkpointPath);
-    } else if (this.extras.requirements.ready && this.extras.lastAppliedCheckpointId !== this.engine.activeCheckpoint.id) {
-      await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate", this.engine.checkpointPath);
-    }
+    if (result.effects) await this.applyActive("activate");
+    else if (this.extras.requirements.ready && this.extras.lastAppliedCheckpointId !== this.engine.activeCheckpoint.id) await this.applyActive("hydrate");
     if (!run.stillOwns()) return null;
     await this.stagecraft.applyAccepted();
     if (!run.stillOwns()) return null;
@@ -298,7 +295,7 @@ export class RuntimeManager {
     const run = beginRun(this.owner.ownership);
     this.refreshRequirements();
     this.engine.activateCheckpoint(id, this.getBoundaryContext());
-    await this.effects.applyCheckpoint(this.loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "activate", this.engine.checkpointPath);
+    await this.applyActive("activate");
     if (!run.stillOwns()) return false;
     this.pacing.updateSteering();
     this.memory.updateInjection();
@@ -352,10 +349,9 @@ export class RuntimeManager {
     revalidateExpansion: () => this.expansion.revalidateInserted(),
     extras: () => this.extras,
     refreshRequirements: () => this.refreshRequirements(),
-    reapplyCheckpoint: async (messageId) => { await this.effects.restoreFor(this.extras, { since: messageId }); await this.effects.applyCheckpoint(this.loaded!.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), "hydrate", this.engine.checkpointPath); },
+    reapplyCheckpoint: async (messageId) => { await this.effects.restoreFor(this.extras, { since: messageId }); await this.applyActive("hydrate"); },
     dropReadsAfter: async (messageId) => { await this.dropReadsAfter(messageId); },
-    persist: () => this.persist(),
-    notify: () => this.notify(),
+    ...this.lifecycle,
     notices: this.notices,
     setStatus: (status) => { this.status = status; },
     onApplied: (messageId, window) => this.rollbackListeners.forEach((listener) => listener(messageId, window)),
@@ -382,7 +378,7 @@ export class RuntimeManager {
     notes.forEach((note) => this.noteRecap(note, ""));
   }
 
-  private readonly settingsControl = new SettingsControl({ extras: () => this.extras, updateSteering: () => this.pacing.updateSteering(), updateInjection: () => this.memory.updateInjection(), clearNudge: () => this.clearCopilotNudge(), persist: () => this.persist(), notify: () => this.notify() });
+  private readonly settingsControl = new SettingsControl({ extras: () => this.extras, updateSteering: () => this.pacing.updateSteering(), updateInjection: () => this.memory.updateInjection(), clearNudge: () => this.clearCopilotNudge(), ...this.lifecycle });
   setExtractionSettings(settings: Partial<ExtractionRuntimeSettings>) { this.settingsControl.extraction(settings); }
   setPacingSettings(settings: Partial<PacingSettings>) { this.settingsControl.pacing(settings); }
   setMemorySettings(settings: Partial<MemoryRuntimeSettings>) { this.settingsControl.memory(settings); }
@@ -589,7 +585,7 @@ export class RuntimeManager {
     if (state) this.engine.hydrate(state);
     this.refreshRequirements();
     this.expansion.revalidateInserted();
-    await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), reanchored ? "activate" : "hydrate", this.engine.checkpointPath);
+    await this.applyActive(reanchored ? "activate" : "hydrate");
     await releaseGatedWorldInfo(this.effects, previous, loaded.story, run);
     if (!run.stillOwns()) return;
     this.pacing.replayCommitted();
@@ -653,9 +649,15 @@ export class RuntimeManager {
 
   private getBoundaryContext(at?: number): BoundaryContext { const chat = Array.isArray(getContext().chat) ? getContext().chat : []; const last = at === undefined ? chat.length - 1 : Math.min(at, chat.length - 1); return { lastMessageId: last, chatLength: last + 1 }; }
 
+  private applyActive(mode: "activate" | "hydrate") { return this.effects.applyCheckpoint(this.loaded!.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), mode, this.engine.checkpointPath); }
   private refreshRequirements() {
     this.extras.requirements = evaluateRequirements(this.loaded?.story ?? null);
     this.extras.updatedAt = new Date().toISOString();
   }
+  readonly requirementsHost: RequirementsHost = { ...this.lifecycle, hydrate: () => this.applyActive("hydrate"), refresh: () => {
+    const before = this.extras.requirements.ready;
+    this.refreshRequirements();
+    return this.loaded ? { before, after: this.extras.requirements.ready, behind: this.extras.lastAppliedCheckpointId !== this.engine.activeCheckpoint.id } : null;
+  } };
 }
 export const runtimeManager = new RuntimeManager();

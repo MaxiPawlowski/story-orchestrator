@@ -61,8 +61,6 @@ export class TurnBridge {
       { eventName: "MESSAGE_UPDATED", handler: (messageId) => void this.onMutation(messageId, "update") },
       { eventName: "CHAT_CHANGED", handler: () => void this.onChatChanged() },
       { eventName: "CHAT_RENAMED", handler: (payload) => void this.onChatRenamed(payload) },
-      { eventName: "WORLDINFO_SETTINGS_UPDATED", handler: () => this.manager.notify() },
-      { eventName: "GROUP_UPDATED", handler: () => this.manager.notify() },
     ];
     this.unsubscribe = subscribeToHostEvents(entries);
   }
