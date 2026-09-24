@@ -1,6 +1,7 @@
 import type { BlackboardDelta, EngineState, GateNode, NormalizedStoryV2, PrimitiveValue, Quality, TensionLevel } from "@engine/index";
 import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine, SceneBreakSignal } from "@memory/index";
 import type { ContextLimit } from "./inputBudget";
+import type { WindowForm } from "./windowHygiene";
 
 export interface ScopedQuality {
   key: string;
@@ -29,12 +30,14 @@ export interface ChatMessageWindowEntry {
   messageId: number;
   speaker: string;
   text: string;
+  isUser: boolean;
 }
 
 export interface SharedReadWindow {
   from: number;
   to: number;
   messages: ChatMessageWindowEntry[];
+  form?: WindowForm;
 }
 
 export interface SharedReadContract {
@@ -55,6 +58,7 @@ export interface ParsedDelta {
   judge?: number;
   /** The line the model wrote, when a parser read it. The audit shows this back. */
   line?: string;
+  messageId?: number;
 }
 
 // v2.2 plan 06: what the judged typed read hands back. `answered` are the hinted qualities it
@@ -105,6 +109,7 @@ export interface SharedReadAudit {
   budget?: ReadBudgetRecord;
   trimmedFrom?: number;
   truncated?: number[];
+  windowForm?: WindowForm;
 }
 
 export interface ReadBudgetRecord {

@@ -1,12 +1,14 @@
 import { parseStoryV2OrThrow, type BlackboardSnapshot, type NormalizedStoryV2 } from "@engine/index";
 import { renderSharedReadPrompt } from "./contract";
 import { deriveScope } from "./scope";
+import { CLEANED_FORM, cleanWindowMessage } from "./windowHygiene";
 import type { ScopedQuality } from "./types";
 
 export interface FixtureTranscriptEntry {
   index: number;
   speaker: string;
   text: string;
+  is_user?: boolean;
 }
 
 export interface ExtractionFixtureSpec {
@@ -36,15 +38,18 @@ export function buildFixtureRun(spec: ExtractionFixtureSpec): FixtureRun {
   const startId = story.checkpoints.find((checkpoint) => checkpoint.start)?.id ?? story.checkpoints[0]?.id ?? "";
   const activeCheckpointId = spec.activeCheckpointId ?? startId;
   const scope = deriveScope(story, activeCheckpointId, spec.blackboard ?? emptyBlackboard()).filter((entry) => !spec.excludeKeys?.includes(entry.key));
-  const messages = spec.transcript.map((entry) => ({ ...entry, messageId: entry.index }));
-  const from = spec.window?.from ?? messages[0]?.index ?? 0;
-  const to = spec.window?.to ?? messages[messages.length - 1]?.index ?? 0;
+  const from = spec.window?.from ?? spec.transcript[0]?.index ?? 0;
+  const to = spec.window?.to ?? spec.transcript[spec.transcript.length - 1]?.index ?? 0;
+  const messages = spec.transcript.flatMap((entry) => {
+    const cleaned = cleanWindowMessage({ name: entry.speaker, mes: entry.text, is_user: entry.is_user === true });
+    return cleaned.keep ? [{ index: entry.index, messageId: entry.index, speaker: entry.speaker, text: cleaned.text, isUser: cleaned.isUser }] : [];
+  });
   const canon = spec.canon ?? `Anchor ${activeCheckpointId}: ${story.checkpointById[activeCheckpointId]?.objective ?? ""}`;
   const prompt = renderSharedReadPrompt({
     storyTitle: story.title,
     activeCheckpointId,
     qualities: scope,
-    window: { from, to, messages },
+    window: { from, to, messages, form: CLEANED_FORM },
     canon,
     ...(spec.openArcs ? { openArcs: spec.openArcs } : {}),
     ...(spec.epistemicLedgerCapable ? { epistemicLedgerCapable: true } : {}),

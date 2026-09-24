@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { evidenceInWindow, normalizeEvidenceText } from "./evidence";
+import { cleanMessageText } from "./windowHygiene";
 
 const ROOT = join(__dirname, "../..");
 const GOLDEN_DIRS = ["test/goldens", "test/goldens/live"];
@@ -46,6 +47,12 @@ describe("V14: the word-span rule over the recorded real-model quotes", () => {
 
   it("accepts every recorded quote the substring rule accepted", () => {
     const newlyRejected = quotes.filter((quote) => substringRule(quote.evidence, quote.messages) && !evidenceInWindow(quote.evidence, quote.messages));
+    expect(newlyRejected.map((quote) => `${quote.source}: ${quote.evidence}`)).toEqual([]);
+  });
+
+  it("v2.4 plan 04 T7: every recorded quote still stands against the cleaned transcript", () => {
+    expect(quotes.length).toBe(136);
+    const newlyRejected = quotes.filter((quote) => evidenceInWindow(quote.evidence, quote.messages) && !evidenceInWindow(quote.evidence, quote.messages.map(cleanMessageText)));
     expect(newlyRejected.map((quote) => `${quote.source}: ${quote.evidence}`)).toEqual([]);
   });
 });

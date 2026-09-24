@@ -137,7 +137,7 @@ export async function fitReadWindow(window: SharedReadWindow, overheadPrompt: st
     const tokens = window.messages.reduce((sum, message) => sum + meter.count(message.text) + perMessage, promptOverhead);
     return { window, record: { ...base, tokens, overBudget: fit.reason }, trimmedFrom: null, truncated: [] };
   }
-  return { window: { from: fit.from, to: fit.to, messages: fit.messages }, record: { ...base, tokens: promptOverhead + fit.tokens }, trimmedFrom: fit.trimmedFrom, truncated: fit.truncated };
+  return { window: { from: fit.from, to: fit.to, messages: fit.messages, ...(window.form ? { form: window.form } : {}) }, record: { ...base, tokens: promptOverhead + fit.tokens }, trimmedFrom: fit.trimmedFrom, truncated: fit.truncated };
 }
 
 export async function runSharedRead(options: RunSharedReadOptions): Promise<SharedReadResult> {
@@ -183,6 +183,7 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     ...(fitted.record ? { budget: fitted.record } : {}),
     ...(fitted.trimmedFrom !== null ? { trimmedFrom: fitted.trimmedFrom } : {}),
     ...(fitted.truncated.length ? { truncated: fitted.truncated } : {}),
+    ...(window.form ? { windowForm: window.form } : {}),
   };
   // A refused response is refused whole: the lines that survived a truncation are not more
   // trustworthy than the ones that did not, and the fact/memory/arc lines have no bound of their own.

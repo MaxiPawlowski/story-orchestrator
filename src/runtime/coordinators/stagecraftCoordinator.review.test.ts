@@ -475,3 +475,27 @@ describe("V3: a curator pass holds the coordinator only while its own chat is op
     await current;
   });
 });
+
+describe("v2.4 plan 04 T7: the warden reads the cleaned reply", () => {
+  it("judges the text the player saw, not a hidden tracker block", async () => {
+    const h = harness();
+    h.state.settings = { ...h.state.settings, wardenEnabled: true, wardenAcceptMode: "review" };
+    chatRef.current = [{ name: "Corin", is_user: false, mes: "The gate is open.<div style=\"display:none\">debt: paid</div>" }];
+    wardenFacts.current = ["Corin owes a debt"];
+    const seen: string[] = [];
+    wardenGate.check = async (reply) => { seen.push(reply.text); return null; };
+    await h.coordinator.runWardenPass(0);
+    expect(seen).toEqual(["The gate is open."]);
+  });
+
+  it("does not judge a foreign post at the reply's id", async () => {
+    const h = harness();
+    h.state.settings = { ...h.state.settings, wardenEnabled: true, wardenAcceptMode: "review" };
+    chatRef.current = [{ name: "Corin", is_user: false, is_thoughts: true, owner_extension: "st-stepped-thinking", mes: "Corin plans to lie about the debt." }];
+    wardenFacts.current = ["Corin owes a debt"];
+    const seen: string[] = [];
+    wardenGate.check = async (reply) => { seen.push(reply.text); return null; };
+    expect(await h.coordinator.runWardenPass(0)).toBe(false);
+    expect(seen).toEqual([]);
+  });
+});
