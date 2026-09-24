@@ -419,11 +419,43 @@ describe("continuity warden (v2.2 plan 05)", () => {
     expect(record).toMatchObject({ curator: "warden", messageId: 1, ops: [{ status: "accepted", op: { kind: "note", replyMessageId: 1, facts: note.facts } }] });
     env.coordinator.onGenerationStarted("normal", false);
     expect(setStoryExtensionPrompt).toHaveBeenCalledWith(KEY, note.text, 0);
-    expect(env.read().proposals.at(-1)?.ops[0].status).toBe("applied");
-    env.coordinator.clearContinuityNote();
+    expect(env.read().proposals.at(-1)?.ops[0].status).toBe("accepted");
+    env.coordinator.commitNote(true);
     expect(clearStoryExtensionPrompt).toHaveBeenCalledWith(KEY);
+    expect(env.read().proposals.at(-1)?.ops[0].status).toBe("applied");
     env.coordinator.onGenerationStarted("normal", false);
     expect(setStoryExtensionPrompt).toHaveBeenCalledTimes(1);
+  });
+
+  it("v2.4 X6: a reply-less close keeps the note accepted for the next loud generation; only a render spends it", async () => {
+    const env = harness({ settings: wardenOn("auto"), warden: warden() });
+    await env.coordinator.runWardenPass(1);
+    env.coordinator.onGenerationStarted("normal", false);
+    env.coordinator.commitNote(false);
+    expect(clearStoryExtensionPrompt).toHaveBeenCalledWith(KEY);
+    expect(env.read().proposals.at(-1)?.ops[0].status).toBe("accepted");
+    env.coordinator.onGenerationStarted("normal", false);
+    expect(setStoryExtensionPrompt).toHaveBeenCalledTimes(2);
+    env.coordinator.commitNote(true);
+    expect(env.read().proposals.at(-1)?.ops[0]).toMatchObject({ status: "applied" });
+    expect(env.read().proposals.at(-1)?.appliedAt).toEqual(expect.any(String));
+  });
+
+  it("v2.4 X6: a render never spends a note that was withdrawn or never carried", async () => {
+    const env = harness({ settings: wardenOn("auto"), warden: warden() });
+    await env.coordinator.runWardenPass(1);
+    env.coordinator.commitNote(true);
+    expect(env.read().proposals.at(-1)?.ops[0].status).toBe("accepted");
+    env.coordinator.onGenerationStarted("normal", false);
+    await env.coordinator.revertAppliedSince(1);
+    env.coordinator.commitNote(true);
+    expect(env.read().proposals.at(-1)?.ops[0]).toMatchObject({ status: "rejected", message: "reverted" });
+    const cleared = harness({ settings: wardenOn("auto"), warden: warden() });
+    await cleared.coordinator.runWardenPass(1);
+    cleared.coordinator.onGenerationStarted("normal", false);
+    cleared.coordinator.clearContinuityNote();
+    cleared.coordinator.commitNote(true);
+    expect(cleared.read().proposals.at(-1)?.ops[0].status).toBe("accepted");
   });
 
   it("never injects on a dry run, a quiet or impersonate pass, or while the author's nudge is set", async () => {

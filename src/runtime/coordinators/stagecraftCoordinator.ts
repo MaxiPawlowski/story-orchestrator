@@ -83,6 +83,7 @@ export class StagecraftCoordinator {
   private curatorHold: PassHold | null = null;
   private wardenHold: PassHold | null = null;
   private noteActive = false;
+  private carriedNote: { recordId: string; index: number } | null = null;
 
   constructor(private readonly deps: StagecraftCoordinatorDeps) {}
 
@@ -467,22 +468,37 @@ export class StagecraftCoordinator {
     return settled;
   }
 
-  // An accepted note rides exactly one loud generation: set here, cleared when it ends. The author's
-  // own nudge wins a shared generation, and the note waits for the next one.
+  // An accepted note rides the outermost loud generation: set when it opens, spent only when that
+  // generation closes with its own reply (v2.4 X6). The author's own nudge wins a shared generation,
+  // and the note waits for the next one.
   onGenerationStarted(type: unknown, dryRun: unknown) {
     const settings = this.state.settings;
     if (dryRun === true || type === "quiet" || type === "impersonate" || !settings.wardenEnabled || settings.wardenAcceptMode === "off" || this.deps.warden?.nudgeActive()) return;
     const record = this.state.proposals.find((candidate) => candidate.curator === "warden" && candidate.ops.some((entry) => entry.status === "accepted"));
-    const entry = record?.ops.find((candidate) => candidate.status === "accepted");
+    const index = record ? record.ops.findIndex((candidate) => candidate.status === "accepted") : -1;
+    const entry = record?.ops[index];
     if (!record || !entry || !isNoteOp(entry.op)) return;
     setStoryExtensionPrompt(INJECTION_REGISTRY.continuityNote.key, entry.op.text, INJECTION_REGISTRY.continuityNote.depth);
     this.noteActive = true;
-    this.updateOps(record.id, (current) => ({ ...current, appliedAt: new Date().toISOString(), ops: current.ops.map((candidate) => (candidate === entry ? { ...candidate, status: "applied" as const } : candidate)) }));
+    this.carriedNote = { recordId: record.id, index };
     this.deps.journal("Continuity note added to this reply's prompt", entry.op.facts.join(" | "));
+  }
+
+  // A stopped or reply-less generation leaves the note accepted, so it rides the next loud one.
+  commitNote(rendered: boolean) {
+    const carried = this.carriedNote;
+    this.clearContinuityNote();
+    if (!rendered || !carried) return;
+    this.updateOps(carried.recordId, (current) => ({
+      ...current,
+      appliedAt: new Date().toISOString(),
+      ops: current.ops.map((candidate, index) => (index === carried.index && candidate.status === "accepted" ? { ...candidate, status: "applied" as const } : candidate)),
+    }));
     void this.save();
   }
 
   clearContinuityNote() {
+    this.carriedNote = null;
     if (!this.noteActive) return;
     clearStoryExtensionPrompt(INJECTION_REGISTRY.continuityNote.key);
     this.noteActive = false;

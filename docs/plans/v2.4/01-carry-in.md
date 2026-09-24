@@ -61,8 +61,8 @@ Plan 01 proceeds in order:
 | T10 impact | `memoryCoordinator.ts:448` → `inject.ts:27`: a null speaker **drops** per-member facts. Also `:494` (`onMemberDrafted` fallback), `:405-406` (`getEpistemicBlock`), `:503` | **corrected 2026-09-24:** the injection moved out of the coordinator in V26. On `eb50a00` it is `src/runtime/memoryInjector.ts:66-67` (`update`: `activeSpeakerId` → `applyMemoryInjection` → `inject.ts:27`), `:112` (`onMemberDrafted` fallback), `:121` (`blocks()`), `:124-130` (`epistemicBlock`, the all-names merge at `:128`); `memoryCoordinator.ts:429` only delegates. **New (X5):** with a null speaker in a group, `getEpistemicBlock` renders `enabledCharacterNames(story)`, i.e. **every member's private knowledge merged**, into `story_epistemic` (`macros.ts:55`). That is an inv-15 breach. Talk `no_repeat` reads the same function (`runtime/index.ts:166` → `talkControl.ts:208` → `talk/rules.ts:60`, all three re-verified) |
 | T10 timing | `updateInjection` runs at `runtimeManager.ts:268`, **then** `announceTransition` at `:273` (`effectsApplier.ts:171-175`, `/comment compact=true`). The next `updateInjection` sees the Note as the last row; `onGenerationEnded` → `clearPrivateInjection` (`:637`, `:640`) is one such call | **corrected 2026-09-24** (`eb50a00`): `updateInjection` `runtimeManager.ts:284`, `announceTransition` `:289` (`effectsApplier.ts:178-185`, `/comment compact=true raw=false`), `onGenerationEnded` `:621` → `clearPrivateInjection` `:624`. The order and the consequence are unchanged. The live probe must run after an ENDED or a memory commit |
 | T6 wiring | `runtime/index.ts:189` runs `onGenerationStarted`, `capturePayload` and `talk.onGenerationStarted` on every STARTED. `:191-192` runs `onGenerationEnded` on every ENDED or STOPPED, foreign `{source}` ones included. Only lore skips dry and quiet runs (`:156`) | matches |
-| T6 manager | `runtimeManager.ts:636`: a quiet or impersonate STARTED → `withholdPrivateKnowledge` (`memoryCoordinator.ts:482-484`). `:637`: every ENDED → `clearPrivateInjection`, `clearCopilotNudge` and `clearContinuityNote` | the SUMMARY T6 row cites `:635-636`; it is **636-637** |
-| T6 warden | `stagecraftCoordinator.ts:457-468`, at STARTED: skips dry, quiet and impersonate runs, but not a non-string `{source}` type. Otherwise it sets the note, marks it `applied` and saves. `clearContinuityNote` is `:470-474` | +1 line vs `456-466`; the file has uncommitted edits |
+| T6 manager | `runtimeManager.ts:636`: a quiet or impersonate STARTED → `withholdPrivateKnowledge` (`memoryCoordinator.ts:482-484`). `:637`: every ENDED → `clearPrivateInjection`, `clearCopilotNudge` and `clearContinuityNote` | the SUMMARY T6 row cites `:635-636`; it is **636-637**. **Corrected 2026-09-24** (HEAD `eb50a00`): `runtimeManager.ts:620` (`onGenerationStarted`) and `:621` (`onGenerationEnded`); the withhold is `memoryCoordinator.ts:444` → `memoryInjector.ts:100-102` (moved out by v2.3 V26) |
+| T6 warden | `stagecraftCoordinator.ts:457-468`, at STARTED: skips dry, quiet and impersonate runs, but not a non-string `{source}` type. Otherwise it sets the note, marks it `applied` and saves. `clearContinuityNote` is `:470-474` | +1 line vs `456-466`; the file has uncommitted edits. **Corrected 2026-09-24** (HEAD `eb50a00`): `onGenerationStarted` is `:472-483` (the `applied` mark and save the split replaces are `:480-482`), `clearContinuityNote` is `:485-489` |
 | T6 talk | `talkControl.ts:87-90`: any STARTED with a numeric `force_chid` sets `pass.forced`. `:92-94`: any ENDED nulls `forcedChid` | matches |
 | T4 comments | `runOwner.ts:56-63` (the claim is `:60-62`); `judge/types.ts:65-69`; `epochAbort.review.test.ts:8-11`. Plan-03 statement: `03-async-ownership.md:1676-1684` and table row `:1789` | the first two have drifted +1 |
 | T21 | see §Corrections | the claim sits at `10-judge-seeds.md:155,157-158,168,169-174` (not `:160-161`) and at `11-acceptance.md:808-809`. `.claude/CLAUDE.md:20` states it ×3. **New:** `test/findings/ledger.json:248` |
@@ -569,3 +569,137 @@ Built on `eb50a00`, machine gates only; **no live gate has run**, so T1 is NOT g
   - Two extra refresh points: every rendered message (not only turn types), and an id-less mutation.
   - A fifth mutant (M5) for the journal.
   - Per-refresh hashing cost is not measured yet (Risks).
+
+### T6 (worktree build, 2026-09-24)
+
+Built on HEAD `eb50a00` (plan 01 step 1). Machine gates only: no browser, no backend, no `npm run build`
+(so `dist/` and the live gates are untouched). **Not green**: the four red fixtures below were written but
+NOT run (neither red on the old tree nor green on this one), and none of the live T6 rows (I2 Stepped
+Thinking, I3 foreign emitter, J5/J6/J8 x2) ran.
+
+**What was built**
+- `src/runtime/generationLifecycle.ts` (pure, host-free): `GenerationLifecycle` over `started(args, chatLength)`,
+  `ended(args)`, `stopped(args)`, `rendered(id, type)`, `drafted(chid)`, `chatChanged()`, emitting intents
+  `opened | nested{withholds} | reapply{chid} | closed{reason} | settled{rendered}`. D9 shape rules as
+  exported predicates `isHostStartedShape` / `isHostEndedShape`; `dryRun === true` ignored; `{source}`
+  payloads fail the shape and are ignored. Never reads `isHostGenerating()` (01-H6). The turn-type rule is
+  injected (`isTurnMessageType` from `turnBridge.ts`), so the module never imports the host seam.
+- `src/runtime/index.ts`: the generation subscriptions go through the reducer. Outermost open →
+  `onGenerationStarted` + `capturePayload` + `talk.onGenerationStarted`; nested quiet/impersonate →
+  `onGenerationStarted(type)` (withhold only; the stagecraft coordinator already skips those types); nested
+  ENDED → `onMemberDrafted(lastDraftedChid)` (or `clearPrivateInjection()` with nobody drafted); outermost
+  close → `clearPrivateInjection` + `clearCopilotNudge` + `talk.onGenerationEnded`; settle →
+  `commitContinuityNote(rendered)`. It also subscribes `MESSAGE_RECEIVED`, `CHARACTER_MESSAGE_RENDERED` and
+  `CHAT_CHANGED`, and `GROUP_MEMBER_DRAFTED` feeds `drafted()`.
+- `stagecraftCoordinator.ts`: `onGenerationStarted` sets the note and remembers which op it carries, and
+  no longer marks it `applied` or saves. The new `commitNote(rendered)` clears the prompt, and only when
+  `rendered` marks that op `applied` (if it is still `accepted`) and saves. `clearContinuityNote` also drops
+  the carried op. 541 → 557 effective lines (620).
+- `runtimeManager.ts`: **zero net lines** (736/740 effective before and after). `onGenerationEnded()`
+  (`:621`), whose three clears now live in the index.ts wiring, is replaced by
+  `commitContinuityNote(rendered)`. `onGenerationEnded` had no other caller (grep over `src`,
+  `scripts`, `test`).
+- `test/findings/ownership-sites.json`: **unchanged**. The guard asked for nothing, because
+  `commitNote`/`onGenerationStarted` write nothing after an await.
+
+**Where the build differs from §T6 (ST's own event order, verified in `public/` 1.19.0)**
+1. **A streaming reply's ENDED arrives BEFORE its render.** `finalizeIntermediaryMessage`
+   (`script.js:3755`) calls `markUIGenStopped()` → `unblockGeneration` → `hideStopButton` → ENDED at
+   `:3794-3796`, then emits `MESSAGE_RECEIVED`/`CHARACTER_MESSAGE_RENDERED` at `:3799-3800`. §T6's rule
+   "closes on an ST-shaped ENDED with nothing nested" therefore closes every ordinary streaming turn
+   *without* a render, so X6 would never spend a note on the commonest path. As built, that ENDED closes the
+   outermost (the blocks clear) and leaves it **awaiting its render**: the render (id ≥ watermark) then
+   settles the note as rendered. A STOPPED, a chat change or the next outermost STARTED settles it as
+   not rendered. `stopGeneration` emits ENDED (`:5614-5615`) and then STOPPED (`:5618`), before the partial
+   reply renders, so a stopped turn never spends the note. Quiet and impersonate outermosts settle as not
+   rendered on their ENDED, because they have no reply to wait for.
+2. **"id ≥ its start length" misses swipe, continue and regenerate.** Those types write into the last
+   message, or pop it first (`:4406-4411`). Their watermark is `chat.length - 1`.
+3. **A group wrapper's member runs are nested, and they still capture and inform talk.** A group send is
+   `Generate` STARTED (`:4299`) → AFTER_COMMANDS (`:4321`) → the redirect to `generateGroupWrapper`
+   (`:4350-4353`) → per member `GROUP_MEMBER_DRAFTED` (`group-chats.js:1059`) → its own `Generate`
+   STARTED (`:1063`). So the first member's STARTED is nested under the wrapper's. Following "outermost
+   only" literally would take the group's payload capture before any member is drafted, and would not
+   tell talk about a typed `/trigger` (a command-interrupted phantom STARTED is left open, see risk 2).
+   As built, a **nested loud** run (not quiet, not impersonate) still triggers `capturePayload` and
+   `talk.onGenerationStarted`. Only nested quiet and impersonate runs are kept away from talk (and so is
+   their `force_chid`, which was the Stepped Thinking defect). The warden note (`onGenerationStarted` on
+   the manager) is outermost-only as planned. No `talkControl.ts` change was needed.
+4. **CHAT_CHANGED closes without clearing injection.** The chat load owns the new chat's blocks, so the
+   close emits only the talk end and `settled(false)` (which clears the carried note, so an old chat's
+   note cannot ride the new chat's first generation).
+5. The plan's "Manager: ≤ +2 lines" would have broken the budget. The build adds zero net lines (above).
+
+**Risks left open**
+1. **Nested ENDED can be missing.** If a nested quiet run ends while `#mes_stop` is hidden, it emits no
+   ENDED (01-H5), and the block stays withheld until the outer run's ENDED pops it or its render closes it.
+   Group turns are unaffected, because `GROUP_MEMBER_DRAFTED` re-applies. This matches pre-T6 behaviour.
+2. **A command-interrupted STARTED is a phantom outermost.** A typed slash command's `Generate` returns at
+   `:4313-4316` with no ENDED, because the stop button is not shown until `:4430`. It stays open until the
+   next render, STOPPED or chat change, and in the meantime the next real run is nested, so the note is not
+   set at it (the phantom may already have set it). The plan's mitigation ("the next outermost STARTED
+   while the send button is idle closes it") contradicts 01-H6 and was **not built**. A sturdier signal is
+   `GENERATION_AFTER_COMMANDS`, which an interrupted run never emits, but Stepped Thinking registers on it
+   before we do, and it would need a fixture first.
+3. The fixtures below emit a fake `GROUP_MEMBER_DRAFTED`. Presence is disabled on this install
+   (`disabledExtensions`), so nothing hides chat rows in response.
+
+**Red fixtures (written, validated, NOT run)**: `test/scenarios/v24-01-nested-quiet.json`,
+`v24-01-foreign-source.json` (the injected `foreign-emitter.js` plus `emit_generation` `{source}` args),
+`v24-01-dry-unpaired.json` (the emitter's `dryUnpaired` plus a dry quiet) and `v24-01-stopped.json`
+(ENDED then STOPPED, then the next STARTED must carry the unspent note). Each one:
+- plants an epistemic row the way `plan05-pin-private-rollback` does;
+- turns the warden on and plants an accepted note **in the in-memory view only** (put back in the last
+  step's `finally`, which also closes the generation with an ST-shaped STOPPED);
+- asserts through `getAppliedEpistemicBlock()`, `ctx.extensionPrompts.story_orchestrator_continuity` and
+  `getStagecraftState()`.
+
+The expected red reason on the old tree, per fixture: nested-quiet, the ENDED cleared the block and the
+note; foreign-source, the `{source}` ENDED cleared both; dry-unpaired, the dry run took a payload capture
+and the dry quiet withheld the block; stopped, the note was marked `applied` at STARTED.
+
+Checks run: `validateFixture` → valid ×4. Every eval passed
+`new Function('return (async () => { ' + s + ' })()')` (5+5+5+4). Run them with
+`so-scenario run <file> --sandbox --group <id>` ×2.
+
+**Harness fix**: `scripts/debug/scenarioSchema.test.mts` "no fixture reads a page global it never sets"
+now also reads each `inject_script` file a fixture names. The `v24-01-harness-smoke.json` committed in
+`eb50a00` already failed this guard (it reads `__soForeignEmitter`, which only the injected script sets),
+so `test:debug` was not all green at HEAD.
+
+**Tests**:
+- `src/runtime/generationLifecycle.test.ts` has 10 cases. Seven are the plan's list: loud → nested quiet
+  with `force_chid` → ENDED → render; foreign `{source}` ×3; dry unpaired; STOPPED (and the stop's
+  ENDED-then-STOPPED order); `Generate(null, …)`; a two-member group; impersonate. The other three cover
+  swipe/continue/regenerate, a chat change, and a new outermost dropping a close that is still waiting for
+  its render.
+- `src/runtime/generationWiring.review.test.ts` has 3 cases through the real `startRuntime`, with the
+  host stubbed.
+- `stagecraftCoordinator.test.ts` has the first warden case updated (the note stays `accepted` at STARTED)
+  and 2 X6 cases added: a reply-less close keeps the note accepted and the next STARTED carries it; a
+  render never spends a withdrawn or never-carried note.
+
+**Mutations** (`test/findings/mutations/v24-01-T6.txt`; each mutation is applied, the three suites are
+run, the file is restored; control 50/50):
+
+| Mutation | Result | Cases that failed |
+|---|---|---|
+| M1 clear on every ENDED | 2 failed | the loud/nested-quiet case, the wiring nested case |
+| M2 accept object payloads | 2 failed | the foreign case, the wiring foreign case |
+| M3 skip the drafted re-apply | 2 failed | the loud/nested-quiet case, the wiring nested case |
+| M4 (added) spend the note on any close | 1 failed | the X6 reply-less case |
+
+**Gates** (all run in the worktree):
+
+| Command | Result |
+|---|---|
+| `npm run typecheck` | exit 0 |
+| `npm run typecheck:test` | exit 0 |
+| `npm run lint` | exit 0 |
+| `npm test` | 173 suites, **2697/2697** |
+| `npm run debug:typecheck` | exit 0 |
+| `npm run test:debug` | 177 tests, 175 pass, 1 skipped, **1 fail** |
+
+The `test:debug` failure is `so-run-header.test.mts` "the build half reads plan 08s nested manifest",
+which reads `dist/manifest.json`. That file does not exist in a fresh worktree, and the brief ruled out a
+build. It is environmental and does not touch T6.

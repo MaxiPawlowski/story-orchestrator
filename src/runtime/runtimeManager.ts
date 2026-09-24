@@ -617,7 +617,7 @@ export class RuntimeManager {
 
   onMemberDrafted(chId: number | [number]) { this.memory.onMemberDrafted(chId); }
   onGenerationStarted(type: unknown, dryRun?: unknown) { if (type === "impersonate" || type === "quiet") this.withholdTurnBlocks(); this.stagecraft.onGenerationStarted(type, dryRun); }
-  onGenerationEnded() { this.clearPrivateInjection(); this.clearCopilotNudge(); this.stagecraft.clearContinuityNote(); }
+  commitContinuityNote(rendered: boolean) { this.stagecraft.commitNote(rendered); }
   runWardenPass(replyMessageId: number) { return this.stagecraft.runWardenPass(replyMessageId); }
 
   withholdTurnBlocks() { this.memory.withholdPrivateKnowledge(); this.pacing.withholdGuidance(); }

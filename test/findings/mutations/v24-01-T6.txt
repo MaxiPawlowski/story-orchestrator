@@ -1,0 +1,25 @@
+# v2.4 plan 01 T6 mutation checks (2026-09-24T08:20:38.656Z)
+# command per mutation: npx jest src/runtime/generationLifecycle.test.ts src/runtime/generationWiring.review.test.ts src/runtime/coordinators/stagecraftCoordinator.test.ts
+# each mutation is applied, the suites run, and the file is restored (driver: .debug/t6_mutations.mjs, untracked)
+
+## M1 clear on every ENDED (plan)
+exit 1; Tests:       2 failed, 48 passed, 50 total
+  FAILED: GenerationLifecycle (v2.4 plan 01 T6) › loud -> nested quiet with force_chid -> ENDED -> render: the nested end re-applies the drafted block and only the render closes
+  FAILED: runtime/index.ts generation wiring (v2.4 plan 01 T6) › a nested quiet run's ENDED re-applies the drafted member's block instead of clearing it; the render closes
+
+## M2 accept object payloads (plan)
+exit 1; Tests:       2 failed, 48 passed, 50 total
+  FAILED: GenerationLifecycle (v2.4 plan 01 T6) › ignores a foreign {source} STARTED, ENDED and STOPPED, alone and inside an open generation
+  FAILED: runtime/index.ts generation wiring (v2.4 plan 01 T6) › another extension's {source} STARTED/ENDED/STOPPED touch nothing
+
+## M3 skip the drafted re-apply (plan)
+exit 1; Tests:       2 failed, 48 passed, 50 total
+  FAILED: GenerationLifecycle (v2.4 plan 01 T6) › loud -> nested quiet with force_chid -> ENDED -> render: the nested end re-applies the drafted block and only the render closes
+  FAILED: runtime/index.ts generation wiring (v2.4 plan 01 T6) › a nested quiet run's ENDED re-applies the drafted member's block instead of clearing it; the render closes
+
+## M4 spend the note on any close, rendered or not (added: the X6 warden split)
+exit 1; Tests:       1 failed, 49 passed, 50 total
+  FAILED: continuity warden (v2.2 plan 05) › v2.4 X6: a reply-less close keeps the note accepted for the next loud generation; only a render spends it
+
+## control (unmutated)
+exit 0; Tests:       50 passed, 50 total

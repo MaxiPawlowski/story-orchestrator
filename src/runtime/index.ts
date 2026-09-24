@@ -15,7 +15,8 @@ import { runtimeManager } from "./runtimeManager";
 import { beginRun } from "./runToken";
 import { registerSlashCommands } from "./slashCommands";
 import { DIRECTOR_MAX_TOKENS, DIRECTOR_WINDOW_MESSAGES, TalkController, type TalkControlHost } from "./talkControl";
-import { TurnBridge } from "./turnBridge";
+import { GenerationLifecycle, type GenerationIntent } from "./generationLifecycle";
+import { isTurnMessageType, TurnBridge } from "./turnBridge";
 
 let started = false;
 let bridge: TurnBridge | null = null;
@@ -184,12 +185,41 @@ export function startRuntime() {
   };
   talkController = new TalkController(talkHost);
   globalThis.talkControlInterceptor = (_chat, _contextSize, abort, type) => talkController?.intercept(abort, type);
+  const generation = new GenerationLifecycle(isTurnMessageType);
+  const applyGeneration = (intents: GenerationIntent[]) => {
+    for (const intent of intents) {
+      if (intent.kind === "opened") {
+        runtimeManager.onGenerationStarted(intent.type);
+        runtimeManager.capturePayload();
+        talkController?.onGenerationStarted(intent.params);
+      } else if (intent.kind === "nested" && intent.withholds) {
+        runtimeManager.onGenerationStarted(intent.type);
+      } else if (intent.kind === "nested") {
+        runtimeManager.capturePayload();
+        talkController?.onGenerationStarted(intent.params);
+      } else if (intent.kind === "reapply") {
+        runtimeManager.clearPrivateInjection();
+        if (intent.chid !== null) runtimeManager.onMemberDrafted(intent.chid);
+      } else if (intent.kind === "closed") {
+        if (intent.reason !== "chat-changed") {
+          runtimeManager.clearPrivateInjection();
+          runtimeManager.clearCopilotNudge();
+        }
+        talkController?.onGenerationEnded();
+      } else {
+        runtimeManager.commitContinuityNote(intent.rendered);
+      }
+    }
+  };
   const privateInjectionEntries: HostSubscriptionEntry[] = [
-    { eventName: "GROUP_MEMBER_DRAFTED", handler: (characterId) => runtimeManager.onMemberDrafted(characterId as number | [number]) },
-    { eventName: "GENERATION_STARTED", handler: async (...args: unknown[]) => { runtimeManager.onGenerationStarted(args[0], args[2]); runtimeManager.capturePayload(); talkController?.onGenerationStarted(args[1] as Record<string, unknown> | undefined); await onLoreGenerationStarted(typeof args[0] === "string" ? args[0] : undefined, args[1] as Record<string, unknown> | undefined, args[2] === true); } },
+    { eventName: "GROUP_MEMBER_DRAFTED", handler: (characterId) => { generation.drafted(characterId); runtimeManager.onMemberDrafted(characterId as number | [number]); } },
+    { eventName: "GENERATION_STARTED", handler: async (...args: unknown[]) => { applyGeneration(generation.started(args, chatLastId() + 1)); await onLoreGenerationStarted(typeof args[0] === "string" ? args[0] : undefined, args[1] as Record<string, unknown> | undefined, args[2] === true); } },
     { eventName: "MESSAGE_SENT", handler: async () => { if (!loreAwaitsMessage) return; loreAwaitsMessage = false; await selectLore("MESSAGE_SENT"); } },
-    { eventName: "GENERATION_ENDED", handler: () => { runtimeManager.onGenerationEnded(); talkController?.onGenerationEnded(); } },
-    { eventName: "GENERATION_STOPPED", handler: () => { runtimeManager.onGenerationEnded(); talkController?.onGenerationEnded(); } },
+    { eventName: "GENERATION_ENDED", handler: (...args: unknown[]) => applyGeneration(generation.ended(args)) },
+    { eventName: "GENERATION_STOPPED", handler: (...args: unknown[]) => applyGeneration(generation.stopped(args)) },
+    { eventName: "MESSAGE_RECEIVED", handler: (messageId, type) => applyGeneration(generation.rendered(messageId, type)) },
+    { eventName: "CHARACTER_MESSAGE_RENDERED", handler: (messageId, type) => applyGeneration(generation.rendered(messageId, type)) },
+    { eventName: "CHAT_CHANGED", handler: () => applyGeneration(generation.chatChanged()) },
     { eventName: "GROUP_WRAPPER_STARTED", handler: (payload) => talkController?.onWrapperStarted(payload as Record<string, unknown> | undefined) },
     { eventName: "GROUP_WRAPPER_FINISHED", handler: () => { void talkController?.onWrapperFinished(); } },
     // v2.3 plan 06 (F2): ST writes the third-party settings and THEN emits this, so it is the one
