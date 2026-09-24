@@ -79,7 +79,7 @@ describe("wizardSessions save evidence (E3)", () => {
 
   it("is not confirmed when the settings save answered 500", async () => {
     host.observation = { ...ok, status: 500, ok: false };
-    expect(await saveWizardSession(session())).toEqual({ confirmed: false, reason: "the settings save answered 500" });
+    expect(await saveWizardSession(session())).toEqual({ confirmed: false, reason: "the settings save answered 500", request: host.burst });
   });
 
   it("is not confirmed when the server holds an older copy of the session, or none", async () => {

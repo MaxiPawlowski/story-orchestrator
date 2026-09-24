@@ -189,4 +189,33 @@ describe("v2.4 plan 02: every chat save of ours arms the guard", () => {
     await save;
     expect(opened.ok && await opened.observed).toMatchObject({ requested: true, status: 500, ok: false });
   });
+
+  it("(dedupe) one request serving a selection and a persist settles both with its burst, naming the selection as the save that asked", async () => {
+    const opened = await saveOpenChat("select");
+    const persisted = observeNextSave(2000, "chat-1");
+    const save = fetch("/api/chats/group/save", { method: "POST", body: JSON.stringify({ id: "chat-1", chat: [{ chat_metadata: { integrity: "i-1" } }, { mes: "hi" }] }) });
+    await settle();
+    answer(500);
+    await save;
+    const selection = opened.ok ? await opened.observed : null;
+    expect(selection).toMatchObject({ status: 500, askedBy: "select" });
+    expect(await persisted).toMatchObject({ status: 500, askedBy: "select", burst: selection?.burst });
+  });
+
+  it("control: a request a persist asked for names no write, and a later request its own", async () => {
+    const persisted = observeNextSave(2000, "chat-1");
+    const opened = await saveOpenChat("drop");
+    const first = fetch("/api/chats/group/save", { method: "POST", body: JSON.stringify({ id: "chat-1", chat: [{ chat_metadata: { integrity: "i-1" } }, { mes: "hi" }] }) });
+    await settle();
+    answer(200);
+    await first;
+    expect(await persisted).toMatchObject({ askedBy: null });
+    expect(opened.ok && await opened.observed).toMatchObject({ askedBy: null });
+    const reopened = await saveOpenChat("drop");
+    const second = fetch("/api/chats/group/save", { method: "POST", body: JSON.stringify({ id: "chat-1", chat: [{ chat_metadata: { integrity: "i-1" } }, { mes: "hi" }] }) });
+    await settle();
+    answer(200);
+    await second;
+    expect(reopened.ok && await reopened.observed).toMatchObject({ askedBy: "drop" });
+  });
 });

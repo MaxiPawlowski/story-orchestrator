@@ -1066,3 +1066,89 @@ Built on `1edad07` (master) in an agent worktree, branch `worktree-agent-a58ed75
 - E3 live: a selection or restart while `/api/chats/*/save` is failed by a fetch stub. `extras.saveHealth.lastOutcome = unsaved`, a labelled journal row, and the pipeline's save notice. For the wizard, `/api/settings/save` answering 500 during a wizard step gives the journal row "wizard session save not confirmed".
 - E4 live: a chat whose mirror book predates T14 (no `so-owner`). After one consolidation or `syncWorldInfo`, the book holds a disabled keyless marker naming the chat. Deleting the chat then offers the reap instead of a "no-marker" Repair row.
 - E5 live: `/branch-create` on a played chat, `st-session.mts reload` with the page landing on the branch (auto-load chat), then assert `chat_metadata.world_info` is gone, the branch notice shows, and the blob is untouched. Controls: reload onto the parent and onto an adopted branch keep their slots.
+
+### Follow-ups E3/E5 completion (worktree build, 2026-09-24)
+
+Built on `c655535` (master) in an agent worktree, branch `worktree-agent-ac1d172a462d6300a`. Closes three deviations of the E2–E5 record: the library half of E3, the double evidence row, and E5's unset `loadedChat`. Machine gates only: no browser and no backend, so **no live gate ran and none is claimed green**.
+
+**1. E3 completion: library and settings-store writes**
+- `librarySave.ts` (pure):
+  - `createSettingsWriteEvidence<T, S>` is generic over what the read-back returns (`SettingsWriteDeps<S>`). `LibrarySaveDeps` is its `unknown[]` case.
+  - New pure checks: `stillHeldByServer(stored, {id, at})` for a removal, and `missingMigrated(stored, ids)` for the migration.
+    - A removal is confirmed when the server does not hold the id, or holds a save of it stamped strictly after the removal.
+    - A migration is confirmed when the server holds every rekeyed id.
+  - One listener channel: `onSettingsWrite(listener)` and `recordSettingsWrite(summary, label, arm)`. The channel arms the evidence **only while something listens**, so a page with no runtime, and every test that never starts one, pays no observation or read-back.
+- `storyLibrary.ts`: all three library writes record through the channel.
+  - `saveStoryRecord` records `library save not confirmed`, labelled `“X” vN` (T8's own wording).
+  - `removeStoryRecord` records `library removal not confirmed`, labelled `“X”`.
+  - The `listStoryRecords` migration write records `library migration not confirmed`, labelled `rekeyed records <ids>`.
+  - `confirmLibrarySave(record)` answers the evidence the save already armed (a `WeakMap` keyed by the record object). It arms one only when the save ran with no listener.
+- `settingsStore.ts`: `setGlobalSettings` and the `liftLegacyChatSettings` stamp go through one `writeSettings`, which records `settings save not confirmed`. The label is the patched sections (`talk`, `extraction, pacing`), or `settings lifted from <chat>`.
+  - The read-back compares the sanitized server copy with this write **or any later one**. A ring of the last 16 written values is kept, so a burst of panel edits in one debounce window does not report the earlier edits as lost.
+- Where it lands: `runtime/index.ts` registers `onSettingsWrite` beside `onWizardSessionSave`. Both use one `journalInstallWrite`: `journalSettingsWrite` → `manager.noteRecap`, with a `RunGuard` minted at write time. That is where T8's library evidence already landed.
+  - With no story loaded, `noteRecap` still records into the manager's session journal (and `extras.journal`). No new persisted field.
+- Studio: the toolbar's `onLibrarySave` hand-off, `LibrarySaveHandler`, `index.tsx`'s `journalSavedStory` and `journalLibrarySave` are removed, because the library write now journals itself.
+  - Kept, they would have journaled the same save twice.
+  - The toolbar still prints its sentence from `confirmLibrarySave`, which is the same promise.
+  - Story `LibraryHandlerThrows` is gone with the prop.
+
+**2. Dedupe: one observed request is one evidence row**
+- `stHost/persistence.ts`: a watch carries an optional `tag`, and `saveOpenChat(tag)` passes it. `report` stamps every observation one request settled with `askedBy` = the tag of the **earliest-armed** watch (null when untagged). A timed-out observation carries no `askedBy` and no `burst`.
+- `runtime/persistence.ts`: `saveChatWrite(kind)` tags its save with the write kind.
+- `saveEvidence.ts`:
+  - New `ServedRequests.claim(burst)` (capped at 32; an observation without a burst is always claimed).
+  - `recordSaveEvidence` takes an optional `claim`. A write whose request another write already recorded writes no health and no journal. If its own pending mark is still the current health, it puts back the health it found. Without that, a selection recorded after the persist settled `applied` left the boundary pending forever.
+  - `journal` now also receives the observation.
+- `ChatSave`: `persist` and `recordWrite` share one `ServedRequests`. The row is labelled from `askedBy`: `story selection: …` when the selection asked, unlabelled when a persist asked, and the write's own kind when nothing settled it.
+- Settings writes: an unconfirmed evidence carries `request` when the settings request's **own answer** refused it. `journalSettingsWrite` then journals one row per refused request. Read-back misses are not deduped, because each is a separate finding about a separate write.
+
+**3. E5 completion**
+- `loadAtStartup` takes an optional `loaded(chat)`, called with `currentChat()` after the load and before the unbind.
+- `TurnBridge.noteLoaded(chat)` sets `loadedChat`.
+- `runtime/index.ts` passes `bridge?.noteLoaded`. The first same-chat reload after a page load is now `same-chat`: no reload and no epoch bump.
+
+**Tests** (+25 tests, +1 suite)
+
+| File | Added | Covers |
+|---|---|---|
+| `chatSave.test.ts` | 5 | select+persist failing on one request → one row, labelled "story selection"; persist records first → still labelled; persist asked → unlabelled once; shared 2xx recorded late leaves nothing pending; control: two requests → two rows |
+| `stHost/saveWatcher.test.ts` | 2 | one request settles both with its burst and `askedBy: "select"`; control: persist asked → `null`, a later request names its own tag |
+| `chatWrites.test.ts` | 1 assertion | each chat write tags its save with its kind |
+| `librarySave.test.ts` | 5, 2 changed | removal and migration checks; the channel arms only while listened; one refused request → one row; control: two requests → two rows. The T8 cases now read `journalSettingsWrite`, and a 500 carries `request` |
+| `settingsWrites.test.ts` (new) | 9 | library save hands over its evidence and the Studio reads the same one (one observation); removal still held / not held; migration held / missing; controls: no migration → nothing observed, no listener → nothing armed; settings 500 labelled by section; held by this or a later write; older copy → not confirmed |
+| `chatIdentity.review.test.ts` | 2 | real bridge: after `loadAtStartup` a same-chat reload loads nothing and keeps the epoch. Control: a switch after startup still reloads and bumps |
+| `startupWiring.review.test.ts` | 2 | real `startRuntime`: `noteLoaded` gets `{chatId, integrity}`; a settings write is journaled until `stopRuntime` |
+| `wizardSessions.test.ts` | 1 changed | the 500 evidence carries `request` |
+
+The existing E5 cases (`branchContinue.review` startup unbind and both controls, `startupWiring` unbind and control) are unchanged and green.
+
+**Mutants**: `test/findings/mutations/v24-02-followups.txt`, **23/23 killed** (dedupe 8, E3 12, E5 3), none survived a first run.
+
+**Census and guards**: `ownership.guard`, `faultMatrix.guard` and `architecture.test` pass with no row changes. `recordSaveEvidence`'s new put-back writes only the save health through the injected `onWrite`, which its existing `local` row already covers. `ChatSave.recordWrite` and `loadAtStartup` still have no write after an await in their own bodies. Manager: 0 lines.
+
+**Gates** (worktree root, `node_modules` symlinked to the main checkout's)
+
+| Command | Result |
+|---|---|
+| `npm run typecheck` | exit 0 |
+| `npm run typecheck:test` | exit 0 |
+| `npm run lint` | exit 0 |
+| `npm run debug:typecheck` | exit 0 |
+| `npm test` | 201/201 suites, 3091/3091 tests; findings ledger 2 open / 48 settled |
+| `npm run build` (worktree only) | compiled, 2 webpack warnings (the existing size warnings); manifest `ST unknown` (worktree path) |
+
+**Deviations**
+- Settings-side "labelled with the write that asked" is the first write to journal. For a refused request that is arm order: every settings evidence has the same promise depth, so continuations settle FIFO. It is not tagged through the watcher as chat saves are.
+- A settings read-back miss is not deduped (see 2).
+- The migration and removal checks read "later" loosely. A migrated record removed in the same burst reports the migration unconfirmed. A removal re-saved in the same millisecond reports the removal unconfirmed. Both are false alarms, never false confirmations.
+- `wizardSessions` keeps its own `onWizardSessionSave` channel. It now shares the listener body, and so the dedupe, but was not folded into `onSettingsWrite`.
+- `test-storybook` was **not run** for the toolbar story change (one story removed, the meta `onLibrarySave` arg dropped).
+
+**NOT done (need a browser and a build on the ST tree)**
+- E3 library/settings live: with `/api/settings/save` answering 500 via a fetch stub, check each case writes exactly one journal row per refused request:
+  - import a story (`library save not confirmed`);
+  - remove it (`library removal not confirmed`);
+  - toggle a settings-panel control (`settings save not confirmed`, labelled by section).
+  - Control: with the stub removed, nothing is journaled, and the Studio toolbar still says `Saved “X” vN to the library.`
+- Dedupe live: import a story while `/api/chats/*/save` answers 500. One `save not confirmed` row labelled `story selection: …`, and `extras.saveHealth.consecutiveFailures` rises by one, not two.
+- E5 live: open a played chat, `st-session.mts reload`, then `/persona-sync` (a `reloadCurrentChat`, H9). The session epoch is unchanged and nothing reloaded (the run header's chat unchanged, no `reload-diverged`). Control: switching to another chat after the reload still reloads.

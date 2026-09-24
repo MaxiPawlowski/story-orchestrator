@@ -1,6 +1,6 @@
 import { RuntimeManager } from "./runtimeManager";
 import { TurnBridge } from "./turnBridge";
-import { classifyChatChange, type ChatChangeInput } from "./chatIdentity";
+import { classifyChatChange, loadAtStartup, type ChatChangeInput } from "./chatIdentity";
 import { beginRun } from "./runToken";
 
 // v2.4 plan 02 §3. A same-chat CHAT_CHANGED (H9: `reloadCurrentChat` behind `/persona-sync` or a persona
@@ -188,6 +188,45 @@ describe("v2.4 plan 02 §3: a same-chat reload on the real bridge", () => {
     const epoch = manager.getRunContext().sessionEpoch;
     reloadFromServer((metadata) => { metadata.integrity = "i-other"; });
     await emit("CHAT_CHANGED");
+    expect(manager.getRunContext().sessionEpoch).toBeGreaterThan(epoch);
+  });
+});
+
+// v2.4 E5 completion: the page's first load is no CHAT_CHANGED, so the bridge never recorded which chat it
+// had loaded, and the first same-chat reload after a page load read as a switch. The startup load now
+// tells the bridge, exactly as the bridge's own load does.
+describe("v2.4 E5: the first same-chat reload after a page load", () => {
+  const reloadPage = async () => {
+    mockHandlers.clear();
+    const manager = new RuntimeManager();
+    const bridge = new TurnBridge(manager, manager.chatSave);
+    bridge.start();
+    await loadAtStartup({ load: () => manager.loadSelectedFromChat(), ownership: () => manager.getOwnership(), loaded: (chat) => bridge.noteLoaded(chat) });
+    return manager;
+  };
+
+  it("is classified same-chat: no reload, no epoch bump", async () => {
+    await openedAndPlayed();
+    const manager = await reloadPage();
+    expect(manager.getEngineState()).toMatchObject({ activeCheckpointId: "next", boundary: 2 });
+    const epoch = manager.getRunContext().sessionEpoch;
+    const load = jest.spyOn(manager, "loadSelectedFromChat");
+    reloadFromServer();
+    await emit("CHAT_CHANGED");
+    expect(load).not.toHaveBeenCalled();
+    expect(manager.getRunContext().sessionEpoch).toBe(epoch);
+  });
+
+  it("control: a genuine switch after startup is still a switch", async () => {
+    await openedAndPlayed();
+    const manager = await reloadPage();
+    const epoch = manager.getRunContext().sessionEpoch;
+    const load = jest.spyOn(manager, "loadSelectedFromChat");
+    mockContext.chatId = "chat-b";
+    mockContext.chatMetadata = { integrity: "i-b" };
+    mockContext.chat = [];
+    await emit("CHAT_CHANGED");
+    expect(load).toHaveBeenCalled();
     expect(manager.getRunContext().sessionEpoch).toBeGreaterThan(epoch);
   });
 });

@@ -62,6 +62,8 @@ jest.mock("@services/STAPI", () => ({
 import { runtimeManager } from "./runtimeManager";
 import { setSelectedStoryId } from "./persistence";
 import { saveWizardSession } from "./wizardSessions";
+import { setGlobalSettings } from "./settingsStore";
+import { TurnBridge } from "./turnBridge";
 
 const settle = async () => { for (let index = 0; index < 30; index += 1) await new Promise((resolve) => setTimeout(resolve, 0)); };
 
@@ -94,6 +96,16 @@ describe("v2.4 E5: startRuntime's first load", () => {
     stopRuntime();
     expect(mockHost.unbound).toEqual([]);
     expect(mockHost.context.chatMetadata.world_info).toBe(PARENT_BOOK);
+  });
+
+  it("tells the bridge which chat it loaded, so the first same-chat reload is not a switch", async () => {
+    const noteLoaded = jest.spyOn(TurnBridge.prototype, "noteLoaded");
+    const { startRuntime, stopRuntime } = await import("./index");
+    startRuntime();
+    await settle();
+    stopRuntime();
+    expect(noteLoaded).toHaveBeenCalledWith({ chatId: "branch-1", integrity: "i-branch" });
+    noteLoaded.mockRestore();
   });
 });
 
@@ -129,6 +141,24 @@ describe("v2.4 E3: startRuntime routes save evidence", () => {
     stopRuntime();
     noteRecap.mockClear();
     await saveWizardSession({ key: "sun-ruins", stage: "provisioning", history: [], questions: [], applied: [], seed: "", updatedAt: "" } as never);
+    await settle();
+    expect(noteRecap).not.toHaveBeenCalled();
+    noteRecap.mockRestore();
+  });
+
+  it("journals an unconfirmed library or settings-store write into the open chat, and stops at stopRuntime", async () => {
+    mockHost.context.chatMetadata = {};
+    const noteRecap = jest.spyOn(runtimeManager, "noteRecap");
+    const { startRuntime, stopRuntime } = await import("./index");
+    startRuntime();
+    await settle();
+    noteRecap.mockClear();
+    setGlobalSettings({ talk: { enabled: false } });
+    await settle();
+    expect(noteRecap).toHaveBeenCalledWith("settings save not confirmed", "talk: the settings save answered 500");
+    stopRuntime();
+    noteRecap.mockClear();
+    setGlobalSettings({ talk: { enabled: true } });
     await settle();
     expect(noteRecap).not.toHaveBeenCalled();
     noteRecap.mockRestore();

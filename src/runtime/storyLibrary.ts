@@ -1,7 +1,7 @@
 import { parseStoryV2, isValidationErrorList, type NormalizedStoryV2 } from "@engine/index";
 import { getContext, observeNextSettingsSave, readServerExtensionSettings } from "@services/STAPI";
 import { hashStory } from "./hash";
-import { createLibrarySaveEvidence } from "./librarySave";
+import { createSettingsWriteEvidence, missingFromServer, missingMigrated, recordSettingsWrite, stillHeldByServer, type LibrarySaveEvidence } from "./librarySave";
 import type { LoadedStory, StoryLibraryRecord, RuntimeSnapshot } from "./types";
 
 const SETTINGS_KEY = "v2Stories";
@@ -62,12 +62,26 @@ const migrateRecords = (records: StoryLibraryRecord[]): { records: StoryLibraryR
   return { records: [...byId.values()], changed };
 };
 
+const readServerLibrary = async (): Promise<unknown[] | null> => {
+  const root = await readServerExtensionSettings(ROOT_KEY);
+  return root === null ? null : Array.isArray(root[SETTINGS_KEY]) ? (root[SETTINGS_KEY] as unknown[]) : [];
+};
+
+const observeLibraryWrite = <T>(missing: (stored: unknown[] | null, write: T) => string | null) => createSettingsWriteEvidence<T>({ observe: () => observeNextSettingsSave(), readBack: readServerLibrary }, missing);
+
+const confirmRecord = observeLibraryWrite(missingFromServer);
+const confirmRemoval = observeLibraryWrite(stillHeldByServer);
+const confirmMigration = observeLibraryWrite(missingMigrated);
+const armedSaves = new WeakMap<StoryLibraryRecord, Promise<LibrarySaveEvidence>>();
+
 export function listStoryRecords(): StoryLibraryRecord[] {
   const root = getRoot();
   const stored = Array.isArray(root[SETTINGS_KEY]) ? (root[SETTINGS_KEY] as unknown[]).filter(isStoryRecord) : [];
   const { records, changed } = migrateRecords(stored);
   if (changed) {
     root[SETTINGS_KEY] = records;
+    const ids = records.map((record) => record.id);
+    recordSettingsWrite("library migration not confirmed", `rekeyed records ${ids.join(", ")}`, () => confirmMigration(ids));
     getContext().saveSettingsDebounced();
   }
   return [...records].sort((left, right) => left.title.localeCompare(right.title));
@@ -109,24 +123,22 @@ export function saveStoryRecord(raw: unknown): LoadedStory | RuntimeSnapshot["va
     updatedAt: new Date().toISOString(),
   };
   getRoot()[SETTINGS_KEY] = [...records.filter((entry) => entry.id !== id), record];
+  const evidence = recordSettingsWrite("library save not confirmed", `“${record.title}” v${record.version}`, () => confirmRecord(record));
+  if (evidence) armedSaves.set(record, evidence);
   getContext().saveSettingsDebounced();
   return { record, story: { ...parsed, id, version } };
 }
 
-/** v2.4 plan 02 §7: arm right after `saveStoryRecord`; answers whether the server holds what it wrote. */
-export const confirmLibrarySave = createLibrarySaveEvidence({
-  observe: () => observeNextSettingsSave(),
-  readBack: async () => {
-    const root = await readServerExtensionSettings(ROOT_KEY);
-    return root === null ? null : Array.isArray(root[SETTINGS_KEY]) ? (root[SETTINGS_KEY] as unknown[]) : [];
-  },
-});
+/** v2.4 plan 02 §7: whether the server holds what `saveStoryRecord` wrote; the evidence it already armed, or armed now. */
+export const confirmLibrarySave = (record: StoryLibraryRecord): Promise<LibrarySaveEvidence> => armedSaves.get(record) ?? confirmRecord(record);
 
 export function removeStoryRecord(idOrHash: string): boolean {
   const records = listStoryRecords();
   const target = findStoryRecord(idOrHash);
   if (!target) return false;
   getRoot()[SETTINGS_KEY] = records.filter((entry) => entry.id !== target.id);
+  const removal = { id: target.id, at: new Date().toISOString() };
+  recordSettingsWrite("library removal not confirmed", `“${target.title}”`, () => confirmRemoval(removal));
   getContext().saveSettingsDebounced();
   return true;
 }

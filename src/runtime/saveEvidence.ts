@@ -18,6 +18,10 @@ export interface SaveObservation {
   failed: boolean;
   /** Why the save does not count for the chat it was asked for (v2.4 plan 02: the open chat changed first). */
   lost?: string;
+  /** Which request settled it; absent when none did. */
+  burst?: number;
+  /** v2.4 E3: the tag of the save of ours that asked for that request (null: an untagged one). */
+  askedBy?: string | null;
 }
 
 export interface SaveEvidenceDeps {
@@ -27,8 +31,25 @@ export interface SaveEvidenceDeps {
   /** The boundary the server's own copy of this chat holds, or null when it cannot be read. */
   readBack: () => Promise<number | null>;
   onWrite: (health: SaveHealth) => void;
-  journal: (summary: string, note: string) => void;
+  journal: (summary: string, note: string, observation: SaveObservation) => void;
   now: () => string;
+  /** v2.4 E3: false when another write already recorded the request that settled this one. */
+  claim?: (observation: SaveObservation) => boolean;
+}
+
+/** v2.4 E3: one observed request is one save, however many writes it served; the first to record it claims it. */
+export class ServedRequests {
+  private readonly seen: number[] = [];
+
+  constructor(private readonly cap = 32) {}
+
+  claim(request: number | undefined): boolean {
+    if (request === undefined) return true;
+    if (this.seen.includes(request)) return false;
+    this.seen.push(request);
+    if (this.seen.length > this.cap) this.seen.shift();
+    return true;
+  }
 }
 
 export interface SaveEvidenceResult {
@@ -45,8 +66,14 @@ export interface SaveEvidenceResult {
  */
 export async function recordSaveEvidence(deps: SaveEvidenceDeps, boundary: number): Promise<SaveEvidenceResult> {
   const health = deps.health();
-  deps.onWrite(markPending(health, boundary));
+  const pending = markPending(health, boundary);
+  deps.onWrite(pending);
   const observation = await deps.observe();
+  if (deps.claim && !deps.claim(observation)) {
+    if (deps.health() === pending) deps.onWrite(health);
+    const current = deps.health();
+    return { health: current, unsaved: current.pendingBoundary !== null, journalSummary: null };
+  }
   const reason = observation.ok ? null
     : observation.lost ? observation.lost
     : observation.timedOut ? "no save request went out"
@@ -71,7 +98,7 @@ export async function recordSaveEvidence(deps: SaveEvidenceDeps, boundary: numbe
     summary = "save not confirmed";
   }
   deps.onWrite(settled);
-  if (summary) deps.journal(summary, settled.lastReason ?? reason ?? `in memory ${boundary}`);
+  if (summary) deps.journal(summary, settled.lastReason ?? reason ?? `in memory ${boundary}`, observation);
   return { health: settled, unsaved: settled.pendingBoundary !== null, journalSummary: summary };
 }
 

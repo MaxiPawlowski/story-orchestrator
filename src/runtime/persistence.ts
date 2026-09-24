@@ -32,7 +32,7 @@ export function onChatWrite(listener: (write: ChatWrite) => void): () => void {
 }
 
 const saveChatWrite = (kind: ChatWriteKind) => {
-  void saveOpenChat().then((result) => {
+  void saveOpenChat(kind).then((result) => {
     if (result.ok && result.observed) chatWriteListener?.({ kind, chatId: result.chatId, observed: result.observed });
   });
 };

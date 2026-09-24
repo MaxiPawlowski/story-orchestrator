@@ -1,8 +1,9 @@
-import { getContext, settingsAreLoaded } from "@services/STAPI";
+import { getContext, observeNextSettingsSave, readServerExtensionSettings, settingsAreLoaded } from "@services/STAPI";
 import { DEFAULT_TENSION_EMA_ALPHA, MEMORY_TIER_INJECTION_DEPTHS } from "@constants/defaults";
 import { DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS } from "@memory/index";
 import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
 import { defaultJudgeSettings, sanitizeJudgeSettings, type JudgeSettings, type JudgeUses } from "@judge/index";
+import { createSettingsWriteEvidence, recordSettingsWrite } from "./librarySave";
 import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, RuntimeExtras, StagecraftSettings, UiRuntimeSettings } from "./types";
 
 const SETTINGS_KEY = "settings";
@@ -98,6 +99,34 @@ const getRoot = (): Record<string, unknown> => {
   return settings["story-orchestrator"] as Record<string, unknown>;
 };
 
+const WRITE_RING = 16;
+let writeSeq = 0;
+const recentWrites: Array<{ seq: number; json: string }> = [];
+
+const heldByServer = (stored: { value: unknown } | null, write: { seq: number }): string | null => {
+  if (stored === null) return "the server's settings could not be read back";
+  const held = JSON.stringify(sanitizeGlobalSettings(stored.value));
+  return recentWrites.some((entry) => entry.seq >= write.seq && entry.json === held) ? null : "the server holds other settings than this save wrote";
+};
+
+const confirmSettingsWrite = createSettingsWriteEvidence<{ seq: number }, { value: unknown }>({
+  observe: () => observeNextSettingsSave(),
+  readBack: async () => {
+    const root = await readServerExtensionSettings("story-orchestrator");
+    return root === null ? null : { value: root[SETTINGS_KEY] };
+  },
+}, heldByServer);
+
+/** v2.4 E3: an install-wide settings write reads its settings save; the server holds it, or a later write. */
+const writeSettings = (settings: GlobalSettings, label: string) => {
+  getRoot()[SETTINGS_KEY] = settings;
+  const write = { seq: ++writeSeq };
+  recentWrites.push({ ...write, json: JSON.stringify(sanitizeGlobalSettings(settings)) });
+  if (recentWrites.length > WRITE_RING) recentWrites.shift();
+  recordSettingsWrite("settings save not confirmed", label, () => confirmSettingsWrite(write));
+  getContext().saveSettingsDebounced();
+};
+
 /**
  * v2.3 plan 06 (F2). The read is ALSO a write: it replaces the stored value with its sanitized form.
  * Before ST has loaded the extension settings that write is destructive — `getRoot()` would create
@@ -131,8 +160,7 @@ export function setGlobalSettings(patch: Partial<{ [K in keyof GlobalSettings]: 
     judge: { ...current.judge, ...(patch.judge ?? {}), uses: { ...current.judge.uses, ...(patch.judge?.uses ?? {}) }, expansion: { ...current.judge.expansion, ...(patch.judge?.expansion ?? {}) } },
   };
   const sanitized = sanitizeGlobalSettings(next);
-  getRoot()[SETTINGS_KEY] = sanitized;
-  getContext().saveSettingsDebounced();
+  writeSettings(sanitized, Object.keys(patch).join(", "));
   return sanitized;
 }
 
@@ -157,7 +185,6 @@ export function liftLegacyChatSettings(extras: RuntimeExtras | undefined, chatLa
     talk: { enabled: extras.talk?.enabled },
     stagecraft: extras.stagecraft?.settings,
   });
-  getRoot()[SETTINGS_KEY] = { ...getGlobalSettings(), migratedFromChat: chatLabel };
-  getContext().saveSettingsDebounced();
+  writeSettings({ ...getGlobalSettings(), migratedFromChat: chatLabel }, `settings lifted from ${chatLabel}`);
   return true;
 }

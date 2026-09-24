@@ -14,11 +14,8 @@ import { startRuntime } from "@runtime/index";
 import { STORY_STATE_RETENTION } from "@runtime/persistence";
 import { branchFromOldest, continueFromBranch } from "@runtime/chatIdentity";
 import { exportState } from "@runtime/stateExport";
-import { journalLibrarySave } from "@runtime/librarySave";
-import { beginRun } from "@runtime/runToken";
 import type { RuntimeSnapshot, StoryLibraryRecord } from "@runtime/types";
 import StudioModal, { STUDIO_TAB_IDS, type StudioOpenIntent } from "./studio/StudioModal";
-import type { LibrarySaveHandler } from "./studio/components/StudioToolbar";
 import type { WizardHost } from "./studio/components/StudioCopilot";
 import { type DriverController } from "@components/drawer/DriverPanel";
 import DrawerTabs from "./components/drawer/DrawerTabs";
@@ -103,8 +100,6 @@ const applySavedStory = async (record: StoryLibraryRecord): Promise<string | nul
   return outcome.reason ? `this chat kept its version — ${outcome.reason}` : null;
 };
 
-const journalSavedStory: LibrarySaveHandler = (record, evidence) => void journalLibrarySave(record, evidence, beginRun(manager.getOwnership()), (summary, note) => manager.noteRecap(summary, note));
-
 const StudioHost = () => {
   const open = useSyncExternalStore(
     (listener) => { studioListeners.add(listener); return () => { studioListeners.delete(listener); }; },
@@ -118,7 +113,6 @@ const StudioHost = () => {
       copilotEnabled={snapshot.copilot.enabled}
       runCopilotStage={(input) => manager.runCopilotStage(input)}
       onSaved={applySavedStory}
-      onLibrarySave={journalSavedStory}
       wizardHost={wizardHost}
       intent={studioIntent}
     />

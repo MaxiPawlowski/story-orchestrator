@@ -20,7 +20,7 @@ import { GenerationLifecycle, type GenerationIntent } from "./generationLifecycl
 import { isTurnMessageType, TurnBridge } from "./turnBridge";
 import { RequirementsWatch } from "./requirementsWatch";
 import { loadAtStartup } from "./chatIdentity";
-import { journalSettingsWrite } from "./librarySave";
+import { journalSettingsWrite, onSettingsWrite, type SettingsWrite } from "./librarySave";
 import { onChatWrite } from "./persistence";
 import { onWizardSessionSave } from "./wizardSessions";
 
@@ -37,7 +37,7 @@ let typedJudge: ReturnType<typeof createTypedJudge> | null = null;
 // live wiring and once into a scheduler and scene coordinator that had already been torn down.
 const runtimeDisposers: Array<() => void> = [];
 
-const startupLoad = () => loadAtStartup({ load: () => runtimeManager.loadSelectedFromChat(), ownership: () => runtimeManager.getOwnership() });
+const startupLoad = () => loadAtStartup({ load: () => runtimeManager.loadSelectedFromChat(), ownership: () => runtimeManager.getOwnership(), loaded: (chat) => bridge?.noteLoaded(chat) });
 
 const registerSlashCommandsWhenReady = (attempt = 0) => {
   if (slashRegistered) return;
@@ -117,7 +117,9 @@ export function startRuntime() {
   runtimeDisposers.push(startMirrorReaper(() => runtimeManager.notify()));
   // v2.4 E3: chat writes outside persist, and wizard-session writes, read the save they asked for.
   runtimeDisposers.push(onChatWrite((write) => void runtimeManager.chatSave.recordWrite(write)));
-  runtimeDisposers.push(onWizardSessionSave((save) => void journalSettingsWrite(save.summary, save.label, save.evidence, beginRun(runtimeManager.getOwnership()), (summary, note) => runtimeManager.noteRecap(summary, note))));
+  const journalInstallWrite = (save: SettingsWrite) => void journalSettingsWrite(save.summary, save.label, save.evidence, beginRun(runtimeManager.getOwnership()), (summary, note) => runtimeManager.noteRecap(summary, note));
+  runtimeDisposers.push(onWizardSessionSave(journalInstallWrite));
+  runtimeDisposers.push(onSettingsWrite(journalInstallWrite));
   const chatLastId = () => (Array.isArray(getContext().chat) ? getContext().chat.length - 1 : -1);
   globalThis.storyOrchestratorScheduler = { nextReadWindow: () => scheduler?.nextReadWindow(chatLastId()) ?? null };
   const judgeRuntime = new JudgeRuntime({

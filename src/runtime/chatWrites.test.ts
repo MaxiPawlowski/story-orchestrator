@@ -5,13 +5,13 @@
 const metadata: Record<string, unknown> = {};
 const context = { chatId: "chat-a", chatMetadata: metadata };
 const observed = Promise.resolve({ requested: true, status: 200, ok: true, timedOut: false, failed: false });
-const saveOpenChat = jest.fn(async () => ({ ok: true as const, chatId: context.chatId, observed }));
+const saveOpenChat = jest.fn(async (_tag?: string | null) => ({ ok: true as const, chatId: context.chatId, observed }));
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   getContext: () => context,
-  saveOpenChat: () => saveOpenChat(),
+  saveOpenChat: (tag?: string | null) => saveOpenChat(tag),
 }));
 
 import { dropPersistedRuntime, onChatWrite, replaceUnreadableBlob, restampRenamedChat, setSelectedStoryId, type ChatWrite } from "./persistence";
@@ -43,6 +43,7 @@ describe("v2.4 E3: chat writes hand their observation on", () => {
     await settle();
     expect(heard.map((write) => [write.kind, write.chatId])).toEqual([["select", "chat-a"], ["drop", "chat-a"], ["replace", "chat-a"], ["restamp", "new-name"]]);
     expect(heard.every((write) => write.observed === observed)).toBe(true);
+    expect(saveOpenChat.mock.calls.map(([tag]) => tag)).toEqual(["select", "drop", "replace", "restamp"]);
   });
 
   it("control: a write refused before it reached the chat hands nothing on", async () => {

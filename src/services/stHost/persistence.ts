@@ -25,11 +25,14 @@ export interface SaveObservation {
   burst?: number;
   /** Why this save does not count for the chat it was asked for: held back, or written into another chat. */
   lost?: string;
+  /** v2.4 E3: the tag of the earliest save of ours this request settled (null when that save carried none).
+   *  Absent when no request settled it. One request serving several saves is one save, asked for by this one. */
+  askedBy?: string | null;
 }
 
 const unconfirmed = (): SaveObservation => ({ requested: false, status: null, ok: false, timedOut: true, failed: false });
 
-interface Watch { kind: SaveKind; armedAt: number; sawRequest: boolean; chatId: string | null; settle: (observation: SaveObservation) => void }
+interface Watch { kind: SaveKind; armedAt: number; sawRequest: boolean; chatId: string | null; tag: string | null; settle: (observation: SaveObservation) => void }
 
 let watching: Watch[] = [];
 let ours: typeof fetch | null = null;
@@ -54,9 +57,11 @@ const takeArmedBefore = (kind: SaveKind, startedAt: number) => {
 
 function report(kind: SaveKind, startedAt: number, observation: Omit<SaveObservation, "burst">, target: { chatId: string } | null = null) {
   stats.reports += 1;
-  takeArmedBefore(kind, startedAt).forEach((entry) => entry.settle(target && entry.chatId !== null && target.chatId !== entry.chatId
-    ? { ...observation, ok: false, lost: observation.lost ?? `the save ran after the open chat changed: it wrote "${target.chatId}", not "${entry.chatId}"`, burst: startedAt }
-    : { ...observation, burst: startedAt }));
+  const due = takeArmedBefore(kind, startedAt);
+  const askedBy = due[0]?.tag ?? null;
+  due.forEach((entry) => entry.settle(target && entry.chatId !== null && target.chatId !== entry.chatId
+    ? { ...observation, ok: false, lost: observation.lost ?? `the save ran after the open chat changed: it wrote "${target.chatId}", not "${entry.chatId}"`, burst: startedAt, askedBy }
+    : { ...observation, burst: startedAt, askedBy }));
 }
 
 const answered = (status: number) => ({ requested: true, status, ok: status >= 200 && status < 300, timedOut: false, failed: false });
@@ -146,7 +151,7 @@ export function installSaveWatcher() {
 /** How many times the watcher wrapped `fetch`, and how many save requests it reported. */
 export const saveWatcherStats = () => ({ ...stats });
 
-function watch(kind: SaveKind, timeoutMs: number, chatId: string | null = null): Promise<SaveObservation> {
+function watch(kind: SaveKind, timeoutMs: number, chatId: string | null = null, tag: string | null = null): Promise<SaveObservation> {
   installSaveWatcher();
   return new Promise<SaveObservation>((resolve) => {
     let settled = false;
@@ -158,7 +163,7 @@ function watch(kind: SaveKind, timeoutMs: number, chatId: string | null = null):
       resolve(observation);
     };
     const timer = setTimeout(() => settle(unconfirmed()), timeoutMs);
-    watching.push({ kind, armedAt: clock, sawRequest: false, chatId, settle });
+    watching.push({ kind, armedAt: clock, sawRequest: false, chatId, tag, settle });
   });
 }
 
@@ -167,11 +172,11 @@ function watch(kind: SaveKind, timeoutMs: number, chatId: string | null = null):
  * the open chat changed, an empty write into the next chat is held back (see `switchRefusal`). Every
  * chat save of ours goes through here or through `observeNextSave`; a bare `saveMetadata` would not.
  */
-export async function saveOpenChat(): Promise<WriteResult<{ chatId: string; observed: Promise<SaveObservation> }>> {
+export async function saveOpenChat(tag: string | null = null): Promise<WriteResult<{ chatId: string; observed: Promise<SaveObservation> }>> {
   const context = getContext();
   const chatId = typeof context.chatId === "string" && context.chatId ? context.chatId : null;
   if (!chatId || typeof context.saveMetadata !== "function") return couldNot("no chat is open");
-  const observed = watch("chat", SAVE_OBSERVE_MS, chatId);
+  const observed = watch("chat", SAVE_OBSERVE_MS, chatId, tag);
   await context.saveMetadata();
   return wrote({ chatId, observed });
 }

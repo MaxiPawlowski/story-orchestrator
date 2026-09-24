@@ -7,7 +7,7 @@ import type { DecodeJournal } from "./messageIdentity";
 import { evictedStoryNotice, savePersistedRuntime, type ChatWrite, type ChatWriteKind } from "./persistence";
 import type { RunOwner } from "./runOwner";
 import { beginRun, type RunGuard } from "./runToken";
-import type { SaveEvidenceResult } from "./saveEvidence";
+import { ServedRequests, type SaveEvidenceResult, type SaveObservation } from "./saveEvidence";
 import { recordSaveEvidence, saveEvidenceDeps } from "./saveEvidenceHost";
 import { saveWasLost } from "./saveHealth";
 import { listStoryRecords } from "./storyLibrary";
@@ -32,6 +32,13 @@ const CHAT_WRITE_LABEL: Record<ChatWriteKind, string> = {
   restamp: "chat rename restamp",
 };
 
+const isChatWriteKind = (tag: string | null): tag is ChatWriteKind => tag !== null && Object.hasOwn(CHAT_WRITE_LABEL, tag);
+
+const labelled = (observation: SaveObservation, own: ChatWriteKind | null, note: string): string => {
+  const asker = observation.askedBy === undefined ? own : observation.askedBy;
+  return isChatWriteKind(asker) ? `${CHAT_WRITE_LABEL[asker]}: ${note}` : note;
+};
+
 const chatNow = (): unknown[] => (Array.isArray(getContext().chat) ? getContext().chat : []);
 
 const driftNote = (messageId: number, chatLength: number, last: number): string => (messageId === chatLength && chatLength < last + 1
@@ -42,6 +49,8 @@ const driftNote = (messageId: number, chatLength: number, last: number): string 
 // coordinator save() ends in `persist`; `landed` answers whether the last one actually reached disk.
 export class ChatSave {
   readonly fingerprints = new FingerprintKeeper();
+  private readonly served = new ServedRequests();
+  private readonly claim = (observation: SaveObservation) => this.served.claim(observation.burst);
 
   constructor(private readonly deps: ChatSaveDeps) {}
 
@@ -70,9 +79,10 @@ export class ChatSave {
 
   // v2.3 plan 06: `saveMetadata` swallows its own errors, so the write is OBSERVED (saveEvidence).
   private async saveAndObserve() {
-    const deps = saveEvidenceDeps(() => this.deps.extras().saveHealth, (health) => { this.deps.extras().saveHealth = health; }, (summary, note) => this.deps.journal(summary, note, false));
+    const deps = saveEvidenceDeps(() => this.deps.extras().saveHealth, (health) => { this.deps.extras().saveHealth = health; }, () => undefined);
+    const journal = (summary: string, note: string, observation: SaveObservation) => this.deps.journal(summary, labelled(observation, null, note), false);
     // Armed first, write second: the watcher has to be listening before the request goes out.
-    const observed = recordSaveEvidence(deps, this.deps.engine().state.boundary);
+    const observed = recordSaveEvidence({ ...deps, journal, claim: this.claim }, this.deps.engine().state.boundary);
     await Promise.all([Promise.resolve(getContext().saveMetadata?.()), observed]);
   }
 
@@ -83,8 +93,9 @@ export class ChatSave {
     if (!this.deps.loaded() || !this.deps.owner.ownsOpenChat() || write.chatId !== this.deps.owner.claimedChat()) return null;
     const run = beginRun(this.deps.owner.ownership);
     const extras = this.deps.extras();
-    const deps = saveEvidenceDeps(() => extras.saveHealth, (health) => { extras.saveHealth = health; }, (summary, note) => { if (run.stillOwns()) this.deps.journal(summary, `${CHAT_WRITE_LABEL[write.kind]}: ${note}`, false); });
-    return recordSaveEvidence({ ...deps, observe: () => write.observed }, this.deps.engine().state.boundary);
+    const deps = saveEvidenceDeps(() => extras.saveHealth, (health) => { extras.saveHealth = health; }, () => undefined);
+    const journal = (summary: string, note: string, observation: SaveObservation) => { if (run.stillOwns()) this.deps.journal(summary, labelled(observation, write.kind, note), false); };
+    return recordSaveEvidence({ ...deps, observe: () => write.observed, journal, claim: this.claim }, this.deps.engine().state.boundary);
   }
 
   /** v2.3 plan 05. "Did the write reach the chat's stored state": `persist` cannot answer it, because
