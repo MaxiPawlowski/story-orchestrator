@@ -1,0 +1,77 @@
+v2.4 plan 03 wave 2 part A: breaker + failure classes (D3), mutations 2026-09-24 (worktree build on a7cb6c1; script .debug/mut-breaker.mjs, each mutant applied alone as an exact-text replacement to one file, the file restored byte-for-byte after its run; a replacement that does not match is reported DID NOT APPLY, and none did)
+Suites per mutant: scheduler.breaker.test, scheduler.test, schedulerClear.review, extractionEnabled.guard, pipeline.test, repair.test, talkControl.test, breakerWatch.test, abortedCall.review, extrasLegacy.test. Baseline 128 tests, 0 failing; restored after the sweep 128 tests, 0 failing.
+Plan-table mutations: no install-wide write = M1 (+ M2, the scheduler-side write), breaker resumes = M3, breaker not persisted = M16, dangling id -> Repair = M11/M12, director = M17. config != transport at the seam is in v24-03-seam.txt (M8); this file's M9/M10 are the scheduler's config class.
+
+- M1 reinstate the install-wide pause in RuntimeManager (plan mutation: reinstate setGlobalSettings({extraction:{enabled:false}})): KILLED, 1 of 128
+    "no src module writes extraction.enabled"
+- M2 the scheduler switches its own settings off when the breaker opens: KILLED, 2 of 128
+    "a dead profile never writes extraction.enabled and resumes on probe success"
+    "probe success pumps held queue, reads and heavy work alike"
+- M3 probe success does not close the breaker (plan mutation: skip close() on probe ok): KILLED, 2 of 128
+    "a dead profile never writes extraction.enabled and resumes on probe success"
+    "probe success pumps held queue, reads and heavy work alike"
+- M4 pump does not hold while the breaker is open: KILLED, 6 of 128
+    "a dead profile never writes extraction.enabled and resumes on probe success"
+    "probe success pumps held queue, reads and heavy work alike"
+    "a failed probe backs off 5 s, 15 s, 60 s, then holds at the 300 s cap"
+    "while open a new cadence read merges into the held one, bounded by CADENCE_WINDOW_MAX"
+    "a heavy job's transport failure opens the same breaker, and holds the reads"
+    "control: a transport failure is still retried, and opens the breaker instead of recording an error"
+- M5 pumpHeavy does not hold while the breaker is open: KILLED, 2 of 128
+    "probe success pumps held queue, reads and heavy work alike"
+    "a heavy job's transport failure opens the same breaker, and holds the reads"
+- M6 backoff never grows past 5 s: KILLED, 1 of 128
+    "a failed probe backs off 5 s, 15 s, 60 s, then holds at the 300 s cap"
+- M7 a transport failure drops the read instead of holding it: KILLED, 2 of 128
+    "a dead profile never writes extraction.enabled and resumes on probe success"
+    "probe success pumps held queue, reads and heavy work alike"
+- M8 held P1 windows merge without the CADENCE_WINDOW_MAX bound: KILLED, 1 of 128
+    "while open a new cadence read merges into the held one, bounded by CADENCE_WINDOW_MAX"
+- M9 config failures are retried like transport: KILLED, 2 of 128
+    "a config failure is not retried, not held, and never opens the breaker"
+    "a deleted profile is config, named as missing, and a created one re-evaluates it away"
+- M10 config classified as transport: KILLED, 2 of 128
+    "a config failure is not retried, not held, and never opens the breaker"
+    "a deleted profile is config, named as missing, and a created one re-evaluates it away"
+- M11 no existence check: a dangling profile id is never flagged (plan mutation: drop the existence check): KILLED, 3 of 128
+    "a deleted profile is config, named as missing, and a created one re-evaluates it away"
+    "a dangling profile id is config before any read is attempted"
+    "deleting the profile under an open breaker turns the problem into config"
+- M12 Repair ignores a config problem: KILLED, 1 of 128
+    "a deleted profile is a memory-model step"
+- M13 pipeline does not read the transport breaker: KILLED, 1 of 128
+    "a memory model that is not answering is a stall the player can retry, not an error"
+- M14 a bug error is not cleared at the next boundary: KILLED, 1 of 128
+    "a bug is this chat's error, journaled, never a pause, and cleared at the next boundary"
+- M15 a transport failure re-queues its job even after the world changed: KILLED, 1 of 128
+    "a transport failure after the world changed opens the breaker but does not carry the old job into the new world"
+- M16 the breaker rides in the persisted snapshot (plan mutation: persist the snapshot): KILLED, 1 of 128
+    "the breaker is never part of the persisted snapshot"
+- M17 the director ignores an open breaker: KILLED, 1 of 128
+    "an open breaker skips the director and goes straight to the rules pick (v2.4 plan 03 D3)"
+- M18 CONNECTION_PROFILE_UPDATED re-checks for any profile: KILLED, 1 of 128
+    "control: CONNECTION_PROFILE_UPDATED for another profile does nothing"
+- M19 ONLINE_STATUS_CHANGED probes nothing: KILLED, 1 of 128
+    "ONLINE_STATUS_CHANGED only triggers a probe, it is never proof"
+- M20 a heavy transport failure never trips the breaker: KILLED, 1 of 128
+    "a heavy job's transport failure opens the same breaker, and holds the reads"
+- M21 the curator swallows a transport failure: KILLED, 1 of 128
+    "stagecraft: a curator transport failure is recorded and still reaches the scheduler's breaker"
+- M22 expansion swallows a transport failure: KILLED, 1 of 128
+    "expansion: a transport failure fails the chain and reaches the scheduler, so the breaker can count it"
+- M23 the backoff timer never fires a probe: KILLED, 2 of 128
+    "a dead profile never writes extraction.enabled and resumes on probe success"
+    "a failed probe backs off 5 s, 15 s, 60 s, then holds at the 300 s cap"
+- M24 a failed probe does not re-arm the timer: KILLED, 1 of 128
+    "a failed probe backs off 5 s, 15 s, 60 s, then holds at the 300 s cap"
+- M25 a bug is not journaled: KILLED, 2 of 128
+    "a bug is this chat's error, journaled, never a pause, and cleared at the next boundary"
+    "control: a job that fails in its own world is journaled as this chat's failure"
+- M26 arc summary drops its run's signal (an aborted pass is not cancelled): KILLED, 1 of 128
+    "memory: an arc summary aborted by a chat switch cancels its request, writes nothing and surfaces as a lapse"
+- M27 assert-player-clean ignores internals in a recovery control's label (scripts/debug/so-ui.mts, node --test so-ui.test.mts): KILLED, 1 of 11
+    "a recovery control whose label leaks internals is a finding"
+- M-SB1 PlayerOverview never renders Try again (storybook:build + test-storybook --index-json): KILLED, 1 of 200
+    "Drawer/PlayerOverview > Model Not Answering > play-test"
+
+Result: 28/28 killed, each by its own case(s); controls stayed green.

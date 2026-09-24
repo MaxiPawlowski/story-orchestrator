@@ -34,7 +34,6 @@ function harness() {
     },
     applyExtractionAudit: async (_audit: unknown, _facts: unknown, _memory: unknown, _arcs: unknown, _epistemic: unknown, _ledger: unknown, read?: ReadOwnership | null) => { applied.push(read); },
     onSchedulerChange: () => {},
-    pauseExtraction: () => {},
   } as unknown as SchedulerHost;
   return { scheduler: new ExtractionScheduler(host), world, applied };
 }

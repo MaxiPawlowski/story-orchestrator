@@ -14,6 +14,7 @@ import { orphanedLorebooks } from "./mirrorReaper";
 import { buildNextTurnPreview } from "./nextTurn";
 import { readChatIdentity } from "./chatIdentity";
 import type { InjectedPromptBlock } from "@services/STAPI";
+import type { ExtractionHealth } from "@extraction/index";
 import type { LoadedStory, PayloadCapture, RuntimeExtras, RuntimeSnapshot } from "./types";
 
 // The single composed model the UI subscribes to. Everything a rendering component needs lives
@@ -40,6 +41,7 @@ export interface SnapshotSources {
   injectedBlocks: InjectedPromptBlock[];
   /** V13: where the player's own lines sit in the chat, so a refusal counts turns, not replies. */
   playerTurns: number[];
+  extractionHealth?: ExtractionHealth | null;
 }
 
 export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot {
@@ -64,7 +66,8 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
   const tension = buildTensionSnapshot(extras.tension.smoothed, sources.expectedTension, agencyFor(active));
   const agency = agencyFor(active);
   const agencyRecovery: AgencyRecovery | null = agencyRecoveryOf(story, state, sources.boundaryLog, extras.extraction.audits, sources.playerTurns);
-  const pipeline = derivePipelineStatus(extras.extraction, { generating: expansionInFlight(extras.expansion) });
+  const extractionHealth = sources.extractionHealth ?? null;
+  const pipeline = derivePipelineStatus(extras.extraction, { generating: expansionInFlight(extras.expansion) }, extractionHealth);
   // v2.3 plan 09: what the next reply will carry, in ST's own assembly order. The private block is
   // attributed to the member the last talk decision drafted — in a group that is who ST will swap it
   // for — and the scene block reports the tracker's own staleness and last fallback.
@@ -150,6 +153,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     agency,
     agencyRecovery,
     pipeline,
+    extractionHealth,
     narrative,
     lastRollback: sources.lastRollback,
     rollbackUnavailable: sources.rollbackUnavailable,

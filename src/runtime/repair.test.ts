@@ -34,6 +34,22 @@ describe("nextRepairStep", () => {
     });
   });
 
+  it("a deleted profile is a memory-model step", () => {
+    const step = nextRepairStep(snapshotWith({ extractionHealth: { kind: "config", detail: "The selected memory model profile no longer exists" } } as Partial<RuntimeSnapshot>));
+    expect(step).toEqual({
+      area: "memory-model",
+      consequence: "The story will not advance on its own until this is set.",
+      detail: "The selected memory model profile no longer exists",
+      targetId: REPAIR_TARGET_IDS.memoryModel,
+      provisionable: false,
+    });
+  });
+
+  it("control: a memory model that is only not answering is not a repair step", () => {
+    const step = nextRepairStep(snapshotWith({ extractionHealth: { kind: "transport", detail: "API request failed", since: 1, nextProbeAt: 2, probing: false } } as Partial<RuntimeSnapshot>));
+    expect(step).toBeNull();
+  });
+
   it("names the enabled-but-unprofiled case differently from the switched-off one", () => {
     const step = nextRepairStep(snapshotWith({ extraction: { settings: { enabled: true, profileId: null } } } as Partial<RuntimeSnapshot>));
     expect(step?.detail).toBe("No memory model profile is selected.");

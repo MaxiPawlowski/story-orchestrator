@@ -661,3 +661,121 @@ Not run: `test:debug`, `test:release`, `test-storybook` (the Storybook STAPI moc
 - Signal threading in `runMemorizeBacklog` (wedges builder's region) and in copilot authoring, which is author-interactive and holds no guard.
 - D3 is wave 2: breaker, deleting `pauseExtraction`, pipeline/Repair, events. `pauseExtraction` still exists, but a lapse can no longer reach it.
 - D5 is the budget builder's: `readProfileContextLimit` is not built here, although H12 is verified.
+
+### Breaker + failure classes (worktree build, 2026-09-24)
+
+Built on master `a7cb6c1` (seam + abort + D6 and the wedges merged), in parallel with wave 2 part B (D5 wiring) and part C
+(injector/persistence/mirror/startup identity). Scope: D3 whole, the fault-matrix section (the `aborted` column plus E8's 10th
+package) and the D3 census notes. Machine gates only: **no backend, so no live gate ran; live gates 1 and 6 are owed and NOT green.**
+
+**As built**
+- `extraction/breaker.ts` (pure, in memory, never persisted): `Breaker` keyed by profileId. Closed → open when the scheduler's
+  retry loop (3 attempts) ends in transport/timeout; `beginProbe` → half-open; `probeFailed` → open one backoff step later
+  (`BREAKER_BACKOFF_MS` 5 s / 15 s / 60 s / 300 s cap); `close`. Also `PROBE_PROMPT` ("Reply with exactly: PONG"),
+  `PROBE_MAX_TOKENS` 8, `PROBE_TIMEOUT_MS` 10 s, `DANGLING_PROFILE_DETAIL`, `ExtractionHealth`, and `failureClass(error)`
+  (`lapsed | transport | config | bug`, read structurally from `name === "ModelCallError"` + `kind`, timeout counts as transport).
+- `extraction/client.ts` `probeModel(profileId)`: the PONG probe through the seam with its own `AbortSignal.timeout`.
+- Scheduler (`extraction/scheduler.ts`):
+  - `SchedulerHost.pauseExtraction` is gone; the host gains `noteHealth`, `probeModel`, `profileExists`.
+  - `pump`/`pumpHeavy` hold while `breakerOpen()`. One `noteFailure` classifies every catch:
+    - lapsed: journal line (unchanged).
+    - transport: trip the breaker (journal "memory model not answering; reads held"), re-queue the job only when its epoch is
+      still current (P1 re-merges into a held P1).
+    - config: no retry (`runWithRetries` rethrows it at once), the job is dropped, `configProblem` set (the dangling-id
+      detail when `profileExists` says so).
+    - bug: sameWorld-guarded `lastError`/`lastHeavyError` + journal "extraction failed: <reason>".
+  - A transport failure with no profile id to key a breaker on is recorded as an error, never held (it would loop).
+  - `onBoundary` clears a bug `lastError` before scheduling and re-evaluates the dangling id (without clearing other config
+    problems).
+  - P1 merges are bounded by `CADENCE_WINDOW_MAX` (to − 24 + 1).
+  - `probe(trigger)`: while closed it only pumps; while open it runs one half-open probe (joined by concurrent triggers) →
+    success closes and pumps both queues; config closes the breaker and becomes the config problem; anything else re-opens
+    one step later and re-arms the timer. `reevaluateConfig()` for profile events; `dispose()` clears the timer.
+  - `health()` is the in-memory reading; `getSnapshot()` never carries it.
+- Runtime: `RuntimeManager.pauseExtraction` deleted; `attachScheduler`, one-line `retryExtraction()` → `scheduler.probe("player")`;
+  the snapshot builder takes `extractionHealth` from the live scheduler (`RuntimeSnapshot.extractionHealth`).
+  `ExtractionCoordinator.pause` deleted (4 lines; part B's file).
+- `runtime/breakerWatch.ts`: host-event entries, subscribed in `runtime/index.ts`: `ONLINE_STATUS_CHANGED` → probe (trigger
+  only), `CONNECTION_PROFILE_UPDATED` for our id → re-evaluate + probe, `CONNECTION_PROFILE_DELETED`/`CREATED` → re-evaluate.
+  `stHost/events.ts` gained the four keys, cited to 03-H9/03-H10.
+- Heavy jobs share the breaker: the curator (`runCuratorPass`) and expansion (`generate`) rethrow a transport failure after
+  their owned failure write, so the scheduler sees it. The director consults `breakerOpen()` and takes the rules pick
+  (`source: "fallback"`) without calling the model.
+- Pipeline: `derivePipelineStatus(extraction, expansion, health)`.
+  - transport → `stalled-rechecking`, `TRANSPORT_PLAYER_TEXT` ("The memory model is not answering — the story will catch up
+    when it does."), detail = the provider message, `nextAction: "retry"`, `retryable: true`.
+  - config → `not-configured` + `repair`.
+- Repair: a config health is the `memory-model` step with its detail ("The selected memory model profile no longer exists"
+  for a dangling id).
+- UI: `PlayerOverview` renders `#so-pipeline-retry` "Try again" only for `retryable`, wired in `DrawerTabs` to
+  `manager.retryExtraction()`. Story `Drawer/PlayerOverview/ModelNotAnswering` (+ `CatchingUp` asserts no Try again).
+- `scripts/debug/so-ui.mts assert-player-clean` now also collects `PLAYER_RECOVERY_CONTROLS` (`#so-pipeline-retry`,
+  `#so-memorize-stop`) on every surface and tab, returns them as `recoveryControls`, and fails on a label that carries a
+  forbidden needle or internals (`recoveryControlFindings`).
+
+**Tests** (red first: the 16 breaker cases 15 red / 1 green before the scheduler change; pipeline/repair 5 red; the director
+case red): `scheduler.breaker.test.ts` (17), `breakerWatch.test.ts` (5), `extractionEnabled.guard.test.ts` (3, source guard +
+synthetic offender + read/toggle controls), `abortedCall.review.test.ts` (8), `pipeline.test.ts` (+5), `repair.test.ts` (+2),
+`talkControl.test.ts` (+2), `extrasLegacy.test.ts` "hydrate carries no breaker, even from a blob that recorded one",
+`so-ui.test.mts` (+2). Rewritten for the new contract: `schedulerClear.review.test.ts` (a failing job is journaled, not a
+pause), `scheduler.test.ts` (the transport control now opens the breaker).
+
+**Fault matrix** (`test/findings/faultMatrix.json` + `faultMatrix.ts`): counts **55 covered / 10 partial / 16 na / 0 todo of
+81 → 70 covered / 10 partial / 20 na / 0 todo of 100**, deliberately.
+- New shape `aborted`: extraction, expansion, memory, scene, stagecraft, lore and judgeRing covered; effects and persistence
+  `na` ("performs no model call").
+- New package `hostDeletes` (E8, mirror reaper): 7 covered, `duplicateCompletion` partial (no test delivers one deletion
+  twice), `persistFailure` na (the reaper persists nothing), `aborted` na.
+- `extraction|backendUnavailable` partial → covered, citing "a dead profile never writes extraction.enabled and resumes on
+  probe success".
+
+**Census** (`ownership-sites.json`): new row `ExtractionScheduler.runProbe` `local`. Notes rewritten or extended on
+`ExtractionScheduler.pump` (partial; the pause is gone, the three classes), `pumpHeavy`, `ExpansionCoordinator.generate`,
+`StagecraftCoordinator.runCuratorPass` (the transport rethrow) and `TalkController.ensureDecision` (the breaker consult).
+
+**Mutations**: `test/findings/mutations/v24-03-breaker.txt`, **28/28 killed**, each by its own case(s): 26 jest mutants via
+`.debug/mut-breaker.mjs`, the so-ui recovery-copy mutant, and Storybook M-SB1 (Try again never rendered). Plan-table rows: no
+install-wide write (M1, plus M2 on the scheduler side), breaker resumes (M3), breaker not persisted (M16), dangling id →
+Repair (M11/M12), director (M17).
+
+**Gates** (worktree; `node_modules` is a symlink to the main checkout's)
+
+| Gate | Result |
+|---|---|
+| `npm run typecheck` | 0 errors |
+| `npm run typecheck:test` | 0 errors |
+| `npm run lint` | clean |
+| `npm run debug:typecheck` | 0 errors |
+| `npm test` | 202/202 suites, 3068/3068 tests; fault matrix 70/10/20/0 of 100; findings ledger 2 open / 48 settled |
+| `npm run test:debug` | 221 tests, 220 pass, 1 skipped, 0 fail. Before the first build it failed 1 (`so-run-header` read a stale worktree `dist/manifest.json`); green after `npm run build` |
+| `npm run build` | compiled, 2 size warnings; manifest `bundle 850e881b06a2`, `ST unknown` (worktree path) |
+| Storybook | `storybook:build`, `http-server .sb-static -p 6006`, `test-storybook --index-json`: 32 suites, 200/200 (+1 `ModelNotAnswering`); server killed afterwards |
+| Architecture budgets | manager 731 → 728/740; extractionCoordinator 565 → 561/620; memoryCoordinator 610/620 (untouched); expansion 310 → 314; stagecraft 560 → 562 |
+
+**Deviations**
+- **Where the health lives.** The breaker/config reading lives in the scheduler and reaches the snapshot as
+  `RuntimeSnapshot.extractionHealth`, not in `extras.extraction` as D3 says. Hydrate resets extras (and the load bumps the
+  epoch before it hydrates), and the breaker is install-wide and must never persist, so an extras copy would be wiped on every
+  chat load and would put breaker state on disk. The per-chat bug `lastError` stays in `extras.extraction.scheduler`.
+- **Bug-class copy.** Pipeline `error` now has `needsSetup: false`, `nextAction: "wait"` (was `true`/`"repair"` with
+  "Paused — open Repair."), because nothing pauses any more and the read is retried at the next boundary.
+- **Config drops the job; only transport holds it.** A config failure needs the author, so holding would grow the queue until
+  they act.
+- **The P1 merge bound applies always**, not only while the breaker is open (the V25 rule "no read spans more than 24
+  messages").
+- **Census.** No row for `RuntimeManager.retryExtraction`: it writes nothing, and the guard refuses a row for a non-site. The
+  plan's `delegate` row is replaced by the note on `runProbe`.
+- **Heavy jobs.** Expansion also rethrows transport, beside the curator the plan named. `failureClass` is structural and
+  lives in `breaker.ts`, so a coordinator under a test mock of `@extraction/client` still classifies.
+- **The director only consults the breaker.** Its own timeout or transport failure does not count toward it.
+- **Probe success is any `ok` reply**, not literally "PONG". A probe answered `config` closes the breaker and becomes config.
+- **Aborted column, scene and lore.** They reach a model only through the judge, so they cite the judge-cancel case plus the
+  consumer's world-moved case (`c1Surfaces.review.test.ts`), not a new abort case of their own.
+- **hostDeletes.** `afterHostWrite` cites the refused-delete case; `duplicateCompletion` is partial.
+- **Minimal edits to other builders' files.** `runtime/index.ts`: scheduler host lines, `attachScheduler`, one subscription,
+  the director's `breakerOpen`. `extractionCoordinator.ts`: `pause` deleted, nothing else.
+
+**NOT done / NOT green**
+- Live gate 1 (backend pause/resume ×2) and live gate 6 (`assert-player-clean` in player mode with Try again visible ×2,
+  archived): not run, no backend. Both **NOT green**.
+- H9 (`ONLINE_STATUS_CHANGED` is main-API only) makes it a trigger and never proof; its live behaviour is unmeasured.

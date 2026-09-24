@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn, within, userEvent, expect } from "@storybook/test";
 import { buildNarrativeStatus } from "@runtime/narrative";
+import type { ExtractionHealth } from "@extraction/index";
 import { derivePipelineStatus } from "@runtime/pipeline";
 import type { ExtractionRuntimeState, RuntimeSnapshot } from "@runtime/types";
 import { PlayerOverview } from "./PlayerOverview";
@@ -15,8 +16,8 @@ const extraction = (overrides: Partial<ExtractionRuntimeState> = {}): Extraction
   ...overrides,
 });
 
-const snapshot = (options: { extraction?: ExtractionRuntimeState; threads?: string[]; pending?: number; missingMembers?: string[]; canon?: string } = {}): RuntimeSnapshot => {
-  const pipeline = derivePipelineStatus(options.extraction ?? extraction());
+const snapshot = (options: { extraction?: ExtractionRuntimeState; threads?: string[]; pending?: number; missingMembers?: string[]; canon?: string; health?: ExtractionHealth } = {}): RuntimeSnapshot => {
+  const pipeline = derivePipelineStatus(options.extraction ?? extraction(), undefined, options.health ?? null);
   return {
     requirements: { ready: !options.missingMembers?.length, missingPersonas: [], missingMembers: options.missingMembers ?? [], missingLorebooks: [] },
     pipeline,
@@ -86,6 +87,22 @@ export const CatchingUp: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByText(/re-checking recent scenes/)).toBeInTheDocument();
     await expect(canvas.queryByText(/has_key/)).toBeNull();
+    await expect(canvas.queryByRole("button", { name: "Try again" })).toBeNull();
+  },
+};
+
+export const ModelNotAnswering: Story = {
+  args: {
+    onRetry: fn(),
+    snapshot: snapshot({ extraction: extraction({ scheduler: { queueDepth: 1, inFlight: false, lastError: null } }), health: { kind: "transport", detail: "API request failed: Response not OK", since: 1, nextProbeAt: 5001, probing: false } }),
+  },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("The memory model is not answering — the story will catch up when it does.")).toBeInTheDocument();
+    await expect(canvas.queryByText(/Response not OK/)).toBeNull();
+    await expect(canvas.queryByRole("button", { name: "Open story settings" })).toBeNull();
+    await userEvent.click(canvas.getByRole("button", { name: "Try again" }));
+    await expect(args.onRetry).toHaveBeenCalledTimes(1);
   },
 };
 

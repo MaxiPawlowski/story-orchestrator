@@ -1,7 +1,8 @@
-import { callExtractionModel, getChatWindow, ExtractionScheduler, type SchedulerHost, type SchedulerSettings } from "@extraction/index";
+import { callExtractionModel, getChatWindow, ExtractionScheduler, probeModel, type SchedulerHost, type SchedulerSettings } from "@extraction/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { sceneFieldsInConflict } from "@memory/index";
-import { clearStoryExtensionPrompt, executeSlashCommands, forceActivateEntries, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, getScannableEntries, judgeStatus, judgeTransport, noteHostSettingsLoaded, setStoryExtensionPrompt, settingsReady, subscribeToHostEvents, willAddUserMessage, EXTENSION_SETTINGS_LOADED_EVENT, type HostSubscriptionEntry } from "@services/STAPI";
+import { clearStoryExtensionPrompt, executeSlashCommands, forceActivateEntries, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, getScannableEntries, judgeStatus, judgeTransport, noteHostSettingsLoaded, profileExists, setStoryExtensionPrompt, settingsReady, subscribeToHostEvents, willAddUserMessage, EXTENSION_SETTINGS_LOADED_EVENT, type HostSubscriptionEntry } from "@services/STAPI";
+import { breakerWatchEntries } from "./breakerWatch";
 import { quoteSlashArg } from "@utils/string";
 import { runBoundaryWork } from "./boundaryWork";
 import { SceneCoordinator } from "./coordinators/sceneCoordinator";
@@ -64,12 +65,17 @@ export function startRuntime() {
     onSchedulerChange: () => {
       if (scheduler) runtimeManager.setSchedulerSnapshot(scheduler.getSnapshot());
     },
-    pauseExtraction: (message) => runtimeManager.pauseExtraction(message),
     noteLapse: (summary, detail) => runtimeManager.noteRecap(summary, detail),
+    noteHealth: (summary, detail) => runtimeManager.noteRecap(summary, detail),
+    probeModel,
+    profileExists,
     epoch: () => runtimeManager.getRunContext().sessionEpoch,
     judgeTyped: () => typedJudge,
   };
   scheduler = new ExtractionScheduler(schedulerHost);
+  runtimeManager.attachScheduler(scheduler);
+  runtimeDisposers.push(() => { scheduler?.dispose(); runtimeManager.attachScheduler(null); });
+  runtimeDisposers.push(subscribeToHostEvents(breakerWatchEntries(() => scheduler, () => runtimeManager.getExtractionSettings().profileId)));
   runtimeDisposers.push(runtimeManager.onBoundary((result) => {
     if (scheduler) runBoundaryWork({ result, manager: runtimeManager, scheduler, ...(sceneCoordinator ? { scene: sceneCoordinator } : {}) });
   }));
@@ -187,6 +193,7 @@ export function startRuntime() {
       signal,
       debugResponse: globalThis.storyOrchestratorDebugDirectorResponse ?? null,
     }),
+    breakerOpen: () => scheduler?.breakerOpen() ?? false,
     triggerMember: async (name) => { await executeSlashCommands(`/trigger await=true ${quoteSlashArg(name)}`, { silent: false }); },
     recordDecision: (audit) => runtimeManager.recordTalkDecision(audit),
     judgeDirector: (input) => judgeRuntime.director(input),

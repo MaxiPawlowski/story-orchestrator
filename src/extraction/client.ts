@@ -1,5 +1,6 @@
 import { sendConnectionProfileRequest, type ModelFailureKind, type ModelFinish } from "@services/STAPI";
 import { anySignal } from "@utils/signals";
+import { PROBE_MAX_TOKENS, PROBE_PROMPT, PROBE_TIMEOUT_MS, type ProbeResult } from "./breaker";
 import { callTimeoutMs, DEFAULT_MAX_TOKENS } from "./callBudget";
 import { detectDegenerate } from "./degenerate";
 import { stripReasoningBlocks } from "./parse";
@@ -26,6 +27,11 @@ export class ModelCallError extends Error {
 }
 
 export const isLapse = (error: unknown): boolean => error instanceof ModelCallError && error.kind === "lapsed";
+
+export async function probeModel(profileId: string): Promise<ProbeResult> {
+  const reply = await sendConnectionProfileRequest(profileId, PROBE_PROMPT, PROBE_MAX_TOKENS, { signal: AbortSignal.timeout(PROBE_TIMEOUT_MS) });
+  return reply.ok ? { ok: true } : { ok: false, kind: reply.kind, message: reply.message };
+}
 
 export const lapseAsEmpty = (error: unknown): string => {
   if (isLapse(error)) return "";

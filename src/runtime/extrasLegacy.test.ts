@@ -81,6 +81,11 @@ describe("v2.4 plan 03 D3: the scheduler snapshot is a display cache, not state"
     expect(sanitizeExtraction(saved({ queueDepth: 3, inFlight: true, lastError: "API request failed" })).scheduler).toEqual({ queueDepth: 0, inFlight: false, lastError: null });
   });
 
+  it("hydrate carries no breaker, even from a blob that recorded one", () => {
+    const hydrated = sanitizeExtraction(saved({ queueDepth: 1, inFlight: false, lastError: null, health: { kind: "transport", detail: "down", since: 1, nextProbeAt: 2, probing: false } }));
+    expect(hydrated.scheduler).toEqual({ queueDepth: 0, inFlight: false, lastError: null });
+  });
+
   it("control: hydrate keeps the rest of the extraction slice", () => {
     const hydrated = sanitizeExtraction(saved({ queueDepth: 0, inFlight: false, lastError: null }));
     expect(hydrated.lastReadBoundary).toBe(4);

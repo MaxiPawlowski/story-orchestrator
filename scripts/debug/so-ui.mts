@@ -795,6 +795,17 @@ const PLAYER_FORBIDDEN_SELECTORS = [
   '#so-history-floor', '#so-branch-from-oldest',
 ];
 
+// v2.4 plan 03 X17: recovery controls ARE player-visible (pipeline "Try again", backlog "Stop"), so the
+// sweep does not forbid them; it records where they are and fails on a label carrying internals.
+export const PLAYER_RECOVERY_CONTROLS = ['#so-pipeline-retry', '#so-memorize-stop'];
+const RECOVERY_COPY_FORBIDDEN = ['error', 'Error', 'profile', 'API', 'timeout', 'probe', 'breaker', 'memorize:full', 'ID'];
+
+export function recoveryControlFindings(controls: Array<{ selector: string; text: string }>) {
+  return controls.flatMap((control) => [...PLAYER_FORBIDDEN, ...RECOVERY_COPY_FORBIDDEN]
+    .filter((needle) => control.text.includes(needle))
+    .map((needle) => ({ tab: 'recovery', needle: `${control.selector} label carries "${needle}"` })));
+}
+
 // Surfaces a player can reach without turning anything on: the drawer (every tab it offers), the HUD
 // strip above the composer, and the settings panel — which is `both`, so it may carry display
 // toggles and Restart, but never a steering control.
@@ -816,30 +827,35 @@ export async function assertPlayerClean(page) {
   const authorOnlyTabs = tabs.filter((tab) => ['Blackboard', 'Scheduler', 'Payload'].includes(tab));
   if (authorOnlyTabs.length) findings.push({ tab: authorOnlyTabs.join(', '), needle: 'author-only tab offered in player mode' });
   const sweep = [];
-  for (const tab of tabs) {
-    await switchDrawerTab(page, tab);
-    const hits = await evaluateInST(page, ({ surfaces, selectors }) => {
-      const found = [];
-      for (const surface of surfaces) {
-        const root = document.querySelector(surface);
-        if (!root) continue;
-        for (const selector of selectors) {
-          for (const node of Array.from(root.querySelectorAll(selector))) {
-            const element = node as HTMLElement;
-            found.push({ surface, selector, visible: element.offsetParent !== null, text: (element.innerText ?? '').slice(0, 60) });
-          }
+  const recoveryControls = [];
+  const collect = ({ surfaces, selectors }) => {
+    const found = [];
+    for (const surface of surfaces) {
+      const root = document.querySelector(surface);
+      if (!root) continue;
+      for (const selector of selectors) {
+        for (const node of Array.from(root.querySelectorAll(selector))) {
+          const element = node as HTMLElement;
+          found.push({ surface, selector, visible: element.offsetParent !== null, text: (element.innerText ?? '').slice(0, 60) });
         }
       }
-      return found;
-    }, { surfaces: PLAYER_SURFACES, selectors: PLAYER_FORBIDDEN_SELECTORS });
+    }
+    return found;
+  };
+  for (const tab of tabs) {
+    await switchDrawerTab(page, tab);
+    const hits = await evaluateInST(page, collect, { surfaces: PLAYER_SURFACES, selectors: PLAYER_FORBIDDEN_SELECTORS });
     for (const hit of hits ?? []) {
       findings.push({ tab, needle: `${hit.selector} reachable in ${hit.surface}` });
       sweep.push({ tab, ...hit });
     }
+    const recovery = await evaluateInST(page, collect, { surfaces: PLAYER_SURFACES, selectors: PLAYER_RECOVERY_CONTROLS });
+    for (const control of recovery ?? []) recoveryControls.push({ tab, ...control });
   }
+  findings.push(...recoveryControlFindings(recoveryControls));
   // Leave the drawer where a player would: on the narrative view, not on the last tab we walked.
   if (tabs.includes('Overview')) await switchDrawerTab(page, 'Overview');
-  return { ok: findings.length === 0, tabs, surfaces: PLAYER_SURFACES, selectorsChecked: PLAYER_FORBIDDEN_SELECTORS.length, findings, sweep };
+  return { ok: findings.length === 0, tabs, surfaces: PLAYER_SURFACES, selectorsChecked: PLAYER_FORBIDDEN_SELECTORS.length, findings, sweep, recoveryControls };
 }
 
 export async function takeAnnotatedScreenshot(page, label = 'ui-state') {

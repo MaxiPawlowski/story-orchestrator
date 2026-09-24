@@ -1,4 +1,5 @@
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import { failureClass } from "@extraction/breaker";
 import { callExtractionModel } from "@extraction/client";
 import { maxTokensForInput } from "@extraction/callBudget";
 import {
@@ -207,6 +208,7 @@ export class StagecraftCoordinator {
       if (owned && owned.ok === false) return { ran: true, record: null, discarded: owned.reason };
       this.patch({ lastError: error instanceof Error ? error.message : "Curator pass failed" });
       await this.save();
+      if (failureClass(error) === "transport") throw error;
       return { ran: true, record: null };
     } finally {
       if (this.curatorHold === hold) this.curatorHold = null;

@@ -31,6 +31,7 @@ export interface TalkControlHost {
   getWindow(): DirectorWindowMessage[];
   getCheckpointInfo(): TalkCheckpointInfo | null;
   callDirector(prompt: string, signal: AbortSignal): Promise<string>;
+  breakerOpen?(): boolean;
   judgeDirector?(input: JudgeDirectorInput): Promise<JudgeDirectorDecision | null>;
   getPlayerName?(): string;
   triggerMember(name: string): Promise<void>;
@@ -201,6 +202,7 @@ export class TalkController {
     if (mentioned.length === 1) return { kind: "member", rosterId: mentioned[0].rosterId, name: mentioned[0].name, source: "mention" };
     const pool = mentioned.length > 1 ? mentioned : candidates;
     if (directorEnabled(control)) {
+      if (this.host.breakerOpen?.()) return this.chooseFallback(control, pool, "fallback");
       const directed = await this.runDirector(control, pool, window);
       if (directed) return directed;
       return this.chooseFallback(control, pool, "fallback");

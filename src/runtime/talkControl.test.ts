@@ -182,6 +182,24 @@ describe("TalkController intercept", () => {
     }
   });
 
+  it("an open breaker skips the director and goes straight to the rules pick (v2.4 plan 03 D3)", async () => {
+    const { host, calls } = makeHost({
+      breakerOpen: () => true,
+      getActiveTalkControl: () => ({ director: true, lead: "Finn" }),
+      getDraftedRosterId: () => "sage",
+    });
+    await new TalkController(host).intercept(makeAbort().abort, "normal");
+    expect(calls.director).toEqual([]);
+    expect(calls.decisions[0]).toMatchObject({ chosenRosterId: "sage", source: "fallback" });
+  });
+
+  it("control: a closed breaker still asks the director", async () => {
+    const { host, calls } = makeHost({ breakerOpen: () => false });
+    await new TalkController(host).intercept(makeAbort().abort, "normal");
+    expect(calls.director).toHaveLength(1);
+    expect(calls.decisions[0]).toMatchObject({ source: "director" });
+  });
+
   it("control: a director that answers in time is not aborted", async () => {
     let seen: AbortSignal | null = null;
     const { host } = makeHost({ callDirector: async (_prompt, signal) => { seen = signal; return "SPEAKER: Mara"; } });

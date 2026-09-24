@@ -36,6 +36,12 @@ export interface HostEventPayloads {
   PERSONA_CHANGED: [avatar: string];
   CHARACTER_MESSAGE_RENDERED: [messageId: number, messageType?: string];
   PRESET_CHANGED: [payload: { apiId: string; name: string }];
+  // v2.4 03-H9: script.js:7151-7157, fires on change only and for the main API only.
+  ONLINE_STATUS_CHANGED: [status: string];
+  // v2.4 03-H10: connection-manager/index.js:347,780,796,879,996,1015 (keys events.js:82-84).
+  CONNECTION_PROFILE_UPDATED: [previous: { id?: string } | undefined, next: { id?: string } | undefined];
+  CONNECTION_PROFILE_DELETED: [profile: { id?: string } | undefined];
+  CONNECTION_PROFILE_CREATED: [profile: { id?: string } | undefined];
 }
 
 export type HostEventName = keyof HostEventPayloads;
