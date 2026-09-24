@@ -2,7 +2,7 @@ import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import {
   applyEpistemicInjection, applyLedgerInjection, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildLedgerView,
   buildMemoryInjectionBlocks, clearAllMemoryInjection, clearEpistemicInjection, memoryExtensionKey, openArcTexts,
-  renderLedgerBlock, renderPrivateEpistemicBlock, type LedgerBinding, type LedgerView, type MemoryTier,
+  renderLedgerBlock, renderPrivateEpistemicBlock, renderSoloEpistemicBlock, type LedgerBinding, type LedgerView, type MemoryTier,
   type ScoreContext,
 } from "@memory/index";
 import { clearStoryExtensionPrompt, getActiveGroup, getCharacterNameById, readInjectedPromptBlocks, setStoryExtensionPrompt } from "@services/STAPI";
@@ -81,7 +81,7 @@ export class MemoryInjector {
       }
       // A group has no speaker between drafts: whatever holds the prompt at rest (impersonate, quiet
       // generations, other extensions) must not carry the last drafted member's private knowledge.
-      const speakerBlock = getActiveGroup() ? "" : speaker ? (this.stagedPrivate.get(speaker)?.epistemic ?? "") : renderPrivateEpistemicBlock(this.state.epistemic, enabledCharacterNames(story));
+      const speakerBlock = getActiveGroup() ? "" : speaker ? (this.stagedPrivate.get(speaker)?.epistemic ?? "") : renderSoloEpistemicBlock(this.state.epistemic, enabledCharacterNames(story));
       applyEpistemicInjection(speakerBlock, EPISTEMIC_INJECTION_DEPTH);
     } else {
       clearEpistemicInjection();
@@ -126,8 +126,9 @@ export class MemoryInjector {
     if (!story || !this.deps.capable()) return "";
     if (getActiveGroup()) return this.appliedEpistemicBlock();
     const speaker = activeSpeakerId(story);
-    const names = speaker ? namesForRosterId(story, speaker) : enabledCharacterNames(story);
-    return renderPrivateEpistemicBlock(this.state.epistemic, names);
+    return speaker
+      ? renderPrivateEpistemicBlock(this.state.epistemic, namesForRosterId(story, speaker))
+      : renderSoloEpistemicBlock(this.state.epistemic, enabledCharacterNames(story));
   }
 
   /** What ST's next prompt ACTUALLY holds, not a re-render for whoever speaks next (in a group the

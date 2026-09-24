@@ -1,13 +1,16 @@
 import type { WizardSessionState } from "@wizard/index";
-import { loadWizardSession, saveWizardSession } from "./wizardSessions";
+import { clearWizardSession, loadWizardSession, onWizardSessionSave, saveWizardSession } from "./wizardSessions";
 
 const settings: Record<string, unknown> = {};
+const host: { observation: Record<string, unknown>; server: Record<string, unknown> | null; saves: number; burst: number } = { observation: {}, server: null, saves: 0, burst: 0 };
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
+  observeNextSettingsSave: async () => ({ ...host.observation, burst: ++host.burst }),
+  readServerExtensionSettings: async () => host.server,
   readServerBoundary: async () => null,
-  getContext: () => ({ extensionSettings: settings, saveSettingsDebounced: jest.fn() }),
+  getContext: () => ({ extensionSettings: settings, saveSettingsDebounced: () => { host.saves += 1; } }),
 }));
 
 const session = (patch: Partial<WizardSessionState> = {}): WizardSessionState => ({
@@ -55,5 +58,63 @@ describe("wizardSessions (R8)", () => {
     saveWizardSession(session({ key: "heist", grants: [{ storyId: "heist", lorebookFileId: "B", at: "x", confirmed: true }] }));
     expect(loadWizardSession("sun-ruins")?.grants?.[0].lorebookFileId).toBe("A");
     expect(loadWizardSession("heist")?.grants?.[0].lorebookFileId).toBe("B");
+  });
+});
+
+// v2.4 E3: a wizard session carries the created-asset ledger cleanup scopes against, and its write is
+// `saveSettingsDebounced()`, whose failure ST swallows (H15). The write now reads the settings-save
+// observation T8 built, then the server's own copy.
+describe("wizardSessions save evidence (E3)", () => {
+  const ok = { requested: true, status: 200, ok: true, timedOut: false, failed: false, burst: 1 };
+  const serverHolding = () => ({ wizardSessions: JSON.parse(JSON.stringify((settings["story-orchestrator"] as { wizardSessions: unknown[] }).wizardSessions)) });
+
+  beforeEach(() => { host.observation = ok; host.server = null; host.saves = 0; });
+
+  it("is confirmed when the save answered 2xx and the server holds this session", async () => {
+    const evidence = saveWizardSession(session());
+    host.server = serverHolding();
+    expect(await evidence).toEqual({ confirmed: true });
+    expect(host.saves).toBe(1);
+  });
+
+  it("is not confirmed when the settings save answered 500", async () => {
+    host.observation = { ...ok, status: 500, ok: false };
+    expect(await saveWizardSession(session())).toEqual({ confirmed: false, reason: "the settings save answered 500" });
+  });
+
+  it("is not confirmed when the server holds an older copy of the session, or none", async () => {
+    saveWizardSession(session());
+    const older = serverHolding();
+    (older.wizardSessions[0] as { updatedAt: string }).updatedAt = "2020-01-01T00:00:00.000Z";
+    const evidence = saveWizardSession(session({ stage: "checkpoints" }));
+    host.server = older;
+    expect(await evidence).toEqual({ confirmed: false, reason: "the server holds this session as saved 2020-01-01T00:00:00.000Z" });
+    host.server = { wizardSessions: [] };
+    expect(await saveWizardSession(session())).toEqual({ confirmed: false, reason: "the server does not hold this session" });
+  });
+
+  it("confirms a clear only once the server no longer holds the session", async () => {
+    saveWizardSession(session());
+    const stillThere = serverHolding();
+    const evidence = clearWizardSession("sun-ruins");
+    host.server = stillThere;
+    expect(await evidence).toEqual({ confirmed: false, reason: "the server still holds this session" });
+    host.server = { wizardSessions: [] };
+    expect(await clearWizardSession("sun-ruins")).toEqual({ confirmed: true });
+  });
+
+  it("says so when the server's settings could not be read", async () => {
+    host.server = null;
+    expect(await saveWizardSession(session())).toEqual({ confirmed: false, reason: "the server's settings could not be read back" });
+  });
+
+  it("hands every write to the listener, named by its session, until it is disposed", async () => {
+    const heard: Array<{ summary: string; label: string }> = [];
+    const stop = onWizardSessionSave((write) => { heard.push({ summary: write.summary, label: write.label }); });
+    saveWizardSession(session());
+    clearWizardSession("sun-ruins");
+    stop();
+    saveWizardSession(session());
+    expect(heard).toEqual([{ summary: "wizard session save not confirmed", label: "wizard session sun-ruins" }, { summary: "wizard session clear not confirmed", label: "wizard session sun-ruins" }]);
   });
 });

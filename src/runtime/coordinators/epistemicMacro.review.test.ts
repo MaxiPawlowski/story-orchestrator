@@ -5,6 +5,7 @@
 
 import { MemoryCoordinator } from "./memoryCoordinator";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
+import { EPISTEMIC_INJECTION_KEY } from "@constants/defaults";
 
 const mockHost: { group: boolean; rows: unknown[]; prompts: Record<string, { value: string; depth: number; role: number }> } = { group: true, rows: [], prompts: {} };
 
@@ -45,7 +46,7 @@ const story = {
 const reply = (name: string) => ({ name, is_user: false, is_system: false, mes: "…", extra: { api: "textgenerationwebui" } });
 const note = { name: "Note", is_user: false, is_system: true, mes: "Checkpoint: The Gate", extra: { type: "comment", isSmallSys: true } };
 
-function harness() {
+function harness(roster: Array<{ id: string; name: string }> = story.roster) {
   const current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(current, window), check: (token: RunToken) => tokenMatches(current, token) };
   let memoryState = {
@@ -59,7 +60,7 @@ function harness() {
     sceneCount: 0, shortTermSummaryEnd: 0, arcs: [], epistemic: [], ledger: [], canon: null, updatedAt: "",
   };
   const coordinator = new MemoryCoordinator({
-    getStory: () => story,
+    getStory: () => ({ ...story, roster }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5, blackboard: { values: {}, versions: {} } }),
     getMemory: () => memoryState,
     setMemory: (next: typeof memoryState) => { memoryState = next; },
@@ -105,5 +106,45 @@ describe("story_epistemic in a group answers the applied block (T10, X5)", () =>
     mockHost.group = false;
     const coordinator = harness();
     expect(coordinator.getEpistemicBlock()).toContain(LUKE_SECRET);
+  });
+});
+
+// v2.4 E2: a solo narrator voices every member, so the merged solo block used to tell one narrator
+// "You are concealing" for each member's secret at once. With more than one roster name each line now
+// names its subject; one name keeps the second-person block byte for byte.
+describe("story_epistemic in solo attributes each member's knowledge (E2)", () => {
+  const injected = () => mockHost.prompts[EPISTEMIC_INJECTION_KEY]?.value ?? "";
+  const secondPerson = (line: string) => `Your private knowledge (stay in character — never narrate what you conceal or do not know):\n${line}`;
+
+  beforeEach(() => {
+    mockHost.group = false;
+    mockHost.prompts = {};
+    mockHost.rows = [reply("Arin"), { name: "You", is_user: true, mes: "Onward." }];
+  });
+
+  it("names the subject of every line, in the macro and in the injected block alike", () => {
+    const coordinator = harness();
+    coordinator.updateInjection();
+    const block = coordinator.getEpistemicBlock();
+    expect(block).toContain(`- Luke is concealing from Arin: ${LUKE_SECRET}`);
+    expect(block).toContain(`- Arin is concealing from Luke: ${ARIN_SECRET}`);
+    expect(block).not.toMatch(/^- You /m);
+    expect(block.split("\n")[0]).toMatch(/voice each character accordingly/);
+    expect(injected()).toBe(block);
+  });
+
+  it("keeps a single-member solo block byte-identical to the second-person block", () => {
+    const coordinator = harness([{ id: "arin", name: "Arin" }]);
+    coordinator.updateInjection();
+    const expected = secondPerson(`- You are concealing from Luke: ${ARIN_SECRET}`);
+    expect(coordinator.getEpistemicBlock()).toBe(expected);
+    expect(injected()).toBe(expected);
+  });
+
+  it("leaves the group's drafted block in the second person", () => {
+    mockHost.group = true;
+    const coordinator = harness();
+    coordinator.onMemberDrafted(0);
+    expect(injected()).toBe(secondPerson(`- You are concealing from Luke: ${ARIN_SECRET}`));
   });
 });
