@@ -1,6 +1,6 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
 import {
-  callExtractionModel, deriveFullScope, deriveScope, getChatWindow, getLastMessageText, reconciliationKeySet,
+  callExtractionModel, deriveFullScope, deriveScope, getChatWindow, getLastMessageText, isLapse, maxTokensForInput, reconciliationKeySet,
   reconciliationTargets, runSharedRead, sharedReadWindow, stripChannelNoise, type ExtraGateSource, type ParsedDelta,
   type ParsedFact, type ReadOwnership, type ReconciliationPlan, type SharedReadAudit,
 } from "@extraction/index";
@@ -271,8 +271,9 @@ export class ExtractionCoordinator {
       openArcs: memory.getOpenArcs(),
       epistemicLedgerCapable: memory.capable,
       entities: memory.getEntities(),
-      client: { ...this.deps.getSettings(), debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugExtractionResponse ?? null },
-    });
+      client: { ...this.deps.getSettings(), signal: read.signal, debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugExtractionResponse ?? null },
+    }).catch((error: unknown) => { if (isLapse(error)) return null; throw error; }).finally(() => read.release());
+    if (!result) return false;
     await this.applyAudit(result.audit, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, read);
     if (!read.stillOwns()) return false;
     await this.deps.commitBoundary();
@@ -309,6 +310,7 @@ export class ExtractionCoordinator {
     const sceneText = window.messages.map((message) => `${message.speaker}: ${message.text}`).join("\n") || "(empty)";
     const summary = await callExtractionModel(buildSceneSummaryPrompt(sceneText), {
       profileId: this.deps.getSettings().profileId,
+      maxTokens: maxTokensForInput("sceneSummary", sceneText), signal: run.signal, refuseIncomplete: true,
       debugResponse: globalThis.storyOrchestratorDebugSceneSummaryResponse ?? null,
     });
     if (!run.stillOwns()) return;
@@ -341,6 +343,7 @@ export class ExtractionCoordinator {
     const run = beginRun(this.deps.ownership, { from: window.from, to: window.to });
     const summary = stripChannelNoise(await callExtractionModel(buildShortTermSummaryPrompt(previous?.text ?? null, recentText), {
       profileId: this.deps.getSettings().profileId,
+      maxTokens: maxTokensForInput("shortTerm", recentText), signal: run.signal, refuseIncomplete: true,
       debugResponse: globalThis.storyOrchestratorDebugShortTermResponse ?? null,
     }));
     if (!summary || !run.stillOwns()) return;
@@ -365,6 +368,7 @@ export class ExtractionCoordinator {
     const existing = memory.activeEpistemic();
     const epistemicResponse = await callExtractionModel(buildEpistemicPassPrompt(sceneText, enabledCharacterNames(story), existing.map((entry) => ({ tag: entry.tag, subject: entry.subject, content: entry.content, hiddenFrom: entry.hiddenFrom }))), {
       profileId: settings.profileId,
+      maxTokens: maxTokensForInput("epistemic", sceneText), signal: run.signal,
       debugResponse: globalThis.storyOrchestratorDebugEpistemicResponse ?? null,
     });
     if (!run.stillOwns()) return false;
@@ -382,6 +386,7 @@ export class ExtractionCoordinator {
 
     const ledgerResponse = await callExtractionModel(buildLedgerPassPrompt(sceneText, memory.ledgerEntityList()), {
       profileId: settings.profileId,
+      maxTokens: maxTokensForInput("ledger", sceneText), signal: run.signal,
       debugResponse: globalThis.storyOrchestratorDebugLedgerResponse ?? null,
     });
     if (!run.stillOwns()) return false;

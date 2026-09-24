@@ -2,7 +2,7 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readServerBoundary: async () => null, sendConnectionProfileRequest: jest.fn(async () => "{}") }));
+  readServerBoundary: async () => null, sendConnectionProfileRequest: jest.fn(async () => ({ ok: true, text: "{}", finish: "stop" })) }));
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";

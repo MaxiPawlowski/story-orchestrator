@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseStoryV2OrThrow } from "@engine/index";
 import type { ChainRead } from "@judge/index";
-import { sendConnectionProfileRequest } from "@services/STAPI";
 import { callExtractionModel } from "@extraction/index";
 import { generateReviewedBeats } from "./generate";
 import { findStubExpansionCandidate, planExpansion } from "./planner";
@@ -11,9 +10,10 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readServerBoundary: async () => null, sendConnectionProfileRequest: jest.fn() }));
+  readServerBoundary: async () => null, sendConnectionProfileRequest: async (...args: unknown[]) => ({ ok: true, text: await mockSend(...args), finish: "stop" }) }));
 
-const send = sendConnectionProfileRequest as unknown as jest.Mock;
+const mockSend = jest.fn();
+const send = mockSend;
 const root = join(__dirname, "..", "..");
 const story = parseStoryV2OrThrow(JSON.parse(readFileSync(join(root, "test/fixtures/background-generation.story.json"), "utf-8")));
 const good = readFileSync(join(root, "test/goldens/background-generator1.response.txt"), "utf-8");
@@ -28,7 +28,7 @@ describe("extraction client temperature (v2.2 plan 07)", () => {
     send.mockResolvedValue("ok");
     await callExtractionModel("p", { profileId: "p1" });
     await callExtractionModel("p", { profileId: "p1", temperature: 0.7 });
-    expect(send.mock.calls.map((call) => call[3].temperature)).toEqual([0.1, 0.7]);
+    expect(send.mock.calls.map((call) => call[3].samplers.temperature)).toEqual([0.1, 0.7]);
   });
 });
 
@@ -62,7 +62,7 @@ describe("variants (v2.2 plan 07)", () => {
   it("generates N chains one at a time at the variant temperature, and code picks the best passing one", async () => {
     send.mockResolvedValue(good);
     const result = await generateReviewedBeats(story, input(), client, { variants: variants([chain({ advances: 0.6 }), chain({ advances: 0.95 }), chain({ contradicts: 0.9, advances: 1 })]) });
-    expect(send.mock.calls.map((call) => call[3].temperature)).toEqual([0.7, 0.7, 0.7]);
+    expect(send.mock.calls.map((call) => call[3].samplers.temperature)).toEqual([0.7, 0.7, 0.7]);
     expect(result.variants).toMatchObject({ generated: 3, survivors: 3, picked: 1, picker: "code" });
     expect(result.variants?.timesMs).toHaveLength(3);
     expect(result.verdict).toMatchObject({ pass: true, raw: "JUDGE" });

@@ -41,6 +41,7 @@ const READS: Record<string, string> = {
   hostMacrosAvailable: "a question about the install: is the macro module there to register into",
   noteHostSettingsLoaded: "records that ST emitted its settings-loaded event, in our own flag",
   installSaveWatcher: "installs OUR observer on the save route; it writes nothing ST keeps",
+  profileExists: "a question about the install's connection profiles (v2.4 plan 03 D1 preflight)",
 };
 
 // V17: the guard used to read the return type WRITTEN before `{` or `=>`, so an unannotated host write

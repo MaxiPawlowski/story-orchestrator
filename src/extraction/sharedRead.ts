@@ -1,9 +1,10 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
 import { stableStringify } from "@runtime/hash";
-import { callExtractionModel, type ExtractionClientOptions } from "./client";
+import { callExtractionReply, type ExtractionClientOptions, type ExtractionReply } from "./client";
 import { getChatWindow } from "./chatWindow";
 import { getCanonLite } from "./canonLite";
 import { hashContract, renderSharedReadPrompt } from "./contract";
+import { detectDegenerate } from "./degenerate";
 import { evidenceInWindow } from "./evidence";
 import { parseSharedReadResponse } from "./parse";
 import { deriveScope } from "./scope";
@@ -19,8 +20,13 @@ const DEFAULT_RESPONSE_TOKENS = 512;
 
 const describeDelta = (entry: ParsedDelta) => `DELTA ${entry.delta.q} value=${String(entry.delta.v)} evidence="${entry.evidence}"`;
 
-const isOversized = (raw: string, parsed: ParsedSharedRead, maxTokens?: number): boolean =>
-  raw.length > (maxTokens ?? DEFAULT_RESPONSE_TOKENS) * CHARS_PER_TOKEN || parsed.deltas.length > MAX_DELTAS_PER_READ;
+const refusal = (reply: ExtractionReply, parsed: ParsedSharedRead, maxTokens?: number): string | null => {
+  if (reply.finish === "length") return "truncated response";
+  if (parsed.deltas.length > MAX_DELTAS_PER_READ) return "oversized response";
+  if (reply.finish === "unknown" && reply.text.length > (maxTokens ?? DEFAULT_RESPONSE_TOKENS) * CHARS_PER_TOKEN) return "oversized response";
+  if (detectDegenerate(reply.text).degenerate) return "degenerate response";
+  return null;
+};
 
 /**
  * Which of the parsed deltas this read may keep.
@@ -107,15 +113,16 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     entities: options.entities ?? [],
   };
   const prompt = renderSharedReadPrompt(contract);
-  const ask = () => (scope.length ? callExtractionModel(prompt, options.client) : Promise.resolve("NO_DELTA"));
-  let rawResponse = await ask();
-  let parsed = parseSharedReadResponse(rawResponse, options.story);
-  if (isOversized(rawResponse, parsed, options.client.maxTokens)) {
-    rawResponse = await ask();
-    parsed = parseSharedReadResponse(rawResponse, options.story);
+  const ask = (): Promise<ExtractionReply> => (scope.length ? callExtractionReply(prompt, options.client) : Promise.resolve({ text: "NO_DELTA", finish: "stop" }));
+  let reply = await ask();
+  let parsed = parseSharedReadResponse(reply.text, options.story);
+  if (refusal(reply, parsed, options.client.maxTokens)) {
+    reply = await ask();
+    parsed = parseSharedReadResponse(reply.text, options.story);
   }
-  const oversized = isOversized(rawResponse, parsed, options.client.maxTokens);
-  const screened = oversized ? { accepted: [], rejected: [{ line: rawResponse.slice(0, 500), reason: "oversized response" }] } : screenDeltas(parsed, new Set(residual.map((entry) => entry.key)), answered, window);
+  const rawResponse = reply.text;
+  const refused = refusal(reply, parsed, options.client.maxTokens);
+  const screened = refused ? { accepted: [], rejected: [{ line: rawResponse.slice(0, 500), reason: refused }] } : screenDeltas(parsed, new Set(residual.map((entry) => entry.key)), answered, window);
   const audit: SharedReadAudit = {
     id: createId({ prompt, rawResponse, at: Date.now() }),
     createdAt: new Date().toISOString(),
@@ -134,6 +141,6 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
   };
   // A refused response is refused whole: the lines that survived a truncation are not more
   // trustworthy than the ones that did not, and the fact/memory/arc lines have no bound of their own.
-  if (oversized) return { audit, facts: [], memory: [], arcs: [], epistemic: [], ledger: [] };
+  if (refused) return { audit, facts: [], memory: [], arcs: [], epistemic: [], ledger: [] };
   return { audit, facts: parsed.facts, memory: parsed.memory, arcs: parsed.arcs, epistemic: parsed.epistemic, ledger: parsed.ledger };
 }

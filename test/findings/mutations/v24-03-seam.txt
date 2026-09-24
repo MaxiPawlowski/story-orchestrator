@@ -1,0 +1,80 @@
+v2.4 plan 03 seam + abort + D6 (typed model-call seam, per-read abort, finish_reason, loop detector, callBudget), mutations 2026-09-24 (worktree build on d7bd4ed; script .debug/mut-v24-03.mjs, each mutant applied alone as an exact-text replacement to one file, the file restored byte-for-byte after its run; a replacement that does not match is reported DID NOT APPLY, and none did)
+Suites per mutant: scheduler.test (20), runOwner.abort + runGuard (14), stHost/modelReply.test (23), extraction/client.test (14), talkControl.test (24), sharedReadFinish + authority.review (13), degenerate.test (7), callBudget.test (5), runtimeManager.test (99). Baseline 11 suites / 219 tests green; restored after the sweep 219/219 green.
+Plan-table mutations: lapse short-circuit = M1, window abort = M4, config != transport = M8, TC-only samplers = M11, director aborts = M16, finish_reason = M17, loop detector to infinity = M20/M21. The breaker, dangling-id Repair, backlog, expansion wedge, chunker, tail-fit and unknown-limit rows belong to the other plan-03 builders and are not in this file.
+
+- M1 lapse short-circuit dropped from runWithRetries: KILLED, 2 of 20
+    "an aborted read is not retried and records no error"
+    "a lapsed heavy job leaves no heavy error either"
+- M2 lapse branch dropped from pump's catch (a lapse reaches lastError and the pause path): KILLED, 1 of 20
+    "an aborted read is not retried and records no error"
+- M3 scheduler hands the model call the settings, not the read's signal: KILLED, 1 of 20
+    "hands the read's own signal to the model call"
+- M4 noteMutation aborts nothing (plan mutation: remove the id <= window.to abort): KILLED, 2 of 14
+    "rollback aborts the read in its window"
+    "a mutation before the window also aborts it, the same rule the token check applies"
+- M5 abort only for a mutation INSIDE [from, to], disagreeing with tokenMatches: KILLED, 1 of 14
+    "a mutation before the window also aborts it, the same rule the token check applies"
+- M6 live signal without the epoch signal: KILLED, 2 of 14
+    "control: a window-less run is not aborted by a mutation, only by the epoch"
+    "a chat change aborts every live run"
+- M7 a run that lapsed before asking for its signal gets a live one: KILLED, 1 of 14
+    "a run that lapsed before it asked for its signal starts aborted"
+- M8 classifier maps an unwrapped refusal to transport (plan mutation): KILLED, 6 of 23
+    "an unwrapped refusal before the request is config: Connection Manager is not available"
+    "an unwrapped refusal before the request is config: Profile not found (ID: 7f1c)"
+    "an unwrapped refusal before the request is config: Could not find profile."
+    "an unwrapped refusal before the request is config: Select a connection profile that has an API"
+    "an unwrapped refusal before the request is config: Unknown API type koboldhorde"
+    "an unwrapped refusal before the request is config: API type kobold is not supported. Supported types: Chat Completion, Text Completion"
+- M9 classifier ignores a config cause inside the wrapper: KILLED, 3 of 23
+    "a config refusal wrapped inside the try is still config: API type openai does not support chat completions"
+    "a config refusal wrapped inside the try is still config: API type textgenerationwebui does not support text completions"
+    "a config refusal wrapped inside the try is still config: Unknown API type mystery"
+- M10 a wrapped AbortError read as transport: KILLED, 1 of 23
+    "a wrapped AbortError is a lapse and a wrapped TimeoutError is a timeout"
+- M11 samplers always spread (plan mutation: TC-only samplers): KILLED, 1 of 23
+    "CC profile sends no temperature/top_p, so the preset and ST's per-model rules decide (03-H7/H8)"
+- M12 no profileExists preflight: KILLED, 1 of 23
+    "a deleted profile is config before any request goes out"
+- M13 extractData left true: KILLED, 1 of 23
+    "asks for the raw reply and hands the caller's signal to the host"
+- M14 readFinish ignores choices[0].finish_reason: KILLED, 3 of 23
+    "reads every provider shape the seam can meet"
+    "asks for the raw reply and hands the caller's signal to the host"
+    "a TC reply is cleaned with the profile's instruct template before anyone parses it (03-H17)"
+- M15 TC clean-up skipped: KILLED, 1 of 23
+    "a TC reply is cleaned with the profile's instruct template before anyone parses it (03-H17)"
+- M16 director races the timeout without aborting (plan mutation): KILLED, 1 of 24
+    "timeout aborts the host signal and falls back to rules (v2.4 plan 03 D2)"
+- M17 sharedRead ignores finish (plan mutation): KILLED, 2 of 13
+    "length is refused whole, after one more ask"
+    "a lapse during the re-ask is not swallowed into a refusal"
+- M18 char heuristic applied whatever the finish reason: KILLED, 1 of 13
+    "control: a reply that stopped on its own is read, however long it is"
+- M19 sharedRead never asks the loop detector: KILLED, 1 of 13
+    "a degenerate loop is refused whole, never parsed into memory"
+- M20 line-repeat threshold raised to infinity (plan mutation): KILLED, 1 of 7
+    "refuses the same line four times"
+- M21 n-gram coverage threshold raised to infinity (plan mutation): KILLED, 2 of 7
+    "refuses an 8-token phrase repeated until it covers most of the reply"
+    "refuses a short-period loop on one line"
+- M22 n-gram repeat floor dropped to 2 (the shared-quote false positive): KILLED, 1 of 7
+    "control: two deltas quoting the same long line of evidence are not a loop"
+- M23 client drops the call's own timeout: KILLED, 1 of 14
+    "bounds every call by the callBudget timeout for the response it asked for"
+- M24 client ignores refuseIncomplete: KILLED, 1 of 14
+    "refuseIncomplete turns a truncated or looping summary into nothing to store"
+- M25 scene summary site without refuseIncomplete: KILLED, 1 of 99
+    "does not store a scene summary the model looped on (v2.4 plan 03 D6)"
+- M26 timeout floor 20 tok/s -> 10 tok/s: KILLED, 1 of 5
+    "allows 30 s plus a 20 tok/s floor for the response it asked for"
+- M27 summary budget without its floor: KILLED, 2 of 5
+    "scales a summary with its input between the floor and the cap"
+    "reads a prompt's input at four characters a token"
+
+27/27 killed on the final sweep. The first sweep did not read that way, and each gap was a missing case, not a dead guard:
+- M1 also failed the transport control: the unshortened retry of the lapse case was still sleeping (250 ms, 500 ms) when the control ran and consumed its mock. The lapse case now waits out the retry window itself (900 ms); rerun, the control stays green and M1 kills exactly the two lapse cases.
+- M15 (TC clean-up skipped) SURVIVED: no case drove requestModelReply with an instruct template. Added "a TC reply is cleaned with the profile's instruct template before anyone parses it (03-H17)"; rerun, killed.
+- M22 (n-gram repeat floor 2) SURVIVED: the list-reply control carried too many other tokens to reach 50 % coverage. Added the two-deltas-one-quote control, which is the false positive the floor of 4 exists for; rerun, killed.
+M17 also fails "a lapse during the re-ask ...": without the length refusal there is no re-ask, so the mocked lapse is never reached. Expected.
+M25 is one call site. The other three refuseIncomplete sites (short-term, arc summary, canon; epistemic and ledger do not refuse) have no per-site case, so dropping the option there would survive. Recorded, not hidden.

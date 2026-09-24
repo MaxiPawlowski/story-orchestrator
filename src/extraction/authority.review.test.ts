@@ -5,7 +5,7 @@
 // halves: reject what is out of scope, accept short legitimate evidence. v2.3 plan 01 §A.
 
 import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
-import { callExtractionModel } from "@extraction/client";
+import { callExtractionReply } from "@extraction/client";
 import { parseSharedReadResponse } from "@extraction/parse";
 import { runSharedRead } from "@extraction/sharedRead";
 import { MAX_DELTAS_PER_READ } from "@extraction/sharedRead";
@@ -16,7 +16,7 @@ jest.mock("@services/STAPI", () => ({
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null, getContext: () => ({ chat: [], extensionSettings: {} }) }));
-jest.mock("@extraction/client", () => ({ callExtractionModel: jest.fn() }));
+jest.mock("@extraction/client", () => ({ callExtractionReply: jest.fn() }));
 
 const story = () => parseStoryV2OrThrow({
   format: 2,
@@ -40,7 +40,7 @@ const readWith = async (response: string, scopeKey: "crossed") => {
   const s = story();
   const engine = new StoryEngine();
   engine.loadStory(s);
-  (callExtractionModel as jest.Mock).mockResolvedValue(response);
+  (callExtractionReply as jest.Mock).mockResolvedValue({ text: response, finish: "unknown" });
   return runSharedRead({
     story: s,
     state: engine.serialize(),
@@ -111,9 +111,9 @@ describe("review: what a read refuses, and why the audit can say so", () => {
 
   it("refuses an oversized response whole and asks once more", async () => {
     const deltas = Array.from({ length: MAX_DELTAS_PER_READ + 1 }, (_, index) => `DELTA crossed value=${index % 2 === 0} evidence="crossed"`).join("\n");
-    (callExtractionModel as jest.Mock).mockClear();
+    (callExtractionReply as jest.Mock).mockClear();
     const result = await readWith(deltas, "crossed");
-    expect(callExtractionModel).toHaveBeenCalledTimes(2);
+    expect(callExtractionReply).toHaveBeenCalledTimes(2);
     expect(result.audit.acceptedDeltas).toEqual([]);
     expect(result.audit.rejected.map((entry) => entry.reason)).toEqual(["oversized response"]);
     expect(result.facts).toEqual([]);

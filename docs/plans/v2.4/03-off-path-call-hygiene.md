@@ -374,3 +374,134 @@ None open. The three from the first draft are settled:
 
 _Placeholder — date, exact commands and outputs, mutation file, live records under
 `test/journeys/records/v2.4-plan03/`, deviations. Filled when the plan closes._
+
+### Seam + abort + D6 (worktree build, 2026-09-24)
+
+Built on `d7bd4ed` (branch `worktree-agent-a7c1cf4059170daac`) in an agent worktree, in parallel with the wedges and budget builders. Scope: order-of-work step 1 (host facts), D1, D2 and D6. Machine gates only: **no backend and no browser, so no live gate ran and none is claimed green.**
+
+**Host facts.** H1–H14 re-verified on 1.19.0 and on 1.18.0 (`git show 51ad27fb:…`) and written to `host-facts.md` §Plan 03, with five new rows found while building:
+- H11 and H12's 1.18.0 halves are now confirmed.
+- H15: `CONNECT_API_MAP[api].selected` is the TC/CC switch.
+- H16: three config refusals are raised *inside* the `try`, so they arrive wrapped as `API request failed`.
+- H17: `extractData:false` skips the TC reply clean-up (`custom-request.js:332-381`).
+- H18: TC `llamacpp` goes to llama-server's **native `/completion`**, not `/v1/completions`, so its reply carries `stop_type`/`stopped_limit`, not `choices[0].finish_reason` (Δ H6).
+- H19: an upstream non-OK reaches the client as `Response not OK`, and the provider text is lost.
+
+Δ H1: the plan's `:393-400,415` citation is the JSDoc; the code is `:423-424`, `:463`, `:483`.
+
+**D1 as built**
+- `stHost/modelReply.ts` (pure, host-free, so it is unit-testable; the `saveEvidenceHost` split pattern) holds the following:
+  - `ModelReply`, `ModelFinish`, `ModelFailureKind`.
+  - `classifyHostFailure(error, signal)`:
+    - our own aborted signal decides first: a `TimeoutError` reason is `timeout`, anything else `lapsed`;
+    - an unwrapped error is `config`;
+    - a wrapped error is judged by its `cause`: `AbortError` is `lapsed`, `TimeoutError` is `timeout`, a config message is `config`, anything else `transport`, with `API request failed: <cause>` kept for the author.
+  - `readFinish(json)` covers OpenAI `choices[0].finish_reason`, Claude `stop_reason`, Gemini `finishReason`, Ollama `done_reason` and llama.cpp `stop_type`/`stopped_*`, else `unknown`.
+  - `cleanTextCompletionReply` mirrors the H17 clean-up.
+  - `samplerPayload` spreads `temperature`/`top_p` only when `selected === "textgenerationwebui"`.
+  - `requestModelReply(host, …)` does the rest:
+    - aborted-signal short-circuit;
+    - `profileExists` preflight, which makes a deleted profile `config` before any request;
+    - `extractData:false` with the caller's `signal`;
+    - `extractMessageFromData`, then the TC clean-up and `readFinish`;
+    - it never rejects.
+- `stHost/connectionProfiles.ts`:
+  - `sendConnectionProfileRequest(profileId, prompt, maxTokens, {signal, samplers}) → Promise<ModelReply>` is thin wiring;
+  - `profileExists(id)` is new.
+- `hostTypes.ts` gains:
+  - `HostModelRequestCustom` (with `signal`, 03-H1) on `sendRequest`;
+  - the context members `CONNECT_API_MAP`, `extractMessageFromData` and `getPresetManager`, each with its row.
+- `STAPI.ts` exports the seam types and `profileExists`.
+- `typedResults.test.ts` allowlists `profileExists` as a read. The seam itself is typed, so it needs no row.
+- The Storybook STAPI mock was updated.
+- `extraction/client.ts`:
+  - `callExtractionReply → {text, finish}`, throwing `ModelCallError {kind}`;
+  - `callExtractionModel` keeps `Promise<string>` and gains `refuseIncomplete`: `""` for `finish:"length"` or a degenerate reply;
+  - `isLapse`, `lapseAsEmpty`;
+  - each call is bounded by `AbortSignal.timeout(callTimeoutMs(maxTokens))` joined to the caller's signal (`utils/signals.ts` `anySignal`; `AbortSignal.any` is not in TS 5.4's lib, H14);
+  - a timeout error names its budget in ms;
+  - `debugResponse` answers `finish:"unknown"`.
+
+**D2 as built**
+- `RunOwnership.live(window) → {signal, release}` and `RunGuard.signal` (a lazy getter) plus `release()`:
+  - a run registers only when its signal is first read;
+  - a run that had already lapsed is handed an aborted signal.
+- `RunOwner`:
+  - keeps a live registry (cap 32, cleared by `bump()`);
+  - the signal is `anySignal([epoch, own])`;
+  - `noteMutation(id)` aborts every live run with `window && id <= window.to`, the `tokenMatches` rule.
+  - Window-less runs (expansion, canon, curator) abort on the epoch only.
+- `extraction/callBudget.ts` (pure):
+  - `callTimeoutMs = 30000 + maxTokens × 50`;
+  - D6's `MAX_TOKENS_TABLE` and `maxTokensFor` / `maxTokensForInput` (chars/4). The shared read is fixed at 512. Scene/short-term/arc use 0.25 with floor 256 and cap 1024; canon 0.25/768/1536; epistemic/ledger/curator 0.25/384/1024.
+  - No input-budget or context-limit math; that belongs to `inputBudget.ts`.
+- Scheduler:
+  - `ReadOwnership` gains `signal?`/`release?`;
+  - `pump` passes `read.signal` into the shared read's client and releases in `finally`;
+  - `runWithRetries` rethrows a lapse at once;
+  - a lapse in `pump` or `pumpHeavy` writes no `lastError`/`lastHeavyError` and **never reaches `pauseExtraction`**. When the job's epoch is still current it goes to the new `noteLapse` host hook, which `runtime/index.ts` wires to `noteRecap("extraction read lapsed: <reason>", detail)`.
+  - The "cannot recall in-flight" comment is rewritten.
+- Signal threaded at: the scheduler read; `runNow` (a lapse returns false); scene summary; short-term; epistemic; ledger; arc summary; canon (`lapseAsEmpty`, because consolidation calls it from boundary work); curator (the epoch signal); expansion `generate` (one token, `signal: run.signal`).
+- Director: `callDirector(prompt, signal)`. At `DIRECTOR_TIMEOUT_MS` the controller aborts with a `TimeoutError` reason, so the host request is cancelled rather than only raced. `index.ts` passes the signal to `callExtractionModel`.
+
+**D6 as built**
+- `extraction/degenerate.ts` (pure) refuses a reply when either holds:
+  - the same trimmed line appears ≥ 4 times;
+  - the token positions covered by 8-grams occurring ≥ 4 times exceed 50 % of the reply. The reply needs ≥ 32 tokens to be scored.
+- The n-gram floor is 4, not 2, because two deltas quoting one long line of evidence are legitimate (M22's control).
+- `sharedRead` refusal order:
+  1. `finish:"length"` → `truncated response`;
+  2. more than `MAX_DELTAS_PER_READ` → `oversized response`;
+  3. the character heuristic, **only when finish is `unknown`** → `oversized response`;
+  4. degenerate → `degenerate response`.
+- Each refusal takes the existing one-re-ask path and is refused whole, with the raw reply in the audit.
+- Scene summary, short-term, arc summary and canon call with `refuseIncomplete`, so a truncated or looping summary is not stored. The scene is still counted, as an empty summary always was.
+- Epistemic and ledger get the `maxTokens` table but no refusal.
+
+**Tests** (+67): `callBudget.test` (5), `degenerate.test` (7), `stHost/modelReply.test` (23), `sharedReadFinish.test` (6), `runOwner.abort.test` (8), `scheduler.test` (+4), `client.test` (+11), `talkControl.test` (+2), `runtimeManager.test` (+1). Mocks of the seam moved to the `ModelReply` shape in 8 test files, and `authority.review.test` now mocks `callExtractionReply`.
+
+**Mutations**: `test/findings/mutations/v24-03-seam.txt`, **27/27 killed**. That covers the plan-table rows in this slice: lapse short-circuit, window abort, config≠transport, TC-only samplers, director abort, finish_reason, and the loop detector at ∞ ×2. Three gaps from the first sweep were fixed by adding cases:
+- M1's retry bleeding into the transport control;
+- M15, the TC clean-up, had no case;
+- M22, the n-gram floor, had no shared-quote control.
+
+The three other `refuseIncomplete` call sites have no per-site case.
+
+**Census**: notes only. `ExtractionScheduler.pump` stays `partial`, with the abort and the no-pause-on-lapse recorded; `pumpHeavy` stays `partial`; `TalkController.ensureDecision` stays `checked`, with the director abort recorded. `ownership.guard.test` did not ask for a new row. **Fault matrix unchanged**: the `aborted` column is left to integration (see NOT done).
+
+**Gates** (worktree root, `node_modules` junctioned to the main checkout's)
+
+| Gate | Result |
+|---|---|
+| `npm run typecheck` | 0 |
+| `npm run typecheck:test` | 0 |
+| `npm run lint` | clean |
+| `npm run debug:typecheck` | 0 |
+| `npm test` | 195/195 suites, 2986/2986 tests; findings ledger 2 open / 48 settled |
+| `npm run build` | compiled, 2 size warnings; manifest `bundle 8f221181094a`, `ST unknown` (worktree not under ST's extension path) |
+| architecture budgets | manager 730/740 (unchanged); extractionCoordinator 526/620 (+6); memoryCoordinator 610/620 (+5); stagecraft 560; expansion 298 |
+
+Not run: `test:debug`, `test:release`, `test-storybook` (the Storybook STAPI mock changed but no story was re-run).
+
+**Deviations**
+- The seam's logic lives in the new pure `stHost/modelReply.ts`, and its cases are in `modelReply.test.ts`: "CC profile sends no temperature/top_p", the config≠transport rows and the preflight. The plan named `connectionProfiles.test.ts` / `client.test.ts`, but `connectionProfiles.ts` imports the top-level-await host modules and cannot load in jest.
+- `extractData:false` drops ST's TC clean-up (H17), so the seam re-applies it from the profile's instruct template. This is an approximation: bare `stop_sequence`/`input_sequence` with no `{{name}}` substitution and no `wrap` newline, so a template using `{{name}}` in its input sequence is not truncated at a leaked user turn.
+- `classifyHostFailure` departs from the plan's "any other wrapped → transport" in two places:
+  - config causes wrapped inside the `try` (H16) are `config`;
+  - an unrecognised **unwrapped** error is `config` too, because it was thrown before any request left.
+- `finish` for llama.cpp is read from `stop_type`/`stopped_limit` (H18). Those field names are upstream shape, not read from source here; until confirmed live, `unknown` keeps the character heuristic as the fallback.
+- A lapse is journaled by the scheduler through `noteLapse → noteRecap`, not as an audit row. A lapse in a pass called directly (a debug handle or slash command) propagates as `ModelCallError("lapsed")`, except canon and `runNow`.
+- Only the scheduler calls `release()`. Coordinator sites rely on the registry's cap and `bump()`; an unreleased entry can only abort a request that already finished.
+- The director aborts with a `TimeoutError` reason, so the breaker can count it later.
+- Summary refusals (`refuseIncomplete`) are not journaled with the raw reply: the plan's "journaled with the raw reply" holds for shared-read audits only.
+- The ratios the plan left unstated (canon, epistemic/ledger, curator) start at 0.25, recorded as starting values.
+- The mutation file is named `v24-03-seam.txt`, as the build instruction asked.
+
+**NOT done**
+- Live gate 2 (abort on rollback mid-read, ×2), plus the live confirmations of H5 (llama-server slot idle after our abort) and H18 (llama.cpp finish fields): **NOT green**, because no backend was available.
+- The `aborted` fault-matrix column (9 cells; counts 81 → 90). It touches `faultMatrix.json` and its guard, which other builders also edit, so it is left to integration. Citations available from this slice:
+  - extraction: `scheduler.test.ts` "an aborted read is not retried and records no error";
+  - director/judgeRing: `talkControl.test.ts` and `epochAbort.review.test.ts`.
+- Signal threading in `runMemorizeBacklog` (wedges builder's region) and in copilot authoring, which is author-interactive and holds no guard.
+- D3 is wave 2: breaker, deleting `pauseExtraction`, pipeline/Repair, events. `pauseExtraction` still exists, but a lapse can no longer reach it.
+- D5 is the budget builder's: `readProfileContextLimit` is not built here, although H12 is verified.

@@ -20,6 +20,7 @@ jest.mock("./sharedRead", () => ({
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import { CADENCE_WINDOW_MAX, ExtractionScheduler, type SchedulerHost, type SchedulerSettings } from "./scheduler";
 import { runSharedRead } from "./sharedRead";
+import { ModelCallError } from "./client";
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 5));
 
@@ -232,5 +233,69 @@ describe("v2.4 plan 02 §10: the window the scheduler would read next", () => {
 
   it("answers null before there is a stable message to read", () => {
     expect(new ExtractionScheduler(makeHost({ cadence: 1, stabilityLag: 1 })).nextReadWindow(0)).toBeNull();
+  });
+});
+
+describe("v2.4 plan 03 D2: a lapsed read is discarded, never retried, never an error", () => {
+  const lapsedHost = (overrides: Partial<SchedulerHost> = {}) => {
+    const calls = { paused: [] as string[], lapses: [] as Array<[string, string]>, released: 0, signal: new AbortController().signal };
+    const host: SchedulerHost = {
+      ...makeHost(),
+      beginRead: () => ({ stillOwns: () => false, lapsedDetail: () => "window: message 3 was edited", signal: calls.signal, release: () => { calls.released += 1; } }),
+      pauseExtraction: (message) => { calls.paused.push(message); },
+      noteLapse: (reason, detail) => { calls.lapses.push([reason, detail]); },
+      ...overrides,
+    };
+    return { host, calls };
+  };
+
+  it("an aborted read is not retried and records no error", async () => {
+    const read = runSharedRead as jest.Mock;
+    read.mockClear();
+    read.mockRejectedValueOnce(new ModelCallError("lapsed", "the request was cancelled"));
+    const { host, calls } = lapsedHost();
+    const scheduler = new ExtractionScheduler(host);
+    scheduler.schedule({ priority: 0, reason: "rollback:3", window: { from: 0, to: 4, messages: [] } });
+    await new Promise((resolve) => setTimeout(resolve, 900));
+    expect(read).toHaveBeenCalledTimes(1);
+    expect(scheduler.getSnapshot().lastError).toBeNull();
+    expect(calls.paused).toEqual([]);
+    expect(calls.lapses).toEqual([["extraction read lapsed: rollback:3", "the request was cancelled"]]);
+    expect(calls.released).toBe(1);
+  });
+
+  it("hands the read's own signal to the model call", async () => {
+    const read = runSharedRead as jest.Mock;
+    read.mockClear();
+    const { host, calls } = lapsedHost({ applyExtractionAudit: async () => undefined });
+    new ExtractionScheduler(host).schedule({ priority: 0, reason: "manual", window: { from: 0, to: 0, messages: [] } });
+    await flush();
+    expect(read.mock.calls[0][0].client.signal).toBe(calls.signal);
+    expect(calls.released).toBe(1);
+  });
+
+  it("control: a transport failure is still retried and still reported", async () => {
+    const read = runSharedRead as jest.Mock;
+    read.mockReset();
+    read.mockRejectedValue(new ModelCallError("transport", "API request failed: Response not OK"));
+    const { host, calls } = lapsedHost();
+    const scheduler = new ExtractionScheduler(host);
+    scheduler.schedule({ priority: 0, reason: "manual", window: { from: 0, to: 0, messages: [] } });
+    await new Promise((resolve) => setTimeout(resolve, 900));
+    expect(read).toHaveBeenCalledTimes(3);
+    expect(scheduler.getSnapshot().lastError).toBe("API request failed: Response not OK");
+    expect(calls.lapses).toEqual([]);
+    read.mockReset();
+  });
+
+  it("a lapsed heavy job leaves no heavy error either", async () => {
+    const { host, calls } = lapsedHost();
+    const scheduler = new ExtractionScheduler(host);
+    let attempts = 0;
+    scheduler.schedule({ priority: 4, reason: "wi-curator:scene", run: async () => { attempts += 1; throw new ModelCallError("lapsed", "the request was cancelled"); } });
+    await flush();
+    expect(attempts).toBe(1);
+    expect(scheduler.getSnapshot().lastHeavyError).toBeNull();
+    expect(calls.lapses).toHaveLength(1);
   });
 });

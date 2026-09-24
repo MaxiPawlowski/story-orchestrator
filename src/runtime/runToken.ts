@@ -10,6 +10,8 @@
 // is the whole identity of the work: which chat, which story at which version, which run of the
 // runtime, and which window of messages the answer was computed from.
 
+import { NEVER_ABORTS } from "@utils/signals";
+
 export interface MessageWindow {
   from: number;
   to: number;
@@ -109,6 +111,13 @@ export interface RunOwnership {
   check: (token: RunToken) => TokenCheck;
   /** v2.3 plan 03: aborts when the epoch this work started in is replaced. */
   signal?: () => AbortSignal;
+  /** v2.4 plan 03 D2: a live run's own signal — the epoch's, plus a mutation inside `window`. */
+  live?: (window: MessageWindow | null) => LiveRun;
+}
+
+export interface LiveRun {
+  signal: AbortSignal;
+  release: () => void;
 }
 
 /**
@@ -129,6 +138,10 @@ export interface RunGuard {
   lapsed(): TokenMismatch | null;
   /** The same, with detail, for a log line. */
   lapsedDetail(): string | null;
+  /** v2.4 plan 03 D2: aborts when this run lapses, so the host request is cancelled, not only refused. */
+  readonly signal: AbortSignal;
+  /** Drops the run from the owner's live registry once its model call is over. */
+  release(): void;
 }
 
 /**
@@ -140,7 +153,18 @@ export interface RunGuard {
 export function beginRun(ownership: RunOwnership | undefined, window: MessageWindow | null = null): RunGuard {
   const token = ownership?.mint(window) ?? null;
   const verdict = (): TokenCheck => (token && ownership ? ownership.check(token) : { ok: true });
+  let live: LiveRun | null = null;
+  const track = (): LiveRun => {
+    if (live) return live;
+    const tracked = ownership?.live?.(window) ?? { signal: ownership?.signal?.() ?? NEVER_ABORTS, release: () => {} };
+    live = verdict().ok || tracked.signal.aborted ? tracked : { signal: AbortSignal.abort(), release: tracked.release };
+    return live;
+  };
   return {
+    get signal() {
+      return track().signal;
+    },
+    release: () => live?.release(),
     stillOwns: () => verdict().ok,
     lapsed: () => {
       const check = verdict();

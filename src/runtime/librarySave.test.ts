@@ -11,7 +11,7 @@ const evidenceFor = (observation: SettingsSaveObservation, stored: unknown[] | n
   return { readBack, confirm: createLibrarySaveEvidence({ observe: async () => observation, readBack }) };
 };
 
-const guard = (owns: boolean): RunGuard => ({ stillOwns: () => owns, lapsed: () => (owns ? null : "chat"), lapsedDetail: () => (owns ? null : "chat moved") });
+const guard = (owns: boolean): RunGuard => ({ stillOwns: () => owns, lapsed: () => (owns ? null : "chat"), lapsedDetail: () => (owns ? null : "chat moved"), signal: new AbortController().signal, release: () => {} });
 
 describe("v2.4 plan 02 §7 (T8): a library save is claimed only on evidence", () => {
   it("control: a 2xx save and a server holding this record is Saved", async () => {

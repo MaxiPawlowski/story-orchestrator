@@ -2,7 +2,7 @@ import {
   progressQualityForAnchor, type BlackboardDelta, type EngineState, type NormalizedStoryV2, type NormalizedTransition,
 } from "@engine/index";
 import {
-  callExtractionModel, deriveScope, getCanonLite, runSharedRead, stripChannelNoise, type ExtraGateSource,
+  callExtractionModel, deriveScope, getCanonLite, lapseAsEmpty, maxTokensForInput, runSharedRead, stripChannelNoise, type ExtraGateSource,
   type ParsedDelta, type ParsedFact, type SharedReadWindow,
 } from "@extraction/index";
 import {
@@ -269,8 +269,10 @@ export class MemoryCoordinator {
     for (const id of arcIds) {
       const arc = this.state.arcs.find((candidate) => candidate.id === id);
       if (!arc || arc.status !== "resolved" || arc.summary) continue;
-      const summary = await callExtractionModel(buildArcSummaryPrompt(arc.text, sceneSummaries, memories), {
+      const prompt = buildArcSummaryPrompt(arc.text, sceneSummaries, memories);
+      const summary = await callExtractionModel(prompt, {
         profileId: settings.profileId,
+        maxTokens: maxTokensForInput("arcSummary", prompt), signal: run.signal, refuseIncomplete: true,
         debugResponse: globalThis.storyOrchestratorDebugArcSummaryResponse ?? null,
       });
       if (!run.stillOwns()) break;
@@ -377,10 +379,12 @@ export class MemoryCoordinator {
     this.canonInFlight = true;
     try {
       const settings = this.deps.getExtractionSettings();
-      const text = await callExtractionModel(buildCanonSummaryPrompt(story.title, arcSummaries, facts, checkpoint), {
+      const prompt = buildCanonSummaryPrompt(story.title, arcSummaries, facts, checkpoint);
+      const text = await callExtractionModel(prompt, {
         profileId: settings.profileId,
+        maxTokens: maxTokensForInput("canon", prompt), signal: run.signal, refuseIncomplete: true,
         debugResponse: globalThis.storyOrchestratorDebugCanonResponse ?? null,
-      });
+      }).catch(lapseAsEmpty);
       const trimmed = stripChannelNoise(text);
       if (!trimmed || !run.stillOwns()) return false;
       const arcs = resolvedArcs(this.state.arcs);

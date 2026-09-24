@@ -3,11 +3,11 @@
   "rows": {
     "src/extraction/scheduler.ts#ExtractionScheduler.pump": {
       "status": "partial",
-      "note": "v2.3 replan V3 (2026-09-23): COVERED: the read's guard is minted before runSharedRead and travels into applyExtractionAudit, which refuses a lapsed read before any write (V2); the install-wide pause and the panel's lastError are both written only when the epoch the job started in is still current (sameWorld). NOT COVERED: `inFlight` is one flag per scheduler, so a new world's queue waits for an old job to finish (serial by design: one endpoint), and `job.run` bodies are censused where they are defined, not here."
+      "note": "v2.3 replan V3 (2026-09-23): COVERED: the read's guard is minted before runSharedRead and travels into applyExtractionAudit, which refuses a lapsed read before any write (V2); the install-wide pause and the panel's lastError are both written only when the epoch the job started in is still current (sameWorld). NOT COVERED: `inFlight` is one flag per scheduler, so a new world's queue waits for an old job to finish (serial by design: one endpoint), and `job.run` bodies are censused where they are defined, not here. v2.4 plan 03 D2 (2026-09-24): the read's guard now carries a live signal into the model call, so a mutation inside its window or a new world ABORTS the host request (runOwner.abort.test.ts); a lapse is not retried, writes no lastError and never reaches the pause path (scheduler.test.ts \"an aborted read is not retried and records no error\"); an in-flight answer that wins the race against the abort is still refused at the write edge."
     },
     "src/extraction/scheduler.ts#ExtractionScheduler.pumpHeavy": {
       "status": "partial",
-      "note": "v2.3 replan V3 (2026-09-23): COVERED: lastHeavyError is written only when the job's starting epoch is still current (it used to land in the next world's panel after clearForNewWorld emptied it). NOT COVERED: heavyInFlight serialises across worlds by design, and the job's own writes live in its run closure, censused at its definition."
+      "note": "v2.3 replan V3 (2026-09-23): COVERED: lastHeavyError is written only when the job's starting epoch is still current (it used to land in the next world's panel after clearForNewWorld emptied it). NOT COVERED: heavyInFlight serialises across worlds by design, and the job's own writes live in its run closure, censused at its definition. v2.4 plan 03 D2 (2026-09-24): a lapsed heavy job (aborted by the epoch) is not retried and writes no lastHeavyError."
     },
     "src/extraction/sharedRead.ts#runSharedRead": {
       "status": "local",
@@ -415,7 +415,7 @@
     },
     "src/runtime/talkControl.ts#TalkController.ensureDecision": {
       "status": "checked",
-      "note": "v2.3 plan 03: mints against the director window before the judge/director call, captures the origin checkpoint and message id, refuses to cache or record a decision whose world moved, and re-checks a cached or in-flight entry so a stale one cannot serve a world that replaced it. Exact pending identity keeps an old task from clearing its replacement. The returned guard also gates the two host effects the callers perform (abort, triggerMember) and the audit row now names the world the decision was computed from. No journal record on discard: the host has no journal seam here, and extras.talk.decisions renders every row as a chosen speaker or a silence, so a discard row would read as a silence."
+      "note": "v2.3 plan 03: mints against the director window before the judge/director call, captures the origin checkpoint and message id, refuses to cache or record a decision whose world moved, and re-checks a cached or in-flight entry so a stale one cannot serve a world that replaced it. Exact pending identity keeps an old task from clearing its replacement. The returned guard also gates the two host effects the callers perform (abort, triggerMember) and the audit row now names the world the decision was computed from. No journal record on discard: the host has no journal seam here, and extras.talk.decisions renders every row as a chosen speaker or a silence, so a discard row would read as a silence. v2.4 plan 03 D2 (2026-09-24): runDirector now ABORTS the host request at DIRECTOR_TIMEOUT_MS instead of only racing it (talkControl.test.ts \"timeout aborts the host signal and falls back to rules (v2.4 plan 03 D2)\"); no new write-after-await."
     },
     "src/runtime/talkControl.ts#TalkController.intercept": {
       "status": "delegate",

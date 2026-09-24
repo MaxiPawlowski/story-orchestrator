@@ -1,6 +1,7 @@
 import type { RosterMember, TalkControl } from "@engine/index";
 import type { JudgeDirectorDecision, JudgeDirectorInput } from "@judge/index";
 import { buildCandidates, chooseByRules, directorEnabled, directorInstruction, findCandidate, narrowByMention, parseDirectorResponse, renderDirectorPrompt, type DirectorWindowMessage, type TalkCandidate, type TalkDecisionSource } from "@talk/index";
+import { timeoutAbortReason } from "@utils/signals";
 import { beginRun, type MessageWindow, type RunGuard, type RunOwnership } from "./runToken";
 import type { TalkDecisionAudit } from "./types";
 
@@ -29,7 +30,7 @@ export interface TalkControlHost {
   getLastMessageId(): number;
   getWindow(): DirectorWindowMessage[];
   getCheckpointInfo(): TalkCheckpointInfo | null;
-  callDirector(prompt: string): Promise<string>;
+  callDirector(prompt: string, signal: AbortSignal): Promise<string>;
   judgeDirector?(input: JudgeDirectorInput): Promise<JudgeDirectorDecision | null>;
   getPlayerName?(): string;
   triggerMember(name: string): Promise<void>;
@@ -67,8 +68,11 @@ interface PendingDecision {
   run: RunGuard;
 }
 
-const withTimeout = <T,>(promise: Promise<T>, ms: number): Promise<T> => new Promise((resolve, reject) => {
-  const timer = setTimeout(() => reject(new Error("director timeout")), ms);
+const withTimeout = <T,>(promise: Promise<T>, ms: number, onTimeout: () => void): Promise<T> => new Promise((resolve, reject) => {
+  const timer = setTimeout(() => {
+    onTimeout();
+    reject(new Error("director timeout"));
+  }, ms);
   promise.then(
     (value) => { clearTimeout(timer); resolve(value); },
     (error) => { clearTimeout(timer); reject(error); },
@@ -249,8 +253,9 @@ export class TalkController {
       instruction: directorInstruction(control),
       window,
     });
+    const controller = new AbortController();
     try {
-      const raw = await withTimeout(this.host.callDirector(prompt), DIRECTOR_TIMEOUT_MS);
+      const raw = await withTimeout(this.host.callDirector(prompt, controller.signal), DIRECTOR_TIMEOUT_MS, () => controller.abort(timeoutAbortReason(`the director did not answer within ${DIRECTOR_TIMEOUT_MS} ms`)));
       const verdict = parseDirectorResponse(raw, pool, allowSilence);
       if (!verdict) return null;
       if (verdict.rosterId === null) return { kind: "silence", source: "director" };

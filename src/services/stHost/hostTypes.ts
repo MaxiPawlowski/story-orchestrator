@@ -76,6 +76,12 @@ export interface SillyTavernContext {
   humanizedDateTime?: () => string;
   // Every lorebook that exists, not only the active ones (st-context.js:284).
   getWorldInfoNames?: () => string[];
+  // v2.4 03-H15: `CONNECT_API_MAP[api].selected` is `openai` (CC) or `textgenerationwebui` (TC) (st-context.js:285).
+  CONNECT_API_MAP?: Record<string, { selected?: string } | undefined>;
+  // v2.4 03-H6: the reply text ST's extracted path reads (script.js:6276, st-context.js:287).
+  extractMessageFromData?: (data: unknown, activeApi?: string | null) => string;
+  // v2.4 03-H17: the instruct template a TC profile names (st-context.js:288, preset-manager.js:757).
+  getPresetManager?: (apiId?: string) => { getCompletionPresetByName: (name?: string) => Record<string, unknown> | undefined } | null | undefined;
   [key: string]: unknown;
 }
 
@@ -144,10 +150,20 @@ export interface GroupChatsHostModule {
   [key: string]: unknown;
 }
 
+// v2.4 03-H1: `custom` is destructured at shared.js:424 and `signal` reaches both services' `fetch`
+// (CC :463, TC :483). `extractData: false` returns the raw reply JSON (03-H6).
+export interface HostModelRequestCustom {
+  extractData?: boolean;
+  includePreset?: boolean;
+  includeInstruct?: boolean;
+  stream?: boolean;
+  signal?: AbortSignal | null;
+}
+
 export interface ExtensionsSharedHostModule {
   ConnectionManagerRequestService: {
     getSupportedProfiles: () => Array<Record<string, unknown>>;
-    sendRequest: (profileId: string, prompt: string | Array<{ role: string; content: string }>, maxTokens: number, custom?: Record<string, unknown>, overridePayload?: Record<string, unknown>) => Promise<unknown>;
+    sendRequest: (profileId: string, prompt: string | Array<{ role: string; content: string }>, maxTokens: number, custom?: HostModelRequestCustom, overridePayload?: Record<string, unknown>) => Promise<unknown>;
   };
   [key: string]: unknown;
 }
