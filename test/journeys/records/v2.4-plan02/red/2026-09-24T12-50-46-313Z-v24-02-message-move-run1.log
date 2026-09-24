@@ -1,0 +1,89 @@
+1/19 eval ok 5ms
+1/19 eval -> {"greetingsCleared":1}
+2/19 eval ok 4ms
+3/19 import_story ok 357ms
+4/19 eval ok 8ms
+5/19 send ok 1855ms
+6/19 extract ok 473ms
+7/19 record_state ok 7ms
+7/19 record_state -> {"as":"before-line-1","boundary":1,"active":"start","rows":{"memory":1,"epistemic":0,"ledger":0}}
+8/19 send ok 1666ms
+9/19 extract ok 470ms
+10/19 send ok 1654ms
+11/19 extract ok 473ms
+12/19 eval ok 5ms
+12/19 eval -> {"values":{"took_key":true,"lit_lamp":true,"found_map":true},"boundary":3}
+13/19 record_state ok 5ms
+13/19 record_state -> {"as":"before-move","boundary":3,"active":"start","rows":{"memory":3,"epistemic":0,"ledger":0}}
+14/19 eval ok 546ms
+14/19 eval -> {"order":["I take the brass key from the hook.","I unroll the map on the table.","I light the oil lamp by the door."],"updatedEvents":[2]}
+15/19 wait ok 1550ms
+16/19 extract ok 482ms
+17/19 wait ok 1543ms
+18/19 expect FAIL expected the rollback to start at message 1, it started at 2
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T12-51-46-518Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T12-51-49-384Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 18,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-24@09h51m35s259ms",
+    "owned": [
+      "2026-09-24@09h51m35s259ms"
+    ],
+    "deleted": [
+      "2026-09-24@09h51m35s259ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@09h51m35s259ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

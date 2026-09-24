@@ -1,0 +1,52 @@
+1/9 seed_metadata ok 124ms
+1/9 seed_metadata -> {"version":4,"selectedStoryId":null,"keys":[]}
+2/9 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the v5 blob was replaced by reading it: {"version":4,"marker":null,"futureField":null,"storyId":null,"flagged":null,"journaled":false}
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:567)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1067)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T12-52-23-563Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T12-52-26-302Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 2,
+  "cleanup": {
+    "removedStoryHashes": [],
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@09h52m23s307ms",
+    "owned": [
+      "2026-09-24@09h52m23s307ms"
+    ],
+    "deleted": [
+      "2026-09-24@09h52m23s307ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@09h52m23s307ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

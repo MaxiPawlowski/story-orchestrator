@@ -1,0 +1,87 @@
+1/12 eval ok 5ms
+2/12 import_story ok 362ms
+3/12 eval ok 8ms
+3/12 eval -> {"storyId":"legacy-v2-de4f955d","removed":false,"toolbar":null}
+4/12 ui ok 301ms
+5/12 eval ok 15ms
+5/12 eval -> {"draftId":null,"title":"v24-01 Delete Decode"}
+6/12 block_route ok 33ms
+7/12 studio_save ok 15423ms
+8/12 eval ok 4008ms
+8/12 eval -> {"sentence":"Saved “v24-01 Delete Decode” v1 to the library. Not applied to this chat: it is playing a different story."}
+9/12 unblock_route ok 7ms
+10/12 eval ok 2507ms
+10/12 eval -> {"removed":true}
+11/12 ui ok 45ms
+12/12 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the Studio claims the library save while /api/settings/save answered 500 (H15: saveSettings swallows it): Saved “v24-01 Delete Decode” v1 to the library. Not applied to this chat: it is playing a different story.
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:338)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:669)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T12-52-24-924Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T12-52-27-793Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 12,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-24@09h52m02s079ms",
+    "owned": [
+      "2026-09-24@09h52m02s079ms"
+    ],
+    "deleted": [
+      "2026-09-24@09h52m02s079ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@09h52m02s079ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

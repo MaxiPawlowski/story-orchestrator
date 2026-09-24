@@ -1,0 +1,87 @@
+1/12 eval ok 9ms
+1/12 eval -> {"greetingsCleared":1}
+2/12 eval ok 4ms
+3/12 import_story ok 349ms
+4/12 eval ok 8ms
+5/12 send ok 1841ms
+6/12 extract ok 472ms
+7/12 eval ok 4ms
+7/12 eval -> {"control":"applied","boundary":1}
+8/12 eval ok 9ms
+8/12 eval -> {"peerRestored":true}
+9/12 send ok 1641ms
+10/12 extract ok 16048ms
+11/12 eval ok 235ms
+11/12 eval -> {"peerSave":{"boundary":2,"health":{"lastAppliedBoundary":1,"pendingBoundary":1,"lastOutcome":"unsaved","consecutiveFailures":2,"lastReason":"no save request went out","lastFailureAt":"2026-09-24T12:51:31.202Z"}},"restoredHealth":{"lastAppliedBoundary":2,"pendingBoundary":null,"lastOutcome":"applied","consecutiveFailures":0,"lastReason":null,"lastFailureAt":"2026-09-24T12:51:31.202Z"}}
+12/12 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the save of boundary 2 went out while a peer had restored window.fetch and was not observed: saveHealth {"lastOutcome":"unsaved","lastReason":"no save request went out","pendingBoundary":1,"lastAppliedBoundary":1} (plan 02 section 7: re-wrap when globalThis.fetch is not ours)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:177)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:587)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T12-51-31-521Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T12-51-34-341Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 12,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-24@09h51m10s736ms",
+    "owned": [
+      "2026-09-24@09h51m10s736ms"
+    ],
+    "deleted": [
+      "2026-09-24@09h51m10s736ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@09h51m10s736ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

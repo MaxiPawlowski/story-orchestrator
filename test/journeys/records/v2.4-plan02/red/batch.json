@@ -1,0 +1,181 @@
+{
+  "lanes": [
+    1,
+    2
+  ],
+  "items": [
+    "test/scenarios/v24-02-branch-continue.json",
+    "test/scenarios/v24-02-chat-delete-reap.json",
+    "test/scenarios/v24-02-checkpoint-continue.json",
+    "test/scenarios/v24-02-fetch-restored.json",
+    "test/scenarios/v24-02-hide-consumed.json",
+    "test/scenarios/v24-02-message-move.json",
+    "test/scenarios/v24-02-noop-edit.json",
+    "test/scenarios/v24-02-persona-change.json",
+    "test/scenarios/v24-02-persona-sync.json",
+    "test/scenarios/v24-02-same-chat-reload.json",
+    "test/scenarios/v24-02-settings-save-swallowed.json",
+    "test/scenarios/v24-02-swipe-delete-below.json",
+    "test/scenarios/v24-02-unrecognized-blob.json"
+  ],
+  "repeat": 1,
+  "strict": false,
+  "results": [
+    {
+      "item": "test/scenarios/v24-02-branch-continue.json",
+      "lane": 1,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T12-50-46-313Z-v24-02-branch-continue-run1.log",
+      "ms": 16908,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v24-02-chat-delete-reap.json",
+      "lane": 2,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-24T12-50-46-313Z-v24-02-chat-delete-reap-run1.log",
+      "ms": 23508,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v24-02-checkpoint-continue.json",
+      "lane": 1,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T12-50-46-313Z-v24-02-checkpoint-continue-run1.log",
+      "ms": 17176,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v24-02-fetch-restored.json",
+      "lane": 2,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-24T12-50-46-313Z-v24-02-fetch-restored-run1.log",
+      "ms": 24524,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v24-02-hide-consumed.json",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T12-50-46-313Z-v24-02-hide-consumed-run1.log",
+      "ms": 15765,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v24-02-noop-edit.json",
+      "lane": 1,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T12-50-46-313Z-v24-02-noop-edit-run1.log",
+      "ms": 13132,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v24-02-message-move.json",
+      "lane": 2,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-24T12-50-46-313Z-v24-02-message-move-run1.log",
+      "ms": 15040,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v24-02-persona-sync.json",
+      "lane": 2,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-24T12-50-46-313Z-v24-02-persona-sync-run1.log",
+      "ms": 10142,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v24-02-persona-change.json",
+      "lane": 1,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T12-50-46-313Z-v24-02-persona-change-run1.log",
+      "ms": 11832,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v24-02-same-chat-reload.json",
+      "lane": 2,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-24T12-50-46-313Z-v24-02-same-chat-reload-run1.log",
+      "ms": 10445,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v24-02-swipe-delete-below.json",
+      "lane": 2,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-24T12-50-46-313Z-v24-02-swipe-delete-below-run1.log",
+      "ms": 12288,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v24-02-unrecognized-blob.json",
+      "lane": 2,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-24T12-50-46-313Z-v24-02-unrecognized-blob-run1.log",
+      "ms": 4048,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v24-02-settings-save-swallowed.json",
+      "lane": 1,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T12-50-46-313Z-v24-02-settings-save-swallowed-run1.log",
+      "ms": 26685,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

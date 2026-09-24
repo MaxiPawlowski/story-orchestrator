@@ -1,0 +1,62 @@
+1/7 eval ok 5ms
+2/7 send ok 1678ms
+3/7 eval ok 330ms
+3/7 eval -> {"originalAvatar":"user-default.png","originalName":"Max","targetAvatar":"1730029080534-Pedropicapiedra.png","targetName":"Pedro picapiedra","storyId":"v24-02-persona-change","readyAfter":null,"restored":false,"removed":false}
+4/7 eval ok 14ms
+4/7 eval -> {"requirements":{"ready":false,"missingPersonas":["Pedro picapiedra"],"missingMembers":[],"missingLorebooks":[]}}
+5/7 eval ok 3315ms
+5/7 eval -> {"personaChanged":["1730029080534-Pedropicapiedra.png"],"name1":"Pedro picapiedra","requirements":{"ready":false,"missingPersonas":["Pedro picapiedra"],"missingMembers":[],"missingLorebooks":[]},"boundaryBefore":0,"boundaryAfter":0}
+6/7 eval ok 2516ms
+6/7 eval -> {"restored":true,"removed":true}
+7/7 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the requirements did not go green after switching to the required persona without a turn (plan 02 section 8, PERSONA_CHANGED): {"ready":false,"missingPersonas":["Pedro picapiedra"],"missingMembers":[],"missingLorebooks":[]}
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:821)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1020)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T12-51-58-335Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T12-52-01-110Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 7,
+  "cleanup": {
+    "removedStoryHashes": [],
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-24@09h51m50s330ms",
+    "owned": [
+      "2026-09-24@09h51m50s330ms"
+    ],
+    "deleted": [
+      "2026-09-24@09h51m50s330ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@09h51m50s330ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

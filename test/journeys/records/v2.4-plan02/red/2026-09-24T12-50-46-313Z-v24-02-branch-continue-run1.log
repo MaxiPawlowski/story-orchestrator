@@ -1,0 +1,96 @@
+1/20 eval ok 7ms
+1/20 eval -> {"greetingsCleared":1}
+2/20 eval ok 5ms
+3/20 import_story ok 365ms
+4/20 eval ok 6ms
+5/20 send ok 1766ms
+6/20 extract ok 497ms
+7/20 send ok 1676ms
+8/20 extract ok 470ms
+9/20 record_state ok 7ms
+9/20 record_state -> {"as":"after-line-1","boundary":2,"active":"start","rows":{"memory":3,"epistemic":0,"ledger":0}}
+10/20 send ok 1653ms
+11/20 extract ok 475ms
+12/20 eval ok 369ms
+12/20 eval -> {"chatId":"2026-09-24@09h50m47s296ms","integrity":"9e54dbbf-7400-4bec-b828-9c8f018ab8c2","book":"Story Orchestrator - v24-01 Delete Decode - 2026-09-24@09h50m47s296ms","boundary":3}
+13/20 branch_create ok 110ms
+13/20 branch_create -> {"command":"/branch-create 1","name":"2026-09-24@09h50m47s296ms - Branch #1","kind":"branch","opened":true,"branchChats":["2026-09-24@09h50m47s296ms - Branch #1"]}
+14/20 eval ok 8ms
+14/20 eval -> {"branch":"2026-09-24@09h50m47s296ms - Branch #1","main_chat":"2026-09-24@09h50m47s296ms","integrity":"c3f65253-8b29-41a6-a473-50adbba3f3d6","blobStampedFor":"2026-09-24@09h50m47s296ms","slot":"Story Orchestrator - v24-01 Delete Decode - 2026-09-24@09h50m47s296ms","storyLoaded":null}
+15/20 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the unadopted branch still binds the parent's mirror book Story Orchestrator - v24-01 Delete Decode - 2026-09-24@09h50m47s296ms in its chat lorebook slot, so the parent's memory fires in the branch (plan 02 section 5: unbindChatLorebook while unadopted)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:372)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T12-51-00-288Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T12-51-03-204Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 15,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-24@09h50m47s296ms",
+    "owned": [
+      "2026-09-24@09h50m47s296ms",
+      "2026-09-24@09h50m47s296ms - Branch #1"
+    ],
+    "deleted": [
+      "2026-09-24@09h50m47s296ms",
+      "2026-09-24@09h50m47s296ms - Branch #1"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@09h50m47s296ms - Branch #1",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [
+        "2026-09-24@09h50m47s296ms - Branch #1"
+      ],
+      "deleted": [
+        "2026-09-24@09h50m47s296ms - Branch #1"
+      ],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [
+        "Story Orchestrator - v24-01 Delete Decode - 2026-09-24@09h50m47s296ms"
+      ],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

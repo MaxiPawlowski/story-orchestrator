@@ -1,0 +1,85 @@
+1/19 eval ok 6ms
+1/19 eval -> {"greetingsCleared":1}
+2/19 eval ok 5ms
+3/19 import_story ok 364ms
+4/19 eval ok 7ms
+5/19 send ok 1852ms
+6/19 extract ok 476ms
+7/19 send ok 1680ms
+8/19 extract ok 471ms
+9/19 send ok 1685ms
+10/19 extract ok 473ms
+11/19 eval ok 6ms
+11/19 eval -> {"values":{"took_key":true,"lit_lamp":true,"found_map":true},"boundary":3}
+12/19 record_state ok 6ms
+12/19 record_state -> {"as":"before-edit","boundary":3,"active":"start","rows":{"memory":3,"epistemic":0,"ledger":0}}
+13/19 eval ok 639ms
+13/19 eval -> {"unchanged":true,"events":[["MESSAGE_EDITED",1],["MESSAGE_UPDATED",1]]}
+14/19 wait ok 1541ms
+15/19 expect FAIL expected no rollback since "before-edit", got applied from 1, seq 2
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T12-51-46-433Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T12-51-49-274Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 15,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-24@09h51m37s090ms",
+    "owned": [
+      "2026-09-24@09h51m37s090ms"
+    ],
+    "deleted": [
+      "2026-09-24@09h51m37s090ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@09h51m37s090ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

@@ -1,0 +1,95 @@
+1/13 eval ok 5ms
+1/13 eval -> {"chatA":"2026-09-24@09h50m47s302ms"}
+2/13 slash ok 1640ms
+3/13 eval ok 6ms
+3/13 eval -> {"chatB":"2026-09-24@09h50m47s424ms","greetingsCleared":1}
+4/13 eval ok 8ms
+5/13 import_story ok 367ms
+6/13 eval ok 8ms
+7/13 send ok 1764ms
+8/13 extract ok 478ms
+9/13 eval ok 362ms
+9/13 eval -> {"chatA":"2026-09-24@09h50m47s302ms","chatB":"2026-09-24@09h50m47s424ms","book":"Story Orchestrator - v24-01 Delete Decode - 2026-09-24@09h50m47s424ms"}
+10/13 eval ok 1087ms
+10/13 eval -> {"on":"2026-09-24@09h50m47s302ms"}
+11/13 eval ok 4441ms
+11/13 eval -> {"h11":"no offer, book kept"}
+12/13 eval ok 16ms
+12/13 eval -> {"deleted":"2026-09-24@09h50m47s424ms","events":["2026-09-24@09h50m47s424ms"]}
+13/13 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: chat B was deleted and no reap was offered for its mirror book Story Orchestrator - v24-01 Delete Decode - 2026-09-24@09h50m47s424ms within 8 s (plan 02 section 6; today nothing subscribes GROUP_CHAT_DELETED)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:708)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T12-51-06-957Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T12-51-09-823Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 13,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-24@09h50m47s302ms",
+    "owned": [
+      "2026-09-24@09h50m47s302ms",
+      "2026-09-24@09h50m47s424ms"
+    ],
+    "deleted": [
+      "2026-09-24@09h50m47s302ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [
+      {
+        "id": "2026-09-24@09h50m47s424ms",
+        "reason": "not listed in the group"
+      }
+    ],
+    "currentChatAtCleanup": "2026-09-24@09h50m47s302ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [
+        "Story Orchestrator - v24-01 Delete Decode - 2026-09-24@09h50m47s424ms"
+      ],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}
