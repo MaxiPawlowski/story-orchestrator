@@ -1,0 +1,94 @@
+{
+  "_note": "v2.4 plan 01 T6, LIVE (real generations; so-scenario --sandbox --group 1759606632088). Stepped Thinking (embedded mode) runs its thought as a NESTED quiet generation with force_chid inside the drafted member's own generation. A private row (Arin hides the petty cash from Ponticius) and an accepted warden note are planted; the private row is seeded through the extract verb's debugResponse because this row tests the generation lifecycle, not the extraction pipeline, and cadence extraction is off so no real read races it. Arm A: ext_setting is_enabled true, `/trigger Arin`. The request ST sends for Arin's loud generation must carry his private block and the note, a quiet thought request must have been sent (else nothing nested ran), and the note must be applied exactly once, after the render. Arm B (control): thinking off, a second note, the same trigger. The runner restores is_enabled in its finally; the run header diff proves it. The player line never names the secret, so finding it in a request body means the private block carried it.",
+  "steps": [
+    {
+      "import_story": {
+        "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; rt.setExtractionSettings({ cadence: 0 }); rt.setEpistemicLedgerCapable(true); const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error('needs a group chat'); const chid = (ctx.characters ?? []).findIndex((card) => card?.name === 'Arin'); if (chid < 0) throw new Error('Arin is not a character here'); globalThis.__t6live = { chid, requests: [], drafted: null, type: null }; const probe = globalThis.__t6live; ctx.eventSource.on(ctx.eventTypes.GROUP_MEMBER_DRAFTED, (member) => { probe.drafted = member; }); probe.stack = []; ctx.eventSource.on(ctx.eventTypes.GENERATION_STARTED, (type, params, dryRun) => { if (!dryRun && typeof type === 'string') probe.stack.push(type); }); const pop = (arg) => { if (arg === undefined || typeof arg === 'number') probe.stack.pop(); }; ctx.eventSource.on(ctx.eventTypes.GENERATION_ENDED, pop); ctx.eventSource.on(ctx.eventTypes.GENERATION_STOPPED, pop); ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, (data, dryRun) => { if (dryRun) return; probe.requests.push({ type: probe.stack.at(-1) ?? null, drafted: probe.drafted, body: JSON.stringify(data ?? null) }); }); return { chid, cadence: 0, capable: true };",
+      "log": true
+    },
+    {
+      "send": "I count the guild's takings while Ponticius is looking at the board."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "extract": {
+        "debugResponse": "SCENE_NONE\n[hiding] Arin from Ponticius | Arin palmed the guild's petty cash while nobody was counting.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const rows = rt.getEpistemic().filter((entry) => entry.hiddenFrom === 'Ponticius' && !entry.supersededBy); if (rows.length !== 1) throw new Error('the private row did not land exactly once: ' + JSON.stringify(rt.getEpistemic().map((e) => [e.tag, e.subject, e.hiddenFrom, e.content]))); await rt.setEpistemicPinned(rows[0].id, true); return { pinned: rows[0].id };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const state = rt.getStagecraftState(); const probe = globalThis.__t6live; probe.settings = { ...state.settings }; state.settings.wardenEnabled = true; state.settings.wardenAcceptMode = 'auto'; const plant = (id, text) => { const state = rt.getStagecraftState(); state.settings.wardenEnabled = true; state.settings.wardenAcceptMode = 'auto'; const last = ctx.chat.length - 1; state.proposals.push({ id, curator: 'warden', at: new Date().toISOString(), boundary: rt.getEngineState().boundary, messageId: last, checkpointId: rt.getEngineState().activeCheckpointId, reason: 'continuity', summary: id, mode: 'auto', ops: [{ op: { kind: 'note', text, facts: [id], replyMessageId: last }, status: 'accepted' }], dropped: [] }); }; probe.plant = plant; probe.noteA = 'Continuity: the ledger shows three crowns short. Keep the next reply consistent with it.'; plant('t6-live-a', probe.noteA); probe.requests.length = 0; return { planted: 't6-live-a' };",
+      "log": true
+    },
+    {
+      "ext_setting": {
+        "extension": "st-stepped-thinking",
+        "key": "is_enabled",
+        "value": true
+      }
+    },
+    {
+      "slash": "/trigger await=true Arin"
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const probe = globalThis.__t6live; const status = rt.getStagecraftState().proposals.find((record) => record.id === 't6-live-a')?.ops?.[0]?.status ?? null; const quiet = probe.requests.filter((r) => r.type === 'quiet'); const loud = probe.requests.filter((r) => r.type !== 'quiet' && r.type !== 'impersonate'); const last = ctx.chat.at(-1); const problems = []; if (!quiet.length) problems.push('Stepped Thinking sent no quiet thought request, so nothing nested ran and this arm measures nothing'); if (!loud.length) problems.push('no loud request was recorded'); const carrying = loud.filter((r) => r.body.includes('petty cash') && r.body.includes('three crowns short')); if (!carrying.length) problems.push('Arin\\'s loud request does not carry both his private block and the note: ' + JSON.stringify(loud.map((r) => ({ type: r.type, secret: r.body.includes('petty cash'), note: r.body.includes('three crowns short') })))); if (status !== 'applied') problems.push('the note is ' + status + ' after a rendered reply, not applied'); if (last?.name !== 'Arin' || last?.is_user) problems.push('the last row is not Arin\\'s reply: ' + JSON.stringify({ name: last?.name, user: last?.is_user })); if (String(ctx.extensionPrompts?.story_orchestrator_continuity?.value ?? '').trim()) problems.push('the note is still injected after the generation closed'); if (problems.length) throw new Error(problems.join(' | ')); probe.armA = { quiet: quiet.length, loud: loud.length, carrying: carrying.length, status }; return probe.armA;",
+      "log": true
+    },
+    {
+      "ext_setting": {
+        "extension": "st-stepped-thinking",
+        "key": "is_enabled",
+        "value": false
+      }
+    },
+    {
+      "eval": "const probe = globalThis.__t6live; probe.noteB = 'Continuity: the lamp oil is nearly gone. Keep the next reply consistent with it.'; probe.plant('t6-live-b', probe.noteB); probe.requests.length = 0; return { planted: 't6-live-b' };"
+    },
+    {
+      "slash": "/trigger await=true Arin"
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const probe = globalThis.__t6live; const state = rt.getStagecraftState(); try { const status = state.proposals.find((record) => record.id === 't6-live-b')?.ops?.[0]?.status ?? null; const quiet = probe.requests.filter((r) => r.type === 'quiet'); const loud = probe.requests.filter((r) => r.type !== 'quiet' && r.type !== 'impersonate'); const carrying = loud.filter((r) => r.body.includes('petty cash') && r.body.includes('lamp oil is nearly gone')); const problems = []; if (quiet.length) problems.push('the control arm sent a quiet request with thinking off: ' + quiet.length); if (!carrying.length) problems.push('the control arm\\'s loud request does not carry the private block and the note'); if (status !== 'applied') problems.push('control note is ' + status); if (problems.length) throw new Error(problems.join(' | ')); return { armA: probe.armA, armB: { quiet: quiet.length, loud: loud.length, carrying: carrying.length, status } }; } finally { for (const id of ['t6-live-a', 't6-live-b']) { const index = state.proposals.findIndex((record) => record.id === id); if (index >= 0) state.proposals.splice(index, 1); } Object.assign(state.settings, probe.settings ?? {}); }",
+      "log": true
+    }
+  ]
+}

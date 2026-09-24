@@ -1,0 +1,260 @@
+{
+  "id": "J6",
+  "title": "mutation-storm",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j6-mutation-storm.journey.json",
+  "ranAt": "2026-09-24T08:53:04.371Z",
+  "strict": true,
+  "partial": false,
+  "only": null,
+  "tally": {
+    "pass": 6,
+    "skipped": 1,
+    "fail": 2
+  },
+  "tallies": {
+    "automated": {
+      "pass": 6,
+      "fail": 2,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 1
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 6,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [
+    "2 automated check(s) failed"
+  ],
+  "humanRecord": null,
+  "runnerError": null,
+  "releasedRoutes": null,
+  "capabilities": {
+    "rollback-notice": true
+  },
+  "results": [
+    {
+      "id": "J6.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "a boundary is committed and a gate latches from a scripted turn",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.2",
+      "mode": "auto",
+      "findings": [],
+      "goal": "editing the message that carried the delta rolls the story back The check first waits for the group round J6.1 started to finish: a send returns before every member has replied, and an edit made mid-round is rolled back and then followed by the remaining replies' boundaries, which is a different scenario (L2 2026-09-23: J6.2 timed out on a still-generating round and J6.4 lost its notice to those boundaries).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.3",
+      "mode": "auto",
+      "findings": [],
+      "goal": "deleting the last message leaves engine state consistent, not orphaned",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.4",
+      "mode": "auto",
+      "findings": [
+        "U5"
+      ],
+      "goal": "the player is told the story stepped back after a mutation",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.5",
+      "mode": "human",
+      "findings": [
+        "U5"
+      ],
+      "goal": "",
+      "prompt": "After you edited and deleted messages, was it clear what the story did in response?",
+      "anchors": "1 = no idea, felt broken · 3 = worked it out from the drawer · 5 = the system said what it did",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    },
+    {
+      "id": "J6.6",
+      "mode": "auto",
+      "findings": [
+        "R4"
+      ],
+      "goal": "a reloaded chat still recognises an edit to a message its run has passed",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.7",
+      "mode": "auto",
+      "findings": [
+        "M3"
+      ],
+      "goal": "a ledger update is undone by an edit to the message its boundary acted on",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Timed out waiting for {\"timeoutMs\":300000,\"checkpointIn\":[\"cp2\",\"cp3\",\"cp-4a\",\"cp-4b\",\"cp-4a1\",\"cp-4a2\",\"cp-5\",\"cp-6\"]}. Last state: {\"chatId\":\"2026-09-24@05h37m44s467ms\",\"activeCheckpoint\":\"cp1\",\"boundary\":1,\"blackboard\":{},\"latched\":{},\"auditCount\":3,\"expansion\":{\"entries\":{},\"scheduler\":{\"queueDepth\":0,\"inFlight\":false,\"lastError\":null}},\"requirementsReady\":true,\"npcFired\":{\"cp2:onEnter:DM Narrator:0\":1,\"cp2:afterSpeak:Ponticius:0\":1},\"tension\":{\"level\":null,\"smoothed\":null,\"expected\":0,\"hint\":null},\"pacingPrompt\":null,\"lastAudit\":{\"accepted\":[\"approached_board\"],\"rejected\":[{\"q\":\"tension_current='stirring'\",\"reason\":\"invalid value\"}]},\"copilot\":{\"enabled\":true,\"activeNudge\":null,\"nudgeInjected\":false}}",
+      "firstAttempt": "fail",
+      "retries": []
+    },
+    {
+      "id": "J6.8",
+      "mode": "auto",
+      "findings": [
+        "M4"
+      ],
+      "goal": "a belief a reveal retired comes back when the reveal's message is edited The player line carries the evidence the scripted read cites: the evidence rule only accepts a quote from the read's window, and the old line relied on the model's reply happening to echo it (L2 2026-09-23: rejected once, story stayed at cp1).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.9",
+      "mode": "auto",
+      "findings": [
+        "E1"
+      ],
+      "goal": "an edit older than the retained history says so and offers both ways out it names: re-read from here, or restart the story (V11)",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#drawer-manager').locator('[role=\"tablist\"] button').filter({ hasText: 'Overview' }).first()\u001b[22m\n\u001b[2m    - locator resolved to <button tabindex=\"0\" role=\"button\" aria-selected=\"true\" class=\"menu_button interactable\">Overview</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <input type=\"text\" name=\"chat_name\" id=\"rm_group_chat_name\" class=\"text_pole flex1\" placeholder=\"Chat Name (Optional)\" data-i18n=\"[placeholder]Chat Name (Optional)\"/> from <div class=\"drawer\" id=\"rightNavHolder\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <input type=\"text\" name=\"chat_name\" id=\"rm_group_chat_name\" class=\"text_pole flex1\" placeholder=\"Chat Name (Optional)\" data-i18n=\"[placeholder]Chat Name (Optional)\"/> from <div class=\"drawer\" id=\"rightNavHolder\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m  2 × retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m      - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div no_favs=\"Favorite characters to add them to HotSwaps\" class=\"hotswap avatars_inline scroll-reset-container expander\" data-i18n=\"[no_favs]Favorite characters to add them to HotSwaps\">…</div> from <div class=\"drawer\" id=\"rightNavHolder\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m  14 × retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <input type=\"text\" name=\"chat_name\" id=\"rm_group_chat_name\" class=\"text_pole flex1\" placeholder=\"Chat Name (Optional)\" data-i18n=\"[placeholder]Chat Name (Optional)\"/> from <div class=\"drawer\" id=\"rightNavHolder\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <input type=\"text\" name=\"chat_name\" id=\"rm_group_chat_name\" class=\"text_pole flex1\" placeholder=\"Chat Name (Optional)\" data-i18n=\"[placeholder]Chat Name (Optional)\"/> from <div class=\"drawer\" id=\"rightNavHolder\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div no_favs=\"Favorite characters to add them to HotSwaps\" class=\"hotswap avatars_inline scroll-reset-container expander\" data-i18n=\"[no_favs]Favorite characters to add them to HotSwaps\">…</div> from <div class=\"drawer\" id=\"rightNavHolder\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div no_favs=\"Favorite characters to add them to HotSwaps\" class=\"hotswap avatars_inline scroll-reset-container expander\" data-i18n=\"[no_favs]Favorite characters to add them to HotSwaps\">…</div> from <div class=\"drawer\" id=\"rightNavHolder\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <input type=\"text\" name=\"chat_name\" id=\"rm_group_chat_name\" class=\"text_pole flex1\" placeholder=\"Chat Name (Optional)\" data-i18n=\"[placeholder]Chat Name (Optional)\"/> from <div class=\"drawer\" id=\"rightNavHolder\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n",
+      "firstAttempt": "fail",
+      "retries": []
+    }
+  ],
+  "cleanup": {
+    "judgeCalls": {
+      "count": 0,
+      "events": []
+    },
+    "lorebooks": {
+      "Xentar Checkpoints": {
+        "deactivated": true
+      }
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "extensionSettings": {
+      "restored": []
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [
+        "sun-ruins"
+      ],
+      "preservedSessions": []
+    },
+    "stories": {
+      "removed": 1,
+      "saved": {
+        "status": 200
+      }
+    },
+    "chat": {
+      "sandboxChatId": "2026-09-24@05h37m44s467ms",
+      "owned": [
+        "2026-09-24@05h37m44s467ms"
+      ],
+      "deleted": [
+        "2026-09-24@05h37m44s467ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-24@05h37m44s467ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-24@04h05m33s739ms"
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "member:DM Narrator": {
+      "enabled": true
+    },
+    "member:Arin": {
+      "enabled": true
+    },
+    "member:Ponticius": {
+      "enabled": true
+    },
+    "member:Luke": {
+      "enabled": true
+    },
+    "disabledMembers": []
+  }
+}

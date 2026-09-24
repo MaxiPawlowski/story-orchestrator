@@ -6,7 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { memoryQueueSelector } from './so-ui.mts';
+import { closeCharacterPanel, memoryQueueSelector } from './so-ui.mts';
 
 test('keep and lock address the side row inside the named pair', () => {
   assert.equal(memoryQueueSelector({ action: 'keep', key: 'fact:abc' }), '[data-so="conflict-pair"][data-key="fact:abc"] [data-so="conflict-keep"] >> nth=0');
@@ -31,4 +31,34 @@ test('a pair action without a key, and an unknown action, are refused rather tha
   assert.throws(() => memoryQueueSelector({ action: 'nuke' }), /unknown memory-queue action/);
   // reconfirm/discard take no key, so a missing key must NOT be an error for them.
   assert.ok(memoryQueueSelector({ action: 'reconfirm' }).includes('reconfirm'));
+});
+
+const classList = (initial: string[]) => {
+  const set = new Set(initial);
+  return { contains: (name: string) => set.has(name), replace: (from: string, to: string) => { if (!set.has(from)) return false; set.delete(from); set.add(to); return true; }, has: (name: string) => set.has(name) };
+};
+
+const fakeDom = (open: boolean, pinned: boolean) => {
+  const panel = { classList: classList([open ? 'openDrawer' : 'closedDrawer']) };
+  const icon = { classList: classList([open ? 'openIcon' : 'closedIcon']) };
+  const pin = { checked: pinned };
+  (globalThis as any).document = { getElementById: (id: string) => ({ 'right-nav-panel': panel, rightNavDrawerIcon: icon, rm_button_panel_pin: pin } as Record<string, unknown>)[id] ?? null };
+  return { panel, icon };
+};
+
+const fakePage = { evaluate: (fn: (arg?: unknown) => unknown, arg?: unknown) => fn(arg) } as never;
+
+test('an open, unpinned Character Management panel is closed before a drawer tab is clicked', async () => {
+  const { panel, icon } = fakeDom(true, false);
+  assert.deepEqual(await closeCharacterPanel(fakePage), { closed: true, pinned: false });
+  assert.ok(panel.classList.has('closedDrawer') && icon.classList.has('closedIcon'));
+});
+
+test("control: a pinned panel is the author's choice and stays open; a closed one is left alone", async () => {
+  const pinned = fakeDom(true, true);
+  assert.deepEqual(await closeCharacterPanel(fakePage), { closed: false, pinned: true });
+  assert.ok(pinned.panel.classList.has('openDrawer'));
+  fakeDom(false, false);
+  assert.deepEqual(await closeCharacterPanel(fakePage), { closed: false, pinned: false });
+  delete (globalThis as any).document;
 });

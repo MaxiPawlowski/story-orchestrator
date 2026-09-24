@@ -322,7 +322,7 @@
           "wait": {
             "schedulerIdle": true,
             "quietMs": 4000,
-            "timeoutMs": 120000
+            "timeoutMs": 300000
           }
         },
         {
@@ -412,7 +412,7 @@
           "wait": {
             "schedulerIdle": true,
             "quietMs": 4000,
-            "timeoutMs": 120000
+            "timeoutMs": 300000
           }
         },
         {

@@ -1,0 +1,89 @@
+{
+  "_note": "v2.4 plan 01 foreign emitter (I3), LIVE: the Guided Generations {source} shape around a REAL request (the extraction profile answers PONG), inside an open loud generation with Arin drafted. Every story_orchestrator_* injected block (private, nudge, note, guidance) must be byte-identical after the foreign run, and the drafted block and the unspent note still in place (the no-backend fixture's final check). Derived from v24-01-foreign-source.json; the private row is seeded through debugResponse because this row tests the lifecycle, not extraction. so-scenario --sandbox --group 1759606632088.",
+  "steps": [
+    {
+      "import_story": {
+        "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
+      }
+    },
+    {
+      "ui": {
+        "action": "select-profile"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; rt.setExtractionSettings({ cadence: 0 }); rt.setEpistemicLedgerCapable(true); if (!rt.getSnapshot().memory.settings.epistemicLedgerCapable) throw new Error('the epistemic/ledger capability did not stick'); return { cadence: 0, capable: true };",
+      "log": true
+    },
+    {
+      "send": "I count the guild's takings while Ponticius is looking at the board."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "extract": {
+        "debugResponse": "SCENE_NONE\n[hiding] Arin from Ponticius | Arin palmed the guild's petty cash while nobody was counting.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); if (!ctx.groupId) throw new Error('not a group chat: a private block is staged per drafted member only in a group, so this probe measures nothing'); const rows = rt.getEpistemic().filter((entry) => entry.hiddenFrom === 'Ponticius' && !entry.supersededBy); if (rows.length !== 1) throw new Error(`the private fact did not land exactly once: ${JSON.stringify(rt.getEpistemic().map((e) => [e.tag, e.subject, e.hiddenFrom, e.content]))}`); const chid = (ctx.characters ?? []).findIndex((card) => card?.name === 'Arin'); if (chid < 0) throw new Error(`Arin is not a character here: ${JSON.stringify((ctx.characters ?? []).map((c) => c?.name))}`); const state = rt.getStagecraftState(); const text = 'Continuity: established - the T6 probe fact. Keep the next reply consistent with it.'; const last = ctx.chat.length - 1; globalThis.__t6 = { chid, text, settings: { ...state.settings } }; state.settings.wardenEnabled = true; state.settings.wardenAcceptMode = 'auto'; state.proposals.push({ id: 't6-probe-note', curator: 'warden', at: new Date().toISOString(), boundary: rt.getEngineState().boundary, messageId: last, checkpointId: rt.getEngineState().activeCheckpointId, reason: 'continuity', summary: 'T6 probe note', mode: 'auto', ops: [{ op: { kind: 'note', text, facts: ['the T6 probe fact'], replyMessageId: last }, status: 'accepted' }], dropped: [] }); if (ctx.extensionPrompts?.story_orchestrator_continuity?.value) throw new Error('a continuity note is already injected before any generation opened'); return { chid, planted: 't6-probe-note', scope: 'warden switched on in the in-memory settings view only; nothing install-wide is written' };",
+      "log": true
+    },
+    {
+      "inject_script": "../fixtures/interop/foreign-emitter.js"
+    },
+    {
+      "emit_generation": [
+        {
+          "event": "GENERATION_STARTED",
+          "args": [
+            "normal",
+            {},
+            false
+          ]
+        }
+      ]
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); await ctx.eventSource.emit(ctx.eventTypes.GROUP_MEMBER_DRAFTED, globalThis.__t6.chid); const block = String(rt.getAppliedEpistemicBlock()); if (!block.includes('petty cash')) throw new Error(`drafting Arin did not stage his private block, so the probe below would measure nothing: ${JSON.stringify(block.slice(0, 300))}`); return { drafted: globalThis.__t6.chid, staged: true };",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); globalThis.__foreignLiveBefore = Object.fromEntries(Object.entries(ctx.extensionPrompts ?? {}).filter(([key]) => key.startsWith('story_orchestrator')).map(([key, value]) => [key, String(value?.value ?? '')])); return { keys: Object.keys(globalThis.__foreignLiveBefore) };",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const profileId = rt.getGlobalSettings().extraction?.profileId; if (!profileId) throw new Error('no extraction profile is selected, so there is no real request to send'); const outcome = await globalThis.__soForeignEmitter.run({ request: async () => { const reply = await ctx.ConnectionManagerRequestService.sendRequest(profileId, [{ role: 'user', content: 'Reply with exactly: PONG' }], 16, { extractData: true, includePreset: true, includeInstruct: true, stream: false }, {}); return reply ?? ''; } }); if (!outcome.answered) throw new Error('the foreign request got no answer: ' + JSON.stringify(outcome)); const after = Object.fromEntries(Object.entries(ctx.extensionPrompts ?? {}).filter(([key]) => key.startsWith('story_orchestrator')).map(([key, value]) => [key, String(value?.value ?? '')])); const changed = [...new Set([...Object.keys(after), ...Object.keys(globalThis.__foreignLiveBefore)])].filter((key) => (after[key] ?? '') !== (globalThis.__foreignLiveBefore[key] ?? '')); if (changed.length) throw new Error('a foreign {source} run around a real request changed our blocks: ' + changed.join(', ')); return { ...outcome, unchanged: Object.keys(after).length };",
+      "log": true
+    },
+    {
+      "emit_generation": [
+        {
+          "event": "GENERATION_STARTED",
+          "args": [
+            {
+              "source": "guided-generations"
+            }
+          ]
+        },
+        {
+          "event": "GENERATION_STOPPED",
+          "args": [
+            {
+              "source": "guided-generations"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const note = () => rt.getStagecraftState().proposals.find((record) => record.id === 't6-probe-note')?.ops?.[0]?.status ?? null; const injected = () => ctx.extensionPrompts?.story_orchestrator_continuity?.value ?? ''; const block = () => String(rt.getAppliedEpistemicBlock()); try { const problems = []; if (!block().includes('petty cash')) problems.push(`a foreign {source} emit cleared the drafted member's private block: ${JSON.stringify(block().slice(0, 200))}`); if (injected() !== globalThis.__t6.text) problems.push(`a foreign {source} emit removed the continuity note: ${JSON.stringify(injected())}`); if (note() !== 'accepted') problems.push(`the note was spent before the loud generation rendered anything: status ${note()}`); if (problems.length) throw new Error(problems.join(' | ')); return { block: 'kept', note: 'kept' }; } finally { await ctx.eventSource.emit(ctx.eventTypes.GENERATION_STOPPED); const state = rt.getStagecraftState(); const index = state.proposals.findIndex((record) => record.id === 't6-probe-note'); if (index >= 0) state.proposals.splice(index, 1); Object.assign(state.settings, globalThis.__t6?.settings ?? {}); }",
+      "log": true
+    }
+  ]
+}

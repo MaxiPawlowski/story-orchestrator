@@ -1,0 +1,226 @@
+
+=== J6 mutation-storm ===
+Edit and delete messages around a committed boundary; the engine rolls back correctly and the player can tell what happened.
+
+extraction before this run: {"enabled":true,"cadence":1,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"}
+Global config snapshot: C:\dev\so-lanes\1\debug\so-journey-config-snapshot.json
+extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+--- J6.1 a boundary is committed and a gate latches from a scripted turn
+J6.1 1/8 import_story ok 1867ms
+J6.1 2/8 ui ok 192ms
+J6.1 3/8 eval ok 13ms
+J6.1 4/8 send_generate ok 47150ms
+J6.1 5/8 extract ok 63221ms
+J6.1 6/8 send_generate ok 60001ms
+J6.1 7/8 wait ok 50ms
+J6.1 8/8 expect ok 50ms
+--- J6.2 editing the message that carried the delta rolls the story back The check first waits for the group round J6.1 started to finish: a send returns before every member has replied, and an edit made mid-round is rolled back and then followed by the remaining replies' boundaries, which is a different scenario (L2 2026-09-23: J6.2 timed out on a still-generating round and J6.4 lost its notice to those boundaries).
+J6.2 1/6 wait ok 150745ms
+J6.2 2/6 wait ok 52294ms
+J6.2 3/6 eval ok 5ms
+J6.2 4/6 edit ok 142ms
+J6.2 5/6 wait ok 1534ms
+J6.2 6/6 expect ok 40ms
+--- J6.3 deleting the last message leaves engine state consistent, not orphaned
+J6.3 1/3 delete ok 126ms
+J6.3 2/3 wait ok 1544ms
+J6.3 3/3 eval ok 5ms
+--- J6.4 the player is told the story stepped back after a mutation
+J6.4 1/3 ui ok 63ms
+J6.4 2/3 ui ok 60ms
+J6.4 3/3 expect_ui ok 5ms
+--- J6.6 a reloaded chat still recognises an edit to a message its run has passed
+J6.6 1/11 eval ok 8ms
+J6.6 1/11 eval -> {"checkpoint":"cp1","boundary":0}
+J6.6 2/11 send_generate ok 36459ms
+J6.6 3/11 extract ok 1643ms
+J6.6 4/11 send_generate ok 57155ms
+J6.6 5/11 wait ok 44ms
+J6.6 6/11 eval ok 5ms
+J6.6 6/11 eval -> {"checkpoint":"cp2","lastMessageId":6}
+J6.6 7/11 reload ok 6101ms
+J6.6 8/11 eval ok 6ms
+J6.6 8/11 eval -> {"checkpoint":"cp2","lastMessageId":6}
+J6.6 9/11 edit ok 134ms
+J6.6 10/11 wait ok 1531ms
+J6.6 11/11 eval ok 6ms
+J6.6 11/11 eval -> {"checkpointName":"Investigate the Job Board","at":"2026-09-24T08:45:48.779Z"}
+--- J6.7 a ledger update is undone by an edit to the message its boundary acted on
+J6.7 1/10 eval ok 9ms
+J6.7 1/10 eval -> {"capable":true}
+J6.7 2/10 send_generate ok 3182ms
+J6.7 3/10 extract ok 490ms
+J6.7 4/10 wait FAIL Timed out waiting for {"timeoutMs":300000,"checkpointIn":["cp2","cp3","cp-4a","cp-4b","cp-4a1","cp-4a2","cp-5","cp-6"]}. Last state: {"chatId":"2026-09-24@05h37m44s467ms","activeCheckpoint":"cp1","boundary":1,"blackboard":{},"latched":{},"auditCount":3,"expansion":{"entries":{},"scheduler":{"queueDepth":0,"inFlight":false,"lastError":null}},"requirementsReady":true,"npcFired":{"cp2:onEnter:DM Narrator:0":1,"cp2:afterSpeak:Ponticius:0":1},"tension":{"level":null,"smoothed":null,"expected":0,"hint":null},"pacingPrompt":null,"lastAudit":{"accepted":["approached_board"],"rejected":[{"q":"tension_current='stirring'","reason":"invalid value"}]},"copilot":{"enabled":true,"activeNudge":null,"nudgeInjected":false}}
+--- J6.8 a belief a reveal retired comes back when the reveal's message is edited The player line carries the evidence the scripted read cites: the evidence rule only accepts a quote from the read's window, and the old line relied on the model's reply happening to echo it (L2 2026-09-23: rejected once, story stayed at cp1).
+J6.8 1/9 send_generate ok 3131ms
+J6.8 2/9 extract ok 1575ms
+J6.8 3/9 wait ok 43ms
+J6.8 4/9 eval ok 11ms
+J6.8 4/9 eval -> {"last":6,"chat":8,"checkpoint":"cp2"}
+J6.8 5/9 eval ok 541ms
+J6.8 5/9 eval -> {"wrote":true,"to":5,"belief":"fa02e9c9-bc6d-48d8-83b5-4734959c716b","messageId":5}
+J6.8 6/9 eval ok 231ms
+J6.8 6/9 eval -> {"wrote":true,"to":6,"retiredAt":{"messageId":6,"boundary":2},"view":[{"entity":"Arin","field":"condition","value":"wounded","bound":false,"turn":2}]}
+J6.8 7/9 edit ok 126ms
+J6.8 8/9 wait ok 1525ms
+J6.8 9/9 eval ok 12ms
+J6.8 9/9 eval -> {"view":[{"entity":"Arin","field":"condition","value":"healthy","bound":false,"turn":2}],"belief":"fa02e9c9-bc6d-48d8-83b5-4734959c716b","run":{"chatId":"2026-09-24@05h37m44s467ms","storyId":"sun-ruins","playedVersion":2,"sessionEpoch":3,"windowRevision":2,"lowestMutatedMessageId":0},"notice":{"checkpointName":"Investigate the Job Board","at":"2026-09-24T08:50:59.857Z"}}
+--- J6.9 an edit older than the retained history says so and offers both ways out it names: re-read from here, or restart the story (V11)
+J6.9 1/12 import_story ok 1146ms
+J6.9 2/12 send ok 1672ms
+J6.9 3/12 eval ok 79015ms
+J6.9 3/12 eval -> {"before":0,"after":205}
+J6.9 4/12 edit ok 142ms
+J6.9 5/12 wait ok 1531ms
+J6.9 6/12 eval ok 4ms
+J6.9 6/12 eval -> {"messageId":0,"checkpointName":"Accept the Mission","oldest":{"boundary":6,"messageId":8},"at":"2026-09-24T08:52:21.841Z"}
+J6.9 7/12 ui ok 52ms
+J6.9 8/12 ui FAIL locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('#drawer-manager').locator('[role="tablist"] button').filter({ hasText: 'Overview' }).first()[22m
+[2m    - locator resolved to <button tabindex="0" role="button" aria-selected="true" class="menu_button interactable">Overview</button>[22m
+[2m  - attempting click action[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is visible, enabled and stable[22m
+[2m      - scrolling into view if needed[22m
+[2m      - done scrolling[22m
+[2m      - <input type="text" name="chat_name" id="rm_group_chat_name" class="text_pole flex1" placeholder="Chat Name (Optional)" data-i18n="[placeholder]Chat Name (Optional)"/> from <div class="drawer" id="rightNavHolder">…</div> subtree intercepts pointer events[22m
+[2m    - retrying click action[22m
+[2m    - waiting 20ms[22m
+[2m    - waiting for element to be visible, enabled and stable[22m
+[2m    - element is visible, enabled and stable[22m
+[2m    - scrolling into view if needed[22m
+[2m    - done scrolling[22m
+[2m    - <input type="text" name="chat_name" id="rm_group_chat_name" class="text_pole flex1" placeholder="Chat Name (Optional)" data-i18n="[placeholder]Chat Name (Optional)"/> from <div class="drawer" id="rightNavHolder">…</div> subtree intercepts pointer events[22m
+[2m  2 × retrying click action[22m
+[2m      - waiting 100ms[22m
+[2m      - waiting for element to be visible, enabled and stable[22m
+[2m      - element is visible, enabled and stable[22m
+[2m      - scrolling into view if needed[22m
+[2m      - done scrolling[22m
+[2m      - <div no_favs="Favorite characters to add them to HotSwaps" class="hotswap avatars_inline scroll-reset-container expander" data-i18n="[no_favs]Favorite characters to add them to HotSwaps">…</div> from <div class="drawer" id="rightNavHolder">…</div> subtree intercepts pointer events[22m
+[2m  14 × retrying click action[22m
+[2m       - waiting 500ms[22m
+[2m       - waiting for element to be visible, enabled and stable[22m
+[2m       - element is visible, enabled and stable[22m
+[2m       - scrolling into view if needed[22m
+[2m       - done scrolling[22m
+[2m       - <input type="text" name="chat_name" id="rm_group_chat_name" class="text_pole flex1" placeholder="Chat Name (Optional)" data-i18n="[placeholder]Chat Name (Optional)"/> from <div class="drawer" id="rightNavHolder">…</div> subtree intercepts pointer events[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+[2m       - waiting for element to be visible, enabled and stable[22m
+[2m       - element is visible, enabled and stable[22m
+[2m       - scrolling into view if needed[22m
+[2m       - done scrolling[22m
+[2m       - <input type="text" name="chat_name" id="rm_group_chat_name" class="text_pole flex1" placeholder="Chat Name (Optional)" data-i18n="[placeholder]Chat Name (Optional)"/> from <div class="drawer" id="rightNavHolder">…</div> subtree intercepts pointer events[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+[2m       - waiting for element to be visible, enabled and stable[22m
+[2m       - element is visible, enabled and stable[22m
+[2m       - scrolling into view if needed[22m
+[2m       - done scrolling[22m
+[2m       - <div no_favs="Favorite characters to add them to HotSwaps" class="hotswap avatars_inline scroll-reset-container expander" data-i18n="[no_favs]Favorite characters to add them to HotSwaps">…</div> from <div class="drawer" id="rightNavHolder">…</div> subtree intercepts pointer events[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+[2m       - waiting for element to be visible, enabled and stable[22m
+[2m       - element is visible, enabled and stable[22m
+[2m       - scrolling into view if needed[22m
+[2m       - done scrolling[22m
+[2m       - <div no_favs="Favorite characters to add them to HotSwaps" class="hotswap avatars_inline scroll-reset-container expander" data-i18n="[no_favs]Favorite characters to add them to HotSwaps">…</div> from <div class="drawer" id="rightNavHolder">…</div> subtree intercepts pointer events[22m
+[2m  - retrying click action[22m
+[2m    - waiting 500ms[22m
+[2m    - waiting for element to be visible, enabled and stable[22m
+[2m    - element is visible, enabled and stable[22m
+[2m    - scrolling into view if needed[22m
+[2m    - done scrolling[22m
+[2m    - <input type="text" name="chat_name" id="rm_group_chat_name" class="text_pole flex1" placeholder="Chat Name (Optional)" data-i18n="[placeholder]Chat Name (Optional)"/> from <div class="drawer" id="rightNavHolder">…</div> subtree intercepts pointer events[22m
+[2m  - retrying click action[22m
+[2m    - waiting 500ms[22m
+
+Restored global config from C:\dev\so-lanes\1\debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions"],"saved":{"status":200},"preservedStories":["sun-ruins"],"preservedSessions":[]}
+
+PASS         J6.1     a boundary is committed and a gate latches from a scripted turn
+PASS         J6.2     editing the message that carried the delta rolls the story back The check first waits for the group round J6.1 started to finish: a send returns before every member has replied, and an edit made mid-round is rolled back and then followed by the remaining replies' boundaries, which is a different scenario (L2 2026-09-23: J6.2 timed out on a still-generating round and J6.4 lost its notice to those boundaries).
+PASS         J6.3     deleting the last message leaves engine state consistent, not orphaned
+PASS         J6.4     the player is told the story stepped back after a mutation
+SKIP         J6.5      — human check — operator scores it
+PASS         J6.6     a reloaded chat still recognises an edit to a message its run has passed
+FAIL         J6.7     a ledger update is undone by an edit to the message its boundary acted on — Timed out waiting for {"timeoutMs":300000,"checkpointIn":["cp2","cp3","cp-4a","cp-4b","cp-4a1","cp-4a2","cp-5","cp-6"]}. Last state: {"chatId":"2026-09-24@05h37m44s467ms","activeCheckpoint":"cp1","boundary":1,"blackboard":{},"latched":{},"auditCount":3,"expansion":{"entries":{},"scheduler":{"queueDepth":0,"inFlight":false,"lastError":null}},"requirementsReady":true,"npcFired":{"cp2:onEnter:DM Narrator:0":1,"cp2:afterSpeak:Ponticius:0":1},"tension":{"level":null,"smoothed":null,"expected":0,"hint":null},"pacingPrompt":null,"lastAudit":{"accepted":["approached_board"],"rejected":[{"q":"tension_current='stirring'","reason":"invalid value"}]},"copilot":{"enabled":true,"activeNudge":null,"nudgeInjected":false}}
+PASS         J6.8     a belief a reveal retired comes back when the reveal's message is edited The player line carries the evidence the scripted read cites: the evidence rule only accepts a quote from the read's window, and the old line relied on the model's reply happening to echo it (L2 2026-09-23: rejected once, story stayed at cp1).
+FAIL         J6.9     an edit older than the retained history says so and offers both ways out it names: re-read from here, or restart the story (V11) — locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('#drawer-manager').locator('[role="tablist"] button').filter({ hasText: 'Overview' }).first()[22m
+[2m    - locator resolved to <button tabindex="0" role="button" aria-selected="true" class="menu_button interactable">Overview</button>[22m
+[2m  - attempting click action[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is visible, enabled and stable[22m
+[2m      - scrolling into view if needed[22m
+[2m      - done scrolling[22m
+[2m      - <input type="text" name="chat_name" id="rm_group_chat_name" class="text_pole flex1" placeholder="Chat Name (Optional)" data-i18n="[placeholder]Chat Name (Optional)"/> from <div class="drawer" id="rightNavHolder">…</div> subtree intercepts pointer events[22m
+[2m    - retrying click action[22m
+[2m    - waiting 20ms[22m
+[2m    - waiting for element to be visible, enabled and stable[22m
+[2m    - element is visible, enabled and stable[22m
+[2m    - scrolling into view if needed[22m
+[2m    - done scrolling[22m
+[2m    - <input type="text" name="chat_name" id="rm_group_chat_name" class="text_pole flex1" placeholder="Chat Name (Optional)" data-i18n="[placeholder]Chat Name (Optional)"/> from <div class="drawer" id="rightNavHolder">…</div> subtree intercepts pointer events[22m
+[2m  2 × retrying click action[22m
+[2m      - waiting 100ms[22m
+[2m      - waiting for element to be visible, enabled and stable[22m
+[2m      - element is visible, enabled and stable[22m
+[2m      - scrolling into view if needed[22m
+[2m      - done scrolling[22m
+[2m      - <div no_favs="Favorite characters to add them to HotSwaps" class="hotswap avatars_inline scroll-reset-container expander" data-i18n="[no_favs]Favorite characters to add them to HotSwaps">…</div> from <div class="drawer" id="rightNavHolder">…</div> subtree intercepts pointer events[22m
+[2m  14 × retrying click action[22m
+[2m       - waiting 500ms[22m
+[2m       - waiting for element to be visible, enabled and stable[22m
+[2m       - element is visible, enabled and stable[22m
+[2m       - scrolling into view if needed[22m
+[2m       - done scrolling[22m
+[2m       - <input type="text" name="chat_name" id="rm_group_chat_name" class="text_pole flex1" placeholder="Chat Name (Optional)" data-i18n="[placeholder]Chat Name (Optional)"/> from <div class="drawer" id="rightNavHolder">…</div> subtree intercepts pointer events[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+[2m       - waiting for element to be visible, enabled and stable[22m
+[2m       - element is visible, enabled and stable[22m
+[2m       - scrolling into view if needed[22m
+[2m       - done scrolling[22m
+[2m       - <input type="text" name="chat_name" id="rm_group_chat_name" class="text_pole flex1" placeholder="Chat Name (Optional)" data-i18n="[placeholder]Chat Name (Optional)"/> from <div class="drawer" id="rightNavHolder">…</div> subtree intercepts pointer events[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+[2m       - waiting for element to be visible, enabled and stable[22m
+[2m       - element is visible, enabled and stable[22m
+[2m       - scrolling into view if needed[22m
+[2m       - done scrolling[22m
+[2m       - <div no_favs="Favorite characters to add them to HotSwaps" class="hotswap avatars_inline scroll-reset-container expander" data-i18n="[no_favs]Favorite characters to add them to HotSwaps">…</div> from <div class="drawer" id="rightNavHolder">…</div> subtree intercepts pointer events[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+[2m       - waiting for element to be visible, enabled and stable[22m
+[2m       - element is visible, enabled and stable[22m
+[2m       - scrolling into view if needed[22m
+[2m       - done scrolling[22m
+[2m       - <div no_favs="Favorite characters to add them to HotSwaps" class="hotswap avatars_inline scroll-reset-container expander" data-i18n="[no_favs]Favorite characters to add them to HotSwaps">…</div> from <div class="drawer" id="rightNavHolder">…</div> subtree intercepts pointer events[22m
+[2m  - retrying click action[22m
+[2m    - waiting 500ms[22m
+[2m    - waiting for element to be visible, enabled and stable[22m
+[2m    - element is visible, enabled and stable[22m
+[2m    - scrolling into view if needed[22m
+[2m    - done scrolling[22m
+[2m    - <input type="text" name="chat_name" id="rm_group_chat_name" class="text_pole flex1" placeholder="Chat Name (Optional)" data-i18n="[placeholder]Chat Name (Optional)"/> from <div class="drawer" id="rightNavHolder">…</div> subtree intercepts pointer events[22m
+[2m  - retrying click action[22m
+[2m    - waiting 500ms[22m
+
+
+J6
+automated: 6 pass, 2 fail, 0 blocked, 0 not-runnable, 0 skipped
+human:     0 scored, 1 unscored
+cleanup:   clean
+first try: 6 of 6 passing check(s) needed no retry
+NOT GREEN: 2 automated check(s) failed
+
+--- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+[J6.5] (U5) After you edited and deleted messages, was it clear what the story did in response?
+      anchors: 1 = no idea, felt broken · 3 = worked it out from the drawer · 5 = the system said what it did
+[free] What would make you stop using this?
+
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T08-53-04-384Z_journey-J6.json
+Matrix: C:\dev\so-lanes\1\debug\journey-J6.md

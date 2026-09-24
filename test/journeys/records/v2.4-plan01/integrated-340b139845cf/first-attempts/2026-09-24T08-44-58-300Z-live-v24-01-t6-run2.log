@@ -1,0 +1,78 @@
+1/18 import_story ok 368ms
+2/18 eval ok 21ms
+2/18 eval -> {"chid":5,"cadence":0,"capable":true}
+3/18 send ok 1654ms
+4/18 wait ok 1527ms
+5/18 extract ok 482ms
+6/18 eval ok 234ms
+6/18 eval -> {"pinned":"18b3eec2-44a0-4e5b-9cdb-678d21404759"}
+7/18 eval ok 12ms
+7/18 eval -> {"planted":"t6-live-a"}
+8/18 ext_setting ok 40ms
+9/18 slash ok 61172ms
+10/18 wait ok 1522ms
+11/18 wait ok 5193ms
+12/18 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: no loud request was recorded | Arin's loud request does not carry both his private block and the note: []
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1483)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1629)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T08-53-16-228Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T08-53-19-151Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 12,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@05h52m03s538ms",
+    "owned": [
+      "2026-09-24@05h52m03s538ms"
+    ],
+    "deleted": [
+      "2026-09-24@05h52m03s538ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@05h52m03s538ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

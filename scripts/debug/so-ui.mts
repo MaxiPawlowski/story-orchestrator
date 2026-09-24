@@ -632,11 +632,26 @@ export async function switchStudioTab(page, label) {
   return { tab: label };
 }
 
+// ST's Character Management panel opens over our drawer's tabs (J6.9, 2026-09-24: `#rm_group_chat_name`
+// intercepted the Overview click for 30 s). Closed the way closeUnpinnedDrawers closes the top bar, and
+// only when the author has not pinned it open.
+export async function closeCharacterPanel(page) {
+  return evaluateInST(page, () => {
+    const panel = document.getElementById('right-nav-panel');
+    const pinned = (document.getElementById('rm_button_panel_pin') as HTMLInputElement | null)?.checked === true;
+    if (!panel?.classList.contains('openDrawer') || pinned) return { closed: false, pinned };
+    panel.classList.replace('openDrawer', 'closedDrawer');
+    document.getElementById('rightNavDrawerIcon')?.classList.replace('openIcon', 'closedIcon');
+    return { closed: true, pinned };
+  });
+}
+
 export async function switchDrawerTab(page, label) {
   const drawer = page.locator('#drawer-manager');
   if (!(await drawer.count())) throw new Error('Drawer (#drawer-manager) is not mounted.');
   const tab = drawer.locator('[role="tablist"] button', { hasText: label });
   if (!(await tab.count())) throw new Error(`Drawer tab "${label}" not found.`);
+  await closeCharacterPanel(page);
   await tab.first().click();
   const selected = await tab.first().getAttribute('aria-selected');
   return { tab: label, selected: selected === 'true' };

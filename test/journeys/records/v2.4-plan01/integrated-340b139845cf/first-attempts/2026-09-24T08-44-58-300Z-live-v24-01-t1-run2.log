@@ -1,0 +1,60 @@
+1/32 import_story ok 357ms
+2/32 eval ok 14ms
+2/32 eval -> {"cadence":1,"greeting":1}
+3/32 send_generate ok 20589ms
+4/32 wait ok 38226ms
+5/32 record_state ok 7ms
+5/32 record_state -> {"as":"before-middle","boundary":1,"active":"hall","rows":{"memory":3,"epistemic":0,"ledger":9}}
+6/32 eval ok 4ms
+7/32 send_generate ok 20594ms
+8/32 wait ok 25791ms
+9/32 send_generate ok 31268ms
+10/32 wait ok 26277ms
+11/32 eval ok 20ms
+11/32 eval -> {"deleted":3,"after":6}
+12/32 wait ok 1556ms
+13/32 wait ok 5024ms
+14/32 expect FAIL state differs from "before-middle": values: recorded {} now {"go":false,"tension_current":0} | versions: recorded {} now {"go":1,"tension_current":1} | boundary: recorded 1 now 3
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T08-51-23-915Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T08-51-26-827Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 14,
+  "cleanup": {
+    "removedStoryHashes": [],
+    "keptPreExistingStories": [
+      "v2-ed9ddba5"
+    ],
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@05h48m33s672ms",
+    "owned": [
+      "2026-09-24@05h48m33s672ms"
+    ],
+    "deleted": [
+      "2026-09-24@05h48m33s672ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@05h48m33s672ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "mirrorBooks": {
+      "deleted": [
+        "Story Orchestrator - Live v2.4 01 T10 — Note then no_repeat - 2026-09-24@05h48m33s672ms"
+      ],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

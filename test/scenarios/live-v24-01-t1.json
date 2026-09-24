@@ -1,0 +1,272 @@
+{
+  "_note": "v2.4 plan 01 T1, LIVE (real model, real extraction at cadence 1; so-scenario --sandbox --group 1759606632088). A played group chat (the T10 story: one speaker per turn, so every turn is exactly a player line and one reply). Three rows, each against the state recorded at the boundary before its target: (A) host_delete of a CONSUMED MIDDLE player line (ST's own deleteMessage), (B) /cut of a consumed middle turn (player line + reply, one MESSAGE_DELETED per row), (C) the tail control, deleting the newest turn. After each, record_state's scope must match: values, versions, active, path, boundary and the live memory/epistemic/ledger rows. Every off-path pass is let finish (schedulerIdle) before a recording and before a mutation, so no read in flight straddles the cut. Indices are read from the chat at the time, never hard-coded, because the greeting count varies. Rows: a real rollback is followed by re-reads of the messages that survive it, so the row check is the replay invariant rather than raw equality: every row recorded before the target is kept, no row built between the target and the mutation survives, and no re-read row cites the removed text (inv 11, live). The engine scope (values, versions, active, path, boundary) is compared exactly. The last journal lines are logged at each mutation.",
+  "steps": [
+    {
+      "import_story": {
+        "file": "./live-v24-01-t10.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; rt.setExtractionSettings({ cadence: 1 }); const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error('needs a group chat'); globalThis.__t1live = { marks: {}, calls: [] }; const calls = globalThis.__t1live.calls; const original = rt.rollbackFromMessage; globalThis.__t1live.restore = () => { rt.rollbackFromMessage = original; ctx.eventSource.removeListener(ctx.eventTypes.MESSAGE_DELETED, globalThis.__t1live.onDeleted); }; rt.rollbackFromMessage = async (from, journal) => { calls.push({ call: 'rollback', from, journal: journal ?? null, chat: SillyTavern.getContext().chat.length, last: rt.getEngineState()?.lastMessageId ?? null }); return original.call(rt, from, journal); }; globalThis.__t1live.onDeleted = (n) => calls.push({ event: 'deleted', n, chat: SillyTavern.getContext().chat.length }); ctx.eventSource.on(ctx.eventTypes.MESSAGE_DELETED, globalThis.__t1live.onDeleted); return { cadence: 1, greeting: ctx.chat.length };",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I set my pack down by the long table and look over the room.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "record_state": {
+        "as": "before-middle"
+      },
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const live = (row) => !row.supersededBy && (!row.provenance || row.provenance.validity === 'live'); const rows = () => ({ memory: (rt.getSnapshot().memory?.entries ?? []).filter(live).map((r) => ({ id: r.id, text: String(r.text ?? '') + ' ' + String(r.evidence ?? '') })), epistemic: (rt.getEpistemic?.() ?? []).filter(live).map((r) => ({ id: r.id, text: String(r.content ?? '') })), ledger: (rt.getLedger?.() ?? []).filter((r) => !r.bound && live(r)).map((r) => ({ id: r.id ?? (r.entity + ':' + r.field), text: String(r.entity ?? '') + ' ' + String(r.field ?? '') + ' ' + String(r.value ?? '') })) }); globalThis.__t1live.kept = globalThis.__t1live.kept ?? {}; const r = rows(); globalThis.__t1live.kept['before-middle'] = Object.fromEntries(Object.entries(r).map(([k, v]) => [k, v.map((x) => x.id)])); return { kept: Object.fromEntries(Object.entries(r).map(([k, v]) => [k, v.length])) };",
+      "log": true
+    },
+    {
+      "eval": "globalThis.__t1live.marks.middle = SillyTavern.getContext().chat.length; return { target: globalThis.__t1live.marks.middle };"
+    },
+    {
+      "send_generate": {
+        "text": "I ask who else has signed up for the caravan guard work.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I pour myself some water and listen to the answer.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const live = (row) => !row.supersededBy && (!row.provenance || row.provenance.validity === 'live'); const rows = () => ({ memory: (rt.getSnapshot().memory?.entries ?? []).filter(live).map((r) => ({ id: r.id, text: String(r.text ?? '') + ' ' + String(r.evidence ?? '') })), epistemic: (rt.getEpistemic?.() ?? []).filter(live).map((r) => ({ id: r.id, text: String(r.content ?? '') })), ledger: (rt.getLedger?.() ?? []).filter((r) => !r.bound && live(r)).map((r) => ({ id: r.id ?? (r.entity + ':' + r.field), text: String(r.entity ?? '') + ' ' + String(r.field ?? '') + ' ' + String(r.value ?? '') })) }); globalThis.__t1live.pre = globalThis.__t1live.pre ?? {}; globalThis.__t1live.pre['middle'] = rows(); return Object.fromEntries(Object.entries(globalThis.__t1live.pre['middle']).map(([k, v]) => [k, v.length]));",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const id = globalThis.__t1live.marks.middle; const row = ctx.chat[id]; if (!row?.is_user || !String(row.mes).includes('caravan guard')) throw new Error('row ' + id + ' is not the middle player line: ' + JSON.stringify({ name: row?.name, mes: String(row?.mes ?? '').slice(0, 80) })); const rt = globalThis.storyOrchestratorRuntime; const consumed = (rt.getEngineState()?.lastMessageId ?? -1) > id + 1; if (!consumed) throw new Error('the middle line is not consumed by a later boundary, so the delete would not be a middle delete'); await ctx.deleteMessage(id, undefined, false); return { deleted: id, after: ctx.chat.length };",
+      "log": true
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const s = rt.getEngineState(); return { boundary: s.boundary, lastMessageId: s.lastMessageId, chat: SillyTavern.getContext().chat.length, journal: rt.getSessionJournal().slice(-6).map((e) => e.kind + ': ' + e.summary), calls: globalThis.__t1live.calls.splice(0) };",
+      "log": true
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "before-middle",
+          "scope": [
+            "values",
+            "versions",
+            "active",
+            "path",
+            "boundary"
+          ]
+        }
+      },
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const live = (row) => !row.supersededBy && (!row.provenance || row.provenance.validity === 'live'); const rows = () => ({ memory: (rt.getSnapshot().memory?.entries ?? []).filter(live).map((r) => ({ id: r.id, text: String(r.text ?? '') + ' ' + String(r.evidence ?? '') })), epistemic: (rt.getEpistemic?.() ?? []).filter(live).map((r) => ({ id: r.id, text: String(r.content ?? '') })), ledger: (rt.getLedger?.() ?? []).filter((r) => !r.bound && live(r)).map((r) => ({ id: r.id ?? (r.entity + ':' + r.field), text: String(r.entity ?? '') + ' ' + String(r.field ?? '') + ' ' + String(r.value ?? '') })) }); const now = rows(); const before = globalThis.__t1live.pre['middle']; const recorded = { rows: globalThis.__t1live.kept['before-middle'] }; const journal = rt.getSessionJournal().filter((e) => /delete|rollback|rewound/i.test(e.summary)).slice(-4).map((e) => e.summary); const problems = []; for (const tier of ['memory', 'epistemic', 'ledger']) { const kept = new Set(recorded.rows[tier]); const pre = new Set(before[tier].map((r) => r.id)); const nowIds = new Set(now[tier].map((r) => r.id)); const lost = [...kept].filter((id) => !nowIds.has(id)); if (lost.length) problems.push(tier + ': rows recorded before the target were dropped: ' + lost.join(',')); const survived = now[tier].filter((r) => pre.has(r.id) && !kept.has(r.id)); if (survived.length) problems.push(tier + ': rows built after the target survived the rollback: ' + JSON.stringify(survived.map((r) => r.text.slice(0, 80)))); const cites = now[tier].filter((r) => !pre.has(r.id) && r.text.toLowerCase().includes('caravan guard')); if (cites.length) problems.push(tier + ': a re-read row cites the removed message: ' + JSON.stringify(cites.map((r) => r.text.slice(0, 80)))); } if (problems.length) throw new Error(problems.join(' | ') + ' || journal ' + JSON.stringify(journal)); return { journal, reread: Object.fromEntries(['memory', 'epistemic', 'ledger'].map((tier) => [tier, now[tier].filter((r) => !new Set(before[tier].map((x) => x.id)).has(r.id)).length])) };",
+      "log": true
+    },
+    {
+      "record_state": {
+        "as": "before-cut"
+      },
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const live = (row) => !row.supersededBy && (!row.provenance || row.provenance.validity === 'live'); const rows = () => ({ memory: (rt.getSnapshot().memory?.entries ?? []).filter(live).map((r) => ({ id: r.id, text: String(r.text ?? '') + ' ' + String(r.evidence ?? '') })), epistemic: (rt.getEpistemic?.() ?? []).filter(live).map((r) => ({ id: r.id, text: String(r.content ?? '') })), ledger: (rt.getLedger?.() ?? []).filter((r) => !r.bound && live(r)).map((r) => ({ id: r.id ?? (r.entity + ':' + r.field), text: String(r.entity ?? '') + ' ' + String(r.field ?? '') + ' ' + String(r.value ?? '') })) }); globalThis.__t1live.kept = globalThis.__t1live.kept ?? {}; const r = rows(); globalThis.__t1live.kept['before-cut'] = Object.fromEntries(Object.entries(r).map(([k, v]) => [k, v.map((x) => x.id)])); return { kept: Object.fromEntries(Object.entries(r).map(([k, v]) => [k, v.length])) };",
+      "log": true
+    },
+    {
+      "eval": "globalThis.__t1live.marks.cut = SillyTavern.getContext().chat.length; return { from: globalThis.__t1live.marks.cut };"
+    },
+    {
+      "send_generate": {
+        "text": "I check the straps on my pack one more time.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I glance at the door and wait.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const live = (row) => !row.supersededBy && (!row.provenance || row.provenance.validity === 'live'); const rows = () => ({ memory: (rt.getSnapshot().memory?.entries ?? []).filter(live).map((r) => ({ id: r.id, text: String(r.text ?? '') + ' ' + String(r.evidence ?? '') })), epistemic: (rt.getEpistemic?.() ?? []).filter(live).map((r) => ({ id: r.id, text: String(r.content ?? '') })), ledger: (rt.getLedger?.() ?? []).filter((r) => !r.bound && live(r)).map((r) => ({ id: r.id ?? (r.entity + ':' + r.field), text: String(r.entity ?? '') + ' ' + String(r.field ?? '') + ' ' + String(r.value ?? '') })) }); globalThis.__t1live.pre = globalThis.__t1live.pre ?? {}; globalThis.__t1live.pre['cut'] = rows(); return Object.fromEntries(Object.entries(globalThis.__t1live.pre['cut']).map(([k, v]) => [k, v.length]));",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const from = globalThis.__t1live.marks.cut; const a = ctx.chat[from]; const b = ctx.chat[from + 1]; if (!a?.is_user || !String(a.mes).includes('straps') || !b || b.is_user) throw new Error('rows ' + from + '-' + (from + 1) + ' are not the straps turn: ' + JSON.stringify([a?.name, String(a?.mes ?? '').slice(0, 60), b?.name])); if (ctx.chat.length <= from + 2) throw new Error('nothing follows the straps turn, so /cut would be a tail cut'); const result = await ctx.executeSlashCommandsWithOptions('/cut ' + from + '-' + (from + 1)); return { cut: from + '-' + (from + 1), after: ctx.chat.length, isError: !!result?.isError };",
+      "log": true
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const s = rt.getEngineState(); return { boundary: s.boundary, lastMessageId: s.lastMessageId, chat: SillyTavern.getContext().chat.length, journal: rt.getSessionJournal().slice(-6).map((e) => e.kind + ': ' + e.summary), calls: globalThis.__t1live.calls.splice(0) };",
+      "log": true
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "before-cut",
+          "scope": [
+            "values",
+            "versions",
+            "active",
+            "path",
+            "boundary"
+          ]
+        }
+      },
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const live = (row) => !row.supersededBy && (!row.provenance || row.provenance.validity === 'live'); const rows = () => ({ memory: (rt.getSnapshot().memory?.entries ?? []).filter(live).map((r) => ({ id: r.id, text: String(r.text ?? '') + ' ' + String(r.evidence ?? '') })), epistemic: (rt.getEpistemic?.() ?? []).filter(live).map((r) => ({ id: r.id, text: String(r.content ?? '') })), ledger: (rt.getLedger?.() ?? []).filter((r) => !r.bound && live(r)).map((r) => ({ id: r.id ?? (r.entity + ':' + r.field), text: String(r.entity ?? '') + ' ' + String(r.field ?? '') + ' ' + String(r.value ?? '') })) }); const now = rows(); const before = globalThis.__t1live.pre['cut']; const recorded = { rows: globalThis.__t1live.kept['before-cut'] }; const journal = rt.getSessionJournal().filter((e) => /delete|rollback|rewound/i.test(e.summary)).slice(-4).map((e) => e.summary); const problems = []; for (const tier of ['memory', 'epistemic', 'ledger']) { const kept = new Set(recorded.rows[tier]); const pre = new Set(before[tier].map((r) => r.id)); const nowIds = new Set(now[tier].map((r) => r.id)); const lost = [...kept].filter((id) => !nowIds.has(id)); if (lost.length) problems.push(tier + ': rows recorded before the target were dropped: ' + lost.join(',')); const survived = now[tier].filter((r) => pre.has(r.id) && !kept.has(r.id)); if (survived.length) problems.push(tier + ': rows built after the target survived the rollback: ' + JSON.stringify(survived.map((r) => r.text.slice(0, 80)))); const cites = now[tier].filter((r) => !pre.has(r.id) && r.text.toLowerCase().includes('straps')); if (cites.length) problems.push(tier + ': a re-read row cites the removed message: ' + JSON.stringify(cites.map((r) => r.text.slice(0, 80)))); } if (problems.length) throw new Error(problems.join(' | ') + ' || journal ' + JSON.stringify(journal)); return { journal, reread: Object.fromEntries(['memory', 'epistemic', 'ledger'].map((tier) => [tier, now[tier].filter((r) => !new Set(before[tier].map((x) => x.id)).has(r.id)).length])) };",
+      "log": true
+    },
+    {
+      "record_state": {
+        "as": "before-tail"
+      },
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const live = (row) => !row.supersededBy && (!row.provenance || row.provenance.validity === 'live'); const rows = () => ({ memory: (rt.getSnapshot().memory?.entries ?? []).filter(live).map((r) => ({ id: r.id, text: String(r.text ?? '') + ' ' + String(r.evidence ?? '') })), epistemic: (rt.getEpistemic?.() ?? []).filter(live).map((r) => ({ id: r.id, text: String(r.content ?? '') })), ledger: (rt.getLedger?.() ?? []).filter((r) => !r.bound && live(r)).map((r) => ({ id: r.id ?? (r.entity + ':' + r.field), text: String(r.entity ?? '') + ' ' + String(r.field ?? '') + ' ' + String(r.value ?? '') })) }); globalThis.__t1live.kept = globalThis.__t1live.kept ?? {}; const r = rows(); globalThis.__t1live.kept['before-tail'] = Object.fromEntries(Object.entries(r).map(([k, v]) => [k, v.map((x) => x.id)])); return { kept: Object.fromEntries(Object.entries(r).map(([k, v]) => [k, v.length])) };",
+      "log": true
+    },
+    {
+      "eval": "globalThis.__t1live.marks.tail = SillyTavern.getContext().chat.length; return { from: globalThis.__t1live.marks.tail };"
+    },
+    {
+      "send_generate": {
+        "text": "I nod and shoulder the pack.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const live = (row) => !row.supersededBy && (!row.provenance || row.provenance.validity === 'live'); const rows = () => ({ memory: (rt.getSnapshot().memory?.entries ?? []).filter(live).map((r) => ({ id: r.id, text: String(r.text ?? '') + ' ' + String(r.evidence ?? '') })), epistemic: (rt.getEpistemic?.() ?? []).filter(live).map((r) => ({ id: r.id, text: String(r.content ?? '') })), ledger: (rt.getLedger?.() ?? []).filter((r) => !r.bound && live(r)).map((r) => ({ id: r.id ?? (r.entity + ':' + r.field), text: String(r.entity ?? '') + ' ' + String(r.field ?? '') + ' ' + String(r.value ?? '') })) }); globalThis.__t1live.pre = globalThis.__t1live.pre ?? {}; globalThis.__t1live.pre['tail'] = rows(); return Object.fromEntries(Object.entries(globalThis.__t1live.pre['tail']).map(([k, v]) => [k, v.length]));",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const from = globalThis.__t1live.marks.tail; if (!ctx.chat[from]?.is_user) throw new Error('row ' + from + ' is not the tail player line'); for (let id = ctx.chat.length - 1; id >= from; id -= 1) await ctx.deleteMessage(id, undefined, false); return { deletedFrom: from, after: ctx.chat.length };",
+      "log": true
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const s = rt.getEngineState(); return { boundary: s.boundary, lastMessageId: s.lastMessageId, chat: SillyTavern.getContext().chat.length, journal: rt.getSessionJournal().slice(-6).map((e) => e.kind + ': ' + e.summary), calls: globalThis.__t1live.calls.splice(0) };",
+      "log": true
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "before-tail",
+          "scope": [
+            "values",
+            "versions",
+            "active",
+            "path",
+            "boundary"
+          ]
+        }
+      },
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const live = (row) => !row.supersededBy && (!row.provenance || row.provenance.validity === 'live'); const rows = () => ({ memory: (rt.getSnapshot().memory?.entries ?? []).filter(live).map((r) => ({ id: r.id, text: String(r.text ?? '') + ' ' + String(r.evidence ?? '') })), epistemic: (rt.getEpistemic?.() ?? []).filter(live).map((r) => ({ id: r.id, text: String(r.content ?? '') })), ledger: (rt.getLedger?.() ?? []).filter((r) => !r.bound && live(r)).map((r) => ({ id: r.id ?? (r.entity + ':' + r.field), text: String(r.entity ?? '') + ' ' + String(r.field ?? '') + ' ' + String(r.value ?? '') })) }); const now = rows(); const before = globalThis.__t1live.pre['tail']; const recorded = { rows: globalThis.__t1live.kept['before-tail'] }; const journal = rt.getSessionJournal().filter((e) => /delete|rollback|rewound/i.test(e.summary)).slice(-4).map((e) => e.summary); const problems = []; for (const tier of ['memory', 'epistemic', 'ledger']) { const kept = new Set(recorded.rows[tier]); const pre = new Set(before[tier].map((r) => r.id)); const nowIds = new Set(now[tier].map((r) => r.id)); const lost = [...kept].filter((id) => !nowIds.has(id)); if (lost.length) problems.push(tier + ': rows recorded before the target were dropped: ' + lost.join(',')); const survived = now[tier].filter((r) => pre.has(r.id) && !kept.has(r.id)); if (survived.length) problems.push(tier + ': rows built after the target survived the rollback: ' + JSON.stringify(survived.map((r) => r.text.slice(0, 80)))); const cites = now[tier].filter((r) => !pre.has(r.id) && r.text.toLowerCase().includes('shoulder the pack')); if (cites.length) problems.push(tier + ': a re-read row cites the removed message: ' + JSON.stringify(cites.map((r) => r.text.slice(0, 80)))); } if (problems.length) throw new Error(problems.join(' | ') + ' || journal ' + JSON.stringify(journal)); return { journal, reread: Object.fromEntries(['memory', 'epistemic', 'ledger'].map((tier) => [tier, now[tier].filter((r) => !new Set(before[tier].map((x) => x.id)).has(r.id)).length])) };",
+      "log": true
+    },
+    {
+      "eval": "globalThis.__t1live.restore(); return { restored: true };"
+    }
+  ]
+}

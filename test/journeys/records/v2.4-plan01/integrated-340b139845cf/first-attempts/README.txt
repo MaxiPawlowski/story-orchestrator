@@ -1,0 +1,4 @@
+First live attempts on 340b139845cf, kept because both failures taught the fixture something:
+- live-v24-01-t6 (x2): the request recorder tagged every request with the LAST GENERATION_STARTED type, so the loud request built after Stepped Thinking's nested quiet thought was tagged quiet and "no loud request was recorded". Recorder now tracks a start/end stack.
+- live-v24-01-t1 run 1: engine scope equal; memory held re-read rows of the SURVIVING later turn (a real rollback re-reads what survives), so raw row equality was the wrong invariant. Replaced by: rows recorded before the target kept, rows built after it gone, no re-read row cites the removed text.
+- live-v24-01-t1 run 2: after the middle delete the engine did NOT rewind (boundary 3 vs 1, values kept). Under investigation: the reworked fixture logs the journal at each mutation.
