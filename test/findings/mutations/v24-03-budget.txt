@@ -1,0 +1,32 @@
+v2.4 plan 03 D5 (pure half) + H12 host read, budget modules, mutations 2026-09-24 (worktree build on d7bd4ed; script .debug/mut-budget.py, each mutant applied alone to src/extraction/chunker.ts, src/extraction/inputBudget.ts or src/services/stHost/contextLimit.ts, the file restored byte-for-byte after its run)
+Suites run for every mutant: extraction/chunker, extraction/inputBudget, stHost/contextLimit (27 tests; baseline 27/27 green, restored 27/27 green).
+
+- B1 (plan mutation "off-by-one in pack") a window may exceed capacity by 1 (`current.tokens + cost > capacity + 1`): KILLED, 4 of 27
+    "property (seed %i): every window fits, windows cover the range in order with no gap, oversized is flagged" x4 seeds (1, 7, 20260924, 424242)
+- B2 pack closes a window early (`>=` for `>`): KILLED, 4 of 27
+    the same property x4 (the "a window closes only when the next message would not fit" clause)
+- B3 an oversized message dropped instead of truncated (`oversized.push(id); continue;`): KILLED, 5 of 27
+    the property x4
+    "a single oversized message keeps its head and the marker, in a window of its own, flagged"
+- B4 the last window never pushed (a gap at the end of the range): KILLED, 6 of 27
+    the property x4
+    "a single oversized message keeps its head and the marker, in a window of its own, flagged"
+    "control: messages that fit share a window and nothing is truncated"
+- B5 (plan mutation "send full window") tail-fit keeps every message (`if (true)`): KILLED, 2 of 27
+    "never exceeds the budget and records trimmedFrom"
+    "a newest message larger than the room is truncated with the marker, never dropped"
+- B6 tail-fit records no trimmedFrom (`trimmedFrom: null`): KILLED, 2 of 27
+    "never exceeds the budget and records trimmedFrom"
+    "a newest message larger than the room is truncated with the marker, never dropped"
+- B7 no 10% margin (`INPUT_BUDGET_MARGIN = 0`): KILLED, 2 of 27
+    "is the context limit less the reply and a 10% margin"
+    "never goes negative, and an unusable limit falls back to the declared default"
+- B8 (plan mutation "throw on unknown") an unreadable preset throws (`throw new Error("preset unreadable")`): KILLED, 1 of 27
+    "unreadable preset -> default 8192, reported"
+- B9 a host throw escapes the read (`catch (error) { throw error; }`): KILLED, 1 of 27
+    "a host that throws while reading is the default with the host's message, never a throw"
+- B10 a zero context size is accepted (`value >= 0`): KILLED, 1 of 27
+    "the pure mapping picks the key per API and refuses a non-positive size"
+
+10/10 killed. Controls stayed green under the mutants they guard: "control: a window under the budget is sent whole and records no trim" under B5/B6, and every H12 default-reason case under B8/B9.
+B8 is killed by the REASON, not the value: readProfileContextLimit's own catch turns the throw into a default 8192, so the case asserts the reason names the unreadable preset. B9 is the mutant that removes that catch.

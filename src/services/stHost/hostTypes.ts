@@ -76,6 +76,23 @@ export interface SillyTavernContext {
   humanizedDateTime?: () => string;
   // Every lorebook that exists, not only the active ones (st-context.js:284).
   getWorldInfoNames?: () => string[];
+  // v2.4 03-H12: a CM profile's `api` -> `{selected}` (slash-commands.js:142, st-context.js:285), and the
+  // preset manager for that API (st-context.js:288, preset-manager.js:83 — null for an unknown API).
+  CONNECT_API_MAP?: Record<string, HostConnectApiMap | undefined>;
+  getPresetManager?: (apiId?: string) => HostPresetManager | null;
+  [key: string]: unknown;
+}
+
+export interface HostConnectApiMap {
+  selected: string;
+  type?: string | null;
+  source?: string | null;
+  [key: string]: unknown;
+}
+
+// preset-manager.js:757: undefined for a name the API does not list.
+export interface HostPresetManager {
+  getCompletionPresetByName: (name: string) => Record<string, unknown> | undefined;
   [key: string]: unknown;
 }
 

@@ -374,3 +374,59 @@ None open. The three from the first draft are settled:
 
 _Placeholder — date, exact commands and outputs, mutation file, live records under
 `test/journeys/records/v2.4-plan03/`, deviations. Filled when the plan closes._
+
+### Budget modules (worktree build, 2026-09-24)
+
+Scope: the PURE half of D5 plus the H12 host read. Built on master `d7bd4ed`. Not wired into any coordinator
+(wave 2 does that after merge).
+
+**As built**
+- `src/extraction/inputBudget.ts` (pure): `DEFAULT_CONTEXT_LIMIT = 8192`, `INPUT_BUDGET_MARGIN = 0.1`,
+  `ContextLimit {value, source: "preset"|"default", reason?}`, `inputBudget(limit, maxTokens)` →
+  `{contextLimit, maxTokens, margin, input}` with `input = max(0, limit − maxTokens − ceil(limit × 0.1))`
+  (an unusable `limit.value` falls back to 8192). `tailFit(window, {budget, promptOverhead, count, perMessage?})`
+  keeps the largest suffix whose cost ≤ `budget − promptOverhead` and returns the window shape plus
+  `{tokens, trimmedFrom, truncated}`: `trimmedFrom` = the original `from` when anything was dropped, else `null`.
+  A newest message larger than the room is truncated with `TRUNCATION_MARKER` and flagged, never dropped.
+  A prompt that leaves no room (or less room than a truncated message) is `{ok:false, capacity, reason}`.
+- `src/extraction/chunker.ts` (pure): `chunkMessages(messages, options)` greedy-packs whole messages into
+  ordered windows `{from, to, messages, tokens, truncated}` under the same capacity; an oversized message is
+  truncated (head kept, marker appended, binary search on the prefix) and listed in `oversized` and in its
+  window's `truncated`. Same `{ok:false}` refusal when there is no room.
+- Token counts are injected as a **synchronous** `count(text)`; `perMessage` adds a fixed per-message cost
+  (speaker label / formatting).
+- `src/services/stHost/contextLimit.ts`: `readProfileContextLimit(profileId)` (exported from `STAPI.ts`) and the
+  pure mapper `contextLimitFromPreset(selectedApi, presetName, preset)`. Never throws: no profile id, CM disabled,
+  deleted profile, no preset named, API without completion presets, no preset manager, unreadable preset, a
+  non-positive or non-numeric size, or any host throw → `{value: 8192, source: "default", reason}`. H12 verified
+  on 1.19.0 and 1.18.0 and recorded as `host-facts.md` 03-H12. `hostTypes.ts` gained `CONNECT_API_MAP?`,
+  `getPresetManager?`, `HostConnectApiMap`, `HostPresetManager`. `typedResults.test.ts` needed no row (the read
+  answers an object).
+
+**Deviations**
+- The budget lives in `extraction/inputBudget.ts`, not `extraction/callBudget.ts`: another wave-1 agent owns
+  `callBudget.ts` (timeouts / `maxTokens` table). The host read lives in `stHost/contextLimit.ts`, not
+  `connectionProfiles.ts`, which another agent is rewriting (D1 seam).
+- The tail-fit case is named "never exceeds the budget and records trimmedFrom" (the plan's
+  "memorize:full never exceeds …" needs the wiring; the wave-2 case should assert the same on the real pass).
+- Mutation record is `test/findings/mutations/v24-03-budget.txt`, not the plan's `v2.4-03-off-path.txt`
+  (shared by the other wave-1 items; merge may fold it in).
+
+**Gates** (worktree, 2026-09-24)
+- `npm run typecheck` → clean; `npm run typecheck:test` → clean; `npm run lint` → clean.
+- `npm test` → 193 suites / 2946 tests passed (new: `chunker.test.ts` 4 seeds × 300 iterations + 4 cases,
+  `inputBudget.test.ts` 7, `contextLimit.test.ts` 12).
+- `npm run build` → compiled (2 pre-existing size warnings), manifest bundle `dffcef2882e6`.
+- No live gate (pure modules + an unwired host read; nothing reaches a model call yet).
+
+**Mutants** (`.debug/mut-budget.py`, record `test/findings/mutations/v24-03-budget.txt`): 10/10 killed —
+off-by-one in pack, early close, oversized dropped, last window lost, tail-fit sends full window, no
+`trimmedFrom`, no margin, throw on unreadable preset, host throw escapes, zero size accepted.
+
+**Not done** (wave 2)
+- Wiring: `memorize:window` token windows, whole-scene map/reduce, short-term tail-fit, tail-fit on
+  `memorize:full` and over-budget P0/P1 reads with `trimmedFrom` in the audit, `contextLimit` in the audit and
+  `#so-capabilities`, the preflight confirm.
+- Counting: ST's `getTokenCountAsync` is async (H11, main-API tokenizer), the modules take a sync counter. The
+  caller must pre-count (e.g. `countTokensBatch` into a cache) or pass a sync estimator; truncation of an
+  oversized message counts arbitrary prefixes, so a pure cache is not enough for that path.
