@@ -62,6 +62,18 @@ export const NamesTheRefusalFallback: Story = {
   },
 };
 
+export const OptsIntoPlayerAttempts: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const attempts = canvas.getByLabelText("The player's message is an attempt; the world decides whether it works");
+    await expect(attempts).not.toBeChecked();
+    await userEvent.click(attempts);
+    await expect(canvasElement.querySelector('[data-so="agency-record"]')?.textContent).toBe(JSON.stringify({ player_attempts_only: true }));
+    await userEvent.click(attempts);
+    await expect(canvasElement.querySelector('[data-so="agency-record"]')?.textContent).toBe("null");
+  },
+};
+
 export const ShowsAnAuthoredPolicy: Story = {
   args: { initial: { protect_player_choice: false, objective_kind: "player_action", alternate: "gate" } },
   play: async ({ canvasElement }) => {

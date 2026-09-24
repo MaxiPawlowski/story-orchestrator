@@ -1,4 +1,4 @@
-import { agencyClauses, agencyFor, agencyForCheckpoint, DEFAULT_AGENCY, OBJECTIVE_KINDS, renderAgencyPolicy } from "./agency";
+import { agencyClauses, agencyFor, agencyForCheckpoint, DEFAULT_AGENCY, OBJECTIVE_KINDS, PLAYER_ATTEMPTS_CLAUSE, renderAgencyPolicy } from "./agency";
 import { parseStoryV2 } from "./validate";
 
 const story = (extra: Record<string, unknown> = {}): Record<string, unknown> => ({
@@ -25,7 +25,7 @@ const parsed = (extra: Record<string, unknown> = {}) => {
 describe("agency policy (v2.3 plan 07, C4)", () => {
   it("is the defaults when a checkpoint declares nothing, not 'absent = today'", () => {
     expect(agencyFor(undefined)).toEqual(DEFAULT_AGENCY);
-    expect(DEFAULT_AGENCY).toEqual({ protect_player_choice: true, never_narrate_player_action: true, objective_kind: "world_pressure" });
+    expect(DEFAULT_AGENCY).toEqual({ protect_player_choice: true, never_narrate_player_action: true, objective_kind: "world_pressure", player_attempts_only: false });
   });
 
   it("merges a partial declaration over the defaults instead of replacing them", () => {
@@ -58,6 +58,18 @@ describe("agency policy (v2.3 plan 07, C4)", () => {
     expect(minimal).toHaveLength(1);
     expect(minimal[0]).toContain("needs the player's own act");
     expect(renderAgencyPolicy(agencyFor(undefined)).split("\n")).toHaveLength(clauses.length);
+  });
+
+  it("adds the opt-in attempts clause only when the checkpoint asks for it (v2.4 plan 04, D6/X13)", () => {
+    expect(DEFAULT_AGENCY.player_attempts_only).toBe(false);
+    expect(agencyClauses(agencyFor(undefined))).not.toContain(PLAYER_ATTEMPTS_CLAUSE);
+    const built = parsed({ agency: { player_attempts_only: true } });
+    expect(built.checkpointById.next.agency).toEqual({ player_attempts_only: true });
+    expect(agencyClauses(agencyForCheckpoint(built, "next"))).toContain(PLAYER_ATTEMPTS_CLAUSE);
+    expect(agencyClauses(agencyForCheckpoint(built, "start"))).not.toContain(PLAYER_ATTEMPTS_CLAUSE);
+    expect(PLAYER_ATTEMPTS_CLAUSE).toBe("The player's message states an attempt; decide its outcome from the world — it may fail.");
+    const wrongType = parseStoryV2(story({ agency: { player_attempts_only: "yes" } }));
+    expect(Array.isArray(wrongType) && wrongType.some((error) => error.path.endsWith("agency.player_attempts_only"))).toBe(true);
   });
 
   it("offers exactly the two objective kinds", () => {

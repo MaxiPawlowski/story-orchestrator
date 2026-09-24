@@ -7,6 +7,7 @@ export const DEFAULT_AGENCY: AgencyPolicy = {
   protect_player_choice: true,
   never_narrate_player_action: true,
   objective_kind: "world_pressure",
+  player_attempts_only: false,
 };
 
 export const OBJECTIVE_KINDS: readonly ObjectiveKind[] = ["world_pressure", "player_action"];
@@ -28,10 +29,13 @@ export const objectiveClause = (kind: ObjectiveKind): string =>
     ? "This objective needs the player's own act: present the situation and the choice, then stop — do not resolve it for them."
     : "This objective is world pressure: the world presses, answers and escalates on its own, without requiring the player to comply.";
 
+export const PLAYER_ATTEMPTS_CLAUSE = "The player's message states an attempt; decide its outcome from the world — it may fail.";
+
 export const agencyClauses = (policy: AgencyPolicy): string[] => [
   objectiveClause(policy.objective_kind),
   ...(policy.protect_player_choice ? ["Never narrate the player accepting what they refused, or going where they declined to go."] : []),
   ...(policy.never_narrate_player_action ? [PLAYER_ACTION_CLAUSE] : []),
+  ...(policy.player_attempts_only ? [PLAYER_ATTEMPTS_CLAUSE] : []),
 ];
 
 export const renderAgencyPolicy = (policy: AgencyPolicy): string => agencyClauses(policy).map((clause) => `- ${clause}`).join("\n");
