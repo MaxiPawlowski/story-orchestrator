@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { isValidationErrorList } from "@engine/index";
-import { availableStoryId, saveStoryRecord } from "@runtime/storyLibrary";
+import { availableStoryId, confirmLibrarySave, saveStoryRecord } from "@runtime/storyLibrary";
+import { librarySaveSentence, type LibrarySaveEvidence } from "@runtime/librarySave";
 import type { StoryLibraryRecord } from "@runtime/types";
 import Toolbar from "@components/studio/Toolbar";
 import FeedbackAlert from "@components/studio/FeedbackAlert";
@@ -13,6 +14,8 @@ type Feedback = { type: "success" | "error"; message: string } | null;
 // What the host does with a saved record. The Studio never reaches into the runtime itself: the
 // chat that is playing this story decides whether to take the update (plan 05 hot-swap).
 export type StudioSaveHandler = (record: StoryLibraryRecord) => Promise<string | null> | string | null;
+/** v2.4 plan 02 §7: told at save time, so the host can journal an unconfirmed library save under its own run. */
+export type LibrarySaveHandler = (record: StoryLibraryRecord, evidence: Promise<LibrarySaveEvidence>) => void;
 
 const download = (filename: string, text: string) => {
   try {
@@ -28,10 +31,13 @@ const download = (filename: string, text: string) => {
   }
 };
 
-/** The library half of the one save vocabulary, so the two sentences below cannot drift apart. */
-const savedTo = (record: StoryLibraryRecord) => `Saved “${record.title}” v${record.version} to the library.`;
+interface Props {
+  onSaved?: StudioSaveHandler;
+  onLibrarySave?: LibrarySaveHandler;
+  confirmSave?: (record: StoryLibraryRecord) => Promise<LibrarySaveEvidence>;
+}
 
-const StudioToolbar: React.FC<{ onSaved?: StudioSaveHandler }> = ({ onSaved }) => {
+const StudioToolbar: React.FC<Props> = ({ onSaved, onLibrarySave, confirmSave = confirmLibrarySave }) => {
   const draft = useDraftStore((state) => state.draft);
   const dirty = useDraftStore((state) => state.dirty);
   const loadDraft = useDraftStore((state) => state.loadDraft);
@@ -53,19 +59,26 @@ const StudioToolbar: React.FC<{ onSaved?: StudioSaveHandler }> = ({ onSaved }) =
       return;
     }
     loadDraft({ ...current, id: result.record.id, version: result.record.version }, result.record.hash);
-    // The save itself already succeeded; a failing hand-off must not leave the toolbar stuck on
-    // "Saving..." with the author unsure whether the library took the edit.
+    // v2.4 plan 02 §7: armed now, before the debounced settings save can fire. The library half says
+    // "Saved" only on evidence the server holds the record.
+    const evidence = confirmSave(result.record);
+    onLibrarySave?.(result.record, evidence);
+    // A failing hand-off must not leave the toolbar stuck on "Saving..." with the author unsure
+    // whether the library took the edit.
+    let chatHalf = "";
+    let chatFailed = false;
     try {
       // Two events, two sentences (plan 09 §One save vocabulary). No handler at all means no chat is
       // watching this save, which is not the same as a chat declining it.
       const applied = onSaved ? await onSaved(result.record) : null;
-      const chatHalf = !onSaved ? "" : applied ? ` Applied to this chat: ${applied}.` : " Not applied to this chat: it is playing a different story.";
-      setFeedback({ type: "success", message: `${savedTo(result.record)}${chatHalf}` });
+      chatHalf = !onSaved ? "" : applied ? ` Applied to this chat: ${applied}.` : " Not applied to this chat: it is playing a different story.";
     } catch (error) {
-      setFeedback({ type: "error", message: `${savedTo(result.record)} Not applied to this chat: ${error instanceof Error ? error.message : String(error)}` });
-    } finally {
-      setPending(false);
+      chatHalf = ` Not applied to this chat: ${error instanceof Error ? error.message : String(error)}`;
+      chatFailed = true;
     }
+    const library = await evidence.catch((error: unknown): LibrarySaveEvidence => ({ confirmed: false, reason: error instanceof Error ? error.message : String(error) }));
+    setFeedback({ type: library.confirmed && !chatFailed ? "success" : "error", message: `${librarySaveSentence(result.record, library)}${chatHalf}` });
+    setPending(false);
   };
 
   const handleFile = async (event: React.ChangeEvent<HTMLInputElement>) => {

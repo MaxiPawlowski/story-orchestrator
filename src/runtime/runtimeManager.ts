@@ -76,7 +76,7 @@ export class RuntimeManager {
   /** v2.3 plan 03: dropped queued work belongs to the world that just ended. See RunOwner. */
   onEpochChanged(listener: () => void) { return this.owner.onChanged(listener); }
   invalidateRuns() { this.awayRecap.dismissUnless(String(getContext().chatId ?? "")); this.owner.bump(); }
-  private noteRecap(summary: string, detail: string) { this.journal.record("story", summary, this.journalContext(), detail); this.extras.journal = this.journal.getRecords(); }
+  noteRecap(summary: string, detail: string) { this.journal.record("story", summary, this.journalContext(), detail); this.extras.journal = this.journal.getRecords(); }
   private readonly effects: EffectsApplier;
   private readonly listeners = new Set<() => void>();
   private readonly boundaryListeners = new Set<(result: BoundaryResult) => void>();

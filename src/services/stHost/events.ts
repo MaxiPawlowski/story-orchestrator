@@ -32,6 +32,8 @@ export interface HostEventPayloads {
   WORLDINFO_SETTINGS_UPDATED: [];
   WORLDINFO_ENTRIES_LOADED: [];
   GROUP_UPDATED: [];
+  SETTINGS_UPDATED: [];
+  PERSONA_CHANGED: [avatar: string];
   CHARACTER_MESSAGE_RENDERED: [messageId: number, messageType?: string];
   PRESET_CHANGED: [payload: { apiId: string; name: string }];
 }

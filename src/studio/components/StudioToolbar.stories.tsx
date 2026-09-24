@@ -47,3 +47,14 @@ export const SaveNotTakenByTheChat: Story = {
     await expect(await canvas.findByText(/Saved .* v1 to the library\. Not applied to this chat: it is playing a different story\./)).toBeInTheDocument();
   },
 };
+
+// v2.4 plan 02 §7: the library half claims the save only on evidence the server holds it (H15).
+export const SaveNotConfirmed: Story = {
+  args: { confirmSave: fn(async () => ({ confirmed: false as const, reason: "the settings save answered 500" })) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+    await expect(await canvas.findByText(/Saving .* v1… not confirmed: the settings save answered 500\./)).toBeInTheDocument();
+    await expect(canvas.queryByText(/Saved .* to the library\./)).toBeNull();
+  },
+};

@@ -60,6 +60,9 @@ export const listPersonas = () => ["Traveller"];
 export const showConfirmPopup = async () => true;
 export const showTextPopup = async () => {};
 export const showChoicePopup = async () => null;
+let settingsBurst = 0;
+export const observeNextSettingsSave = async () => ({ requested: true, status: 200, ok: true, timedOut: false, failed: false, burst: ++settingsBurst });
+export const readServerExtensionSettings = async (key: string): Promise<Record<string, unknown> | null> => JSON.parse(JSON.stringify(extensionSettings[key] ?? {}));
 
 export const getContext = () => ({
   saveSettingsDebounced: () => {},
