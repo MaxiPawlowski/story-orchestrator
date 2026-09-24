@@ -1,0 +1,84 @@
+
+=== J7 long-haul ===
+Full sun-ruins play-through to the finale on the real model: every anchor reached, convergence honoured, success-criteria hooks recorded. Expensive — run at plan 01 (baseline) and plan 07/08 (acceptance) only.
+
+extraction before this run: {"enabled":true,"cadence":1,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"}
+Global config snapshot: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\so-journey-config-snapshot.json
+extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+--- J7.1 cp1 → cp2: the player approaches the job board Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).
+J7.1 1/11 import_story ok 1886ms
+J7.1 2/11 ui ok 3484ms
+J7.1 3/11 eval ok 6ms
+J7.1 4/11 expect ok 62ms
+J7.1 5/11 send_generate ok 22777ms
+J7.1 6/11 wait ok 1546ms
+J7.1 7/11 send_generate ok 41804ms
+J7.1 8/11 send_generate ok 48843ms
+J7.1 9/11 wait ok 99608ms
+J7.1 10/11 send_generate ok 44320ms
+J7.1 11/11 wait ok 56ms
+--- J7.2 cp2 → cp3: the party accepts the Sun Ruins mission Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).
+J7.2 1/5 send_generate ok 31944ms
+J7.2 2/5 send_generate ok 44847ms
+J7.2 3/5 wait ok 101006ms
+J7.2 4/5 send_generate ok 54964ms
+J7.2 5/5 wait ok 70ms
+--- J7.3 cp3 → cp-4a: the player agrees to bring Luke along Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).
+J7.3 1/5 send_generate ok 108075ms
+J7.3 2/5 send_generate ok 3165ms
+J7.3 3/5 wait ok 98208ms
+J7.3 4/5 send_generate ok 10051ms
+J7.3 5/5 wait ok 96ms
+--- J7.4 cp-4a → cp-4a1: the sphinx riddle is answered correctly Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).
+J7.4 1/5 send_generate ok 91868ms
+J7.4 2/5 send_generate ok 46114ms
+J7.4 3/5 wait ok 108247ms
+J7.4 4/5 send_generate ok 125227ms
+J7.4 5/5 wait ok 106ms
+--- J7.5 cp-4a1 → cp-5: the party enters the inner chamber, and convergence progress is recorded Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).
+J7.5 1/6 send_generate ok 3183ms
+J7.5 2/6 send_generate ok 86971ms
+J7.5 3/6 wait ok 39841ms
+J7.5 4/6 send_generate ok 85617ms
+J7.5 5/6 wait ok 122ms
+J7.5 6/6 eval ok 5ms
+--- J7.6 cp-5 → cp-6: the artifact is secured and the party returns to the guild Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).
+J7.6 1/7 send_generate ok 3252ms
+J7.6 2/7 wait ok 48047ms
+J7.6 3/7 send_generate ok 129169ms
+J7.6 4/7 send_generate ok 124082ms
+J7.6 5/7 wait ok 5097ms
+J7.6 6/7 send_generate ok 116718ms
+J7.6 7/7 wait ok 116ms
+--- J7.7 every anchor was visited and none was skipped
+J7.7 1/1 eval ok 5ms
+--- J7.8 the long session left a coherent journal and memory behind
+J7.8 1/1 eval ok 6ms
+Restored global config from C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions"],"saved":{"status":200},"preservedStories":[],"preservedSessions":[]}
+
+PASS         J7.1     cp1 → cp2: the player approaches the job board Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).
+PASS         J7.2     cp2 → cp3: the party accepts the Sun Ruins mission Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).
+PASS         J7.3     cp3 → cp-4a: the player agrees to bring Luke along Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).
+PASS         J7.4     cp-4a → cp-4a1: the sphinx riddle is answered correctly Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).
+PASS         J7.5     cp-4a1 → cp-5: the party enters the inner chamber, and convergence progress is recorded Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).
+PASS         J7.6     cp-5 → cp-6: the artifact is secured and the party returns to the guild Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).
+PASS         J7.7     every anchor was visited and none was skipped
+PASS         J7.8     the long session left a coherent journal and memory behind
+SKIP         J7.9      — human check — operator scores it
+SKIP         J7.10     — human check — operator scores it
+
+J7
+automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped
+human:     0 scored, 2 unscored
+cleanup:   clean
+first try: 8 of 8 passing check(s) needed no retry
+
+--- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+[J7.9] (—) Over the whole play-through, did the story feel authored — arriving where it was meant to — or did it feel like it was dragging you along rails?
+      anchors: 1 = pure rails · 3 = authored but visible machinery · 5 = felt like a GM running my choices
+[J7.10] (—) Did the finale land, given what actually happened in your run?
+      anchors: 1 = disconnected from my choices · 3 = generic ending · 5 = paid off my run specifically
+[free] What would make you stop using this?
+
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-24T06-19-58-409Z_journey-J7.json
+Matrix: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\journey-J7.md

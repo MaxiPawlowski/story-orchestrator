@@ -982,3 +982,10 @@ The bundle changed between batches because the matrix found defects, so each pai
 - **Run 1: 7/8**, failing J7.1 in the harness. A send waited 60 s for the send button while the previous group round was still drafting members (`failed-batch4/J7-run1-batch5.log`).
   - `sendUserMessage`'s pre-send wait was a fixed 60 s. It now shares the caller's generation budget, as a player waits for the whole round.
 - **J7 therefore has no consecutive pair yet.** The pod reached its 8 h cap before a third run.
+
+#### L2 batch 6 (2026-09-24, restarted pod, bundle `1e5c36951d65`)
+
+- **J7: green on two consecutive runs, 8/8 each** (`records/v2.3-acceptance/J7/`). This is the first archived full sun-ruins playthrough, and the fixes that got it there were in the fixture (the neutral turn before each wait) and in `sendUserMessage`'s pre-send budget. Header diff: 0 blocking.
+- **J11: 23/26, then 25/26.**
+  - J11.25 failed both runs, and its new diagnostics named the cause: the judge's scene read (heading tower p 0.95) landed at 07:00:53, after boundary 3's boundary work had already run. The look-ahead is boundary work, and no further turn came during the wait. The check's own goal says the *next boundary* queues the stub, so it now lets the passes settle and plays one neutral turn. It passed alone before because two scene calls had timed out, which shifted the timing.
+  - J11.9 (memoryPairs "kept, kept") and J11.20 (the typed read answered `has_key` below its floor, no delta) are judge-dependent misses. Their floors are not retuned.

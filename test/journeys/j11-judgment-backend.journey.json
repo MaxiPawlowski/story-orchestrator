@@ -933,7 +933,7 @@
       "id": "J11.25",
       "mode": "auto",
       "findings": [],
-      "goal": "prepare-ahead with two variants: once the scene read says play is heading for the watchtower, the next boundary queues the tower's stub before the tower is reached; on arrival the prepared chain is used, or (stale / failed) re-queued and expanded anyway; the entry shows two generations and one pick",
+      "goal": "prepare-ahead with two variants: once the scene read says play is heading for the watchtower, the next boundary queues the tower's stub before the tower is reached; on arrival the prepared chain is used, or (stale / failed) re-queued and expanded anyway; the entry shows two generations and one pick After the approach turns the check lets the off-path passes settle and plays one neutral turn: the look-ahead is boundary work, and the judge's scene read that names the heading can land after the last boundary, so without a next boundary nothing reads it (L2 2026-09-24, from this check's own diagnostics: heading tower p 0.95 read at 07:00:53, after boundary 3, entries empty, active road).",
       "requires": [
         "judge-runtime",
         "judge-plugin"
@@ -969,6 +969,19 @@
         {
           "send_generate": {
             "text": "We keep to the ridge road, eyes on the tower.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We pause on the ridge to catch our breath before the last stretch.",
             "timeoutMs": 300000
           }
         },
