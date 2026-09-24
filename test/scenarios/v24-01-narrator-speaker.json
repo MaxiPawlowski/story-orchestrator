@@ -1,0 +1,57 @@
+{
+  "name": "v24-01-narrator-speaker",
+  "objective": "v2.4 plan 01 T10, no backend. `/sys` posts extra.type:'narrator' named narrator_name or 'System' (host fact 01-H10, slash-commands.js:6019-6036). A narrator row whose name is not a roster member is not a character's turn: the speaker stays Luke (red on v2.3: null). A narrator row NAMED as a roster member ('DM Narrator') counts as that member (dm) - the kept case, green on both. Run: so-scenario run <this> --sandbox --group 1759606632088.",
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "import_story": {
+        "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0 }); const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error(`T10 rows need a group chat: run with --sandbox --group 1759606632088 (groupId=${ctx.groupId}, chatId=${ctx.chatId})`); const enabled = rt.getEnabledCharacterIds(); if (!enabled.includes('little_brother')) throw new Error(`Luke is not an enabled roster member here: ${JSON.stringify(enabled)}`); return { groupId: ctx.groupId, enabled };",
+      "log": true
+    },
+    {
+      "slash": "/sendas name=Luke I stay close behind the others."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const speaker = globalThis.storyOrchestratorRuntime.getActiveSpeakerId(); if (speaker !== 'little_brother') throw new Error(`control: after Luke's own row the speaker must be little_brother, got ${speaker}`); return { speaker };",
+      "log": true
+    },
+    {
+      "slash": "/sys The rain thickens over the ruins."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const speaker = globalThis.storyOrchestratorRuntime.getActiveSpeakerId(); const last = SillyTavern.getContext().chat.at(-1); if (speaker !== 'little_brother') throw new Error(`after a non-roster /sys narrator row: the active speaker must still be Luke (little_brother), got ${speaker}; last row ${JSON.stringify({ name: last?.name, is_system: last?.is_system, type: last?.extra?.type })}`); return { speaker, last: { name: last?.name, is_system: last?.is_system, type: last?.extra?.type ?? null } };",
+      "log": true
+    },
+    {
+      "slash": "/sys name=\"DM Narrator\" The torches gutter."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const speaker = globalThis.storyOrchestratorRuntime.getActiveSpeakerId(); if (speaker !== 'dm') throw new Error(`a narrator row named as a roster member must count as that member (dm), got ${speaker}`); return { speaker };",
+      "log": true
+    }
+  ]
+}

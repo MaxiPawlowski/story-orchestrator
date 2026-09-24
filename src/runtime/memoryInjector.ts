@@ -124,6 +124,7 @@ export class MemoryInjector {
   epistemicBlock(): string {
     const story = this.deps.getStory();
     if (!story || !this.deps.capable()) return "";
+    if (getActiveGroup()) return this.appliedEpistemicBlock();
     const speaker = activeSpeakerId(story);
     const names = speaker ? namesForRosterId(story, speaker) : enabledCharacterNames(story);
     return renderPrivateEpistemicBlock(this.state.epistemic, names);

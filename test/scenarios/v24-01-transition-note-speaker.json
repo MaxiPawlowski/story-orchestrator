@@ -1,0 +1,54 @@
+{
+  "name": "v24-01-transition-note-speaker",
+  "objective": "v2.4 plan 01 T10, no backend. Our own transition note is a `/comment` (host fact 01-H9: name 'Note', is_system:true, extra.type:'comment'). After it, the active speaker must still be the member who spoke last. Red on v2.3: activeSpeakerId returns null at the first named non-user row, so the Note blanks the speaker. Run: so-scenario run <this> --sandbox --group 1759606632088.",
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "import_story": {
+        "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0 }); const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error(`T10 rows need a group chat: run with --sandbox --group 1759606632088 (groupId=${ctx.groupId}, chatId=${ctx.chatId})`); const enabled = rt.getEnabledCharacterIds(); if (!enabled.includes('little_brother')) throw new Error(`Luke is not an enabled roster member here: ${JSON.stringify(enabled)}`); return { groupId: ctx.groupId, enabled };",
+      "log": true
+    },
+    {
+      "slash": "/sendas name=Luke I stay close behind the others."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const speaker = globalThis.storyOrchestratorRuntime.getActiveSpeakerId(); if (speaker !== 'little_brother') throw new Error(`control: after Luke's own row the speaker must be little_brother, got ${speaker}`); return { speaker };",
+      "log": true
+    },
+    {
+      "slash": "/comment compact=true Checkpoint: The Gate"
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "emit_generation": [
+        {
+          "event": "GENERATION_ENDED",
+          "args": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "eval": "const speaker = globalThis.storyOrchestratorRuntime.getActiveSpeakerId(); const last = SillyTavern.getContext().chat.at(-1); if (speaker !== 'little_brother') throw new Error(`after the transition Note: the active speaker must still be Luke (little_brother), got ${speaker}; last row ${JSON.stringify({ name: last?.name, is_system: last?.is_system, type: last?.extra?.type })}`); return { speaker, last: { name: last?.name, is_system: last?.is_system, type: last?.extra?.type ?? null } };",
+      "log": true
+    }
+  ]
+}

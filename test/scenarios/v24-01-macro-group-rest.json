@@ -1,0 +1,62 @@
+{
+  "name": "v24-01-macro-group-rest",
+  "objective": "v2.4 plan 01 T10 (X5, inv 15), no backend. In a group, `story_epistemic` must be empty at rest and the drafted member's own block while drafted - never every member's private knowledge merged. Red on v2.3: after our own transition Note the speaker reads null and getEpistemicBlock renders enabledCharacterNames (all members), so the macro leaks Arin's and Luke's secrets together. Private rows are planted directly (the parser has its own suites); the mechanism under test is the macro's source. Run: so-scenario run <this> --sandbox --group 1759606632088.",
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "import_story": {
+        "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0 }); const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error(`T10 rows need a group chat: run with --sandbox --group 1759606632088 (groupId=${ctx.groupId}, chatId=${ctx.chatId})`); const enabled = rt.getEnabledCharacterIds(); if (!enabled.includes('little_brother')) throw new Error(`Luke is not an enabled roster member here: ${JSON.stringify(enabled)}`); return { groupId: ctx.groupId, enabled };",
+      "log": true
+    },
+    {
+      "slash": "/sendas name=Luke I stay close behind the others."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const speaker = globalThis.storyOrchestratorRuntime.getActiveSpeakerId(); if (speaker !== 'little_brother') throw new Error(`control: after Luke's own row the speaker must be little_brother, got ${speaker}`); return { speaker };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setEpistemicLedgerCapable(true); if (!rt.getSnapshot().memory.settings.epistemicLedgerCapable) throw new Error('the epistemic/ledger capability did not stick'); const audit = { id: 't10-seed', createdAt: new Date().toISOString(), priority: 0, reason: 'manual', contractHash: 'h', scope: [], window: { from: 0, to: 1 }, prompt: 'p', rawResponse: 'r', acceptedDeltas: [], rejected: [] }; await rt.applyExtractionAudit(audit, [], [], [], [ { tag: 'hiding', subject: 'Luke', hiddenFrom: 'Arin', content: 'Luke pocketed the sun-ruins map' }, { tag: 'hiding', subject: 'Arin', hiddenFrom: 'Luke', content: 'Arin owes the guild forty crowns' } ], []); const rows = rt.getEpistemic().filter((entry) => !entry.supersededBy).map((entry) => [entry.subject, entry.content]); if (rows.length < 2) throw new Error(`the private rows did not land: ${JSON.stringify(rows)}`); return { rows };",
+      "log": true
+    },
+    {
+      "slash": "/comment compact=true Checkpoint: The Gate"
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "emit_generation": [
+        {
+          "event": "GENERATION_ENDED",
+          "args": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const block = String(rt.getEpistemicBlock()); const macro = String(SillyTavern.getContext().substituteParams('{{story_epistemic}}')); const leaked = ['sun-ruins map', 'forty crowns'].filter((needle) => block.includes(needle) || macro.includes(needle)); if (leaked.length) throw new Error(`story_epistemic at rest in a group carries private knowledge (${leaked.join(', ')}): block=${JSON.stringify(block.slice(0, 300))} macro=${JSON.stringify(macro.slice(0, 300))}`); if (block !== '') throw new Error(`the group's resting block must be empty, got ${JSON.stringify(block.slice(0, 300))}`); return { block, macro };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const chid = (ctx.characters ?? []).findIndex((card) => card?.name === 'Luke'); if (chid < 0) throw new Error('Luke is not a loaded character'); rt.onMemberDrafted(chid); const block = String(rt.getEpistemicBlock()); const macro = String(ctx.substituteParams('{{story_epistemic}}')); if (!block.includes('sun-ruins map') || !macro.includes('sun-ruins map')) throw new Error(`drafted Luke must see his own block: block=${JSON.stringify(block.slice(0, 300))} macro=${JSON.stringify(macro.slice(0, 300))}`); if (block.includes('forty crowns') || macro.includes('forty crowns')) throw new Error(`drafted Luke's block carries Arin's private knowledge: ${JSON.stringify(block.slice(0, 300))}`); rt.clearPrivateInjection(); return { chid, block };",
+      "log": true
+    }
+  ]
+}

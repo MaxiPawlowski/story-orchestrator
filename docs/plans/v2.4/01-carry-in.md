@@ -57,9 +57,9 @@ Plan 01 proceeds in order:
 | T1 subscribe | `src/runtime/turnBridge.ts:56` passes `MESSAGE_DELETED`'s payload on as a message id | matches |
 | T1 decode | `turnBridge.ts:159-170`: `hostMessageId(value)` → `turnKeys` purge with `keyed >= messageId` (`:167`) → `rollbackFromMessage` (`:169`) → `runtimeManager.ts:349-355` (`owner.noteMutation`, then `runRollback`, `rollback.ts:35`) | matches. **New:** `src/services/stHost/events.ts:17` types the payload as `[messageId: number]`, which is wrong |
 | T1 harness | `scripts/debug/st-actions.mts:299-317` `deleteMessage` sets `chat.length = id`, then emits `MESSAGE_DELETED(id)`. That is a tail cut, and `id` equals the post-delete length. `plan03a-delete-rollback.json:71` (`delete: 0`), `plan03a-edit-rollback.json` and J6 all use it | **New (X4):** v2.3's delete coverage only ever exercised the shape that already decodes correctly. Nothing calls ST's `deleteMessage` (`ctx.deleteMessage`, `st-context.js:142`) or `/cut`. The file also carries uncommitted edits |
-| T10 speaker | `src/runtime/roster.ts:30-42` skips only `is_user`. It returns null at the first named non-user row that is not an enabled roster member | matches |
-| T10 impact | `memoryCoordinator.ts:448` → `inject.ts:27`: a null speaker **drops** per-member facts. Also `:494` (`onMemberDrafted` fallback), `:405-406` (`getEpistemicBlock`), `:503` | lines match. **New (X5):** with a null speaker in a group, `getEpistemicBlock` renders `enabledCharacterNames(story)`, i.e. **every member's private knowledge merged**, into `story_epistemic` (`macros.ts:55`). That is an inv-15 breach. Talk `no_repeat` reads the same function (`runtime/index.ts:166` → `talkControl.ts:208` → `talk/rules.ts:60`) |
-| T10 timing | `updateInjection` runs at `runtimeManager.ts:268`, **then** `announceTransition` at `:273` (`effectsApplier.ts:171-175`, `/comment compact=true`). The next `updateInjection` sees the Note as the last row; `onGenerationEnded` → `clearPrivateInjection` (`:637`, `:640`) is one such call | new detail. The live probe must run after an ENDED or a memory commit |
+| T10 speaker | `src/runtime/roster.ts:30-42` skips only `is_user`. It returns null at the first named non-user row that is not an enabled roster member | matches (re-verified on `eb50a00`, 2026-09-24) |
+| T10 impact | `memoryCoordinator.ts:448` → `inject.ts:27`: a null speaker **drops** per-member facts. Also `:494` (`onMemberDrafted` fallback), `:405-406` (`getEpistemicBlock`), `:503` | **corrected 2026-09-24:** the injection moved out of the coordinator in V26. On `eb50a00` it is `src/runtime/memoryInjector.ts:66-67` (`update`: `activeSpeakerId` → `applyMemoryInjection` → `inject.ts:27`), `:112` (`onMemberDrafted` fallback), `:121` (`blocks()`), `:124-130` (`epistemicBlock`, the all-names merge at `:128`); `memoryCoordinator.ts:429` only delegates. **New (X5):** with a null speaker in a group, `getEpistemicBlock` renders `enabledCharacterNames(story)`, i.e. **every member's private knowledge merged**, into `story_epistemic` (`macros.ts:55`). That is an inv-15 breach. Talk `no_repeat` reads the same function (`runtime/index.ts:166` → `talkControl.ts:208` → `talk/rules.ts:60`, all three re-verified) |
+| T10 timing | `updateInjection` runs at `runtimeManager.ts:268`, **then** `announceTransition` at `:273` (`effectsApplier.ts:171-175`, `/comment compact=true`). The next `updateInjection` sees the Note as the last row; `onGenerationEnded` → `clearPrivateInjection` (`:637`, `:640`) is one such call | **corrected 2026-09-24** (`eb50a00`): `updateInjection` `runtimeManager.ts:284`, `announceTransition` `:289` (`effectsApplier.ts:178-185`, `/comment compact=true raw=false`), `onGenerationEnded` `:621` → `clearPrivateInjection` `:624`. The order and the consequence are unchanged. The live probe must run after an ENDED or a memory commit |
 | T6 wiring | `runtime/index.ts:189` runs `onGenerationStarted`, `capturePayload` and `talk.onGenerationStarted` on every STARTED. `:191-192` runs `onGenerationEnded` on every ENDED or STOPPED, foreign `{source}` ones included. Only lore skips dry and quiet runs (`:156`) | matches |
 | T6 manager | `runtimeManager.ts:636`: a quiet or impersonate STARTED → `withholdPrivateKnowledge` (`memoryCoordinator.ts:482-484`). `:637`: every ENDED → `clearPrivateInjection`, `clearCopilotNudge` and `clearContinuityNote` | the SUMMARY T6 row cites `:635-636`; it is **636-637** |
 | T6 warden | `stagecraftCoordinator.ts:457-468`, at STARTED: skips dry, quiet and impersonate runs, but not a non-string `{source}` type. Otherwise it sets the note, marks it `applied` and saves. `clearContinuityNote` is `:470-474` | +1 line vs `456-466`; the file has uncommitted edits |
@@ -385,3 +385,30 @@ These mirror 00-overview §Carry-in corrections.
 ## Gate record
 
 Not started.
+
+### T10 (worktree build, 2026-09-24)
+
+Built on `eb50a00` in a worktree. Code:
+- `src/runtime/roster.ts` `activeSpeakerId` continues past `is_system === true`, any non-null `extra.type` other than `'narrator'`, `name === hostSystemUserName`, and a `'narrator'` row whose name is not a roster member. A roster-named narrator counts as that member (host facts 01-H9..H11 re-read on the live tree: `slash-commands.js:3770-3772`, `:6019-6036`, `:6113-6152`; `stable-diffusion/index.js:4966-4999`; tool rows `tool-calling.js:903-913`, `systemUserName` + `is_system:true`).
+- `src/services/stHost/generation.ts` exports `hostSystemUserName` from the `scriptModule` it already imports (`script.js:405`); `ScriptHostModule.systemUserName` vendored in `hostTypes.ts`; re-exported by `STAPI.ts`.
+- `src/runtime/memoryInjector.ts` `epistemicBlock()`: in a group it returns `appliedEpistemicBlock()` (+1 line). Solo is unchanged.
+- `runtimeManager.ts` and `memoryCoordinator.ts` untouched (0 lines each; effective 736/740 and 597/620). Talk `no_repeat` has no talk-side change.
+
+Tests: `src/runtime/roster.test.ts` (5 skip cases, the roster-named narrator, an ordinary reply, the non-roster null control, and `no_repeat` after a Note through `chooseByRules`); `src/runtime/coordinators/epistemicMacro.review.test.ts` (group at rest `""`, drafted = own block only, solo control). Before the fix, 8 of these 12 fail and the 4 controls pass.
+
+Gates (worktree, no `dist/`):
+- `npm run typecheck`: clean. `npm run typecheck:test`: clean. `npm run lint`: clean.
+- `npm test`: 173 suites / 2694 tests passed.
+- `npm run debug:typecheck`: clean.
+- `npm run test:debug`: 177 tests, 174 pass, 2 fail, 1 skipped. Neither failure is T10. (1) `scenarioSchema.test.mts` "no fixture reads a page global it never sets" flags `v24-01-harness-smoke.json` (`__soForeignEmitter`, set by `inject_script`, which the guard cannot see); that fixture is from `eb50a00`. (2) `so-run-header.test.mts` "the build half reads plan 08s nested manifest" needs `dist/manifest.json`, and the worktree has no `dist/` (build not run, per the brief).
+- `npm run build` / `test:release`: not run (brief).
+
+Mutations (`test/findings/mutations/v24-01-T10.txt`), each alone on the full jest suite: removing the `is_system` skip fails 1 case (the hidden row only); restoring the all-names fallback fails 2 cases (the two group macro cases only). 2/2 killed.
+
+Red fixtures (written, validated with `validateFixture`, every `eval` syntax-checked, **not run live**): `test/scenarios/v24-01-transition-note-speaker.json`, `-sd-post-speaker.json`, `-narrator-speaker.json`, `-macro-group-rest.json`. They need no backend and run with `so-scenario run <file> --sandbox --group 1759606632088`. Each has a green control step before its red assertion. The `/sd` and tool rows are posted by an eval in the host's own shape and events, because there is no image backend.
+
+Deviations:
+- The macro fix is in `memoryInjector.ts`, not `memoryCoordinator.ts`, because V26 moved the render there. `memoryCoordinator.ts` changes by 0 lines, so the plan's net-zero rule still holds.
+- The `talk/rules` case is in `roster.test.ts`, not `talk/talk.test.ts`. It composes `activeSpeakerId` with `chooseByRules`, and `src/talk/` is pure, so it cannot mock the host seam.
+- The solo path keeps `enabledCharacterNames` (in solo `activeSpeakerId` is always null, because `enabledCharacterIds` needs a group). This is the plan's "Solo unchanged", but it means the all-names merge still exists for solo stories whose roster has more than one member. **Not decided here.**
+- Still open for T10: the live group probe (the §Live T10 row) and the ×2 fixture runs with archived RED output.

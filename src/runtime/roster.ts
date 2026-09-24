@@ -1,9 +1,12 @@
 import type { NormalizedStoryV2 } from "@engine/index";
-import { getActiveGroup, getContext, resolveGroupMemberId } from "@services/STAPI";
+import { getActiveGroup, getContext, hostSystemUserName, resolveGroupMemberId } from "@services/STAPI";
 
 // Roster ↔ ST group/chat resolution, shared by the manager, the coordinators and the talk host.
 
 type RosterMember = NormalizedStoryV2["roster"][number];
+
+// v2.4 01-H9..H11: `/comment` notes, hidden rows, `/sd` and tool rows are not a character's turn.
+type ChatRow = { name?: string; is_user?: boolean; is_system?: boolean; extra?: { type?: unknown } };
 
 export const rosterMemberName = (member: RosterMember): string => member.name ?? member.id;
 
@@ -33,9 +36,12 @@ export function activeSpeakerId(story: NormalizedStoryV2 | null): string | null 
   if (!enabled.size) return null;
   const chat = Array.isArray(getContext().chat) ? getContext().chat : [];
   for (let index = chat.length - 1; index >= 0; index -= 1) {
-    const entry = chat[index] as { name?: string; is_user?: boolean } | undefined;
-    if (!entry || entry.is_user || typeof entry.name !== "string" || !entry.name.trim()) continue;
+    const entry = chat[index] as ChatRow | undefined;
+    if (!entry || entry.is_user || entry.is_system === true || typeof entry.name !== "string" || !entry.name.trim()) continue;
+    if (entry.name === hostSystemUserName) continue;
+    const type = entry.extra?.type;
     const match = rosterIdForName(story, entry.name);
+    if (type !== undefined && type !== null && (type !== "narrator" || !match)) continue;
     return match && enabled.has(match) ? match : null;
   }
   return null;

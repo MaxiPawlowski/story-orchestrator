@@ -5,6 +5,8 @@ export function isHostGenerating(): boolean {
   return Boolean(scriptModule.isGenerating());
 }
 
+export const hostSystemUserName: string = scriptModule.systemUserName;
+
 const NO_ATTACH_TYPES = ["regenerate", "swipe", "impersonate", "quiet", "continue"];
 const NO_TEXTAREA_TYPES = ["regenerate", "swipe", "quiet", "impersonate"];
 

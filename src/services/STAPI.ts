@@ -55,7 +55,7 @@ export {
 } from "@services/stHost/selectors";
 export type { HostSlashCommandMeta } from "@services/stHost/selectors";
 export { getActiveGroup, resolveGroupMemberId, setGroupMembersDisabled, setGroupMemberDisabled, readGroupMemberDisabled } from "@services/stHost/groups";
-export { isHostGenerating, willAddUserMessage } from "@services/stHost/generation";
+export { hostSystemUserName, isHostGenerating, willAddUserMessage } from "@services/stHost/generation";
 export { forceActivateEntries, getScannableEntries, type HostScannableEntry } from "@services/stHost/worldInfoActivate";
 export { getSelectedConnectionProfileId, listConnectionProfiles, sendConnectionProfileRequest } from "@services/stHost/connectionProfiles";
 export type { ConnectionProfileSummary } from "@services/stHost/connectionProfiles";

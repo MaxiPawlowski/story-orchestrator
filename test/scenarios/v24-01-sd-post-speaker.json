@@ -1,0 +1,59 @@
+{
+  "name": "v24-01-sd-post-speaker",
+  "objective": "v2.4 plan 01 T10, no backend. A group `/sd` post is named systemUserName ('SillyTavern System', script.js:405) and is VISIBLE (is_system:false, media in extra.media[], no extra.type) - host fact 01-H11, stable-diffusion/index.js:4966-4999. A tool-call row has the same name and is_system:true (tool-calling.js:903-913). The eval posts the host's own row shape and events, since no image backend runs here. Neither row is a character's turn, so the speaker stays Luke. Red on v2.3 (the visible /sd row reads as a non-roster speaker: null). Run: so-scenario run <this> --sandbox --group 1759606632088.",
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "import_story": {
+        "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0 }); const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error(`T10 rows need a group chat: run with --sandbox --group 1759606632088 (groupId=${ctx.groupId}, chatId=${ctx.chatId})`); const enabled = rt.getEnabledCharacterIds(); if (!enabled.includes('little_brother')) throw new Error(`Luke is not an enabled roster member here: ${JSON.stringify(enabled)}`); return { groupId: ctx.groupId, enabled };",
+      "log": true
+    },
+    {
+      "slash": "/sendas name=Luke I stay close behind the others."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const speaker = globalThis.storyOrchestratorRuntime.getActiveSpeakerId(); if (speaker !== 'little_brother') throw new Error(`control: after Luke's own row the speaker must be little_brother, got ${speaker}`); return { speaker };",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const { systemUserName } = await import('/script.js'); if (typeof systemUserName !== 'string' || !systemUserName) throw new Error('script.js exports no systemUserName (host fact 01-H11)'); const message = { name: systemUserName, is_user: false, is_system: false, send_date: new Date().toISOString(), mes: '[T10 fixture: a visible group /sd post]', extra: { media: [{ url: '/img/ai4.png', type: 'image', title: 'T10', source: 'generated' }], media_display: 'gallery', media_index: 0, inline_image: false } }; ctx.chat.push(message); const id = ctx.chat.length - 1; await ctx.eventSource.emit(ctx.eventTypes.MESSAGE_RECEIVED, id, 'extension'); ctx.addOneMessage(message); await ctx.eventSource.emit(ctx.eventTypes.CHARACTER_MESSAGE_RENDERED, id, 'extension'); await ctx.saveChat(); return { id, name: message.name, is_system: message.is_system };",
+      "log": true
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const speaker = globalThis.storyOrchestratorRuntime.getActiveSpeakerId(); const last = SillyTavern.getContext().chat.at(-1); if (speaker !== 'little_brother') throw new Error(`after a visible group /sd post: the active speaker must still be Luke (little_brother), got ${speaker}; last row ${JSON.stringify({ name: last?.name, is_system: last?.is_system, type: last?.extra?.type })}`); return { speaker, last: { name: last?.name, is_system: last?.is_system, type: last?.extra?.type ?? null } };",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const { systemUserName } = await import('/script.js'); if (typeof systemUserName !== 'string' || !systemUserName) throw new Error('script.js exports no systemUserName (host fact 01-H11)'); const message = { name: systemUserName, is_user: false, is_system: true, send_date: new Date().toISOString(), mes: '[T10 fixture: a tool-call row]', extra: { isSmallSys: true, tool_invocations: [] } }; ctx.chat.push(message); const id = ctx.chat.length - 1; await ctx.eventSource.emit(ctx.eventTypes.MESSAGE_RECEIVED, id, 'extension'); ctx.addOneMessage(message); await ctx.eventSource.emit(ctx.eventTypes.CHARACTER_MESSAGE_RENDERED, id, 'extension'); await ctx.saveChat(); return { id, name: message.name, is_system: message.is_system };",
+      "log": true
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const speaker = globalThis.storyOrchestratorRuntime.getActiveSpeakerId(); const last = SillyTavern.getContext().chat.at(-1); if (speaker !== 'little_brother') throw new Error(`after a tool-call row: the active speaker must still be Luke (little_brother), got ${speaker}; last row ${JSON.stringify({ name: last?.name, is_system: last?.is_system, type: last?.extra?.type })}`); return { speaker, last: { name: last?.name, is_system: last?.is_system, type: last?.extra?.type ?? null } };",
+      "log": true
+    }
+  ]
+}
