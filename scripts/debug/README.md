@@ -71,7 +71,9 @@ Playwright MCP is configured via the repo `.mcp.json` (`npx @playwright/mcp@late
 }
 ```
 
-Supported steps: `import_story`, `seed_metadata`, `select_story`, `restart_story`, `studio_save`, `send`, `send_generate`, `slash`, `extract`, `expand`, `eval`, `copilot`, `ui`, `stagecraft`, `assets`, `reload`, `swipe`, `edit`, `delete`, `wait`, `expect`, `expect_ui`.
+Supported steps: `import_story`, `seed_metadata`, `select_story`, `restart_story`, `studio_save`, `send`, `send_generate`, `slash`, `extract`, `expand`, `eval`, `copilot`, `ui`, `stagecraft`, `assets`, `reload`, `swipe`, `edit`, `delete`, `wait`, `expect`, `expect_ui`, and (v2.4 plan 01) `host_delete`, `cut`, `emit_generation`, `ext_setting`, `record_state`, `inject_script`.
+
+`delete` is the **tail-truncate** shape: it cuts the chat at the id (everything from it onward goes) and emits `MESSAGE_DELETED`, so it only ever reproduces a delete of the LAST rows. A delete from the middle of the chat is `host_delete: <id|"last">` (ST's own `deleteMessage`), and a range is `cut: "a-b"` (`/cut`).
 
 `seed_metadata` writes a captured `chat_metadata.story_orchestrator` blob into the sandbox chat
 verbatim and hydrates it (`{ "seed_metadata": { "file": "../fixtures/legacy-v2-chat-blob.json" } }`) —
