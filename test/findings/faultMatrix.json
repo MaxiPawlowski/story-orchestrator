@@ -47,8 +47,8 @@
     "extraction|aborted": {
       "status": "covered",
       "evidence": "src/extraction/scheduler.test.ts#an aborted read is not retried and records no error",
-      "alsoEvidence": ["src/runtime/runOwner.abort.test.ts#rollback aborts the read in its window", "src/runtime/coordinators/backlogOwnership.review.test.ts#a same-chat lapse clears running"],
-      "note": "v2.4 plan 03: a rollback inside the read's window, a chat switch or Stop aborts the host request (RunOwner live registry); the scheduler treats the lapse as discarded work: no retry, no lastError, no breaker count, a journal line. The backlog's Stop exits cleanly with running:false."
+      "alsoEvidence": ["src/runtime/runOwner.abort.test.ts#rollback aborts the read in its window", "src/runtime/coordinators/backlogOwnership.review.test.ts#a same-chat lapse clears running", "src/extraction/schedulerReread.review.test.ts#a read cancelled by an in-window edit with nothing to roll back is re-read", "src/extraction/schedulerReread.review.test.ts#control: a chat switch lapse is not re-read", "src/extraction/schedulerReread.review.test.ts#control: an overlapping rollback re-read is not duplicated"],
+      "note": "v2.4 plan 03: a rollback inside the read's window, a chat switch or Stop aborts the host request (RunOwner live registry); the scheduler treats the lapse as discarded work: no retry, no lastError, no breaker count, a journal line. The backlog's Stop exits cleanly with running:false. Live-found fix (2026-09-24): a read that lapsed on a mutation inside its window (reason window, same epoch) is re-queued as a P0 reread:lapsed over its window re-clamped to the chat, once the rollback that mutation started has settled; it merges into an overlapping queued rollback re-read, and a chat/story switch lapse is never re-read."
     },
     "memory|delayedSuccess": {
       "status": "covered",

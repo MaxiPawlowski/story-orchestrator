@@ -602,7 +602,7 @@ export const PlayerMemory: Story = {
   },
 };
 
-const backfillSnapshot = (backfill: { running: boolean; processed: number; total: number; lastError: string | null; stoppedNote?: string }): RuntimeSnapshot => {
+const backfillSnapshot = (backfill: { running: boolean; processed: number; total: number; lastError: string | null; stoppedNote?: string; preparing?: boolean }): RuntimeSnapshot => {
   const snapshot = playerMemorySnapshot() as unknown as { memory: Record<string, unknown> };
   snapshot.memory = { ...snapshot.memory, backfill };
   return derive(snapshot as unknown as RuntimeSnapshot);
@@ -611,6 +611,29 @@ type MemorizeManager = RuntimeManager & { memorizeChat: ReturnType<typeof fn>; r
 const memorizeManagerFor = () => ({ ...fakeManager(), memorizeChat: fn(), runMemorizeBacklog: fn(), cancelMemorizeBacklog: fn() }) as unknown as MemorizeManager;
 const memorizeManager = memorizeManagerFor();
 const stoppedManager = memorizeManagerFor();
+const preparingManager = memorizeManagerFor();
+
+export const MemorizePreparing: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={backfillSnapshot({ running: true, processed: 0, total: 4, lastError: null, preparing: true })} manager={preparingManager} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    const button = canvas.getByRole("button", { name: "Preparing…" });
+    await expect(button).toBeDisabled();
+    await expect(button).not.toHaveClass("text-red-300");
+    await expect(canvas.queryByRole("button", { name: "Memorize chat" })).toBeNull();
+    await expect(canvas.queryByText(/Memorizing:/)).toBeNull();
+    await expect(canvasElement.querySelector("#so-memorize-error")).toBeNull();
+    await expect(canvasElement.querySelector("#so-memorize-note")).toBeNull();
+    await userEvent.click(canvas.getByRole("button", { name: "Stop" }));
+    await expect(preparingManager.cancelMemorizeBacklog).toHaveBeenCalledTimes(1);
+    await expect(preparingManager.memorizeChat).not.toHaveBeenCalled();
+  },
+};
 
 export const PlayerStopsMemorizing: Story = {
   render: () => (

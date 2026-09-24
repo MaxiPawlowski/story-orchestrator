@@ -1,5 +1,6 @@
 const host = { chat: Array.from({ length: 12 }, (_, index) => ({ name: index % 2 ? "Mira" : "Max", mes: `line ${index}`, is_user: index % 2 === 0 })) };
-const reads: Array<{ reason: string; release: () => void }> = [];
+const reads: Array<{ reason: string; release: () => void; done?: boolean }> = [];
+const sceneBreakAt = new Set<number>();
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -14,7 +15,10 @@ jest.mock("@extraction/index", () => {
   return {
     ...actual,
     runSharedRead: (options: { reason: string; window: { from: number; to: number } }) => new Promise((resolve) => {
-      reads.push({ reason: options.reason, release: () => resolve({ audit: { reason: options.reason, window: { from: options.window.from, to: options.window.to }, acceptedDeltas: [] }, facts: [{ text: `fact ${reads.length}`, importance: 2, evidence: "x" }], memory: [], arcs: [], epistemic: [], ledger: [] }) });
+      const index = reads.length;
+      const sceneBreak = sceneBreakAt.has(index) ? { sceneBreak: { reason: "location" } } : {};
+      const read: { reason: string; release: () => void; done?: boolean } = { reason: options.reason, release: () => { read.done = true; resolve({ audit: { reason: options.reason, window: { from: options.window.from, to: options.window.to }, acceptedDeltas: [], ...sceneBreak }, facts: [{ text: `fact ${reads.length}`, importance: 2, evidence: "x" }], memory: [], arcs: [], epistemic: [], ledger: [] }); } };
+      reads.push(read);
     }),
   };
 });
@@ -24,7 +28,9 @@ import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runT
 
 const settle = async () => { for (let i = 0; i < 20; i += 1) await Promise.resolve(); };
 
-function harness() {
+type SceneJob = { priority: number; reason: string; run: () => Promise<void> };
+
+function harness(emitSceneBreak: (audit: unknown, collect?: SceneJob[]) => void = () => {}) {
   let current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const stored: string[] = [];
   let commits = 0;
@@ -55,7 +61,7 @@ function harness() {
     getExpansionGateSources: () => [],
     enqueueExtractorDeltas: () => {},
     commitBoundary: async () => { commits += 1; },
-    emitSceneBreak: () => {},
+    emitSceneBreak,
     emitArcsResolved: () => {},
     setStatus: () => {},
     judge: () => null,
@@ -70,7 +76,7 @@ function harness() {
   };
 }
 
-beforeEach(() => { reads.length = 0; });
+beforeEach(() => { reads.length = 0; sceneBreakAt.clear(); });
 
 describe("V3: the memorize backlog stops when its chat does", () => {
   it("a switch during the first window stores nothing, reads no further window and commits nothing", async () => {
@@ -190,5 +196,64 @@ describe("v2.4 plan 03 D4: the memorize backlog always leaves running when it ow
     expect(await pending).toBe(true);
     expect(h.coordinator.cancelMemorizeBacklog()).toBe(false);
     expect(h.backfill()).toMatchObject({ running: false, processed: 4, total: 4, lastError: null });
+  });
+});
+
+describe("v2.4 plan 03 live finding: a backlog window's scene passes run before the next window, never beside it", () => {
+  const sceneHarness = () => {
+    const passes: Array<{ reason: string; release: () => void; done: boolean; started: number }> = [];
+    const sceneJobs = (reason: string): SceneJob[] => ["scene-break", "epistemic-ledger", "wi-curator"].map((kind) => ({
+      priority: kind === "wi-curator" ? 4 : 2,
+      reason: `${kind}:${reason}`,
+      run: () => new Promise<void>((resolve) => { const pass = { reason: kind, done: false, started: reads.length, release: () => { pass.done = true; resolve(); } }; passes.push(pass); }),
+    }));
+    const h = harness((audit, collect) => {
+      const jobs = sceneJobs((audit as { sceneBreak: { reason: string } }).sceneBreak.reason);
+      if (collect) collect.push(...jobs);
+      else jobs.forEach((job) => void job.run());
+    });
+    const open = () => [...reads.filter((read) => !read.done), ...passes.filter((pass) => !pass.done)];
+    return { h, passes, open };
+  };
+
+  it("at most one model call is in flight from the backlog and its scene passes at any time", async () => {
+    sceneBreakAt.add(0);
+    const { h, passes, open } = sceneHarness();
+    const pending = h.coordinator.runMemorizeBacklog(4);
+    let widest = 0;
+    for (let step = 0; step < 20; step += 1) {
+      await settle();
+      const current = open();
+      widest = Math.max(widest, current.length);
+      if (!current.length) break;
+      current[0].release();
+    }
+    expect(await pending).toBe(true);
+    expect(widest).toBe(1);
+    expect(passes.map((pass) => pass.reason)).toEqual(["scene-break", "epistemic-ledger", "wi-curator"]);
+    expect(passes.every((pass) => pass.started === 1)).toBe(true);
+    expect(reads.map((read) => read.reason)).toEqual(["memorize:window", "memorize:window", "memorize:window", "memorize:full"]);
+  });
+
+  it("a switch during a scene pass runs no further pass and reads no further window", async () => {
+    sceneBreakAt.add(0);
+    const { h, passes } = sceneHarness();
+    const pending = h.coordinator.runMemorizeBacklog(4);
+    await settle();
+    reads[0].release();
+    await settle();
+    expect(passes).toHaveLength(1);
+    h.switchChat();
+    passes[0].release();
+    expect(await pending).toBe(false);
+    expect(passes).toHaveLength(1);
+    expect(reads).toHaveLength(1);
+  });
+
+  it("control: a scene break outside the backlog is still handed to the scheduler", async () => {
+    const collected: Array<SceneJob[] | undefined> = [];
+    const h = harness((_audit, collect) => { collected.push(collect); });
+    await h.coordinator.applyAudit({ reason: "cadence", window: { from: 0, to: 3 }, acceptedDeltas: [], sceneBreak: { reason: "location" } } as never, []);
+    expect(collected).toEqual([undefined]);
   });
 });

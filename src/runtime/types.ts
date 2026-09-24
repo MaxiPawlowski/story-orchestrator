@@ -131,6 +131,7 @@ export interface MemoryBackfillState {
   total: number;
   lastError: string | null;
   stoppedNote?: string | null;
+  preparing?: boolean;
 }
 
 export interface CanonSource {

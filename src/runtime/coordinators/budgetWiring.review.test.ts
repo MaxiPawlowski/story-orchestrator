@@ -51,12 +51,12 @@ const words = (index: number) => `m${index}: ${"the river runs past the old mill
 const seedChat = (length: number) => { host.chat = Array.from({ length }, (_, index) => ({ name: index % 2 ? "Mira" : "Max", mes: words(index), is_user: index % 2 === 0 })); };
 const settle = async () => { for (let i = 0; i < 20; i += 1) await Promise.resolve(); };
 
-function harness(options: { lastSceneEnd?: number; shortTermEnd?: number; limit?: number } = {}) {
+function harness(options: { lastSceneEnd?: number; shortTermEnd?: number; limit?: number; countAsync?: (text: string) => Promise<number> } = {}) {
   let current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   type Audit = { reason: string; window: { from: number; to: number }; prompt: string; trimmedFrom?: number; budget?: { inputBudget: number; tokens: number } };
   const scenes: Array<{ text: string; window: { from: number; to: number } }> = [];
   const shortTerms: Array<{ text: string; window: { from: number; to: number } }> = [];
-  let backfill: { running: boolean; processed: number; total: number; lastError: string | null; stoppedNote?: string | null } | null = null;
+  let backfill: { running: boolean; processed: number; total: number; lastError: string | null; stoppedNote?: string | null; preparing?: boolean } | null = null;
   const memory = {
     enabled: true,
     capable: false,
@@ -84,7 +84,7 @@ function harness(options: { lastSceneEnd?: number; shortTermEnd?: number; limit?
     getState: () => ({ ...engine.serialize(), lastMessageId: host.chat.length - 1 }),
     getExtraction: () => extraction,
     getSettings: () => ({ profileId: "p1", enabled: true, cadence: 1 }),
-    requestBudget: () => ({ contextLimit: { value: options.limit ?? LIMIT, source: "preset" }, meter: createTokenMeter() }),
+    requestBudget: () => ({ contextLimit: { value: options.limit ?? LIMIT, source: "preset" }, meter: createTokenMeter(options.countAsync) }),
     memory,
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],
@@ -150,6 +150,28 @@ describe("memorize backlog: token-bounded windows and a bounded full pass", () =
     expect(h.audits).toEqual([]);
     expect(h.backfill()).toBeNull();
     expect(await h.coordinator.runMemorizeBacklog()).toBe(true);
+  });
+
+  it("the confirm is shown before any token count call, and the exact count runs only after it, while the run reads as preparing", async () => {
+    const counted: Array<{ preparing: boolean; running: boolean }> = [];
+    const h = harness({ countAsync: async (text) => { counted.push({ preparing: h.backfill()?.preparing === true, running: h.backfill()?.running === true }); return estimateTokens(text); } });
+    const countsAtConfirm: number[] = [];
+    const preparingAtFirstRead: boolean[] = [];
+    host.hold = async () => { preparingAtFirstRead.push(h.backfill()?.preparing === true); host.hold = null; return { ok: true, text: "NO_DELTA", finish: "stop" } as never; };
+    expect(await h.coordinator.runMemorizeBacklog(undefined, async () => { countsAtConfirm.push(counted.length); return true; })).toBe(true);
+    expect(countsAtConfirm).toEqual([0]);
+    expect(preparingAtFirstRead).toEqual([false]);
+    expect(counted.length).toBeGreaterThan(0);
+    expect(counted.every((entry) => entry.preparing && entry.running)).toBe(true);
+    expect(h.backfill()?.preparing).toBeUndefined();
+  });
+
+  it("control: a cancelled confirm counts nothing and writes nothing", async () => {
+    const counts = jest.fn(async (text: string) => estimateTokens(text));
+    const h = harness({ countAsync: counts });
+    expect(await h.coordinator.runMemorizeBacklog(undefined, async () => false)).toBe(false);
+    expect(counts).not.toHaveBeenCalled();
+    expect(h.backfill()).toBeNull();
   });
 
   it("a confirmed run sends exactly the requests it announced", async () => {

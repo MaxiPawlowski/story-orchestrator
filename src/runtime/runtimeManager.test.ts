@@ -418,6 +418,18 @@ describe("RuntimeManager scene detection", () => {
     expect(heard).toHaveLength(1);
   });
 
+  it("hands the memorize backlog's collector through to the scene-break listeners", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(sceneStory));
+    const heard: unknown[] = [];
+    manager.onSceneBreakConfirmed((_audit, collect) => heard.push(collect));
+    const collect: unknown[] = [];
+    const extraction = (manager as unknown as { extraction: { applyAudit: (...args: unknown[]) => Promise<void> } }).extraction;
+    await extraction.applyAudit(sceneBreakAudit(), [], [], [], [], [], null, collect);
+    await manager.applyExtractionAudit(sceneBreakAudit(), []);
+    expect(heard).toEqual([collect, undefined]);
+  });
+
   it("runs the scene-break pass: adds a scene summary, expires scene-scoped entries, and fires the sceneBreak reply", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(sceneStory));

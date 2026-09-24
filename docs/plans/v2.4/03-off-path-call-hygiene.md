@@ -1057,3 +1057,124 @@ description contained the player-forbidden needle "boundary "; `go` was an extra
 transition and skip the next cadence read (now `go` is `source: "code"`, only `/cp set` moves it, and `pay_discussed` is
 the read's quality); the journal was sliced by index, which a rollback's quarantine reshuffles (now filtered by `at`);
 the preflight wait of 60 s was shorter than planning (`C-memorize-fixture-timeout/`).
+
+### Live-found fixes: re-read on lapse, backlog serialization, fast preflight (worktree build, 2026-09-24)
+
+Built on master `f26b60a` in an agent worktree. Scope: the three decided fixes for the live gates' D2 defect and its two
+findings. Machine gates and Storybook only: **no live gate ran in the worktree.** Live gates 2 and 3 are to be re-run on lanes
+after the merge, and until then they stay as the Live gates record left them (gate 2 **NOT green**).
+
+**1. D2: a read cancelled by a mutation is re-read (the scheduler).**
+- `ReadOwnership` gains an optional `lapsed()`, which the real guard (`beginRun`) already has. When a shared read (not a
+  `job.run`) lapses with reason `window` in its own epoch, the scheduler re-reads it. That covers both a thrown lapse (the
+  abort) and a read refused at the write edge (it answered before the abort landed; checked after `applyExtractionAudit`).
+  `epoch`, `chat`, `story` and `version` lapses are never re-read.
+- **Waits for the rollback.** The mutation that lapsed the read started a rollback in the same sync block, and an applied
+  rollback schedules its own P0 re-read only after several awaits (live: 501-733 ms). So the scheduler holds its light queue
+  (`settling`) until `SchedulerHost.mutationSettled()` resolves, bounded at `REREAD_SETTLE_MAX_MS` (10 s). The host wires this
+  to `RuntimeManager.rollbackSettled()`, the chain of rollbacks in progress (`Promise.allSettled`, +3 manager lines).
+  `clearForNewWorld` drops the hold, so a new chat never waits on the departed chat's rollback.
+- Then, if the epoch is still the one the read started in, it queues P0 `reread:lapsed` (`REREAD_LAPSED_REASON`) over the
+  read's window re-clamped to the chat (`getChatWindow`). A window the edit deleted entirely is dropped.
+- **Dedupe.** `mergeReread`: a P0 with a window that overlaps a queued P0 where either one is `reread:lapsed` merges into it
+  (union window, and the rollback's reason wins). Because the queue is held until the rollback settles, an applied
+  rollback's `rollback:<id>` is always queued before the re-read arrives, so the two never run as separate reads. The
+  no-op rollback case, which the gate found, now reads its window exactly once. Nothing else is added: the cancelled read
+  was going to be made anyway.
+
+**2. The memorize backlog's scene passes run sequentially after their window.** This is the **"awaited before the next
+window" option**, because it matched the wiring with the smaller change: the scene-break listener in `runtime/index.ts`
+already builds the jobs.
+- `emitSceneBreak(audit, collect?)` and `onSceneBreakConfirmed` listeners take an optional collector. The listener `place`s
+  each job (scene summary, epistemic/ledger, WI curator) into the collector when one is given, otherwise into the scheduler
+  as before.
+- `applyAudit` takes `sceneWork` (last parameter), and `memorizeWindows` passes one collector. After each window, and after
+  the full pass, `runSceneWork` awaits each collected job in turn, asking `read.stillOwns()` (chat token + Stop) before each
+  one.
+- A pass failure other than a lapse is logged, and the backlog goes on. It does not count toward the breaker: that path is
+  the scheduler's, and the next window's own failure reaches `lastError` if the model is really down.
+- Automatic passes outside the backlog are unchanged.
+
+**3. Preflight answers fast.**
+- With a `confirm` (the manual paths), `runMemorizeBacklog` first plans on an estimate-only meter (`createTokenMeter()` with
+  no counter, the repo's chars/4 `estimateTokens`) and asks the confirm on that plan. A cancel still sends and writes
+  nothing.
+- After the confirm it writes `backfill {running: true, preparing: true}`, then counts exactly through ST (the real
+  `requestBudget` meter) to pack the windows, then clears `preparing` with the real total.
+- `MemoryBackfillState.preparing?` is new. The drawer's button reads **"Preparing…"** (disabled) while `running && preparing`,
+  and the `Memorizing: n/N` line is hidden then. Stop stays available, and a Stop during preparing ends as "Stopped after 0 of
+  N parts".
+- New story `Drawer/DrawerTabs/MemorizePreparing`.
+- `countTokensBatch` (`stHost/tokenizer.ts:10-12`) is a sequential loop over `countTokens` that returns one total, so it is
+  **not faster** and cannot fill a per-message map. It was not used. This was read in the source, not measured.
+
+**Red first.** Every new case except the controls failed before its code:
+- `schedulerReread.review.test.ts`: 4 red / 3 green (controls) on the first 7 cases. The settle-bound, new-world,
+  deleted-window and pre-epoch chat cases were added during the mutation pass (D2/D6/D8/D9 below).
+- `backlogOwnership.review.test.ts`: 2 red, and the outside-the-backlog control green.
+- `budgetWiring.review.test.ts`: 2 red.
+
+New cases:
+
+| Fix | Cases |
+|---|---|
+| D2 | "a read cancelled by an in-window edit with nothing to roll back is re-read"; "a read that finished but was refused at the write edge is re-read, clamped to the chat that remains"; "a window the edit deleted entirely is not re-read"; controls "a chat switch lapse is not re-read", "a chat change seen before the epoch moves is not re-read either", "an edit inside the window followed by a chat switch before the re-read is not re-read", "an overlapping rollback re-read is not duplicated", "a rollback re-read queued before the lapse absorbs it too", "a reply appended after the window lapses nothing and reads nothing twice"; "a rollback that never settles holds the re-read for the declared bound, not forever"; "a new world does not wait on the departed chat's rollback"; `fingerprintReconcile.review` "rollbackSettled answers only once the rollback in progress has finished"; `startupWiring.review` "the scheduler's lapse re-read waits on the manager's rollback" |
+| backlog | "at most one model call is in flight from the backlog and its scene passes at any time"; "a switch during a scene pass runs no further pass and reads no further window"; control "a scene break outside the backlog is still handed to the scheduler"; `startupWiring.review` "a scene break the memorize backlog collects is handed back to it, not scheduled beside it" + control; `runtimeManager.test` "hands the memorize backlog's collector through to the scene-break listeners" |
+| preflight | "the confirm is shown before any token count call, and the exact count runs only after it, while the run reads as preparing"; control "a cancelled confirm counts nothing and writes nothing" |
+
+**Mutations** (`test/findings/mutations/v24-03-live.txt`, section "live-found fixes"): **20/20 killed.** 19 jest mutants via
+`.debug/mut-live-fixes.py` (D1-D11, B1-B5, P1-P3), each killed by its own case(s) with the controls green, plus Storybook SB1
+(the button never reads Preparing…).
+- D6 (no re-clamp) survived the first pass: the pump clamps the window anyway. It was killed after the deleted-window case
+  was added.
+- P3 (preparing never cleared) survived the first pass. It was killed after the confirm case learned to read `preparing` at
+  the first model call.
+
+**Census / fault matrix.**
+- `ExtractionScheduler.pump` stays `partial`, with the note extended (the re-read, the hold, the bound).
+  `ExtractionCoordinator.memorizeWindows` stays `checked`, with a note on `runSceneWork`. `ownership.guard.test` asked for no
+  new row.
+- `extraction|aborted` stays `covered`, with three `alsoEvidence` citations to `schedulerReread.review.test.ts`. The counts
+  are unchanged: 70 covered / 10 partial / 20 na / 0 todo of 100.
+
+**Fixtures (no live run here).**
+- `test/scenarios/live-v24-03-abort.json`:
+  - The noop case now requires exactly one `reread:lapsed` audit covering the edited message, landed **before** the next
+    turn. Step 8 reads it from the post-edit `schedulerIdle` snapshot; step 13 fails with DEFECT otherwise and names
+    incidental covers.
+  - The applied case fails if a `reread:lapsed` audit appears next to the `rollback:*` re-read (the merge).
+  - The note is updated.
+- `test/scenarios/live-v24-03-memorize.json` step 29 records `confirmMs` (click to popup) and fails over 10 s.
+- Both files' evals are syntax-checked (`new Function`, 9 + 9).
+
+**Gates** (worktree root, `node_modules` junctioned to the main checkout's)
+
+| Gate | Result |
+|---|---|
+| `npm run typecheck` | exit 0 |
+| `npm run typecheck:test` | exit 0 |
+| `npm run lint` | exit 0 |
+| `npm run debug:typecheck` | exit 0 |
+| `npm test` | 214/214 suites, 3211/3211 tests; fault matrix 70/10/20/0 of 100; findings ledger 2 open / 48 settled |
+| `npm run test:debug` | 221 tests: 220 pass, 1 skipped, 0 fail |
+| `npm run build` | compiled, 2 webpack size warnings; manifest `bundle 3250b5ea1ca7`, `ST unknown` (worktree path) |
+| Storybook (`storybook:build`, `http-server .sb-static -p 6231`, `test-storybook --index-json --url http://127.0.0.1:6231`) | 32 suites, 204/204 (+1 `MemorizePreparing`); server killed afterwards |
+| Architecture budgets (effective lines) | manager 733 -> 737/740; extractionCoordinator 577 -> 598/620 |
+
+**Deviations / notes**
+- **Item 2's pass failures** inside the backlog are logged, not classified: they do not trip the breaker. The scheduler's
+  classes apply to scheduled passes only.
+- **The preflight's N and T are the chars/4 estimate**, and the exact packing can differ from them by a window. "A confirmed
+  run sends exactly the requests it announced" holds in jest, where both meters estimate. Live, the gate-3 record measured the
+  estimate about 1 % low at 88k tokens.
+- **A persisted `preparing: true` is not scrubbed on hydrate.** Hydrate already forces `running: false`, and the UI reads
+  `preparing` only while running, so it is inert.
+- **The settle hold also delays unrelated P1 reads** queued during the rollback. That is at most the rollback's own
+  duration (live 0.5-0.7 s) and at most 10 s.
+- **`runtime/index.ts`'s listener** is tested through the real `startRuntime` with the listener and scheduler captured by
+  spies.
+
+**NOT run / NOT green**
+- Live gate 2 (the noop re-read ×2, plus the applied-case merge) and live gate 3 (memorize with scene passes serialized,
+  `confirmMs`, the Preparing state): not run in the worktree. They are owed on lanes after the merge, and gate 2 stays
+  **NOT green** until then.

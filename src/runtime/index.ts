@@ -1,4 +1,4 @@
-import { callExtractionModel, getChatWindow, ExtractionScheduler, probeModel, type SchedulerHost, type SchedulerSettings } from "@extraction/index";
+import { callExtractionModel, getChatWindow, ExtractionScheduler, probeModel, type SchedulerHost, type SchedulerJob, type SchedulerSettings } from "@extraction/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { sceneFieldsInConflict } from "@memory/index";
 import { clearStoryExtensionPrompt, executeSlashCommands, forceActivateEntries, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, getScannableEntries, judgeStatus, judgeTransport, noteHostSettingsLoaded, profileExists, setStoryExtensionPrompt, settingsReady, subscribeToHostEvents, willAddUserMessage, EXTENSION_SETTINGS_LOADED_EVENT, type HostSubscriptionEntry } from "@services/STAPI";
@@ -77,6 +77,7 @@ export function startRuntime() {
     noteHealth: (summary, detail) => runtimeManager.noteRecap(summary, detail),
     probeModel,
     profileExists,
+    mutationSettled: () => runtimeManager.rollbackSettled(),
     epoch: () => runtimeManager.getRunContext().sessionEpoch,
     judgeTyped: () => typedJudge,
   };
@@ -90,13 +91,14 @@ export function startRuntime() {
   runtimeDisposers.push(runtimeManager.onRollback((messageId, window) => {
     scheduler?.schedule({ priority: 0, reason: `rollback:${messageId}`, window });
   }));
-  runtimeDisposers.push(runtimeManager.onSceneBreakConfirmed((audit) => {
-    scheduler?.schedule({ priority: 2, reason: `scene-break:${audit.sceneBreak?.reason}`, run: () => runtimeManager.runSceneBreakPass(audit) });
+  runtimeDisposers.push(runtimeManager.onSceneBreakConfirmed((audit, collect) => {
+    const place = (job: SchedulerJob) => (collect ? collect.push(job) : scheduler?.schedule(job));
+    place({ priority: 2, reason: `scene-break:${audit.sceneBreak?.reason}`, run: () => runtimeManager.runSceneBreakPass(audit) });
     if (runtimeManager.getEpistemicLedgerCapable()) {
-      scheduler?.schedule({ priority: 2, reason: `epistemic-ledger:${audit.sceneBreak?.reason}`, run: async () => { await runtimeManager.runEpistemicLedgerPass(audit); } });
+      place({ priority: 2, reason: `epistemic-ledger:${audit.sceneBreak?.reason}`, run: async () => { await runtimeManager.runEpistemicLedgerPass(audit); } });
     }
     if (runtimeManager.curatorDueForRun()) {
-      scheduler?.schedule({ priority: 4, reason: `wi-curator:scene-${audit.sceneBreak?.reason}`, run: async () => { await runtimeManager.runWiCuratorPass("scene-break"); } });
+      place({ priority: 4, reason: `wi-curator:scene-${audit.sceneBreak?.reason}`, run: async () => { await runtimeManager.runWiCuratorPass("scene-break"); } });
     }
   }));
   runtimeDisposers.push(runtimeManager.onArcsResolvedConfirmed((arcIds) => {

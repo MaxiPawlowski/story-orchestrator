@@ -29,9 +29,15 @@ export interface NextReadWindow {
 
 export interface ReadOwnership {
   stillOwns(): boolean;
+  lapsed?(): string | null;
   lapsedDetail(): string | null;
   signal?: AbortSignal;
   release?(): void;
+}
+
+interface LapsedRead {
+  ownership: ReadOwnership;
+  window: { from: number; to: number };
 }
 
 export interface SchedulerJob {
@@ -58,6 +64,7 @@ export interface SchedulerHost {
   noteLapse?(reason: string, detail: string): void;
   noteHealth?(summary: string, detail: string): void;
   probeModel?(profileId: string): Promise<ProbeResult>;
+  mutationSettled?(): Promise<unknown>;
   profileExists?(profileId: string): boolean;
   epoch?: () => number;
 }
@@ -78,6 +85,11 @@ export const cadenceWindowFrom = (cursor: number | null, stableTo: number): numb
   return Math.max(0, from, stableTo - CADENCE_WINDOW_MAX + 1);
 };
 
+export const REREAD_LAPSED_REASON = "reread:lapsed";
+export const REREAD_SETTLE_MAX_MS = 10_000;
+
+const overlaps = (left: { from: number; to: number }, right: { from: number; to: number }) => left.from <= right.to && right.from <= left.to;
+
 const errorText = (error: unknown, fallback: string): string => (error instanceof Error ? error.message : fallback);
 
 export class ExtractionScheduler {
@@ -93,6 +105,7 @@ export class ExtractionScheduler {
   private lastHeavyError: string | null = null;
   private cadenceBoundary = -1;
   private cadenceTo: number | null = null;
+  private settling: Promise<void> | null = null;
 
   constructor(private readonly host: SchedulerHost) {}
 
@@ -115,6 +128,7 @@ export class ExtractionScheduler {
     // as though its cadence read had already happened.
     this.cadenceBoundary = -1;
     this.cadenceTo = null;
+    this.settling = null;
     this.lastError = null;
     this.lastHeavyError = null;
     this.host.onSchedulerChange();
@@ -142,7 +156,7 @@ export class ExtractionScheduler {
         if (this.queue[index].priority === 2) this.queue.splice(index, 1);
       }
     }
-    if (this.mergeRead(job)) return;
+    if (this.mergeRead(job) || this.mergeReread(job)) return;
     this.queue.push(job);
     this.queue.sort((left, right) => left.priority - right.priority);
     this.host.onSchedulerChange();
@@ -160,6 +174,31 @@ export class ExtractionScheduler {
       existing.window = getChatWindow(Math.max(Math.min(left.from, right.from), to - CADENCE_WINDOW_MAX + 1), to);
     }
     return true;
+  }
+
+  private mergeReread(job: SchedulerJob): boolean {
+    const incoming = job.window;
+    if (job.priority !== 0 || !incoming) return false;
+    const existing = this.queue.find((entry) => entry.priority === 0 && entry.window && overlaps(entry.window, incoming) && (entry.reason === REREAD_LAPSED_REASON || job.reason === REREAD_LAPSED_REASON));
+    if (!existing?.window) return false;
+    existing.window = getChatWindow(Math.min(existing.window.from, incoming.from), Math.max(existing.window.to, incoming.to));
+    if (existing.reason === REREAD_LAPSED_REASON) existing.reason = job.reason;
+    this.host.onSchedulerChange();
+    return true;
+  }
+
+  private rereadAfterMutation(window: { from: number; to: number }, startedEpoch: number) {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const bound = new Promise<void>((resolve) => { timer = globalThis.setTimeout(resolve, REREAD_SETTLE_MAX_MS); });
+    const settling = Promise.race([Promise.resolve(this.host.mutationSettled?.()).catch(() => undefined), bound]).then(() => {
+      if (timer !== null) globalThis.clearTimeout(timer);
+      if (this.settling === settling) this.settling = null;
+      if (!this.sameWorld(startedEpoch)) return;
+      const next = getChatWindow(window.from, window.to);
+      if (next.to >= next.from) this.schedule({ priority: 0, reason: REREAD_LAPSED_REASON, window: next });
+      void this.pump();
+    });
+    this.settling = settling;
   }
 
   private hold(job: SchedulerJob) {
@@ -262,12 +301,13 @@ export class ExtractionScheduler {
     void this.pumpHeavy();
   }
 
-  private noteFailure(error: unknown, job: SchedulerJob, startedEpoch: number, heavy: boolean) {
+  private noteFailure(error: unknown, job: SchedulerJob, startedEpoch: number, heavy: boolean, read: LapsedRead | null = null) {
     const profileId = this.host.getExtractionSettings().profileId;
     const failure = failureClass(error);
     const message = errorText(error, heavy ? "Background generation failed" : "Extraction failed");
     if (failure === "lapsed") {
       if (this.sameWorld(startedEpoch)) this.noteLapse(job, error);
+      if (read) this.rereadIfMutated(read, startedEpoch);
     } else if (failure === "transport" && profileId) {
       this.trip(profileId, message);
       if (!this.sameWorld(startedEpoch)) return;
@@ -318,8 +358,12 @@ export class ExtractionScheduler {
     return { queueDepth: this.queue.length, inFlight: this.inFlight, lastError: this.lastError, heavyQueueDepth: this.heavyQueue.length, heavyInFlight: this.heavyInFlight, lastHeavyError: this.lastHeavyError };
   }
 
+  private rereadIfMutated(read: LapsedRead, startedEpoch: number) {
+    if (read.ownership.lapsed?.() === "window" && this.sameWorld(startedEpoch)) this.rereadAfterMutation(read.window, startedEpoch);
+  }
+
   private async pump() {
-    if (this.inFlight || this.breakerOpen()) return;
+    if (this.inFlight || this.settling || this.breakerOpen()) return;
     const job = this.queue.shift();
     if (!job) return;
     // The world this job belongs to, read before it runs (v2.3 plan 03 §Abort and cleanup).
@@ -333,24 +377,26 @@ export class ExtractionScheduler {
     }
     this.inFlight = true;
     this.host.onSchedulerChange();
-    let read: ReadOwnership | null = null;
+    let read: LapsedRead | null = null;
     try {
       if (job.run) {
         await this.runWithRetries(job.run);
       } else {
         const priority = job.priority === 0 ? 0 : 1;
         const window = sharedReadWindow({ state, priority, window: job.window && getChatWindow(job.window.from, job.window.to), stabilityLag: settings.stabilityLag });
-        read = this.host.beginRead?.({ from: window.from, to: window.to }) ?? null;
-        const client = read?.signal ? { ...settings, signal: read.signal } : settings;
+        const ownership = this.host.beginRead?.({ from: window.from, to: window.to }) ?? null;
+        read = ownership ? { ownership, window: { from: window.from, to: window.to } } : null;
+        const client = ownership?.signal ? { ...settings, signal: ownership.signal } : settings;
         const result = await this.runWithRetries(() => runSharedRead({ story, state, priority, reason: job.reason, window, stabilityLag: settings.stabilityLag, firedTransitions: this.host.getFiredTransitions(), facts: this.host.getFacts(), extraGateSources: this.host.getExpansionGateSources(), openArcs: this.host.getOpenArcs(), epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false, entities: this.host.getEntities?.() ?? [], judgeTyped: this.host.judgeTyped?.() ?? null, client }));
-        await this.host.applyExtractionAudit(result.audit, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, read);
+        await this.host.applyExtractionAudit(result.audit, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, ownership);
+        if (read) this.rereadIfMutated(read, startedEpoch);
       }
       if (this.sameWorld(startedEpoch)) this.lastError = null;
       this.configProblem = null;
     } catch (error) {
-      this.noteFailure(error, job, startedEpoch, false);
+      this.noteFailure(error, job, startedEpoch, false, read);
     } finally {
-      read?.release?.();
+      read?.ownership.release?.();
       this.inFlight = false;
       this.host.onSchedulerChange();
       void this.pump();
