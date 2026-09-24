@@ -1262,3 +1262,20 @@ Built on `b99c10b` (master) in an agent worktree, branch `worktree-agent-aa8f27d
 - The restore captures and restores `active_group` too, not only `active_character`: ST couples them, and restoring one would leave the other moved.
 - `so-scenario`'s run-failure branch on `restored: false` has no unit test (no harness drives `cleanupScenario`); the restore it reads is tested.
 - A settings evidence that settles inside the import's load, before `journal.hydrate`, would still be wiped by that hydrate. Not reachable in practice: the settings save is debounced well past the synchronous start of the load.
+
+### E3 import leg re-run (2026-09-24, bundle `100696d1d4a0`)
+
+**Green ×2.** `live-v24-02-e3-save-evidence.json` passed both consecutive runs on lane 2, with 0 failing steps. That covers every leg:
+- import with a failing settings save: exactly one library-save row;
+- removal;
+- the settings toggle;
+- the no-stub control;
+- selection dedupe.
+
+The build is master `e836bc4`, which merges the ownership fix `582d93a`: an install-wide write is journaled by the chat that was open when it started, not by the run epoch.
+
+The records are in `test/journeys/records/v2.4-plan02/followups-100696d1d4a0/`.
+
+With this, all four follow-up checks (E2, E3, E4, E5) are green ×2. E2, E4 and E5 are green on `9b70d79e3b2a`. The code since then touches neither the epistemic render, the mirror marker nor the startup unbind; it touches only `librarySave.ts`, the settings journaling in `runtime/index.ts`, the plan 03 scheduler and the harness.
+
+**Still owed for plan 02 (unchanged):** the downgrade leg. That is `persistenceDowngrade.test.ts` with a captured v2.3 blob, J10.12 and the clean-host run.
