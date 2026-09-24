@@ -1,0 +1,72 @@
+
+=== J7 long-haul ===
+Full sun-ruins play-through to the finale on the real model: every anchor reached, convergence honoured, success-criteria hooks recorded. Expensive — run at plan 01 (baseline) and plan 07/08 (acceptance) only.
+
+extraction before this run: {"enabled":true,"cadence":1,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"}
+Global config snapshot: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\so-journey-config-snapshot.json
+extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+--- J7.1 cp1 → cp2: the player approaches the job board
+J7.1 1/9 import_story ok 1748ms
+J7.1 2/9 ui ok 220ms
+J7.1 3/9 eval ok 12ms
+J7.1 4/9 expect ok 40ms
+J7.1 5/9 send_generate ok 19427ms
+J7.1 6/9 wait ok 1528ms
+J7.1 7/9 send_generate ok 22960ms
+J7.1 8/9 send_generate ok 52489ms
+J7.1 9/9 wait ok 45ms
+--- J7.2 cp2 → cp3: the party accepts the Sun Ruins mission
+J7.2 1/3 send_generate ok 77767ms
+J7.2 2/3 send_generate ok 50466ms
+J7.2 3/3 wait ok 50ms
+--- J7.3 cp3 → cp-4a: the player agrees to bring Luke along
+J7.3 1/3 send_generate ok 54446ms
+J7.3 2/3 send_generate ok 57907ms
+J7.3 3/3 wait ok 64ms
+--- J7.4 cp-4a → cp-4a1: the sphinx riddle is answered correctly
+J7.4 1/3 send_generate ok 58713ms
+J7.4 2/3 send_generate ok 53485ms
+J7.4 3/3 wait FAIL Timed out waiting for {"timeoutMs":900000,"checkpointIn":["cp-4a1","cp-4a2","cp-5","cp-6"]}. Last state: {"chatId":"2026-09-24@00h35m45s767ms","activeCheckpoint":"cp-4a","boundary":15,"blackboard":{"approached_board":true,"artifact_secured":false,"chamber_entered":false,"guardian_respect":0,"luke_alive":true,"luke_decision":"accepted","mission_accepted":true,"reward_claimed":false,"tension_current":0.25},"latched":{"approached_board":true,"mission_accepted":true},"auditCount":13,"expansion":{"entries":{},"scheduler":{"queueDepth":0,"inFlight":false,"lastError":null}},"requirementsReady":true,"npcFired":{"cp2:onEnter:DM Narrator:0":1,"cp2:afterSpeak:Ponticius:0":1,"cp3:onEnter:Luke:0":1},"tension":{"level":"stirring","smoothed":0.25,"expected":0.5,"hint":{"direction":"hold","text":"Pacing: hold the tension near tense — sustain the mood without spiking or releasing it. Do not narrate the player's own words or decisions."}},"pacingPrompt":{"value":"Pacing: hold the tension near tense — sustain the mood without spiking or releasing it. Do not narrate the player's own words or decisions.","position":1,"depth":2,"scan":false,"role":0,"filter":null},"lastAudit":{"accepted":[],"rejected":[{"q":"tension_current='tense'","reason":"invalid value"},{"q":"riddle_answer=moon","reason":"evidence not in window"},{"q":"chamber_entered=true","reason":"evidence not in window"}]},"copilot":{"enabled":true,"activeNudge":null,"nudgeInjected":false}}
+--- J7.5 cp-4a1 → cp-5: the party enters the inner chamber, and convergence progress is recorded
+J7.5 1/4 send_generate ok 27647ms
+J7.5 2/4 send_generate ok 36410ms
+J7.5 3/4 wait FAIL Timed out waiting for {"timeoutMs":900000,"checkpointIn":["cp-5","cp-6"]}. Last state: {"chatId":"2026-09-24@00h35m45s767ms","activeCheckpoint":"cp-4a1","boundary":17,"blackboard":{"approached_board":true,"artifact_secured":false,"chamber_entered":true,"guardian_respect":0,"luke_alive":true,"luke_decision":"accepted","mission_accepted":true,"reward_claimed":false,"tension_current":0.25,"riddle_answer":"moon"},"latched":{"approached_board":true,"mission_accepted":true,"chamber_entered":true},"auditCount":14,"expansion":{"entries":{},"scheduler":{"queueDepth":0,"inFlight":false,"lastError":null}},"requirementsReady":true,"npcFired":{"cp2:onEnter:DM Narrator:0":1,"cp2:afterSpeak:Ponticius:0":1,"cp3:onEnter:Luke:0":1},"tension":{"level":"stirring","smoothed":0.25,"expected":0.5,"hint":{"direction":"hold","text":"Pacing: hold the tension near tense — sustain the mood without spiking or releasing it. Do not narrate the player's own words or decisions."}},"pacingPrompt":{"value":"Pacing: hold the tension near tense — sustain the mood without spiking or releasing it. Do not narrate the player's own words or decisions.","position":1,"depth":2,"scan":false,"role":0,"filter":null},"lastAudit":{"accepted":["riddle_answer","chamber_entered"],"rejected":[{"q":"tension_current='tense'","reason":"invalid value"}]},"copilot":{"enabled":true,"activeNudge":null,"nudgeInjected":false}}
+--- J7.6 cp-5 → cp-6: the artifact is secured and the party returns to the guild
+J7.6 1/5 send_generate ok 28803ms
+J7.6 2/5 wait ok 1549ms
+J7.6 3/5 send_generate ok 59645ms
+J7.6 4/5 send_generate ok 108265ms
+J7.6 5/5 wait ok 109ms
+--- J7.7 every anchor was visited and none was skipped
+J7.7 1/1 eval ok 4ms
+--- J7.8 the long session left a coherent journal and memory behind
+J7.8 1/1 eval ok 5ms
+Restored global config from C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions"],"saved":{"status":200},"preservedStories":[],"preservedSessions":[]}
+
+PASS         J7.1     cp1 → cp2: the player approaches the job board
+PASS         J7.2     cp2 → cp3: the party accepts the Sun Ruins mission
+PASS         J7.3     cp3 → cp-4a: the player agrees to bring Luke along
+FAIL         J7.4     cp-4a → cp-4a1: the sphinx riddle is answered correctly — Timed out waiting for {"timeoutMs":900000,"checkpointIn":["cp-4a1","cp-4a2","cp-5","cp-6"]}. Last state: {"chatId":"2026-09-24@00h35m45s767ms","activeCheckpoint":"cp-4a","boundary":15,"blackboard":{"approached_board":true,"artifact_secured":false,"chamber_entered":false,"guardian_respect":0,"luke_alive":true,"luke_decision":"accepted","mission_accepted":true,"reward_claimed":false,"tension_current":0.25},"latched":{"approached_board":true,"mission_accepted":true},"auditCount":13,"expansion":{"entries":{},"scheduler":{"queueDepth":0,"inFlight":false,"lastError":null}},"requirementsReady":true,"npcFired":{"cp2:onEnter:DM Narrator:0":1,"cp2:afterSpeak:Ponticius:0":1,"cp3:onEnter:Luke:0":1},"tension":{"level":"stirring","smoothed":0.25,"expected":0.5,"hint":{"direction":"hold","text":"Pacing: hold the tension near tense — sustain the mood without spiking or releasing it. Do not narrate the player's own words or decisions."}},"pacingPrompt":{"value":"Pacing: hold the tension near tense — sustain the mood without spiking or releasing it. Do not narrate the player's own words or decisions.","position":1,"depth":2,"scan":false,"role":0,"filter":null},"lastAudit":{"accepted":[],"rejected":[{"q":"tension_current='tense'","reason":"invalid value"},{"q":"riddle_answer=moon","reason":"evidence not in window"},{"q":"chamber_entered=true","reason":"evidence not in window"}]},"copilot":{"enabled":true,"activeNudge":null,"nudgeInjected":false}}
+FAIL         J7.5     cp-4a1 → cp-5: the party enters the inner chamber, and convergence progress is recorded — Timed out waiting for {"timeoutMs":900000,"checkpointIn":["cp-5","cp-6"]}. Last state: {"chatId":"2026-09-24@00h35m45s767ms","activeCheckpoint":"cp-4a1","boundary":17,"blackboard":{"approached_board":true,"artifact_secured":false,"chamber_entered":true,"guardian_respect":0,"luke_alive":true,"luke_decision":"accepted","mission_accepted":true,"reward_claimed":false,"tension_current":0.25,"riddle_answer":"moon"},"latched":{"approached_board":true,"mission_accepted":true,"chamber_entered":true},"auditCount":14,"expansion":{"entries":{},"scheduler":{"queueDepth":0,"inFlight":false,"lastError":null}},"requirementsReady":true,"npcFired":{"cp2:onEnter:DM Narrator:0":1,"cp2:afterSpeak:Ponticius:0":1,"cp3:onEnter:Luke:0":1},"tension":{"level":"stirring","smoothed":0.25,"expected":0.5,"hint":{"direction":"hold","text":"Pacing: hold the tension near tense — sustain the mood without spiking or releasing it. Do not narrate the player's own words or decisions."}},"pacingPrompt":{"value":"Pacing: hold the tension near tense — sustain the mood without spiking or releasing it. Do not narrate the player's own words or decisions.","position":1,"depth":2,"scan":false,"role":0,"filter":null},"lastAudit":{"accepted":["riddle_answer","chamber_entered"],"rejected":[{"q":"tension_current='tense'","reason":"invalid value"}]},"copilot":{"enabled":true,"activeNudge":null,"nudgeInjected":false}}
+PASS         J7.6     cp-5 → cp-6: the artifact is secured and the party returns to the guild
+PASS         J7.7     every anchor was visited and none was skipped
+PASS         J7.8     the long session left a coherent journal and memory behind
+SKIP         J7.9      — human check — operator scores it
+SKIP         J7.10     — human check — operator scores it
+
+J7
+automated: 6 pass, 2 fail, 0 blocked, 0 not-runnable, 0 skipped
+human:     0 scored, 2 unscored
+cleanup:   clean
+first try: 6 of 6 passing check(s) needed no retry
+NOT GREEN: 2 automated check(s) failed
+
+--- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+[J7.9] (—) Over the whole play-through, did the story feel authored — arriving where it was meant to — or did it feel like it was dragging you along rails?
+      anchors: 1 = pure rails · 3 = authored but visible machinery · 5 = felt like a GM running my choices
+[J7.10] (—) Did the finale land, given what actually happened in your run?
+      anchors: 1 = disconnected from my choices · 3 = generic ending · 5 = paid off my run specifically
+[free] What would make you stop using this?
+
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-24T04-17-54-690Z_journey-J7.json
+Matrix: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\journey-J7.md

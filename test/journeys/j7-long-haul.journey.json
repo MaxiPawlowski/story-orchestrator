@@ -33,7 +33,7 @@
       "id": "J7.1",
       "mode": "auto",
       "findings": [],
-      "goal": "cp1 → cp2: the player approaches the job board",
+      "goal": "cp1 → cp2: the player approaches the job board Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).",
       "steps": [
         {
           "import_story": {
@@ -80,6 +80,19 @@
         },
         {
           "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We take a breath, look around, and carry on.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
             "checkpointIn": [
               "cp2",
               "cp3"
@@ -93,7 +106,7 @@
       "id": "J7.2",
       "mode": "auto",
       "findings": [],
-      "goal": "cp2 → cp3: the party accepts the Sun Ruins mission",
+      "goal": "cp2 → cp3: the party accepts the Sun Ruins mission Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).",
       "steps": [
         {
           "send_generate": {
@@ -105,6 +118,19 @@
           "send_generate": {
             "text": "I take the Sun Ruins contract from Ponticius and sign it.",
             "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We take a breath, look around, and carry on.",
+            "timeoutMs": 300000
           }
         },
         {
@@ -127,7 +153,7 @@
       "id": "J7.3",
       "mode": "auto",
       "findings": [],
-      "goal": "cp3 → cp-4a: the player agrees to bring Luke along",
+      "goal": "cp3 → cp-4a: the player agrees to bring Luke along Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).",
       "steps": [
         {
           "send_generate": {
@@ -139,6 +165,19 @@
           "send_generate": {
             "text": "\"Fine — Luke comes with us.\" I sling his pack over my shoulder and we set out.",
             "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We take a breath, look around, and carry on.",
+            "timeoutMs": 300000
           }
         },
         {
@@ -160,7 +199,7 @@
       "id": "J7.4",
       "mode": "auto",
       "findings": [],
-      "goal": "cp-4a → cp-4a1: the sphinx riddle is answered correctly",
+      "goal": "cp-4a → cp-4a1: the sphinx riddle is answered correctly Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).",
       "steps": [
         {
           "send_generate": {
@@ -172,6 +211,19 @@
           "send_generate": {
             "text": "\"My answer is the moon,\" I repeat to the sphinx, meeting its gaze.",
             "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We take a breath, look around, and carry on.",
+            "timeoutMs": 300000
           }
         },
         {
@@ -191,7 +243,7 @@
       "id": "J7.5",
       "mode": "auto",
       "findings": [],
-      "goal": "cp-4a1 → cp-5: the party enters the inner chamber, and convergence progress is recorded",
+      "goal": "cp-4a1 → cp-5: the party enters the inner chamber, and convergence progress is recorded Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).",
       "steps": [
         {
           "send_generate": {
@@ -203,6 +255,19 @@
           "send_generate": {
             "text": "We walk into the chamber and start examining the machinery inside.",
             "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We take a breath, look around, and carry on.",
+            "timeoutMs": 300000
           }
         },
         {
@@ -223,7 +288,7 @@
       "id": "J7.6",
       "mode": "auto",
       "findings": [],
-      "goal": "cp-5 → cp-6: the artifact is secured and the party returns to the guild",
+      "goal": "cp-5 → cp-6: the artifact is secured and the party returns to the guild Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).",
       "steps": [
         {
           "send_generate": {
@@ -247,6 +312,19 @@
           "send_generate": {
             "text": "We carry the artifact back through the ruins and into the guild hall at Xentar.",
             "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We take a breath, look around, and carry on.",
+            "timeoutMs": 300000
           }
         },
         {

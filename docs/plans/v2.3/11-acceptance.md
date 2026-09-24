@@ -961,3 +961,17 @@ The bundle changed between batches because the matrix found defects, so each pai
 - **J11.25 passes alone** (`failed-batch1/J11.25-only-pass.log`: queued ahead, two variants, the prepared chain used on arrival), and failed in 3 of 4 full runs. Some state an earlier J11 check leaves blocks the look-ahead. The diagnostics above are there to name it.
 - **Install residue:** batch 1 left `sun-ruins@10` in the story library (run-header diff). It goes on the leftovers list.
 - **Side finding:** `npm run test:release` rewrites `dist/manifest.json`, which moves the header's build fields mid-batch. The served bundle hash did not change (gotcha added).
+
+#### L2 batch 4 (2026-09-24, bundle `1e5c36951d65`, commit `480c261`)
+
+- **J12: green on two consecutive runs** with the rewritten J12.3/J12.4 (`records/v2.3-acceptance/J12/`).
+  - Run 1's reads were `cue:guild-hall->road-to-wendhope` (2 accepted, window 0–1) and `scene:cast` (0 accepted).
+  - The evidence was a verbatim quote of the player's first line.
+  - `reachedLastPlayer: false`: no unaided read covered the third player turn, which the check reports rather than asserts.
+- **J11: 25/26, then 26/26.** Run 2 is the first fully green J11 on this tree, and J11.25 (with its new diagnostics) passed both runs. Run 1 failed J11.23 again: the judge answered `lever_pulled` at p 0.94 against the predeclared `STALL_DIRECT_P = 0.95`, for the third time on this bundle. **J11 has no two consecutive greens**, and the floor is not retuned (process rule).
+- **J7 (first run ever): 6/8.** The story reached cp-6 and J7.7 ("every anchor visited") passed, but J7.4 and J7.5 timed out at cp-4a and cp-4a1 with the gate already satisfied:
+  - `chamber_entered` and `riddle_answer=moon` were read after the last turn.
+  - They applied at boundary 17, which fires one transition.
+  - The 900 s wait then ran with nobody talking.
+  - Nothing in the engine is wrong: a delta applies at the NEXT boundary, and one boundary fires one transition. The fixture now lets the reads settle and plays one neutral turn before each checkpoint wait (J7.1–J7.6), as any player would. Failed run: `failed-batch4/J7-run1.log`.
+- The batch's header diff is 0 blocking (`batch4-header-diff.txt`).

@@ -215,3 +215,5 @@ running.
   - Pinned `06bde939` (`release`), gates typecheck, lint, test, build, release and storybook: `20260923T234145Z` green on `c59153e` (jest 2675). `20260923T234904Z` and `20260924T000118Z` green on the tree with the fixes (jest 2678).
   - Older host 1.18.0 `51ad27fb`: `clean-host-older/20260923T235618Z` green (jest 2678, no storybook).
 - **Result:** pinned green ×2 on one tree plus once on its parent, and the older host green once. That tree gained the scene-summary provenance fix and three more tests afterwards (jest 2682), so **the frozen candidate still owes one clean-host pass**.
+
+- **Candidate pass (2026-09-24):** pinned `06bde939`, all gates including storybook, on commit `480c261` (jest 2682): `clean-host/20260924T024650Z` green. With the two pinned greens on its parent tree and the 1.18.0 green, this is the L8 evidence for the candidate. The older host has not been re-run on `480c261`.

@@ -347,7 +347,7 @@ cited). Items needing the backend stay `done` with the live half listed under L-
 | Id | What | Replaces the claim |
 |---|---|---|
 | L1 | P0′ adventurer playthrough on the first frozen candidate | P0 (never recorded) |
-| L2 | J0–J12 `--strict` ×2 consecutive, archived under `records/v2.3-acceptance/` | plan 11 "matrix ran green twice". **In progress 2026-09-23** (11 L2 record): J0–J6, J8–J10 green ×2 archived; J11 NOT green (J11.9/J11.23 judge-dependent, J11.25 order-dependent); J12 rewritten, not re-run; J7 not run. Found J6.3 cursor defect + J1.7 silent announcement |
+| L2 | J0–J12 `--strict` ×2 consecutive, archived under `records/v2.3-acceptance/` | plan 11 "matrix ran green twice". **In progress 2026-09-23** (11 L2 record): J0–J6, J8–J10, J12 green ×2 archived; J11 NOT green (25/26 then 26/26 — J11.23 judge p 0.94 vs the 0.95 floor, not retuned); J7 first run 6/8 (fixture waited with no turns; fixed, re-run pending). Found J6.3 cursor defect + J1.7 silent announcement |
 | L3 | Plan-05 recipe on the adventurer: J3 provenance check, J8.5/J8.6 with a planted conflict + positive control, three per-member payload captures | plan 05 "live gate green" |
 | L4 | `live-generated-fork-a/b` written and run ×2; refusal fixture | R9 closed on jest alone. **Done 2026-09-23** (07 L4 record, `records/v2.3-replan/L4/`): real-model forks walked on both routes; found + fixed a graph swap dropping pending writes and history, gate-pin false positives, and duplicate-gate dead outcomes |
 | L5 | Host restore: leave to a story chat, to a solo chat, restart, rollback | plan 06 "live check green" |
