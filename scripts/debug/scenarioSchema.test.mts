@@ -33,7 +33,9 @@ test('no fixture reads a page global it never sets', () => {
   const files: Array<{ name: string; text: string }> = [];
   for (const dir of ['test/scenarios', 'test/journeys']) {
     for (const name of readdirSync(join(ROOT, dir)).filter((entry) => entry.endsWith('.json'))) {
-      files.push({ name, text: readFileSync(join(ROOT, dir, name), 'utf-8') });
+      const text = readFileSync(join(ROOT, dir, name), 'utf-8');
+      const injected = [...text.matchAll(/"inject_script":\s*"([^"]+)"/g)].map((match) => readFileSync(join(ROOT, dir, match[1]), 'utf-8'));
+      files.push({ name, text: [text, ...injected].join('\n') });
     }
   }
   assert.ok(files.length > 40, `expected the whole corpus, found ${files.length} fixtures`);
