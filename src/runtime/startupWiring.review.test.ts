@@ -28,6 +28,8 @@ const mockHost = {
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
+  observeWorldInfoScans: () => ({ reassert: () => undefined, ordered: false, dispose: () => undefined }),
+  loadedEntries: () => [],
   settingsReady: async () => {},
   noteHostSettingsLoaded: () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false, failed: false }),

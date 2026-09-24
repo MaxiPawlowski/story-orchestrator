@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { legacyMirrorTargets, markerNamed, parseAssetsArgs } from './lib/assetScope.mts';
 import { saveSettingsNow } from './lib/settingsSave.mts';
 import { evaluateInST } from './lib/evaluate.mts';
+import { deleteLorebooksInPage } from './lib/lorebookDelete.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag, stripCommonArgs } from './lib/cli.mts';
 
@@ -150,10 +151,11 @@ export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseli
   const found = await listMarkedAssets(page, marker, { baseline });
   const legacy = legacyMirrorTargets(found.allLorebooks, legacyMirrors);
   const targets = { ...found, lorebooks: [...new Set([...found.lorebooks, ...legacy.targets])] };
-  const removed = await evaluateInST(page, async ({ targets, baseline }) => {
+  const books = await deleteLorebooksInPage(page, targets.lorebooks);
+  const removed = await evaluateInST(page, async ({ targets, baseline, books }) => {
     const ctx = SillyTavern.getContext();
     const headers = ctx.getRequestHeaders();
-    const report: { characters: string[]; groups: string[]; lorebooks: string[]; regexScripts: string[]; qrSets: string[]; evicted: string[]; staleCache: string[]; errors: string[]; deselected?: string[]; sessions?: { kept: string[]; dropped: string[] } } = { characters: [], groups: [], lorebooks: [], regexScripts: [], qrSets: [], evicted: [], staleCache: [], errors: [] };
+    const report: { characters: string[]; groups: string[]; lorebooks: string[]; lorebooksViaHost: string[]; lorebooksUnlisted: string[]; regexScripts: string[]; qrSets: string[]; evicted: string[]; staleCache: string[]; errors: string[]; sessions?: { kept: string[]; dropped: string[] } } = { characters: [], groups: [], lorebooks: books.lorebooks, lorebooksViaHost: books.viaHost, lorebooksUnlisted: books.unlisted, regexScripts: [], qrSets: [], evicted: books.evicted, staleCache: books.staleCache, errors: [...books.errors] };
     const post = async (url: string, body: unknown, label: string) => {
       const response = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
       if (!response.ok) report.errors.push(`${label}: ${response.status}`);
@@ -166,18 +168,7 @@ export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseli
     for (const character of targets.characters) {
       if (await post('/api/characters/delete', { avatar_url: character.avatar, delete_chats: true }, `character ${character.name}`)) report.characters.push(character.name);
     }
-    for (const lorebook of targets.lorebooks) {
-      if (await post('/api/worldinfo/delete', { name: lorebook }, `lorebook ${lorebook}`)) report.lorebooks.push(lorebook);
-    }
     await ctx.getCharacters?.();
-    if (typeof ctx.updateWorldInfoList === 'function') await ctx.updateWorldInfoList();
-    // S9: the page keeps a parsed copy of every book it has read, and deleting the file does not touch
-    // it — a later loadWorldInfo of the same name answered from the cache, as if the book still existed.
-    if (report.lorebooks.length) {
-      const wiModule = await import(/* webpackIgnore: true */ '/scripts/world-info.js' as string) as { worldInfoCache?: { delete: (name: string) => boolean; has: (name: string) => boolean } };
-      for (const name of report.lorebooks) if (wiModule.worldInfoCache?.delete(name)) report.evicted.push(name);
-      report.staleCache = report.lorebooks.filter((name) => wiModule.worldInfoCache?.has(name));
-    }
     if (targets.regexScripts.length && Array.isArray(ctx.extensionSettings?.regex)) {
       const ids = new Set(targets.regexScripts.map((script) => script.id));
       const before = ctx.extensionSettings.regex;
@@ -192,20 +183,6 @@ export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseli
         await set.delete();
         if (set.isDeleted) report.qrSets.push(name);
         else report.errors.push(`qr set ${name}: delete refused`);
-      }
-    }
-    // Deleting a lorebook leaves its name selected in the user's World Info settings (ST keeps
-    // `selected_world_info` as-is), so a journey that activated a book must also deselect it —
-    // otherwise it leaves a phantom active book behind (plan 07 live finding).
-    if (report.lorebooks.length) {
-      const wi = await import(/* webpackIgnore: true */ '/scripts/world-info.js' as string) as { selected_world_info?: string[] };
-      const selected = wi.selected_world_info;
-      if (Array.isArray(selected)) {
-        const gone = new Set(report.lorebooks.map((name: string) => name.toLowerCase()));
-        for (let index = selected.length - 1; index >= 0; index -= 1) {
-          if (gone.has(String(selected[index]).toLowerCase())) selected.splice(index, 1);
-        }
-        report.deselected = report.lorebooks;
       }
     }
     // Only this run's own sessions go, so a real author keeps their resume state — and so does a
@@ -224,7 +201,7 @@ export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseli
       root.wizardSessions = kept;
     }
     return report;
-  }, { targets, baseline: usable });
+  }, { targets, baseline: usable, books });
   const saved = await saveSettingsNow(page).catch((error) => ({ error: error.message }));
   const leaked = await listMarkedAssets(page, marker, { baseline, ledger: found.ledger });
   const legacyLeft = legacy.targets.filter((name) => leaked.allLorebooks.includes(name));

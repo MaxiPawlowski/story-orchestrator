@@ -11,6 +11,7 @@ import { hasUnsavedChanges, SAVE_PLAYER_TEXT } from "./saveHealth";
 import { blobMismatch, loadPersistedRuntime, unreadableNotice } from "./persistence";
 import { findStoryRecord, listStoryRecords } from "./storyLibrary";
 import { orphanedLorebooks } from "./mirrorReaper";
+import { loreEvidenceView } from "./worldInfoEvidence";
 import { buildNextTurnPreview } from "./nextTurn";
 import { readChatIdentity } from "./chatIdentity";
 import type { InjectedPromptBlock } from "@services/STAPI";
@@ -146,6 +147,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     saveHealth: extras.saveHealth,
     scene: extras.judge.scene,
     loreForced: [...extras.judge.calls].reverse().find((call) => call.use === "lore") ?? null,
+    loreEvidence: loreEvidenceView(story, extras.memory.wiBook?.name ?? null),
     stagecraftScope: curatorLorebooks(story),
     pendingDeltas,
     convergence: buildConvergenceReadout(story, state),

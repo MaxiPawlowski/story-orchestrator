@@ -69,6 +69,18 @@ export function nextRepairStep(snapshot: RuntimeSnapshot): RepairStep | null {
       provisionable: true,
     };
   }
+  // v2.4 plan 05 T12 (D9 shape rule): a story book in the scan view before every other listener and
+  // gone after all of them, two loud generations running. No extension is named: there is no allowlist.
+  const hidden = snapshot.loreEvidence?.hiddenBooks ?? [];
+  if (hidden.length) {
+    return {
+      area: "lore",
+      consequence: "Another extension is hiding this story's lorebook from the model.",
+      detail: `Hidden from the model: ${hidden.join(", ")}`,
+      targetId: null,
+      provisionable: false,
+    };
+  }
   if (requirements.missingPersonas.length) {
     return {
       area: "persona",

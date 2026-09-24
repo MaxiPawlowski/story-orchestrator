@@ -516,6 +516,65 @@ export const PayloadLoreForced: Story = {
   },
 };
 
+// v2.4 plan 05 T12: what the last loud generation's scans activated, ours marked by origin, with the
+// two misses that are worth a flag.
+export const PayloadLoreFired: Story = {
+  render: () => {
+    const snapshot = sceneSnapshot(true) as unknown as Record<string, unknown>;
+    snapshot.loreEvidence = {
+      hiddenBooks: [],
+      last: {
+        chatId: "chat-1", epoch: 1, revision: 0, type: "normal", openedAt: "2026-09-24T00:00:00.000Z", closedAt: "2026-09-24T00:00:05.000Z", rendered: true, lastMessageId: 9,
+        forced: [{ world: "Adventurer Lore", uid: 4, comment: "NPC - Ellie" }, { world: "Adventurer Lore", uid: 7, comment: "Lore - Guild Dues" }],
+        landed: [{ world: "Adventurer Lore", uid: 4, comment: "NPC - Ellie" }],
+        lost: [{ world: "Adventurer Lore", uid: 7, comment: "Lore - Guild Dues" }],
+        constantMissed: [{ lorebook: "Sun Ruins", comment: "CP2 - The Gate" }],
+        scanCount: 2,
+        nestedScans: 1,
+        fired: [
+          { world: "Sun Ruins", uid: 2, comment: "CP1 - The Road", constant: true, key0: null, origin: "gated" },
+          { world: "Adventurer Lore", uid: 4, comment: "NPC - Ellie", constant: false, key0: "Ellie", origin: "pick" },
+          { world: "Story Orchestrator - Sun Ruins - chat-1", uid: 1, comment: "so_rel-1", constant: false, key0: "Ellie", origin: "mirror" },
+          { world: "Adventurer Lore", uid: 9, comment: "Lore - Weather", constant: false, key0: "rain", origin: "other" },
+        ],
+      },
+    };
+    return (
+      <div style={{ maxWidth: 360 }}>
+        <DrawerTabs snapshot={snapshot as unknown as RuntimeSnapshot} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
+    const fired = within(await canvas.findByText("Lore that fired last turn").then((node) => node.closest("[data-so=\"lore-fired\"]") as HTMLElement));
+    await expect(fired.getByText(/reply rendered · 2 scans \(1 inside a quiet run\)/)).toBeInTheDocument();
+    await expect(fired.getAllByText("gated")).toHaveLength(1);
+    await expect(fired.getByText("pick")).toBeInTheDocument();
+    await expect(fired.getByText("mirror")).toBeInTheDocument();
+    await expect(fired.getByText(/Forced but never reached the reply: Lore - Guild Dues/)).toBeInTheDocument();
+    await expect(fired.getByText(/did not fire: CP2 - The Gate/)).toBeInTheDocument();
+  },
+};
+
+export const PlayerNeverSeesLoreFired: Story = {
+  render: () => {
+    const snapshot = sceneSnapshot(false) as unknown as Record<string, unknown>;
+    snapshot.loreEvidence = { hiddenBooks: [], last: null };
+    return (
+      <div style={{ maxWidth: 360 }}>
+        <DrawerTabs snapshot={snapshot as unknown as RuntimeSnapshot} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.queryByRole("tab", { name: "Payload" })).toBeNull();
+    await expect(canvas.queryByText("Lore that fired last turn")).toBeNull();
+  },
+};
+
 export const AuthorSceneRead: Story = {
   render: () => (
     <div style={{ maxWidth: 360 }}>

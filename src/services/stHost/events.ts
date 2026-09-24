@@ -1,5 +1,6 @@
 import { getContext } from "./context";
 import { subscribeToEventSource, subscribeToEvents, type EventHandler } from "@utils/event-source";
+import type { HostEntriesLoaded, HostScannableEntry } from "./hostTypes";
 
 export type { EventHandler } from "@utils/event-source";
 
@@ -30,7 +31,10 @@ export interface HostEventPayloads {
   GENERATION_ENDED: [];
   WORLDINFO_UPDATED: [name: string, data: unknown];
   WORLDINFO_SETTINGS_UPDATED: [];
-  WORLDINFO_ENTRIES_LOADED: [];
+  // v2.4 05-H2: the per-call arrays, emitted inside getSortedEntries before its sort/hash/clone.
+  WORLDINFO_ENTRIES_LOADED: [payload: HostEntriesLoaded];
+  // v2.4 05-H1: every entry a non-dry scan activated; not emitted when nothing fired.
+  WORLD_INFO_ACTIVATED: [entries: HostScannableEntry[]];
   GROUP_UPDATED: [];
   SETTINGS_UPDATED: [];
   PERSONA_CHANGED: [avatar: string];

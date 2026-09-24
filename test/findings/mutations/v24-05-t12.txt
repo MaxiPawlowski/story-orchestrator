@@ -1,0 +1,49 @@
+v2.4 plan 05 T12 (activation evidence ring, miss flags, foreign-filter Repair), the carried WriteResult read, and the so-assets seed-D fix; mutations 2026-09-24 (worktree build on 4151bc8; script .debug/mut.mjs over .debug/mut-t12.json, each mutant applied alone as an exact-text replacement to one file, the file restored byte-for-byte after its run; a replacement that does not match is reported DID NOT APPLY, and none did)
+Suites per mutant: worldInfoEvidence.test (19), worldInfoEvidenceHost.test (6), generationWiring.review (5), repair.test (14), effectsApplier.test (25, then 26 after W2's case), node:test lorebookDelete.test (4). Each suite green before and after the sweep.
+Plan-table mutations: slot-close empty record = E1, rollback trim = E2, lost-pick comparison = E3, discarded-result read = W1 (+ W2 for the enable half). The handler chatId guard, compare-and-set and not-ready -> no-story rows are T13's (v24-05-t13.txt). The keyless-row skip belongs to the mirror key strip, which was NOT built (the predeclared 0.8 median has not been measured), so it has no mutant.
+
+- E1 the slot-close empty record: a generation whose scans fired nothing records no slot (plan mutation): KILLED, 3 of 30
+    "a generation whose scans fired nothing records an empty slot, never the previous turn's list"
+    "keeps at most the declared number of slots"
+    "a story book another listener removed from the view, two loud generations running, is reported hidden"
+- E2 the rollback trim: a mutation at or before a slot's reply keeps the slot (plan mutation): KILLED, 1 of 30
+    "an edit at or before a slot's reply drops it; one after it keeps it (inv 11)"
+- E3 the lost-pick comparison: every forced pick reads as landed (plan mutation): KILLED, 3 of 30
+    "a pick lands only when a scan activated that very entry, by world and uid"
+    "tags several scans of one generation instead of merging them, and a quiet scan never counts as the reply"
+    "tags a scan with the innermost generation, so a nested quiet run's activations do not land a pick"
+- E4 a quiet scan counts as the reply (loud-only union dropped): KILLED, 2 of 25
+    "tags several scans of one generation instead of merging them, and a quiet scan never counts as the reply"
+    "tags a scan with the innermost generation, so a nested quiet run's activations do not land a pick"
+- E5 the constant-miss flag ignores the copy's constant flag (keyword entries flagged): KILLED, 2 of 19
+    "flags a constant entry the path switches on, that the view held enabled, and that did not fire"
+    "raises the constant miss from the view the scan loaded, never from a keyword entry"
+- E6 flags raised with no loud scan observed: KILLED, 1 of 19
+    "with no loud scan observed there is nothing to judge, so a slot raises no flag"
+- E7 the hidden-book counter reports after one generation: KILLED, 2 of 25
+    "a story book another listener removed from the view, two loud generations running, is reported hidden"
+    "the first and last observers bracket every other listener, re-placed at each generation"
+- E8 the first/last observers are not re-placed at each generation: KILLED, 1 of 6
+    "the first and last observers bracket every other listener, re-placed at each generation"
+- E9 a quiet outermost opens a slot: KILLED, 2 of 11
+    "opens a slot for a loud generation only, and records scans only while it is open"
+    "control: a quiet outermost opens no slot, so its scans are not a reply's evidence"
+- E10 an epoch change keeps the old world's slots: KILLED, 1 of 19
+    "a new world drops every slot, and another chat's slots are never shown"
+- E11 the Repair step for a hidden book dropped: KILLED, 2 of 14
+    "v2.4 plan 05: a story book another extension hides from the model is a lore step, worded without naming anyone"
+    "a missing lorebook still comes before a hidden one, and a hidden one before the persona"
+- W1 the discarded-result read: a refused disable is not collected (plan mutation): KILLED, 2 of 25
+    "journals a toggle the host refused, carries on with the rest, and journals nothing when both land"
+    "journals a release the host refused"
+- W2 the discarded-result read: a refused enable is not collected: SURVIVED on the first sweep (0 of 25). No case refused an enable. Case "journals a refused enable as surely as a refused disable (v2.4 plan 05)" added; re-run: KILLED, 1 of 26
+    "journals a refused enable as surely as a refused disable (v2.4 plan 05)"
+- A1 so-assets: a listed book skips the list refresh before deleteWorldInfo: KILLED, 2 of 4
+    "a listed book goes through ST deleteWorldInfo after the list is refreshed, and leaves no cached copy (seed D)"
+    "control: a delete that leaves the parsed copy cached is reported stale, so so-assets cannot call it clean"
+- A2 so-assets: the unlisted fallback does not evict the cache: KILLED, 1 of 4
+    "a book ST does not list falls back to the raw delete plus an explicit cache eviction"
+- A3 so-assets: the stale-cache read-back is skipped: KILLED, 1 of 4
+    "control: a delete that leaves the parsed copy cached is reported stale, so so-assets cannot call it clean"
+
+Tally: 16/16 killed (W2 after one added case).

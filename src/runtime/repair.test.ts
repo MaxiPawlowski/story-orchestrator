@@ -34,6 +34,23 @@ describe("nextRepairStep", () => {
     });
   });
 
+  it("v2.4 plan 05: a story book another extension hides from the model is a lore step, worded without naming anyone", () => {
+    const step = nextRepairStep(snapshotWith({ loreEvidence: { last: null, hiddenBooks: ["Sun Ruins"] } } as Partial<RuntimeSnapshot>));
+    expect(step).toEqual({
+      area: "lore",
+      consequence: "Another extension is hiding this story's lorebook from the model.",
+      detail: "Hidden from the model: Sun Ruins",
+      targetId: null,
+      provisionable: false,
+    });
+  });
+
+  it("a missing lorebook still comes before a hidden one, and a hidden one before the persona", () => {
+    const hidden = { loreEvidence: { last: null, hiddenBooks: ["Sun Ruins"] } };
+    expect(nextRepairStep(snapshotWith({ ...hidden, requirements: { ready: false, missingPersonas: [], missingMembers: [], missingLorebooks: ["Adolion"] } } as Partial<RuntimeSnapshot>))?.detail).toBe("Not selected: Adolion");
+    expect(nextRepairStep(snapshotWith({ ...hidden, requirements: { ready: false, missingPersonas: ["Tarn"], missingMembers: [], missingLorebooks: [] } } as Partial<RuntimeSnapshot>))?.detail).toBe("Hidden from the model: Sun Ruins");
+  });
+
   it("a deleted profile is a memory-model step", () => {
     const step = nextRepairStep(snapshotWith({ extractionHealth: { kind: "config", detail: "The selected memory model profile no longer exists" } } as Partial<RuntimeSnapshot>));
     expect(step).toEqual({

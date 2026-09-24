@@ -625,6 +625,36 @@ const LoreForced = ({ record }: { record: RuntimeSnapshot["loreForced"] | undefi
   );
 };
 
+// v2.4 plan 05 T12, author only: what ST's scans ACTIVATED for the last loud generation, read from
+// WORLD_INFO_ACTIVATED rather than inferred from what was enabled or forced. It never predicts: a dry
+// run emits nothing, so there is no honest preview of this.
+const LoreFired = ({ evidence }: { evidence: RuntimeSnapshot["loreEvidence"] }) => {
+  const last = evidence?.last ?? null;
+  return (
+    <div id="so-lore-fired" data-so="lore-fired">
+      <div className="font-medium opacity-100">Lore that fired last turn</div>
+      {!last ? (
+        <div className="opacity-60">No reply has been generated since this chat opened.</div>
+      ) : (
+        <>
+          <div className="opacity-70">{last.rendered ? "reply rendered" : "no reply"} · {last.scanCount} scan{last.scanCount === 1 ? "" : "s"}{last.nestedScans ? ` (${last.nestedScans} inside a quiet run)` : ""}</div>
+          {last.fired.length === 0 ? (
+            <div className="opacity-60">Nothing fired. ST reports nothing for a scan that activates nothing.</div>
+          ) : last.fired.map((entry) => (
+            <div key={`${entry.world}.${entry.uid}`} data-so="lore-fired-row" data-origin={entry.origin} className="flex flex-wrap items-center gap-2">
+              <span>{entry.comment || `${entry.world} #${entry.uid}`}</span>
+              <span className="opacity-60">{entry.world}{entry.constant ? " · constant" : ""}</span>
+              {entry.origin !== "other" && <span className="st-pill px-1 text-[10px]">{entry.origin}</span>}
+            </div>
+          ))}
+          {last.lost.length > 0 && <div data-so="lore-lost" className="text-yellow-300">Forced but never reached the reply: {last.lost.map((entry) => entry.comment || `${entry.world} #${entry.uid}`).join(", ")}</div>}
+          {last.constantMissed.length > 0 && <div data-so="lore-constant-missed" className="text-yellow-300">Constant and enabled for this chat, but did not fire: {last.constantMissed.map((entry) => entry.comment).join(", ")}</div>}
+        </>
+      )}
+    </div>
+  );
+};
+
 // v2.3 plan 09. What the NEXT reply will carry, in the order ST assembles it, with the one control
 // this surface owns per contributor. It is read from ST's own extension prompts rather than from the
 // last capture — a capture answers what the previous turn carried, which is a different question.
@@ -675,6 +705,7 @@ const PayloadTab = ({ snapshot, manager, onOpenOwner }: { snapshot: RuntimeSnaps
   return (
     <div className="text-xs opacity-80 flex flex-col gap-2">
       <LoreForced record={snapshot.loreForced} />
+      <LoreFired evidence={snapshot.loreEvidence} />
       <NextTurnPanel snapshot={snapshot} manager={manager} onOpenOwner={onOpenOwner} />
       <div className="font-medium opacity-100">Injected prompt payload</div>
       {captures.length === 0 ? (

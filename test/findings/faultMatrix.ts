@@ -19,6 +19,7 @@ export const FAULT_PACKAGES = [
   "persistence",
   "effects",
   "hostDeletes",
+  "wiEvidence",
 ] as const;
 
 export const FAULT_SHAPES = [

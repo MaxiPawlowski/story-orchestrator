@@ -260,6 +260,22 @@ describe("world_info effect", () => {
     expect(journalled).toEqual([]);
   });
 
+  it("journals a refused enable as surely as a refused disable (v2.4 plan 05)", async () => {
+    const journalled: Array<[string, string | undefined]> = [];
+    (enableWIEntry as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "\"Checkpoints\" could not be saved" });
+    await new EffectsApplier(undefined, { journal: (summary, note) => { journalled.push([summary, note]); } }).applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
+    expect(journalled).toEqual([["world_info effect could not be applied", "\"Checkpoints\" could not be saved"]]);
+  });
+
+  it("retries a refused flip at the next apply, because every apply rebuilds the whole gated set (v2.4 plan 05)", async () => {
+    const applier = new EffectsApplier(undefined, { journal: () => undefined });
+    (disableWIEntry as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "the server still holds the old flag" });
+    await applier.applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
+    (disableWIEntry as jest.Mock).mockClear();
+    await applier.applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "activate", ["one", "two", "three"]);
+    expect(calls(disableWIEntry)).toEqual([["Checkpoints", ["One"]]]);
+  });
+
   it("journals a release the host refused", async () => {
     const journalled: string[] = [];
     (disableWIEntry as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "refused" });
