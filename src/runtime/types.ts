@@ -13,6 +13,7 @@ import type { AgencyRecovery } from "./agencyRecovery";
 import type { NextTurnContributor } from "./nextTurn";
 import type { PipelineStatus } from "./pipeline";
 import type { MessageFingerprints } from "./fingerprints";
+import type { ChatIdentitySnapshot } from "./chatIdentity";
 import type { InjectedPromptBlock } from "@services/STAPI";
 import type { TalkDecisionSource } from "@talk/index";
 
@@ -348,6 +349,8 @@ export interface RuntimeSnapshot {
   storyHash: string | null;
   storyIdentity: StoryIdentity;
   blobUnreadable?: { foundVersion: number | string | null; notice: string } | null;
+  /** v2.4 plan 02 §5: set while no story is loaded and the chat holds a branch's or another chat's state. */
+  chatIdentity?: ChatIdentitySnapshot | null;
   storyTitle: string | null;
   storyDescription: string | null;
   activeCheckpointId: string | null;

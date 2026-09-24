@@ -11,6 +11,7 @@ import { hasUnsavedChanges, SAVE_PLAYER_TEXT } from "./saveHealth";
 import { blobMismatch, loadPersistedRuntime, unreadableNotice } from "./persistence";
 import { findStoryRecord, listStoryRecords } from "./storyLibrary";
 import { buildNextTurnPreview } from "./nextTurn";
+import { readChatIdentity } from "./chatIdentity";
 import type { InjectedPromptBlock } from "@services/STAPI";
 import type { LoadedStory, PayloadCapture, RuntimeExtras, RuntimeSnapshot } from "./types";
 
@@ -101,6 +102,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     storyHash: loaded?.record.hash ?? null,
     storyIdentity: buildStoryIdentity(loaded?.record ?? null, loaded ? findStoryRecord(loaded.record.id) : null, Boolean(loaded && loadPersistedRuntime(loaded.record.id)?.pinnedStory)),
     blobUnreadable: unreadable ? { foundVersion: unreadable.foundVersion, notice: unreadableNotice(unreadable) } : null,
+    chatIdentity: loaded ? null : readChatIdentity(),
     storyTitle: story?.title ?? null,
     storyDescription: story?.description ?? null,
     activeCheckpointId: active?.id ?? null,

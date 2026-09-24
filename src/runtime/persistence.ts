@@ -138,6 +138,8 @@ export const adoptChatState = (): boolean => {
   if (!current) return !unrecognized(storedValue());
   if (belongsHere(current)) return true;
   current.chatId = openChatId();
+  const integrity = openChatIntegrity();
+  if (integrity) current.integrity = integrity;
   (getContext().chatMetadata as Record<string, unknown>)[METADATA_KEY] = current;
   mismatch = null;
   return true;

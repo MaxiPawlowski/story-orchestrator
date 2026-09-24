@@ -189,6 +189,21 @@ export function bindChatLorebook(name: string, replaceable: string[] = []): Chat
   return "bound";
 }
 
+// v2.4 plan 02 §5: a branch carries its parent's chat lorebook slot (H1), so an unadopted branch would
+// fire the parent's story memory. ST's own unbind (world-info.js:5980-5983) deletes the key, clears the
+// button state and saves; this does the same, and only when the slot names exactly `name`.
+export async function unbindChatLorebook(name: string): Promise<WriteResult<{ name: string }>> {
+  const context = getContext();
+  if (!context.chatId) return couldNot("no chat is open");
+  const key = worldInfoModule.METADATA_KEY;
+  const slot = context.chatMetadata[key];
+  if (typeof slot !== "string" || slot !== name) return couldNot(`the chat lorebook slot does not name "${name}"`);
+  delete context.chatMetadata[key];
+  globalThis.document?.querySelectorAll(".chat_lorebook_button").forEach((button) => button.classList.remove("world_set"));
+  await context.saveMetadata?.();
+  return wrote({ name });
+}
+
 export async function activateGlobalLorebook(name: string): Promise<WriteResult<{ name: string }>> {
   const lorebook = findLorebook(name) ?? name.trim();
   if (!lorebook) return couldNot("no lorebook by that name");

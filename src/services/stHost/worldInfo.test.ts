@@ -11,6 +11,7 @@ const st = {
   selected: [] as string[],
   chatMetadata: {} as Record<string, unknown>,
   chatId: "chat-1" as string | null,
+  saves: 0,
 };
 const fileId = (name: string) => name.replace(/[/?<>\\:*|"]/g, "");
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
@@ -56,6 +57,7 @@ jest.mock("./context", () => ({
     getWorldInfoNames: () => st.worldNames,
     chatMetadata: st.chatMetadata,
     chatId: st.chatId,
+    saveMetadata: async () => { st.saves += 1; },
   }),
 }));
 
@@ -80,7 +82,7 @@ jest.mock("./slashCommands", () => ({
   executeSlashCommands: (command: string) => executeSlashCommands(command),
 }));
 
-import { bindChatLorebook, createLorebook, disableWIEntry, ensureLorebook, loadLorebook, lorebookExists, upsertWIEntry } from "./worldInfo";
+import { bindChatLorebook, unbindChatLorebook, createLorebook, disableWIEntry, ensureLorebook, loadLorebook, lorebookExists, upsertWIEntry } from "./worldInfo";
 
 const putOnDisk = (name: string, entries: Entry[] = []) => st.disk.set(name, { entries: Object.fromEntries(entries.map((entry) => [entry.uid, entry])) });
 const entry = (uid: number, comment: string, content = "text"): Entry => ({ uid, comment, content, key: [], disable: false });
@@ -279,5 +281,32 @@ describe("bindChatLorebook", () => {
     st.chatId = null;
     expect(bindChatLorebook("Mirror")).toBe("no-chat");
     expect(st.chatMetadata.world_info).toBeUndefined();
+  });
+});
+
+describe("unbindChatLorebook (v2.4 plan 02 §5)", () => {
+  beforeEach(() => { st.saves = 0; });
+
+  it("clears a slot that names exactly the book, and saves", async () => {
+    st.chatMetadata.world_info = "Story Orchestrator - Tale - parent";
+    await expect(unbindChatLorebook("Story Orchestrator - Tale - parent")).resolves.toEqual({ ok: true, name: "Story Orchestrator - Tale - parent" });
+    expect("world_info" in st.chatMetadata).toBe(false);
+    expect(st.saves).toBe(1);
+  });
+
+  it("refuses, with a reason, a slot that names another book or differs only in case", async () => {
+    st.chatMetadata.world_info = "User Chat Book";
+    await expect(unbindChatLorebook("Mirror")).resolves.toMatchObject({ ok: false });
+    st.chatMetadata.world_info = "mirror";
+    await expect(unbindChatLorebook("Mirror")).resolves.toMatchObject({ ok: false });
+    expect(st.chatMetadata.world_info).toBe("mirror");
+    expect(st.saves).toBe(0);
+  });
+
+  it("refuses without an open chat", async () => {
+    st.chatId = null;
+    st.chatMetadata.world_info = "Mirror";
+    await expect(unbindChatLorebook("Mirror")).resolves.toMatchObject({ ok: false });
+    expect(st.chatMetadata.world_info).toBe("Mirror");
   });
 });

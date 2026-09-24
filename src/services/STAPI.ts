@@ -39,7 +39,7 @@ export { executeSlashCommands } from "@services/stHost/slashCommands";
 export { observeNextSave, installSaveWatcher, readServerBoundary, boundaryInBlob, SAVE_OBSERVE_MS, type SaveObservation } from "@services/stHost/persistence";
 export { applyCharacterAN, clearCharacterAN } from "@services/stHost/authorNotes";
 export { setStoryExtensionPrompt, clearStoryExtensionPrompt } from "@services/stHost/extensionPrompts";
-export { getWorldInfoSettings, enableWIEntry, disableWIEntry, upsertWIEntry, readWIEntry, readWIEntryAt, restoreWIEntryAt, createLorebook, ensureLorebook, bindChatLorebook, activateGlobalLorebook, loadLorebook, lorebookExists, listAllLorebooks, lorebookFileId } from "@services/stHost/worldInfo";
+export { getWorldInfoSettings, enableWIEntry, disableWIEntry, upsertWIEntry, readWIEntry, readWIEntryAt, restoreWIEntryAt, createLorebook, ensureLorebook, bindChatLorebook, unbindChatLorebook, activateGlobalLorebook, loadLorebook, lorebookExists, listAllLorebooks, lorebookFileId } from "@services/stHost/worldInfo";
 export type { ChatLorebookBinding, Lorebook, LoreEntry, WIUpsertResult, WIEntrySnapshot, WIEntryTarget } from "@services/stHost/worldInfo";
 export { applyBackground, backgroundExists, getCurrentBackground, listBackgrounds } from "@services/stHost/backgrounds";
 export type { CurrentBackground } from "@services/stHost/backgrounds";

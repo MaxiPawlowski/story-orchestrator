@@ -1,0 +1,34 @@
+scope: npx jest src/runtime/branchContinue src/runtime/chatIdentity src/runtime/turnBridge src/runtime/blob src/services/stHost/worldInfo.test.ts; each mutant applied alone, then restored (2026-09-24)
+baseline (no mutant)
+Tests:       130 passed, 130 total
+B1 a branch without main_chat naming the stamp (every foreign blob with a story reads as a branch)
+  ● v2.4 plan 02 §5: Continue from here › control: a foreign blob is never continued
+  ● v2.4 plan 02 §5: an unadopted branch › control: another chat's foreign blob gets no notice and keeps its slot
+  ● v2.4 plan 02 §5: classifyStoredIdentity › convert-to-group deletes main_chat (H4), so it is foreign
+  ● v2.4 plan 02 §5: classifyStoredIdentity › one hop only: a branch of an unadopted branch names the middle chat, so it is foreign
+Tests:       4 failed, 126 passed, 130 total
+  restored
+B2 a branch without the integrity clause
+  ● v2.4 plan 02 §5: classifyStoredIdentity › a blob that carries this chat's own integrity is not a branch of it
+Tests:       1 failed, 129 passed, 130 total
+  restored
+B3 (plan mutation 9) unbind without the token check
+  ● v2.4 plan 02 §5: an unadopted branch › (plan mutation 9) unbinds nothing when the run that decided it has lapsed
+Tests:       1 failed, 129 passed, 130 total
+  restored
+B4 adopt restamps the chat id only (v2.3's adoptChatState)
+  ● v2.4 plan 02 §5: Continue from here › adopts the branch, hydrates, and steps the story back to where the branch ends
+Tests:       1 failed, 129 passed, 130 total
+  restored
+B5 an unadopted branch keeps the parent's mirror binding (no unbind after load)
+  ● v2.4 plan 02 §5: an unadopted branch › is not adopted on its own, reads as a branch on the snapshot, and loses the parent's mirror binding
+Tests:       1 failed, 129 passed, 130 total
+  restored
+B6 unbind matches the slot case-insensitively (not exact)
+  ● unbindChatLorebook (v2.4 plan 02 §5) › refuses, with a reason, a slot that names another book or differs only in case
+Tests:       1 failed, 129 passed, 130 total
+  restored
+B7 branchFromOldest accepts a floor with no message
+  ● v2.4 plan 02 §5 (seed D out of horizon): branch from the oldest restorable point › refuses a floor with no message to branch at
+Tests:       1 failed, 129 passed, 130 total
+  restored

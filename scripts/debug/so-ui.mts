@@ -791,6 +791,8 @@ const PLAYER_FORBIDDEN_SELECTORS = [
   // v2.3 plan 09: the next-turn preview is author-grade by construction — it names the injection keys
   // and the members ST will draft for.
   '[data-so="next-turn-row"]', '[data-so="next-turn-clear"]', '[data-so="next-turn-reread-scene"]',
+  // v2.4 plan 02 §5: the E1 branch cut at the history floor is author view only until a player session.
+  '#so-history-floor', '#so-branch-from-oldest',
 ];
 
 // Surfaces a player can reach without turning anything on: the drawer (every tab it offers), the HUD
