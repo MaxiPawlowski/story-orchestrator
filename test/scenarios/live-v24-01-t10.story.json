@@ -1,0 +1,47 @@
+{
+  "format": 2,
+  "id": "live-v24-01-t10",
+  "version": 1,
+  "title": "Live v2.4 01 T10 — Note then no_repeat",
+  "description": "Two checkpoints with the same talk control (lead Ponticius, no_repeat). The transition posts a Note between two real turns, so the second turn's pick shows whether the speaker survived the Note.",
+  "qualities": [
+    { "key": "go", "type": "bool", "source": "extractor", "rubric": "Has the party agreed to set out?" }
+  ],
+  "checkpoints": [
+    {
+      "id": "hall",
+      "name": "The Hall",
+      "objective": "Ponticius sizes up the party.",
+      "type": "anchor",
+      "start": true,
+      "talk_control": {
+        "speakers": [{ "member": "Ponticius", "weight": 3 }, { "member": "Arin", "weight": 1 }],
+        "lead": "Ponticius",
+        "no_repeat": true,
+        "allow_silence": false
+      }
+    },
+    {
+      "id": "yard",
+      "name": "The Yard",
+      "objective": "The party gathers in the yard.",
+      "type": "anchor",
+      "talk_control": {
+        "speakers": [{ "member": "Ponticius", "weight": 3 }, { "member": "Arin", "weight": 1 }],
+        "lead": "Ponticius",
+        "no_repeat": true,
+        "allow_silence": false
+      }
+    }
+  ],
+  "transitions": [
+    { "from": "hall", "to": "yard", "priority": 1, "gate": { "q": "go", "op": "==", "v": true } }
+  ],
+  "roster": [
+    { "id": "dm", "name": "DM Narrator" },
+    { "id": "companion", "name": "Arin" },
+    { "id": "guild_master", "name": "Ponticius" },
+    { "id": "little_brother", "name": "Luke" }
+  ],
+  "requirements": { "members": ["Arin", "Ponticius"] }
+}

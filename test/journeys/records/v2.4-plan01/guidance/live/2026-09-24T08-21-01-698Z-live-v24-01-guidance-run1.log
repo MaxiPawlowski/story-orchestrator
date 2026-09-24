@@ -1,0 +1,60 @@
+1/15 import_story ok 377ms
+2/15 eval ok 5ms
+3/15 slash ok 1769ms
+4/15 wait ok 49ms
+5/15 send_generate ok 26035ms
+6/15 wait ok 23003ms
+7/15 eval ok 5ms
+7/15 eval -> {"control":"\"Broken? You sure about that?\" *Arin moves closer, his fingers tracing the stone, though not actually touching the markings.* \"Could be the other way around. Th"}
+8/15 slash ok 1755ms
+9/15 wait ok 47ms
+10/15 send_generate ok 13332ms
+11/15 wait ok 14361ms
+12/15 expect ok 9ms
+12/15 expect -> {"overSteer":{"ok":true,"failures":[],"block":{"key":"story_orchestrator_guidance","source":"capture","chars":126},"restate":{"ok":true,"span":2,"maxSpan":6,"metaHits":[]},"swing":{"words":129,"controlWords":136,"lengthRatio":0.949,"sharedWithControl":2}}}
+13/15 slash ok 13701ms
+14/15 wait ok 1536ms
+15/15 eval ok 10ms
+15/15 eval -> {"guided":["cp-4a"],"bare":["cp2","cp2","cp2"],"impersonate":["cp-4a"],"drafted":"\"Hmm... I'm thinking that we're looking at a something-keeping-out kind of deal,"}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T08-22-42-239Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 15,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@05h21m03s120ms",
+    "owned": [
+      "2026-09-24@05h21m03s120ms"
+    ],
+    "deleted": [
+      "2026-09-24@05h21m03s120ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@05h21m03s120ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

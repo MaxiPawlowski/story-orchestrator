@@ -1,0 +1,84 @@
+1/19 eval ok 6ms
+1/19 eval -> {"greetingsCleared":1}
+2/19 eval ok 4ms
+3/19 import_story ok 358ms
+4/19 eval ok 6ms
+5/19 send ok 1873ms
+6/19 extract ok 595ms
+7/19 record_state ok 7ms
+7/19 record_state -> {"as":"before-cut","boundary":1,"active":"start","rows":{"memory":1,"epistemic":0,"ledger":0}}
+8/19 send ok 1653ms
+9/19 extract ok 593ms
+10/19 send ok 1649ms
+11/19 extract ok 608ms
+12/19 send ok 1665ms
+13/19 extract ok 679ms
+14/19 eval ok 4ms
+14/19 eval -> {"values":{"took_key":true,"lit_lamp":true,"found_map":true,"opened_chest":true},"active":"start","boundary":4}
+15/19 cut ok 2054ms
+15/19 cut -> {"command":"/cut 1-2","ok":true,"pipe":"I light the oil lamp by the door.\nI unroll the map on the table.\n","messagesBefore":4,"messagesAfter":2,"newMessages":-2}
+16/19 wait ok 1525ms
+17/19 eval ok 4ms
+17/19 eval -> {"lines":["I take the brass key from the hook.","I open the iron chest with the key."]}
+18/19 expect ok 6ms
+19/19 eval ok 5ms
+19/19 eval -> {"lastMessageId":0,"values":{"took_key":true}}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T08-29-25-772Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 19,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-24@05h29m09s451ms",
+    "owned": [
+      "2026-09-24@05h29m09s451ms"
+    ],
+    "deleted": [
+      "2026-09-24@05h29m09s451ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@05h29m09s451ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

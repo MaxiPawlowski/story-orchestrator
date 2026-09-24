@@ -1,0 +1,1 @@
+run-header diff: 1 blocking path, build.head only (T6 was cherry-picked into the tree mid-run; bundle.served.sha256 5e1928d0efde before and after, so the code under test did not change).

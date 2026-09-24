@@ -6,7 +6,8 @@
     { "key": "took_key", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player take the brass key?" },
     { "key": "lit_lamp", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player light the oil lamp?" },
     { "key": "found_map", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player unroll the map?" },
-    { "key": "opened_chest", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player open the iron chest?" }
+    { "key": "opened_chest", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player open the iron chest?" },
+    { "key": "vault_unsealed", "type": "bool", "source": "extractor", "rubric": "Never set by these fixtures: it keeps the vault transition (and its Note row) out of the chats the delete checks index." }
   ],
   "checkpoints": [
     { "id": "start", "name": "Start", "objective": "Get ready to open the vault.", "type": "anchor", "start": true },
@@ -22,7 +23,7 @@
           { "q": "took_key", "op": "==", "v": true },
           { "q": "lit_lamp", "op": "==", "v": true },
           { "q": "found_map", "op": "==", "v": true },
-          { "q": "opened_chest", "op": "==", "v": true }
+          { "q": "opened_chest", "op": "==", "v": true }, { "q": "vault_unsealed", "op": "==", "v": true }
         ]
       }
     }

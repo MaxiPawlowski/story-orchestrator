@@ -1,0 +1,79 @@
+1/16 eval ok 6ms
+1/16 eval -> {"greetingsCleared":1}
+2/16 eval ok 4ms
+3/16 import_story ok 358ms
+4/16 eval ok 7ms
+5/16 send ok 1848ms
+6/16 extract ok 597ms
+7/16 record_state ok 7ms
+7/16 record_state -> {"as":"before-target","boundary":1,"active":"start","rows":{"memory":1,"epistemic":0,"ledger":0}}
+8/16 send ok 1651ms
+9/16 extract ok 597ms
+10/16 send ok 1639ms
+11/16 extract ok 752ms
+12/16 eval ok 5ms
+12/16 eval -> {"values":{"took_key":true,"lit_lamp":true,"found_map":true},"facts":[{"text":"The player carries the brass key.","messageId":0},{"text":"The oil lamp by the door is lit.","messageId":1},{"text":"The map lies unrolled on the table.","messageId":2}],"boundary":3}
+13/16 host_delete ok 6ms
+13/16 host_delete -> {"messageId":1,"beforeLength":3,"afterLength":2,"removed":{"name":"Max","mes":"I light the oil lamp by the door."}}
+14/16 wait ok 1552ms
+15/16 expect FAIL state differs from "before-target": values: recorded {"took_key":true} now {"lit_lamp":true,"took_key":true} | versions: recorded {"took_key":1} now {"lit_lamp":1,"took_key":1} | boundary: recorded 1 now 2 | memory: recorded ["03005592-2e5a-4a6c-a1e2-7fe199ca2b36"] now ["03005592-2e5a-4a6c-a1e2-7fe199ca2b36","0f07ec8a-d722-4d3c-b9a7-93ba84350c3d"]
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T08-24-55-966Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T08-24-58-784Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 15,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-24@05h24m46s598ms",
+    "owned": [
+      "2026-09-24@05h24m46s598ms"
+    ],
+    "deleted": [
+      "2026-09-24@05h24m46s598ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@05h24m46s598ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

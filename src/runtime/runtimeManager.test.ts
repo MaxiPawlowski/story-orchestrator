@@ -275,7 +275,7 @@ describe("RuntimeManager checkpoint guidance (v2.4 plan 01, D7)", () => {
     for (const type of ["impersonate", "quiet"]) {
       manager.onGenerationStarted(type, false);
       expect(block()).toBeUndefined();
-      manager.onGenerationEnded();
+      manager.clearPrivateInjection();
       expect(block()?.value).toContain(WANDER);
     }
     manager.onGenerationStarted("normal", false);

@@ -1,0 +1,72 @@
+{
+  "_note": "v2.4 plan 01 T10, LIVE (real model, profile selected, no debugResponse). Turn 1 is a real group turn (Ponticius, the lead, answers). Then `/cp set go true` fires hall -> yard at once (an author write commits its own boundary, measured 2026-09-24: set before the turn posted the Note before the player's line), so our transition Note posts right after that real reply. After it: the active speaker must still be Ponticius, story_epistemic at rest must be '' in the group, and turn 2's talk decision must honour no_repeat and pick Arin. On v2.3 the Note blanks the speaker, so no_repeat has nothing to exclude and the lead Ponticius is picked again. The player lines name nobody, so no pick is a mention. Run with --sandbox --group 1759606632088.",
+  "steps": [
+    {
+      "import_story": {
+        "file": "./live-v24-01-t10.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error('needs a group chat'); if (!rt.getSnapshot().requirements?.ready) throw new Error('requirements not ready: ' + JSON.stringify(rt.getSnapshot().requirements)); if (!rt.getTalkState().enabled) rt.setTalkDirectionEnabled(true); if (rt.getGlobalSettings().display?.announceTransitions === false) throw new Error('transition announcements are off install-wide'); return { talk: rt.getTalkState().enabled };",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I set my pack down and wait to hear what comes next.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "slash": "/cp set go true"
+    },
+    {
+      "wait": {
+        "checkpoint": "yard",
+        "timeoutMs": 120000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const rows = ctx.chat.map((m, i) => ({ i, name: m.name, user: !!m.is_user, system: !!m.is_system, type: m.extra?.type ?? null })); const note = rows.filter((r) => r.type === 'comment').at(-1); const replies = rows.filter((r) => !r.user && !r.system && !r.type); const last = replies.at(-1); if (!note) throw new Error('no transition Note was posted: ' + JSON.stringify(rows.slice(-5))); if (!last || note.i < last.i) throw new Error('the Note is not after the last reply, so the row this checks is missing: ' + JSON.stringify(rows.slice(-5))); const speaker = rt.getActiveSpeakerId(); const want = rt.rosterIdForName(last.name); if (speaker !== want) throw new Error('after the Note the active speaker must still be ' + want + ' (' + last.name + '), got ' + speaker); const macro = rt.getEpistemicBlock(); if (macro !== '') throw new Error('story_epistemic at rest in a group must be empty, got ' + JSON.stringify(macro)); globalThis.__soT10LastSpeaker = want; return { note: note.i, lastReply: last, speaker, macro };",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I shoulder the pack again and look around the yard.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "talkDecisions": 2,
+        "timeoutMs": 120000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const decisions = rt.getTalkState().decisions; const last = decisions.at(-1); const previous = globalThis.__soT10LastSpeaker; if (!last) throw new Error('no talk decision recorded'); if (last.source === 'mention') throw new Error('turn 2 was a mention, which no_repeat does not bind: ' + JSON.stringify(last)); if (last.chosenRosterId === previous) throw new Error('no_repeat did not bind after the Note: ' + previous + ' was picked again (' + JSON.stringify(last) + ')'); return { previous, decision: last, count: decisions.length };",
+      "log": true
+    }
+  ]
+}

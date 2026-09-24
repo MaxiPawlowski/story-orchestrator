@@ -1,0 +1,85 @@
+1/20 eval ok 4ms
+1/20 eval -> {"greetingsCleared":1}
+2/20 eval ok 3ms
+3/20 import_story ok 347ms
+4/20 eval ok 7ms
+5/20 send ok 1864ms
+6/20 extract ok 606ms
+7/20 record_state ok 6ms
+7/20 record_state -> {"as":"before-run","boundary":1,"active":"start","rows":{"memory":1,"epistemic":0,"ledger":0}}
+8/20 eval ok 121ms
+8/20 eval -> {"toolRow":1,"reply":2}
+9/20 send ok 1647ms
+10/20 extract ok 606ms
+11/20 send ok 1659ms
+12/20 extract ok 802ms
+13/20 send ok 1680ms
+14/20 extract ok 816ms
+15/20 eval ok 4ms
+15/20 eval -> {"values":{"took_key":true,"lit_lamp":true,"found_map":true,"opened_chest":true},"active":"start","boundary":4}
+16/20 host_delete ok 8ms
+16/20 host_delete -> {"messageId":2,"beforeLength":6,"afterLength":4,"removed":{"name":"DM Narrator","mes":"An oil lamp hangs by the door, unlit."}}
+17/20 wait ok 1542ms
+18/20 eval ok 4ms
+18/20 eval -> {"lines":["I take the brass key from the hook.","I light the oil lamp by the door.","I unroll the map on the table.","I open the iron chest with the key."]}
+19/20 expect FAIL state differs from "before-run": values: recorded {"took_key":true} now {"lit_lamp":true,"took_key":true} | versions: recorded {"took_key":1} now {"lit_lamp":1,"took_key":1} | boundary: recorded 1 now 2 | memory: recorded ["79edbef1-48b2-4d9b-afe9-67058b1188c8"] now ["79edbef1-48b2-4d9b-afe9-67058b1188c8","f97f2b4f-f2eb-4591-946d-6eabcce4cf86"]
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T08-25-29-703Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T08-25-32-517Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 19,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-24@05h25m17s711ms",
+    "owned": [
+      "2026-09-24@05h25m17s711ms"
+    ],
+    "deleted": [
+      "2026-09-24@05h25m17s711ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@05h25m17s711ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}
