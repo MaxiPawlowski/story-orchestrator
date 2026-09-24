@@ -4,6 +4,7 @@ import type { ExtraGateSource, TypedJudge } from "./types";
 import { getChatWindow } from "./chatWindow";
 import { isLapse } from "./client";
 import { runSharedRead, sharedReadWindow } from "./sharedRead";
+import type { RequestBudget } from "./tokenMeter";
 import type { ParsedFact, SharedReadAudit, SharedReadWindow } from "./types";
 
 export interface SchedulerSettings {
@@ -14,6 +15,7 @@ export interface SchedulerSettings {
   stabilityLag: number;
   debugResponse?: string | null;
   pressureThreshold?: number;
+  budget?: RequestBudget;
 }
 
 export const PRESSURE_DEFAULT_THRESHOLD = 3;

@@ -277,12 +277,13 @@ const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapshot: Run
         </>
       )}
       <div className="flex items-center gap-2 mt-1">
-        <button className="menu_button" disabled={snapshot.memory.backfill?.running} onClick={() => void manager.runMemorizeBacklog()}>Memorize chat</button>
+        <button className="menu_button" disabled={snapshot.memory.backfill?.running} onClick={() => void manager.memorizeChat()}>Memorize chat</button>
         {snapshot.memory.backfill?.running && <button id="so-memorize-stop" className="menu_button" onClick={() => manager.cancelMemorizeBacklog()}>Stop</button>}
         <span className="opacity-60">Read the whole chat history into memory.</span>
       </div>
       {snapshot.memory.backfill?.running && <div>Memorizing: {snapshot.memory.backfill.processed}/{snapshot.memory.backfill.total}</div>}
-      {snapshot.memory.backfill?.lastError && <div className="text-red-300">{snapshot.memory.backfill.lastError}</div>}
+      {snapshot.memory.backfill?.stoppedNote && <div id="so-memorize-note" className="opacity-80">{snapshot.memory.backfill.stoppedNote}</div>}
+      {snapshot.memory.backfill?.lastError && <div id="so-memorize-error" className="text-red-300">{snapshot.memory.backfill.lastError}</div>}
       {authorView && lastAudit && <div title={`${lastAudit.prompt}\n---\n${lastAudit.rawResponse}`}>Last audit: {lastAudit.id} ({lastAudit.reason})</div>}
       {characterIds.length > 0 && (
         <label className="flex items-center gap-2 mt-1">
@@ -582,7 +583,7 @@ const SchedulerTab = ({ snapshot, manager, onOpenFact }: { snapshot: RuntimeSnap
             <button className="menu_button text-xs" data-so="agency-take-alternate" onClick={() => void manager.activateCheckpoint(snapshot.agencyRecovery!.alternate!)}>Take {snapshot.agencyRecovery.alternateName}</button>
           )}
           {snapshot.agencyRecovery.canGenerate && (
-            <button className="menu_button text-xs" data-so="agency-generate-road" onClick={() => void manager.runExpansionNow()}>Generate the road ahead</button>
+            <button className="menu_button text-xs" data-so="agency-generate-road" onClick={() => void manager.runExpansionNow(undefined, true)}>Generate the road ahead</button>
           )}
         </div>
       </div>

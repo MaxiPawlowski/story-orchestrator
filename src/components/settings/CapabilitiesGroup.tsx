@@ -6,6 +6,8 @@ export interface CapabilitiesGroupProps {
   /** v2.3 plan 08: what it is running on, which a present/absent probe cannot say. */
   facts?: HostFacts | null;
   extensionVersion?: string;
+  /** v2.4 plan 03 D5: the memory model's context limit and where it came from, never failed closed. */
+  memoryModel?: MemoryModelLimit | null;
   onRefresh(): void;
   onCopy?(text: string): void;
 }
@@ -14,7 +16,19 @@ export interface CapabilitiesGroupProps {
 // named where the author is standing, instead of surfacing as an effect that quietly did nothing, and
 // so a bug report carries the version, the engine and every probe in one paste. Nothing here is a
 // story spoiler, so it needs no persona gate.
-export function CapabilitiesGroup({ reports, facts = null, extensionVersion = "", onRefresh, onCopy }: CapabilitiesGroupProps) {
+export interface MemoryModelLimit {
+  value: number;
+  source: "preset" | "default";
+  reason?: string;
+  inputBudget: number;
+}
+
+const tokens = (value: number) => value.toLocaleString("en-US");
+
+export const describeMemoryModelLimit = (limit: MemoryModelLimit) =>
+  `Memory model context: ${tokens(limit.value)} tokens ${limit.source === "preset" ? "(from its preset)" : `(default${limit.reason ? `: ${limit.reason}` : ""})`} · up to ${tokens(limit.inputBudget)} per read`;
+
+export function CapabilitiesGroup({ reports, facts = null, extensionVersion = "", memoryModel = null, onRefresh, onCopy }: CapabilitiesGroupProps) {
   const checking = reports === "checking";
   const broken = checking ? [] : reports.filter((report) => report.state !== "present");
   const [copied, setCopied] = useState<"idle" | "done" | "failed">("idle");
@@ -23,6 +37,7 @@ export function CapabilitiesGroup({ reports, facts = null, extensionVersion = ""
     `Story Orchestrator ${extensionVersion || "(version unknown)"}`,
     `SillyTavern ${facts?.stVersion ?? "unknown"}${facts?.stCommit ? ` (${facts.stCommit})` : ""}`,
     `macros: ${facts?.macroEngine ?? "unknown"} engine`,
+    ...(memoryModel ? [describeMemoryModelLimit(memoryModel)] : []),
     ...(checking ? ["capabilities: checking"] : reports.map((entry) => `${entry.id}: ${entry.state} — ${entry.detail}`)),
   ].join("\n");
 
@@ -55,6 +70,7 @@ export function CapabilitiesGroup({ reports, facts = null, extensionVersion = ""
           SillyTavern {facts.stVersion ?? "unknown"}{facts.stCommit ? ` (${facts.stCommit})` : ""} · {facts.macroEngine} macro engine{extensionVersion ? ` · extension ${extensionVersion}` : ""}
         </div>
       )}
+      {memoryModel && <div id="so-context-limit" className="text-xs opacity-80">{describeMemoryModelLimit(memoryModel)}</div>}
       {broken.map((report) => (
         <div key={report.id} id={`so-capability-${report.id}`} className="text-xs text-yellow-300">
           <span className="font-medium">{report.id}</span>

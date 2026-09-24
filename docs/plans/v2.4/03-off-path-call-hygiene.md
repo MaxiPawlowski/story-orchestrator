@@ -661,3 +661,120 @@ Not run: `test:debug`, `test:release`, `test-storybook` (the Storybook STAPI moc
 - Signal threading in `runMemorizeBacklog` (wedges builder's region) and in copilot authoring, which is author-interactive and holds no guard.
 - D3 is wave 2: breaker, deleting `pauseExtraction`, pipeline/Repair, events. `pauseExtraction` still exists, but a lapse can no longer reach it.
 - D5 is the budget builder's: `readProfileContextLimit` is not built here, although H12 is verified.
+
+### Budget wiring + wedge follow-ups (worktree build, 2026-09-24)
+
+Wave 2 part B, built on master `a7cb6c1` (branch `worktree-agent-a952e275a67994306`), in parallel with part A
+(breaker, `pauseExtraction` removal, pipeline/repair/events) and the injector/persistence agent. Scope: D5
+wiring, D6's `maxTokens` table at the sites the seam did not switch, the wedges builder's two merge follow-ups,
+the three uncovered `refuseIncomplete` sites, and the privacy addendum. Machine gates only: **no backend, so no
+live gate ran; live gates 3 and 4 are owed and NOT green**, as are live gate 6's Stop half and the H5/H11
+live confirmations.
+
+**As built**
+- **Counting (decided).** `extraction/tokenMeter.ts` (pure): `createTokenMeter(countAsync?)` keeps a per-call
+  `Map`; `prime(texts)` counts each distinct text once with the injected async counter (a throw or a non-finite
+  count keeps the estimate); `count(text)` is the sync counter the budget modules take, reading the map and
+  falling back to `estimateTokens` (the repo's existing `CHARS_PER_TOKEN_ESTIMATE` = chars/4, now exported from
+  `callBudget.ts`, which `maxTokensForInput` also uses). `RequestBudget = {contextLimit, meter}`. The host half
+  is `runtime/requestBudget.ts` `requestBudget(profileId)` = `readProfileContextLimit` + a meter over ST's
+  `countTokens` (03-H11: main-API tokenizer, so every count is an estimate). No pure module calls the host.
+- **Shared read tail-fit.** `runSharedRead` fits the window before anything else when `client.budget` is set:
+  overhead = the prompt rendered with the full scope and an empty transcript, per-message cost = the widest
+  `[index] speaker: ` prefix, `tailFit` under `inputBudget(limit, maxTokens ?? 512)`. The audit gains
+  `budget {contextLimit, inputBudget, maxTokens, tokens, overBudget?}`, `trimmedFrom` and `truncated`; its
+  `window` is the window actually sent, so evidence is screened against it (a delta quoting a trimmed message
+  is "evidence not in window"). A prompt that leaves no room sends the window unfitted and records
+  `overBudget` (never fail closed). Wired for every P0/P1 read: the scheduler (via `SchedulerSettings.budget`,
+  filled in `runtime/index.ts`), `runNow`, both memorize passes.
+- **Memorize backlog.** `extraction/backlogPlan.ts` (pure) `planBacklog` packs the chat with `chunkMessages`
+  (the chunker gained an optional `maxMessages` cap) and returns the windows plus `preflight {requests, tokens}`
+  (windows + 1; tokens = every window + the full pass capped at the budget). `memorize:window` reads send the
+  planned windows as-is (`acceptedDeltas: []` unchanged); `memorize:full` is tail-fit by the shared read and
+  records `trimmedFrom`. `windowSize` survives only as a message cap for the debug handle and tests; the default
+  is budget-only. One meter per backlog run, so each message is counted once.
+- **Scene summary.** `memory/sceneSummary.ts` (pure): `sceneRangeFrom(derived, to)` = the newest
+  `scene_summary` derived range's `to + 1`, else 0, never past `to`; `summarizeScene` maps each chunk that fits
+  `inputBudget(limit, sceneSummary cap)`, then reduces the "Part N:" summaries with the new
+  `buildSceneReducePrompt` (again, up to depth 4, then tail-fit), asking `stillOwns()` inside the loop before
+  every call; a refused chunk yields no summary. `runSceneBreakPass` spans `[sceneStart(to), to]` (new
+  `MemoryCoordinator.sceneStart`), mints its guard over that whole range before the count, and stores ONE entry
+  and ONE derived record for the range; chunk summaries are never stored.
+- **Short-term.** `fitShortTerm` tail-fits the newest messages under `inputBudget(limit, shortTerm cap)` with the
+  previous summary in the overhead; `maxTokensFor("shortTerm", fit.tokens)`; the derived range is
+  `[fit.from, window.to]`, so `shortTermSummaryEnd` keeps its meaning.
+- **maxTokens (item 5).** Checked: the seam had switched every site (`maxTokensForInput`); scene summary and
+  short-term now use `maxTokensFor(family, measured tokens)`. Epistemic, ledger, arc, canon, curator unchanged.
+- **Preflight.** `extraction/preflight.ts` (pure): `preflightNeeded` (N > 3 or T > 50 % of the limit) and
+  `preflightMessage` ("N requests, about T tokens to <profile>. Send them?"). Host: `confirmPreflight` in
+  `runtime/requestBudget.ts` (profile name from `listConnectionProfiles`, `showConfirmPopup` "Send"/"Cancel").
+  Manual paths: `manager.memorizeChat()` (drawer "Memorize chat", `/so-mem backlog`, `/cp memorize`) and
+  `runExpansionNow(undefined, true)` (`/cp expand` without a response, drawer "Generate the road ahead"). The
+  backlog asks after planning and before anything is sent or `running` is set; a cancel sends nothing and
+  writes nothing. Expansion counts every variant plus the critic. The debug handles (`runMemorizeBacklog`,
+  `runExpansionNow(debugResponse)`), scenarios and every automatic pass never prompt.
+- **Capabilities read-out.** `CapabilitiesGroup` gained `memoryModel` → `#so-context-limit` ("Memory model
+  context: 98,304 tokens (from its preset) · up to 87,962 per read" / "(default: <reason>)"), also in the
+  bug-report copy; `index.tsx` reads it with `readProfileContextLimit` for the selected profile.
+- **Wedge follow-ups.** The backlog's model calls carry `anySignal([stop.signal, read.signal])`
+  (`utils/signals.ts`), so Stop and a mutation inside the whole-chat window cancel the request in flight (the
+  guard is released in `finally`). A player's Stop is `backfill.stoppedNote` (present only when stopped),
+  rendered neutrally as `#so-memorize-note`; `lastError` (`#so-memorize-error`, red) is kept for edits, story
+  updates and real failures. Stories `PlayerStopsMemorizing` / `MemorizeStopped` updated, `MemorizeFailed` added.
+- **refuseIncomplete per site.** `refuseIncomplete.review.test.ts` drives the real client through a fake
+  `finish:"length"` reply at the short-term, arc and canon sites (each with its stop control).
+- **Privacy.** `docs/plans/v2.3/privacy-report.md` gained a "v2.4 addendum" table; the v2.3 text is untouched.
+- **Census.** New row `src/extraction/tokenMeter.ts#createTokenMeter.prime` (`local`); notes extended on
+  `runMemorizeBacklog`, `runSceneBreakPass`, `runShortTermCompaction`. Statuses unchanged. Fault matrix untouched
+  (part A owns `faultMatrix.json`).
+
+**Red first.** `budgetWiring.review.test.ts` before the coordinator wiring: 9 of 11 failed (the two that passed
+were the edit-discard case, which the old detecting-window guard also satisfied, and the under-threshold
+control). `memory/sceneSummary.test.ts` failed to load (module absent). `sharedReadBudget.test.ts`,
+`preflight.test.ts`, `refuseIncomplete.review`, `expansionPreflight.review` and `requestBudget.test` were written
+after or with their code; their red is evidenced by the mutants below, not by a first run.
+
+**Mutations** (`test/findings/mutations/v24-03-wiring.txt`): **26/26 killed** (24 jest, 2 Storybook), including
+the plan row "memorize:full never exceeds the budget and records trimmedFrom" on the pure read and on the real
+backlog pass (W1/W2/W7), Stop reaching the in-flight request (W10), Stop as a note not an error (W11, SB1), the
+check inside the map loop (W12), and the three `refuseIncomplete` sites (W17–W19).
+
+**Deviations**
+- Estimator is the existing chars/4, not 3.5.
+- The budget rides `ExtractionClientOptions.budget` / `SchedulerSettings.budget` (one type line in `scheduler.ts`,
+  one field in `runtime/index.ts`), so part A's `pump` line is untouched.
+- Summary passes budget against the table's CAP (1024) because their `maxTokens` depends on the measured input.
+- The scene summary's `evidence` stays the detecting window's text, not the whole scene (metadata size).
+- Existing tests adjusted, not weakened: `backlogOwnership` settle 8 → 20 microtasks (planning adds a count
+  await before the first read), its state gained `visitedAnchors` (the overhead prompt renders canon-lite), and
+  "Stop keeps applied windows" now asserts `stoppedNote` + `lastError: null`; the `extractionOwnership` memory
+  double gained `sceneStart`; the `runtimeManager.test` STAPI mock gained `readProfileContextLimit`;
+  `slashCommands.test` asserts `memorizeChat`.
+- A backlog planning failure now ends through `endBacklog` with `lastError` (there was no planning step before).
+- "Generate the road ahead" in the drawer also asks first (the same author action as `/cp expand`).
+
+**Gates** (worktree root, `node_modules` junctioned to the main checkout's)
+
+| Gate | Result |
+|---|---|
+| `npm run typecheck` | 0 errors |
+| `npm run typecheck:test` | 0 errors |
+| `npm run lint` | clean |
+| `npm run debug:typecheck` | 0 errors |
+| `npm test` | 205/205 suites, 3070/3070 tests |
+| `npm run build` | compiled, 2 webpack size warnings; manifest `bundle d9ab9e7c8644`, `ST unknown` (worktree path) |
+| Storybook (`storybook:build`, `http-server .sb-static -p 6116`, `test-storybook --index-json --url http://127.0.0.1:6116`) | 32 suites, 203/203 (+4: `MemorizeFailed`, `StatesTheMemoryModelLimit`, `SaysWhenTheLimitIsTheDefault`, `NoLimitRowWithoutAProfileRead`); server killed after |
+| architecture budgets (effective lines) | manager 736/740 (+5); extractionCoordinator 581/620 (+16); memoryCoordinator 612/620 (+2); expansion 320 (+10) |
+
+Not run: `test:debug`, `test:release` (it rewrites `dist/manifest.json`).
+
+**NOT done / NOT green**
+- Live gate 3 (`memorize:full` on a ≥ 300-message copy, every captured request ≤ the reported `inputBudget`,
+  `trimmedFrom` on the full pass, Stop mid-run) and live gate 4 (both wedges live): owed, no backend.
+- The counts are main-API tokenizer estimates (H11) and the 10 % margin is unmeasured; a preset `max_length`
+  above the server's real `n_ctx` still overstates the budget (plan §Risks).
+
+**Open questions**
+- `sceneRangeFrom` returns 0 when no scene was summarized yet (the plan's "else 0"), so the first scene break in a
+  long chat that took a story mid-way summarizes the whole history automatically (map/reduce, N requests, no
+  preflight because it is automatic). Cap the first scene at the story's first boundary instead?

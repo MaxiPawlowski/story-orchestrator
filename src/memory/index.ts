@@ -17,4 +17,5 @@ export * from "./supersede";
 export * from "./parse";
 export * from "./contract";
 export * from "./sceneDetect";
+export * from "./sceneSummary";
 export * from "./inject";

@@ -27,4 +27,11 @@ export function maxTokensFor(family: PassFamily, inputTokens: number): number {
   return Math.min(budget.cap, Math.max(budget.floor, wanted));
 }
 
-export const maxTokensForInput = (family: PassFamily, input: string): number => maxTokensFor(family, Math.ceil(input.length / CHARS_PER_TOKEN_ESTIMATE));
+export const estimateTokens = (text: string): number => Math.ceil(text.length / CHARS_PER_TOKEN_ESTIMATE);
+
+export const maxTokensForInput = (family: PassFamily, input: string): number => maxTokensFor(family, estimateTokens(input));
+
+export const maxTokensCap = (family: PassFamily): number => {
+  const budget = MAX_TOKENS_TABLE[family];
+  return "fixed" in budget ? budget.fixed : budget.cap;
+};

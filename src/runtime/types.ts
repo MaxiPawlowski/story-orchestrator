@@ -130,6 +130,7 @@ export interface MemoryBackfillState {
   processed: number;
   total: number;
   lastError: string | null;
+  stoppedNote?: string | null;
 }
 
 export interface CanonSource {

@@ -3,6 +3,7 @@ import { anySignal } from "@utils/signals";
 import { callTimeoutMs, DEFAULT_MAX_TOKENS } from "./callBudget";
 import { detectDegenerate } from "./degenerate";
 import { stripReasoningBlocks } from "./parse";
+import type { RequestBudget } from "./tokenMeter";
 
 export interface ExtractionClientOptions {
   profileId: string | null;
@@ -11,6 +12,7 @@ export interface ExtractionClientOptions {
   temperature?: number;
   signal?: AbortSignal;
   refuseIncomplete?: boolean;
+  budget?: RequestBudget;
 }
 
 export interface ExtractionReply {

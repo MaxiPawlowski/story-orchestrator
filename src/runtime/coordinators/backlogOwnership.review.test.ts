@@ -22,14 +22,14 @@ jest.mock("@extraction/index", () => {
 import { ExtractionCoordinator } from "./extractionCoordinator";
 import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
 
-const settle = async () => { for (let i = 0; i < 8; i += 1) await Promise.resolve(); };
+const settle = async () => { for (let i = 0; i < 20; i += 1) await Promise.resolve(); };
 
 function harness() {
   let current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const stored: string[] = [];
   let commits = 0;
   const saves = { count: 0, onSave: null as null | ((count: number) => void) };
-  let backfill: { running: boolean; processed: number; total: number; lastError: string | null } | null = null;
+  let backfill: { running: boolean; processed: number; total: number; lastError: string | null; stoppedNote?: string } | null = null;
   const memory = {
     enabled: true,
     capable: false,
@@ -47,7 +47,7 @@ function harness() {
   };
   const coordinator = new ExtractionCoordinator({
     getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [], qualities: [], checkpoints: [], transitions: [] }),
-    getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 11, blackboard: { values: {}, versions: {}, latched: {} } }),
+    getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 11, visitedAnchors: [], blackboard: { values: {}, versions: {}, latched: {} } }),
     getExtraction: () => ({ audits: [], reconciliationEvents: [], judgedReads: [] }),
     getSettings: () => ({ profileId: "p1", enabled: true, cadence: 1 }),
     memory,
@@ -175,7 +175,8 @@ describe("v2.4 plan 03 D4: the memorize backlog always leaves running when it ow
     expect(reads.map((read) => read.reason)).toEqual(["memorize:window", "memorize:window"]);
     expect(h.commits()).toBe(0);
     expect(h.backfill()).toMatchObject({ running: false, processed: 1, total: 4 });
-    expect(h.backfill()?.lastError).toMatch(/whole-chat pass/);
+    expect(h.backfill()?.lastError).toBeNull();
+    expect(h.backfill()?.stoppedNote).toMatch(/whole-chat pass/);
     expect(h.coordinator.cancelMemorizeBacklog()).toBe(false);
   });
 

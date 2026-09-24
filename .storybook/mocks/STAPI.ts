@@ -43,6 +43,8 @@ export const sendConnectionProfileRequest = async () => ({ ok: true as const, te
 export const profileExists = () => false;
 export const listConnectionProfiles = () => [];
 export const getSelectedConnectionProfileId = (): string | null => null;
+export const readProfileContextLimit = () => ({ value: 8192, source: "default" as const, reason: "Storybook has no connection profiles" });
+export const countTokens = async (text: string) => Math.ceil(text.length / 4);
 export const setStoryExtensionPrompt = () => {};
 export const clearStoryExtensionPrompt = () => {};
 

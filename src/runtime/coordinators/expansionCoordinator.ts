@@ -1,7 +1,7 @@
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import {
   EXPANSION_CONTRACT, collectExpansionGateSources, findStubExpansionCandidate, generateReviewedBeats,
-  insertedCheckpointIds, mergeExpansions, planExpansion, revalidateExpansion, type ExpansionCacheEntry,
+  insertedCheckpointIds, mergeExpansions, planExpansion, renderGenerationPrompt, revalidateExpansion, type ExpansionCacheEntry,
   type ExpansionJudge, type ExpansionRuntimeState, type GeneratedBeat, type PlannedExpansionInput,
   type StubExpansionCandidate,
 } from "@generation/index";
@@ -13,7 +13,7 @@ import { numericToLevel } from "@pacing/index";
 import { getPlayerName } from "@services/STAPI";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunGuard, type RunOwnership } from "../runToken";
-import type { ExtraGateSource } from "@extraction/index";
+import { estimateTokens, type ExtraGateSource, type Preflight, type PreflightConfirm } from "@extraction/index";
 import type { ExtractionRuntimeSettings } from "../types";
 
 export const expansionKey = (candidate: Pick<StubExpansionCandidate, "sourceCheckpointId" | "stubId" | "targetAnchorId">) => `${candidate.sourceCheckpointId}->${candidate.stubId}->${candidate.targetAnchorId}`;
@@ -224,7 +224,7 @@ export class ExpansionCoordinator {
     return true;
   }
 
-  async runNow(debugResponse?: string) {
+  async runNow(debugResponse?: string, confirm?: PreflightConfirm) {
     const story = this.deps.getStory();
     const state = this.deps.getState();
     if (!story || !state) return false;
@@ -234,8 +234,17 @@ export class ExpansionCoordinator {
       this.deps.notify();
       return false;
     }
-    await this.generate(candidate, debugResponse ?? globalThis.storyOrchestratorDebugGenerationResponse ?? null);
+    const response = debugResponse ?? globalThis.storyOrchestratorDebugGenerationResponse ?? null;
+    if (confirm && response === null && !(await confirm(this.preflight(story, state, candidate)))) return false;
+    await this.generate(candidate, response);
     return true;
+  }
+
+  // v2.4 plan 03 D5: what an author's "generate now" is about to send: every variant, plus the critic.
+  private preflight(story: NormalizedStoryV2, state: EngineState, candidate: StubExpansionCandidate): Preflight {
+    const input = planExpansion(story, state.blackboard, candidate, this.deps.getCanon(), this.deps.getFactTexts());
+    const requests = (this.expansionJudge(story, input).variants?.n ?? 1) + 1;
+    return { requests, tokens: requests * estimateTokens(renderGenerationPrompt(story, input)) };
   }
 
   async generate(candidate: StubExpansionCandidate, debugResponse?: string | null) {
