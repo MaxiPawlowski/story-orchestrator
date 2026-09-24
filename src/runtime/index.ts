@@ -11,6 +11,7 @@ import { createTypedJudge } from "./typedRead";
 import { getGlobalSettings } from "./settingsStore";
 import { registerLiveSuite } from "./liveSuite";
 import { registerRuntimeMacros } from "./macros";
+import { startMirrorReaper } from "./mirrorReaperHost";
 import { runtimeManager } from "./runtimeManager";
 import { beginRun } from "./runToken";
 import { registerSlashCommands } from "./slashCommands";
@@ -106,6 +107,7 @@ export function startRuntime() {
   const requirementsWatch = new RequirementsWatch(runtimeManager.requirementsHost, subscribeToHostEvents);
   requirementsWatch.start();
   runtimeDisposers.push(() => requirementsWatch.stop());
+  runtimeDisposers.push(startMirrorReaper(() => runtimeManager.notify()));
   const chatLastId = () => (Array.isArray(getContext().chat) ? getContext().chat.length - 1 : -1);
   globalThis.storyOrchestratorScheduler = { nextReadWindow: () => scheduler?.nextReadWindow(chatLastId()) ?? null };
   const judgeRuntime = new JudgeRuntime({

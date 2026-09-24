@@ -20,7 +20,7 @@ import { wipeChatMeta } from './so-library.mts';
 import { saveSettingsNow } from './lib/settingsSave.mts';
 import { archiveJourneyRecord, unselectedDependencies } from './lib/journeyArchive.mts';
 import { applyExtSetting, restoreExtSettings } from './lib/interopVerbs.mts';
-import { cleanupBranchChats } from './lib/identityVerbs.mts';
+import { cleanupBranchChats, settleReapPrompts } from './lib/identityVerbs.mts';
 import { BLOCKING_DIALOGS, mergeRestore, removableStories, shouldRecoverConfig, validateJourneyExtraction, type DeclaredExtraction, type LibraryCapture } from './lib/configRestore.mts';
 
 const JOURNEY_DIR = resolve(PROJECT_ROOT, 'test/journeys');
@@ -421,6 +421,7 @@ async function runCleanup(page, journey, { importedHashes, libraryBefore, config
     report.chat = await deleteSandboxChats(page, guard).catch((error) => ({ error: error.message }));
     report.branchChats = await cleanupBranchChats(page, guard).catch((error) => ({ error: error.message, leaked: [...(guard.branchChats ?? [])] }));
     report.mirrorBooks = await deleteSandboxMirrorBooks(page, guard).catch((error) => ({ error: error.message }));
+    report.reapPrompts = await settleReapPrompts(page, [...guard.owned, ...(guard.branchChats ?? [])]).catch((error) => ({ error: error.message }));
   }
   // cast_changes mutates the group's disabled_members, which outlives the sandbox chat (see
   // .claude/rules/debug-scripts.md). Restore AFTER deleting the chat: enabling members while the

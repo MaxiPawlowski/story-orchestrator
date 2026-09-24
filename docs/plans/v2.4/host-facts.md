@@ -42,3 +42,19 @@ Third-party facts go in the same file, marked "not ST":
   (`:899`, `:912`), `GENERATION_ENDED` (`:908`, `:914`) and `GENERATION_STOPPED` (`:917`).
 
 Still to re-check on 1.18.0 during plan 01's live gate: H10 and H13, and that H3 really is absent.
+
+## Plan 02 (T14 additions, 2026-09-24)
+
+Plan 02's own H1-H19 live in its plan doc. These are the facts T14 rests on beyond them, read on the
+1.19.0 tree (`public/` of the live install). 1.18.0 was not checked (no git access to the ST checkout
+from the build worktree); a host that answers differently reads as "cannot tell", which the reaper turns
+into a Repair row, never a delete.
+
+| # | Fact | 1.19.0 |
+|---|---|---|
+| 02-H20 | `eventSource.emit` awaits each listener in turn, so a listener that waits on a popup holds the emitter (for `deleteGroup`, before its `response.ok` check) | `lib/eventemitter.js:130-151` (`await` at `:146`) |
+| 02-H21 | `/api/chats/group/info {id}` answers a missing file with `{match:false}` and no `file_name` (`getChatInfo`'s ENOENT branch), and an existing file, empty or not, with its `file_name` | `src/endpoints/chats.js:883-898`; `getChatInfo` `:393-426` (ENOENT `:398-410`) |
+| 02-H22 | `/api/characters/chats {avatar_url, simple:true}` lists `{file_name, file_id}` per `.jsonl`, `[]` for an empty directory, and `{error:true}` for a missing directory **or** any failure | `src/endpoints/characters.js:1499-1535` |
+| 02-H23 | `/api/groups/delete` deletes every chat file the group lists | `src/endpoints/groups.js:212-226` |
+| 02-H24 | A `CONFIRM` popup's cancel control is `.popup-button-cancel`, labelled by `cancelButton` | `popup.js:256`, `:274` |
+| 02-H25 | H13/H14 re-read: `deleteWorldInfo` is `:4346-4393` (returns false for an unlisted name before any request); keyless non-constant, non-sticky entries are skipped at `world-info.js:4892-4907` | `world-info.js` |

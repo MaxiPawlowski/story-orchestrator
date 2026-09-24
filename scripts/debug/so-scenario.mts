@@ -17,7 +17,7 @@ import { dumpCurrentChatState } from './so-state.mts';
 import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, branchContinue, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, getMemoryQueueState, memoryQueueAction, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot, hitTest, pointerClick } from './so-ui.mts';
 import { leakCount, listMarkedAssets, removeMarkedAssets } from './so-assets.mts';
 import { applyExtSetting, cutCommand, emitGeneration, expectOverSteer, expectStateEquals, hostDelete, injectScript, recordState, restoreExtSettings } from './lib/interopVerbs.mts';
-import { branchCreate, cleanupBranchChats, expectNextReadWindow, expectRollbackOutcome } from './lib/identityVerbs.mts';
+import { branchCreate, cleanupBranchChats, expectNextReadWindow, expectRollbackOutcome, settleReapPrompts } from './lib/identityVerbs.mts';
 
 const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep] [--group <id|name>]
 
@@ -1020,6 +1020,7 @@ async function cleanupScenario(page, importedHashes, guard, keep, libraryBefore:
     try { Object.assign(cleaned, await deleteSandboxChats(page, guard)); } catch (err) { cleaned.chatCleanupError = err instanceof Error ? err.message : String(err); }
     try { cleaned.branchChats = await cleanupBranchChats(page, guard); } catch (err) { cleaned.branchChats = { error: err instanceof Error ? err.message : String(err), leaked: [...(guard.branchChats ?? [])] }; }
     try { cleaned.mirrorBooks = await deleteSandboxMirrorBooks(page, guard); } catch (err) { cleaned.mirrorBookCleanupError = err instanceof Error ? err.message : String(err); }
+    try { cleaned.reapPrompts = await settleReapPrompts(page, [...guard.owned, ...(guard.branchChats ?? [])]); } catch (err) { cleaned.reapPrompts = { error: err instanceof Error ? err.message : String(err) }; }
     // The chat the page was on before this run is none of the run's business. Read it back from the
     // server and say so loudly if it shrank: a silent loss here is the user's story, and nothing else
     // in the harness can see it (2026-09-21).
@@ -1218,6 +1219,11 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
       if (branches.error || branches.leaked?.length || branches.failed?.length) {
         result.ok = false;
         result.error = [result.error, `cleanup left branch chat(s): leaked ${JSON.stringify(branches.leaked ?? [])}, failed ${JSON.stringify(branches.failed ?? [])}${branches.error ? `, ${branches.error}` : ''}`].filter(Boolean).join('; ');
+      }
+      const prompts = (cleanup.reapPrompts ?? {}) as { leaked?: string[]; error?: string };
+      if (prompts.error || prompts.leaked?.length) {
+        result.ok = false;
+        result.error = [result.error, `cleanup left the mirror-reap question open: ${prompts.error ?? JSON.stringify(prompts.leaked)}`].filter(Boolean).join('; ');
       }
     }
   }

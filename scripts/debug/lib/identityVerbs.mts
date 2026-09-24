@@ -235,3 +235,38 @@ export async function cleanupBranchChats(page: Page, guard: BranchGuard, { settl
   }
   return branchChatReport(recorded, attempts, await presentBranchChats(page, guard.groupId, recorded));
 }
+
+export type ReapPromptReport = { dismissed: string[]; leaked: string[] };
+
+/**
+ * v2.4 plan 02 T14. Deleting a sandbox chat whose mirror book carries the `so-owner` marker makes the
+ * product ask whether to delete that book too (`runtime/mirrorReaperHost.ts`). The run's own cleanup
+ * deletes the book, so every such question naming a chat this run owned is declined here, after the
+ * mirror-book cleanup: the reaper then finds the book gone and leaves no Repair row. The product asks
+ * one question at a time, so this waits for a quiet spell rather than taking one pass. A question
+ * still open at the end is reported leaked, because a modal left behind blocks the next run.
+ */
+export async function settleReapPrompts(page: Page, owned: string[], { quietMs = 1500, timeoutMs = 20000, pollMs = 100 } = {}): Promise<ReapPromptReport> {
+  if (!owned.length) return { dismissed: [], leaked: [] };
+  return evaluateInST(page, async ({ owned, quietMs, timeoutMs, pollMs }: { owned: string[]; quietMs: number; timeoutMs: number; pollMs: number }) => {
+    const answered = new WeakSet<Element>();
+    const prompts = (includeAnswered = false) => [...document.querySelectorAll('dialog[open]')]
+      .filter((dialog) => includeAnswered || !answered.has(dialog))
+      .map((dialog) => ({ dialog, text: dialog.querySelector('.popup-content')?.textContent ?? '' }))
+      .filter(({ text }) => owned.some((id) => text.startsWith(`The chat "${id}" was deleted`)));
+    const dismissed: string[] = [];
+    const started = Date.now();
+    let lastSeen = Date.now();
+    while (Date.now() - lastSeen < quietMs && Date.now() - started < timeoutMs) {
+      const [open] = prompts();
+      if (open) {
+        answered.add(open.dialog);
+        (open.dialog.querySelector('.popup-button-cancel') as HTMLElement | null)?.click();
+        dismissed.push(open.text.slice(0, 200));
+        lastSeen = Date.now();
+      }
+      await new Promise((resolve) => setTimeout(resolve, pollMs));
+    }
+    return { dismissed, leaked: prompts(true).map(({ text }) => text.slice(0, 200)) };
+  }, { owned, quietMs, timeoutMs, pollMs });
+}

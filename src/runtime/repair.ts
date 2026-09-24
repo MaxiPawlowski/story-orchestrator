@@ -22,8 +22,23 @@ export interface RepairStep {
 
 export const REPAIR_TARGET_IDS = { memoryModel: "so-extraction-profile" } as const;
 
+// v2.4 plan 02 T14: a deleted chat's mirror book the reaper did not delete (declined, not provably ours,
+// or the deletion could not be confirmed). Last, because it costs the story in play nothing, and shown
+// without a story too, because the chat it belonged to is gone.
+function orphanedLorebookStep(snapshot: RuntimeSnapshot): RepairStep | null {
+  const orphans = snapshot.orphanedLorebooks ?? [];
+  if (!orphans.length) return null;
+  return {
+    area: "lore",
+    consequence: "A deleted chat left its story memory behind in a lorebook.",
+    detail: `Orphaned story-memory lorebook: ${orphans.map((orphan) => `${orphan.name} (${orphan.detail})`).join("; ")}`,
+    targetId: null,
+    provisionable: false,
+  };
+}
+
 export function nextRepairStep(snapshot: RuntimeSnapshot): RepairStep | null {
-  if (!snapshot.storyId) return null;
+  if (!snapshot.storyId) return orphanedLorebookStep(snapshot);
   const settings = snapshot.extraction.settings;
   if (!settings.enabled || !settings.profileId) {
     return {
@@ -65,5 +80,5 @@ export function nextRepairStep(snapshot: RuntimeSnapshot): RepairStep | null {
   if (hasUnsavedChanges(snapshot.saveHealth)) {
     return { area: "save", consequence: "Your last turn is not saved on the server yet.", detail: SAVE_PLAYER_TEXT, targetId: null, provisionable: false };
   }
-  return null;
+  return orphanedLorebookStep(snapshot);
 }

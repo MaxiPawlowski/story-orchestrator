@@ -62,4 +62,28 @@ describe("nextRepairStep", () => {
     expect(nextRepairStep(snapshotWith({ saveHealth: health } as Partial<RuntimeSnapshot>))?.area).toBe("save");
     expect(nextRepairStep(snapshotWith({ saveHealth: { ...health, pendingBoundary: null, lastAppliedBoundary: 7 } } as Partial<RuntimeSnapshot>))).toBeNull();
   });
+
+  describe("v2.4 T14: an orphaned story-memory lorebook", () => {
+    const orphan = { name: "Story Orchestrator - Crossing - chat-b", chatId: "chat-b", reason: "declined" as const, detail: "you chose to keep it" };
+
+    it("is a lore row naming the book, and never offers the wizard", () => {
+      const step = nextRepairStep(snapshotWith({ orphanedLorebooks: [orphan] } as Partial<RuntimeSnapshot>));
+      expect(step).toEqual({
+        area: "lore",
+        consequence: "A deleted chat left its story memory behind in a lorebook.",
+        detail: "Orphaned story-memory lorebook: Story Orchestrator - Crossing - chat-b (you chose to keep it)",
+        targetId: null,
+        provisionable: false,
+      });
+    });
+
+    it("comes last, after anything the story in play is missing", () => {
+      const health = { ...createSaveHealth(), pendingBoundary: 7 };
+      expect(nextRepairStep(snapshotWith({ orphanedLorebooks: [orphan], saveHealth: health } as Partial<RuntimeSnapshot>))?.area).toBe("save");
+    });
+
+    it("shows in a chat with no story, because the chat it belonged to is gone", () => {
+      expect(nextRepairStep(snapshotWith({ storyId: null, orphanedLorebooks: [orphan] } as Partial<RuntimeSnapshot>))?.area).toBe("lore");
+    });
+  });
 });
