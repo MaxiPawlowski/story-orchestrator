@@ -8,6 +8,13 @@ describe("callBudget: one declared table for every memory-model call (v2.4 plan 
     expect(callTimeoutMs(-5)).toBe(CALL_TIMEOUT_BASE_MS);
   });
 
+  it("adds a 500 tok/s prefill floor for the prompt it sends, so a window near the input budget is not timed out while it is still being read", () => {
+    expect(callTimeoutMs(512, 88000)).toBe(30000 + 512 * 50 + 88000 * 2);
+    expect(callTimeoutMs(512, 0)).toBe(callTimeoutMs(512));
+    expect(callTimeoutMs(512, -10)).toBe(callTimeoutMs(512));
+    expect(callTimeoutMs(512, 67720)).toBeGreaterThan(55600 + 75641);
+  });
+
   it("keeps the shared read fixed at 512 whatever the input, because MAX_DELTAS_PER_READ bounds its answer", () => {
     expect(maxTokensFor("sharedRead", 0)).toBe(512);
     expect(maxTokensFor("sharedRead", 40000)).toBe(512);

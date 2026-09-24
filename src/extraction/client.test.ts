@@ -53,7 +53,7 @@ describe("callExtractionReply keeps call sites on Promise<string> and throws a t
 
   it("a timeout names the budget it ran out of", async () => {
     send.mockResolvedValueOnce({ ok: false, kind: "timeout", message: "The operation was aborted due to timeout" });
-    await expect(callExtractionReply("prompt", { profileId: "p1", maxTokens: 96 })).rejects.toMatchObject({ kind: "timeout", message: "the memory model did not answer within 34800 ms" });
+    await expect(callExtractionReply("prompt", { profileId: "p1", maxTokens: 96 })).rejects.toMatchObject({ kind: "timeout", message: "the memory model did not answer within 34804 ms" });
   });
 
   it("the caller's signal reaches the seam, joined with the call's own timeout", async () => {
@@ -71,7 +71,18 @@ describe("callExtractionReply keeps call sites on Promise<string> and throws a t
     try {
       answer("NO_DELTA");
       await callExtractionReply("prompt", { profileId: "p1", maxTokens: 96 });
-      expect(timeout).toHaveBeenCalledWith(34800);
+      expect(timeout).toHaveBeenCalledWith(34804);
+    } finally {
+      timeout.mockRestore();
+    }
+  });
+
+  it("gives a large prompt time to be read before it can answer (live gate 3: an 88k-token memorize window timed out at 55.6 s)", async () => {
+    const timeout = jest.spyOn(AbortSignal, "timeout");
+    try {
+      answer("NO_DELTA");
+      await callExtractionReply("x".repeat(400000), { profileId: "p1", maxTokens: 512 });
+      expect(timeout).toHaveBeenCalledWith(30000 + 512 * 50 + 100000 * 2);
     } finally {
       timeout.mockRestore();
     }

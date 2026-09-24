@@ -1,7 +1,7 @@
 import { sendConnectionProfileRequest, type ModelFailureKind, type ModelFinish } from "@services/STAPI";
 import { anySignal } from "@utils/signals";
 import { PROBE_MAX_TOKENS, PROBE_PROMPT, PROBE_TIMEOUT_MS, type ProbeResult } from "./breaker";
-import { callTimeoutMs, DEFAULT_MAX_TOKENS } from "./callBudget";
+import { callTimeoutMs, DEFAULT_MAX_TOKENS, estimateTokens } from "./callBudget";
 import { detectDegenerate } from "./degenerate";
 import { stripReasoningBlocks } from "./parse";
 import type { RequestBudget } from "./tokenMeter";
@@ -44,7 +44,7 @@ export async function callExtractionReply(prompt: string, options: ExtractionCli
   if (options.debugResponse !== undefined && options.debugResponse !== null) return { text: stripReasoningBlocks(options.debugResponse), finish: "unknown" };
   if (!options.profileId) throw new ModelCallError("config", "No memory LLM profile selected");
   const maxTokens = options.maxTokens ?? DEFAULT_MAX_TOKENS;
-  const timeoutMs = callTimeoutMs(maxTokens);
+  const timeoutMs = callTimeoutMs(maxTokens, estimateTokens(prompt));
   const reply = await sendConnectionProfileRequest(options.profileId, prompt, maxTokens, {
     signal: anySignal([options.signal, AbortSignal.timeout(timeoutMs)]),
     samplers: { temperature: options.temperature ?? 0.1, top_p: 0.9 },
