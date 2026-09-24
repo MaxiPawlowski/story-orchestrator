@@ -17,7 +17,7 @@ Status lives in tables, not prose (v2.3 process rule 15). One line per version; 
 | v2 (plans 01–14) | ACCEPTED 2026-07-06; plan 14 (speaker direction) accepted 2026-07-07 | `docs/plans/v2/13-surfacing-polish.md`, `14-speaker-direction.md` Gate records |
 | v2.1 (plans 01–08) | automated acceptance green 2026-08-13; human-eval sessions outstanding, so NOT green | `docs/plans/v2.1/08-acceptance.md` Gate record |
 | v2.2 (plans 01–08) | automated side green; human eval outstanding | `docs/plans/v2.2/00-overview.md` §Live gate status, `08-acceptance.md` |
-| v2.3 (plans 01–11) | in the 2026-09-23 replan; NOT green | per-plan status table and work queue: `docs/plans/v2.3/00-overview.md` §Replan 2026-09-23 |
+| v2.3 (plans 01–11) | FROZEN candidate `569b053` (bundle `1e5c36951d65`) 2026-09-24; NOT accepted: J11 judge floors, L1 human playthrough, L7 (judge-on matrix needs v2.4 X12, fault/cost/stories/human) | `docs/plans/v2.3/11-acceptance.md` §Freeze 2026-09-24 |
 
 The long status paragraphs this file used to carry are in `docs/plans/v2.3/status-history.md`, kept as history. The v2.3 one was found overstated by the 2026-09-23 audit.
 

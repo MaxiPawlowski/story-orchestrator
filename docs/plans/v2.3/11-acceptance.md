@@ -989,3 +989,28 @@ The bundle changed between batches because the matrix found defects, so each pai
 - **J11: 23/26, then 25/26.**
   - J11.25 failed both runs, and its new diagnostics named the cause: the judge's scene read (heading tower p 0.95) landed at 07:00:53, after boundary 3's boundary work had already run. The look-ahead is boundary work, and no further turn came during the wait. The check's own goal says the *next boundary* queues the stub, so it now lets the passes settle and plays one neutral turn. It passed alone before because two scene calls had timed out, which shifted the timing.
   - J11.9 (memoryPairs "kept, kept") and J11.20 (the typed read answered `has_key` below its floor, no delta) are judge-dependent misses. Their floors are not retuned.
+
+#### L2 batch 7 (2026-09-24): J11 25/26 twice
+
+J11.25 passed both runs, so its neutral-turn fix holds. Each run lost one judge-dependent check:
+
+- run 1: J11.23 (stall check below `STALL_DIRECT_P`);
+- run 2: J11.9 (memoryPairs "kept, kept").
+
+Across seven J11 runs on this tree, every failure except the fixed J11.25 is one of J11.9, J11.20 or J11.23: the live judge answering under a predeclared floor. Those floors are not retuned (process rule), so **J11 is NOT green, for a named reason** (`failed-batch7/`).
+
+## Freeze 2026-09-24: v2.3 candidate `569b053`, bundle `1e5c36951d65`
+
+HEAD `569b053` rebuilds to bundle `1e5c36951d65` (source `13373aa77ea1`, ST 1.19.0). No `src/` change since `480c261`, which is the bundle every batch-3-to-7 live run and the L8 candidate clean-host pass used.
+
+| Gate | State on the candidate |
+|---|---|
+| Machine | jest 2682, test:debug 162, test:release 17, typecheck, typecheck:test, lint, debug:typecheck: all green |
+| L8 clean-host | pinned `06bde939` green on `480c261` (and ×2 on its parent tree); 1.18.0 green on the parent tree |
+| L2 judge off | **12 of 13 journeys green ×2 archived** (J0–J10, J12; J7 included). **J11 NOT green**: judge-dependent floors |
+| L3, L4, L5, L6 | green ×2 with records (`records/v2.3-replan/L3`, `L4`, `L5`, `L6`) |
+| L1 P0′ | **not run**: a human playthrough (player plus observer, rubric scored by a person) |
+| L7 | **not run.** The judge-on half of the matrix needs a judge-on journey mode, which `so-journey` does not have: it forces every use off, and v2.4 plan 07 (X12) builds it. The fault matrix live run, cost/latency, the three independent stories, the privacy capture across two stories and the human sessions and NVDA trace are also still open. Concurrent load can now use isolated sessions (`st-lanes.mts`) |
+| V0 | the push is the user's call; nothing pushed |
+
+**v2.3 is therefore frozen as a candidate, NOT accepted.** v2.4's entry condition (D1, "wait for the frozen v2.3 candidate") is met, and the open rows above are carried into v2.4 plan 09 (acceptance) rather than claimed.
