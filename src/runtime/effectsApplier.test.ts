@@ -2,6 +2,7 @@ import type { Checkpoint, NormalizedStoryV2 } from "@engine/index";
 import { parseStoryV2OrThrow } from "@engine/validate";
 import { applyBackground, applyCharacterAN, clearCharacterAN, disableWIEntry, enableWIEntry, executeSlashCommands, setGroupMembersDisabled } from "@services/STAPI";
 import { EffectsApplier, PENDING_NOT_SAVED } from "./effectsApplier";
+import { setScanGatingActive } from "./worldInfoMode";
 import type { RuntimeExtras, RuntimeSnapshot } from "./types";
 
 const mockContext = { chat: [{ mes: "one" }, { mes: "two" }] };
@@ -274,6 +275,21 @@ describe("world_info effect", () => {
     (disableWIEntry as jest.Mock).mockClear();
     await applier.applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "activate", ["one", "two", "three"]);
     expect(calls(disableWIEntry)).toEqual([["Checkpoints", ["One"]]]);
+  });
+
+  it("under scan-time gating (T13 spike) neither the path replay nor the release writes a lorebook; off again, both do", async () => {
+    setScanGatingActive(true);
+    try {
+      await new EffectsApplier().applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
+      await new EffectsApplier().releaseWorldInfo([other, story], story);
+      expect(disableWIEntry).not.toHaveBeenCalled();
+      expect(enableWIEntry).not.toHaveBeenCalled();
+    } finally {
+      setScanGatingActive(false);
+    }
+    await new EffectsApplier().applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
+    await new EffectsApplier().releaseWorldInfo([other, story], story);
+    expect(calls(disableWIEntry)).toEqual([["Checkpoints", ["One"]], ["Other", ["Theirs"]]]);
   });
 
   it("journals a release the host refused", async () => {

@@ -19,8 +19,30 @@ export interface GlobalSettings {
   talk: { enabled: boolean };
   stagecraft: StagecraftSettings;
   judge: JudgeSettings;
+  worldInfo: WorldInfoSettings;
   migratedFromChat?: string;
 }
+
+// v2.4 plan 05 T13 spike. `scan` is never the default and no plan flips it; `normalized` is the
+// install-wide ledger of gated entries whose FILE rests off (book -> comments).
+export type WorldInfoGatingMode = "file" | "scan";
+
+export interface WorldInfoSettings {
+  gatingMode: WorldInfoGatingMode;
+  normalized: Record<string, string[]>;
+}
+
+export const defaultWorldInfoSettings = (): WorldInfoSettings => ({ gatingMode: "file", normalized: {} });
+
+const sanitizeWorldInfoSettings = (value: unknown): WorldInfoSettings => {
+  if (!isRecord(value)) return defaultWorldInfoSettings();
+  const normalized = isRecord(value.normalized)
+    ? Object.fromEntries(Object.entries(value.normalized)
+      .map(([book, comments]): [string, string[]] => [book, Array.isArray(comments) ? [...new Set(comments.filter((comment): comment is string => typeof comment === "string" && comment.trim().length > 0))] : []])
+      .filter(([, comments]) => comments.length > 0))
+    : {};
+  return { gatingMode: value.gatingMode === "scan" ? "scan" : "file", normalized };
+};
 
 export interface ChatOverrides {
   authorView: boolean;
@@ -50,6 +72,7 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   talk: { enabled: true },
   stagecraft: defaultStagecraftSettings(),
   judge: defaultJudgeSettings(),
+  worldInfo: defaultWorldInfoSettings(),
 });
 
 const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -89,6 +112,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
         : defaults.stagecraft.wardenAcceptMode,
     },
     judge: sanitizeJudgeSettings(value.judge),
+    worldInfo: sanitizeWorldInfoSettings(value.worldInfo),
     ...(typeof value.migratedFromChat === "string" ? { migratedFromChat: value.migratedFromChat } : {}),
   };
 };
@@ -158,6 +182,7 @@ export function setGlobalSettings(patch: Partial<{ [K in keyof GlobalSettings]: 
     talk: { ...current.talk, ...(patch.talk ?? {}) },
     stagecraft: { ...current.stagecraft, ...(patch.stagecraft ?? {}) },
     judge: { ...current.judge, ...(patch.judge ?? {}), uses: { ...current.judge.uses, ...(patch.judge?.uses ?? {}) }, expansion: { ...current.judge.expansion, ...(patch.judge?.expansion ?? {}) } },
+    worldInfo: { ...current.worldInfo, ...(patch.worldInfo ?? {}) },
   };
   const sanitized = sanitizeGlobalSettings(next);
   writeSettings(sanitized, Object.keys(patch).join(", "));

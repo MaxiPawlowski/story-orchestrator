@@ -27,6 +27,7 @@ import { onChatWrite } from "./persistence";
 import { onWizardSessionSave } from "./wizardSessions";
 import { loreEvidence } from "./worldInfoEvidence";
 import { startLoreEvidence } from "./worldInfoEvidenceHost";
+import { startScanGating } from "./worldInfoScanHost";
 
 let started = false;
 let bridge: TurnBridge | null = null;
@@ -200,6 +201,22 @@ export function startRuntime() {
   });
   runtimeDisposers.push(() => loreWatch.dispose());
   globalThis.storyOrchestratorLoreEvidence = loreEvidence;
+  // v2.4 plan 05 T13 spike: inert unless `worldInfo.gatingMode` is "scan" (default "file"). The flag
+  // is install-wide, so it is read once the extension settings have loaded, never before.
+  let scanGating: ReturnType<typeof startScanGating> | null = null;
+  let scanGatingDisposed = false;
+  void settingsReady().then(() => {
+    if (scanGatingDisposed || scanGating) return;
+    scanGating = startScanGating({
+      chatId: () => getContext().chatId ?? null,
+      ownedChat: () => runtimeManager.getRunContext().claimedChat ?? null,
+      story: () => runtimeManager.getStory(),
+      path: () => runtimeManager.getEngineState()?.visitedPath ?? [],
+      ownership: runtimeManager.getOwnership(),
+      journal: (summary, note) => runtimeManager.noteRecap(summary, note, "lore"),
+    });
+  });
+  runtimeDisposers.push(() => { scanGatingDisposed = true; scanGating?.dispose(); scanGating = null; });
   let loreAwaitsMessage = false;
   const selectLore = (trigger: "MESSAGE_SENT" | "GENERATION_STARTED") => lore.select(trigger)
     .then((selection) => { if (selection) loreWatch.forced(selection.picks); })
@@ -269,7 +286,7 @@ export function startRuntime() {
   };
   const privateInjectionEntries: HostSubscriptionEntry[] = [
     { eventName: "GROUP_MEMBER_DRAFTED", handler: (characterId) => { generation.drafted(characterId); runtimeManager.onMemberDrafted(characterId as number | [number]); } },
-    { eventName: "GENERATION_STARTED", handler: async (...args: unknown[]) => { loreWatch.reassert(); applyGeneration(generation.started(args, chatLastId() + 1)); await onLoreGenerationStarted(typeof args[0] === "string" ? args[0] : undefined, args[1] as Record<string, unknown> | undefined, args[2] === true); } },
+    { eventName: "GENERATION_STARTED", handler: async (...args: unknown[]) => { loreWatch.reassert(); scanGating?.reassert(); applyGeneration(generation.started(args, chatLastId() + 1)); await onLoreGenerationStarted(typeof args[0] === "string" ? args[0] : undefined, args[1] as Record<string, unknown> | undefined, args[2] === true); } },
     { eventName: "MESSAGE_SENT", handler: async () => { if (!loreAwaitsMessage) return; loreAwaitsMessage = false; await selectLore("MESSAGE_SENT"); } },
     { eventName: "GENERATION_ENDED", handler: (...args: unknown[]) => applyGeneration(generation.ended(args)) },
     { eventName: "GENERATION_STOPPED", handler: (...args: unknown[]) => applyGeneration(generation.stopped(args)) },
