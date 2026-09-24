@@ -52,3 +52,12 @@ test("the host section names the SillyTavern it was built against", { skip: !exi
   const missing = Object.entries(manifest.host.files).filter(([, hash]) => hash === null).map(([path]) => path);
   assert.deepEqual(missing, [], "a host file the extension imports was not found under the host root");
 });
+
+test("ST's loader manifest refuses a host older than the README's declared older host", () => {
+  const loader = JSON.parse(readFileSync(join(root, "manifest.json"), "utf8"));
+  const row = readFileSync(join(root, "README.md"), "utf8").split(/\r?\n/).find((line) => line.startsWith("| Declared older host |"));
+  assert.ok(row, "README.md has no \"Declared older host\" row");
+  const declared = /\|\s*(\d+\.\d+\.\d+)\b/.exec(row.slice("| Declared older host".length))?.[1];
+  assert.ok(declared, `the "Declared older host" row names no version: ${row}`);
+  assert.equal(loader.minimum_client_version, declared, "manifest.json minimum_client_version (ST refuses to load below it, extensions.js:580-590) differs from README's declared older host");
+});

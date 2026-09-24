@@ -300,7 +300,7 @@ const SettingsPanel = () => {
                 <option value="">Select a story</option>
                 {snapshot.library.map((story) => <option key={story.id} value={story.id}>{story.title}</option>)}
               </select>
-              <button id="so-restart-story" className="menu_button fa-solid fa-rotate-left" title="Restart this story in this chat (clears progress and memory for it)" disabled={busy || !snapshot.storyId} onClick={() => void restartStory()} />
+              <button id="so-restart-story" className="menu_button fa-solid fa-rotate-left" title="Restart this story in this chat (clears progress and memory for it)" disabled={busy || (!snapshot.storyId && !snapshot.blobUnreadable)} onClick={() => void restartStory()} />
               <button id="so-delete-story" className="menu_button fa-solid fa-trash-can" title="Delete the selected story from the library" disabled={busy || !snapshot.storyId} onClick={() => void deleteStory()} />
             </div>
             {snapshot.storyId && (
@@ -309,6 +309,7 @@ const SettingsPanel = () => {
                 {identity.drifted && identity.libraryVersion ? ` The library has a newer version (v${identity.libraryVersion}); this chat keeps playing what it started with.` : ""}
               </div>
             )}
+            {snapshot.blobUnreadable && <div id="so-blob-unreadable" className="text-xs opacity-90">This chat's saved story state was {snapshot.blobUnreadable.notice}.</div>}
             <div id="so-retention-note" className="text-xs opacity-70 flex items-center gap-2">
               <span>This chat keeps its progress for the {STORY_STATE_RETENTION} most recent stories; switching to a sixth drops the oldest.</span>
               <button id="so-export-state" className="menu_button" title="Copy this chat's saved story state to the clipboard, before anything can drop it." onClick={() => void copyState()}>Export state</button>

@@ -56,7 +56,7 @@ A chat's story state follows the chat as ST really mutates it:
 | **An unknown version is destroyed.** Any other version, a missing `version`, or v4 with non-record `stories` goes to `migrateMetadataBlob` → null. `getMetadataBlob` then writes `createBlob()` into `chat_metadata`, and the next ST save persists it. This is why X1 forbids a bump | `persistence.ts:55,72-75`; `persistenceMigration.ts:23` | SUMMARY `:44-56`/`:69-72` → `:45-58`/`:72-75` |
 | **v2.3 keeps a v4 blob object as-is.** `metadata[KEY] = current` is the stored object. Unknown top-level fields therefore survive its writes, which only replace `stories[id]` | `persistence.ts:49,56,156` | — |
 | **v2.3 rebuilds the played story's record** on every persist from a fixed field list. An unknown per-record field is dropped (the X1 "worst a downgrade can do") | `runtimeManager.ts:575` | — |
-| V5 foreign stamp: `belongsHere`, detached `createBlob()` with no write, `blobMismatch()`, `ownBlob` refusal, `adoptChatState` (restamps `chatId` only), `restampRenamedChat` | `persistence.ts:34,41-43,60-71,78-93,97-108`; `storySelection.ts:36-47,71` | SUMMARY `:57-67,75-80` → `:60-71,78-83` |
+| V5 foreign stamp: `belongsHere`, detached `createBlob()` with no write, `blobMismatch()`, `ownBlob` refusal, `adoptChatState` (restamps `chatId` only), `restampRenamedChat` | `persistence.ts:34,41-43,60-71,78-93,97-108`; `storySelection.ts:38-50,77` (corrected 2026-09-24: was `:36-47,71`; re-read on `9cb054a`) | SUMMARY `:57-67,75-80` → `:60-71,78-83` |
 | Engine keeps ids only: `BoundaryContext {lastMessageId, chatLength}` | `engine.ts:11-14` | — |
 | Hydrate has **no chat-length reconcile** | `runtimeManager.ts:525-556` (hydrate `:543`) | SUMMARY `:524-543` → `:525-556` |
 | Every edit/swipe/update id rolls back, unchanged text included | `turnBridge.ts:171-189` (corrected 2026-09-24) | plan 01 T1 moved `onMutation` |
@@ -70,7 +70,7 @@ A chat's story state follows the chat as ST really mutates it:
 | Install-wide saves: unverified `saveSettingsDebounced()` | `storyLibrary.ts:69,110,119`; `settingsStore.ts:135,161`; `wizardSessions.ts:44,49` | — |
 | Save watcher wraps `fetch` once and never re-checks. A lost wrap reads as "no save request went out", which is sticky, and `withLedger` then refuses every effect | `stHost/persistence.ts:25,57-77` (`observeNextSave` `:79`) (corrected 2026-09-24); `saveEvidence.ts:44-51`; `saveHealth.ts:18-31`; `effectsApplier.ts:181-189` | SUMMARY `:185` → `:181-189` |
 | `GROUP_UPDATED`/`WORLDINFO_SETTINGS_UPDATED` only `notify()`. Requirements refresh only at commit, activate, load and rollback. `PERSONA_CHANGED` is unsubscribed. not-ready → ready effects apply only at the next boundary | `turnBridge.ts:64-65`; `runtimeManager.ts:266` (commit), `:273-275` (the not-ready → ready re-apply), `:299` (activate), `:555` (load), `:656-659` (`refreshRequirements`) (corrected 2026-09-24); `requirements.ts:7-28` | — |
-| `commitDecision` puts back **whole arrays** captured before the save. Census row `partial` | `memoryQueue.ts:102-121` (callers `:130-232`); `test/findings/ownership-sites.json:276` | — |
+| `commitDecision` puts back **whole arrays** captured before the save. Census row `partial` | `memoryQueue.ts:102-120` (callers `:125-235`) (corrected 2026-09-24: was `:102-121`, callers `:130-232`); `test/findings/ownership-sites.json:276` | — |
 | E1 notice offers Restart only | `rollback.ts:77-86` (corrected 2026-09-24): `:57-66` on `9cb054a`; the §10 wrapper moved it | — |
 | `attestation.test.mjs` hard-codes the records dir `v2.3-plan05-live` (`:16`) and a literal journey list (`:62`). Corrected 2026-09-24: on `9cb054a` the literal already read J0–J12 (V22b), so J12 WAS checked; the defect was the literal itself, which a J13 would silently fall outside of. Built in §10: both are now derived (`scripts/release/attestationChecks.mjs`) | `scripts/release/attestation.test.mjs:16,59-62` | X11 |
 | Manager **677/700** lines, so new logic goes in new modules. Corrected 2026-09-24: **736/740 effective lines** (662 raw); the budget is 740 since V22b (`architecture.test.ts:17`), so the headroom is 4 lines, not 23 | `runtimeManager.ts` | SUMMARY 676 |
@@ -302,7 +302,7 @@ Facts from hidden messages stay `live`, and unhide returns the message to future
 - `memoryQueue`:
   - a row added during the save survives the put-back;
   - a changed row is reported `externally-changed`.
-- Census rows for every new write-after-await (unbind, marker write, reap, requirements apply, reconcile rollback). `typedResults.test.ts` covers `unbindChatLorebook`/`deleteLorebook`. `faultMatrix.json` gets updated rows. `architecture.test.ts` budgets hold (manager ≤700, target ≤690).
+- Census rows for every new write-after-await (unbind, marker write, reap, requirements apply, reconcile rollback). `typedResults.test.ts` covers `unbindChatLorebook`/`deleteLorebook`. `faultMatrix.json` gets updated rows. `architecture.test.ts` budgets hold (manager ≤740 effective lines, zero net growth from 736; corrected 2026-09-24: was "≤700, target ≤690").
 
 **Mutation checks** (`test/findings/mutations/P02-*.txt`). Remove one guard at a time; each must fail exactly its own case:
 1. drop the unrecognized-blob branch
@@ -366,7 +366,7 @@ Records go under `test/journeys/records/v2.4-plan02/`.
 - **The reaper is destructive and driven by an event ST emits even on failure** (H11). The absence check and the marker check are the guards, so their mutation checks are mandatory.
 - **Books mirrored before the marker existed are never reaped** automatically. The Repair row is the only path.
 - **`/api/settings/get` is heavy** (H16). It is rate-limited to one read-back per save burst.
-- **Manager budget** (677/700): every item lands as a module plus a delegation line.
+- **Manager budget** (736/740 effective lines; corrected 2026-09-24: was 677/700): every item lands as a module plus a delegation line, and a delegation line has to be paid for by editing an existing one.
 
 ## Unresolved questions
 
@@ -499,3 +499,93 @@ Not written, by assignment: **unrecognized blob (v5 shape)**, which another agen
 - Tests and gates ("`architecture.test.ts` budgets hold (manager ≤700, target ≤690)") and Risks ("677/700") share
   that stale figure. The live budget is 740, with 4 lines of headroom, so every later item that touches the
   manager must move lines out, not just add a delegation line.
+
+### T11 + seed D (worktree build, 2026-09-24)
+
+Built on `9cb054a` in an agent worktree. Machine gates only: no `npm run build`, no browser, so **no live gate ran and none is claimed green**. The red fixture is written and validated, not run.
+
+**§1 T11 as built**
+- `persistence.ts`: a value under the key that is not a well-shaped v2/v3/v4 (`version` ∈ {2,3,4} as a number AND `stories` a record) is **unrecognized**. `null`/absent still means "no blob". `getMetadataBlob` answers a detached `createBlob()` and writes nothing. `blobMismatch()` is now a union: `{kind:"foreign", stampedFor, openChat}` | `{kind:"unreadable", foundVersion, openChat}`. `foundVersion` is the raw primitive (`5`, `"4"`) or `null` when missing/non-primitive. `ownBlob` refuses both kinds, so `savePersistedRuntime`, `setSelectedStoryId` and `dropPersistedRuntime` refuse. `restampRenamedChat` already refused, because `storedBlob` answers null. `adoptChatState()` now returns a boolean and refuses unreadable. `replaceUnreadableBlob()` is the only overwrite. `unreadableStored()` classifies from the stored value without going through `getMetadataBlob`. `persistenceMigration.ts` is unchanged (still pure).
+- `storySelection.ts`:
+  - `selectStory` (explicit) is refused with `Story not selected: this chat's saved story state was saved by a newer Story Orchestrator (v5): update, or Restart to replace it`. A non-numeric or missing version reads `unreadable by this build (version "4"): Restart to replace it`. The refusal is journaled `blob-unreadable: selecting '<id>' refused, …`.
+  - `loadSelectedStory` journals `blob-unreadable: …` through `clearStory`'s note, like `blob-chat-mismatch`.
+  - `restartStory` works with no story loaded while the blob is unreadable. It asks its own confirm text, replaces only after a yes, starts the story the last refused selection named (same open chat) if any, and journals `blob-unreadable: replaced on a confirmed Restart (…)`.
+- Manager: **0 net lines** (736/740 effective before and after). The one edit is in place: `selectionDeps.setStatus(status, note?)` journals the note through `noteRecap`, the only way selection can journal after a load. `StorySelectionDeps.setStatus` gained the optional `note`.
+- Surfacing, author settings panel only. `RuntimeSnapshot.blobUnreadable?: {foundVersion, notice}` is set from `blobMismatch()` when no story is loaded. `#so-restart-story` is enabled while it is set; otherwise nothing could reach the Restart the message names. `#so-blob-unreadable` states the notice. Player drawer untouched (rule 7).
+- `manifest.json` `"minimum_client_version": "1.18.0"`. `scripts/release/manifest.test.mjs` "ST's loader manifest refuses a host older than the README's declared older host" parses README's `| Declared older host |` row. It runs without `dist/`.
+- H17 re-verified on the ST checkout: `extensions.js:580-590` (read + `versionCompare`), `:658-660` (not loaded, `extensionLoadErrors`), `versionCompare` at `utils.js:2898`.
+- Fault matrix `persistence|malformedResponse` re-cited to the new test. Its old evidence was true only of the migration, because `getMetadataBlob` then destroyed the blob.
+
+**§9 seed D as built** (`memoryQueue.ts`)
+- `commitDecision(deps, next, stores[], before?)`. Callers name the stores they patch, not pre-save arrays.
+- After the patch (and `before()`, so the canon invalidation is included), `diffStore` builds one `DecisionRestore {store, before: Map<id,row|ABSENT>, wrote: Map<id,row|ABSENT>}` per store. Only rows that differ are recorded, and `ABSENT` covers rows the decision added or removed.
+- Ids per store:
+
+  | Store | Id |
+  |---|---|
+  | entries, ledger, epistemic, derived | `.id` |
+  | conflicts | `.key` |
+  | resolvedConflicts, excluded | the string itself |
+  | verifyDrops | `.entry.id` |
+  | canon | the literal `canon` (single value) |
+
+- On a lost save, `putBack` is compare-and-set against the rows current **now** (JSON value compare, the `effectLedger` `same()` shape):
+  - current is the written row → the `before` row goes back (a removed row is re-appended);
+  - current is the `before` row → nothing to do;
+  - anything else → left alone and listed `externallyChanged`.
+- Rows added meanwhile are never touched.
+- A `RunGuard` with **no window** (`deps.run`, wired to `beginRun(ownership)` in the coordinator) is minted at the top and checked before the put-back. A decision whose chat, story, version or epoch moved during the save puts nothing into the memory now loaded. Without it, a removed row whose id is absent in the next chat compares equal to `ABSENT` and would be re-added there.
+- Every outcome goes to `deps.refused(DecisionRefusal | null)`: `{putBack, externallyChanged, lapsed}`. The coordinator keeps the last one (`lastDecisionRefusal()`), exposed as `memoryActions.lastRefusal()`.
+- `ConflictQueue` reads it in the click handler, not during render. `[data-so="decision-refused"]` gains `data-so-outcome="put-back"|"externally-changed"` and, when non-empty, `[data-so="decision-externally-changed"]` naming the rows. Story `ARefusalNamesRowsChangedElsewhere` added.
+- Census `src/runtime/memoryQueue.ts#commitDecision`: `partial` → **`checked`**. The guard agrees because the body calls `run.stillOwns()`. Coordinator effective lines: 597 → 603 of 620.
+
+**Tests.** `src/runtime/blobUnreadable.review.test.ts` (10) covers:
+- per shape (v5, `"4"`, no version, broken `stories`): reads and all automatic writes byte-identical, no `saveMetadata`, load journals `blob-unreadable`;
+- explicit select refused, then Restart starts the refused story;
+- a cancelled Restart changes nothing;
+- a confirmed Restart replaces and journals;
+- controls: v2/v3/v4 are read.
+
+`memoryQueue.test.ts` seed D block (5):
+- D1: an added row survives;
+- D2: a changed row is left alone and reported `externally-changed`;
+- D3: a chat left during the save gets nothing;
+- a control;
+- `diffStore`.
+
+`blobForeign.review.test.ts` expects `kind:"foreign"`. The persistence mocks in `storySelectionOwnership`/`storyImportWarnings` gained `adoptChatState → true` and `unreadableStored`.
+
+**Mutations** (each alone, file restored, full text in the records):
+- `test/findings/mutations/v24-02-T11.txt`: **6/6 killed**.
+  - T11-3 (Restart ignores the confirm) also fails the pre-existing `storyIdentity` "restart does nothing when the confirm is declined", which guards the same shared line.
+  - The first run coupled T11-2 to two cases, so the Restart case was split.
+- `test/findings/mutations/v24-02-seedD.txt`: **5/5 killed**.
+  - S1 (plan mutation 12, whole-array restore) fails D1 and D2, the plan's two rows.
+  - A first S5 mutant was malformed and survived; it was rewritten and then killed.
+
+**Red fixture** `test/scenarios/v24-02-unrecognized-blob.json` (9 steps, 5 evals):
+- validated: `validateFixture` → `[]`, `globalsReadButNeverWritten` → `[]`, every eval compiles under `new Function`;
+- **not run**;
+- red on `9cb054a` by reading: `seed_metadata` calls `loadSelectedFromChat`, the old `getMetadataBlob` writes `createBlob()` over the v5 blob, and step 2 finds version 4.
+
+**Gates** (worktree, `node_modules` symlinked to the main checkout's):
+
+| Gate | Result |
+|---|---|
+| `npm run typecheck` | 0 |
+| `npm run typecheck:test` | 0 |
+| `npm run lint` | 0 |
+| `npm test` | 179/179 suites, 2755/2755 tests; fault matrix 55 covered / 10 partial / 16 na / 0 todo (of 81) |
+| `npm run debug:typecheck` | 0 |
+| `npm run test:debug` | 192 tests: 190 pass, **1 fail**, 1 skip |
+| `npm run test:release` | 18 tests: 14 pass, 0 fail, 4 skip |
+
+- The `test:debug` fail is `so-run-header.test.mts` "the build half reads plan 08s nested manifest". It reads `dist/manifest.json`, which does not exist without a build, and nothing here touches it.
+- The `test:debug` skip is "every event name src/ subscribes to…": no ST checkout at the relative `ST_ROOT` from a worktree.
+- The four `test:release` skips are the `manifest.test.mjs` cases that need `dist/index.js`.
+
+**Deviations and open items**
+- Mutation records are named `v24-02-T11.txt`/`v24-02-seedD.txt` as the build instruction asked, not `P02-*.txt` as §Tests and gates says.
+- `StorySelectionDeps.setStatus` gained a `note` parameter to journal without a manager line. The alternative, a `journal` dep, costs a line.
+- The put-back re-appends a removed row at the end of its array, not at its old index. Order in these stores is not semantic: conflicts are sorted at render, and `resolvedConflicts` only matters to its cap.
+- Not built: J10.13 (the live counterpart), the `plan02-downgrade-guard` scenario name (the fixture is `v24-02-unrecognized-blob.json`), and the live gate. All need a browser and a build.

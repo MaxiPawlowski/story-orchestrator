@@ -1,6 +1,6 @@
 import { isValidationErrorList, storyWarnings, type NormalizedStoryV2, type ValidationError } from "@engine/index";
 import { showConfirmPopup } from "@services/STAPI";
-import { adoptChatState, blobMismatch, dropPersistedRuntime, getSelectedStoryId, loadPersistedRuntime, setSelectedStoryId } from "./persistence";
+import { adoptChatState, blobMismatch, describeMismatch, dropPersistedRuntime, getSelectedStoryId, loadPersistedRuntime, replaceUnreadableBlob, setSelectedStoryId, unreadableNotice, unreadableStored } from "./persistence";
 import { findStoryRecord, listStoryRecords, loadPinnedStory, loadStoryRecord, removeStoryRecord, saveStoryRecord } from "./storyLibrary";
 import type { RunGuard } from "./runToken";
 import type { LoadedStory, PersistedStoryRuntime } from "./types";
@@ -15,7 +15,7 @@ export interface StorySelectionDeps {
   beginRun?: () => RunGuard;
   fail: (errors: ValidationError[], status: string) => void;
   warn?: (warnings: ValidationError[]) => void;
-  setStatus: (status: string) => void;
+  setStatus: (status: string, note?: string) => void;
   isLoaded: (id: string) => boolean;
   loadedFallback: () => LoadedStory | null;
 }
@@ -35,14 +35,20 @@ export async function releaseGatedWorldInfo(
   await effects.releaseWorldInfo(owners, keep, run).catch((error) => console.warn("[Story Orchestrator] could not release checkpoint world info", error));
 }
 
+let refusedSelection: { chat: string | null; storyId: string } | null = null;
+
 export async function loadSelectedStory(deps: StorySelectionDeps): Promise<boolean> {
   await deps.restoreEffects?.("leave");
   const id = getSelectedStoryId();
   if (!id) {
-    const foreign = blobMismatch();
+    const found = blobMismatch();
     await deps.clearStory(
-      foreign ? "No story selected: this chat's saved story state is stamped for another chat" : "No story selected for this chat",
-      foreign ? `blob-chat-mismatch: stamped for ${foreign.stampedFor}, open chat is ${String(foreign.openChat)}; the stored state was left untouched` : undefined,
+      !found ? "No story selected for this chat"
+        : found.kind === "foreign" ? "No story selected: this chat's saved story state is stamped for another chat"
+          : `No story selected: this chat's saved story state was ${unreadableNotice(found)}`,
+      !found ? undefined
+        : found.kind === "foreign" ? `blob-chat-mismatch: stamped for ${found.stampedFor}, open chat is ${String(found.openChat)}; the stored state was left untouched`
+          : `blob-unreadable: ${describeMismatch(found)}, open chat is ${String(found.openChat)}; the stored state was left untouched`,
     );
     return false;
   }
@@ -74,7 +80,14 @@ export async function importStoryJson(deps: StorySelectionDeps, rawText: string)
 // (library edits, and even deletion, cannot reach it); a story new to this chat pins the version the
 // library holds right now. Reset lives only in restartStory().
 export async function selectStory(deps: StorySelectionDeps, idOrHash: string, chosen = true): Promise<boolean> {
-  if (chosen) adoptChatState();
+  if (chosen && !adoptChatState()) {
+    const found = unreadableStored();
+    if (found) {
+      refusedSelection = { chat: found.openChat, storyId: idOrHash };
+      deps.setStatus(`Story not selected: this chat's saved story state was ${unreadableNotice(found)}`, `blob-unreadable: selecting '${idOrHash}' refused, ${describeMismatch(found)}; the stored state was left untouched`);
+    }
+    return false;
+  }
   const record = findStoryRecord(idOrHash);
   const persisted = loadPersistedRuntime(idOrHash) ?? (record ? loadPersistedRuntime(record.id) : null);
   if (persisted?.pinnedStory) {
@@ -101,13 +114,25 @@ export async function selectStory(deps: StorySelectionDeps, idOrHash: string, ch
 // The only reset path. Drops this chat's progress for the story and re-pins the latest library
 // version, so a restart also adopts whatever the author changed meanwhile.
 export async function restartStory(deps: StorySelectionDeps, currentId: string | null, alreadyConfirmed = false): Promise<boolean> {
-  const id = currentId ?? getSelectedStoryId();
-  if (!id) return false;
+  const unreadable = currentId ? null : unreadableStored();
+  const refused = unreadable && refusedSelection?.chat === unreadable.openChat ? refusedSelection.storyId : null;
+  const id = currentId ?? (unreadable ? refused : getSelectedStoryId());
+  if (!id && !unreadable) return false;
   // V3: the confirmation waits as long as the player does, and dropping progress afterwards would drop
   // it in whatever chat is open by then.
   const run = deps.beginRun?.();
-  const confirmed = alreadyConfirmed || await showConfirmPopup("Restart this story? The chat keeps its messages, but checkpoint progress, blackboard and story memory are cleared.", { okButton: "Restart story", cancelButton: "Keep playing" });
+  const question = unreadable
+    ? `This chat's saved story state was ${unreadableNotice(unreadable)}. Restart replaces it with a fresh start; the chat keeps its messages.`
+    : "Restart this story? The chat keeps its messages, but checkpoint progress, blackboard and story memory are cleared.";
+  const confirmed = alreadyConfirmed || await showConfirmPopup(question, { okButton: "Restart story", cancelButton: "Keep playing" });
   if (!confirmed || (run && !run.stillOwns())) return false;
+  if (unreadable && !replaceUnreadableBlob()) return false;
+  const note = unreadable ? `blob-unreadable: replaced on a confirmed Restart (${describeMismatch(unreadable)})` : undefined;
+  if (unreadable) refusedSelection = null;
+  if (!id) {
+    deps.setStatus("Unreadable story state replaced", note);
+    return true;
+  }
   const fallback = deps.loadedFallback();
   await deps.restoreEffects?.("restart");
   if (run && !run.stillOwns()) return false;
@@ -117,7 +142,7 @@ export async function restartStory(deps: StorySelectionDeps, currentId: string |
   const next = fromLibrary && !isValidationErrorList(fromLibrary) ? fromLibrary : fallback;
   if (!next) return false;
   await deps.loadStory(next, "activate");
-  deps.setStatus("Story restarted");
+  deps.setStatus("Story restarted", note);
   return true;
 }
 

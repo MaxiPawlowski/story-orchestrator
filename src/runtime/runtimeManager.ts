@@ -247,7 +247,7 @@ export class RuntimeManager {
     },
     fail: (errors, status) => { this.validationErrors = errors; this.status = status; this.notify(); },
     warn: (warnings) => this.noteRecap(`story imported with ${warnings.length} warning(s)`, warnings.map((warning) => `${warning.path}: ${warning.message}`).join("\n")),
-    setStatus: (status) => { this.status = status; this.notify(); },
+    setStatus: (status, note) => { if (note) this.noteRecap(status, note); this.status = status; this.notify(); },
     isLoaded: (id) => this.loaded?.record.id === id,
     loadedFallback: () => (this.loaded ? { ...this.loaded } : null),
   };

@@ -11,7 +11,7 @@ jest.mock("@services/STAPI", () => ({
 
 import { activeEpistemic, createMemoryState, dropByMessageId, provenance, sceneConflictValues, type LedgerEntry, type MemoryEntry } from "@memory/index";
 import type { SceneReadRecord } from "@judge/index";
-import { boundValuesFor, detectMemoryConflicts, discardMemoryRow, dismissMemoryConflict, getConflicts, reconfirmMemoryEntry, rereadConflictWindow, resolveMemoryConflict, storeDroppedEntry, type MemoryQueueDeps } from "./memoryQueue";
+import { ABSENT, boundValuesFor, detectMemoryConflicts, diffStore, discardMemoryRow, dismissMemoryConflict, getConflicts, reconfirmMemoryEntry, rereadConflictWindow, resolveMemoryConflict, storeDroppedEntry, type DecisionRefusal, type MemoryQueueDeps } from "./memoryQueue";
 import type { MemoryRuntimeState } from "./types";
 
 // v2.3 plan 05 (C3). The reconciliation queue's side of the author conversation: what a decision does
@@ -414,5 +414,75 @@ describe("V8: Discard is written or it is put back", () => {
     const h = harness({ memory: full(), save });
     expect(await discardMemoryRow(h.deps, "gone")).toBe(false);
     expect(save).not.toHaveBeenCalled();
+  });
+});
+
+describe("seed D: a lost decision is put back per row, compare-and-set (v2.4 plan 02)", () => {
+  const key = "fact:m1:mara|condition";
+  const conflicted = () => ({ ...entry(), provenance: { ...entry().provenance!, validity: "conflicted" as const } });
+  const quarantined = () => ({ ...entry(), provenance: { ...entry().provenance!, validity: "source-removed" as const } });
+  const lost = () => true;
+  const refusals = (h: ReturnType<typeof harness>) => {
+    const seen: Array<DecisionRefusal | null> = [];
+    h.deps.refused = (refusal) => { seen.push(refusal); };
+    return seen;
+  };
+  beforeEach(() => { jest.spyOn(console, "warn").mockImplementation(() => undefined); });
+  afterEach(() => jest.restoreAllMocks());
+
+  it("D1: a row another writer added during the save survives the put-back", async () => {
+    const h = harness({ memory: state({ entries: [conflicted()], conflicts: memoryConflict() }), unsaved: lost });
+    const added = entry({ id: "m9", text: "The ferry leaves at dawn", messageId: 11 });
+    h.deps.save = async () => { h.deps.patch({ entries: [...h.read().entries, added] }); };
+    expect(await resolveMemoryConflict(h.deps, key, "m1", true)).toBe(false);
+    expect(h.read().entries.map((row) => row.id)).toEqual(["m1", "m9"]);
+    expect(h.read().entries[0].provenance?.validity).toBe("conflicted");
+    expect(h.read().entries[0].locked).toBeUndefined();
+    expect(h.read().conflicts).toHaveLength(1);
+    expect(h.read().resolvedConflicts).toEqual([]);
+  });
+
+  it("D2: a row another writer changed during the save is left as that writer left it, and reported externally-changed", async () => {
+    const h = harness({ memory: state({ entries: [quarantined(), entry({ id: "m2", text: "The bridge is out" })] }), unsaved: lost });
+    const seen = refusals(h);
+    h.deps.save = async () => { h.deps.patch({ entries: h.read().entries.map((row) => (row.id === "m1" ? { ...row, text: "Mara's condition is critical" } : row)) }); };
+    expect(await reconfirmMemoryEntry(h.deps, "m1", "t")).toBe(false);
+    expect(h.read().entries.find((row) => row.id === "m1")?.text).toBe("Mara's condition is critical");
+    expect(h.read().entries.find((row) => row.id === "m1")?.provenance?.override).toBeDefined();
+    expect(seen).toEqual([{ putBack: [], externallyChanged: ["m1"], lapsed: null }]);
+  });
+
+  it("D3: a decision whose chat was left during the save puts nothing into the chat now open", async () => {
+    const h = harness({ memory: state({ entries: [quarantined()], verifyDrops: [] }), unsaved: lost });
+    const seen = refusals(h);
+    let owned = true;
+    h.deps.run = () => ({ stillOwns: () => owned, lapsed: () => (owned ? null : "chat"), lapsedDetail: () => (owned ? null : "chat: another chat is open") });
+    const otherChat = state({ entries: [entry({ id: "b1", text: "Chat B's own fact" })] });
+    h.deps.save = async () => { h.deps.patch(otherChat); owned = false; };
+    expect(await discardMemoryRow(h.deps, "m1")).toBe(false);
+    expect(h.read().entries.map((row) => row.id)).toEqual(["b1"]);
+    expect(h.read().excluded).toEqual([]);
+    expect(h.read().derived).toEqual([]);
+    expect(seen).toEqual([{ putBack: [], externallyChanged: [], lapsed: "chat: another chat is open" }]);
+  });
+
+  it("control: with nothing written meanwhile, every touched row goes back and the refusal lists them", async () => {
+    const h = harness({ memory: state({ entries: [conflicted()], conflicts: memoryConflict() }), unsaved: lost });
+    const seen = refusals(h);
+    const before = h.read();
+    expect(await resolveMemoryConflict(h.deps, key, "m1", true)).toBe(false);
+    expect(JSON.stringify(h.read().entries)).toBe(JSON.stringify(before.entries));
+    expect(h.read().canon).toEqual(before.canon);
+    expect(seen[0]?.externallyChanged).toEqual([]);
+    expect(seen[0]?.putBack.sort()).toEqual(["canon", key, key, "m1"].sort());
+  });
+
+  it("diffStore names only the rows a decision touched, with ABSENT for a row it added or removed", () => {
+    const prior = state({ entries: [entry(), entry({ id: "m2" })] });
+    const written = state({ entries: [entry({ id: "m2" }), entry({ id: "m3" })] });
+    const restore = diffStore("entries", prior, written);
+    expect([...restore.before.keys()].sort()).toEqual(["m1", "m3"]);
+    expect(restore.wrote.get("m1")).toBe(ABSENT);
+    expect(restore.before.get("m3")).toBe(ABSENT);
   });
 });

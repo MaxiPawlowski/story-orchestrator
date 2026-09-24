@@ -33,28 +33,58 @@ const createBlob = (): StoryOrchestratorMetadataBlob => ({ version: 4, chatId: o
  */
 const belongsHere = (blob: StoryOrchestratorMetadataBlob): boolean => blob.chatId === null || blob.chatId === openChatId();
 
-export interface BlobMismatch {
-  stampedFor: string;
-  openChat: string | null;
-}
+export type BlobMismatch =
+  | { kind: "foreign"; stampedFor: string; openChat: string | null }
+  | { kind: "unreadable"; foundVersion: number | string | null; openChat: string | null };
 
 let mismatch: BlobMismatch | null = null;
 
 export const blobMismatch = (): BlobMismatch | null => mismatch;
 
+const KNOWN_VERSIONS: unknown[] = [2, 3, 4];
+
+const storedValue = (): unknown => (getContext().chatMetadata as Record<string, unknown>)[METADATA_KEY];
+
+const recognized = (value: unknown): value is Record<string, unknown> => isRecord(value) && KNOWN_VERSIONS.includes(value.version) && isRecord(value.stories);
+
+const unrecognized = (value: unknown): boolean => value !== undefined && value !== null && !recognized(value);
+
+const foundVersionOf = (value: unknown): number | string | null => {
+  const version = isRecord(value) ? value.version : undefined;
+  return typeof version === "number" || typeof version === "string" ? version : null;
+};
+
+export const describeMismatch = (found: BlobMismatch): string => (found.kind === "foreign"
+  ? `stamped for chat ${found.stampedFor}`
+  : `unreadable by this build (version ${found.foundVersion === null ? "missing" : JSON.stringify(found.foundVersion)})`);
+
+export type UnreadableBlob = Extract<BlobMismatch, { kind: "unreadable" }>;
+
+export const unreadableNotice = (found: UnreadableBlob): string => (typeof found.foundVersion === "number" && found.foundVersion > 4
+  ? `saved by a newer Story Orchestrator (v${found.foundVersion}): update, or Restart to replace it`
+  : `${describeMismatch(found)}: Restart to replace it`);
+
 const storedBlob = (): StoryOrchestratorMetadataBlob | null => {
-  const context = getContext();
-  const metadata = context.chatMetadata as Record<string, unknown>;
-  const existing = metadata[METADATA_KEY];
-  const current = isRecord(existing) && existing.version === 4 && isRecord(existing.stories)
+  const metadata = getContext().chatMetadata as Record<string, unknown>;
+  const existing = storedValue();
+  if (!recognized(existing)) return null;
+  const current = existing.version === 4
     ? (existing as unknown as StoryOrchestratorMetadataBlob)
     // v3 is one step behind: it has the right shape and only wants the stamp. v2 and earlier go
     // through the full migration, which ends by calling migrateV3ToV4 itself.
-    : isRecord(existing) && existing.version === 3 && isRecord(existing.stories)
+    : existing.version === 3
       ? migrateV3ToV4(existing as unknown as { selectedStoryId: string | null; stories: StoryOrchestratorMetadataBlob["stories"] })
-      : isRecord(existing) ? migrateMetadataBlob(existing, listStoryRecords()) : null;
+      : migrateMetadataBlob(existing, listStoryRecords());
   if (current && belongsHere(current)) metadata[METADATA_KEY] = current;
   return current;
+};
+
+const noteMismatch = (next: BlobMismatch) => {
+  if (JSON.stringify(mismatch) !== JSON.stringify(next)) {
+    const tag = next.kind === "foreign" ? "blob-chat-mismatch" : "blob-unreadable";
+    console.warn(`[Story Orchestrator] ${tag}: chat_metadata holds state ${describeMismatch(next)} while ${String(next.openChat)} is open; left untouched, read as no story selected`);
+  }
+  mismatch = next;
 };
 
 export function getMetadataBlob(): StoryOrchestratorMetadataBlob {
@@ -64,9 +94,12 @@ export function getMetadataBlob(): StoryOrchestratorMetadataBlob {
     return current;
   }
   if (current) {
-    const next = { stampedFor: String(current.chatId), openChat: openChatId() };
-    if (mismatch?.stampedFor !== next.stampedFor || mismatch.openChat !== next.openChat) console.warn(`[Story Orchestrator] blob-chat-mismatch: chat_metadata holds state stamped for chat ${next.stampedFor} while ${String(next.openChat)} is open; left untouched, read as no story selected`);
-    mismatch = next;
+    noteMismatch({ kind: "foreign", stampedFor: String(current.chatId), openChat: openChatId() });
+    return createBlob();
+  }
+  const existing = storedValue();
+  if (unrecognized(existing)) {
+    noteMismatch({ kind: "unreadable", foundVersion: foundVersionOf(existing), openChat: openChatId() });
     return createBlob();
   }
   mismatch = null;
@@ -75,22 +108,38 @@ export function getMetadataBlob(): StoryOrchestratorMetadataBlob {
   return blob;
 }
 
+export const unreadableStored = (): UnreadableBlob | null => {
+  const existing = storedValue();
+  return unrecognized(existing) ? { kind: "unreadable", foundVersion: foundVersionOf(existing), openChat: openChatId() } : null;
+};
+
 const ownBlob = (write: string): StoryOrchestratorMetadataBlob | null => {
   const blob = getMetadataBlob();
   if (!mismatch) return blob;
-  console.warn(`[Story Orchestrator] ${write} refused: this chat's metadata holds state stamped for chat ${mismatch.stampedFor}`);
+  console.warn(`[Story Orchestrator] ${write} refused: this chat's metadata holds state ${describeMismatch(mismatch)}`);
   return null;
 };
 
 /** An explicit choice made in the open chat adopts a foreign-stamped blob (an imported chat file
- *  carries its original id). The swap race cannot reach here: nobody clicks inside it. */
-export const adoptChatState = () => {
+ *  carries its original id). The swap race cannot reach here: nobody clicks inside it. A blob this
+ *  build cannot read is never adopted: only a confirmed Restart replaces it. */
+export const adoptChatState = (): boolean => {
   const current = storedBlob();
-  if (!current || belongsHere(current)) return;
+  if (!current) return !unrecognized(storedValue());
+  if (belongsHere(current)) return true;
   current.chatId = openChatId();
   (getContext().chatMetadata as Record<string, unknown>)[METADATA_KEY] = current;
   mismatch = null;
+  return true;
 };
+
+export function replaceUnreadableBlob(): boolean {
+  if (!unrecognized(storedValue())) return false;
+  mismatch = null;
+  (getContext().chatMetadata as Record<string, unknown>)[METADATA_KEY] = createBlob();
+  void getContext().saveMetadata?.();
+  return true;
+}
 
 /** ST keeps a chat's metadata across a rename but the chat id is its file name, so the stamp has to
  *  follow it — or every renamed chat reads as someone else's and loses its story. */

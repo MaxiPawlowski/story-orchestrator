@@ -1,0 +1,19 @@
+v2.4 plan 02 §1 T11 guard + host minimum, mutations 2026-09-24 (worktree build on 9cb054a; script .debug/mutate_p02.py T11, each mutant applied alone to the source, the file restored byte-for-byte after its run)
+Suites run for every mutant: blobUnreadable.review, blobForeign.review, storySelectionOwnership.review, storyImportWarnings.review, persistenceMigration, persistenceRetention, storyIdentity (49 tests; baseline 49/49 green, restored 49/49 green).
+
+- T11-1 (plan mutation 1) drop the unrecognized-blob branch in getMetadataBlob, so an unreadable blob falls through to createBlob() written into chat_metadata (persistence.ts): KILLED, 4 of 49 failed, all four the it.each rows of its own case
+    "<shape>: every read and every automatic write leaves chat_metadata byte-identical, and the load journals blob-unreadable" x {v5, "4", no version, v4 with non-record stories}
+- T11-2 adoptChatState adopts an unreadable blob instead of refusing (`if (!current) return true`) (persistence.ts): KILLED, 1 of 49 failed
+    "an explicit selection is refused, names the newer build, adopts nothing, and is the story a confirmed Restart then starts"
+- T11-3 Restart ignores the confirmation (the `!confirmed` guard dropped) (storySelection.ts): KILLED, 2 of 49 failed
+    "Restart overwrites nothing until it is confirmed" (its own case)
+    storyIdentity "restart does nothing when the confirm is declined" -- the pre-existing case over the SAME line: the guard is shared by every restart, so a mutant that drops it for the unreadable path drops it for all of them. Not collateral from an unrelated guard.
+- T11-4 a confirmed Restart does not replace the unreadable blob (storySelection.ts): KILLED, 1 of 49 failed
+    "a confirmed Restart replaces it with a fresh blob and journals it"
+- T11-5 a well-shaped v3 blob classified unreadable (KNOWN_VERSIONS [2, 4]) (persistence.ts): KILLED, 1 of 49 failed
+    "control: a well-shaped v3 blob is read, not refused"
+- T11-6 manifest.json minimum_client_version "1.18.0" -> "1.19.0" (applied by hand, restored from .debug/manifest.bak): KILLED
+    scripts/release/manifest.test.mjs "ST's loader manifest refuses a host older than the README's declared older host" (not ok 5; 1 pass -> 0 pass)
+
+6/6 killed. First run found the Restart case coupled to the selection case (T11-2 failed both, because the story a Restart starts is the one the selection refused); the confirm-replaces case was split from the refused-story case, after which each mutant fails only the case(s) named above.
+Not mutation-run: restampRenamedChat refusal. It refuses by construction (storedBlob answers null for an unrecognized value, so the `current.chatId !== from` test never reaches a write) and is asserted inside the T11-1 case; there is no separate guard line to remove.

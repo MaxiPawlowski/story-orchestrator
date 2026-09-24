@@ -8,7 +8,7 @@ import { buildNarrativeStatus, type RollbackNotice, type RollbackUnavailable } f
 import { agencyRecovery as agencyRecoveryOf, REFUSAL_PLAYER_TEXT, type AgencyRecovery } from "./agencyRecovery";
 import { derivePipelineStatus, expansionInFlight } from "./pipeline";
 import { hasUnsavedChanges, SAVE_PLAYER_TEXT } from "./saveHealth";
-import { loadPersistedRuntime } from "./persistence";
+import { blobMismatch, loadPersistedRuntime, unreadableNotice } from "./persistence";
 import { findStoryRecord, listStoryRecords } from "./storyLibrary";
 import { buildNextTurnPreview } from "./nextTurn";
 import type { InjectedPromptBlock } from "@services/STAPI";
@@ -92,12 +92,15 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     agencyNotice: agencyRecovery ? REFUSAL_PLAYER_TEXT : null,
     objectiveKind: agency.objective_kind,
   });
+  const mismatch = loaded ? null : blobMismatch();
+  const unreadable = mismatch?.kind === "unreadable" ? mismatch : null;
 
   return {
     ready: Boolean(loaded),
     storyId: loaded?.record.id ?? null,
     storyHash: loaded?.record.hash ?? null,
     storyIdentity: buildStoryIdentity(loaded?.record ?? null, loaded ? findStoryRecord(loaded.record.id) : null, Boolean(loaded && loadPersistedRuntime(loaded.record.id)?.pinnedStory)),
+    blobUnreadable: unreadable ? { foundVersion: unreadable.foundVersion, notice: unreadableNotice(unreadable) } : null,
     storyTitle: story?.title ?? null,
     storyDescription: story?.description ?? null,
     activeCheckpointId: active?.id ?? null,

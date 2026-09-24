@@ -341,6 +341,7 @@ export interface RuntimeSnapshot {
   storyId: string | null;
   storyHash: string | null;
   storyIdentity: StoryIdentity;
+  blobUnreadable?: { foundVersion: number | string | null; notice: string } | null;
   storyTitle: string | null;
   storyDescription: string | null;
   activeCheckpointId: string | null;
