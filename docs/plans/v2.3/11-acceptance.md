@@ -975,3 +975,10 @@ The bundle changed between batches because the matrix found defects, so each pai
   - The 900 s wait then ran with nobody talking.
   - Nothing in the engine is wrong: a delta applies at the NEXT boundary, and one boundary fires one transition. The fixture now lets the reads settle and plays one neutral turn before each checkpoint wait (J7.1–J7.6), as any player would. Failed run: `failed-batch4/J7-run1.log`.
 - The batch's header diff is 0 blocking (`batch4-header-diff.txt`).
+
+#### L2 batch 5 (2026-09-24, J7 with the neutral turn, bundle `1e5c36951d65`)
+
+- **Run 2: J7 green, 8/8** — the first full sun-ruins playthrough to the finale with every automated check passing (`records/v2.3-acceptance/J7-single/`).
+- **Run 1: 7/8**, failing J7.1 in the harness. A send waited 60 s for the send button while the previous group round was still drafting members (`failed-batch4/J7-run1-batch5.log`).
+  - `sendUserMessage`'s pre-send wait was a fixed 60 s. It now shares the caller's generation budget, as a player waits for the whole round.
+- **J7 therefore has no consecutive pair yet.** The pod reached its 8 h cap before a third run.

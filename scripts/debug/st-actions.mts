@@ -74,7 +74,7 @@ export async function sendCompactMessage(page, text) {
   return executeSlashCommand(page, `/send compact=true ${text}`);
 }
 
-export async function sendUserMessage(page, text, { idleTimeoutMs = 300000, preSendIdleTimeoutMs = 60000, expectReply = false } = {}) {
+export async function sendUserMessage(page, text, { idleTimeoutMs = 300000, preSendIdleTimeoutMs = undefined, expectReply = false } = {}) {
   if (!text || typeof text !== 'string') {
     throw new Error('sendUserMessage requires a non-empty text string.');
   }
@@ -82,7 +82,10 @@ export async function sendUserMessage(page, text, { idleTimeoutMs = 300000, preS
   // A prior turn must finish before we type, but this wait is not the caller's generation budget:
   // hard-coded at 15s it blew up as soon as the pod moved to a slower card and ordinary turns ran
   // past it, failing checks whose own timeoutMs was 300000 (2026-09-20).
-  await waitForIdle(page, preSendIdleTimeoutMs);
+  // L2 2026-09-24 (J7.1): a group round outlasted a fixed 60 s between members; a player waits for the
+  // whole round, so the wait before sending shares the caller's generation budget.
+  const preSend = preSendIdleTimeoutMs ?? Math.max(60000, idleTimeoutMs ?? 300000);
+  await waitForIdle(page, preSend);
 
   const textarea = page.locator('#send_textarea');
   if (!(await textarea.count())) {
@@ -103,7 +106,7 @@ export async function sendUserMessage(page, text, { idleTimeoutMs = 300000, preS
   // A hidden send button means ST is still generating (a group drafts members one after another), and
   // a player cannot send then either. The wait used to be a fixed 15 s, which a slow member outlasted
   // (J3.1, 2026-09-23); it now shares the pre-send idle budget.
-  await sendBtn.waitFor({ state: 'visible', timeout: preSendIdleTimeoutMs });
+  await sendBtn.waitFor({ state: 'visible', timeout: preSend });
   // `force` skips only Playwright's frame-to-frame stability check. A page Chrome treats as
   // occluded runs requestAnimationFrame at about 1 fps, so that check timed out on a button that
   // never moved (J3.1, twice in three runs, 2026-09-23). The visible wait above still holds, and
