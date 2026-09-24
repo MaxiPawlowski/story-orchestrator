@@ -375,7 +375,6 @@ None open. The three from the first draft are settled:
 _Placeholder — date, exact commands and outputs, mutation file, live records under
 `test/journeys/records/v2.4-plan03/`, deviations. Filled when the plan closes._
 
-<<<<<<< HEAD
 ### Budget modules (worktree build, 2026-09-24)
 
 Scope: the PURE half of D5 plus the H12 host read. Built on master `d7bd4ed`. Not wired into any coordinator
@@ -431,7 +430,7 @@ off-by-one in pack, early close, oversized dropped, last window lost, tail-fit s
 - Counting: ST's `getTokenCountAsync` is async (H11, main-API tokenizer), the modules take a sync counter. The
   caller must pre-count (e.g. `countTokensBatch` into a cache) or pass a sync estimator; truncation of an
   oversized message counts arbitrary prefixes, so a pure cache is not enough for that path.
-=======
+
 ### Wedges + snapshot reset (worktree build, 2026-09-24)
 
 Built on `d7bd4ed` in a worktree, in parallel with the seam (D1/D2/D3 breaker) and budget (D5) agents. Scope: D4 both wedges
@@ -531,4 +530,3 @@ E5 survived the first pass and was killed after a case was added. Storybook M-SB
 - The in-flight abort on Stop waits on the seam, as above.
 - The plan's combined mutation file `v2.4-03-off-path.txt` is not written. These rows live in
   `v24-03-wedges.txt`, named like `v24-02-T8.txt`.
->>>>>>> worktree-agent-a9662110d6cf9b619
