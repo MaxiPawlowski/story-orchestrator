@@ -167,3 +167,26 @@ describe("E1, asserted on the runtime and not on an object the test built", () =
     must(h.rollbackFromMessage.mock.calls.length === 1, "what the edit invalidated was kept in memory");
   });
 });
+
+describe("v2.4 plan 02 §10: every runRollback leaves its outcome on the notices", () => {
+  it("records noop, history-unavailable and a missing id in order, each with a rising seq", async () => {
+    const h = harness();
+    await runRollback(h.deps, 3);
+    expect(h.deps.notices.lastOutcome).toMatchObject({ seq: 1, result: "noop", fromMessage: 3 });
+    (h.deps.engine as unknown as { boundaryBeforeMessage: () => null }).boundaryBeforeMessage = () => null;
+    (h.deps.engine as unknown as { historyFrom: () => { boundary: number; messageId: number } }).historyFrom = () => ({ boundary: 6, messageId: 11 });
+    (h.deps.journal as unknown as { record: () => void }).record = jest.fn();
+    await runRollback(h.deps, 1);
+    expect(h.deps.notices.lastOutcome).toMatchObject({ seq: 2, result: "history-unavailable", fromMessage: 1, reason: "oldest restorable boundary 6 (message 11)" });
+    await runRollback(h.deps, Number.NaN);
+    expect(h.deps.notices.lastOutcome).toMatchObject({ seq: 3, result: "noop", fromMessage: null, reason: "no usable message id" });
+  });
+
+  it("records an applied rollback with the message it started from", async () => {
+    const h = harness();
+    Object.assign(h.deps.engine, { shouldRollbackFromMessage: () => true, rollbackTo: () => ({ ok: true, result: "applied" }), activeCheckpoint: { name: "The Gate" } });
+    await expect(runRollback(h.deps, 2)).resolves.toEqual({ ok: true, result: "applied" });
+    expect(h.deps.notices.lastOutcome).toMatchObject({ seq: 1, result: "applied", fromMessage: 2 });
+    expect(h.deps.notices.lastOutcome).not.toHaveProperty("reason");
+  });
+});

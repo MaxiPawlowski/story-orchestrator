@@ -17,6 +17,12 @@ export interface SchedulerSettings {
 
 export const PRESSURE_DEFAULT_THRESHOLD = 3;
 
+export interface NextReadWindow {
+  source: "queued" | "cadence";
+  reason: string;
+  window: SharedReadWindow;
+}
+
 export interface ReadOwnership {
   stillOwns(): boolean;
   lapsedDetail(): string | null;
@@ -157,6 +163,14 @@ export class ExtractionScheduler {
       }
     }
     void this.pumpHeavy();
+  }
+
+  nextReadWindow(lastMessageId: number): NextReadWindow | null {
+    const queued = this.queue.find((job) => job.window);
+    if (queued?.window) return { source: "queued", reason: queued.reason, window: queued.window };
+    const stableTo = lastMessageId - Math.max(0, this.host.getExtractionSettings().stabilityLag ?? 1);
+    if (stableTo < 0) return null;
+    return { source: "cadence", reason: "cadence", window: getChatWindow(cadenceWindowFrom(this.cadenceTo, stableTo), stableTo) };
   }
 
   getSnapshot() {

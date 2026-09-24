@@ -8,6 +8,8 @@
 // This module is the single list of what the runner honours. A fixture is validated before it runs,
 // so a typo is a loud load error rather than a check that quietly never fired.
 
+import { branchSpec, nextReadWindowSpec, rollbackOutcomeSpec } from './identityVerbs.mts';
+
 export const STEP_MODIFIERS = new Set(['adoptsNewChat', 'log', 'attempts', 'retryBack', 'expectFail']);
 
 // send_generate accepts { text, timeoutMs, expectReply } — expectReply makes a silent turn fail.
@@ -23,6 +25,8 @@ export const STEP_VERBS = new Set([
   // v2.4 plan 01 (X4, X10): the real host delete, /cut, event-level generation sequences, another
   // extension's setting (restored in the runner's finally) and the replay-equality recording.
   'host_delete', 'cut', 'emit_generation', 'ext_setting', 'record_state', 'inject_script',
+  // v2.4 plan 02 §10 (X11): a branch or checkpoint chat, owned by the run and deleted by its cleanup.
+  'branch_create',
 ]);
 
 export const EXPECT_KEYS = new Set([
@@ -40,6 +44,8 @@ export const EXPECT_KEYS = new Set([
   'payloadContains', 'payloadAbsent',
   // v2.4 plan 01: replay equality against a record_state recording, and the over-steer probe.
   'stateEquals', 'overSteer',
+  // v2.4 plan 02 §10: the last runRollback outcome, and the window the scheduler reads next.
+  'rollbackOutcome', 'nextReadWindow',
   'stagecraft', 'storyId', 'storyIdentity', 'storyVersion', 'tension',
   // Comparison-suffixed keys the runner reads by bracket access; they are honoured, so they are
   // part of the vocabulary, not typos.
@@ -59,7 +65,7 @@ export const UI_ACTIONS = new Set([
   'open-drawer', 'drawer-tab', 'open-settings', 'select-profile', 'open-studio', 'close-studio',
   'studio-tab', 'studio-save', 'flag', 'screenshot', 'pipeline', 'assert-player-clean', 'hit-test', 'pointer-click',
   'open-wizard', 'new-story-wizard', 'wizard-run', 'wizard-answer', 'wizard-apply', 'wizard-state',
-  'stagecraft', 'curator-accept', 'curator-reject', 'memory-queue',
+  'stagecraft', 'curator-accept', 'curator-reject', 'memory-queue', 'branch-continue',
 ]);
 
 export const STAGECRAFT_ACTIONS = new Set(['curate', 'accept', 'reject', 'accept-op', 'reject-op', 'apply', 'state']);
@@ -67,6 +73,15 @@ export const STAGECRAFT_ACTIONS = new Set(['curate', 'accept', 'reject', 'accept
 export const COPILOT_ACTIONS = new Set(['stage', 'probe', 'suggest', 'advance', 'nudge', 'clear-nudge', 'report', 'environment', 'provision']);
 
 const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+
+const shapeProblems = (parse: () => unknown, where: string): string[] => {
+  try {
+    parse();
+    return [];
+  } catch (error) {
+    return [`${where}: ${error instanceof Error ? error.message : String(error)}`];
+  }
+};
 
 const near = (name: string, allowed: Set<string>): string => {
   const lower = name.toLowerCase();
@@ -164,6 +179,9 @@ export function validateSteps(steps: unknown, where = 'steps'): string[] {
     }
     if (verb === 'edit') problems.push(...textProblems(isRecord(value) ? value.text : undefined, `${at}.edit.text`));
     if (verb === 'eval') problems.push(...evalSyntaxProblems(value, `${at}.eval`));
+    if (verb === 'branch_create') problems.push(...shapeProblems(() => branchSpec(value), `${at}.branch_create`));
+    if (verb === 'expect' && isRecord(value) && 'rollbackOutcome' in value) problems.push(...shapeProblems(() => rollbackOutcomeSpec(value.rollbackOutcome), `${at}.expect.rollbackOutcome`));
+    if (verb === 'expect' && isRecord(value) && 'nextReadWindow' in value) problems.push(...shapeProblems(() => nextReadWindowSpec(value.nextReadWindow), `${at}.expect.nextReadWindow`));
     if (verb === 'expect') checkObject(value, EXPECT_KEYS, `${at}.expect`, problems);
     if (verb === 'expect_ui') checkObject(value, EXPECT_UI_KEYS, `${at}.expect_ui`, problems);
     if (verb === 'wait') checkObject(value, WAIT_KEYS, `${at}.wait`, problems);

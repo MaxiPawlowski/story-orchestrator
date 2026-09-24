@@ -207,6 +207,7 @@ export async function beginSandboxSession(page) {
     escaped: null,
     storyTitles: [] as string[],
     mirrorBooks: [] as Array<{ name: string; chatId: string }>,
+    branchChats: [] as string[],
   };
   return { ...session, guard };
 }

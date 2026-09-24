@@ -59,21 +59,21 @@ A chat's story state follows the chat as ST really mutates it:
 | V5 foreign stamp: `belongsHere`, detached `createBlob()` with no write, `blobMismatch()`, `ownBlob` refusal, `adoptChatState` (restamps `chatId` only), `restampRenamedChat` | `persistence.ts:34,41-43,60-71,78-93,97-108`; `storySelection.ts:36-47,71` | SUMMARY `:57-67,75-80` → `:60-71,78-83` |
 | Engine keeps ids only: `BoundaryContext {lastMessageId, chatLength}` | `engine.ts:11-14` | — |
 | Hydrate has **no chat-length reconcile** | `runtimeManager.ts:525-556` (hydrate `:543`) | SUMMARY `:524-543` → `:525-556` |
-| Every edit/swipe/update id rolls back, unchanged text included | `turnBridge.ts:159-170` | — |
-| Continue stamp keyed by `gen_finished`/length | `turnBridge.ts:24-29,85` | — |
-| Same-chat CHAT_CHANGED = full switch: `reset()` drops pending, then `loadStory` → `invalidateRuns` → `owner.bump()` | `turnBridge.ts:149-152`; `runtimeManager.ts:62,532`; `runOwner.ts:80-98` | — |
+| Every edit/swipe/update id rolls back, unchanged text included | `turnBridge.ts:171-189` (corrected 2026-09-24) | plan 01 T1 moved `onMutation` |
+| Continue stamp keyed by `gen_finished`/length | `turnBridge.ts:24-29,96` (corrected 2026-09-24) | — |
+| Same-chat CHAT_CHANGED = full switch: `reset()` drops pending, then `loadStory` → `invalidateRuns` → `owner.bump()` | `turnBridge.ts:160-164`; `runtimeManager.ts:78` (`invalidateRuns`), `:547` (`loadStory` calls it); `runOwner.ts:80-98` (corrected 2026-09-24) | — |
 | **Hidden messages are already out of read windows**: `is_system === true` returns null, `/hide` emits nothing, and `source-removed` is set only by rollback | `chatWindow.ts:8`; `stores.ts:109-115`; `epistemic.ts:144`; `ledger.ts:95` | D5 holds in behaviour, untested |
 | Branch reads as foreign (V5). `grep main_chat\|integrity src` = 0 | `storySelection.ts:36-47` | — |
 | Mirror: the adopting path ensures a fresh book, sweeps `so_`-prefixed leftovers and binds the slot. Scene rows are mirrored and keyless (inert) | `memoryMirror.ts:53-54,58-64,83-89,93-105,115,127`; `extractionCoordinator.ts:300` | SUMMARY `:82-88,110,122` → `:83-89,115,127` |
 | `bindChatLorebook` answers a string union, not a `WriteResult`. No unbind and no book delete in `src/` | `stHost/worldInfo.ts:153-172` | — |
-| `CHAT_DELETED`/`GROUP_CHAT_DELETED`/`WORLDINFO_UPDATED` typed `[]` and unsubscribed | `stHost/events.ts:11-12,30` | — |
+| `CHAT_DELETED`/`GROUP_CHAT_DELETED`/`WORLDINFO_UPDATED` typed `[]` and unsubscribed | `stHost/events.ts:11-12,31` (corrected 2026-09-24) | — |
 | Install-wide saves: unverified `saveSettingsDebounced()` | `storyLibrary.ts:69,110,119`; `settingsStore.ts:135,161`; `wizardSessions.ts:44,49` | — |
-| Save watcher wraps `fetch` once and never re-checks. A lost wrap reads as "no save request went out", which is sticky, and `withLedger` then refuses every effect | `stHost/persistence.ts:24-25,57-73`; `saveEvidence.ts:44-51`; `saveHealth.ts:18-31`; `effectsApplier.ts:181-189` | SUMMARY `:185` → `:181-189` |
-| `GROUP_UPDATED`/`WORLDINFO_SETTINGS_UPDATED` only `notify()`. Requirements refresh only at commit, activate, load and rollback. `PERSONA_CHANGED` is unsubscribed. not-ready → ready effects apply only at the next boundary | `turnBridge.ts:60-61`; `runtimeManager.ts:251,258-260,672-675`; `requirements.ts:7-28` | — |
+| Save watcher wraps `fetch` once and never re-checks. A lost wrap reads as "no save request went out", which is sticky, and `withLedger` then refuses every effect | `stHost/persistence.ts:25,57-77` (`observeNextSave` `:79`) (corrected 2026-09-24); `saveEvidence.ts:44-51`; `saveHealth.ts:18-31`; `effectsApplier.ts:181-189` | SUMMARY `:185` → `:181-189` |
+| `GROUP_UPDATED`/`WORLDINFO_SETTINGS_UPDATED` only `notify()`. Requirements refresh only at commit, activate, load and rollback. `PERSONA_CHANGED` is unsubscribed. not-ready → ready effects apply only at the next boundary | `turnBridge.ts:64-65`; `runtimeManager.ts:266` (commit), `:273-275` (the not-ready → ready re-apply), `:299` (activate), `:555` (load), `:656-659` (`refreshRequirements`) (corrected 2026-09-24); `requirements.ts:7-28` | — |
 | `commitDecision` puts back **whole arrays** captured before the save. Census row `partial` | `memoryQueue.ts:102-121` (callers `:130-232`); `test/findings/ownership-sites.json:276` | — |
-| E1 notice offers Restart only | `rollback.ts:48-58` | — |
-| `attestation.test.mjs` hard-codes the records dir `v2.3-plan05-live` (`:16`) and the journey list J0–J11 (`:62`). `j12-unaided-schedule.journey.json` exists and is not checked | `scripts/release/attestation.test.mjs:16,59-62` | X11 |
-| Manager **677/700** lines, so new logic goes in new modules | `runtimeManager.ts` | SUMMARY 676 |
+| E1 notice offers Restart only | `rollback.ts:77-86` (corrected 2026-09-24): `:57-66` on `9cb054a`; the §10 wrapper moved it | — |
+| `attestation.test.mjs` hard-codes the records dir `v2.3-plan05-live` (`:16`) and a literal journey list (`:62`). Corrected 2026-09-24: on `9cb054a` the literal already read J0–J12 (V22b), so J12 WAS checked; the defect was the literal itself, which a J13 would silently fall outside of. Built in §10: both are now derived (`scripts/release/attestationChecks.mjs`) | `scripts/release/attestation.test.mjs:16,59-62` | X11 |
+| Manager **677/700** lines, so new logic goes in new modules. Corrected 2026-09-24: **736/740 effective lines** (662 raw); the budget is 740 since V22b (`architecture.test.ts:17`), so the headroom is 4 lines, not 23 | `runtimeManager.ts` | SUMMARY 676 |
 | `manifest.json`: no `minimum_client_version`, version `2.3.0`. README declares 1.18.0 as the older host and already lists 1.19.0 | `manifest.json`; `README.md:57-66` | — |
 
 ## Host facts (ST 1.19.0; rows land in `docs/plans/v2.4/host-facts.md`, X9)
@@ -85,19 +85,20 @@ A chat's story state follows the chat as ST really mutates it:
 | H3 | `main_chat` equals our stamp: `sessionName` and `ctx.chatId` are the same value. It holds one hop only. Legacy bookmarks set `main_chat` lazily | `script.js:8538`; `st-context.js:125-127`; `bookmarks.js:115-123` |
 | H4 | `integrity` is minted on load if missing. Convert-to-group copies metadata and deletes `main_chat` | `script.js:7665-7667`; `group-chats.js:276-278`; `bookmarks.js:357-358` |
 | H5 | `hideChatMessageRange` flips `is_system`, saves, emits nothing (`/hide`, `/unhide`) | `chats.js:147-169`; `slash-commands.js:1836,1859` |
-| H6 | `messageEditMove` swaps adjacent entries, saves, emits nothing | `script.js:8353-8395` |
-| H7 | Deleting a swipe below the current one decrements `swipe_id` with `mes` unchanged | `script.js:9368-9388` |
+| H6 | `messageEditMove` swaps adjacent entries, saves, emits nothing. Corrected 2026-09-24: it is not exported; its only caller is the editor's up/down buttons (`script.js:11939-11955`), and closing that editor emits `MESSAGE_UPDATED` for the **target** id only (`messageEditCancel` `:8337`; `messageEditDone` emits `MESSAGE_EDITED` + `MESSAGE_UPDATED`, `:8405`/`:8431`). So the host names one of the two rows it changed, the later one, and a rollback from that id misses the earlier row | `script.js:8353-8395` |
+| H7 | Deleting a swipe below the current one decrements `swipe_id` with `mes` unchanged. Corrected 2026-09-24: `deleteSwipe` (`script.js:9339-9406`) does emit `MESSAGE_SWIPE_DELETED {messageId, swipeId, newSwipeId}` (`:9388`), which `turnBridge.ts:57` already hears (identity refresh only); no `MESSAGE_SWIPED`/`UPDATED` for a swipe below the current one (`:9395`) | `script.js:9368-9388` |
 | H8 | `/persona-sync` renames every matching user row, saves, then `reloadCurrentChat` | `personas.js:1842-1869` |
-| H9 | `reloadCurrentChat` re-reads the file (`chat_metadata` replaced by the server copy), then emits `CHAT_CHANGED` with the same id. Callers include a persona change on an untainted group | `script.js:1702-1727,7655-7700`; `group-chats.js:268-318`; `personas.js:1876-1881` |
+| H9 | `reloadCurrentChat` re-reads the file (`chat_metadata` replaced by the server copy), then emits `CHAT_CHANGED` with the same id. Callers include a persona change on an untainted group | `script.js:1702-1727,7655-7700`; `group-chats.js:268-318`; `personas.js:1876-1881`. Corrected 2026-09-24: `reloadCurrentChat` is the mutex-bound export at `script.js:1703` (body `reloadCurrentChatUnsafe` `:1710-1724`), exposed as `ctx.reloadCurrentChat` (`st-context.js:130`); the persona caller is `setUserAvatar` → `retriggerFirstMessageOnEmptyChat` (`personas.js:163`, `:1875-1882`) |
 | H10 | `CHAT_DELETED(name)`, name without `.jsonl` | `script.js:1349-1354,1401,10882-10884` |
-| H11 | `GROUP_CHAT_DELETED(chatId)`. `deleteGroup` emits it **before** checking `response.ok` | `group-chats.js:1328-1337,2269,2308` |
+| H11 | `GROUP_CHAT_DELETED(chatId)`. `deleteGroup` emits it **before** checking `response.ok`. Corrected 2026-09-24: only `deleteGroup` (`:1323-1337`) does; `deleteGroupChatByName` (`:2242-2270`, emit `:2269`) and `deleteGroupChat` (`:2279-2310`, emit `:2308`) emit after an ok answer, but `deleteGroupChat` splices the id out of `group.chats` before the request, so a failed delete leaves the client list without a chat the server still holds | `group-chats.js:1328-1337,2269,2308` |
 | H12 | `WORLDINFO_UPDATED(name, data)` | `world-info.js:4160` |
-| H13 | `deleteWorldInfo(name)` → boolean: deletes, evicts the cache, unselects, refreshes the list | `world-info.js:4346-4385` |
+| H13 | `deleteWorldInfo(name)` → boolean: deletes, evicts the cache, unselects, refreshes the list | `world-info.js:4346-4393` (corrected 2026-09-24) |
 | H14 | Keyless non-constant WI entries never activate (unless sticky) | `world-info.js:4898-4907` (SUMMARY; re-verify) |
 | H15 | `saveSettings` never rejects. It defers silently while not ready, toasts on error, and emits `SETTINGS_UPDATED` only after 2xx | `script.js:8051-8114` |
 | H16 | `/api/settings/get` returns `settings` as a JSON string and reads every preset directory per call | `src/endpoints/settings.js:219-268`; client `script.js:7913-7931` |
 | H17 | `minimum_client_version` is checked via `versionCompare`. A failing extension is not loaded | `extensions.js:580-590,658-660` |
 | H18 | `PERSONA_CHANGED(avatar)`. ST restores the chat persona in its own `CHAT_CHANGED` listener | `personas.js:154-167,1543,3004` |
+| H19 | (added 2026-09-24) Closing the message editor with Done emits `MESSAGE_EDITED` and `MESSAGE_UPDATED` for the id **whether or not the text changed**, so a no-op edit is indistinguishable from an edit by its events | `script.js:8397-8435` (emits `:8405`, `:8431`); opened by the delegated `.mes_edit` click `:11829-11858` |
 
 ## Design
 
@@ -374,3 +375,127 @@ None open. Q1 (blob bump) was answered by X1, Q2 (the hash) by X2, and Q3 (key h
 ## Gate record
 
 _Placeholder: date, commands and results, mutation tallies, live checks with record paths under `test/journeys/records/v2.4-plan02/`, deviations._
+
+### Harness + red fixtures (worktree build, 2026-09-24)
+
+Built on `9cb054a` in a worktree, Order of work steps 1 and 2 only. Machine gates only: no browser, no
+backend and no `npm run build`, so **no fixture below has been run, red or green**. Nothing here is live-green.
+
+**Harness (§10), as built**
+- **`expect.rollbackOutcome`** `{result: applied|noop|history-unavailable|none, fromMessage?, reason?, since?}`.
+  - `runtime/rollback.ts`: `runRollback` now wraps `rollbackOnce` and records `deps.notices.lastOutcome =
+    {seq, result, fromMessage, reason?, at}` (`rollbackRecord`). `runtimeManager.ts` changed by **0 lines**
+    (736/740 effective, unchanged); the manager's notices object carries the new optional field at runtime.
+  - The harness reads `storyOrchestratorRuntime.notices.lastOutcome` (a TS-private field, a plain property at runtime).
+  - `since` names a `record_state` label; recordings now carry `rollbackSeq`. `result: "none"` requires `since`,
+    because without it every rollback the page ever ran would count.
+  - Census: the old `rollback.ts#runRollback` and `#runRollback.unavailable` rows moved to `#rollbackOnce` and
+    `#rollbackOnce.unavailable` (same status, same notes). `#runRollback` is now the wrapper, `local`: its only
+    write after the await is the in-memory notice.
+- **`expect.nextReadWindow`** `{includes?, excludes?}`. **Deviation:** the plan says the harness "asks
+  `getChatWindow`", but the scheduler's cursor (`cadenceTo`) is private and in no snapshot. The harness could
+  only have replicated the window, and a replica cannot fail on the product's own filter. So one product seam
+  was added:
+  - `ExtractionScheduler.nextReadWindow(lastMessageId)`: the first queued job that carries a window, else the
+    cadence window the next boundary would schedule, built by the real `getChatWindow`;
+  - `globalThis.storyOrchestratorScheduler = {nextReadWindow}` in `runtime/index.ts`, cleared on dispose and typed
+    in `global.d.ts`.
+
+  An empty window, or one outside the chat, fails instead of passing vacuously.
+- **`ui: {action: "branch-continue"}`** and **`so-ui.mts branch-continue`**. It opens the drawer Overview (a
+  failure there is reported with the result, not thrown first), hit-tests `#so-branch-continue`, clicks its centre
+  with a real pointer, and waits for `#so-branch-notice` to go. Today it fails as `missing`, "no branch notice is
+  showing (… a build without the plan 02 §5 notice)".
+- **`branch_create: {mesId?, kind?: "branch"|"checkpoint", name?, open?}`**.
+  - It runs `/branch-create` or `/checkpoint-create mesId=N`, and `--sandbox` only.
+  - It adopts the new chat into the sandbox guard and records it in `guard.branchChats`. It refuses a name that
+    existed before the run, a page that left the pinned group, and a branch the page is not on.
+  - Cleanup: `cleanupBranchChats` runs after `deleteSandboxChats` in both runners. It re-opens the pinned group,
+    deletes only recorded names that are still present, waits out the 1 s group-save debounce and reads the server
+    back. The report is `cleanup.branchChats {recorded, deleted, failed, leaked}`. `so-scenario` fails the run on a
+    leak, a failure or an error; `so-journey` fails it through `readCleanup`.
+- **Generalised `attestation.test.mjs`**, over the new `scripts/release/attestationChecks.mjs`:
+  - the records root is the attestation's own `evidence.journeys`, and a root outside the repo is refused;
+  - the journey set is `test/journeys/*.journey.json`;
+  - every run of every journey is printed (26 lines on `docs/release/2.3.0/attestation.json`);
+  - the served-hash check is unchanged.
+
+  Synthetic cases name a catalog J13 the attestation omits, and an attested id with no journey file.
+- **`scenarioSchema.mts`** gains the verb `branch_create`, the expect keys `rollbackOutcome`/`nextReadWindow` and
+  the UI action `branch-continue`. Their value shapes are checked at load by the same parsers the runner uses.
+
+**Tests added**
+- node:test: `scripts/debug/lib/identityVerbs.test.mts` (17) and `so-ui.test.mts` (+3). They cover every new verb
+  against a fake page, the vocabulary, and `runSteps` dispatch.
+- jest: `rollback.review.test.ts` (+2) and `extraction/scheduler.test.ts` (+4). One of the four checks that the
+  predicted window equals the one the next boundary actually reads.
+- release: `attestation.test.mjs` (+3).
+
+**Gates** (worktree, no `dist/`)
+
+| Command | Result |
+|---|---|
+| `npm run typecheck` | 0 errors |
+| `npm run typecheck:test` | 0 errors |
+| `npm run lint` | clean |
+| `npm test` | 178 suites, 2746 tests, all passing |
+| `npm run debug:typecheck` | 0 errors |
+| `npm run test:debug` | 212 tests: 210 pass, 1 fail, 1 skipped |
+| `npm run test:release` | 20 tests: 16 pass, 0 fail, 4 skipped |
+
+Neither `test:debug` exception is this work's:
+- The failure is `so-run-header.test.mts` "the build half reads plan 08s nested manifest", which needs
+  `dist/manifest.json` (no build here, same as plan 01's worktree runs).
+- The skip is `eventNames.test.mts`, which is blocked because the worktree is not at the ST tree's extension path.
+
+The four `test:release` skips are `manifest.test.mjs`, which needs `dist/index.js`.
+
+**Red fixtures** (step 2). All are under `test/scenarios/`, need no backend and run as `so-scenario run <file>
+--sandbox --group 1759606632088`. Each passed `validateFixture` and `globalsReadButNeverWritten`, and every eval
+compiles under the runner's own wrapper (the corpus-wide `scenarioSchema.test.mts` cases re-check the first two on every `test:debug`). Each `_note` cites the ST `file:line` it rests on. None was executed.
+
+| Fixture | Row (H#) | Expected on today's code | Why |
+|---|---|---|---|
+| `v24-02-hide-consumed.json` | `/hide` consumed (H5) | **green** | D5 already holds. It is the pin for §4: red if T3 hashes `is_system` |
+| `v24-02-message-move.json` | `messageEditMove` (H6) | **red** at `rollbackOutcome` (started at 2, not 1), then at `stateEquals` (`lit_lamp` survives) | The host names only the moved-to id (corrected H6) |
+| `v24-02-swipe-delete-below.json` | swipe delete below current (H7) | **green** | Nothing rewinds today. It is the pin for "no `swipe_id` in the hash" (mutation 2) |
+| `v24-02-persona-sync.json` | `/persona-sync` (H8) | **red** at the epoch step | Same-chat `CHAT_CHANGED` bumps the run epoch. The rollback and state steps are green guards for "no user name in the hash" |
+| `v24-02-same-chat-reload.json` | same-chat reload (H9) | **red** at the epoch step | Same as above, driven by `ctx.reloadCurrentChat()` |
+| `v24-02-noop-edit.json` | no-op edit | **red** at `rollbackOutcome` (a rollback from 1 ran) and at `stateEquals` | `messageEditDone` emits `MESSAGE_EDITED` + `MESSAGE_UPDATED` unconditionally (H19). Its control (a real edit rolls back from 2) runs only after the red |
+| `v24-02-branch-continue.json` | branch (H1, H3) | **red** at the unbind step, then at `ui: branch-continue` (`missing`) | The chat lorebook slot travels with the branch. The Continue half **cannot go green before §5 builds `#so-branch-continue`** |
+| `v24-02-checkpoint-continue.json` | checkpoint (H2, H3) | **red**, as the branch fixture | `/checkpoint-create` does not open the chat, so `branch_create` opens it (`open: true`) |
+| `v24-02-chat-delete-reap.json` | chat delete + failed group delete (H10, H11) | **red** at the offer step. The H11 control half is **green** today and after | Nothing subscribes `GROUP_CHAT_DELETED`. The failed `deleteGroup` shape is an emitted `GROUP_CHAT_DELETED` for a chat that still exists: the shared group is never deleted |
+| `v24-02-settings-save-swallowed.json` | swallowed settings save (H15) | **red** at the last step | The Studio claims `Saved "X" vN to the library.` while `/api/settings/save` answers 500 |
+| `v24-02-fetch-restored.json` | `fetch` restored by a peer | **red** at the last step | The peer is a same-origin iframe's `fetch`, and the save made under it reads "no save request went out". The page's fetch is put back and re-persisted before the assertion |
+| `v24-02-persona-change.json` | persona change (H18) | **red** at the last step | `PERSONA_CHANGED` is unsubscribed. **Needs two personas**; with fewer it stops at a named precondition |
+
+Not written, by assignment: **unrecognized blob (v5 shape)**, which another agent owns.
+
+**Not buildable or not covered here**
+- The Continue-from-here half of both branch fixtures rests on a control that does not exist yet (§5). It is red
+  today for that reason, and goes green only with the feature.
+- The solo `CHAT_DELETED` path (H10 proper) is not driven, because the sandbox is group-only. It needs a solo
+  sandbox chat.
+- The H11 shape is emitted by hand. Deleting a whole group (the only emitter that fires before `response.ok`)
+  would destroy the shared test group.
+- Every fixture's red run and its later green run (×2 each, archived under `test/journeys/records/v2.4-plan02/red/`)
+  are still owed. They need a browser.
+
+**Host facts added or corrected** (rows above are marked "corrected 2026-09-24")
+- H6: the editor path emits `MESSAGE_UPDATED` for the target id only.
+- H7: `MESSAGE_SWIPE_DELETED` is emitted.
+- H9: exact exports.
+- H11: only `deleteGroup` emits before its ok check, and `deleteGroupChat` splices the client list first.
+- H13: the range ends at `:4393`.
+- New **H19**: an unchanged edit still emits both events.
+
+**Plan claims found wrong**
+- §10 "asks `getChatWindow` for the window the scheduler would read next": not possible from outside, so a
+  scheduler seam was added (see above).
+- "Verified current state":
+  - the attestation row: the literal list already had J12;
+  - the manager row: 736/740 effective, not 677/700;
+  - five stale line references, now corrected.
+- Tests and gates ("`architecture.test.ts` budgets hold (manager ≤700, target ≤690)") and Risks ("677/700") share
+  that stale figure. The live budget is 740, with 4 lines of headroom, so every later item that touches the
+  manager must move lines out, not just add a delegation line.
