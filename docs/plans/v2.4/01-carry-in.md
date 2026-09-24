@@ -67,8 +67,8 @@ Plan 01 proceeds in order:
 | T4 comments | `runOwner.ts:56-63` (the claim is `:60-62`); `judge/types.ts:65-69`; `epochAbort.review.test.ts:8-11`. Plan-03 statement: `03-async-ownership.md:1676-1684` and table row `:1789` | the first two have drifted +1 |
 | T21 | see §Corrections | the claim sits at `10-judge-seeds.md:155,157-158,168,169-174` (not `:160-161`) and at `11-acceptance.md:808-809`. `.claude/CLAUDE.md:20` states it ×3. **New:** `test/findings/ledger.json:248` |
 | T2 | `03-async-ownership.md:2715` | matches |
-| Guidance | Authored: `engine/schema.ts:156`, parsed at `engine/validate.ts:344`. Generated: `schema.ts:188`, required at `generation/parse.ts:111-120`, merged at `generation/merge.ts:29`. **No injection reads it.** `expansionCoordinator.ts:168` passes beat guidance only to the judge's expansion check. `constants/injectionRegistry.ts:12-23` has no key for it. Depth 4 already holds `{memoryFacts, epistemic}` as an allowlist pair (`:26`), plus the dynamic nudge. Every block is written at system role (`stHost/extensionPrompts.ts:25`) | D7 holds for injection. Sun-ruins has guidance on 3 of 9 checkpoints and an author note on 9 of 9 |
-| Budgets | manager 677/700; `memoryCoordinator` 614/620; `pacingCoordinator` 103; `stagecraftCoordinator` 475 | SUMMARY says 676. `memoryCoordinator` has 6 spare lines |
+| Guidance | Authored: `engine/schema.ts:156`, parsed at `engine/validate.ts:344`. Generated: `schema.ts:188`, required at `generation/parse.ts:111-120`, merged at `generation/merge.ts:29`. **No injection reads it.** `expansionCoordinator.ts:176` (was `:168`; corrected 2026-09-24 on `eb50a00`) passes beat guidance only to the judge's expansion check. `constants/injectionRegistry.ts:12-23` has no key for it. Depth 4 already holds `{memoryFacts, epistemic}` as an allowlist pair (`:26`), plus the dynamic nudge. Every block is written at system role (`stHost/extensionPrompts.ts:25`) | D7 holds for injection. Sun-ruins has guidance on 3 of 9 checkpoints (`cp1`, `cp-4a`, `cp-4a2`) and an author note on 9 of 9 |
+| Budgets | manager 677/700; `memoryCoordinator` 614/620; `pacingCoordinator` 103; `stagecraftCoordinator` 475. **Corrected 2026-09-24 on `eb50a00`:** budgets are EFFECTIVE lines since V22b (`architecture.test.ts:9-28`, every started 120 characters counts), manager budget 740: manager **736**/740, `memoryCoordinator` 597/620, `pacingCoordinator` 110, `stagecraftCoordinator` 541 | SUMMARY says 676. The manager has 4 spare effective lines, not 23 |
 
 ## Host facts
 
@@ -213,17 +213,22 @@ the harness and never installed. It reproduces Guided Generations' shape:
     `extensionPrompts.ts:25`.
   - The depth-4 allowlist set becomes `{memoryFacts, epistemic, checkpointGuidance}`.
   - `OWNER_TABS` (`nextTurn.ts:54-62`) gets a `config` row.
-- **Writer:** `PacingCoordinator.updateSteering()` (`pacingCoordinator.ts:93-102`) composes the block with a
+- **Writer:** `PacingCoordinator.updateSteering()` (`pacingCoordinator.ts:93-102`; `:96-105` on `eb50a00`,
+  corrected 2026-09-24) composes the block with a
   pure `composeGuidanceBlock(checkpoint, policy)`, so that plan 04's `player_attempts_only` clause (X13) and
   plan 06's objective line add to one writer.
   - The source is the **played, merged** story: the pinned copy plus merged expansions, so generated
     checkpoints are covered.
   - Refresh comes free from the existing call sites (inv 16): boundary `runtimeManager.ts:267`, activate
-    `:288`, load `:550`, swap `:611`, rollback `rollback.ts:91`, settings `:370`.
+    `:288`, load `:550`, swap `:611`, rollback `rollback.ts:91`, settings `:370`. **Corrected 2026-09-24 on
+    `eb50a00`:** boundary `:283`, activate `:304`, load `:566`, swap `:597`, rollback `rollback.ts:92`,
+    settings `:386` (`settingsControl.ts:29`). **Missing from the list:** `clearStory` (`:242`) cleared the
+    pacing key directly and never called `updateSteering`, so a guidance block would have outlived its story;
+    it now calls `updateSteering()` (see §Guidance (worktree build)).
   - No story, or empty guidance, clears the block.
 - **Dropped** while a quiet or impersonate run is open (the T6 reducer) and restored at its close (X7).
 - Player-invisible (inv 9). No schema or blob change. A guidance edit hot-swaps through `swapStory`
-  (`runtimeManager.ts:611`).
+  (`runtimeManager.ts:611`; `:585` on `eb50a00`, corrected 2026-09-24).
 
 ### Over-steer probe (X8; rule 5; reused by plans 06 and 07)
 - **Pure `scripts/debug/lib/overSteer.mts`** plus the `expect: {overSteer: {block, family, controlRun?}}` key.
@@ -412,3 +417,80 @@ Deviations:
 - The `talk/rules` case is in `roster.test.ts`, not `talk/talk.test.ts`. It composes `activeSpeakerId` with `chooseByRules`, and `src/talk/` is pure, so it cannot mock the host seam.
 - The solo path keeps `enabledCharacterNames` (in solo `activeSpeakerId` is always null, because `enabledCharacterIds` needs a group). This is the plan's "Solo unchanged", but it means the all-names merge still exists for solo stories whose roster has more than one member. **Not decided here.**
 - Still open for T10: the live group probe (the §Live T10 row) and the ×2 fixture runs with archived RED output.
+
+### Guidance (worktree build, 2026-09-24)
+
+Built on `eb50a00` in a worktree, as one item of plan 01 (D7, X7). Machine gates only; **the live gate has
+not run** (no browser here), so this item is NOT green.
+
+**As built**
+- `constants/injectionRegistry.ts`: `checkpointGuidance {key: "story_orchestrator_guidance", depth: 4, writer:
+  "runtime/coordinators/pacingCoordinator", label: "Checkpoint guidance"}`; the depth-4 allowlist set is
+  `{memoryFacts, epistemic, checkpointGuidance}`. `findInjectionRegistryProblems()` is `[]`.
+- `runtime/nextTurn.ts` `OWNER_TABS`: `runtime/coordinators/pacingCoordinator` → `config`.
+- `pacing/guidance.ts` (pure): `composeGuidanceBlock(checkpoint, policy)` → `Scene direction: <guidance trimmed>`,
+  or `""` for no checkpoint / no guidance / whitespace. The header is one of `GUIDANCE_FAMILY`'s meta tokens,
+  so a reply that echoes the framing fails the over-steer restate check. `policy` is taken and not read yet:
+  plan 04's `player_attempts_only` clause and plan 06's objective line add lines here.
+- `PacingCoordinator.updateSteering()` reads the active checkpoint from the played, merged story
+  (`loaded.story`, which is `mergedStoryOrBase` on load and `replaceStory` after a merge) and writes the block
+  at the registry depth (system role, `extensionPrompts.ts:25`), or clears it. No story clears it too.
+  `withholdGuidance()` clears it without touching anything else.
+- `RuntimeManager` (0 net effective lines, 736/740 before and after): `clearStory` calls
+  `pacing.updateSteering()` instead of clearing the pacing key by hand. That was a real gap: the plan's call
+  site list had no story-clear path, so guidance would have outlived its story. The import it freed pays for
+  the one new line.
+
+**The withholding seam left for T6.** Today's path withholds the private block on a quiet/impersonate STARTED
+(`onGenerationStarted` → `memory.withholdPrivateKnowledge()`) and restores on ENDED/STOPPED
+(`onGenerationEnded` → `clearPrivateInjection()` → `memory.updateInjection()`). Guidance now rides the same two
+edges, stateless like the private block (a clear, not a flag, so a lost ENDED heals at the next refresh):
+- **open a withholding run:** `manager.withholdTurnBlocks()` = `memory.withholdPrivateKnowledge()` +
+  `pacing.withholdGuidance()`. `onGenerationStarted` calls it for `quiet`/`impersonate`. T6 calls this one
+  function for any quiet/impersonate run, outermost or nested.
+- **close it:** `manager.clearPrivateInjection()` now also calls `pacing.updateSteering()`, so it restores the
+  resting private block **and** the guidance block. T6's outermost close already calls it; at a nested close,
+  call it and then replay `onMemberDrafted(lastDraftedChid)` (the order matters: the replay re-stages the
+  drafted member over the resting block).
+- No reducer was built here.
+
+**Harness.** `expect: {overSteer: {block, family, controlRun?}}` is wired beside `stateEquals`
+(`so-scenario.mts` expect branch). `lib/overSteer.mts` gained the pure half (`OVER_STEER_FAMILIES`,
+`overSteerSpec`, `overSteerVerdict`); `lib/interopVerbs.mts` the page half (`readOverSteer`,
+`expectOverSteer`). The block text is the newest payload capture that carried `block` (else the next prompt's
+`extensionPrompts[block]`); reply N+1 is the last chat row that is neither `is_user` nor `is_system`. It gates
+on `restateCheck` with the named family and records `swing` when `controlRun` is given (the literal control
+reply, or `{global}` naming a page global that holds it). An uncarried block, a missing reply, or a named but
+empty control arm fails: none of them may pass vacuously.
+
+**Red fixture (written, not run):** `test/scenarios/v24-01-guidance.json`, no backend. Import sun-ruins (cp1
+guidance on load) → `/cp activate cp-4a` (sphinx guidance, next-turn row `Checkpoint guidance`/`config`/depth
+4, then a `capturePayload` and `payloadContains` scoped to the key) → emitted quiet STARTED withholds →
+ENDED restores → `/cp activate cp2` clears. `validateFixture` → `[]`; all 6 evals pass
+`new Function(...)`. On `eb50a00` step 3 fails ("cp1 guidance is not injected on load").
+
+**Machine gates (worktree, 2026-09-24)**
+
+| Command | Result |
+|---|---|
+| `npm run typecheck` | exit 0 |
+| `npm run typecheck:test` | exit 0 |
+| `npm run lint` | exit 0 |
+| `npm test` | 172 suites, 2692 tests, all pass (+1 suite, +10 tests) |
+| `npm run debug:typecheck` | exit 0 |
+| `npm run test:debug` | 184 tests: 181 pass, 1 skipped, **2 fail, neither from this item**: `no fixture reads a page global it never sets` names `v24-01-harness-smoke.json` (`__soForeignEmitter` is set by the injected `foreign-emitter.js`, which the text guard cannot see; the fixture and the guard are both as `eb50a00` left them), and `the build half reads plan 08s nested manifest` needs `dist/manifest.json`, which a worktree that never built does not have |
+
+`npm run build` and `test:release` were not run (worktree; `dist/` untouched).
+
+**Mutations** (`test/findings/mutations/v24-01-guidance.txt`): each reverted guard fails only its own cases.
+M1 drop the empty-guidance clear → 2 fail (empty guidance; rollback to a guidance-less checkpoint). M2 drop
+the no-story clear → 1 (no story). M3 `clearStory` stops refreshing steering → 2 (no story, plus the existing
+pacing no-story case, which now rides the same call). M4 the quiet/impersonate open stops withholding
+guidance → 1. M5 the run's close stops restoring it → 1.
+
+**Not done:** the live gate (the fixture ×2 on a lane; a real captured request on an authored and a
+generated checkpoint; absence during impersonate; the over-steer probe with its control arm); the T6 reducer
+(separate agent).
+
+**Plan claims found wrong:** the Budgets row (effective lines since V22b; manager 736/740, not 677/700) and the
+call-site list (no story-clear path), both corrected above.

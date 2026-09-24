@@ -45,3 +45,46 @@ export function swing(reply: string, controlReply: string) {
   const controlWords = normaliseWords(controlReply).length;
   return { words, controlWords, lengthRatio: controlWords ? Number((words / controlWords).toFixed(3)) : null, sharedWithControl: longestSharedSpan(reply, controlReply) };
 }
+
+export const OVER_STEER_FAMILIES: Record<string, OverSteerFamily> = { guidance: GUIDANCE_FAMILY };
+
+/** `block` is the injected prompt key; `controlRun` is the control arm's reply N+1, literal or a page global holding it. */
+export type OverSteerSpec = { block: string; family: string; controlRun?: string | { global: string } };
+
+export function overSteerSpec(value: unknown): OverSteerSpec {
+  const spec = value as OverSteerSpec;
+  if (!spec || typeof spec.block !== 'string' || !spec.block || typeof spec.family !== 'string') throw new Error('expect.overSteer: expected {block: "<injected prompt key>", family, controlRun?}');
+  if (!OVER_STEER_FAMILIES[spec.family]) throw new Error(`expect.overSteer: unknown family "${spec.family}" (known: ${Object.keys(OVER_STEER_FAMILIES).join(', ')})`);
+  const control = spec.controlRun;
+  if (control !== undefined && !(typeof control === 'string' && control) && !(typeof control === 'object' && control !== null && typeof control.global === 'string' && control.global)) {
+    throw new Error('expect.overSteer: controlRun is the control reply text or {global: "<name>"}');
+  }
+  return { block: spec.block, family: spec.family, ...(control === undefined ? {} : { controlRun: control }) };
+}
+
+/** What the page offers: the block as the last generation carried it, as the next prompt holds it, reply N+1, and the control reply. */
+export type OverSteerReading = { captured: string | null; current: string | null; reply: string | null; control: string | null };
+
+export type OverSteerVerdict = {
+  ok: boolean;
+  failures: string[];
+  block: { key: string; source: 'capture' | 'current' | null; chars: number };
+  restate: RestateVerdict | null;
+  swing: ReturnType<typeof swing> | null;
+};
+
+export function overSteerVerdict(spec: OverSteerSpec, reading: OverSteerReading): OverSteerVerdict {
+  const failures: string[] = [];
+  const captured = reading.captured?.trim() ? reading.captured : null;
+  const current = reading.current?.trim() ? reading.current : null;
+  const text = captured ?? current;
+  const block = { key: spec.block, source: captured ? 'capture' as const : current ? 'current' as const : null, chars: text?.length ?? 0 };
+  const reply = reading.reply?.trim() ? reading.reply : null;
+  if (!text) failures.push(`overSteer: block "${spec.block}" was never carried (no capture holds it and the next prompt does not), so there is nothing to measure`);
+  if (!reply) failures.push('overSteer: no reply N+1 in the chat to measure');
+  const restate = text && reply ? restateCheck(text, reply, OVER_STEER_FAMILIES[spec.family]) : null;
+  if (restate && !restate.ok) failures.push(`overSteer: reply N+1 restates "${spec.block}" (shared span ${restate.span} of max ${restate.maxSpan - 1}${restate.metaHits.length ? `, meta tokens ${JSON.stringify(restate.metaHits)}` : ''})`);
+  const control = reading.control?.trim() ? reading.control : null;
+  if (spec.controlRun !== undefined && !control) failures.push('overSteer: a control arm was named but its reply is empty');
+  return { ok: failures.length === 0, failures, block, restate, swing: reply && control ? swing(reply, control) : null };
+}

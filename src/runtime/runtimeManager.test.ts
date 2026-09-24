@@ -205,6 +205,98 @@ describe("RuntimeManager pacing", () => {
   });
 });
 
+describe("RuntimeManager checkpoint guidance (v2.4 plan 01, D7)", () => {
+  beforeEach(() => resetHost());
+
+  const WANDER = "Let the player wander toward the job board at their own pace.";
+  const SPHINX = "The sphinx blocks the only way in.";
+  const guided = (startGuidance?: string) => ({
+    format: 2,
+    id: "guided",
+    title: "Guided",
+    description: "Checkpoint guidance fixture.",
+    qualities: [{ key: "go", type: "bool", source: "extractor", rubric: "Did they set off?" }],
+    checkpoints: [
+      { id: "start", name: "Start", objective: "Start.", type: "anchor", start: true, ...(startGuidance ? { guidance: startGuidance } : {}) },
+      { id: "sphinx", name: "Sphinx", objective: "Pass the sphinx.", type: "anchor", guidance: SPHINX },
+      { id: "plain", name: "Plain", objective: "Walk on.", type: "anchor", guidance: "   " },
+    ],
+    transitions: [{ from: "start", to: "sphinx", gate: { q: "go", op: "==", v: true }, priority: 0 }],
+    roster: [],
+  });
+  const block = () => mockExtensionPrompts.story_orchestrator_guidance;
+  const goAudit = (): SharedReadAudit => ({ ...tensionAudit("stirring", 0), id: "audit-go", scope: ["go"], acceptedDeltas: [{ delta: { q: "go", v: true, source: "extractor" }, evidence: "they set off" }] });
+
+  it("sets the active checkpoint's guidance on load and on activate, at depth 4, owned by the config tab", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(guided(WANDER)));
+    expect(block()).toEqual({ value: `Scene direction: ${WANDER}`, depth: 4 });
+
+    await manager.activateCheckpoint("sphinx");
+    expect(block()).toEqual({ value: `Scene direction: ${SPHINX}`, depth: 4 });
+    expect(manager.getSnapshot().nextTurn.find((row) => row.key === "story_orchestrator_guidance")).toMatchObject({ label: "Checkpoint guidance", owner: "runtime/coordinators/pacingCoordinator", ownerTab: "config", depth: 4 });
+  });
+
+  it("clears the block on a checkpoint whose guidance is empty", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(guided(WANDER)));
+    await manager.activateCheckpoint("plain");
+    expect(block()).toBeUndefined();
+  });
+
+  it("clears the block when no story is selected", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(guided(WANDER)));
+    expect(block()?.value).toContain(WANDER);
+    selectNothing();
+    await manager.loadSelectedFromChat();
+    expect(manager.getStory()).toBeNull();
+    expect(block()).toBeUndefined();
+  });
+
+  it("swaps the block on a rollback to a guidance-less checkpoint", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(guided()));
+    expect(block()).toBeUndefined();
+    await manager.applyExtractionAudit(goAudit(), []);
+    mockContext.chat = [{ mes: "they set off" }];
+    await manager.commitBoundary();
+    expect(manager.getEngineState()?.activeCheckpointId).toBe("sphinx");
+    expect(block()?.value).toContain(SPHINX);
+
+    await manager.rollbackFromMessage(0);
+    expect(manager.getEngineState()?.activeCheckpointId).toBe("start");
+    expect(block()).toBeUndefined();
+  });
+
+  it("withholds the block for an impersonate or quiet run and restores it when the run ends", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(guided(WANDER)));
+    for (const type of ["impersonate", "quiet"]) {
+      manager.onGenerationStarted(type, false);
+      expect(block()).toBeUndefined();
+      manager.onGenerationEnded();
+      expect(block()?.value).toContain(WANDER);
+    }
+    manager.onGenerationStarted("normal", false);
+    expect(block()?.value).toContain(WANDER);
+  });
+
+  it("carries a merged generated checkpoint's guidance once the story enters it", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(readFileSync(join(__dirname, "..", "..", "test", "fixtures", "generated-fork.story.json"), "utf-8"));
+    await manager.applyExtractionAudit({ ...goAudit(), id: "audit-key", scope: ["key_found"], acceptedDeltas: [{ delta: { q: "key_found", v: true, source: "extractor" }, evidence: "the key" }] }, []);
+    expect(await manager.runExpansionNow(readFileSync(join(__dirname, "..", "..", "test", "goldens", "generation", "generated-fork.3.response.txt"), "utf-8"))).toBe(true);
+    expect(block()).toBeUndefined();
+    mockContext.chat = [{ mes: "found it" }];
+    await manager.commitBoundary();
+    const generated = manager.getStory()?.checkpointById.gen_fork_stub_1;
+    expect(manager.getEngineState()?.activeCheckpointId).toBe("gen_fork_stub_1");
+    expect(generated?.guidance).toBeTruthy();
+    expect(block()).toEqual({ value: `Scene direction: ${generated?.guidance}`, depth: 4 });
+  });
+});
+
 describe("RuntimeManager memory migration", () => {
   beforeEach(() => resetHost());
 

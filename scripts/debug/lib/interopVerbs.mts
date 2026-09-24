@@ -2,6 +2,7 @@
 // extension would, so a fixture can reproduce a real host shape instead of a harness-only one.
 import { evaluateInST } from './evaluate.mts';
 import { saveSettingsNow } from './settingsSave.mts';
+import { overSteerSpec, overSteerVerdict, type OverSteerReading, type OverSteerSpec } from './overSteer.mts';
 
 type Page = Parameters<typeof evaluateInST>[0];
 
@@ -157,6 +158,32 @@ export async function expectStateEquals(page: Page, value: unknown) {
   const differences = stateDifferences(recorded, await readRecordableState(page), spec.scope ?? STATE_SCOPES);
   if (differences.length) throw new Error(`state differs from "${spec.as}": ${differences.join(' | ')}`);
   return { as: spec.as, equal: true, scope: spec.scope ?? STATE_SCOPES };
+}
+
+/** The over-steer probe's page half: the block as the last capture carried it (else as the next prompt holds it) and reply N+1. */
+export async function readOverSteer(page: Page, spec: OverSteerSpec): Promise<OverSteerReading> {
+  const global = typeof spec.controlRun === 'object' ? spec.controlRun.global : null;
+  const reading = await evaluateInST(page, ({ key, global }: { key: string; global: string | null }) => {
+    const ctx = (globalThis as any).SillyTavern.getContext();
+    const captures: any[] = (globalThis as any).storyOrchestratorRuntime?.getPayloadCaptures?.() ?? [];
+    const carried = [...captures].reverse().map((capture) => (capture?.blocks ?? []).find((block: any) => block?.key === key)).find(Boolean);
+    const replies = (ctx.chat ?? []).filter((message: any) => !message?.is_user && !message?.is_system);
+    const control = global ? (globalThis as any)[global] : null;
+    return {
+      captured: typeof carried?.value === 'string' ? carried.value : null,
+      current: typeof ctx.extensionPrompts?.[key]?.value === 'string' ? ctx.extensionPrompts[key].value : null,
+      reply: typeof replies.at(-1)?.mes === 'string' ? replies.at(-1).mes : null,
+      control: typeof control === 'string' ? control : null,
+    };
+  }, { key: spec.block, global });
+  return typeof spec.controlRun === 'string' ? { ...reading, control: spec.controlRun } : reading;
+}
+
+export async function expectOverSteer(page: Page, value: unknown) {
+  const spec = overSteerSpec(value);
+  const verdict = overSteerVerdict(spec, await readOverSteer(page, spec));
+  if (!verdict.ok) throw new Error(verdict.failures.join('; '));
+  return verdict;
 }
 
 /** Evaluate a test-only script file in the page (the foreign-emitter fixture). Never installs anything. */

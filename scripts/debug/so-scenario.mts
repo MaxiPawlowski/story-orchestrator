@@ -16,7 +16,7 @@ import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, se
 import { dumpCurrentChatState } from './so-state.mts';
 import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, getMemoryQueueState, memoryQueueAction, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot, hitTest, pointerClick } from './so-ui.mts';
 import { leakCount, listMarkedAssets, removeMarkedAssets } from './so-assets.mts';
-import { applyExtSetting, cutCommand, emitGeneration, expectStateEquals, hostDelete, injectScript, recordState, restoreExtSettings } from './lib/interopVerbs.mts';
+import { applyExtSetting, cutCommand, emitGeneration, expectOverSteer, expectStateEquals, hostDelete, injectScript, recordState, restoreExtSettings } from './lib/interopVerbs.mts';
 
 const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep] [--group <id|name>]
 
@@ -1062,12 +1062,14 @@ async function runStep(page, key, value, { scenarioDir = PROJECT_ROOT, importedH
   if (key === 'inject_script') return injectScript(page, value, scenarioDir);
   if (key === 'wait') return waitForCondition(page, value);
   if (key === 'expect') {
-    const { stateEquals, ...rest } = value ?? {};
+    const { stateEquals, overSteer, ...rest } = value ?? {};
     const equal = stateEquals ? await expectStateEquals(page, stateEquals) : null;
-    if (!Object.keys(rest).length) return equal;
+    const steer = overSteer ? await expectOverSteer(page, overSteer) : null;
+    const extra = { ...(equal ? { stateEquals: equal } : {}), ...(steer ? { overSteer: steer } : {}) };
+    if (!Object.keys(rest).length) return steer ? extra : equal;
     const assertion = evaluateExpect(await dumpCurrentChatState(page), rest);
     if (!assertion.ok) throw new Error(assertion.failures.join('; '));
-    return equal ? { ...assertion.actual, stateEquals: equal } : assertion.actual;
+    return { ...assertion.actual, ...extra };
   }
   if (key === 'expect_ui') {
     const assertion = await evaluateExpectUi(page, value);

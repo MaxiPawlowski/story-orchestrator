@@ -1,0 +1,24 @@
+v2.4 plan 01 guidance mutations, 2026-09-24T08:06:51.961Z
+command per mutation: npx jest --runInBand src/runtime/runtimeManager.test.ts src/pacing/guidance.test.ts
+
+M1 drop the empty-guidance clear (src/runtime/coordinators/pacingCoordinator.ts)
+  Tests:       2 failed, 100 passed, 102 total
+  FAIL RuntimeManager checkpoint guidance (v2.4 plan 01, D7) › clears the block on a checkpoint whose guidance is empty
+  FAIL RuntimeManager checkpoint guidance (v2.4 plan 01, D7) › swaps the block on a rollback to a guidance-less checkpoint
+
+M2 drop the no-story clear (src/runtime/coordinators/pacingCoordinator.ts)
+  Tests:       1 failed, 101 passed, 102 total
+  FAIL RuntimeManager checkpoint guidance (v2.4 plan 01, D7) › clears the block when no story is selected
+
+M3 clearStory stops refreshing steering (src/runtime/runtimeManager.ts)
+  Tests:       2 failed, 100 passed, 102 total
+  FAIL RuntimeManager pacing › clears the pacing prompt when no story is selected
+  FAIL RuntimeManager checkpoint guidance (v2.4 plan 01, D7) › clears the block when no story is selected
+
+M4 quiet/impersonate no longer withholds guidance (src/runtime/runtimeManager.ts)
+  Tests:       1 failed, 101 passed, 102 total
+  FAIL RuntimeManager checkpoint guidance (v2.4 plan 01, D7) › withholds the block for an impersonate or quiet run and restores it when the run ends
+
+M5 the run's end no longer restores guidance (src/runtime/runtimeManager.ts)
+  Tests:       1 failed, 101 passed, 102 total
+  FAIL RuntimeManager checkpoint guidance (v2.4 plan 01, D7) › withholds the block for an impersonate or quiet run and restores it when the run ends

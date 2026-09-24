@@ -53,6 +53,7 @@ const specFor = (key: string): InjectionSpec | null => SPECS.find((spec) => spec
 // offering a control that does nothing.
 const OWNER_TABS: Record<string, NextTurnContributor["ownerTab"]> = {
   "runtime/runtimeManager.applyPacingSteering": "config",
+  "runtime/coordinators/pacingCoordinator": "config",
   "memory/inject.applyMemoryInjection": "memory",
   "memory/inject.applyEpistemicInjection": "memory",
   "memory/inject.applyLedgerInjection": "memory",

@@ -20,10 +20,11 @@ export const INJECTION_REGISTRY = {
   copilotNudge: { key: "story_copilot_nudge", depth: 4, writer: "runtime/runtimeManager.setCopilotNudge", dynamicDepth: true , label: "Author nudge" },
   sceneTracker: { key: "story_orchestrator_scene", depth: 1, writer: "runtime/coordinators/sceneCoordinator" , label: "Scene so far" },
   continuityNote: { key: "story_orchestrator_continuity", depth: 0, writer: "runtime/coordinators/stagecraftCoordinator" , label: "Continuity note" },
+  checkpointGuidance: { key: "story_orchestrator_guidance", depth: 4, writer: "runtime/coordinators/pacingCoordinator", label: "Checkpoint guidance" },
 } as const satisfies Record<string, InjectionSpec>;
 
 export const INJECTION_DEPTH_COLLISION_ALLOWLIST: ReadonlyArray<ReadonlySet<string>> = [
-  new Set([INJECTION_REGISTRY.memoryFacts.key, INJECTION_REGISTRY.epistemic.key]),
+  new Set([INJECTION_REGISTRY.memoryFacts.key, INJECTION_REGISTRY.epistemic.key, INJECTION_REGISTRY.checkpointGuidance.key]),
   new Set([INJECTION_REGISTRY.memoryShortTerm.key, INJECTION_REGISTRY.pacing.key]),
   new Set([INJECTION_REGISTRY.memorySessionDetails.key, INJECTION_REGISTRY.ledger.key]),
 ];

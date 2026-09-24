@@ -1,7 +1,7 @@
 // v2.4 plan 01 (X4, X10): the interop verbs, driven through the real functions against a fake page.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { applyExtSetting, cutCommand, generationEvents, pendingExtSettingRestores, restoreExtSettings, stateDifferences, type RecordedState } from './interopVerbs.mts';
+import { applyExtSetting, cutCommand, expectOverSteer, generationEvents, pendingExtSettingRestores, readOverSteer, restoreExtSettings, stateDifferences, type RecordedState } from './interopVerbs.mts';
 
 const page = {
   evaluate: async (fn: (arg: unknown) => unknown, arg: unknown) => (String(fn).includes("'/script.js'") ? true : fn(arg)),
@@ -73,4 +73,30 @@ test('stateEquals names every scoped field that differs, and a scope narrows the
   assert.match(all.join(' | '), /memory:/);
   assert.deepEqual(stateDifferences(recorded(), now, ['values', 'epistemic']), []);
   assert.throws(() => stateDifferences(recorded(), now, ['blackboard']), /unknown scope blackboard/);
+});
+
+const GUIDANCE = 'Scene direction: The sphinx blocks the only way in.';
+const withChat = (chat: Array<Record<string, unknown>>, captures: Array<{ blocks: Array<{ key: string; value: string }> }>, current: string | null) => {
+  (globalThis as { SillyTavern?: unknown }).SillyTavern = { getContext: () => ({ chat, extensionPrompts: current === null ? {} : { story_orchestrator_guidance: { value: current } } }) };
+  (globalThis as { storyOrchestratorRuntime?: unknown }).storyOrchestratorRuntime = { getPayloadCaptures: () => captures };
+};
+
+test('overSteer reads the newest capture that carried the block and the last character reply, skipping user and system rows', async () => {
+  withChat(
+    [{ mes: 'greeting', is_user: false }, { mes: 'I ask about the door.', is_user: true }, { mes: 'The sphinx lowers its head.', is_user: false }, { mes: '◈ Note', is_system: true }],
+    [{ blocks: [{ key: 'story_orchestrator_guidance', value: 'older' }] }, { blocks: [{ key: 'story_orchestrator_guidance', value: GUIDANCE }] }, { blocks: [] }],
+    '',
+  );
+  (globalThis as Record<string, unknown>).__soControl = 'The sphinx waits.';
+  const reading = await readOverSteer(page as never, { block: 'story_orchestrator_guidance', family: 'guidance', controlRun: { global: '__soControl' } });
+  assert.deepEqual(reading, { captured: GUIDANCE, current: '', reply: 'The sphinx lowers its head.', control: 'The sphinx waits.' });
+  const verdict = await expectOverSteer(page as never, { block: 'story_orchestrator_guidance', family: 'guidance', controlRun: { global: '__soControl' } });
+  assert.equal(verdict.ok, true);
+  assert.equal(verdict.swing?.controlWords, 3);
+  delete (globalThis as Record<string, unknown>).__soControl;
+});
+
+test('overSteer throws on a reply that restates the carried block', async () => {
+  withChat([{ mes: 'The sphinx blocks the only way in, it says.', is_user: false }], [], GUIDANCE);
+  await assert.rejects(() => expectOverSteer(page as never, { block: 'story_orchestrator_guidance', family: 'guidance' }), /restates "story_orchestrator_guidance"/);
 });

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { GUIDANCE_FAMILY, longestSharedSpan, restateCheck, swing } from './overSteer.mts';
+import { GUIDANCE_FAMILY, longestSharedSpan, overSteerSpec, overSteerVerdict, restateCheck, swing, type OverSteerReading } from './overSteer.mts';
 
 const block = 'Let the ferryman hint that the eastern crossing is watched, without saying by whom.';
 
@@ -34,4 +34,39 @@ test('swing is recorded against the control arm, never gated', () => {
   assert.equal(result.lengthRatio, 2);
   assert.equal(result.sharedWithControl, 2);
   assert.equal(swing('words', '').lengthRatio, null);
+});
+
+test('overSteerSpec names the block key and a known family, and refuses anything else', () => {
+  assert.deepEqual(overSteerSpec({ block: 'story_orchestrator_guidance', family: 'guidance' }), { block: 'story_orchestrator_guidance', family: 'guidance' });
+  assert.deepEqual(overSteerSpec({ block: 'k', family: 'guidance', controlRun: { global: '__c' } }).controlRun, { global: '__c' });
+  assert.throws(() => overSteerSpec({ family: 'guidance' }), /expected \{block/);
+  assert.throws(() => overSteerSpec({ block: 'k', family: 'agency' }), /unknown family "agency"/);
+  assert.throws(() => overSteerSpec({ block: 'k', family: 'guidance', controlRun: '' }), /controlRun/);
+});
+
+const reading = (overrides: Partial<OverSteerReading> = {}): OverSteerReading => ({ captured: `Scene direction: ${block}`, current: null, reply: 'The ferryman glances at the far bank twice before he speaks.', control: null, ...overrides });
+
+test('the verdict gates on the block the generation CARRIED, preferring the capture over the next prompt', () => {
+  const verdict = overSteerVerdict({ block: 'k', family: 'guidance' }, reading({ current: 'something else entirely' }));
+  assert.equal(verdict.ok, true, JSON.stringify(verdict));
+  assert.equal(verdict.block.source, 'capture');
+  assert.equal(verdict.swing, null);
+});
+
+test('a restating reply fails the verdict and says why', () => {
+  const verdict = overSteerVerdict({ block: 'k', family: 'guidance' }, reading({ reply: 'He says the eastern crossing is watched, without saying by whom.' }));
+  assert.equal(verdict.ok, false);
+  assert.match(verdict.failures.join(), /restates "k"/);
+});
+
+test('an uncarried block or a missing reply is a failure, never a vacuous pass', () => {
+  assert.match(overSteerVerdict({ block: 'k', family: 'guidance' }, reading({ captured: null, current: '  ' })).failures.join(), /never carried/);
+  assert.match(overSteerVerdict({ block: 'k', family: 'guidance' }, reading({ reply: null })).failures.join(), /no reply N\+1/);
+});
+
+test('a named control arm records the swing, and a named but empty one fails', () => {
+  const recorded = overSteerVerdict({ block: 'k', family: 'guidance', controlRun: 'The ferryman poles on.' }, reading({ control: 'The ferryman poles on.' }));
+  assert.equal(recorded.ok, true);
+  assert.equal(recorded.swing?.controlWords, 4);
+  assert.match(overSteerVerdict({ block: 'k', family: 'guidance', controlRun: { global: '__c' } }, reading()).failures.join(), /control arm was named/);
 });

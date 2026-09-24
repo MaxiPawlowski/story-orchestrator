@@ -16,11 +16,10 @@ import {
 } from "@memory/index";
 import type { CuratorOp, CuratorPassOutcome } from "@stagecraft/index";
 import {
-  clearStoryExtensionPrompt, getContext, readInjectedPromptBlocks, showTextPopup, type WIEntrySnapshot,
+  getContext, readInjectedPromptBlocks, showTextPopup, type WIEntrySnapshot,
 } from "@services/STAPI";
 import { AwayRecapController, type AwayRecap } from "./awayRecap";
 import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./narrative";
-import { PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
 import { CopilotCoordinator } from "./coordinators/copilotCoordinator";
 import { PacingCoordinator } from "./coordinators/pacingCoordinator";
 import { ExpansionCoordinator } from "./coordinators/expansionCoordinator";
@@ -239,7 +238,7 @@ export class RuntimeManager {
       if (!run.stillOwns()) return;
       this.extras = createExtras();
       this.pacing.clearPending();
-      clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
+      this.pacing.updateSteering();
       clearAllMemoryInjection();
       this.status = status;
       this.notify();
@@ -617,11 +616,12 @@ export class RuntimeManager {
   rosterIdForName(name: string): string | null { return rosterIdForName(this.loaded?.story ?? null, name); }
 
   onMemberDrafted(chId: number | [number]) { this.memory.onMemberDrafted(chId); }
-  onGenerationStarted(type: unknown, dryRun?: unknown) { if (type === "impersonate" || type === "quiet") this.memory.withholdPrivateKnowledge(); this.stagecraft.onGenerationStarted(type, dryRun); }
+  onGenerationStarted(type: unknown, dryRun?: unknown) { if (type === "impersonate" || type === "quiet") this.withholdTurnBlocks(); this.stagecraft.onGenerationStarted(type, dryRun); }
   onGenerationEnded() { this.clearPrivateInjection(); this.clearCopilotNudge(); this.stagecraft.clearContinuityNote(); }
   runWardenPass(replyMessageId: number) { return this.stagecraft.runWardenPass(replyMessageId); }
 
-  clearPrivateInjection() { if (!this.loaded) return; this.memory.updateInjection(); }
+  withholdTurnBlocks() { this.memory.withholdPrivateKnowledge(); this.pacing.withholdGuidance(); }
+  clearPrivateInjection() { if (!this.loaded) return; this.memory.updateInjection(); this.pacing.updateSteering(); }
 
   getEpistemic(): EpistemicEntry[] { return this.memory.getEpistemic(); }
   getLedger(): LedgerView[] { return this.memory.getLedger(); }

@@ -3,9 +3,12 @@ import {
   type EngineState, type NormalizedStoryV2, type TensionLevel,
 } from "@engine/index";
 import type { ParsedDelta } from "@extraction/index";
-import { getSteeringHint, updateEma } from "@pacing/index";
+import { composeGuidanceBlock, getSteeringHint, updateEma } from "@pacing/index";
 import { clearStoryExtensionPrompt, setStoryExtensionPrompt } from "@services/STAPI";
 import { PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
+import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
+
+const GUIDANCE = INJECTION_REGISTRY.checkpointGuidance;
 import { computeExpectedTension } from "../snapshot";
 import { defaultTension } from "../extras";
 import type { PacingSettings, TensionRuntimeState } from "../types";
@@ -94,13 +97,23 @@ export class PacingCoordinator {
   }
 
   updateSteering() {
-    if (!this.deps.getStory()) {
+    const story = this.deps.getStory();
+    if (!story) {
       clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
+      this.withholdGuidance();
       return;
     }
-    const story = this.deps.getStory();
-    const hint = getSteeringHint(this.deps.getTension().smoothed, this.expectedTension(), undefined, agencyForCheckpoint(story, this.deps.getState()?.activeCheckpointId ?? null));
+    const activeId = this.deps.getState()?.activeCheckpointId ?? null;
+    const policy = agencyForCheckpoint(story, activeId);
+    const hint = getSteeringHint(this.deps.getTension().smoothed, this.expectedTension(), undefined, policy);
     if (this.deps.getPacing().hintEnabled && hint) setStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY, hint.text, PACING_HINT_DEPTH);
     else clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
+    const guidance = composeGuidanceBlock(activeId ? story.checkpointById[activeId] : null, policy);
+    if (guidance) setStoryExtensionPrompt(GUIDANCE.key, guidance, GUIDANCE.depth);
+    else this.withholdGuidance();
+  }
+
+  withholdGuidance() {
+    clearStoryExtensionPrompt(GUIDANCE.key);
   }
 }
