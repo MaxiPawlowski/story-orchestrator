@@ -80,7 +80,7 @@ export class TalkController {
   private pending: PendingDecision | null = null;
   private forcedChid: number | null = null;
   private pass: PassState | null = null;
-  private reconciledKey: string | null = null;
+  private reconciled: { key: string; run: RunGuard | null } | null = null;
 
   constructor(private readonly host: TalkControlHost) {}
 
@@ -127,8 +127,8 @@ export class TalkController {
     const key = pass.key ?? this.decisionKey();
     const decision = await this.ensureDecision(control, key);
     if (decision.kind !== "member") return;
-    if (this.reconciledKey === key) return;
-    this.reconciledKey = key;
+    if (this.reconciled?.key === key && this.reconciled.run?.stillOwns() !== false) return;
+    this.reconciled = { key, run: this.cached?.key === key ? this.cached.run : null };
     void this.host.triggerMember(decision.name);
   }
 

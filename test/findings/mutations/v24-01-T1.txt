@@ -50,3 +50,12 @@ scope: npx jest src/extraction/scheduler.test.ts
 baseline: 12 passed
 M8 scheduler passes job.window through unchanged -> 1 failed (a queued read reads the chat as it is when it runs)
 restored: 12 passed
+
+T1 live follow-up 3 (2026-09-24, suspected cause of the silent tail turns: 2 of 8 live-v24-01-t1 runs, "send produced
+no reply"): TalkController.reconciledKey was a bare chat:checkpoint:message string. A /cut re-creates the same key for
+the next turn, so onWrapperFinished skipped triggering the chosen member. The guard is now {key, run}, held only
+while the decision's run still owns its world.
+scope: npx jest src/runtime/talkControl.test.ts
+baseline: 22 passed
+M9 reconcile guard compares the key only -> 1 failed (reconciles again after a mutation re-creates the same key)
+restored: 22 passed

@@ -272,6 +272,19 @@ describe("TalkController reconcile", () => {
     expect(calls.triggered).toEqual(["Mara"]);
   });
 
+  it("reconciles again after a mutation re-creates the same key (v2.4 plan 01 T1 live: a /cut reused the message index)", async () => {
+    let world = 0;
+    const ownership = { mint: () => ({ world }) as never, check: (token: { world: number }) => (token.world === world ? { ok: true } : { ok: false, reason: "windowRevision" }) as never };
+    const { host, calls } = makeHost({ ownership } as never);
+    const controller = new TalkController(host);
+    controller.onWrapperStarted({ type: "normal" });
+    await controller.onWrapperFinished();
+    world += 1;
+    controller.onWrapperStarted({ type: "normal" });
+    await controller.onWrapperFinished();
+    expect(calls.triggered).toEqual(["Mara", "Mara"]);
+  });
+
   it("skips reconcile when the chosen member spoke, the pass was forced, or quiet", async () => {
     const spoke = makeHost();
     const spokeController = new TalkController(spoke.host);

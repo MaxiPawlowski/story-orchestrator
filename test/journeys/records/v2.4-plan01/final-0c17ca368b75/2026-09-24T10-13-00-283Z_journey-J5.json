@@ -1,0 +1,233 @@
+{
+  "id": "J5",
+  "title": "group-direction",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j5-group-direction.journey.json",
+  "ranAt": "2026-09-24T10:13:00.248Z",
+  "strict": true,
+  "partial": false,
+  "only": null,
+  "tally": {
+    "pass": 7,
+    "skipped": 1
+  },
+  "tallies": {
+    "automated": {
+      "pass": 7,
+      "fail": 0,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 1
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 7,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [],
+  "humanRecord": null,
+  "runnerError": null,
+  "releasedRoutes": null,
+  "capabilities": {
+    "talk-control": true,
+    "epistemic-ledger": true
+  },
+  "results": [
+    {
+      "id": "J5.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "a talk-control checkpoint loads with speaker direction enabled",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J5.2",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cast_changes applied the checkpoint's roster (Luke disabled at the briefing)",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J5.3",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the scripted npc_reply for entering the checkpoint fired",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J5.4",
+      "mode": "auto",
+      "findings": [],
+      "goal": "a real group turn is routed by speaker direction and the decision is recorded",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J5.5",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the injected payload for that turn was captured",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J5.6",
+      "mode": "auto",
+      "findings": [
+        "U3"
+      ],
+      "goal": "private per-speaker injection: the drafted member sees their own epistemic block, not another's",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J5.8",
+      "mode": "auto",
+      "findings": [
+        "U3"
+      ],
+      "goal": "final-payload privacy: with the party's private knowledge established first, the request ST actually sends for an enabled member's draft carries the knowledge that member held BEFORE the draft inside its private block, and never another member's The recorder reads GENERATE_AFTER_DATA (ST's main Generate() payload, dry runs skipped), not every /api/backends/ fetch: the fetch wrapper also caught our own memory-model calls made while a member was drafted, which carry no private block (L2 J5 run 1). A foreign entry whose text is identical to one of the member's own is set aside and recorded (sharedWithOwn): text alone cannot say whose it is (L2 J5 run 2).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J5.7",
+      "mode": "human",
+      "findings": [],
+      "goal": "",
+      "prompt": "Did the right characters speak at the right moments, and did silence read as a choice rather than a bug?",
+      "anchors": "1 = wrong speaker constantly · 3 = mostly right · 5 = felt directed by a GM",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    }
+  ],
+  "cleanup": {
+    "judgeCalls": {
+      "count": 0,
+      "events": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 2,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "extensionSettings": {
+      "restored": []
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [
+        "legacy-v2-3a7f8d89"
+      ],
+      "preservedSessions": []
+    },
+    "stories": {
+      "removed": 1,
+      "saved": {
+        "status": 200
+      }
+    },
+    "chat": {
+      "sandboxChatId": "2026-09-24@07h10m55s593ms",
+      "owned": [
+        "2026-09-24@07h10m55s593ms"
+      ],
+      "deleted": [
+        "2026-09-24@07h10m55s593ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-24@07h10m55s593ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-20@07h06m38s396ms"
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "member:DM Narrator": {
+      "enabled": true
+    },
+    "member:Arin": {
+      "enabled": true
+    },
+    "member:Ponticius": {
+      "enabled": true
+    },
+    "member:Luke": {
+      "enabled": true
+    },
+    "disabledMembers": []
+  }
+}
