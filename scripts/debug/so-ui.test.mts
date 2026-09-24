@@ -6,7 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { closeCharacterPanel, memoryQueueSelector } from './so-ui.mts';
+import { branchContinue, closeCharacterPanel, memoryQueueSelector } from './so-ui.mts';
 
 test('keep and lock address the side row inside the named pair', () => {
   assert.equal(memoryQueueSelector({ action: 'keep', key: 'fact:abc' }), '[data-so="conflict-pair"][data-key="fact:abc"] [data-so="conflict-keep"] >> nth=0');
@@ -61,4 +61,50 @@ test("control: a pinned panel is the author's choice and stays open; a closed on
   fakeDom(false, false);
   assert.deepEqual(await closeCharacterPanel(fakePage), { closed: false, pinned: false });
   delete (globalThis as any).document;
+});
+
+// v2.4 plan 02 §10: the branch-continue verb, against a DOM that has the notice, one that covers it, and
+// one without it (every build before plan 02 §5, where it must fail as `missing`, not pass).
+const branchDom = ({ present, covered = false, clearsOnClick = true }: { present: boolean; covered?: boolean; clearsOnClick?: boolean }) => {
+  const state = { notice: present, clicks: [] as Array<[number, number]> };
+  const target = { id: 'so-branch-continue', tagName: 'BUTTON', className: 'menu_button', disabled: false, getAttribute: () => null, getBoundingClientRect: () => ({ left: 100, top: 40, width: 80, height: 20 }), contains: (node: unknown) => node === target };
+  const overlay = { id: 'shadow', tagName: 'DIV', className: '', contains: () => false };
+  (globalThis as any).window = { innerWidth: 1280, innerHeight: 800 };
+  (globalThis as any).getComputedStyle = () => ({ pointerEvents: 'auto' });
+  (globalThis as any).document = {
+    querySelector: (selector: string) => (state.notice && (selector === '#so-branch-continue' || selector === '#so-branch-notice') ? target : null),
+    elementFromPoint: () => (covered ? overlay : target),
+  };
+  const page = {
+    evaluate: (fn: (arg?: unknown) => unknown, arg?: unknown) => fn(arg),
+    mouse: { click: async (x: number, y: number) => { state.clicks.push([x, y]); if (clearsOnClick) state.notice = false; } },
+  } as never;
+  return { state, page };
+};
+const noPrepare = async () => undefined;
+const cleanDom = () => { for (const key of ['window', 'getComputedStyle', 'document']) delete (globalThis as any)[key]; };
+
+test('branch-continue lands a pointer on the control centre and waits for the notice to go', async () => {
+  const { state, page } = branchDom({ present: true });
+  const result = await branchContinue(page, { prepare: noPrepare, timeoutMs: 100, pollMs: 5 });
+  assert.deepEqual(state.clicks, [[140, 50]]);
+  assert.equal(result.noticeGone, true);
+  cleanDom();
+});
+
+test('branch-continue fails clearly as missing when no notice exists (today: plan 02 §5 is not built)', async () => {
+  const { state, page } = branchDom({ present: false });
+  await assert.rejects(branchContinue(page, { prepare: async () => { throw new Error('Drawer tab "Overview" not found.'); }, timeoutMs: 50, pollMs: 5 }), /#so-branch-continue is not clickable by a pointer \(missing\).*no branch notice is showing.*Overview" not found/);
+  assert.deepEqual(state.clicks, []);
+  cleanDom();
+});
+
+test('control: a covered control is refused without a click, and a click that leaves the notice up fails', async () => {
+  const covered = branchDom({ present: true, covered: true });
+  await assert.rejects(branchContinue(covered.page, { prepare: noPrepare, timeoutMs: 50, pollMs: 5 }), /\(overlay\)/);
+  assert.deepEqual(covered.state.clicks, []);
+  const stuck = branchDom({ present: true, clearsOnClick: false });
+  await assert.rejects(branchContinue(stuck.page, { prepare: noPrepare, timeoutMs: 30, pollMs: 5 }), /was still showing after 30 ms/);
+  assert.equal(stuck.state.clicks.length, 1);
+  cleanDom();
 });

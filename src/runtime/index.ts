@@ -102,6 +102,7 @@ export function startRuntime() {
   bridge = new TurnBridge(runtimeManager);
   bridge.start();
   const chatLastId = () => (Array.isArray(getContext().chat) ? getContext().chat.length - 1 : -1);
+  globalThis.storyOrchestratorScheduler = { nextReadWindow: () => scheduler?.nextReadWindow(chatLastId()) ?? null };
   const judgeRuntime = new JudgeRuntime({
     getSettings: () => getGlobalSettings().judge,
     transport: judgeTransport,
@@ -260,6 +261,7 @@ export function stopRuntime() {
   talkController = null;
   sceneCoordinator = null;
   globalThis.talkControlInterceptor = () => undefined;
+  globalThis.storyOrchestratorScheduler = undefined;
   started = false;
 }
 

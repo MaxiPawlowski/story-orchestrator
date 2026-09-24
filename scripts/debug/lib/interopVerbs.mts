@@ -105,6 +105,7 @@ export const pendingExtSettingRestores = () => pendingRestores.length;
 export type RecordedState = {
   engine: { values: Record<string, unknown>; versions: Record<string, unknown>; active: string; path: string[]; boundary: number };
   rows: { memory: string[]; epistemic: string[]; ledger: string[] };
+  rollbackSeq?: number;
 };
 
 export const STATE_SCOPES = ['values', 'versions', 'active', 'path', 'boundary', 'memory', 'epistemic', 'ledger'] as const;
@@ -123,6 +124,7 @@ export async function readRecordableState(page: Page): Promise<RecordedState> {
         epistemic: (rt.getEpistemic?.() ?? []).filter(live).map((row: any) => row.id).sort(),
         ledger: (rt.getLedger?.() ?? []).filter((row: any) => !row.bound && live(row)).map((row: any) => row.id ?? `${row.entity}:${row.field}`).sort(),
       },
+      rollbackSeq: Number(rt.notices?.lastOutcome?.seq ?? 0),
     };
   });
 }

@@ -866,7 +866,7 @@ export async function openStoryDrawer(page) {
   return { alreadyOpen: false };
 }
 
-const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|stagecraft|curator-accept|curator-reject|memory-queue|hit-test|screenshot> [label]
+const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|stagecraft|curator-accept|curator-reject|memory-queue|hit-test|branch-continue|screenshot> [label]
 
 all: print settings + drawer state.
 settings: print settings panel state.
@@ -895,6 +895,7 @@ memory-queue [action] [--key <conflictKey>] [--side <n>] [--index <n>]: the reco
   Actions: keep|lock (--key, --side), reread|dismiss (--key), reconfirm|discard (--index into the quarantined list).
   It clicks the panel's own control, then re-reads, so the result shows what the author would see after the click.
 hit-test <selector>: ask which element is topmost at the target's own centre. Exits 1 when a real pointer would not land on it.
+branch-continue: open the drawer Overview, hit-test #so-branch-continue, click it with a real pointer and wait for #so-branch-notice to go (v2.4 plan 02).
 screenshot [label]: take an annotated screenshot.`;
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
@@ -1059,6 +1060,12 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       if (!result.clickable) process.exitCode = 1;
     }
 
+    if (subcommand === 'branch-continue') {
+      const result = await branchContinue(page);
+      console.log(JSON.stringify(result, null, 2));
+      await writeJSON(result, 'so-ui-branch-continue');
+    }
+
     if (subcommand === 'screenshot') {
       const result = await takeAnnotatedScreenshot(page, 'so-ui-state');
       console.log(`Screenshot: ${result.path} (drawer visible: ${result.drawerVisible})`);
@@ -1084,6 +1091,33 @@ export async function pointerClick(page, selector: string, { expectVisible = nul
     if (!opened) throw new Error(`a pointer click on ${selector} did not open ${expectVisible} within ${timeoutMs} ms`);
   }
   return { ...hit, clicked: true, opened: expectVisible };
+}
+
+export const BRANCH_CONTINUE = '#so-branch-continue';
+export const BRANCH_NOTICE = '#so-branch-notice';
+
+const openOverview = async (page) => {
+  await openStoryDrawer(page);
+  await switchDrawerTab(page, 'Overview');
+};
+
+// v2.4 plan 02 §10: "Continue from here" on a branch, pressed the way a player presses it — a pointer at
+// the control's own centre after a hit-test — and proven by the notice going away, not by the click.
+export async function branchContinue(page, { prepare = openOverview, timeoutMs = 10000, pollMs = 250 } = {}) {
+  const prepared = await Promise.resolve(prepare(page)).then(() => null, (error) => (error instanceof Error ? error.message : String(error)));
+  const hit = await hitTest(page, BRANCH_CONTINUE);
+  if (!hit.clickable || !hit.at) {
+    const why = hit.blocked === 'missing' ? ' — no branch notice is showing (not a branch, already continued, or a build without the plan 02 §5 notice)' : '';
+    throw new Error(`${BRANCH_CONTINUE} is not clickable by a pointer (${hit.blocked}): ${hit.reason}${why}${prepared ? `; opening the drawer Overview failed first: ${prepared}` : ''}`);
+  }
+  await page.mouse.click(hit.at.x, hit.at.y);
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    const showing = await evaluateInST(page, (selector: string) => Boolean(document.querySelector(selector)), BRANCH_NOTICE);
+    if (!showing) return { ...hit, clicked: true, noticeGone: true };
+    if (Date.now() >= deadline) throw new Error(`clicked ${BRANCH_CONTINUE}, and ${BRANCH_NOTICE} was still showing after ${timeoutMs} ms, so the branch was not continued`);
+    await new Promise((resolve) => setTimeout(resolve, pollMs));
+  }
 }
 
 export async function hitTest(page, selector: string) {

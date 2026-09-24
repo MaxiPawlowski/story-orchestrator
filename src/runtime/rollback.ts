@@ -27,15 +27,35 @@ export interface RollbackDeps {
   dropReadsAfter: (messageId: number) => Promise<void>;
   persist: () => Promise<void>;
   notify: () => void;
-  notices: { lastRollback: RollbackNotice | null; rollbackUnavailable: RollbackUnavailable | null };
+  notices: { lastRollback: RollbackNotice | null; rollbackUnavailable: RollbackUnavailable | null; lastOutcome?: RollbackRecord | null };
   setStatus: (status: string) => void;
   onApplied: (messageId: number, window: SharedReadWindow) => void;
 }
+
+export interface RollbackRecord {
+  seq: number;
+  result: "applied" | "noop" | "history-unavailable";
+  fromMessage: number | null;
+  reason?: string;
+  at: string;
+}
+
+export const rollbackRecord = (previous: RollbackRecord | null | undefined, messageId: number, outcome: RollbackOutcome, at: string): RollbackRecord => {
+  const finite = Number.isFinite(messageId);
+  const reason = !finite ? "no usable message id" : outcome.ok ? undefined : `oldest restorable boundary ${outcome.oldest.boundary} (message ${outcome.oldest.messageId})`;
+  return { seq: (previous?.seq ?? 0) + 1, result: outcome.ok ? outcome.result : outcome.reason, fromMessage: finite ? messageId : null, ...(reason ? { reason } : {}), at };
+};
 
 const historyNote = (messageId: number, oldest: { boundary: number }): string =>
   `message ${messageId} is older than what this chat can reconstruct (oldest boundary ${oldest.boundary}); the messages the edit invalidated were dropped and the story was not stepped back`;
 
 export async function runRollback(deps: RollbackDeps, messageId: number, decoded?: DecodeJournal): Promise<RollbackOutcome> {
+  const outcome = await rollbackOnce(deps, messageId, decoded);
+  deps.notices.lastOutcome = rollbackRecord(deps.notices.lastOutcome, messageId, outcome, new Date().toISOString());
+  return outcome;
+}
+
+async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: DecodeJournal): Promise<RollbackOutcome> {
   if (!Number.isFinite(messageId)) return { ok: true, result: "noop" };
   const { engine } = deps;
   const extras = deps.extras();

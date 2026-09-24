@@ -189,3 +189,48 @@ describe("V25: cadence reads cover the chat without gaps", () => {
     expect(await windows(scheduler, [[1, 40]])).toEqual([{ from: 33, to: 40 }]);
   });
 });
+
+describe("v2.4 plan 02 §10: the window the scheduler would read next", () => {
+  beforeEach(() => {
+    mockChat.length = 0;
+    for (let index = 0; index < 16; index += 1) mockChat.push({ name: index % 2 ? "Arin" : "Max", mes: `m${index}` });
+  });
+  afterEach(() => { mockChat.length = 0; });
+
+  it("predicts the cadence read the next boundary actually takes", async () => {
+    const scheduler = new ExtractionScheduler(makeHost({ cadence: 1, stabilityLag: 0 }));
+    expect(scheduler.nextReadWindow(11)).toMatchObject({ source: "cadence", window: { from: 4, to: 11 } });
+    const read = runSharedRead as jest.Mock;
+    read.mockClear();
+    scheduler.onBoundary(1, false, 11);
+    await flush();
+    const predicted = scheduler.nextReadWindow(13);
+    scheduler.onBoundary(2, false, 13);
+    await flush();
+    expect(predicted?.window).toEqual(read.mock.calls[1][0].window);
+    expect(predicted?.window).toMatchObject({ from: 12, to: 13 });
+  });
+
+  it("keeps a hidden message inside the range and out of the messages", () => {
+    (mockChat[6] as { is_system?: boolean }).is_system = true;
+    const next = new ExtractionScheduler(makeHost({ cadence: 1, stabilityLag: 0 })).nextReadWindow(11);
+    expect(next?.window).toMatchObject({ from: 4, to: 11 });
+    expect(next?.window.messages.map((message) => message.messageId)).toEqual([4, 5, 7, 8, 9, 10, 11]);
+  });
+
+  it("a queued read with a window is what runs next, not the cadence read", async () => {
+    let release = () => {};
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    const scheduler = new ExtractionScheduler(makeHost({ cadence: 1, stabilityLag: 0 }));
+    scheduler.schedule({ priority: 2, reason: "hold", run: async () => { await gate; } });
+    await Promise.resolve();
+    scheduler.schedule({ priority: 0, reason: "rollback:3", window: { from: 3, to: 9, messages: [] } });
+    expect(scheduler.nextReadWindow(11)).toEqual({ source: "queued", reason: "rollback:3", window: { from: 3, to: 9, messages: [] } });
+    release();
+    await flush();
+  });
+
+  it("answers null before there is a stable message to read", () => {
+    expect(new ExtractionScheduler(makeHost({ cadence: 1, stabilityLag: 1 })).nextReadWindow(0)).toBeNull();
+  });
+});

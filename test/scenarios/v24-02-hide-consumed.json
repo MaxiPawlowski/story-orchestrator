@@ -1,0 +1,29 @@
+{
+  "_note": "v2.4 plan 02 step 2, row '/hide consumed' (D5, H5). No backend. Run: node scripts/debug/so-scenario.mts run test/scenarios/v24-02-hide-consumed.json --sandbox --group 1759606632088. H5, re-verified 2026-09-24: /hide and /unhide (slash-commands.js:1836-1837, :1859-1860, callbacks :4783/:4796) call hideChatMessageRange (chats.js:147-169), which flips `is_system`, re-renders the swipe buttons and saves through saveChatConditional, and emits NO event. Three player lines are each consumed by their own boundary (one latching delta + one fact whose evidence quotes that line); then /hide 1 hides the consumed lamp line. Asserts: no rollback ran (rollbackOutcome none since the mark), the story and the lamp fact are exactly as recorded (hidden is not deleted: stateEquals over every scope), and the window the scheduler reads next leaves message 1 out while still reading 0 and 2; after /unhide 1 the next read includes it again, still with no rollback. EXPECTED GREEN on today's code (NOT red): D5 already holds in behaviour (the plan's 'Verified current state' says so: chatWindow.ts:8 drops is_system rows, and /hide emits nothing to roll back on). This is the pin plan 02 section 4 asks for: it goes red the day T3 hashes `is_system`, T1's key grows it, or a hide is treated as a mutation. It needs this build's harness seam (storyOrchestratorScheduler.nextReadWindow, runtime.notices.lastOutcome); on a bundle without them the two expectations fail as 'exposes no ...', which is a build mismatch, not a product result.",
+  "steps": [
+    { "eval": "const ctx = SillyTavern.getContext(); const greetings = ctx.chat.length; for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error(`the sandbox chat still holds ${ctx.chat.length} message(s) after clearing its greetings, so every message id below would name the wrong line`); return { greetingsCleared: greetings };", "log": true },
+    { "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };" },
+    { "import_story": { "file": "v24-01-delete.story.json" } },
+    { "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const state = rt.getEngineState(); if (!state || state.activeCheckpointId !== 'start') throw new Error(`the story did not load at start: ${JSON.stringify(state && state.activeCheckpointId)}`); return { cadence: 0, stabilityLag: 0, boundary: state.boundary };" },
+    { "send": "I take the brass key from the hook." },
+    { "extract": { "debugResponse": "DELTA q=took_key value=true evidence=\"I take the brass key\"\nFACT importance=2 text=\"The player carries the brass key.\" evidence=\"I take the brass key from the hook.\"", "reason": "v24-02:line-0" } },
+    { "send": "I light the oil lamp by the door." },
+    { "extract": { "debugResponse": "DELTA q=lit_lamp value=true evidence=\"I light the oil lamp\"\nFACT importance=2 text=\"The oil lamp by the door is lit.\" evidence=\"I light the oil lamp by the door.\"", "reason": "v24-02:line-1" } },
+    { "send": "I unroll the map on the table." },
+    { "extract": { "debugResponse": "DELTA q=found_map value=true evidence=\"I unroll the map\"\nFACT importance=2 text=\"The map lies unrolled on the table.\" evidence=\"I unroll the map on the table.\"", "reason": "v24-02:line-2" } },
+    { "eval": "const rt = globalThis.storyOrchestratorRuntime; const lines = SillyTavern.getContext().chat.map((m) => m.mes); const state = rt.getEngineState(); const values = state.blackboard.values; if (lines.length !== 3 || !String(lines[1]).includes('oil lamp')) throw new Error(`the chat is not the three scripted lines: ${JSON.stringify(lines)}`); if (state.lastMessageId !== 2) throw new Error(`the engine consumed up to message ${state.lastMessageId}, expected 2`); for (const key of ['took_key', 'lit_lamp', 'found_map']) if (values[key] !== true) throw new Error(`${key} did not land before the hide: ${JSON.stringify(values)}`); const lamp = rt.getSnapshot().memory.entries.find((e) => e.tier === 'facts' && /oil lamp/.test(e.text)); if (!lamp) throw new Error('the lamp fact never landed, so there is nothing for the hide to keep'); return { values, lampFact: lamp.id, boundary: state.boundary };", "log": true },
+    { "expect": { "nextReadWindow": { "includes": [0, 1, 2] } } },
+    { "record_state": { "as": "before-hide" }, "log": true },
+    { "slash": "/hide 1" },
+    { "eval": "const chat = SillyTavern.getContext().chat; if (chat.length !== 3) throw new Error(`/hide changed the chat length to ${chat.length}; it must only flag the row`); if (chat[1].is_system !== true) throw new Error(`message 1 is not hidden (is_system=${JSON.stringify(chat[1].is_system)}), so the rest of this fixture would prove nothing`); return { hidden: 1, mes: chat[1].mes };", "log": true },
+    { "wait": { "idle": true, "timeoutMs": 30000 } },
+    { "expect": { "rollbackOutcome": { "result": "none", "since": "before-hide" } } },
+    { "expect": { "stateEquals": { "as": "before-hide", "scope": ["values", "versions", "active", "path", "boundary", "memory", "epistemic", "ledger"] } } },
+    { "expect": { "nextReadWindow": { "excludes": [1], "includes": [0, 2] } }, "log": true },
+    { "slash": "/unhide 1" },
+    { "eval": "const chat = SillyTavern.getContext().chat; if (chat[1].is_system === true) throw new Error('/unhide did not clear is_system on message 1'); return { unhidden: 1 };" },
+    { "expect": { "rollbackOutcome": { "result": "none", "since": "before-hide" } } },
+    { "expect": { "stateEquals": { "as": "before-hide", "scope": ["values", "versions", "active", "path", "boundary", "memory", "epistemic", "ledger"] } } },
+    { "expect": { "nextReadWindow": { "includes": [0, 1, 2] } }, "log": true }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "name": "v24-02-unrecognized-blob",
+  "objective": "v2.4 plan 02 T11 (no model). A chat whose story state was saved by a NEWER Story Orchestrator (a v5-shaped blob, seeded verbatim) is read detached: no story, the stored blob byte-identical in memory and in the server's chat file after a save, blob-unreadable journaled and flagged on the snapshot. An explicit selection (import) is refused with 'saved by a newer Story Orchestrator (v5): update, or Restart to replace it'; a cancelled Restart changes nothing; only a confirmed Restart replaces it, with a fresh v4 blob stamped for this chat and the refused story started. RED on 9cb054a: getMetadataBlob answers any version it does not know with createBlob() and writes it into chat_metadata, so step 2 finds version 4 where the v5 blob was.",
+  "steps": [
+    {
+      "seed_metadata": {
+        "blob": {
+          "version": 5,
+          "chatId": null,
+          "integrity": "v24-02-seeded-integrity",
+          "selectedStoryId": "so-v24-02-future",
+          "stories": { "so-v24-02-future": { "storyId": "so-v24-02-future", "storyTitle": "Written by a newer build", "marker": "written-by-v5", "fingerprints": { "v": 1, "from": 0, "hashes": ["a1b2c3d4"] } } },
+          "futureField": { "kept": true }
+        }
+      },
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const blob = ctx.chatMetadata.story_orchestrator; const result = { version: blob?.version ?? null, marker: blob?.stories?.['so-v24-02-future']?.marker ?? null, futureField: blob?.futureField ?? null, storyId: rt.getSnapshot().storyId, flagged: rt.getSnapshot().blobUnreadable ?? null, journaled: JSON.stringify(rt.getSessionJournal()).includes('blob-unreadable') }; if (result.version !== 5 || result.marker !== 'written-by-v5' || !result.futureField) throw new Error(`the v5 blob was replaced by reading it: ${JSON.stringify(result)}`); if (result.storyId !== null) throw new Error(`an unreadable blob was read as a story: ${JSON.stringify(result)}`); if (result.flagged?.foundVersion !== 5) throw new Error(`the snapshot does not say the state is unreadable: ${JSON.stringify(result)}`); if (!result.journaled) throw new Error(`blob-unreadable was not journaled: ${JSON.stringify(result)}`); globalThis.__v2402Seed = JSON.stringify(blob); return result;",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); await ctx.saveMetadata(); await new Promise((r) => setTimeout(r, 1500)); const group = typeof ctx.groupId === 'string' && ctx.groupId ? ctx.groupId : null; const avatar = group ? null : ctx.characters?.[Number(ctx.characterId)]?.avatar ?? null; const response = await fetch(group ? '/api/chats/group/get' : '/api/chats/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify(group ? { id: ctx.chatId } : { avatar_url: avatar, file_name: ctx.chatId }) }); if (!response.ok) throw new Error(`could not read the chat file back: HTTP ${response.status}`); const lines = await response.json(); const onServer = Array.isArray(lines) ? lines[0]?.chat_metadata?.story_orchestrator ?? null : null; const result = { serverVersion: onServer?.version ?? null, identical: JSON.stringify(onServer) === globalThis.__v2402Seed, inMemoryIdentical: JSON.stringify(ctx.chatMetadata.story_orchestrator) === globalThis.__v2402Seed }; if (!result.inMemoryIdentical) throw new Error(`the in-memory blob changed: ${JSON.stringify(result)}`); if (!result.identical) throw new Error(`the server's chat file no longer holds the v5 blob byte-for-byte: ${JSON.stringify(result)}`); return result;",
+      "log": true
+    },
+    {
+      "import_story": { "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json" },
+      "expectFail": true,
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const snapshot = rt.getSnapshot(); const result = { storyId: snapshot.storyId, status: snapshot.status, inLibrary: (snapshot.library ?? []).some((entry) => entry.id === 'sun-ruins'), identical: JSON.stringify(ctx.chatMetadata.story_orchestrator) === globalThis.__v2402Seed, journaled: JSON.stringify(rt.getSessionJournal()).includes(\"blob-unreadable: selecting 'sun-ruins' refused\") }; if (result.storyId !== null) throw new Error(`the selection was not refused: ${JSON.stringify(result)}`); if (!String(result.status).includes('saved by a newer Story Orchestrator (v5): update, or Restart to replace it')) throw new Error(`the refusal does not say what to do: ${JSON.stringify(result)}`); if (!result.inLibrary) throw new Error(`the import did not reach the library: ${JSON.stringify(result)}`); if (!result.identical) throw new Error(`the refused selection wrote into the v5 blob: ${JSON.stringify(result)}`); if (!result.journaled) throw new Error(`the refused selection was not journaled: ${JSON.stringify(result)}`); return result;",
+      "log": true
+    },
+    {
+      "restart_story": false,
+      "expectFail": true,
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const result = { identical: JSON.stringify(ctx.chatMetadata.story_orchestrator) === globalThis.__v2402Seed, storyId: globalThis.storyOrchestratorRuntime.getSnapshot().storyId }; if (!result.identical || result.storyId !== null) throw new Error(`a cancelled Restart changed the stored state: ${JSON.stringify(result)}`); return result;",
+      "log": true
+    },
+    {
+      "restart_story": true,
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await new Promise((r) => setTimeout(r, 1500)); const blob = ctx.chatMetadata.story_orchestrator; const snapshot = rt.getSnapshot(); const group = typeof ctx.groupId === 'string' && ctx.groupId ? ctx.groupId : null; const avatar = group ? null : ctx.characters?.[Number(ctx.characterId)]?.avatar ?? null; const response = await fetch(group ? '/api/chats/group/get' : '/api/chats/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify(group ? { id: ctx.chatId } : { avatar_url: avatar, file_name: ctx.chatId }) }); const lines = response.ok ? await response.json() : null; const onServer = Array.isArray(lines) ? lines[0]?.chat_metadata?.story_orchestrator ?? null : null; const result = { version: blob?.version ?? null, stampedFor: blob?.chatId ?? null, openChat: String(ctx.chatId), futureStory: Boolean(blob?.stories?.['so-v24-02-future']), storyId: snapshot.storyId, flagged: snapshot.blobUnreadable ?? null, serverVersion: onServer?.version ?? null, journaled: JSON.stringify(rt.getSessionJournal()).includes('blob-unreadable: replaced on a confirmed Restart') }; if (result.version !== 4 || result.stampedFor !== result.openChat || result.futureStory) throw new Error(`a confirmed Restart did not replace the v5 blob with this chat's own: ${JSON.stringify(result)}`); if (result.storyId !== 'sun-ruins') throw new Error(`the refused story did not start: ${JSON.stringify(result)}`); if (result.flagged) throw new Error(`the snapshot still flags the replaced state: ${JSON.stringify(result)}`); if (result.serverVersion !== 4) throw new Error(`the replacement did not reach the server's chat file: ${JSON.stringify(result)}`); if (!result.journaled) throw new Error(`the replacement was not journaled: ${JSON.stringify(result)}`); return result;",
+      "log": true
+    }
+  ]
+}

@@ -14,9 +14,10 @@ import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { adoptNewSandboxChat, assertInSandbox, beginSandboxSession, deleteSandboxChats, openGroup, openMostRecentGroupChat, readActiveChat, readChatOnDisk, reopenSandboxChat } from './st-navigation.mts';
 import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, sendUserMessage, swipeMessage, waitForIdle } from './st-actions.mts';
 import { dumpCurrentChatState } from './so-state.mts';
-import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, getMemoryQueueState, memoryQueueAction, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot, hitTest, pointerClick } from './so-ui.mts';
+import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, branchContinue, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, getMemoryQueueState, memoryQueueAction, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot, hitTest, pointerClick } from './so-ui.mts';
 import { leakCount, listMarkedAssets, removeMarkedAssets } from './so-assets.mts';
 import { applyExtSetting, cutCommand, emitGeneration, expectOverSteer, expectStateEquals, hostDelete, injectScript, recordState, restoreExtSettings } from './lib/interopVerbs.mts';
+import { branchCreate, cleanupBranchChats, expectNextReadWindow, expectRollbackOutcome } from './lib/identityVerbs.mts';
 
 const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep] [--group <id|name>]
 
@@ -32,11 +33,14 @@ nondeterministic step actually got (e.g. which op kind the real curator proposed
 
 Step keys:
   import_story, seed_metadata, select_story, restart_story, studio_save, send, send_generate, slash, extract, expand, eval, copilot, ui, stagecraft, assets, reload, swipe, edit, delete, wait, expect, expect_ui,
-  block_route ({pattern, status?} — fails the URL at the transport, so the page's fetch throws; a positive status answers instead), unblock_route ({pattern?} — every block when no pattern)
+  block_route ({pattern, status?} — fails the URL at the transport, so the page's fetch throws; a positive status answers instead), unblock_route ({pattern?} — every block when no pattern),
+  branch_create ({mesId?: id|"last", kind?: "branch"|"checkpoint", name?, open?} — /branch-create or /checkpoint-create; --sandbox only. The chat is recorded in the run's
+    ledger, adopted into the sandbox, and deleted by cleanup, which reports cleanup.branchChats {deleted, failed, leaked}; a leak fails the run)
 
 ui actions ({ui: {action, label?, note?}}):
   open-drawer, drawer-tab, open-settings, select-profile, open-studio, close-studio, studio-tab, studio-save, flag, screenshot,
   open-wizard, new-story-wizard, wizard-run ({stage?, message?}), wizard-answer ({answers?}), wizard-apply ({index?}), wizard-state,
+  branch-continue ({timeoutMs?} — hit-tests and pointer-clicks #so-branch-continue in the drawer Overview, then waits for #so-branch-notice to go),
   stagecraft ({minOps?, timeoutMs?} — waits for that many review cards), curator-accept ({index?, text?, pick?: 'text-first'}), curator-reject ({index?, pick?})
 
 copilot actions ({copilot: {action, ...}}):
@@ -67,7 +71,9 @@ expect verbs:
   background ("<file>" or {name, locked}),
   effectsLedger ({count, countAtLeast, unsupported, has:[{effect,status?,targetKind?,targetContains?,before?,after?,reasonContains?}], absent:[{effect,status?}]}),
   groupDisabled ({disabled:[name], enabled:[name], exact:[name]} — read from the OPEN GROUP, not our mirror),
-  stagecraft ({proposals, proposalsAtLeast, applied, appliedAtLeast, opStatus:[...], scope:[...], dropped:[...], curatorEnabled, acceptMode, noError})
+  stagecraft ({proposals, proposalsAtLeast, applied, appliedAtLeast, opStatus:[...], scope:[...], dropped:[...], curatorEnabled, acceptMode, noError}),
+  rollbackOutcome ({result: applied|noop|history-unavailable|none, fromMessage?, reason?, since?: <record_state label>} — the last runRollback outcome; "none" needs since),
+  nextReadWindow ({includes?: [ids], excludes?: [ids]} — the window the scheduler reads next; an empty window or one outside the chat fails)
 
 wait verbs:
   idle, schedulerIdle (+quietMs, default 3000 — every off-path queue empty for that long), boundary, auditCount, acceptedDelta, expansionStatus, checkpoint, checkpointNot, checkpointIn, progress (+progressAnchor), reconciliationEvents, talkDecisions, memoryEntries (+memoryTier), arcsSummarized, canonPresent, backfillComplete`;
@@ -770,6 +776,7 @@ async function uiStep(page, spec) {
     if (!result.clickable) throw new Error(`${result.selector} is not clickable by a pointer: ${result.reason}`);
     return result;
   }
+  if (action === 'branch-continue') return branchContinue(page, { timeoutMs: spec?.timeoutMs ?? 10000 });
   if (action === 'pointer-click') return pointerClick(page, spec?.selector ?? label, { expectVisible: spec?.expectVisible ?? null, answerPopup: Boolean(spec?.answerPopup), timeoutMs: spec?.timeoutMs ?? 10000 });
   if (action === 'assert-player-clean') {
     const result = await assertPlayerClean(page);
@@ -1011,6 +1018,7 @@ async function cleanupScenario(page, importedHashes, guard, keep, libraryBefore:
     cleaned.clearedDebugResponses = await clearDebugResponses(page).catch((err) => ({ error: err instanceof Error ? err.message : String(err) }));
     await recordSandboxStory(page, guard);
     try { Object.assign(cleaned, await deleteSandboxChats(page, guard)); } catch (err) { cleaned.chatCleanupError = err instanceof Error ? err.message : String(err); }
+    try { cleaned.branchChats = await cleanupBranchChats(page, guard); } catch (err) { cleaned.branchChats = { error: err instanceof Error ? err.message : String(err), leaked: [...(guard.branchChats ?? [])] }; }
     try { cleaned.mirrorBooks = await deleteSandboxMirrorBooks(page, guard); } catch (err) { cleaned.mirrorBookCleanupError = err instanceof Error ? err.message : String(err); }
     // The chat the page was on before this run is none of the run's business. Read it back from the
     // server and say so loudly if it shrank: a silent loss here is the user's story, and nothing else
@@ -1060,13 +1068,16 @@ async function runStep(page, key, value, { scenarioDir = PROJECT_ROOT, importedH
   if (key === 'ext_setting') return applyExtSetting(page, value);
   if (key === 'record_state') return recordState(page, value);
   if (key === 'inject_script') return injectScript(page, value, scenarioDir);
+  if (key === 'branch_create') return branchCreate(page, value, guard);
   if (key === 'wait') return waitForCondition(page, value);
   if (key === 'expect') {
-    const { stateEquals, overSteer, ...rest } = value ?? {};
+    const { stateEquals, overSteer, rollbackOutcome, nextReadWindow, ...rest } = value ?? {};
     const equal = stateEquals ? await expectStateEquals(page, stateEquals) : null;
     const steer = overSteer ? await expectOverSteer(page, overSteer) : null;
-    const extra = { ...(equal ? { stateEquals: equal } : {}), ...(steer ? { overSteer: steer } : {}) };
-    if (!Object.keys(rest).length) return steer ? extra : equal;
+    const rolled = rollbackOutcome ? await expectRollbackOutcome(page, rollbackOutcome) : null;
+    const reads = nextReadWindow ? await expectNextReadWindow(page, nextReadWindow) : null;
+    const extra = { ...(equal ? { stateEquals: equal } : {}), ...(steer ? { overSteer: steer } : {}), ...(rolled ? { rollbackOutcome: rolled } : {}), ...(reads ? { nextReadWindow: reads } : {}) };
+    if (!Object.keys(rest).length) return steer || rolled || reads ? extra : equal;
     const assertion = evaluateExpect(await dumpCurrentChatState(page), rest);
     if (!assertion.ok) throw new Error(assertion.failures.join('; '));
     return { ...assertion.actual, ...extra };
@@ -1202,6 +1213,11 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
       if (leftChats.length) {
         result.ok = false;
         result.error = `cleanup left sandbox chat(s) in the group: ${leftChats.join(', ')}`;
+      }
+      const branches = (cleanup.branchChats ?? {}) as { leaked?: string[]; failed?: string[]; error?: string };
+      if (branches.error || branches.leaked?.length || branches.failed?.length) {
+        result.ok = false;
+        result.error = [result.error, `cleanup left branch chat(s): leaked ${JSON.stringify(branches.leaked ?? [])}, failed ${JSON.stringify(branches.failed ?? [])}${branches.error ? `, ${branches.error}` : ''}`].filter(Boolean).join('; ');
       }
     }
   }
