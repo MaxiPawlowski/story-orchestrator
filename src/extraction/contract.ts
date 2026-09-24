@@ -11,6 +11,9 @@ const TENSION_SCALE: Record<TensionLevel, string> = {
   peak: "climactic confrontation or catastrophe at full intensity",
 };
 
+export const WORLD_EVIDENCE_RULE = "Evidence must quote a line the player did not write.";
+export const PLAYER_MARK = " (player)";
+
 const renderType = (contract: SharedReadContract) => contract.qualities.map(({ quality, hints }) => {
   const hintText = hints.length ? ` Hints: ${hints.join(" | ")}` : "";
   if (quality.key === TENSION_CURRENT_KEY) {
@@ -20,12 +23,16 @@ const renderType = (contract: SharedReadContract) => contract.qualities.map(({ q
     ].join("\n");
   }
   const allowed = quality.values?.length ? ` Allowed values: ${quality.values.join(", ")}.` : "";
-  return `- ${quality.key}: type=${quality.type}; ${quality.rubric}${allowed}${hintText}`;
+  const world = quality.evidence_from === "world" ? ` ${WORLD_EVIDENCE_RULE}` : "";
+  return `- ${quality.key}: type=${quality.type}; ${quality.rubric}${allowed}${hintText}${world}`;
 }).join("\n");
 
-const renderTranscript = (contract: SharedReadContract) => contract.window.messages.map((message) => {
-  return `[${message.index}] ${message.speaker}: ${message.text}`;
-}).join("\n");
+export const marksPlayerLines = (contract: Pick<SharedReadContract, "qualities">): boolean => contract.qualities.some(({ quality }) => quality.evidence_from === "world");
+
+const renderTranscript = (contract: SharedReadContract) => {
+  const marked = marksPlayerLines(contract);
+  return contract.window.messages.map((message) => `[${message.index}] ${message.speaker}${marked && message.isUser ? PLAYER_MARK : ""}: ${message.text}`).join("\n");
+};
 
 export function renderSharedReadPrompt(contract: SharedReadContract): string {
   return [
@@ -63,6 +70,7 @@ export function hashContract(contract: SharedReadContract): string {
     epistemicLedgerCapable: contract.epistemicLedgerCapable ?? false,
     entities: contract.entities ?? [],
     ...(contract.window.form ? { windowForm: contract.window.form } : {}),
+    ...(marksPlayerLines(contract) ? { playerLines: true } : {}),
   });
   for (let index = 0; index < text.length; index += 1) {
     hash ^= text.charCodeAt(index);

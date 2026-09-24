@@ -14,6 +14,7 @@ export interface TypedWindowMessage {
   id: number;
   speaker: string;
   text: string;
+  isUser?: boolean;
 }
 
 export interface TypedStoryContext {
@@ -157,11 +158,12 @@ export function readTypedDeltas(answers: Record<string, JudgeAnswer>, plan: Type
     const quality = byKey.get(decoder.key);
     const read = quality ? decoder.decode(answers) : null;
     if (!quality || !read || read.confidence < typedFloor(quality)) continue;
-    answered.push(decoder.key);
-    if (read.value === undefined || !qualityAccepts(quality, read.value)) continue;
     const picked = (decoder.evidenceId ? choiceAnswer(answers, decoder.evidenceId)?.choice : undefined) ?? read.messageKey;
     const messageId = picked !== undefined ? plan.messageIds[picked] : window.length === 1 ? window[0].id : undefined;
     const source = window.find((message) => message.id === messageId);
+    if (quality.evidence_from === "world" && (!source || source.isUser)) continue;
+    answered.push(decoder.key);
+    if (read.value === undefined || !qualityAccepts(quality, read.value)) continue;
     deltas.push({ q: decoder.key, v: read.value, confidence: read.confidence, evidence: (source?.text ?? "judged from the window").slice(0, 160), ...(messageId !== undefined ? { messageId } : {}) });
   }
   return { deltas, answered };
@@ -173,6 +175,7 @@ export interface StallLeaf {
   type: Quality["type"];
   op: string;
   v: PrimitiveValue | PrimitiveValue[];
+  world?: boolean;
 }
 
 const leafValue = (leaf: StallLeaf): PrimitiveValue | null => {
@@ -195,7 +198,7 @@ export function buildStallRequest(leaves: StallLeaf[], window: TypedWindowMessag
 
 export const stallDirectValue = (leaf: StallLeaf, p: number): PrimitiveValue | null => {
   const value = leafValue(leaf);
-  return value !== null && (leaf.type === "bool" || leaf.type === "enum") && p >= STALL_DIRECT_P ? value : null;
+  return value !== null && !leaf.world && (leaf.type === "bool" || leaf.type === "enum") && p >= STALL_DIRECT_P ? value : null;
 };
 
 export type StallVerdict =
