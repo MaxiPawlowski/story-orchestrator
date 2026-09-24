@@ -1,5 +1,4 @@
-import { createLibrarySaveEvidence, journalSettingsWrite, librarySaveSentence, missingFromServer, missingMigrated, onSettingsWrite, recordSettingsWrite, stillHeldByServer, type SettingsSaveObservation } from "./librarySave";
-import type { RunGuard } from "./runToken";
+import { createLibrarySaveEvidence, journalSettingsWrite, librarySaveSentence, missingFromServer, missingMigrated, onSettingsWrite, recordSettingsWrite, scopeToOpenChat, stillHeldByServer, type OpenChat, type SettingsSaveObservation, type WriteChatScope } from "./librarySave";
 import type { StoryLibraryRecord } from "./types";
 
 const record: StoryLibraryRecord = { id: "heist", version: 2, hash: "h", title: "Heist", description: "", raw: {}, importedAt: "2026-09-24T10:00:00.000Z", updatedAt: "2026-09-24T12:00:00.000Z" };
@@ -11,7 +10,7 @@ const evidenceFor = (observation: SettingsSaveObservation, stored: unknown[] | n
   return { readBack, confirm: createLibrarySaveEvidence({ observe: async () => observation, readBack }) };
 };
 
-const guard = (owns: boolean): RunGuard => ({ stillOwns: () => owns, lapsed: () => (owns ? null : "chat"), lapsedDetail: () => (owns ? null : "chat moved"), signal: new AbortController().signal, release: () => {} });
+const guard = (open: boolean): WriteChatScope => ({ stillOpen: () => open });
 
 describe("v2.4 plan 02 §7 (T8): a library save is claimed only on evidence", () => {
   it("control: a 2xx save and a server holding this record is Saved", async () => {
@@ -69,6 +68,21 @@ describe("v2.4 plan 02 §7 (T8): a library save is claimed only on evidence", ()
     await journalSettingsWrite("library save not confirmed", "“Heist” v2", refused, guard(false), journal);
     await journalSettingsWrite("library save not confirmed", "“Heist” v2", Promise.resolve({ confirmed: true as const }), guard(true), journal);
     expect(journal).not.toHaveBeenCalled();
+  });
+
+  it("scopes install-wide evidence to the chat open when the write started, whatever the run did since", () => {
+    let open: OpenChat | null = { chatId: "chat-a", integrity: "i-a" };
+    const scope = scopeToOpenChat(() => open);
+    expect(scope.stillOpen()).toBe(true);
+    open = { chatId: "chat-a", integrity: null };
+    expect(scope.stillOpen()).toBe(true);
+    open = { chatId: "chat-a", integrity: "i-other" };
+    expect(scope.stillOpen()).toBe(false);
+    open = { chatId: "chat-b", integrity: "i-a" };
+    expect(scope.stillOpen()).toBe(false);
+    open = null;
+    expect(scope.stillOpen()).toBe(false);
+    expect(scopeToOpenChat(() => null).stillOpen()).toBe(true);
   });
 });
 

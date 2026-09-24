@@ -174,3 +174,34 @@ E5 completion: the startup load sets the bridge's loaded chat (src/runtime/chatI
     "is classified same-chat: no reload, no epoch bump"
 
 23/23 killed, none survived a first run. A mutant naming the chat before the load (`loaded(null)`) was dropped as equivalent to E5c-1.
+
+Import save-evidence ownership + solo sandbox restore, mutations 2026-09-24 (worktree build on b99c10b; scripts .debug/mutate_scope.py and .debug/mutate_solo.py, each mutant applied alone as an exact single-match text replacement, the file restored byte-for-byte after its run and the restore read back)
+
+Install-wide evidence is owned by the chat open when the write started (src/runtime/librarySave.ts, src/runtime/index.ts; suites startupWiring.review, librarySave)
+- I-1 the listener guards with the run epoch again (the pre-fix guard): KILLED, 1 of 22
+    "an import whose settings save fails journals exactly one library-save row"
+- I-2 the scope ignores the chat id: KILLED, 1 of 22
+    "scopes install-wide evidence to the chat open when the write started, whatever the run did since"
+- I-3 the scope ignores the integrity: KILLED, 1 of 22
+    "scopes install-wide evidence to the chat open when the write started, whatever the run did since"
+- I-4 journalSettingsWrite never asks the scope: KILLED, 2 of 22
+    "journals an unconfirmed save in the chat it was made from, and nowhere else"
+    "control: a settings write whose evidence arrives after a chat switch is not journaled into the new chat"
+- I-5 the scope reads the chat at evidence time, not at write start: KILLED, 2 of 22
+    "scopes install-wide evidence to the chat open when the write started, whatever the run did since"
+    "control: a settings write whose evidence arrives after a chat switch is not journaled into the new chat"
+
+solo_chat puts ST's active character/group back (scripts/debug/lib/soloSandbox.mts; suite node:test lib/soloSandbox.test.mts)
+- S-1 the capture before /go is skipped: KILLED, 1 of 6
+    "solo_chat: the active character /go moves is captured first and put back at cleanup, with a save"
+- S-2 the capture reads after /go (the moved value): KILLED, 1 of 6
+    "solo_chat: the active character /go moves is captured first and put back at cleanup, with a save"
+- S-3 the restore puts back only active_character, not the group: KILLED, 1 of 6
+    "solo_chat: the active character /go moves is captured first and put back at cleanup, with a save"
+- S-4 the restore is never saved: KILLED, 2 of 6
+    "solo_chat: the active character /go moves is captured first and put back at cleanup, with a save"
+    "solo_chat: no capture restores nothing, an unmoved entity saves nothing, a refused save is not a restore"
+- S-5 a refused save still reads as restored: KILLED, 1 of 6
+    "solo_chat: no capture restores nothing, an unmoved entity saves nothing, a refused save is not a restore"
+
+10/10 killed, none survived a first run. Not mutated: so-scenario's run-failure branch on `cleanup.activeEntity.restored === false` (no unit harness drives cleanupScenario).

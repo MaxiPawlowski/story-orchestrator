@@ -1220,3 +1220,45 @@ Legs green ×2:
 - Side effect: opening a solo chat through `/go` moves ST's `active_character` on that install. It is not in the run header and not restored.
 
 **Gates:** `npm run debug:typecheck` exit 0; `npm run test:debug` 225/225. Every fixture was validated against `scenarioSchema` (evals compiled). `globalsReadButNeverWritten`: none.
+
+### Import save-evidence ownership + solo sandbox restore (worktree build, 2026-09-24)
+
+Built on `b99c10b` (master) in an agent worktree, branch `worktree-agent-aa8f27d4e92d5af48`. Fixes the E3 import-leg defect from "Follow-ups live" and the `solo_chat` side effect from its harness note. Machine gates only: no browser, no backend, so **no live gate ran and none is claimed green**. The main session re-runs `test/scenarios/live-v24-02-e3-save-evidence.json` ×2 on lanes after merging.
+
+**1. Install-wide evidence is owned by the chat, not the run epoch**
+- Decision (2026-09-24): evidence for an install-wide write (library, settings store, wizard sessions) belongs to the CHAT open when the write started. The row is journaled when the evidence arrives if that chat is still open. Chat-scoped writes keep their epoch guards (unchanged).
+- `librarySave.ts` (pure): `OpenChat {chatId, integrity}`, `sameOpenChat(started, now)`, `scopeToOpenChat(read)` → `WriteChatScope {stillOpen()}`. Same chat = same `chatId`, and the same `integrity` when both sides have one (a missing integrity compares ids only). `journalSettingsWrite` takes the scope in place of a `RunGuard`.
+- `runtime/index.ts`: `journalInstallWrite` mints `scopeToOpenChat(currentChat)` (`chatIdentity.currentChat`: `ctx.chatId` + `chat_metadata.integrity`) at write time instead of `beginRun(ownership)`. So the import's own story load (`loadStory` → `invalidateRuns`) no longer drops its `library save not confirmed` row.
+- Chat changed before the evidence arrived: the row goes nowhere per-chat. No install-wide journal exists, so nothing else records it. The one install-wide surface is the Studio toolbar, which reads the same evidence through `confirmLibrarySave` (Studio saves only). Same as before this change for a real switch.
+- Census/guards: `journalSettingsWrite` and the listener arrow are not census sites (no write-name call after an await); `ownership.guard`, `faultMatrix.guard`, `architecture.test` green with no row change. Manager: 0 lines.
+
+**2. `solo_chat` restores ST's active character/group**
+- `/go` calls `setActiveCharacter(avatar)` + `setActiveGroup(null)` (slash-commands.js:5095) and saves; `openGroupById` (group-chats.js:2018) does not move them back. The two are coupled (script.js:836-848), so both are captured.
+- `lib/soloSandbox.mts`: `readActiveEntity(page)` reads `active_character`/`active_group` from `/script.js`. `openSolo` captures it once, before the first `/go` (`guard.activeEntityBefore`). `restoreActiveEntity(page, guard)` puts back the pair through ST's setters when it moved, reads it back, and persists through `saveSettingsNow` (skipped when nothing moved).
+- `so-scenario.mts` cleanup reports `cleanup.activeEntity {captured, before, found, after, restored, saved}` right after the solo-chat cleanup. `restored: false` (read-back differs, or the save was refused) fails the run. Help text updated.
+- Not added to the run header (unchanged: `active_character` is still not a header field).
+
+**Tests**
+| File | Added | Covers |
+|---|---|---|
+| `startupWiring.review.test.ts` | 2 | real `startRuntime` + `runtimeManager.importStory` with the settings save held until after the import (epoch asserted bumped): exactly one `library save not confirmed` row, `“SO Import” v1: the settings save answered 500` (red before the fix: 0 rows). Control: a `setGlobalSettings` whose 500 arrives after the open chat became `chat-b` journals nothing |
+| `librarySave.test.ts` | 1 (+ helper swapped to a scope) | scope holds for the same chat, same chat with integrity unknown; lapses on another integrity, another chat id, no chat; a write started with no chat open still owns no-chat |
+| `lib/soloSandbox.test.mts` | 2 | `soloChat` against a fake page + a `data:` fake of `/script.js`: captured before `/go`, restored and saved once. No capture → nothing; unmoved → no save; refused save → `restored: false` |
+
+**Mutants**: `test/findings/mutations/v24-02-followups.txt`, **10/10 killed** (I-1..I-5 evidence scope, S-1..S-5 harness restore).
+
+**Gates** (worktree root, `node_modules` symlinked to the main checkout's)
+| Command | Result |
+|---|---|
+| `npm run typecheck` | exit 0 |
+| `npm run typecheck:test` | exit 0 |
+| `npm run lint` | exit 0 |
+| `npm run debug:typecheck` | exit 0 |
+| `npm test` | 213/213 suites, 3193/3193 tests; findings ledger 2 open / 48 settled |
+| `npm run test:debug` | 226 pass, 0 fail, 1 skipped (227). The first run, before any build, failed 1: `so-run-header.test` "the build half reads plan 08s nested manifest" reads `dist/manifest.json`, absent in a fresh worktree |
+| `npm run build` (worktree only) | compiled, 2 webpack warnings (the existing size warnings); manifest `bundle 79c6ea2ba13a`, `ST unknown` (worktree path) |
+
+**Deviations**
+- The restore captures and restores `active_group` too, not only `active_character`: ST couples them, and restoring one would leave the other moved.
+- `so-scenario`'s run-failure branch on `restored: false` has no unit test (no harness drives `cleanupScenario`); the restore it reads is tested.
+- A settings evidence that settles inside the import's load, before `journal.hydrate`, would still be wiped by that hydrate. Not reachable in practice: the settings save is debounced well past the synchronous start of the load.

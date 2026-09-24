@@ -1,4 +1,3 @@
-import type { RunGuard } from "./runToken";
 import { ServedRequests } from "./saveEvidence";
 import type { StoryLibraryRecord } from "./types";
 
@@ -106,11 +105,30 @@ export function recordSettingsWrite(summary: string, label: string, arm: () => P
 
 const journaledRequests = new ServedRequests();
 
+export interface OpenChat {
+  chatId: string;
+  integrity: string | null;
+}
+
+/** Install-wide evidence belongs to the chat open when the write started, not to the run: a story load
+ *  in that same chat (an import selects what it saved) is not a reason to drop it. */
+export interface WriteChatScope {
+  stillOpen(): boolean;
+}
+
+export const sameOpenChat = (started: OpenChat | null, now: OpenChat | null): boolean =>
+  (started?.chatId ?? null) === (now?.chatId ?? null) && (!started?.integrity || !now?.integrity || started.integrity === now.integrity);
+
+export function scopeToOpenChat(read: () => OpenChat | null): WriteChatScope {
+  const started = read();
+  return { stillOpen: () => sameOpenChat(started, read()) };
+}
+
 /** The reason goes to the journal of the chat the write was made from, and only while that chat is still
  *  open. A settings request that refused several writes is one row, journaled by the first of them. */
-export async function journalSettingsWrite(summary: string, label: string, evidence: Promise<LibrarySaveEvidence>, run: RunGuard, journal: (summary: string, note: string) => void): Promise<LibrarySaveEvidence> {
+export async function journalSettingsWrite(summary: string, label: string, evidence: Promise<LibrarySaveEvidence>, chat: WriteChatScope, journal: (summary: string, note: string) => void): Promise<LibrarySaveEvidence> {
   const outcome = await evidence;
-  if (outcome.confirmed || !run.stillOwns() || !journaledRequests.claim(outcome.request)) return outcome;
+  if (outcome.confirmed || !chat.stillOpen() || !journaledRequests.claim(outcome.request)) return outcome;
   journal(summary, `${label}: ${outcome.reason}`);
   return outcome;
 }

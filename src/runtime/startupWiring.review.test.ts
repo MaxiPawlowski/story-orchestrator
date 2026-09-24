@@ -19,9 +19,11 @@ const branchMetadata = () => ({
   },
 });
 
+const refusedSettingsSave = () => ({ requested: true, status: 500, ok: false, timedOut: false, failed: false });
 const mockHost = {
   context: { chat: [] as unknown[], chatId: "branch-1", extensionSettings: {} as Record<string, unknown>, chatMetadata: branchMetadata() as Record<string, unknown>, characters: [], groups: [], saveSettingsDebounced: () => {} },
   unbound: [] as string[],
+  settingsSave: async () => refusedSettingsSave(),
 };
 
 jest.mock("@services/STAPI", () => ({
@@ -29,7 +31,7 @@ jest.mock("@services/STAPI", () => ({
   settingsReady: async () => {},
   noteHostSettingsLoaded: () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false, failed: false }),
-  observeNextSettingsSave: async () => ({ requested: true, status: 500, ok: false, timedOut: false, failed: false }),
+  observeNextSettingsSave: () => mockHost.settingsSave(),
   readServerExtensionSettings: async () => null,
   readServerBoundary: async () => null,
   readProfileContextLimit: () => ({ value: 8192, source: "default", reason: "no memory model profile is selected" }),
@@ -74,7 +76,15 @@ beforeEach(() => {
   mockHost.context.chatMetadata = branchMetadata();
   mockHost.context.extensionSettings = {};
   mockHost.unbound = [];
+  mockHost.settingsSave = async () => refusedSettingsSave();
 });
+
+const heldSettingsSave = () => {
+  let answer: () => void = () => {};
+  const held = new Promise<ReturnType<typeof refusedSettingsSave>>((resolve) => { answer = () => resolve(refusedSettingsSave()); });
+  mockHost.settingsSave = () => held;
+  return answer;
+};
 
 describe("v2.4 E5: startRuntime's first load", () => {
   it("unbinds the parent's mirror from an unadopted branch it opens on", async () => {
@@ -163,6 +173,45 @@ describe("v2.4 E3: startRuntime routes save evidence", () => {
     setGlobalSettings({ talk: { enabled: true } });
     await settle();
     expect(noteRecap).not.toHaveBeenCalled();
+    noteRecap.mockRestore();
+  });
+
+  it("an import whose settings save fails journals exactly one library-save row", async () => {
+    mockHost.context.chatId = "chat-a";
+    mockHost.context.chatMetadata = { integrity: "i-a" };
+    const noteRecap = jest.spyOn(runtimeManager, "noteRecap");
+    const { startRuntime, stopRuntime } = await import("./index");
+    startRuntime();
+    await settle();
+    const answer = heldSettingsSave();
+    const epoch = runtimeManager.getRunContext().sessionEpoch;
+    const story = { format: 2, title: "SO Import", description: "d", qualities: [], checkpoints: [{ id: "start", name: "Start", objective: "x", type: "anchor", start: true }], transitions: [], roster: [] };
+    expect(await runtimeManager.importStory(JSON.stringify(story))).toBe(true);
+    expect(runtimeManager.getRunContext().sessionEpoch).toBeGreaterThan(epoch);
+    noteRecap.mockClear();
+    answer();
+    await settle();
+    expect(noteRecap.mock.calls.filter(([summary]) => summary === "library save not confirmed")).toEqual([["library save not confirmed", "“SO Import” v1: the settings save answered 500"]]);
+    stopRuntime();
+    noteRecap.mockRestore();
+  });
+
+  it("control: a settings write whose evidence arrives after a chat switch is not journaled into the new chat", async () => {
+    mockHost.context.chatId = "chat-a";
+    mockHost.context.chatMetadata = { integrity: "i-a" };
+    const noteRecap = jest.spyOn(runtimeManager, "noteRecap");
+    const { startRuntime, stopRuntime } = await import("./index");
+    startRuntime();
+    await settle();
+    const answer = heldSettingsSave();
+    noteRecap.mockClear();
+    setGlobalSettings({ talk: { enabled: false } });
+    mockHost.context.chatId = "chat-b";
+    mockHost.context.chatMetadata = { integrity: "i-b" };
+    answer();
+    await settle();
+    expect(noteRecap.mock.calls.filter(([summary]) => summary === "settings save not confirmed")).toEqual([]);
+    stopRuntime();
     noteRecap.mockRestore();
   });
 });
