@@ -40,3 +40,13 @@ baseline: 9 passed
 M6 applyQueue.discardReadingFrom uses `to > messageId` (boundary lost)  -> 1 failed (discardPendingFrom: drops a write whose read window reaches...)
 M7 rollback.ts quarantine() no longer calls discardPendingFrom          -> 1 failed (rollback.review: drops queued writes whose read reached the mutation)
 restored: 9 passed
+
+T1 live follow-up 2 (2026-09-24): a queued read carried the window (messages included) it was scheduled with. A
+/cut deletes one row per event; the first event's rollback queued `rollback:6` over the chat between the two
+deletes, so the read quoted a message that was gone and stamped its memory rows at message 8 of a 0..7 chat
+(live-v24-01-t1 run 2 on lane 2: the tail delete then dropped 4 rows recorded before it). Fix: the scheduler
+re-reads the window at run time (getChatWindow(from, to)), which also clamps it to the chat.
+scope: npx jest src/extraction/scheduler.test.ts
+baseline: 12 passed
+M8 scheduler passes job.window through unchanged -> 1 failed (a queued read reads the chat as it is when it runs)
+restored: 12 passed

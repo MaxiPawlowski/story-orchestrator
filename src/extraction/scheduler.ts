@@ -183,7 +183,7 @@ export class ExtractionScheduler {
         await this.runWithRetries(job.run);
       } else {
         const priority = job.priority === 0 ? 0 : 1;
-        const window = sharedReadWindow({ state, priority, window: job.window, stabilityLag: settings.stabilityLag });
+        const window = sharedReadWindow({ state, priority, window: job.window && getChatWindow(job.window.from, job.window.to), stabilityLag: settings.stabilityLag });
         const read = this.host.beginRead?.({ from: window.from, to: window.to }) ?? null;
         const result = await this.runWithRetries(() => runSharedRead({ story, state, priority, reason: job.reason, window, stabilityLag: settings.stabilityLag, firedTransitions: this.host.getFiredTransitions(), facts: this.host.getFacts(), extraGateSources: this.host.getExpansionGateSources(), openArcs: this.host.getOpenArcs(), epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false, entities: this.host.getEntities?.() ?? [], judgeTyped: this.host.judgeTyped?.() ?? null, client: settings }));
         await this.host.applyExtractionAudit(result.audit, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, read);

@@ -89,6 +89,29 @@ describe("ExtractionScheduler reply-path isolation", () => {
   });
 });
 
+// v2.4 plan 01 (T1 live, 2026-09-24). A queued job carried the window it was scheduled with, messages
+// and all. A /cut deletes one row per event, and the first event's rollback queued a re-read over the
+// chat as it stood between the two deletes, so the read quoted a message that no longer existed and
+// stamped its rows past the end of the chat.
+describe("a queued read reads the chat as it is when it runs", () => {
+  it("re-reads the window's messages at run time and clamps it to the chat", async () => {
+    mockChat.length = 0;
+    for (let index = 0; index < 9; index += 1) mockChat.push({ name: index % 2 ? "Arin" : "Max", mes: `m${index}` });
+    const { getChatWindow } = jest.requireActual("./chatWindow") as typeof import("./chatWindow");
+    const queued = getChatWindow(0, 8);
+    mockChat.splice(6, 1);
+    const read = runSharedRead as jest.Mock;
+    read.mockClear();
+    new ExtractionScheduler(makeHost()).schedule({ priority: 0, reason: "rollback:6", window: queued });
+    await flush();
+    const window = read.mock.calls[0][0].window as { from: number; to: number; messages: Array<{ text: string }> };
+    expect(window.to).toBe(7);
+    expect(window.messages.map((message) => message.text)).not.toContain("m6");
+    expect(window.messages).toHaveLength(8);
+    mockChat.length = 0;
+  });
+});
+
 describe("ExtractionScheduler pressure rules", () => {
   it("widens cadence: skips the cadence read when the reads lane is backed up", async () => {
     const scheduler = new ExtractionScheduler(makeHost({ cadence: 1, pressureThreshold: 1 }));
