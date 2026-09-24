@@ -157,8 +157,9 @@ export class MemoryCoordinator {
     const written = addMemoryEntries(this.state, entry.text ? [entry] : [], window);
     const capped = capAllTiers(expireScoped(written.state, "scene"), this.state.settings.tierBudgets);
     const sceneOccurrence = this.state.sceneCount + 1;
-    this.record({ kind: "scene_summary", inputs: [], outputId: written.accepted[0]?.id, range: window, removed: disappearingEntries(this.state.entries, capped.entries), messageId: window.to });
+    const removed = disappearingEntries(this.state.entries, capped.entries);
     this.patch({ ...capped, sceneCount: sceneOccurrence });
+    this.record({ kind: "scene_summary", inputs: [], outputId: written.accepted[0]?.id, range: window, removed, messageId: window.to });
     return sceneOccurrence;
   }
 
@@ -482,8 +483,9 @@ export class MemoryCoordinator {
         // Dated at THIS pass's point, never the winner's message: a rollback has to undo the retirement this pass made.
         const consolidated = applyConsolidation(this.state, result, { boundary: this.boundaryStamp(), messageId: this.deps.getState()?.lastMessageId ?? -1 });
         // A dedup is the one artifact whose output is a DELETION, so the losers travel with the record.
-        this.record({ kind: "dedup", inputs: [...result.confirmedIds, ...result.supersededPairs.map((pair) => pair.winnerId)], removed: disappearingEntries(this.state.entries, consolidated.entries) });
+        const removed = disappearingEntries(this.state.entries, consolidated.entries);
         this.patch(consolidated);
+        this.record({ kind: "dedup", inputs: [...result.confirmedIds, ...result.supersededPairs.map((pair) => pair.winnerId)], removed });
         summary.dropped += result.droppedIds.length;
         summary.superseded += result.supersededPairs.length;
         summary.confirmed += result.confirmedIds.length;

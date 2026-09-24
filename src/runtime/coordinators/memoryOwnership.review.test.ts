@@ -193,6 +193,16 @@ control("a scene summary returns its occurrence and records it", async () => {
   expect(h.entries()).toEqual(["a scene"]);
 });
 
+control("a scene summary keeps its derived record, so a rollback past it restores the scene rows it expired", async () => {
+  const h = harness(0);
+  h.seed([{ ...tierEntry("the lamp is lit"), id: "scoped", tier: "session_details", type: "scene", expiration: "scene", messageId: 2 }]);
+  await h.coordinator.addSceneSummary(tierEntry("a scene"), { from: 0, to: 9 });
+  expect(h.entries()).toEqual(["a scene"]);
+  expect(h.derived().map((record) => record.kind)).toEqual(["scene_summary"]);
+  h.coordinator.rollbackFromMessage(8, 3);
+  expect(h.entries()).toEqual(["the lamp is lit"]);
+});
+
 control("a scene summary whose world moved returns no occurrence and records nothing", async () => {
   // The null is the contract the caller relies on: with a bare number it would fire scene-break
   // replies for a scene that was never recorded.
@@ -352,6 +362,7 @@ function consolidationHarness(groupSize: number) {
   return {
     coordinator,
     patches,
+    derived: () => memoryState.derived,
     switchChat: () => { current = { ...current, chatId: "chat-b", sessionEpoch: 2 }; },
     inFlight: () => (coordinator as unknown as { consolidationInFlight: boolean }).consolidationInFlight,
   };
@@ -386,6 +397,15 @@ control("consolidation DOES write when the chat has not moved (anti-vacuity)", a
   matchGate.onBuild = null;
   await h.coordinator.runConsolidation();
   expect(h.patches.length).toBeGreaterThan(0);
+});
+
+control("a dedup keeps its derived record with the rows it dropped", async () => {
+  const h = consolidationHarness(10);
+  matchGate.onBuild = null;
+  await h.coordinator.runConsolidation();
+  const dedups = h.derived().filter((record) => record.kind === "dedup") as Array<{ removed?: unknown[] }>;
+  expect(dedups).toHaveLength(1);
+  expect(dedups[0].removed?.length).toBeGreaterThan(0);
 });
 
 describe("V3: a supersession bridge enqueues only into the story it read for", () => {

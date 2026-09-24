@@ -59,3 +59,14 @@ scope: npx jest src/runtime/talkControl.test.ts
 baseline: 22 passed
 M9 reconcile guard compares the key only -> 1 failed (reconciles again after a mutation re-creates the same key)
 restored: 22 passed
+
+T1 live follow-up 4 (2026-09-24, live-v24-01-t1 lane 2 run 1 on 314a1818a9c6: two scene-scoped session_details rows,
+messages 2 and 5, gone after a tail delete from 8; state read sceneCount 1 with derived []). addSceneSummary called
+record() and then patch({...capped}), and capped is spread from the pre-record memory state, so the old `derived`
+array overwrote the scene_summary record. A rollback past the summary then had nothing to restore the rows it
+expired from. runConsolidation had the same order for its dedup record. Fix: patch first, then record, in both.
+scope: npx jest src/runtime/coordinators/memoryOwnership.review.test.ts -t "derived record"
+baseline: 2 passed
+M10 addSceneSummary records before patching -> 1 failed (a scene summary keeps its derived record, so a rollback past it restores ...)
+M11 runConsolidation records before patching -> 1 failed (a dedup keeps its derived record with the rows it dropped)
+restored: 2 passed
