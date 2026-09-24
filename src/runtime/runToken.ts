@@ -44,6 +44,8 @@ export interface RunContext {
    */
   lowestMutatedMessageId?: number | null;
   lowestMutatedSince?: (windowRevision: number) => number | null;
+  /** v2.4 plan 02 §3: the chat the current epoch was minted in, for telling a same-chat reload from a switch. */
+  claimedChat?: string | null;
 }
 
 export function mintToken(current: RunContext, window: MessageWindow | null = null): RunToken {

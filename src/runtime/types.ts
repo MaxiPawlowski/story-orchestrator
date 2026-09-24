@@ -13,6 +13,8 @@ import type { AgencyRecovery } from "./agencyRecovery";
 import type { NextTurnContributor } from "./nextTurn";
 import type { PipelineStatus } from "./pipeline";
 import type { OrphanedLorebook } from "./mirrorReaper";
+import type { MessageFingerprints } from "./fingerprints";
+import type { ChatIdentitySnapshot } from "./chatIdentity";
 import type { InjectedPromptBlock } from "@services/STAPI";
 import type { TalkDecisionSource } from "@talk/index";
 
@@ -303,6 +305,8 @@ export interface PersistedStoryRuntime {
   // existed has no history, and its chat can only roll back from the point it was saved.
   engineHistory?: EngineHistory;
   extras: RuntimeExtras;
+  // v2.4 plan 02 T3, an optional v4 field (no version bump): absent reads as unknown, never a mismatch.
+  fingerprints?: MessageFingerprints;
 }
 
 export interface StoryOrchestratorMetadataBlob {
@@ -316,6 +320,9 @@ export interface StoryOrchestratorMetadataBlob {
    * existed is still perfectly readable — it is stamped on the first save instead.
    */
   chatId: string | null;
+  // v2.4 plan 02: `chat_metadata.integrity` at the last own save. Advisory: it only tells a branch from a
+  // foreign blob, and a same-chat reload from a switch.
+  integrity?: string | null;
   selectedStoryId: string | null;
   stories: Record<string, PersistedStoryRuntime>;
 }
@@ -345,6 +352,8 @@ export interface RuntimeSnapshot {
   blobUnreadable?: { foundVersion: number | string | null; notice: string } | null;
   /** v2.4 plan 02 T14: mirror books of deleted chats this session did not delete (session-scoped). */
   orphanedLorebooks?: OrphanedLorebook[];
+  /** v2.4 plan 02 §5: set while no story is loaded and the chat holds a branch's or another chat's state. */
+  chatIdentity?: ChatIdentitySnapshot | null;
   storyTitle: string | null;
   storyDescription: string | null;
   activeCheckpointId: string | null;

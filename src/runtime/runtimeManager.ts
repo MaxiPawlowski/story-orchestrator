@@ -1,4 +1,4 @@
-import { appendJudgeCall, dropJudgeCallsAfter, type JudgeCallRecord, type SceneReadRecord } from "@judge/index";
+import { appendJudgeCall, type JudgeCallRecord, type SceneReadRecord } from "@judge/index";
 import type { JudgeRuntime } from "./judge";
 import {
   StoryEngine, type RollbackOutcome, type ApplyQueueEntry, type BoundaryContext, type BoundaryResult, type EngineState,
@@ -87,13 +87,14 @@ export class RuntimeManager {
   private readonly awayRecap = new AwayRecapController((render) => showTextPopup(render, { okButton: "Continue" }), (summary, detail) => this.noteRecap(summary, detail));
   private readonly notices: { lastRollback: RollbackNotice | null; rollbackUnavailable: RollbackUnavailable | null } = { lastRollback: null, rollbackUnavailable: null };
   private readonly journal = new SessionJournal();
-  private readonly chatSave = new ChatSave({
+  readonly chatSave = new ChatSave({
     loaded: () => this.loaded,
     engine: () => ({ state: this.engine.serialize(), history: this.engine.serializeHistory() }),
     extras: () => this.extras,
     owner: this.owner,
     journal: (summary, note, persistNow) => (persistNow ? this.noteRecap(summary, note) : this.journal.record("story", summary, this.journalContext(), note)),
     recap: (summary, detail) => this.noteRecap(summary, detail),
+    rollback: (messageId, journal) => this.rollbackFromMessage(messageId, journal),
   });
   // V26: what every coordinator reads the loaded story and engine through, and how each one saves.
   private readonly view = { getStory: () => this.loaded?.story ?? null, getState: () => (this.loaded ? this.engine.serialize() : null) };
@@ -263,6 +264,7 @@ export class RuntimeManager {
     if (!this.loaded) return null;
     const run = beginRun(this.owner.ownership);
     this.notices.lastRollback = null;
+    if (!(await this.chatSave.reconcile(run))) return null;
     this.refreshRequirements();
     this.expansion.revalidateInserted();
     const pendingBridges = this.memory.enqueueArcBridges();
@@ -332,13 +334,6 @@ export class RuntimeManager {
     this.notify();
   }
 
-  // A read keyed to a message dies with it, even when the engine has nothing to roll back (2026-09-19).
-  private async dropReadsAfter(messageId: number) {
-    const before = this.extras.judge.scene;
-    this.extras.judge = dropJudgeCallsAfter(this.extras.judge, messageId);
-    if (before !== this.extras.judge.scene) { await this.persist(); this.notify(); }
-  }
-
   private readonly rollbackDeps: RollbackDeps = {
     engine: this.engine,
     journal: this.journal,
@@ -350,7 +345,6 @@ export class RuntimeManager {
     extras: () => this.extras,
     refreshRequirements: () => this.refreshRequirements(),
     reapplyCheckpoint: async (messageId) => { await this.effects.restoreFor(this.extras, { since: messageId }); await this.applyActive("hydrate"); },
-    dropReadsAfter: async (messageId) => { await this.dropReadsAfter(messageId); },
     ...this.lifecycle,
     notices: this.notices,
     setStatus: (status) => { this.status = status; },
@@ -360,7 +354,7 @@ export class RuntimeManager {
   async rollbackFromMessage(messageId: number, decoded?: DecodeJournal): Promise<RollbackOutcome> {
     // A mutation's POSITION is recorded: an in-flight read whose window reaches it is invalidated,
     // a reply merely appended later is not. See `tokenMatches`.
-    this.owner.noteMutation(messageId);
+    this.owner.noteMutation(messageId); this.chatSave.fingerprints.forgetFrom(messageId);
     if (!this.loaded) return { ok: true, result: "noop" };
     return runRollback(this.rollbackDeps, messageId, decoded);
   }
@@ -541,7 +535,7 @@ export class RuntimeManager {
     const priorSessionAt = persisted?.extras?.lastSessionAt ?? null;
     liftLegacyChatSettings(persisted?.extras, String(getContext().chatId ?? "an earlier chat"));
     this.invalidateRuns();
-    this.extras = hydrateExtras(persisted?.extras);
+    this.extras = hydrateExtras(persisted?.extras); this.chatSave.fingerprints.load(persisted?.fingerprints);
     this.journal.hydrate(this.extras.journal);
     this.reconcileEffectLedger();
     this.loaded = { record: loaded.record, story: this.expansion.mergedStoryOrBase(loaded.record.raw, loaded.story) };
@@ -562,7 +556,7 @@ export class RuntimeManager {
     this.memory.updateInjection();
     this.awayRecap.detect(priorSessionAt, this.getSnapshot().narrative, String(getContext().chatId ?? ""));
     setSelectedStoryId(loaded.record.id);
-    await this.persist();
+    await this.persist(); if (saved) await this.chatSave.reconcile(run);
     this.notify();
   }
 

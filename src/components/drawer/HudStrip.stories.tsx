@@ -70,6 +70,24 @@ export const HiddenWhenDisabled: Story = {
   },
 };
 
+export const BranchChip: Story = {
+  args: { snapshot: baseSnapshot({ ready: false, chatIdentity: { kind: "branch", parentChat: "parent-chat", checkpointName: "The Ruined Gate" } }) },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByText("branch — continue?"));
+    await expect(args.onOpenDrawer).toHaveBeenCalledTimes(1);
+    await expect(canvas.queryByText(/◈/)).toBeNull();
+  },
+};
+
+export const NoBranchChipForAForeignBlob: Story = {
+  args: { snapshot: baseSnapshot({ ready: false, chatIdentity: { kind: "foreign", stampedFor: "another-chat" } }) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.queryByRole("button")).toBeNull();
+  },
+};
+
 export const HiddenWhenNoStory: Story = {
   args: { snapshot: baseSnapshot({ ready: false }) },
   play: async ({ canvasElement }) => {

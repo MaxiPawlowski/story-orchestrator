@@ -1,4 +1,4 @@
-import { rollbackNoticeText } from "@runtime/narrative";
+import { branchNoticeText, rollbackNoticeText } from "@runtime/narrative";
 import type { RuntimeSnapshot } from "@runtime/types";
 
 export interface HudStripProps {
@@ -16,7 +16,16 @@ const CHIP_LABELS: Partial<Record<RuntimeSnapshot["pipeline"]["state"], string>>
 };
 
 export const HudStrip = ({ snapshot, onOpenDrawer, onOpenSettings }: HudStripProps) => {
-  if (!snapshot.ready || !snapshot.ui.hudEnabled) return null;
+  if (!snapshot.ui.hudEnabled) return null;
+  const branch = snapshot.chatIdentity?.kind === "branch" ? snapshot.chatIdentity : null;
+  if (!snapshot.ready && branch) {
+    return (
+      <div id="so-hud">
+        <button id="so-hud-branch" type="button" className="so-hud-chip" title={branchNoticeText(branch.checkpointName)} onClick={onOpenDrawer}>branch — continue?</button>
+      </div>
+    );
+  }
+  if (!snapshot.ready) return null;
   const pending = snapshot.pendingDeltas.length;
   const chip = snapshot.lastRollback ? "stepped back" : CHIP_LABELS[snapshot.pipeline.state];
   return (

@@ -2,7 +2,9 @@ import { getContext, isHostGenerating, subscribeToHostEvents, type HostSubscript
 import type { RuntimeManager } from "./runtimeManager";
 import { restampRenamedChat } from "./persistence";
 import { beginRun, type RunGuard } from "./runToken";
-import { ChatIdentity, describeDecode } from "./messageIdentity";
+import { ChatIdentity, describeDecode, type DecodeJournal } from "./messageIdentity";
+import type { ChatSave } from "./chatSave";
+import { currentChat, readChatChange, unbindBranchMirror, type LoadedChat } from "./chatIdentity";
 
 const FLUSH_POLL_MS = 300;
 const FLUSH_POLL_MAX_MS = 60000;
@@ -35,16 +37,22 @@ interface PendingBoundary {
   ready: boolean;
 }
 
+const movedJournal = (from: number, named: number): DecodeJournal => ({
+  summary: `eventless change at message ${from}`,
+  note: `the event named message ${named}, and message ${from} also changed without one (an editor move names only the later of the two rows it swapped); stepped back from ${from}`,
+});
+
 export class TurnBridge {
   private pending: PendingBoundary[] = [];
   private draining = false;
   private lastRenderedAt = 0;
   private readonly turnKeys = new Set<string>();
   private readonly identity = new ChatIdentity();
+  private loadedChat: LoadedChat | null = null;
   private flushTimer: ReturnType<typeof setTimeout> | null = null;
   private unsubscribe: (() => void) | null = null;
 
-  constructor(private readonly manager: RuntimeManager) {}
+  constructor(private readonly manager: RuntimeManager, private readonly save: ChatSave | null = null) {}
 
   start() {
     if (this.unsubscribe) return;
@@ -91,9 +99,11 @@ export class TurnBridge {
     const id = hostMessageId(messageId);
 
     if (id !== null) {
-      const key = typeof type === "string" && CONTINUE_MESSAGE_TYPES.has(type) ? `${id}:${continueStamp(id)}` : String(id);
+      const continued = typeof type === "string" && CONTINUE_MESSAGE_TYPES.has(type);
+      const key = continued ? `${id}:${continueStamp(id)}` : String(id);
       if (this.turnKeys.has(key)) return;
       this.turnKeys.add(key);
+      if (continued) this.save?.fingerprints.forgetFrom(id);
     } else if (now - this.lastRenderedAt < 250) {
       return;
     }
@@ -156,9 +166,20 @@ export class TurnBridge {
   }
 
   private async onChatChanged() {
+    const change = readChatChange(this.loadedChat, { runContext: () => this.manager.getRunContext(), engineBoundary: () => this.manager.getEngineState()?.boundary ?? null });
+    if (change.kind === "same-chat") {
+      this.refreshIdentity();
+      await this.save?.reconcile(beginRun(this.manager.getOwnership()));
+      this.manager.notify();
+      return;
+    }
     this.reset();
     this.refreshIdentity();
+    this.loadedChat = null;
     await this.manager.loadSelectedFromChat();
+    this.loadedChat = currentChat();
+    if (change.kind === "diverged" && this.loadedChat?.chatId === change.chatId && this.manager.getRunContext().claimedChat === change.chatId) this.save?.note("reload-diverged", change.detail);
+    await unbindBranchMirror(beginRun(this.manager.getOwnership()));
   }
 
   private async onChatRenamed(payload: unknown) {
@@ -173,14 +194,17 @@ export class TurnBridge {
       this.refreshIdentity();
       return;
     }
+    const edited = kind === "edit" || kind === "update";
+    if (edited && this.save?.unchanged(messageId)) return;
     const decoded = kind === "delete" ? this.decodeDelete(messageId) : null;
     if (!decoded) this.refreshIdentity();
-    const from = decoded?.start ?? messageId;
+    const drift = edited ? this.save?.firstDrift() ?? null : null;
+    const from = decoded?.start ?? Math.min(messageId, drift ?? messageId);
     for (const key of this.turnKeys) {
       const keyed = keyMessageId(key);
-      if (decoded ? keyed >= from : keyed === from) this.turnKeys.delete(key);
+      if (decoded ? keyed >= from : keyed >= from && keyed <= messageId) this.turnKeys.delete(key);
     }
-    const journal = decoded ? describeDecode(decoded, messageId) : null;
+    const journal = decoded ? describeDecode(decoded, messageId) : from < messageId ? movedJournal(from, messageId) : null;
     await (journal ? this.manager.rollbackFromMessage(from, journal) : this.manager.rollbackFromMessage(from));
   }
 

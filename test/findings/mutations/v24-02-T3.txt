@@ -1,0 +1,64 @@
+scope: npx jest src/runtime/fingerprint src/runtime/turnBridge src/runtime/rollback.review src/runtime/blob src/runtime/persistence; each mutant applied alone, then restored (2026-09-24)
+baseline (no mutant)
+Tests:       126 passed, 126 total
+M1 (plan mutation 2) hash swipe_id
+  ● v2.4 plan 02 T3: an eventless change is stepped back from at the next boundary › control: a hide, a swipe_id move and a persona rename on a consumed message change nothing
+  ● v2.4 plan 02 T3: what a fingerprint hashes › ignores swipe_id (H7), is_system (D5) and a user row's name (H8)
+Tests:       2 failed, 124 passed, 126 total
+  restored
+M2 (plan mutation 3) hash is_system
+  ● v2.4 plan 02 D5: hidden is not deleted › a hidden consumed message is not a mismatch, and it is out of the next read window
+  ● v2.4 plan 02 T3: an eventless change is stepped back from at the next boundary › control: a hide, a swipe_id move and a persona rename on a consumed message change nothing
+  ● v2.4 plan 02 T3: what a fingerprint hashes › ignores swipe_id (H7), is_system (D5) and a user row's name (H8)
+Tests:       3 failed, 123 passed, 126 total
+  restored
+M3 (plan mutation 4) hash the user name
+  ● v2.4 plan 02 T3: an eventless change is stepped back from at the next boundary › control: a hide, a swipe_id move and a persona rename on a consumed message change nothing
+  ● v2.4 plan 02 T3: what a fingerprint hashes › ignores swipe_id (H7), is_system (D5) and a user row's name (H8)
+Tests:       2 failed, 124 passed, 126 total
+  restored
+M4 (plan mutation 5) drop the continue re-hash
+  ● v2.4 plan 02 T3: mutation events against the fingerprints (TurnBridge + ChatSave) › a continue re-hashes the message it extended, so its own boundary does not read it as changed
+Tests:       1 failed, 125 passed, 126 total
+  restored
+M5 (plan mutation 6) drop the no-op-edit short-circuit
+  ● v2.4 plan 02 T3: mutation events against the fingerprints (TurnBridge + ChatSave) › a no-op edit (H19: MESSAGE_EDITED and MESSAGE_UPDATED for unchanged text) rolls nothing back
+Tests:       1 failed, 125 passed, 126 total
+  restored
+M6 (plan mutation 7) drop the length reconcile
+  ● v2.4 plan 02 T3: a hydrate reconciles against the chat it opens › a chat shorter than the saved state steps back from its length
+  ● v2.4 plan 02 T3: a hydrate reconciles against the chat it opens › the length check runs for a record saved without fingerprints (a v2.3 write)
+  ● v2.4 plan 02 T3: capture, diff and truncate › a chat shorter than the story's last message is a mismatch at its length, with or without fingerprints
+Tests:       3 failed, 123 passed, 126 total
+  restored
+M7 no reconcile at the boundary
+  ● v2.4 plan 02 T3: an eventless change is stepped back from at the next boundary › a consumed message rewritten with no event rolls the story back from it
+Tests:       1 failed, 125 passed, 126 total
+  restored
+M8 no reconcile at hydrate
+  ● v2.4 plan 02 T3: a hydrate reconciles against the chat it opens › a chat shorter than the saved state steps back from its length
+  ● v2.4 plan 02 T3: a hydrate reconciles against the chat it opens › a hash that no longer matches on reopen steps back from that message
+  ● v2.4 plan 02 T3: a hydrate reconciles against the chat it opens › the length check runs for a record saved without fingerprints (a v2.3 write)
+Tests:       3 failed, 123 passed, 126 total
+  restored
+M9 a rollback does not forget the fingerprints from its message on
+  ● v2.4 plan 02 T3: an eventless change is stepped back from at the next boundary › a rollback forgets what the edit changed, so the next boundary does not step back again
+Tests:       1 failed, 125 passed, 126 total
+  restored
+M10 an edit/update rolls back from the id it names only (no earlier drift)
+  ● v2.4 plan 02 T3: mutation events against the fingerprints (TurnBridge + ChatSave) › an editor move names only the later row (H6), and the rollback starts at the earlier one
+Tests:       1 failed, 125 passed, 126 total
+  restored
+M11 capture overwrites a known hash with the chat as it is now
+  ● v2.4 plan 02 T3: a hydrate reconciles against the chat it opens › a hash that no longer matches on reopen steps back from that message
+  ● v2.4 plan 02 T3: capture, diff and truncate › keeps a known hash, fills an unknown one from the chat, and covers only (floor, last]
+Tests:       2 failed, 124 passed, 126 total
+  restored
+M12 no integrity restamp at an own save
+  ● v2.4 plan 02 §0: a stale integrity with a matching chat id › is restamped at the next own save and journaled, never read as foreign
+Tests:       1 failed, 125 passed, 126 total
+  restored
+M13 the per-message hash cache answers without comparing the text
+  ● v2.4 plan 02 T3: the per-message hash cache › answers a message mutated in place by its new content, never by what it cached
+Tests:       1 failed, 125 passed, 126 total
+  restored

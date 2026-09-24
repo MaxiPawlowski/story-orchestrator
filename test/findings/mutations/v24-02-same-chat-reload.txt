@@ -1,0 +1,30 @@
+scope: npx jest src/runtime/chatIdentity src/runtime/turnBridge src/runtime/fingerprint; each mutant applied alone, then restored (2026-09-24)
+baseline (no mutant)
+Tests:       91 passed, 91 total
+R1 (plan mutation 8) same-chat without boundary equality
+  ● v2.4 plan 02 §3: a same-chat reload on the real bridge › a copy holding another boundary is today's full reload, journaled reload-diverged
+  ● v2.4 plan 02 §3: classifyChatChange › is diverged when the copy ST loaded holds another boundary
+Tests:       2 failed, 89 passed, 91 total
+  restored
+R2 every CHAT_CHANGED is a switch (today's behaviour)
+  ● v2.4 plan 02 §3: a same-chat reload on the real bridge › keeps the epoch and the runs, and loads nothing
+Tests:       1 failed, 90 passed, 91 total
+  restored
+R3 same-chat without the integrity comparison
+  ● v2.4 plan 02 §3: a same-chat reload on the real bridge › control: the same id with a new integrity is a switch
+  ● v2.4 plan 02 §3: classifyChatChange › is a switch when the integrity changed (a branch or another file under this id)
+Tests:       2 failed, 89 passed, 91 total
+  restored
+R4 same-chat without the claimed-chat comparison
+  ● v2.4 plan 02 §3: classifyChatChange › is a switch when another chat is open
+  ● v2.4 plan 02 §3: classifyChatChange › is a switch when the epoch was minted in another chat
+Tests:       2 failed, 89 passed, 91 total
+  restored
+R5 the same-chat path does not reconcile the reloaded chat
+  ● v2.4 plan 02 §3: a same-chat reload on the real bridge › reconciles the reloaded chat against the fingerprints
+Tests:       1 failed, 90 passed, 91 total
+  restored
+R6 the diverged reload is not journaled
+  ● v2.4 plan 02 §3: a same-chat reload on the real bridge › a copy holding another boundary is today's full reload, journaled reload-diverged
+Tests:       1 failed, 90 passed, 91 total
+  restored

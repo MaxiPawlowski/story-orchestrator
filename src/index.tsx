@@ -12,6 +12,7 @@ import { isArcTemplateName } from "@pacing/index";
 import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
 import { startRuntime } from "@runtime/index";
 import { STORY_STATE_RETENTION } from "@runtime/persistence";
+import { branchFromOldest, continueFromBranch } from "@runtime/chatIdentity";
 import { exportState } from "@runtime/stateExport";
 import { journalLibrarySave } from "@runtime/librarySave";
 import { beginRun } from "@runtime/runToken";
@@ -22,6 +23,7 @@ import type { WizardHost } from "./studio/components/StudioCopilot";
 import { type DriverController } from "@components/drawer/DriverPanel";
 import DrawerTabs from "./components/drawer/DrawerTabs";
 import HudStrip from "./components/drawer/HudStrip";
+import BranchNotice from "./components/drawer/BranchNotice";
 import HelpTooltip from "./components/studio/HelpTooltip";
 import { useDraftStore, type StoryDraft } from "./studio/draft";
 import "./styles.css";
@@ -494,8 +496,16 @@ const toggleAuthorView = async (next: boolean) => {
   manager.setUiSettings({ authorView: next });
 };
 
+// v2.4 plan 02 §5: the player's Continue from here, and the author's branch cut at the history floor.
+const continueBranch = () => continueFromBranch({ selectStory: (storyId) => manager.selectStory(storyId), note: (summary, detail) => manager.chatSave.note(summary, detail) });
+const branchAtFloor = async (messageId: number) => {
+  const result = await branchFromOldest(messageId);
+  if (!result.ok) window.toastr?.info?.(result.reason, "Story Orchestrator");
+};
+
 const DrawerPanel = () => {
   const snapshot = useRuntimeSnapshot();
+  const branch = snapshot.chatIdentity?.kind === "branch" ? snapshot.chatIdentity : null;
   return (
     <div className="p-2 text-sm flex flex-col gap-3 text-left">
       <div className="flex items-start justify-between gap-2">
@@ -510,6 +520,7 @@ const DrawerPanel = () => {
           </label>
         )}
       </div>
+      {!snapshot.ready && branch && <BranchNotice identity={branch} onContinue={continueBranch} />}
       {snapshot.ready && (
         <DrawerTabs
           snapshot={snapshot}
@@ -520,6 +531,7 @@ const DrawerPanel = () => {
           onFixWithWizard={() => void openWizardForRequirements()}
           onOpenRepair={openRepairStep}
           onNewStory={() => void openWizard()}
+          onBranchFromOldest={(messageId) => void branchAtFloor(messageId)}
         />
       )}
     </div>

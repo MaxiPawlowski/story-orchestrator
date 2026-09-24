@@ -12,6 +12,7 @@ import { blobMismatch, loadPersistedRuntime, unreadableNotice } from "./persiste
 import { findStoryRecord, listStoryRecords } from "./storyLibrary";
 import { orphanedLorebooks } from "./mirrorReaper";
 import { buildNextTurnPreview } from "./nextTurn";
+import { readChatIdentity } from "./chatIdentity";
 import type { InjectedPromptBlock } from "@services/STAPI";
 import type { LoadedStory, PayloadCapture, RuntimeExtras, RuntimeSnapshot } from "./types";
 
@@ -103,6 +104,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     storyIdentity: buildStoryIdentity(loaded?.record ?? null, loaded ? findStoryRecord(loaded.record.id) : null, Boolean(loaded && loadPersistedRuntime(loaded.record.id)?.pinnedStory)),
     blobUnreadable: unreadable ? { foundVersion: unreadable.foundVersion, notice: unreadableNotice(unreadable) } : null,
     orphanedLorebooks: orphanedLorebooks(),
+    chatIdentity: loaded ? null : readChatIdentity(),
     storyTitle: story?.title ?? null,
     storyDescription: story?.description ?? null,
     activeCheckpointId: active?.id ?? null,

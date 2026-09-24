@@ -32,7 +32,6 @@ function harness() {
   const rollbackFromMessage = jest.fn();
   const persist = jest.fn(async () => undefined);
   const notify = jest.fn();
-  const dropReadsAfter = jest.fn(async () => undefined);
   const revalidateExpansion = jest.fn();
   const deps = {
     engine: {
@@ -51,14 +50,13 @@ function harness() {
     extras: () => extras,
     refreshRequirements: jest.fn(),
     reapplyCheckpoint: jest.fn(),
-    dropReadsAfter,
     persist,
     notify,
     notices: { lastRollback: null, rollbackUnavailable: null },
     setStatus: jest.fn(),
     onApplied: jest.fn(),
   } as unknown as RollbackDeps;
-  return { deps, extras, rollbackFromMessage, persist, notify, dropReadsAfter, revalidateExpansion };
+  return { deps, extras, rollbackFromMessage, persist, notify, revalidateExpansion };
 }
 
 describe("cross-store rollback without an engine transition", () => {
@@ -68,7 +66,6 @@ describe("cross-store rollback without an engine transition", () => {
     expect(h.rollbackFromMessage).toHaveBeenCalledWith(3, 7);
     expect(h.extras.extraction.audits.map((audit) => audit.id)).toEqual(["old"]);
     expect(h.persist).toHaveBeenCalledTimes(1);
-    expect(h.dropReadsAfter).toHaveBeenCalledWith(3);
     expect(h.notify).toHaveBeenCalledTimes(1);
     expect(h.deps.notices.rollbackUnavailable).toBeNull();
     // The expansion basis is the blackboard the applied path restored; a mutation that never moved

@@ -101,7 +101,7 @@ export function startRuntime() {
   registerLiveSuite(runtimeManager);
   window.setTimeout(() => registerSlashCommandsWhenReady(), 0);
   window.setTimeout(() => registerSlashCommandsWhenReady(), 1000);
-  bridge = new TurnBridge(runtimeManager);
+  bridge = new TurnBridge(runtimeManager, runtimeManager.chatSave);
   bridge.start();
   // v2.4 plan 02 §8: persona, group and lorebook-selection changes re-read the requirements between turns.
   const requirementsWatch = new RequirementsWatch(runtimeManager.requirementsHost, subscribeToHostEvents);

@@ -287,7 +287,7 @@
     },
     "src/runtime/rollback.ts#runRollback": {
       "status": "local",
-      "note": "v2.4 plan 02 \u00a710 (2026-09-24): the wrapper around `rollbackOnce` (which carries the old runRollback row). Its only write after the await is `deps.notices.lastOutcome`, an in-memory record of the outcome the harness reads for `expect.rollbackOutcome`; it is never persisted and names no chat, so there is no edge for a token to guard."
+      "note": "v2.4 plan 02 §10 (2026-09-24): the wrapper around `rollbackOnce` (which carries the old runRollback row). Its only write after the await is `deps.notices.lastOutcome`, an in-memory record of the outcome the harness reads for `expect.rollbackOutcome`; it is never persisted and names no chat, so there is no edge for a token to guard."
     },
     "src/runtime/rollback.ts#rollbackOnce": {
       "status": "partial",
@@ -307,11 +307,7 @@
     },
     "src/runtime/runtimeManager.ts#RuntimeManager.commitBoundary": {
       "status": "checked",
-      "note": "v2.3 plan 03: mints before boundary work and checks after checkpoint effects, accepted stagecraft, persistence and transition announcement before any later runtime write, observer or notification. The persistence chokepoint and child writers retain their own guards."
-    },
-    "src/runtime/runtimeManager.ts#RuntimeManager.dropReadsAfter": {
-      "status": "local",
-      "note": "v2.3 replan V3 (2026-09-23): every write precedes its await (the judge ring is trimmed synchronously); after persist() only notify() runs, a UI refresh that holds no state."
+      "note": "v2.3 plan 03: mints before boundary work and checks after checkpoint effects, accepted stagecraft, persistence and transition announcement before any later runtime write, observer or notification. The persistence chokepoint and child writers retain their own guards. v2.4 plan 02 T3: the fingerprint reconcile runs first (ChatSave.reconcile, which checks the run before stepping back and answers stillOwns after), and the commit stops there when the run lapsed, before the engine write."
     },
     "src/runtime/runtimeManager.ts#RuntimeManager.fireAfterSpeak": {
       "status": "checked",
@@ -323,7 +319,7 @@
     },
     "src/runtime/runtimeManager.ts#RuntimeManager.loadStory": {
       "status": "checked",
-      "note": "v2.3 replan V3 (2026-09-23): promoted from partial: the tail after applyCheckpoint now stops when superseded (the release is checked per write, then asked again). A superseded load used to retitle the newer load, release ITS gated lore and select the old id; only the current load queues a recap (S3)."
+      "note": "v2.3 replan V3 (2026-09-23): promoted from partial: the tail after applyCheckpoint now stops when superseded (the release is checked per write, then asked again). A superseded load used to retitle the newer load, release ITS gated lore and select the old id; only the current load queues a recap (S3). v2.4 plan 02 T3: the hydrate reconcile after the final persist is ChatSave.reconcile(run), which asks the load's own run before it steps back."
     },
     "src/runtime/chatSave.ts#ChatSave.persist": {
       "status": "checked",
@@ -340,10 +336,6 @@
     "src/runtime/runtimeManager.ts#RuntimeManager.removeLedgerEntry": {
       "status": "delegate",
       "note": "awaits MemoryCoordinator.removeLedgerEntry, which owns the check"
-    },
-    "src/runtime/runtimeManager.ts#RuntimeManager.rollbackDeps.dropReadsAfter": {
-      "status": "local",
-      "note": "v2.3 replan V3 (2026-09-23): forwards to RuntimeManager.dropReadsAfter and writes nothing itself after its await."
     },
     "src/runtime/runtimeManager.ts#RuntimeManager.rollbackDeps.reapplyCheckpoint": {
       "status": "delegate",
@@ -440,6 +432,10 @@
     "src/runtime/turnBridge.ts#TurnBridge.onRenderedReply": {
       "status": "checked",
       "note": "v2.3 plan 03: captures ownership at event acceptance, queues its own pending entry (V4: no longer replaces a shared slot), and refuses a late afterSpeak continuation after its world lapses by removing its entry. The flush retains the same captured guard rather than minting in the landing world."
+    },
+    "src/runtime/turnBridge.ts#TurnBridge.onChatChanged": {
+      "status": "local",
+      "note": "v2.4 plan 02 §3/§5 (2026-09-24). The same-chat path keeps the run (no reset, no bump) and awaits ChatSave.reconcile, which checks the run before it steps back; after it only notify() runs, a UI refresh that holds no state. The full path's writes after loadSelectedFromChat are the bridge's own record of the chat it loaded (read from the host at that instant, so always true of the open chat), the reload-diverged journal line, which is written only while the diverged chat is both the one open and the one the current epoch claims, so a newer CHAT_CHANGED that overtook this load never receives it, and the §5 unbind of an unadopted branch's inherited mirror binding: unbindBranchMirror re-reads the open chat's own metadata and checks the run it is handed immediately before the host write (mutation B3). `reset` precedes every await on its own path; the census sees it after the same-chat branch's await in source order."
     }
   }
 }

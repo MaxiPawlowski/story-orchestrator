@@ -108,6 +108,16 @@ export function getMetadataBlob(): StoryOrchestratorMetadataBlob {
   return blob;
 }
 
+/** v2.4 plan 02 §3: the boundary the stored copy holds for the story it selects, read without adopting,
+ *  migrating or stamping anything. Null when the copy is not this chat's, selects another story, or
+ *  holds none. */
+export const storedBoundaryFor = (storyId: string): number | null => {
+  const existing = storedValue();
+  if (!recognized(existing) || existing.version !== 4 || existing.chatId !== openChatId() || existing.selectedStoryId !== storyId) return null;
+  const boundary = (existing.stories as Record<string, Partial<PersistedStoryRuntime>>)[storyId]?.engineState?.boundary;
+  return typeof boundary === "number" ? boundary : null;
+};
+
 export const unreadableStored = (): UnreadableBlob | null => {
   const existing = storedValue();
   return unrecognized(existing) ? { kind: "unreadable", foundVersion: foundVersionOf(existing), openChat: openChatId() } : null;
@@ -128,6 +138,8 @@ export const adoptChatState = (): boolean => {
   if (!current) return !unrecognized(storedValue());
   if (belongsHere(current)) return true;
   current.chatId = openChatId();
+  const integrity = openChatIntegrity();
+  if (integrity) current.integrity = integrity;
   (getContext().chatMetadata as Record<string, unknown>)[METADATA_KEY] = current;
   mismatch = null;
   return true;
@@ -196,12 +208,24 @@ export function evictedStoryNotice(evictedIds: string[], titleOf: (id: string) =
   };
 }
 
-export function savePersistedRuntime(record: PersistedStoryRuntime): string[] {
+export const openChatIntegrity = (): string | null => {
+  const integrity = (getContext().chatMetadata as Record<string, unknown> | undefined)?.integrity;
+  return typeof integrity === "string" && integrity ? integrity : null;
+};
+
+export function savePersistedRuntime(record: PersistedStoryRuntime, onRestamp?: (from: string, to: string) => void): string[] {
   const blob = ownBlob("saving story state");
   if (!blob) return [];
   // An unstamped blob (written before v4, or migrated from v3 where the chat could not be
   // recovered) takes the open chat's id the first time this chat writes to it.
   if (blob.chatId === null) blob.chatId = openChatId();
+  // v2.4 plan 02: a blob that belongs here but carries another integrity was adopted by a build that
+  // restamps the chat id only. It is this chat's, so it is restamped, never read as foreign.
+  const integrity = openChatIntegrity();
+  if (integrity !== null && blob.integrity !== integrity) {
+    if (typeof blob.integrity === "string" && blob.integrity) onRestamp?.(blob.integrity, integrity);
+    blob.integrity = integrity;
+  }
   blob.stories[record.storyId] = record;
   blob.selectedStoryId = record.storyId;
   const evicted = gcStories(blob);
