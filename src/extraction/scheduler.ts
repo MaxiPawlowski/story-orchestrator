@@ -2,6 +2,7 @@ import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engi
 import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine } from "@memory/index";
 import type { ExtraGateSource, TypedJudge } from "./types";
 import { getChatWindow } from "./chatWindow";
+import { isLapse } from "./client";
 import { runSharedRead, sharedReadWindow } from "./sharedRead";
 import type { ParsedFact, SharedReadAudit, SharedReadWindow } from "./types";
 
@@ -26,6 +27,8 @@ export interface NextReadWindow {
 export interface ReadOwnership {
   stillOwns(): boolean;
   lapsedDetail(): string | null;
+  signal?: AbortSignal;
+  release?(): void;
 }
 
 export interface SchedulerJob {
@@ -50,6 +53,7 @@ export interface SchedulerHost {
   beginRead?(window: { from: number; to: number }): ReadOwnership;
   onSchedulerChange(): void;
   pauseExtraction(message: string): void;
+  noteLapse?(reason: string, detail: string): void;
   /**
    * v2.3 plan 03 §Abort and cleanup: which world this work belongs to. A job that fails after its
    * world ended must not pause extraction for the world that replaced it — pausing is install-wide.
@@ -93,9 +97,9 @@ export class ExtractionScheduler {
    * otherwise each one still builds a prompt from the new chat's window and spends a model call to
    * produce a result that is then discarded.
    *
-   * It does not touch `inFlight`. A job that is already awaiting the model cannot be recalled by
-   * setting a flag, and clearing the flag would let a second job start beside it; the in-flight one
-   * finishes and its result is refused at the write edge, which is what the tokens are for.
+   * It does not touch `inFlight`: clearing the flag would let a second job start beside the one
+   * still awaiting the model. That one is aborted by the epoch change (v2.4 plan 03 D2), and refused
+   * at the write edge if its answer wins the race against the abort.
    */
   clearForNewWorld() {
     this.queue.length = 0;
@@ -192,18 +196,24 @@ export class ExtractionScheduler {
     }
     this.inFlight = true;
     this.host.onSchedulerChange();
+    let read: ReadOwnership | null = null;
     try {
       if (job.run) {
         await this.runWithRetries(job.run);
       } else {
         const priority = job.priority === 0 ? 0 : 1;
         const window = sharedReadWindow({ state, priority, window: job.window && getChatWindow(job.window.from, job.window.to), stabilityLag: settings.stabilityLag });
-        const read = this.host.beginRead?.({ from: window.from, to: window.to }) ?? null;
-        const result = await this.runWithRetries(() => runSharedRead({ story, state, priority, reason: job.reason, window, stabilityLag: settings.stabilityLag, firedTransitions: this.host.getFiredTransitions(), facts: this.host.getFacts(), extraGateSources: this.host.getExpansionGateSources(), openArcs: this.host.getOpenArcs(), epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false, entities: this.host.getEntities?.() ?? [], judgeTyped: this.host.judgeTyped?.() ?? null, client: settings }));
+        read = this.host.beginRead?.({ from: window.from, to: window.to }) ?? null;
+        const client = read?.signal ? { ...settings, signal: read.signal } : settings;
+        const result = await this.runWithRetries(() => runSharedRead({ story, state, priority, reason: job.reason, window, stabilityLag: settings.stabilityLag, firedTransitions: this.host.getFiredTransitions(), facts: this.host.getFacts(), extraGateSources: this.host.getExpansionGateSources(), openArcs: this.host.getOpenArcs(), epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false, entities: this.host.getEntities?.() ?? [], judgeTyped: this.host.judgeTyped?.() ?? null, client }));
         await this.host.applyExtractionAudit(result.audit, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, read);
       }
       if (this.sameWorld(startedEpoch)) this.lastError = null;
     } catch (error) {
+      if (isLapse(error)) {
+        if (this.sameWorld(startedEpoch)) this.noteLapse(job, error);
+        return;
+      }
       // Pausing is INSTALL-WIDE, so a job that failed after its world ended must not pause the
       // world that replaced it: switching chats would otherwise inherit the previous story's dead
       // backend and silently stop extracting everywhere. Nor may it put its error in the new
@@ -213,6 +223,7 @@ export class ExtractionScheduler {
         this.host.pauseExtraction(this.lastError);
       }
     } finally {
+      read?.release?.();
       this.inFlight = false;
       this.host.onSchedulerChange();
       void this.pump();
@@ -235,6 +246,10 @@ export class ExtractionScheduler {
       await this.runWithRetries(job.run);
       if (this.sameWorld(startedEpoch)) this.lastHeavyError = null;
     } catch (error) {
+      if (isLapse(error)) {
+        if (this.sameWorld(startedEpoch)) this.noteLapse(job, error);
+        return;
+      }
       if (this.sameWorld(startedEpoch)) this.lastHeavyError = error instanceof Error ? error.message : "Background generation failed";
     } finally {
       this.heavyInFlight = false;
@@ -243,12 +258,17 @@ export class ExtractionScheduler {
     }
   }
 
+  private noteLapse(job: SchedulerJob, error: unknown) {
+    this.host.noteLapse?.(`extraction read lapsed: ${job.reason}`, error instanceof Error ? error.message : String(error));
+  }
+
   private async runWithRetries<T>(task: () => Promise<T>): Promise<T> {
     let lastError: unknown;
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
         return await task();
       } catch (error) {
+        if (isLapse(error)) throw error;
         lastError = error;
         if (attempt < 2) await new Promise((resolve) => globalThis.setTimeout(resolve, 250 * 2 ** attempt));
       }

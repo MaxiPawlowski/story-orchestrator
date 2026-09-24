@@ -1,5 +1,6 @@
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import { callExtractionModel } from "@extraction/client";
+import { maxTokensForInput } from "@extraction/callBudget";
 import {
   buildWiCuratorPrompt,
   curatorHasScope,
@@ -155,6 +156,8 @@ export class StagecraftCoordinator {
       const prompt = buildWiCuratorPrompt({ storyTitle: story.title, checkpointName, objective, canon, openArcs, entries: shown });
       const response = await callExtractionModel(prompt, {
         profileId: this.deps.getExtractionSettings().profileId,
+        maxTokens: maxTokensForInput("curator", prompt),
+        ...(this.deps.ownership?.signal ? { signal: this.deps.ownership.signal() } : {}),
         debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugCuratorResponse ?? null,
       });
       // The write edge. Everything above was read from, or computed for, the world the token

@@ -1,5 +1,5 @@
 import type { TalkControl } from "@engine/index";
-import { TalkController, type TalkControlHost } from "./talkControl";
+import { DIRECTOR_TIMEOUT_MS, TalkController, type TalkControlHost } from "./talkControl";
 import type { TalkDecisionAudit } from "./types";
 
 interface HostCalls {
@@ -157,6 +157,36 @@ describe("TalkController intercept", () => {
     await controller.intercept(abort, "normal");
     expect(state.aborted).toBe(false);
     expect(calls.decisions[0]).toMatchObject({ chosenRosterId: "sage", source: "fallback" });
+  });
+
+  it("timeout aborts the host signal and falls back to rules (v2.4 plan 03 D2)", async () => {
+    jest.useFakeTimers();
+    try {
+      let seen: AbortSignal | null = null;
+      const { host, calls } = makeHost({
+        callDirector: (_prompt, signal) => { seen = signal; return new Promise<string>(() => {}); },
+        getActiveTalkControl: () => ({ director: true, lead: "Finn" }),
+        getDraftedRosterId: () => "sage",
+      });
+      const pending = new TalkController(host).intercept(makeAbort().abort, "normal");
+      await Promise.resolve();
+      expect(seen).not.toBeNull();
+      expect(seen!.aborted).toBe(false);
+      await jest.advanceTimersByTimeAsync(DIRECTOR_TIMEOUT_MS);
+      await pending;
+      expect(seen!.aborted).toBe(true);
+      expect((seen!.reason as Error).name).toBe("TimeoutError");
+      expect(calls.decisions[0]).toMatchObject({ chosenRosterId: "sage", source: "fallback" });
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it("control: a director that answers in time is not aborted", async () => {
+    let seen: AbortSignal | null = null;
+    const { host } = makeHost({ callDirector: async (_prompt, signal) => { seen = signal; return "SPEAKER: Mara"; } });
+    await new TalkController(host).intercept(makeAbort().abort, "normal");
+    expect(seen!.aborted).toBe(false);
   });
 
   it("ignores unparseable director output via rules fallback", async () => {

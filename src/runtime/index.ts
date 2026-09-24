@@ -65,6 +65,7 @@ export function startRuntime() {
       if (scheduler) runtimeManager.setSchedulerSnapshot(scheduler.getSnapshot());
     },
     pauseExtraction: (message) => runtimeManager.pauseExtraction(message),
+    noteLapse: (summary, detail) => runtimeManager.noteRecap(summary, detail),
     epoch: () => runtimeManager.getRunContext().sessionEpoch,
     judgeTyped: () => typedJudge,
   };
@@ -180,9 +181,10 @@ export function startRuntime() {
     getLastMessageId: chatLastId,
     getWindow: recentWindow,
     getCheckpointInfo: () => runtimeManager.getActiveCheckpointInfo(),
-    callDirector: (prompt) => callExtractionModel(prompt, {
+    callDirector: (prompt, signal) => callExtractionModel(prompt, {
       profileId: runtimeManager.getExtractionSettings().profileId,
       maxTokens: DIRECTOR_MAX_TOKENS,
+      signal,
       debugResponse: globalThis.storyOrchestratorDebugDirectorResponse ?? null,
     }),
     triggerMember: async (name) => { await executeSlashCommands(`/trigger await=true ${quoteSlashArg(name)}`, { silent: false }); },

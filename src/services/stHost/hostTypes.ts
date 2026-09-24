@@ -80,6 +80,8 @@ export interface SillyTavernContext {
   // preset manager for that API (st-context.js:288, preset-manager.js:83 — null for an unknown API).
   CONNECT_API_MAP?: Record<string, HostConnectApiMap | undefined>;
   getPresetManager?: (apiId?: string) => HostPresetManager | null;
+  // v2.4 03-H6: the reply text ST's extracted path reads (script.js:6276, st-context.js:287).
+  extractMessageFromData?: (data: unknown, activeApi?: string | null) => string;
   [key: string]: unknown;
 }
 
@@ -92,7 +94,7 @@ export interface HostConnectApiMap {
 
 // preset-manager.js:757: undefined for a name the API does not list.
 export interface HostPresetManager {
-  getCompletionPresetByName: (name: string) => Record<string, unknown> | undefined;
+  getCompletionPresetByName: (name?: string) => Record<string, unknown> | undefined;
   [key: string]: unknown;
 }
 
@@ -161,10 +163,20 @@ export interface GroupChatsHostModule {
   [key: string]: unknown;
 }
 
+// v2.4 03-H1: `custom` is destructured at shared.js:424 and `signal` reaches both services' `fetch`
+// (CC :463, TC :483). `extractData: false` returns the raw reply JSON (03-H6).
+export interface HostModelRequestCustom {
+  extractData?: boolean;
+  includePreset?: boolean;
+  includeInstruct?: boolean;
+  stream?: boolean;
+  signal?: AbortSignal | null;
+}
+
 export interface ExtensionsSharedHostModule {
   ConnectionManagerRequestService: {
     getSupportedProfiles: () => Array<Record<string, unknown>>;
-    sendRequest: (profileId: string, prompt: string | Array<{ role: string; content: string }>, maxTokens: number, custom?: Record<string, unknown>, overridePayload?: Record<string, unknown>) => Promise<unknown>;
+    sendRequest: (profileId: string, prompt: string | Array<{ role: string; content: string }>, maxTokens: number, custom?: HostModelRequestCustom, overridePayload?: Record<string, unknown>) => Promise<unknown>;
   };
   [key: string]: unknown;
 }

@@ -451,6 +451,19 @@ describe("RuntimeManager scene detection", () => {
     expect(manager.getSnapshot().memory.sceneCount).toBe(2);
   });
 
+  it("does not store a scene summary the model looped on (v2.4 plan 03 D6)", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(sceneStory));
+
+    globalThis.storyOrchestratorDebugSceneSummaryResponse = Array.from({ length: 5 }, () => "They lingered in the hall.").join("\n");
+    await manager.runSceneBreakPass(sceneBreakAudit());
+    globalThis.storyOrchestratorDebugSceneSummaryResponse = "They left the hall for the vault.";
+    await manager.runSceneBreakPass({ ...sceneBreakAudit(), id: "audit-scene-2", window: { from: 3, to: 4 } });
+
+    const scenes = manager.getSnapshot().memory.entries.filter((entry) => entry.tier === "scene_history");
+    expect(scenes.map((entry) => entry.text)).toEqual(["They left the hall for the vault."]);
+  });
+
   it("fires the sceneBreak reply once per distinct break, not once per checkpoint", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(sceneStory));

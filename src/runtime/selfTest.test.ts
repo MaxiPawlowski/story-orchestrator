@@ -7,7 +7,7 @@ jest.mock("@services/STAPI", () => ({
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
-  sendConnectionProfileRequest: jest.fn(async () => ""),
+  sendConnectionProfileRequest: jest.fn(async () => ({ ok: true, text: "", finish: "stop" })),
   getContext: () => ({ chat: [] }),
 }));
 

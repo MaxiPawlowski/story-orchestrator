@@ -1,4 +1,7 @@
-import { mintToken, tokenMatches, type MessageWindow, type RunContext, type RunOwnership, type RunToken } from "./runToken";
+import { anySignal } from "@utils/signals";
+import { mintToken, tokenMatches, type LiveRun, type MessageWindow, type RunContext, type RunOwnership, type RunToken } from "./runToken";
+
+const LIVE_RUN_LIMIT = 32;
 
 export interface RunOwnerDeps {
   /** The chat SillyTavern has open right now — not necessarily the one this run belongs to. */
@@ -46,7 +49,23 @@ export class RunOwner {
     mint: (window: MessageWindow | null = null) => mintToken(this.context(), window),
     check: (token: RunToken) => tokenMatches(this.context(), token),
     signal: () => this.signal(),
+    live: (window: MessageWindow | null) => this.track(window),
   };
+
+  private live: Array<{ window: MessageWindow | null; controller: AbortController }> = [];
+
+  private track(window: MessageWindow | null): LiveRun {
+    const entry = { window, controller: new AbortController() };
+    this.live = [...this.live, entry].slice(-LIVE_RUN_LIMIT);
+    return {
+      signal: anySignal([this.aborter.signal, entry.controller.signal]),
+      release: () => { this.live = this.live.filter((candidate) => candidate !== entry); },
+    };
+  }
+
+  liveRunCount(): number {
+    return this.live.length;
+  }
 
   /**
    * Everything in flight now belongs to a world that no longer exists: a story load, select,
@@ -58,9 +77,9 @@ export class RunOwner {
    * v2.3 plan 03. One controller per epoch, aborted when that epoch is replaced. Work started in
    * the old world is cancelled rather than left to finish and be discarded at the write edge.
    *
-   * Extraction calls can honour it too: `ConnectionManagerRequestService.sendRequest` takes
-   * `custom.signal` (shared.js:423-424, pass-through :463/:483; 1.18.0 :420). Not wired yet (v2.4
-   * plan 03); until then the token check is the whole defence. Corrected in v2.4 plan 01.
+   * Extraction calls honour it: `ConnectionManagerRequestService.sendRequest` takes `custom.signal`
+   * (shared.js:423-424, pass-through :463/:483; 1.18.0 :420), wired by v2.4 plan 03 through each
+   * run's live signal. The token check stays the guard; the abort only frees the request.
    */
   private aborter = new AbortController();
 
@@ -81,6 +100,7 @@ export class RunOwner {
   bump() {
     this.aborter.abort();
     this.aborter = new AbortController();
+    this.live = [];
     this.epoch += 1;
     this.windowRevision = 0;
     this.lowestMutatedMessageId = null;
@@ -103,6 +123,9 @@ export class RunOwner {
     this.windowRevision += 1;
     this.mutations = [...this.mutations, { revision: this.windowRevision, messageId }].slice(-200);
     this.lowestMutatedMessageId = this.lowestMutatedMessageId === null ? messageId : Math.min(this.lowestMutatedMessageId, messageId);
+    for (const entry of this.live) {
+      if (entry.window && messageId <= entry.window.to) entry.controller.abort();
+    }
   }
 
   claimedChat(): string | null {
