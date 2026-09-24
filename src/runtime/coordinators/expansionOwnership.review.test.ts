@@ -13,9 +13,11 @@
 // Owner: plan 11. Flips the `expansion|worldSwitched` row of `test/findings/faultMatrix.json`.
 
 import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
-import type { ExpansionCacheEntry, ExpansionRuntimeState } from "@generation/index";
+import { EXPANSION_CONTRACT, type ExpansionCacheEntry, type ExpansionRuntimeState } from "@generation/index";
 import type { RunContext, RunOwnership } from "./../runToken";
 import { mintToken, tokenMatches } from "./../runToken";
+import { sanitizeExpansion } from "../extras";
+import type { RuntimeExtras } from "../types";
 import { ExpansionCoordinator } from "./expansionCoordinator";
 
 jest.mock("@services/STAPI", () => ({
@@ -72,8 +74,14 @@ function harness(options: { switchDuringGeneration: boolean; ownership?: boolean
   return {
     coordinator, stores, context, persists: () => persists,
     switchChat: () => { context.chatId = "chat-b"; context.sessionEpoch += 1; },
+    returnToChatA: () => { context.chatId = "chat-a"; context.sessionEpoch += 1; },
   };
 }
+
+const scheduled = () => {
+  const reasons: string[] = [];
+  return { reasons, schedule: (reason: string) => { reasons.push(reason); } };
+};
 
 describe("expansion generation is owned by the world it started in (plan 11)", () => {
   it("files a chain into the chat that asked for it", async () => {
@@ -111,5 +119,73 @@ describe("expansion generation is owned by the world it started in (plan 11)", (
     env.switchChat();
     await pending;
     expect(env.stores["chat-b"].entries["a->s0->b"]?.status).toBe("failed");
+  });
+});
+
+describe("v2.4 plan 03 D4: a queued or generating stub no live job holds is re-queueable", () => {
+  it("a switched-away chain is re-queueable on return", async () => {
+    const env = harness({ switchDuringGeneration: true });
+    const pending = env.coordinator.generate(candidate as never);
+    env.switchChat();
+    await pending;
+    env.returnToChatA();
+    const queue = scheduled();
+    expect(env.coordinator.scheduleForActive(queue.schedule)).toBe(true);
+    expect(queue.reasons).toEqual(["expand:s0"]);
+    expect(env.stores["chat-a"].entries["a->s0->b"]?.status).toBe("queued");
+  });
+
+  it("a stub queued before a switch, whose job the switch dropped, is re-queued on return", () => {
+    const env = harness({ switchDuringGeneration: false });
+    const queue = scheduled();
+    expect(env.coordinator.scheduleForActive(queue.schedule)).toBe(true);
+    env.switchChat();
+    env.returnToChatA();
+    expect(env.coordinator.scheduleForActive(queue.schedule)).toBe(true);
+    expect(queue.reasons).toEqual(["expand:s0", "expand:s0"]);
+  });
+
+  it("control: a stub whose job is still queued is not queued twice", () => {
+    const env = harness({ switchDuringGeneration: false });
+    const queue = scheduled();
+    expect(env.coordinator.scheduleForActive(queue.schedule)).toBe(true);
+    expect(env.coordinator.scheduleForActive(queue.schedule)).toBe(false);
+    expect(queue.reasons).toEqual(["expand:s0"]);
+  });
+
+  it("control: a stub whose generation is in flight is not queued beside it", async () => {
+    const env = harness({ switchDuringGeneration: false });
+    const pending = env.coordinator.generate(candidate as never);
+    const queue = scheduled();
+    expect(env.stores["chat-a"].entries["a->s0->b"]?.status).toBe("generating");
+    expect(env.coordinator.scheduleForActive(queue.schedule)).toBe(false);
+    await pending;
+    expect(queue.reasons).toEqual([]);
+  });
+
+  it("a persisted generating entry is re-queueable on hydrate", () => {
+    const persisted = (status: string, origin: "active" | "lookahead") => sanitizeExpansion({
+      expansion: {
+        entries: { "a->s0->b": { key: "a->s0->b", status, origin, contract: EXPANSION_CONTRACT, sourceCheckpointId: "a", stubId: "s0", targetAnchorId: "b", basis: {}, blackboardVersionSum: 0, beats: [], needsReview: false, verdicts: [], codeCheck: null, insertedCheckpointIds: [], lastError: null, attempts: 1, updatedAt: "t" } },
+        scheduler: { queueDepth: 1, inFlight: true, lastError: null },
+      },
+    } as unknown as RuntimeExtras);
+    expect(persisted("generating", "active").entries).toEqual({});
+    expect(persisted("queued", "active").entries).toEqual({});
+    expect(persisted("generating", "lookahead").entries["a->s0->b"]?.status).toBe("stale");
+    expect(persisted("queued", "lookahead").entries["a->s0->b"]?.status).toBe("stale");
+    expect(persisted("generating", "active").scheduler).toEqual({ queueDepth: 0, inFlight: false, lastError: null });
+
+    const env = harness({ switchDuringGeneration: false });
+    env.stores["chat-a"] = persisted("generating", "active");
+    const queue = scheduled();
+    expect(env.coordinator.scheduleForActive(queue.schedule)).toBe(true);
+    expect(queue.reasons).toEqual(["expand:s0"]);
+  });
+
+  it("control: hydrate keeps a settled chain as it was saved", () => {
+    const entry = { key: "a->s0->b", status: "failed", origin: "active", contract: EXPANSION_CONTRACT, sourceCheckpointId: "a", stubId: "s0", targetAnchorId: "b", basis: {}, blackboardVersionSum: 0, beats: [], needsReview: false, verdicts: [], codeCheck: null, insertedCheckpointIds: [], lastError: "x", attempts: 1, updatedAt: "t" };
+    const hydrated = sanitizeExpansion({ expansion: { entries: { "a->s0->b": entry }, scheduler: { queueDepth: 0, inFlight: false, lastError: null } } } as unknown as RuntimeExtras);
+    expect(hydrated.entries["a->s0->b"]).toEqual(entry);
   });
 });

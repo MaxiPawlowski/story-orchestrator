@@ -278,6 +278,7 @@ const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapshot: Run
       )}
       <div className="flex items-center gap-2 mt-1">
         <button className="menu_button" disabled={snapshot.memory.backfill?.running} onClick={() => void manager.runMemorizeBacklog()}>Memorize chat</button>
+        {snapshot.memory.backfill?.running && <button id="so-memorize-stop" className="menu_button" onClick={() => manager.cancelMemorizeBacklog()}>Stop</button>}
         <span className="opacity-60">Read the whole chat history into memory.</span>
       </div>
       {snapshot.memory.backfill?.running && <div>Memorizing: {snapshot.memory.backfill.processed}/{snapshot.memory.backfill.total}</div>}

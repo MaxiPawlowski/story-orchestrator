@@ -257,7 +257,8 @@
     "expansion|worldSwitched": {
       "status": "covered",
       "evidence": "src/runtime/coordinators/expansionOwnership.review.test.ts#writes nothing into the chat that replaced it, and persists nothing for it",
-      "note": "FOUND BY THIS CENSUS: the coordinator took no ownership token, so a chain generated for chat A was filed into chat B and merged into chat B's story. Fixed here, with the unowned run kept as a negative control."
+      "alsoEvidence": ["src/runtime/coordinators/expansionOwnership.review.test.ts#a switched-away chain is re-queueable on return"],
+      "note": "FOUND BY THIS CENSUS: the coordinator took no ownership token, so a chain generated for chat A was filed into chat B and merged into chat B's story. Fixed here, with the unowned run kept as a negative control. v2.4 plan 03 D4: the `generating` marker the lapsed run leaves in chat A no longer wedges its key; a marker no live job of this world holds is re-queued on return (second citation), and hydrate demotes a persisted queued/generating entry."
     },
     "judgeRing|delayedSuccess": {
       "status": "covered",

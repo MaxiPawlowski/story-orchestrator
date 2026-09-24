@@ -602,6 +602,47 @@ export const PlayerMemory: Story = {
   },
 };
 
+const backfillSnapshot = (backfill: { running: boolean; processed: number; total: number; lastError: string | null }): RuntimeSnapshot => {
+  const snapshot = playerMemorySnapshot() as unknown as { memory: Record<string, unknown> };
+  snapshot.memory = { ...snapshot.memory, backfill };
+  return derive(snapshot as unknown as RuntimeSnapshot);
+};
+const memorizeManager = { ...fakeManager(), runMemorizeBacklog: fn(), cancelMemorizeBacklog: fn() } as unknown as RuntimeManager & { runMemorizeBacklog: ReturnType<typeof fn>; cancelMemorizeBacklog: ReturnType<typeof fn> };
+
+export const PlayerStopsMemorizing: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={backfillSnapshot({ running: true, processed: 1, total: 4, lastError: null })} manager={memorizeManager} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await expect(canvas.getByRole("button", { name: "Memorize chat" })).toBeDisabled();
+    await expect(canvas.getByText("Memorizing: 1/4")).toBeInTheDocument();
+    const stop = canvas.getByRole("button", { name: "Stop" });
+    await expect(stop).toHaveAttribute("id", "so-memorize-stop");
+    await userEvent.click(stop);
+    await expect(memorizeManager.cancelMemorizeBacklog).toHaveBeenCalledTimes(1);
+  },
+};
+
+export const MemorizeStopped: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={backfillSnapshot({ running: false, processed: 1, total: 4, lastError: "Stopped after 1 of 3 parts. What was read is kept; the whole-chat pass did not run." })} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await expect(canvas.getByRole("button", { name: "Memorize chat" })).toBeEnabled();
+    await expect(canvas.queryByRole("button", { name: "Stop" })).toBeNull();
+    await expect(canvas.getByText(/Stopped after 1 of 3 parts/)).toBeInTheDocument();
+    await expect(canvas.queryByText(/Memorizing:/)).toBeNull();
+  },
+};
+
 const notConfiguredSnapshot = (): RuntimeSnapshot => {
   const snapshot = playerSnapshot() as unknown as { extraction: { settings: Record<string, unknown> }; pendingDeltas: unknown[] };
   snapshot.extraction = { ...snapshot.extraction, settings: { ...snapshot.extraction.settings, enabled: true, profileId: null } };

@@ -460,6 +460,7 @@ export class RuntimeManager {
   async runEpistemicLedgerPass(audit: SharedReadAudit): Promise<boolean> { return this.extraction.runEpistemicLedgerPass(audit); }
   async runExtractionNow(debugResponse?: string, reason = "manual") { return this.extraction.runNow(debugResponse, reason); }
   async runMemorizeBacklog(windowSize = 8): Promise<boolean> { return this.extraction.runMemorizeBacklog(windowSize); }
+  cancelMemorizeBacklog(): boolean { return this.extraction.cancelMemorizeBacklog(); }
   async setMemoryPinned(id: string, pinned: boolean) { await this.memory.setMemoryPinned(id, pinned); }
   async excludeMemoryEntry(id: string) { await this.memory.excludeMemoryEntry(id); }
   async restoreMemoryEntry(entry: MemoryEntry) { await this.memory.restoreMemoryEntry(entry); }

@@ -375,6 +375,7 @@ None open. The three from the first draft are settled:
 _Placeholder — date, exact commands and outputs, mutation file, live records under
 `test/journeys/records/v2.4-plan03/`, deviations. Filled when the plan closes._
 
+<<<<<<< HEAD
 ### Budget modules (worktree build, 2026-09-24)
 
 Scope: the PURE half of D5 plus the H12 host read. Built on master `d7bd4ed`. Not wired into any coordinator
@@ -430,3 +431,104 @@ off-by-one in pack, early close, oversized dropped, last window lost, tail-fit s
 - Counting: ST's `getTokenCountAsync` is async (H11, main-API tokenizer), the modules take a sync counter. The
   caller must pre-count (e.g. `countTokensBatch` into a cache) or pass a sync estimator; truncation of an
   oversized message counts arbitrary prefixes, so a pure cache is not enough for that path.
+=======
+### Wedges + snapshot reset (worktree build, 2026-09-24)
+
+Built on `d7bd4ed` in a worktree, in parallel with the seam (D1/D2/D3 breaker) and budget (D5) agents. Scope: D4 both wedges
++ Stop, and D3's "Persisted snapshot" bullet only. Machine gates only: **no live gate ran** (no backend in this session),
+so live gates 3 (Stop half), 4 and 6 are **NOT green**.
+
+**Line re-verification (Rule 1), on `d7bd4ed` before building.** The Verified-state table is stale for this scope:
+- backlog `extractionCoordinator.ts:398-464` (table: 383-448). Early `return false` without `running:false` at
+  `:412,430,436,450`; the catch's write at `:459`.
+- `DrawerTabs.tsx:280` (table: 256). Consolidation blocked at `memoryCoordinator.ts:458` (table: 510).
+- `extras.ts:97` backfill reset holds. The scheduler snapshot is at `extras.ts:249`, and `sanitizeExpansion` at
+  `:265-277`, which also kept `expansion.scheduler`.
+- Expansion: `queue()` persists `queued` at `expansionCoordinator.ts:136-145` and refuses an existing key at `:139`;
+  `generating` at `:236-237`; lapse returns at `:249,270,273`; look-ahead guard `:157`. `snapshotBuilder.ts:67`.
+- Budgets now: manager 658/700, extractionCoordinator 501/620, expansionCoordinator 289, memoryCoordinator 563
+  (untouched).
+
+**As built**
+- **Backlog single exit.** `runMemorizeBacklog` is now three parts.
+  - The entry mints the V3 whole-chat read, plus a per-run `AbortController` held in `backlogStop`.
+  - `memorizeWindows` is the unchanged V3 loop and full pass, handed a `ReadOwnership` that is the chat token AND
+    `!stop.aborted`.
+  - `endBacklog` is the one exit, reached after `try/catch/finally` on every path.
+  - `endBacklog` reads `read.lapsed()` first. `epoch|chat|story` writes nothing: that backfill is another chat's, and its
+    hydrate resets `running`. On `window` (an edit or swipe inside `0…len-1`) it writes `running:false` +
+    `"Stopped: the chat changed while memorizing"`. On `version` (a hot-swapped story, same chat) it writes
+    `"Stopped: the story was updated while memorizing"`. On Stop it writes `running:false` + `backlogStoppedByPlayer`
+    ("Stopped after N of M parts. What was read is kept; the whole-chat pass did not run."). A thrown error keeps its
+    message.
+- **Stop.** `ExtractionCoordinator.cancelMemorizeBacklog()` has a one-line manager delegate `cancelMemorizeBacklog()`.
+  It returns false when nothing is running or the run is already stopped. It is checked before every window, after every
+  `applyAudit`, before the full pass and before the boundary commit. The in-flight window's result is **not** applied
+  after Stop. Applied windows stay; they are memory-only (`acceptedDeltas: []`).
+- **Drawer.** `#so-memorize-stop` ("Stop") sits beside "Memorize chat", rendered only while `backfill.running`, in
+  both personas like the button it belongs to. The copy is player-safe: no ids and no `memorize:full`.
+- **Expansion wedge.**
+  - `liveJobs: Map<key, RunGuard>` is set by `queue()` (the scheduled job) and by `generate()`, and released in
+    `generate`'s `finally`. A key is live while its guard `stillOwns()`, so a queued job that `clearForNewWorld`
+    dropped (epoch bump) stops counting without any release.
+  - `queue()` re-queues a `queued|generating` entry whose key is not live.
+  - `sanitizeExpansion` drops a persisted `queued|generating` active entry and demotes a look-ahead one to `stale`
+    (`lastError: "Interrupted before it finished"`). This is a value change only, with no blob bump (Rule 3).
+- **Snapshot reset.** Hydrate writes `extraction.scheduler = {queueDepth:0, inFlight:false, lastError:null}`.
+- **Census** (`ownership-sites.json`). New rows `ExtractionCoordinator.memorizeWindows` and `.endBacklog`, both
+  `checked`. `runMemorizeBacklog` stays `checked`, and its note now names the exit and Stop. `ExpansionCoordinator.generate`
+  stays `checked`: its RESIDUAL (the wedge) is replaced by the live-key note, and the `finally` release is in-memory.
+- **Fault matrix.** `expansion|worldSwitched` keeps `covered` and gains the second citation "a switched-away chain is
+  re-queueable on return", with the note extended. Counts are unchanged: 55 covered, 10 partial, 16 na, 0 todo, of 81.
+
+**Deviations**
+- **Tests file.** The backlog cases are in `backlogOwnership.review.test.ts`, not `extractionOwnership.review.test.ts` as
+  the plan's table says, because that file already holds the V3 backlog harness.
+- **Hydrate cases.** "a persisted generating entry is re-queueable on hydrate" is in `expansionOwnership.review.test.ts`.
+  The snapshot case is titled "hydrate resets the persisted scheduler snapshot" in `extrasLegacy.test.ts`, not the plan's
+  combined "hydrate carries no breaker, resets scheduler snapshot": the breaker half is the seam agent's.
+- **Second citation.** The fault matrix had no way to hold one, so `FaultCell` gained an optional `alsoEvidence: string[]`.
+  `faultMatrix.guard.test.ts` checks every citation in it exactly like `evidence`, and refuses it on `todo`/`na` (F1
+  proves the check).
+- **Also reset `expansion.scheduler`** on hydrate, which the plan did not name. `expansionInFlight` reads `inFlight` too,
+  so without it "Preparing the road ahead…" would still ghost on reopen, and the plan's stated outcome would not hold.
+- **The look-ahead guard (`:157`) is unchanged.** It still counts any `queued|generating` look-ahead as in flight: the
+  existing case "keeps one pre-generation in flight at most" seeds exactly such an entry with no job. An in-session
+  orphaned look-ahead therefore still blocks further pre-generation until arrival re-queues it (as `active`) or a
+  hydrate demotes it.
+- **The in-flight abort is not wired.** `callExtractionModel`/`runSharedRead` take no `signal` on this tree, so Stop
+  acts between windows and refuses the in-flight window's result at the write edge. **Merge follow-up:** pass
+  `stop.signal` (combined with the run's epoch signal) into the backlog's `client`/`runSharedRead` once the seam lands.
+  `backlogStop` is the controller to use.
+
+**Gates** (worktree; `node_modules` is a junction to the main checkout)
+
+| Command | Result |
+|---|---|
+| `npm run typecheck` | 0 errors |
+| `npm run typecheck:test` | 0 errors |
+| `npm run lint` | clean |
+| `npm run debug:typecheck` | 0 errors |
+| `npm test` | 190 suites, 2931 tests, all passing (+12 new) |
+| `npm run build` | compiled; 2 warnings, both webpack's asset/entrypoint size warnings; manifest reports "ST unknown" (worktree path) |
+| Storybook | 32 suites, 199 tests, all passing (+2: `PlayerStopsMemorizing`, `MemorizeStopped`) |
+
+The Storybook run was `npm run storybook:build`, then `http-server .sb-static -p 6006`, then
+`test-storybook --index-json`. Plain `npm run test-storybook:ci` reports "No tests found": the runner resolves its
+rootDir through the `node_modules` junction to the main checkout, where the worktree's stories sit under a dot
+directory.
+
+Red first: before the implementation, 6 of the new cases failed and 21 passed (a same-chat lapse, Stop, the Stop
+control, the snapshot reset, the switched-away chain, the hydrate re-queue).
+
+**Mutants.** `test/findings/mutations/v24-03-wedges.txt`: 13/14 killed, each by exactly its own case(s), controls green.
+E4 (no `finally` release) is equivalent by construction, because liveness is `stillOwns()`, and it is recorded as such.
+E5 survived the first pass and was killed after a case was added. Storybook M-SB1 (Stop never rendered) was killed.
+
+**Not done / NOT green**
+- Live gate 3's Stop half, live gate 4 (both wedges live) and live gate 6 (`assert-player-clean` with Stop visible,
+  ×2) were not run: no backend.
+- The in-flight abort on Stop waits on the seam, as above.
+- The plan's combined mutation file `v2.4-03-off-path.txt` is not written. These rows live in
+  `v24-03-wedges.txt`, named like `v24-02-T8.txt`.
+>>>>>>> worktree-agent-a9662110d6cf9b619

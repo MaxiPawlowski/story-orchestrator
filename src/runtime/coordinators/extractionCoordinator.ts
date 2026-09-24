@@ -20,13 +20,17 @@ import {
 } from "../types";
 import { createTypedJudge } from "../typedRead";
 import type { JudgeRuntime } from "../judge";
-import { beginRun, type RunOwnership } from "../runToken";
+import { beginRun, type RunGuard, type RunOwnership } from "../runToken";
 import {
   buildStallRequest, buildVerifyRequest, readVerify, stallVerdict, STALL_TIMEOUT_MS, verifyVerdict,
   VERIFY_MAX_LINES_PER_CALL, VERIFY_TIMEOUT_MS,
 } from "@judge/index";
 
 export const TYPED_READ_WINDOW = 3;
+export const BACKLOG_STOPPED_BY_EDIT = "Stopped: the chat changed while memorizing";
+export const BACKLOG_STOPPED_BY_UPDATE = "Stopped: the story was updated while memorizing";
+export const backlogStoppedByPlayer = (processed: number, windows: number) =>
+  `Stopped after ${Math.min(processed, windows)} of ${windows} parts. What was read is kept; the whole-chat pass did not run.`;
 
 // v2.2 plan 06: judged extraction off the LLM lanes. `judged()` answers synchronously whether it took
 // the work; the judge call itself is fire-and-forget.
@@ -61,6 +65,7 @@ export interface ExtractionCoordinatorDeps {
 // are delegated to the memory coordinator — this class never touches extras.memory directly.
 export class ExtractionCoordinator {
   private sceneDetectCursor: { location: string | null; cast: string | null } | null = null;
+  private backlogStop: AbortController | null = null;
 
   constructor(private readonly deps: ExtractionCoordinatorDeps) {}
 
@@ -399,67 +404,98 @@ export class ExtractionCoordinator {
     const story = this.deps.getStory();
     const memory = this.deps.memory;
     if (!story || !memory.enabled || memory.backfill?.running) return false;
-    const chat = Array.isArray(getContext().chat) ? getContext().chat : [];
-    const total = Math.max(1, Math.ceil(chat.length / windowSize)) + 1;
+    const length = Array.isArray(getContext().chat) ? getContext().chat.length : 0;
+    const windows = Math.max(1, Math.ceil(length / windowSize));
     // V3: the backlog reads the whole chat window by window for minutes; a chat switch in between
     // used to read the NEXT chat's windows into memory this pass still believed was its own.
-    const read = beginRun(this.deps.ownership, { from: 0, to: Math.max(0, chat.length - 1) });
-    memory.setBackfill({ running: true, processed: 0, total, lastError: null });
-    await this.save();
+    const read = beginRun(this.deps.ownership, { from: 0, to: Math.max(0, length - 1) });
+    const stop = new AbortController();
+    this.backlogStop = stop;
+    const owned: ReadOwnership = {
+      stillOwns: () => !stop.signal.aborted && read.stillOwns(),
+      lapsedDetail: () => (stop.signal.aborted ? "stopped" : read.lapsedDetail()),
+    };
+    let completed = false;
+    let failure: string | null = null;
     try {
-      const client = { ...this.deps.getSettings(), debugResponse: globalThis.storyOrchestratorDebugExtractionResponse ?? null };
-      for (let from = 0; from < chat.length; from += windowSize) {
-        if (!read.stillOwns()) return false;
-        const to = Math.min(chat.length - 1, from + windowSize - 1);
-        const state = this.deps.getState()!;
-        const result = await runSharedRead({
-          story,
-          state,
-          priority: 0,
-          reason: "memorize:window",
-          window: getChatWindow(from, to),
-          scope: deriveFullScope(story, state.blackboard),
-          firedTransitions: this.deps.getFiredTransitions(),
-          facts: memory.getFacts(),
-          openArcs: memory.getOpenArcs(),
-          epistemicLedgerCapable: memory.capable,
-          entities: memory.getEntities(),
-          client,
-        });
-        await this.applyAudit({ ...result.audit, acceptedDeltas: [] }, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, read);
-        if (!read.stillOwns()) return false;
-        const progress = memory.backfill!;
-        memory.setBackfill({ ...progress, processed: progress.processed + 1 });
-        await this.save();
-      }
+      memory.setBackfill({ running: true, processed: 0, total: windows + 1, lastError: null });
+      await this.save();
+      completed = await this.memorizeWindows(story, length, windowSize, owned);
+    } catch (error) {
+      failure = error instanceof Error ? error.message : "Memorize backlog failed";
+    } finally {
+      if (this.backlogStop === stop) this.backlogStop = null;
+    }
+    return this.endBacklog(read, stop.signal, { completed, failure, windows });
+  }
 
+  cancelMemorizeBacklog(): boolean {
+    if (!this.backlogStop || this.backlogStop.signal.aborted) return false;
+    this.backlogStop.abort();
+    return true;
+  }
+
+  private async memorizeWindows(story: NormalizedStoryV2, length: number, windowSize: number, read: ReadOwnership): Promise<boolean> {
+    const memory = this.deps.memory;
+    const client = { ...this.deps.getSettings(), debugResponse: globalThis.storyOrchestratorDebugExtractionResponse ?? null };
+    for (let from = 0; from < length; from += windowSize) {
       if (!read.stillOwns()) return false;
-      const finalState = this.deps.getState()!;
-      const fullResult = await runSharedRead({
+      const to = Math.min(length - 1, from + windowSize - 1);
+      const state = this.deps.getState()!;
+      const result = await runSharedRead({
         story,
-        state: finalState,
+        state,
         priority: 0,
-        reason: "memorize:full",
-        window: getChatWindow(0, Math.max(0, chat.length - 1)),
-        scope: deriveFullScope(story, finalState.blackboard),
+        reason: "memorize:window",
+        window: getChatWindow(from, to),
+        scope: deriveFullScope(story, state.blackboard),
         firedTransitions: this.deps.getFiredTransitions(),
         facts: memory.getFacts(),
+        openArcs: memory.getOpenArcs(),
+        epistemicLedgerCapable: memory.capable,
+        entities: memory.getEntities(),
         client,
       });
-      await this.applyAudit(fullResult.audit, [], [], [], [], [], read);
+      await this.applyAudit({ ...result.audit, acceptedDeltas: [] }, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, read);
       if (!read.stillOwns()) return false;
-      await this.deps.commitBoundary();
-
-      memory.setBackfill({ running: false, processed: total, total, lastError: null });
-      this.deps.setStatus("Memorize backlog complete");
+      const progress = memory.backfill!;
+      memory.setBackfill({ ...progress, processed: progress.processed + 1 });
       await this.save();
-      return true;
-    } catch (error) {
-      if (!read.stillOwns()) return false;
-      memory.setBackfill({ ...memory.backfill!, running: false, lastError: error instanceof Error ? error.message : "Memorize backlog failed" });
-      this.deps.setStatus("Memorize backlog failed");
-      await this.save();
-      return false;
     }
+
+    if (!read.stillOwns()) return false;
+    const finalState = this.deps.getState()!;
+    const fullResult = await runSharedRead({
+      story,
+      state: finalState,
+      priority: 0,
+      reason: "memorize:full",
+      window: getChatWindow(0, Math.max(0, length - 1)),
+      scope: deriveFullScope(story, finalState.blackboard),
+      firedTransitions: this.deps.getFiredTransitions(),
+      facts: memory.getFacts(),
+      client,
+    });
+    await this.applyAudit(fullResult.audit, [], [], [], [], [], read);
+    if (!read.stillOwns()) return false;
+    await this.deps.commitBoundary();
+    return true;
+  }
+
+  private async endBacklog(read: RunGuard, stop: AbortSignal, run: { completed: boolean; failure: string | null; windows: number }): Promise<boolean> {
+    const lapse = read.lapsed();
+    if (lapse && lapse !== "window" && lapse !== "version") return false;
+    const memory = this.deps.memory;
+    const total = run.windows + 1;
+    const processed = run.completed ? total : memory.backfill?.processed ?? 0;
+    const lastError = run.completed ? null
+      : lapse === "window" ? BACKLOG_STOPPED_BY_EDIT
+        : lapse === "version" ? BACKLOG_STOPPED_BY_UPDATE
+          : stop.aborted ? backlogStoppedByPlayer(processed, run.windows)
+            : run.failure ?? "Memorize backlog failed";
+    memory.setBackfill({ running: false, processed, total, lastError });
+    this.deps.setStatus(run.completed ? "Memorize backlog complete" : stop.aborted && !lapse ? "Memorize backlog stopped" : "Memorize backlog failed");
+    await this.save();
+    return run.completed;
   }
 }

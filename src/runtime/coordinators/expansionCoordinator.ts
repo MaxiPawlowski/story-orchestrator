@@ -12,7 +12,7 @@ import {
 import { numericToLevel } from "@pacing/index";
 import { getPlayerName } from "@services/STAPI";
 import type { JudgeRuntime } from "../judge";
-import { beginRun, type RunOwnership } from "../runToken";
+import { beginRun, type RunGuard, type RunOwnership } from "../runToken";
 import type { ExtraGateSource } from "@extraction/index";
 import type { ExtractionRuntimeSettings } from "../types";
 
@@ -40,7 +40,13 @@ export interface ExpansionCoordinatorDeps {
 // revalidation that runs at every boundary. Merging hands the rebuilt story back to the manager,
 // which owns the engine.
 export class ExpansionCoordinator {
+  private readonly liveJobs = new Map<string, RunGuard>();
+
   constructor(private readonly deps: ExpansionCoordinatorDeps) {}
+
+  private hasLiveJob(key: string): boolean {
+    return this.liveJobs.get(key)?.stillOwns() ?? false;
+  }
 
   private get entries(): Record<string, ExpansionCacheEntry> {
     return this.deps.getExpansion().entries;
@@ -136,7 +142,10 @@ export class ExpansionCoordinator {
   private queue(candidate: StubExpansionCandidate, origin: "active" | "lookahead", schedule: (reason: string, run: () => Promise<void>) => void, headingP?: number) {
     const key = expansionKey(candidate);
     const existing = this.entries[key];
-    if (existing && !(origin === "active" && existing.origin === "lookahead" && ["stale", "failed"].includes(existing.status) && existing.attempts < 2)) return false;
+    const retryable = origin === "active" && existing?.origin === "lookahead" && ["stale", "failed"].includes(existing.status) && existing.attempts < 2;
+    const orphaned = Boolean(existing && ["queued", "generating"].includes(existing.status) && !this.hasLiveJob(key));
+    if (existing && !retryable && !orphaned) return false;
+    this.liveJobs.set(key, beginRun(this.deps.ownership));
     this.entries[key] = { ...this.emptyEntry(candidate, "queued"), origin, attempts: existing?.attempts ?? 0, ...(headingP !== undefined ? { headingP } : {}) };
     void this.deps.persist();
     this.deps.notify();
@@ -242,6 +251,7 @@ export class ExpansionCoordinator {
     // ownership hole every other async coordinator already closes, and the one this coordinator was
     // the last to have.
     const run = beginRun(this.deps.ownership);
+    this.liveJobs.set(key, run);
     try {
       const state = this.deps.getState()!;
       const input = planExpansion(story, state.blackboard, candidate, this.deps.getCanon(), this.deps.getFactTexts());
@@ -269,6 +279,8 @@ export class ExpansionCoordinator {
     } catch (error) {
       if (!run.stillOwns()) return;
       this.entries[key] = { ...this.entries[key], status: "failed", lastError: error instanceof Error ? error.message : "Generation failed", updatedAt: new Date().toISOString() };
+    } finally {
+      if (this.liveJobs.get(key) === run) this.liveJobs.delete(key);
     }
     if (!run.stillOwns()) return;
     await this.deps.persist();

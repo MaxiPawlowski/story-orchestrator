@@ -40,6 +40,7 @@ export interface FaultCell {
   status: FaultStatus;
   /** `<path>#<exact test title>`. Required for `covered` and `partial`, refused on `todo`/`na`. */
   evidence?: string;
+  alsoEvidence?: string[];
   note: string;
 }
 
