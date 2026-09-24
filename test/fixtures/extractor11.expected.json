@@ -8,7 +8,7 @@
   ],
   "rejected": [
     {
-      "reason": "unknown quality"
+      "reason": "unknown quality", "scope": "golden"
     }
   ],
   "facts": {

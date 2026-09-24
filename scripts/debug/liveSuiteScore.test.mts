@@ -3,6 +3,8 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 import { DEFAULT_TIER_FLOORS, parseTierFloors, scoreContains, scoreRejected, suiteVerdict, tierTotals, type FixtureScore } from './lib/liveSuiteScore.mts';
 
 test('a tier the fixture says nothing about is not scored, and never counted as passed', () => {
@@ -105,4 +107,41 @@ test('the per-tier floors bind by default, and an override or an explicit off is
     { name: 'a', pass: true, tiers: [...Array.from({ length: 22 }, (_, i) => ({ tier: 'facts' as const, scored: true, pass: i < 16, detail: '' })), ...Array.from({ length: 21 }, (_, i) => ({ tier: 'rejected' as const, scored: true, pass: i < 14, detail: '' }))] },
   ], none.floors);
   assert.deepEqual([totals.facts.ok, totals.rejected.ok], [false, false]);
+});
+
+test('a golden-scoped rejection is not scored live, and a live-scoped one beside it still is (v2.4 plan 04 seed C)', () => {
+  const golden = scoreRejected([{ reason: 'missing evidence', scope: 'golden' }], []);
+  assert.equal(golden.scored, false);
+  assert.match(golden.detail, /golden-scoped/);
+  assert.equal(scoreRejected([{ reason: 'missing evidence', scope: 'golden' }], [{ reason: 'unknown quality' }]).scored, false);
+  const mixed = scoreRejected([{ reason: 'missing evidence', scope: 'golden' }, { reason: 'unknown quality' }], []);
+  assert.equal(mixed.scored, true);
+  assert.equal(mixed.pass, false);
+  assert.match(mixed.detail, /missing rejection reason\(s\): unknown quality/);
+  assert.equal(scoreRejected([], [{ reason: 'unknown quality' }]).pass, false, 'an empty expectation still claims nothing is rejected');
+});
+
+test('exactly the six golden-only rejection fixtures carry the golden scope (v2.4 plan 04 seed C)', () => {
+  const dir = path.join(process.cwd(), 'test/fixtures');
+  const scoped = fs.readdirSync(dir)
+    .filter((file) => /^extractor\d*\.expected\.json$/.test(file))
+    .filter((file) => (JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8')).rejected ?? []).some((entry: { scope?: string }) => entry.scope === 'golden'))
+    .map((file) => file.replace('.expected.json', ''))
+    .sort();
+  assert.deepEqual(scoped, ['extractor11', 'extractor12', 'extractor15', 'extractor2', 'extractor3', 'extractor4']);
+});
+
+test('replayed on the v2.3 record, the rejected tier reads 14 of 15 and meets its unchanged 0.9 floor (v2.4 plan 04 seed C)', () => {
+  const report = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'test/journeys/records/v2.3-plan05-live/so-live-suite-report.json'), 'utf8'));
+  const dir = path.join(process.cwd(), 'test/fixtures');
+  const scores: FixtureScore[] = report.results.map((result: { name: string; tiers: Array<{ tier: string; pass: boolean }> }) => {
+    const stated = JSON.parse(fs.readFileSync(path.join(dir, `${result.name}.expected.json`), 'utf8')).rejected as Array<{ reason?: string; scope?: string }> | undefined;
+    const recorded = result.tiers.find((tier) => tier.tier === 'rejected');
+    const { scored } = scoreRejected(stated, []);
+    return { name: result.name, pass: true, tiers: recorded ? [{ tier: 'rejected' as const, scored, pass: scored && recorded.pass, detail: '' }] : [] };
+  });
+  const totals = tierTotals(scores, { rejected: 0.9 });
+  assert.equal(totals.rejected.scored, 15);
+  assert.equal(totals.rejected.passed, 14);
+  assert.equal(totals.rejected.ok, true);
 });

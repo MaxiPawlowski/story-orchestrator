@@ -4,7 +4,7 @@
     { "q": "crew_morale", "v": 8, "evidence": "cheers rise across the crew" }
   ],
   "rejected": [
-    { "reason": "unknown quality" }
+    { "reason": "unknown quality", "scope": "golden" }
   ],
   "facts": {
     "minCount": 1,

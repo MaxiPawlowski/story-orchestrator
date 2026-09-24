@@ -65,8 +65,10 @@ export function scoreContains(tier: TierName, spec: ContainsSpec | undefined, li
 }
 
 /** Rejections are scored by REASON: the audit has to say why a line was thrown away, not just that it was. */
-export function scoreRejected(expected: Array<{ reason?: string }> | undefined, live: Array<{ reason?: string }> | undefined): TierOutcome {
-  if (!expected) return { tier: 'rejected', scored: false, pass: false, detail: 'the fixture states no expectation for this tier' };
+export function scoreRejected(stated: Array<{ reason?: string; scope?: string }> | undefined, live: Array<{ reason?: string }> | undefined): TierOutcome {
+  if (!stated) return { tier: 'rejected', scored: false, pass: false, detail: 'the fixture states no expectation for this tier' };
+  const expected = stated.filter((entry) => entry.scope !== 'golden');
+  if (stated.length && !expected.length) return { tier: 'rejected', scored: false, pass: false, detail: 'every expected rejection is golden-scoped: it describes the hand-written golden, which jest asserts' };
   const liveReasons = (live ?? []).map((entry) => String(entry.reason ?? '').toLowerCase());
   const wanted = expected.map((entry) => String(entry.reason ?? '').toLowerCase()).filter(Boolean);
   const missing = wanted.filter((reason) => !liveReasons.some((actual) => actual.includes(reason)));
