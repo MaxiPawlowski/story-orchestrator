@@ -1,0 +1,70 @@
+1/10 import_story ok 277ms
+2/10 eval ok 9ms
+2/10 eval -> {"healed":null,"profile":"Story Orchestrator Memory RunPod","apiUrl":"http://127.0.0.1:18080","cadence":1,"authorView":false}
+3/10 send_generate ok 32909ms
+4/10 wait ok 45976ms
+5/10 eval ok 4594ms
+5/10 eval -> {"attempt":1,"raced":[],"replyId":5,"appendedId":6,"appendedAfterStartMs":164,"read":{"n":5,"kind":"read","t0":1790277378061,"ms":2326,"outcome":"ok","status":200,"promptChars":5013,"estTokens":1254,"tokensEvaluated":1168,"predictedN":13,"decodeTokS":30.162727917112825,"prefillTokS":385.256195369921,"promptMs":799.468,"predictedMs":397.842,"stopType":"eos","error":null},"audit":{"reason":"cadence","window":{"from":4,"to":5}}}
+6/10 wait ok 5475ms
+7/10 eval ok 6935ms
+7/10 eval -> {"attempt":1,"raced":[],"playerId":7,"replyId":8,"inFlightForMsBeforeEdit":1142,"abortLatencyMs":2,"aborted":{"n":6,"kind":"read","t0":1790277388463,"ms":1144,"outcome":"aborted","status":null,"promptChars":5062,"estTokens":1266,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":"signal is aborted without reason"},"processingBefore":1,"processingSeries":[{"ms":4,"processing":1},{"ms":411,"processing":1},{"ms":818,"processing":1},{"ms":1098,"processing":1},{"ms":1366,"processing":1},{"ms":1649,"processing":1},{"ms":1917,"processing":1},{"ms":2185,"processing":1},{"ms":2453,"processing":1},{"ms":2721,"processing":1},{"ms":2989,"processing":1}]}
+8/10 wait ok 5016ms
+9/10 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: no P0 re-read audit (reason rollback:*) followed the edit: []; no follow-up read request completed after the abort
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1661)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:2142)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T19-16-37-938Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T19-16-42-292Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 9,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-a26d4736"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@16h14m56s393ms",
+    "owned": [
+      "2026-09-24@16h14m56s393ms"
+    ],
+    "deleted": [
+      "2026-09-24@16h14m56s393ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@16h14m56s393ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

@@ -1,0 +1,79 @@
+1/14 import_story ok 273ms
+2/14 eval ok 10ms
+2/14 eval -> {"healed":null,"profile":"Story Orchestrator Memory RunPod","apiUrl":"http://127.0.0.1:18080","cadence":1,"authorView":false}
+3/14 send_generate ok 31997ms
+4/14 wait ok 46650ms
+5/14 eval ok 3974ms
+5/14 eval -> {"attempt":1,"raced":[],"replyId":5,"appendedId":6,"appendedAfterStartMs":155,"read":{"n":5,"kind":"read","t0":1790282559617,"ms":1615,"outcome":"ok","status":200,"promptChars":5035,"estTokens":1259,"tokensEvaluated":1166,"predictedN":13,"decodeTokS":21.518217861196735,"prefillTokS":62.7494122249206,"promptMs":749.011,"predictedMs":557.667,"stopType":"eos","error":null},"audit":{"reason":"cadence","window":{"from":4,"to":5}}}
+6/14 eval ok 4ms
+7/14 eval ok 9598ms
+7/14 eval -> {"active":"hall","playerId":7,"replyId":8,"raced":false,"editedAt":1790282565756,"edited":7,"abortLatencyMs":4,"inFlightMsAtEmit":1748,"aborted":{"n":6,"kind":"read","t0":1790282564008,"ms":1752,"outcome":"aborted","status":null,"promptChars":5085,"estTokens":1272,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":"signal is aborted without reason"},"processing":{"idleBeforeRead":1,"beforeEdit":1,"afterEdit":[{"ms":4,"processing":1},{"ms":484,"processing":2},{"ms":862,"processing":2},{"ms":1223,"processing":2},{"ms":1833,"processing":2},{"ms":2211,"processing":2},{"ms":2579,"processing":2},{"ms":2942,"processing":2},{"ms":3303,"processing":2},{"ms":3660,"processing":2},{"ms":4034,"processing":2},{"ms":4394,"processing":2},{"ms":4752,"processing":2}]}}
+8/14 wait ok 5033ms
+9/14 eval ok 9542ms
+9/14 eval -> {"lapse":{"at":"2026-09-24T20:42:45.761Z","kind":"story","summary":"extraction read lapsed: cadence","detail":"{\"note\":\"signal is aborted without reason\"}"},"lastRollback":null,"readsAfterEditUntilNextTurn":[{"n":7,"kind":"read","t0":1790282576841,"ms":6647,"outcome":"ok","status":200,"promptChars":4992,"estTokens":1248,"tokensEvaluated":1156,"predictedN":81,"decodeTokS":14.337688406186713,"prefillTokS":49.54490398067227,"promptMs":766.981,"predictedMs":5579.7,"stopType":"eos","error":null}],"auditsAfterEdit":[{"id":"e4ddb21b","reason":"cadence","window":{"from":9,"to":10},"createdAt":"2026-09-24T20:43:03.487Z"}],"editedMessage":7,"reReadForTheEdit":false,"coveredIncidentally":[]}
+10/14 eval ok 44222ms
+10/14 eval -> {"agreeId":11,"readWindowReply":15,"raced":false,"editedAt":1790282624526,"edited":11,"abortLatencyMs":3,"inFlightMsAtEmit":1972,"aborted":{"n":12,"kind":"read","t0":1790282622554,"ms":1975,"outcome":"aborted","status":null,"promptChars":5198,"estTokens":1300,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":"signal is aborted without reason"},"processing":{"idleBeforeRead":1,"beforeEdit":1,"afterEdit":[{"ms":3,"processing":1},{"ms":366,"processing":1},{"ms":808,"processing":1},{"ms":1252,"processing":2},{"ms":1599,"processing":2},{"ms":1964,"processing":2},{"ms":2307,"processing":2},{"ms":2646,"processing":2},{"ms":2982,"processing":2},{"ms":3357,"processing":2},{"ms":3722,"processing":2},{"ms":4082,"processing":2},{"ms":4423,"processing":2},{"ms":4785,"processing":2}]}}
+11/14 wait ok 47270ms
+12/14 eval ok 6ms
+12/14 eval -> {"lapse":{"at":"2026-09-24T20:43:44.529Z","kind":"story","summary":"extraction read lapsed: cadence","detail":"{\"note\":\"signal is aborted without reason\"}"},"lastRollback":{"checkpointName":"The Hall","at":"2026-09-24T20:43:44.762Z"},"active":"hall","reread":{"id":"848848e9","reason":"rollback:11","window":{"from":0,"to":15},"createdAt":"2026-09-24T20:44:04.040Z"},"followUp":{"n":13,"kind":"read","t0":1790282625027,"ms":19013,"outcome":"ok","status":200,"promptChars":8230,"estTokens":2058,"tokensEvaluated":1949,"predictedN":298,"decodeTokS":17.512188955221625,"prefillTokS":626.6457935552761,"promptMs":1326.108,"predictedMs":16959.616,"stopType":"eos","error":null},"followUpStartedAfterEditMs":501,"followUpQueueWaitMs":727.275999999998}
+13/14 eval ok 5ms
+13/14 eval -> {"profileUrl":"http://127.0.0.1:18080","wasDead":false,"requests":16,"e1":[{"kind":"read","predictedN":428,"decodeTokS":20.880897074635225,"prefillTokS":822.6973175617352,"promptN":1442},{"kind":"read","predictedN":195,"decodeTokS":22.01843442348418,"prefillTokS":582.6854760989958,"promptN":1283},{"kind":"read","predictedN":13,"decodeTokS":21.518217861196735,"prefillTokS":62.7494122249206,"promptN":47},{"kind":"read","predictedN":81,"decodeTokS":14.337688406186713,"prefillTokS":49.54490398067227,"promptN":38},{"kind":"other","predictedN":108,"decodeTokS":11.192791758423152,"prefillTokS":713.8688896827829,"promptN":1123},{"kind":"read","predictedN":81,"decodeTokS":20.561746926018834,"prefillTokS":32.42323474940731,"promptN":25},{"kind":"read","predictedN":169,"decodeTokS":18.115320838506445,"prefillTokS":709.9452499849588,"promptN":1888},{"kind":"other","predictedN":82,"decodeTokS":18.689596263188278,"prefillTokS":1245.9065290473322,"promptN":802},{"kind":"read","predictedN":298,"decodeTokS":17.512188955221625,"prefillTokS":626.6457935552761,"promptN":831},{"kind":"other","predictedN":78,"decodeTokS":21.824407056369324,"prefillTokS":368.2863476121109,"promptN":851},{"kind":"other","predictedN":200,"decodeTokS":21.523134936536493,"prefillTokS":784.6515520370832,"promptN":1277},{"kind":"other","predictedN":78,"decodeTokS":21.331524863277394,"prefillTokS":771.2589592692094,"promptN":1020}]}
+14/14 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: DEFECT: an edit inside an in-flight cadence read that rewinds nothing (no transition fired, nothing applied from the message) aborts the read, and no re-read is scheduled for it: no rollback:* read covers message 7, and the cadence cursor had already moved past it, so the next cadence read starts later (covered only incidentally by: []). Reads after the edit: [{"reason":"cadence","window":{"from":9,"to":10}}]
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:97)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:694)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T20-44-37-031Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T20-44-41-367Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 14,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-313db404"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@17h41m18s090ms",
+    "owned": [
+      "2026-09-24@17h41m18s090ms"
+    ],
+    "deleted": [
+      "2026-09-24@17h41m18s090ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@17h41m18s090ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

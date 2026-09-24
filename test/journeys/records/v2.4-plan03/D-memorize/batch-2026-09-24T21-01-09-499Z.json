@@ -1,0 +1,36 @@
+{
+  "lanes": [
+    1
+  ],
+  "items": [
+    "test/scenarios/live-v24-03-memorize.json"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/scenarios/live-v24-03-memorize.json",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T21-01-09-499Z-live-v24-03-memorize-run1.log",
+      "ms": 870039,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-03-memorize.json",
+      "lane": 1,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T21-01-09-499Z-live-v24-03-memorize-run2.log",
+      "ms": 446879,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+1/21 import_story ok 282ms
+2/21 eval ok 9ms
+2/21 eval -> {"healed":null,"profile":"Story Orchestrator Memory RunPod","apiUrl":"http://127.0.0.1:18080","cadence":1,"authorView":false}
+3/21 send_generate ok 31987ms
+4/21 wait ok 52811ms
+5/21 eval ok 4ms
+5/21 eval -> {"storedPath":true,"audits":2,"lastAudit":{"reason":"cadence","window":{"from":3,"to":3},"budget":{"contextLimit":{"value":98304,"source":"preset"},"inputBudget":87961,"maxTokens":512,"tokens":1329}},"pipeline":"idle"}
+6/21 eval ok 6598ms
+6/21 eval -> {"boundaryA":5,"readAInFlightAtRepoint":true,"readA":{"n":5,"kind":"read","t0":1790277382731,"ms":5557,"outcome":"ok","status":200,"promptChars":5131,"estTokens":1283,"tokensEvaluated":1189,"predictedN":93,"decodeTokS":30.37681113481823,"prefillTokS":1037.3652145007777,"promptMs":1146.173,"predictedMs":3028.626,"stopType":"eos","error":null},"deadUrl":"http://127.0.0.1:9"}
+7/21 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: a read against the dead port answered ok: [{"n":6,"kind":"read","t0":1790277391158,"ms":5,"outcome":"ok","status":200,"promptChars":5097,"estTokens":1275,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":null},{"n":7,"kind":"read","t0":1790277391416,"ms":5,"outcome":"ok","status":200,"promptChars":5097,"estTokens":1275,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":null},{"n":8,"kind":"read","t0":1790277391934,"ms":8,"outcome":"ok","status":200,"promptChars":5097,"estTokens":1275,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":null}]
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1163)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T19-16-32-113Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T19-16-36-485Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 7,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-a26d4736"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@16h14m56s349ms",
+    "owned": [
+      "2026-09-24@16h14m56s349ms"
+    ],
+    "deleted": [
+      "2026-09-24@16h14m56s349ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@16h14m56s349ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

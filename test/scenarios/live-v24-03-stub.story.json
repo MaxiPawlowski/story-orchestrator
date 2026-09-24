@@ -1,0 +1,28 @@
+{
+  "format": 2,
+  "id": "live-v24-03-stub",
+  "version": 1,
+  "title": "Live v2.4 03 — Stub wedge",
+  "description": "v2.4 plan 03 live gate 4: the start anchor reaches a stub, so every reply at the start asks for the stub's chain to be generated. The chain is what the chat switch interrupts.",
+  "arc_template": "rising",
+  "qualities": [
+    { "key": "key_found", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the party find the key to the old vault?" },
+    { "key": "approach", "type": "enum", "values": ["unknown", "safe", "blocked"], "source": "extractor", "rubric": "Which approach to the vault is open?" }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "The Hall", "objective": "Find a route toward the old vault under the guild hall.", "type": "anchor", "start": true, "tension_target": "stirring" },
+    { "id": "bridge_stub", "name": "Bridge Stub", "objective": "Generated bridge placeholder.", "type": "intermediate" },
+    { "id": "finish", "name": "The Vault", "objective": "Arrive ready at the vault door.", "type": "anchor", "state_snapshot": { "key_found": true, "approach": "safe" }, "tension_target": "critical", "convergence_threshold": 1 }
+  ],
+  "transitions": [
+    { "from": "start", "to": "bridge_stub", "priority": 1, "gate": { "q": "key_found", "op": "==", "v": true } },
+    { "from": "bridge_stub", "to": "finish", "priority": 1, "gate": { "q": "progress_toward_finish", "op": ">=", "v": 1 } }
+  ],
+  "roster": [
+    { "id": "dm", "name": "DM Narrator" },
+    { "id": "companion", "name": "Arin" },
+    { "id": "guild_master", "name": "Ponticius" },
+    { "id": "little_brother", "name": "Luke" }
+  ],
+  "requirements": { "members": ["Arin", "Ponticius"] }
+}

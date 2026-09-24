@@ -949,3 +949,111 @@ Ownership census untouched: `markStoryStart` is synchronous, so it is not a writ
 **Deviations / notes**
 - `shortTermSummaryEnd` also starts at -1, so short-term compaction fires at the first boundary of a long chat. It is
   tail-fit (one bounded request), so it is left alone here.
+
+### Live gates (2026-09-24)
+
+Run on lanes 1 and 2 only (`st-lanes`, ports 8101/8102, group `1759606632088`), real model: Artemis 31B Q4_K_M on the
+RunPod pod behind the main session's tunnel `127.0.0.1:18080` (llama-server, `LLM_PARALLEL` 4, `--kv-unified`, n_ctx
+196608 total). Extraction profile "Story Orchestrator Memory RunPod" (preset "Artemis Extraction", `max_length` 98304 →
+`inputBudget` 87961). No `debugResponse` anywhere.
+
+**Build.** Trials ran on `aa1d673f678f` (master `5eb1872`). Every archived batch ran on **`9b70d79e3b2a`** (master
+`1c2785f`, the timeout fix below, `builtAt` 2026-09-24T20:13:59Z), confirmed on both lanes after `st-session reload`
+by hashing the served `dist/index.js` in-page. `so-run-header capture` before and `diff` after every batch: 0
+differences, 0 blocking, on both lanes, every time (`*/lane*-run-header-{pre,diff}.json`).
+
+**Fixtures** (`test/scenarios/`, generated from one readable source and schema-validated, evals compiled first):
+`live-v24-03-breaker.json`, `-abort.json`, `-memorize.json`, `-wedges.json`, stories `live-v24-03.story.json` and
+`live-v24-03-stub.story.json`. Each installs an in-page recorder on `/api/backends/*/generate` (kind, timing, outcome,
+llama `timings` / `tokens_evaluated`) and removes it at the end. Gate 1's dead endpoint is the extraction profile's
+`api-url` set IN MEMORY to `http://127.0.0.1:9` (never saved; the original sits in `localStorage` so the next run's first
+step heals a crashed run, which trial 2 proved). Boundaries that must not call the main model are `/sendas` replies.
+
+Records: `test/journeys/records/v2.4-plan03/` — `A-breaker-abort-wedges/`, `B-breaker-abort/`, `C-memorize-fixture-timeout/`,
+`D-memorize/`, `E-J3-J4/`, `trials/` (every pre-batch run, including the ones that found the defects) and
+`measurements.txt` (direct llama-server measurements: H5, prefill, E1).
+
+| Gate | Result | Runs (×2 consecutive, one lane) |
+|---|---|---|
+| 1 breaker pause/resume | **green** | B lane 1 run1+run2 (also A run1+run2, on the story before its fix below) |
+| 2 abort mid-read | **NOT green**: abort, lapse, control and the applied-rollback re-read green ×2; the no-op-rollback re-read is a **product defect (D2)**, red ×2 | B lane 2 run1+run2 (also A, trials 2-3) |
+| 3 memorize under budget + Stop | **green** after the timeout fix (D1) | D lane 1 run1+run2 |
+| 4 wedges | **green** | A lane 1 wedges run1+run2 |
+| 5 J3, J4 `--strict` | **green** (J3 8/8, J4 5/5, cleanup clean, each ×2) | E lane 2 |
+| 6 player-clean with Try again / Stop | **green** | Try again: B lane 1 ×2 (step 12); Stop: D lane 1 ×2 (step 9) |
+
+**Gate 1 (breaker).** After boundary B the three read attempts hit the dead port (ST answers an upstream connect failure
+with HTTP 200 and `{error:true, response:"…ECONNREFUSED…"}`, classified transport) and the breaker opened 1.66 s / 1.53 s
+after the reply. While open: pipeline `stalled-rechecking`, "The memory model is not answering — the story will catch up
+when it does.", `nextAction: retry`, no `lastError`, no audit written; `extraction.enabled` sampled every 200 ms live and
+stored, 613 and 228 samples, never false. Try again (a real pointer click after a hit-test) sent the PONG probe 12 ms after
+the click; it failed, the breaker stayed open and stepped to 15 s. A boundary while open added 1 / 0 held jobs (merge
+bound). After the url was restored the **backoff** probe closed the breaker with no click: resume 14.97 s / 12.89 s after
+the restore, 2.64 s / 0.56 s after the scheduled probe time (bound: one step + 12 s); journal "memory model answering
+again — probe (backoff) succeeded"; the held cadence read then ran (windows 7-10 / 6-9, covering B).
+
+**Gate 2 (abort).** Abort latency (MESSAGE_EDITED emit → fetch AbortError in the page) **1-4 ms**, reads 0.5-2.0 s into
+flight. Control: a player line appended after the window did not abort; the read completed and its audit landed, no lapse.
+Every abort journaled `extraction read lapsed: cadence` (detail `signal is aborted without reason`), no `lastError`, breaker
+untouched. Applied case (a line consumed by a boundary that fired hall→yard): rollback applied, P0 `rollback:<id>` re-read
+covering the edited line, started 501 / 733 ms after the edit, queue wait 727 / 550 ms (wall minus llama prompt+predict).
+H5: the ST lane logs show `AbortError` raised from `text-completions.js:291` (socket close); llama side measured directly
+(`measurements.txt`): a client closing at 4 s dropped `requests_processing` 1 → 0 within 0.59 s and the task stopped at
+143 of 900 `ignore_eos` tokens. The in-fixture `/metrics` series is shared with the other lane and is context only.
+
+**Gate 3 (memorize).** 330 synthetic rows, 455,438 chars. Windows 0-286 (estimate 87,728-87,744) and 287-330; full pass
+44-330, `trimmedFrom: 0`, estimate 87,684; every audit estimate ≤ `inputBudget` 87,961. True prompt sizes
+(`tokens_evaluated`) 88,630-88,646 / 14,536-14,552 / 88,640: the estimate runs about 1 % low, so the true size exceeds
+`inputBudget` by 669-685 tokens and stays 9,100 tokens inside `contextLimit − maxTokens` (the 10 % margin absorbs it; the
+fixture asserts the true size fits the context and records the estimate error). Backlog 253 s, 3/3. Preflight "3 requests,
+about 189,986 tokens to Story Orchestrator Memory RunPod. Send them?". Stop pressed while window 2 was in flight: running
+false in 66 / 63 ms, the request aborted 7 ms after the click, `stoppedNote` "Stopped after 1 of 2 parts…", no
+`lastError`, processed 1 kept, rows 2 → 2 (run 1; run 2's first window yielded no rows, 0 → 0, so its rows check is
+vacuous), `#so-memorize-note` shown, Memorize chat enabled.
+
+**Gate 4 (wedges).** Expansion: `/newchat` while the stub's chain was generating aborted its in-flight request (in flight 189 / 155 ms when it rejected); on return the
+entry was dropped, `expansion.scheduler.inFlight` false, player line "Following along."; the next boundary re-generated
+the chain with no Regenerate click and it settled (`validated` / `needs_review`, 2 beats), player line released. Backlog:
+a swipe of the last message while a memorize read was in flight cleared `running` in 161 / 143 ms with "Stopped: the chat
+changed while memorizing", the read aborted, and Memorize chat started again without a reload (then cancelled).
+
+**E1** (`LLM_PARALLEL` 2 → 4). Single request on an idle backend: decode **33.2 / 33.1 tok/s** at ~1k context, 29.9 at 6k
+— above the 20 tok/s revert criterion, so no revert. Under the gate load: 14-31 tok/s per request at 1-2k context, 16.6-17.0
+at 86-88k context; prefill 1,211-1,334 tok/s at 1-17k, 895 at 68k, 787-801 at 86-88k.
+
+**Product defects**
+- **D1 (fixed, `1c2785f`).** `callTimeoutMs(maxTokens)` ignored the prompt: a memorize window packed to the budget
+  (88.6k tokens, ~117 s of prefill here) always timed out at 55,600 ms (`trials/trial-memorize.log`), so a long-chat
+  backlog could never finish. Now `callTimeoutMs(maxTokens, inputTokens)` adds 2 ms per input token (a 500 tok/s prefill
+  floor, measured 787-895 tok/s at 68-88k) and `callExtractionReply` passes `estimateTokens(prompt)`. Tests in
+  `callBudget.test.ts` / `client.test.ts`; mutants 3/3 killed (`test/findings/mutations/v24-03-live.txt`); typecheck,
+  typecheck:test, lint, `npm test` 213 suites / 3190 tests, build all green. Same hardware-assumption family as the
+  plan's own risk; the floor is declared, not tuned.
+- **D2 (open).** An edit inside an in-flight cadence read that rewinds nothing (no transition fired, nothing applied from
+  the message) aborts the read, and **nothing re-reads its window**: `rollback.ts:95-105` (the no-op branch) quarantines
+  but never calls `onApplied`, so the `rollback:<id>` P0 (`runtime/index.ts:90-92`) is not scheduled; the scheduler's
+  lapse branch (`scheduler.ts:269-270`) only journals; and `cadenceTo` already moved past the window when the read was
+  scheduled (`scheduler.ts:301-303`), so the next cadence read starts after it. The edited message is read again only if a
+  stall reconcile happens to cover it (batch A run 1 and B run 2 did, incidentally). It predates plan 03 (the old read
+  finished and was refused at the write edge, same loss), but gate 2 asserts the re-read. Options for the owner: schedule
+  a P0 over the lapsed read's window from the scheduler's lapse branch when the lapse is a window mutation in the same
+  world, or have the no-op rollback schedule `[messageId, lastMessageId]`. Not fixed here: it is a scheduling decision
+  with a model-call cost, not a one-line correction.
+
+**Findings (not gate failures)**
+- **A memorize window drives three full-window passes.** A `memorize:window` audit that flags a scene break schedules the
+  scene summary, epistemic and ledger passes over the detecting window (86.3-86.7k tokens each, ~112 s each, sequential,
+  ~6 min: D run 1). They run beside the backlog (which is outside the scheduler): in `trials/trial2-memorize.log` the scene
+  summary ran concurrently with the full pass, both ~88k prompts, the full pass timed out at 257 s, and the other lane's
+  small reads timed out into its breaker (`trials/trial4-breaker.log`; that run's failure state held breaker health
+  `transport: signal timed out`). The seeded history sat
+  after the story's start, so `storyStart` did not bound it.
+- **Memorize chat shows nothing for 62-85 s on a 330-message chat**: planning counts every message through ST's
+  tokenizer before the preflight confirm or `running` appears.
+- **Estimate low by ~1 %** at 88k (above), inside the margin.
+
+**Fixture fixes found in trials** (not product): ST's 200-with-error body read as success by the recorder; the story
+description contained the player-forbidden needle "boundary "; `go` was an extractor quality, so a real read could fire the
+transition and skip the next cadence read (now `go` is `source: "code"`, only `/cp set` moves it, and `pay_discussed` is
+the read's quality); the journal was sliced by index, which a rollback's quarantine reshuffles (now filtered by `at`);
+the preflight wait of 60 s was shorter than planning (`C-memorize-fixture-timeout/`).

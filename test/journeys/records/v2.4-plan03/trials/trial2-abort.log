@@ -1,0 +1,72 @@
+1/14 import_story ok 262ms
+2/14 eval ok 9ms
+2/14 eval -> {"healed":null,"profile":"Story Orchestrator Memory RunPod","apiUrl":"http://127.0.0.1:18080","cadence":1,"authorView":false}
+3/14 send_generate ok 27319ms
+4/14 wait ok 26796ms
+5/14 eval ok 5205ms
+5/14 eval -> {"attempt":1,"raced":[],"replyId":5,"appendedId":6,"appendedAfterStartMs":168,"read":{"n":5,"kind":"read","t0":1790277915045,"ms":2652,"outcome":"ok","status":200,"promptChars":4717,"estTokens":1180,"tokensEvaluated":1096,"predictedN":55,"decodeTokS":30.459515637294857,"prefillTokS":68.98444620901113,"promptMs":681.313,"predictedMs":1772.845,"stopType":"eos","error":null},"audit":{"reason":"cadence","window":{"from":4,"to":5}}}
+6/14 eval ok 10ms
+7/14 eval ok 8289ms
+7/14 eval -> {"active":"hall","playerId":7,"replyId":8,"raced":false,"editedAt":1790277921328,"edited":7,"abortLatencyMs":2,"inFlightMsAtEmit":665,"aborted":{"n":6,"kind":"read","t0":1790277920663,"ms":667,"outcome":"aborted","status":null,"promptChars":4767,"estTokens":1192,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":"signal is aborted without reason"},"processing":{"idleBeforeRead":0,"beforeEdit":1,"afterEdit":[{"ms":3,"processing":1},{"ms":447,"processing":1},{"ms":777,"processing":1},{"ms":1091,"processing":1},{"ms":1419,"processing":1},{"ms":1748,"processing":0},{"ms":2076,"processing":0},{"ms":2402,"processing":0},{"ms":2729,"processing":0},{"ms":3057,"processing":0},{"ms":3385,"processing":0},{"ms":3712,"processing":0},{"ms":4026,"processing":0},{"ms":4355,"processing":0},{"ms":4682,"processing":0}]}}
+8/14 wait ok 5024ms
+9/14 eval ok 20054ms
+9/14 eval -> {"lapse":{"summary":"extraction read lapsed: cadence","detail":"[object Object]"},"lastRollback":null,"readsAfterEditUntilNextTurn":[{"n":7,"kind":"read","t0":1790277932327,"ms":5770,"outcome":"ok","status":200,"promptChars":4674,"estTokens":1169,"tokensEvaluated":1086,"predictedN":92,"decodeTokS":18.74074932929741,"prefillTokS":51.554364076919114,"promptMs":717.689,"predictedMs":4855.729,"stopType":"eos","error":null}],"auditsAfterEdit":[{"id":"b5ef998b","reason":"cadence","window":{"from":9,"to":10},"createdAt":"2026-09-24T19:25:38.096Z"}],"editedMessage":7,"coveredByARead":false}
+10/14 eval ok 33727ms
+10/14 eval -> {"agreeId":11,"readWindowReply":15,"raced":false,"editedAt":1790277980049,"edited":11,"abortLatencyMs":1,"inFlightMsAtEmit":651,"aborted":{"n":16,"kind":"read","t0":1790277979398,"ms":652,"outcome":"aborted","status":null,"promptChars":4827,"estTokens":1207,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":"signal is aborted without reason"},"processing":{"idleBeforeRead":0,"beforeEdit":1,"afterEdit":[{"ms":2,"processing":1},{"ms":318,"processing":1},{"ms":694,"processing":1},{"ms":1116,"processing":2},{"ms":1445,"processing":2},{"ms":1774,"processing":2},{"ms":2100,"processing":2},{"ms":2474,"processing":2},{"ms":2797,"processing":2},{"ms":3145,"processing":2},{"ms":3473,"processing":2},{"ms":3800,"processing":2},{"ms":4128,"processing":2},{"ms":4455,"processing":2},{"ms":4769,"processing":2}]}}
+11/14 wait ok 28684ms
+12/14 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: no lapse was journaled for the aborted read: []
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1220)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T19-26-53-911Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T19-26-58-228Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 12,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-a26d4736"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@16h24m18s137ms",
+    "owned": [
+      "2026-09-24@16h24m18s137ms"
+    ],
+    "deleted": [
+      "2026-09-24@16h24m18s137ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@16h24m18s137ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

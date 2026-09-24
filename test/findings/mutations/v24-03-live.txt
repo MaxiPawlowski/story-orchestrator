@@ -1,0 +1,19 @@
+v2.4 plan 03 live gates: the call-timeout fix found by live gate 3, mutations 2026-09-24 (main checkout on 5eb1872 + commit 1c2785f; script .debug/mut-timeout.py, each mutant applied alone as an exact-text replacement to one file, the file restored byte-for-byte after its run; a replacement that does not match is reported DID NOT APPLY, and none did)
+Suites per mutant: src/extraction/callBudget.test.ts, src/extraction/client.test.ts.
+
+Baseline 21 tests, 0 failing.
+- M1 the timeout ignores the prompt (callTimeoutMs drops the input term): KILLED, 4 of 21
+    "adds a 500 tok/s prefill floor for the prompt it sends, so a window near the input budget is not timed out while it is still being read"
+    "a timeout names the budget it ran out of"
+    "bounds every call by the callBudget timeout for the response it asked for"
+    "gives a large prompt time to be read before it can answer (live gate 3: an 88k-token memorize window timed out at 55.6 s)"
+- M2 the client does not pass the prompt's size: KILLED, 3 of 21
+    "a timeout names the budget it ran out of"
+    "bounds every call by the callBudget timeout for the response it asked for"
+    "gives a large prompt time to be read before it can answer (live gate 3: an 88k-token memorize window timed out at 55.6 s)"
+- M3 the prefill floor is halved (1 ms/token, faster than the 895 tok/s measured at 68k tokens): KILLED, 4 of 21
+    "adds a 500 tok/s prefill floor for the prompt it sends, so a window near the input budget is not timed out while it is still being read"
+    "a timeout names the budget it ran out of"
+    "bounds every call by the callBudget timeout for the response it asked for"
+    "gives a large prompt time to be read before it can answer (live gate 3: an 88k-token memorize window timed out at 55.6 s)"
+Restored: 21 tests, 0 failing.

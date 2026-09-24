@@ -1,0 +1,23 @@
+v2.4 plan 03 live gates, direct llama-server measurements (2026-09-24, pod Artemis 31B Q4_K_M, RTX PRO 4500, reached through the main session's SSH tunnel on 127.0.0.1:18080; LLM_PARALLEL 4, --kv-unified, n_ctx 196608 total). Taken from the host with curl/python against /completion and /metrics while both lanes were idle unless noted.
+
+H5 (llama-server frees the slot when the client goes away, through the tunnel):
+  curl /completion {"n_predict":900,"ignore_eos":true} with --max-time 4 (client closes at 4 s)
+  1790277696.925 requests_processing=1
+  1790277698.236 requests_processing=1
+  curl exited 28 at 1790277698.939
+  1790277699.526 requests_processing=0   (<= 0.59 s after the close)
+  tokens_predicted_total rose by 143 (of 900 asked, ignore_eos), so the task was cancelled, not finished.
+  ST side of the same chain, lane server logs: "Endpoint error: AbortError: The operation was aborted" raised from
+  text-completions.js:291 (the socket 'close' handler), 30 on lane 2 and 27 on lane 1 over the session.
+
+Prefill / decode (cache_prompt false, n_predict 8):
+  prompt_n 16959: prompt 13149 ms = 1290 tok/s, decode 26.9 tok/s, wall 17.1 s
+  prompt_n 67720: prompt 75641 ms =  895 tok/s, decode 19.3 tok/s, wall 78.7 s
+
+E1 single request, idle backend (n_predict 300, ignore_eos):
+  prompt_n   937: decode 33.2 tok/s, prefill 1211 tok/s
+  prompt_n   950: decode 33.1 tok/s, prefill 1222 tok/s
+  prompt_n  6271: decode 29.9 tok/s, prefill 1334 tok/s
+  -> above the 20 tok/s revert criterion for LLM_PARALLEL 4.
+In the gate runs (shared with the other lane and the main session) per-request decode read 14-31 tok/s at 1-2k context,
+and 16.6-17.0 tok/s at 86-88k context (memorize windows, largely alone on the backend), prefill 787-801 tok/s at 86-88k.

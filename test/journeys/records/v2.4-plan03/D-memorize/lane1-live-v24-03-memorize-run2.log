@@ -1,0 +1,94 @@
+1/16 import_story ok 271ms
+2/16 eval ok 23ms
+2/16 eval -> {"healed":null,"profile":"Story Orchestrator Memory RunPod","apiUrl":"http://127.0.0.1:18080","cadence":99,"authorView":false}
+3/16 eval ok 2094ms
+3/16 eval -> {"seeded":330,"before":1,"length":331,"chars":455438,"estTokens":113860,"storyId":"live-v24-03"}
+4/16 ui ok 40ms
+5/16 ui ok 101ms
+6/16 eval ok 63427ms
+6/16 eval -> {"preflight":"3 requests, about 189,986 tokens to Story Orchestrator Memory RunPod. Send them?","planningMs":61878,"backfill":{"running":true,"processed":0,"total":3,"lastError":null}}
+7/16 eval ok 119684ms
+7/16 eval -> {"backfill":{"running":true,"processed":1,"total":3,"lastError":null},"inFlight":{"n":2,"kind":"read","t0":1790284726435,"ms":null,"outcome":"pending","status":null,"promptChars":65803,"estTokens":16451,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":null},"entries":0}
+8/16 expect_ui ok 5ms
+9/16 ui ok 439ms
+9/16 ui -> {"ok":true,"tabs":["Overview","Memory"],"surfaces":["#drawer-manager","#so-hud","#story-orchestrator-settings"],"selectorsChecked":38,"findings":[],"sweep":[],"recoveryControls":[{"tab":"Memory","surface":"#drawer-manager","selector":"#so-memorize-stop","visible":true,"text":"Stop"}]}
+10/16 ui ok 81ms
+11/16 ui ok 5ms
+11/16 ui -> {"selector":"#so-memorize-stop","found":true,"clickable":true,"at":{"x":589,"y":214},"topmost":"button#so-memorize-stop.menu_button.interactable","target":"button#so-memorize-stop.menu_button.interactable"}
+12/16 eval ok 582ms
+12/16 eval -> {"stoppedInMs":63,"abortLatencyMs":7,"aborted":{"n":2,"kind":"read","t0":1790284726435,"ms":680,"outcome":"aborted","status":null,"promptChars":65803,"estTokens":16451,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":"signal is aborted without reason"},"backfill":{"running":false,"processed":1,"total":3,"lastError":null,"stoppedNote":"Stopped after 1 of 2 parts. What was read is kept; the whole-chat pass did not run."},"note":"Stopped after 1 of 2 parts. What was read is kept; the whole-chat pass did not run.","entriesBefore":0,"entriesAfter":0}
+13/16 eval ok 1768ms
+13/16 eval -> {"backfill":{"running":true,"processed":0,"total":3,"lastError":null},"ended":false}
+14/16 eval ok 252475ms
+14/16 eval -> {"ms":252606,"result":true,"error":null,"backfill":{"running":false,"processed":3,"total":3,"lastError":null},"requests":[{"n":3,"kind":"read","t0":1790284729387,"ms":116765,"outcome":"ok","status":200,"promptChars":403330,"estTokens":100833,"tokensEvaluated":88646,"predictedN":47,"decodeTokS":16.810174394596185,"prefillTokS":787.5253343184788,"promptMs":112562.728,"predictedMs":2736.438,"stopType":"eos","error":null},{"n":4,"kind":"read","t0":1790284846524,"ms":15953,"outcome":"ok","status":200,"promptChars":65803,"estTokens":16451,"tokensEvaluated":14552,"predictedN":13,"decodeTokS":25.701710234635193,"prefillTokS":1275.1320938532972,"promptMs":11412.151,"predictedMs":466.895,"stopType":"eos","error":null},{"n":5,"kind":"read","t0":1790284863013,"ms":117964,"outcome":"ok","status":200,"p
+15/16 eval ok 4ms
+15/16 eval -> {"profileUrl":"http://127.0.0.1:18080","wasDead":false,"requests":5,"e1":[{"kind":"read","predictedN":47,"decodeTokS":16.796327008420803,"prefillTokS":792.2513877656983,"promptN":88591},{"kind":"read","predictedN":47,"decodeTokS":16.810174394596185,"prefillTokS":787.5253343184788,"promptN":88646},{"kind":"read","predictedN":13,"decodeTokS":25.701710234635193,"prefillTokS":1275.1320938532972,"promptN":14552},{"kind":"read","predictedN":60,"decodeTokS":16.793132235100437,"prefillTokS":787.0138523583144,"promptN":88640}]}
+16/16 eval ok 5ms
+16/16 eval -> {"ms":252606,"chat":331,"budget":{"contextLimit":{"value":98304,"source":"preset"},"inputBudget":87961,"maxTokens":512,"tokens":87684},"estimateVsTrue":[{"reason":"memorize:window","window":{"from":0,"to":286},"estimate":87744,"inputBudget":87961,"trueTokens":88646,"trueOverInputBudget":685},{"reason":"memorize:window","window":{"from":287,"to":330},"estimate":14391,"inputBudget":87961,"trueTokens":14552,"trueOverInputBudget":-73409},{"reason":"memorize:full","window":{"from":44,"to":330},"estimate":87684,"inputBudget":87961,"trueTokens":88640,"trueOverInputBudget":679}],"windows":[{"window":{"from":0,"to":286},"tokens":87744},{"window":{"from":287,"to":330},"tokens":14391}],"full":{"window":{"from":44,"to":330},"trimmedFrom":0,"tokens":87684,"truncated":null},"requests":[{"n":3,"kind":"read","t0":1790284729387,"ms":116765,"outcome":"ok","status":200,"promptChars":403330,"estTokens":100833,"tokensEvaluated":88646,"predictedN":47,"decodeTokS":16.810174394596185,"prefillTokS":787.5253343184788,"promptMs":112562.728,"predictedMs":2736.438,"stopType":"eos","error":null},{"n":4,"kind":"read","t0":1790284846524,"ms":15953,"outcome":"ok","status":200,"promptChars":65803,"estTokens":16451,"tokensEvaluated":14552,"predictedN":13,"decodeTokS":25.701710234635193,"prefillTokS":1275.1320938532972,"promptMs":11412.151,"predictedMs":466.895,"stopType":"eos","error":null},{"n":5,"kind":"read","t0":1790284863013,"ms":117964,"outcome":"ok","status":200,"promptChars":403146,"estTokens":100787,"tokensEvaluated":88640,"predictedN":60,"decodeTokS":16.793132235100437,"prefillTokS":787.0138523583144,"promptMs":112628.259,"predictedMs":3513.341,"stopType":"eos","error":null}],"backfill":{"running":false,"processed":3,"total":3,"lastError":null}}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T21-23-06-390Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 16,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-313db404"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@18h15m40s601ms",
+    "owned": [
+      "2026-09-24@18h15m40s601ms"
+    ],
+    "deleted": [
+      "2026-09-24@18h15m40s601ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@18h15m40s601ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 99,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}
