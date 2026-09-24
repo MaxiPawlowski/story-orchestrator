@@ -1,0 +1,89 @@
+1/21 import_story ok 273ms
+2/21 eval ok 17ms
+2/21 eval -> {"healed":null,"profile":"Story Orchestrator Memory RunPod","apiUrl":"http://127.0.0.1:18080","cadence":1,"authorView":false}
+3/21 send_generate ok 50790ms
+4/21 wait ok 74219ms
+5/21 eval ok 4ms
+5/21 eval -> {"storedPath":true,"audits":2,"lastAudit":{"reason":"cadence","window":{"from":3,"to":3},"budget":{"contextLimit":{"value":98304,"source":"preset"},"inputBudget":87961,"maxTokens":512,"tokens":1307}},"pipeline":"idle"}
+6/21 eval ok 13937ms
+6/21 eval -> {"boundaryA":5,"readAInFlightAtRepoint":true,"readA":{"n":5,"kind":"read","t0":1790291517427,"ms":13100,"outcome":"ok","status":200,"promptChars":4959,"estTokens":1240,"tokensEvaluated":1146,"predictedN":97,"decodeTokS":14.618124342374745,"prefillTokS":98.97871183079631,"promptMs":3485.598,"predictedMs":6567.19,"stopType":"eos","error":null},"deadUrl":"http://127.0.0.1:9"}
+7/21 eval ok 3589ms
+7/21 eval -> {"boundaryB":7,"tripMs":1508,"attempts":[{"n":6,"kind":"read","t0":1790291533304,"ms":4,"outcome":"error-reply","status":200,"promptChars":4925,"estTokens":1232,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":"request to http://127.0.0.1:9/completion failed, reason: connect ECONNREFUSED 127.0.0.1:9"},{"n":7,"kind":"read","t0":1790291533561,"ms":21,"outcome":"error-reply","status":200,"promptChars":4925,"estTokens":1232,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":"request to http://127.0.0.1:9/completion failed, reason: connect ECONNREFUSED 127.0.0.1:9"},{"n":8,"kind":"read","t0":1790291534098,"ms":7,"outcome":"error-reply","status":200,"promptChars":4925,"estTokens":1232,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":"request to http://127.0.0.1:9/completion failed, reason: connect ECONNREFUSED 127.0.0.1:9"}],"health":{"kind":"transport","detail":"API request failed: Response not OK","nextProbeInMs":4943}}
+8/21 eval ok 4ms
+8/21 eval -> {"pipeline":{"state":"stalled-rechecking","text":"The memory model is not answering — the story will catch up when it does.","nextAction":"retry"},"scheduler":{"queueDepth":1,"inFlight":false,"lastError":null,"heavyQueueDepth":0,"heavyInFlight":false,"lastHeavyError":null},"health":{"kind":"transport","detail":"API request failed: Response not OK","since":1790291534103,"nextProbeAt":1790291539103,"probing":false},"enabledSamples":87,"enabledBad":0}
+9/21 ui ok 63ms
+10/21 ui ok 87ms
+11/21 expect_ui ok 4ms
+12/21 ui ok 461ms
+12/21 ui -> {"ok":true,"tabs":["Overview","Memory"],"surfaces":["#drawer-manager","#so-hud","#story-orchestrator-settings"],"selectorsChecked":38,"findings":[],"sweep":[],"recoveryControls":[{"tab":"Overview","surface":"#drawer-manager","selector":"#so-pipeline-retry","visible":true,"text":"Try again"}]}
+13/21 ui ok 76ms
+14/21 expect_ui ok 3ms
+15/21 eval ok 36ms
+15/21 eval -> {"health":{"kind":"transport","detail":"API request failed: Response not OK","since":1790291534103,"nextProbeAt":1790291539103,"probing":false},"probesSoFar":[]}
+16/21 ui ok 29ms
+16/21 ui -> {"selector":"#so-pipeline-retry","found":true,"clickable":true,"at":{"x":973,"y":346},"topmost":"button#so-pipeline-retry.menu_button.interactable","target":"button#so-pipeline-retry.menu_button.interactable","clicked":true,"opened":null}
+17/21 eval ok 2669ms
+17/21 eval -> {"probe":{"n":9,"kind":"probe","t0":1790291534908,"ms":19,"outcome":"error-reply","status":200,"promptChars":63,"estTokens":16,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":"request to http://127.0.0.1:9/completion failed, reason: connect ECONNREFUSED 127.0.0.1:9"},"probeAfterClickMs":12,"health":{"kind":"transport","nextProbeInMs":12330,"detail":"API request failed: Response not OK"},"heldBefore":1,"heldAfter":1,"boundaryC":9}
+18/21 eval ok 15576ms
+18/21 eval -> {"resumeLatencyMs":15570,"scheduledProbeInMsAtRestore":12325,"closedAfterScheduledMs":3245,"probe":{"n":11,"kind":"probe","t0":1790291549943,"ms":3153,"outcome":"ok","status":200,"promptChars":63,"estTokens":16,"tokensEvaluated":17,"predictedN":7,"decodeTokS":10.731052984574111,"prefillTokS":12.51724803147867,"promptMs":1358.126,"predictedMs":559.125,"stopType":"eos","error":null},"journal":["memory model answering again | {\"note\":\"probe (backoff) succeeded\"}"]}
+19/21 wait ok 31272ms
+20/21 eval ok 5ms
+20/21 eval -> {"heldReads":[{"reason":"cadence","window":{"from":6,"to":9},"createdAt":"2026-09-24T23:12:40.661Z","accepted":2,"rejected":0}],"enabledSamples":339,"pipeline":"idle"}
+21/21 eval ok 5ms
+21/21 eval -> {"profileUrl":"http://127.0.0.1:18080","wasDead":false,"requests":14,"e1":[{"kind":"read","predictedN":381,"decodeTokS":10.077595362693717,"prefillTokS":343.5585298116482,"promptN":1362},{"kind":"read","predictedN":208,"decodeTokS":12.870937144125582,"prefillTokS":765.0429915851076,"promptN":1318},{"kind":"read","predictedN":97,"decodeTokS":14.618124342374745,"prefillTokS":98.97871183079631,"promptN":345},{"kind":"other","predictedN":169,"decodeTokS":32.00934063044683,"prefillTokS":1056.2231407002505,"promptN":1324},{"kind":"probe","predictedN":7,"decodeTokS":10.731052984574111,"prefillTokS":12.51724803147867,"promptN":17},{"kind":"read","predictedN":131,"decodeTokS":23.390360832301006,"prefillTokS":389.58373914972833,"promptN":374},{"kind":"other","predictedN":69,"decodeTokS":23.368058956238155,"prefillTokS":657.9374526566389,"promptN":152},{"kind":"other","predictedN":182,"decodeTokS":15.914467737109522,"prefillTokS":1187.3863839356081,"promptN":339}]}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T23-13-08-876Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 21,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-313db404"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-24@20h09m51s108ms",
+    "owned": [
+      "2026-09-24@20h09m51s108ms"
+    ],
+    "deleted": [
+      "2026-09-24@20h09m51s108ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@20h09m51s108ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

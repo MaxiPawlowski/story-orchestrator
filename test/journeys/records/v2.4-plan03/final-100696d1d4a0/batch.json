@@ -1,0 +1,112 @@
+{
+  "lanes": [
+    1,
+    2
+  ],
+  "items": [
+    "test/scenarios/live-v24-03-breaker.json",
+    "J3",
+    "test/scenarios/live-v24-03-wedges.json",
+    "J4"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/scenarios/live-v24-03-breaker.json",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T23-07-29-832Z-live-v24-03-breaker-run1.log",
+      "ms": 140214,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "J3",
+      "lane": 2,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-24T23-07-29-832Z-J3-run1.log",
+      "ms": 289563,
+      "automated": "automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\2\\debug\\2026-09-24T23-12-19-378Z_journey-J3.json",
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-03-breaker.json",
+      "lane": 1,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T23-07-29-832Z-live-v24-03-breaker-run2.log",
+      "ms": 198853,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-03-wedges.json",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T23-07-29-832Z-live-v24-03-wedges-run1.log",
+      "ms": 101358,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "J3",
+      "lane": 2,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-24T23-07-29-832Z-J3-run2.log",
+      "ms": 278875,
+      "automated": "automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\2\\debug\\2026-09-24T23-16-58-250Z_journey-J3.json",
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-03-wedges.json",
+      "lane": 1,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T23-07-29-832Z-live-v24-03-wedges-run2.log",
+      "ms": 141848,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "J4",
+      "lane": 2,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-24T23-07-29-832Z-J4-run1.log",
+      "ms": 66858,
+      "automated": "automated: 5 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\2\\debug\\2026-09-24T23-18-05-110Z_journey-J4.json",
+      "failures": []
+    },
+    {
+      "item": "J4",
+      "lane": 2,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-24T23-07-29-832Z-J4-run2.log",
+      "ms": 52755,
+      "automated": "automated: 5 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\2\\debug\\2026-09-24T23-18-57-871Z_journey-J4.json",
+      "failures": []
+    }
+  ]
+}

@@ -1178,3 +1178,34 @@ New cases:
 - Live gate 2 (the noop re-read ×2, plus the applied-case merge) and live gate 3 (memorize with scene passes serialized,
   `confirmMs`, the Preparing state): not run in the worktree. They are owed on lanes after the merge, and gate 2 stays
   **NOT green** until then.
+
+### Final live gates (2026-09-24, bundle `100696d1d4a0`, master `e836bc4`)
+
+**Status: plan 03 live gates green ×2, each on or after the last change to the code it exercises.** The machine gates on master are green: typecheck, typecheck:test, lint, debug:typecheck, jest 3214/3214, and the build.
+
+| Gate | Result | Bundle | Record |
+|---|---|---|---|
+| 1 breaker pause/resume | ×2 green | `100696d1d4a0` | `final-100696d1d4a0/*breaker*` |
+| 2 abort mid-read + D2 re-read (`reread:lapsed` covers the edited message, merged with a rollback re-read) | ×2 green | `100696d1d4a0` | `rerun-fixes/2026-09-24T23-01-20-701Z-*abort*` |
+| 3 memorize ≥300 messages + Stop + fast preflight (`confirmMs` 107 / 112) | ×2 green | `27d0f711bf9b` | `rerun-fixes/*memorize*` |
+| 4 wedges | ×2 green | `100696d1d4a0` | `final-100696d1d4a0/*wedges*` |
+| 5 J3 (8/8), J4 (5/5) `--strict` | ×2 green | `100696d1d4a0` | `final-100696d1d4a0/*J3*`, `*J4*` |
+| 6 `assert-player-clean` with Try again / Stop visible | ×2 green | inside gates 1 and 3 | as above |
+
+**Gate 3's bundle.** Gate 3 ran on `27d0f711bf9b`. The only change between that bundle and `100696d1d4a0` is plan 02's E3 journaling fix (`librarySave.ts`, the settings journal wiring in `runtime/index.ts`), which the memorize path does not reach.
+
+**One red is archived, not hidden.** On `27d0f711bf9b`, abort run 2 failed at its first turn: `Generation still active after 300000ms`, before any step under test (`rerun-fixes/abort-run2-27d0f711bf9b-failure.json`). Lane 2 was running gate 3's ~88k-token memorize prompts on the same pod at the time, so the reading is a starved first turn. That reading is **not proven**. With lane 2 on the light E3 check, the gate went ×2 green on `100696d1d4a0`.
+
+**Run headers.** These re-run batches were not wrapped in `so-run-header capture`/`diff`. The earlier plan 03 batches (section above) were, with 0 differences.
+
+**Found and fixed by the live gates** (sections above):
+- D1: the call timeout now scales with the prompt.
+- D2: a lapsed window is re-read.
+- Heavy passes are serialized behind the memorize backlog.
+- The preflight answers on an estimate.
+
+**E1:** `LLM_PARALLEL` 4 stays. A single request decodes at 33.2 tok/s, above the 20 tok/s revert line.
+
+**Known, not fixed:**
+- The token estimate runs about 1 % under true size. It stays inside the 10 % margin.
+- Two parallel lanes that both send budget-sized memorize prompts starve each other's turns. That is a property of the shared test pod, not of one install.

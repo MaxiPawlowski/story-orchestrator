@@ -369,7 +369,9 @@ consecutive, and `--strict`. It adds:
 | 00 overview | APPROVED 2026-09-23, reconciled |
 | 01 | built + integrated 2026-09-24; every live item green ×2 on `14402df10a0e` incl. `so-turn-types-check` + lane-0 header diff (0 diffs); open: J6.4/J6.7/J5.8/J8.5 intermittents (not reproduced on final); `01-carry-in.md` §Gate record, Final build |
 | 02 | integrated on master 2026-09-24 (`34227e5`); 13 fixtures red→green ×2, J6/J10 ×2 on `14402df10a0e`; 4 live-found save/drain defects fixed; NOT accepted: downgrade leg (test, v2.3 blob, J10.12, clean-host) not built; `02-chat-identity-silent-mutation.md` §Integration and live gate |
-| 03–09 | written 2026-09-23, not started |
+| 03 | built + integrated 2026-09-24; every live gate green ×2 (final bundle `100696d1d4a0`; gate 3 on `27d0f711bf9b`); 4 live-found defects fixed; `03-off-path-call-hygiene.md` §Final live gates |
+| 04, 05, 07 (part 1) | building in worktrees 2026-09-24 |
+| 06, 07 (part 2), 08, 09 | written 2026-09-23, not started |
 
 ## Decisions (2026-09-23, made on evidence at the user's request)
 

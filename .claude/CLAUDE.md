@@ -18,7 +18,7 @@ Status lives in tables, not prose (v2.3 process rule 15). One line per version; 
 | v2.1 (plans 01–08) | automated acceptance green 2026-08-13; human-eval sessions outstanding, so NOT green | `docs/plans/v2.1/08-acceptance.md` Gate record |
 | v2.2 (plans 01–08) | automated side green; human eval outstanding | `docs/plans/v2.2/00-overview.md` §Live gate status, `08-acceptance.md` |
 | v2.3 (plans 01–11) | FROZEN candidate `569b053` (bundle `1e5c36951d65`) 2026-09-24; NOT accepted: J11 judge floors, L1 human playthrough, L7 (judge-on matrix needs v2.4 X12, fault/cost/stories/human) | `docs/plans/v2.3/11-acceptance.md` §Freeze 2026-09-24 |
-| v2.4 (plans 01–09) | on `14402df10a0e`: plan 01 live items all green ×2; plan 02 on master, fixtures + J6/J10 green ×2, downgrade leg NOT built so NOT accepted; 03–09 not started | `docs/plans/v2.4/00-overview.md` §Status, `01-carry-in.md` Gate record |
+| v2.4 (plans 01–09) | on `14402df10a0e`: plan 01 live items all green ×2; plan 02 on master, fixtures + J6/J10 + follow-ups E2–E5 green ×2, downgrade leg NOT built so NOT accepted; plan 03 live gates all green ×2 (`100696d1d4a0`); 04/05/07a building | `docs/plans/v2.4/00-overview.md` §Status, `01-carry-in.md` Gate record |
 
 The long status paragraphs this file used to carry are in `docs/plans/v2.3/status-history.md`, kept as history. The v2.3 one was found overstated by the 2026-09-23 audit.
 
