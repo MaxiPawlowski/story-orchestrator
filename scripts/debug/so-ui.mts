@@ -652,7 +652,20 @@ export async function switchDrawerTab(page, label) {
   const tab = drawer.locator('[role="tablist"] button', { hasText: label });
   if (!(await tab.count())) throw new Error(`Drawer tab "${label}" not found.`);
   await closeCharacterPanel(page);
-  await tab.first().click();
+  try {
+    await tab.first().click({ timeout: 15000 });
+  } catch (error) {
+    const layout = await evaluateInST(page, (text: string) => {
+      const button = [...document.querySelectorAll('#drawer-manager [role="tablist"] button')].find((candidate) => candidate.textContent?.includes(text));
+      const box = (element: Element | null) => { const r = element?.getBoundingClientRect(); return r ? [Math.round(r.x), Math.round(r.y), Math.round(r.width), Math.round(r.height)] : null; };
+      const rect = button?.getBoundingClientRect();
+      const top = rect ? document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2) : null;
+      const panel = document.getElementById('right-nav-panel');
+      return { tab: box(button ?? null), drawer: box(document.getElementById('drawer-manager')), drawerClass: document.getElementById('drawer-manager')?.className ?? null, panel: box(panel), panelClass: panel?.className ?? null, topmost: top ? `${top.tagName.toLowerCase()}#${top.id}.${String(top.className).split(' ').join('.')}` : null, viewport: [innerWidth, innerHeight] };
+    }, label).catch(() => null);
+    const shot = await writeScreenshot(page, 'so-ui-drawer-tab-blocked').catch(() => null);
+    throw new Error(`${error instanceof Error ? error.message.split(/\r?\n/)[0] : String(error)} | layout ${JSON.stringify(layout)}${shot ? ` | screenshot ${shot}` : ''}`);
+  }
   const selected = await tab.first().getAttribute('aria-selected');
   return { tab: label, selected: selected === 'true' };
 }
