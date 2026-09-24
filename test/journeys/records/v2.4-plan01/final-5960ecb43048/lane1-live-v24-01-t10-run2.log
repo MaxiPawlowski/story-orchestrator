@@ -1,0 +1,57 @@
+1/12 import_story ok 373ms
+2/12 eval ok 6ms
+2/12 eval -> {"talk":true}
+3/12 send_generate ok 17880ms
+4/12 wait ok 24779ms
+5/12 slash ok 1939ms
+6/12 wait ok 83ms
+7/12 wait ok 5024ms
+8/12 eval ok 5ms
+8/12 eval -> {"note":3,"lastReply":{"i":2,"name":"Ponticius","user":false,"system":false,"type":null},"speaker":"guild_master","macro":""}
+9/12 send_generate ok 18431ms
+10/12 wait ok 48ms
+11/12 wait ok 11765ms
+12/12 eval ok 7ms
+12/12 eval -> {"previous":"guild_master","decision":{"at":"2026-09-24T12:00:46.765Z","messageId":4,"checkpointId":"yard","chosenRosterId":"companion","chosenName":"Arin","source":"rules","latencyMs":0},"count":2}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T12-01-18-346Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 12,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ed9ddba5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@08h59m54s671ms",
+    "owned": [
+      "2026-09-24@08h59m54s671ms"
+    ],
+    "deleted": [
+      "2026-09-24@08h59m54s671ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@08h59m54s671ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

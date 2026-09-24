@@ -1,0 +1,66 @@
+1/9 import_story ok 374ms
+2/9 send ok 1685ms
+3/9 extract ok 624ms
+4/9 wait ok 48ms
+5/9 edit ok 227ms
+6/9 wait ok 30ms
+7/9 expect ok 32ms
+8/9 extract ok 569ms
+9/9 expect ok 31ms
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T12-47-49-342Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 9,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-29799a93"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@09h47m42s665ms",
+    "owned": [
+      "2026-09-24@09h47m42s665ms"
+    ],
+    "deleted": [
+      "2026-09-24@09h47m42s665ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@09h47m42s665ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": false,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

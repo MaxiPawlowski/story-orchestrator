@@ -1,0 +1,60 @@
+1/15 import_story ok 390ms
+2/15 eval ok 6ms
+3/15 slash ok 1790ms
+4/15 wait ok 37ms
+5/15 send_generate ok 37952ms
+6/15 wait ok 33960ms
+7/15 eval ok 228ms
+7/15 eval -> {"control":"*Ponticius surveys the group, his expression grave but not entirely devoid of warmth. He taps the butt of his spear against the stone floor, the sound echoing i"}
+8/15 slash ok 3199ms
+9/15 wait ok 262ms
+10/15 send_generate ok 52618ms
+11/15 wait ok 41546ms
+12/15 expect ok 9ms
+12/15 expect -> {"overSteer":{"ok":true,"failures":[],"block":{"key":"story_orchestrator_guidance","source":"capture","chars":126},"restate":{"ok":true,"span":1,"maxSpan":6,"metaHits":[]},"swing":{"words":274,"controlWords":259,"lengthRatio":1.058,"sharedWithControl":6}}}
+13/15 slash ok 32566ms
+14/15 wait ok 1526ms
+15/15 eval ok 9ms
+15/15 eval -> {"guided":["cp-4a","cp-4a"],"bare":["cp2","cp2"],"impersonate":["cp-4a"],"drafted":"*Max's jaw tightens as he points at the door and says with a cold, cold voice th"}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T11-57-05-463Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 15,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@08h53m36s196ms",
+    "owned": [
+      "2026-09-24@08h53m36s196ms"
+    ],
+    "deleted": [
+      "2026-09-24@08h53m36s196ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@08h53m36s196ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

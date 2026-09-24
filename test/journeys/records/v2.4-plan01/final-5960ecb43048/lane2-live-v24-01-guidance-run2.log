@@ -1,0 +1,60 @@
+1/15 import_story ok 431ms
+2/15 eval ok 47ms
+3/15 slash ok 1839ms
+4/15 wait ok 81ms
+5/15 send_generate ok 23064ms
+6/15 wait ok 22428ms
+7/15 eval ok 5ms
+7/15 eval -> {"control":"\"Looks like it leads to an old temple or sanctum from before the Lich Queen's time.\" *He gestures to the weathered stone, his voice carrying the weight of exper"}
+8/15 slash ok 1778ms
+9/15 wait ok 46ms
+10/15 send_generate ok 35579ms
+11/15 wait ok 26800ms
+12/15 expect ok 164ms
+12/15 expect -> {"overSteer":{"ok":true,"failures":[],"block":{"key":"story_orchestrator_guidance","source":"capture","chars":126},"restate":{"ok":true,"span":1,"maxSpan":6,"metaHits":[]},"swing":{"words":121,"controlWords":169,"lengthRatio":0.716,"sharedWithControl":3}}}
+13/15 slash ok 28642ms
+14/15 wait ok 1547ms
+15/15 eval ok 15ms
+15/15 eval -> {"guided":["cp-4a","cp-4a"],"bare":["cp2","cp2"],"impersonate":["cp-4a"],"drafted":"\"I'm going in. I're going to find a light source, a torch, and a torchholder. To"}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T11-59-33-399Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 15,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@08h57m07s270ms",
+    "owned": [
+      "2026-09-24@08h57m07s270ms"
+    ],
+    "deleted": [
+      "2026-09-24@08h57m07s270ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@08h57m07s270ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

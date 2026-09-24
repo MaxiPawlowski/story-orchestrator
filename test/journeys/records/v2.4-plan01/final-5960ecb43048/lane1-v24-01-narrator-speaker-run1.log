@@ -1,0 +1,75 @@
+1/12 eval ok 6ms
+2/12 import_story ok 406ms
+3/12 eval ok 18ms
+3/12 eval -> {"groupId":"1759606632088","enabled":["dm","companion","guild_master","little_brother"]}
+4/12 slash ok 1863ms
+5/12 wait ok 1530ms
+6/12 eval ok 6ms
+6/12 eval -> {"speaker":"little_brother"}
+7/12 slash ok 1668ms
+8/12 wait ok 1572ms
+9/12 eval ok 8ms
+9/12 eval -> {"speaker":"little_brother","last":{"name":"System","is_system":"","type":"narrator"}}
+10/12 slash ok 1678ms
+11/12 wait ok 1525ms
+12/12 eval ok 7ms
+12/12 eval -> {"speaker":"dm"}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T12-03-12-696Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 12,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "sandboxChatId": "2026-09-24@09h02m59s014ms",
+    "owned": [
+      "2026-09-24@09h02m59s014ms"
+    ],
+    "deleted": [
+      "2026-09-24@09h02m59s014ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@09h02m59s014ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

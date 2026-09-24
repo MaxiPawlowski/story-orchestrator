@@ -1,0 +1,62 @@
+{
+  "lanes": [
+    1,
+    2
+  ],
+  "items": [
+    "J6",
+    "J6"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "J6",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T12-28-08-431Z-J6-run1.log",
+      "ms": 521952,
+      "automated": "automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\1\\debug\\2026-09-24T12-36-50-356Z_journey-J6.json",
+      "failures": []
+    },
+    {
+      "item": "J6",
+      "lane": 2,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-24T12-28-08-431Z-J6-run1.log",
+      "ms": 545861,
+      "automated": "automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\2\\debug\\2026-09-24T12-37-14-272Z_journey-J6.json",
+      "failures": []
+    },
+    {
+      "item": "J6",
+      "lane": 1,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T12-28-08-431Z-J6-run2.log",
+      "ms": 566341,
+      "automated": "automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\1\\debug\\2026-09-24T12-46-16-701Z_journey-J6.json",
+      "failures": []
+    },
+    {
+      "item": "J6",
+      "lane": 2,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-24T12-28-08-431Z-J6-run2.log",
+      "ms": 573567,
+      "automated": "automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\2\\debug\\2026-09-24T12-46-47-847Z_journey-J6.json",
+      "failures": []
+    }
+  ]
+}

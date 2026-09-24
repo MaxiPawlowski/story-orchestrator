@@ -1,0 +1,80 @@
+1/18 import_story ok 385ms
+2/18 eval ok 18ms
+2/18 eval -> {"chid":5,"cadence":0,"capable":true}
+3/18 send ok 1682ms
+4/18 wait ok 1550ms
+5/18 extract ok 515ms
+6/18 eval ok 259ms
+6/18 eval -> {"pinned":"a788525d-e3ae-4b48-a740-c537cfdfb872"}
+7/18 eval ok 25ms
+7/18 eval -> {"planted":"t6-live-a"}
+8/18 ext_setting ok 58ms
+9/18 slash ok 28750ms
+10/18 wait ok 1526ms
+11/18 wait ok 5214ms
+12/18 eval ok 6ms
+12/18 eval -> {"quiet":1,"loud":1,"carrying":1,"status":"applied"}
+13/18 ext_setting ok 45ms
+14/18 eval ok 5ms
+15/18 slash ok 12659ms
+16/18 wait ok 1537ms
+17/18 wait ok 24719ms
+18/18 eval ok 4ms
+18/18 eval -> {"armA":{"quiet":1,"loud":1,"carrying":1,"status":"applied"},"armB":{"quiet":0,"loud":1,"carrying":1,"status":"applied"}}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T12-01-58-777Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 18,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@09h00m36s382ms",
+    "owned": [
+      "2026-09-24@09h00m36s382ms"
+    ],
+    "deleted": [
+      "2026-09-24@09h00m36s382ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@09h00m36s382ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

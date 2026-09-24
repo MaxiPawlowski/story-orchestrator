@@ -1,0 +1,49 @@
+1/7 import_story ok 395ms
+2/7 send ok 1684ms
+3/7 extract ok 628ms
+4/7 wait ok 35ms
+5/7 delete ok 121ms
+6/7 wait ok 29ms
+7/7 expect ok 29ms
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T12-47-48-602Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 7,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-3ea6f743"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@09h47m42s627ms",
+    "owned": [
+      "2026-09-24@09h47m42s627ms"
+    ],
+    "deleted": [
+      "2026-09-24@09h47m42s627ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@09h47m42s627ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}

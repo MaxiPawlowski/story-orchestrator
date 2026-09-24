@@ -1,0 +1,112 @@
+{
+  "lanes": [
+    1,
+    2
+  ],
+  "items": [
+    "test/scenarios/plan03a-delete-rollback.json",
+    "test/scenarios/plan03a-edit-rollback.json",
+    "test/scenarios/plan03a-llm-npc-reply.json",
+    "test/scenarios/live-v4-turn-identity.json"
+  ],
+  "repeat": 2,
+  "strict": false,
+  "results": [
+    {
+      "item": "test/scenarios/plan03a-delete-rollback.json",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T12-47-41-595Z-plan03a-delete-rollback-run1.log",
+      "ms": 7029,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/plan03a-edit-rollback.json",
+      "lane": 2,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-24T12-47-41-595Z-plan03a-edit-rollback-run1.log",
+      "ms": 7757,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/plan03a-delete-rollback.json",
+      "lane": 1,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T12-47-41-595Z-plan03a-delete-rollback-run2.log",
+      "ms": 6910,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/plan03a-edit-rollback.json",
+      "lane": 2,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-24T12-47-41-595Z-plan03a-edit-rollback-run2.log",
+      "ms": 7473,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/plan03a-llm-npc-reply.json",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T12-47-41-595Z-plan03a-llm-npc-reply-run1.log",
+      "ms": 7294,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v4-turn-identity.json",
+      "lane": 2,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-24T12-47-41-595Z-live-v4-turn-identity-run1.log",
+      "ms": 8483,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/plan03a-llm-npc-reply.json",
+      "lane": 1,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-24T12-47-41-595Z-plan03a-llm-npc-reply-run2.log",
+      "ms": 7282,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v4-turn-identity.json",
+      "lane": 2,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-24T12-47-41-595Z-live-v4-turn-identity-run2.log",
+      "ms": 8498,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

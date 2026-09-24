@@ -1,6 +1,6 @@
 # Plan 01 — Carry-in
 
-**Status: NOT STARTED.** This plan depends on the frozen v2.3 candidate (00-overview D1): v2.3's queue is
+**Status (2026-09-24): built, integrated, live green on `5960ecb43048` except two backend-bound items — NOT green; see §Gate record, Integration and live gate.** Originally: this plan depends on the frozen v2.3 candidate (00-overview D1): v2.3's queue is
 closed or signed off, and L1 is recorded. Nothing here is built early. The doc is reconciled with 00-overview
 §Reconciliation X3–X10 (2026-09-23), and where they differ, the reconciliation wins.
 
@@ -722,3 +722,67 @@ Verified, and where it differed from the table:
 - Bookmarks: `bookmarks.js:201` (branch) and `:284` (checkpoint) build `{main_chat, integrity}`; solo `saveChat` merges it over `chat_metadata` at `script.js:7406`; group `saveGroupBookmarkChat` at `group-chats.js:2370` (added). The chat lorebook slot is `chat_metadata.world_info` (`world-info.js:94`), so it is copied with the rest.
 - Not re-verified here: the gotchas 2026-09-23 RunPod proxy observation (no pod was started); the playbook text restates it.
 - Left alone (history, not in the table): `10-judge-seeds.md:263` ("boundary tie rate 0.64 still fails") and `:274` (top-4 recompute 0.92), both about the rounded arm.
+
+### Integration and live gate (2026-09-24, final build `5960ecb43048`)
+
+**Status: NOT GREEN.** Every jest, fixture, live-fixture and journey gate below is green on `5960ecb43048`, each ×2 consecutive. Two live items are still owed: `so-turn-types-check.mts`, and a run-header diff around the final batch. Both need the model backend, and the pod stopped at 12:47Z (RunPod balance $0.06, restart refused with 402).
+
+**Integrated on master:** T10 `d83d185` → guidance `bc6c2f3` → T1 `4ecafef` → T6 `2ebb4a6`, merged in `b8cbd11`. The merge found one real defect: a nested quiet/impersonate close restored the private block but not guidance. `index.ts` `reapply` now calls `clearPrivateInjection()`, which refreshes steering, then replays `onMemberDrafted`. The corrections are in `311a180`.
+
+**Live findings (T1 live runs), each fixed with a test and a killed mutant** (`test/findings/mutations/v24-01-T1.txt`):
+
+| # | Commit | Defect | Mutants |
+|---|---|---|---|
+| 1 | `bc18644` | A rollback that restores nothing kept queued writes whose read window reached the mutated message. Fixed by `engine.discardPendingFrom` in `quarantine()`. | M6, M7 |
+| 2 | `f827a7d` | A queued read carried the chat window from when it was scheduled. After `/cut`, it quoted a removed message and stamped rows past the chat's end. The scheduler now re-reads the window at run time, clamped. | M8 |
+| 3 | `5378073` | The talk reconcile guard was a bare `chat:checkpoint:message` key, which `/cut` re-creates, so the chosen member was never triggered. This is the suspected cause of 2/8 silent tail turns; no silent turn has occurred since. The guard is now `{key, run}`. | M9 |
+| 4 | `7307f88` | `addSceneSummary` and `runConsolidation` called `record()` and then patched a state spread from before the record, which erased the `scene_summary`/`dedup` record. A rollback past the summary then could not restore the scene rows it had expired. Patch first, then record. | M10, M11 |
+
+**Harness fixes found by the live runs:**
+- `24b2ab1` settles JS dialogs on every attached page. Before it, J6.6's reload crashed the runner with "No dialog is showing".
+- `766ce60` makes a blocked drawer-tab click report the layout and a screenshot.
+- `dbcb806` launches the session browser with a 1920×1080 window. J6.9 on lane 1 ran at 764×429, because the window was 780×580 once J6.6's reload dropped the emulated viewport, and ST's pinned character panel covered the tab. That explains the J6.9 flake. The same commit gives J6.6 a state dump.
+- `4fff7c0` makes J6.6 wait up to 30 s for `lastRollback`. On lane 1 at 12:08, run 1 read it 1.6 s after the edit while `runRollback` was still restoring cast (journal: `restored 4 host change(s)`, engine already at boundary 0).
+- `8728d91` gives J6.4 the same wait and dump.
+- `9cb054a` raises J8.9's `schedulerIdle` budget to 300 s.
+
+**Machine gates, master at `7307f88` (build `5960ecb43048`):**
+- typecheck, typecheck:test and lint: clean.
+- jest: 179 suites, **2747/2747**.
+- test:debug: 194/194 at `dbcb806`/`8728d91`.
+- build: `5960ecb43048`.
+- Architecture, census and fault-matrix guards: green.
+
+**Live, on lanes 1 and 2** (lane = its own ST + browser, `st-lanes.mts batch`), all on bundle `5960ecb43048`. Records are under `test/journeys/records/v2.4-plan01/final-5960ecb43048/`.
+
+| Gate | Result | Record |
+|---|---|---|
+| `live-v24-01-t1` | 4/4 (×2 per lane) | `t1-lane*-run*.log`, `batch-t1.json` |
+| J5 `--strict` | ×2 green (7/7 each) | `lane2-J5-run*.log` |
+| J8 `--strict` | ×2 green (6/6 each) | `lane2-J8-run*.log` |
+| J6 `--strict` | ×2 green **on both lanes** (8/8 ×4) | `j6-final-lane*-run*.log`, `batch-j6-final.json` |
+| `live-v24-01-{guidance,guidance-generated,t10,t6,foreign}` | ×2 green each | `lane*-live-v24-01-*.log` |
+| 14 `v24-01-*` no-backend fixtures | ×2 green each | `lane*-v24-01-*.log`, `batch.json` |
+| `plan03a-{delete,edit}-rollback`, `plan03a-llm-npc-reply`, `live-v4-turn-identity` | ×2 green each | `regression/` |
+| `so-turn-types-check.mts` | **not run** (pod down) | — |
+| run-header diff around the batch | **not captured** for the lane batch; lane 0's is in `integrated-340b139845cf/live-lane0/` | — |
+
+**J6 history on this build, stated plainly.** Before the harness fixes, J6 went 2/4 across two batches:
+- J6.7 failed once. The story stayed at cp1 while a cp2 NPC reply had fired.
+- J6.9 failed once (the viewport, fixed).
+- J6.6 failed twice (timing, fixed).
+- J6.4 failed once (`#so-rollback-notice` absent, cause not recorded).
+
+After the fixes, J6 went 4/4. In those runs, J6.4's and J6.6's new waits measured 0–254 ms, so the J6.4 miss was **not reproduced** and its cause is still unknown. The J6.7 race has not recurred in 6 runs but is not explained, so it stays open.
+
+Earlier builds' records (`integrated-340b139845cf/`, `final-0c17ca368b75/`, `final-314a1818a9c6/`) are kept as history; each was superseded by a later fix.
+
+**Open:**
+- `so-turn-types-check` live.
+- A run-header diff around a final live batch.
+- The J6.4 missing notice (not reproduced).
+- The J6.7 race.
+
+**Decisions for the user:**
+- Solo `story_epistemic` still merges every member's private block. The plan said "solo unchanged".
+- Raise the pod's `LLM_PARALLEL` from 2 to 4?

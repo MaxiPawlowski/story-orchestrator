@@ -1,0 +1,75 @@
+1/13 import_story ok 466ms
+2/13 ui ok 487ms
+3/13 eval ok 28ms
+3/13 eval -> {"cadence":0,"capable":true}
+4/13 send ok 2092ms
+5/13 wait ok 1516ms
+6/13 extract ok 500ms
+7/13 eval ok 6ms
+7/13 eval -> {"chid":5,"planted":"t6-probe-note","scope":"warden switched on in the in-memory settings view only; nothing install-wide is written"}
+8/13 inject_script ok 7ms
+9/13 emit_generation ok 19ms
+10/13 eval ok 15ms
+10/13 eval -> {"drafted":5,"staged":true}
+11/13 eval ok 8ms
+11/13 eval -> {"emitted":["GENERATION_STARTED","GENERATION_ENDED"],"answered":false}
+12/13 emit_generation ok 9ms
+13/13 eval ok 12ms
+13/13 eval -> {"block":"kept","note":"kept"}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-24T12-02-09-946Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 13,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@09h02m01s197ms",
+    "owned": [
+      "2026-09-24@09h02m01s197ms"
+    ],
+    "deleted": [
+      "2026-09-24@09h02m01s197ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@09h02m01s197ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

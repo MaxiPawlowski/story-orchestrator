@@ -1,0 +1,75 @@
+1/14 import_story ok 360ms
+2/14 ui ok 216ms
+3/14 eval ok 7ms
+4/14 expand ok 58930ms
+5/14 eval ok 6ms
+5/14 eval -> {"status":"needs_review","tries":[{"attempt":1,"status":"needs_review"}],"guidance":["The player surveys the area for potential paths. One route appears clear, while ","The player attempts to move forward based on the path they've identified."]}
+6/14 send_generate ok 49108ms
+7/14 wait ok 22794ms
+8/14 eval ok 5ms
+8/14 eval -> {"merged":true,"guidance":"The player surveys the area for potential paths. One route appears clear, while another is heavily guarded."}
+9/14 slash ok 1775ms
+10/14 wait ok 42ms
+11/14 eval ok 4ms
+11/14 eval -> {"block":"Scene direction: The player surveys the area for potential paths. One route appears clear, while another is heavily guarded."}
+12/14 send_generate ok 56041ms
+13/14 wait ok 1538ms
+14/14 eval ok 6ms
+14/14 eval -> {"requests":2,"carried":true}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T11-56-48-019Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 14,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-cd407f83"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@08h53m31s704ms",
+    "owned": [
+      "2026-09-24@08h53m31s704ms"
+    ],
+    "deleted": [
+      "2026-09-24@08h53m31s704ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@08h53m31s704ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}

@@ -367,7 +367,9 @@ consecutive, and `--strict`. It adds:
 | Plan | Status |
 |---|---|
 | 00 overview | APPROVED 2026-09-23, reconciled |
-| 01–09 | written 2026-09-23, not started (D1) |
+| 01 | built + integrated 2026-09-24; live green on `5960ecb43048` except `so-turn-types-check` and a run-header diff (backend down) — NOT green; `01-carry-in.md` §Gate record, Integration and live gate |
+| 02 | built in worktrees 2026-09-24 (all items), integrated on branch `v24-02-int`, machine gates green; no live gate yet |
+| 03–09 | written 2026-09-23, not started |
 
 ## Decisions (2026-09-23, made on evidence at the user's request)
 

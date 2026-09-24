@@ -1,0 +1,75 @@
+1/14 import_story ok 361ms
+2/14 ui ok 209ms
+3/14 eval ok 6ms
+4/14 expand ok 22518ms
+5/14 eval ok 6ms
+5/14 eval -> {"status":"needs_review","tries":[{"attempt":1,"status":"needs_review"}],"guidance":["The player explores the area to locate a viable path. The environment should pre","With a safe approach identified, the player must now ensure the path remains via"]}
+6/14 send_generate ok 20107ms
+7/14 wait ok 5227ms
+8/14 eval ok 6ms
+8/14 eval -> {"merged":true,"guidance":"The player explores the area to locate a viable path. The environment should present obstacles or security measures that"}
+9/14 slash ok 1780ms
+10/14 wait ok 54ms
+11/14 eval ok 12ms
+11/14 eval -> {"block":"Scene direction: The player explores the area to locate a viable path. The environment should present obstacles or security measures that escalate tension as th"}
+12/14 send_generate ok 25219ms
+13/14 wait ok 1528ms
+14/14 eval ok 9ms
+14/14 eval -> {"requests":2,"carried":true}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-24T11-58-10-385Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 14,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-cd407f83"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@08h56m49s345ms",
+    "owned": [
+      "2026-09-24@08h56m49s345ms"
+    ],
+    "deleted": [
+      "2026-09-24@08h56m49s345ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@08h56m49s345ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    }
+  }
+}
