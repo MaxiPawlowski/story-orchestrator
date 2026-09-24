@@ -1,0 +1,57 @@
+1/12 import_story ok 368ms
+2/12 eval ok 6ms
+2/12 eval -> {"talk":true}
+3/12 send_generate ok 24704ms
+4/12 wait ok 38090ms
+5/12 slash ok 1903ms
+6/12 wait ok 52ms
+7/12 wait ok 5027ms
+8/12 eval ok 4ms
+8/12 eval -> {"note":3,"lastReply":{"i":2,"name":"Ponticius","user":false,"system":false,"type":null},"speaker":"guild_master","macro":""}
+9/12 send_generate ok 38980ms
+10/12 wait ok 44ms
+11/12 wait ok 38740ms
+12/12 eval ok 5ms
+12/12 eval -> {"previous":"guild_master","decision":{"at":"2026-09-24T08:38:57.994Z","messageId":4,"checkpointId":"yard","chosenRosterId":"companion","chosenName":"Arin","source":"rules","latencyMs":1},"count":2}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-24T08-40-16-748Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 12,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ed9ddba5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "sandboxChatId": "2026-09-24@05h37m45s621ms",
+    "owned": [
+      "2026-09-24@05h37m45s621ms"
+    ],
+    "deleted": [
+      "2026-09-24@05h37m45s621ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@05h37m45s621ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    }
+  }
+}
