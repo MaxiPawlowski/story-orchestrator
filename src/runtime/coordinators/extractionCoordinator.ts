@@ -183,10 +183,6 @@ export class ExtractionCoordinator {
     this.state.scheduler = snapshot;
   }
 
-  pause(message: string) {
-    this.state.scheduler = { ...this.state.scheduler, lastError: message };
-  }
-
   async applyAudit(audit: SharedReadAudit, facts: ParsedFact[], memoryLines: ParsedMemoryLine[] = [], arcSignals: ParsedArcSignal[] = [], epistemicSignals: ParsedEpistemicSignal[] = [], ledgerSignals: ParsedLedgerSignal[] = [], read: ReadOwnership | null = null) {
     if (!this.deps.getStory()) return;
     if (read && !read.stillOwns()) return;

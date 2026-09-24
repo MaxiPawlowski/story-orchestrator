@@ -34,7 +34,6 @@ const makeHost = (settings: Partial<SchedulerSettings> = {}): SchedulerHost => (
   getOpenArcs: () => [],
   applyExtractionAudit: async () => undefined,
   onSchedulerChange: () => undefined,
-  pauseExtraction: () => undefined,
 });
 
 describe("ExtractionScheduler reply-path isolation", () => {
@@ -238,11 +237,11 @@ describe("v2.4 plan 02 §10: the window the scheduler would read next", () => {
 
 describe("v2.4 plan 03 D2: a lapsed read is discarded, never retried, never an error", () => {
   const lapsedHost = (overrides: Partial<SchedulerHost> = {}) => {
-    const calls = { paused: [] as string[], lapses: [] as Array<[string, string]>, released: 0, signal: new AbortController().signal };
+    const calls = { failures: [] as string[], lapses: [] as Array<[string, string]>, released: 0, signal: new AbortController().signal };
     const host: SchedulerHost = {
       ...makeHost(),
       beginRead: () => ({ stillOwns: () => false, lapsedDetail: () => "window: message 3 was edited", signal: calls.signal, release: () => { calls.released += 1; } }),
-      pauseExtraction: (message) => { calls.paused.push(message); },
+      noteHealth: (summary) => { calls.failures.push(summary); },
       noteLapse: (reason, detail) => { calls.lapses.push([reason, detail]); },
       ...overrides,
     };
@@ -259,7 +258,7 @@ describe("v2.4 plan 03 D2: a lapsed read is discarded, never retried, never an e
     await new Promise((resolve) => setTimeout(resolve, 900));
     expect(read).toHaveBeenCalledTimes(1);
     expect(scheduler.getSnapshot().lastError).toBeNull();
-    expect(calls.paused).toEqual([]);
+    expect(calls.failures).toEqual([]);
     expect(calls.lapses).toEqual([["extraction read lapsed: rollback:3", "the request was cancelled"]]);
     expect(calls.released).toBe(1);
   });
@@ -274,17 +273,19 @@ describe("v2.4 plan 03 D2: a lapsed read is discarded, never retried, never an e
     expect(calls.released).toBe(1);
   });
 
-  it("control: a transport failure is still retried and still reported", async () => {
+  it("control: a transport failure is still retried, and opens the breaker instead of recording an error", async () => {
     const read = runSharedRead as jest.Mock;
     read.mockReset();
     read.mockRejectedValue(new ModelCallError("transport", "API request failed: Response not OK"));
-    const { host, calls } = lapsedHost();
+    const { host, calls } = lapsedHost({ getExtractionSettings: () => ({ enabled: true, profileId: "p1", cadence: 1, reconciliationMultiplier: 2, stabilityLag: 1 }) });
     const scheduler = new ExtractionScheduler(host);
     scheduler.schedule({ priority: 0, reason: "manual", window: { from: 0, to: 0, messages: [] } });
     await new Promise((resolve) => setTimeout(resolve, 900));
     expect(read).toHaveBeenCalledTimes(3);
-    expect(scheduler.getSnapshot().lastError).toBe("API request failed: Response not OK");
+    expect(scheduler.getSnapshot().lastError).toBeNull();
+    expect(scheduler.health()).toMatchObject({ kind: "transport", detail: "API request failed: Response not OK" });
     expect(calls.lapses).toEqual([]);
+    scheduler.dispose();
     read.mockReset();
   });
 

@@ -1,3 +1,4 @@
+import type { ExtractionHealth } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
 import type { ExtractionRuntimeState } from "./types";
 
@@ -26,7 +27,10 @@ export interface PipelineStatus {
   needsSetup: boolean;
   /** Null when there is genuinely nothing to ask of the player. */
   nextAction: PipelineNextAction | null;
+  retryable?: true;
 }
+
+export const TRANSPORT_PLAYER_TEXT = "The memory model is not answering — the story will catch up when it does.";
 
 export const pipelineAction = (status: PipelineStatus): string | null => (status.nextAction ? PIPELINE_ACTION_COPY[status.nextAction] : null);
 
@@ -44,8 +48,8 @@ export interface ExpansionActivity {
 export const expansionInFlight = (expansion: ExpansionRuntimeState): boolean =>
   Boolean(expansion.scheduler.inFlight) || Object.values(expansion.entries).some((entry) => entry.status === "queued" || entry.status === "generating");
 
-export function derivePipelineStatus(extraction: ExtractionRuntimeState, expansion?: ExpansionActivity): PipelineStatus {
-  const problem = pipelineProblem(extraction);
+export function derivePipelineStatus(extraction: ExtractionRuntimeState, expansion?: ExpansionActivity, health: ExtractionHealth | null = null): PipelineStatus {
+  const problem = pipelineProblem(extraction, health);
   if (problem) return problem;
   if (expansion?.generating) {
     return { state: "working", text: "Preparing the road ahead…", detail: null, needsSetup: false, nextAction: "wait" };
@@ -55,16 +59,22 @@ export function derivePipelineStatus(extraction: ExtractionRuntimeState, expansi
   return { state: "idle", text: "Following along.", detail: null, needsSetup: false, nextAction: "wait" };
 }
 
-function pipelineProblem(extraction: ExtractionRuntimeState): PipelineStatus | null {
+function pipelineProblem(extraction: ExtractionRuntimeState, health: ExtractionHealth | null): PipelineStatus | null {
   const { settings, scheduler, reconciliationEvents } = extraction;
   if (scheduler.lastError) {
-    return { state: "error", text: "The story stopped keeping up — something went wrong reading the scene.", detail: scheduler.lastError, needsSetup: true, nextAction: "repair" };
+    return { state: "error", text: "The story stopped keeping up — something went wrong reading the scene.", detail: scheduler.lastError, needsSetup: false, nextAction: "wait" };
   }
   if (!settings.enabled) {
     return { state: "not-configured", text: "The story will not move on its own — turn that on in the extension settings.", detail: null, needsSetup: true, nextAction: "repair" };
   }
   if (!settings.profileId) {
     return { state: "not-configured", text: "Nothing is following the story yet — choose a memory model in the extension settings.", detail: null, needsSetup: true, nextAction: "repair" };
+  }
+  if (health?.kind === "config") {
+    return { state: "not-configured", text: "Nothing is following the story — the memory model it used cannot be reached. Choose one in the extension settings.", detail: health.detail, needsSetup: true, nextAction: "repair" };
+  }
+  if (health?.kind === "transport") {
+    return { state: "stalled-rechecking", text: TRANSPORT_PLAYER_TEXT, detail: health.detail, needsSetup: false, nextAction: "retry", retryable: true };
   }
   if (reconciliationEvents.some((event) => event.resolvedAt === null)) {
     return { state: "stalled-rechecking", text: "Catching up — re-checking recent scenes.", detail: null, needsSetup: false, nextAction: "retry" };

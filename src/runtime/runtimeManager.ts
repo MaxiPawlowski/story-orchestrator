@@ -7,7 +7,7 @@ import {
 import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Suggestion } from "@copilot/index";
 import type { ProvisioningEnvironment, ProvisioningOp, ProvisioningResult, WizardSessionState } from "@wizard/index";
 import {
-  type ExtraGateSource, type ParsedDelta, type ParsedFact, type ReadOwnership, type SharedReadAudit,
+  type ExtraGateSource, type ExtractionScheduler, type ParsedDelta, type ParsedFact, type ReadOwnership, type SharedReadAudit,
   type SharedReadWindow,
 } from "@extraction/index";
 import {
@@ -31,7 +31,7 @@ import { createCuratorFilter } from "./curatorFilter";
 import { createContinuityCheck, establishedFacts } from "./continuity";
 import { activeSpeakerId, enabledCharacterIds, namesForRosterId, rosterIdForName } from "./roster";
 import { EffectsApplier } from "./effectsApplier";
-import { applyGlobalSettings, createExtras, hydrateExtras, TALK_DECISION_LIMIT } from "./extras";
+import { createExtras, hydrateExtras, TALK_DECISION_LIMIT } from "./extras";
 import { SettingsControl } from "./settingsControl";
 import { beginRun, type RunContext, type RunOwnership } from "./runToken";
 import { RunOwner } from "./runOwner";
@@ -434,14 +434,9 @@ export class RuntimeManager {
 
   setSchedulerSnapshot(snapshot: ExtractionRuntimeState["scheduler"]) { this.extraction.setSchedulerSnapshot(snapshot); this.expansion.setSchedulerSnapshot(snapshot); void this.persist(); this.notify(); }
 
-  pauseExtraction(message: string) {
-    setGlobalSettings({ extraction: { enabled: false } });
-    applyGlobalSettings(this.extras);
-    this.extraction.pause(message);
-    this.status = "Story tracking paused";
-    void this.persist();
-    this.notify();
-  }
+  private scheduler: ExtractionScheduler | null = null;
+  attachScheduler(scheduler: ExtractionScheduler | null) { this.scheduler = scheduler; }
+  async retryExtraction(): Promise<boolean> { return this.scheduler?.probe("player") ?? false; }
 
   private enqueueExtractorDeltas(acceptedDeltas: ParsedDelta[], window: { from: number; to: number }, origin: string) {
     if (!acceptedDeltas.length) return;
@@ -513,6 +508,7 @@ export class RuntimeManager {
       driver: this.copilot.getDriverContext(),
       activeNudge: this.copilot.getActiveNudge(),
       payloadCaptures: this.journal.getCaptures(),
+      extractionHealth: this.scheduler?.health() ?? null,
     // A live in-memory read of ST's own extension prompts: cheap, and the only honest answer to
     // "what will the next reply carry" (a capture answers what the LAST one carried).
     injectedBlocks: readInjectedPromptBlocks(),

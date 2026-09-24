@@ -33,7 +33,6 @@ function harness() {
     getEntities: () => [],
     applyExtractionAudit: async () => {},
     onSchedulerChange: () => {},
-    pauseExtraction: () => {},
     judgeTyped: () => null,
   } as unknown as SchedulerHost;
 
@@ -87,13 +86,12 @@ control("a job scheduled after the clear still runs", () => {
 
 // --- cleanup keyed by epoch (v2.3 plan 03 §Abort and cleanup) ---
 //
-// Pausing extraction is INSTALL-WIDE. A job that throws after its world has ended used to pause the
-// world that replaced it, so switching chats inherited the previous story's dead backend and
-// silently stopped extracting everywhere. This is the plan's "an old task's cleanup touches only
-// state tagged with its own epoch", in the place where it does the most damage.
+// A job that throws after its world has ended used to pause the world that replaced it, install-wide.
+// v2.4 plan 03 D3 removed the pause: a bug is this chat's error and a journal line, and still only in
+// the world the job started in ("an old task's cleanup touches only state tagged with its own epoch").
 
 function failingHarness() {
-  const paused: string[] = [];
+  const journaled: string[] = [];
   let epoch = 1;
   const host = {
     getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [] }),
@@ -107,36 +105,35 @@ function failingHarness() {
     getEntities: () => [],
     applyExtractionAudit: async () => {},
     onSchedulerChange: () => {},
-    pauseExtraction: (message: string) => { paused.push(message); },
+    noteHealth: (summary: string) => { journaled.push(summary); },
     judgeTyped: () => null,
     epoch: () => epoch,
   } as unknown as SchedulerHost;
   const scheduler = new ExtractionScheduler(host);
-  return { scheduler, paused, endTheWorld: () => { epoch += 1; } };
+  return { scheduler, journaled, endTheWorld: () => { epoch += 1; } };
 }
 
-control("a job that fails in its own world pauses extraction, as it always has", async () => {
-  // The existing behaviour, pinned first: without it the case below cannot tell "correctly not
-  // paused" from "never pauses at all".
+control("a job that fails in its own world is journaled as this chat's failure", async () => {
+  // Pinned first: without it the case below cannot tell "correctly silent" from "never journals".
   const h = failingHarness();
   h.scheduler.schedule({ priority: 0, reason: "cadence:1", run: async () => { throw new Error("backend down"); } });
-  // runWithRetries makes 3 attempts with 250ms then 500ms backoff, so the catch that pauses is
-  // ~750ms away. A 0ms tick returned before it ran and the assertion measured nothing.
+  // runWithRetries makes 3 attempts with 250ms then 500ms backoff, so the catch is ~750ms away. A
+  // 0ms tick returned before it ran and the assertion measured nothing.
   await new Promise((resolve) => setTimeout(resolve, 1200));
-  expect(h.paused).toEqual(["backend down"]);
+  expect(h.journaled).toEqual(["extraction failed: cadence:1"]);
 });
 
-control("a job that fails AFTER its world ended does not pause the world that replaced it", async () => {
+control("a job that fails AFTER its world ended writes nothing into the world that replaced it", async () => {
   const h = failingHarness();
   h.scheduler.schedule({
     priority: 0,
     reason: "cadence:1",
     run: async () => { h.endTheWorld(); throw new Error("backend down"); },
   });
-  // runWithRetries makes 3 attempts with 250ms then 500ms backoff, so the catch that pauses is
-  // ~750ms away. A 0ms tick returned before it ran and the assertion measured nothing.
+  // runWithRetries makes 3 attempts with 250ms then 500ms backoff, so the catch is ~750ms away. A
+  // 0ms tick returned before it ran and the assertion measured nothing.
   await new Promise((resolve) => setTimeout(resolve, 1200));
-  expect(h.paused).toEqual([]);
+  expect(h.journaled).toEqual([]);
 });
 
 describe("V3: a job's error belongs to the world it ran in", () => {

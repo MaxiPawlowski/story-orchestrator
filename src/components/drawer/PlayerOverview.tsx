@@ -7,6 +7,7 @@ export interface PlayerOverviewProps {
   onOpenSettings?: () => void;
   onReread?: () => void;
   onRestart?: () => void;
+  onRetry?: () => void;
 }
 
 // The default (player) surface: the narrative composition the runtime already builds, plus the
@@ -44,7 +45,7 @@ const NowSection = ({ lines }: { lines: string[] }) => (
   </div>
 );
 
-export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart }: PlayerOverviewProps) => {
+export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart, onRetry }: PlayerOverviewProps) => {
   const { narrative, pipeline } = snapshot;
   const pipelineAction = pipelineActionText(pipeline);
   const sections = narrative.sections.filter((section) => section.id !== "status");
@@ -96,6 +97,9 @@ export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart }
         {/* v2.3 plan 09: the state sentence says what the machine is doing, this says whether the
             player is being asked for something. Same line, no author vocabulary. */}
         {pipelineAction && <span id="so-pipeline-action" className="opacity-80">{pipelineAction}</span>}
+        {pipeline.retryable && onRetry && (
+          <button id="so-pipeline-retry" type="button" className="menu_button" onClick={onRetry}>Try again</button>
+        )}
         {statusNotes.map((line) => <span key={line} data-so="status-note">{line}</span>)}
       </div>
     </div>

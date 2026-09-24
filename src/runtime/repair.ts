@@ -40,11 +40,12 @@ function orphanedLorebookStep(snapshot: RuntimeSnapshot): RepairStep | null {
 export function nextRepairStep(snapshot: RuntimeSnapshot): RepairStep | null {
   if (!snapshot.storyId) return orphanedLorebookStep(snapshot);
   const settings = snapshot.extraction.settings;
-  if (!settings.enabled || !settings.profileId) {
+  const config = snapshot.extractionHealth?.kind === "config" ? snapshot.extractionHealth.detail : null;
+  if (!settings.enabled || !settings.profileId || config) {
     return {
       area: "memory-model",
       consequence: "The story will not advance on its own until this is set.",
-      detail: settings.enabled ? "No memory model profile is selected." : "Automatic story advancement is off.",
+      detail: !settings.enabled ? "Automatic story advancement is off." : settings.profileId ? config ?? "" : "No memory model profile is selected.",
       targetId: REPAIR_TARGET_IDS.memoryModel,
       provisionable: false,
     };

@@ -13,6 +13,7 @@ import { numericToLevel } from "@pacing/index";
 import { getPlayerName } from "@services/STAPI";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunGuard, type RunOwnership } from "../runToken";
+import { failureClass } from "@extraction/breaker";
 import type { ExtraGateSource } from "@extraction/index";
 import type { ExtractionRuntimeSettings } from "../types";
 
@@ -252,6 +253,7 @@ export class ExpansionCoordinator {
     // the last to have.
     const run = beginRun(this.deps.ownership);
     this.liveJobs.set(key, run);
+    let transport: unknown = null;
     try {
       const state = this.deps.getState()!;
       const input = planExpansion(story, state.blackboard, candidate, this.deps.getCanon(), this.deps.getFactTexts());
@@ -279,11 +281,13 @@ export class ExpansionCoordinator {
     } catch (error) {
       if (!run.stillOwns()) return;
       this.entries[key] = { ...this.entries[key], status: "failed", lastError: error instanceof Error ? error.message : "Generation failed", updatedAt: new Date().toISOString() };
+      if (failureClass(error) === "transport") transport = error;
     } finally {
       if (this.liveJobs.get(key) === run) this.liveJobs.delete(key);
     }
     if (!run.stillOwns()) return;
     await this.deps.persist();
     this.deps.notify();
+    if (transport) throw transport;
   }
 }

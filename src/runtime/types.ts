@@ -1,6 +1,6 @@
 import type { AgencyPolicy, ArcTemplate, EngineState, NormalizedStoryV2, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
 import type { JudgeCallRecord, JudgeRuntimeState, SceneReadRecord } from "@judge/index";
-import type { ReconciliationEvent, SharedReadAudit } from "@extraction/index";
+import type { ExtractionHealth, ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
 import type { ConflictPair, ArcEntry, DerivedRecord, EpistemicEntry, LedgerEntry, LedgerView, MemoryEntry, MemoryStoreState, MemoryTier, Provenance, ScoreWeights } from "@memory/index";
 import type { DriverContext } from "@copilot/index";
@@ -397,6 +397,7 @@ export interface RuntimeSnapshot {
    *  a move. Null when play is moving normally. */
   agencyRecovery: AgencyRecovery | null;
   pipeline: PipelineStatus;
+  extractionHealth?: ExtractionHealth | null;
   narrative: NarrativeStatus;
   lastRollback: RollbackNotice | null;
   rollbackUnavailable: RollbackUnavailable | null;

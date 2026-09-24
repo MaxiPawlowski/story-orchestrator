@@ -1,5 +1,5 @@
 import type { ExpansionRuntimeState, ExtractionRuntimeState } from "./types";
-import { derivePipelineStatus, expansionInFlight, pipelineAction, PIPELINE_ACTION_COPY } from "./pipeline";
+import { derivePipelineStatus, expansionInFlight, pipelineAction, PIPELINE_ACTION_COPY, TRANSPORT_PLAYER_TEXT } from "./pipeline";
 
 const state = (overrides: Partial<ExtractionRuntimeState> = {}): ExtractionRuntimeState => ({
   settings: { enabled: true, profileId: "p1", cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 },
@@ -26,7 +26,7 @@ describe("derivePipelineStatus", () => {
 
   it("shows a scheduler error above everything else", () => {
     const status = derivePipelineStatus(state({ scheduler: { queueDepth: 2, inFlight: true, lastError: "profile gone" }, reconciliationEvents: [pending] }));
-    expect(status).toMatchObject({ state: "error", detail: "profile gone", needsSetup: true });
+    expect(status).toMatchObject({ state: "error", detail: "profile gone" });
   });
 
   it("says it is re-checking while a stall re-read is unresolved, and stops once resolved", () => {
@@ -92,8 +92,8 @@ describe("next action", () => {
     const catching = derivePipelineStatus(state({ reconciliationEvents: [pending] }));
     expect(catching.nextAction).toBe("retry");
     expect(pipelineAction(catching)).toBe("Retrying.");
+    expect(pipelineAction(derivePipelineStatus(state(), undefined, { kind: "config", detail: "The selected memory model profile no longer exists" }))).toBe("Paused — open Repair.");
     for (const broken of [
-      state({ scheduler: { queueDepth: 0, inFlight: false, lastError: "profile gone" } }),
       state({ settings: { ...state().settings, profileId: null } }),
       state({ settings: { ...state().settings, enabled: false } }),
     ]) {
@@ -107,5 +107,39 @@ describe("next action", () => {
     expect(status.text).not.toContain("Retrying");
     expect(status.detail).toBeNull();
     expect(PIPELINE_ACTION_COPY.retry.length).toBeLessThan(20);
+  });
+});
+
+// v2.4 plan 03 D3. Three failure classes, three player readings, and none of them a pause.
+describe("failure classes", () => {
+  const transport = { kind: "transport" as const, detail: "API request failed: Response not OK", since: 1, nextProbeAt: 5001, probing: false };
+  const config = { kind: "config" as const, detail: "The selected memory model profile no longer exists" };
+
+  it("a memory model that is not answering is a stall the player can retry, not an error", () => {
+    const status = derivePipelineStatus(state({ scheduler: { queueDepth: 1, inFlight: false, lastError: null } }), undefined, transport);
+    expect(status).toEqual({ state: "stalled-rechecking", text: TRANSPORT_PLAYER_TEXT, detail: transport.detail, needsSetup: false, nextAction: "retry", retryable: true });
+    expect(status.text).toBe("The memory model is not answering — the story will catch up when it does.");
+  });
+
+  it("a config problem is not-configured with its detail, and outranks a stall", () => {
+    const status = derivePipelineStatus(state({ reconciliationEvents: [pending] }), { generating: true }, config);
+    expect(status).toMatchObject({ state: "not-configured", detail: config.detail, needsSetup: true, nextAction: "repair" });
+    expect(status.retryable).toBeUndefined();
+  });
+
+  it("a bug is this chat's error and waits for the next reply instead of asking for Repair", () => {
+    const status = derivePipelineStatus(state({ scheduler: { queueDepth: 0, inFlight: false, lastError: "TypeError: x" } }), undefined, transport);
+    expect(status).toMatchObject({ state: "error", detail: "TypeError: x", needsSetup: false, nextAction: "wait" });
+  });
+
+  it("control: only the transport stall offers Try again", () => {
+    expect(derivePipelineStatus(state({ reconciliationEvents: [pending] })).retryable).toBeUndefined();
+    expect(derivePipelineStatus(state()).retryable).toBeUndefined();
+  });
+
+  it("keeps the player sentence free of the transport detail", () => {
+    const status = derivePipelineStatus(state(), undefined, transport);
+    expect(status.text).not.toContain("API");
+    expect(status.text).not.toContain("Response");
   });
 });

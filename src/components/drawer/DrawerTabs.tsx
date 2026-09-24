@@ -145,9 +145,9 @@ const AuthorOverview = ({ snapshot, onFixWithWizard, onBranchFromOldest }: { sna
   </div>
 );
 
-const OverviewTab = ({ snapshot, authorView, onOpenSettings, onFixWithWizard, onReread, onRestart, onBranchFromOldest }: { snapshot: RuntimeSnapshot; authorView: boolean; onOpenSettings?: () => void; onFixWithWizard?: () => void; onReread?: () => void; onRestart?: () => void; onBranchFromOldest?: (messageId: number) => void }) => (
+const OverviewTab = ({ snapshot, authorView, onOpenSettings, onFixWithWizard, onReread, onRestart, onRetry, onBranchFromOldest }: { snapshot: RuntimeSnapshot; authorView: boolean; onOpenSettings?: () => void; onFixWithWizard?: () => void; onReread?: () => void; onRestart?: () => void; onRetry?: () => void; onBranchFromOldest?: (messageId: number) => void }) => (
   <div className="flex flex-col gap-3">
-    <PlayerOverview snapshot={snapshot} onOpenSettings={onOpenSettings} onReread={onReread} onRestart={onRestart} />
+    <PlayerOverview snapshot={snapshot} onOpenSettings={onOpenSettings} onReread={onReread} onRestart={onRestart} onRetry={onRetry} />
     {authorView && <AuthorOverview snapshot={snapshot} onFixWithWizard={onFixWithWizard} onBranchFromOldest={onBranchFromOldest} />}
   </div>
 );
@@ -786,7 +786,7 @@ export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditSt
         <FlagControl manager={manager} />
       </div>
       <div role="tabpanel">
-        {activeTab === "overview" && <OverviewTab snapshot={snapshot} authorView={authorView} onOpenSettings={onOpenSettings} onFixWithWizard={onFixWithWizard} onReread={() => void manager.runExtractionNow(undefined, "recovery")} onRestart={() => void manager.restartStory()} onBranchFromOldest={onBranchFromOldest} />}
+        {activeTab === "overview" && <OverviewTab snapshot={snapshot} authorView={authorView} onOpenSettings={onOpenSettings} onFixWithWizard={onFixWithWizard} onReread={() => void manager.runExtractionNow(undefined, "recovery")} onRestart={() => void manager.restartStory()} onRetry={() => void manager.retryExtraction()} onBranchFromOldest={onBranchFromOldest} />}
         {activeTab === "blackboard" && <BlackboardTab snapshot={snapshot} />}
         {activeTab === "memory" && <MemoryTab snapshot={snapshot} manager={manager} authorView={authorView} focusFact={focusFact} />}
         {activeTab === "scheduler" && <SchedulerTab snapshot={snapshot} manager={manager} onOpenFact={openFact} />}

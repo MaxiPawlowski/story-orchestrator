@@ -6,7 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { branchContinue, closeCharacterPanel, memoryQueueSelector } from './so-ui.mts';
+import { branchContinue, closeCharacterPanel, memoryQueueSelector, PLAYER_RECOVERY_CONTROLS, recoveryControlFindings } from './so-ui.mts';
 
 test('keep and lock address the side row inside the named pair', () => {
   assert.equal(memoryQueueSelector({ action: 'keep', key: 'fact:abc' }), '[data-so="conflict-pair"][data-key="fact:abc"] [data-so="conflict-keep"] >> nth=0');
@@ -107,4 +107,16 @@ test('control: a covered control is refused without a click, and a click that le
   await assert.rejects(branchContinue(stuck.page, { prepare: noPrepare, timeoutMs: 30, pollMs: 5 }), /was still showing after 30 ms/);
   assert.equal(stuck.state.clicks.length, 1);
   cleanDom();
+});
+
+test('the player-clean sweep covers both recovery controls, and passes their player copy', () => {
+  assert.deepEqual(PLAYER_RECOVERY_CONTROLS, ['#so-pipeline-retry', '#so-memorize-stop']);
+  assert.deepEqual(recoveryControlFindings([{ selector: '#so-pipeline-retry', text: 'Try again' }, { selector: '#so-memorize-stop', text: 'Stop' }]), []);
+});
+
+test('a recovery control whose label leaks internals is a finding', () => {
+  const findings = recoveryControlFindings([{ selector: '#so-pipeline-retry', text: 'Retry profile artemis (API error)' }]);
+  assert.ok(findings.some((finding) => finding.needle.includes('"profile"')));
+  assert.ok(findings.some((finding) => finding.needle.includes('"API"')));
+  assert.ok(findings.every((finding) => finding.needle.startsWith('#so-pipeline-retry')));
 });

@@ -1,5 +1,5 @@
 {
-  "$comment": "v2.3 plan 11 §Fault matrix. Nine stateful packages against nine fault shapes, one row per cell, each either citing the test that demonstrates it or saying what is not yet demonstrated. Generated set, hand-classified status. The guard in src/runtime/faultMatrix.guard.test.ts fails when this file and the code disagree: a missing pair, a row for a pair the matrix does not have, a citation whose test is not in the file it names, or an unproven cell that still cites something. Statuses: covered (a test asserts the designed behaviour for this package under this fault) | partial (a test covers part of it, and the note says which part) | todo (nothing covers it) | na (the shape cannot apply, and the note says why).",
+  "$comment": "v2.3 plan 11 §Fault matrix. Ten stateful packages against ten fault shapes (v2.4 plan 03 added the `aborted` shape and the `hostDeletes` package, decision E8), one row per cell, each either citing the test that demonstrates it or saying what is not yet demonstrated. Generated set, hand-classified status. The guard in src/runtime/faultMatrix.guard.test.ts fails when this file and the code disagree: a missing pair, a row for a pair the matrix does not have, a citation whose test is not in the file it names, or an unproven cell that still cites something. Statuses: covered (a test asserts the designed behaviour for this package under this fault) | partial (a test covers part of it, and the note says which part) | todo (nothing covers it) | na (the shape cannot apply, and the note says why).",
   "cells": {
     "extraction|delayedSuccess": {
       "status": "covered",
@@ -22,9 +22,10 @@
       "note": "Queued duplicate scene passes coalesce under pressure; no test delivers one completion twice."
     },
     "extraction|backendUnavailable": {
-      "status": "partial",
-      "evidence": "src/runtime/repair.test.ts#names the enabled-but-unprofiled case differently from the switched-off one",
-      "note": "The surface names an enabled-but-unprofiled extraction; no test drives the scheduler itself with no reachable profile."
+      "status": "covered",
+      "evidence": "src/extraction/scheduler.breaker.test.ts#a dead profile never writes extraction.enabled and resumes on probe success",
+      "alsoEvidence": ["src/runtime/repair.test.ts#names the enabled-but-unprofiled case differently from the switched-off one", "src/extraction/scheduler.breaker.test.ts#a deleted profile is config, named as missing, and a created one re-evaluates it away"],
+      "note": "v2.4 plan 03 D3: a dead backend opens an in-memory breaker keyed by profile (never persisted): reads are held, extraction.enabled is never written, and a probe (5 s/15 s/60 s/300 s, online-status, profile update, Try again) resumes the held queue. A missing or deleted profile is config (not-configured + Repair), not transport. Previously partial: The surface names an enabled-but-unprofiled extraction; no test drives the scheduler itself with no reachable profile."
     },
     "extraction|beforeHostWrite": {
       "status": "na",
@@ -42,6 +43,12 @@
       "status": "covered",
       "evidence": "src/runtime/coordinators/extractionOwnership.review.test.ts#an audit whose chat changed during verification writes nothing",
       "note": "An audit whose world moves during the verify await deposits nothing."
+    },
+    "extraction|aborted": {
+      "status": "covered",
+      "evidence": "src/extraction/scheduler.test.ts#an aborted read is not retried and records no error",
+      "alsoEvidence": ["src/runtime/runOwner.abort.test.ts#rollback aborts the read in its window", "src/runtime/coordinators/backlogOwnership.review.test.ts#a same-chat lapse clears running"],
+      "note": "v2.4 plan 03: a rollback inside the read's window, a chat switch or Stop aborts the host request (RunOwner live registry); the scheduler treats the lapse as discarded work: no retry, no lastError, no breaker count, a journal line. The backlog's Stop exits cleanly with running:false."
     },
     "memory|delayedSuccess": {
       "status": "covered",
@@ -87,6 +94,12 @@
       "evidence": "src/runtime/coordinators/memoryOwnership.review.test.ts#an entry whose token count lands after a chat switch is not written",
       "note": "The token-count await is the far side of the check; the entry is dropped."
     },
+    "memory|aborted": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/abortedCall.review.test.ts#memory: an arc summary aborted by a chat switch cancels its request, writes nothing and surfaces as a lapse",
+      "alsoEvidence": ["src/runtime/coordinators/abortedCall.review.test.ts#memory: a canon rebuild aborted by a chat switch cancels its request and writes nothing"],
+      "note": "v2.4 plan 03: the arc summary and canon calls carry the run's signal, so a chat switch cancels the request; nothing is written, the arc pass rethrows the lapse for the scheduler to discard, and canon (called from boundary work) swallows it as empty. Control: an unaborted arc summary is written."
+    },
     "scene|delayedSuccess": {
       "status": "covered",
       "evidence": "src/runtime/coordinators/sceneFreshness.review.test.ts#a scene read that answers replaces the stored record",
@@ -130,6 +143,12 @@
       "evidence": "src/runtime/c1Surfaces.review.test.ts#C1/scene: a read that lands after a chat switch is not stored",
       "note": "Same message index, different chat: the read is not stored."
     },
+    "scene|aborted": {
+      "status": "covered",
+      "evidence": "src/runtime/c1Surfaces.review.test.ts#C1/scene: a FAILED read that lapsed does not age another chat's tracker",
+      "alsoEvidence": ["src/judge/cancelled.review.test.ts#a call WE cancelled is recorded as cancelled, not as a timeout"],
+      "note": "v2.4 plan 03: the scene read reaches a model only through the judge, whose transport carries the epoch signal and records our own cancellation as cancelled. The scene side of an aborted call is a failed read in a moved world, which ages no tracker."
+    },
     "lore|delayedSuccess": {
       "status": "covered",
       "evidence": "src/runtime/loreSelect.test.ts#asks only about scoped, enabled, non-constant entries, and forces the scan's own objects over the floor",
@@ -172,6 +191,12 @@
       "status": "covered",
       "evidence": "src/runtime/c1Surfaces.review.test.ts#C1/lore: a selection that outlives its chat does not force entries into the next prompt",
       "note": "The world moves during the host read and the selection forces nothing."
+    },
+    "lore|aborted": {
+      "status": "covered",
+      "evidence": "src/runtime/c1Surfaces.review.test.ts#C1/lore: a selection that outlives its chat does not force entries into the next prompt",
+      "alsoEvidence": ["src/judge/cancelled.review.test.ts#a call WE cancelled is recorded as cancelled, not as a timeout"],
+      "note": "v2.4 plan 03: lore selection asks the judge, whose transport aborts on the epoch; a selection whose chat moved (the case that aborts it) forces nothing into the next prompt."
     },
     "stagecraft|delayedSuccess": {
       "status": "covered",
@@ -217,6 +242,11 @@
       "evidence": "src/runtime/coordinators/stagecraftCoordinator.review.test.ts#a world lost during an accepted write stops the ops behind it",
       "note": "A world lost mid-batch stops the ops behind it at one host write."
     },
+    "stagecraft|aborted": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/abortedCall.review.test.ts#stagecraft: a curator pass aborted by a chat switch cancels its request and records neither a proposal nor an error",
+      "note": "v2.4 plan 03: the curator call carries the epoch signal, so a switch cancels it; the pass is discarded with its reason and writes no proposal and no lastError."
+    },
     "expansion|delayedSuccess": {
       "status": "covered",
       "evidence": "src/generation/judgedExpansion.test.ts#generates N chains one at a time at the variant temperature, and code picks the best passing one",
@@ -260,6 +290,11 @@
       "alsoEvidence": ["src/runtime/coordinators/expansionOwnership.review.test.ts#a switched-away chain is re-queueable on return"],
       "note": "FOUND BY THIS CENSUS: the coordinator took no ownership token, so a chain generated for chat A was filed into chat B and merged into chat B's story. Fixed here, with the unowned run kept as a negative control. v2.4 plan 03 D4: the `generating` marker the lapsed run leaves in chat A no longer wedges its key; a marker no live job of this world holds is re-queued on return (second citation), and hydrate demotes a persisted queued/generating entry."
     },
+    "expansion|aborted": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/abortedCall.review.test.ts#expansion: a generation aborted by a chat switch cancels its request, files nothing in the new chat and frees its key",
+      "note": "v2.4 plan 03: generate passes run.signal; an aborted generation writes nothing past its own in-flight marker and releases its live key, so the chain is re-queueable on return (D4)."
+    },
     "judgeRing|delayedSuccess": {
       "status": "covered",
       "evidence": "src/runtime/judgeOwnership.review.test.ts#a call is stamped with the boundary it was ASKED at, not the one it landed at",
@@ -301,6 +336,12 @@
       "status": "covered",
       "evidence": "src/runtime/judgeOwnership.review.test.ts#C1",
       "note": "A late call is not written into the ring of the chat that replaced it."
+    },
+    "judgeRing|aborted": {
+      "status": "covered",
+      "evidence": "src/runtime/epochAbort.review.test.ts#replacing the epoch aborts the signal work started under",
+      "alsoEvidence": ["src/judge/cancelled.review.test.ts#a call WE cancelled is recorded as cancelled, not as a timeout"],
+      "note": "The judge transport already aborted on the epoch (v2.3); a call we cancelled lands in the ring as cancelled, never as a timeout or error."
     },
     "persistence|delayedSuccess": {
       "status": "covered",
@@ -347,6 +388,10 @@
       "evidence": "src/runtime/persistOwnership.review.test.ts#persist declines to write a runtime hydrated for another chat",
       "note": "A runtime hydrated for chat A declines to write while chat B is open."
     },
+    "persistence|aborted": {
+      "status": "na",
+      "note": "Performs no model call, so nothing can be cancelled mid-call."
+    },
     "effects|delayedSuccess": {
       "status": "covered",
       "evidence": "src/runtime/effectsOwnership.review.test.ts#a checkpoint applied in its own chat stages everything and marks itself applied",
@@ -390,6 +435,59 @@
       "status": "covered",
       "evidence": "src/runtime/effectsOwnership.review.test.ts#a chat switch stops the sequence before the cast change reaches the shared group",
       "note": "The sequence stops before the write that outlives the chat."
+    },
+    "effects|aborted": {
+      "status": "na",
+      "note": "Performs no model call, so nothing can be cancelled mid-call."
+    },
+    "hostDeletes|delayedSuccess": {
+      "status": "covered",
+      "evidence": "src/runtime/mirrorReaper.review.test.ts#deletes a marked book whose chat is confirmed gone, after the player says yes",
+      "note": "v2.4 plan 02 T14 (E8): the reap waits on the presence probe and the player's confirm, and deletes only the marked book of the chat the marker names once both answer."
+    },
+    "hostDeletes|delayedError": {
+      "status": "covered",
+      "evidence": "src/runtime/mirrorReaper.review.test.ts#keeps serving events after one reap throws",
+      "note": "A reap that throws late does not take the listener down; the next deletion is still handled."
+    },
+    "hostDeletes|malformedResponse": {
+      "status": "covered",
+      "evidence": "src/runtime/mirrorReaper.review.test.ts#refuses another owner, a missing chat id and non-JSON",
+      "note": "A so-owner marker that is not ours, names no chat or is not JSON never makes a book reapable."
+    },
+    "hostDeletes|duplicateCompletion": {
+      "status": "partial",
+      "evidence": "src/runtime/mirrorReaper.review.test.ts#asks one question at a time when a group delete announces several chats",
+      "note": "COVERED: several deletions announced together are serialised, one question at a time. NOT COVERED: no test delivers the same deletion event twice."
+    },
+    "hostDeletes|backendUnavailable": {
+      "status": "covered",
+      "evidence": "src/runtime/mirrorReaper.review.test.ts#turns a deletion it cannot confirm into a Repair row, never a delete",
+      "note": "A presence probe that cannot answer is never read as 'the chat is gone': the book stays and a Repair row names it."
+    },
+    "hostDeletes|beforeHostWrite": {
+      "status": "covered",
+      "evidence": "src/runtime/mirrorReaper.review.test.ts#leaves no row and attempts no delete when the book was deleted elsewhere while the confirm was open",
+      "alsoEvidence": ["src/runtime/mirrorReaper.review.test.ts#requires the player's yes: a declined reap keeps the book and leaves a Repair row"],
+      "note": "Everything that can change before the delete (the book removed elsewhere, the player declining) is re-read and stops the delete."
+    },
+    "hostDeletes|afterHostWrite": {
+      "status": "covered",
+      "evidence": "src/runtime/mirrorReaper.review.test.ts#reports a refused delete as a Repair row with the host's reason",
+      "note": "A delete the host refuses is not counted as done: the book keeps a Repair row carrying the host's reason."
+    },
+    "hostDeletes|persistFailure": {
+      "status": "na",
+      "note": "The reaper persists nothing: its Repair rows are in-memory and re-derived, and the chat it serves is already deleted."
+    },
+    "hostDeletes|worldSwitched": {
+      "status": "covered",
+      "evidence": "src/runtime/mirrorReaper.review.test.ts#deletes nothing once the runtime stopped while the confirm was open",
+      "note": "The reaper's world is the runtime's lifetime, not a chat (the chat is gone by construction); a runtime that stopped while the confirm was open deletes nothing and leaves a lapsed row."
+    },
+    "hostDeletes|aborted": {
+      "status": "na",
+      "note": "Performs no model call, so nothing can be cancelled mid-call."
     }
   }
 }

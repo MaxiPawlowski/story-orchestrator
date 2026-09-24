@@ -18,6 +18,7 @@ export const FAULT_PACKAGES = [
   "judgeRing",
   "persistence",
   "effects",
+  "hostDeletes",
 ] as const;
 
 export const FAULT_SHAPES = [
@@ -30,6 +31,7 @@ export const FAULT_SHAPES = [
   "afterHostWrite",
   "persistFailure",
   "worldSwitched",
+  "aborted",
 ] as const;
 
 export type FaultPackage = (typeof FAULT_PACKAGES)[number];
