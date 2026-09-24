@@ -4,7 +4,7 @@ import {
   maxTokensFor, maxTokensForInput, planBacklog, preflightNeeded, reconciliationKeySet, reconciliationTargets, runSharedRead,
   sharedReadOverhead, sharedReadWindow, stripChannelNoise, type ExtraGateSource, type ExtractionClientOptions, type ParsedDelta,
   type ParsedFact, type PreflightConfirm, type ReadOwnership, type ReconciliationPlan, type RequestBudget, type RunSharedReadOptions,
-  type SharedReadAudit, type SharedReadWindow,
+  type SchedulerJob, type SharedReadAudit, type SharedReadWindow,
 } from "@extraction/index";
 import {
   buildEpistemicPassPrompt, buildLedgerPassPrompt, buildShortTermSummaryPrompt, detectSceneBreakHeuristic, fitShortTerm,
@@ -51,7 +51,7 @@ export interface ExtractionCoordinatorDeps {
   enqueueExtractorDeltas: (accepted: ParsedDelta[], window: { from: number; to: number }, origin: string) => void;
   commitBoundary: () => Promise<unknown>;
   fireSceneBreakReplies: (occurrence: number) => Promise<void>;
-  emitSceneBreak: (audit: SharedReadAudit) => void;
+  emitSceneBreak: (audit: SharedReadAudit, collect?: SchedulerJob[]) => void;
   emitArcsResolved: (arcs: ArcEntry[]) => void;
   setStatus: (status: string) => void;
   judge?: () => JudgeRuntime | null;
@@ -190,7 +190,7 @@ export class ExtractionCoordinator {
     this.state.scheduler = snapshot;
   }
 
-  async applyAudit(audit: SharedReadAudit, facts: ParsedFact[], memoryLines: ParsedMemoryLine[] = [], arcSignals: ParsedArcSignal[] = [], epistemicSignals: ParsedEpistemicSignal[] = [], ledgerSignals: ParsedLedgerSignal[] = [], read: ReadOwnership | null = null) {
+  async applyAudit(audit: SharedReadAudit, facts: ParsedFact[], memoryLines: ParsedMemoryLine[] = [], arcSignals: ParsedArcSignal[] = [], epistemicSignals: ParsedEpistemicSignal[] = [], ledgerSignals: ParsedLedgerSignal[] = [], read: ReadOwnership | null = null, sceneWork?: SchedulerJob[]) {
     if (!this.deps.getStory()) return;
     if (read && !read.stillOwns()) return;
     const boundary = this.deps.getState()?.boundary ?? 0;
@@ -224,7 +224,7 @@ export class ExtractionCoordinator {
     if (memoryEnabled && (newMemoryEntries.length || arcSignals.length || epistemicSignals.length || ledgerSignals.length)) memory.updateInjection();
     if (resolvedArcs.length) this.deps.emitArcsResolved(resolvedArcs);
     await this.save();
-    if (memoryEnabled && audit.sceneBreak) this.deps.emitSceneBreak(audit);
+    if (memoryEnabled && audit.sceneBreak) this.deps.emitSceneBreak(audit, sceneWork);
   }
 
   // v2.2 plan 02: check each new FACT/MEMORY line against the read's own window before it is stored.
@@ -436,11 +436,19 @@ export class ExtractionCoordinator {
     let completed = false;
     let failure: string | null = null;
     try {
-      const plan = await planBacklog(getChatWindow(0, length - 1).messages, sharedReadOverhead(this.backlogRead(story, "memorize:window", { from: 0, to: -1, messages: [] }, { profileId: null })), budget, windowSize);
-      if (!read.stillOwns() || (confirm && preflightNeeded(plan.preflight, budget.contextLimit) && !(await confirm(plan.preflight)))) return false;
-      windows = plan.windows;
-      memory.setBackfill({ running: true, processed: 0, total: windows.length + 1, lastError: null });
+      const messages = getChatWindow(0, length - 1).messages;
+      const overhead = sharedReadOverhead(this.backlogRead(story, "memorize:window", { from: 0, to: -1, messages: [] }, { profileId: null }));
+      const estimate = confirm ? await planBacklog(messages, overhead, { contextLimit: budget.contextLimit, meter: createTokenMeter() }, windowSize) : null;
+      if (!read.stillOwns() || (confirm && estimate && preflightNeeded(estimate.preflight, budget.contextLimit) && !(await confirm(estimate.preflight)))) return false;
+      windows = [];
+      memory.setBackfill({ running: true, processed: 0, total: (estimate?.windows.length ?? 0) + 1, lastError: null, preparing: true });
       await this.save();
+      const plan = await planBacklog(messages, overhead, budget, windowSize);
+      windows = plan.windows;
+      if (owned.stillOwns()) {
+        memory.setBackfill({ running: true, processed: 0, total: windows.length + 1, lastError: null });
+        await this.save();
+      }
       completed = await this.memorizeWindows(story, windows, length, owned, budget);
     } catch (error) {
       failure = error instanceof Error ? error.message : "Memorize backlog failed";
@@ -467,10 +475,12 @@ export class ExtractionCoordinator {
   private async memorizeWindows(story: NormalizedStoryV2, windows: SharedReadWindow[], length: number, read: ReadOwnership, budget: RequestBudget): Promise<boolean> {
     const memory = this.deps.memory;
     const client = { ...this.deps.getSettings(), budget, signal: read.signal, debugResponse: globalThis.storyOrchestratorDebugExtractionResponse ?? null };
+    const sceneWork: SchedulerJob[] = [];
     for (const window of windows) {
       if (!read.stillOwns()) return false;
       const result = await runSharedRead(this.backlogRead(story, "memorize:window", window, client));
-      await this.applyAudit({ ...result.audit, acceptedDeltas: [] }, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, read);
+      await this.applyAudit({ ...result.audit, acceptedDeltas: [] }, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, read, sceneWork);
+      await this.runSceneWork(sceneWork, read);
       if (!read.stillOwns()) return false;
       const progress = memory.backfill!;
       memory.setBackfill({ ...progress, processed: progress.processed + 1 });
@@ -479,10 +489,18 @@ export class ExtractionCoordinator {
 
     if (!read.stillOwns()) return false;
     const fullResult = await runSharedRead(this.backlogRead(story, "memorize:full", getChatWindow(0, Math.max(0, length - 1)), client));
-    await this.applyAudit(fullResult.audit, [], [], [], [], [], read);
+    await this.applyAudit(fullResult.audit, [], [], [], [], [], read, sceneWork);
+    await this.runSceneWork(sceneWork, read);
     if (!read.stillOwns()) return false;
     await this.deps.commitBoundary();
     return true;
+  }
+
+  private async runSceneWork(jobs: SchedulerJob[], read: ReadOwnership) {
+    for (const job of jobs.splice(0)) {
+      if (!read.stillOwns()) return;
+      await job.run?.().catch((error: unknown) => { if (!isLapse(error)) console.warn(`[Story Orchestrator] ${job.reason} during the memorize backlog failed`, error); });
+    }
   }
 
   // A player's own Stop is not a failure, so it is a note, never `lastError`.

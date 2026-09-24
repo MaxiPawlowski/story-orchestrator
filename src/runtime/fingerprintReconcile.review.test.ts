@@ -149,6 +149,18 @@ describe("v2.4 plan 02 T3: an eventless change is stepped back from at the next 
     expect(lastOutcome(manager)?.seq).toBe(after?.seq);
     expect(manager.getEngineState()?.activeCheckpointId).toBe("next");
   });
+
+  it("rollbackSettled answers only once the rollback in progress has finished (the scheduler's lapse re-read waits on it)", async () => {
+    const manager = await playedToNext();
+    mockContext.chat.push(line(4), line(5));
+    await manager.commitBoundary();
+    const before = lastOutcome(manager)?.seq ?? 0;
+    mockContext.chat[4] = { ...mockContext.chat[4], mes: "edited" };
+    const pending = manager.rollbackFromMessage(4);
+    await manager.rollbackSettled();
+    expect(lastOutcome(manager)).toMatchObject({ result: "noop", fromMessage: 4, seq: before + 1 });
+    await pending;
+  });
 });
 
 describe("v2.4 plan 02 T3: a hydrate reconciles against the chat it opens", () => {

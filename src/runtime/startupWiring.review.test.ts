@@ -166,3 +166,40 @@ describe("v2.4 E3: startRuntime routes save evidence", () => {
     noteRecap.mockRestore();
   });
 });
+
+describe("v2.4 plan 03 live-found fixes: startRuntime's scene-break and rollback wiring", () => {
+  type Listener = (audit: unknown, collect?: Array<{ priority: number; reason: string }>) => void;
+  let restore = () => {};
+  afterEach(() => { restore(); restore = () => {}; });
+  const start = async () => {
+    const listeners: Listener[] = [];
+    const onScene = jest.spyOn(runtimeManager, "onSceneBreakConfirmed").mockImplementation((listener) => { listeners.push(listener as Listener); return () => {}; });
+    const attach = jest.spyOn(runtimeManager, "attachScheduler");
+    const { startRuntime, stopRuntime } = await import("./index");
+    startRuntime();
+    const scheduler = attach.mock.calls.map((call) => call[0]).find(Boolean) as unknown as { schedule: (job: unknown) => void; host: { mutationSettled?: () => Promise<unknown> } };
+    const schedule = jest.spyOn(scheduler, "schedule").mockImplementation(() => {});
+    restore = () => { stopRuntime(); onScene.mockRestore(); attach.mockRestore(); schedule.mockRestore(); };
+    return { listener: listeners[0], schedule, scheduler };
+  };
+  const audit = { reason: "memorize:window", window: { from: 0, to: 9 }, sceneBreak: { reason: "location" } };
+
+  it("a scene break the memorize backlog collects is handed back to it, not scheduled beside it", async () => {
+    const h = await start();
+    const collect: Array<{ priority: number; reason: string }> = [];
+    h.listener(audit, collect);
+    expect(collect.map((job) => job.reason)).toContain("scene-break:location");
+    expect(h.schedule).not.toHaveBeenCalled();
+  });
+
+  it("control: a scene break outside the backlog is still scheduled", async () => {
+    const h = await start();
+    h.listener(audit);
+    expect(h.schedule).toHaveBeenCalledWith(expect.objectContaining({ priority: 2, reason: "scene-break:location" }));
+  });
+
+  it("the scheduler's lapse re-read waits on the manager's rollback", async () => {
+    const h = await start();
+    expect(h.scheduler.host.mutationSettled?.()).toBe(runtimeManager.rollbackSettled());
+  });
+});

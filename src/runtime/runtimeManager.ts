@@ -7,8 +7,8 @@ import {
 import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Suggestion } from "@copilot/index";
 import type { ProvisioningEnvironment, ProvisioningOp, ProvisioningResult, WizardSessionState } from "@wizard/index";
 import {
-  type ExtraGateSource, type ExtractionScheduler, type ParsedDelta, type ParsedFact, type ReadOwnership, type SharedReadAudit,
-  type SharedReadWindow,
+  type ExtraGateSource, type ExtractionScheduler, type ParsedDelta, type ParsedFact, type ReadOwnership, type SchedulerJob,
+  type SharedReadAudit, type SharedReadWindow,
 } from "@extraction/index";
 import {
   clearAllMemoryInjection, type ArcEntry, type EpistemicEntry, type LedgerView, type MemoryEntry, type MemoryTier,
@@ -83,7 +83,7 @@ export class RuntimeManager {
   private readonly listeners = new Set<() => void>();
   private readonly boundaryListeners = new Set<(result: BoundaryResult) => void>();
   private readonly rollbackListeners = new Set<(messageId: number, window: SharedReadWindow) => void>();
-  private readonly sceneBreakListeners = new Set<(audit: SharedReadAudit) => void>();
+  private readonly sceneBreakListeners = new Set<(audit: SharedReadAudit, collect?: SchedulerJob[]) => void>();
   private readonly arcResolvedListeners = new Set<(arcIds: string[]) => void>();
   private readonly awayRecap = new AwayRecapController((render) => showTextPopup(render, { okButton: "Continue" }), (summary, detail) => this.noteRecap(summary, detail));
   private readonly notices: { lastRollback: RollbackNotice | null; rollbackUnavailable: RollbackUnavailable | null } = { lastRollback: null, rollbackUnavailable: null };
@@ -142,7 +142,7 @@ export class RuntimeManager {
     enqueueExtractorDeltas: (accepted, window, origin) => this.enqueueExtractorDeltas(accepted, window, origin),
     commitBoundary: () => this.commitBoundary(),
     fireSceneBreakReplies: (occurrence) => this.effects.fireNpcReplies(this.engine.activeCheckpoint, this.extras, "sceneBreak", occurrence),
-    emitSceneBreak: (audit) => this.sceneBreakListeners.forEach((listener) => listener(audit)),
+    emitSceneBreak: (audit, collect) => this.sceneBreakListeners.forEach((listener) => listener(audit, collect)),
     emitArcsResolved: (arcs) => { if (this.loaded && arcs.length) this.arcResolvedListeners.forEach((listener) => listener(arcs.map((arc) => arc.id))); },
     setStatus: (status) => { this.status = status; },
     judge: () => this.judge,
@@ -224,7 +224,7 @@ export class RuntimeManager {
 
   onBoundary(listener: (result: BoundaryResult) => void) { this.boundaryListeners.add(listener); return () => { this.boundaryListeners.delete(listener); }; }
   onRollback(listener: (messageId: number, window: SharedReadWindow) => void) { this.rollbackListeners.add(listener); return () => { this.rollbackListeners.delete(listener); }; }
-  onSceneBreakConfirmed(listener: (audit: SharedReadAudit) => void) { this.sceneBreakListeners.add(listener); return () => { this.sceneBreakListeners.delete(listener); }; }
+  onSceneBreakConfirmed(listener: (audit: SharedReadAudit, collect?: SchedulerJob[]) => void) { this.sceneBreakListeners.add(listener); return () => { this.sceneBreakListeners.delete(listener); }; }
   onArcsResolvedConfirmed(listener: (arcIds: string[]) => void) { this.arcResolvedListeners.add(listener); return () => { this.arcResolvedListeners.delete(listener); }; }
 
   private readonly selectionDeps: StorySelectionDeps = {
@@ -358,8 +358,12 @@ export class RuntimeManager {
     // a reply merely appended later is not. See `tokenMatches`.
     this.owner.noteMutation(messageId); this.chatSave.fingerprints.forgetFrom(messageId);
     if (!this.loaded) return { ok: true, result: "noop" };
-    return runRollback(this.rollbackDeps, messageId, decoded);
+    const run = runRollback(this.rollbackDeps, messageId, decoded);
+    this.rollbackRun = Promise.allSettled([this.rollbackRun, run]);
+    return run;
   }
+  private rollbackRun: Promise<unknown> = Promise.resolve();
+  rollbackSettled(): Promise<unknown> { return this.rollbackRun; }
 
   getStory(): NormalizedStoryV2 | null { return this.loaded?.story ?? null; }
   // What this chat is actually playing, authored form — the Studio edits this, not the library's copy.

@@ -17,3 +17,57 @@ Baseline 21 tests, 0 failing.
     "bounds every call by the callBudget timeout for the response it asked for"
     "gives a large prompt time to be read before it can answer (live gate 3: an 88k-token memorize window timed out at 55.6 s)"
 Restored: 21 tests, 0 failing.
+
+v2.4 plan 03 live-found fixes (re-read on lapse, backlog serialization, fast preflight), mutations 2026-09-24 (worktree on f26b60a; script .debug/mut-live-fixes.py, each mutant applied alone as an exact-text replacement to one file, the file restored byte-for-byte after its run; a replacement that does not match is reported DID NOT APPLY, and none did)
+Suites: scheduler (schedulerReread.review, scheduler, scheduler.breaker, schedulerReadOwnership.review, schedulerClear.review; D2 runs schedulerReread.review alone, because re-reading on every lapse loops forever in schedulerReadOwnership, whose guard has no lapsed()), backlog (backlogOwnership.review, budgetWiring.review, extractionOwnership.review), wiring (startupWiring.review, runtimeManager, fingerprintReconcile.review).
+
+Baseline 225 tests, 0 failing, suite errors [].
+- D1 no re-read at all: KILLED, 5 of 61
+    "a read cancelled by an in-window edit with nothing to roll back is re-read"
+    "a read that finished but was refused at the write edge is re-read, clamped to the chat that remains"
+    "control: an overlapping rollback re-read is not duplicated"
+    "control: a rollback re-read queued before the lapse absorbs it too"
+    "a rollback that never settles holds the re-read for the declared bound, not forever"
+- D2 re-read on any lapse reason (chat switch included): KILLED, 1 of 11
+    "control: a chat change seen before the epoch moves is not re-read either"
+- D3 no epoch check when the rollback settles: KILLED, 1 of 61
+    "control: an edit inside the window followed by a chat switch before the re-read is not re-read"
+- D4 the re-read never merges into a queued rollback re-read: KILLED, 2 of 61
+    "control: an overlapping rollback re-read is not duplicated"
+    "control: a rollback re-read queued before the lapse absorbs it too"
+- D5 the light queue is not held while the rollback settles: KILLED, 2 of 61
+    "control: an overlapping rollback re-read is not duplicated"
+    "control: a rollback re-read queued before the lapse absorbs it too"
+- D6 the re-read window is not re-clamped to the chat: KILLED, 1 of 61
+    "a window the edit deleted entirely is not re-read"
+- D7 a read refused at the write edge is not re-read: KILLED, 1 of 61
+    "a read that finished but was refused at the write edge is re-read, clamped to the chat that remains"
+- D8 no bound on waiting for the rollback: KILLED, 1 of 61
+    "a rollback that never settles holds the re-read for the declared bound, not forever"
+- D9 a new world keeps waiting on the departed rollback: KILLED, 1 of 61
+    "a new world does not wait on the departed chat's rollback"
+- D10 the manager does not track the rollback in progress: KILLED, 1 of 123
+    "rollbackSettled answers only once the rollback in progress has finished (the scheduler's lapse re-read waits on it)"
+- D11 the scheduler host is not wired to the manager rollback: KILLED, 1 of 123
+    "the scheduler's lapse re-read waits on the manager's rollback"
+- B1 the backlog window hands no collector (passes scheduled beside it): KILLED, 2 of 41
+    "at most one model call is in flight from the backlog and its scene passes at any time"
+    "a switch during a scene pass runs no further pass and reads no further window"
+- B2 the window scene passes are not awaited: KILLED, 2 of 41
+    "at most one model call is in flight from the backlog and its scene passes at any time"
+    "a switch during a scene pass runs no further pass and reads no further window"
+- B3 scene passes run on after the chat changed: KILLED, 1 of 41
+    "a switch during a scene pass runs no further pass and reads no further window"
+- B4 the startRuntime listener schedules even inside the backlog: KILLED, 1 of 123
+    "a scene break the memorize backlog collects is handed back to it, not scheduled beside it"
+- B5 the manager drops the collector: KILLED, 1 of 123
+    "hands the memorize backlog's collector through to the scene-break listeners"
+- P1 the confirm is asked on the exact count (old order): KILLED, 2 of 41
+    "the confirm is shown before any token count call, and the exact count runs only after it, while the run reads as preparing"
+    "control: a cancelled confirm counts nothing and writes nothing"
+- P2 no preparing state while counting: KILLED, 1 of 41
+    "the confirm is shown before any token count call, and the exact count runs only after it, while the run reads as preparing"
+- P3 preparing is never cleared once the windows are packed: KILLED, 1 of 41
+    "the confirm is shown before any token count call, and the exact count runs only after it, while the run reads as preparing"
+- SB1 the drawer button never reads Preparing… (Storybook, storybook:build + test-storybook --index-json against the mutant): KILLED, 1 of 204 failed (MemorizePreparing is the only story asserting that label; the failing story's name was not captured in the run output). Rebuilt clean afterwards: 204/204.
+Restored: every mutated file byte-identical afterwards; the full npm test after the run: 214 suites, 3211/3211.
