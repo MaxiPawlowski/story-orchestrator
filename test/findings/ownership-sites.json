@@ -424,6 +424,10 @@
     "src/runtime/turnBridge.ts#TurnBridge.onRenderedReply": {
       "status": "checked",
       "note": "v2.3 plan 03: captures ownership at event acceptance, queues its own pending entry (V4: no longer replaces a shared slot), and refuses a late afterSpeak continuation after its world lapses by removing its entry. The flush retains the same captured guard rather than minting in the landing world."
+    },
+    "src/runtime/turnBridge.ts#TurnBridge.onChatChanged": {
+      "status": "local",
+      "note": "v2.4 plan 02 §3 (2026-09-24). The same-chat path keeps the run (no reset, no bump) and awaits ChatSave.reconcile, which checks the run before it steps back; after it only notify() runs, a UI refresh that holds no state. The full path's writes after loadSelectedFromChat are the bridge's own record of the chat it loaded (read from the host at that instant, so always true of the open chat) and the reload-diverged journal line, which is written only while the diverged chat is both the one open and the one the current epoch claims, so a newer CHAT_CHANGED that overtook this load never receives it. `reset` precedes every await on its own path; the census sees it after the same-chat branch's await in source order."
     }
   }
 }

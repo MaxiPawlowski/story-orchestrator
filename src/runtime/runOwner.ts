@@ -32,6 +32,7 @@ export class RunOwner {
     storyId: this.deps.storyId(),
     playedVersion: this.deps.playedVersion(),
     sessionEpoch: this.epoch,
+    claimedChat: this.claimed,
     windowRevision: this.windowRevision,
     lowestMutatedMessageId: this.lowestMutatedMessageId,
     lowestMutatedSince: (revision: number) => {

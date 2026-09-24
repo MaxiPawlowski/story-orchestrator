@@ -108,6 +108,16 @@ export function getMetadataBlob(): StoryOrchestratorMetadataBlob {
   return blob;
 }
 
+/** v2.4 plan 02 §3: the boundary the stored copy holds for the story it selects, read without adopting,
+ *  migrating or stamping anything. Null when the copy is not this chat's, selects another story, or
+ *  holds none. */
+export const storedBoundaryFor = (storyId: string): number | null => {
+  const existing = storedValue();
+  if (!recognized(existing) || existing.version !== 4 || existing.chatId !== openChatId() || existing.selectedStoryId !== storyId) return null;
+  const boundary = (existing.stories as Record<string, Partial<PersistedStoryRuntime>>)[storyId]?.engineState?.boundary;
+  return typeof boundary === "number" ? boundary : null;
+};
+
 export const unreadableStored = (): UnreadableBlob | null => {
   const existing = storedValue();
   return unrecognized(existing) ? { kind: "unreadable", foundVersion: foundVersionOf(existing), openChat: openChatId() } : null;
@@ -197,7 +207,7 @@ export function evictedStoryNotice(evictedIds: string[], titleOf: (id: string) =
 }
 
 export const openChatIntegrity = (): string | null => {
-  const integrity = (getContext().chatMetadata as Record<string, unknown>).integrity;
+  const integrity = (getContext().chatMetadata as Record<string, unknown> | undefined)?.integrity;
   return typeof integrity === "string" && integrity ? integrity : null;
 };
 

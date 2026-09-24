@@ -4,6 +4,7 @@ import { restampRenamedChat } from "./persistence";
 import { beginRun, type RunGuard } from "./runToken";
 import { ChatIdentity, describeDecode, type DecodeJournal } from "./messageIdentity";
 import type { ChatSave } from "./chatSave";
+import { currentChat, readChatChange, type LoadedChat } from "./chatIdentity";
 
 const FLUSH_POLL_MS = 300;
 const FLUSH_POLL_MAX_MS = 60000;
@@ -47,6 +48,7 @@ export class TurnBridge {
   private lastRenderedAt = 0;
   private readonly turnKeys = new Set<string>();
   private readonly identity = new ChatIdentity();
+  private loadedChat: LoadedChat | null = null;
   private flushTimer: ReturnType<typeof setTimeout> | null = null;
   private unsubscribe: (() => void) | null = null;
 
@@ -166,9 +168,19 @@ export class TurnBridge {
   }
 
   private async onChatChanged() {
+    const change = readChatChange(this.loadedChat, { runContext: () => this.manager.getRunContext(), engineBoundary: () => this.manager.getEngineState()?.boundary ?? null });
+    if (change.kind === "same-chat") {
+      this.refreshIdentity();
+      await this.save?.reconcile(beginRun(this.manager.getOwnership()));
+      this.manager.notify();
+      return;
+    }
     this.reset();
     this.refreshIdentity();
+    this.loadedChat = null;
     await this.manager.loadSelectedFromChat();
+    this.loadedChat = currentChat();
+    if (change.kind === "diverged" && this.loadedChat?.chatId === change.chatId && this.manager.getRunContext().claimedChat === change.chatId) this.save?.note("reload-diverged", change.detail);
   }
 
   private async onChatRenamed(payload: unknown) {
