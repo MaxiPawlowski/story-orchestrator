@@ -1,0 +1,15 @@
+v2.4 plan 02 harness follow-ups (2026-09-24), found by the J10.13/J10.14 journey checks on lanes 1-2.
+
+1. branch_create returned while ST had named the branch but not yet loaded its messages (J10.14 lane 2 run 2:
+   "the branch at message 1 should hold 2 messages, it holds 0"). branchCreate now waits (<=10 s) until the
+   opened branch holds mesId+1 messages.
+scope: node --test scripts/debug/lib/identityVerbs.test.mts
+baseline: 22 passed
+M-H1 the wait loop never runs -> 1 failed (branch_create returns only once the opened branch holds its messages)
+restored: 22 passed
+
+2. A journey's sandbox-chat delete tried the recorded branch chat (adoptBranchChat puts it in `owned` so the
+   escape guard accepts the page on it), failed because it was the open chat, and reported chat.notDeleted — a
+   leak that cleanupBranchChats then deleted anyway. Both runners now pass withoutBranchChats(guard) to
+   deleteSandboxChats; the branch cleanup owns branches. Covered by the unit case
+   "withoutBranchChats: the sandbox delete skips recorded branches and leaves the guard itself untouched".

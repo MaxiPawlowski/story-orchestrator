@@ -20,7 +20,7 @@ import { wipeChatMeta } from './so-library.mts';
 import { saveSettingsNow } from './lib/settingsSave.mts';
 import { archiveJourneyRecord, unselectedDependencies } from './lib/journeyArchive.mts';
 import { applyExtSetting, restoreExtSettings } from './lib/interopVerbs.mts';
-import { cleanupBranchChats, settleReapPrompts } from './lib/identityVerbs.mts';
+import { cleanupBranchChats, settleReapPrompts, withoutBranchChats } from './lib/identityVerbs.mts';
 import { BLOCKING_DIALOGS, mergeRestore, removableStories, shouldRecoverConfig, validateJourneyExtraction, type DeclaredExtraction, type LibraryCapture } from './lib/configRestore.mts';
 
 const JOURNEY_DIR = resolve(PROJECT_ROOT, 'test/journeys');
@@ -418,7 +418,7 @@ async function runCleanup(page, journey, { importedHashes, libraryBefore, config
   if (kept.length && !untrusted) report.keptPreExistingStories = kept;
   if (guard && cleanup.deleteChat !== false) {
     await recordSandboxStory(page, guard);
-    report.chat = await deleteSandboxChats(page, guard).catch((error) => ({ error: error.message }));
+    report.chat = await deleteSandboxChats(page, withoutBranchChats(guard)).catch((error) => ({ error: error.message }));
     report.branchChats = await cleanupBranchChats(page, guard).catch((error) => ({ error: error.message, leaked: [...(guard.branchChats ?? [])] }));
     report.mirrorBooks = await deleteSandboxMirrorBooks(page, guard).catch((error) => ({ error: error.message }));
     report.reapPrompts = await settleReapPrompts(page, [...guard.owned, ...(guard.branchChats ?? [])]).catch((error) => ({ error: error.message }));

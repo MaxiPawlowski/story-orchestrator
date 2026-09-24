@@ -17,7 +17,7 @@ import { dumpCurrentChatState } from './so-state.mts';
 import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, branchContinue, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, getMemoryQueueState, memoryQueueAction, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot, hitTest, pointerClick } from './so-ui.mts';
 import { leakCount, listMarkedAssets, removeMarkedAssets } from './so-assets.mts';
 import { applyExtSetting, cutCommand, emitGeneration, expectOverSteer, expectStateEquals, hostDelete, injectScript, recordState, restoreExtSettings } from './lib/interopVerbs.mts';
-import { branchCreate, cleanupBranchChats, expectNextReadWindow, expectRollbackOutcome, settleReapPrompts } from './lib/identityVerbs.mts';
+import { branchCreate, cleanupBranchChats, expectNextReadWindow, expectRollbackOutcome, settleReapPrompts, withoutBranchChats } from './lib/identityVerbs.mts';
 
 const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep] [--group <id|name>]
 
@@ -1017,7 +1017,7 @@ async function cleanupScenario(page, importedHashes, guard, keep, libraryBefore:
   if (guard) {
     cleaned.clearedDebugResponses = await clearDebugResponses(page).catch((err) => ({ error: err instanceof Error ? err.message : String(err) }));
     await recordSandboxStory(page, guard);
-    try { Object.assign(cleaned, await deleteSandboxChats(page, guard)); } catch (err) { cleaned.chatCleanupError = err instanceof Error ? err.message : String(err); }
+    try { Object.assign(cleaned, await deleteSandboxChats(page, withoutBranchChats(guard))); } catch (err) { cleaned.chatCleanupError = err instanceof Error ? err.message : String(err); }
     try { cleaned.branchChats = await cleanupBranchChats(page, guard); } catch (err) { cleaned.branchChats = { error: err instanceof Error ? err.message : String(err), leaked: [...(guard.branchChats ?? [])] }; }
     try { cleaned.mirrorBooks = await deleteSandboxMirrorBooks(page, guard); } catch (err) { cleaned.mirrorBookCleanupError = err instanceof Error ? err.message : String(err); }
     try { cleaned.reapPrompts = await settleReapPrompts(page, [...guard.owned, ...(guard.branchChats ?? [])]); } catch (err) { cleaned.reapPrompts = { error: err instanceof Error ? err.message : String(err) }; }

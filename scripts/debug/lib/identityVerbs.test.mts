@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   adoptBranchChat, branchChatReport, branchCommand, branchCreate, branchSpec, cleanupBranchChats, expectNextReadWindow, expectRollbackOutcome,
-  nextReadWindowFailures, nextReadWindowSpec, rollbackOutcomeFailures, rollbackOutcomeSpec, settleReapPrompts, type RollbackRecord,
+  nextReadWindowFailures, nextReadWindowSpec, rollbackOutcomeFailures, rollbackOutcomeSpec, settleReapPrompts, withoutBranchChats, type RollbackRecord,
 } from './identityVerbs.mts';
 import { recordState } from './interopVerbs.mts';
 import { validateSteps } from './scenarioSchema.mts';
@@ -283,4 +283,29 @@ test('control: a reap question that will not close is reported leaked, which fai
 test('reap prompts: nothing owned means nothing is read', async () => {
   const touched = { evaluate: async () => assert.fail('the page was read') };
   assert.deepEqual(await settleReapPrompts(touched as never, []), { dismissed: [], leaked: [] });
+});
+
+test('withoutBranchChats: the sandbox delete skips recorded branches and leaves the guard itself untouched', () => {
+  const guard = { groupId: 'g', owned: ['sandbox', 'sandbox - Branch #1', 'second'], preexisting: [], branchChats: ['sandbox - Branch #1'] };
+  assert.deepEqual(withoutBranchChats(guard).owned, ['sandbox', 'second']);
+  assert.deepEqual(guard.owned, ['sandbox', 'sandbox - Branch #1', 'second']);
+  assert.deepEqual(withoutBranchChats({ owned: ['sandbox'] }).owned, ['sandbox']);
+});
+
+test('branch_create returns only once the opened branch holds its messages (ST names the chat before it loads them)', async () => {
+  const state: { groupId: string; chatId: string; chat: unknown[] } = { groupId: 'g1', chatId: 'sandbox', chat: [{}, {}, {}] };
+  g.SillyTavern = {
+    getContext: () => ({
+      ...state,
+      executeSlashCommandsWithOptions: async () => {
+        state.chatId = 'sandbox - Branch #1';
+        state.chat = [];
+        setTimeout(() => { state.chat = [{}, {}]; }, 300);
+        return { pipe: 'sandbox - Branch #1' };
+      },
+    }),
+  };
+  const guard = { groupId: 'g1', owned: ['sandbox'], preexisting: [], branchChats: [] as string[] };
+  await branchCreate(page as never, { mesId: 1 }, guard);
+  assert.equal(state.chat.length, 2);
 });

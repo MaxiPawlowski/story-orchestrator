@@ -146,6 +146,12 @@ export function adoptBranchChat(guard: BranchGuard, spec: BranchSpec, created: {
   return { name: created.name, kind: spec.kind, opened: spec.open, branchChats: [...guard.branchChats] };
 }
 
+/** The sandbox-chat delete skips recorded branches: `cleanupBranchChats` owns them, and a branch that is the open chat at cleanup is one only it can delete. */
+export function withoutBranchChats<T extends { owned: string[]; branchChats?: string[] }>(guard: T): T {
+  const branches = new Set(guard.branchChats ?? []);
+  return { ...guard, owned: guard.owned.filter((name) => !branches.has(name)) };
+}
+
 export async function branchCreate(page: Page, value: unknown, guard: BranchGuard | null) {
   const spec = branchSpec(value);
   if (!guard) throw new Error('branch_create needs --sandbox: the cleanup that deletes the branch chat is the sandbox cleanup');
@@ -155,15 +161,21 @@ export async function branchCreate(page: Page, value: unknown, guard: BranchGuar
   });
   if (probe.groupId !== guard.groupId) throw new Error(`branch_create: the page is not on the sandbox group (${probe.groupId ?? 'no group'})`);
   const command = branchCommand(spec, probe.last);
-  const created = await evaluateInST(page, async ({ command, open, groupId }: { command: string; open: boolean; groupId: string }) => {
+  const expected = (spec.mesId === 'last' ? probe.last : spec.mesId) + 1;
+  const created = await evaluateInST(page, async ({ command, open, groupId, expected }: { command: string; open: boolean; groupId: string; expected: number }) => {
     const ctx = (globalThis as any).SillyTavern.getContext();
     const result = await ctx.executeSlashCommandsWithOptions(command);
     const name = typeof result?.pipe === 'string' ? result.pipe.trim() : '';
     const after = (globalThis as any).SillyTavern.getContext();
     if (name && open && after.chatId !== name) await after.openGroupChat(groupId, name);
+    for (let waited = 0; name && open && waited < 10000; waited += 100) {
+      const loading = (globalThis as any).SillyTavern.getContext();
+      if (loading.chatId === name && (loading.chat?.length ?? 0) >= expected) break;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
     const now = (globalThis as any).SillyTavern.getContext();
     return { name, groupId: now.groupId ?? null, chatId: now.chatId ?? null };
-  }, { command, open: spec.open, groupId: guard.groupId });
+  }, { command, open: spec.open, groupId: guard.groupId, expected });
   return { command, ...adoptBranchChat(guard, spec, created) };
 }
 
