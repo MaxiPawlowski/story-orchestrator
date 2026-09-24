@@ -132,9 +132,11 @@ export async function unbindBranchMirror(run: RunGuard): Promise<WriteResult<{ n
 }
 
 /** v2.4 E5: the page's first load is no CHAT_CHANGED, so it never reached the bridge's unbind. It runs the
- *  same one, with the run minted after the load for the same reason: the load itself bumps the epoch. */
-export async function loadAtStartup(host: { load: () => Promise<unknown>; ownership: () => RunOwnership }): Promise<WriteResult<{ name: string }> | null> {
+ *  same one, with the run minted after the load for the same reason: the load itself bumps the epoch. It also
+ *  hands the bridge the chat it loaded, so the first same-chat reload after a page load is not a switch. */
+export async function loadAtStartup(host: { load: () => Promise<unknown>; ownership: () => RunOwnership; loaded?: (chat: LoadedChat | null) => void }): Promise<WriteResult<{ name: string }> | null> {
   await host.load();
+  host.loaded?.(currentChat());
   return unbindBranchMirror(beginRun(host.ownership()));
 }
 

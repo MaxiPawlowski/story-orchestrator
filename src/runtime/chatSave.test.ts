@@ -149,3 +149,55 @@ describe("ChatSave.recordWrite (E3)", () => {
     expect(journal).toEqual([]);
   });
 });
+
+// v2.4 E3 follow-up: a selection followed straight away by a persist (loadStory, swapStory) arms two
+// observations that one request settles. That is one save, so it is one evidence row, labelled with the
+// write that asked for the request.
+describe("ChatSave: one request serving two writes (E3 dedupe)", () => {
+  const shared = (status: number, burst: number, askedBy: string | null = "select"): SaveObservation => ({ requested: true, status, ok: status >= 200 && status < 300, timedOut: false, failed: false, burst, askedBy });
+  const write = (observation: SaveObservation) => ({ kind: "select" as const, chatId: "chat-a", observed: Promise.resolve(observation) });
+
+  test("a failed save after select+persist journals exactly one row, labelled with the selection", async () => {
+    const { save, extras, journal, notes } = harness();
+    globalThis.__chatSaveTest.observation = shared(500, 7);
+    await Promise.all([save.recordWrite(write(shared(500, 7))), save.persist()]);
+    expect(journal.map((entry) => entry.summary)).toEqual(["save not confirmed"]);
+    expect(notes).toEqual(["story selection: the server answered 500"]);
+    expect(extras.saveHealth).toMatchObject({ lastOutcome: "unsaved", consecutiveFailures: 1, pendingBoundary: 1 });
+  });
+
+  test("the persist recording first still labels the row with the selection that asked", async () => {
+    const { save, journal, notes } = harness();
+    globalThis.__chatSaveTest.observation = shared(500, 8);
+    await save.persist();
+    await save.recordWrite(write(shared(500, 8)));
+    expect(journal).toHaveLength(1);
+    expect(notes).toEqual(["story selection: the server answered 500"]);
+  });
+
+  test("a request the persist asked for is journaled unlabelled, once", async () => {
+    const { save, notes } = harness();
+    globalThis.__chatSaveTest.observation = shared(500, 9, null);
+    await save.recordWrite(write(shared(500, 9, null)));
+    await save.persist();
+    expect(notes).toEqual(["the server answered 500"]);
+  });
+
+  test("a shared 2xx recorded late does not leave the boundary pending", async () => {
+    const { save, extras, journal } = harness();
+    globalThis.__chatSaveTest.observation = shared(200, 10);
+    await save.persist();
+    await save.recordWrite(write(shared(200, 10)));
+    expect(extras.saveHealth).toMatchObject({ lastOutcome: "applied", pendingBoundary: null, consecutiveFailures: 0 });
+    expect(journal).toEqual([]);
+  });
+
+  test("control: two separate saves still journal two rows", async () => {
+    const { save, extras, journal } = harness();
+    globalThis.__chatSaveTest.observation = shared(500, 12);
+    await save.recordWrite(write(shared(500, 11)));
+    await save.persist();
+    expect(journal.map((entry) => entry.summary)).toEqual(["save not confirmed", "save not confirmed"]);
+    expect(extras.saveHealth.consecutiveFailures).toBe(2);
+  });
+});

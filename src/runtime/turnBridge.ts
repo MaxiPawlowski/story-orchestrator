@@ -79,6 +79,11 @@ export class TurnBridge {
     this.reset();
   }
 
+  /** v2.4 E5: a load made outside CHAT_CHANGED (the page's first) names the chat it loaded. */
+  noteLoaded(chat: LoadedChat | null) {
+    this.loadedChat = chat;
+  }
+
   private reset() {
     this.cancelFlushPoll();
     this.pending = [];

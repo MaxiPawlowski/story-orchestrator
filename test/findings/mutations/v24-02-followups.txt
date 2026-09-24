@@ -105,3 +105,72 @@ E5 the first page load unbinds an unadopted branch's inherited lorebook (src/run
 
 34/34 killed, none survived a first run.
 Not mutated, with the reason: E4's "wiBook names it" clause is not a separate check. The marker path for a non-adopting sync only runs on `owned = input.book` for this chat, and the book it reads is `ensureLorebook(owned.name)`. A first version tested both `input.book.name` and the ensured name against the expected mirror name; the two could not disagree, so a mutant deleting either would survive as an equivalent mutant. The clause was reduced to one name check and the ownership is stated in the function's comment.
+
+v2.4 plan 02 follow-ups E3/E5 completion, mutations 2026-09-24 (worktree build on c655535; script .debug/mutate.py .debug/mut-e3e5.json, same method: each mutant alone as an exact single-match replacement, file restored byte-for-byte and read back, failing titles read from jest --json)
+Baseline before the run: every listed suite green; after: full `npm test` 201/201 suites, 3091/3091 tests.
+
+Dedupe: one observed request is one evidence row (src/runtime/saveEvidence.ts, src/runtime/chatSave.ts, src/services/stHost/persistence.ts, src/runtime/persistence.ts, src/runtime/librarySave.ts; suites chatSave, stHost/saveWatcher, chatWrites, librarySave, wizardSessions)
+- D-1 ChatSave claims every request (no dedupe): KILLED, 3 of 15
+    "a failed save after select+persist journals exactly one row, labelled with the selection"
+    "the persist recording first still labels the row with the selection that asked"
+    "a request the persist asked for is journaled unlabelled, once"
+- D-2 a skipped record leaves its own pending mark behind (no restore): KILLED, 1 of 15
+    "a shared 2xx recorded late does not leave the boundary pending"
+- D-3 the row labelled with the recording write, not the one that asked: KILLED, 2 of 15
+    "the persist recording first still labels the row with the selection that asked"
+    "a request the persist asked for is journaled unlabelled, once"
+- D-4 the watcher names the LAST save a request settled as the asker: KILLED, 2 of 17
+    "(dedupe) one request serving a selection and a persist settles both with its burst, naming the selection as the save that asked"
+    "control: a request a persist asked for names no write, and a later request its own"
+- D-5 chat writes arm their save untagged: KILLED, 1 of 4
+    "a selection, a dropped state, a replaced blob and a rename restamp each name what they wrote"
+- D-6 an observation no request settled is claimed like one (timeouts deduped): KILLED, 1 of 15
+    "a save the server refused has not landed"
+- D-7 the settings journal does not dedupe a refused request: KILLED, 1 of 13
+    "one failed settings request that served several writes journals one row, labelled by the first"
+- D-8 settings evidence drops the refusing request: KILLED, 2 of 23
+    "a settings save answered 500 is not confirmed, and the server is not asked"
+    "is not confirmed when the settings save answered 500"
+
+E3 completion: library and settings-store writes record save evidence (src/runtime/storyLibrary.ts, src/runtime/settingsStore.ts, src/runtime/librarySave.ts, src/runtime/index.ts; suites settingsWrites, librarySave, startupWiring.review)
+- L-1 a library save arms no evidence: KILLED, 1 of 9
+    "a library save hands over its evidence, and the Studio reads that same one"
+- L-2 the Studio arms a second observation instead of reading the write's: KILLED, 1 of 9
+    "a library save hands over its evidence, and the Studio reads that same one"
+- L-3 a removal records nothing: KILLED, 2 of 9
+    "a removal the server still holds is not confirmed"
+    "control: a removal the server no longer holds is confirmed"
+- L-4 the migration write records nothing: KILLED, 1 of 9
+    "the read-time migration write is observed, and confirmed only when the server holds the rekeyed records"
+- L-5 a record saved in the removal's own millisecond counts as a later save (`>` to `>=`): KILLED, 2 of 22
+    "a removal is confirmed once the server no longer holds the record, or holds a later save of it"
+    "a removal the server still holds is not confirmed"
+- L-6 a removal ignores a later save of the same record: KILLED, 1 of 13
+    "a removal is confirmed once the server no longer holds the record, or holds a later save of it"
+- L-7 a migration passes when any rekeyed record is held: KILLED, 1 of 22
+    "a migration is confirmed only when the server holds every rekeyed record"
+- L-8 a settings-store write records nothing: KILLED, 4 of 15
+    "a settings save answered 500 is not confirmed, labelled with the sections it wrote"
+    "is confirmed when the server holds what it wrote, or a later write"
+    "is not confirmed when the server holds older settings"
+    "journals an unconfirmed library or settings-store write into the open chat, and stops at stopRuntime"
+- L-9 a settings write held only by its own value, not a later write: KILLED, 1 of 9
+    "is confirmed when the server holds what it wrote, or a later write"
+- L-10 a write arms its evidence with nothing listening: KILLED, 2 of 22
+    "arms a write's evidence only while something listens, and hands it over"
+    "control: with nothing listening, a write arms no observation"
+- L-11 startRuntime does not listen to library/settings writes: KILLED, 1 of 6
+    "journals an unconfirmed library or settings-store write into the open chat, and stops at stopRuntime"
+- L-12 stopRuntime leaves the library/settings listener registered: KILLED, 1 of 6
+    "journals an unconfirmed library or settings-store write into the open chat, and stops at stopRuntime"
+
+E5 completion: the startup load sets the bridge's loaded chat (src/runtime/chatIdentity.ts, src/runtime/turnBridge.ts, src/runtime/index.ts; suites chatIdentity.review, startupWiring.review)
+- E5c-1 the startup load does not name the chat it loaded: KILLED, 2 of 20
+    "is classified same-chat: no reload, no epoch bump"
+    "tells the bridge which chat it loaded, so the first same-chat reload is not a switch"
+- E5c-2 startRuntime's startup load does not tell the bridge: KILLED, 1 of 6
+    "tells the bridge which chat it loaded, so the first same-chat reload is not a switch"
+- E5c-3 the bridge ignores a load it did not make: KILLED, 1 of 14
+    "is classified same-chat: no reload, no epoch bump"
+
+23/23 killed, none survived a first run. A mutant naming the chat before the load (`loaded(null)`) was dropped as equivalent to E5c-1.

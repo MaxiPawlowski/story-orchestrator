@@ -1,4 +1,4 @@
-import { createLibrarySaveEvidence, journalLibrarySave, librarySaveSentence, missingFromServer, type SettingsSaveObservation } from "./librarySave";
+import { createLibrarySaveEvidence, journalSettingsWrite, librarySaveSentence, missingFromServer, missingMigrated, onSettingsWrite, recordSettingsWrite, stillHeldByServer, type SettingsSaveObservation } from "./librarySave";
 import type { RunGuard } from "./runToken";
 import type { StoryLibraryRecord } from "./types";
 
@@ -24,7 +24,7 @@ describe("v2.4 plan 02 §7 (T8): a library save is claimed only on evidence", ()
   it("a settings save answered 500 is not confirmed, and the server is not asked", async () => {
     const { confirm, readBack } = evidenceFor({ requested: true, status: 500, ok: false, timedOut: false, failed: false, burst: 1 }, held(2, record.updatedAt));
     const evidence = await confirm(record);
-    expect(evidence).toEqual({ confirmed: false, reason: "the settings save answered 500" });
+    expect(evidence).toEqual({ confirmed: false, reason: "the settings save answered 500", request: 1 });
     expect(readBack).not.toHaveBeenCalled();
     expect(librarySaveSentence(record, evidence)).toBe("Saving “Heist” v2… not confirmed: the settings save answered 500.");
   });
@@ -63,11 +63,60 @@ describe("v2.4 plan 02 §7 (T8): a library save is claimed only on evidence", ()
   it("journals an unconfirmed save in the chat it was made from, and nowhere else", async () => {
     const journal = jest.fn();
     const refused = Promise.resolve({ confirmed: false as const, reason: "the settings save answered 500" });
-    await journalLibrarySave(record, refused, guard(true), journal);
+    await journalSettingsWrite("library save not confirmed", "“Heist” v2", refused, guard(true), journal);
     expect(journal).toHaveBeenCalledWith("library save not confirmed", "“Heist” v2: the settings save answered 500");
     journal.mockClear();
-    await journalLibrarySave(record, refused, guard(false), journal);
-    await journalLibrarySave(record, Promise.resolve({ confirmed: true as const }), guard(true), journal);
+    await journalSettingsWrite("library save not confirmed", "“Heist” v2", refused, guard(false), journal);
+    await journalSettingsWrite("library save not confirmed", "“Heist” v2", Promise.resolve({ confirmed: true as const }), guard(true), journal);
     expect(journal).not.toHaveBeenCalled();
+  });
+});
+
+// v2.4 E3 completion: the library's other writes and the settings store read the same observation.
+describe("v2.4 E3: every install-wide write reads its settings save", () => {
+  it("a removal is confirmed once the server no longer holds the record, or holds a later save of it", () => {
+    const removal = { id: "heist", at: "2026-09-24T12:00:00.000Z" };
+    expect(stillHeldByServer(held(2, "2026-09-24T11:00:00.000Z"), removal)).toBe("the server's library still holds it");
+    expect(stillHeldByServer(held(2, removal.at), removal)).toBe("the server's library still holds it");
+    expect(stillHeldByServer([{ id: "other", version: 1 }], removal)).toBeNull();
+    expect(stillHeldByServer(held(3, "2026-09-24T12:30:00.000Z"), removal)).toBeNull();
+    expect(stillHeldByServer(null, removal)).toBe("the server's settings could not be read back");
+  });
+
+  it("a migration is confirmed only when the server holds every rekeyed record", () => {
+    expect(missingMigrated([{ id: "a" }, { id: "b" }], ["a", "b"])).toBeNull();
+    expect(missingMigrated([{ id: "a" }, { hash: "h1", title: "B" }], ["a", "b"])).toBe("the server's library does not hold b");
+    expect(missingMigrated(null, ["a"])).toBe("the server's settings could not be read back");
+  });
+
+  it("arms a write's evidence only while something listens, and hands it over", () => {
+    const arm = jest.fn(async () => ({ confirmed: true as const }));
+    expect(recordSettingsWrite("s", "l", arm)).toBeNull();
+    expect(arm).not.toHaveBeenCalled();
+    const heard = jest.fn();
+    const stop = onSettingsWrite(heard);
+    const evidence = recordSettingsWrite("s", "l", arm);
+    expect(heard).toHaveBeenCalledWith({ summary: "s", label: "l", evidence });
+    stop();
+    expect(recordSettingsWrite("s", "l", arm)).toBeNull();
+    expect(arm).toHaveBeenCalledTimes(1);
+  });
+
+  it("one failed settings request that served several writes journals one row, labelled by the first", async () => {
+    const journal = jest.fn();
+    const refused = (request: number) => Promise.resolve({ confirmed: false as const, reason: "the settings save answered 500", request });
+    await Promise.all([
+      journalSettingsWrite("library save not confirmed", "“Heist” v2", refused(41), guard(true), journal),
+      journalSettingsWrite("settings save not confirmed", "extraction", refused(41), guard(true), journal),
+    ]);
+    expect(journal.mock.calls).toEqual([["library save not confirmed", "“Heist” v2: the settings save answered 500"]]);
+  });
+
+  it("control: two failed settings requests journal two rows", async () => {
+    const journal = jest.fn();
+    const refused = (request: number) => Promise.resolve({ confirmed: false as const, reason: "the settings save answered 500", request });
+    await journalSettingsWrite("library save not confirmed", "“Heist” v2", refused(42), guard(true), journal);
+    await journalSettingsWrite("settings save not confirmed", "extraction", refused(43), guard(true), journal);
+    expect(journal).toHaveBeenCalledTimes(2);
   });
 });

@@ -14,8 +14,6 @@ type Feedback = { type: "success" | "error"; message: string } | null;
 // What the host does with a saved record. The Studio never reaches into the runtime itself: the
 // chat that is playing this story decides whether to take the update (plan 05 hot-swap).
 export type StudioSaveHandler = (record: StoryLibraryRecord) => Promise<string | null> | string | null;
-/** v2.4 plan 02 §7: told at save time, so the host can journal an unconfirmed library save under its own run. */
-export type LibrarySaveHandler = (record: StoryLibraryRecord, evidence: Promise<LibrarySaveEvidence>) => void;
 
 const download = (filename: string, text: string) => {
   try {
@@ -33,11 +31,10 @@ const download = (filename: string, text: string) => {
 
 interface Props {
   onSaved?: StudioSaveHandler;
-  onLibrarySave?: LibrarySaveHandler;
   confirmSave?: (record: StoryLibraryRecord) => Promise<LibrarySaveEvidence>;
 }
 
-const StudioToolbar: React.FC<Props> = ({ onSaved, onLibrarySave, confirmSave = confirmLibrarySave }) => {
+const StudioToolbar: React.FC<Props> = ({ onSaved, confirmSave = confirmLibrarySave }) => {
   const draft = useDraftStore((state) => state.draft);
   const dirty = useDraftStore((state) => state.dirty);
   const loadDraft = useDraftStore((state) => state.loadDraft);
@@ -59,10 +56,9 @@ const StudioToolbar: React.FC<Props> = ({ onSaved, onLibrarySave, confirmSave = 
       return;
     }
     loadDraft({ ...current, id: result.record.id, version: result.record.version }, result.record.hash);
-    // v2.4 plan 02 §7: armed now, before the debounced settings save can fire. The library half says
-    // "Saved" only on evidence the server holds the record.
+    // v2.4 plan 02 §7: the library half says "Saved" only on evidence the server holds the record. The
+    // write armed that evidence and the runtime journals it (E3); this reads the same one.
     const evidence = confirmSave(result.record);
-    void Promise.resolve().then(() => onLibrarySave?.(result.record, evidence)).catch(() => undefined);
     // A failing hand-off must not leave the toolbar stuck on "Saving..." with the author unsure
     // whether the library took the edit.
     let chatHalf = "";
