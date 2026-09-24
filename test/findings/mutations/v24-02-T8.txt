@@ -33,3 +33,13 @@ Suites run for every mutant: stHost/saveWatcher, stHost/persistence, runtime/lib
 
 10/10 killed. T8-1 SURVIVED on the first run: the inner wrapper's second report was invisible because the first report had already emptied `watching` (the `watching.length` guard). The case now arms a second observation after the request started, which keeps `watching` non-empty and must NOT be settled by that request; with the dedupe removed the count reads 2. Rerun: killed. Recorded because a surviving mutant is only evidence once the mutant is known to mutate, and this one did.
 T8-2 fails six cases by design: the suite's first case restores the peer's fetch, and every later case runs through the healed wrap.
+
+Integration follow-up (2026-09-24, found by test-storybook:ci on master 34227e5): 4 StudioToolbar stories stuck on
+"Saving...". onLibrarySave was called outside the hand-off try, so a handler that threw (Storybook's implicit
+action arg throws in a play function, PREVIEW_API code 2) rejected handleSave before setPending(false). A host
+journal failure could wedge the toolbar the same way. Fix: the hand-off runs asynchronously with its failure
+swallowed; stories pass an explicit onLibrarySave fn; new story LibraryHandlerThrows.
+scope: npm run test-storybook:ci
+baseline: 197 passed
+M-SB1 onLibrarySave called synchronously again -> 1 failed (Studio/StudioToolbar > LibraryHandlerThrows)
+restored: 197 passed

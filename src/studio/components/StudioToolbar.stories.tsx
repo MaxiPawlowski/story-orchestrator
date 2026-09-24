@@ -7,6 +7,7 @@ import { sampleStory, seedDraft } from "../stories/fixtures";
 const meta: Meta<typeof StudioToolbar> = {
   title: "Studio/StudioToolbar",
   component: StudioToolbar,
+  args: { onLibrarySave: fn() },
   beforeEach: () => {
     seedDraft(sampleStory());
   },
@@ -56,5 +57,19 @@ export const SaveNotConfirmed: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "Save" }));
     await expect(await canvas.findByText(/Saving .* v1… not confirmed: the settings save answered 500\./)).toBeInTheDocument();
     await expect(canvas.queryByText(/Saved .* to the library\./)).toBeNull();
+  },
+};
+
+export const LibraryHandlerThrows: Story = {
+  args: {
+    onLibrarySave: fn(() => { throw new Error("journal unavailable"); }),
+    confirmSave: fn(async () => ({ confirmed: true as const })),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+    await expect(await canvas.findByText(/Saved .* v1 to the library\./)).toBeInTheDocument();
+    await waitFor(() => expect(args.onLibrarySave).toHaveBeenCalled());
+    await expect(canvas.getByRole("button", { name: "Save" })).toBeInTheDocument();
   },
 };

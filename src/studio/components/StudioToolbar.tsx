@@ -62,7 +62,7 @@ const StudioToolbar: React.FC<Props> = ({ onSaved, onLibrarySave, confirmSave = 
     // v2.4 plan 02 §7: armed now, before the debounced settings save can fire. The library half says
     // "Saved" only on evidence the server holds the record.
     const evidence = confirmSave(result.record);
-    onLibrarySave?.(result.record, evidence);
+    void Promise.resolve().then(() => onLibrarySave?.(result.record, evidence)).catch(() => undefined);
     // A failing hand-off must not leave the toolbar stuck on "Saving..." with the author unsure
     // whether the library took the edit.
     let chatHalf = "";
