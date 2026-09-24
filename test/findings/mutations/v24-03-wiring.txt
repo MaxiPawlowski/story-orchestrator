@@ -87,3 +87,40 @@ Plan-table rows in this slice: tail-fit DELTA = W1 (plan mutation: send full win
     "Settings/CapabilitiesGroup > Says When The Limit Is The Default"
 
 Result: 26/26 killed (24 jest, 2 Storybook), each by its own case(s); controls green.
+
+First scene starts at the story's start (D5 follow-up), mutations 2026-09-24 (worktree build on a169dc4; script .debug/mut_story_start.py, same method: each mutant alone, exact-text replacement, file restored byte-for-byte after its run; none DID NOT APPLY)
+Jest suites per mutant: storyStart.review (6), memory/sceneSummary.test (13), rollbackReplay.property, reversal.review, storyIdentity.test. Baseline 53/53 green; restored after the sweep 53/53 green.
+Restart has no mutant of its own: activate always rebuilds extras (hydrateExtras(undefined)) and re-marks, so a mutant confined to restart is equivalent; its case is killed by S1-S3.
+
+- S1 the scene range ignores the story start (src/memory/sceneSummary.ts): KILLED, 8 of 53
+    "storyStart.review.test.ts: a story imported into a chat with prior history summarizes only from the story's start at its first scene break"
+    "storyStart.review.test.ts: control: a later scene still starts after the previous summary"
+    "storyStart.review.test.ts: a reopened chat keeps the start it recorded instead of re-anchoring at the chat's end"
+    "storyStart.review.test.ts: restart re-anchors the story's start at the chat's position then"
+    "storyStart.review.test.ts: a rollback before the story's start clamps it to the rollback point"
+    "sceneSummary.test.ts: starts at the story's start when no scene was summarized yet"
+    "sceneSummary.test.ts: takes the later of the previous summary's end and the story's start"
+    "sceneSummary.test.ts: never starts after the message that ended the scene, even with a later story start"
+- S2 activation never records the story start (src/runtime/runtimeManager.ts): KILLED, 5 of 53
+    "storyStart.review.test.ts: a story imported into a chat with prior history summarizes only from the story's start at its first scene break"
+    "storyStart.review.test.ts: control: a later scene still starts after the previous summary"
+    "storyStart.review.test.ts: a reopened chat keeps the start it recorded instead of re-anchoring at the chat's end"
+    "storyStart.review.test.ts: restart re-anchors the story's start at the chat's position then"
+    "storyStart.review.test.ts: a rollback before the story's start clamps it to the rollback point"
+- S3 the start is the chat's end, not the player's last message (src/runtime/coordinators/memoryCoordinator.ts): KILLED, 5 of 53
+    "storyStart.review.test.ts: a story imported into a chat with prior history summarizes only from the story's start at its first scene break"
+    "storyStart.review.test.ts: control: a fresh chat whose player has not spoken yet still starts at 0, greetings included"
+    "storyStart.review.test.ts: control: a later scene still starts after the previous summary"
+    "storyStart.review.test.ts: a reopened chat keeps the start it recorded instead of re-anchoring at the chat's end"
+    "storyStart.review.test.ts: restart re-anchors the story's start at the chat's position then"
+- S4 a reopened chat re-anchors the start (marked on hydrate too) (src/runtime/runtimeManager.ts): KILLED, 1 of 53
+    "storyStart.review.test.ts: a reopened chat keeps the start it recorded instead of re-anchoring at the chat's end"
+- S5 a rollback before the start does not clamp it (src/memory/reverse.ts): KILLED, 1 of 53
+    "storyStart.review.test.ts: a rollback before the story's start clamps it to the rollback point"
+- S6 the sanitizer drops the persisted start (src/runtime/extras.ts): KILLED, 1 of 53
+    "storyStart.review.test.ts: a reopened chat keeps the start it recorded instead of re-anchoring at the chat's end"
+- S7 a set story start hides the previous summary's end (src/memory/sceneSummary.ts): KILLED, 2 of 53
+    "storyStart.review.test.ts: control: a later scene still starts after the previous summary"
+    "sceneSummary.test.ts: takes the later of the previous summary's end and the story's start"
+
+Result: 7/7 killed, each by its own case(s); controls green (the fresh-chat control fails only under S3).

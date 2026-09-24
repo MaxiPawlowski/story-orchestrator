@@ -38,9 +38,9 @@ const fitOptions = async (budget: RequestBudget, input: number, overheadPrompt: 
 
 const windowOf = (parts: BudgetMessage[]) => ({ from: parts[0]?.messageId ?? 0, to: parts[parts.length - 1]?.messageId ?? 0, messages: parts });
 
-export function sceneRangeFrom(derived: readonly DerivedRecord[], to: number): number {
-  const ends = derived.filter((record) => record.kind === "scene_summary" && record.range).map((record) => record.range!.to);
-  return ends.length ? Math.min(Math.max(...ends) + 1, to) : 0;
+export function sceneRangeFrom(derived: readonly DerivedRecord[], to: number, storyStart = 0): number {
+  const ends = derived.filter((record) => record.kind === "scene_summary" && record.range).map((record) => record.range!.to + 1);
+  return Math.max(0, Math.min(Math.max(storyStart, ...ends), to));
 }
 
 // v2.4 plan 03 D5. A scene is summarized whole: map each chunk that fits, then reduce the chunk

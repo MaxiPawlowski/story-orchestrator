@@ -545,7 +545,7 @@ export class RuntimeManager {
     this.refreshRequirements();
     // The history travels WITH the state: `hydrate` clears the log before restoring what it is handed.
     const saved = mode === "hydrate" ? persisted?.engineState ?? null : null;
-    if (saved) this.engine.hydrate(saved, persisted?.engineHistory ?? null);
+    if (saved) this.engine.hydrate(saved, persisted?.engineHistory ?? null); else this.memory.markStoryStart();
     await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), saved ? "hydrate" : "activate", this.engine.checkpointPath);
     // A superseded load stops here: its tail used to retitle the newer load, release ITS gated lore and
     // select the old id (V3), and only the current load may queue a recap (S3).

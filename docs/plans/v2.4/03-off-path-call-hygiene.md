@@ -890,3 +890,62 @@ Not run: `test:debug`, `test:release` (it rewrites `dist/manifest.json`).
 - `sceneRangeFrom` returns 0 when no scene was summarized yet (the plan's "else 0"), so the first scene break in a
   long chat that took a story mid-way summarizes the whole history automatically (map/reduce, N requests, no
   preflight because it is automatic). Cap the first scene at the story's first boundary instead?
+
+### First scene starts at the story's start (worktree build, 2026-09-24)
+
+Built on master `a169dc4` (branch `worktree-agent-a8f250b6544aa31bb`). Answers the open question above (decided): the first
+scene starts where the story's play starts in this chat, not at 0. History before it is read only by the explicit
+"Memorize chat" backlog, which has the preflight.
+
+**Anchor (why a new field).** No existing value names the story's start message. `loadStory` leaves the engine at
+`lastMessageId -1` / `checkpointStartedMessageId -1` until the first boundary; boundary 0's `before` is that same `-1`
+state; the first boundary's context is capped out of a 200-entry log, rolled back with it, and moved by every transition;
+`visitedPath` holds checkpoint ids, not messages. So ONE optional field in the v4 blob (no version bump, X1):
+`extras.memory.storyStart?: number`.
+- **Value.** The player's last message when the story is activated in this chat (`playerTurnIds(chat).at(-1)`, the
+  existing `agencyRecovery` helper), else 0. So a fresh chat whose player has not spoken keeps every greeting (a fresh
+  group posts several), and a long chat starts at the exchange the story picked up.
+- **Set** by `RuntimeManager.loadStory` on activate only (`MemoryCoordinator.markStoryStart()`); a hydrate never re-marks.
+- **Restart** re-anchors it: `restartStory` drops the persisted runtime and activates, which rebuilds the extras.
+- **Rollback** before it clamps it to the rollback point (`reverseMemoryState`). A branch is
+  not handled specially: the value travels with whatever blob the branch copies, and the range never starts past `to`.
+- **Range.** `sceneRangeFrom(derived, to, storyStart)` = the later of (newest `scene_summary` end + 1) and `storyStart`,
+  never past `to`.
+- A chat saved before this has no field and keeps the old start (0). Nothing can be inferred for it: the start message
+  was never recorded.
+
+**Red first.** `src/runtime/storyStart.review.test.ts` (real `RuntimeManager` over a mocked host, 300-message chat) and
+three `sceneRangeFrom` cases in `memory/sceneSummary.test.ts`, run before the code: 8 failed, all for the reason under
+test (`from: 0` where `298`/`338`/`200` was expected); the fresh-chat control passed. Cases: "a story imported into a chat
+with prior history summarizes only from the story's start at its first scene break", "control: a later scene still starts
+after the previous summary", "control: a fresh chat whose player has not spoken yet still starts at 0, greetings included",
+"a reopened chat keeps the start it recorded", "restart re-anchors the story's start", "a rollback before the story's
+start clamps it".
+
+**Mutations** (`test/findings/mutations/v24-03-wiring.txt`, "First scene starts at the story's start"): **7/7 killed**:
+range ignores the start (S1), activation never records it (S2), chat end instead of the player's last message (S3),
+re-marked on hydrate (S4), rollback does not clamp (S5), sanitizer drops it (S6), start hides the previous summary (S7).
+
+**Gates** (worktree root, `node_modules` symlinked to the main checkout's)
+
+| Gate | Result |
+|---|---|
+| `npm run typecheck` | exit 0 |
+| `npm run typecheck:test` | exit 0 |
+| `npm run lint` | exit 0 |
+| `npm run debug:typecheck` | exit 0 |
+| `npm test` | 213/213 suites, 3188/3188 tests; fault matrix 70/10/20/0 of 100; findings ledger 2 open / 48 settled |
+| `npm run build` | compiled, 2 webpack size warnings; manifest `bundle e770c56cbbd0` |
+| architecture budgets (effective lines) | manager 733/740 (unchanged); memoryCoordinator 612 -> 615/620 |
+
+Ownership census untouched: `markStoryStart` is synchronous, so it is not a write-after-await site. Fault matrix untouched.
+
+**NOT run / NOT green**
+- No live gate (no backend). The live check that proves it: import a story into a copy of a long chat (>= 300 messages,
+  lane), play to the first scene break with the real memory model, and read the new `scene_summary` derived record's
+  `range.from` (`so-state current` / `getSnapshot()`), expected = the player's last message index at import, with a
+  captured-request count for that pass equal to the scene's chunks rather than the whole history's. Owed.
+
+**Deviations / notes**
+- `shortTermSummaryEnd` also starts at -1, so short-term compaction fires at the first boundary of a long chat. It is
+  tail-fit (one bounded request), so it is left alone here.

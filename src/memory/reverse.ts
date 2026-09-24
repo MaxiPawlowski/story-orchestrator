@@ -18,6 +18,7 @@ export interface MemoryRollbackState extends MemoryStoreState {
   canon: { text: string; inputHash: string; updatedAt: string } | null;
   verifyDrops: Array<{ entry: MemoryEntry }>;
   derived: DerivedRecord[];
+  storyStart?: number;
 }
 
 export function reverseMemoryState<S extends MemoryRollbackState>(state: S, messageId: number, boundary: number): Partial<S> {
@@ -56,5 +57,6 @@ export function reverseMemoryState<S extends MemoryRollbackState>(state: S, mess
     verifyDrops: state.verifyDrops.filter((drop) => (drop.entry.messageId ?? -1) < messageId),
     shortTermSummaryEnd: reversal.watermark === null ? state.shortTermSummaryEnd : Math.min(state.shortTermSummaryEnd, reversal.watermark),
     ...(canonStale ? { canon: null } : {}),
+    ...(state.storyStart !== undefined && state.storyStart > messageId ? { storyStart: messageId } : {}),
   } as Partial<S>;
 }
