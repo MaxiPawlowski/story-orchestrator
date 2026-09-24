@@ -21,8 +21,8 @@ import { DIRECTOR_MAX_TOKENS, DIRECTOR_WINDOW_MESSAGES, TalkController, type Tal
 import { GenerationLifecycle, type GenerationIntent } from "./generationLifecycle";
 import { isTurnMessageType, TurnBridge } from "./turnBridge";
 import { RequirementsWatch } from "./requirementsWatch";
-import { loadAtStartup } from "./chatIdentity";
-import { journalSettingsWrite, onSettingsWrite, type SettingsWrite } from "./librarySave";
+import { currentChat, loadAtStartup } from "./chatIdentity";
+import { journalSettingsWrite, onSettingsWrite, scopeToOpenChat, type SettingsWrite } from "./librarySave";
 import { onChatWrite } from "./persistence";
 import { onWizardSessionSave } from "./wizardSessions";
 
@@ -127,7 +127,7 @@ export function startRuntime() {
   runtimeDisposers.push(startMirrorReaper(() => runtimeManager.notify()));
   // v2.4 E3: chat writes outside persist, and wizard-session writes, read the save they asked for.
   runtimeDisposers.push(onChatWrite((write) => void runtimeManager.chatSave.recordWrite(write)));
-  const journalInstallWrite = (save: SettingsWrite) => void journalSettingsWrite(save.summary, save.label, save.evidence, beginRun(runtimeManager.getOwnership()), (summary, note) => runtimeManager.noteRecap(summary, note));
+  const journalInstallWrite = (save: SettingsWrite) => void journalSettingsWrite(save.summary, save.label, save.evidence, scopeToOpenChat(currentChat), (summary, note) => runtimeManager.noteRecap(summary, note));
   runtimeDisposers.push(onWizardSessionSave(journalInstallWrite));
   runtimeDisposers.push(onSettingsWrite(journalInstallWrite));
   const chatLastId = () => (Array.isArray(getContext().chat) ? getContext().chat.length - 1 : -1);

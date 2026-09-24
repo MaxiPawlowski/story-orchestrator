@@ -3,15 +3,25 @@
 // separate script. `solo_chat: {character}` makes a NEW chat for that character and adds it to the
 // run's ledger; `solo_chat: {leave: true}` returns to the group chat the run left. Cleanup returns
 // to the group first, deletes each solo chat the run made, and never one that existed before.
+// `/go` also moves ST's install-wide auto-load entity (`active_character`, which clears `active_group`),
+// and returning to the group through `openGroupById` does not move it back. The pair is captured
+// before the first solo step and put back at cleanup, persisted through `saveSettingsNow`.
 import { evaluateInST } from './evaluate.mts';
+import { saveSettingsNow } from './settingsSave.mts';
 
 type Page = Parameters<typeof evaluateInST>[0];
+
+export const ST_SCRIPT_MODULE = '/script.js';
+export type ActiveEntity = { character: string | null; group: string | null };
+export type ActiveEntityRestore =
+  | { captured: false }
+  | { captured: true; before: ActiveEntity; found: ActiveEntity; after: ActiveEntity; restored: boolean; saved: { status: number } | { error: string } | null };
 
 const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 
 export type SoloSpec = { character: string } | { leave: true };
 export type SoloChat = { chatId: string; avatar: string; name: string };
-export type SoloGuard = { groupId: string; owned: string[]; current?: string | null; soloChats?: SoloChat[]; soloReturn?: string | null; sandboxChatId: string };
+export type SoloGuard = { groupId: string; owned: string[]; current?: string | null; soloChats?: SoloChat[]; soloReturn?: string | null; sandboxChatId: string; activeEntityBefore?: ActiveEntity };
 
 export function soloSpec(value: unknown): SoloSpec {
   if (!isRecord(value)) throw new Error('solo_chat: expected {character: "<name>"} or {leave: true}');
@@ -33,6 +43,34 @@ export function withoutSoloChats<T extends { owned: string[]; soloChats?: SoloCh
   return { ...guard, owned: guard.owned.filter((id) => !solo.has(id)) };
 }
 
+const sameEntity = (a: ActiveEntity, b: ActiveEntity) => a.character === b.character && a.group === b.group;
+
+export async function readActiveEntity(page: Page, module = ST_SCRIPT_MODULE): Promise<ActiveEntity> {
+  return evaluateInST(page, async (path: string) => {
+    const st = await import(/* webpackIgnore: true */ path) as { active_character?: string | null; active_group?: string | null };
+    return { character: st.active_character || null, group: st.active_group || null };
+  }, module);
+}
+
+export async function restoreActiveEntity(page: Page, guard: { activeEntityBefore?: ActiveEntity }, { module = ST_SCRIPT_MODULE, save = saveSettingsNow }: { module?: string; save?: (page: Page) => Promise<{ status: number }> } = {}): Promise<ActiveEntityRestore> {
+  const before = guard.activeEntityBefore;
+  if (!before) return { captured: false };
+  const { found, after } = await evaluateInST(page, async ({ path, want }: { path: string; want: ActiveEntity }) => {
+    const st = await import(/* webpackIgnore: true */ path) as { active_character?: string | null; active_group?: string | null; setActiveCharacter: (key: string | null) => void; setActiveGroup: (key: string | null) => void };
+    const read = () => ({ character: st.active_character || null, group: st.active_group || null });
+    const now = read();
+    if (now.character === want.character && now.group === want.group) return { found: now, after: now };
+    st.setActiveCharacter(null);
+    st.setActiveGroup(null);
+    if (want.group) st.setActiveGroup(want.group);
+    if (want.character) st.setActiveCharacter(want.character);
+    return { found: now, after: read() };
+  }, { path: module, want: before });
+  const saved = sameEntity(found, after) ? null : await save(page).catch((error: unknown) => ({ error: error instanceof Error ? error.message : String(error) }));
+  const restored = sameEntity(after, before) && !(saved && 'error' in saved);
+  return { captured: true, before, found, after, restored, saved };
+}
+
 async function waitForChat(page: Page, predicate: (state: { groupId: string | null; chatId: string | null }) => boolean, timeoutMs = 20000) {
   const deadline = Date.now() + timeoutMs;
   let state = { groupId: null as string | null, chatId: null as string | null };
@@ -47,7 +85,7 @@ async function waitForChat(page: Page, predicate: (state: { groupId: string | nu
   throw new Error(`solo_chat: timed out waiting for the chat to settle (now ${JSON.stringify(state)})`);
 }
 
-async function openSolo(page: Page, guard: SoloGuard, character: string) {
+async function openSolo(page: Page, guard: SoloGuard, character: string, module: string) {
   const from = await evaluateInST(page, () => {
     const ctx = (globalThis as any).SillyTavern.getContext();
     return { groupId: ctx.groupId ?? null, chatId: ctx.chatId ?? null };
@@ -67,6 +105,7 @@ async function openSolo(page: Page, guard: SoloGuard, character: string) {
   }, character);
   if (!target) throw new Error(`solo_chat: no character named "${character}" on this install`);
   if (!target.chats) throw new Error(`solo_chat: the chats of "${target.name}" could not be read, so the run could not tell its own chat from one that existed`);
+  guard.activeEntityBefore = guard.activeEntityBefore ?? await readActiveEntity(page, module);
   await evaluateInST(page, async (avatar: string) => {
     await (globalThis as any).SillyTavern.getContext().executeSlashCommandsWithOptions(`/go ${avatar}`);
   }, target.avatar);
@@ -102,10 +141,10 @@ export async function returnToGroup(page: Page, guard: SoloGuard) {
   return { returnedTo: now.chatId };
 }
 
-export async function soloChat(page: Page, value: unknown, guard: SoloGuard | null) {
+export async function soloChat(page: Page, value: unknown, guard: SoloGuard | null, { module = ST_SCRIPT_MODULE }: { module?: string } = {}) {
   const spec = soloSpec(value);
   if (!guard) throw new Error('solo_chat needs --sandbox: the cleanup that deletes the solo chat is the sandbox cleanup');
-  return 'leave' in spec ? returnToGroup(page, guard) : openSolo(page, guard, spec.character);
+  return 'leave' in spec ? returnToGroup(page, guard) : openSolo(page, guard, spec.character, module);
 }
 
 /** Runs first in cleanup: the group chats must still exist for the page to return to one. */

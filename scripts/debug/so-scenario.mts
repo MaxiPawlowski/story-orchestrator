@@ -16,7 +16,7 @@ import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, se
 import { dumpCurrentChatState } from './so-state.mts';
 import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, branchContinue, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, getMemoryQueueState, memoryQueueAction, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot, hitTest, pointerClick } from './so-ui.mts';
 import { leakCount, listMarkedAssets, removeMarkedAssets } from './so-assets.mts';
-import { cleanupSoloChats, soloChat, withoutSoloChats } from './lib/soloSandbox.mts';
+import { cleanupSoloChats, restoreActiveEntity, soloChat, withoutSoloChats } from './lib/soloSandbox.mts';
 import { applyExtSetting, cutCommand, emitGeneration, expectOverSteer, expectStateEquals, hostDelete, injectScript, recordState, restoreExtSettings } from './lib/interopVerbs.mts';
 import { branchCreate, cleanupBranchChats, expectNextReadWindow, expectRollbackOutcome, settleReapPrompts, withoutBranchChats } from './lib/identityVerbs.mts';
 
@@ -38,7 +38,9 @@ Step keys:
   branch_create ({mesId?: id|"last", kind?: "branch"|"checkpoint", name?, open?} — /branch-create or /checkpoint-create; --sandbox only. The chat is recorded in the run's
     ledger, adopted into the sandbox, and deleted by cleanup, which reports cleanup.branchChats {deleted, failed, leaked}; a leak fails the run)
   solo_chat ({character} — a NEW solo chat for that character, owned by the run; {leave: true} — back to the group chat it left; --sandbox only. Cleanup returns to
-    the group, deletes each solo chat and reports cleanup.soloChats {deleted, leaked}; a leak fails the run),
+    the group, deletes each solo chat and reports cleanup.soloChats {deleted, leaked}; a leak fails the run. /go moves ST's install-wide
+    active_character/active_group: captured before the first solo step, put back and saved at cleanup, reported as cleanup.activeEntity
+    {before, found, after, restored, saved}; a restore that did not land fails the run),
   reload ({reopenChat?, awaitChatMs?} — awaitChatMs waits that long for ST to open a chat on its own, e.g. auto_load_chat, before reopening the sandbox chat)
 
 ui actions ({ui: {action, label?, note?}}):
@@ -1023,6 +1025,9 @@ async function cleanupScenario(page, importedHashes, guard, keep, libraryBefore:
     cleaned.clearedDebugResponses = await clearDebugResponses(page).catch((err) => ({ error: err instanceof Error ? err.message : String(err) }));
     await recordSandboxStory(page, guard);
     try { cleaned.soloChats = await cleanupSoloChats(page, guard); } catch (err) { cleaned.soloChats = { error: err instanceof Error ? err.message : String(err), leaked: (guard.soloChats ?? []).map((entry) => entry.chatId) }; }
+    if (guard.activeEntityBefore) {
+      try { cleaned.activeEntity = await restoreActiveEntity(page, guard); } catch (err) { cleaned.activeEntity = { captured: true, before: guard.activeEntityBefore, restored: false, error: err instanceof Error ? err.message : String(err) }; }
+    }
     try { Object.assign(cleaned, await deleteSandboxChats(page, withoutSoloChats(withoutBranchChats(guard)))); } catch (err) { cleaned.chatCleanupError = err instanceof Error ? err.message : String(err); }
     try { cleaned.branchChats = await cleanupBranchChats(page, guard); } catch (err) { cleaned.branchChats = { error: err instanceof Error ? err.message : String(err), leaked: [...(guard.branchChats ?? [])] }; }
     try { cleaned.mirrorBooks = await deleteSandboxMirrorBooks(page, guard); } catch (err) { cleaned.mirrorBookCleanupError = err instanceof Error ? err.message : String(err); }
@@ -1231,6 +1236,11 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
       if (solos.error || solos.leaked?.length) {
         result.ok = false;
         result.error = [result.error, `cleanup left solo chat(s): ${solos.error ?? JSON.stringify(solos.leaked)}`].filter(Boolean).join('; ');
+      }
+      const active = cleanup.activeEntity as { restored?: boolean; before?: unknown; after?: unknown; error?: string } | undefined;
+      if (active && !active.restored) {
+        result.ok = false;
+        result.error = [result.error, `cleanup did not put ST's active character/group back: before ${JSON.stringify(active.before)}, now ${active.error ?? JSON.stringify(active.after)}`].filter(Boolean).join('; ');
       }
       const prompts = (cleanup.reapPrompts ?? {}) as { leaked?: string[]; error?: string };
       if (prompts.error || prompts.leaked?.length) {
