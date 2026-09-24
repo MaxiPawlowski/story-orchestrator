@@ -54,3 +54,15 @@ baseline: 8 passed
 M-D1 block on any running drain (ownership ignored) -> 1 failed (a commit stuck in the chat that was left does not hold the next chat's boundaries back)
 M-D2 the stale loop keeps draining after it resumes  -> 1 failed (the stale drain stops when it resumes, so it never takes a boundary the new chat's drain is holding)
 restored: 8 passed; full jest 2917
+
+6. PRODUCT follow-up (2026-09-24): the empty-branch write recurred 1/4 branch runs after fixes 3-4, so its writer is
+   not one of our armed saves (the earlier recording saw a saveMetadata our getContext wrapper never did: a cached
+   context, i.e. ST or another extension). The write has a signature: openGroupChat resets chat_metadata to {}
+   before loading, so the header carries no `integrity`, and the server only integrity-checks a header that names
+   one (src/endpoints/chats.js:536). The watcher now also holds back any chat save with no messages and no
+   integrity, whoever made it. A chat ST has loaded always carries integrity; a legacy chat without it is still
+   saved whenever it has messages (control case).
+scope: npx jest src/services/stHost/saveWatcher.test.ts
+baseline: 14 passed
+M-S7 the no-integrity rule is off -> 4 failed (the refusal case, then its pending request shifts later answers)
+restored: 14 passed

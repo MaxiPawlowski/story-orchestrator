@@ -109,7 +109,7 @@ describe("v2.4 plan 02 §7 (T8): the save watcher heals and reports each request
 
 describe("v2.4 plan 02 (J10.14): a save that runs after the open chat changed", () => {
   beforeAll(() => installSaveWatcher());
-  const groupSave = (id: string, messages: number) => fetch("/api/chats/group/save", { method: "POST", body: JSON.stringify({ id, chat: [{ chat_metadata: {} }, ...Array.from({ length: messages }, (_, index) => ({ mes: `m${index}` }))] }) });
+  const groupSave = (id: string, messages: number, integrity: string | null = "i-1") => fetch("/api/chats/group/save", { method: "POST", body: JSON.stringify({ id, chat: [{ chat_metadata: integrity ? { integrity } : {} }, ...Array.from({ length: messages }, (_, index) => ({ mes: `m${index}` }))] }) });
 
   it("holds back an empty save of another chat while our save is armed, and says why it did not count", async () => {
     const watched = observeNextSave(2000, "chat-1");
@@ -138,6 +138,23 @@ describe("v2.4 plan 02 (J10.14): a save that runs after the open chat changed", 
     expect(await watched).toMatchObject({ ok: false, status: 200, lost: expect.stringContaining('wrote "chat-2", not "chat-1"') });
   });
 
+  it("holds back an empty save that carries no integrity, whoever made it (the switch clears the metadata)", async () => {
+    const before = pending.length;
+    const refused = saveWatcherStats().refused;
+    expect((await groupSave("chat-7", 0, null)).ok).toBe(true);
+    expect(pending.length).toBe(before);
+    expect(saveWatcherStats().refused).toBe(refused + 1);
+  });
+
+  it("control: a save without integrity that carries messages is sent (a chat from before integrity existed)", async () => {
+    const watched = observeNextSave(2000);
+    const save = groupSave("chat-7", 2, null);
+    await settle();
+    answer(200);
+    await save;
+    expect(await watched).toMatchObject({ ok: true });
+  });
+
   it("control: with no chat named, an empty save of any chat is sent", async () => {
     const watched = observeNextSave(2000);
     const save = groupSave("chat-2", 0);
@@ -153,10 +170,10 @@ describe("v2.4 plan 02: every chat save of ours arms the guard", () => {
     expect(await saveOpenChat()).toEqual({ ok: true, chatId: "chat-1" });
     const before = pending.length;
     const refused = saveWatcherStats().refused;
-    await fetch("/api/chats/group/save", { method: "POST", body: JSON.stringify({ id: "chat-9", chat: [{ chat_metadata: {} }] }) });
+    await fetch("/api/chats/group/save", { method: "POST", body: JSON.stringify({ id: "chat-9", chat: [{ chat_metadata: { integrity: "i-9" } }] }) });
     expect(pending.length).toBe(before);
     expect(saveWatcherStats().refused).toBe(refused + 1);
-    const save = fetch("/api/chats/group/save", { method: "POST", body: JSON.stringify({ id: "chat-1", chat: [{ chat_metadata: {} }] }) });
+    const save = fetch("/api/chats/group/save", { method: "POST", body: JSON.stringify({ id: "chat-1", chat: [{ chat_metadata: { integrity: "i-1" } }] }) });
     await settle();
     answer(200);
     await save;

@@ -66,22 +66,27 @@ const answered = (status: number) => ({ requested: true, status, ok: status >= 2
 // `chat_id` before loading the next one (`group-chats.js:2203-2209`). A save asked for in one chat can
 // therefore run inside the switch and write an EMPTY chat under the next chat's name: a new branch lost
 // every message that way. The one shape refused is exactly that: a chat save carrying no messages, for
-// a chat other than the one an armed save of ours was asked for.
-export const chatSaveTarget = (input: unknown, init: RequestInit | undefined): { chatId: string; messages: number } | null => {
+// a chat other than the one an armed save of ours was asked for. The same write made by anyone (ST's own
+// save, another extension) carries a header with no `integrity`: `openGroupChat` resets the metadata to
+// `{}` before loading, and the server only checks integrity when the header names one
+// (`src/endpoints/chats.js:536`), so nothing else stops it. A chat ST has loaded always has one.
+export const chatSaveTarget = (input: unknown, init: RequestInit | undefined): { chatId: string; messages: number; integrity: boolean } | null => {
   if (saveKindOf(input) !== "chat" || typeof init?.body !== "string") return null;
   try {
     const body = JSON.parse(init.body) as { id?: unknown; file_name?: unknown; chat?: unknown };
     const chatId = typeof body.id === "string" ? body.id : typeof body.file_name === "string" ? body.file_name : null;
     if (!chatId || !Array.isArray(body.chat)) return null;
-    const header = body.chat.length > 0 && Boolean(body.chat[0]) && typeof body.chat[0] === "object" && "chat_metadata" in (body.chat[0] as object);
-    return { chatId, messages: body.chat.length - (header ? 1 : 0) };
+    const first = body.chat[0] as { chat_metadata?: { integrity?: unknown } } | undefined;
+    const header = Boolean(first) && typeof first === "object" && "chat_metadata" in (first as object);
+    return { chatId, messages: body.chat.length - (header ? 1 : 0), integrity: typeof first?.chat_metadata?.integrity === "string" && Boolean(first.chat_metadata.integrity) };
   } catch {
     return null;
   }
 };
 
-const switchRefusal = (target: { chatId: string; messages: number } | null, startedAt: number) => {
+const switchRefusal = (target: { chatId: string; messages: number; integrity: boolean } | null, startedAt: number) => {
   if (!target || target.messages > 0) return null;
+  if (!target.integrity) return `an empty save of "${target.chatId}" carried no chat integrity (the metadata a chat switch clears) and was held back`;
   const armed = watching.find((entry) => entry.kind === "chat" && entry.chatId !== null && entry.armedAt < startedAt);
   return armed && armed.chatId !== target.chatId ? `the open chat changed before the save ran: an empty save of "${target.chatId}" was held back (asked for "${armed.chatId}")` : null;
 };
