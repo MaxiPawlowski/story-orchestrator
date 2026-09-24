@@ -32,6 +32,8 @@ jest.mock("@services/STAPI", () => ({
   observeNextSettingsSave: async () => ({ requested: true, status: 500, ok: false, timedOut: false, failed: false }),
   readServerExtensionSettings: async () => null,
   readServerBoundary: async () => null,
+  readProfileContextLimit: () => ({ value: 8192, source: "default", reason: "no memory model profile is selected" }),
+  countTokens: async (text: string) => Math.ceil(text.length / 4),
   saveOpenChat: async () => ({ ok: true, chatId: mockHost.context.chatId, observed: Promise.resolve({ requested: true, status: 200, ok: true, timedOut: false, failed: false }) }),
   unbindChatLorebook: async (name: string) => {
     if (mockHost.context.chatMetadata.world_info !== name) return { ok: false, reason: "the slot names another book" };

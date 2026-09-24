@@ -166,6 +166,18 @@ export function buildSceneSummaryPrompt(sceneText: string): string {
   ].join("\n");
 }
 
+export function buildSceneReducePrompt(partsText: string): string {
+  return [
+    "The scene below was too long to summarize at once, so each part was summarized in order.",
+    "Combine the part summaries into one 2-3 sentence summary of the whole scene for use as scene history.",
+    "Write in past tense, narrative style. Keep what happened, where, and the emotional tone. Be concise.",
+    "Output only the summary text. No notes, no commentary, no disclaimers.",
+    "",
+    "PART SUMMARIES:",
+    partsText,
+  ].join("\n");
+}
+
 export function buildShortTermSummaryPrompt(previousSummary: string | null, recentText: string): string {
   return [
     "Maintain a rolling 3-5 sentence summary of recent play; it complements scene history during long scenes.",

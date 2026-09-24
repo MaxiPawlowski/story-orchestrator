@@ -7,8 +7,13 @@ import { hashContract, renderSharedReadPrompt } from "./contract";
 import { detectDegenerate } from "./degenerate";
 import { evidenceInWindow } from "./evidence";
 import { parseSharedReadResponse } from "./parse";
+import { inputBudget, tailFit, type TokenCounter } from "./inputBudget";
 import { deriveScope } from "./scope";
-import type { ExtraGateSource, JudgedTypedRead, ParsedDelta, ParsedFact, ParsedSharedRead, ScopedQuality, SharedReadAudit, SharedReadResult, SharedReadWindow, TypedJudge } from "./types";
+import type { RequestBudget } from "./tokenMeter";
+import type {
+  ChatMessageWindowEntry, ExtraGateSource, JudgedTypedRead, ParsedDelta, ParsedFact, ParsedSharedRead, ReadBudgetRecord, ScopedQuality,
+  SharedReadAudit, SharedReadContract, SharedReadResult, SharedReadWindow, TypedJudge,
+} from "./types";
 
 // v2.3 plan 02 (R6). A response is a bounded answer to a bounded question. Past either bound the
 // whole read is refused rather than partly believed: the lines that survived a truncation are not
@@ -90,9 +95,55 @@ export function sharedReadWindow(options: Pick<RunSharedReadOptions, "state" | "
   return options.window ?? getChatWindow(Math.max(0, latestMessageId - 7), latestMessageId);
 }
 
+const scopeOf = (options: RunSharedReadOptions): ScopedQuality[] =>
+  options.scope ?? deriveScope(options.story, options.state.activeCheckpointId, options.state.blackboard, options.extraGateSources ?? []);
+
+const readContract = (options: RunSharedReadOptions, window: SharedReadWindow, qualities: ScopedQuality[]): SharedReadContract => ({
+  storyTitle: options.story.title,
+  activeCheckpointId: options.state.activeCheckpointId,
+  qualities,
+  window,
+  canon: getCanonLite(options.story, options.state.visitedAnchors, options.firedTransitions ?? [], options.facts ?? []),
+  openArcs: options.openArcs ?? [],
+  epistemicLedgerCapable: options.epistemicLedgerCapable ?? false,
+  entities: options.entities ?? [],
+});
+
+export const sharedReadOverhead = (options: RunSharedReadOptions): string =>
+  renderSharedReadPrompt(readContract(options, { from: 0, to: -1, messages: [] }, scopeOf(options)));
+
+export const transcriptPrefixCost = (messages: readonly ChatMessageWindowEntry[], count: TokenCounter): number =>
+  messages.reduce((top, message) => Math.max(top, count(`[${message.index}] ${message.speaker}: \n`)), 0);
+
+interface FittedRead {
+  window: SharedReadWindow;
+  record: ReadBudgetRecord | null;
+  trimmedFrom: number | null;
+  truncated: number[];
+}
+
+// v2.4 plan 03 D5. A DELTA read is never split: a window over budget keeps its newest messages and
+// says where it was cut, so a delta quoting a trimmed message is refused as "evidence not in window".
+export async function fitReadWindow(window: SharedReadWindow, overheadPrompt: string, budget: RequestBudget | undefined, maxTokens: number): Promise<FittedRead> {
+  if (!budget) return { window, record: null, trimmedFrom: null, truncated: [] };
+  const limits = inputBudget(budget.contextLimit, maxTokens);
+  const { meter } = budget;
+  await meter.prime([overheadPrompt, ...window.messages.map((message) => message.text)]);
+  const promptOverhead = meter.count(overheadPrompt);
+  const perMessage = transcriptPrefixCost(window.messages, meter.count);
+  const fit = tailFit(window, { budget: limits.input, promptOverhead, count: meter.count, perMessage });
+  const base = { contextLimit: budget.contextLimit, inputBudget: limits.input, maxTokens: limits.maxTokens };
+  if (!fit.ok) {
+    const tokens = window.messages.reduce((sum, message) => sum + meter.count(message.text) + perMessage, promptOverhead);
+    return { window, record: { ...base, tokens, overBudget: fit.reason }, trimmedFrom: null, truncated: [] };
+  }
+  return { window: { from: fit.from, to: fit.to, messages: fit.messages }, record: { ...base, tokens: promptOverhead + fit.tokens }, trimmedFrom: fit.trimmedFrom, truncated: fit.truncated };
+}
+
 export async function runSharedRead(options: RunSharedReadOptions): Promise<SharedReadResult> {
-  const window = sharedReadWindow(options);
-  const scope = options.scope ?? deriveScope(options.story, options.state.activeCheckpointId, options.state.blackboard, options.extraGateSources ?? []);
+  const scope = scopeOf(options);
+  const fitted = await fitReadWindow(sharedReadWindow(options), sharedReadOverhead(options), options.client.budget, options.client.maxTokens ?? DEFAULT_RESPONSE_TOKENS);
+  const { window } = fitted;
   const hinted = scope.filter((entry) => entry.quality.read_as && entry.quality.source === "extractor");
   // V18: a judge that threw used to leave no trace, so its audit read exactly like one where the
   // judge was never asked. The read still falls back to the LLM; the audit says why.
@@ -102,16 +153,7 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     : null;
   const answered = new Set(judged?.answered ?? []);
   const residual = scope.filter((entry) => !answered.has(entry.key));
-  const contract = {
-    storyTitle: options.story.title,
-    activeCheckpointId: options.state.activeCheckpointId,
-    qualities: residual,
-    window,
-    canon: getCanonLite(options.story, options.state.visitedAnchors, options.firedTransitions ?? [], options.facts ?? []),
-    openArcs: options.openArcs ?? [],
-    epistemicLedgerCapable: options.epistemicLedgerCapable ?? false,
-    entities: options.entities ?? [],
-  };
+  const contract = readContract(options, window, residual);
   const prompt = renderSharedReadPrompt(contract);
   const ask = (): Promise<ExtractionReply> => (scope.length ? callExtractionReply(prompt, options.client) : Promise.resolve({ text: "NO_DELTA", finish: "stop" }));
   let reply = await ask();
@@ -138,6 +180,9 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     ...(parsed.sceneBreak ? { sceneBreak: parsed.sceneBreak } : {}),
     ...(judged ? { judged: { keys: judged.answered, model: judged.model, confidences: judged.confidences, ...(judged.fallback ? { fallback: judged.fallback } : {}) } } : {}),
     ...(failure.message !== undefined ? { judged: { keys: [], model: null, confidences: {}, fallback: "error", error: failure.message } } : {}),
+    ...(fitted.record ? { budget: fitted.record } : {}),
+    ...(fitted.trimmedFrom !== null ? { trimmedFrom: fitted.trimmedFrom } : {}),
+    ...(fitted.truncated.length ? { truncated: fitted.truncated } : {}),
   };
   // A refused response is refused whole: the lines that survived a truncation are not more
   // trustworthy than the ones that did not, and the fact/memory/arc lines have no bound of their own.

@@ -5,6 +5,7 @@ import { getChatWindow } from "./chatWindow";
 import { Breaker, DANGLING_PROFILE_DETAIL, failureClass, type ExtractionHealth, type ProbeResult, type ProbeTrigger } from "./breaker";
 import { isLapse } from "./client";
 import { runSharedRead, sharedReadWindow } from "./sharedRead";
+import type { RequestBudget } from "./tokenMeter";
 import type { ParsedFact, SharedReadAudit, SharedReadWindow } from "./types";
 
 export interface SchedulerSettings {
@@ -15,6 +16,7 @@ export interface SchedulerSettings {
   stabilityLag: number;
   debugResponse?: string | null;
   pressureThreshold?: number;
+  budget?: RequestBudget;
 }
 
 export const PRESSURE_DEFAULT_THRESHOLD = 3;

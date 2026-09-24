@@ -1,15 +1,17 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
 import {
-  callExtractionModel, deriveFullScope, deriveScope, getChatWindow, getLastMessageText, isLapse, maxTokensForInput, reconciliationKeySet,
-  reconciliationTargets, runSharedRead, sharedReadWindow, stripChannelNoise, type ExtraGateSource, type ParsedDelta,
-  type ParsedFact, type ReadOwnership, type ReconciliationPlan, type SharedReadAudit,
+  callExtractionModel, createTokenMeter, defaultContextLimit, deriveFullScope, deriveScope, getChatWindow, getLastMessageText, isLapse,
+  maxTokensFor, maxTokensForInput, planBacklog, preflightNeeded, reconciliationKeySet, reconciliationTargets, runSharedRead,
+  sharedReadOverhead, sharedReadWindow, stripChannelNoise, type ExtraGateSource, type ExtractionClientOptions, type ParsedDelta,
+  type ParsedFact, type PreflightConfirm, type ReadOwnership, type ReconciliationPlan, type RequestBudget, type RunSharedReadOptions,
+  type SharedReadAudit, type SharedReadWindow,
 } from "@extraction/index";
 import {
-  buildEpistemicPassPrompt, buildLedgerPassPrompt, buildSceneSummaryPrompt, buildShortTermSummaryPrompt,
-  detectSceneBreakHeuristic, generateMemoryId, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, provenance,
-  type ArcEntry, type MemoryEntry, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal,
-  type ParsedMemoryLine,
+  buildEpistemicPassPrompt, buildLedgerPassPrompt, buildShortTermSummaryPrompt, detectSceneBreakHeuristic, fitShortTerm,
+  generateMemoryId, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, provenance, summarizeScene, type ArcEntry,
+  type MemoryEntry, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine,
 } from "@memory/index";
+import { anySignal } from "@utils/signals";
 import { getActiveGroup, getContext } from "@services/STAPI";
 import { SHORT_TERM_COMPACTION_MESSAGES } from "@constants/defaults";
 import { enabledCharacterNames } from "../roster";
@@ -53,6 +55,7 @@ export interface ExtractionCoordinatorDeps {
   emitArcsResolved: (arcs: ArcEntry[]) => void;
   setStatus: (status: string) => void;
   judge?: () => JudgeRuntime | null;
+  requestBudget?: () => RequestBudget;
   persist: () => Promise<void>;
   notify: () => void;
   // v2.3 plan 03. Optional so the conversion can land one coordinator at a time: an unwired
@@ -76,6 +79,10 @@ export class ExtractionCoordinator {
   private async save() {
     await this.deps.persist();
     this.deps.notify();
+  }
+
+  private budget(): RequestBudget {
+    return this.deps.requestBudget?.() ?? { contextLimit: defaultContextLimit("no request budget is wired"), meter: createTokenMeter() };
   }
 
   // v2.3 plan 05: every row this pass writes says where it came from, so a consumer can tell a
@@ -272,7 +279,7 @@ export class ExtractionCoordinator {
       openArcs: memory.getOpenArcs(),
       epistemicLedgerCapable: memory.capable,
       entities: memory.getEntities(),
-      client: { ...this.deps.getSettings(), signal: read.signal, debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugExtractionResponse ?? null },
+      client: { ...this.deps.getSettings(), budget: this.budget(), signal: read.signal, debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugExtractionResponse ?? null },
     }).catch((error: unknown) => { if (isLapse(error)) return null; throw error; }).finally(() => read.release());
     if (!result) return false;
     await this.applyAudit(result.audit, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, read);
@@ -304,19 +311,23 @@ export class ExtractionCoordinator {
   async runSceneBreakPass(audit: SharedReadAudit) {
     const memory = this.deps.memory;
     if (!this.deps.getStory() || !audit.sceneBreak || !memory.enabled) return;
-    const window = getChatWindow(audit.window.from, audit.window.to);
-    // The summary describes exactly this window, so an edit inside it makes the summary a
+    // v2.4 plan 03 D5: the whole scene since the previous summary, not only the read that detected the
+    // break. The summary describes exactly that span, so an edit inside it makes the summary a
     // description of messages that no longer exist. A reply appended after it is fine.
-    const run = beginRun(this.deps.ownership, { from: audit.window.from, to: audit.window.to });
-    const sceneText = window.messages.map((message) => `${message.speaker}: ${message.text}`).join("\n") || "(empty)";
-    const summary = await callExtractionModel(buildSceneSummaryPrompt(sceneText), {
-      profileId: this.deps.getSettings().profileId,
-      maxTokens: maxTokensForInput("sceneSummary", sceneText), signal: run.signal, refuseIncomplete: true,
-      debugResponse: globalThis.storyOrchestratorDebugSceneSummaryResponse ?? null,
+    const range = { from: memory.sceneStart(audit.window.to), to: audit.window.to };
+    const run = beginRun(this.deps.ownership, range);
+    const scene = getChatWindow(range.from, range.to);
+    const outcome = await summarizeScene({
+      messages: scene.messages, budget: this.budget(), stillOwns: () => run.stillOwns(),
+      summarize: async (prompt, maxTokens) => stripChannelNoise(await callExtractionModel(prompt, {
+        profileId: this.deps.getSettings().profileId, maxTokens, signal: run.signal, refuseIncomplete: true,
+        debugResponse: globalThis.storyOrchestratorDebugSceneSummaryResponse ?? null,
+      })),
     });
-    if (!run.stillOwns()) return;
-    const entry = this.newEntry({ provenance: this.provenanceFor(audit.window, "scene-summary"), tier: "scene_history", text: stripChannelNoise(summary), type: "scene", importance: 2, expiration: "permanent", entities: [], evidence: sceneText, messageId: audit.window.to });
-    const sceneOccurrence = await memory.addSceneSummary(entry, audit.window);
+    if (!outcome || !run.stillOwns()) return;
+    const evidence = scene.messages.filter((message) => message.messageId >= audit.window.from).map((message) => `${message.speaker}: ${message.text}`).join("\n") || "(empty)";
+    const entry = this.newEntry({ provenance: this.provenanceFor(range, "scene-summary"), tier: "scene_history", text: outcome.summary, type: "scene", importance: 2, expiration: "permanent", entities: [], evidence, messageId: range.to });
+    const sceneOccurrence = await memory.addSceneSummary(entry, range);
     if (sceneOccurrence === null) return;
     memory.updateInjection();
     await this.deps.fireSceneBreakReplies(sceneOccurrence);
@@ -335,21 +346,22 @@ export class ExtractionCoordinator {
     const lastId = (Array.isArray(getContext().chat) ? getContext().chat.length : 0) - 1;
     if (!this.shouldCompactShortTerm(lastId)) return;
     const window = getChatWindow(memory.shortTermSummaryEnd + 1, lastId);
-    const recentText = window.messages.map((message) => `${message.speaker}: ${message.text}`).join("\n");
-    if (!recentText) return;
+    if (!window.messages.length) return;
     const previous = memory.shortTermEntry();
     if (previous?.pinned) return;
     // This one REPLACES the rolling short-term entry, so a stale result does not merely add noise
     // — it overwrites the live summary with one describing another chat or an edited window.
     const run = beginRun(this.deps.ownership, { from: window.from, to: window.to });
-    const summary = stripChannelNoise(await callExtractionModel(buildShortTermSummaryPrompt(previous?.text ?? null, recentText), {
+    const fit = await fitShortTerm(window.messages, previous?.text ?? null, this.budget());
+    const summary = stripChannelNoise(await callExtractionModel(buildShortTermSummaryPrompt(previous?.text ?? null, fit.text), {
       profileId: this.deps.getSettings().profileId,
-      maxTokens: maxTokensForInput("shortTerm", recentText), signal: run.signal, refuseIncomplete: true,
+      maxTokens: maxTokensFor("shortTerm", fit.tokens), signal: run.signal, refuseIncomplete: true,
       debugResponse: globalThis.storyOrchestratorDebugShortTermResponse ?? null,
     }));
     if (!summary || !run.stillOwns()) return;
-    const entry = this.newEntry({ provenance: this.provenanceFor(window, "short-term-compaction"), tier: "short_term", text: summary, type: "scene", importance: 2, expiration: "session", entities: [], evidence: recentText, messageId: window.to });
-    await memory.replaceShortTerm(entry, window);
+    const span = { from: fit.from, to: window.to };
+    const entry = this.newEntry({ provenance: this.provenanceFor(span, "short-term-compaction"), tier: "short_term", text: summary, type: "scene", importance: 2, expiration: "session", entities: [], evidence: fit.text, messageId: span.to });
+    await memory.replaceShortTerm(entry, span);
     memory.updateInjection();
     await this.save();
   }
@@ -401,12 +413,14 @@ export class ExtractionCoordinator {
 
   // Full-scope re-read of an existing chat, window by window, then one whole-chat pass that is
   // allowed to move the blackboard. Progress is surfaced through the memory backfill state.
-  async runMemorizeBacklog(windowSize = 8): Promise<boolean> {
+  // v2.4 plan 03 D5: the windows are packed to the request budget (`windowSize` only caps their
+  // message count), the whole-chat pass is tail-fit, and a caller that passes `confirm` is asked
+  // before anything is sent when the run is large. Automatic and debug callers pass none.
+  async runMemorizeBacklog(windowSize?: number, confirm?: PreflightConfirm): Promise<boolean> {
     const story = this.deps.getStory();
     const memory = this.deps.memory;
-    if (!story || !memory.enabled || memory.backfill?.running) return false;
+    if (!story || !memory.enabled || memory.backfill?.running || this.backlogStop) return false;
     const length = Array.isArray(getContext().chat) ? getContext().chat.length : 0;
-    const windows = Math.max(1, Math.ceil(length / windowSize));
     // V3: the backlog reads the whole chat window by window for minutes; a chat switch in between
     // used to read the NEXT chat's windows into memory this pass still believed was its own.
     const read = beginRun(this.deps.ownership, { from: 0, to: Math.max(0, length - 1) });
@@ -415,19 +429,26 @@ export class ExtractionCoordinator {
     const owned: ReadOwnership = {
       stillOwns: () => !stop.signal.aborted && read.stillOwns(),
       lapsedDetail: () => (stop.signal.aborted ? "stopped" : read.lapsedDetail()),
+      signal: anySignal([stop.signal, read.signal]),
     };
+    const budget = this.budget();
+    let windows: SharedReadWindow[] | null = null;
     let completed = false;
     let failure: string | null = null;
     try {
-      memory.setBackfill({ running: true, processed: 0, total: windows + 1, lastError: null });
+      const plan = await planBacklog(getChatWindow(0, length - 1).messages, sharedReadOverhead(this.backlogRead(story, "memorize:window", { from: 0, to: -1, messages: [] }, { profileId: null })), budget, windowSize);
+      if (!read.stillOwns() || (confirm && preflightNeeded(plan.preflight, budget.contextLimit) && !(await confirm(plan.preflight)))) return false;
+      windows = plan.windows;
+      memory.setBackfill({ running: true, processed: 0, total: windows.length + 1, lastError: null });
       await this.save();
-      completed = await this.memorizeWindows(story, length, windowSize, owned);
+      completed = await this.memorizeWindows(story, windows, length, owned, budget);
     } catch (error) {
       failure = error instanceof Error ? error.message : "Memorize backlog failed";
     } finally {
       if (this.backlogStop === stop) this.backlogStop = null;
+      read.release();
     }
-    return this.endBacklog(read, stop.signal, { completed, failure, windows });
+    return windows || failure ? this.endBacklog(read, stop.signal, { completed, failure, windows: windows?.length ?? 0 }) : false;
   }
 
   cancelMemorizeBacklog(): boolean {
@@ -436,27 +457,19 @@ export class ExtractionCoordinator {
     return true;
   }
 
-  private async memorizeWindows(story: NormalizedStoryV2, length: number, windowSize: number, read: ReadOwnership): Promise<boolean> {
+  private backlogRead(story: NormalizedStoryV2, reason: "memorize:window" | "memorize:full", window: SharedReadWindow, client: ExtractionClientOptions): RunSharedReadOptions {
     const memory = this.deps.memory;
-    const client = { ...this.deps.getSettings(), debugResponse: globalThis.storyOrchestratorDebugExtractionResponse ?? null };
-    for (let from = 0; from < length; from += windowSize) {
+    const state = this.deps.getState()!;
+    const windowed = reason === "memorize:window" ? { openArcs: memory.getOpenArcs(), epistemicLedgerCapable: memory.capable, entities: memory.getEntities() } : {};
+    return { story, state, priority: 0, reason, window, scope: deriveFullScope(story, state.blackboard), firedTransitions: this.deps.getFiredTransitions(), facts: memory.getFacts(), ...windowed, client };
+  }
+
+  private async memorizeWindows(story: NormalizedStoryV2, windows: SharedReadWindow[], length: number, read: ReadOwnership, budget: RequestBudget): Promise<boolean> {
+    const memory = this.deps.memory;
+    const client = { ...this.deps.getSettings(), budget, signal: read.signal, debugResponse: globalThis.storyOrchestratorDebugExtractionResponse ?? null };
+    for (const window of windows) {
       if (!read.stillOwns()) return false;
-      const to = Math.min(length - 1, from + windowSize - 1);
-      const state = this.deps.getState()!;
-      const result = await runSharedRead({
-        story,
-        state,
-        priority: 0,
-        reason: "memorize:window",
-        window: getChatWindow(from, to),
-        scope: deriveFullScope(story, state.blackboard),
-        firedTransitions: this.deps.getFiredTransitions(),
-        facts: memory.getFacts(),
-        openArcs: memory.getOpenArcs(),
-        epistemicLedgerCapable: memory.capable,
-        entities: memory.getEntities(),
-        client,
-      });
+      const result = await runSharedRead(this.backlogRead(story, "memorize:window", window, client));
       await this.applyAudit({ ...result.audit, acceptedDeltas: [] }, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, read);
       if (!read.stillOwns()) return false;
       const progress = memory.backfill!;
@@ -465,37 +478,27 @@ export class ExtractionCoordinator {
     }
 
     if (!read.stillOwns()) return false;
-    const finalState = this.deps.getState()!;
-    const fullResult = await runSharedRead({
-      story,
-      state: finalState,
-      priority: 0,
-      reason: "memorize:full",
-      window: getChatWindow(0, Math.max(0, length - 1)),
-      scope: deriveFullScope(story, finalState.blackboard),
-      firedTransitions: this.deps.getFiredTransitions(),
-      facts: memory.getFacts(),
-      client,
-    });
+    const fullResult = await runSharedRead(this.backlogRead(story, "memorize:full", getChatWindow(0, Math.max(0, length - 1)), client));
     await this.applyAudit(fullResult.audit, [], [], [], [], [], read);
     if (!read.stillOwns()) return false;
     await this.deps.commitBoundary();
     return true;
   }
 
+  // A player's own Stop is not a failure, so it is a note, never `lastError`.
   private async endBacklog(read: RunGuard, stop: AbortSignal, run: { completed: boolean; failure: string | null; windows: number }): Promise<boolean> {
     const lapse = read.lapsed();
     if (lapse && lapse !== "window" && lapse !== "version") return false;
     const memory = this.deps.memory;
     const total = run.windows + 1;
     const processed = run.completed ? total : memory.backfill?.processed ?? 0;
-    const lastError = run.completed ? null
+    const stopped = !run.completed && !lapse && stop.aborted;
+    const lastError = run.completed || stopped ? null
       : lapse === "window" ? BACKLOG_STOPPED_BY_EDIT
         : lapse === "version" ? BACKLOG_STOPPED_BY_UPDATE
-          : stop.aborted ? backlogStoppedByPlayer(processed, run.windows)
-            : run.failure ?? "Memorize backlog failed";
-    memory.setBackfill({ running: false, processed, total, lastError });
-    this.deps.setStatus(run.completed ? "Memorize backlog complete" : stop.aborted && !lapse ? "Memorize backlog stopped" : "Memorize backlog failed");
+          : run.failure ?? "Memorize backlog failed";
+    memory.setBackfill({ running: false, processed, total, lastError, ...(stopped ? { stoppedNote: backlogStoppedByPlayer(processed, run.windows) } : {}) });
+    this.deps.setStatus(run.completed ? "Memorize backlog complete" : stopped ? "Memorize backlog stopped" : "Memorize backlog failed");
     await this.save();
     return run.completed;
   }

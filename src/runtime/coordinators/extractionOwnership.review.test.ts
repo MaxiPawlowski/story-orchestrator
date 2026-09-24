@@ -94,6 +94,7 @@ function harness() {
     applyLedger: () => { writes.push("applyLedger"); },
     activeEpistemic: () => [],
     ledgerEntityList: () => [],
+    sceneStart: (to: number) => to,
     shortTermSummaryEnd: -1,
     shortTermEntry: () => null,
     addSceneSummary: async () => { writes.push("addSceneSummary"); return null; },

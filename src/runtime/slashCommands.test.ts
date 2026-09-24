@@ -27,6 +27,8 @@ const makeManager = () => {
     setMemoryPinned: jest.fn(async () => undefined),
     excludeMemoryEntry: jest.fn(async () => undefined),
     runMemorizeBacklog: jest.fn(async () => true),
+    memorizeChat: jest.fn(async () => true),
+    runExpansionNow: jest.fn(async () => true),
     flagMoment: jest.fn(async () => undefined),
     getOpenArcs: jest.fn(() => ["The missing sun-heart"]),
     getNarrativeStatus: jest.fn(() => ({
@@ -102,11 +104,23 @@ describe("registerSlashCommands", () => {
     expect(manager.excludeMemoryEntry).toHaveBeenLastCalledWith("m1");
   });
 
+  it("/cp expand asks before a real generation, never before a debug response (v2.4 plan 03 D5 preflight)", async () => {
+    const manager = makeManager();
+    registerSlashCommands(manager);
+    await commands.cp.callback({}, "expand");
+    expect(manager.runExpansionNow).toHaveBeenLastCalledWith(undefined, true);
+    await commands.cp.callback({}, "expand BEAT canned");
+    expect(manager.runExpansionNow).toHaveBeenLastCalledWith("BEAT canned", false);
+    await commands.cp.callback({}, "memorize");
+    expect(manager.memorizeChat).toHaveBeenCalledTimes(1);
+  });
+
   it("/so-mem backlog starts the memorize backlog; bad subcommands return usage", async () => {
     const manager = makeManager();
     registerSlashCommands(manager);
     await commands["so-mem"].callback({}, "backlog");
-    expect(manager.runMemorizeBacklog).toHaveBeenCalledTimes(1);
+    expect(manager.memorizeChat).toHaveBeenCalledTimes(1);
+    expect(manager.runMemorizeBacklog).not.toHaveBeenCalled();
     const usage = await commands["so-mem"].callback({}, "bogus");
     expect(usage).toContain("/so-mem list");
     const pinUsage = await commands["so-mem"].callback({}, "pin");

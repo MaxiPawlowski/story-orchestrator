@@ -17,6 +17,10 @@
       "status": "local",
       "note": "v2.3 replan V3 (2026-09-23): createId only hashes the prompt/response into the audit's id; the function returns its result and writes nothing that outlives the call. The caller owns the write edge (applyAudit's read guard)."
     },
+    "src/extraction/tokenMeter.ts#createTokenMeter.prime": {
+      "status": "local",
+      "note": "v2.4 plan 03 D5 wiring (2026-09-24): writes only the meter's own per-call count map (one meter per read or per backlog run); nothing outlives the request it budgets. The caller owns the write edge."
+    },
     "src/generation/generate.ts#generateVariants": {
       "status": "local",
       "note": "v2.3 replan V3 (2026-09-23): `record` is a local builder for the returned variants summary; nothing is written outside the return value. The expansion coordinator owns the write edge (ExpansionCoordinator.generate is checked)."
@@ -51,7 +55,7 @@
     },
     "src/runtime/coordinators/extractionCoordinator.ts#ExtractionCoordinator.runMemorizeBacklog": {
       "status": "checked",
-      "note": "v2.3 replan V3 (2026-09-23): mints one read over the whole chat before the first await, asks it before every window, passes it into applyAudit (which refuses a lapsed read before any write), and asks again before the final read, the boundary commit and the error record. It used to read the NEXT chat's windows into memory after a switch. v2.4 plan 03 D4 (2026-09-24): the loop moved to memorizeWindows and the exit to endBacklog, so every ending passes through one write. The read it hands on is the chat token AND the backlog's own Stop controller (cancelMemorizeBacklog), checked between windows. Its only write after the await is clearing its own in-memory `backlogStop` handle."
+      "note": "v2.3 replan V3 (2026-09-23): mints one read over the whole chat before the first await, asks it before every window, passes it into applyAudit (which refuses a lapsed read before any write), and asks again before the final read, the boundary commit and the error record. It used to read the NEXT chat's windows into memory after a switch. v2.4 plan 03 D4 (2026-09-24): the loop moved to memorizeWindows and the exit to endBacklog, so every ending passes through one write. The read it hands on is the chat token AND the backlog's own Stop controller (cancelMemorizeBacklog), checked between windows. Its only write after the await is clearing its own in-memory `backlogStop` handle. v2.4 plan 03 D5 wiring (2026-09-24): the read is minted BEFORE the plan's token count (an await), and the preflight popup is another await before anything is sent; the plan is refused when the read lapsed during either. The model calls now carry anySignal([Stop, read.signal]), so Stop and a mutation inside the whole-chat window cancel the request in flight (budgetWiring.review.test.ts)."
     },
     "src/runtime/coordinators/extractionCoordinator.ts#ExtractionCoordinator.endBacklog": {
       "status": "checked",
@@ -67,11 +71,11 @@
     },
     "src/runtime/coordinators/extractionCoordinator.ts#ExtractionCoordinator.runSceneBreakPass": {
       "status": "checked",
-      "note": "v2.3 plan 03: beginRun with the audit window; a summary describing an edited or departed window is discarded before it reaches the memory tiers."
+      "note": "v2.3 plan 03: beginRun with the audit window; a summary describing an edited or departed window is discarded before it reaches the memory tiers. v2.4 plan 03 D5 wiring (2026-09-24): the guard's window widens to the whole scene [previous scene end + 1, break], and the map -> reduce loop (memory/sceneSummary.ts) asks stillOwns() INSIDE the loop before every model call; the coordinator asks again before the write (budgetWiring.review.test.ts \"an edit before the detecting window but inside the scene discards the summary\")."
     },
     "src/runtime/coordinators/extractionCoordinator.ts#ExtractionCoordinator.runShortTermCompaction": {
       "status": "checked",
-      "note": "v2.3 plan 03: beginRun with the compaction window. This one REPLACES the rolling entry, so a stale result destroyed the live summary rather than adding noise."
+      "note": "v2.3 plan 03: beginRun with the compaction window. This one REPLACES the rolling entry, so a stale result destroyed the live summary rather than adding noise. v2.4 plan 03 D5 wiring (2026-09-24): the run is minted before the tail-fit's token count (an await), so the count cannot hide a switch."
     },
     "src/runtime/coordinators/extractionCoordinator.ts#ExtractionCoordinator.runStallPrecheck": {
       "status": "checked",

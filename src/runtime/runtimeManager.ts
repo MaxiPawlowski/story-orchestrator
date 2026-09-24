@@ -55,6 +55,7 @@ import {
   type StorySelectionDeps,
 } from "./storySelection";
 import { clearWizardSession, loadWizardSession, saveWizardSession } from "./wizardSessions";
+import { confirmPreflight, requestBudget } from "./requestBudget";
 import type {
   CopilotRuntimeSettings, PersistedStoryRuntime, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory,
   MemoryRuntimeSettings, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, StagecraftRuntimeState,
@@ -145,6 +146,7 @@ export class RuntimeManager {
     emitArcsResolved: (arcs) => { if (this.loaded && arcs.length) this.arcResolvedListeners.forEach((listener) => listener(arcs.map((arc) => arc.id))); },
     setStatus: (status) => { this.status = status; },
     judge: () => this.judge,
+    requestBudget: () => requestBudget(this.getExtractionSettings().profileId),
     ...this.lifecycle,
   });
   private readonly pacing: PacingCoordinator = new PacingCoordinator({
@@ -454,7 +456,8 @@ export class RuntimeManager {
   async runShortTermCompaction() { await this.extraction.runShortTermCompaction(); }
   async runEpistemicLedgerPass(audit: SharedReadAudit): Promise<boolean> { return this.extraction.runEpistemicLedgerPass(audit); }
   async runExtractionNow(debugResponse?: string, reason = "manual") { return this.extraction.runNow(debugResponse, reason); }
-  async runMemorizeBacklog(windowSize = 8): Promise<boolean> { return this.extraction.runMemorizeBacklog(windowSize); }
+  async runMemorizeBacklog(windowSize?: number): Promise<boolean> { return this.extraction.runMemorizeBacklog(windowSize); }
+  async memorizeChat(): Promise<boolean> { return this.extraction.runMemorizeBacklog(undefined, confirmPreflight); }
   cancelMemorizeBacklog(): boolean { return this.extraction.cancelMemorizeBacklog(); }
   async setMemoryPinned(id: string, pinned: boolean) { await this.memory.setMemoryPinned(id, pinned); }
   async excludeMemoryEntry(id: string) { await this.memory.excludeMemoryEntry(id); }
@@ -477,7 +480,7 @@ export class RuntimeManager {
   private rejectQuality(reason: string): false { this.status = reason; this.notify(); return false; }
   async regenerateCanon(force = false): Promise<boolean> { return this.memory.regenerateCanon(force); }
   scheduleExpansionForActive(schedule: (reason: string, run: () => Promise<void>) => void) { return this.expansion.scheduleForActive(schedule); }
-  async runExpansionNow(debugResponse?: string) { return this.expansion.runNow(debugResponse); }
+  async runExpansionNow(debugResponse?: string, confirm = false) { return this.expansion.runNow(debugResponse, confirm ? confirmPreflight : undefined); }
   /** v2.3 plan 07: the boundary promotion and the author's regenerate, in one surface. */
   readonly expansions = { commitValidated: () => this.expansion.commitValidated(), regenerate: (key: string) => this.expansion.regenerate(key) };
 

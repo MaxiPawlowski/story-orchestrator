@@ -602,12 +602,15 @@ export const PlayerMemory: Story = {
   },
 };
 
-const backfillSnapshot = (backfill: { running: boolean; processed: number; total: number; lastError: string | null }): RuntimeSnapshot => {
+const backfillSnapshot = (backfill: { running: boolean; processed: number; total: number; lastError: string | null; stoppedNote?: string }): RuntimeSnapshot => {
   const snapshot = playerMemorySnapshot() as unknown as { memory: Record<string, unknown> };
   snapshot.memory = { ...snapshot.memory, backfill };
   return derive(snapshot as unknown as RuntimeSnapshot);
 };
-const memorizeManager = { ...fakeManager(), runMemorizeBacklog: fn(), cancelMemorizeBacklog: fn() } as unknown as RuntimeManager & { runMemorizeBacklog: ReturnType<typeof fn>; cancelMemorizeBacklog: ReturnType<typeof fn> };
+type MemorizeManager = RuntimeManager & { memorizeChat: ReturnType<typeof fn>; runMemorizeBacklog: ReturnType<typeof fn>; cancelMemorizeBacklog: ReturnType<typeof fn> };
+const memorizeManagerFor = () => ({ ...fakeManager(), memorizeChat: fn(), runMemorizeBacklog: fn(), cancelMemorizeBacklog: fn() }) as unknown as MemorizeManager;
+const memorizeManager = memorizeManagerFor();
+const stoppedManager = memorizeManagerFor();
 
 export const PlayerStopsMemorizing: Story = {
   render: () => (
@@ -630,7 +633,7 @@ export const PlayerStopsMemorizing: Story = {
 export const MemorizeStopped: Story = {
   render: () => (
     <div style={{ maxWidth: 360 }}>
-      <DrawerTabs snapshot={backfillSnapshot({ running: false, processed: 1, total: 4, lastError: "Stopped after 1 of 3 parts. What was read is kept; the whole-chat pass did not run." })} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      <DrawerTabs snapshot={backfillSnapshot({ running: false, processed: 1, total: 4, lastError: null, stoppedNote: "Stopped after 1 of 3 parts. What was read is kept; the whole-chat pass did not run." })} manager={stoppedManager} driver={{ context: null, activeNudge: null, controller: {} as never }} />
     </div>
   ),
   play: async ({ canvasElement }) => {
@@ -638,8 +641,30 @@ export const MemorizeStopped: Story = {
     await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
     await expect(canvas.getByRole("button", { name: "Memorize chat" })).toBeEnabled();
     await expect(canvas.queryByRole("button", { name: "Stop" })).toBeNull();
-    await expect(canvas.getByText(/Stopped after 1 of 3 parts/)).toBeInTheDocument();
+    const note = canvas.getByText(/Stopped after 1 of 3 parts/);
+    await expect(note).toHaveAttribute("id", "so-memorize-note");
+    await expect(note).not.toHaveClass("text-red-300");
+    await expect(canvasElement.querySelector("#so-memorize-error")).toBeNull();
     await expect(canvas.queryByText(/Memorizing:/)).toBeNull();
+    await userEvent.click(canvas.getByRole("button", { name: "Memorize chat" }));
+    await expect(stoppedManager.memorizeChat).toHaveBeenCalledTimes(1);
+    await expect(stoppedManager.runMemorizeBacklog).not.toHaveBeenCalled();
+  },
+};
+
+export const MemorizeFailed: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={backfillSnapshot({ running: false, processed: 1, total: 4, lastError: "Response not OK" })} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    const error = canvas.getByText("Response not OK");
+    await expect(error).toHaveAttribute("id", "so-memorize-error");
+    await expect(error).toHaveClass("text-red-300");
+    await expect(canvasElement.querySelector("#so-memorize-note")).toBeNull();
   },
 };
 

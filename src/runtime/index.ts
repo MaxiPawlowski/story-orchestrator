@@ -12,6 +12,7 @@ import { createTypedJudge } from "./typedRead";
 import { getGlobalSettings } from "./settingsStore";
 import { registerLiveSuite } from "./liveSuite";
 import { registerRuntimeMacros } from "./macros";
+import { requestBudget } from "./requestBudget";
 import { startMirrorReaper } from "./mirrorReaperHost";
 import { runtimeManager } from "./runtimeManager";
 import { beginRun } from "./runToken";
@@ -59,6 +60,7 @@ export function startRuntime() {
     getExtractionSettings: (): SchedulerSettings => ({
       ...runtimeManager.getExtractionSettings(),
       debugResponse: globalThis.storyOrchestratorDebugExtractionResponse ?? null,
+      budget: requestBudget(runtimeManager.getExtractionSettings().profileId),
     }),
     getFacts: () => runtimeManager.getExtractionFacts(),
     getFiredTransitions: () => runtimeManager.getFiredTransitions(),

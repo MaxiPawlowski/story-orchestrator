@@ -50,6 +50,7 @@ jest.mock("@services/STAPI", () => {
     loadLorebook: jest.fn(async () => ({ name: "mirror", entries: {} })),
     bindChatLorebook: jest.fn(() => ({ bound: false, previous: null })),
     countTokens: jest.fn(async (text: string) => Math.ceil((text?.length ?? 0) / 4)),
+    readProfileContextLimit: () => ({ value: 32768, source: "preset" }),
     vectorInsert: jest.fn(async () => undefined),
     vectorQuery: jest.fn(async () => []),
     vectorPurge: jest.fn(async () => undefined),

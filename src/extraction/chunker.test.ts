@@ -106,6 +106,13 @@ describe("v2.4 plan 03 D5: the summary chunker packs whole messages under the bu
     expect(chunkMessages([{ messageId: 0, text: "aa" }], { budget: 60, promptOverhead: 50, count: (text) => text.length })).toMatchObject({ ok: false, reason: expect.stringContaining("smaller than a truncated message") });
   });
 
+  it("a message cap closes a window that still has room, and packing stays in order", () => {
+    const messages = Array.from({ length: 5 }, (_, messageId) => ({ messageId, text: "aa" }));
+    const plan = chunkMessages(messages, { budget: 1000, promptOverhead: 0, count: (text) => text.length, maxMessages: 2 });
+    if (!plan.ok) throw new Error(plan.reason);
+    expect(plan.windows.map((window) => [window.from, window.to])).toEqual([[0, 1], [2, 3], [4, 4]]);
+  });
+
   it("no messages is an empty plan, not a refusal", () => {
     expect(chunkMessages([], { budget: 100, promptOverhead: 0, count: (text) => text.length })).toEqual({ ok: true, capacity: 100, windows: [], oversized: [] });
   });

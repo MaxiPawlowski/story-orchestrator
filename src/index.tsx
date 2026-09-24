@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import ReactDOM from "react-dom/client";
-import { bindNavbarDrawerToggle, capabilityReport, hostFacts, judgeStatus, listConnectionProfiles, showConfirmPopup, toggleNavbarDrawer, writeJudgeSecret, type CapabilityReport, type HostFacts } from "@services/STAPI";
+import { bindNavbarDrawerToggle, capabilityReport, hostFacts, judgeStatus, listConnectionProfiles, readProfileContextLimit, showConfirmPopup, toggleNavbarDrawer, writeJudgeSecret, type CapabilityReport, type HostFacts } from "@services/STAPI";
 import packageJson from "../package.json";
 import { runJudgeDirectorSelfTest, type JudgeSelfTestReport } from "@judge/index";
 import { getGlobalSettings, setJudgeSettings } from "@runtime/settingsStore";
@@ -9,6 +9,7 @@ import EntryPoints from "./components/settings/EntryPoints";
 import JudgeSettingsGroup, { type JudgeSettingsGroupProps, type JudgeSettingsPatch } from "./components/settings/JudgeSettingsGroup";
 import { runModelSelfTest, type SelfTestReport } from "@runtime/selfTest";
 import { isArcTemplateName } from "@pacing/index";
+import { DEFAULT_MAX_TOKENS, inputBudget } from "@extraction/index";
 import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
 import { startRuntime } from "@runtime/index";
 import { STORY_STATE_RETENTION } from "@runtime/persistence";
@@ -29,6 +30,11 @@ import "./styles.css";
 const EXTENSION_VERSION = String(packageJson.version ?? "unknown");
 
 const manager = startRuntime();
+
+const memoryModelLimit = (profileId: string | null) => {
+  const limit = readProfileContextLimit(profileId);
+  return { ...limit, inputBudget: inputBudget(limit, DEFAULT_MAX_TOKENS).input };
+};
 
 const isAcceptMode = (value: string): value is StagecraftAcceptMode => (STAGECRAFT_ACCEPT_MODES as readonly string[]).includes(value);
 
@@ -449,7 +455,7 @@ const SettingsPanel = () => {
             onRefresh={recheckJudge}
             onRunSelfTest={() => void testJudge()}
           />
-          <CapabilitiesGroup reports={capabilities} facts={hostFactSheet} extensionVersion={EXTENSION_VERSION} onRefresh={recheckCapabilities} />
+          <CapabilitiesGroup reports={capabilities} facts={hostFactSheet} extensionVersion={EXTENSION_VERSION} memoryModel={memoryModelLimit(snapshot.extraction.settings.profileId)} onRefresh={recheckCapabilities} />
           <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
             <GroupHeader title="Pacing" scope="install" id="so-pacing-header" />
             <label className="flex flex-col gap-1 text-sm">

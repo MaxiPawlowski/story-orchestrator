@@ -93,7 +93,7 @@ export function registerSlashCommands(manager: RuntimeManager): boolean {
       }
       if (command === "expand") {
         const response = parts.slice(1).join(" ");
-        await manager.runExpansionNow(response || undefined);
+        await manager.runExpansionNow(response || undefined, !response);
         return show(manager.getSnapshot().status);
       }
       if (command === "converge") {
@@ -102,7 +102,7 @@ export function registerSlashCommands(manager: RuntimeManager): boolean {
         return dump(snapshot.convergence.map((entry) => `${entry.reached ? "✔" : "○"} ${entry.anchorId} ${entry.progress}/${entry.threshold}`).join("\n"));
       }
       if (command === "memorize") {
-        const ok = await manager.runMemorizeBacklog();
+        const ok = await manager.memorizeChat();
         if (!ok) return show(manager.getSnapshot().memory.backfill?.lastError ?? "Memorize backlog could not start.");
         return show(manager.getSnapshot().status);
       }
@@ -146,7 +146,7 @@ export function registerSlashCommands(manager: RuntimeManager): boolean {
         return show(`Excluded memory ${parts[1]}`);
       }
       if (command === "backlog") {
-        const ok = await manager.runMemorizeBacklog();
+        const ok = await manager.memorizeChat();
         if (!ok) return show(manager.getSnapshot().memory.backfill?.lastError ?? "Memorize backlog could not start.");
         return show(manager.getSnapshot().status);
       }

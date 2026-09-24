@@ -1,5 +1,6 @@
 import type { BlackboardDelta, EngineState, GateNode, NormalizedStoryV2, PrimitiveValue, Quality, TensionLevel } from "@engine/index";
 import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine, SceneBreakSignal } from "@memory/index";
+import type { ContextLimit } from "./inputBudget";
 
 export interface ScopedQuality {
   key: string;
@@ -101,6 +102,17 @@ export interface SharedReadAudit {
   rejected: Array<{ line: string; reason: string }>;
   sceneBreak?: SceneBreakSignal;
   judged?: { keys: string[]; model: string | null; confidences: Record<string, number>; fallback?: string; error?: string };
+  budget?: ReadBudgetRecord;
+  trimmedFrom?: number;
+  truncated?: number[];
+}
+
+export interface ReadBudgetRecord {
+  contextLimit: ContextLimit;
+  inputBudget: number;
+  maxTokens: number;
+  tokens: number;
+  overBudget?: string;
 }
 
 export interface SharedReadResult {

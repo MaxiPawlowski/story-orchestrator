@@ -100,3 +100,25 @@ Ordered by what a privacy claim most needs. None of these has been run.
   no consumer.
 - **`sceneOoc` and `memoryRerank` appear in no call-site builder at all** — the same conclusion
   `recommended-config.md` reached by searching the settings keys.
+
+## v2.4 addendum (plan 03 D5, 2026-09-24)
+
+Added by v2.4 plan 03's wave-2 wiring; the v2.3 text above is left as it was measured. §4's
+"**Not capped**" row changes as follows. The bound is `inputBudget = contextLimit − maxTokens − 10 %`,
+the limit is the extraction profile's preset (`max_length` / `openai_max_context`) or the declared
+default 8192, and counts use ST's main-API tokenizer (03-H11), so they are estimates.
+
+| Payload (v2.3 §4 "not capped") | v2.4 | Where |
+|---|---|---|
+| Shared-read transcript (cadence P1, rollback/reconcile P0, manual `runNow`) | **Capped**: tail-fit to the budget, newest messages kept; the audit records `budget {contextLimit, inputBudget, tokens}` and `trimmedFrom` | `extraction/sharedRead.ts` `fitReadWindow` |
+| `runMemorizeBacklog` windows (were 8 messages each) | **Capped**: packed to the budget per request (`chunkMessages`) | `extraction/backlogPlan.ts` |
+| `runMemorizeBacklog` final pass (was the whole chat, `0 … length-1`) | **Capped**: tail-fit; earlier messages reach memory only through the windows | same as the shared read |
+| Scene-summary window | **Capped**: the whole scene is read, but map -> reduce, every request within the budget | `memory/sceneSummary.ts` |
+| Short-term compaction window | **Capped**: previous summary + the newest messages that fit | `memory/sceneSummary.ts` `fitShortTerm` |
+| Epistemic / ledger pass window | Unchanged (the detecting window; bounded by the cadence window, not by tokens) | plan 03 §Risks, deliberate scope cut |
+| Curator-filter entry content | Unchanged | not in plan 03 |
+
+Manual heavy passes (Memorize chat, `/so-mem backlog`, `/cp memorize`, author `/cp expand` and "Generate
+the road ahead") now state "N requests, about T tokens to <profile>" and send nothing on cancel when
+N > 3 or T > 50 % of the limit. §5 item 7 ("memorize shape") is still the measurement that would make
+this a claim rather than a code reading; it is plan 03 live gate 3 and has not run.

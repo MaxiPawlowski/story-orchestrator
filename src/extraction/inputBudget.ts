@@ -29,6 +29,7 @@ export interface FitOptions {
   promptOverhead: number;
   count: TokenCounter;
   perMessage?: number;
+  maxMessages?: number;
 }
 
 export interface FitWindow<T extends BudgetMessage> {

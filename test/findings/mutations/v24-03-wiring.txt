@@ -1,0 +1,89 @@
+v2.4 plan 03 wave 2 part B: D5 request-size wiring + wedge follow-ups, mutations 2026-09-24 (worktree build on a7cb6c1; script .debug/mut_wiring.py, each mutant applied alone as an exact-text replacement to one file, the file restored byte-for-byte after its run; a replacement that does not match is reported DID NOT APPLY, and none did. Storybook mutants via .debug/mut_sb.py: storybook:build with the mutant, restored, then test-storybook --index-json against the built output)
+Jest suites per mutant: sharedReadBudget.test (9), preflight.test (3), chunker.test (9), memory/sceneSummary.test (10), budgetWiring.review (11), backlogOwnership.review (9), refuseIncomplete.review (3), expansionPreflight.review (3), requestBudget.test (4), slashCommands.test (6). Baseline 67/67 green; restored after the sweep 67/67 green.
+Plan-table rows in this slice: tail-fit DELTA = W1 (plan mutation: send full window) + W2/W7 ("memorize:full never exceeds the budget and records trimmedFrom", on the pure read AND on the real backlog pass); the chunker's own off-by-one row is v24-03-budget.txt. Also killed here: the three refuseIncomplete sites the seam slice left uncovered (W17-W19), the backlog Stop signal (W10) and the neutral Stop note (W11, SB1).
+
+- W1 tail-fit off: the shared read sends the full window (plan mutation: send full window) (src/extraction/sharedRead.ts): KILLED, 7 of 67
+    "budgetWiring.review.test.ts: memorize:full never exceeds the budget and records trimmedFrom"
+    "sharedReadBudget.test.ts: memorize:full never exceeds the budget and records trimmedFrom"
+    "sharedReadBudget.test.ts: control: a window under budget is sent whole and records no trimmedFrom"
+    "sharedReadBudget.test.ts: a delta quoting a trimmed message is refused as evidence not in window"
+    "sharedReadBudget.test.ts: counts with the host's numbers when it has them, so a heavier count keeps fewer messages"
+    "sharedReadBudget.test.ts: an unreadable limit reads with the declared default and says so in the audit"
+    "sharedReadBudget.test.ts: a P0 read over budget is tail-fit and says so in the audit"
+- W2 trimmedFrom not recorded in the audit (src/extraction/sharedRead.ts): KILLED, 3 of 67
+    "budgetWiring.review.test.ts: memorize:full never exceeds the budget and records trimmedFrom"
+    "sharedReadBudget.test.ts: memorize:full never exceeds the budget and records trimmedFrom"
+    "sharedReadBudget.test.ts: a P0 read over budget is tail-fit and says so in the audit"
+- W3 contextLimit / inputBudget not recorded in the audit (src/extraction/sharedRead.ts): KILLED, 6 of 67
+    "budgetWiring.review.test.ts: memorize:full never exceeds the budget and records trimmedFrom"
+    "sharedReadBudget.test.ts: memorize:full never exceeds the budget and records trimmedFrom"
+    "sharedReadBudget.test.ts: control: a window under budget is sent whole and records no trimmedFrom"
+    "sharedReadBudget.test.ts: counts with the host's numbers when it has them, so a heavier count keeps fewer messages"
+    "sharedReadBudget.test.ts: an unreadable limit reads with the declared default and says so in the audit"
+    "sharedReadBudget.test.ts: a P0 read over budget is tail-fit and says so in the audit"
+- W4 meter never asks the host tokenizer (src/extraction/tokenMeter.ts): KILLED, 3 of 67
+    "sharedReadBudget.test.ts: counts with the host's numbers when it has them, so a heavier count keeps fewer messages"
+    "sharedReadBudget.test.ts: counts each primed text once with the host and estimates what it was never shown"
+    "requestBudget.test.ts: a budget reads the profile's limit and counts with the host tokenizer"
+- W5 meter ignores the host counts it holds (src/extraction/tokenMeter.ts): KILLED, 3 of 67
+    "sharedReadBudget.test.ts: counts with the host's numbers when it has them, so a heavier count keeps fewer messages"
+    "sharedReadBudget.test.ts: counts each primed text once with the host and estimates what it was never shown"
+    "requestBudget.test.ts: a budget reads the profile's limit and counts with the host tokenizer"
+- W6 backlog windows back to fixed 8 messages (src/extraction/backlogPlan.ts): KILLED, 1 of 67
+    "budgetWiring.review.test.ts: replaces the fixed 8-message windows with token-bounded ones that cover the chat in order"
+- W7 backlog reads carry no budget (memorize:full unbounded) (src/runtime/coordinators/extractionCoordinator.ts): KILLED, 1 of 67
+    "budgetWiring.review.test.ts: memorize:full never exceeds the budget and records trimmedFrom"
+- W8 preflight answer ignored (a cancel still sends) (src/runtime/coordinators/extractionCoordinator.ts): KILLED, 1 of 67
+    "budgetWiring.review.test.ts: a manual run over the thresholds asks first, and a cancel sends nothing"
+- W9 preflight asks even under both thresholds (src/runtime/coordinators/extractionCoordinator.ts): KILLED, 1 of 67
+    "budgetWiring.review.test.ts: control: a run under both thresholds does not ask"
+- W10 Stop does not reach the in-flight request (no combined signal) (src/runtime/coordinators/extractionCoordinator.ts): KILLED, 1 of 67
+    "budgetWiring.review.test.ts: Stop cancels the request in flight, and a player's Stop is a note, not an error"
+- W11 a player's Stop is recorded as an error (src/runtime/coordinators/extractionCoordinator.ts): KILLED, 2 of 67
+    "budgetWiring.review.test.ts: Stop cancels the request in flight, and a player's Stop is a note, not an error"
+    "backlogOwnership.review.test.ts: Stop keeps applied windows"
+- W12 no ownership check inside the scene map loop (src/memory/sceneSummary.ts): KILLED, 2 of 67
+    "budgetWiring.review.test.ts: an edit before the detecting window but inside the scene discards the summary"
+    "sceneSummary.test.ts: checks ownership inside the map loop: a lapse after the first chunk sends nothing more"
+- W13 scene summary reads only the detecting window (src/runtime/coordinators/extractionCoordinator.ts): KILLED, 2 of 67
+    "budgetWiring.review.test.ts: reads from after the previous scene to the break, map -> reduce, one summary for the whole range"
+    "budgetWiring.review.test.ts: control: an edit before the scene keeps the summary"
+- W14 scene start off by one (re-reads the previous scene's last message) (src/memory/sceneSummary.ts): KILLED, 1 of 67
+    "sceneSummary.test.ts: starts after the previous scene summary's range"
+- W15 no map -> reduce: one tail-fit call for any scene (src/memory/sceneSummary.ts): KILLED, 5 of 67
+    "sceneSummary.test.ts: summarizes each chunk under budget, then reduces the chunk summaries into one"
+    "sceneSummary.test.ts: checks ownership inside the map loop: a lapse after the first chunk sends nothing more"
+    "sceneSummary.test.ts: a refused chunk summary stores no summary rather than a partial one"
+    "sceneSummary.test.ts: reduces again when the part summaries themselves do not fit"
+    "budgetWiring.review.test.ts: reads from after the previous scene to the break, map -> reduce, one summary for the whole range"
+- W16 short-term compaction not tail-fit (src/memory/sceneSummary.ts): KILLED, 2 of 67
+    "sceneSummary.test.ts: keeps the previous summary and the newest messages that fit"
+    "budgetWiring.review.test.ts: sends the previous summary and the newest messages that fit, and records the span it summarised"
+- W17 short-term site drops refuseIncomplete (src/runtime/coordinators/extractionCoordinator.ts): KILLED, 1 of 67
+    "refuseIncomplete.review.test.ts: short-term compaction"
+- W18 arc summary site drops refuseIncomplete (src/runtime/coordinators/memoryCoordinator.ts): KILLED, 1 of 67
+    "refuseIncomplete.review.test.ts: arc summary"
+- W19 canon site drops refuseIncomplete (src/runtime/coordinators/memoryCoordinator.ts): KILLED, 1 of 67
+    "refuseIncomplete.review.test.ts: canon"
+- W20 expansion generate-now ignores the preflight answer (src/runtime/coordinators/expansionCoordinator.ts): KILLED, 1 of 67
+    "expansionPreflight.review.test.ts: a cancel sends nothing and files nothing"
+- W21 host preflight never asks (src/runtime/requestBudget.ts): KILLED, 2 of 67
+    "requestBudget.test.ts: a large one names the requests, the tokens and the profile, and a cancel is a no"
+    "requestBudget.test.ts: half the preset's limit is the token threshold"
+- W22 request threshold inclusive (3 requests asks) (src/extraction/preflight.ts): KILLED, 1 of 67
+    "preflight.test.ts: asks when there are more than three requests"
+- W23 /so-mem backlog bypasses the preflight path (src/runtime/slashCommands.ts): KILLED, 1 of 67
+    "slashCommands.test.ts: /so-mem backlog starts the memorize backlog; bad subcommands return usage"
+- W24 chunker ignores the message cap (src/extraction/chunker.ts): KILLED, 5 of 67
+    "chunker.test.ts: a message cap closes a window that still has room, and packing stays in order"
+    "backlogOwnership.review.test.ts: a switch during the final full read commits no boundary"
+    "backlogOwnership.review.test.ts: control: an unmoved backlog reads every window, the full pass, and commits"
+    "backlogOwnership.review.test.ts: Stop keeps applied windows"
+    "backlogOwnership.review.test.ts: control: Stop after the run finished changes nothing"
+- SB1 a player's Stop note rendered as an error (src/components/drawer/DrawerTabs.tsx, className opacity-80 -> text-red-300): KILLED, 1 of 203 stories
+    "Drawer/DrawerTabs > Memorize Stopped"
+- SB2 the context-limit row never rendered (src/components/settings/CapabilitiesGroup.tsx): KILLED, 2 of 203 stories
+    "Settings/CapabilitiesGroup > States The Memory Model Limit"
+    "Settings/CapabilitiesGroup > Says When The Limit Is The Default"
+
+Result: 26/26 killed (24 jest, 2 Storybook), each by its own case(s); controls green.

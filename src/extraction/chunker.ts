@@ -24,7 +24,7 @@ export function chunkMessages<T extends BudgetMessage>(messages: readonly T[], o
       cost = messageCost(message.text, options);
       oversized.push(original.messageId);
     }
-    if (current && current.tokens + cost > capacity) {
+    if (current && (current.tokens + cost > capacity || current.messages.length >= (options.maxMessages ?? Infinity))) {
       windows.push(current);
       current = null;
     }

@@ -15,7 +15,7 @@ import {
   setLedgerPinned, setPinned, type ArcEntry, type ConflictPair, type DerivedRecord, type EpistemicEntry,
   type LedgerBinding, type LedgerView, type MemoryEntry, type MemoryTier, type ParsedArcSignal,
   type ParsedEpistemicSignal, type ParsedLedgerSignal, type UncertainPair, consolidateTierJudged,
-  clearContradicted,
+  clearContradicted, sceneRangeFrom,
 } from "@memory/index";
 import {
   bindChatLorebook, currentChatOwner, disableWIEntry, ensureLorebook, getContext, loadLorebook, upsertWIEntry,
@@ -177,6 +177,8 @@ export class MemoryCoordinator {
   shortTermEntry(): MemoryEntry | undefined {
     return this.state.entries.find((entry) => entry.tier === "short_term");
   }
+
+  sceneStart(to: number): number { return sceneRangeFrom(this.state.derived, to); }
 
   get shortTermSummaryEnd(): number {
     return this.state.shortTermSummaryEnd;

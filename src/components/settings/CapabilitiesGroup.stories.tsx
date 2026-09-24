@@ -82,3 +82,28 @@ export const CopiesTheWholePicture: Story = {
     await expect(canvas.getByRole("button", { name: "Copied" })).toBeInTheDocument();
   },
 };
+
+// v2.4 plan 03 D5: the request budget's source is stated where the author looks, preset or default.
+export const StatesTheMemoryModelLimit: Story = {
+  args: { memoryModel: { value: 98304, source: "preset", inputBudget: 87962 }, onCopy: fn() },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvasElement.querySelector("#so-context-limit")?.textContent).toBe("Memory model context: 98,304 tokens (from its preset) · up to 87,962 per read");
+    await userEvent.click(canvas.getByRole("button", { name: "Copy for a bug report" }));
+    const text = (args.onCopy as unknown as { mock: { calls: string[][] } }).mock.calls[0][0];
+    expect(text).toContain("Memory model context: 98,304 tokens (from its preset)");
+  },
+};
+
+export const SaysWhenTheLimitIsTheDefault: Story = {
+  args: { memoryModel: { value: 8192, source: "default", reason: "the profile names no settings preset", inputBudget: 6860 } },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-context-limit")?.textContent).toBe("Memory model context: 8,192 tokens (default: the profile names no settings preset) · up to 6,860 per read");
+  },
+};
+
+export const NoLimitRowWithoutAProfileRead: Story = {
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-context-limit")).toBeNull();
+  },
+};
