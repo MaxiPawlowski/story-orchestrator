@@ -261,7 +261,7 @@
         {
           "edit": {
             "messageId": 0,
-            "text": "I stay by the door and order a drink instead."
+            "text": "I stay by the door and ask the barkeep about work instead."
           }
         },
         {
@@ -271,7 +271,7 @@
           }
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const began = Date.now(); let notice = rt.getSnapshot().lastRollback; while (!notice && Date.now() - began < 30000) { await new Promise((resolve) => setTimeout(resolve, 250)); notice = rt.getSnapshot().lastRollback; } if (!notice) { const engine = rt.getEngineState(); const ctx = SillyTavern.getContext(); const journal = (rt.getSessionJournal?.() ?? []).slice(-8).map((event) => [event.kind, event.summary ?? \"\"].join(\": \")); throw new Error(\"the edit rolled the story back but no rollback was reported: \" + JSON.stringify({ checkpoint: rt.getSnapshot().activeCheckpointId, boundary: engine.boundary, lastMessageId: engine.lastMessageId, chatLength: ctx.chat.length, chatId: ctx.chatId, journal })); } return { notice, waitedMs: Date.now() - began };",
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const began = Date.now(); let notice = rt.getSnapshot().lastRollback; while (!notice && Date.now() - began < 30000) { await new Promise((resolve) => setTimeout(resolve, 250)); notice = rt.getSnapshot().lastRollback; } if (!notice) { const engine = rt.getEngineState(); const ctx = SillyTavern.getContext(); const journal = (rt.getSessionJournal?.() ?? []).slice(-8).map((event) => [event.kind, event.summary ?? \"\"].join(\": \")); throw new Error(\"the edit rolled the story back but no rollback was reported: \" + JSON.stringify({ checkpoint: rt.getSnapshot().activeCheckpointId, boundary: engine.boundary, lastMessageId: engine.lastMessageId, chatLength: ctx.chat.length, chatId: ctx.chatId, outcome: rt.notices?.lastOutcome ?? null, journal })); } return { notice, waitedMs: Date.now() - began };",
           "log": true
         }
       ]
@@ -433,7 +433,7 @@
         {
           "edit": {
             "messageId": 0,
-            "text": "I stay by the door and order a drink instead."
+            "text": "I stay by the door and count the coins in my purse."
           }
         },
         {
