@@ -58,3 +58,12 @@ into a Repair row, never a delete.
 | 02-H23 | `/api/groups/delete` deletes every chat file the group lists | `src/endpoints/groups.js:212-226` |
 | 02-H24 | A `CONFIRM` popup's cancel control is `.popup-button-cancel`, labelled by `cancelButton` | `popup.js:256`, `:274` |
 | 02-H25 | H13/H14 re-read: `deleteWorldInfo` is `:4346-4393` (returns false for an unlisted name before any request); keyless non-constant, non-sticky entries are skipped at `world-info.js:4892-4907` | `world-info.js` |
+
+## Plan 03 (budget modules, 2026-09-24)
+
+Re-verified on the 1.19.0 tree (`public/`, `package.json:118`) and on `51ad27f` (1.18.0) via `git show`.
+Plan 03's own H1-H14 live in its plan doc; this row is the one the budget read (`stHost/contextLimit.ts`) rests on.
+
+| # | Fact | 1.19.0 | 1.18.0 |
+|---|---|---|---|
+| 03-H12 | Context size comes from the profile's settings preset: `ctx.CONNECT_API_MAP[profile.api].selected` names the preset manager, `ctx.getPresetManager(selected)` returns it (`null` for an API with none), `getCompletionPresetByName(profile.preset)` returns the preset or `undefined` (with a `console.error`). TC key `max_length` (written into a saved TC preset from `max_context`), CC key `openai_max_context`. The CM profile has no size field. Profiles live in `extensionSettings.connectionManager.profiles`; CM disabled = `disabledExtensions` holds `connection-manager` | `st-context.js:285` (`CONNECT_API_MAP`), `:288` (`getPresetManager`); `preset-manager.js:83-96`, `:531-588` (`getPresetList`), `:744-747`, `:757-778`; `openai.js:361`; `slash-commands.js:142`; `extensions/shared.js:530-550` | `st-context.js:283`, `:286`; `preset-manager.js:83`, `:739`, `:750`; `openai.js:353` |
