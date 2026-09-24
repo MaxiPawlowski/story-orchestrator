@@ -1,5 +1,5 @@
 {
-  "_note": "v2.4 plan 01 T1, LIVE (real model, real extraction at cadence 1; so-scenario --sandbox --group 1759606632088). A played group chat (the T10 story: one speaker per turn, so every turn is exactly a player line and one reply). Three rows, each against the state recorded at the boundary before its target: (A) host_delete of a CONSUMED MIDDLE player line (ST's own deleteMessage), (B) /cut of a consumed middle turn (player line + reply, one MESSAGE_DELETED per row), (C) the tail control, deleting the newest turn. After each, record_state's scope must match: values, versions, active, path, boundary and the live memory/epistemic/ledger rows. Every off-path pass is let finish (schedulerIdle) before a recording and before a mutation, so no read in flight straddles the cut. Indices are read from the chat at the time, never hard-coded, because the greeting count varies. Rows: a real rollback is followed by re-reads of the messages that survive it, so the row check is the replay invariant rather than raw equality: every row recorded before the target is kept, no row built between the target and the mutation survives, and (for the cut and the tail, where the reply goes too) no re-read row cites the removed text; the middle delete removes only the player line, so its reply still legitimately mentions it (inv 11, live). A dropped recorded row is reported with its messageId, supersession and provenance. The engine scope (values, versions, active, path, boundary) is compared exactly. The last journal lines are logged at each mutation.",
+  "_note": "v2.4 plan 01 T1, LIVE (real model, real extraction at cadence 1; so-scenario --sandbox --group 1759606632088). A played group chat (the T10 story: one speaker per turn, so every turn is exactly a player line and one reply). Three rows, each against the state recorded at the boundary before its target: (A) host_delete of a CONSUMED MIDDLE player line (ST's own deleteMessage), (B) /cut of a consumed middle turn (player line + reply, one MESSAGE_DELETED per row), (C) the tail control, deleting the newest turn. After each, record_state's scope must match: values, versions, active, path, boundary and the live memory/epistemic/ledger rows. Every off-path pass is let finish (schedulerIdle) before a recording and before a mutation, so no read in flight straddles the cut. Indices are read from the chat at the time, never hard-coded, because the greeting count varies. Rows: a real rollback is followed by re-reads of the messages that survive it, so the row check is the replay invariant rather than raw equality: every row recorded before the target is kept, no row built between the target and the mutation survives, and (for the cut and the tail, where the reply goes too) no re-read row cites the removed text; the middle delete removes only the player line, so its reply still legitimately mentions it (inv 11, live). A dropped recorded row is reported with its messageId, supersession and provenance. The engine scope (values, versions, active, path, boundary) is compared exactly. The last journal lines are logged at each mutation. Engine scope (revised after the first traced runs): the engine rewinds only what a later boundary APPLIED from the removed message onward (engine.shouldRollbackFromMessage), so writes read before the target and applied at a later boundary legitimately stay, and the boundary counter is not a message index. The check is therefore the replay invariant on the engine too: every rollback was requested from the decoded target; no applied write in the boundary log has a read window reaching the target; no transition fired at or after it survives; and no QUEUED write whose read window covered the removed message is still waiting. Active checkpoint and path are compared exactly.",
   "steps": [
     {
       "import_story": {
@@ -87,7 +87,7 @@
       }
     },
     {
-      "eval": "const rt = globalThis.storyOrchestratorRuntime; const s = rt.getEngineState(); return { boundary: s.boundary, lastMessageId: s.lastMessageId, chat: SillyTavern.getContext().chat.length, journal: rt.getSessionJournal().slice(-6).map((e) => e.kind + ': ' + e.summary), calls: globalThis.__t1live.calls.splice(0) };",
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const s = rt.getEngineState(); return { boundary: s.boundary, lastMessageId: s.lastMessageId, chat: SillyTavern.getContext().chat.length, journal: rt.getSessionJournal().slice(-6).map((e) => e.kind + ': ' + e.summary), calls: (globalThis.__t1live.lastCalls = globalThis.__t1live.calls.splice(0)) };",
       "log": true
     },
     {
@@ -95,14 +95,15 @@
         "stateEquals": {
           "as": "before-middle",
           "scope": [
-            "values",
-            "versions",
             "active",
-            "path",
-            "boundary"
+            "path"
           ]
         }
       },
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const target = globalThis.__t1live.marks['middle']; const engine = rt.engine; if (!engine) throw new Error('rt.engine is not reachable, so the boundary log cannot be read'); const calls = globalThis.__t1live.lastCalls ?? []; const rollbacks = calls.filter((c) => c.call === 'rollback'); const problems = []; if (!rollbacks.length) problems.push('no rollback was requested for the mutation'); const starts = rollbacks.map((c) => c.from); if (starts.some((from) => from < target) || Math.min(...starts) !== target) problems.push('the deletes decoded to the wrong starts: ' + JSON.stringify(starts) + ' for target ' + target + ' (every start must be at or after it, and the earliest must be it)'); const applied = engine.stateLog.flatMap((entry) => entry.queue.applied.map((a) => ({ boundary: entry.boundary, to: a.turnRange?.to ?? null, deltas: (a.deltas ?? []).map((x) => x.q) }))); const stale = applied.filter((a) => a.to !== null && a.to >= target); if (stale.length) problems.push('the boundary log still holds writes read from the removed message or after it: ' + JSON.stringify(stale)); const fired = engine.stateLog.filter((entry) => entry.fired && entry.context.lastMessageId >= target).map((entry) => entry.fired.to); if (fired.length) problems.push('a transition fired at or after the removed message survived: ' + JSON.stringify(fired)); const pending = engine.pendingWrites.map((w) => ({ to: w.turnRange?.to ?? null, from: w.turnRange?.from ?? null, deltas: (w.deltas ?? []).map((x) => x.q + '=' + JSON.stringify(x.v)) })); const pendingStale = pending.filter((w) => w.to !== null && w.to >= target && w.from !== null && w.from <= target); if (pendingStale.length) problems.push('a queued write whose read window covered the removed message is still waiting for the next boundary: ' + JSON.stringify(pendingStale)); if (problems.length) throw new Error(problems.join(' | ')); return { target, rollbacks: rollbacks.map((c) => c.from), applied: applied.length, pending };",
       "log": true
     },
     {
@@ -172,7 +173,7 @@
       }
     },
     {
-      "eval": "const rt = globalThis.storyOrchestratorRuntime; const s = rt.getEngineState(); return { boundary: s.boundary, lastMessageId: s.lastMessageId, chat: SillyTavern.getContext().chat.length, journal: rt.getSessionJournal().slice(-6).map((e) => e.kind + ': ' + e.summary), calls: globalThis.__t1live.calls.splice(0) };",
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const s = rt.getEngineState(); return { boundary: s.boundary, lastMessageId: s.lastMessageId, chat: SillyTavern.getContext().chat.length, journal: rt.getSessionJournal().slice(-6).map((e) => e.kind + ': ' + e.summary), calls: (globalThis.__t1live.lastCalls = globalThis.__t1live.calls.splice(0)) };",
       "log": true
     },
     {
@@ -180,14 +181,15 @@
         "stateEquals": {
           "as": "before-cut",
           "scope": [
-            "values",
-            "versions",
             "active",
-            "path",
-            "boundary"
+            "path"
           ]
         }
       },
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const target = globalThis.__t1live.marks['cut']; const engine = rt.engine; if (!engine) throw new Error('rt.engine is not reachable, so the boundary log cannot be read'); const calls = globalThis.__t1live.lastCalls ?? []; const rollbacks = calls.filter((c) => c.call === 'rollback'); const problems = []; if (!rollbacks.length) problems.push('no rollback was requested for the mutation'); const starts = rollbacks.map((c) => c.from); if (starts.some((from) => from < target) || Math.min(...starts) !== target) problems.push('the deletes decoded to the wrong starts: ' + JSON.stringify(starts) + ' for target ' + target + ' (every start must be at or after it, and the earliest must be it)'); const applied = engine.stateLog.flatMap((entry) => entry.queue.applied.map((a) => ({ boundary: entry.boundary, to: a.turnRange?.to ?? null, deltas: (a.deltas ?? []).map((x) => x.q) }))); const stale = applied.filter((a) => a.to !== null && a.to >= target); if (stale.length) problems.push('the boundary log still holds writes read from the removed message or after it: ' + JSON.stringify(stale)); const fired = engine.stateLog.filter((entry) => entry.fired && entry.context.lastMessageId >= target).map((entry) => entry.fired.to); if (fired.length) problems.push('a transition fired at or after the removed message survived: ' + JSON.stringify(fired)); const pending = engine.pendingWrites.map((w) => ({ to: w.turnRange?.to ?? null, from: w.turnRange?.from ?? null, deltas: (w.deltas ?? []).map((x) => x.q + '=' + JSON.stringify(x.v)) })); const pendingStale = pending.filter((w) => w.to !== null && w.to >= target && w.from !== null && w.from <= target); if (pendingStale.length) problems.push('a queued write whose read window covered the removed message is still waiting for the next boundary: ' + JSON.stringify(pendingStale)); if (problems.length) throw new Error(problems.join(' | ')); return { target, rollbacks: rollbacks.map((c) => c.from), applied: applied.length, pending };",
       "log": true
     },
     {
@@ -243,7 +245,7 @@
       }
     },
     {
-      "eval": "const rt = globalThis.storyOrchestratorRuntime; const s = rt.getEngineState(); return { boundary: s.boundary, lastMessageId: s.lastMessageId, chat: SillyTavern.getContext().chat.length, journal: rt.getSessionJournal().slice(-6).map((e) => e.kind + ': ' + e.summary), calls: globalThis.__t1live.calls.splice(0) };",
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const s = rt.getEngineState(); return { boundary: s.boundary, lastMessageId: s.lastMessageId, chat: SillyTavern.getContext().chat.length, journal: rt.getSessionJournal().slice(-6).map((e) => e.kind + ': ' + e.summary), calls: (globalThis.__t1live.lastCalls = globalThis.__t1live.calls.splice(0)) };",
       "log": true
     },
     {
@@ -251,14 +253,15 @@
         "stateEquals": {
           "as": "before-tail",
           "scope": [
-            "values",
-            "versions",
             "active",
-            "path",
-            "boundary"
+            "path"
           ]
         }
       },
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const target = globalThis.__t1live.marks['tail']; const engine = rt.engine; if (!engine) throw new Error('rt.engine is not reachable, so the boundary log cannot be read'); const calls = globalThis.__t1live.lastCalls ?? []; const rollbacks = calls.filter((c) => c.call === 'rollback'); const problems = []; if (!rollbacks.length) problems.push('no rollback was requested for the mutation'); const starts = rollbacks.map((c) => c.from); if (starts.some((from) => from < target) || Math.min(...starts) !== target) problems.push('the deletes decoded to the wrong starts: ' + JSON.stringify(starts) + ' for target ' + target + ' (every start must be at or after it, and the earliest must be it)'); const applied = engine.stateLog.flatMap((entry) => entry.queue.applied.map((a) => ({ boundary: entry.boundary, to: a.turnRange?.to ?? null, deltas: (a.deltas ?? []).map((x) => x.q) }))); const stale = applied.filter((a) => a.to !== null && a.to >= target); if (stale.length) problems.push('the boundary log still holds writes read from the removed message or after it: ' + JSON.stringify(stale)); const fired = engine.stateLog.filter((entry) => entry.fired && entry.context.lastMessageId >= target).map((entry) => entry.fired.to); if (fired.length) problems.push('a transition fired at or after the removed message survived: ' + JSON.stringify(fired)); const pending = engine.pendingWrites.map((w) => ({ to: w.turnRange?.to ?? null, from: w.turnRange?.from ?? null, deltas: (w.deltas ?? []).map((x) => x.q + '=' + JSON.stringify(x.v)) })); const pendingStale = pending.filter((w) => w.to !== null && w.to >= target && w.from !== null && w.from <= target); if (pendingStale.length) problems.push('a queued write whose read window covered the removed message is still waiting for the next boundary: ' + JSON.stringify(pendingStale)); if (problems.length) throw new Error(problems.join(' | ')); return { target, rollbacks: rollbacks.map((c) => c.from), applied: applied.length, pending };",
       "log": true
     },
     {

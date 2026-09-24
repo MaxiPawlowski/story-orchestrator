@@ -36,6 +36,12 @@ export class ApplyQueue {
     this.entries.push({ ...entry, deltas: entry.deltas.map((delta) => ({ ...delta })) });
   }
 
+  discardReadingFrom(messageId: number): ApplyQueueEntry[] {
+    const stale = this.entries.filter((entry) => entry.turnRange && entry.turnRange.to >= messageId);
+    this.entries = this.entries.filter((entry) => !stale.includes(entry));
+    return stale;
+  }
+
   flush(): ApplyQueueEntry[] {
     const pending = this.entries;
     this.entries = [];

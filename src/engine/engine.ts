@@ -319,6 +319,12 @@ export class StoryEngine {
   // L2 (2026-09-23): a delete with nothing to undo still takes the chat's end from under the cursor.
   // Left at the old end, the next boundary scanned from past the new messages and every window
   // started after them (J6.3: lastMessageId 7 over a chat of 1).
+  // v2.4 plan 01 (T1 live, 2026-09-24). A queued write read the chat as it was. A mutation at or before the end of its read window changed
+  // what it read, and a rollback that restores nothing never reaches `rollbackTo`'s flush.
+  discardPendingFrom(messageId: number): ApplyQueueEntry[] {
+    return Number.isFinite(messageId) ? this.queue.discardReadingFrom(messageId) : [];
+  }
+
   clampToChat(chatLength: number): boolean {
     const last = Math.max(-1, Math.floor(chatLength) - 1);
     if (!Number.isFinite(last) || this.lastMessageId <= last) return false;

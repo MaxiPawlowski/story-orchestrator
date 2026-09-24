@@ -40,6 +40,7 @@ function harness() {
       boundaryBeforeMessage: () => 0,
       serialize: () => ({ boundary: 7 }),
       clampToChat: () => false,
+      discardPendingFrom: jest.fn(() => []),
     },
     journal: {},
     context: () => context,
@@ -74,6 +75,12 @@ describe("cross-store rollback without an engine transition", () => {
     // the engine leaves it alone, so the no-op must NOT revalidate (it would rebuild the merged story
     // for nothing).
     expect(h.revalidateExpansion).not.toHaveBeenCalled();
+  });
+
+  it("drops queued writes whose read reached the mutation, on the path that restores nothing (v2.4 plan 01 T1 live)", async () => {
+    const h = harness();
+    await runRollback(h.deps, 3);
+    expect((h.deps.engine as unknown as { discardPendingFrom: jest.Mock }).discardPendingFrom).toHaveBeenCalledWith(3);
   });
 
   it("reports an edit past the retained history even when the engine never acted on it", async () => {

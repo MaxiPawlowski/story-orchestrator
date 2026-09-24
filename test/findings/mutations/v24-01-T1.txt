@@ -31,3 +31,12 @@ M5 non-exact decodes not journaled
   ● v2.4 T1: a middle delete rolls back from the message it removed › journals a delete it could not decode, and still rolls back from the post-delete length
   ● v2.4 T1: decodeDelete › journals every decode that is not exact, and nothing for an exact one
 Tests:       2 failed, 67 passed, 69 total
+
+T1 live follow-up (2026-09-24): queued writes whose read window reached the mutated message survived the
+rollback path that restores nothing (found by live-v24-01-t1 on lane 2: a /cut left {from:0,to:8} tension write
+queued). Fix: engine.discardPendingFrom(messageId) in rollback.ts quarantine().
+scope: npx jest src/engine/discardPendingFrom.test.ts src/runtime/rollback.review.test.ts
+baseline: 9 passed
+M6 applyQueue.discardReadingFrom uses `to > messageId` (boundary lost)  -> 1 failed (discardPendingFrom: drops a write whose read window reaches...)
+M7 rollback.ts quarantine() no longer calls discardPendingFrom          -> 1 failed (rollback.review: drops queued writes whose read reached the mutation)
+restored: 9 passed
