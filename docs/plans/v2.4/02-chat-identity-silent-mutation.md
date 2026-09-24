@@ -589,3 +589,114 @@ Built on `9cb054a` in an agent worktree. Machine gates only: no `npm run build`,
 - `StorySelectionDeps.setStatus` gained a `note` parameter to journal without a manager line. The alternative, a `journal` dep, costs a line.
 - The put-back re-appends a removed row at the end of its array, not at its old index. Order in these stores is not semantic: conflicts are sorted at render, and `resolvedConflicts` only matters to its cap.
 - Not built: J10.13 (the live counterpart), the `plan02-downgrade-guard` scenario name (the fixture is `v24-02-unrecognized-blob.json`), and the live gate. All need a browser and a build.
+
+### T8 + requirements refresh (worktree build, 2026-09-24)
+
+Built on `cfad851` (branch `v24-02-t8req`, off `v24-plan02`) in an agent worktree. Machine gates only: no browser and no backend, so **no live gate ran and none is claimed green**. The three red fixtures this covers are unchanged and **not run**.
+
+**§7 T8 as built**
+- `stHost/persistence.ts`, the watcher:
+  - **Self-heal.** `installSaveWatcher` keeps a reference to its wrapper (`ours`) and re-wraps whenever `globalThis.fetch !== ours`. Every `observeNextSave` / `observeNextSettingsSave` calls it, so a peer that restored its captured `fetch` is healed at the next arm. The old one-shot `installed` flag is gone.
+  - **One report per request.** The outermost wrapper copies `init` into a fresh object and records it in a `WeakSet` (`minted`). A wrapper of ours that meets a minted init passes straight through. This covers the peer-wrapped-on-top-of-us chain (ours → peer → older ours). `saveWatcherStats()` exposes `{wraps, reports}`, which the tests read.
+  - **Settings saves.** Watches are typed `chat | settings`; `/api/settings/save` is the settings path. `observeNextSettingsSave()` settles on the first settings answer after it was armed. `SETTINGS_UPDATED` (H15, emitted only after a 2xx at `script.js:8110`) settles it only when the watcher saw **no** settings request start after arming, i.e. when a peer took the wrapper out of the chain. Each settle carries `burst` (the settling request's clock), so every observation one request settled shares one read-back.
+  - `readServerExtensionSettings(key)` POSTs `/api/settings/get`, parses the `settings` JSON string (H16) and answers `extension_settings[key]`, `{}` when absent, or null when unreadable.
+- `runtime/librarySave.ts` (pure, host-free):
+  - `createLibrarySaveEvidence({observe, readBack})` answers `{confirmed: true}` or `{confirmed: false, reason}`.
+  - Evidence requires a 2xx settings save followed by a read-back whose `v2Stories[id]` holds this save or a later one: a higher version, or the same version with `updatedAt` ≥ ours.
+  - Reasons are distinct: `no settings save request went out`, `…failed before the server answered`, `the settings save answered N`, `the server's settings could not be read back`, `the server's library does not hold it`, `the server holds vN saved <at>`.
+  - The read-back runs at most once per burst.
+  - `librarySaveSentence` gives `Saved “X” vN to the library.` or `Saving “X” vN… not confirmed: <reason>.`
+  - `journalLibrarySave(record, evidence, run, journal)` journals `library save not confirmed` only while the run still owns its world.
+- `storyLibrary.ts` exports the host-wired `confirmLibrarySave`.
+- `StudioToolbar`:
+  - arms `confirmSave` (default `confirmLibrarySave`) right after `saveStoryRecord`, before the 1 s debounce can fire;
+  - hands `onLibrarySave(record, evidence)` to the host;
+  - runs the chat hand-off concurrently;
+  - prints the library half from the evidence (feedback type `error` when not confirmed).
+- `index.tsx` wires `onLibrarySave` to `journalLibrarySave` with a `RunGuard` minted at save time. Journaling goes through `manager.noteRecap`, which is now public: 0 lines.
+- Chat-save predicates (`recordSaveEvidence`, `saveHealth`) are unchanged.
+- Storybook: the STAPI mock gains `observeNextSettingsSave` / `readServerExtensionSettings` (confirmed from its in-memory settings), and there is a new story `SaveNotConfirmed`. `test-storybook` was **not run**.
+
+**§8 requirements refresh as built**
+- `runtime/requirementsWatch.ts` (pure; subscription injected):
+  - `RequirementsWatch` subscribes `PERSONA_CHANGED`, `GROUP_UPDATED` and `WORLDINFO_SETTINGS_UPDATED`, as literal `eventName` entries so `eventNames.test.mts` sees them;
+  - a 250 ms debounce;
+  - the `RunGuard` is minted **when the host event arrives**, so a chat left inside the debounce refreshes nothing.
+- `refreshRequirementsNow(host, run)` goes lapsed-check → `refresh()`. Then:
+  - on `hydrateDue` (`!before && after && behind`): `hydrate()` → token → `persist()` → token → `notify()`;
+  - otherwise: `notify()` only.
+  - Ready → not-ready applies, restores and saves nothing. A reading that was already ready and behind stays the boundary's catch-up (`commitBoundary`, unchanged).
+- `turnBridge.ts`: the two bare `notify()` entries are removed. `runtime/index.ts` starts the watch after the bridge and disposes it through `runtimeDisposers`.
+- Manager: **736/740 effective lines, 0 net**.
+  - `requirementsHost` (`...lifecycle`, `hydrate`, `refresh` returning `{before, after, behind}`) and the `requirementsWatch` type import are paid for by:
+    - `applyActive(mode)` replacing five inline `applyCheckpoint(...)` calls (commit ×2, activate, rollback reapply, swapStory);
+    - `...this.lifecycle` in the copilot, rollback and settingsControl deps.
+  - `loadStory`'s apply is left inline: it passes the unmerged `loaded.story`.
+  - The copilot deps now also receive an unused `persist`.
+- Lorebook selection: `listSelectedLorebooks` already read the live `selected_world_info` on `cfad851` (`stHost/worldInfo.ts:206-210`; the plan's `:184-193` citation is stale). It is now pinned by `worldInfo.test.ts` "reads the live selected_world_info, not the debounced globalSelect mirror".
+- Census: new row `src/runtime/requirementsWatch.ts#refreshRequirementsNow`, `checked`. `journalLibrarySave` is not a censused site (its only post-await effect is a callback call).
+
+**Host facts re-verified on the ST checkout**
+- H15: `saveSettings` is at `script.js:8051`, with the `SETTINGS_UPDATED` emit at `:8110` and the swallowing catch at `:8111-8114`. `saveSettingsDebounced` uses `debounce_timeout.relaxed` = 1000 ms (`script.js:466,470`, `constants.js:14`).
+- H16: `settings.js:219-268`.
+- H18: the emit is at `personas.js:166`, not `:167` (the fixture `_note` says `:167`).
+- New:
+  - `WORLDINFO_SETTINGS_UPDATED` is emitted right after `selected_world_info = tempWorldInfo` (`world-info.js:5838-5842`) and at `:6228`;
+  - `GROUP_UPDATED` at `group-chats.js:1777` and `:2003`;
+  - the `globalSelect` mirror is assigned inside the debounced save at `world-info.js:84-86`.
+
+**Tests**
+- T8 (+15):
+  - `stHost/saveWatcher.test.ts` (7): re-wrap after a peer restore, with a no-rewrap control; one report per request through ours → peer → ours; settings apart from chat saves; `SETTINGS_UPDATED` only when no request was seen; shared burst; settings read-back parse.
+  - `runtime/librarySave.test.ts` (8).
+- Requirements (+15):
+  - `runtime/requirementsWatch.test.ts` (11): not-ready → ready hydrates, with an already-applied control; ready → not-ready and stays-not-ready do nothing; already-ready is not re-applied; lapsed during the apply; subscribed names; the debounce burst; lapsed inside the debounce; stop.
+  - `runtime/requirementsRefresh.review.test.ts` (3): the manager's real `requirementsHost` over a persona switch, with a control and ready → not-ready.
+  - `worldInfo.test.ts` (+1).
+
+**Mutations** (each alone, file restored; full text in the records)
+- `test/findings/mutations/v24-02-T8.txt`: **10/10 killed**, including plan mutation 13 (no WeakSet dedupe).
+  - T8-1 **survived its first run**: the second report was invisible because the first had already emptied `watching`. The case now arms a later observation that must not be settled; rerun, killed.
+- `test/findings/mutations/v24-02-requirements.txt`: **10/10 killed** (transition predicate ×3, token checks ×2, debounce, stop, the manager's before/behind reading ×2, live-vs-mirror selection).
+
+**Gates** (worktree root, `node_modules` symlinked to the main checkout's)
+
+| Gate | Result |
+|---|---|
+| `npm run typecheck` | 0 |
+| `npm run typecheck:test` | 0 |
+| `npm run lint` | clean |
+| `npx jest` | 184/184 suites, 2798/2798 tests; findings ledger 2 open / 48 settled |
+| `npm run debug:typecheck` | 0 |
+| `npm run test:debug` | 214 tests. Before a build: 212 pass, **1 fail**, 1 skip. After `npm run build` in the worktree: 213 pass, 0 fail, 1 skip |
+| `ST_ROOT=C:/dev/SillyTavern-MainBranch node --test scripts/debug/eventNames.test.mts` | 2/2 |
+| `npm run build` (worktree only) | compiled, 2 size warnings; manifest `ST unknown` |
+| `npm run test:release` (after the worktree build) | 21 tests: 20 pass, **1 fail** |
+
+- The `test:debug` failure before the build is `so-run-header` "the build half reads plan 08s nested manifest", which needs `dist/manifest.json`.
+- The `test:debug` skip is `eventNames` without an ST checkout at the relative path, and it passes with `ST_ROOT`.
+- The `test:release` failure is "the host section names the SillyTavern it was built against". The worktree is not under ST's extension path, so the manifest reads `ST unknown`. It is environmental, and nothing here touches `scripts/release`.
+
+**Deviations**
+- Evidence covers the **Studio library save** (the one place that says `Saved "X" vN`). The other install-wide writers still call an unverified `saveSettingsDebounced()`:
+  - `listStoryRecords` migration;
+  - `removeStoryRecord`;
+  - import through `saveStoryRecord`;
+  - `settingsStore`;
+  - `wizardSessions`.
+
+  `observeNextSettingsSave` and `readServerExtensionSettings` are there for them.
+- "Holds this or a later save" counts as confirmed. Two saves of one story in one burst would otherwise report the first as unconfirmed.
+- The unconfirmed-save journal goes to the open chat's journal (`noteRecap` made public), and is skipped if that chat is left before the evidence arrives. An install-wide journal does not exist.
+- UI refresh on `GROUP_UPDATED` / `WORLDINFO_SETTINGS_UPDATED` now comes 250 ms later, from the watch, after a real refresh; it used to be an immediate `notify()` with stale requirements.
+- Mutation records are named `v24-02-T8.txt` / `v24-02-requirements.txt`, as the build instruction asked, not `P02-*.txt`.
+- `faultMatrix.json` is unchanged. The library has no package row, and the persistence cells are already covered.
+
+**NOT done (need a browser and a build on the ST tree)**
+- Red → green runs (×2, archived under `test/journeys/records/v2.4-plan02/`) of:
+  - `v24-02-settings-save-swallowed.json`;
+  - `v24-02-fetch-restored.json`;
+  - `v24-02-persona-change.json` (needs two personas).
+- The `plan02-requirements-refresh` group and lorebook halves: only the persona fixture exists.
+- Live check 6 (persona switch goes green without a turn).
+- `test-storybook` for the new toolbar story.
