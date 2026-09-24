@@ -14,7 +14,8 @@ export interface HostEventPayloads {
   MESSAGE_RECEIVED: [messageId: number, messageType?: string];
   MESSAGE_SWIPED: [messageId: number];
   MESSAGE_EDITED: [messageId: number];
-  MESSAGE_DELETED: [messageId: number];
+  MESSAGE_DELETED: [chatLength: number];
+  MESSAGE_SWIPE_DELETED: [payload: { messageId: number; swipeId: number; newSwipeId: number }];
   MESSAGE_UPDATED: [messageId: number];
   GROUP_MEMBER_DRAFTED: [characterId: number | [number]];
   GROUP_WRAPPER_STARTED: [payload: Record<string, unknown> | undefined];

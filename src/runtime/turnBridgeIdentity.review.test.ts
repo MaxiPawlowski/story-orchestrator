@@ -131,7 +131,7 @@ describe("V4: what one turn is", () => {
     expect(manager.rollbackFromMessage).not.toHaveBeenCalled();
 
     await emit("MESSAGE_DELETED", 1);
-    expect(manager.rollbackFromMessage).toHaveBeenCalledWith(1);
+    expect(manager.rollbackFromMessage.mock.calls.map(([id]) => id)).toEqual([1]);
   });
 });
 

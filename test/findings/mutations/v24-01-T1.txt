@@ -1,0 +1,33 @@
+scope: npx jest src/runtime/messageIdentity.test.ts src/runtime/turnBridge src/memory/rollbackReplay.property.test.ts; each mutant applied alone, then restored (2026-09-24)
+baseline (no mutant)
+Tests:       69 passed, 69 total
+M1 decodeDelete always returns postLength
+  ● v2.4 T1: a middle delete rolls back from the message it removed › decodes before the first await: a /cut range reports each removed message while the rollback is still running
+  ● v2.4 T1: a middle delete rolls back from the message it removed › hands the decoded start to the rollback, not the post-delete length
+  ● v2.4 T1: a middle delete rolls back from the message it removed › purges the turn keys from the decoded start, so a reply rendered at a shifted index is a new turn
+  ● v2.4 T1: a middle delete rolls back from the message it removed › refreshes on MESSAGE_SENT, so a player line sent after the last snapshot decodes exactly
+  ● v2.4 T1: a middle delete through the decoder is replay without the removed message › holds for random middle deletes of one to three messages (seed 1)
+  ● v2.4 T1: a middle delete through the decoder is replay without the removed message › holds for random middle deletes of one to three messages (seed 20260921)
+  ● v2.4 T1: a middle delete through the decoder is replay without the removed message › holds for random middle deletes of one to three messages (seed 424242)
+  ● v2.4 T1: a middle delete through the decoder is replay without the removed message › holds for random middle deletes of one to three messages (seed 7)
+  ● v2.4 T1: decodeDelete › decodes a /cut range event by event when the snapshot is refreshed after each delete
+  ● v2.4 T1: decodeDelete › decodes a middle delete to the removed message, not to the post-delete length
+  ● v2.4 T1: decodeDelete › decodes exactly when a row was hidden between refreshes (is_system is not identity)
+  ● v2.4 T1: decodeDelete › decodes one event that removed a tool-call run with its reply (multi-count)
+  ● v2.4 T1: decodeDelete › takes the earliest candidate when repeated messages allow more than one start
+Tests:       13 failed, 56 passed, 69 total
+  (the tail, stale and other-chat control cases stay green under M1: they are the cases where postLength is right)
+M2 drop the suffix check (start = common prefix)
+  ● v2.4 T1: decodeDelete › falls back to the post-delete length when there is no snapshot, the chat did not shrink, or nothing lines up
+  ● v2.4 T1: decodeDelete › takes the earliest candidate when repeated messages allow more than one start
+Tests:       2 failed, 67 passed, 69 total
+M3 add is_system to the key
+  ● v2.4 T1: decodeDelete › decodes exactly when a row was hidden between refreshes (is_system is not identity)
+Tests:       1 failed, 68 passed, 69 total
+M4 turnKeys purge by postLength
+  ● v2.4 T1: a middle delete rolls back from the message it removed › purges the turn keys from the decoded start, so a reply rendered at a shifted index is a new turn
+Tests:       1 failed, 68 passed, 69 total
+M5 non-exact decodes not journaled
+  ● v2.4 T1: a middle delete rolls back from the message it removed › journals a delete it could not decode, and still rolls back from the post-delete length
+  ● v2.4 T1: decodeDelete › journals every decode that is not exact, and nothing for an exact one
+Tests:       2 failed, 67 passed, 69 total

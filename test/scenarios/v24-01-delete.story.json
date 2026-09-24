@@ -1,0 +1,31 @@
+{
+  "format": 2,
+  "title": "v24-01 Delete Decode",
+  "description": "v2.4 plan 01 T1 fixture story: four latching facts, one per player line, so a rollback that lands on the wrong boundary keeps a value it should have dropped. Shared by the v24-01 delete fixtures.",
+  "qualities": [
+    { "key": "took_key", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player take the brass key?" },
+    { "key": "lit_lamp", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player light the oil lamp?" },
+    { "key": "found_map", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player unroll the map?" },
+    { "key": "opened_chest", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player open the iron chest?" }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "Start", "objective": "Get ready to open the vault.", "type": "anchor", "start": true },
+    { "id": "vault", "name": "Vault", "objective": "Open the vault.", "type": "anchor" }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "vault",
+      "priority": 1,
+      "gate": {
+        "all": [
+          { "q": "took_key", "op": "==", "v": true },
+          { "q": "lit_lamp", "op": "==", "v": true },
+          { "q": "found_map", "op": "==", "v": true },
+          { "q": "opened_chest", "op": "==", "v": true }
+        ]
+      }
+    }
+  ],
+  "roster": []
+}

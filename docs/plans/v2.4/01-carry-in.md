@@ -55,8 +55,8 @@ Plan 01 proceeds in order:
 | Item | Code now (path:line) | Drift vs SUMMARY |
 |---|---|---|
 | T1 subscribe | `src/runtime/turnBridge.ts:56` passes `MESSAGE_DELETED`'s payload on as a message id | matches |
-| T1 decode | `turnBridge.ts:159-170`: `hostMessageId(value)` → `turnKeys` purge with `keyed >= messageId` (`:167`) → `rollbackFromMessage` (`:169`) → `runtimeManager.ts:349-355` (`owner.noteMutation`, then `runRollback`, `rollback.ts:35`) | matches. **New:** `src/services/stHost/events.ts:17` types the payload as `[messageId: number]`, which is wrong |
-| T1 harness | `scripts/debug/st-actions.mts:299-317` `deleteMessage` sets `chat.length = id`, then emits `MESSAGE_DELETED(id)`. That is a tail cut, and `id` equals the post-delete length. `plan03a-delete-rollback.json:71` (`delete: 0`), `plan03a-edit-rollback.json` and J6 all use it | **New (X4):** v2.3's delete coverage only ever exercised the shape that already decodes correctly. Nothing calls ST's `deleteMessage` (`ctx.deleteMessage`, `st-context.js:142`) or `/cut`. The file also carries uncommitted edits |
+| T1 decode | `turnBridge.ts:159-170`: `hostMessageId(value)` → `turnKeys` purge with `keyed >= messageId` (`:167`) → `rollbackFromMessage` (`:169`) → `runtimeManager.ts:365-371` (`owner.noteMutation` `:368`, then `runRollback` `:370`, `rollback.ts:35`). **Corrected 2026-09-24** on `eb50a00`: the manager lines were `:349-355` | matches. **New:** `src/services/stHost/events.ts:17` types the payload as `[messageId: number]`, which is wrong |
+| T1 harness | `scripts/debug/st-actions.mts:302-320` (**corrected 2026-09-24**, was `:299-317`) `deleteMessage` sets `chat.length = id` (`:311`), then emits `MESSAGE_DELETED(id)` (`:318`). That is a tail cut, and `id` equals the post-delete length. `plan03a-delete-rollback.json:71` (`delete: 0`), `plan03a-edit-rollback.json` and J6 all use it | **New (X4):** v2.3's delete coverage only ever exercised the shape that already decodes correctly. Nothing calls ST's `deleteMessage` (`ctx.deleteMessage`, `st-context.js:142`) or `/cut`. The file also carries uncommitted edits |
 | T10 speaker | `src/runtime/roster.ts:30-42` skips only `is_user`. It returns null at the first named non-user row that is not an enabled roster member | matches (re-verified on `eb50a00`, 2026-09-24) |
 | T10 impact | `memoryCoordinator.ts:448` → `inject.ts:27`: a null speaker **drops** per-member facts. Also `:494` (`onMemberDrafted` fallback), `:405-406` (`getEpistemicBlock`), `:503` | **corrected 2026-09-24:** the injection moved out of the coordinator in V26. On `eb50a00` it is `src/runtime/memoryInjector.ts:66-67` (`update`: `activeSpeakerId` → `applyMemoryInjection` → `inject.ts:27`), `:112` (`onMemberDrafted` fallback), `:121` (`blocks()`), `:124-130` (`epistemicBlock`, the all-names merge at `:128`); `memoryCoordinator.ts:429` only delegates. **New (X5):** with a null speaker in a group, `getEpistemicBlock` renders `enabledCharacterNames(story)`, i.e. **every member's private knowledge merged**, into `story_epistemic` (`macros.ts:55`). That is an inv-15 breach. Talk `no_repeat` reads the same function (`runtime/index.ts:166` → `talkControl.ts:208` → `talk/rules.ts:60`, all three re-verified) |
 | T10 timing | `updateInjection` runs at `runtimeManager.ts:268`, **then** `announceTransition` at `:273` (`effectsApplier.ts:171-175`, `/comment compact=true`). The next `updateInjection` sees the Note as the last row; `onGenerationEnded` → `clearPrivateInjection` (`:637`, `:640`) is one such call | **corrected 2026-09-24** (`eb50a00`): `updateInjection` `runtimeManager.ts:284`, `announceTransition` `:289` (`effectsApplier.ts:178-185`, `/comment compact=true raw=false`), `onGenerationEnded` `:621` → `clearPrivateInjection` `:624`. The order and the consequence are unchanged. The live probe must run after an ENDED or a memory commit |
@@ -162,6 +162,8 @@ the harness and never installed. It reproduces Guided Generations' shape:
 - **`onMutation("delete")`** decodes **before any await**. The `turnKeys` purge and `noteMutation` both use
   `start`.
 - Fix the `events.ts:17` type to `chatLength`. Cost: one manager delegate for the journal line (677 → 678).
+  **Corrected 2026-09-24:** no delegate; the journal line rides `rollbackFromMessage(start, decoded?)` into
+  `runRollback`, which already holds the journal (manager stays 736/740 effective lines).
 
 ### T10: the speaker skips non-turn rows (X5; inv 15, 16)
 - **`activeSpeakerId`** (`roster.ts:30`) `continue`s past (D9 shape rules):
@@ -494,3 +496,76 @@ generated checkpoint; absence during impersonate; the over-steer probe with its 
 
 **Plan claims found wrong:** the Budgets row (effective lines since V22b; manager 736/740, not 677/700) and the
 call-site list (no story-clear path), both corrected above.
+
+### T1 (worktree build, 2026-09-24)
+
+Built on `eb50a00`, machine gates only; **no live gate has run**, so T1 is NOT green.
+
+- **Built.**
+  - `src/runtime/messageIdentity.ts` (pure): `messageKey` = `send_date|name|is_user|len(mes)|fnv1a(mes)`,
+    cached per message object. No `is_system`, no `swipe_id`.
+  - `decodeDelete(before, afterChat, postLength)`: candidates are `[postLength − commonSuffix, commonPrefix]`.
+    One candidate is `exact`, several are `ambiguous` (earliest wins), none is `stale` (start = `postLength`).
+    A missing snapshot, a length that did not shrink, or an `afterChat.length` that is not `postLength` is also
+    `stale`.
+  - `ChatIdentity` holds one snapshot keyed by chatId. `decode` refreshes to the post-delete chat, so each
+    `/cut` event diffs against the one before it.
+  - `TurnBridge` refreshes on `CHAT_CHANGED`, `MESSAGE_SENT`, every rendered message (before the turn-type
+    filter), `MESSAGE_EDITED`/`SWIPED`/`UPDATED`, `MESSAGE_SWIPE_DELETED`, an id-less mutation and each handled
+    delete. `onMutation("delete")` decodes before its only await, and the `turnKeys` purge and
+    `rollbackFromMessage` (so `noteMutation`) both take `start`.
+  - A non-exact decode is journaled (`story` record, persisted to `extras.journal`) by `runRollback`'s new
+    optional `decoded` argument. `hashStory` now shares an exported `fnv1a`. `events.ts` types
+    `MESSAGE_DELETED` as `[chatLength]` and adds `MESSAGE_SWIPE_DELETED`.
+- **Budgets.** Manager 736/740 effective lines, unchanged (0 net lines; the signature and the `runRollback`
+  call were edited in place, and the type rides the existing `./rollback` import). No budget was raised.
+  The ownership census is unchanged: `TurnBridge.onMutation` still has no write after its await.
+- **Tests.**
+  - New: `messageIdentity.test.ts` (11) and `turnBridgeDelete.review.test.ts` (6).
+  - `rollbackReplay.property.test.ts` gained 4 seeds × 100 random middle deletes of 1–3 messages through the
+    decoder, compared against a replay that stopped before the removed message.
+  - `turnBridgeIdentity.review.test.ts`: the `MESSAGE_DELETED(1)` assertion now reads the first argument, because
+    a stale decode also carries its journal line.
+- **Gates** (all in the worktree):
+
+  | Command | Result |
+  |---|---|
+  | `npm run typecheck` | 0 errors |
+  | `npm run typecheck:test` | 0 errors |
+  | `npm run lint` | clean |
+  | `npm test` | 173 suites, 2703 tests, all passing |
+  | `npm run debug:typecheck` | 0 errors |
+  | `npm run test:debug` | 177 tests: 174 pass, 2 fail, 1 skipped |
+
+  Neither `test:debug` failure is T1's:
+  - `no fixture reads a page global it never sets` names `v24-01-harness-smoke.json`, which is unchanged from
+    `eb50a00`. It reads `__soForeignEmitter`, which the injected script sets, not the fixture.
+  - `the build half reads plan 08s nested manifest` needs `dist/manifest.json`, and the worktree has no
+    `dist/`. `npm run build` was deliberately not run.
+- **Mutations** (`test/findings/mutations/v24-01-T1.txt`; each mutant applied alone, then restored):
+
+  | Mutant | Cases that fail |
+  |---|---|
+  | M1: always return `postLength` | 13, all of them decode cases; the tail, stale and other-chat controls stay green |
+  | M2: drop the suffix check | 2 (the ambiguous case and the no-alignment stale case) |
+  | M3: `is_system` in the key | 1 (the hidden-row case) |
+  | M4: purge by `postLength` | 1 (the turn-key purge case) |
+  | M5: no journal for non-exact decodes | 2 (the journal cases) |
+
+- **Fixtures written, NOT run** (no browser in this session). They are validated with `validateFixture`, every
+  eval compiles, and no global is read without being set.
+  - Files: `test/scenarios/v24-01-middle-delete.json`, `-cut-range.json`, `-toolcall-run.json` (1.19.0 only;
+    it reports `blocked` when the host removes only the reply), `-tail-delete-control.json`. They share the
+    story `v24-01-delete.story.json`.
+  - Each clears the sandbox chat's greetings first, so message ids are fixed. Each turn is `send` plus a
+    scripted `extract` (one latching delta and one fact, with evidence that quotes the player's line).
+  - The expected red on the pre-fix code, by reading the code: middle and cut keep `lit_lamp` from a removed
+    line, and the tool-call run keeps the boundary that read the removed run. The tail control is equal on
+    both sides.
+  - The red and green runs, ×2, are still owed: `so-scenario --sandbox --group 1759606632088`, archived under
+    `records/v2.4-plan01/red/`.
+- **Deviations.**
+  - No manager delegate (see the correction in §T1).
+  - Two extra refresh points: every rendered message (not only turn types), and an id-less mutation.
+  - A fifth mutant (M5) for the journal.
+  - Per-refresh hashing cost is not measured yet (Risks).

@@ -15,6 +15,7 @@
 // Seeds are fixed, so a failure is reproducible by name. Widen ITERATIONS locally when changing the
 // stores; the committed count is what the gate runs.
 
+import { decodeDelete, messageKeys } from "@runtime/messageIdentity";
 import { applyConsolidation, type MatchSets } from "./consolidate";
 import { disappearingEntries, recordDerived, type DerivedRecord } from "./derived";
 import { applyEpistemicSignals } from "./epistemic";
@@ -163,6 +164,37 @@ describe("review: rollback is replay", () => {
       expect({ where, watermark: rolled.shortTermSummaryEnd }).toEqual({ where, watermark: replayed.shortTermSummaryEnd });
       // And the read-coverage log, so a forced re-read after the rollback is not discarded as seen.
       expect({ where, coverage: rolled.writeLog.map((entry) => entry.range.to) }).toEqual({ where, coverage: replayed.writeLog.map((entry) => entry.range.to) });
+    }
+  });
+});
+
+// v2.4 plan 01 T1. ST reports a delete as the post-delete chat length (host-facts 01-H1), which is the
+// removed message only at the tail. The property above holds for a rollback POINT; this one feeds that
+// point from the decoder over a real middle delete, so "rollback ≡ replay" holds end to end: the store
+// must equal a replay that stopped before the removed message, whatever came after it.
+describe("v2.4 T1: a middle delete through the decoder is replay without the removed message", () => {
+  it.each(SEEDS)("holds for random middle deletes of one to three messages (seed %i)", (seed) => {
+    const random = rng(seed);
+    const kinds: Op["kind"][] = ["read", "read", "ledger", "epistemic", "consolidate", "exclude", "compact"];
+    const ops: Op[] = Array.from({ length: 60 }, (_, index) => ({ kind: kinds[Math.floor(random() * kinds.length)], messageId: index, index }));
+    const full = ops.reduce(step, emptyWorld());
+    const chat = ops.map((op) => ({ send_date: `t${op.messageId}`, name: op.messageId % 2 ? "Arin" : "Player", is_user: op.messageId % 2 === 0, mes: `message ${op.messageId}` }));
+    const before = messageKeys(chat);
+
+    for (let probe = 0; probe < 100; probe += 1) {
+      const count = 1 + Math.floor(random() * 3);
+      const removed = 1 + Math.floor(random() * (chat.length - count - 1));
+      const after = [...chat.slice(0, removed), ...chat.slice(removed + count)];
+      const decoded = decodeDelete(before, after, after.length);
+      const rolled = rollbackTo(full, decoded.start, decoded.start - 1);
+      const replayed = ops.filter((op) => op.messageId < removed).reduce(step, emptyWorld());
+      const where = `seed ${seed}, removed ${removed}+${count}, decoded ${decoded.start} (${decoded.basis})`;
+      expect({ where, entries: entryView(rolled.entries) }).toEqual({ where, entries: entryView(replayed.entries) });
+      expect({ where, ledger: ledgerView(rolled.ledger) }).toEqual({ where, ledger: ledgerView(replayed.ledger) });
+      expect({ where, beliefs: beliefView(rolled.epistemic) }).toEqual({ where, beliefs: beliefView(replayed.epistemic) });
+      expect({ where, excluded: [...rolled.excluded].sort() }).toEqual({ where, excluded: [...replayed.excluded].sort() });
+      expect({ where, derived: derivedView(rolled.derived) }).toEqual({ where, derived: derivedView(replayed.derived) });
+      expect({ where, watermark: rolled.shortTermSummaryEnd }).toEqual({ where, watermark: replayed.shortTermSummaryEnd });
     }
   });
 });

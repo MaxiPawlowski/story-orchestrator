@@ -1,0 +1,24 @@
+{
+  "_note": "v2.4 plan 01 T1 red fixture (no backend). Run: node scripts/debug/so-scenario.mts run test/scenarios/v24-01-cut-range.json --sandbox --group 1759606632088. Four player lines, one boundary each; record_state at the boundary before line 1, then `/cut 1-2`. /cut deletes one message per MESSAGE_DELETED, each after its own splice (host-facts 01-H4), so the two events carry chat lengths 3 then 2. Before the T1 fix the rollbacks start at 3 and 2, and lit_lamp (from a removed line) survives: stateEquals FAILS (red). After the fix each event re-diffs against the snapshot the previous one left and both decode to 1.",
+  "steps": [
+    { "eval": "const ctx = SillyTavern.getContext(); const greetings = ctx.chat.length; for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error(`the sandbox chat still holds ${ctx.chat.length} message(s) after clearing its greetings, so every message id below would name the wrong line`); return { greetingsCleared: greetings };", "log": true },
+    { "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };" },
+    { "import_story": { "file": "v24-01-delete.story.json" } },
+    { "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0 }); const state = rt.getEngineState(); if (!state || state.activeCheckpointId !== 'start') throw new Error(`the story did not load at start: ${JSON.stringify(state && state.activeCheckpointId)}`); return { cadence: 0, boundary: state.boundary };" },
+    { "send": "I take the brass key from the hook." },
+    { "extract": { "debugResponse": "DELTA q=took_key value=true evidence=\"I take the brass key\"\nFACT importance=2 text=\"The player carries the brass key.\" evidence=\"I take the brass key from the hook.\"", "reason": "v24-01:line-0" } },
+    { "record_state": { "as": "before-cut" }, "log": true },
+    { "send": "I light the oil lamp by the door." },
+    { "extract": { "debugResponse": "DELTA q=lit_lamp value=true evidence=\"I light the oil lamp\"\nFACT importance=2 text=\"The oil lamp by the door is lit.\" evidence=\"I light the oil lamp by the door.\"", "reason": "v24-01:line-1" } },
+    { "send": "I unroll the map on the table." },
+    { "extract": { "debugResponse": "DELTA q=found_map value=true evidence=\"I unroll the map\"\nFACT importance=2 text=\"The map lies unrolled on the table.\" evidence=\"I unroll the map on the table.\"", "reason": "v24-01:line-2" } },
+    { "send": "I open the iron chest with the key." },
+    { "extract": { "debugResponse": "DELTA q=opened_chest value=true evidence=\"I open the iron chest\"\nFACT importance=2 text=\"The iron chest stands open.\" evidence=\"I open the iron chest with the key.\"", "reason": "v24-01:line-3" } },
+    { "eval": "const rt = globalThis.storyOrchestratorRuntime; const lines = SillyTavern.getContext().chat.map((m) => m.mes); const state = rt.getEngineState(); const values = state.blackboard.values; if (lines.length !== 4 || !String(lines[1]).includes('oil lamp') || !String(lines[2]).includes('map')) throw new Error(`the chat is not the four scripted lines, so /cut 1-2 would not remove the lamp and map lines: ${JSON.stringify(lines)}`); if (state.lastMessageId !== 3) throw new Error(`the engine consumed up to message ${state.lastMessageId}, expected 3`); for (const key of ['took_key', 'lit_lamp', 'found_map', 'opened_chest']) if (values[key] !== true) throw new Error(`${key} did not land before the cut: ${JSON.stringify(values)}`); return { values, active: state.activeCheckpointId, boundary: state.boundary };", "log": true },
+    { "cut": "1-2", "log": true },
+    { "wait": { "idle": true, "timeoutMs": 30000 } },
+    { "eval": "const lines = SillyTavern.getContext().chat.map((m) => m.mes); if (lines.length !== 2 || !String(lines[1]).includes('iron chest')) throw new Error(`/cut 1-2 did not leave the key and chest lines: ${JSON.stringify(lines)}`); return { lines };", "log": true },
+    { "expect": { "stateEquals": { "as": "before-cut", "scope": ["values", "versions", "active", "path", "boundary", "memory", "epistemic", "ledger"] } } },
+    { "eval": "const rt = globalThis.storyOrchestratorRuntime; const state = rt.getEngineState(); const fallbacks = rt.getSessionJournal().filter((e) => /message delete/.test(e.summary)).map((e) => e.summary); if (fallbacks.length) throw new Error(`a /cut event was not decoded exactly: ${JSON.stringify(fallbacks)}`); if (state.lastMessageId !== 0) throw new Error(`the engine still claims message ${state.lastMessageId} as consumed; the chest line now at index 1 would never be read again`); return { lastMessageId: state.lastMessageId, values: state.blackboard.values };", "log": true }
+  ]
+}

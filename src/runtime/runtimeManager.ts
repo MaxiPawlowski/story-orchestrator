@@ -35,7 +35,7 @@ import { applyGlobalSettings, createExtras, hydrateExtras, TALK_DECISION_LIMIT }
 import { SettingsControl } from "./settingsControl";
 import { beginRun, type RunContext, type RunOwnership } from "./runToken";
 import { RunOwner } from "./runOwner";
-import { runRollback, type RollbackDeps } from "./rollback";
+import { runRollback, type DecodeJournal, type RollbackDeps } from "./rollback";
 import { memoryActions, memoryDelegates } from "./memoryActions";
 import { agencyRecovery, playerTurnIds } from "./agencyRecovery";
 import { readEffectTarget, reconcileEffectLedger, restoreEffectTarget } from "./effectHost";
@@ -361,12 +361,12 @@ export class RuntimeManager {
     onApplied: (messageId, window) => this.rollbackListeners.forEach((listener) => listener(messageId, window)),
   };
 
-  async rollbackFromMessage(messageId: number): Promise<RollbackOutcome> {
+  async rollbackFromMessage(messageId: number, decoded?: DecodeJournal): Promise<RollbackOutcome> {
     // A mutation's POSITION is recorded: an in-flight read whose window reaches it is invalidated,
     // a reply merely appended later is not. See `tokenMatches`.
     this.owner.noteMutation(messageId);
     if (!this.loaded) return { ok: true, result: "noop" };
-    return runRollback(this.rollbackDeps, messageId);
+    return runRollback(this.rollbackDeps, messageId, decoded);
   }
 
   getStory(): NormalizedStoryV2 | null { return this.loaded?.story ?? null; }

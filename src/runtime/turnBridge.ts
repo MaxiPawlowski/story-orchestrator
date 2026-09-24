@@ -2,6 +2,7 @@ import { getContext, isHostGenerating, subscribeToHostEvents, type HostSubscript
 import type { RuntimeManager } from "./runtimeManager";
 import { restampRenamedChat } from "./persistence";
 import { beginRun, type RunGuard } from "./runToken";
+import { ChatIdentity, describeDecode } from "./messageIdentity";
 
 const FLUSH_POLL_MS = 300;
 const FLUSH_POLL_MAX_MS = 60000;
@@ -39,6 +40,7 @@ export class TurnBridge {
   private draining = false;
   private lastRenderedAt = 0;
   private readonly turnKeys = new Set<string>();
+  private readonly identity = new ChatIdentity();
   private flushTimer: ReturnType<typeof setTimeout> | null = null;
   private unsubscribe: (() => void) | null = null;
 
@@ -51,9 +53,11 @@ export class TurnBridge {
       { eventName: "GENERATION_STOPPED", handler: () => void this.flushPending() },
       { eventName: "MESSAGE_RECEIVED", handler: (messageId, type) => void this.onRenderedReply(type, messageId) },
       { eventName: "CHARACTER_MESSAGE_RENDERED", handler: (messageId, type) => void this.onRenderedReply(type, messageId) },
+      { eventName: "MESSAGE_SENT", handler: () => this.refreshIdentity() },
+      { eventName: "MESSAGE_SWIPE_DELETED", handler: () => this.refreshIdentity() },
       { eventName: "MESSAGE_SWIPED", handler: (messageId) => void this.onMutation(messageId, "swipe") },
       { eventName: "MESSAGE_EDITED", handler: (messageId) => void this.onMutation(messageId, "edit") },
-      { eventName: "MESSAGE_DELETED", handler: (messageId) => void this.onMutation(messageId, "delete") },
+      { eventName: "MESSAGE_DELETED", handler: (chatLength) => void this.onMutation(chatLength, "delete") },
       { eventName: "MESSAGE_UPDATED", handler: (messageId) => void this.onMutation(messageId, "update") },
       { eventName: "CHAT_CHANGED", handler: () => void this.onChatChanged() },
       { eventName: "CHAT_RENAMED", handler: (payload) => void this.onChatRenamed(payload) },
@@ -73,10 +77,17 @@ export class TurnBridge {
     this.cancelFlushPoll();
     this.pending = [];
     this.turnKeys.clear();
+    this.identity.clear();
     this.lastRenderedAt = 0;
   }
 
+  private refreshIdentity() {
+    const context = getContext();
+    this.identity.refresh(String(context.chatId ?? ""), context.chat);
+  }
+
   private async onRenderedReply(type: unknown, messageId?: unknown) {
+    this.refreshIdentity();
     if (!isTurnMessageType(type)) return;
     const now = Date.now();
     const id = hostMessageId(messageId);
@@ -148,6 +159,7 @@ export class TurnBridge {
 
   private async onChatChanged() {
     this.reset();
+    this.refreshIdentity();
     await this.manager.loadSelectedFromChat();
   }
 
@@ -160,12 +172,22 @@ export class TurnBridge {
     const messageId = hostMessageId(value);
     if (messageId === null) {
       this.turnKeys.clear();
+      this.refreshIdentity();
       return;
     }
+    const decoded = kind === "delete" ? this.decodeDelete(messageId) : null;
+    if (!decoded) this.refreshIdentity();
+    const from = decoded?.start ?? messageId;
     for (const key of this.turnKeys) {
       const keyed = keyMessageId(key);
-      if (kind === "delete" ? keyed >= messageId : keyed === messageId) this.turnKeys.delete(key);
+      if (decoded ? keyed >= from : keyed === from) this.turnKeys.delete(key);
     }
-    await this.manager.rollbackFromMessage(messageId);
+    const journal = decoded ? describeDecode(decoded, messageId) : null;
+    await (journal ? this.manager.rollbackFromMessage(from, journal) : this.manager.rollbackFromMessage(from));
+  }
+
+  private decodeDelete(postLength: number) {
+    const context = getContext();
+    return this.identity.decode(String(context.chatId ?? ""), context.chat, postLength);
   }
 }

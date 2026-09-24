@@ -3,6 +3,9 @@ import type { SharedReadWindow } from "@extraction/index";
 import { getChatWindow } from "@extraction/index";
 import type { RollbackNotice, RollbackUnavailable } from "./narrative";
 import type { JournalContext, SessionJournal } from "./journal";
+import type { DecodeJournal } from "./messageIdentity";
+
+export type { DecodeJournal };
 import { dropJudgeCallsAfter } from "@judge/index";
 import type { RuntimeExtras } from "./types";
 
@@ -32,10 +35,14 @@ export interface RollbackDeps {
 const historyNote = (messageId: number, oldest: { boundary: number }): string =>
   `message ${messageId} is older than what this chat can reconstruct (oldest boundary ${oldest.boundary}); the messages the edit invalidated were dropped and the story was not stepped back`;
 
-export async function runRollback(deps: RollbackDeps, messageId: number): Promise<RollbackOutcome> {
+export async function runRollback(deps: RollbackDeps, messageId: number, decoded?: DecodeJournal): Promise<RollbackOutcome> {
   if (!Number.isFinite(messageId)) return { ok: true, result: "noop" };
   const { engine } = deps;
   const extras = deps.extras();
+  if (decoded) {
+    deps.journal.record("story", decoded.summary, deps.context().journal, decoded.note);
+    extras.journal = deps.journal.getRecords();
+  }
   // The rows a rollback would have dropped still go, whatever the engine can restore: they are
   // claims about messages that no longer say what they said.
   const quarantine = () => {
