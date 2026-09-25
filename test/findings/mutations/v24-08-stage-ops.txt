@@ -1,0 +1,43 @@
+scope: npx jest --runInBand src/copilot/validate.test.ts src/copilot/authoring.test.ts src/runtime/roleCalibration.test.ts; each mutant applied alone, then restored (2026-09-25)
+defect: v2.4 plan 08 live calibration (calibration-authoring.log a05/a15/a16) — checkpoints-stage proposals carrying transition/quality ops reached review as ok. STAGE_OPS (src/copilot/stages.ts) is now the one allowed list: the stage prompt renders it, applyOpsChecked/validateProposal refuse an op outside it per op, naming the stage that allows it.
+pre-fix control: prompt refactor in place, enforcement absent: src/copilot 5 failed / 56 passed (the 5 new refusal cases red; single-source and in-stage controls green)
+baseline (no mutant)
+Tests:       51 passed, 51 total
+M1 no stage enforcement: applyOpsChecked never refuses an out-of-stage op
+  ● recorded live goldens replay through the same run path › authoring-shared.json: every case re-scores to the recorded score, and the summary to the recorded summary
+  ● runAuthoringStage › fails a checkpoints proposal carrying transition and quality ops, and tells the repair pass which stage allows them
+  ● runAuthoringStage › fails a provisioning proposal carrying a draft op, even though draft validation is skipped there
+  ● validateProposal › names every stage that allows a shared kind, the provisioning stage for a create op, and no stage for a kind none proposes
+  ● validateProposal › refuses an op outside the running stage, per op, naming the stage that allows it, and keeps it out of the preview
+Tests:       5 failed, 46 passed, 51 total
+  restored
+M2 refused op still applied to the preview
+  ● validateProposal › refuses an op outside the running stage, per op, naming the stage that allows it, and keeps it out of the preview
+Tests:       1 failed, 50 passed, 51 total
+  restored
+M3 runAuthoringStage validates without the running stage
+  ● recorded live goldens replay through the same run path › authoring-shared.json: every case re-scores to the recorded score, and the summary to the recorded summary
+  ● runAuthoringStage › fails a checkpoints proposal carrying transition and quality ops, and tells the repair pass which stage allows them
+  ● runAuthoringStage › fails a provisioning proposal carrying a draft op, even though draft validation is skipped there
+Tests:       3 failed, 48 passed, 51 total
+  restored
+M4 provisioning stage drops stage issues (the old `[]` path)
+  ● runAuthoringStage › fails a provisioning proposal carrying a draft op, even though draft validation is skipped there
+Tests:       1 failed, 50 passed, 51 total
+  restored
+M5 checkpoints prompt lists its own ops (adds addTransition) instead of reading STAGE_OPS
+  ● recorded live goldens replay through the same run path › authoring-shared.json: every case re-scores to the recorded score, and the summary to the recorded summary
+  ● validateProposal › the stage prompt and the validator read one allowed list
+Tests:       2 failed, 49 passed, 51 total
+  restored
+M6 issue does not name the stage that allows the op
+  ● runAuthoringStage › fails a checkpoints proposal carrying transition and quality ops, and tells the repair pass which stage allows them
+  ● runAuthoringStage › fails a provisioning proposal carrying a draft op, even though draft validation is skipped there
+  ● validateProposal › names every stage that allows a shared kind, the provisioning stage for a create op, and no stage for a kind none proposes
+  ● validateProposal › refuses an op outside the running stage, per op, naming the stage that allows it, and keeps it out of the preview
+Tests:       4 failed, 47 passed, 51 total
+  restored
+restored (all mutants reverted)
+Tests:       51 passed, 51 total
+6/6 killed.
+golden replay (authoring-shared.json, not edited): a05/a15/a16 now ask a repair the recorded run never asked; with that repair unanswered they score failed. Recorded summary still reproduces with their recorded scores; under enforcement (repair unanswered = lower bound): overall validity 19/20 -> 16/20, firstTry 18/20 -> 15/20, opShape 16/20 unchanged; es validity 8/8 -> 6/8, firstTry 8/8 -> 6/8, opShape 6/8 unchanged. Floors untouched; a live re-run decides the real number.

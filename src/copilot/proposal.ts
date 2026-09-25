@@ -25,7 +25,8 @@ import {
   updateRosterMember,
   updateTransition,
 } from "../studio/mutations";
-import type { ProposalOp, TransitionRef } from "./types";
+import { stageOpIssue } from "./stages";
+import type { CopilotStage, ProposalOp, TransitionRef } from "./types";
 
 export const transitionRefMatches = (draft: StoryV2, ref: TransitionRef): number[] =>
   draft.transitions.reduce<number[]>((matches, entry, index) => {
@@ -153,9 +154,15 @@ export const missingTarget = (draft: StoryV2, op: ProposalOp): string | null => 
   }
 };
 
-export const applyOpsChecked = (draft: StoryV2, ops: ProposalOp[]): { next: StoryV2; issues: string[] } => {
+export const applyOpsChecked = (draft: StoryV2, ops: ProposalOp[], stage?: CopilotStage): { next: StoryV2; issues: string[]; stageIssues: string[] } => {
   const issues: string[] = [];
+  const stageIssues: string[] = [];
   const next = ops.reduce((current, op, index) => {
+    const outOfStage = stage ? stageOpIssue(stage, op, index) : null;
+    if (outOfStage) {
+      stageIssues.push(outOfStage);
+      return current;
+    }
     const missing = missingTarget(current, op);
     if (missing) {
       issues.push(`ops.${index}: ${missing} not found`);
@@ -168,7 +175,7 @@ export const applyOpsChecked = (draft: StoryV2, ops: ProposalOp[]): { next: Stor
     }
     return applyOp(current, op);
   }, draft);
-  return { next, issues };
+  return { next, issues, stageIssues };
 };
 
 export type OpAction = "add" | "update" | "remove" | "provision";
