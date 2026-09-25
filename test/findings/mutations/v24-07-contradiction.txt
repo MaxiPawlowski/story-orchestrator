@@ -53,3 +53,17 @@ Result: 25/25 killed.
     "Drawer/DrawerTabs > Player Memory Leaves Out A Held Claim > play-test"
 - U2 the queue card does not say the established side still steers (ConflictQueue): KILLED
     "Drawer/ConflictQueue > A Held Claim Leaves The Established Fact Standing > play-test"
+
+Revision 2026-09-25 (main-session decision: a PIN is retention, not truth, v2.3 M5). Established = locked as canon, author-decided (provenance override) or author-written (source "author"); a pinned extracted row no longer holds a claim. Same script (P8/P9 rewritten, P11 added), same two suites (now 9 + 16 cases), whole sweep re-run on the revised code: 24/24 killed. UI mutants U1/U2 untouched by the revision (ConflictQueue/DrawerTabs unchanged); Storybook re-run green 216/216.
+
+- C1-C4, Q1-Q9, P1-P7, P10: KILLED again (same guards; the tests now seed a LOCKED or author-decided row)
+- P8 a pin counts as established again (M5 decision reverted): KILLED, 3 failing
+    "is a lock, an author decision or an authored row; never a pin, never a plain read (v2.3 M5)"
+    "treats a pinned extracted row as today: soft mark, nothing held (v2.3 M5)"
+    "a pinned (not locked) extracted fact does not hold a contradicting claim"
+- P9 an author decision is not established (only a lock): KILLED
+    "is a lock, an author decision or an authored row; never a pin, never a plain read (v2.3 M5)"
+- P11 an author-written row is not established: KILLED
+    "is a lock, an author decision or an authored row; never a pin, never a plain read (v2.3 M5)"
+- Not run as a mutant: "a lock alone is not established". setLocked always writes the "lock" override too (stores.ts setLocked), so on the product path it is equivalent.
+Result (revision): 24/24 killed.

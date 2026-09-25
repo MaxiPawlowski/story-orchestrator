@@ -35,7 +35,8 @@ const entry = (overrides: Partial<MemoryEntry> = {}): MemoryEntry => ({
   ...overrides,
 });
 
-const seed = (overrides: Partial<MemoryEntry> = {}) => entry({ id: "seed", pinned: true, ...overrides });
+const decided = () => withOverride(entry(), "reconciled", "2026-09-25T00:00:00.000Z", 1).provenance;
+const seed = (overrides: Partial<MemoryEntry> = {}) => entry({ id: "seed", provenance: decided(), ...overrides });
 const claim = (overrides: Partial<MemoryEntry> = {}) => entry({ id: "claim", text: STANDING, createdAt: 1, messageId: 4, provenance: provenance({ source: "extractor", messageId: 4, boundary: 1, pass: "shared-read" }), ...overrides });
 
 const state = (entries: MemoryEntry[]): MemoryRuntimeState => ({
@@ -78,8 +79,8 @@ function harness(entries: MemoryEntry[], matchSets?: MemoryQueueDeps["matchSets"
 const pairedBand = (): MatchSets => ({ dup: [new Set(), new Set()], sameTopic: [new Set(), new Set([0])] });
 
 describe("what counts as established", () => {
-  it("is a pin, a lock, an author decision or an authored row, and nothing an extractor merely read", () => {
-    expect(isEstablished(entry({ pinned: true }))).toBe(true);
+  it("is a lock, an author decision or an authored row; never a pin, never a plain read (v2.3 M5)", () => {
+    expect(isEstablished(entry({ pinned: true }))).toBe(false);
     expect(isEstablished(entry({ locked: true }))).toBe(true);
     expect(isEstablished(entry({ ...withOverride(entry(), "reconfirm", "t", 1) }))).toBe(true);
     expect(isEstablished(entry({ provenance: provenance({ source: "author", messageId: -1, boundary: 0, pass: "manual" }) }))).toBe(true);
@@ -88,7 +89,7 @@ describe("what counts as established", () => {
 });
 
 describe("heldContradictions over the consolidation bands", () => {
-  it("holds a same-topic claim against a pinned row", () => {
+  it("holds a same-topic claim against an author-decided row", () => {
     expect(heldContradictions([seed()], [claim()], pairedBand())).toHaveLength(1);
   });
 
@@ -99,7 +100,7 @@ describe("heldContradictions over the consolidation bands", () => {
     expect(heldContradictions(established, candidates, buildJaccardMatchSets([...established, ...candidates]))).toHaveLength(0);
   });
 
-  it("lets a state-change update through against a pin (M5), and holds it against a lock", () => {
+  it("lets a state-change update through below a lock, and holds it against a lock", () => {
     const update = claim({ text: "The old stone bridge over the river is now rebuilt." });
     expect(heldContradictions([seed()], [update], pairedBand())).toEqual([]);
     expect(heldContradictions([seed({ locked: true })], [update], pairedBand())).toHaveLength(1);
@@ -124,7 +125,7 @@ describe("the queue holds the claim and leaves the established row standing", ()
 
   it("asks nothing when no established row is live", async () => {
     const matcher = jest.fn(async () => pairedBand());
-    const h = harness([seed({ provenance: { ...provenance({ source: "extractor", messageId: 0, boundary: 0, pass: "shared-read" }), validity: "source-removed" } })], matcher);
+    const h = harness([seed({ provenance: { ...decided(), validity: "source-removed" } })], matcher);
     expect(await findHeldContradictions(h.deps, [claim()])).toEqual([]);
     expect(matcher).not.toHaveBeenCalled();
   });
@@ -171,9 +172,17 @@ describe("consolidation's undecided pairs (settleUncertain)", () => {
   });
 
   it("keeps today's soft mark on the older row when it is not established", () => {
-    const h = harness([seed({ pinned: false }), claim()]);
+    const h = harness([entry({ id: "seed" }), claim()]);
     settleUncertain(h.deps, [{ candidateId: "claim", existingId: "seed" }]);
     expect(h.row("seed").contradicted).toBe(true);
+    expect(h.read().conflicts).toEqual([]);
+  });
+
+  it("treats a pinned extracted row as today: soft mark, nothing held (v2.3 M5)", () => {
+    const h = harness([entry({ id: "seed", pinned: true }), claim()]);
+    settleUncertain(h.deps, [{ candidateId: "claim", existingId: "seed" }]);
+    expect(h.row("seed").contradicted).toBe(true);
+    expect(isLive(h.row("claim"))).toBe(true);
     expect(h.read().conflicts).toEqual([]);
   });
 });

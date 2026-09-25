@@ -13,8 +13,8 @@
 // - consolidation (the fact-vs-fact walk) runs every 10 boundaries, only for groups of 8+, and an
 //   undecided pair marks the OLDER row `contradicted` — the seed, which then drops out of the warden.
 //
-// The decision: a new claim that lands in an established row's band (pinned, locked, or kept by the
-// author) never becomes live on its own. It is held in the reconciliation queue, the established row
+// The decision: a new claim that lands in an established row's band (locked as canon, decided or
+// written by the author) never becomes live on its own. A pin is retention, not truth (v2.3 M5). It is held in the reconciliation queue, the established row
 // keeps steering, and the warden reads only live, non-conflicted rows.
 
 jest.mock("@services/STAPI", () => ({
@@ -139,10 +139,11 @@ function harness() {
   return {
     memory: () => memory,
     coordinator: memoryCoordinator,
-    seed: async (pin: boolean) => {
+    seed: async (as: "lock" | "pin" | "none") => {
       await extractionCoordinator.applyAudit(audit("j8-warden-seed", 100000, 100000) as never, [], [SEED_LINE]);
       const seed = memory.entries.find((entry) => entry.text === SEED)!;
-      if (pin) await memoryCoordinator.setMemoryPinned(seed.id, true);
+      if (as === "lock") await memoryCoordinator.setMemoryLocked(seed.id, true);
+      if (as === "pin") await memoryCoordinator.setMemoryPinned(seed.id, true);
       return seed;
     },
     read: async (raw: string, messageId = 1) => {
@@ -159,9 +160,9 @@ const row = (memory: MemoryRuntimeState, text: string): MemoryEntry | undefined 
 const heldPairs = (memory: MemoryRuntimeState): ConflictPair[] => memory.conflicts.filter((pair) => pair.sides.some((side) => side.store === "memory" && side.label === SEED));
 
 describe("a new claim that contradicts an established fact is held, not stored live (v2.4 plan 07, J8.5)", () => {
-  it("holds both Courier rows in the queue and leaves the pinned seed as the warden's only fact", async () => {
+  it("holds both Courier rows in the queue and leaves the locked seed as the warden's only fact", async () => {
     const env = harness();
-    await env.seed(true);
+    await env.seed("lock");
     await env.read(COURIER_READ);
     const memory = env.memory();
     for (const text of [STANDING, USABLE]) {
@@ -175,7 +176,7 @@ describe("a new claim that contradicts an established fact is held, not stored l
 
   it("names the seed as the side that keeps steering, and reads the window the claim came from", async () => {
     const env = harness();
-    const seed = await env.seed(true);
+    const seed = await env.seed("lock");
     await env.read(COURIER_READ, 1);
     const pair = heldPairs(env.memory())[0];
     expect(pair.sides.find((side) => side.id === seed.id)?.standing).toBe(true);
@@ -185,7 +186,7 @@ describe("a new claim that contradicts an established fact is held, not stored l
 
   it("keeps the seed live when the conflict detector runs over the queue again", async () => {
     const env = harness();
-    await env.seed(true);
+    await env.seed("lock");
     await env.read(COURIER_READ);
     env.coordinator.detectMemoryConflicts();
     expect(isLive(row(env.memory(), SEED)!)).toBe(true);
@@ -194,7 +195,7 @@ describe("a new claim that contradicts an established fact is held, not stored l
 
   it("lets the author keep the seed as canon: the claim is retired and the seed is locked", async () => {
     const env = harness();
-    const seed = await env.seed(true);
+    const seed = await env.seed("lock");
     await env.read(COURIER_READ);
     const pair = heldPairs(env.memory()).find((candidate) => candidate.sides.some((side) => side.label === STANDING))!;
     expect(await env.coordinator.resolveMemoryConflict(pair.key, seed.id, true)).toBe(true);
@@ -203,9 +204,9 @@ describe("a new claim that contradicts an established fact is held, not stored l
   });
 
   // Anti-vacuity: the hold is about a claim in the seed's band, not about every new row.
-  it("stores an unrelated claim live next to the pinned seed", async () => {
+  it("stores an unrelated claim live next to the locked seed", async () => {
     const env = harness();
-    await env.seed(true);
+    await env.seed("lock");
     await env.read(`FACT importance=2 text="Arin carries two curved daggers." evidence="${COURIER_QUOTE}"`);
     expect(isLive(row(env.memory(), "Arin carries two curved daggers.")!)).toBe(true);
     expect(env.memory().conflicts).toEqual([]);
@@ -213,23 +214,23 @@ describe("a new claim that contradicts an established fact is held, not stored l
 
   it("stores a verbatim restatement of the seed live: agreeing is not contradicting", async () => {
     const env = harness();
-    await env.seed(true);
+    await env.seed("lock");
     await env.read(`FACT importance=3 text="${SEED}" evidence="${COURIER_QUOTE}"`);
     expect(env.memory().entries.filter((entry) => entry.text === SEED).every((entry) => isLive(entry))).toBe(true);
     expect(env.memory().conflicts).toEqual([]);
   });
 
-  // The consolidation half: a claim that went live BEFORE the author pinned the seed. The walk finds
+  // The consolidation half: a claim that went live BEFORE the author locked the seed. The walk finds
   // the pair as undecided; it used to mark the older row (the seed) `contradicted`, which drops it
   // from the warden's facts and leaves the claim standing alone.
-  it("holds a claim consolidation finds against a seed pinned after the claim went live", async () => {
+  it("holds a claim consolidation finds against a seed locked after the claim went live", async () => {
     const env = harness();
-    const seed = await env.seed(false);
+    const seed = await env.seed("none");
     await env.read(`FACT importance=3 text="${STANDING}" evidence="${COURIER_QUOTE}"`, 1);
     const fillers = ["Arin carries two curved daggers.", "Ponticius keeps the guild ledger locked.", "Rain fell on the eastern hills all week.", "The market sells dried figs cheaply.", "A grey mare waits tied near the inn.", "Wolves were heard beyond the northern ridge."];
     for (const [index, text] of fillers.entries()) await env.read(`FACT importance=1 text="${text}" evidence="${COURIER_QUOTE}"`, index + 2);
     expect(isLive(row(env.memory(), STANDING)!)).toBe(true);
-    await env.coordinator.setMemoryPinned(seed.id, true);
+    await env.coordinator.setMemoryLocked(seed.id, true);
     await env.coordinator.runConsolidation();
     expect(row(env.memory(), SEED)!.contradicted).toBeFalsy();
     expect(isLive(row(env.memory(), STANDING)!)).toBe(false);
@@ -237,11 +238,22 @@ describe("a new claim that contradicts an established fact is held, not stored l
     expect(env.warden()).toContain(SEED);
   });
 
-  // The stated scope: an extractor row nobody pinned, locked or kept is not established. This is the
-  // exact state J8.5 seeded before its fixture pinned the seed, and it still stores the claim live.
-  it("does not treat an unpinned extractor-read seed as established (J8.5 as first seeded)", async () => {
+  // Main-session decision (2026-09-25): a pin is retention, not truth (v2.3 M5). A pinned extracted fact
+  // keeps today's behaviour, so the contradicting claim is stored live next to it.
+  it("a pinned (not locked) extracted fact does not hold a contradicting claim", async () => {
     const env = harness();
-    await env.seed(false);
+    await env.seed("pin");
+    await env.read(COURIER_READ);
+    expect(isLive(row(env.memory(), STANDING)!)).toBe(true);
+    expect(isLive(row(env.memory(), USABLE)!)).toBe(true);
+    expect(env.memory().conflicts).toEqual([]);
+  });
+
+  // The stated scope: an extractor row nobody locked or decided is not established. This is the
+  // exact state J8.5 seeded before its fixture locked the seed, and it still stores the claim live.
+  it("does not treat a plain extractor-read seed as established (J8.5 as first seeded)", async () => {
+    const env = harness();
+    await env.seed("none");
     await env.read(COURIER_READ);
     expect(isLive(row(env.memory(), STANDING)!)).toBe(true);
     expect(env.memory().conflicts).toEqual([]);

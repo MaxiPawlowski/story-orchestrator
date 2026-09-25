@@ -836,6 +836,12 @@ Worktree branch `worktree-agent-a6f2bab29efef9f15`, on master `4997718` plus the
 `host-facts.md` conflict resolved by keeping both sections). **No backend and no browser here: no live gate ran, none is
 claimed green.** Fixes the defect written up in §Part 1 live gates ("Defect found, not fixed").
 
+**Decision (main session, 2026-09-25): a PIN is retention, not truth (v2.3 M5).** Only three kinds of row hold a
+contradicting claim: locked as canon, decided by the author (a provenance override: reconciled, reconfirm,
+store-anyway, lock) and written by the author (`source: "author"`). A pinned extracted fact keeps today's behaviour,
+change-worded updates included. The first build of this section also counted a pin. The revision drops it, and it
+is recorded below as "Revision". Hiding conflicted rows from the player Memory tab was accepted as built.
+
 **Root cause (cited on `4997718`).** Nothing compares a NEW fact with an established one. Three layers, each blind:
 1. The write path stores a read's facts unconditionally. `extractionCoordinator.ts:200` builds each FACT line as a live
    `facts` row, `:215` calls `memory.applyEntries`, and `memoryCoordinator.ts:145-152` hands it to `addMemoryEntries`
@@ -868,16 +874,18 @@ never reach the facts tier or the warden. Tiers were not redesigned. The fix is 
 a settled fact is held for the author, whatever the read called it.
 
 **As built.**
-- **Established** (`isEstablished`, `memory/conflicts.ts`) means pinned, locked, carrying an author override
-  (reconciled, reconfirm, store-anyway, lock), or `source: "author"`. `standsEstablished` adds live, not superseded,
-  not folded. An extractor row nobody pinned is NOT established, however "permanent" or important the read rated it.
+- **Established** (`isEstablished`, `memory/conflicts.ts`) means locked, carrying an author override (reconciled,
+  reconfirm, store-anyway, lock), or `source: "author"`. A pin does not count. `standsEstablished` adds live, not
+  superseded, not folded. An extractor row nobody locked or decided is NOT established, however "permanent",
+  important or pinned it is.
 - **The detector is the consolidation bands, reused.** `findHeldContradictions` (`memoryQueue.ts`) builds `MatchSets`
   over `[established…, candidates…]`. It uses the injected `matchSets`, which is the coordinator's `buildMatchSets`:
   ST vectors, else Jaccard. `heldContradictions` then holds a candidate when all three hold:
   - it is in an established row's dup or same-topic band;
   - it is not the same text;
-  - it is not an M5 update. A candidate with a state-change marker still passes against a PIN, as v2.3 M5 requires. A
-    LOCK holds every candidate in its band.
+  - it is not an update below a lock. A candidate with a state-change marker passes against an author-decided or
+    authored row that is not locked, because consolidation may still supersede such a row. A LOCK holds every
+    candidate in its band.
   - `heldGroup` gives every row one type first. The same-topic band pairs only same-typed rows, and whether a claim
     contradicts a settled fact does not depend on the read calling it `fact` or `event`.
 - **Held, not live.** `MemoryCoordinator.applyEntries` reads the bands before its ownership check, which was already
@@ -897,8 +905,9 @@ a settled fact is held for the author, whatever the read called it.
   ledger-conflict rows too, which were visible before. The queue card says the standing side still steers
   (`[data-so="conflict-standing"]`).
 - **J8.5 fixture.**
-  - The seed step now pins the seed. Without that it is an ordinary extractor row, and a test below proves it stays
-    unguarded.
+  - The seed step now locks the seed as canon, through the product path
+    (`rt.memoryActions.setMemoryLocked(id, true)`), and asserts `locked`. Pinned or plain, it is an ordinary
+    extractor row, and two control tests prove those stay unguarded.
   - The last on-arm step fails if any warden note enforced a bridge fact other than the seed, and returns `held` and
     `liveClaims`.
 - **Size.** The coordinator is 619/620 effective lines, and the manager is unchanged at 737/740. The census row for
@@ -912,22 +921,27 @@ a settled fact is held for the author, whatever the read called it.
 
 Before the fix: **4 failed, 3 passed** (the three controls). The warden read
 `[seed, "…still standing and intact.", "…intact and usable."]`, which is the live `{facts: 3, flagged: 2}` shape.
-The consolidation case and the 14 `memoryQueueHeld.test.ts` cases were written with the code. Their red is evidenced by
-the mutants.
+That red run pinned the seed, as the first build did. The revision locks it instead.
+The consolidation case and the `memoryQueueHeld.test.ts` cases were written with the code. Their red is evidenced by
+the mutants. The revision added two controls:
+- "a pinned (not locked) extracted fact does not hold a contradicting claim" (coordinator);
+- "treats a pinned extracted row as today: soft mark, nothing held" (`settleUncertain`).
 
-**Mutations.** `test/findings/mutations/v24-07-contradiction.txt`, **25/25 killed**:
+**Mutations.** `test/findings/mutations/v24-07-contradiction.txt`. First build **25/25 killed**; revision (whole sweep
+re-run, P8 now "a pin counts again", P11 added) **24/24 killed**. P8 is killed by 3 cases, including the new
+coordinator control. First-build mutants:
 - C1-C4: coordinator wiring;
 - Q1-Q9: the queue;
 - P1-P10: the detector;
 - U1-U2: the player filter and the standing label (Storybook).
 
-**Gates (worktree, after the edits):**
+**Gates (worktree, after the revision; the first build's figures in brackets):**
 - OK: `npm run typecheck`, `npm run typecheck:test`, `npm run lint`, `npm run debug:typecheck`.
-- `npm test`: 231 suites, **3418 passed** (fault matrix 75 covered / 10 partial / 25 na / 0 todo).
+- `npm test`: 231 suites, **3421 passed** [3418] (fault matrix 75 covered / 10 partial / 25 na / 0 todo).
 - `npm run build`: OK (the 2 known size warnings).
-- `npm run test:debug`: 257 pass, 1 skip, 0 fail. The first run, before `npm run build`, failed 1: the run-header
-  manifest test reads `dist/manifest.json`, which a fresh worktree does not have.
-- Storybook: built, and the test-runner ran over `index.json`, **216/216**.
+- `npm run test:debug`: 257 pass, 1 skip, 0 fail. In the first build, the first run (before `npm run build`) failed 1:
+  the run-header manifest test reads `dist/manifest.json`, which a fresh worktree does not have.
+- Storybook: rebuilt, and the test-runner ran over `index.json`, **216/216** both times.
 
 **Live check owed (main session).** J8.5 on-arm ×2 on a reloaded page, same recipe as §Part 1 item 2
 (`--only J8.5 --judge-uses warden --warden-mode auto`, lane 2). Green means:
@@ -945,16 +959,15 @@ it falls under 0.55, the claim is stored live again and the step-8 assertion fai
   held. An agreeing paraphrase loses nothing: the established row already says it.
 - A contradiction worded far enough from the seed (below 0.4 Jaccard / 0.55 cosine, e.g. "the crossing is fine") is
   **not seen**. No negation or polarity detector was added.
-- Only established rows are guarded. Two ordinary extractor rows that disagree still go through consolidation's
-  cadence, the ≥8 group and the soft mark, as before.
+- Only locked, author-decided or authored rows are guarded. A pinned extracted row and two ordinary extractor rows that
+  disagree still go through consolidation's cadence, the ≥8 group and the soft mark, as before. The consolidation
+  soft mark still lands on the OLDER row. For a pinned seed it removes the seed from the warden, as it did before.
 - Consolidation's own walk stays type-bound. A consolidation-found claim of another type is not held there; the write
   path covers it.
 - One vectors round-trip (insert, 3 queries per row, purge) per extraction write, and only while at least one
   established row exists.
 - A rollback that removes the claim's message leaves its held pair in the queue with a missing row. This is the
   existing behaviour for every memory-side pair (`reverseMemoryState` does not touch `conflicts`).
-- A pin now also HOLDS a bare contradicting claim, where M5 alone would have left it live. Marker updates still pass,
-  so M5 holds.
 
 **Unresolved questions.**
 - Should `isEstablished` also count a story-authored seed? No authored fact seed exists in the schema today.

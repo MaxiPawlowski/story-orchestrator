@@ -206,13 +206,13 @@ export function markConflicted<T extends Provenanced>(records: T[], ids: string[
   return records.map((record) => (wanted.has(idOf(record)) ? { ...record, ...withValidity(record, "conflicted") } : record));
 }
 
-// v2.4 plan 07 (J8.5). A row the story has settled: the author pinned it, locked it, or decided it in
-// the queue. A new claim in its band is HELD — queued with the established row standing — instead of
+// v2.4 plan 07 (J8.5). A row the story has settled: locked as canon, decided by the author, or written
+// by the author. A pin is retention, not truth (v2.3 M5), so a pinned extracted row is not settled. A new claim in its band is HELD — queued with the established row standing — instead of
 // joining the live facts on its own. "In its band" is the consolidation bands (vectors, else
 // Jaccard), which cannot tell a contradiction from an agreeing paraphrase: both are held, and an
 // agreeing one loses nothing because the established row already says it. A contradiction worded with
 // too little overlap to reach the same-topic band is not seen at all.
-export const isEstablished = (entry: MemoryEntry): boolean => Boolean(entry.locked || entry.pinned || entry.provenance?.override || entry.provenance?.source === "author");
+export const isEstablished = (entry: MemoryEntry): boolean => Boolean(entry.locked || entry.provenance?.override || entry.provenance?.source === "author");
 
 export const standsEstablished = (entry: MemoryEntry): boolean => isEstablished(entry) && isLive(entry) && !entry.supersededBy && !entry.foldedInto;
 
@@ -227,8 +227,8 @@ export interface HeldContradiction {
 export const heldGroup = (established: MemoryEntry[], candidates: MemoryEntry[]): MemoryEntry[] =>
   [...established, ...candidates].map((entry) => ({ ...entry, type: "fact" as const }));
 
-/** M5 holds for a pinned row: a candidate carrying a state-change marker is an UPDATE, which
- *  consolidation may supersede it with. A lock is truth, so every candidate in its band is held. */
+/** Below a lock, a candidate carrying a state-change marker is an UPDATE that consolidation may
+ *  supersede the row with, exactly as it would today. A lock is truth: every candidate in its band is held. */
 export function heldContradictions(established: MemoryEntry[], candidates: MemoryEntry[], matches: MatchSets): HeldContradiction[] {
   const same = (left: string, right: string) => left.trim().toLowerCase() === right.trim().toLowerCase();
   return candidates.flatMap((candidate, offset) => {
