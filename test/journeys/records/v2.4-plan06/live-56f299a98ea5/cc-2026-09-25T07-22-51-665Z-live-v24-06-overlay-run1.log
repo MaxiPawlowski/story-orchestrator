@@ -1,0 +1,89 @@
+1/15 import_story ok 284ms
+2/15 ui ok 195ms
+3/15 eval ok 70ms
+3/15 eval -> {"api":"chat","preset":"Default","file":"{\"preset\":\"Default\",\"temp\":0.9,\"top_p\":1}"}
+4/15 slash ok 2602ms
+5/15 wait ok 46ms
+6/15 eval ok 5ms
+6/15 eval -> {"armed":"SO-V2406 Overlay","values":{"temperature":0.37,"top_p":0.83}}
+WARNING: send produced no reply (last message is "Ponticius" with 0 characters). Silence is valid under talk control; an unreachable backend looks identical here.
+7/15 send_generate FAIL send_generate: reported ok:false
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T07-23-22-944Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T07-23-27-454Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 7,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-cbeb5df2"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@04h22m52s674ms",
+    "owned": [
+      "2026-09-25@04h22m52s674ms"
+    ],
+    "deleted": [
+      "2026-09-25@04h22m52s674ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@04h22m52s674ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

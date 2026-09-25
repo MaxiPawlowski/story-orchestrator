@@ -1,0 +1,15 @@
+{
+  "id": "p09",
+  "label": "propose",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "[create] Lore Casa del Pozo || La Cofradía del Pozo || cofradía, hermandad || Una hermandad del pueblo que se reúne cada luna nueva y quiere que la casa siga cerrada. El alcalde pertenece a ella.\n[why] The Cofradía del Pozo has been established as a recurring group with specific goals and membership.",
+    "[create] Lore Casa del Pozo || La Cofradía del Pozo || cofradía, hermandad || Una hermandad del pueblo que se reúne cada luna nueva y quiere que la casa siga cerrada. El alcalde pertenece a ella.\n[why] The Cofradía del Pozo has been established as a significant group with specific goals and membership.",
+    "[create] Lore Casa del Pozo || La Cofradía del Pozo || cofradía, hermandad || Una hermandad del pueblo que se reúne cada luna nueva y quiere que la casa siga cerrada. El alcalde pertenece a ella.\n[why] The Cofradía del Pozo has been established as a significant group with specific goals and membership."
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

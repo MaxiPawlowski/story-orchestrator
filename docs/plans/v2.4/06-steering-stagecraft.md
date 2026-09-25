@@ -357,3 +357,41 @@ Branch `worktree-agent-a129903dbe5e68430` on `e4d69db`. Commits: `eb6a742` (T17)
 - F5 Phase A: `node scripts/debug/so-curator-suite.mts run --record --expect-count 22` (capture a run header first). Build the create op only if it clears propose ≥ 0.90 and none = 1.00.
 
 **Remaining**: all live gates above (headed, `--strict`, run-header diff around each batch, `so-assets assert-clean`), then F5 Phase A and, only past its floor, the F5 build + its four mutations + `CreateCardNearDup` + the J8 create checks.
+
+### Live gates (2026-09-25, bundle 56f299a98ea5)
+
+Lane 1 only (ST :8101, CDP 9301, lane browser headless), Artemis 31B Q4_K_M via `127.0.0.1:18080`. Main profile `Artemis RunPod RP` (llamacpp, Text Completion); memory profile `Story Orchestrator Memory RunPod`; curator role on "Same as memory model" (no per-role route set). Before every batch: `st-session reload`, `open-group 1759606632088`, `/profile Artemis RunPod RP`, served `dist/index.js` sha checked against the manifest. Records: `test/journeys/records/v2.4-plan06/live-56f299a98ea5/` (green set) and `live-48816ebec4fc/` (the first pass, which found the fixture faults and the defect below).
+
+Started on 48816ebec4fc. The fix below was rebuilt to **56f299a98ea5** (logged in `.debug/bundle-change.txt`; the plan-08 agent built from the same tree within the same minute, and the bundle carries both changes). Every green record below ran on 56f299a98ea5.
+
+| Gate | Text Completion | Chat Completion | Evidence |
+|---|---|---|---|
+| `live-v24-06-objective.json` ×2 | green, green | n/a | cp-bare guidance block carries `Objective: Find the brass key…`, cp-noted none; over-steer probe ok both runs (restate span 2/6, no meta hits, length ratio 1.14 / 1.22 vs the cp-noted control) |
+| `live-v24-06-objective-off.json` ×2 | green, green | n/a | no request (3, 1 recorded) carries `Objective:` |
+| `live-v24-06-overlay.json` ×2 | green, green | green, green | TC: the loud request on cp-overlay carries temperature 0.37 / top_p 0.83; `Artemis v1.1 RP` and the settings file (temp 1, top_p 1) read back unchanged; a real memory read (1 request) does not carry 0.37; cp-bare back to 1. CC: same, `type: normal`, preset `Default` + file (temp 0.9) unchanged, 2 memory requests clean, cp-bare back to 0.9 |
+| `live-v24-06-curator.json` ×2 | green, green | n/a | uid on every op; a `rewrite` card shows the word diff; the decline lands and the second prompt carries `THE AUTHOR DECLINED` + the op; the long entry is marked shown in part; records `wi-4-4` then `wi-4-4-2` |
+| `so-assets assert-clean --marker SO-V2406` | clean | | |
+| `so-run-header` diff | 0 blocking (TC, after cleanup) | 0 blocking (CC) | `--allow build.head` (docs commits by other sessions), plus `build.manifest.builtAt/fileSha256` on TC (the plan-08 rebuild of the same bundle) |
+
+Not exercised live: the "re-proposed op dropped as `was declined earlier`" branch. In four green curator runs the model never re-proposed the declined rewrite (it proposed a `disable` instead), so the drop path stays covered by jest only (`StagecraftCoordinator T17.3`).
+
+**Chat Completion profile.** None existed on lane 1. Created on lane 1 only: `/api custom`, `/api-url http://127.0.0.1:18080/v1`, `/model <served gguf>`, `/profile-create SO-V2406 CC Artemis` (mode cc, preset `Default`). The first two CC runs failed on an empty reply, not on the overlay: the server log shows the request with temperature 0.37 / top_p 0.83, but llama-server applies the Gemma 4 thinking template on `/v1/chat/completions` and spends all 300 tokens on `reasoning_content` (reproduced with curl). Set `custom_include_body: chat_template_kwargs: {enable_thinking: false}` on lane 1, then ×2 green. Afterwards the profile was removed, `custom_url`/`custom_model`/`custom_include_body` put back to the install's values (read back from the settings file), and `/profile Artemis RunPod RP` re-selected. Run-header diff: 0.
+
+**Product defect found and fixed: curator record ids collided within a boundary.** `runCuratorPass` named its record `wi-<boundary>-<lastMessageId>`, so two passes at one boundary (the fixture's decline-then-re-curate, or an author pressing Curate twice) produced two records with one id (`wi-2-2` twice on 48816ebec4fc). `updateOps` maps every record with that id, so accepting op N on the second card also flipped the first card's declined op N to `accepted`, and the declined write would land at the next boundary. It also made the fixture's "never on a card again" check vacuous, because it excluded the first record by id. Fix: `uniqueRecordId` suffixes `-2`, `-3`… (`stagecraftCoordinator.ts`). Red test first (`two passes at one boundary are two records: accepting the second never un-declines the first`); M35 (suffix loop disabled) killed by it, 1 of 222. Live: `wi-4-4` / `wi-4-4-2`.
+
+**Fixture faults fixed** (`live-v24-06-curator.json`):
+- The curator reads only the checkpoint and canon, never the chat, so the collapse on the `gorge` checkpoint gave it nothing to act on (`NONE … the existing entries remain relevant`). Now the author advances to `far-side`, whose objective states the collapse, before the pass (the `live-curator-write` pattern).
+- The review cards live in the author-only Scheduler tab, so the `ui: stagecraft` step found no tab. The setup eval now sets `authorView: true` on the sandbox chat.
+- A mid-run failure skips the fixture's own restore and removal steps. Both failures leaked `SO-V2406 Lore` (removed with `so-assets`).
+
+**Environmental, not product:** lane 1's CSRF token went stale mid-batch (07:17 Z, curator run 2 on 56f299a98ea5: `ForbiddenError: Invalid CSRF token` in the lane server log). The runner's cleanup then got 403 on every save, leaving the sandbox chat, the story, `SO-V2406 Lore`, extraction cadence 50 and accept mode `review` behind. Cleaned by hand (setters + `so-library remove` + `/delchat` + `so-assets remove`), run-header diff back to 0, then the curator ×2 re-ran green.
+
+**F5 Phase A** (`so-curator-suite.mts run --record --expect-count 22`, 22 cases × 3 samples, curator role = memory profile, run header `run-header-f5.json`, diff 0 after):
+- End to end: **propose 1.000 (33/33)**, **none 0.879 (29/33)**. Floor: propose ≥ 0.90 AND none = 1.00. **Verdict: NOT BUILT.** No floor retuned; `prompt.ts` "Never invent new entries" stays.
+- Model alone (reported, not scored): created on 100 % of propose samples, 12.1 % of none samples.
+- Misses, both `named-once`: n01 (en) 1/3, a valid card `Garrick` (keys stall-keeper, bread); n07 (es) 3/3, a valid card `Paquito` (keys pastor, Paquito). Every other negative (covered, roster, near-dup, nothing-new) held 3/3.
+- Observation for a later plan, not acted on: both misses are cases the contract's code guard admits by design (it needs ≥1 live fact naming the entity, while the prompt and the labels say "at least twice"). A ≥2-fact guard would be a new contract measured against a fresh frozen fixture, not a retune of this one.
+- Goldens: `test/goldens/live/curator-create/` (22), replayed in jest (`createCandidate.test.ts`, green).
+- F5 mutations, `CreateCardNearDup` and the J8 create checks are therefore not built.
+
+**Machine gates after the fix (exact):** `npm run typecheck` 0 · `npm run typecheck:test` 0 · `npm run lint` 0 · `npm run debug:typecheck` 0 · `npm test` 256 suites / 3717 tests passed · `npm run test:debug` 273 / 273 pass · `npm run build` 2 size warnings (pre-existing), bundle 56f299a98ea5.

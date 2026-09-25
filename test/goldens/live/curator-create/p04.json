@@ -1,0 +1,15 @@
+{
+  "id": "p04",
+  "label": "propose",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "[patch] #3 || A basalt fortress over a dormant volcano. || dormant volcano. || active volcano.\n[create] Ember Keep Lore || The Sunken Bell || bell, sunken || A bell at the bottom of the cistern that rings when the volcano stirs.\n[why] The volcano is no longer dormant and the Sunken Bell's existence is confirmed.",
+    "[patch] #3 || A basalt fortress over a dormant volcano. || dormant volcano. || active volcano.\n[create] Ember Keep Lore || The Sunken Bell || bell, sunken bell || A bell at the bottom of the cistern that rings when the volcano stirs.\n[why] The volcano is no longer dormant and the Sunken Bell's existence and function have been confirmed.",
+    "[patch] #3 || A basalt fortress over a dormant volcano. || dormant volcano. || active volcano.\n[create] Ember Keep Lore || The Sunken Bell || bell, sunken || A bell at the bottom of the cistern that rings when the volcano stirs.\n[why] The volcano is no longer dormant and the Sunken Bell's existence is confirmed."
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

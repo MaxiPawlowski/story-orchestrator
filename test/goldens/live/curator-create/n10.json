@@ -1,0 +1,15 @@
+{
+  "id": "n10",
+  "label": "none",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "[enable] #2\n[enable] #4\n[why] Inés and Marco have returned to the port at dawn, making the location and its controller relevant again.",
+    "[enable] #2\n[enable] #4\n[why] Inés and Marco have returned to the port at dawn, making the location and its controller relevant again.",
+    "[enable] #2 \"El puerto\"\n[enable] #4 \"El Tuerto\"\n[why] Inés and Marco have returned to the port at dawn, making the location and its controller relevant again."
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

@@ -1,0 +1,104 @@
+1/16 import_story ok 276ms
+2/16 eval ok 182ms
+2/16 eval -> {"entries":3,"restoreTo":{"curatorEnabled":true,"acceptMode":"auto","wardenEnabled":false,"wardenAcceptMode":"review"}}
+3/16 ui ok 232ms
+4/16 send_generate ok 36906ms
+5/16 wait ok 5199ms
+6/16 copilot ok 133ms
+7/16 expect ok 76ms
+8/16 stagecraft ok 3561ms
+8/16 stagecraft -> {"ran":true,"record":{"id":"wi-4-4","curator":"wi","at":"2026-09-25T07:20:45.046Z","boundary":4,"messageId":4,"checkpointId":"far-side","reason":"v24-06 bridge","summary":"The bridge is no longer usable as it has fallen into the gorge.","mode":"review","ops":[{"op":{"kind":"rewrite","lorebook":"SO-V2406 Lore","comment":"The rope bridge","uid":0,"text":"The rope bridge has snapped and fallen into the gorge."},"status":"pending","message":"Rewrite \"The rope bridge\"","before":{"content":"A rope bridge spans the gorge, its ropes new and taut. It is the only way across, and it holds a laden mule.","disabled":false,"uid":0}},{"op":{"kind":"disable","lorebook":"SO-V2406 Lore","comment":"The rope bridge","uid":0},"status":"pending","message":"Switch \"The rope bridge\" off","before":{"content":"
+9/16 eval ok 10ms
+9/16 eval -> {"ops":[{"kind":"rewrite","comment":"The rope bridge","uid":0,"status":"pending","fuzzy":null},{"kind":"disable","comment":"The rope bridge","uid":0,"status":"pending","fuzzy":null}]}
+10/16 ui ok 191ms
+11/16 eval ok 4ms
+11/16 eval -> {"textual":true,"diffs":1}
+12/16 eval ok 139ms
+12/16 eval -> {"declined":{"kind":"rewrite","comment":"The rope bridge"}}
+13/16 stagecraft ok 2189ms
+13/16 stagecraft -> {"ran":true,"record":{"id":"wi-4-4-2","curator":"wi","at":"2026-09-25T07:20:47.574Z","boundary":4,"messageId":4,"checkpointId":"far-side","reason":"v24-06 after decline","summary":"The rope bridge has snapped and fallen, so it no longer spans the gorge or serves as a way across.","mode":"review","ops":[{"op":{"kind":"disable","lorebook":"SO-V2406 Lore","comment":"The rope bridge","uid":0},"status":"pending","message":"Switch \"The rope bridge\" off","before":{"content":"A rope bridge spans the gorge, its ropes new and taut. It is the only way across, and it holds a laden mule.","disabled":false,"uid":0}}],"dropped":[],"provenance":{"source":"curator","messageId":4,"boundary":4,"pass":"wi-curator:v24-06 after decline","inputs":[{"store":"memory","id":"SO-V2406 Lore#The rope bridge"},{"store
+14/16 eval ok 16ms
+14/16 eval -> {"reproposedAndDropped":0,"pendingElsewhere":2}
+15/16 eval ok 19ms
+15/16 eval -> {"curatorEnabled":true,"acceptMode":"auto","wardenEnabled":false,"wardenAcceptMode":"review"}
+16/16 assets ok 458ms
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T07-20-52-739Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 16,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-c3e6e9d3"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@04h19m58s382ms",
+    "owned": [
+      "2026-09-25@04h19m58s382ms"
+    ],
+    "deleted": [
+      "2026-09-25@04h19m58s382ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [
+      "2026-09-25@04h19m58s382ms"
+    ],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@04h19m58s382ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

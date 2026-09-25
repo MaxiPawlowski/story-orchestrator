@@ -1,0 +1,15 @@
+{
+  "id": "p11",
+  "label": "propose",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "[enable] #3 \"Faro de San Telmo\"\n[create] Lore Costa Muerta || El Tuerto || Tuerto, contrabandista || El contrabandista que controla el muelle de noche. Perdió el ojo en el naufragio del Esperanza.\n[why] El Tuerto ha sido introducido como personaje relevante y el faro es ahora un elemento clave de la trama.",
+    "[create] Lore Costa Muerta || El Tuerto || Tuerto, contrabandista || El contrabandista que controla el muelle de noche. Perdió el ojo en el naufragio del Esperanza.\n[why] El Tuerto has been established as a key character with specific background details that warrant a lore entry.",
+    "[create] Lore Costa Muerta || El Tuerto || Tuerto, contrabandista || El contrabandista que controla el muelle de noche. Perdió el ojo en el naufragio del Esperanza.\n[why] El Tuerto has been established as a key character with specific background details that warrant a lore entry."
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

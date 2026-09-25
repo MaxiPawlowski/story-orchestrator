@@ -1,0 +1,1456 @@
+{
+  "frozenAt": "2026-09-25",
+  "floors": {
+    "propose": 0.9,
+    "none": 1
+  },
+  "samples": 3,
+  "cases": 22,
+  "endToEnd": {
+    "propose": 1,
+    "none": 0.8788
+  },
+  "modelAlone": {
+    "proposeCreated": 1,
+    "noneCreated": 0.1212
+  },
+  "verdict": "NOT BUILT",
+  "notGreen": [
+    "none 0.879 < floor 1"
+  ],
+  "ok": false,
+  "rows": [
+    {
+      "id": "p01",
+      "lang": "en",
+      "label": "propose",
+      "why": "established",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 3,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "[patch] #0 || Only a ferry crosses it safely. || Only a ferry crosses it safely. || Only a ferry crosses it safely, though smugglers know hidden channels through the reeds.\n[create] Salt Road Lore || Oskar || ferryman, Oskar || An old ferryman who charges one silver coin per crossing of the delta. He knows the smugglers' channel through the reeds and has used it before.\n[why] The characters have met Oskar and learned about the hidden channel, necessitating updates to the delta's description and a new entry for the ferryman.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Salt Road Lore",
+                "comment": "Oskar",
+                "keys": [
+                  "ferryman",
+                  "Oskar"
+                ],
+                "content": "An old ferryman who charges one silver coin per crossing of the delta. He knows the smugglers' channel through the reeds and has used it before."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[create] Salt Road Lore || Oskar || ferryman, Oskar || An old ferryman who charges one silver coin per crossing of the delta. He knows a hidden smugglers' channel through the reeds and has used it before. Mira distrusts him because he overcharged her brother.\n[why] Oskar has been introduced as a recurring character with specific details that warrant a lore entry.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Salt Road Lore",
+                "comment": "Oskar",
+                "keys": [
+                  "ferryman",
+                  "Oskar"
+                ],
+                "content": "An old ferryman who charges one silver coin per crossing of the delta. He knows a hidden smugglers' channel through the reeds and has used it before. Mira distrusts him because he overcharged her brother."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[patch] #0 || Only a ferry crosses it safely. || Only a ferry crosses it safely. || Only a ferry crosses it safely, though a hidden smugglers' channel exists through the reeds.\n[create] Salt Road Lore || Oskar || ferryman, Oskar || An old ferryman who charges one silver coin per crossing of the delta. He knows a hidden smugglers' channel through the reeds but has a reputation for overcharging.\n[why] The characters have met Oskar and learned about the hidden channel, necessitating updates to the delta's description and the creation of an entry for the ferryman.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Salt Road Lore",
+                "comment": "Oskar",
+                "keys": [
+                  "ferryman",
+                  "Oskar"
+                ],
+                "content": "An old ferryman who charges one silver coin per crossing of the delta. He knows a hidden smugglers' channel through the reeds but has a reputation for overcharging."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "p02",
+      "lang": "en",
+      "label": "propose",
+      "why": "established",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 3,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "[create] Salt Road Lore || The Brass Lantern || inn, Vessa || The only inn in Vessa that takes strangers after dark. Its cellar hides a smugglers' ledger.\n[create] Salt Road Lore || Vessa || river town, Vessa || A river town where the Brass Lantern is the only inn that takes strangers after dark.\n[why] The story has established the river town of Vessa and the Brass Lantern as key locations with specific details.",
+          "sample": {
+            "created": 2,
+            "valid": [
+              {
+                "lorebook": "Salt Road Lore",
+                "comment": "The Brass Lantern",
+                "keys": [
+                  "inn",
+                  "Vessa"
+                ],
+                "content": "The only inn in Vessa that takes strangers after dark. Its cellar hides a smugglers' ledger."
+              },
+              {
+                "lorebook": "Salt Road Lore",
+                "comment": "Vessa",
+                "keys": [
+                  "river town",
+                  "Vessa"
+                ],
+                "content": "A river town where the Brass Lantern is the only inn that takes strangers after dark."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[create] Salt Road Lore || The Brass Lantern || inn, Vessa || The only inn in Vessa that takes strangers after dark. Its cellar hides a smugglers' ledger.\n[create] Salt Road Lore || Vessa || river town, Vessa || A river town where the Brass Lantern is the only inn that takes strangers after dark.\n[why] The story has established the river town of Vessa and the Brass Lantern as key locations with specific details.",
+          "sample": {
+            "created": 2,
+            "valid": [
+              {
+                "lorebook": "Salt Road Lore",
+                "comment": "The Brass Lantern",
+                "keys": [
+                  "inn",
+                  "Vessa"
+                ],
+                "content": "The only inn in Vessa that takes strangers after dark. Its cellar hides a smugglers' ledger."
+              },
+              {
+                "lorebook": "Salt Road Lore",
+                "comment": "Vessa",
+                "keys": [
+                  "river town",
+                  "Vessa"
+                ],
+                "content": "A river town where the Brass Lantern is the only inn that takes strangers after dark."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[create] Salt Road Lore || The Brass Lantern || inn, Vessa || The only inn in Vessa that takes strangers after dark. Its cellar hides a smugglers' ledger.\n[create] Salt Road Lore || Vessa || river town, Vessa || A river town where the Brass Lantern is the only inn that takes strangers after dark.\n[why] The story has established Vessa and the Brass Lantern as key locations with specific details.",
+          "sample": {
+            "created": 2,
+            "valid": [
+              {
+                "lorebook": "Salt Road Lore",
+                "comment": "The Brass Lantern",
+                "keys": [
+                  "inn",
+                  "Vessa"
+                ],
+                "content": "The only inn in Vessa that takes strangers after dark. Its cellar hides a smugglers' ledger."
+              },
+              {
+                "lorebook": "Salt Road Lore",
+                "comment": "Vessa",
+                "keys": [
+                  "river town",
+                  "Vessa"
+                ],
+                "content": "A river town where the Brass Lantern is the only inn that takes strangers after dark."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "p03",
+      "lang": "en",
+      "label": "propose",
+      "why": "established",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 3,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "[create] Ember Keep Lore || Order of the Ash Hand || Order, Ash Hand, fire-priests || Fire-priests who claim the volcano as holy ground and demand the keep's surrender.\n[why] The Order of the Ash Hand has been introduced as a significant group with an ultimatum and connection to Iolo.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Ember Keep Lore",
+                "comment": "Order of the Ash Hand",
+                "keys": [
+                  "Order",
+                  "Ash Hand",
+                  "fire-priests"
+                ],
+                "content": "Fire-priests who claim the volcano as holy ground and demand the keep's surrender."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[create] Ember Keep Lore || Order of the Ash Hand || Order, Ash Hand, fire-priests || Fire-priests who claim the volcano as holy ground and have demanded the keep's surrender within three days.\n[why] The Order of the Ash Hand was introduced as a significant group with specific demands and history.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Ember Keep Lore",
+                "comment": "Order of the Ash Hand",
+                "keys": [
+                  "Order",
+                  "Ash Hand",
+                  "fire-priests"
+                ],
+                "content": "Fire-priests who claim the volcano as holy ground and have demanded the keep's surrender within three days."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[create] Ember Keep Lore || Order of the Ash Hand || Order, Ash Hand, fire-priests || Fire-priests who claim the volcano as holy ground and demand the keep's surrender.\n[why] The Order of the Ash Hand has been introduced as a significant group with established facts that warrant a lore entry.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Ember Keep Lore",
+                "comment": "Order of the Ash Hand",
+                "keys": [
+                  "Order",
+                  "Ash Hand",
+                  "fire-priests"
+                ],
+                "content": "Fire-priests who claim the volcano as holy ground and demand the keep's surrender."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "p04",
+      "lang": "en",
+      "label": "propose",
+      "why": "established",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 3,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "[patch] #3 || A basalt fortress over a dormant volcano. || dormant volcano. || active volcano.\n[create] Ember Keep Lore || The Sunken Bell || bell, sunken || A bell at the bottom of the cistern that rings when the volcano stirs.\n[why] The volcano is no longer dormant and the Sunken Bell's existence is confirmed.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Ember Keep Lore",
+                "comment": "The Sunken Bell",
+                "keys": [
+                  "bell",
+                  "sunken"
+                ],
+                "content": "A bell at the bottom of the cistern that rings when the volcano stirs."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[patch] #3 || A basalt fortress over a dormant volcano. || dormant volcano. || active volcano.\n[create] Ember Keep Lore || The Sunken Bell || bell, sunken bell || A bell at the bottom of the cistern that rings when the volcano stirs.\n[why] The volcano is no longer dormant and the Sunken Bell's existence and function have been confirmed.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Ember Keep Lore",
+                "comment": "The Sunken Bell",
+                "keys": [
+                  "bell",
+                  "sunken bell"
+                ],
+                "content": "A bell at the bottom of the cistern that rings when the volcano stirs."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[patch] #3 || A basalt fortress over a dormant volcano. || dormant volcano. || active volcano.\n[create] Ember Keep Lore || The Sunken Bell || bell, sunken || A bell at the bottom of the cistern that rings when the volcano stirs.\n[why] The volcano is no longer dormant and the Sunken Bell's existence is confirmed.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Ember Keep Lore",
+                "comment": "The Sunken Bell",
+                "keys": [
+                  "bell",
+                  "sunken"
+                ],
+                "content": "A bell at the bottom of the cistern that rings when the volcano stirs."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "p05",
+      "lang": "en",
+      "label": "propose",
+      "why": "established",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 3,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "[create] Greyfen Lore || Warden Hale || warden, hale || The warden of Greyfen Prison who accepts bribes in tobacco and keeps the master key on a chain around his neck.\n[create] Greyfen Lore || Bram || bram || An inmate who owes Warden Hale a favour.\n[why] New characters Warden Hale and Bram were introduced with established facts that warrant lore entries.",
+          "sample": {
+            "created": 2,
+            "valid": [
+              {
+                "lorebook": "Greyfen Lore",
+                "comment": "Warden Hale",
+                "keys": [
+                  "warden",
+                  "hale"
+                ],
+                "content": "The warden of Greyfen Prison who accepts bribes in tobacco and keeps the master key on a chain around his neck."
+              }
+            ],
+            "refused": [
+              {
+                "comment": "Bram",
+                "reason": "\"bram\" is a cast member's name; as a key it would fire every turn"
+              }
+            ],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[create] Greyfen Lore || Warden Hale || warden, hale || The warden of Greyfen Prison who accepts bribes in tobacco and keeps the master key on a chain around his neck.\n[create] Greyfen Lore || Bram || bram || An inmate who owes Warden Hale a favour.\n[why] New characters Warden Hale and Bram were established in the story.",
+          "sample": {
+            "created": 2,
+            "valid": [
+              {
+                "lorebook": "Greyfen Lore",
+                "comment": "Warden Hale",
+                "keys": [
+                  "warden",
+                  "hale"
+                ],
+                "content": "The warden of Greyfen Prison who accepts bribes in tobacco and keeps the master key on a chain around his neck."
+              }
+            ],
+            "refused": [
+              {
+                "comment": "Bram",
+                "reason": "\"bram\" is a cast member's name; as a key it would fire every turn"
+              }
+            ],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[create] Greyfen Lore || Warden Hale || warden, hale || The warden of Greyfen Prison who accepts bribes in tobacco and keeps the master key on a chain at his neck.\n[create] Greyfen Lore || Bram || bram || An inmate who owes Warden Hale a favour.\n[why] New characters Warden Hale and Bram were established in the story.",
+          "sample": {
+            "created": 2,
+            "valid": [
+              {
+                "lorebook": "Greyfen Lore",
+                "comment": "Warden Hale",
+                "keys": [
+                  "warden",
+                  "hale"
+                ],
+                "content": "The warden of Greyfen Prison who accepts bribes in tobacco and keeps the master key on a chain at his neck."
+              }
+            ],
+            "refused": [
+              {
+                "comment": "Bram",
+                "reason": "\"bram\" is a cast member's name; as a key it would fire every turn"
+              }
+            ],
+            "namesEntity": true,
+            "pass": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "p06",
+      "lang": "en",
+      "label": "propose",
+      "why": "established",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 3,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "[create] Greyfen Lore || Tide Gate || tide gate, lower cells || The tide gate under the lower cells opens at low water for a quarter hour and is the only exit the guards do not watch. One of its bars is loose.\n[why] The tide gate is now an established location with specific properties that will be relevant for future navigation.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Greyfen Lore",
+                "comment": "Tide Gate",
+                "keys": [
+                  "tide gate",
+                  "lower cells"
+                ],
+                "content": "The tide gate under the lower cells opens at low water for a quarter hour and is the only exit the guards do not watch. One of its bars is loose."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[create] Greyfen Lore || Tide Gate || tide gate, lower cells || The tide gate under the lower cells opens at low water for a quarter hour and is the only exit not watched by guards. One of its bars is loose.\n\n[why] The tide gate has been established as a key location with specific properties that warrant a lore entry.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Greyfen Lore",
+                "comment": "Tide Gate",
+                "keys": [
+                  "tide gate",
+                  "lower cells"
+                ],
+                "content": "The tide gate under the lower cells opens at low water for a quarter hour and is the only exit not watched by guards. One of its bars is loose."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[create] Greyfen Lore || Tide Gate || tide gate, lower cells || The tide gate under the lower cells opens at low water for a quarter hour and is the only exit not watched by guards. One of its bars is loose.\n\n[why] The tide gate and its properties have been established as key elements of the escape route.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Greyfen Lore",
+                "comment": "Tide Gate",
+                "keys": [
+                  "tide gate",
+                  "lower cells"
+                ],
+                "content": "The tide gate under the lower cells opens at low water for a quarter hour and is the only exit not watched by guards. One of its bars is loose."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "p07",
+      "lang": "en",
+      "label": "propose",
+      "why": "established",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 3,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "[create] Night Market Lore || The Glass Choir || singers, guild || A guild of singers whose voices can crack enchanted glass.\n[create] Night Market Lore || The Mirror || mirror, auction || A mirror that was auctioned at the Night Market and won by Vey.\n[why] The Glass Choir and the mirror were established as key elements during the auction scene.",
+          "sample": {
+            "created": 2,
+            "valid": [
+              {
+                "lorebook": "Night Market Lore",
+                "comment": "The Glass Choir",
+                "keys": [
+                  "singers",
+                  "guild"
+                ],
+                "content": "A guild of singers whose voices can crack enchanted glass."
+              },
+              {
+                "lorebook": "Night Market Lore",
+                "comment": "The Mirror",
+                "keys": [
+                  "mirror",
+                  "auction"
+                ],
+                "content": "A mirror that was auctioned at the Night Market and won by Vey."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[create] Night Market Lore || The Glass Choir || singers, guild || A guild of singers whose voices can crack enchanted glass.\n[create] Night Market Lore || The Mirror || mirror, auction || A mirror that was auctioned at the Night Market and won by Vey.\n[why] The Glass Choir and the mirror were established as key elements during the auction scene.",
+          "sample": {
+            "created": 2,
+            "valid": [
+              {
+                "lorebook": "Night Market Lore",
+                "comment": "The Glass Choir",
+                "keys": [
+                  "singers",
+                  "guild"
+                ],
+                "content": "A guild of singers whose voices can crack enchanted glass."
+              },
+              {
+                "lorebook": "Night Market Lore",
+                "comment": "The Mirror",
+                "keys": [
+                  "mirror",
+                  "auction"
+                ],
+                "content": "A mirror that was auctioned at the Night Market and won by Vey."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[create] Night Market Lore || The Glass Choir || singers, guild || A guild of singers whose voices can crack enchanted glass.\n[create] Night Market Lore || The Mirror || mirror, auction || An enchanted mirror that was auctioned at the Night Market and won by Vey.\n[why] The auction has concluded, establishing the Glass Choir and the mirror as significant elements in the story.",
+          "sample": {
+            "created": 2,
+            "valid": [
+              {
+                "lorebook": "Night Market Lore",
+                "comment": "The Glass Choir",
+                "keys": [
+                  "singers",
+                  "guild"
+                ],
+                "content": "A guild of singers whose voices can crack enchanted glass."
+              },
+              {
+                "lorebook": "Night Market Lore",
+                "comment": "The Mirror",
+                "keys": [
+                  "mirror",
+                  "auction"
+                ],
+                "content": "An enchanted mirror that was auctioned at the Night Market and won by Vey."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "p08",
+      "lang": "es",
+      "label": "propose",
+      "why": "established",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 3,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "[create] Lore Casa del Pozo || Doña Remedios || cocinera, Remedios || La vieja cocinera que nunca abandonó la casa y guarda la llave del sótano en su delantal.\n[patch] #0 || abandonado desde la guerra || abandonado desde la guerra || habitada solo por Doña Remedios desde la guerra\n[why] Doña Remedios has been established as a key character and her presence contradicts the house being completely abandoned.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Lore Casa del Pozo",
+                "comment": "Doña Remedios",
+                "keys": [
+                  "cocinera",
+                  "Remedios"
+                ],
+                "content": "La vieja cocinera que nunca abandonó la casa y guarda la llave del sótano en su delantal."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[patch] #0 || abandonado desde la guerra || abandonado desde la guerra || habitado solo por Doña Remedios desde la guerra\n[create] Lore Casa del Pozo || Doña Remedios || Remedios, cocinera || La vieja cocinera que nunca abandonó la casa y guarda la llave del sótano en su delantal.\n[why] Doña Remedios has been established as a key character and the house is no longer fully abandoned.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Lore Casa del Pozo",
+                "comment": "Doña Remedios",
+                "keys": [
+                  "Remedios",
+                  "cocinera"
+                ],
+                "content": "La vieja cocinera que nunca abandonó la casa y guarda la llave del sótano en su delantal."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[patch] #0 || abandonado desde la guerra || abandonado desde la guerra || habitado solo por Doña Remedios desde la guerra\n[create] Lore Casa del Pozo || Doña Remedios || cocinera, Remedios || La vieja cocinera que nunca abandonó la casa y guarda la llave del sótano en su delantal.\n[why] Doña Remedios has been established as a key character who remains in the house, contradicting the \"abandoned\" status.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Lore Casa del Pozo",
+                "comment": "Doña Remedios",
+                "keys": [
+                  "cocinera",
+                  "Remedios"
+                ],
+                "content": "La vieja cocinera que nunca abandonó la casa y guarda la llave del sótano en su delantal."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "p09",
+      "lang": "es",
+      "label": "propose",
+      "why": "established",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 3,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "[create] Lore Casa del Pozo || La Cofradía del Pozo || cofradía, hermandad || Una hermandad del pueblo que se reúne cada luna nueva y quiere que la casa siga cerrada. El alcalde pertenece a ella.\n[why] The Cofradía del Pozo has been established as a recurring group with specific goals and membership.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Lore Casa del Pozo",
+                "comment": "La Cofradía del Pozo",
+                "keys": [
+                  "cofradía",
+                  "hermandad"
+                ],
+                "content": "Una hermandad del pueblo que se reúne cada luna nueva y quiere que la casa siga cerrada. El alcalde pertenece a ella."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[create] Lore Casa del Pozo || La Cofradía del Pozo || cofradía, hermandad || Una hermandad del pueblo que se reúne cada luna nueva y quiere que la casa siga cerrada. El alcalde pertenece a ella.\n[why] The Cofradía del Pozo has been established as a significant group with specific goals and membership.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Lore Casa del Pozo",
+                "comment": "La Cofradía del Pozo",
+                "keys": [
+                  "cofradía",
+                  "hermandad"
+                ],
+                "content": "Una hermandad del pueblo que se reúne cada luna nueva y quiere que la casa siga cerrada. El alcalde pertenece a ella."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[create] Lore Casa del Pozo || La Cofradía del Pozo || cofradía, hermandad || Una hermandad del pueblo que se reúne cada luna nueva y quiere que la casa siga cerrada. El alcalde pertenece a ella.\n[why] The Cofradía del Pozo has been established as a significant group with specific goals and membership.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Lore Casa del Pozo",
+                "comment": "La Cofradía del Pozo",
+                "keys": [
+                  "cofradía",
+                  "hermandad"
+                ],
+                "content": "Una hermandad del pueblo que se reúne cada luna nueva y quiere que la casa siga cerrada. El alcalde pertenece a ella."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "p10",
+      "lang": "es",
+      "label": "propose",
+      "why": "established",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 3,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "[create] Lore Costa Muerta || El Faro de San Telmo || faro, San Telmo || El faro de San Telmo lleva apagado desde el naufragio del Esperanza, pero alguien lo ha vuelto a encender durante la tormenta. Marco jura haber visto una figura en lo alto.\n[why] The lighthouse has become a central plot element with established facts that warrant a lore entry.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Lore Costa Muerta",
+                "comment": "El Faro de San Telmo",
+                "keys": [
+                  "faro",
+                  "San Telmo"
+                ],
+                "content": "El faro de San Telmo lleva apagado desde el naufragio del Esperanza, pero alguien lo ha vuelto a encender durante la tormenta. Marco jura haber visto una figura en lo alto."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[create] Lore Costa Muerta || El Faro de San Telmo || faro, San Telmo || Un faro en el acantilado que lleva apagado desde el naufragio del Esperanza, pero que ha vuelto a encenderse misteriosamente durante la tormenta.\n[why] The lighthouse has become a central element of the current scene and established facts.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Lore Costa Muerta",
+                "comment": "El Faro de San Telmo",
+                "keys": [
+                  "faro",
+                  "San Telmo"
+                ],
+                "content": "Un faro en el acantilado que lleva apagado desde el naufragio del Esperanza, pero que ha vuelto a encenderse misteriosamente durante la tormenta."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[create] Lore Costa Muerta || El Faro de San Telmo || faro, San Telmo || Un faro antiguo que lleva apagado desde el naufragio del Esperanza, situado en un acantilado sobre la bahía.\n[why] The lighthouse has become a central plot element with its sudden activation and Marco's sighting.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Lore Costa Muerta",
+                "comment": "El Faro de San Telmo",
+                "keys": [
+                  "faro",
+                  "San Telmo"
+                ],
+                "content": "Un faro antiguo que lleva apagado desde el naufragio del Esperanza, situado en un acantilado sobre la bahía."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "p11",
+      "lang": "es",
+      "label": "propose",
+      "why": "established",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 3,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "[enable] #3 \"Faro de San Telmo\"\n[create] Lore Costa Muerta || El Tuerto || Tuerto, contrabandista || El contrabandista que controla el muelle de noche. Perdió el ojo en el naufragio del Esperanza.\n[why] El Tuerto ha sido introducido como personaje relevante y el faro es ahora un elemento clave de la trama.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Lore Costa Muerta",
+                "comment": "El Tuerto",
+                "keys": [
+                  "Tuerto",
+                  "contrabandista"
+                ],
+                "content": "El contrabandista que controla el muelle de noche. Perdió el ojo en el naufragio del Esperanza."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[create] Lore Costa Muerta || El Tuerto || Tuerto, contrabandista || El contrabandista que controla el muelle de noche. Perdió el ojo en el naufragio del Esperanza.\n[why] El Tuerto has been established as a key character with specific background details that warrant a lore entry.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Lore Costa Muerta",
+                "comment": "El Tuerto",
+                "keys": [
+                  "Tuerto",
+                  "contrabandista"
+                ],
+                "content": "El contrabandista que controla el muelle de noche. Perdió el ojo en el naufragio del Esperanza."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[create] Lore Costa Muerta || El Tuerto || Tuerto, contrabandista || El contrabandista que controla el muelle de noche. Perdió el ojo en el naufragio del Esperanza.\n[why] El Tuerto has been established as a key character with specific background details that warrant a lore entry.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Lore Costa Muerta",
+                "comment": "El Tuerto",
+                "keys": [
+                  "Tuerto",
+                  "contrabandista"
+                ],
+                "content": "El contrabandista que controla el muelle de noche. Perdió el ojo en el naufragio del Esperanza."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "n01",
+      "lang": "en",
+      "label": "none",
+      "why": "named-once",
+      "passes": [
+        true,
+        true,
+        false
+      ],
+      "modelCreated": 1,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "[enable] #1\n[why] Mira has returned to the Brass Lantern, making the inn relevant again.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[enable] #1\n[why] Mira is at the Brass Lantern, making the inn entry relevant.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[enable] #1\n[create] Salt Road Lore || Garrick || stall-keeper, bread || A stall-keeper in Vessa's square who sells bread.\n[why] Mira visited the Brass Lantern and bought bread from Garrick, making the inn and the stall-keeper relevant.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Salt Road Lore",
+                "comment": "Garrick",
+                "keys": [
+                  "stall-keeper",
+                  "bread"
+                ],
+                "content": "A stall-keeper in Vessa's square who sells bread."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "n02",
+      "lang": "en",
+      "label": "none",
+      "why": "covered",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 0,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "[patch] #1 || Its cellar hides the smugglers' ledger || lists every bribed official on the river || Tolan found the smugglers' ledger in its cellar, which lists every bribed official on the river\n[why] Tolan has now found the ledger, so the entry should reflect that it was discovered rather than still being hidden.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[patch] #1 || Its cellar hides the smugglers' ledger || lists every bribed official on the river || Tolan found the smugglers' ledger in its cellar.\n[why] Tolan has already found the ledger, so it is no longer hidden.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[patch] #1 || Its cellar hides the smugglers' ledger || bribed official on the river || Tolan found the smugglers' ledger in its cellar.\n[why] Tolan has now found the ledger, so it is no longer hidden.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "n03",
+      "lang": "en",
+      "label": "none",
+      "why": "roster",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 0,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "[patch] #5 || Fire-priests who claim || holy ground. || Fire-priests who claim the volcano as holy ground and use fire-script for their sacred texts. ||\n[why] Iolo's ability to translate the fire-script establishes that the Order of the Ash Hand uses this specific writing system.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[patch] #5 || Fire-priests who claim || holy ground. || Fire-priests who claim the volcano as holy ground and issue ultimatums in fire-script.\n[why] The fire-priests' use of fire-script for the ultimatum is now an established detail.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[patch] #5 || Fire-priests who claim || holy ground. || Fire-priests who claim the volcano as holy ground and issue ultimatums in fire-script.\n[why] The fire-priests' use of fire-script for the ultimatum is now an established fact.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "n04",
+      "lang": "en",
+      "label": "none",
+      "why": "near-dup",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 0,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "NONE\n[why] No changes are necessary as the established facts are already covered by the existing entries.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "NONE\n[why] No changes are necessary as the established facts are already covered by the existing entries.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "NONE\n[why] The established facts already match the existing lorebook entries.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "n05",
+      "lang": "en",
+      "label": "none",
+      "why": "nothing-new",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 0,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "[disable] #0\n[why] The market has closed for the night, so it is no longer relevant.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[disable] #0\n[why] The market has closed for the night, so it is no longer relevant.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[disable] #0\n[why] The market has closed for the night, so it is no longer relevant.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "n06",
+      "lang": "en",
+      "label": "none",
+      "why": "roster",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 0,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "NONE\n[why] No entries need to be enabled, disabled, or modified based on the current story state.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "NONE\n[why] No changes are necessary as the existing entry for Ember Keep remains accurate and no new entities require creation.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "NONE\n[why] No changes are necessary as the existing entry for Ember Keep remains accurate and relevant.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "n07",
+      "lang": "es",
+      "label": "none",
+      "why": "named-once",
+      "passes": [
+        false,
+        false,
+        false
+      ],
+      "modelCreated": 3,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "[create] Lore Casa del Pozo || Paquito || pastor, Paquito || Un pastor que Tomás saludó en el camino hacia la casa.\n[enable] #0\n[why] Tomás has encountered Paquito and is approaching the house, making both entries relevant.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Lore Casa del Pozo",
+                "comment": "Paquito",
+                "keys": [
+                  "pastor",
+                  "Paquito"
+                ],
+                "content": "Un pastor que Tomás saludó en el camino hacia la casa."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": false
+          }
+        },
+        {
+          "rawResponse": "[create] Lore Casa del Pozo || Paquito || pastor, Paquito || Un pastor que Tomás saludó en el camino hacia la casa.\n[enable] #0\n[why] Tomás has encountered a new character (Paquito) and is approaching the house, making both entries relevant.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Lore Casa del Pozo",
+                "comment": "Paquito",
+                "keys": [
+                  "pastor",
+                  "Paquito"
+                ],
+                "content": "Un pastor que Tomás saludó en el camino hacia la casa."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": false
+          }
+        },
+        {
+          "rawResponse": "[create] Lore Casa del Pozo || Paquito || pastor, Paquito || Un pastor que Tomás saludó en el camino hacia la casa.\n[enable] #0\n[why] Tomás met a shepherd named Paquito and they are approaching the house.",
+          "sample": {
+            "created": 1,
+            "valid": [
+              {
+                "lorebook": "Lore Casa del Pozo",
+                "comment": "Paquito",
+                "keys": [
+                  "pastor",
+                  "Paquito"
+                ],
+                "content": "Un pastor que Tomás saludó en el camino hacia la casa."
+              }
+            ],
+            "refused": [],
+            "namesEntity": true,
+            "pass": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "n08",
+      "lang": "es",
+      "label": "none",
+      "why": "covered",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 0,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "NONE\n[why] No changes are necessary as the established facts already align with the existing lore entries.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "NONE\n[why] No changes are needed as the established facts already align with the existing lore entries.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "NONE\n[why] No changes are necessary as the established facts already align with the existing lore entries.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "n09",
+      "lang": "es",
+      "label": "none",
+      "why": "near-dup",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 0,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "NONE\n[why] The entry already reflects that the lighthouse was off but has been relit, matching the established facts.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "NONE\n[why] The entry already reflects that the lighthouse was off but has been relit, which matches the established facts.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "NONE\n[why] The entry already reflects that the lighthouse was lit during the storm, and Inés seeing it confirms this established fact without changing it.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "n10",
+      "lang": "es",
+      "label": "none",
+      "why": "nothing-new",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 0,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "[enable] #2\n[enable] #4\n[why] Inés and Marco have returned to the port at dawn, making the location and its controller relevant again.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[enable] #2\n[enable] #4\n[why] Inés and Marco have returned to the port at dawn, making the location and its controller relevant again.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "[enable] #2 \"El puerto\"\n[enable] #4 \"El Tuerto\"\n[why] Inés and Marco have returned to the port at dawn, making the location and its controller relevant again.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "n11",
+      "lang": "es",
+      "label": "none",
+      "why": "roster",
+      "passes": [
+        true,
+        true,
+        true
+      ],
+      "modelCreated": 0,
+      "errors": [],
+      "runs": [
+        {
+          "rawResponse": "NONE\n[why] No new locations, groups, or things were established that require lorebook entries.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "NONE\n[why] No new locations, groups, or things were established that require lorebook entries.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        },
+        {
+          "rawResponse": "NONE\n[why] No new locations, groups, or things were established that require lorebook entries.",
+          "sample": {
+            "created": 0,
+            "valid": [],
+            "refused": [],
+            "namesEntity": false,
+            "pass": true
+          }
+        }
+      ]
+    }
+  ]
+}

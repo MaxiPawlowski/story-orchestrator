@@ -1,0 +1,15 @@
+{
+  "id": "n05",
+  "label": "none",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "[disable] #0\n[why] The market has closed for the night, so it is no longer relevant.",
+    "[disable] #0\n[why] The market has closed for the night, so it is no longer relevant.",
+    "[disable] #0\n[why] The market has closed for the night, so it is no longer relevant."
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

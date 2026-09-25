@@ -1,0 +1,99 @@
+1/16 import_story ok 284ms
+2/16 ui ok 199ms
+3/16 eval ok 16ms
+4/16 slash ok 2256ms
+5/16 wait ok 51ms
+6/16 eval ok 6ms
+6/16 eval -> {"block":""}
+7/16 send_generate ok 17506ms
+8/16 wait ok 5020ms
+9/16 eval ok 5ms
+9/16 eval -> {"control":"*Luke stands beside Max, his chainmail shifting with a faint, metallic rustle despite his attempts to stay still. His pale face is half-shadowed in the gloom, e"}
+10/16 slash ok 1699ms
+11/16 wait ok 53ms
+12/16 eval ok 5ms
+12/16 eval -> {"block":"Objective: Find the brass key hidden under the loose floorboard in the study. This objective is world pressure: the world presses, answers and escalates on its own, without requiring the player to com"}
+13/16 send_generate ok 16913ms
+14/16 wait ok 5236ms
+15/16 expect ok 9ms
+15/16 expect -> {"overSteer":{"ok":true,"failures":[],"block":{"key":"story_orchestrator_guidance","source":"capture","chars":204},"restate":{"ok":true,"span":2,"maxSpan":6,"metaHits":[]},"swing":{"words":196,"controlWords":161,"lengthRatio":1.217,"sharedWithControl":3}}}
+16/16 eval ok 5ms
+16/16 eval -> {"bare":1,"noted":1}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T07-11-22-070Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 16,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-cbeb5df2"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@04h10m27s918ms",
+    "owned": [
+      "2026-09-25@04h10m27s918ms"
+    ],
+    "deleted": [
+      "2026-09-25@04h10m27s918ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@04h10m27s918ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

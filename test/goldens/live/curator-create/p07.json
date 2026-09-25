@@ -1,0 +1,15 @@
+{
+  "id": "p07",
+  "label": "propose",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "[create] Night Market Lore || The Glass Choir || singers, guild || A guild of singers whose voices can crack enchanted glass.\n[create] Night Market Lore || The Mirror || mirror, auction || A mirror that was auctioned at the Night Market and won by Vey.\n[why] The Glass Choir and the mirror were established as key elements during the auction scene.",
+    "[create] Night Market Lore || The Glass Choir || singers, guild || A guild of singers whose voices can crack enchanted glass.\n[create] Night Market Lore || The Mirror || mirror, auction || A mirror that was auctioned at the Night Market and won by Vey.\n[why] The Glass Choir and the mirror were established as key elements during the auction scene.",
+    "[create] Night Market Lore || The Glass Choir || singers, guild || A guild of singers whose voices can crack enchanted glass.\n[create] Night Market Lore || The Mirror || mirror, auction || An enchanted mirror that was auctioned at the Night Market and won by Vey.\n[why] The auction has concluded, establishing the Glass Choir and the mirror as significant elements in the story."
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

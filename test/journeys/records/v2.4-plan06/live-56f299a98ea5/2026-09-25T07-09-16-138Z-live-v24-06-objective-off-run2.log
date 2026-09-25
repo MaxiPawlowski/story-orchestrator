@@ -1,0 +1,86 @@
+1/6 import_story ok 287ms
+2/6 ui ok 221ms
+3/6 eval ok 9ms
+3/6 eval -> {"block":""}
+4/6 send_generate ok 17944ms
+5/6 wait ok 5217ms
+6/6 eval ok 7ms
+6/6 eval -> {"requests":1}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T07-12-53-474Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 6,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-47b2eb84"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@04h12m24s897ms",
+    "owned": [
+      "2026-09-25@04h12m24s897ms"
+    ],
+    "deleted": [
+      "2026-09-25@04h12m24s897ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@04h12m24s897ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

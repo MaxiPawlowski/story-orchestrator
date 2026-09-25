@@ -1,0 +1,15 @@
+{
+  "id": "n07",
+  "label": "none",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "[create] Lore Casa del Pozo || Paquito || pastor, Paquito || Un pastor que Tomás saludó en el camino hacia la casa.\n[enable] #0\n[why] Tomás has encountered Paquito and is approaching the house, making both entries relevant.",
+    "[create] Lore Casa del Pozo || Paquito || pastor, Paquito || Un pastor que Tomás saludó en el camino hacia la casa.\n[enable] #0\n[why] Tomás has encountered a new character (Paquito) and is approaching the house, making both entries relevant.",
+    "[create] Lore Casa del Pozo || Paquito || pastor, Paquito || Un pastor que Tomás saludó en el camino hacia la casa.\n[enable] #0\n[why] Tomás met a shepherd named Paquito and they are approaching the house."
+  ],
+  "passes": [
+    false,
+    false,
+    false
+  ]
+}

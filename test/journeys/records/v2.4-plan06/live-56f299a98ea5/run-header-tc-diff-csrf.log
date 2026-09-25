@@ -1,0 +1,1 @@
+Error: SillyTavern readiness check failed: SillyTavern CSRF token is stale; reload the shared page before running a write or live gate

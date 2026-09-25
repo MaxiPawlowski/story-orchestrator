@@ -1,0 +1,15 @@
+{
+  "id": "p05",
+  "label": "propose",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "[create] Greyfen Lore || Warden Hale || warden, hale || The warden of Greyfen Prison who accepts bribes in tobacco and keeps the master key on a chain around his neck.\n[create] Greyfen Lore || Bram || bram || An inmate who owes Warden Hale a favour.\n[why] New characters Warden Hale and Bram were introduced with established facts that warrant lore entries.",
+    "[create] Greyfen Lore || Warden Hale || warden, hale || The warden of Greyfen Prison who accepts bribes in tobacco and keeps the master key on a chain around his neck.\n[create] Greyfen Lore || Bram || bram || An inmate who owes Warden Hale a favour.\n[why] New characters Warden Hale and Bram were established in the story.",
+    "[create] Greyfen Lore || Warden Hale || warden, hale || The warden of Greyfen Prison who accepts bribes in tobacco and keeps the master key on a chain at his neck.\n[create] Greyfen Lore || Bram || bram || An inmate who owes Warden Hale a favour.\n[why] New characters Warden Hale and Bram were established in the story."
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

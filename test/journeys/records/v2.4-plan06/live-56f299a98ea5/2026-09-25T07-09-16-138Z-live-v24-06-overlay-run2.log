@@ -1,0 +1,98 @@
+1/15 import_story ok 275ms
+2/15 ui ok 211ms
+3/15 eval ok 65ms
+3/15 eval -> {"api":"textgen","preset":"Artemis v1.1 RP","file":"{\"preset\":\"Artemis v1.1 RP\",\"temp\":1,\"top_p\":1}"}
+4/15 slash ok 2537ms
+5/15 wait ok 46ms
+6/15 eval ok 5ms
+6/15 eval -> {"armed":"SO-V2406 Overlay","values":{"temperature":0.37,"top_p":0.83}}
+7/15 send_generate ok 16993ms
+8/15 wait ok 5028ms
+9/15 eval ok 60ms
+9/15 eval -> {"loud":1,"sample":{"active":"cp-overlay","type":null,"temperature":0.37,"top_p":0.83},"preset":"Artemis v1.1 RP","file":"{\"preset\":\"Artemis v1.1 RP\",\"temp\":1,\"top_p\":1}"}
+10/15 eval ok 9284ms
+10/15 eval -> {"memoryRequests":1,"api":"textgenerationwebui"}
+11/15 slash ok 1699ms
+12/15 wait ok 48ms
+13/15 send_generate ok 43066ms
+14/15 wait ok 5022ms
+15/15 eval ok 5ms
+15/15 eval -> {"after":2,"temperature":1}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T07-16-09-307Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 15,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-cbeb5df2"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@04h14m40s159ms",
+    "owned": [
+      "2026-09-25@04h14m40s159ms"
+    ],
+    "deleted": [
+      "2026-09-25@04h14m40s159ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@04h14m40s159ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

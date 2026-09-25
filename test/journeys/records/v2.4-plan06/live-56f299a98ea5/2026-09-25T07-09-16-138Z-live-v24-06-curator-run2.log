@@ -1,0 +1,83 @@
+1/16 import_story ok 273ms
+2/16 eval ok 230ms
+2/16 eval -> {"entries":3,"restoreTo":{"curatorEnabled":true,"acceptMode":"auto","wardenEnabled":false,"wardenAcceptMode":"review"}}
+3/16 ui ok 224ms
+4/16 send_generate ok 3168ms
+5/16 wait ok 5027ms
+6/16 copilot ok 122ms
+7/16 expect ok 70ms
+8/16 stagecraft FAIL Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: API request failed: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+    at y (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:195427)
+    at async D (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:195666)
+    at async C.runCuratorPass (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:580285)
+    at async eval (eval at evaluate (:290:30), <anonymous>:2:21)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T07-18-00-338Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T07-18-02-057Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 8,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-c3e6e9d3"
+    ],
+    "saved": {
+      "error": "/api/settings/save answered 403; the settings were not written"
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "chatCleanupError": "Evaluation failed in SillyTavern page: page.evaluate: SyntaxError: Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "error": "/api/settings/save answered 403; the settings were not written"
+      },
+      "ok": false,
+      "error": "extraction settings were not saved: /api/settings/save answered 403; the settings were not written"
+    },
+    "judge": {
+      "restored": true,
+      "ok": false,
+      "error": "judge settings did not read back as restored"
+    }
+  }
+}

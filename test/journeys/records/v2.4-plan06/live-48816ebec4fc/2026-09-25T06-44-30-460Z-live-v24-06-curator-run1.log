@@ -1,0 +1,86 @@
+1/14 import_story ok 278ms
+2/14 eval ok 216ms
+2/14 eval -> {"entries":3,"restoreTo":{"curatorEnabled":true,"acceptMode":"auto","wardenEnabled":false,"wardenAcceptMode":"review"}}
+3/14 ui ok 211ms
+4/14 send_generate ok 29670ms
+5/14 wait ok 5228ms
+6/14 stagecraft FAIL the curator proposed nothing (ran: true, skipped: none, error: null, dropped: []) — raw response: "NONE\n[why] The story is at the gorge and the bridge is the only way across, so the existing entries remain relevant and accurate."
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T06-52-54-422Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T06-52-58-953Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 6,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-0b32247e"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@03h52m15s300ms",
+    "owned": [
+      "2026-09-25@03h52m15s300ms"
+    ],
+    "deleted": [
+      "2026-09-25@03h52m15s300ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@03h52m15s300ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": true,
+      "ok": true
+    }
+  }
+}

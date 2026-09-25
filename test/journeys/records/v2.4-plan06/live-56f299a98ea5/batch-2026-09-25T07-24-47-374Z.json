@@ -1,0 +1,36 @@
+{
+  "lanes": [
+    1
+  ],
+  "items": [
+    "test/scenarios/live-v24-06-overlay.json"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/scenarios/live-v24-06-overlay.json",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T07-24-47-374Z-live-v24-06-overlay-run1.log",
+      "ms": 84863,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-06-overlay.json",
+      "lane": 1,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T07-24-47-374Z-live-v24-06-overlay-run2.log",
+      "ms": 80841,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "n04",
+  "label": "none",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "NONE\n[why] No changes are necessary as the established facts are already covered by the existing entries.",
+    "NONE\n[why] No changes are necessary as the established facts are already covered by the existing entries.",
+    "NONE\n[why] The established facts already match the existing lorebook entries."
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

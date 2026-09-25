@@ -1,0 +1,104 @@
+1/16 import_story ok 305ms
+2/16 eval ok 261ms
+2/16 eval -> {"entries":3,"restoreTo":{"curatorEnabled":true,"acceptMode":"auto","wardenEnabled":false,"wardenAcceptMode":"review"}}
+3/16 ui ok 289ms
+4/16 send_generate ok 16883ms
+5/16 wait ok 5177ms
+6/16 copilot ok 130ms
+7/16 expect ok 75ms
+8/16 stagecraft ok 3868ms
+8/16 stagecraft -> {"ran":true,"record":{"id":"wi-2-2","curator":"wi","at":"2026-09-25T07:02:05.184Z","boundary":2,"messageId":2,"checkpointId":"far-side","reason":"v24-06 bridge","summary":"The bridge has been destroyed, so the entry must reflect its current state.","mode":"review","ops":[{"op":{"kind":"rewrite","lorebook":"SO-V2406 Lore","comment":"The rope bridge","uid":0,"text":"The rope bridge has snapped and fallen into the gorge; there is no way back across."},"status":"pending","message":"Rewrite \"The rope bridge\"","before":{"content":"A rope bridge spans the gorge, its ropes new and taut. It is the only way across, and it holds a laden mule.","disabled":false,"uid":0}}],"dropped":[],"provenance":{"source":"curator","messageId":2,"boundary":2,"pass":"wi-curator:v24-06 bridge","inputs":[{"store":"me
+9/16 eval ok 11ms
+9/16 eval -> {"ops":[{"kind":"rewrite","comment":"The rope bridge","uid":0,"status":"pending","fuzzy":null}]}
+10/16 ui ok 180ms
+11/16 eval ok 4ms
+11/16 eval -> {"textual":true,"diffs":1}
+12/16 eval ok 135ms
+12/16 eval -> {"declined":{"kind":"rewrite","comment":"The rope bridge"}}
+13/16 stagecraft ok 6217ms
+13/16 stagecraft -> {"ran":true,"record":{"id":"wi-2-2","curator":"wi","at":"2026-09-25T07:02:11.724Z","boundary":2,"messageId":2,"checkpointId":"far-side","reason":"v24-06 after decline","summary":"The rope bridge has snapped and fallen, so it no longer spans the gorge or holds a mule.","mode":"review","ops":[{"op":{"kind":"disable","lorebook":"SO-V2406 Lore","comment":"The rope bridge","uid":0},"status":"pending","message":"Switch \"The rope bridge\" off","before":{"content":"A rope bridge spans the gorge, its ropes new and taut. It is the only way across, and it holds a laden mule.","disabled":false,"uid":0}}],"dropped":[],"provenance":{"source":"curator","messageId":2,"boundary":2,"pass":"wi-curator:v24-06 after decline","inputs":[{"store":"memory","id":"SO-V2406 Lore#The rope bridge"},{"store":"memory","
+14/16 eval ok 24ms
+14/16 eval -> {"reproposedAndDropped":0,"pendingElsewhere":1}
+15/16 eval ok 22ms
+15/16 eval -> {"curatorEnabled":true,"acceptMode":"auto","wardenEnabled":false,"wardenAcceptMode":"review"}
+16/16 assets ok 454ms
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T07-02-16-958Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 16,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-c3e6e9d3"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@04h01m37s835ms",
+    "owned": [
+      "2026-09-25@04h01m37s835ms"
+    ],
+    "deleted": [
+      "2026-09-25@04h01m37s835ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [
+      "2026-09-25@04h01m37s835ms"
+    ],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@04h01m37s835ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

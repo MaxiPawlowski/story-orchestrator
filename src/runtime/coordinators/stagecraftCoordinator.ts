@@ -76,6 +76,13 @@ export interface StagecraftCoordinatorDeps {
   ownership?: RunOwnership;
 }
 
+const uniqueRecordId = (base: string, records: CuratorProposalRecord[]): string => {
+  const taken = new Set(records.map((record) => record.id));
+  let id = base;
+  for (let n = 2; taken.has(id); n += 1) id = `${base}-${n}`;
+  return id;
+};
+
 const acceptedOps = (record: CuratorProposalRecord) => record.ops.filter((entry) => entry.status === "accepted" && !isNoteOp(entry.op));
 
 // The reply the warden reads is the one at its own id, never "the last message": by the time the
@@ -214,7 +221,7 @@ export class StagecraftCoordinator {
       }
       const mode = this.state.settings.acceptMode;
       const record: CuratorProposalRecord = {
-        id: `wi-${state.boundary}-${state.lastMessageId}`,
+        id: uniqueRecordId(`wi-${state.boundary}-${state.lastMessageId}`, this.state.proposals),
         curator: "wi",
         at: new Date().toISOString(),
         boundary: state.boundary,

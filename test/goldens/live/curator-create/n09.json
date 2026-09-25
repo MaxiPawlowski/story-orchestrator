@@ -1,0 +1,15 @@
+{
+  "id": "n09",
+  "label": "none",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "NONE\n[why] The entry already reflects that the lighthouse was off but has been relit, matching the established facts.",
+    "NONE\n[why] The entry already reflects that the lighthouse was off but has been relit, which matches the established facts.",
+    "NONE\n[why] The entry already reflects that the lighthouse was lit during the storm, and Inés seeing it confirms this established fact without changing it."
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

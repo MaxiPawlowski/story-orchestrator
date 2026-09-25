@@ -1,0 +1,15 @@
+{
+  "id": "n06",
+  "label": "none",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "NONE\n[why] No entries need to be enabled, disabled, or modified based on the current story state.",
+    "NONE\n[why] No changes are necessary as the existing entry for Ember Keep remains accurate and no new entities require creation.",
+    "NONE\n[why] No changes are necessary as the existing entry for Ember Keep remains accurate and relevant."
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

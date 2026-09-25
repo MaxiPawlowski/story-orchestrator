@@ -1,0 +1,15 @@
+{
+  "id": "p08",
+  "label": "propose",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "[create] Lore Casa del Pozo || Doña Remedios || cocinera, Remedios || La vieja cocinera que nunca abandonó la casa y guarda la llave del sótano en su delantal.\n[patch] #0 || abandonado desde la guerra || abandonado desde la guerra || habitada solo por Doña Remedios desde la guerra\n[why] Doña Remedios has been established as a key character and her presence contradicts the house being completely abandoned.",
+    "[patch] #0 || abandonado desde la guerra || abandonado desde la guerra || habitado solo por Doña Remedios desde la guerra\n[create] Lore Casa del Pozo || Doña Remedios || Remedios, cocinera || La vieja cocinera que nunca abandonó la casa y guarda la llave del sótano en su delantal.\n[why] Doña Remedios has been established as a key character and the house is no longer fully abandoned.",
+    "[patch] #0 || abandonado desde la guerra || abandonado desde la guerra || habitado solo por Doña Remedios desde la guerra\n[create] Lore Casa del Pozo || Doña Remedios || cocinera, Remedios || La vieja cocinera que nunca abandonó la casa y guarda la llave del sótano en su delantal.\n[why] Doña Remedios has been established as a key character who remains in the house, contradicting the \"abandoned\" status."
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

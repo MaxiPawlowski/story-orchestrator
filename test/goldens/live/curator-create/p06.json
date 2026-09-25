@@ -1,0 +1,15 @@
+{
+  "id": "p06",
+  "label": "propose",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "[create] Greyfen Lore || Tide Gate || tide gate, lower cells || The tide gate under the lower cells opens at low water for a quarter hour and is the only exit the guards do not watch. One of its bars is loose.\n[why] The tide gate is now an established location with specific properties that will be relevant for future navigation.",
+    "[create] Greyfen Lore || Tide Gate || tide gate, lower cells || The tide gate under the lower cells opens at low water for a quarter hour and is the only exit not watched by guards. One of its bars is loose.\n\n[why] The tide gate has been established as a key location with specific properties that warrant a lore entry.",
+    "[create] Greyfen Lore || Tide Gate || tide gate, lower cells || The tide gate under the lower cells opens at low water for a quarter hour and is the only exit not watched by guards. One of its bars is loose.\n\n[why] The tide gate and its properties have been established as key elements of the escape route."
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

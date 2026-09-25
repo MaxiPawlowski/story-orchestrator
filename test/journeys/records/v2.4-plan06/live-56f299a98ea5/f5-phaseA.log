@@ -1,0 +1,38 @@
+PASS p01 propose/established 3/3 (model proposed a create in 3)
+PASS p02 propose/established 3/3 (model proposed a create in 3)
+PASS p03 propose/established 3/3 (model proposed a create in 3)
+PASS p04 propose/established 3/3 (model proposed a create in 3)
+PASS p05 propose/established 3/3 (model proposed a create in 3)
+PASS p06 propose/established 3/3 (model proposed a create in 3)
+PASS p07 propose/established 3/3 (model proposed a create in 3)
+PASS p08 propose/established 3/3 (model proposed a create in 3)
+PASS p09 propose/established 3/3 (model proposed a create in 3)
+PASS p10 propose/established 3/3 (model proposed a create in 3)
+PASS p11 propose/established 3/3 (model proposed a create in 3)
+FAIL n01 none/named-once 2/3 (model proposed a create in 1)
+PASS n02 none/covered 3/3
+PASS n03 none/roster 3/3
+PASS n04 none/near-dup 3/3
+PASS n05 none/nothing-new 3/3
+PASS n06 none/roster 3/3
+FAIL n07 none/named-once 0/3 (model proposed a create in 3)
+PASS n08 none/covered 3/3
+PASS n09 none/near-dup 3/3
+PASS n10 none/nothing-new 3/3
+PASS n11 none/roster 3/3
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T07-31-52-164Z_so-curator-suite-report.json
+NOT GREEN: none 0.879 < floor 1
+{
+  "cases": 22,
+  "samples": 3,
+  "endToEnd": {
+    "propose": 1,
+    "none": 0.8788
+  },
+  "modelAlone": {
+    "proposeCreated": 1,
+    "noneCreated": 0.1212
+  },
+  "verdict": "NOT BUILT"
+}
+exit 1

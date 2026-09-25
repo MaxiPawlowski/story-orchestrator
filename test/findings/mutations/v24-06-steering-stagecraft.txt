@@ -111,3 +111,8 @@ Answers like "[enable] Title | reason" are off the prompted format, but a real m
 - P2 reason split before the whole-title match: KILLED by "control: a title that itself holds a pipe still matches whole"
 - P3 prefix match after the split: KILLED by "control: a prefix before the pipe is still no match" and the reason case
 - A retry limited to enable/disable was an equivalent mutant, so the restriction was dropped and the retry applies to every kind.
+
+## Live-gate follow-up (2026-09-25, bundle 56f299a98ea5): curator record ids collided within a boundary
+Found live on 48816ebec4fc: two curator passes at one boundary both got `wi-<boundary>-<messageId>` (`wi-2-2` twice), and `updateOps` maps every record with the id, so accepting an op on the second card also flipped the first card's declined op at the same index to accepted (the declined write would then land at the next boundary). `uniqueRecordId` suffixes `-2`, `-3`...; red test first.
+- M35 record id not made unique (suffix loop disabled): KILLED, 1 of 222 (src/runtime/coordinators)
+    "StagecraftCoordinator two passes at one boundary are two records: accepting the second never un-declines the first"

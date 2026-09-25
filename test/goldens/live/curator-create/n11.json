@@ -1,0 +1,15 @@
+{
+  "id": "n11",
+  "label": "none",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "NONE\n[why] No new locations, groups, or things were established that require lorebook entries.",
+    "NONE\n[why] No new locations, groups, or things were established that require lorebook entries.",
+    "NONE\n[why] No new locations, groups, or things were established that require lorebook entries."
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

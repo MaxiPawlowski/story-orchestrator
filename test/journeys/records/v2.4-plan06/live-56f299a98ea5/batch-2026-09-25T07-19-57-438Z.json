@@ -1,0 +1,36 @@
+{
+  "lanes": [
+    1
+  ],
+  "items": [
+    "test/scenarios/live-v24-06-curator.json"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/scenarios/live-v24-06-curator.json",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T07-19-57-438Z-live-v24-06-curator-run1.log",
+      "ms": 55328,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-06-curator.json",
+      "lane": 1,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T07-19-57-438Z-live-v24-06-curator-run2.log",
+      "ms": 53361,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

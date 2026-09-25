@@ -273,6 +273,21 @@ describe("StagecraftCoordinator", () => {
     expect(second.record?.ops.map((entry) => entry.op.kind)).toEqual(["rewrite"]);
   });
 
+  it("two passes at one boundary are two records: accepting the second never un-declines the first", async () => {
+    const { coordinator, read } = harness();
+    respond("[rewrite] The bridge || The bridge is gone.");
+    const first = await coordinator.runCuratorPass("first");
+    await coordinator.setOpDecision(first.record!.id, 0, "rejected");
+    respond("[disable] The bridge");
+    const second = await coordinator.runCuratorPass("second");
+    expect(second.record!.id).not.toBe(first.record!.id);
+    await coordinator.setOpDecision(second.record!.id, 0, "accepted");
+    expect(read().proposals.find((record) => record.id === first.record!.id)?.ops[0].status).toBe("rejected");
+    expect(await coordinator.applyAccepted()).toBe(1);
+    expect(book.current.entries[1].content).toBe("The bridge stands, its ropes new and taut.");
+    expect(book.current.entries[1].disable).toBe(true);
+  });
+
   it("T17.5: accepting a near-match patch writes the exact span it showed", async () => {
     const { coordinator } = harness();
     respond("[patch] The bridge || bridge stand its ropes || new and taut || bridge is ash.");

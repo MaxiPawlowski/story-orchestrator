@@ -1,0 +1,15 @@
+{
+  "id": "n02",
+  "label": "none",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "[patch] #1 || Its cellar hides the smugglers' ledger || lists every bribed official on the river || Tolan found the smugglers' ledger in its cellar, which lists every bribed official on the river\n[why] Tolan has now found the ledger, so the entry should reflect that it was discovered rather than still being hidden.",
+    "[patch] #1 || Its cellar hides the smugglers' ledger || lists every bribed official on the river || Tolan found the smugglers' ledger in its cellar.\n[why] Tolan has already found the ledger, so it is no longer hidden.",
+    "[patch] #1 || Its cellar hides the smugglers' ledger || bribed official on the river || Tolan found the smugglers' ledger in its cellar.\n[why] Tolan has now found the ledger, so it is no longer hidden."
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}
