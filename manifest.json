@@ -6,7 +6,7 @@
   "js": "dist/index.js",
   "css": "",
   "author": "Rolita",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "minimum_client_version": "1.18.0",
   "homePage": "",
   "auto_update": true,
