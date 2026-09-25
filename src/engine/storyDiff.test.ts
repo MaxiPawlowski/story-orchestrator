@@ -80,6 +80,14 @@ describe("storyDiff classification table", () => {
     expect(codes(result)).toContain("stagecraft-changed");
   });
 
+  it("keeps an objective_block switch compatible, in both directions (v2.4 plan 06 X14)", () => {
+    const off = edited((draft) => { draft.objective_block = "off"; });
+    const result = run(off);
+    expect(result.classification).toBe("compatible");
+    expect(result.entries).toEqual([expect.objectContaining({ code: "story-objective-block-changed", path: "objective_block", message: "Whether the objective line is added changed." })]);
+    expect(codes(diffStories(parseStoryV2OrThrow(off), parseStoryV2OrThrow(edited((draft) => { draft.objective_block = "auto"; })), playedState()))).toEqual(["story-objective-block-changed"]);
+  });
+
   it("keeps a lore_select scope edit compatible (v2.2 plan 04)", () => {
     const result = run(edited((draft) => { draft.lore_select = { lorebooks: ["Diff Lore"], top_k: 3 }; }));
     expect(result.classification).toBe("compatible");

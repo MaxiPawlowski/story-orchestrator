@@ -56,10 +56,11 @@ const seeded: StoryV2 = {
         allow_silence: true,
       },
       agency: { alternate: "nowhere" },
+      effects: { author_note: "Hold the line." },
     },
     { id: "cache", name: "Cache", objective: "", type: "anchor", convergence_threshold: 5 },
     { id: "lost", name: "Lost", objective: "", type: "anchor" },
-    { id: "stubby", name: "Stubby", objective: "", type: "intermediate", agency: { alternate: "stubby" } },
+    { id: "stubby", name: "Stubby", objective: "", type: "intermediate", agency: { alternate: "stubby" }, effects: { author_note: null } },
   ],
   scaffolding: { stubby: { beats: [], basis: {} } },
   transitions: [
@@ -90,6 +91,39 @@ describe("runDiagnostics", () => {
       expect(counts.get(code)).toBe(1);
     });
     expect(diagnostics).toHaveLength(DIAGNOSTIC_CODES.length);
+  });
+
+  describe("checkpoint-inherits-author-note (v2.4 plan 06 T16b)", () => {
+    const chain = (patch: Partial<StoryV2> = {}, notes: Record<string, unknown> = { start: "Keep the hall hushed." }): StoryV2 => ({
+      ...clean,
+      checkpoints: [
+        { id: "start", name: "Hall", objective: "", type: "intermediate", start: true },
+        { id: "road", name: "Road", objective: "", type: "intermediate" },
+        { id: "cache", name: "Cache", objective: "", type: "anchor" },
+      ].map((checkpoint) => (notes[checkpoint.id] === undefined ? checkpoint : { ...checkpoint, effects: { author_note: notes[checkpoint.id] } })) as StoryV2["checkpoints"],
+      transitions: [
+        { from: "start", to: "road", priority: 0, gate: { q: "trust", op: ">=", v: 1 } },
+        { from: "road", to: "cache", priority: 0, gate: { q: "trust", op: ">=", v: 2 } },
+      ],
+      ...patch,
+    });
+    const hits = (story: StoryV2) => runDiagnostics(story).filter((entry) => entry.code === "checkpoint-inherits-author-note");
+
+    it("names the checkpoint whose note a later one plays under, through inheriting ones, and says the objective line is added", () => {
+      expect(hits(chain()).map((entry) => [entry.path, entry.severity, entry.message])).toEqual([
+        ["checkpoints.1.effects.author_note", "info", "'road' plays under the note of \"Hall\"; the objective line is added"],
+        ["checkpoints.2.effects.author_note", "info", "'cache' plays under the note of \"Hall\"; the objective line is added"],
+      ]);
+    });
+
+    it("says the objective line is not added when the story switched it off", () => {
+      expect(hits(chain({ objective_block: "off" }))[0].message).toContain("the objective line is not added");
+    });
+
+    it("stops at a checkpoint that clears the note, and is silent where every checkpoint authors one", () => {
+      expect(hits(chain({}, { start: "Keep the hall hushed.", road: null })).map((entry) => entry.path)).toEqual([]);
+      expect(hits(chain({}, { start: "a", road: "b", cache: { text: "c" } }))).toEqual([]);
+    });
   });
 
   it("warns when an extractor quality appears in no gate or snapshot", () => {

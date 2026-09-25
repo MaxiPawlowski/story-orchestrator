@@ -271,6 +271,7 @@ export interface StoryV2 {
   scene_read?: StorySceneRead;
   lore_select?: StoryLoreSelect;
   scaffolding?: Record<string, Scaffolding>;
+  objective_block?: "auto" | "off";
 }
 
 export interface NormalizedTransition extends Transition {

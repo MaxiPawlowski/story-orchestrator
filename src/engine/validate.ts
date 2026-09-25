@@ -35,6 +35,7 @@ import {
 } from "./schema";
 import { QUALITY_READ_AS, ratingLevels, READ_AS_TYPES } from "./qualityRead";
 import { progressQualityForAnchor } from "./convergence";
+import { OBJECTIVE_BLOCK_MODES } from "./agency";
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -645,6 +646,8 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const stagecraft = json.stagecraft !== undefined ? readStagecraft(json.stagecraft, errors) : undefined;
   const sceneRead = json.scene_read !== undefined ? readSceneRead(json.scene_read, errors) : undefined;
   const loreSelect = json.lore_select !== undefined ? readLoreSelect(json.lore_select, errors) : undefined;
+  const objectiveBlock = json.objective_block === undefined || (OBJECTIVE_BLOCK_MODES as readonly unknown[]).includes(json.objective_block) ? json.objective_block as StoryV2["objective_block"] : undefined;
+  if (json.objective_block !== undefined && !objectiveBlock) addError(errors, "objective_block", "objective_block must be \"auto\" or \"off\"");
   const roster = readRoster(json.roster as StoryV2["roster"], errors);
   const arcBridges = Array.isArray(json.arc_bridges) ? json.arc_bridges.map((entry, index) => {
     const bridgePath = `arc_bridges.${index}`;
@@ -733,6 +736,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     ...(stagecraft ? { stagecraft } : {}),
     ...(sceneRead ? { scene_read: sceneRead } : {}),
     ...(loreSelect ? { lore_select: loreSelect } : {}),
+    ...(objectiveBlock ? { objective_block: objectiveBlock } : {}),
     startCheckpointId,
     checkpointById,
     outgoingByCheckpoint,

@@ -1,4 +1,4 @@
-import { progressQualityForAnchor, ratingLevels, storyWarnings, TENSION_CURRENT_KEY, type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type StoryV2, type ValidationError } from "@engine/index";
+import { authorsOwnNote, progressQualityForAnchor, ratingLevels, storyWarnings, TENSION_CURRENT_KEY, type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type StoryV2, type ValidationError } from "@engine/index";
 import { directorEnabled } from "@talk/index";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
@@ -33,6 +33,7 @@ export const DIAGNOSTIC_CODES = [
   "latching-enum-placeholder",
   "quality-rating-no-scale",
   "quality-outcome-player-evidence",
+  "checkpoint-inherits-author-note",
 ] as const;
 
 // v2.3 plan 09. Every code says what it costs the story before it says what is technically wrong: the
@@ -61,6 +62,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   "latching-enum-placeholder": "Once the first read lands this can never change, and the unset state is not one of its values.",
   "quality-rating-no-scale": "This quality is never read, because there is no scale to score it against.",
   "quality-outcome-player-evidence": "A player's line alone can move the story here: writing that they did it counts as done.",
+  "checkpoint-inherits-author-note": "The model keeps being told an earlier checkpoint's note here.",
 };
 
 const namesOption = (text: string, option: string) => {
@@ -250,6 +252,26 @@ export const runDiagnostics = (draft: StoryV2): Diagnostic[] => {
   draft.qualities.forEach((quality, index) => {
     if (quality.source !== "extractor" || (quality.type !== "bool" && quality.type !== "enum") || quality.evidence_from !== undefined || !anchorLeaves.has(quality.key)) return;
     push("quality-outcome-player-evidence", "info", `qualities.${index}`, `'${quality.key}' gates the way into an anchor, and a line the player wrote can prove it; set evidence_from to world if only the world should, or to any to keep it`);
+  });
+
+  const predecessors = new Map<string, string[]>();
+  draft.transitions.forEach((transition) => predecessors.set(transition.to, [...(predecessors.get(transition.to) ?? []), transition.from]));
+  draft.checkpoints.forEach((checkpoint, index) => {
+    if (checkpoint.effects?.author_note !== undefined) return;
+    const notes = new Set<string>();
+    const seen = new Set([checkpoint.id]);
+    const stack = [...(predecessors.get(checkpoint.id) ?? [])];
+    while (stack.length) {
+      const id = stack.pop() as string;
+      if (seen.has(id)) continue;
+      seen.add(id);
+      const previous = checkpointById.get(id);
+      if (previous?.effects?.author_note === undefined) stack.push(...(predecessors.get(id) ?? []));
+      else if (authorsOwnNote(previous)) notes.add(previous.name || previous.id);
+    }
+    if (!notes.size) return;
+    const objective = draft.objective_block === "off" ? "the objective line is not added (objective_block is off)" : "the objective line is added";
+    push("checkpoint-inherits-author-note", "info", `checkpoints.${index}.effects.author_note`, `'${checkpoint.id}' plays under the note of ${[...notes].map((name) => `"${name}"`).join(" or ")}; ${objective}`);
   });
 
   // v2.3 plan 02 (S1): a latching enum that lists an unset-shaped member freezes on it.

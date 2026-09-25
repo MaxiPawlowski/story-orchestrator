@@ -1,5 +1,5 @@
 import {
-  TENSION_CURRENT_KEY, agencyForCheckpoint, type ArcTemplate, type BoundaryLogEntry, type BoundaryResult,
+  TENSION_CURRENT_KEY, agencyForCheckpoint, objectiveLineApplies, type ArcTemplate, type BoundaryLogEntry, type BoundaryResult,
   type EngineState, type NormalizedStoryV2, type TensionLevel,
 } from "@engine/index";
 import type { ParsedDelta } from "@extraction/index";
@@ -108,7 +108,8 @@ export class PacingCoordinator {
     const hint = getSteeringHint(this.deps.getTension().smoothed, this.expectedTension(), undefined, policy);
     if (this.deps.getPacing().hintEnabled && hint) setStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY, hint.text, PACING_HINT_DEPTH);
     else clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
-    const guidance = composeGuidanceBlock(activeId ? story.checkpointById[activeId] : null, policy);
+    const active = activeId ? story.checkpointById[activeId] : null;
+    const guidance = composeGuidanceBlock(active, policy, objectiveLineApplies(story, active));
     if (guidance) setStoryExtensionPrompt(GUIDANCE.key, guidance, GUIDANCE.depth);
     else this.withholdGuidance();
   }

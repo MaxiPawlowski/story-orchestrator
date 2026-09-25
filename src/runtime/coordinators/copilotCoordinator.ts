@@ -1,5 +1,5 @@
 import {
-  Blackboard, evaluateGate, renderGateText, type EngineState, type NormalizedStoryV2, type StoryV2,
+  Blackboard, authorsOwnNote, evaluateGate, objectiveLineApplies, renderGateText, type EngineState, type NormalizedStoryV2, type StoryV2,
 } from "@engine/index";
 import {
   runAuthoringStage, runDriverReport, runDriverSuggest, type CopilotMessage, type CopilotStage, type DriverContext,
@@ -185,6 +185,8 @@ export class CopilotCoordinator {
       title: story.title,
       activeCheckpointId: active?.id ?? null,
       activeObjective: active?.objective ?? "",
+      ownNote: authorsOwnNote(active),
+      objectiveLine: objectiveLineApplies(story, active),
       unmetGates: outgoing
         .filter((transition) => !evaluateGate(transition.gate, blackboard))
         .map((transition) => `${renderGateText(transition.gate)} → ${transition.to}`)

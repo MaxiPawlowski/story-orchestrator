@@ -50,7 +50,11 @@ export function swing(reply: string, controlReply: string) {
 // reply may name it, which the restate span measures against the control arm's reply to the same turn.
 export const CONTINUITY_FAMILY: OverSteerFamily = { name: 'continuity', metaTokens: ['Continuity:', 'Keep the next reply consistent'] };
 
-export const OVER_STEER_FAMILIES: Record<string, OverSteerFamily> = { guidance: GUIDANCE_FAMILY, continuity: CONTINUITY_FAMILY };
+// v2.4 plan 06 T16a: the objective line rides the guidance block; naming the objective as a heading or as
+// met is the over-steer, while the restate span measures copying its wording.
+export const OBJECTIVE_FAMILY: OverSteerFamily = { name: 'objective', metaTokens: ['Objective:', 'Scene direction', 'objective is complete', 'objective achieved', '[Story'] };
+
+export const OVER_STEER_FAMILIES: Record<string, OverSteerFamily> = { guidance: GUIDANCE_FAMILY, continuity: CONTINUITY_FAMILY, objective: OBJECTIVE_FAMILY };
 
 /** `block` is the injected prompt key; `controlRun` is the control arm's reply N+1, literal or a page global holding it. */
 export type OverSteerSpec = { block: string; family: string; controlRun?: string | { global: string }; record?: boolean };
