@@ -72,6 +72,12 @@ describe("curator prompt", () => {
     expect(prompt).toContain("The flood took the bridge.");
     expect(prompt).toContain("Who cut the ropes?");
   });
+
+  it("tells the curator that switching on applies only to entries marked off, and off only to entries that are on", () => {
+    const prompt = buildWiCuratorPrompt({ storyTitle: "Crossing", checkpointName: "The bank", openArcs: [], entries: entries() });
+    expect(prompt).toContain("- [enable] only an entry marked [currently off]; every other entry is already on.");
+    expect(prompt).toContain("- [disable] only an entry that is not marked [currently off].");
+  });
 });
 
 describe("curator parse", () => {

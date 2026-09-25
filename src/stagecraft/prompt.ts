@@ -37,6 +37,8 @@ export function buildWiCuratorPrompt(scope: CuratorScope): string {
     "Then one final line: [why] <one sentence on what changed in the story that made these necessary>",
     "RULES:",
     "- Name each entry by its #number, or by its title exactly as listed above. Anything else is discarded.",
+    "- [enable] only an entry marked [currently off]; every other entry is already on.",
+    "- [disable] only an entry that is not marked [currently off].",
     "- An entry marked [shown in part — patch only] may only be patched: you have not seen all of it.",
     "- Prefer [patch] over [rewrite]: quote the first and last words of the span exactly as they appear in the content.",
     `- Keep replacement text under ${String(CURATOR_MAX_TEXT)} characters. Never restate the whole entry in a patch.`,
