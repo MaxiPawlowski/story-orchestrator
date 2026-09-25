@@ -38,15 +38,8 @@ export function catalogProblems(attested, catalog) {
   return [...missing, ...unknown];
 }
 
-export function runReport(attestation) {
-  return attestedJourneyIds(attestation).flatMap((id) => {
-    const journey = attestation.journeys[id];
-    if (typeof journey.notRun === "string") return [`${id}: not run — ${journey.notRun}`];
-    return (journey.runs ?? []).map((run, index) => {
-      const a = run.automated ?? {};
-      return `${id} run ${index + 1}: ${a.pass ?? "?"} pass, ${a.fail ?? "?"} fail, ${a.blocked ?? "?"} blocked, cleanup ${run.cleanup ?? "unstated"}, retried ${run.firstAttemptRetried ?? "?"}${run.recorded === false ? ", not recorded" : ""}`;
-    });
-  });
-}
-
-export const citedRecords = (attestation) => attestedJourneyIds(attestation).flatMap((id) => attestation.journeys[id].records ?? []);
+export const citedRecords = (attestation) =>
+  attestedJourneyIds(attestation).flatMap((id) => [
+    ...(attestation.journeys[id].records ?? []),
+    ...(attestation.journeys[id].runs ?? []).flatMap((run) => [run?.record, run?.header].filter((path) => typeof path === "string")),
+  ]);

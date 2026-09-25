@@ -28,7 +28,7 @@ attestation is written PARTIAL and names it. It is never withheld and never roun
    because it is the run §Matrix row R1 replays against. Any v2.3 live row (L2–L8) the user routed
    into v2.4 joins the matrix as a `C*` row with its original recipe.
 3. **Machine gates green on the candidate:**
-   - `npm run typecheck && npm run typecheck:test && npm run lint && npm test && npm run test:debug && npm run debug:typecheck && npm run build && npm run test:release && npm run test-storybook:ci`
+   - `npm run typecheck && npm run typecheck:test && npm run lint && npm test && npm run test:debug && npm run test:plugin && npm run debug:typecheck && npm run build && npm run test:release && npm run test-storybook:ci`
    - census files hold 0 `todo` rows: `test/findings/ownership-sites.json`, `test/findings/faultMatrix.json`.
 4. **Freeze:**
    - The candidate is a commit if the user has approved committing (rule 16). Otherwise it is
@@ -72,7 +72,7 @@ record lists every run.
 | Row | What | Runs | Records path (`…/v2.4-acceptance/`) | Owner plan |
 |---|---|---|---|---|
 | **J0** | Runner self-test, graded against expected outcomes: J0.3 `blocked`, J0.5 `fail`, J0.4 human placeholder | ×2 `--strict` | `J0/` | harness (v2.3 01) |
-| **J1–J6, J8–J10** | `node scripts/debug/so-journey.mts run <id> --strict --group <id> --require-human-record J/human-scores.json`. J8 and J9 must end with `cleanup.removeCreatedAssets` clean and `so-assets.mts assert-clean`. J5 and J6 carry the plan 01/02 fixture changes | ×2 each | `J<n>/` (matrix, run JSON, log, `so-journal export`, header pair) | 01–08 per touched path |
+| **J1–J6, J8–J10** | `node scripts/debug/so-journey.mts run <id> --strict --group <id> --require-human-record test/journeys/records/v2.4-acceptance/human/scores.json`. J8 and J9 must end with `cleanup.removeCreatedAssets` clean and `so-assets.mts assert-clean`. J5 and J6 carry the plan 01/02 fixture changes | ×2 each | `J<n>/` (matrix, run JSON, log, `so-journal export`, header pair) | 01–08 per touched path |
 | **J7** | Long haul through the sun-ruins spine. v2.3 walked it 2 of 3 times and each failure was a model-dependent leg. Every run is reported | ×2 minimum, each run listed | `J7/` | — |
 | **J11** | Judgment backend. Needs `enableServerPlugins` and the plugin `configured`. J11 toggles the judge inside its checks, so the judge configuration is recorded **per check**, not per run | ×2 | `J11/` | 07 |
 | **J12** | Unaided schedule on the adventurer story at cadence 3: no `runExtractionNow`, no `/cp` | ×2 | `J12/` | 04 (window changes), 02 |
@@ -135,6 +135,15 @@ test hardcodes `recordsDir = …/v2.3-plan05-live` and the id list J0–J11, and
 - check that the attested bundle equals the `bundle.served` in every cited run header;
 - keep computing `current` at test time. It is never hand-kept (V21).
 
+The green predicate is `scripts/release/attestationRules.mjs` (unit-tested with negative controls in
+`attestationRules.test.mjs`, which never skips; mutations in `test/findings/mutations/v24-09-attestation-rules.txt`).
+Each attestation run cites its record (`{record: "J<n>/run<k>/record.json", header?, fixture?}`, header
+defaulting to the `header-start.json` beside it) rather than restating a tally, and the fixture identity
+(sha256 of the journey file) is required for a pair to count, because the record does not carry one.
+
+**`npm run test:release` is re-run AFTER the attestation is written.** Before it exists the
+attestation's file-reading tests skip, so a run taken earlier checked none of its claims.
+
 **Release docs, touched only after the matrix:**
 - `README.md` Tested on: the 1.19.0 rows already exist (`README.md:64-66`), so plan 09 **re-verifies** them against the clean-host records and the live host rather than adding one (X26), and states the live host's local edits;
 - `CHANGELOG.md`;
@@ -173,7 +182,7 @@ and every flag is triaged.
 |---|---|---|---|
 | **Player** | Adventurer (`adolion-adventurer`) from `guild-hall`, final tree, recommended config from JM (curator and warden `review`) | v2.1 player rubric (`../v2.1/test-plan.md` §Human-eval), v2.2 player rows (`../v2.2/08-acceptance.md:77`), plus: did steering feel like railroading? did the objective line or agency note restate itself? | **D6:** the `evidence_from` default and the opt-in "player writes attempts" clause, which are revisited here together with T22. **Rule 7 items:** options menu, visible qualities, cross-chat Continue list, wand-menu entry, objective-block player echo. Seed A `player_summary` |
 | **Author** | Academy (`adolion-academy`) in the Studio | v2.2 author row ("were the judge's calls explainable from the author view?"), plus: the `evidence_from` diagnostic, `house_rules`, `objective_block`, next-turn cost/fate (T19), per-pass profiles (T18), the branch notice | T18 and T19 usability; whether the `house_rules` wording is understood |
-| **Journey human rows** | Scored in `human/scores.json` (`readScoredHumanIds` format `{id, score}`) | J0.4, J1.8/9, J2.10/11, J3.9–13, J4.5/6, J5.7, J6.5, J7.9/10, J8.4, J9.6/7, J10.9/10 | `--require-human-record` fails an unscored row |
+| **Journey human rows** | Scored in `test/journeys/records/v2.4-acceptance/human/scores.json`, the one human-score file every `--require-human-record` names (`readScoredHumanIds` format `{id, score}`) | J0.4, J1.8/9, J2.10/11, J3.9–13, J4.5/6, J5.7, J6.5, J7.9/10, J8.4, J9.6/7, J10.9/10 | `--require-human-record` fails an unscored row |
 
 - Each session's rubric scores and flag triage go into the Gate record: fixed / v2.5 / by-design,
   each with a reason.
