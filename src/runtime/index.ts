@@ -1,4 +1,4 @@
-import { callExtractionModel, getChatWindow, ExtractionScheduler, probeModel, setProfileRouter, type SchedulerHost, type SchedulerJob, type SchedulerSettings } from "@extraction/index";
+import { callExtractionModel, getChatWindow, ExtractionScheduler, probeModel, setAnsweredObserver, setProfileRouter, type SchedulerHost, type SchedulerJob, type SchedulerSettings } from "@extraction/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { sceneFieldsInConflict } from "@memory/index";
 import { clearStoryExtensionPrompt, countTokens, executeSlashCommands, forceActivateEntries, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, getScannableEntries, judgeStatus, judgeTransport, noteHostSettingsLoaded, profileExists, readExtensionPromptBlocks, readInjectedPromptBlocks, readPromptBudget, setStoryExtensionPrompt, settingsReady, subscribeToHostEvents, willAddUserMessage, EXTENSION_SETTINGS_LOADED_EVENT, type HostSubscriptionEntry } from "@services/STAPI";
@@ -62,6 +62,7 @@ export function startRuntime() {
   if (started) return runtimeManager;
   started = true;
   runtimeDisposers.push(setProfileRouter((role, fallback) => resolveProfile({ ...runtimeManager.getExtractionSettings(), profileId: fallback }, role, profileExists)));
+  runtimeDisposers.push(setAnsweredObserver((call) => scheduler?.noteAnswered(call.profileId, call.ms)));
   const schedulerHost: SchedulerHost = {
     getStory: () => runtimeManager.getStory(),
     getEngineState: () => runtimeManager.getEngineState(),

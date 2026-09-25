@@ -4,6 +4,7 @@ export const DEFAULT_MAX_TOKENS = 512;
 export const CHARS_PER_TOKEN_ESTIMATE = 4;
 
 export const CALL_TIMEOUT_MS_PER_INPUT_TOKEN = 2;
+export const TIMEOUT_RETRY_SCALE = 2;
 
 export const callTimeoutMs = (maxTokens: number, inputTokens = 0): number => CALL_TIMEOUT_BASE_MS + Math.max(0, Math.ceil(maxTokens)) * CALL_TIMEOUT_MS_PER_TOKEN + Math.max(0, Math.ceil(inputTokens)) * CALL_TIMEOUT_MS_PER_INPUT_TOKEN;
 

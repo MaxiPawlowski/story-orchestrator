@@ -2,6 +2,7 @@ export const BREAKER_BACKOFF_MS = [5000, 15000, 60000, 300000] as const;
 export const PROBE_PROMPT = "Reply with exactly: PONG";
 export const PROBE_MAX_TOKENS = 8;
 export const PROBE_TIMEOUT_MS = 10000;
+export const PROBE_TIMEOUT_MAX_MS = BREAKER_BACKOFF_MS[BREAKER_BACKOFF_MS.length - 1];
 export const DANGLING_PROFILE_DETAIL = "The selected memory model profile no longer exists";
 
 export type ProbeTrigger = "backoff" | "online-status" | "profile-updated" | "player";
@@ -38,6 +39,9 @@ export const failedProfile = (error: unknown): string | null => {
 };
 
 export const backoffFor = (step: number): number => BREAKER_BACKOFF_MS[Math.min(Math.max(0, step), BREAKER_BACKOFF_MS.length - 1)];
+
+export const probeTimeoutMs = (step: number, slowestAnsweredMs: number | null): number =>
+  Math.min(PROBE_TIMEOUT_MAX_MS, Math.max(PROBE_TIMEOUT_MS, backoffFor(step), slowestAnsweredMs ?? 0));
 
 export class Breaker {
   private readonly entries = new Map<string, BreakerEntry>();

@@ -66,6 +66,7 @@ jest.mock("@services/STAPI", () => ({
   readExtensionPromptBlocks: () => ({ own: [], foreign: [] }),
   readPromptBudget: () => ({ ok: false, reason: "no host in this test" }),
   showTextPopup: async () => undefined,
+  sendConnectionProfileRequest: async () => ({ ok: true, text: "NO_DELTA", finish: "stop" }),
 }));
 
 import { runtimeManager } from "./runtimeManager";
@@ -73,6 +74,7 @@ import { setSelectedStoryId } from "./persistence";
 import { saveWizardSession } from "./wizardSessions";
 import { setGlobalSettings } from "./settingsStore";
 import { TurnBridge } from "./turnBridge";
+import { callExtractionReply } from "@extraction/client";
 
 const settle = async () => { for (let index = 0; index < 30; index += 1) await new Promise((resolve) => setTimeout(resolve, 0)); };
 
@@ -255,5 +257,21 @@ describe("v2.4 plan 03 live-found fixes: startRuntime's scene-break and rollback
   it("the scheduler's lapse re-read waits on the manager's rollback", async () => {
     const h = await start();
     expect(h.scheduler.host.mutationSettled?.()).toBe(runtimeManager.rollbackSettled());
+  });
+
+  it("an answered model call reaches the running scheduler, so a live host can close its breaker (A6)", async () => {
+    const h = await start();
+    const noted = jest.spyOn(h.scheduler as unknown as { noteAnswered: (profileId: string, ms: number) => void }, "noteAnswered");
+    await callExtractionReply("prompt", { profileId: "artemis", role: "read" });
+    expect(noted).toHaveBeenCalledWith("artemis", expect.any(Number));
+  });
+
+  it("control: after stopRuntime an answered call reaches no scheduler", async () => {
+    const h = await start();
+    const noted = jest.spyOn(h.scheduler as unknown as { noteAnswered: (profileId: string, ms: number) => void }, "noteAnswered");
+    restore();
+    restore = () => {};
+    await callExtractionReply("prompt", { profileId: "artemis", role: "read" });
+    expect(noted).not.toHaveBeenCalled();
   });
 });

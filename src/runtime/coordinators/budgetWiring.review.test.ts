@@ -6,7 +6,7 @@ const host = {
   chat: [] as Array<{ name: string; mes: string; is_user: boolean }>,
   calls: [] as Array<{ prompt: string; maxTokens: number; signal: AbortSignal | undefined }>,
   reply: (prompt: string): { text: string; finish: "stop" | "length" } => ({ text: prompt.includes("SCENE") || prompt.includes("PART SUMMARIES") || prompt.includes("NEW MESSAGES") ? "A summary." : "NO_DELTA", finish: "stop" }),
-  hold: null as null | ((signal: AbortSignal | undefined) => Promise<{ ok: false; kind: "lapsed"; message: string }>),
+  hold: null as null | ((signal: AbortSignal | undefined, prompt: string) => Promise<unknown>),
 };
 
 jest.mock("@services/STAPI", () => ({
@@ -18,7 +18,7 @@ jest.mock("@services/STAPI", () => ({
   getActiveGroup: () => null,
   sendConnectionProfileRequest: async (_profile: string, prompt: string, maxTokens: number, options: { signal?: AbortSignal }) => {
     host.calls.push({ prompt, maxTokens, signal: options.signal });
-    if (host.hold) return host.hold(options.signal);
+    if (host.hold) return host.hold(options.signal, prompt);
     return { ok: true, ...host.reply(prompt) };
   },
 }));
@@ -29,6 +29,7 @@ import { createTokenMeter } from "@extraction/tokenMeter";
 import { inputBudget } from "@extraction/inputBudget";
 import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
 import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { finding, must } from "../../../test/findings/ledger";
 
 const story = parseStoryV2OrThrow({
   format: 2,
@@ -272,5 +273,93 @@ describe("short-term compaction is tail-fit", () => {
     expect(h.shortTerms[0].window.from).toBeGreaterThan(0);
     expect(prompt).toContain(`: m${h.shortTerms[0].window.from}:`);
     expect(prompt).not.toContain(`: m${h.shortTerms[0].window.from - 1}:`);
+  });
+});
+
+describe("A11: the memorize backlog survives a slow backend and gives up honestly", () => {
+  const timedOut = { ok: false, kind: "timeout", message: "signal timed out" };
+  const answered = (prompt: string) => ({ ok: true, ...host.reply(prompt) });
+  const GAVE_UP = /^the memory model did not answer within (\d+) ms, nor within (\d+) ms on one retry$/;
+
+  async function healthyCalls(): Promise<number> {
+    expect(await harness().coordinator.runMemorizeBacklog()).toBe(true);
+    const count = host.calls.length;
+    host.calls = [];
+    return count;
+  }
+
+  let timeout: jest.SpyInstance;
+  beforeEach(() => { timeout = jest.spyOn(AbortSignal, "timeout"); });
+  afterEach(() => timeout.mockRestore());
+  const budgets = () => timeout.mock.calls.map(([ms]) => ms as number);
+
+  finding("ACC-A11", async () => {
+    const total = await healthyCalls();
+    const h = harness();
+    let sent = 0;
+    host.hold = async (_signal, prompt) => { sent += 1; return sent === total ? timedOut : answered(prompt); };
+    const completed = await h.coordinator.runMemorizeBacklog();
+    must(completed && host.calls.length === total + 1, `the whole-chat pass that timed out once was not asked again: completed ${completed}, ${host.calls.length} asks for ${total} parts, backfill ${JSON.stringify(h.backfill())}`);
+  });
+
+  it("a whole-chat pass that times out is asked again with twice the budget, and the backlog completes (P03 run 4)", async () => {
+    const total = await healthyCalls();
+    timeout.mockClear();
+    const h = harness();
+    let sent = 0;
+    host.hold = async (_signal, prompt) => { sent += 1; return sent === total ? timedOut : answered(prompt); };
+    expect(await h.coordinator.runMemorizeBacklog()).toBe(true);
+    expect(host.calls).toHaveLength(total + 1);
+    expect(host.calls[total].prompt).toBe(host.calls[total - 1].prompt);
+    expect(budgets()[total]).toBe(budgets()[total - 1] * 2);
+    expect(h.audits.filter((audit) => audit.reason === "memorize:full")).toHaveLength(1);
+    expect(h.backfill()).toMatchObject({ running: false, processed: total, total, lastError: null });
+  });
+
+  it("a window that times out is retried the same way, and the run carries on", async () => {
+    const total = await healthyCalls();
+    timeout.mockClear();
+    const h = harness();
+    let sent = 0;
+    host.hold = async (_signal, prompt) => { sent += 1; return sent === 1 ? timedOut : answered(prompt); };
+    expect(await h.coordinator.runMemorizeBacklog()).toBe(true);
+    expect(host.calls).toHaveLength(total + 1);
+    expect(budgets()[1]).toBe(budgets()[0] * 2);
+    expect(h.backfill()).toMatchObject({ running: false, processed: total, total, lastError: null });
+  });
+
+  it("a whole-chat pass that times out twice gives up after exactly two asks and names both budgets", async () => {
+    const total = await healthyCalls();
+    timeout.mockClear();
+    const h = harness();
+    let sent = 0;
+    host.hold = async (_signal, prompt) => { sent += 1; return sent >= total ? timedOut : answered(prompt); };
+    expect(await h.coordinator.runMemorizeBacklog()).toBe(false);
+    expect(host.calls).toHaveLength(total + 1);
+    const failure = GAVE_UP.exec(h.backfill()?.lastError ?? "");
+    expect(failure).not.toBeNull();
+    expect(Number(failure![1])).toBe(budgets()[total - 1]);
+    expect(Number(failure![2])).toBe(budgets()[total - 1] * 2);
+    expect(h.backfill()).toMatchObject({ running: false, processed: total - 1, total });
+    expect(h.audits.some((audit) => audit.reason === "memorize:full")).toBe(false);
+  });
+
+  it("control: a refusing backend is asked once and gives up at once", async () => {
+    const h = harness();
+    host.hold = async () => ({ ok: false, kind: "transport", message: "Response not OK" });
+    expect(await h.coordinator.runMemorizeBacklog()).toBe(false);
+    expect(host.calls).toHaveLength(1);
+    expect(h.backfill()).toMatchObject({ running: false, processed: 0, lastError: "Response not OK" });
+  });
+
+  it("control: Stop while the first ask waits is not retried", async () => {
+    const h = harness();
+    host.hold = (signal) => new Promise((resolve) => signal?.addEventListener("abort", () => resolve({ ok: false, kind: "lapsed", message: "cancelled" }), { once: true }));
+    const pending = h.coordinator.runMemorizeBacklog();
+    await settle();
+    h.coordinator.cancelMemorizeBacklog();
+    expect(await pending).toBe(false);
+    expect(host.calls).toHaveLength(1);
+    expect(h.backfill()).toMatchObject({ running: false, lastError: null });
   });
 });
