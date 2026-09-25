@@ -303,3 +303,57 @@ None open. Seed A (X20) and the F5 revert (X21) are decided in the overview.
 _Placeholder: date, commands and exact output, mutation table, Storybook counts, over-steer probe
 verdict, overlay live captures (textgen + chat completion + preset read-back), J8 ×2 matrices, F5
 Phase A numbers vs floor (or "not built")._
+
+### Build (worktree, 2026-09-25)
+
+Branch `worktree-agent-a129903dbe5e68430` on `e4d69db`. Commits: `eb6a742` (T17), `148e576` (T16), then the sampler overlay + F5 Phase A instruments + live fixtures + this record. **No live gate ran** (brief: build only). Every live item below is NOT green until it runs on the real model.
+
+**As built**
+
+| Item | State | Where |
+|---|---|---|
+| T17.1 rewrite-length refusal | built. An entry longer than `CURATOR_SHOWN_CONTENT` (400) is shown collapsed and marked `[shown in part — patch only]`; `previewCuratorOp` refuses a rewrite of it at plan time and again at the write edge | `stagecraft/types.ts`, `prompt.ts`, `proposal.ts` |
+| T17.2 uid addressing | built. Entries are named `#uid` (`#<book>.<uid>` when two books share a uid) or an exact unique title; the `startsWith` fallback is gone and an ambiguous title is dropped with its count. Every write is ONE `updateWIEntryByUid` (update-only, keeps the entry's own `disable`, read back from the server, never creates); `writeOp` reads the live entry by uid, fails an entry that is gone, and re-checks `isCuratorWritable` on the LIVE title (a rename into a gated title is refused) | `stagecraft/parse.ts`, `scope.ts`, `stHost/worldInfo.ts`, `stagecraftCoordinator.writeOp` |
+| T17.3 declined memory | built. Ops the author rejected at this checkpoint since `checkpointStartedBoundary` are listed in the prompt (capped) and dropped as `was declined earlier` if proposed again | `proposal.ts` `declinedOps`, coordinator `runCuratorPass` |
+| T17.4 word diff | built. `utils/wordDiff.ts` (LCS, whitespace kept, 250k-cell bound, whitespace between two changes coalesced so a phrase change reads as one del + one ins); the card diffs against the live draft (`data-so="curator-diff"`, text nodes only) | `StagecraftPanel.tsx` |
+| T17.5 fuzzy anchors | built (floor held). `test/fixtures/curator-fuzzy/anchors.json`: 12 positives / 12 negatives, 0/12 false matches, lift 12/12. Review mode only; accept rewrites the anchor to the exact matched text | `stagecraft/fuzzy.ts` |
+| T16a objective line | built. `objective_block?: "auto" \| "off"`; `objectiveLineApplies` = not off, non-empty objective, and the checkpoint authors no note of its own; the line rides the plan-01 guidance block (`composeGuidanceBlock`) | `engine/agency.ts`, `pacing/guidance.ts`, validate/storyDiff/copilot/Studio/driver |
+| T16b diagnostic | built. `checkpoint-inherits-author-note` (info) with its consequence | `studio/diagnostics.ts` |
+| Seed A sampler overlay (X20) | built. See below | `utils/samplerKeys.ts`, `runtime/samplerOverlay(.Host).ts`, `stHost/samplerOverlay.ts`, `effectsApplier.ts` |
+| F5 create op | **NOT built**: Phase A not run live. The instruments are built: frozen fixture (22 cases, 9 Spanish, 11/11), candidate prompt + parser + code guards (`stagecraft/createCandidate.ts`, not wired into the coordinator), in-page `storyOrchestratorLiveSuite.runCuratorCreate`, `scripts/debug/so-curator-suite.mts`, golden replay in jest | |
+
+**Sampler overlay.** `EffectsApplier.applyCheckpoint` disarms the overlay, then for a checkpoint `preset` resolves it at activation (a string: exact name from the connection's own preset manager, never `/preset`; an object: its inline `settings`), maps it through the per-API key table, and arms `samplerOverlay` keyed by chat + checkpoint, inside `withLedger` (one row per activation, `before: null`). Refused with a reason, `failed` row: a connection with neither hook (`OVERLAY_UNSUPPORTED_REASON`), a missing preset, a preset with no sampler the connection sends. Unknown keys are journaled. `samplerOverlayHost` writes it on `GENERATE_AFTER_DATA` (textgen) and `CHAT_COMPLETION_SETTINGS_READY` (CC) only for a loud request (T6 outermost open, not dry, innermost/type not quiet/impersonate, same chat, same API) and only over keys the payload already carries (`SAMPLER_OVERLAY_NEVER` guards messages/prompt/model/stream/…); the first apply is journaled. Leave/exit/restart disarm it; a preset row is neither restored nor reported as "left in place". `applyPreset`/`applyTextGenPresetRuntime`/`presetBackend`/`PRESET_UNSUPPORTED_REASON`/`readAppliedPreset` are retired; `effectHost` reads the overlay for reconcile. Payload tab: author-only `data-so="next-turn-overlay"` row via `snapshot.samplerOverlay`; `EffectsEditor` note `data-so="preset-overlay-note"`. Inv 21 reworded in `.claude/rules/architecture.md`, `_baseline.md` §2 and the gotchas v2.3-plan-06 bullet. Host facts 06-H1..H9 appended to `host-facts.md`.
+
+**Decisions (mine, on evidence)**
+- Entry ref `#uid`, or `#<bookOrdinal>.<uid>` on a cross-book uid collision (the plan said `#uid`; two books sharing uid 0 is the common case).
+- Every curator write is a single uid-addressed update that keeps the entry's disabled flag; the upsert + re-disable pair and create-on-miss are gone. Legacy records without a uid keep the title path for revert only. The existing `readWIEntryAt` serves as the plan's `readWIEntryByUid`.
+- Declined memory is scoped by `checkpointStartedBoundary`, so a decline on an earlier visit does not bind the next visit (M6 found this unpinned).
+- Objective-block Studio checkbox: checked = absent (auto), unchecked = `"off"`. The plan-01 `guided` runtime fixture is pinned to `objective_block: "off"` so its assertions keep measuring guidance alone.
+- Overlay: one ledger row per ACTIVATION, not per generation (a per-generation row would evict restorable rows from the 200-row ledger); the per-generation audit is the overlay view (`applied`, `lastApplied`, `lastSkipped`) plus the first-apply journal line. The overlay state lives in a pure runtime module; `stHost/samplerOverlay.ts` holds only the hooks and the preset read (the plan put the state in stHost; state is not host access).
+- A string preset is looked up in the CONNECTION'S API's preset list only; a textgen preset name on a CC connection is a refusal, not a cross-API guess.
+- F5 Phase A candidate path is a standalone pure module plus a live-suite handle; nothing reaches the coordinator, the prompt the shipped curator sees, or any lorebook.
+
+**Deviations**
+- Plan table "(F5)" mutations not run: the op is not built.
+- Plan's Storybook `CreateCardNearDup` not built (F5 not built).
+- J8 ×2 is a new scenario `live-v24-06-curator.json` (J8-style), not an edit of `j8-stagecraft.journey.json`.
+- The "generated checkpoint" arm of the objective live check uses an authored checkpoint without a note (`cp-bare`): the predicate is identical (no own note), and plan 01's `live-v24-01-guidance-generated.json` already covers the generated-merge path.
+
+**Gates (worktree, exact)**
+- `npm run typecheck` 0 · `npm run typecheck:test` 0 · `npm run lint` 0 · `npm run debug:typecheck` 0
+- `npm test`: 240 suites / 3536 tests passed (architecture, ownership census, fault matrix and typed-results guards included; manager 737/740, memoryCoordinator 619/620, stagecraftCoordinator 552/620, untouched by the overlay/F5 work)
+- `npm run test:debug`: 258 tests, 257 pass, 0 fail (1 skipped). A first run before `npm run build` failed `so-run-header` "reads plan 08s nested manifest" because the worktree had no `dist/manifest.json`; green after the build.
+- `npm run build`: compiled, 2 size warnings (pre-existing); manifest `ST unknown` (worktree is nested, not under an ST root).
+- `npm run test:release`: 20/21, the one failure is "the host section names the SillyTavern it was built against" — the same `ST unknown`, environmental to a nested worktree.
+- Storybook: `storybook:build` 0; `test-storybook --index-json --url http://127.0.0.1:6348 --maxWorkers 1` 32 suites / 225 tests passed. The first run failed `StagecraftPanel` `DiffOnPatch` and `FuzzyAnchorShownSpan` (both from the T17 commit): the diff interleaved single-word del/ins runs across unchanged spaces. Fixed in `wordDiff` (coalesce), red test first, M34.
+
+**Mutations**: `test/findings/mutations/v24-06-steering-stagecraft.txt`. 34 mutants, all applied, all killed after one fix: M6 (declined memory ignoring the checkpoint boundary) survived the first sweep and is killed by a new coordinator test. Plan-table rows: M1, M2, M4, M7, M11, M20, M21.
+
+**Live fixtures written, NOT run** (schema-valid via `scenarioSchema.test.mts` 17/17, every eval compiled with the runner's wrapper):
+- `test/scenarios/live-v24-06-objective.json` (+ `live-v24-06.story.json`): objective line on `cp-bare`, absent on `cp-noted`; over-steer family `objective` against the `cp-noted` control reply.
+- `test/scenarios/live-v24-06-objective-off.json` (+ `live-v24-06-off.story.json`): control, `objective_block: off`.
+- `test/scenarios/live-v24-06-overlay.json`: run ×2 on a Text Completion AND ×2 on a Chat Completion main profile; overlay values in the loud request, selected preset + settings file read back unchanged, a real memory read without the overlay, disarm on `cp-bare`.
+- `test/scenarios/live-v24-06-curator.json`: J8-style ×2, real curator in review mode: uid on every op, diff card for text ops, a declined op listed in the next prompt and never reaching a card again, partial-view entry never rewritten; restores the curator settings; `so-assets` removes `SO-V2406`.
+- F5 Phase A: `node scripts/debug/so-curator-suite.mts run --record --expect-count 22` (capture a run header first). Build the create op only if it clears propose ≥ 0.90 and none = 1.00.
+
+**Remaining**: all live gates above (headed, `--strict`, run-header diff around each batch, `so-assets assert-clean`), then F5 Phase A and, only past its floor, the F5 build + its four mutations + `CreateCardNearDup` + the J8 create checks.

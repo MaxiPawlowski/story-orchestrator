@@ -1,4 +1,5 @@
-import { CURATOR_MAX_OPS, CURATOR_MAX_TEXT, PATCH_ANCHOR_SEPARATOR, type CuratorScope } from "./types";
+import { CURATOR_MAX_OPS, CURATOR_MAX_TEXT, CURATOR_SHOWN_CONTENT, PATCH_ANCHOR_SEPARATOR, collapseContent, contentShownInPart, type CuratorScope } from "./types";
+import { entryRef } from "./scope";
 
 const truncate = (value: string, limit: number) => (value.length > limit ? `${value.slice(0, limit)}…` : value);
 
@@ -8,11 +9,12 @@ const truncate = (value: string, limit: number) => (value.length > limit ? `${va
 export function buildWiCuratorPrompt(scope: CuratorScope): string {
   const entries = scope.entries.length
     ? scope.entries.map((entry) => [
-        `- "${entry.comment}" (${entry.lorebook})${entry.disabled ? " [currently off]" : ""}`,
+        `- ${[entryRef(entry, scope.entries), `"${entry.comment}"`].filter(Boolean).join(" ")} (${entry.lorebook})${entry.disabled ? " [currently off]" : ""}${contentShownInPart(entry.content) ? " [shown in part — patch only]" : ""}`,
         `  keys: ${entry.keys.join(", ") || "(none)"}`,
-        `  content: ${truncate(entry.content.replace(/\s*\r?\n\s*/g, " ").trim(), 400) || "(empty)"}`,
+        `  content: ${truncate(collapseContent(entry.content), CURATOR_SHOWN_CONTENT) || "(empty)"}`,
       ].join("\n")).join("\n")
     : "(this story's lorebooks have no entries yet)";
+  const declined = (scope.declined ?? []).slice(0, CURATOR_MAX_OPS).map((op) => `- [${op.kind}] ${op.comment}`);
 
   return [
     "[WORLD INFO CURATION TASK — output structured lines only. Do NOT continue the roleplay.]",
@@ -26,14 +28,16 @@ export function buildWiCuratorPrompt(scope: CuratorScope): string {
     "ENTRIES YOU MAY TOUCH (no others exist for you):",
     entries,
     "",
+    declined.length ? `THE AUTHOR DECLINED (do not propose these again):\n${declined.join("\n")}\n` : "",
     "Output one line per change, at most " + String(CURATOR_MAX_OPS) + ":",
-    "[enable] <entry title>",
-    "[disable] <entry title>",
-    `[rewrite] <entry title> ${PATCH_ANCHOR_SEPARATOR} <the full replacement text>`,
-    `[patch] <entry title> ${PATCH_ANCHOR_SEPARATOR} <first words of the span to replace> ${PATCH_ANCHOR_SEPARATOR} <last words of that span> ${PATCH_ANCHOR_SEPARATOR} <replacement text>`,
+    "[enable] <#number or entry title>",
+    "[disable] <#number or entry title>",
+    `[rewrite] <#number or entry title> ${PATCH_ANCHOR_SEPARATOR} <the full replacement text>`,
+    `[patch] <#number or entry title> ${PATCH_ANCHOR_SEPARATOR} <first words of the span to replace> ${PATCH_ANCHOR_SEPARATOR} <last words of that span> ${PATCH_ANCHOR_SEPARATOR} <replacement text>`,
     "Then one final line: [why] <one sentence on what changed in the story that made these necessary>",
     "RULES:",
-    "- Name entry titles exactly as listed above. A title that is not listed is discarded.",
+    "- Name each entry by its #number, or by its title exactly as listed above. Anything else is discarded.",
+    "- An entry marked [shown in part — patch only] may only be patched: you have not seen all of it.",
     "- Prefer [patch] over [rewrite]: quote the first and last words of the span exactly as they appear in the content.",
     `- Keep replacement text under ${String(CURATOR_MAX_TEXT)} characters. Never restate the whole entry in a patch.`,
     "- Only propose a change the story has actually made necessary. Style preferences are not changes.",

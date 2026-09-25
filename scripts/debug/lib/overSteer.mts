@@ -59,7 +59,11 @@ export const HOUSE_RULE_FAMILY: OverSteerFamily = { name: 'house-rule', metaToke
 
 export const WARDEN_OVER_STEER_FAMILIES = ['continuity', 'agency', 'house-rule'];
 
-export const OVER_STEER_FAMILIES: Record<string, OverSteerFamily> = { guidance: GUIDANCE_FAMILY, continuity: CONTINUITY_FAMILY, agency: AGENCY_FAMILY, 'house-rule': HOUSE_RULE_FAMILY };
+// v2.4 plan 06 T16a: the objective line rides the guidance block; naming the objective as a heading or as
+// met is the over-steer, while the restate span measures copying its wording.
+export const OBJECTIVE_FAMILY: OverSteerFamily = { name: 'objective', metaTokens: ['Objective:', 'Scene direction', 'objective is complete', 'objective achieved', '[Story'] };
+
+export const OVER_STEER_FAMILIES: Record<string, OverSteerFamily> = { guidance: GUIDANCE_FAMILY, continuity: CONTINUITY_FAMILY, agency: AGENCY_FAMILY, 'house-rule': HOUSE_RULE_FAMILY, objective: OBJECTIVE_FAMILY };
 
 /** `block` is the injected prompt key; `controlRun` is the control arm's reply N+1, literal or a page global holding it. */
 export type OverSteerSpec = { block: string; family: string; controlRun?: string | { global: string }; record?: boolean };

@@ -134,6 +134,19 @@ export const ScenePlaces: Story = {
   },
 };
 
+// v2.4 plan 06 T16a: absent means auto; unticking writes "off", ticking again returns to absent.
+export const ObjectiveBlockOff: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const box = canvas.getByLabelText(/Add the objective when a checkpoint has no author note/);
+    await expect(box).toBeChecked();
+    await userEvent.click(box);
+    await expect(useDraftStore.getState().draft.objective_block).toBe("off");
+    await userEvent.click(box);
+    await expect(useDraftStore.getState().draft.objective_block).toBeUndefined();
+  },
+};
+
 export const ArcShapeAndBridges: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

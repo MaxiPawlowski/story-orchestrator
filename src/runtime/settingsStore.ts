@@ -4,6 +4,7 @@ import { DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS } from "@memory/index"
 import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
 import { defaultJudgeSettings, sanitizeJudgeSettings, type JudgeSettings, type JudgeUses } from "@judge/index";
 import { createSettingsWriteEvidence, recordSettingsWrite } from "./librarySave";
+import { sanitizePassProfiles } from "./passProfiles";
 import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, RuntimeExtras, StagecraftSettings, UiRuntimeSettings } from "./types";
 
 const SETTINGS_KEY = "settings";
@@ -82,7 +83,8 @@ const clampAlpha = (value: unknown) => (typeof value === "number" && value >= 0 
 export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
   const defaults = defaultGlobalSettings();
   if (!isRecord(value)) return defaults;
-  const extraction = isRecord(value.extraction) ? value.extraction : {};
+  const { profiles: rawProfiles, ...extraction }: Record<string, unknown> = isRecord(value.extraction) ? value.extraction : {};
+  const profiles = sanitizePassProfiles(rawProfiles);
   const pacing = isRecord(value.pacing) ? value.pacing : {};
   const display = isRecord(value.display) ? value.display : {};
   const memory = isRecord(value.memory) ? value.memory : {};
@@ -95,6 +97,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       cadence: typeof extraction.cadence === "number" && extraction.cadence >= 1 ? extraction.cadence : defaults.extraction.cadence,
       reconciliationMultiplier: typeof extraction.reconciliationMultiplier === "number" && extraction.reconciliationMultiplier >= 1 ? extraction.reconciliationMultiplier : defaults.extraction.reconciliationMultiplier,
       stabilityLag: typeof extraction.stabilityLag === "number" && extraction.stabilityLag >= 0 ? extraction.stabilityLag : defaults.extraction.stabilityLag,
+      ...(profiles ? { profiles } : {}),
     },
     pacing: { alpha: clampAlpha(pacing.alpha), hintEnabled: pacing.hintEnabled !== false },
     display: { announceTransitions: display.announceTransitions !== false, hudEnabled: display.hudEnabled !== false },

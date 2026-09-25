@@ -151,6 +151,7 @@ const EffectsEditor: React.FC<{ effects: CheckpointEffects; roster: RosterMember
           <span className="text-xs st-muted">Preset name</span>
           <input className="text_pole st-input" value={presetName ?? ""} onChange={(event) => emit({ ...effects, preset: event.target.value })} />
         </label>
+        <p data-so="preset-overlay-note" className="text-xs st-muted">Applies this preset's samplers to this checkpoint's replies only; your selected preset is untouched. The name must match a preset of the connection's API exactly.</p>
       </Section>
 
       <Section title="Background" help="Switches the SillyTavern background when the story enters this checkpoint. Partial filenames match, and re-entering or reloading re-applies the same background without side effects." enabled={effects.background !== undefined} onToggle={(on) => emit({ ...effects, background: on ? { name: backgroundNames[0] ?? "" } : undefined })}>

@@ -4,7 +4,7 @@ import {
   maxTokensFor, maxTokensForInput, planBacklog, preflightNeeded, reconciliationKeySet, reconciliationTargets, runSharedRead, withJudgeCalls,
   sharedReadOverhead, sharedReadWindow, stripChannelNoise, type ExtraGateSource, type ExtractionClientOptions, type ParsedDelta,
   type ParsedFact, type PreflightConfirm, type ReadOwnership, type ReconciliationPlan, type RequestBudget, type RunSharedReadOptions,
-  type SchedulerJob, type SharedReadAudit, type SharedReadWindow,
+  type PassRole, type SchedulerJob, type SharedReadAudit, type SharedReadWindow,
 } from "@extraction/index";
 import {
   buildEpistemicPassPrompt, buildLedgerPassPrompt, buildShortTermSummaryPrompt, detectSceneBreakHeuristic, fitShortTerm,
@@ -55,7 +55,7 @@ export interface ExtractionCoordinatorDeps {
   emitArcsResolved: (arcs: ArcEntry[]) => void;
   setStatus: (status: string) => void;
   judge?: () => JudgeRuntime | null;
-  requestBudget?: () => RequestBudget;
+  requestBudget?: (role: PassRole) => RequestBudget;
   persist: () => Promise<void>;
   notify: () => void;
   // v2.3 plan 03. Optional so the conversion can land one coordinator at a time: an unwired
@@ -81,8 +81,8 @@ export class ExtractionCoordinator {
     this.deps.notify();
   }
 
-  private budget(): RequestBudget {
-    return this.deps.requestBudget?.() ?? { contextLimit: defaultContextLimit("no request budget is wired"), meter: createTokenMeter() };
+  private budget(role: PassRole = "read"): RequestBudget {
+    return this.deps.requestBudget?.(role) ?? { contextLimit: defaultContextLimit("no request budget is wired"), meter: createTokenMeter() };
   }
 
   // v2.3 plan 05: every row this pass writes says where it came from, so a consumer can tell a
@@ -279,7 +279,7 @@ export class ExtractionCoordinator {
       openArcs: memory.getOpenArcs(),
       epistemicLedgerCapable: memory.capable,
       entities: memory.getEntities(),
-      client: { ...this.deps.getSettings(), budget: this.budget(), signal: read.signal, debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugExtractionResponse ?? null },
+      client: { ...this.deps.getSettings(), role: "read", budget: this.budget(), signal: read.signal, debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugExtractionResponse ?? null },
     }).catch((error: unknown) => { if (isLapse(error)) return null; throw error; }).finally(() => read.release());
     if (!result) return false;
     await this.applyAudit(result.audit, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, read);
@@ -318,9 +318,9 @@ export class ExtractionCoordinator {
     const run = beginRun(this.deps.ownership, range);
     const scene = getChatWindow(range.from, range.to);
     const outcome = await summarizeScene({
-      messages: scene.messages, budget: this.budget(), stillOwns: () => run.stillOwns(),
+      messages: scene.messages, budget: this.budget("synthesis"), stillOwns: () => run.stillOwns(),
       summarize: async (prompt, maxTokens) => stripChannelNoise(await callExtractionModel(prompt, {
-        profileId: this.deps.getSettings().profileId, maxTokens, signal: run.signal, refuseIncomplete: true,
+        profileId: this.deps.getSettings().profileId, role: "synthesis", maxTokens, signal: run.signal, refuseIncomplete: true,
         debugResponse: globalThis.storyOrchestratorDebugSceneSummaryResponse ?? null,
       })),
     });
@@ -352,9 +352,9 @@ export class ExtractionCoordinator {
     // This one REPLACES the rolling short-term entry, so a stale result does not merely add noise
     // — it overwrites the live summary with one describing another chat or an edited window.
     const run = beginRun(this.deps.ownership, { from: window.from, to: window.to });
-    const fit = await fitShortTerm(window.messages, previous?.text ?? null, this.budget());
+    const fit = await fitShortTerm(window.messages, previous?.text ?? null, this.budget("synthesis"));
     const summary = stripChannelNoise(await callExtractionModel(buildShortTermSummaryPrompt(previous?.text ?? null, fit.text), {
-      profileId: this.deps.getSettings().profileId,
+      profileId: this.deps.getSettings().profileId, role: "synthesis",
       maxTokens: maxTokensFor("shortTerm", fit.tokens), signal: run.signal, refuseIncomplete: true,
       debugResponse: globalThis.storyOrchestratorDebugShortTermResponse ?? null,
     }));
@@ -380,7 +380,7 @@ export class ExtractionCoordinator {
     const run = beginRun(this.deps.ownership, { from: audit.window.from, to: audit.window.to });
     const existing = memory.activeEpistemic();
     const epistemicResponse = await callExtractionModel(buildEpistemicPassPrompt(sceneText, enabledCharacterNames(story), existing.map((entry) => ({ tag: entry.tag, subject: entry.subject, content: entry.content, hiddenFrom: entry.hiddenFrom }))), {
-      profileId: settings.profileId,
+      profileId: settings.profileId, role: "read",
       maxTokens: maxTokensForInput("epistemic", sceneText), signal: run.signal,
       debugResponse: globalThis.storyOrchestratorDebugEpistemicResponse ?? null,
     });
@@ -398,7 +398,7 @@ export class ExtractionCoordinator {
     memory.applyEpistemic(epistemicSignals, audit.window.to, retireIds);
 
     const ledgerResponse = await callExtractionModel(buildLedgerPassPrompt(sceneText, memory.ledgerEntityList()), {
-      profileId: settings.profileId,
+      profileId: settings.profileId, role: "read",
       maxTokens: maxTokensForInput("ledger", sceneText), signal: run.signal,
       debugResponse: globalThis.storyOrchestratorDebugLedgerResponse ?? null,
     });
@@ -437,7 +437,7 @@ export class ExtractionCoordinator {
     let failure: string | null = null;
     try {
       const messages = getChatWindow(0, length - 1).messages;
-      const overhead = sharedReadOverhead(this.backlogRead(story, "memorize:window", { from: 0, to: -1, messages: [] }, { profileId: null }));
+      const overhead = sharedReadOverhead(this.backlogRead(story, "memorize:window", { from: 0, to: -1, messages: [] }, { profileId: null, role: "read" }));
       const estimate = confirm ? await planBacklog(messages, overhead, { contextLimit: budget.contextLimit, meter: createTokenMeter() }, windowSize) : null;
       const preflight = estimate ? withJudgeCalls(estimate.preflight, this.deps.judge?.()?.active("memoryVerify") === true) : null;
       if (!read.stillOwns() || (confirm && preflight && preflightNeeded(preflight, budget.contextLimit) && !(await confirm(preflight)))) return false;
@@ -475,7 +475,7 @@ export class ExtractionCoordinator {
 
   private async memorizeWindows(story: NormalizedStoryV2, windows: SharedReadWindow[], length: number, read: ReadOwnership, budget: RequestBudget): Promise<boolean> {
     const memory = this.deps.memory;
-    const client = { ...this.deps.getSettings(), budget, signal: read.signal, debugResponse: globalThis.storyOrchestratorDebugExtractionResponse ?? null };
+    const client = { ...this.deps.getSettings(), role: "read" as const, budget, signal: read.signal, debugResponse: globalThis.storyOrchestratorDebugExtractionResponse ?? null };
     const sceneWork: SchedulerJob[] = [];
     for (const window of windows) {
       if (!read.stillOwns()) return false;

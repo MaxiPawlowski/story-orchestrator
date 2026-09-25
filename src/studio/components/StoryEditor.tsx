@@ -111,6 +111,15 @@ const StoryEditor: React.FC<StoryEditorProps> = ({ personaNames = [], memberName
           </select>
         </Field>
         {customTemplate ? <div className="text-xs st-muted">This story carries a custom tension curve; edit it in the JSON export.</div> : null}
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            data-so="objective-block"
+            checked={draft.objective_block !== "off"}
+            onChange={(event) => mutate((current) => setStoryField(current, "objective_block", event.target.checked ? undefined : "off"))}
+          />
+          Add the objective when a checkpoint has no author note
+        </label>
       </div>
 
       <div data-so="requirements" className="st-subpanel flex flex-col gap-3 p-3">

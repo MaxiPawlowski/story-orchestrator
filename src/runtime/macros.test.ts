@@ -72,3 +72,22 @@ describe("registerRuntimeMacros", () => {
     expect(mockRegistry.get("story_role_luke")?.()).toBe("Luke");
   });
 });
+
+describe("registerRuntimeMacros: per-quality macros (v2.4 plan 08 R15)", () => {
+  beforeEach(() => mockRegistry.clear());
+
+  it("registers {{story_quality_<key>}} for the playing story and drops them when the runtime stops", () => {
+    const values: Record<string, unknown> = { has_key: true };
+    const manager = {
+      ...makeManager([]),
+      getStory: () => ({ roster: [], qualities: [{ key: "has_key" }, { key: "trap_state" }] }) as unknown as NormalizedStoryV2,
+      getEngineState: () => ({ blackboard: { values } }),
+      noteRecap: () => {},
+    } as unknown as RuntimeManager;
+    const dispose = registerRuntimeMacros(manager);
+    expect(mockRegistry.get("story_quality_has_key")?.()).toBe("true");
+    expect(mockRegistry.get("story_quality_trap_state")?.()).toBe("(unset)");
+    dispose();
+    expect(mockRegistry.has("story_quality_has_key")).toBe(false);
+  });
+});

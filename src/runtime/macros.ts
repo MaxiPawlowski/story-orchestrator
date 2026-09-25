@@ -2,6 +2,7 @@ import { MEMORY_TIERS, sceneFieldsInConflict } from "@memory/index";
 import { confirmedSceneFacts } from "@judge/index";
 import { getPlayerName, registerHostMacro, unregisterHostMacro } from "@services/STAPI";
 import { renderBlackboardMemo } from "./blackboardMemo";
+import { createQualityMacroSync, QUALITY_MACRO_PREFIX } from "./qualityMacros";
 import type { RuntimeManager } from "./runtimeManager";
 
 const renderCurrentCheckpoint = (manager: RuntimeManager): string => {
@@ -54,7 +55,20 @@ export function registerRuntimeMacros(manager: RuntimeManager): () => void {
   });
   registerHostMacro("story_epistemic", () => manager.getEpistemicBlock() || "(none)", "Story Orchestrator v2 active-speaker epistemic block");
   registerHostMacro("story_ledger", () => manager.getLedgerBlock() || "(none)", "Story Orchestrator v2 state ledger");
-  const unsubscribe = manager.subscribe(() => syncRoleMacros(manager));
-  syncRoleMacros(manager);
-  return unsubscribe;
+  const syncQualityMacros = createQualityMacroSync({
+    register: (name, read) => registerHostMacro(name, read, `Story Orchestrator v2 quality: ${name.slice(QUALITY_MACRO_PREFIX.length)}`),
+    unregister: unregisterHostMacro,
+    journal: (summary, detail) => manager.noteRecap(summary, detail),
+    values: () => manager.getEngineState()?.blackboard.values ?? {},
+  });
+  const sync = () => {
+    syncRoleMacros(manager);
+    syncQualityMacros(manager.getStory());
+  };
+  const unsubscribe = manager.subscribe(sync);
+  sync();
+  return () => {
+    unsubscribe();
+    syncQualityMacros(null);
+  };
 }

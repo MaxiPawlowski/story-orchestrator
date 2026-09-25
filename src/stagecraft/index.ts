@@ -4,3 +4,4 @@ export * from "./parse";
 export * from "./proposal";
 export * from "./scope";
 export * from "./warden";
+export * from "./fuzzy";

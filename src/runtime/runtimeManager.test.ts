@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { PLAYER_ATTEMPTS_CLAUSE } from "@engine/index";
+import { PLAYER_ATTEMPTS_CLAUSE, objectiveClause } from "@engine/index";
 import type { SharedReadAudit } from "@extraction/index";
 import { disableWIEntry, enableWIEntry, executeSlashCommands, getActiveGroup } from "@services/STAPI";
 import { RuntimeManager } from "./runtimeManager";
@@ -74,6 +74,9 @@ jest.mock("@services/STAPI", () => {
     readInjectedPromptBlocks: () => Object.entries(mockExtensionPrompts)
       .filter(([key, entry]) => key.startsWith("story_") && entry.value.trim())
       .map(([key, entry]) => ({ key, depth: entry.depth, role: 0, value: entry.value })),
+    readExtensionPromptBlocks: () => ({ own: Object.entries(mockExtensionPrompts)
+      .filter(([key, entry]) => key.startsWith("story_") && entry.value.trim())
+      .map(([key, entry]) => ({ key, depth: entry.depth, role: 0, value: entry.value, position: 1, hasFilter: false })), foreign: [] }),
     showTextPopup: jest.fn(() => ({ close: () => { mockPopupCloses.count += 1; } })),
   };
 });
@@ -226,8 +229,21 @@ describe("RuntimeManager checkpoint guidance (v2.4 plan 01, D7)", () => {
     ],
     transitions: [{ from: "start", to: "sphinx", gate: { q: "go", op: "==", v: true }, priority: 0 }],
     roster: [],
+    objective_block: "off",
   });
   const block = () => mockExtensionPrompts.story_orchestrator_guidance;
+
+  it("v2.4 plan 06 T16a: adds the objective line where a checkpoint authors no note, and not where it does", async () => {
+    const story = { ...guided(WANDER), objective_block: undefined } as Record<string, unknown> & ReturnType<typeof guided>;
+    story.checkpoints[1] = { ...story.checkpoints[1], effects: { author_note: "The sphinx speaks in riddles." } } as typeof story.checkpoints[1];
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(story));
+    expect(block()?.value).toBe(`Scene direction: ${WANDER}\nObjective: Start. ${objectiveClause("world_pressure")}`);
+    await manager.activateCheckpoint("sphinx");
+    expect(block()).toEqual({ value: `Scene direction: ${SPHINX}`, depth: 4 });
+    await manager.activateCheckpoint("plain");
+    expect(block()?.value).toBe(`Objective: Walk on. ${objectiveClause("world_pressure")}`);
+  });
   const goAudit = (): SharedReadAudit => ({ ...tensionAudit("stirring", 0), id: "audit-go", scope: ["go"], acceptedDeltas: [{ delta: { q: "go", v: true, source: "extractor" }, evidence: "they set off" }] });
 
   it("sets the active checkpoint's guidance on load and on activate, at depth 4, owned by the config tab", async () => {
@@ -303,13 +319,14 @@ describe("RuntimeManager checkpoint guidance (v2.4 plan 01, D7)", () => {
     await manager.importStory(readFileSync(join(__dirname, "..", "..", "test", "fixtures", "generated-fork.story.json"), "utf-8"));
     await manager.applyExtractionAudit({ ...goAudit(), id: "audit-key", scope: ["key_found"], acceptedDeltas: [{ delta: { q: "key_found", v: true, source: "extractor" }, evidence: "the key" }] }, []);
     expect(await manager.runExpansionNow(readFileSync(join(__dirname, "..", "..", "test", "goldens", "generation", "generated-fork.3.response.txt"), "utf-8"))).toBe(true);
-    expect(block()).toBeUndefined();
+    expect(block()?.value).toMatch(/^Objective: /);
     mockContext.chat = [{ mes: "found it" }];
     await manager.commitBoundary();
     const generated = manager.getStory()?.checkpointById.gen_fork_stub_1;
     expect(manager.getEngineState()?.activeCheckpointId).toBe("gen_fork_stub_1");
     expect(generated?.guidance).toBeTruthy();
-    expect(block()).toEqual({ value: `Scene direction: ${generated?.guidance}`, depth: 4 });
+    expect(generated?.effects).toBeUndefined();
+    expect(block()).toEqual({ value: `Scene direction: ${generated?.guidance}\nObjective: ${generated?.objective.trim()} ${objectiveClause("world_pressure")}`, depth: 4 });
   });
 });
 

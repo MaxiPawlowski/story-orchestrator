@@ -1,5 +1,6 @@
-import { applyBackground, applyCharacterAN, clearCharacterAN, getCurrentBackground, readAppliedPreset, setGroupMemberDisabled, readGroupMemberDisabled } from "@services/STAPI";
+import { applyBackground, applyCharacterAN, clearCharacterAN, getCurrentBackground, setGroupMemberDisabled, readGroupMemberDisabled } from "@services/STAPI";
 import { reconcileLedger } from "./effectLedger";
+import { samplerOverlay } from "./samplerOverlay";
 import type { EffectLedgerRow, EffectTarget } from "./types";
 
 // v2.3 plan 06. What the effect ledger asks the host: "what do you hold for this target?", and "put
@@ -27,8 +28,8 @@ export function readEffectTarget(target: EffectTarget): Record<string, unknown> 
     case "an":
       return readAuthorNote();
     case "preset": {
-      const applied = readAppliedPreset();
-      return applied ? { name: applied.name } : null;
+      const armed = samplerOverlay.view();
+      return armed ? { name: armed.name } : null;
     }
     // A World Info entry is a shared F ILE entry, and its before-image is captured at the write edge
     // by the stagecraft revert, which has compare-and-set of its own. Nothing here reads one.
@@ -72,9 +73,7 @@ export async function restoreEffectTarget(row: EffectLedgerRow): Promise<boolean
       // path: `/note ""` is a no-op in ST (authors-note.js guards `if (text)`).
       return (text ? await applyCharacterAN(text) : await clearCharacterAN()).ok;
     }
-    // A preset is install state whose sampler values belong to the text-completion module. Restoring
-    // it is a v2.4 seed: the ledger records it, and an unsupported backend refuses the WRITE, so
-    // there is nothing here to put back either.
+    // v2.4 plan 06: a preset is a per-request overlay that never wrote the host, so nothing goes back.
     case "preset":
     case "wi":
       return false;

@@ -1,7 +1,7 @@
-import { callExtractionModel, getChatWindow, ExtractionScheduler, probeModel, type SchedulerHost, type SchedulerJob, type SchedulerSettings } from "@extraction/index";
+import { callExtractionModel, getChatWindow, ExtractionScheduler, probeModel, setProfileRouter, type SchedulerHost, type SchedulerJob, type SchedulerSettings } from "@extraction/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { sceneFieldsInConflict } from "@memory/index";
-import { clearStoryExtensionPrompt, executeSlashCommands, forceActivateEntries, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, getScannableEntries, judgeStatus, judgeTransport, noteHostSettingsLoaded, profileExists, setStoryExtensionPrompt, settingsReady, subscribeToHostEvents, willAddUserMessage, EXTENSION_SETTINGS_LOADED_EVENT, type HostSubscriptionEntry } from "@services/STAPI";
+import { clearStoryExtensionPrompt, countTokens, executeSlashCommands, forceActivateEntries, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, getScannableEntries, judgeStatus, judgeTransport, noteHostSettingsLoaded, profileExists, readExtensionPromptBlocks, readPromptBudget, setStoryExtensionPrompt, settingsReady, subscribeToHostEvents, willAddUserMessage, EXTENSION_SETTINGS_LOADED_EVENT, type HostSubscriptionEntry } from "@services/STAPI";
 import { breakerWatchEntries } from "./breakerWatch";
 import { quoteSlashArg } from "@utils/string";
 import { runBoundaryWork } from "./boundaryWork";
@@ -12,7 +12,8 @@ import { createTypedJudge } from "./typedRead";
 import { getGlobalSettings } from "./settingsStore";
 import { registerLiveSuite } from "./liveSuite";
 import { registerRuntimeMacros } from "./macros";
-import { requestBudget } from "./requestBudget";
+import { requestBudget, routedProfileId } from "./requestBudget";
+import { resolveProfile } from "./passProfiles";
 import { startMirrorReaper } from "./mirrorReaperHost";
 import { runtimeManager } from "./runtimeManager";
 import { beginRun } from "./runToken";
@@ -27,7 +28,10 @@ import { onChatWrite } from "./persistence";
 import { onWizardSessionSave } from "./wizardSessions";
 import { loreEvidence } from "./worldInfoEvidence";
 import { startLoreEvidence } from "./worldInfoEvidenceHost";
+import { startSamplerOverlay } from "./samplerOverlayHost";
 import { startScanGating } from "./worldInfoScanHost";
+import { promptCost } from "./promptCost";
+import { roleHealth } from "./roleHealth";
 
 let started = false;
 let bridge: TurnBridge | null = null;
@@ -57,13 +61,15 @@ const registerSlashCommandsWhenReady = (attempt = 0) => {
 export function startRuntime() {
   if (started) return runtimeManager;
   started = true;
+  runtimeDisposers.push(setProfileRouter((role, fallback) => resolveProfile({ ...runtimeManager.getExtractionSettings(), profileId: fallback }, role, profileExists)));
   const schedulerHost: SchedulerHost = {
     getStory: () => runtimeManager.getStory(),
     getEngineState: () => runtimeManager.getEngineState(),
     getExtractionSettings: (): SchedulerSettings => ({
       ...runtimeManager.getExtractionSettings(),
+      profileId: routedProfileId("read"),
       debugResponse: globalThis.storyOrchestratorDebugExtractionResponse ?? null,
-      budget: requestBudget(runtimeManager.getExtractionSettings().profileId),
+      budget: requestBudget(routedProfileId("read")),
     }),
     getFacts: () => runtimeManager.getExtractionFacts(),
     getFiredTransitions: () => runtimeManager.getFiredTransitions(),
@@ -87,7 +93,7 @@ export function startRuntime() {
   scheduler = new ExtractionScheduler(schedulerHost);
   runtimeManager.attachScheduler(scheduler);
   runtimeDisposers.push(() => { scheduler?.dispose(); runtimeManager.attachScheduler(null); });
-  runtimeDisposers.push(subscribeToHostEvents(breakerWatchEntries(() => scheduler, () => runtimeManager.getExtractionSettings().profileId)));
+  runtimeDisposers.push(subscribeToHostEvents(breakerWatchEntries(() => scheduler, () => routedProfileId("read"))));
   runtimeDisposers.push(runtimeManager.onBoundary((result) => {
     if (scheduler) runBoundaryWork({ result, manager: runtimeManager, scheduler, ...(sceneCoordinator ? { scene: sceneCoordinator } : {}) });
   }));
@@ -200,6 +206,7 @@ export function startRuntime() {
     notify: () => runtimeManager.notify(),
   });
   runtimeDisposers.push(() => loreWatch.dispose());
+  runtimeDisposers.push(startSamplerOverlay({ chatId: () => getContext().chatId ?? null, generation: () => generation.snapshot(), journal: (summary, note) => runtimeManager.noteRecap(summary, note) }));
   globalThis.storyOrchestratorLoreEvidence = loreEvidence;
   // v2.4 plan 05 T13 spike: inert unless `worldInfo.gatingMode` is "scan" (default "file"). The flag
   // is install-wide, so it is read once the extension settings have loaded, never before.
@@ -250,12 +257,12 @@ export function startRuntime() {
     getWindow: recentWindow,
     getCheckpointInfo: () => runtimeManager.getActiveCheckpointInfo(),
     callDirector: (prompt, signal) => callExtractionModel(prompt, {
-      profileId: runtimeManager.getExtractionSettings().profileId,
+      profileId: runtimeManager.getExtractionSettings().profileId, role: "director",
       maxTokens: DIRECTOR_MAX_TOKENS,
       signal,
       debugResponse: globalThis.storyOrchestratorDebugDirectorResponse ?? null,
     }),
-    breakerOpen: () => scheduler?.breakerOpen() ?? false,
+    breakerOpen: () => scheduler?.breakerOpen(routedProfileId("director")) ?? false,
     triggerMember: async (name) => { await executeSlashCommands(`/trigger await=true ${quoteSlashArg(name)}`, { silent: false }); },
     recordDecision: (audit) => runtimeManager.recordTalkDecision(audit),
     judgeDirector: (input) => judgeRuntime.director(input),
@@ -263,12 +270,19 @@ export function startRuntime() {
     ownership: runtimeManager.getOwnership(),
   };
   talkController = new TalkController(talkHost);
-  globalThis.talkControlInterceptor = async (_chat, _contextSize, abort, type) => {
+  globalThis.talkControlInterceptor = async (_chat, contextSize, abort, type) => {
+    promptCost.noteGenerationBudget(contextSize);
     let aborted = false;
     await talkController?.intercept((immediate) => { aborted = true; abort(immediate); }, type);
     await onLoreIntercept(type, aborted);
   };
   const generation = new GenerationLifecycle(isTurnMessageType);
+  runtimeDisposers.push(roleHealth.attach({ settings: () => runtimeManager.getExtractionSettings(), exists: profileExists, health: (id) => scheduler?.profileHealth(id) ?? null, notify: () => runtimeManager.notify() }));
+  runtimeDisposers.push(promptCost.attach({ count: countTokens, budget: readPromptBudget, notify: () => runtimeManager.notify(), busy: () => generation.snapshot().outermost !== null }));
+  runtimeDisposers.push(runtimeManager.subscribe(() => {
+    const blocks = readExtensionPromptBlocks();
+    promptCost.request([...blocks.own, ...blocks.foreign].map((block) => block.value));
+  }));
   const applyGeneration = (intents: GenerationIntent[]) => {
     for (const intent of intents) {
       if (intent.kind === "opened") {

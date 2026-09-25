@@ -1,5 +1,5 @@
 import {
-  Blackboard, evaluateGate, renderGateText, type EngineState, type NormalizedStoryV2, type StoryV2,
+  Blackboard, authorsOwnNote, evaluateGate, objectiveLineApplies, renderGateText, type EngineState, type NormalizedStoryV2, type StoryV2,
 } from "@engine/index";
 import {
   runAuthoringStage, runDriverReport, runDriverSuggest, type CopilotMessage, type CopilotStage, type DriverContext,
@@ -41,8 +41,8 @@ export class CopilotCoordinator {
 
   constructor(private readonly deps: CopilotCoordinatorDeps) {}
 
-  private client(debugResponse?: string): { profileId: string | null; debugResponse: string | null } {
-    return { profileId: this.deps.getProfileId(), debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugCopilotResponse ?? null };
+  private client(debugResponse?: string): { profileId: string | null; role: "authoring"; debugResponse: string | null } {
+    return { profileId: this.deps.getProfileId(), role: "authoring", debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugCopilotResponse ?? null };
   }
 
   async runStage(input: { draft: StoryV2; stage: CopilotStage; message: string; history: CopilotMessage[]; environment?: ProvisioningEnvironment }, debugResponse?: string): Promise<ProposalResult> {
@@ -185,6 +185,8 @@ export class CopilotCoordinator {
       title: story.title,
       activeCheckpointId: active?.id ?? null,
       activeObjective: active?.objective ?? "",
+      ownNote: authorsOwnNote(active),
+      objectiveLine: objectiveLineApplies(story, active),
       unmetGates: outgoing
         .filter((transition) => !evaluateGate(transition.gate, blackboard))
         .map((transition) => `${renderGateText(transition.gate)} → ${transition.to}`)

@@ -1,0 +1,20 @@
+v24-08-T18 mutations 2026-09-25 (each mutant applied alone, then reverted; npx jest <file> --runInBand)
+- dangling role silently falls back [src/runtime/passProfiles.ts] -> src/runtime/passProfiles.test.ts: Tests:       1 failed, 17 passed, 18 total
+    x per-pass profile routing (v2.4 plan 08 T18) › a role set to a profile that no longer exists refuses instead of silently falling back
+- a dead routed profile holds every job [src/extraction/scheduler.ts] -> src/extraction/scheduler.routes.test.ts: Tests:       1 failed, 3 passed, 4 total
+    x v2.4 plan 08 T18: one breaker per routed profile › a held job waits for its own profile's probe, and runs again when that profile answers
+- a curator call without its role literal [src/runtime/coordinators/stagecraftCoordinator.ts] -> src/runtime/passProfiles.test.ts: Tests:       1 failed, 17 passed, 18 total
+    x every model call names its role (census) › runtime/coordinators/stagecraftCoordinator.ts passes its role(s) as a literal
+- role health ignores the routed breaker [src/runtime/roleHealth.ts] -> src/runtime/roleHealth.test.ts: Tests:       1 failed, 5 passed, 6 total
+    x role routes (v2.4 plan 08 T18) › a set role whose own profile's breaker is open is not answering; the read path's health does not leak into it
+- a self-test on another profile counts [src/runtime/roleHealth.ts] -> src/runtime/roleHealth.test.ts: Tests:       1 failed, 5 passed, 6 total
+    x role routes (v2.4 plan 08 T18) › a failed self-test on the profile the role is routed to is failed; one run against another profile is ignored
+- no Repair row for a dead role [src/runtime/repair.ts] -> src/runtime/repair.test.ts: Tests:       7 failed, 17 passed, 24 total
+    x v2.4 plan 08 T18: a routed role that cannot answer is a Repair row › comes before the cast: a dead routed model stops work the story has already reached
+    x v2.4 plan 08 T18: a routed role that cannot answer is a Repair row › every role states its own consequence
+    x v2.4 plan 08 T18: a routed role that cannot answer is a Repair row › failed is a row
+    x v2.4 plan 08 T18: a routed role that cannot answer is a Repair row › missing is a row
+    x v2.4 plan 08 T18: a routed role that cannot answer is a Repair row › names what stops, points at that role's own select, and comes after the memory model
+    x v2.4 plan 08 T18: a routed role that cannot answer is a Repair row › not-answering is a row
+- director self-test passes on prose [src/runtime/roleSelfTest.ts] -> src/runtime/roleSelfTest.test.ts: Tests:       1 failed, 8 passed, 9 total
+    x per-role self-test (v2.4 plan 08 T18) › director fails when a case answers prose instead of a SPEAKER line

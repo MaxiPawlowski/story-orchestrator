@@ -9,10 +9,8 @@ jest.mock("@services/STAPI", () => ({
   applyBackground: async (name: string) => { host.calls.push(`bg:${name}`); return host.backgroundOk ? { ok: true, changed: true, from: "old.jpg", to: name } : { ok: false, reason: "ST did not switch" }; },
   applyCharacterAN: async (text: string) => { host.calls.push(`an:${text}`); return { ok: true, text }; },
   clearCharacterAN: async () => { host.calls.push("an:clear"); return { ok: true, text: "" }; },
-  applyPreset: () => ({ ok: true, name: "P" }),
-  presetBackend: () => "textgenerationwebui",
-  readAppliedPreset: () => null,
-  findTextGenPreset: () => null,
+  samplerApi: () => "textgen",
+  readSamplerPreset: () => null,
   disableWIEntry: async () => ({ ok: true, changed: true }),
   enableWIEntry: async () => ({ ok: true, changed: true }),
   lorebookExists: async () => true,
@@ -29,6 +27,7 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 import { EffectsApplier } from "./effectsApplier";
+import { samplerOverlay } from "./samplerOverlay";
 import { reconcileLedger } from "./effectLedger";
 import { restoreEffectTarget } from "./effectHost";
 import type { EffectLedgerRow, RuntimeExtras } from "./types";
@@ -163,14 +162,16 @@ describe("V15b: every checkpoint effect goes through the ledger", () => {
     expect(extras.effects.ledger.find((row) => row.effect === "background")).toMatchObject({ status: "failed", reason: "ST did not switch" });
   });
 
-  it("a preset row is left in place and said so, never attempted and marked revert-failed", async () => {
+  it("a preset row is an overlay: restart disarms it, attempts no host restore and claims nothing was left in place", async () => {
     const h = harness();
-    const preset = { id: "p1", effect: "preset", status: "applied", target: { kind: "preset", name: "Hot", api: "textgenerationwebui" }, before: { name: "Cold" }, after: { name: "Hot" }, checkpointId: "cp", boundary: 1, messageId: 3, at: "t" } as unknown as EffectLedgerRow;
+    samplerOverlay.set({ chatId: host.chatId, checkpointId: "cp", name: "Hot", api: "textgen", values: { temperature: 1.2 }, unknown: [] });
+    const preset = { id: "p1", effect: "preset", status: "applied", target: { kind: "preset", name: "Hot", api: "textgen" }, before: null, after: { name: "Hot" }, checkpointId: "cp", boundary: 1, messageId: 3, at: "t" } as unknown as EffectLedgerRow;
     const extras = extrasFor([preset]);
     await h.applier.restoreFor(extras, "restart");
     expect(h.restored).toEqual([]);
     expect(extras.effects.ledger[0].status).toBe("applied");
-    expect(h.notes).toContain("1 host change(s) this story cannot put back were left in place");
+    expect(h.notes.join("|")).not.toContain("left in place");
+    expect(samplerOverlay.view()).toBeNull();
   });
 
   it("the restore seams answer what the host did: a refused background is not called restored", async () => {

@@ -76,6 +76,9 @@ const DriverPanel: React.FC<Props> = ({ context, checkpoints, activeNudge, contr
     <div className="flex flex-col gap-2 text-xs" aria-label="In-play driver">
       <div className="font-medium opacity-100">Driver</div>
       <div className="opacity-80">Active: {context.activeCheckpointId ?? "—"} — {context.activeObjective || "(no objective)"}</div>
+      {authorView && context.ownNote === false && (
+        <div data-so="driver-objective-line" className="opacity-80">No author note of its own; objective line {context.objectiveLine ? "on" : "off"}</div>
+      )}
       {authorView && agency && (
         <div data-so="agency-policy" className="opacity-80">
           <div className="font-medium opacity-100">Agency</div>

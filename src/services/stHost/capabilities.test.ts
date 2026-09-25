@@ -1,7 +1,7 @@
-const mockHost = { parser: true, commands: ["bg", "sendas"], judge: { configured: true } as { configured: boolean } | null, vectorStatus: 200, vectorThrows: false, fetches: 0, judgeCalls: 0, backgrounds: { background_settings: { name: "tavern.jpg" } } as unknown, hostVersion: null as { version: string; commit: string | null; branch: string | null } | null, macroEngine: "new" as "new" | "legacy" | "unknown" };
+const mockHost = { parser: true, commands: ["bg", "sendas"], judge: { configured: true } as { configured: boolean } | null, vectorStatus: 200, vectorThrows: false, fetches: 0, judgeCalls: 0, backgrounds: { background_settings: { name: "tavern.jpg" } } as unknown, hostVersion: null as { version: string; commit: string | null; branch: string | null } | null, macroEngine: "new" as "new" | "legacy" | "unknown", script: { getMaxContextTokens: () => 98304, getMaxResponseTokens: () => 600, getMaxPromptTokens: () => 97704 } as Record<string, unknown> | null };
 
 jest.mock("./context", () => ({
-  getContext: () => ({ getRequestHeaders: () => ({ "X-CSRF-Token": "t" }) }),
+  getContext: () => ({ getRequestHeaders: () => ({ "X-CSRF-Token": "t" }), mainApi: "textgenerationwebui" }),
   hostMacrosAvailable: () => mockHost.parser,
 }));
 
@@ -21,6 +21,7 @@ jest.mock("./selectors", () => ({
 // backgrounds probe is driven through the one export it reads.
 jest.mock("./modules", () => ({
   get backgroundsModule() { return mockHost.backgrounds; },
+  get scriptModule() { return mockHost.script; },
 }));
 
 jest.mock("./version", () => ({
@@ -49,6 +50,7 @@ describe("capability probes", () => {
     mockHost.backgrounds = { background_settings: { name: "tavern.jpg" } };
     mockHost.hostVersion = { version: "1.13.4", commit: "abc1234", branch: "release" };
     mockHost.macroEngine = "new";
+    mockHost.script = { getMaxContextTokens: () => 98304, getMaxResponseTokens: () => 600, getMaxPromptTokens: () => 97704 };
     globalThis.fetch = okFetch(mockHost.vectorStatus) as unknown as typeof fetch;
   });
 
@@ -133,5 +135,12 @@ describe("capability probes", () => {
     mockHost.hostVersion = null;
     mockHost.macroEngine = "unknown";
     await expect(hostFacts()).resolves.toEqual({ stVersion: null, stCommit: null, macroEngine: "unknown" });
+  });
+
+  it("states the main API's prompt budget as present, and a build without the exports as absent", async () => {
+    await expect(probeCapability("contextBudget")).resolves.toMatchObject({ state: "present", detail: expect.stringContaining("97704") });
+    mockHost.script = {};
+    invalidateCapabilities();
+    await expect(probeCapability("contextBudget")).resolves.toMatchObject({ state: "absent" });
   });
 });

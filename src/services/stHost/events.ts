@@ -40,6 +40,9 @@ export interface HostEventPayloads {
   PERSONA_CHANGED: [avatar: string];
   CHARACTER_MESSAGE_RENDERED: [messageId: number, messageType?: string];
   PRESET_CHANGED: [payload: { apiId: string; name: string }];
+  // v2.4 06-H1/H2: script.js:5318 (main Generate only, dry runs too) and openai.js:3146 (every CC request, awaited before fetch).
+  GENERATE_AFTER_DATA: [generateData: Record<string, unknown>, dryRun?: boolean];
+  CHAT_COMPLETION_SETTINGS_READY: [generateData: Record<string, unknown>];
   // v2.4 03-H9: script.js:7151-7157, fires on change only and for the main API only.
   ONLINE_STATUS_CHANGED: [status: string];
   // v2.4 03-H10: connection-manager/index.js:347,780,796,879,996,1015 (keys events.js:82-84).

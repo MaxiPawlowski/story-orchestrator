@@ -42,6 +42,8 @@ jest.mock("@services/STAPI", () => ({
   resolveGroupMemberId: jest.fn(() => null),
   getCharacterNameById: jest.fn(() => undefined),
   readInjectedPromptBlocks: () => [],
+  readExtensionPromptBlocks: () => ({ own: [], foreign: [] }),
+  readPromptBudget: () => ({ ok: false, reason: "no host in this test" }),
   showTextPopup: jest.fn(async () => undefined),
   showConfirmPopup: jest.fn(async () => confirmAnswer),
 }));

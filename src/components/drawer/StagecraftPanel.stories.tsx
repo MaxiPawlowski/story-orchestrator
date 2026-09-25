@@ -4,6 +4,7 @@ import type { RuntimeManager } from "@runtime/index";
 import type { CuratorOpRecord, CuratorProposalRecord, StagecraftAcceptMode } from "@stagecraft/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { StagecraftPanel } from "./StagecraftPanel";
+import { MessageJumpProvider } from "./MessageCitation";
 
 const patchOp = (status: CuratorOpRecord["status"] = "pending"): CuratorOpRecord => ({
   op: { kind: "patch", lorebook: "Xentar Checkpoints", comment: "The dawn wards", anchor: "The wards hold || until dawn", replace: "The wards are broken" },
@@ -113,6 +114,57 @@ export const NoAllowlist: Story = {
   },
 };
 
+// v2.4 plan 06 T17.4: the card shows what the write changes, word by word, and the diff follows the draft.
+export const DiffOnPatch: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const diff = canvasElement.querySelector('[data-so="curator-diff"]') as HTMLElement;
+    await expect(diff).not.toBeNull();
+    await expect(diff.querySelector("del")?.textContent).toContain("hold the gate until dawn");
+    await expect(diff.querySelector("ins")?.textContent).toContain("are broken");
+    const field = canvas.getByRole("textbox");
+    await userEvent.clear(field);
+    await userEvent.type(field, "The wards are ash");
+    await expect(diff.querySelector("ins")?.textContent).toContain("are ash");
+  },
+};
+
+export const RewriteRefusedPartialView: Story = {
+  args: { snapshot: snapshot({ proposals: [{ ...proposal([]), dropped: ["rewrite: only part of this entry was shown; propose a [patch]"] }] }) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/only part of this entry was shown; propose a \[patch\]/)).toBeInTheDocument();
+    await expect(canvas.queryByRole("button", { name: "Accept" })).toBeNull();
+  },
+};
+
+const fuzzyOp: CuratorOpRecord = {
+  op: { kind: "patch", lorebook: "Xentar Checkpoints", comment: "The dawn wards", anchor: "wards hold gate || until dawn", replace: "wards are broken", uid: 3 },
+  status: "pending",
+  message: 'Patch "The dawn wards" (near match, 86%)',
+  before: { content: "The wards hold the gate until dawn.", disabled: false, uid: 3 },
+  fuzzy: { anchor: "wards hold the gate || until dawn", span: "wards hold the gate until dawn", score: 0.86 },
+};
+
+export const FuzzyAnchorShownSpan: Story = {
+  args: { snapshot: snapshot({ proposals: [proposal([fuzzyOp])] }), manager: fakeManager() },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/near match, 86%: “wards hold the gate until dawn”/)).toBeInTheDocument();
+    await expect(canvasElement.querySelector('[data-so="curator-diff"] ins')?.textContent).toContain("are broken");
+    await userEvent.click(canvas.getByRole("button", { name: "Accept" }));
+    await expect(args.manager.setCuratorOpDecision).toHaveBeenCalledWith("wi-4-6", 0, "accepted", undefined);
+  },
+};
+
+export const DeclinedDropped: Story = {
+  args: { snapshot: snapshot({ proposals: [{ ...proposal([]), dropped: ['rewrite: "The dawn wards" was declined earlier'] }] }) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/dropped — rewrite: "The dawn wards" was declined earlier/)).toBeInTheDocument();
+  },
+};
+
 const wardenNote = (status: CuratorOpRecord["status"], message?: string): CuratorProposalRecord => ({
   id: "warden-5-7",
   curator: "warden",
@@ -214,3 +266,21 @@ export const WardenFamiliesAwaitingReview: Story = {
   },
 };
 
+// v2.4 plan 08 T19d: the warden card's cited message opens in the chat, best-effort when no boundary fingerprinted it.
+const jumpFromCard = fn();
+
+export const WardenNoteMessageOpensInTheChat: Story = {
+  args: { snapshot: snapshot({ wardenEnabled: true, proposals: [wardenNote("pending")] }), manager: fakeManager() },
+  render: (args) => (
+    <MessageJumpProvider value={{ enabled: true, index: null, onJump: jumpFromCard }}>
+      <StagecraftPanel {...args} />
+    </MessageJumpProvider>
+  ),
+  play: async ({ canvasElement }) => {
+    const button = canvasElement.querySelector('[data-so="warden-fact-origin"] [data-so="jump-to-message"]') as HTMLButtonElement;
+    await expect(button).toHaveTextContent("message 4 (best-effort)");
+    await expect(canvasElement.querySelectorAll('[data-so="jump-to-message"]')).toHaveLength(1);
+    await userEvent.click(button);
+    await expect(jumpFromCard).toHaveBeenCalledWith(4);
+  },
+};

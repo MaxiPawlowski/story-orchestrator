@@ -134,3 +134,12 @@ describe("v2.4 E3: settings-store writes record save evidence", () => {
     await expect(heard[0].evidence).resolves.toEqual<LibrarySaveEvidence>({ confirmed: false, reason: "the server holds other settings than this save wrote" });
   });
 });
+
+describe("per-pass profiles live install-wide (v2.4 plan 08 T18)", () => {
+  it("keeps valid role routes, drops blank and unknown ones, and adds nothing at the defaults", () => {
+    const sanitized = sanitizeGlobalSettings({ extraction: { profileId: "memory", profiles: { director: "fast", curator: "", bogus: "x" } } });
+    expect(sanitized.extraction.profiles).toEqual({ director: "fast" });
+    expect("profiles" in sanitizeGlobalSettings({ extraction: { profileId: "memory" } }).extraction).toBe(false);
+    expect("profiles" in defaultGlobalSettings().extraction).toBe(false);
+  });
+});

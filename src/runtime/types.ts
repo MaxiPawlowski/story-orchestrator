@@ -2,7 +2,7 @@ import type { AgencyPolicy, ArcTemplate, EngineState, NormalizedStoryV2, Primiti
 import type { JudgeCallRecord, JudgeMeterView, JudgeRuntimeState, SceneReadRecord } from "@judge/index";
 import type { ExtractionHealth, ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
-import type { ConflictPair, ArcEntry, DerivedRecord, EpistemicEntry, LedgerEntry, LedgerView, MemoryEntry, MemoryStoreState, MemoryTier, Provenance, ScoreWeights } from "@memory/index";
+import type { ConflictPair, ArcEntry, DerivedRecord, EpistemicEntry, LedgerEntry, LedgerView, MemoryEntry, MemoryInjectionView, MemoryStoreState, MemoryTier, Provenance, ScoreWeights } from "@memory/index";
 import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
 import type { CuratorPassAudit, CuratorProposalRecord, StagecraftAcceptMode } from "@stagecraft/index";
@@ -10,10 +10,14 @@ import type { JournalRecord } from "./journal";
 import type { EngineHistory } from "@engine/index";
 import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./narrative";
 import type { AgencyRecovery } from "./agencyRecovery";
-import type { NextTurnContributor } from "./nextTurn";
+import type { NextTurnContributor, NextTurnCost, NextTurnForeignRow } from "./nextTurn";
+import type { ChatJumpIndex } from "./messageJump";
+import type { PassProfiles } from "./passProfiles";
+import type { RoleRouteView } from "./roleHealth";
 import type { PipelineStatus } from "./pipeline";
 import type { OrphanedLorebook } from "./mirrorReaper";
 import type { LoreEvidenceView } from "./worldInfoEvidence";
+import type { SamplerOverlayView } from "./samplerOverlay";
 import type { ScanGateView } from "./worldInfoMode";
 import type { MessageFingerprints } from "./fingerprints";
 import type { ChatIdentitySnapshot } from "./chatIdentity";
@@ -271,6 +275,8 @@ export interface TensionRuntimeState {
 export interface ExtractionRuntimeSettings {
   enabled: boolean;
   profileId: string | null;
+  /** v2.4 plan 08 T18: install-wide per-role profiles; an unset role uses `profileId`. */
+  profiles?: PassProfiles;
   cadence: number;
   reconciliationMultiplier: number;
   stabilityLag: number;
@@ -392,6 +398,8 @@ export interface RuntimeSnapshot {
   loreEvidence?: LoreEvidenceView;
   /** v2.4 plan 05 T13 spike (S5, author only): the last gated scan, per gated entry; null unless scan gating is active. */
   scanGate?: ScanGateView | null;
+  /** v2.4 plan 06 (X20, author only): the sampler overlay this checkpoint put on its replies, or null. */
+  samplerOverlay?: SamplerOverlayView | null;
   // The story's authored curator allowlist, so the review panel can say what is in scope without
   // reading the story record itself.
   stagecraftScope: string[];
@@ -415,11 +423,21 @@ export interface RuntimeSnapshot {
   lastRollback: RollbackNotice | null;
   rollbackUnavailable: RollbackUnavailable | null;
   ledger: LedgerView[];
+  /** v2.4 plan 08 T19c: each memory row's fate and each tier's trim, from the last injection (author view, in memory only). */
+  memoryInjection: MemoryInjectionView | null;
   driver: DriverContext | null;
   activeNudge: string | null;
   payloadCaptures: PayloadCapture[];
   /** v2.3 plan 09 (author view): what the next reply will receive, one row per injected block. */
   nextTurn: NextTurnContributor[];
+  /** v2.4 plan 08 T19b: other extensions' blocks beside ours, read-only and never persisted. */
+  nextTurnForeign: NextTurnForeignRow[];
+  /** v2.4 plan 08 T19a: the story blocks' tokens as a share of the main API's prompt budget. */
+  nextTurnCost: NextTurnCost;
+  /** v2.4 plan 08 T19d: which cited messages still read as a boundary fingerprinted them. */
+  chatJump: ChatJumpIndex;
+  /** v2.4 plan 08 T18: which profile each family of passes asks, and whether it answers. */
+  roleRoutes?: RoleRouteView[];
 }
 
 export interface LoadedStory {

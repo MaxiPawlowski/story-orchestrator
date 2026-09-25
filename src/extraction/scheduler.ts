@@ -2,7 +2,7 @@ import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engi
 import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine } from "@memory/index";
 import type { ExtraGateSource, TypedJudge } from "./types";
 import { getChatWindow } from "./chatWindow";
-import { Breaker, DANGLING_PROFILE_DETAIL, failureClass, type ExtractionHealth, type ProbeResult, type ProbeTrigger } from "./breaker";
+import { Breaker, DANGLING_PROFILE_DETAIL, failedProfile, failureClass, type ExtractionHealth, type ProbeResult, type ProbeTrigger } from "./breaker";
 import { isLapse } from "./client";
 import { runSharedRead, sharedReadWindow } from "./sharedRead";
 import type { RequestBudget } from "./tokenMeter";
@@ -45,6 +45,7 @@ export interface SchedulerJob {
   reason: string;
   window?: SharedReadWindow;
   run?: () => Promise<void>;
+  heldOn?: string;
 }
 
 export interface SchedulerHost {
@@ -95,9 +96,10 @@ const errorText = (error: unknown, fallback: string): string => (error instanceo
 export class ExtractionScheduler {
   private readonly queue: SchedulerJob[] = [];
   private readonly breaker = new Breaker();
-  private probeTimer: ReturnType<typeof setTimeout> | null = null;
-  private probing: Promise<boolean> | null = null;
+  private readonly probeTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  private readonly probing = new Map<string, Promise<boolean>>();
   private configProblem: string | null = null;
+  private readonly profileProblems = new Map<string, string>();
   private readonly heavyQueue: SchedulerJob[] = [];
   private inFlight = false;
   private heavyInFlight = false;
@@ -207,9 +209,25 @@ export class ExtractionScheduler {
     this.queue.sort((left, right) => left.priority - right.priority);
   }
 
-  breakerOpen(): boolean {
-    const profileId = this.host.getExtractionSettings().profileId;
+  private readProfile(): string | null {
+    return this.host.getExtractionSettings().profileId;
+  }
+
+  breakerOpen(profileId: string | null = this.readProfile()): boolean {
     return Boolean(profileId && this.breaker.isOpen(profileId));
+  }
+
+  /** v2.4 plan 08 T18: a routed profile's own reading, for its Repair row. */
+  profileHealth(profileId: string): ExtractionHealth | null {
+    if (profileId === this.readProfile() && this.configProblem) return { kind: "config", detail: this.configProblem };
+    const problem = this.profileProblems.get(profileId);
+    if (problem) return { kind: "config", detail: problem };
+    const entry = this.breaker.entry(profileId);
+    return entry ? { kind: "transport", detail: entry.lastFailure, since: entry.openedAt, nextProbeAt: entry.nextProbeAt, probing: entry.phase === "half-open" } : null;
+  }
+
+  private runnable(queue: SchedulerJob[]): number {
+    return queue.findIndex((job) => !job.heldOn || !this.breaker.isOpen(job.heldOn));
   }
 
   health(): ExtractionHealth | null {
@@ -226,7 +244,7 @@ export class ExtractionScheduler {
   reevaluateConfig(clearOther = true) {
     const profileId = this.host.getExtractionSettings().profileId;
     const dangling = this.dangling(profileId);
-    if (dangling && profileId && this.breaker.close(profileId)) this.clearProbeTimer();
+    if (dangling && profileId && this.breaker.close(profileId)) this.clearProbeTimer(profileId);
     const next = dangling ? DANGLING_PROFILE_DETAIL : clearOther || this.configProblem === DANGLING_PROFILE_DETAIL ? null : this.configProblem;
     if (next === this.configProblem) return;
     this.configProblem = next;
@@ -234,18 +252,19 @@ export class ExtractionScheduler {
     if (!next) this.pumpAll();
   }
 
-  probe(trigger: ProbeTrigger): Promise<boolean> {
-    const profileId = this.host.getExtractionSettings().profileId;
+  probe(trigger: ProbeTrigger, profileId: string | null = this.readProfile()): Promise<boolean> {
     if (!profileId || !this.breaker.isOpen(profileId)) {
       this.pumpAll();
-      return Promise.resolve(this.configProblem === null);
+      return Promise.resolve(profileId === this.readProfile() ? this.configProblem === null : !this.profileProblems.has(profileId ?? ""));
     }
-    if (this.probing) return this.probing;
+    const running = this.probing.get(profileId);
+    if (running) return running;
     if (!this.breaker.beginProbe(profileId)) return Promise.resolve(false);
-    this.clearProbeTimer();
+    this.clearProbeTimer(profileId);
     this.host.onSchedulerChange();
-    this.probing = this.runProbe(profileId, trigger).finally(() => { this.probing = null; });
-    return this.probing;
+    const probing = this.runProbe(profileId, trigger).finally(() => { this.probing.delete(profileId); });
+    this.probing.set(profileId, probing);
+    return probing;
   }
 
   private async runProbe(profileId: string, trigger: ProbeTrigger): Promise<boolean> {
@@ -261,7 +280,9 @@ export class ExtractionScheduler {
       this.host.noteHealth?.("memory model answering again", `probe (${trigger}) succeeded`);
     } else if (result.kind === "config") {
       this.breaker.close(profileId);
-      this.configProblem = this.dangling(profileId) ? DANGLING_PROFILE_DETAIL : result.message ?? "the memory model profile cannot be used";
+      const detail = this.dangling(profileId) ? DANGLING_PROFILE_DETAIL : result.message ?? "the memory model profile cannot be used";
+      if (profileId === this.readProfile()) this.configProblem = detail;
+      else this.profileProblems.set(profileId, detail);
     } else {
       this.breaker.probeFailed(profileId, result.message ?? "the memory model did not answer", Date.now());
       this.armProbe(profileId);
@@ -271,29 +292,35 @@ export class ExtractionScheduler {
     return result.ok;
   }
 
+  private noteConfig(profileId: string | null, detail: string) {
+    if (!profileId || profileId === this.readProfile()) this.configProblem = detail;
+    else this.profileProblems.set(profileId, detail);
+  }
+
   private trip(profileId: string, detail: string) {
     if (!this.breaker.trip(profileId, detail, Date.now())) return;
-    this.host.noteHealth?.("memory model not answering; reads held", detail);
+    this.host.noteHealth?.(profileId === this.readProfile() ? "memory model not answering; reads held" : `model profile ${profileId} not answering; its passes held`, detail);
     this.armProbe(profileId);
   }
 
   private armProbe(profileId: string) {
-    this.clearProbeTimer();
+    this.clearProbeTimer(profileId);
     const entry = this.breaker.entry(profileId);
     if (!entry) return;
-    this.probeTimer = globalThis.setTimeout(() => {
-      this.probeTimer = null;
-      void this.probe("backoff");
-    }, Math.max(0, entry.nextProbeAt - Date.now()));
+    this.probeTimers.set(profileId, globalThis.setTimeout(() => {
+      this.probeTimers.delete(profileId);
+      void this.probe("backoff", profileId);
+    }, Math.max(0, entry.nextProbeAt - Date.now())));
   }
 
-  private clearProbeTimer() {
-    if (this.probeTimer !== null) globalThis.clearTimeout(this.probeTimer);
-    this.probeTimer = null;
+  private clearProbeTimer(profileId: string) {
+    const timer = this.probeTimers.get(profileId);
+    if (timer !== undefined) globalThis.clearTimeout(timer);
+    this.probeTimers.delete(profileId);
   }
 
   dispose() {
-    this.clearProbeTimer();
+    for (const profileId of [...this.probeTimers.keys()]) this.clearProbeTimer(profileId);
   }
 
   private pumpAll() {
@@ -302,7 +329,7 @@ export class ExtractionScheduler {
   }
 
   private noteFailure(error: unknown, job: SchedulerJob, startedEpoch: number, heavy: boolean, read: LapsedRead | null = null) {
-    const profileId = this.host.getExtractionSettings().profileId;
+    const profileId = failedProfile(error) ?? this.readProfile();
     const failure = failureClass(error);
     const message = errorText(error, heavy ? "Background generation failed" : "Extraction failed");
     if (failure === "lapsed") {
@@ -311,10 +338,11 @@ export class ExtractionScheduler {
     } else if (failure === "transport" && profileId) {
       this.trip(profileId, message);
       if (!this.sameWorld(startedEpoch)) return;
-      if (heavy) this.heavyQueue.unshift(job);
-      else this.hold(job);
+      const held = { ...job, heldOn: profileId };
+      if (heavy) this.heavyQueue.unshift(held);
+      else this.hold(held);
     } else if (failure === "config") {
-      this.configProblem = this.dangling(profileId) ? DANGLING_PROFILE_DETAIL : message;
+      this.noteConfig(profileId, this.dangling(profileId) ? DANGLING_PROFILE_DETAIL : message);
     } else if (this.sameWorld(startedEpoch)) {
       if (heavy) this.lastHeavyError = message;
       else this.lastError = message;
@@ -329,6 +357,7 @@ export class ExtractionScheduler {
 
   onBoundary(boundary: number, fired: boolean, lastMessageId: number) {
     this.reevaluateConfig(false);
+    for (const profileId of [...this.profileProblems.keys()]) if (!this.dangling(profileId)) this.profileProblems.delete(profileId);
     if (this.lastError) {
       this.lastError = null;
       this.host.onSchedulerChange();
@@ -364,8 +393,9 @@ export class ExtractionScheduler {
 
   private async pump() {
     if (this.inFlight || this.settling || this.breakerOpen()) return;
-    const job = this.queue.shift();
-    if (!job) return;
+    const index = this.runnable(this.queue);
+    if (index < 0) return;
+    const [job] = this.queue.splice(index, 1);
     // The world this job belongs to, read before it runs (v2.3 plan 03 §Abort and cleanup).
     const startedEpoch = this.host.epoch?.() ?? 0;
     const story = this.host.getStory();
@@ -386,7 +416,7 @@ export class ExtractionScheduler {
         const window = sharedReadWindow({ state, priority, window: job.window && getChatWindow(job.window.from, job.window.to), stabilityLag: settings.stabilityLag });
         const ownership = this.host.beginRead?.({ from: window.from, to: window.to }) ?? null;
         read = ownership ? { ownership, window: { from: window.from, to: window.to } } : null;
-        const client = ownership?.signal ? { ...settings, signal: ownership.signal } : settings;
+        const client = { ...settings, role: "read" as const, ...(ownership?.signal ? { signal: ownership.signal } : {}) };
         const result = await this.runWithRetries(() => runSharedRead({ story, state, priority, reason: job.reason, window, stabilityLag: settings.stabilityLag, firedTransitions: this.host.getFiredTransitions(), facts: this.host.getFacts(), extraGateSources: this.host.getExpansionGateSources(), openArcs: this.host.getOpenArcs(), epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false, entities: this.host.getEntities?.() ?? [], judgeTyped: this.host.judgeTyped?.() ?? null, client }));
         await this.host.applyExtractionAudit(result.audit, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, ownership);
         if (read) this.rereadIfMutated(read, startedEpoch);
@@ -406,11 +436,11 @@ export class ExtractionScheduler {
 
   private async pumpHeavy() {
     if (this.heavyInFlight || this.breakerOpen()) return;
-    const next = this.heavyQueue[0];
+    const index = this.runnable(this.heavyQueue);
+    const next = index < 0 ? undefined : this.heavyQueue[index];
     if (!next) return;
     if (next.priority === 4 && this.underPressure()) return;
-    const job = this.heavyQueue.shift();
-    if (!job) return;
+    const [job] = this.heavyQueue.splice(index, 1);
     if (!job.run) return;
     const startedEpoch = this.host.epoch?.() ?? 0;
     this.heavyInFlight = true;

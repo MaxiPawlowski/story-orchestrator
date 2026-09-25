@@ -3,8 +3,11 @@ export { showTextPopup, showConfirmPopup, showChoicePopup } from "@services/stHo
 export { bindNavbarDrawerToggle, toggleNavbarDrawer } from "@services/stHost/drawers";
 export { sendSystemChatMessage } from "@services/stHost/chatMessages";
 export type { TextPopupOptions, ConfirmPopupOptions, ChoicePopupOptions } from "@services/stHost/popup";
-export { readInjectedPromptBlocks } from "@services/stHost/promptInspector";
-export type { InjectedPromptBlock } from "@services/stHost/promptInspector";
+export { readExtensionPromptBlocks, readInjectedPromptBlocks } from "@services/stHost/promptInspector";
+export type { ExtensionPromptBlock, ExtensionPromptBlocks, InjectedPromptBlock } from "@services/stHost/promptInspector";
+export { readPromptBudget } from "@services/stHost/contextBudget";
+export { sendChatJump } from "@services/stHost/chatJump";
+export type { PromptBudget, PromptBudgetRead } from "@services/stHost/contextBudget";
 export type { StoryOrchestratorHostContext } from "@services/stHost/context";
 export { subscribeToHostEvent, subscribeToHostEvents } from "@services/stHost/events";
 export type { HostEventPayloads, HostEventName, TypedHostEventHandler, HostSubscriptionEntry } from "@services/stHost/events";
@@ -18,11 +21,6 @@ export {
   setGenerationParamsFromPreset,
   getTextGenSettingNames,
   findTextGenPreset,
-  applyPreset,
-  presetBackend,
-  readAppliedPreset,
-  PRESET_UNSUPPORTED_REASON,
-  type PresetBackend,
   type TextGenPreset,
 } from "@services/stHost/presets";
 export type { WriteResult } from "@utils/writeResult";
@@ -39,7 +37,7 @@ export { executeSlashCommands } from "@services/stHost/slashCommands";
 export { observeNextSave, observeNextSettingsSave, saveOpenChat, installSaveWatcher, readServerBoundary, readServerExtensionSettings, saveWatcherStats, boundaryInBlob, SAVE_OBSERVE_MS, type SaveObservation } from "@services/stHost/persistence";
 export { applyCharacterAN, clearCharacterAN } from "@services/stHost/authorNotes";
 export { setStoryExtensionPrompt, clearStoryExtensionPrompt } from "@services/stHost/extensionPrompts";
-export { getWorldInfoSettings, enableWIEntry, disableWIEntry, upsertWIEntry, readWIEntry, readWIEntryAt, restoreWIEntryAt, createLorebook, deleteLorebook, ensureLorebook, bindChatLorebook, unbindChatLorebook, activateGlobalLorebook, loadLorebook, lorebookExists, listAllLorebooks, lorebookFileId } from "@services/stHost/worldInfo";
+export { getWorldInfoSettings, enableWIEntry, disableWIEntry, upsertWIEntry, readWIEntry, readWIEntryAt, restoreWIEntryAt, updateWIEntryByUid, createLorebook, deleteLorebook, ensureLorebook, bindChatLorebook, unbindChatLorebook, activateGlobalLorebook, loadLorebook, lorebookExists, listAllLorebooks, lorebookFileId } from "@services/stHost/worldInfo";
 export type { ChatLorebookBinding, Lorebook, LoreEntry, WIUpsertResult, WIEntrySnapshot, WIEntryTarget } from "@services/stHost/worldInfo";
 export { currentChatOwner, probeChatFile } from "@services/stHost/chatFiles";
 export type { ChatOwner, ChatPresence } from "@services/stHost/chatFiles";
@@ -60,6 +58,7 @@ export { getActiveGroup, resolveGroupMemberId, setGroupMembersDisabled, setGroup
 export { hostSystemUserName, isHostGenerating, willAddUserMessage } from "@services/stHost/generation";
 export { forceActivateEntries, getScannableEntries, type HostScannableEntry } from "@services/stHost/worldInfoActivate";
 export { observeWorldInfoScans, loadedEntries, type HostEntriesLoaded, type WorldInfoScanObservation } from "@services/stHost/worldInfoEvidence";
+export { observeSamplerPayloads, readSamplerPreset, samplerApi, type SamplerPayloadHandlers } from "@services/stHost/samplerOverlay";
 export { installScanGating, probeScanGating, type ScanGatingHandle } from "@services/stHost/worldInfoScan";
 export { getSelectedConnectionProfileId, listConnectionProfiles, profileExists, sendConnectionProfileRequest } from "@services/stHost/connectionProfiles";
 export type { ModelFailureKind, ModelFinish, ModelReply, ModelRequestOptions, ModelSamplers } from "@services/stHost/modelReply";

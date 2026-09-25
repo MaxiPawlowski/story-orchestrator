@@ -1,0 +1,113 @@
+v2.4 plan 06 steering + stagecraft (T16 objective line, T17 curator hardening, seed A sampler overlay, F5 Phase A candidate guards), mutations 2026-09-25 (worktree build on 148e576 plus the overlay/F5 work committed with this file; script .debug/mut-v24-06.mjs, each mutant applied alone as an exact-text replacement to one file (matched CRLF-normalised, the original bytes restored after its run); a replacement that does not match is reported DID NOT APPLY, and none did)
+Suites per group: STAGE = src/stagecraft (stagecraft, hardening) + stagecraftCoordinator(.review).test (114; 115 after the M6 test); WI = stHost/worldInfo.test (37); T16 = objectiveLine, guidance, storyDiff, diagnostics, runtimeManager.test (169); OVERLAY = samplerKeys, samplerOverlay, samplerOverlayEffect, samplerOverlayHost (30); F5 = createCandidate.test (19). Baseline 14 suites / 350 tests green before the sweep; no mutated file was left behind after it.
+Plan-table mutations: length refusal = M1, startsWith fallback = M2, declined filter = M4, auto takes fuzzy = M7, updateWIEntryByUid creates = M11, overlay re-adds a key = M20, overlay on quiet = M21. The four F5 built-op mutations of the plan table (created dropped from stripGlobalSettings, create in auto, create through bulk accept, revert deletes an edited entry) are NOT run: the create op is not built, because Phase A has not run live. M30-M33 cover the candidate guards Phase A measures through.
+One survivor, fixed: M6 (declined memory ignoring checkpointStartedBoundary) survived the first sweep. Test "T17.3: a decline from an earlier visit to this checkpoint does not bind the next visit" was added, and the rerun kills it (below).
+
+- M1 rewrite length refusal removed (a partly shown entry may be rewritten whole): KILLED, 2 of 114
+    "T17.1 rewrite-length refusal marks an entry shown in part, and refuses a rewrite of it at plan time"
+    "T17.1 rewrite-length refusal refuses the same rewrite at the write edge, where the preview runs again"
+- M2 startsWith title fallback restored (prefix match): KILLED, 1 of 114
+    "T17.2 uid addressing drops a prefix title instead of guessing the entry"
+- M3 ambiguous title resolves to the first entry: KILLED, 1 of 114
+    "T17.2 uid addressing drops an ambiguous title and names the count"
+- M4 declined filter skipped: KILLED, 2 of 114
+    "T17.3 declined-op memory drops a re-proposal of a declined op, whatever its whitespace or case"
+    "StagecraftCoordinator T17.3: an op the author declined at this checkpoint is not proposed again, and the prompt says so"
+- M5 declined list left out of the prompt: KILLED, 2 of 114
+    "T17.3 declined-op memory tells the curator what the author declined, bounded"
+    "StagecraftCoordinator T17.3: an op the author declined at this checkpoint is not proposed again, and the prompt says so"
+- M6 declined memory ignores the checkpoint boundary (all history): SURVIVED (114 tests), first sweep
+- M7 auto mode takes a fuzzy match: KILLED, 2 of 114
+    "T17.5 fuzzy anchors, review mode only auto never takes a fuzzy match"
+    "StagecraftCoordinator T17.5: auto mode never takes a near match"
+- M8 fuzzy accepts an ambiguous anchor (second candidate ignored): KILLED, 1 of 114
+    "T17.5 fuzzy anchors, review mode only makes no false match on any anchor-absent negative (the floor)"
+- M9 fuzzy threshold 0.8 -> 0.5: KILLED, 1 of 114
+    "T17.5 fuzzy anchors, review mode only declares the threshold the fixture was labelled against"
+- M10 accepting a near match keeps the model's anchor (not the matched text): KILLED, 3 of 114
+    "T17.5 fuzzy anchors, review mode only offers a near match on a review card with the span and score, and accept rewrites the anchor to the exact text"
+    "T17.5 fuzzy anchors, review mode only an edited text on a near-match card keeps the exact anchor"
+    "StagecraftCoordinator T17.5: accepting a near-match patch writes the exact span it showed"
+- M11 updateWIEntryByUid creates a missing entry: KILLED, 1 of 37
+    "updateWIEntryByUid (v2.4 plan 06 T17.2) never creates: a missing uid is a refusal and the book is not saved"
+- M12 writeOp writes a deleted entry (gone check removed): KILLED, 1 of 114
+    "StagecraftCoordinator T17.2: an entry deleted before the boundary fails its op and is never re-created"
+- M13 writeOp skips the re-check on the live (renamed) title: KILLED, 1 of 114
+    "StagecraftCoordinator T17.2: an entry renamed into a checkpoint-gated title is refused at the write edge"
+- M14 objective_block off ignored: KILLED, 5 of 169
+    "objectiveLineApplies (v2.4 plan 06 T16a) is off when the story says off, whatever the checkpoint"
+    "RuntimeManager checkpoint guidance (v2.4 plan 01, D7) sets the active checkpoint's guidance on load and on activate, at depth 4, owned by the config tab"
+    "RuntimeManager checkpoint guidance (v2.4 plan 01, D7) carries the opt-in attempts clause in the block while its checkpoint is active, alone when there is no guidance (v2.4 plan 04)"
+    "RuntimeManager checkpoint guidance (v2.4 plan 01, D7) clears the block on a checkpoint whose guidance is empty"
+- M15 authored Author's Note does not suppress the objective line: KILLED, 3 of 169
+    "objectiveLineApplies (v2.4 plan 06 T16a) its own string note"
+    "objectiveLineApplies (v2.4 plan 06 T16a) its own object note"
+    "RuntimeManager checkpoint guidance (v2.4 plan 01, D7) v2.4 plan 06 T16a: adds the objective line where a checkpoint authors no note, and not where it does"
+- M16 guidance block drops the objective line: KILLED, 3 of 169
+    "objectiveLineApplies (v2.4 plan 06 T16a) rides the guidance block: after the guidance, alone without it, absent when it does not apply"
+    "RuntimeManager checkpoint guidance (v2.4 plan 01, D7) v2.4 plan 06 T16a: adds the objective line where a checkpoint authors no note, and not where it does"
+    "RuntimeManager checkpoint guidance (v2.4 plan 01, D7) carries a merged generated checkpoint's guidance once the story enters it"
+- M17 inherits-author-note diagnostic never pushed: KILLED, 3 of 169
+    "runDiagnostics fires every diagnostic exactly once on the seeded-error story"
+    "runDiagnostics checkpoint-inherits-author-note (v2.4 plan 06 T16b) names the checkpoint whose note a later one plays under, through inheriting ones, and says the objective line is added"
+    "runDiagnostics checkpoint-inherits-author-note (v2.4 plan 06 T16b) says the objective line is not added when the story switched it off"
+- M18 storyDiff misses an objective_block change: KILLED, 1 of 169
+    "storyDiff classification table keeps an objective_block switch compatible, in both directions (v2.4 plan 06 X14)"
+- M19 validate accepts any objective_block value: KILLED, 1 of 169
+    "objective_block schema (v2.4 plan 06 T16a) rejects any other value"
+- M20 overlay re-adds a key the request did not carry: KILLED, 4 of 30
+    "sampler overlay key map (v2.4 plan 06 seed A) overwrites only keys the payload already carries, and says which it skipped"
+    "SamplerOverlay (v2.4 plan 06 seed A) overwrites present sampler keys on the loud generation of its own chat, and counts it"
+    "SamplerOverlay (v2.4 plan 06 seed A) applies to a chat-completion loud request by its own type"
+    "v2.4 plan 06: a checkpoint preset is a per-request sampler overlay the armed overlay reaches this chat's loud request, and only the keys the request already carries"
+- M21 overlay applies on quiet/impersonate: KILLED, 4 of 30
+    "SamplerOverlay (v2.4 plan 06 seed A) leaves a nested quiet generation untouched"
+    "SamplerOverlay (v2.4 plan 06 seed A) leaves an impersonation untouched"
+    "SamplerOverlay (v2.4 plan 06 seed A) leaves a chat-completion quiet request untouched"
+    "v2.4 plan 06: the overlay follows the T6 lifecycle a quiet run nested in the loud one keeps its own samplers"
+- M22 overlay applies across chats: KILLED, 2 of 30
+    "SamplerOverlay (v2.4 plan 06 seed A) leaves another chat untouched"
+    "v2.4 plan 06: a checkpoint preset is a per-request sampler overlay control: an overlay armed in another chat never reaches this chat's request"
+- M23 overlay applies with no generation open / on a dry run: KILLED, 4 of 30
+    "SamplerOverlay (v2.4 plan 06 seed A) leaves a dry run untouched"
+    "SamplerOverlay (v2.4 plan 06 seed A) leaves a request with no loud generation open untouched"
+    "v2.4 plan 06: the overlay follows the T6 lifecycle a request with no generation open (an extension's own call) is left alone"
+    "v2.4 plan 06: the overlay follows the T6 lifecycle a dry run is left alone"
+- M24 a checkpoint without a preset keeps the previous overlay: KILLED, 1 of 30
+    "v2.4 plan 06: a checkpoint preset is a per-request sampler overlay a checkpoint without a preset disarms the previous checkpoint's overlay"
+- M25 leaving the chat keeps the overlay armed: KILLED, 1 of 30
+    "v2.4 plan 06: a checkpoint preset is a per-request sampler overlay leaving the chat disarms it"
+- M26 no-hook connection not refused: KILLED, 1 of 30
+    "v2.4 plan 06: a checkpoint preset is a per-request sampler overlay a connection with neither hook refuses with a reason and arms nothing"
+- M27 a preset with no sendable sampler armed anyway: KILLED, 1 of 30
+    "v2.4 plan 06: a checkpoint preset is a per-request sampler overlay a preset with no sampler the connection sends is refused"
+- M28 unknown settings not journaled: KILLED, 1 of 30
+    "v2.4 plan 06: a checkpoint preset is a per-request sampler overlay the settings a request cannot carry are named, not dropped silently"
+- M29 never-overlay keys (model/messages/stream) not protected: KILLED, 1 of 30
+    "sampler overlay key map (v2.4 plan 06 seed A) never touches prompt, model or routing keys, whatever the overlay says"
+
+Rerun after the fix:
+- M6 declined memory ignores the checkpoint boundary (all history): KILLED, 1 of 115
+    "StagecraftCoordinator T17.3: a decline from an earlier visit to this checkpoint does not bind the next visit"
+
+F5 Phase A candidate guards:
+- M30 F5 candidate: cast-name key accepted: KILLED, 2 of 19
+    "F5 code guards refuses a cast name as a key"
+    "F5 code guards a cast member's first name as a key is refused too"
+- M31 F5 candidate: existing title accepted (silent convert risk): KILLED, 1 of 19
+    "F5 code guards refuses an existing title"
+- M32 F5 candidate: no live fact needed: KILLED, 1 of 19
+    "F5 code guards refuses an entity no fact names"
+- M33 F5 candidate: a positive passes on any valid card (entity not required): KILLED, 1 of 19
+    "F5 scoring (end to end, after the code guards) a positive passes only on a valid card that names its entity"
+
+Storybook finding, fixed (DiffOnPatch / FuzzyAnchorShownSpan failed: the word diff fragmented a phrase change into interleaved single-word del/ins runs across the unchanged spaces):
+- M34 word diff not coalesced (word-by-word fragments): KILLED, 1 of 5
+    "wordDiff (v2.4 plan 06 T17.4) reads a multi-word change as one deletion and one insertion, not word-by-word fragments"
+
+## Integration follow-up (2026-09-25): a single-pipe reason after the curator's target
+Answers like "[enable] Title | reason" are off the prompted format, but a real model may add them, and T17.2's exact matching would drop them. `readOp` now retries once with the text before " | " when the whole target matches nothing. Tests are in `src/stagecraft/hardening.test.ts` (T17.2); they were red first.
+- P1 no reason retry: KILLED by "reads a trailing single-pipe reason as a reason, not part of the title"
+- P2 reason split before the whole-title match: KILLED by "control: a title that itself holds a pipe still matches whole"
+- P3 prefix match after the split: KILLED by "control: a prefix before the pipe is still no match" and the reason case
+- A retry limited to enable/disable was an equivalent mutant, so the restriction was dropped and the retry applies to every kind.

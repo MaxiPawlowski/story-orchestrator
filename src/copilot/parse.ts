@@ -321,8 +321,13 @@ const readOp = (value: unknown, path: string, issues: string[]): ProposalOp | nu
   }
   switch (value.kind) {
     case "setStoryField": {
+      if (value.field === "objective_block") {
+        if (value.value === "auto" || value.value === "off") return { kind: "setStoryField", field: "objective_block", value: value.value };
+        issues.push(`${path}.value: objective_block must be "auto" or "off"`);
+        return null;
+      }
       if (value.field !== "title" && value.field !== "description") {
-        issues.push(`${path}.field: must be title or description`);
+        issues.push(`${path}.field: must be title, description or objective_block`);
         return null;
       }
       if (typeof value.value !== "string") {

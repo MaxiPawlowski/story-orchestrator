@@ -11,6 +11,7 @@ const mockScans: { activated?: (entries: unknown[]) => void } = {};
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
+  observeSamplerPayloads: () => () => undefined,
   observeWorldInfoScans: (observers: { activated?: (entries: unknown[]) => void }) => {
     mockScans.activated = observers.activated;
     return { reassert: () => undefined, ordered: false, dispose: () => { mockScans.activated = undefined; } };
@@ -43,6 +44,8 @@ jest.mock("@services/STAPI", () => ({
   executeSlashCommands: async () => ({ pipe: "" }),
   willAddUserMessage: () => false,
   readInjectedPromptBlocks: () => [],
+  readExtensionPromptBlocks: () => ({ own: [], foreign: [] }),
+  readPromptBudget: () => ({ ok: false, reason: "no host in this test" }),
   showTextPopup: async () => undefined,
   noteHostSettingsLoaded: () => {},
 }));

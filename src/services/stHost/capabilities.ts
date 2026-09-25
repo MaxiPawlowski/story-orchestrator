@@ -1,4 +1,5 @@
 import { getContext, hostMacrosAvailable } from "./context";
+import { readPromptBudget } from "./contextBudget";
 import { judgeStatus, JUDGE_PLUGIN_BASE } from "./judge";
 import { backgroundsModule } from "./modules";
 import { listSlashCommands } from "./selectors";
@@ -14,7 +15,7 @@ import { getHostVersion, macroEngineInUse } from "./version";
 // attempt, and is NOT cached, so the next use retries it.
 
 export type CapabilityState = "present" | "absent" | "error";
-export type CapabilityId = "macros" | "slashCommands" | "backgrounds" | "vectors" | "judge";
+export type CapabilityId = "macros" | "slashCommands" | "backgrounds" | "vectors" | "judge" | "contextBudget";
 
 export interface CapabilityReport {
   id: CapabilityId;
@@ -69,7 +70,14 @@ const judgeProbe: Probe = async () => {
   return status.configured ? present(`plugin ${status.pluginVersion ?? "?"}, ${status.model ?? "model unknown"}`) : absent("the judge plugin is installed but holds no key");
 };
 
-const PROBES: Record<CapabilityId, Probe> = { macros: macrosProbe, slashCommands: slashCommandsProbe, backgrounds: backgroundsProbe, vectors: vectorsProbe, judge: judgeProbe };
+// v2.4 plan 08 (08-H3): the next-turn preview states its blocks as a share of the main API's prompt budget.
+// A build that cannot say it shows "budget unknown", never a guessed number.
+const contextBudgetProbe: Probe = () => {
+  const budget = readPromptBudget();
+  return budget.ok ? present(`${budget.prompt} prompt tokens (context ${budget.context} - reply ${budget.response})`) : absent(`${budget.reason}, so the next-turn preview shows no share of the context`);
+};
+
+const PROBES: Record<CapabilityId, Probe> = { macros: macrosProbe, slashCommands: slashCommandsProbe, backgrounds: backgroundsProbe, vectors: vectorsProbe, judge: judgeProbe, contextBudget: contextBudgetProbe };
 
 export const CAPABILITY_IDS = Object.keys(PROBES) as CapabilityId[];
 

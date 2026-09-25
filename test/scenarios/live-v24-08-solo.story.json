@@ -1,0 +1,35 @@
+{
+  "format": 2,
+  "id": "live-v24-08-solo",
+  "version": 1,
+  "title": "Live v2.4 08 - Solo preview",
+  "description": "Plan 08 live fixture story for the solo half of preview = capture: one narrator, no requirements.",
+  "qualities": [
+    {
+      "key": "location",
+      "type": "enum",
+      "values": [
+        "hall",
+        "yard"
+      ],
+      "source": "extractor",
+      "rubric": "Where is the party right now?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "hall",
+      "name": "The Hall",
+      "objective": "Look around the guild hall.",
+      "type": "anchor",
+      "start": true
+    }
+  ],
+  "transitions": [],
+  "roster": [
+    {
+      "id": "dm",
+      "name": "DM Narrator"
+    }
+  ]
+}

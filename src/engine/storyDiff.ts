@@ -32,6 +32,7 @@ export type StoryDiffCode =
   | "roster-member-removed"
   | "requirements-changed"
   | "stagecraft-changed"
+  | "story-objective-block-changed"
   | "scene-read-changed"
   | "lore-select-changed"
   | "house-rules-changed"
@@ -231,6 +232,7 @@ export function diffStories(previous: NormalizedStoryV2, next: NormalizedStoryV2
   if (!sameValue(previous.requirements, next.requirements)) push("compatible", "requirements-changed", "requirements", "What the story needs from your setup changed.");
   // Presentation scope only: widening or narrowing the curator's allowlist never invalidates a run.
   if (!sameValue(previous.stagecraft, next.stagecraft)) push("compatible", "stagecraft-changed", "stagecraft", "Which lorebooks the background curator may edit changed.");
+  if (previous.objective_block !== next.objective_block) push("compatible", "story-objective-block-changed", "objective_block", "Whether the objective line is added changed.");
   if (!sameValue(previous.lore_select, next.lore_select)) push("compatible", "lore-select-changed", "lore_select", "Which lorebooks lore-select may judge changed.");
   if (!sameValue(previous.house_rules, next.house_rules)) push("compatible", "house-rules-changed", "house_rules", "What the narrator is held to changed.");
   if (!sameValue(previous.scene_read, next.scene_read)) push("compatible", "scene-read-changed", "scene_read", "The scene tracker's places or times changed.");

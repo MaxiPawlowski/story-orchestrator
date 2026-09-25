@@ -1,5 +1,6 @@
 import { stripChannelNoise } from "@extraction/parse";
 import { CURATOR_MAX_OPS, CURATOR_MAX_TEXT, PATCH_ANCHOR_SEPARATOR, type CuratorEntryView, type WiCuratorOp, type CuratorOpKind, type CuratorProposal } from "./types";
+import { entryRef } from "./scope";
 
 const TAG_PATTERN = /^\[?(enable|disable|rewrite|patch|why)]?\s*:?\s*(.*)$/i;
 
@@ -10,20 +11,33 @@ const cap = (value: string) => value.slice(0, CURATOR_MAX_TEXT).trim();
 
 const unquote = (value: string) => value.replace(/^["'“”]+|["'“”]+$/g, "").trim();
 
+const ENTRY_REF = /^#(\d+(?:\.\d+)?)(?![\d.])/;
+
+const REASON_SEPARATOR = /\s\|\s/;
+
 // Titles are a closed vocabulary: the entry the model named has to be one the prompt listed, and it
 // is that entry's lorebook that gets written — never a book the model asks for.
-const findEntry = (entries: CuratorEntryView[], title: string): CuratorEntryView | undefined => {
-  const wanted = unquote(title).toLowerCase();
-  if (!wanted) return undefined;
-  return entries.find((entry) => entry.comment.trim().toLowerCase() === wanted)
-    ?? entries.find((entry) => entry.comment.trim().toLowerCase().startsWith(wanted) || wanted.startsWith(entry.comment.trim().toLowerCase()));
+const findEntry = (entries: CuratorEntryView[], named: string): { entry?: CuratorEntryView; reason: string } => {
+  const text = unquote(named);
+  const ref = ENTRY_REF.exec(text);
+  if (ref) {
+    const entry = entries.find((candidate) => entryRef(candidate, entries) === `#${ref[1]}`);
+    return { entry, reason: `#${ref[1]} is not an entry this story owns` };
+  }
+  const wanted = text.toLowerCase();
+  const matches = wanted ? entries.filter((entry) => entry.comment.trim().toLowerCase() === wanted) : [];
+  if (matches.length > 1) return { reason: `ambiguous: ${matches.length} entries titled "${text.slice(0, 60)}"` };
+  return { entry: matches[0], reason: `"${text.slice(0, 60)}" is not an entry this story owns` };
 };
 
 const readOp = (kind: CuratorOpKind, rest: string, entries: CuratorEntryView[]): { op?: WiCuratorOp; dropped?: string } => {
   const parts = splitParts(rest);
-  const entry = findEntry(entries, parts[0] ?? "");
-  if (!entry) return { dropped: `${kind}: "${unquote(parts[0] ?? "").slice(0, 60)}" is not an entry this story owns` };
-  const target = { lorebook: entry.lorebook, comment: entry.comment };
+  const named = parts[0] ?? "";
+  const whole = findEntry(entries, named);
+  const beforeReason = named.split(REASON_SEPARATOR)[0];
+  const { entry, reason } = whole.entry || beforeReason === named ? whole : { ...findEntry(entries, beforeReason), reason: whole.reason };
+  if (!entry) return { dropped: `${kind}: ${reason}` };
+  const target = { lorebook: entry.lorebook, comment: entry.comment, ...(entry.uid !== undefined ? { uid: entry.uid } : {}) };
   if (kind === "enable" || kind === "disable") return { op: { kind, ...target } };
   if (kind === "rewrite") {
     const text = cap(parts.slice(1).join(` ${PATCH_ANCHOR_SEPARATOR} `));

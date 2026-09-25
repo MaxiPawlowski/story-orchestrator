@@ -1,4 +1,4 @@
-import type { AgencyPolicy, Checkpoint, NormalizedStoryV2, ObjectiveKind } from "./schema";
+import type { AgencyPolicy, Checkpoint, NormalizedStoryV2, ObjectiveKind, StoryV2 } from "./schema";
 
 // v2.3 plan 07 (C4). The policy is the defaults, not "absent = today's phrasing": every story that
 // does not declare `agency` gets these, which is a deliberate behaviour change (spec addendum
@@ -39,3 +39,22 @@ export const agencyClauses = (policy: AgencyPolicy): string[] => [
 ];
 
 export const renderAgencyPolicy = (policy: AgencyPolicy): string => agencyClauses(policy).map((clause) => `- ${clause}`).join("\n");
+
+export const OBJECTIVE_BLOCK_MODES = ["auto", "off"] as const;
+
+export const OBJECTIVE_LINE_HEADER = "Objective:";
+
+export const authorsOwnNote = (checkpoint: Checkpoint | null | undefined): boolean => {
+  const note = checkpoint?.effects?.author_note;
+  if (typeof note === "string") return note.trim().length > 0;
+  if (note && typeof note === "object" && !Array.isArray(note)) {
+    const text = (note as { text?: unknown }).text;
+    return typeof text === "string" && text.trim().length > 0;
+  }
+  return false;
+};
+
+export const objectiveLineApplies = (story: Pick<StoryV2, "objective_block"> | null | undefined, checkpoint: Checkpoint | null | undefined): boolean =>
+  Boolean(story && checkpoint) && story?.objective_block !== "off" && Boolean(checkpoint?.objective?.trim()) && !authorsOwnNote(checkpoint);
+
+export const objectiveLine = (checkpoint: Checkpoint, policy: AgencyPolicy): string => `${OBJECTIVE_LINE_HEADER} ${checkpoint.objective.trim()} ${objectiveClause(policy.objective_kind)}`;

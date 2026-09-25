@@ -12,6 +12,7 @@ const mockHost = { addsUserMessage: false };
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
+  observeSamplerPayloads: () => () => undefined,
   observeWorldInfoScans: () => ({ reassert: () => undefined, ordered: false, dispose: () => undefined }),
   loadedEntries: () => [],
   readProfileContextLimit: () => ({ value: 8192, source: "default", reason: "no memory model profile is selected" }),
@@ -41,6 +42,8 @@ jest.mock("@services/STAPI", () => ({
   executeSlashCommands: async () => ({ pipe: "" }),
   willAddUserMessage: () => mockHost.addsUserMessage,
   readInjectedPromptBlocks: () => [],
+  readExtensionPromptBlocks: () => ({ own: [], foreign: [] }),
+  readPromptBudget: () => ({ ok: false, reason: "no host in this test" }),
   showTextPopup: async () => undefined,
   noteHostSettingsLoaded: () => {},
 }));

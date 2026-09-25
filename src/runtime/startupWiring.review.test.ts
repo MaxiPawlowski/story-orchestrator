@@ -28,6 +28,7 @@ const mockHost = {
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
+  observeSamplerPayloads: () => () => undefined,
   observeWorldInfoScans: () => ({ reassert: () => undefined, ordered: false, dispose: () => undefined }),
   loadedEntries: () => [],
   settingsReady: async () => {},
@@ -62,6 +63,8 @@ jest.mock("@services/STAPI", () => ({
   executeSlashCommands: async () => ({ pipe: "" }),
   willAddUserMessage: () => false,
   readInjectedPromptBlocks: () => [],
+  readExtensionPromptBlocks: () => ({ own: [], foreign: [] }),
+  readPromptBudget: () => ({ ok: false, reason: "no host in this test" }),
   showTextPopup: async () => undefined,
 }));
 

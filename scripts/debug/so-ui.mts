@@ -95,6 +95,14 @@ export async function getSettingsPanelState(page) {
 // first profile. "Already chose" is read from the stored setting, not the dropdown: a write that
 // skipped the runtime leaves the panel showing a stale choice. The profile is set before extraction is enabled: enabling while a dead profile is
 // still selected fails the first read, and the scheduler then pauses extraction install-wide.
+export async function assignedRoleProfiles(page): Promise<Record<string, { id: string; label: string | null }>> {
+  return evaluateInST(page, () => {
+    const assigned = SillyTavern.getContext().extensionSettings?.['story-orchestrator']?.settings?.extraction?.profiles ?? {};
+    const options = Array.from(document.querySelectorAll('#so-extraction-profile option')) as HTMLOptionElement[];
+    return Object.fromEntries(Object.entries(assigned).map(([role, id]) => [role, { id: String(id), label: options.find((option) => option.value === id)?.textContent?.trim() ?? null }]));
+  });
+}
+
 export async function selectMemoryProfile(page, wanted = process.env.ST_DEBUG_PROFILE ?? '') {
   const { navWasOpen } = await openExtensionSettings(page);
   const enable = page.locator('#so-extraction-enabled');
@@ -114,7 +122,10 @@ export async function selectMemoryProfile(page, wanted = process.env.ST_DEBUG_PR
   if (!label) throw new Error(`No memory profile named "${wanted}" in the settings panel (offered: ${labels.join(', ')}).`);
   if (label !== current) await select.selectOption({ label });
   if (!(await enable.isChecked())) await enable.check();
-  const result = { profile: label, kept, previous: current || null, available: labels, enabled: await enable.isChecked() };
+  const roles = await assignedRoleProfiles(page);
+  const dangling = Object.entries(roles).filter(([, entry]) => entry.label === null);
+  if (dangling.length) throw new Error(`Models per task: ${dangling.map(([role, entry]) => `${role} -> ${entry.id}`).join(', ')} is set to a profile the panel does not offer; every assigned role's profile has to be live.`);
+  const result = { profile: label, kept, previous: current || null, available: labels, enabled: await enable.isChecked(), roles };
   // Leave the nav as we found it: an open Extensions drawer hides #options_button and #send_but,
   // so anything that plays the chat afterwards would time out.
   if (!navWasOpen) await closeUnpinnedDrawers(page).catch(() => undefined);
@@ -549,6 +560,64 @@ export async function getStagecraftState(page, { minOps = 0, timeoutMs = 15000 }
   return tabError ? { ...state, tabError } : state;
 }
 
+// v2.4 plan 08 T19: the next-turn preview as an author reads it — each block's tokens and share, the cost
+// header, the memory trim lines and the foreign blocks — next to the snapshot that rendered it.
+async function showDrawerTab(page, label) {
+  await openStoryDrawer(page);
+  try {
+    await switchDrawerTab(page, label);
+    return null;
+  } catch (error) {
+    return error instanceof Error ? error.message : String(error);
+  }
+}
+
+export async function getNextTurnState(page) {
+  const tabError = await showDrawerTab(page, 'Payload');
+  const state = await evaluateInST(page, () => {
+    const snapshot = globalThis.storyOrchestratorRuntime?.getSnapshot?.() ?? null;
+    const root = document.getElementById('so-next-turn');
+    const text = (node) => node?.textContent?.trim() ?? null;
+    return {
+      visible: Boolean(root),
+      cost: root ? { text: text(root.querySelector('[data-so="next-turn-cost"]')), budget: root.querySelector('[data-so="next-turn-cost"]')?.getAttribute('data-budget') ?? null, drift: text(root.querySelector('[data-so="next-turn-budget-drift"]')) } : null,
+      rows: Array.from(root?.querySelectorAll('[data-so="next-turn-row"]') ?? []).map((row) => ({ key: row.getAttribute('data-key'), tokens: text(row.querySelector('[data-so="next-turn-tokens"]')), trim: text(row.querySelector('[data-so="next-turn-trim"]')) })),
+      foreign: Array.from(root?.querySelectorAll('[data-so="next-turn-foreign-row"]') ?? []).map((row) => ({ key: row.getAttribute('data-key'), text: text(row)?.slice(0, 200) ?? null, controls: row.querySelectorAll('button').length })),
+      snapshot: snapshot ? { nextTurn: (snapshot.nextTurn ?? []).map((row) => ({ key: row.key, tokens: row.tokens ?? null, tokenSource: row.tokenSource ?? null, share: row.share ?? null })), cost: snapshot.nextTurnCost ?? null, foreign: (snapshot.nextTurnForeign ?? []).map((row) => row.key) } : null,
+    };
+  });
+  return tabError ? { ...state, tabError } : state;
+}
+
+// v2.4 plan 08 T19c: the fate badge each memory row carries, counted on the page and in the snapshot.
+export async function getMemoryFates(page) {
+  const tabError = await showDrawerTab(page, 'Memory');
+  const state = await evaluateInST(page, () => {
+    const snapshot = globalThis.storyOrchestratorRuntime?.getSnapshot?.() ?? null;
+    const count = (values) => values.reduce((totals, value) => ({ ...totals, [value]: (totals[value] ?? 0) + 1 }), {});
+    const badges = Array.from(document.querySelectorAll('#drawer-manager [data-so="memory-fate"]')).map((badge) => badge.getAttribute('data-fate'));
+    const injection = snapshot?.memoryInjection ?? null;
+    return { rendered: count(badges), snapshot: injection ? count(Object.values(injection.fates ?? {})) : null, trim: injection?.trim ?? null, highWater: injection?.highWater ?? null };
+  });
+  return tabError ? { ...state, tabError } : state;
+}
+
+// v2.4 plan 08 T19d: click a message citation the way the author does, then say where the chat landed.
+export async function jumpToCitation(page, { selector = '[data-so="jump-to-message"]', index = 0 } = {}) {
+  const target = page.locator(`#drawer-manager ${selector}`).nth(index);
+  if (!(await target.count())) throw new Error(`no citation matched ${selector} (index ${index}) — author view on, and the tab that carries it open?`);
+  const cited = { mesid: Number(await target.getAttribute('data-mesid')), fingerprint: await target.getAttribute('data-fingerprint'), label: (await target.textContent())?.trim() ?? '' };
+  await target.click();
+  await page.waitForTimeout(1200);
+  const landed = await evaluateInST(page, (mesid) => {
+    const message = document.querySelector(`#chat .mes[mesid="${mesid}"]`);
+    if (!message) return { rendered: false, inView: false };
+    const box = message.getBoundingClientRect();
+    return { rendered: true, inView: box.bottom > 0 && box.top < window.innerHeight };
+  }, cited.mesid);
+  return { ok: landed.rendered && landed.inView, cited, ...landed, drawerOpen: await page.locator('#drawer-manager').isVisible().catch(() => false) };
+}
+
 // The card an author would reach for first on the newest proposal still waiting for review: its
 // first pending change that carries editable text, else its first pending change of any kind.
 // Index is ring-wide.
@@ -779,7 +848,7 @@ const PLAYER_FORBIDDEN = [
 // D1 as a selector sweep, not a reading of the copy (plan 08 success criteria): no steering control
 // and no author-only panel may be *reachable* on a player-visible surface. Text needles catch a
 // label; these catch the control itself, including one rendered with its label changed.
-const PLAYER_FORBIDDEN_SELECTORS = [
+export const PLAYER_FORBIDDEN_SELECTORS = [
   '#so-edit-story', '#so-update-story', '#so-fix-with-wizard', '#so-stagecraft',
   '[data-so="curator-proposal"]', '[data-so="curator-op"]', '[data-so="curator-accept"]', '[data-so="curator-reject"]',
   '[aria-label="In-play driver"]', '[aria-label="Advance target"]', '[aria-label="Nudge text"]',
@@ -793,6 +862,9 @@ const PLAYER_FORBIDDEN_SELECTORS = [
   '[data-so="next-turn-row"]', '[data-so="next-turn-clear"]', '[data-so="next-turn-reread-scene"]',
   // v2.4 plan 02 §5: the E1 branch cut at the history floor is author view only until a player session.
   '#so-history-floor', '#so-branch-from-oldest',
+  // v2.4 plan 08: token costs, foreign blocks, memory fates and message jumps are author view only.
+  '[data-so="next-turn-cost"]', '[data-so="next-turn-tokens"]', '[data-so="next-turn-trim"]', '[data-so="next-turn-foreign"]', '[data-so="next-turn-foreign-row"]',
+  '[data-so="memory-fate"]', '[data-so="jump-to-message"]',
 ];
 
 // v2.4 plan 03 X17: recovery controls ARE player-visible (pipeline "Try again", backlog "Stop"), so the
@@ -1042,6 +1114,18 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       const state = await getStagecraftState(page);
       console.log(JSON.stringify(state, null, 2));
       await writeJSON(state, 'so-ui-stagecraft');
+    }
+
+    if (subcommand === 'next-turn' || subcommand === 'memory-fates') {
+      const state = subcommand === 'next-turn' ? await getNextTurnState(page) : await getMemoryFates(page);
+      console.log(JSON.stringify(state, null, 2));
+      await writeJSON(state, `so-ui-${subcommand}`);
+    }
+
+    if (subcommand === 'jump') {
+      const result = await jumpToCitation(page, { selector: process.argv[3] ?? '[data-so="jump-to-message"]', index: Number(argValue(process.argv, '--index') ?? 0) });
+      console.log(JSON.stringify(result, null, 2));
+      await writeJSON(result, 'so-ui-jump');
     }
 
     if (subcommand === 'memory-queue') {

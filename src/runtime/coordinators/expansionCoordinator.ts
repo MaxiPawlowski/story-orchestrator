@@ -266,7 +266,7 @@ export class ExpansionCoordinator {
     try {
       const state = this.deps.getState()!;
       const input = planExpansion(story, state.blackboard, candidate, this.deps.getCanon(), this.deps.getFactTexts());
-      const generated = await generateReviewedBeats(story, input, { ...this.deps.getSettings(), signal: run.signal, debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugGenerationResponse ?? null }, this.expansionJudge(story, input));
+      const generated = await generateReviewedBeats(story, input, { ...this.deps.getSettings(), role: "authoring", signal: run.signal, debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugGenerationResponse ?? null }, this.expansionJudge(story, input));
       if (!run.stillOwns()) return;
       if (generated.issues.length || !generated.codeCheck || !generated.codeCheck.ok) {
         this.entries[key] = { ...this.entries[key], status: "failed", beats: generated.beats, codeCheck: generated.codeCheck, lastError: generated.issues.join("; ") || generated.codeCheck?.issues.join("; ") || "Generation failed", ...(generated.variants ? { variants: generated.variants } : {}), updatedAt: new Date().toISOString() };

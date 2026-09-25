@@ -1,0 +1,7 @@
+v24-08-T19c mutations 2026-09-25 (each mutant applied alone, then reverted; npx jest <file> --runInBand)
+- a quarantined row can be over-budget [src/memory/inject.ts] -> src/memory/injectFates.test.ts: Tests:       3 failed, 2 passed, 5 total
+    x memory row fate (v2.4 plan 08 T19c) › gives every candidate exactly one fate
+    x memory row fate (v2.4 plan 08 T19c) › never calls a quarantined row over-budget, even when the budget is zero
+    x memory row fate (v2.4 plan 08 T19c) › reports each tier's candidates, injected rows and tokens used against its budget, in budget units
+- pinned overflow read as over-budget [src/memory/inject.ts] -> src/memory/injectFates.test.ts: Tests:       1 failed, 4 passed, 5 total
+    x memory row fate (v2.4 plan 08 T19c) › counts pinned overflow from the fates, and only pinned rows the budget could not fit
