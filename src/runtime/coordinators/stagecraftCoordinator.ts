@@ -158,7 +158,7 @@ export class StagecraftCoordinator {
       const shown = this.deps.filterEntries ? await this.deps.filterEntries(entries, { checkpoint: { name: checkpointName, objective }, canon, openThreads: openArcs }).catch(() => entries) : entries;
       const prompt = buildWiCuratorPrompt({ storyTitle: story.title, checkpointName, objective, canon, openArcs, entries: shown });
       const response = await callExtractionModel(prompt, {
-        profileId: this.deps.getExtractionSettings().profileId,
+        profileId: this.deps.getExtractionSettings().profileId, role: "curator",
         maxTokens: maxTokensForInput("curator", prompt),
         ...(this.deps.ownership?.signal ? { signal: this.deps.ownership.signal() } : {}),
         debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugCuratorResponse ?? null,

@@ -1,4 +1,4 @@
-import { callExtractionModel, getChatWindow, ExtractionScheduler, probeModel, type SchedulerHost, type SchedulerJob, type SchedulerSettings } from "@extraction/index";
+import { callExtractionModel, getChatWindow, ExtractionScheduler, probeModel, setProfileRouter, type SchedulerHost, type SchedulerJob, type SchedulerSettings } from "@extraction/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { sceneFieldsInConflict } from "@memory/index";
 import { clearStoryExtensionPrompt, countTokens, executeSlashCommands, forceActivateEntries, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, getScannableEntries, judgeStatus, judgeTransport, noteHostSettingsLoaded, profileExists, readExtensionPromptBlocks, readPromptBudget, setStoryExtensionPrompt, settingsReady, subscribeToHostEvents, willAddUserMessage, EXTENSION_SETTINGS_LOADED_EVENT, type HostSubscriptionEntry } from "@services/STAPI";
@@ -12,7 +12,8 @@ import { createTypedJudge } from "./typedRead";
 import { getGlobalSettings } from "./settingsStore";
 import { registerLiveSuite } from "./liveSuite";
 import { registerRuntimeMacros } from "./macros";
-import { requestBudget } from "./requestBudget";
+import { requestBudget, routedProfileId } from "./requestBudget";
+import { resolveProfile } from "./passProfiles";
 import { startMirrorReaper } from "./mirrorReaperHost";
 import { runtimeManager } from "./runtimeManager";
 import { beginRun } from "./runToken";
@@ -29,6 +30,7 @@ import { loreEvidence } from "./worldInfoEvidence";
 import { startLoreEvidence } from "./worldInfoEvidenceHost";
 import { startScanGating } from "./worldInfoScanHost";
 import { promptCost } from "./promptCost";
+import { roleHealth } from "./roleHealth";
 
 let started = false;
 let bridge: TurnBridge | null = null;
@@ -58,13 +60,15 @@ const registerSlashCommandsWhenReady = (attempt = 0) => {
 export function startRuntime() {
   if (started) return runtimeManager;
   started = true;
+  runtimeDisposers.push(setProfileRouter((role, fallback) => resolveProfile({ ...runtimeManager.getExtractionSettings(), profileId: fallback }, role, profileExists)));
   const schedulerHost: SchedulerHost = {
     getStory: () => runtimeManager.getStory(),
     getEngineState: () => runtimeManager.getEngineState(),
     getExtractionSettings: (): SchedulerSettings => ({
       ...runtimeManager.getExtractionSettings(),
+      profileId: routedProfileId("read"),
       debugResponse: globalThis.storyOrchestratorDebugExtractionResponse ?? null,
-      budget: requestBudget(runtimeManager.getExtractionSettings().profileId),
+      budget: requestBudget(routedProfileId("read")),
     }),
     getFacts: () => runtimeManager.getExtractionFacts(),
     getFiredTransitions: () => runtimeManager.getFiredTransitions(),
@@ -88,7 +92,7 @@ export function startRuntime() {
   scheduler = new ExtractionScheduler(schedulerHost);
   runtimeManager.attachScheduler(scheduler);
   runtimeDisposers.push(() => { scheduler?.dispose(); runtimeManager.attachScheduler(null); });
-  runtimeDisposers.push(subscribeToHostEvents(breakerWatchEntries(() => scheduler, () => runtimeManager.getExtractionSettings().profileId)));
+  runtimeDisposers.push(subscribeToHostEvents(breakerWatchEntries(() => scheduler, () => routedProfileId("read"))));
   runtimeDisposers.push(runtimeManager.onBoundary((result) => {
     if (scheduler) runBoundaryWork({ result, manager: runtimeManager, scheduler, ...(sceneCoordinator ? { scene: sceneCoordinator } : {}) });
   }));
@@ -251,12 +255,12 @@ export function startRuntime() {
     getWindow: recentWindow,
     getCheckpointInfo: () => runtimeManager.getActiveCheckpointInfo(),
     callDirector: (prompt, signal) => callExtractionModel(prompt, {
-      profileId: runtimeManager.getExtractionSettings().profileId,
+      profileId: runtimeManager.getExtractionSettings().profileId, role: "director",
       maxTokens: DIRECTOR_MAX_TOKENS,
       signal,
       debugResponse: globalThis.storyOrchestratorDebugDirectorResponse ?? null,
     }),
-    breakerOpen: () => scheduler?.breakerOpen() ?? false,
+    breakerOpen: () => scheduler?.breakerOpen(routedProfileId("director")) ?? false,
     triggerMember: async (name) => { await executeSlashCommands(`/trigger await=true ${quoteSlashArg(name)}`, { silent: false }); },
     recordDecision: (audit) => runtimeManager.recordTalkDecision(audit),
     judgeDirector: (input) => judgeRuntime.director(input),
@@ -271,6 +275,7 @@ export function startRuntime() {
     await onLoreIntercept(type, aborted);
   };
   const generation = new GenerationLifecycle(isTurnMessageType);
+  runtimeDisposers.push(roleHealth.attach({ settings: () => runtimeManager.getExtractionSettings(), exists: profileExists, health: (id) => scheduler?.profileHealth(id) ?? null, notify: () => runtimeManager.notify() }));
   runtimeDisposers.push(promptCost.attach({ count: countTokens, budget: readPromptBudget, notify: () => runtimeManager.notify(), busy: () => generation.snapshot().outermost !== null }));
   runtimeDisposers.push(runtimeManager.subscribe(() => {
     const blocks = readExtensionPromptBlocks();

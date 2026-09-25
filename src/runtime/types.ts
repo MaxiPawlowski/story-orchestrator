@@ -12,6 +12,8 @@ import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./nar
 import type { AgencyRecovery } from "./agencyRecovery";
 import type { NextTurnContributor, NextTurnCost, NextTurnForeignRow } from "./nextTurn";
 import type { ChatJumpIndex } from "./messageJump";
+import type { PassProfiles } from "./passProfiles";
+import type { RoleRouteView } from "./roleHealth";
 import type { PipelineStatus } from "./pipeline";
 import type { OrphanedLorebook } from "./mirrorReaper";
 import type { LoreEvidenceView } from "./worldInfoEvidence";
@@ -272,6 +274,8 @@ export interface TensionRuntimeState {
 export interface ExtractionRuntimeSettings {
   enabled: boolean;
   profileId: string | null;
+  /** v2.4 plan 08 T18: install-wide per-role profiles; an unset role uses `profileId`. */
+  profiles?: PassProfiles;
   cadence: number;
   reconciliationMultiplier: number;
   stabilityLag: number;
@@ -429,6 +433,8 @@ export interface RuntimeSnapshot {
   nextTurnCost: NextTurnCost;
   /** v2.4 plan 08 T19d: which cited messages still read as a boundary fingerprinted them. */
   chatJump: ChatJumpIndex;
+  /** v2.4 plan 08 T18: which profile each family of passes asks, and whether it answers. */
+  roleRoutes?: RoleRouteView[];
 }
 
 export interface LoadedStory {

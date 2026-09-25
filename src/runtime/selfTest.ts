@@ -170,7 +170,7 @@ export async function runModelSelfTest(options: SelfTestOptions): Promise<SelfTe
     const { story, prompt } = buildFixtureRun(pass.spec);
     try {
       const planted = options.debugResponses ?? globalThis.storyOrchestratorDebugSelfTestResponses ?? null;
-      const raw = await callExtractionModel(prompt, { profileId, maxTokens: 512, debugResponse: planted?.[index] ?? null });
+      const raw = await callExtractionModel(prompt, { profileId, role: "read", maxTokens: 512, debugResponse: planted?.[index] ?? null });
       if (options.cancelled?.()) return { ranAt, profileId, results, error: "Cancelled." };
       results.push(...pass.grade(parseSharedReadResponse(raw, story)));
     } catch (error) {

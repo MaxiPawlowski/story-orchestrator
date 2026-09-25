@@ -17,6 +17,7 @@ import { loreEvidenceView } from "./worldInfoEvidence";
 import { scanGateView } from "./worldInfoMode";
 import { buildForeignRows, buildNextTurnCost, buildNextTurnPreview } from "./nextTurn";
 import { promptCost } from "./promptCost";
+import { roleHealth } from "./roleHealth";
 import { readChatIdentity } from "./chatIdentity";
 import type { ExtensionPromptBlocks } from "@services/STAPI";
 import type { ExtractionHealth } from "@extraction/index";
@@ -182,5 +183,6 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     chatJump: jumpIndex(sources.chat, sources.fingerprints),
     nextTurnForeign,
     nextTurnCost: buildNextTurnCost(nextTurn, nextTurnForeign, cost.budget, cost.lastGenerationBudget),
+    roleRoutes: roleHealth.view(),
   };
 }

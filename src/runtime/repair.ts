@@ -1,12 +1,14 @@
+import type { PassRole } from "@extraction/passRole";
 import type { RuntimeSnapshot } from "./types";
 import { hasUnsavedChanges, SAVE_PLAYER_TEXT } from "./saveHealth";
+import { ROLE_PROBLEM_STATES } from "./roleHealth";
 
 // v2.3 plan 09. The four things a person does here are Start, Continue, Repair and Author. Repair is
 // the odd one: it is the one *missing* step, and the player surface, the HUD chip and the settings
 // panel all have to point at the same one. So it is derived once, here, worst-first — and the plain
 // consequence comes before the technical line, because "the story will not advance" is the part a
 // player can act on.
-export type RepairArea = "memory-model" | "cast" | "lore" | "persona" | "save";
+export type RepairArea = "memory-model" | "model-role" | "cast" | "lore" | "persona" | "save";
 
 export interface RepairStep {
   area: RepairArea;
@@ -21,6 +23,22 @@ export interface RepairStep {
 }
 
 export const REPAIR_TARGET_IDS = { memoryModel: "so-extraction-profile" } as const;
+
+export const roleProfileTargetId = (role: PassRole): string => `so-role-profile-${role}`;
+
+export const ROLE_CONSEQUENCES: Record<PassRole, string> = {
+  read: "The story will not advance on its own until this is fixed.",
+  synthesis: "Scene summaries and the story so far stop updating.",
+  authoring: "The wizard, the driver's suggestions and the prepared road ahead stop working.",
+  director: "Speaker direction falls back to ST's own choice.",
+  curator: "The World Info curator stops proposing changes.",
+};
+
+function roleStep(snapshot: RuntimeSnapshot): RepairStep | null {
+  const route = (snapshot.roleRoutes ?? []).find((entry) => ROLE_PROBLEM_STATES.has(entry.state));
+  if (!route) return null;
+  return { area: "model-role", consequence: ROLE_CONSEQUENCES[route.role], detail: route.detail, targetId: roleProfileTargetId(route.role), provisionable: false };
+}
 
 // v2.4 plan 02 T14: a deleted chat's mirror book the reaper did not delete (declined, not provably ours,
 // or the deletion could not be confirmed). Last, because it costs the story in play nothing, and shown
@@ -50,6 +68,8 @@ export function nextRepairStep(snapshot: RuntimeSnapshot): RepairStep | null {
       provisionable: false,
     };
   }
+  const role = roleStep(snapshot);
+  if (role) return role;
   const requirements = snapshot.requirements;
   if (requirements.missingMembers.length) {
     return {

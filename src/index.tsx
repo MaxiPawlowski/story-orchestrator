@@ -8,6 +8,11 @@ import CapabilitiesGroup from "./components/settings/CapabilitiesGroup";
 import EntryPoints from "./components/settings/EntryPoints";
 import JudgeSettingsGroup, { type JudgeSettingsGroupProps, type JudgeSettingsPatch } from "./components/settings/JudgeSettingsGroup";
 import { runModelSelfTest, type SelfTestReport } from "@runtime/selfTest";
+import { runRoleSelfTest } from "@runtime/roleSelfTest";
+import { roleHealth } from "@runtime/roleHealth";
+import { resolveProfile } from "@runtime/passProfiles";
+import type { PassRole } from "@extraction/passRole";
+import { RoleProfilesGroup } from "@components/settings/RoleProfilesGroup";
 import { isArcTemplateName } from "@pacing/index";
 import { DEFAULT_MAX_TOKENS, inputBudget } from "@extraction/index";
 import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
@@ -170,6 +175,7 @@ const SettingsPanel = () => {
   const [selfTest, setSelfTest] = useState<SelfTestReport | null>(null);
   const [selfTestRunning, setSelfTestRunning] = useState(false);
   const selfTestCancelled = useRef(false);
+  const [testingRole, setTestingRole] = useState<PassRole | null>(null);
   const profiles = listConnectionProfiles();
   const identity = snapshot.storyIdentity;
   const [judge, setJudge] = useState(() => getGlobalSettings().judge);
@@ -241,6 +247,18 @@ const SettingsPanel = () => {
     });
     setSelfTest(report);
     setSelfTestRunning(false);
+  };
+
+  const assignRole = (role: PassRole, profileId: string | null) => {
+    const rest = Object.fromEntries(Object.entries(snapshot.extraction.settings.profiles ?? {}).filter(([key]) => key !== role));
+    manager.setExtractionSettings({ profiles: profileId ? { ...rest, [role]: profileId } : rest });
+  };
+
+  const testRole = async (role: PassRole) => {
+    const route = resolveProfile(snapshot.extraction.settings, role, (id) => profiles.some((profile) => profile.id === id));
+    setTestingRole(role);
+    roleHealth.record(await runRoleSelfTest(role, { profileId: route.ok ? route.profileId : null }));
+    setTestingRole(null);
   };
 
   const applySelfTestSuggestion = () => {
@@ -393,6 +411,7 @@ const SettingsPanel = () => {
                 )}
               </div>
             )}
+            <RoleProfilesGroup routes={snapshot.roleRoutes ?? []} assigned={snapshot.extraction.settings.profiles ?? {}} profiles={profiles} testing={testingRole} onAssign={assignRole} onTest={(role) => void testRole(role)} />
           </div>
           <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
             <GroupHeader title="Display" scope="install" id="so-display-header" />
@@ -578,6 +597,7 @@ const openStorySettings = () => {
 const revealSetting = (id: string) => {
   const element = document.getElementById(id);
   if (!element) return;
+  for (let details = element.closest("details"); details; details = details.parentElement?.closest("details") ?? null) details.open = true;
   element.scrollIntoView({ block: "center", behavior: "smooth" });
   element.classList.add("so-revealed");
   window.setTimeout(() => element.classList.remove("so-revealed"), 2000);

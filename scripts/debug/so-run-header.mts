@@ -212,6 +212,7 @@ export async function capturePage(page) {
         stabilityLag: settings?.extraction?.stabilityLag ?? null,
         reconciliationMultiplier: settings?.extraction?.reconciliationMultiplier ?? null,
         profileId: settings?.extraction?.profileId ?? null,
+        profiles: settings?.extraction?.profiles ?? {},
       },
       display: {
         announceTransitions: settings?.display?.announceTransitions ?? null,

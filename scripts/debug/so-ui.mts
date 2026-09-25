@@ -95,6 +95,14 @@ export async function getSettingsPanelState(page) {
 // first profile. "Already chose" is read from the stored setting, not the dropdown: a write that
 // skipped the runtime leaves the panel showing a stale choice. The profile is set before extraction is enabled: enabling while a dead profile is
 // still selected fails the first read, and the scheduler then pauses extraction install-wide.
+export async function assignedRoleProfiles(page): Promise<Record<string, { id: string; label: string | null }>> {
+  return evaluateInST(page, () => {
+    const assigned = SillyTavern.getContext().extensionSettings?.['story-orchestrator']?.settings?.extraction?.profiles ?? {};
+    const options = Array.from(document.querySelectorAll('#so-extraction-profile option')) as HTMLOptionElement[];
+    return Object.fromEntries(Object.entries(assigned).map(([role, id]) => [role, { id: String(id), label: options.find((option) => option.value === id)?.textContent?.trim() ?? null }]));
+  });
+}
+
 export async function selectMemoryProfile(page, wanted = process.env.ST_DEBUG_PROFILE ?? '') {
   const { navWasOpen } = await openExtensionSettings(page);
   const enable = page.locator('#so-extraction-enabled');
@@ -114,7 +122,10 @@ export async function selectMemoryProfile(page, wanted = process.env.ST_DEBUG_PR
   if (!label) throw new Error(`No memory profile named "${wanted}" in the settings panel (offered: ${labels.join(', ')}).`);
   if (label !== current) await select.selectOption({ label });
   if (!(await enable.isChecked())) await enable.check();
-  const result = { profile: label, kept, previous: current || null, available: labels, enabled: await enable.isChecked() };
+  const roles = await assignedRoleProfiles(page);
+  const dangling = Object.entries(roles).filter(([, entry]) => entry.label === null);
+  if (dangling.length) throw new Error(`Models per task: ${dangling.map(([role, entry]) => `${role} -> ${entry.id}`).join(', ')} is set to a profile the panel does not offer; every assigned role's profile has to be live.`);
+  const result = { profile: label, kept, previous: current || null, available: labels, enabled: await enable.isChecked(), roles };
   // Leave the nav as we found it: an open Extensions drawer hides #options_button and #send_but,
   // so anything that plays the chat afterwards would time out.
   if (!navWasOpen) await closeUnpinnedDrawers(page).catch(() => undefined);

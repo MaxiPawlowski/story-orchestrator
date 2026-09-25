@@ -31,6 +31,12 @@ export const failureClass = (error: unknown): FailureClass => {
   return kind === "transport" || kind === "timeout" ? "transport" : "bug";
 };
 
+/** v2.4 plan 08 T18: the profile a failed call went to, so its breaker, not the read path's, takes the failure. */
+export const failedProfile = (error: unknown): string | null => {
+  const profileId = error instanceof Error && error.name === "ModelCallError" && "profileId" in error ? error.profileId : null;
+  return typeof profileId === "string" && profileId ? profileId : null;
+};
+
 export const backoffFor = (step: number): number => BREAKER_BACKOFF_MS[Math.min(Math.max(0, step), BREAKER_BACKOFF_MS.length - 1)];
 
 export class Breaker {

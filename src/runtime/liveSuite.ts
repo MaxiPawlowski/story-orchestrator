@@ -60,7 +60,7 @@ export function registerLiveSuite(manager: RuntimeManager) {
       const answered = judged?.answered ?? [];
       const { story, prompt } = answered.length ? buildFixtureRun({ ...hinted, excludeKeys: answered }) : first;
       const profileId = manager.getExtractionSettings().profileId;
-      const rawResponse = await callExtractionModel(prompt, { profileId, maxTokens: 512 });
+      const rawResponse = await callExtractionModel(prompt, { profileId, role: "read", maxTokens: 512 });
       const parsed = parseSharedReadResponse(rawResponse, story);
       return {
         prompt,
